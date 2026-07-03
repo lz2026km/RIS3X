@@ -29,11 +29,13 @@ const FindingLibraryPage = lazy(() => import("../pages/FindingLibraryPage"));
 const OperationLogPage = lazy(() => import("../pages/OperationLogPage"));
 const NotificationCenter = lazy(() => import("../pages/NotificationCenter"));
 const SchedulePage = lazy(() => import("../pages/SchedulePage"));
+const ClinicalConfigCenter = lazy(() => import("../pages/admin/ClinicalConfigCenter"));
 const DepartmentPage = lazy(() => import("../pages/DepartmentPage"));
 const MaterialsPage = lazy(() => import("../pages/MaterialsPage"));
 const PrintManagementPage = lazy(() => import("../pages/PrintManagementPage"));
 const RegionalReportPage = lazy(() => import("../pages/RegionalReportPage"));
 const AIAssistPage = lazy(() => import("../pages/AIAssistPage"));
+const AIOrchestrationPage = lazy(() => import("../pages/AIOrchestrationPage"));
 const CostAnalysisPage = lazy(() => import("../pages/CostAnalysisPage"));
 const EquipmentLifecyclePage = lazy(
   () => import("../pages/EquipmentLifecyclePage"),
@@ -484,6 +486,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/patient-safety": ["主任", "管理员", "护士"], // [v3.0.6.8-80]
   "/eye/report-write": ["医生", "主任", "管理员"],
   "/eye/kpi-dashboard": ["主任", "管理员"],
+  "/admin/config": ["管理员"],
 };
 
 function rolesFor(path: string): ReadonlyArray<Role> | undefined {
@@ -510,6 +513,7 @@ export const routes: RouteObject[] = [
   // 受 RBAC 保护的业务路由
   wrapped("/", React.createElement(HomePage)),
   wrapped("/workbench", React.createElement(HomePage)),
+  wrapped("/worklist", React.createElement(WorklistPage)), // [audit-fix-2026-07-02]
   wrapped("/patients", React.createElement(PatientPage)),
   wrapped("/patient/:id", React.createElement(PatientPage)),
   wrapped("/exams", React.createElement(ExamPage)),
@@ -536,6 +540,7 @@ export const routes: RouteObject[] = [
   wrapped("/print-management", React.createElement(PrintManagementPage)),
   wrapped("/regional-report", React.createElement(RegionalReportPage)),
   wrapped("/ai-assist", React.createElement(AIAssistPage)),
+  wrapped("/ai-orchestration", React.createElement(AIOrchestrationPage)),
   wrapped("/cost-analysis", React.createElement(CostAnalysisPage)),
   wrapped("/equipment-lifecycle", React.createElement(EquipmentLifecyclePage)),
   wrapped("/follow-up", React.createElement(FollowUpPage)),
@@ -595,6 +600,7 @@ export const routes: RouteObject[] = [
     React.createElement(EquipmentEfficiencyPage),
   ),
   wrapped("/user-management", React.createElement(UserManagementPage)),
+  wrapped("/admin/config", React.createElement(ClinicalConfigCenter)),
   wrapped("/patient-portal", React.createElement(PatientPortalPage)),
   wrapped("/director-dashboard", React.createElement(DirectorDashboardPage)),
   wrapped("/green-it", React.createElement(GreenITPage)),

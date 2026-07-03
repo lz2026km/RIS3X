@@ -11,6 +11,7 @@
  */
 import { forwardRef, type ReactNode, type CSSProperties, type MouseEvent } from "react";
 import { Button as AntButton } from "antd";
+import { Tooltip } from "antd";
 import type { ButtonProps as AntButtonProps } from "antd";
 import { useRBAC, type Permission } from "../../hooks/useRBAC";
 
@@ -42,7 +43,7 @@ const FONT_SIZE_MAP: Record<AppButtonSize, number> = {
 };
 
 export interface AppButtonProps
-  extends Omit<AntButtonProps, "size" | "type" | "danger"> {
+  extends Omit<AntButtonProps, "size" | "type" | "danger" | "variant" | "htmlType"> {
   variant?: AppButtonVariant;
   size?: AppButtonSize;
   /** 权限码; 不通过则整按钮隐藏 (PermissionGate 行为) */
@@ -63,7 +64,11 @@ export interface AppButtonProps
   children?: ReactNode;
   /** 点击事件 */
   onClick?: (e: MouseEvent<HTMLElement>) => void;
-  /** 测试 ID */
+  /** 涓轰粈涓堝喅瀹氬～鐣?鍦?Tooltip 涓噸鏄庝负浣曢棴鐒?*/
+  disabledReason?: string;
+  /** HTML button type (form submit/reset) - 灏?variant 鐨?type 绛栫暐鏄犲皠 */
+  htmlType?: 'button' | 'submit' | 'reset';
+  /** 娴嬭瘯 ID */
   testId?: string;
 }
 
@@ -130,8 +135,9 @@ export const AppButton = forwardRef<HTMLElement, AppButtonProps>(
       children,
       disabled,
       onClick,
-      type,
+      htmlType: type,
       testId,
+      disabledReason,
       ...rest
     } = props;
 
@@ -176,7 +182,10 @@ export const AppButton = forwardRef<HTMLElement, AppButtonProps>(
       ...style,
     };
 
-    return (
+    const isDisabled = !!(disabled || loading);
+    const showDisabledTip = isDisabled && !!disabledReason;
+
+    const innerButton = (
       <AntButton
         ref={ref as any}
         type={antType}
@@ -184,9 +193,9 @@ export const AppButton = forwardRef<HTMLElement, AppButtonProps>(
         danger={isDanger}
         loading={loading}
         icon={icon}
-        disabled={disabled || loading}
+        disabled={isDisabled}
         block={block}
-        htmlType={type ?? "button"}
+        htmlType={(type ?? "button")}
         onClick={onClick}
         style={mergedStyle}
         className={className}
@@ -195,6 +204,14 @@ export const AppButton = forwardRef<HTMLElement, AppButtonProps>(
       >
         {children}
       </AntButton>
+    );
+
+    return showDisabledTip ? (
+      <Tooltip title={disabledReason}>
+        <span style={ { display: "inline-flex" } }>{innerButton}</span>
+      </Tooltip>
+    ) : (
+      innerButton
     );
   },
 );

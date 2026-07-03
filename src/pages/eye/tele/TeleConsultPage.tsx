@@ -9,7 +9,7 @@ import {
 import {
   Video, MonitorSmartphone, Wifi, Globe, Cloud, Eye, Sparkles, Activity,
   Phone, Mic, MicOff, VideoOff, Settings, Share2, Save, History, Plus, Send,
-  ChevronRight, RefreshCw, Layers, Signal, Radio, Boxes,
+  ChevronRight, RefreshCw, Layers, Signal, RadioIcon, Boxes,
 } from 'lucide-react';
 
 const { TextArea } = Input;
@@ -210,7 +210,7 @@ export const TeleConsultPage: React.FC = () => {
                     <Col span={24}>
                       <Alert
                         message="5G 边缘切片"
-                        description={`节点: ${turnInfo['5G'].edgeNodeId} | 切片: ${turnInfo['5G'].slice}`}
+                        description={`节点: ${turnInfo && turnInfo['5G'] ? turnInfo['5G'].edgeNodeId : 'N/A'} | 切片: ${turnInfo && turnInfo['5G'] ? turnInfo['5G'].slice : 'N/A'}`}
                         type="success"
                         showIcon
                       />

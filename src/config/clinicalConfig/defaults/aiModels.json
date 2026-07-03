@@ -1,0 +1,55 @@
+{
+  "$schema": "aiModels.v1",
+  "version": 1,
+  "models": [
+    {
+      "id": "ai-001",
+      "name": "RetinaNet-DR",
+      "version": "3.2.0",
+      "vendor": "Airdoc",
+      "modality": ["fundus_photo"],
+      "conditions": ["DR", "黄斑水肿"],
+      "accuracy": 0.952,
+      "sensitivity": 0.935,
+      "specificity": 0.968,
+      "approval": { "fdaApproved": false, "ceMarked": true, "nmpaApproved": true },
+      "releaseDate": "2025-08-01",
+      "inputRequirements": "45\u00b0 fundus photo, JPEG/PNG",
+      "processingTime": "5s",
+      "active": true
+    },
+    {
+      "id": "ai-002",
+      "name": "GlaucomaNet",
+      "version": "2.1.0",
+      "vendor": "Voxelcloud",
+      "modality": ["fundus_photo", "oct"],
+      "conditions": ["青光眼"],
+      "accuracy": 0.918,
+      "sensitivity": 0.902,
+      "specificity": 0.928,
+      "approval": { "fdaApproved": false, "ceMarked": true, "nmpaApproved": true },
+      "releaseDate": "2025-06-15",
+      "inputRequirements": "Fundus photo or OCT",
+      "processingTime": "8s",
+      "active": true
+    },
+    {
+      "id": "ai-003",
+      "name": "OCT-A Vascular AI",
+      "version": "1.5.0",
+      "vendor": "Heidelberg",
+      "modality": ["oct_a"],
+      "conditions": ["CNV", "Diabetic Retinopathy"],
+      "accuracy": 0.928,
+      "sensitivity": 0.915,
+      "specificity": 0.94,
+      "approval": { "fdaApproved": false, "ceMarked": true, "nmpaApproved": true },
+      "releaseDate": "2025-11-01",
+      "inputRequirements": "OCTA 4x4/6x6",
+      "processingTime": "15s",
+      "active": true
+    }
+  ],
+  "diagnoses": []
+}

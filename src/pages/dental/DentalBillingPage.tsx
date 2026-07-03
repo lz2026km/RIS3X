@@ -67,7 +67,7 @@ export const DentalBillingPage: React.FC = () => {
                 <Card size="small" title="费用项目选择">
                   <Select showSearch placeholder="搜索项目..." style={{width:'100%',marginBottom:8}} options={catalog.map((c:any)=>({value:c.code,label:`${c.name} ¥${c.unitPrice}`}))} />
                   <Table dataSource={catalog.slice(0,8)} rowKey="code" size="small" pagination={false}
-                    columns={[{title:'项目',dataIndex:'name',width:140},{title:'价格',dataIndex:'unitPrice',render:(v:number)=>`¥${v}`},{title:'医保',dataIndex:'insuranceType',render:(t:string)=>Tag({color:t==='甲类'?'green':t==='乙类'?'blue':'red'},t)},{title:'',render:(_,r:any)=><Button size="small" onClick={()=>setNewInvoice({...newInvoice,items:[...newInvoice.items,{...r,qty:1}]})}>+</Button>}]} />
+                    columns={[{title:'项目',dataIndex:'name',width:140},{title:'价格',dataIndex:'unitPrice',render:(v:number)=>`¥${v}`},{title:'医保',dataIndex:'insuranceType',render:(t:string)=><Tag color={t==='甲类'?'green':t==='乙类'?'blue':'red'}>{t}</Tag>},{title:'',render:(_,r:any)=><Button size="small" onClick={()=>setNewInvoice({...newInvoice,items:[...newInvoice.items,{...r,qty:1}]})}>+</Button>}]} />
                 </Card>
               </Col>
               <Col span={8}>

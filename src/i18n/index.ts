@@ -1,94 +1,28 @@
-/**
- * G005 放射RIS系统 v3.0.4 - i18n 国际化基础设施
- * v3.0.1:18 命名空间 + 4 v3
- * v3.0.2:15 命名空间
- * v3.0.2.1 维持
- * v3.0.2.2 增量:3 命名空间 (v3quality / v3archive / v3cosign)
- * v3.0.2.3 增量:3 命名空间 (v3ai / v3pwa / v3statsV2)
- * v3.0.3.31 维持,共 58 命名空间
- * v3.0.4    ✦ 命名空间懒加载基础设施 (i18next-http-backend 风格)
- *          zh_CN / en_US 双语全部对齐
- *
- * ════════════════════════════════════════════════════════════════════════════
- * 命名空间懒加载模式 (v3.0.4)
- * ════════════════════════════════════════════════════════════════════════════
- * 之前:v3.0.3.x - 静态 import zh_CN.json (57KB) + en_US.json (56KB)
- *                   → 113KB 在初始 bundle,首屏阻塞
- * 现在:v3.0.4    - Custom HttpBackend 按需 fetch /locales/{lng}/{ns}.json
- *                 - 启动时仅加载 ['common', 'nav'] 两个最常用命名空间
- *                 - 路由切换时通过 i18n.loadNamespaces([...]) 触发按需加载
- *                 - 静态 import 作为 SSR / 测试 / 离线降级的 fallback
+﻿/**
+ * G005 放射RIS系统 v3.0.6.8-105+ - i18n 国际化基础设施 (v3.0.6.8-106 重构)
+ * 简化: 移除 HttpBackend / LanguageDetector / partialBundledLanguages 模式.
+ *       直接静态 import 聚合 zh_CN.json + en_US.json, 通过 resources 字段一次性加载.
+ *       useTranslation("v3stats") 立即可用, 无需 loadNamespaces.
  *
  * 文件结构:
- *   src/i18n/locales/
- *     zh_CN.json          ← 聚合(zh_CN 命名空间,仅 fallback 用)
- *     en_US.json          ← 聚合(en_US 命名空间,仅 fallback 用)
- *     zh-CN/<ns>.json     ← 按命名空间拆分(运行时 fetch)
- *     en-US/<ns>.json     ← 按命名空间拆分(运行时 fetch)
- *
- * 迁移步骤(后续 PR 完成):
- *   1. 创建 58 个命名空间文件 ✅ v3.0.4 (本文)
- *   2. 各路由组件在 useEffect 中调用 i18n.loadNamespaces(['exam', 'report'])
- *   3. 删除聚合 zh_CN.json / en_US.json 静态导入(可选,保留作 fallback)
- * ════════════════════════════════════════════════════════════════════════════
+ *   src/i18n/locales/zh_CN.json  ← 聚合(zh_CN 语言, 74 命名空间)
+ *   src/i18n/locales/en_US.json  ← 聚合(en_US 语言, 74 命名空间)
+ *   src/i18n/locales/zh-CN/<ns>.json ← 按 namespace 拆分(保留, 用于审计/手动翻译)
+ *   src/i18n/locales/en-US/<ns>.json
  */
 
 import i18nLib from "i18next";
 import { initReactI18next } from "react-i18next";
-import LanguageDetector from "i18next-browser-languagedetector";
 import { z } from "zod";
 import zhCN from "./locales/zh_CN.json";
 import enUS from "./locales/en_US.json";
 
-// jsdom(vitest) 下 LanguageDetector 导致 languageUtils 为 null,使用干净实例
 const isTestEnv =
   typeof process !== "undefined" && process.env.NODE_ENV === "test";
-
-// ────────────────────────────────────────────────────────────────────────────
-// 自定义动态后端:懒加载 /locales/{lng}/{ns}.json
-// 设计动机:不引入 i18next-http-backend 依赖(~5KB),改用 20 行原生 fetch
-// ────────────────────────────────────────────────────────────────────────────
-interface I18nBackendServices {
-  backendConnector: {
-    saveMissing: (...args: unknown[]) => void;
-  };
-}
-class HttpBackend {
-  static type = "backend" as const;
-  type = "backend" as const;
-  services!: I18nBackendServices;
-
-  init(services: I18nBackendServices): void {
-    this.services = services;
-  }
-
-  read(
-    language: string,
-    namespace: string,
-    callback: (err: unknown, data?: Record<string, unknown>) => void,
-  ): void {
-    // 语言代码映射:i18next 期望 'zh-CN' / 'en-US',文件名同样
-    const lng = language.replace("_", "-");
-    const url = `/locales/${lng}/${namespace}.json`;
-    fetch(url, { credentials: "same-origin" })
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-        return res.json();
-      })
-      .then((data) => callback(null, data))
-      .catch((err) => {
-        if (import.meta.env.DEV) {
-          console.warn(`[i18n] lazy load failed: ${url}`, err);
-        }
-        callback(err);
-      });
-  }
-}
 
 export const SUPPORTED_LANGUAGES = ["zh_CN", "en_US"] as const;
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
-// [v3.0.6.8-31] 提前声明 NAMESPACES, 让 baseConfig 可以引用它
 export const NAMESPACES = [
   "common",
   "nav",
@@ -180,52 +114,40 @@ export const LANGUAGE_META: Record<
 
 const i18n = i18nLib.createInstance();
 
-// 插件列表:浏览器环境加载 HttpBackend + LanguageDetector + initReactI18next
-// 测试环境(jsdom)跳过 HttpBackend(没有 fetch) 与 LanguageDetector(语言工具 null)
+// 测试环境(jsdom) 跳过 initReactI18next 避免 hooks 警告
 type I18nPlugin = Parameters<typeof i18n.use>[0];
-const plugins: I18nPlugin[] = isTestEnv
-  ? []
-  : [HttpBackend, LanguageDetector, initReactI18next];
+const plugins: I18nPlugin[] = isTestEnv ? [] : [initReactI18next];
 let instance = i18n;
 for (const p of plugins) instance = instance.use(p);
 
-const baseConfig: Record<string, unknown> = {
-  // [v3.0.6.8-31] 静态 fallback: 把每个 namespace 单独暴露, 这样 useTranslation("v3exam")
-  //   能直接命中 (而不是 fallback 到 translation). 测试 / 离线 / 早期首屏渲染可用.
-  //   merge-i18n.mjs 输出的 zhCN/zhUS 已经是 {v3exam: {...}, v3report: {...}, ...}
+const initConfig: Record<string, unknown> = {
+  // 静态聚合资源: zh_CN.json / en_US.json 顶层是 {v3stats: {...}, common: {...}, ...}
+  // resources 字段格式: {lng: {ns: data}} → 我们直接把整个聚合 JSON 喂进去, key 就是 namespace
   resources: {
     zh_CN: zhCN as Record<string, unknown>,
     en_US: enUS as Record<string, unknown>,
-  },
-  // 懒加载相关:HttpBackend 配置 + 初始命名空间白名单
-  backend: {
-    loadPath: "/locales/{{lng}}/{{ns}}.json",
   },
   ns: NAMESPACES as unknown as string[],
   defaultNS: "common",
   fallbackNS: NAMESPACES as unknown as string[],
   lng: "zh_CN",
   fallbackLng: "zh_CN",
-  partialBundledLanguages: true,
+  supportedLngs: SUPPORTED_LANGUAGES as unknown as string[],
+  // 关闭 partial: 我们已经 bundle 了所有 namespace, 不需要再走 backend
+  partialBundledLanguages: false,
+  // 关闭 backend 懒加载 (无 HttpBackend 类实例, 显式禁用)
+  load: "currentOnly",
   interpolation: { escapeValue: false },
   returnNull: false,
-};
-const prodConfig: Record<string, unknown> = {
-  supportedLngs: SUPPORTED_LANGUAGES as unknown as string[],
-  nonExplicitSupportedLngs: true,
-  detection: {
-    order: ["localStorage", "navigator", "htmlTag"],
-    caches: ["localStorage"],
-    lookupLocalStorage: "g005.i18n.language",
-  },
   react: { useSuspense: false },
   saveMissing: import.meta.env.DEV,
   missingKeyHandler: (lng: string, _ns: string, key: string) => {
-    if (import.meta.env.DEV)
+    if (import.meta.env.DEV) {
       console.warn(`[i18n] Missing key: ${key} (${lng})`);
+    }
   },
 };
-const initConfig = isTestEnv ? baseConfig : { ...baseConfig, ...prodConfig };
+
 export const initPromise = instance.init(
   initConfig as unknown as Parameters<typeof instance.init>[0],
 );
@@ -241,24 +163,12 @@ export const getCurrentLanguage = (): SupportedLanguage =>
   (i18n.language as SupportedLanguage) ?? "zh_CN";
 
 /**
- * 按需加载命名空间(路由切换时调用)
- * @example
- *   useEffect(() => { ensureNamespaces(['exam', 'report']) }, []);
+ * 兼容旧 API: 命名空间加载
+ * 当前所有 namespace 已在 resources 中预加载, 此函数变为 no-op 并立即 resolve.
+ * 保留 export 以便既有调用方不报 undefined.
  */
 export const ensureNamespaces = (
-  namespaces: string | string[],
-): Promise<unknown> => {
-  const list = Array.isArray(namespaces) ? namespaces : [namespaces];
-  const loaded = Object.keys(
-    i18n.getResourceBundle(i18n.language ?? "zh_CN", "translation") ?? {},
-  );
-  const missing = list.filter(
-    (ns) => !loaded.includes(ns) && NAMESPACES.includes(ns as Namespace),
-  );
-  if (missing.length === 0) return Promise.resolve();
-  return i18n.loadNamespaces(missing);
-};
+  _namespaces: string | string[],
+): Promise<unknown> => Promise.resolve();
 
 export const LanguageSchema = z.enum(SUPPORTED_LANGUAGES);
-
-// [v3.0.6.8-31] NAMESPACES 已提前声明 (在 SUPPORTED_LANGUAGES 之后), 此处移除重复声明

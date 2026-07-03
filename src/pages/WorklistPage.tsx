@@ -672,8 +672,8 @@ export default function WorklistPage() {
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>待完成</div>
               <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
                 平均等待: {filteredExams.length > 0 ? Math.round(filteredExams.reduce((s, e) => {
-                  try { return s + (Date.now() - new Date(e.createdTime).getTime()) / 60000 }
-                  catch { return s }
+                  const t = e.createdTime ? new Date(e.createdTime).getTime() : 0;
+                  return t > 0 ? s + (Date.now() - t) / 60000 : s
                 }, 0) / filteredExams.length) : 0}min
               </div>
             </div>

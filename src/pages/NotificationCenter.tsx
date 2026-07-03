@@ -9,7 +9,7 @@ import {
   MessageSquare, Check, CheckCheck, Trash2, Search, X,
   Clock, User, ChevronRight, Filter, RefreshCw, Eye,
   AlertCircle, Info, Zap, FilterX, Volume2, VolumeX,
-  Mail, Smartphone, Monitor,   EyeOff, BarChart3, Zap
+  Mail, Smartphone, Monitor,   EyeOff, BarChart3
 } from 'lucide-react'
 import { initialUsers } from '../data/initialData'
 import { userApi } from '../services/api'

@@ -1,0 +1,33 @@
+{
+  "$schema": "reportTemplates.v1",
+  "version": 1,
+  "templates": [
+    {
+      "id": "rt-001",
+      "name": "Fundus Report Template",
+      "modality": "fundus_photo",
+      "description": "Standard fundus photo report template",
+      "version": "1.0.0",
+      "author": "Eye Department",
+      "sections": [
+        { "key": "vision_iop", "title": "Vision/IOP", "type": "text", "required": true, "order": 1 },
+        { "key": "anterior_segment", "title": "Anterior Segment", "type": "findings_multi", "required": false, "order": 2 },
+        { "key": "fundus", "title": "Fundus Findings", "type": "findings_multi", "required": true, "order": 3 },
+        { "key": "diagnosis", "title": "Diagnosis", "type": "diagnosis", "required": true, "order": 4 }
+      ]
+    },
+    {
+      "id": "rt-002",
+      "name": "OCT Report Template",
+      "modality": "oct",
+      "description": "Standard OCT report template",
+      "version": "1.0.0",
+      "author": "Eye Department",
+      "sections": [
+        { "key": "vision_iop", "title": "Vision/IOP", "type": "text", "required": true, "order": 1 },
+        { "key": "oct_findings", "title": "OCT Findings", "type": "findings_multi", "required": true, "order": 2 },
+        { "key": "thickness_map", "title": "Thickness Map", "type": "measurements", "required": false, "order": 3 }
+      ]
+    }
+  ]
+}

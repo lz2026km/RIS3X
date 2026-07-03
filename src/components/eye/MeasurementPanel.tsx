@@ -70,16 +70,15 @@ const MeasurementPanel: React.FC<{
                       : "green"
               }
             >
-              {r.interpretation}
+              {({ normal: '正常', borderline: '临界', abnormal: '异常', critical: '危急' } as any)[r.interpretation] || r.interpretation}
             </Tag>
           ),
         },
         {
-          title: "方法",
-          dataIndex: "method",
-          key: "method",
-          width: 80,
-          ellipsis: true,
+          title: "类型",
+          dataIndex: "type",
+          key: "type",
+          width: 100,
         },
         {
           title: "测量者",

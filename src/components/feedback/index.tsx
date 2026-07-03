@@ -5,7 +5,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { Button, Empty } from 'antd';
+import { Alert, Button, Empty, Progress, Result } from 'antd';
 import { InboxOutlined, FileSearchOutlined, WarningOutlined } from '@ant-design/icons';
 import type { CSSProperties, ReactNode } from 'react';
 import { useBreakpoint } from '../../hooks/useBreakpoint';
@@ -113,7 +113,6 @@ export interface AppProgressProps {
   ariaLabel?: string;
 }
 
-import { Progress } from 'antd';
 
 export function AppProgress({
   percent,
@@ -169,7 +168,6 @@ export interface AppAlertProps {
   showIcon?: boolean;
 }
 
-import { Alert } from 'antd';
 
 export function AppAlert({
   type = 'info',
@@ -200,7 +198,6 @@ export interface AppResultProps {
   extra?: ReactNode;
 }
 
-import { Result, Button } from 'antd';
 
 export function AppResult({ status, title, subTitle, extra }: AppResultProps) {
   return (
@@ -226,3 +223,4 @@ export { SettingsPanel } from './SettingsPanel';
 
 // Export Dialog
 export { ExportDialog } from './ExportDialog';
+

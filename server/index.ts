@@ -22,16 +22,16 @@ function writeDB(data: Record<string, unknown[]>) {
 }
 
 // 自动种子：DB 为空时填充 50 条检查 + 50 条报告
-function autoSeed() {
+async function autoSeed(): Promise<void> {
   const db = readDB();
   if ((db.exams || []).length === 0) {
-    const { seedData } = require('./db/seed.js');
+    const { seedData } = await import('./db/seed.js');
     const seed = seedData();
     writeDB(seed);
     console.log(`[Seed] 已填充 ${seed.exams.length} 条检查 + ${seed.reports.length} 条报告 + ${seed.patients.length} 条患者`);
   }
 }
-autoSeed();
+void autoSeed();
 
 // 工具函数
 function uid() { return randomUUID().slice(0, 8); }

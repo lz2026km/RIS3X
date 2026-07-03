@@ -1,0 +1,126 @@
+{
+  "$schema": "imagingDevices.v1",
+  "version": 1,
+  "devices": [
+    {
+      "name": "3Shape X1",
+      "manufacturer": "3Shape",
+      "modality": "CBCT"
+    },
+    {
+      "name": "Sirona Orthophos SL 3D",
+      "manufacturer": "Sirona",
+      "modality": "CBCT"
+    },
+    {
+      "name": "Planmeca ProMax 3D",
+      "manufacturer": "Planmeca",
+      "modality": "CBCT"
+    },
+    {
+      "name": "Vatech PaX-i3D",
+      "manufacturer": "Vatech",
+      "modality": "CBCT"
+    },
+    {
+      "name": "Carestream CS 9300",
+      "manufacturer": "Carestream",
+      "modality": "CBCT"
+    },
+    {
+      "name": "DEXcowin i-CAT",
+      "manufacturer": "DEXcowin",
+      "modality": "CBCT"
+    },
+    {
+      "name": "Sirona Orthophos XG 3D",
+      "manufacturer": "Sirona",
+      "modality": "Panoramic"
+    },
+    {
+      "name": "Planmeca ProMax 2D",
+      "manufacturer": "Planmeca",
+      "modality": "Panoramic"
+    },
+    {
+      "name": "Carestream CS 8100",
+      "manufacturer": "Carestream",
+      "modality": "Panoramic"
+    },
+    {
+      "name": "Vatech PaX-i",
+      "manufacturer": "Vatech",
+      "modality": "Panoramic"
+    },
+    {
+      "name": "Gendex GXDP-700",
+      "manufacturer": "Gendex",
+      "modality": "Panoramic"
+    },
+    {
+      "name": "DEXcowin MyRay",
+      "manufacturer": "DEXcowin",
+      "modality": "Periapical"
+    },
+    {
+      "name": "Carestream CS 2200",
+      "manufacturer": "Carestream",
+      "modality": "Periapical"
+    },
+    {
+      "name": "Gendex GXS-700",
+      "manufacturer": "Gendex",
+      "modality": "Periapical"
+    },
+    {
+      "name": "Sirona Xios AE",
+      "manufacturer": "Sirona",
+      "modality": "Periapical"
+    },
+    {
+      "name": "3Shape Trios 5",
+      "manufacturer": "3Shape",
+      "modality": "Periapical"
+    },
+    {
+      "name": "3Shape TRIOS 5",
+      "manufacturer": "3Shape",
+      "modality": "Scan"
+    },
+    {
+      "name": "iTero Element 5D Plus",
+      "manufacturer": "Align",
+      "modality": "Scan"
+    },
+    {
+      "name": "Medit i700",
+      "manufacturer": "Medit",
+      "modality": "Scan"
+    },
+    {
+      "name": "Shining 3D Aoralscan Elite",
+      "manufacturer": "Shining 3D",
+      "modality": "Scan"
+    },
+    {
+      "name": "Align iTero Lumina",
+      "manufacturer": "Align",
+      "modality": "Scan"
+    },
+    {
+      "name": "Carestream CS 2200 BW",
+      "manufacturer": "Carestream",
+      "modality": "Bitewing"
+    },
+    {
+      "name": "DEXcowin MyRay BW",
+      "manufacturer": "DEXcowin",
+      "modality": "Bitewing"
+    },
+    {
+      "name": "Gendex GXS-700 BW",
+      "manufacturer": "Gendex",
+      "modality": "Bitewing"
+    }
+  ]
+}

@@ -88,7 +88,7 @@ export const FhirServerPage: React.FC = () => {
           { key:'capability', label:'CapabilityStatement', children:
             capability ? <Card size="small" title={`FHIR ${capability.fhirVersion} Server Capabilities`}>
               <Descriptions column={2} size="small">
-                <Descriptions.Item label="状态"><Tag color="green">{capability.status}</Tag></Descriptions.Item>
+                <Descriptions.Item label="状态"><Tag color="green">{({active:'活跃', draft:'草稿', retired:'已停用'} as any)[capability.status] ?? capability.status}</Tag></Descriptions.Item>
                 <Descriptions.Item label="发布者">{capability.publisher}</Descriptions.Item>
                 <Descriptions.Item label="交互">{capability.rest[0].interaction.join(', ')}</Descriptions.Item>
                 <Descriptions.Item label="安全">{capability.rest[0].security.cors ? 'CORS + SMART OAuth2' : '无'}</Descriptions.Item>

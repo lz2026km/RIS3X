@@ -4,9 +4,11 @@ import { BarChart3, TrendingUp, TrendingDown, Activity, Users, DollarSign, Smile
 import { MOCK_QUALITY_METRICS } from '@/data/eyeQualityMock';
 import { MOCK_PATIENT_SATISFACTION } from '@/data/eyeTypicalCasesMock';
 import { PageContainer, PageHeader } from '@/components/common';
+const MODALITY_LABELS: Record<string, string> = { fundus_photo: '眼底彩照', oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: '视野', topography: '角膜地形图', pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: '裂隙灯', oct_a: 'OCTA', corneal_endothelium: '角膜内皮', tear_film: '泪膜', fundus_autofluorescence: '眼底自发荧光' };
 
 const categoryIcons: Record<string, React.ReactNode> = { productivity: <Activity size={16} color="#1677ff" />, clinical: <BarChart3 size={16} color="#22c55e" />, operational: <Users size={16} color="#f59e0b" />, financial: <DollarSign size={16} color="#10b981" />, satisfaction: <Smile size={16} color="#8b5cf6" /> };
 const categoryColors: Record<string, string> = { productivity: '#1677ff', clinical: '#22c55e', operational: '#f59e0b', financial: '#10b981', satisfaction: '#8b5cf6' };
+const CATEGORY_LABELS_DICT: Record<string, string> = { productivity: '效率', clinical: '临床', operational: '运营', financial: '财务', satisfaction: '满意度' };
 
 const EyeKpiDashboardPage: React.FC = () => {
   const [tab, setTab] = useState('all');
@@ -47,14 +49,14 @@ const EyeKpiDashboardPage: React.FC = () => {
       />
       <Table dataSource={filtered} rowKey="id" size="small" pagination={{ pageSize: 20 }}
         columns={[
-          { title: '类别', dataIndex: 'category', key: 'category', width: 70, render: (v: string) => <Tag color={categoryColors[v]}>{v}</Tag> },
+          { title: '类别', dataIndex: 'category', key: 'category', width: 70, render: (v: string) => <Tag color={categoryColors[v]}>{CATEGORY_LABELS_DICT[v] || v}</Tag> },
           { title: '指标', dataIndex: 'name', key: 'name', width: 200 },
           { title: '值', dataIndex: 'value', key: 'value', width: 80, render: (v: number, r: any) => <span style={{ fontWeight: 600 }}>{v}{r.unit}</span> },
           { title: '目标', dataIndex: 'target', key: 'target', width: 60, render: (v: number) => v },
           { title: '达成率', key: 'rate', width: 120, render: (_, r: any) => <PercentBar value={r.value} target={r.target} /> },
           { title: '趋势', dataIndex: 'trend', key: 'trend', width: 60, render: (v: string) => v === 'up' ? <TrendingUp size={14} color="#22c55e" /> : v === 'down' ? <TrendingDown size={14} color="#ef4444" /> : <span style={{ color: '#94a3b8' }}>→</span> },
           { title: '周期', dataIndex: 'period', key: 'period', width: 50 },
-          { title: '医生', dataIndex: 'doctorId', key: 'doctorId', width: 80, render: (v: string) => v ? <Tag>{v}</Tag> : '-' },
+          { title: '医生', dataIndex: 'doctorId', key: 'doctorId', width: 80, render: (v: string) => v ? <Tag>{MODALITY_LABELS[v] || v}</Tag> : '-' },
         ]} />
     </Card>
     <Card size="small" title="患者满意度趋势" style={{ marginTop: 8 }}>

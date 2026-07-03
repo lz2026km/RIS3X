@@ -51,6 +51,14 @@ const STATUS_CONFIG: Record<
   待报告: { color: "#0891b2", bg: "#cffafe", label: "待报告" },
   已登记: { color: "#64748b", bg: "#f1f5f9", label: "已登记" },
   已预约: { color: "#64748b", bg: "#f1f5f9", label: "已预约" },
+  // [audit-fix-2026-07-02] 报告状态 (mock backend 错误写入 exam.status)
+  draft: { color: "#94a3b8", bg: "#f1f5f9", label: "草稿" },
+  submitted: { color: "#d1fae5", bg: "#059669", label: "已提交" },
+  reviewed: { color: "#ecfdf5", bg: "#047857", label: "已审核" },
+  cosigned: { color: "#dbeafe", bg: "#2563eb", label: "已会签" },
+  published: { color: "#ecfdf5", bg: "#047857", label: "已发布" },
+  rejected: { color: "#fee2e2", bg: "#dc2626", label: "已驳回" },
+  revised: { color: "#fef3c7", bg: "#f59e0b", label: "已修订" },
 };
 
 // 设备类型

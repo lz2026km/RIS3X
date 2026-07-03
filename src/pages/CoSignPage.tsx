@@ -91,7 +91,7 @@ const CoSignPage: React.FC = () => {
                       it.priority === 'urgent' ? 'bg-amber-100 text-amber-700' :
                       'bg-gray-100 text-gray-700'
                     }`}>
-                      {it.priority}
+                      {it.priority === 'stat' ? '加急' : it.priority === 'urgent' ? '紧急' : it.priority === 'routine' ? '常规' : it.priority}
                     </span>
                   </td>
                 </tr>

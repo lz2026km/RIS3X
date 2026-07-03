@@ -29,6 +29,11 @@ const STATUS_CONFIG: Record<
   待报告: { bg: "#fef9c3", color: "#ca8a04", label: "待报告", order: 3 },
   已报告: { bg: "#d1fae5", color: "#059669", label: "已报告", order: 4 },
   已发布: { bg: "#ecfdf5", color: "#047857", label: "已发布", order: 5 },
+  published: { bg: '#ecfdf5', color: '#047857', label: '已发布', order: 5 },
+  submitted: { bg: '#d1fae5', color: '#059669', label: '已提交', order: 4.5 },
+  reviewed: { bg: '#ecfdf5', color: '#047857', label: '已审核', order: 5.5 },
+  inProgress: { bg: '#fce7f3', color: '#db2777', label: '检查中', order: 2 },
+  completed: { bg: '#d1fae5', color: '#059669', label: '已完成', order: 4.5 },
   已暂停: { bg: "#fef3c7", color: "#f59e0b", label: "已暂停", order: 7 },
   质控退回: { bg: "#fee2e2", color: "#ef4444", label: "质控退回", order: 8 },
 };
@@ -59,6 +64,7 @@ interface SLAInfo {
 
 const getSLAInfo = (createdTime: string): SLAInfo => {
   try {
+    if (!createdTime) return { elapsedMinutes: 0, status: 'normal', color: '#059669', label: 'N/A' };
     const created = new Date(createdTime).getTime();
     const now = Date.now();
     const elapsedMinutes = Math.floor((now - created) / 60000);

@@ -8,12 +8,25 @@ import {
 } from 'antd';
 import {
   BookOpen, Save, Edit, Download, Share2, Users, Activity, Search,
-  Plus, Sparkles, Layers, Shield, Tag, History, FileText, ChevronRight,
+  Plus, Sparkles, Layers, Shield, TagIcon, History, FileText, ChevronRight,
   RefreshCw, Trash2, Library, GraduationCap, Filter, BarChart3, Microscope,
 } from 'lucide-react';
 
 const { TextArea } = Input;
 const { Option } = Select;
+
+const MODALITY_LABELS_DICT: Record<string, string> = {
+  fundus: '眼底照相', fundus_photo: '眼底照相', oct: 'OCT', oct_a: 'OCT-A',
+  oct_bscan: 'OCT B-Scan', ffa: 'FFA', icga: 'ICG',
+  corneal_endothelium: '角膜内皮', tear_film: '泪膜',
+  fundus_autofluorescence: '眼底自发荧光', slit_lamp: '裂隙灯',
+  topography: '角膜地形图', visual_field: '视野',
+  specular: '角膜内皮镜', ultrasound: '眼部超声',
+};
+const STATUS_LABELS_DICT: Record<string, string> = {
+  archive: '已归档', published: '已发布', pending_review: '待审核',
+  critical_value: '危急值', draft: '草稿',
+};
 
 export const CaseLibraryPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('cases');
@@ -230,8 +243,8 @@ export const CaseLibraryPage: React.FC = () => {
                         title={
                           <Space>
                             <span>{c.patientName || '未知'}</span>
-                            <Tag color="cyan">{c.modality || 'fundus'}</Tag>
-                            <Tag>{c.status || 'archive'}</Tag>
+                            <Tag color="cyan">{MODALITY_LABELS_DICT[c.modality] || c.modality || '眼底照相'}</Tag>
+                            <Tag>{STATUS_LABELS_DICT[c.status] || c.status || '已归档'}</Tag>
                           </Space>
                         }
                         description={
@@ -262,7 +275,7 @@ export const CaseLibraryPage: React.FC = () => {
               <>
                 <Descriptions bordered column={1} size="small">
                   <Descriptions.Item label="患者">{selectedCase.patientName}</Descriptions.Item>
-                  <Descriptions.Item label="模态">{selectedCase.modality || 'fundus'}</Descriptions.Item>
+                  <Descriptions.Item label="模态">{MODALITY_LABELS_DICT[selectedCase.modality] || selectedCase.modality || '眼底照相'}</Descriptions.Item>
                   <Descriptions.Item label="检查部位">{selectedCase.bodyPart || '-'}</Descriptions.Item>
                   <Descriptions.Item label="主诉">{selectedCase.chiefComplaint || '-'}</Descriptions.Item>
                   <Descriptions.Item label="诊断">{selectedCase.diagnosis || selectedCase.impression || '-'}</Descriptions.Item>

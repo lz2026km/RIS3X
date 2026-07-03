@@ -19,6 +19,7 @@ import {
   MOCK_LESION_SEGMENTATIONS,
 } from "@/data/eyePacsMock";
 import { MOCK_AI_DIAGNOSES } from "@/data/eyeAiMock";
+const MODALITY_LABELS: Record<string, string> = { fundus_photo: '眼底彩照', oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: '视野', topography: '角膜地形图', pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: '裂隙灯', oct_a: 'OCTA', corneal_endothelium: '角膜内皮', tear_film: '泪膜', fundus_autofluorescence: '眼底自发荧光' };
 
 const FundusViewerPage: React.FC = () => {
   const study = MOCK_EYE_STUDIES.find(
@@ -106,7 +107,7 @@ const FundusViewerPage: React.FC = () => {
                   dataIndex: "type",
                   key: "type",
                   width: 100,
-                  render: (v: string) => <Tag>{v}</Tag>,
+                  render: (v: string) => <Tag>{MODALITY_LABELS[v] || v}</Tag>,
                 },
                 {
                   title: "面积",

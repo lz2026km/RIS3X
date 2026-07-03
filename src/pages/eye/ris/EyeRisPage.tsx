@@ -34,6 +34,12 @@ import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { AppEmpty } from "@/components/feedback";
 import { PageContainer, PageHeader } from "@/components/common";
 
+
+const MODALITY_LABELS: Record<string, string> = { fundus_photo: '眼底彩照', oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: '视野', topography: '角膜地形图', pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: '裂隙灯', oct_a: 'OCTA', corneal_endothelium: '角膜内皮', tear_film: '泪膜', fundus_autofluorescence: '眼底自发荧光' };
+const PRIORITY_LABELS_EYE_RIS: Record<string, string> = { routine: '常规', urgent: '加急', emergent: '紧急', stat: '立刻' };
+const REFERRAL_STATUS_LABELS_DICT: Record<string, string> = { pending: '待处理', accepted: '已接受', completed: '已完成', rejected: '已拒绝' };
+const SURGERY_STATUS_LABELS_DICT: Record<string, string> = { scheduled: '已预约', pre_checked: '已术前', completed: '已完成', cancelled: '已取消' };
+
 const FLOW_STEP_KEYS = [
   "scheduled",
   "arrived",
@@ -204,7 +210,7 @@ const EyeRisPage: React.FC = () => {
                   key: "modality",
                   width: 80,
                   render: (v: string) => (
-                    <Tag style={{ fontSize: 12 }}>{v}</Tag>
+                    <Tag style={{ fontSize: 12 }}>{MODALITY_LABELS[v] || v}</Tag>
                   ),
                 },
                 {
@@ -286,6 +292,7 @@ const EyeRisPage: React.FC = () => {
                   dataIndex: "modality",
                   key: "modality",
                   width: 60,
+                  render: (v: string) => <Tag>{MODALITY_LABELS[v] || v}</Tag>,
                 },
                 {
                   title: "优先级",
@@ -302,7 +309,7 @@ const EyeRisPage: React.FC = () => {
                             : "default"
                       }
                     >
-                      {v}
+                      {PRIORITY_LABELS_EYE_RIS[v] || v}
                     </Tag>
                   ),
                 },
@@ -401,7 +408,7 @@ const EyeRisPage: React.FC = () => {
                   dataIndex: "status",
                   key: "status",
                   width: 60,
-                  render: (v: string) => <Tag>{v}</Tag>,
+                  render: (v: string) => <Tag>{REFERRAL_STATUS_LABELS_DICT[v] || v}</Tag>,
                 },
               ]}
             />
@@ -462,7 +469,7 @@ const EyeRisPage: React.FC = () => {
                   key: "status",
                   width: 60,
                   render: (v: string) => (
-                    <Tag>{v === "pre_checked" ? "已术前" : v}</Tag>
+                    <Tag>{SURGERY_STATUS_LABELS_DICT[v] || v}</Tag>
                   ),
                 },
               ]}

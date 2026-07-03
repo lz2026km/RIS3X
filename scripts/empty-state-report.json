@@ -1,0 +1,72 @@
+[
+  {
+    "file": "E:/codex work/ris/G005-RISv-3.0.0/src/pages/contrast/ContrastInjectionWorkstationPage.tsx",
+    "hits": [
+      {
+        "line": 145,
+        "text": "{records.length === 0 && <div style={{ color: '#6e7681', fontSize: 13 }}>暂无记录</div>}"
+      }
+    ],
+    "confidence": 0.7
+  },
+  {
+    "file": "E:/codex work/ris/G005-RISv-3.0.0/src/pages/InsuranceAuditPage.tsx",
+    "hits": [
+      {
+        "line": 4286,
+        "text": "暂无数据"
+      }
+    ],
+    "confidence": 0.7
+  },
+  {
+    "file": "E:/codex work/ris/G005-RISv-3.0.0/src/pages/integration/IheConnectathonPage.tsx",
+    "hits": [
+      {
+        "line": 455,
+        "text": "locale={{ emptyText: <Empty description=\"暂无数据\" /> }}"
+      }
+    ],
+    "confidence": 0.7
+  },
+  {
+    "file": "E:/codex work/ris/G005-RISv-3.0.0/src/pages/patient/PatientTable.tsx",
+    "hits": [
+      {
+        "line": 871,
+        "text": "<div style={{ fontSize: 12 }}>暂无数据</div>"
+      }
+    ],
+    "confidence": 0.7
+  },
+  {
+    "file": "E:/codex work/ris/G005-RISv-3.0.0/src/pages/PatientPortalPage.tsx",
+    "hits": [
+      {
+        "line": 1032,
+        "text": "// [v3.0.4.0] 默认占位预约:避免\"暂无数据\"空态阻塞患者端体验;localStorage 中的预约仍会优先加载"
+      }
+    ],
+    "confidence": 0.7
+  },
+  {
+    "file": "E:/codex work/ris/G005-RISv-3.0.0/src/pages/System/DicomPrintPage.tsx",
+    "hits": [
+      {
+        "line": 66,
+        "text": "}> = ({ columns, data, emptyText = '暂无数据' }) => {"
+      }
+    ],
+    "confidence": 0.7
+  },
+  {
+    "file": "E:/codex work/ris/G005-RISv-3.0.0/src/pages/worklist/WorklistKanbanView.tsx",
+    "hits": [
+      {
+        "line": 298,
+        "text": "暂无记录"
+      }
+    ],
+    "confidence": 0.7
+  }
+]

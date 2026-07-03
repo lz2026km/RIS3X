@@ -1,6 +1,9 @@
 import React from "react";
 import { Select, Space, Tag } from "antd";
 import { FileText } from "lucide-react";
+
+const MODALITY_LABELS_LOCAL: Record<string, string> = { fundus_photo: '眼底彩照', oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: '视野', topography: '角膜地形图', pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: '裂隙灯', oct_a: 'OCTA', corneal_endothelium: '角膜内皮', tear_film: '泪膜', fundus_autofluorescence: '眼底自发荧光' };
+
 import { MOCK_REPORT_TEMPLATES } from "../../data/eyeReportTemplatesMock";
 
 const ReportTemplateSelector: React.FC<{
@@ -22,7 +25,7 @@ const ReportTemplateSelector: React.FC<{
     />
     {value && (
       <Tag color="blue">
-        {MOCK_REPORT_TEMPLATES.find((t) => t.id === value)?.modality || "-"}
+        {MODALITY_LABELS_LOCAL[MOCK_REPORT_TEMPLATES.find((t) => t.id === value)?.modality || ""] || MOCK_REPORT_TEMPLATES.find((t) => t.id === value)?.modality || "-"}
       </Tag>
     )}
   </Space>

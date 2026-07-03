@@ -99,7 +99,10 @@ export function checkAccessWithMfa(ctx: AccessContext): AccessResult {
   }
 
   // RBAC 检查
-  const rbacGranted = hasPermission(ctx.user.role, `${ctx.resource.type}.${ctx.action}` as Permission);
+  // RBAC 检查 (action 动词到权限后缀的映射: read→view, update→edit)
+  const ACTION_TO_PERM: Record<string, string> = { read: 'view', update: 'edit' };
+  const permAction = ACTION_TO_PERM[ctx.action] ?? ctx.action;
+  const rbacGranted = hasPermission(ctx.user.role, (ctx.resource.type + "." + permAction) as Permission);
 
   // Fix 2: Patient-level access control
   let patientGranted = false;

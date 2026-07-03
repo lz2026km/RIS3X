@@ -20,7 +20,9 @@ import {
   Search,
   Filter,
   ChevronRight,
+  ChevronUp,
   ChevronDown,
+
   Download,
   PieChart,
   TrendingUp,
@@ -1471,6 +1473,19 @@ export default function DepartmentPage() {
   const [selectedOrg, setSelectedOrg] = useState<OrgNode | null>(
     ORG_TREE.children?.[0] || null,
   );
+  const [orderedChildren, setOrderedChildren] = useState<OrgNode[]>(
+    () => (ORG_TREE.children?.[0]?.children ? [...ORG_TREE.children[0].children] : []),
+  );
+  const moveChild = (idx, dir) => {
+    setOrderedChildren((prev) => {
+      const next = [...prev];
+      const j = idx + dir;
+      if (j < 0 || j >= next.length) return prev;
+      const a = next[idx]; const b = next[j];
+      next[idx] = b; next[j] = a;
+      return next;
+    });
+  };
 
   // Phase 4b - 资质状态
   const [selectedCredStaff, setSelectedCredStaff] = useState(DEPT_STAFF[0]);
@@ -3398,35 +3413,62 @@ export default function DepartmentPage() {
                       >
                         下级节点（{selectedOrg.children.length}个）
                       </div>
-                      {selectedOrg.children.map((child) => (
+                      {orderedChildren.map((child, idx) => (
                         <div
                           key={child.id}
                           style={{
-                            padding: "6px 0",
+                            padding: "6px 4px",
                             borderBottom: `1px solid ${C.borderLight}`,
                             fontSize: 13,
                             color: C.textDark,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
                           }}
                         >
-                          {child.name}{" "}
-                          <span style={{ color: C.textLight }}>
-                            ({child.type})
-                          </span>
+                          <span style={{ width: 18, color: C.textLight, fontSize: 11 }}>{idx + 1}.</span>
+                          <span style={{ flex: 1 }}>{child.name}</span>
+                          <span style={{ color: C.textLight, fontSize: 11 }}>({child.type})</span>
+                          <span style={{ color: C.textLight, fontSize: 11 }}>{child.staffCount ?? 0} 人</span>
+                          <button
+                            onClick={() => moveChild(idx, -1)}
+                            disabled={idx === 0}
+                            title="上移"
+                            style={{
+                              border: `1px solid ${C.border}`,
+                              background: idx === 0 ? C.bgLight : C.white,
+                              color: idx === 0 ? C.textLight : C.textDark,
+                              cursor: idx === 0 ? "not-allowed" : "pointer",
+                              borderRadius: 4,
+                              padding: "2px 6px",
+                              display: "inline-flex",
+                              alignItems: "center",
+                            }}
+                          >
+                            <ChevronUp size={12} />
+                          </button>
+                          <button
+                            onClick={() => moveChild(idx, 1)}
+                            disabled={idx === orderedChildren.length - 1}
+                            title="下移"
+                            style={{
+                              border: `1px solid ${C.border}`,
+                              background: idx === orderedChildren.length - 1 ? C.bgLight : C.white,
+                              color: idx === orderedChildren.length - 1 ? C.textLight : C.textDark,
+                              cursor: idx === orderedChildren.length - 1 ? "not-allowed" : "pointer",
+                              borderRadius: 4,
+                              padding: "2px 6px",
+                              display: "inline-flex",
+                              alignItems: "center",
+                            }}
+                          >
+                            <ChevronDown size={12} />
+                          </button>
                         </div>
                       ))}
                     </div>
                   )}
-                  <div
-                    style={{
-                      marginTop: 16,
-                      fontSize: 12,
-                      color: C.textLight,
-                      fontStyle: "italic",
-                    }}
-                  >
-                    拖拽排序功能正在开发中
-                  </div>
-                </div>
+                                  </div>
               ) : (
                 <div
                   style={{

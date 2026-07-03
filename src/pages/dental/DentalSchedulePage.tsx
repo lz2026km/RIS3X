@@ -1,7 +1,7 @@
 // [v3.0.6.8-103] Phase 4: 牙椅预约排班 + PSR 牙周记录 (修复: 新建预约实际提交)
 // 对标: 领健·牙医管家
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, Table, Modal, Form, Input, InputNumber, DatePicker, Badge, Empty } from 'antd';
+import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, Table, Modal, Form, Input, InputNumber, DatePicker, Badge, Empty, Segmented } from 'antd';
 import { Activity, Calendar, Clock, User, Armchair, Plus, CheckCircle2, BarChart3 } from 'lucide-react';
 
 const TIME_SLOTS = ['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00'];
@@ -24,6 +24,8 @@ const DENTISTS = [
   { value: '李医生', label: '李医生' },
   { value: '张主任', label: '张主任' },
 ];
+
+export const DENTAL_APPT_STATUS_LABELS_DICT: Record<string, string> = { scheduled: '已预约', 'in-progress': '进行中', completed: '已完成', cancelled: '已取消', 'no-show': '未到诊' };
 
 export const DentalSchedulePage: React.FC = () => {
   const [tab, setTab] = useState('schedule');
@@ -120,7 +122,7 @@ export const DentalSchedulePage: React.FC = () => {
             <Card size="small" hoverable onClick={() => setSelectedChair(c.id)}
               style={{ cursor:'pointer', borderColor: selectedChair === c.id ? '#1677ff' : '#d9d9d9', borderLeft: `4px solid ${chairColors[c.status] || '#999'}` }}>
               <Space><Armchair size={14}/><span style={{fontSize:13}}>{c.name}</span></Space>
-              <Tag style={{fontSize:10,margin:0}} color={chairColors[c.status]}>{c.status}</Tag>
+              <Tag style={{fontSize:10,margin:0}} color={chairColors[c.status]}>{({online:'在线', offline:'离线', maintenance:'维护中'} as any)[c.status] || c.status}</Tag>
             </Card>
           </Col>
         ))}
@@ -137,7 +139,7 @@ export const DentalSchedulePage: React.FC = () => {
                 {title:'牙椅',dataIndex:'chairName',width:150,render:(n:string)=><Tag color="purple">{n}</Tag>},
                 {title:'医生',dataIndex:'dentist',width:80},
                 {title:'类型',dataIndex:'type',width:60,render:(t:string)=><Tag>{t}</Tag>},
-                {title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='completed'?'success':s==='in-progress'?'processing':s==='scheduled'?'default':s==='no-show'?'error':'default'} text={s} />,width:90},
+                {title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='completed'?'success':s==='in-progress'?'processing':s==='scheduled'?'default':s==='no-show'?'error':'default'} text={DENTAL_APPT_STATUS_LABELS_DICT[s] || s} />,width:90},
                 {title:'操作',render:(_,r:any)=><Space>
                   <Button size="small" icon={<CheckCircle2 size={10}/>} disabled={r.status!=='scheduled'} onClick={()=>handleUpdateStatus(r.id,'in-progress')}>到诊</Button>
                   <Button size="small" icon={null} disabled={r.status!=='scheduled'} onClick={()=>handleUpdateStatus(r.id,'cancelled')}>取消</Button>

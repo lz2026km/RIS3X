@@ -14,7 +14,9 @@ type SeverityFilter = 'all' | 'high' | 'medium' | 'low'
 const DefectManagementPage: React.FC = () => {
   const [keyword, setKeyword] = useState('')
   const [status, setStatus] = useState<StatusFilter>('all')
-  const [severity, setSeverity] = useState<SeverityFilter>('all')
+  const CATEGORY_LABELS: Record<string, string> = { description: '描述缺陷', terminology: '术语缺陷', format: '格式缺陷', logic: '逻辑缺陷', critical: '严重缺陷', completeness: '完整性缺陷' };
+
+const [severity, setSeverity] = useState<SeverityFilter>('all')
 
   const stats = useMemo(() => {
     const all = DEFECT_LIBRARY.length
@@ -109,7 +111,7 @@ const DefectManagementPage: React.FC = () => {
               <tr key={i} className="border-b hover:bg-gray-50">
                 <td className="py-2 text-xs">
                   <span className="rounded bg-red-50 text-red-700 px-2 py-0.5">
-                    {(d as { category: DefectCategory }).category}
+                    {CATEGORY_LABELS[(d as { category: DefectCategory }).category] ?? (d as { category: DefectCategory }).category}
                   </span>
                 </td>
                 <td className="py-2 font-medium">{(d as { name: string }).name}</td>
@@ -134,8 +136,8 @@ const DefectManagementPage: React.FC = () => {
         </div>
         <div className="grid grid-cols-3 gap-3">
           {Object.entries(stats.byCategory).map(([cat, count]) => (
-            <div key={cat} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-              <span className="text-sm">{cat}</span>
+            <div key={CATEGORY_LABELS[cat] ?? cat} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+              <span className="text-sm">{CATEGORY_LABELS[cat] ?? cat}</span>
               <span className="text-sm font-bold">{count}</span>
             </div>
           ))}

@@ -1,0 +1,42 @@
+{
+  "$schema": "kpiThresholds.v1",
+  "version": 1,
+  "metrics": [
+    {
+      "id": "qm-001",
+      "category": "productivity",
+      "name": "\u65e5\u5747\u68c0\u67e5\u91cf",
+      "value": 42,
+      "target": 50,
+      "unit": "\u68c0\u67e5",
+      "trend": "up",
+      "period": "\u672c\u6708",
+      "department": "\u773c\u79d1",
+      "direction": 1
+    },
+    {
+      "id": "qm-005",
+      "category": "clinical",
+      "name": "AI \u91c7\u7eb3\u7387",
+      "value": 72.3,
+      "target": 80,
+      "unit": "%",
+      "trend": "up",
+      "period": "\u672c\u6708",
+      "department": "\u773c\u79d1",
+      "direction": 1
+    },
+    {
+      "id": "qm-013",
+      "category": "operational",
+      "name": "\u5e73\u5747\u8bca\u5019\u65f6\u95f4",
+      "value": 22,
+      "target": 15,
+      "unit": "min",
+      "trend": "worsening",
+      "period": "\u672c\u6708",
+      "department": "\u773c\u79d1",
+      "direction": -1
+    }
+  ]
+}

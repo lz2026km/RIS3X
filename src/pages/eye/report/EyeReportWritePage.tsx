@@ -47,6 +47,7 @@ import {
 } from "@/data/eyeImageQcMock";
 import { MOCK_FINDINGS_LIBRARY } from "@/data/eyeFindingsLibraryMock";
 import { AppModal } from "@/components/common/AppModal";
+const MODALITY_LABELS: Record<string, string> = { fundus_photo: '眼底彩照', oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: '视野', topography: '角膜地形图', pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: '裂隙灯', oct_a: 'OCTA', corneal_endothelium: '角膜内皮', tear_film: '泪膜', fundus_autofluorescence: '眼底自发荧光' };
 
 const reportStatusColors: Record<string, string> = {
   draft: "default",
@@ -65,6 +66,27 @@ const reportStatusLabels: Record<string, string> = {
   amended: "已修改",
   printed: "已打印",
   critical_value: "危急值",
+  oct_a: "OCTA",
+  corneal_endothelium: "角膜内皮",
+  tear_film: "泪膜",
+  fundus_autofluorescence: "眼底自发荧光",
+  borderline: "临界",
+  cup_to_disc_ratio: "杯盘比",
+  rim_width: "视盘缘宽度",
+  arteriovenous_ratio: "动静脉比",
+  abnormal: "异常",
+  v6: "v6",
+  text: "文本",
+  findings_multi: "多发发现",
+  images: "图像",
+  productivity: "生产力",
+  clinical: "临床",
+  operational: "运营",
+  financial: "财务",
+};
+const SEGMENT_TYPE_LABELS_DICT: Record<string, string> = {
+  v6: 'V6 模板', text: '文本', findings_multi: '多发现', images: '图像',
+  grading_scale: '分级标度', diagnosis: '诊断', measurement: '量测',
 };
 
 // [v3.0.6.8-86] 重构: 拆分 report 切换为 key 强制重渲染, 消除 useState 派生值反模式
@@ -366,7 +388,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report }) => {
                     >
                       {s.title}
                     </span>
-                    <Tag style={{ fontSize: 12 }}>{s.type}</Tag>
+                    <Tag style={{ fontSize: 12 }}>{SEGMENT_TYPE_LABELS_DICT[s.type] || s.type}</Tag>
                   </Space>
                 ),
                 children: (
@@ -501,7 +523,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report }) => {
             <div style={{ fontSize: 12, lineHeight: 2 }}>
               患者: <strong>{report.patientName}</strong>
               <br />
-              检查: <Tag>{report.modality}</Tag>
+              检查: <Tag>{MODALITY_LABELS[report.modality] || report.modality}</Tag>
               <br />
               眼别:{" "}
               <EyeLateralityBadge
@@ -621,7 +643,7 @@ const EyeReportWritePage: React.FC = () => {
           style={{ width: 220 }}
           options={MOCK_REPORTS.map((r) => ({
             value: r.id,
-            label: `${r.patientName} — ${r.modality}`,
+            label: `${r.patientName} — ${MODALITY_LABELS[r.modality] || r.modality}`,
           }))}
         />
       </div>

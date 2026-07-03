@@ -1,0 +1,39 @@
+{
+  "$schema": "findingsLexicon.v1",
+  "version": 1,
+  "entries": [
+    {
+      "id": "fl-001",
+      "category": "Fundus-Disc",
+      "name": "Disc margin sharp",
+      "laterality": "any",
+      "modality": ["fundus_photo", "oct"],
+      "severity": "normal",
+      "common": true,
+      "description": "Disc margin sharp and clear",
+      "keywords": ["disc", "border", "sharp"]
+    },
+    {
+      "id": "fl-002",
+      "category": "Fundus-Disc",
+      "name": "Disc margin blurred",
+      "laterality": "any",
+      "modality": ["fundus_photo", "oct"],
+      "severity": "abnormal",
+      "common": true,
+      "description": "Disc margin blurred, papilledema suspected",
+      "keywords": ["disc", "blurred", "border"]
+    },
+    {
+      "id": "fl-003",
+      "category": "Fundus-Macula",
+      "name": "Macular edema",
+      "laterality": "any",
+      "modality": ["oct", "fundus_photo"],
+      "severity": "abnormal",
+      "common": true,
+      "description": "Macular edema, fluid accumulation",
+      "keywords": ["macula", "edema", "fluid"]
+    }
+  ]
+}

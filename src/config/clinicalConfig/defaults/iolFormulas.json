@@ -1,0 +1,20 @@
+{
+  "$schema": "iolFormulas.v1",
+  "version": 1,
+  "formulas": [
+    { "id": "srkt", "name": "SRK/T", "label": "SRK/T", "alRange": [22.0, 24.5], "implementation": "calcSrkt", "priority": 3, "wangKoch": false },
+    { "id": "holladay1", "name": "Holladay I", "label": "Holladay I", "alRange": [24.0, 26.0], "implementation": "calcHolladay1", "priority": 3, "wangKoch": false },
+    { "id": "hofferQ", "name": "Hoffer Q", "label": "Hoffer Q", "alRange": [15.0, 22.0], "implementation": "calcHofferQ", "priority": 1, "wangKoch": false },
+    { "id": "barrett2", "name": "Barrett Universal II", "label": "Barrett II", "alRange": [20.0, 30.0], "implementation": "calcBarrettIi", "priority": 1, "wangKoch": false },
+    { "id": "hillRbf", "name": "Hill-RBF 3.0", "label": "Hill-RBF", "alRange": [20.0, 30.0], "implementation": "calcHillRbf", "priority": 1, "wangKoch": false },
+    { "id": "kane", "name": "Kane", "label": "Kane", "alRange": [20.0, 30.0], "implementation": "calcKane", "priority": 0, "wangKoch": false },
+    { "id": "evo", "name": "EVO", "label": "EVO", "alRange": [20.0, 30.0], "implementation": "calcEvo", "priority": 1, "wangKoch": false }
+  ],
+  "alBands": [
+    { "alMin": 15, "alMaxExclusive": 22.0, "recommendedFormulaIds": ["hofferQ", "holladay1", "srkt"] },
+    { "alMin": 22.0, "alMaxExclusive": 24.5, "recommendedFormulaIds": ["barrett2", "kane", "srkt"] },
+    { "alMin": 24.5, "alMaxExclusive": 26.0, "recommendedFormulaIds": ["barrett2", "kane", "holladay1"] },
+    { "alMin": 26.0, "alMaxExclusive": 35.0, "recommendedFormulaIds": ["barrett2", "kane", "holladay1"] }
+  ],
+  "wangKochThreshold": 26.0
+}

@@ -179,7 +179,7 @@ const EyeAiPage: React.FC = () => {
                         dataIndex: "vendor",
                         key: "vendor",
                         width: 100,
-                        render: (v: string) => <Tag>{v}</Tag>,
+                        render: (v: string) => <Tag>{MODALITY_LABELS[v] || v}</Tag>,
                       },
                       {
                         title: "诊断病种",

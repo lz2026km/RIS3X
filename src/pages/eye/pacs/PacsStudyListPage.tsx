@@ -7,7 +7,7 @@ import { MOCK_EYE_STUDIES } from "@/data/eyePacsMock";
 import { PageContainer, PageHeader } from "@/components/common";
 
 const MODALITY_LABELS: Record<string, string> = {
-  fundus_photo: "眼底彩照",
+  oct_a: "OCTA",  corneal_endothelium: "角膜内皮",  tear_film: "泪膜",  fundus_autofluorescence: "眼底自发荧光",  fundus_photo: "眼底彩照",
   oct: "OCT",
   ffa: "FFA",
   icga: "ICGA",
@@ -17,6 +17,21 @@ const MODALITY_LABELS: Record<string, string> = {
   iol_master: "IOL Master",
   ubm: "UBM",
   slit_lamp: "裂隙灯",
+  borderline: "临界",
+  cup_to_disc_ratio: "杯盘比",
+  rim_width: "视盘缘宽度",
+  arteriovenous_ratio: "动静脉比",
+  abnormal: "异常",
+  v6: "v6",
+  text: "文本",
+  findings_multi: "多发发现",
+  images: "图像",
+  productivity: "生产力",
+  clinical: "临床",
+  operational: "运营",
+  financial: "财务",
+  critical_value: "危急值",
+  pending_review: "待审核",
 };
 
 const PacsStudyListPage: React.FC = () => {

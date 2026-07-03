@@ -20,6 +20,14 @@ const SEVERITY_COLORS: Record<EventSeverity, string> = {
   catastrophic: '#dc2626',
 }
 
+
+const SEVERITY_LABELS: Record<EventSeverity, string> = {
+  'near-miss': '险情',
+  minor: '轻微',
+  moderate: '中度',
+  severe: '严重',
+  catastrophic: '灾难性',
+};
 const CATEGORY_LABELS: Record<EventCategory, string> = {
   'medication-error': '用药错误',
   'patient-identification': '患者身份识别',
@@ -103,7 +111,7 @@ export default function AdverseEventPage() {
               </select>
               <select style={{ background: '#0d1117', color: '#f0f6fc', border: '1px solid #30363d', borderRadius: 4, padding: '6px 10px' }} value={formData.severity ?? ''} onChange={e => setFormData({ ...formData, severity: e.target.value as EventSeverity })}>
                 <option value="">选择严重程度</option>
-                {Object.entries(SEVERITY_COLORS).map(([k]) => <option key={k} value={k}>{k}</option>)}
+                {Object.entries(SEVERITY_COLORS).map(([k]) => <option key={k} value={k}>{SEVERITY_LABELS[k as EventSeverity] ?? k}</option>)}
               </select>
               <input style={{ background: '#0d1117', color: '#f0f6fc', border: '1px solid #30363d', borderRadius: 4, padding: '6px 10px' }} placeholder="患者姓名" value={formData.patientName ?? ''} onChange={e => setFormData({ ...formData, patientName: e.target.value })} />
               <input style={{ background: '#0d1117', color: '#f0f6fc', border: '1px solid #30363d', borderRadius: 4, padding: '6px 10px' }} placeholder="患者ID" value={formData.patientId ?? ''} onChange={e => setFormData({ ...formData, patientId: e.target.value })} />
@@ -194,7 +202,7 @@ export default function AdverseEventPage() {
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#6e7681', fontSize: 12 }}>{e.id}</td>
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>{CATEGORY_LABELS[e.eventType]}</td>
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>
-                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${SEVERITY_COLORS[e.severity]}20`, color: SEVERITY_COLORS[e.severity] }}>{e.severity}</span>
+                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${SEVERITY_COLORS[e.severity]}20`, color: SEVERITY_COLORS[e.severity] }}>{SEVERITY_LABELS[e.severity] ?? e.severity}</span>
                   </td>
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#f0f6fc' }}>{e.patientName ?? '-'}</td>
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>
