@@ -312,3 +312,88 @@ DepartmentPage 修复后, Playwright 仍显示 "拖拽排序功能正在开发中" — 通过 Node +
 | DepartmentPage 组织架构 | 删除 "正在开发中" 占位 + 实现真实上下移动按钮 | 2453B (无变化) |
 | WorkloadHeatmapPage | 4 站点 → 8 站点 + 4 KPI | 2052B → 2567B (+25%) |
 | DentalImplantPlanPage | 1 card → 7 cards + 4 stat | 2674B → 3152B (+18%) |
+
+## v3.0.6.10-1 防御性 UI 升级 (2026-07-03)
+
+### 1. AppButton (src/components/common/AppButton.tsx)
+
+新增 prop:
+- `disabledReason?: string` - disabled 状态下显示 Tooltip 解释原因
+- `htmlType?: "button" | "submit" | "reset"` - 明确 form 提交类型
+
+行为:
+- 保持原有无权限时整体隐藏 (`permissionFallback` 兜底)
+- disabled + disabledReason → 包 antd Tooltip, hover 提示
+- disabled 无 reason → 不强制包 Tooltip
+- loading → 自动 disabled, 显示 loading 图标
+- type 默认 "button" 防 form 误提交
+
+### 2. useSafePagination (src/hooks/useSafePagination.ts)
+
+新 hook, 解决"删除最后一页后越界"问题:
+- `setPage(x)` 越界自动回退到 totalPages
+- `setTotal(t)` total=0 时强制 page=1, showPagination=false
+- `setPageSize(s)` 重置 page=1
+- 暴露 `config: { current, pageSize, total, showPagination, totalPages }`
+- `onPageChange` 回调通知业务侧 refetch
+
+### 3. useApiQuery 增强 (src/hooks/useApiQuery.ts)
+
+新 props:
+- `timeoutMs?: number` - 默认 15000
+- `retries?: number` - 默认 1
+- `retryDelayMs?: number` - 默认 500, 指数退避
+
+行为:
+- withTimeout 包 Promise, 超时 reject REQUEST_TIMEOUT
+- 失败后 wait retryDelayMs * 2^attempt 后重试
+- 所有尝试失败 → 写入 error, fallback 生效
+- data = null 时由 fallback 兜底, 不让 .map 崩溃
+
+### 4. useFeatureGate (src/hooks/useFeatureGate.ts)
+
+新 hook 集中权限/功能可见性:
+- `gate(perm)` - 单权限
+- `gateAll(perms[])` - 多权限 AND
+- `gateAny(perms[])` - 多权限 OR
+- 业务侧替换散落的 v-if
+
+### 5. codemod-empty-state.mjs (scripts/codemod-empty-state.mjs)
+
+扫描 `src/pages/**/*.tsx`:
+- 跳过 stories/test/AppEmpty 已使用
+- 识别 antd `<Empty />` / 裸 "暂无数据" 等
+- 输出 `scripts/empty-state-report.json`
+- 当前扫出 7 个低置信度目标 (大多已用 AppEmpty)
+
+### 6. 测试 (31 项全部通过)
+
+| 文件 | 测试数 | 状态 |
+|---|---|---|
+| src/hooks/__tests__/useBreakpoint.test.ts | 15 | PASS |
+| src/hooks/__tests__/useSafePagination.test.ts | 7 | PASS |
+| src/hooks/__tests__/useApiQuery.test.ts | 4 | PASS |
+| src/components/common/__tests__/AppButton.test.tsx | 5 | PASS |
+
+### 7. Playwright Chrome 点击验证 (22 关键页面)
+
+全部 PASS, 无应用层错误:
+- /  /worklist  /multi-site  /cloud-storage  /business-continuity
+- /workload-heatmap  /admin/config  /ai-orchestration
+- /eye  /eye/ris  /eye/ris/iol-calculator  /eye/kpi-dashboard
+- /dental/implant  /dental/implant-3d  /dental/billing
+- /qc-dashboard  /cost-analysis  /department
+- /director-dashboard  /critical-value  /workflow-designer  /forbidden
+
+唯一 error: X-Frame-Options 来自 vite.config.ts (pre-existing, 与本升级无关)
+
+### 8. 构建状态
+
+- `npm run build`: 38.6s PASS
+- `npm run typecheck`: 全部 0 错误 (除原本的 a11y / rbac 2 个 pre-existing)
+
+### 9. 提交状态
+
+- 本地 commit `dadeb94b v3.0.6.10-1` 已创建
+- 254 个文件, 9431 行新增, 910 行删除
+- push 需要 gitcode.com 凭据 (`cmdkey /list` 显示无保存凭据)
