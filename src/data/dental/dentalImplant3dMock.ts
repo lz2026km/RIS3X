@@ -67,6 +67,89 @@ export const MOCK_IMPLANT_BRANDS = [
       { id: 'IS-4.5x10', name: 'Implantium II IS Wide 4.5', diameters: [4.5,5.0,5.5], lengths: [7,8.5,10,11.5], platform: 'internal', connection: 'double-hex', price: 1700 },
     ],
   },
+  {
+    id: 'zimmer', name: 'Zimmer Biomet', country: 'USA',
+    models: [
+      { id: 'T3-3.7x10', name: 'Tapered Screw-Vent T3 3.7', diameters: [3.7,4.1,4.7,6.0], lengths: [8,10,11.5,13,16], platform: 'internal-hex', connection: 'friction-fit', price: 4200 },
+      { id: 'T3-4.1x10', name: 'Tapered Screw-Vent T3 4.1', diameters: [4.1,4.7,6.0], lengths: [8,10,11.5,13,16], platform: 'internal-hex', connection: 'friction-fit', price: 4400 },
+      { id: 'TSV-4.7x10', name: 'Trabecular Metal Tapered 4.7', diameters: [4.7,6.0], lengths: [10,11.5,13,16], platform: 'internal-hex', connection: 'friction-fit', price: 5200 },
+      { id: 'EZ-3.5x10', name: 'Eztetic 3.5', diameters: [3.5], lengths: [8.5,10,11.5,13], platform: 'narrow', connection: 'conical', price: 4800 },
+    ],
+  },
+  {
+    id: 'mis', name: 'MIS Implants', country: 'Israel',
+    models: [
+      { id: 'C1-3.75x10', name: 'C1 Conical 3.75', diameters: [3.75,4.2,5.0], lengths: [8,10,11.5,13,16], platform: 'standard', connection: 'conical', price: 2200 },
+      { id: 'C1-4.2x10', name: 'C1 Conical 4.2', diameters: [4.2,5.0], lengths: [8,10,11.5,13,16], platform: 'standard', connection: 'conical', price: 2300 },
+      { id: 'V3-3.9x10', name: 'V3 Triangular 3.9', diameters: [3.9,4.3,5.0], lengths: [8,10,11.5,13], platform: 'standard', connection: 'triangular', price: 2800 },
+      { id: 'SEVEN-4.2x10', name: 'SEVEN Internal 4.2', diameters: [3.75,4.2,5.0,6.0], lengths: [8,10,11.5,13,16], platform: 'standard', connection: 'hex', price: 2000 },
+    ],
+  },
+  {
+    id: 'anthogyr', name: 'Anthogyr', country: 'France',
+    models: [
+      { id: 'Axiom-3.4x10', name: 'Axiom REG 3.4', diameters: [3.4,4.0,4.6,5.2], lengths: [8,10,12,14,16], platform: 'standard', connection: 'conical', price: 3800 },
+      { id: 'Axiom-4.0x10', name: 'Axiom REG 4.0', diameters: [4.0,4.6,5.2], lengths: [8,10,12,14,16], platform: 'standard', connection: 'conical', price: 4000 },
+      { id: 'Axiom-PX-3.4x10', name: 'Axiom PX 3.4', diameters: [3.4,4.0,4.6], lengths: [8,10,12,14], platform: 'narrow', connection: 'conical', price: 4200 },
+    ],
+  },
+  {
+    id: 'camlog', name: 'Camlog', country: 'Germany',
+    models: [
+      { id: 'CL-3.8x10', name: 'Camlog Screw-Line 3.8', diameters: [3.8,4.3,5.0,6.0], lengths: [9,11,13,16], platform: 'standard', connection: 'tube-in-tube', price: 3500 },
+      { id: 'CL-4.3x10', name: 'Camlog Screw-Line 4.3', diameters: [4.3,5.0,6.0], lengths: [9,11,13,16], platform: 'standard', connection: 'tube-in-tube', price: 3600 },
+      { id: 'CL-5.0x9', name: 'Camlog Screw-Line Wide 5.0', diameters: [5.0,6.0], lengths: [9,11,13], platform: 'wide', connection: 'tube-in-tube', price: 3800 },
+    ],
+  },
+  {
+    id: 'thommen', name: 'Thommen Medical', country: 'Switzerland',
+    models: [
+      { id: 'SPI-3.5x10', name: 'SPI Element 3.5', diameters: [3.5,4.0,4.5,5.0], lengths: [8,9.5,11,12.5,14], platform: 'standard', connection: 'tube-in-tube', price: 4500 },
+      { id: 'SPI-4.0x10', name: 'SPI Element 4.0', diameters: [4.0,4.5,5.0,6.0], lengths: [8,9.5,11,12.5,14], platform: 'standard', connection: 'tube-in-tube', price: 4700 },
+      { id: 'CONTACT-4.0x10', name: 'CONTACT 4.0', diameters: [4.0,4.5,5.0], lengths: [9,11,12.5,14], platform: 'standard', connection: 'tube-in-tube', price: 4900 },
+    ],
+  },
+  {
+    id: 'wego', name: '威高 Wego', country: '中国 山东',
+    models: [
+      { id: 'WG-3.5x10', name: 'WG 种植体 3.5', diameters: [3.5,4.0,4.5,5.0], lengths: [8,10,12,14], platform: 'internal', connection: 'conical', price: 1800 },
+      { id: 'WG-4.0x10', name: 'WG 种植体 4.0', diameters: [4.0,4.5,5.0], lengths: [8,10,12,14], platform: 'internal', connection: 'conical', price: 1900 },
+      { id: 'WG-4.5x10', name: 'WG 种植体 4.5 Wide', diameters: [4.5,5.0,5.5], lengths: [8,10,12], platform: 'internal', connection: 'conical', price: 2000 },
+      { id: 'WG-PLUS-4.0x10', name: 'WG Plus 亲水 4.0', diameters: [4.0,4.5,5.0], lengths: [8,10,12,14], platform: 'internal', connection: 'conical', price: 2400 },
+    ],
+  },
+  {
+    id: 'kindly', name: '康德莱 Kindly', country: '中国 浙江',
+    models: [
+      { id: 'KD-3.5x10', name: 'KD 种植体 3.5', diameters: [3.5,4.0,4.5,5.0], lengths: [8,10,12,14], platform: 'internal', connection: 'conical', price: 1600 },
+      { id: 'KD-4.0x10', name: 'KD 种植体 4.0', diameters: [4.0,4.5,5.0], lengths: [8,10,12,14], platform: 'internal', connection: 'conical', price: 1700 },
+      { id: 'KD-4.5x10', name: 'KD 种植体 4.5', diameters: [4.5,5.0,5.5], lengths: [8,10,12], platform: 'internal', connection: 'conical', price: 1800 },
+    ],
+  },
+  {
+    id: 'bicon', name: 'Bicon', country: 'USA',
+    models: [
+      { id: 'BC-3.5x8', name: 'Bicon Short 3.5x8', diameters: [3.5,4.0,4.5,5.0,6.0], lengths: [5,6,8,11], platform: 'bicon', connection: 'locking-taper', price: 3200 },
+      { id: 'BC-4.0x8', name: 'Bicon Standard 4.0x8', diameters: [4.0,4.5,5.0], lengths: [8,11,14], platform: 'bicon', connection: 'locking-taper', price: 3400 },
+      { id: 'BC-5.0x6', name: 'Bicon Wide 5.0x6', diameters: [5.0,6.0], lengths: [5,6,8,11], platform: 'bicon', connection: 'locking-taper', price: 3600 },
+    ],
+  },
+  {
+    id: 'chuangying', name: '创英 ChuangYing', country: '中国 江苏',
+    models: [
+      { id: 'CY-3.5x10', name: 'CY 种植体 3.5', diameters: [3.5,4.0,4.5,5.0], lengths: [8,10,12,14], platform: 'internal', connection: 'hex', price: 1400 },
+      { id: 'CY-4.0x10', name: 'CY 种植体 4.0', diameters: [4.0,4.5,5.0], lengths: [8,10,12,14], platform: 'internal', connection: 'hex', price: 1500 },
+      { id: 'CY-4.5x10', name: 'CY 种植体 4.5', diameters: [4.5,5.0,5.5], lengths: [8,10,12], platform: 'internal', connection: 'hex', price: 1600 },
+    ],
+  },
+  {
+    id: 'cdic', name: 'CDIC 华西口腔', country: '中国 四川',
+    models: [
+      { id: 'CDIC-3.5x10', name: 'CDIC 亲水 3.5', diameters: [3.5,4.0,4.5,5.0], lengths: [8,10,12,14], platform: 'internal', connection: 'conical', price: 1300 },
+      { id: 'CDIC-4.0x10', name: 'CDIC 亲水 4.0', diameters: [4.0,4.5,5.0], lengths: [8,10,12,14], platform: 'internal', connection: 'conical', price: 1400 },
+      { id: 'CDIC-4.5x10', name: 'CDIC 亲水 4.5', diameters: [4.5,5.0,5.5], lengths: [8,10,12], platform: 'internal', connection: 'conical', price: 1500 },
+    ],
+  },
 ];
 
 export const MOCK_IMPLANT_PLANS_3D = [

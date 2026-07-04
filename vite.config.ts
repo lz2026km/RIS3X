@@ -45,9 +45,29 @@ export default defineConfig({
     // PWA (v3.0.6.8-14: 完全禁用, 用我们自己的 simple SW)
     // 使用 generateSW: false + 自定义 public/sw.js (no-op SW, 不影响 MSW)
     VitePWA({
-      registerType: null,
-      strategies: 'generateSW',  // 切换到 generateSW 模式 (不再注入 manifest)
-      disable: true,  // 完全禁用 PWA 生成 (我们手动管理 public/sw.js)
+      registerType: 'autoUpdate',  // P0-11 v3.0.7: 启用 PWA,自动更新 SW
+      strategies: 'generateSW',
+      injectRegister: 'auto',
+      disable: false,  // P0-11 v3.0.7: 启用 PWA 生成
+      devOptions: { enabled: false },  // dev 模式不启用 (避免和 MSW sw.js 冲突)
+      workbox: {
+        // 缓存策略: app shell + 静态资源, MSW 路径不缓存
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest,woff,woff2}'],
+        navigateFallback: '/g005-radiology-ris/index.html',
+        navigateFallbackDenylist: [/^\/api\//, /^\/g005-radiology-ris\/api\//, /^\/mockServiceWorker\.js/, /^\/sw\.js/],
+        runtimeCaching: [
+          {
+            urlPattern: ({ request }) => request.destination === 'document',
+            handler: 'NetworkFirst',
+            options: { cacheName: 'html-cache', networkTimeoutSeconds: 3 },
+          },
+          {
+            urlPattern: ({ request }) => ['style','script','worker'].includes(request.destination),
+            handler: 'StaleWhileRevalidate',
+            options: { cacheName: 'asset-cache' },
+          },
+        ],
+      },
       manifest: {
         name: 'G005 放射科RIS系统',
         short_name: 'G005 RIS',

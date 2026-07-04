@@ -40,6 +40,8 @@ import { reviewAssistHandlers } from './v3ReviewHandlers';
 import { eyeHandlers } from './eyeHandlers';
 // [v3.0.6.8-53] 口腔专科 (Day 1: PACS 24 端点)
 import { dentalHandlers } from './dentalHandlers';
+// [P0-12 v3.0.7] 微信小程序 API
+import { wechatHandlers } from './wechatHandlers';
 import {
   CHECK_ITEM_TEMPLATES,
   INITIAL_CHECK_LISTS,
@@ -4843,6 +4845,7 @@ export const handlers = [
   ...eyeHandlers, // [v3.0.6.8-33] 眼科 180+ 端点
   ...dentalHandlers, // [v3.0.6.8-53] 口腔 24 端点 (Day 1 PACS)
   ...newPagesHandlers, // [v3.0.6.8-77] v67-v76 新页面后端
+  ...wechatHandlers, // [P0-12 v3.0.7] 微信小程序 8 端点
 ];
 
 // 总计: 56 + 6 + 5 + 5 + 6 + 5 = 83 端点

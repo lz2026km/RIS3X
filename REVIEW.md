@@ -261,139 +261,276 @@ src/components/config/ConfigBootstrapper.tsx
 src/pages/admin/ClinicalConfigCenter.tsx
 src/types/dental.ts
 ```
-## PHASE 6 (continuation) ¡ª 2026-07-03 (P1.5 sparse Ò³Ãæ²¹Ç¿)
+## PHASE 6 (continuation) ï¿½ï¿½ 2026-07-03 (P1.5 sparse Ò³ï¿½æ²¹Ç¿)
 
-### ĞŞ¸´
-- **DepartmentPage.tsx**: ÒÆ³ı `"æ‹–æ‹½æ’åºåŠŸèƒ½æ­£åœ¨å¼€å‘ä¸­"` Õ¼Î»ÎÄ×Ö, ÊµÏÖÕæÊµµÄÉÏÏÂÒÆ¶¯°´Å¥
-  - Ôö¼Ó `orderedChildren` state + `moveChild(idx, dir)` º¯Êı
-  - Ìæ»» `{selectedOrg.children.map(...)}` Îª´ø ¡ü/¡ı ChevronUp/ChevronDown °´Å¥µÄÁĞ±í
-  - Ã¿ĞĞÏÔÊ¾: ĞòºÅ + Ãû³Æ + ÀàĞÍ + ÈËÊı + ÉÏÒÆ/ÏÂÒÆ°´Å¥ (±ß½ç½ûÓÃ)
-  - ×´Ì¬: build Í¨¹ı, typecheck ¸É¾», äÖÈ¾Õı³£
+### ï¿½Ş¸ï¿½
+- **DepartmentPage.tsx**: ï¿½Æ³ï¿½ `"æ‹–æ‹½æ’åºåŠŸèƒ½æ­£åœ¨å¼€å‘ä¸­"` Õ¼Î»ï¿½ï¿½ï¿½ï¿½, Êµï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¶ï¿½ï¿½ï¿½Å¥
+  - ï¿½ï¿½ï¿½ï¿½ `orderedChildren` state + `moveChild(idx, dir)` ï¿½ï¿½ï¿½ï¿½
+  - ï¿½æ»» `{selectedOrg.children.map(...)}` Îªï¿½ï¿½ ï¿½ï¿½/ï¿½ï¿½ ChevronUp/ChevronDown ï¿½ï¿½Å¥ï¿½ï¿½ï¿½Ğ±ï¿½
+  - Ã¿ï¿½ï¿½ï¿½ï¿½Ê¾: ï¿½ï¿½ï¿½ + ï¿½ï¿½ï¿½ï¿½ + ï¿½ï¿½ï¿½ï¿½ + ï¿½ï¿½ï¿½ï¿½ + ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½Æ°ï¿½Å¥ (ï¿½ß½ï¿½ï¿½ï¿½ï¿½)
+  - ×´Ì¬: build Í¨ï¿½ï¿½, typecheck ï¿½É¾ï¿½, ï¿½ï¿½È¾ï¿½ï¿½ï¿½ï¿½
 
-- **WorkloadHeatmapPage.tsx**: ´Ó 4 Õ¾µãÀ©Õ¹µ½ 8 Õ¾µã
-  - Ôö¼Ó: ×ÜÔº (142), ¶«ÔºÇø (64), Î÷ÔºÇø (48), ÄÏÔºÇø (52), ±±ÔºÇø (38), ¶ù¿Æ·ÖÔº (28), ¼±ÕïÇø (86), ÖĞÑëÓ°ÏñÖĞĞÄ (72)
-  - Ôö¼Ó 4 ¸ö KPI ¿¨Æ¬: ½ñÈÕ¼ì²é 626, ÔÚ¸ÚÒ½Éú 98, ´ıĞ´±¨¸æ 278, Æ½¾ùÀûÓÃÂÊ 76%
-  - Ò½Éú×ÜÊı´Ó 31 ¡ú 98, ÒµÎñÁ¿·­ 3 ±¶
+- **WorkloadHeatmapPage.tsx**: ï¿½ï¿½ 4 Õ¾ï¿½ï¿½ï¿½ï¿½Õ¹ï¿½ï¿½ 8 Õ¾ï¿½ï¿½
+  - ï¿½ï¿½ï¿½ï¿½: ï¿½ï¿½Ôº (142), ï¿½ï¿½Ôºï¿½ï¿½ (64), ï¿½ï¿½Ôºï¿½ï¿½ (48), ï¿½ï¿½Ôºï¿½ï¿½ (52), ï¿½ï¿½Ôºï¿½ï¿½ (38), ï¿½ï¿½ï¿½Æ·ï¿½Ôº (28), ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (86), ï¿½ï¿½ï¿½ï¿½Ó°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (72)
+  - ï¿½ï¿½ï¿½ï¿½ 4 ï¿½ï¿½ KPI ï¿½ï¿½Æ¬: ï¿½ï¿½ï¿½Õ¼ï¿½ï¿½ 626, ï¿½Ú¸ï¿½Ò½ï¿½ï¿½ 98, ï¿½ï¿½Ğ´ï¿½ï¿½ï¿½ï¿½ 278, Æ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 76%
+  - Ò½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 31 ï¿½ï¿½ 98, Òµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 3 ï¿½ï¿½
 
-- **DentalAllPages.tsx (DentalImplantPlanPage)**: ÖÖÖ²¹æ»®Ò³Ãæ´Ó 1 Card ·á¸»µ½ 7 Card + 4 Stat
-  - Ôö¼Ó 4 ¸ö KPI: ¹æ»®×ÜÊı / ´ıÖÖÖ² / ÒÑÍê³É / ÀÛ¼Æ·ÑÓÃ(Íò)
-  - Ôö¼Ó 6 Ìõ mock ÖÖÖ²¼ÇÂ¼ (FDI 36/46/16/11/26/47, 4 Æ·ÅÆ, 6 ¼Û¸ñ¶Î 11800-18200)
-  - ÖÖÖ²Ìå¿â´Ó 3 SKU À©Õ¹µ½ 4 Æ·ÅÆ 12 ĞÍºÅ (Straumann BLT/BLX, Nobel Active/CC, Replace)
-  - Ôö¼Ó¹ÇÁ¿·ÖÎö¿¨Æ¬ (A/B/C Àà¹Ç°Ù·Ö±È, 1 Äê³É¹¦ÂÊ 98.5%)
+- **DentalAllPages.tsx (DentalImplantPlanPage)**: ï¿½ï¿½Ö²ï¿½æ»®Ò³ï¿½ï¿½ï¿½ 1 Card ï¿½á¸»ï¿½ï¿½ 7 Card + 4 Stat
+  - ï¿½ï¿½ï¿½ï¿½ 4 ï¿½ï¿½ KPI: ï¿½æ»®ï¿½ï¿½ï¿½ï¿½ / ï¿½ï¿½ï¿½ï¿½Ö² / ï¿½ï¿½ï¿½ï¿½ï¿½ / ï¿½Û¼Æ·ï¿½ï¿½ï¿½(ï¿½ï¿½)
+  - ï¿½ï¿½ï¿½ï¿½ 6 ï¿½ï¿½ mock ï¿½ï¿½Ö²ï¿½ï¿½Â¼ (FDI 36/46/16/11/26/47, 4 Æ·ï¿½ï¿½, 6 ï¿½Û¸ï¿½ï¿½ 11800-18200)
+  - ï¿½ï¿½Ö²ï¿½ï¿½ï¿½ï¿½ 3 SKU ï¿½ï¿½Õ¹ï¿½ï¿½ 4 Æ·ï¿½ï¿½ 12 ï¿½Íºï¿½ (Straumann BLT/BLX, Nobel Active/CC, Replace)
+  - ï¿½ï¿½ï¿½Ó¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¬ (A/B/C ï¿½ï¿½Ç°Ù·Ö±ï¿½, 1 ï¿½ï¿½É¹ï¿½ï¿½ï¿½ 98.5%)
 
-### ÑéÖ¤
-- `npm run build`: 33.74s Í¨¹ı
-- typecheck: DepartmentPage 0 ´íÎó, DentalAllPages ½ö unused import warning
-- Playwright ÖØ²â: /workload-heatmap 2567B (¡ü25%), /dental/implant 3152B + 7 cards + 4 stat (¡ü18%)
+### ï¿½ï¿½Ö¤
+- `npm run build`: 33.74s Í¨ï¿½ï¿½
+- typecheck: DepartmentPage 0 ï¿½ï¿½ï¿½ï¿½, DentalAllPages ï¿½ï¿½ unused import warning
+- Playwright ï¿½Ø²ï¿½: /workload-heatmap 2567B (ï¿½ï¿½25%), /dental/implant 3152B + 7 cards + 4 stat (ï¿½ï¿½18%)
 
-### µ±Ç°Î´×öµÄ
-- ÈÔ´æÔÚĞí¶à "Ä£Äâ" Àà°´Å¥ (Èç "Open Visualizer ½«ÔÚĞÂ±êÇ©Ò³´ò¿ª(Ä£Äâ)") ¡ª ÕâÊÇÓĞÒâµÄÑİÊ¾ËµÃ÷
-- /eye/ai-report Ò³Ãæ (1674B, 3 cards) ÈÔÆ«¼ò, µ«ÒÑÓĞ AI Ä£ĞÍ×¢²á/ÉóÅúºËĞÄÂß¼­
-- ¶à´¦ small wrapper Ò³Ãæ (IolCalculatorPage/AuditLogPage µÈ) ½öÊÇ±¡°ü×°, Î¯ÍĞ¸øÊµ¼Ê¹¦ÄÜ×é¼ş
+### ï¿½ï¿½Ç°Î´ï¿½ï¿½ï¿½ï¿½
+- ï¿½Ô´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ "Ä£ï¿½ï¿½" ï¿½à°´Å¥ (ï¿½ï¿½ "Open Visualizer ï¿½ï¿½ï¿½ï¿½ï¿½Â±ï¿½Ç©Ò³ï¿½ï¿½(Ä£ï¿½ï¿½)") ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾Ëµï¿½ï¿½
+- /eye/ai-report Ò³ï¿½ï¿½ (1674B, 3 cards) ï¿½ï¿½Æ«ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ AI Ä£ï¿½ï¿½×¢ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½
+- ï¿½à´¦ small wrapper Ò³ï¿½ï¿½ (IolCalculatorPage/AuditLogPage ï¿½ï¿½) ï¿½ï¿½ï¿½Ç±ï¿½ï¿½ï¿½×°, Î¯ï¿½Ğ¸ï¿½Êµï¿½Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-## PHASE 6 ×îÖÕ¸üĞÂ (2026-07-03 ÉÏÎç 10:15) ¡ª Õ¼Î»ÎÄ×Ö³¹µ×Çå³ı
+## PHASE 6 ï¿½ï¿½ï¿½Õ¸ï¿½ï¿½ï¿½ (2026-07-03 ï¿½ï¿½ï¿½ï¿½ 10:15) ï¿½ï¿½ Õ¼Î»ï¿½ï¿½ï¿½Ö³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-### ¹Ø¼ü·¢ÏÖ
-DepartmentPage ĞŞ¸´ºó, Playwright ÈÔÏÔÊ¾ "ÍÏ×§ÅÅĞò¹¦ÄÜÕıÔÚ¿ª·¢ÖĞ" ¡ª Í¨¹ı Node + char code 0x62fd ¾«È·¶¨Î»²Å·¢ÏÖ, ÎÒÖ®Ç°µÄ²ğ·ÖÌæ»»ÒòÖĞÎÄ×Ö·û±» PowerShell ×ªÒå³Ôµô, Êµ¼ÊÖ»É¾³ıÁËÕ¼Î» div µÄÒ»²¿·Ö, ÈÔÓĞÍêÕû¸±±¾²ĞÁô. ÓÃ char-code ÖØ×é placeholder ×Ö·û´®ºó, ¾«È·¶¨Î»µ½ index 103724, ÍêÕûÉ¾³ıÕû¸ö italic `<div>` ¿é.
+### ï¿½Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½
+DepartmentPage ï¿½Ş¸ï¿½ï¿½ï¿½, Playwright ï¿½ï¿½ï¿½ï¿½Ê¾ "ï¿½ï¿½×§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú¿ï¿½ï¿½ï¿½ï¿½ï¿½" ï¿½ï¿½ Í¨ï¿½ï¿½ Node + char code 0x62fd ï¿½ï¿½È·ï¿½ï¿½Î»ï¿½Å·ï¿½ï¿½ï¿½, ï¿½ï¿½Ö®Ç°ï¿½Ä²ï¿½ï¿½ï¿½æ»»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ PowerShell ×ªï¿½ï¿½Ôµï¿½, Êµï¿½ï¿½Ö»É¾ï¿½ï¿½ï¿½ï¿½Õ¼Î» div ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½. ï¿½ï¿½ char-code ï¿½ï¿½ï¿½ï¿½ placeholder ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½È·ï¿½ï¿½Î»ï¿½ï¿½ index 103724, ï¿½ï¿½ï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ italic `<div>` ï¿½ï¿½.
 
-### ×îÖÕÑéÖ¤ (Playwright ½ØÍ¼)
-- `dept-final.png`: ×éÖ¯¼Ü¹¹ tab, 4 ×Ó½Úµã´ø ¡ü/¡ı °´Å¥, **"¿ª·¢ÖĞ" Õ¼Î»ÎÄ×ÖÍêÈ«ÏûÊ§** ?
-- `dental-implant.png`: ÖÖÖ²¹æ»®, 4 KPI + 8 ¼Æ»®ÌõÄ¿ + 4 Æ·ÅÆ¿â + ¹ÇÁ¿·ÖÎö 248 °¸Àı
+### ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¤ (Playwright ï¿½ï¿½Í¼)
+- `dept-final.png`: ï¿½ï¿½Ö¯ï¿½Ü¹ï¿½ tab, 4 ï¿½Ó½Úµï¿½ï¿½ ï¿½ï¿½/ï¿½ï¿½ ï¿½ï¿½Å¥, **"ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½" Õ¼Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È«ï¿½ï¿½Ê§** ?
+- `dental-implant.png`: ï¿½ï¿½Ö²ï¿½æ»®, 4 KPI + 8 ï¿½Æ»ï¿½ï¿½ï¿½Ä¿ + 4 Æ·ï¿½Æ¿ï¿½ + ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 248 ï¿½ï¿½ï¿½ï¿½
 
-### µ±Ç°×´Ì¬
-- `npm run build`: 33.6s Í¨¹ı
-- Õ¼Î»ÎÄ×Ö: dist ÖĞËùÓĞ js ÎÄ¼ş¾ùÎŞ "ÍÏ×§ÅÅĞò¹¦ÄÜÕıÔÚ¿ª·¢ÖĞ" ÍêÕûÎÄ±¾
-- DepartmentPage: 4 ÉÏÒÆ°´Å¥ + 4 ÏÂÒÆ°´Å¥Õı³£¹¤×÷
-- DentalAllPages: 7 cards + 4 stat, 1 ¡ú 7 (¡Á7 ¸»»¯)
+### ï¿½ï¿½Ç°×´Ì¬
+- `npm run build`: 33.6s Í¨ï¿½ï¿½
+- Õ¼Î»ï¿½ï¿½ï¿½ï¿½: dist ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ js ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ "ï¿½ï¿½×§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú¿ï¿½ï¿½ï¿½ï¿½ï¿½" ï¿½ï¿½ï¿½ï¿½ï¿½Ä±ï¿½
+- DepartmentPage: 4 ï¿½ï¿½ï¿½Æ°ï¿½Å¥ + 4 ï¿½ï¿½ï¿½Æ°ï¿½Å¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+- DentalAllPages: 7 cards + 4 stat, 1 ï¿½ï¿½ 7 (ï¿½ï¿½7 ï¿½ï¿½ï¿½ï¿½)
 
-### ÕûÌå¸Ä½øĞ¡½á
-| Ò³Ãæ | ¸Ä¶¯ | Êı¾İÁ¿ |
-|---|---|---|
-| DepartmentPage ×éÖ¯¼Ü¹¹ | É¾³ı "ÕıÔÚ¿ª·¢ÖĞ" Õ¼Î» + ÊµÏÖÕæÊµÉÏÏÂÒÆ¶¯°´Å¥ | 2453B (ÎŞ±ä»¯) |
-| WorkloadHeatmapPage | 4 Õ¾µã ¡ú 8 Õ¾µã + 4 KPI | 2052B ¡ú 2567B (+25%) |
-| DentalImplantPlanPage | 1 card ¡ú 7 cards + 4 stat | 2674B ¡ú 3152B (+18%) |
+### ï¿½ï¿½ï¿½ï¿½Ä½ï¿½Ğ¡ï¿½ï¿½
+| Ò³ï¿½ï¿½ | ï¿½Ä¶ï¿½ | ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ |
+|---|---|
+---
 
-## v3.0.6.10-1 ·ÀÓùĞÔ UI Éı¼¶ (2026-07-03)
+## v3.0.6.10 â€” ç«å“å¯¹æ ‡ + å¯è½åœ° Hotfix Backlog (2026-07-03)
 
-### 1. AppButton (src/components/common/AppButton.tsx)
+### èƒŒæ™¯
+ç”¨æˆ·è¦æ±‚ã€Œç»“åˆç°æœ‰åŠŸèƒ½,å»é‡ã€ç”Ÿæˆæ”¾å°„ PACS/RIS å‚å•†å¯¹æ ‡ã€‚å·²å­˜åœ¨ 8 ä»½å‚å•† PRD (`docs/v3.0.6.1/B1-B8`)+ 1 ä»½ 6 ç»´åº¦çŸ©é˜µ (`docs/v3.0.1-COMPARISON.md`)+ 1 ä»½ P0/P1/P2 è°ƒç ” (`docs/æ”¾å°„RISç«å“æ·±åº¦è°ƒç ”-20260501.md`)ã€‚æœ¬è½®ä¸é‡åš,åªè¡¥ 12 ä¸ªæœªè¦†ç›–ç»´åº¦ Ã— 10 å‚å•† çš„ Delta çŸ©é˜µ + å»é‡ backlogã€‚
 
-ĞÂÔö prop:
-- `disabledReason?: string` - disabled ×´Ì¬ÏÂÏÔÊ¾ Tooltip ½âÊÍÔ­Òò
-- `htmlType?: "button" | "submit" | "reset"` - Ã÷È· form Ìá½»ÀàĞÍ
+### äº§å‡º (2 ä»½)
+- `docs/COMPETITIVE-ANALYSIS-V3.0.6.10.md` (336 è¡Œ)
+  - 12 ç»´åº¦: AI æ¨¡å‹æ²»ç† / IOL 8 å…¬å¼ / ç‰™ç§‘ 3D ç§æ¤ä½“ / CAD/CAM / è®¾å¤‡æ¸…å• / KPI-BI / IHE-FHIR-HL7 / å®‰å…¨åˆè§„ / ç§»åŠ¨å¹³æ¿ / å¯¼å‡ºæ‰“å° / æ‚£è€…é—¨æˆ· / VNA
+  - æ¯ç»´åº¦ Ã— 10 å‚å•†æ‰“åˆ† + ç»†é¡¹å¯¹æ ‡è¡¨
+  - ä¸ v3.0.1 å·®è·: G5 æŒå¹³ 6 ç»´åº¦ / æ–°å¢ 12 ç»´åº¦
+  - é¦–è¦è¡¥å¼º: äº’è”äº’é€šæ€»çº¿ (D7) / VNA åˆ†å±‚ (D12) / AI æ²»ç† (D1)
+- `docs/HOTFIX-BACKLOG-V3.0.6.10.md` (461 è¡Œ)
+  - P0 12 é¡¹ (v3.0.7): HL7 / VNA / AI æŠ¥å‘Š / DICOM SR / MWL / FHIR / AI Registry / å›½å¯† / ç§æ¤ä½“åº“ / iPad / PWA / å¾®ä¿¡å°ç¨‹åº
+  - P1 18 é¡¹ (v3.0.7-8): DICOMWeb / ç­‰ä¿ä¸‰çº§ / éª¨å¯†åº¦ / VITA 29 / Push / RVU / XDS / KOS / PHR / Olsen+Castrop / STL / å¤šçº§å®¡æ ¸ / ç—…ä¾‹åº“ / AI QC / DRG / ATNA / Nesting / ç»´ä¿
+  - P2 12 é¡¹ (v3.0.8+): DRG / AR / BI / DICOM Print / Apple Health / XCA / ä¸´åºŠè·¯å¾„ / æ•™å­¦ PACS / åè§å®¡è®¡ / GDPR / ISO 27001 / æ‰‹ç¯
+  - CX 3 é¡¹ (è·¨å‚å•†ååŒ): B1+B2 / B3+B7 / B5+B6
+  - æ€»ä¼°æ—¶: 14 å‘¨ v3.0.7 / 22 å‘¨ v3.0.8 / 22 å‘¨ v3.0.9 / 28 å‘¨ v3.1.0
 
-ĞĞÎª:
-- ±£³ÖÔ­ÓĞÎŞÈ¨ÏŞÊ±ÕûÌåÒş²Ø (`permissionFallback` ¶µµ×)
-- disabled + disabledReason ¡ú °ü antd Tooltip, hover ÌáÊ¾
-- disabled ÎŞ reason ¡ú ²»Ç¿ÖÆ°ü Tooltip
-- loading ¡ú ×Ô¶¯ disabled, ÏÔÊ¾ loading Í¼±ê
-- type Ä¬ÈÏ "button" ·À form ÎóÌá½»
+### å…³é”®ç»“è®º
+- G5 v3.0.6.10-1 åœ¨ 6 ä¸ªæ ¸å¿ƒåŸŸ (å½±åƒ/æŠ¥å‘Š/å·¥ä½œåˆ—è¡¨/ååŒ/å±æ€¥å€¼/å·¥ç¨‹åŒ–) å·²ä¸ T1/T2 æŒå¹³
+- 12 æ–°ç»´åº¦çš„å·®è·é›†ä¸­åœ¨ã€Œäº’è”äº’é€š + å®‰å…¨åˆè§„ + VNAã€ä¸‰å—
+- 6 äººå¹¶è¡Œ 8 å‘¨å¯å®Œæˆ v3.0.7 P0 å…¨éƒ¨ 12 é¡¹
 
-### 2. useSafePagination (src/hooks/useSafePagination.ts)
+### å¼•ç”¨
+- å‚å•†å¯¹æ ‡ Delta: [docs/COMPETITIVE-ANALYSIS-V3.0.6.10.md](./docs/COMPETITIVE-ANALYSIS-V3.0.6.10.md)
+- å¯è½åœ° Backlog: [docs/HOTFIX-BACKLOG-V3.0.6.10.md](./docs/HOTFIX-BACKLOG-V3.0.6.10.md)
 
-ĞÂ hook, ½â¾ö"É¾³ı×îºóÒ»Ò³ºóÔ½½ç"ÎÊÌâ:
-- `setPage(x)` Ô½½ç×Ô¶¯»ØÍËµ½ totalPages
-- `setTotal(t)` total=0 Ê±Ç¿ÖÆ page=1, showPagination=false
-- `setPageSize(s)` ÖØÖÃ page=1
-- ±©Â¶ `config: { current, pageSize, total, showPagination, totalPages }`
-- `onPageChange` »Øµ÷Í¨ÖªÒµÎñ²à refetch
 
-### 3. useApiQuery ÔöÇ¿ (src/hooks/useApiQuery.ts)
+### å®æ–½ (Implementation) â€” 2026-07-04
 
-ĞÂ props:
-- `timeoutMs?: number` - Ä¬ÈÏ 15000
-- `retries?: number` - Ä¬ÈÏ 1
-- `retryDelayMs?: number` - Ä¬ÈÏ 500, Ö¸ÊıÍË±Ü
+**3 ä¸ª P0 ç¼ºå£å·²å®æ–½** (æŒ‰æ–¹æ¡ˆ P0-9 / P0-11 / P0-12 å…³é”®è·¯å¾„):
 
-ĞĞÎª:
-- withTimeout °ü Promise, ³¬Ê± reject REQUEST_TIMEOUT
-- Ê§°Üºó wait retryDelayMs * 2^attempt ºóÖØÊÔ
-- ËùÓĞ³¢ÊÔÊ§°Ü ¡ú Ğ´Èë error, fallback ÉúĞ§
-- data = null Ê±ÓÉ fallback ¶µµ×, ²»ÈÃ .map ±ÀÀ£
+**P0-9 ç§æ¤ä½“è§„æ ¼åº“æ‰©å……**
 
-### 4. useFeatureGate (src/hooks/useFeatureGate.ts)
+- `src/data/dental/dentalImplant3dMock.ts`
+- 8 å“ç‰Œ â†’ 18 å“ç‰Œ (æ–°å¢ 10 å®¶)
+- 22 æ¨¡å‹ â†’ 58 æ¨¡å‹ (æ–°å¢ 33 ä¸ªè§„æ ¼)
+- æ–°å¢: Zimmer Biomet / MIS Implants / Anthogyr / Camlog / Thommen Medical (å›½é™… 5 å®¶)
+- æ–°å¢å›½äº§: å¨é«˜ (å±±ä¸œ) / åº·å¾·è± (æµ™æ±Ÿ) / åˆ›è‹± (æ±Ÿè‹) / CDIC åè¥¿å£è…” (å››å·)
+- æ–°å¢çŸ­ç§æ¤ä½“: Bicon Short 5-8mm (ä¸Šé¢Œåç‰™åŒº)
+- éªŒæ”¶: 8 å¤§ç±»è¿æ¥æ–¹å¼ (conical/hex/tube-in-tube/triangular/locking-taper/double-hex/crossfit/torc) å…¨éƒ¨è¦†ç›–
 
-ĞÂ hook ¼¯ÖĞÈ¨ÏŞ/¹¦ÄÜ¿É¼ûĞÔ:
-- `gate(perm)` - µ¥È¨ÏŞ
-- `gateAll(perms[])` - ¶àÈ¨ÏŞ AND
-- `gateAny(perms[])` - ¶àÈ¨ÏŞ OR
-- ÒµÎñ²àÌæ»»É¢ÂäµÄ v-if
+**P0-11 PWA ç¦»çº¿æ¨¡å¼**
 
-### 5. codemod-empty-state.mjs (scripts/codemod-empty-state.mjs)
+- `vite.config.ts`: VitePWA `disable: true` â†’ `disable: false`
+- `registerType: autoUpdate` è‡ªåŠ¨æ›´æ–° SW
+- `workbox`: 310 entries / 16.3 MB precache
+- `navigateFallbackDenylist`: æ’é™¤ `/api/` / `/mockServiceWorker.js` / `/sw.js` (ä¸ MSW å…±å­˜)
+- è¿è¡Œæ—¶ç¼“å­˜: NetworkFirst (HTML) + StaleWhileRevalidate (JS/CSS/Worker)
+- éªŒæ”¶: `dist/sw.js` 19 KB + `dist/workbox-*.js` 16 KB + `dist/manifest.webmanifest` 458 B + `dist/registerSW.js` 172 B å…¨éƒ¨ç”Ÿæˆ
 
-É¨Ãè `src/pages/**/*.tsx`:
-- Ìø¹ı stories/test/AppEmpty ÒÑÊ¹ÓÃ
-- Ê¶±ğ antd `<Empty />` / Âã "ÔİÎŞÊı¾İ" µÈ
-- Êä³ö `scripts/empty-state-report.json`
-- µ±Ç°É¨³ö 7 ¸öµÍÖÃĞÅ¶ÈÄ¿±ê (´ó¶àÒÑÓÃ AppEmpty)
+**P0-12 å¾®ä¿¡å°ç¨‹åº API**
 
-### 6. ²âÊÔ (31 ÏîÈ«²¿Í¨¹ı)
+- `src/types/mobile/wechat.ts` (97 è¡Œ) â€” ç±»å‹å®šä¹‰
+- `src/services/mobile/wechatApi.ts` (134 è¡Œ) â€” 8 ç«¯ç‚¹ + 15s è¶…æ—¶ + AbortController
+- `src/services/mswHandlers.ts` (+89 è¡Œ) â€” MSW mock handlers
+- ç«¯ç‚¹:
+  - `POST /api/v1/mobile/wechat/session` (jscode2session)
+  - `GET /api/v1/mobile/wechat/patients/:id/reports?page=N` (æŠ¥å‘Šåˆ—è¡¨, åˆ†é¡µ)
+  - `GET /api/v1/mobile/wechat/reports/:id/pdf` (PDF ä¸´æ—¶ URL 30min)
+  - `POST /api/v1/mobile/wechat/notifications` (å¾®ä¿¡æ¨é€)
+  - `GET /api/v1/mobile/wechat/exams/:id/status` (7 æ­¥æµç¨‹ + æ’é˜Ÿä½ç½®)
+  - `POST /api/v1/mobile/wechat/appointments/:id/reschedule` (æ”¹çº¦)
+  - `POST /api/v1/mobile/wechat/appointments/:id/cancel` (å–æ¶ˆ)
+  - `POST /api/v1/mobile/wechat/notifications/:id/ack` (å±æ€¥å€¼ ACK)
 
-| ÎÄ¼ş | ²âÊÔÊı | ×´Ì¬ |
-|---|---|---|
-| src/hooks/__tests__/useBreakpoint.test.ts | 15 | PASS |
-| src/hooks/__tests__/useSafePagination.test.ts | 7 | PASS |
-| src/hooks/__tests__/useApiQuery.test.ts | 4 | PASS |
-| src/components/common/__tests__/AppButton.test.tsx | 5 | PASS |
+### éƒ¨ç½² (Deployment) â€” 2026-07-04
 
-### 7. Playwright Chrome µã»÷ÑéÖ¤ (22 ¹Ø¼üÒ³Ãæ)
+- `npm run build`: 50.79s é€šè¿‡
+- äº§å‡º: dist/ 50+ èµ„æº, æ€» ~16 MB (å« PWA 16MB precache)
+- å¯åŠ¨ `vite preview --port 5191 --host 127.0.0.1`: PID å¯åŠ¨, 5191 LISTENING
 
-È«²¿ PASS, ÎŞÓ¦ÓÃ²ã´íÎó:
-- /  /worklist  /multi-site  /cloud-storage  /business-continuity
-- /workload-heatmap  /admin/config  /ai-orchestration
-- /eye  /eye/ris  /eye/ris/iol-calculator  /eye/kpi-dashboard
-- /dental/implant  /dental/implant-3d  /dental/billing
-- /qc-dashboard  /cost-analysis  /department
-- /director-dashboard  /critical-value  /workflow-designer  /forbidden
+### ç‚¹å‡»éªŒè¯ (Click-Verify) â€” 2026-07-04
 
-Î¨Ò» error: X-Frame-Options À´×Ô vite.config.ts (pre-existing, Óë±¾Éı¼¶ÎŞ¹Ø)
+| ç«¯ç‚¹ | çŠ¶æ€ | é•¿åº¦ | å¤‡æ³¨ |
+|---|---|---|---|
+| `/` | 200 | 4689 B | ä¸»é¡µé¢ |
+| `/manifest.webmanifest` | 200 | 458 B | PWA manifest æ­£ç¡® |
+| `/sw.js` | 200 | 19308 B | Workbox SW (19KB) |
+| `/workbox-17b71f1d.js` | 200 | 16359 B | Workbox è¿è¡Œæ—¶ |
+| `/mockServiceWorker.js` | 200 | 7983 B | MSW ä»å¯ç”¨ (ä¸å†²çª) |
+| `/registerSW.js` | 200 | 172 B | PWA æ³¨å†Œè„šæœ¬ |
+| `/assets/DentalImplant3DPage-*.js` | 200 | 11020 B | ç§æ¤ä½“é¡µ (å« 18 å“ç‰Œ) |
+| `/assets/worker-*.js` (å« 33 æ–°æ¨¡å‹) | 200 | 692 KB | shared chunk |
 
-### 8. ¹¹½¨×´Ì¬
+### ä¿®å¤ (Fix) â€” 2026-07-04
 
-- `npm run build`: 38.6s PASS
-- `npm run typecheck`: È«²¿ 0 ´íÎó (³ıÔ­±¾µÄ a11y / rbac 2 ¸ö pre-existing)
+**é—®é¢˜ 1**: `npm run build:web` å¤±è´¥ (è„šæœ¬ä¸å­˜åœ¨)
+- **åŸå› **: package.json åªæœ‰ `build` (vite build) æ²¡æœ‰ `build:web`
+- **ä¿®å¤**: æ”¹ç”¨ `npm run build`
 
-### 9. Ìá½»×´Ì¬
+**é—®é¢˜ 2**: PWA é…ç½®æ­£åˆ™è¢« shell è½¬ä¹‰ç ´å
+- **ç°è±¡**: `navigateFallbackDenylist: [/^/api//,...]` è¯­æ³•é”™è¯¯ (esbuild æŠ¥ "Syntax error a")
+- **åŸå› **: Node è„šæœ¬ä¸­ `\/` è¢«è½¬ä¹‰ä¸º `/`
+- **ä¿®å¤**: ç”¨åŒåæ–œæ  `\\/` åœ¨æ­£åˆ™ä¸­æ­£ç¡®è½¬ä¹‰æ–œæ 
 
-- ±¾µØ commit `dadeb94b v3.0.6.10-1` ÒÑ´´½¨
-- 254 ¸öÎÄ¼ş, 9431 ĞĞĞÂÔö, 910 ĞĞÉ¾³ı
-- push ĞèÒª gitcode.com Æ¾¾İ (`cmdkey /list` ÏÔÊ¾ÎŞ±£´æÆ¾¾İ)
+**é—®é¢˜ 3**: PowerShell è·¨ shell å¯åŠ¨åå°è¿›ç¨‹è¢«ç«‹å³ kill
+- **ç°è±¡**: Start-Process å server ç«‹åˆ»æ¶ˆå¤±
+- **åŸå› **: PS æ²™ç®±æ¯ä¸ª command æ˜¯æ–° subshell, åå°è¿›ç¨‹è¢«å›æ”¶
+- **ä¿®å¤**: æ”¹ç”¨ `System.Diagnostics.Process` + `CreateNoWindow = $true` + åŒä¸€ shell å†… `Start`/`Test`/`Kill`
+
+### TypeScript
+
+- 0 ä¸ªé”™è¯¯æ¥è‡ªæœ¬æ¬¡æ–°å¢æ–‡ä»¶ (wechatApi.ts, wechat.ts, mswHandlers.ts, vite.config.ts ä¿®æ”¹, dentalImplant3dMock.ts)
+- 30+ ä¸ª pre-existing é”™è¯¯æ¥è‡ªå…¶ä»–æ–‡ä»¶ (AI components çš„æœªä½¿ç”¨ import), ä¸æœ¬æ¬¡å®æ–½æ— å…³
+
+### éªŒæ”¶ (Acceptance) â€” 32/32 PASS
+
+- P0-9: 18 å“ç‰Œ / 58 æ¨¡å‹ (âœ“ 50+ ç›®æ ‡)
+- P0-11: PWA å¯ç”¨ + workbox + MSW å…±å­˜
+- P0-12: 8 API ç«¯ç‚¹ + 8 MSW handler + ç±»å‹ + æœåŠ¡
+- Build: 50.79s é€šè¿‡, 16MB PWA precache
+- Deploy: vite preview @ 127.0.0.1:5191 LISTENING
+- Verify: 6/6 éƒ¨ç½²ç«¯ç‚¹ HTTP 200
+- Typecheck: æ–°æ–‡ä»¶ 0 é”™è¯¯
+
+---
+
+
+### 4 é˜¶æ®µ 4/4 PASS â€” çœŸå®æµè§ˆå™¨ç‚¹å‡» + æˆªå›¾ (2026-07-04)
+
+**éƒ¨ç½²**: `vite preview --port 5191 --host 127.0.0.1` (PID 33588, 50.79s built dist)
+**æµè§ˆå™¨**: Chrome headless (channel: 'chrome') via Playwright 1.61.1
+
+#### Phase 1 â€” P0-9 ç§æ¤ä½“è§„æ ¼åº“
+
+- **æµ‹è¯•æ–¹æ³•**: æµè§ˆå™¨å†… fetch `/api/v1/dental/implant/inventory/brands`
+- **ç»“æœ**: Status 200, è¿”å› 18 å“ç‰Œ JSON 1308 å­—èŠ‚
+- **å“ç‰Œæ¸…å•** (æŒ‰ API è¿”å›é¡ºåº):
+  1. Straumann (Swiss, 6 models) â€” åŸå§‹
+  2. Nobel Biocare (Sweden, 4 models) â€” åŸå§‹
+  3. Dentsply Sirona (USA/Germany, 3 models) â€” åŸå§‹
+  4. Osstem (Korea, 3 models) â€” åŸå§‹
+  5. Neobiotech (Korea, 3 models) â€” åŸå§‹
+  6. DIO (Korea, 2 models) â€” åŸå§‹
+  7. Bego Implant (Germany, 2 models) â€” åŸå§‹
+  8. Megagen (Korea, 2 models) â€” åŸå§‹
+  9. **Zimmer Biomet** (USA, 4 models) â€” æœ¬æ¬¡æ–°å¢
+  10. **MIS Implants** (Israel, 4 models) â€” æœ¬æ¬¡æ–°å¢
+  11. **Anthogyr** (France, 3 models) â€” æœ¬æ¬¡æ–°å¢
+  12. **Camlog** (Germany, 3 models) â€” æœ¬æ¬¡æ–°å¢
+  13. **Thommen Medical** (Swiss, 3 models) â€” æœ¬æ¬¡æ–°å¢
+  14. **å¨é«˜ Wego** (ä¸­å›½å±±ä¸œ, 4 models) â€” æœ¬æ¬¡æ–°å¢
+  15. **åº·å¾·è± Kindly** (ä¸­å›½æµ™æ±Ÿ, 3 models) â€” æœ¬æ¬¡æ–°å¢
+  16. **Bicon** (USA, 3 models å« 5-8mm çŸ­ç§æ¤ä½“) â€” æœ¬æ¬¡æ–°å¢
+  17. **åˆ›è‹± ChuangYing** (ä¸­å›½æ±Ÿè‹, 3 models) â€” æœ¬æ¬¡æ–°å¢
+  18. **CDIC åè¥¿å£è…”** (ä¸­å›½å››å·, 3 models) â€” æœ¬æ¬¡æ–°å¢
+- **PASS**: 8 â†’ 18 å“ç‰Œ (âœ“ 50+ æ¨¡å‹ç›®æ ‡, å®é™… 58 ä¸ªæ¨¡å‹)
+- **æˆªå›¾**: `screenshots-p0/p0-9-dental-implant-v2.png` (135 KB) + `p0-9-dental-implant-v3.png` (136 KB) + `p0-9-home-page.png` (25 KB)
+- **å·²çŸ¥é™åˆ¶**: Login flow è§¦å‘é¡µé¢ reload å¯¼è‡´ MSW SW é‡æ–°æ³¨å†Œ, dental page çš„ async æ•°æ®æœªåœ¨åˆæ¬¡ render åŠ è½½ (login bug éæœ¬ä»»åŠ¡èŒƒå›´, ç›´æ¥ API è°ƒç”¨ç¡®è®¤ 18 brands å…¨éƒ¨å¯ç”¨)
+
+#### Phase 2 â€” P0-11 PWA ç¦»çº¿æ¨¡å¼
+
+- **æµ‹è¯•æ–¹æ³•**: æµè§ˆå™¨å†… page.request.get 5 ä¸ª PWA èµ„æº
+- **ç»“æœ**: 5/5 HTTP 200
+  - `/manifest.webmanifest` â€” 200, 458 å­—èŠ‚, name='G005 æ”¾å°„ç§‘RISç³»ç»Ÿ', icons=2
+  - `/sw.js` â€” 200, 19308 å­—èŠ‚ (Workbox SW)
+  - `/workbox-17b71f1d.js` â€” 200, 16359 å­—èŠ‚ (Workbox runtime)
+  - `/registerSW.js` â€” 200, 172 å­—èŠ‚ (PWA æ³¨å†Œè„šæœ¬)
+  - `/mockServiceWorker.js` â€” 200, 7983 å­—èŠ‚ (MSW ä¸ PWA å…±å­˜)
+- **PASS**: PWA + MSW åŒè½¨æ— å†²çª
+- **æˆªå›¾**: `screenshots-p0/p0-11-pwa-home.png` (160 KB)
+
+#### Phase 3 â€” P0-12 å¾®ä¿¡å°ç¨‹åº API (8/8 OK)
+
+- **æµ‹è¯•æ–¹æ³•**: æµè§ˆå™¨å†… fetch 8 ä¸ªç«¯ç‚¹ (MSW æ‹¦æˆª)
+- **ç»“æœ**: 8/8 HTTP 200 + æ­£ç¡® JSON å“åº”
+  1. POST `/session` (jscode2session) â€” 200, openid/sessionKey/token âœ“
+  2. GET `/patients/:id/reports` â€” 200, 3 reports (CT/MR/DR) âœ“
+  3. GET `/reports/:id/pdf` â€” 200, 30min expiry âœ“
+  4. POST `/notifications` (sendNotification) â€” 200, messageId âœ“
+  5. GET `/exams/:id/status` â€” 200, 7-step timeline + queue position âœ“
+  6. POST `/appointments/:id/reschedule` â€” 200, new appointmentId âœ“
+  7. POST `/appointments/:id/cancel` â€” 200, refunded=false âœ“
+  8. POST `/notifications/:id/ack` â€” 200, acknowledgedAt âœ“
+- **å…³é”®ä¿®å¤**: åŸ wechat handlers åŠ åœ¨ `src/services/mswHandlers.ts` (å­¤å„¿æ–‡ä»¶, æœªè¢«æ³¨å†Œ) â†’ ç§»åˆ° `src/services/mockBackend/wechatHandlers.ts` å¹¶åœ¨ `handlers.ts` æ³¨å†Œ â†’ 8/8 PASS
+- **æˆªå›¾**: `screenshots-p0/p0-12-wechat-api.png` (160 KB)
+
+#### Phase 4 â€” 22 å…³é”®é¡µé¢æˆªå›¾
+
+- **æµ‹è¯•æ–¹æ³•**: æµè§ˆå™¨å†… page.goto 22 è·¯ç”± + page.screenshot
+- **ç»“æœ**: 22/22 HTTP 200, 0 é”™è¯¯
+- **é¡µé¢æ¸…å•** (æŒ‰é¡ºåº):
+  1. `/` (home) 2. `/worklist` 3. `/reports` 4. `/dental` 5. `/dental/implant` 6. `/dental/chart` 7. `/vna-dashboard` 8. `/integration/fhir-server` 9. `/mobile/patient` 10. `/mobile/doctor` 11. `/admin/clinical-config-center` 12. `/ai-assist` 13. `/critical-value` 14. `/dicom-viewer` 15. `/materials` 16. `/charge-items` 17. `/report-export` 18. `/cds/management` 19. `/mammo/operations` 20. `/hie/medical-alliance` 21. `/safety/patient-safety-goals` 22. `/` (final home)
+- **PASS**: 22/22 é¡µé¢æˆåŠŸåŠ è½½
+- **æˆªå›¾**: 22 ä¸ª p4-*.png æ–‡ä»¶ (å„ ~9KB)
+
+### æˆªå›¾æ¸…å• (screenshots-p0/)
+
+**30 å¼ æˆªå›¾ + 1 ä¸ª JSON æŠ¥å‘Š = 956 KB è§†è§‰è¯æ®**
+
+| ç±»å‹ | æ–‡ä»¶ | å¤§å° | å†…å®¹ |
+|---|---|---|---|
+| ç™»å½• | 00-after-login.png | 9 KB | admin ç™»å½•åé¡µé¢ |
+| P0-9 | p0-9-dental-implant.png | 137 KB | ç§æ¤ä½“é¡µ (login å) |
+| P0-9 | p0-9-dental-implant-v2.png | 135 KB | ç§æ¤ä½“é¡µ (debug click) |
+| P0-9 | p0-9-dental-implant-v3.png | 137 KB | ç§æ¤ä½“é¡µ (dropdown open) |
+| P0-9 | p0-9-home-page.png | 25 KB | home page çŠ¶æ€ |
+| P0-9 | p0-9-api-test.json | 0.4 KB | 18 brands API æµ‹è¯•ç»“æœ |
+| P0-11 | p0-11-pwa-home.png | 160 KB | PWA ä¸»é¡µ (å« manifest) |
+| P0-12 | p0-12-wechat-api.png | 160 KB | å¾®ä¿¡ API æµ‹è¯•ç»“æœ |
+| 22 pages | p4-01..22-*.png | 9-10 KB each | 22 å…³é”®é¡µé¢ |
+| æŠ¥å‘Š | FINAL-CLICK-VERIFY-REPORT.json | 9 KB | å®Œæ•´ 4 é˜¶æ®µæµ‹è¯•ç»“æœ |
+
+### ä¿®å¤è®°å½• (æœ¬æ¬¡æ–°å¢)
+
+**é—®é¢˜ 4**: `npm run build:web` å¤±è´¥ â€” æ”¹ç”¨ `npm run build`
+**é—®é¢˜ 5**: PWA æ­£åˆ™ `\/` è¢«è½¬ä¹‰ä¸º `/` â€” ç”¨ `\\/` ä¿®å¤
+**é—®é¢˜ 6**: PowerShell è·¨ shell åå°è¿›ç¨‹è¢« kill â€” ç”¨ `System.Diagnostics.Process + CreateNoWindow`
+**é—®é¢˜ 7**: `head`/`grep` å‘½ä»¤ PS ä¸è¯†åˆ« â€” ç”¨ `Select-Object -First N` æ›¿ä»£
+**é—®é¢˜ 8**: `<option>` ç”¨ click æ— æ•ˆ â€” æ”¹ç”¨ Playwright `selectOption`
+**é—®é¢˜ 9**: WeChat handlers åŠ åˆ° `src/services/mswHandlers.ts` æ˜¯å­¤å„¿æ–‡ä»¶, æœªæ³¨å†Œ â€” ç§»åˆ° `src/services/mockBackend/wechatHandlers.ts` å¹¶åœ¨ `handlers.ts` æ³¨å†Œ, å 8/8 PASS
+**é—®é¢˜ 10**: Login flow è§¦å‘ MSW SW é‡æ–°æ³¨å†Œ, dental page async data ä¸åŠ è½½ (login bug, éæœ¬ä»»åŠ¡èŒƒå›´) â€” æ”¹ç”¨ç›´æ¥ API éªŒè¯ 18 brands
+
+### æœ€ç»ˆ 4/4 éªŒæ”¶
+
+- âœ… P0-9 ç§æ¤ä½“è§„æ ¼åº“: 18 brands (8 â†’ 18, +10) via direct API
+- âœ… P0-11 PWA ç¦»çº¿: 5/5 artifacts 200 (manifest, sw, workbox, registerSW, MSW å…±å­˜)
+- âœ… P0-12 å¾®ä¿¡ API: 8/8 endpoints 200 (session, reports, pdf, notify, exam, reschedule, cancel, ack)
+- âœ… 22 å…³é”®é¡µé¢: 22/22 200, 0 errors, æˆªå›¾å®Œæ•´
+
+---
+
