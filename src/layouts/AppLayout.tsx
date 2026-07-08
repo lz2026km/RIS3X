@@ -46,6 +46,7 @@ import { useNetworkStatus } from "../hooks/useNetworkStatus";
 import { useAuth } from "../hooks/useAuth";
 import { useBreakpoint } from "../hooks/useBreakpoint";
 import { NetworkOfflineBanner } from "../components/feedback/NetworkOfflineBanner";
+import { SkipLink } from "../a11y/SkipLink";
 
 const NavigateCtx = createContext<(path: string) => void>(() => {});
 export const useNav = (): ((path: string) => void) => useContext(NavigateCtx);
@@ -64,7 +65,7 @@ function Loading() {
         alignItems: "center",
         justifyContent: "center",
         background: "var(--bg-primary, #0f172a)",
-        color: "var(--text-muted, #94a3b8)",
+        color: "var(--text-muted, #64748b)",
         fontSize: 14,
         gap: 12,
       }}
@@ -134,14 +135,14 @@ const s: Record<string, React.CSSProperties> = {
     background: "var(--bg-sidebar, #1a3a5c)",
     display: "flex",
     flexDirection: "column",
-    borderRight: "1px solid var(--border-color, #334155)",
+    borderRight: "1px solid var(--border-color, #475569)",
     transition: "width 0.2s",
     overflow: "hidden",
     flexShrink: 0,
   },
   logoWrap: {
     padding: "16px 14px",
-    borderBottom: "1px solid var(--border-color, #334155)",
+    borderBottom: "1px solid var(--border-color, #475569)",
     display: "flex",
     alignItems: "center",
     gap: 10,
@@ -190,7 +191,7 @@ const s: Record<string, React.CSSProperties> = {
     width: "100%",
     padding: 8,
     borderRadius: 8,
-    border: "1px solid var(--border-color, #334155)",
+    border: "1px solid var(--border-color, #475569)",
     background: "var(--bg-deep, #0f172a)",
     color: "var(--text-muted, #64748b)",
     cursor: "pointer",
@@ -228,7 +229,7 @@ const s: Record<string, React.CSSProperties> = {
   header: {
     height: 52,
     background: "var(--bg-header, #1e293b)",
-    borderBottom: "1px solid var(--border-color, #334155)",
+    borderBottom: "1px solid var(--border-color, #475569)",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
@@ -259,7 +260,7 @@ const s: Record<string, React.CSSProperties> = {
   },
   profileBottom: {
     padding: "12px 8px",
-    borderTop: "1px solid var(--border-color, #334155)",
+    borderTop: "1px solid var(--border-color, #475569)",
     display: "flex",
     flexDirection: "column" as const,
     gap: 8,
@@ -269,7 +270,7 @@ const s: Record<string, React.CSSProperties> = {
     alignItems: "center",
     gap: 4,
     fontSize: 13,
-    color: "var(--text-muted, #94a3b8)",
+    color: "var(--text-muted, #64748b)",
     minWidth: 0,
     overflow: "hidden",
     whiteSpace: "nowrap" as const,
@@ -461,6 +462,7 @@ export function AppLayout() {
 
   return (
     <div style={{ ...s.root, direction }}>
+      <SkipLink />
       <NavigateCtx.Provider value={navigate}>
         <aside
           className="app-sidebar no-print"
@@ -645,7 +647,7 @@ export function AppLayout() {
                   height: 32,
                   padding: "0 12px 0 32px",
                   borderRadius: 6,
-                  border: "1px solid var(--border-color, #334155)",
+                  border: "1px solid var(--border-color, #475569)",
                   background: "var(--bg-deep, #0f172a)",
                   color: "var(--text-header, #f1f5f9)",
                   fontSize: 13,

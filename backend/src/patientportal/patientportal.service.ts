@@ -1,54 +1,57 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common'
+import { PrismaService } from '../prisma/prisma.service'
 
 @Injectable()
-export class Patient-portalService {
+export class PatientPortalService {
+  constructor(private readonly prisma: PrismaService) {}
+
   async listPortalPatients() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.patient.findMany({ orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async getPortalPatient(id: string) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.patient.findUnique({ where: { id } })
+    return { data: data ? [data] : [] }
   }
 
   async listClinicalData() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.report.findMany({ orderBy: { createdAt: 'desc' }, take: 50 })
+    return { data }
   }
 
   async getClinicalData(id: string) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.report.findUnique({ where: { id } })
+    return { data: data ? [data] : [] }
   }
 
   async listEducation() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.systemConfig.findMany({ where: { key: { startsWith: 'education_' } } })
+    return { data }
   }
 
   async getEducation(id: string) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.systemConfig.findUnique({ where: { key: id } })
+    return { data: data ? [data] : [] }
   }
 
   async getPatientMobile() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.patient.findMany({ take: 20, orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async getDoctorMobile() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.user.findMany({ where: { role: 'DOCTOR' }, take: 20 })
+    return { data }
   }
 
   async getNurseMobile() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.user.findMany({ where: { role: 'NURSE' }, take: 20 })
+    return { data }
   }
 
   async getTechMobile() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.user.findMany({ where: { role: 'TECHNICIAN' }, take: 20 })
+    return { data }
   }
 }

@@ -1,69 +1,72 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common'
+import { PrismaService } from '../prisma/prisma.service'
 
 @Injectable()
-export class Ai-platformService {
+export class AiPlatformService {
+  constructor(private readonly prisma: PrismaService) {}
+
   async listAiModels() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findMany({ where: { resource: 'ai-model' }, orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async getAiModel(id: string) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findUnique({ where: { id } })
+    return { data: data ? [data] : [] }
   }
 
-  async deployAiModel(id: string, body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+  async deployAiModel(body: any) {
+    const data = await this.prisma.auditLog.create({ data: { action: 'DEPLOY', resource: 'ai-model', detail: body } })
+    return { data: [data] }
   }
 
   async listAiQcResults() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findMany({ where: { resource: 'ai-qc' }, orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async getAiQcResult(id: string) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findUnique({ where: { id } })
+    return { data: data ? [data] : [] }
   }
 
   async listAiStructuredReports() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findMany({ where: { resource: 'ai-structured-report' }, orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async generateStructuredReport(body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.create({ data: { action: 'GENERATE', resource: 'ai-structured-report', detail: body } })
+    return { data: [data] }
   }
 
   async listAiMedicalDevices() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.device.findMany({ orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async getAiOrchestration() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findMany({ where: { resource: 'ai-orchestration' }, orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async createAiOrchestration(body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.create({ data: { action: 'CREATE', resource: 'ai-orchestration', detail: body } })
+    return { data: [data] }
   }
 
   async getAiFusionWorkspace() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findMany({ where: { resource: 'ai-fusion' }, orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async getAiAssist() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findMany({ where: { resource: 'ai-assist' }, orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async getAiMarketplace() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findMany({ where: { resource: 'ai-marketplace' }, orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 }

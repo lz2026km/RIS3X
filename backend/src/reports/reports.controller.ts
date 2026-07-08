@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { Roles } from '../common/decorators/roles.decorator'
 import type { Request } from 'express'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
@@ -29,6 +30,7 @@ const UpdateReportSchema = z.object({
 @ApiTags('reports')
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
+@Roles('DOCTOR', 'DIRECTOR', 'ADMIN', 'TECHNICIAN')
 @Controller('reports')
 export class ReportsController {
   constructor(private readonly reports: ReportsService) {}

@@ -1,100 +1,66 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Device-mgmtService } from './device-mgmt.service';
+import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common'
+import { AuthGuard } from '@nestjs/passport'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { DeviceMgmtService } from './devicemgmt.service'
+
 @ApiTags('device-mgmt')
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
-@Controller('api/device-mgmt')
-export class Device-mgmtController {
-  constructor(private readonly svc: Device-mgmtService) {}
+@Controller('device-mgmt')
+export class DeviceMgmtController {
+  constructor(private readonly svc: DeviceMgmtService) {}
+
   @Get('equipment-lifecycle')
-  listEquipmentLifecycle(@Param('id') id: string) {
-    return this.svc.listEquipmentLifecycle(id);
-  }
+  listEquipmentLifecycle() { return this.svc.listEquipmentLifecycle() }
 
   @Get('equipment-lifecycle/:id')
-  getEquipmentLifecycle(@Param('id') id: string) {
-    return this.svc.getEquipmentLifecycle(id);
-  }
+  getEquipmentLifecycle(@Param('id') id: string) { return this.svc.getEquipmentLifecycle(id) }
 
   @Put('equipment-lifecycle/:id')
-  updateEquipmentLifecycle(@Param('id') id: string, @Body() body: any) {
-    return this.svc.updateEquipmentLifecycle(id, body);
-  }
+  updateEquipmentLifecycle(@Param('id') id: string, @Body() body: any) { return this.svc.updateEquipmentLifecycle(id, body) }
 
   @Get('devices')
-  listDevices(@Param('id') id: string) {
-    return this.svc.listDevices(id);
-  }
+  listDevices() { return this.svc.listDevices() }
 
   @Get('devices/:id')
-  getDevice(@Param('id') id: string) {
-    return this.svc.getDevice(id);
-  }
+  getDevice(@Param('id') id: string) { return this.svc.getDevice(id) }
 
   @Put('devices/:id')
-  updateDevice(@Param('id') id: string, @Body() body: any) {
-    return this.svc.updateDevice(id, body);
-  }
+  updateDevice(@Param('id') id: string, @Body() body: any) { return this.svc.updateDevice(id, body) }
 
   @Get('faults')
-  listDeviceFaults(@Param('id') id: string) {
-    return this.svc.listDeviceFaults(id);
-  }
+  listDeviceFaults() { return this.svc.listDeviceFaults() }
 
   @Post('faults')
-  reportDeviceFault(@Body() body: any) {
-    return this.svc.reportDeviceFault(body);
-  }
+  reportDeviceFault(@Body() body: any) { return this.svc.reportDeviceFault(body) }
 
   @Get('materials')
-  listMaterials(@Param('id') id: string) {
-    return this.svc.listMaterials(id);
-  }
+  listMaterials() { return this.svc.listMaterials() }
 
   @Post('materials')
-  addMaterial(@Body() body: any) {
-    return this.svc.addMaterial(body);
-  }
+  addMaterial(@Body() body: any) { return this.svc.addMaterial(body) }
 
   @Get('dose-tracking')
-  getDoseTracking(@Param('id') id: string) {
-    return this.svc.getDoseTracking(id);
-  }
+  getDoseTracking() { return this.svc.getDoseTracking() }
 
   @Post('dose-tracking')
-  recordDose(@Body() body: any) {
-    return this.svc.recordDose(body);
-  }
+  recordDose(@Body() body: any) { return this.svc.recordDose(body) }
 
   @Get('contrast/adverse-reactions')
-  listAdverseReactions(@Param('id') id: string) {
-    return this.svc.listAdverseReactions(id);
-  }
+  listAdverseReactions() { return this.svc.listAdverseReactions() }
 
   @Post('contrast/adverse-reactions')
-  reportAdverseReaction(@Body() body: any) {
-    return this.svc.reportAdverseReaction(body);
-  }
+  reportAdverseReaction(@Body() body: any) { return this.svc.reportAdverseReaction(body) }
 
   @Get('contrast/injection')
-  getInjectionWorkstation(@Param('id') id: string) {
-    return this.svc.getInjectionWorkstation(id);
-  }
+  getInjectionWorkstation() { return this.svc.getInjectionWorkstation() }
 
   @Get('contrast/inventory')
-  getContrastInventory(@Param('id') id: string) {
-    return this.svc.getContrastInventory(id);
-  }
+  getContrastInventory() { return this.svc.getContrastInventory() }
 
   @Put('contrast/inventory/:id')
-  updateContrastInventory(@Param('id') id: string, @Body() body: any) {
-    return this.svc.updateContrastInventory(id, body);
-  }
+  updateContrastInventory(@Param('id') id: string, @Body() body: any) { return this.svc.updateContrastInventory(id, body) }
 
   @Get('contrast/quality')
-  getContrastQuality(@Param('id') id: string) {
-    return this.svc.getContrastQuality(id);
-  }
+  getContrastQuality() { return this.svc.getContrastQuality() }
 }

@@ -1,60 +1,42 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Patient-portalService } from './patient-portal.service';
+import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common'
+import { AuthGuard } from '@nestjs/passport'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { PatientPortalService } from './patientportal.service'
+
 @ApiTags('patient-portal')
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
-@Controller('api/patient-portal')
-export class Patient-portalController {
-  constructor(private readonly svc: Patient-portalService) {}
+@Controller('patient-portal')
+export class PatientPortalController {
+  constructor(private readonly svc: PatientPortalService) {}
+
   @Get('patients')
-  listPortalPatients(@Param('id') id: string) {
-    return this.svc.listPortalPatients(id);
-  }
+  listPortalPatients() { return this.svc.listPortalPatients() }
 
   @Get('patients/:id')
-  getPortalPatient(@Param('id') id: string) {
-    return this.svc.getPortalPatient(id);
-  }
+  getPortalPatient(@Param('id') id: string) { return this.svc.getPortalPatient(id) }
 
   @Get('clinical-data')
-  listClinicalData(@Param('id') id: string) {
-    return this.svc.listClinicalData(id);
-  }
+  listClinicalData() { return this.svc.listClinicalData() }
 
   @Get('clinical-data/:id')
-  getClinicalData(@Param('id') id: string) {
-    return this.svc.getClinicalData(id);
-  }
+  getClinicalData(@Param('id') id: string) { return this.svc.getClinicalData(id) }
 
   @Get('education')
-  listEducation(@Param('id') id: string) {
-    return this.svc.listEducation(id);
-  }
+  listEducation() { return this.svc.listEducation() }
 
   @Get('education/:id')
-  getEducation(@Param('id') id: string) {
-    return this.svc.getEducation(id);
-  }
+  getEducation(@Param('id') id: string) { return this.svc.getEducation(id) }
 
   @Get('mobile/patients')
-  getPatientMobile(@Param('id') id: string) {
-    return this.svc.getPatientMobile(id);
-  }
+  getPatientMobile() { return this.svc.getPatientMobile() }
 
   @Get('mobile/doctors')
-  getDoctorMobile(@Param('id') id: string) {
-    return this.svc.getDoctorMobile(id);
-  }
+  getDoctorMobile() { return this.svc.getDoctorMobile() }
 
   @Get('mobile/nurses')
-  getNurseMobile(@Param('id') id: string) {
-    return this.svc.getNurseMobile(id);
-  }
+  getNurseMobile() { return this.svc.getNurseMobile() }
 
   @Get('mobile/techs')
-  getTechMobile(@Param('id') id: string) {
-    return this.svc.getTechMobile(id);
-  }
+  getTechMobile() { return this.svc.getTechMobile() }
 }

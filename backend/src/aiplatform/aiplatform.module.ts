@@ -1,10 +1,10 @@
-import { Module } from '@nestjs/common';
-import { Ai-platformController } from './ai-platform.controller';
-import { Ai-platformService } from './ai-platform.service';
+import { Module } from '@nestjs/common'
+import { AiPlatformController } from './aiplatform.controller'
+import { AiPlatformService } from './aiplatform.service'
 
 @Module({
-  controllers: [Ai-platformController],
-  providers: [Ai-platformService],
-  exports: [Ai-platformService],
+  controllers: [AiPlatformController],
+  providers: [AiPlatformService],
+  exports: [AiPlatformService],
 })
-export class Ai-platformModule {}
+export class AiPlatformModule {}

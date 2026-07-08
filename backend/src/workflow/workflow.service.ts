@@ -1,79 +1,83 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common'
+import { PrismaService } from '../prisma/prisma.service'
 
 @Injectable()
 export class WorkflowService {
+  constructor(private readonly prisma: PrismaService) {}
+
   async listDefinitions() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.workflowDefinition.findMany({ orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async createDefinition(body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.workflowDefinition.create({ data: body })
+    return { data: [data] }
   }
 
   async getDefinition(id: string) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.workflowDefinition.findUnique({ where: { id }, include: { steps: true } })
+    return { data: data ? [data] : [] }
   }
 
   async updateDefinition(id: string, body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.workflowDefinition.update({ where: { id }, data: body })
+    return { data: [data] }
   }
 
   async deleteDefinition(id: string) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    await this.prisma.workflowDefinition.delete({ where: { id } })
+    return { data: [] }
   }
 
-  async activateDefinition(id: string, body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+  async activateDefinition(body: any) {
+    const { id, ...rest } = body
+    const data = await this.prisma.workflowDefinition.update({ where: { id }, data: { active: true, ...rest } })
+    return { data: [data] }
   }
 
   async listSteps(id: string) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.workflowStep.findMany({ where: { workflowId: id }, orderBy: { orderIndex: 'asc' } })
+    return { data }
   }
 
-  async addStep(id: string, body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+  async addStep(body: any) {
+    const data = await this.prisma.workflowStep.create({ data: body })
+    return { data: [data] }
   }
 
   async listSlaPolicies() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.slaPolicy.findMany({ orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async createSlaPolicy(body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.slaPolicy.create({ data: body })
+    return { data: [data] }
   }
 
   async updateSlaPolicy(id: string, body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.slaPolicy.update({ where: { id }, data: body })
+    return { data: [data] }
   }
 
   async listRoutingRules() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.routingRule.findMany({ orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async createRoutingRule(body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.routingRule.create({ data: body })
+    return { data: [data] }
   }
 
   async updateRoutingRule(id: string, body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.routingRule.update({ where: { id }, data: body })
+    return { data: [data] }
   }
 
   async deleteRoutingRule(id: string) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    await this.prisma.routingRule.delete({ where: { id } })
+    return { data: [] }
   }
 }

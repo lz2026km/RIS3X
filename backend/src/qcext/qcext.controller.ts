@@ -1,65 +1,45 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Qc-extService } from './qc-ext.service';
+import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common'
+import { AuthGuard } from '@nestjs/passport'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { QcExtService } from './qcext.service'
+
 @ApiTags('qc-ext')
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
-@Controller('api/qc-ext')
-export class Qc-extController {
-  constructor(private readonly svc: Qc-extService) {}
+@Controller('qc-ext')
+export class QcExtController {
+  constructor(private readonly svc: QcExtService) {}
+
   @Get('dashboard')
-  getQcDashboard(@Param('id') id: string) {
-    return this.svc.getQcDashboard(id);
-  }
+  getQcDashboard() { return this.svc.getQcDashboard() }
 
   @Get('dashboard/:id')
-  getQcDashboardItem(@Param('id') id: string) {
-    return this.svc.getQcDashboardItem(id);
-  }
+  getQcDashboardItem(@Param('id') id: string) { return this.svc.getQcDashboardItem(id) }
 
   @Get('image')
-  listQcImages(@Param('id') id: string) {
-    return this.svc.listQcImages(id);
-  }
+  listQcImages() { return this.svc.listQcImages() }
 
   @Get('image/:id')
-  getQcImage(@Param('id') id: string) {
-    return this.svc.getQcImage(id);
-  }
+  getQcImage(@Param('id') id: string) { return this.svc.getQcImage(id) }
 
   @Post('image/:id/rate')
-  rateQcImage(@Body() body: any) {
-    return this.svc.rateQcImage(body);
-  }
+  rateQcImage(@Body() body: any) { return this.svc.rateQcImage(body) }
 
   @Get('radiologist-annual')
-  listRadiologistAnnual(@Param('id') id: string) {
-    return this.svc.listRadiologistAnnual(id);
-  }
+  listRadiologistAnnual() { return this.svc.listRadiologistAnnual() }
 
   @Get('radiologist-annual/:id')
-  getRadiologistAnnual(@Param('id') id: string) {
-    return this.svc.getRadiologistAnnual(id);
-  }
+  getRadiologistAnnual(@Param('id') id: string) { return this.svc.getRadiologistAnnual(id) }
 
   @Get('defect')
-  listQcDefects(@Param('id') id: string) {
-    return this.svc.listQcDefects(id);
-  }
+  listQcDefects() { return this.svc.listQcDefects() }
 
   @Post('defect')
-  reportQcDefect(@Body() body: any) {
-    return this.svc.reportQcDefect(body);
-  }
+  reportQcDefect(@Body() body: any) { return this.svc.reportQcDefect(body) }
 
   @Get('stats')
-  getQcStats(@Param('id') id: string) {
-    return this.svc.getQcStats(id);
-  }
+  getQcStats() { return this.svc.getQcStats() }
 
   @Get('scores')
-  listQcScores(@Param('id') id: string) {
-    return this.svc.listQcScores(id);
-  }
+  listQcScores() { return this.svc.listQcScores() }
 }

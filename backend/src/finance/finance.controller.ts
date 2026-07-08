@@ -1,60 +1,42 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { FinanceService } from './finance.service';
+import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common'
+import { AuthGuard } from '@nestjs/passport'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { FinanceService } from './finance.service'
+
 @ApiTags('finance')
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
-@Controller('api/finance')
+@Controller('finance')
 export class FinanceController {
   constructor(private readonly svc: FinanceService) {}
+
   @Get('charge-items')
-  listChargeItems(@Param('id') id: string) {
-    return this.svc.listChargeItems(id);
-  }
+  listChargeItems() { return this.svc.listChargeItems() }
 
   @Post('charge-items')
-  createChargeItem(@Body() body: any) {
-    return this.svc.createChargeItem(body);
-  }
+  createChargeItem(@Body() body: any) { return this.svc.createChargeItem(body) }
 
   @Put('charge-items/:id')
-  updateChargeItem(@Param('id') id: string, @Body() body: any) {
-    return this.svc.updateChargeItem(id, body);
-  }
+  updateChargeItem(@Param('id') id: string, @Body() body: any) { return this.svc.updateChargeItem(id, body) }
 
   @Get('invoices')
-  listInvoices(@Param('id') id: string) {
-    return this.svc.listInvoices(id);
-  }
+  listInvoices() { return this.svc.listInvoices() }
 
   @Post('invoices')
-  createInvoice(@Body() body: any) {
-    return this.svc.createInvoice(body);
-  }
+  createInvoice(@Body() body: any) { return this.svc.createInvoice(body) }
 
   @Get('invoices/:id')
-  getInvoice(@Param('id') id: string) {
-    return this.svc.getInvoice(id);
-  }
+  getInvoice(@Param('id') id: string) { return this.svc.getInvoice(id) }
 
   @Post('invoices/:id/pay')
-  payInvoice(@Body() body: any) {
-    return this.svc.payInvoice(body);
-  }
+  payInvoice(@Body() body: any) { return this.svc.payInvoice(body) }
 
   @Get('revenue-analysis')
-  getRevenueAnalysis(@Param('id') id: string) {
-    return this.svc.getRevenueAnalysis(id);
-  }
+  getRevenueAnalysis() { return this.svc.getRevenueAnalysis() }
 
   @Get('cost-accounting')
-  getCostAccounting(@Param('id') id: string) {
-    return this.svc.getCostAccounting(id);
-  }
+  getCostAccounting() { return this.svc.getCostAccounting() }
 
   @Get('financial-reports')
-  getFinancialReports(@Param('id') id: string) {
-    return this.svc.getFinancialReports(id);
-  }
+  getFinancialReports() { return this.svc.getFinancialReports() }
 }

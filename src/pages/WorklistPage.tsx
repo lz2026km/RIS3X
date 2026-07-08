@@ -29,6 +29,7 @@ import type { FilterState, BatchState } from './worklist'
 import { PageContainer } from '../components/common/PageContainer'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import BatchActionBar from '../components/batch/BatchActionBar'
+import { AppButton } from '../components/common/AppButton'
 import { useOperationLog } from '../hooks/useOperationLog'
 import { useKeyboardShortcuts, useNavigationShortcuts, SHORTCUTS } from '../hooks/useKeyboardShortcuts'
 
@@ -456,28 +457,16 @@ export default function WorklistPage() {
     })
   }
 
-  const ViewModeButton = ({ mode, icon, label }: { mode: ViewMode; icon: React.ReactNode; label: string }) => (
-    <button
+  const ViewModeButton = ({ mode, icon, label }: { mode: ViewMode; icon: React.ReactNode; label: React.ReactNode }) => (
+    <AppButton
+      variant={viewMode === mode ? "primary" : "default"}
+      size="compact"
       onClick={() => setViewMode(mode)}
-      style={{
-        padding: '8px 14px',
-        background: viewMode === mode ? '#1e3a5f' : '#fff',
-        border: '1px solid',
-        borderColor: viewMode === mode ? '#1e3a5f' : '#e2e8f0',
-        borderRadius: 8,
-        fontSize: 12,
-        fontWeight: 600,
-        color: viewMode === mode ? '#fff' : '#64748b',
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 6,
-        transition: 'all 0.15s',
-      }}
+      style={viewMode === mode ? undefined : { color: '#64748b' }}
     >
       {icon}
       {label}
-    </button>
+    </AppButton>
   )
 
   const handleStartExam = useCallback((exam: RadiologyExam) => {
@@ -624,28 +613,14 @@ export default function WorklistPage() {
             <ViewModeButton mode="kanban" icon={<Kanban size={14} />} label="看板" />
           </div>
 
-          <button
+          <AppButton
+            variant="primary"
+            size="compact"
             onClick={handleRefresh}
-            style={{
-              padding: '8px 16px',
-              background: '#1e3a5f',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 8,
-              fontSize: 12,
-              fontWeight: 600,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = '#2d4a6f' }}
-            onMouseLeave={e => { e.currentTarget.style.background = '#1e3a5f' }}
+            icon={<RefreshCw size={12} />}
           >
-            <RefreshCw size={12} />
             刷新列表
-          </button>
+          </AppButton>
         </div>
       </div>
 
@@ -666,7 +641,11 @@ export default function WorklistPage() {
         gap: 16,
         marginBottom: 20,
       }}>
-        <div style={{
+        <div
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && setFilters(f => ({ ...f, statuses: [] }))}
+          style={{
           background: '#fff', borderRadius: 12, padding: '16px 20px',
           border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           cursor: 'pointer',
@@ -684,7 +663,11 @@ export default function WorklistPage() {
             <MiniSparkline color="#3b82f6" />
           </div>
         </div>
-        <div style={{
+        <div
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && setFilters(f => ({ ...f, priorities: ['危重', '紧急'] }))}
+          style={{
           background: '#fff', borderRadius: 12, padding: '16px 20px',
           border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           cursor: 'pointer',
@@ -708,7 +691,11 @@ export default function WorklistPage() {
             </div>
           </div>
         </div>
-        <div style={{
+        <div
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && setFilters(f => ({ ...f, statuses: ['已登记', '待检查', '检查中', '待报告'] }))}
+          style={{
           background: '#fff', borderRadius: 12, padding: '16px 20px',
           border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           cursor: 'pointer',
@@ -729,7 +716,11 @@ export default function WorklistPage() {
             <MiniSparkline color="#d97706" />
           </div>
         </div>
-        <div style={{
+        <div
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && setFilters(f => ({ ...f, statuses: ['已报告', '已发布'] }))}
+          style={{
           background: '#fff', borderRadius: 12, padding: '16px 20px',
           border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           cursor: 'pointer',
@@ -832,20 +823,15 @@ export default function WorklistPage() {
         gap: 10,
         zIndex: 50,
       }}>
-        <button
+        <AppButton
+          variant="default"
+          size="compact"
           onClick={handlePrintSelected}
-          style={{
-            width: 48, height: 48, borderRadius: 12, background: '#fff',
-            border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-            cursor: 'pointer', display: 'flex', alignItems: 'center',
-            justifyContent: 'center', color: '#64748b', transition: 'all 0.2s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.color = '#1e3a5f'; e.currentTarget.style.transform = 'scale(1.05)' }}
-          onMouseLeave={e => { e.currentTarget.style.color = '#64748b'; e.currentTarget.style.transform = 'scale(1)' }}
+          style={{ width: 48, height: 48, borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
           title="打印选中的报告"
         >
           <Printer size={20} />
-        </button>
+        </AppButton>
 
         <button
           onClick={handleRefresh}
@@ -874,7 +860,11 @@ export default function WorklistPage() {
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
-        }} onClick={() => setPatientInfoModalExam(null)}>
+        }}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && setPatientInfoModalExam(null)}
+          onClick={() => setPatientInfoModalExam(null)}>
           <div style={{
             background: '#fff', borderRadius: 12, padding: 24, width: 480, maxHeight: '80vh', overflow: 'auto'
           }} onClick={e => e.stopPropagation()}>
@@ -902,7 +892,11 @@ export default function WorklistPage() {
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
-        }} onClick={() => setDeviceSelectModalExam(null)}>
+        }}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && setDeviceSelectModalExam(null)}
+          onClick={() => setDeviceSelectModalExam(null)}>
           <div style={{
             background: '#fff', borderRadius: 12, padding: 24, width: 400, maxHeight: '80vh', overflow: 'auto'
           }} onClick={e => e.stopPropagation()}>
@@ -915,7 +909,12 @@ export default function WorklistPage() {
             <div style={{ marginBottom: 16, color: '#64748b', fontSize: 13 }}>当前检查：{deviceSelectModalExam.examItemName}</div>
             <div style={{ display: 'grid', gap: 8 }}>
               {initialModalityDevices.filter(d => d.modality === deviceSelectModalExam.modality).map(device => (
-                <div key={device.id} style={{
+                <div
+                  key={device.id}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && setDeviceSelectModalExam(null)}
+                  style={{
                   padding: 12, border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer',
                   display: 'flex', alignItems: 'center', gap: 8
                 }} onClick={() => setDeviceSelectModalExam(null)}>
@@ -933,7 +932,11 @@ export default function WorklistPage() {
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
-        }} onClick={() => setReportModalExam(null)}>
+        }}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && setReportModalExam(null)}
+          onClick={() => setReportModalExam(null)}>
           <div style={{
             background: '#fff', borderRadius: 12, padding: 24, width: 600, maxHeight: '80vh', overflow: 'auto'
           }} onClick={e => e.stopPropagation()}>
@@ -980,7 +983,11 @@ export default function WorklistPage() {
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
-        }} onClick={() => setBatchResultModalData(null)}>
+        }}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && setBatchResultModalData(null)}
+          onClick={() => setBatchResultModalData(null)}>
           <div style={{
             background: '#fff', borderRadius: 12, padding: 24, width: 480
           }} onClick={e => e.stopPropagation()}>
@@ -1006,7 +1013,11 @@ export default function WorklistPage() {
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
-        }} onClick={() => setPrintPreviewModalData(null)}>
+        }}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && setPrintPreviewModalData(null)}
+          onClick={() => setPrintPreviewModalData(null)}>
           <div style={{
             background: '#fff', borderRadius: 12, padding: 24, width: 600, maxHeight: '80vh', overflow: 'auto'
           }} onClick={e => e.stopPropagation()}>

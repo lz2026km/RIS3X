@@ -1,10 +1,10 @@
-import { Module } from '@nestjs/common';
-import { Qc-extController } from './qc-ext.controller';
-import { Qc-extService } from './qc-ext.service';
+import { Module } from '@nestjs/common'
+import { QcExtController } from './qcext.controller'
+import { QcExtService } from './qcext.service'
 
 @Module({
-  controllers: [Qc-extController],
-  providers: [Qc-extService],
-  exports: [Qc-extService],
+  controllers: [QcExtController],
+  providers: [QcExtService],
+  exports: [QcExtService],
 })
-export class Qc-extModule {}
+export class QcExtModule {}

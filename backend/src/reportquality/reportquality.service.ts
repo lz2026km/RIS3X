@@ -1,49 +1,53 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common'
+import { PrismaService } from '../prisma/prisma.service'
 
 @Injectable()
-export class Report-qualityService {
+export class ReportQualityService {
+  constructor(private readonly prisma: PrismaService) {}
+
   async listScoreRules() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.systemConfig.findMany({ where: { key: { startsWith: 'score_rule_' } } })
+    return { data }
   }
 
   async createScoreRule(body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.systemConfig.create({ data: { key: `score_rule_${Date.now()}`, value: body } })
+    return { data: [data] }
   }
 
   async updateScoreRule(id: string, body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.systemConfig.update({ where: { key: id }, data: { value: body } })
+    return { data: [data] }
   }
 
   async listDefectLibrary() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findMany({ where: { resource: 'defect-library' }, orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async createDefectEntry(body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.create({ data: { action: 'CREATE', resource: 'defect-library', detail: body } })
+    return { data: [data] }
   }
 
   async updateDefectEntry(id: string, body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.update({ where: { id }, data: { detail: body } })
+    return { data: [data] }
   }
 
   async listAiReportDrafts() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.report.findMany({ where: { state: 'WRITING' }, orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async createAiReportDraft(body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.report.create({ data: body })
+    return { data: [data] }
   }
 
   async getReportQualityStats() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const total = await this.prisma.reportQualityScore.count()
+    const avgScore = await this.prisma.reportQualityScore.aggregate({ _avg: { totalScore: true } })
+    return { data: { total, avgScore: avgScore._avg.totalScore ?? 0 } }
   }
 }

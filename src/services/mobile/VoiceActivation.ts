@@ -5,8 +5,8 @@
 
 import type { VoiceActivationConfig, VoiceActivationResult, VoiceActivationState, VoiceActivationCommand } from '../../types/mobile';
 
-declare var SpeechRecognition: { new(): SpeechRecognition };
-declare var SpeechRecognitionEvent: { new(): SpeechRecognitionEvent };
+declare let SpeechRecognition: { new(): SpeechRecognition };
+declare let SpeechRecognitionEvent: { new(): SpeechRecognitionEvent };
 
 const DEFAULT_CONFIG: VoiceActivationConfig = {
   wakeWord: '嘿 RIS',

@@ -1,94 +1,97 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common'
+import { PrismaService } from '../prisma/prisma.service'
 
 @Injectable()
-export class Device-mgmtService {
+export class DeviceMgmtService {
+  constructor(private readonly prisma: PrismaService) {}
+
   async listEquipmentLifecycle() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.device.findMany({ orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async getEquipmentLifecycle(id: string) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.device.findUnique({ where: { id } })
+    return { data: data ? [data] : [] }
   }
 
   async updateEquipmentLifecycle(id: string, body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.device.update({ where: { id }, data: body })
+    return { data: [data] }
   }
 
   async listDevices() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.device.findMany({ orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async getDevice(id: string) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.device.findUnique({ where: { id } })
+    return { data: data ? [data] : [] }
   }
 
   async updateDevice(id: string, body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.device.update({ where: { id }, data: body })
+    return { data: [data] }
   }
 
   async listDeviceFaults() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findMany({ where: { resource: 'device-fault' }, orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async reportDeviceFault(body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.create({ data: { action: 'REPORT', resource: 'device-fault', detail: body } })
+    return { data: [data] }
   }
 
   async listMaterials() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findMany({ where: { resource: 'device-material' }, orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async addMaterial(body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.create({ data: { action: 'ADD', resource: 'device-material', detail: body } })
+    return { data: [data] }
   }
 
   async getDoseTracking() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findMany({ where: { resource: 'dose-tracking' }, orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async recordDose(body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.create({ data: { action: 'RECORD', resource: 'dose-tracking', detail: body } })
+    return { data: [data] }
   }
 
   async listAdverseReactions() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.adverseEvent.findMany({ orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async reportAdverseReaction(body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.adverseEvent.create({ data: body })
+    return { data: [data] }
   }
 
   async getInjectionWorkstation() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findMany({ where: { resource: 'injection-workstation' }, orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async getContrastInventory() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findMany({ where: { resource: 'contrast-inventory' }, orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async updateContrastInventory(id: string, body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.update({ where: { id }, data: { detail: body } })
+    return { data: [data] }
   }
 
   async getContrastQuality() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findMany({ where: { resource: 'contrast-quality' }, orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 }

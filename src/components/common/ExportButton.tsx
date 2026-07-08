@@ -2,8 +2,10 @@
  * G005 RIS v3.0.6.8-26 - ExportButton 组件
  *
  * 统一导出按钮（CSV / JSON / PDF），可配置导出格式
+ * PDF 使用 jspdf 实现真实导出，含标题、表格、分页。
  */
 import React, { useState } from "react";
+import { jsPDF } from "jspdf";
 import { Download, FileSpreadsheet, FileText, FileCode } from "lucide-react";
 
 export type ExportFormat = "csv" | "json" | "xlsx" | "pdf";
@@ -57,6 +59,96 @@ function downloadBlob(blob: Blob, filename: string) {
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
+function exportPDF(rows: any[], filename: string) {
+  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const margin = 10;
+  const colGap = 2;
+  const rowH = 7;
+  const fontSize = 7;
+  const headerSize = 8;
+
+  if (!rows || rows.length === 0) {
+    doc.setFontSize(12);
+    doc.text("无数据可导出", margin, margin + 10);
+    doc.save(filename + ".pdf");
+    return;
+  }
+
+  const keys = Object.keys(rows[0]);
+  const colW = (pageW - margin * 2 - colGap * (keys.length - 1)) / keys.length;
+
+  let y = margin + 10;
+
+  // Title
+  doc.setFontSize(14);
+  doc.setFont("helvetica", "bold");
+  doc.text(filename || "导出报表", pageW / 2, y, { align: "center" });
+  y += 8;
+
+  // Subtitle / date
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "normal");
+  doc.text(new Date().toLocaleString("zh-CN"), pageW - margin, y, { align: "right" });
+  y += 6;
+
+  const drawTable = (startY: number, data: any[], maxY: number): number => {
+    let curY = startY;
+    // Header
+    doc.setFontSize(headerSize);
+    doc.setFont("helvetica", "bold");
+    doc.setFillColor(30, 58, 95);
+    doc.setTextColor(255, 255, 255);
+    keys.forEach((k, i) => {
+      const x = margin + i * (colW + colGap);
+      doc.rect(x, curY, colW, rowH, "F");
+      doc.text(k, x + 0.5, curY + rowH - 1.5);
+    });
+    curY += rowH;
+
+    // Rows
+    doc.setFontSize(fontSize);
+    doc.setFont("helvetica", "normal");
+    for (let r = 0; r < data.length; r++) {
+      if (curY + rowH > maxY) {
+        doc.addPage();
+        curY = margin + 10;
+        // Repeat header on new page
+        doc.setFontSize(headerSize);
+        doc.setFont("helvetica", "bold");
+        doc.setFillColor(30, 58, 95);
+        doc.setTextColor(255, 255, 255);
+        keys.forEach((k, i) => {
+          const x = margin + i * (colW + colGap);
+          doc.rect(x, curY, colW, rowH, "F");
+          doc.text(k, x + 0.5, curY + rowH - 1.5);
+        });
+        curY += rowH;
+        doc.setFontSize(fontSize);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(0, 0, 0);
+      }
+      const row = data[r];
+      const bg: [number, number, number] = r % 2 === 0 ? [255, 255, 255] : [248, 250, 252];
+      keys.forEach((k, i) => {
+        const x = margin + i * (colW + colGap);
+        doc.setFillColor(...bg);
+        doc.rect(x, curY, colW, rowH, "F");
+        const val = row[k] === null || row[k] === undefined ? "-" : String(row[k]);
+        doc.setTextColor(51, 65, 85);
+        doc.text(val.substring(0, Math.floor(colW / 1.5)), x + 0.5, curY + rowH - 1.5);
+      });
+      curY += rowH;
+    }
+    return curY;
+  };
+
+  doc.setTextColor(0, 0, 0);
+  drawTable(y, rows, pageH - margin);
+  doc.save(filename + ".pdf");
+}
+
 export function ExportButton({
   data,
   filename = "export",
@@ -79,9 +171,10 @@ export function ExportButton({
       downloadBlob(new Blob([toCSV(rows)], { type: FORMAT_META.csv.mime }), filename + FORMAT_META.csv.ext);
     } else if (fmt === "json") {
       downloadBlob(new Blob([JSON.stringify(rows, null, 2)], { type: FORMAT_META.json.mime }), filename + FORMAT_META.json.ext);
-    } else {
-      // xlsx / pdf 需要 xlsx 库或后端支持, 这里导出为 .txt 占位
-      downloadBlob(new Blob([JSON.stringify(rows, null, 2)], { type: "text/plain" }), filename + ".txt");
+    } else if (fmt === "pdf") {
+      exportPDF(rows, filename);
+    } else if (fmt === "xlsx") {
+      downloadBlob(new Blob([toCSV(rows)], { type: "text/csv;charset=utf-8" }), filename + ".csv");
     }
   };
 

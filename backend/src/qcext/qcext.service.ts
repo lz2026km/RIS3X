@@ -1,59 +1,65 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common'
+import { PrismaService } from '../prisma/prisma.service'
 
 @Injectable()
-export class Qc-extService {
+export class QcExtService {
+  constructor(private readonly prisma: PrismaService) {}
+
   async getQcDashboard() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const totalScored = await this.prisma.reportQualityScore.count()
+    const recent = await this.prisma.reportQualityScore.findMany({ orderBy: { evaluatedAt: 'desc' }, take: 20 })
+    return { data: { totalScored, recent } }
   }
 
   async getQcDashboardItem(id: string) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.reportQualityScore.findUnique({ where: { id } })
+    return { data: data ? [data] : [] }
   }
 
   async listQcImages() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.dicomInstance.findMany({ orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async getQcImage(id: string) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.dicomInstance.findUnique({ where: { id } })
+    return { data: data ? [data] : [] }
   }
 
-  async rateQcImage(id: string, body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+  async rateQcImage(body: any) {
+    const { id, ...rest } = body
+    const data = await this.prisma.dicomInstance.update({ where: { id }, data: rest })
+    return { data: [data] }
   }
 
   async listRadiologistAnnual() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findMany({ where: { resource: 'radiologist-annual' }, orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async getRadiologistAnnual(id: string) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findUnique({ where: { id } })
+    return { data: data ? [data] : [] }
   }
 
   async listQcDefects() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findMany({ where: { resource: 'qc-defect' }, orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async reportQcDefect(body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.create({ data: { action: 'REPORT', resource: 'qc-defect', detail: body } })
+    return { data: [data] }
   }
 
   async getQcStats() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const total = await this.prisma.reportQualityScore.count()
+    const byGrade = await this.prisma.reportQualityScore.groupBy({ by: ['grade'], _count: { id: true } })
+    return { data: { total, byGrade } }
   }
 
   async listQcScores() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.reportQualityScore.findMany({ orderBy: { evaluatedAt: 'desc' } })
+    return { data }
   }
 }

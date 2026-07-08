@@ -10,7 +10,7 @@
  *  - sortField + sortOrder + onSortChange
  *  - emptyText / loading / sticky
  */
-import { type ReactNode, type CSSProperties, useMemo } from "react";
+import { type ReactNode, type CSSProperties, useMemo, useState } from "react";
 import { Table } from "antd";
 import type { TableProps, ColumnType } from "antd/es/table";
 import { Empty } from "antd";
@@ -20,6 +20,7 @@ import {
   type SortDirection,
   type ColumnAlign,
 } from "./StickyHeader";
+import { ColumnSettingsPanel, type ColumnSetting } from "../common/ColumnSettings";
 
 export interface StandardTableColumn<T = Record<string, unknown>> {
   /** 字段 key / dataIndex */
@@ -96,6 +97,10 @@ export interface StandardTableProps<T extends { id?: string | number }> {
   skeletonRows?: number;
   /** sticky header 主题 */
   theme?: "light" | "dark";
+  /** 列设置 tableId（启用列设置齿轮图标） */
+  tableId?: string;
+  /** 列设置变化回调 */
+  onColumnSettingsChange?: (settings: ColumnSetting[]) => void;
 }
 
 const STICKY_HEADER_STYLE: CSSProperties = {
@@ -139,7 +144,25 @@ export function StandardTable<T extends { id?: string | number }>({
   style,
   skeletonRows = 5,
   theme = "light",
+  tableId,
+  onColumnSettingsChange,
 }: StandardTableProps<T>) {
+  const [colSettings, setColSettings] = useState<ColumnSetting[]>(() =>
+    tableId && columns.length > 0
+      ? columns.map((c) => ({ key: c.key, title: String(c.title ?? ""), visible: true, fixed: false }))
+      : [],
+  );
+
+  const visibleColumns = useMemo(() => {
+    if (!tableId || colSettings.length === 0) return columns;
+    const visMap = new Map(colSettings.map((s) => [s.key, s]));
+    return columns.filter((c) => visMap.get(c.key)?.visible !== false);
+  }, [columns, colSettings, tableId]);
+
+  const handleColSettingsChange = (settings: ColumnSetting[]) => {
+    setColSettings(settings);
+    onColumnSettingsChange?.(settings);
+  };
   const stickyHeaderColumns: StickyHeaderColumn<T>[] = useMemo(() => {
     const cols: StickyHeaderColumn<T>[] = [];
     if (selectable) {
@@ -151,7 +174,7 @@ export function StandardTable<T extends { id?: string | number }>({
         width: 40,
       });
     }
-    columns.forEach((c) => {
+    visibleColumns.forEach((c) => {
       cols.push({
         key: c.key,
         title: c.title,
@@ -161,7 +184,7 @@ export function StandardTable<T extends { id?: string | number }>({
       });
     });
     return cols;
-  }, [columns, selectable]);
+  }, [visibleColumns, selectable]);
 
   const allSelected = useMemo(() => {
     if (!selectedKeys || dataSource.length === 0) return false;
@@ -233,7 +256,7 @@ export function StandardTable<T extends { id?: string | number }>({
         },
       });
     }
-    columns.forEach((c) => {
+    visibleColumns.forEach((c) => {
       const isNumeric = c.align === "right";
       const col: ColumnType<T> = {
         key: c.key,
@@ -266,7 +289,7 @@ export function StandardTable<T extends { id?: string | number }>({
     });
     return cols;
   }, [
-    columns,
+    visibleColumns,
     selectable,
     selectedKeys,
     dataSource,
@@ -299,8 +322,18 @@ export function StandardTable<T extends { id?: string | number }>({
     return (
       <div
         className={className}
-        style={{ overflow: "auto", maxHeight: "calc(100vh - 200px)", ...style }}
+        style={{ overflow: "auto", maxHeight: "calc(100vh - 200px)", position: "relative", ...style }}
       >
+        {tableId && (
+          <div style={{ position: "absolute", top: 4, right: 4, zIndex: 10 }}>
+            <ColumnSettingsPanel
+              tableId={tableId}
+              columns={columns.map((c) => ({ key: c.key, title: String(c.title ?? "") }))}
+              value={colSettings}
+              onChange={handleColSettingsChange}
+            />
+          </div>
+        )}
         <StickyHeader
           columns={stickyHeaderColumns}
           sortKey={sortField}
@@ -374,7 +407,7 @@ export function StandardTable<T extends { id?: string | number }>({
                         />
                       </td>
                     )}
-                    {columns.map((c) => {
+                    {visibleColumns.map((c) => {
                       const raw = (row as unknown as Record<string, unknown>)[
                         c.key
                       ];
@@ -410,7 +443,17 @@ export function StandardTable<T extends { id?: string | number }>({
 
   // ============ antd mode ============
   return (
-    <div className={className} style={style}>
+    <div className={className} style={{ position: "relative", ...style }}>
+      {tableId && (
+        <div style={{ position: "absolute", top: 0, right: 0, zIndex: 10 }}>
+          <ColumnSettingsPanel
+            tableId={tableId}
+            columns={columns.map((c) => ({ key: c.key, title: String(c.title ?? "") }))}
+            value={colSettings}
+            onChange={handleColSettingsChange}
+          />
+        </div>
+      )}
       <Table<T>
         size={size}
         rowKey={

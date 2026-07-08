@@ -1,49 +1,53 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common'
+import { PrismaService } from '../prisma/prisma.service'
 
 @Injectable()
-export class Data-reportService {
+export class DataReportService {
+  constructor(private readonly prisma: PrismaService) {}
+
   async listNationalReports() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findMany({ where: { resource: 'national-report' }, orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async getNationalReport(id: string) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findUnique({ where: { id } })
+    return { data: data ? [data] : [] }
   }
 
   async createNationalReport(body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.create({ data: { action: 'CREATE', resource: 'national-report', detail: body ?? {} } })
+    return { data: [data] }
   }
 
   async listDataReports() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.report.findMany({ orderBy: { createdAt: 'desc' }, take: 100 })
+    return { data }
   }
 
   async getDataReport(id: string) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.report.findUnique({ where: { id } })
+    return { data: data ? [data] : [] }
   }
 
   async createDataReport(body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.report.create({ data: body as any })
+    return { data: [data] }
   }
 
   async listInsuranceAudits() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findMany({ where: { resource: 'insurance-audit' }, orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async getInsuranceAudit(id: string) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findUnique({ where: { id } })
+    return { data: data ? [data] : [] }
   }
 
-  async enterpriseSearch() {
-    // TODO: implement with Prisma
-    return { data: [] };
+  async enterpriseSearch(q?: string) {
+    const where = q ? { OR: [{ name: { contains: q } }, { idCard: { contains: q } }, { phone: { contains: q } }] } : {}
+    const data = await this.prisma.patient.findMany({ where, take: 50, orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 }

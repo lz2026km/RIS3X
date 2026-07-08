@@ -93,12 +93,12 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   }, []);
 
   // 插入测量值/征象 - 通过 toolbar 调用，保留 hooks 以备扩展
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   const insertMeasurement = useCallback(() => {
     onInsertSnippet?.({ type: 'measurement' });
   }, [onInsertSnippet]);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   const insertFinding = useCallback(() => {
     onInsertSnippet?.({ type: 'finding' });
   }, [onInsertSnippet]);

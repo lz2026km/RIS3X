@@ -31,6 +31,7 @@ import { LoadingBanner, ErrorBanner } from "../components/feedback";
 import { useExamStore } from "../store/examStore";
 import type { RadiologyExam } from "../types";
 import BatchActionBar from "../components/batch/BatchActionBar";
+import { AppButton } from "../components/common/AppButton";
 import { useOperationLog } from "../hooks/useOperationLog";
 import { useKeyboardShortcuts, useNavigationShortcuts, SHORTCUTS } from "../hooks/useKeyboardShortcuts";
 
@@ -529,22 +530,16 @@ export default function ExamPage() {
         { key: "technician" as TabType, label: "技师执行", icon: Monitor },
         { key: "transfer" as TabType, label: "转科追踪", icon: ArrowRight },
       ].map((tab) => (
-        <button
+        <AppButton
           key={tab.key}
+          variant="text"
+          size="default"
           onClick={() => setActiveTab(tab.key)}
           style={{
             padding: "14px 20px",
-            border: "none",
-            backgroundColor: "transparent",
             borderBottom: `2px solid ${activeTab === tab.key ? PRIMARY : "transparent"}`,
             color: activeTab === tab.key ? PRIMARY : "#64748b",
-            fontSize: 13,
-            fontWeight: 600,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            transition: "all 0.2s",
+            borderRadius: 0,
           }}
         >
           <tab.icon size={16} />
@@ -577,7 +572,7 @@ export default function ExamPage() {
               {transferRecords.filter((r) => !r.examCompleted).length}
             </span>
           )}
-        </button>
+        </AppButton>
       ))}
     </div>
   );
@@ -1052,24 +1047,14 @@ export default function ExamPage() {
                   <td style={{ padding: "10px 12px" }}>
                     <div style={{ display: "flex", gap: 6 }}>
                       {exam.status === "待检查" && (
-                        <button
+                        <AppButton
+                          variant="primary"
+                          size="compact"
                           onClick={() => openModal(exam, "start")}
-                          style={{
-                            padding: "4px 10px",
-                            borderRadius: 4,
-                            border: "none",
-                            backgroundColor: PRIMARY,
-                            color: "#fff",
-                            fontSize: 12,
-                            fontWeight: 600,
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 4,
-                          }}
+                          icon={<Play size={10} />}
                         >
-                          <Play size={10} /> 开始
-                        </button>
+                          开始
+                        </AppButton>
                       )}
                       {exam.status === "检查中" && (
                         <>

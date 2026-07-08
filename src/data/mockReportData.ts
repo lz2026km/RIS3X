@@ -23,10 +23,20 @@ function generateTimeSeries(days: number, base: number, variance: number, prefix
   }));
 }
 
+function daysFromDateRange(dateRange?: [string, string]): number {
+  if (!dateRange || !dateRange[0] || !dateRange[1]) return 30;
+  const start = new Date(dateRange[0]);
+  const end = new Date(dateRange[1]);
+  const diff = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+  return Math.max(1, diff);
+}
+
 export function generateMockReportData(reportId: string, dateRange?: [string, string]): Record<string, unknown>[] {
+  const days = daysFromDateRange(dateRange);
+
   switch (reportId) {
     case 'exam-volume-daily':
-      return generateTimeSeries(31, 580, 120, '').map((d) => ({
+      return generateTimeSeries(days, 580, 120, '').map((d) => ({
         ...d,
         CT: randomInt(150, 300),
         MR: randomInt(80, 180),
@@ -36,7 +46,7 @@ export function generateMockReportData(reportId: string, dateRange?: [string, st
       }));
 
     case 'exam-volume-weekly':
-      return Array.from({ length: 12 }, (_, i) => ({
+      return Array.from({ length: Math.min(days, 12) }, (_, i) => ({
         name: `第${i + 1}周`,
         value: randomInt(3800, 5200),
         CT: randomInt(1500, 2200),
@@ -45,7 +55,7 @@ export function generateMockReportData(reportId: string, dateRange?: [string, st
       }));
 
     case 'exam-volume-monthly':
-      return Array.from({ length: 12 }, (_, i) => ({
+      return Array.from({ length: Math.min(days, 12) }, (_, i) => ({
         name: `${i + 1}月`,
         value: randomInt(15000, 22000),
         CT: randomInt(4000, 6500),
@@ -56,7 +66,7 @@ export function generateMockReportData(reportId: string, dateRange?: [string, st
       }));
 
     case 'exam-volume-yearly':
-      return Array.from({ length: 5 }, (_, i) => ({
+      return Array.from({ length: Math.min(days, 5) }, (_, i) => ({
         name: `${2022 + i}`,
         value: randomInt(180000, 260000),
         CT: randomInt(50000, 75000),
@@ -228,7 +238,7 @@ export function generateMockReportData(reportId: string, dateRange?: [string, st
       ];
 
     case 'report-word-count-trend':
-      return Array.from({ length: 12 }, (_, i) => ({
+      return Array.from({ length: Math.min(days, 12) }, (_, i) => ({
         name: `${i + 1}月`,
         value: randomInt(180, 350),
         findings: randomInt(80, 180),
@@ -262,7 +272,7 @@ export function generateMockReportData(reportId: string, dateRange?: [string, st
       ];
 
     case 'critical-value-closure':
-      return Array.from({ length: 12 }, (_, i) => ({
+      return Array.from({ length: Math.min(days, 12) }, (_, i) => ({
         name: `${i + 1}月`,
         value: randomInt(12, 45),
         median: randomInt(8, 30),
@@ -319,7 +329,7 @@ export function generateMockReportData(reportId: string, dateRange?: [string, st
       ];
 
     case 'remote-consultation-volume':
-      return Array.from({ length: 12 }, (_, i) => ({
+      return Array.from({ length: Math.min(days, 12) }, (_, i) => ({
         name: `${i + 1}月`,
         value: randomInt(30, 120),
       }));
@@ -349,7 +359,7 @@ export function generateMockReportData(reportId: string, dateRange?: [string, st
       ];
 
     case 'ai-accuracy-rate':
-      return Array.from({ length: 12 }, (_, i) => ({
+      return Array.from({ length: Math.min(days, 12) }, (_, i) => ({
         name: `${i + 1}月`,
         value: randomFloat(85, 96, 1),
         doctorAccuracy: randomFloat(92, 98, 1),
@@ -366,13 +376,13 @@ export function generateMockReportData(reportId: string, dateRange?: [string, st
       ];
 
     case 'ai-adoption-rate':
-      return Array.from({ length: 12 }, (_, i) => ({
+      return Array.from({ length: Math.min(days, 12) }, (_, i) => ({
         name: `${i + 1}月`,
         value: randomFloat(42, 78, 1),
       }));
 
     case 'radiation-dose-stats':
-      return Array.from({ length: 12 }, (_, i) => ({
+      return Array.from({ length: Math.min(days, 12) }, (_, i) => ({
         name: `${i + 1}月`,
         CT_DLP: randomInt(38000, 52000),
         CT_CTDI: randomFloat(8, 16, 1),
@@ -399,7 +409,7 @@ export function generateMockReportData(reportId: string, dateRange?: [string, st
       ];
 
     case 'patient-wait-time':
-      return Array.from({ length: 12 }, (_, i) => ({
+      return Array.from({ length: Math.min(days, 12) }, (_, i) => ({
         name: `${i + 1}月`,
         value: randomInt(18, 45),
         median: randomInt(12, 32),
@@ -424,7 +434,7 @@ export function generateMockReportData(reportId: string, dateRange?: [string, st
       ];
 
     case 'mobile-usage':
-      return Array.from({ length: 12 }, (_, i) => ({
+      return Array.from({ length: Math.min(days, 12) }, (_, i) => ({
         name: `${i + 1}月`,
         value: randomInt(1200, 3500),
         预约量: randomInt(300, 900),
@@ -432,21 +442,21 @@ export function generateMockReportData(reportId: string, dateRange?: [string, st
       }));
 
     case 'teaching-case-stats':
-      return Array.from({ length: 12 }, (_, i) => ({
+      return Array.from({ length: Math.min(days, 12) }, (_, i) => ({
         name: `${i + 1}月`,
         value: randomInt(8, 35),
         views: randomInt(50, 300),
       }));
 
     case 'image-storage-trend':
-      return Array.from({ length: 12 }, (_, i) => ({
+      return Array.from({ length: Math.min(days, 12) }, (_, i) => ({
         name: `${i + 1}月`,
         value: randomFloat(12.5 + i * 0.5, 18 + i * 0.6, 1),
         growth: randomFloat(0.4, 0.9, 2),
       }));
 
     case 'system-online-rate':
-      return Array.from({ length: 12 }, (_, i) => ({
+      return Array.from({ length: Math.min(days, 12) }, (_, i) => ({
         name: `${i + 1}月`,
         value: randomFloat(99.2, 100, 2),
         coreUptime: randomFloat(99.5, 100, 2),
@@ -464,7 +474,188 @@ export function generateMockReportData(reportId: string, dateRange?: [string, st
         { name: '数据上报API', value: 12000, avgResponse: 350 },
       ];
 
+    // ── 新增 20+ 报表 mock 数据 ──
+    case 'exam-volume-by-doctor':
+      return doctors.map((d, i) => ({
+        name: d,
+        value: randomInt(200 - i * 12, 350 - i * 10),
+      })).sort((a, b) => b.value - a.value);
+
+    case 'exam-volume-by-dept':
+      return depts.map((d) => ({
+        name: d,
+        value: randomInt(200, 1800),
+      })).sort((a, b) => b.value - a.value);
+
+    case 'exam-volume-by-protocol':
+      return [
+        { name: '头颅CT平扫', value: 1250 },
+        { name: '胸部CT平扫', value: 1180 },
+        { name: '腹部CT增强', value: 950 },
+        { name: '腰椎MR平扫', value: 720 },
+        { name: '颈椎MR平扫', value: 680 },
+        { name: '胸部DR正位', value: 540 },
+        { name: '膝关节MR平扫', value: 520 },
+        { name: '骨盆CT平扫', value: 480 },
+        { name: '腹部彩超', value: 420 },
+        { name: '乳腺MG', value: 330 },
+      ];
+
+    case 'device-uptime-rate':
+      return Array.from({ length: Math.min(days, 12) }, (_, i) => ({
+        name: `${i + 1}月`,
+        value: randomFloat(85, 100, 1),
+        CT: randomFloat(88, 100, 1),
+        MR: randomFloat(85, 99, 1),
+        DR: randomFloat(90, 100, 1),
+      }));
+
+    case 'device-downtime-rate':
+      return [
+        { name: '计划内维护', value: 45, percentage: 32.1 },
+        { name: '软件故障', value: 35, percentage: 25.0 },
+        { name: '硬件故障', value: 28, percentage: 20.0 },
+        { name: '网络故障', value: 18, percentage: 12.9 },
+        { name: '其他原因', value: 14, percentage: 10.0 },
+      ];
+
+    case 'device-daily-utilization-trend':
+      return generateTimeSeries(days, 72, 15, '').map((d) => ({
+        ...d,
+        'CT-1': randomInt(65, 98),
+        'MR-1': randomInt(55, 92),
+        'DR-1': randomInt(60, 95),
+      }));
+
+    case 'qc-issue-top10':
+      return [
+        { name: '诊断描述不完整', value: 42 },
+        { name: '结论与描述不符', value: 35 },
+        { name: '错别字/标点错误', value: 28 },
+        { name: '未使用规范术语', value: 22 },
+        { name: '漏报阳性征象', value: 18 },
+        { name: '排版格式不符', value: 15 },
+        { name: '患者信息错误', value: 12 },
+        { name: '签名不规范', value: 10 },
+        { name: '超时未提交', value: 8 },
+        { name: '图像与报告不符', value: 6 },
+      ];
+
+    case 'qc-issue-by-doctor':
+      return doctors.map((d) => ({
+        name: d,
+        value: randomInt(0, 15),
+      })).sort((a, b) => b.value - a.value);
+
+    case 'critical-escalation-rate':
+      return Array.from({ length: Math.min(days, 12) }, (_, i) => ({
+        name: `${i + 1}月`,
+        value: randomFloat(2, 15, 1),
+      }));
+
+    case 'critical-miss-rate':
+      return [
+        { name: '系统未识别', value: 35, percentage: 38.9 },
+        { name: '医生未确认', value: 25, percentage: 27.8 },
+        { name: '通知失败', value: 18, percentage: 20.0 },
+        { name: '交接遗漏', value: 12, percentage: 13.3 },
+      ];
+
+    case 'critical-response-time-trend':
+      return Array.from({ length: Math.min(days, 12) }, (_, i) => ({
+        name: `${i + 1}月`,
+        value: randomInt(5, 30),
+      }));
+
+    case 'ai-vs-doctor-kappa':
+      return Array.from({ length: Math.min(days, 12) }, (_, i) => ({
+        name: `${i + 1}月`,
+        value: randomFloat(0.6, 0.92, 2),
+        CT: randomFloat(0.7, 0.95, 2),
+        MR: randomFloat(0.65, 0.9, 2),
+        DR: randomFloat(0.55, 0.85, 2),
+      }));
+
+    case 'ai-vs-doctor-agreement':
+      return [
+        { name: 'CT', value: randomFloat(82, 96, 1) },
+        { name: 'MR', value: randomFloat(78, 93, 1) },
+        { name: 'DR', value: randomFloat(75, 90, 1) },
+        { name: 'MG', value: randomFloat(72, 88, 1) },
+      ];
+
+    case 'ai-false-positive-rate':
+      return Array.from({ length: Math.min(days, 12) }, (_, i) => ({
+        name: `${i + 1}月`,
+        value: randomFloat(3, 18, 1),
+      }));
+
+    case 'radiation-dose-over-limit':
+      return [
+        { name: 'CT-1', value: randomFloat(0.5, 5.0, 1) },
+        { name: 'CT-2', value: randomFloat(1.0, 6.5, 1) },
+        { name: 'DSA', value: randomFloat(0.5, 3.0, 1) },
+        { name: 'DR-1', value: randomFloat(0.1, 1.5, 1) },
+        { name: 'MG', value: randomFloat(0.3, 2.0, 1) },
+      ];
+
+    case 'radiation-dose-by-modality':
+      return [
+        { name: 'CT', value: randomFloat(380, 520, 1) },
+        { name: 'DSA', value: randomFloat(250, 400, 1) },
+        { name: 'DR', value: randomFloat(0.5, 2.0, 2) },
+        { name: 'MG', value: randomFloat(1.5, 3.0, 2) },
+      ];
+
+    case 'patient-followup-rate':
+      return Array.from({ length: Math.min(days, 12) }, (_, i) => ({
+        name: `${i + 1}月`,
+        value: randomFloat(15, 40, 1),
+      }));
+
+    case 'patient-no-show-rate':
+      return depts.map((d) => ({
+        name: d,
+        value: randomFloat(1, 15, 1),
+      })).sort((a, b) => b.value - a.value);
+
+    case 'finance-arrears-rate':
+      return [
+        { name: '1000元以下', value: 120, percentage: 32.4 },
+        { name: '1000-5000元', value: 85, percentage: 23.0 },
+        { name: '5000-10000元', value: 45, percentage: 12.2 },
+        { name: '10000-50000元', value: 28, percentage: 7.6 },
+        { name: '50000元以上', value: 12, percentage: 3.2 },
+        { name: '医保拒付待处理', value: 80, percentage: 21.6 },
+      ];
+
+    case 'finance-insurance-reject':
+      return [
+        { name: '诊断与项目不符', value: 356000, percentage: 35.6 },
+        { name: '重复收费', value: 185000, percentage: 18.5 },
+        { name: '无指征检查', value: 145000, percentage: 14.5 },
+        { name: '超量开单', value: 120000, percentage: 12.0 },
+        { name: '材料费超标', value: 98000, percentage: 9.8 },
+        { name: '其他原因', value: 96000, percentage: 9.6 },
+      ];
+
+    case 'contrast-usage-trend':
+      return Array.from({ length: Math.min(days, 12) }, (_, i) => ({
+        name: `${i + 1}月`,
+        value: randomInt(200, 500),
+        碘海醇: randomInt(80, 200),
+        碘帕醇: randomInt(60, 150),
+        钆喷酸葡胺: randomInt(30, 80),
+      }));
+
+    case 'report-avg-turnaround':
+      return Array.from({ length: Math.min(days, 12) }, (_, i) => ({
+        name: `${i + 1}月`,
+        value: randomFloat(2, 12, 1),
+        emergency: randomFloat(0.5, 3, 1),
+      }));
+
     default:
-      return generateTimeSeries(30, 500, 100, '');
+      return generateTimeSeries(days, 500, 100, '');
   }
 }

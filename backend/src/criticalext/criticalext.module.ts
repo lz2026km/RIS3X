@@ -1,10 +1,10 @@
-import { Module } from '@nestjs/common';
-import { Critical-extController } from './critical-ext.controller';
-import { Critical-extService } from './critical-ext.service';
+import { Module } from '@nestjs/common'
+import { CriticalExtController } from './criticalext.controller'
+import { CriticalExtService } from './criticalext.service'
 
 @Module({
-  controllers: [Critical-extController],
-  providers: [Critical-extService],
-  exports: [Critical-extService],
+  controllers: [CriticalExtController],
+  providers: [CriticalExtService],
+  exports: [CriticalExtService],
 })
-export class Critical-extModule {}
+export class CriticalExtModule {}

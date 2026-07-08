@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { X } from 'lucide-react';
+import { TaskProgress, type TaskState } from './TaskProgress';
 
 interface BatchAction {
   key: string;
@@ -13,11 +14,21 @@ interface BatchActionBarProps {
   onAction: (action: string) => void;
   actions: BatchAction[];
   onClear?: () => void;
+  /** 任务进度状态（传入后显示 TaskProgress） */
+  task?: TaskState;
+  /** SSE 端点 URL */
+  taskSseUrl?: string;
+  /** 取消任务 */
+  onTaskCancel?: () => void;
+  /** 重试失败项 */
+  onTaskRetry?: () => void;
+  /** 进度回调 */
+  onTaskProgress?: (state: TaskState) => void;
 }
 
 const PRIMARY = '#1e40af';
 
-export default function BatchActionBar({ selectedCount, onAction, actions, onClear }: BatchActionBarProps) {
+export default function BatchActionBar({ selectedCount, onAction, actions, onClear, task, taskSseUrl, onTaskCancel, onTaskRetry, onTaskProgress }: BatchActionBarProps) {
   const [confirmKey, setConfirmKey] = useState<string | null>(null);
 
   if (selectedCount === 0) return null;
@@ -49,6 +60,15 @@ export default function BatchActionBar({ selectedCount, onAction, actions, onCle
         border: '1px solid #e2e8f0',
       }}
     >
+      {task && (
+        <TaskProgress
+          task={task}
+          sseUrl={taskSseUrl}
+          onCancel={onTaskCancel}
+          onRetryFailed={onTaskRetry}
+          onProgress={onTaskProgress}
+        />
+      )}
       <span style={{ fontSize: 13, fontWeight: 600, color: '#1e293b', whiteSpace: 'nowrap' }}>
         已选中 <span style={{ color: PRIMARY, fontWeight: 700 }}>{selectedCount}</span> 项
       </span>

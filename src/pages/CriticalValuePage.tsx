@@ -315,15 +315,17 @@ const STATUS_CONFIG: Record<
 
 const SEVERITY_CONFIG: Record<
   string,
-  { bg: string; color: string; borderColor: string }
+  { bg: string; color: string; borderColor: string; slaMinutes: number; label: string }
 > = {
-  危急: { bg: "#fef2f2", color: "#dc2626", borderColor: "#dc2626" },
-  高危: { bg: "#fffbeb", color: "#d97706", borderColor: "#d97706" },
-  紧急: { bg: "#eff6ff", color: "#2563eb", borderColor: "#2563eb" },
+  '危及生命': { bg: "#fef2f2", color: "#dc2626", borderColor: "#dc2626", slaMinutes: 5, label: '危及生命' },
+  '危急': { bg: "#fee2e2", color: "#ef4444", borderColor: "#ef4444", slaMinutes: 10, label: '危急' },
+  '高危': { bg: "#fffbeb", color: "#f97316", borderColor: "#f97316", slaMinutes: 30, label: '高危' },
+  '紧急': { bg: "#eff6ff", color: "#eab308", borderColor: "#eab308", slaMinutes: 120, label: '紧急' },
+  '警告': { bg: "#f0f9ff", color: "#3b82f6", borderColor: "#3b82f6", slaMinutes: 1440, label: '警告' },
 };
 
 const MODALITY_LIST = ["全部", "CT", "MR", "DR", "DSA", "超声"];
-const SEVERITY_LIST = ["全部", "危急", "高危", "紧急"];
+const SEVERITY_LIST = ["全部", "危及生命", "危急", "高危", "紧急", "警告"];
 // v3.0.6.11: status filter 使用 criticalStore 英文状态 key
 const STATUS_LIST = ["全部", "pending", "resolving", "resolved", "overdue"];
 const STATUS_LABEL_CN: Record<string, string> = {

@@ -1,54 +1,58 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common'
+import { PrismaService } from '../prisma/prisma.service'
 
 @Injectable()
 export class CdsService {
+  constructor(private readonly prisma: PrismaService) {}
+
   async listGuidelines() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.systemConfig.findMany({ where: { key: { startsWith: 'cds_guideline_' } } })
+    return { data }
   }
 
   async getGuideline(id: string) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.systemConfig.findUnique({ where: { key: id } })
+    return { data: data ? [data] : [] }
   }
 
   async createGuideline(body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.systemConfig.create({ data: { key: `cds_guideline_${Date.now()}`, value: body } })
+    return { data: [data] }
   }
 
   async listAlerts() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.notification.findMany({ orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
-  async acknowledgeAlert(id: string, body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+  async acknowledgeAlert(body: any) {
+    const { id, ...rest } = body
+    const data = await this.prisma.notification.update({ where: { id }, data: { read: true, ...rest } })
+    return { data: [data] }
   }
 
   async getDoseMonitoring() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findMany({ where: { resource: 'cds-dose' }, orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async getCdsStatistics() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findMany({ where: { resource: { startsWith: 'cds-' } }, orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async listCdsRules() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.systemConfig.findMany({ where: { key: { startsWith: 'cds_rule_' } } })
+    return { data }
   }
 
   async createCdsRule(body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.systemConfig.create({ data: { key: `cds_rule_${Date.now()}`, value: body } })
+    return { data: [data] }
   }
 
   async getCdsManagement() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.systemConfig.findMany({ where: { key: { startsWith: 'cds_' } } })
+    return { data }
   }
 }

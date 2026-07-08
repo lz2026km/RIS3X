@@ -1,44 +1,51 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common'
+import { PrismaService } from '../prisma/prisma.service'
 
 @Injectable()
 export class CosignService {
+  constructor(private readonly prisma: PrismaService) {}
+
   async listPendingCosigns() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findMany({ where: { resource: 'cosign', success: false }, orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async getPendingCosign(id: string) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findUnique({ where: { id } })
+    return { data: data ? [data] : [] }
   }
 
-  async approveCosign(id: string, body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+  async approveCosign(body: any) {
+    const data = await this.prisma.auditLog.create({ data: { action: 'APPROVE', resource: 'cosign', detail: body, success: true } })
+    return { data: [data] }
   }
 
-  async rejectCosign(id: string, body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+  async rejectCosign(body: any) {
+    const data = await this.prisma.auditLog.create({ data: { action: 'REJECT', resource: 'cosign', detail: body, success: false } })
+    return { data: [data] }
   }
 
   async listCosignHistory() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.findMany({ where: { resource: 'cosign' }, orderBy: { createdAt: 'desc' }, take: 100 })
+    return { data }
   }
 
   async listCosignRules() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.systemConfig.findMany({ where: { key: { startsWith: 'cosign_rule_' } } })
+    return { data }
   }
 
   async createCosignRule(body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.systemConfig.create({ data: { key: `cosign_rule_${Date.now()}`, value: body } })
+    return { data: [data] }
   }
 
   async getCosignStats() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.auditLog.groupBy({
+      by: ['action'],
+      where: { resource: 'cosign' },
+      _count: { id: true },
+    })
+    return { data }
   }
 }

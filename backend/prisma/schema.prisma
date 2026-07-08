@@ -144,6 +144,7 @@ enum AdverseEventStatus {
 
 model User {
   id            String    @id @default(cuid())
+  tenantId      String    @map("tenant_id")
   username      String    @unique
   passwordHash  String    @map("password_hash")
   fullName      String    @map("full_name")
@@ -160,11 +161,13 @@ model User {
   opsLog              WorklistOp[]
   loginLogs           LoginLog[]
 
+  @@index([tenantId])
   @@map("users")
 }
 
 model Patient {
   id        String      @id @default(cuid())
+  tenantId  String      @map("tenant_id")
   name      String
   gender    Gender
   birthDate DateTime?   @map("birth_date")
@@ -179,11 +182,13 @@ model Patient {
   updatedAt DateTime    @updatedAt @map("updated_at")
 
   @@index([name, phone])
+  @@index([tenantId])
   @@map("patients")
 }
 
 model Exam {
   id              String   @id @default(cuid())
+  tenantId        String   @map("tenant_id")
   patientId       String   @map("patient_id")
   accessionNumber String   @unique @map("accession_number")
   modality        String
@@ -200,11 +205,13 @@ model Exam {
   createdAt       DateTime @default(now()) @map("created_at")
 
   @@index([patientId, modality])
+  @@index([tenantId])
   @@map("exams")
 }
 
 model Report {
   id           String        @id @default(cuid())
+  tenantId     String        @map("tenant_id")
   patientId    String        @map("patient_id")
   examId       String?       @map("exam_id")
   radiologistId String?      @map("radiologist_id")
@@ -223,6 +230,7 @@ model Report {
   updatedAt    DateTime      @updatedAt @map("updated_at")
 
   @@index([state, patientId])
+  @@index([tenantId])
   @@map("reports")
 }
 
@@ -242,6 +250,7 @@ model ReportRevision {
 
 model Device {
   id             String      @id @default(cuid())
+  tenantId       String      @map("tenant_id")
   code           String      @unique
   name           String
   modality       String
@@ -255,6 +264,7 @@ model Device {
   createdAt      DateTime    @default(now()) @map("created_at")
   updatedAt      DateTime    @updatedAt @map("updated_at")
 
+  @@index([tenantId])
   @@map("devices")
 }
 
@@ -836,6 +846,21 @@ model Invoice {
   @@index([patientId, status])
   @@index([issuedAt])
   @@map("invoices")
+}
+
+// v3.0.6.11-8: HL7 消息归档
+model Hl7MessageArchive {
+  id          String   @id @default(cuid())
+  messageType String   @map("message_type")
+  controlId   String   @map("control_id")
+  rawMessage  String   @map("raw_message")
+  parsed      Json     @default("{}")
+  direction   String   @default("INBOUND")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([messageType, createdAt])
+  @@index([controlId])
+  @@map("hl7_message_archives")
 }
 
 // v3.0.6.11-7: 通知模板/渠道

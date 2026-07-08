@@ -63,16 +63,9 @@ export class DicomWebController {
   @Get('studies/:study/series/:series/instances/:sop')
   async retrieve(@Param('sop') sop: string, @Res() res: Response) {
     const r = await this.service.retrieveInstance(sop)
-    // TODO v3.0.4: 实现真实 DICOM Part 10 流式 (Transfer Syntax negotiation + multipart/related)
-    // 当前返回 application/dicom 占位 Buffer,符合 PS 3.18 WADO-RS 最小契约
-    const placeholder = Buffer.from(
-      `DICM placeholder sop=${sop} storagePath=${r.storagePath} size=${r.size}`,
-      'utf8'
-    )
     res.setHeader('Content-Type', 'application/dicom')
-    res.setHeader('Content-Length', placeholder.length.toString())
-    res.send(placeholder)
-    return r
+    res.setHeader('Content-Length', r.buffer.length.toString())
+    res.send(r.buffer)
   }
 
   @Get('studies/:study/series/:series/instances/:sop/metadata')

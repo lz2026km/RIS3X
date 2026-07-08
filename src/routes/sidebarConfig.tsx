@@ -169,6 +169,12 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.serviceManagement",
         roles: ["医生", "技师", "护士", "主任", "管理员",],
       },
+      {
+        path: "/patients/:id/360",
+        icon: <Eye size={18} />,
+        labelKey: "nav.patient360",
+        roles: ["医生", "技师", "护士", "主任", "管理员",],
+      },
     ],
   },
   {
@@ -404,6 +410,12 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/dicom-viewer",
         icon: <Activity size={18} />,
         labelKey: "nav.dicomBrowser",
+        roles: ["医生", "技师", "主任", "管理员",],
+      },
+      {
+        path: "/dicom-viewer-pro",
+        icon: <Activity size={18} />,
+        labelKey: "nav.dicomBrowserPro",
         roles: ["医生", "技师", "主任", "管理员",],
       },
       {

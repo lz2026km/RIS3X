@@ -1,59 +1,62 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common'
+import { PrismaService } from '../prisma/prisma.service'
 
 @Injectable()
 export class RegionalService {
+  constructor(private readonly prisma: PrismaService) {}
+
   async listRegionalImaging() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.exam.findMany({ orderBy: { createdAt: 'desc' }, take: 100 })
+    return { data }
   }
 
   async getRegionalImaging(id: string) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.exam.findUnique({ where: { id } })
+    return { data: data ? [data] : [] }
   }
 
   async listRegionalReports() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.report.findMany({ orderBy: { createdAt: 'desc' }, take: 100 })
+    return { data }
   }
 
   async getRegionalReport(id: string) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.report.findUnique({ where: { id } })
+    return { data: data ? [data] : [] }
   }
 
   async getDepartmentSchedule() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.appointment.findMany({ orderBy: { scheduledAt: 'asc' }, take: 50 })
+    return { data }
   }
 
   async updateSchedule(id: string, body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.appointment.update({ where: { id }, data: body })
+    return { data: [data] }
   }
 
   async listDepartments() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.user.findMany({ select: { department: true }, distinct: ['department'] })
+    return { data: data.filter(d => d.department) }
   }
 
   async listMedicalAlliance() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.systemConfig.findMany({ where: { key: { startsWith: 'medical_alliance_' } } })
+    return { data }
   }
 
   async getFhirStatus() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.systemConfig.findMany({ where: { key: { startsWith: 'fhir_' } } })
+    return { data }
   }
 
   async getIheStatus() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.systemConfig.findMany({ where: { key: { startsWith: 'ihe_' } } })
+    return { data }
   }
 
   async getMllpStatus() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.systemConfig.findMany({ where: { key: { startsWith: 'mllp_' } } })
+    return { data }
   }
 }

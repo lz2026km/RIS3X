@@ -1,70 +1,48 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Critical-extService } from './critical-ext.service';
+import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common'
+import { AuthGuard } from '@nestjs/passport'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { CriticalExtService } from './criticalext.service'
+
 @ApiTags('critical-ext')
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
-@Controller('api/critical-ext')
-export class Critical-extController {
-  constructor(private readonly svc: Critical-extService) {}
+@Controller('critical-ext')
+export class CriticalExtController {
+  constructor(private readonly svc: CriticalExtService) {}
+
   @Get('rules')
-  listCriticalRules(@Param('id') id: string) {
-    return this.svc.listCriticalRules(id);
-  }
+  listCriticalRules() { return this.svc.listCriticalRules() }
 
   @Post('rules')
-  createCriticalRule(@Body() body: any) {
-    return this.svc.createCriticalRule(body);
-  }
+  createCriticalRule(@Body() body: any) { return this.svc.createCriticalRule(body) }
 
   @Put('rules/:id')
-  updateCriticalRule(@Param('id') id: string, @Body() body: any) {
-    return this.svc.updateCriticalRule(id, body);
-  }
+  updateCriticalRule(@Param('id') id: string, @Body() body: any) { return this.svc.updateCriticalRule(id, body) }
 
   @Delete('rules/:id')
-  deleteCriticalRule(@Param('id') id: string) {
-    return this.svc.deleteCriticalRule(id);
-  }
+  deleteCriticalRule(@Param('id') id: string) { return this.svc.deleteCriticalRule(id) }
 
   @Get('stats')
-  getCriticalStats(@Param('id') id: string) {
-    return this.svc.getCriticalStats(id);
-  }
+  getCriticalStats() { return this.svc.getCriticalStats() }
 
   @Get('stats/summary')
-  getCriticalSummary(@Param('id') id: string) {
-    return this.svc.getCriticalSummary(id);
-  }
+  getCriticalSummary() { return this.svc.getCriticalSummary() }
 
   @Get('stats/timeline')
-  getCriticalTimeline(@Param('id') id: string) {
-    return this.svc.getCriticalTimeline(id);
-  }
+  getCriticalTimeline() { return this.svc.getCriticalTimeline() }
 
   @Get('center')
-  listCriticalCenter(@Param('id') id: string) {
-    return this.svc.listCriticalCenter(id);
-  }
+  listCriticalCenter() { return this.svc.listCriticalCenter() }
 
   @Get('center/:id')
-  getCriticalCenterItem(@Param('id') id: string) {
-    return this.svc.getCriticalCenterItem(id);
-  }
+  getCriticalCenterItem(@Param('id') id: string) { return this.svc.getCriticalCenterItem(id) }
 
   @Post('auto-detect')
-  autoDetectCritical(@Body() body: any) {
-    return this.svc.autoDetectCritical(body);
-  }
+  autoDetectCritical(@Body() body: any) { return this.svc.autoDetectCritical(body) }
 
   @Post('close-loop')
-  closeCriticalLoop(@Body() body: any) {
-    return this.svc.closeCriticalLoop(body);
-  }
+  closeCriticalLoop(@Body() body: any) { return this.svc.closeCriticalLoop(body) }
 
   @Get('receiver')
-  getReceiverPortal(@Param('id') id: string) {
-    return this.svc.getReceiverPortal(id);
-  }
+  getReceiverPortal() { return this.svc.getReceiverPortal() }
 }

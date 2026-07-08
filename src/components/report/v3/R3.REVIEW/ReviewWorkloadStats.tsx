@@ -77,7 +77,7 @@ export const ReviewWorkloadStats: React.FC = () => {
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [period]);
 
   const overallStats = useMemo(() => {

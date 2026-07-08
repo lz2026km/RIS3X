@@ -1,10 +1,10 @@
-import { Module } from '@nestjs/common';
-import { Report-qualityController } from './report-quality.controller';
-import { Report-qualityService } from './report-quality.service';
+import { Module } from '@nestjs/common'
+import { ReportQualityController } from './reportquality.controller'
+import { ReportQualityService } from './reportquality.service'
 
 @Module({
-  controllers: [Report-qualityController],
-  providers: [Report-qualityService],
-  exports: [Report-qualityService],
+  controllers: [ReportQualityController],
+  providers: [ReportQualityService],
+  exports: [ReportQualityService],
 })
-export class Report-qualityModule {}
+export class ReportQualityModule {}

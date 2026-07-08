@@ -1,10 +1,10 @@
-import { Module } from '@nestjs/common';
-import { Device-mgmtController } from './device-mgmt.controller';
-import { Device-mgmtService } from './device-mgmt.service';
+import { Module } from '@nestjs/common'
+import { DeviceMgmtController } from './devicemgmt.controller'
+import { DeviceMgmtService } from './devicemgmt.service'
 
 @Module({
-  controllers: [Device-mgmtController],
-  providers: [Device-mgmtService],
-  exports: [Device-mgmtService],
+  controllers: [DeviceMgmtController],
+  providers: [DeviceMgmtService],
+  exports: [DeviceMgmtService],
 })
-export class Device-mgmtModule {}
+export class DeviceMgmtModule {}

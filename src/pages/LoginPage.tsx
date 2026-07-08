@@ -56,11 +56,11 @@ export default function LoginPage() {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a', color: '#e2e8f0' }}>
       <form onSubmit={handleLogin} style={{ background: '#1e293b', padding: 32, borderRadius: 12, width: 380, boxShadow: '0 12px 32px rgba(0,0,0,0.4)' }}>
         <h1 style={{ margin: 0, fontSize: 22, color: '#f8fafc' }}>RIS 登录</h1>
-        <p style={{ marginTop: 6, marginBottom: 24, fontSize: 12, color: '#94a3b8' }}>
+        <p style={{ marginTop: 6, marginBottom: 24, fontSize: 12, color: '#64748b' }}>
           演示模式：选择角色并提交后，将以该角色身份进入系统。
         </p>
         {user && (
-          <div style={{ marginBottom: 12, padding: 10, background: '#0f172a', border: '1px solid #334155', borderRadius: 6, fontSize: 12 }}>
+          <div style={{ marginBottom: 12, padding: 10, background: '#0f172a', border: '1px solid #475569', borderRadius: 6, fontSize: 12 }}>
             当前已登录：<strong>{user.name}</strong>（{user.role}）
           </div>
         )}
@@ -68,7 +68,7 @@ export default function LoginPage() {
         <select
           value={selectedRole}
           onChange={(e) => setSelectedRole(e.target.value as UserRole)}
-          style={{ width: '100%', padding: 10, borderRadius: 6, border: '1px solid #334155', background: '#0f172a', color: '#f1f5f9', fontSize: 13, marginBottom: 14 }}
+          style={{ width: '100%', padding: 10, borderRadius: 6, border: '1px solid #475569', background: '#0f172a', color: '#f1f5f9', fontSize: 13, marginBottom: 14 }}
         >
           {DEMO_USERS.map((d) => (
             <option key={d.role} value={d.role}>{d.label}</option>
@@ -78,14 +78,14 @@ export default function LoginPage() {
         <input
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          style={{ width: '100%', padding: 10, borderRadius: 6, border: '1px solid #334155', background: '#0f172a', color: '#f1f5f9', fontSize: 13, marginBottom: 14, boxSizing: 'border-box' }}
+          style={{ width: '100%', padding: 10, borderRadius: 6, border: '1px solid #475569', background: '#0f172a', color: '#f1f5f9', fontSize: 13, marginBottom: 14, boxSizing: 'border-box' }}
         />
         <label style={{ display: 'block', fontSize: 12, color: '#cbd5e1', marginBottom: 6 }}>密码</label>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          style={{ width: '100%', padding: 10, borderRadius: 6, border: '1px solid #334155', background: '#0f172a', color: '#f1f5f9', fontSize: 13, marginBottom: 14, boxSizing: 'border-box' }}
+          style={{ width: '100%', padding: 10, borderRadius: 6, border: '1px solid #475569', background: '#0f172a', color: '#f1f5f9', fontSize: 13, marginBottom: 14, boxSizing: 'border-box' }}
         />
         {error && (
           <div style={{ marginBottom: 12, padding: 8, background: '#7f1d1d', color: '#fee2e2', borderRadius: 6, fontSize: 12 }}>{error}</div>

@@ -25,7 +25,7 @@ const STATUS_LABEL: Record<string, string> = {
   cancelled: '已取消',
   overdue: '超时',
 }
-const SEVERITY_LIST = ['全部', '危急', '高危', '紧急']
+const SEVERITY_LIST = ['全部', '危及生命', '危急', '高危', '紧急', '警告']
 const TIME_RANGE_LIST = ['全部', '30分钟内', '1小时内', '2小时内', '超时']
 
 interface FilterBarProps {

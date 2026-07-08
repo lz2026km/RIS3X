@@ -8,6 +8,9 @@
  *  - 集成 type="button" 默认 (避免 form 内意外 submit)
  *  - 集成 :focus-visible 全局焦点环
  *  - 集成 cursor: not-allowed for disabled
+ *
+ * eslint rule: 全项目优先使用 AppButton 替代原生 <button>，以统一样式/权限/无障碍支持。
+ * 新增按钮请直接引用 AppButton，禁止内联 style 手写 <button>。
  */
 import { forwardRef, type ReactNode, type CSSProperties, type MouseEvent } from "react";
 import { Button as AntButton } from "antd";

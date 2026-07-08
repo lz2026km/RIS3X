@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { reportDefinitions } from '../reportDefinitions';
 
-const VALID_CHART_TYPES = ['line', 'bar', 'pie', 'area', 'radar', 'stackedBar', 'composed', 'funnel', 'heatmap', 'radialBar'];
+const VALID_CHART_TYPES = ['line', 'bar', 'pie', 'area', 'radar', 'stacked-bar', 'composed', 'funnel', 'heatmap', 'radialBar'];
 const VALID_CATEGORIES = ['日常统计', '设备管理', '报告质量', '危急值', '绩效分析', 'AI评估', '患者服务', '综合质控'];
 
 describe('reportDefinitions', () => {
-  it('has 44 report definitions', () => {
-    expect(reportDefinitions.length).toBe(44);
+  it('has 70 report definitions', () => {
+    expect(reportDefinitions.length).toBe(70);
   });
 
   it('every definition has required fields', () => {

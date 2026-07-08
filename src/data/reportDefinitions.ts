@@ -3,9 +3,10 @@ export interface ReportDefinition {
   category: '日常统计' | '设备管理' | '报告质量' | '危急值' | '绩效分析' | 'AI评估' | '患者服务' | '综合质控';
   name: string;
   description: string;
-  chartType: 'line' | 'bar' | 'pie' | 'area' | 'radar' | 'stackedBar' | 'composed' | 'funnel' | 'heatmap' | 'radialBar';
+  chartType: 'line' | 'bar' | 'pie' | 'area' | 'radar' | 'stacked-bar' | 'composed' | 'funnel' | 'heatmap' | 'radialBar';
   dimensions: string[];
   measures: string[];
+  dataKeys?: string[];
   aiInsight?: string;
 }
 
@@ -18,6 +19,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'bar',
     dimensions: ['日期', '设备类型'],
     measures: ['检查量'],
+    dataKeys: ['value'],
     aiInsight: '今日检查量{trend}，CT检查量{dailyCt}例，环比{ctChange}。{peakHourDesc}',
   },
   {
@@ -28,6 +30,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'line',
     dimensions: ['周', '设备类型'],
     measures: ['检查量'],
+    dataKeys: ['value'],
     aiInsight: '本周检查总量{total}例，较上周{trend}{change}%。{modalityDesc}',
   },
   {
@@ -35,9 +38,10 @@ export const reportDefinitions: ReportDefinition[] = [
     category: '日常统计',
     name: '检查量月报',
     description: '月度检查量统计及设备分布',
-    chartType: 'stackedBar',
+    chartType: 'stacked-bar',
     dimensions: ['月份', '设备类型'],
     measures: ['检查量'],
+    dataKeys: ['value'],
     aiInsight: '{month}月检查总量{total}例，同比去年同期{growth}%。{topModality}占比最高达{topPct}%',
   },
   {
@@ -48,6 +52,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'area',
     dimensions: ['年份', '月份', '设备类型'],
     measures: ['检查量', '增长率'],
+    dataKeys: ['value', 'growth'],
     aiInsight: '{year}年总检查量{total}例，年增长率{growth}%。{modalityDesc}',
   },
   {
@@ -58,6 +63,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'pie',
     dimensions: ['设备类型'],
     measures: ['检查量', '占比'],
+    dataKeys: ['value', 'percentage'],
     aiInsight: 'CT检查占比{ctPct}%居首，MR占比{mrPct}%，DR占比{drPct}%',
   },
   {
@@ -68,6 +74,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'bar',
     dimensions: ['检查部位'],
     measures: ['检查量'],
+    dataKeys: ['value'],
     aiInsight: '检查部位最多为{topBodyPart}({topCount}例)，前5部位占总量的{top5Pct}%',
   },
   {
@@ -78,6 +85,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'bar',
     dimensions: ['年龄段'],
     measures: ['检查量'],
+    dataKeys: ['value'],
     aiInsight: '{peakAge}年龄段检查量最高({peakCount}例)，{lowAge}最低。儿童检查占比{childPct}%',
   },
   {
@@ -88,6 +96,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'pie',
     dimensions: ['性别'],
     measures: ['检查量', '占比'],
+    dataKeys: ['value', 'percentage'],
     aiInsight: '男性患者占比{malePct}%，女性{femalePct}%，男女比{ratio}',
   },
   {
@@ -98,6 +107,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'line',
     dimensions: ['时段'],
     measures: ['检查量'],
+    dataKeys: ['value'],
     aiInsight: '高峰时段为{peakHour}时（{peakCount}例），建议增开{peakHour}时段窗口',
   },
   {
@@ -108,6 +118,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'bar',
     dimensions: ['类型'],
     measures: ['日均检查量'],
+    dataKeys: ['value'],
     aiInsight: '工作日日均{weekday}例，周末{weekend}例，周末降幅{weekendDrop}%',
   },
   {
@@ -118,6 +129,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'radialBar',
     dimensions: ['设备名称'],
     measures: ['使用率'],
+    dataKeys: ['value'],
     aiInsight: '{highDevice}使用率最高{highRate}%，{lowDevice}最低{lowRate}%。建议优化{lowDevice}排班',
   },
   {
@@ -128,6 +140,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'bar',
     dimensions: ['设备名称', '月份'],
     measures: ['故障次数', '故障率'],
+    dataKeys: ['value', 'failureRate'],
     aiInsight: '{topFaultDevice}故障率最高({topFaultRate}%)，常见故障类型{faultType}',
   },
   {
@@ -138,6 +151,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'composed',
     dimensions: ['设备名称'],
     measures: ['收入', '成本', '净利润'],
+    dataKeys: ['收入', '成本', '净利润'],
     aiInsight: '{topRoiDevice}ROI最高达{roiValue}%，投资回收期{paybackPeriod}月',
   },
   {
@@ -148,6 +162,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'bar',
     dimensions: ['设备名称', '保养类型'],
     measures: ['到期天数'],
+    dataKeys: ['value'],
     aiInsight: '近30天有{dueCount}台设备需保养，{overdueCount}台已超期，请尽快安排',
   },
   {
@@ -158,6 +173,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'radialBar',
     dimensions: ['设备类型', '报告类型'],
     measures: ['及时率', '平均用时'],
+    dataKeys: ['value'],
     aiInsight: '报告总及时率{timelinessRate}%，急诊报告及时率{emergencyRate}%',
   },
   {
@@ -168,6 +184,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'bar',
     dimensions: ['设备类型', '超时区间'],
     measures: ['超时数量', '超时率'],
+    dataKeys: ['value', 'overtimeRate'],
     aiInsight: '本月超时报告{overtimeCount}份，超时率{overtimeRate}%。{longestDept}科室超时最严重',
   },
   {
@@ -178,6 +195,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'radialBar',
     dimensions: ['设备类型', '医生'],
     measures: ['通过率', '退回率'],
+    dataKeys: ['value', 'rejectRate'],
     aiInsight: '总审核通过率{passRate}%，退回率{rejectRate}%。{topDoctor}医生通过率最高{topPass}%',
   },
   {
@@ -188,6 +206,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'pie',
     dimensions: ['评分等级'],
     measures: ['数量', '占比'],
+    dataKeys: ['value', 'percentage'],
     aiInsight: '甲级报告占比{gradeA}%，乙级{gradeB}%，丙级{gradeC}%。目标合格率{targetPass}%',
   },
   {
@@ -198,6 +217,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'bar',
     dimensions: ['医生', '设备类型'],
     measures: ['返修率', '返修次数'],
+    dataKeys: ['value', 'reworkCount'],
     aiInsight: '总返修率{reworkRate}%。{topReworkDoctor}返修率最高{topRework}%',
   },
   {
@@ -208,6 +228,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'bar',
     dimensions: ['设备类型', '月份'],
     measures: ['阳性率', '阳性例数'],
+    dataKeys: ['value', 'positiveCount'],
     aiInsight: '总阳性率{positiveRate}%。{topPositiveModality}阳性率最高{topPositive}%',
   },
   {
@@ -218,6 +239,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'line',
     dimensions: ['月份'],
     measures: ['平均字数'],
+    dataKeys: ['value'],
     aiInsight: '本月报告平均字数{avgWords}字，较上月{trend}{change}字',
   },
   {
@@ -228,6 +250,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'bar',
     dimensions: ['修改次数'],
     measures: ['报告数量'],
+    dataKeys: ['value'],
     aiInsight: '平均修改次数{avgModify}次，{zeroModifyPct}%的报告未经修改一次通过',
   },
   {
@@ -238,6 +261,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'bar',
     dimensions: ['科室'],
     measures: ['超时数量'],
+    dataKeys: ['value'],
     aiInsight: '{topOvertimeDept}超时报告最多（{topOvertimeCount}份），建议加强{topOvertimeDept}质控管理',
   },
   {
@@ -248,6 +272,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'bar',
     dimensions: ['模板名称'],
     measures: ['使用次数'],
+    dataKeys: ['value'],
     aiInsight: '{topTemplate}模板使用最频繁（{topTemplateCount}次），新增模板建议参考高频率模板结构',
   },
   {
@@ -258,6 +283,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'line',
     dimensions: ['月份'],
     measures: ['平均闭环时长', '中位时长'],
+    dataKeys: ['value', 'median'],
     aiInsight: '平均闭环时间{avgClosure}分钟，达标率{closureRate}%。{bestDept}科室闭环最快',
   },
   {
@@ -268,6 +294,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'pie',
     dimensions: ['科室'],
     measures: ['危急值数量', '占比'],
+    dataKeys: ['value'],
     aiInsight: '{topCriticalDept}危急值最多（{topCriticalCount}例），占总数{criticalDeptPct}%',
   },
   {
@@ -278,6 +305,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'bar',
     dimensions: ['医生姓名'],
     measures: ['报告数量', '审核数量'],
+    dataKeys: ['value', 'reviewCount'],
     aiInsight: '{topDoctor}本月报告量最高（{topReportCount}份），前十医生占总工作量{top10Pct}%',
   },
   {
@@ -288,6 +316,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'bar',
     dimensions: ['技师姓名'],
     measures: ['检查量', '平均用时'],
+    dataKeys: ['value', 'avgTime'],
     aiInsight: '{topTech}技师检查量最高（{topTechCount}例），平均用时{avgTechTime}分钟',
   },
   {
@@ -298,6 +327,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'composed',
     dimensions: ['设备类型', '月份'],
     measures: ['收入', '成本', '利润'],
+    dataKeys: ['收入', '成本', '利润'],
     aiInsight: '{topRevenueModality}收入最高（{topRevenue}元），利润率{profitRate}%',
   },
   {
@@ -308,6 +338,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'pie',
     dimensions: ['医保类型'],
     measures: ['检查量', '费用'],
+    dataKeys: ['value'],
     aiInsight: '{topInsurance}医保占比最高{topInsurancePct}%，自费占比{selfPayPct}%',
   },
   {
@@ -318,6 +349,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'pie',
     dimensions: ['会诊类型'],
     measures: ['会诊量'],
+    dataKeys: ['value'],
     aiInsight: '本月会诊{consultCount}例，{remoteConsultPct}%为远程会诊',
   },
   {
@@ -328,6 +360,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'line',
     dimensions: ['月份'],
     measures: ['远程会诊量'],
+    dataKeys: ['value'],
     aiInsight: '远程会诊量{trend}，本月{remoteTotal}例，较去年同期增长{remoteGrowth}%',
   },
   {
@@ -338,6 +371,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'bar',
     dimensions: ['BI-RADS分级'],
     measures: ['例数'],
+    dataKeys: ['value'],
     aiInsight: 'BI-RADS 3类最常见（{birads3Count}例），4类以上占{birads4PlusPct}%',
   },
   {
@@ -348,6 +382,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'bar',
     dimensions: ['LI-RADS分级'],
     measures: ['例数'],
+    dataKeys: ['value'],
     aiInsight: 'LI-RADS 3类最常见（{lirads3Count}例），LR-5类占{lirads5Pct}%',
   },
   {
@@ -358,6 +393,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'line',
     dimensions: ['月份'],
     measures: ['AI准确率', '医生准确率'],
+    dataKeys: ['value', 'doctorAccuracy'],
     aiInsight: 'AI整体准确率{aiAccuracy}%，肺结节检出敏感度{aiSensitivity}%',
   },
   {
@@ -368,6 +404,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'pie',
     dimensions: ['漏诊类型'],
     measures: ['漏诊例数'],
+    dataKeys: ['value'],
     aiInsight: 'AI漏诊率{aiMissRate}%，主要漏诊类型为{topMissType}（{topMissCount}例）',
   },
   {
@@ -378,6 +415,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'line',
     dimensions: ['月份'],
     measures: ['采纳率'],
+    dataKeys: ['value'],
     aiInsight: 'AI辅助采纳率{adoptionRate}%，较上月{trend}{adoptionChange}%',
   },
   {
@@ -388,6 +426,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'line',
     dimensions: ['月份', '设备类型'],
     measures: ['平均DLP', '平均CTDIvol'],
+    dataKeys: ['CT_DLP', 'CT_CTDI'],
     aiInsight: '本月平均DLP{avgDlp} mGy·cm，较上月{trend}{dlpChange}%。{overLimitDevices}超剂量预警',
   },
   {
@@ -398,6 +437,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'pie',
     dimensions: ['反应类型'],
     measures: ['例数'],
+    dataKeys: ['value'],
     aiInsight: '对比剂不良反应率{adverseRate}%，轻度反应占比{mildPct}%，重度{severePct}%',
   },
   {
@@ -408,6 +448,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'bar',
     dimensions: ['对比剂名称'],
     measures: ['当前库存', '安全库存'],
+    dataKeys: ['value', 'safetyStock'],
     aiInsight: '{lowStockContrast}库存不足（当前{lowStockQty}瓶），建议{restockSuggestion}',
   },
   {
@@ -418,6 +459,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'line',
     dimensions: ['月份'],
     measures: ['平均等待时间', '中位等待时间'],
+    dataKeys: ['value', 'median'],
     aiInsight: '平均等待时间{avgWait}分钟，较上月{trend}{waitChange}%。{longestWaitModality}等待最长',
   },
   {
@@ -428,6 +470,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'pie',
     dimensions: ['取消原因'],
     measures: ['取消例数'],
+    dataKeys: ['value'],
     aiInsight: '预约取消率{cancelRate}%，主要原因为{cancelReason}（{cancelReasonPct}%）',
   },
   {
@@ -438,6 +481,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'pie',
     dimensions: ['患者来源'],
     measures: ['例数', '占比'],
+    dataKeys: ['value', 'percentage'],
     aiInsight: '门诊患者占比{outpatientPct}%，住院{inpatientPct}%，急诊{emergencyPct}%',
   },
   {
@@ -448,6 +492,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'line',
     dimensions: ['月份'],
     measures: ['查看量', '预约量'],
+    dataKeys: ['查看量', '预约量'],
     aiInsight: '移动端月活{mau}人次，报告查看{viewCount}次，预约{appointCount}次',
   },
   {
@@ -458,6 +503,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'bar',
     dimensions: ['月份'],
     measures: ['新增病例', '浏览量'],
+    dataKeys: ['value', 'views'],
     aiInsight: '本月新增教学病例{newCaseCount}例，总浏览量{totalViews}次',
   },
   {
@@ -468,6 +514,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'area',
     dimensions: ['月份'],
     measures: ['存储用量TB'],
+    dataKeys: ['value'],
     aiInsight: '当前存储总量{totalStorage}TB，月均增长{dailyGrowth}GB，预计{exhaustMonth}满容',
   },
   {
@@ -478,6 +525,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'line',
     dimensions: ['月份'],
     measures: ['在线率'],
+    dataKeys: ['value'],
     aiInsight: '本月系统在线率{uptime}%，核心业务时段可用率{coreUptime}%',
   },
   {
@@ -488,6 +536,251 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'bar',
     dimensions: ['接口名称'],
     measures: ['调用量', '平均响应时间'],
+    dataKeys: ['value', 'avgResponse'],
     aiInsight: '日均接口调用{avgDailyCalls}万次，{topApi}接口调用最频繁（{topApiCalls}次）',
+  },
+
+  // ── 新增 20+ 三甲标准报表 ──
+  {
+    id: 'exam-volume-by-doctor',
+    category: '日常统计',
+    name: '医生检查量统计',
+    description: '按医生统计检查量排名',
+    chartType: 'bar',
+    dimensions: ['医生'],
+    measures: ['检查量'],
+    dataKeys: ['value'],
+    aiInsight: '{topDoctor}检查量最高({topCount}例)，人均检查量{avgPerDoctor}例',
+  },
+  {
+    id: 'exam-volume-by-dept',
+    category: '日常统计',
+    name: '科室检查量统计',
+    description: '按开单科室统计检查量分布',
+    chartType: 'bar',
+    dimensions: ['科室'],
+    measures: ['检查量'],
+    dataKeys: ['value'],
+    aiInsight: '{topDept}开单量最多({topCount}例)，占总量{pct}%',
+  },
+  {
+    id: 'exam-volume-by-protocol',
+    category: '日常统计',
+    name: '协议检查量统计',
+    description: '按检查协议/序列统计检查量分布',
+    chartType: 'bar',
+    dimensions: ['协议名称'],
+    measures: ['检查量'],
+    dataKeys: ['value'],
+    aiInsight: '{topProtocol}协议使用最多({topCount}次)，占总检查量{pct}%',
+  },
+  {
+    id: 'device-uptime-rate',
+    category: '设备管理',
+    name: '设备开机率统计',
+    description: '各设备月度开机率及对比',
+    chartType: 'line',
+    dimensions: ['月份', '设备名称'],
+    measures: ['开机率'],
+    dataKeys: ['value'],
+    aiInsight: '{topDevice}开机率最高({topRate}%)，{lowDevice}最低({lowRate}%)，需关注{lowDevice}维护',
+  },
+  {
+    id: 'device-downtime-rate',
+    category: '设备管理',
+    name: '设备停机率统计',
+    description: '各设备故障停机率及原因分析',
+    chartType: 'pie',
+    dimensions: ['停机原因'],
+    measures: ['停机率'],
+    dataKeys: ['value'],
+    aiInsight: '总停机率{downtimeRate}%，主要原因为{topCause}({topCausePct}%)',
+  },
+  {
+    id: 'device-daily-utilization-trend',
+    category: '设备管理',
+    name: '设备日利用率趋势',
+    description: '设备每日使用率变化趋势',
+    chartType: 'line',
+    dimensions: ['日期', '设备名称'],
+    measures: ['使用率'],
+    dataKeys: ['value'],
+    aiInsight: '{device}本月平均使用率{avgUtilization}%，峰值{peakUtilization}%',
+  },
+  {
+    id: 'qc-issue-top10',
+    category: '报告质量',
+    name: '质控问题类型TOP10',
+    description: '质控检查中发现的问题类型排名前10',
+    chartType: 'bar',
+    dimensions: ['问题类型'],
+    measures: ['发生次数'],
+    dataKeys: ['value'],
+    aiInsight: '{topIssue}是最常见质控问题({topCount}次)，占总量{pct}%',
+  },
+  {
+    id: 'qc-issue-by-doctor',
+    category: '报告质量',
+    name: '医生质控问题统计',
+    description: '各医生被质控发现的问题数量排名',
+    chartType: 'bar',
+    dimensions: ['医生'],
+    measures: ['问题数量'],
+    dataKeys: ['value'],
+    aiInsight: '{topDoctor}质控问题最多({topCount}个)，人均{avgPerDoctor}个',
+  },
+  {
+    id: 'critical-escalation-rate',
+    category: '危急值',
+    name: '危急值升级率',
+    description: '危急值通知升级比例及趋势',
+    chartType: 'line',
+    dimensions: ['月份'],
+    measures: ['升级率'],
+    dataKeys: ['value'],
+    aiInsight: '危急值升级率{escalationRate}%，较上月{trend}{change}%',
+  },
+  {
+    id: 'critical-miss-rate',
+    category: '危急值',
+    name: '危急值漏报率',
+    description: '危急值漏报率及漏报原因分布',
+    chartType: 'pie',
+    dimensions: ['漏报原因'],
+    measures: ['漏报率'],
+    dataKeys: ['value'],
+    aiInsight: '危急值漏报率{missRate}%，主要原因为{topCause}（{topCausePct}%）',
+  },
+  {
+    id: 'critical-response-time-trend',
+    category: '危急值',
+    name: '危急值响应时间趋势',
+    description: '危急值从发现到通知的平均响应时间趋势',
+    chartType: 'line',
+    dimensions: ['月份'],
+    measures: ['平均响应时间'],
+    dataKeys: ['value'],
+    aiInsight: '平均响应时间{avgResponse}分钟，达标率{complianceRate}%',
+  },
+  {
+    id: 'ai-vs-doctor-kappa',
+    category: 'AI评估',
+    name: 'AI vs 医生一致性(Kappa)',
+    description: 'AI辅助诊断与医生诊断一致性Kappa系数分析',
+    chartType: 'line',
+    dimensions: ['月份', '设备类型'],
+    measures: ['Kappa系数'],
+    dataKeys: ['value'],
+    aiInsight: '总体Kappa系数{kappa}，{bestModality}一致性最高({bestKappa})',
+  },
+  {
+    id: 'ai-vs-doctor-agreement',
+    category: 'AI评估',
+    name: 'AI vs 医生符合率',
+    description: 'AI诊断结果与医生最终诊断的符合率分析',
+    chartType: 'bar',
+    dimensions: ['设备类型'],
+    measures: ['符合率'],
+    dataKeys: ['value'],
+    aiInsight: '总体符合率{agreement}%，{bestModality}符合率最高({bestRate}%)',
+  },
+  {
+    id: 'ai-false-positive-rate',
+    category: 'AI评估',
+    name: 'AI假阳性率统计',
+    description: 'AI辅助诊断假阳性率月度趋势',
+    chartType: 'line',
+    dimensions: ['月份'],
+    measures: ['假阳性率'],
+    dataKeys: ['value'],
+    aiInsight: 'AI假阳性率{fpRate}%，较上月{trend}{change}%，主要问题为{topIssue}',
+  },
+  {
+    id: 'radiation-dose-over-limit',
+    category: '综合质控',
+    name: '辐射剂量超标率',
+    description: '辐射剂量超标率及超标设备分布',
+    chartType: 'bar',
+    dimensions: ['设备名称', '月份'],
+    measures: ['超标率'],
+    dataKeys: ['value'],
+    aiInsight: '总超标率{overLimitRate}%，{topDevice}超标最多（{topCount}次），建议校准',
+  },
+  {
+    id: 'radiation-dose-by-modality',
+    category: '综合质控',
+    name: '各设备辐射剂量对比',
+    description: '不同设备类型辐射剂量水平对比',
+    chartType: 'bar',
+    dimensions: ['设备类型'],
+    measures: ['平均剂量'],
+    dataKeys: ['value'],
+    aiInsight: '{topModality}辐射剂量最高（{topDose}），建议优化扫描参数',
+  },
+  {
+    id: 'patient-followup-rate',
+    category: '患者服务',
+    name: '患者复诊率统计',
+    description: '患者复诊率及复诊间隔分析',
+    chartType: 'line',
+    dimensions: ['月份'],
+    measures: ['复诊率'],
+    dataKeys: ['value'],
+    aiInsight: '总体复诊率{followupRate}%，{topDept}科室复诊率最高({deptRate}%)',
+  },
+  {
+    id: 'patient-no-show-rate',
+    category: '患者服务',
+    name: '患者爽约率分析',
+    description: '预约未到诊患者比例及科室分布',
+    chartType: 'bar',
+    dimensions: ['科室'],
+    measures: ['爽约率'],
+    dataKeys: ['value'],
+    aiInsight: '总体爽约率{noShowRate}%，{topDept}爽约率最高({deptRate}%)',
+  },
+  {
+    id: 'finance-arrears-rate',
+    category: '绩效分析',
+    name: '财务欠费率统计',
+    description: '患者欠费比例及欠费金额分布',
+    chartType: 'pie',
+    dimensions: ['欠费区间'],
+    measures: ['欠费率'],
+    dataKeys: ['value'],
+    aiInsight: '当前欠费率{arrearsRate}%，欠费总额{totalArrears}元，{topDept}欠费最多',
+  },
+  {
+    id: 'finance-insurance-reject',
+    category: '绩效分析',
+    name: '医保拒付统计',
+    description: '医保拒付金额及拒付原因分析',
+    chartType: 'pie',
+    dimensions: ['拒付原因'],
+    measures: ['拒付金额'],
+    dataKeys: ['value'],
+    aiInsight: '本月医保拒付金额{rejectAmount}元，主要原因为{topCause}（{topCausePct}%）',
+  },
+  {
+    id: 'contrast-usage-trend',
+    category: '综合质控',
+    name: '对比剂使用量趋势',
+    description: '各对比剂月度使用量趋势',
+    chartType: 'line',
+    dimensions: ['月份', '对比剂名称'],
+    measures: ['使用量'],
+    dataKeys: ['value'],
+    aiInsight: '本月对比剂总用量{totalUsage}瓶，{topContrast}用量最多({topUsage}瓶)',
+  },
+  {
+    id: 'report-avg-turnaround',
+    category: '报告质量',
+    name: '平均报告周转时间',
+    description: '从检查完成到报告发布的平均周转时间',
+    chartType: 'line',
+    dimensions: ['月份'],
+    measures: ['平均周转时间'],
+    dataKeys: ['value'],
+    aiInsight: '平均报告周转时间{avgTAT}小时，急诊报告{emergencyTAT}小时',
   },
 ];

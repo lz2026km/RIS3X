@@ -13,7 +13,7 @@ import {
   List, ListOrdered, Image as ImageIcon, Table as TableIcon, Link2, Undo, Redo, Save,
   Type, FileText, Maximize2, Minimize2, Eye, Printer, SpellCheck2, Quote, Code, Heading1,
   Heading2, Heading3, ChevronDown, Languages, Subscript, Superscript, Hash, BookOpen,
-  Upload, Highlighter, CheckCheck, Star, Minus, Layers, Sparkles,
+  Upload, Highlighter, CheckCheck, Star, Minus, Layers, Sparkles, Mic, Square, MicOff,
 } from 'lucide-react';
 import { RICH_DOCUMENT_MOCK } from '@data/reportWritingMock';
 import { getRichDocument, saveRichDocument, autoSaveDocument, spellCheck } from '@services/writing/writingService';
@@ -61,6 +61,11 @@ export const ReportRichEditor: React.FC<Props> = ({
   const [showComparison, setShowComparison] = useState(false);
   const [summarizing, setSummarizing] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
+
+  // 语音听写 state
+  const [voiceListening, setVoiceListening] = useState(false);
+  const [voiceInterim, setVoiceInterim] = useState('');
+  const recognitionRef = useRef<any>(null);
 
   // 应用格式 (replaced deprecated document.execCommand with state-friendly approach)
   const applyFormat = useCallback((command: string, value?: string) => {
@@ -123,6 +128,65 @@ export const ReportRichEditor: React.FC<Props> = ({
       return next;
     });
   }, [reportId, onChange]);
+
+  const toggleVoice = useCallback(() => {
+    if (voiceListening) {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch { /* noop */ }
+      }
+      recognitionRef.current = null;
+      setVoiceListening(false);
+      if (voiceInterim) {
+        applyFormat('insertText', voiceInterim);
+        setVoiceInterim('');
+      }
+      return;
+    }
+
+    const SR = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+    if (!SR) {
+      message.warning('当前浏览器不支持语音识别');
+      return;
+    }
+
+    const recognition = new SR();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'zh-CN';
+
+    recognition.onresult = (event: any) => {
+      let interim = '';
+      let final = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          final += transcript;
+        } else {
+          interim += transcript;
+        }
+      }
+      setVoiceInterim(interim || final);
+      if (final) {
+        applyFormat('insertText', final);
+        handleContentChange();
+      }
+    };
+
+    recognition.onerror = () => {
+      setVoiceListening(false);
+      message.error('语音识别出错');
+    };
+
+    recognition.onend = () => {
+      if (recognitionRef.current) {
+        setVoiceListening(false);
+      }
+    };
+
+    recognitionRef.current = recognition;
+    try { recognition.start(); setVoiceListening(true); message.success('语音听写已启动'); }
+    catch { message.error('启动语音识别失败'); }
+  }, [voiceListening, voiceInterim, applyFormat, handleContentChange]);
 
   const insertImage = useCallback(() => {
     const input = document.createElement('input');
@@ -326,6 +390,23 @@ export const ReportRichEditor: React.FC<Props> = ({
         <Tooltip title="自动摘要">
           <Button size="small" type="text" icon={<Sparkles className="w-4 h-4" />} loading={summarizing} onClick={handleAutoSummary}>摘要</Button>
         </Tooltip>
+
+        <Divider type="vertical" />
+
+        <Tooltip title={voiceListening ? '停止语音听写' : '语音听写'}>
+          <Button
+            size="small"
+            type={voiceListening ? 'primary' : 'text'}
+            danger={voiceListening}
+            icon={voiceListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+            onClick={toggleVoice}
+          />
+        </Tooltip>
+        {voiceListening && voiceInterim && (
+          <span className="text-xs text-slate-500 italic max-w-[200px] truncate">
+            {voiceInterim}
+          </span>
+        )}
 
         <div className="flex-1" />
 

@@ -17,6 +17,8 @@ import { useNavigate } from 'react-router-dom';
 import {
   REPORT_WRITING_CONTEXT_MOCK, REPORT_DRAFTS_MOCK, KEYWORD_HIGHLIGHTS_MOCK, PRE_SUBMIT_SCORE_MOCK,
 } from '@data/reportWritingMock';
+import { detectConflicts } from '@services/keywordConflictDetector';
+import { computeDiff, type DiffChunk } from '@services/reportDiffEngine';
 import { StructuredFieldForm } from '@components/report/v3/R3.WRITING/StructuredFieldForm';
 import { ReportRichEditor } from '@components/report/v3/R3.WRITING/ReportRichEditor';
 import { AIDraftPanel } from '@components/report/v3/R3.WRITING/AIDraftPanel';
@@ -42,7 +44,7 @@ function VoiceTab({ reportId }: { reportId: string }) {
   return <VoiceDictation reportId={reportId} />;
 }
 
-function HistoryTab({ priorReports }: { priorReports: any[] }) {
+function HistoryTab({ priorReports, currentText, onCompare }: { priorReports: any[]; currentText: string; onCompare: (oldText: string, label: string) => void }) {
   if (priorReports.length === 0) return <Empty description="无历史报告" />;
   return (
     <div className="space-y-2">
@@ -53,7 +55,12 @@ function HistoryTab({ priorReports }: { priorReports: any[] }) {
             <span className="text-slate-400">{new Date(p.studyDate).toLocaleDateString()}</span>
           </div>
           <div className="text-slate-700 mt-1 line-clamp-2">{p.findings}</div>
-          {p.comparisonDelta && <Tag color="orange" className="mt-1 text-[10px]">{p.comparisonDelta.summary}</Tag>}
+          <div className="flex items-center gap-2 mt-2">
+            {p.comparisonDelta && <Tag color="orange" className="text-[10px]">{p.comparisonDelta.summary}</Tag>}
+            <Button size="small" type="link" className="text-[10px] p-0 h-auto" onClick={() => onCompare(p.findings, `${p.reportId} (${new Date(p.studyDate).toLocaleDateString()})`)}>
+              对比当前
+            </Button>
+          </div>
         </div>
       ))}
     </div>
@@ -213,6 +220,8 @@ export default function ReportWritePage() {
   const [activeToolsTab, setActiveToolsTab] = useState('ai');
   const [submitting, setSubmitting] = useState(false);
   const [autoSaveTip, setAutoSaveTip] = useState('已保存');
+  const [conflicts, setConflicts] = useState<any[]>([]);
+  const [diffTarget, setDiffTarget] = useState<{ oldText: string; label: string } | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -255,7 +264,7 @@ export default function ReportWritePage() {
     switch (activeToolsTab) {
       case 'ai': return <AITab reportId={reportId} modality={context.modality} bodyPart={context.bodyPart} />;
       case 'voice': return <VoiceTab reportId={reportId} />;
-      case 'history': return <HistoryTab priorReports={context.priorReports} />;
+      case 'history': return <HistoryTab priorReports={context.priorReports} currentText={context.document.plainText} onCompare={(oldText, label) => setDiffTarget({ oldText, label })} />;
       case 'similar': return <SimilarTab similarCases={context.similarCases} />;
       case 'score': return <ScoreTab preScore={preScore} />;
       case 'drafts': return <DraftsTab drafts={drafts} />;
@@ -289,7 +298,11 @@ export default function ReportWritePage() {
             {context.document.wordCount} 字 / {Math.round(context.document.writingDurationSec / 60)} 分
           </span>
           <span className="v3-topbar-autosave">{autoSaveTip}</span>
-          <Button type="primary" icon={<Send className="w-4 h-4" />} onClick={() => setShowSubmit(true)}>
+          <Button type="primary" icon={<Send className="w-4 h-4" />} onClick={() => {
+            const found = detectConflicts(context.document.plainText);
+            setConflicts(found);
+            setShowSubmit(true);
+          }}>
             提交审核
           </Button>
           <Tooltip title={siderVisible ? '收起侧栏' : '展开侧栏'}>
@@ -371,6 +384,21 @@ export default function ReportWritePage() {
         width={580}
         destroyOnClose
       >
+        {conflicts.length > 0 && (
+          <Alert
+            type="error"
+            showIcon
+            className="mb-3"
+            message={
+              <div>
+                <div className="font-semibold">检测到 {conflicts.length} 项关键词冲突</div>
+                {conflicts.map((c: any, i: number) => (
+                  <div key={i} className="text-xs mt-1">• {c.message}</div>
+                ))}
+              </div>
+            }
+          />
+        )}
         <Alert
           type={preScore.passed ? 'success' : 'warning'}
           showIcon
@@ -402,10 +430,60 @@ export default function ReportWritePage() {
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button onClick={() => setShowSubmit(false)}>取消</Button>
-            <Button type="primary" icon={<Send className="w-3 h-3" />} onClick={handleSubmit} loading={submitting}>确认提交</Button>
+            <Button type="primary" icon={<Send className="w-3 h-3" />} onClick={handleSubmit} loading={submitting} disabled={conflicts.length > 0}>确认提交</Button>
           </div>
         </div>
       </Modal>
+      {/* 版本对比 Modal */}
+      {diffTarget && (
+        <DiffViewModal
+          oldText={diffTarget.oldText}
+          newText={context.document.plainText}
+          label={diffTarget.label}
+          onClose={() => setDiffTarget(null)}
+        />
+      )}
     </Layout>
+  );
+}
+
+function DiffViewModal({ oldText, newText, label, onClose }: { oldText: string; newText: string; label: string; onClose: () => void }) {
+  const chunks = useMemo(() => computeDiff(oldText, newText), [oldText, newText]);
+  return (
+    <Modal
+      title={<Space><History className="w-4 h-4" /><span>版本对比: {label}</span></Space>}
+      open
+      onCancel={onClose}
+      footer={null}
+      width={720}
+      destroyOnClose
+    >
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <h4 className="text-xs font-semibold text-slate-500 mb-2">旧版本</h4>
+          <div className="border border-slate-200 rounded p-3 text-xs max-h-[500px] overflow-y-auto font-mono leading-relaxed">
+            {chunks.map((chunk: DiffChunk, i: number) =>
+              chunk.type === 'removed' ? (
+                <span key={i} className="bg-red-100 text-red-800 line-through">{chunk.text}</span>
+              ) : chunk.type === 'added' ? null : (
+                <span key={i}>{chunk.text}</span>
+              )
+            )}
+          </div>
+        </div>
+        <div>
+          <h4 className="text-xs font-semibold text-slate-500 mb-2">新版本</h4>
+          <div className="border border-slate-200 rounded p-3 text-xs max-h-[500px] overflow-y-auto font-mono leading-relaxed">
+            {chunks.map((chunk: DiffChunk, i: number) =>
+              chunk.type === 'added' ? (
+                <span key={i} className="bg-green-100 text-green-800">{chunk.text}</span>
+              ) : chunk.type === 'removed' ? null : (
+                <span key={i}>{chunk.text}</span>
+              )
+            )}
+          </div>
+        </div>
+      </div>
+    </Modal>
   );
 }

@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { Data-reportController } from './data-report.controller';
-import { Data-reportService } from './data-report.service';
+import { DataReportController } from './datareport.controller';
+import { DataReportService } from './datareport.service';
 
 @Module({
-  controllers: [Data-reportController],
-  providers: [Data-reportService],
-  exports: [Data-reportService],
+  controllers: [DataReportController],
+  providers: [DataReportService],
+  exports: [DataReportService],
 })
-export class Data-reportModule {}
+export class DataReportModule {}

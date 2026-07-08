@@ -1,16 +1,16 @@
 import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Data-reportService } from './data-report.service';
+import { DataReportService } from './datareport.service';
 @ApiTags('data-report')
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
 @Controller('api/data-report')
-export class Data-reportController {
-  constructor(private readonly svc: Data-reportService) {}
+export class DataReportController {
+  constructor(private readonly svc: DataReportService) {}
   @Get('national-reports')
-  listNationalReports(@Param('id') id: string) {
-    return this.svc.listNationalReports(id);
+  listNationalReports() {
+    return this.svc.listNationalReports();
   }
 
   @Get('national-reports/:id')
@@ -24,8 +24,8 @@ export class Data-reportController {
   }
 
   @Get('data-reports')
-  listDataReports(@Param('id') id: string) {
-    return this.svc.listDataReports(id);
+  listDataReports() {
+    return this.svc.listDataReports();
   }
 
   @Get('data-reports/:id')
@@ -39,8 +39,8 @@ export class Data-reportController {
   }
 
   @Get('insurance-audits')
-  listInsuranceAudits(@Param('id') id: string) {
-    return this.svc.listInsuranceAudits(id);
+  listInsuranceAudits() {
+    return this.svc.listInsuranceAudits();
   }
 
   @Get('insurance-audits/:id')
@@ -49,7 +49,7 @@ export class Data-reportController {
   }
 
   @Get('enterprise-search')
-  enterpriseSearch(@Param('id') id: string) {
-    return this.svc.enterpriseSearch(id);
+  enterpriseSearch(@Query('q') q: string) {
+    return this.svc.enterpriseSearch(q);
   }
 }

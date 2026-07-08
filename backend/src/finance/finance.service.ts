@@ -1,54 +1,62 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common'
+import { PrismaService } from '../prisma/prisma.service'
 
 @Injectable()
 export class FinanceService {
+  constructor(private readonly prisma: PrismaService) {}
+
   async listChargeItems() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.chargeItem.findMany({ orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async createChargeItem(body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.chargeItem.create({ data: body })
+    return { data: [data] }
   }
 
   async updateChargeItem(id: string, body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.chargeItem.update({ where: { id }, data: body })
+    return { data: [data] }
   }
 
   async listInvoices() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.invoice.findMany({ orderBy: { createdAt: 'desc' } })
+    return { data }
   }
 
   async createInvoice(body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.invoice.create({ data: body })
+    return { data: [data] }
   }
 
   async getInvoice(id: string) {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.invoice.findUnique({ where: { id } })
+    return { data: data ? [data] : [] }
   }
 
-  async payInvoice(id: string, body: any) {
-    // TODO: implement with Prisma
-    return { data: [] };
+  async payInvoice(body: any) {
+    const { id, ...rest } = body
+    const data = await this.prisma.invoice.update({ where: { id }, data: { status: 'PAID', ...rest } })
+    return { data: [data] }
   }
 
   async getRevenueAnalysis() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.invoice.groupBy({
+      by: ['status'],
+      _sum: { totalAmount: true, paidAmount: true },
+      _count: { id: true },
+    })
+    return { data }
   }
 
   async getCostAccounting() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.chargeItem.findMany({ where: { active: true } })
+    return { data }
   }
 
   async getFinancialReports() {
-    // TODO: implement with Prisma
-    return { data: [] };
+    const data = await this.prisma.invoice.findMany({ orderBy: { issuedAt: 'desc' }, take: 100 })
+    return { data }
   }
 }

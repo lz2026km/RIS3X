@@ -5,6 +5,7 @@
 import { NestFactory } from '@nestjs/core'
 import { ValidationPipe } from '@nestjs/common'
 import { Logger as PinoLogger } from 'nestjs-pino'
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import { AppModule } from './app.module'
 
 async function bootstrap(): Promise<void> {
@@ -26,6 +27,14 @@ async function bootstrap(): Promise<void> {
       forbidNonWhitelisted: true,
     })
   )
+
+  const config = new DocumentBuilder()
+    .setTitle('G005 Radiology RIS API')
+    .setVersion('3.0.6.11-8')
+    .addBearerAuth()
+    .build()
+  const document = SwaggerModule.createDocument(app, config)
+  SwaggerModule.setup('api/docs', app, document)
 
   const port = Number(process.env['PORT'] ?? 3001)
   await app.listen(port)

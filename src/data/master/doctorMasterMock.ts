@@ -173,7 +173,7 @@ const SUB_BY_TITLE: Record<DoctorTitle, Subspecialty[]> = {
 };
 
 const SUB_INDEX: Record<Subspecialty, number> = {} as Record<Subspecialty, number>;
-let _subIdx = 0;
+const _subIdx = 0;
 function nextSub(title: DoctorTitle, idx: number): Subspecialty {
   const list = SUB_BY_TITLE[title];
   return list[idx % list.length]!;

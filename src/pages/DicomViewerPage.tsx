@@ -1,4 +1,5 @@
 import { t } from '../i18n/appI18n'
+import ViewerSelector from '../components/common/ViewerSelector'
 // TODO v3.0.4: 此文件超过 2000 行（5879行），需要拆分为子组件
 // v3.0.4 重构目标：
 // 1. 提取页面头部 (title + breadcrumb + actions)
@@ -3375,7 +3376,9 @@ export default function DicomViewerPage() {
   ]
 
   return (
-    <div data-testid="dicom-viewer-page" style={s.root}>
+    <>
+      <ViewerSelector current="classic" />
+      <div data-testid="dicom-viewer-page" style={s.root}>
       {loading && <LoadingBanner message="正在从 API 加载影像数据..." />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* =============================================== */}
@@ -6066,6 +6069,7 @@ export default function DicomViewerPage() {
         </span>
       </div>
     </div>
+    </>
   )
 }
 

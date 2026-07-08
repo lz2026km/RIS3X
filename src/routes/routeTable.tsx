@@ -24,6 +24,7 @@ const AppointmentPage = lazy(() => import("../pages/AppointmentPage"));
 const DoseTrackPage = lazy(() => import("../pages/DoseTrackPage"));
 const QueueCallPage = lazy(() => import("../pages/QueueCallPage"));
 const DicomViewerPage = lazy(() => import("../pages/DicomViewerPage"));
+const DicomViewerProPage = lazy(() => import("../pages/dicom/DicomViewerPro"));
 const TypicalCasesPage = lazy(() => import("../pages/TypicalCasesPage"));
 const FindingLibraryPage = lazy(() => import("../pages/FindingLibraryPage"));
 const OperationLogPage = lazy(() => import("../pages/OperationLogPage"));
@@ -218,6 +219,7 @@ const SelfServicePortal = lazy(
 const ServiceManagement = lazy(
   () => import("../pages/patient/ServiceManagement"),
 );
+const Patient360Page = lazy(() => import("../pages/patient/Patient360Page"));
 const PatientEducationPage = lazy(
   () => import("../pages/education/PatientEducationPage"),
 );
@@ -471,7 +473,9 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/system-admin": ["管理员"], // [v3.0.6.8-64]
   "/treatment-plans": ["医生", "主任", "管理员"], // [v3.0.6.8-65]
   "/patient-unified": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-66]
+  "/patients/:id/360": ["医生", "主任", "技师", "护士", "管理员"],
   "/command-center": ["主任", "管理员"], // [v3.0.6.8-67]
+  "/dicom-viewer-pro": ["医生", "技师", "主任", "管理员"], // DicomViewerPro
   "/dicom-share": ["医生", "主任", "技师", "管理员", "护士"], // [v3.0.6.8-68]
   "/scheduling-center": ["主任", "管理员", "技师"], // [v3.0.6.8-69]
   "/clinical-pathways": ["医生", "主任", "管理员", "护士"], // [v3.0.6.8-70]
@@ -516,9 +520,10 @@ export const routes: RouteObject[] = [
   wrapped("/worklist", React.createElement(WorklistPage)), // [audit-fix-2026-07-02]
   wrapped("/patients", React.createElement(PatientPage)),
   wrapped("/patient/:id", React.createElement(PatientPage)),
+  wrapped("/patients/:id/360", React.createElement(Patient360Page)),
   wrapped("/exams", React.createElement(ExamPage)),
   wrapped("/reports", React.createElement(ReportPage)),
-  wrapped("/write-report", React.createElement(ReportPage)),
+  wrapped("/write-report", React.createElement(ReportWritePage)),
   wrapped("/reports/v3-write", React.createElement(ReportWritePage)),
   wrapped("/statistics", React.createElement(StatisticsPage)),
   wrapped("/critical-value", React.createElement(CriticalValuePage)),
@@ -530,6 +535,7 @@ export const routes: RouteObject[] = [
   wrapped("/dose-track", React.createElement(DoseTrackPage)),
   wrapped("/queue-call", React.createElement(QueueCallPage)),
   wrapped("/dicom-viewer", React.createElement(DicomViewerPage)),
+  wrapped("/dicom-viewer-pro", React.createElement(DicomViewerProPage)),
   wrapped("/typical-cases", React.createElement(TypicalCasesPage)),
   wrapped("/finding-library", React.createElement(FindingLibraryPage)),
   wrapped("/operation-log", React.createElement(OperationLogPage)),
