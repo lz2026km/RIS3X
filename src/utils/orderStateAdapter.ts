@@ -12,8 +12,7 @@ const STATUS_TO_MACHINE: Record<string, OrderStateName> = {
   confirmed: 'approved',
   'checked-in': 'scheduled',
   cancelled: 'cancelled',
-  'no-show': 'confirmed',
-  completed: 'confirmed',
+  'no-show': 'cancelled',
   rejected: 'rejected',
 }
 
@@ -27,7 +26,11 @@ export function replayOrderEvent(
     | { type: 'SCHEDULE'; scheduledAt?: string; by: string }
     | { type: 'CONFIRM'; by: string }
 ): OrderStateName {
-  const from = STATUS_TO_MACHINE[fromStatus] ?? 'submitted'
+  const from = STATUS_TO_MACHINE[fromStatus]
+  if (!from) {
+    console.warn(`[orderStateAdapter] Unknown fromStatus "${fromStatus}", treating as 'submitted'`)
+    return 'submitted'
+  }
   const actor = createActor(orderMachine, {
     input: {
       orderId: 'replay',
@@ -63,7 +66,11 @@ export function replayOrderEvent(
 
 /** 校验一个 status 字符串是否可由 submitted 出发到达 */
 export function validateOrderStatus(status: string): boolean {
-  const target = STATUS_TO_MACHINE[status] ?? 'submitted'
+  const target = STATUS_TO_MACHINE[status]
+  if (!target) {
+    console.warn(`[orderStateAdapter] Unknown status "${status}" in validateOrderStatus`)
+    return false
+  }
   const actor = createActor(orderMachine, {
     input: {
       orderId: 'validate',

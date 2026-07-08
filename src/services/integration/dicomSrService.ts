@@ -3,8 +3,8 @@
  * v3.0.6.5: 增加 TID 1500 / 1501 / De-ID 桥接
  */
 
-import type { DicomSrDocument, DicomContentSequence, DicomContentItem, DicomDataElement, DicomVrType } from '@types/R3/R3.INTEGRATION';
-import { DICOM_SR_MOCK, DICOM_SR_DOCUMENTS_MOCK } from '@data/reportIntegrationMock';
+import type { DicomSrDocument, DicomContentSequence, DicomContentItem, DicomDataElement, DicomVrType } from '../../types/R3/R3.INTEGRATION';
+import { DICOM_SR_MOCK, DICOM_SR_DOCUMENTS_MOCK } from '../../data/reportIntegrationMock';
 import type { TrackedLesion, DeIdentifyConfig } from '../../types/measurement';
 import { generateTid1500 as generateTid1500Report } from '../measurement/export/DicomSrTid1500';
 import { generateTid1501 as generateTid1501Report, type ProcedureLogEntry } from '../measurement/export/DicomSrTid1501';

@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "G005放射信息系统",
     "app.version":
-      "v3.0.6.8-105 · 幽灵功能修复完成 (8 PR: 补齐 745+ 端点 + 清理 5700 行死代码) — 覆盖率 18%→85%",
+      "v3.0.6.11-7 · 前端后端全功能对齐 (251 endpoint + 12 store + 40 报表 + AI 洞察)",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -133,7 +133,7 @@ export const translations: Translations = {
     "nav.eyeIop": "眼压测量",
     "nav.eyeReportWrite": "眼科报告书写",
     "nav.eyeKpi": "质控看板",
-    // [v3.0.6.8-105] PR1-PR11 补齐
+    // [v3.0.6.11-7] PR1-PR11 补齐
     "nav.eyePacsReal": "DICOM 渲染 (PR1)",
     "nav.eyePacsViewer": "DICOM 查看器",
     "nav.eyeAiReport": "AI 报告助手 (PR2)",
@@ -161,16 +161,16 @@ export const translations: Translations = {
     "nav.dentalTele": "远程口腕",
     "nav.dentalInventory": "材料库存",
     "nav.dentalDashboard": "经营仪表盘",
-    "nav.dentalCad": "修复 CAD/CAM", // [v3.0.6.8-105]
-    "nav.dentalImplant3d": "种植 3D 规划", // [v3.0.6.8-105]
-    "nav.dentalGuide": "导板 · 上部", // [v3.0.6.8-105]
-    "nav.dentalCeph": "头影测量", // [v3.0.6.8-105]
-    "nav.dentalAligner": "隐形矫治", // [v3.0.6.8-105]
-    "nav.dentalVolume": "体绘制", // [v3.0.6.8-105]
-    "nav.dentalEmr": "患者 360°", // [v3.0.6.8-105]
-    "nav.dentalBilling": "收费 · 医保", // [v3.0.6.8-105]
-    "nav.dentalSchedule": "排班 · PSR", // [v3.0.6.8-105]
-    "nav.dentalPhoto": "口内照片", // [v3.0.6.8-105]
+    "nav.dentalCad": "修复 CAD/CAM",
+    "nav.dentalImplant3d": "种植 3D 规划",
+    "nav.dentalGuide": "导板 · 上部",
+    "nav.dentalCeph": "头影测量",
+    "nav.dentalAligner": "隐形矫治",
+    "nav.dentalVolume": "体绘制",
+    "nav.dentalEmr": "患者 360°", // [v3.0.6.11-7]
+    "nav.dentalBilling": "收费 · 医保", // [v3.0.6.11-7]
+    "nav.dentalSchedule": "排班 · PSR", // [v3.0.6.11-7]
+    "nav.dentalPhoto": "口内照片", // [v3.0.6.11-7]
     "nav.systemManage": "系统管理",
     "nav.userManagement": "用户管理",
     "nav.dataDictionary": "数据字典",
@@ -183,7 +183,7 @@ export const translations: Translations = {
     "nav.faultRegister": "故障登记",
     "nav.materialsManage": "耗材管理",
     "nav.doseTrack": "剂量追踪",
-    // [v3.0.6.8-105] doseTrack 模块 69 个翻译键 (DoseTrackPage + 4 个子组件)
+    // [v3.0.6.11-7] doseTrack 模块 69 个翻译键 (DoseTrackPage + 4 个子组件)
     "doseTrack.title": "辐射剂量跟踪",
     "doseTrack.subtitle": "实时跟踪每位患者的辐射剂量,符合 ALARA 原则",
     "doseTrack.allStatus": "全部状态",
@@ -311,7 +311,7 @@ export const translations: Translations = {
     "nav.slaPolicy": "SLA 策略",
     "nav.criticalValueCenter": "危急值中心",
     "nav.defectManagement": "缺陷管理",
-    // [v3.0.6.8-105] 放射科质控三甲级 - 新质控页面
+    // [v3.0.6.11-7] 放射科质控三甲级 - 新质控页面
     "nav.qcDashboard": "质控总看板",
     "nav.qcImage": "影像质控",
     "nav.qcRadiologistAnnual": "医生年度档案",
@@ -1670,7 +1670,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "G005 Radiology Information System",
     "app.version":
-      "v3.0.6.8-105 · Ghost Feature Fix Complete (8 PR: 745+ endpoints wired + 5700 lines dead code removed) — coverage 18%→85%",
+      "v3.0.6.11-7 · Ghost Feature Fix Complete (8 PR: 745+ endpoints wired + 5700 lines dead code removed) — coverage 18%→85%",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
@@ -1812,16 +1812,16 @@ export const translations: Translations = {
     "nav.dentalTele": "Tele-Dentistry",
     "nav.dentalInventory": "Inventory",
     "nav.dentalDashboard": "Dashboard",
-    "nav.dentalCad": "Restorative CAD/CAM", // [v3.0.6.8-105]
-    "nav.dentalImplant3d": "Implant 3D Planning", // [v3.0.6.8-105]
-    "nav.dentalGuide": "Guide & Abutment", // [v3.0.6.8-105]
-    "nav.dentalCeph": "Cephalometric", // [v3.0.6.8-105]
-    "nav.dentalAligner": "Aligner", // [v3.0.6.8-105]
-    "nav.dentalVolume": "Volume Rendering", // [v3.0.6.8-105]
-    "nav.dentalEmr": "Patient 360°", // [v3.0.6.8-105]
-    "nav.dentalBilling": "Billing & Insurance", // [v3.0.6.8-105]
-    "nav.dentalSchedule": "Schedule & PSR", // [v3.0.6.8-105]
-    "nav.dentalPhoto": "Patient Photos", // [v3.0.6.8-105]
+    "nav.dentalCad": "Restorative CAD/CAM", // [v3.0.6.11-7]
+    "nav.dentalImplant3d": "Implant 3D Planning", // [v3.0.6.11-7]
+    "nav.dentalGuide": "Guide & Abutment", // [v3.0.6.11-7]
+    "nav.dentalCeph": "Cephalometric", // [v3.0.6.11-7]
+    "nav.dentalAligner": "Aligner", // [v3.0.6.11-7]
+    "nav.dentalVolume": "Volume Rendering", // [v3.0.6.11-7]
+    "nav.dentalEmr": "Patient 360°", // [v3.0.6.11-7]
+    "nav.dentalBilling": "Billing & Insurance", // [v3.0.6.11-7]
+    "nav.dentalSchedule": "Schedule & PSR", // [v3.0.6.11-7]
+    "nav.dentalPhoto": "Patient Photos", // [v3.0.6.11-7]
     "nav.systemManage": "System Management",
     "nav.userManagement": "User Management",
     "nav.dataDictionary": "Data Dictionary",
@@ -1834,7 +1834,7 @@ export const translations: Translations = {
     "nav.faultRegister": "Fault Register",
     "nav.materialsManage": "Materials Management",
     "nav.doseTrack": "Dose Tracking",
-    // [v3.0.6.8-105] doseTrack module 69 translation keys (DoseTrackPage + 4 sub-components)
+    // [v3.0.6.11-7] doseTrack module 69 translation keys (DoseTrackPage + 4 sub-components)
     "doseTrack.title": "Radiation Dose Tracking",
     "doseTrack.subtitle": "Real-time per-patient radiation dose monitoring, ALARA compliant",
     "doseTrack.allStatus": "All Status",
@@ -1962,7 +1962,7 @@ export const translations: Translations = {
     "nav.slaPolicy": "SLA Policy",
     "nav.criticalValueCenter": "Critical Value Center",
     "nav.defectManagement": "Defect Management",
-    // [v3.0.6.8-105] 放射科质控三甲级 - 新质控页面
+    // [v3.0.6.11-7] 放射科质控三甲级 - 新质控页面
     "nav.qcDashboard": "QC Dashboard",
     "nav.qcImage": "Image QC",
     "nav.qcRadiologistAnnual": "Radiologist Annual QC",

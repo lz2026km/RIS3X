@@ -606,8 +606,8 @@ function CohortBuilderTab() {
   const [savedCohorts, setSavedCohorts] = useState(mockCohortDefinitions)
 
   const addCriterion = () => { setCriteria([...criteria, { field: 'age', operator: '>=', value: '', logic: 'AND' }]) }
-  const removeCriterion = (idx) => { setCriteria(criteria.filter((_, i) => i !== idx)) }
-  const updateCriterion = (idx, key, val) => { const c = [...criteria]; c[idx][key] = val; setCriteria(c) }
+  const removeCriterion = (idx: any) => { setCriteria(criteria.filter((_: any, i: any) => i !== idx)) }
+  const updateCriterion = (idx: any, key: any, val: any) => { const c = [...criteria]; c[idx][key] = val; setCriteria(c) }
   const estimateSize = () => { setEstimatedSize(Math.floor(Math.random() * 2000) + 100) }
   const saveCohort = () => {
     if (!cohortName.trim()) return

@@ -30,3 +30,5 @@ export type {
 export { useTenant } from "./useTenant";
 export { useRBAC } from "./useRBAC";
 export { useFeatureGate } from "./useFeatureGate";
+export { useOperationLog } from "./useOperationLog";
+export { useNavigationShortcuts, NAV_SHORTCUTS, getSequenceHint } from "./useKeyboardShortcuts";

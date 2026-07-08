@@ -46,7 +46,7 @@ export class PptxExporter {
     files.push({ name: 'ppt/_rels/presentation.xml.rels', data: text(this.presentationRels()) });
     files.push({ name: 'ppt/theme/theme1.xml', data: text(this.themeXml(themeColor)) });
 
-    opts.slides.forEach((slide, i) => {
+    opts.slides.forEach((slide: any, i: any) => {
       const slideNo = i + 1;
       const imageEmbeddings: string[] = [];
       const mediaFiles: PptxEntry[] = [];

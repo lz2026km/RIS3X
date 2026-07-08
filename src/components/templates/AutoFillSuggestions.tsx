@@ -5,11 +5,11 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import {
   Card, List, Tag, Space, Button, Tooltip, Empty, Statistic, Row, Col,
-  Switch, Tabs, Badge,
+  Switch, Tabs, Badge, Alert,
 } from 'antd';
 import {
   Sparkles, ChevronRight, History, FlaskConical, Pill,
-  Brain, User, BookOpen, Database, Shield as ShieldIcon, Check as CheckIcon, X, Wand2,
+  Brain, User, BookOpen, Database, Shield as ShieldIcon, Check as CheckIcon, X, Wand2, FileText,
 } from 'lucide-react';
 import type { AutoFillContext, AutoFillSuggestion, AutoFillSource } from '@/types/templates/calculations';
 import { AutoFillEngine } from '@services/templates/autoFill/AutoFillEngine';

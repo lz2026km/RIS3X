@@ -9,7 +9,7 @@ import type {
   FhirDiagnosticReport, FhirAttachment, FhirIdentifier, FhirReference, FhirAnnotation, FhirCodeableConcept, FhirCoding, FhirPeriod,
   XdsRegistry, XdsDocumentEntry, XdsFolder, XdsSubmissionSet, XdsAssociation,
   IntegrationExportEnvelope,
-} from '@types/R3/R3.INTEGRATION';
+} from '../types/R3/R3.INTEGRATION';
 
 // ============================================================
 // 1. HL7 CDA R2 Mock(完整 XML)

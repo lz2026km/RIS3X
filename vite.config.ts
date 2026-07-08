@@ -278,8 +278,8 @@ export default defineConfig({
     format: 'es',
   },
 
-  // GitHub Pages 子路径
-  base: process.env['VITE_BASE_PATH'] || '/g005-radiology-ris/',
+  // GitHub Pages 子路径 (本地开发用"/", 部署用 VITE_BASE_PATH)
+  base: process.env['VITE_BASE_PATH'] || '/',
 
   server: {
     port: 5195,

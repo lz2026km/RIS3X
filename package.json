@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.10-1",
-  "description": "G005 Radiology RIS v3.0.6.8-52 - 眼科专科增强: 28 集合 + 180 端点, Topcon Synergy + Medisoft mediSIGHT 对标, 主数据池 + 8 亚专科 + 患者全旅程",
+  "version": "3.0.6.11-7",
+  "description": "G005 Radiology RIS v3.0.6.11-7 - 全面功能对齐: 251 endpoint + 12 store + 40 报表 + AI 洞察",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",
@@ -64,6 +64,7 @@
     "comlink": "4.4.2",
     "date-fns": "3.6.0",
     "date-fns-tz": "3.2.0",
+    "dayjs": "^1.11.21",
     "dcmjs": "0.52.0",
     "decimal.js": "10.4.3",
     "decimal.js-light": "2.5.1",

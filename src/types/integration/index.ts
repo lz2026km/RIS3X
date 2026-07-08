@@ -4,7 +4,7 @@
  * 15 升级点:统一接口契约 / 类型安全
  */
 
-import type { FhirResourceType } from '@types/R3/R3.INTEGRATION';
+import type { FhirResourceType } from '../R3/R3.INTEGRATION';
 
 // ============================================================
 // 1. HL7 v2.x 通用段 / 字段

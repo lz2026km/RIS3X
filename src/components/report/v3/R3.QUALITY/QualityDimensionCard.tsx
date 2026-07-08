@@ -24,6 +24,7 @@ import {
   Table,
   Tooltip,
   Modal,
+  Alert,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -42,6 +43,7 @@ import {
   TrendingUp,
   Zap,
   Eye,
+  RefreshCw,
 } from 'lucide-react';
 import { scoringService } from '../../../../services/quality/scoringService';
 import type {

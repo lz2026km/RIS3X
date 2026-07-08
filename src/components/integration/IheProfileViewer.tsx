@@ -17,7 +17,7 @@ import {
   IHE_PROFILES, registerDocument, provideAndRegister, queryRegistry, retrieveDocument,
   pixFeed, pixQuery, pdqQuery, sendPamMessage, getDefaultAffinityDomain, type IheProfileMeta,
 } from '@services/integration/ihe/IheProfiles';
-import type { IheProfileId, IheXdsDocument, IhePdqResult, IhePixFeedResult, PamResult } from '@types/integration';
+import type { IheProfileId, IheXdsDocument, IhePdqResult, IhePixFeedResult, PamResult } from '../../types/integration';
 
 export const IheProfileViewer: React.FC = () => {
   const [selected, setSelected] = useState<IheProfileMeta>(IHE_PROFILES[0]!);

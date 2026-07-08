@@ -1,13 +1,30 @@
-import { useState } from 'react'
+import { useMemo } from 'react'
 import {
   Search, X, Calendar, Settings, Filter, CheckCircle, Send, Edit3, Eye, Phone,
   CheckSquare, Square, Bell, Clock, AlertTriangle, ArrowUpRight, ShieldAlert,
 } from 'lucide-react'
 import type { CriticalValue } from './types'
-import { STATUS_CONFIG, SEVERITY_CONFIG, PRIMARY_COLOR } from './types'
+import { STATUS_CONFIG, SEVERITY_CONFIG, PRIMARY_COLOR, CN_STATUS_TO_STORE } from './types'
+// v3.0.6.11: 导入 criticalStore 导出的 MACHINE_STATE_TO_STORE,
+// 把状态机 state value (found/notified/acknowledged/...) 映射到 store status,
+// 让 critical map 在 UI 层真正被消费。
+import { MACHINE_STATE_TO_STORE, useCriticalStore } from '../../store/criticalStore'
 
 const MODALITY_LIST = ['全部', 'CT', 'MR', 'DR', 'DSA', '超声']
-const STATUS_LIST = ['全部', '待处理', '处理中', '已处理', '超时']
+// v3.0.6.11: STATUS_LIST 改为 criticalStore 英文状态 key + 中文 label,
+// 与 store 中的 pending/notified/acknowledged/resolving/resolved/escalated/cancelled/closed_loop/overdue 对齐。
+const STATUS_LIST = ['全部', 'pending', 'resolving', 'resolved', 'overdue']
+const STATUS_LABEL: Record<string, string> = {
+  pending: '待处理',
+  notified: '已通知',
+  acknowledged: '已接收',
+  resolving: '处理中',
+  resolved: '已处理',
+  closed_loop: '已闭环',
+  escalated: '已升级',
+  cancelled: '已取消',
+  overdue: '超时',
+}
 const SEVERITY_LIST = ['全部', '危急', '高危', '紧急']
 const TIME_RANGE_LIST = ['全部', '30分钟内', '1小时内', '2小时内', '超时']
 
@@ -63,7 +80,9 @@ export const FilterBar = ({
         <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>状态:</span>
       </div>
       {STATUS_LIST.map(s => (
-        <button key={s} onClick={() => setStatusFilter(s)} style={filterBtnStyle(statusFilter === s)}>{s}</button>
+        <button key={s} onClick={() => setStatusFilter(s)} style={filterBtnStyle(statusFilter === s)}>
+          {STATUS_LABEL[s] ?? s}
+        </button>
       ))}
     </div>
     <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -111,7 +130,7 @@ interface CriticalValueRowProps {
 }
 
 const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, onContactClinical, onTransferToFollowUp }: CriticalValueRowProps) => {
-  const statusCfg = STATUS_CONFIG[cv.status] || STATUS_CONFIG['待处理']
+  const statusCfg = STATUS_CONFIG[cv.status] || STATUS_CONFIG['pending']
   const severityCfg = SEVERITY_CONFIG[cv.severity] || SEVERITY_CONFIG['高危']
   const StatusIcon = statusCfg.icon || Bell
 
@@ -146,16 +165,16 @@ const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, o
       </div>
       <div>
         <div style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>{cv.reportedByName}</div>
-        <div style={{ fontSize: 12, color: '#94a3b8' }}>{cv.reportedTime.split(' ')[1] || cv.reportedTime}</div>
+        <div style={{ fontSize: 12, color: '#94a3b8' }}>{(cv.reportedTime || '').split(' ')[1] || cv.reportedTime}</div>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <StatusIcon size={14} style={{ color: statusCfg.color }} />
         <span style={{ fontSize: 12, fontWeight: 700, color: statusCfg.color, background: statusCfg.bg, padding: '2px 10px', borderRadius: 10 }}>{statusCfg.label}</span>
       </div>
-      <div style={{ fontSize: 12, color: '#64748b' }}>{cv.processingTime ? cv.processingTime.split(' ')[1] || cv.processingTime : '-'}</div>
+      <div style={{ fontSize: 12, color: '#64748b' }}>{cv.processingTime ? (cv.processingTime || '').split(' ')[1] || cv.processingTime : '-'}</div>
       <div style={{ fontSize: 12, color: '#64748b' }}>{cv.processingDuration || '-'}</div>
       <div style={{ display: 'flex', gap: 6 }}>
-        {cv.status === '待处理' && (
+        {(cv.status === '待处理' || cv.status === 'pending' || cv.status === 'notified' || cv.status === 'acknowledged') && (
           <button onClick={onProcess} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #059669', background: '#d1fae5', color: '#059669', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
             <Edit3 size={11} />处理
           </button>
@@ -200,6 +219,20 @@ export const CriticalValueList = ({
   onProcess, onViewDetail, onContactClinical, onTransferToFollowUp, criticalValues,
 }: CriticalValueListProps) => {
   const allSelected = filtered.length > 0 && selectedIds.size === filtered.length
+
+  // v3.0.6.11: 从 criticalStore 的 actor pool 读取实时 machine state value,
+  // 用 MACHINE_STATE_TO_STORE 映射到 store status,使 map 在 UI 中真正被消费。
+  const actors = useCriticalStore((s) => s.actors)
+  const machineStatusCounts = useMemo(() => {
+    const counts: Record<string, number> = {}
+    for (const actor of actors.values()) {
+      const snap = actor.getSnapshot()
+      const v = snap.value as string
+      const storeStatus = MACHINE_STATE_TO_STORE[v] ?? 'pending'
+      counts[storeStatus] = (counts[storeStatus] ?? 0) + 1
+    }
+    return counts
+  }, [actors])
 
   return (
     <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
@@ -250,10 +283,13 @@ export const CriticalValueList = ({
           已选中 <span style={{ fontWeight: 700, color: '#1e40af' }}>{selectedIds.size}</span> 项
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
+          {/* v3.0.6.11: STATUS_CONFIG 中英文键(pending/...)优先显示 machine-derived counts */}
+          {Object.entries(STATUS_CONFIG).filter(([key]) => !CN_STATUS_TO_STORE[key] && key !== '待处理' && key !== '处理中' && key !== '已处理' && key !== '超时').map(([key, cfg]) => (
             <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <div style={{ width: 8, height: 8, borderRadius: '50%', background: cfg.color }} />
-              <span style={{ fontSize: 12, color: '#64748b' }}>{key}: {criticalValues.filter(c => c.status === key).length}</span>
+              <span style={{ fontSize: 12, color: '#64748b' }}>
+                {STATUS_LABEL[key] ?? key}: {machineStatusCounts[key] ?? criticalValues.filter(c => c.status === key).length}
+              </span>
             </div>
           ))}
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 8 }}>

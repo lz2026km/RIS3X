@@ -48,8 +48,8 @@ export const VocabularyManagerPanel: React.FC<Props> = ({ onSelect, filterModali
       return vocabularyManager.search(query, 50);
     }
     let result = allTerms;
-    if (category !== 'all') result = result.filter((t) => t.category === category);
-    if (filterModality) result = result.filter((t) => t.modality.includes(filterModality as never));
+    if (category !== 'all') result = result.filter((t: MedicalTerm) => t.category === category);
+    if (filterModality) result = result.filter((t: MedicalTerm) => t.modality.includes(filterModality as never));
     return result;
   }, [query, category, allTerms, filterModality, refreshKey]);
 
@@ -168,7 +168,7 @@ export const VocabularyManagerPanel: React.FC<Props> = ({ onSelect, filterModali
         <Col span={6}><Statistic title="总术语" value={stats.total} valueStyle={{ fontSize: 14 }} /></Col>
         <Col span={6}><Statistic title="词典数" value={dictionaries.length} valueStyle={{ fontSize: 14 }} /></Col>
         <Col span={6}><Statistic title="分类" value={VOCABULARY_CATEGORIES.length} valueStyle={{ fontSize: 14 }} /></Col>
-        <Col span={6}><Statistic title="高权重" value={allTerms.filter((t) => t.weight >= 90).length} valueStyle={{ fontSize: 14, color: '#f59e0b' }} /></Col>
+        <Col span={6}><Statistic title="高权重" value={allTerms.filter((t: MedicalTerm) => t.weight >= 90).length} valueStyle={{ fontSize: 14, color: '#f59e0b' }} /></Col>
       </Row>
 
       <Tabs
@@ -219,7 +219,7 @@ export const VocabularyManagerPanel: React.FC<Props> = ({ onSelect, filterModali
                           }
                           description={
                             <Space wrap size={2}>
-                              {term.modality.map((m) => <Tag key={m} color="blue" className="text-[10px]">{m}</Tag>)}
+                              {term.modality.map((m: string) => <Tag key={m} color="blue" className="text-[10px]">{m}</Tag>)}
                               <Tag color="default" className="text-[10px]">权重 {term.weight}</Tag>
                               {term.usageCount > 0 && <Tag color="cyan" className="text-[10px]">已用 {term.usageCount}</Tag>}
                             </Space>

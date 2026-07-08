@@ -27,7 +27,7 @@ import {
   Routes,
   Route,
 } from "react-router-dom";
-import { Menu, X, Radio, Activity, Bell, ChevronRight } from "lucide-react";
+import { Menu, X, Radio, Activity, Bell, ChevronRight, Search } from "lucide-react";
 import {
   SIDEBAR_ITEMS,
   type Role,
@@ -360,6 +360,7 @@ interface NavItemProps {
   open: boolean;
   onNavigate: (path: string) => void;
   onKeyNav: (e: React.KeyboardEvent, path: string) => void;
+  badgeCount?: number;
 }
 
 const NavItem = React.memo(function NavItem({
@@ -370,6 +371,7 @@ const NavItem = React.memo(function NavItem({
   open,
   onNavigate,
   onKeyNav,
+  badgeCount,
 }: NavItemProps) {
   const label = t(labelKey);
   return (
@@ -397,6 +399,27 @@ const NavItem = React.memo(function NavItem({
     >
       <span style={{ flexShrink: 0, display: "inline-flex" }}>{icon}</span>
       {open && <span>{label}</span>}
+      {badgeCount !== undefined && badgeCount > 0 && (
+        <span
+          style={{
+            marginLeft: "auto",
+            background: "var(--color-error, #ef4444)",
+            color: "#fff",
+            fontSize: 11,
+            fontWeight: 700,
+            minWidth: 18,
+            height: 18,
+            borderRadius: 9,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "0 5px",
+            lineHeight: 1,
+          }}
+        >
+          {badgeCount > 99 ? "99+" : badgeCount}
+        </span>
+      )}
     </a>
   );
 });
@@ -486,6 +509,7 @@ export function AppLayout() {
                     open={effectiveSidebarOpen}
                     onNavigate={navigate}
                     onKeyNav={handleNavKey}
+                    badgeCount={(item as any).badgeCount}
                   />
                 ))}
               </div>
@@ -595,6 +619,47 @@ export function AppLayout() {
               |
             </span>
             <Breadcrumb pathname={location.pathname} />
+            <div
+              style={{
+                position: "relative",
+                display: "flex",
+                alignItems: "center",
+                marginLeft: 16,
+              }}
+            >
+              <Search
+                size={14}
+                style={{
+                  position: "absolute",
+                  left: 10,
+                  color: "var(--text-muted, #64748b)",
+                  pointerEvents: "none",
+                }}
+              />
+              <input
+                type="text"
+                placeholder="搜索患者/检查号/报告..."
+                aria-label="搜索患者/检查号/报告"
+                style={{
+                  width: 240,
+                  height: 32,
+                  padding: "0 12px 0 32px",
+                  borderRadius: 6,
+                  border: "1px solid var(--border-color, #334155)",
+                  background: "var(--bg-deep, #0f172a)",
+                  color: "var(--text-header, #f1f5f9)",
+                  fontSize: 13,
+                  outline: "none",
+                  transition: "border-color 0.15s",
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = "#3b82f6";
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = "var(--border-color, #334155)";
+                }}
+              />
+            </div>
           </div>
           <div
             style={{

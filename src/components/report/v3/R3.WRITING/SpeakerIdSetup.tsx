@@ -273,7 +273,7 @@ export const SpeakerIdSetup: React.FC<Props> = ({ userId, userName, onEnrolled }
             <div className="mb-3">
               <div className="text-xs font-semibold text-slate-600 mb-1">候选 (Top {verifyResult.alternatives.length})</div>
               <Space wrap>
-                {verifyResult.alternatives.map((a) => (
+                {verifyResult.alternatives.map((a: { speakerId: string; userName: string; confidence: number }) => (
                   <Tag key={a.speakerId} color={a.speakerId === verifyResult.speakerId ? 'green' : 'default'}>
                     {a.userName}: {(a.confidence * 100).toFixed(1)}%
                   </Tag>

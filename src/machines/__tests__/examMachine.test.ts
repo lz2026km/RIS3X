@@ -104,7 +104,7 @@ describe('examMachine - 检查执行 14 态状态机', () => {
     expect(ctx.pausedReason).toBeNull();
   });
 
-  it('imageAvailable → inProgress (QC_REJECT) 需重做', () => {
+  it('imageAvailable → qcReject (QC_REJECT) 需重做', () => {
     const actor = startActor();
     actor.send({ type: 'APPROVE_ORDER', by: 'D002' });
     actor.send({ type: 'REGISTER', roomId: 'R1', deviceId: 'CT-1', by: 'D001' });
@@ -115,7 +115,7 @@ describe('examMachine - 检查执行 14 态状态机', () => {
     expect(actor.getSnapshot().value).toBe('imageAvailable');
     actor.send({ type: 'QC_REJECT', reason: '运动伪影', by: 'QC001' });
     const ctx = actor.getSnapshot().context;
-    expect(actor.getSnapshot().value).toBe('inProgress');
+    expect(actor.getSnapshot().value).toBe('qcReject');
     expect(ctx.qcRejectReason).toBe('运动伪影');
   });
 

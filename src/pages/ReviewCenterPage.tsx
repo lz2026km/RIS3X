@@ -2,7 +2,7 @@
  * G005 RIS v3.0.5.1 - ReviewCenterPage 综合审核中心
  */
 import React, { useState } from 'react';
-import { Tabs, Card, Space, Button, message, Drawer, Empty, Badge } from 'antd';
+import { Tabs, Card, Space, Button, message, Drawer, Empty, Badge, Tag } from 'antd';
 import { ClipboardCheck, ShieldCheck, Award, Activity, BarChart3, Settings, FileText, MessageSquare, Users, Clock, ListChecks, AlertCircle, History, X } from 'lucide-react';
 import { InitialCheckList } from '../components/report/v3/R3.REVIEW/InitialCheckList';
 import { FinalCheckList } from '../components/report/v3/R3.REVIEW/FinalCheckList';

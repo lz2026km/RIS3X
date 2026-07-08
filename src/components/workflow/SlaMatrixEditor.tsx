@@ -10,6 +10,7 @@ import type { SLAPolicyConfig } from '../../types/workflow';
 interface SlaMatrixEditorProps {
   policies: SLAPolicyConfig[];
   onChange: (policies: SLAPolicyConfig[]) => void;
+  onSave?: (policies: SLAPolicyConfig[]) => void | Promise<void>;
 }
 
 const MODALITIES = ['CT', 'MR', 'DR', 'DSA', 'MG', 'US', 'PET-CT', 'RF'];
@@ -26,7 +27,7 @@ function emptyPolicy(modality: string, priority: SLAPolicyConfig['priority']): S
   };
 }
 
-export const SlaMatrixEditor: React.FC<SlaMatrixEditorProps> = ({ policies, onChange }) => {
+export const SlaMatrixEditor: React.FC<SlaMatrixEditorProps> = ({ policies, onChange, onSave }) => {
   const [draft, setDraft] = useState<SLAPolicyConfig[]>(policies);
 
   const matrix = React.useMemo(() => {
@@ -54,6 +55,14 @@ export const SlaMatrixEditor: React.FC<SlaMatrixEditorProps> = ({ policies, onCh
 
   const handleSave = () => {
     onChange(draft);
+    if (onSave) {
+      const res = onSave(draft);
+      if (res instanceof Promise) {
+        res.catch((err) => {
+          console.error('[SLA] save failed:', err);
+        });
+      }
+    }
   };
 
   const handleAddAllMissing = () => {

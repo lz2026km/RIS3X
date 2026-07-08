@@ -6,7 +6,7 @@
 import React, { useState, useCallback, useMemo, useRef } from 'react';
 import {
   Card, Space, Button, Tag, Tooltip, message, Modal, Form, Input, Select, Switch, ColorPicker,
-  Empty, Dropdown, InputNumber, Statistic, Row, Col,
+  Empty, Dropdown, InputNumber, Statistic, Row, Col, Divider,
 } from 'antd';
 import {
   StickyNote, Plus, Trash2, Edit3, Eye, EyeOff, Pin, PinOff, ChevronDown, Highlighter,

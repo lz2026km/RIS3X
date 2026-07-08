@@ -3,7 +3,7 @@
  * 20 升级点:AuditMessage 构造 / 哈希链 / 加密标记 / SYSLOG 发送 / 检索
  */
 
-import type { AtnaAuditLogEntry, AtnaAuditMessage, AtnaParticipantObject, AtnaEventOutcome, AtnaEventAction } from '@types/integration';
+import type { AtnaAuditLogEntry, AtnaAuditMessage, AtnaParticipantObject, AtnaEventOutcome, AtnaEventAction } from '../../../types/integration';
 
 const RETENTION_DAYS_DEFAULT = 2555; // 7 年(医疗合规)
 

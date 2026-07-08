@@ -20,12 +20,19 @@ import {
   ArrowRight,
   Stethoscope,
   ClipboardList,
+  CheckSquare,
+  Printer,
+  Download,
+  UserCheck,
 } from "lucide-react";
 import { initialRadiologyExams } from "../data/initialData";
 import { examApi } from "../services/api";
 import { LoadingBanner, ErrorBanner } from "../components/feedback";
-import { useExamStore } from "../store";
+import { useExamStore } from "../store/examStore";
 import type { RadiologyExam } from "../types";
+import BatchActionBar from "../components/batch/BatchActionBar";
+import { useOperationLog } from "../hooks/useOperationLog";
+import { useKeyboardShortcuts, useNavigationShortcuts, SHORTCUTS } from "../hooks/useKeyboardShortcuts";
 
 // ==================== 常量配置 ====================
 const PRIMARY = "#1e40af"; // 深蓝主色
@@ -130,170 +137,11 @@ type TechnicianExecution = {
   signature?: string;
 };
 
-// ==================== 虚构数据 ====================
-// 技师执行记录数据
-const mockTechnicianExecutions: TechnicianExecution[] = [
-  {
-    id: "TE001",
-    examId: "EX2026050101",
-    accessionNumber: "20260501001",
-    patientName: "王建国",
-    examItemName: "胸部CT平扫",
-    modality: "CT",
-    deviceNumber: "CT-01",
-    roomName: "CT检查室1",
-    technologistName: "张伟",
-    startTime: "2026-05-03 08:30",
-    estimatedDuration: 15,
-    imagesAcquired: 246,
-    completed: false,
-  },
-  {
-    id: "TE002",
-    examId: "EX2026050102",
-    accessionNumber: "20260501002",
-    patientName: "李秀芳",
-    examItemName: "头颅MR平扫",
-    modality: "MR",
-    deviceNumber: "MR-01",
-    roomName: "MR检查室1",
-    technologistName: "张伟",
-    startTime: "2026-05-03 09:15",
-    estimatedDuration: 20,
-    imagesAcquired: 128,
-    completed: false,
-  },
-  {
-    id: "TE003",
-    examId: "EX2026050103",
-    accessionNumber: "20260501003",
-    patientName: "赵志明",
-    examItemName: "腹部DR正位片",
-    modality: "DR",
-    deviceNumber: "DR-03",
-    roomName: "DR检查室3",
-    technologistName: "张伟",
-    startTime: "2026-05-03 07:45",
-    estimatedDuration: 10,
-    imagesAcquired: 2,
-    completed: true,
-    signature: "张伟",
-  },
-  {
-    id: "TE004",
-    examId: "EX2026050104",
-    accessionNumber: "20260501004",
-    patientName: "孙丽华",
-    examItemName: "心脏冠脉CTA",
-    modality: "DSA",
-    deviceNumber: "DSA-01",
-    roomName: "DSA检查室1",
-    technologistName: "张伟",
-    startTime: "2026-05-03 10:00",
-    estimatedDuration: 30,
-    imagesAcquired: 0,
-    completed: false,
-  },
-  {
-    id: "TE005",
-    examId: "EX2026050105",
-    accessionNumber: "20260501005",
-    patientName: "周宏伟",
-    examItemName: "膝关节MR平扫",
-    modality: "MR",
-    deviceNumber: "MR-02",
-    roomName: "MR检查室2",
-    technologistName: "张伟",
-    startTime: "2026-05-03 10:30",
-    estimatedDuration: 20,
-    imagesAcquired: 0,
-    completed: false,
-  },
-];
-
-// 转科追踪记录数据
-const mockTransferRecords: TransferRecord[] = [
-  {
-    id: "TR001",
-    patientId: "P001",
-    patientName: "吴斌",
-    gender: "男",
-    age: 58,
-    patientType: "急诊",
-    transferReason: "急诊→住院",
-    fromDepartment: "急诊科",
-    toDepartment: "呼吸内科",
-    transferTime: "2026-05-02 14:30",
-    attendingDoctor: "李明辉",
-    notes: "肺部感染严重，需住院进一步检查治疗",
-    examCompleted: true,
-    examName: "胸部CT平扫",
-  },
-  {
-    id: "TR002",
-    patientId: "P002",
-    patientName: "郑小红",
-    gender: "女",
-    age: 42,
-    patientType: "住院",
-    transferReason: "住院→转科",
-    fromDepartment: "心内科",
-    toDepartment: "消化内科",
-    transferTime: "2026-05-02 10:15",
-    attendingDoctor: "王芳",
-    notes: "心脏检查无明显异常，转消化科继续治疗",
-    examCompleted: true,
-    examName: "腹部B超",
-  },
-  {
-    id: "TR003",
-    patientId: "P003",
-    patientName: "陈志强",
-    gender: "男",
-    age: 65,
-    patientType: "门诊",
-    transferReason: "门诊→检查",
-    fromDepartment: "骨科门诊",
-    toDepartment: "放射科",
-    transferTime: "2026-05-03 09:00",
-    attendingDoctor: "赵强",
-    notes: "腰痛待查，需行腰椎MR检查",
-    examCompleted: false,
-    examName: "腰椎MR平扫",
-  },
-  {
-    id: "TR004",
-    patientId: "P004",
-    patientName: "黄丽娜",
-    gender: "女",
-    age: 35,
-    patientType: "急诊",
-    transferReason: "急诊→住院",
-    fromDepartment: "急诊科",
-    toDepartment: "神经外科",
-    transferTime: "2026-05-03 11:20",
-    attendingDoctor: "刘伟",
-    notes: "头部外伤，CT显示颅内出血，需紧急手术",
-    examCompleted: true,
-    examName: "头颅CT平扫",
-  },
-  {
-    id: "TR005",
-    patientId: "P005",
-    patientName: "林国华",
-    gender: "男",
-    age: 72,
-    patientType: "住院",
-    transferReason: "住院→转科",
-    fromDepartment: "肿瘤科",
-    toDepartment: "放射科",
-    transferTime: "2026-05-03 08:45",
-    attendingDoctor: "陈静",
-    notes: "定期复查胸部CT，评估治疗效果",
-    examCompleted: false,
-    examName: "胸部CT平扫",
-  },
-];
+// ==================== 数据源 ====================
+// v3.0.6.11: 移除 mockTechnicianExecutions 与 mockTransferRecords,
+// 改为从 useExamStore 派生数据,状态变更通过 store.transition() 提交。
+// 由于 examStore 不直接持有 TechnicianExecution 与 TransferRecord 字段,
+// 我们在组件内用 useMemo 从 exams 派生两套视图。
 
 // ==================== 工具函数 ====================
 const formatTime = (time: string) => time || "-";
@@ -443,13 +291,20 @@ export default function ExamPage() {
   const [actionNotes, setActionNotes] = useState("");
   const [imageQuality, setImageQuality] = useState("优");
 
+  // Batch selection state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  // Operation log
+  const { log } = useOperationLog("exam");
+
   // Tab状态
   const [activeTab, setActiveTab] = useState<TabType>("list");
 
-  // 技师执行状态（用于实时录入）
-  const [techExecutions, setTechExecutions] = useState<TechnicianExecution[]>(
-    mockTechnicianExecutions,
-  );
+  // v3.0.6.11: 接入 useExamStore,从 store 派生 techExecutions + transferRecords
+  const storeExams = useExamStore((s) => s.exams);
+  const storeLoad = useExamStore((s) => s.load);
+  const storeError = useExamStore((s) => s.error);
+  const [storeImagesOverride, setStoreImagesOverride] = useState<Record<string, number>>({});
 
   // API 加载检查数据
   const [allExams, setAllExams] = useState(initialRadiologyExams);
@@ -460,6 +315,11 @@ export default function ExamPage() {
     let cancelled = false;
     void (async () => {
       setLoading(true);
+      try {
+        await storeLoad();
+      } catch {
+        /* store handles its own error */
+      }
       const res = await examApi.list({});
       if (cancelled) return;
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
@@ -474,7 +334,66 @@ export default function ExamPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [storeLoad]);
+
+  // 从 store.exams 派生技师执行卡片视图
+  const techExecutions = useMemo<TechnicianExecution[]>(() => {
+    const source = storeExams.length > 0 ? storeExams : [];
+    return source.slice(0, 20).map((e, idx) => {
+      const s = String(e.status ?? "")
+      const completed = ["completed", "reported", "published", "archived", "已报告", "已发布", "已完成"].includes(s)
+      return {
+        id: `TE-${e.id}`,
+        examId: e.id,
+        accessionNumber: e.id,
+        patientName: e.patientName,
+        examItemName: `${e.modality ?? ""} ${e.bodyPart ?? ""}`.trim() || "检查",
+        modality: e.modality,
+        deviceNumber: e.deviceId ?? `D-${idx + 1}`,
+        roomName: e.roomId ?? `R-${idx + 1}`,
+        technologistName: e.technicianId ?? "当前技师",
+        startTime: e.scheduledAt ?? "",
+        estimatedDuration: 15,
+        imagesAcquired: storeImagesOverride[e.id] ?? e.imageCount ?? 0,
+        completed,
+        signature: completed ? (e.technicianId ?? "技师") : undefined,
+      }
+    })
+  }, [storeExams, storeImagesOverride])
+
+  // 从 store.exams 派生转科追踪记录(每个待检查/检查中 检查作为"待跟检查"项)
+  const transferRecords = useMemo<TransferRecord[]>(() => {
+    const source = storeExams.length > 0 ? storeExams : []
+    return source.slice(0, 10).map((e, idx) => {
+      const s = String(e.status ?? "")
+      const completed = ["completed", "reported", "published", "archived", "已报告", "已发布", "已完成"].includes(s)
+      const reason: TransferRecord["transferReason"] =
+        e.patientType === "急诊" ? "急诊→住院"
+          : e.patientType === "住院" ? "住院→转科"
+            : "门诊→检查"
+      return {
+        id: `TR-${e.id}`,
+        patientId: e.patientId ?? `P-${idx + 1}`,
+        patientName: e.patientName,
+        gender: e.gender ?? "未知",
+        age: e.age ?? 0,
+        patientType: e.patientType ?? "门诊",
+        transferReason: reason,
+        fromDepartment: "开单科室",
+        toDepartment: "放射科",
+        transferTime: e.scheduledAt ?? "",
+        attendingDoctor: e.doctorId ?? "主治医生",
+        notes: e.contrastUsed ? "使用对比剂" : "常规检查",
+        examCompleted: completed,
+        examName: `${e.modality ?? ""} ${e.bodyPart ?? ""}`.trim() || "检查",
+      }
+    })
+  }, [storeExams])
+
+  // 同步 storeError 到 loadError 显示
+  useEffect(() => {
+    if (storeError) setLoadError(storeError)
+  }, [storeError])
 
   // 筛选后的数据
   const filteredExams = useMemo(() => {
@@ -559,27 +478,40 @@ export default function ExamPage() {
 
   // 更新图像采集数量
   const handleImageCountChange = (executionId: string, count: number) => {
-    setTechExecutions((prev) =>
-      prev.map((exe) =>
-        exe.id === executionId ? { ...exe, imagesAcquired: count } : exe,
-      ),
-    );
+    const exe = techExecutions.find((e) => e.id === executionId);
+    if (!exe) return;
+    setStoreImagesOverride((prev) => ({ ...prev, [exe.examId]: count }));
   };
 
   // 确认采集完成
   const handleConfirmComplete = async (executionId: string) => {
     const exe = techExecutions.find((e) => e.id === executionId);
-    if (exe?.examId) {
+    if (!exe) return;
+    if (exe.examId) {
       await useExamStore.getState().transition(exe.examId, "complete");
     }
-    setTechExecutions((prev) =>
-      prev.map((exe) =>
-        exe.id === executionId
-          ? { ...exe, completed: true, signature: exe.technologistName }
-          : exe,
-      ),
-    );
   };
+
+  // Batch action handler
+  const handleBatchAction = (action: string) => {
+    const ids = Array.from(selectedIds);
+    ids.forEach((id) => log(action, id));
+    setSelectedIds(new Set());
+  };
+
+  // Keyboard shortcuts
+  const handleSubmit = () => {
+    if (modal.visible && modal.exam) {
+      handleExecute();
+    }
+  };
+  useKeyboardShortcuts([
+    SHORTCUTS.SUBMIT(handleSubmit),
+    SHORTCUTS.CANCEL(() => { if (modal.visible) closeModal(); }),
+  ]);
+  useNavigationShortcuts([
+    { sequence: ['g', 'e'], action: () => { window.location.href = '/exam'; }, description: '导航到检查' },
+  ]);
 
   // ==================== 渲染组件 ====================
   // Tab栏
@@ -642,7 +574,7 @@ export default function ExamPage() {
                 fontWeight: 700,
               }}
             >
-              {mockTransferRecords.filter((r) => !r.examCompleted).length}
+              {transferRecords.filter((r) => !r.examCompleted).length}
             </span>
           )}
         </button>
@@ -907,6 +839,7 @@ export default function ExamPage() {
             }}
           >
             {[
+              "",
               "检查号",
               "患者信息",
               "检查项目",
@@ -930,6 +863,21 @@ export default function ExamPage() {
                 {h}
               </th>
             ))}
+            {/* 批量选择 */}
+            <th style={{ padding: "10px 12px", textAlign: "center", borderBottom: `2px solid ${PRIMARY}`, width: 40 }}>
+              <input
+                type="checkbox"
+                checked={paginatedExams.length > 0 && paginatedExams.every((e) => selectedIds.has(e.id))}
+                onChange={() => {
+                  if (paginatedExams.every((e) => selectedIds.has(e.id))) {
+                    setSelectedIds(new Set());
+                  } else {
+                    setSelectedIds(new Set(paginatedExams.map((e) => e.id)));
+                  }
+                }}
+                style={{ cursor: "pointer", width: 16, height: 16 }}
+              />
+            </th>
             {/* 新增：状态时间轴表头 */}
             <th
               style={{
@@ -949,8 +897,8 @@ export default function ExamPage() {
           {paginatedExams.length === 0 ? (
             <tr>
               <td
-                colSpan={9}
-                style={{
+                  colSpan={10}
+                  style={{
                   padding: "40px 12px",
                   textAlign: "center",
                   color: "#94a3b8",
@@ -988,6 +936,20 @@ export default function ExamPage() {
                       idx % 2 === 0 ? "#fff" : "#f8fafc")
                   }
                 >
+                  {/* 批量选择 */}
+                  <td style={{ padding: "10px 12px", textAlign: "center" }}>
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(exam.id)}
+                      onChange={() => {
+                        const next = new Set(selectedIds);
+                        if (next.has(exam.id)) next.delete(exam.id);
+                        else next.add(exam.id);
+                        setSelectedIds(next);
+                      }}
+                      style={{ cursor: "pointer", width: 16, height: 16 }}
+                    />
+                  </td>
                   {/* 检查号 */}
                   <td
                     style={{
@@ -1494,13 +1456,13 @@ export default function ExamPage() {
         {[
           {
             label: "转科总数",
-            value: mockTransferRecords.length,
+            value: transferRecords.length,
             color: PRIMARY,
             bg: PRIMARY_BG,
           },
           {
             label: "急诊→住院",
-            value: mockTransferRecords.filter(
+            value: transferRecords.filter(
               (r) => r.transferReason === "急诊→住院",
             ).length,
             color: "#dc2626",
@@ -1508,7 +1470,7 @@ export default function ExamPage() {
           },
           {
             label: "住院→转科",
-            value: mockTransferRecords.filter(
+            value: transferRecords.filter(
               (r) => r.transferReason === "住院→转科",
             ).length,
             color: "#d97706",
@@ -1516,7 +1478,7 @@ export default function ExamPage() {
           },
           {
             label: "待完成检查",
-            value: mockTransferRecords.filter((r) => !r.examCompleted).length,
+            value: transferRecords.filter((r) => !r.examCompleted).length,
             color: "#f97316",
             bg: "#ffedd5",
           },
@@ -1543,7 +1505,7 @@ export default function ExamPage() {
 
       {/* 转科记录列表 */}
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        {mockTransferRecords.map((record) => (
+        {transferRecords.map((record) => (
           <div
             key={record.id}
             style={{
@@ -2305,6 +2267,19 @@ export default function ExamPage() {
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* Tab栏 */}
       <TabBar />
+
+      {/* Batch action bar */}
+      <BatchActionBar
+        selectedCount={selectedIds.size}
+        onAction={handleBatchAction}
+        onClear={() => setSelectedIds(new Set())}
+        actions={[
+          { key: "assign", label: "批量分配", icon: <UserCheck size={14} />, confirm: "确认分配?" },
+          { key: "sign", label: "批量签字", icon: <CheckSquare size={14} />, confirm: "确认签字?" },
+          { key: "print", label: "批量打印", icon: <Printer size={14} /> },
+          { key: "export", label: "批量导出", icon: <Download size={14} /> },
+        ]}
+      />
 
       {/* 检查列表Tab */}
       {activeTab === "list" && (

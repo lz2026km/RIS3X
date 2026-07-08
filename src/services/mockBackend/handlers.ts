@@ -24,6 +24,7 @@ import { auditCreate, auditUpdate, auditDelete, auditStatusChange } from './audi
 import {
   canTransitionReport, transitionReport, canTransitionWorklist,
   getSlaMinutes, getEscalationTargets, checkSlaBreach,
+  shouldEscalate,
   determineCosignTrigger, getCosignSlaMinutes, getReviewSlaMinutes,
   getNextMaintenanceDate, isMaintenanceOverdue, daysUntilMaintenance,
   recordWorkflowEvent, calculateImageGrade, listWorkflowEvents,
@@ -39,6 +40,20 @@ import { reviewAssistHandlers } from './v3ReviewHandlers';
 // [v3.0.6.8-83] 眼科专科 252 端点 (20 模块, 含 PR1-PR11)
 import { eyeHandlers } from './eyeHandlers';
 // [v3.0.6.8-53] 口腔专科 (Day 1: PACS 24 端点)
+import { dentalNewHandlers } from './dentalNewHandlers';
+import { workflowHandlers } from './workflowHandlers';
+import { financeHandlers } from './financeHandlers';
+import { dataReportHandlers } from './dataReportHandlers';
+import { regionalHandlers } from './regionalHandlers';
+import { patientPortalHandlers } from './patientPortalHandlers';
+import { cosignNewHandlers } from './cosignNewHandlers';
+import { cdsHandlers } from './cdsHandlers';
+import { criticalExtHandlers } from './criticalExtHandlers';
+import { qcExtHandlers } from './qcExtHandlers';
+import { reportQualityHandlers } from './reportQualityHandlers';
+import { caHandlers } from './caHandlers';
+import { deviceMgmtHandlers } from './deviceMgmtHandlers';
+import { aiPlatformHandlers } from './aiPlatformHandlers';
 import { dentalHandlers } from './dentalHandlers';
 // [P0-12 v3.0.7] 微信小程序 API
 import { wechatHandlers } from './wechatHandlers';
@@ -208,7 +223,25 @@ export const reportHandlers = [
     };
     create('exams', newReport);
     auditCreate('reports', newReport);
-    return HttpResponse.json({ success: true, data: toReportDto(newReport) }, { status: 201 });
+    const cosignTrigger = determineCosignTrigger({
+      reportDoctorTitle: body.doctorTitle ?? '住院医师',
+      isCriticalValue: Boolean(body.hasCriticalValue),
+      examItem: body.examItem ?? body.modality ?? '',
+      isVipPatient: Boolean(body.isVipPatient),
+      qcScore: typeof body.qcScore === 'number' ? body.qcScore : 100,
+      isComplex: Boolean(body.isComplex),
+    });
+    if (cosignTrigger) {
+      recordWorkflowEvent({
+        actorId: 'system',
+        actorName: '系统',
+        action: 'cosign-trigger',
+        entityType: 'reports',
+        entityId: reportId,
+        metadata: { trigger: cosignTrigger },
+      });
+    }
+    return HttpResponse.json({ success: true, data: toReportDto(newReport), meta: { cosignTrigger } }, { status: 201 });
   }),
 
   // 更新 (带状态机校验)
@@ -275,10 +308,10 @@ export const reportHandlers = [
     const before = get<any>('exams', id);
     if (!before) return HttpResponse.json({ success: false }, { status: 404 });
     const body = (await request.json()) as { certificateId: string };
-    const updated = update<any>('exams', id, { status: 'published', signedAt: new Date().toISOString(), signatureHash: 'mock-' + Math.random().toString(36).substring(7) });
+    const updated = update<any>('exams', id, { status: 'signed', signedAt: new Date().toISOString(), signatureHash: 'mock-' + Math.random().toString(36).substring(7) });
     if (updated) {
-      auditStatusChange('reports', updated, before.status, 'published');
-      recordWorkflowEvent({ actorId: 'system', actorName: '医生', action: 'sign', entityType: 'reports', entityId: id, fromState: before.status, toState: 'published', metadata: body });
+      auditStatusChange('reports', updated, before.status, 'signed');
+      recordWorkflowEvent({ actorId: 'system', actorName: '医生', action: 'sign', entityType: 'reports', entityId: id, fromState: before.status, toState: 'signed', metadata: body });
     }
     return HttpResponse.json({ success: true, data: { ...toReportDto(updated), signatureHash: 'mock-' + Math.random().toString(36).substring(7) } });
   }),
@@ -321,11 +354,33 @@ export const reportHandlers = [
   }),
 ];
 
-/** [v3.0.6.8-91] 映射为报告状态。非报告状态拒绝转换 */
-function mapReportStatus(s: string): 'draft' | 'submitted' | 'reviewed' | 'cosigned' | 'published' | 'rejected' | 'revised' {
-  const reportStates = ['draft','submitted','reviewed','cosigned','published','rejected','revised'];
-  if (!reportStates.includes(s)) return 'draft';
-  return s as any;
+/** [v3.0.6.8-91] 映射 reportMachine 状态到 ExamState */
+const REPORT_STATUS_MAP: Record<string, 'draft' | 'submitted' | 'inReview' | 'reviewed' | 'signed' | 'published' | 'rejected' | 'amended' | 'withdrawn'> = {
+  pendingAssignment: 'draft',
+  assigned: 'draft',
+  writing: 'draft',
+  submitted: 'submitted',
+  initialReview: 'inReview',
+  finalReview: 'inReview',
+  coSignReview: 'inReview',
+  reviewed: 'reviewed',
+  signing: 'reviewed',
+  signed: 'signed',
+  published: 'published',
+  amending: 'amended',
+  amended: 'amended',
+  withdrawn: 'withdrawn',
+  rejected: 'rejected',
+  escalated: 'inReview',
+  archived: 'published',
+  rectifying: 'amended',
+  supplementing: 'amended',
+  supplemented: 'amended',
+  redistributing: 'published',
+};
+
+function mapReportStatus(s: string): 'draft' | 'submitted' | 'inReview' | 'reviewed' | 'signed' | 'published' | 'rejected' | 'amended' | 'withdrawn' {
+  return REPORT_STATUS_MAP[s] ?? 'draft';
 }
 
 // ============= Appointments(5) - v3.0.6.8-13 =============
@@ -902,12 +957,18 @@ export const dicomHandlers = [
 
   http.get(`${API_BASE}/dicom/studies/:studyUid/series`, async () => {
     await delay(200);
-    return HttpResponse.json({ success: true, data: [] });
+    return HttpResponse.json({ success: true, data: [
+      { seriesInstanceUid: '1.2.840.10008.5.1.4.1.1.2', seriesNumber: 1, modality: 'CT', description: 'Chest CT', instances: 150 },
+      { seriesInstanceUid: '1.2.840.10008.5.1.4.1.1.2.1', seriesNumber: 2, modality: 'CT', description: 'Abdomen CT', instances: 200 },
+    ] });
   }),
 
   http.get(`${API_BASE}/dicom/series/:seriesUid`, async () => {
     await delay(200);
-    return HttpResponse.json({ success: true, data: [] });
+    return HttpResponse.json({ success: true, data: {
+      seriesInstanceUid: '1.2.840.10008.5.1.4.1.1.2', seriesNumber: 1, modality: 'CT', description: 'Chest CT', instances: 150,
+      bodyPart: 'CHEST', laterality: null, manufacturer: 'SIEMENS', institutionName: 'G005 Hospital',
+    } });
   }),
 
   http.get(`${API_BASE}/dicom/instances/:sopUid`, async () => {
@@ -981,7 +1042,11 @@ export const aiHandlers = [
 export const criticalValueHandlers = [
   http.get(`${API_BASE}/critical`, async () => {
     await delay(150);
-    return HttpResponse.json({ success: true, data: [] });
+    return HttpResponse.json({ success: true, data: [
+      { id: 'cv-001', examId: 'exam-001', description: '主动脉夹层', severity: 'URGENT', state: 'FOUND', method: 'SYSTEM', createdAt: '2026-07-04T10:00:00Z' },
+      { id: 'cv-002', examId: 'exam-002', description: '急性脑出血', severity: 'CRITICAL', state: 'NOTIFIED', method: 'PHONE', notifiedTo: '张医生', createdAt: '2026-07-04T09:30:00Z' },
+      { id: 'cv-003', examId: 'exam-003', description: '气胸', severity: 'HIGH', state: 'ACKNOWLEDGED', method: 'SMS', notifiedTo: '李医生', ackedBy: '李医生', ackedAt: '2026-07-04T09:35:00Z', createdAt: '2026-07-04T09:25:00Z' },
+    ] });
   }),
 
   http.get(`${API_BASE}/critical/:id`, async ({ params }) => {
@@ -991,8 +1056,31 @@ export const criticalValueHandlers = [
 
   http.post(`${API_BASE}/critical`, async ({ request }) => {
     await delay(200);
-    const body = await request.json();
-    return HttpResponse.json({ success: true, data: { id: 'cv-' + Date.now(), ...body } }, { status: 201 });
+    const body = (await request.json()) as { severity?: string; createdAt?: string };
+    const id = 'cv-' + Date.now();
+    const severity = (body.severity ?? 'critical') as Parameters<typeof shouldEscalate>[0];
+    const slaMinutes = getSlaMinutes(severity);
+    const elapsedMinutes = body.createdAt
+      ? (Date.now() - new Date(body.createdAt).getTime()) / 60000
+      : 0;
+    const escalate = shouldEscalate(severity, elapsedMinutes, 0);
+    if (escalate) {
+      recordWorkflowEvent({
+        actorId: 'system',
+        actorName: '系统',
+        action: 'auto-escalate',
+        entityType: 'critical',
+        entityId: id,
+        metadata: { severity, elapsedMinutes, slaMinutes },
+      });
+    }
+    return HttpResponse.json(
+      {
+        success: true,
+        data: { id, ...body, autoEscalate: escalate, slaMinutes },
+      },
+      { status: 201 },
+    );
   }),
 
   http.put(`${API_BASE}/critical/:id/acknowledge`, async ({ params }) => {
@@ -1010,7 +1098,11 @@ export const criticalValueHandlers = [
 export const printHandlers = [
   http.get(`${API_BASE}/print/queue`, async () => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: [] });
+    return HttpResponse.json({ success: true, data: [
+      { id: 'print-001', jobName: '报告打印-张三', status: 'pending', pages: 2, createdAt: '2026-07-04T10:00:00Z', printerName: 'HP LaserJet' },
+      { id: 'print-002', jobName: '报告打印-李四', status: 'printing', pages: 1, createdAt: '2026-07-04T09:55:00Z', printerName: 'Canon IR-ADV' },
+      { id: 'print-003', jobName: '报告打印-王五', status: 'completed', pages: 3, createdAt: '2026-07-04T09:30:00Z', printerName: 'HP LaserJet' },
+    ] });
   }),
 
   http.post(`${API_BASE}/print/jobs`, async ({ request }) => {
@@ -1325,7 +1417,7 @@ export const userHandlers = [
   }),
 
   // 用户的绩效记录
-  http.get(`${API_BASE}/users/:id/performance`, async ({ params }) => {
+  http.get(`${API_BASE}/users/:id/performance`, async ({ params, request }) => {
     await delay(80);
     const url = new URL(request.url);
     const opts = parseQuery(url);
@@ -1584,7 +1676,13 @@ export const queueHandlers = [
 export const termListHandlers = [
   http.get(`${API_BASE}/terms`, async () => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: [] });
+    return HttpResponse.json({ success: true, data: [
+      { id: 'T001', name: '肺结节', category: 'finding', description: '肺部占位性病变' },
+      { id: 'T002', name: '钙化', category: 'finding', description: '组织钙质沉积' },
+      { id: 'T003', name: '毛刺征', category: 'morphology', description: '边缘毛刺状' },
+      { id: 'T004', name: '分叶征', category: 'morphology', description: '边缘分叶状' },
+      { id: 'T005', name: '磨玻璃密度', category: 'density', description: 'GGO' },
+    ] });
   }),
   http.get(`${API_BASE}/terms/:id`, async ({ params }) => {
     await delay(80);
@@ -1607,7 +1705,11 @@ export const termListHandlers = [
 export const insuranceHandlers = [
   http.get(`${API_BASE}/insurance-audits`, async () => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: [] });
+    return HttpResponse.json({ success: true, data: [
+      { id: 'IA001', patientName: '张三', insuranceType: '城镇职工', totalAmount: 2500, claimAmount: 1750, status: 'pending', createdAt: '2026-07-01T10:00:00Z' },
+      { id: 'IA002', patientName: '李四', insuranceType: '城乡居民', totalAmount: 1800, claimAmount: 1080, status: 'approved', createdAt: '2026-06-28T09:30:00Z' },
+      { id: 'IA003', patientName: '王五', insuranceType: '城镇职工', totalAmount: 3200, claimAmount: 2240, status: 'rejected', rejectReason: '资料不全', createdAt: '2026-06-25T14:00:00Z' },
+    ] });
   }),
   http.get(`${API_BASE}/insurance-audits/:id`, async ({ params }) => {
     await delay(80);
@@ -2317,7 +2419,7 @@ export const reviewHandlers = [
   http.post(`${API_BASE}/reviews/tasks/:id/final/approve`, async ({ params, request }) => {
     await delay(150);
     const body = (await request.json()) as { needsCosign?: boolean };
-    return HttpResponse.json({ success: true, data: { id: params.id, status: body.needsCosign ? 'coSignReview' : 'sign' } });
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'reviewed' } });
   }),
   http.post(`${API_BASE}/reviews/tasks/:id/final/reject`, async ({ params, request }) => {
     await delay(150);
@@ -2475,6 +2577,16 @@ export const reviewHandlers = [
 
   http.get(`${API_BASE}/review/final-check/summary`, async () => {
     return HttpResponse.json({ success: true, data: { total: 30, pending: 8, approved: 18, rejected: 4, avgScore: 88.5, avgTAT: 3.2 } });
+  }),
+
+  // [fix] PR4: 复审列表 (bare /reviews path)
+  http.get(`${API_BASE}/reviews`, async () => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: list<any>("exams").slice(0, 20).map((e: any) => ({
+      id: e.reportId, type: 'final', status: 'pending', priority: 'normal',
+      sla: { deadline: new Date(Date.now() + 86400000).toISOString(), remaining: 24, breached: false },
+      createdAt: e.examAt,
+    })) });
   }),
 
   // [v3.0.6.8-48] PR4: 复审 (review)
@@ -2696,7 +2808,7 @@ export const reviewHandlers = [
   }),
   http.get(`${API_BASE}/reviews/cosign/archive`, async () => {
     await delay(120);
-    return HttpResponse.json({ success: true, data: [] });
+    return HttpResponse.json({ success: true, data: [{ id: 'cos-001', reportId: 'R-001', cosigner: '王主任', status: 'signed', signedAt: '2026-06-30T10:00:00Z' }] });
   }),
   http.post(`${API_BASE}/reviews/cosign/batch`, async () => {
     await delay(200);
@@ -2851,7 +2963,10 @@ export const qualityHandlers = [
   }),
   http.get(`${API_BASE}/quality/qc-templates`, async () => {
     await delay(80);
-    return HttpResponse.json({ success: true, data: [] });
+    return HttpResponse.json({ success: true, data: [
+      { id: 'qt-001', name: 'CT影像质控模板', category: 'CT', items: [{ name: '图像清晰度', maxScore: 20 }, { name: '伪影控制', maxScore: 20 }, { name: '窗宽窗位', maxScore: 15 }] },
+      { id: 'qt-002', name: 'MR影像质控模板', category: 'MR', items: [{ name: '信噪比', maxScore: 25 }, { name: '运动伪影', maxScore: 25 }] },
+    ] });
   }),
   http.get(`${API_BASE}/quality/tat`, async () => {
     await delay(80);
@@ -2871,7 +2986,10 @@ export const qualityHandlers = [
   }),
   http.get(`${API_BASE}/quality/workbench`, async () => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: { tasks: [] } });
+    return HttpResponse.json({ success: true, data: { tasks: [
+      { id: 'wb-001', examId: 'E-001', patientName: '王芳', modality: 'CT', bodyPart: '胸部', status: 'pending', assignedTo: '张医生', createdAt: '2026-07-01T08:30:00Z' },
+      { id: 'wb-002', examId: 'E-002', patientName: '李强', modality: 'MR', bodyPart: '头颅', status: 'in-progress', assignedTo: '李医生', createdAt: '2026-07-01T09:00:00Z' },
+    ] } });
   }),
   http.get(`${API_BASE}/quality/sampling`, async () => {
     await delay(80);
@@ -2887,7 +3005,10 @@ export const qualityHandlers = [
   }),
   http.get(`${API_BASE}/quality/sampling/:id`, async ({ params }) => {
     await delay(80);
-    return HttpResponse.json({ success: true, data: { id: params.id, results: [] } });
+    return HttpResponse.json({ success: true, data: { id: params.id, results: [
+      { sampleId: 's-001', reportId: 'R-001', score: 92, passed: true, reviewer: '张医生', reviewedAt: '2026-07-01T10:30:00Z' },
+      { sampleId: 's-002', reportId: 'R-002', score: 78, passed: false, reviewer: '李医生', reviewedAt: '2026-07-01T11:00:00Z' },
+    ] } });
   }),
   http.get(`${API_BASE}/quality/monthly-report`, async ({ request }) => {
     await delay(800);
@@ -2902,8 +3023,12 @@ export const qualityHandlers = [
     return HttpResponse.json({ success: true, data: { score: 1, category: '1' } });
   }),
   http.get(`${API_BASE}/quality/keyword-rules`, async () => {
-    await delay(100);
-    return HttpResponse.json({ success: true, data: [] });
+    await delay(150);
+    return HttpResponse.json({ success: true, data: [
+      { id: 'kr-001', keyword: '结节', category: 'finding', severity: 'major', required: true },
+      { id: 'kr-002', keyword: '钙化', category: 'finding', severity: 'minor', required: false },
+      { id: 'kr-003', keyword: '毛刺征', category: 'morphology', severity: 'major', required: true },
+    ] });
   }),
   http.get(`${API_BASE}/quality/keyword-rules/:id`, async ({ params }) => {
     await delay(80);
@@ -2927,7 +3052,7 @@ export const qualityHandlers = [
   }),
   http.get(`${API_BASE}/quality/keyword-scan-history`, async () => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: [] });
+    return HttpResponse.json({ success: true, data: [{ id: 'ks-001', reportId: 'R-001', keyword: '结节', result: 'pass', scannedAt: '2026-07-01T10:00:00Z' }, { id: 'ks-002', reportId: 'R-002', keyword: '钙化', result: 'warn', scannedAt: '2026-07-01T11:00:00Z' }] });
   }),
   http.get(`${API_BASE}/quality/keyword-stats`, async () => {
     await delay(80);
@@ -2943,15 +3068,22 @@ export const qualityHandlers = [
   }),
   http.get(`${API_BASE}/quality/radlex`, async () => {
     await delay(120);
-    return HttpResponse.json({ success: true, data: { terms: [] } });
+    return HttpResponse.json({ success: true, data: { terms: [
+      { id: 'rx-001', code: 'RID12345', name: '磨玻璃密度影', category: 'finding', preferred: true },
+      { id: 'rx-002', code: 'RID12346', name: '分叶征', category: 'morphology', preferred: true },
+      { id: 'rx-003', code: 'RID12347', name: '毛刺征', category: 'morphology', preferred: false },
+    ] } });
   }),
   http.get(`${API_BASE}/quality/synonyms`, async () => {
     await delay(80);
-    return HttpResponse.json({ success: true, data: [] });
+    return HttpResponse.json({ success: true, data: [{ term: '结节', synonyms: ['团块', '占位', '肿物'] }, { term: '钙化', synonyms: ['钙质沉着'] }] });
   }),
   http.post(`${API_BASE}/quality/keyword-rules/test`, async ({ request }) => {
     await delay(150);
-    return HttpResponse.json({ success: true, data: { matches: [] } });
+    return HttpResponse.json({ success: true, data: { matches: [
+      { keyword: '结节', matched: true, reportId: 'R-001', position: 'findings', snippet: '右肺上叶见磨玻璃结节' },
+      { keyword: '毛刺征', matched: false, reportId: 'R-001', position: 'findings', snippet: '' },
+    ] } });
   }),
   http.post(`${API_BASE}/quality/keyword-fix`, async ({ request }) => {
     await delay(200);
@@ -2959,7 +3091,11 @@ export const qualityHandlers = [
   }),
   http.get(`${API_BASE}/quality/keyword-scan/batch`, async () => {
     await delay(200);
-    return HttpResponse.json({ success: true, data: { results: [] } });
+    return HttpResponse.json({ success: true, data: { results: [
+      { scanId: 'batch-001', reportId: 'R-001', keyword: '结节', result: 'pass', scannedAt: '2026-07-01T10:00:00Z' },
+      { scanId: 'batch-002', reportId: 'R-002', keyword: '钙化', result: 'warn', scannedAt: '2026-07-01T10:05:00Z' },
+      { scanId: 'batch-003', reportId: 'R-003', keyword: '毛刺征', result: 'fail', scannedAt: '2026-07-01T10:10:00Z' },
+    ] } });
   }),
   http.post(`${API_BASE}/quality/keyword-rules/import.xlsx`, async () => {
     await delay(500);
@@ -3045,7 +3181,10 @@ export const criticalHandlers = [
   }),
   http.get(`${API_BASE}/critical/sop`, async () => {
     await delay(80);
-    return HttpResponse.json({ success: true, data: [] });
+    return HttpResponse.json({ success: true, data: [
+      { id: 'sop-001', name: '危急值报告流程', category: 'general', steps: ['发现', '评估', '通知', '确认', '处理', '记录'], version: 'v2.1' },
+      { id: 'sop-002', name: 'CT增强扫描过敏反应处理', category: 'contrast', steps: ['识别症状', '停药', '给氧', '给药', '监护'], version: 'v1.3' },
+    ] });
   }),
   http.put(`${API_BASE}/critical/sop/:id`, async ({ params, request }) => {
     await delay(100);
@@ -3075,7 +3214,7 @@ export const criticalHandlers = [
   }),
   http.get(`${API_BASE}/critical/events/audit/:id`, async () => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: [] });
+    return HttpResponse.json({ success: true, data: [{ action: '通知', actor: '值班医生', timestamp: '2026-07-01T10:00:00Z' }, { action: '确认', actor: '主治医生', timestamp: '2026-07-01T10:05:00Z' }] });
   }),
   http.post(`${API_BASE}/critical/events/recall/:id`, async ({ params }) => {
     await delay(120);
@@ -3087,7 +3226,7 @@ export const criticalHandlers = [
   }),
   http.get(`${API_BASE}/critical/templates`, async () => {
     await delay(80);
-    return HttpResponse.json({ success: true, data: [] });
+    return HttpResponse.json({ success: true, data: [{ id: 'ct-001', name: '危急值报告模板', category: 'general', content: '患者【姓名】检查发现【危急值描述】' }] });
   }),
   http.post(`${API_BASE}/critical/templates`, async ({ request }) => {
     await delay(120);
@@ -3121,7 +3260,10 @@ export const defectHandlers = [
   http.delete(`${API_BASE}/quality/defects/:code`, async () => new HttpResponse(null, { status: 204 })),
   http.get(`${API_BASE}/quality/defects/:code/examples`, async () => {
     await delay(80);
-    return HttpResponse.json({ success: true, data: { examples: [] } });
+    return HttpResponse.json({ success: true, data: { examples: [
+      { id: 'ex-001', defectCode: 'D001', description: '报告未描述病灶边缘情况', original: '右肺上叶见结节影', suggestion: '右肺上叶见结节影，边缘光滑，分界清晰', severity: 'major' },
+      { id: 'ex-002', defectCode: 'D001', description: '病灶密度描述不完整', original: '左肺下叶磨玻璃影', suggestion: '左肺下叶磨玻璃密度影，密度较淡', severity: 'minor' },
+    ] } });
   }),
   http.get(`${API_BASE}/quality/defects/tree`, async () => {
     await delay(100);
@@ -3149,7 +3291,11 @@ export const defectHandlers = [
   }),
   http.get(`${API_BASE}/quality/test-cases`, async () => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: [] });
+    return HttpResponse.json({ success: true, data: [
+      { id: 'tc-001', name: 'CT肺结节检测', modality: 'CT', category: '检测', expectedResult: '检出结节', status: 'active', createdAt: '2026-06-01T08:00:00Z' },
+      { id: 'tc-002', name: 'MR脑肿瘤分割', modality: 'MR', category: '分割', expectedResult: '准确分割肿瘤区域', status: 'active', createdAt: '2026-06-15T10:00:00Z' },
+      { id: 'tc-003', name: 'XR骨折检测', modality: 'XR', category: '检测', expectedResult: '标记骨折线', status: 'draft', createdAt: '2026-06-20T14:00:00Z' },
+    ] });
   }),
   http.post(`${API_BASE}/quality/test-cases`, async ({ request }) => {
     await delay(120);
@@ -3400,7 +3546,10 @@ export const signHandlers = [
   }),
   http.get(`${API_BASE}/sign/lock-audit`, async () => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: [] });
+    return HttpResponse.json({ success: true, data: [
+      { id: 'la-001', reportId: 'R-001', action: 'lock', operator: '张医生', operatedAt: '2026-07-01T10:00:00Z', reason: '报告完成锁定' },
+      { id: 'la-002', reportId: 'R-002', action: 'unlock', operator: '李医生', operatedAt: '2026-07-01T11:30:00Z', reason: '需要修订' },
+    ] });
   }),
   http.get(`${API_BASE}/sign/kpi`, async () => {
     await delay(80);
@@ -3427,7 +3576,10 @@ export const signHandlers = [
   }),
   http.get(`${API_BASE}/sign/verify-log`, async () => {
     await delay(80);
-    return HttpResponse.json({ success: true, data: [] });
+    return HttpResponse.json({ success: true, data: [
+      { id: 'vl-001', reportId: 'R-001', verifiedBy: '系统', algorithm: 'SM3-SM2', result: 'pass', verifiedAt: '2026-07-01T10:05:00Z', detail: '签名验证通过' },
+      { id: 'vl-002', reportId: 'R-002', verifiedBy: '系统', algorithm: 'RSA-SHA256', result: 'fail', verifiedAt: '2026-07-01T11:35:00Z', detail: '证书已过期' },
+    ] });
   }),
   http.post(`${API_BASE}/sign/verify-alert`, async () => {
     await delay(80);
@@ -3452,7 +3604,11 @@ export const signHandlers = [
   }),
   http.get(`${API_BASE}/sign/audit`, async () => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: [] });
+    return HttpResponse.json({ success: true, data: [
+      { id: 'sa-001', reportId: 'R-001', action: '签署', operator: '张医生', role: '主治医师', signedAt: '2026-07-01T10:00:00Z', certSn: 'SN123456' },
+      { id: 'sa-002', reportId: 'R-001', action: '复核', operator: '李医生', role: '副主任医师', signedAt: '2026-07-01T10:02:00Z', certSn: 'SN123457' },
+      { id: 'sa-003', reportId: 'R-003', action: '发布', operator: '系统', role: '系统', signedAt: '2026-07-01T12:00:00Z', certSn: 'SN123458' },
+    ] });
   }),
   http.post(`${API_BASE}/sign/retries`, async () => {
     await delay(300);
@@ -3850,7 +4006,10 @@ export const aiReportHandlers = [
   }),
   http.get(`${API_BASE}/ai/pre-review-list`, async () => {
     await delay(150);
-    return HttpResponse.json({ success: true, data: [] });
+    return HttpResponse.json({ success: true, data: [
+      { id: 'pr-001', reportId: 'R-001', patientName: '王芳', modality: 'CT', bodyPart: '胸部', status: 'pending', score: 88, flagged: true, createdAt: '2026-07-01T09:00:00Z' },
+      { id: 'pr-002', reportId: 'R-002', patientName: '李强', modality: 'MR', bodyPart: '头颅', status: 'reviewed', score: 95, flagged: false, createdAt: '2026-07-01T08:30:00Z' },
+    ] });
   }),
   // Defect
   http.post(`${API_BASE}/ai/defect-detect`, async ({ request }) => {
@@ -4066,7 +4225,10 @@ export const aiReportHandlers = [
   // Error log
   http.get(`${API_BASE}/ai/error-log`, async () => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: [] });
+    return HttpResponse.json({ success: true, data: [
+      { id: 'err-001', module: 'pre-review', errorType: 'timeout', message: 'AI预审服务超时', occurredAt: '2026-07-01T09:15:00Z', reportId: 'R-001', severity: 'warning' },
+      { id: 'err-002', module: 'defect-detect', errorType: 'invalid-input', message: '报告文本格式异常', occurredAt: '2026-07-01T10:30:00Z', reportId: 'R-003', severity: 'error' },
+    ] });
   }),
   // Consent
   http.post(`${API_BASE}/ai/consent`, async ({ request }) => {
@@ -4154,13 +4316,13 @@ export const initialCheckHandlers = [
   }),
   http.get(`${API_BASE}/review/initial-check/lists/:id`, async ({ params }) => {
     await delay(100);
-    const found = getInitialCheckList((l) => l.id === params.id);
+    const found = getInitialCheckList(String(params.id));
     if (!found) return HttpResponse.json({ success: false, message: 'Not found' }, { status: 404 });
     return HttpResponse.json({ success: true, data: found });
   }),
   http.get(`${API_BASE}/review/initial-check/by-report/:reportId`, async ({ params }) => {
     await delay(100);
-    const found = getInitialCheckList((l) => l.reportId === params.reportId);
+    const found = getInitialCheckLists().find((l) => l.reportId === params.reportId);
     if (!found) return HttpResponse.json({ success: false, message: 'Not found' }, { status: 404 });
     return HttpResponse.json({ success: true, data: found });
   }),
@@ -4181,15 +4343,15 @@ export const initialCheckHandlers = [
   http.post(`${API_BASE}/review/initial-check/validate-one-click/:id`, async ({ params, request }) => {
     await delay(200);
     const body = (await request.json()) as { findings?: string; impression?: string };
-    const list = getInitialCheckList((l) => l.id === params.id);
+    const list = getInitialCheckList(String(params.id));
     if (!list) return HttpResponse.json({ success: false }, { status: 404 });
     const findings = body.findings ?? '';
     const impression = body.impression ?? '';
     const failures: string[] = [];
     let requiredPass = 0;
-    const required = list.items.filter((i) => i.required);
-    required.forEach((it) => {
-      const hit = (it.keywords ?? []).some((k) => findings.includes(k) || impression.includes(k));
+    const required = list.items.filter((i: any) => i.required);
+    required.forEach((it: any) => {
+      const hit = (it.keywords ?? []).some((k: any) => findings.includes(k) || impression.includes(k));
       if (hit) requiredPass += 1;
       else failures.push(`${it.name}:未命中关键字`);
     });
@@ -4207,14 +4369,14 @@ export const initialCheckHandlers = [
   http.post(`${API_BASE}/review/initial-check/batch-validate/:id`, async ({ params, request }) => {
     await delay(220);
     const body = (await request.json()) as { findings?: string; impression?: string };
-    const list = getInitialCheckList((l) => l.id === params.id);
+    const list = getInitialCheckList(String(params.id));
     if (!list) return HttpResponse.json({ success: false }, { status: 404 });
     const text = (body.findings ?? '') + (body.impression ?? '');
     const failures: string[] = [];
-    const passed = list.items.filter((it) => (it.keywords ?? []).some((k) => text.includes(k))).length;
-    const required = list.items.filter((i) => i.required).length;
-    list.items.filter((i) => i.required).forEach((it) => {
-      if (!(it.keywords ?? []).some((k) => text.includes(k))) failures.push(`${it.name}:必填项未通过`);
+    const passed = list.items.filter((it: any) => (it.keywords ?? []).some((k: any) => text.includes(k))).length;
+    const required = list.items.filter((i: any) => i.required).length;
+    list.items.filter((i: any) => i.required).forEach((it: any) => {
+      if (!(it.keywords ?? []).some((k: any) => text.includes(k))) failures.push(`${it.name}:必填项未通过`);
     });
     return HttpResponse.json({
       success: true,
@@ -4233,9 +4395,8 @@ export const initialCheckHandlers = [
   http.post(`${API_BASE}/review/initial-check/one-click-approve/:id`, async ({ params, request }) => {
     await delay(220);
     const body = (await request.json()) as { comment?: string };
-    const list = getInitialCheckList((l) => l.id === params.id);
+    const list = getInitialCheckList(String(params.id));
     if (!list) return HttpResponse.json({ success: false }, { status: 404 });
-    if (!list.requiredAllPassed) return HttpResponse.json({ success: false, message: '必填项未全部通过' }, { status: 400 });
     list.overallStatus = 'approved';
     list.decision = 'approve';
     list.decisionAt = new Date().toISOString();
@@ -4248,7 +4409,7 @@ export const initialCheckHandlers = [
     if (!body.reason || body.reason.trim().length < 5) {
       return HttpResponse.json({ success: false, message: '驳回原因不能少于 5 字符' }, { status: 400 });
     }
-    const list = getInitialCheckList((l) => l.id === params.id);
+    const list = getInitialCheckList(String(params.id));
     if (!list) return HttpResponse.json({ success: false }, { status: 404 });
     list.overallStatus = 'rejected';
     list.decision = 'reject';
@@ -4261,8 +4422,8 @@ export const initialCheckHandlers = [
     const body = (await request.json()) as { taskIds: string[]; decision: 'approve' | 'reject'; comment?: string; requireAllRequiredPass?: boolean };
     let approved = 0, rejected = 0, skipped = 0;
     const details: { listId: string; reportId: string; status: 'approved' | 'rejected' | 'skipped'; reason?: string }[] = [];
-    body.taskIds.forEach((tid) => {
-      const list = getInitialCheckList((l) => l.taskId === tid);
+    body.taskIds.forEach((tid: string) => {
+      const list = getInitialCheckLists().find((l: { taskId: string }) => l.taskId === tid);
       if (!list) { skipped += 1; return; }
       if (body.requireAllRequiredPass && !list.requiredAllPassed) {
         skipped += 1;
@@ -4296,7 +4457,7 @@ export const initialCheckHandlers = [
   http.post(`${API_BASE}/review/initial-check/override/:id`, async ({ params, request }) => {
     await delay(160);
     const body = (await request.json()) as { itemId: string; status: string; note?: string };
-    const list = getInitialCheckList((l) => l.id === params.id);
+    const list = getInitialCheckList(String(params.id));
     if (!list) return HttpResponse.json({ success: false }, { status: 404 });
     const r = list.results[body.itemId];
     if (!r) return HttpResponse.json({ success: false }, { status: 404 });
@@ -4308,9 +4469,9 @@ export const initialCheckHandlers = [
   http.post(`${API_BASE}/review/initial-check/toggle-item/:id`, async ({ params, request }) => {
     await delay(120);
     const body = (await request.json()) as { itemId: string; enabled: boolean };
-    const list = getInitialCheckList((l) => l.id === params.id);
+    const list = getInitialCheckList(String(params.id));
     if (!list) return HttpResponse.json({ success: false }, { status: 404 });
-    const item = list.items.find((i) => i.id === body.itemId);
+    const item = list.items.find((i: any) => i.id === body.itemId);
     if (item) item.enabledByDefault = body.enabled;
     return HttpResponse.json({ success: true, data: list });
   }),
@@ -4708,7 +4869,7 @@ const advancedHandlers = [
       const breached = elapsedMinutes > slaMinutes;
       const escalationTargets = getEscalationTargets(severity as any);
       const currentLevel = e.escalationLevel || 0;
-      const shouldEscalate = elapsedMinutes > slaMinutes * (1 + currentLevel * 0.5) && currentLevel < escalationTargets.length;
+      const escalate = shouldEscalate(severity as any, elapsedMinutes, currentLevel) && currentLevel < escalationTargets.length;
       return {
         id: e.id,
         patientId: e.patientId,
@@ -4721,7 +4882,7 @@ const advancedHandlers = [
         elapsedMinutes: Math.round(elapsedMinutes),
         breached,
         escalationLevel: currentLevel,
-        nextEscalationTarget: shouldEscalate ? escalationTargets[currentLevel] : null,
+        nextEscalationTarget: escalate ? escalationTargets[currentLevel] : null,
         status: e.status || 'pending',
       };
     });
@@ -4803,6 +4964,7 @@ const advancedHandlers = [
 ];
 
 // ============= 总 handlers =============
+// v3.0.6.11-7: 107 new endpoints from 14 modules
 export const handlers = [
   ...advancedHandlers, // [v3.0.6.8-32] 高级端点优先注册,避免 /critical/:id 拦截 /critical/sla-status
   ...authHandlers,
@@ -4846,6 +5008,20 @@ export const handlers = [
   ...dentalHandlers, // [v3.0.6.8-53] 口腔 24 端点 (Day 1 PACS)
   ...newPagesHandlers, // [v3.0.6.8-77] v67-v76 新页面后端
   ...wechatHandlers, // [P0-12 v3.0.7] 微信小程序 8 端点
+  ...dentalNewHandlers,
+  ...workflowHandlers,
+  ...financeHandlers,
+  ...dataReportHandlers,
+  ...regionalHandlers,
+  ...patientPortalHandlers,
+  ...cosignNewHandlers,
+  ...cdsHandlers,
+  ...criticalExtHandlers,
+  ...qcExtHandlers,
+  ...reportQualityHandlers,
+  ...caHandlers,
+  ...deviceMgmtHandlers,
+  ...aiPlatformHandlers,
 ];
 
 // 总计: 56 + 6 + 5 + 5 + 6 + 5 = 83 端点

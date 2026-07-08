@@ -1,7 +1,7 @@
 import { Controller, Get, UseGuards } from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { StatsService } from './stats.service'
+import { StatsService, StatsDashboardData } from './stats.service'
 
 @ApiTags('stats')
 @ApiBearerAuth()
@@ -11,7 +11,7 @@ export class StatsController {
   constructor(private readonly service: StatsService) {}
 
   @Get('dashboard')
-  getDashboard() {
+  getDashboard(): Promise<StatsDashboardData> {
     return this.service.getDashboardData()
   }
 }

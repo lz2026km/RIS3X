@@ -14,8 +14,8 @@ import {
   RefreshCw, Download, Globe, Send, ChevronRight, ListFilter, ListTree,
 } from 'lucide-react';
 import { getDefaultFhirServer, FhirServer, RESOURCE_TYPES } from '@services/integration/fhir/FhirServer';
-import { FHIR_SAMPLES } from '@data/fhirResources';
-import type { FhirResourceEnvelope, FhirOperationOutcome } from '@types/integration';
+import { FHIR_SAMPLES } from '../../data/fhirResources';
+import type { FhirResourceEnvelope, FhirOperationOutcome } from '../../types/integration';
 
 export const FhirResourceExplorer: React.FC = () => {
   const [server, setServer] = useState<FhirServer>(() => getDefaultFhirServer());

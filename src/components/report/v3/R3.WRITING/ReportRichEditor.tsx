@@ -62,10 +62,41 @@ export const ReportRichEditor: React.FC<Props> = ({
   const [summarizing, setSummarizing] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
 
-  // 应用格式
+  // 应用格式 (replaced deprecated document.execCommand with state-friendly approach)
   const applyFormat = useCallback((command: string, value?: string) => {
     if (readOnly) return;
-    document.execCommand(command, false, value);
+    try {
+      if (command === 'formatBlock' && value) {
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount > 0) {
+          const range = sel.getRangeAt(0);
+          const wrapper = document.createElement(value.toLowerCase());
+          try {
+            wrapper.appendChild(range.extractContents());
+          } catch {
+            wrapper.textContent = range.toString();
+          }
+          range.insertNode(wrapper);
+          range.setStartAfter(wrapper);
+          range.collapse(true);
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+      } else {
+        document.execCommand(command, false, value);
+      }
+    } catch {
+      // execCommand deprecated in Chrome; fallback via DOM manipulation
+      if (command === 'insertText' && value !== undefined) {
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount > 0) {
+          const range = sel.getRangeAt(0);
+          range.deleteContents();
+          range.insertNode(document.createTextNode(value));
+          range.collapse(false);
+        }
+      }
+    }
     handleContentChange();
   }, [readOnly]);
 

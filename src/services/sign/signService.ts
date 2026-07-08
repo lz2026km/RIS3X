@@ -24,6 +24,7 @@ import type {
   ApprovalStatusSnapshot,
   ApprovalLookupParams,
 } from '../../types/sign';
+import { BlockchainService } from './blockchainService';
 import {
   SIGN_CERTIFICATES,
   SIGN_LOGS,
@@ -100,6 +101,7 @@ export class SignService {
   private timestamps: SignatureTimestamp[] = [...SIGN_TIMESTAMPS];
   private revokeRequests: SignRevokeRequest[] = [...SIGN_REVOKE_REQUESTS];
   private unlockRequests: UnlockRequest[] = [...UNLOCK_REQUESTS];
+  private blockchainService = new BlockchainService();
 
   async listCertificates(): Promise<CertificateInfo[]> {
     await randomDelay();
@@ -210,7 +212,7 @@ export class SignService {
     await delay(180);
 
     push({ stage: 'rsa-sign', percent: 70, message: `${payload.algorithm} 私钥签名` });
-    const sigSeed = `${payload.reportId}|${contentHash}|${cert.privateKey ? 'priv' : 'mock'}|${nowIso()}`;
+    const sigSeed = `${payload.reportId}|${contentHash}|mock|${nowIso()}`;
     const signatureValue = await sha256Hex(sigSeed);
     await delay(200);
 
@@ -224,7 +226,7 @@ export class SignService {
     let blockchainId: string | undefined;
     if (payload.includeBlockchain) {
       push({ stage: 'blockchain-anchor', percent: 92, message: '区块链存证' });
-      const bc = await this.anchorToBlockchain({
+      const bc = await this.blockchainService.anchorToBlockchain({
         reportId: payload.reportId,
         contentHash,
         signerId: cert.subject.userId,

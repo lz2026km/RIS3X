@@ -115,6 +115,7 @@ export interface DicomContentSequence {
 }
 
 export interface DicomSrDocument {
+  id: string;
   sopClassUID: string;
   sopInstanceUID: string;
   studyInstanceUID: string;
@@ -215,7 +216,7 @@ export interface FhirDiagnosticReport {
 // ---------- 4. IHE XDS.b ----------
 export type XdsFolderType = 'episode' | 'study' | 'series' | 'patient' | 'institution';
 export type XdsSubmissionSetType = 'new' | 'amendment' | 'replacement' | 'transform' | 'addendum';
-export type XdsClassification = 'department' | 'class' | 'type' | 'confidentiality' | 'format' | 'healthcareFacility' | 'practiceSetting' | 'eventCodeList';
+export type XdsClassificationCode = 'department' | 'class' | 'type' | 'confidentiality' | 'format' | 'healthcareFacility' | 'practiceSetting' | 'eventCodeList';
 export type XdsAssociationType = 'APND' | 'XFRM' | 'RPLC' | 'SIGN' | 'HASMEMBER' | 'ISMEMBEROF';
 export type XdsStatus = 'approved' | 'deprecated';
 export type XdsDocumentAvailability = 'Online' | 'Offline' | 'Nearline' | 'Unavailable';

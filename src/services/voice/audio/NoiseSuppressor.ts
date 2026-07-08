@@ -3,7 +3,7 @@
  * 20 升级点:VAD / 噪声门限 / AGC / 多级强度
  */
 
-import type { NoiseSuppressorConfig, AudioMetrics } from '../../types/voice';
+import type { NoiseSuppressorConfig, AudioMetrics } from '../../../types/voice';
 
 const DEFAULT_CONFIG: NoiseSuppressorConfig = {
   enabled: true,

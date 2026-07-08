@@ -137,7 +137,7 @@ export interface ExamReportRecord {
   patientName: string;
   patientAge: number;
   patientGender: "男" | "女";
-  modality: "CT" | "MR" | "DR" | "US" | "MG" | "DSA";
+  modality: "CT" | "MR" | "DR" | "US" | "MG" | "DSA" | "PET-CT";
   examItem: string;
   examItemCode: string;
   bodyPart: string;
@@ -173,6 +173,13 @@ const FINDINGS_TEMPLATES = [
   "双侧{bilateral}{bodyPart}对称, {normal}。",
   "{bodyPart}{lesion}范围约{size}cm, CT值约{ct}HU, 边界{boundary}。",
   "{bodyPart}MR平扫+增强示{lesion}, T1WI呈{T1}信号, T2WI呈{T2}信号, 增强后{enhancement}。",
+  "{bodyPart}造影显示{size}管壁{wall}斑块形成, 管腔狭窄约{stenosis}%, 远端血流TIMI{flow}级。",
+  "{bodyPart}各房室{normal}, 室壁厚度{wall}mm, {contractility}。",
+  "{bodyPart}管壁{wall}, 内中膜厚度约{size}mm, 管腔内{lesion}, 彩色多普勒示血流{flow}。",
+  "{bodyPart}腺体{texture}, 可见{size}×{size2}cm{lesion}, 边界{boundary}, 内可见{calc}样钙化。增强后{enhancement}。",
+  "{bodyPart}平扫+增强示{lesion}, 动脉期{enhancement}, 静脉期{neg}, 延迟期{neg}。",
+  "{bodyPart}{lesion}呈分叶状, 有毛刺征, 临近胸膜{env}。",
+  "{bodyPart}示{size}cm低密度影, CT值约{ct}HU, 增强后{enhancement}, 周围{env}。",
 ];
 
 const IMPRESSIONS = [
@@ -181,13 +188,39 @@ const IMPRESSIONS = [
   "{bodyPart}未见明显异常。",
   "{bodyPart}{diagnosis}。",
   "符合{diagnosis}表现。",
+  "{bodyPart}符合{diagnosis}的影像学表现, {suggest}。",
+  "{bodyPart}{diagnosis}, BI-RADS{birads}类, 建议{followup}。",
+  "{bodyPart}{diagnosis}, 建议结合临床。",
+  "与{dayago}日老片比较, {diagnosis}, 病变{progress}。",
+  "{bodyPart}{diagnosis}, {suggest}。",
 ];
+
+const MODALITY_WEIGHTS: { modality: ExamReportRecord["modality"]; weight: number }[] = [
+  { modality: "CT", weight: 35 },
+  { modality: "DR", weight: 30 },
+  { modality: "MR", weight: 15 },
+  { modality: "US", weight: 15 },
+  { modality: "MG", weight: 3 },
+  { modality: "DSA", weight: 1.5 },
+  { modality: "PET-CT", weight: 0.5 },
+];
+
+function pickModality(): ExamReportRecord["modality"] {
+  const totalWeight = MODALITY_WEIGHTS.reduce((s, m) => s + m.weight, 0);
+  let r = rand() * totalWeight;
+  for (const m of MODALITY_WEIGHTS) {
+    r -= m.weight;
+    if (r <= 0) return m.modality;
+  }
+  return MODALITY_WEIGHTS[MODALITY_WEIGHTS.length - 1]!.modality;
+}
 
 function fillTemplate(t: string, vars: Record<string, string>): string {
   return t.replace(/\{(\w+)\}/g, (_, k) => vars[k] || "");
 }
 
-export function generateExamReport(records: number, daysAgo: number = 30): ExamReportRecord[] {
+export function generateExamReport(records: number, daysAgo: number = 180, seed?: number): ExamReportRecord[] {
+  if (seed !== undefined) seedRandom(seed);
   const out: ExamReportRecord[] = [];
   const doctorsReport = DOCTORS_BY_TITLE["主治医师"].concat(DOCTORS_BY_TITLE["副主任医师"]).concat(DOCTORS_BY_TITLE["主任医师"]);
   const doctorsReview = DOCTORS_BY_TITLE["副主任医师"].concat(DOCTORS_BY_TITLE["主任医师"]);
@@ -195,8 +228,9 @@ export function generateExamReport(records: number, daysAgo: number = 30): ExamR
   const techs = DOCTORS_BY_TITLE["技师"];
 
   for (let i = 0; i < records; i++) {
-    const patient = PATIENT_MASTER[i % PATIENT_MASTER.length]!;
-    const modality = patient.modality;
+    const modality = pickModality();
+    const patientPool = PATIENTS_BY_MODALITY[modality];
+    const patient = patientPool.length > 0 ? pick(patientPool) : PATIENT_MASTER[0]!;
     const examItem = EXAMS_BY_MODALITY[modality].length > 0 ? pick(EXAMS_BY_MODALITY[modality]) : null;
     const devicePool = DEVICES_BY_MODALITY[modality];
     const device = devicePool.length > 0 ? pick(devicePool) : null;
@@ -206,7 +240,7 @@ export function generateExamReport(records: number, daysAgo: number = 30): ExamR
     const cosignDoctor = reviewDoctor && chance(0.4) ? pick(doctorsCosign) : null;
 
     const examDayAgo = Math.floor(rand() * daysAgo);
-    const reportDelay = randInt(30, 240); // 分钟
+    const reportDelay = randInt(30, 240);
     const reviewDelay = randInt(60, 360);
     const signDelay = randInt(120, 600);
     const examAt = timeAgo(examDayAgo, randInt(8, 18), randInt(0, 59));
@@ -214,28 +248,39 @@ export function generateExamReport(records: number, daysAgo: number = 30): ExamR
     const reviewedAt = reviewDoctor ? new Date(new Date(reportAt).getTime() + reviewDelay * 60000).toISOString() : null;
     const signedAt = cosignDoctor ? new Date(new Date(reviewedAt!).getTime() + signDelay * 60000).toISOString() : null;
     const status: ExamReportRecord["status"] = signedAt ? "published" : reviewedAt ? (cosignDoctor ? "cosigned" : "reviewed") : "submitted";
-    const hasCritical = chance(0.04); // 4% 危急值
+    const hasCritical = chance(0.02 + rand() * 0.02);
     const defectCount = chance(0.15) ? randInt(1, 3) : 0;
 
     const findings = fillTemplate(pick(FINDINGS_TEMPLATES), {
       bodyPart: patient.bodyPart,
       size: `${randInt(1, 5)}.${randInt(0, 9)}×${randInt(1, 4)}.${randInt(0, 9)}`,
-      boundary: pick(["清楚", "欠清", "不规则"]),
-      texture: pick(["均匀", "不均匀", "囊实性"]),
-      enhancement: pick(["明显强化", "轻度强化", "环形强化", "未见明显强化"]),
-      env: pick(["无受侵", "受压移位", "粘连"]),
-      neg: pick(["占位", "出血", "积液", "梗阻"]),
-      normal: pick(["形态正常", "密度均匀", "信号均匀", "未见异常信号"]),
-      vessels: pick(["血管走行自然", "未见狭窄", "未见充盈缺损"]),
+      size2: `${randInt(1, 3)}.${randInt(0, 9)}`,
+      boundary: pick(["清楚", "欠清", "不规则", "分叶状"]),
+      texture: pick(["均匀", "不均匀", "囊实性", "混合回声", "纤维腺体"]),
+      enhancement: pick(["明显强化", "轻度强化", "环形强化", "未见明显强化", "不均匀强化", "渐进性强化"]),
+      env: pick(["无受侵", "受压移位", "粘连", "牵拉", "侵犯"]),
+      neg: pick(["占位", "出血", "积液", "梗阻", "狭窄", "钙化"]),
+      normal: pick(["形态正常", "密度均匀", "信号均匀", "未见异常信号", "结构清晰"]),
+      vessels: pick(["血管走行自然", "未见狭窄", "未见充盈缺损", "血流信号丰富", "血流信号稀疏"]),
       bilateral: pick(["", "双侧", "对称"]),
-      lesion: pick(["异常信号", "占位", "结节", "斑片", "肿块"]),
-      ct: `${randInt(20, 60)}`,
+      lesion: pick(["异常信号", "占位", "结节", "斑片", "肿块", "钙化灶", "囊性灶"]),
+      ct: `${randInt(20, 80)}`,
       T1: pick(["低", "等", "高", "混杂"]),
       T2: pick(["低", "等", "高", "混杂"]),
+      stenosis: `${randInt(25, 95)}`,
+      flow: pick(["0", "1", "2", "3"]),
+      wall: pick(["光滑", "不光滑", "增厚", "钙化", "软"]),
+      contractility: pick(["室壁运动正常", "节段性室壁运动异常", "室壁运动弥漫性减低", "室壁运动增强"]),
+      calc: pick(["沙砾样", "粗大", "爆米花样", "环形"]),
     });
     const impression = fillTemplate(pick(IMPRESSIONS), {
       bodyPart: patient.bodyPart,
-      diagnosis: pick(["占位性病变", "炎性改变", "退行性变", "未见明显异常", "考虑为肿瘤性病变", "考虑为血管性病变", "考虑为感染性病变"]),
+      diagnosis: pick(["占位性病变", "炎性改变", "退行性变", "未见明显异常", "考虑为肿瘤性病变", "考虑为血管性病变", "考虑为感染性病变", "冠心病", "动脉硬化", "狭窄性病变"]),
+      suggest: pick(["建议随访复查", "建议增强扫描进一步检查", "建议穿刺活检", "建议临床干预", "建议抗炎治疗后复查", "建议定期随访"]),
+      followup: pick(["短期复查(3月)", "定期随访(6月)", "年度复查", "进一步检查"]),
+      birads: pick(["0", "1", "2", "3", "4A", "4B", "4C", "5"]),
+      dayago: `${randInt(3, 180)}`,
+      progress: pick(["无明显变化", "较前增大", "较前缩小", "部分吸收", "进展", "好转"]),
     });
 
     out.push({
@@ -267,7 +312,7 @@ export function generateExamReport(records: number, daysAgo: number = 30): ExamR
       defectCount,
       qcScore: 80 + Math.floor(rand() * 20),
       hasCriticalValue: hasCritical,
-      criticalValueType: hasCritical ? pick(["肺栓塞", "主动脉夹层", "气胸", "脑出血", "急性心肌梗死", "消化道穿孔"]) : null,
+      criticalValueType: hasCritical ? pick(["肺栓塞", "主动脉夹层", "气胸", "脑出血", "急性心肌梗死", "消化道穿孔", "急性脑梗死", "主动脉瘤破裂", "心脏压塞", "急性冠脉闭塞"]) : null,
     });
   }
   return out;

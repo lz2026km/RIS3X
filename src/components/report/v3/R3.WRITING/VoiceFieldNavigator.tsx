@@ -19,7 +19,7 @@ interface Props {
 }
 
 export const VoiceFieldNavigator: React.FC<Props> = ({ reportId, fields, onFocus, initialIndex }) => {
-  const nav = useVoiceFieldNavigation({ fields, initialIndex, onNavigate: (e) => {
+  const nav = useVoiceFieldNavigation({ fields, initialIndex, onNavigate: (e: { from: string; to: string; mode: string; timestamp: number }) => {
     const target = fields.find((f) => f.fieldKey === e.to);
     if (target) onFocus?.(target);
   } });
@@ -35,9 +35,9 @@ export const VoiceFieldNavigator: React.FC<Props> = ({ reportId, fields, onFocus
     setTimeout(() => setVoiceText(''), 1500);
   }, [nav]);
 
-  const completedCount = nav.fields.filter((f) => (f.value ?? '').length > 0).length;
-  const totalRequired = nav.fields.filter((f) => f.required).length;
-  const completedRequired = nav.fields.filter((f) => f.required && (f.value ?? '').length > 0).length;
+  const completedCount = nav.fields.filter((f: VoiceFieldTarget) => (f.value ?? '').length > 0).length;
+  const totalRequired = nav.fields.filter((f: VoiceFieldTarget) => f.required).length;
+  const completedRequired = nav.fields.filter((f: VoiceFieldTarget) => f.required && (f.value ?? '').length > 0).length;
   const percent = nav.fields.length === 0 ? 0 : Math.round((completedCount / nav.fields.length) * 100);
 
   return (
@@ -91,7 +91,7 @@ export const VoiceFieldNavigator: React.FC<Props> = ({ reportId, fields, onFocus
             <div className="mt-2">
               <div className="text-[10px] text-slate-500 mb-1">触发词:</div>
               <Space wrap size={4}>
-                {nav.currentField.triggerWords.map((w) => (
+                {nav.currentField.triggerWords.map((w: string) => (
                   <Tag key={w} color="cyan" className="text-[10px]">{w}</Tag>
                 ))}
               </Space>
@@ -106,7 +106,7 @@ export const VoiceFieldNavigator: React.FC<Props> = ({ reportId, fields, onFocus
           <Mic className="w-3 h-3" /> 模拟语音命令
         </div>
         <Space wrap size={4}>
-          {nav.fields.slice(0, 5).map((f) => (
+          {nav.fields.slice(0, 5).map((f: VoiceFieldTarget) => (
             <Button key={f.fieldKey} size="small" type="dashed" onClick={() => simulateVoice(`去${f.fieldLabel}`)}>
               去{f.fieldLabel}
             </Button>
@@ -159,7 +159,7 @@ export const VoiceFieldNavigator: React.FC<Props> = ({ reportId, fields, onFocus
             <History className="w-3 h-3" /> 导航历史 ({nav.history.length})
           </div>
           <div className="space-y-1 max-h-24 overflow-y-auto">
-            {nav.history.slice(0, 5).map((h, i) => (
+            {nav.history.slice(0, 5).map((h: { from: string; to: string; mode: string; timestamp: number }, i: number) => (
               <div key={i} className="text-[10px] text-slate-500 flex items-center gap-1">
                 <Clock className="w-2 h-2" />
                 <span>{new Date(h.timestamp).toLocaleTimeString()}</span>

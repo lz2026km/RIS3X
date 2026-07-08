@@ -18,6 +18,7 @@ import type {
   ScoreTemplateResult,
   ScoreHistoryResponse,
   ScoreHistoryQuery,
+  ScoringGrade,
 } from '../types/R3/R3.QUALITY.SCORING';
 
 const isoNow = () => new Date().toISOString();

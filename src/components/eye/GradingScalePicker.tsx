@@ -13,7 +13,7 @@ const GradingScalePicker: React.FC<{
   onChange?: (v: string) => void;
 }> = ({ scaleId, value, onChange }) => {
   const { scales } = useGradingScales();
-  const scale = scales.find((s) => s.id === scaleId);
+  const scale = scales.find((s: any) => s.id === scaleId);
   if (!scale) return <Tag color="default">璇峰厛閫夋嫨妯℃澘</Tag>;
   return (
     <Space>
@@ -24,7 +24,7 @@ const GradingScalePicker: React.FC<{
         placeholder="閫夋嫨鍒嗙骇"
         style={{ width: 200 }}
         optionLabelProp="label"
-        options={scale.options.map((o) => ({
+        options={scale.options.map((o: any) => ({
           value: o.grade,
           label: `${o.label} 鈥?${o.description.substring(0, 30)}`,
         }))}

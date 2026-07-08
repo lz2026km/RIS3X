@@ -45,7 +45,7 @@ const UpdateCriticalSchema = z.object({
 @ApiTags('criticals')
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
-@Controller('criticals')
+@Controller({ path: 'criticals', alias: 'critical' })
 export class CriticalsController {
   constructor(private readonly service: CriticalsService) {}
 

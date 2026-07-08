@@ -8,12 +8,12 @@ import type {
   DeliveryQueue, DeliveryReceipt, DeliveryEvent, DeliveryHistoryFilter,
   PatientPortalLink, PatientPortalStatus, PatientReportView, PatientPortalLang,
   DeliveryPolicy, DeliveryKpi, DeliveryMonitor, DeliveryError,
-} from '@types/R3/R3.DIST';
+} from '../../types/R3/R3.DIST';
 import {
   DELIVERY_CHANNELS_CONFIG, DELIVERY_TASKS_MOCK, DELIVERY_QUEUE_MOCK, DELIVERY_KPI_HISTORY,
   DELIVERY_MONITOR_MOCK, DELIVERY_RECEIPTS_MOCK, DELIVERY_POLICIES_MOCK,
   PATIENT_PORTAL_LINKS_MOCK, PATIENT_REPORT_VIEWS_MOCK, DELIVERY_ERROR_CODES,
-} from '@data/reportDistributionMock';
+} from '../../data/reportDistributionMock';
 
 const SIM_LATENCY_MS = 100;
 

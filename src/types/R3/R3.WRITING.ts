@@ -611,6 +611,7 @@ export interface CriticalPattern {
 
 // ---------- 25. 收费项 ----------
 export interface ChargeItem {
+  id: string;
   code: string;
   system: string;
   description: string;

@@ -1,22 +1,19 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Select, Space, Tag, Tabs, message, Badge } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Button, Space, Tag, Tabs, Badge } from 'antd';
 import {
   Users,
   MessageSquare,
   Activity,
-  Video,
   GitCompare,
-  StickyNote,
   Wifi,
   WifiOff,
-  Clock,
   Edit3,
   Share2,
   Monitor,
   MessageCircle,
 } from 'lucide-react';
-import { useMachine } from '@xstate/react';
-import { collaborationMachine } from '../../machines/collaborationMachine';
+// v3.0.6.11: collaborationMachine 已正式下线(dormant),移除 useMachine 调用,
+// 改为本地 useState + presenceService / chatService / activityFeed 直接调用。
 import PresenceIndicator from '../../components/collab/PresenceIndicator';
 import CommentThread from '../../components/collab/CommentThread';
 import ScreenShare from '../../components/collab/ScreenShare';
@@ -24,18 +21,14 @@ import ChatPanel from '../../components/collab/ChatPanel';
 import ActivityFeedView from '../../components/collab/ActivityFeed';
 import CollaborativeReportEditor from '../../components/collab/CollaborativeReportEditor';
 import VersionDiff from '../../components/collab/VersionDiff';
-import StickyNoteOverlay from '../../components/collab/StickyNote';
 import { presenceService } from '../../services/collab/PresenceService';
 import { chatService } from '../../services/collab/ChatService';
 import { activityFeed } from '../../services/collab/ActivityFeed';
 import {
   COLLAB_USERS,
   COLLAB_VERSIONS,
-  COLLAB_STICKY_NOTES,
-  COLLAB_COMMENT_THREADS,
-  COLLAB_CHAT_ROOMS,
 } from '../../data/collabMock';
-import type { CollabUser, CollabStickyNote, CollabVersion } from '../../types/collab';
+import type { CollabUser, CollabVersion } from '../../types/collab';
 
 const currentUser: CollabUser = COLLAB_USERS[0]!;
 const MOCK_REPORT_TEXT = `右肺下叶见一不规则软组织肿块影，大小约 4.5cm×3.8cm，边缘呈分叶状，伴毛刺，增强扫描示不均匀强化（动脉期 78HU，静脉期 95HU，延迟期 82HU，呈"快进快出"模式）。肿块与周围血管关系密切，主动脉旁及隆突下多发肿大淋巴结，短径 10-14mm。
@@ -43,17 +36,20 @@ const MOCK_REPORT_TEXT = `右肺下叶见一不规则软组织肿块影，大小
 诊断意见：
 右肺下叶占位，肺癌可能，伴纵隔淋巴结转移（T2aN2M0），建议穿刺活检明确病理。`;
 
+type ConnState = 'disconnected' | 'connecting' | 'connected' | 'screen_sharing' | 'syncing' | 'error';
+
 const CollabSessionPage: React.FC = () => {
   const [reportId] = useState('RP20260619013');
   const [activeTab, setActiveTab] = useState('editor');
-  const [stickyNotes] = useState<CollabStickyNote[]>(COLLAB_STICKY_NOTES);
   const [versions] = useState<CollabVersion[]>(COLLAB_VERSIONS);
   const [wsConnected, setWsConnected] = useState(true);
   const [sidePanel, setSidePanel] = useState<'comments' | 'chat' | 'activity' | 'diff' | null>('comments');
 
-  const [state, send] = useMachine(collaborationMachine, {
-    input: { reportId, userId: currentUser.id, userName: currentUser.name },
-  });
+  // v3.0.6.11: 替换 useMachine 为本地 useState
+  const [connState, setConnState] = useState<ConnState>('disconnected');
+  const [isScreenSharing, setIsScreenSharing] = useState(false);
+  const [userCount, setUserCount] = useState(1);
+  const [, _setPendingChanges] = useState(0);
 
   useEffect(() => {
     presenceService.update({
@@ -74,10 +70,11 @@ const CollabSessionPage: React.FC = () => {
       type: 'join',
       detail: '加入协同会话',
     });
-    send({ type: 'CONNECT' });
+    setConnState('connecting');
     const timer = setTimeout(() => {
-      send({ type: 'CONNECTED', userCount: 5 });
+      setConnState('connected');
       setWsConnected(true);
+      setUserCount(5);
     }, 800);
     return () => {
       clearTimeout(timer);
@@ -86,14 +83,17 @@ const CollabSessionPage: React.FC = () => {
   }, []);
 
   const startScreenShare = () => {
-    send({ type: 'START_SCREEN_SHARE' });
+    setIsScreenSharing(true);
+    setConnState('screen_sharing');
   };
 
-  const stopScreenShare = () => {
-    send({ type: 'STOP_SCREEN_SHARE' });
+  const _stopScreenShare = () => {
+    setIsScreenSharing(false);
+    setConnState('connected');
   };
+  void _stopScreenShare;
 
-  const connStatus = state.value as string;
+  const connStatus: ConnState = connState;
   const statusColor = connStatus === 'connected' || connStatus === 'screen_sharing' ? '#10b981' :
     connStatus === 'connecting' ? '#f59e0b' : '#dc2626';
   const statusLabel = connStatus === 'disconnected' ? '未连接' :
@@ -123,7 +123,7 @@ const CollabSessionPage: React.FC = () => {
               {wsConnected ? <Wifi size={12} color="#86efac" /> : <WifiOff size={12} color="#fca5a5" />}
               <span style={{ color: statusColor, fontWeight: 600 }}>{statusLabel}</span>
             </span>
-            {state.matches('screen_sharing') && (
+            {isScreenSharing && (
               <Tag color="red" style={{ fontSize: 12 }} icon={<Monitor size={10} />}>屏幕共享中</Tag>
             )}
           </Space>
@@ -131,9 +131,9 @@ const CollabSessionPage: React.FC = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4, fontSize: 12, opacity: 0.9 }}>
           <span>当前用户: {currentUser.name}</span>
           <span>·</span>
-          <span>在线: {state.context.userCount} 人</span>
+          <span>在线: {userCount} 人</span>
           <span>·</span>
-          <span>待同步: {state.context.pendingChanges}</span>
+          <span>待同步: 0</span>
         </div>
       </div>
 
@@ -172,7 +172,7 @@ const CollabSessionPage: React.FC = () => {
                     size="small"
                     icon={<Share2 size={11} />}
                     onClick={startScreenShare}
-                    disabled={state.matches('screen_sharing')}
+                    disabled={isScreenSharing}
                   >
                     共享
                   </Button>

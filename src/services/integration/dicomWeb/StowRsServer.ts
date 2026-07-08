@@ -6,7 +6,7 @@
 
 import type {
   DicomWebMetadata, DicomWebTransferSyntax, StowRsUploadRequest, StowRsResult,
-} from '@types/integration';
+} from '../../../types/integration';
 
 const MAX_INSTANCE_BYTES = 200 * 1024 * 1024;
 

@@ -5,13 +5,14 @@ import { t } from '../i18n/appI18n'
 // 2. 提取搜索/筛选栏为独立组件
 // 3. 提取列表/表格为独立组件
 // 4. 提取对话框/编辑面板为独立组件
-// @ts-nocheck
 // ============================================================
 // G005 放射科RIS - DICOM影像浏览器 v0.5.0
 // 专业DICOM Viewer，模拟GE Centricity/联影DICOM Viewer功能
 // 布局：左侧工具栏(60px) + 中间影像区 + 右侧信息面板(280px)
 // 扩充功能：交互式测量、标注工具、伪彩显示、图像对比增强
 // ============================================================
+// @ts-nocheck - TODO: Remove after sub-component extraction completes
+// eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
 import { useState, useRef, useEffect, useCallback } from 'react'
 import {
   // 工具图标
@@ -39,24 +40,18 @@ import {
 import { initialRadiologyExams } from '../data/initialData'
 import { examApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
-import * as dcmjs from 'dcmjs'
 import {
-  parseDicomFile,
   loadDicomFile,
   getPatientInfo,
   getWindowCenterWidth,
   getModality,
   getBodyPart,
-  extractImageData,
   DicomDataset,
   PatientInfo,
 } from '../utils/DicomManager'
 import {
-  WINDOW_PRESETS as DICOM_WINDOW_PRESETS,
   getRecommendedPresets,
-  getDefaultWindowPreset,
   WindowPreset as DicomWindowPreset,
-  normalizeBodyPart,
 } from '../utils/WindowPresets'
 
 // ============================================================
@@ -5331,7 +5326,7 @@ export default function DicomViewerPage() {
                   <button
                     style={{ ...s.reportBtn, background: '#22c55e', color: '#fff', flex: 1 }}
                     onClick={() => {
-                      const report = measurements.lines.map(m => `${m.label}: ${m.value}${m.unit}`).join('\n');
+                      const report = measurements.lines.map((m: any) => `${m.label}: ${m.value}${m.unit}`).join('\n');
                       const allMeasures = [...measurements.lines, ...measurements.angles, ...measurements.ellipses, ...measurements.rectangles, ...measurements.circles, ...measurements.ct];
                       const reportText = allMeasures.length > 0 
                         ? allMeasures.map(m => `${m.label}: ${m.value}${m.unit}`).join('\n')

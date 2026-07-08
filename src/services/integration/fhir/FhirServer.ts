@@ -8,8 +8,8 @@ import type {
   FhirVersion, FhirResourceEnvelope, FhirBundle, FhirBundleEntry,
   FhirSearchResult, FhirOperationOutcome, FhirCapabilityStatement,
   FhirOperationOutcomeIssue, FhirSearchParam,
-} from '@types/integration';
-import type { FhirResourceType } from '@types/R3/R3.INTEGRATION';
+} from '../../../types/integration';
+import type { FhirResourceType } from '../../../types/R3/R3.INTEGRATION';
 
 const RESOURCE_TYPES: readonly FhirResourceType[] = [
   'Patient', 'Practitioner', 'Organization', 'Encounter',

@@ -10,7 +10,7 @@ import {
 import type {
   MllpServerConfig, MllpHandler, MllpEvent, MllpServerStats, MllpConnection,
   Hl7ValidationResult,
-} from '@types/integration';
+} from '../../../types/integration';
 
 // ============================================================
 // 1. MLLP 帧字符(不可打印)

@@ -61,10 +61,10 @@ export function applyHdrToneMapping(
       g = g / (1 + g)
       b = b / (1 + b)
     } else if (params.method === 'aces') {
-      const a = 2.51, b = 0.03, c = 2.43, d = 0.59, e = 0.14
-      r = Math.max(0, Math.min(1, (r * (a * r + b)) / (r * (c * r + d) + e)))
-      g = Math.max(0, Math.min(1, (g * (a * g + b)) / (g * (c * g + d) + e)))
-      b = Math.max(0, Math.min(1, (b * (a * b + b)) / (b * (c * b + d) + e)))
+      const a = 2.51, bC = 0.03, c = 2.43, d = 0.59, e = 0.14
+      r = Math.max(0, Math.min(1, (r * (a * r + bC)) / (r * (c * r + d) + e)))
+      g = Math.max(0, Math.min(1, (g * (a * g + bC)) / (g * (c * g + d) + e)))
+      b = Math.max(0, Math.min(1, (b * (a * b + bC)) / (b * (c * b + d) + e)))
     } else {
       r = 1 - Math.exp(-r)
       g = 1 - Math.exp(-g)

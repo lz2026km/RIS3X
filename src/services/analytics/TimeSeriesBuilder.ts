@@ -9,7 +9,7 @@ export class TimeSeriesBuilder {
   buildSingle(kpiId: string, period: Period, range: TimeRange): TimeSeries {
     const def = ANALYTICS_KPIS.find(d => d.id === kpiId);
     const days = Math.max(1, Math.ceil((new Date(range.end).getTime() - new Date(range.start).getTime()) / 86400000));
-    const steps = period === 'day' ? 24 : period === 'week' ? 7 : period === 'month' ? 30 : 12;
+    const steps = period === 'today' ? 24 : period === 'week' ? 7 : period === 'month' ? 30 : 12;
     const base = Math.abs(this.hashCode(kpiId)) % 100;
     const points: TimeSeriesPoint[] = Array.from({ length: steps }, (_, i) => {
       const t = new Date(new Date(range.start).getTime() + (i / steps) * days * 86400000);
@@ -25,7 +25,7 @@ export class TimeSeriesBuilder {
       name: def?.name ?? kpiId,
       unit: def?.unit,
       points,
-      interval: period === 'day' ? 'hour' : period === 'week' ? 'day' : period === 'month' ? 'day' : 'month',
+      interval: period === 'today' ? 'hour' : period === 'week' ? 'day' : period === 'month' ? 'day' : 'month',
     };
   }
 

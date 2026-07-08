@@ -6,11 +6,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Card, Tag, Space, Row, Col, Statistic, Table, Button, Alert, Empty,
-  Drawer, Descriptions, Badge, Tooltip, message,
+  Drawer, Descriptions, message,
 } from 'antd';
-import { Cpu, Activity, Zap, AlertOctagon, Eye, RefreshCw, FlaskConical, ChevronRight } from 'lucide-react';
+import { Cpu, Activity, Zap, AlertOctagon, RefreshCw, FlaskConical } from 'lucide-react';
 import { autoDetector } from '../../services/critical/autoDetect/AutoDetector';
-import type { AutoDetectInput, AutoDetectResult, DicomSrDocument } from '../../services/critical/autoDetect/AutoDetector';
+import type { AutoDetectInput, AutoDetectResult } from '../../services/critical/autoDetect/AutoDetector';
+import type { DicomSrDocument } from '../../services/critical/autoDetect/SrTid1500Parser';
 import { srTid1500Parser } from '../../services/critical/autoDetect/SrTid1500Parser';
 
 const SEVERITY_META = {
@@ -72,7 +73,7 @@ export const AutoDetectPanel: React.FC<AutoDetectPanelProps> = ({ studies = MOCK
   const detected = useMemo(() => {
     void tick;
     return studies
-      .map((s) => ({ input: s, hits: autoDetector.detect(s) }))
+      .map((s) => ({ input: s, hits: autoDetector.detect(s, autoDetector.defaultRules()) }))
       .filter((r) => r.hits.length > 0);
   }, [studies, tick]);
 

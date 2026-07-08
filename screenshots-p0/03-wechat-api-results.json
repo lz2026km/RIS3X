@@ -1,0 +1,111 @@
+[
+  {
+    "endpoint": "session",
+    "response": {
+      "success": true,
+      "data": {
+        "openid": "mock_open_test_jsc",
+        "sessionKey": "mock_session_key_1783137990399",
+        "patientId": "P100001",
+        "patientNameMasked": "张*",
+        "token": "mock_jwt_cwufu8qi37",
+        "expiresIn": 7200
+      }
+    }
+  },
+  {
+    "endpoint": "reports",
+    "response": {
+      "success": true,
+      "data": {
+        "items": [
+          {
+            "id": "RPT-2026-0001",
+            "studyId": "STD-001",
+            "modality": "CT",
+            "bodyPart": "胸部",
+            "examDescription": "胸部 CT 平扫",
+            "status": "published",
+            "reportDate": "2026-07-01T10:30:00+08:00",
+            "radiologist": "张三主任医师",
+            "hasCriticalFinding": false,
+            "pdfAvailable": true
+          },
+          {
+            "id": "RPT-2026-0002",
+            "studyId": "STD-002",
+            "modality": "MR",
+            "bodyPart": "头部",
+            "examDescription": "头部 MR 平扫+DWI",
+            "status": "published",
+            "reportDate": "2026-07-02T14:20:00+08:00",
+            "radiologist": "李四副主任医师",
+            "hasCriticalFinding": true,
+            "pdfAvailable": true
+          },
+          {
+            "id": "RPT-2026-0003",
+            "studyId": "STD-003",
+            "modality": "DR",
+            "bodyPart": "胸部正侧位",
+            "examDescription": "胸部正侧位 DR",
+            "status": "preliminary",
+            "reportDate": "2026-07-03T08:15:00+08:00",
+            "radiologist": "王五主治医师",
+            "hasCriticalFinding": false,
+            "pdfAvailable": false
+          }
+        ],
+        "total": 3,
+        "page": 1,
+        "pageSize": 10
+      }
+    }
+  },
+  {
+    "endpoint": "pdf",
+    "response": {
+      "success": true,
+      "data": {
+        "reportId": "RPT-2026-0001",
+        "url": "/g005-radiology-ris/api/v1/mobile/wechat/reports/RPT-2026-0001/download?t=1783137990644",
+        "expiresAt": "2026-07-04T04:36:30.644Z",
+        "size": 262144,
+        "sha256": "mock_sha256_abcdef_RPT-2026-0001"
+      }
+    }
+  },
+  {
+    "endpoint": "exam",
+    "response": {
+      "success": true,
+      "data": {
+        "examId": "EXM-001",
+        "patientId": "P100001",
+        "status": "in_progress",
+        "scheduledAt": "2026-07-04T09:00:00+08:00",
+        "startedAt": "2026-07-04T09:15:00+08:00",
+        "modality": "CT",
+        "room": "CT-1",
+        "queuePosition": 1,
+        "estimatedWaitMinutes": 10,
+        "hasCriticalFinding": false,
+        "timeline": [
+          {
+            "step": "scheduled",
+            "at": "2026-07-03T10:00:00+08:00"
+          },
+          {
+            "step": "arrived",
+            "at": "2026-07-04T08:50:00+08:00"
+          },
+          {
+            "step": "in_progress",
+            "at": "2026-07-04T09:15:00+08:00",
+            "operator": "技师小赵"
+          }
+        ]
+      }
+    }
+  }
+]

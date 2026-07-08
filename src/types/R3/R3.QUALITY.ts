@@ -136,6 +136,7 @@ export interface QualityDefect {
   id: string;
   code: string;
   name: string;
+  nameEn?: string;
   category: DefectCategoryCode;
   severity: 'minor' | 'major' | 'critical';
   description: string;
@@ -154,6 +155,9 @@ export interface QualityDefect {
   exampleFix?: string;
   createdBy?: string;
   createdAt?: string;
+  updatedAt?: string;
+  sla?: number;
+  trainingRequired?: boolean;
 }
 
 export interface MonthlyQualityReport {

@@ -218,7 +218,6 @@ export class VocabularyManager {
 
   getVocabularyHints(lang: string, limit = 50): string[] {
     return this.getAllTerms()
-      .filter((t) => t.lang ? true : true)
       .filter((t) => t.pinyin)
       .sort((a, b) => b.weight * 1.0 + b.usageCount * 0.01 - (a.weight + a.usageCount * 0.01))
       .slice(0, limit)

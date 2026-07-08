@@ -9,8 +9,14 @@ const defaultInput: IolInput = {
   gender: 'male', iolModel: 'SA60AT', aConstant: 118.4, pAcd: 4.0,
 };
 
-const IolCalculator: React.FC = () => {
-  const [input, setInput] = useState<IolInput>(defaultInput);
+export interface IolCalculatorProps {
+  /** 初始输入值,会覆盖 defaultInput 中的对应字段 */
+  initialInput?: Partial<IolInput>;
+}
+
+const IolCalculator: React.FC<IolCalculatorProps> = ({ initialInput }) => {
+  const merged = useMemo<IolInput>(() => ({ ...defaultInput, ...(initialInput ?? {}) }), [initialInput]);
+  const [input, setInput] = useState<IolInput>(merged);
 
   const results = useMemo(() => {
     try { return calculateIol(input); }

@@ -23,7 +23,7 @@ interface CriticalValue {
   patientName: string
   finding: string
   severity: string
-  status: 'pending' | 'notified' | 'acknowledged' | 'resolved' | 'escalated'
+  status: 'pending' | 'notified' | 'acknowledged' | 'resolving' | 'resolved' | 'closed_loop' | 'escalated' | 'cancelled'
   triggeredAt: string
   notifiedAt?: string
   acknowledgedAt?: string
@@ -51,10 +51,11 @@ const MACHINE_STATE_TO_STORE: Record<string, CriticalValue['status']> = {
   found: 'pending',
   notified: 'notified',
   acknowledged: 'acknowledged',
-  resolving: 'acknowledged',
+  resolving: 'resolving',
   resolved: 'resolved',
+  closed_loop: 'resolved',
   escalated: 'escalated',
-  cancelled: 'resolved',
+  cancelled: 'cancelled',
 }
 
 /** 从列表 DTO 重建一个最小的 machine input 上下文。 */

@@ -13,6 +13,16 @@ import {
   Badge,
 } from "antd";
 import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  Legend,
+} from "recharts";
+import {
   Brain,
   Sparkles,
   Activity,
@@ -27,6 +37,30 @@ import { MOCK_EYE_STUDIES, MODALITY_LABELS } from "@/data/eyePacsMock";
 import { PageContainer, PageHeader } from "@/components/common";
 import { AppEmpty } from "@/components/feedback";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
+
+const ACCEPTANCE_TREND_DATA = [
+  { day: '周一', rate: 65, target: 80 },
+  { day: '周二', rate: 68, target: 80 },
+  { day: '周三', rate: 71, target: 80 },
+  { day: '周四', rate: 70, target: 80 },
+  { day: '周五', rate: 73, target: 80 },
+  { day: '周六', rate: 75, target: 80 },
+  { day: '周日', rate: 78, target: 80 },
+];
+
+const ROC_CURVE_DATA = [
+  { fpr: 0.0, auc_dr: 0.0, auc_glaucoma: 0.0, auc_amd: 0.0, random: 0.0 },
+  { fpr: 0.1, auc_dr: 0.55, auc_glaucoma: 0.5, auc_amd: 0.45, random: 0.1 },
+  { fpr: 0.2, auc_dr: 0.75, auc_glaucoma: 0.7, auc_amd: 0.65, random: 0.2 },
+  { fpr: 0.3, auc_dr: 0.85, auc_glaucoma: 0.8, auc_amd: 0.78, random: 0.3 },
+  { fpr: 0.4, auc_dr: 0.9, auc_glaucoma: 0.86, auc_amd: 0.85, random: 0.4 },
+  { fpr: 0.5, auc_dr: 0.93, auc_glaucoma: 0.9, auc_amd: 0.89, random: 0.5 },
+  { fpr: 0.6, auc_dr: 0.95, auc_glaucoma: 0.92, auc_amd: 0.92, random: 0.6 },
+  { fpr: 0.7, auc_dr: 0.97, auc_glaucoma: 0.94, auc_amd: 0.94, random: 0.7 },
+  { fpr: 0.8, auc_dr: 0.98, auc_glaucoma: 0.96, auc_amd: 0.95, random: 0.8 },
+  { fpr: 0.9, auc_dr: 0.99, auc_glaucoma: 0.98, auc_amd: 0.96, random: 0.9 },
+  { fpr: 1.0, auc_dr: 1.0, auc_glaucoma: 1.0, auc_amd: 1.0, random: 1.0 },
+];
 
 const EyeAiPage: React.FC = () => {
   const [tab, setTab] = useState("diagnoses");
@@ -268,31 +302,120 @@ const EyeAiPage: React.FC = () => {
                     </Col>
                     <Col span={8}>
                       <Card size="small" title="AI 采纳率趋势">
-                        <div
-                          style={{
-                            height: 180,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            color: "#94a3b8",
-                          }}
-                        >
-                          采纳率趋势图表区域
+                        <div style={{ height: 180 }}>
+                          <ResponsiveContainer width="100%" height="100%">
+                            <LineChart
+                              data={ACCEPTANCE_TREND_DATA}
+                              margin={{ top: 8, right: 12, bottom: 0, left: -10 }}
+                            >
+                              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                              <XAxis
+                                dataKey="day"
+                                tick={{ fontSize: 11, fill: "#64748b" }}
+                                stroke="#cbd5e1"
+                              />
+                              <YAxis
+                                tick={{ fontSize: 11, fill: "#64748b" }}
+                                stroke="#cbd5e1"
+                                domain={[40, 100]}
+                                tickFormatter={(v: number) => `${v}%`}
+                              />
+                              <Tooltip
+                                contentStyle={{
+                                  fontSize: 12,
+                                  borderRadius: 6,
+                                  border: "1px solid #e2e8f0",
+                                }}
+                                formatter={(v: number) => [`${v}%`, "采纳率"]}
+                              />
+                              <Line
+                                type="monotone"
+                                dataKey="rate"
+                                name="采纳率"
+                                stroke="#8b5cf6"
+                                strokeWidth={2}
+                                dot={{ r: 3, fill: "#8b5cf6" }}
+                                activeDot={{ r: 5 }}
+                              />
+                              <Line
+                                type="monotone"
+                                dataKey="target"
+                                name="目标"
+                                stroke="#94a3b8"
+                                strokeDasharray="4 4"
+                                strokeWidth={1.5}
+                                dot={false}
+                              />
+                            </LineChart>
+                          </ResponsiveContainer>
                         </div>
                       </Card>
                     </Col>
                     <Col span={8}>
-                      <Card size="small" title="模型表现对比">
-                        <div
-                          style={{
-                            height: 180,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            color: "#94a3b8",
-                          }}
-                        >
-                          模型 ROC 曲线对比区域
+                      <Card size="small" title="模型表现对比 (ROC)">
+                        <div style={{ height: 180 }}>
+                          <ResponsiveContainer width="100%" height="100%">
+                            <LineChart
+                              data={ROC_CURVE_DATA}
+                              margin={{ top: 8, right: 12, bottom: 0, left: -10 }}
+                            >
+                              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                              <XAxis
+                                dataKey="fpr"
+                                tick={{ fontSize: 11, fill: "#64748b" }}
+                                stroke="#cbd5e1"
+                                domain={[0, 1]}
+                                tickFormatter={(v: number) => v.toFixed(1)}
+                              />
+                              <YAxis
+                                tick={{ fontSize: 11, fill: "#64748b" }}
+                                stroke="#cbd5e1"
+                                domain={[0, 1]}
+                                tickFormatter={(v: number) => v.toFixed(1)}
+                              />
+                              <Tooltip
+                                contentStyle={{
+                                  fontSize: 12,
+                                  borderRadius: 6,
+                                  border: "1px solid #e2e8f0",
+                                }}
+                              />
+                              <Legend wrapperStyle={{ fontSize: 11 }} />
+                              <Line
+                                type="monotone"
+                                dataKey="auc_dr"
+                                name="DR 分级"
+                                stroke="#1677ff"
+                                strokeWidth={2}
+                                dot={false}
+                              />
+                              <Line
+                                type="monotone"
+                                dataKey="auc_glaucoma"
+                                name="青光眼"
+                                stroke="#10b981"
+                                strokeWidth={2}
+                                dot={false}
+                              />
+                              <Line
+                                type="monotone"
+                                dataKey="auc_amd"
+                                name="AMD"
+                                stroke="#f59e0b"
+                                strokeWidth={2}
+                                dot={false}
+                              />
+                              <Line
+                                type="monotone"
+                                dataKey="random"
+                                name="随机"
+                                stroke="#94a3b8"
+                                strokeDasharray="4 4"
+                                strokeWidth={1}
+                                dot={false}
+                              />
+                            </LineChart>
+                          </ResponsiveContainer>
                         </div>
                       </Card>
                     </Col>

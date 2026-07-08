@@ -17,7 +17,7 @@ import {
   logPatientRecordEvent, logReportViewEvent, logDicomExportEvent, logLoginEvent,
   toSyslogRfc5424,
 } from '@services/integration/audit/AtnaLogger';
-import type { AtnaAuditLogEntry, AtnaEventOutcome, AtnaEventAction } from '@types/integration';
+import type { AtnaAuditLogEntry, AtnaEventOutcome, AtnaEventAction } from '../../types/integration';
 
 export const AtnaAuditLog: React.FC = () => {
   const [entries, setEntries] = useState<AtnaAuditLogEntry[]>([]);

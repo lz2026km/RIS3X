@@ -2,8 +2,8 @@
  * G005 放射RIS系统 v3.0.5.1 - IHE XDS.b Registry Service
  */
 
-import type { XdsRegistry, XdsDocumentEntry, XdsFolder, XdsSubmissionSet, XdsAssociation, IntegrationExportEnvelope } from '@types/R3/R3.INTEGRATION';
-import { XDS_REGISTRY_MOCK, XDS_REGISTRIES_MOCK, INTEGRATION_ENVELOPES_MOCK } from '@data/reportIntegrationMock';
+import type { XdsRegistry, XdsDocumentEntry, XdsFolder, XdsSubmissionSet, XdsAssociation, IntegrationExportEnvelope } from '../../types/R3/R3.INTEGRATION';
+import { XDS_REGISTRY_MOCK, XDS_REGISTRIES_MOCK, INTEGRATION_ENVELOPES_MOCK } from '../../data/reportIntegrationMock';
 
 const SIM_LATENCY_MS = 100;
 

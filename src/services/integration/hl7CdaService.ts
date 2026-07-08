@@ -2,8 +2,8 @@
  * G005 放射RIS系统 v3.0.5.1 - HL7 CDA R2 集成 Service
  */
 
-import type { CdaDocument, CdaSection, CdaSectionCode } from '@types/R3/R3.INTEGRATION';
-import { CDA_DOCUMENTS_MOCK, CDA_DEMO } from '@data/reportIntegrationMock';
+import type { CdaDocument, CdaSection, CdaSectionCode } from '../../types/R3/R3.INTEGRATION';
+import { CDA_DOCUMENTS_MOCK, CDA_DEMO } from '../../data/reportIntegrationMock';
 
 const SIM_LATENCY_MS = 100;
 

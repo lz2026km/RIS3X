@@ -27,13 +27,13 @@ export const VoiceCommandPanel: React.FC<Props> = ({ onCommandTriggered, default
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return VOICE_COMMANDS.filter((c) => {
+    return VOICE_COMMANDS.filter((c: VoiceCommandDefinition) => {
       if (!c.enabled) return false;
       if (activeCategory !== 'all' && c.category !== activeCategory) return false;
       if (!q) return true;
       return c.command.includes(q)
         || c.english.toLowerCase().includes(q)
-        || c.aliases.some((a) => a.toLowerCase().includes(q))
+        || c.aliases.some((a: string) => a.toLowerCase().includes(q))
         || c.description.toLowerCase().includes(q);
     });
   }, [query, activeCategory]);
@@ -61,13 +61,13 @@ export const VoiceCommandPanel: React.FC<Props> = ({ onCommandTriggered, default
       message.info('未识别到命令');
       return;
     }
-    matches.forEach((m) => {
+    matches.forEach((m: VoiceCommandMatch) => {
       triggerCommand(m.command);
     });
   }, [testInput, triggerCommand]);
 
   const stats = useMemo(() => {
-    const total = VOICE_COMMANDS.filter((c) => c.enabled).length;
+    const total = VOICE_COMMANDS.filter((c: VoiceCommandDefinition) => c.enabled).length;
     return { total, categories: COMMAND_CATEGORIES.length, recent: recentTriggered.length };
   }, [recentTriggered.length]);
 
@@ -110,7 +110,7 @@ export const VoiceCommandPanel: React.FC<Props> = ({ onCommandTriggered, default
         onChange={(k) => setActiveCategory(k as VoiceCommandCategory | 'all')}
         items={[
           { key: 'all', label: '全部', children: null },
-          ...COMMAND_CATEGORIES.map((cat) => {
+          ...COMMAND_CATEGORIES.map((cat: VoiceCommandCategory) => {
             const Icon = ICON_MAP[cat.icon] ?? Type;
             return {
               key: cat.key,

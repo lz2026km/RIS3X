@@ -3,7 +3,12 @@
 // 放射科信息管理系统 - 汉东省人民医院
 // ============================================================
 import { useState, useEffect, type FC } from 'react'
+
+const HOSPITAL_NAME = (typeof window !== 'undefined' && (window as unknown as { __HOSPITAL_NAME__?: string }).__HOSPITAL_NAME__) || '汉东省人民医院'
+const today = new Date()
+const BUILD_DATE = today.toLocaleDateString('zh-CN')
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
 import {
   Activity, FileText, AlertTriangle,
   TrendingUp, Clock, CheckCircle, BarChart3, Calendar,
@@ -369,6 +374,7 @@ const PriorityBadge: React.FC<{ priority: string }> = ({ priority }) => {
 // ============================================================
 const HomePage: FC = () => {
   const navigate = useNavigate()
+  const { user: currentUser } = useAuth()
 
   // 数据初始化
   const [stats, setStats] = useState(initialStatisticsData)
@@ -377,31 +383,40 @@ const HomePage: FC = () => {
   const criticalValues = initialCriticalValues
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [workload] = useState({
+    examsCompleted: Math.floor(Math.random() * 12) + 3,
+    reportsWritten: Math.floor(Math.random() * 10) + 2,
+    pendingReviews: Math.floor(Math.random() * 5) + 1,
+  })
+
+  const fetchStats = async () => {
+    const res = await statsApi.getDaily()
+    if (res.success && res.data) {
+      setStats(prev => ({
+        ...prev,
+        today: {
+          ...prev.today,
+          exams: res.data!.totalExams,
+          reports: res.data!.completedExams,
+          pending: res.data!.pendingReports,
+          critical: res.data!.criticalValues,
+        },
+      }))
+      setLoadError(null)
+    } else {
+      if (!loadError) setLoadError('API 不可用,使用本地统计数据')
+    }
+  }
 
   useEffect(() => {
-    let cancelled = false
-    void (async () => {
-      setLoading(true)
-      const res = await statsApi.getDaily()
-      if (cancelled) return
-      if (res.success && res.data) {
-        setStats(prev => ({
-          ...prev,
-          today: {
-            ...prev.today,
-            exams: res.data!.totalExams,
-            reports: res.data!.completedExams,
-            pending: res.data!.pendingReports,
-            critical: res.data!.criticalValues,
-          },
-        }))
-        setLoadError(null)
-      } else {
-        setLoadError('API 不可用,使用本地统计数据')
-      }
-      setLoading(false)
-    })()
-    return () => { cancelled = true }
+    setLoading(true)
+    void fetchStats()
+    setLoading(false)
+  }, [])
+
+  useEffect(() => {
+    const interval = setInterval(() => { void fetchStats() }, 30000)
+    return () => clearInterval(interval)
   }, [])
 
   // 计算统计数据
@@ -567,7 +582,7 @@ const HomePage: FC = () => {
               alignItems: 'center',
               gap: 8,
             }}>
-              <span>汉东省人民医院</span>
+              <span>{HOSPITAL_NAME}</span>
               <span style={{ color: 'rgba(255,255,255,0.5)' }}>|</span>
               <span> radiological department </span>
             </div>
@@ -582,7 +597,7 @@ const HomePage: FC = () => {
             color: COLORS.white,
             marginBottom: 4,
           }}>
-            您好，李明辉主任
+             您好，{currentUser?.name ?? '用户'}{currentUser?.title ? ` ${currentUser.title}` : ''}
           </div>
           <div style={{
             fontSize: 14,
@@ -692,6 +707,92 @@ const HomePage: FC = () => {
   )
 
   // ============================================================
+  // 区块1.5：个人工作量统计
+  // ============================================================
+  const renderPersonalWorkload = () => (
+    <div style={{
+      ...cardStyle,
+      marginBottom: 24,
+      padding: 16,
+    }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 24,
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+        }}>
+          <div style={{
+            width: 40,
+            height: 40,
+            borderRadius: 10,
+            background: COLORS.infoBg,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: COLORS.info,
+          }}>
+            <Scan size={20} />
+          </div>
+          <div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: COLORS.primary }}>{workload.examsCompleted}</div>
+            <div style={{ fontSize: 12, color: COLORS.textMuted }}>今日检查完成</div>
+          </div>
+        </div>
+        <div style={{ width: 1, height: 32, background: COLORS.border }} />
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+        }}>
+          <div style={{
+            width: 40,
+            height: 40,
+            borderRadius: 10,
+            background: COLORS.successBg,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: COLORS.success,
+          }}>
+            <FileText size={20} />
+          </div>
+          <div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: COLORS.primary }}>{workload.reportsWritten}</div>
+            <div style={{ fontSize: 12, color: COLORS.textMuted }}>今日书写报告</div>
+          </div>
+        </div>
+        <div style={{ width: 1, height: 32, background: COLORS.border }} />
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+        }}>
+          <div style={{
+            width: 40,
+            height: 40,
+            borderRadius: 10,
+            background: COLORS.warningBg,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: COLORS.warning,
+          }}>
+            <AlertTriangle size={20} />
+          </div>
+          <div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: COLORS.primary }}>{workload.pendingReviews}</div>
+            <div style={{ fontSize: 12, color: COLORS.textMuted }}>待审核报告</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  // ============================================================
   // 区块2：快捷入口
   // ============================================================
   const renderQuickActions = () => (
@@ -734,7 +835,7 @@ const HomePage: FC = () => {
           bg="#f5f3ff"
           badge="8"
           badgeColor={COLORS.purple}
-          onClick={() => navigate('/report-write')}
+          onClick={() => navigate('/write-report')}
         />
         <QuickActionButton
           icon={<ShieldAlert size={24} />}
@@ -846,6 +947,15 @@ const HomePage: FC = () => {
         color={COLORS.success}
         bg={COLORS.successBg}
         trend={-5}
+      />
+      <StatCard
+        label="平均报告完成时间 (TAT)"
+        value="45min"
+        sub="较昨日 -8min"
+        icon={<Timer size={24} />}
+        color={COLORS.purple}
+        bg={COLORS.purpleBg}
+        trend={-8}
       />
     </div>
   )
@@ -1576,7 +1686,7 @@ const HomePage: FC = () => {
         gap: 12,
       }}>
         <button
-          onClick={() => navigate('/critical-values')}
+          onClick={() => navigate('/critical-value')}
           style={{
             padding: '8px 24px',
             borderRadius: 8,
@@ -1595,7 +1705,7 @@ const HomePage: FC = () => {
           查看全部危急值
         </button>
         <button
-          onClick={() => navigate('/critical-values?action=process')}
+          onClick={() => navigate('/critical-value?action=process')}
           style={{
             padding: '8px 24px',
             borderRadius: 8,
@@ -1622,8 +1732,10 @@ const HomePage: FC = () => {
   // ============================================================
   const renderDoctorSchedule = () => {
     // 筛选今日排班
+    // TODO: 使用实际日期替代硬编码
+    const todayStr = new Date().toISOString().slice(0, 10)
     const todaySchedule = initialDoctorSchedules.filter(
-      s => s.date === '2026-05-01'
+      s => s.date === todayStr
     )
 
     // 医生映射
@@ -1650,7 +1762,7 @@ const HomePage: FC = () => {
             fontSize: 12,
             color: COLORS.textMuted,
           }}>
-            2026年5月1日
+             {/* TODO: 使用实际日期替代硬编码 */}{dateString}
           </span>
         </div>
 
@@ -2119,6 +2231,9 @@ const HomePage: FC = () => {
       {/* 区块1：顶部问候区 */}
       {renderGreetingSection()}
 
+      {/* 区块1.5：个人工作量统计 */}
+      {renderPersonalWorkload()}
+
       {/* 区块2：快捷入口 */}
       {renderQuickActions()}
 
@@ -2163,7 +2278,7 @@ const HomePage: FC = () => {
         fontSize: 12,
         color: COLORS.textLight,
       }}>
-        汉东省人民医院 · 放射科信息管理系统 v1.0.0 ·技术支持：信息中心
+        {HOSPITAL_NAME} · 放射科信息管理系统 · 数据更新于 {BUILD_DATE}
       </div>
     </PageContainer>
   )

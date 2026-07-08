@@ -139,7 +139,7 @@ export const FhirServerPage: React.FC = () => {
           },
         ]}
       />
-      <Modal title="创建 FHIR 资源" open={sendModal} onCancel={() => setSendModal(false)} onOk={() => { message.success('FHIR Resource 已发送'); setSendModal(false); }}>
+      <Modal title="创建 FHIR 资源" open={sendModal} onCancel={() => setSendModal(false)} onOk={() => { message.success('FHIR 资源已创建(模拟)'); setSendModal(false); }}>
         <Form layout="vertical" size="small">
           <Form.Item label="资源类型"><Select options={resourceTypes.map(t=>({value:t,label:t}))} /></Form.Item>
           <Form.Item label="JSON Body"><TextArea rows={8} placeholder='{"resourceType":"Patient","name":[{"family":"张","given":["伟"]}],...}' /></Form.Item>

@@ -190,7 +190,7 @@ export const ReviewAIHint: React.FC<ReviewAIHintProps> = ({ reportId, onAccept }
           size="small"
           style={{ marginBottom: 12 }}
         >
-          {result.defects.map((d) => (
+          {result.defects.map((d: AIPreReviewResult['defects'][number]) => (
             <div
               key={d.code}
               style={{
@@ -239,7 +239,7 @@ export const ReviewAIHint: React.FC<ReviewAIHintProps> = ({ reportId, onAccept }
           size="small"
           style={{ marginBottom: 12 }}
         >
-          {result.suggestions.map((s, i) => (
+          {result.suggestions.map((s: string, i: number) => (
             <div key={i} style={{ padding: 6, fontSize: 12, color: '#334155' }}>
               - {s}
             </div>

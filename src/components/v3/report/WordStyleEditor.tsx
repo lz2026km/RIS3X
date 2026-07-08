@@ -107,7 +107,7 @@ export const WordStyleEditor: React.FC<WordStyleEditorProps> = ({
         signature: setSignature,
       }
       if (!el) {
-        setter[section]?.((s) => s + text)
+        setter[section]?.((s: string) => s + text)
         return
       }
       const start = el.selectionStart

@@ -97,7 +97,7 @@ export const ReviewWorkloadStats: React.FC = () => {
   const byStageData = useMemo(() => {
     const map: Record<string, number> = { initial: 0, final: 0, cosign: 0, sign: 0 };
     stats.forEach((s) =>
-      s.byStage.forEach((b) => {
+      s.byStage.forEach((b: WorkloadStat['byStage'][number]) => {
         map[b.stage] = (map[b.stage] ?? 0) + b.count;
       }),
     );
@@ -107,7 +107,7 @@ export const ReviewWorkloadStats: React.FC = () => {
   const byModalityData = useMemo(() => {
     const map: Record<string, number> = {};
     stats.forEach((s) =>
-      s.byModality.forEach((b) => {
+      s.byModality.forEach((b: WorkloadStat['byModality'][number]) => {
         map[b.modality] = (map[b.modality] ?? 0) + b.count;
       }),
     );
@@ -116,8 +116,8 @@ export const ReviewWorkloadStats: React.FC = () => {
 
   const trendData = useMemo(() => {
     if (stats.length === 0) return [];
-    const dates = stats[0]?.trend.map((t) => t.date) ?? [];
-    return dates.map((date, idx) => {
+    const dates = stats[0]?.trend.map((t: WorkloadStat['trend'][number]) => t.date) ?? [];
+    return dates.map((date: string, idx: number) => {
       const row: { date: string; [key: string]: string | number } = { date: date.slice(5) };
       stats.forEach((s) => {
         const t = s.trend[idx];

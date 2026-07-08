@@ -8,7 +8,7 @@ import type {
   IheAffinityDomain, IheProfileId, IheXdsSubmission, IheXdsQuery,
   IheXdsQueryResult, IheXdsDocument, IhePixFeed, IhePdqQuery, IhePdqResult,
   IhePamMessage,
-} from '@types/integration';
+} from '../../../types/integration';
 
 // ============================================================
 // 1. 模拟 Affinity Domain 配置

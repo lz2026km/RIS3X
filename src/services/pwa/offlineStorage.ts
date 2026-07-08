@@ -57,7 +57,7 @@ export const offlineStorage = {
   },
 
   async getUnsyncedReports(): Promise<OfflineReport[]> {
-    return db.reports.where('synced').equals(false).toArray()
+    return db.reports.filter((r) => !r.synced).toArray()
   },
 
   async markSynced(id: string): Promise<void> {

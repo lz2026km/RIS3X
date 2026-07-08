@@ -190,7 +190,7 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
             </button>
             <button
               disabled={!selectedGrade}
-              onClick={() => { setSavedMessage(`评估已保存: ${selectedGrade} 级 (${items.find(i => i.key === Object.entries(values).find(([_, v]) => v === selectedGrade)?.[0])?.label || '综合'})`); setShowHistory(true) }}
+              onClick={() => { setSavedMessage(`评估已保存: ${selectedGrade} 级 (${items.find((i: any) => i.key === Object.entries(values).find((e: any) => e[1] === selectedGrade)?.[0])?.label || '综合'})`); setShowHistory(true) }}
               style={{
                 flex: 1, padding: 10, border: 'none', borderRadius: 6,
                 background: selectedGrade ? '#10b981' : '#cbd5e1',

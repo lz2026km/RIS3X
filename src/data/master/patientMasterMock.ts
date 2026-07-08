@@ -1,13 +1,13 @@
 // [v3.0.6.8-27] 患者主数据池
 // 三甲医院 1 个月新增 1000-3000 患者, 累计 50,000+ 活跃档案
-// 这里生成 1500 名患者覆盖本月就诊
+// 这里生成 15000 名患者覆盖本月就诊
 
 export type Gender = "男" | "女";
 export type PatientType = "门诊" | "急诊" | "住院" | "体检" | "外院转入";
 export type BloodType = "A" | "B" | "AB" | "O" | "A+" | "B+" | "AB+" | "O+" | "未知";
 
 export interface PatientMaster {
-  id: string; // P000001-P001500
+  id: string; // P000001-P015000
   name: string;
   gender: Gender;
   age: number;
@@ -35,6 +35,7 @@ export interface PatientMaster {
   priority: "急诊" | "加急" | "普通" | "体检";
   // 元
   isVIP: boolean;
+  deceased: boolean;
   tags: string[]; // ['老年人', '孕妇', '儿童', '过敏体质', '植入物']
 }
 
@@ -46,23 +47,44 @@ function rng(): number {
   return Math.random();
 }
 
+function weightedRandom(weights: Record<string, number>): string {
+  const r = rng();
+  let cumulative = 0;
+  for (const [key, weight] of Object.entries(weights)) {
+    cumulative += weight;
+    if (r < cumulative) return key;
+  }
+  return Object.keys(weights).at(-1)!;
+}
+
 function pickName(gender: Gender, r: () => number): string {
   const s = SURNAMES[Math.floor(r() * SURNAMES.length)]!;
   const g = gender === "男" ? GIVEN_M[Math.floor(r() * GIVEN_M.length)]! : GIVEN_F[Math.floor(r() * GIVEN_F.length)]!;
   return s + g;
 }
 
-function genIdCard(birthYear: number, region = "310101"): string {
+const REGION_CODES = ["110101", "310101", "440301", "510101", "330101", "420101", "610101", "320101", "440101", "120101", "500101"];
+
+function genIdCard(birthYear: number): string {
+  const region = REGION_CODES[Math.floor(rng() * REGION_CODES.length)]!;
   const yy = birthYear.toString().padStart(4, "0");
-  const mm = String(Math.floor(rng() * 12) + 1).padStart(2, "0");
-  const dd = String(Math.floor(rng() * 28) + 1).padStart(2, "0");
+  const { month: mm, day: dd } = genValidDate(birthYear);
   const seq = String(Math.floor(rng() * 1000)).padStart(3, "0");
-  return `${region}${yy}${mm}${dd}${seq}`;
+  return `${region}${yy}${String(mm).padStart(2, "0")}${String(dd).padStart(2, "0")}${seq}`;
 }
 
 function genPhone(): string {
-  const prefix = ["138", "139", "136", "137", "135", "158", "159", "188", "187", "186", "152", "151", "130", "131", "132"][Math.floor(rng() * 15)]!;
+  const prefix = ["138", "139", "136", "137", "135", "158", "159", "188", "187", "186", "152", "151", "130", "131", "132", "133", "189", "185", "156", "166", "176", "177", "178", "198", "199"][Math.floor(rng() * 25)]!;
   return prefix + String(Math.floor(rng() * 100000000)).padStart(8, "0");
+}
+
+function genValidDate(year: number): { month: number; day: number } {
+  const month = Math.floor(rng() * 12) + 1;
+  const maxDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1]!;
+  if (month === 2 && year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) {
+    return { month, day: Math.floor(rng() * 29) + 1 };
+  }
+  return { month, day: Math.floor(rng() * maxDays) + 1 };
 }
 
 const REFERRING_DEPTS = [
@@ -113,7 +135,7 @@ const BODY_PARTS: Record<PatientMaster["modality"], string[]> = {
   "US": ["腹部", "心脏", "甲状腺", "颈动脉", "下肢血管", "妇科", "产科", "泌尿系", "乳腺", "浅表"],
   "MG": ["双侧乳腺轴位+侧斜位", "单侧乳腺", "假体植入评估"],
   "DSA": ["冠脉造影", "脑血管造影", "肾动脉造影", "下肢动脉造影", "介入栓塞"],
-  "PET-CT": ["全身", "胸部", "腹部"],
+  "PET-CT": ["全身", "胸部", "腹部", "脑部", "心脏"],
 };
 
 const EXAM_ITEM: Record<PatientMaster["modality"], string[]> = {
@@ -123,7 +145,7 @@ const EXAM_ITEM: Record<PatientMaster["modality"], string[]> = {
   "US": ["腹部超声", "心脏彩超", "甲状腺彩超", "颈动脉超声", "下肢血管超声", "妇科超声", "产科超声", "泌尿系超声", "乳腺超声"],
   "MG": ["双侧乳腺钼靶", "单侧乳腺钼靶"],
   "DSA": ["冠脉造影", "脑血管造影", "下肢动脉造影", "肾动脉造影", "肝动脉化疗栓塞"],
-  "PET-CT": ["PET-CT全身显像", "PET-CT胸部显像"],
+  "PET-CT": ["PET-CT全身显像", "PET-CT胸部显像", "PET-CT脑显像", "PET-CT心脏显像", "PET-CT局部显像"],
 };
 
 const TAGS = [
@@ -160,7 +182,7 @@ function makePatient(idx: number): PatientMaster {
   else type = "外院转入";
   const priority: PatientMaster["priority"] = type === "急诊" ? (rng() < 0.3 ? "急诊" : "加急") : type === "住院" ? (rng() < 0.1 ? "加急" : "普通") : type === "体检" ? "体检" : (rng() < 0.05 ? "加急" : "普通");
   // 检查模态
-  const modality = MODALITIES[Math.floor(rng() * MODALITIES.length)]!;
+  const modality = weightedRandom({ CT: 0.35, DR: 0.30, MR: 0.15, US: 0.15, MG: 0.03, DSA: 0.015, "PET-CT": 0.005 }) as PatientMaster["modality"];
   const bodyParts = BODY_PARTS[modality];
   const bodyPart = bodyParts[Math.floor(rng() * bodyParts.length)]!;
   const examItems = EXAM_ITEM[modality];
@@ -189,13 +211,14 @@ function makePatient(idx: number): PatientMaster {
   else if (tagRoll < 0.60) tagIdx = 5; // 术后
   else if (tagRoll < 0.65) tagIdx = 6; // VIP
   const isVIP = tagIdx === 6 || rng() < 0.02;
+  const deceased = rng() < 0.01;
 
   return {
     id,
     name,
     gender,
     age,
-    birthDate: `${birthYear}-${String(Math.floor(rng() * 12) + 1).padStart(2, "0")}-${String(Math.floor(rng() * 28) + 1).padStart(2, "0")}`,
+    birthDate: (() => { const d = genValidDate(birthYear); return `${birthYear}-${String(d.month).padStart(2, "0")}-${String(d.day).padStart(2, "0")}`; })(),
     idCard: genIdCard(birthYear),
     phone: genPhone(),
     bloodType,
@@ -213,11 +236,12 @@ function makePatient(idx: number): PatientMaster {
     status,
     priority,
     isVIP,
+    deceased,
     tags: TAGS[tagIdx]!,
   };
 }
 
-export const PATIENT_MASTER: PatientMaster[] = Array.from({ length: 1500 }, (_, i) => makePatient(i));
+export const PATIENT_MASTER: PatientMaster[] = Array.from({ length: 15000 }, (_, i) => makePatient(i));
 
 // 工具
 export const PATIENT_BY_ID: Record<string, PatientMaster> = Object.fromEntries(PATIENT_MASTER.map((p) => [p.id, p]));

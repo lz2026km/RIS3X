@@ -3,7 +3,7 @@
  * 20 升级点:规则管线 / 医学术语标准化 / 数字转换 / 标点恢复
  */
 
-import type { FormattingContext, FormattingRule, FormattedResult } from '../../types/voice';
+import type { FormattingContext, FormattingRule, FormattedResult } from '../../../types/voice';
 
 const DEFAULT_RULES: FormattingRule[] = [
   // 数字 + 单位的医学标准化
@@ -36,7 +36,7 @@ const DEFAULT_RULES: FormattingRule[] = [
   { id: 'r-double-space', pattern: / {2,}/g, replacement: ' ', description: '压缩多余空格', category: 'spacing', enabled: true },
   { id: 'r-sp-before-punct', pattern: /\s+([。，！？：；])/g, replacement: '$1', description: '标点前空格去除', category: 'spacing', enabled: true },
   // 大小写
-  { id: 'r-sentence-cap', pattern: /(?:^|[。！？]\s+)([a-z])/g, replacement: (_m, c: string) => c.toUpperCase(), description: '英文句首大写', category: 'case', enabled: true },
+  { id: 'r-sentence-cap', pattern: /(?:^|[。！？]\s+)([a-z])/g, replacement: (_m: string, c: string) => c.toUpperCase(), description: '英文句首大写', category: 'case', enabled: true },
 ];
 
 export class FormattingEngine {
@@ -53,7 +53,7 @@ export class FormattingEngine {
       sentenceSpacing: context.sentenceSpacing ?? true,
       customRules: context.customRules ?? [],
     };
-    this.context.customRules.forEach((r) => this.rules.push(r));
+    this.context.customRules.forEach((r: any) => this.rules.push(r));
   }
 
   setContext(patch: Partial<FormattingContext>): void {

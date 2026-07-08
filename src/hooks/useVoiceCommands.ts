@@ -58,7 +58,7 @@ export function useVoiceCommands(options: UseVoiceCommandsOptions = {}): UseVoic
     if (!enabled || !text) return { text, matches: [], actions: [] };
     const r = voiceCommandEngine.process(text, '');
     setMatches(r.matches);
-    r.matches.forEach((m) => onMatch?.(m));
+    r.matches.forEach((m: VoiceCommandMatch) => onMatch?.(m));
     if (autoApply && r.actions.length > 0) {
       onAction?.({ action: r.actions[0]?.action ?? 'insert-text', payload: r.actions[0]?.payload, matches: r.matches });
     }

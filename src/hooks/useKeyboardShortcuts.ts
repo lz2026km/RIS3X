@@ -1,9 +1,4 @@
-/**
- * useKeyboardShortcuts - E6: 快捷键支持
- * Ctrl+S保存 / Ctrl+Enter提交 / ESC取消 等快捷键
- * G005 Radiology RIS System
- */
-import { useEffect, useCallback, useRef } from 'react'
+import { useEffect, useCallback, useRef, useState } from 'react'
 
 interface KeyboardShortcut {
   key: string
@@ -12,19 +7,18 @@ interface KeyboardShortcut {
   altKey?: boolean
   metaKey?: boolean
   action: () => void
-  /** 快捷键描述（用于提示） */
   description?: string
-  /** 在哪些元素上不响应（防止输入框冲突） */
   ignoreOn?: string[]
+}
+
+interface SequenceShortcut {
+  sequence: string[]
+  action: () => void
+  description?: string
 }
 
 const DEFAULT_IGNORE_ON = ['INPUT', 'TEXTAREA', 'SELECT', 'CONTENTEDITABLE']
 
-/**
- * 全局快捷键Hook
- * @param shortcuts 快捷键配置数组
- * @param enabled 是否启用，默认true
- */
 export function useKeyboardShortcuts(
   shortcuts: KeyboardShortcut[],
   enabled = true
@@ -36,7 +30,6 @@ export function useKeyboardShortcuts(
     if (!enabled) return
 
     const handler = (e: KeyboardEvent) => {
-      // 检查是否在忽略的元素上
       const target = e.target as HTMLElement
       if (DEFAULT_IGNORE_ON.includes(target.tagName) && !target.dataset.enableShortcuts) {
         return
@@ -63,10 +56,74 @@ export function useKeyboardShortcuts(
   }, [enabled])
 }
 
-/**
- * 快捷键提示组件渲染数据
- */
+export function useNavigationShortcuts(
+  navShortcuts: SequenceShortcut[],
+  enabled = true
+) {
+  const [buffer, setBuffer] = useState<string[]>([])
+  const bufferTimer = useRef<ReturnType<typeof setTimeout>>()
+  const navRef = useRef(navShortcuts)
+  navRef.current = navShortcuts
+
+  const clearBuffer = useCallback(() => {
+    setBuffer([])
+  }, [])
+
+  useEffect(() => {
+    if (!enabled) return
+
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement
+      if (DEFAULT_IGNORE_ON.includes(target.tagName) && !target.dataset.enableShortcuts) {
+        clearBuffer()
+        return
+      }
+      if (e.ctrlKey || e.altKey || e.metaKey) return
+
+      const key = e.key.toLowerCase()
+      if (key === 'Escape') {
+        clearBuffer()
+        return
+      }
+
+      const next = [...buffer, key]
+
+      for (const nav of navRef.current) {
+        const seq = nav.sequence
+        if (next.length > seq.length) continue
+        const match = seq.every((s, i) => s === next[i])
+        if (!match) continue
+
+        if (next.length === seq.length) {
+          e.preventDefault()
+          e.stopPropagation()
+          nav.action()
+          clearBuffer()
+          return
+        }
+
+        setBuffer(next)
+        if (bufferTimer.current) clearTimeout(bufferTimer.current)
+        bufferTimer.current = setTimeout(clearBuffer, 1000)
+        return
+      }
+
+      clearBuffer()
+    }
+
+    window.addEventListener('keydown', handler)
+    return () => {
+      window.removeEventListener('keydown', handler)
+      if (bufferTimer.current) clearTimeout(bufferTimer.current)
+    }
+  }, [buffer, clearBuffer, enabled])
+}
+
 export function getShortcutHint(shortcut: KeyboardShortcut): string {
+  return getKeyboardShortcutHint(shortcut);
+}
+
+export function getKeyboardShortcutHint(shortcut: KeyboardShortcut): string {
   const parts: string[] = []
   if (shortcut.ctrlKey) parts.push('Ctrl')
   if (shortcut.shiftKey) parts.push('Shift')
@@ -76,9 +133,17 @@ export function getShortcutHint(shortcut: KeyboardShortcut): string {
   return parts.join('+')
 }
 
-/**
- * 预设快捷键配置
- */
+export function getSequenceHint(seq: SequenceShortcut): string {
+  return seq.sequence.join(' + ')
+}
+
+export const NAV_SHORTCUTS: SequenceShortcut[] = [
+  { sequence: ['g', 'r'], action: () => window.location.href = '/reports', description: '导航到报告' },
+  { sequence: ['g', 'w'], action: () => window.location.href = '/worklist', description: '导航到工作列表' },
+  { sequence: ['g', 'd'], action: () => window.location.href = '/dashboard', description: '导航到仪表盘' },
+  { sequence: ['g', 'p'], action: () => window.location.href = '/patients', description: '导航到患者' },
+]
+
 export const SHORTCUTS = {
   SAVE: (action: () => void) => ({
     key: 's',
@@ -139,6 +204,11 @@ export const SHORTCUTS = {
     shiftKey: true,
     action,
     description: '重做',
+  }),
+  HELP: (action: () => void) => ({
+    key: '?',
+    action,
+    description: '快捷键帮助',
   }),
 } as const
 

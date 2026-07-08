@@ -4,7 +4,7 @@
  *      XDS / PIX / PDQ / ATNA / PAM Profile 测试
  */
 
-import type { IheTestCase, IheTestStep, IheTestStatus, IheConnectathonSession, IheProfileId, IheTestCategory } from '@types/integration';
+import type { IheTestCase, IheTestStep, IheTestStatus, IheConnectathonSession, IheProfileId, IheTestCategory } from '../../../types/integration';
 
 let session: IheConnectathonSession | null = null;
 

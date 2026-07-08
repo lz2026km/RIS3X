@@ -15,8 +15,8 @@ import {
 } from 'lucide-react';
 import { getDefaultMllpServer, Hl7MllpServer } from '@services/integration/hl7/Hl7MllpServer';
 import { parse, validate, type Hl7ParsedMessage } from '@services/integration/hl7V2/Hl7V2Parser';
-import { HL7V2_SAMPLES } from '@data/hl7v2Messages';
-import type { MllpServerStats, MllpConnection, MllpEvent } from '@types/integration';
+import { HL7V2_SAMPLES } from '../../data/hl7v2Messages';
+import type { MllpServerStats, MllpConnection, MllpEvent } from '../../types/integration';
 
 export const MllpMonitor: React.FC = () => {
   const [server, setServer] = useState<Hl7MllpServer>(() => getDefaultMllpServer());

@@ -21,7 +21,7 @@ import type {
   KeywordHighlight,
   ReportWritingContext,
   CriticalPattern, VoiceCommand, VoiceProfile, Collaborator, ChargeItem,
-} from '@types/R3/R3.WRITING';
+} from '../types/R3/R3.WRITING';
 
 // ============================================================
 // 1. RECIST 1.1 模板(40 fields)

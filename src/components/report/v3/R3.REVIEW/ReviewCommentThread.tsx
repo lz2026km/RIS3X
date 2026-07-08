@@ -195,7 +195,7 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
                       </Tag>
                     )}
                     {c.mentions.length > 0 &&
-                      c.mentions.map((m) => (
+                      c.mentions.map((m: string) => (
                         <Tag key={m} color="blue">
                           @{m}
                         </Tag>

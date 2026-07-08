@@ -1,5 +1,5 @@
 // [v3.0.6.8-27] 设备主数据池
-// 三甲医院放射科设备: CT 6 / MR 4 / DR 12 / US 8 / MG 3 / DSA 2 = 35 台
+// 三甲医院放射科设备: CT 10 / MR 8 / DR 12 / US 8 / MG 3 / DSA 2 / PET-CT 2 = 45 台
 
 export type DeviceModality = "CT" | "MR" | "DR" | "US" | "MG" | "DSA" | "PET-CT";
 export type DeviceBrand =
@@ -65,7 +65,7 @@ export interface DeviceMaster {
 
 const DEVICE_MODELS_BY_MODALITY: Record<DeviceModality, { count: number; models: { brand: DeviceBrand; model: string; slices?: number; tesla?: number; }[] }> = {
   CT: {
-    count: 6,
+    count: 10,
     models: [
       { brand: "Siemens", model: "SOMATOM Force", slices: 192 },
       { brand: "Siemens", model: "SOMATOM Definition AS+", slices: 128 },
@@ -73,15 +73,23 @@ const DEVICE_MODELS_BY_MODALITY: Record<DeviceModality, { count: number; models:
       { brand: "Philips", model: "iCT Elite", slices: 128 },
       { brand: "Canon (Toshiba)", model: "Aquilion ONE", slices: 320 },
       { brand: "United Imaging (联影)", model: "uCT 960+", slices: 320 },
+      { brand: "United Imaging (联影)", model: "uCT 860", slices: 160 },
+      { brand: "Canon (Toshiba)", model: "Aquilion Precision", slices: 320 },
+      { brand: "GE Healthcare", model: "Revolution Apex", slices: 256 },
+      { brand: "Siemens", model: "SOMATOM go.Top", slices: 128 },
     ],
   },
   MR: {
-    count: 4,
+    count: 8,
     models: [
       { brand: "Siemens", model: "MAGNETOM Vida 3.0T", tesla: 3.0 },
       { brand: "Siemens", model: "MAGNETOM Aera 1.5T", tesla: 1.5 },
       { brand: "GE Healthcare", model: "SIGNA Architect 3.0T", tesla: 3.0 },
       { brand: "Philips", model: "Ingenia Ambition 1.5T", tesla: 1.5 },
+      { brand: "United Imaging (联影)", model: "uMR 890", tesla: 3.0 },
+      { brand: "Canon (Toshiba)", model: "Vantage Galan 3T", tesla: 3.0 },
+      { brand: "GE Healthcare", model: "SIGNA Premier", tesla: 3.0 },
+      { brand: "Siemens", model: "MAGNETOM Lumina", tesla: 3.0 },
     ],
   },
   DR: {
@@ -130,19 +138,22 @@ const DEVICE_MODELS_BY_MODALITY: Record<DeviceModality, { count: number; models:
     ],
   },
   "PET-CT": {
-    count: 0,
-    models: [],
+    count: 2,
+    models: [
+      { brand: "Siemens", model: "Biograph Vision 600", slices: 128 },
+      { brand: "United Imaging (联影)", model: "uMI Panorama", slices: 128 },
+    ],
   },
 };
 
 const ROOMS: Record<DeviceModality, string[]> = {
-  CT: ["CT1室", "CT2室", "CT3室", "CT4室", "CT5室", "CT6室"],
-  MR: ["MR1室", "MR2室", "MR3室", "MR4室"],
+  CT: ["CT1室", "CT2室", "CT3室", "CT4室", "CT5室", "CT6室", "CT7室", "CT8室", "CT9室", "CT10室"],
+  MR: ["MR1室", "MR2室", "MR3室", "MR4室", "MR5室", "MR6室", "MR7室", "MR8室"],
   DR: ["DR1室", "DR2室", "DR3室", "DR4室", "DR5室", "DR6室", "DR7室", "DR8室", "DR9室", "DR10室", "急诊DR室", "体检DR室"],
   US: ["超声1诊室", "超声2诊室", "超声3诊室", "超声4诊室", "超声5诊室", "超声6诊室", "心脏超声室", "急诊超声室"],
   MG: ["钼靶1室", "钼靶2室", "钼靶3室"],
   DSA: ["DSA1室(介入)", "DSA2室(复合)"],
-  "PET-CT": ["PET-CT室"],
+  "PET-CT": ["PET-CT1室", "PET-CT2室"],
 };
 
 const BUILDINGS = ["医技楼", "门诊楼", "急诊楼", "住院部", "体检中心", "肿瘤中心", "心脏中心", "神经中心"];
@@ -181,11 +192,12 @@ function makeDevice(modality: DeviceModality, idx: number, info: { brand: Device
   else if (modality === "DR") price = 80 + Math.floor(dseed() * 250); // 80-330 万
   else if (modality === "US") price = 60 + Math.floor(dseed() * 180); // 60-240 万
   else if (modality === "MG") price = 250 + Math.floor(dseed() * 350); // 250-600 万
+  else if (modality === "PET-CT") price = 1500 + Math.floor(dseed() * 2500); // 1500-4000 万
   else price = 100;
 
   // 使用情况
   const ageYears = 2026 - purchaseYear;
-  const totalScans = ageYears * 12 * (modality === "CT" ? 800 : modality === "MR" ? 350 : modality === "DR" ? 1200 : modality === "US" ? 1500 : modality === "MG" ? 400 : 150) + Math.floor(dseed() * 200);
+  const totalScans = ageYears * 12 * (modality === "CT" ? 800 : modality === "MR" ? 350 : modality === "DR" ? 1200 : modality === "US" ? 1500 : modality === "MG" ? 400 : modality === "PET-CT" ? 80 : 150) + Math.floor(dseed() * 200);
   const monthlyScans = Math.floor(totalScans / (ageYears * 12 + 1));
   // 状态
   const statusRoll = dseed();
@@ -215,7 +227,7 @@ function makeDevice(modality: DeviceModality, idx: number, info: { brand: Device
   // 球管数
   const tubeCount = modality === "CT" ? 2 : modality === "MR" ? 0 : 1;
   // 扫描时长
-  const avgDur = modality === "CT" ? 5 + dseed() * 15 : modality === "MR" ? 20 + dseed() * 30 : modality === "DR" ? 3 + dseed() * 4 : modality === "US" ? 10 + dseed() * 15 : modality === "MG" ? 8 + dseed() * 10 : 30;
+  const avgDur = modality === "CT" ? 5 + dseed() * 15 : modality === "MR" ? 20 + dseed() * 30 : modality === "DR" ? 3 + dseed() * 4 : modality === "US" ? 10 + dseed() * 15 : modality === "MG" ? 8 + dseed() * 10 : modality === "PET-CT" ? 25 + dseed() * 20 : 30;
   // 位置
   const room = ROOMS[modality][idx] || `${modality}${idx + 1}室`;
   const building = BUILDINGS[Math.floor(dseed() * BUILDINGS.length)]!;
@@ -264,7 +276,7 @@ function makeDevice(modality: DeviceModality, idx: number, info: { brand: Device
 export const DEVICE_MASTER: DeviceMaster[] = [];
 
 // 按模态生成
-const MODALITY_ORDER: DeviceModality[] = ["CT", "MR", "DR", "US", "MG", "DSA"];
+const MODALITY_ORDER: DeviceModality[] = ["CT", "MR", "DR", "US", "MG", "DSA", "PET-CT"];
 MODALITY_ORDER.forEach((mod) => {
   const info = DEVICE_MODELS_BY_MODALITY[mod];
   for (let i = 0; i < info.models.length; i++) {
@@ -282,7 +294,7 @@ export const DEVICES_BY_MODALITY: Record<DeviceModality, DeviceMaster[]> = {
   US: DEVICE_MASTER.filter((d) => d.modality === "US"),
   MG: DEVICE_MASTER.filter((d) => d.modality === "MG"),
   DSA: DEVICE_MASTER.filter((d) => d.modality === "DSA"),
-  "PET-CT": [],
+  "PET-CT": DEVICE_MASTER.filter((d) => d.modality === "PET-CT"),
 };
 
 // 按状态

@@ -7,8 +7,8 @@
 import type {
   FhirVersion, FhirClientConfig, FhirClientResponse,
   FhirBundle, FhirSearchResult, FhirOperationOutcome,
-} from '@types/integration';
-import type { FhirResourceType } from '@types/R3/R3.INTEGRATION';
+} from '../../../types/integration';
+import type { FhirResourceType } from '../../../types/R3/R3.INTEGRATION';
 
 const DEFAULT_CONFIG: FhirClientConfig = {
   baseUrl: 'https://fhir.hospital.com/api/FHIR/R4',

@@ -25,7 +25,7 @@ interface AccuracyData {
   color: string
 }
 
-interface StatsDashboardData {
+export interface StatsDashboardData {
   qualityTrend: QualityScoreTrend[]
   workload: WorkloadCell[]
   timeliness: TimelinessItem[]

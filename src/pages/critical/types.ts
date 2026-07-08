@@ -15,6 +15,21 @@ export interface DocumentItem {
   url?: string
 }
 
+/**
+ * v3.0.6.11: CriticalValue.status 改为与 criticalStore 的状态机对齐。
+ * 中文旧值('待处理'/'处理中'/'已处理'/'超时')由 store.statusToCn() 反向映射。
+ */
+export type CriticalValueStatus =
+  | 'pending'
+  | 'notified'
+  | 'acknowledged'
+  | 'resolving'
+  | 'resolved'
+  | 'closed_loop'
+  | 'escalated'
+  | 'cancelled'
+  | 'overdue'
+
 export interface CriticalValue {
   id: string
   reportId: string
@@ -48,7 +63,7 @@ export interface CriticalValue {
   acknowledged?: boolean
   acknowledgedBy?: string
   acknowledgedTime?: string
-  status: '待处理' | '处理中' | '已处理' | '超时'
+  status: CriticalValueStatus | string
   processingDoctor?: string
   processingDoctorName?: string
   processingTime?: string
@@ -94,11 +109,34 @@ export const PRIMARY_COLOR = '#1e40af'
 export const PRIMARY_LIGHT = '#3b82f6'
 export const PRIMARY_BG = '#eff6ff'
 
+/**
+ * v3.0.6.11: STATUS_CONFIG 改为以 criticalStore 的英文状态为 key。
+ * 兼容旧的中文 status: '待处理'→'pending' / '处理中'→'resolving' /
+ * '已处理'→'resolved' / '超时'→'overdue'
+ */
 export const STATUS_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
+  pending: { bg: '#fee2e2', color: '#dc2626', label: '待处理' },
+  notified: { bg: '#fef3c7', color: '#d97706', label: '已通知' },
+  acknowledged: { bg: '#dbeafe', color: '#2563eb', label: '已接收' },
+  resolving: { bg: '#fef3c7', color: '#d97706', label: '处理中' },
+  resolved: { bg: '#d1fae5', color: '#059669', label: '已处理' },
+  closed_loop: { bg: '#dcfce7', color: '#047857', label: '已闭环' },
+  escalated: { bg: '#fecaca', color: '#991b1b', label: '已升级' },
+  cancelled: { bg: '#f1f5f9', color: '#64748b', label: '已取消' },
+  overdue: { bg: '#fecaca', color: '#991b1b', label: '超时' },
+  // legacy Chinese keys → 兼容
   '待处理': { bg: '#fee2e2', color: '#dc2626', label: '待处理' },
   '处理中': { bg: '#fef3c7', color: '#d97706', label: '处理中' },
   '已处理': { bg: '#d1fae5', color: '#059669', label: '已处理' },
   '超时': { bg: '#fecaca', color: '#991b1b', label: '超时' },
+}
+
+/** 中文 status → criticalStore 英文 status */
+export const CN_STATUS_TO_STORE: Record<string, string> = {
+  '待处理': 'pending',
+  '处理中': 'resolving',
+  '已处理': 'resolved',
+  '超时': 'overdue',
 }
 
 export const SEVERITY_CONFIG: Record<string, { bg: string; color: string; borderColor: string }> = {

@@ -50,7 +50,7 @@ import type {
   IheConnectathonSession,
   IheTestStatus,
   IheProfileId,
-} from "@types/integration";
+} from "../../types/integration";
 import { useNavigate } from "react-router-dom";
 
 export const IheConnectathonPage: React.FC = () => {

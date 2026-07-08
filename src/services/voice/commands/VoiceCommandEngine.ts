@@ -3,23 +3,23 @@
  * 40 升级点:命令匹配 / 上下文感知 / 优先级 / 拼音 fallback
  */
 
-import { VOICE_COMMANDS } from '../../data/voice/voiceCommands';
+import { VOICE_COMMANDS } from '../../../data/voice/voiceCommands';
 import type {
   VoiceCommandDefinition,
   VoiceCommandMatch,
   VoiceCommandContext,
   VoiceCommandAction,
   VoiceCommandCategory,
-} from '../../types/voice';
+} from '../../../types/voice';
 
 const PUNCTUATION_MAP: Record<string, string> = {
-  句号: '。', 句号: '。', period: '。',
-  逗号: '，', 逗号: '，', comma: '，',
-  冒号: '：', 冒号: '：', colon: '：',
-  分号: '；', 分号: '；', semicolon: '；',
-  问号: '？', 问号: '？', question: '？',
-  引号: '"', 引号: '"', quote: '"',
-  单引号: '\'', 单引号: '\'', singlequote: '\'',
+  句号: '。', period: '。',
+  逗号: '，', comma: '，',
+  冒号: '：', colon: '：',
+  分号: '；', semicolon: '；',
+  问号: '？', question: '？',
+  引号: '"', quote: '"',
+  单引号: '\'', singlequote: '\'',
 };
 
 const SNIPPET_MAP: Record<string, string> = {
@@ -83,10 +83,10 @@ export class VoiceCommandEngine {
     this.commandIndex.clear();
     this.aliasesIndex.clear();
     this.pinyinMap.clear();
-    VOICE_COMMANDS.filter((c) => c.enabled).forEach((c) => {
+    VOICE_COMMANDS.filter((c: VoiceCommandDefinition) => c.enabled).forEach((c: VoiceCommandDefinition) => {
       this.commandIndex.set(c.command, c);
       this.commandIndex.set(c.english.toLowerCase(), c);
-      c.aliases.forEach((a) => this.aliasesIndex.set(a, c));
+      c.aliases.forEach((a: string) => this.aliasesIndex.set(a, c));
     });
   }
 
@@ -283,7 +283,7 @@ export class VoiceCommandEngine {
   }
 
   getCommandsByCategory(category: VoiceCommandCategory): VoiceCommandDefinition[] {
-    return VOICE_COMMANDS.filter((c) => c.enabled && c.category === category);
+    return VOICE_COMMANDS.filter((c: VoiceCommandDefinition) => c.enabled && c.category === category);
   }
 
   getRecentCommands(): VoiceCommandDefinition[] {
@@ -294,7 +294,7 @@ export class VoiceCommandEngine {
 
   private matchSingleCommand(text: string): MatchResult {
     const ts = Date.now();
-    const sorted = [...VOICE_COMMANDS.filter((c) => c.enabled)].sort((a, b) => b.priority - a.priority);
+    const sorted = [...VOICE_COMMANDS.filter((c: VoiceCommandDefinition) => c.enabled)].sort((a: VoiceCommandDefinition, b: VoiceCommandDefinition) => b.priority - a.priority);
     for (const c of sorted) {
       const candidates = [c.command, ...c.aliases];
       for (const phrase of candidates) {
@@ -312,20 +312,25 @@ export class VoiceCommandEngine {
 
   private fuzzyMatch(text: string): VoiceCommandDefinition | null {
     const t = text.toLowerCase().trim();
-    let best: { c: VoiceCommandDefinition; score: number } | null = null;
-    VOICE_COMMANDS.filter((c) => c.enabled).forEach((c) => {
+    let bestCmd: VoiceCommandDefinition | null = null;
+    let bestScore = 0;
+    for (const c of VOICE_COMMANDS) {
+      if (!c.enabled) continue;
       const candidates = [c.command, c.english, ...c.aliases];
-      candidates.forEach((p) => {
+      for (const p of candidates) {
         const dist = levenshtein(t, p.toLowerCase());
         const score = 1 - dist / Math.max(t.length, p.length);
-        if (!best || score > best.score) best = { c, score };
-      });
-    });
-    return best && best.score >= 0.6 ? best.c : null;
+        if (!bestCmd || score > bestScore) {
+          bestCmd = c;
+          bestScore = score;
+        }
+      }
+    }
+    return bestCmd && bestScore >= 0.6 ? bestCmd : null;
   }
 
   private recordRecent(c: VoiceCommandDefinition): void {
-    this.recentCommands = this.recentCommands.filter((r) => r.command.id !== c.id);
+    this.recentCommands =     this.recentCommands.filter((r: any) => r.command.id !== c.id);
     this.recentCommands.push({ command: c, ts: Date.now() });
     if (this.recentCommands.length > this.maxRecent) {
       this.recentCommands = this.recentCommands.slice(-this.maxRecent);

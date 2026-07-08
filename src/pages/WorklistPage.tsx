@@ -1,11 +1,12 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import {
   ClipboardList, Wifi, LayoutList, LayoutGrid, Kanban, RefreshCw,
-  Printer, X, Monitor, CheckCircle,
+  Printer, X, Monitor, CheckCircle, Play, CheckSquare, UserCheck,
 } from 'lucide-react'
 import {
   AreaChart, Area, BarChart, Bar, ResponsiveContainer,
 } from 'recharts'
+import { DndContext, DragOverlay, useDraggable, useDroppable, type DragEndEvent } from '@dnd-kit/core'
 import { initialRadiologyExams, initialModalityDevices } from '../data/initialData'
 import { examApi } from '../services/api'
 import { t } from '../i18n/appI18n'
@@ -27,6 +28,9 @@ import {
 import type { FilterState, BatchState } from './worklist'
 import { PageContainer } from '../components/common/PageContainer'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
+import BatchActionBar from '../components/batch/BatchActionBar'
+import { useOperationLog } from '../hooks/useOperationLog'
+import { useKeyboardShortcuts, useNavigationShortcuts, SHORTCUTS } from '../hooks/useKeyboardShortcuts'
 
 // ============================================================
 // 类型定义
@@ -61,7 +65,7 @@ const EXAM_STATUS_TO_MACHINE: Record<string, string> = {
   '已发布': 'published',
   '已取消': 'cancelled',
   '已归档': 'archived',
-  '质控退回': 'imageAvailable',
+  '质控退回': 'qcReject',
 }
 
 function replayExamActorTo(exam: RadiologyExam, targetEvent: { type: string; reason?: string; by: string; imagesAcquired?: number; technologistId?: string }) {
@@ -179,6 +183,8 @@ function MiniSparkline({ data, color }: { data?: { value: number }[]; color: str
 // 主组件
 // ============================================================
 export default function WorklistPage() {
+  const { log } = useOperationLog('worklist')
+
   const [viewMode, setViewMode] = useState<ViewMode>('list')
 
   const [filters, setFilters] = useState<FilterState>({
@@ -501,6 +507,49 @@ export default function WorklistPage() {
     })
   }, [])
 
+  // Log operations
+  const logBatchAction = useCallback((action: string) => {
+    const ids = Array.from(selectedIds)
+    ids.forEach(id => log(action, id))
+    clearSelection()
+    setBatch({
+      selectedIds: new Set(),
+      operation: null,
+      priorityValue: '普通',
+      roomValue: '',
+    })
+  }, [selectedIds, log])
+
+  // Enhanced batch operations
+  const enhancedBatchActions = [
+    { key: 'assign', label: '批量分配', icon: <UserCheck size={14} />, confirm: '确认分配?' },
+    { key: 'start', label: '批量开始', icon: <Play size={14} />, confirm: '确认开始?' },
+    { key: 'complete', label: '批量完成', icon: <CheckCircle size={14} />, confirm: '确认完成?' },
+    { key: 'cancel', label: '批量取消', icon: <X size={14} />, confirm: '确认取消?' },
+  ]
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts([
+    SHORTCUTS.REFRESH(() => handleRefresh()),
+    SHORTCUTS.SUBMIT(() => {
+      if (confirmModalConfig?.open) {
+        confirmModalConfig.onConfirm()
+        setConfirmModalConfig(null)
+      }
+    }),
+    SHORTCUTS.CANCEL(() => {
+      setConfirmModalConfig(null)
+      setBatchResultModalData(null)
+      setPrintPreviewModalData(null)
+      setSelectedExam(null)
+    }),
+  ])
+  useNavigationShortcuts([
+    { sequence: ['g', 'w'], action: () => { window.location.href = '/worklist' }, description: '导航到工作列表' },
+    { sequence: ['g', 'e'], action: () => { window.location.href = '/exam' }, description: '导航到检查' },
+    { sequence: ['g', 'r'], action: () => { window.location.href = '/reports' }, description: '导航到报告' },
+  ])
+
   return (
     <PageContainer
       background="slate"
@@ -708,6 +757,13 @@ export default function WorklistPage() {
         totalSelected={selectedIds.size}
       />
 
+      <BatchActionBar
+        selectedCount={selectedIds.size}
+        onAction={logBatchAction}
+        onClear={clearSelection}
+        actions={enhancedBatchActions}
+      />
+
       <FilterBar
         filters={filters}
         onChange={setFilters}
@@ -741,10 +797,20 @@ export default function WorklistPage() {
       )}
 
       {viewMode === 'kanban' && (
-        <KanbanView
-          exams={filteredExams}
-          onRowClick={setSelectedExam}
-        />
+        <DndContext onDragEnd={(event: DragEndEvent) => {
+          const examId = String(event.active.id)
+          const targetStatus = String(event.over?.id || '')
+          if (targetStatus && examId) {
+            setExams(prev => prev.map(e => e.id === examId ? { ...e, status: targetStatus as ExamStatus } : e))
+            log('drag_status_change', examId, { from: event.active.id, to: targetStatus })
+          }
+        }}>
+          <KanbanView
+            exams={filteredExams}
+            onRowClick={setSelectedExam}
+          />
+          <DragOverlay />
+        </DndContext>
       )}
 
       <DetailDrawer

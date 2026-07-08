@@ -1,6 +1,6 @@
 // [v3.0.6.8-72] DICOM SR管理 + AI发现管理器
 import React, { useState } from 'react';
-import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Tabs, Badge, Progress } from 'antd';
+import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Tabs, Badge, Progress, message } from 'antd';
 import { FileText, Brain, Eye, Share2, Clock } from 'lucide-react';
 
 export const DicomSrManagerPage: React.FC = () => {
@@ -9,7 +9,7 @@ export const DicomSrManagerPage: React.FC = () => {
     { id:'SR-002', studyId:'CT-0627-03', type:'AI Finding', modality:'CT', findings:5, status:'preliminary', created:'2026-06-27', author:'AI-Insight v2' },
     { id:'SR-003', studyId:'OCT-0626-07', type:'Segmentation', modality:'OCT', findings:8, status:'final', created:'2026-06-26', author:'Dr. Li' },
   ]);
-  const [aiFindings] = useState([
+  const [aiFindings, setAiFindings] = useState([
     { id:'AI-001', studyId:'CBCT-0628-01', finding:'Periapical radiolucency #36', confidence:0.92, status:'confirmed', modality:'CBCT' },
     { id:'AI-002', studyId:'CBCT-0628-01', finding:'Impacted #38 - mesioangular', confidence:0.88, status:'pending', modality:'CBCT' },
     { id:'AI-003', studyId:'OCT-0626-07', finding:'Drusen > 5 on OD', confidence:0.95, status:'confirmed', modality:'OCT' },
@@ -25,7 +25,7 @@ export const DicomSrManagerPage: React.FC = () => {
     {title:'Findings',dataIndex:'findings'},
     {title:'Status',dataIndex:'status',render:(s:string)=><Badge status={s==='final'?'success':'processing'} text={s} />},
     {title:'Author',dataIndex:'author'},{title:'Date',dataIndex:'created'},
-    {title:'Action',render:()=><Space><Button size="small"><Eye size={10}/>View</Button><Button size="small"><Share2 size={10}/>Export</Button></Space>},
+    {title:'Action',render:(_: any, r: any)=><Space><Button size="small" onClick={() => message.info('查看SR: ' + r.id)}><Eye size={10}/>View</Button><Button size="small" onClick={() => message.success('已导出SR(模拟): ' + r.id)}><Share2 size={10}/>Export</Button></Space>},
   ];
   const aiCols = [
     {title:'ID',dataIndex:'id'},{title:'Study',dataIndex:'studyId'},
@@ -33,7 +33,7 @@ export const DicomSrManagerPage: React.FC = () => {
     {title:'Confidence',dataIndex:'confidence',render:(c:number)=><><Progress percent={Math.round(c*100)} size="small"/><span style={{fontSize:11,marginLeft:4}}>{(c*100).toFixed(0)}%</span></>},
     {title:'Status',dataIndex:'status',render:(s:string)=><Badge status={s==='confirmed'?'success':s==='pending'?'processing':'default'} text={s} />},
     {title:'Modality',dataIndex:'modality'},
-    {title:'Action',render:(_:any)=><Space><Button size="small">Confirm</Button><Button size="small">Dismiss</Button></Space>},
+    {title:'Action',render:(_: any, r: any)=><Space><Button size="small" onClick={() => { setAiFindings(prev => prev.map((f: any) => f.id === r.id ? {...f, status:'confirmed'} : f)); message.success('已确认: ' + r.finding); }}>Confirm</Button><Button size="small" onClick={() => { setAiFindings(prev => prev.map((f: any) => f.id === r.id ? {...f, status:'dismissed'} : f)); message.success('已忽略: ' + r.finding); }}>Dismiss</Button></Space>},
   ];
 
   return (

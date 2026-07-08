@@ -4,9 +4,9 @@
  */
 
 import type { LanguageConfig, SttLanguage, MultiLangSession, SttProviderId } from '../../types/voice';
-import { cloudSttGateway } from '../cloud/CloudSttGateway';
-import { AzureSttProvider } from '../cloud/AzureSttProvider';
-import { IFlytekSttProvider } from '../cloud/IFlytekSttProvider';
+import { cloudSttGateway } from './cloud/CloudSttGateway';
+import { AzureSttProvider } from './cloud/AzureSttProvider';
+import { IFlytekSttProvider } from './cloud/IFlytekSttProvider';
 
 const LANGUAGE_CONFIGS: LanguageConfig[] = [
   {

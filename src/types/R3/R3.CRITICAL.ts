@@ -91,6 +91,8 @@ export interface CriticalEvent {
   };
   note?: string;
   attachments?: CriticalAttachment[];
+  veto?: boolean;
+  dualReviewRequired?: boolean;
   hash: string;
   auditChain?: AuditStep[];
 }

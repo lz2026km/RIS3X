@@ -173,6 +173,7 @@ model Patient {
   type      PatientType @default(OUTPATIENT)
   reports   Report[]
   exams     Exam[]
+  studies   EyeStudy[]
   version   Int         @default(0)
   createdAt DateTime    @default(now()) @map("created_at")
   updatedAt DateTime    @updatedAt @map("updated_at")
@@ -500,6 +501,54 @@ model BackupRecord {
   @@map("backup_records")
 }
 
+// v3.0.4 新增: Eye 模块
+
+model EyeStudy {
+  id          String   @id @default(cuid())
+  patientId   String   @map("patient_id")
+  modality    String
+  bodyPart    String   @map("body_part")
+  studyDate   DateTime @default(now()) @map("study_date")
+  status      String   @default("PENDING")
+  findings    String   @default("")
+  impressions String   @default("")
+  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  inferences  EyeAiInference[]
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([patientId, modality])
+  @@map("eye_studies")
+}
+
+model EyeAiInference {
+  id         String   @id @default(cuid())
+  studyId    String   @map("study_id")
+  modelId    String   @map("model_id")
+  diagnosis  String
+  confidence Float
+  heatmapUrl String?  @map("heatmap_url")
+  study      EyeStudy @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([studyId])
+  @@index([modelId])
+  @@map("eye_ai_inferences")
+}
+
+model EyeIolLens {
+  id           String   @id @default(cuid())
+  model        String
+  manufacturer String
+  aConstant    Float    @map("a_constant")
+  power        Float
+  type         String
+  stock        Int      @default(0)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("eye_iol_lenses")
+}
+
 // v3.0.3 新增: 安全/不良事件模块
 
 model AdverseEvent {
@@ -584,4 +633,235 @@ model RiskItem {
   @@index([riskLevel, status])
   @@index([category])
   @@map("risk_items")
+}
+
+// v3.0.6.11-7: 牙科模块
+
+model DentalStudy {
+  id          String   @id @default(cuid())
+  patientId   String   @map("patient_id")
+  modality    String
+  toothArea   String   @map("tooth_area")
+  toothNumber String?  @map("tooth_number")
+  studyDate   DateTime @default(now()) @map("study_date")
+  status      String   @default("PENDING")
+  findings    String   @default("")
+  impressions String   @default("")
+  aiFindings  DentalAiFinding[]
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([patientId, modality])
+  @@map("dental_studies")
+}
+
+model DentalAiFinding {
+  id           String   @id @default(cuid())
+  studyId      String   @map("study_id")
+  modelId      String   @map("model_id")
+  findingType  String   @map("finding_type")
+  findingDesc  String   @map("finding_desc")
+  confidence   Float
+  region       String?
+  study        DentalStudy @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([studyId])
+  @@index([modelId])
+  @@map("dental_ai_findings")
+}
+
+model DentalImplant {
+  id            String   @id @default(cuid())
+  patientId     String   @map("patient_id")
+  toothNumber   String   @map("tooth_number")
+  implantBrand  String   @map("implant_brand")
+  implantModel  String   @map("implant_model")
+  diameter      Float
+  length        Float
+  status        String   @default("PLANNED")
+  surgeryDate   DateTime? @map("surgery_date")
+  notes         String   @default("")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@index([patientId])
+  @@map("dental_implants")
+}
+
+model DentalAppointment {
+  id          String   @id @default(cuid())
+  patientId   String   @map("patient_id")
+  dentistName String   @map("dentist_name")
+  modality    String
+  scheduledAt DateTime @map("scheduled_at")
+  state       String   @default("SCHEDULED")
+  notes       String   @default("")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([scheduledAt, state])
+  @@map("dental_appointments")
+}
+
+model DentalInvoice {
+  id             String   @id @default(cuid())
+  patientId      String   @map("patient_id")
+  invoiceNumber  String   @unique @map("invoice_number")
+  totalAmount    Decimal  @map("total_amount")
+  paidAmount     Decimal  @default(0) @map("paid_amount")
+  status         String   @default("UNPAID")
+  items          Json     @default("[]")
+  issuedAt       DateTime @default(now()) @map("issued_at")
+  paidAt         DateTime? @map("paid_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@index([patientId, status])
+  @@map("dental_invoices")
+}
+
+model DentalInventoryItem {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  category    String
+  quantity    Int      @default(0)
+  unit        String
+  unitPrice   Decimal  @map("unit_price")
+  supplier    String?
+  expiryDate  DateTime? @map("expiry_date")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([category])
+  @@map("dental_inventory_items")
+}
+
+// v3.0.6.11-7: 工作流&SLA/路由模块
+
+model WorkflowDefinition {
+  id          String   @id @default(cuid())
+  name        String
+  description String   @default("")
+  stepConfig  Json     @default("[]") @map("step_config")
+  version     Int      @default(1)
+  active      Boolean  @default(true)
+  steps       WorkflowStep[]
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("workflow_definitions")
+}
+
+model WorkflowStep {
+  id                 String   @id @default(cuid())
+  workflowId         String   @map("workflow_id")
+  name               String
+  stepType           String   @map("step_type")
+  assigneeRole       String?  @map("assignee_role")
+  timeoutMinutes     Int?     @map("timeout_minutes")
+  escalationRole     String?  @map("escalation_role")
+  config             Json     @default("{}")
+  orderIndex         Int      @map("order_index")
+  workflow           WorkflowDefinition @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  @@index([workflowId, orderIndex])
+  @@map("workflow_steps")
+}
+
+model SlaPolicy {
+  id              String   @id @default(cuid())
+  name            String
+  modality        String?
+  priority        String   @default("NORMAL")
+  targetMinutes   Int      @map("target_minutes")
+  warningMinutes  Int      @map("warning_minutes")
+  escalationRole  String?  @map("escalation_role")
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@index([modality, priority])
+  @@map("sla_policies")
+}
+
+model RoutingRule {
+  id              String   @id @default(cuid())
+  name            String
+  modality        String?
+  bodyPart        String?  @map("body_part")
+  sourceDept      String?  @map("source_dept")
+  targetDept      String   @map("target_dept")
+  priority        Int      @default(0)
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@index([modality, bodyPart])
+  @@map("routing_rules")
+}
+
+// v3.0.6.11-7: 财务模块
+
+model ChargeItem {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  category    String
+  unitPrice   Decimal  @map("unit_price")
+  insuranceCoverage Decimal? @map("insurance_coverage")
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([category])
+  @@map("charge_items")
+}
+
+model Invoice {
+  id             String   @id @default(cuid())
+  patientId      String   @map("patient_id")
+  invoiceNumber  String   @unique @map("invoice_number")
+  totalAmount    Decimal  @map("total_amount")
+  paidAmount     Decimal  @default(0) @map("paid_amount")
+  insuranceAmount Decimal? @map("insurance_amount")
+  status         String   @default("UNPAID")
+  items          Json     @default("[]")
+  issuedAt       DateTime @default(now()) @map("issued_at")
+  paidAt         DateTime? @map("paid_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@index([patientId, status])
+  @@index([issuedAt])
+  @@map("invoices")
+}
+
+// v3.0.6.11-7: 通知模板/渠道
+
+model NotificationTemplate {
+  id        String   @id @default(cuid())
+  type      String
+  title     String
+  content   String
+  channel   String   @default("SYSTEM")
+  variables String[] @default([])
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([type, channel])
+  @@map("notification_templates")
+}
+
+model NotificationChannel {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  type      String
+  config    Json     @default("{}")
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("notification_channels")
 }

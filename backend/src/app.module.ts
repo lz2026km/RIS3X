@@ -1,8 +1,5 @@
 /**
- * G005 放射RIS系统 v3.0.2.2 - NestJS 根模块
- * v3.0.1 新增:LoggerModule(nestjs-pino)+ ReportsModule
- * v3.0.2 新增:AppointmentsModule + CriticalsModule + TemplatesModule + FilesModule + Hl7Module
- * v3.0.2.2 新增:ReportsQualityModule
+ * G005 放射RIS系统 v3.0.6.11-7 - NestJS 根模块（扩 14 新 module）
  */
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
@@ -31,6 +28,21 @@ import { BackupModule } from './modules/backup/backup.module'
 import { ExportApprovalModule } from './modules/export-approval/export-approval.module'
 import { ComplianceDocsModule } from './modules/compliance-docs/compliance-docs.module'
 import { SafetyModule } from './safety/safety.module'
+import { EyeModule } from './eye/eye.module'
+import { DentalModule } from './dental/dental.module'
+import { WorkflowModule } from './workflow/workflow.module'
+import { FinanceModule } from './finance/finance.module'
+import { DataReportModule } from './datareport/datareport.module'
+import { RegionalModule } from './regional/regional.module'
+import { PatientPortalModule } from './patientportal/patientportal.module'
+import { CosignModule } from './cosign/cosign.module'
+import { CdsModule } from './cds/cds.module'
+import { CriticalExtModule } from './criticalext/criticalext.module'
+import { QcExtModule } from './qcext/qcext.module'
+import { ReportQualityModule } from './reportquality/reportquality.module'
+import { CaModule } from './ca/ca.module'
+import { DeviceMgmtModule } from './devicemgmt/devicemgmt.module'
+import { AiPlatformModule } from './aiplatform/aiplatform.module'
 
 @Module({
   imports: [
@@ -64,6 +76,21 @@ import { SafetyModule } from './safety/safety.module'
     ExportApprovalModule,
     ComplianceDocsModule,
     SafetyModule,
+    EyeModule,
+    DentalModule,
+    WorkflowModule,
+    FinanceModule,
+    DataReportModule,
+    RegionalModule,
+    PatientPortalModule,
+    CosignModule,
+    CdsModule,
+    CriticalExtModule,
+    QcExtModule,
+    ReportQualityModule,
+    CaModule,
+    DeviceMgmtModule,
+    AiPlatformModule,
   ],
   controllers: [HealthController],
 })

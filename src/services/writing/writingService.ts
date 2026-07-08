@@ -173,7 +173,6 @@ export async function generateAiDraft(req: AiDraftRequest): Promise<AiDraftResul
     id: `aidraft-${req.reportId}-${Date.now()}`,
     reportId: req.reportId,
     generatedAt: new Date().toISOString(),
-    style: req.style,
   };
 }
 
@@ -460,8 +459,8 @@ export async function signReport(reportId: string, signatureType: 'ca' | 'pin' |
   return {
     id: `sig-${Date.now()}`,
     reportId,
-    signer: userId,
-    signerRole: 'attending',
+    signerId: userId,
+    role: 'attending',
     signatureType,
     status: 'signed',
     signedAt: new Date().toISOString(),
@@ -498,8 +497,8 @@ export async function cosignReport(reportId: string, cosignerId: string, role: '
   return {
     id: `cosig-${Date.now()}`,
     reportId,
-    signer: cosignerId,
-    signerRole: role,
+    signerId: cosignerId,
+    role: role,
     signatureType: 'pin',
     status: 'signed',
     signedAt: new Date().toISOString(),
@@ -532,11 +531,12 @@ export async function getSignatureStatus(reportId: string): Promise<{ status: 'u
  */
 export async function getChargeItems(modality: string, impressionKeywords: string[]): Promise<ChargeItem[]> {
   await new Promise((r) => setTimeout(r, 300));
-  return [
-    { id: 'ci-1', code: '71250', system: 'cpt', description: 'CT 胸部平扫', descriptionEn: 'CT Chest w/o contrast', fee: 850, modality: ['CT'], keywords: ['chest', 'lung'] },
-    { id: 'ci-2', code: '71260', system: 'cpt', description: 'CT 胸部增强', descriptionEn: 'CT Chest w/ contrast', fee: 1200, modality: ['CT'], keywords: ['chest', 'lung'] },
-    { id: 'ci-3', code: 'C50.911', system: 'icd10', description: '乳腺恶性肿瘤', descriptionEn: 'Malignant neoplasm of breast', fee: 0, modality: ['MG'], keywords: ['breast'] },
-  ].filter((item) => item.modality.includes(modality) || impressionKeywords.some((kw) => item.keywords.includes(kw)));
+  const items: ChargeItem[] = [
+    { id: 'ci-1', code: '71250', system: 'cpt', description: 'CT 胸部平扫', relativeValue: 850, modality: 'CT', active: true },
+    { id: 'ci-2', code: '71260', system: 'cpt', description: 'CT 胸部增强', relativeValue: 1200, modality: 'CT', active: true },
+    { id: 'ci-3', code: 'C50.911', system: 'icd10', description: '乳腺恶性肿瘤', relativeValue: 0, modality: 'MG', active: true },
+  ];
+  return items.filter((item) => impressionKeywords.some((kw) => item.description.includes(kw)));
 }
 
 /**
@@ -575,7 +575,7 @@ export async function checkCompliance(reportId: string, reportText: string): Pro
   if (!reportText.includes('技术')) missing.push('检查技术');
   if (!reportText.includes('所见')) missing.push('影像所见');
   if (!reportText.includes('诊断') && !reportText.includes('意见')) missing.push('诊断意见');
-  return { passed: missing.length === 0, required, missing, warnings: [], errors: missing };
+  return { passed: missing.length === 0, warnings: [], errors: missing };
 }
 
 /**

@@ -123,7 +123,7 @@ const reviewHistoryHandlers = [
 const reviewCommentHandlers = [
   http.get(`${API_BASE}/reviews/:id/comments`, async () => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: [] });
+    return HttpResponse.json({ success: true, data: [{ id: 'c-1', reviewId: '1', author: '张医生', content: '建议补充影像所见描述', createdAt: '2026-07-03T10:00:00Z' }] });
   }),
   http.post(`${API_BASE}/reviews/:id/comments`, async ({ params, request }) => {
     await delay(150);

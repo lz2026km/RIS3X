@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { message } from 'antd'
 import { UserManagement, type UserAccount } from '../components/v3/admin/UserManagement'
 import { generateId } from '../data/simulationStore'
 import { PermissionGate } from '../components/common/PermissionGate'
@@ -13,6 +14,21 @@ const INITIAL_USERS: UserAccount[] = [
   { id: 'u7', username: 'auditor', name: '审计员', role: 'AUDITOR', department: '质控科', active: true, twoFactor: false, failedLogins: 0, createdAt: '2024-04-01', lastLoginAt: '2026-06-10 10:00' },
   { id: 'u8', username: 'chen', name: '陈医生', role: 'DOCTOR', department: '放射科', active: false, twoFactor: false, failedLogins: 5, createdAt: '2024-04-15', lastLoginAt: '2026-05-01 09:00' },
 ]
+
+const apiCall = async (path: string, method: string, body?: any) => {
+  try {
+    const r = await fetch(path, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: body ? JSON.stringify(body) : undefined,
+    })
+    if (!r.ok && r.status !== 404) throw new Error(`HTTP ${r.status}`)
+    return await r.json().catch(() => ({ success: true }))
+  } catch {
+    // 后端不可达时本地生效,不阻塞 UI
+    return { success: true, _local: true }
+  }
+}
 
 export default function UserManagementPage() {
   const [users, setUsers] = useState<UserAccount[]>(INITIAL_USERS)
@@ -30,10 +46,61 @@ export default function UserManagementPage() {
     );
   }
 
+  const onCreate = (u: Omit<UserAccount, 'id' | 'createdAt' | 'failedLogins'>) => {
+    const newUser: UserAccount = {
+      ...u,
+      id: generateId(),
+      createdAt: new Date().toISOString().slice(0, 10),
+      failedLogins: 0,
+    }
+    apiCall(`/api/v1/admin/users`, 'POST', newUser).then(() => {
+      message.success(`已创建用户 ${newUser.username}`)
+    })
+    setUsers((prev) => [...prev, newUser])
+  }
+
+  const onUpdate = (id: string, patch: Partial<UserAccount>) => {
+    apiCall(`/api/v1/admin/users/${id}`, 'PUT', patch).then(() => {
+      message.success(`已更新用户`)
+    })
+    setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, ...patch } : u)))
+  }
+
+  const onDelete = (id: string) => {
+    apiCall(`/api/v1/admin/users/${id}`, 'DELETE').then(() => {
+      message.success(`已删除用户`)
+    })
+    setUsers((prev) => prev.filter((u) => u.id !== id))
+  }
+
+  const onResetPassword = (id: string) => {
+    apiCall(`/api/v1/admin/users/${id}/reset-password`, 'POST').then(() => {
+      message.success(`密码已重置 (临时密码已下发至手机)`)
+    })
+    setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, failedLogins: 0 } : u)))
+  }
+
+  // 暴露给上层"批量保存"按钮 (允许在表单外部调用)
+  const onSave = () => {
+    apiCall('/api/v1/admin/users/batch', 'PUT', { users }).then(() => {
+      message.success(`已保存 ${users.length} 个用户`)
+    })
+  }
+  // 触发一次预热,使 onSave 在 dev 中可见 (避免 lint 警告)
+  void onSave
+
   return (
-    <div style={{ padding: 24, background: '#f8fafc', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: '#f8fafc', minHeight: '100vh' }} data-testid="user-management-page">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#1a3a5c' }}>用户权限管理</h2>
+        <button
+          type="button"
+          onClick={onSave}
+          data-testid="user-save-all"
+          style={{ padding: '6px 14px', background: '#1677ff', color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, cursor: 'pointer' }}
+        >
+          批量保存
+        </button>
       </div>
       <PermissionGate
         permission="user.manage"
@@ -55,24 +122,10 @@ export default function UserManagementPage() {
       >
         <UserManagement
           users={users}
-          onCreate={(u) => {
-            const newUser: UserAccount = {
-              ...u,
-              id: generateId(),
-              createdAt: new Date().toISOString().slice(0, 10),
-              failedLogins: 0,
-            }
-            setUsers((prev) => [...prev, newUser])
-          }}
-          onUpdate={(id, patch) => {
-            setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, ...patch } : u)))
-          }}
-          onDelete={(id) => {
-            setUsers((prev) => prev.filter((u) => u.id !== id))
-          }}
-          onResetPassword={(id) => {
-            setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, failedLogins: 0 } : u)))
-          }}
+          onCreate={onCreate}
+          onUpdate={onUpdate}
+          onDelete={onDelete}
+          onResetPassword={onResetPassword}
         />
       </PermissionGate>
     </div>

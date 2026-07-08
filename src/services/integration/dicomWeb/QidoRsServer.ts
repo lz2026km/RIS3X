@@ -4,7 +4,7 @@
  *      模糊匹配 / 范围匹配 / 多 Key / 排序 / 分页
  */
 
-import type { QidoRsQuery, QidoRsResult, DicomWebMetadata, DicomWebTransferSyntax } from '@types/integration';
+import type { QidoRsQuery, QidoRsResult, DicomWebMetadata, DicomWebTransferSyntax } from '../../../types/integration';
 import { listStudies, listSeries, listInstances } from './StowRsServer';
 
 function delay(ms: number): Promise<void> { return new Promise((r) => setTimeout(r, ms)); }

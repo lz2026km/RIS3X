@@ -356,7 +356,7 @@ export const mockPatientLinks: PatientLink[] = [
 // In-memory store for runtime modifications
 // ============================================================================
 
-const patientsStore: PatientIdentity[] = [...mockPatients];
+let patientsStore: PatientIdentity[] = [...mockPatients];
 const linksStore: PatientLink[] = [...mockPatientLinks];
 
 // ============================================================================

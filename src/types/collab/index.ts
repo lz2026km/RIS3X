@@ -137,6 +137,8 @@ export interface CollabComment {
   replyCount: number;
   /** 点赞/确认计数 */
   reactions: { emoji: string; userIds: string[] }[];
+  editedAt?: string;
+  recalled?: boolean;
 }
 
 export interface CollabCommentThread {

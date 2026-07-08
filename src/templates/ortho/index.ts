@@ -23,7 +23,7 @@ export interface OrthoStructuredField {
 export interface OrthoAnatomyMapping {
   region: OrthoBodyRegion
   modality: OrthoModality
-  laterality: 'left' | 'right' | 'bilateral' | 'unpaired'
+  laterality: 'left' | 'right' | 'bilateral' | 'unpaired' | 'unilateral'
   segments: string[]
 }
 

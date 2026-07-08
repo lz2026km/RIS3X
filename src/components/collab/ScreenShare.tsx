@@ -75,7 +75,7 @@ export const ScreenShare: React.FC<ScreenShareProps> = ({
   };
 
   const join = () => {
-    if (session) screenShareService.joinAsViewer(session.id, currentUser);
+    if (session) screenShareService.joinAsViewer(session.id, { userId: currentUser.id, userName: currentUser.name });
   };
 
   const leave = () => {

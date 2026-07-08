@@ -11,19 +11,23 @@ export interface DentalHeaderProps {
   icon?: React.ReactNode;
   tags?: React.ReactNode[];
   children?: React.ReactNode;
+  extra?: React.ReactNode;
 }
 
 /** 口腔页面统一页头 */
 export const DentalPageHeader: React.FC<DentalHeaderProps> = ({
-  title, version = 'v3.0.6.8-82', icon, tags = [], children,
+  title, version = 'v3.0.6.8-82', icon, tags = [], children, extra,
 }) => (
-  <Space style={{ marginBottom: 16 }}>
-    {icon || <Activity size={20} color="#1677ff" />}
-    <span style={{ fontSize: 18, fontWeight: 600 }}>{title}</span>
-    <Tag color="cyan">{version}</Tag>
-    {tags}
-    {children}
-  </Space>
+  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
+    <Space>
+      {icon || <Activity size={20} color="#1677ff" />}
+      <span style={{ fontSize: 18, fontWeight: 600 }}>{title}</span>
+      <Tag color="cyan">{version}</Tag>
+      {tags}
+      {children}
+    </Space>
+    {extra && <Space>{extra}</Space>}
+  </div>
 );
 
 export interface DentalTreatment {

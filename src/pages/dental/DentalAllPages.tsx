@@ -4,6 +4,44 @@ import { Activity, Plus, Edit3, Search, RefreshCw, CheckCircle2, XCircle, Calend
 import { DentalPageLayout, DentalPageHeader, DentalTreatmentTable } from './DentalShared';
 import type { DentalTreatment } from './DentalShared';
 
+/** 通用 empty 状态,带图标与 CTA */
+const EmptyState: React.FC<{ tip?: string; onCreate?: () => void; createLabel?: string }> = ({
+  tip = '暂无数据',
+  onCreate,
+  createLabel = '新建',
+}) => (
+  <Empty
+    description={tip}
+    image={Empty.PRESENTED_IMAGE_SIMPLE}
+  >
+    {onCreate && (
+      <Button type="primary" icon={<Plus size={14} />} onClick={onCreate}>
+        {createLabel}
+      </Button>
+    )}
+  </Empty>
+);
+
+/** 通用"新增/查看详情" 操作列 (用于补强现有的简单列表页) */
+const TreatmentActions: React.FC<{ record: DentalTreatment }> = ({ record }) => (
+  <Space size={4}>
+    <Button
+      size="small"
+      data-testid={`dental-detail-${record.id}`}
+      onClick={() => message.info(`查看 ${record.patientName || record.id} 详情`)}
+    >
+      详情
+    </Button>
+    <Button
+      size="small"
+      type="link"
+      onClick={() => message.success(`已为 ${record.patientName || record.id} 创建随访`)}
+    >
+      随访
+    </Button>
+  </Space>
+);
+
 // ===== DentalImplantPlanPage (Replaces placeholder) =====
 export const DentalImplantPlanPage: React.FC = () => {
   const [plans, setPlans] = useState<any[]>([]);
@@ -88,10 +126,72 @@ export const DentalOrthoPage: React.FC = () => {
 // ===== DentalEndoPage (Replaces generic) =====
 export const DentalEndoPage: React.FC = () => {
   const [treats,setT]=useState<DentalTreatment[]>([]);
-  useEffect(()=>{fetch('/api/v1/dental/treatments?type=Endodontic&pageSize=20').then(r=>r.json()).then(d=>{if(d.success)setT(d.data)}).catch(()=>{})},[]);
+  const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [form] = Form.useForm();
+  const load = () => {
+    setLoading(true);
+    fetch('/api/v1/dental/treatments?type=Endodontic&pageSize=20').then(r=>r.json()).then(d=>{if(d.success)setT(d.data); setLoading(false);}).catch(()=>setLoading(false));
+  };
+  useEffect(()=>{load();},[]);
+  const onCreate = async () => {
+    try {
+      const v = await form.validateFields();
+      const r = await fetch('/api/v1/dental/treatments', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...v, type: 'Endodontic' }),
+      });
+      const d = await r.json();
+      if (d.success) {
+        message.success('已创建根管治疗');
+        setModalOpen(false);
+        form.resetFields();
+        load();
+      } else {
+        message.error(d.message || '创建失败');
+      }
+    } catch { /* validation */ }
+  };
   return (
-    <DentalPageLayout header={{ title: '根管治疗' }}>
-      <DentalTreatmentTable data={treats} showActions />
+    <DentalPageLayout header={{ title: '根管治疗', extra: (
+      <Button type="primary" icon={<Plus size={14} />} onClick={() => setModalOpen(true)} data-testid="dental-endo-new">新建根管治疗</Button>
+    ) }}>
+      {loading ? (
+        <div data-testid="dental-endo-loading" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>
+      ) : treats.length === 0 ? (
+        <EmptyState tip="暂无根管治疗记录" onCreate={() => setModalOpen(true)} createLabel="新建根管治疗" />
+      ) : (
+        <Table
+          rowKey="id"
+          size="small"
+          pagination={{ pageSize: 10 }}
+          dataSource={treats}
+          columns={[
+            { title: '患者', dataIndex: 'patientName', width: 100 },
+            { title: '牙位', dataIndex: 'toothNo', width: 80, render: (n?: number) => n ? <Tag color="blue">#{n}</Tag> : '-' },
+            { title: '诊断', dataIndex: 'diagnosis' },
+            { title: '根管数', dataIndex: 'rootCount', width: 90 },
+            { title: '状态', dataIndex: 'status', width: 90, render: (s?: string) => <Tag>{s || '-'}</Tag> },
+            { title: '操作', width: 180, render: (_, t) => <TreatmentActions record={t} /> },
+          ]}
+        />
+      )}
+      <Modal title="新建根管治疗" open={modalOpen} onCancel={() => setModalOpen(false)} onOk={onCreate} okText="创建">
+        <Form form={form} layout="vertical">
+          <Form.Item label="患者 ID" name="patientId" rules={[{ required: true }]}>
+            <Input placeholder="例 P100001" />
+          </Form.Item>
+          <Form.Item label="牙位 (FDI)" name="toothNo" rules={[{ required: true }]}>
+            <InputNumber min={11} max={48} style={{ width: '100%' }} />
+          </Form.Item>
+          <Form.Item label="诊断" name="diagnosis">
+            <Input placeholder="例 慢性牙髓炎" />
+          </Form.Item>
+          <Form.Item label="根管数" name="rootCount">
+            <InputNumber min={1} max={5} style={{ width: '100%' }} />
+          </Form.Item>
+        </Form>
+      </Modal>
     </DentalPageLayout>
   );
 };
@@ -99,10 +199,45 @@ export const DentalEndoPage: React.FC = () => {
 // ===== DentalPerioPage (Replaces generic) =====
 export const DentalPerioPage: React.FC = () => {
   const [treats,setT]=useState<DentalTreatment[]>([]);
-  useEffect(()=>{fetch('/api/v1/dental/treatments?type=Periodontal&pageSize=20').then(r=>r.json()).then(d=>{if(d.success)setT(d.data)}).catch(()=>{})},[]);
+  const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [form] = Form.useForm();
+  const load = () => {
+    setLoading(true);
+    fetch('/api/v1/dental/treatments?type=Periodontal&pageSize=20').then(r=>r.json()).then(d=>{if(d.success)setT(d.data); setLoading(false);}).catch(()=>setLoading(false));
+  };
+  useEffect(()=>{load();},[]);
+  const onCreate = async () => {
+    try {
+      const v = await form.validateFields();
+      const r = await fetch('/api/v1/dental/treatments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...v, type: 'Periodontal' }) });
+      const d = await r.json();
+      if (d.success) { message.success('已创建牙周治疗'); setModalOpen(false); form.resetFields(); load(); }
+      else message.error(d.message || '创建失败');
+    } catch {}
+  };
   return (
-    <DentalPageLayout header={{ title: '牙周治疗' }}>
-      <DentalTreatmentTable data={treats} />
+    <DentalPageLayout header={{ title: '牙周治疗', extra: (
+      <Button type="primary" icon={<Plus size={14} />} onClick={() => setModalOpen(true)}>新建牙周治疗</Button>
+    ) }}>
+      {loading ? <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div> :
+       treats.length === 0 ? <EmptyState tip="暂无牙周治疗记录" onCreate={() => setModalOpen(true)} createLabel="新建牙周治疗" /> :
+       <Table rowKey="id" size="small" pagination={{ pageSize: 10 }} dataSource={treats} columns={[
+         { title: '患者', dataIndex: 'patientName', width: 100 },
+         { title: '牙位', dataIndex: 'toothNo', width: 80, render: (n?: number) => n ? <Tag color="blue">#{n}</Tag> : '-' },
+         { title: '诊断', dataIndex: 'diagnosis' },
+         { title: 'PD (mm)', dataIndex: 'pd', width: 80 },
+         { title: '状态', dataIndex: 'status', width: 90, render: (s?: string) => <Tag>{s || '-'}</Tag> },
+         { title: '操作', width: 180, render: (_, t) => <TreatmentActions record={t} /> },
+       ]} />}
+      <Modal title="新建牙周治疗" open={modalOpen} onCancel={() => setModalOpen(false)} onOk={onCreate} okText="创建">
+        <Form form={form} layout="vertical">
+          <Form.Item label="患者 ID" name="patientId" rules={[{ required: true }]}><Input /></Form.Item>
+          <Form.Item label="牙位" name="toothNo"><InputNumber min={11} max={48} style={{ width: '100%' }} /></Form.Item>
+          <Form.Item label="诊断" name="diagnosis"><Input placeholder="例 牙周炎 (中度)" /></Form.Item>
+          <Form.Item label="PD 均值 (mm)" name="pd"><InputNumber min={0} max={15} step={0.1} style={{ width: '100%' }} /></Form.Item>
+        </Form>
+      </Modal>
     </DentalPageLayout>
   );
 };
@@ -110,10 +245,50 @@ export const DentalPerioPage: React.FC = () => {
 // ===== DentalRestorativePage (Replaces generic) =====
 export const DentalRestorativePage: React.FC = () => {
   const [treats,setT]=useState<DentalTreatment[]>([]);
-  useEffect(()=>{fetch('/api/v1/dental/treatments?type=Restorative&pageSize=20').then(r=>r.json()).then(d=>{if(d.success)setT(d.data)}).catch(()=>{})},[]);
+  const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [form] = Form.useForm();
+  const load = () => {
+    setLoading(true);
+    fetch('/api/v1/dental/treatments?type=Restorative&pageSize=20').then(r=>r.json()).then(d=>{if(d.success)setT(d.data); setLoading(false);}).catch(()=>setLoading(false));
+  };
+  useEffect(()=>{load();},[]);
+  const onCreate = async () => {
+    try {
+      const v = await form.validateFields();
+      const r = await fetch('/api/v1/dental/treatments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...v, type: 'Restorative' }) });
+      const d = await r.json();
+      if (d.success) { message.success('已创建修复治疗'); setModalOpen(false); form.resetFields(); load(); }
+      else message.error(d.message || '创建失败');
+    } catch {}
+  };
   return (
-    <DentalPageLayout header={{ title: '修复 (CAD/CAM)' }}>
-      <DentalTreatmentTable data={treats} showSurface />
+    <DentalPageLayout header={{ title: '修复 (CAD/CAM)', extra: (
+      <Button type="primary" icon={<Plus size={14} />} onClick={() => setModalOpen(true)}>新建修复</Button>
+    ) }}>
+      {loading ? <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div> :
+       treats.length === 0 ? <EmptyState tip="暂无修复记录" onCreate={() => setModalOpen(true)} createLabel="新建修复" /> :
+       <Table rowKey="id" size="small" pagination={{ pageSize: 10 }} dataSource={treats} columns={[
+         { title: '患者', dataIndex: 'patientName', width: 100 },
+         { title: '牙位', dataIndex: 'toothNo', width: 80, render: (n?: number) => n ? <Tag color="blue">#{n}</Tag> : '-' },
+         { title: '面', dataIndex: 'toothSurface', width: 60 },
+         { title: '材料', dataIndex: 'material', width: 100, render: (m?: string) => m ? <Tag color="cyan">{m}</Tag> : '-' },
+         { title: '费用', dataIndex: 'cost', width: 80, render: (v?: number) => v != null ? `¥${v}` : '-' },
+         { title: '状态', dataIndex: 'status', width: 90, render: (s?: string) => <Tag>{s || '-'}</Tag> },
+         { title: '操作', width: 180, render: (_, t) => <TreatmentActions record={t} /> },
+       ]} />}
+      <Modal title="新建修复治疗" open={modalOpen} onCancel={() => setModalOpen(false)} onOk={onCreate} okText="创建">
+        <Form form={form} layout="vertical">
+          <Form.Item label="患者 ID" name="patientId" rules={[{ required: true }]}><Input /></Form.Item>
+          <Form.Item label="牙位" name="toothNo"><InputNumber min={11} max={48} style={{ width: '100%' }} /></Form.Item>
+          <Form.Item label="面" name="toothSurface">
+            <Select options={[{ value: 'O', label: 'O 颌面' }, { value: 'M', label: 'M 近中' }, { value: 'D', label: 'D 远中' }, { value: 'B', label: 'B 颊侧' }, { value: 'L', label: 'L 舌侧' }]} />
+          </Form.Item>
+          <Form.Item label="材料" name="material">
+            <Select options={[{ value: 'Z350', label: 'Z350 树脂' }, { value: 'P60', label: 'P60 后牙树脂' }, { value: 'Glass', label: '玻璃离子' }, { value: 'Zirconia', label: '二氧化锆' }]} />
+          </Form.Item>
+        </Form>
+      </Modal>
     </DentalPageLayout>
   );
 };
@@ -121,10 +296,46 @@ export const DentalRestorativePage: React.FC = () => {
 // ===== DentalSurgeryPage (Replaces generic) =====
 export const DentalSurgeryPage: React.FC = () => {
   const [treats,setT]=useState<DentalTreatment[]>([]);
-  useEffect(()=>{fetch('/api/v1/dental/treatments?type=Surgery&pageSize=20').then(r=>r.json()).then(d=>{if(d.success)setT(d.data)}).catch(()=>{})},[]);
+  const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [form] = Form.useForm();
+  const load = () => {
+    setLoading(true);
+    fetch('/api/v1/dental/treatments?type=Surgery&pageSize=20').then(r=>r.json()).then(d=>{if(d.success)setT(d.data); setLoading(false);}).catch(()=>setLoading(false));
+  };
+  useEffect(()=>{load();},[]);
+  const onCreate = async () => {
+    try {
+      const v = await form.validateFields();
+      const r = await fetch('/api/v1/dental/treatments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...v, type: 'Surgery' }) });
+      const d = await r.json();
+      if (d.success) { message.success('已创建外科手术'); setModalOpen(false); form.resetFields(); load(); }
+      else message.error(d.message || '创建失败');
+    } catch {}
+  };
   return (
-    <DentalPageLayout header={{ title: '口腔外科' }}>
-      <DentalTreatmentTable data={treats} />
+    <DentalPageLayout header={{ title: '口腔外科', extra: (
+      <Button type="primary" icon={<Plus size={14} />} onClick={() => setModalOpen(true)}>新建手术</Button>
+    ) }}>
+      {loading ? <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div> :
+       treats.length === 0 ? <EmptyState tip="暂无口腔外科记录" onCreate={() => setModalOpen(true)} createLabel="新建手术" /> :
+       <Table rowKey="id" size="small" pagination={{ pageSize: 10 }} dataSource={treats} columns={[
+         { title: '患者', dataIndex: 'patientName', width: 100 },
+         { title: '术式', dataIndex: 'plan' },
+         { title: '麻醉', dataIndex: 'anesthesia', width: 100, render: (a?: string) => a ? <Tag color="orange">{a}</Tag> : '-' },
+         { title: '日期', dataIndex: 'createdAt', width: 100 },
+         { title: '状态', dataIndex: 'status', width: 90, render: (s?: string) => <Tag>{s || '-'}</Tag> },
+         { title: '操作', width: 180, render: (_, t) => <TreatmentActions record={t} /> },
+       ]} />}
+      <Modal title="新建口腔外科" open={modalOpen} onCancel={() => setModalOpen(false)} onOk={onCreate} okText="创建">
+        <Form form={form} layout="vertical">
+          <Form.Item label="患者 ID" name="patientId" rules={[{ required: true }]}><Input /></Form.Item>
+          <Form.Item label="术式" name="plan" rules={[{ required: true }]}><Input placeholder="例 阻生牙拔除术" /></Form.Item>
+          <Form.Item label="麻醉" name="anesthesia">
+            <Select options={[{ value: '局麻', label: '局麻' }, { value: '全麻', label: '全麻' }, { value: '镇静', label: '镇静' }]} />
+          </Form.Item>
+        </Form>
+      </Modal>
     </DentalPageLayout>
   );
 };
@@ -132,13 +343,54 @@ export const DentalSurgeryPage: React.FC = () => {
 // ===== DentalPediatricPage (Replaces generic) =====
 export const DentalPediatricPage: React.FC = () => {
   const [treats,setT]=useState<DentalTreatment[]>([]);
-  useEffect(()=>{fetch('/api/v1/dental/treatments?type=Pediatric&pageSize=20').then(r=>r.json()).then(d=>{if(d.success)setT(d.data)}).catch(()=>{})},[]);
+  const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [form] = Form.useForm();
+  const load = () => {
+    setLoading(true);
+    fetch('/api/v1/dental/treatments?type=Pediatric&pageSize=20').then(r=>r.json()).then(d=>{if(d.success)setT(d.data); setLoading(false);}).catch(()=>setLoading(false));
+  };
+  useEffect(()=>{load();},[]);
+  const onCreate = async () => {
+    try {
+      const v = await form.validateFields();
+      const r = await fetch('/api/v1/dental/treatments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...v, type: 'Pediatric' }) });
+      const d = await r.json();
+      if (d.success) { message.success('已创建儿童牙科记录'); setModalOpen(false); form.resetFields(); load(); }
+      else message.error(d.message || '创建失败');
+    } catch {}
+  };
   return (
     <DentalPageLayout
-      header={{ title: '儿童牙科' }}
+      header={{ title: '儿童牙科', extra: (
+        <Button type="primary" icon={<Plus size={14} />} onClick={() => setModalOpen(true)}>新建记录</Button>
+      ) }}
       alert={{ message: '儿童牙科专用功能: 乳牙编号 (A-T), 窝沟封闭, 氟保护', type: 'info' }}
     >
-      <DentalTreatmentTable data={treats} />
+      {loading ? <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div> :
+       treats.length === 0 ? <EmptyState tip="暂无儿童牙科记录" onCreate={() => setModalOpen(true)} createLabel="新建儿童牙科记录" /> :
+       <Table rowKey="id" size="small" pagination={{ pageSize: 10 }} dataSource={treats} columns={[
+         { title: '患者', dataIndex: 'patientName', width: 100 },
+         { title: '乳牙位', dataIndex: 'toothNo', width: 80 },
+         { title: '诊断', dataIndex: 'diagnosis' },
+         { title: '处理', dataIndex: 'plan' },
+         { title: '状态', dataIndex: 'status', width: 90, render: (s?: string) => <Tag>{s || '-'}</Tag> },
+         { title: '操作', width: 180, render: (_, t) => <TreatmentActions record={t} /> },
+       ]} />}
+      <Modal title="新建儿童牙科记录" open={modalOpen} onCancel={() => setModalOpen(false)} onOk={onCreate} okText="创建">
+        <Form form={form} layout="vertical">
+          <Form.Item label="患者 ID" name="patientId" rules={[{ required: true }]}><Input /></Form.Item>
+          <Form.Item label="乳牙编号 (A-T)" name="toothNo" rules={[{ required: true }]}>
+            <Input placeholder="例 A (右上乳中切牙)" />
+          </Form.Item>
+          <Form.Item label="诊断" name="diagnosis">
+            <Input placeholder="例 乳牙龋坏" />
+          </Form.Item>
+          <Form.Item label="处理" name="plan">
+            <Input placeholder="例 窝沟封闭 / 充填" />
+          </Form.Item>
+        </Form>
+      </Modal>
     </DentalPageLayout>
   );
 };
@@ -171,17 +423,62 @@ export const DentalTelePage: React.FC = () => {
 // ===== DentalDashboardPage (Replaces placeholder) =====
 export const DentalDashboardPage: React.FC = () => {
   const [stats, setStats] = useState<any>(null);
-  useEffect(() => { fetch('/api/v1/dental/stats').then(r=>r.json()).then(d=>{if(d.success) setStats(d.data)}).catch(()=>{}); }, []);
+  const [loading, setLoading] = useState(true);
+  const [refreshAt, setRefreshAt] = useState<Date>(new Date());
+  const load = () => {
+    setLoading(true);
+    fetch('/api/v1/dental/stats').then(r=>r.json()).then(d=>{if(d.success) setStats(d.data); setLoading(false); setRefreshAt(new Date());}).catch(()=>setLoading(false));
+  };
+  useEffect(load, []);
+  if (loading) {
+    return (
+      <DentalPageLayout header={{ title: '口腔运营仪表盘' }}>
+        <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>
+      </DentalPageLayout>
+    );
+  }
+  if (!stats) {
+    return (
+      <DentalPageLayout header={{ title: '口腔运营仪表盘' }}>
+        <EmptyState tip="暂无统计数据" onCreate={load} createLabel="重新加载" />
+      </DentalPageLayout>
+    );
+  }
+  const topTreat = stats.topTreatments || {};
   return (
-    <DentalPageLayout header={{ title: '口腔运营仪表盘' }}>
-      {stats && <Row gutter={16} style={{marginBottom:16}}>
-        <Col span={4}><Card><Statistic title="今日患者" value={stats.todayPatients} prefix={<Calendar size={14}/>} /></Card></Col>
-        <Col span={4}><Card><Statistic title="本周" value={stats.thisWeek} /></Card></Col>
-        <Col span={4}><Card><Statistic title="日均" value={stats.avgPerDay} /></Card></Col>
-        <Col span={4}><Card><Statistic title="今日收入" prefix="¥" value={stats.revenueToday} /></Card></Col>
-        <Col span={8}><Card><Statistic title="top 治疗" value={`补${stats.topTreatments.Restorative || 0} 根${stats.topTreatments.Endodontic || 0} 种${stats.topTreatments.Implant || 0}`} /></Card></Col>
-      </Row>}
-      <Alert message={stats ? '数据已更新' : '加载中'} type={stats ? 'success' : 'info'} showIcon />
+    <DentalPageLayout header={{ title: '口腔运营仪表盘', extra: (
+      <Button icon={<RefreshCw size={14} />} onClick={load}>刷新</Button>
+    ) }}>
+      <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
+        <Col xs={12} md={6}><Card size="small"><Statistic title="今日患者" value={stats.todayPatients} prefix={<Calendar size={14} />} /></Card></Col>
+        <Col xs={12} md={6}><Card size="small"><Statistic title="本周" value={stats.thisWeek} /></Card></Col>
+        <Col xs={12} md={6}><Card size="small"><Statistic title="日均" value={stats.avgPerDay} /></Card></Col>
+        <Col xs={12} md={6}><Card size="small"><Statistic title="今日收入" prefix="¥" value={stats.revenueToday} /></Card></Col>
+        <Col xs={24} md={12}>
+          <Card size="small" title="热门治疗">
+            <Row gutter={8}>
+              <Col span={8}><Statistic title="补" value={topTreat.Restorative || 0} /></Col>
+              <Col span={8}><Statistic title="根管" value={topTreat.Endodontic || 0} /></Col>
+              <Col span={8}><Statistic title="种植" value={topTreat.Implant || 0} /></Col>
+            </Row>
+          </Card>
+        </Col>
+        <Col xs={24} md={12}>
+          <Card size="small" title="快捷入口">
+            <Space wrap>
+              <Button onClick={() => message.info('进入种植规划')}>种植规划</Button>
+              <Button onClick={() => message.info('进入正畸')}>正畸</Button>
+              <Button onClick={() => message.info('进入库存')}>库存管理</Button>
+              <Button onClick={() => message.info('进入随访')}>患者随访</Button>
+            </Space>
+          </Card>
+        </Col>
+      </Row>
+      <Alert
+        message={`数据更新于 ${refreshAt.toLocaleTimeString('zh-CN')}`}
+        type="success"
+        showIcon
+      />
     </DentalPageLayout>
   );
 };
@@ -224,25 +521,83 @@ export const DentalTreatmentPage: React.FC = () => {
 
 // ===== [v3.0.6.8-81] DentalInventoryPage (新增 - 修复路由黑屏) =====
 export const DentalInventoryPage: React.FC = () => {
-  const [items] = useState<any[]>([
+  const [items, setItems] = useState<any[]>([
     { id: 'INV-001', name: '种植体 Straumann BLT', category: 'Implant', stock: 24, unit: 'pcs', minStock: 10 },
     { id: 'INV-002', name: '复合树脂 Z350', category: 'Restorative', stock: 8, unit: 'tube', minStock: 12 },
     { id: 'INV-003', name: '根管锉 ProTaper', category: 'Endo', stock: 50, unit: 'pcs', minStock: 20 },
     { id: 'INV-004', name: '正畸托槽 Damon Q', category: 'Ortho', stock: 12, unit: 'set', minStock: 5 },
     { id: 'INV-005', name: '局麻药 阿替卡因', category: 'Anesthesia', stock: 3, unit: 'box', minStock: 8 },
   ]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [form] = Form.useForm();
+  const [detail, setDetail] = useState<any | null>(null);
   const lowCount = items.filter(i => i.stock < i.minStock).length;
+  const unitLabels: Record<string, string> = { pcs: '件', tube: '支', set: '套', box: '盒', ml: '毫升', g: '克' };
+  const onCreate = () => {
+    form.validateFields().then((v) => {
+      const newItem = { id: `INV-${String(items.length + 1).padStart(3, '0')}`, ...v, stock: 0 };
+      setItems((prev) => [...prev, newItem]);
+      setModalOpen(false);
+      form.resetFields();
+      message.success(`已新增库存项 ${newItem.id}`);
+    }).catch(() => {});
+  };
+  const onAdjust = (delta: number) => {
+    if (!detail) return;
+    const next = items.map((it) => it.id === detail.id ? { ...it, stock: Math.max(0, it.stock + delta) } : it);
+    setItems(next);
+    setDetail({ ...detail, stock: detail.stock + delta });
+    message.success(`${delta > 0 ? '入库' : '出库'} ${Math.abs(delta)} ${unitLabels[detail.unit] || detail.unit}`);
+  };
   return (
-    <DentalPageLayout header={{ title: '口腔库存管理', tags: [<Tag key="lo" color="orange">低库存 {lowCount}</Tag>] }}>
-      <Table dataSource={items} rowKey="id" size="small" columns={[
-        { title: 'ID', dataIndex: 'id', width: 100 },
-        { title: '名称', dataIndex: 'name' },
-        { title: '类别', dataIndex: 'category', render: (c: string) => <Tag>{c}</Tag> },
-        { title: '库存', dataIndex: 'stock', render: (n: number) => <b>{n}</b> },
-        { title: '单位', dataIndex: 'unit', render: (u: string) => ({ pcs: '件', tube: '支', set: '套', box: '盒', ml: '毫升', g: '克' } as any)[u] || u },
-        { title: '最低', dataIndex: 'minStock' },
-        { title: '状态', render: (_, r: any) => r.stock < r.minStock ? <Tag color="red">低库存</Tag> : r.stock < r.minStock * 1.5 ? <Tag color="orange">预警</Tag> : <Tag color="green">充足</Tag> },
-      ]} />
+    <DentalPageLayout header={{ title: '口腔库存管理', tags: [<Tag key="lo" color="orange">低库存 {lowCount}</Tag>], extra: (
+      <Button type="primary" icon={<Plus size={14} />} onClick={() => setModalOpen(true)}>新增库存</Button>
+    ) }}>
+      {items.length === 0 ? (
+        <EmptyState tip="暂无库存项" onCreate={() => setModalOpen(true)} createLabel="新增库存" />
+      ) : (
+        <Table dataSource={items} rowKey="id" size="small" columns={[
+          { title: 'ID', dataIndex: 'id', width: 100 },
+          { title: '名称', dataIndex: 'name' },
+          { title: '类别', dataIndex: 'category', render: (c: string) => <Tag>{c}</Tag> },
+          { title: '库存', dataIndex: 'stock', render: (n: number) => <b>{n}</b> },
+          { title: '单位', dataIndex: 'unit', render: (u: string) => unitLabels[u] || u },
+          { title: '最低', dataIndex: 'minStock' },
+          { title: '状态', render: (_, r: any) => r.stock < r.minStock ? <Tag color="red">低库存</Tag> : r.stock < r.minStock * 1.5 ? <Tag color="orange">预警</Tag> : <Tag color="green">充足</Tag> },
+          { title: '操作', width: 100, render: (_, r: any) => (
+            <Button size="small" onClick={() => setDetail(r)}>详情</Button>
+          ) },
+        ]} />
+      )}
+      <Modal title="新增库存项" open={modalOpen} onCancel={() => setModalOpen(false)} onOk={onCreate} okText="创建">
+        <Form form={form} layout="vertical">
+          <Form.Item label="名称" name="name" rules={[{ required: true }]}><Input /></Form.Item>
+          <Form.Item label="类别" name="category">
+            <Select options={[{ value: 'Implant', label: '种植' }, { value: 'Restorative', label: '修复' }, { value: 'Endo', label: '根管' }, { value: 'Ortho', label: '正畸' }, { value: 'Anesthesia', label: '麻醉' }]} />
+          </Form.Item>
+          <Form.Item label="最低库存" name="minStock" rules={[{ required: true }]}>
+            <InputNumber min={0} style={{ width: '100%' }} />
+          </Form.Item>
+          <Form.Item label="单位" name="unit">
+            <Select options={Object.entries(unitLabels).map(([v, l]) => ({ value: v, label: l }))} />
+          </Form.Item>
+        </Form>
+      </Modal>
+      {detail && (
+        <Modal title={`库存详情 - ${detail.name}`} open onCancel={() => setDetail(null)} footer={null}>
+          <Descriptions column={1} size="small" bordered>
+            <Descriptions.Item label="ID">{detail.id}</Descriptions.Item>
+            <Descriptions.Item label="名称">{detail.name}</Descriptions.Item>
+            <Descriptions.Item label="类别"><Tag>{detail.category}</Tag></Descriptions.Item>
+            <Descriptions.Item label="当前库存"><b>{detail.stock}</b> {unitLabels[detail.unit] || detail.unit}</Descriptions.Item>
+            <Descriptions.Item label="最低库存">{detail.minStock}</Descriptions.Item>
+          </Descriptions>
+          <Space style={{ marginTop: 12 }}>
+            <Button onClick={() => onAdjust(1)}>入库 +1</Button>
+            <Button danger onClick={() => onAdjust(-1)} disabled={detail.stock <= 0}>出库 -1</Button>
+          </Space>
+        </Modal>
+      )}
     </DentalPageLayout>
   );
 };

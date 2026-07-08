@@ -58,6 +58,7 @@ import {
   Mail,
   Smartphone,
   MessageCircle,
+  CheckSquare as CheckSquareIcon,
 } from "lucide-react";
 import { message } from "antd";
 import {
@@ -68,6 +69,7 @@ import {
 import { criticalApi } from "../services/api";
 import { LoadingBanner, ErrorBanner } from "../components/feedback";
 import { useCriticalStore } from "../store";
+import { CN_STATUS_TO_STORE } from "./critical/types";
 import type { NotificationMethod } from "../services/api/criticalApi";
 import {
   CriticalValueList,
@@ -83,6 +85,9 @@ import type {
   DocumentItem,
   FollowUpRecord,
 } from "./critical";
+import BatchActionBar from "../components/batch/BatchActionBar";
+import { useOperationLog } from "../hooks/useOperationLog";
+import { useKeyboardShortcuts, useNavigationShortcuts, SHORTCUTS } from "../hooks/useKeyboardShortcuts";
 
 // ============ 国家卫健委2024年版放射科危急值目录 ============
 const NATIONAL_CRITICAL_ITEMS = {
@@ -271,10 +276,32 @@ const PRIMARY_COLOR = "#1e40af";
 const PRIMARY_LIGHT = "#3b82f6";
 const PRIMARY_BG = "#eff6ff";
 
+/** 把中文/旧版 status 映射到 criticalStore 英文 status key */
+function toStoreStatus(raw: string): string {
+  if (!raw) return raw
+  if (raw in CN_STATUS_TO_STORE) return CN_STATUS_TO_STORE[raw]
+  return raw
+}
+
 const STATUS_CONFIG: Record<
   string,
   { bg: string; color: string; label: string; icon: any }
 > = {
+  pending: { bg: "#fee2e2", color: "#dc2626", label: "待处理", icon: Bell },
+  notified: { bg: "#fef3c7", color: "#d97706", label: "已通知", icon: Send },
+  acknowledged: { bg: "#dbeafe", color: "#2563eb", label: "已接收", icon: CheckSquare },
+  resolving: { bg: "#fef3c7", color: "#d97706", label: "处理中", icon: Clock },
+  resolved: {
+    bg: "#d1fae5",
+    color: "#059669",
+    label: "已处理",
+    icon: CheckCircle,
+  },
+  closed_loop: { bg: "#dcfce7", color: "#047857", label: "已闭环", icon: CheckCircle },
+  escalated: { bg: "#fecaca", color: "#991b1b", label: "已升级", icon: AlertTriangle },
+  cancelled: { bg: "#f1f5f9", color: "#64748b", label: "已取消", icon: X },
+  overdue: { bg: "#fecaca", color: "#991b1b", label: "超时", icon: AlertTriangle },
+  // legacy Chinese 兼容
   待处理: { bg: "#fee2e2", color: "#dc2626", label: "待处理", icon: Bell },
   处理中: { bg: "#fef3c7", color: "#d97706", label: "处理中", icon: Clock },
   已处理: {
@@ -297,7 +324,19 @@ const SEVERITY_CONFIG: Record<
 
 const MODALITY_LIST = ["全部", "CT", "MR", "DR", "DSA", "超声"];
 const SEVERITY_LIST = ["全部", "危急", "高危", "紧急"];
-const STATUS_LIST = ["全部", "待处理", "处理中", "已处理", "超时"];
+// v3.0.6.11: status filter 使用 criticalStore 英文状态 key
+const STATUS_LIST = ["全部", "pending", "resolving", "resolved", "overdue"];
+const STATUS_LABEL_CN: Record<string, string> = {
+  pending: "待处理",
+  notified: "已通知",
+  acknowledged: "已接收",
+  resolving: "处理中",
+  resolved: "已处理",
+  closed_loop: "已闭环",
+  escalated: "已升级",
+  cancelled: "已取消",
+  overdue: "超时",
+};
 const TIME_RANGE_LIST = ["全部", "30分钟内", "1小时内", "2小时内", "超时"];
 
 // ============ 模拟数据扩展 ============
@@ -1217,16 +1256,16 @@ const StatisticsCharts = ({ data }: StatisticsChartsProps) => {
     "trend" | "modality" | "time" | "missed" | "notification"
   >("trend");
 
-  const pendingCount = data.filter((c) => c.status === "待处理").length;
-  const processingCount = data.filter((c) => c.status === "处理中").length;
-  const resolvedCount = data.filter((c) => c.status === "已处理").length;
-  const overdueCount = data.filter((c) => c.status === "超时").length;
+  const pendingCount = data.filter((c) => toStoreStatus(String(c.status)) === "pending").length;
+  const processingCount = data.filter((c) => toStoreStatus(String(c.status)) === "resolving").length;
+  const resolvedCount = data.filter((c) => toStoreStatus(String(c.status)) === "resolved").length;
+  const overdueCount = data.filter((c) => toStoreStatus(String(c.status)) === "overdue").length;
   const transferredCount = data.filter((c) => c.transferredToFollowUp).length;
   const overdueProcessingCount = data.filter(
     (c) =>
-      c.status === "处理中" &&
+      toStoreStatus(String(c.status)) === "resolving" &&
       c.processingDuration &&
-      parseInt(c.processingDuration) > 60,
+      parseInt(String(c.processingDuration || 0)) > 60,
   ).length;
 
   const thisMonthCount = 8;
@@ -2859,12 +2898,13 @@ const RulesSettingsModal = ({
 // ============ 主组件 ============
 export default function CriticalValuePage() {
   const navigate = useNavigate();
-  const [search, setSearch] = useState("");
+  const { log } = useOperationLog("critical_value");
   const [statusFilter, setStatusFilter] = useState<string>("全部");
   const [modalityFilter, setModalityFilter] = useState<string>("全部");
   const [severityFilter, setSeverityFilter] = useState<string>("全部");
   const [timeRangeFilter, setTimeRangeFilter] = useState<string>("全部");
   const [dateRange, setDateRange] = useState("2026-05-01");
+  const [search, setSearch] = useState('');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [selectedCV, setSelectedCV] = useState<CriticalValue | null>(null);
   const [detailTab, setDetailTab] = useState(0);
@@ -2915,18 +2955,18 @@ export default function CriticalValuePage() {
   const [confirmMessage, setConfirmMessage] = useState("");
 
   const stats = {
-    pending: criticalValues.filter((c) => c.status === "待处理").length,
-    processing: criticalValues.filter((c) => c.status === "处理中").length,
-    resolved: criticalValues.filter((c) => c.status === "已处理").length,
-    overdue: criticalValues.filter((c) => c.status === "超时").length,
+    pending: criticalValues.filter((c) => toStoreStatus(String(c.status)) === "pending").length,
+    processing: criticalValues.filter((c) => toStoreStatus(String(c.status)) === "resolving").length,
+    resolved: criticalValues.filter((c) => toStoreStatus(String(c.status)) === "resolved").length,
+    overdue: criticalValues.filter((c) => toStoreStatus(String(c.status)) === "overdue").length,
     thisMonth: 8,
     timelyRate: "87.5%",
     transferred: criticalValues.filter((c) => c.transferredToFollowUp).length,
     overdueProcessing: criticalValues.filter(
       (c) =>
-        c.status === "处理中" &&
+        toStoreStatus(String(c.status)) === "resolving" &&
         c.processingDuration &&
-        parseInt(c.processingDuration) > 60,
+        parseInt(String(c.processingDuration || 0)) > 60,
     ).length,
   };
 
@@ -2940,7 +2980,9 @@ export default function CriticalValuePage() {
       )
         return false;
     }
-    if (statusFilter !== "全部" && cv.status !== statusFilter) return false;
+    // v3.0.6.11: 过滤时将 cv.status 规范化到 store 状态 key,然后比较
+    const cvStoreStatus = toStoreStatus(String(cv.status));
+    if (statusFilter !== "全部" && cvStoreStatus !== statusFilter) return false;
     if (modalityFilter !== "全部" && cv.modality !== modalityFilter)
       return false;
     if (severityFilter !== "全部" && cv.severity !== severityFilter)
@@ -2993,6 +3035,7 @@ export default function CriticalValuePage() {
       await useCriticalStore
         .getState()
         .notify(notifyCV.id, notifyMethod as NotificationMethod);
+      log("notify", notifyCV.id, { method: notifyMethod });
       showToast("已发送通知");
     }
     setShowNotifyModal(false);
@@ -3002,6 +3045,7 @@ export default function CriticalValuePage() {
   const handleConfirmProcess = async () => {
     if (processCV) {
       await useCriticalStore.getState().resolve(processCV.id);
+      log("resolve", processCV.id);
       showToast("已处理");
     }
     setShowProcessModal(false);
@@ -3054,16 +3098,61 @@ export default function CriticalValuePage() {
 
   const handleConfirm = async () => {
     if (confirmType === "notify") {
-      for (const id of Array.from(selectedIds))
+      for (const id of Array.from(selectedIds)) {
         await useCriticalStore.getState().notify(id, "SYSTEM");
+        log("batch_notify", id);
+      }
       showToast(`已成功发送 ${selectedIds.size} 条通知`);
     } else {
-      for (const id of Array.from(selectedIds))
+      for (const id of Array.from(selectedIds)) {
         await useCriticalStore.getState().resolve(id);
+        log("batch_resolve", id);
+      }
       showToast(`已成功标记处理 ${selectedIds.size} 条记录`);
     }
     setSelectedIds(new Set());
     setShowConfirmModal(false);
+  };
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts([
+    SHORTCUTS.SUBMIT(() => {
+      if (showProcessModal && processCV) {
+        handleConfirmProcess();
+      } else if (showConfirmModal) {
+        handleConfirm();
+      }
+    }),
+    SHORTCUTS.CANCEL(() => {
+      setShowProcessModal(false);
+      setProcessCV(null);
+      setShowNotifyModal(false);
+      setNotifyCV(null);
+      setShowConfirmModal(false);
+      setShowSettings(false);
+      setSelectedCV(null);
+    }),
+    SHORTCUTS.REFRESH(() => {
+      window.location.reload();
+    }),
+  ]);
+  useNavigationShortcuts([
+    { sequence: ['g', 'c'], action: () => { window.location.href = '/critical-value' }, description: '导航到危急值' },
+    { sequence: ['g', 'r'], action: () => { window.location.href = '/reports' }, description: '导航到报告' },
+  ]);
+
+  // Batch actions
+  const handleBatchAction = (action: string) => {
+    const ids = Array.from(selectedIds);
+    if (action === 'acknowledge') {
+      setConfirmType('notify');
+      setConfirmMessage(`确定要批量确认 ${ids.length} 个危急值吗？`);
+    } else if (action === 'resolve') {
+      setConfirmType('process');
+      setConfirmMessage(`确定要批量处理 ${ids.length} 个危急值吗？`);
+    }
+    ids.forEach((id) => log('batch_' + action, id));
+    setShowConfirmModal(true);
   };
 
   const headerStyle: React.CSSProperties = {
@@ -3277,6 +3366,16 @@ export default function CriticalValuePage() {
           bgColor={stats.overdueProcessing > 0 ? "#fef2f2" : "#d1fae5"}
         />
       </div>
+
+      <BatchActionBar
+        selectedCount={selectedIds.size}
+        onAction={handleBatchAction}
+        onClear={() => setSelectedIds(new Set())}
+        actions={[
+          { key: "acknowledge", label: "批量确认", icon: <CheckSquareIcon size={14} />, confirm: "确认批量确认?" },
+          { key: "resolve", label: "批量处理", icon: <CheckCircle size={14} />, confirm: "确认批量处理?" },
+        ]}
+      />
 
       <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
         <div style={{ width: 280, flexShrink: 0 }}>

@@ -10,7 +10,7 @@ import {
 } from 'antd';
 import {
   Server, Download, Send, Copy, Eye, Shield, CheckCircle2, XCircle, Hash, FileText,
-  RefreshCw, AlertCircle, Activity, Layers, Database, FileCode, Braces, Globe, FolderTree, Link2, Plus,
+  RefreshCw, AlertCircle, Activity, Layers, Database, FileCode, Braces, Globe, FolderTree, Link2, Plus, Search,
 } from 'lucide-react';
 import { XDS_REGISTRY_MOCK, XDS_REGISTRIES_MOCK } from '@data/reportIntegrationMock';
 import {

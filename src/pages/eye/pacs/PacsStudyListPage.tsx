@@ -98,7 +98,7 @@ const PacsStudyListPage: React.FC = () => {
       title: "",
       key: "action",
       width: 80,
-      render: (_, record) => (
+      render: (_: any, record: any) => (
         <Space size={4}>
           <Button
             size="small"

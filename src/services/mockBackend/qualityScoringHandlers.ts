@@ -6,7 +6,9 @@
 import { http, HttpResponse, delay } from 'msw';
 import { v4 as uuidv4 } from 'uuid';
 
-const API_BASE = 'http://localhost:5173/api/v1';
+const API_BASE = (() => {
+  try { return window.location.origin + '/api/v1'; } catch { return 'http://localhost:5173/api/v1'; }
+})();
 
 const isoNow = () => new Date().toISOString();
 const isoOffset = (h: number) => new Date(Date.now() + h * 3600 * 1000).toISOString();

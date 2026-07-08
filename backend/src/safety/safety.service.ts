@@ -1,11 +1,12 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
-import type { AdverseEvent, RcaInvestigation, RiskItem } from '@prisma/client'
+import type { AdverseEvent, AdverseEventType, AdverseEventSeverity, AdverseEventStatus, RcaInvestigation, RiskItem } from '@prisma/client'
+import type { InputJsonValue } from '@prisma/client/runtime/library.js'
 
 export interface CreateAdverseEventDto {
-  eventType: string
-  severity: string
-  status?: string
+  eventType: AdverseEventType
+  severity: AdverseEventSeverity
+  status?: AdverseEventStatus
   description: string
   department: string
   reportedBy: string
@@ -19,9 +20,9 @@ export interface CreateAdverseEventDto {
 }
 
 export interface UpdateAdverseEventDto {
-  eventType?: string
-  severity?: string
-  status?: string
+  eventType?: AdverseEventType
+  severity?: AdverseEventSeverity
+  status?: AdverseEventStatus
   description?: string
   department?: string
   reportedBy?: string
@@ -44,10 +45,10 @@ export interface CreateRcaDto {
   description?: string
   dateOccurred: string | Date
   teamMembers?: string[]
-  fishboneData?: unknown[]
-  fiveWhys?: unknown[]
+  fishboneData?: InputJsonValue[]
+  fiveWhys?: InputJsonValue[]
   rootCauses?: string[]
-  capaPlans?: unknown[]
+  capaPlans?: InputJsonValue[]
   capaStatus?: string
   conclusion?: string
   lessonsLearned?: string
@@ -59,10 +60,10 @@ export interface UpdateRcaDto {
   description?: string
   dateOccurred?: string | Date
   teamMembers?: string[]
-  fishboneData?: unknown[]
-  fiveWhys?: unknown[]
+  fishboneData?: InputJsonValue[]
+  fiveWhys?: InputJsonValue[]
   rootCauses?: string[]
-  capaPlans?: unknown[]
+  capaPlans?: InputJsonValue[]
   capaStatus?: string
   conclusion?: string
   lessonsLearned?: string
@@ -170,11 +171,14 @@ export class SafetyService {
   // ── RcaInvestigation ──────────────────────────────────────────
 
   async createRcaInvestigation(data: CreateRcaDto): Promise<RcaInvestigation> {
-    const { dateOccurred, ...rest } = data
+    const { dateOccurred, fishboneData, fiveWhys, capaPlans, ...rest } = data
     return this.prisma.rcaInvestigation.create({
       data: {
         ...rest,
         dateOccurred: new Date(dateOccurred),
+        fishboneData: fishboneData ?? [],
+        fiveWhys: fiveWhys ?? [],
+        capaPlans: capaPlans ?? [],
       },
     })
   }
@@ -195,7 +199,9 @@ export class SafetyService {
     return this.prisma.$transaction(async (tx) => {
       const current = await tx.rcaInvestigation.findUnique({ where: { id } })
       if (!current) throw new NotFoundException(`RcaInvestigation ${id} not found`)
-      const { dateOccurred, closedAt, ...rest } = data
+      /* eslint-disable @typescript-eslint/no-unused-vars */
+      const { dateOccurred, closedAt, adverseEventId, fishboneData, fiveWhys, capaPlans, ...rest } = data
+      /* eslint-enable @typescript-eslint/no-unused-vars */
       try {
         return await tx.rcaInvestigation.update({
           where: { id, version: current.version },
@@ -203,6 +209,9 @@ export class SafetyService {
             ...rest,
             ...(dateOccurred ? { dateOccurred: new Date(dateOccurred) } : {}),
             ...(closedAt ? { closedAt: new Date(closedAt) } : {}),
+            ...(fishboneData ? { fishboneData } : {}),
+            ...(fiveWhys ? { fiveWhys } : {}),
+            ...(capaPlans ? { capaPlans } : {}),
             version: { increment: 1 },
           },
         })
@@ -222,10 +231,12 @@ export class SafetyService {
   // ── RiskItem ──────────────────────────────────────────────────
 
   async createRiskItem(data: CreateRiskItemDto): Promise<RiskItem> {
-    const { identifiedAt, ...rest } = data
+    const { identifiedAt, rpn, riskLevel, ...rest } = data
     return this.prisma.riskItem.create({
       data: {
         ...rest,
+        rpn: rpn ?? 0,
+        riskLevel: riskLevel ?? 'medium',
         ...(identifiedAt ? { identifiedAt: new Date(identifiedAt) } : {}),
       },
     })

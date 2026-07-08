@@ -16,6 +16,7 @@ export type CriticalStateName =
   | 'acknowledged'  // 已确认
   | 'resolving'     // 处理中
   | 'resolved'      // 已闭环
+  | 'closed_loop'   // 闭环确认
   | 'escalated'     // 已升级
   | 'cancelled';    // 已取消
 
@@ -26,6 +27,7 @@ export const CRITICAL_STATE_LABEL: Record<CriticalStateName, string> = {
   acknowledged: '已确认',
   resolving: '处理中',
   resolved: '已闭环',
+  closed_loop: '闭环确认',
   escalated: '已升级',
   cancelled: '已取消',
 };

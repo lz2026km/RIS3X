@@ -49,7 +49,7 @@ export default function LoginPage() {
       return;
     }
     setError(null);
-    window.location.assign(from);
+    navigate(from, { replace: true });
   };
 
   return (

@@ -65,6 +65,12 @@ import {
   MOCK_CRITICAL_VALUES,
 } from '../../data/eyeCriticalValuesMock';
 
+// [v3.0.6.8-53] 口腔专科 mock 数据
+import { MOCK_DENTAL_CHARTS } from '../../data/dental/dentalChartMock';
+import { MOCK_DENTAL_STUDIES } from '../../data/dental/dentalImagingMock';
+import { MOCK_DENTAL_TREATMENTS } from '../../data/dental/dentalTreatmentMock';
+import { MOCK_INVOICES } from '../../data/dental/dentalBillingMock';
+
 // ==================== IndexedDB Schema (Dexie) ====================
 class RISBackendDB extends Dexie {
   patients!: EntityTable<{ id: string; data: unknown }, 'id'>;
@@ -165,12 +171,19 @@ class RISBackendDB extends Dexie {
       eye_education_materials: 'id, category, language',
       eye_insurance_claims: 'id, patientId, claimDate, status',
       eye_schedules: 'id, doctorId, scheduleDate',
+      eye_notification_templates: 'id, templateType',
       eye_clinical_subspecialties: 'id, patientId, subspecialtyType',
       eye_kpis: 'id, metricName, period',
       eye_quality_metrics: 'id, studyId, examType',
       eye_measurements: 'id, studyId, measurementType',
       eye_annotations: 'id, studyId, annotationType',
       eye_lesion_segmentations: 'id, studyId',
+      // [v3.0.6.8-53] 口腔专科集合
+      dental_studies: 'id, patientId, modality, region',
+      dental_charts: 'id, patientId',
+      dental_treatments: 'id, patientId, treatmentType, status',
+      dental_invoices: 'id, patientId, status',
+      dental_appointments: 'id, patientId, doctorId, date',
     });
   }
 }
@@ -210,8 +223,12 @@ const COLLECTIONS = [
   'eye_ai_heatmaps', 'eye_appointments', 'eye_follow_ups', 'eye_referrals',
   'eye_surgeries', 'eye_drugs', 'eye_prescriptions', 'eye_journey_events',
   'eye_education_materials', 'eye_insurance_claims', 'eye_schedules',
+  'eye_notification_templates',
   'eye_clinical_subspecialties', 'eye_kpis', 'eye_quality_metrics',
   'eye_measurements', 'eye_annotations', 'eye_lesion_segmentations',
+  // [v3.0.6.8-53] 口腔专科集合
+  'dental_studies', 'dental_charts', 'dental_treatments',
+  'dental_invoices', 'dental_appointments',
 ] as const;
 type Collection = typeof COLLECTIONS[number];
 
@@ -290,12 +307,18 @@ export async function initStore(): Promise<void> {
     MOCK_EDUCATION_MATERIALS.forEach((e: any) => getCollection('eye_education_materials').set(e.id || e.materialId, e));
     MOCK_INSURANCE_CLAIMS.forEach((c: any, i: number) => getCollection('eye_insurance_claims').set(c.id || `IC${i}`, c));
     MOCK_DOCTOR_SCHEDULES.forEach((s: any, i: number) => getCollection('eye_schedules').set(s.id || `SCH${i}`, s));
-    MOCK_NOTIFICATION_TEMPLATES.forEach((n: any, i: number) => getCollection('eye_schedules').set(n.id || `NT${i}`, n));
+    MOCK_NOTIFICATION_TEMPLATES.forEach((n: any, i: number) => getCollection('eye_notification_templates').set(n.id || `NT${i}`, n));
 
     MOCK_CRITICAL_VALUES.forEach((c: any) => getCollection('eye_journey_events').set(c.id || c.criticalValueId, { ...c, eventType: 'critical_value' }));
     MOCK_FINDINGS_LIBRARY.forEach((f: any, i: number) => getCollection('eye_journey_events').set(f.id || `FL${i}`, { ...f, eventType: 'finding' }));
     MOCK_GRADING_SCALES.forEach((g: any, i: number) => getCollection('eye_journey_events').set(g.id || `GS${i}`, { ...g, eventType: 'grading_scale' }));
     MOCK_IOL_INVENTORY.forEach((i: any, idx: number) => getCollection('eye_journey_events').set(i.id || `IOL${idx}`, { ...i, eventType: 'iol_inventory' }));
+
+    // [v3.0.6.8-53] 口腔专科数据加载
+    MOCK_DENTAL_STUDIES.forEach((s: any) => getCollection('dental_studies').set(s.id || s.studyId, s));
+    MOCK_DENTAL_CHARTS.forEach((c: any) => getCollection('dental_charts').set(c.patientId, c));
+    MOCK_DENTAL_TREATMENTS.forEach((t: any) => getCollection('dental_treatments').set(t.id, t));
+    MOCK_INVOICES.forEach((inv: any, i: number) => getCollection('dental_invoices').set(inv.id || `INV${i}`, inv));
 
     // 从 IDB 恢复用户修改 (覆盖基线)
     if (db) {
@@ -373,11 +396,16 @@ function loadEyeMockDataSync(): void {
   (MOCK_EDUCATION_MATERIALS as any[]).forEach((e: any) => getCollection('eye_education_materials').set(e.id || e.materialId, e));
   (MOCK_INSURANCE_CLAIMS as any[]).forEach((c: any, i: number) => getCollection('eye_insurance_claims').set(c.id || `IC${i}`, c));
   (MOCK_DOCTOR_SCHEDULES as any[]).forEach((s: any, i: number) => getCollection('eye_schedules').set(s.id || `SCH${i}`, s));
-  (MOCK_NOTIFICATION_TEMPLATES as any[]).forEach((n: any, i: number) => getCollection('eye_schedules').set(n.id || `NT${i}`, n));
+  (MOCK_NOTIFICATION_TEMPLATES as any[]).forEach((n: any, i: number) => getCollection('eye_notification_templates').set(n.id || `NT${i}`, n));
   (MOCK_CRITICAL_VALUES as any[]).forEach((c: any) => getCollection('eye_journey_events').set(c.id || c.criticalValueId, { ...c, eventType: 'critical_value' }));
   (MOCK_FINDINGS_LIBRARY as any[]).forEach((f: any, i: number) => getCollection('eye_journey_events').set(f.id || `FL${i}`, { ...f, eventType: 'finding' }));
   (MOCK_GRADING_SCALES as any[]).forEach((g: any, i: number) => getCollection('eye_journey_events').set(g.id || `GS${i}`, { ...g, eventType: 'grading_scale' }));
   (MOCK_IOL_INVENTORY as any[]).forEach((i: any, idx: number) => getCollection('eye_journey_events').set(i.id || `IOL${idx}`, { ...i, eventType: 'iol_inventory' }));
+  // [v3.0.6.8-53] 口腔专科数据加载
+  (MOCK_DENTAL_STUDIES as any[]).forEach((s: any) => getCollection('dental_studies').set(s.id || s.studyId, s));
+  (MOCK_DENTAL_CHARTS as any[]).forEach((c: any) => getCollection('dental_charts').set(c.patientId, c));
+  (MOCK_DENTAL_TREATMENTS as any[]).forEach((t: any) => getCollection('dental_treatments').set(t.id, t));
+  (MOCK_INVOICES as any[]).forEach((inv: any, i: number) => getCollection('dental_invoices').set(inv.id || `INV${i}`, inv));
 }
 
 // ==================== CRUD 操作 ====================
@@ -385,6 +413,17 @@ export function list<T = unknown>(collection: Collection): T[] {
   ensureInitialized();
   const col = getCollection(collection);
   return Array.from(col.values()) as T[];
+}
+
+export function listPaginated<T = unknown>(collection: Collection, page: number = 1, pageSize: number = 50): { items: T[]; total: number; page: number; pageSize: number; totalPages: number } {
+  ensureInitialized();
+  const col = getCollection(collection);
+  const all = Array.from(col.values()) as T[];
+  const total = all.length;
+  const totalPages = Math.ceil(total / pageSize);
+  const start = (page - 1) * pageSize;
+  const items = all.slice(start, start + pageSize);
+  return { items, total, page, pageSize, totalPages };
 }
 
 export function get<T = unknown>(collection: Collection, id: string): T | undefined {

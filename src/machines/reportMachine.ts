@@ -53,9 +53,7 @@ export type ReportEvent =
   | { type: 'APPROVE_INITIAL' }
   | { type: 'START_FINAL_REVIEW'; reviewerId: string }
   | { type: 'APPROVE_FINAL' }
-  | { type: 'START_CO_SIGN'; coSignerId: string }
   | { type: 'COMPLETE_CO_SIGN'; coSignerId: string }
-  | { type: 'APPROVE' }
   | { type: 'REJECT'; reason: string }
   | { type: 'RESTART' }
   | { type: 'START_SIGN' }
@@ -71,6 +69,7 @@ export type ReportEvent =
   | { type: 'START_REDISTRIBUTE'; targetDoctorId: string; reason: string }
   | { type: 'COMPLETE_REDISTRIBUTE'; targetDoctorId: string }
   | { type: 'CANCEL_REDISTRIBUTE' }
+  | { type: 'ESCALATE'; reason: string }
   | { type: 'ARCHIVE' };
 
 function initReport(input: { reportId: string; patientId: string; radiologistId: string }): ReportContext {
@@ -125,6 +124,7 @@ export const reportMachine = createMachine({
       on: {
         APPROVE_INITIAL: { target: 'finalReview', actions: assign({ history: ({ context }) => [...context.history, { state: 'finalReview', timestamp: new Date().toISOString(), actorId: context.reviewerId ?? '' }] }) },
         REJECT: { target: 'rejected', guard: 'rejectReasonRequired', actions: assign({ rejectReason: ({ event }) => event.reason, history: ({ context, event }) => [...context.history, { state: 'rejected', timestamp: new Date().toISOString(), actorId: context.reviewerId ?? '', note: event.reason }] }) },
+        ESCALATE: { target: 'escalated', actions: assign({ rejectReason: ({ event }) => event.reason, history: ({ context, event }) => [...context.history, { state: 'escalated', timestamp: new Date().toISOString(), actorId: context.reviewerId ?? '', note: event.reason }] }) },
         WITHDRAW: { target: 'withdrawn', actions: assign({ history: ({ context }) => [...context.history, { state: 'withdrawn', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
         ARCHIVE: { target: 'archived', actions: assign({ history: ({ context }) => [...context.history, { state: 'archived', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
       },
@@ -200,6 +200,7 @@ export const reportMachine = createMachine({
     },
     redistributing: {
       on: {
+        START_REDISTRIBUTE: { target: 'redistributing', actions: assign({ history: ({ context }) => [...context.history, { state: 'redistributing', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
         COMPLETE_REDISTRIBUTE: { target: 'assigned', actions: assign({ radiologistId: ({ event }) => event.targetDoctorId, history: ({ context, event }) => [...context.history, { state: 'assigned', timestamp: new Date().toISOString(), actorId: event.targetDoctorId, note: '跨院区重分配完成' }] }) },
         CANCEL_REDISTRIBUTE: { target: 'pendingAssignment', actions: assign({ history: ({ context }) => [...context.history, { state: 'pendingAssignment', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
       },
@@ -212,6 +213,9 @@ export const reportMachine = createMachine({
     supplemented: {
       on: {
         PUBLISH: { target: 'published', guard: 'qualityScoreSufficient', actions: assign({ qualityScore: ({ context, event }) => event.qualityScore ?? context.qualityScore, history: ({ context }) => [...context.history, { state: 'published', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
+        ARCHIVE: { target: 'archived', actions: assign({ history: ({ context }) => [...context.history, { state: 'archived', timestamp: new Date().toISOString(), actorId: context.radiologistId, note: '补充后归档' }] }) },
+        WITHDRAW: { target: 'withdrawn', actions: assign({ history: ({ context }) => [...context.history, { state: 'withdrawn', timestamp: new Date().toISOString(), actorId: context.radiologistId, note: '补充后撤回' }] }) },
+        START_AMEND: { target: 'amending', actions: assign({ amendmentReason: ({ event }) => event.reason, history: ({ context, event }) => [...context.history, { state: 'amending', timestamp: new Date().toISOString(), actorId: context.radiologistId, note: event.reason }] }) },
       },
     },
     rejected: {

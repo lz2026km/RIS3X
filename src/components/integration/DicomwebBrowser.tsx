@@ -17,7 +17,7 @@ import { qidoStudies, qidoSeries, qidoInstances, toDicomJson } from '@services/i
 import { stowInstances } from '@services/integration/dicomWeb/StowRsServer';
 import { wadoRetrieveInstance, wadoRetrieveSeries, wadoRetrieveMetadata, wadoRenderThumbnail } from '@services/integration/dicomWeb/WadoRsServer';
 import { stats as getStowStats, deleteStudy } from '@services/integration/dicomWeb/StowRsServer';
-import type { QidoRsResult, DicomWebMetadata, StowRsUploadRequest, StowRsResult } from '@types/integration';
+import type { QidoRsResult, DicomWebMetadata, StowRsUploadRequest, StowRsResult } from '../../types/integration';
 
 export const DicomwebBrowser: React.FC = () => {
   const [studyResult, setStudyResult] = useState<QidoRsResult | null>(null);

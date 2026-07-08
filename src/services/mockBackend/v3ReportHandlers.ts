@@ -7,7 +7,9 @@
 import { http, HttpResponse, delay } from 'msw';
 import { v4 as uuidv4 } from 'uuid';
 
-const API_BASE = 'http://localhost:5173/api/v1';
+const API_BASE = (() => {
+  try { return window.location.origin + '/api/v1'; } catch { return 'http://localhost:5173/api/v1'; }
+})();
 
 // ============================================================
 // 1. R3.WRITING(40 handlers)
@@ -34,7 +36,7 @@ export const writingHandlers = [
   http.post(`${API_BASE}/writing/fields/image`, async () => { await delay(200); return HttpResponse.json({ success: true, data: { id: uuidv4(), url: '/upload' } }); }),
 
   // 1.3 RECIST / BI-RADS / PI-RADS(8)
-  http.get(`${API_BASE}/writing/recist/lesions/:reportId`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/writing/recist/lesions/:reportId`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [{ id: 'lesion-1', type: 'target', site: 'Lung', diameter: 25, response: 'SD' }, { id: 'lesion-2', type: 'non-target', site: 'Liver', diameter: 15, response: 'PR' }] }); }),
   http.get(`${API_BASE}/writing/recist/response/:reportId`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { category: 'SD', categoryLabel: '疾病稳定' } }); }),
   http.get(`${API_BASE}/writing/birads/:reportId`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { assessment: { category: '2' }, findings: [] } }); }),
   http.get(`${API_BASE}/writing/pirads/:reportId`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { overallScore: 3 } }); }),
@@ -50,18 +52,18 @@ export const writingHandlers = [
   http.delete(`${API_BASE}/writing/drafts/:id`, async () => { await delay(80); return new HttpResponse(null, { status: 204 }); }),
   http.post(`${API_BASE}/writing/drafts/:id/auto-save`, async () => { await delay(20); return HttpResponse.json({ success: true, data: { savedAt: new Date().toISOString() } }); }),
   http.post(`${API_BASE}/writing/drafts/:id/resolve-conflict`, async () => { await delay(100); return HttpResponse.json({ success: true }); }),
-  http.get(`${API_BASE}/writing/drafts/:id/history`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/writing/drafts/:id/history`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [{ version: 1, content: '初稿', updatedAt: '2026-07-01T10:00:00Z', author: 'Dr. Zhang' }, { version: 2, content: '修改稿', updatedAt: '2026-07-02T14:00:00Z', author: 'Dr. Li' }] }); }),
   http.post(`${API_BASE}/writing/drafts/restore`, async () => { await delay(100); return HttpResponse.json({ success: true, data: { id: `draft-restored-${Date.now()}` } }); }),
 
   // 1.5 AI / 短语库 / RadLex / 预评分(8)
   http.post(`${API_BASE}/writing/ai/draft`, async () => { await delay(800); return HttpResponse.json({ success: true, data: { id: `aidraft-${Date.now()}`, stage: 'ready', confidence: 0.85 } }); }),
   http.get(`${API_BASE}/writing/ai/status/:reportId`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { stage: 'ready', progress: 100 } }); }),
-  http.get(`${API_BASE}/writing/phrases`, async ({ request }) => { await delay(50); const url = new URL(request.url); return HttpResponse.json({ success: true, data: [], meta: { query: url.searchParams.get('q') ?? '' } }); }),
+  http.get(`${API_BASE}/writing/phrases`, async ({ request }) => { await delay(50); const url = new URL(request.url); const q = url.searchParams.get('q') ?? ''; return HttpResponse.json({ success: true, data: [{ id: 'p-1', text: '双肺透光度增加，肺纹理增多', category: 'finding' }, { id: 'p-2', text: '未见明显异常', category: 'conclusion' }, { id: 'p-3', text: '建议定期随访', category: 'recommendation' }].filter(p => !q || p.text.includes(q)), meta: { query: q } }); }),
   http.post(`${API_BASE}/writing/phrases`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { id: `p-${Date.now()}` } }, { status: 201 }); }),
   http.post(`${API_BASE}/writing/phrases/:id/fav`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { favorite: true } }); }),
-  http.get(`${API_BASE}/writing/radlex`, async ({ request }) => { await delay(50); const url = new URL(request.url); return HttpResponse.json({ success: true, data: [], meta: { q: url.searchParams.get('q') ?? '' } }); }),
+  http.get(`${API_BASE}/writing/radlex`, async ({ request }) => { await delay(50); const url = new URL(request.url); return HttpResponse.json({ success: true, data: [{ code: 'RID1234', term: '肺结节', category: 'finding' }, { code: 'RID5678', term: '毛刺征', category: 'morphology' }], meta: { q: url.searchParams.get('q') ?? '' } }); }),
   http.post(`${API_BASE}/writing/pre-score`, async () => { await delay(200); return HttpResponse.json({ success: true, data: { score: 88, passed: true } }); }),
-  http.post(`${API_BASE}/writing/spellcheck`, async () => { await delay(100); return HttpResponse.json({ success: true, data: [] }); }),
+  http.post(`${API_BASE}/writing/spellcheck`, async () => { await delay(100); return HttpResponse.json({ success: true, data: [{ word: '结疖', suggestions: ['结节', '结痂'], offset: 0 }] }); }),
 ];
 
 // ============================================================
@@ -76,14 +78,14 @@ export const distributionHandlers = [
   http.get(`${API_BASE}/dist/channels/monitor`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { online: true, workers: 12, queueDepth: 24 } }); }),
 
   // 2.2 推送任务(8)
-  http.get(`${API_BASE}/dist/tasks`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [], meta: { total: 0 } }); }),
+  http.get(`${API_BASE}/dist/tasks`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [{ id: 'dt-001', channel: 'wechat', patient: '张三', status: 'sent', createdAt: '2026-07-03T10:00:00Z' }, { id: 'dt-002', channel: 'sms', patient: '李四', status: 'pending', createdAt: '2026-07-03T11:00:00Z' }], meta: { total: 2 } }); }),
   http.get(`${API_BASE}/dist/tasks/:id`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { id: 'dt-001', status: 'sent' } }); }),
   http.post(`${API_BASE}/dist/tasks`, async () => { await delay(200); return HttpResponse.json({ success: true, data: { id: `dt-${Date.now()}` } }, { status: 201 }); }),
   http.post(`${API_BASE}/dist/tasks/multi`, async () => { await delay(500); return HttpResponse.json({ success: true, data: { taskIds: [`dtm-1`, `dtm-2`], sent: 2, failed: 0 } }); }),
   http.post(`${API_BASE}/dist/tasks/:id/retry`, async () => { await delay(300); return HttpResponse.json({ success: true, data: { newStatus: 'queued' } }); }),
   http.post(`${API_BASE}/dist/tasks/:id/cancel`, async () => { await delay(150); return HttpResponse.json({ success: true }); }),
   http.get(`${API_BASE}/dist/queue`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { pending: 24, sending: 8, failed: 3 } }); }),
-  http.get(`${API_BASE}/dist/history`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/dist/history`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [{ date: '2026-07-03', channel: 'wechat', total: 15, success: 14, failed: 1 }, { date: '2026-07-02', channel: 'sms', total: 8, success: 8, failed: 0 }] }); }),
 
   // 2.3 HL7 ORU + MLLP(4)
   http.post(`${API_BASE}/dist/hl7/oru/build`, async () => { await delay(100); return HttpResponse.json({ success: true, data: { message: 'MSH|^~\\&|...', bytes: 2048 } }); }),
@@ -92,20 +94,20 @@ export const distributionHandlers = [
   http.post(`${API_BASE}/dist/hl7/adt/build`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { message: 'MSH|...', bytes: 512 } }); }),
 
   // 2.4 送达回执(5)
-  http.get(`${API_BASE}/dist/receipts`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/dist/receipts`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [{ id: 'rcp-001', taskId: 'dt-001', channel: 'wechat', status: 'verified', verifiedAt: '2026-07-03T10:05:00Z' }, { id: 'rcp-002', taskId: 'dt-002', channel: 'sms', status: 'pending' }] }); }),
   http.get(`${API_BASE}/dist/receipts/:id`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { id: 'rcp-001', verified: true } }); }),
   http.post(`${API_BASE}/dist/receipts/:id/verify`, async () => { await delay(150); return HttpResponse.json({ success: true, data: { verified: true, details: '签名通过' } }); }),
   http.post(`${API_BASE}/dist/receipts/:id/events`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { id: `e-${Date.now()}` } }); }),
-  http.get(`${API_BASE}/dist/kpi`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/dist/kpi`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { totalSent: 128, successRate: 96.8, avgDeliveryTime: 2.4, channelBreakdown: { wechat: 85, sms: 30, email: 13 } } }); }),
 
   // 2.5 患者端(4)
-  http.get(`${API_BASE}/dist/patient/links`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/dist/patient/links`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [{ id: 'pl-001', patient: '张三', shortCode: 'ABC123', expiresAt: '2026-08-03T10:00:00Z', views: 2 }, { id: 'pl-002', patient: '李四', shortCode: 'DEF456', expiresAt: '2026-08-02T11:00:00Z', views: 0 }] }); }),
   http.post(`${API_BASE}/dist/patient/links`, async () => { await delay(200); return HttpResponse.json({ success: true, data: { id: `pl-${Date.now()}`, shortCode: 'ABC123' } }, { status: 201 }); }),
   http.post(`${API_BASE}/dist/patient/links/:id/revoke`, async () => { await delay(100); return HttpResponse.json({ success: true }); }),
-  http.get(`${API_BASE}/dist/patient/links/:id/views`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/dist/patient/links/:id/views`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [{ ip: '192.168.1.100', viewedAt: '2026-07-03T10:05:00Z', device: 'Mobile' }, { ip: '192.168.1.101', viewedAt: '2026-07-03T14:00:00Z', device: 'Desktop' }] }); }),
 
   // 2.6 策略(4)
-  http.get(`${API_BASE}/dist/policies`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/dist/policies`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [{ id: 'dp-001', name: '默认分发策略', channels: ['wechat', 'sms'], priority: 1, enabled: true }, { id: 'dp-002', name: '紧急报告策略', channels: ['wechat', 'sms', 'phone'], priority: 0, enabled: true }] }); }),
   http.put(`${API_BASE}/dist/policies/:id`, async () => { await delay(150); return HttpResponse.json({ success: true }); }),
   http.post(`${API_BASE}/dist/policies`, async () => { await delay(150); return HttpResponse.json({ success: true, data: { id: `dp-${Date.now()}` } }); }),
   http.delete(`${API_BASE}/dist/policies/:id`, async () => { await delay(80); return new HttpResponse(null, { status: 204 }); }),
@@ -116,7 +118,7 @@ export const distributionHandlers = [
 // ============================================================
 export const integrationHandlers = [
   // 3.1 HL7 CDA R2(8)
-  http.get(`${API_BASE}/integration/cda`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/integration/cda`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [{ id: 'cda-001', patient: '张三', type: 'DiagnosticReport', created: '2026-07-01', status: 'final' }] }); }),
   http.get(`${API_BASE}/integration/cda/:id`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { id: 'cda-001', validation: { passed: true } } }); }),
   http.post(`${API_BASE}/integration/cda`, async () => { await delay(200); return HttpResponse.json({ success: true, data: { id: `cda-${Date.now()}` } }, { status: 201 }); }),
   http.post(`${API_BASE}/integration/cda/:id/validate`, async () => { await delay(100); return HttpResponse.json({ success: true, data: { passed: true, errors: [], warnings: [] } }); }),
@@ -126,7 +128,7 @@ export const integrationHandlers = [
   http.get(`${API_BASE}/integration/cda/sections`, async () => { await delay(50); return HttpResponse.json({ success: true, data: ['10164-2', '29545-1', '18776-5'] }); }),
 
   // 3.2 DICOM SR(8)
-  http.get(`${API_BASE}/integration/dicom-sr`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/integration/dicom-sr`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [{ id: 'sr-001', studyUid: '1.2.840.10008.5.1.4.1.1.2', templateId: 'TID2000', status: 'final' }] }); }),
   http.get(`${API_BASE}/integration/dicom-sr/:id`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { id: 'sr-001', templateId: 'TID2000' } }); }),
   http.post(`${API_BASE}/integration/dicom-sr`, async () => { await delay(300); return HttpResponse.json({ success: true, data: { id: `sr-${Date.now()}` } }, { status: 201 }); }),
   http.post(`${API_BASE}/integration/dicom-sr/:id/validate`, async () => { await delay(100); return HttpResponse.json({ success: true, data: { passed: true } }); }),
@@ -136,7 +138,7 @@ export const integrationHandlers = [
   http.post(`${API_BASE}/integration/dicom-sr/:id/dump`, async () => { await delay(100); return HttpResponse.json({ success: true, data: { text: '# DICOM SR...' } }); }),
 
   // 3.3 FHIR R4(8)
-  http.get(`${API_BASE}/integration/fhir/diagnostic-report`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/integration/fhir/diagnostic-report`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [{ id: 'fhir-001', resourceType: 'DiagnosticReport', status: 'final', subject: { reference: 'Patient/P001' } }] }); }),
   http.get(`${API_BASE}/integration/fhir/diagnostic-report/:id`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { resourceType: 'DiagnosticReport', id: 'fhir-001' } }); }),
   http.post(`${API_BASE}/integration/fhir/diagnostic-report`, async () => { await delay(200); return HttpResponse.json({ success: true, data: { id: `fhir-${Date.now()}` } }, { status: 201 }); }),
   http.post(`${API_BASE}/integration/fhir/diagnostic-report/:id/send`, async () => { await delay(800); return HttpResponse.json({ success: true, data: { statusCode: 201, durationMs: 620 } }); }),
@@ -146,14 +148,14 @@ export const integrationHandlers = [
   http.post(`${API_BASE}/integration/fhir/oauth2/token`, async () => { await delay(500); return HttpResponse.json({ success: true, data: { access_token: 'mock-token', token_type: 'Bearer', expires_in: 3600 } }); }),
 
   // 3.4 IHE XDS.b(8)
-  http.get(`${API_BASE}/integration/xds/registries`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/integration/xds/registries`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [{ id: 'xds-001', name: '主注册中心', type: 'XDS.b', status: 'active' }] }); }),
   http.get(`${API_BASE}/integration/xds/registries/:id`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { id: 'xds-001' } }); }),
   http.post(`${API_BASE}/integration/xds/registries`, async () => { await delay(800); return HttpResponse.json({ success: true, data: { id: `xds-${Date.now()}` } }, { status: 201 }); }),
   http.post(`${API_BASE}/integration/xds/registries/:id/validate`, async () => { await delay(100); return HttpResponse.json({ success: true, data: { passed: true } }); }),
-  http.post(`${API_BASE}/integration/xds/query`, async () => { await delay(300); return HttpResponse.json({ success: true, data: [] }); }),
+  http.post(`${API_BASE}/integration/xds/query`, async () => { await delay(300); return HttpResponse.json({ success: true, data: [{ id: 'doc-001', patientId: 'P001', status: 'available' }] }); }),
   http.get(`${API_BASE}/integration/xds/registries/:id/ebxml`, async () => { await delay(150); return HttpResponse.json({ success: true, data: { content: '<?xml...', mime: 'application/xml' } }); }),
-  http.post(`${API_BASE}/integration/xds/stored-query/find-documents`, async () => { await delay(300); return HttpResponse.json({ success: true, data: [] }); }),
-  http.post(`${API_BASE}/integration/xds/stored-query/find-folders`, async () => { await delay(300); return HttpResponse.json({ success: true, data: [] }); }),
+  http.post(`${API_BASE}/integration/xds/stored-query/find-documents`, async () => { await delay(300); return HttpResponse.json({ success: true, data: [{ id: 'doc-001', title: 'Chest CT Report', format: 'CDA' }] }); }),
+  http.post(`${API_BASE}/integration/xds/stored-query/find-folders`, async () => { await delay(300); return HttpResponse.json({ success: true, data: [{ id: 'fld-001', title: '2026-07 Studies' }] }); }),
 
   // 3.5 HIS(6)
   http.post(`${API_BASE}/integration/his/order`, async () => { await delay(200); return HttpResponse.json({ success: true, data: { id: `ord-${Date.now()}` } }); }),
@@ -164,20 +166,20 @@ export const integrationHandlers = [
   http.get(`${API_BASE}/integration/his/config`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { host: 'his.hospital.com', port: 6661 } }); }),
 
   // 3.6 PACS(6)
-  http.get(`${API_BASE}/pacs/studies`, async () => { await delay(200); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/pacs/studies`, async () => { await delay(200); return HttpResponse.json({ success: true, data: [{ studyInstanceUID: '1.2.840.10008.5.1.4.1.1.2', patientName: '张三', modality: 'CT', date: '2026-07-01', description: 'Chest CT' }] }); }),
   http.get(`${API_BASE}/pacs/studies/:uid`, async () => { await delay(300); return HttpResponse.json({ success: true, data: { studyInstanceUID: '1.2.840...' } }); }),
   http.post(`${API_BASE}/pacs/verify`, async () => { await delay(500); return HttpResponse.json({ success: true, data: { matched: true, score: 0.95 } }); }),
   http.get(`${API_BASE}/pacs/wado/:uid`, async () => { await delay(300); return HttpResponse.json({ success: true, data: { contentType: 'application/dicom' } }); }),
-  http.get(`${API_BASE}/pacs/qido`, async () => { await delay(200); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/pacs/qido`, async () => { await delay(200); return HttpResponse.json({ success: true, data: [{ studyInstanceUID: '1.2.840.10008.5.1.4.1.1.2', modality: 'CT', patientName: '张三' }] }); }),
   http.post(`${API_BASE}/pacs/stow`, async () => { await delay(400); return HttpResponse.json({ success: true }); }),
 
   // 3.7 EHR / BI / Webhook(6)
   http.post(`${API_BASE}/integration/ehr`, async () => { await delay(300); return HttpResponse.json({ success: true }); }),
-  http.post(`${API_BASE}/integration/ehr/pull`, async () => { await delay(400); return HttpResponse.json({ success: true, data: [] }); }),
+  http.post(`${API_BASE}/integration/ehr/pull`, async () => { await delay(400); return HttpResponse.json({ success: true, data: [{ id: 'ehr-001', resourceType: 'Observation', code: '12345', value: '正常' }] }); }),
   http.get(`${API_BASE}/integration/bi/board`, async () => { await delay(200); return HttpResponse.json({ success: true, data: { totalReports: 1240 } }); }),
   http.post(`${API_BASE}/integration/webhooks`, async () => { await delay(200); return HttpResponse.json({ success: true, data: { id: `wh-${Date.now()}` } }); }),
   http.post(`${API_BASE}/integration/webhooks/:id/test`, async () => { await delay(500); return HttpResponse.json({ success: true, data: { delivered: true, statusCode: 200 } }); }),
-  http.get(`${API_BASE}/integration/webhooks/:id/log`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/integration/webhooks/:id/log`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [{ event: 'report.sent', status: 200, timestamp: '2026-07-03T10:00:00Z' }, { event: 'report.sent', status: 200, timestamp: '2026-07-03T09:00:00Z' }] }); }),
 ];
 
 // ============================================================
@@ -185,7 +187,7 @@ export const integrationHandlers = [
 // ============================================================
 export const otherHandlers = [
   // 4.1 通知中心(5)
-  http.get(`${API_BASE}/notifications`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/notifications`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [{ id: 'notif-001', type: 'review', title: '新审核任务', message: '报告R-001待审核', read: false, createdAt: '2026-07-04T10:00:00Z' }, { id: 'notif-002', type: 'critical', title: '危急值', message: '患者张三CT发现主动脉夹层', read: false, createdAt: '2026-07-04T09:30:00Z' }] }); }),
   http.put(`${API_BASE}/notifications/:id/read`, async () => { await delay(30); return HttpResponse.json({ success: true }); }),
   http.get(`${API_BASE}/notifications/unread`, async () => { await delay(30); return HttpResponse.json({ success: true, data: { count: 12 } }); }),
   http.get(`${API_BASE}/notifications/prefs`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { dndStartHour: 22, dndEndHour: 8 } }); }),
@@ -195,7 +197,7 @@ export const otherHandlers = [
   http.post(`${API_BASE}/analytics`, async () => { await delay(30); return new HttpResponse(null, { status: 204 }); }),
   http.post(`${API_BASE}/analytics/error`, async () => { await delay(30); return new HttpResponse(null, { status: 204 }); }),
   http.post(`${API_BASE}/analytics/perf`, async () => { await delay(30); return new HttpResponse(null, { status: 204 }); }),
-  http.get(`${API_BASE}/analytics/dashboard`, async () => { await delay(200); return HttpResponse.json({ success: true, data: { todayEvents: 1240, topEvents: [] } }); }),
+  http.get(`${API_BASE}/analytics/dashboard`, async () => { await delay(200); return HttpResponse.json({ success: true, data: { todayEvents: 1240, topEvents: [{ name: '报告完成', count: 45 }, { name: '危急值', count: 3 }, { name: '审核退回', count: 2 }] } }); }),
   http.post(`${API_BASE}/analytics/ab-test`, async () => { await delay(30); return HttpResponse.json({ success: true }); }),
 
   // 4.3 i18n(3)
@@ -209,10 +211,10 @@ export const otherHandlers = [
   http.post(`${API_BASE}/pwa/sync`, async () => { await delay(200); return HttpResponse.json({ success: true, data: { synced: 0 } }); }),
 
   // 4.5 帮助 / 反馈 / 版本(4)
-  http.get(`${API_BASE}/help/articles`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/help/articles`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [{ id: 'a-1', title: '如何书写放射报告', category: 'report' }, { id: 'a-2', title: '危急值处理流程', category: 'critical' }] }); }),
   http.post(`${API_BASE}/feedback`, async () => { await delay(100); return HttpResponse.json({ success: true, data: { id: `fb-${Date.now()}` } }); }),
   http.get(`${API_BASE}/version`, async () => { await delay(30); return HttpResponse.json({ success: true, data: { version: '3.0.5.1', buildTime: '2026-09-15' } }); }),
-  http.get(`${API_BASE}/changelog`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/changelog`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [{ version: 'v3.0.6.8', date: '2026-07-01', changes: ['新增眼科模块', '修复MSW路径'] }] }); }),
 ];
 
 // ============================================================
@@ -480,7 +482,7 @@ export const qualityReportHandlers = [
   }),
   http.get(`${API_BASE}/quality/exports`, async () => {
     await delay(150);
-    return HttpResponse.json({ success: true, data: [] });
+    return HttpResponse.json({ success: true, data: [{ id: 'exp-001', type: 'monthly', period: '2026-06', status: 'completed', createdAt: '2026-07-01T00:00:00Z' }] });
   }),
   http.post(`${API_BASE}/quality/exports`, async () => {
     await delay(200);
@@ -494,7 +496,7 @@ export const qualityReportHandlers = [
   // 6.5 报表配置 (2)
   http.get(`${API_BASE}/quality/report-configs`, async () => {
     await delay(120);
-    return HttpResponse.json({ success: true, data: [] });
+    return HttpResponse.json({ success: true, data: [{ id: 'cfg-001', name: '月度质控报表', period: 'monthly', sections: ['score', 'defect', 'trend'], enabled: true }] });
   }),
   http.post(`${API_BASE}/quality/report-configs`, async ({ request }) => {
     await delay(180);

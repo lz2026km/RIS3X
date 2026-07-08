@@ -8,7 +8,7 @@ import type {
   DeliveryQueue, DeliveryStatus, DeliveryReceipt, DeliveryEvent,
   PatientPortalLink, PatientReportView, PatientPortalStatus,
   DeliveryPolicy, DeliveryKpi, DeliveryMonitor, DeliveryErrorCode, DeliveryError,
-} from '@types/R3/R3.DIST';
+} from '../types/R3/R3.DIST';
 
 // ============================================================
 // 1. 通道配置

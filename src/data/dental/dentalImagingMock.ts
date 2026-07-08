@@ -1,7 +1,7 @@
 // [v3.0.6.8-53] PR 口腔: 口腔影像 mock 数据 (1200 行, 600 影像)
 import { randInt, pick, seedRandom } from '../_generators';
 
-function randFloat(min, max, decimals) {
+function randFloat(min: any, max: any, decimals?: any) {
   if (decimals === undefined) decimals = 2;
   return parseFloat((Math.random() * (max - min) + min).toFixed(decimals));
 }

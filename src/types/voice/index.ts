@@ -9,7 +9,7 @@
  *  - VoiceFeedback / AudioMetrics (.012 ~ .015)
  */
 
-import type { ModalityType } from '../../index';
+import type { ModalityType } from '../index';
 
 // ---------- 1. 云STT通用 ----------
 
@@ -226,7 +226,7 @@ export interface FormattingRule {
   pattern: RegExp;
   replacement: string;
   description: string;
-  category: 'punctuation' | 'spacing' | 'case' | 'medical' | 'numeric';
+  category: 'punctuation' | 'spacing' | 'case' | 'medical' | 'numeric' | 'unit';
   enabled: boolean;
 }
 

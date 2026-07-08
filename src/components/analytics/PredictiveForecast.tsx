@@ -7,9 +7,10 @@ export interface PredictiveForecastProps {
 }
 
 export default function PredictiveForecast({ forecast, title }: PredictiveForecastProps) {
-  const allPoints = [
-    ...forecast.history.map(p => ({ t: p.t, v: p.v, forecast: false })),
-    ...forecast.forecast.map(p => ({ t: p.t, v: p.predicted, forecast: true, lower: p.lower, upper: p.upper })),
+  type Point = { t: string; v: number; forecast: boolean; lower?: number; upper?: number };
+  const allPoints: Point[] = [
+    ...forecast.history.map(p => ({ t: p.t, v: p.v, forecast: false as const })),
+    ...forecast.forecast.map(p => ({ t: p.t, v: p.predicted, forecast: true as const, lower: p.lower, upper: p.upper })),
   ];
 
   const allVals = allPoints.map(p => p.v);

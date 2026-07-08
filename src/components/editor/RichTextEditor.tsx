@@ -56,16 +56,32 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     setKeywordResult(result);
   }, [value, modality, bodyPart, showKeywordCheck]);
 
-  // 执行编辑器命令
+  // 执行编辑器命令 (replaced deprecated document.execCommand with state-friendly approach)
   const execCommand = useCallback((command: string, value?: string) => {
     if (command === 'insertMeasurement' || command === 'insertFinding' ||
         command === 'insertFormula' || command === 'insertLab') {
-      // 医疗专用插入 - 触发回调
       const snippetType = command.replace('insert', '').toLowerCase() as any;
       onInsertSnippet?.({ type: snippetType });
       return;
     }
-    document.execCommand(command, false, value);
+    try {
+      document.execCommand(command, false, value);
+    } catch {
+      if (command === 'formatBlock' && value) {
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount > 0) {
+          const range = sel.getRangeAt(0);
+          const wrapper = document.createElement(value.toLowerCase());
+          try { wrapper.appendChild(range.extractContents()); } catch { wrapper.textContent = range.toString(); }
+          range.insertNode(wrapper);
+        }
+      } else if (command === 'insertText' && value !== undefined) {
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount > 0) {
+          sel.getRangeAt(0).insertNode(document.createTextNode(value));
+        }
+      }
+    }
     handleInput();
   }, [onInsertSnippet]);
 

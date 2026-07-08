@@ -235,7 +235,7 @@ export default function ReportWritePage() {
     if (r.success) {
       message.success('报告已提交审核');
       setShowSubmit(false);
-      setTimeout(() => navigate('/reports/review'), 1500);
+      setTimeout(() => navigate('/report-review'), 1500);
     }
   }, [reportId, preScore, context, navigate]);
 

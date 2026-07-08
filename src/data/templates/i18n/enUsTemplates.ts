@@ -3,8 +3,8 @@
  * 40 升级点 - 英文标签 / 英文短语 / 英文 RADS 描述
  * 与 src/i18n/locales/en-US/* 互补,提供结构化模板的英文内容
  */
-import type { StructuredTemplate, StructuredFieldDefinition, StructuredFieldGroup } from '@types/R3/R3.WRITING';
-import type { RadsCategory } from '@data/rads/radsCommon';
+import type { StructuredTemplate, StructuredFieldDefinition, StructuredFieldGroup } from '../../types/R3/R3.WRITING';
+import type { RadsCategory } from '../../data/rads/radsCommon';
 
 // ============================================================
 // 1. 通用短语 / 模板内容 (en-US)

@@ -1,7 +1,7 @@
 // [v3.0.6.8-88] Phase 1: 种植 3D 规划
 // 对标: 3Shape Implant Studio + SimPlant + CoDiagnostiX
 import React, { useState, useEffect, useRef } from 'react';
-import { Card, Space, Tag, Button, Select, Row, Col, Statistic, Form, InputNumber, message, Spin, Alert, Badge, Progress, Divider, Segmented } from 'antd';
+import { Card, Space, Tag, Button, Select, Row, Col, Statistic, Form, InputNumber, message, Spin, Alert, Badge, Progress, Divider, Segmented, Slider } from 'antd';
 import { Box, Eye, Save, CheckCircle2, Crosshair, AlertTriangle, Download, RotateCcw, BarChart3, Layers } from 'lucide-react';
 import { dentalApi } from '../../services/api/dentalApi';
 

@@ -4,7 +4,7 @@
  *      Transfer Syntax 协商 / Accept 头 / HTTP Range / 渲染
  */
 
-import type { WadoRsRequest, WadoRsResult, DicomWebMetadata } from '@types/integration';
+import type { WadoRsRequest, WadoRsResult, DicomWebMetadata } from '../../../types/integration';
 import { retrieveInstance, listStudies, listSeries, listInstances } from './StowRsServer';
 
 function delay(ms: number): Promise<void> { return new Promise((r) => setTimeout(r, ms)); }

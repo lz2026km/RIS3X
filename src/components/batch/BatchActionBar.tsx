@@ -1,0 +1,107 @@
+import { useState, type ReactNode } from 'react';
+import { X } from 'lucide-react';
+
+interface BatchAction {
+  key: string;
+  label: string;
+  icon: ReactNode;
+  confirm?: string;
+}
+
+interface BatchActionBarProps {
+  selectedCount: number;
+  onAction: (action: string) => void;
+  actions: BatchAction[];
+  onClear?: () => void;
+}
+
+const PRIMARY = '#1e40af';
+
+export default function BatchActionBar({ selectedCount, onAction, actions, onClear }: BatchActionBarProps) {
+  const [confirmKey, setConfirmKey] = useState<string | null>(null);
+
+  if (selectedCount === 0) return null;
+
+  const handleClick = (action: BatchAction) => {
+    if (action.confirm && confirmKey !== action.key) {
+      setConfirmKey(action.key);
+      return;
+    }
+    setConfirmKey(null);
+    onAction(action.key);
+  };
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        bottom: 24,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 100,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        padding: '12px 20px',
+        background: '#fff',
+        borderRadius: 12,
+        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+        border: '1px solid #e2e8f0',
+      }}
+    >
+      <span style={{ fontSize: 13, fontWeight: 600, color: '#1e293b', whiteSpace: 'nowrap' }}>
+        已选中 <span style={{ color: PRIMARY, fontWeight: 700 }}>{selectedCount}</span> 项
+      </span>
+      <div style={{ width: 1, height: 24, background: '#e2e8f0' }} />
+      {actions.map((action) => (
+        <button
+          key={action.key}
+          onClick={() => handleClick(action)}
+          onMouseLeave={() => setConfirmKey(null)}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: confirmKey === action.key ? '8px 16px' : '8px 14px',
+            borderRadius: 8,
+            border: '1px solid',
+            borderColor: confirmKey === action.key ? '#dc2626' : '#e2e8f0',
+            background: confirmKey === action.key ? '#fef2f2' : '#fff',
+            color: confirmKey === action.key ? '#dc2626' : '#334155',
+            fontSize: 13,
+            fontWeight: 600,
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+            transition: 'all 0.15s',
+          }}
+        >
+          {action.icon}
+          {confirmKey === action.key ? (action.confirm || '确认?') : action.label}
+        </button>
+      ))}
+      {onClear && (
+        <>
+          <div style={{ width: 1, height: 24, background: '#e2e8f0' }} />
+          <button
+            onClick={onClear}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              padding: '8px 10px',
+              borderRadius: 8,
+              border: 'none',
+              background: 'transparent',
+              color: '#94a3b8',
+              fontSize: 12,
+              cursor: 'pointer',
+            }}
+          >
+            <X size={14} />
+            取消选择
+          </button>
+        </>
+      )}
+    </div>
+  );
+}

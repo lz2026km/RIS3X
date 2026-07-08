@@ -53,7 +53,7 @@ describe('MultiModalityPanel', () => {
     render(<MultiModalityPanel slices={SLICES} onSlicesChange={onSlicesChange} />)
     fireEvent.click(screen.getByTestId('mm-remove-ct1'))
     const newSlices = onSlicesChange.mock.calls[0][0]
-    expect(newSlices.find((s) => s.id === 'ct1')).toBeUndefined()
+    expect(newSlices.find((s: any) => s.id === 'ct1')).toBeUndefined()
   })
 
   it('修改 bodyPart 触发 onSlicesChange', () => {
@@ -63,7 +63,7 @@ describe('MultiModalityPanel', () => {
     fireEvent.change(input, { target: { value: 'ABDOMEN' } })
     expect(onSlicesChange).toHaveBeenCalled()
     const updated = onSlicesChange.mock.calls[0][0]
-    expect(updated.find((s) => s.id === 'ct1').bodyPart).toBe('ABDOMEN')
+    expect(updated.find((s: any) => s.id === 'ct1').bodyPart).toBe('ABDOMEN')
   })
 
   it('建立关联模式', async () => {

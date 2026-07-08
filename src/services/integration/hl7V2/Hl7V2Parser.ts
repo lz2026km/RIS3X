@@ -7,7 +7,7 @@
 import type {
   Hl7Segment, Hl7SegmentName, Hl7Field, Hl7EncodingCharacters, Hl7FieldValue,
   Hl7ParsedMessage, Hl7ValidationResult, Hl7ValidationIssue, Hl7Component,
-} from '@types/integration';
+} from '../../../types/integration';
 
 export type { Hl7Segment, Hl7SegmentName, Hl7Field, Hl7EncodingCharacters, Hl7FieldValue, Hl7ParsedMessage, Hl7ValidationResult, Hl7ValidationIssue, Hl7Component };
 

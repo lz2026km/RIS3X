@@ -2,8 +2,8 @@
  * G005 放射RIS系统 v3.0.5.1 - FHIR R4 DiagnosticReport Service
  */
 
-import type { FhirDiagnosticReport, FhirAttachment, FhirAnnotation, FhirReference, FhirIdentifier, FhirCodeableConcept, FhirCoding } from '@types/R3/R3.INTEGRATION';
-import { FHIR_DR_MOCK, FHIR_DR_DOCUMENTS_MOCK } from '@data/reportIntegrationMock';
+import type { FhirDiagnosticReport, FhirAttachment, FhirAnnotation, FhirReference, FhirIdentifier, FhirCodeableConcept, FhirCoding } from '../../types/R3/R3.INTEGRATION';
+import { FHIR_DR_MOCK, FHIR_DR_DOCUMENTS_MOCK } from '../../data/reportIntegrationMock';
 
 const SIM_LATENCY_MS = 100;
 

@@ -30,7 +30,7 @@ export function calcCobbAngle(input: NonNullable<ClinicalCalcInput['cobbAngle']>
   const { upperEndplateDeg, lowerEndplateDeg } = input;
   const raw = Math.abs(upperEndplateDeg - lowerEndplateDeg);
   const value = round(raw, 1);
-  const severity: CobbAngleOutput['extra'] =
+  const severity: 'mild' | 'moderate' | 'severe' =
     value < 10 ? 'mild' : value <= 40 ? 'moderate' : 'severe';
   const interpretation =
     severity === 'mild' ? '轻度侧弯,临床观察随访' :
@@ -44,7 +44,7 @@ export function calcCobbAngle(input: NonNullable<ClinicalCalcInput['cobbAngle']>
     meta: buildMeta('|α - β|', 'SRS 指南 Cobb 角测量', '°', [
       severity === 'mild' ? '< 10°:轻度' : severity === 'moderate' ? '10-40°:中度' : '> 40°:重度',
     ]),
-    extra: severity,
+    extra: { severity },
   };
 }
 
@@ -93,7 +93,7 @@ export function calcEgfr(input: NonNullable<ClinicalCalcInput['egfr']>): EgfrOut
     (sex === 'female' ? 1.012 : 1);
   const value = round(egfr, 1);
 
-  const ckdStage: EgfrOutput['extra']['ckdStage'] =
+  const ckdStage: 'G1' | 'G2' | 'G3a' | 'G3b' | 'G4' | 'G5' =
     value >= 90 ? 'G1' : value >= 60 ? 'G2' : value >= 45 ? 'G3a' :
     value >= 30 ? 'G3b' : value >= 15 ? 'G4' : 'G5';
   return {
@@ -140,7 +140,7 @@ export function calcCtr(input: NonNullable<ClinicalCalcInput['ctr']>): CtrOutput
   const { heartDiameterMm, thoraxDiameterMm } = input;
   const ratio = heartDiameterMm / thoraxDiameterMm;
   const value = round(ratio, 3);
-  const severity: CtrOutput['extra']['severity'] =
+  const severity: 'normal' | 'mild' | 'moderate' | 'severe' =
     value <= 0.5 ? 'normal' : value <= 0.55 ? 'mild' : value <= 0.6 ? 'moderate' : 'severe';
   return {
     id: 'ctr',
@@ -165,7 +165,7 @@ export function calcLvMass(input: NonNullable<ClinicalCalcInput['lvMass']>): LvM
   const lvMassG = 0.8 * (1.04 * ((ivsdMm + lveddMm + pwdMm) ** 3 - lveddMm ** 3)) + 0.6;
   const indexed = lvMassG / bsa;
   const value = round(lvMassG, 1);
-  const severity: LvMassOutput['extra']['severity'] =
+  const severity: 'normal' | 'mild' | 'moderate' | 'severe' =
     sex === 'female'
       ? (indexed < 95 ? 'normal' : indexed < 108 ? 'mild' : indexed < 121 ? 'moderate' : 'severe')
       : (indexed < 115 ? 'normal' : indexed < 126 ? 'mild' : indexed < 148 ? 'moderate' : 'severe');
@@ -188,7 +188,7 @@ export function calcAorticSizeIndex(input: NonNullable<ClinicalCalcInput['aortic
   const { maxAorticDiameterMm, bsa } = input;
   const asi = maxAorticDiameterMm / bsa;
   const value = round(asi, 2);
-  const severity: AsiOutput['extra']['severity'] =
+  const severity: 'normal' | 'low-risk' | 'medium-risk' | 'high-risk' =
     asi < 2.75 ? 'normal' : asi < 3.0 ? 'low-risk' : asi < 3.5 ? 'medium-risk' : 'high-risk';
   return {
     id: 'aorticSizeIndex',
@@ -213,7 +213,7 @@ export function calcBmi(input: NonNullable<ClinicalCalcInput['bmi']>): BmiOutput
   const { weightKg, heightCm } = input;
   const heightM = heightCm / 100;
   const value = round(weightKg / (heightM * heightM), 1);
-  const category: BmiOutput['extra']['category'] =
+  const category: 'underweight' | 'normal' | 'overweight' | 'obese-i' | 'obese-ii' | 'obese-iii' =
     value < 18.5 ? 'underweight' : value < 24 ? 'normal' :
     value < 28 ? 'overweight' : value < 32 ? 'obese-i' :
     value < 37 ? 'obese-ii' : 'obese-iii';
@@ -271,7 +271,7 @@ export function calcTdiIcVolume(input: NonNullable<ClinicalCalcInput['tdiIcVolum
 export function calcCorrectedQt(input: NonNullable<ClinicalCalcInput['correctedQt']>): QtcOutput {
   const { qtMs, rrMs } = input;
   const qtc = round(qtMs / Math.sqrt(rrMs / 1000), 0);
-  const severity: QtcOutput['extra']['severity'] =
+  const severity: 'normal' | 'borderline' | 'prolonged' =
     qtc < 440 ? 'normal' : qtc <= 460 ? 'borderline' : 'prolonged';
   return {
     id: 'correctedQt',
@@ -313,7 +313,7 @@ export class CalculationEngine {
     return CalculationEngine.instance;
   }
 
-  private registry: Record<ClinicalCalcId, (i: ClinicalCalcInput) => ClinicalCalcOutput> = {
+  private registry: Record<ClinicalCalcId, (i: ClinicalCalcInput) => ClinicalCalcOutput<any, any>> = {
     cobbAngle: (i) => calcCobbAngle(i.cobbAngle!),
     efw: (i) => calcEfw(i.efw!),
     egfr: (i) => calcEgfr(i.egfr!),

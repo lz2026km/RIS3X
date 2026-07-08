@@ -9,7 +9,7 @@ export type ExamBodyPart =
 export interface ExamItemMaster {
   code: string; // CT-001
   name: string; // 胸部CT平扫
-  modality: "CT" | "MR" | "DR" | "US" | "MG" | "DSA" | "PET-CT";
+  modality: "CT" | "MR" | "DR" | "US" | "MG" | "DSA" | "PET-CT" | "NM";
   category: ExamCategory;
   bodyPart: ExamBodyPart;
   // 时长/费用
@@ -84,6 +84,22 @@ const EXAM_DATA: { modality: ExamItemMaster["modality"]; name: string; category:
   { modality: "CT", name: "心肌CT灌注", category: "功能成像", bodyPart: "心脏", price: 1080, dur: 25, tat: 360, tatUrgent: 60, contrast: "碘海醇 80ml", radLex: "RID10451", snomed: "169109001", prep: "碘过敏试验", desc: "评估心肌缺血" },
   { modality: "CT", name: "双能CT(结石成分分析)", category: "特殊成像", bodyPart: "全身", price: 580, dur: 20, tat: 360, tatUrgent: 60, contrast: "无", radLex: "RID10454", snomed: "169110006", prep: "已做平扫", desc: "泌尿系结石成分" },
   { modality: "CT", name: "能谱CT成像", category: "特殊成像", bodyPart: "全身", price: 580, dur: 22, tat: 360, tatUrgent: 60, contrast: "无", radLex: "RID10457", snomed: "169111005", prep: "已做CT", desc: "物质成分分析" },
+  { modality: "CT", name: "CT结肠造影", category: "造影", bodyPart: "消化", price: 980, dur: 25, tat: 360, tatUrgent: 60, contrast: "碘海醇 150ml", radLex: "RID10457", snomed: "169111006", prep: "肠道准备+碘过敏试验", desc: "结肠癌筛查" },
+  { modality: "CT", name: "CT小肠造影(CTE)", category: "造影", bodyPart: "消化", price: 1080, dur: 30, tat: 360, tatUrgent: 60, contrast: "碘海醇 120ml", radLex: "RID10457", snomed: "169111007", prep: "空腹+甘露醇口服+碘过敏", desc: "小肠病变" },
+  { modality: "CT", name: "颞下颌关节CT平扫", category: "平扫", bodyPart: "骨关节", price: 300, dur: 10, tat: 240, tatUrgent: 30, contrast: "无", radLex: "RID10457", snomed: "169111008", prep: "去除金属物", desc: "TMJ评估" },
+  { modality: "CT", name: "CT引导下穿刺活检", category: "特殊成像", bodyPart: "胸部", price: 1880, dur: 40, tat: 120, tatUrgent: 30, contrast: "无", radLex: "RID10457", snomed: "169111009", prep: "凝血功能+空腹", desc: "肺结节活检" },
+  { modality: "CT", name: "冠脉支架CTA评估", category: "造影", bodyPart: "心脏", price: 1380, dur: 28, tat: 360, tatUrgent: 60, contrast: "碘海醇 80ml", radLex: "RID10457", snomed: "169111010", prep: "心率<65+碘过敏试验", desc: "支架通畅性" },
+  { modality: "CT", name: "双能量CT肺灌注", category: "功能成像", bodyPart: "胸部", price: 880, dur: 20, tat: 360, tatUrgent: 60, contrast: "碘海醇 80ml", radLex: "RID10457", snomed: "169111011", prep: "碘过敏试验", desc: "肺栓塞评估" },
+  { modality: "CT", name: "CT关节造影", category: "造影", bodyPart: "骨关节", price: 680, dur: 20, tat: 240, tatUrgent: 30, contrast: "碘海醇 10ml", radLex: "RID10457", snomed: "169111012", prep: "关节穿刺+碘过敏", desc: "肩关节盂唇" },
+  { modality: "CT", name: "胰腺CT增强(双期)", category: "增强", bodyPart: "腹部", price: 780, dur: 22, tat: 360, tatUrgent: 45, contrast: "碘海醇 100ml", radLex: "RID10457", snomed: "169111013", prep: "空腹6小时+碘过敏试验", desc: "胰腺肿瘤" },
+  { modality: "CT", name: "肾上腺CT增强", category: "增强", bodyPart: "腹部", price: 680, dur: 18, tat: 360, tatUrgent: 45, contrast: "碘海醇 80ml", radLex: "RID10457", snomed: "169111014", prep: "空腹4小时+碘过敏试验", desc: "肾上腺腺瘤" },
+  { modality: "CT", name: "四肢血管CTA", category: "造影", bodyPart: "血管", price: 1280, dur: 28, tat: 360, tatUrgent: 60, contrast: "碘海醇 120ml", radLex: "RID10457", snomed: "169111015", prep: "空腹+碘过敏试验", desc: "四肢血管病变" },
+  { modality: "CT", name: "胸部高分辨CT(HRCT)", category: "特殊成像", bodyPart: "胸部", price: 420, dur: 12, tat: 240, tatUrgent: 30, contrast: "无", radLex: "RID10457", snomed: "169111016", prep: "深吸气屏气", desc: "间质性肺病" },
+  { modality: "CT", name: "腹主动脉CTA", category: "造影", bodyPart: "血管", price: 1280, dur: 25, tat: 360, tatUrgent: 60, contrast: "碘海醇 100ml", radLex: "RID10457", snomed: "169111017", prep: "碘过敏试验", desc: "腹主动脉瘤" },
+  { modality: "CT", name: "肺静脉CTA", category: "造影", bodyPart: "心脏", price: 1080, dur: 22, tat: 360, tatUrgent: 60, contrast: "碘海醇 80ml", radLex: "RID10457", snomed: "169111018", prep: "碘过敏试验", desc: "房颤术前评估" },
+  { modality: "CT", name: "胸主动脉CTA", category: "造影", bodyPart: "血管", price: 1280, dur: 25, tat: 360, tatUrgent: 60, contrast: "碘海醇 100ml", radLex: "RID10457", snomed: "169111019", prep: "碘过敏试验", desc: "主动脉夹层" },
+  { modality: "CT", name: "眼眶CT增强", category: "增强", bodyPart: "头部", price: 480, dur: 15, tat: 240, tatUrgent: 30, contrast: "碘海醇 60ml", radLex: "RID10457", snomed: "169111020", prep: "碘过敏试验", desc: "眼眶病变" },
+  { modality: "CT", name: "颈部CT增强", category: "增强", bodyPart: "颈部", price: 580, dur: 18, tat: 360, tatUrgent: 45, contrast: "碘海醇 80ml", radLex: "RID10457", snomed: "169111021", prep: "空腹+碘过敏试验", desc: "颈部淋巴结" },
 
   // MR 平扫 (15)
   { modality: "MR", name: "头部MR平扫", category: "平扫", bodyPart: "头部", price: 580, dur: 25, tat: 360, tatUrgent: 60, contrast: "无", radLex: "RID10460", snomed: "169112003", prep: "去除金属物+禁动30分", desc: "颅脑 MRI" },
@@ -124,6 +140,23 @@ const EXAM_DATA: { modality: ExamItemMaster["modality"]; name: string; category:
   { modality: "MR", name: "脑MRS(波谱)", category: "功能成像", bodyPart: "神经", price: 980, dur: 30, tat: 360, tatUrgent: 60, contrast: "无", radLex: "RID10553", snomed: "169143005", prep: "去除金属物", desc: "脑肿瘤代谢" },
   { modality: "MR", name: "肝脂肪定量(MRI-PDFF)", category: "功能成像", bodyPart: "腹部", price: 880, dur: 25, tat: 360, tatUrgent: 60, contrast: "无", radLex: "RID10556", snomed: "169144004", prep: "禁食4小时", desc: "脂肪肝分级" },
   { modality: "MR", name: "全身DWIBS(类PET)", category: "功能成像", bodyPart: "全身", price: 1380, dur: 45, tat: 360, tatUrgent: 60, contrast: "无", radLex: "RID10559", snomed: "169145003", prep: "禁食4小时", desc: "肿瘤全身筛查" },
+  { modality: "MR", name: "脑ASL(动脉自旋标记)", category: "功能成像", bodyPart: "神经", price: 880, dur: 20, tat: 360, tatUrgent: 60, contrast: "无", radLex: "RID10560", snomed: "169145004", prep: "去除金属物", desc: "脑灌注无对比剂" },
+  { modality: "MR", name: "脑SWI(磁敏感加权)", category: "特殊成像", bodyPart: "神经", price: 680, dur: 15, tat: 360, tatUrgent: 60, contrast: "无", radLex: "RID10561", snomed: "169145005", prep: "去除金属物", desc: "微小出血/铁沉积" },
+  { modality: "MR", name: "4D-flow MR血管成像", category: "功能成像", bodyPart: "血管", price: 1480, dur: 40, tat: 360, tatUrgent: 60, contrast: "无", radLex: "RID10562", snomed: "169145006", prep: "去除金属物", desc: "血流动力学" },
+  { modality: "MR", name: "MR弹性成像(MRE)", category: "特殊成像", bodyPart: "腹部", price: 1080, dur: 30, tat: 360, tatUrgent: 60, contrast: "无", radLex: "RID10563", snomed: "169145007", prep: "禁食4小时", desc: "肝纤维化分期" },
+  { modality: "MR", name: "MR神经成像(MRN)", category: "特殊成像", bodyPart: "神经", price: 980, dur: 35, tat: 360, tatUrgent: 60, contrast: "无", radLex: "RID10564", snomed: "169145008", prep: "去除金属物", desc: "周围神经病变" },
+  { modality: "MR", name: "MR小肠造影(MRE)", category: "造影", bodyPart: "消化", price: 1280, dur: 40, tat: 360, tatUrgent: 60, contrast: "钆喷酸 15ml", radLex: "RID10565", snomed: "169145009", prep: "禁食6小时+甘露醇口服", desc: "炎性肠病" },
+  { modality: "MR", name: "MR关节造影(肩)", category: "造影", bodyPart: "骨关节", price: 1080, dur: 35, tat: 360, tatUrgent: 60, contrast: "钆喷酸 5ml", radLex: "RID10566", snomed: "169145010", prep: "关节穿刺", desc: "肩关节盂唇损伤" },
+  { modality: "MR", name: "MR关节造影(髋)", category: "造影", bodyPart: "骨关节", price: 1080, dur: 35, tat: 360, tatUrgent: 60, contrast: "钆喷酸 5ml", radLex: "RID10567", snomed: "169145011", prep: "关节穿刺", desc: "髋关节盂唇损伤" },
+  { modality: "MR", name: "全身MRA", category: "造影", bodyPart: "血管", price: 1280, dur: 40, tat: 360, tatUrgent: 60, contrast: "钆喷酸 20ml", radLex: "RID10568", snomed: "169145012", prep: "禁食4小时+肾功", desc: "全身血管评估" },
+  { modality: "MR", name: "脑T2-FLAIR增强", category: "增强", bodyPart: "头部", price: 880, dur: 25, tat: 360, tatUrgent: 60, contrast: "钆喷酸 10ml", radLex: "RID10569", snomed: "169145013", prep: "肾功检查", desc: "脑膜炎评估" },
+  { modality: "MR", name: "臂丛神经MR", category: "特殊成像", bodyPart: "神经", price: 1080, dur: 35, tat: 360, tatUrgent: 60, contrast: "无", radLex: "RID10570", snomed: "169145014", prep: "去除金属物", desc: "臂丛神经损伤" },
+  { modality: "MR", name: "前列腺MR平扫", category: "平扫", bodyPart: "盆腔", price: 620, dur: 25, tat: 360, tatUrgent: 60, contrast: "无", radLex: "RID10571", snomed: "169145015", prep: "清洁肠道", desc: "前列腺增生" },
+  { modality: "MR", name: "睾丸MR平扫", category: "平扫", bodyPart: "盆腔", price: 580, dur: 22, tat: 360, tatUrgent: 60, contrast: "无", radLex: "RID10572", snomed: "169145016", prep: "去除金属物", desc: "睾丸病变" },
+  { modality: "MR", name: "眼眶MR平扫+增强", category: "增强", bodyPart: "头部", price: 980, dur: 30, tat: 360, tatUrgent: 60, contrast: "钆喷酸 10ml", radLex: "RID10573", snomed: "169145017", prep: "去除金属物", desc: "眼眶肿瘤" },
+  { modality: "MR", name: "腰丛神经MR", category: "特殊成像", bodyPart: "神经", price: 1080, dur: 35, tat: 360, tatUrgent: 60, contrast: "无", radLex: "RID10574", snomed: "169145018", prep: "去除金属物", desc: "腰骶丛病变" },
+  { modality: "MR", name: "胎儿MR平扫", category: "平扫", bodyPart: "盆腔", price: 880, dur: 35, tat: 360, tatUrgent: 60, contrast: "无", radLex: "RID10575", snomed: "169145019", prep: "无需特殊", desc: "胎儿中枢神经" },
+  { modality: "MR", name: "腮腺MR平扫+增强", category: "增强", bodyPart: "颈部", price: 980, dur: 30, tat: 360, tatUrgent: 60, contrast: "钆喷酸 10ml", radLex: "RID10576", snomed: "169145020", prep: "去除金属物", desc: "腮腺肿瘤" },
 
   // DR (15)
   { modality: "DR", name: "胸部正侧位", category: "平扫", bodyPart: "胸部", price: 80, dur: 3, tat: 60, tatUrgent: 15, contrast: "无", radLex: "RID10562", snomed: "169146002", prep: "去除金属物", desc: "胸片基础检查" },
@@ -141,6 +174,20 @@ const EXAM_DATA: { modality: ExamItemMaster["modality"]; name: string; category:
   { modality: "DR", name: "足正侧位", category: "平扫", bodyPart: "四肢", price: 80, dur: 4, tat: 60, tatUrgent: 15, contrast: "无", radLex: "RID10598", snomed: "169158002", prep: "去除金属物", desc: "足部" },
   { modality: "DR", name: "手正斜位", category: "平扫", bodyPart: "四肢", price: 80, dur: 4, tat: 60, tatUrgent: 15, contrast: "无", radLex: "RID10601", snomed: "169159005", prep: "去除金属物", desc: "手部" },
   { modality: "DR", name: "胸腰段全长摄影(EOS)", category: "特殊成像", bodyPart: "脊柱", price: 380, dur: 8, tat: 120, tatUrgent: 30, contrast: "无", radLex: "RID10604", snomed: "169160000", prep: "去除金属物", desc: "脊柱侧弯" },
+  { modality: "DR", name: "负重位膝关节DR", category: "特殊成像", bodyPart: "骨关节", price: 120, dur: 5, tat: 60, tatUrgent: 15, contrast: "无", radLex: "RID10605", snomed: "169160001", prep: "站立位", desc: "骨关节炎评估" },
+  { modality: "DR", name: "脊柱全长DR", category: "特殊成像", bodyPart: "脊柱", price: 320, dur: 8, tat: 120, tatUrgent: 30, contrast: "无", radLex: "RID10606", snomed: "169160002", prep: "去除金属物", desc: "脊柱侧弯测量" },
+  { modality: "DR", name: "双下肢全长DR", category: "特殊成像", bodyPart: "四肢", price: 280, dur: 6, tat: 120, tatUrgent: 30, contrast: "无", radLex: "RID10607", snomed: "169160003", prep: "站立位", desc: "下肢力线测量" },
+  { modality: "DR", name: "负重位踝关节DR", category: "特殊成像", bodyPart: "骨关节", price: 100, dur: 4, tat: 60, tatUrgent: 15, contrast: "无", radLex: "RID10608", snomed: "169160004", prep: "站立位", desc: "踝关节负重评估" },
+  { modality: "DR", name: "骶髂关节DR", category: "平扫", bodyPart: "骨关节", price: 100, dur: 4, tat: 60, tatUrgent: 15, contrast: "无", radLex: "RID10609", snomed: "169160005", prep: "去除金属物", desc: "强直性脊柱炎" },
+  { modality: "DR", name: "乳腺DR(钼靶)", category: "平扫", bodyPart: "乳腺", price: 280, dur: 10, tat: 60, tatUrgent: 15, contrast: "无", radLex: "RID10610", snomed: "169160006", prep: "月经后7-14天", desc: "乳腺癌筛查" },
+  { modality: "DR", name: "口腔曲面断层(全景)", category: "特殊成像", bodyPart: "全身", price: 180, dur: 5, tat: 60, tatUrgent: 15, contrast: "无", radLex: "RID10611", snomed: "169160007", prep: "去除金属物", desc: "口腔全景" },
+  { modality: "DR", name: "头颅正侧位DR", category: "平扫", bodyPart: "头部", price: 100, dur: 4, tat: 60, tatUrgent: 15, contrast: "无", radLex: "RID10612", snomed: "169160008", prep: "去除金属物", desc: "颅骨评估" },
+  { modality: "DR", name: "胸部双能量减影DR", category: "特殊成像", bodyPart: "胸部", price: 180, dur: 5, tat: 60, tatUrgent: 15, contrast: "无", radLex: "RID10613", snomed: "169160009", prep: "深吸气屏气", desc: "肺结节检测" },
+  { modality: "DR", name: "跟骨轴位+侧位DR", category: "平扫", bodyPart: "四肢", price: 80, dur: 3, tat: 60, tatUrgent: 15, contrast: "无", radLex: "RID10614", snomed: "169160010", prep: "去除金属物", desc: "跟骨骨折" },
+  { modality: "DR", name: "胸片(便携)", category: "平扫", bodyPart: "胸部", price: 60, dur: 3, tat: 120, tatUrgent: 15, contrast: "无", radLex: "RID10615", snomed: "169160011", prep: "卧床", desc: "床旁胸片" },
+  { modality: "DR", name: "站立位全脊柱DR", category: "特殊成像", bodyPart: "脊柱", price: 380, dur: 8, tat: 120, tatUrgent: 30, contrast: "无", radLex: "RID10616", snomed: "169160012", prep: "站立位", desc: "脊柱侧弯Cobb角" },
+  { modality: "DR", name: "胸部侧位DR", category: "平扫", bodyPart: "胸部", price: 60, dur: 2, tat: 60, tatUrgent: 15, contrast: "无", radLex: "RID10617", snomed: "169160013", prep: "去除金属物", desc: "胸片侧位" },
+  { modality: "DR", name: "腹部侧位DR", category: "平扫", bodyPart: "腹部", price: 80, dur: 3, tat: 60, tatUrgent: 15, contrast: "无", radLex: "RID10618", snomed: "169160014", prep: "去除金属物", desc: "腹部侧位" },
 
   // US (20)
   { modality: "US", name: "腹部超声", category: "平扫", bodyPart: "腹部", price: 120, dur: 15, tat: 60, tatUrgent: 15, contrast: "无", radLex: "RID10607", snomed: "169161001", prep: "空腹8小时", desc: "肝胆胰脾肾" },
@@ -182,11 +229,40 @@ const EXAM_DATA: { modality: ExamItemMaster["modality"]; name: string; category:
   { modality: "DSA", name: "肝动脉化疗栓塞(TACE)", category: "特殊成像", bodyPart: "腹部", price: 12800, dur: 90, tat: 240, tatUrgent: 30, contrast: "碘海醇 150ml", radLex: "RID10703", snomed: "169193009", prep: "禁食6小时", desc: "肝癌介入" },
   { modality: "DSA", name: "子宫动脉栓塞", category: "特殊成像", bodyPart: "盆腔", price: 9800, dur: 60, tat: 240, tatUrgent: 30, contrast: "碘海醇 100ml", radLex: "RID10706", snomed: "169194003", prep: "禁食6小时", desc: "子宫肌瘤/产后出血" },
   { modality: "DSA", name: "外周血管造影+介入", category: "造影", bodyPart: "血管", price: 6800, dur: 60, tat: 240, tatUrgent: 30, contrast: "碘海醇 100ml", radLex: "RID10709", snomed: "169195002", prep: "禁食6小时", desc: "外周血管病" },
+
+  // PET-CT (10)
+  { modality: "PET-CT", name: "PET-CT全身FDG显像", category: "特殊成像", bodyPart: "全身", price: 6980, dur: 30, tat: 480, tatUrgent: 120, contrast: "氟代脱氧葡萄糖(FDG)", radLex: "RID10710", snomed: "169195003", prep: "禁食6小时+血糖<11.1", desc: "肿瘤全身评估" },
+  { modality: "PET-CT", name: "PET-CT脑FDG显像", category: "特殊成像", bodyPart: "头部", price: 5980, dur: 25, tat: 480, tatUrgent: 120, contrast: "氟代脱氧葡萄糖(FDG)", radLex: "RID10711", snomed: "169195004", prep: "禁食6小时+血糖<11.1", desc: "脑代谢/癫痫" },
+  { modality: "PET-CT", name: "PET-CT心肌代谢显像", category: "特殊成像", bodyPart: "心脏", price: 6480, dur: 40, tat: 480, tatUrgent: 120, contrast: "氟代脱氧葡萄糖(FDG)", radLex: "RID10712", snomed: "169195005", prep: "禁食12小时+糖负荷", desc: "心肌活力评估" },
+  { modality: "PET-CT", name: "PET-CT局部显像(胸部)", category: "特殊成像", bodyPart: "胸部", price: 4980, dur: 20, tat: 480, tatUrgent: 120, contrast: "氟代脱氧葡萄糖(FDG)", radLex: "RID10713", snomed: "169195006", prep: "禁食6小时", desc: "肺结节评估" },
+  { modality: "PET-CT", name: "PET-CT局部显像(腹部)", category: "特殊成像", bodyPart: "腹部", price: 4980, dur: 20, tat: 480, tatUrgent: 120, contrast: "氟代脱氧葡萄糖(FDG)", radLex: "RID10714", snomed: "169195007", prep: "禁食6小时", desc: "肝/胰腺病变" },
+  { modality: "PET-CT", name: "PET-CT全身显像(延迟)", category: "特殊成像", bodyPart: "全身", price: 7980, dur: 50, tat: 480, tatUrgent: 120, contrast: "氟代脱氧葡萄糖(FDG)", radLex: "RID10715", snomed: "169195008", prep: "禁食6小时+空腹血糖", desc: "延迟显像提高特异性" },
+  { modality: "PET-CT", name: "PET-CT PSMA显像", category: "特殊成像", bodyPart: "全身", price: 8980, dur: 35, tat: 480, tatUrgent: 120, contrast: "Ga-68 PSMA", radLex: "RID10716", snomed: "169195009", prep: "禁食4小时", desc: "前列腺癌分期" },
+  { modality: "PET-CT", name: "PET-CT DOTATATE显像", category: "特殊成像", bodyPart: "全身", price: 8980, dur: 35, tat: 480, tatUrgent: 120, contrast: "Ga-68 DOTATATE", radLex: "RID10717", snomed: "169195010", prep: "禁食4小时", desc: "神经内分泌肿瘤" },
+  { modality: "PET-CT", name: "PET-CT FDG脑显像(阿尔茨海默)", category: "特殊成像", bodyPart: "头部", price: 6480, dur: 25, tat: 480, tatUrgent: 120, contrast: "氟代脱氧葡萄糖(FDG)", radLex: "RID10718", snomed: "169195011", prep: "禁食6小时", desc: "痴呆鉴别" },
+  { modality: "PET-CT", name: "PET-CT全身显像(儿童)", category: "特殊成像", bodyPart: "全身", price: 5980, dur: 30, tat: 480, tatUrgent: 120, contrast: "氟代脱氧葡萄糖(FDG)", radLex: "RID10719", snomed: "169195012", prep: "禁食6小时+镇静评估", desc: "儿童肿瘤" },
+
+  // NM (核医学) (15)
+  { modality: "NM", name: "全身骨显像(SPECT)", category: "特殊成像", bodyPart: "全身", price: 880, dur: 30, tat: 480, tatUrgent: 120, contrast: "Tc-99m MDP", radLex: "RID10720", snomed: "169195013", prep: "多饮水", desc: "骨转移筛查" },
+  { modality: "NM", name: "甲状腺静态显像", category: "特殊成像", bodyPart: "甲状腺", price: 380, dur: 20, tat: 240, tatUrgent: 60, contrast: "Tc-99m 高锝酸盐", radLex: "RID10721", snomed: "169195014", prep: "停用甲状腺药物", desc: "甲状腺功能" },
+  { modality: "NM", name: "心肌灌注显像(静息+负荷)", category: "特殊成像", bodyPart: "心脏", price: 1680, dur: 120, tat: 480, tatUrgent: 120, contrast: "Tc-99m MIBI", radLex: "RID10722", snomed: "169195015", prep: "禁食4小时+停β阻滞剂", desc: "心肌缺血评估" },
+  { modality: "NM", name: "肾动态显像+GFR", category: "特殊成像", bodyPart: "泌尿", price: 680, dur: 30, tat: 240, tatUrgent: 60, contrast: "Tc-99m DTPA", radLex: "RID10723", snomed: "169195016", prep: "饮水300ml", desc: "肾功能分测" },
+  { modality: "NM", name: "肺通气/灌注显像(V/Q)", category: "特殊成像", bodyPart: "呼吸", price: 880, dur: 45, tat: 480, tatUrgent: 120, contrast: "Tc-99m MAA+气体", radLex: "RID10724", snomed: "169195017", prep: "无需特殊", desc: "肺栓塞" },
+  { modality: "NM", name: "甲状旁腺显像", category: "特殊成像", bodyPart: "甲状腺", price: 680, dur: 60, tat: 240, tatUrgent: 60, contrast: "Tc-99m MIBI", radLex: "RID10725", snomed: "169195018", prep: "无需特殊", desc: "甲状旁腺腺瘤" },
+  { modality: "NM", name: "全身淋巴显像", category: "特殊成像", bodyPart: "全身", price: 780, dur: 60, tat: 240, tatUrgent: 60, contrast: "Tc-99m 植酸钠", radLex: "RID10726", snomed: "169195019", prep: "无需特殊", desc: "淋巴回流" },
+  { modality: "NM", name: "肝胆动态显像(HIDA)", category: "特殊成像", bodyPart: "消化", price: 680, dur: 90, tat: 240, tatUrgent: 60, contrast: "Tc-99m EHIDA", radLex: "RID10727", snomed: "169195020", prep: "禁食4小时", desc: "胆囊功能" },
+  { modality: "NM", name: "消化道出血显像", category: "特殊成像", bodyPart: "消化", price: 780, dur: 60, tat: 240, tatUrgent: 30, contrast: "Tc-99m RBC", radLex: "RID10728", snomed: "169195021", prep: "无需特殊", desc: "活动性出血定位" },
+  { modality: "NM", name: "脑血流灌注显像", category: "特殊成像", bodyPart: "头部", price: 880, dur: 30, tat: 240, tatUrgent: 60, contrast: "Tc-99m ECD", radLex: "RID10729", snomed: "169195022", prep: "闭目安静", desc: "脑血流评估" },
+  { modality: "NM", name: "骨三相显像", category: "特殊成像", bodyPart: "全身", price: 1080, dur: 120, tat: 480, tatUrgent: 120, contrast: "Tc-99m MDP", radLex: "RID10730", snomed: "169195023", prep: "多饮水", desc: "骨髓炎评估" },
+  { modality: "NM", name: "甲状腺摄碘率测定", category: "特殊成像", bodyPart: "甲状腺", price: 280, dur: 60, tat: 240, tatUrgent: 60, contrast: "I-131", radLex: "RID10731", snomed: "169195024", prep: "停用甲状腺药物", desc: "甲亢评估" },
+  { modality: "NM", name: "肾上腺髓质显像(MIBG)", category: "特殊成像", bodyPart: "全身", price: 1280, dur: 60, tat: 720, tatUrgent: 120, contrast: "I-131 MIBG", radLex: "RID10732", snomed: "169195025", prep: "停用干扰药物", desc: "嗜铬细胞瘤" },
+  { modality: "NM", name: "前哨淋巴结显像", category: "特殊成像", bodyPart: "全身", price: 580, dur: 30, tat: 240, tatUrgent: 60, contrast: "Tc-99m 硫胶体", radLex: "RID10733", snomed: "169195026", prep: "术中", desc: "前哨淋巴结定位" },
+  { modality: "NM", name: "心肌梗死灶显像", category: "特殊成像", bodyPart: "心脏", price: 880, dur: 60, tat: 480, tatUrgent: 120, contrast: "Tc-99m PYP", radLex: "RID10734", snomed: "169195027", prep: "无需特殊", desc: "淀粉样变评估" },
 ];
 
 // 生成代码
-const EXAM_BY_MODALITY: Record<string, number> = { CT: 1, MR: 1, DR: 1, US: 1, MG: 1, DSA: 1 };
-const EXAM_PREFIX: Record<string, string> = { CT: "CT", MR: "MR", DR: "DR", US: "US", MG: "MG", DSA: "DSA" };
+const EXAM_BY_MODALITY: Record<string, number> = { CT: 1, MR: 1, DR: 1, US: 1, MG: 1, DSA: 1, "PET-CT": 1, NM: 1 };
+const EXAM_PREFIX: Record<string, string> = { CT: "CT", MR: "MR", DR: "DR", US: "US", MG: "MG", DSA: "DSA", "PET-CT": "PET", NM: "NM" };
 
 export const EXAM_ITEM_MASTER: ExamItemMaster[] = EXAM_DATA.map((e) => {
   const idx = EXAM_BY_MODALITY[e.modality]++;
@@ -224,7 +300,8 @@ export const EXAMS_BY_MODALITY: Record<ExamItemMaster["modality"], ExamItemMaste
   US: EXAM_ITEM_MASTER.filter((e) => e.modality === "US"),
   MG: EXAM_ITEM_MASTER.filter((e) => e.modality === "MG"),
   DSA: EXAM_ITEM_MASTER.filter((e) => e.modality === "DSA"),
-  "PET-CT": [],
+  "PET-CT": EXAM_ITEM_MASTER.filter((e) => e.modality === "PET-CT"),
+  NM: EXAM_ITEM_MASTER.filter((e) => e.modality === "NM"),
 };
 
 export const EXAMS_BY_CATEGORY: Record<ExamCategory, ExamItemMaster[]> = {
