@@ -1,50 +1,56 @@
-﻿import { chromium } from 'playwright';
-import fs from 'node:fs';
+﻿import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const BASE = 'http://127.0.0.1:5191/g005-radiology-ris';
-const OUT = 'screenshots-fix';
-fs.mkdirSync(OUT, { recursive: true });
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const root = path.resolve(__dirname, '..');
 
-const browser = await chromium.launch({ headless: true, channel: 'msedge' });
-const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-const page = await ctx.newPage();
+// 1. Read all section and labelKey from sidebarConfig
+const sc = fs.readFileSync(path.join(root, 'src', 'routes', 'sidebarConfig.tsx'), 'utf-8');
+const sections = [...sc.matchAll(/section: "([^"]+)"/g)].map(m => m[1]);
+const labelKeys = [...sc.matchAll(/labelKey: "([^"]+)"/g)].map(m => m[1]);
 
-const errs = [];
-page.on('pageerror', (e) => errs.push('PAGEERR: ' + e.message));
-page.on('console', (m) => { if (m.type() === 'error') errs.push('CONSOLE: ' + m.text()); });
+console.log('=== 所有 section key ===');
+sections.forEach(s => console.log(s));
+console.log('\n=== 所有 labelKey ===');
+labelKeys.forEach(s => console.log(s));
 
-console.log('=== login ===');
-await page.goto(BASE + '/login', { waitUntil: 'domcontentloaded', timeout: 60000 });
-await page.waitForTimeout(3000);
-try { await page.click('button:has-text("登录")', { timeout: 5000 }); } catch (e) { console.log('login btn err:', e.message); }
-await page.waitForTimeout(3000);
-console.log('logged in url:', page.url());
+// 2. Read zh-CN nav.json and en-US nav.json
+const zhFile = path.join(root, 'src', 'i18n', 'locales', 'zh-CN', 'nav.json');
+const enFile = path.join(root, 'src', 'i18n', 'locales', 'en-US', 'nav.json');
 
-const targets = [
-  { name: 'statistics', path: '/statistics', wait: 5000 },
-  { name: 'worklist', path: '/worklist', wait: 4000 },
-  { name: 'reports', path: '/reports', wait: 4000 },
-];
+const zh = fs.existsSync(zhFile) ? JSON.parse(fs.readFileSync(zhFile, 'utf-8')) : {};
+const en = fs.existsSync(enFile) ? JSON.parse(fs.readFileSync(enFile, 'utf-8')) : {};
 
-for (const t of targets) {
-  console.log('=== ' + t.name + ' ===');
-  try {
-    await page.goto(BASE + t.path, { waitUntil: 'domcontentloaded', timeout: 30000 });
-    await page.waitForTimeout(t.wait);
-    const url = page.url();
-    const titles = await page.locator('h1, h2, h3, .ant-typography').allInnerTexts().catch(() => []);
-    console.log('url:', url);
-    console.log('titles (first 8):', titles.slice(0, 8));
-    const file = OUT + '/' + t.name + '-2026-07-02.png';
-    await page.screenshot({ path: file, fullPage: false });
-    console.log('shot:', file);
-  } catch (e) {
-    console.log('err:', e.message);
-  }
+console.log('\n=== 中文 nav.json keys ===');
+Object.keys(zh).forEach(k => console.log(`${k}: ${zh[k]}`));
+
+console.log('\n=== 英文 nav.json keys ===');
+Object.keys(en).forEach(k => console.log(`${k}: ${en[k]}`));
+
+// 3. Check which sidebar keys are missing in zh/en
+const allKeys = [...sections, ...labelKeys];
+console.log('\n=== 缺失中文翻译 ===');
+for (const key of allKeys) {
+  if (!zh[key]) console.log(`  MISSING zh: ${key}`);
+}
+console.log('=== 缺失英文翻译 ===');
+for (const key of allKeys) {
+  if (!en[key]) console.log(`  MISSING en: ${key}`);
 }
 
-console.log('=== ERRORS ===');
-console.log('count:', errs.length);
-errs.slice(0, 20).forEach(e => console.log(' -', e));
-
-await browser.close();
+// 4. Check other locale files
+const localeDir = path.join(root, 'src', 'i18n', 'locales');
+const dirs = fs.readdirSync(localeDir).filter(d => d !== 'en-US' && d !== 'zh-CN');
+for (const d of dirs) {
+  const nf = path.join(localeDir, d, 'nav.json');
+  if (fs.existsSync(nf)) {
+    const t = JSON.parse(fs.readFileSync(nf, 'utf-8'));
+    const missing = allKeys.filter(k => !t[k]);
+    if (missing.length > 0) {
+      console.log(`\n=== 缺失 ${d} 翻译 (${missing.length} 项) ===`);
+      missing.slice(0, 10).forEach(k => console.log(`  ${k}`));
+      if (missing.length > 10) console.log(`  ... 还有 ${missing.length - 10} 项`);
+    }
+  }
+}
