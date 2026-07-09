@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
+﻿import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common'
+import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
 import { EyeService } from './eye.service'
@@ -10,7 +10,6 @@ import type { UpdateEyeStudyDto } from './dto/update-eye.dto'
 
 @ApiTags('eye')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 @Controller('api/eye')
 export class EyeController {
   constructor(private readonly eye: EyeService) {}

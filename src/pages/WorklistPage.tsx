@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
+import { useFocusTrap } from '../a11y/SkipLink'
 import {
   ClipboardList, Wifi, LayoutList, LayoutGrid, Kanban, RefreshCw,
   Printer, X, Monitor, CheckCircle, Play, CheckSquare, UserCheck,
@@ -304,6 +305,13 @@ export default function WorklistPage() {
   })
   const [showSavePreset, setShowSavePreset] = useState(false)
   const [savePresetName, setSavePresetName] = useState('')
+
+  const patientInfoFocusRef = useFocusTrap(!!patientInfoModalExam);
+  const deviceSelectFocusRef = useFocusTrap(!!deviceSelectModalExam);
+  const reportFocusRef = useFocusTrap(!!reportModalExam);
+  const confirmFocusRef = useFocusTrap(!!confirmModalConfig?.open);
+  const batchResultFocusRef = useFocusTrap(!!batchResultModalData?.open);
+  const printPreviewFocusRef = useFocusTrap(!!printPreviewModalData?.open);
 
   const applyPreset = useCallback((preset: { name: string; filters: FilterState }) => {
     setFilters(preset.filters)
@@ -857,13 +865,16 @@ export default function WorklistPage() {
       </div>
 
       {patientInfoModalExam && (
-        <div style={{
+        <div
+          ref={patientInfoFocusRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="修改患者信息"
+          style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
         }}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && setPatientInfoModalExam(null)}
+          onKeyDown={(e) => { if (e.key === 'Escape') setPatientInfoModalExam(null); }}
           onClick={() => setPatientInfoModalExam(null)}>
           <div style={{
             background: '#fff', borderRadius: 12, padding: 24, width: 480, maxHeight: '80vh', overflow: 'auto'
@@ -889,13 +900,16 @@ export default function WorklistPage() {
       )}
 
       {deviceSelectModalExam && (
-        <div style={{
+        <div
+          ref={deviceSelectFocusRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="分配检查设备"
+          style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
         }}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && setDeviceSelectModalExam(null)}
+          onKeyDown={(e) => { if (e.key === 'Escape') setDeviceSelectModalExam(null); }}
           onClick={() => setDeviceSelectModalExam(null)}>
           <div style={{
             background: '#fff', borderRadius: 12, padding: 24, width: 400, maxHeight: '80vh', overflow: 'auto'
@@ -929,13 +943,16 @@ export default function WorklistPage() {
       )}
 
       {reportModalExam && (
-        <div style={{
+        <div
+          ref={reportFocusRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label={reportModalExam.status === '待报告' ? '书写报告' : '查看报告'}
+          style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
         }}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && setReportModalExam(null)}
+          onKeyDown={(e) => { if (e.key === 'Escape') setReportModalExam(null); }}
           onClick={() => setReportModalExam(null)}>
           <div style={{
             background: '#fff', borderRadius: 12, padding: 24, width: 600, maxHeight: '80vh', overflow: 'auto'
@@ -964,10 +981,16 @@ export default function WorklistPage() {
       )}
 
       {confirmModalConfig?.open && (
-        <div style={{
+        <div
+          ref={confirmFocusRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label={confirmModalConfig.title}
+          style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
-        }}>
+        }}
+          onKeyDown={(e) => { if (e.key === 'Escape') setConfirmModalConfig(null); }}>
           <div style={{ background: '#fff', borderRadius: 12, padding: 24, width: 400 }}>
             <h3 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: '#1e3a5f' }}>{confirmModalConfig.title}</h3>
             <p style={{ margin: '0 0 20px', fontSize: 14, color: '#334155' }}>{confirmModalConfig.message}</p>
@@ -980,13 +1003,16 @@ export default function WorklistPage() {
       )}
 
       {batchResultModalData?.open && (
-        <div style={{
+        <div
+          ref={batchResultFocusRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="批量操作结果"
+          style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
         }}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && setBatchResultModalData(null)}
+          onKeyDown={(e) => { if (e.key === 'Escape') setBatchResultModalData(null); }}
           onClick={() => setBatchResultModalData(null)}>
           <div style={{
             background: '#fff', borderRadius: 12, padding: 24, width: 480
@@ -1010,13 +1036,16 @@ export default function WorklistPage() {
       )}
 
       {printPreviewModalData?.open && (
-        <div style={{
+        <div
+          ref={printPreviewFocusRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="打印预览"
+          style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
         }}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && setPrintPreviewModalData(null)}
+          onKeyDown={(e) => { if (e.key === 'Escape') setPrintPreviewModalData(null); }}
           onClick={() => setPrintPreviewModalData(null)}>
           <div style={{
             background: '#fff', borderRadius: 12, padding: 24, width: 600, maxHeight: '80vh', overflow: 'auto'

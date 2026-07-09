@@ -2211,13 +2211,13 @@ function VRCanvas({
 // DICOM Canvas渲染组件 - 真实窗宽窗位调整
 // ============================================================
 function DicomCanvas({
-  zoom, rotation, flipH, flipV, ww, wl, brightness, contrast,
+  zoom, rotation, flipH, flipV, ww, wl, brightness, contrast, invert,
   activeTool, panX, panY, windowPreset, measureType, activeSeries,
   imageIndex, images, pseudoColorMode,
   onWheel
 }: {
   zoom: number; rotation: number; flipH: boolean; flipV: boolean;
-  ww: number; wl: number; brightness: number; contrast: number;
+  ww: number; wl: number; brightness: number; contrast: number; invert?: boolean;
   activeTool: Tool; panX: number; panY: number;
   windowPreset: string; measureType: MeasureSubMenu;
   activeSeries: Series; imageIndex: number; images: DicomImage[];
@@ -2447,7 +2447,7 @@ function DicomCanvas({
         width: w,
         height: h,
         transform: `translate(${panX}px, ${panY}px) scale(${zoom / 100}) rotate(${rotation}deg) scaleX(${flipH ? -1 : 1}) scaleY(${flipV ? -1 : 1})`,
-        filter: `brightness(${brightness}%) contrast(${contrast}%)`,
+        filter: `brightness(${brightness}%) contrast(${contrast}%)${invert ? ' invert(1)' : ''}`,
         transition: 'transform 0.15s ease-out, filter 0.15s ease-out',
         transformOrigin: 'center center',
         cursor: cursorStyle,
@@ -2530,6 +2530,7 @@ export default function DicomViewerPage() {
   const [flipV, setFlipV] = useState(false)
   const [brightness, setBrightness] = useState(100)
   const [contrast, setContrast] = useState(100)
+  const [invert, setInvert] = useState(false)
   const [ww, setWw] = useState(400)
   const [wl, setWl] = useState(40)
   const [activePresetIdx, setActivePresetIdx] = useState<number | null>(null)
@@ -3130,7 +3131,7 @@ export default function DicomViewerPage() {
       setFlipV(f => !f)
     } else if (tool === 'reset') {
       setZoom(100); setPanX(0); setPanY(0); setRotation(0)
-      setFlipH(false); setFlipV(false); setBrightness(100); setContrast(100)
+      setFlipH(false); setFlipV(false); setBrightness(100); setContrast(100); setInvert(false)
       setWw(400); setWl(40)
     } else if (tool === 'play') {
       setIsPlaying(p => !p)
@@ -3477,6 +3478,25 @@ export default function DicomViewerPage() {
             )}
           </div>
 
+          {/* 反色切换按钮 */}
+          <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+            <Tooltip title={invert ? '取消反色' : '反色显示'}>
+              <button
+                style={{
+                  ...s.toolBtn,
+                  width: 36,
+                  height: 28,
+                  padding: 0,
+                  ...(invert ? { background: 'rgba(255,255,255,0.25)', color: '#fff' } : {}),
+                }}
+                onClick={() => setInvert(v => !v)}
+              >
+                {invert ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            </Tooltip>
+            {invert && <span style={{ fontSize: 10, color: '#fbbf24' }}>反色</span>}
+          </div>
+
           {/* 标注工具快捷按钮 */}
           <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
             <Tooltip title="标注工具">
@@ -3803,6 +3823,7 @@ export default function DicomViewerPage() {
                       imageIndex={imageIndex}
                       images={images}
                       pseudoColorMode={pseudoColorMode}
+                      invert={invert}
                     />
                     {/* 差异高亮叠加层 */}
                     {showDiffHighlight && diffRegions.map(region => (
@@ -3866,6 +3887,7 @@ export default function DicomViewerPage() {
                       imageIndex={syncScroll ? imageIndex : compareImageIndex}
                       images={images}
                       pseudoColorMode={pseudoColorMode}
+                      invert={invert}
                     />
                     {/* 差异高亮叠加层 */}
                     {showDiffHighlight && diffRegions.map(region => (
@@ -3925,6 +3947,7 @@ export default function DicomViewerPage() {
                     imageIndex={imageIndex}
                     images={images}
                     pseudoColorMode={pseudoColorMode}
+                    invert={invert}
                     onWheel={handleImageWheel}
                   />
                 )}
@@ -4049,7 +4072,7 @@ export default function DicomViewerPage() {
                   </div>
                   <span style={{ color: '#f87171' }}>Zoom:{zoom}% Rot:{rotation}°</span>
                   <span style={{ color: '#a5f3fc' }}>
-                    {flipH ? 'FH ' : ''}{flipV ? 'FV ' : ''}Bright:{brightness}% Contrast:{contrast}%
+                    {flipH ? 'FH ' : ''}{flipV ? 'FV ' : ''}{invert ? 'Invert ' : ''}Bright:{brightness}% Contrast:{contrast}%
                   </span>
                   {measureSubMenu && (
                     <span style={{ color: '#fbbf24' }}>

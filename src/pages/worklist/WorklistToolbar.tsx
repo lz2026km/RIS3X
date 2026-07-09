@@ -102,7 +102,10 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
   )
 
   return (
-    <div style={{
+    <div
+      role="search"
+      aria-label="搜索过滤器"
+      style={{
       background: '#fff',
       borderRadius: 12,
       border: '1px solid #e2e8f0',
@@ -321,7 +324,10 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
                   marginTop: 4,
                 }}>
                   <div
+                    role="button"
+                    tabIndex={0}
                     onClick={() => { updateFilter('doctorId', ''); setShowDoctorDropdown(false) }}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); updateFilter('doctorId', ''); setShowDoctorDropdown(false) } }}
                     style={{
                       padding: '8px 12px',
                       fontSize: 12,
@@ -339,7 +345,10 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
                     .map(doc => (
                       <div
                         key={doc.id}
+                        role="button"
+                        tabIndex={0}
                         onClick={() => { updateFilter('doctorId', doc.id); setShowDoctorDropdown(false) }}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); updateFilter('doctorId', doc.id); setShowDoctorDropdown(false) } }}
                         style={{
                           padding: '8px 12px',
                           fontSize: 12,
@@ -473,10 +482,13 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
             {PRIORITY_LIST.map(p => (
               <div
                 key={p}
+                role="button"
+                tabIndex={0}
                 onClick={() => {
                   onChange({ ...batch, priorityValue: p })
                   setShowPriorityDropdown(false)
                 }}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onChange({ ...batch, priorityValue: p }); setShowPriorityDropdown(false) } }}
                 style={{
                   padding: '10px 14px',
                   fontSize: 12,
@@ -540,10 +552,13 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
             {initialExamRooms.map(room => (
               <div
                 key={room.id}
+                role="button"
+                tabIndex={0}
                 onClick={() => {
                   onChange({ ...batch, roomValue: room.id })
                   setShowRoomDropdown(false)
                 }}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onChange({ ...batch, roomValue: room.id }); setShowRoomDropdown(false) } }}
                 style={{
                   padding: '10px 14px',
                   fontSize: 12,

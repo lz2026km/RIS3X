@@ -1,11 +1,10 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
+﻿import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common'
+import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { CdsService } from './cds.service'
 
 @ApiTags('cds')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 @Controller('cds')
 export class CdsController {
   constructor(private readonly svc: CdsService) {}

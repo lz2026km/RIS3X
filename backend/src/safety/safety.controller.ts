@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
+﻿import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common'
+import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
@@ -136,12 +136,11 @@ const IdParamSchema = z.string().min(1)
 
 @ApiTags('safety')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 @Controller('safety')
 export class SafetyController {
   constructor(private readonly service: SafetyService) {}
 
-  // ── AdverseEvent ──────────────────────────────────────────────
+  // 鈹€鈹€ AdverseEvent 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
 
   @Post('adverse-events')
   createAdverseEvent(
@@ -180,7 +179,7 @@ export class SafetyController {
     return this.service.deleteAdverseEvent(parsed)
   }
 
-  // ── RcaInvestigation ──────────────────────────────────────────
+  // 鈹€鈹€ RcaInvestigation 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
 
   @Post('rca-investigations')
   createRcaInvestigation(
@@ -215,7 +214,7 @@ export class SafetyController {
     return this.service.deleteRcaInvestigation(parsed)
   }
 
-  // ── RiskItem ──────────────────────────────────────────────────
+  // 鈹€鈹€ RiskItem 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
 
   @Post('risk-items')
   createRiskItem(

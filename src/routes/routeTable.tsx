@@ -23,7 +23,7 @@ const QCPage = lazy(() => import("../pages/QCPage"));
 const AppointmentPage = lazy(() => import("../pages/AppointmentPage"));
 const DoseTrackPage = lazy(() => import("../pages/DoseTrackPage"));
 const QueueCallPage = lazy(() => import("../pages/QueueCallPage"));
-const DicomViewerPage = lazy(() => import("../pages/DicomViewerPage"));
+const DicomViewerClassicPage = lazy(() => import("../pages/DicomViewerPage"));
 const DicomViewerProPage = lazy(() => import("../pages/dicom/DicomViewerPro"));
 const TypicalCasesPage = lazy(() => import("../pages/TypicalCasesPage"));
 const FindingLibraryPage = lazy(() => import("../pages/FindingLibraryPage"));
@@ -534,7 +534,8 @@ export const routes: RouteObject[] = [
   wrapped("/appointments", React.createElement(AppointmentPage)),
   wrapped("/dose-track", React.createElement(DoseTrackPage)),
   wrapped("/queue-call", React.createElement(QueueCallPage)),
-  wrapped("/dicom-viewer", React.createElement(DicomViewerPage)),
+  wrapped("/dicom-viewer-classic", React.createElement(DicomViewerClassicPage)),
+  wrapped("/dicom-viewer", React.createElement(DicomViewerProPage)),
   wrapped("/dicom-viewer-pro", React.createElement(DicomViewerProPage)),
   wrapped("/typical-cases", React.createElement(TypicalCasesPage)),
   wrapped("/finding-library", React.createElement(FindingLibraryPage)),

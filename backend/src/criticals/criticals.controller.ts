@@ -1,5 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { Roles } from '../common/decorators/roles.decorator'
 import { z } from 'zod'
@@ -45,7 +44,6 @@ const UpdateCriticalSchema = z.object({
 
 @ApiTags('criticals')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 @Roles('DOCTOR', 'DIRECTOR', 'ADMIN')
 @Controller({ path: 'criticals', alias: 'critical' })
 export class CriticalsController {

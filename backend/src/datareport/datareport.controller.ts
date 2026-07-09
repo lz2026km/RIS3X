@@ -1,10 +1,9 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
+﻿import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { DataReportService } from './datareport.service';
 @ApiTags('data-report')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 @Controller('api/data-report')
 export class DataReportController {
   constructor(private readonly svc: DataReportService) {}

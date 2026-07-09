@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
+﻿import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common'
+import { Roles } from '../../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
@@ -23,7 +23,6 @@ const UpdateDeviceSchema = z.object({
 
 @ApiTags('devices')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 @Controller('devices')
 export class DeviceController {
   constructor(private readonly service: DeviceService) {}

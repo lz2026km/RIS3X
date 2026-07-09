@@ -20,6 +20,8 @@ import { useReportStore } from "../store";
 import { PermissionGate } from "../components/common/PermissionGate";
 import { useRBAC } from "../hooks/useRBAC";
 import { useAuth } from "../hooks/useAuth";
+import { canApprove } from "../services/auth/rbacService";
+import MfaVerifyModal from "../components/security/MfaVerifyModal";
 import ReportHeader from './report/ReportHeader';
 import ReportTableView from './report/ReportTableView';
 import ReportKanbanView from './report/ReportKanbanView';
@@ -87,6 +89,7 @@ export default function ReportPage() {
   const [printModal, setPrintModal] = useState<{ show: boolean; title: string; message: string }>({ show: false, title: "", message: "" });
   const [detailReport, setDetailReport] = useState<RadiologyReport | null>(null);
   const [reviewReport, setReviewReport] = useState<RadiologyReport | null>(null);
+  const [mfaReportId, setMfaReportId] = useState<string | null>(null);
 
   const stats = useMemo(() => {
     const todayReports = allReports.filter(r => isToday(r.createdTime));
@@ -125,10 +128,27 @@ export default function ReportPage() {
   const handleSelectAll = useCallback(() => { setSelectedIds(new Set(filteredReports.map(r => r.id))); }, [filteredReports]);
   const handleDeselectAll = useCallback(() => { setSelectedIds(new Set()); }, []);
   const handleReviewSubmit = async (reportId: string, result: "approved" | "rejected", suggestion: string, password: string) => {
-    if (result === "approved") await useReportStore.getState().sign(reportId);
-    else await useReportStore.getState().reject(reportId);
+    if (result === "approved") {
+      const report = allReports.find(r => r.id === reportId);
+      if (report && !canApprove(user?.id ?? '', report.reportDoctorId ?? '')) {
+        message.error('禁止自审：不能审核自己的报告');
+        return;
+      }
+      setMfaReportId(reportId);
+    } else {
+      await useReportStore.getState().reject(reportId);
+      setReviewReport(null);
+      setReviewResultModal({ show: true, reportId, result: "已退回", suggestion: suggestion || "(无)" });
+    }
+  };
+
+  const handleMfaVerified = async (token: string) => {
+    const reportId = mfaReportId;
+    setMfaReportId(null);
+    if (!reportId) return;
+    await useReportStore.getState().sign(reportId);
     setReviewReport(null);
-    setReviewResultModal({ show: true, reportId, result: result === "approved" ? "已审核" : "已退回", suggestion: suggestion || "(无)" });
+    setReviewResultModal({ show: true, reportId, result: "已审核", suggestion: "(MFA已验证)" });
   };
 
   return (
@@ -170,6 +190,15 @@ export default function ReportPage() {
       {detailReport && <ReportDetailDrawer report={detailReport} onClose={() => setDetailReport(null)} onReview={r => { setDetailReport(null); setReviewReport(r); }} onPrint={r => { setDetailReport(null); setTimeout(() => window.print(), 100); }} onExportPDF={r => { setExportModal({ show: true, title: "导出PDF", message: `正在导出报告 ${r.reportId}...`, complete: false }); setTimeout(() => { setExportModal(m => ({ ...m, complete: true, message: `报告 ${r.reportId} 已导出` })); setTimeout(() => setExportModal(m => ({ ...m, show: false })), 2000); }, 1000); }} />}
 
       {reviewReport && <ReportReviewModal report={reviewReport} onClose={() => setReviewReport(null)} onSubmit={handleReviewSubmit} />}
+
+      {mfaReportId && user?.id && (
+        <MfaVerifyModal
+          userId={user.id}
+          onVerified={handleMfaVerified}
+          onCancel={() => setMfaReportId(null)}
+          operation="report.sign"
+        />
+      )}
 
       <ReportToast show={toast.show} message={toast.message} type={toast.type} />
       <ReportExportModal show={exportModal.show} title={exportModal.title} message={exportModal.message} complete={exportModal.complete} onClose={() => setExportModal(e => ({ ...e, show: false }))} />

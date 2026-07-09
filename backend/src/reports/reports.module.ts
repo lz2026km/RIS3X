@@ -4,10 +4,12 @@
  * 简版:list / get / 14 态枚举对齐
  */
 import { Module } from '@nestjs/common'
+import { QueueModule } from '../queue/queue.module'
 import { ReportsService } from './reports.service'
 import { ReportsController } from './reports.controller'
 
 @Module({
+  imports: [QueueModule],
   controllers: [ReportsController],
   providers: [ReportsService],
   exports: [ReportsService],

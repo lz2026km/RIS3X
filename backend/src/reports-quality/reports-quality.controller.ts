@@ -1,9 +1,8 @@
-/**
- * G005 放射RIS系统 v3.0.2.2 - 报告质量控制器
- * 5 端点:GET rules / POST evaluate / GET history / GET trend / POST re-evaluate
+﻿/**
+ * G005 鏀惧皠RIS绯荤粺 v3.0.2.2 - 鎶ュ憡璐ㄩ噺鎺у埗鍣?
+ * 5 绔偣:GET rules / POST evaluate / GET history / GET trend / POST re-evaluate
  */
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
@@ -22,7 +21,6 @@ const EvaluateSchema = z.object({
 
 @ApiTags('reports-quality')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 @Controller('reports/quality')
 export class ReportsQualityController {
   constructor(private readonly service: ReportsQualityService) {}

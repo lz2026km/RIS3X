@@ -5,6 +5,9 @@ import { Module } from '@nestjs/common'
 import { APP_GUARD } from '@nestjs/core'
 import { ConfigModule } from '@nestjs/config'
 import { LoggerModule } from 'nestjs-pino'
+import { CacheModule } from './cache/cache.module'
+import { QueueModule } from './queue/queue.module'
+import { AppScheduleModule } from './schedule/schedule.module'
 import { AuthModule } from './auth/auth.module'
 import { UsersModule } from './users/users.module'
 import { ReportsModule } from './reports/reports.module'
@@ -42,14 +45,19 @@ import { CriticalExtModule } from './criticalext/criticalext.module'
 import { QcExtModule } from './qcext/qcext.module'
 import { ReportQualityModule } from './reportquality/reportquality.module'
 import { FhirModule } from './fhir/fhir.module'
+import { DicomDimseModule } from './dicom-dimse/dicom-dimse.module'
 import { CaModule } from './ca/ca.module'
 import { DeviceMgmtModule } from './devicemgmt/devicemgmt.module'
 import { AiPlatformModule } from './aiplatform/aiplatform.module'
+import { OlapModule } from './modules/olap/olap.module'
 import { RolesGuard } from './common/guards/roles.guard'
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    CacheModule,
+    QueueModule,
+    AppScheduleModule,
     LoggerModule.forRoot({
       pinoHttp: {
         level: process.env['LOG_LEVEL'] ?? 'info',
@@ -95,9 +103,12 @@ import { RolesGuard } from './common/guards/roles.guard'
     FhirModule,
     DeviceMgmtModule,
     AiPlatformModule,
+    DicomDimseModule,
+    OlapModule,
   ],
   controllers: [HealthController],
   providers: [
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
   ],
 })

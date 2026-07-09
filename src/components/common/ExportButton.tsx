@@ -1,14 +1,10 @@
-/**
- * G005 RIS v3.0.6.8-26 - ExportButton 组件
- *
- * 统一导出按钮（CSV / JSON / PDF），可配置导出格式
- * PDF 使用 jspdf 实现真实导出，含标题、表格、分页。
- */
 import React, { useState } from "react";
 import { jsPDF } from "jspdf";
+import ExcelJS from "exceljs";
+import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, WidthType, AlignmentType, BorderStyle } from "docx";
 import { Download, FileSpreadsheet, FileText, FileCode } from "lucide-react";
 
-export type ExportFormat = "csv" | "json" | "xlsx" | "pdf";
+export type ExportFormat = "csv" | "json" | "xlsx" | "pdf" | "docx";
 
 export interface ExportButtonProps {
   data: any[] | (() => any[]);
@@ -28,8 +24,9 @@ const FORMAT_META: Record<
 > = {
   csv: { label: "CSV", icon: <FileSpreadsheet size={14} />, mime: "text/csv;charset=utf-8", ext: ".csv" },
   json: { label: "JSON", icon: <FileCode size={14} />, mime: "application/json", ext: ".json" },
-  xlsx: { label: "Excel", icon: <FileSpreadsheet size={14} />, mime: "application/vnd.ms-excel", ext: ".xlsx" },
+  xlsx: { label: "Excel", icon: <FileSpreadsheet size={14} />, mime: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ext: ".xlsx" },
   pdf: { label: "PDF", icon: <FileText size={14} />, mime: "application/pdf", ext: ".pdf" },
+  docx: { label: "Word", icon: <FileText size={14} />, mime: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", ext: ".docx" },
 };
 
 function toCSV(rows: any[]): string {
@@ -59,6 +56,28 @@ function downloadBlob(blob: Blob, filename: string) {
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
+async function exportXLSX(rows: any[], filename: string) {
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet("Sheet1");
+  if (!rows || rows.length === 0) {
+    worksheet.getCell("A1").value = "无数据";
+  } else {
+    const keys = Object.keys(rows[0]);
+    const headerRow = worksheet.addRow(keys);
+    headerRow.eachCell((cell) => {
+      cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+      cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF1E3A5F" } };
+      cell.alignment = { horizontal: "center" };
+    });
+    rows.forEach((r) => {
+      worksheet.addRow(keys.map((k) => r[k] ?? ""));
+    });
+    worksheet.columns = keys.map(() => ({ width: 18 }));
+  }
+  const buffer = await workbook.xlsx.writeBuffer();
+  downloadBlob(new Blob([buffer], { type: FORMAT_META.xlsx.mime }), filename + FORMAT_META.xlsx.ext);
+}
+
 function exportPDF(rows: any[], filename: string) {
   const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
   const pageW = doc.internal.pageSize.getWidth();
@@ -80,14 +99,10 @@ function exportPDF(rows: any[], filename: string) {
   const colW = (pageW - margin * 2 - colGap * (keys.length - 1)) / keys.length;
 
   let y = margin + 10;
-
-  // Title
   doc.setFontSize(14);
   doc.setFont("helvetica", "bold");
   doc.text(filename || "导出报表", pageW / 2, y, { align: "center" });
   y += 8;
-
-  // Subtitle / date
   doc.setFontSize(8);
   doc.setFont("helvetica", "normal");
   doc.text(new Date().toLocaleString("zh-CN"), pageW - margin, y, { align: "right" });
@@ -95,7 +110,6 @@ function exportPDF(rows: any[], filename: string) {
 
   const drawTable = (startY: number, data: any[], maxY: number): number => {
     let curY = startY;
-    // Header
     doc.setFontSize(headerSize);
     doc.setFont("helvetica", "bold");
     doc.setFillColor(30, 58, 95);
@@ -106,15 +120,12 @@ function exportPDF(rows: any[], filename: string) {
       doc.text(k, x + 0.5, curY + rowH - 1.5);
     });
     curY += rowH;
-
-    // Rows
     doc.setFontSize(fontSize);
     doc.setFont("helvetica", "normal");
     for (let r = 0; r < data.length; r++) {
       if (curY + rowH > maxY) {
         doc.addPage();
         curY = margin + 10;
-        // Repeat header on new page
         doc.setFontSize(headerSize);
         doc.setFont("helvetica", "bold");
         doc.setFillColor(30, 58, 95);
@@ -149,6 +160,46 @@ function exportPDF(rows: any[], filename: string) {
   doc.save(filename + ".pdf");
 }
 
+async function exportDOCX(rows: any[], filename: string) {
+  if (!rows || rows.length === 0) {
+    const emptyDoc = new Document({ sections: [{ children: [new Paragraph("无数据")] }] });
+    const buffer = await Packer.toBuffer(emptyDoc);
+    downloadBlob(new Blob([buffer], { type: FORMAT_META.docx.mime }), filename + FORMAT_META.docx.ext);
+    return;
+  }
+  const keys = Object.keys(rows[0]);
+  const headerCells = keys.map((k) => new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: k, bold: true, color: "FFFFFF" })], alignment: AlignmentType.CENTER })] }));
+  const headerRow = new TableRow({ children: headerCells, tableHeader: true });
+  const dataRows = rows.map(
+    (r) =>
+      new TableRow({
+        children: keys.map(
+          (k) =>
+            new TableCell({
+              children: [new Paragraph({ children: [new TextRun(String(r[k] ?? ""))] })],
+            }),
+        ),
+      }),
+  );
+  const table = new Table({
+    rows: [headerRow, ...dataRows],
+    width: { size: 100, type: WidthType.PERCENTAGE },
+  });
+  const doc = new Document({
+    sections: [
+      {
+        children: [
+          new Paragraph({ children: [new TextRun({ text: filename || "导出报表", bold: true, size: 28 })], alignment: AlignmentType.CENTER }),
+          new Paragraph({ children: [new TextRun({ text: new Date().toLocaleString("zh-CN"), size: 16, color: "888888" })], alignment: AlignmentType.RIGHT }),
+          table,
+        ],
+      },
+    ],
+  });
+  const buffer = await Packer.toBuffer(doc);
+  downloadBlob(new Blob([buffer], { type: FORMAT_META.docx.mime }), filename + FORMAT_META.docx.ext);
+}
+
 export function ExportButton({
   data,
   filename = "export",
@@ -162,7 +213,7 @@ export function ExportButton({
 }: ExportButtonProps) {
   const [open, setOpen] = useState(false);
 
-  const handleExport = (fmt: ExportFormat) => {
+  const handleExport = async (fmt: ExportFormat) => {
     setOpen(false);
     let rows = typeof data === "function" ? data() : data;
     if (onBeforeExport) rows = onBeforeExport(rows);
@@ -171,15 +222,17 @@ export function ExportButton({
       downloadBlob(new Blob([toCSV(rows)], { type: FORMAT_META.csv.mime }), filename + FORMAT_META.csv.ext);
     } else if (fmt === "json") {
       downloadBlob(new Blob([JSON.stringify(rows, null, 2)], { type: FORMAT_META.json.mime }), filename + FORMAT_META.json.ext);
+    } else if (fmt === "xlsx") {
+      await exportXLSX(rows, filename);
     } else if (fmt === "pdf") {
       exportPDF(rows, filename);
-    } else if (fmt === "xlsx") {
-      downloadBlob(new Blob([toCSV(rows)], { type: "text/csv;charset=utf-8" }), filename + ".csv");
+    } else if (fmt === "docx") {
+      await exportDOCX(rows, filename);
     }
   };
 
   const padding = size === "small" ? "4px 10px" : size === "large" ? "8px 18px" : "6px 14px";
-  const fontSize = size === "small" ? 12 : size === "large" ? 14 : 13;
+  const fSize = size === "small" ? 12 : size === "large" ? 14 : 13;
 
   return (
     <div style={{ position: "relative", display: "inline-block" }}>
@@ -190,7 +243,7 @@ export function ExportButton({
         onClick={() => setOpen(!open)}
         style={{
           padding,
-          fontSize,
+          fontSize: fSize,
           fontWeight: 600,
           background: "#fff",
           color: "#1e40af",

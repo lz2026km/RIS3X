@@ -1,11 +1,10 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
+﻿import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common'
+import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { QcExtService } from './qcext.service'
 
 @ApiTags('qc-ext')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 @Controller('qc-ext')
 export class QcExtController {
   constructor(private readonly svc: QcExtService) {}

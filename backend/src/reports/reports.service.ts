@@ -1,10 +1,14 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import { QueueService } from '../queue/queue.service'
 import type { ReportState } from '@prisma/client'
 
 @Injectable()
 export class ReportsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly queue: QueueService,
+  ) {}
 
   async list(params: { skip?: number; take?: number; state?: ReportState }) {
     const { skip = 0, take = 20, state } = params
@@ -87,6 +91,13 @@ export class ReportsService {
       })
       return updated
     })
+  }
+
+  async exportReport(id: string, format: string, userId: string): Promise<{ queued: true }> {
+    const report = await this.prisma.report.findUnique({ where: { id } })
+    if (!report) throw new NotFoundException('Report not found')
+    await this.queue.addReportExport({ reportId: id, format, userId })
+    return { queued: true }
   }
 
   async transition(id: string, to: ReportState, actorId: string, reason?: string) {

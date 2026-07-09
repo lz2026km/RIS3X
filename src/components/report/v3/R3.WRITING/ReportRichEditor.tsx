@@ -3,10 +3,10 @@
  * R3.WRITING 组 B:所见即所得 + 样式 + 表格 + 图像 + 撤销重做 + 拼写检查 + 分屏 + 打印
  * 40 升级点
  */
-import React, { useState, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import {
   Card, Space, Button, Tooltip, Modal, message, Input, Divider, Switch, Dropdown,
-  Select, ColorPicker, Slider, Tag, Collapse, InputNumber,
+  Select, ColorPicker, Slider, Tag, Collapse, InputNumber, Avatar, Badge, Popover,
 } from 'antd';
 import {
   Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify,
@@ -14,10 +14,12 @@ import {
   Type, FileText, Maximize2, Minimize2, Eye, Printer, SpellCheck2, Quote, Code, Heading1,
   Heading2, Heading3, ChevronDown, Languages, Subscript, Superscript, Hash, BookOpen,
   Upload, Highlighter, CheckCheck, Star, Minus, Layers, Sparkles, Mic, Square, MicOff,
+  Wifi, WifiOff,
 } from 'lucide-react';
 import { RICH_DOCUMENT_MOCK } from '@data/reportWritingMock';
 import { getRichDocument, saveRichDocument, autoSaveDocument, spellCheck } from '@services/writing/writingService';
 import type { RichEditorDocument, RichEditorImage, RichEditorStyle } from '@types/R3/R3.WRITING';
+import { useCollaborativeYjs } from '@hooks/useCollaborativeYjs';
 
 interface Props {
   reportId: string;
@@ -26,6 +28,10 @@ interface Props {
   onChange?: (doc: RichEditorDocument) => void;
   onSave?: (doc: RichEditorDocument) => void;
   readOnly?: boolean;
+  enableCollaboration?: boolean;
+  wsUrl?: string;
+  userName?: string;
+  userId?: string;
 }
 
 const FONT_FAMILIES = [
@@ -44,6 +50,7 @@ const RAD_SPECIALS = ['±', '≤', '≥', '≠', '≈', '°', 'μ', 'α', 'β', 
 
 export const ReportRichEditor: React.FC<Props> = ({
   reportId, initialHtml, initialPlainText, onChange, onSave, readOnly = false,
+  enableCollaboration = false, wsUrl, userName = '匿名用户', userId,
 }) => {
   const [doc, setDoc] = useState<RichEditorDocument>({
     ...RICH_DOCUMENT_MOCK,
@@ -61,6 +68,20 @@ export const ReportRichEditor: React.FC<Props> = ({
   const [showComparison, setShowComparison] = useState(false);
   const [summarizing, setSummarizing] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
+
+  // 协同编辑
+  const collab = useCollaborativeYjs({
+    roomId: reportId,
+    user: { id: userId ?? `user-${Math.random().toString(36).slice(2, 8)}`, name: userName, color: '#0891b2' },
+    wsUrl,
+    autoConnect: enableCollaboration,
+  });
+
+  useEffect(() => {
+    if (enableCollaboration && editorRef.current) {
+      collab.bindEditor(editorRef.current);
+    }
+  }, [enableCollaboration, collab.bindEditor]);
 
   // 语音听写 state
   const [voiceListening, setVoiceListening] = useState(false);
@@ -456,6 +477,34 @@ export const ReportRichEditor: React.FC<Props> = ({
               {!autoSaving && doc.autoSaveAt && <Tag color="success" icon={<CheckCheck className="w-3 h-3" />}>已保存 {new Date(doc.autoSaveAt).toLocaleTimeString()}</Tag>}
             </Space>
             <Space size="small">
+              {enableCollaboration && (
+                <Popover
+                  content={
+                    <div style={{ minWidth: 180 }}>
+                      <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 13 }}>
+                        {collab.isConnected ? '在线用户' : '未连接'}
+                      </div>
+                      {collab.onlineUsers.map((u) => (
+                        <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' }}>
+                          <Avatar size={24} style={{ backgroundColor: u.color, fontSize: 12, flexShrink: 0 }}>
+                            {u.name.charAt(0).toUpperCase()}
+                          </Avatar>
+                          <span style={{ fontSize: 13 }}>{u.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  }
+                  trigger="click"
+                >
+                  <Badge count={collab.onlineUsers.length} size="small" offset={[-2, 2]}>
+                    <Avatar
+                      size={28}
+                      icon={collab.isConnected ? <Wifi className="w-3.5 h-3.5" /> : <WifiOff className="w-3.5 h-3.5" />}
+                      style={{ backgroundColor: collab.isConnected ? '#0891b2' : '#94a3b8', cursor: 'pointer' }}
+                    />
+                  </Badge>
+                </Popover>
+              )}
               <Tag>字 {wordCount.words}</Tag>
               <Tag>字符 {wordCount.chars}</Tag>
               <Tag>段 {wordCount.paragraphs}</Tag>

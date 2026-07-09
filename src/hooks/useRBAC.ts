@@ -5,8 +5,8 @@
  * v3.0.3.31: 修复硬编码 'doctor' 角色 — 从 useAuth() 读取真实当前用户
  */
 import { useAuth } from './useAuth';
-import { hasPermission, checkAccess } from '../services/auth/rbacService';
-import type { Permission, AccessContext, ResourceType } from '../services/auth/rbacService';
+import { hasPermission, checkAccess, canField } from '../services/auth/rbacService';
+import type { Permission, AccessContext, ResourceType, FieldPermission } from '../services/auth/rbacService';
 
 export function useRBAC() {
   const { user } = useAuth();
@@ -16,6 +16,7 @@ export function useRBAC() {
   const department = user?.department ?? '';
   return {
     can: (permission: Permission) => hasPermission(userRole, permission),
+    canField: (field: FieldPermission) => canField(userRole, field),
     checkAccess: (ctx: Omit<AccessContext, 'user'>) =>
       checkAccess({ user: { role: userRole, department, userId }, ...ctx }),
   };
@@ -32,4 +33,4 @@ function mapToRbacRole(chRole: string): string {
   }
 }
 
-export type { Permission, AccessContext, ResourceType };
+export type { Permission, AccessContext, ResourceType, FieldPermission };

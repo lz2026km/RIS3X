@@ -1,13 +1,12 @@
-/**
- * G005 放射RIS系统 v3.0.2 - HL7 控制器
- * 2 端点:POST oru / POST batch
+﻿/**
+ * G005 鏀惧皠RIS绯荤粺 v3.0.2 - HL7 鎺у埗鍣? * 2 绔偣:POST oru / POST batch
+ * v3.0.6.11-9: 娣诲姞 POST orm / POST dft
  */
-import { Body, Controller, Post, UseGuards } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
+import { Body, Controller, Post } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
-import { Hl7Service, ReportForHL7 } from './hl7.service'
+import { Hl7Service, ReportForHL7, OrmOrder, DftTransaction } from './hl7.service'
 
 const ReportSchema = z.object({
   accessionNumber: z.string(),
@@ -32,9 +31,36 @@ const BatchSchema = z.object({
   reports: z.array(ReportSchema).min(1).max(100),
 })
 
+const OrmSchema = z.object({
+  patientId: z.string(),
+  patientName: z.string(),
+  patientSex: z.enum(['M', 'F', 'O', '']),
+  patientBirthDate: z.string().optional(),
+  accessionNumber: z.string(),
+  modality: z.string(),
+  bodyPart: z.string(),
+  orderNumber: z.string(),
+  orderingDoctor: z.string(),
+  orderingDept: z.string().optional(),
+  orderDateTime: z.string().optional(),
+  studyDate: z.string().optional(),
+  studyTime: z.string().optional(),
+})
+
+const DftSchema = z.object({
+  patientId: z.string(),
+  patientName: z.string(),
+  patientSex: z.enum(['M', 'F', 'O', '']).optional(),
+  invoiceNumber: z.string(),
+  totalAmount: z.string(),
+  paidAmount: z.string().optional(),
+  chargeCode: z.string(),
+  chargeName: z.string(),
+  transactionDate: z.string().optional(),
+})
+
 @ApiTags('hl7')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 @Controller('hl7')
 export class Hl7Controller {
   constructor(private readonly service: Hl7Service) {}
@@ -59,6 +85,30 @@ export class Hl7Controller {
         reportId: r.reportId,
         message: this.service.buildORU(r),
       })),
+    }
+  }
+
+  @Post('orm')
+  orm(@Body(new ZodValidationPipe(OrmSchema)) body: OrmOrder) {
+    const message = this.service.buildORM(body)
+    return {
+      message,
+      controlId: `ORM-G005-${body.accessionNumber}-${Date.now()}`,
+      messageType: 'ORM^O01',
+      generatedAt: new Date().toISOString(),
+      bytes: Buffer.byteLength(message, 'utf8'),
+    }
+  }
+
+  @Post('dft')
+  dft(@Body(new ZodValidationPipe(DftSchema)) body: DftTransaction) {
+    const message = this.service.buildDFT(body)
+    return {
+      message,
+      controlId: `DFT-G005-${body.invoiceNumber}-${Date.now()}`,
+      messageType: 'DFT^P03',
+      generatedAt: new Date().toISOString(),
+      bytes: Buffer.byteLength(message, 'utf8'),
     }
   }
 }

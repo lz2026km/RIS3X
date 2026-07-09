@@ -1,9 +1,8 @@
-/**
- * G005 放射RIS系统 v3.0.2.2 - 通知控制器
- * 4 端点
+﻿/**
+ * G005 鏀惧皠RIS绯荤粺 v3.0.2.2 - 閫氱煡鎺у埗鍣?
+ * 4 绔偣
  */
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
@@ -31,7 +30,6 @@ const BroadcastSchema = z.object({
 
 @ApiTags('notifications')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 @Controller('notifications')
 export class NotificationsController {
   constructor(private readonly service: NotificationsService) {}

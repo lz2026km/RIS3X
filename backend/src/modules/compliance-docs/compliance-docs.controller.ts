@@ -1,17 +1,16 @@
-import { Controller, Get, UseGuards } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
+﻿import { Controller, Get } from '@nestjs/common'
+import { Roles } from '../../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { ComplianceDocsService } from './compliance-docs.service'
 
 @ApiTags('compliance-docs')
 @Controller('compliance-docs')
-@UseGuards(AuthGuard('jwt'))
 @ApiBearerAuth()
 export class ComplianceDocsController {
   constructor(private readonly svc: ComplianceDocsService) {}
 
   @Get()
-  @ApiOperation({ summary: '生成合规文档报告' })
+  @ApiOperation({ summary: '鐢熸垚鍚堣鏂囨。鎶ュ憡' })
   report() {
     return this.svc.generateReport()
   }

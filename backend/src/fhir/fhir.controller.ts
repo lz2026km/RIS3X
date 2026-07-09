@@ -1,13 +1,15 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common'
-import { ApiTags } from '@nestjs/swagger'
+﻿import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common'
+import { Roles } from '../common/decorators/roles.decorator'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { FhirService } from './fhir.service'
 
 @ApiTags('fhir')
-@Controller('fhir')
+@Controller('fhir/r4')
+@ApiBearerAuth()
 export class FhirController {
   constructor(private readonly service: FhirService) {}
 
-  // Patient ──────────────────────────────────────────────
+  // 鈹€鈹€ Patient 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
   @Get('Patient/:id')
   readPatient(@Param('id') id: string) {
     return this.service.readPatient(id)
@@ -38,7 +40,12 @@ export class FhirController {
     return this.service.deletePatient(id)
   }
 
-  // Observation ──────────────────────────────────────────
+  @Get('Patient/:id/$everything')
+  patientEverything(@Param('id') id: string) {
+    return this.service.patientEverything(id)
+  }
+
+  // 鈹€鈹€ Observation 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
   @Get('Observation/:id')
   readObservation(@Param('id') id: string) {
     return this.service.readObservation(id)
@@ -49,7 +56,7 @@ export class FhirController {
     return this.service.searchObservation({ patient, _count })
   }
 
-  // DiagnosticReport ─────────────────────────────────────
+  // 鈹€鈹€ DiagnosticReport 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
   @Get('DiagnosticReport/:id')
   readDiagnosticReport(@Param('id') id: string) {
     return this.service.readDiagnosticReport(id)
@@ -64,7 +71,7 @@ export class FhirController {
     return this.service.searchDiagnosticReport({ patient, status, _count })
   }
 
-  // ImagingStudy ─────────────────────────────────────────
+  // 鈹€鈹€ ImagingStudy 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
   @Get('ImagingStudy/:id')
   readImagingStudy(@Param('id') id: string) {
     return this.service.readImagingStudy(id)
@@ -77,5 +84,36 @@ export class FhirController {
     @Query('_count') _count?: string,
   ) {
     return this.service.searchImagingStudy({ patient, modality, _count })
+  }
+
+  // 鈹€鈹€ Subscription 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+  @Post('Subscription')
+  createSubscription(@Body() body: any) {
+    return this.service.createSubscription(body)
+  }
+
+  @Get('Subscription/:id')
+  getSubscription(@Param('id') id: string) {
+    return this.service.getSubscription(id)
+  }
+
+  @Get('Subscription')
+  searchSubscription() {
+    return this.service.searchSubscription()
+  }
+
+  @Delete('Subscription/:id')
+  deleteSubscription(@Param('id') id: string) {
+    return this.service.deleteSubscription(id)
+  }
+
+  // 鈹€鈹€ Bulk Data Export 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+  @Get('$export')
+  bulkExport(
+    @Query('_outputFormat') _outputFormat?: string,
+    @Query('_since') _since?: string,
+    @Query('_type') _type?: string,
+  ) {
+    return this.service.bulkExport(_outputFormat, _since, _type)
   }
 }

@@ -54,6 +54,7 @@ import type { Patient } from "../types";
 import { useRBAC } from "../hooks/useRBAC";
 import { useAuth } from "../hooks/useAuth";
 import { PermissionGate } from "../components/common/PermissionGate";
+import { FieldGate } from "../components/auth/FieldGate";
 import {
   PatientSearchPanel,
   PatientTable,
@@ -971,20 +972,22 @@ export default function PatientPage() {
             }}
           >
             <Search size={20} style={{ color: "#1e3a5f", flexShrink: 0 }} />
-            <input
-              value={pmiSearchQuery}
-              onChange={(e) => handlePMISearch(e.target.value)}
-              onFocus={() => setPmiSearchFocused(true)}
-              placeholder="输入姓名、身份证、手机号或主索引ID进行搜索..."
-              autoFocus
-              style={{
-                flex: 1,
-                border: "none",
-                outline: "none",
-                fontSize: 15,
-                background: "transparent",
-              }}
-            />
+            <FieldGate field="patientName" permission="patient.view" resourceType="patient" mode="disable">
+              <input
+                value={pmiSearchQuery}
+                onChange={(e) => handlePMISearch(e.target.value)}
+                onFocus={() => setPmiSearchFocused(true)}
+                placeholder="输入姓名、身份证、手机号或主索引ID进行搜索..."
+                autoFocus
+                style={{
+                  flex: 1,
+                  border: "none",
+                  outline: "none",
+                  fontSize: 15,
+                  background: "transparent",
+                }}
+              />
+            </FieldGate>
             {pmiSearchQuery && (
               <button
                 onClick={() => {

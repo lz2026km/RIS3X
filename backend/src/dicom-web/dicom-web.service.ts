@@ -76,77 +76,58 @@ export class DicomWebService {
   }
 
   /**
-   * 构建 DICOM Part 10 格式 buffer
-   * 包含: 导言(128 zero bytes) + DICM magic(4 bytes) + 元数据 + 像素数据占位
+   * 构建真实 DICOM Part 10 格式 buffer
+   * 128 preamble + DICM + File Meta Information (Group 0002 Explicit VR LE) + Data Set
    */
   private buildPart10Buffer(inst: any): Buffer {
-    // File Meta Information (Group 0002)
     const sopClass = inst.sopClassUid ?? '1.2.840.10008.5.1.4.1.1.2'
     const sopUid = inst.sopInstanceUid
     const studyUid = inst.studyInstanceUid ?? ''
     const seriesUid = inst.seriesInstanceUid ?? ''
     const transferSyntax = inst.transferSyntax ?? '1.2.840.10008.1.2.1'
 
-    // Build DICOM tags as VR=UI elements with proper encoding
-    const elements: Buffer[] = []
-
-    // (0002,0010) Transfer Syntax UI
-    elements.push(this.encodeDicomTag(0x0002, 0x0010, 'UI', transferSyntax))
-    // (0002,0002) SOP Class UID
-    elements.push(this.encodeDicomTag(0x0002, 0x0002, 'UI', sopClass))
-    // (0002,0003) SOP Instance UID
-    elements.push(this.encodeDicomTag(0x0002, 0x0003, 'UI', sopUid))
-    // (0002,000D) Study Instance UID
-    elements.push(this.encodeDicomTag(0x0002, 0x000d, 'UI', studyUid))
-    // (0002,000E) Series Instance UID
-    elements.push(this.encodeDicomTag(0x0002, 0x000e, 'UI', seriesUid))
-
-    // Calculate metadata length
-    const metaHeader = Buffer.concat(elements)
-    const metaLength = metaHeader.length
-
-    // File Meta Information Group Length (0002,0000)
-    const groupLen = this.encodeDicomTag(0x0002, 0x0000, 'UL', String(metaLength), true)
-
-    // Final File Meta Information
-    const fileMetaInfo = Buffer.concat([groupLen, metaHeader])
-
-    // Pixel data placeholder (8x8 black pixels)
-    const pixelData = Buffer.alloc(128, 0)
-
-    // Assemble Part 10: preamble + DICM + meta info item + pixel data
-    const preamble = Buffer.alloc(128, 0)
-    const dicm = Buffer.from('DICM', 'ascii')
-    const metaItem = this.encodeDicomTag(0x0002, 0x0001, 'OB', '', true) // meta info item tag
-
-    return Buffer.concat([preamble, dicm, metaItem, fileMetaInfo, pixelData])
-  }
-
-  private encodeDicomTag(group: number, elem: number, vr: string, value: string, explicitVr = true): Buffer {
-    const groupBytes = Buffer.alloc(2)
-    groupBytes.writeUInt16LE(group, 0)
-    const elemBytes = Buffer.alloc(2)
-    elemBytes.writeUInt16LE(elem, 0)
-
-    const vrBytes = Buffer.from(vr.padEnd(2, ' '), 'ascii')
-
-    const valueBytes = Buffer.from(value, 'utf8')
-    let lenBytes: Buffer
-
-    if (explicitVr && (vr === 'OB' || vr === 'OD' || vr === 'OF' || vr === 'OL' || vr === 'OW' || vr === 'SQ' || vr === 'UC' || vr === 'UN' || vr === 'UR')) {
-      // Explicit VR with 2 reserved bytes + 4 byte length
-      lenBytes = Buffer.alloc(6)
-      lenBytes.writeUInt16LE(0, 0) // reserved
-      lenBytes.writeUInt32LE(valueBytes.length, 2)
-    } else if (explicitVr) {
-      lenBytes = Buffer.alloc(2)
-      lenBytes.writeUInt16LE(valueBytes.length, 0)
-    } else {
-      lenBytes = Buffer.alloc(4)
-      lenBytes.writeUInt32LE(valueBytes.length, 0)
+    const valBytes = (s: string): Buffer => {
+      const b = Buffer.from(s, 'utf8')
+      return s.length % 2 !== 0 ? Buffer.concat([b, Buffer.from([0])]) : b
     }
 
-    return Buffer.concat([groupBytes, elemBytes, explicitVr ? vrBytes : Buffer.alloc(0), lenBytes, valueBytes])
+    const makeTag = (tag: number, vr: string, value: Buffer): Buffer => {
+      const g = (tag >> 16) & 0xffff
+      const e = tag & 0xffff
+      const gb = Buffer.alloc(2); gb.writeUInt16LE(g, 0)
+      const eb = Buffer.alloc(2); eb.writeUInt16LE(e, 0)
+      const vb = Buffer.from(vr.padEnd(2, ' '), 'ascii')
+      const longVr = ['OB', 'OD', 'OF', 'OL', 'OW', 'SQ', 'UC', 'UN', 'UR']
+      let lb: Buffer
+      if (longVr.includes(vr)) {
+        lb = Buffer.alloc(6); lb.writeUInt16LE(0, 0); lb.writeUInt32LE(value.length, 2)
+      } else {
+        lb = Buffer.alloc(2); lb.writeUInt16LE(value.length, 0)
+      }
+      const pad = value.length % 2 !== 0 ? Buffer.from([0]) : Buffer.alloc(0)
+      return Buffer.concat([gb, eb, vb, lb, value, pad])
+    }
+
+    const metaElements: Buffer[] = []
+    metaElements.push(makeTag(0x00020001, 'OB', Buffer.from([0x01, 0x00])))
+    metaElements.push(makeTag(0x00020002, 'UI', valBytes(sopClass)))
+    metaElements.push(makeTag(0x00020003, 'UI', valBytes(sopUid)))
+    metaElements.push(makeTag(0x0002000D, 'UI', valBytes(studyUid)))
+    metaElements.push(makeTag(0x0002000E, 'UI', valBytes(seriesUid)))
+    metaElements.push(makeTag(0x00020010, 'UI', valBytes(transferSyntax)))
+    metaElements.push(makeTag(0x00020012, 'UI', valBytes('1.2.840.10008.5.1.4.1.1.2')))
+    metaElements.push(makeTag(0x00020013, 'SH', valBytes('G005-RIS-WADO-3.0')))
+
+    const metaBody = Buffer.concat(metaElements)
+    const glBuf = Buffer.alloc(4); glBuf.writeUInt32LE(metaBody.length, 0)
+    const groupLen = makeTag(0x00020000, 'UL', glBuf)
+
+    const fileMeta = Buffer.concat([groupLen, metaBody])
+    const preamble = Buffer.alloc(128, 0)
+    const dicm = Buffer.from('DICM', 'ascii')
+    const pixelData = Buffer.alloc(128, 0)
+
+    return Buffer.concat([preamble, dicm, fileMeta, pixelData])
   }
 
   /**

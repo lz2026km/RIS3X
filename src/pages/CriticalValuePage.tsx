@@ -88,6 +88,7 @@ import type {
 import BatchActionBar from "../components/batch/BatchActionBar";
 import { useOperationLog } from "../hooks/useOperationLog";
 import { useKeyboardShortcuts, useNavigationShortcuts, SHORTCUTS } from "../hooks/useKeyboardShortcuts";
+import { canApprove } from "../services/auth/rbacService";
 
 // ============ 国家卫健委2024年版放射科危急值目录 ============
 const NATIONAL_CRITICAL_ITEMS = {
@@ -3046,6 +3047,13 @@ export default function CriticalValuePage() {
 
   const handleConfirmProcess = async () => {
     if (processCV) {
+      const currentUserId = "current-user-id";
+      if (!canApprove(currentUserId, processCV.reportedBy ?? '')) {
+        message.error('禁止自审：不能处理自己报告的危急值');
+        setShowProcessModal(false);
+        setProcessCV(null);
+        return;
+      }
       await useCriticalStore.getState().resolve(processCV.id);
       log("resolve", processCV.id);
       showToast("已处理");

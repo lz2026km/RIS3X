@@ -1,17 +1,16 @@
-import { Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
+﻿import { Controller, Get, Post, Query, Req } from '@nestjs/common'
+import { Roles } from '../../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { AuditService } from './audit.service'
 
 @ApiTags('audit')
 @Controller('audit')
-@UseGuards(AuthGuard('jwt'))
 @ApiBearerAuth()
 export class AuditController {
   constructor(private readonly audit: AuditService) {}
 
   @Get()
-  @ApiOperation({ summary: '审计日志列表' })
+  @ApiOperation({ summary: '瀹¤鏃ュ織鍒楄〃' })
   list(@Query() query: { page?: string; pageSize?: string; userId?: string; action?: string; resource?: string; startDate?: string; endDate?: string }) {
     return this.audit.list({
       page: query.page ? parseInt(query.page) : undefined,
@@ -25,7 +24,7 @@ export class AuditController {
   }
 
   @Get('stats')
-  @ApiOperation({ summary: '审计日志统计' })
+  @ApiOperation({ summary: '瀹¤鏃ュ織缁熻' })
   stats() {
     return this.audit.stats()
   }

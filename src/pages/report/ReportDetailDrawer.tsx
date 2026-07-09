@@ -4,8 +4,10 @@ import {
   ShieldCheck, Zap, CheckCircle, AlertTriangle, Edit3, Download,
   ChevronDown, ChevronRight, Clock,
 } from 'lucide-react'
+import { message } from 'antd'
 import type { RadiologyReport } from '../../types'
 import { StatusBadge, StatusTimeline, REPORT_STATUS_META, REPORT_STATUS_ORDER } from '../../components/report'
+import MfaVerifyModal from '../../components/security/MfaVerifyModal'
 
 const PRIMARY = '#1e3a5f'
 const WHITE = '#ffffff'
@@ -74,6 +76,8 @@ export interface ReportDetailDrawerProps {
 export default function ReportDetailDrawer({ report, onClose, onReview, onPrint, onExportPDF }: ReportDetailDrawerProps) {
   const [tab, setTab] = useState<'content' | 'history' | 'print' | 'timeline'>('content')
   const [showHistory, setShowHistory] = useState(false)
+  const [showMfa, setShowMfa] = useState(false)
+  const [pendingReviewReport, setPendingReviewReport] = useState<RadiologyReport | null>(null)
 
   useEffect(() => {
     if (report) { setTab('content'); setShowHistory(false) }
@@ -270,7 +274,7 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
 
         <div className="no-print" style={{ padding: '12px 20px', borderTop: '1px solid #e2e8f0', display: 'flex', gap: 8, justifyContent: 'flex-end', flexShrink: 0 }}>
           {report.status === '待审核' && (
-            <button onClick={() => onReview(report)} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#6d28d9', color: WHITE, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <button onClick={() => { setPendingReviewReport(report); setShowMfa(true); }} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#6d28d9', color: WHITE, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
               <ShieldCheck size={14} /> 审核报告
             </button>
           )}
@@ -283,6 +287,14 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
           <button onClick={onClose} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid #e2e8f0', background: WHITE, color: GRAY, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>关闭</button>
         </div>
       </div>
+      {showMfa && pendingReviewReport && (
+        <MfaVerifyModal
+          userId="current-user-id"
+          onVerified={() => { setShowMfa(false); onReview(pendingReviewReport); setPendingReviewReport(null); }}
+          onCancel={() => { setShowMfa(false); setPendingReviewReport(null); }}
+          operation="report.approve"
+        />
+      )}
     </div>
   )
 }

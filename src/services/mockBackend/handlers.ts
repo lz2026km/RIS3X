@@ -55,6 +55,7 @@ import { caHandlers } from './caHandlers';
 import { deviceMgmtHandlers } from './deviceMgmtHandlers';
 import { aiPlatformHandlers } from './aiPlatformHandlers';
 import { dentalHandlers } from './dentalHandlers';
+import { olapHandlers } from './olapHandlers';
 // [P0-12 v3.0.7] 微信小程序 API
 import { wechatHandlers } from './wechatHandlers';
 import {
@@ -5022,6 +5023,7 @@ export const handlers = [
   ...caHandlers,
   ...deviceMgmtHandlers,
   ...aiPlatformHandlers,
+  ...olapHandlers,
 ];
 
 // 总计: 56 + 6 + 5 + 5 + 6 + 5 = 83 端点

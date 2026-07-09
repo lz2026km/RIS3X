@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { CacheService } from '../../cache/cache.service'
 
 interface QualityScoreTrend {
   date: string
@@ -41,8 +42,12 @@ const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 @Injectable()
 export class StatsService {
+  constructor(private readonly cache: CacheService) {}
+
   async getDashboardData(): Promise<StatsDashboardData> {
-    return {
+    const cached = await this.cache.get<StatsDashboardData>('stats:dashboard')
+    if (cached) return cached
+    const data: StatsDashboardData = {
       qualityTrend: Array.from({ length: 90 }, (_, i) => ({
         date: new Date(Date.now() - (89 - i) * 86400000).toISOString().slice(0, 10),
         avgScore: 85 + Math.round(Math.random() * 10 - 3),
@@ -74,5 +79,7 @@ export class StatsService {
         totalCases: 1523,
       },
     }
+    await this.cache.set('stats:dashboard', data, 300)
+    return data
   }
 }

@@ -99,14 +99,47 @@ export default function DataReportCenterPage() {
 
   const treeData = useMemo(() => buildTreeData(filteredDefs), [filteredDefs])
 
+  const [olapData, setOlapData] = useState<Record<string, unknown>[] | null>(null)
+  const [olapLoading, setOlapLoading] = useState(false)
+
+  useEffect(() => {
+    if (!currentReport) return
+    setOlapLoading(true)
+    setOlapData(null)
+    const startDate = dateRange[0]?.format('YYYY-MM-DD') || '2026-01-01'
+    const endDate = dateRange[1]?.format('YYYY-MM-DD') || '2026-12-31'
+    fetch('/api/v1/olap/query', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        dimensions: ['date', 'modality'],
+        measures: ['exam_count', 'exam_revenue'],
+        filters: [
+          { dimension: 'date', operator: 'between', value: [startDate, endDate] },
+        ],
+        granularity: granularity,
+      }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.rows?.length > 0) {
+          setOlapData(data.rows)
+        } else {
+          setOlapData(null)
+        }
+      })
+      .catch(() => setOlapData(null))
+      .finally(() => setOlapLoading(false))
+  }, [currentReport?.id, dateRange, granularity])
+
   const chartData = useMemo(() => {
     if (!currentReport) return []
+    if (olapData && olapData.length > 0) return olapData
     setLoading(true)
-    const fmt = dateRange[0]?.format('YYYY-MM-DD') + '_' + dateRange[1]?.format('YYYY-MM-DD')
     const result = generateMockReportData(currentReport.id, [dateRange[0]?.format('YYYY-MM-DD') || '2026-01-01', dateRange[1]?.format('YYYY-MM-DD') || '2026-12-31'])
     setLoading(false)
     return result
-  }, [currentReport, dateRange])
+  }, [currentReport, dateRange, olapData])
 
   const insightText = useMemo(() => {
     if (!currentReport || chartData.length === 0) return ''

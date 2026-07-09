@@ -1,8 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import { randomUUID } from 'crypto'
 
 @Injectable()
 export class FhirService {
+  private subscriptions: Map<string, { endpoint: string; criteria: any }> = new Map()
+
   constructor(private readonly prisma: PrismaService) {}
 
   // ── Patient ────────────────────────────────────────────
@@ -33,7 +36,10 @@ export class FhirService {
         phone: body.phone ?? null,
       },
     })
-    return this.toFhirPatient(p)
+    const resource = this.toFhirPatient(p)
+    await this.storeResource(resource)
+    await this.notifySubscriptions('Patient', resource)
+    return resource
   }
 
   async updatePatient(id: string, body: any) {
@@ -104,6 +110,129 @@ export class FhirService {
     return this.Bundle(exams.map((e) => this.toFhirImagingStudy(e)))
   }
 
+  // ── FHIR $everything ───────────────────────────────────
+  async patientEverything(id: string) {
+    const patient = await this.prisma.patient.findUnique({ where: { id } })
+    if (!patient) throw new NotFoundException(`Patient ${id} not found`)
+    const reports = await this.prisma.report.findMany({ where: { patientId: id } })
+    const exams = await this.prisma.exam.findMany({ where: { patientId: id } })
+    return this.Bundle([
+      this.toFhirPatient(patient),
+      ...reports.map((r) => this.toFhirDiagnosticReport(r)),
+      ...exams.map((e) => this.toFhirImagingStudy(e)),
+    ])
+  }
+
+  // ── FHIR $export (Bulk Data Export) ────────────────────
+  async bulkExport(_outputFormat?: string, _since?: string, _type?: string) {
+    const patients = await this.prisma.patient.findMany()
+    const reports = await this.prisma.report.findMany()
+    const exams = await this.prisma.exam.findMany()
+    return this.Bundle([
+      ...patients.map((p) => this.toFhirPatient(p)),
+      ...reports.map((r) => this.toFhirDiagnosticReport(r)),
+      ...exams.map((e) => this.toFhirImagingStudy(e)),
+    ])
+  }
+
+  // ── FHIR Subscription ──────────────────────────────────
+  async createSubscription(body: any) {
+    const id = body.id ?? randomUUID()
+    const resource = {
+      resourceType: 'Subscription',
+      id,
+      status: body.status ?? 'active',
+      criteria: body.criteria,
+      channel: body.channel,
+      ...body,
+    }
+    await this.prisma.fhirResource.upsert({
+      where: { id },
+      create: {
+        id,
+        resourceType: 'Subscription',
+        content: resource as any,
+      },
+      update: { content: resource as any, versionId: { increment: 1 } },
+    })
+    if (body.channel?.type === 'rest-hook' && body.channel.endpoint) {
+      this.subscriptions.set(id, { endpoint: body.channel.endpoint, criteria: body.criteria })
+    }
+    return resource
+  }
+
+  async deleteSubscription(id: string) {
+    await this.prisma.fhirResource.delete({ where: { id } }).catch(() => {})
+    this.subscriptions.delete(id)
+    return { resourceType: 'OperationOutcome', issue: [{ severity: 'information', code: 'deleted' }] }
+  }
+
+  async getSubscription(id: string) {
+    const s = await this.prisma.fhirResource.findUnique({ where: { id } })
+    if (!s) throw new NotFoundException(`Subscription ${id} not found`)
+    return s.content
+  }
+
+  async searchSubscription() {
+    const subs = await this.prisma.fhirResource.findMany({
+      where: { resourceType: 'Subscription' },
+    })
+    return this.Bundle(subs.map((s) => s.content as any))
+  }
+
+  private async notifySubscriptions(resourceType: string, resource: any) {
+    for (const [, sub] of this.subscriptions) {
+      if (!sub.criteria || sub.criteria.includes(resourceType)) {
+        try {
+          await fetch(sub.endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/fhir+json' },
+            body: JSON.stringify({
+              resourceType: 'Bundle',
+              type: 'notification',
+              entry: [{ resource }],
+            }),
+          })
+        } catch {
+          // notification failure is non-fatal
+        }
+      }
+    }
+  }
+
+  private async storeResource(resource: any) {
+    const patientId = resource.resourceType === 'Patient'
+      ? resource.id
+      : resource.subject?.reference?.replace('Patient/', '')
+    await this.prisma.fhirResource.upsert({
+      where: { id: resource.id },
+      create: {
+        id: resource.id,
+        resourceType: resource.resourceType,
+        content: resource as any,
+        patientId,
+      },
+      update: {
+        content: resource as any,
+        versionId: { increment: 1 },
+        patientId,
+      },
+    })
+  }
+
+  async readFhirResource(resourceType: string, id: string) {
+    const r = await this.prisma.fhirResource.findUnique({ where: { id } })
+    if (!r || r.resourceType !== resourceType) throw new NotFoundException(`${resourceType} ${id} not found`)
+    return r.content
+  }
+
+  async searchFhirResource(resourceType: string, query: Record<string, string>) {
+    const where: any = { resourceType }
+    if (query.patient) where.patientId = query.patient
+    const resources = await this.prisma.fhirResource.findMany({ where })
+    return this.Bundle(resources.map((r) => r.content as any))
+  }
+
   // ── FHIR Resource Builders ─────────────────────────────
   private toFhirPatient(p: any): Record<string, any> {
     return {
@@ -125,7 +254,7 @@ export class FhirService {
       status: 'final',
       code: { coding: [{ system: 'http://loinc.org', code: '18782-3', display: 'Radiology study observation' }] },
       subject: { reference: `Patient/${o.patientId}` },
-      valueString: o.findings?.substring(0, 200),
+      valueString: o.findings,
       meta: { lastUpdated: o.updatedAt?.toISOString() ?? o.createdAt.toISOString() },
     }
   }

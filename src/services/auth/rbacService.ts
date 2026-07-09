@@ -23,6 +23,28 @@ export interface Role {
   description: string;
 }
 
+export type FieldPermission =
+  | 'findings' | 'conclusion' | 'patientName' | 'phone'
+  | 'idCard' | 'address' | 'diagnosis' | 'modality'
+  | 'bodyPart' | 'accessionNumber' | 'referringDoctor'
+  | 'emergencyContact' | 'insuranceType' | 'allergyHistory'
+  | 'medicalHistory' | 'clinicalDiagnosis';
+
+export const FIELD_PERMISSIONS: Record<string, FieldPermission[]> = {
+  'super-admin': ['findings', 'conclusion', 'patientName', 'phone', 'idCard', 'address', 'diagnosis', 'modality', 'bodyPart', 'accessionNumber', 'referringDoctor', 'emergencyContact', 'insuranceType', 'allergyHistory', 'medicalHistory', 'clinicalDiagnosis'],
+  'admin': ['findings', 'conclusion', 'patientName', 'phone', 'idCard', 'address', 'diagnosis', 'modality', 'bodyPart', 'accessionNumber', 'referringDoctor', 'emergencyContact', 'insuranceType', 'allergyHistory', 'medicalHistory', 'clinicalDiagnosis'],
+  'director': ['findings', 'conclusion', 'patientName', 'phone', 'diagnosis', 'modality', 'bodyPart', 'accessionNumber', 'referringDoctor', 'clinicalDiagnosis'],
+  'doctor': ['findings', 'conclusion', 'patientName', 'diagnosis', 'modality', 'bodyPart', 'accessionNumber', 'clinicalDiagnosis'],
+  'technician': ['patientName', 'phone', 'modality', 'bodyPart', 'accessionNumber'],
+  'nurse': ['patientName', 'phone', 'emergencyContact'],
+};
+
+export function canField(userRole: string, field: FieldPermission): boolean {
+  const permitted = FIELD_PERMISSIONS[userRole];
+  if (!permitted) return false;
+  return permitted.includes(field);
+}
+
 /** 敏感操作 (需要 MFA) 列表 */
 export const SENSITIVE_OPERATIONS: ReadonlySet<string> = new Set([
   'report.sign', 'report.publish', 'report.delete',

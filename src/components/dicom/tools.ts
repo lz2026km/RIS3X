@@ -70,10 +70,13 @@ export function calculateEllipseArea(center: { x: number; y: number }, radii: { 
 
 export function calculateCobbAngle(p1: { x: number; y: number }, p2: { x: number; y: number }, p3: { x: number; y: number }, p4: { x: number; y: number }): number {
   // Cobb 角：p1-p2 是上端椎上终板，p3-p4 是下端椎下终板
-  // Cobb 角 = 两条线的夹角
-  const angle1 = calculateAngle(p1, p2, p3); // 上终板延长线
-  // 简化：Cobb = 180 - 两条线夹角
-  return 180 - angle1;
+  // Cobb 角 = 两条线夹角（取锐角）
+  const angle1 = Math.atan2(p2.y - p1.y, p2.x - p1.x) * (180 / Math.PI);
+  const angle2 = Math.atan2(p4.y - p3.y, p4.x - p3.x) * (180 / Math.PI);
+  let cobb = Math.abs(angle1 - angle2);
+  if (cobb > 180) cobb = 360 - cobb;
+  if (cobb > 90) cobb = 180 - cobb;
+  return Math.round(cobb * 100) / 100;
 }
 
 // 默认医生名

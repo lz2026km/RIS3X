@@ -1,11 +1,10 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
+﻿import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common'
+import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { WorkflowService } from './workflow.service'
 
 @ApiTags('workflow')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 @Controller('workflow')
 export class WorkflowController {
   constructor(private readonly svc: WorkflowService) {}

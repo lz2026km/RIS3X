@@ -44,6 +44,8 @@ export default function BatchActionBar({ selectedCount, onAction, actions, onCle
 
   return (
     <div
+      role="region"
+      aria-label="批量操作栏"
       style={{
         position: 'fixed',
         bottom: 24,

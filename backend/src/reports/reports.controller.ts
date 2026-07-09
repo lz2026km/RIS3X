@@ -1,5 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { Roles } from '../common/decorators/roles.decorator'
 import type { Request } from 'express'
@@ -29,7 +28,6 @@ const UpdateReportSchema = z.object({
 
 @ApiTags('reports')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 @Roles('DOCTOR', 'DIRECTOR', 'ADMIN', 'TECHNICIAN')
 @Controller('reports')
 export class ReportsController {

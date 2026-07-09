@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   BarChart3, Activity, Award, Gauge, Video, LayoutDashboard, Send, FolderTree, Sliders, BarChart4,
   PieChart as PieChartIcon, Upload, Download, FileText, CheckCircle, AlertTriangle, Clock,
@@ -14,6 +14,14 @@ import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer, Cell, PieChart, Pie, AreaChart, Area,
 } from "recharts";
+import {
+  DndContext, closestCenter, PointerSensor, useSensor, useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy,
+  useSortable, arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { t } from '../../i18n/appI18n';
 import { COLORS, styles, StatCard, DeviceUsageChart, QualityScoreChart, DoseTrendChart, ConsultationPieChart, ExamVolumeChart } from './DataReportCharts';
 
@@ -109,6 +117,32 @@ const mockBenchmarkData = [
   { metric: "危急值通报率(%)", own: 100, peer1: 98, peer2: 100, peer3: 99, percentile: 90, gap: "0%" },
 ];
 
+// ============ Sortable item for drag-drop ============
+const SortableItem = ({ id, label, onRemove }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    padding: "6px 10px",
+    background: isDragging ? "#dbeafe" : "#f0f9ff",
+    borderRadius: "6px",
+    border: "1px solid #bfdbfe",
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    fontSize: "12px",
+    cursor: "grab",
+    opacity: isDragging ? 0.5 : 1,
+  };
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <GripVertical size={12} color="#94a3b8" />
+      <span style={{ flex: 1 }}>{label}</span>
+      {onRemove && <X size={12} style={{ cursor: "pointer", color: "#ef4444" }} onClick={() => onRemove(id)} />}
+    </div>
+  );
+};
+
 // ============ 组件: ReportBuilder ============
 const ReportBuilder = () => {
   const [canvasWidgets, setCanvasWidgets] = useState([]);
@@ -118,12 +152,44 @@ const ReportBuilder = () => {
   const [savedLayouts, setSavedLayouts] = useState(mockSavedLayouts);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
 
+  const [metadata, setMetadata] = useState({ metrics: [], dimensions: [] });
+  const [configDims, setConfigDims] = useState([]);
+  const [configMeasures, setConfigMeasures] = useState([]);
+  const [configAgg, setConfigAgg] = useState("sum");
+  const [configFilters, setConfigFilters] = useState([]);
+  const [dataSources, setDataSources] = useState([]);
+
+  const aggOptions = [
+    { value: "sum", label: "求和 (Sum)" },
+    { value: "avg", label: "平均值 (Avg)" },
+    { value: "count", label: "计数 (Count)" },
+    { value: "distinctCount", label: "去重计数 (Distinct)" },
+    { value: "min", label: "最小值 (Min)" },
+    { value: "max", label: "最大值 (Max)" },
+  ];
+
+  useEffect(() => {
+    fetch("/api/v1/olap/metadata")
+      .then((r) => r.json())
+      .then((data) => {
+        setMetadata(data);
+        const sources = (data.metrics || []).map((m) => ({
+          value: m.id,
+          label: m.name,
+        }));
+        setDataSources(sources);
+      })
+      .catch(() => {});
+  }, []);
+
+  const dimSensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+
   const addWidget = (widgetId) => {
     const newWidget = {
       id: `w${Date.now()}`,
       type: widgetId,
       label: widgetPaletteItems.find((w) => w.id === widgetId)?.label || widgetId,
-      config: { dataSource: "examVolume", dimensions: [], filters: [] },
+      config: { dataSource: "exam_count", dimensions: [], measures: [], aggregation: "sum", filters: [] },
       gridPos: { x: canvasWidgets.length % 3, y: Math.floor(canvasWidgets.length / 3), w: 1, h: 1 },
     };
     setCanvasWidgets([...canvasWidgets, newWidget]);
@@ -135,7 +201,42 @@ const ReportBuilder = () => {
 
   const openConfig = (widget) => {
     setSelectedConfig(widget);
+    setConfigDims(widget.config.dimensions || []);
+    setConfigMeasures(widget.config.measures || []);
+    setConfigAgg(widget.config.aggregation || "sum");
+    setConfigFilters(widget.config.filters || []);
     setShowConfig(true);
+  };
+
+  const saveConfig = () => {
+    setSelectedConfig((prev) => {
+      if (!prev) return prev;
+      return { ...prev, config: { ...prev.config, dimensions: configDims, measures: configMeasures, aggregation: configAgg, filters: configFilters } };
+    });
+    setShowConfig(false);
+  };
+
+  const handleDimDragEnd = (event) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = configDims.indexOf(active.id);
+      const newIndex = configDims.indexOf(over.id);
+      if (oldIndex >= 0 && newIndex >= 0) {
+        setConfigDims(arrayMove(configDims, oldIndex, newIndex));
+      }
+    }
+  };
+
+  const toggleDimension = (dimId) => {
+    setConfigDims((prev) =>
+      prev.includes(dimId) ? prev.filter((d) => d !== dimId) : [...prev, dimId],
+    );
+  };
+
+  const toggleMeasure = (mId) => {
+    setConfigMeasures((prev) =>
+      prev.includes(mId) ? prev.filter((m) => m !== mId) : [...prev, mId],
+    );
   };
 
   const saveLayout = () => {
@@ -213,16 +314,73 @@ const ReportBuilder = () => {
       </div>
       {showConfig && selectedConfig && (
         <div style={styles.modalOverlay} onClick={() => setShowConfig(false)}>
-          <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
+          <div style={{ ...styles.modal, width: "640px", maxHeight: "80vh", overflow: "auto" }} onClick={(e) => e.stopPropagation()}>
             <div style={styles.modalHeader}>
               <div style={{ fontSize: "16px", fontWeight: 600 }}>配置组件 - {selectedConfig.label}</div>
               <button style={{ background: "none", border: "none", cursor: "pointer" }} onClick={() => setShowConfig(false)}><X size={18} /></button>
             </div>
             <div style={styles.modalBody}>
-              <div style={{ marginBottom: "16px" }}><div style={{ fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>{t('dc.dataSource')}</div><select style={styles.select} defaultValue="examVolume"><option value="examVolume">{t('dc.examVolume')}</option><option value="deviceUsage">{t('dc.deviceUsage')}</option><option value="qualityScore">{t('qc.qualityScore')}</option><option value="doseStats">辐射剂量</option></select></div>
-              <div style={{ marginBottom: "16px" }}><div style={{ fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>{t('dc.dimension')}</div><div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>{["月份", "设备类型", "科室", "医生"].map((d) => <label key={d} style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "13px" }}><input type="checkbox" /> {d}</label>)}</div></div>
-              <div style={{ marginBottom: "16px" }}><div style={{ fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>{t('dc.filterCondition')}</div><div style={{ display: "flex", gap: "8px" }}><select style={styles.select}><option value="">选择字段</option><option>{t('dc.modalityType')}</option><option>{t('dc.department')}</option></select><select style={styles.select}><option value="=">=</option><option>&gt;</option><option>&lt;</option></select><input style={styles.input} placeholder="值" /><button style={{ ...styles.btn, ...styles.btnPrimary, padding: "6px 12px", fontSize: "12px" }}>{t('dc.add')}</button></div></div>
-              <div style={{ display: "flex", justifyContent: "flex-end" }}><button style={{ ...styles.btn, ...styles.btnPrimary }} onClick={() => setShowConfig(false)}>{t('dc.confirm')}</button></div>
+              <div style={{ marginBottom: "16px" }}>
+                <div style={{ fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>{t('dc.dataSource')}</div>
+                <select style={styles.select} value={(selectedConfig.config.measures || [])[0] || ""} onChange={(e) => { const v = e.target.value; setConfigMeasures(v ? [v] : []); }}>
+                  <option value="">选择指标</option>
+                  {dataSources.map((ds) => <option key={ds.value} value={ds.value}>{ds.label}</option>)}
+                </select>
+              </div>
+              <div style={{ marginBottom: "16px" }}>
+                <div style={{ fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>聚合方式</div>
+                <select style={styles.select} value={configAgg} onChange={(e) => setConfigAgg(e.target.value)}>
+                  {aggOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+              </div>
+              <div style={{ marginBottom: "16px" }}>
+                <div style={{ fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>
+                  {t('dc.dimension')} <span style={{ fontWeight: 400, color: COLORS.textMuted, fontSize: "11px" }}>（点击选择, 拖拽排序）</span>
+                </div>
+                <DndContext sensors={dimSensors} collisionDetection={closestCenter} onDragEnd={handleDimDragEnd}>
+                  <SortableContext items={configDims} strategy={verticalListSortingStrategy}>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "8px" }}>
+                      {configDims.length === 0 && <span style={{ fontSize: "12px", color: COLORS.textMuted }}>请从下方选择维度</span>}
+                      {configDims.map((dimId) => {
+                        const dim = metadata.dimensions?.find((d) => d.id === dimId);
+                        return <SortableItem key={dimId} id={dimId} label={dim?.name || dimId} onRemove={toggleDimension} />;
+                      })}
+                    </div>
+                  </SortableContext>
+                </DndContext>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", borderTop: "1px solid #e5e7eb", paddingTop: "8px" }}>
+                  {(metadata.dimensions || []).map((dim) => (
+                    <label key={dim.id} style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "12px", padding: "4px 8px", borderRadius: "4px", background: configDims.includes(dim.id) ? "#dbeafe" : "#f8fafc", cursor: "pointer", border: "1px solid", borderColor: configDims.includes(dim.id) ? "#93c5fd" : "#e5e7eb" }}>
+                      <input type="checkbox" checked={configDims.includes(dim.id)} onChange={() => toggleDimension(dim.id)} style={{ accentColor: COLORS.primary }} />
+                      {dim.name}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div style={{ marginBottom: "16px" }}>
+                <div style={{ fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>度量选择</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                  {(metadata.metrics || []).map((m) => (
+                    <label key={m.id} style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "12px", padding: "4px 8px", borderRadius: "4px", background: configMeasures.includes(m.id) ? "#dbeafe" : "#f8fafc", cursor: "pointer", border: "1px solid", borderColor: configMeasures.includes(m.id) ? "#93c5fd" : "#e5e7eb" }}>
+                      <input type="checkbox" checked={configMeasures.includes(m.id)} onChange={() => toggleMeasure(m.id)} style={{ accentColor: COLORS.primary }} />
+                      {m.name}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div style={{ marginBottom: "16px" }}>
+                <div style={{ fontSize: "13px", fontWeight: 600, marginBottom: "6px" }}>{t('dc.filterCondition')}</div>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <select style={styles.select}><option value="">选择字段</option>{metadata.dimensions?.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}</select>
+                  <select style={styles.select}><option value="=">=</option><option>&gt;</option><option>&lt;</option><option>like</option></select>
+                  <input style={styles.input} placeholder="值" />
+                  <button style={{ ...styles.btn, ...styles.btnPrimary, padding: "6px 12px", fontSize: "12px" }}>{t('dc.add')}</button>
+                </div>
+              </div>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
+                <button style={{ ...styles.btn, ...styles.btnOutline }} onClick={() => setShowConfig(false)}>{t('dc.cancel')}</button>
+                <button style={{ ...styles.btn, ...styles.btnPrimary }} onClick={saveConfig}>{t('dc.confirm')}</button>
+              </div>
             </div>
           </div>
         </div>

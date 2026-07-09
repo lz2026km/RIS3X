@@ -1,11 +1,10 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
+﻿import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common'
+import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { RegionalService } from './regional.service'
 
 @ApiTags('regional')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 @Controller('regional')
 export class RegionalController {
   constructor(private readonly svc: RegionalService) {}

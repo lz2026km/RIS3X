@@ -1,11 +1,10 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
+﻿import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common'
+import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { CriticalExtService } from './criticalext.service'
 
 @ApiTags('critical-ext')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 @Controller('critical-ext')
 export class CriticalExtController {
   constructor(private readonly svc: CriticalExtService) {}

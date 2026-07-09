@@ -1,11 +1,10 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
+﻿import { Body, Controller, Get, Post } from '@nestjs/common'
+import { Roles } from '../../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { AiService, AiGenerateDto, AiReviewDto, AiScoreDto } from './ai.service'
 
 @ApiTags('ai')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 @Controller('ai')
 export class AiController {
   constructor(private readonly service: AiService) {}

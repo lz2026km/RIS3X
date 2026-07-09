@@ -1,9 +1,8 @@
-/**
- * G005 放射RIS系统 v3.0.2 - 预约控制器
- * 4 端点:GET / GET:id / POST / PATCH:id / DELETE:id
+﻿/**
+ * G005 鏀惧皠RIS绯荤粺 v3.0.2 - 棰勭害鎺у埗鍣?
+ * 4 绔偣:GET / GET:id / POST / PATCH:id / DELETE:id
  */
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
@@ -38,7 +37,6 @@ const UpdateSchema = z.object({
 
 @ApiTags('appointments')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 @Controller('appointments')
 export class AppointmentsController {
   constructor(private readonly service: AppointmentsService) {}

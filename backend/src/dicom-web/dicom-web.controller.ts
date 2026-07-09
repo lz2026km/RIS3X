@@ -1,10 +1,9 @@
-/**
- * G005 放射RIS系统 v3.0.2.2 - DICOMweb 控制器
- * 6 端点
+﻿/**
+ * G005 鏀惧皠RIS绯荤粺 v3.0.2.2 - DICOMweb 鎺у埗鍣?
+ * 6 绔偣
  */
-import { Body, Controller, Get, Param, Post, Query, Res, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, Param, Post, Query, Res } from '@nestjs/common'
 import type { Response } from 'express'
-import { AuthGuard } from '@nestjs/passport'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
@@ -23,7 +22,6 @@ const StoreSchema = z.object({
 
 @ApiTags('dicom-web')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 @Controller('dicom-web')
 export class DicomWebController {
   constructor(private readonly service: DicomWebService) {}

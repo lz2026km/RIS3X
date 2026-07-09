@@ -1,11 +1,10 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
+﻿import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common'
+import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { DeviceMgmtService } from './devicemgmt.service'
 
 @ApiTags('device-mgmt')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 @Controller('device-mgmt')
 export class DeviceMgmtController {
   constructor(private readonly svc: DeviceMgmtService) {}

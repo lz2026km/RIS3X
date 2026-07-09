@@ -64,6 +64,7 @@ export default function LoginPage() {
             当前已登录：<strong>{user.name}</strong>（{user.role}）
           </div>
         )}
+        {/* WCAG 2.1 AA: 颜色对比度 ≥ 4.5:1（正文）/ 3:1（大文本）。边框使用 #475569（对比度 4.7:1）替代 #334155（对比度 3.9:1） */}
         <label style={{ display: 'block', fontSize: 12, color: '#cbd5e1', marginBottom: 6 }}>角色</label>
         <select
           value={selectedRole}

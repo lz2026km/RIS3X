@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
+﻿import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common'
+import { Roles } from '../../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
@@ -23,7 +23,6 @@ const UpdateExamSchema = z.object({
 
 @ApiTags('exams')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 @Controller('exams')
 export class ExamController {
   constructor(private readonly service: ExamService) {}

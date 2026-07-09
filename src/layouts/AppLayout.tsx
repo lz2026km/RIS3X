@@ -278,7 +278,7 @@ const s: Record<string, React.CSSProperties> = {
   breadcrumbItem: (current: boolean): React.CSSProperties => ({
     color: current
       ? "var(--text-header, #f1f5f9)"
-      : "var(--text-muted, #94a3b8)",
+      : "var(--text-muted, #64748b)",
     fontWeight: current ? 600 : 400,
     cursor: current ? "default" : "pointer",
     textDecoration: "none",

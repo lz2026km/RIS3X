@@ -3,6 +3,7 @@ import { DndContext, useDraggable, useDroppable, DragEndEvent } from '@dnd-kit/c
 import { Layers, Save, Play, Upload, List, History, GripVertical, Plus, CheckCircle2, X } from 'lucide-react';
 import { Table, Button, Tag, message, Modal, Input, Select } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import { canApprove } from '../services/auth/rbacService';
 
 type StepType = { key: string; label: string; color: string };
 
@@ -180,7 +181,13 @@ export default function WorkflowDesignerPage() {
           {savedToast && <span style={{ background: '#10b981', padding: '4px 12px', borderRadius: 12, fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 4 }}><CheckCircle2 size={12} />{savedToast}</span>}
           {saving && <span style={{ fontSize: 12, opacity: 0.85 }}>保存中…</span>}
           <Button size="small" ghost icon={<History size={14} />} onClick={() => setShowVersion(true)}>历史版本</Button>
-          <Button size="small" ghost icon={<Play size={14} />}>激活</Button>
+          <Button size="small" ghost icon={<Play size={14} />} onClick={() => {
+            if (!canApprove('current-user-id', 'owner-id')) {
+              message.error('禁止自审：不能激活自己的工作流');
+            } else {
+              message.success('工作流已激活');
+            }
+          }}>激活</Button>
           <Button size="small" ghost icon={<Upload size={14} />}>部署</Button>
           <Button size="small" type="primary" loading={saving} icon={<Save size={14} />} onClick={handleSave}>保存</Button>
         </header>
