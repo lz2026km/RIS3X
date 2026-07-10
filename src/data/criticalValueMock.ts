@@ -1,18 +1,20 @@
 /**
- * G005 RIS v3.0.5.1 - R3.CRITICAL 危急值 Mock 数据
+ * G005 RIS v3.0.5.1 - R3.CRITICAL 危急值 Mock 数据 (参考/种子数据)
+ *
+ * v3.0.6.12-A4: 事件 (CRITICAL_EVENTS / CRITICAL_EVENTS_FULL) 已迁出,
+ *   改由 src/data/unifiedCriticalValues.ts 的 GENERATED_CRITICAL_VALUES
+ *   通过 src/services/mockBackend/store.ts 的 criticalEvents collection 提供.
+ *   本文件仅保留规则 / 级别 / 升级规则 / KPI 等参考常量, 作为 store 种子,
+ *   并供 NhqmReporter / JciReporter / criticalValueService 等直接引用.
  */
 import type {
   CriticalRule,
-  CriticalEvent,
   CriticalLevelConfig,
   CriticalKPI,
   CriticalEscalationRule,
-  CriticalSopStep,
 } from '../types/R3/R3.CRITICAL';
 
-const isoNow = () => new Date().toISOString();
 const isoOffset = (h: number) => new Date(Date.now() + h * 3600 * 1000).toISOString();
-const isoMinsAgo = (m: number) => new Date(Date.now() - m * 60 * 1000).toISOString();
 
 export const CRITICAL_LEVELS: CriticalLevelConfig[] = [
   { level: 'critical', label: '危急', labelEn: 'Critical', color: '#7f1d1d', bg: '#fee2e2', border: '#fca5a5', defaultChannels: ['phone', 'sms', 'inApp'], responseDeadline: 5, description: '需立即处理（5分钟内）', priority: 1 },
@@ -42,195 +44,6 @@ export const CRITICAL_RULES: CriticalRule[] = [
   { id: 'cv-018', code: 'CV-CON-002', name: '造影剂外渗', nameEn: 'Contrast extravasation', category: 'contrast', level: 'urgent', modality: ['CT', 'MR'], bodyPart: ['全身'], keywords: ['外渗', '渗漏', '肿胀'], findings: '造影剂注射部位出现明显外渗肿胀', channels: ['inApp'], responseDeadline: 30, description: '大量外渗需局部处理', reference: 'ACR Manual', isActive: true, customRule: false, triggerCount: 2, hitRate: 0.90, veto: false, dualReviewRequired: false },
   { id: 'cv-019', code: 'CV-PED-001', name: '儿童气道异物', nameEn: 'Pediatric airway foreign body', category: 'pediatric', level: 'critical', modality: ['CT', 'DR'], bodyPart: ['胸部'], keywords: ['气道异物', '支气管异物'], findings: '气道内见异物影', channels: ['phone', 'inApp', 'sms'], responseDeadline: 5, description: '儿童气道异物需立即取出', reference: '儿科急诊处理规范', isActive: true, customRule: false, triggerCount: 1, hitRate: 0.96, veto: true, dualReviewRequired: true },
   { id: 'cv-020', code: 'CV-OTH-001', name: '睾丸扭转', nameEn: 'Testicular torsion', category: 'other', level: 'critical', modality: ['US'], bodyPart: ['盆腔'], keywords: ['睾丸扭转'], findings: '睾丸血流减少/消失', channels: ['phone', 'inApp', 'sms'], responseDeadline: 5, description: '睾丸扭转需立即手术复位', reference: '泌尿外科急诊', isActive: true, customRule: false, triggerCount: 1, hitRate: 0.93, veto: true, dualReviewRequired: false },
-];
-
-const defaultSop = (): CriticalSopStep[] => [
-  { step: 1, title: '发现危急值', description: '影像检查发现危急值征象', action: '立即记录', deadlineMinutes: 1 },
-  { step: 2, title: '复核确认', description: '上级医生复核危急值', action: '双人复核', deadlineMinutes: 5 },
-  { step: 3, title: '通知临床', description: '电话/短信通知主管医生', action: '多渠道通知', deadlineMinutes: 10 },
-  { step: 4, title: '记录确认', description: '记录接收医生与时间', action: '记录系统', deadlineMinutes: 10 },
-  { step: 5, title: '持续追踪', description: '追踪临床处理情况', action: '持续追踪', deadlineMinutes: 30 },
-  { step: 6, title: '闭环归档', description: '归档危急值处理记录', action: '闭环归档', deadlineMinutes: 60 },
-];
-
-export const CRITICAL_EVENTS: CriticalEvent[] = [
-  {
-    id: 'ce-001', ruleId: 'cv-001', ruleCode: 'CV-NEU-001', ruleName: '急性脑梗死', level: 'critical',
-    reportId: 'rpt-019', examId: 'EX-019', patientId: 'P-100019', patientName: '高志强', gender: '男', age: 70,
-    modality: 'CT', bodyPart: '头颅',
-    reportedById: 'D001', reportedByName: '张明远', reportedByTitle: '主任医师',
-    reportedAt: isoMinsAgo(120),
-    receivingDoctorId: 'D105', receivingDoctorName: '陈雅芝(急诊神内)',
-    receivingTime: isoMinsAgo(115),
-    acknowledgedById: 'D105', acknowledgedByName: '陈雅芝',
-    acknowledgedTime: isoMinsAgo(112), resolvedTime: isoMinsAgo(60),
-    status: 'resolved', channels: ['phone', 'inApp', 'sms'],
-    channelAttempts: [
-      { channel: 'phone', attemptedAt: isoMinsAgo(118), success: true, recipientId: 'D105' },
-      { channel: 'inApp', attemptedAt: isoMinsAgo(117), success: true },
-      { channel: 'sms', attemptedAt: isoMinsAgo(116), success: true },
-    ],
-    detail: '左侧基底节区脑梗死(急性期)，左侧大脑中动脉供血区',
-    responseTimeMinutes: 5, onTimeNotification: true, escalationLevel: 0,
-    sop: defaultSop(),
-    dualReview: { firstReviewerId: 'D001', firstReviewerName: '张明远', firstReviewAt: isoMinsAgo(120), secondReviewerId: 'D005', secondReviewerName: '刘文博', secondReviewAt: isoMinsAgo(118) },
-    hash: 'cv1abc', auditChain: [],
-  },
-  {
-    id: 'ce-002', ruleId: 'cv-005', ruleCode: 'CV-CAR-001', ruleName: '急性冠脉综合征', level: 'critical',
-    reportId: 'rpt-016', examId: 'EX-016', patientId: 'P-100016', patientName: '罗小雨', gender: '女', age: 64,
-    modality: 'CT', bodyPart: '心脏',
-    reportedById: 'D006', reportedByName: '赵雪琴', reportedByTitle: '主任医师',
-    reportedAt: isoMinsAgo(360),
-    receivingDoctorId: 'D201', receivingDoctorName: '王心怡(心内科)',
-    receivingTime: isoMinsAgo(354),
-    acknowledgedById: 'D201', acknowledgedByName: '王心怡',
-    acknowledgedTime: isoMinsAgo(352), resolvedTime: isoMinsAgo(120),
-    status: 'resolved', channels: ['phone', 'inApp', 'sms', 'wechat'],
-    channelAttempts: [
-      { channel: 'phone', attemptedAt: isoMinsAgo(359), success: true, recipientId: 'D201' },
-      { channel: 'wechat', attemptedAt: isoMinsAgo(358), success: true },
-      { channel: 'inApp', attemptedAt: isoMinsAgo(357), success: true },
-      { channel: 'sms', attemptedAt: isoMinsAgo(356), success: true },
-    ],
-    detail: '左前降支中段重度狭窄>90%，右冠状动脉远端狭窄>80%',
-    responseTimeMinutes: 6, onTimeNotification: true, escalationLevel: 0,
-    sop: defaultSop(),
-    dualReview: { firstReviewerId: 'D006', firstReviewerName: '赵雪琴', firstReviewAt: isoMinsAgo(360), secondReviewerId: 'D001', secondReviewerName: '张明远', secondReviewAt: isoMinsAgo(358) },
-    hash: 'cv2def', auditChain: [],
-  },
-  {
-    id: 'ce-003', ruleId: 'cv-012', ruleCode: 'CV-ABD-002', ruleName: '肝脾破裂', level: 'critical',
-    reportId: 'rpt-015', examId: 'EX-015', patientId: 'P-100015', patientName: '马俊杰', gender: '男', age: 32,
-    modality: 'CT', bodyPart: '腹部',
-    reportedById: 'D001', reportedByName: '张明远', reportedByTitle: '主任医师',
-    reportedAt: isoMinsAgo(240),
-    receivingDoctorId: 'D301', receivingDoctorName: '李国华(急诊外科)',
-    receivingTime: isoMinsAgo(228),
-    acknowledgedById: 'D301', acknowledgedByName: '李国华',
-    acknowledgedTime: isoMinsAgo(225), resolvedTime: isoMinsAgo(60),
-    status: 'resolved', channels: ['phone', 'inApp', 'sms'],
-    channelAttempts: [
-      { channel: 'phone', attemptedAt: isoMinsAgo(238), success: true, recipientId: 'D301' },
-      { channel: 'inApp', attemptedAt: isoMinsAgo(237), success: true },
-      { channel: 'sms', attemptedAt: isoMinsAgo(236), success: true },
-    ],
-    detail: '肝右叶裂伤伴肝包膜下血肿，腹腔少量积血',
-    responseTimeMinutes: 12, onTimeNotification: false, escalationLevel: 1,
-    sop: defaultSop(),
-    dualReview: { firstReviewerId: 'D001', firstReviewerName: '张明远', firstReviewAt: isoMinsAgo(240), secondReviewerId: 'D005', secondReviewerName: '刘文博', secondReviewAt: isoMinsAgo(238) },
-    hash: 'cv3ghi', auditChain: [],
-  },
-  {
-    id: 'ce-004', ruleId: 'cv-002', ruleCode: 'CV-NEU-002', ruleName: '颅内出血', level: 'critical',
-    reportId: 'rpt-024', examId: 'EX-024', patientId: 'P-100024', patientName: '韩雪飞', gender: '女', age: 65,
-    modality: 'CT', bodyPart: '头颅',
-    reportedById: 'D002', reportedByName: '李慧敏', reportedByTitle: '副主任医师',
-    reportedAt: isoMinsAgo(45),
-    receivingDoctorId: 'D102', receivingDoctorName: '刘明(神内)',
-    receivingTime: isoMinsAgo(40),
-    acknowledgedById: 'D102', acknowledgedByName: '刘明',
-    acknowledgedTime: isoMinsAgo(38),
-    status: 'acknowledged', channels: ['phone', 'inApp'],
-    channelAttempts: [
-      { channel: 'phone', attemptedAt: isoMinsAgo(44), success: true, recipientId: 'D102' },
-      { channel: 'inApp', attemptedAt: isoMinsAgo(43), success: true },
-    ],
-    detail: '右侧基底节区脑出血，约 12ml',
-    responseTimeMinutes: 5, onTimeNotification: true, escalationLevel: 0,
-    sop: defaultSop(),
-    dualReview: { firstReviewerId: 'D002', firstReviewerName: '李慧敏', firstReviewAt: isoMinsAgo(45), secondReviewerId: 'D006', secondReviewerName: '赵雪琴', secondReviewAt: isoMinsAgo(43) },
-    hash: 'cv4jkl', auditChain: [],
-  },
-  {
-    id: 'ce-005', ruleId: 'cv-007', ruleCode: 'CV-CAR-003', ruleName: '肺栓塞', level: 'critical',
-    reportId: 'rpt-025', examId: 'EX-025', patientId: 'P-100025', patientName: '孙立人', gender: '男', age: 58,
-    modality: 'CT', bodyPart: '胸部',
-    reportedById: 'D003', reportedByName: '王建华', reportedByTitle: '主治医师',
-    reportedAt: isoMinsAgo(30),
-    receivingDoctorId: 'D203', receivingDoctorName: '张静(呼吸科)',
-    receivingTime: isoMinsAgo(22),
-    status: 'notified', channels: ['phone', 'inApp', 'sms'],
-    channelAttempts: [
-      { channel: 'phone', attemptedAt: isoMinsAgo(28), success: true, recipientId: 'D203' },
-      { channel: 'inApp', attemptedAt: isoMinsAgo(27), success: true },
-      { channel: 'sms', attemptedAt: isoMinsAgo(26), success: true },
-    ],
-    detail: '双侧肺动脉多发充盈缺损，大面积肺栓塞可能',
-    responseTimeMinutes: 8, onTimeNotification: true, escalationLevel: 0,
-    sop: defaultSop(),
-    dualReview: { firstReviewerId: 'D003', firstReviewerName: '王建华', firstReviewAt: isoMinsAgo(30), secondReviewerId: 'D005', secondReviewerName: '刘文博', secondReviewAt: isoMinsAgo(28) },
-    hash: 'cv5mno', auditChain: [],
-  },
-  {
-    id: 'ce-006', ruleId: 'cv-011', ruleCode: 'CV-ABD-001', ruleName: '消化道穿孔', level: 'critical',
-    reportId: 'rpt-026', examId: 'EX-026', patientId: 'P-100026', patientName: '林海洋', gender: '男', age: 47,
-    modality: 'CT', bodyPart: '腹部',
-    reportedById: 'D005', reportedByName: '刘文博', reportedByTitle: '副主任医师',
-    reportedAt: isoMinsAgo(15),
-    status: 'pending', channels: [],
-    channelAttempts: [],
-    detail: '膈下游离气体，考虑消化道穿孔',
-    onTimeNotification: false, escalationLevel: 0,
-    sop: defaultSop(),
-    hash: 'cv6pqr', auditChain: [],
-  },
-  {
-    id: 'ce-007', ruleId: 'cv-006', ruleCode: 'CV-CAR-002', ruleName: '主动脉夹层', level: 'critical',
-    reportId: 'rpt-027', examId: 'EX-027', patientId: 'P-100027', patientName: '吴志华', gender: '男', age: 68,
-    modality: 'CT', bodyPart: '胸部',
-    reportedById: 'D006', reportedByName: '赵雪琴', reportedByTitle: '主任医师',
-    reportedAt: isoMinsAgo(360),
-    receivingDoctorId: 'D202', receivingDoctorName: '陈昊(心外科)',
-    receivingTime: isoMinsAgo(357),
-    acknowledgedById: 'D202', acknowledgedByName: '陈昊',
-    acknowledgedTime: isoMinsAgo(355), resolvedTime: isoMinsAgo(120),
-    status: 'resolved', channels: ['phone', 'inApp', 'sms'],
-    channelAttempts: [
-      { channel: 'phone', attemptedAt: isoMinsAgo(359), success: true, recipientId: 'D202' },
-      { channel: 'inApp', attemptedAt: isoMinsAgo(358), success: true },
-      { channel: 'sms', attemptedAt: isoMinsAgo(357), success: true },
-    ],
-    detail: 'Standford A 型主动脉夹层，内膜片累及升主动脉',
-    responseTimeMinutes: 3, onTimeNotification: true, escalationLevel: 0,
-    sop: defaultSop(),
-    dualReview: { firstReviewerId: 'D006', firstReviewerName: '赵雪琴', firstReviewAt: isoMinsAgo(360), secondReviewerId: 'D001', secondReviewerName: '张明远', secondReviewAt: isoMinsAgo(358) },
-    hash: 'cv7stu', auditChain: [],
-  },
-  {
-    id: 'ce-008', ruleId: 'cv-009', ruleCode: 'CV-PUL-001', ruleName: '气胸', level: 'urgent',
-    reportId: 'rpt-028', examId: 'EX-028', patientId: 'P-100028', patientName: '周海洋', gender: '男', age: 35,
-    modality: 'DR', bodyPart: '胸部',
-    reportedById: 'D004', reportedByName: '陈晓东', reportedByTitle: '住院医师',
-    reportedAt: isoMinsAgo(5),
-    status: 'pending', channels: [],
-    channelAttempts: [],
-    detail: '右侧大量气胸>60%，肺组织压缩',
-    onTimeNotification: false, escalationLevel: 0,
-    sop: defaultSop(),
-    hash: 'cv8vwx', auditChain: [],
-  },
-  {
-    id: 'ce-009', ruleId: 'cv-014', ruleCode: 'CV-OBG-001', ruleName: '异位妊娠破裂', level: 'critical',
-    reportId: 'rpt-029', examId: 'EX-029', patientId: 'P-100029', patientName: '何静', gender: '女', age: 28,
-    modality: 'US', bodyPart: '盆腔',
-    reportedById: 'D007', reportedByName: '孙立人', reportedByTitle: '主治医师',
-    reportedAt: isoMinsAgo(80),
-    receivingDoctorId: 'D401', receivingDoctorName: '王芳(妇产科)',
-    receivingTime: isoMinsAgo(74),
-    acknowledgedById: 'D401', acknowledgedByName: '王芳',
-    acknowledgedTime: isoMinsAgo(72),
-    status: 'acknowledged', channels: ['phone', 'inApp', 'sms'],
-    channelAttempts: [
-      { channel: 'phone', attemptedAt: isoMinsAgo(78), success: true, recipientId: 'D401' },
-      { channel: 'inApp', attemptedAt: isoMinsAgo(77), success: true },
-      { channel: 'sms', attemptedAt: isoMinsAgo(76), success: true },
-    ],
-    detail: '右侧附件区混杂回声伴盆腔大量积液，异位妊娠破裂',
-    responseTimeMinutes: 6, onTimeNotification: true, escalationLevel: 0,
-    sop: defaultSop(),
-    hash: 'cv9yza', auditChain: [],
-  },
 ];
 
 export const CRITICAL_ESCALATION_RULES: CriticalEscalationRule[] = [
@@ -283,29 +96,6 @@ export const CRITICAL_KPI: CriticalKPI = {
 export default {
   CRITICAL_LEVELS,
   CRITICAL_RULES,
-  CRITICAL_EVENTS,
   CRITICAL_ESCALATION_RULES,
   CRITICAL_KPI,
 };
-
-// [v3.0.6.8-27] 三甲级危急值数据扩充 - 规则 20→60+, 事件 9→50+, 升级规则 5→15
-import { CRITICAL_EVENTS_PRE } from './_generators';
-
-export const CRITICAL_EVENTS_FULL = CRITICAL_EVENTS_PRE.length > 0
-  ? CRITICAL_EVENTS_PRE
-  : CRITICAL_EVENTS; // 兜底
-
-// 扩充升级规则 5→15
-const _EXTRA_ESC_RULES = [
-  { id: 'esc-006', level: 'critical' as const, slaMinutes: 10, channels: ['in_app', 'sms', 'phone'] as ('in_app' | 'sms' | 'phone')[], targets: ['主治医师', '科主任', '医务处'] as ('主治医师' | '科主任' | '医务处')[], repeatInterval: 5, maxRepeats: 5, enabled: true },
-  { id: 'esc-007', level: 'critical' as const, slaMinutes: 8, channels: ['in_app', 'sms', 'phone', 'pager'] as ('in_app' | 'sms' | 'phone' | 'pager')[], targets: ['科主任', '医务处', '分管院长'] as ('科主任' | '医务处' | '分管院长')[], repeatInterval: 3, maxRepeats: 6, enabled: true },
-  { id: 'esc-008', level: 'urgent' as const, slaMinutes: 30, channels: ['in_app', 'sms'] as ('in_app' | 'sms')[], targets: ['主治医师'] as ('主治医师')[], repeatInterval: 15, maxRepeats: 3, enabled: true },
-  { id: 'esc-009', level: 'urgent' as const, slaMinutes: 20, channels: ['in_app', 'sms', 'phone'] as ('in_app' | 'sms' | 'phone')[], targets: ['主治医师', '科主任'] as ('主治医师' | '科主任')[], repeatInterval: 10, maxRepeats: 4, enabled: true },
-  { id: 'esc-010', level: 'warning' as const, slaMinutes: 60, channels: ['in_app'] as ('in_app')[], targets: ['主治医师'] as ('主治医师')[], repeatInterval: 30, maxRepeats: 2, enabled: true },
-  { id: 'esc-011', level: 'critical' as const, slaMinutes: 5, channels: ['in_app', 'sms', 'phone', 'pager', 'email'] as ('in_app' | 'sms' | 'phone' | 'pager' | 'email')[], targets: ['科主任', '医务处', '分管院长', '医患办'] as ('科主任' | '医务处' | '分管院长' | '医患办')[], repeatInterval: 2, maxRepeats: 8, enabled: true },
-  { id: 'esc-012', level: 'urgent' as const, slaMinutes: 15, channels: ['in_app', 'sms', 'phone'] as ('in_app' | 'sms' | 'phone')[], targets: ['主治医师', '科主任', '护士长'] as ('主治医师' | '科主任' | '护士长')[], repeatInterval: 8, maxRepeats: 4, enabled: true },
-  { id: 'esc-013', level: 'critical' as const, slaMinutes: 10, channels: ['in_app', 'sms', 'phone', 'pager'] as ('in_app' | 'sms' | 'phone' | 'pager')[], targets: ['主治医师', '科主任', '值班医师'] as ('主治医师' | '科主任' | '值班医师')[], repeatInterval: 5, maxRepeats: 5, enabled: true },
-  { id: 'esc-014', level: 'warning' as const, slaMinutes: 120, channels: ['in_app', 'sms'] as ('in_app' | 'sms')[], targets: ['主治医师'] as ('主治医师')[], repeatInterval: 60, maxRepeats: 2, enabled: true },
-  { id: 'esc-015', level: 'urgent' as const, slaMinutes: 25, channels: ['in_app', 'sms', 'phone'] as ('in_app' | 'sms' | 'phone')[], targets: ['主治医师', '科主任', '护士长'] as ('主治医师' | '科主任' | '护士长')[], repeatInterval: 12, maxRepeats: 3, enabled: true },
-];
-export const CRITICAL_ESCALATION_RULES_FULL = [...CRITICAL_ESCALATION_RULES, ..._EXTRA_ESC_RULES];

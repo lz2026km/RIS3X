@@ -2,10 +2,12 @@
  * G005 放射RIS系统 v3.0.5.1 - MSW Handlers
  * R3.WRITING(40) + R3.DIST(30) + R3.INTEGRATION(50) + R3.OTHER(20) = 140 handlers
  * + R3.REVIEW COSIGN(20) = 160 handlers
+ * [v3.0.6.12-A4] top-20 高频路由读写 store
  */
 
 import { http, HttpResponse, delay } from 'msw';
 import { v4 as uuidv4 } from 'uuid';
+import { list, get, create, update, remove } from './store';
 
 const API_BASE = (() => {
   try { return window.location.origin + '/api/v1'; } catch { return 'http://localhost:5173/api/v1'; }
@@ -15,8 +17,24 @@ const API_BASE = (() => {
 // 1. R3.WRITING(40 handlers)
 // ============================================================
 export const writingHandlers = [
-  // 1.1 结构化字段模板(8)
-  http.get(`${API_BASE}/writing/templates`, async () => { await delay(80); return HttpResponse.json({ success: true, data: ['recist', 'birads', 'pirads', 'lungRads', 'tiRads', 'cadRads'] }); }),
+  // 1.1 结构化字段模板(8)  [v3.0.6.12-A4] #1 GET /writing/templates - 读 store
+  http.get(`${API_BASE}/writing/templates`, async ({ request }) => {
+    await delay(80);
+    const url = new URL(request.url);
+    const q = url.searchParams.get('q') ?? '';
+    let data: string[] = [];
+    try {
+      const all = list<{ id: string; name: string; category: string }>('writing_templates');
+      if (all.length === 0) {
+        const seed = ['recist', 'birads', 'pirads', 'lungRads', 'tiRads', 'cadRads'];
+        seed.forEach((name) => create('writing_templates', { id: `tpl-${name}`, name, category: 'structured', version: '1.0.0' }));
+        data = seed;
+      } else {
+        data = all.map(t => t.name).filter(n => !q || n.includes(q));
+      }
+    } catch { data = ['recist', 'birads', 'pirads', 'lungRads', 'tiRads', 'cadRads']; }
+    return HttpResponse.json({ success: true, data });
+  }),
   http.get(`${API_BASE}/writing/templates/:id`, async ({ params }) => { await delay(80); return HttpResponse.json({ success: true, data: { id: params.id, version: '1.0.0', fields: [], groups: [] } }); }),
   http.post(`${API_BASE}/writing/templates`, async () => { await delay(100); return HttpResponse.json({ success: true, data: { id: `tpl-${Date.now()}` } }, { status: 201 }); }),
   http.put(`${API_BASE}/writing/templates/:id`, async () => { await delay(80); return HttpResponse.json({ success: true }); }),
@@ -45,18 +63,65 @@ export const writingHandlers = [
   http.post(`${API_BASE}/writing/pirads/calc`, async () => { await delay(100); return HttpResponse.json({ success: true, data: { overallScore: 4 } }); }),
   http.post(`${API_BASE}/writing/fields/formula`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { value: 0 } }); }),
 
-  // 1.4 草稿(8)
-  http.get(`${API_BASE}/writing/drafts`, async ({ request }) => { await delay(80); const url = new URL(request.url); const reportId = url.searchParams.get('reportId'); return HttpResponse.json({ success: true, data: [{ id: `draft-${reportId ?? '0'}`, version: 7, autoSaved: true, updatedAt: new Date().toISOString() }] }); }),
-  http.post(`${API_BASE}/writing/drafts`, async () => { await delay(150); return HttpResponse.json({ success: true, data: { id: `draft-${Date.now()}`, version: 1 } }, { status: 201 }); }),
-  http.put(`${API_BASE}/writing/drafts/:id`, async () => { await delay(100); return HttpResponse.json({ success: true }); }),
-  http.delete(`${API_BASE}/writing/drafts/:id`, async () => { await delay(80); return new HttpResponse(null, { status: 204 }); }),
-  http.post(`${API_BASE}/writing/drafts/:id/auto-save`, async () => { await delay(20); return HttpResponse.json({ success: true, data: { savedAt: new Date().toISOString() } }); }),
+  // 1.4 草稿(8)  [v3.0.6.12-A4] #2-#5 草稿读写 store
+  http.get(`${API_BASE}/writing/drafts`, async ({ request }) => {
+    await delay(80);
+    const url = new URL(request.url);
+    const reportId = url.searchParams.get('reportId');
+    let data: any[] = [];
+    try {
+      const all = list<any>('writing_drafts');
+      data = reportId ? all.filter(d => d.reportId === reportId) : all;
+    } catch {}
+    if (data.length === 0) data = [{ id: `draft-${reportId ?? '0'}`, reportId: reportId ?? '0', version: 7, autoSaved: true, content: '', status: 'draft', updatedAt: new Date().toISOString() }];
+    return HttpResponse.json({ success: true, data });
+  }),
+  http.post(`${API_BASE}/writing/drafts`, async ({ request }) => {
+    await delay(150);
+    const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+    const id = `draft-${Date.now()}-${uuidv4().slice(0, 8)}`;
+    const item = { id, reportId: body.reportId ?? '', content: body.content ?? '', status: 'draft', version: 1, autoSaved: false, createdBy: body.createdBy ?? 'system', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), ...body };
+    try { create('writing_drafts', item); } catch {}
+    return HttpResponse.json({ success: true, data: item }, { status: 201 });
+  }),
+  http.put(`${API_BASE}/writing/drafts/:id`, async ({ params, request }) => {
+    await delay(100);
+    const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+    const id = params.id as string;
+    let updated: any = { id, ...body, updatedAt: new Date().toISOString() };
+    try {
+      const existing = get<any>('writing_drafts', id);
+      if (existing) updated = update<any>('writing_drafts', id, { ...body, updatedAt: updated.updatedAt }) ?? updated;
+      else create('writing_drafts', updated);
+    } catch {}
+    return HttpResponse.json({ success: true, data: updated });
+  }),
+  http.delete(`${API_BASE}/writing/drafts/:id`, async ({ params }) => {
+    await delay(80);
+    try { remove('writing_drafts', params.id as string); } catch {}
+    return new HttpResponse(null, { status: 204 });
+  }),
+  http.post(`${API_BASE}/writing/drafts/:id/auto-save`, async ({ params, request }) => {
+    await delay(20);
+    const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+    const id = params.id as string;
+    const savedAt = new Date().toISOString();
+    try { update<any>('writing_drafts', id, { autoSaved: true, content: body.content, updatedAt: savedAt }); } catch {}
+    return HttpResponse.json({ success: true, data: { id, savedAt } });
+  }),
   http.post(`${API_BASE}/writing/drafts/:id/resolve-conflict`, async () => { await delay(100); return HttpResponse.json({ success: true }); }),
   http.get(`${API_BASE}/writing/drafts/:id/history`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [{ version: 1, content: '初稿', updatedAt: '2026-07-01T10:00:00Z', author: 'Dr. Zhang' }, { version: 2, content: '修改稿', updatedAt: '2026-07-02T14:00:00Z', author: 'Dr. Li' }] }); }),
   http.post(`${API_BASE}/writing/drafts/restore`, async () => { await delay(100); return HttpResponse.json({ success: true, data: { id: `draft-restored-${Date.now()}` } }); }),
 
-  // 1.5 AI / 短语库 / RadLex / 预评分(8)
-  http.post(`${API_BASE}/writing/ai/draft`, async () => { await delay(800); return HttpResponse.json({ success: true, data: { id: `aidraft-${Date.now()}`, stage: 'ready', confidence: 0.85 } }); }),
+  // 1.5 AI / 短语库 / RadLex / 预评分(8)  [v3.0.6.12-A4] #6 POST /writing/ai/draft - 写 store
+  http.post(`${API_BASE}/writing/ai/draft`, async ({ request }) => {
+    await delay(800);
+    const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+    const id = `aidraft-${Date.now()}-${uuidv4().slice(0, 8)}`;
+    const item = { id, reportId: body.reportId ?? '', scenario: body.scenario ?? 'chest-ct', clinicalHistory: body.clinicalHistory ?? '', stage: 'ready', confidence: 0.85, findings: body.findings ?? '', impression: body.impression ?? '', createdAt: new Date().toISOString() };
+    try { create('writing_ai_drafts', item); } catch {}
+    return HttpResponse.json({ success: true, data: item });
+  }),
   http.get(`${API_BASE}/writing/ai/status/:reportId`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { stage: 'ready', progress: 100 } }); }),
   http.get(`${API_BASE}/writing/phrases`, async ({ request }) => { await delay(50); const url = new URL(request.url); const q = url.searchParams.get('q') ?? ''; return HttpResponse.json({ success: true, data: [{ id: 'p-1', text: '双肺透光度增加，肺纹理增多', category: 'finding' }, { id: 'p-2', text: '未见明显异常', category: 'conclusion' }, { id: 'p-3', text: '建议定期随访', category: 'recommendation' }].filter(p => !q || p.text.includes(q)), meta: { query: q } }); }),
   http.post(`${API_BASE}/writing/phrases`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { id: `p-${Date.now()}` } }, { status: 201 }); }),
@@ -70,21 +135,87 @@ export const writingHandlers = [
 // 2. R3.DIST(30 handlers)
 // ============================================================
 export const distributionHandlers = [
-  // 2.1 通道配置(5)
-  http.get(`${API_BASE}/dist/channels`, async () => { await delay(80); return HttpResponse.json({ success: true, data: ['wechat', 'sms', 'dingtalk', 'email', 'inApp', 'dicom', 'paper', 'cloud', 'film'] }); }),
-  http.get(`${API_BASE}/dist/channels/:channel`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { channel: 'wechat', enabled: true } }); }),
-  http.put(`${API_BASE}/dist/channels/:channel`, async () => { await delay(150); return HttpResponse.json({ success: true }); }),
+  // 2.1 通道配置(5)  [v3.0.6.12-A4] #7-#9 channels 读写 store
+  http.get(`${API_BASE}/dist/channels`, async () => {
+    await delay(80);
+    let data: any[] = [];
+    try {
+      data = list<any>('dist_channels');
+      if (data.length === 0) {
+        const seed = ['wechat', 'sms', 'dingtalk', 'email', 'inApp', 'dicom', 'paper', 'cloud', 'film'];
+        seed.forEach(c => create('dist_channels', { id: c, channel: c, enabled: true }));
+        data = seed.map(c => ({ id: c, channel: c, enabled: true }));
+      } else {
+        data = data.map(d => d.channel || d.id);
+      }
+    } catch { data = ['wechat', 'sms', 'dingtalk', 'email', 'inApp', 'dicom', 'paper', 'cloud', 'film']; }
+    return HttpResponse.json({ success: true, data });
+  }),
+  http.get(`${API_BASE}/dist/channels/:channel`, async ({ params }) => {
+    await delay(80);
+    const ch = params.channel as string;
+    let item: any = null;
+    try { item = get<any>('dist_channels', ch) ?? null; } catch {}
+    if (!item) item = { id: ch, channel: ch, enabled: true };
+    return HttpResponse.json({ success: true, data: item });
+  }),
+  http.put(`${API_BASE}/dist/channels/:channel`, async ({ params, request }) => {
+    await delay(150);
+    const ch = params.channel as string;
+    const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+    let updated: any = { id: ch, channel: ch, ...body };
+    try { updated = update<any>('dist_channels', ch, body) ?? updated; } catch {}
+    return HttpResponse.json({ success: true, data: updated });
+  }),
   http.post(`${API_BASE}/dist/channels/:channel/test`, async () => { await delay(500); return HttpResponse.json({ success: true, data: { success: true, durationMs: 250 } }); }),
   http.get(`${API_BASE}/dist/channels/monitor`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { online: true, workers: 12, queueDepth: 24 } }); }),
 
-  // 2.2 推送任务(8)
-  http.get(`${API_BASE}/dist/tasks`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [{ id: 'dt-001', channel: 'wechat', patient: '张三', status: 'sent', createdAt: '2026-07-03T10:00:00Z' }, { id: 'dt-002', channel: 'sms', patient: '李四', status: 'pending', createdAt: '2026-07-03T11:00:00Z' }], meta: { total: 2 } }); }),
-  http.get(`${API_BASE}/dist/tasks/:id`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { id: 'dt-001', status: 'sent' } }); }),
-  http.post(`${API_BASE}/dist/tasks`, async () => { await delay(200); return HttpResponse.json({ success: true, data: { id: `dt-${Date.now()}` } }, { status: 201 }); }),
+  // 2.2 推送任务(8)  [v3.0.6.12-A4] #10-#12 dist_tasks 读写 store
+  http.get(`${API_BASE}/dist/tasks`, async () => {
+    await delay(80);
+    let data: any[] = [];
+    try {
+      data = list<any>('dist_tasks');
+      if (data.length === 0) {
+        const seed = [
+          { id: 'dt-001', channel: 'wechat', target: '张三', reportId: 'R-001', status: 'sent', sentAt: '2026-07-03T10:00:00Z' },
+          { id: 'dt-002', channel: 'sms', target: '李四', reportId: 'R-002', status: 'pending' },
+        ];
+        seed.forEach(s => create('dist_tasks', s));
+        data = seed;
+      }
+    } catch { data = []; }
+    return HttpResponse.json({ success: true, data, meta: { total: data.length } });
+  }),
+  http.get(`${API_BASE}/dist/tasks/:id`, async ({ params }) => {
+    await delay(50);
+    let item: any = { id: params.id, status: 'pending' };
+    try { const got = get<any>('dist_tasks', params.id as string); if (got) item = got; } catch {}
+    return HttpResponse.json({ success: true, data: item });
+  }),
+  http.post(`${API_BASE}/dist/tasks`, async ({ request }) => {
+    await delay(200);
+    const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+    const id = `dt-${Date.now()}-${uuidv4().slice(0, 8)}`;
+    const item = { id, channel: body.channel ?? 'inApp', target: body.target ?? '', reportId: body.reportId ?? '', status: 'pending', createdAt: new Date().toISOString(), ...body };
+    try { create('dist_tasks', item); } catch {}
+    return HttpResponse.json({ success: true, data: item }, { status: 201 });
+  }),
   http.post(`${API_BASE}/dist/tasks/multi`, async () => { await delay(500); return HttpResponse.json({ success: true, data: { taskIds: [`dtm-1`, `dtm-2`], sent: 2, failed: 0 } }); }),
   http.post(`${API_BASE}/dist/tasks/:id/retry`, async () => { await delay(300); return HttpResponse.json({ success: true, data: { newStatus: 'queued' } }); }),
   http.post(`${API_BASE}/dist/tasks/:id/cancel`, async () => { await delay(150); return HttpResponse.json({ success: true }); }),
-  http.get(`${API_BASE}/dist/queue`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { pending: 24, sending: 8, failed: 3 } }); }),
+  http.get(`${API_BASE}/dist/queue`, async () => {
+    await delay(50);
+    let stats = { pending: 0, sending: 0, failed: 0 };
+    try {
+      const tasks = list<any>('dist_tasks');
+      stats.pending = tasks.filter(t => t.status === 'pending' || t.status === 'queued').length;
+      stats.sending = tasks.filter(t => t.status === 'sending').length;
+      stats.failed = tasks.filter(t => t.status === 'failed').length;
+    } catch {}
+    if (stats.pending === 0 && stats.sending === 0 && stats.failed === 0) stats = { pending: 24, sending: 8, failed: 3 };
+    return HttpResponse.json({ success: true, data: stats });
+  }),
   http.get(`${API_BASE}/dist/history`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [{ date: '2026-07-03', channel: 'wechat', total: 15, success: 14, failed: 1 }, { date: '2026-07-02', channel: 'sms', total: 8, success: 8, failed: 0 }] }); }),
 
   // 2.3 HL7 ORU + MLLP(4)
@@ -93,12 +224,57 @@ export const distributionHandlers = [
   http.post(`${API_BASE}/dist/hl7/orm/build`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { message: 'MSH|...', bytes: 1024 } }); }),
   http.post(`${API_BASE}/dist/hl7/adt/build`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { message: 'MSH|...', bytes: 512 } }); }),
 
-  // 2.4 送达回执(5)
-  http.get(`${API_BASE}/dist/receipts`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [{ id: 'rcp-001', taskId: 'dt-001', channel: 'wechat', status: 'verified', verifiedAt: '2026-07-03T10:05:00Z' }, { id: 'rcp-002', taskId: 'dt-002', channel: 'sms', status: 'pending' }] }); }),
-  http.get(`${API_BASE}/dist/receipts/:id`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { id: 'rcp-001', verified: true } }); }),
-  http.post(`${API_BASE}/dist/receipts/:id/verify`, async () => { await delay(150); return HttpResponse.json({ success: true, data: { verified: true, details: '签名通过' } }); }),
+  // 2.4 送达回执(5)  [v3.0.6.12-A4] #13-#14 receipts 读写 store
+  http.get(`${API_BASE}/dist/receipts`, async () => {
+    await delay(80);
+    let data: any[] = [];
+    try {
+      data = list<any>('dist_receipts');
+      if (data.length === 0) {
+        const seed = [
+          { id: 'rcp-001', taskId: 'dt-001', channel: 'wechat', status: 'verified', verifiedAt: '2026-07-03T10:05:00Z' },
+          { id: 'rcp-002', taskId: 'dt-002', channel: 'sms', status: 'pending' },
+        ];
+        seed.forEach(s => create('dist_receipts', s));
+        data = seed;
+      }
+    } catch { data = []; }
+    return HttpResponse.json({ success: true, data });
+  }),
+  http.get(`${API_BASE}/dist/receipts/:id`, async ({ params }) => {
+    await delay(50);
+    let item: any = { id: params.id, verified: false };
+    try { const got = get<any>('dist_receipts', params.id as string); if (got) item = got; } catch {}
+    return HttpResponse.json({ success: true, data: item });
+  }),
+  http.post(`${API_BASE}/dist/receipts/:id/verify`, async ({ params, request }) => {
+    await delay(150);
+    const id = params.id as string;
+    const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+    const verifiedAt = new Date().toISOString();
+    let updated: any = { id, status: 'verified', verified: true, details: body.details ?? '签名通过', verifiedAt };
+    try { updated = update<any>('dist_receipts', id, { status: 'verified', verified: true, details: body.details ?? '签名通过', verifiedAt }) ?? updated; } catch {}
+    return HttpResponse.json({ success: true, data: updated });
+  }),
   http.post(`${API_BASE}/dist/receipts/:id/events`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { id: `e-${Date.now()}` } }); }),
-  http.get(`${API_BASE}/dist/kpi`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { totalSent: 128, successRate: 96.8, avgDeliveryTime: 2.4, channelBreakdown: { wechat: 85, sms: 30, email: 13 } } }); }),
+  http.get(`${API_BASE}/dist/kpi`, async () => {
+    await delay(80);
+    let data = { totalSent: 0, successRate: 0, avgDeliveryTime: 0, channelBreakdown: {} as Record<string, number> };
+    try {
+      const tasks = list<any>('dist_tasks');
+      const rcp = list<any>('dist_receipts');
+      data.totalSent = tasks.length || 128;
+      const verified = rcp.filter(r => r.status === 'verified').length;
+      data.successRate = tasks.length ? Math.round((verified / tasks.length) * 1000) / 10 : 96.8;
+      data.avgDeliveryTime = 2.4;
+      const breakdown: Record<string, number> = {};
+      tasks.forEach(t => { breakdown[t.channel] = (breakdown[t.channel] || 0) + 1; });
+      data.channelBreakdown = Object.keys(breakdown).length ? breakdown : { wechat: 85, sms: 30, email: 13 };
+    } catch {
+      data = { totalSent: 128, successRate: 96.8, avgDeliveryTime: 2.4, channelBreakdown: { wechat: 85, sms: 30, email: 13 } };
+    }
+    return HttpResponse.json({ success: true, data });
+  }),
 
   // 2.5 患者端(4)
   http.get(`${API_BASE}/dist/patient/links`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [{ id: 'pl-001', patient: '张三', shortCode: 'ABC123', expiresAt: '2026-08-03T10:00:00Z', views: 2 }, { id: 'pl-002', patient: '李四', shortCode: 'DEF456', expiresAt: '2026-08-02T11:00:00Z', views: 0 }] }); }),
@@ -400,14 +576,20 @@ export const cosignHandlers = [
 //    v3.0.5.1 月报/季报/年报/实时仪表盘/导出/配置
 // ============================================================
 export const qualityReportHandlers = [
-  // 6.1 月报 (4)
+  // 6.1 月报 (4)  [v3.0.6.12-A4] #16 GET /quality/monthly-report - 优先读 store
   http.get(`${API_BASE}/quality/monthly-report`, async ({ request }) => {
     await delay(1000);
     const url = new URL(request.url);
     const year = parseInt(url.searchParams.get('year') ?? '2026', 10);
     const month = parseInt(url.searchParams.get('month') ?? '6', 10);
+    const key = `${year}-${String(month).padStart(2, '0')}`;
     const { getMonthlyReport } = await import('../../data/qualityReportMock');
-    return HttpResponse.json({ success: true, data: getMonthlyReport(year, month) });
+    let storeItem: any = null;
+    try { storeItem = get<any>('quality_reports', `monthly-${key}`); } catch {}
+    if (storeItem) return HttpResponse.json({ success: true, data: storeItem.content });
+    const report = getMonthlyReport(year, month);
+    try { create('quality_reports', { id: `monthly-${key}`, period: key, type: 'monthly', content: report, status: 'final', createdAt: new Date().toISOString() }); } catch {}
+    return HttpResponse.json({ success: true, data: report });
   }),
   http.get(`${API_BASE}/quality/monthly-report/list`, async () => {
     await delay(300);
@@ -429,15 +611,20 @@ export const qualityReportHandlers = [
     return HttpResponse.json({ success: true, data: r.sections });
   }),
 
-  // 6.2 季报/年报 (3)
+  // 6.2 季报/年报 (3)  [v3.0.6.12-A4] #17-#18 quarterly/annual report - 优先读 store
   http.get(`${API_BASE}/quality/quarterly-report`, async ({ request }) => {
     await delay(1200);
     const url = new URL(request.url);
     const year = parseInt(url.searchParams.get('year') ?? '2026', 10);
     const q = parseInt(url.searchParams.get('quarter') ?? '2', 10) as 1 | 2 | 3 | 4;
     const { QUARTERLY_QUALITY_REPORTS } = await import('../../data/qualityReportMock');
-    const r = QUARTERLY_QUALITY_REPORTS.find((x) => x.year === year && x.quarter === q);
-    return HttpResponse.json({ success: true, data: r ?? QUARTERLY_QUALITY_REPORTS[0] });
+    const key = `quarterly-${year}-Q${q}`;
+    let storeItem: any = null;
+    try { storeItem = get<any>('quality_reports', key); } catch {}
+    if (storeItem) return HttpResponse.json({ success: true, data: storeItem.content });
+    const r = QUARTERLY_QUALITY_REPORTS.find((x) => x.year === year && x.quarter === q) ?? QUARTERLY_QUALITY_REPORTS[0];
+    try { create('quality_reports', { id: key, period: `${year}-Q${q}`, type: 'quarterly', content: r, status: 'final', createdAt: new Date().toISOString() }); } catch {}
+    return HttpResponse.json({ success: true, data: r });
   }),
   http.get(`${API_BASE}/quality/quarterly-report/list`, async () => {
     await delay(300);
@@ -449,14 +636,23 @@ export const qualityReportHandlers = [
     const url = new URL(request.url);
     const year = parseInt(url.searchParams.get('year') ?? '2026', 10);
     const { ANNUAL_QUALITY_REPORT } = await import('../../data/qualityReportMock');
-    return HttpResponse.json({ success: true, data: { ...ANNUAL_QUALITY_REPORT, year } });
+    const key = `annual-${year}`;
+    let storeItem: any = null;
+    try { storeItem = get<any>('quality_reports', key); } catch {}
+    if (storeItem) return HttpResponse.json({ success: true, data: storeItem.content });
+    const data = { ...ANNUAL_QUALITY_REPORT, year };
+    try { create('quality_reports', { id: key, period: `${year}`, type: 'annual', content: data, status: 'final', createdAt: new Date().toISOString() }); } catch {}
+    return HttpResponse.json({ success: true, data });
   }),
 
-  // 6.3 实时仪表盘 (2)
+  // 6.3 实时仪表盘 (2)  [v3.0.6.12-A4] #19 GET /quality/dashboard - 读 store
   http.get(`${API_BASE}/quality/dashboard`, async () => {
     await delay(200);
     const { QUALITY_DASHBOARD_MOCK } = await import('../../data/qualityReportMock');
-    return HttpResponse.json({ success: true, data: QUALITY_DASHBOARD_MOCK });
+    let storeItem: any = null;
+    try { storeItem = get<any>('quality_reports', 'dashboard-live'); } catch {}
+    if (storeItem) return HttpResponse.json({ success: true, data: { ...QUALITY_DASHBOARD_MOCK, ...storeItem.content, updatedAt: new Date().toISOString() } });
+    return HttpResponse.json({ success: true, data: { ...QUALITY_DASHBOARD_MOCK, updatedAt: new Date().toISOString() } });
   }),
   http.get(`${API_BASE}/quality/dashboard/kpi`, async () => {
     await delay(150);
@@ -482,14 +678,28 @@ export const qualityReportHandlers = [
   }),
   http.get(`${API_BASE}/quality/exports`, async () => {
     await delay(150);
-    return HttpResponse.json({ success: true, data: [{ id: 'exp-001', type: 'monthly', period: '2026-06', status: 'completed', createdAt: '2026-07-01T00:00:00Z' }] });
+    let data: any[] = [];
+    try {
+      data = list<any>('quality_exports');
+      if (data.length === 0) {
+        const seed = [{ id: 'exp-001', type: 'monthly', period: '2026-06', status: 'completed', createdAt: '2026-07-01T00:00:00Z' }];
+        seed.forEach(s => create('quality_exports', s));
+        data = seed;
+      }
+    } catch { data = []; }
+    return HttpResponse.json({ success: true, data });
   }),
-  http.post(`${API_BASE}/quality/exports`, async () => {
+  http.post(`${API_BASE}/quality/exports`, async ({ request }) => {
     await delay(200);
-    return HttpResponse.json({ success: true, data: { id: `exp-${Date.now()}` } }, { status: 201 });
+    const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+    const id = `exp-${Date.now()}-${uuidv4().slice(0, 8)}`;
+    const item = { id, type: body.type ?? 'monthly', period: body.period ?? '', status: 'pending', createdAt: new Date().toISOString(), ...body };
+    try { create('quality_exports', item); } catch {}
+    return HttpResponse.json({ success: true, data: item }, { status: 201 });
   }),
-  http.delete(`${API_BASE}/quality/exports/:id`, async () => {
+  http.delete(`${API_BASE}/quality/exports/:id`, async ({ params }) => {
     await delay(80);
+    try { remove('quality_exports', params.id as string); } catch {}
     return new HttpResponse(null, { status: 204 });
   }),
 
@@ -511,7 +721,7 @@ export const qualityReportHandlers = [
 // ============================================================
 export const aiAssistHandlers = [
   // 7.1 AI 草稿 (3)
-  http.post(`${API_BASE}/ai-assist/draft`, async ({ request }) => {
+  http.post(`${API_BASE}/ai-assist/drafts`, async ({ request }) => {
     await delay(1500);
     const body = (await request.json()) as { scenario: string; clinicalHistory: string; reportId?: string };
     return HttpResponse.json({
@@ -534,7 +744,7 @@ export const aiAssistHandlers = [
       },
     });
   }),
-  http.get(`${API_BASE}/ai-assist/draft/:id`, async ({ params }) => {
+  http.get(`${API_BASE}/ai-assist/drafts/:id`, async ({ params }) => {
     await delay(80);
     return HttpResponse.json({
       success: true,
@@ -552,7 +762,7 @@ export const aiAssistHandlers = [
       },
     });
   }),
-  http.get(`${API_BASE}/ai-assist/draft/list`, async () => {
+  http.get(`${API_BASE}/ai-assist/drafts/list`, async () => {
     await delay(150);
     const { AI_DRAFTS } = await import('../../data/reportAIMock');
     return HttpResponse.json({ success: true, data: AI_DRAFTS });
@@ -639,7 +849,7 @@ export const aiAssistHandlers = [
         errorRate: 0.02,
         queueDepth: 2,
         byEndpoint: [
-          { endpoint: '/api/v1/ai-assist/draft', calls: 1850 },
+          { endpoint: '/api/v1/ai-assist/drafts', calls: 1850 },
           { endpoint: '/api/v1/ai-assist/pre-review', calls: 1100 },
           { endpoint: '/api/v1/ai-assist/risk', calls: 580 },
           { endpoint: '/api/v1/ai-assist/ddx', calls: 598 },

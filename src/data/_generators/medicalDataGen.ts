@@ -660,7 +660,7 @@ export interface RadiologyKPIDaily {
   defectCount: number;
   qcAvgScore: number;
   // 按模态
-  byModality: { CT: number; MR: number; DR: number; US: number; MG: number; DSA: number };
+  byModality: { CT: number; MR: number; DR: number; US: number; MG: number; DSA: number; "PET-CT": number; 介入: number };
   // 按设备
   topDevices: { deviceId: string; count: number }[];
 }
@@ -681,12 +681,14 @@ export function generateDailyKPI(days: number = 30): RadiologyKPIDaily[] {
     const defectCount = Math.round(reportCount * 0.02);
     const qcAvgScore = 85 + rand() * 5;
     const byModality = {
-      CT: Math.round(examCount * 0.3),
-      MR: Math.round(examCount * 0.2),
-      DR: Math.round(examCount * 0.3),
-      US: Math.round(examCount * 0.15),
+      CT: Math.round(examCount * 0.28),
+      MR: Math.round(examCount * 0.19),
+      DR: Math.round(examCount * 0.28),
+      US: Math.round(examCount * 0.14),
       MG: Math.round(examCount * 0.03),
       DSA: Math.round(examCount * 0.02),
+      "PET-CT": Math.round(examCount * 0.03),
+      介入: Math.round(examCount * 0.03),
     };
     // 排前面
     const topDevices = DEVICE_MASTER

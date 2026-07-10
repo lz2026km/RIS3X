@@ -1,14 +1,18 @@
 /**
  * G005 RIS v3.0.5.1 - R3.CRITICAL 危急值服务 (Mock)
  * v3.0.6.6: 真实升级链 / IVR 语音 / SMS 网关集成
+ *
+ * v3.0.6.12-A4: 事件源改为 store.criticalEvents (unifiedCriticalValues).
+ *   通过 criticalValueAdapter 转回 R3.CRITICAL.CriticalEvent 形状后克隆到 inMemoryEvents.
  */
 import {
   CRITICAL_LEVELS,
   CRITICAL_RULES,
-  CRITICAL_EVENTS,
   CRITICAL_ESCALATION_RULES,
   CRITICAL_KPI,
 } from '../../data/criticalValueMock';
+import { list } from '../mockBackend/store';
+import { mapUnifiedToCriticalEvents } from '../../data/criticalValueAdapter';
 import { ESCALATION_CHAINS } from '../../data/notificationProviders';
 import { onCallResolver } from '../critical/oncall/OnCallResolver';
 import type {
@@ -31,7 +35,7 @@ const randomLatency = () => Math.floor(Math.random() * (LATENCY_MAX - LATENCY_MI
 const wait = (ms?: number) => new Promise<void>((r) => setTimeout(r, ms ?? randomLatency()));
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
 
-const inMemoryEvents: CriticalEvent[] = clone(CRITICAL_EVENTS);
+const inMemoryEvents: CriticalEvent[] = mapUnifiedToCriticalEvents(list<any>('criticalEvents'));
 const inMemoryRules: CriticalRule[] = clone(CRITICAL_RULES);
 
 export const criticalValueService = {

@@ -1,9 +1,19 @@
 /**
  * G005 RIS v3.0.6.6 - 国家医疗质量改进(NHQM)目标 - 危急值上报 (Mock)
  * 国家卫健委 2024 版 15 类目录编码上报
+ *
+ * v3.0.6.12-A4: 事件源改为 store.criticalEvents (unifiedCriticalValues).
  */
 
-import { CRITICAL_EVENTS, CRITICAL_RULES } from '../../../data/criticalValueMock';
+import { list } from '../../mockBackend/store';
+import { mapUnifiedToCriticalEvents } from '../../../data/criticalValueAdapter';
+import { CRITICAL_RULES } from '../../../data/criticalValueMock';
+import type { CriticalEvent } from '../../../types/R3/R3.CRITICAL';
+
+function getCriticalEvents(): CriticalEvent[] {
+  const unified = list<any>('criticalEvents');
+  return mapUnifiedToCriticalEvents(unified);
+}
 
 export interface NhqmCatalogEntry {
   /** 国家卫健委 15 类目录编码 */
@@ -50,7 +60,7 @@ const NHQM_MAPPING: Record<string, string> = {
 
 class NhqmReporterImpl implements INhqmReporter {
   compute(quarter: string = this.currentQuarter()): NhqmReportSnapshot {
-    const events = CRITICAL_EVENTS.filter((e) => this.belongsToQuarter(e.reportedAt, quarter));
+    const events = getCriticalEvents().filter((e) => this.belongsToQuarter(e.reportedAt, quarter));
     const total = events.length;
     const entries: NhqmCatalogEntry[] = Object.entries(NHQM_MAPPING).map(([category, catalogCode]) => {
       const list = events.filter((e) => {

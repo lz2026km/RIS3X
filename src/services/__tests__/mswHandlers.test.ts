@@ -253,7 +253,7 @@ describe('MSW Handlers - 56 端点', () => {
       const res = await fetch('http://localhost:5173/api/v1/stats/daily');
       const data = await res.json();
       expect(data.success).toBe(true);
-      expect(data.data.totalExams).toBeDefined();
+      expect(data.data.examCount).toBeDefined();
     });
 
     it('GET /stats/quality 质量', async () => {

@@ -1,17 +1,21 @@
 /**
  * G005 RIS v3.0.6.6 - 接收医师门户
  * 临床医师登录后查看分配给自己的危急值并一键闭环
+ *
+ * v3.0.6.12-A4: 事件源改为 store.criticalEvents (unifiedCriticalValues),
+ *   通过 criticalValueAdapter 转回 R3.CRITICAL.CriticalEvent 形状.
  */
 
 import React, { useMemo, useState } from 'react';
 import { Card, Tag, Space, Empty, Row, Col, Statistic, Segmented, message } from 'antd';
 import { Activity, AlertOctagon, ShieldCheck, Filter, User } from 'lucide-react';
-import { CRITICAL_EVENTS } from '../../data/criticalValueMock';
+import { list } from '../../services/mockBackend/store';
+import { mapUnifiedToCriticalEvents } from '../../data/criticalValueAdapter';
 import { CloseLoopAcknowledge } from '../../components/critical/CloseLoopAcknowledge';
 import { OnCallIndicator } from '../../components/critical/OnCallIndicator';
 import { VoiceCallButton } from '../../components/critical/VoiceCallButton';
 import { SmsSender } from '../../components/critical/SmsSender';
-import type { CriticalEvent, CriticalStatus } from '../../types/R3/R3.CRITICAL';
+import type { CriticalEvent } from '../../types/R3/R3.CRITICAL';
 
 const CURRENT_USER = { id: 'D-LI', name: '李天宇', title: '主治医师' };
 
@@ -20,17 +24,22 @@ type StatusFilter = 'open' | 'all' | 'resolved';
 export const ReceiverPortalPage: React.FC = () => {
   const [filter, setFilter] = useState<StatusFilter>('open');
 
+  const allEvents = useMemo<CriticalEvent[]>(() => {
+    const unified = list<any>('criticalEvents');
+    return mapUnifiedToCriticalEvents(unified);
+  }, []);
+
   const mine = useMemo(() => {
-    let list = CRITICAL_EVENTS.filter(
+    let list = allEvents.filter(
       (e) => e.receivingDoctorId === CURRENT_USER.id || e.acknowledgedById === CURRENT_USER.id,
     );
     if (filter === 'open') list = list.filter((e) => e.status !== 'resolved' && e.status !== 'cancelled');
     if (filter === 'resolved') list = list.filter((e) => e.status === 'resolved');
     return list;
-  }, [filter]);
+  }, [allEvents, filter]);
 
   const stats = useMemo(() => {
-    const open = CRITICAL_EVENTS.filter(
+    const open = allEvents.filter(
       (e) =>
         (e.receivingDoctorId === CURRENT_USER.id || e.acknowledgedById === CURRENT_USER.id) &&
         e.status !== 'resolved' &&
@@ -45,7 +54,7 @@ export const ReceiverPortalPage: React.FC = () => {
           ? 100
           : Math.round((open.filter((e) => e.onTimeNotification).length / open.length) * 1000) / 10,
     };
-  }, []);
+  }, [allEvents]);
 
   const handleAcknowledge = async (e: CriticalEvent, note?: string) => {
     message.success(`已确认接收: ${e.patientName}`);

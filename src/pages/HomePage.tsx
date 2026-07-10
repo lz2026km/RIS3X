@@ -386,8 +386,10 @@ const HomePage: FC = () => {
     const dailyKpis = list<any>('dailyKpi');
     if (dailyKpis.length > 0) {
       const latest = dailyKpis[dailyKpis.length - 1];
+      const exams = latest.examCount || 0;
+      const reports = latest.reportCount || 0;
       return {
-        today: { exams: latest.totalExams || 0, reports: latest.completedExams || 0, pending: latest.pendingReports || 0, critical: latest.criticalValues || 0 },
+        today: { exams, reports, pending: Math.max(0, exams - reports), critical: latest.criticalCount || 0 },
         week: { exams: 0, reports: 0, pending: 0 },
         month: { exams: 0, reports: 0, pending: 0, revenue: 0 },
         byModality: {},
@@ -411,14 +413,16 @@ const HomePage: FC = () => {
   const fetchStats = async () => {
     const res = await statsApi.getDaily()
     if (res.success && res.data) {
+      const examCount = res.data!.examCount
+      const reportCount = res.data!.reportCount
       setStats(prev => ({
         ...prev,
         today: {
           ...prev.today,
-          exams: res.data!.totalExams,
-          reports: res.data!.completedExams,
-          pending: res.data!.pendingReports,
-          critical: res.data!.criticalValues,
+          exams: examCount,
+          reports: reportCount,
+          pending: Math.max(0, examCount - reportCount),
+          critical: res.data!.criticalCount,
         },
       }))
       setLoadError(null)

@@ -1,9 +1,19 @@
 /**
  * G005 RIS v3.0.6.6 - JCI 危急值周转 KPI 报表 (Mock)
  * 关注点:通知及时率 / 关闭及时率 / 双审完成率
+ *
+ * v3.0.6.12-A4: 事件源改为 store.criticalEvents (unifiedCriticalValues).
  */
 
-import { CRITICAL_EVENTS, CRITICAL_KPI } from '../../../data/criticalValueMock';
+import { list } from '../../mockBackend/store';
+import { mapUnifiedToCriticalEvents } from '../../../data/criticalValueAdapter';
+import { CRITICAL_KPI } from '../../../data/criticalValueMock';
+import type { CriticalEvent } from '../../../types/R3/R3.CRITICAL';
+
+function getCriticalEvents(): CriticalEvent[] {
+  const unified = list<any>('criticalEvents');
+  return mapUnifiedToCriticalEvents(unified);
+}
 
 export interface JciKpiSnapshot {
   /** 月份(YYYY-MM) */
@@ -38,7 +48,7 @@ export interface IJciReporter {
 
 class JciReporterImpl implements IJciReporter {
   compute(month: string = this.currentMonth()): JciKpiSnapshot {
-    const events = CRITICAL_EVENTS.filter((e) => e.reportedAt.startsWith(month));
+    const events = getCriticalEvents().filter((e) => e.reportedAt.startsWith(month));
     const total = events.length;
     const notifyTimely = events.filter((e) => e.onTimeNotification).length;
     const closed = events.filter((e) => e.resolvedTime).length;

@@ -2,176 +2,176 @@
   {
     "route": "/",
     "status": 200,
-    "ms": 1700,
-    "textLen": 333,
+    "ms": 2805,
+    "textLen": 196,
     "errors": null,
     "screenshot": "10-page-_.png"
   },
   {
     "route": "/worklist",
     "status": 200,
-    "ms": 1122,
-    "textLen": 333,
+    "ms": 1185,
+    "textLen": 196,
     "errors": null,
     "screenshot": "10-page-_worklist.png"
   },
   {
     "route": "/reports",
     "status": 200,
-    "ms": 961,
-    "textLen": 333,
+    "ms": 1203,
+    "textLen": 196,
     "errors": null,
     "screenshot": "10-page-_reports.png"
   },
   {
     "route": "/dental/implant",
     "status": 200,
-    "ms": 948,
-    "textLen": 333,
+    "ms": 1066,
+    "textLen": 196,
     "errors": null,
     "screenshot": "10-page-_dental_implant.png"
   },
   {
     "route": "/dental",
     "status": 200,
-    "ms": 976,
-    "textLen": 333,
+    "ms": 1117,
+    "textLen": 196,
     "errors": null,
     "screenshot": "10-page-_dental.png"
   },
   {
     "route": "/vna-dashboard",
     "status": 200,
-    "ms": 987,
-    "textLen": 333,
+    "ms": 1104,
+    "textLen": 196,
     "errors": null,
     "screenshot": "10-page-_vna_dashboard.png"
   },
   {
     "route": "/integration/fhir-server",
     "status": 200,
-    "ms": 972,
-    "textLen": 333,
+    "ms": 1147,
+    "textLen": 196,
     "errors": null,
     "screenshot": "10-page-_integration_fhir_server.png"
   },
   {
     "route": "/mobile/patient",
     "status": 200,
-    "ms": 963,
-    "textLen": 333,
+    "ms": 1109,
+    "textLen": 196,
     "errors": null,
     "screenshot": "10-page-_mobile_patient.png"
   },
   {
     "route": "/mobile/doctor",
     "status": 200,
-    "ms": 936,
-    "textLen": 333,
+    "ms": 1164,
+    "textLen": 196,
     "errors": null,
     "screenshot": "10-page-_mobile_doctor.png"
   },
   {
     "route": "/admin/clinical-config-center",
     "status": 200,
-    "ms": 967,
-    "textLen": 333,
+    "ms": 1193,
+    "textLen": 196,
     "errors": null,
     "screenshot": "10-page-_admin_clinical_config_center.png"
   },
   {
     "route": "/ai-assist",
     "status": 200,
-    "ms": 952,
-    "textLen": 333,
+    "ms": 1090,
+    "textLen": 196,
     "errors": null,
     "screenshot": "10-page-_ai_assist.png"
   },
   {
     "route": "/critical-value",
     "status": 200,
-    "ms": 966,
-    "textLen": 333,
+    "ms": 1087,
+    "textLen": 196,
     "errors": null,
     "screenshot": "10-page-_critical_value.png"
   },
   {
     "route": "/dicom-viewer",
     "status": 200,
-    "ms": 965,
-    "textLen": 333,
+    "ms": 1181,
+    "textLen": 196,
     "errors": null,
     "screenshot": "10-page-_dicom_viewer.png"
   },
   {
     "route": "/patient/portal",
     "status": 200,
-    "ms": 950,
-    "textLen": 333,
+    "ms": 1064,
+    "textLen": 196,
     "errors": null,
     "screenshot": "10-page-_patient_portal.png"
   },
   {
     "route": "/materials",
     "status": 200,
-    "ms": 934,
-    "textLen": 333,
+    "ms": 1068,
+    "textLen": 196,
     "errors": null,
     "screenshot": "10-page-_materials.png"
   },
   {
     "route": "/charge-items",
     "status": 200,
-    "ms": 951,
-    "textLen": 333,
+    "ms": 1061,
+    "textLen": 196,
     "errors": null,
     "screenshot": "10-page-_charge_items.png"
   },
   {
     "route": "/report-export",
     "status": 200,
-    "ms": 950,
-    "textLen": 333,
+    "ms": 1334,
+    "textLen": 196,
     "errors": null,
     "screenshot": "10-page-_report_export.png"
   },
   {
     "route": "/cds/management",
     "status": 200,
-    "ms": 953,
-    "textLen": 333,
+    "ms": 1113,
+    "textLen": 196,
     "errors": null,
     "screenshot": "10-page-_cds_management.png"
   },
   {
     "route": "/mammo/operations",
     "status": 200,
-    "ms": 947,
-    "textLen": 333,
+    "ms": 1096,
+    "textLen": 196,
     "errors": null,
     "screenshot": "10-page-_mammo_operations.png"
   },
   {
     "route": "/education/patient-education",
     "status": 200,
-    "ms": 949,
-    "textLen": 333,
+    "ms": 1136,
+    "textLen": 196,
     "errors": null,
     "screenshot": "10-page-_education_patient_education.png"
   },
   {
     "route": "/hie/medical-alliance",
     "status": 200,
-    "ms": 951,
-    "textLen": 333,
+    "ms": 1154,
+    "textLen": 196,
     "errors": null,
     "screenshot": "10-page-_hie_medical_alliance.png"
   },
   {
     "route": "/safety/patient-safety-goals",
     "status": 200,
-    "ms": 967,
-    "textLen": 333,
+    "ms": 1086,
+    "textLen": 196,
     "errors": null,
     "screenshot": "10-page-_safety_patient_safety_goals.png"
   }

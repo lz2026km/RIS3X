@@ -1,15 +1,15 @@
 import { api } from './client'
 
 export interface DailyStatsDto {
-  totalExams: number
-  completedExams: number
-  pendingReports: number
-  criticalValues: number
-  examCount?: number
-  reportCount?: number
-  criticalCount?: number
+  examCount: number
+  reportCount: number
+  criticalCount: number
   cosignCount?: number
+  avgTAT?: number
+  defectCount?: number
+  qcAvgScore?: number
   date?: string
+  byModality?: Record<string, number>
 }
 
 export interface WeeklyStatsDto {

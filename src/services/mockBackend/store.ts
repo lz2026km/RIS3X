@@ -6,13 +6,24 @@ import {
 } from '../../data/master';
 import {
   EXAM_REPORT_PRE, DOCTOR_PERFORMANCE_PRE, DAILY_KPI_PRE,
-  CRITICAL_EVENTS_PRE, COSIGN_TASKS_PRE, QUALITY_SCORE_PRE,
+  COSIGN_TASKS_PRE, QUALITY_SCORE_PRE,
 } from '../../data/_generators';
 // [v3.0.6.11-10] 统一演示数据 (由 unified-fix.mjs 生成, 100% 关联)
 import { GENERATED_CRITICAL_VALUES } from '../../data/unifiedCriticalValues';
 import { KPI_HISTORY } from '../../data/kpiHistory';
 import { SITE_CONFIG } from '../../data/siteMasterMock';
 import { GENERATED_INVOICES } from '../../data/unifiedFinanceMock';
+// [Agent-B.1] Fallback 检查数据 (200 条 RAD-EX001..RAD-EX200)
+import { initialRadiologyExams } from '../../data/initialData';
+// [v3.0.6.12-A4] 危急值种子数据 (规则/级别/升级/KPI) 由 criticalValueMock 提供,
+//   加载进 store 的 criticalRules / criticalLevels / criticalEscalationRules / criticalKpi
+//   集合, 让 criticalHandlers 路由统一从 store 读取.
+import {
+  CRITICAL_LEVELS,
+  CRITICAL_RULES,
+  CRITICAL_ESCALATION_RULES,
+  CRITICAL_KPI,
+} from '../../data/criticalValueMock';
 // [v3.0.6.8-33] 眼科专科 mock 数据 (21 个数据集)
 import {
   MOCK_EYE_STUDIES, MOCK_EYE_PATIENTS, MOCK_EYE_SERIES,
@@ -76,6 +87,20 @@ import { MOCK_DENTAL_STUDIES } from '../../data/dental/dentalImagingMock';
 import { MOCK_DENTAL_TREATMENTS } from '../../data/dental/dentalTreatmentMock';
 import { MOCK_INVOICES } from '../../data/dental/dentalBillingMock';
 
+// [v3.0.6.12-B2] v3ReviewHandlers top-10 路由种子: 从 reportReviewMock 加载
+//   reviewReviewers, reviewRejectTemplates, reviewComments, reviewAiHints,
+//   reviewWorkloads, reviewKpiPersonal, reviewAssignments
+import {
+  REVIEWERS as REVIEWERS_SEED,
+  SLA_METRICS as SLA_METRICS_SEED,
+  WORKLOAD_STATS as WORKLOAD_STATS_SEED,
+  REVIEW_KPI as REVIEW_KPI_SEED,
+  REJECT_TEMPLATES as REJECT_TEMPLATES_SEED,
+  REVIEW_COMMENTS as REVIEW_COMMENTS_SEED,
+  AI_PRE_REVIEW_RESULTS as AI_PRE_REVIEW_RESULTS_SEED,
+  REVIEWER_ASSIGNMENTS as REVIEWER_ASSIGNMENTS_SEED,
+} from '../../data/reportReviewMock';
+
 // ==================== IndexedDB Schema (Dexie) ====================
 class RISBackendDB extends Dexie {
   patients!: EntityTable<{ id: string; data: unknown }, 'id'>;
@@ -121,6 +146,22 @@ class RISBackendDB extends Dexie {
   eye_measurements!: EntityTable<{ id: string; data: unknown }, 'id'>;
   eye_annotations!: EntityTable<{ id: string; data: unknown }, 'id'>;
   eye_lesion_segmentations!: EntityTable<{ id: string; data: unknown }, 'id'>;
+  // [v3.0.6.12-B3] qualityScoringHandlers top-5 改造集合
+  quality_dimensions!: EntityTable<{ id: string; data: unknown }, 'id'>;
+  quality_scores!: EntityTable<{ id: string; data: unknown }, 'id'>;
+  quality_kpi!: EntityTable<{ id: string; data: unknown }, 'id'>;
+  quality_threshold_config!: EntityTable<{ id: string; data: unknown }, 'id'>;
+  // [v3.0.6.12-B2] v3ReviewHandlers top-10 改造集合 (R3.REVIEW.ASSIST)
+  review_ai_hints!: EntityTable<{ id: string; data: unknown }, 'id'>;
+  review_history!: EntityTable<{ id: string; data: unknown }, 'id'>;
+  review_comments!: EntityTable<{ id: string; data: unknown }, 'id'>;
+  review_workloads!: EntityTable<{ id: string; data: unknown }, 'id'>;
+  review_kpi_personal!: EntityTable<{ id: string; data: unknown }, 'id'>;
+  review_sla!: EntityTable<{ id: string; data: unknown }, 'id'>;
+  review_sla_config!: EntityTable<{ id: string; data: unknown }, 'id'>;
+  review_reviewers!: EntityTable<{ id: string; data: unknown }, 'id'>;
+  review_reject_templates!: EntityTable<{ id: string; data: unknown }, 'id'>;
+  review_assignments!: EntityTable<{ id: string; data: unknown }, 'id'>;
 
   constructor() {
     super('RISBackendDB');
@@ -190,6 +231,28 @@ class RISBackendDB extends Dexie {
       dental_invoices: 'id, patientId, status',
       dental_appointments: 'id, patientId, doctorId, date',
     });
+    // [v3.0.6.12-B3] qualityScoringHandlers top-5 改造: 增量声明新集合
+    //   Dexie 累计保留 v1/v2 旧表, 仅新增 quality_* 4 张表
+    this.version(3).stores({
+      quality_dimensions: 'id',
+      quality_scores: 'id, reportId',
+      quality_kpi: 'id',
+      quality_threshold_config: 'id',
+    });
+    // [v3.0.6.12-B2] v3ReviewHandlers top-10 改造: 增量声明新集合
+    //   Dexie 累计保留 v1/v2/v3 旧表, 仅新增 review_* 10 张表
+    this.version(4).stores({
+      review_ai_hints: 'id, reportId',
+      review_history: 'id, taskId, timestamp',
+      review_comments: 'id, taskId, createdAt',
+      review_workloads: 'id, reviewerId, period',
+      review_kpi_personal: 'id',
+      review_sla: 'id',
+      review_sla_config: 'id',
+      review_reviewers: 'id',
+      review_reject_templates: 'id, category',
+      review_assignments: 'id, taskId, reviewerId',
+    });
   }
 }
 
@@ -239,6 +302,36 @@ const COLLECTIONS = [
   'kpiHistory',
   'invoices',
   'sites',
+  // [v3.0.6.12-A4] v3ReportHandlers top-20 路由支持集合
+  'writing_templates',
+  'writing_drafts',
+  'writing_ai_drafts',
+  'dist_channels',
+  'dist_tasks',
+  'dist_receipts',
+  'quality_reports',
+  'quality_exports',
+  // [v3.0.6.12-A4] 危急值元数据集合 (从 criticalValueMock 种子加载)
+  'criticalRules',
+  'criticalLevels',
+  'criticalEscalationRules',
+  'criticalKpi',
+  // [v3.0.6.12-B3] qualityScoringHandlers top-5 改造集合
+  'quality_dimensions',
+  'quality_scores',
+  'quality_kpi',
+  'quality_threshold_config',
+  // [v3.0.6.12-B2] v3ReviewHandlers top-10 改造集合 (R3.REVIEW.ASSIST)
+  'review_ai_hints',
+  'review_history',
+  'review_comments',
+  'review_workloads',
+  'review_kpi_personal',
+  'review_sla',
+  'review_sla_config',
+  'review_reviewers',
+  'review_reject_templates',
+  'review_assignments',
 ] as const;
 type Collection = typeof COLLECTIONS[number];
 
@@ -275,6 +368,79 @@ let initialized = false;
 let initPromise: Promise<void> | null = null;
 
 // ==================== 初始化 ====================
+// [v3.0.6.12-B3] qualityScoringHandlers top-5: 同步路径使用的种子 (15 维度 + KPI + 阈值)
+const QUALITY_DIMENSIONS_SEED: Array<{ id: string; key: string; category: string; name: string; weight: number }> = [
+  { id: 'completeness_findings',       key: 'completeness_findings',       category: 'completeness', name: '检查所见完整性',     weight: 0.04 },
+  { id: 'completeness_impression',     key: 'completeness_impression',     category: 'completeness', name: '诊断印象完整性',     weight: 0.04 },
+  { id: 'completeness_recommendation', key: 'completeness_recommendation', category: 'completeness', name: '建议完整性',         weight: 0.03 },
+  { id: 'completeness_structured',     key: 'completeness_structured',     category: 'completeness', name: '结构化字段完整',     weight: 0.05 },
+  { id: 'completeness_signature',      key: 'completeness_signature',      category: 'completeness', name: '签名完整',           weight: 0.04 },
+  { id: 'accuracy_diagnosis_match',    key: 'accuracy_diagnosis_match',    category: 'accuracy',     name: '所见-诊断一致',      weight: 0.06 },
+  { id: 'accuracy_anatomy_laterality', key: 'accuracy_anatomy_laterality', category: 'accuracy',     name: '解剖方位正确',       weight: 0.04 },
+  { id: 'accuracy_clinical_reference', key: 'accuracy_clinical_reference', category: 'accuracy',     name: '结合临床',           weight: 0.04 },
+  { id: 'accuracy_critical_marking',   key: 'accuracy_critical_marking',   category: 'accuracy',     name: '危急值标记',         weight: 0.04 },
+  { id: 'accuracy_no_contradiction',   key: 'accuracy_no_contradiction',   category: 'accuracy',     name: '无逻辑矛盾',         weight: 0.02 },
+  { id: 'timeliness_tat_met',          key: 'timeliness_tat_met',          category: 'timeliness',   name: 'TAT 达标',           weight: 0.08 },
+  { id: 'timeliness_priority_handling',key: 'timeliness_priority_handling',category: 'timeliness',   name: '优先级处理',         weight: 0.04 },
+  { id: 'timeliness_on_time_rate',     key: 'timeliness_on_time_rate',     category: 'timeliness',   name: '个人按时率',         weight: 0.04 },
+  { id: 'timeliness_submit_within_window', key: 'timeliness_submit_within_window', category: 'timeliness', name: '提交及时', weight: 0.02 },
+  { id: 'timeliness_sign_within_window',   key: 'timeliness_sign_within_window',   category: 'timeliness', name: '签发及时', weight: 0.02 },
+];
+
+const QUALITY_KPI_SEED = {
+  id: 'current',
+  totalEvaluated: 1248,
+  avgTotal: 88.6,
+  publishableRate: 81.7,
+  bonusEligibleRate: 41.3,
+  gradeDistribution: { A: 542, B: 478, C: 168, D: 60 },
+  trend30d: [],
+};
+
+const QUALITY_THRESHOLD_SEED = {
+  id: 'default',
+  criticalMaxMinutes: 30,
+  emergencyMaxHours: 2,
+  routineMaxHours: 24,
+  inpatientMaxHours: 12,
+  publishBlockThreshold: 60,
+  bonusThreshold: 85,
+  hardFailCodes: ['critical-not-marked', 'left-right-confusion'],
+  version: 5,
+  updatedAt: new Date(Date.now() - 72 * 3600 * 1000).toISOString(),
+  updatedBy: 'D001',
+};
+
+function seedQualityScoringCollections(): void {
+  QUALITY_DIMENSIONS_SEED.forEach(d => getCollection('quality_dimensions').set(d.id, d));
+  getCollection('quality_kpi').set('current', QUALITY_KPI_SEED);
+  getCollection('quality_threshold_config').set('default', QUALITY_THRESHOLD_SEED);
+}
+
+// [v3.0.6.12-B2] v3ReviewHandlers top-10 路由种子
+//   - reviewers / reject-templates / review-comments / ai-hints
+//     来源: reportReviewMock.ts
+//   - review-history / assignments: 初始为空, 由 POST 写入
+//   - workloads / kpi-personal / sla / sla-config: 单条快照 (id='current')
+function seedReviewAssistCollections(): void {
+  REVIEWERS_SEED.forEach(r => getCollection('review_reviewers').set(r.id, r));
+  REJECT_TEMPLATES_SEED.forEach(t => getCollection('review_reject_templates').set(t.id, t));
+  REVIEW_COMMENTS_SEED.forEach(c => getCollection('review_comments').set(c.id, c));
+  AI_PRE_REVIEW_RESULTS_SEED.forEach(a => getCollection('review_ai_hints').set(a.id, a));
+  REVIEWER_ASSIGNMENTS_SEED.forEach(a => getCollection('review_assignments').set(a.id, a));
+  WORKLOAD_STATS_SEED.forEach(w => getCollection('review_workloads').set(w.reviewerId, w));
+  getCollection('review_kpi_personal').set('current', REVIEW_KPI_SEED as any);
+  getCollection('review_sla').set('current', SLA_METRICS_SEED as any);
+  getCollection('review_sla_config').set('default', {
+    id: 'default',
+    initialReviewSLA: SLA_METRICS_SEED.initialReviewSLA,
+    finalReviewSLA: SLA_METRICS_SEED.finalReviewSLA,
+    signSLA: SLA_METRICS_SEED.signSLA,
+    cosignSLA: SLA_METRICS_SEED.cosignSLA,
+    escalateSLA: SLA_METRICS_SEED.escalateSLA,
+  });
+}
+
 export async function initStore(): Promise<void> {
   if (initialized) return;
   if (initPromise) return initPromise;
@@ -288,11 +454,33 @@ export async function initStore(): Promise<void> {
 
     // 加载生成器预生成数据
     EXAM_REPORT_PRE.forEach(e => getCollection('exams').set(e.reportId, e));
+    // [Agent-B.1] 将 initialRadiologyExams (RAD-EX001..RAD-EX200) 也 seed 进 exams,
+    //   ID 不与 EXAM_REPORT_PRE (RPT-...) 或 unified-exams.json (RAD-EX-...) 冲突,
+    //   确保 store 加载早期/IDB 恢复失败时 fallback 数据可从 store 读取.
+    initialRadiologyExams.forEach(e => getCollection('exams').set(e.id, e));
     QUALITY_SCORE_PRE.forEach(q => getCollection('qualityScores').set(q.id, q));
-    CRITICAL_EVENTS_PRE.forEach(c => getCollection('criticalEvents').set(c.id, c));
+    // [v3.0.6.12-A4] criticalEvents 仅由 GENERATED_CRITICAL_VALUES 提供 (500 条),
+    //   原 CRITICAL_EVENTS_PRE (300 条) 已移除以避免同 collection 两种 shape 混存.
     COSIGN_TASKS_PRE.forEach(c => getCollection('cosignTasks').set(c.id, c));
     DOCTOR_PERFORMANCE_PRE.forEach(d => getCollection('doctorPerformance').set(d.id, d));
     DAILY_KPI_PRE.forEach(d => getCollection('dailyKpi').set(d.date, d));
+
+    // [v3.0.6.12-A4] 危急值元数据 (规则/级别/升级/KPI) 从 criticalValueMock 种子加载
+    CRITICAL_RULES.forEach(r => getCollection('criticalRules').set(r.id, r));
+    CRITICAL_LEVELS.forEach(l => getCollection('criticalLevels').set(l.level, l));
+    CRITICAL_ESCALATION_RULES.forEach(r => getCollection('criticalEscalationRules').set(r.id, r));
+    getCollection('criticalKpi').set('current', CRITICAL_KPI as any);
+
+    // [v3.0.6.12-B3] qualityScoringHandlers top-5 路由种子
+    //   dimensions: 15 条按 key 作为 id 加载
+    //   kpi / threshold_config: 单条当前快照 (id = 'current' / 'default')
+    //   scores: 初始为空, 由 POST /evaluate 写入
+    seedQualityScoringCollections();
+
+    // [v3.0.6.12-B2] v3ReviewHandlers top-10 路由种子
+    //   reviewers (10) / reject-templates (12) / review-comments (5) / ai-hints (2)
+    //   assignments (3) / workloads (6) / kpi-personal / sla / sla-config (单条快照)
+    seedReviewAssistCollections();
 
     // [v3.0.6.11-10] 生成的演示数据
     try {
@@ -398,8 +586,10 @@ export function ensureInitialized(): void {
   DOCTOR_MASTER.forEach(d => getCollection('doctors').set(d.id, d));
   EXAM_ITEM_MASTER.forEach(e => getCollection('examItems').set(e.code, e));
   EXAM_REPORT_PRE.forEach(e => getCollection('exams').set(e.reportId, e));
+  // [Agent-B.1] 同步路径同样 seed initialRadiologyExams (RAD-EX001..RAD-EX200)
+  initialRadiologyExams.forEach(e => getCollection('exams').set(e.id, e));
   QUALITY_SCORE_PRE.forEach(q => getCollection('qualityScores').set(q.id, q));
-  CRITICAL_EVENTS_PRE.forEach(c => getCollection('criticalEvents').set(c.id, c));
+  // [v3.0.6.12-A4] criticalEvents 仅由 GENERATED_CRITICAL_VALUES 提供
   COSIGN_TASKS_PRE.forEach(c => getCollection('cosignTasks').set(c.id, c));
   DOCTOR_PERFORMANCE_PRE.forEach(d => getCollection('doctorPerformance').set(d.id, d));
   DAILY_KPI_PRE.forEach(d => getCollection('dailyKpi').set(d.date, d));
@@ -412,6 +602,15 @@ export function ensureInitialized(): void {
     if (GENERATED_INVOICES) GENERATED_INVOICES.forEach((inv: any) => getCollection('invoices').set(inv.invoiceId, inv));
     if (SITE_CONFIG) SITE_CONFIG.forEach((s: any) => getCollection('sites').set(s.siteId, s));
   } catch (e) { console.warn('[RIS Seed] 同步加载警告:', (e as Error).message); }
+  // [v3.0.6.12-A4] 危急值元数据 (规则/级别/升级/KPI) 同步加载
+  CRITICAL_RULES.forEach(r => getCollection('criticalRules').set(r.id, r));
+  CRITICAL_LEVELS.forEach(l => getCollection('criticalLevels').set(l.level, l));
+  CRITICAL_ESCALATION_RULES.forEach(r => getCollection('criticalEscalationRules').set(r.id, r));
+  getCollection('criticalKpi').set('current', CRITICAL_KPI as any);
+  // [v3.0.6.12-B3] qualityScoringHandlers top-5 同步种子
+  seedQualityScoringCollections();
+  // [v3.0.6.12-B2] v3ReviewHandlers top-10 同步种子
+  seedReviewAssistCollections();
   loadEyeMockDataSync();
   initialized = true;
 }

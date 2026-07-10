@@ -1,2301 +1,347 @@
 {
   "version": "3.0.6.8-100",
-  "timestamp": "2026-07-01T11:39:38.118Z",
-  "total": 229,
-  "pass": 229,
-  "fail": 0,
+  "timestamp": "2026-07-10T13:57:33.795Z",
+  "total": 28,
+  "pass": 0,
+  "fail": 28,
   "consoleErr": 0,
-  "stuck": 0,
+  "stuck": 28,
   "routes": [
     {
-      "route": "/",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8497
-    },
-    {
-      "route": "/workbench",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8440
-    },
-    {
-      "route": "/worklist",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8445
-    },
-    {
-      "route": "/patients",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8443
-    },
-    {
-      "route": "/patient/:id",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8431
-    },
-    {
-      "route": "/exams",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8445
-    },
-    {
       "route": "/reports",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8448
+      "ms": 2057
     },
     {
       "route": "/write-report",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8436
+      "ms": 2065
     },
     {
       "route": "/reports/v3-write",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8427
-    },
-    {
-      "route": "/statistics",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8434
-    },
-    {
-      "route": "/critical-value",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8443
-    },
-    {
-      "route": "/term-library",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8448
-    },
-    {
-      "route": "/devices",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8434
-    },
-    {
-      "route": "/consultation",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8429
-    },
-    {
-      "route": "/qc",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8433
-    },
-    {
-      "route": "/appointments",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8431
-    },
-    {
-      "route": "/dose-track",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8414
-    },
-    {
-      "route": "/queue-call",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8425
-    },
-    {
-      "route": "/dicom-viewer",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8432
-    },
-    {
-      "route": "/typical-cases",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8418
-    },
-    {
-      "route": "/finding-library",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8440
-    },
-    {
-      "route": "/operation-log",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8444
-    },
-    {
-      "route": "/notification-center",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8419
-    },
-    {
-      "route": "/schedule",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8429
-    },
-    {
-      "route": "/department",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8433
-    },
-    {
-      "route": "/materials",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8449
-    },
-    {
-      "route": "/print-management",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8421
+      "ms": 2054
     },
     {
       "route": "/regional-report",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8437
+      "ms": 2066
     },
     {
       "route": "/ai-assist",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8435
-    },
-    {
-      "route": "/cost-analysis",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8434
-    },
-    {
-      "route": "/equipment-lifecycle",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8434
-    },
-    {
-      "route": "/follow-up",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8436
-    },
-    {
-      "route": "/cancer-screen",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8458
+      "ms": 2080
     },
     {
       "route": "/national-report",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8424
-    },
-    {
-      "route": "/insurance-audit",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8440
+      "ms": 5254
     },
     {
       "route": "/data-report-center",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8424
-    },
-    {
-      "route": "/dictionary",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8432
-    },
-    {
-      "route": "/operations-center",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8442
-    },
-    {
-      "route": "/department-dashboard",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8420
+      "ms": 2149
     },
     {
       "route": "/stats-report",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8435
-    },
-    {
-      "route": "/clinical-data",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8430
-    },
-    {
-      "route": "/template-management",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8435
-    },
-    {
-      "route": "/template-designer",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8436
-    },
-    {
-      "route": "/template-designer/:id",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8432
-    },
-    {
-      "route": "/template-inheritance",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8430
-    },
-    {
-      "route": "/template-category",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8439
+      "ms": 2114
     },
     {
       "route": "/report-review",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8433
+      "ms": 2098
     },
     {
       "route": "/report-revisions",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8437
-    },
-    {
-      "route": "/collaboration",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8428
-    },
-    {
-      "route": "/keyword-check",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8431
+      "ms": 2060
     },
     {
       "route": "/report-score-rule",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8427
+      "ms": 2045
     },
     {
       "route": "/report-defect-library",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8426
+      "ms": 2038
     },
     {
       "route": "/ai-report-draft",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8429
-    },
-    {
-      "route": "/critical-value-rule",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8439
-    },
-    {
-      "route": "/critical-value-stats",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8459
-    },
-    {
-      "route": "/special-assessment",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8430
+      "ms": 2133
     },
     {
       "route": "/report-export",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8423
+      "ms": 2118
     },
     {
       "route": "/report-delivery",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8426
-    },
-    {
-      "route": "/publish",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8431
+      "ms": 2097
     },
     {
       "route": "/patient-report-portal",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8434
-    },
-    {
-      "route": "/ca-signature",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8439
-    },
-    {
-      "route": "/blockchain-proof",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8438
-    },
-    {
-      "route": "/appointment-management",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8434
-    },
-    {
-      "route": "/device-fault",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8437
-    },
-    {
-      "route": "/ai-qc",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8433
+      "ms": 2131
     },
     {
       "route": "/ai-structured-report",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8436
-    },
-    {
-      "route": "/ai-medical-device",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8424
-    },
-    {
-      "route": "/regional-imaging",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8431
-    },
-    {
-      "route": "/equipment-efficiency",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8442
-    },
-    {
-      "route": "/user-management",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8425
-    },
-    {
-      "route": "/patient-portal",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8435
-    },
-    {
-      "route": "/director-dashboard",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8419
-    },
-    {
-      "route": "/green-it",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8445
-    },
-    {
-      "route": "/research",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8425
-    },
-    {
-      "route": "/nuclear-stats",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8434
-    },
-    {
-      "route": "/system/dicom-print",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8432
-    },
-    {
-      "route": "/term-synonym-graph",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8424
+      "ms": 2060
     },
     {
       "route": "/report-phrase-bank",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8432
+      "ms": 2047
     },
     {
       "route": "/report-kpi-dashboard",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8435
-    },
-    {
-      "route": "/doctor-workload",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8426
-    },
-    {
-      "route": "/diagnosis-accuracy",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8425
+      "ms": 2097
     },
     {
       "route": "/report-timeliness",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8437
+      "ms": 2144
     },
     {
       "route": "/report-search",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8424
-    },
-    {
-      "route": "/charge-items",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8433
-    },
-    {
-      "route": "/accounts-receivable",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8423
-    },
-    {
-      "route": "/revenue-analysis",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8426
-    },
-    {
-      "route": "/cost-accounting",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8431
+      "ms": 2050
     },
     {
       "route": "/financial-reports",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8442
-    },
-    {
-      "route": "/business-continuity",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8438
-    },
-    {
-      "route": "/cloud-storage",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8435
-    },
-    {
-      "route": "/enterprise-search",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8433
-    },
-    {
-      "route": "/multi-site",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8437
-    },
-    {
-      "route": "/vna-dashboard",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8433
-    },
-    {
-      "route": "/safety/adverse-events",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8437
-    },
-    {
-      "route": "/safety/cqi",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8419
-    },
-    {
-      "route": "/safety/patient-safety-goals",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8433
-    },
-    {
-      "route": "/safety/radiation-safety",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8440
-    },
-    {
-      "route": "/safety/rca-analysis",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8416
-    },
-    {
-      "route": "/safety/risk-management",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8440
-    },
-    {
-      "route": "/contrast/adverse-reactions",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8564
-    },
-    {
-      "route": "/contrast/injection-workstation",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8490
-    },
-    {
-      "route": "/contrast/inventory",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8468
-    },
-    {
-      "route": "/contrast/quality-compliance",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8557
-    },
-    {
-      "route": "/cardiac/database",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8496
-    },
-    {
-      "route": "/cardiac/operations",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8493
-    },
-    {
-      "route": "/cardiac/qc",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8470
-    },
-    {
-      "route": "/ops/devices",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8478
-    },
-    {
-      "route": "/ops/hr",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8496
-    },
-    {
-      "route": "/ops/dashboard",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8483
-    },
-    {
-      "route": "/cds/management",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8476
-    },
-    {
-      "route": "/cds/statistics",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8504
-    },
-    {
-      "route": "/finance/department",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8491
-    },
-    {
-      "route": "/finance/patient",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8481
-    },
-    {
-      "route": "/mammo/operations",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8472
-    },
-    {
-      "route": "/mammo/quality",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8502
-    },
-    {
-      "route": "/patient/self-service",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8492
-    },
-    {
-      "route": "/patient/service-management",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8503
-    },
-    {
-      "route": "/education/patient-education",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8498
-    },
-    {
-      "route": "/hie/medical-alliance",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8481
-    },
-    {
-      "route": "/integration/fhir-server",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8488
-    },
-    {
-      "route": "/integration/ihe-connectathon",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8493
-    },
-    {
-      "route": "/integration/mllp-monitor",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8511
-    },
-    {
-      "route": "/kiosk/check-in",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8487
-    },
-    {
-      "route": "/mobile/patient",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8487
-    },
-    {
-      "route": "/mobile/doctor",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8467
-    },
-    {
-      "route": "/mobile/nurse",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8497
-    },
-    {
-      "route": "/mobile/tech",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8499
-    },
-    {
-      "route": "/quality/department",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8512
-    },
-    {
-      "route": "/review-center",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8482
-    },
-    {
-      "route": "/quality-control",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8489
-    },
-    {
-      "route": "/critical-value-center",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8496
-    },
-    {
-      "route": "/defect-management",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8476
-    },
-    {
-      "route": "/cosign",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8514
-    },
-    {
-      "route": "/workflow-designer",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8485
-    },
-    {
-      "route": "/routing-rules",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8487
-    },
-    {
-      "route": "/workload-heatmap",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8482
-    },
-    {
-      "route": "/sla-policy",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8487
-    },
-    {
-      "route": "/dental",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8532
-    },
-    {
-      "route": "/dental/chart",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8492
-    },
-    {
-      "route": "/dental/ai",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8498
-    },
-    {
-      "route": "/dental/treatment",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8500
-    },
-    {
-      "route": "/dental/implant",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8554
-    },
-    {
-      "route": "/dental/ortho",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8489
-    },
-    {
-      "route": "/dental/endo",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8477
-    },
-    {
-      "route": "/dental/perio",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8494
-    },
-    {
-      "route": "/dental/restorative",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8480
-    },
-    {
-      "route": "/dental/surgery",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8499
-    },
-    {
-      "route": "/dental/pediatric",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8505
-    },
-    {
-      "route": "/dental/tele",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8514
-    },
-    {
-      "route": "/dental/inventory",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8538
-    },
-    {
-      "route": "/dental/dashboard",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8494
-    },
-    {
-      "route": "/dental/studies",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8494
-    },
-    {
-      "route": "/dental/viewer",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8470
-    },
-    {
-      "route": "/dental/viewer/scan-3d",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8470
-    },
-    {
-      "route": "/dental/annotate",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8542
-    },
-    {
-      "route": "/dental/viewer/mpr",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8549
-    },
-    {
-      "route": "/dental/ai-onnx",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8555
-    },
-    {
-      "route": "/dental/referral",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8518
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
+      "consoleErrs": [],
+      "ms": 2325
     },
     {
       "route": "/dental/cbct-report",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8527
-    },
-    {
-      "route": "/dental/rad-fusion",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8530
-    },
-    {
-      "route": "/dental/cad",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8498
-    },
-    {
-      "route": "/dental/implant-3d",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8513
-    },
-    {
-      "route": "/dental/guide",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8564
-    },
-    {
-      "route": "/dental/ceph",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8507
-    },
-    {
-      "route": "/dental/aligner",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8544
-    },
-    {
-      "route": "/dental/volume-viewer",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8511
-    },
-    {
-      "route": "/dental/patient-view",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8516
-    },
-    {
-      "route": "/dental/billing",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8543
-    },
-    {
-      "route": "/dental/schedule",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8518
-    },
-    {
-      "route": "/dental/photo",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8553
+      "ms": 2061
     },
     {
       "route": "/report-workflow",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8544
-    },
-    {
-      "route": "/patient-device-mgmt",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8553
-    },
-    {
-      "route": "/notif-tpl-dict",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8538
-    },
-    {
-      "route": "/review-check",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8582
-    },
-    {
-      "route": "/sign-amend",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8583
+      "ms": 2063
     },
     {
       "route": "/v3-report-hub",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8607
-    },
-    {
-      "route": "/eye",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8535
-    },
-    {
-      "route": "/eye/pacs",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8597
-    },
-    {
-      "route": "/eye/pacs/viewer",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8614
-    },
-    {
-      "route": "/eye/pacs/real-viewer",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8566
-    },
-    {
-      "route": "/eye/ris",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8509
-    },
-    {
-      "route": "/eye/ris/va",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8567
-    },
-    {
-      "route": "/eye/ris/iop",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8532
-    },
-    {
-      "route": "/eye/ris/iol-calculator",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8609
-    },
-    {
-      "route": "/eye/emr",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8539
-    },
-    {
-      "route": "/eye/ai",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8575
+      "ms": 2026
     },
     {
       "route": "/eye/ai-report",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8522
-    },
-    {
-      "route": "/eye/toric-planner",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8509
-    },
-    {
-      "route": "/eye/kpi-dashboard",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8547
+      "ms": 2047
     },
     {
       "route": "/eye/report-write",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8521
-    },
-    {
-      "route": "/eye/sub/strabismus",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8529
-    },
-    {
-      "route": "/eye/sub/neuro",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8575
-    },
-    {
-      "route": "/eye/sub/oncology",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8610
-    },
-    {
-      "route": "/eye/sub/cornea",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8556
-    },
-    {
-      "route": "/eye/sub/contact-lens",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8529
-    },
-    {
-      "route": "/eye/sub/low-vision",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8503
-    },
-    {
-      "route": "/eye/sub/cataract",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8508
-    },
-    {
-      "route": "/eye/sub/refractive",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8541
-    },
-    {
-      "route": "/eye/tele",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8547
-    },
-    {
-      "route": "/eye/case-library",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8514
-    },
-    {
-      "route": "/eye/optometry-loop",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8545
-    },
-    {
-      "route": "/eye/pacs/fundus",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8523
-    },
-    {
-      "route": "/eye/pacs/oct",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8530
-    },
-    {
-      "route": "/eye/pacs/oct-a",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8513
-    },
-    {
-      "route": "/eye/pacs/visual-field",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8501
-    },
-    {
-      "route": "/eye/pacs/topography",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8538
-    },
-    {
-      "route": "/eye/pacs/ffa",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8580
-    },
-    {
-      "route": "/eye/pacs/compare",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8545
-    },
-    {
-      "route": "/eye/pacs/montage",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8557
-    },
-    {
-      "route": "/command-center",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8549
-    },
-    {
-      "route": "/dicom-share",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8543
-    },
-    {
-      "route": "/scheduling-center",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8618
-    },
-    {
-      "route": "/clinical-pathways",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8510
-    },
-    {
-      "route": "/audit-compliance",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8514
-    },
-    {
-      "route": "/dicom-sr-manager",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8506
-    },
-    {
-      "route": "/terminology-server",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8524
+      "ms": 2034
     },
     {
       "route": "/report-templates",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
+      "status": 0,
+      "len": 0,
+      "hasAnt": false,
+      "hasRender": false,
+      "errs": [
+        "NAV: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5199/g005-radiology-r"
+      ],
       "consoleErrs": [],
-      "ms": 8525
-    },
-    {
-      "route": "/ihe-integration",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8535
-    },
-    {
-      "route": "/ai-fusion-workspace",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8512
-    },
-    {
-      "route": "/clinical-calculators",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8519
-    },
-    {
-      "route": "/consent-education",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8536
-    },
-    {
-      "route": "/patient-safety",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8525
-    },
-    {
-      "route": "/emr-templates",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8543
-    },
-    {
-      "route": "/system-admin",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8509
-    },
-    {
-      "route": "/treatment-plans",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8523
-    },
-    {
-      "route": "/patient-unified",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8551
-    },
-    {
-      "route": "/qc-dashboard",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8514
-    },
-    {
-      "route": "/qc-image",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8505
-    },
-    {
-      "route": "/qc-radiologist-annual",
-      "status": 200,
-      "len": 177,
-      "hasAnt": true,
-      "hasRender": true,
-      "errs": [],
-      "consoleErrs": [],
-      "ms": 8532
+      "ms": 2039
     }
   ]
 }

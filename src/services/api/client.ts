@@ -5,9 +5,66 @@ import { checkAccess, type AccessContext, type ResourceType } from '../auth/rbac
 
 const API_BASE = '/api/v1'
 
+// ────────────────────────────────────────────────────────────────────────────
+// v3.0.6.13 内存 LRU 缓存 (替代原先依赖 Service Worker CLEAR_API_CACHE 的方案)
+// mockServiceWorker.js 不识别 CLEAR_API_CACHE 消息,改为 client 内部维护缓存。
+// 仅 GET 且无请求体时启用缓存;非 2xx 响应不入缓存。
+// ────────────────────────────────────────────────────────────────────────────
+const MAX_CACHE_ENTRIES = 100
+const CACHE_TTL_MS = 60_000
+
+type CacheEntry = { body: ApiResponse<unknown>; ts: number }
+const responseCache = new Map<string, CacheEntry>()
+const invalidatedUrls = new Map<string, number>()
+
+function readCache(url: string, method: string): ApiResponse<unknown> | null {
+  if (method !== 'GET') return null
+  const entry = responseCache.get(url)
+  if (!entry) return null
+  const invalidatedAt = invalidatedUrls.get(url)
+  if (invalidatedAt !== undefined && invalidatedAt >= entry.ts) {
+    responseCache.delete(url)
+    return null
+  }
+  if (Date.now() - entry.ts > CACHE_TTL_MS) {
+    responseCache.delete(url)
+    return null
+  }
+  responseCache.delete(url)
+  responseCache.set(url, entry)
+  return entry.body
+}
+
+function writeCache(url: string, method: string, body: ApiResponse<unknown>): void {
+  if (method !== 'GET') return
+  if (!body || body.success !== true) return
+  responseCache.delete(url)
+  if (responseCache.size >= MAX_CACHE_ENTRIES) {
+    const oldest = responseCache.keys().next().value
+    if (oldest !== undefined) responseCache.delete(oldest)
+  }
+  responseCache.set(url, { body, ts: Date.now() })
+}
+
+function dropCacheByPrefix(fullPrefix: string): void {
+  const now = Date.now()
+  for (const key of Array.from(responseCache.keys())) {
+    if (key.startsWith(fullPrefix)) {
+      invalidatedUrls.set(key, now)
+      responseCache.delete(key)
+    }
+  }
+}
+
 async function request<T>(path: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
   const url = `${API_BASE}${path}`
+  const method = (options.method || 'GET').toUpperCase()
   const token = getToken()
+
+  if (method === 'GET' && !options.body) {
+    const cached = readCache(url, method)
+    if (cached) return cached as ApiResponse<T>
+  }
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -30,13 +87,14 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<ApiR
     if (res.status === 204) return { success: true, data: null as unknown as T }
     const body = await res.json()
     if (!res.ok) {
-      console.error(`[API] ${options.method || 'GET'} ${url} failed:`, body)
+      console.error(`[API] ${method} ${url} failed:`, body)
       return { success: false, data: null as unknown as T, error: body.error }
     }
+    writeCache(url, method, body)
     return body
   } catch (err) {
     clearTimeout(timeoutId);
-    console.error(`[API] Network error ${options.method || 'GET'} ${url}:`, err)
+    console.error(`[API] Network error ${method} ${url}:`, err)
     return {
       success: false,
       data: null as unknown as T,
@@ -89,14 +147,15 @@ export async function protectedRequest<T>(
 }
 
 // ────────────────────────────────────────────────────────────────────────────
-// v3.0.4 Service Worker 缓存失效辅助
+// v3.0.6.13 内存缓存失效辅助 (替代原先的 Service Worker postMessage 方案)
 // ────────────────────────────────────────────────────────────────────────────
 
 /**
- * 删除 Service Worker 运行时缓存中的指定 URL
+ * 使指定 URL 的内存缓存失效,下次 GET 会重新走网络。
  *
- * 适用于 POST/PUT/DELETE 后,让下一次 GET 走网络而非 stale-while-revalidate 旧值。
- * 在 Service Worker 未注册 / 未激活 / 无 controller 时静默 no-op。
+ * 适用于 POST/PUT/DELETE 后,避免展示 stale-while-revalidate 旧值。
+ * 同时写入 invalidation log,即便该 URL 当前不在缓存中,
+ * 后续若被重新填充也能在 request() 阶段被识别为"刚被失效过"。
  *
  * @param path API 路径(相对 `/api/v1` 基地址或绝对 URL 均可)
  *
@@ -104,32 +163,30 @@ export async function protectedRequest<T>(
  *   await api.post('/reports/123/sign', {});
  *   await invalidateApiCache('/reports/123');
  */
-export async function invalidateApiCache(path: string): Promise<void> {
-  if (typeof navigator === 'undefined') return;
-  if (!('serviceWorker' in navigator)) return;
-  const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-  if (!reg || !navigator.serviceWorker.controller) return;
-
+export function invalidateApiCache(path: string): Promise<void> {
   const url = path.startsWith('http') ? path : `${API_BASE}${path}`;
-  navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_API_CACHE', url });
+  invalidatedUrls.set(url, Date.now());
+  responseCache.delete(url);
+  return Promise.resolve();
 }
 
 /**
- * 按前缀批量删除 Service Worker 运行时缓存中的 URL
+ * 按前缀批量失效内存缓存中的 URL。
  *
  * 适用于"创建一条新检查 → 失效整个 worklist 缓存"这类场景。
  *
  * @param prefix URL 前缀,如 `/api/v1/worklist`
  */
-export async function invalidateApiCacheByPrefix(prefix: string): Promise<void> {
-  if (typeof navigator === 'undefined') return;
-  if (!serviceWorkerAvailable()) return;
-  const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
-  if (!reg || !navigator.serviceWorker.controller) return;
-
-  navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_API_CACHE_PREFIX', prefix });
+export function invalidateApiCacheByPrefix(prefix: string): Promise<void> {
+  const fullPrefix = prefix.startsWith('http') ? prefix : `${API_BASE}${prefix}`;
+  dropCacheByPrefix(fullPrefix);
+  return Promise.resolve();
 }
 
-function serviceWorkerAvailable(): boolean {
-  return typeof navigator !== 'undefined' && 'serviceWorker' in navigator;
+/**
+ * 仅供测试使用:清空整个内存缓存。
+ */
+export function __clearApiCacheForTest(): void {
+  responseCache.clear();
+  invalidatedUrls.clear();
 }

@@ -1128,17 +1128,17 @@ export const printHandlers = [
 
 // ============= Stats(18) - v3.0.6.8-32 接入 DAILY_KPI_PRE + DOCTOR_PERFORMANCE_PRE =============
 export const statsHandlers = [
-  // 今日 KPI (DAILY_KPI_PRE 最后一天) - 兼容 HomePage 旧 DTO
+  // 今日 KPI (DAILY_KPI_PRE 最后一天) - 字段与 DAILY_KPI_PRE 原生 schema 对齐
   http.get(`${API_BASE}/stats/daily`, async () => {
     await delay(80);
     const all = list<any>('dailyKpi');
     const today = all[all.length - 1];
-    if (!today) return HttpResponse.json({ success: true, data: { totalExams: 0, completedExams: 0, pendingReports: 0, criticalValues: 0 } });
+    if (!today) return HttpResponse.json({ success: true, data: { examCount: 0, reportCount: 0, criticalCount: 0, cosignCount: 0 } });
     return HttpResponse.json({ success: true, data: {
-      totalExams: today.examCount,
-      completedExams: today.reportCount,
-      pendingReports: Math.max(0, today.examCount - today.reportCount),
-      criticalValues: today.criticalCount,
+      examCount: today.examCount,
+      reportCount: today.reportCount,
+      criticalCount: today.criticalCount,
+      cosignCount: today.cosignCount,
       avgTAT: today.avgTAT,
       defectCount: today.defectCount,
       qcAvgScore: today.qcAvgScore,
@@ -2391,7 +2391,6 @@ export const safetyHandlers = [
 import { REVIEW_TASKS, REVIEWERS, COSIGN_SCHEDULES, SLA_METRICS, WORKLOAD_STATS, REVIEW_KPI, REJECT_TEMPLATES, REVIEW_COMMENTS, AI_PRE_REVIEW_RESULTS, REVIEWER_ASSIGNMENTS } from '../../data/reportReviewMock';
 import { COSIGN_CERTIFICATES, COSIGN_INBOX, COSIGN_REJECT_TEMPLATES, COSIGN_CALENDAR, COSIGN_AUDIT_LOG, COSIGN_KPI } from '../../data/cosignMock';
 import { QUALITY_DIMENSIONS, QUALITY_GRADES, QUALITY_WEIGHTS, QUALITY_SCORING_CONFIG, QUALITY_SCORES, QUALITY_KPI, QUALITY_DEFECTS, QUALITY_RULE_VERSIONS, QUALITY_DASHBOARD, MONTHLY_QUALITY_REPORT, DEFECT_REMEDIATIONS } from '../../data/reportQualityMock';
-import { CRITICAL_LEVELS, CRITICAL_RULES, CRITICAL_EVENTS, CRITICAL_ESCALATION_RULES, CRITICAL_KPI } from '../../data/criticalValueMock';
 import { DEFECT_CATEGORIES, DEFECT_DETAILS, DEFECT_TREE, DEFECT_ANALYTICS, DEFECT_IMPORT_RECORDS } from '../../data/defectLibraryMock';
 
 export const reviewHandlers = [
@@ -3102,56 +3101,93 @@ export const qualityHandlers = [
 ];
 
 // ============= R3.CRITICAL 危急值 (30) =============
+// [v3.0.6.12-A4] 所有 criticalHandlers 路由改读 store.critical* collection,
+//   criticalValueMock 仅保留常量 (规则/级别/升级/KPI) 作为 store 种子, 不直接被本 handler 引用.
 export const criticalHandlers = [
   http.get(`${API_BASE}/critical/rules`, async () => {
     await delay(120);
-    return HttpResponse.json({ success: true, data: CRITICAL_RULES });
+    return HttpResponse.json({ success: true, data: list<any>('criticalRules') });
   }),
   http.get(`${API_BASE}/critical/rules/:id`, async ({ params }) => {
     await delay(80);
-    const r = CRITICAL_RULES.find((x: any) => x.id === params.id);
+    const r = findOne<any>('criticalRules', (x: any) => x.id === params.id);
     return r ? HttpResponse.json({ success: true, data: r }) : HttpResponse.json({ success: false }, { status: 404 });
   }),
   http.put(`${API_BASE}/critical/rules/:id`, async ({ params, request }) => {
     await delay(120);
-    return HttpResponse.json({ success: true, data: { id: params.id, ...(await request.json() as object) } });
+    const id = params.id as string;
+    const body = await request.json() as any;
+    const updated = update<any>('criticalRules', id, body);
+    return HttpResponse.json({ success: true, data: updated ?? { id, ...body } });
   }),
   http.put(`${API_BASE}/critical/rules/:id/toggle`, async ({ params, request }) => {
     await delay(100);
+    const id = params.id as string;
     const body = (await request.json()) as { isActive: boolean };
-    return HttpResponse.json({ success: true, data: { id: params.id, isActive: body.isActive } });
+    const updated = update<any>('criticalRules', id, { isActive: body.isActive });
+    return HttpResponse.json({ success: true, data: updated ?? { id, isActive: body.isActive } });
   }),
   http.get(`${API_BASE}/critical/events`, async () => {
     await delay(150);
-    return HttpResponse.json({ success: true, data: CRITICAL_EVENTS });
+    return HttpResponse.json({ success: true, data: list<any>('criticalEvents') });
   }),
   http.get(`${API_BASE}/critical/events/:id`, async ({ params }) => {
     await delay(80);
-    const e = CRITICAL_EVENTS.find((x: any) => x.id === params.id);
+    const e = get<any>('criticalEvents', params.id as string);
     return e ? HttpResponse.json({ success: true, data: e }) : HttpResponse.json({ success: false }, { status: 404 });
   }),
   http.post(`${API_BASE}/critical/events`, async ({ request }) => {
     await delay(200);
-    return HttpResponse.json({ success: true, data: { id: 'ce-' + Date.now(), ...(await request.json() as object), status: 'pending', reportedAt: new Date().toISOString() } }, { status: 201 });
+    const body = (await request.json()) as any;
+    const id = 'ce-' + Date.now();
+    const created = create('criticalEvents', { id, ...body, status: 'pending', reportedTime: new Date().toISOString() });
+    return HttpResponse.json({ success: true, data: created }, { status: 201 });
   }),
   http.put(`${API_BASE}/critical/events/:id/acknowledge`, async ({ params, request }) => {
     await delay(100);
     const body = (await request.json()) as { userId: string; userName: string };
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'acknowledged', acknowledgedById: body.userId, acknowledgedAt: new Date().toISOString() } });
+    const id = params.id as string;
+    const updated = update<any>('criticalEvents', id, {
+      status: 'acknowledged',
+      acknowledged: true,
+      acknowledgedBy: body.userName,
+      acknowledgedTime: new Date().toISOString(),
+    });
+    return HttpResponse.json({ success: true, data: updated ?? { id, status: 'acknowledged', acknowledgedById: body.userId, acknowledgedAt: new Date().toISOString() } });
   }),
   http.put(`${API_BASE}/critical/events/:id/resolve`, async ({ params }) => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'resolved', resolvedTime: new Date().toISOString() } });
+    const id = params.id as string;
+    const updated = update<any>('criticalEvents', id, {
+      status: 'resolved',
+      state: 'closed_loop',
+      processingTime: new Date().toISOString(),
+    });
+    return HttpResponse.json({ success: true, data: updated ?? { id, status: 'resolved', resolvedTime: new Date().toISOString() } });
   }),
   http.put(`${API_BASE}/critical/events/:id/notify`, async ({ params, request }) => {
     await delay(120);
     const body = (await request.json()) as { channels: string[]; recipientId: string; recipientName: string };
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'notified', channels: body.channels, receivingDoctorId: body.recipientId, receivingTime: new Date().toISOString() } });
+    const id = params.id as string;
+    const updated = update<any>('criticalEvents', id, {
+      status: 'notified',
+      notificationMethod: (body.channels && body.channels[0]) || 'phone',
+      receivingDoctorId: body.recipientId,
+      receivingDoctorName: body.recipientName,
+      receivingTime: new Date().toISOString(),
+    });
+    return HttpResponse.json({ success: true, data: updated ?? { id, status: 'notified', channels: body.channels, receivingDoctorId: body.recipientId, receivingTime: new Date().toISOString() } });
   }),
   http.post(`${API_BASE}/critical/events/:id/escalate`, async ({ params, request }) => {
     await delay(150);
     const body = (await request.json()) as { toId: string; toName: string; reason: string };
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'escalated', escalatedToId: body.toId, escalatedToName: body.toName, escalatedAt: new Date().toISOString(), escalationLevel: 1 } });
+    const id = params.id as string;
+    const updated = update<any>('criticalEvents', id, {
+      status: 'escalated',
+      state: 'escalated',
+      followUpNotes: body.reason,
+    });
+    return HttpResponse.json({ success: true, data: updated ?? { id, status: 'escalated', escalatedToId: body.toId, escalatedToName: body.toName, escalatedAt: new Date().toISOString(), escalationLevel: 1 } });
   }),
   http.post(`${API_BASE}/critical/events/:id/dual-review`, async ({ params, request }) => {
     await delay(120);
@@ -3159,23 +3195,27 @@ export const criticalHandlers = [
   }),
   http.get(`${API_BASE}/critical/escalation-rules`, async () => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: CRITICAL_ESCALATION_RULES });
+    return HttpResponse.json({ success: true, data: list<any>('criticalEscalationRules') });
   }),
   http.put(`${API_BASE}/critical/escalation-rules/:id`, async ({ params, request }) => {
     await delay(120);
-    return HttpResponse.json({ success: true, data: { id: params.id, ...(await request.json() as object) } });
+    const id = params.id as string;
+    const body = await request.json() as any;
+    const updated = update<any>('criticalEscalationRules', id, body);
+    return HttpResponse.json({ success: true, data: updated ?? { id, ...body } });
   }),
   http.get(`${API_BASE}/critical/levels`, async () => {
     await delay(80);
-    return HttpResponse.json({ success: true, data: CRITICAL_LEVELS });
+    return HttpResponse.json({ success: true, data: list<any>('criticalLevels') });
   }),
   http.get(`${API_BASE}/critical/level/:level`, async ({ params }) => {
     await delay(60);
-    return HttpResponse.json({ success: true, data: CRITICAL_LEVELS.find((l: any) => l.level === params.level) });
+    const found = findOne<any>('criticalLevels', (x: any) => x.level === params.level);
+    return HttpResponse.json({ success: true, data: found });
   }),
   http.get(`${API_BASE}/critical/kpi`, async () => {
     await delay(120);
-    return HttpResponse.json({ success: true, data: CRITICAL_KPI });
+    return HttpResponse.json({ success: true, data: get<any>('criticalKpi', 'current') });
   }),
   http.get(`${API_BASE}/critical/sop`, async () => {
     await delay(80);
@@ -5002,6 +5042,13 @@ export const handlers = [
   ...cosignHandlers,
   ...qualityReportHandlers,
   ...aiAssistHandlers,
+  // [v3.0.6.12-B2] v3ReviewHandlers top-10 路由 store I/O (R3.REVIEW.ASSIST)
+  //   必须在 reviewHandlers (handlers.ts 内 /reviews/:id 通配) 之前注册,
+  //   否则 /reviews/reviewers, /reviews/reject-templates 等会被 :id 通配拦截.
+  ...reviewAssistHandlers,
+  // [v3.0.6.12-A4] top-20 路由 store I/O
+  ...writingHandlers,
+  ...distributionHandlers,
   ...eyeHandlers, // [v3.0.6.8-33] 眼科 180+ 端点
   ...dentalHandlers, // [v3.0.6.8-53] 口腔 24 端点 (Day 1 PACS)
   ...newPagesHandlers, // [v3.0.6.8-77] v67-v76 新页面后端
