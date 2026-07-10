@@ -111,7 +111,32 @@ export class PredictiveAnalytics {
   }
 
   private computeMetrics(history: TimeSeriesPoint[], forecast: ForecastPoint[]): { mae: number; mape: number; rmse: number } {
-    return { mae: 0, mape: 0, rmse: 0 };
+    if (!history.length || !forecast.length) return { mae: 0, mape: 0, rmse: 0 };
+    const n = Math.min(history.length, forecast.length);
+    let absErrSum = 0;
+    let pctErrSum = 0;
+    let sqErrSum = 0;
+    let validPctCount = 0;
+    for (let i = 0; i < n; i++) {
+      const actual = history[i]!.v;
+      const predicted = forecast[i]!.predicted;
+      const err = actual - predicted;
+      const absErr = Math.abs(err);
+      absErrSum += absErr;
+      sqErrSum += err * err;
+      if (actual !== 0) {
+        pctErrSum += absErr / Math.abs(actual);
+        validPctCount++;
+      }
+    }
+    const mae = absErrSum / n;
+    const rmse = Math.sqrt(sqErrSum / n);
+    const mape = validPctCount > 0 ? (pctErrSum / validPctCount) * 100 : 0;
+    return {
+      mae: Math.round(mae * 1000) / 1000,
+      mape: Math.round(mape * 1000) / 1000,
+      rmse: Math.round(rmse * 1000) / 1000,
+    };
   }
 
   private std(vals: number[]): number {

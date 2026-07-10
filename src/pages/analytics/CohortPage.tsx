@@ -5,6 +5,7 @@ import {
 import {
   Users, Plus, Trash2, Play, Search, Clock, BarChart3, Layers, GitBranch,
 } from 'lucide-react';
+import { COHORT_CONFIGS, estimateCohortSize } from '../../data/cohortConfigs';
 
 interface Condition {
   id: string;
@@ -46,14 +47,15 @@ const operatorOptions = [
   { label: '不为空', value: 'isNotNull' },
 ];
 
-const mockCohorts: Cohort[] = [
-  { id: 'C-001', name: '肺结节阳性患者', conditionCount: 4, size: 1280, createdAt: '2026-04-01', lastRun: '2026-05-03', status: 'completed' },
-  { id: 'C-002', name: '急诊脑卒中待确认', conditionCount: 3, size: 345, createdAt: '2026-04-10', lastRun: '2026-05-02', status: 'completed' },
-  { id: 'C-003', name: '乳腺BI-RADS 4类以上', conditionCount: 5, size: 567, createdAt: '2026-04-15', lastRun: '2026-04-30', status: 'completed' },
-  { id: 'C-004', name: 'CT复查患者(3个月内)', conditionCount: 3, size: 2340, createdAt: '2026-04-20', lastRun: '2026-05-01', status: 'completed' },
-  { id: 'C-005', name: '儿童骨折急诊队列', conditionCount: 4, size: 189, createdAt: '2026-04-25', lastRun: '2026-04-28', status: 'failed' },
-  { id: 'C-006', name: '冠脉CTA阳性+糖尿病', conditionCount: 6, size: 423, createdAt: '2026-05-01', lastRun: '2026-05-03', status: 'running' },
-];
+const mockCohorts: Cohort[] = COHORT_CONFIGS.map((c, idx) => ({
+  id: `C-${String(idx + 1).padStart(3, '0')}`,
+  name: c.name,
+  conditionCount: 3 + (idx % 4),
+  size: c.size,
+  createdAt: c.updatedAt,
+  lastRun: c.updatedAt,
+  status: idx === 4 ? 'failed' : idx === 5 ? 'running' : 'completed',
+}));
 
 const statusConfig: Record<string, { color: string; label: string }> = {
   ready: { color: 'default', label: '就绪' },
@@ -63,6 +65,51 @@ const statusConfig: Record<string, { color: string; label: string }> = {
 };
 
 let condCounter = 3;
+
+const MODALITY_BY_BODYPART: Record<string, string[]> = {
+  胸部: ['CT', 'DR'],
+  腹部: ['CT', 'MR', 'US'],
+  头部: ['CT', 'MR'],
+  颅脑: ['CT', 'MR'],
+  心脏: ['CT', 'MR', 'XA'],
+  脊柱: ['MR', 'CT', 'DR'],
+  乳腺: ['MG', 'MR'],
+  盆腔: ['CT', 'MR', 'US'],
+};
+
+function synthesizeFilterFromConditions(conds: Condition[]): import('../../types/analytics').CohortFilter {
+  const modalitySet = new Set<string>();
+  const bodyPartSet = new Set<string>();
+  const diagnosisSet = new Set<string>();
+  let ageMin: number | undefined;
+  let ageMax: number | undefined;
+  for (const c of conds) {
+    const v = c.value?.trim();
+    if (!v) continue;
+    if (c.field === 'bodyPart') {
+      bodyPartSet.add(v);
+      MODALITY_BY_BODYPART[v]?.forEach(m => modalitySet.add(m));
+    } else if (c.field === 'deviceType') {
+      modalitySet.add(v.toUpperCase());
+    } else if (c.field === 'diagnosisCode') {
+      diagnosisSet.add(v);
+    } else if (c.field === 'age') {
+      const num = Number(v);
+      if (!Number.isNaN(num)) {
+        if (c.operator === 'gt' || c.operator === 'ge') ageMin = Math.max(ageMin ?? 0, num);
+        else if (c.operator === 'lt' || c.operator === 'le') ageMax = Math.min(ageMax ?? 120, num);
+        else if (c.operator === 'eq') { ageMin = num; ageMax = num; }
+      }
+    }
+  }
+  const filter: import('../../types/analytics').CohortFilter = {};
+  if (modalitySet.size > 0) filter.modality = Array.from(modalitySet);
+  if (bodyPartSet.size > 0) filter.bodyPart = Array.from(bodyPartSet);
+  if (diagnosisSet.size > 0) filter.diagnosis = Array.from(diagnosisSet);
+  if (ageMin !== undefined) filter.ageMin = ageMin;
+  if (ageMax !== undefined) filter.ageMax = ageMax;
+  return filter;
+}
 
 export default function CohortPage() {
   const [cohorts, setCohorts] = useState<Cohort[]>(mockCohorts);
@@ -96,11 +143,12 @@ export default function CohortPage() {
 
   const handleRunAnalysis = () => {
     if (!cohortName.trim()) { message.warning('请输入队列名称'); return; }
+    const synthesizedFilter = synthesizeFilterFromConditions(conditions);
     const newCohort: Cohort = {
       id: `C-${String(cohorts.length + 1).padStart(3, '0')}`,
       name: cohortName,
       conditionCount: conditions.length,
-      size: Math.floor(Math.random() * 3000) + 100,
+      size: estimateCohortSize(synthesizedFilter),
       createdAt: new Date().toISOString().split('T')[0],
       lastRun: new Date().toISOString().split('T')[0],
       status: 'completed',

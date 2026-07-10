@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react'
-import { ChevronRight, Bell, BellOff } from 'lucide-react'
+import React, { useState, useEffect, useRef } from 'react'
+import { ChevronRight, Bell, BellOff, Phone, Lock, MessageSquare, Smartphone, CreditCard } from 'lucide-react'
 import { pushService } from '../../services/mobile/push/PushService'
+import { wechatPay } from '../../services/wechatPay'
 
 // ===== Types =====
 export interface MobileUser {
@@ -74,16 +75,109 @@ const s = {
 }
 
 // ===== Component =====
+const SMS_COUNTDOWN_SECONDS = 60
+const SMS_RESEND_COOLDOWN_MS = 1000
+
 export default function PatientMobileApp() {
-  const [activeTab, setActiveTab] = useState<'home' | 'reports' | 'notifications' | 'profile'>('home')
+  const [activeTab, setActiveTab] = useState<'home' | 'reports' | 'notifications' | 'profile' | 'login'>('home')
   const [selectedReport, setSelectedReport] = useState<MobileReport | null>(null)
   const [pushEnabled, setPushEnabled] = useState(pushService.permission === 'granted')
+  const [smsCountdown, setSmsCountdown] = useState(0)
+  const [phoneInput, setPhoneInput] = useState('')
+  const [smsCode, setSmsCode] = useState('')
+  const [loginState, setLoginState] = useState<'idle' | 'sending' | 'verifying' | 'success' | 'error'>('idle')
+  const [loginError, setLoginError] = useState<string | null>(null)
+  const [payingReportId, setPayingReportId] = useState<string | null>(null)
+  const [payState, setPayState] = useState<'idle' | 'invoking' | 'success' | 'failed'>('idle')
+  const [payError, setPayError] = useState<string | null>(null)
+  const countdownRef = useRef<number | null>(null)
 
   useEffect(() => {
     if (pushService.permission === 'default') {
       pushService.requestPermission().then(p => setPushEnabled(p === 'granted'))
     }
   }, [])
+
+  useEffect(() => {
+    return () => {
+      if (countdownRef.current) window.clearInterval(countdownRef.current)
+    }
+  }, [])
+
+  const startSmsCountdown = (seconds: number) => {
+    if (countdownRef.current) window.clearInterval(countdownRef.current)
+    setSmsCountdown(seconds)
+    countdownRef.current = window.setInterval(() => {
+      setSmsCountdown(prev => {
+        if (prev <= 1) {
+          if (countdownRef.current) {
+            window.clearInterval(countdownRef.current)
+            countdownRef.current = null
+          }
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+  }
+
+  const sendSmsCode = async () => {
+    if (!/^1[3-9]\d{9}$/.test(phoneInput)) {
+      setLoginError('请输入正确的手机号')
+      return
+    }
+    setLoginError(null)
+    setLoginState('sending')
+    await new Promise(r => setTimeout(r, SMS_RESEND_COOLDOWN_MS))
+    setLoginState('verifying')
+    startSmsCountdown(SMS_COUNTDOWN_SECONDS)
+  }
+
+  const verifySmsCode = async () => {
+    if (smsCode.length !== 6) {
+      setLoginError('验证码应为 6 位')
+      return
+    }
+    setLoginError(null)
+    setLoginState('verifying')
+    await new Promise(r => setTimeout(r, 500))
+    if (smsCode === '000000') {
+      setLoginError('验证码错误,请重新获取')
+      setLoginState('error')
+      return
+    }
+    setLoginState('success')
+    setActiveTab('home')
+  }
+
+  const handleWechatPay = async (report: MobileReport) => {
+    setPayingReportId(report.id)
+    setPayState('invoking')
+    setPayError(null)
+    const orderNo = `RPT-${report.id}-${Date.now()}`
+    const totalFee = 5000 // Mock: 50元 = 5000分
+    const r = await wechatPay.jsapiPay({
+      outTradeNo: orderNo,
+      totalFee,
+      body: `检查报告 - ${report.examType}`,
+      openId: `mock-openid-${MOCK_USER.id}`,
+      patientId: MOCK_USER.id,
+      onSuccess: (res) => {
+        setPayState('success')
+        if (pushEnabled) {
+          pushService.sendLocalNotification({ title: '支付成功', body: `订单 ${orderNo} 已完成,交易号 ${res.transactionId}` })
+        }
+      },
+      onFail: (err) => {
+        setPayState('failed')
+        setPayError(err.message)
+      },
+    })
+    if (!r.success) {
+      setPayState('failed')
+      setPayError(r.error?.message || '微信下单失败')
+    }
+  }
 
   const togglePush = async () => {
     if (pushEnabled) {
@@ -175,6 +269,31 @@ export default function PatientMobileApp() {
             <button style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>📥 下载PDF</button>
             <button style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: '#059669', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>🖼️ 查看影像</button>
           </div>
+          <div style={{ marginTop: 12, padding: 10, background: '#f0f9ff', borderRadius: 8, border: '1px solid #bae6fd' }}>
+            <div style={{ fontSize: 12, color: '#0369a1', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <CreditCard size={12} /> 报告查阅费: ¥50.00
+            </div>
+            <button
+              onClick={() => handleWechatPay(selectedReport)}
+              disabled={payState === 'invoking' || (payingReportId === selectedReport.id && payState === 'success')}
+              style={{
+                width: '100%',
+                padding: '8px 0',
+                borderRadius: 8,
+                border: 'none',
+                background: payState === 'success' && payingReportId === selectedReport.id ? '#94a3b8' : payState === 'invoking' ? '#cbd5e1' : '#07c160',
+                color: '#fff',
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: payState === 'invoking' ? 'not-allowed' : 'pointer',
+              }}
+            >
+              {payState === 'idle' && '微信支付'}
+              {payState === 'invoking' && '正在唤起微信支付...'}
+              {payState === 'success' && payingReportId === selectedReport.id && '✓ 支付成功'}
+              {payState === 'failed' && (payError || '支付失败,重试')}
+            </button>
+          </div>
         </div>
       ) : (
         <>
@@ -225,6 +344,14 @@ export default function PatientMobileApp() {
         <div style={{ display: 'flex', gap: 8 }}>
           <span style={s.verifiedBadge}>已实名认证 ✓</span>
         </div>
+        <div style={{ marginTop: 12, fontSize: 12, color: loginState === 'success' ? '#059669' : '#94a3b8' }}>
+          登录状态: {loginState === 'success' ? '已通过短信验证' : '未登录 (可点此登录)'}
+          {loginState !== 'success' && (
+            <button onClick={() => setActiveTab('login')} style={{ marginLeft: 8, border: 'none', background: '#3b82f6', color: '#fff', padding: '4px 10px', borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
+              去登录
+            </button>
+          )}
+        </div>
       </div>
       <div style={s.card}>
         {[
@@ -239,6 +366,78 @@ export default function PatientMobileApp() {
             <ChevronRight size={14} color="#94a3b8" />
           </div>
         ))}
+      </div>
+    </div>
+  )
+
+  const renderLogin = () => (
+    <div style={s.card}>
+      <div style={{ ...s.cardTitle, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <Smartphone size={16} color="#1e40af" /> 手机号快捷登录
+      </div>
+      <div style={{ fontSize: 12, color: '#64748b', marginBottom: 12 }}>
+        输入手机号获取短信验证码,验证通过后即可查看完整报告与缴费
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: 8, marginBottom: 10 }}>
+        <Phone size={14} color="#64748b" />
+        <input
+          value={phoneInput}
+          onChange={e => setPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 11))}
+          placeholder="请输入手机号"
+          style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, background: 'transparent' }}
+          inputMode="numeric"
+        />
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: 8, marginBottom: 10 }}>
+        <MessageSquare size={14} color="#64748b" />
+        <input
+          value={smsCode}
+          onChange={e => setSmsCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+          placeholder="6 位短信验证码"
+          style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, background: 'transparent' }}
+          inputMode="numeric"
+        />
+        <button
+          onClick={sendSmsCode}
+          disabled={smsCountdown > 0 || loginState === 'sending'}
+          style={{
+            border: 'none',
+            background: smsCountdown > 0 ? '#e2e8f0' : '#3b82f6',
+            color: smsCountdown > 0 ? '#94a3b8' : '#fff',
+            padding: '6px 10px',
+            borderRadius: 6,
+            fontSize: 12,
+            cursor: smsCountdown > 0 ? 'not-allowed' : 'pointer',
+            minWidth: 90,
+          }}
+        >
+          {smsCountdown > 0 ? `${smsCountdown}s 后重发` : '获取验证码'}
+        </button>
+      </div>
+      {loginError && <div style={{ fontSize: 12, color: '#dc2626', marginBottom: 8 }}>{loginError}</div>}
+      <button
+        onClick={verifySmsCode}
+        disabled={loginState === 'verifying'}
+        style={{
+          width: '100%',
+          padding: '10px 0',
+          borderRadius: 8,
+          border: 'none',
+          background: loginState === 'verifying' ? '#94a3b8' : '#059669',
+          color: '#fff',
+          fontSize: 14,
+          fontWeight: 600,
+          cursor: loginState === 'verifying' ? 'not-allowed' : 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 6,
+        }}
+      >
+        <Lock size={14} /> {loginState === 'verifying' ? '验证中...' : '登录'}
+      </button>
+      <div style={{ marginTop: 10, fontSize: 11, color: '#94a3b8', textAlign: 'center' }}>
+        登录即表示同意《用户协议》和《隐私政策》
       </div>
     </div>
   )
@@ -266,9 +465,9 @@ export default function PatientMobileApp() {
         </div>
         {/* Tab Bar */}
         <div style={{ display: 'flex', marginTop: 8 }}>
-          {(['home', 'reports', 'notifications', 'profile'] as const).map(t => (
+          {(['home', 'reports', 'notifications', 'profile', 'login'] as const).map(t => (
             <div key={t} style={s.tab(activeTab === t)} onClick={() => setActiveTab(t)}>
-              {t === 'home' ? '首页' : t === 'reports' ? '报告' : t === 'notifications' ? '消息' : '我的'}
+              {t === 'home' ? '首页' : t === 'reports' ? '报告' : t === 'notifications' ? '消息' : t === 'profile' ? '我的' : '登录'}
             </div>
           ))}
         </div>
@@ -279,6 +478,7 @@ export default function PatientMobileApp() {
         {activeTab === 'reports' && renderReports()}
         {activeTab === 'notifications' && renderNotifications()}
         {activeTab === 'profile' && renderProfile()}
+        {activeTab === 'login' && renderLogin()}
       </div>
       {/* Bottom Nav */}
       <div style={s.nav}>
@@ -287,6 +487,7 @@ export default function PatientMobileApp() {
           { key: 'reports' as const, icon: '📋', label: '报告' },
           { key: 'notifications' as const, icon: '🔔', label: '消息' },
           { key: 'profile' as const, icon: '👤', label: '我的' },
+          { key: 'login' as const, icon: '🔑', label: '登录' },
         ].map(n => (
           <div key={n.key} style={s.navItem(activeTab === n.key)} onClick={() => setActiveTab(n.key)}>
             <div style={{ fontSize: 18 }}>{n.icon}</div>

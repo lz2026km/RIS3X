@@ -1,22 +1,45 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 
+interface NationalReportBody {
+  title?: string
+  reportType?: string
+  period?: string
+  payload?: unknown
+}
+
+interface InsuranceAuditBody {
+  patientId?: string
+  invoiceId?: string
+  auditType?: string
+  finding?: string
+  amount?: number
+  metadata?: unknown
+}
+
 @Injectable()
 export class DataReportService {
   constructor(private readonly prisma: PrismaService) {}
 
   async listNationalReports() {
-    const data = await this.prisma.auditLog.findMany({ where: { resource: 'national-report' }, orderBy: { createdAt: 'desc' } })
+    const data = await this.prisma.nationalReport.findMany({ orderBy: { submittedAt: 'desc' } })
     return { data }
   }
 
   async getNationalReport(id: string) {
-    const data = await this.prisma.auditLog.findUnique({ where: { id } })
+    const data = await this.prisma.nationalReport.findUnique({ where: { id } })
     return { data: data ? [data] : [] }
   }
 
-  async createNationalReport(body: any) {
-    const data = await this.prisma.auditLog.create({ data: { action: 'CREATE', resource: 'national-report', detail: body ?? {} } })
+  async createNationalReport(body: NationalReportBody) {
+    const data = await this.prisma.nationalReport.create({
+      data: {
+        title: body?.title ?? '未命名上报',
+        reportType: body?.reportType ?? 'GENERAL',
+        period: body?.period ?? new Date().toISOString().slice(0, 7),
+        payload: (body?.payload ?? {}) as any,
+      } as any,
+    })
     return { data: [data] }
   }
 
@@ -36,13 +59,27 @@ export class DataReportService {
   }
 
   async listInsuranceAudits() {
-    const data = await this.prisma.auditLog.findMany({ where: { resource: 'insurance-audit' }, orderBy: { createdAt: 'desc' } })
+    const data = await this.prisma.insuranceAudit.findMany({ orderBy: { createdAt: 'desc' } })
     return { data }
   }
 
   async getInsuranceAudit(id: string) {
-    const data = await this.prisma.auditLog.findUnique({ where: { id } })
+    const data = await this.prisma.insuranceAudit.findUnique({ where: { id } })
     return { data: data ? [data] : [] }
+  }
+
+  async createInsuranceAudit(body: InsuranceAuditBody) {
+    const data = await this.prisma.insuranceAudit.create({
+      data: {
+        patientId: body?.patientId,
+        invoiceId: body?.invoiceId,
+        auditType: body?.auditType ?? 'GENERAL',
+        finding: body?.finding ?? '',
+        amount: (body?.amount as any) ?? 0,
+        metadata: (body?.metadata ?? {}) as any,
+      } as any,
+    })
+    return { data: [data] }
   }
 
   async enterpriseSearch(q?: string) {

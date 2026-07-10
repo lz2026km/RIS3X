@@ -3,6 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, Table, InputNumber, Modal, Form, List, Alert, Badge, Progress, Divider, Descriptions, Tooltip } from 'antd';
 import { Activity, DollarSign, FileText, CheckCircle2, XCircle, Printer, Search, Calculator, Shield, TrendingUp, BarChart3 } from 'lucide-react';
+import { wechatPay } from '../../services/wechatPay';
+
+const WECHAT_METHOD_ID = 'wechat';
+const DEFAULT_METHOD = WECHAT_METHOD_ID;
 
 export const DentalBillingPage: React.FC = () => {
   const [tab, setTab] = useState('charge');
@@ -14,7 +18,7 @@ export const DentalBillingPage: React.FC = () => {
   const [newInvoice, setNewInvoice] = useState<any>({ patientId: 'P100001', items: [] });
   const [payModal, setPayModal] = useState(false);
   const [currentInvoice, setCurrentInvoice] = useState<any>(null);
-  const [paymentMethod, setPaymentMethod] = useState('wechat');
+  const [paymentMethod, setPaymentMethod] = useState<string>(DEFAULT_METHOD);
 
   useEffect(() => {
     Promise.all([
@@ -31,13 +35,38 @@ export const DentalBillingPage: React.FC = () => {
     if (!currentInvoice) return;
     setBusy(true);
     try {
-      const r = await fetch(`/api/v1/dental/billing/invoices/${currentInvoice.id}/pay`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ paymentMethod }) });
-      const d = await r.json();
-      if (d.success) message.success(`收费成功 (${paymentMethod})`);
-      setPayModal(false);
-      const res = await fetch(`/api/v1/dental/billing/invoices?patientId=${selectedPatient}`).then(r=>r.json());
-      if (res.success) setInvoices(res.data || []);
-    } catch {}
+      if (paymentMethod === WECHAT_METHOD_ID) {
+        const orderNo = `INV-${currentInvoice.id}-${Date.now()}`;
+        const r = await wechatPay.jsapiPay({
+          outTradeNo: orderNo,
+          totalFee: Math.round((currentInvoice.selfPay || 0) * 100),
+          body: `口腔收费 - ${currentInvoice.id}`,
+          openId: `mock-openid-${currentInvoice.patientId || selectedPatient}`,
+          patientId: currentInvoice.patientId || selectedPatient,
+          onSuccess: async (res) => {
+            const confirm = await fetch(`/api/v1/dental/billing/invoices/${currentInvoice.id}/pay`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ paymentMethod, transactionId: res.transactionId, outTradeNo: orderNo }) });
+            const d = await confirm.json();
+            if (d.success) message.success(`收费成功 (${paymentMethod})`);
+            setPayModal(false);
+            const list = await fetch(`/api/v1/dental/billing/invoices?patientId=${selectedPatient}`).then(r=>r.json());
+            if (list.success) setInvoices(list.data || []);
+          },
+          onFail: (err) => {
+            message.error(`微信支付失败: ${err.message}`);
+          },
+        });
+        if (!r.success) message.error(r.error?.message || '微信下单失败');
+      } else {
+        const r = await fetch(`/api/v1/dental/billing/invoices/${currentInvoice.id}/pay`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ paymentMethod }) });
+        const d = await r.json();
+        if (d.success) message.success(`收费成功 (${paymentMethod})`);
+        setPayModal(false);
+        const res = await fetch(`/api/v1/dental/billing/invoices?patientId=${selectedPatient}`).then(r=>r.json());
+        if (res.success) setInvoices(res.data || []);
+      }
+    } catch (e: any) {
+      message.error(`收费异常: ${e?.message || e}`);
+    }
     setBusy(false);
   };
 
@@ -123,7 +152,7 @@ export const DentalBillingPage: React.FC = () => {
           </Row>},
         ]} />
       </Card>
-      <Modal title={`收费 - ${currentInvoice?.id}`} open={payModal} onCancel={()=>{setPayModal(false); setPaymentMethod('wechat');}} onOk={handlePay} width={400}
+      <Modal title={`收费 - ${currentInvoice?.id}`} open={payModal} onCancel={()=>{setPayModal(false); setPaymentMethod(DEFAULT_METHOD);}} onOk={handlePay} width={400}
         okText={`确认收费 ¥${currentInvoice?.selfPay || 0}`}>
         <div style={{textAlign:'center',padding:16}}>
           <div style={{fontSize:36,fontWeight:700,color:'#1677ff'}}>¥{currentInvoice?.selfPay || 0}</div>

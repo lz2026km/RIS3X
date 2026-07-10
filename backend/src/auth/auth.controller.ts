@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req } from '@nestjs/common'
+import { Body, Controller, Get, Post, Req, UnauthorizedException } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { Public } from '../common/decorators/public.decorator'
 import { Roles } from '../common/decorators/roles.decorator'
@@ -43,7 +43,7 @@ export class AuthController {
   @ApiOperation({ summary: '刷新 access token (使用 HttpOnly refresh cookie)' })
   async refresh(@Req() req: { user?: { sub: string; username: string; role: string } }) {
     if (!req.user) {
-      return this.auth.loginAnonymous()
+      throw new UnauthorizedException('缺少有效的 refresh token，请重新登录')
     }
     return this.auth.refresh(req.user.sub, req.user.username, req.user.role)
   }

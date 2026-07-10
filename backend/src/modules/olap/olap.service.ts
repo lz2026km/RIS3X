@@ -1,4 +1,5 @@
-import { Injectable, OnModuleInit } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 import { PrismaService } from '../../prisma/prisma.service'
 
 interface MetricDef {
@@ -16,53 +17,57 @@ interface OLAPQuery {
   limit?: number; offset?: number
 }
 
-const DIMENSION_COLUMN_MAP: Record<string, string> = {
-  date: 'e.completed_at',
-  modality: 'e.modality',
-  device: 'd.name',
-  doctor: 'u.full_name',
-  department: 'u.department',
-  body_part: 'e.body_part',
-  age_group: `CASE WHEN EXTRACT(YEAR FROM AGE(p.birth_date)) < 18 THEN '0-17' WHEN EXTRACT(YEAR FROM AGE(p.birth_date)) < 40 THEN '18-39' WHEN EXTRACT(YEAR FROM AGE(p.birth_date)) < 60 THEN '40-59' WHEN EXTRACT(YEAR FROM AGE(p.birth_date)) < 80 THEN '60-79' ELSE '80+' END`,
-  gender: 'p.gender',
-  patient_type: 'p.type',
-  report_state: 'r.state',
+interface FilterClause {
+  sql: Prisma.Sql
 }
 
-const MEASURE_SQL_MAP: Record<string, { sql: string; aggregation: string }> = {
-  exam_count: { sql: 'COUNT(DISTINCT e.id)', aggregation: 'count' },
-  exam_revenue: { sql: 'COALESCE(SUM(i.total_amount), 0)', aggregation: 'sum' },
-  exam_cost: { sql: 'COALESCE(SUM(ci.unit_price), 0)', aggregation: 'sum' },
-  avg_exam_time: { sql: 'COALESCE(AVG(EXTRACT(EPOCH FROM (e.completed_at - e.started_at)) / 60), 0)', aggregation: 'avg' },
-  avg_report_time: { sql: 'COALESCE(AVG(EXTRACT(EPOCH FROM (r.signed_at - r.created_at)) / 60), 0)', aggregation: 'avg' },
-  report_count: { sql: 'COUNT(DISTINCT r.id)', aggregation: 'count' },
-  report_revision_count: { sql: 'COUNT(DISTINCT rr.id)', aggregation: 'count' },
-  quality_score_avg: { sql: 'COALESCE(AVG(rqs.total_score), 0)', aggregation: 'avg' },
-  quality_excellent_rate: { sql: 'COALESCE(AVG(CASE WHEN rqs.total_score >= 90 THEN 1 ELSE 0 END) * 100, 0)', aggregation: 'avg' },
-  quality_pass_rate: { sql: 'COALESCE(AVG(CASE WHEN rqs.total_score >= 60 THEN 1 ELSE 0 END) * 100, 0)', aggregation: 'avg' },
-  critical_count: { sql: 'COUNT(DISTINCT cv.id)', aggregation: 'count' },
-  critical_response_time: { sql: 'COALESCE(AVG(EXTRACT(EPOCH FROM (cv.acked_at - cv.created_at)) / 60), 0)', aggregation: 'avg' },
-  critical_notification_rate: { sql: 'COALESCE(AVG(CASE WHEN cv.acked_at IS NOT NULL THEN 1 ELSE 0 END) * 100, 0)', aggregation: 'avg' },
-  device_usage_rate: { sql: 'COALESCE(AVG(d.today_usage_min::float / 480 * 100), 0)', aggregation: 'avg' },
-  device_daily_exams: { sql: 'COALESCE(AVG(d.today_exams), 0)', aggregation: 'avg' },
-  device_maintenance_count: { sql: 'COUNT(DISTINCT CASE WHEN d.state = \'MAINTENANCE\' THEN d.id END)', aggregation: 'count' },
-  appointment_count: { sql: 'COUNT(DISTINCT a.id)', aggregation: 'count' },
-  appointment_no_show: { sql: 'COUNT(DISTINCT CASE WHEN a.state = \'NO_SHOW\' THEN a.id END)', aggregation: 'count' },
-  appointment_no_show_rate: { sql: 'COALESCE(COUNT(DISTINCT CASE WHEN a.state = \'NO_SHOW\' THEN a.id END)::float / NULLIF(COUNT(DISTINCT a.id), 0) * 100, 0)', aggregation: 'avg' },
-  avg_wait_time: { sql: 'COALESCE(AVG(EXTRACT(EPOCH FROM (e.started_at - a.scheduled_at)) / 60), 0)', aggregation: 'avg' },
-  consultation_count: { sql: '0', aggregation: 'count' },
-  avg_consultation_time: { sql: '0', aggregation: 'avg' },
-  dose_dlp_avg: { sql: '0', aggregation: 'avg' },
-  dose_effective_avg: { sql: '0', aggregation: 'avg' },
-  dose_compliance_rate: { sql: '100', aggregation: 'avg' },
-  ai_suggestion_count: { sql: 'COUNT(DISTINCT ei.id)', aggregation: 'count' },
-  ai_acceptance_rate: { sql: 'COALESCE(AVG(CASE WHEN ei.confidence > 0.8 THEN 1 ELSE 0 END) * 100, 0)', aggregation: 'avg' },
-  patient_satisfaction: { sql: '0', aggregation: 'avg' },
-  positive_rate: { sql: 'COALESCE(AVG(CASE WHEN r.findings != \'\' THEN 1 ELSE 0 END) * 100, 0)', aggregation: 'avg' },
-  emergency_ratio: { sql: 'COALESCE(AVG(CASE WHEN p.type = \'EMERGENCY\' THEN 1 ELSE 0 END) * 100, 0)', aggregation: 'avg' },
-  inpatient_ratio: { sql: 'COALESCE(AVG(CASE WHEN p.type = \'INPATIENT\' THEN 1 ELSE 0 END) * 100, 0)', aggregation: 'avg' },
-  report_timely_rate: { sql: 'COALESCE(AVG(CASE WHEN r.signed_at IS NOT NULL AND r.signed_at <= r.created_at + INTERVAL \'24 hours\' THEN 1 ELSE 0 END) * 100, 0)', aggregation: 'avg' },
-  sla_compliance_rate: { sql: '100', aggregation: 'avg' },
+const DIMENSION_COLUMN_MAP: Record<string, Prisma.Sql> = {
+  date: Prisma.sql`e.completed_at`,
+  modality: Prisma.sql`e.modality`,
+  device: Prisma.sql`d.name`,
+  doctor: Prisma.sql`u.full_name`,
+  department: Prisma.sql`u.department`,
+  body_part: Prisma.sql`e.body_part`,
+  age_group: Prisma.sql`CASE WHEN EXTRACT(YEAR FROM AGE(p.birth_date)) < 18 THEN '0-17' WHEN EXTRACT(YEAR FROM AGE(p.birth_date)) < 40 THEN '18-39' WHEN EXTRACT(YEAR FROM AGE(p.birth_date)) < 60 THEN '40-59' WHEN EXTRACT(YEAR FROM AGE(p.birth_date)) < 80 THEN '60-79' ELSE '80+' END`,
+  gender: Prisma.sql`p.gender`,
+  patient_type: Prisma.sql`p.type`,
+  report_state: Prisma.sql`r.state`,
+}
+
+const MEASURE_SQL_MAP: Record<string, Prisma.Sql> = {
+  exam_count: Prisma.sql`COUNT(DISTINCT e.id)`,
+  exam_revenue: Prisma.sql`COALESCE(SUM(i.total_amount), 0)`,
+  exam_cost: Prisma.sql`COALESCE(SUM(ci.unit_price), 0)`,
+  avg_exam_time: Prisma.sql`COALESCE(AVG(EXTRACT(EPOCH FROM (e.completed_at - e.started_at)) / 60), 0)`,
+  avg_report_time: Prisma.sql`COALESCE(AVG(EXTRACT(EPOCH FROM (r.signed_at - r.created_at)) / 60), 0)`,
+  report_count: Prisma.sql`COUNT(DISTINCT r.id)`,
+  report_revision_count: Prisma.sql`COUNT(DISTINCT rr.id)`,
+  quality_score_avg: Prisma.sql`COALESCE(AVG(rqs.total_score), 0)`,
+  quality_excellent_rate: Prisma.sql`COALESCE(AVG(CASE WHEN rqs.total_score >= 90 THEN 1 ELSE 0 END) * 100, 0)`,
+  quality_pass_rate: Prisma.sql`COALESCE(AVG(CASE WHEN rqs.total_score >= 60 THEN 1 ELSE 0 END) * 100, 0)`,
+  critical_count: Prisma.sql`COUNT(DISTINCT cv.id)`,
+  critical_response_time: Prisma.sql`COALESCE(AVG(EXTRACT(EPOCH FROM (cv.acked_at - cv.created_at)) / 60), 0)`,
+  critical_notification_rate: Prisma.sql`COALESCE(AVG(CASE WHEN cv.acked_at IS NOT NULL THEN 1 ELSE 0 END) * 100, 0)`,
+  device_usage_rate: Prisma.sql`COALESCE(AVG(d.today_usage_min::float / 480 * 100), 0)`,
+  device_daily_exams: Prisma.sql`COALESCE(AVG(d.today_exams), 0)`,
+  device_maintenance_count: Prisma.sql`COUNT(DISTINCT CASE WHEN d.state = 'MAINTENANCE' THEN d.id END)`,
+  appointment_count: Prisma.sql`COUNT(DISTINCT a.id)`,
+  appointment_no_show: Prisma.sql`COUNT(DISTINCT CASE WHEN a.state = 'NO_SHOW' THEN a.id END)`,
+  appointment_no_show_rate: Prisma.sql`COALESCE(COUNT(DISTINCT CASE WHEN a.state = 'NO_SHOW' THEN a.id END)::float / NULLIF(COUNT(DISTINCT a.id), 0) * 100, 0)`,
+  avg_wait_time: Prisma.sql`COALESCE(AVG(EXTRACT(EPOCH FROM (e.started_at - a.scheduled_at)) / 60), 0)`,
+  consultation_count: Prisma.sql`COALESCE((SELECT (value->>'count')::numeric FROM system_config WHERE key = 'kpi.consultation_count'), 0)`,
+  avg_consultation_time: Prisma.sql`COALESCE((SELECT (value->>'avg_minutes')::numeric FROM system_config WHERE key = 'kpi.avg_consultation_time'), 0)`,
+  dose_dlp_avg: Prisma.sql`COALESCE((SELECT (value->>'dlp_avg')::numeric FROM system_config WHERE key = 'kpi.dose_dlp_avg'), 0)`,
+  dose_effective_avg: Prisma.sql`COALESCE((SELECT (value->>'effective_avg')::numeric FROM system_config WHERE key = 'kpi.dose_effective_avg'), 0)`,
+  dose_compliance_rate: Prisma.sql`COALESCE((SELECT (value->>'compliance_pct')::numeric FROM system_config WHERE key = 'kpi.dose_compliance_rate'), 100)`,
+  ai_suggestion_count: Prisma.sql`COUNT(DISTINCT ei.id)`,
+  ai_acceptance_rate: Prisma.sql`COALESCE(AVG(CASE WHEN ei.confidence > 0.8 THEN 1 ELSE 0 END) * 100, 0)`,
+  patient_satisfaction: Prisma.sql`COALESCE((SELECT (value->>'score')::numeric FROM system_config WHERE key = 'kpi.patient_satisfaction'), 0)`,
+  positive_rate: Prisma.sql`COALESCE(AVG(CASE WHEN r.findings != '' THEN 1 ELSE 0 END) * 100, 0)`,
+  emergency_ratio: Prisma.sql`COALESCE(AVG(CASE WHEN p.type = 'EMERGENCY' THEN 1 ELSE 0 END) * 100, 0)`,
+  inpatient_ratio: Prisma.sql`COALESCE(AVG(CASE WHEN p.type = 'INPATIENT' THEN 1 ELSE 0 END) * 100, 0)`,
+  report_timely_rate: Prisma.sql`COALESCE(AVG(CASE WHEN r.signed_at IS NOT NULL AND r.signed_at <= r.created_at + INTERVAL '24 hours' THEN 1 ELSE 0 END) * 100, 0)`,
+  sla_compliance_rate: Prisma.sql`COALESCE((SELECT (value->>'sla_pct')::numeric FROM system_config WHERE key = 'kpi.sla_compliance_rate'), 100)`,
 }
 
 const METRICS: MetricDef[] = [
@@ -138,11 +143,9 @@ export class OlapService {
       return cached.data
     }
 
-    const sql = this.buildSQL(query)
-    let rows: Record<string, unknown>[]
-
+    let rows: Record<string, unknown>[] = []
     try {
-      rows = await this.prisma.$queryRawUnsafe(sql) as Record<string, unknown>[]
+      rows = (await this.prisma.$queryRaw(this.buildSQL(query))) as Record<string, unknown>[]
     } catch {
       rows = []
     }
@@ -163,94 +166,129 @@ export class OlapService {
     return result
   }
 
-  private buildSQL(query: OLAPQuery): string {
-    const dimSql = query.dimensions.map((d) => {
-      const col = DIMENSION_COLUMN_MAP[d]
-      if (!col) return null
-      if (d === 'date' && query.granularity) {
-        switch (query.granularity) {
-          case 'yearly': return `EXTRACT(YEAR FROM ${col}) AS "${d}"`
-          case 'quarterly': return `CONCAT(EXTRACT(YEAR FROM ${col}), '-Q', EXTRACT(QUARTER FROM ${col})) AS "${d}"`
-          case 'monthly': return `TO_CHAR(${col}, 'YYYY-MM') AS "${d}"`
-          case 'weekly': return `TO_CHAR(${col}, 'IYYY-IW') AS "${d}"`
-          case 'daily': return `TO_CHAR(${col}, 'YYYY-MM-DD') AS "${d}"`
-          default: return `${col} AS "${d}"`
-        }
-      }
-      if (d === 'date') return `TO_CHAR(${col}, 'YYYY-MM-DD') AS "${d}"`
-      return `${col} AS "${d}"`
-    }).filter(Boolean).join(', ')
-
-    const measureSql = query.measures.map((m) => {
-      const def = MEASURE_SQL_MAP[m]
-      if (!def) return null
-      return `${def.sql} AS "${m}"`
-    }).filter(Boolean).join(', ')
-
-    const whereClauses: string[] = ['1=1']
-    if (query.filters) {
-      for (const f of query.filters) {
-        if (f.dimension === 'date' && f.operator === 'between' && Array.isArray(f.value)) {
-          whereClauses.push(`${DIMENSION_COLUMN_MAP[f.dimension] || f.dimension} >= '${String(f.value[0])}'`)
-          whereClauses.push(`${DIMENSION_COLUMN_MAP[f.dimension] || f.dimension} <= '${String(f.value[1])}'`)
-        } else if (f.operator === 'in' && Array.isArray(f.value)) {
-          const vals = f.value.map((v) => `'${String(v)}'`).join(',')
-          whereClauses.push(`${DIMENSION_COLUMN_MAP[f.dimension] || f.dimension} IN (${vals})`)
-        } else {
-          const op = f.operator === 'like' ? 'LIKE' : f.operator
-          const val = typeof f.value === 'string' ? `'${f.value}'` : String(f.value)
-          whereClauses.push(`${DIMENSION_COLUMN_MAP[f.dimension] || f.dimension} ${op} ${val}`)
-        }
+  private dimExpression(d: string, granularity?: string): Prisma.Sql | null {
+    const col = DIMENSION_COLUMN_MAP[d]
+    if (!col) return null
+    if (d === 'date' && granularity) {
+      switch (granularity) {
+        case 'yearly': return Prisma.sql`EXTRACT(YEAR FROM ${col})`
+        case 'quarterly': return Prisma.sql`CONCAT(EXTRACT(YEAR FROM ${col}), '-Q', EXTRACT(QUARTER FROM ${col}))`
+        case 'monthly': return Prisma.sql`TO_CHAR(${col}, 'YYYY-MM')`
+        case 'weekly': return Prisma.sql`TO_CHAR(${col}, 'IYYY-IW')`
+        case 'daily': return Prisma.sql`TO_CHAR(${col}, 'YYYY-MM-DD')`
+        default: return col
       }
     }
+    if (d === 'date') return Prisma.sql`TO_CHAR(${col}, 'YYYY-MM-DD')`
+    return col
+  }
 
-    const joins = [
-      'LEFT JOIN "devices" d ON e.device_id = d.id',
-      'LEFT JOIN "users" u ON r.radiologist_id = u.id',
-      'LEFT JOIN "patients" p ON e.patient_id = p.id',
-      'LEFT JOIN "appointments" a ON e.accession_number = a.id::text',
-      'LEFT JOIN "report_quality_scores" rqs ON rqs.report_id = r.id',
-      'LEFT JOIN "report_revisions" rr ON rr.report_id = r.id',
-      'LEFT JOIN "critical_values" cv ON cv.exam_id = e.id',
-      'LEFT JOIN "invoices" i ON i.patient_id = p.id',
-      'LEFT JOIN "charge_items" ci ON ci.id = i.id::text',
-      'LEFT JOIN "eye_ai_inferences" ei ON ei.study_id = p.id::text',
-    ].join('\n')
+  private buildFilter(f: OLAPFilter): Prisma.Sql | null {
+    const col = DIMENSION_COLUMN_MAP[f.dimension]
+    if (!col) return null
 
-    const groupBy = query.dimensions.map((d) => {
-      const col = DIMENSION_COLUMN_MAP[d]
-      if (!col) return null
-      if (d === 'date' && query.granularity) {
-        switch (query.granularity) {
-          case 'yearly': return `EXTRACT(YEAR FROM ${col})`
-          case 'quarterly': return `CONCAT(EXTRACT(YEAR FROM ${col}), '-Q', EXTRACT(QUARTER FROM ${col}))`
-          case 'monthly': return `TO_CHAR(${col}, 'YYYY-MM')`
-          case 'weekly': return `TO_CHAR(${col}, 'IYYY-IW')`
-          case 'daily': return `TO_CHAR(${col}, 'YYYY-MM-DD')`
-          default: return col
-        }
+    if (f.dimension === 'date' && f.operator === 'between' && Array.isArray(f.value)) {
+      const v0 = String(f.value[0] ?? '')
+      const v1 = String(f.value[1] ?? '')
+      return Prisma.sql`${col} >= ${v0}::timestamp AND ${col} <= ${v1}::timestamp`
+    }
+    if (f.operator === 'in' && Array.isArray(f.value)) {
+      if (f.value.length === 0) return null
+      const placeholders = f.value.map((v) => Prisma.sql`${String(v)}`)
+      return Prisma.sql`${col} IN (${Prisma.join(placeholders)})`
+    }
+    if (f.operator === 'like') {
+      const v = typeof f.value === 'string' ? `%${f.value}%` : String(f.value)
+      return Prisma.sql`${col} LIKE ${v}`
+    }
+    if (['<', '<=', '>', '>=', '='].includes(f.operator)) {
+      const op = f.operator
+      const v = typeof f.value === 'string' ? f.value : Number(f.value)
+      return Prisma.sql`${col} ${Prisma.raw(op)} ${v}`
+    }
+    const op = f.operator === 'eq' ? '=' : f.operator
+    const v = typeof f.value === 'string' ? f.value : String(f.value)
+    return Prisma.sql`${col} ${Prisma.raw(op)} ${v}`
+  }
+
+  private buildSQL(query: OLAPQuery): Prisma.Sql {
+    const dimSelects: Prisma.Sql[] = []
+    for (const d of query.dimensions) {
+      const expr = this.dimExpression(d, query.granularity)
+      if (expr) {
+        dimSelects.push(Prisma.sql`${expr} AS ${Prisma.raw(`"${d}"`)}`)
       }
-      return col
-    }).filter(Boolean).join(', ')
+    }
+    const dimSelectClause = dimSelects.length > 0
+      ? Prisma.sql`${Prisma.join(dimSelects, ', ')},`
+      : Prisma.empty
 
-    const orderBy = query.orderBy?.map((o) => {
-      const col = DIMENSION_COLUMN_MAP[o.dimension] || `"${o.dimension}"`
-      return `${col} ${o.direction.toUpperCase()}`
-    }).join(', ') || ''
+    const measureSelects: Prisma.Sql[] = []
+    for (const m of query.measures) {
+      const def = MEASURE_SQL_MAP[m]
+      if (def) {
+        measureSelects.push(Prisma.sql`${def} AS ${Prisma.raw(`"${m}"`)}`)
+      }
+    }
+    const measureSelectClause = measureSelects.length > 0
+      ? Prisma.join(measureSelects, ', ')
+      : Prisma.sql`NULL`
 
-    const sql = [
-      'SELECT',
-      dimSql ? `${dimSql},` : '',
-      measureSql,
-      'FROM "exams" e',
-      joins,
-      'WHERE', whereClauses.join(' AND '),
-      groupBy ? `GROUP BY ${groupBy}` : '',
-      orderBy ? `ORDER BY ${orderBy}` : '',
-      query.limit ? `LIMIT ${query.limit}` : '',
-      query.offset ? `OFFSET ${query.offset}` : '',
-    ].filter(Boolean).join(' ')
+    const whereParts: Prisma.Sql[] = [Prisma.sql`1=1`]
+    if (query.filters) {
+      for (const f of query.filters) {
+        const clause = this.buildFilter(f)
+        if (clause) whereParts.push(clause)
+      }
+    }
+    const whereClause = Prisma.join(whereParts, ' AND ')
 
-    return sql
+    const joins = Prisma.sql`
+      LEFT JOIN "devices" d ON e.device_id = d.id
+      LEFT JOIN "users" u ON r.radiologist_id = u.id
+      LEFT JOIN "patients" p ON e.patient_id = p.id
+      LEFT JOIN "appointments" a ON e.accession_number = a.id::text
+      LEFT JOIN "report_quality_scores" rqs ON rqs.report_id = r.id
+      LEFT JOIN "report_revisions" rr ON rr.report_id = r.id
+      LEFT JOIN "critical_values" cv ON cv.exam_id = e.id
+      LEFT JOIN "invoices" i ON i.patient_id = p.id
+      LEFT JOIN "charge_items" ci ON ci.id = i.id::text
+      LEFT JOIN "eye_ai_inferences" ei ON ei.study_id = p.id::text
+    `
+
+    let groupByClause: Prisma.Sql = Prisma.empty
+    if (dimSelects.length > 0) {
+      const groupExprs: Prisma.Sql[] = []
+      for (const d of query.dimensions) {
+        const expr = this.dimExpression(d, query.granularity)
+        if (expr) groupExprs.push(expr)
+      }
+      groupByClause = Prisma.sql`GROUP BY ${Prisma.join(groupExprs, ', ')}`
+    }
+
+    let orderByClause: Prisma.Sql = Prisma.empty
+    if (query.orderBy && query.orderBy.length > 0) {
+      const parts: Prisma.Sql[] = []
+      for (const o of query.orderBy) {
+        const dir = o.direction.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
+        const col = DIMENSION_COLUMN_MAP[o.dimension] ?? Prisma.raw(`"${o.dimension}"`)
+        parts.push(Prisma.sql`${col} ${Prisma.raw(dir)}`)
+      }
+      orderByClause = Prisma.sql`ORDER BY ${Prisma.join(parts, ', ')}`
+    }
+
+    const limitClause = query.limit ? Prisma.sql`LIMIT ${query.limit}` : Prisma.empty
+    const offsetClause = query.offset ? Prisma.sql`OFFSET ${query.offset}` : Prisma.empty
+
+    return Prisma.sql`
+      SELECT ${dimSelectClause} ${measureSelectClause}
+      FROM "exams" e
+      ${joins}
+      WHERE ${whereClause}
+      ${groupByClause}
+      ${orderByClause}
+      ${limitClause}
+      ${offsetClause}
+    `
   }
 }

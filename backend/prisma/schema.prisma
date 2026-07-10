@@ -975,3 +975,46 @@ model FhirResource {
   @@index([resourceType, lastUpdated])
   @@map("fhir_resources")
 }
+
+// v3.0.6.11-10: 数据上报模块真实表（替代 auditLog 假存）
+
+model NationalReport {
+  id          String   @id @default(cuid())
+  tenantId    String   @map("tenant_id")
+  title       String
+  reportType  String   @map("report_type")
+  period      String
+  payload     Json     @default("{}")
+  submittedBy String?  @map("submitted_by")
+  submittedAt DateTime @default(now()) @map("submitted_at")
+  status      String   @default("SUBMITTED")
+  externalId  String?  @map("external_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([reportType, period])
+  @@index([tenantId])
+  @@map("national_reports")
+}
+
+model InsuranceAudit {
+  id           String   @id @default(cuid())
+  tenantId     String   @map("tenant_id")
+  patientId    String?  @map("patient_id")
+  invoiceId    String?  @map("invoice_id")
+  auditType    String   @map("audit_type")
+  finding      String   @default("")
+  amount       Decimal  @default(0)
+  status       String   @default("PENDING")
+  auditor      String?
+  auditedAt    DateTime? @map("audited_at")
+  resolution   String?  @map("resolution")
+  resolvedAt   DateTime? @map("resolved_at")
+  metadata     Json     @default("{}")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([auditType, status])
+  @@index([tenantId])
+  @@map("insurance_audits")
+}

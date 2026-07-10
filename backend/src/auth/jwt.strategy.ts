@@ -6,13 +6,21 @@ import { PassportStrategy } from '@nestjs/passport'
 import { ExtractJwt, Strategy } from 'passport-jwt'
 import type { JwtPayload } from './auth.service'
 
+const JWT_SECRET = process.env['JWT_SECRET']
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
+    if (!JWT_SECRET) {
+      if (process.env['NODE_ENV'] === 'production') {
+        throw new Error('JWT_SECRET environment variable is required in production')
+      }
+      throw new Error('JWT_SECRET environment variable is required')
+    }
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: process.env['JWT_SECRET'] ?? 'g005-dev-secret-change-in-prod',
+      secretOrKey: JWT_SECRET,
     })
   }
 

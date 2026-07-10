@@ -12,7 +12,7 @@ export interface JwtPayload {
 
 const MAX_FAILED_ATTEMPTS = 5
 const LOCKOUT_DURATION_MS = 15 * 60 * 1000
-const TOTP_REQUIRED_ROLES = new Set(['管理员', '主任'])
+const TOTP_REQUIRED_ROLES = new Set(['ADMIN', 'DIRECTOR'])
 
 @Injectable()
 export class AuthService {
@@ -70,7 +70,7 @@ export class AuthService {
     const totpRequired = user.totpEnabled || TOTP_REQUIRED_ROLES.has(user.role)
 
     if (TOTP_REQUIRED_ROLES.has(user.role) && !user.totpEnabled) {
-      throw new ForbiddenException('管理员 / 主任角色必须先启用 TOTP 双因素认证')
+      throw new ForbiddenException('ADMIN / DIRECTOR 角色必须先启用 TOTP 双因素认证')
     }
 
     if (!totpRequired) {
@@ -150,20 +150,5 @@ export class AuthService {
     const payload: JwtPayload = { sub: userId, username, role }
     const accessToken = await this.jwt.signAsync(payload)
     return { accessToken, user: { id: userId, username, role } }
-  }
-
-  /**
-   * Fallback when the refresh cookie is missing/expired. The MSW mock
-   * returns a synthetic token so the frontend can recover in dev.
-   */
-  async loginAnonymous(): Promise<{ accessToken: string; user: { id: string; username: string; role: string } }> {
-    const u = await this.prisma.user.findFirst()
-    if (!u) {
-      return {
-        accessToken: await this.jwt.signAsync({ sub: 'anonymous', username: 'anonymous', role: '医生' }),
-        user: { id: 'anonymous', username: 'anonymous', role: '医生' },
-      }
-    }
-    return this.refresh(u.id, u.username, u.role)
   }
 }
