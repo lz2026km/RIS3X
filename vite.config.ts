@@ -52,6 +52,7 @@ export default defineConfig({
       devOptions: { enabled: false },  // dev 模式不启用 (避免和 MSW sw.js 冲突)
       workbox: {
         // 缓存策略: app shell + 静态资源, MSW 路径不缓存
+        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB (默认2MB, 我们的worker较大)
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest,woff,woff2}'],
         navigateFallback: '/g005-radiology-ris/index.html',
         navigateFallbackDenylist: [/^\/api\//, /^\/g005-radiology-ris\/api\//, /^\/mockServiceWorker\.js/, /^\/sw\.js/],

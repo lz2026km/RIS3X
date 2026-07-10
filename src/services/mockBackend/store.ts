@@ -8,6 +8,11 @@ import {
   EXAM_REPORT_PRE, DOCTOR_PERFORMANCE_PRE, DAILY_KPI_PRE,
   CRITICAL_EVENTS_PRE, COSIGN_TASKS_PRE, QUALITY_SCORE_PRE,
 } from '../../data/_generators';
+// [v3.0.6.11-10] 生成的大规模演示数据
+import { GENERATED_CRITICAL_VALUES } from '../../data/generatedCriticalValues';
+import { KPI_HISTORY } from '../../data/kpiHistory';
+import { SITE_CONFIG } from '../../data/siteMasterMock';
+import { GENERATED_INVOICES } from '../../data/financeMock';
 // [v3.0.6.8-33] 眼科专科 mock 数据 (21 个数据集)
 import {
   MOCK_EYE_STUDIES, MOCK_EYE_PATIENTS, MOCK_EYE_SERIES,
@@ -229,6 +234,11 @@ const COLLECTIONS = [
   // [v3.0.6.8-53] 口腔专科集合
   'dental_studies', 'dental_charts', 'dental_treatments',
   'dental_invoices', 'dental_appointments',
+  // [v3.0.6.11-10] 生成的演示数据
+  'reports',
+  'kpiHistory',
+  'invoices',
+  'sites',
 ] as const;
 type Collection = typeof COLLECTIONS[number];
 
@@ -239,6 +249,26 @@ function getCollection(name: Collection): Map<string, unknown> {
     memoryStore.set(name, col);
   }
   return col;
+}
+
+// [v3.0.6.11-10] 异步加载大规模检查/报告数据
+async function loadGeneratedExamDataAsync(getCol: (n: string) => Map<string, unknown>, examsCol: Map<string, unknown>, reportsCol: Map<string, unknown>): Promise<void> {
+  try {
+    const [examsData, reportsData] = await Promise.all([
+      fetch('/data/generated-exams.json').then(r => r.json()).catch(() => null),
+      fetch('/data/generated-reports.json').then(r => r.json()).catch(() => null),
+    ]);
+    if (examsData && Array.isArray(examsData)) {
+      examsData.slice(0, 3000).forEach((e: any) => examsCol.set(e.id || e.reportId, e));
+      console.info(`[RIS Seed] 加载了 ${Math.min(3000, examsData.length)} 条演示检查`);
+    }
+    if (reportsData && Array.isArray(reportsData)) {
+      reportsData.slice(0, 2000).forEach((r: any) => reportsCol.set(r.id || r.reportId, r));
+      console.info(`[RIS Seed] 加载了 ${Math.min(2000, reportsData.length)} 条演示报告`);
+    }
+  } catch (e) {
+    console.info('[RIS Seed] 演示检查/报告数据懒加载跳过（不影响运行）:', (e as Error).message);
+  }
 }
 
 let initialized = false;
@@ -263,6 +293,22 @@ export async function initStore(): Promise<void> {
     COSIGN_TASKS_PRE.forEach(c => getCollection('cosignTasks').set(c.id, c));
     DOCTOR_PERFORMANCE_PRE.forEach(d => getCollection('doctorPerformance').set(d.id, d));
     DAILY_KPI_PRE.forEach(d => getCollection('dailyKpi').set(d.date, d));
+
+    // [v3.0.6.11-10] 生成的演示数据
+    try {
+      GENERATED_CRITICAL_VALUES.forEach((cv: any) => getCollection('criticalEvents').set(cv.id, cv));
+      KPI_HISTORY && Object.entries(KPI_HISTORY).forEach(([kpiId, days]) => {
+        days.forEach((d: any) => getCollection('kpiHistory').set(`${kpiId}-${d.date}`, d));
+      });
+      GENERATED_INVOICES && GENERATED_INVOICES.forEach((inv: any) => getCollection('invoices').set(inv.invoiceId, inv));
+      SITE_CONFIG && SITE_CONFIG.forEach((s: any) => getCollection('sites').set(s.siteId, s));
+      console.info(`[RIS Seed] 加载了 ${GENERATED_CRITICAL_VALUES.length} 条危急值, ${Object.keys(KPI_HISTORY||{}).length} 个KPI, ${(GENERATED_INVOICES||[]).length} 张发票, ${(SITE_CONFIG||[]).length} 个院区`);
+    } catch (e) {
+      console.warn('[RIS Seed] 部分演示数据加载失败（不影响运行）:', (e as Error).message);
+    }
+
+    // 异步加载大规模检查/报告数据 (JSON 文件，懒加载)
+    loadGeneratedExamDataAsync(getCollection, getCollection('exams'), getCollection('reports'));
 
     // [v3.0.6.8-33] 眼科专科数据加载 (从 src/data/eye*Mock.ts)
     MOCK_EYE_PATIENTS.forEach((p: any) => getCollection('eye_patients').set(p.id || p.patientId || `EP${Date.now()}-${Math.random()}`, p));
@@ -357,6 +403,15 @@ export function ensureInitialized(): void {
   COSIGN_TASKS_PRE.forEach(c => getCollection('cosignTasks').set(c.id, c));
   DOCTOR_PERFORMANCE_PRE.forEach(d => getCollection('doctorPerformance').set(d.id, d));
   DAILY_KPI_PRE.forEach(d => getCollection('dailyKpi').set(d.date, d));
+  // [v3.0.6.11-10] 同步加载部分生成数据
+  try {
+    GENERATED_CRITICAL_VALUES.forEach((cv: any) => getCollection('criticalEvents').set(cv.id, cv));
+    if (KPI_HISTORY) Object.entries(KPI_HISTORY).forEach(([kpiId, days]) => {
+      (days as any[]).forEach((d: any) => getCollection('kpiHistory').set(`${kpiId}-${d.date}`, d));
+    });
+    if (GENERATED_INVOICES) GENERATED_INVOICES.forEach((inv: any) => getCollection('invoices').set(inv.invoiceId, inv));
+    if (SITE_CONFIG) SITE_CONFIG.forEach((s: any) => getCollection('sites').set(s.siteId, s));
+  } catch (e) { console.warn('[RIS Seed] 同步加载警告:', (e as Error).message); }
   loadEyeMockDataSync();
   initialized = true;
 }
