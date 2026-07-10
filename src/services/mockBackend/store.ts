@@ -8,11 +8,11 @@ import {
   EXAM_REPORT_PRE, DOCTOR_PERFORMANCE_PRE, DAILY_KPI_PRE,
   CRITICAL_EVENTS_PRE, COSIGN_TASKS_PRE, QUALITY_SCORE_PRE,
 } from '../../data/_generators';
-// [v3.0.6.11-10] 生成的大规模演示数据
-import { GENERATED_CRITICAL_VALUES } from '../../data/generatedCriticalValues';
+// [v3.0.6.11-10] 统一演示数据 (由 unified-fix.mjs 生成, 100% 关联)
+import { GENERATED_CRITICAL_VALUES } from '../../data/unifiedCriticalValues';
 import { KPI_HISTORY } from '../../data/kpiHistory';
 import { SITE_CONFIG } from '../../data/siteMasterMock';
-import { GENERATED_INVOICES } from '../../data/financeMock';
+import { GENERATED_INVOICES } from '../../data/unifiedFinanceMock';
 // [v3.0.6.8-33] 眼科专科 mock 数据 (21 个数据集)
 import {
   MOCK_EYE_STUDIES, MOCK_EYE_PATIENTS, MOCK_EYE_SERIES,
@@ -255,16 +255,16 @@ function getCollection(name: Collection): Map<string, unknown> {
 async function loadGeneratedExamDataAsync(getCol: (n: string) => Map<string, unknown>, examsCol: Map<string, unknown>, reportsCol: Map<string, unknown>): Promise<void> {
   try {
     const [examsData, reportsData] = await Promise.all([
-      fetch('/data/generated-exams.json').then(r => r.json()).catch(() => null),
-      fetch('/data/generated-reports.json').then(r => r.json()).catch(() => null),
+      fetch('/data/unified-exams.json').then(r => r.json()).catch(() => null),
+      fetch('/data/unified-reports.json').then(r => r.json()).catch(() => null),
     ]);
     if (examsData && Array.isArray(examsData)) {
-      examsData.slice(0, 3000).forEach((e: any) => examsCol.set(e.id || e.reportId, e));
-      console.info(`[RIS Seed] 加载了 ${Math.min(3000, examsData.length)} 条演示检查`);
+      examsData.forEach((e: any) => examsCol.set(e.id || e.reportId, e));
+      console.info(`[RIS Seed] 加载了 ${examsData.length} 条统一检查数据`);
     }
     if (reportsData && Array.isArray(reportsData)) {
-      reportsData.slice(0, 2000).forEach((r: any) => reportsCol.set(r.id || r.reportId, r));
-      console.info(`[RIS Seed] 加载了 ${Math.min(2000, reportsData.length)} 条演示报告`);
+      reportsData.forEach((r: any) => reportsCol.set(r.id || r.reportId, r));
+      console.info(`[RIS Seed] 加载了 ${reportsData.length} 条统一报告数据`);
     }
   } catch (e) {
     console.info('[RIS Seed] 演示检查/报告数据懒加载跳过（不影响运行）:', (e as Error).message);

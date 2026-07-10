@@ -189,15 +189,19 @@ export default function WorklistPage() {
 
   const [viewMode, setViewMode] = useState<ViewMode>('list')
 
-  const [filters, setFilters] = useState<FilterState>({
-    search: '',
-    dateStart: '2026-05-01',
-    dateEnd: '2026-05-01',
-    modalities: [],
-    patientTypes: [],
-    priorities: [],
-    statuses: [],
-    doctorId: '',
+  const [filters, setFilters] = useState<FilterState>(() => {
+    const today = new Date();
+    const sevenDaysAgo = new Date(today.getTime() - 7 * 86400000);
+    return {
+      search: '',
+      dateStart: sevenDaysAgo.toISOString().split('T')[0],
+      dateEnd: today.toISOString().split('T')[0],
+      modalities: [],
+      patientTypes: [],
+      priorities: [],
+      statuses: [],
+      doctorId: '',
+    };
   })
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -395,10 +399,12 @@ export default function WorklistPage() {
   }, [filteredExams])
 
   const resetFilters = () => {
+    const today = new Date();
+    const sevenDaysAgo = new Date(today.getTime() - 7 * 86400000);
     setFilters({
       search: '',
-      dateStart: '2026-05-01',
-      dateEnd: '2026-05-01',
+      dateStart: sevenDaysAgo.toISOString().split('T')[0],
+      dateEnd: today.toISOString().split('T')[0],
       modalities: [],
       patientTypes: [],
       priorities: [],

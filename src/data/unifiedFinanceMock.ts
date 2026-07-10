@@ -1,25 +1,7 @@
-export interface InvoiceItem {
-  itemCode: string;
-  itemName: string;
-  quantity: number;
-  unitPrice: number;
-  totalPrice: number;
-}
-
-export interface InvoiceRecord {
-  invoiceId: string;
-  patientId: string;
-  patientName: string;
-  siteId: string;
-  items: InvoiceItem[];
-  totalAmount: number;
-  insurancePaid: number;
-  selfPaid: number;
-  status: 'PAID' | 'UNPAID' | 'REFUNDED';
-  issuedAt: string;
-  paidAt?: string;
-}
-
+// G005-RIS v3.0 统一财务数据
+// 生成时间: 2026-07-10T08:33:09.972Z
+// 记录数: 5000
+import type { InvoiceRecord } from './financeMock';
 export const GENERATED_INVOICES: InvoiceRecord[] = [
   {
     "invoiceId": "INV-000001",

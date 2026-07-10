@@ -61,11 +61,6 @@ import {
   CheckSquare as CheckSquareIcon,
 } from "lucide-react";
 import { message } from "antd";
-import {
-  initialCriticalValues,
-  initialUsers,
-  initialRadiologyExams,
-} from "../data/initialData";
 import { criticalApi } from "../services/api";
 import { LoadingBanner, ErrorBanner } from "../components/feedback";
 import { useCriticalStore } from "../store";
@@ -341,228 +336,6 @@ const STATUS_LABEL_CN: Record<string, string> = {
   overdue: "超时",
 };
 const TIME_RANGE_LIST = ["全部", "30分钟内", "1小时内", "2小时内", "超时"];
-
-// ============ 模拟数据扩展 ============
-const generateMockCriticalValues = (): CriticalValue[] => {
-  const baseData = (initialCriticalValues as unknown as CriticalValue[]).map(
-    (cv, idx) => {
-      const exam = initialRadiologyExams.find((e) => e.id === cv.examId);
-      const patient = {
-        gender: "男",
-        age: 45 + idx * 5,
-        patientType: "住院",
-        phone: "138****1234",
-        contactPerson: "家属电话",
-      };
-      const reportDoctor = initialUsers.find((u) => u.id === cv.reportedBy);
-      const receivingDoctor = cv.receivingDoctorId
-        ? initialUsers.find((u) => u.id === cv.receivingDoctorId)
-        : null;
-
-      const baseTime = new Date("2026-05-01 10:00");
-      baseTime.setMinutes(baseTime.getMinutes() - idx * 35);
-
-      const timeline: TimelineEvent[] = [
-        {
-          time: exam?.createdTime || "2026-05-01 08:30",
-          event: "检查完成",
-          user: exam?.technologistName || "刘建国",
-          detail: "影像采集完成",
-        },
-        {
-          time: cv.reportedTime,
-          event: "发现危急值",
-          user: cv.reportedByName,
-          detail: cv.findingDetails.substring(0, 30) + "...",
-        },
-        {
-          time:
-            String(baseTime.getHours()).padStart(2, "0") +
-            ":" +
-            String(baseTime.getMinutes() + 2).padStart(2, "0"),
-          event: "系统预警",
-          user: "系统",
-          detail: "自动触发危急值预警流程",
-        },
-        {
-          time: cv.receivingTime || "",
-          event: "通知临床",
-          user: cv.receivingDoctorName || "待通知",
-          detail: "已通过" + (cv.notificationMethod || "系统通知") + "方式通知",
-        },
-        {
-          time: cv.acknowledgedTime || "",
-          event: "临床接收",
-          user: cv.acknowledgedBy || "待确认",
-          detail: "临床已收到危急值通报",
-        },
-        {
-          time: cv.processingTime || "",
-          event: "处理完成",
-          user: cv.processingDoctorName || "",
-          detail: cv.processingResult || "处置措施已记录",
-        },
-      ].filter((t) => t.time);
-
-      const documents: DocumentItem[] =
-        idx === 0
-          ? [
-              {
-                id: "DOC001",
-                name: "CT检查报告单.pdf",
-                type: "application/pdf",
-                uploadTime: "2026-05-01 12:35",
-              },
-              {
-                id: "DOC002",
-                name: "CT影像截图.png",
-                type: "image/png",
-                uploadTime: "2026-05-01 12:36",
-              },
-            ]
-          : [];
-
-      return {
-        ...cv,
-        gender: patient.gender,
-        age: patient.age,
-        patientType: patient.patientType,
-        phone: patient.phone,
-        contactPerson: patient.contactPerson,
-        examDoctor: exam?.technologistId,
-        examDoctorName: exam?.technologistName,
-        examTime: exam?.examTime,
-        deviceName: exam?.deviceName,
-        accessionNumber: exam?.accessionNumber,
-        notificationMethod: cv.notificationMethod || "系统通知",
-        receivingDepartment: cv.receivingDoctorId ? "心内科" : "神经内科",
-        timeline,
-        documents,
-        resultValue:
-          idx === 0
-            ? "85%"
-            : idx === 1
-              ? "3.5×2.8cm"
-              : idx === 2
-                ? "2.1×1.8cm"
-                : "3.5cm",
-        resultUnit: idx === 0 ? "狭窄率" : "cm",
-        normalRange: idx === 0 ? "<50%" : "无",
-        criticalRange: idx === 0 ? ">70%" : "有占位即危急",
-        exceedRatio: idx === 0 ? "超标121%" : "发现即超标",
-        processingDoctor: cv.receivingDoctorId,
-        processingDoctorName: cv.receivingDoctorName,
-        processingTime: cv.receivingTime,
-        processingDepartment: cv.receivingDoctorId ? "心内科" : "神经内科",
-        processingMeasure:
-          idx === 0
-            ? "建议急诊CAG+PCI"
-            : idx === 1
-              ? "急诊开颅血肿清除术"
-              : "进一步检查明确诊断",
-        processingResult:
-          idx === 0
-            ? "已转心内科进一步治疗"
-            : idx === 1
-              ? "手术顺利完成"
-              : "密切随访中",
-        processingDuration:
-          idx === 0 ? "35分钟" : idx === 1 ? "2小时" : "24小时",
-        acknowledgedBy: idx < 2 ? "李明辉" : idx === 2 ? "王秀峰" : "刘芳",
-        acknowledgedTime: cv.receivingTime,
-      } as CriticalValue;
-    },
-  );
-
-  const extraData: Partial<CriticalValue>[] = [
-    {
-      id: "CV005",
-      reportId: "RAD-RPT008",
-      examId: "RAD-EX005",
-      patientId: "RAD-P005",
-      patientName: "周玉芬",
-      modality: "CT",
-      examItemName: "腹部CT平扫+增强",
-      criticalFinding: "true",
-      findingDetails:
-        "肝右叶见约6.5×5.8cm低密度影，边界不清，增强扫描呈不均匀强化。门静脉右支受累。腹腔淋巴结肿大。考虑原发性肝癌。",
-      severity: "危急",
-      reportedBy: "R002",
-      reportedByName: "王秀峰",
-      reportedTime: "2026-05-01 15:20",
-      receivingDoctorId: "R001",
-      receivingDoctorName: "李明辉",
-      receivingTime: "2026-05-01 15:25",
-      status: "处理中",
-      resultValue: "6.5×5.8cm",
-      resultUnit: "cm",
-      normalRange: "无占位",
-      criticalRange: "有占位即危急",
-      exceedRatio: "发现即超标",
-    },
-  ];
-
-  const extraCVs = extraData.map((data, idx) => {
-    const exam = initialRadiologyExams.find((e) => e.id === data.examId);
-    const cvIdx = baseData.length + idx;
-    const timeline: TimelineEvent[] = [
-      {
-        time: data.reportedTime,
-        event: "发现危急值",
-        user: data.reportedByName || "",
-        detail: data.findingDetails?.substring(0, 30) + "...",
-      },
-      {
-        time: data.receivingTime || "",
-        event: "通知临床",
-        user: data.receivingDoctorName || "待通知",
-        detail: "已通知临床科室",
-      },
-      {
-        time: data.processingTime || "",
-        event: "处理完成",
-        user: data.processingDoctorName || "",
-        detail: data.processingResult || "",
-      },
-    ].filter((t) => t.time);
-
-    const documents: DocumentItem[] =
-      data.id === "CV005"
-        ? [
-            {
-              id: "DOC003",
-              name: "腹部CT增强报告.pdf",
-              type: "application/pdf",
-              uploadTime: "2026-05-01 15:25",
-            },
-          ]
-        : [];
-
-    return {
-      ...data,
-      gender: "男",
-      age: 50,
-      patientType: "住院",
-      phone: "138****5678",
-      contactPerson: "家属电话",
-      examDoctorName: exam?.technologistName,
-      examTime: exam?.examTime,
-      deviceName: exam?.deviceName,
-      accessionNumber: exam?.accessionNumber,
-      notificationMethod: "系统通知",
-      receivingDepartment: "肿瘤科",
-      timeline,
-      documents,
-      acknowledged: data.status !== "待处理" && data.status !== "超时",
-      acknowledgedBy: data.receivingDoctorName,
-      acknowledgedTime: data.receivingTime,
-    } as CriticalValue;
-  });
-
-  return [...baseData, ...extraCVs];
-};
-
-const MOCK_CRITICAL_VALUES = generateMockCriticalValues();
 
 // ============ 模拟回访记录数据 ============
 const MOCK_FOLLOWUP_RECORDS: FollowUpRecord[] = [
@@ -2917,7 +2690,7 @@ export default function CriticalValuePage() {
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [transferCV, setTransferCV] = useState<CriticalValue | null>(null);
   const [criticalValues, setCriticalValues] =
-    useState<CriticalValue[]>(MOCK_CRITICAL_VALUES);
+    useState<CriticalValue[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -2931,8 +2704,7 @@ export default function CriticalValuePage() {
         setCriticalValues(res.data as unknown as CriticalValue[]);
         setLoadError(null);
       } else {
-        setCriticalValues(MOCK_CRITICAL_VALUES);
-        setLoadError("API 不可用,使用本地 mock 数据");
+        setLoadError("API 不可用");
       }
       setLoading(false);
     })();

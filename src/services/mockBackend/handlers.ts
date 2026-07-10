@@ -1043,11 +1043,8 @@ export const aiHandlers = [
 export const criticalValueHandlers = [
   http.get(`${API_BASE}/critical`, async () => {
     await delay(150);
-    return HttpResponse.json({ success: true, data: [
-      { id: 'cv-001', examId: 'exam-001', description: '主动脉夹层', severity: 'URGENT', state: 'FOUND', method: 'SYSTEM', createdAt: '2026-07-04T10:00:00Z' },
-      { id: 'cv-002', examId: 'exam-002', description: '急性脑出血', severity: 'CRITICAL', state: 'NOTIFIED', method: 'PHONE', notifiedTo: '张医生', createdAt: '2026-07-04T09:30:00Z' },
-      { id: 'cv-003', examId: 'exam-003', description: '气胸', severity: 'HIGH', state: 'ACKNOWLEDGED', method: 'SMS', notifiedTo: '李医生', ackedBy: '李医生', ackedAt: '2026-07-04T09:35:00Z', createdAt: '2026-07-04T09:25:00Z' },
-    ] });
+    const events = list<any>('criticalEvents');
+    return HttpResponse.json({ success: true, data: events });
   }),
 
   http.get(`${API_BASE}/critical/:id`, async ({ params }) => {

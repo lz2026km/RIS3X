@@ -26,7 +26,6 @@ import {
   AreaChart, Area
 } from 'recharts'
 import {
-  initialStatisticsData,
   initialRadiologyExams,
   initialModalityDevices,
   initialCriticalValues,
@@ -34,6 +33,7 @@ import {
   initialUsers,
   initialExamRooms
 } from '../data/initialData'
+import { list } from '../services/mockBackend/store'
 import { statsApi } from '../services/api'
 import { PageContainer } from '../components/common/PageContainer'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
@@ -377,16 +377,35 @@ const HomePage: FC = () => {
   const { user: currentUser } = useAuth()
 
   // 数据初始化
-  const [stats, setStats] = useState(initialStatisticsData)
   const [exams] = useState(initialRadiologyExams)
   const devices = initialModalityDevices
   const criticalValues = initialCriticalValues
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
-  const [workload] = useState({
-    examsCompleted: Math.floor(Math.random() * 12) + 3,
-    reportsWritten: Math.floor(Math.random() * 10) + 2,
-    pendingReviews: Math.floor(Math.random() * 5) + 1,
+  const [stats, setStats] = useState(() => {
+    const dailyKpis = list<any>('dailyKpi');
+    if (dailyKpis.length > 0) {
+      const latest = dailyKpis[dailyKpis.length - 1];
+      return {
+        today: { exams: latest.totalExams || 0, reports: latest.completedExams || 0, pending: latest.pendingReports || 0, critical: latest.criticalValues || 0 },
+        week: { exams: 0, reports: 0, pending: 0 },
+        month: { exams: 0, reports: 0, pending: 0, revenue: 0 },
+        byModality: {},
+        avgReportTime: 0,
+        criticalPending: 0,
+        worklist: [],
+      };
+    }
+    return { today: { exams: 0, reports: 0, pending: 0, critical: 0 }, week: { exams: 0, reports: 0, pending: 0 }, month: { exams: 0, reports: 0, pending: 0, revenue: 0 }, byModality: {}, avgReportTime: 0, criticalPending: 0, worklist: [] };
+  })
+  const [workload] = useState(() => {
+    const examsData = list<any>('exams');
+    const reportsData = list<any>('reports');
+    return {
+      examsCompleted: examsData.length > 0 ? Math.min(examsData.length, 150) : 0,
+      reportsWritten: reportsData.length > 0 ? Math.min(reportsData.length, 100) : 0,
+      pendingReviews: reportsData.filter((r: any) => r.status === '审核中' || r.status === '初审中').length || 0,
+    };
   })
 
   const fetchStats = async () => {

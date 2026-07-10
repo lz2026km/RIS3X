@@ -1,4 +1,5 @@
 import { http, HttpResponse, delay } from 'msw';
+import { list } from './store';
 
 const METADATA = {
   metrics: [
@@ -30,33 +31,6 @@ const METADATA = {
   ],
 };
 
-const MOCK_ROWS = [
-  { date: '2026-01', modality: 'CT', exam_count: 2450, exam_revenue: 3675000 },
-  { date: '2026-02', modality: 'CT', exam_count: 2280, exam_revenue: 3420000 },
-  { date: '2026-03', modality: 'CT', exam_count: 2650, exam_revenue: 3975000 },
-  { date: '2026-04', modality: 'CT', exam_count: 2520, exam_revenue: 3780000 },
-  { date: '2026-05', modality: 'CT', exam_count: 2780, exam_revenue: 4170000 },
-  { date: '2026-06', modality: 'CT', exam_count: 2890, exam_revenue: 4335000 },
-  { date: '2026-01', modality: 'MR', exam_count: 1580, exam_revenue: 3160000 },
-  { date: '2026-02', modality: 'MR', exam_count: 1420, exam_revenue: 2840000 },
-  { date: '2026-03', modality: 'MR', exam_count: 1680, exam_revenue: 3360000 },
-  { date: '2026-04', modality: 'MR', exam_count: 1720, exam_revenue: 3440000 },
-  { date: '2026-05', modality: 'MR', exam_count: 1850, exam_revenue: 3700000 },
-  { date: '2026-06', modality: 'MR', exam_count: 1920, exam_revenue: 3840000 },
-  { date: '2026-01', modality: 'DR', exam_count: 4200, exam_revenue: 1680000 },
-  { date: '2026-02', modality: 'DR', exam_count: 3850, exam_revenue: 1540000 },
-  { date: '2026-03', modality: 'DR', exam_count: 4450, exam_revenue: 1780000 },
-  { date: '2026-04', modality: 'DR', exam_count: 4380, exam_revenue: 1752000 },
-  { date: '2026-05', modality: 'DR', exam_count: 4620, exam_revenue: 1848000 },
-  { date: '2026-06', modality: 'DR', exam_count: 4800, exam_revenue: 1920000 },
-  { date: '2026-01', modality: 'MG', exam_count: 380, exam_revenue: 456000 },
-  { date: '2026-02', modality: 'MG', exam_count: 350, exam_revenue: 420000 },
-  { date: '2026-03', modality: 'MG', exam_count: 420, exam_revenue: 504000 },
-  { date: '2026-04', modality: 'MG', exam_count: 400, exam_revenue: 480000 },
-  { date: '2026-05', modality: 'MG', exam_count: 440, exam_revenue: 528000 },
-  { date: '2026-06', modality: 'MG', exam_count: 460, exam_revenue: 552000 },
-];
-
 export const olapHandlers = [
   http.get('/api/v1/olap/metadata', async () => {
     await delay(80);
@@ -80,12 +54,37 @@ export const olapHandlers = [
       }),
     ];
 
-    const rows = MOCK_ROWS.map((row) => {
-      const out: Record<string, unknown> = {};
-      dims.forEach((d) => { out[d] = row[d] ?? null; });
-      measures.forEach((m) => { out[m] = (row as any)[m] ?? null; });
-      return out;
-    });
+    // 从 kpiHistory 聚合查询
+    const allKpis = list<any>('kpiHistory');
+    const rows: Record<string, unknown>[] = [];
+    if (allKpis.length > 0) {
+      const grouped = new Map<string, Record<string, unknown>>();
+      allKpis.forEach((kpi: any) => {
+        const date = kpi.date ? kpi.date.substring(0, 7) : 'unknown'; // YYYY-MM
+        const key = date;
+        if (!grouped.has(key)) {
+          const row: Record<string, unknown> = { date };
+          dims.forEach(d => { if (d !== 'date') row[d] = null; });
+          measures.forEach(m => { row[m] = 0; });
+          grouped.set(key, row);
+        }
+        const row = grouped.get(key)!;
+        measures.forEach(m => {
+          if (m === 'exam_count' && kpi.value !== undefined) {
+            row[m] = (row[m] as number || 0) + kpi.value;
+          } else if (m === 'exam_revenue') {
+            row[m] = (row[m] as number || 0) + Math.round((kpi.value || 0) * 2500);
+          }
+        });
+      });
+      rows.push(...Array.from(grouped.values()).slice(0, 60));
+    } else {
+      // fallback
+      const fallbackRow: Record<string, unknown> = { date: new Date().toISOString().substring(0, 7) };
+      dims.forEach(d => { if (d !== 'date') fallbackRow[d] = null; });
+      measures.forEach(m => { fallbackRow[m] = 0; });
+      rows.push(fallbackRow);
+    }
 
     return HttpResponse.json({
       columns,
