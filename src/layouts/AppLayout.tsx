@@ -640,8 +640,8 @@ export function AppLayout() {
               />
               <input
                 type="text"
-                placeholder="搜索患者/检查号/报告..."
-                aria-label="搜索患者/检查号/报告"
+                placeholder={t("app.searchPlaceholder") || "搜索患者/检查号/报告..."}
+                aria-label={t("app.searchPlaceholder") || "搜索患者/检查号/报告"}
                 style={{
                   width: 240,
                   height: 32,

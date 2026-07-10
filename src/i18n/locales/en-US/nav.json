@@ -251,5 +251,6 @@
   "dentalEmr": "Patient 360°",
   "dentalBilling": "Billing & Insurance",
   "dentalSchedule": "Schedule & PSR",
-  "dentalPhoto": "Intraoral Photos"
+  "dentalPhoto": "Intraoral Photos",
+  "searchPlaceholder": "Search patient/exam/report..."
 }
