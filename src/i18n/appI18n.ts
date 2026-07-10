@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "G005放射信息系统",
     "app.version":
-      "v3.0.6.11-7 · 前端后端全功能对齐 (251 endpoint + 12 store + 40 报表 + AI 洞察)",
+      "v3.0.6.11-9 · 10倍速Agent并行升级 (P0: DICOM/HL7/FHIR/Yjs/缓存/MFA + P1: OLAP/字段RBAC/多租户)",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
