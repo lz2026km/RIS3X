@@ -78,7 +78,7 @@ const DepartmentOperationsPage = () => {
 
   const queue = useMemo(() => Array.from({ length: 15 }, (_, i) => ({
     id: i + 1, name: `患者${String.fromCharCode(65 + (i % 26))}${i}`,
-    exam: ['乳腺钼靶', '乳腺断层', '乳腺超声', '乳腺MRI'][i % 4],
+    exam: ['MG', '乳腺断层', '乳腺超声', '乳腺MRI'][i % 4],
     room: rooms[i % rooms.length].name, scheduled: `${8 + Math.floor(i / 2)}:${(i % 2) * 30 + 10}`,
     status: ['等待中', '已签到', '检查中', '已完成'][Math.min(i % 4, 3)] as string,
   })), [rooms])

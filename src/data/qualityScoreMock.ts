@@ -425,7 +425,7 @@ export const AI_DRAFT_TEMPLATES: AIDraftTemplate[] = [
   {
     id: 'aid-006',
     scenario: '乳腺钼靶筛查',
-    modality: '乳腺钼靶', bodyPart: '胸部',
+    modality: 'MG', bodyPart: '胸部',
     clinicalHistory: '48 岁女性，乳腺癌筛查。',
     generatedFindings: '双侧乳腺呈混合型致密腺体，腺体内未见明确肿块影，未见可疑钙化。皮肤及皮下脂肪层清晰，乳头未见内陷。',
     generatedDiagnosis: '双乳钼靶 BI-RADS 1 类（阴性）。',

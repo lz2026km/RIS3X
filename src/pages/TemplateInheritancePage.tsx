@@ -45,7 +45,7 @@ const buildInheritanceTree = (): TemplateNode[] => {
     { id: 'tpl-head-ct-002', name: '急诊头颅CT（克隆）', parentId: 'tpl-head-ct-001', version: 'v1.0', childIds: [], createdBy: '刘文博', createdAt: isoDaysAgo(90), usageCount: 156, status: 'active', type: 'child', description: '急诊专用，含脑卒中评估' },
 
     // 乳腺钼靶 家族
-    { id: 'tpl-mg-001', name: '乳腺钼靶', parentId: null, version: 'v1.0', childIds: ['tpl-mg-002'], createdBy: '赵雪琴', createdAt: isoDaysAgo(150), usageCount: 198, status: 'active', type: 'parent' },
+    { id: 'tpl-mg-001', name: 'MG', parentId: null, version: 'v1.0', childIds: ['tpl-mg-002'], createdBy: '赵雪琴', createdAt: isoDaysAgo(150), usageCount: 198, status: 'active', type: 'parent' },
     { id: 'tpl-mg-002', name: '乳腺钼靶+超声（克隆）', parentId: 'tpl-mg-001', version: 'v1.0', childIds: [], createdBy: '陈晓燕', createdAt: isoDaysAgo(30), usageCount: 45, status: 'active', type: 'child' },
 
     // 腹部CT 家族

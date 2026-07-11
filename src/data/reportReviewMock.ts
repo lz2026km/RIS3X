@@ -67,7 +67,7 @@ export const REVIEW_TASKS: ReviewTask[] = [
   },
   {
     id: 'rt-005', reportId: 'RP20260614005', patientId: 'P-100027', patientName: '韩雪飞',
-    gender: '女', age: 48, modality: '乳腺钼靶', bodyPart: '胸部', priority: 'urgent',
+    gender: '女', age: 48, modality: 'MG', bodyPart: '胸部', priority: 'urgent',
     stage: 'final', status: 'in-progress',
     authorId: 'D002', authorName: '李慧敏', authorTitle: '副主任医师',
     submittedAt: isoOffset(-10), deadline: isoOffset(2),
@@ -240,7 +240,7 @@ export const REVIEWERS: Reviewer[] = [
     id: 'D006', name: '赵雪琴', title: 'chief', titleLabel: '主任医师', department: '放射科',
     status: 'away', currentLoad: 2, maxLoad: 12, pendingCount: 1, inProgressCount: 1,
     completedToday: 4, avgReviewMinutes: 90, onTimeRate: 97.5, rejectionRate: 5.5,
-    specialty: ['乳腺钼靶', 'MR', '女性'], email: 'zhao.xueqin@hospital.cn', phone: '138****0006',
+    specialty: ['MG', 'MR', '女性'], email: 'zhao.xueqin@hospital.cn', phone: '138****0006',
     lastActiveAt: fmt(now),
   },
   {

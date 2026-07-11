@@ -374,7 +374,7 @@ export interface SpecialAssessmentItem {
 export const SPECIAL_ASSESSMENTS: SpecialAssessmentItem[] = [
   // BI-RADS 乳腺
   { id: 'sa-birads', systemName: 'BI-RADS', fullName: '乳腺影像报告与数据系统',
-    modality: '乳腺钼靶', bodyPart: '胸部', category: 'BI-RADS',
+    modality: 'MG', bodyPart: '胸部', category: 'BI-RADS',
     grades: [
       { value: '0', label: '0 类 - 评估不完整', description: '需要进一步影像评估', color: '#94a3b8', action: '召回补充检查' },
       { value: '1', label: '1 类 - 阴性', description: '双乳对称，无肿块、无结构扭曲、无可疑钙化', color: '#10b981', action: '常规筛查' },

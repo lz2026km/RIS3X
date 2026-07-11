@@ -44,7 +44,7 @@ const COLORS = {
 
 const MODALITY_COLORS: Record<string, string> = {
   CT: '#3b82f6', MR: '#60a5fa', DR: '#22c55e',
-  DSA: '#f59e0b', XR: '#06b6d4', '乳腺钼靶': '#ec4899',
+  DSA: '#f59e0b', XR: '#06b6d4', MG: '#ec4899',
 }
 
 // ============================================================
@@ -193,7 +193,7 @@ const mockTypicalCases: TypicalCase[] = [
     likeCount: 28, viewCount: 650, createdAt: '2026-04-29', createdBy: '刘芳', status: '已审核', verified: true,
   },
   {
-    id: 'TC007', patientName: '吴婷', age: 42, gender: '女', examType: 'DR', examName: '乳腺钼靶',
+    id: 'TC007', patientName: '吴婷', age: 42, gender: '女', examType: 'DR', examName: 'MG',
     bodyPart: '胸部', disease: '乳腺癌', diagnosis: '左侧乳腺外上象限肿块，BI-RADS 5类',
     findings: '双侧乳腺钼靶X线摄影（MLO+CC位）显示：左侧乳腺外上象限见约2.1×1.8cm肿块影，边缘毛刺状，密度不均匀增高。周围可见簇状钙化。皮肤局限性增厚。',
     impression: '1. 左侧乳腺外上象限肿块，BI-RADS 5类\n2. 建议活检明确诊断',

@@ -28,12 +28,12 @@ export const MODALITY_LABELS: Record<string, { label: string; color: string }> =
   'MR': { label: 'MR', color: '#2563eb' },
   'DR': { label: 'DR', color: '#059669' },
   'DSA': { label: 'DSA', color: '#dc2626' },
-  '乳腺钼靶': { label: '乳腺钼靶', color: '#d97706' },
-  '胃肠造影': { label: '胃肠造影', color: '#0891b2' },
+  'MG': { label: 'MG', color: '#d97706' },
+  'GI': { label: 'GI', color: '#0891b2' },
   '骨密度': { label: '骨密度', color: '#4f46e5' },
 }
 
-export const DEVICE_CATEGORIES = ['全部', 'CT', 'MR', 'DR', 'DSA', '乳腺钼靶', '胃肠造影', '骨密度']
+export const DEVICE_CATEGORIES = ['全部', 'CT', 'MR', 'DR', 'DSA', 'MG', 'GI', '骨密度']
 
 export const DEVICE_STATUSES = ['全部', '空闲', '使用中', '维护中', '故障', '停用']
 

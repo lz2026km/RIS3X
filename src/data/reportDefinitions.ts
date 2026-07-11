@@ -19,7 +19,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'bar',
     dimensions: ['日期', '设备类型'],
     measures: ['检查量'],
-    dataKeys: ['value'],
+    dataKeys: ['value', 'CT', 'MR', 'DR', 'MG', 'DSA'],
     aiInsight: '今日检查量{trend}，CT检查量{dailyCt}例，环比{ctChange}。{peakHourDesc}',
   },
   {
@@ -30,7 +30,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'line',
     dimensions: ['周', '设备类型'],
     measures: ['检查量'],
-    dataKeys: ['value'],
+    dataKeys: ['value', 'CT', 'MR', 'DR'],
     aiInsight: '本周检查总量{total}例，较上周{trend}{change}%。{modalityDesc}',
   },
   {
@@ -41,7 +41,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'stacked-bar',
     dimensions: ['月份', '设备类型'],
     measures: ['检查量'],
-    dataKeys: ['value'],
+    dataKeys: ['value', 'CT', 'MR', 'DR', 'MG', 'DSA'],
     aiInsight: '{month}月检查总量{total}例，同比去年同期{growth}%。{topModality}占比最高达{topPct}%',
   },
   {
@@ -52,7 +52,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'area',
     dimensions: ['年份', '月份', '设备类型'],
     measures: ['检查量', '增长率'],
-    dataKeys: ['value', 'growth'],
+    dataKeys: ['value', 'CT', 'MR', 'DR', 'growth'],
     aiInsight: '{year}年总检查量{total}例，年增长率{growth}%。{modalityDesc}',
   },
   {
@@ -118,7 +118,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'bar',
     dimensions: ['类型'],
     measures: ['日均检查量'],
-    dataKeys: ['value'],
+    dataKeys: ['value', 'CT', 'MR', 'DR'],
     aiInsight: '工作日日均{weekday}例，周末{weekend}例，周末降幅{weekendDrop}%',
   },
   {
@@ -140,7 +140,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'bar',
     dimensions: ['设备名称', '月份'],
     measures: ['故障次数', '故障率'],
-    dataKeys: ['value', 'failureRate'],
+    dataKeys: ['value', 'failureRate', 'type'],
     aiInsight: '{topFaultDevice}故障率最高({topFaultRate}%)，常见故障类型{faultType}',
   },
   {
@@ -151,7 +151,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'composed',
     dimensions: ['设备名称'],
     measures: ['收入', '成本', '净利润'],
-    dataKeys: ['收入', '成本', '净利润'],
+    dataKeys: ['收入', '成本', '净利润', 'roi', 'paybackPeriod'],
     aiInsight: '{topRoiDevice}ROI最高达{roiValue}%，投资回收期{paybackPeriod}月',
   },
   {
@@ -162,7 +162,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'bar',
     dimensions: ['设备名称', '保养类型'],
     measures: ['到期天数'],
-    dataKeys: ['value'],
+    dataKeys: ['value', '保养类型'],
     aiInsight: '近30天有{dueCount}台设备需保养，{overdueCount}台已超期，请尽快安排',
   },
   {
@@ -239,7 +239,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'line',
     dimensions: ['月份'],
     measures: ['平均字数'],
-    dataKeys: ['value'],
+    dataKeys: ['value', 'findings', 'impression'],
     aiInsight: '本月报告平均字数{avgWords}字，较上月{trend}{change}字',
   },
   {
@@ -250,7 +250,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'bar',
     dimensions: ['修改次数'],
     measures: ['报告数量'],
-    dataKeys: ['value'],
+    dataKeys: ['value', 'percentage'],
     aiInsight: '平均修改次数{avgModify}次，{zeroModifyPct}%的报告未经修改一次通过',
   },
   {
@@ -283,7 +283,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'line',
     dimensions: ['月份'],
     measures: ['平均闭环时长', '中位时长'],
-    dataKeys: ['value', 'median'],
+    dataKeys: ['value', 'median', 'max', 'count'],
     aiInsight: '平均闭环时间{avgClosure}分钟，达标率{closureRate}%。{bestDept}科室闭环最快',
   },
   {
@@ -338,7 +338,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'pie',
     dimensions: ['医保类型'],
     measures: ['检查量', '费用'],
-    dataKeys: ['value'],
+    dataKeys: ['value', 'percentage'],
     aiInsight: '{topInsurance}医保占比最高{topInsurancePct}%，自费占比{selfPayPct}%',
   },
   {
@@ -426,7 +426,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'line',
     dimensions: ['月份', '设备类型'],
     measures: ['平均DLP', '平均CTDIvol'],
-    dataKeys: ['CT_DLP', 'CT_CTDI'],
+    dataKeys: ['CT_DLP', 'CT_CTDI', 'DR_DAP', 'MG_AGD'],
     aiInsight: '本月平均DLP{avgDlp} mGy·cm，较上月{trend}{dlpChange}%。{overLimitDevices}超剂量预警',
   },
   {
@@ -437,7 +437,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'pie',
     dimensions: ['反应类型'],
     measures: ['例数'],
-    dataKeys: ['value'],
+    dataKeys: ['value', 'percentage'],
     aiInsight: '对比剂不良反应率{adverseRate}%，轻度反应占比{mildPct}%，重度{severePct}%',
   },
   {
@@ -459,7 +459,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'line',
     dimensions: ['月份'],
     measures: ['平均等待时间', '中位等待时间'],
-    dataKeys: ['value', 'median'],
+    dataKeys: ['value', 'median', 'max'],
     aiInsight: '平均等待时间{avgWait}分钟，较上月{trend}{waitChange}%。{longestWaitModality}等待最长',
   },
   {
@@ -492,7 +492,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'line',
     dimensions: ['月份'],
     measures: ['查看量', '预约量'],
-    dataKeys: ['查看量', '预约量'],
+    dataKeys: ['value', '查看量', '预约量'],
     aiInsight: '移动端月活{mau}人次，报告查看{viewCount}次，预约{appointCount}次',
   },
   {
@@ -514,7 +514,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'area',
     dimensions: ['月份'],
     measures: ['存储用量TB'],
-    dataKeys: ['value'],
+    dataKeys: ['value', 'growth'],
     aiInsight: '当前存储总量{totalStorage}TB，月均增长{dailyGrowth}GB，预计{exhaustMonth}满容',
   },
   {
@@ -525,7 +525,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'line',
     dimensions: ['月份'],
     measures: ['在线率'],
-    dataKeys: ['value'],
+    dataKeys: ['value', 'coreUptime'],
     aiInsight: '本月系统在线率{uptime}%，核心业务时段可用率{coreUptime}%',
   },
   {
@@ -582,7 +582,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'line',
     dimensions: ['月份', '设备名称'],
     measures: ['开机率'],
-    dataKeys: ['value'],
+    dataKeys: ['value', 'CT', 'MR', 'DR'],
     aiInsight: '{topDevice}开机率最高({topRate}%)，{lowDevice}最低({lowRate}%)，需关注{lowDevice}维护',
   },
   {
@@ -593,7 +593,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'pie',
     dimensions: ['停机原因'],
     measures: ['停机率'],
-    dataKeys: ['value'],
+    dataKeys: ['value', 'percentage'],
     aiInsight: '总停机率{downtimeRate}%，主要原因为{topCause}({topCausePct}%)',
   },
   {
@@ -604,7 +604,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'line',
     dimensions: ['日期', '设备名称'],
     measures: ['使用率'],
-    dataKeys: ['value'],
+    dataKeys: ['value', 'CT-1', 'MR-1', 'DR-1'],
     aiInsight: '{device}本月平均使用率{avgUtilization}%，峰值{peakUtilization}%',
   },
   {
@@ -648,7 +648,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'pie',
     dimensions: ['漏报原因'],
     measures: ['漏报率'],
-    dataKeys: ['value'],
+    dataKeys: ['value', 'percentage'],
     aiInsight: '危急值漏报率{missRate}%，主要原因为{topCause}（{topCausePct}%）',
   },
   {
@@ -670,7 +670,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'line',
     dimensions: ['月份', '设备类型'],
     measures: ['Kappa系数'],
-    dataKeys: ['value'],
+    dataKeys: ['value', 'CT', 'MR', 'DR'],
     aiInsight: '总体Kappa系数{kappa}，{bestModality}一致性最高({bestKappa})',
   },
   {
@@ -747,7 +747,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'pie',
     dimensions: ['欠费区间'],
     measures: ['欠费率'],
-    dataKeys: ['value'],
+    dataKeys: ['value', 'percentage'],
     aiInsight: '当前欠费率{arrearsRate}%，欠费总额{totalArrears}元，{topDept}欠费最多',
   },
   {
@@ -758,7 +758,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'pie',
     dimensions: ['拒付原因'],
     measures: ['拒付金额'],
-    dataKeys: ['value'],
+    dataKeys: ['value', 'percentage'],
     aiInsight: '本月医保拒付金额{rejectAmount}元，主要原因为{topCause}（{topCausePct}%）',
   },
   {
@@ -769,7 +769,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'line',
     dimensions: ['月份', '对比剂名称'],
     measures: ['使用量'],
-    dataKeys: ['value'],
+    dataKeys: ['value', '碘海醇', '碘帕醇', '钆喷酸葡胺'],
     aiInsight: '本月对比剂总用量{totalUsage}瓶，{topContrast}用量最多({topUsage}瓶)',
   },
   {
@@ -780,7 +780,7 @@ export const reportDefinitions: ReportDefinition[] = [
     chartType: 'line',
     dimensions: ['月份'],
     measures: ['平均周转时间'],
-    dataKeys: ['value'],
+    dataKeys: ['value', 'emergency'],
     aiInsight: '平均报告周转时间{avgTAT}小时，急诊报告{emergencyTAT}小时',
   },
 ];

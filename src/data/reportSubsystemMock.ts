@@ -112,7 +112,7 @@ const pendingAssignment: RadiologyReport[] = [
   {
     id: 'rpt-004', reportId: 'RP20260604004', examId: 'EX20260604004', accessionNumber: 'AN20260604004',
     patientId: 'P004', patientName: '赵丽华', gender: '女', age: 52, patientType: '门诊',
-    examItemName: '乳腺钼靶双侧', modality: '乳腺钼靶', bodyPart: '胸部',
+    examItemName: '乳腺钼靶双侧', modality: 'MG', bodyPart: '胸部',
     examDate: '2026-06-04 11:20:00', deviceName: 'Hologic Selenia Dimensions',
     clinicalHistory: '体检发现左乳结节',
     examFindings: '待书写', diagnosis: '', impression: '', recommendations: '',
@@ -349,7 +349,7 @@ const initialAuditing: RadiologyReport[] = [
   {
     id: 'rpt-018', reportId: 'RP20260603018', examId: 'EX20260603018', accessionNumber: 'AN20260603018',
     patientId: 'P018', patientName: '韩雪梅', gender: '女', age: 47, patientType: '门诊',
-    examItemName: '乳腺钼靶双侧', modality: '乳腺钼靶', bodyPart: '胸部',
+    examItemName: '乳腺钼靶双侧', modality: 'MG', bodyPart: '胸部',
     examDate: '2026-06-03 09:00:00', deviceName: 'Hologic Selenia Dimensions',
     clinicalHistory: '左乳肿块1个月',
     examFindings: '左乳外上象限见一高密度肿块影，大小约2.1cm×1.8cm，边缘呈毛刺状，内可见多形性微小钙化灶。',
@@ -682,7 +682,7 @@ const signed: RadiologyReport[] = [
   {
     id: 'rpt-034', reportId: 'RP20260530034', examId: 'EX20260530034', accessionNumber: 'AN20260530034',
     patientId: 'P034', patientName: '魏丽珍', gender: '女', age: 47, patientType: '门诊',
-    examItemName: '乳腺钼靶双侧', modality: '乳腺钼靶', bodyPart: '胸部',
+    examItemName: '乳腺钼靶双侧', modality: 'MG', bodyPart: '胸部',
     examDate: '2026-05-30 09:00:00', deviceName: 'Hologic Selenia Dimensions',
     clinicalHistory: '乳腺癌筛查',
     examFindings: '双侧乳腺腺体致密型，未见明显肿块及可疑钙化。',
@@ -1223,7 +1223,7 @@ const supplementing: RadiologyReport[] = [
   {
     id: 'rpt-058', reportId: 'RP20260505058', examId: 'EX20260505058', accessionNumber: 'AN20260505058',
     patientId: 'P058', patientName: '岑丽华', gender: '女', age: 55, patientType: '门诊',
-    examItemName: '乳腺钼靶', modality: 'MG', bodyPart: '胸部',
+    examItemName: 'MG', modality: 'MG', bodyPart: '胸部',
     examDate: '2026-05-05 11:00:00', deviceName: 'Hologic Selenia Dimensions',
     clinicalHistory: '右乳肿块',
     examFindings: '右乳外上象限高密度肿块，边缘毛刺，伴多形性钙化。',

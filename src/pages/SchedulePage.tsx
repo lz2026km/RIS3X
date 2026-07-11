@@ -185,12 +185,12 @@ const MODALITY_CONFIG: Record<string, { label: string; color: string }> = {
   MR: { label: 'MR', color: '#2563eb' },
   DR: { label: 'DR', color: '#059669' },
   DSA: { label: 'DSA', color: '#dc2626' },
-  '乳腺钼靶': { label: '乳腺钼靶', color: '#d97706' },
-  钼靶: { label: '乳腺钼靶', color: '#d97706' },
+  'MG': { label: 'MG', color: '#d97706' },
+  钼靶: { label: 'MG', color: '#d97706' },
 }
 
 // 设备类型列表
-const MODALITY_LIST = ['CT', 'MR', 'DR', 'DSA', '乳腺钼靶']
+const MODALITY_LIST = ['CT', 'MR', 'DR', 'DSA', 'MG']
 
 // 技师/医师列表（从initialUsers筛选） - 必须在 STAFF_SKILLS 等依赖它的常量之前声明
 const STAFF_LIST = initialUsers.filter(u => u.role === 'technologist' || u.role === 'radiologist').map(u => ({

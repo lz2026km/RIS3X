@@ -137,7 +137,7 @@ const StatusBadge = ({ status }: { status: string }) => {
 // 筛查类型图标与颜色
 const screenTypeConfig: Record<string, { bg: string; text: string; icon: typeof Wind }> = {
   'LDCT': { bg: '#eff6ff', text: '#2563eb', icon: Wind },
-  '乳腺钼靶': { bg: '#fdf2f8', text: '#ec4899', icon: Heart },
+  'MG': { bg: '#fdf2f8', text: '#ec4899', icon: Heart },
   '乳腺超声': { bg: '#fdf2f8', text: '#db2777', icon: Scan },
   '消化道': { bg: '#f0fdf4', text: '#16a34a', icon: Circle },
 }
@@ -193,7 +193,7 @@ const CancerScreenPage = () => {
 
   // ---------- 数据 ----------
   const taskStatuses = ['招募中', '进行中', '已完成', '已终止']
-  const screenTypes = ['LDCT', '乳腺钼靶', '乳腺超声', '消化道']
+  const screenTypes = ['LDCT', 'MG', '乳腺超声', '消化道']
   const regions = ['山东省', '河南省', '内蒙古', '青海省', '四川省', '广东省', '江苏省', '浙江省', '安徽省', '福建省', '江西省', '湖南省', '湖北省', '河北省', '山西省', '陕西省', '辽宁省', '吉林省']
 
   const tasks = useMemo(() => Array.from({ length: 60 }, (_, i) => {
@@ -667,7 +667,7 @@ const CancerScreenPage = () => {
               <div style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>各筛查类型统计</div>
               {[
                 { type: 'LDCT', icon: Wind, count: 8642, color: '#2563eb', bg: '#eff6ff' },
-                { type: '乳腺钼靶', icon: Heart, count: 3426, color: '#ec4899', bg: '#fdf2f8' },
+                { type: 'MG', icon: Heart, count: 3426, color: '#ec4899', bg: '#fdf2f8' },
                 { type: '乳腺超声', icon: Scan, count: 2400, color: '#db2777', bg: '#fdf2f8' },
                 { type: '消化道', icon: Circle, count: 2480, color: '#16a34a', bg: '#f0fdf4' },
               ].map(item => {

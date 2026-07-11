@@ -268,7 +268,7 @@ export const LESION_KEYWORDS_BY_MODALITY: Record<string, LesionKeyword[]> = {
     { keyword: '心影', bodyParts: ['胸部'], severity: 'warning', message: '胸部DR应描述心影', suggestion: '请描述心影大小、形态' },
     { keyword: '膈', bodyParts: ['胸部'], severity: 'info', message: '建议描述膈肌', suggestion: '请描述膈面、肋膈角' },
   ],
-  '乳腺钼靶': [
+  'MG': [
     { keyword: '腺体', bodyParts: ['胸部'], severity: 'warning', message: '乳腺钼靶应描述腺体类型', suggestion: '请注明致密型/混合型/脂肪型' },
     { keyword: '钙化', bodyParts: ['胸部'], severity: 'info', message: '建议描述钙化情况', suggestion: '如有钙化，请注明大小/形态/分布' },
     { keyword: '肿块', bodyParts: ['胸部'], severity: 'info', message: '建议描述肿块', suggestion: '如发现肿块，请描述大小/形态/边缘' },

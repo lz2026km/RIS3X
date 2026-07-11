@@ -83,7 +83,7 @@ const PROJECT_DATA = [
   { name: 'CT', value: 128, color: '#3b82f6' },
   { name: 'MRI', value: 85, color: '#4ade80' },
   { name: 'X线', value: 72, color: '#fbbf24' },
-  { name: '乳腺钼靶', value: 28, color: '#f97316' },
+  { name: 'MG', value: 28, color: '#f97316' },
   { name: '其他', value: 13, color: '#8b5cf6' },
 ]
 

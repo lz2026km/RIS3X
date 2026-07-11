@@ -103,7 +103,7 @@ export function generateMockOperationLogs(): OperationLog[] {
   const patientNames = ['张志刚', '李秀英', '王建国', '赵晓敏', '周玉芬', '孙伟', '吴婷', '郑丽', '钱伟明', '陈丽华']
   const patientIds = ['P001', 'P002', 'P003', 'P004', 'P005', 'P006', 'P007', 'P008', 'P009', 'P010']
   const departments = ['放射科', '内科', '外科', '骨科', '神经科']
-  const examItems = ['头颅CT平扫', '胸部CT平扫', '腹部CT平扫+增强', '头颅MR平扫', '腰椎MR平扫', '胸部DR正侧位', '冠脉CTA', '乳腺钼靶']
+  const examItems = ['头颅CT平扫', '胸部CT平扫', '腹部CT平扫+增强', '头颅MR平扫', '腰椎MR平扫', '胸部DR正侧位', '冠脉CTA', 'MG']
 
   const logs: OperationLog[] = []
   const baseTime = new Date('2026-05-01T08:00:00')

@@ -542,7 +542,7 @@ const examStatisticsData: ExamStatistics[] = [
   { id: 'EX006', modality: 'MRI', examType: '膝关节MRI', examCount: 534, positiveCount: 289, positiveRate: 54.1, avgReportTime: 25, qualifiedRate: 97.5 },
   { id: 'EX007', modality: 'DR', examType: '胸部正侧位', examCount: 2156, positiveCount: 432, positiveRate: 20.0, avgReportTime: 15, qualifiedRate: 98.9 },
   { id: 'EX008', modality: 'DR', examType: '腹部平片', examCount: 876, positiveCount: 98, positiveRate: 11.2, avgReportTime: 12, qualifiedRate: 99.2 },
-  { id: 'EX009', modality: 'MG', examType: '乳腺钼靶', examCount: 324, positiveCount: 45, positiveRate: 13.9, avgReportTime: 20, qualifiedRate: 96.8 },
+  { id: 'EX009', modality: 'MG', examType: 'MG', examCount: 324, positiveCount: 45, positiveRate: 13.9, avgReportTime: 20, qualifiedRate: 96.8 },
   { id: 'EX010', modality: 'DSA', examType: '冠脉造影', examCount: 156, positiveCount: 89, positiveRate: 57.1, avgReportTime: 45, qualifiedRate: 93.5 },
 ]
 

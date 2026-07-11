@@ -16,7 +16,7 @@ interface AdvancedFilterPanelProps {
 }
 
 function AdvancedFilterPanel({ filters, onChange, onReset, presets, onApplyPreset, onSavePreset, onDeletePreset, showSavePreset, savePresetName, onSavePresetNameChange, onToggleSavePreset }: AdvancedFilterPanelProps) {
-  const modalities = ['全部', 'CT', 'MR', 'DR', 'DSA', '乳腺钼靶', '胃肠造影']
+  const modalities = ['全部', 'CT', 'MR', 'DR', 'DSA', 'MG', 'GI']
   const diagnosisCategories = ['全部', '呼吸系统', '消化系统', '骨骼肌肉', '神经系统', '心血管', '肿瘤', '其他']
 
   return (

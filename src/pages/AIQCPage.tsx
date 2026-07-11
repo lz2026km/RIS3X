@@ -24,7 +24,7 @@ const DARK_BORDER = '#334155'
 const WHITE = '#ffffff'
 
 // 设备类型
-const DEVICE_TYPES = ['CT-1（GE Revolution）', 'CT-2（西门子Force）', 'MR-1（西门子Vida）', 'MR-2（西门子Prisma）', 'DR-1（飞利浦）', 'DSA-1（飞利浦）', '乳腺钼靶', 'PET-CT']
+const DEVICE_TYPES = ['CT-1（GE Revolution）', 'CT-2（西门子Force）', 'MR-1（西门子Vida）', 'MR-2（西门子Prisma）', 'DR-1（飞利浦）', 'DSA-1（飞利浦）', 'MG', 'PET-CT']
 
 // 检查部位
 const BODY_PARTS = ['头颅', '胸部', '腹部', '腰椎', '颈椎', '盆腔', '四肢', '心脏', '血管']

@@ -77,8 +77,8 @@ const MODALITY_COLORS: Record<string, string> = {
   MR: '#8b5cf6',
   DR: '#22c55e',
   DSA: '#f59e0b',
-  '乳腺钼靶': '#ec4899',
-  '胃肠造影': '#14b8a6',
+  'MG': '#ec4899',
+  'GI': '#14b8a6',
 }
 
 const RAD_COLORS = ['#3b82f6', '#60a5fa', '#22c55e', '#f59e0b', '#ec4899', '#14b8a6', '#f97316', '#06b6d4']
@@ -383,8 +383,8 @@ const appointmentWaitData = [
   { modality: 'MR', avgWait: 4.2, maxWait: 8, todayAppointments: 85, completed: 68, pending: 17 },
   { modality: 'DR', avgWait: 0.8, maxWait: 2, todayAppointments: 285, completed: 195, pending: 90 },
   { modality: 'DSA', avgWait: 6.5, maxWait: 12, todayAppointments: 15, completed: 12, pending: 3 },
-  { modality: '乳腺钼靶', avgWait: 1.5, maxWait: 3, todayAppointments: 28, completed: 22, pending: 6 },
-  { modality: '胃肠造影', avgWait: 3.8, maxWait: 7, todayAppointments: 18, completed: 15, pending: 3 },
+  { modality: 'MG', avgWait: 1.5, maxWait: 3, todayAppointments: 28, completed: 22, pending: 6 },
+  { modality: 'GI', avgWait: 3.8, maxWait: 7, todayAppointments: 18, completed: 15, pending: 3 },
 ]
 
 const waitTimeTrendData = [
@@ -523,7 +523,7 @@ function ExamVolumeTab() {
     { key: 'year', label: t('statistics.examVolume.timeRanges.year') },
   ]
 
-  const modalities = [t('statistics.examVolume.allModalities'), 'CT', 'MR', 'DR', 'DSA', '乳腺钼靶', '胃肠造影']
+  const modalities = [t('statistics.examVolume.allModalities'), 'CT', 'MR', 'DR', 'DSA', 'MG', 'GI']
 
   const stats = {
     total: timeRange === 'today' ? 247 : timeRange === 'week' ? 1916 : timeRange === 'month' ? 5680 : timeRange === 'quarter' ? 17040 : 68160,
@@ -663,7 +663,7 @@ function ExamVolumeTab() {
               <YAxis dataKey="part" type="category" tick={{ fontSize: 12, fill: C.textMuted }} width={60} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Bar dataKey="count" fill="#3b82f6" name="检查量" radius={[0, 4, 4, 0]}>
-                {bodyPartData.map((_, i) => <Cell key={i} fill={MODALITY_COLORS[['CT', 'MR', 'DR', 'DSA', '乳腺钼靶', '胃肠造影'][i % 6]]} />)}
+                {bodyPartData.map((_, i) => <Cell key={i} fill={MODALITY_COLORS[['CT', 'MR', 'DR', 'DSA', 'MG', 'GI'][i % 6]]} />)}
               </Bar>
             </StatBarChart>
           </ResponsiveContainer>
@@ -1227,7 +1227,7 @@ function DeviceEfficiencyTab() {
           padding: '6px 12px', borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 12,
           color: C.text, outline: 'none', background: C.white, cursor: 'pointer'
         }}>
-          {['全部', 'CT', 'MR', 'DR', 'DSA', '乳腺钼靶', '胃肠造影'].map(m => <option key={m} value={m}>{m}</option>)}
+          {['全部', 'CT', 'MR', 'DR', 'DSA', 'MG', 'GI'].map(m => <option key={m} value={m}>{m}</option>)}
         </select>
       </div>
 

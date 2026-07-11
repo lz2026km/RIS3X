@@ -32,7 +32,7 @@ export interface AppointmentRecord {
     | "MR"
     | "DR"
     | "DSA"
-    | "乳腺钼靶"
+    | "MG"
     | "PET-CT"
     | "SPECT-CT"
     | "US";
@@ -1368,6 +1368,7 @@ function generatePatientRecords() {
   return patients;
 }
 
+/** @deprecated 使用 P2026xxxxx 格式，与 master Pxxxxx 不互通，仅用于 fallback */
 export const PATIENT_RECORDS = generatePatientRecords();
 
 // ==================== 15条医保审核记录 ====================
@@ -13317,6 +13318,7 @@ function generateIdCard(gender: "男" | "女"): string {
   return `${province}${year}${month.toString().padStart(2, "0")}${day.toString().padStart(2, "0")}${seq}${genderCode}`;
 }
 
+/** @deprecated 使用 RAD-Pxxx 格式，与 master Pxxxxx 不互通，仅用于 fallback */
 export const PATIENT_MASTER_INDEX: PatientMasterRecord[] = Array.from(
   { length: 520 },
   (_, i) => {

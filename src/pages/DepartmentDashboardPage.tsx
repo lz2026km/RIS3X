@@ -32,7 +32,7 @@ const examStats = [
   { type: 'X线摄影', total: 412, pending: 56, completed: 356, avgTime: 8 },
   { type: '超声检查', total: 298, pending: 32, completed: 266, avgTime: 20 },
   { type: 'DSA造影', total: 45, pending: 8, completed: 37, avgTime: 90 },
-  { type: '乳腺钼靶', total: 86, pending: 12, completed: 74, avgTime: 12 },
+  { type: 'MG', total: 86, pending: 12, completed: 74, avgTime: 12 },
   { type: 'PET-CT', total: 28, pending: 5, completed: 23, avgTime: 60 },
   { type: 'SPECT-CT', total: 18, pending: 3, completed: 15, avgTime: 45 },
 ];

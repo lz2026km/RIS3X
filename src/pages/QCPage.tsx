@@ -604,7 +604,7 @@ export default function QCPage() {
     { modality: 'CT', requirements: ['设备质控记录', '辐射剂量监控', '图像质量评估', '报告规范性', '人员资质'], completed: 4, total: 5, status: '部分达标' },
     { modality: 'MR', requirements: ['设备质控记录', '安全培训记录', '图像质量评估', '紧急预案演练', '对比剂管理'], completed: 3, total: 5, status: '部分达标' },
     { modality: 'DR', requirements: ['设备质控记录', '辐射剂量监控', '图像质量评估', '报告时效性', '人员继续教育'], completed: 5, total: 5, status: '已达标' },
-    { modality: '乳腺钼靶', requirements: ['MQSA合规', '设备质控', '报告标准', '剂量记录', '技师认证'], completed: 2, total: 5, status: '未达标' },
+    { modality: 'MG', requirements: ['MQSA合规', '设备质控', '报告标准', '剂量记录', '技师认证'], completed: 2, total: 5, status: '未达标' },
     { modality: 'DSA', requirements: ['设备质控', '辐射防护', '对比剂管理', '应急预案', '人员资质'], completed: 3, total: 5, status: '部分达标' },
   ]
   const readinessScore = 72

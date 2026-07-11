@@ -44,8 +44,8 @@ const MODALITY_COLORS: Record<string, string> = {
   'MR': '#8b5cf6',
   'DR': '#10b981',
   'DSA': '#ef4444',
-  '乳腺钼靶': '#ec4899',
-  '胃肠造影': '#14b8a6',
+  'MG': '#ec4899',
+  'GI': '#14b8a6',
   'CR': '#3b82f6',
   'RF': '#f59e0b',
 }
@@ -59,7 +59,7 @@ const deviceStatsData = [
   { deviceId: 'MR-002', deviceName: '磁共振2号', modality: 'MR', totalExams: 756, completedReports: 748, pendingReports: 8, criticalCases: 18, avgReportTime: 32, utilizationRate: 78.6 },
   { deviceId: 'DR-001', deviceName: 'DR设备1号', modality: 'DR', totalExams: 2156, completedReports: 2140, pendingReports: 16, criticalCases: 12, avgReportTime: 15, utilizationRate: 95.8 },
   { deviceId: 'DR-002', deviceName: 'DR设备2号', modality: 'DR', totalExams: 1890, completedReports: 1876, pendingReports: 14, criticalCases: 8, avgReportTime: 18, utilizationRate: 91.2 },
-  { deviceId: 'MG-001', deviceName: '乳腺钼靶1号', modality: '乳腺钼靶', totalExams: 456, completedReports: 450, pendingReports: 6, criticalCases: 15, avgReportTime: 22, utilizationRate: 72.4 },
+  { deviceId: 'MG-001', deviceName: 'MG1号', modality: 'MG', totalExams: 456, completedReports: 450, pendingReports: 6, criticalCases: 15, avgReportTime: 22, utilizationRate: 72.4 },
   { deviceId: 'DSA-001', deviceName: 'DSA设备1号', modality: 'DSA', totalExams: 234, completedReports: 230, pendingReports: 4, criticalCases: 56, avgReportTime: 45, utilizationRate: 68.5 },
 ]
 

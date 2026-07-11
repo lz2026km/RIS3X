@@ -17,7 +17,7 @@ const PRIORITY_CONFIG: Record<string, { bg: string; color: string; label: string
   '会诊': { bg: '#ede9fe', color: '#7c3aed', label: '会诊' },
 }
 
-const MODALITY_LIST = ['CT', 'MR', 'DR', 'DSA', '乳腺钼靶', '胃肠造影']
+const MODALITY_LIST = ['CT', 'MR', 'DR', 'DSA', 'MG', 'GI']
 const PATIENT_TYPE_LIST = ['门诊', '住院', '急诊', '体检']
 const PRIORITY_LIST = ['普通', '紧急', '危重', '会诊']
 const STATUS_LIST = ['已登记', '待检查', '检查中', '待报告', '已报告', '已发布', '已取消', '已暂停', '质控退回']

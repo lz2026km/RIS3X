@@ -118,7 +118,7 @@ export const TEMPLATE_CATEGORY_TREE: TemplateCategoryNode[] = [
   },
   {
     id: 'cat-mg',
-    name: '乳腺钼靶',
+    name: 'MG',
     code: 'MG',
     level: 'modality',
     icon: '🎀',
@@ -167,7 +167,7 @@ export const TEMPLATE_CATEGORY_TREE: TemplateCategoryNode[] = [
     children: [
       { id: 'cat-special-petct', name: 'PET-CT', code: 'PETCT', level: 'bodyPart', icon: '🧬', templateCount: 0, children: [] },
       { id: 'cat-special-dsa', name: 'DSA', code: 'DSA', level: 'bodyPart', icon: '💉', templateCount: 0, children: [] },
-      { id: 'cat-special-gi', name: '胃肠造影', code: 'GI', level: 'bodyPart', icon: '🥛', templateCount: 0, children: [] },
+      { id: 'cat-special-gi', name: 'GI', code: 'GI', level: 'bodyPart', icon: '🥛', templateCount: 0, children: [] },
     ],
   },
 ];

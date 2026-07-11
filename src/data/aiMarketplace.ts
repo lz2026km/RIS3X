@@ -60,7 +60,7 @@ export const AI_MARKETPLACE_ALGORITHMS: AIAlgorithm[] = [
     description: '乳腺钼靶/DBT 钙化点与肿块检测，BI-RADS v5 自动分级。',
     inputSchema: ['DICOM MG', 'ViewPosition', 'Laterality'],
     outputSchema: ['lesion_bbox', 'birads', 'density', 'recommendation'],
-    requiredTags: ['乳腺钼靶'],
+    requiredTags: ['MG'],
     contraindications: ['男性乳腺'],
     installed: true,
     ratingAvg: 4.5,

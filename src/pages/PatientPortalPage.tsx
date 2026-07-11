@@ -123,7 +123,7 @@ const MOCK_PUSH_RECORDS: PushRecord[] = [
   { id: 'P007', patientName: '周九', phone: '13378901234', examType: '颅脑MRI平扫', pushTime: '2025-05-03 09:30', channel: '邮件', status: '成功' },
   { id: 'P008', patientName: '吴十', phone: '13289012345', examType: '胸部CT平扫', pushTime: '2025-05-03 10:15', channel: '微信', status: '已查看', viewTime: '2025-05-03 10:25' },
   { id: 'P009', patientName: '郑十一', phone: '13190123456', examType: '腹部CT平扫', pushTime: '2025-05-03 11:00', channel: '短信', status: '失败' },
-  { id: 'P010', patientName: '冯十二', phone: '13001234567', examType: '乳腺钼靶', pushTime: '2025-05-03 14:30', channel: '微信', status: '已查看', viewTime: '2025-05-03 14:35' },
+  { id: 'P010', patientName: '冯十二', phone: '13001234567', examType: 'MG', pushTime: '2025-05-03 14:30', channel: '微信', status: '已查看', viewTime: '2025-05-03 14:35' },
   { id: 'P011', patientName: '陈十三', phone: '15812345678', examType: '胸部CT平扫', pushTime: '2025-05-04 08:00', channel: '邮件', status: '成功' },
   { id: 'P012', patientName: '褚十四', phone: '15723456789', examType: '颅脑MRI平扫', pushTime: '2025-05-04 09:00', channel: '短信', status: '已查看', viewTime: '2025-05-04 09:05' },
   { id: 'P013', patientName: '卫十五', phone: '15634567890', examType: '心脏CTA', pushTime: '2025-05-04 10:30', channel: '微信', status: '已查看', viewTime: '2025-05-04 10:40' },

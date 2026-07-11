@@ -15,7 +15,7 @@ const MODALITY_OPTIONS: { value: ModalityType; label: string; icon: typeof Monit
   { value: 'MRI', label: 'MRI', icon: Radio },
   { value: 'DSA', label: 'DSA', icon: Cpu },
   { value: 'DR', label: 'DR', icon: Printer },
-  { value: 'MG', label: '乳腺钼靶', icon: Monitor },
+  { value: 'MG', label: 'MG', icon: Monitor },
 ]
 
 const MODALITY_COLORS: Record<string, string> = {

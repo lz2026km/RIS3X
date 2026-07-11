@@ -68,8 +68,8 @@ const MODALITY_COLORS: Record<string, string> = {
   MR: '#8b5cf6',
   DR: '#22c55e',
   DSA: '#f59e0b',
-  '乳腺钼靶': '#ec4899',
-  '胃肠造影': '#14b8a6',
+  'MG': '#ec4899',
+  'GI': '#14b8a6',
   PET: '#f97316'
 }
 
@@ -513,7 +513,7 @@ const HomePage: FC = () => {
     { name: 'MR', value: stats.byModality['MR'], color: MODALITY_COLORS['MR'] },
     { name: 'DR', value: stats.byModality['DR'], color: MODALITY_COLORS['DR'] },
     { name: 'DSA', value: stats.byModality['DSA'], color: MODALITY_COLORS['DSA'] },
-    { name: '乳腺', value: stats.byModality['乳腺钼靶'], color: MODALITY_COLORS['乳腺钼靶'] },
+    { name: '乳腺', value: stats.byModality['MG'], color: MODALITY_COLORS['MG'] },
   ])
 
   const qualityData = [
@@ -916,7 +916,7 @@ const HomePage: FC = () => {
         <QuickActionButton
           icon={<BookOpen size={24} />}
           label="报告管理"
-          color={MODALITY_COLORS['乳腺钼靶']!}
+          color={MODALITY_COLORS['MG']!}
           bg="#fdf2f8"
           onClick={() => navigate('/reports')}
         />

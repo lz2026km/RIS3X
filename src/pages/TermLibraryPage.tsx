@@ -96,15 +96,15 @@ interface CategoryTreeNode {
 }
 
 // ============ 常量 ============
-const MODALITY_LIST = ['CT', 'MR', 'DR', 'DSA', '乳腺钼靶', '胃肠造影']
+const MODALITY_LIST = ['CT', 'MR', 'DR', 'DSA', 'MG', 'GI']
 const TERM_TYPES: Array<'描述短语' | '诊断结论' | '测量值' | '参考范围'> = [
   '描述短语', '诊断结论', '测量值', '参考范围'
 ]
 const MODALITY_COLORS: Record<string, string> = {
-  'CT': '#3b82f6', 'MR': '#8b5cf6', 'DR': '#10b981', 'DSA': '#f59e0b', '乳腺钼靶': '#ec4899', '胃肠造影': '#06b6d4',
+  'CT': '#3b82f6', 'MR': '#8b5cf6', 'DR': '#10b981', 'DSA': '#f59e0b', 'MG': '#ec4899', 'GI': '#06b6d4',
 }
 const MODALITY_BG: Record<string, string> = {
-  'CT': '#eff6ff', 'MR': '#f5f3ff', 'DR': '#ecfdf5', 'DSA': '#fffbeb', '乳腺钼靶': '#fdf2f8', '胃肠造影': '#ecfeff',
+  'CT': '#eff6ff', 'MR': '#f5f3ff', 'DR': '#ecfdf5', 'DSA': '#fffbeb', 'MG': '#fdf2f8', 'GI': '#ecfeff',
 }
 
 const WS_STANDARDS: WsStandardEntry[] = [
@@ -128,7 +128,7 @@ const WS_STANDARDS: WsStandardEntry[] = [
   { code: 'WS-DXR-002', standardName: '数字化X线腹部立卧位', aliases: ['腹部平片', 'KUB'], department: 'DXR', subClass: '腹部', reportTemplate: '腹部肠管充气良好，未见液平及游离气体。双肾区未见阳性结石影。' },
   { code: 'WS-DXR-003', standardName: '数字化X线四肢关节', aliases: ['四肢X线', '关节片'], department: 'DXR', subClass: '四肢', reportTemplate: '诸骨骨质完整，关节面光滑，关节间隙正常，软组织未见异常。' },
   { code: 'WS-DXR-004', standardName: '数字化X线脊柱全长', aliases: ['脊柱全长片', 'EOS'], department: 'DXR', subClass: '脊柱', reportTemplate: '脊柱序列正常，生理曲度存在。椎体形态、密度正常。' },
-  { code: 'WS-DXR-005', standardName: '数字化X线乳腺摄影', aliases: ['乳腺钼靶', 'MG', '乳腺X线'], department: '乳腺', subClass: '乳腺', reportTemplate: '双侧乳腺腺体呈混合型，乳腺纹理结构清晰，未见肿块及异常钙化。' },
+  { code: 'WS-DXR-005', standardName: '数字化X线乳腺摄影', aliases: ['MG', '乳腺X线'], department: '乳腺', subClass: '乳腺', reportTemplate: '双侧乳腺腺体呈混合型，乳腺纹理结构清晰，未见肿块及异常钙化。' },
   { code: 'WS-DXR-006', standardName: '数字化X线口腔全景', aliases: ['口腔全景片', 'OPG'], department: 'DXR', subClass: '口腔', reportTemplate: '全口牙列完整，牙槽骨未见明显吸收，颞下颌关节形态正常。' },
   { code: 'WS-US-001', standardName: '超声腹部常规', aliases: ['腹部B超', '肝胆脾胰B超'], department: '超声', subClass: '腹部', reportTemplate: '肝脏大小形态正常，肝实质回声均匀，肝内管道走形正常。' },
   { code: 'WS-US-002', standardName: '超声甲状腺', aliases: ['甲状腺B超', '甲状腺彩超'], department: '超声', subClass: '浅表器官', reportTemplate: '甲状腺左右叶大小正常，实质回声均匀，未见结节及肿块。' },
@@ -150,7 +150,7 @@ const INIT_CATEGORIES: TermCategory[] = [
   { id: 'CAT-DR-CHEST', name: 'DR-胸部', modality: 'DR', count: 0, color: '#10b981' },
   { id: 'CAT-DR-EXT', name: 'DR-四肢', modality: 'DR', count: 0, color: '#34d399' },
   { id: 'CAT-DSA', name: 'DSA', modality: 'DSA', count: 0, color: '#f59e0b' },
-  { id: 'CAT-MG', name: '乳腺钼靶', modality: '乳腺钼靶', count: 0, color: '#ec4899' },
+  { id: 'CAT-MG', name: 'MG', modality: 'MG', count: 0, color: '#ec4899' },
 ]
 
 const mockSuggestions: TermSuggestion[] = [

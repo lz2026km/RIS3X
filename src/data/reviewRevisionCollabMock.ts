@@ -65,7 +65,7 @@ export const REVIEW_TASKS: ReviewTask[] = [
     stage: 'initial', status: 'in-progress', submittedAt: '2026-06-03 10:00:00', deadline: '2026-06-04 10:00:00',
     initialAuditDoctorId: 'D005', initialAuditDoctorName: '刘文博', initialAuditTitle: '副主任医师',
     initialAuditStartAt: '2026-06-04 08:00:00', qualityScore: 90, criticalFinding: false, isOverdue: false, hoursToDeadline: 2 },
-  { id: 'rv-005', reportId: 'RP20260603018', patientName: '韩雪梅', modality: '乳腺钼靶', bodyPart: '胸部',
+  { id: 'rv-005', reportId: 'RP20260603018', patientName: '韩雪梅', modality: 'MG', bodyPart: '胸部',
     reportDoctorId: 'D002', reportDoctorName: '李慧敏', reportDoctorTitle: '副主任医师',
     stage: 'initial', status: 'in-progress', submittedAt: '2026-06-03 09:00:00', deadline: '2026-06-04 09:00:00',
     initialAuditDoctorId: 'D006', initialAuditDoctorName: '赵雪琴', initialAuditTitle: '主任医师',

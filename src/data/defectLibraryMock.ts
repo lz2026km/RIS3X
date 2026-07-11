@@ -87,7 +87,7 @@ export const DEFECT_ANALYTICS: DefectAnalytics = {
     { modality: 'MR', count: 412, avgScore: 88.2 },
     { modality: 'DR', count: 187, avgScore: 85.0 },
     { modality: 'US', count: 89, avgScore: 88.0 },
-    { modality: '乳腺钼靶', count: 32, avgScore: 92.0 },
+    { modality: 'MG', count: 32, avgScore: 92.0 },
   ],
   byBodyPart: [
     { bodyPart: '胸部', count: 412, avgScore: 89.0 },

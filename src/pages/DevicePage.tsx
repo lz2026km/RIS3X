@@ -186,8 +186,8 @@ const TODAY_RANKING = [
   { rank: 3, deviceName: 'DR-1（飞利浦）', modality: 'DR', examCount: 138, waitingCount: 6, avgWaitTime: 6 },
   { rank: 4, deviceName: 'MR-1（西门子）', modality: 'MR', examCount: 58, waitingCount: 5, avgWaitTime: 22 },
   { rank: 5, deviceName: 'CT-2（西门子Force）', modality: 'CT', examCount: 52, waitingCount: 3, avgWaitTime: 18 },
-  { rank: 6, deviceName: '乳腺钼靶', modality: '乳腺钼靶', examCount: 28, waitingCount: 2, avgWaitTime: 10 },
-  { rank: 7, deviceName: '胃肠造影', modality: '胃肠造影', examCount: 15, waitingCount: 1, avgWaitTime: 25 },
+  { rank: 6, deviceName: 'MG', modality: 'MG', examCount: 28, waitingCount: 2, avgWaitTime: 10 },
+  { rank: 7, deviceName: 'GI', modality: 'GI', examCount: 15, waitingCount: 1, avgWaitTime: 25 },
   { rank: 8, deviceName: 'DSA-1（飞利浦）', modality: 'DSA', examCount: 8, waitingCount: 0, avgWaitTime: 0 },
 ]
 
@@ -200,7 +200,7 @@ const UPTIME_STATS = [
   { deviceName: 'CT-2', uptimeRate: 97.8, runtimeHours: 221, downtimeHours: 3, reason: '校准' },
   { deviceName: 'MR-2', uptimeRate: 95.5, runtimeHours: 216, downtimeHours: 8, reason: '保养' },
   { deviceName: 'DSA-1', uptimeRate: 92.0, runtimeHours: 208, downtimeHours: 16, reason: '故障' },
-  { deviceName: '乳腺钼靶', uptimeRate: 98.8, runtimeHours: 223, downtimeHours: 1, reason: '校准' },
+  { deviceName: 'MG', uptimeRate: 98.8, runtimeHours: 223, downtimeHours: 1, reason: '校准' },
 ]
 
 // 设备详细扩展信息（含序列号、购买日期、保修截止等）

@@ -89,7 +89,7 @@ const DEVICES = [
   { id: 'DEV-DR-01', name: 'DR-1（飞利浦DigitalDiagnost）', modality: 'DR' },
   { id: 'DEV-DR-02', name: 'DR-2（GE Optima）', modality: 'DR' },
   { id: 'DEV-DSA-01', name: 'DSA-1（飞利浦Azurion 7）', modality: 'DSA' },
-  { id: 'DEV-MG-01', name: '乳腺钼靶（GE Senographe）', modality: '乳腺钼靶' },
+  { id: 'DEV-MG-01', name: 'MG（GE Senographe）', modality: 'MG' },
 ]
 
 // 故障类型统计
@@ -120,7 +120,7 @@ const DEVICE_FAULT_COUNT = [
   { deviceName: 'CT-2', faultCount: 3, avgDowntime: 20, cost: 68000 },
   { deviceName: 'MR-2', faultCount: 2, avgDowntime: 12, cost: 22000 },
   { deviceName: 'DR-2', faultCount: 3, avgDowntime: 4, cost: 8500 },
-  { deviceName: '乳腺钼靶', faultCount: 2, avgDowntime: 6, cost: 12000 },
+  { deviceName: 'MG', faultCount: 2, avgDowntime: 6, cost: 12000 },
 ]
 
 // 维修费用统计

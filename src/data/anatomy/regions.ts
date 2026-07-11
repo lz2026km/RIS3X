@@ -39,7 +39,7 @@ export const ANATOMY_REGIONS: Record<AnatomyRegion, AnatomyRegionDef> = {
     code: 'chest', name: '胸部', english: 'Chest', pinyin: 'xb',
     description: '肺、心脏、纵隔、胸膜、胸壁、乳腺、膈肌',
     modalities: ['CT', 'MR', 'DR', 'MG'],
-    commonExamTypes: ['CT胸部平扫', 'CT胸部高分辨', 'CT胸部增强', 'CTPA', 'CTA冠脉', 'MR心脏', 'DR胸片正侧位', '乳腺钼靶', '乳腺MR', '肺结节LDCT'],
+    commonExamTypes: ['CT胸部平扫', 'CT胸部高分辨', 'CT胸部增强', 'CTPA', 'CTA冠脉', 'MR心脏', 'DR胸片正侧位', 'MG', '乳腺MR', '肺结节LDCT'],
     subOrgans: ['左肺', '右肺', '上叶', '中叶', '下叶', '气管', '主支气管', '纵隔', '心脏', '左心室', '右心室', '左心房', '右心房', '心包', '胸膜', '胸壁', '肋骨', '胸骨', '膈肌', '乳腺', '腋窝淋巴结'],
     bodyParts: ['胸部', '心脏', '乳腺', '纵隔'],
   },

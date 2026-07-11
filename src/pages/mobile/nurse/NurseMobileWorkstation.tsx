@@ -29,7 +29,7 @@ const MOCK_APPOINTMENTS: NurseAppointment[] = [
   { id: 'N1', patientName: '张伟', gender: '男', age: 42, examItem: '腹部CT增强', modality: 'CT', status: 'waiting', appointmentTime: '09:00', contrastRequired: true, medications: ['碘海醇'] },
   { id: 'N2', patientName: '李芳', gender: '女', age: 35, examItem: '胸部CT平扫', modality: 'CT', status: 'in-progress', appointmentTime: '09:15', contrastRequired: false, medications: [] },
   { id: 'N3', patientName: '王建国', gender: '男', age: 68, examItem: '头颅MR平扫', modality: 'MR', status: 'waiting', appointmentTime: '09:30', contrastRequired: false, medications: [], notes: '有幽闭恐惧症史' },
-  { id: 'N4', patientName: '赵雪梅', gender: '女', age: 55, examItem: '乳腺钼靶', modality: '乳腺钼靶', status: 'completed', appointmentTime: '08:30', contrastRequired: false, medications: [] },
+  { id: 'N4', patientName: '赵雪梅', gender: '女', age: 55, examItem: 'MG', modality: 'MG', status: 'completed', appointmentTime: '08:30', contrastRequired: false, medications: [] },
   { id: 'N5', patientName: '刘洋', gender: '男', age: 28, examItem: '膝关节MR平扫', modality: 'MR', status: 'cancelled', appointmentTime: '08:45', contrastRequired: false, medications: [] },
 ]
 

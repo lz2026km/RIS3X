@@ -90,7 +90,7 @@ export default function ReportKpiDashboardPage() {
             </div>
             <span style={{ fontSize: 12, color: '#94a3b8' }}>{period === 'today' ? '今日' : period === 'month' ? '本月' : '本年'}</span>
           </div>
-          {['CT 1 (Siemens)', 'CT 2 (GE)', 'MR 1 (3.0T)', 'MR 2 (1.5T)', 'DR 1', '乳腺钼靶'].map(dev => {
+          {['CT 1 (Siemens)', 'CT 2 (GE)', 'MR 1 (3.0T)', 'MR 2 (1.5T)', 'DR 1', 'MG'].map(dev => {
             const rate = 60 + Math.abs(hashCode(dev + period)) % 40;
             const count = 100 + Math.abs(hashCode(dev)) % 900;
             return (

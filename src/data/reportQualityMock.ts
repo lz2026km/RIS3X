@@ -299,7 +299,7 @@ export const QUALITY_DASHBOARD: QualityDashboard = {
     { modality: 'MR', count: 12, avgScore: 87, passRate: 0.90 },
     { modality: 'DR', count: 8, avgScore: 85, passRate: 0.86 },
     { modality: 'US', count: 5, avgScore: 88, passRate: 0.91 },
-    { modality: '乳腺钼靶', count: 4, avgScore: 92, passRate: 0.96 },
+    { modality: 'MG', count: 4, avgScore: 92, passRate: 0.96 },
   ],
   byDoctor: [
     { doctorId: 'D002', doctorName: '李慧敏', count: 12, avgScore: 91, passRate: 0.94 },

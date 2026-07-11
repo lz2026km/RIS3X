@@ -35,7 +35,7 @@ export const STATUS_CONFIG: Record<string, { label: string; bg: string; color: s
   已归档: REPORT_STATUS_META['已归档'],
 }
 
-export const MODALITIES = ['全部', 'CT', 'MR', 'DR', 'DSA', '乳腺钼靶']
+export const MODALITIES = ['全部', 'CT', 'MR', 'DR', 'DSA', 'MG']
 export const STATUSES = ['全部', '待分配', '已分配', '书写中', '已提交', '初审中', '初审通过', '终审中', '已审核', '签发中', '已签发', '已发布', '修订中', '已修订', '已撤回', '已驳回', '已归档']
 export const PRIORITIES = ['全部', '紧急', '危重', '普通']
 export const DOCTORS = initialUsers.filter((u) => u.role === 'radiologist')

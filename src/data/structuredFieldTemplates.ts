@@ -159,8 +159,8 @@ export const HeadCTTemplate: StructuredFieldTemplate = {
 // ============================================================
 export const MammographyTemplate: StructuredFieldTemplate = {
   id: 'tpl-mg-001',
-  name: '乳腺钼靶',
-  modality: '乳腺钼靶',
+  name: 'MG',
+  modality: 'MG',
   bodyPart: '胸部',
   description: '乳腺钼靶 BI-RADS 结构化字段',
   version: 'v1.0',

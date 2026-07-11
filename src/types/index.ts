@@ -25,7 +25,7 @@ export type ReportStatus =
 
 // 状态分组（用于 UI 筛选分组）
 export type ReportStatusGroup = 'draft' | 'review' | 'sign' | 'published' | 'special';
-export type ModalityType = 'CT' | 'MR' | 'DR' | 'DSA' | 'CR' | 'MG' | 'RF' | 'US' | 'PET-CT' | 'SPECT' | '乳腺钼靶' | '胃肠造影';
+export type ModalityType = 'CT' | 'MR' | 'DR' | 'DSA' | 'CR' | 'MG' | 'RF' | 'US' | 'PET-CT' | 'SPECT' | 'GI';
 export type BodyPart = '头颅' | '颈部' | '胸部' | '腹部' | '盆腔' | '脊柱' | '四肢' | '心脏' | '血管' | '全身';
 export type Priority = '普通' | '紧急' | '危重' | '会诊';
 export type UserRole = '医生' | '技师' | '护士' | '管理员' | '主任';

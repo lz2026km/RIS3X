@@ -157,7 +157,7 @@ export default function ReportSearchPage() {
         {/* 高级筛选 */}
         {showAdvanced && (
           <div style={{ marginTop: 12, padding: 12, background: '#f8fafc', borderRadius: 6, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
-            <FilterSelect label="设备" value={modality} onChange={setModality} options={[{ v: 'all', l: '全部' }, { v: 'CT', l: 'CT' }, { v: 'MR', l: 'MR' }, { v: 'DR', l: 'DR' }, { v: 'US', l: 'US' }, { v: 'MG', l: '乳腺钼靶' }]} />
+            <FilterSelect label="设备" value={modality} onChange={setModality} options={[{ v: 'all', l: '全部' }, { v: 'CT', l: 'CT' }, { v: 'MR', l: 'MR' }, { v: 'DR', l: 'DR' }, { v: 'US', l: 'US' }, { v: 'MG', l: 'MG' }]} />
             <FilterSelect label="部位" value={bodyPart} onChange={setBodyPart} options={[{ v: 'all', l: '全部' }, { v: '胸部', l: '胸部' }, { v: '腹部', l: '腹部' }, { v: '头颅', l: '头颅' }, { v: '脊柱', l: '脊柱' }, { v: '四肢', l: '四肢' }, { v: '乳腺', l: '乳腺' }]} />
             <FilterSelect label="医生" value={doctor} onChange={setDoctor} options={[{ v: 'all', l: '全部' }, { v: '张明远', l: '张明远' }, { v: '李慧敏', l: '李慧敏' }, { v: '王建华', l: '王建华' }, { v: '赵雪琴', l: '赵雪琴' }, { v: '刘文博', l: '刘文博' }]} />
             <FilterSelect label="状态" value={status} onChange={setStatus} options={[{ v: 'all', l: '全部' }, { v: '已签发', l: '已签发' }, { v: '待审核', l: '待审核' }, { v: '待签发', l: '待签发' }, { v: '审核中', l: '审核中' }, { v: '草稿', l: '草稿' }]} />

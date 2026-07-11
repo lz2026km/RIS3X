@@ -156,10 +156,10 @@ const generateFindings = (): TypicalFinding[] => {
     { name: '胸膜钙化', disease: '胸膜钙化', desc: 'CT示胸膜呈高密度钙化影，CT值>100Hu', insert: '左侧胸膜可见斑片状钙化，CT值约200Hu，边界清楚。', typical: ['结核性胸膜炎', '石棉肺'], tags: ['钙化', '胸膜'], modality: ['CT'], diseaseType: '炎症' },
     { name: '膈疝', disease: '膈疝', desc: 'CT示腹腔内容物通过膈肌缺损进入胸腔', insert: '左侧膈肌可见局部缺损，胃底及部分肠管疝入左侧胸腔。', typical: ['先天性膈疝', '外伤性膈疝'], tags: ['膈疝', '缺损', '先天'], modality: ['CT'], diseaseType: '先天畸形' },
     { name: '膈下游离气体', disease: '消化道穿孔', desc: 'X线/CT示膈下、新月形气体影', insert: '双侧膈下可见新月形游离气体影，右侧较著。', typical: ['消化道穿孔', '腹部手术后'], tags: ['游离气体', '穿孔', '急症'], modality: ['DR', 'CT'], diseaseType: '外伤' },
-    { name: '乳腺肿块', disease: '乳腺癌', desc: '乳腺X线/超声示乳腺内肿块，边缘毛刺，密度不均匀', insert: '左侧乳腺外上象限可见约XXcm肿块，边缘可见毛刺，密度不均匀。', typical: ['乳腺癌', '纤维腺瘤'], tags: ['乳腺肿块', '毛刺', '恶性'], modality: ['乳腺钼靶', '超声'], diseaseType: '肿瘤' },
-    { name: '簇状钙化', disease: '乳腺癌', desc: '乳腺X线示多发细小钙化聚集呈簇状，提示恶性', insert: '左乳外上象限可见簇状分布的细小多形性钙化，范围约XXmm。', typical: ['乳腺癌', '导管内癌'], tags: ['钙化', '簇状', '恶性'], modality: ['乳腺钼靶'], diseaseType: '肿瘤' },
-    { name: '皮肤增厚', disease: '乳腺癌', desc: '乳腺X线/临床示患侧乳房皮肤局限性或弥漫性增厚', insert: '左侧乳房皮肤局限性增厚，厚度约XXmm，乳晕区为著。', typical: ['乳腺癌', '炎症性乳癌'], tags: ['皮肤增厚', '恶性'], modality: ['乳腺钼靶', '超声'], diseaseType: '肿瘤' },
-    { name: '乳头内陷', disease: '乳腺癌', desc: '乳腺X线/临床示乳头向内偏移或固定', insert: '右侧乳头内陷，乳晕区皮肤皱缩。', typical: ['乳腺癌', '先天性'], tags: ['乳头内陷', '恶性'], modality: ['乳腺钼靶', '超声'], diseaseType: '肿瘤' },
+    { name: '乳腺肿块', disease: '乳腺癌', desc: '乳腺X线/超声示乳腺内肿块，边缘毛刺，密度不均匀', insert: '左侧乳腺外上象限可见约XXcm肿块，边缘可见毛刺，密度不均匀。', typical: ['乳腺癌', '纤维腺瘤'], tags: ['乳腺肿块', '毛刺', '恶性'], modality: ['MG', '超声'], diseaseType: '肿瘤' },
+    { name: '簇状钙化', disease: '乳腺癌', desc: '乳腺X线示多发细小钙化聚集呈簇状，提示恶性', insert: '左乳外上象限可见簇状分布的细小多形性钙化，范围约XXmm。', typical: ['乳腺癌', '导管内癌'], tags: ['钙化', '簇状', '恶性'], modality: ['MG'], diseaseType: '肿瘤' },
+    { name: '皮肤增厚', disease: '乳腺癌', desc: '乳腺X线/临床示患侧乳房皮肤局限性或弥漫性增厚', insert: '左侧乳房皮肤局限性增厚，厚度约XXmm，乳晕区为著。', typical: ['乳腺癌', '炎症性乳癌'], tags: ['皮肤增厚', '恶性'], modality: ['MG', '超声'], diseaseType: '肿瘤' },
+    { name: '乳头内陷', disease: '乳腺癌', desc: '乳腺X线/临床示乳头向内偏移或固定', insert: '右侧乳头内陷，乳晕区皮肤皱缩。', typical: ['乳腺癌', '先天性'], tags: ['乳头内陷', '恶性'], modality: ['MG', '超声'], diseaseType: '肿瘤' },
     { name: '气管狭窄', disease: '气管肿瘤', desc: 'CT示气管内肿块或气管壁增厚，管腔狭窄', insert: '气管下段可见约XXcm肿块，突向管腔生长，管腔明显狭窄。', typical: ['气管肿瘤', '气管结核'], tags: ['气管狭窄', '肿块'], modality: ['CT'], diseaseType: '肿瘤' },
     { name: '支气管异物', disease: '支气管异物', desc: 'CT/MR示支气管内异物影，可伴阻塞性肺炎或肺不张', insert: '右中间段支气管内可见高密度影，大小约XXmm，相应肺组织可见阻塞性炎症。', typical: ['支气管异物', '呛咳'], tags: ['异物', '高密度', '急症'], modality: ['CT'], diseaseType: '外伤' },
     { name: '肺隔离症', disease: '肺隔离症', desc: 'CT示肺内异常供血的肿块，与正常肺隔离', insert: '左肺下叶可见囊性肿块，CT增强扫描可见异常供血动脉来自胸主动脉。', typical: ['肺隔离症', '先天畸形'], tags: ['隔离症', '异常血供', '先天'], modality: ['CT'], diseaseType: '先天畸形' },
@@ -785,7 +785,7 @@ const ALL_FINDINGS = generateFindings()
 // 常量配置
 // ============================================================
 const BODY_PARTS = ['全部', '头部', '颈部', '胸部', '腹部', '骨盆', '脊柱', '四肢', '神经系统', '血管']
-const MODALITY_LIST = ['全部', 'CT', 'MR', 'DR', 'XR', '超声', 'CTA', 'MRA', 'DSA', '乳腺钼靶']
+const MODALITY_LIST = ['全部', 'CT', 'MR', 'DR', 'XR', '超声', 'CTA', 'MRA', 'DSA', 'MG']
 const DISEASE_TYPES = ['全部', '肿瘤', '炎症', '外伤', '血管病变', '先天畸形']
 const BODY_PART_COLORS: Record<string, string> = {
   '头部': '#8b5cf6',
@@ -832,7 +832,7 @@ const MODALITY_COLORS: Record<string, string> = {
   'CTA': '#ef4444',
   'MRA': '#8b5cf6',
   'DSA': '#f59e0b',
-  '乳腺钼靶': '#ec4899',
+  'MG': '#ec4899',
 }
 
 // ============================================================

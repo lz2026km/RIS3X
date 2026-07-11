@@ -298,7 +298,6 @@ const COLLECTIONS = [
   'dental_studies', 'dental_charts', 'dental_treatments',
   'dental_invoices', 'dental_appointments',
   // [v3.0.6.11-10] 生成的演示数据
-  'reports',
   'kpiHistory',
   'invoices',
   'sites',

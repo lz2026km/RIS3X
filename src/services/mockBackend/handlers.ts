@@ -3975,7 +3975,7 @@ export const aiReportHandlers = [
         { id: 'head-mri', label: '头颅 MRI', modality: 'MR', description: '脑梗塞/出血/占位' },
         { id: 'abdomen-ct', label: '腹部 CT', modality: 'CT', description: '肝胆胰脾肾' },
         { id: 'spine-mri', label: '脊柱 MRI', modality: 'MR', description: '椎间盘/脊髓/韧带' },
-        { id: 'breast-mg', label: '乳腺钼靶', modality: 'MG', description: 'BI-RADS 分类' },
+        { id: 'breast-mg', label: 'MG', modality: 'MG', description: 'BI-RADS 分类' },
         { id: 'cardiac-cta', label: '心脏 CTA', modality: 'CT', description: '冠脉/瓣膜/心肌' },
       ],
     });

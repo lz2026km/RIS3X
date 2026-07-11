@@ -486,7 +486,7 @@ const EXTERNAL_EXAMS: ExternalExam[] = [
     gender: '女',
     age: 62,
     examDate: '2026-02-28',
-    examItemName: '乳腺钼靶',
+    examItemName: 'MG',
     modality: 'DR',
     bodyPart: 'BREAST',
     deviceName: 'GE Senographe Essential（MG-01）',

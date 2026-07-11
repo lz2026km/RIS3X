@@ -5,7 +5,7 @@ const WHITE = '#ffffff'
 const GRAY = '#64748b'
 const ACCENT = '#3182ce'
 
-const MODALITIES = ['全部', 'CT', 'MR', 'DR', 'DSA', '乳腺钼靶']
+const MODALITIES = ['全部', 'CT', 'MR', 'DR', 'DSA', 'MG']
 const STATUSES = [
   '全部', '待分配', '已分配', '书写中', '已提交', '初审中', '初审通过',
   '终审中', '已审核', '签发中', '已签发', '已发布', '修订中', '已修订',

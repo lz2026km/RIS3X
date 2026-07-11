@@ -78,7 +78,7 @@ export default function DiagnosisAccuracyPage() {
             <Database size={13} /> 按设备符合率
           </div>
           {data.byModality.map(m => {
-            const colors: Record<string, string> = { CT: '#3b82f6', MR: '#7c3aed', DR: '#0891b2', US: '#10b981', '乳腺钼靶': '#ec4899' };
+            const colors: Record<string, string> = { CT: '#3b82f6', MR: '#7c3aed', DR: '#0891b2', US: '#10b981', MG: '#ec4899' };
             return (
               <div key={m.modality} style={{ marginBottom: 8 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>

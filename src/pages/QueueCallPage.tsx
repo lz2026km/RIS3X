@@ -684,7 +684,7 @@ export default function QueueCallPage() {
     { id: 'ROOM-MR1', name: 'MR室1', roomNumber: 'MR-01', modality: ['MR'], status: '空闲', currentPatient: null, currentQueueNum: null, completedToday: 8, waitCount: 3, doctorName: '王秀峰' },
     { id: 'ROOM-DR1', name: 'DR室1', roomNumber: 'DR-01', modality: ['DR'], status: '空闲', currentPatient: null, currentQueueNum: null, completedToday: 15, waitCount: 7, doctorName: '张海涛' },
     { id: 'ROOM-DSA1', name: 'DSA室1', roomNumber: 'DSA-01', modality: ['DSA'], status: '使用中', currentPatient: '刘洋', currentQueueNum: 'Q004', completedToday: 3, waitCount: 2, doctorName: '刘芳' },
-    { id: 'ROOM-MG1', name: '钼靶室1', roomNumber: 'MG-01', modality: ['乳腺钼靶'], status: '空闲', currentPatient: null, currentQueueNum: null, completedToday: 6, waitCount: 4, doctorName: '赵晓敏' },
+    { id: 'ROOM-MG1', name: '钼靶室1', roomNumber: 'MG-01', modality: ['MG'], status: '空闲', currentPatient: null, currentQueueNum: null, completedToday: 6, waitCount: 4, doctorName: '赵晓敏' },
     { id: 'ROOM-CT2', name: 'CT室2', roomNumber: 'CT-02', modality: ['CT'], status: '暂停', currentPatient: null, currentQueueNum: null, completedToday: 10, waitCount: 0, doctorName: '陈志强' },
   ]
 
