@@ -2,7 +2,7 @@
  * G005 放射RIS系统 v3.0.6.11-7 - NestJS 根模块（扩 14 新 module）
  */
 import { Module } from '@nestjs/common'
-import { APP_GUARD } from '@nestjs/core'
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
 import { ConfigModule } from '@nestjs/config'
 import { LoggerModule } from 'nestjs-pino'
 import { CacheModule } from './cache/cache.module'
@@ -50,7 +50,10 @@ import { CaModule } from './ca/ca.module'
 import { DeviceMgmtModule } from './devicemgmt/devicemgmt.module'
 import { AiPlatformModule } from './aiplatform/aiplatform.module'
 import { OlapModule } from './modules/olap/olap.module'
+import { MobileModule } from './mobile/mobile.module'
+import { JwtAuthGuard } from './common/guards/jwt-auth.guard'
 import { RolesGuard } from './common/guards/roles.guard'
+import { TenantContextInterceptor } from './common/interceptors/tenant-context.interceptor'
 
 @Module({
   imports: [
@@ -105,11 +108,13 @@ import { RolesGuard } from './common/guards/roles.guard'
     AiPlatformModule,
     DicomDimseModule,
     OlapModule,
+    MobileModule,
   ],
   controllers: [HealthController],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
+    { provide: APP_INTERCEPTOR, useClass: TenantContextInterceptor },
   ],
 })
 export class AppModule {}

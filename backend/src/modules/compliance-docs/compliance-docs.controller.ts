@@ -6,6 +6,7 @@ import { ComplianceDocsService } from './compliance-docs.service'
 @ApiTags('compliance-docs')
 @Controller('compliance-docs')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 export class ComplianceDocsController {
   constructor(private readonly svc: ComplianceDocsService) {}
 

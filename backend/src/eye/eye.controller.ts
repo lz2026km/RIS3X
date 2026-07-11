@@ -10,6 +10,7 @@ import type { UpdateEyeStudyDto } from './dto/update-eye.dto'
 
 @ApiTags('eye')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('api/eye')
 export class EyeController {
   constructor(private readonly eye: EyeService) {}

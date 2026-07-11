@@ -183,7 +183,11 @@ export class OlapService {
     return col
   }
 
+  private readonly ALLOWED_OPS = new Set(['=', '<', '<=', '>', '>=', 'eq', 'ne', 'lt', 'lte', 'gt', 'gte', 'in', 'like', 'between'])
+
   private buildFilter(f: OLAPFilter): Prisma.Sql | null {
+    if (!this.ALLOWED_OPS.has(f.operator)) return null
+
     const col = DIMENSION_COLUMN_MAP[f.dimension]
     if (!col) return null
 
@@ -206,7 +210,7 @@ export class OlapService {
       const v = typeof f.value === 'string' ? f.value : Number(f.value)
       return Prisma.sql`${col} ${Prisma.raw(op)} ${v}`
     }
-    const op = f.operator === 'eq' ? '=' : f.operator
+    const op = f.operator === 'eq' ? '=' : f.operator === 'ne' ? '<>' : f.operator === 'lt' ? '<' : f.operator === 'lte' ? '<=' : f.operator === 'gt' ? '>' : f.operator === 'gte' ? '>=' : '='
     const v = typeof f.value === 'string' ? f.value : String(f.value)
     return Prisma.sql`${col} ${Prisma.raw(op)} ${v}`
   }
@@ -214,6 +218,7 @@ export class OlapService {
   private buildSQL(query: OLAPQuery): Prisma.Sql {
     const dimSelects: Prisma.Sql[] = []
     for (const d of query.dimensions) {
+      if (!DIMENSION_COLUMN_MAP[d]) continue
       const expr = this.dimExpression(d, query.granularity)
       if (expr) {
         dimSelects.push(Prisma.sql`${expr} AS ${Prisma.raw(`"${d}"`)}`)
@@ -226,7 +231,7 @@ export class OlapService {
     const measureSelects: Prisma.Sql[] = []
     for (const m of query.measures) {
       const def = MEASURE_SQL_MAP[m]
-      if (def) {
+      if (def && Object.prototype.hasOwnProperty.call(MEASURE_SQL_MAP, m)) {
         measureSelects.push(Prisma.sql`${def} AS ${Prisma.raw(`"${m}"`)}`)
       }
     }
@@ -271,7 +276,8 @@ export class OlapService {
       const parts: Prisma.Sql[] = []
       for (const o of query.orderBy) {
         const dir = o.direction.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
-        const col = DIMENSION_COLUMN_MAP[o.dimension] ?? Prisma.raw(`"${o.dimension}"`)
+        const col = DIMENSION_COLUMN_MAP[o.dimension]
+        if (!col) continue
         parts.push(Prisma.sql`${col} ${Prisma.raw(dir)}`)
       }
       orderByClause = Prisma.sql`ORDER BY ${Prisma.join(parts, ', ')}`

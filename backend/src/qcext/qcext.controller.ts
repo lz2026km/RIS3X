@@ -5,6 +5,7 @@ import { QcExtService } from './qcext.service'
 
 @ApiTags('qc-ext')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('qc-ext')
 export class QcExtController {
   constructor(private readonly svc: QcExtService) {}

@@ -5,6 +5,7 @@ import { DeviceMgmtService } from './devicemgmt.service'
 
 @ApiTags('device-mgmt')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('device-mgmt')
 export class DeviceMgmtController {
   constructor(private readonly svc: DeviceMgmtService) {}

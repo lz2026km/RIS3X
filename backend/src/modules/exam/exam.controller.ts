@@ -23,6 +23,7 @@ const UpdateExamSchema = z.object({
 
 @ApiTags('exams')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('exams')
 export class ExamController {
   constructor(private readonly service: ExamService) {}

@@ -4,6 +4,7 @@
  */
 import { Body, Controller, Get, Param, Post, Query, Res } from '@nestjs/common'
 import type { Response } from 'express'
+import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
@@ -22,6 +23,7 @@ const StoreSchema = z.object({
 
 @ApiTags('dicom-web')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('dicom-web')
 export class DicomWebController {
   constructor(private readonly service: DicomWebService) {}

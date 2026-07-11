@@ -5,6 +5,7 @@ import { CriticalExtService } from './criticalext.service'
 
 @ApiTags('critical-ext')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('critical-ext')
 export class CriticalExtController {
   constructor(private readonly svc: CriticalExtService) {}

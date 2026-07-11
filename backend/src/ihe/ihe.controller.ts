@@ -19,6 +19,7 @@
  */
 
 import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common'
+import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
 import {
@@ -41,6 +42,7 @@ import { IheService } from './ihe.service'
 
 @ApiTags('ihe')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('ihe')
 export class IheController {
   constructor(private readonly service: IheService) {}

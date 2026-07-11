@@ -5,6 +5,7 @@ import { FinanceService } from './finance.service'
 
 @ApiTags('finance')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('finance')
 export class FinanceController {
   constructor(private readonly svc: FinanceService) {}

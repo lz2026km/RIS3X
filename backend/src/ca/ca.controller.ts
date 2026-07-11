@@ -5,6 +5,7 @@ import { CaService } from './ca.service'
 
 @ApiTags('ca')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('ca')
 export class CaController {
   constructor(private readonly svc: CaService) {}

@@ -79,7 +79,7 @@ export default function OperationLogPage() {
   const [hipaaPageSize, setHipaaPageSize] = useState(20)
 
   const filteredLogs = useMemo(() => {
-    const now = new Date('2026-05-01T18:00:00')
+    const now = new Date()
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString().slice(0, 10)
     const weekStart = new Date(now.getTime() - 7 * 86400000).toISOString().slice(0, 10)
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10)
@@ -133,7 +133,7 @@ export default function OperationLogPage() {
   }, [allLogs, hipaaActionFilter, hipaaUserFilter, hipaaDateFrom, hipaaDateTo])
 
   const hipaaStats = useMemo((): HipaaStats => {
-    const today = '2026-05-01'
+    const today = new Date().toISOString().slice(0, 10)
     const todayLogs = allLogs.filter(l => l.timestamp.slice(0, 10) === today)
     const abnormalLogs = todayLogs.filter(l => l.complianceLevel === 'critical' || l.complianceLevel === 'warning')
 
@@ -152,9 +152,9 @@ export default function OperationLogPage() {
   }, [allLogs])
 
   const todayTrendData = useMemo(() => {
-    const today = '2026-05-01'
+    const today = new Date().toISOString().slice(0, 10)
     const todayLogs = filteredLogs.filter(l => l.timestamp.slice(0, 10) === today)
-    const yesterdayLogs = filteredLogs.filter(l => l.timestamp.slice(0, 10) === '2026-04-30')
+    const yesterdayLogs = filteredLogs.filter(l => l.timestamp.slice(0, 10) === new Date(Date.now() - 86400000).toISOString().slice(0, 10))
 
     const hourlyCounts = new Array(24).fill(0)
     todayLogs.forEach(log => { hourlyCounts[new Date(log.timestamp).getHours()]++ })
@@ -258,7 +258,7 @@ export default function OperationLogPage() {
 
   const handleQuickTimeFilter = useCallback((value: QuickTimeValue) => {
     setQuickTimeFilter(value)
-    const now = new Date('2026-05-01T18:00:00')
+    const now = new Date()
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString().slice(0, 10)
     const weekStart = new Date(now.getTime() - 7 * 86400000).toISOString().slice(0, 10)
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10)

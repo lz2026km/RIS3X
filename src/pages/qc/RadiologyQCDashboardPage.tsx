@@ -38,6 +38,7 @@ type QCTab = "overview" | "image" | "report" | "workflow" | "equipment" | "perso
 
 export default function RadiologyQCDashboardPage() {
   const [activeTab, setActiveTab] = useState<QCTab>("overview");
+  const [refreshKey, setRefreshKey] = useState(0);
   const [dateRange, setDateRange] = useState("本月");
 
   // ========== 总览数据计算 ==========
@@ -146,7 +147,7 @@ export default function RadiologyQCDashboardPage() {
       />
       <StickyActionBar
         actions={[
-          { key: "refresh", label: "刷新数据", onClick: () => window.location.reload(), type: "default", ariaLabel: "刷新质控数据" },
+          { key: "refresh", label: "刷新数据", onClick: () => setRefreshKey(k => k + 1), type: "default", ariaLabel: "刷新质控数据" },
           { key: "export-monthly", label: "月度报告", onClick: () => {}, type: "default", ariaLabel: "导出月度报告" },
           { key: "export-quarterly", label: "季度报告", onClick: () => {}, type: "default", ariaLabel: "导出季度报告" },
           { key: "drill-down", label: "下钻分析", onClick: () => {}, type: "primary", ariaLabel: "下钻分析" },

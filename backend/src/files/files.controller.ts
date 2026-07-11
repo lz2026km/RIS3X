@@ -2,6 +2,7 @@
  * G005 鏀惧皠RIS绯荤粺 v3.0.2 - 鏂囦欢鎺у埗鍣?
  */
 import { Body, Controller, Get, Post, Query } from '@nestjs/common'
+import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
@@ -18,6 +19,7 @@ const UploadCompleteSchema = z.object({
 
 @ApiTags('files')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('files')
 export class FilesController {
   constructor(private readonly service: FilesService) {}

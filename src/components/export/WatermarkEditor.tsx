@@ -4,6 +4,7 @@
  */
 import React, { useState } from 'react';
 import { Droplet, RotateCw, Type } from 'lucide-react';
+import { sanitizeHtml } from '../../utils/sanitization';
 import type { WatermarkOptions } from '../../types/export';
 import { getWatermarkEngine } from '../../services/export/watermark/WatermarkEngine';
 
@@ -82,7 +83,7 @@ export const WatermarkEditor: React.FC<WatermarkEditorProps> = ({ value, onChang
       {previewHtml && (
         <div style={{ marginTop: 12 }}>
           <label style={{ fontSize: 12, color: '#475569', display: 'block', marginBottom: 4 }}><Type size={11} /> 预览</label>
-          <div style={{ position: 'relative', height: 80, background: '#f8fafc', borderRadius: 6, border: '1px solid #e2e8f0', overflow: 'hidden' }} dangerouslySetInnerHTML={{ __html: previewHtml }} />
+          <div style={{ position: 'relative', height: 80, background: '#f8fafc', borderRadius: 6, border: '1px solid #e2e8f0', overflow: 'hidden' }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(previewHtml) }} />
         </div>
       )}
     </div>

@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as fs from 'node:fs'
 import * as net from 'node:net'
@@ -37,11 +37,21 @@ export class DicomDimseService {
     transferSyntax?: string
     pixelData?: string
   }): Promise<{ sopInstanceUid: string; storagePath: string; sizeBytes: number }> {
-    const sopDir = path.join(this.storageDir, dto.studyInstanceUid, dto.seriesInstanceUid)
+    const safeUid = (uid: string) => {
+      if (!/^[A-Za-z0-9._-]+$/.test(uid)) {
+        throw new BadRequestException(`Invalid UID: ${uid}`)
+      }
+      return uid
+    }
+    const sopDir = path.join(this.storageDir, safeUid(dto.studyInstanceUid), safeUid(dto.seriesInstanceUid))
+    const resolvedDir = path.resolve(sopDir)
+    if (!resolvedDir.startsWith(path.resolve(this.storageDir))) {
+      throw new BadRequestException('Path traversal detected')
+    }
     if (!fs.existsSync(sopDir)) {
       fs.mkdirSync(sopDir, { recursive: true })
     }
-    const filePath = path.join(sopDir, `${dto.sopInstanceUid}.dcm`)
+    const filePath = path.join(sopDir, `${safeUid(dto.sopInstanceUid)}.dcm`)
     const pixelBuf = dto.pixelData ? Buffer.from(dto.pixelData, 'base64') : Buffer.alloc(128, 0)
     const dicomBuffer = this.buildPart10Buffer({
       sopClassUid: dto.sopClassUid,

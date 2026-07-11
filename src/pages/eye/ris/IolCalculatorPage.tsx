@@ -8,6 +8,7 @@ import type { IolInput } from '@/types/eye';
 const IolCalculatorPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const [submitted, setSubmitted] = useState(false);
+  const [resetKey, setResetKey] = useState(0);
 
   // 解析 URL 参数 (eyeSide, axialLength/al, K1/k1, K2/k2, ACD/acd, LT/lt, WTW/wtw, CCT/cct, gender, model/iolModel, aConstant)
   const initialInput = useMemo<Partial<IolInput>>(() => {
@@ -37,7 +38,7 @@ const IolCalculatorPage: React.FC = () => {
       iolModel: get('model', 'iolModel'),
       gender: (get('gender') as 'male' | 'female' | undefined),
     };
-  }, [searchParams]);
+  }, [searchParams, resetKey]);
 
   const eyeSide = searchParams.get('eyeSide');
   const patientId = searchParams.get('patientId');
@@ -134,7 +135,7 @@ const IolCalculatorPage: React.FC = () => {
               icon={<RotateCcw size={12} />}
               size="small"
               style={{ marginTop: 8 }}
-              onClick={() => window.location.reload()}
+              onClick={() => setResetKey(k => k + 1)}
             >
               清空并重置
             </Button>

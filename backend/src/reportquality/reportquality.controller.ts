@@ -5,6 +5,7 @@ import { ReportQualityService } from './reportquality.service'
 
 @ApiTags('report-quality')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('report-quality')
 export class ReportQualityController {
   constructor(private readonly svc: ReportQualityService) {}

@@ -1,4 +1,5 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common'
+import { Roles } from '../common/decorators/roles.decorator'
 import { AuthGuard } from '@nestjs/passport'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
@@ -7,6 +8,7 @@ import { CEchoSchema, CFindMwlSchema, CMoveSchema, CStoreSchema, UploadS3Schema 
 
 @ApiTags('dicom-dimse')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @UseGuards(AuthGuard('jwt'))
 @Controller('dicom-dimse')
 export class DicomDimseController {

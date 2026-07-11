@@ -1,4 +1,5 @@
 /**
+ * @deprecated 生产环境应使用 backend/src/hl7/hl7.service.ts (NestJS TCP MLLP 服务)
  * G005 放射RIS系统 v3.0.6.0 - HL7 v2.x MLLP 服务器(浏览器 Mock)
  * 60 升级点:WebSocket 桥接 / <VT>/<FS>/<CR> 帧解析 / ACK 自动生成
  *      连接管理 / 事件订阅 / 统计 / 与 Hl7V2Parser 集成

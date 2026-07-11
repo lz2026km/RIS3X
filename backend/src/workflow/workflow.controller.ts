@@ -5,6 +5,7 @@ import { WorkflowService } from './workflow.service'
 
 @ApiTags('workflow')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('workflow')
 export class WorkflowController {
   constructor(private readonly svc: WorkflowService) {}

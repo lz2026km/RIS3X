@@ -14,7 +14,7 @@ export const cdsHandlers = [
     const url = new URL(request.url);
     const opts = parseQuery(url);
     let items: any[] = [];
-    try { items = list<any>('guidelines'); } catch {}
+    try { items = list<any>('criticalRules'); } catch {}
     if (!items.length) items = [{"id":"GL001","name":"肺结节诊疗指南","category":"呼吸","version":"2025"}];
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
@@ -23,7 +23,7 @@ export const cdsHandlers = [
     await delay(delayMs());
     const body = (await request.json()) as any;
     const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
-    try { create('guideline', newItem); } catch {}
+    try { create('criticalRules', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
   http.get(`${API}/alerts`, async ({ request }) => {
@@ -31,7 +31,7 @@ export const cdsHandlers = [
     const url = new URL(request.url);
     const opts = parseQuery(url);
     let items: any[] = [];
-    try { items = list<any>('alerts'); } catch {}
+    try { items = list<any>('criticalRules'); } catch {}
     if (!items.length) items = [{"id":"AL001","patientName":"王五","type":"剂量告警","severity":"HIGH"}];
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
@@ -40,7 +40,7 @@ export const cdsHandlers = [
     await delay(delayMs());
     const body = (await request.json()) as any;
     const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
-    try { create('null', newItem); } catch {}
+    try { create('criticalRules', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
   http.get(`${API}/dose-monitoring`, async ({ request }) => {
@@ -48,7 +48,7 @@ export const cdsHandlers = [
     const url = new URL(request.url);
     const opts = parseQuery(url);
     let items: any[] = [];
-    try { items = list<any>('null'); } catch {}
+    try { items = list<any>('criticalRules'); } catch {}
     if (!items.length) items = {"patients":[],"avgDose":2.5,"exceeded":3};
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
@@ -58,7 +58,7 @@ export const cdsHandlers = [
     const url = new URL(request.url);
     const opts = parseQuery(url);
     let items: any[] = [];
-    try { items = list<any>('null'); } catch {}
+    try { items = list<any>('criticalRules'); } catch {}
     if (!items.length) items = {"totalAlerts":89,"acknowledged":76,"escalated":5};
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
@@ -68,7 +68,7 @@ export const cdsHandlers = [
     const url = new URL(request.url);
     const opts = parseQuery(url);
     let items: any[] = [];
-    try { items = list<any>('rules'); } catch {}
+    try { items = list<any>('criticalRules'); } catch {}
     if (!items.length) items = [{"id":"CDR001","name":"辐射剂量超限","condition":"DOSE>1000"}];
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
@@ -77,7 +77,7 @@ export const cdsHandlers = [
     await delay(delayMs());
     const body = (await request.json()) as any;
     const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
-    try { create('rule', newItem); } catch {}
+    try { create('criticalRules', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
 ];

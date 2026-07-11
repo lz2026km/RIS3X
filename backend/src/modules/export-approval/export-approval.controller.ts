@@ -11,6 +11,7 @@ const RejectSchema = z.object({ reason: z.string().min(1) })
 @ApiTags('export-approval')
 @Controller('export-approval')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 export class ExportApprovalController {
   constructor(private readonly svc: ExportApprovalService) {}
 

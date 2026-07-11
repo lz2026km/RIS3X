@@ -13,6 +13,7 @@
  */
 import React, { useMemo, useCallback, useState } from 'react'
 import { Input, Tag, Space, Button, Switch } from 'antd'
+import { sanitizeHtml } from '../../../utils/sanitization'
 import { Search, Zap, ListChecks } from 'lucide-react'
 
 const ANATOMY_TERMS = [
@@ -196,7 +197,7 @@ export const KeywordHighlight: React.FC<KeywordHighlightProps> = ({
           contentEditable
           suppressContentEditableWarning
           onInput={(e) => onChange((e.currentTarget as HTMLDivElement).innerText)}
-          dangerouslySetInnerHTML={{ __html: highlightedHtml || `<span style="color:#bbb">${placeholder}</span>` }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(highlightedHtml || `<span style="color:#bbb">${placeholder}</span>`) }}
         />
       ) : (
         <Input.TextArea

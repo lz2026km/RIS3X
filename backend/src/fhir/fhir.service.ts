@@ -1,12 +1,29 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import { QueueService } from '../queue/queue.service'
 import { randomUUID } from 'crypto'
+import { setTimeout } from 'timers/promises'
 
 @Injectable()
-export class FhirService {
+export class FhirService implements OnModuleInit {
   private subscriptions: Map<string, { endpoint: string; criteria: any }> = new Map()
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly queue: QueueService,
+  ) {}
+
+  async onModuleInit() {
+    const subs = await this.prisma.fhirResource.findMany({
+      where: { resourceType: 'Subscription' },
+    })
+    for (const s of subs) {
+      const content = s.content as any
+      if (content?.channel?.type === 'rest-hook' && content?.channel?.endpoint) {
+        this.subscriptions.set(s.id, { endpoint: content.channel.endpoint, criteria: content.criteria })
+      }
+    }
+  }
 
   // ── Patient ────────────────────────────────────────────
   async readPatient(id: string) {
@@ -124,15 +141,35 @@ export class FhirService {
   }
 
   // ── FHIR $export (Bulk Data Export) ────────────────────
+  private exportJobs = new Map<string, { status: 'running' | 'completed'; output: any }>()
+
   async bulkExport(_outputFormat?: string, _since?: string, _type?: string) {
-    const patients = await this.prisma.patient.findMany()
-    const reports = await this.prisma.report.findMany()
-    const exams = await this.prisma.exam.findMany()
-    return this.Bundle([
-      ...patients.map((p) => this.toFhirPatient(p)),
-      ...reports.map((r) => this.toFhirDiagnosticReport(r)),
-      ...exams.map((e) => this.toFhirImagingStudy(e)),
-    ])
+    const jobId = randomUUID()
+    this.exportJobs.set(jobId, { status: 'running', output: null })
+    setTimeout(0).then(() => {
+      this.prisma.patient.findMany().then((patients) =>
+        this.prisma.report.findMany().then((reports) =>
+          this.prisma.exam.findMany().then((exams) => {
+            const bundle = this.Bundle([
+              ...patients.map((p) => this.toFhirPatient(p)),
+              ...reports.map((r) => this.toFhirDiagnosticReport(r)),
+              ...exams.map((e) => this.toFhirImagingStudy(e)),
+            ])
+            this.exportJobs.set(jobId, { status: 'completed', output: bundle })
+          }),
+        ),
+      )
+    })
+    return { jobId }
+  }
+
+  async bulkExportStatus(jobId: string) {
+    const job = this.exportJobs.get(jobId)
+    if (!job) throw new NotFoundException(`Export job ${jobId} not found`)
+    if (job.status === 'running') {
+      return { status: 'running' }
+    }
+    return job.output
   }
 
   // ── FHIR Subscription ──────────────────────────────────
@@ -181,20 +218,25 @@ export class FhirService {
   }
 
   private async notifySubscriptions(resourceType: string, resource: any) {
-    for (const [, sub] of this.subscriptions) {
+    for (const [id, sub] of this.subscriptions) {
       if (!sub.criteria || sub.criteria.includes(resourceType)) {
+        const payload = JSON.stringify({
+          resourceType: 'Bundle',
+          type: 'notification',
+          entry: [{ resource }],
+        })
         try {
           await fetch(sub.endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/fhir+json' },
-            body: JSON.stringify({
-              resourceType: 'Bundle',
-              type: 'notification',
-              entry: [{ resource }],
-            }),
+            body: payload,
           })
         } catch {
-          // notification failure is non-fatal
+          await this.queue.addHl7Send({
+            reportId: id,
+            destination: sub.endpoint,
+            payload,
+          }).catch(() => {})
         }
       }
     }

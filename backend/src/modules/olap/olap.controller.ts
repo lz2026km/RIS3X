@@ -1,8 +1,10 @@
 import { Controller, Post, Get, Body, HttpException, HttpStatus } from '@nestjs/common'
+import { Roles } from '../../common/decorators/roles.decorator'
 import { ApiTags, ApiOperation } from '@nestjs/swagger'
 import { OlapService } from './olap.service'
 
 @ApiTags('olap')
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('api/v1/olap')
 export class OlapController {
   constructor(private readonly olapService: OlapService) {}

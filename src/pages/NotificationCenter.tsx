@@ -279,24 +279,15 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
 
   const typeConfig = NOTIFICATION_TYPES.find(t => t.key === notification.type) || NOTIFICATION_TYPES[0]
   const priorityConfig = PRIORITY_CONFIG[notification.priority]
+  const [showJumpModal, setShowJumpModal] = useState(false)
 
   const handleRelatedAction = () => {
     if (notification.status === 'unread') {
       onMarkRead(notification.id)
     }
-    // 显示详情弹窗
-    const modal = document.createElement('div');
-    modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:10000';
-    modal.innerHTML = `<div style="background:#fff;border-radius:12px;width:90%;max-width:400px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,0.3);font-family:inherit;text-align:center">
-      <div style="font-size:16px;font-weight:600;color:#1e3a5f;margin-bottom:8px">跳转到${notification.relatedType}详情</div>
-      <div style="font-size:14px;color:#64748b;margin-bottom:16px">ID: ${notification.relatedId}</div>
-      <div style="font-size:13px;color:#94a3b8">即将跳转到相关页面查看详情</div>
-      <button id="modalCloseBtn" style="margin-top:20px;padding:10px 24px;background:#1e3a5f;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px">确定</button>
-    </div>`;
-    document.body.appendChild(modal);
-    document.getElementById('modalCloseBtn').onclick = () => document.body.removeChild(modal);
-    modal.onclick = (e) => { if (e.target === modal) document.body.removeChild(modal); };
+    setShowJumpModal(true)
   }
+  const handleCloseJumpModal = () => setShowJumpModal(false)
 
   return (
     <div style={{
@@ -441,6 +432,30 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
           </button>
         </div>
       </div>
+      {showJumpModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', zIndex: 10000,
+        }} onClick={handleCloseJumpModal}>
+          <div style={{
+            background: '#fff', borderRadius: 12, width: '90%', maxWidth: 400,
+            padding: 24, boxShadow: '0 20px 60px rgba(0,0,0,0.3)', textAlign: 'center',
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ fontSize: 16, fontWeight: 600, color: '#1e3a5f', marginBottom: 8 }}>
+              跳转到{notification.relatedType}详情
+            </div>
+            <div style={{ fontSize: 14, color: '#64748b', marginBottom: 16 }}>
+              ID: {notification.relatedId}
+            </div>
+            <div style={{ fontSize: 13, color: '#94a3b8' }}>即将跳转到相关页面查看详情</div>
+            <button onClick={handleCloseJumpModal} style={{
+              marginTop: 20, padding: '10px 24px', background: '#1e3a5f', color: '#fff',
+              border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14,
+            }}>确定</button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

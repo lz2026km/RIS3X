@@ -6,6 +6,7 @@ import { BackupService } from './backup.service'
 @ApiTags('backup')
 @Controller('backup')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 export class BackupController {
   constructor(private readonly backup: BackupService) {}
 

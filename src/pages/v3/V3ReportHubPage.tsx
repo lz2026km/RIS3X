@@ -1,5 +1,5 @@
 // [v3.0.6.8-50] PR6: v3 报告全栈综合页面
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, message,
   Tabs, List, Empty, Statistic, Alert, InputNumber, Modal, Timeline,
@@ -45,34 +45,33 @@ export const V3ReportHubPage: React.FC = () => {
   const [studies, setStudies] = useState<any[]>([]);
 
   // 加载
-  useEffect(() => {
-    (async () => {
-      try {
-        const d = await v3AnalyticsApi.getDashboard({ period: 'month' });
-        if (d.success) setDash(d.data);
-        const t = await v3WritingApi.listTemplates();
-        if (t.success) setTemplates((t.data || []).slice(0, 20));
-        const dr = await v3WritingApi.listDrafts();
-        if (dr.success) setDrafts((dr.data || []).slice(0, 20));
-        const ph = await v3WritingApi.listPhrases();
-        if (ph.success) setPhrases((ph.data || []).slice(0, 30));
-        const t2 = await v3DistApi.listTasks();
-        if (t2.success) setTasks((t2.data || []).slice(0, 20));
-        const ch = await v3DistApi.listChannels();
-        if (ch.success) setChannels((ch.data || []).slice(0, 10));
-        const fh = await v3IntegrationApi.listFHIR();
-        if (fh.success) setFhirList((fh.data || []).slice(0, 10));
-        const wh = await v3IntegrationApi.listWebhooks();
-        if (wh.success) setWebhooks(wh.data || []);
-        const aid = await v3AiAssistApi.listDrafts();
-        if (aid.success) setAiDrafts((aid.data || []).slice(0, 20));
-        const qcr = await v3QualityReportApi.listReports();
-        if (qcr.success) setQcReports((qcr.data || []).slice(0, 20));
-        const st = await v3PacsApi.listStudies();
-        if (st.success) setStudies((st.data || []).slice(0, 20));
-      } catch (e: any) { message.error(e.message); }
-    })();
+  const loadAll = useCallback(async () => {
+    try {
+      const d = await v3AnalyticsApi.getDashboard({ period: 'month' });
+      if (d.success) setDash(d.data);
+      const t = await v3WritingApi.listTemplates();
+      if (t.success) setTemplates((t.data || []).slice(0, 20));
+      const dr = await v3WritingApi.listDrafts();
+      if (dr.success) setDrafts((dr.data || []).slice(0, 20));
+      const ph = await v3WritingApi.listPhrases();
+      if (ph.success) setPhrases((ph.data || []).slice(0, 30));
+      const t2 = await v3DistApi.listTasks();
+      if (t2.success) setTasks((t2.data || []).slice(0, 20));
+      const ch = await v3DistApi.listChannels();
+      if (ch.success) setChannels((ch.data || []).slice(0, 10));
+      const fh = await v3IntegrationApi.listFHIR();
+      if (fh.success) setFhirList((fh.data || []).slice(0, 10));
+      const wh = await v3IntegrationApi.listWebhooks();
+      if (wh.success) setWebhooks(wh.data || []);
+      const aid = await v3AiAssistApi.listDrafts();
+      if (aid.success) setAiDrafts((aid.data || []).slice(0, 20));
+      const qcr = await v3QualityReportApi.listReports();
+      if (qcr.success) setQcReports((qcr.data || []).slice(0, 20));
+      const st = await v3PacsApi.listStudies();
+      if (st.success) setStudies((st.data || []).slice(0, 20));
+    } catch (e: any) { message.error(e.message); }
   }, []);
+  useEffect(() => { void loadAll(); }, [loadAll]);
 
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
@@ -113,7 +112,7 @@ export const V3ReportHubPage: React.FC = () => {
           <Card
             title="v3 写作 (40 端点)"
             size="small"
-            extra={<Button icon={<RefreshCw size={12} />} onClick={() => window.location.reload()}>刷新</Button>}
+            extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>刷新</Button>}
           >
             <Row gutter={16}>
               <Col span={12}>
@@ -148,7 +147,7 @@ export const V3ReportHubPage: React.FC = () => {
           <Card
             title="v3 分发"
             size="small"
-            extra={<Button icon={<RefreshCw size={12} />} onClick={() => window.location.reload()}>刷新</Button>}
+            extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>刷新</Button>}
           >
             <Row gutter={16}>
               <Col span={12}>
@@ -185,7 +184,7 @@ export const V3ReportHubPage: React.FC = () => {
           <Card
             title="v3 集成 (HL7/FHIR/IHE XDS/HIS/Webhook)"
             size="small"
-            extra={<Button icon={<RefreshCw size={12} />} onClick={() => window.location.reload()}>刷新</Button>}
+            extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>刷新</Button>}
           >
             <Row gutter={16}>
               <Col span={12}>
@@ -222,7 +221,7 @@ export const V3ReportHubPage: React.FC = () => {
           <Card
             title="v3 AI 协助 (预审/风险/DDX/同意)"
             size="small"
-            extra={<Button icon={<RefreshCw size={12} />} onClick={() => window.location.reload()}>刷新</Button>}
+            extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>刷新</Button>}
           >
             <List size="small" dataSource={aiDrafts} renderItem={a => (
               <List.Item>
@@ -239,7 +238,7 @@ export const V3ReportHubPage: React.FC = () => {
           <Card
             title="v3 质控报告 (月/季/年)"
             size="small"
-            extra={<Button icon={<RefreshCw size={12} />} onClick={() => window.location.reload()}>刷新</Button>}
+            extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>刷新</Button>}
           >
             <List size="small" dataSource={qcReports} renderItem={q => (
               <List.Item>
@@ -256,7 +255,7 @@ export const V3ReportHubPage: React.FC = () => {
           <Card
             title="v3 PACS 研究 (studies/uid/verify/wado/qido/stow)"
             size="small"
-            extra={<Button icon={<RefreshCw size={12} />} onClick={() => window.location.reload()}>刷新</Button>}
+            extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>刷新</Button>}
           >
             <List size="small" dataSource={studies} renderItem={s => (
               <List.Item>

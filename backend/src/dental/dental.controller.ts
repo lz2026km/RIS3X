@@ -5,6 +5,7 @@ import { DentalService } from './dental.service'
 
 @ApiTags('dental')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('dental')
 export class DentalController {
   constructor(private readonly svc: DentalService) {}

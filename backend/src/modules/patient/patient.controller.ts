@@ -25,6 +25,7 @@ const UpdatePatientSchema = z.object({
 
 @ApiTags('patients')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('patients')
 export class PatientController {
   constructor(private readonly service: PatientService) {}

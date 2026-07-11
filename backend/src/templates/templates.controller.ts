@@ -26,6 +26,7 @@ const UpdateSchema = z.object({
 
 @ApiTags('templates')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('templates')
 export class TemplatesController {
   constructor(private readonly service: TemplatesService) {}

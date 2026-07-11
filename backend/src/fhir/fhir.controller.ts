@@ -1,4 +1,5 @@
-﻿import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common'
+﻿import { Body, Controller, Delete, Get, Param, Post, Put, Query, Res } from '@nestjs/common'
+import type { Response } from 'express'
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { FhirService } from './fhir.service'
@@ -6,6 +7,7 @@ import { FhirService } from './fhir.service'
 @ApiTags('fhir')
 @Controller('fhir/r4')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 export class FhirController {
   constructor(private readonly service: FhirService) {}
 
@@ -109,11 +111,22 @@ export class FhirController {
 
   // 鈹€鈹€ Bulk Data Export 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
   @Get('$export')
-  bulkExport(
+  async bulkExport(
     @Query('_outputFormat') _outputFormat?: string,
     @Query('_since') _since?: string,
     @Query('_type') _type?: string,
+    @Res({ passthrough: true }) res?: Response,
   ) {
-    return this.service.bulkExport(_outputFormat, _since, _type)
+    const { jobId } = await this.service.bulkExport(_outputFormat, _since, _type)
+    if (res) {
+      res.status(202)
+      res.setHeader('Content-Location', `/fhir/r4/$export-status/${jobId}`)
+    }
+    return { jobId }
+  }
+
+  @Get('$export-status/:jobId')
+  bulkExportStatus(@Param('jobId') jobId: string) {
+    return this.service.bulkExportStatus(jobId)
   }
 }

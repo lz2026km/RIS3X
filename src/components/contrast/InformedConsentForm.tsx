@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { FileText, CheckCircle, XCircle, Download, Printer, PenLine, AlertTriangle } from 'lucide-react'
+import { sanitizeHtml } from '../../utils/sanitization'
 import type { InformedConsentData } from '../../templates/contrast'
 import { generateInformedConsentHtml } from '../../templates/contrast'
 
@@ -142,7 +143,7 @@ export default function InformedConsentForm() {
         {showPreview && (
           <div style={{ background: '#fff', color: '#333', borderRadius: 8, overflow: 'hidden', maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ padding: 8, background: '#f0f0f0', borderBottom: '1px solid #ddd', fontSize: 12, color: '#666', textAlign: 'center' }}>预览</div>
-            <div style={{ padding: 20 }} dangerouslySetInnerHTML={{ __html: generateInformedConsentHtml({ ...data, patientSignature: signature || '（待签名）', patientSignedAt: signed ? data.patientSignedAt : undefined }) }} />
+            <div style={{ padding: 20 }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(generateInformedConsentHtml({ ...data, patientSignature: signature || '（待签名）', patientSignedAt: signed ? data.patientSignedAt : undefined })) }} />
           </div>
         )}
       </div>

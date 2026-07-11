@@ -75,6 +75,17 @@ export interface PamLogEntry {
   messageId: string
 }
 
+export type VisitStatus = 'registered' | 'pre-admitted' | 'admitted' | 'discharged' | 'cancelled'
+
+const VISIT_TRANSITIONS: Record<string, VisitStatus> = {
+  'ADT^A01': 'admitted',
+  'ADT^A03': 'discharged',
+  'ADT^A04': 'registered',
+  'ADT^A05': 'pre-admitted',
+  'ADT^A11': 'cancelled',
+  'ADT^A13': 'admitted',
+}
+
 const DEFAULT_DOMAIN: AffinityDomainDto = {
   homeCommunityId: 'urn:oid:1.2.840.113556.1.8000.2554.1',
   name: '汉东省人民医院集成域',
@@ -93,6 +104,18 @@ const SYS_KEY_DOMAIN = 'ihe_affinity_domain'
 const SYS_KEY_PIX_STORE = 'ihe_pix_store'
 const SYS_KEY_PDQ_INDEX = 'ihe_pdq_index'
 const SYS_KEY_PAM_LOG = 'ihe_pam_log'
+const SYS_KEY_VISIT_STORE = 'ihe_visit_store'
+
+export interface VisitState {
+  patientId: string
+  visitNumber: string
+  status: VisitStatus
+  classCode?: string
+  assignedLocation?: PamMessageDto['assignedLocation']
+  admitDateTime?: string
+  dischargeDateTime?: string
+  updatedAt: string
+}
 
 @Injectable()
 export class IheService {
@@ -256,6 +279,58 @@ export class IheService {
   //  PAM (ITI-30 / ITI-31): 患者管理消息 (ADT A01/A03/A04/A05/A08/A11/A13)
   // ===========================================================
 
+  // ===========================================================
+  //  Visit 生命周期管理（状态机）
+  // ===========================================================
+
+  private async readVisitStore(): Promise<Record<string, VisitState>> {
+    const cfg = await this.prisma.systemConfig.findUnique({ where: { key: SYS_KEY_VISIT_STORE } })
+    return (cfg?.value as Record<string, VisitState> | null) ?? {}
+  }
+
+  private async writeVisitStore(store: Record<string, VisitState>): Promise<void> {
+    await this.prisma.systemConfig.upsert({
+      where: { key: SYS_KEY_VISIT_STORE },
+      create: { key: SYS_KEY_VISIT_STORE, value: store as any },
+      update: { value: store as any },
+    })
+  }
+
+  private async transitionVisitState(dto: PamMessageDto, visitNumber: string): Promise<VisitState> {
+    const store = await this.readVisitStore()
+    const key = `${dto.patientId}::${visitNumber}`
+    const existing = store[key]
+    const newStatus = VISIT_TRANSITIONS[dto.messageType]
+    const now = new Date().toISOString()
+    if (dto.messageType === 'ADT^A08' && existing) {
+      existing.status = existing.status
+      existing.assignedLocation = dto.assignedLocation ?? existing.assignedLocation
+      existing.classCode = dto.classCode ?? existing.classCode
+      existing.updatedAt = now
+      store[key] = existing
+    } else {
+      store[key] = {
+        patientId: dto.patientId,
+        visitNumber,
+        status: newStatus ?? 'registered',
+        classCode: dto.classCode,
+        assignedLocation: dto.assignedLocation,
+        admitDateTime: dto.admitDateTime ?? (newStatus === 'admitted' ? now : undefined),
+        dischargeDateTime: dto.dischargeDateTime ?? (newStatus === 'discharged' ? now : undefined),
+        updatedAt: now,
+      }
+    }
+    await this.writeVisitStore(store)
+    return store[key]
+  }
+
+  async getVisitState(patientId: string, visitNumber?: string): Promise<VisitState | null> {
+    const store = await this.readVisitStore()
+    if (visitNumber) return store[`${patientId}::${visitNumber}`] ?? null
+    const visits = Object.values(store).filter((v) => v.patientId === patientId)
+    return visits.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0] ?? null
+  }
+
   async sendPamMessage(dto: PamMessageDto): Promise<PamAck> {
     const messageId = `PAM-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
     const ts = new Date().toISOString()
@@ -276,6 +351,7 @@ export class IheService {
     }
 
     const visitNumber = dto.visitNumber ?? `VN-${Date.now()}`
+    await this.transitionVisitState(dto, visitNumber)
     await this.appendPamLog({ ts, message: dto, ack: 'AA', messageId })
 
     await this.auditNotify('ITI-30', /A01|A04|A05/.test(dto.messageType) ? 'C' : 'U', dto.patientId, dto.assigningAuthority)

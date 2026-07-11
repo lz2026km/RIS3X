@@ -4,6 +4,7 @@
  */
 import React from 'react';
 import { Palette, FileText } from 'lucide-react';
+import { sanitizeHtml } from '../../utils/sanitization';
 import { BrandingConfig } from '../../components/export/BrandingConfig';
 import { getBrandingEngine } from '../../services/export/branding/BrandingEngine';
 
@@ -45,7 +46,7 @@ export default function BrandingPage() {
             background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0',
             overflow: 'auto', maxHeight: 500,
           }}>
-            <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
+            <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(previewHtml) }} />
           </div>
         </div>
       </div>

@@ -17,7 +17,7 @@ export default function LoginPage() {
   const { isAuthenticated, user } = useAuth();
   const [selectedRole, setSelectedRole] = useState<UserRole>('管理员');
   const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('123');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? '/';

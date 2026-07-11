@@ -5,6 +5,7 @@ import { CdsService } from './cds.service'
 
 @ApiTags('cds')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('cds')
 export class CdsController {
   constructor(private readonly svc: CdsService) {}

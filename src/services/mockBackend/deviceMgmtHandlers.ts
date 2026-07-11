@@ -43,7 +43,7 @@ export const deviceMgmtHandlers = [
     await delay(delayMs());
     const body = (await request.json()) as any;
     const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
-    try { create('fault', newItem); } catch {}
+    try { create('devices', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
   http.get(`${API}/materials`, async ({ request }) => {
@@ -60,7 +60,7 @@ export const deviceMgmtHandlers = [
     await delay(delayMs());
     const body = (await request.json()) as any;
     const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
-    try { create('material', newItem); } catch {}
+    try { create('devices', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
   http.get(`${API}/dose-tracking`, async ({ request }) => {
@@ -68,7 +68,7 @@ export const deviceMgmtHandlers = [
     const url = new URL(request.url);
     const opts = parseQuery(url);
     let items: any[] = [];
-    try { items = list<any>('null'); } catch {}
+    try { items = list<any>('devices'); } catch {}
     if (!items.length) items = {"patients":[],"totalExams":1240,"avgDlp":450,"exceeded":5};
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
@@ -87,7 +87,7 @@ export const deviceMgmtHandlers = [
     await delay(delayMs());
     const body = (await request.json()) as any;
     const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
-    try { create('reaction', newItem); } catch {}
+    try { create('criticalEvents', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
   http.get(`${API}/contrast/inventory`, async ({ request }) => {

@@ -438,8 +438,31 @@ const HomePage: FC = () => {
   }, [])
 
   useEffect(() => {
-    const interval = setInterval(() => { void fetchStats() }, 30000)
-    return () => clearInterval(interval)
+    let isHidden = document.visibilityState === 'hidden'
+    let timer: ReturnType<typeof setInterval> | null = null
+
+    const startTimer = () => {
+      if (isHidden) return
+      timer = setInterval(() => { void fetchStats() }, 30000)
+    }
+    const stopTimer = () => {
+      if (timer) { clearInterval(timer); timer = null }
+    }
+    const onVisibilityChange = () => {
+      isHidden = document.visibilityState === 'hidden'
+      if (isHidden) {
+        stopTimer()
+      } else {
+        void fetchStats()
+        startTimer()
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    startTimer()
+    return () => {
+      stopTimer()
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+    }
   }, [])
 
   // 计算统计数据

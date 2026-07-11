@@ -5,6 +5,7 @@ import { PatientPortalService } from './patientportal.service'
 
 @ApiTags('patient-portal')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('patient-portal')
 export class PatientPortalController {
   constructor(private readonly svc: PatientPortalService) {}

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common'
+import { Controller, Get, Post, Query, Body } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { SmartAuthService } from './smart-auth.service'
 
@@ -12,7 +12,7 @@ export class SmartAuthController {
     return this.smartAuth.smartConfiguration()
   }
 
-  @Post('auth/authorize')
+  @Get('auth/authorize')
   authorize(
     @Query('client_id') clientId: string,
     @Query('redirect_uri') redirectUri: string,
@@ -20,9 +20,9 @@ export class SmartAuthController {
     @Query('state') state: string,
     @Query('patient') patientId?: string,
     @Query('encounter') encounterId?: string,
-    @Body('user_id') userId?: string,
+    @Query('user_id') userId = 'anonymous',
   ) {
-    return this.smartAuth.authorize(clientId, redirectUri, scope, state, userId ?? 'anonymous', patientId, encounterId)
+    return this.smartAuth.authorize(clientId, redirectUri, scope, state, userId, patientId, encounterId)
   }
 
   @Post('auth/token')

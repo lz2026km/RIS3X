@@ -23,6 +23,7 @@ const UpdateDeviceSchema = z.object({
 
 @ApiTags('devices')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('devices')
 export class DeviceController {
   constructor(private readonly service: DeviceService) {}

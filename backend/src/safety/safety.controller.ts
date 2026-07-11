@@ -136,6 +136,7 @@ const IdParamSchema = z.string().min(1)
 
 @ApiTags('safety')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('safety')
 export class SafetyController {
   constructor(private readonly service: SafetyService) {}

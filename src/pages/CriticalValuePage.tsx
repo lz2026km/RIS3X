@@ -2685,6 +2685,7 @@ export default function CriticalValuePage() {
   const [selectedCV, setSelectedCV] = useState<CriticalValue | null>(null);
   const [detailTab, setDetailTab] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [showProcessModal, setShowProcessModal] = useState(false);
   const [processCV, setProcessCV] = useState<CriticalValue | null>(null);
   const [showTransferModal, setShowTransferModal] = useState(false);
@@ -2915,7 +2916,7 @@ export default function CriticalValuePage() {
       setSelectedCV(null);
     }),
     SHORTCUTS.REFRESH(() => {
-      window.location.reload();
+      setRefreshKey((k) => k + 1);
     }),
   ]);
   useNavigationShortcuts([

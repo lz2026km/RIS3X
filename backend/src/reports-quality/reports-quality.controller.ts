@@ -3,6 +3,7 @@
  * 5 绔偣:GET rules / POST evaluate / GET history / GET trend / POST re-evaluate
  */
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common'
+import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
@@ -21,6 +22,7 @@ const EvaluateSchema = z.object({
 
 @ApiTags('reports-quality')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('reports/quality')
 export class ReportsQualityController {
   constructor(private readonly service: ReportsQualityService) {}

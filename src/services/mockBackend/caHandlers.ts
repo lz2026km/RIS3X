@@ -23,14 +23,14 @@ export const caHandlers = [
     await delay(delayMs());
     const body = (await request.json()) as any;
     const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
-    try { create('certificate', newItem); } catch {}
+    try { create('doctors', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
   http.post(`${API}/sign`, async ({ request }) => {
     await delay(delayMs());
     const body = (await request.json()) as any;
     const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
-    try { create('null', newItem); } catch {}
+    try { create('doctors', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
   http.get(`${API}/signatures`, async ({ request }) => {
@@ -38,7 +38,7 @@ export const caHandlers = [
     const url = new URL(request.url);
     const opts = parseQuery(url);
     let items: any[] = [];
-    try { items = list<any>('signatures'); } catch {}
+    try { items = list<any>('doctors'); } catch {}
     if (!items.length) items = [{"id":"SIG001","documentType":"报告","signer":"张主任","signedAt":"2026-07-08T10:00"}];
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
@@ -47,7 +47,7 @@ export const caHandlers = [
     await delay(delayMs());
     const body = (await request.json()) as any;
     const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
-    try { create('null', newItem); } catch {}
+    try { create('doctors', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
   http.get(`${API}/config`, async ({ request }) => {
@@ -55,7 +55,7 @@ export const caHandlers = [
     const url = new URL(request.url);
     const opts = parseQuery(url);
     let items: any[] = [];
-    try { items = list<any>('null'); } catch {}
+    try { items = list<any>('doctors'); } catch {}
     if (!items.length) items = {"provider":"内部CA","algorithm":"SHA256withRSA"};
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });

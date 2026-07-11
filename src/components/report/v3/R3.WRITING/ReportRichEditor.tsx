@@ -8,6 +8,7 @@ import {
   Card, Space, Button, Tooltip, Modal, message, Input, Divider, Switch, Dropdown,
   Select, ColorPicker, Slider, Tag, Collapse, InputNumber, Avatar, Badge, Popover,
 } from 'antd';
+import { sanitizeHtml } from '../../../../utils/sanitization';
 import {
   Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify,
   List, ListOrdered, Image as ImageIcon, Table as TableIcon, Link2, Undo, Redo, Save,
@@ -458,7 +459,7 @@ export const ReportRichEditor: React.FC<Props> = ({
       onBlur={handleContentChange}
       className="prose prose-slate max-w-none focus:outline-none p-6"
       style={{ minHeight: 500, fontFamily: doc.style.fontFamily ?? 'SimSun', fontSize: doc.style.fontSize ?? 14, lineHeight: doc.style.lineHeight ?? 1.6 }}
-      dangerouslySetInnerHTML={{ __html: doc.html }}
+      dangerouslySetInnerHTML={{ __html: sanitizeHtml(doc.html) }}
     />
   );
 

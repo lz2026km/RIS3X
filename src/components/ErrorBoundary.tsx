@@ -37,7 +37,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   handleReload = (): void => {
-    window.location.reload()
+    this.handleRetry()
   }
 
   handleGoHome = (): void => {

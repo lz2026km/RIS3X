@@ -22,7 +22,7 @@ import i18n, { SUPPORTED_LANGUAGES, type SupportedLanguage } from '@/i18n';
 import { initSentry, captureError } from '@/observability/sentry';
 import { reportWebVitals, performanceMarks } from '@/observability/webVitals';
 import { injectCSP, injectSecurityMetaTags } from '@/security/csp';
-import { SkipLink, useScreenReaderAnnouncer, MAIN_CONTENT_ID } from '@/a11y/SkipLink';
+import { useScreenReaderAnnouncer } from '@/a11y/SkipLink';
 
 export type ThemeMode = 'light' | 'dark' | 'high-contrast';
 export const THEME_STORAGE_KEY = 'g005-ris-theme';
@@ -158,7 +158,6 @@ export function Provider({ children }: ProviderProps): JSX.Element {
           }}
         >
           <AntdApp notification={{ placement: 'topRight', duration: 4 }} message={{ duration: 3 }}>
-            <SkipLink targetId={MAIN_CONTENT_ID} />
             <Announcement />
             {children}
           </AntdApp>

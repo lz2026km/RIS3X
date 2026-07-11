@@ -14,7 +14,7 @@ export const dentalNewHandlers = [
     const url = new URL(request.url);
     const opts = parseQuery(url);
     let items: any[] = [];
-    try { items = list<any>('implants'); } catch {}
+    try { items = list<any>('dental_treatments'); } catch {}
     if (!items.length) items = [{"id":"IMP001","patientId":"P001","toothNumber":"16","implantBrand":"Straumann","implantModel":"BLT","diameter":4.1,"length":10,"status":"PLANNED"},{"id":"IMP002","patientId":"P001","toothNumber":"17","implantBrand":"Nobel Biocare","implantModel":"Active","diameter":3.75,"length":11.5,"status":"SURGERY_DONE"}];
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
@@ -23,13 +23,13 @@ export const dentalNewHandlers = [
     await delay(delayMs());
     const body = (await request.json()) as any;
     const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
-    try { create('implant', newItem); } catch {}
+    try { create('dental_treatments', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
   http.put(`${API}/implants/:id`, async ({ params, request }) => {
     await delay(delayMs());
     const body = (await request.json()) as any;
-    try { update('implant', params.id as string, body); } catch {}
+    try { update('dental_treatments', params.id as string, body); } catch {}
     return HttpResponse.json({ success: true, data: { id: params.id, ...body } });
   }),
   http.get(`${API}/appointments`, async ({ request }) => {
@@ -37,7 +37,7 @@ export const dentalNewHandlers = [
     const url = new URL(request.url);
     const opts = parseQuery(url);
     let items: any[] = [];
-    try { items = list<any>('appointments'); } catch {}
+    try { items = list<any>('dental_appointments'); } catch {}
     if (!items.length) items = [{"id":"DA001","patientId":"P001","dentistName":"李医生","modality":"检查","scheduledAt":"2026-07-10T09:00","state":"SCHEDULED"}];
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
@@ -46,7 +46,7 @@ export const dentalNewHandlers = [
     await delay(delayMs());
     const body = (await request.json()) as any;
     const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
-    try { create('appointment', newItem); } catch {}
+    try { create('dental_appointments', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
   http.get(`${API}/invoices`, async ({ request }) => {
@@ -63,7 +63,7 @@ export const dentalNewHandlers = [
     await delay(delayMs());
     const body = (await request.json()) as any;
     const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
-    try { create('invoice', newItem); } catch {}
+    try { create('invoices', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
   http.get(`${API}/inventory`, async ({ request }) => {
@@ -71,7 +71,7 @@ export const dentalNewHandlers = [
     const url = new URL(request.url);
     const opts = parseQuery(url);
     let items: any[] = [];
-    try { items = list<any>('inventory'); } catch {}
+    try { items = list<any>('dental_treatments'); } catch {}
     if (!items.length) items = [{"id":"DINV001","code":"MAT-001","name":"种植体","category":"材料","quantity":50,"unit":"件","unitPrice":800}];
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
@@ -80,13 +80,13 @@ export const dentalNewHandlers = [
     await delay(delayMs());
     const body = (await request.json()) as any;
     const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
-    try { create('item', newItem); } catch {}
+    try { create('dental_treatments', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
   http.put(`${API}/inventory/:id`, async ({ params, request }) => {
     await delay(delayMs());
     const body = (await request.json()) as any;
-    try { update('item', params.id as string, body); } catch {}
+    try { update('dental_treatments', params.id as string, body); } catch {}
     return HttpResponse.json({ success: true, data: { id: params.id, ...body } });
   }),
 ];

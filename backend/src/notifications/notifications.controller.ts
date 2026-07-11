@@ -3,6 +3,7 @@
  * 4 绔偣
  */
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common'
+import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
@@ -30,6 +31,7 @@ const BroadcastSchema = z.object({
 
 @ApiTags('notifications')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('notifications')
 export class NotificationsController {
   constructor(private readonly service: NotificationsService) {}

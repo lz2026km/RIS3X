@@ -3,6 +3,7 @@
  * v3.0.6.11-9: 娣诲姞 POST orm / POST dft
  */
 import { Body, Controller, Post } from '@nestjs/common'
+import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
@@ -61,6 +62,7 @@ const DftSchema = z.object({
 
 @ApiTags('hl7')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('hl7')
 export class Hl7Controller {
   constructor(private readonly service: Hl7Service) {}

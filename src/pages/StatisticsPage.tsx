@@ -107,7 +107,7 @@ const timeSlotData = [
 ]
 
 // 患者类型分布 - 来源: PATIENT_MASTER.type (1500 患者聚合)
-const patientTypeData = (() => {
+function getPatientTypeData() {
   const counts: Record<string, number> = {};
   PATIENT_MASTER.forEach((p) => { counts[p.type] = (counts[p.type] || 0) + 1; });
   const total = PATIENT_MASTER.length;
@@ -115,20 +115,22 @@ const patientTypeData = (() => {
   return Object.entries(counts).map(([k, v]) => ({
     name: k, value: Math.round((v / total) * 100), color: colors[k] || '#64748b',
   })).sort((a, b) => b.value - a.value);
-})()
+}
+const patientTypeData = getPatientTypeData()
 
 // 检查部位分布 - 来源: EXAM_REPORT_PRE (600 报告) 按 bodyPart 聚合
-const bodyPartData = (() => {
+function getBodyPartData() {
   const counts: Record<string, number> = {};
   EXAM_REPORT_PRE.forEach((r) => { counts[r.bodyPart] = (counts[r.bodyPart] || 0) + 1; });
   return Object.entries(counts)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 10)
-    .map(([part, count]) => ({ part, count: count * 2 + Math.floor(Math.random() * 5) }));
-})()
+    .map(([part, count]) => ({ part, count: count * 2 + (part.length % 5) + 1 }));
+}
+const bodyPartData = getBodyPartData()
 
 // 医生工作量 - 来源: DOCTOR_PERFORMANCE_PRE 当前月取前 7 名 (按 reportCount 降序)
-const doctorWorkloadData = (() => {
+function getDoctorWorkloadData() {
   const currentMonth = DOCTOR_PERFORMANCE_PRE.filter((p) => p.month === '2026-06');
   return [...currentMonth]
     .sort((a, b) => b.reportCount - a.reportCount)
@@ -141,10 +143,11 @@ const doctorWorkloadData = (() => {
       overtime: d.reportCount > 100 ? 3 : 1,
       critical: d.criticalValueCount,
     }));
-})()
+}
+const doctorWorkloadData = getDoctorWorkloadData()
 
 // 医生趋势 - 来源: DOCTOR_PERFORMANCE_PRE 前 4 名按月聚合
-const doctorTrendData = (() => {
+function getDoctorTrendData() {
   const top4 = [...DOCTOR_PERFORMANCE_PRE]
     .filter((p) => p.month === '2026-06')
     .sort((a, b) => b.reportCount - a.reportCount)
@@ -152,13 +155,13 @@ const doctorTrendData = (() => {
   return DAILY_KPI_PRE.slice(-7).map((d, idx) => {
     const obj: any = { day: dayNameFromISO(d.date) };
     top4.forEach((doc) => {
-      // 按医生报表数 ÷ 30 天 × 当天系数
       const factor = 1 + (idx - 3) * 0.1;
       obj[doc.doctorName] = Math.round((doc.reportCount / 30) * factor);
     });
     return obj;
   });
-})()
+}
+const doctorTrendData = getDoctorTrendData()
 
 // 质控评分趋势 - 来源: DAILY_KPI_PRE.qcAvgScore (30 天)
 const qualityScoreData = DAILY_KPI_PRE.slice(-7).map((d) => ({
@@ -167,7 +170,7 @@ const qualityScoreData = DAILY_KPI_PRE.slice(-7).map((d) => ({
 }))
 
 // 质控分布 - 来源: QUALITY_SCORE_PRE.grade (A/B/C/D)
-const qualityDistribution = (() => {
+function getQualityDistribution() {
   const counts = { '优秀': 0, '良好': 0, '合格': 0, '不合格': 0 };
   QUALITY_SCORE_PRE.forEach((q) => {
     if (q.grade === 'A') counts['优秀']++;
@@ -180,7 +183,8 @@ const qualityDistribution = (() => {
   return Object.entries(counts).map(([name, value]) => ({
     name, value: Math.round((value / total) * 100), color: colors[name as keyof typeof colors],
   }));
-})()
+}
+const qualityDistribution = getQualityDistribution()
 
 const overtimeData = {
   total: 186,
@@ -244,7 +248,7 @@ const genderDistribution = [
   { name: '女性', value: 45, color: '#ec4899' },
 ]
 
-const positiveRateData = (() => {
+function getPositiveRateData() {
   // 按模态从 EXAM_REPORT_PRE 计算阳性率 (有临床发现)
   const counts: Record<string, { total: number; pos: number }> = {};
   EXAM_REPORT_PRE.forEach((r) => {
@@ -255,7 +259,8 @@ const positiveRateData = (() => {
   return Object.entries(counts).map(([modality, c]) => ({
     modality, rate: Math.round((c.pos / c.total) * 1000) / 10,
   }));
-})()
+}
+const positiveRateData = getPositiveRateData()
 
 const positiveTrendData = [
   { day: '周一', rate: 38.5 },
@@ -279,7 +284,7 @@ const reexaminationData = [
   { type: '胸部DR', reexamRate: 4.2, avgDays: 1.5, reason: '曝光参数不当' },
 ]
 
-const positiveRateRanking = (() => {
+function getPositiveRateRanking() {
   // 从 EXAM_ITEM_MASTER 按 name 取前 8, 排名基于估算检查量
   return EXAM_ITEM_MASTER.slice(0, 8).map((e, idx) => {
     const estCount = e.modality === 'CT' ? 80 + idx * 20
@@ -293,12 +298,13 @@ const positiveRateRanking = (() => {
       count: estCount, trend: ['↑2.1%', '↓1.5%', '↑3.2%', '↑0.8%', '↓0.5%', '持平', '↑1.2%', '↓0.3%'][idx] || '持平',
     };
   });
-})()
+}
+const positiveRateRanking = getPositiveRateRanking()
 
 const positiveRateTrend30Days = Array.from({ length: 30 }, (_, i) => ({
   day: `Day${i + 1}`,
-  rate: 36 + Math.random() * 8,
-  critical: Math.round(Math.random() * 5),
+  rate: 36 + ((i * 7 + 3) % 80) / 10,
+  critical: Math.round(((i * 13 + 7) % 6)),
 }))
 
 // ============================================================
@@ -389,7 +395,7 @@ const waitTimeTrendData = [
   { slot: '16:00-18:00', CT: 1.5, MR: 2.8, DR: 0.4 },
 ]
 
-const revenueByModality = (() => {
+function getRevenueByModality() {
   const colors: Record<string, string> = { 'CT': '#3b82f6', 'MR': '#8b5cf6', 'DR': '#22c55e', 'DSA': '#f59e0b', 'MG': '#ec4899', 'US': '#14b8a6' };
   const priceByModality: Record<string, number> = { 'CT': 400, 'MR': 800, 'DR': 80, 'DSA': 3500, 'MG': 200, 'US': 120 };
   const out: { name: string; value: number; color: string }[] = [];
@@ -399,23 +405,25 @@ const revenueByModality = (() => {
     out.push({ name: mod, value: Math.round(revenue), color: colors[mod] || '#64748b' });
   });
   return out.filter((m) => m.value > 0);
-})()
+}
+const revenueByModality = getRevenueByModality()
 
-const examTypeRevenue = (() => {
+function getExamTypeRevenue() {
   // 用 EXAM_ITEM_MASTER 价格 × 估算检查数
-  return EXAM_ITEM_MASTER.slice(0, 8).map((e) => {
-    const estExams = e.modality === 'CT' ? 80 + Math.round(Math.random() * 80)
-                   : e.modality === 'MR' ? 30 + Math.round(Math.random() * 50)
-                   : e.modality === 'DR' ? 200 + Math.round(Math.random() * 300)
-                   : e.modality === 'DSA' ? 10 + Math.round(Math.random() * 30)
-                   : 20 + Math.round(Math.random() * 30);
+  return EXAM_ITEM_MASTER.slice(0, 8).map((e, idx) => {
+    const estExams = e.modality === 'CT' ? 80 + ((idx * 17 + 5) % 80)
+                   : e.modality === 'MR' ? 30 + ((idx * 13 + 7) % 50)
+                   : e.modality === 'DR' ? 200 + ((idx * 11 + 3) % 300)
+                   : e.modality === 'DSA' ? 10 + ((idx * 19 + 11) % 30)
+                   : 20 + ((idx * 7 + 13) % 30);
     return {
       type: e.name,
       revenue: estExams * e.priceRMB,
       exams: estExams,
     };
   });
-})()
+}
+const examTypeRevenue = getExamTypeRevenue()
 
 const deptRevenueTarget = [
   { dept: 'CT室', target: 500000, actual: 428000, rate: 85.6 },
@@ -852,7 +860,7 @@ function RevenueTab() {
   const revenueTrend7 = sevenDayData.map(d => ({ day: d.day, revenue: d.revenue }))
   const revenueTrend30 = Array.from({ length: 30 }, (_, i) => ({
     day: `Day${i + 1}`,
-    revenue: 85000 + Math.round(Math.random() * 30000)
+    revenue: 85000 + ((i * 937 + 123) % 30000)
   }))
 
   const maxRevenue = Math.max(...(chartView === '7days' ? revenueTrend7 : revenueTrend30).map(d => d.revenue))
@@ -1011,7 +1019,7 @@ function QualityControlTab() {
 
   const trendData = trendRange === '7days' ? qualityScoreData : Array.from({ length: 30 }, (_, i) => ({
     day: `Day${i + 1}`,
-    score: 95 + Math.random() * 3
+    score: 95 + ((i * 7 + 3) % 30) / 10
   }))
 
   return (
@@ -2095,6 +2103,7 @@ export default function StatisticsPage() {
   const [activeTab, setActiveTab] = useState('examVolume')
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -2110,7 +2119,7 @@ export default function StatisticsPage() {
       setLoading(false)
     })()
     return () => { cancelled = true }
-  }, [])
+  }, [refreshKey, t])
 
   // Toast消息状态
   const [toast, setToast] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
@@ -2127,7 +2136,7 @@ export default function StatisticsPage() {
   // 刷新数据处理
   const handleRefresh = () => {
     showToast(t('statistics.refreshing'), 'success')
-    setTimeout(() => window.location.reload(), 500)
+    setRefreshKey((k) => k + 1)
   }
 
   // 导出报表处理

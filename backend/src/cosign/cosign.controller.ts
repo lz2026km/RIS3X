@@ -5,6 +5,7 @@ import { CosignService } from './cosign.service'
 
 @ApiTags('cosign')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('cosign')
 export class CosignController {
   constructor(private readonly svc: CosignService) {}

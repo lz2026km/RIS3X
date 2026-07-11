@@ -14,7 +14,7 @@ export const cosignNewHandlers = [
     const url = new URL(request.url);
     const opts = parseQuery(url);
     let items: any[] = [];
-    try { items = list<any>('items'); } catch {}
+    try { items = list<any>('cosignTasks'); } catch {}
     if (!items.length) items = [{"id":"CS001","reportId":"RPT001","requester":"李医生","status":"PENDING","createdAt":"2026-07-08"}];
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
@@ -22,7 +22,7 @@ export const cosignNewHandlers = [
   http.get(`${API}/pending/:id`, async ({ params }) => {
     await delay(delayMs());
     let item: any = null;
-    try { item = get<any>('item', params.id as string); } catch {}
+    try { item = get<any>('cosignTasks', params.id as string); } catch {}
     if (!item) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
     return HttpResponse.json({ success: true, data: item });
   }),
@@ -30,14 +30,14 @@ export const cosignNewHandlers = [
     await delay(delayMs());
     const body = (await request.json()) as any;
     const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
-    try { create('null', newItem); } catch {}
+    try { create('cosignTasks', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
   http.post(`${API}/pending/:id/reject`, async ({ request }) => {
     await delay(delayMs());
     const body = (await request.json()) as any;
     const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
-    try { create('null', newItem); } catch {}
+    try { create('cosignTasks', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
   http.get(`${API}/history`, async ({ request }) => {
@@ -45,7 +45,7 @@ export const cosignNewHandlers = [
     const url = new URL(request.url);
     const opts = parseQuery(url);
     let items: any[] = [];
-    try { items = list<any>('items'); } catch {}
+    try { items = list<any>('cosignTasks'); } catch {}
     if (!items.length) items = [{"id":"CS002","reportId":"RPT002","approver":"张主任","status":"APPROVED","approvedAt":"2026-07-07"}];
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
@@ -65,7 +65,7 @@ export const cosignNewHandlers = [
     const url = new URL(request.url);
     const opts = parseQuery(url);
     let items: any[] = [];
-    try { items = list<any>('null'); } catch {}
+    try { items = list<any>('cosignTasks'); } catch {}
     if (!items.length) items = {"total":156,"pending":12,"avgHours":4.5};
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });

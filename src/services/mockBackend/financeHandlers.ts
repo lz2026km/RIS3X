@@ -23,7 +23,7 @@ export const financeHandlers = [
     await delay(delayMs());
     const body = (await request.json()) as any;
     const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
-    try { create('item', newItem); } catch {}
+    try { create('invoices', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
   http.get(`${API}/invoices`, async ({ request }) => {
@@ -39,7 +39,7 @@ export const financeHandlers = [
   http.get(`${API}/invoices/:id`, async ({ params }) => {
     await delay(delayMs());
     let item: any = null;
-    try { item = get<any>('invoice', params.id as string); } catch {}
+    try { item = get<any>('invoices', params.id as string); } catch {}
     if (!item) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
     return HttpResponse.json({ success: true, data: item });
   }),
@@ -47,14 +47,14 @@ export const financeHandlers = [
     await delay(delayMs());
     const body = (await request.json()) as any;
     const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
-    try { create('invoice', newItem); } catch {}
+    try { create('invoices', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
   http.post(`${API}/invoices/:id/pay`, async ({ request }) => {
     await delay(delayMs());
     const body = (await request.json()) as any;
     const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
-    try { create('null', newItem); } catch {}
+    try { create('invoices', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
   http.get(`${API}/revenue-analysis`, async ({ request }) => {
@@ -62,7 +62,7 @@ export const financeHandlers = [
     const url = new URL(request.url);
     const opts = parseQuery(url);
     let items: any[] = [];
-    try { items = list<any>('null'); } catch {}
+    try { items = list<any>('invoices'); } catch {}
     if (!items.length) items = {"daily":[{"date":"2026-07-01","amount":45000}],"monthly":[{"month":"2026-07","amount":980000}]};
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
@@ -72,7 +72,7 @@ export const financeHandlers = [
     const url = new URL(request.url);
     const opts = parseQuery(url);
     let items: any[] = [];
-    try { items = list<any>('null'); } catch {}
+    try { items = list<any>('invoices'); } catch {}
     if (!items.length) items = {"reports":[{"id":"FR001","type":"月度","period":"2026-07","totalRevenue":980000}]};
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });

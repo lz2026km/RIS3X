@@ -5,6 +5,7 @@ import { AiPlatformService } from './aiplatform.service'
 
 @ApiTags('ai-platform')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('ai-platform')
 export class AiPlatformController {
   constructor(private readonly svc: AiPlatformService) {}

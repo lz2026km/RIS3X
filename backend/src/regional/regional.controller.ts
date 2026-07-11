@@ -5,6 +5,7 @@ import { RegionalService } from './regional.service'
 
 @ApiTags('regional')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('regional')
 export class RegionalController {
   constructor(private readonly svc: RegionalService) {}

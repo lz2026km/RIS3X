@@ -95,15 +95,27 @@ export async function wadoRenderThumbnail(studyUID: string, seriesUID: string, s
   await delay(150);
   const inst = retrieveInstance(studyUID, seriesUID, sopUID);
   if (!inst) return null;
-  // Mock:在浏览器中生成一个 SVG 占位图作为缩略图
   const w = viewport.columns, h = viewport.rows;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
-    <rect width="100%" height="100%" fill="#0f172a"/>
-    <text x="50%" y="50%" text-anchor="middle" fill="#7dd3fc" font-family="monospace" font-size="10">${sopUID.slice(-6)}</text>
-    <text x="50%" y="65%" text-anchor="middle" fill="#94a3b8" font-family="monospace" font-size="8">${inst.studyInstanceUID.slice(-6)}</text>
-  </svg>`;
-  const blob = new Blob([svg], { type: 'image/svg+xml' });
-  return { contentType: 'image/svg+xml', body: blob, size: blob.size, width: w, height: h };
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d')!;
+  const grad = ctx.createLinearGradient(0, 0, w, h);
+  grad.addColorStop(0, '#0f172a');
+  grad.addColorStop(0.5, '#1e3a5f');
+  grad.addColorStop(1, '#0f172a');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = '#7dd3fc';
+  ctx.font = `bold ${Math.max(10, w / 10)}px monospace`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(sopUID.slice(-6), w / 2, h * 0.38);
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = `${Math.max(8, w / 14)}px monospace`;
+  ctx.fillText(inst.studyInstanceUID.slice(-6), w / 2, h * 0.62);
+  const blob = await new Promise<Blob>((resolve) => canvas.toBlob((b) => resolve(b!), 'image/png'));
+  return { contentType: 'image/png', body: blob, size: blob.size, width: w, height: h };
 }
 
 // ============================================================

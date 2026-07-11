@@ -22,6 +22,7 @@ const UpdateUserSchema = z.object({
 
 @ApiTags('users')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('users')
 export class UsersController {
   constructor(private readonly users: UsersService) {}

@@ -5,6 +5,7 @@ import { AiService, AiGenerateDto, AiReviewDto, AiScoreDto } from './ai.service'
 
 @ApiTags('ai')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('ai')
 export class AiController {
   constructor(private readonly service: AiService) {}

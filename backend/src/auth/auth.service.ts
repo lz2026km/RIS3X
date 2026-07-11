@@ -8,6 +8,7 @@ export interface JwtPayload {
   sub: string
   username: string
   role: string
+  tenantId?: string
 }
 
 const MAX_FAILED_ATTEMPTS = 5
@@ -74,7 +75,7 @@ export class AuthService {
     }
 
     if (!totpRequired) {
-      const payload: JwtPayload = { sub: user.id, username: user.username, role: user.role }
+      const payload: JwtPayload = { sub: user.id, username: user.username, role: user.role, tenantId: user.tenantId }
       const accessToken = await this.jwt.signAsync(payload)
       return {
         accessToken,
@@ -82,7 +83,7 @@ export class AuthService {
       }
     }
 
-    const tempPayload = { sub: user.id, username: user.username, role: user.role, totpPending: true }
+    const tempPayload: JwtPayload & { totpPending: true } = { sub: user.id, username: user.username, role: user.role, tenantId: user.tenantId, totpPending: true }
     const tempToken = await this.jwt.signAsync(tempPayload, { expiresIn: '5m' })
     return {
       accessToken: tempToken,
