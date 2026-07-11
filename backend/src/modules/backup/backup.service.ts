@@ -1,10 +1,16 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
 import * as crypto from 'crypto'
+import * as fs from 'fs/promises'
+import * as path from 'path'
 
 @Injectable()
 export class BackupService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly backupDir: string
+
+  constructor(private readonly prisma: PrismaService) {
+    this.backupDir = process.env['BACKUP_DIR'] || '/data/backups'
+  }
 
   async createBackup(type: string, userId?: string) {
     let data: any
@@ -34,14 +40,27 @@ export class BackupService {
         break
     }
 
-    const json = JSON.stringify(data)
+    const json = JSON.stringify(data, null, 2)
     const checksum = crypto.createHash('sha256').update(json).digest('hex')
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+    const filename = `backup-${type.toLowerCase()}-${timestamp}.json`
+    const filepath = path.join(this.backupDir, filename)
 
-    await this.prisma.backupRecord.create({
-      data: { type, status: 'COMPLETED', sizeBytes: Buffer.byteLength(json), checksum, createdBy: userId },
+    await fs.mkdir(this.backupDir, { recursive: true })
+    await fs.writeFile(filepath, json, 'utf-8')
+
+    const record = await this.prisma.backupRecord.create({
+      data: {
+        type,
+        status: 'COMPLETED',
+        sizeBytes: Buffer.byteLength(json),
+        checksum,
+        createdBy: userId,
+        filePath: filepath,
+      },
     })
 
-    return { type, sizeBytes: Buffer.byteLength(json), checksum, recordCount: Array.isArray(data) ? data.length : Object.keys(data).length }
+    return { id: record.id, type, sizeBytes: Buffer.byteLength(json), checksum, filename, recordCount: Array.isArray(data) ? data.length : Object.keys(data).length }
   }
 
   async listBackups(query: { page?: number; pageSize?: number; type?: string }) {
@@ -60,5 +79,56 @@ export class BackupService {
       this.prisma.backupRecord.count({ where }),
     ])
     return { items, total, page, pageSize }
+  }
+
+  async getBackupById(id: string) {
+    const record = await this.prisma.backupRecord.findUnique({ where: { id } })
+    if (!record) throw new NotFoundException('Backup not found')
+    return record
+  }
+
+  async restoreBackup(id: string) {
+    const record = await this.getBackupById(id)
+    const filepath = record.filePath
+    if (!filepath) throw new NotFoundException('Backup file not found on disk')
+
+    const content = await fs.readFile(filepath, 'utf-8')
+    const data = JSON.parse(content)
+
+    if (data.config) {
+      for (const cfg of data.config) {
+        await this.prisma.systemConfig.upsert({
+          where: { key: cfg.key },
+          update: { value: cfg.value },
+          create: { key: cfg.key, value: cfg.value },
+        })
+      }
+    }
+    if (data.users) {
+      for (const user of data.users) {
+        await this.prisma.user.upsert({
+          where: { id: user.id },
+          update: user,
+          create: user,
+        })
+      }
+    }
+    if (data.patients) {
+      for (const patient of data.patients) {
+        await this.prisma.patient.upsert({
+          where: { id: patient.id },
+          update: patient,
+          create: patient,
+        })
+      }
+    }
+
+    return { restored: id, recordCount: Object.keys(data).length }
+  }
+
+  async getBackupFilePath(id: string) {
+    const record = await this.getBackupById(id)
+    if (!record.filePath) throw new NotFoundException('Backup file not found on disk')
+    return record
   }
 }

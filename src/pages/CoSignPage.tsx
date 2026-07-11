@@ -28,6 +28,7 @@ import {
 import { useReportStore } from '../store/reportStore'
 import { reportApi } from '../services/api/reportApi'
 import { useAuth } from '../hooks/useAuth'
+import { canApprove } from '../services/auth/rbacService'
 
 type Tab = 'inbox' | 'schedule' | 'emergency' | 'kpi'
 
@@ -87,6 +88,7 @@ const CoSignPage: React.FC = () => {
         bodyPart: r.bodyPart ?? '',
         priority: 'routine' as const,
         submittedAt: r.createdTime ?? new Date().toISOString(),
+        authorId: (r as unknown as { doctorId?: string }).doctorId ?? '',
         authorName: (r as unknown as { doctorName?: string }).doctorName ?? (r as unknown as { doctorId?: string }).doctorId ?? '报告医生',
         reason: 'cosign-required',
         level: 'cosign' as const,
@@ -119,6 +121,10 @@ const CoSignPage: React.FC = () => {
 
   const handleApprove = async () => {
     if (!detail || !detailItem) return
+    if (!canApprove(currentUserId, (detailItem as unknown as { authorId?: string }).authorId ?? '')) {
+      setActionError('禁止自审：不能审批自己的报告')
+      return
+    }
     setActionPending(true)
     setActionError(null)
     try {

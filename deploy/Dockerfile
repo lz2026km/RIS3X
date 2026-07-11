@@ -1,24 +1,21 @@
-FROM node:20-alpine AS base
-RUN apk add --no-cache python3 make g++
+FROM node:20-alpine AS builder
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-
-FROM node:20-alpine AS build
-WORKDIR /app
-COPY --from=base /app/node_modules ./node_modules
+RUN apk add --no-cache openssl
+COPY package.json pnpm-lock.yaml* ./
+RUN corepack enable && pnpm install --frozen-lockfile
 COPY . .
-RUN npm run build
+RUN pnpm build
 
-FROM node:20-alpine AS production
+FROM node:20-alpine AS runner
 WORKDIR /app
-RUN addgroup -g 1001 -S appuser && adduser -S appuser -u 1001
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/server ./server
-COPY --from=build /app/package*.json ./
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/nginx.conf ./
+ENV NODE_ENV=production
+RUN apk add --no-cache openssl curl \
+    && addgroup -S appgroup && adduser -S appuser -G appgroup
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/nginx.conf ./
+RUN chown -R appuser:appgroup /app
 USER appuser
 EXPOSE 3001 5173
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD wget --no-verbose --tries=1 --spider http://localhost:3001/api/health || exit 1
-CMD ["node", "server/index.ts"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD curl -f http://localhost:3001/api/health || exit 1
+CMD ["node", "dist/main.js"]

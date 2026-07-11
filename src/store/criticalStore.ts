@@ -5,6 +5,7 @@ import { createActor, type Actor } from 'xstate'
 import { criticalApi } from '../services/api'
 import type { NotificationMethod as ApiNotificationMethod } from '../services/api/criticalApi'
 import { criticalValueMachine, type CriticalMachine, type NotificationMethod as MachineNotificationMethod } from '../machines/criticalValueMachine'
+import { criticalValueService } from '../services/quality/criticalValueService'
 
 type NotificationMethod = MachineNotificationMethod
 
@@ -44,6 +45,8 @@ interface CriticalState {
   resolve: (id: string) => Promise<void>
   notify: (id: string, method?: ApiNotificationMethod) => Promise<void>
   escalate: (id: string, to: string) => Promise<void>
+  startEscalationWatcher: () => void
+  stopEscalationWatcher: () => void
 }
 
 /** Map criticalMachine state value → store status string */
@@ -97,6 +100,9 @@ function buildActorFor(value: CriticalValue): Actor<CriticalMachine> {
   return actor
 }
 
+let _escalationTimer: ReturnType<typeof setInterval> | null = null
+const STUCK_STATES = ['found', 'notified', 'acknowledged', 'resolving']
+
 export const useCriticalStore = create<CriticalState>((set, get) => ({
   values: [],
   loading: false,
@@ -124,8 +130,38 @@ export const useCriticalStore = create<CriticalState>((set, get) => ({
         if (!actors.has(id)) actor.stop()
       })
       set({ values, actors, loading: false, error: null })
+      // 启动定时扫描以自动升级超时的危急值
+      get().startEscalationWatcher()
     } else {
       set({ loading: false, error: res.error?.message ?? '加载失败' })
+    }
+  },
+
+  startEscalationWatcher: () => {
+    if (_escalationTimer) clearInterval(_escalationTimer)
+    _escalationTimer = setInterval(() => {
+      const { values, actors } = get()
+      values.forEach((v) => {
+        const actor = actors.get(v.id)
+        if (!actor) return
+        const state = actor.getSnapshot().value as string
+        if (STUCK_STATES.includes(state)) {
+          actor.send({ type: 'ESCALATE', to: '', reason: '通知超时' })
+          criticalValueService.runEscalationChain(v.id).catch(() => {})
+          set((s) => ({
+            values: s.values.map((x) =>
+              x.id === v.id ? { ...x, status: 'escalated' as const, escalatedAt: new Date().toISOString() } : x,
+            ),
+          }))
+        }
+      })
+    }, 60000)
+  },
+
+  stopEscalationWatcher: () => {
+    if (_escalationTimer) {
+      clearInterval(_escalationTimer)
+      _escalationTimer = null
     }
   },
 

@@ -4,6 +4,7 @@ import { Layers, Save, Play, Upload, List, History, GripVertical, Plus, CheckCir
 import { Table, Button, Tag, message, Modal, Input, Select } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { canApprove } from '../services/auth/rbacService';
+import { useAuth } from '../hooks/useAuth';
 
 type StepType = { key: string; label: string; color: string };
 
@@ -98,6 +99,9 @@ function CanvasNodeItem({ node, onRemove }: { node: CanvasNode; onRemove: (id: s
 }
 
 export default function WorkflowDesignerPage() {
+  const { user } = useAuth()
+  const currentUserId = user?.id ?? ''
+  const workflowOwnerId = currentUserId
   const [canvasNodes, setCanvasNodes] = useState<CanvasNode[]>([
     { id: 'n1', type: 'review', label: '初审', x: 40, y: 60 },
     { id: 'n2', type: 'write', label: '报告撰写', x: 220, y: 60 },
@@ -182,7 +186,7 @@ export default function WorkflowDesignerPage() {
           {saving && <span style={{ fontSize: 12, opacity: 0.85 }}>保存中…</span>}
           <Button size="small" ghost icon={<History size={14} />} onClick={() => setShowVersion(true)}>历史版本</Button>
           <Button size="small" ghost icon={<Play size={14} />} onClick={() => {
-            if (!canApprove('current-user-id', 'owner-id')) {
+            if (!canApprove(currentUserId, workflowOwnerId)) {
               message.error('禁止自审：不能激活自己的工作流');
             } else {
               message.success('工作流已激活');

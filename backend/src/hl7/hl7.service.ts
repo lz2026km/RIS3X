@@ -29,6 +29,12 @@ export interface ReportForHL7 {
   radsCategory?: string
 }
 
+export interface Hl7PushConfig {
+  host: string
+  port: number
+  enabled: boolean
+}
+
 export interface OrmOrder {
   patientId: string
   patientName: string
@@ -92,6 +98,8 @@ export class Hl7Service implements OnModuleInit {
   private readonly tlsEnabled: boolean
   private readonly tlsOptions: tls.TlsOptions | null
 
+  private pushConfig: Hl7PushConfig = { host: '', port: 2575, enabled: false }
+
   constructor(private readonly prisma: PrismaService) {
     this.retryMax = Number(process.env['HL7_MLLP_RETRY_MAX'] ?? 3)
     this.retryInterval = Number(process.env['HL7_MLLP_RETRY_INTERVAL'] ?? 5000)
@@ -104,6 +112,11 @@ export class Hl7Service implements OnModuleInit {
           cert: fs.readFileSync(process.env['HL7_MLLP_TLS_CERT']!, 'utf8'),
         }
       : null
+    this.pushConfig = {
+      host: process.env['HL7_PUSH_HOST'] ?? '',
+      port: Number(process.env['HL7_PUSH_PORT'] ?? 2575),
+      enabled: process.env['HL7_PUSH_ENABLED'] === 'true',
+    }
   }
 
   async onModuleInit(): Promise<void> {
@@ -213,6 +226,7 @@ export class Hl7Service implements OnModuleInit {
     try {
       await this.prisma.hl7MessageArchive.create({
         data: {
+          tenantId: 'default',
           messageType,
           controlId,
           rawMessage: raw,
@@ -428,6 +442,7 @@ export class Hl7Service implements OnModuleInit {
 
     await this.prisma.appointment.create({
       data: {
+        tenantId: 'default',
         patientId: patient.id,
         modality: modality || 'UNKNOWN',
         scheduledAt,
@@ -438,6 +453,9 @@ export class Hl7Service implements OnModuleInit {
 
   async sendMllpMessage(remoteHost: string, remotePort: number, message: string): Promise<string> {
     const framed = Buffer.concat([Buffer.from([0x0b]), Buffer.from(message, 'utf8'), Buffer.from([0x1c, 0x0d])])
+    const messageType = message.split('\r')[0]?.split('|')[8] ?? 'UNKNOWN'
+    const controlId = message.split('\r')[0]?.split('|')[9] ?? `OUT-${Date.now()}`
+    let lastError: Error | null = null
 
     for (let attempt = 1; attempt <= this.retryMax; attempt++) {
       this.logger.log(`MLLP send attempt ${attempt}/${this.retryMax} to ${remoteHost}:${remotePort}`)
@@ -448,10 +466,11 @@ export class Hl7Service implements OnModuleInit {
 
         await this.prisma.hl7MessageArchive.create({
           data: {
-            messageType: 'ACK',
-            controlId: `OUT-${Date.now()}`,
+            tenantId: 'default',
+            messageType,
+            controlId,
             rawMessage: ack,
-            parsed: { ackCode, attempt },
+            parsed: { ackCode, attempt, direction: 'OUTBOUND_ACK' },
             direction: 'OUTBOUND',
             ackStatus: ackCode,
             retryCount: attempt,
@@ -464,6 +483,7 @@ export class Hl7Service implements OnModuleInit {
         }
         this.logger.warn(`MLLP received non-AA ACK (${ackCode}) on attempt ${attempt}`)
       } catch (err) {
+        lastError = err as Error
         this.logger.warn(`MLLP send attempt ${attempt} failed: ${(err as Error).message}`)
       }
 
@@ -472,7 +492,20 @@ export class Hl7Service implements OnModuleInit {
       }
     }
 
-    throw new Error(`MLLP send failed after ${this.retryMax} attempts`)
+    await this.prisma.hl7MessageArchive.create({
+      data: {
+        tenantId: 'default',
+        messageType,
+        controlId,
+        rawMessage: message,
+        parsed: { error: lastError?.message ?? 'Max retries exceeded', retryCount: this.retryMax },
+        direction: 'OUTBOUND',
+        ackStatus: 'FAILED',
+        retryCount: this.retryMax,
+      },
+    }).catch(() => {})
+
+    throw new Error(`MLLP send failed after ${this.retryMax} attempts: ${lastError?.message ?? 'unknown'}`)
   }
 
   private sendFramedMessage(host: string, port: number, framed: Buffer): Promise<string> {
@@ -518,7 +551,6 @@ export class Hl7Service implements OnModuleInit {
     const sendingFacility = fields[3] ?? ''
     const receivingApp = fields[4] ?? ''
     const receivingFacility = fields[5] ?? ''
-    const dateTime = fields[6] ?? ''
     const controlId = fields[9] ?? ''
     const version = fields[11] ?? '2.5.1'
 
@@ -551,6 +583,60 @@ export class Hl7Service implements OnModuleInit {
     const ackMsg = `${ack}${msa}${errSegment}\r`
     const framed = Buffer.concat([Buffer.from([0x0b]), Buffer.from(ackMsg, 'utf8'), Buffer.from([0x1c, 0x0d])])
     socket.write(framed)
+
+    this.prisma.hl7MessageArchive.create({
+      data: {
+        tenantId: 'default',
+        messageType: 'ACK',
+        controlId: `ACK-${controlId}`,
+        rawMessage: ackMsg,
+        parsed: { ackCode, originalControlId: controlId },
+        direction: 'OUTBOUND',
+        ackStatus: ackCode,
+        retryCount: 0,
+      },
+    }).catch(() => {})
+  }
+
+  async pushOruOnExamCompletion(exam: any, report: any): Promise<void> {
+    if (!this.pushConfig.enabled || !this.pushConfig.host) {
+      this.logger.debug('ORU push disabled, skipping')
+      return
+    }
+    try {
+      const oru: ReportForHL7 = {
+        accessionNumber: exam.accessionNumber,
+        patientName: report.patient?.name ?? '',
+        patientId: report.patientId,
+        patientSex: report.patient?.gender === 'MALE' ? 'M' : report.patient?.gender === 'FEMALE' ? 'F' : 'O',
+        patientBirthDate: report.patient?.birthDate?.toISOString().split('T')[0],
+        modality: exam.modality,
+        studyDate: exam.startedAt?.toISOString().split('T')[0] ?? '',
+        studyTime: exam.startedAt?.toISOString().split('T')[1]?.split('.')[0] ?? '',
+        findings: report.findings,
+        conclusion: report.conclusion,
+        authorName: report.authorName ?? '',
+        authorId: report.authorId ?? '',
+        reportId: report.id,
+      }
+      const message = this.buildORU(oru)
+      await this.sendMllpMessage(this.pushConfig.host, this.pushConfig.port, message)
+      this.logger.log(`ORU^R01 pushed for exam ${exam.accessionNumber}, report ${report.id}`)
+    } catch (err) {
+      this.logger.error(`ORU push failed for exam ${exam.accessionNumber}: ${(err as Error).message}`)
+      await this.prisma.hl7MessageArchive.create({
+        data: {
+          tenantId: 'default',
+          messageType: 'ORU^R01',
+          controlId: `ORU-PUSH-FAIL-${report.id}`,
+          rawMessage: '',
+          parsed: { error: (err as Error).message, examId: exam.id, reportId: report.id },
+          direction: 'OUTBOUND',
+          ackStatus: 'FAILED',
+          retryCount: this.retryMax,
+        },
+      }).catch(() => {})
+    }
   }
 
   stopMllpListener(): void {

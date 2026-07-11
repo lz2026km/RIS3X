@@ -75,15 +75,16 @@ export interface PamLogEntry {
   messageId: string
 }
 
-export type VisitStatus = 'registered' | 'pre-admitted' | 'admitted' | 'discharged' | 'cancelled'
+export type VisitStatus = 'registered' | 'admitted' | 'inProgress' | 'completed' | 'discharged'
 
 const VISIT_TRANSITIONS: Record<string, VisitStatus> = {
   'ADT^A01': 'admitted',
   'ADT^A03': 'discharged',
   'ADT^A04': 'registered',
-  'ADT^A05': 'pre-admitted',
-  'ADT^A11': 'cancelled',
-  'ADT^A13': 'admitted',
+  'ADT^A05': 'registered',
+  'ADT^A08': 'inProgress',
+  'ADT^A11': 'discharged',
+  'ADT^A13': 'completed',
 }
 
 const DEFAULT_DOMAIN: AffinityDomainDto = {
@@ -104,7 +105,6 @@ const SYS_KEY_DOMAIN = 'ihe_affinity_domain'
 const SYS_KEY_PIX_STORE = 'ihe_pix_store'
 const SYS_KEY_PDQ_INDEX = 'ihe_pdq_index'
 const SYS_KEY_PAM_LOG = 'ihe_pam_log'
-const SYS_KEY_VISIT_STORE = 'ihe_visit_store'
 
 export interface VisitState {
   patientId: string
@@ -283,52 +283,102 @@ export class IheService {
   //  Visit 生命周期管理（状态机）
   // ===========================================================
 
-  private async readVisitStore(): Promise<Record<string, VisitState>> {
-    const cfg = await this.prisma.systemConfig.findUnique({ where: { key: SYS_KEY_VISIT_STORE } })
-    return (cfg?.value as Record<string, VisitState> | null) ?? {}
-  }
-
-  private async writeVisitStore(store: Record<string, VisitState>): Promise<void> {
-    await this.prisma.systemConfig.upsert({
-      where: { key: SYS_KEY_VISIT_STORE },
-      create: { key: SYS_KEY_VISIT_STORE, value: store as any },
-      update: { value: store as any },
-    })
-  }
-
   private async transitionVisitState(dto: PamMessageDto, visitNumber: string): Promise<VisitState> {
-    const store = await this.readVisitStore()
-    const key = `${dto.patientId}::${visitNumber}`
-    const existing = store[key]
     const newStatus = VISIT_TRANSITIONS[dto.messageType]
-    const now = new Date().toISOString()
-    if (dto.messageType === 'ADT^A08' && existing) {
-      existing.status = existing.status
-      existing.assignedLocation = dto.assignedLocation ?? existing.assignedLocation
-      existing.classCode = dto.classCode ?? existing.classCode
-      existing.updatedAt = now
-      store[key] = existing
-    } else {
-      store[key] = {
-        patientId: dto.patientId,
-        visitNumber,
-        status: newStatus ?? 'registered',
-        classCode: dto.classCode,
-        assignedLocation: dto.assignedLocation,
-        admitDateTime: dto.admitDateTime ?? (newStatus === 'admitted' ? now : undefined),
-        dischargeDateTime: dto.dischargeDateTime ?? (newStatus === 'discharged' ? now : undefined),
-        updatedAt: now,
+    const now = new Date()
+
+    const existing = await this.prisma.patientVisit.findUnique({
+      where: { patientId_visitNumber: { patientId: dto.patientId, visitNumber } },
+    })
+
+    if (existing) {
+      const updateData: any = {
+        status: newStatus ?? existing.status,
+        classCode: dto.classCode ?? existing.classCode,
+        assignedLocation: (dto.assignedLocation as any) ?? existing.assignedLocation,
       }
+      if (dto.admitDateTime) updateData.admitDateTime = new Date(dto.admitDateTime)
+      if (dto.dischargeDateTime) updateData.dischargeDateTime = new Date(dto.dischargeDateTime)
+      if (newStatus === 'admitted') updateData.admitDateTime = updateData.admitDateTime ?? now
+      if (newStatus === 'discharged') updateData.dischargeDateTime = updateData.dischargeDateTime ?? now
+      if (newStatus === 'inProgress') updateData.inProgressAt = now
+      if (newStatus === 'completed') updateData.completedAt = now
+
+      await this.prisma.patientVisit.update({
+        where: { patientId_visitNumber: { patientId: dto.patientId, visitNumber } },
+        data: updateData,
+      })
+    } else {
+      await this.prisma.patientVisit.create({
+        data: {
+          tenantId: 'default',
+          patientId: dto.patientId,
+          visitNumber,
+          status: newStatus ?? 'registered',
+          classCode: dto.classCode,
+          assignedLocation: dto.assignedLocation as any,
+          admitDateTime: dto.admitDateTime
+            ? new Date(dto.admitDateTime)
+            : newStatus === 'admitted' ? now : null,
+          dischargeDateTime: dto.dischargeDateTime
+            ? new Date(dto.dischargeDateTime)
+            : newStatus === 'discharged' ? now : null,
+          inProgressAt: newStatus === 'inProgress' ? now : null,
+          completedAt: newStatus === 'completed' ? now : null,
+        },
+      })
     }
-    await this.writeVisitStore(store)
-    return store[key]
+
+    const updated = await this.prisma.patientVisit.findUnique({
+      where: { patientId_visitNumber: { patientId: dto.patientId, visitNumber } },
+    })
+
+    return {
+      patientId: updated!.patientId,
+      visitNumber: updated!.visitNumber,
+      status: updated!.status as VisitStatus,
+      classCode: updated!.classCode ?? undefined,
+      assignedLocation: updated!.assignedLocation as any,
+      admitDateTime: updated!.admitDateTime?.toISOString(),
+      dischargeDateTime: updated!.dischargeDateTime?.toISOString(),
+      updatedAt: updated!.updatedAt.toISOString(),
+    }
   }
 
   async getVisitState(patientId: string, visitNumber?: string): Promise<VisitState | null> {
-    const store = await this.readVisitStore()
-    if (visitNumber) return store[`${patientId}::${visitNumber}`] ?? null
-    const visits = Object.values(store).filter((v) => v.patientId === patientId)
-    return visits.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0] ?? null
+    if (visitNumber) {
+      const v = await this.prisma.patientVisit.findUnique({
+        where: { patientId_visitNumber: { patientId, visitNumber } },
+      })
+      if (!v) return null
+      return {
+        patientId: v.patientId,
+        visitNumber: v.visitNumber,
+        status: v.status as VisitStatus,
+        classCode: v.classCode ?? undefined,
+        assignedLocation: v.assignedLocation as any,
+        admitDateTime: v.admitDateTime?.toISOString(),
+        dischargeDateTime: v.dischargeDateTime?.toISOString(),
+        updatedAt: v.updatedAt.toISOString(),
+      }
+    }
+    const visits = await this.prisma.patientVisit.findMany({
+      where: { patientId },
+      orderBy: { updatedAt: 'desc' },
+      take: 1,
+    })
+    if (visits.length === 0) return null
+    const v = visits[0]!
+    return {
+      patientId: v.patientId,
+      visitNumber: v.visitNumber,
+      status: v.status as VisitStatus,
+      classCode: v.classCode ?? undefined,
+      assignedLocation: v.assignedLocation as any,
+      admitDateTime: v.admitDateTime?.toISOString(),
+      dischargeDateTime: v.dischargeDateTime?.toISOString(),
+      updatedAt: v.updatedAt.toISOString(),
+    }
   }
 
   async sendPamMessage(dto: PamMessageDto): Promise<PamAck> {
@@ -506,6 +556,17 @@ export class IheService {
     const pixValues = Object.values(pixStore)
     const pdqIndex = await this.readPdqIndex()
     const pdqValues = Object.values(pdqIndex)
+    const mappings = await this.prisma.patientExternalId.findMany()
+
+    const externalToInternal = new Map<string, string>()
+    for (const m of mappings) {
+      externalToInternal.set(`${m.assigningAuthority}^${m.externalId}`, m.internalPatientId)
+    }
+
+    const remapPatientId = (record: IhePixRecord): IhePixRecord => {
+      const internalId = externalToInternal.get(`${record.assigningAuthority}^${record.patientId}`)
+      return internalId ? { ...record, patientId: internalId } : record
+    }
 
     if (pdqValues.length === 0) {
       const localPatients = await this.prisma.patient.findMany({ take: 200, orderBy: { updatedAt: 'desc' } })
@@ -528,14 +589,14 @@ export class IheService {
         source: 'LOCAL',
       }))
       const merged = new Map<string, IhePixRecord>()
-      for (const r of [...pixValues, ...pdqValues, ...inferred]) {
+      for (const r of [...pixValues.map(remapPatientId), ...pdqValues.map(remapPatientId), ...inferred]) {
         merged.set(`${r.assigningAuthority}^${r.patientId}`, r)
       }
       return Array.from(merged.values())
     }
 
     const merged = new Map<string, IhePixRecord>()
-    for (const r of [...pixValues, ...pdqValues]) {
+    for (const r of [...pixValues.map(remapPatientId), ...pdqValues.map(remapPatientId)]) {
       merged.set(`${r.assigningAuthority}^${r.patientId}`, r)
     }
     return Array.from(merged.values())
@@ -558,61 +619,90 @@ export class IheService {
   // ===========================================================
 
   private async upsertLocalPatientFromPix(record: IhePixRecord): Promise<void> {
-    const existing = await this.prisma.patient.findFirst({
+    const genderMap: Record<string, 'MALE' | 'FEMALE' | 'OTHER'> = { M: 'MALE', F: 'FEMALE', O: 'OTHER', U: 'OTHER' }
+    const fullName = `${record.name.family}${record.name.given.length ? ' ' + record.name.given.join(' ') : ''}`
+    const idCardValue = record.identifiers.find((i) => i.domain === record.assigningAuthority)?.value ?? null
+
+    // Use PatientExternalId mapping: assigningAuthority + externalId → internal patient id
+    const mapping = await this.prisma.patientExternalId.findUnique({
       where: {
-        OR: [
-          { id: record.patientId },
-          { idCard: record.identifiers.find((i) => i.domain === record.assigningAuthority)?.value },
-          { phone: record.telecom?.value ?? undefined },
-        ],
+        assigningAuthority_externalId: {
+          assigningAuthority: record.assigningAuthority,
+          externalId: record.patientId,
+        },
       },
     })
 
-    const genderMap: Record<string, 'MALE' | 'FEMALE' | 'OTHER'> = { M: 'MALE', F: 'FEMALE', O: 'OTHER', U: 'OTHER' }
-    const fullName = `${record.name.family}${record.name.given.length ? ' ' + record.name.given.join(' ') : ''}`
-
-    if (existing) {
+    let patientId: string
+    if (mapping) {
+      patientId = mapping.internalPatientId
       await this.prisma.patient.update({
-        where: { id: existing.id },
+        where: { id: patientId },
         data: {
           name: fullName,
           gender: genderMap[record.gender] ?? 'OTHER',
-          birthDate: record.birthDate ? new Date(record.birthDate) : existing.birthDate,
-          phone: record.telecom?.value ?? existing.phone,
+          birthDate: record.birthDate ? new Date(record.birthDate) : undefined,
+          phone: record.telecom?.value ?? undefined,
         },
       })
     } else {
-      await this.prisma.patient.create({
+      const existingByIdCard = idCardValue
+        ? await this.prisma.patient.findFirst({ where: { idCard: idCardValue } })
+        : null
+
+      if (existingByIdCard) {
+        patientId = existingByIdCard.id
+        await this.prisma.patient.update({
+          where: { id: patientId },
+          data: {
+            name: fullName,
+            gender: genderMap[record.gender] ?? 'OTHER',
+            birthDate: record.birthDate ? new Date(record.birthDate) : undefined,
+            phone: record.telecom?.value ?? existingByIdCard.phone,
+          },
+        })
+      } else {
+        const newPatient = await this.prisma.patient.create({
+          data: {
+            tenantId: 'default',
+            name: fullName,
+            gender: genderMap[record.gender] ?? 'OTHER',
+            birthDate: record.birthDate ? new Date(record.birthDate) : null,
+            idCard: idCardValue,
+            phone: record.telecom?.value ?? null,
+          },
+        })
+        patientId = newPatient.id
+      }
+
+      await this.prisma.patientExternalId.create({
         data: {
-          id: record.patientId,
           tenantId: 'default',
-          name: fullName,
-          gender: genderMap[record.gender] ?? 'OTHER',
-          birthDate: record.birthDate ? new Date(record.birthDate) : null,
-          idCard: record.identifiers.find((i) => i.domain === record.assigningAuthority)?.value ?? null,
-          phone: record.telecom?.value ?? null,
+          assigningAuthority: record.assigningAuthority,
+          externalId: record.patientId,
+          internalPatientId: patientId,
         },
-      })
+      }).catch(() => {})
     }
 
     await this.prisma.fhirResource.upsert({
-      where: { id: `pix-${record.patientId}` },
+      where: { id: `pix-${record.assigningAuthority}-${record.patientId}` },
       create: {
-        id: `pix-${record.patientId}`,
+        id: `pix-${record.assigningAuthority}-${record.patientId}`,
         tenantId: 'default',
         resourceType: 'Patient',
         content: this.toFhirPatientFromPix(record) as any,
-        patientId: record.patientId,
+        patientId,
       },
       update: {
         content: this.toFhirPatientFromPix(record) as any,
         versionId: { increment: 1 },
-        patientId: record.patientId,
+        patientId,
       },
     })
 
     const pdqIndex = await this.readPdqIndex()
-    pdqIndex[`${record.assigningAuthority}^${record.patientId}`] = record
+    pdqIndex[`${record.assigningAuthority}^${record.patientId}`] = { ...record, patientId }
     await this.writePdqIndex(pdqIndex)
   }
 
@@ -653,19 +743,35 @@ export class IheService {
   // ===========================================================
 
   private async applyPamToLocalPatient(dto: PamMessageDto): Promise<void> {
+    const mapping = await this.prisma.patientExternalId.findUnique({
+      where: {
+        assigningAuthority_externalId: {
+          assigningAuthority: dto.assigningAuthority,
+          externalId: dto.patientId,
+        },
+      },
+    })
+    const patientId = mapping?.internalPatientId ?? dto.patientId
+
     const patient = await this.prisma.patient.findFirst({
       where: {
         OR: [
-          { id: dto.patientId },
+          { id: patientId },
           { idCard: dto.patientId },
         ],
       },
     })
     if (!patient) return
 
-    if (dto.messageType === 'ADT^A03' || dto.messageType === 'ADT^A13') {
-      this.logger.log(`PAM ${dto.messageType} → 标记患者 ${patient.id} 出院/退号`)
+    const newState = VISIT_TRANSITIONS[dto.messageType]
+    if (newState && newState !== patient.state) {
+      await this.prisma.patient.update({
+        where: { id: patient.id },
+        data: { state: newState },
+      })
+      this.logger.log(`PAM ${dto.messageType} → 更新患者 ${patient.id} state: ${patient.state} → ${newState}`)
     }
+
     if (dto.messageType === 'ADT^A08') {
       this.logger.log(`PAM ${dto.messageType} → 更新患者 ${patient.id} 信息`)
     }

@@ -1,26 +1,37 @@
 import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { QueueService } from '../queue/queue.service'
-import { randomUUID } from 'crypto'
+import { NotificationsGateway } from '../notifications/notifications.gateway'
+import { randomUUID, createHmac } from 'crypto'
 import { setTimeout } from 'timers/promises'
 
 @Injectable()
 export class FhirService implements OnModuleInit {
-  private subscriptions: Map<string, { endpoint: string; criteria: any }> = new Map()
+  private subscriptions: Map<string, { endpoint: string; criteria: any; channel: any }> = new Map()
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly queue: QueueService,
+    private readonly gateway: NotificationsGateway,
   ) {}
 
   async onModuleInit() {
+    await this.reloadSubscriptions()
+  }
+
+  private async reloadSubscriptions() {
     const subs = await this.prisma.fhirResource.findMany({
       where: { resourceType: 'Subscription' },
     })
+    this.subscriptions.clear()
     for (const s of subs) {
       const content = s.content as any
-      if (content?.channel?.type === 'rest-hook' && content?.channel?.endpoint) {
-        this.subscriptions.set(s.id, { endpoint: content.channel.endpoint, criteria: content.criteria })
+      if (content?.status === 'active' && content?.channel?.type) {
+        this.subscriptions.set(s.id, {
+          endpoint: content.channel.endpoint,
+          criteria: content.criteria,
+          channel: content.channel,
+        })
       }
     }
   }
@@ -187,14 +198,13 @@ export class FhirService implements OnModuleInit {
       where: { id },
       create: {
         id,
+        tenantId: 'default',
         resourceType: 'Subscription',
         content: resource as any,
       },
       update: { content: resource as any, versionId: { increment: 1 } },
     })
-    if (body.channel?.type === 'rest-hook' && body.channel.endpoint) {
-      this.subscriptions.set(id, { endpoint: body.channel.endpoint, criteria: body.criteria })
-    }
+    await this.reloadSubscriptions()
     return resource
   }
 
@@ -217,7 +227,16 @@ export class FhirService implements OnModuleInit {
     return this.Bundle(subs.map((s) => s.content as any))
   }
 
+  private hmacSecret(): string {
+    return process.env['FHIR_SUBSCRIPTION_HMAC_SECRET'] ?? 'g005-default-hmac-secret'
+  }
+
+  private signPayload(payload: string): string {
+    return createHmac('sha256', this.hmacSecret()).update(payload).digest('hex')
+  }
+
   private async notifySubscriptions(resourceType: string, resource: any) {
+    const now = new Date().toISOString()
     for (const [id, sub] of this.subscriptions) {
       if (!sub.criteria || sub.criteria.includes(resourceType)) {
         const payload = JSON.stringify({
@@ -225,19 +244,50 @@ export class FhirService implements OnModuleInit {
           type: 'notification',
           entry: [{ resource }],
         })
+        const signature = this.signPayload(payload)
+        const channelType = sub.channel?.type ?? 'rest-hook'
+
+        let deliveryOk = false
         try {
-          await fetch(sub.endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/fhir+json' },
-            body: payload,
-          })
+          if (channelType === 'rest-hook' && sub.endpoint) {
+            const res = await fetch(sub.endpoint, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/fhir+json',
+                'X-Subscription-Signature': signature,
+              },
+              body: payload,
+            })
+            deliveryOk = res.ok
+            if (!deliveryOk) throw new Error(`HTTP ${res.status}`)
+          } else if (channelType === 'email' && sub.endpoint) {
+            await this.queue.addHl7Send({ reportId: id, destination: sub.endpoint, payload }).catch(() => {})
+            deliveryOk = true
+          } else if (channelType === 'sms' && sub.endpoint) {
+            await this.queue.addHl7Send({ reportId: id, destination: sub.endpoint, payload }).catch(() => {})
+            deliveryOk = true
+          } else if (channelType === 'websocket') {
+            this.gateway.push('*', { type: 'fhir:notification', payload: JSON.parse(payload) })
+            deliveryOk = true
+          }
         } catch {
-          await this.queue.addHl7Send({
-            reportId: id,
-            destination: sub.endpoint,
-            payload,
-          }).catch(() => {})
+          await this.queue.addHl7Send({ reportId: id, destination: sub.endpoint ?? '', payload }).catch(() => {})
         }
+
+        await this.prisma.fhirResource.update({
+          where: { id },
+          data: {
+            content: {
+              ...(sub.channel ? { channel: sub.channel } : {}),
+              criteria: sub.criteria,
+              status: 'active',
+              _delivery: {
+                lastDeliveryStatus: deliveryOk ? 'success' : 'failed',
+                lastDeliveryAt: now,
+              },
+            },
+          },
+        }).catch(() => {})
       }
     }
   }
@@ -250,6 +300,7 @@ export class FhirService implements OnModuleInit {
       where: { id: resource.id },
       create: {
         id: resource.id,
+        tenantId: 'default',
         resourceType: resource.resourceType,
         content: resource as any,
         patientId,

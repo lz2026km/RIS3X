@@ -1,22 +1,120 @@
 version: '3.8'
 
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: g005-ris-postgres
+    restart: on-failure
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+      POSTGRES_USER: g005
+      POSTGRES_PASSWORD: g005
+      POSTGRES_DB: g005
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U g005 -d g005"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  minio:
+    image: minio/minio:latest
+    container_name: g005-ris-minio
+    restart: on-failure
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    environment:
+      MINIO_ROOT_USER: g005
+      MINIO_ROOT_PASSWORD: g005-minio-secret
+
+  redis:
+    image: redis:7-alpine
+    container_name: g005-ris-redis
+    restart: on-failure
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
   ris-backend:
     build:
       context: ..
       dockerfile: deploy/Dockerfile
-      target: production
+      target: runner
     container_name: g005-ris-backend
+    restart: on-failure
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
     ports:
       - "3001:3001"
     environment:
       - NODE_ENV=production
       - PORT=3001
+      - DATABASE_URL=postgresql://g005:g005@postgres:5432/g005?schema=public
+      - REDIS_URL=redis://redis:6379
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_ACCESS_KEY=g005
+      - MINIO_SECRET_KEY=g005-minio-secret
+      - BACKUP_DIR=/data/backups
     volumes:
-      - ris-data:/app/server/db
-    restart: unless-stopped
+      - backup-data:/data/backups
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      minio:
+        condition: service_started
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/api/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -26,26 +124,28 @@ services:
     build:
       context: ..
       dockerfile: deploy/Dockerfile
-      target: production
+      target: runner
     container_name: g005-ris-frontend
+    restart: on-failure
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     ports:
       - "5173:5173"
     environment:
       - NODE_ENV=production
       - VITE_API_URL=http://ris-backend:3001
     depends_on:
-      - ris-backend
-    restart: unless-stopped
-
-  redis:
-    image: redis:7-alpine
-    container_name: g005-ris-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
-    restart: unless-stopped
+      ris-backend:
+        condition: service_healthy
 
 volumes:
-  ris-data:
+  pg-data:
   redis-data:
+  minio-data:
+  backup-data:

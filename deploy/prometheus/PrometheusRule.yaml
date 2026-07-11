@@ -1,0 +1,56 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: g005-ris-alerts
+  labels:
+    app: g005-ris
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: g005-ris-critical
+      interval: 30s
+      rules:
+        - alert: CriticalResultTimeout
+          expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="g005-ris",path=~"/api/results/.*"}[5m])) > 30
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "危急值报告超时"
+            description: "95% 的危急值报告响应时间超过 30s (当前值: {{ $value }}s)"
+
+        - alert: ReportSLABreach
+          expr: rate(http_requests_total{job="g005-ris",path="/api/reports",status=~"5.."}[5m]) > 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "报告生成 SLA 违例"
+            description: "报告生成接口出现 5xx 错误，可能影响报告 SLA"
+
+        - alert: ServiceDown
+          expr: up{job="g005-ris"} == 0
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "RIS 服务不可用"
+            description: "G005 RIS 后端服务已宕机超过 1 分钟"
+
+        - alert: DatabaseConnectionFailed
+          expr: rate(db_connection_errors_total{job="g005-ris"}[5m]) > 0
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "数据库连接失败"
+            description: "数据库连接错误率 > 0，当前值: {{ $value }}/s"
+
+        - alert: APIErrorRateHigh
+          expr: (sum(rate(http_requests_total{job="g005-ris",status=~"5.."}[5m])) / sum(rate(http_requests_total{job="g005-ris"}[5m]))) * 100 > 5
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "API 错误率超过 5%"
+            description: "API 5xx 错误率 {{ $value }}% 已超过 5% 阈值"

@@ -113,4 +113,17 @@ export class Hl7Controller {
       bytes: Buffer.byteLength(message, 'utf8'),
     }
   }
+
+  @Post('push-oru')
+  async pushOru(@Body() body: { examId: string; reportId: string }) {
+    const exam = await (this.service as any).prisma.exam.findUnique({
+      where: { id: body.examId },
+      include: { patient: true, reports: true },
+    })
+    if (!exam) throw new Error('Exam not found')
+    const report = exam.reports.find((r: any) => r.id === body.reportId)
+    if (!report) throw new Error('Report not found')
+    await this.service.pushOruOnExamCompletion(exam, report)
+    return { pushed: true, examId: body.examId, reportId: body.reportId }
+  }
 }

@@ -15,6 +15,7 @@ import { CloseLoopAcknowledge } from '../../components/critical/CloseLoopAcknowl
 import { OnCallIndicator } from '../../components/critical/OnCallIndicator';
 import { VoiceCallButton } from '../../components/critical/VoiceCallButton';
 import { SmsSender } from '../../components/critical/SmsSender';
+import { useCriticalStore } from '../../store/criticalStore';
 import type { CriticalEvent } from '../../types/R3/R3.CRITICAL';
 
 const CURRENT_USER = { id: 'D-LI', name: '李天宇', title: '主治医师' };
@@ -57,9 +58,11 @@ export const ReceiverPortalPage: React.FC = () => {
   }, [allEvents]);
 
   const handleAcknowledge = async (e: CriticalEvent, note?: string) => {
+    await useCriticalStore.getState().acknowledge(e.id);
     message.success(`已确认接收: ${e.patientName}`);
   };
   const handleResolve = async (e: CriticalEvent, note: string) => {
+    await useCriticalStore.getState().resolve(e.id);
     message.success(`已闭环: ${e.patientName}`);
   };
 

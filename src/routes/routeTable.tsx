@@ -15,7 +15,7 @@ const ReportPage = lazy(() => import("../pages/ReportPage"));
 const ReportWritePage = lazy(() => import("../pages/ReportWritePage"));
 const WorklistPage = lazy(() => import("../pages/WorklistPage"));
 const StatisticsPage = lazy(() => import("../pages/StatisticsPage"));
-const CriticalValuePage = lazy(() => import("../pages/CriticalValuePage"));
+const CriticalValuePage = lazy(() => import("../pages/critical/CriticalValuePage"));
 const TermLibraryPage = lazy(() => import("../pages/TermLibraryPage"));
 const DevicePage = lazy(() => import("../pages/DevicePage"));
 const ConsultationPage = lazy(() => import("../pages/ConsultationPage"));

@@ -1,18 +1,27 @@
 /**
- * G005 放射RIS系统 v3.0.1 - NestJS 后端入口
- * 启动 NestJS + ValidationPipe + CORS + Swagger
+ * G005 放射RIS系统 v3.0.7.0 - NestJS 后端入口
+ * 启动 NestJS + ValidationPipe + CORS + Swagger + Prometheus /metrics
  */
 import { NestFactory } from '@nestjs/core'
 import { ValidationPipe } from '@nestjs/common'
 import { Logger as PinoLogger } from 'nestjs-pino'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import { AppModule } from './app.module'
+import { Request, Response } from 'express'
+import client from 'prom-client'
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,
   })
   app.useLogger(app.get(PinoLogger))
+
+  client.collectDefaultMetrics()
+
+  app.use('/metrics', async (_req: Request, res: Response) => {
+    res.set('Content-Type', client.register.contentType)
+    res.end(await client.register.metrics())
+  })
 
   app.enableCors({
     origin: (process.env['CORS_ORIGINS'] ?? 'http://localhost:5191').split(','),
@@ -30,7 +39,7 @@ async function bootstrap(): Promise<void> {
 
   const config = new DocumentBuilder()
     .setTitle('G005 Radiology RIS API')
-    .setVersion('3.0.6.11-8')
+    .setVersion('3.0.7.0')
     .addBearerAuth()
     .build()
   const document = SwaggerModule.createDocument(app, config)
@@ -40,7 +49,7 @@ async function bootstrap(): Promise<void> {
   await app.listen(port)
 
   const logger = app.get(PinoLogger)
-  logger.log(`G005 Backend v3.0.1 listening on http://localhost:${port}/api`)
+  logger.log(`G005 Backend v3.0.7.0 listening on http://localhost:${port}/api`)
 }
 
 void bootstrap()

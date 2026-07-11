@@ -3,6 +3,7 @@ import { JwtModule } from '@nestjs/jwt'
 import { PassportModule } from '@nestjs/passport'
 import { PrismaModule } from '../prisma/prisma.module'
 import { QueueModule } from '../queue/queue.module'
+import { NotificationsModule } from '../notifications/notifications.module'
 import { FhirController } from './fhir.controller'
 import { FhirService } from './fhir.service'
 import { SmartAuthController } from './smart-auth.controller'
@@ -23,6 +24,7 @@ if (!jwtSecret) {
     }),
     PrismaModule,
     QueueModule,
+    NotificationsModule,
   ],
   controllers: [FhirController, SmartAuthController],
   providers: [FhirService, SmartAuthService],

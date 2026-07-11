@@ -94,8 +94,8 @@ export const CloseLoopPage: React.FC = () => {
 
   const handleReject = async (reason: string) => {
     if (!selected) return;
-    await criticalValueService.escalateEvent(selected.id, 'D-CHEN', '陈伟(医务)', reason);
-    message.warning('已转他人/升级');
+    await criticalValueService.resolveEvent(selected.id);
+    message.warning('已拒绝');
     load();
   };
 

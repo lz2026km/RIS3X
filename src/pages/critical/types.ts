@@ -139,6 +139,12 @@ export const CN_STATUS_TO_STORE: Record<string, string> = {
   '超时': 'overdue',
 }
 
+export function toStoreStatus(raw: string): string {
+  if (!raw) return raw
+  if (raw in CN_STATUS_TO_STORE) return CN_STATUS_TO_STORE[raw]
+  return raw
+}
+
 export const SEVERITY_CONFIG: Record<string, { bg: string; color: string; borderColor: string; slaMinutes: number; label: string }> = {
   '危及生命': { bg: '#fef2f2', color: '#dc2626', borderColor: '#dc2626', slaMinutes: 5, label: '危及生命' },
   '危急': { bg: '#fee2e2', color: '#ef4444', borderColor: '#ef4444', slaMinutes: 10, label: '危急' },

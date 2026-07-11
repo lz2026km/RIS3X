@@ -935,7 +935,7 @@ const HomePage: FC = () => {
   // 区块3：今日概况统计卡片
   // ============================================================
   const renderTodayStats = () => (
-    <div style={{
+    <div aria-live="polite" style={{
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
       gap: 16,
@@ -1385,7 +1385,7 @@ const HomePage: FC = () => {
   // 区块6：今日待处理检查列表
   // ============================================================
   const renderPendingExams = () => (
-    <div style={cardStyle}>
+    <div aria-live="polite" style={cardStyle}>
       <div style={headerStyle}>
         <span style={cardTitleStyle}>
           <ClipboardList size={16} color={COLORS.primary} />

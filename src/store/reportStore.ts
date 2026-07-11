@@ -298,7 +298,6 @@ export const useReportStore = create<ReportState>((set, get) => ({
 
   review: async (id, type, doctorId, _doctorName, suggestion, _score) => {
     const beforeStatus = get().reports.find((r) => r.id === id)?.status
-    const before = statusLabelToMachine(beforeStatus ?? '')
     const report = get().reports.find((r) => r.id === id)
     if (!report) return
     const actor = buildReportActor(report)
@@ -325,18 +324,38 @@ export const useReportStore = create<ReportState>((set, get) => ({
       actor.send({ type: 'APPROVE_FINAL' })
     }
     const after = actor.getSnapshot().value as ReportStateName
-    actor.stop()
-    set((s) => ({
-      reports: s.reports.map((r) =>
-        r.id === id
-          ? {
-              ...r,
-              status: machineStateToLabel(after),
-              ...(type === 'initial' ? { initialAuditSuggestion: suggestion } : { finalAuditSuggestion: suggestion }),
-            }
-          : r,
-      ),
-    }))
+    try {
+      const res = await reportApi.review(id)
+      actor.stop()
+      if (res.success) {
+        set((s) => ({
+          reports: s.reports.map((r) =>
+            r.id === id
+              ? {
+                  ...r,
+                  status: machineStateToLabel(after),
+                  ...(type === 'initial' ? { initialAuditSuggestion: suggestion } : { finalAuditSuggestion: suggestion }),
+                }
+              : r,
+          ),
+        }))
+      } else {
+        set((s) => ({
+          reports: s.reports.map((r) =>
+            r.id === id ? { ...r, status: beforeStatus ?? r.status } : r,
+          ),
+          error: res.error?.message ?? '审核提交失败',
+        }))
+      }
+    } catch (err) {
+      actor.stop()
+      set((s) => ({
+        reports: s.reports.map((r) =>
+          r.id === id ? { ...r, status: beforeStatus ?? r.status } : r,
+        ),
+        error: errorMessage(err, '网络错误'),
+      }))
+    }
   },
 
   sign: async (id) => {

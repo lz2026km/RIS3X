@@ -1,3 +1,40 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: g005-ris
+  labels:
+    app: g005-ris
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: g005-ris-pv
+  labels:
+    app: g005-ris
+spec:
+  capacity:
+    storage: 50Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
+  hostPath:
+    path: /data/g005-ris
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: g005-ris-pvc
+  labels:
+    app: g005-ris
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: standard
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -14,14 +51,27 @@ spec:
       labels:
         app: g005-ris
     spec:
+      serviceAccountName: g005-ris
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
       containers:
         - name: ris-backend
-          image: g005/ris:3.0.3.30
+          image: g005/ris:3.0.7.0
           ports:
             - containerPort: 3001
           env:
             - name: NODE_ENV
               value: production
+            - name: PORT
+              value: "3001"
+            - name: BACKUP_DIR
+              value: /data/backups
+          volumeMounts:
+            - name: backup-storage
+              mountPath: /data/backups
           livenessProbe:
             httpGet:
               path: /api/health
@@ -41,6 +91,10 @@ spec:
             limits:
               cpu: 1000m
               memory: 1Gi
+      volumes:
+        - name: backup-storage
+          persistentVolumeClaim:
+            claimName: g005-ris-pvc
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -66,6 +120,70 @@ spec:
       port: 3001
       targetPort: 3001
   type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: g005-ris-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "200m"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: ris.g005.local
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: g005-ris-service
+                port:
+                  number: 3001
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: g005-ris-service
+                port:
+                  number: 5173
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: g005-ris-pdb
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: g005-ris
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: g005-ris-network-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: g005-ris
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector: {}
+      ports:
+        - port: 3001
+        - port: 5173
+  egress:
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - port: 443
+        - port: 80
+        - port: 5432
+        - port: 6379
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -100,6 +218,7 @@ data:
   NODE_ENV: production
   PORT: "3001"
   LOG_LEVEL: info
+  BACKUP_DIR: /data/backups
 ---
 apiVersion: v1
 kind: Secret

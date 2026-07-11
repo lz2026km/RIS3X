@@ -1957,6 +1957,7 @@ export default function PatientPage() {
                           e.stopPropagation();
                           handleViewPatient(p);
                         }}
+                        aria-label={`查看患者 ${p.name}`}
                         style={{
                           padding: "3px 8px",
                           background: "#eff6ff",
@@ -1975,6 +1976,7 @@ export default function PatientPage() {
                           e.stopPropagation();
                           handleEditPatient(p);
                         }}
+                        aria-label={`编辑患者 ${p.name}`}
                         style={{
                           padding: "3px 8px",
                           background: "#f0fdf4",
