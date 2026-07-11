@@ -1,4 +1,4 @@
-export const DEPLOY_VERSION = '3.0.7.0';
+export const DEPLOY_VERSION = '3.0.6.11-15';
 
 export interface DeployConfig {
   environment: 'development' | 'staging' | 'production';

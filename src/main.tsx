@@ -10,7 +10,7 @@ import "./styles/transitions.css";
 import "./styles/responsive.css";
 import "./styles/z-index.css";
 
-const APP_VERSION = "3.0.6.11-9";
+const APP_VERSION = "3.0.6.11-15";
 console.info(`[v${APP_VERSION}] === BOOT START ===`);
 console.info(`[v${APP_VERSION}] Location:`, window.location.href);
 

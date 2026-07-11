@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "G005放射信息系统",
     "app.version":
-      "v3.0.6.11-9 · 10倍速Agent并行升级 (P0: DICOM/HL7/FHIR/Yjs/缓存/MFA + P1: OLAP/字段RBAC/多租户)",
+      "v3.0.6.11-15 · 全链路数据真实化+三甲评审达标 (3 Sprint: P0安全+业务流程+Schema统一+部署文档)",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -1674,7 +1674,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "G005 Radiology Information System",
     "app.version":
-      "v3.0.6.11-7 · Ghost Feature Fix Complete (8 PR: 745+ endpoints wired + 5700 lines dead code removed) — coverage 18%→85%",
+            "v3.0.6.11-15 · 3-Sprint Full Chain Data Realization + Tertiary Hospital Compliance",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
