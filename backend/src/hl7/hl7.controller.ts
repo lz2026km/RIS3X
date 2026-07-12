@@ -2,7 +2,7 @@
  * G005 鏀惧皠RIS绯荤粺 v3.0.2 - HL7 鎺у埗鍣? * 2 绔偣:POST oru / POST batch
  * v3.0.6.11-9: 娣诲姞 POST orm / POST dft
  */
-import { Body, Controller, Post } from '@nestjs/common'
+import { Body, Controller, HttpCode, HttpStatus, NotFoundException, Post } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
@@ -68,6 +68,7 @@ export class Hl7Controller {
   constructor(private readonly service: Hl7Service) {}
 
   @Post('oru')
+  @HttpCode(HttpStatus.CREATED)
   oru(@Body(new ZodValidationPipe(ReportSchema)) body: ReportForHL7) {
     const message = this.service.buildORU(body)
     return {
@@ -80,6 +81,7 @@ export class Hl7Controller {
   }
 
   @Post('batch')
+  @HttpCode(HttpStatus.CREATED)
   batch(@Body(new ZodValidationPipe(BatchSchema)) body: { reports: ReportForHL7[] }) {
     return {
       count: body.reports.length,
@@ -91,6 +93,7 @@ export class Hl7Controller {
   }
 
   @Post('orm')
+  @HttpCode(HttpStatus.CREATED)
   orm(@Body(new ZodValidationPipe(OrmSchema)) body: OrmOrder) {
     const message = this.service.buildORM(body)
     return {
@@ -103,6 +106,7 @@ export class Hl7Controller {
   }
 
   @Post('dft')
+  @HttpCode(HttpStatus.CREATED)
   dft(@Body(new ZodValidationPipe(DftSchema)) body: DftTransaction) {
     const message = this.service.buildDFT(body)
     return {
@@ -115,6 +119,7 @@ export class Hl7Controller {
   }
 
   @Post('push-oru')
+  @HttpCode(HttpStatus.CREATED)
   async pushOru(@Body() body: { examId: string; reportId: string }) {
     const exam = await (this.service as any).prisma.exam.findUnique({
       where: { id: body.examId },

@@ -46,6 +46,7 @@ export class ReportsService {
         findings: dto.findings,
         conclusion: dto.conclusion,
         state: 'PENDING_ASSIGNMENT',
+        tenantId: 'default',
       },
     })
   }
@@ -87,6 +88,7 @@ export class ReportsService {
           fromState: existing.state,
           toState: 'WITHDRAWN',
           reason,
+          tenantId: 'default',
         },
       })
       return updated
@@ -106,7 +108,7 @@ export class ReportsService {
     return this.prisma.$transaction(async (tx) => {
       const updated = await tx.report.update({ where: { id }, data: { state: to } })
       await tx.reportRevision.create({
-        data: { reportId: id, actorId, fromState: report.state, toState: to, reason: reason ?? null },
+        data: { reportId: id, actorId, fromState: report.state, toState: to, reason: reason ?? null, tenantId: 'default' },
       })
       return updated
     })

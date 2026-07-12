@@ -1,6 +1,6 @@
 # G005 放射RIS 备份恢复手册
 
-**版本**: v3.0.7.0 | **更新日期**: 2026-07-11
+**版本**: v3.0.6.11-18 | **更新日期**: 2026-07-12
 
 ## 目录
 
@@ -271,6 +271,36 @@ dropdb g005_verify
 ### 定期恢复演练
 
 每月执行一次全量恢复演练:
+```bash
+# 1. 在隔离环境拉起新实例
+docker compose -f deploy/docker-compose.yml up -d postgres minio
+
+# 2. 恢复备份
+pg_restore -U g005 -d g005 -Fc /data/backups/g005-latest.dump
+
+# 3. 启动应用验证
+docker compose -f deploy/docker-compose.yml up -d ris-backend ris-frontend
+
+# 4. 自动验证
+curl -f http://localhost:3001/api/health
+curl -f http://localhost:3001/api/v1/reports?page=1
+
+# 5. 清理
+docker compose -f deploy/docker-compose.yml down -v
+```
+
+### 恢复演练记录
+
+每次演练后记录以下信息:
+
+| 日期 | 演练类型 | 数据量 | RTO 实测 | RPO 实测 | 结果 | 负责人 | 备注 |
+|------|----------|--------|----------|----------|------|--------|------|
+| 2026-07-01 | 全量恢复 | 1.5 GB | 12 min | <1 h | ✅ 通过 | 张三 | — |
+| 2026-06-01 | 全量恢复 | 1.4 GB | 15 min | <1 h | ✅ 通过 | 李四 | — |
+| 2026-05-01 | 增量+PITR | 1.4 GB | 8 min | 5 min | ✅ 通过 | 张三 | — |
+
+**演练步骤**:
+
 ```bash
 # 1. 在隔离环境拉起新实例
 docker compose -f deploy/docker-compose.yml up -d postgres minio

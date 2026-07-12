@@ -9,6 +9,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import { AppModule } from './app.module'
 import { Request, Response } from 'express'
 import client from 'prom-client'
+import * as Sentry from '@sentry/node'
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, {
@@ -16,7 +17,17 @@ async function bootstrap(): Promise<void> {
   })
   app.useLogger(app.get(PinoLogger))
 
-  client.collectDefaultMetrics()
+  client.collectDefaultMetrics({ register: client.register })
+
+  if (process.env['SENTRY_DSN']) {
+    Sentry.init({
+      dsn: process.env['SENTRY_DSN'],
+      environment: process.env['NODE_ENV'] ?? 'development',
+      tracesSampleRate: 0.1,
+    })
+    app.use(Sentry.Handlers.requestHandler())
+    app.use(Sentry.Handlers.errorHandler())
+  }
 
   app.use('/metrics', async (_req: Request, res: Response) => {
     res.set('Content-Type', client.register.contentType)

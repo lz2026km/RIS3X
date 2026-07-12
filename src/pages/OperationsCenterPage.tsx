@@ -695,7 +695,7 @@ function ProgressBar({ label, value, color }: { label: string, value: number, co
 
 // ==================== 主页面 ====================
 export default function OperationsCenterPage() {
-  const [currentTime, setCurrentTime] = useState(new Date())
+  const [currentTime, setCurrentTime] = useState(() => new Date())
 
   useEffect(() => {
     const timer = setInterval(() => {

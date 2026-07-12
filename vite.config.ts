@@ -211,8 +211,9 @@ export default defineConfig({
           // 核心 React 栈
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
 
-          // antd
-          'antd-vendor': ['antd', '@ant-design/icons', '@ant-design/cssinjs'],
+          // antd (拆分为 antd + icons, 避免 icons 拖慢 antd 首屏)
+          'antd-vendor': ['antd', '@ant-design/cssinjs'],
+          'antd-icons-vendor': ['@ant-design/icons'],
 
           // 3D
           'three-vendor': ['three'],
@@ -237,14 +238,22 @@ export default defineConfig({
             'zustand',
           ],
 
-          // 图表
-          'charts-vendor': ['recharts', 'lucide-react', '@dnd-kit/core'],
+          // 图表(拆分避免单一 chunk >500KB)
+          'recharts-vendor': ['recharts'],
+          'lucide-vendor': ['lucide-react'],
+          'dnd-kit-vendor': ['@dnd-kit/core', '@dnd-kit/sortable'],
 
           // DICOM 堆栈已从 manualChunks 移除(@cornerstonejs/* / dcmjs / dicom-parser)
           // 改为由 Rollup 动态产出按需 chunk,避免被 modulepreload 强拉
 
           // 数据库
           'db-vendor': ['dexie', 'dexie-react-hooks'],
+
+          // DICOM
+          'dicom-vendor': ['@cornerstonejs/core', '@cornerstonejs/dicom-image-loader', '@cornerstonejs/tools', 'dcmjs', 'dicom-parser'],
+
+          // html2canvas
+          'html2canvas-vendor': ['html2canvas'],
 
           // 规则引擎
           'rules-vendor': ['json-rules-engine'],

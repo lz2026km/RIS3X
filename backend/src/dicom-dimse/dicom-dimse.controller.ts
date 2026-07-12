@@ -15,8 +15,8 @@ export class DicomDimseController {
   constructor(private readonly service: DicomDimseService) {}
 
   @Post('echo')
-  async cEcho() {
-    return this.service.cEcho()
+  async cEcho(@Body(new ZodValidationPipe(CEchoSchema)) body: any) {
+    return this.service.cEcho(body)
   }
 
   @Post('store')

@@ -47,6 +47,7 @@ export class AuthService {
           ip: ip || 'unknown',
           userAgent: '',
           success: false,
+          tenantId: user.tenantId ?? 'default',
         },
       })
       throw new UnauthorizedException('账号或密码错误')
@@ -65,6 +66,7 @@ export class AuthService {
         ip: ip || 'unknown',
         userAgent: '',
         success: true,
+        tenantId: user.tenantId ?? 'default',
       },
     })
 

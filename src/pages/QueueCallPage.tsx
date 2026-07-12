@@ -620,7 +620,7 @@ const formatDate = (date: Date) => {
 // ============================================================
 export default function QueueCallPage() {
   const [queueCalls, setQueueCalls] = useState<QueueCallItem[]>([])
-  const [currentTime, setCurrentTime] = useState(new Date())
+  const [currentTime, setCurrentTime] = useState(() => new Date())
   const [searchTerm, setSearchTerm] = useState('')
   const [filterModality, setFilterModality] = useState('全部')
   const [filterStatus, setFilterStatus] = useState('全部')

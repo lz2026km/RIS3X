@@ -1,4 +1,4 @@
-﻿import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common'
+﻿import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
@@ -26,6 +26,7 @@ export class EyeController {
   }
 
   @Post('studies')
+  @HttpCode(HttpStatus.CREATED)
   createStudy(@Body(new ZodValidationPipe(CreateEyeStudySchema)) body: CreateEyeStudyDto) {
     return this.eye.createStudy(body)
   }
@@ -61,6 +62,7 @@ export class EyeController {
   }
 
   @Post('ai/inferences')
+  @HttpCode(HttpStatus.CREATED)
   createAiInference(@Body() data: { studyId: string; modelId: string; diagnosis: string; confidence: number; heatmapUrl?: string }) {
     return this.eye.createAiInference(data)
   }
@@ -86,6 +88,7 @@ export class EyeController {
   }
 
   @Post('reports')
+  @HttpCode(HttpStatus.CREATED)
   generateReport(@Body() data: { studyId: string; template?: string }) {
     return this.eye.generateReport(data)
   }

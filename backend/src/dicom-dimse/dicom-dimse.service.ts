@@ -12,6 +12,7 @@ import type { CFindMwlDto } from './dto'
 export class DicomDimseService {
   private readonly logger = new Logger(DicomDimseService.name)
   private readonly storageDir: string
+  private readonly supportedStorageSopClasses: Set<string>
 
   constructor(
     private readonly prisma: PrismaService,
@@ -21,10 +22,34 @@ export class DicomDimseService {
     if (!fs.existsSync(this.storageDir)) {
       fs.mkdirSync(this.storageDir, { recursive: true })
     }
+    this.supportedStorageSopClasses = new Set([
+      '1.2.840.10008.5.1.4.1.1.1',    // CR Image
+      '1.2.840.10008.5.1.4.1.1.2',    // CT Image
+      '1.2.840.10008.5.1.4.1.1.4',    // MR Image
+      '1.2.840.10008.5.1.4.1.1.7',    // Secondary Capture
+      '1.2.840.10008.5.1.4.1.1.12.1', // XA Image
+      '1.2.840.10008.5.1.4.1.1.12.2', // XRF Image
+      '1.2.840.10008.5.1.4.1.1.13.1.3', // Breast Tomosynthesis
+      '1.2.840.10008.5.1.4.1.1.481.2',  // NM Image
+      '1.2.840.10008.5.1.4.1.1.88.33',  // Comprehensive SR
+      '1.2.840.10008.5.1.4.1.1.88.22',  // Enhanced SR
+    ])
   }
 
-  async cEcho(): Promise<{ status: string; message: string }> {
-    return { status: 'SUCCESS', message: 'C-ECHO response: devices reachable' }
+  async cEcho(params?: { affectedSopClassUid?: string; calledAeTitle?: string; callingAeTitle?: string }): Promise<{
+    statusCode: number
+    affectedSopClassUid: string
+    message: string
+    calledAeTitle?: string
+    callingAeTitle?: string
+  }> {
+    return {
+      statusCode: 0x0000,
+      affectedSopClassUid: params?.affectedSopClassUid ?? '1.2.840.10008.1.1',
+      message: 'C-ECHO-RSP: Success',
+      calledAeTitle: params?.calledAeTitle,
+      callingAeTitle: params?.callingAeTitle,
+    }
   }
 
   async cStore(dto: {
@@ -34,9 +59,22 @@ export class DicomDimseService {
     seriesInstanceUid: string
     modality: string
     patientId?: string
+    patientName?: string
+    studyDate?: string
+    studyDescription?: string
+    seriesNumber?: number
+    instanceNumber?: number
     transferSyntax?: string
     pixelData?: string
   }): Promise<{ sopInstanceUid: string; storagePath: string; sizeBytes: number }> {
+    if (!this.supportedStorageSopClasses.has(dto.sopClassUid)) {
+      throw new BadRequestException(`Unsupported SOP Class UID: ${dto.sopClassUid}`)
+    }
+    const tsList = ['1.2.840.10008.1.2', '1.2.840.10008.1.2.1', '1.2.840.10008.1.2.4.70']
+    const ts = dto.transferSyntax ?? '1.2.840.10008.1.2.1'
+    if (!tsList.includes(ts)) {
+      throw new BadRequestException(`Unsupported Transfer Syntax UID: ${ts}`)
+    }
     const safeUid = (uid: string) => {
       if (!/^[A-Za-z0-9._-]+$/.test(uid)) {
         throw new BadRequestException(`Invalid UID: ${uid}`)
@@ -58,8 +96,15 @@ export class DicomDimseService {
       sopInstanceUid: dto.sopInstanceUid,
       studyInstanceUid: dto.studyInstanceUid,
       seriesInstanceUid: dto.seriesInstanceUid,
-      transferSyntax: dto.transferSyntax ?? '1.2.840.10008.1.2.1',
+      transferSyntax: ts,
       pixelData: pixelBuf,
+      patientId: dto.patientId,
+      patientName: dto.patientName,
+      studyDate: dto.studyDate,
+      studyDescription: dto.studyDescription,
+      seriesNumber: dto.seriesNumber,
+      instanceNumber: dto.instanceNumber,
+      modality: dto.modality,
     })
     fs.writeFileSync(filePath, dicomBuffer)
     const sizeBytes = dicomBuffer.length
@@ -76,7 +121,7 @@ export class DicomDimseService {
             modality: dto.modality,
             sizeBytes,
             storagePath: filePath,
-            transferSyntax: dto.transferSyntax ?? '1.2.840.10008.1.2.1',
+            transferSyntax: ts,
           },
         })
       } catch (e) {
@@ -120,8 +165,33 @@ export class DicomDimseService {
       examId: exam.id,
       deviceId: exam.deviceId,
       deviceName: (exam as any).device?.name ?? '',
+      scheduledProcedureStepSequence: [
+        {
+          scheduledProcedureStepId: `SPS-${exam.id}`,
+          scheduledStationAeTitle: (exam as any).device?.aeTitle ?? '',
+          scheduledProcedureStepStartDate: exam.scheduledAt?.toISOString().slice(0, 10) ?? '',
+          scheduledProcedureStepStartTime: exam.scheduledAt?.toISOString().slice(11, 19) ?? '',
+          modality: exam.modality,
+          scheduledPerformingPhysicianName: (exam as any).referringPhysician ?? '',
+          requestedProcedureDescription: exam.bodyPart ?? '',
+          requestedProcedureId: exam.accessionNumber ?? `RP-${exam.id}`,
+        },
+      ],
     }))
     return { matches: mapped.length, items: mapped }
+  }
+
+  private resolveAe(aeTitle: string): { host: string; port: number } {
+    const mappingRaw = this.config.get<string>('DIMSE_AE_MAPPING', '')
+    if (mappingRaw) {
+      for (const entry of mappingRaw.split(';')) {
+        const [ae, h, p] = entry.split(',')
+        if (ae === aeTitle) return { host: h || '127.0.0.1', port: Number(p) || 11112 }
+      }
+    }
+    const host = this.config.get<string>(`DIMSE_AE_HOST_${aeTitle}`, this.config.get<string>('DIMSE_DEFAULT_HOST', '127.0.0.1'))
+    const port = this.config.get<number>(`DIMSE_AE_PORT_${aeTitle}`, this.config.get<number>('DIMSE_DEFAULT_PORT', 11112))
+    return { host, port }
   }
 
   async cMove(dto: {
@@ -131,20 +201,38 @@ export class DicomDimseService {
     destinationAe: string
     destinationHost?: string
     destinationPort?: number
-  }): Promise<{ status: string; message: string; transferred: number }> {
-    const host = dto.destinationHost ?? this.config.get<string>('DIMSE_DEFAULT_HOST', '127.0.0.1')
-    const port = dto.destinationPort ?? this.config.get<number>('DIMSE_DEFAULT_PORT', 11112)
-    this.logger.log(`C-MOVE to AE=${dto.destinationAe} host=${host}:${port}`)
+  }): Promise<{
+    statusCode: number
+    destinationAe: string
+    numberOfCompletedSubOperations: number
+    numberOfFailedSubOperations: number
+    numberOfRemainingSubOperations: number
+    message: string
+  }> {
+    const aeTarget = this.resolveAe(dto.destinationAe)
+    const host = dto.destinationHost ?? aeTarget.host
+    const port = dto.destinationPort ?? aeTarget.port
+    this.logger.log(`C-MOVE-RQ to AE=${dto.destinationAe} resolved=${host}:${port}`)
     const model = (this.prisma as any).dicomInstance
     if (!model?.findMany) {
-      return { status: 'WARNING', message: `DICOM persistence not available; C-MOVE simulated to ${host}:${port}`, transferred: 0 }
+      return {
+        statusCode: 0xB000,
+        destinationAe: dto.destinationAe,
+        numberOfCompletedSubOperations: 0,
+        numberOfFailedSubOperations: 0,
+        numberOfRemainingSubOperations: 0,
+        message: 'DICOM persistence not available',
+      }
     }
     const where: any = {}
     if (dto.sopInstanceUid) where.sopInstanceUid = dto.sopInstanceUid
     if (dto.seriesInstanceUid) where.seriesInstanceUid = dto.seriesInstanceUid
     if (dto.studyInstanceUid) where.studyInstanceUid = dto.studyInstanceUid
     const instances = await model.findMany({ where })
-    this.logger.log(`C-MOVE: ${instances.length} instance(s) to transmit to ${host}:${port}`)
+    const total = instances.length
+    this.logger.log(`C-MOVE: ${total} instance(s) to transmit to ${dto.destinationAe} at ${host}:${port}`)
+    let completed = 0
+    let failed = 0
     for (const inst of instances) {
       if (inst.storagePath && fs.existsSync(inst.storagePath)) {
         try {
@@ -158,12 +246,23 @@ export class DicomDimseService {
             client.on('error', reject)
             setTimeout(() => { client.destroy(); resolve() }, 10000).unref()
           })
+          completed++
         } catch (e) {
           this.logger.error(`C-MOVE transfer failed for ${inst.sopInstanceUid}: ${(e as Error).message}`)
+          failed++
         }
+      } else {
+        failed++
       }
     }
-    return { status: 'SUCCESS', message: `C-MOVE to ${dto.destinationAe} at ${host}:${port}`, transferred: instances.length }
+    return {
+      statusCode: failed > 0 ? 0xB000 : 0x0000,
+      destinationAe: dto.destinationAe,
+      numberOfCompletedSubOperations: completed,
+      numberOfFailedSubOperations: failed,
+      numberOfRemainingSubOperations: total - completed - failed,
+      message: `C-MOVE to ${dto.destinationAe} at ${host}:${port}`,
+    }
   }
 
   async uploadToS3(dto: {
@@ -231,44 +330,80 @@ export class DicomDimseService {
     seriesInstanceUid: string
     transferSyntax: string
     pixelData: Buffer
+    patientId?: string
+    patientName?: string
+    studyDate?: string
+    studyDescription?: string
+    seriesNumber?: number
+    instanceNumber?: number
+    modality?: string
   }): Buffer {
-    const encodeTag = (hexTag: string, vr: string, value: Buffer): Buffer[] => {
-      const g = parseInt(hexTag.slice(0, 4), 16)
-      const e = parseInt(hexTag.slice(4, 8), 16)
-      const gb = Buffer.alloc(2); gb.writeUInt16LE(g, 0)
-      const eb = Buffer.alloc(2); eb.writeUInt16LE(e, 0)
-      const vb = Buffer.from(vr.padEnd(2, ' '), 'ascii')
-      const longVr = ['OB', 'OD', 'OF', 'OL', 'OW', 'SQ', 'UC', 'UN', 'UR']
-      let lb: Buffer
-      if (longVr.includes(vr)) {
-        lb = Buffer.alloc(6); lb.writeUInt16LE(0, 0); lb.writeUInt32LE(value.length, 2)
-      } else {
-        lb = Buffer.alloc(2); lb.writeUInt16LE(value.length, 0)
-      }
-      const pad = value.length % 2 !== 0 ? Buffer.from([0]) : Buffer.alloc(0)
-      return [gb, eb, vb, lb, value, pad]
-    }
+    const isExplicit = opts.transferSyntax !== '1.2.840.10008.1.2'
     const valBuf = (s: string): Buffer => {
       const b = Buffer.from(s, 'utf8')
       return s.length % 2 !== 0 ? Buffer.concat([b, Buffer.from([0])]) : b
     }
-    const metaTags: Buffer[] = []
-    metaTags.push(...encodeTag('00020001', 'OB', Buffer.from([0x01, 0x00])))
-    metaTags.push(...encodeTag('00020002', 'UI', valBuf(opts.sopClassUid)))
-    metaTags.push(...encodeTag('00020003', 'UI', valBuf(opts.sopInstanceUid)))
-    metaTags.push(...encodeTag('0002000D', 'UI', valBuf(opts.studyInstanceUid)))
-    metaTags.push(...encodeTag('0002000E', 'UI', valBuf(opts.seriesInstanceUid)))
-    metaTags.push(...encodeTag('00020010', 'UI', valBuf(opts.transferSyntax)))
-    metaTags.push(...encodeTag('00020012', 'UI', valBuf('1.2.840.10008.5.1.4.1.1.2')))
-    metaTags.push(...encodeTag('00020013', 'SH', valBuf('G005-RIS-DIMSE-3.0')))
-    const metaBody = Buffer.concat(metaTags)
-    const glBuf = Buffer.alloc(4); glBuf.writeUInt32LE(metaBody.length, 0)
-    const gLen = encodeTag('00020000', 'UL', glBuf)
-    const fileMeta = Buffer.concat([...gLen, metaBody])
+    const u16le = (n: number): Buffer => { const b = Buffer.alloc(2); b.writeUInt16LE(n, 0); return b }
+    const u32le = (n: number): Buffer => { const b = Buffer.alloc(4); b.writeUInt32LE(n, 0); return b }
+    const encodeElement = (tagGrp: number, tagEl: number, vr: string, value: Buffer): Buffer => {
+      const parts: Buffer[] = [u16le(tagGrp), u16le(tagEl)]
+      if (isExplicit) {
+        parts.push(Buffer.from(vr.padEnd(2, ' '), 'ascii'))
+        const longVr = ['OB', 'OD', 'OF', 'OL', 'OW', 'SQ', 'UC', 'UN', 'UR']
+        if (longVr.includes(vr)) {
+          parts.push(u16le(0), u32le(value.length))
+        } else {
+          parts.push(u16le(value.length))
+        }
+      } else {
+        parts.push(u32le(value.length))
+      }
+      parts.push(value)
+      if (value.length % 2 !== 0) parts.push(Buffer.from([0]))
+      return Buffer.concat(parts)
+    }
+    const encodeMeta = (hexTag: string, vr: string, value: Buffer): Buffer => {
+      const g = parseInt(hexTag.slice(0, 4), 16)
+      const e = parseInt(hexTag.slice(4, 8), 16)
+      return encodeElement(g, e, vr, value)
+    }
+    const metaElements: Buffer[] = []
+    metaElements.push(encodeMeta('00020001', 'OB', Buffer.from([0x01, 0x00])))
+    metaElements.push(encodeMeta('00020002', 'UI', valBuf(opts.sopClassUid)))
+    metaElements.push(encodeMeta('00020003', 'UI', valBuf(opts.sopInstanceUid)))
+    metaElements.push(encodeMeta('0002000D', 'UI', valBuf(opts.studyInstanceUid)))
+    metaElements.push(encodeMeta('0002000E', 'UI', valBuf(opts.seriesInstanceUid)))
+    metaElements.push(encodeMeta('00020010', 'UI', valBuf(opts.transferSyntax)))
+    metaElements.push(encodeMeta('00020012', 'UI', valBuf('1.2.840.10008.5.1.4.1.1.2')))
+    metaElements.push(encodeMeta('00020013', 'SH', valBuf('G005-RIS-DIMSE-3.0')))
+    const metaBody = Buffer.concat(metaElements)
+    const glBuf = u32le(metaBody.length)
+    const groupLen = encodeMeta('00020000', 'UL', glBuf)
+    const fileMeta = Buffer.concat([groupLen, metaBody])
     const preamble = Buffer.alloc(128, 0)
     const dicm = Buffer.from('DICM', 'ascii')
-    const datasetPreamble = Buffer.alloc(8, 0)
-    const dataset = Buffer.concat([datasetPreamble, opts.pixelData])
+    const datasetElements: Buffer[] = []
+    const encodeDs = (tagGrp: number, tagEl: number, vr: string, value: Buffer) => {
+      datasetElements.push(encodeElement(tagGrp, tagEl, vr, value))
+    }
+    if (opts.patientName) encodeDs(0x0010, 0x0010, 'PN', valBuf(opts.patientName))
+    if (opts.patientId) encodeDs(0x0010, 0x0020, 'LO', valBuf(opts.patientId))
+    if (opts.studyDate) encodeDs(0x0008, 0x0020, 'DA', valBuf(opts.studyDate))
+    if (opts.studyDescription) encodeDs(0x0008, 0x1030, 'LO', valBuf(opts.studyDescription))
+    if (opts.modality) encodeDs(0x0008, 0x0060, 'CS', valBuf(opts.modality))
+    if (opts.seriesNumber !== undefined) encodeDs(0x0020, 0x0011, 'IS', valBuf(String(opts.seriesNumber)))
+    if (opts.instanceNumber !== undefined) encodeDs(0x0020, 0x0013, 'IS', valBuf(String(opts.instanceNumber)))
+    encodeDs(0x0008, 0x0016, 'UI', valBuf(opts.sopClassUid))
+    encodeDs(0x0008, 0x0018, 'UI', valBuf(opts.sopInstanceUid))
+    encodeDs(0x0020, 0x000D, 'UI', valBuf(opts.studyInstanceUid))
+    encodeDs(0x0020, 0x000E, 'UI', valBuf(opts.seriesInstanceUid))
+    encodeDs(0x0028, 0x0002, 'US', u16le(1))
+    encodeDs(0x0028, 0x0010, 'US', u16le(1))
+    encodeDs(0x0028, 0x0011, 'US', u16le(1))
+    encodeDs(0x0028, 0x0100, 'US', u16le(8))
+    encodeDs(0x0028, 0x0004, 'CS', valBuf('MONOCHROME2'))
+    encodeDs(0x7FE0, 0x0010, 'OB', opts.pixelData)
+    const dataset = Buffer.concat(datasetElements)
     return Buffer.concat([preamble, dicm, fileMeta, dataset])
   }
 }

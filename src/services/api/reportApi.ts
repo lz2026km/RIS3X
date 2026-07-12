@@ -61,8 +61,8 @@ export const reportApi = {
     return res
   },
 
-  review: async (id: string) => {
-    const res = await api.post<ReportDto>(`/reports/${id}/review`)
+  review: async (id: string, data?: { type: 'initial' | 'final'; doctorId: string; doctorName: string; suggestion: string; score: number }) => {
+    const res = await api.post<ReportDto>(`/reports/${id}/review`, data)
     await invalidateApiCache(`/reports/${id}`)
     return res
   },

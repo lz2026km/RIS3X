@@ -1,4 +1,4 @@
-﻿import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common'
+﻿import { Controller, Get, HttpCode, HttpStatus, Post, Put, Delete, Param, Body, Query } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { CdsService } from './cds.service'
@@ -17,6 +17,7 @@ export class CdsController {
   getGuideline(@Param('id') id: string) { return this.svc.getGuideline(id) }
 
   @Post('guidelines')
+  @HttpCode(HttpStatus.CREATED)
   createGuideline(@Body() body: any) { return this.svc.createGuideline(body) }
 
   @Get('alerts')
@@ -35,6 +36,7 @@ export class CdsController {
   listCdsRules() { return this.svc.listCdsRules() }
 
   @Post('rules')
+  @HttpCode(HttpStatus.CREATED)
   createCdsRule(@Body() body: any) { return this.svc.createCdsRule(body) }
 
   @Get('management')

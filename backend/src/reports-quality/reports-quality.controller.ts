@@ -2,7 +2,7 @@
  * G005 鏀惧皠RIS绯荤粺 v3.0.2.2 - 鎶ュ憡璐ㄩ噺鎺у埗鍣?
  * 5 绔偣:GET rules / POST evaluate / GET history / GET trend / POST re-evaluate
  */
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common'
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
@@ -33,6 +33,7 @@ export class ReportsQualityController {
   }
 
   @Post('evaluate')
+  @HttpCode(HttpStatus.CREATED)
   evaluate(@Body(new ZodValidationPipe(EvaluateSchema)) body: EvaluateDto) {
     return this.service.evaluate(body)
   }
@@ -48,6 +49,7 @@ export class ReportsQualityController {
   }
 
   @Post('re-evaluate/:reportId')
+  @HttpCode(HttpStatus.CREATED)
   reEvaluate(@Param('reportId') reportId: string, @Body(new ZodValidationPipe(EvaluateSchema)) body: EvaluateDto) {
     return this.service.reEvaluate(reportId, body)
   }

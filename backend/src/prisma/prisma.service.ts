@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common'
 import { PrismaClient } from '@prisma/client'
 import { getCurrentTenantId } from '../common/interceptors/tenant-context.interceptor'
+import { dbConnectionErrorsCounter } from '../observability/metrics.factory'
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
@@ -8,10 +9,17 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     super({
       log: process.env['NODE_ENV'] === 'production' ? ['error'] : ['query', 'info', 'warn', 'error'],
     })
+    this.$on('error' as never, (e: unknown) => {
+      dbConnectionErrorsCounter.inc()
+    })
   }
 
   async onModuleInit() {
-    await this.$connect()
+    try {
+      await this.$connect()
+    } catch {
+      dbConnectionErrorsCounter.inc()
+    }
   }
 }
 
@@ -41,7 +49,8 @@ export const createPrismaWithTenant = () => {
 
           if (operation === 'upsert') {
             args.where = { ...args.where, tenantId }
-            if (args.create && !args.create['tenantId']) args.create['tenantId'] = tenantId
+            const createData = args.create as Record<string, unknown>
+            if (createData && !createData['tenantId']) createData['tenantId'] = tenantId
           }
 
           return query(args)

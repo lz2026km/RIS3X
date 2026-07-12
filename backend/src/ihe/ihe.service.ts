@@ -77,14 +77,24 @@ export interface PamLogEntry {
 
 export type VisitStatus = 'registered' | 'admitted' | 'inProgress' | 'completed' | 'discharged'
 
-const VISIT_TRANSITIONS: Record<string, VisitStatus> = {
+const VISIT_TRANSITIONS: Record<string, VisitStatus | null> = {
   'ADT^A01': 'admitted',
   'ADT^A03': 'discharged',
   'ADT^A04': 'registered',
   'ADT^A05': 'registered',
-  'ADT^A08': 'inProgress',
-  'ADT^A11': 'discharged',
+  'ADT^A08': null,
+  'ADT^A11': 'registered',
   'ADT^A13': 'completed',
+}
+
+const TRANSITION_RULES: Record<string, { validFrom: VisitStatus[]; newVisit: boolean }> = {
+  'ADT^A01': { validFrom: ['registered'], newVisit: false },
+  'ADT^A03': { validFrom: ['admitted', 'inProgress', 'completed'], newVisit: false },
+  'ADT^A04': { validFrom: ['registered', 'admitted', 'inProgress', 'completed', 'discharged'], newVisit: true },
+  'ADT^A05': { validFrom: ['registered', 'admitted', 'inProgress', 'completed', 'discharged'], newVisit: true },
+  'ADT^A08': { validFrom: ['registered', 'admitted', 'inProgress', 'completed', 'discharged'], newVisit: false },
+  'ADT^A11': { validFrom: ['admitted'], newVisit: false },
+  'ADT^A13': { validFrom: ['discharged'], newVisit: false },
 }
 
 const DEFAULT_DOMAIN: AffinityDomainDto = {
@@ -201,18 +211,22 @@ export class IheService {
     const candidate: IhePixRecord | null = stored ?? this.findByGlobalId(store, query.patientId)
     if (!candidate) return []
 
-    return query.targetDomains.map((domain) => ({
-      patientId: candidate.patientId,
-      assigningAuthority: domain,
-      identifiers: candidate.identifiers.concat([
-        {
-          domain,
-          value: `${domain}-${candidate.patientId}`,
-          assigningAuthority: domain,
-        },
-      ]),
-      name: candidate.name,
-    }))
+    const personId = candidate.patientId
+    const allRecords = Object.values(store).filter(
+      (r) => r.patientId === personId || r.identifiers.some((i) => i.value === personId || candidate.identifiers.some((ci) => ci.value === i.value)),
+    )
+
+    return query.targetDomains.map((domain) => {
+      const domainRecord = allRecords.find((r) => r.assigningAuthority === domain)
+      return {
+        patientId: domainRecord?.patientId ?? query.patientId,
+        assigningAuthority: domain,
+        identifiers: domainRecord
+          ? domainRecord.identifiers.map((i) => ({ domain: i.domain, value: i.value, assigningAuthority: i.assigningAuthority }))
+          : [],
+        name: domainRecord?.name ?? candidate.name,
+      }
+    })
   }
 
   // ===========================================================
@@ -261,8 +275,11 @@ export class IheService {
       results = results.filter((p) => p.assigningAuthority === query.assigningAuthority)
     }
 
+    const scored = results.map((p) => ({ p, confidence: this.computeMatchConfidence(query, p) }))
+    scored.sort((a, b) => b.confidence - a.confidence)
+
     const limit = query.limit ?? 50
-    return results.slice(0, limit).map((p) => ({
+    return scored.slice(0, limit).map(({ p, confidence }) => ({
       patientId: p.patientId,
       assigningAuthority: p.assigningAuthority,
       identifiers: p.identifiers.map((i) => ({ domain: i.domain, value: i.value })),
@@ -271,7 +288,7 @@ export class IheService {
       gender: p.gender,
       address: p.address ? `${p.address.line.filter(Boolean).join(' ')}, ${p.address.city}, ${p.address.state}`.trim() : undefined,
       phone: p.telecom?.value,
-      confidence: this.computeMatchConfidence(query, p),
+      confidence,
     }))
   }
 
@@ -285,6 +302,7 @@ export class IheService {
 
   private async transitionVisitState(dto: PamMessageDto, visitNumber: string): Promise<VisitState> {
     const newStatus = VISIT_TRANSITIONS[dto.messageType]
+    const rules = TRANSITION_RULES[dto.messageType]
     const now = new Date()
 
     const existing = await this.prisma.patientVisit.findUnique({
@@ -292,11 +310,18 @@ export class IheService {
     })
 
     if (existing) {
+      if (rules && !rules.validFrom.includes(existing.status as VisitStatus)) {
+        throw new BadRequestException(
+          `PAM 状态机非法跳转: ${existing.status} → ${newStatus ?? existing.status} via ${dto.messageType}`,
+        )
+      }
+
       const updateData: any = {
         status: newStatus ?? existing.status,
         classCode: dto.classCode ?? existing.classCode,
         assignedLocation: (dto.assignedLocation as any) ?? existing.assignedLocation,
       }
+      if (dto.messageType === 'ADT^A08') updateData.status = existing.status
       if (dto.admitDateTime) updateData.admitDateTime = new Date(dto.admitDateTime)
       if (dto.dischargeDateTime) updateData.dischargeDateTime = new Date(dto.dischargeDateTime)
       if (newStatus === 'admitted') updateData.admitDateTime = updateData.admitDateTime ?? now
@@ -309,6 +334,9 @@ export class IheService {
         data: updateData,
       })
     } else {
+      if (dto.messageType === 'ADT^A08') {
+        throw new BadRequestException(`PAM ${dto.messageType} 不能创建新 visit，需先有 A01/A04/A05 记录`)
+      }
       await this.prisma.patientVisit.create({
         data: {
           tenantId: 'default',
@@ -682,7 +710,7 @@ export class IheService {
           externalId: record.patientId,
           internalPatientId: patientId,
         },
-      }).catch(() => {})
+      }).catch((err) => this.logger.warn(`Failed to create patientExternalId during PIX feed: ${(err as Error).message}`))
     }
 
     await this.prisma.fhirResource.upsert({
@@ -783,19 +811,33 @@ export class IheService {
 
   private async auditNotify(transaction: string, action: 'C' | 'R' | 'U' | 'D' | 'E', patientId: string, source: string): Promise<void> {
     this.logger.log(`IHE ${transaction} ${action} pid=${patientId} source=${source}`)
-    try {
-      await (this.prisma as any).atnaAuditLog?.create?.({
-        data: {
-          transaction,
-          action,
-          patientId,
-          source,
-          ts: new Date().toISOString(),
+    const eventOutcome: Record<string, string> = { C: '0', R: '0', U: '0', D: '0', E: '4' }
+    await this.prisma.auditLog.create({
+      data: {
+        tenantId: 'default',
+        action,
+        resource: `IHE-${transaction}`,
+        resourceId: patientId,
+        detail: {
+          EventIdentification: {
+            EventID: { code: transaction, displayName: transaction },
+            EventActionCode: action,
+            EventDateTime: new Date().toISOString(),
+            EventOutcomeIndicator: eventOutcome[action] ?? '0',
+          },
+          ActiveParticipant: [{ UserID: source, RoleIDCode: { code: '110153', displayName: 'Source' } }],
+          AuditSourceIdentification: { AuditSourceID: 'G005-RIS', AuditEnterpriseSiteID: process.env.IHE_DOMAIN_NAME ?? 'Handong-Provincial-Hospital' },
+          ParticipantObjectIdentification: [{
+            ParticipantObjectID: patientId,
+            ParticipantObjectTypeCode: '1',
+            ParticipantObjectTypeCodeRole: '1',
+            ParticipantObjectIDTypeCode: { code: '2', displayName: 'Patient Number' },
+          }],
         },
-      })
-    } catch {
-      // ATNA 表不存在时静默跳过
-    }
+        ip: source,
+        success: action !== 'E',
+      },
+    })
   }
 
   private delay(ms: number): Promise<void> {

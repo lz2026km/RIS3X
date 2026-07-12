@@ -46,7 +46,7 @@ export const CriticalEscalation: React.FC<CriticalEscalationProps> = ({
   description,
   onResolved,
 }) => {
-  const [now, setNow] = useState(Date.now())
+  const [now, setNow] = useState(() => Date.now())
   const [resolved, setResolved] = useState(false)
   const [events, setEvents] = useState<EscalationEvent[]>([
     {

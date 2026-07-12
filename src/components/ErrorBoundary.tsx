@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo, ReactNode, createContext, useContext, useState, useCallback } from 'react'
+import { Component, ErrorInfo, ReactNode, createContext, useContext, useState, useCallback } from 'react'
 import { AlertCircle, RefreshCw, Home, FileQuestion } from 'lucide-react'
 
 interface ErrorBoundaryProps {
@@ -113,7 +113,7 @@ export function useErrorCapture(): ErrorBoundaryContextValue {
 }
 
 export function ErrorBoundaryProvider({ children }: ErrorBoundaryProviderProps) {
-  const [errors, setErrors] = useState<Array<{ error: Error; timestamp: number }>>([])
+  const [, setErrors] = useState<Array<{ error: Error; timestamp: number }>>([])
 
   const captureError = useCallback((error: Error, _errorInfo?: ErrorInfo) => {
     console.error('[ErrorBoundaryProvider]', error.message)

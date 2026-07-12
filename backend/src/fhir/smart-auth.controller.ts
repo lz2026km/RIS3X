@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, Body } from '@nestjs/common'
+import { Controller, Get, HttpCode, HttpStatus, Post, Query, Body } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { SmartAuthService } from './smart-auth.service'
 
@@ -26,6 +26,7 @@ export class SmartAuthController {
   }
 
   @Post('auth/token')
+  @HttpCode(HttpStatus.CREATED)
   token(@Body('code') code: string, @Body('client_id') clientId: string) {
     return this.smartAuth.token(code, clientId)
   }

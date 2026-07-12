@@ -475,7 +475,7 @@ export class Hl7Service implements OnModuleInit {
             ackStatus: ackCode,
             retryCount: attempt,
           },
-        }).catch(() => {})
+        }).catch((err) => this.logger.warn(`Failed to archive HL7 message: ${(err as Error).message}`))
 
         if (ackCode === 'AA') {
           this.logger.log(`MLLP send successful on attempt ${attempt}`)
@@ -503,7 +503,7 @@ export class Hl7Service implements OnModuleInit {
         ackStatus: 'FAILED',
         retryCount: this.retryMax,
       },
-    }).catch(() => {})
+    }).catch((err) => this.logger.warn(`Failed to archive HL7 message: ${(err as Error).message}`))
 
     throw new Error(`MLLP send failed after ${this.retryMax} attempts: ${lastError?.message ?? 'unknown'}`)
   }
@@ -569,10 +569,10 @@ export class Hl7Service implements OnModuleInit {
       version,
       '',
       '',
-      '',
-      '',
       'NE',
       'AL',
+      '',
+      '',
     ].join('|')
 
     const errSegment = ackCode !== 'AA'
@@ -595,7 +595,7 @@ export class Hl7Service implements OnModuleInit {
         ackStatus: ackCode,
         retryCount: 0,
       },
-    }).catch(() => {})
+    }).catch((err) => this.logger.warn(`Failed to archive HL7 message: ${(err as Error).message}`))
   }
 
   async pushOruOnExamCompletion(exam: any, report: any): Promise<void> {
@@ -635,7 +635,7 @@ export class Hl7Service implements OnModuleInit {
           ackStatus: 'FAILED',
           retryCount: this.retryMax,
         },
-      }).catch(() => {})
+      }).catch((err) => this.logger.warn(`Failed to archive HL7 message: ${(err as Error).message}`))
     }
   }
 
@@ -684,13 +684,11 @@ export class Hl7Service implements OnModuleInit {
       'OBR',
       '1',
       `${r.accessionNumber}^^G005^ACC`,
-      '',
+      `${r.accessionNumber}^^G005^ACC`,
       `${r.modality}^${r.modality}^CPT`,
       '',
+      '',
       `${r.studyDate}${r.studyTime}`,
-      '',
-      '',
-      '',
       '',
       '',
       '',
@@ -716,7 +714,7 @@ export class Hl7Service implements OnModuleInit {
       )
     }
 
-    return [msh, pid, pv1, obr, ...obxLines].join('\r\n')
+    return [msh, pid, pv1, obr, ...obxLines].join('\r')
   }
 
   buildORM(o: OrmOrder): string {
@@ -775,7 +773,7 @@ export class Hl7Service implements OnModuleInit {
       'OBR',
       '1',
       `${o.accessionNumber}^^G005^ACC`,
-      '',
+      `${o.accessionNumber}^^G005^ACC`,
       `${o.modality}^${o.modality}^CPT`,
       '',
       `${o.studyDate ?? ''}${o.studyTime ?? ''}`,
@@ -786,10 +784,9 @@ export class Hl7Service implements OnModuleInit {
       '',
       '',
       o.bodyPart,
-      `${o.modality}^${o.modality}`,
     ].join(HL7_DELIMS.field)
 
-    return [msh, pid, orc, obr].join('\r\n')
+    return [msh, pid, orc, obr].join('\r')
   }
 
   buildDFT(d: DftTransaction): string {
@@ -850,7 +847,7 @@ export class Hl7Service implements OnModuleInit {
       d.invoiceNumber,
     ].join(HL7_DELIMS.field)
 
-    return [msh, pid, ft1].join('\r\n')
+    return [msh, pid, ft1].join('\r')
   }
 
   private escapeText(s: string): string {

@@ -1,4 +1,4 @@
-﻿import { Body, Controller, Delete, Get, Param, Post, Put, Query, Res } from '@nestjs/common'
+﻿import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, Res } from '@nestjs/common'
 import type { Response } from 'express'
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
@@ -28,6 +28,7 @@ export class FhirController {
   }
 
   @Post('Patient')
+  @HttpCode(HttpStatus.CREATED)
   createPatient(@Body() body: any) {
     return this.service.createPatient(body)
   }
@@ -90,6 +91,7 @@ export class FhirController {
 
   // 鈹€鈹€ Subscription 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
   @Post('Subscription')
+  @HttpCode(HttpStatus.CREATED)
   createSubscription(@Body() body: any) {
     return this.service.createSubscription(body)
   }
@@ -126,7 +128,13 @@ export class FhirController {
   }
 
   @Get('$export-status/:jobId')
-  bulkExportStatus(@Param('jobId') jobId: string) {
-    return this.service.bulkExportStatus(jobId)
+  async bulkExportStatus(@Param('jobId') jobId: string, @Res({ passthrough: true }) res: Response) {
+    const result = await this.service.bulkExportStatus(jobId)
+    if (typeof result === 'string') {
+      res.setHeader('Content-Type', 'application/fhir+ndjson')
+      res.setHeader('Content-Disposition', 'attachment; filename="export.ndjson"')
+      return result
+    }
+    return result
   }
 }

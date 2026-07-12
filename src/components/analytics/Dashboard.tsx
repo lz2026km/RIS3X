@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { Plus, GripVertical, X, Layout } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { GripVertical, X, Layout } from 'lucide-react';
 import KpiCard from './KpiCard';
 import type { KpiDefinition, KpiValue, KpiSnapshot } from '../../types/analytics';
 

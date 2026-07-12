@@ -102,7 +102,7 @@ const todayStats = {
 
 // 模拟实时数据更新
 const useRealtimeData = () => {
-  const [time, setTime] = useState(new Date());
+  const [time, setTime] = useState(() => new Date());
   
   useEffect(() => {
     const timer = setInterval(() => {

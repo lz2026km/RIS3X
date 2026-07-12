@@ -3,13 +3,13 @@
  * 供临床医生/技师在移动端或工作站上快速确认接收、处理、关闭
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Card, Tag, Space, Button, Input, Modal, Steps, Statistic, Row, Col,
-  message, Alert, Result, Timeline, Divider, Badge, Form,
+  message, Alert, Result, Timeline, Divider, Form,
 } from 'antd';
 import {
-  CheckCircle2, Clock, AlertOctagon, Stethoscope, Send, Phone,
+  CheckCircle2, Clock, Stethoscope, Phone,
   MessageSquare, ShieldCheck, X, User, Calendar, Hash,
 } from 'lucide-react';
 import type { CriticalEvent } from '../../types/R3/R3.CRITICAL';
@@ -193,7 +193,7 @@ export const CloseLoopAcknowledge: React.FC<CloseLoopAcknowledgeProps> = ({
                   开始处理
                 </Button>
               ) : null}
-              {(critical.status === 'acknowledged' || critical.status === 'resolving' || critical.status === 'escalated') ? (
+              {(critical.status === 'acknowledged' || critical.status === 'escalated') ? (
                 <Button
                   block
                   icon={<CheckCircle2 size={12} />}

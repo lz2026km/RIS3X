@@ -1,8 +1,9 @@
 # 三甲评审达标检查报告
 
 > 基于三级医院评审标准（2022版）放射科相关条款
+> **最后更新**: 2026-07-12 | **审查人**: P0 严格审查
 
-## 1. 已满足的条款（20条）
+## 1. 已满足的条款（23条）
 
 | 条款编号 | 条款名称 | 当前状态 | 关联报表数 | 关键报表 |
 |---------|---------|---------|-----------|---------|
@@ -17,14 +18,17 @@
 | 2.3.5.3.1 | 报告及时率统计 | ✅ 已满足 | 3 | report-timeliness, report-overtime, report-avg-turnaround |
 | 2.3.5.3.2 | 报告质控评分 | ✅ 已满足 | 2 | qc-score-distribution, qc-issue-top10 |
 | 2.3.5.3.3 | 报告返修率及修改次数 | ✅ 已满足 | 2 | rework-rate, report-modification-count |
-| 2.3.5.3.4 | 审核通过率及阳性率 | ✅ 已满足 | 2 | review-pass-rate, positive-rate |
+| 2.3.5.3.4 | 审核通过率及阳性/阴性率 | ✅ 已满足 | 3 | review-pass-rate, positive-rate, negative-rate |
+| 2.3.5.3.7 | 甲级片率统计 | ✅ 已满足 | 1 | grade-a-film-rate |
 | 2.3.5.3.5 | 报告超时管理 | ✅ 已满足 | 2 | department-overtime-ranking, report-overtime |
 | 2.3.5.4.1 | 危急值闭环管理 | ✅ 已满足 | 2 | critical-value-closure, critical-response-time-trend |
 | 2.3.5.4.2 | 危急值科室分布及漏报 | ✅ 已满足 | 3 | critical-value-dept-dist, critical-miss-rate, critical-escalation-rate |
 | 2.3.5.5.1 | 医生/技师工作量统计 | ✅ 已满足 | 2 | doctor-workload-top10, tech-workload |
 | 2.3.5.5.2 | 收入成本及医保分析 | ✅ 已满足 | 4 | revenue-cost-analysis, insurance-type-dist, finance-arrears-rate, finance-insurance-reject |
+| 2.3.5.6.1 | BI-RADS/LI-RADS 分级分布统计 | ✅ 已满足 | 2 | bi-rads-distribution, li-rads-distribution |
 | 2.3.5.7.1 | AI辅助诊断评估 | ✅ 已满足 | 6 | ai-accuracy-rate, ai-miss-rate, ai-adoption-rate, ai-vs-doctor-kappa, ai-vs-doctor-agreement, ai-false-positive-rate |
 | 2.3.5.8.1 | 辐射剂量监测 | ✅ 已满足 | 3 | radiation-dose-stats, radiation-dose-over-limit, radiation-dose-by-modality |
+| 2.3.5.9.2 | 对比剂不良反应监测 | ✅ 已满足 | 3 | contrast-adverse-rate, contrast-inventory-warning, contrast-usage-trend |
 | 2.3.5.10.1 | 患者服务指标 | ✅ 已满足 | 6 | patient-wait-time, appointment-cancel-rate, patient-source-dist, patient-followup-rate, patient-no-show-rate, mobile-usage |
 
 ## 2. 待实现的条款（5条）
@@ -41,14 +45,14 @@
 
 | 维度 | 数值 |
 |------|------|
-| 总报表数 | 70 |
+| 总报表数 | 72 |
 | 覆盖三甲条款数 | 11 / 11（100%） |
-| 三甲条款子项数 | 25 |
-| 已满足子项 | 20（80.0%） |
-| 部分实现子项 | 5（20.0%） |
+| 三甲条款子项数 | 28 |
+| 已满足子项 | 23（82.1%） |
+| 部分实现子项 | 5（17.9%） |
 | 未实现子项 | 0（0%） |
 | 数据字段对齐率 | 100%（dataKeys 与 mock 返回字段已对齐） |
-| Chart 类型正确率 | 100%（70/70 chartType 均在 Chart 组件支持范围内） |
+| Chart 类型正确率 | 100%（72/72 chartType 均在 Chart 组件支持范围内） |
 
 ## 4. 后续行动计划
 

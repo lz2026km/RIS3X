@@ -1,6 +1,6 @@
 # G005 放射RIS 监控告警手册
 
-**版本**: v3.0.7.0 | **更新日期**: 2026-07-11
+**版本**: v3.0.6.11-18 | **更新日期**: 2026-07-12
 
 ## 目录
 
@@ -21,7 +21,7 @@
 
 ```
 GET /api/health   # 健康检查 (已经接入 liveness/readiness probe)
-GET /metrics      # Prometheus 指标 (规划中, 当前使用应用内 metrics 中间件)
+GET /metrics      # Prometheus 指标 (已启用, 通过 express-prom-bundle 暴露)
 ```
 
 ### 应用内指标 (server/middleware/metrics.ts)

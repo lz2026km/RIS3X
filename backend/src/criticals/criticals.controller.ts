@@ -45,7 +45,7 @@ const UpdateCriticalSchema = z.object({
 @ApiTags('criticals')
 @ApiBearerAuth()
 @Roles('DOCTOR', 'DIRECTOR', 'ADMIN')
-@Controller({ path: 'criticals', alias: 'critical' })
+@Controller('criticals')
 export class CriticalsController {
   constructor(private readonly service: CriticalsService) {}
 

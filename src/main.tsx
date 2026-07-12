@@ -4,6 +4,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 
 import "./i18n/index.ts";
+import { reportWebVitals } from "./observability/webVitals";
 
 import "./styles/animations.css";
 import "./styles/transitions.css";
@@ -119,6 +120,7 @@ async function bootstrap(): Promise<void> {
         <App />
       </React.StrictMode>,
     );
+    reportWebVitals();
     console.info(`[v${APP_VERSION}] === BOOT DONE ===`);
   } catch (err) {
     console.error(`[v${APP_VERSION}] FATAL: React render failed:`, err);

@@ -110,30 +110,31 @@ export const useCriticalStore = create<CriticalState>((set, get) => ({
   actors: new Map(),
 
   load: async () => {
-    set({ loading: true })
-    const res = await criticalApi.list()
-    if (res.success && Array.isArray(res.data)) {
-      const values = res.data as CriticalValue[]
-      // 重建 actor pool,与 values 一一对应
-      const actors = new Map<string, Actor<CriticalMachine>>()
-      const previousActors = get().actors
-      values.forEach((v) => {
-        const existing = previousActors.get(v.id)
-        if (existing) {
-          actors.set(v.id, existing)
-        } else {
-          actors.set(v.id, buildActorFor(v))
-        }
-      })
-      // 停掉已被移除的 actor
-      previousActors.forEach((actor, id) => {
-        if (!actors.has(id)) actor.stop()
-      })
-      set({ values, actors, loading: false, error: null })
-      // 启动定时扫描以自动升级超时的危急值
-      get().startEscalationWatcher()
-    } else {
-      set({ loading: false, error: res.error?.message ?? '加载失败' })
+    set({ loading: true, error: null })
+    try {
+      const res = await criticalApi.list()
+      if (res.success && Array.isArray(res.data)) {
+        const values = res.data as CriticalValue[]
+        const actors = new Map<string, Actor<CriticalMachine>>()
+        const previousActors = get().actors
+        values.forEach((v) => {
+          const existing = previousActors.get(v.id)
+          if (existing) {
+            actors.set(v.id, existing)
+          } else {
+            actors.set(v.id, buildActorFor(v))
+          }
+        })
+        previousActors.forEach((actor, id) => {
+          if (!actors.has(id)) actor.stop()
+        })
+        set({ values, actors, loading: false, error: null })
+        get().startEscalationWatcher()
+      } else {
+        set({ loading: false, error: res.error?.message ?? '加载失败' })
+      }
+    } catch (err) {
+      set({ loading: false, error: err instanceof Error ? err.message : '网络错误' })
     }
   },
 
@@ -166,70 +167,94 @@ export const useCriticalStore = create<CriticalState>((set, get) => ({
   },
 
   acknowledge: async (id) => {
-    const res = await criticalApi.acknowledge(id)
-    if (res.success) {
-      // criticalValueMachine: notified → acknowledged via ACKNOWLEDGE
-      const actor = get().actors.get(id)
-      if (actor) actor.send({ type: 'ACKNOWLEDGE', by: '' })
-      set((s) => ({
-        values: s.values.map((v) =>
-          v.id === id ? { ...v, status: 'acknowledged' as const, acknowledgedAt: new Date().toISOString() } : v
-        ),
-      }))
+    set({ error: null })
+    try {
+      const res = await criticalApi.acknowledge(id)
+      if (res.success) {
+        const actor = get().actors.get(id)
+        if (actor) actor.send({ type: 'ACKNOWLEDGE', by: '' })
+        set((s) => ({
+          values: s.values.map((v) =>
+            v.id === id ? { ...v, status: 'acknowledged' as const, acknowledgedAt: new Date().toISOString() } : v
+          ),
+        }))
+      } else {
+        set({ error: res.error?.message ?? '确认失败' })
+      }
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : '网络错误' })
     }
   },
 
   resolve: async (id) => {
-    const res = await criticalApi.resolve(id)
-    if (res.success) {
-      // criticalValueMachine: acknowledged → resolving → resolved
-      // 如果当前是 notified,先自动 acknowledge
-      const actor = get().actors.get(id)
-      if (actor) {
-        const current = actor.getSnapshot().value
-        if (current === 'notified') actor.send({ type: 'ACKNOWLEDGE', by: '' })
-        actor.send({ type: 'START_PROCESSING', doctorId: '' })
-        actor.send({ type: 'COMPLETE_PROCESSING', note: '已闭环' })
+    set({ error: null })
+    try {
+      const res = await criticalApi.resolve(id)
+      if (res.success) {
+        const actor = get().actors.get(id)
+        if (actor) {
+          const current = actor.getSnapshot().value
+          if (current === 'notified') actor.send({ type: 'ACKNOWLEDGE', by: '' })
+          actor.send({ type: 'START_PROCESSING', doctorId: '' })
+          actor.send({ type: 'COMPLETE_PROCESSING', note: '已闭环' })
+        }
+        set((s) => ({
+          values: s.values.map((v) =>
+            v.id === id ? { ...v, status: 'resolved' as const, resolvedAt: new Date().toISOString() } : v
+          ),
+        }))
+      } else {
+        set({ error: res.error?.message ?? '闭环失败' })
       }
-      set((s) => ({
-        values: s.values.map((v) =>
-          v.id === id ? { ...v, status: 'resolved' as const, resolvedAt: new Date().toISOString() } : v
-        ),
-      }))
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : '网络错误' })
     }
   },
 
   notify: async (id, method) => {
-    const finalMethod: NotificationMethod = toMachineMethod(method)
-    let res = { success: false, data: null as unknown as CriticalValue, error: undefined as { code?: string; message?: string } | undefined }
-    if (typeof (criticalApi as unknown as { notify?: (id: string, m: NotificationMethod) => Promise<typeof res> }).notify === 'function') {
-      res = await (criticalApi as unknown as { notify: (id: string, m: NotificationMethod) => Promise<typeof res> }).notify(id, finalMethod)
-    } else {
-      res = { success: true, data: null as unknown as CriticalValue, error: undefined }
+    set({ error: null })
+    try {
+      const finalMethod = toMachineMethod(method)
+      const apiMethod = method ?? 'SYSTEM'
+      const res = await criticalApi.notify(id, apiMethod)
+      if (res.success) {
+        const actor = get().actors.get(id)
+        if (actor) actor.send({ type: 'NOTIFY', to: '', method: finalMethod, by: '' })
+        set((s) => ({
+          values: s.values.map((v) =>
+            v.id === id
+              ? { ...v, status: 'notified' as const, notifiedAt: new Date().toISOString(), notificationMethod: apiMethod as ApiNotificationMethod }
+              : v
+          ),
+        }))
+      } else {
+        set({ error: res.error?.message ?? '通知失败' })
+      }
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : '网络错误' })
     }
-    // criticalValueMachine: found → notified via NOTIFY
-    const actor = get().actors.get(id)
-    if (actor) actor.send({ type: 'NOTIFY', to: '', method: finalMethod, by: '' })
-    set((s) => ({
-      values: s.values.map((v) =>
-        v.id === id
-          ? { ...v, status: 'notified' as const, notifiedAt: new Date().toISOString(), notificationMethod: finalMethod as ApiNotificationMethod }
-          : v
-      ),
-    }))
   },
 
   escalate: async (id, to) => {
-    // criticalValueMachine: 任意非终态 → escalated via ESCALATE (with reason)
-    const actor = get().actors.get(id)
-    if (actor) actor.send({ type: 'ESCALATE', to, reason: '通知超时' })
-    set((s) => ({
-      values: s.values.map((v) =>
-        v.id === id
-          ? { ...v, status: 'escalated' as const, escalatedAt: new Date().toISOString(), escalatedTo: to }
-          : v
-      ),
-    }))
+    set({ error: null })
+    try {
+      const res = await criticalApi.escalate(id, to, '通知超时')
+      if (res.success) {
+        const actor = get().actors.get(id)
+        if (actor) actor.send({ type: 'ESCALATE', to, reason: '通知超时' })
+        set((s) => ({
+          values: s.values.map((v) =>
+            v.id === id
+              ? { ...v, status: 'escalated' as const, escalatedAt: new Date().toISOString(), escalatedTo: to }
+              : v
+          ),
+        }))
+      } else {
+        set({ error: res.error?.message ?? '升级失败' })
+      }
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : '网络错误' })
+    }
   },
 }))
 

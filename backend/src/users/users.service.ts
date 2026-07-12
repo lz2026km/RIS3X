@@ -36,6 +36,7 @@ export class UsersService {
         fullName: input.fullName,
         role: input.role as any,
         department: input.department,
+        tenantId: 'default',
       },
     })
   }

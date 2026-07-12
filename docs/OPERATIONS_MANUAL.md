@@ -1,6 +1,6 @@
 # G005 放射RIS 运维手册
 
-**版本**: v3.0.7.0 | **更新日期**: 2026-07-11
+**版本**: v3.0.6.11-18 | **更新日期**: 2026-07-12
 
 ## 目录
 
@@ -99,6 +99,33 @@ docker compose -f deploy/docker-compose.yml logs -f ris-backend
 docker compose -f deploy/docker-compose.yml down
 ```
 
+### 停止服务
+
+```bash
+# 本地开发
+# 按 Ctrl+C 终止 dev/server 进程
+
+# Docker Compose
+docker compose -f deploy/docker-compose.yml down
+
+# Kubernetes (无损停止)
+kubectl scale deployment g005-ris --replicas=0
+```
+
+### 重启服务
+
+```bash
+# 本地开发
+# 重新执行 npm run dev 或 npm run server
+
+# Docker Compose
+docker compose -f deploy/docker-compose.yml restart
+
+# Kubernetes 滚动重启
+kubectl rollout restart deployment g005-ris
+kubectl rollout status deployment g005-ris
+```
+
 ### Kubernetes
 
 ```bash
@@ -128,7 +155,7 @@ GET /api/health
 ```json
 {
   "status": "ok",
-  "version": "3.0.3.31"
+  "version": "3.0.6.11-18"
 }
 ```
 

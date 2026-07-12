@@ -1,4 +1,4 @@
-﻿import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common';
+﻿import { Controller, Get, HttpCode, HttpStatus, Post, Put, Delete, Param, Body, Query } from '@nestjs/common';
 import { Roles } from '../common/decorators/roles.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -20,6 +20,7 @@ export class DataReportController {
   }
 
   @Post('national-reports')
+  @HttpCode(HttpStatus.CREATED)
   createNationalReport(@Body() body: any) {
     return this.svc.createNationalReport(body);
   }
@@ -35,6 +36,7 @@ export class DataReportController {
   }
 
   @Post('data-reports')
+  @HttpCode(HttpStatus.CREATED)
   createDataReport(@Body() body: any) {
     return this.svc.createDataReport(body);
   }

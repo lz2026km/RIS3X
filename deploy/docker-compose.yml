@@ -5,6 +5,11 @@ services:
     image: postgres:16-alpine
     container_name: g005-ris-postgres
     restart: on-failure
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     deploy:
       resources:
         limits:
@@ -32,6 +37,11 @@ services:
     image: minio/minio:latest
     container_name: g005-ris-minio
     restart: on-failure
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     deploy:
       resources:
         limits:
@@ -60,6 +70,11 @@ services:
     image: redis:7-alpine
     container_name: g005-ris-redis
     restart: on-failure
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     deploy:
       resources:
         limits:
@@ -85,6 +100,11 @@ services:
       target: runner
     container_name: g005-ris-backend
     restart: on-failure
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     deploy:
       resources:
         limits:
@@ -127,6 +147,11 @@ services:
       target: runner
     container_name: g005-ris-frontend
     restart: on-failure
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     deploy:
       resources:
         limits:

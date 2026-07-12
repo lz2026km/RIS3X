@@ -1,4 +1,4 @@
-import React from 'react';
+;
 import type { HeatmapData } from '../../types/analytics';
 
 export interface HeatmapProps {

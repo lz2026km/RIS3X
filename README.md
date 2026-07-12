@@ -1,9 +1,9 @@
-# G005 放射科 RIS 系统 v3.0.6.8-32
+# G005 放射科 RIS 系统 v3.0.6.11-18
 
 > **企业级放射信息系统 · 对标前 10 大 PACS/RIS 厂商** · 17 模块 / 9,000+ R3 点完整实施
 
-[![Version](https://img.shields.io/badge/version-3.0.6.8--32-blue.svg)](https://github.com/lz2026km/g005-radiology-ris)
-[![Build](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
+[![Version](https://img.shields.io/badge/version-3.0.6.11--18-blue.svg)](https://github.com/lz2026km/g005-radiology-ris)
+[![CI](https://github.com/lz2026km/g005-radiology-ris/actions/workflows/ci.yml/badge.svg)](https://github.com/lz2026km/g005-radiology-ris/actions/workflows/ci.yml)
 [![Test](https://img.shields.io/badge/test-159%2F159-success.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)]()
@@ -14,7 +14,7 @@
 
 G005 是面向**三级甲等综合医院**的企业级放射信息系统(RIS)，对标全球前 10 大 PACS/RIS 厂商（GE、Siemens、Philips、Fujifilm、Carestream、Agfa、Canon、Hologic、Intelerad、Mach7），涵盖从 AI 辅助到患者门户的完整放射科工作流。
 
-**版本迭代**: v3.0.0 → v3.0.6.8-40（17 模块，9,000+ 升级点，**后端 240 端点 + IndexedDB 持久化**）
+**版本迭代**: v3.0.0 → v3.0.6.11-18（17 模块，9,000+ 升级点，**后端 251 端点 + IndexedDB 持久化**）
 
 ### v3.0.6.8-40 眼科深化 (7 PR 并行, 对标 Topcon Synergy 8.0)
 
@@ -63,7 +63,14 @@ G005 是面向**三级甲等综合医院**的企业级放射信息系统(RIS)，
 
 ## 🖼️ 截图
 
-（开发中 — 部署后补充）
+> 截图存放于 `screenshots/` 目录，包含以下页面:
+> - **首页仪表盘**: `screenshots/home.png`
+> - **工作列表**: `screenshots/worklist.png`
+> - **报告编辑器**: `screenshots/report-editor.png`
+> - **DICOM 浏览器**: `screenshots/dicom-viewer.png`
+> - **AI 辅助诊断**: `screenshots/ai-diagnostics.png`
+> - **移动端适配**: `screenshots/mobile.png`
+> - **完整验收截图集**: `screenshots-v40/`（159 页面全覆盖）
 
 ---
 
@@ -232,6 +239,10 @@ g005-radiology-ris/
 
 | 文档 | 路径 |
 |------|------|
+| 运维手册 | `docs/OPERATIONS_MANUAL.md` |
+| 备份恢复 | `docs/BACKUP_RECOVERY.md` |
+| 部署检查清单 | `docs/DEPLOYMENT_CHECKLIST.md` |
+| 监控告警 | `docs/MONITORING.md` |
 | PACS 对标规格 | `docs/v3.0.6.1-B*.md`（8 份） |
 | 版本说明 | `CHANGELOG.md` |
 
@@ -244,11 +255,13 @@ g005-radiology-ris/
 | v3.0.0 → v3.0.5.0 | 前端重构 + 5 R3 模块 + 20 厂商对标 | ✅ 完成 |
 | v3.0.5.1 | 修复 MSW 路径 + 最终发布 | ✅ 完成 |
 | v3.0.6.1 | 4 PACS 厂商 MVP (GE/Siemens/Philips/Canon) | ✅ 完成 |
+| v3.0.6.8-xx | 17 模块 9,000+ 升级点 + 眼科深化 | ✅ 完成 |
+| **v3.0.6.11-18** | **251 端点 + 12 Store + 40 报表 + AI 洞察** | ✅ **当前** |
 | v3.0.6.2 | 修复 9 项导航点击报错 | ✅ 完成 |
 | v3.0.6.3 | 全面审查修复 25 项问题（20 agent） | ✅ 完成 |
 | v3.0.6.5 | 报告书写 480 点扩展（10 vendor benchmark） | ✅ 完成 |
 | v3.0.6.7 | AI/工作流/模板/影像/危急值/语音/标注/融合/集成（9 模块） | ✅ 完成 |
-| **v3.0.6.8-1** | **签名/协作/CDS/KPI/安全/移动/导出/门户（8 模块 9,000+ 点）** | ✅ **当前** |
+| v3.0.6.8-xx | 签名/协作/CDS/KPI/安全/移动/导出/门户（8 模块 9,000+ 点） | ✅ 完成 |
 | v3.0.7 | 后端 NestJS + JWT + Prisma + 真实 FHIR/HL7 | 🔄 规划 |
 | v3.0.8 | 真实 PACS 集成（Orthanc/本地 DICOM） | 📅 规划 |
 | v3.0.9 | 原生 iOS/Android App | 📅 规划 |
@@ -276,13 +289,13 @@ MIT License
 
 ## 🙏 致谢
 
-G005 v3.0.6.8-1 由 **DeepSeek-v4-Flash** 多 Agent 协作完成，共 17 个 agent 并行，~430 新文件，~76,000 行新增。
+G005 v3.0.6.11-18 由 **DeepSeek-v4-Flash** 多 Agent 协作完成，共 17 个 agent 并行，~430 新文件，~76,000 行新增。
 
 感谢开源社区：React、Vite、Antd、XState、i18next、Cornerstone.js、Recharts、MSW、Dcmjs、Vitest、Storybook、TiPTap、lucide-react、Zustand、pinyin-pro。
 
 ---
 
-**v3.0.6.8-1** — 17 模块 · 9,000+ 点 · 10 大厂商对标 · 17 agent 并行  
+**v3.0.6.11-18** — 17 模块 · 9,000+ 点 · 10 大厂商对标 · 17 agent 并行  
 **站点**: [https://lz2026km.github.io/g005-radiology-ris](https://lz2026km.github.io/g005-radiology-ris)  
 **仓库**: [github.com/lz2026km/g005-radiology-ris](https://github.com/lz2026km/g005-radiology-ris)  
 **平台**: React 18 + TypeScript + Vite + Antd + XState 5 + Recharts

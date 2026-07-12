@@ -1,4 +1,4 @@
-import React from 'react';
+;
 import type { ChartPayload } from '../../types/analytics';
 
 export interface RadarChartProps {

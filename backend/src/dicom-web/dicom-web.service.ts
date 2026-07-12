@@ -85,49 +85,68 @@ export class DicomWebService {
     const studyUid = inst.studyInstanceUid ?? ''
     const seriesUid = inst.seriesInstanceUid ?? ''
     const transferSyntax = inst.transferSyntax ?? '1.2.840.10008.1.2.1'
+    const isExplicit = transferSyntax !== '1.2.840.10008.1.2'
 
     const valBytes = (s: string): Buffer => {
       const b = Buffer.from(s, 'utf8')
       return s.length % 2 !== 0 ? Buffer.concat([b, Buffer.from([0])]) : b
     }
+    const u16le = (n: number): Buffer => { const b = Buffer.alloc(2); b.writeUInt16LE(n, 0); return b }
+    const u32le = (n: number): Buffer => { const b = Buffer.alloc(4); b.writeUInt32LE(n, 0); return b }
 
-    const makeTag = (tag: number, vr: string, value: Buffer): Buffer => {
-      const g = (tag >> 16) & 0xffff
-      const e = tag & 0xffff
-      const gb = Buffer.alloc(2); gb.writeUInt16LE(g, 0)
-      const eb = Buffer.alloc(2); eb.writeUInt16LE(e, 0)
-      const vb = Buffer.from(vr.padEnd(2, ' '), 'ascii')
-      const longVr = ['OB', 'OD', 'OF', 'OL', 'OW', 'SQ', 'UC', 'UN', 'UR']
-      let lb: Buffer
-      if (longVr.includes(vr)) {
-        lb = Buffer.alloc(6); lb.writeUInt16LE(0, 0); lb.writeUInt32LE(value.length, 2)
+    const encodeElement = (g: number, e: number, vr: string, value: Buffer): Buffer => {
+      const parts: Buffer[] = [u16le(g), u16le(e)]
+      if (isExplicit) {
+        parts.push(Buffer.from(vr.padEnd(2, ' '), 'ascii'))
+        const longVr = ['OB', 'OD', 'OF', 'OL', 'OW', 'SQ', 'UC', 'UN', 'UR']
+        if (longVr.includes(vr)) {
+          parts.push(u16le(0), u32le(value.length))
+        } else {
+          parts.push(u16le(value.length))
+        }
       } else {
-        lb = Buffer.alloc(2); lb.writeUInt16LE(value.length, 0)
+        parts.push(u32le(value.length))
       }
-      const pad = value.length % 2 !== 0 ? Buffer.from([0]) : Buffer.alloc(0)
-      return Buffer.concat([gb, eb, vb, lb, value, pad])
+      parts.push(value)
+      if (value.length % 2 !== 0) parts.push(Buffer.from([0]))
+      return Buffer.concat(parts)
     }
 
     const metaElements: Buffer[] = []
-    metaElements.push(makeTag(0x00020001, 'OB', Buffer.from([0x01, 0x00])))
-    metaElements.push(makeTag(0x00020002, 'UI', valBytes(sopClass)))
-    metaElements.push(makeTag(0x00020003, 'UI', valBytes(sopUid)))
-    metaElements.push(makeTag(0x0002000D, 'UI', valBytes(studyUid)))
-    metaElements.push(makeTag(0x0002000E, 'UI', valBytes(seriesUid)))
-    metaElements.push(makeTag(0x00020010, 'UI', valBytes(transferSyntax)))
-    metaElements.push(makeTag(0x00020012, 'UI', valBytes('1.2.840.10008.5.1.4.1.1.2')))
-    metaElements.push(makeTag(0x00020013, 'SH', valBytes('G005-RIS-WADO-3.0')))
+    metaElements.push(encodeElement(0x0002, 0x0001, 'OB', Buffer.from([0x01, 0x00])))
+    metaElements.push(encodeElement(0x0002, 0x0002, 'UI', valBytes(sopClass)))
+    metaElements.push(encodeElement(0x0002, 0x0003, 'UI', valBytes(sopUid)))
+    metaElements.push(encodeElement(0x0002, 0x000D, 'UI', valBytes(studyUid)))
+    metaElements.push(encodeElement(0x0002, 0x000E, 'UI', valBytes(seriesUid)))
+    metaElements.push(encodeElement(0x0002, 0x0010, 'UI', valBytes(transferSyntax)))
+    metaElements.push(encodeElement(0x0002, 0x0012, 'UI', valBytes('1.2.840.10008.5.1.4.1.1.2')))
+    metaElements.push(encodeElement(0x0002, 0x0013, 'SH', valBytes('G005-RIS-WADO-3.0')))
 
     const metaBody = Buffer.concat(metaElements)
-    const glBuf = Buffer.alloc(4); glBuf.writeUInt32LE(metaBody.length, 0)
-    const groupLen = makeTag(0x00020000, 'UL', glBuf)
+    const glBuf = u32le(metaBody.length)
+    const groupLen = encodeElement(0x0002, 0x0000, 'UL', glBuf)
 
     const fileMeta = Buffer.concat([groupLen, metaBody])
     const preamble = Buffer.alloc(128, 0)
     const dicm = Buffer.from('DICM', 'ascii')
-    const pixelData = Buffer.alloc(128, 0)
 
-    return Buffer.concat([preamble, dicm, fileMeta, pixelData])
+    const dsElements: Buffer[] = []
+    const ed = (g: number, e: number, vr: string, v: Buffer) => { dsElements.push(encodeElement(g, e, vr, v)) }
+    if (inst.patientName) ed(0x0010, 0x0010, 'PN', valBytes(inst.patientName))
+    if (inst.patientId) ed(0x0010, 0x0020, 'LO', valBytes(inst.patientId))
+    if (inst.modality) ed(0x0008, 0x0060, 'CS', valBytes(inst.modality))
+    ed(0x0008, 0x0016, 'UI', valBytes(sopClass))
+    ed(0x0008, 0x0018, 'UI', valBytes(sopUid))
+    ed(0x0020, 0x000D, 'UI', valBytes(studyUid))
+    ed(0x0020, 0x000E, 'UI', valBytes(seriesUid))
+    ed(0x0028, 0x0002, 'US', u16le(1))
+    ed(0x0028, 0x0010, 'US', u16le(1))
+    ed(0x0028, 0x0011, 'US', u16le(1))
+    ed(0x0028, 0x0100, 'US', u16le(8))
+    ed(0x0028, 0x0004, 'CS', valBytes('MONOCHROME2'))
+
+    const dataset = Buffer.concat(dsElements)
+    return Buffer.concat([preamble, dicm, fileMeta, dataset])
   }
 
   /**

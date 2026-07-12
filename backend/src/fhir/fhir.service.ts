@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common'
+import { Injectable, Logger, NotFoundException, BadRequestException, OnModuleInit } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { QueueService } from '../queue/queue.service'
 import { NotificationsGateway } from '../notifications/notifications.gateway'
@@ -7,6 +7,7 @@ import { setTimeout } from 'timers/promises'
 
 @Injectable()
 export class FhirService implements OnModuleInit {
+  private readonly logger = new Logger(FhirService.name)
   private subscriptions: Map<string, { endpoint: string; criteria: any; channel: any }> = new Map()
 
   constructor(
@@ -157,19 +158,36 @@ export class FhirService implements OnModuleInit {
   async bulkExport(_outputFormat?: string, _since?: string, _type?: string) {
     const jobId = randomUUID()
     this.exportJobs.set(jobId, { status: 'running', output: null })
-    setTimeout(0).then(() => {
-      this.prisma.patient.findMany().then((patients) =>
-        this.prisma.report.findMany().then((reports) =>
-          this.prisma.exam.findMany().then((exams) => {
-            const bundle = this.Bundle([
-              ...patients.map((p) => this.toFhirPatient(p)),
-              ...reports.map((r) => this.toFhirDiagnosticReport(r)),
-              ...exams.map((e) => this.toFhirImagingStudy(e)),
-            ])
-            this.exportJobs.set(jobId, { status: 'completed', output: bundle })
-          }),
-        ),
-      )
+    const sinceDate = _since ? new Date(_since) : null
+    const types = _type ? _type.split(',') : null
+    setTimeout(0).then(async () => {
+      const lines: string[] = []
+      try {
+        if (!types || types.includes('Patient')) {
+          const where: any = {}
+          if (sinceDate) where.updatedAt = { gte: sinceDate }
+          const patients = await this.prisma.patient.findMany({ where })
+          for (const p of patients) lines.push(JSON.stringify(this.toFhirPatient(p)))
+        }
+        if (!types || types.includes('Observation') || types.includes('DiagnosticReport')) {
+          const where: any = {}
+          if (sinceDate) where.updatedAt = { gte: sinceDate }
+          const reports = await this.prisma.report.findMany({ where })
+          for (const r of reports) {
+            if (!types || types.includes('Observation')) lines.push(JSON.stringify(this.toFhirObservation(r)))
+            if (!types || types.includes('DiagnosticReport')) lines.push(JSON.stringify(this.toFhirDiagnosticReport(r)))
+          }
+        }
+        if (!types || types.includes('ImagingStudy')) {
+          const where: any = {}
+          if (sinceDate) where.createdAt = { gte: sinceDate }
+          const exams = await this.prisma.exam.findMany({ where })
+          for (const e of exams) lines.push(JSON.stringify(this.toFhirImagingStudy(e)))
+        }
+      } catch (err) {
+        this.logger.error('Bulk export failed', (err as Error).message)
+      }
+      this.exportJobs.set(jobId, { status: 'completed', output: lines.join('\n') })
     })
     return { jobId }
   }
@@ -184,15 +202,42 @@ export class FhirService implements OnModuleInit {
   }
 
   // ── FHIR Subscription ──────────────────────────────────
+  private validateSubscription(body: any): string[] {
+    const errors: string[] = []
+    const validStatuses = ['requested', 'active', 'error', 'off']
+    const validChannelTypes = ['rest-hook', 'websocket', 'email', 'sms', 'message']
+    if (!body.criteria || typeof body.criteria !== 'string') errors.push('Subscription.criteria is required and must be a string')
+    if (!body.channel || typeof body.channel !== 'object') {
+      errors.push('Subscription.channel is required')
+    } else if (!body.channel.type || !validChannelTypes.includes(body.channel.type)) {
+      errors.push(`Subscription.channel.type must be one of: ${validChannelTypes.join(', ')}`)
+    }
+    if (body.status && !validStatuses.includes(body.status)) {
+      errors.push(`Subscription.status must be one of: ${validStatuses.join(', ')}`)
+    }
+    return errors
+  }
+
   async createSubscription(body: any) {
+    const validationErrors = this.validateSubscription(body)
+    if (validationErrors.length > 0) {
+      throw new BadRequestException({
+        resourceType: 'OperationOutcome',
+        issue: validationErrors.map((e) => ({
+          severity: 'error',
+          code: 'required',
+          details: { text: e },
+        })),
+      })
+    }
     const id = body.id ?? randomUUID()
     const resource = {
       resourceType: 'Subscription',
+      ...body,
       id,
       status: body.status ?? 'active',
       criteria: body.criteria,
       channel: body.channel,
-      ...body,
     }
     await this.prisma.fhirResource.upsert({
       where: { id },
@@ -209,7 +254,7 @@ export class FhirService implements OnModuleInit {
   }
 
   async deleteSubscription(id: string) {
-    await this.prisma.fhirResource.delete({ where: { id } }).catch(() => {})
+    await this.prisma.fhirResource.delete({ where: { id } }).catch((err) => this.logger.warn(`Failed to delete FHIR resource ${id}: ${(err as Error).message}`))
     this.subscriptions.delete(id)
     return { resourceType: 'OperationOutcome', issue: [{ severity: 'information', code: 'deleted' }] }
   }
@@ -261,17 +306,17 @@ export class FhirService implements OnModuleInit {
             deliveryOk = res.ok
             if (!deliveryOk) throw new Error(`HTTP ${res.status}`)
           } else if (channelType === 'email' && sub.endpoint) {
-            await this.queue.addHl7Send({ reportId: id, destination: sub.endpoint, payload }).catch(() => {})
+            await this.queue.addHl7Send({ reportId: id, destination: sub.endpoint, payload }).catch((err) => this.logger.warn(`FHIR email delivery fallback: ${(err as Error).message}`))
             deliveryOk = true
           } else if (channelType === 'sms' && sub.endpoint) {
-            await this.queue.addHl7Send({ reportId: id, destination: sub.endpoint, payload }).catch(() => {})
+            await this.queue.addHl7Send({ reportId: id, destination: sub.endpoint, payload }).catch((err) => this.logger.warn(`FHIR SMS delivery fallback: ${(err as Error).message}`))
             deliveryOk = true
           } else if (channelType === 'websocket') {
             this.gateway.push('*', { type: 'fhir:notification', payload: JSON.parse(payload) })
             deliveryOk = true
           }
         } catch {
-          await this.queue.addHl7Send({ reportId: id, destination: sub.endpoint ?? '', payload }).catch(() => {})
+          await this.queue.addHl7Send({ reportId: id, destination: sub.endpoint ?? '', payload }).catch((err) => this.logger.warn(`FHIR delivery retry failed: ${(err as Error).message}`))
         }
 
         await this.prisma.fhirResource.update({
@@ -287,7 +332,7 @@ export class FhirService implements OnModuleInit {
               },
             },
           },
-        }).catch(() => {})
+        }).catch((err) => this.logger.warn(`Failed to update FHIR subscription delivery status: ${(err as Error).message}`))
       }
     }
   }
@@ -347,6 +392,7 @@ export class FhirService implements OnModuleInit {
       status: 'final',
       code: { coding: [{ system: 'http://loinc.org', code: '18782-3', display: 'Radiology study observation' }] },
       subject: { reference: `Patient/${o.patientId}` },
+      effectiveDateTime: o.createdAt?.toISOString(),
       valueString: o.findings,
       meta: { lastUpdated: o.updatedAt?.toISOString() ?? o.createdAt.toISOString() },
     }
@@ -359,6 +405,7 @@ export class FhirService implements OnModuleInit {
       status: r.state === 'PUBLISHED' ? 'final' : 'preliminary',
       code: { coding: [{ system: 'http://loinc.org', code: '18782-3', display: 'Radiology Diagnostic report' }] },
       subject: { reference: `Patient/${r.patientId}` },
+      effectiveDateTime: r.createdAt?.toISOString(),
       result: [{ reference: `Observation/${r.id}` }],
       conclusion: r.conclusion,
       meta: { lastUpdated: r.updatedAt?.toISOString() ?? r.createdAt.toISOString() },
@@ -371,11 +418,16 @@ export class FhirService implements OnModuleInit {
       id: e.id,
       status: 'available',
       subject: { reference: `Patient/${e.patientId}` },
-      modality: [{ coding: [{ system: 'http://dicom.nema.org/resources/ontology/DCM', code: e.modality }] }],
       started: e.startedAt?.toISOString(),
       numberOfSeries: 1,
       numberOfInstances: 1,
-      meta: { lastUpdated: e.updatedAt?.toISOString() ?? e.createdAt.toISOString() },
+      series: [{
+        uid: `urn:oid:${e.id}`,
+        modality: { coding: [{ system: 'http://dicom.nema.org/resources/ontology/DCM', code: e.modality }] },
+        bodySite: e.bodyPart ? { coding: [{ system: 'http://snomed.info/sct', code: e.bodyPart }] } : undefined,
+        numberOfInstances: 1,
+      }],
+      meta: { lastUpdated: e.createdAt?.toISOString() },
     }
   }
 

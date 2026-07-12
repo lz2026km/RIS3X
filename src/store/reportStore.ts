@@ -296,7 +296,7 @@ export const useReportStore = create<ReportState>((set, get) => ({
     }
   },
 
-  review: async (id, type, doctorId, _doctorName, suggestion, _score) => {
+  review: async (id, type, doctorId, doctorName, suggestion, score) => {
     const beforeStatus = get().reports.find((r) => r.id === id)?.status
     const report = get().reports.find((r) => r.id === id)
     if (!report) return
@@ -325,7 +325,7 @@ export const useReportStore = create<ReportState>((set, get) => ({
     }
     const after = actor.getSnapshot().value as ReportStateName
     try {
-      const res = await reportApi.review(id)
+      const res = await reportApi.review(id, { type, doctorId, doctorName, suggestion, score })
       actor.stop()
       if (res.success) {
         set((s) => ({

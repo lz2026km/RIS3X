@@ -178,46 +178,55 @@ export const useExamStore = create<ExamState>((set, get) => ({
   error: null,
 
   load: async () => {
-    set({ loading: true })
-    const res = await examApi.list({})
-    if (res.success && Array.isArray(res.data)) {
-      set({ exams: res.data as ExamDto[], loading: false, error: null })
-    } else {
-      set({ loading: false, error: res.error?.message ?? '加载失败' })
+    set({ loading: true, error: null })
+    try {
+      const res = await examApi.list({})
+      if (res.success && Array.isArray(res.data)) {
+        set({ exams: res.data as ExamDto[], loading: false, error: null })
+      } else {
+        set({ loading: false, error: res.error?.message ?? '加载失败' })
+      }
+    } catch (err) {
+      set({ loading: false, error: err instanceof Error ? err.message : '网络错误' })
     }
   },
 
   transition: async (id, action) => {
-    const plan = ACTION_PLANS[action]
-    const exam = get().exams.find((e) => e.id === id)
-    if (!exam) {
-      set({ error: `Exam ${id} not found in store` })
-      return
-    }
-    const actor = buildExamActor(exam)
-    const beforeState = actor.getSnapshot().value as ExamStateName
-    const event = plan.buildEvent()
-    if (!event) {
+    set({ error: null })
+    try {
+      const plan = ACTION_PLANS[action]
+      const exam = get().exams.find((e) => e.id === id)
+      if (!exam) {
+        set({ error: `Exam ${id} not found in store` })
+        return
+      }
+      const actor = buildExamActor(exam)
+      const beforeState = actor.getSnapshot().value as ExamStateName
+      const event = plan.buildEvent()
+      if (!event) {
+        actor.stop()
+        return
+      }
+      actor.send(event as never)
+      const afterState = actor.getSnapshot().value as ExamStateName
+      if (beforeState === afterState) {
+        console.warn(`[examStore] machine rejected ${action} for ${id} (was ${beforeState}); refusing to call API`)
+        actor.stop()
+        set({ error: `状态机拒绝: ${action} (当前状态 ${beforeState})` })
+        return
+      }
+      const res = await plan.apiFn(id)
       actor.stop()
-      return
-    }
-    actor.send(event as never)
-    const afterState = actor.getSnapshot().value as ExamStateName
-    if (beforeState === afterState) {
-      console.warn(`[examStore] machine rejected ${action} for ${id} (was ${beforeState}); refusing to call API`)
-      actor.stop()
-      set({ error: `状态机拒绝: ${action} (当前状态 ${beforeState})` })
-      return
-    }
-    const res = await plan.apiFn(id)
-    actor.stop()
-    if (res.success) {
-      set((state) => ({
-        exams: state.exams.map((e) => (e.id === id ? { ...e, status: afterState } : e)),
-        error: null,
-      }))
-    } else {
-      set({ error: res.error?.message ?? '操作失败' })
+      if (res.success) {
+        set((state) => ({
+          exams: state.exams.map((e) => (e.id === id ? { ...e, status: afterState } : e)),
+          error: null,
+        }))
+      } else {
+        set({ error: res.error?.message ?? '操作失败' })
+      }
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : '网络错误' })
     }
   },
 }))

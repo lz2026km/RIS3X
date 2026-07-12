@@ -1,8 +1,59 @@
 # G005 放射RIS 部署检查清单
 
-**版本**: v3.0.7.0 | **更新日期**: 2026-07-11
+**版本**: v3.0.6.11-18 | **更新日期**: 2026-07-12
 
 > 每次部署前逐项确认，完成后在 `[ ]` 中标记 `✓`。
+
+---
+
+## 0. 前置检查 (Pre-flight) — 部署前务必执行
+
+> 部署前逐项验证，全部通过方可开始部署。
+
+```bash
+# 0.1 数据库就绪
+pg_isready -h $DB_HOST -p 5432 -U g005
+# 期望: 响应含 "accepting connections"
+
+# 0.2 缓存就绪
+redis-cli -h $REDIS_HOST -p 6379 ping
+# 期望: PONG
+
+# 0.3 密钥存在
+kubectl get secret g005-ris-secret
+# 期望: 不返回 Not Found
+
+# 0.4 存储卷就绪
+kubectl get pvc g005-ris-pvc
+# 期望: STATUS=Bound
+
+# 0.5 当前版本确认
+git describe --tags
+# 期望: v3.0.6.11-18（与部署计划一致）
+
+# 0.6 CI 状态
+# 检查 GitHub Actions: https://github.com/lz2026km/g005-radiology-ris/actions
+# 期望: 最近一次 main 分支 CI 通过
+
+# 0.7 依赖安装
+npm ci --legacy-peer-deps
+# 期望: 无报错
+
+# 0.8 构建验证
+npm run build
+# 期望: 产物生成在 dist/ 目录
+```
+
+| # | 检查项 | 验证方法 | 通过条件 |
+|---|--------|----------|----------|
+| 0.1 | 数据库就绪 | `pg_isready` | 返回 accepting connections |
+| 0.2 | 缓存就绪 | `redis-cli ping` | 返回 PONG |
+| 0.3 | 密钥存在 | `kubectl get secret` | Secret 存在 |
+| 0.4 | 存储卷就绪 | `kubectl get pvc` | STATUS=Bound |
+| 0.5 | 版本一致 | `git describe --tags` | 与部署计划匹配 |
+| 0.6 | CI 通过 | GitHub Actions | 最近提交 CI 绿 |
+| 0.7 | 依赖正常 | `npm ci` | 无报错 |
+| 0.8 | 构建通过 | `npm run build` | dist/ 生成 |
 
 ---
 

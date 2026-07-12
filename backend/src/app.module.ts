@@ -2,7 +2,7 @@
  * G005 放射RIS系统 v3.0.6.11-7 - NestJS 根模块（扩 14 新 module）
  */
 import { Module } from '@nestjs/common'
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
 import { ConfigModule } from '@nestjs/config'
 import { LoggerModule } from 'nestjs-pino'
 import { CacheModule } from './cache/cache.module'
@@ -13,6 +13,7 @@ import { UsersModule } from './users/users.module'
 import { ReportsModule } from './reports/reports.module'
 import { PrismaModule } from './prisma/prisma.module'
 import { HealthController } from './health/health.controller'
+import { MetricsModule } from './observability/metrics.module'
 import { AppointmentsModule } from './appointments/appointments.module'
 import { CriticalsModule } from './criticals/criticals.module'
 import { TemplatesModule } from './templates/templates.module'
@@ -54,10 +55,12 @@ import { MobileModule } from './mobile/mobile.module'
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard'
 import { RolesGuard } from './common/guards/roles.guard'
 import { TenantContextInterceptor } from './common/interceptors/tenant-context.interceptor'
+import { HttpExceptionFilter } from './common/filters/http-exception.filter'
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    MetricsModule,
     CacheModule,
     QueueModule,
     AppScheduleModule,
@@ -115,6 +118,7 @@ import { TenantContextInterceptor } from './common/interceptors/tenant-context.i
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
     { provide: APP_INTERCEPTOR, useClass: TenantContextInterceptor },
+    { provide: APP_FILTER, useClass: HttpExceptionFilter },
   ],
 })
 export class AppModule {}

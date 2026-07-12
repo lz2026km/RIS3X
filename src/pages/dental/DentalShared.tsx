@@ -1,9 +1,9 @@
 // [v3.0.6.8-82] 口腔模块共享组件
 import React from 'react';
-import { Space, Tag } from 'antd';
+import { Space, Tag, Empty } from 'antd';
 import { Table, Button, Alert, message } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { Activity, Stethoscope } from 'lucide-react';
+import { Activity, Stethoscope, Plus } from 'lucide-react';
 
 export interface DentalHeaderProps {
   title: string;
@@ -28,6 +28,23 @@ export const DentalPageHeader: React.FC<DentalHeaderProps> = ({
     </Space>
     {extra && <Space>{extra}</Space>}
   </div>
+);
+
+export const EmptyState: React.FC<{ tip?: string; onCreate?: () => void; createLabel?: string }> = ({
+  tip = '暂无数据',
+  onCreate,
+  createLabel = '新建',
+}) => (
+  <Empty description={tip} image={Empty.PRESENTED_IMAGE_SIMPLE}>
+    {onCreate && <Button type="primary" icon={<Plus size={14} />} onClick={onCreate}>{createLabel}</Button>}
+  </Empty>
+);
+
+export const TreatmentActions: React.FC<{ record: DentalTreatment }> = ({ record }) => (
+  <Space size={4}>
+    <Button size="small" onClick={() => message.info(`查看 ${record.patientName || record.id} 详情`)}>详情</Button>
+    <Button size="small" type="link" onClick={() => message.success(`已为 ${record.patientName || record.id} 创建随访`)}>随访</Button>
+  </Space>
 );
 
 export interface DentalTreatment {

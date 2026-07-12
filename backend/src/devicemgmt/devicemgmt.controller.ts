@@ -1,4 +1,4 @@
-﻿import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common'
+﻿import { Controller, Get, HttpCode, HttpStatus, Post, Put, Delete, Param, Body, Query } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { DeviceMgmtService } from './devicemgmt.service'
@@ -50,6 +50,7 @@ export class DeviceMgmtController {
   listAdverseReactions() { return this.svc.listAdverseReactions() }
 
   @Post('contrast/adverse-reactions')
+  @HttpCode(HttpStatus.CREATED)
   reportAdverseReaction(@Body() body: any) { return this.svc.reportAdverseReaction(body) }
 
   @Get('contrast/injection')

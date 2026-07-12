@@ -1,0 +1,78 @@
+{
+  "__inputs": [],
+  "__requires": [],
+  "title": "G005 RIS - 系统监控",
+  "uid": "g005-ris-system",
+  "version": 1,
+  "timezone": "browser",
+  "panels": [
+    {
+      "title": "API 错误率",
+      "type": "graph",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "(sum(rate(http_requests_total{job=\"g005-ris\",status=~\"5..\"}[5m])) / sum(rate(http_requests_total{job=\"g005-ris\"}[5m]))) * 100",
+          "legendFormat": "错误率 %"
+        }
+      ]
+    },
+    {
+      "title": "P99 延迟",
+      "type": "graph",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, rate(http_request_duration_seconds_bucket{job=\"g005-ris\"}[5m]))",
+          "legendFormat": "P99"
+        }
+      ]
+    },
+    {
+      "title": "Pod 重启次数",
+      "type": "graph",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum(rate(kube_pod_container_status_restarts_total{namespace=~\"g005-ris\"}[5m]))",
+          "legendFormat": "重启/s"
+        }
+      ]
+    },
+    {
+      "title": "磁盘使用率",
+      "type": "graph",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "expr": "(1 - node_filesystem_avail_bytes{fstype!=\"\"} / node_filesystem_size_bytes{fstype!=\"\"}) * 100",
+          "legendFormat": "{{ instance }}"
+        }
+      ]
+    },
+    {
+      "title": "请求速率",
+      "type": "graph",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total{job=\"g005-ris\"}[5m]))",
+          "legendFormat": "请求/s"
+        }
+      ]
+    },
+    {
+      "title": "数据库连接错误",
+      "type": "graph",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "targets": [
+        {
+          "expr": "rate(db_connection_errors_total{job=\"g005-ris\"}[5m])",
+          "legendFormat": "错误/s"
+        }
+      ]
+    }
+  ],
+  "tags": ["g005", "ris", "monitoring"],
+  "schemaVersion": 27
+}

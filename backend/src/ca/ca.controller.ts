@@ -1,4 +1,4 @@
-﻿import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common'
+﻿import { Controller, Get, HttpCode, HttpStatus, Post, Put, Delete, Param, Body, Query } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { CaService } from './ca.service'
@@ -14,18 +14,21 @@ export class CaController {
   listCertificates() { return this.svc.listCertificates() }
 
   @Post('certificates')
+  @HttpCode(HttpStatus.CREATED)
   uploadCertificate(@Body() body: any) { return this.svc.uploadCertificate(body) }
 
   @Delete('certificates/:id')
   revokeCertificate(@Param('id') id: string) { return this.svc.revokeCertificate(id) }
 
   @Post('sign')
+  @HttpCode(HttpStatus.CREATED)
   signDocument(@Body() body: any) { return this.svc.signDocument(body) }
 
   @Get('signatures')
   listSignatures() { return this.svc.listSignatures() }
 
   @Post('verify')
+  @HttpCode(HttpStatus.CREATED)
   verifySignature(@Body() body: any) { return this.svc.verifySignature(body) }
 
   @Get('config')

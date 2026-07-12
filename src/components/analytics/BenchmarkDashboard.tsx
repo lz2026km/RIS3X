@@ -1,6 +1,5 @@
-import React from 'react';
 import type { BenchmarkGap } from '../../types/analytics';
-import { CheckCircle2, AlertTriangle, XCircle, Minus } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
 
 export interface BenchmarkDashboardProps {
   gaps: BenchmarkGap[];

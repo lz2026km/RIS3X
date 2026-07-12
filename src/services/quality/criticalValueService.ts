@@ -1,9 +1,11 @@
 /**
- * G005 RIS v3.0.5.1 - R3.CRITICAL 危急值服务 (Mock)
+ * G005 RIS v3.0.5.1 - R3.CRITICAL 危急值服务 (API + Mock Fallback)
  * v3.0.6.6: 真实升级链 / IVR 语音 / SMS 网关集成
  *
  * v3.0.6.12-A4: 事件源改为 store.criticalEvents (unifiedCriticalValues).
  *   通过 criticalValueAdapter 转回 R3.CRITICAL.CriticalEvent 形状后克隆到 inMemoryEvents.
+ *
+ * v3.0.6.XX: runEscalationChain 等关键方法优先调用后端 API,失败时降级到 Mock。
  */
 import {
   CRITICAL_LEVELS,
@@ -37,6 +39,18 @@ const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
 
 const inMemoryEvents: CriticalEvent[] = mapUnifiedToCriticalEvents(list<any>('criticalEvents'));
 const inMemoryRules: CriticalRule[] = clone(CRITICAL_RULES);
+
+import { criticalApi } from '../api/criticalApi';
+
+async function apiWithFallback<T>(apiCall: () => Promise<{ success: boolean; data?: T }>, mockFallback: () => Promise<T>): Promise<T> {
+  try {
+    const res = await apiCall()
+    if (res.success && res.data !== undefined && res.data !== null) return res.data
+  } catch {
+    // fallback to mock
+  }
+  return mockFallback()
+}
 
 export const criticalValueService = {
   async listLevels(): Promise<CriticalLevelConfig[]> {
@@ -164,8 +178,16 @@ export const criticalValueService = {
     return clone(e);
   },
 
-  /** 升级链:根据当前事件,逐级解析并通知 v3.0.6.6 */
+  /** 升级链:优先调用后端 API,不可用时降级到 Mock */
   async runEscalationChain(eventId: string): Promise<{ chain: EscalationChain; nodesTriggered: Array<{ level: number; role: string; doctor: string; smsResults: number; voiceResults: number }> }> {
+    return apiWithFallback(
+      async () => criticalApi.runEscalationChain(eventId),
+      async () => this._mockRunEscalationChain(eventId),
+    )
+  },
+
+  /** Mock 实现的升级链(保留原逻辑作为 fallback) */
+  async _mockRunEscalationChain(eventId: string): Promise<{ chain: EscalationChain; nodesTriggered: Array<{ level: number; role: string; doctor: string; smsResults: number; voiceResults: number }> }> {
     const e = inMemoryEvents.find((x) => x.id === eventId);
     if (!e) throw new Error('Event not found');
     const chain = ESCALATION_CHAINS.find((c) => c.criticalLevel === e.level && c.enabled);

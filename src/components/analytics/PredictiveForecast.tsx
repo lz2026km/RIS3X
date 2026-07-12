@@ -1,4 +1,4 @@
-import React from 'react';
+;
 import type { ForecastResult } from '../../types/analytics';
 
 export interface PredictiveForecastProps {

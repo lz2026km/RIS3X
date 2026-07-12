@@ -34,4 +34,13 @@ export const criticalApi = {
 
   notify: (id: string, method: NotificationMethod) =>
     api.put<CriticalValueDto>(`/critical/${id}/notify`, { method }),
+
+  escalate: (id: string, to: string, reason: string) =>
+    api.post<CriticalValueDto>(`/critical/${id}/escalate`, { to, reason }),
+
+  runEscalationChain: (eventId: string) =>
+    api.post<{ chain: unknown; nodesTriggered: Array<{ level: number; role: string; doctor: string; smsResults: number; voiceResults: number }> }>(`/critical/${eventId}/escalation-chain`),
+
+  listEscalationChains: () =>
+    api.get<unknown[]>('/critical/escalation-chains'),
 }
