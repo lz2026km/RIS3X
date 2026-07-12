@@ -30,20 +30,26 @@ const CAT_COLORS: Record<string, string> = {
   other: 'default',
 };
 
+const PLACEHOLDER_SVG = (label: string) =>
+  'data:image/svg+xml;utf8,' +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect width="100%" height="100%" fill="#1a1b2e"/><text x="50%" y="50%" font-family="monospace" font-size="14" fill="#94a3b8" text-anchor="middle" dominant-baseline="middle">${label}</text></svg>`,
+  );
+
 const SAMPLE_PHOTOS: Record<string, Photo[]> = {
   P100001: [
-    { id: 'PH-001', type: 'frontal', label: 'Frontal smile', url: 'https://picsum.photos/seed/dental001/400/300', takenAt: '2026-06-15T10:00:00Z', category: 'extraoral' },
-    { id: 'PH-002', type: 'occlusal-upper', label: 'Upper occlusal', url: 'https://picsum.photos/seed/dental002/400/300', takenAt: '2026-06-15T10:05:00Z', category: 'intraoral' },
-    { id: 'PH-003', type: 'occlusal-lower', label: 'Lower occlusal', url: 'https://picsum.photos/seed/dental003/400/300', takenAt: '2026-06-15T10:08:00Z', category: 'intraoral' },
-    { id: 'PH-004', type: 'buccal-right', label: 'Right buccal', url: 'https://picsum.photos/seed/dental004/400/300', takenAt: '2026-06-15T10:12:00Z', category: 'intraoral' },
+    { id: 'PH-001', type: 'frontal', label: 'Frontal smile', url: PLACEHOLDER_SVG('Frontal smile'), takenAt: '2026-06-15T10:00:00Z', category: 'extraoral' },
+    { id: 'PH-002', type: 'occlusal-upper', label: 'Upper occlusal', url: PLACEHOLDER_SVG('Upper occlusal'), takenAt: '2026-06-15T10:05:00Z', category: 'intraoral' },
+    { id: 'PH-003', type: 'occlusal-lower', label: 'Lower occlusal', url: PLACEHOLDER_SVG('Lower occlusal'), takenAt: '2026-06-15T10:08:00Z', category: 'intraoral' },
+    { id: 'PH-004', type: 'buccal-right', label: 'Right buccal', url: PLACEHOLDER_SVG('Right buccal'), takenAt: '2026-06-15T10:12:00Z', category: 'intraoral' },
   ],
   P100002: [
-    { id: 'PH-101', type: 'frontal', label: 'Frontal rest', url: 'https://picsum.photos/seed/dental101/400/300', takenAt: '2026-06-10T09:00:00Z', category: 'extraoral' },
-    { id: 'PH-102', type: 'lateral', label: 'Lateral right', url: 'https://picsum.photos/seed/dental102/400/300', takenAt: '2026-06-10T09:05:00Z', category: 'extraoral' },
+    { id: 'PH-101', type: 'frontal', label: 'Frontal rest', url: PLACEHOLDER_SVG('Frontal rest'), takenAt: '2026-06-10T09:00:00Z', category: 'extraoral' },
+    { id: 'PH-102', type: 'lateral', label: 'Lateral right', url: PLACEHOLDER_SVG('Lateral right'), takenAt: '2026-06-10T09:05:00Z', category: 'extraoral' },
   ],
   P100003: [
-    { id: 'PH-201', type: 'frontal', label: 'Frontal', url: 'https://picsum.photos/seed/dental201/400/300', takenAt: '2026-05-20T14:00:00Z', category: 'extraoral' },
-    { id: 'PH-202', type: 'panoramic', label: 'Panoramic X', url: 'https://picsum.photos/seed/dental202/400/300', takenAt: '2026-05-20T14:30:00Z', category: 'radiograph' },
+    { id: 'PH-201', type: 'frontal', label: 'Frontal', url: PLACEHOLDER_SVG('Frontal'), takenAt: '2026-05-20T14:00:00Z', category: 'extraoral' },
+    { id: 'PH-202', type: 'panoramic', label: 'Panoramic X', url: PLACEHOLDER_SVG('Panoramic X'), takenAt: '2026-05-20T14:30:00Z', category: 'radiograph' },
   ],
 };
 

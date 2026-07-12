@@ -25,8 +25,8 @@ export default function LoginPage() {
   const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? '/';
 
   useEffect(() => {
-    if (isAuthenticated) navigate(from, { replace: true });
-  }, [isAuthenticated, navigate, from]);
+    if (isAuthenticated && location.pathname === '/login') navigate(from, { replace: true });
+  }, [isAuthenticated, navigate, from, location.pathname]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -69,6 +69,14 @@ export const deviceApi = {
   getStats: (id: string) =>
     api.get<any>(`/devices/${id}/stats`),
 
+  getTodayStats: () =>
+    api.get<{
+      totalDevices: number;
+      inUse: number;
+      idle: number;
+      maintenance: number;
+    }>(`/devices/stats/today`),
+
   updateStatus: (id: string, status: string) =>
     api.patch<DeviceDto>(`/devices/${id}`, { state: status }),
 }

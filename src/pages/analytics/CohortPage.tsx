@@ -203,7 +203,7 @@ export default function CohortPage() {
         <Col xs={24} lg={10}>
           <Card
             title={<Space><GitBranch size={16} /> 队列构建器</Space>}
-            bordered={false}
+            variant="borderless"
             style={{ borderRadius: 12 }}
             extra={
               <Input
@@ -276,7 +276,7 @@ export default function CohortPage() {
         <Col xs={24} lg={14}>
           <Card
             title={<Space><BarChart3 size={16} /> 队列列表</Space>}
-            bordered={false}
+            variant="borderless"
             style={{ borderRadius: 12 }}
           >
             <Table

@@ -345,21 +345,23 @@ export default function FusionPage() {
           <Move size={12} /> {t('fusion.crosshair')}
         </button>
 
-        <button style={btnStyle} onClick={handleZoomIn}><ZoomIn size={12} /></button>
-        <button style={btnStyle} onClick={handleZoomOut}><ZoomOut size={12} /></button>
-        <button style={btnStyle} onClick={handleReset}><RotateCw size={12} /></button>
+        <button style={btnStyle} onClick={handleZoomIn} aria-label="放大"><ZoomIn size={12} /></button>
+        <button style={btnStyle} onClick={handleZoomOut} aria-label="缩小"><ZoomOut size={12} /></button>
+        <button style={btnStyle} onClick={handleReset} aria-label="重置视图"><RotateCw size={12} /></button>
       </div>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'center', background: PANEL_BG, borderRadius: 6, padding: '6px 12px' }}>
         <Layers size={14} color={BLUE} />
-        <span style={{ fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap' }}>{t('fusion.opacity')}</span>
+        <label htmlFor="fusion-alpha" style={{ fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap' }}>{t('fusion.opacity')}</label>
         <input
+          id="fusion-alpha"
           type="range"
           min={0}
           max={1}
           step={0.01}
           value={fusionAlpha}
           onChange={e => setFusionAlpha(parseFloat(e.target.value))}
+          aria-label="融合透明度"
           style={{ flex: 1, accentColor: BLUE, height: 4 }}
         />
         <span style={{ fontSize: 12, fontWeight: 600, color: '#facc15', minWidth: 44, textAlign: 'right' }}>
@@ -398,6 +400,7 @@ export default function FusionPage() {
             <input
               type="range" min={100} max={4000} value={wwl.ww}
               onChange={e => setWWL(p => ({ ...p, ww: parseInt(e.target.value) }))}
+              aria-label={`${primaryLabel}-窗宽`}
               style={{ flex: 1, height: 3, accentColor: BLUE }}
             />
             <span style={{ fontSize: 10, color: '#94a3b8', minWidth: 60, textAlign: 'right' }}>WW:{wwl.ww} WL:{wwl.wl}</span>
@@ -411,6 +414,7 @@ export default function FusionPage() {
               <input
                 type="range" min={100} max={4000} value={fusionWWL.ww}
                 onChange={e => setFusionWWL(p => ({ ...p, ww: parseInt(e.target.value) }))}
+                aria-label={`${fusionLabel}-融合窗宽`}
                 style={{ flex: 1, height: 3, accentColor: '#facc15' }}
               />
               <span style={{ fontSize: 10, color: '#94a3b8', minWidth: 60, textAlign: 'right' }}>WW:{fusionWWL.ww} WL:{fusionWWL.wl}</span>
@@ -423,6 +427,7 @@ export default function FusionPage() {
             <input
               type="range" min={0} max={127} value={sliceIndex}
               onChange={e => setSliceIndex(parseInt(e.target.value))}
+              aria-label="切片索引"
               style={{ flex: 1, height: 3, accentColor: BLUE }}
             />
             <span style={{ fontSize: 10, color: '#94a3b8', minWidth: 30, textAlign: 'right' }}>{sliceIndex}</span>

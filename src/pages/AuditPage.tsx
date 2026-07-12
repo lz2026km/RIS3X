@@ -51,9 +51,7 @@ export default function AuditPage() {
             </Row>
           )}
           <Space>
-            <Select allowClear placeholder="操作类型" style={{ width: 150 }} onChange={(v) => setParams(p => ({ ...p, action: v }))}>
-              {['CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT'].map(a => <Select.Option key={a} value={a}>{a}</Select.Option>)}
-            </Select>
+            <Select allowClear placeholder="操作类型" style={{ width: 150 }} onChange={(v) => setParams(p => ({ ...p, action: v }))} options={['CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT'].map(a => ({ value: a, label: a }))} />
             <Button type="primary" onClick={() => fetchLogs(1)}>查询</Button>
           </Space>
           <Table dataSource={logs} columns={columns} rowKey="id" loading={loading} pagination={{ current: page, pageSize: 20, total, onChange: (p) => { setPage(p); fetchLogs(p) } }} size="small" />

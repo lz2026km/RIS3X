@@ -352,6 +352,13 @@ export const translations: Translations = {
     "nav.routingRules": "路由规则",
     "nav.workloadHeatmap": "工作量热力图",
     "nav.slaPolicy": "SLA 策略",
+    // [v3.0.6.11-19/20] 新增 6 个 nav key 补全
+    "nav.teleConference": "远程实时阅片",
+    "nav.aiCad": "AI 阅片助手",
+    "nav.teachLecture": "教学讲座",
+    "nav.roomOccupancy": "检查室占用率",
+    "nav.benchmarkCompare": "报表同比环比",
+    "nav.aiDiagnosisAccuracy": "AI 准确率仪表盘",
     "nav.criticalValueCenter": "危急值中心",
     "nav.defectManagement": "缺陷管理",
     // [v3.0.6.11-7] 放射科质控三甲级 - 新质控页面
@@ -2044,6 +2051,14 @@ export const translations: Translations = {
     "nav.routingRules": "Routing Rules",
     "nav.workloadHeatmap": "Workload Heatmap",
     "nav.slaPolicy": "SLA Policy",
+    // [v3.0.6.11-19/20] 新增 7 个 nav key 补全
+    "nav.teleConference": "Tele-Conference Reading",
+    "nav.aiCad": "AI Reading Assistant",
+    "nav.teachLecture": "Teaching Lecture",
+    "nav.oeDashboard": "OEE Dashboard",
+    "nav.roomOccupancy": "Room Occupancy",
+    "nav.benchmarkCompare": "Benchmark Compare",
+    "nav.aiDiagnosisAccuracy": "AI Diagnosis Accuracy",
     "nav.criticalValueCenter": "Critical Value Center",
     "nav.defectManagement": "Defect Management",
     // [v3.0.6.11-7] 放射科质控三甲级 - 新质控页面

@@ -186,5 +186,10 @@
   "iheConnectathon": "IHE 互联互通测试",
   "mllpMonitor": "MLLP 消息监控",
   "dicomVolume": "3D 体绘制",
-  "dicomFusion": "影像融合"
+  "dicomFusion": "影像融合",
+  "systemAudit": "审计日志",
+  "systemBackup": "数据备份",
+  "tenantConfig": "租户合规",
+  "systemCompliance": "合规管理",
+  "mfaSetup": "MFA 设置"
 }

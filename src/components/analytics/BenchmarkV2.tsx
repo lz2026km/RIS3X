@@ -181,7 +181,7 @@ export default function BenchmarkV2({
           <span>同比/环比对比</span>
         </Space>
       }
-      bordered={false}
+      variant="borderless"
       style={{ borderRadius: 12 }}
       extra={
         <Space wrap>

@@ -95,7 +95,12 @@ export const RoomOccupancyPage: React.FC = () => {
                     </div>
                   }>
                     <div
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`选择检查室 ${r.roomNo} - ${meta.label}${isOverdue ? ' (超时)' : ''}`}
+                      aria-pressed={selectedRoom === r.id}
                       onClick={() => setSelectedRoom(r.id)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedRoom(r.id) } }}
                       style={{
                         width: 140, height: 90, borderRadius: 8, cursor: 'pointer',
                         background: isOverdue ? '#ff4d4f' : meta.color,

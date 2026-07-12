@@ -1,0 +1,1385 @@
+{
+  "generatedAt": "2026-07-12T11:39:46.404Z",
+  "baseURL": "http://localhost:5191",
+  "summary": {
+    "total": 10,
+    "pass": 5,
+    "warn": 2,
+    "fail": 1,
+    "skip": 2
+  },
+  "results": [
+    {
+      "name": "login",
+      "path": "/login",
+      "status": "fail",
+      "formFound": true,
+      "apiCalls": [
+        {
+          "url": "/api/v1/auth/login",
+          "method": "POST",
+          "status": 200
+        }
+      ],
+      "errors": [
+        "[console.error] Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "[console.error] The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+        "[console.error] X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>.",
+        "[console.error] The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+        "[console.error] X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>.",
+        "[console.error] Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.%s \n    at Navigate (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4442:5)\n    at RenderedRoute (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4069:5)\n    at Routes (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4539:5)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856276741:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856276741:32:3)",
+        "[console.error] Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.%s \n    at Navigate (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4442:5)\n    at RenderedRoute (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4069:5)\n    at Routes (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4539:5)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856276741:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856276741:32:3)",
+        "[console.error] Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.%s \n    at Navigate (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4442:5)\n    at RenderedRoute (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4069:5)\n    at Routes (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4539:5)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856276741:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856276741:32:3)",
+        "[console.error] Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.%s \n    at Navigate (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4442:5)\n    at RenderedRoute (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4069:5)\n    at Routes (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4539:5)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856276741:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856276741:32:3)",
+        "[console.error] Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.%s \n    at Navigate (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4442:5)\n    at RenderedRoute (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4069:5)\n    at Routes (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4539:5)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856276741:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856276741:32:3)",
+        "[console.error] Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.%s \n    at Navigate (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4442:5)\n    at RenderedRoute (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4069:5)\n    at Routes (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4539:5)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856276741:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856276741:32:3)",
+        "[console.error] Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.%s \n    at Navigate (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4442:5)\n    at RenderedRoute (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4069:5)\n    at Routes (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4539:5)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856276741:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856276741:32:3)",
+        "[console.error] Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.%s \n    at Navigate (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4442:5)\n    at RenderedRoute (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4069:5)\n    at Routes (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4539:5)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856276741:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856276741:32:3)",
+        "[console.error] Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.%s \n    at Navigate (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4442:5)\n    at RenderedRoute (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4069:5)\n    at Routes (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4539:5)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856276741:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856276741:32:3)",
+        "[console.error] Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.%s \n    at Navigate (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4442:5)\n    at RenderedRoute (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4069:5)\n    at Routes (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4539:5)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856276741:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856276741:32:3)",
+        "[console.error] Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.%s \n    at Navigate (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4442:5)\n    at RenderedRoute (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4069:5)\n    at Routes (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4539:5)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856276741:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856276741:32:3)",
+        "[console.error] Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.%s \n    at Navigate (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4442:5)\n    at RenderedRoute (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4069:5)\n    at Routes (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4539:5)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856276741:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856276741:32:3)",
+        "[console.error] Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.%s \n    at Navigate (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4442:5)\n    at RenderedRoute (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4069:5)\n    at Routes (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4539:5)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856276741:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856276741:32:3)",
+        "[console.error] Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.%s \n    at Navigate (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4442:5)\n    at RenderedRoute (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4069:5)\n    at Routes (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4539:5)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856276741:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856276741:32:3)",
+        "[console.error] Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.%s \n    at Navigate (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4442:5)\n    at RenderedRoute (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4069:5)\n    at Routes (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4539:5)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856276741:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856276741:32:3)",
+        "[console.error] Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.%s \n    at Navigate (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4442:5)\n    at RenderedRoute (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4069:5)\n    at Routes (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4539:5)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856276741:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856276741:32:3)",
+        "[console.error] Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.%s \n    at Navigate (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4442:5)\n    at RenderedRoute (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4069:5)\n    at Routes (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4539:5)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856276741:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856276741:32:3)",
+        "[console.error] Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.%s \n    at Navigate (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4442:5)\n    at RenderedRoute (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4069:5)\n    at Routes (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4539:5)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856276741:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856276741:32:3)",
+        "[console.error] Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.%s \n    at Navigate (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4442:5)\n    at RenderedRoute (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4069:5)\n    at Routes (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4539:5)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856276741:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856276741:32:3)",
+        "[console.error] Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.%s \n    at Navigate (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4442:5)\n    at RenderedRoute (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4069:5)\n    at Routes (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4539:5)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856276741:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856276741:32:3)",
+        "[console.error] Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.%s \n    at Navigate (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4442:5)\n    at RenderedRoute (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4069:5)\n    at Routes (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4539:5)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856276741:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856276741:32:3)",
+        "[console.error] Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.%s \n    at Navigate (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4442:5)\n    at RenderedRoute (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4069:5)\n    at Routes (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4539:5)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856276741:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856276741:32:3)",
+        "[console.error] Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.%s \n    at Navigate (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4442:5)\n    at RenderedRoute (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4069:5)\n    at Routes (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4539:5)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856276741:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856276741:32:3)"
+      ],
+      "uiFeedback": "URL=http://localhost:5191/login"
+    },
+    {
+      "name": "critical-value",
+      "path": "/critical-value",
+      "status": "pass",
+      "formFound": true,
+      "apiCalls": [
+        {
+          "url": "/src/services/api/index.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/safetyApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/client.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/v3Api.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/examApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/patientApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/reportApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/deviceApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/criticalApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/appointmentApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/statsApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/userApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/consultationApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/queueApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/termApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/insuranceApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/datareportApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/qcextApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/regionalApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/financeApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/cdsApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/caApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/integrationApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/reportQualityApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/templatesApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/systemApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/notificationTemplateDictApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/healthApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/mfaApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/tenantApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/patientPortalApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/complianceApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/analyticsApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/retry.ts",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/api/v1/criticals",
+          "method": "GET",
+          "status": 500
+        },
+        {
+          "url": "/api/v1/criticals",
+          "method": "GET",
+          "status": 500
+        }
+      ],
+      "errors": [
+        "[console.error] Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "[console.error] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s /integration/mllp-monitor \n    at div\n    at nav\n    at aside\n    at div\n    at AppLayout (http://localhost:5191/src/layouts/AppLayout.tsx?t=1783856283517:489:41)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856283517:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856283517:32:3)",
+        "[console.error] The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+        "[console.error] X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>.",
+        "[console.error] The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+        "[console.error] X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>.",
+        "[console.error] Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "[console.error] [API] Network error GET /api/v1/criticals: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input\n    at request (http://localhost:5191/src/services/api/client.ts?t=1783855284242:121:28)\n    at async Object.load (http://localhost:5191/src/store/criticalStore.ts?t=1783855284242:76:19)\n    at async http://localhost:5191/src/pages/critical/CriticalValuePage.tsx?t=1783855284242:81:7",
+        "[console.error] Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "[console.error] [API] Network error GET /api/v1/criticals: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input\n    at request (http://localhost:5191/src/services/api/client.ts?t=1783855284242:121:28)\n    at async Object.load (http://localhost:5191/src/store/criticalStore.ts?t=1783855284242:76:19)\n    at async http://localhost:5191/src/pages/critical/CriticalValuePage.tsx?t=1783855284242:81:7"
+      ],
+      "uiFeedback": " | apiCalls=36 toast=1"
+    },
+    {
+      "name": "queue-call",
+      "path": "/queue-call",
+      "status": "skip",
+      "formFound": false,
+      "apiCalls": [
+        {
+          "url": "/src/services/api/index.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/client.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/v3Api.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/examApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/patientApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/reportApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/deviceApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/criticalApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/appointmentApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/statsApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/userApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/consultationApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/queueApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/termApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/insuranceApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/datareportApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/qcextApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/regionalApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/financeApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/cdsApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/caApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/integrationApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/reportQualityApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/templatesApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/systemApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/notificationTemplateDictApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/healthApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/mfaApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/tenantApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/patientPortalApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/complianceApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/analyticsApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/retry.ts",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/api/v1/queue",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/api/v1/queue",
+          "method": "GET",
+          "status": 200
+        }
+      ],
+      "errors": [
+        "[console.error] Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "[console.error] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s /integration/mllp-monitor \n    at div\n    at nav\n    at aside\n    at div\n    at AppLayout (http://localhost:5191/src/layouts/AppLayout.tsx?t=1783856295951:489:41)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856295951:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856295951:32:3)",
+        "[console.error] The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+        "[console.error] X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>.",
+        "[console.error] The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+        "[console.error] X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>.",
+        "[console.error] Warning: Received NaN for the `%s` attribute. If this is expected, cast the value to a string.%s children \n    at div\n    at div\n    at div\n    at div\n    at div\n    at div\n    at main\n    at div\n    at QueueCallPage (http://localhost:5191/src/pages/QueueCallPage.tsx?t=1783855284242:589:39)\n    at RequireAuth (http://localhost:5191/src/components/auth/RequireAuth.tsx:21:31)\n    at RenderedRoute (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4069:5)\n    at Routes (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4539:5)\n    at Suspense\n    at div\n    at div\n    at div\n    at AppLayout (http://localhost:5191/src/layouts/AppLayout.tsx?t=1783856295951:489:41)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856295951:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856295951:32:3)"
+      ],
+      "uiFeedback": "未找到叫号按钮(空队列或仅 busy)"
+    },
+    {
+      "name": "appointments",
+      "path": "/appointments",
+      "status": "pass",
+      "formFound": true,
+      "apiCalls": [
+        {
+          "url": "/src/services/api/index.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/client.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/v3Api.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/examApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/patientApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/reportApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/deviceApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/criticalApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/appointmentApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/statsApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/userApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/consultationApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/queueApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/termApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/insuranceApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/datareportApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/qcextApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/regionalApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/financeApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/cdsApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/caApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/integrationApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/reportQualityApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/templatesApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/systemApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/notificationTemplateDictApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/healthApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/mfaApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/tenantApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/patientPortalApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/complianceApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/analyticsApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/retry.ts",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/api/v1/appointments",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/api/v1/appointments",
+          "method": "GET",
+          "status": 200
+        }
+      ],
+      "errors": [
+        "[console.error] Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "[console.error] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s /integration/mllp-monitor \n    at div\n    at nav\n    at aside\n    at div\n    at AppLayout (http://localhost:5191/src/layouts/AppLayout.tsx?t=1783856295951:489:41)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856295951:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856295951:32:3)",
+        "[console.error] The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+        "[console.error] X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>.",
+        "[console.error] The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+        "[console.error] X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>."
+      ],
+      "uiFeedback": "新预约 - 新增API调用=0"
+    },
+    {
+      "name": "patient",
+      "path": "/patients",
+      "status": "pass",
+      "formFound": true,
+      "apiCalls": [
+        {
+          "url": "/src/services/api/index.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/client.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/v3Api.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/examApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/patientApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/reportApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/deviceApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/criticalApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/appointmentApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/statsApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/userApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/consultationApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/queueApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/termApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/insuranceApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/datareportApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/qcextApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/regionalApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/financeApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/cdsApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/caApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/integrationApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/reportQualityApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/templatesApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/systemApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/notificationTemplateDictApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/healthApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/mfaApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/tenantApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/patientPortalApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/complianceApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/analyticsApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/retry.ts",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/api/v1/patients?",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/api/v1/patients?",
+          "method": "GET",
+          "status": 200
+        }
+      ],
+      "errors": [
+        "[console.error] Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "[console.error] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s /integration/mllp-monitor \n    at div\n    at nav\n    at aside\n    at div\n    at AppLayout (http://localhost:5191/src/layouts/AppLayout.tsx?t=1783856295951:489:41)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856295951:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856295951:32:3)",
+        "[console.error] The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+        "[console.error] X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>.",
+        "[console.error] The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+        "[console.error] X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>."
+      ],
+      "uiFeedback": "新建患者 - 新增API调用=0"
+    },
+    {
+      "name": "regional-report",
+      "path": "/regional-report",
+      "status": "warn",
+      "formFound": true,
+      "apiCalls": [
+        {
+          "url": "/src/services/api/regionalApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/client.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/retry.ts",
+          "method": "GET",
+          "status": 200
+        }
+      ],
+      "errors": [
+        "[console.error] Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "[console.error] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s /integration/mllp-monitor \n    at div\n    at nav\n    at aside\n    at div\n    at AppLayout (http://localhost:5191/src/layouts/AppLayout.tsx?t=1783856330787:489:41)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856330787:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856330787:32:3)",
+        "[console.error] The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+        "[console.error] X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>.",
+        "[console.error] The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+        "[console.error] X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>."
+      ],
+      "uiFeedback": "会诊申请 - 新增API=0"
+    },
+    {
+      "name": "dental/implant",
+      "path": "/dental/implant-3d",
+      "status": "pass",
+      "formFound": true,
+      "apiCalls": [
+        {
+          "url": "/src/services/api/dentalApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/client.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/retry.ts",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/api/v1/dental/implant/plan-3d",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/api/v1/dental/implant/inventory/brands",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/api/v1/dental/implant/inventory/models?brandId=straumann",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/api/v1/dental/implant/plan-3d",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/api/v1/dental/implant/inventory/brands",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/api/v1/dental/implant/inventory/models?brandId=straumann",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/api/v1/dental/implant/plan-3d",
+          "method": "POST",
+          "status": 201
+        }
+      ],
+      "errors": [
+        "[console.error] Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "[console.error] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s /integration/mllp-monitor \n    at div\n    at nav\n    at aside\n    at div\n    at AppLayout (http://localhost:5191/src/layouts/AppLayout.tsx?t=1783856330787:489:41)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856330787:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856330787:32:3)",
+        "[console.error] The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+        "[console.error] X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>.",
+        "[console.error] The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+        "[console.error] X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>.",
+        "[console.error] Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "[console.error] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s /integration/mllp-monitor \n    at div\n    at nav\n    at aside\n    at div\n    at AppLayout (http://localhost:5191/src/layouts/AppLayout.tsx?t=1783856330787:489:41)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856330787:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856330787:32:3)",
+        "[console.error] The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+        "[console.error] X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>.",
+        "[console.error] The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+        "[console.error] X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>.",
+        "[console.error] Warning: [antd: Statistic] `valueStyle` is deprecated. Please use `styles.content` instead.",
+        "[console.error] Warning: [antd: message] Static function can not consume context like dynamic theme. Please use 'App' component instead."
+      ],
+      "notes": "/dental/implant form=0",
+      "uiFeedback": "antd Form 提交 - 新增API=1"
+    },
+    {
+      "name": "dental/treatment",
+      "path": "/dental/treatment",
+      "status": "skip",
+      "formFound": false,
+      "apiCalls": [
+        {
+          "url": "/api/v1/dental/treatments",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/api/v1/dental/treatments",
+          "method": "GET",
+          "status": 200
+        }
+      ],
+      "errors": [
+        "[console.error] Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "[console.error] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s /integration/mllp-monitor \n    at div\n    at nav\n    at aside\n    at div\n    at AppLayout (http://localhost:5191/src/layouts/AppLayout.tsx?t=1783856330787:489:41)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856330787:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856330787:32:3)",
+        "[console.error] The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+        "[console.error] X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>.",
+        "[console.error] The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+        "[console.error] X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>."
+      ],
+      "notes": "当前 DentalTreatmentPage 仅渲染列表 (DentalTreatmentTable) — 无 form,记录 P0",
+      "uiFeedback": "form 数量=0 (页面无 form)"
+    },
+    {
+      "name": "cosign",
+      "path": "/cosign",
+      "status": "pass",
+      "formFound": true,
+      "apiCalls": [
+        {
+          "url": "/src/services/api/reviewApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/index.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/client.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/v3Api.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/examApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/patientApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/reportApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/deviceApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/criticalApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/appointmentApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/statsApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/userApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/consultationApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/queueApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/termApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/insuranceApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/datareportApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/qcextApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/regionalApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/financeApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/cdsApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/caApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/integrationApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/reportQualityApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/templatesApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/systemApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/notificationTemplateDictApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/healthApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/mfaApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/tenantApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/patientPortalApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/complianceApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/analyticsApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/retry.ts",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/api/v1/reports?",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/api/v1/cosign/stats",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/api/v1/cosign/pending?",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/api/v1/reports?",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/api/v1/cosign/stats",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/api/v1/cosign/pending?",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/api/v1/cosign/pending/live-RPT-20260122-00001/reject",
+          "method": "POST",
+          "status": 201
+        }
+      ],
+      "errors": [
+        "[console.error] Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "[console.error] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s /integration/mllp-monitor \n    at div\n    at nav\n    at aside\n    at div\n    at AppLayout (http://localhost:5191/src/layouts/AppLayout.tsx?t=1783856330787:489:41)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856330787:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856330787:32:3)",
+        "[console.error] The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+        "[console.error] X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>.",
+        "[console.error] The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+        "[console.error] X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>."
+      ],
+      "uiFeedback": "拒签表单 - 新增API=1"
+    },
+    {
+      "name": "compliance",
+      "path": "/compliance",
+      "status": "warn",
+      "formFound": true,
+      "apiCalls": [
+        {
+          "url": "/src/services/api/index.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/client.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/v3Api.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/examApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/patientApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/reportApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/deviceApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/criticalApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/appointmentApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/statsApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/userApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/consultationApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/queueApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/termApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/insuranceApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/datareportApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/qcextApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/regionalApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/financeApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/cdsApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/caApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/integrationApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/reportQualityApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/templatesApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/systemApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/notificationTemplateDictApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/healthApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/mfaApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/tenantApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/patientPortalApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/complianceApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/analyticsApi.ts?t=1783855284242",
+          "method": "GET",
+          "status": 200
+        },
+        {
+          "url": "/src/services/api/retry.ts",
+          "method": "GET",
+          "status": 200
+        }
+      ],
+      "errors": [
+        "[console.error] Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "[console.error] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s /integration/mllp-monitor \n    at div\n    at nav\n    at aside\n    at div\n    at AppLayout (http://localhost:5191/src/layouts/AppLayout.tsx?t=1783856330787:489:41)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856330787:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856330787:32:3)",
+        "[console.error] The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+        "[console.error] X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>.",
+        "[console.error] The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+        "[console.error] X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>.",
+        "[console.error] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s /integration/mllp-monitor \n    at div\n    at nav\n    at aside\n    at div\n    at AppLayout (http://localhost:5191/src/layouts/AppLayout.tsx?t=1783856330787:489:41)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856330787:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856330787:32:3)",
+        "[console.error] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s /integration/mllp-monitor \n    at div\n    at nav\n    at aside\n    at div\n    at AppLayout (http://localhost:5191/src/layouts/AppLayout.tsx?t=1783856330787:489:41)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856330787:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856330787:32:3)",
+        "[console.error] Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "[console.error] Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.%s /integration/mllp-monitor \n    at div\n    at nav\n    at aside\n    at div\n    at AppLayout (http://localhost:5191/src/layouts/AppLayout.tsx?t=1783856330787:489:41)\n    at AuthGate (http://localhost:5191/src/App.tsx?t=1783856330787:65:31)\n    at UndoToastProvider (http://localhost:5191/src/components/UndoToast.tsx:22:37)\n    at NProgressBar (http://localhost:5191/src/components/NProgressBar.tsx:21:32)\n    at ErrorBoundary (http://localhost:5191/src/components/ErrorBoundary.tsx:23:5)\n    at Router (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:4482:15)\n    at BrowserRouter (http://localhost:5191/node_modules/.vite/deps/react-router-dom.js?v=46a2cc77:5228:5)\n    at div\n    at http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:24194:16\n    at LocaleProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:8072:13)\n    at MotionWrapper (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10265:32)\n    at ProviderChildren (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10365:5)\n    at ConfigProvider (http://localhost:5191/node_modules/.vite/deps/antd.js?v=46a2cc77:10702:27)\n    at I18nextProvider (http://localhost:5191/node_modules/.vite/deps/react-i18next.js?v=9827b025:792:3)\n    at ErrorBoundary (http://localhost:5191/node_modules/.vite/deps/react-error-boundary.js?v=1a29f53a:18:5)\n    at Provider (http://localhost:5191/src/components/Provider.tsx:156:28)\n    at ConfigBootstrapper (http://localhost:5191/src/components/config/ConfigBootstrapper.tsx:24:38)\n    at App (http://localhost:5191/src/App.tsx?t=1783856330787:32:3)",
+        "[console.error] The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+        "[console.error] X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>.",
+        "[console.error] The Content Security Policy directive 'frame-ancestors' is ignored when delivered via a <meta> element.",
+        "[console.error] X-Frame-Options may only be set via an HTTP header sent along with a document. It may not be set inside <meta>.",
+        "[console.error] Warning: [antd: Statistic] `valueStyle` is deprecated. Please use `styles.content` instead."
+      ],
+      "notes": "P0: src/pages/CompliancePage.tsx 未在 routeTable 注册;实际路由为 /audit-compliance (不同页面) | /audit-compliance forms=0",
+      "uiFeedback": "URL=http://localhost:5191/ body含合规关键词=true"
+    }
+  ]
+}

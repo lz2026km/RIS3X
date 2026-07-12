@@ -150,36 +150,16 @@ const EyeRisPage: React.FC = () => {
               size="small"
               direction={isNarrow ? "vertical" : "horizontal"}
               style={{ marginBottom: 12 }}
-            >
-              <Steps.Step
-                title="登记"
-                description={isNarrow ? "已预约/已到检" : undefined}
-              />
-              <Steps.Step
-                title="候诊"
-                description={isNarrow ? "等候检查" : undefined}
-              />
-              <Steps.Step
-                title="检查"
-                description={isNarrow ? "检查中" : undefined}
-              />
-              <Steps.Step
-                title="影像上传"
-                description={isNarrow ? "DICOM 上传" : undefined}
-              />
-              <Steps.Step
-                title="AI 分析"
-                description={isNarrow ? "AI 辅助诊断" : undefined}
-              />
-              <Steps.Step
-                title="报告"
-                description={isNarrow ? "医师书写" : undefined}
-              />
-              <Steps.Step
-                title="审核"
-                description={isNarrow ? "终审发布" : undefined}
-              />
-            </Steps>
+              items={[
+                { title: '登记', description: isNarrow ? '已预约/已到检' : undefined },
+                { title: '候诊', description: isNarrow ? '等候检查' : undefined },
+                { title: '检查', description: isNarrow ? '检查中' : undefined },
+                { title: '影像上传', description: isNarrow ? 'DICOM 上传' : undefined },
+                { title: 'AI 分析', description: isNarrow ? 'AI 辅助诊断' : undefined },
+                { title: '报告', description: isNarrow ? '医师书写' : undefined },
+                { title: '审核', description: isNarrow ? '终审发布' : undefined },
+              ]}
+            />
             <Table
               dataSource={todayApts}
               rowKey="id"

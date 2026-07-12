@@ -1,3 +1,6 @@
+// v3.0.6.11-21 P0: 移除冗余 `/api` 前缀(由 client.ts API_BASE 在 mock 模式自动提供 `/api/v1`)
+//   修复前: client BASE=/api/v1 + path=/api/data-report/... => /api/v1/api/data-report/... 不匹配 MSW
+//   修复后: client BASE=/api/v1 + path=/data-report/...    => /api/v1/data-report/... 匹配 MSW (dataReportHandlers.ts)
 import { api, invalidateApiCache, invalidateApiCacheByPrefix } from './client'
 
 export interface NationalReportDto {
@@ -58,38 +61,38 @@ export interface EnterpriseSearchResult {
 export const datareportApi = {
   // National reports
   listNationalReports: () =>
-    api.get<NationalReportDto[]>('/api/data-report/national-reports'),
+    api.get<NationalReportDto[]>('/data-report/national-reports'),
 
   getNationalReport: (id: string) =>
-    api.get<NationalReportDto>(`/api/data-report/national-reports/${id}`),
+    api.get<NationalReportDto>(`/data-report/national-reports/${id}`),
 
   createNationalReport: async (data: Partial<NationalReportDto>) => {
-    const res = await api.post<NationalReportDto>('/api/data-report/national-reports', data)
-    await invalidateApiCache('/api/data-report/national-reports')
+    const res = await api.post<NationalReportDto>('/data-report/national-reports', data)
+    await invalidateApiCache('/data-report/national-reports')
     return res
   },
 
   // Data reports
   listDataReports: () =>
-    api.get<DataReportDto[]>('/api/data-report/data-reports'),
+    api.get<DataReportDto[]>('/data-report/data-reports'),
 
   getDataReport: (id: string) =>
-    api.get<DataReportDto>(`/api/data-report/data-reports/${id}`),
+    api.get<DataReportDto>(`/data-report/data-reports/${id}`),
 
   createDataReport: async (data: Partial<DataReportDto>) => {
-    const res = await api.post<DataReportDto>('/api/data-report/data-reports', data)
-    await invalidateApiCache('/api/data-report/data-reports')
+    const res = await api.post<DataReportDto>('/data-report/data-reports', data)
+    await invalidateApiCache('/data-report/data-reports')
     return res
   },
 
   // Insurance audits
   listInsuranceAudits: () =>
-    api.get<InsuranceAuditDto[]>('/api/data-report/insurance-audits'),
+    api.get<InsuranceAuditDto[]>('/data-report/insurance-audits'),
 
   getInsuranceAudit: (id: string) =>
-    api.get<InsuranceAuditDto>(`/api/data-report/insurance-audits/${id}`),
+    api.get<InsuranceAuditDto>(`/data-report/insurance-audits/${id}`),
 
   // Enterprise search
   enterpriseSearch: (q: string) =>
-    api.get<EnterpriseSearchResult[]>(`/api/data-report/enterprise-search?q=${encodeURIComponent(q)}`),
+    api.get<EnterpriseSearchResult[]>(`/data-report/enterprise-search?q=${encodeURIComponent(q)}`),
 }

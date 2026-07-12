@@ -535,6 +535,12 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/integration/mllp-config": ["管理员"],
   "/integration/dimse": ["技师", "管理员", "医生", "主任"],
   "/integration/dimse/upload": ["技师", "管理员"],
+  // [v3.0.6.11-21] 新页面路由角色映射
+  "/security/mfa-setup": ["管理员", "主任", "医生", "技师", "护士"],
+  "/system/audit": ["管理员"],
+  "/system/backup": ["管理员"],
+  "/system/tenant-config": ["管理员"],
+  "/system/compliance": ["管理员", "主任"],
 };
 
 function rolesFor(path: string): ReadonlyArray<Role> | undefined {
@@ -860,6 +866,10 @@ export const routes: RouteObject[] = [
   wrapped("/system/audit", React.createElement(lazy(() => import("../pages/AuditPage")))),
   wrapped("/system/backup", React.createElement(lazy(() => import("../pages/BackupPage")))),
   wrapped("/system/tenant-config", React.createElement(lazy(() => import("../pages/TenantConfigPage")))),
+  // [v3.0.6.11-21] P0 fix: MFA 设置页接入路由
+  wrapped("/security/mfa-setup", React.createElement(lazy(() => import("../pages/security/MfaSetupPage")))),
+  // [v3.0.6.11-21] P0 fix: 合规管理页接入路由
+  wrapped("/system/compliance", React.createElement(lazy(() => import("../pages/CompliancePage")))),
   {
     path: "*",
     element: React.createElement(Navigate, { to: "/", replace: true }),

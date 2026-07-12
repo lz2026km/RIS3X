@@ -377,7 +377,7 @@ export const RemoteViewer: React.FC<RemoteViewerProps> = ({
                 onPressEnter={sendChatMessage}
                 placeholder="Type a message..."
                 style={{ flex: 1, border: 'none', background: '#0f172a', color: '#e2e8f0', fontSize: 12 }}
-                bordered={false}
+                variant="borderless"
               />
               <Button size="small" type="text" icon={<Send size={12} />} onClick={sendChatMessage} style={{ color: '#60a5fa' }} />
             </div>

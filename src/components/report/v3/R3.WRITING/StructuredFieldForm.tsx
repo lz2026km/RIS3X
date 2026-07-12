@@ -8,10 +8,10 @@ import dayjs, { type Dayjs } from 'dayjs';
 import {
   Card, Tabs, Input, InputNumber, Select, DatePicker, Switch, Slider, Button,
   Space, Tag, Tooltip, Progress, Row, Col, Statistic, Divider, Empty, Modal, message,
-  Alert, Radio,
+  Alert, Radio, Upload,
 } from 'antd';
 import {
-  CheckCircle2, AlertTriangle, Upload, Lock, Calculator, Hash, Calendar,
+  CheckCircle2, AlertTriangle, Lock, Calculator, Hash, Calendar,
   ChevronDown, ChevronUp, Image as ImageIcon, Edit3, Star, Info, Award,
   Activity, Heart, Brain, ListTree, FileText,
 } from 'lucide-react';

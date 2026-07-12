@@ -153,7 +153,7 @@ export default function CompliancePage() {
                         </span>
                       </td>
                       <td style={{ padding: '10px 14px' }}>
-                        <span style={{ padding: '2px 8px, borderRadius: 4, fontSize: 12, fontWeight: 600, background: d.severity === 'CRITICAL' ? '#fef2f2' : d.severity === 'MAJOR' ? '#fffbeb' : '#f1f5f9', color: d.severity === 'CRITICAL' ? COLORS.danger : d.severity === 'MAJOR' ? COLORS.warning : COLORS.textMid }}>
+                        <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: d.severity === 'CRITICAL' ? '#fef2f2' : d.severity === 'MAJOR' ? '#fffbeb' : '#f1f5f9', color: d.severity === 'CRITICAL' ? COLORS.danger : d.severity === 'MAJOR' ? COLORS.warning : COLORS.textMid }}>
                           {d.severity === 'CRITICAL' ? '严重' : d.severity === 'MAJOR' ? '主要' : '轻微'}
                         </span>
                       </td>

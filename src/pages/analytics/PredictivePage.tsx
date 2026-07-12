@@ -83,7 +83,7 @@ export default function PredictivePage() {
         <Button icon={<Download size={14} />} onClick={handleExport}>导出报告</Button>
       </div>
 
-      <Card bordered={false} style={{ borderRadius: 12, marginBottom: 16 }}>
+      <Card variant="borderless" style={{ borderRadius: 12, marginBottom: 16 }}>
         <Row gutter={[16, 16]} align="middle">
           <Col>
             <Space>
@@ -109,7 +109,7 @@ export default function PredictivePage() {
 
       <Row gutter={[16, 16]}>
         <Col xs={24} lg={16}>
-          <Card title={<Space><BarChart3 size={16} /> 工作量预测</Space>} bordered={false} style={{ borderRadius: 12 }}>
+          <Card title={<Space><BarChart3 size={16} /> 工作量预测</Space>} variant="borderless" style={{ borderRadius: 12 }}>
             <ResponsiveContainer width="100%" height={350}>
               <AreaChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -128,7 +128,7 @@ export default function PredictivePage() {
 
         <Col xs={24} lg={8}>
           <Space direction="vertical" style={{ width: '100%' }} size={16}>
-            <Card title={<Space><Gauge size={16} /> 资源利用率</Space>} bordered={false} style={{ borderRadius: 12 }}>
+            <Card title={<Space><Gauge size={16} /> 资源利用率</Space>} variant="borderless" style={{ borderRadius: 12 }}>
               <div style={{ textAlign: 'center', padding: '8px 0' }}>
                 <div style={{ position: 'relative', width: 160, height: 100, margin: '0 auto', overflow: 'hidden' }}>
                   <div style={{
@@ -153,7 +153,7 @@ export default function PredictivePage() {
               </div>
             </Card>
 
-            <Card title={<Space><Target size={16} /> 预测准确率</Space>} bordered={false} style={{ borderRadius: 12 }}>
+            <Card title={<Space><Target size={16} /> 预测准确率</Space>} variant="borderless" style={{ borderRadius: 12 }}>
               <Statistic
                 value={mockAccuracy.value}
                 suffix="%"

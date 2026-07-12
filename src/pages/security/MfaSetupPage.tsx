@@ -189,10 +189,12 @@ export default function MfaSetupPage() {
                   }}
                 >
                   {showSecret ? (
-                    <Text code style={{ fontSize: 18, letterSpacing: 2 }}>{displaySecret(secret)}</Text>
+                    <Text code style={{ fontSize: 18, letterSpacing: 2 }}>{secret || "—"}</Text>
                   ) : (
                     <Text code style={{ fontSize: 18, letterSpacing: 2 }}>
-                      {secret.substring(0, 4)}••••••{secret.substring(secret.length - 4)}
+                      {secret
+                        ? `${secret.substring(0, 4)}••••••${secret.substring(secret.length - 4)}`
+                        : "••••••"}
                     </Text>
                   )}
                 </div>
@@ -209,7 +211,7 @@ export default function MfaSetupPage() {
                     type="link"
                     size="small"
                     icon={<Copy size={14} />}
-                    onClick={() => { navigator.clipboard.writeText(secret); message.success("密钥已复制"); }}
+                    onClick={() => { navigator.clipboard.writeText(secret); antdMessage.success("密钥已复制"); }}
                   >
                     复制密钥
                   </Button>

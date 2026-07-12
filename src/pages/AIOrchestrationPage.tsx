@@ -142,7 +142,7 @@ export default function AIOrchestrationPage() {
 
   return (
     <div style={{ padding: 24, maxWidth: 1400, margin: '0 auto' }}>
-      <Card bordered={false} style={{ borderRadius: 12, marginBottom: 16 }}>
+      <Card variant="borderless" style={{ borderRadius: 12, marginBottom: 16 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <Space>
             <div style={{ width: 40, height: 40, borderRadius: 10, background: 'linear-gradient(135deg, #8b5cf6, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

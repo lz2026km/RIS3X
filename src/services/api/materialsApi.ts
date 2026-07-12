@@ -1,9 +1,10 @@
 // [v3.0.6.8-51] PR7: 眼料 (IOL 库存 + 接触镜库) API client
 // v3.0.6.11: 路径已对齐 mockBackend/eyeHandlers.ts
+// v3.0.6.11-21 P0: 移除冗余 `/api/v1` 前缀(由 client.ts API_BASE 在 mock 模式提供)
 // eyeHandlers 只暴露 IOL inventory 的 GET, 其它写操作暂保留端点占位 (返回 404, 由前端 UI 屏蔽)
 import { api } from './client';
 
-const EYE_API = '/api/v1/eye';
+const EYE_API = '/eye';
 
 // ============= IOL 库存 =============
 export interface IolItemDto {

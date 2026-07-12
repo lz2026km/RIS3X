@@ -62,10 +62,16 @@ export default function BackupPage() {
           <Row justify="space-between" align="middle">
             <h2 style={{ margin: 0 }}><SafetyOutlined /> 备份管理</h2>
             <Space>
-              <Select placeholder="备份类型" style={{ width: 140 }} onSelect={(v: string) => handleCreate(v)} loading={creating}>
-                <Select.Option value="FULL">全量备份</Select.Option>
-                <Select.Option value="INCREMENTAL">增量备份</Select.Option>
-              </Select>
+              <Select
+                placeholder="备份类型"
+                style={{ width: 140 }}
+                onSelect={(v: string) => handleCreate(v)}
+                loading={creating}
+                options={[
+                  { value: 'FULL', label: '全量备份' },
+                  { value: 'INCREMENTAL', label: '增量备份' },
+                ]}
+              />
               <Button icon={<ReloadOutlined />} onClick={fetchList}>刷新</Button>
             </Space>
           </Row>

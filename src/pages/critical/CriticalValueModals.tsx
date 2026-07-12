@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { message } from 'antd'
 import {
   AlertTriangle, X, Phone, MessageSquare, Bell, Mail, Smartphone, MessageCircle,
@@ -49,6 +49,12 @@ export const Toast = ({ toast }: { toast: { show: boolean; message: string; type
 export const ProcessModal = ({ cv, onConfirm, onCancel }: {
   cv: CriticalValue | null; onConfirm: () => void; onCancel: () => void
 }) => {
+  useEffect(() => {
+    if (!cv) return
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.stopPropagation(); onCancel() } }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [cv, onCancel])
   if (!cv) return null
   return (
     <div onClick={onCancel} role="dialog" aria-modal="true" aria-label="处理危急值" style={overlayStyle}>
@@ -61,7 +67,7 @@ export const ProcessModal = ({ cv, onConfirm, onCancel }: {
               <div style={{ fontSize: 12, color: '#64748b' }}>{cv.id} · {cv.patientName}</div>
             </div>
           </div>
-          <button onClick={onCancel} style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <button onClick={onCancel} aria-label="关闭弹窗" style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <X size={16} style={{ color: '#64748b' }} />
           </button>
         </div>
@@ -71,16 +77,16 @@ export const ProcessModal = ({ cv, onConfirm, onCancel }: {
             <div style={{ background: '#fef2f2', borderRadius: 8, padding: 12, border: '1px solid #fecaca', fontSize: 13, color: '#334155' }}>{cv.findingDetails.substring(0, 100)}...</div>
           </div>
           <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>处理科室</div>
-            <input type="text" defaultValue={cv.receivingDepartment} placeholder="请输入处理科室" style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+            <label htmlFor="cv-process-dept" style={{ display: 'block', fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>处理科室</label>
+            <input id="cv-process-dept" type="text" defaultValue={cv.receivingDepartment} placeholder="请输入处理科室" aria-label="处理科室" style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
           </div>
           <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>处理措施</div>
-            <textarea placeholder="请输入处理措施..." rows={3} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+            <label htmlFor="cv-process-action" style={{ display: 'block', fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>处理措施</label>
+            <textarea id="cv-process-action" placeholder="请输入处理措施..." aria-label="处理措施" rows={3} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
           </div>
           <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>处理结果</div>
-            <textarea placeholder="请输入处理结果..." rows={2} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+            <label htmlFor="cv-process-result" style={{ display: 'block', fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>处理结果</label>
+            <textarea id="cv-process-result" placeholder="请输入处理结果..." aria-label="处理结果" rows={2} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             <button onClick={onCancel} style={footerBtn()}>取消</button>
@@ -98,6 +104,12 @@ export const NotifyModal = ({ cv, phone, notes, method, onSetPhone, onSetNotes, 
   onSetPhone: (v: string) => void; onSetNotes: (v: string) => void; onSetMethod: (v: string) => void
   onConfirm: () => void; onCancel: () => void
 }) => {
+  useEffect(() => {
+    if (!cv) return
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.stopPropagation(); onCancel() } }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [cv, onCancel])
   if (!cv) return null
   const options: { value: NotificationMethod; label: string; icon: any }[] = [
     { value: 'PHONE', label: '电话', icon: Phone }, { value: 'SMS', label: '短信', icon: MessageSquare },
@@ -115,16 +127,17 @@ export const NotifyModal = ({ cv, phone, notes, method, onSetPhone, onSetNotes, 
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)' }}>{cv.patientName} · {cv.receivingDoctorName || '待通知'}</div>
             </div>
           </div>
-          <button onClick={onCancel} style={headerBtnStyle}><X size={16} style={{ color: '#fff' }} /></button>
+          <button onClick={onCancel} aria-label="关闭弹窗" style={headerBtnStyle}><X size={16} style={{ color: '#fff' }} /></button>
         </div>
         <div style={{ padding: 24 }}>
           <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6 }}>通知方式</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+            <div id="cv-notify-method-label" style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6 }}>通知方式</div>
+            <div role="radiogroup" aria-labelledby="cv-notify-method-label" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
               {options.map((opt) => {
                 const active = method === opt.value; const Icon = opt.icon
                 return (
                   <button key={opt.value} onClick={() => onSetMethod(opt.value)}
+                    role="radio" aria-checked={active} aria-label={`通知方式-${opt.label}`}
                     style={{ padding: '10px 8px', borderRadius: 8, border: '1px solid ' + (active ? PRIMARY_COLOR : '#e2e8f0'), background: active ? '#eff6ff' : '#fff', color: active ? PRIMARY_COLOR : '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                     <Icon size={14} /> {opt.label}
                   </button>
@@ -133,12 +146,12 @@ export const NotifyModal = ({ cv, phone, notes, method, onSetPhone, onSetNotes, 
             </div>
           </div>
           <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6 }}>联系电话</div>
-            <input type="text" value={phone} onChange={(e) => onSetPhone(e.target.value)} placeholder="请输入联系电话" style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
+            <label htmlFor="cv-notify-phone" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6 }}>联系电话</label>
+            <input id="cv-notify-phone" type="text" value={phone} onChange={(e) => onSetPhone(e.target.value)} placeholder="请输入联系电话" aria-label="联系电话" style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
           </div>
           <div style={{ marginBottom: 20 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6 }}>通知备注</div>
-            <textarea value={notes} onChange={(e) => onSetNotes(e.target.value)} placeholder="请输入通知备注" rows={3} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
+            <label htmlFor="cv-notify-notes" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6 }}>通知备注</label>
+            <textarea id="cv-notify-notes" value={notes} onChange={(e) => onSetNotes(e.target.value)} placeholder="请输入通知备注" aria-label="通知备注" rows={3} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             <button onClick={onCancel} style={footerBtn()}>取消</button>
@@ -153,7 +166,13 @@ export const NotifyModal = ({ cv, phone, notes, method, onSetPhone, onSetNotes, 
 // -------------- ConfirmModal --------------
 export const ConfirmModal = ({ message, onConfirm, onCancel }: {
   message: string; onConfirm: () => void; onCancel: () => void
-}) => (
+}) => {
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.stopPropagation(); onCancel() } }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [onCancel])
+  return (
   <div onClick={onCancel} role="dialog" aria-modal="true" aria-label="确认操作" style={overlayStyle}>
     <div onClick={(e) => e.stopPropagation()} style={{ ...panelStyle, width: 400 }}>
       <div style={{ padding: '20px 24px', borderBottom: '1px solid #e2e8f0', background: '#fffbeb', display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -169,7 +188,8 @@ export const ConfirmModal = ({ message, onConfirm, onCancel }: {
       </div>
     </div>
   </div>
-)
+  )
+}
 
 // -------------- RulesSettingsModal --------------
 interface CriticalValueRule {
@@ -218,18 +238,19 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>配置各类检查结果的危急值范围及通知规则</div>
             </div>
           </div>
-          <button onClick={onClose} style={headerBtnStyle}><X size={18} style={{ color: '#fff' }} /></button>
+          <button onClick={onClose} aria-label="关闭弹窗" style={headerBtnStyle}><X size={18} style={{ color: '#fff' }} /></button>
         </div>
 
-        <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
+        <div role="tablist" aria-label="规则设置分类" style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
           {sections.map((sec) => {
             const Icon = sec.icon; const active = activeSection === sec.key
             return (
-              <div key={sec.key} onClick={() => setActiveSection(sec.key as typeof activeSection)}
-                style={{ flex: 1, padding: '12px 16px', textAlign: 'center', cursor: 'pointer', borderBottom: active ? '2px solid #1e3a5f' : '2px solid transparent', background: active ? '#fff' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              <button key={sec.key} role="tab" aria-selected={active} tabIndex={active ? 0 : -1}
+                onClick={() => setActiveSection(sec.key as typeof activeSection)}
+                style={{ flex: 1, padding: '12px 16px', textAlign: 'center', cursor: 'pointer', borderBottom: active ? '2px solid #1e3a5f' : '2px solid transparent', background: active ? '#fff' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', borderBottom: active ? '2px solid #1e3a5f' : '2px solid transparent' }}>
                 <Icon size={16} style={{ color: active ? '#1e3a5f' : '#94a3b8' }} />
                 <span style={{ fontSize: 13, fontWeight: active ? 700 : 500, color: active ? '#1e3a5f' : '#94a3b8' }}>{sec.label}</span>
-              </div>
+              </button>
             )
           })}
         </div>
@@ -284,7 +305,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
                   <div key={item.label} style={{ flex: 1, padding: 14, background: '#fff', borderRadius: 8, border: `1px solid ${item.color}` }}>
                     <div style={{ fontSize: 12, color: '#64748b', marginBottom: 6 }}>{item.label}</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <input type="number" defaultValue={item.minutes} style={{ width: 60, padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 14, fontWeight: 700, color: '#1e3a5f', textAlign: 'center' }} />
+                      <input type="number" defaultValue={item.minutes} aria-label={`${item.label}-分钟数`} style={{ width: 60, padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 14, fontWeight: 700, color: '#1e3a5f', textAlign: 'center' }} />
                       <span style={{ fontSize: 12, color: '#64748b' }}>分钟</span>
                     </div>
                   </div>

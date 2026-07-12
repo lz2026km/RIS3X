@@ -68,10 +68,22 @@ function newRule(): RoutingRule {
   };
 }
 
+// 容错: 后端 mock 或老数据可能缺少字段 (event/target/conditions)
+function safeRule(rule: RoutingRule): RoutingRule {
+  return {
+    ...rule,
+    event: rule.event ?? { type: 'assign_doctor' },
+    target: rule.target ?? {},
+    conditions: rule.conditions ?? { all: [] },
+    explanation: rule.explanation ?? '',
+  };
+}
+
 export const RoutingRuleBuilder: React.FC<RoutingRuleBuilderProps> = ({ rules, onChange, readonly = false }) => {
   const [selectedId, setSelectedId] = useState<string | null>(rules[0]?.id ?? null);
 
-  const selected = rules.find((r) => r.id === selectedId) ?? null;
+  const selectedRaw = rules.find((r) => r.id === selectedId) ?? null;
+  const selected = selectedRaw ? safeRule(selectedRaw) : null;
 
   const update = (next: RoutingRule[]) => onChange(next);
 
@@ -140,7 +152,9 @@ export const RoutingRuleBuilder: React.FC<RoutingRuleBuilderProps> = ({ rules, o
           </button>
         </div>
         <div style={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
-          {rules.map((rule) => (
+          {rules.map((rawRule) => {
+            const rule = safeRule(rawRule);
+            return (
             <div
               key={rule.id}
               onClick={() => setSelectedId(rule.id)}
@@ -167,7 +181,8 @@ export const RoutingRuleBuilder: React.FC<RoutingRuleBuilderProps> = ({ rules, o
                 优先级 {rule.priority} · 动作 {rule.event.type}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </aside>
       <main style={{ flex: 1, padding: 16, overflowY: 'auto' }}>

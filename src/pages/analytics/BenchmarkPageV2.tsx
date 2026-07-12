@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
+import dayjs, { type Dayjs } from 'dayjs'
 import { Card, Row, Col, Select, DatePicker, Table, Button, Space, Statistic, Tag, message, Spin } from 'antd'
 import { BarChart3, Download, Target, TrendingUp, Activity } from 'lucide-react'
 import BenchmarkV2, { type CompareMode, type MetricCode, type Dimension, type ChartType, type BenchmarkCompareData } from '../../components/analytics/BenchmarkV2'
@@ -81,7 +82,7 @@ export default function BenchmarkPageV2() {
                 return { label: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`, current: rand(55, 99), previous: rand(50, 95) }
               }),
       }
-      const olapRes = await olapApi.query({ measures: ['exam_count'], dimensions: ['department'], filters: { startDate: dateRange[0], endDate: dateRange[1] } })
+      const olapRes = await olapApi.query({ measures: ['exam_count'], dimensions: ['department'], filters: [{ dimension: 'date', operator: 'between', value: [dateRange[0], dateRange[1]] }] })
       if (olapRes.success && olapRes.data) {
         data.breakdown = (Array.isArray(olapRes.data) ? olapRes.data : []).map((r: any) => ({ label: r.department ?? '', current: Number(r.exam_count) || current, previous: previous }))
       }
@@ -95,7 +96,7 @@ export default function BenchmarkPageV2() {
     setLoading(true)
     try {
       setCrossSiteData(mockCrossSite(allMetricCodes, selectedSites))
-      const olapRes = await olapApi.query({ measures: allMetricCodes, dimensions: ['site'], filters: { startDate: dateRange[0], endDate: dateRange[1] }, limit: 50 })
+      const olapRes = await olapApi.query({ measures: allMetricCodes, dimensions: ['site'], filters: [{ dimension: 'date', operator: 'between', value: [dateRange[0], dateRange[1]] }], limit: 50 })
       if (olapRes.success && Array.isArray(olapRes.data) && olapRes.data.length > 0) {
         setCrossSiteData(olapRes.data.map((r: any, i: number) => {
           const row: SiteRow = { key: r.siteId ?? `s${i}`, siteName: r.siteName ?? SITES[i]?.name ?? '' }
@@ -251,7 +252,7 @@ export default function BenchmarkPageV2() {
           />
           <RangePicker
             size="small"
-            value={[dateRange[0] ? new Date(dateRange[0]) : null, dateRange[1] ? new Date(dateRange[1]) : null] as any}
+            value={[dateRange[0] ? dayjs(dateRange[0]) : null, dateRange[1] ? dayjs(dateRange[1]) : null] as [Dayjs | null, Dayjs | null]}
             onChange={(dates) => {
               if (dates?.[0] && dates?.[1]) {
                 setDateRange([dates[0].format('YYYY-MM-DD'), dates[1].format('YYYY-MM-DD')])
@@ -274,7 +275,7 @@ export default function BenchmarkPageV2() {
 
         <Card
           title={<Space><Activity size={16} /> 跨院区对比矩阵</Space>}
-          bordered={false}
+          variant="borderless"
           style={{ borderRadius: 12, marginTop: 16 }}
           extra={
             <Button size="small" icon={<Download size={14} />} onClick={handleExport}>

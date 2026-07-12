@@ -59,8 +59,20 @@ export const CADOverlay: React.FC<CADOverlayProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ instanceId }),
       })
-      const data: CadResult = await res.json()
+      if (!res.ok) {
+        setResult(null)
+        return
+      }
+      let data: CadResult
+      try {
+        data = (await res.json()) as CadResult
+      } catch {
+        setResult(null)
+        return
+      }
       setResult(data)
+    } catch {
+      setResult(null)
     } finally {
       setLoading(false)
     }

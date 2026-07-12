@@ -186,5 +186,10 @@
   "iheConnectathon": "IHE Connectathon",
   "mllpMonitor": "MLLP Monitor",
   "dicomVolume": "3D Volume Rendering",
-  "dicomFusion": "Image Fusion"
+  "dicomFusion": "Image Fusion",
+  "systemAudit": "Audit Log",
+  "systemBackup": "Backup Manager",
+  "tenantConfig": "Tenant Compliance",
+  "systemCompliance": "Compliance",
+  "mfaSetup": "MFA Setup"
 }

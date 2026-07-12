@@ -5,13 +5,47 @@ import { checkAccess, type AccessContext, type ResourceType } from '../auth/rbac
 
 // ────────────────────────────────────────────────────────────────────────────
 // API Mode: real | mock
+// v3.0.6.11-21 P0: 支持 localStorage 运行时覆盖(用于登录后从 mock 切到 real)。
+//   - localStorage key: 'ris_api_mode' -> 'real' | 'mock'
+//   - 未设置时回退到 import.meta.env.VITE_API_MODE, 仍未设置回退到 'mock'
+//   - 注意: mode 改变后必须 reload 页面以确保缓存/状态正确
 // ────────────────────────────────────────────────────────────────────────────
 type ApiMode = 'real' | 'mock'
-const API_MODE: ApiMode = (import.meta.env.VITE_API_MODE as ApiMode) || 'mock'
+
+function resolveApiMode(): ApiMode {
+  // 1) Runtime override (highest priority - 登录后用户切到 real)
+  if (typeof window !== 'undefined') {
+    try {
+      const ls = window.localStorage.getItem('ris_api_mode')
+      if (ls === 'real' || ls === 'mock') return ls
+    } catch {
+      /* localStorage may be unavailable (private mode) */
+    }
+  }
+  // 2) Compile-time env
+  const envMode = import.meta.env.VITE_API_MODE as ApiMode | undefined
+  if (envMode === 'real' || envMode === 'mock') return envMode
+  // 3) Safe default
+  return 'mock'
+}
+
+function resolveApiBaseUrl(): string | undefined {
+  if (typeof window !== 'undefined') {
+    try {
+      const ls = window.localStorage.getItem('ris_api_base_url')
+      if (ls) return ls
+    } catch {
+      /* noop */
+    }
+  }
+  return import.meta.env.VITE_API_BASE_URL
+}
+
+const API_MODE: ApiMode = resolveApiMode()
 // Real mode: 后端 NestJS globalPrefix 为 'api' (见 backend/src/main.ts)
 // Mock mode: MSW handlers 拦截 /api/v1/... 路径
 const API_BASE = API_MODE === 'real'
-  ? (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api')
+  ? (resolveApiBaseUrl() || 'http://localhost:3001/api')
   : '/api/v1'
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -249,4 +283,32 @@ export function invalidateApiCacheByPrefix(prefix: string): Promise<void> {
 export function __clearApiCacheForTest(): void {
   responseCache.clear();
   invalidatedUrls.clear();
+}
+
+/**
+ * v3.0.6.11-21: 在运行时切换 API mode(写入 localStorage 后调用方负责 reload)。
+ * 用于"用户登录后从 mock 切到 real"。
+ *
+ * @example
+ *   await switchApiMode('real');
+ *   window.location.reload();
+ */
+export async function switchApiMode(mode: ApiMode, baseUrl?: string): Promise<void> {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem('ris_api_mode', mode);
+    if (baseUrl !== undefined) {
+      if (baseUrl) window.localStorage.setItem('ris_api_base_url', baseUrl);
+      else window.localStorage.removeItem('ris_api_base_url');
+    }
+  } catch {
+    /* noop */
+  }
+}
+
+/**
+ * v3.0.6.11-21: 返回当前生效的 mode(供 UI 显示或调试)。
+ */
+export function currentApiMode(): ApiMode {
+  return API_MODE;
 }

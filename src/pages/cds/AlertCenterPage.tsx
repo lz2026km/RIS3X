@@ -122,7 +122,7 @@ export default function AlertCenterPage() {
         </div>
       </header>
       <div style={{ padding: 16 }}>
-        <Card bordered={false} style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+        <Card variant="borderless" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16, flexWrap: 'wrap' }}>
             <Tabs
               activeKey={tab}

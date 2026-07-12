@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, Space, Tag, Button, Form, Select, message, Alert, Input, Typography, List, Row, Col } from 'antd';
 import { Globe, Download, Activity, Loader2 } from 'lucide-react';
 import { fhirApi, type BulkExportJob } from '../../services/api/fhirApi';
@@ -16,6 +16,28 @@ export const FhirBulkExportPage: React.FC = () => {
   const [job, setJob] = useState<ExportJob | null>(null);
   const [exporting, setExporting] = useState(false);
   const [polling, setPolling] = useState(false);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const mountedRef = useRef(true);
+
+  // [v3.0.6.11-21] P0 fix: 组件卸载或离开页面时清理轮询,防止 state residue
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      if (pollRef.current) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
+    };
+  }, []);
+
+  const stopPolling = () => {
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+    setPolling(false);
+  };
 
   const startExport = async () => {
     setExporting(true);
@@ -43,18 +65,21 @@ export const FhirBulkExportPage: React.FC = () => {
   };
 
   const startPolling = (jobId: string) => {
+    // 已有轮询时先清理,避免重叠
+    stopPolling();
     setPolling(true);
     let attempts = 0;
     const maxAttempts = 30;
-    const iv = setInterval(async () => {
+    pollRef.current = setInterval(async () => {
+      if (!mountedRef.current) return;
       attempts++;
       try {
         const res = await fhirApi.bulkExportStatus(jobId);
+        if (!mountedRef.current) return;
         if (res.success) {
           const data = res.data;
           if (data.status === 'completed' || data.status === 'failed') {
-            clearInterval(iv);
-            setPolling(false);
+            stopPolling();
             if (data.status === 'completed') {
               setJob({ jobId, status: 'completed', files: data.output || [], transactionTime: data.transactionTime });
               message.success('导出完成');
@@ -66,8 +91,8 @@ export const FhirBulkExportPage: React.FC = () => {
         }
       } catch {
         if (attempts >= 5) {
-          clearInterval(iv);
-          setPolling(false);
+          stopPolling();
+          if (!mountedRef.current) return;
           setJob({ jobId, status: 'completed', files: [
             { type: 'Patient', url: `/api/fhir/r4/export/${jobId}/Patient.ndjson` },
             { type: 'Observation', url: `/api/fhir/r4/export/${jobId}/Observation.ndjson` },
@@ -77,8 +102,7 @@ export const FhirBulkExportPage: React.FC = () => {
         }
       }
       if (attempts >= maxAttempts) {
-        clearInterval(iv);
-        setPolling(false);
+        stopPolling();
       }
     }, 2000);
   };

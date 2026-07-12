@@ -76,7 +76,7 @@ export default function AIMarketplacePage() {
         </Badge>
       </div>
 
-      <Card bordered={false} style={{ borderRadius: 12, marginBottom: 20 }}>
+      <Card variant="borderless" style={{ borderRadius: 12, marginBottom: 20 }}>
         <Row gutter={[16, 16]} align="middle">
           <Col xs={24} md={10}>
             <Input
@@ -113,7 +113,7 @@ export default function AIMarketplacePage() {
             <Col key={app.id} xs={24} sm={12} md={8} lg={6}>
               <Card
                 hoverable
-                bordered={false}
+                variant="borderless"
                 style={{ borderRadius: 12, height: '100%', position: 'relative' }}
                 actions={[
                   isInstalled ? (

@@ -40,11 +40,11 @@ export const AuditCompliancePage: React.FC = () => {
       </Card>
       <Modal title="Audit Detail" open={!!detailModal} onCancel={()=>setDetailModal(null)} footer={null} width={500}>
         {detailModal && <div><Timeline items={[
-          {children:<><b>Event ID</b><br/>{detailModal.id}</>},
-          {children:<><b>User</b><br/>{detailModal.user} @ {detailModal.ip}</>},
-          {children:<><b>Action</b><br/>{detailModal.action} on {detailModal.target}</>},
-          {children:<><b>Timestamp</b><br/>{detailModal.timestamp}</>},
-          {children:<><b>Result: </b><Tag color={detailModal.result==='allowed'?'green':'red'}>{detailModal.result}</Tag><br/><i>{detailModal.reason}</i></>},
+          {key:'evt-id', content:<><b>Event ID</b><br/>{detailModal.id}</>},
+          {key:'evt-user', content:<><b>User</b><br/>{detailModal.user} @ {detailModal.ip}</>},
+          {key:'evt-action', content:<><b>Action</b><br/>{detailModal.action} on {detailModal.target}</>},
+          {key:'evt-time', content:<><b>Timestamp</b><br/>{detailModal.timestamp}</>},
+          {key:'evt-result', content:<><b>Result: </b><Tag color={detailModal.result==='allowed'?'green':'red'}>{detailModal.result}</Tag><br/><i>{detailModal.reason}</i></>},
         ]} /></div>}
       </Modal>
     </div>

@@ -46,6 +46,8 @@ import {
   replayOrderEvent,
   validateOrderStatus,
 } from "../utils/orderStateAdapter";
+import AppointmentCalendar from "./AppointmentCalendar";
+import AppointmentForm from "./AppointmentForm";
 
 // ==================== 类型定义 ====================
 interface Appointment {

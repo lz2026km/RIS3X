@@ -1,7 +1,7 @@
 // [v3.0.6.8-79] 知情同意/患者教育管理
 import React, { useState } from 'react';
 import { Card, Space, Tag, Row, Col, Table, Button, Tabs, Badge, Modal, Form, Select, DatePicker, Progress, Timeline, message, Statistic, Upload, List, Tooltip } from 'antd';
-import { FileSignature, BookOpen, CheckCircle2, Clock, AlertCircle, FileText, Upload, Download, Send, Eye } from 'lucide-react';
+import { FileSignature, BookOpen, CheckCircle2, Clock, AlertCircle, FileText, Download, Send, Eye } from 'lucide-react';
 
 export const ConsentEducationPage: React.FC = () => {
   const [consents, setConsents] = useState([

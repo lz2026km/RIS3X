@@ -1,0 +1,1732 @@
+{
+  "version": "3.0.6.11-21",
+  "timestamp": "2026-07-12T11:32:56.995Z",
+  "totalPages": 20,
+  "newPages": 3,
+  "totalButtons": 217,
+  "clickedButtons": 94,
+  "okButtons": 31,
+  "failCounts": {
+    "noHandler": 43,
+    "throw": 40,
+    "disabled": 0
+  },
+  "pages": [
+    {
+      "page": "critical-value",
+      "path": "/critical-value",
+      "isNew": false,
+      "buttonsFound": 3,
+      "buttonsClicked": 0,
+      "buttonsOk": 0,
+      "results": [
+        {
+          "selector": "button[visible]:nth(0)",
+          "text": "收起",
+          "clicked": false,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "error": "locator.click: Timeout 2500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:visible').first()\u001b[22m\n\u001b[2m    - locator resolved to <button aria-label=\"收起\">…</button>\u001b[22m\n\u001b[2m  - attempting cl",
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(1)",
+          "text": "",
+          "clicked": false,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "error": "locator.click: Timeout 2500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:visible').nth(1)\u001b[22m\n\u001b[2m    - locator resolved to <button aria-label=\"收起\">…</button>\u001b[22m\n\u001b[2m  - attempting cli",
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(2)",
+          "text": "",
+          "clicked": false,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "error": "locator.click: Timeout 2500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:visible').nth(2)\u001b[22m\n\u001b[2m    - locator resolved to <button aria-label=\"通知中心\">…</button>\u001b[22m\n\u001b[2m  - attempting c",
+          "category": "no-handler"
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "CE: [API] Network error GET /api/v1/criticals: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input\n    at request (http://localhost:5191/src/services/api/client.ts?t=17838552",
+        "CE: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "CE: [API] Network error GET /api/v1/criticals: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input\n    at request (http://localhost:5191/src/services/api/client.ts?t=17838552"
+      ],
+      "loadMs": 16351
+    },
+    {
+      "page": "worklist",
+      "path": "/worklist",
+      "isNew": false,
+      "buttonsFound": 3,
+      "buttonsClicked": 3,
+      "buttonsOk": 0,
+      "results": [
+        {
+          "selector": "button[visible]:nth(0)",
+          "text": "收起",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(1)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(2)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "no-handler"
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "CE: [API] Network error GET /api/v1/exams?: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input\n    at request (http://localhost:5191/src/services/api/client.ts?t=17838552842",
+        "CE: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "CE: [API] Network error GET /api/v1/exams?: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input\n    at request (http://localhost:5191/src/services/api/client.ts?t=17838552842",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o"
+      ],
+      "loadMs": 12515
+    },
+    {
+      "page": "reports",
+      "path": "/reports",
+      "isNew": false,
+      "buttonsFound": 3,
+      "buttonsClicked": 3,
+      "buttonsOk": 0,
+      "results": [
+        {
+          "selector": "button[visible]:nth(0)",
+          "text": "收起",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(1)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(2)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "no-handler"
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o"
+      ],
+      "loadMs": 11594
+    },
+    {
+      "page": "patients",
+      "path": "/patients",
+      "isNew": false,
+      "buttonsFound": 3,
+      "buttonsClicked": 3,
+      "buttonsOk": 1,
+      "results": [
+        {
+          "selector": "button[visible]:nth(0)",
+          "text": "收起",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(1)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(2)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o"
+      ],
+      "loadMs": 10122
+    },
+    {
+      "page": "appointments",
+      "path": "/appointments",
+      "isNew": false,
+      "buttonsFound": 3,
+      "buttonsClicked": 3,
+      "buttonsOk": 0,
+      "results": [
+        {
+          "selector": "button[visible]:nth(0)",
+          "text": "收起",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(1)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(2)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "no-handler"
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o"
+      ],
+      "loadMs": 9884
+    },
+    {
+      "page": "queue-call",
+      "path": "/queue-call",
+      "isNew": false,
+      "buttonsFound": 3,
+      "buttonsClicked": 3,
+      "buttonsOk": 0,
+      "results": [
+        {
+          "selector": "button[visible]:nth(0)",
+          "text": "收起",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(1)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(2)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "no-handler"
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Received NaN for the `%s` attribute. If this is expected, cast the value to a string.%s children \n    at div\n    at div\n    at div\n    at div\n    at div\n    at div\n    at main\n    at div\n    ",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o"
+      ],
+      "loadMs": 8540
+    },
+    {
+      "page": "dicom-viewer",
+      "path": "/dicom-viewer",
+      "isNew": false,
+      "buttonsFound": 21,
+      "buttonsClicked": 8,
+      "buttonsOk": 0,
+      "results": [
+        {
+          "selector": "button[visible]:nth(0)",
+          "text": "收起",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(1)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(2)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(3)",
+          "text": "返回经典版",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(4)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(5)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(6)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(7)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "no-handler"
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: <%s /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.%s Sun \n    at Sun\n    at button\n    at ToolButton (http://localhost:5191/src/components/",
+        "CE: Warning: The tag <%s> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.%s Sun \n    at Sun\n    at button\n    at ToolButton (http://loca",
+        "CE: Warning: <%s /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.%s Move \n    at Move\n    at button\n    at ToolButton (http://localhost:5191/src/component",
+        "CE: Warning: The tag <%s> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.%s Move \n    at Move\n    at button\n    at ToolButton (http://lo",
+        "CE: Warning: <%s /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.%s ZoomIn \n    at ZoomIn\n    at button\n    at ToolButton (http://localhost:5191/src/compo",
+        "CE: Warning: The tag <%s> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.%s ZoomIn \n    at ZoomIn\n    at button\n    at ToolButton (http:",
+        "CE: Warning: <%s /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.%s Ruler \n    at Ruler\n    at button\n    at ToolButton (http://localhost:5191/src/compone",
+        "CE: Warning: The tag <%s> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.%s Ruler \n    at Ruler\n    at button\n    at ToolButton (http://",
+        "CE: Warning: <%s /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.%s Triangle \n    at Triangle\n    at button\n    at ToolButton (http://localhost:5191/src/c",
+        "CE: Warning: The tag <%s> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.%s Triangle \n    at Triangle\n    at button\n    at ToolButton (h",
+        "CE: Warning: <%s /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.%s Circle \n    at Circle\n    at button\n    at ToolButton (http://localhost:5191/src/compo",
+        "CE: Warning: The tag <%s> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.%s Circle \n    at Circle\n    at button\n    at ToolButton (http:",
+        "CE: Warning: <%s /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.%s ArrowRight \n    at ArrowRight\n    at button\n    at ToolButton (http://localhost:5191/s",
+        "CE: Warning: The tag <%s> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.%s ArrowRight \n    at ArrowRight\n    at button\n    at ToolButto",
+        "CE: Warning: <%s /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.%s Type \n    at Type\n    at button\n    at ToolButton (http://localhost:5191/src/component",
+        "CE: Warning: The tag <%s> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.%s Type \n    at Type\n    at button\n    at ToolButton (http://lo",
+        "CE: Warning: <%s /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.%s Minus \n    at Minus\n    at button\n    at ToolButton (http://localhost:5191/src/compone",
+        "CE: Warning: The tag <%s> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.%s Minus \n    at Minus\n    at button\n    at ToolButton (http://",
+        "CE: [Cornerstone3D] init failed: SyntaxError: The requested module '/node_modules/.pnpm/@cornerstonejs+codec-libjpeg-turbo-8bit@1.2.2/node_modules/@cornerstonejs/codec-libjpeg-turbo-8bit/dist/libjpegturbo",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o"
+      ],
+      "loadMs": 16002
+    },
+    {
+      "page": "ai-assist",
+      "path": "/ai-assist",
+      "isNew": false,
+      "buttonsFound": 12,
+      "buttonsClicked": 8,
+      "buttonsOk": 4,
+      "results": [
+        {
+          "selector": "button[visible]:nth(0)",
+          "text": "收起",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(1)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(2)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(3)",
+          "text": "AI推荐诊断\n2",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(4)",
+          "text": "异常提示\n2",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        },
+        {
+          "selector": "button[visible]:nth(5)",
+          "text": "智能质控\n3",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        },
+        {
+          "selector": "button[visible]:nth(6)",
+          "text": "学习辅助",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        },
+        {
+          "selector": "button[visible]:nth(7)",
+          "text": "AI骨龄检测",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o"
+      ],
+      "loadMs": 11364
+    },
+    {
+      "page": "workflow-designer",
+      "path": "/workflow-designer",
+      "isNew": false,
+      "buttonsFound": 8,
+      "buttonsClicked": 8,
+      "buttonsOk": 3,
+      "results": [
+        {
+          "selector": "button[visible]:nth(0)",
+          "text": "收起",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(1)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(2)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(3)",
+          "text": "历史版本",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": true,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        },
+        {
+          "selector": "button[visible]:nth(4)",
+          "text": "激活",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": true,
+          "domChanged": true,
+          "error": "console:Warning: [antd: message] Static function can not consume context like dynamic theme. Please use 'App' component instead.",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(5)",
+          "text": "部署",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        },
+        {
+          "selector": "button[visible]:nth(6)",
+          "text": "保存",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": true,
+          "domChanged": true,
+          "error": "console:Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(7)",
+          "text": "新建步骤",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": true,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "CE: [API] GET /api/v1/workflow/definitions/WF001/steps failed: {success: false, error: Object}",
+        "CE: Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "CE: [API] GET /api/v1/workflow/definitions/WF001/steps failed: {success: false, error: Object}",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: [antd: message] Static function can not consume context like dynamic theme. Please use 'App' component instead.",
+        "CE: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "CE: [API] Network error PUT /api/v1/workflow/definitions/WF001: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input\n    at request (http://localhost:5191/src/services/api/cli"
+      ],
+      "loadMs": 12030
+    },
+    {
+      "page": "cosign",
+      "path": "/cosign",
+      "isNew": false,
+      "buttonsFound": 3,
+      "buttonsClicked": 3,
+      "buttonsOk": 0,
+      "results": [
+        {
+          "selector": "button[visible]:nth(0)",
+          "text": "收起",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(1)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(2)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "no-handler"
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o"
+      ],
+      "loadMs": 9092
+    },
+    {
+      "page": "dose-track",
+      "path": "/dose-track",
+      "isNew": false,
+      "buttonsFound": 25,
+      "buttonsClicked": 1,
+      "buttonsOk": 0,
+      "results": [
+        {
+          "selector": "button[visible]:nth(0)",
+          "text": "收起",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(1)",
+          "text": "",
+          "clicked": false,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "error": "locator.click: Timeout 2500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:visible').nth(1)\u001b[22m\n\u001b[2m    - locator resolved to <button aria-label=\"展开\">…</button>\u001b[22m\n\u001b[2m  - attempting cli",
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(2)",
+          "text": "",
+          "clicked": false,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "error": "locator.click: Timeout 2500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:visible').nth(2)\u001b[22m\n\u001b[2m    - locator resolved to <button aria-label=\"通知中心\">…</button>\u001b[22m\n\u001b[2m  - attempting c",
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(3)",
+          "text": "导出患者报表",
+          "clicked": false,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "error": "locator.click: Timeout 2500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:visible').nth(3)\u001b[22m\n\u001b[2m    - locator resolved to <button>…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b",
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(4)",
+          "text": "导出设备报表",
+          "clicked": false,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "error": "locator.click: Timeout 2500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:visible').nth(4)\u001b[22m\n\u001b[2m    - locator resolved to <button>…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b",
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(5)",
+          "text": "总览",
+          "clicked": false,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "error": "locator.click: Timeout 2500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:visible').nth(5)\u001b[22m\n\u001b[2m    - locator resolved to <button>总览</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n",
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(6)",
+          "text": "患者剂量",
+          "clicked": false,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "error": "locator.click: Timeout 2500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:visible').nth(6)\u001b[22m\n\u001b[2m    - locator resolved to <button>患者剂量</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22",
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(7)",
+          "text": "设备剂量",
+          "clicked": false,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "error": "locator.click: Timeout 2500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:visible').nth(7)\u001b[22m\n\u001b[2m    - locator resolved to <button>设备剂量</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22",
+          "category": "no-handler"
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o"
+      ],
+      "loadMs": 23408
+    },
+    {
+      "page": "regional-report",
+      "path": "/regional-report",
+      "isNew": false,
+      "buttonsFound": 24,
+      "buttonsClicked": 4,
+      "buttonsOk": 1,
+      "results": [
+        {
+          "selector": "button[visible]:nth(0)",
+          "text": "收起",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(1)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(2)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(3)",
+          "text": "设置",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        },
+        {
+          "selector": "button[visible]:nth(4)",
+          "text": "远程会诊",
+          "clicked": false,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "error": "locator.click: Timeout 2500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:visible').nth(4)\u001b[22m\n\u001b[2m    - locator resolved to <button>…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b",
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(5)",
+          "text": "报告审核",
+          "clicked": false,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "error": "locator.click: Timeout 2500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:visible').nth(5)\u001b[22m\n\u001b[2m    - locator resolved to <button>…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b",
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(6)",
+          "text": "危急值",
+          "clicked": false,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "error": "locator.click: Timeout 2500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:visible').nth(6)\u001b[22m\n\u001b[2m    - locator resolved to <button>…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b",
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(7)",
+          "text": "远程诊断",
+          "clicked": false,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "error": "locator.click: Timeout 2500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:visible').nth(7)\u001b[22m\n\u001b[2m    - locator resolved to <button>…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b",
+          "category": "no-handler"
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o"
+      ],
+      "loadMs": 18006
+    },
+    {
+      "page": "notification-ctr",
+      "path": "/notification-center",
+      "isNew": false,
+      "buttonsFound": 3,
+      "buttonsClicked": 3,
+      "buttonsOk": 0,
+      "results": [
+        {
+          "selector": "button[visible]:nth(0)",
+          "text": "收起",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(1)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(2)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "no-handler"
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "CE: [API] Network error GET /api/v1/notifications/history/current?limit=200: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input\n    at request (http://localhost:5191/src/ser",
+        "CE: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "CE: [API] Network error GET /api/v1/notifications/history/current?limit=200: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input\n    at request (http://localhost:5191/src/ser",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o"
+      ],
+      "loadMs": 7580
+    },
+    {
+      "page": "report-review",
+      "path": "/report-review",
+      "isNew": false,
+      "buttonsFound": 15,
+      "buttonsClicked": 8,
+      "buttonsOk": 3,
+      "results": [
+        {
+          "selector": "button[visible]:nth(0)",
+          "text": "收起",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(1)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(2)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(3)",
+          "text": "全部",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(4)",
+          "text": "初审",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        },
+        {
+          "selector": "button[visible]:nth(5)",
+          "text": "终审",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        },
+        {
+          "selector": "button[visible]:nth(6)",
+          "text": "签发",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        },
+        {
+          "selector": "button[visible]:nth(7)",
+          "text": "全屏预览",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "no-handler"
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o"
+      ],
+      "loadMs": 10636
+    },
+    {
+      "page": "qc",
+      "path": "/qc",
+      "isNew": false,
+      "buttonsFound": 34,
+      "buttonsClicked": 8,
+      "buttonsOk": 5,
+      "results": [
+        {
+          "selector": "button[visible]:nth(0)",
+          "text": "收起",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(1)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(2)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        },
+        {
+          "selector": "button[visible]:nth(3)",
+          "text": "报告质量评分",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(4)",
+          "text": "影像质量控制",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        },
+        {
+          "selector": "button[visible]:nth(5)",
+          "text": "超时报告统计",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        },
+        {
+          "selector": "button[visible]:nth(6)",
+          "text": "人工抽检",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        },
+        {
+          "selector": "button[visible]:nth(7)",
+          "text": "质控指标仪表盘",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "CE: [API] Network error GET /api/v1/exams?: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input\n    at request (http://localhost:5191/src/services/api/client.ts?t=17838552842",
+        "CE: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+        "CE: [API] Network error GET /api/v1/exams?: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input\n    at request (http://localhost:5191/src/services/api/client.ts?t=17838552842",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o"
+      ],
+      "loadMs": 11428
+    },
+    {
+      "page": "schedule",
+      "path": "/schedule",
+      "isNew": false,
+      "buttonsFound": 18,
+      "buttonsClicked": 4,
+      "buttonsOk": 1,
+      "results": [
+        {
+          "selector": "button[visible]:nth(0)",
+          "text": "收起",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(1)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(2)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(3)",
+          "text": "申请换班",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        },
+        {
+          "selector": "button[visible]:nth(4)",
+          "text": "节假日配置",
+          "clicked": false,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "error": "locator.click: Timeout 2500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:visible').nth(4)\u001b[22m\n\u001b[2m    - locator resolved to <button>…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b",
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(5)",
+          "text": "导出排班",
+          "clicked": false,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "error": "locator.click: Timeout 2500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:visible').nth(5)\u001b[22m\n\u001b[2m    - locator resolved to <button>…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b",
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(6)",
+          "text": "排班表",
+          "clicked": false,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "error": "locator.click: Timeout 2500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:visible').nth(6)\u001b[22m\n\u001b[2m    - locator resolved to <button>…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b",
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(7)",
+          "text": "节假日",
+          "clicked": false,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "error": "locator.click: Timeout 2500ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button:visible').nth(7)\u001b[22m\n\u001b[2m    - locator resolved to <button>…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b",
+          "category": "no-handler"
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o"
+      ],
+      "loadMs": 17711
+    },
+    {
+      "page": "audit-compliance",
+      "path": "/audit-compliance",
+      "isNew": false,
+      "buttonsFound": 10,
+      "buttonsClicked": 8,
+      "buttonsOk": 5,
+      "results": [
+        {
+          "selector": "button[visible]:nth(0)",
+          "text": "收起",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(1)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(2)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(3)",
+          "text": "Filter",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        },
+        {
+          "selector": "button[visible]:nth(4)",
+          "text": "Export",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        },
+        {
+          "selector": "button[visible]:nth(5)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": true,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        },
+        {
+          "selector": "button[visible]:nth(6)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": true,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        },
+        {
+          "selector": "button[visible]:nth(7)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": true,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: [antd: Statistic] `valueStyle` is deprecated. Please use `styles.content` instead.",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o"
+      ],
+      "loadMs": 11946
+    },
+    {
+      "page": "sys-audit",
+      "path": "/system/audit",
+      "isNew": true,
+      "buttonsFound": 6,
+      "buttonsClicked": 6,
+      "buttonsOk": 3,
+      "results": [
+        {
+          "selector": "button[visible]:nth(0)",
+          "text": "收起",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(1)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(2)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(3)",
+          "text": "刷新",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        },
+        {
+          "selector": "button[visible]:nth(4)",
+          "text": "查 询",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        },
+        {
+          "selector": "button[visible]:nth(5)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o"
+      ],
+      "loadMs": 9166
+    },
+    {
+      "page": "sys-backup",
+      "path": "/system/backup",
+      "isNew": true,
+      "buttonsFound": 16,
+      "buttonsClicked": 6,
+      "buttonsOk": 4,
+      "results": [
+        {
+          "selector": "button[visible]:nth(0)",
+          "text": "收起",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(1)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(2)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(3)",
+          "text": "刷新",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        },
+        {
+          "selector": "button[visible]:nth(4)",
+          "text": "下载",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        },
+        {
+          "selector": "button[visible]:nth(5)",
+          "text": "恢复",
+          "clicked": false,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "ok"
+        },
+        {
+          "selector": "button[visible]:nth(6)",
+          "text": "下载",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(7)",
+          "text": "恢复",
+          "clicked": false,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "ok"
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o"
+      ],
+      "loadMs": 9176
+    },
+    {
+      "page": "sys-tenant-config",
+      "path": "/system/tenant-config",
+      "isNew": true,
+      "buttonsFound": 4,
+      "buttonsClicked": 4,
+      "buttonsOk": 1,
+      "results": [
+        {
+          "selector": "button[visible]:nth(0)",
+          "text": "收起",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(1)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "error": "console:Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated ",
+          "category": "throw"
+        },
+        {
+          "selector": "button[visible]:nth(2)",
+          "text": "",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": false,
+          "category": "no-handler"
+        },
+        {
+          "selector": "button[visible]:nth(3)",
+          "text": "刷新",
+          "clicked": true,
+          "urlChanged": false,
+          "modalOpened": false,
+          "drawerOpened": false,
+          "toastShown": false,
+          "domChanged": true,
+          "category": "ok"
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead.",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: [antd: Alert] `message` is deprecated. Please use `title` instead.",
+        "CE: Warning: [antd: Statistic] `valueStyle` is deprecated. Please use `styles.content` instead.",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o",
+        "CE: Warning: Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or o"
+      ],
+      "loadMs": 7428
+    }
+  ]
+}

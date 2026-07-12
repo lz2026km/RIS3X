@@ -1,0 +1,680 @@
+{
+  "version": "3.0.6.11-21",
+  "timestamp": "2026-07-12T11:56:11.790Z",
+  "antdVersion": "6.5.0",
+  "total": 30,
+  "okPages": 30,
+  "components": {
+    "modal": 0,
+    "drawer": 0,
+    "form": 0,
+    "button": 0,
+    "card": 0
+  },
+  "totalPageErrors": 0,
+  "totalConsoleErrors": 30,
+  "totalConsoleWarnings": 60,
+  "totalDeprecatedWarnings": 30,
+  "pages": [
+    {
+      "route": "/",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 4974
+    },
+    {
+      "route": "/worklist",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 4774
+    },
+    {
+      "route": "/worklist/worklist-list",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 4898
+    },
+    {
+      "route": "/reports",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 5025
+    },
+    {
+      "route": "/reports/v3-write",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 4823
+    },
+    {
+      "route": "/write-report",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 5176
+    },
+    {
+      "route": "/critical-value",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 4806
+    },
+    {
+      "route": "/patients",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 4856
+    },
+    {
+      "route": "/appointments",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 4843
+    },
+    {
+      "route": "/schedule",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 4824
+    },
+    {
+      "route": "/devices",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 4829
+    },
+    {
+      "route": "/consultation",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 4750
+    },
+    {
+      "route": "/qc",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 4696
+    },
+    {
+      "route": "/qc-dashboard",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 4705
+    },
+    {
+      "route": "/qc-image",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 4792
+    },
+    {
+      "route": "/qc-radiologist-annual",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 4807
+    },
+    {
+      "route": "/dicom-viewer",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 4852
+    },
+    {
+      "route": "/print-management",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 4915
+    },
+    {
+      "route": "/template-management",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 4865
+    },
+    {
+      "route": "/template-designer",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 4886
+    },
+    {
+      "route": "/user-management",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 5207
+    },
+    {
+      "route": "/report-review",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 4795
+    },
+    {
+      "route": "/report-revisions",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 5257
+    },
+    {
+      "route": "/report-export",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 4938
+    },
+    {
+      "route": "/report-delivery",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 5317
+    },
+    {
+      "route": "/cosign",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 4921
+    },
+    {
+      "route": "/research",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 5508
+    },
+    {
+      "route": "/equipment-efficiency",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 4822
+    },
+    {
+      "route": "/regional-report",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 5085
+    },
+    {
+      "route": "/finding-library",
+      "ok": true,
+      "textLen": 168,
+      "hasModal": false,
+      "hasDrawer": false,
+      "hasForm": false,
+      "hasButton": false,
+      "hasCard": false,
+      "pageErrors": [],
+      "consoleErrors": [
+        "CE: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "consoleWarnings": [
+        "CW: ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more informa",
+        "CW: ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see http"
+      ],
+      "deprecatedWarnings": [
+        "DEP: Warning: [antd: Space] `direction` is deprecated. Please use `orientation` instead."
+      ],
+      "loadMs": 4928
+    }
+  ]
+}

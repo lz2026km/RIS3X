@@ -102,7 +102,8 @@ function getPeriodKey(date: string, granularity: Granularity): string {
 }
 
 function applyDateFilter(period: string, granularity: Granularity, filters: Array<{ dimension: string; operator: string; value: unknown }>): boolean {
-  const dateFilter = filters?.find((f) => f.dimension === 'date' && f.operator === 'between');
+  const safeFilters = Array.isArray(filters) ? filters : [];
+  const dateFilter = safeFilters.find((f) => f && f.dimension === 'date' && f.operator === 'between');
   if (!dateFilter || !Array.isArray(dateFilter.value)) return true;
   const [start, end] = dateFilter.value as [string, string];
   if (granularity === 'monthly') {

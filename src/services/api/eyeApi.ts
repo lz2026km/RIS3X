@@ -1,9 +1,12 @@
 // [v3.0.6.8-83] 眼科 API client (统一封装)
 // 对标: Topcon Synergy + Medisoft mediSIGHT + Zeiss FORUM + Heidelberg Eye Suite
 // v3.0.6.11: 路径已对齐 mockBackend/eyeHandlers.ts (pacs / emr / ai / report)
+// v3.0.6.11-21 P0: 移除冗余 `/api/v1` 前缀(由 client.ts API_BASE 在 mock 模式提供)。
+//   修复前: client BASE=/api/v1 + path=/api/v1/eye/... => /api/v1/api/v1/eye/... 不匹配 MSW
+//   修复后: client BASE=/api/v1 + path=/eye/...        => /api/v1/eye/... 匹配 MSW
 import { api } from './client';
 
-const EYE_API = '/api/v1/eye';
+const EYE_API = '/eye';
 
 export interface EyeStudy {
   id: string;

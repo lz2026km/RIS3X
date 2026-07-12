@@ -110,7 +110,11 @@ export const MprViewerPage: React.FC = () => {
       {/* MPR Grid: 3 views */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', height: 'calc(100vh - 50px)' }}>
         {(['Axial', 'Sagittal', 'Coronal'] as const).map(plane => (
-          <div key={plane} style={{ position: 'relative', border: activePlane === plane ? '1px solid #00ff88' : '1px solid #222' }}
+          <div key={plane} role="button" tabIndex={0}
+            aria-label={`${MODALITY_LABELS[plane]} 视图`}
+            aria-pressed={activePlane === plane}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActivePlane(plane) } }}
+            style={{ position: 'relative', border: activePlane === plane ? '1px solid #00ff88' : '1px solid #222', cursor: 'pointer' }}
             onClick={() => setActivePlane(plane)}>
             <div style={{ position: 'absolute', top: 4, left: 8, color: '#00ff88', fontSize: 12, fontWeight: 600, zIndex: 2 }}>
               {MODALITY_LABELS[plane]}
@@ -118,6 +122,7 @@ export const MprViewerPage: React.FC = () => {
             </div>
             <canvas ref={plane === 'Axial' ? axialRef : plane === 'Sagittal' ? sagittalRef : coronalRef}
               width={512} height={512} style={{ width: '100%', height: '100%', cursor: 'pointer', imageRendering: 'pixelated' }}
+              aria-label={`${MODALITY_LABELS[plane]} 切片画布`}
               onClick={(e) => {
                 const rect = e.currentTarget.getBoundingClientRect();
                 const x = Math.floor((e.clientX - rect.left) / rect.width * 512);
@@ -129,8 +134,8 @@ export const MprViewerPage: React.FC = () => {
               WW: {ww} WC: {wc}
             </div>
             <div style={{ position: 'absolute', bottom: 4, right: 8, display: 'flex', gap: 4 }}>
-              <Button size="small" icon={<ChevronLeft size={10} />} onClick={(e) => { e.stopPropagation(); changeSlice(plane, -1); }} />
-              <Button size="small" icon={<ChevronRight size={10} />} onClick={(e) => { e.stopPropagation(); changeSlice(plane, 1); }} />
+              <Button size="small" aria-label={`${MODALITY_LABELS[plane]}-上一张`} icon={<ChevronLeft size={10} />} onClick={(e) => { e.stopPropagation(); changeSlice(plane, -1); }} />
+              <Button size="small" aria-label={`${MODALITY_LABELS[plane]}-下一张`} icon={<ChevronRight size={10} />} onClick={(e) => { e.stopPropagation(); changeSlice(plane, 1); }} />
             </div>
           </div>
         ))}

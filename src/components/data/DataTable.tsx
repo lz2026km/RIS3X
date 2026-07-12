@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useMemo, type ReactNode, type CSSProperties, type KeyboardEvent } from 'react'
+import { useState, useRef, useCallback, useMemo, useEffect, type ReactNode, type CSSProperties, type KeyboardEvent } from 'react'
 import { Checkbox, Button, Dropdown, Space, Input, Badge } from 'antd'
 import type { CheckboxChangeEvent } from 'antd/es/checkbox'
 import { Download, Columns, ChevronDown, ChevronUp, GripVertical, X, FileSpreadsheet, Trash2, Check } from 'lucide-react'
@@ -70,8 +70,10 @@ export function DataTable<T extends Record<string, unknown> = Record<string, unk
   height = 600,
 }: DataTableProps<T>) {
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set())
-  const [visibleColumns, setVisibleColumns] = useState<Set<string>>(new Set(columns.map((c) => c.key)))
-  const [columnOrder, setColumnOrder] = useState<string[]>(columns.map((c) => c.key))
+  const [visibleColumns, setVisibleColumns] = useState<Set<string>>(
+    () => new Set(columns.map((c) => c.key)),
+  )
+  const [columnOrder, setColumnOrder] = useState<string[]>(() => columns.map((c) => c.key))
   const [editingCell, setEditingCell] = useState<{ row: string; col: string } | null>(null)
   const [editValue, setEditValue] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
@@ -84,8 +86,19 @@ export function DataTable<T extends Record<string, unknown> = Record<string, unk
   const pageData = dataSource.slice(startIndex, startIndex + pageSize)
   const frozenCount = columns.filter((c) => c.frozen).length
 
+  // columns prop 变化时同步内部 columnOrder 与 visibleColumns
+  useEffect(() => {
+    const keys = columns.map((c) => c.key);
+    setColumnOrder(keys);
+    setVisibleColumns(new Set(keys));
+  }, [columns]);
+
   const visibleCols = useMemo(
-    () => columnOrder.filter((k) => visibleColumns.has(k)).map((k) => columns.find((c) => c.key === k)!),
+    () =>
+      columnOrder
+        .filter((k) => visibleColumns.has(k))
+        .map((k) => columns.find((c) => c.key === k))
+        .filter((c): c is DataTableColumn<T> => Boolean(c)),
     [columnOrder, visibleColumns, columns],
   )
 

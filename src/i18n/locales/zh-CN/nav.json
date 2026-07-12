@@ -267,5 +267,11 @@
   "dimseUpload": "DIMSE 上传",
   "aiCad": "AI 阅片助手",
   "teleConference": "远程实时阅片",
-  "radpathTracker": "Rad-Path 一致性追踪"
+  "radpathTracker": "Rad-Path 一致性追踪",
+  "dicomVolume": "3D 体绘制",
+  "teachLecture": "教学讲座",
+  "oeDashboard": "OEE 看板",
+  "roomOccupancy": "检查室占用率",
+  "benchmarkCompare": "报表同比环比",
+  "aiDiagnosisAccuracy": "AI 准确率仪表盘"
 }

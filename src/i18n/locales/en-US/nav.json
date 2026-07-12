@@ -267,5 +267,11 @@
   "dimseUpload": "DIMSE Upload",
   "aiCad": "AI Reading Assistant",
   "teleConference": "Tele-Conference",
-  "radpathTracker": "Rad-Path Consistency"
+  "radpathTracker": "Rad-Path Consistency",
+  "dicomVolume": "3D Volume Rendering",
+  "teachLecture": "Teaching Lecture",
+  "oeDashboard": "OEE Dashboard",
+  "roomOccupancy": "Room Occupancy",
+  "benchmarkCompare": "Benchmark Compare",
+  "aiDiagnosisAccuracy": "AI Diagnosis Accuracy"
 }

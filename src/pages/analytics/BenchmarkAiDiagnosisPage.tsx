@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import dayjs, { type Dayjs } from 'dayjs'
 import { Card, Row, Col, Statistic, DatePicker, Spin, Select, Space } from 'antd'
 import { Cpu, TrendingUp, Activity, Target } from 'lucide-react'
 
@@ -11,6 +12,10 @@ interface AccuracyData {
   npv: number
   accuracy: number
   totalCases: number
+  aiPositive?: number
+  aiNegative?: number
+  physicianPositive?: number
+  physicianNegative?: number
 }
 
 interface TrendPoint {
@@ -25,7 +30,7 @@ function rand(min: number, max: number): number {
   return Math.round((Math.random() * (max - min) + min) * 100) / 100
 }
 
-import { v3AiAssistApi } from '../../services/api/v3Api'
+import { v3AiPlatformApi } from '../../services/api/v3Api'
 
 function AccuracyGauge({ label, value, color }: { label: string; value: number; color: string }) {
   const radius = 50
@@ -104,7 +109,7 @@ export default function BenchmarkAiDiagnosisPage() {
       <div style={{ marginBottom: 16 }}>
         <RangePicker
           size="small"
-          value={[dateRange[0] ? new Date(dateRange[0]) : null, dateRange[1] ? new Date(dateRange[1]) : null] as any}
+          value={[dateRange[0] ? dayjs(dateRange[0]) : null, dateRange[1] ? dayjs(dateRange[1]) : null] as [Dayjs | null, Dayjs | null]}
           onChange={(dates) => {
             if (dates?.[0] && dates?.[1]) {
               setDateRange([dates[0].format('YYYY-MM-DD'), dates[1].format('YYYY-MM-DD')])
@@ -160,7 +165,7 @@ export default function BenchmarkAiDiagnosisPage() {
 
         <Card
           title={<Space><TrendingUp size={16} /> AI 准确率趋势</Space>}
-          bordered={false}
+          variant="borderless"
           style={{ borderRadius: 12 }}
         >
           {trend.length > 1 ? (

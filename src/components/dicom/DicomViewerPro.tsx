@@ -6,11 +6,24 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   ChevronLeft, ChevronRight, Maximize2, Minimize2, Eye, Grid3X3,
-  Crosshair, RotateCcw, Trash2, } from 'lucide-react';
+  Crosshair, RotateCcw, Trash2,
+  Sun, Move, ZoomIn, Ruler, Triangle, Circle, ArrowRight, Type, Minus, Layers,
+} from 'lucide-react';
 import { useCornerstone3D, useViewport, useDicomMetadata } from '../../hooks/useCornerstone';
 import { WINDOW_PRESETS_LIST } from '../../services/dicomWeb';
 import { DICOM_SAMPLES, DicomSample } from '../../data/dicomSamples';
 import { TOOLS, ToolType, DicomMeasurement, createMeasurement, calculateLength, calculateAngle, calculateCobbAngle } from './tools';
+
+// 将 tools.ts 中的字符串 icon 名称映射为 lucide 组件
+const ICON_MAP: Record<string, React.ComponentType<any>> = {
+  Sun, Move, ZoomIn, Ruler, Triangle, Circle, ArrowRight, Type, Minus, Layers,
+};
+
+function ToolIcon({ name, size = 14, color }: { name: string; size?: number; color?: string }) {
+  const IconComp = ICON_MAP[name];
+  if (!IconComp) return null;
+  return <IconComp size={size} color={color} />;
+}
 
 export interface DicomViewerProProps {
   studyId?: string;
@@ -569,7 +582,11 @@ function ToolButton({ icon: Icon, active, onClick, title }: { icon: any; active:
         background: active ? '#1e40af' : 'transparent',
       }}
     >
-      <Icon size={14} color={active ? '#fff' : '#94a3b8'} />
+      {typeof Icon === 'string' ? (
+        <ToolIcon name={Icon} size={14} color={active ? '#fff' : '#94a3b8'} />
+      ) : (
+        <Icon size={14} color={active ? '#fff' : '#94a3b8'} />
+      )}
     </button>
   );
 }

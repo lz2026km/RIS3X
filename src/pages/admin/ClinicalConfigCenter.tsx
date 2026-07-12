@@ -6,23 +6,27 @@
 import React, { useState } from "react";
 import { Card, Tabs, Table, Tag, Space, Typography, Empty, Statistic, Row, Col, Alert } from "antd";
 import { Sliders, Database } from "lucide-react";
-import { listModules, getConfig, type ModuleKey } from "@/config/clinicalConfig/bootstrap";
+import { listModules, getConfig, getBootError, type ModuleKey } from "@/config/clinicalConfig/bootstrap";
 import { PageContainer, PageHeader } from "@/components/common";
 
 const { Text, Paragraph } = Typography;
 
 /** 拿到一个模块的当前内容 (in-memory cache) */
 function readModule(key: ModuleKey): unknown {
-  const cache = getConfig();
-  switch (key) {
-    case "gradingScales": return cache.gradingScales;
-    case "aiModels": return cache.aiModels;
-    case "imagingDevices": return cache.imagingDevices;
-    case "kpiThresholds": return cache.kpiThresholds;
-    case "reportTemplates": return cache.reportTemplates;
-    case "findingsLexicon": return cache.findingsLexicon;
-    case "iolFormulas": return cache.iolFormulas;
-    default: { const _: never = key; return undefined; }
+  try {
+    const cache = getConfig();
+    switch (key) {
+      case "gradingScales": return cache.gradingScales;
+      case "aiModels": return cache.aiModels;
+      case "imagingDevices": return cache.imagingDevices;
+      case "kpiThresholds": return cache.kpiThresholds;
+      case "reportTemplates": return cache.reportTemplates;
+      case "findingsLexicon": return cache.findingsLexicon;
+      case "iolFormulas": return cache.iolFormulas;
+      default: { const _: never = key; return undefined; }
+    }
+  } catch {
+    return null;
   }
 }
 
@@ -72,6 +76,26 @@ function summarize(key: ModuleKey, data: any): { count: number; sample: any } {
 const ClinicalConfigCenter: React.FC = () => {
   const modules = listModules();
   const [activeKey, setActiveKey] = useState<ModuleKey>(modules[0]?.id as ModuleKey);
+  const bootError = getBootError();
+
+  // 当配置尚未加载完成或加载失败时,渲染占位/错误,不抛出
+  if (bootError) {
+    return (
+      <PageContainer background="slate" maxWidth="full" padding={16} testId="clinical-config-center">
+        <PageHeader
+          title="临床配置中心"
+          icon={<Sliders size={24} color="#ff4d4f" />}
+          variant="inline"
+        />
+        <Alert
+          type="error"
+          showIcon
+          message="Clinical Configuration 加载失败"
+          description={bootError.message}
+        />
+      </PageContainer>
+    );
+  }
 
   const items = modules.map((m) => {
     const data = readModule(m.id as ModuleKey);
@@ -108,7 +132,9 @@ const ClinicalConfigCenter: React.FC = () => {
               description={<Text code style={{ fontSize: 12 }}>{m.defaultPath}</Text>}
             />
 
-            {sample !== null && sample !== undefined ? (
+            {data === null ? (
+              <Empty description="此模块暂未加载,请等待启动加载完成" />
+            ) : sample !== null && sample !== undefined ? (
               <Card size="small" title="摘要 (sample)">
                 <pre style={{ background: "#f5f5f5", padding: 12, borderRadius: 4, overflow: "auto", maxHeight: 240 }}>
                   {JSON.stringify(sample, null, 2)}
