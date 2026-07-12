@@ -61,5 +61,22 @@
   "shortcutAltT": "Alt+T Template",
   "shortcutAltP": "Alt+P Phrase Bank",
   "shortcutAltH": "Alt+H History",
-  "shortcutEsc": "Esc Close"
+  "shortcutEsc": "Esc Close",
+  "volumeViewer": "3D Volume Viewer",
+  "volumeMip": "Maximum Intensity Projection",
+  "volumeMpr": "Multi-Planar Reconstruction",
+  "volumeVr": "Volume Rendering",
+  "volumeWw": "Window Width",
+  "volumeWc": "Window Level",
+  "volumeOpacity": "Opacity",
+  "volumeBrightness": "Brightness",
+  "volumeReset": "Reset",
+  "volumeReconstruct": "Reconstruct",
+  "volumeReconstructing": "Reconstructing",
+  "volumeSeries": "Series",
+  "volumeCoord": "Coordinate",
+  "volumeAxial": "Axial",
+  "volumeSagittal": "Sagittal",
+  "volumeCoronal": "Coronal",
+  "volumeCompleted": "Volume reconstruction completed"
 }

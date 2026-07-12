@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import { getCurrentTenantId } from '../common/interceptors/tenant-context.interceptor'
 
 @Injectable()
 export class DeviceMgmtService {
@@ -41,7 +42,7 @@ export class DeviceMgmtService {
   }
 
   async reportDeviceFault(body: any) {
-    const data = await this.prisma.auditLog.create({ data: { action: 'REPORT', resource: 'device-fault', detail: body } })
+    const data = await this.prisma.auditLog.create({ data: { action: 'REPORT', resource: 'device-fault', detail: body, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
 
@@ -51,7 +52,7 @@ export class DeviceMgmtService {
   }
 
   async addMaterial(body: any) {
-    const data = await this.prisma.auditLog.create({ data: { action: 'ADD', resource: 'device-material', detail: body } })
+    const data = await this.prisma.auditLog.create({ data: { action: 'ADD', resource: 'device-material', detail: body, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
 
@@ -61,7 +62,7 @@ export class DeviceMgmtService {
   }
 
   async recordDose(body: any) {
-    const data = await this.prisma.auditLog.create({ data: { action: 'RECORD', resource: 'dose-tracking', detail: body } })
+    const data = await this.prisma.auditLog.create({ data: { action: 'RECORD', resource: 'dose-tracking', detail: body, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
 
@@ -71,7 +72,7 @@ export class DeviceMgmtService {
   }
 
   async reportAdverseReaction(body: any) {
-    const data = await this.prisma.adverseEvent.create({ data: body })
+    const data = await this.prisma.adverseEvent.create({ data: { ...body, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
 

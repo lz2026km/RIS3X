@@ -551,3 +551,5 @@ export interface IheConnectathonSession {
   totalCount: number;
   systemUnderTest: { id: string; name: string; vendor: string; version: string };
 }
+
+export type PamResult = any;

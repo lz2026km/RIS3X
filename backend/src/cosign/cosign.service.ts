@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import { getCurrentTenantId } from '../common/interceptors/tenant-context.interceptor'
 
 @Injectable()
 export class CosignService {
@@ -16,12 +17,12 @@ export class CosignService {
   }
 
   async approveCosign(body: any) {
-    const data = await this.prisma.auditLog.create({ data: { action: 'APPROVE', resource: 'cosign', detail: body, success: true } })
+    const data = await this.prisma.auditLog.create({ data: { action: 'APPROVE', resource: 'cosign', detail: body, success: true, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
 
   async rejectCosign(body: any) {
-    const data = await this.prisma.auditLog.create({ data: { action: 'REJECT', resource: 'cosign', detail: body, success: false } })
+    const data = await this.prisma.auditLog.create({ data: { action: 'REJECT', resource: 'cosign', detail: body, success: false, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
 

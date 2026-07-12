@@ -280,3 +280,4 @@ export interface BenchmarkGap {
   deltaPercent: number;   // (ours-benchmark)/benchmark * 100
   status: 'exceeds' | 'meets' | 'lags' | 'critical';
 }
+export type DashboardWidget = any;

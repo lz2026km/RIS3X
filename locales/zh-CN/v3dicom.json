@@ -61,5 +61,22 @@
   "shortcutAltT": "Alt+T 模板",
   "shortcutAltP": "Alt+P 短语库",
   "shortcutAltH": "Alt+H 历史",
-  "shortcutEsc": "Esc 关闭"
+  "shortcutEsc": "Esc 关闭",
+  "volumeViewer": "3D 体绘制查看器",
+  "volumeMip": "最大密度投影",
+  "volumeMpr": "多平面重建",
+  "volumeVr": "体绘制",
+  "volumeWw": "窗宽",
+  "volumeWc": "窗位",
+  "volumeOpacity": "透明度",
+  "volumeBrightness": "亮度",
+  "volumeReset": "复位",
+  "volumeReconstruct": "重建",
+  "volumeReconstructing": "重建中",
+  "volumeSeries": "序列",
+  "volumeCoord": "坐标",
+  "volumeAxial": "轴位",
+  "volumeSagittal": "矢状",
+  "volumeCoronal": "冠状",
+  "volumeCompleted": "体数据重建完成"
 }

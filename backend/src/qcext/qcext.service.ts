@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import { getCurrentTenantId } from '../common/interceptors/tenant-context.interceptor'
 
 @Injectable()
 export class QcExtService {
@@ -48,7 +49,7 @@ export class QcExtService {
   }
 
   async reportQcDefect(body: any) {
-    const data = await this.prisma.auditLog.create({ data: { action: 'REPORT', resource: 'qc-defect', detail: body } })
+    const data = await this.prisma.auditLog.create({ data: { action: 'REPORT', resource: 'qc-defect', detail: body, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
 

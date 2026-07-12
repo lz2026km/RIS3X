@@ -29,6 +29,7 @@ async function main(): Promise<void> {
         fullName: u.fullName,
         role: u.role,
         department: u.department,
+        tenantId: 'default',
       },
     })
   }
@@ -41,7 +42,7 @@ async function main(): Promise<void> {
     { code: 'DR-003', name: 'Philips DigitalDiagnost', modality: 'DR', manufacturer: 'Philips', location: 'DR 室 3', state: DeviceState.MAINTENANCE },
   ]
   for (const d of devices) {
-    await prisma.device.upsert({ where: { code: d.code }, update: {}, create: d })
+    await prisma.device.upsert({ where: { code: d.code }, update: {}, create: { ...d, tenantId: 'default' } })
   }
   console.log(`[seed] ${devices.length} devices upserted`)
 
@@ -54,7 +55,7 @@ async function main(): Promise<void> {
   const createdPatients = []
   for (const p of patients) {
     const found = await prisma.patient.findFirst({ where: { name: p.name, phone: p.phone } })
-    const pt = found ?? (await prisma.patient.create({ data: p }))
+    const pt = found ?? (await prisma.patient.create({ data: { ...p, tenantId: 'default' } }))
     createdPatients.push(pt)
   }
   console.log(`[seed] ${createdPatients.length} patients`)
@@ -78,6 +79,7 @@ async function main(): Promise<void> {
         deviceId: ctDevice.id,
         scheduledAt: new Date(Date.now() - i * 86400000),
         state: 'COMPLETED',
+        tenantId: 'default',
       },
     })
     const report = await prisma.report.findFirst({ where: { examId: exam.id } })
@@ -93,6 +95,7 @@ async function main(): Promise<void> {
           signedAt: i === 0 ? new Date() : null,
           isCritical: i === 4,
           qualityScore: 80 + i,
+          tenantId: 'default',
         },
       })
     }
@@ -108,6 +111,7 @@ async function main(): Promise<void> {
         state: i < 2 ? CriticalState.ACKNOWLEDGED : CriticalState.FOUND,
         method: NotificationMethod.PHONE,
         notifiedTo: 'doctor_wang',
+        tenantId: 'default',
       },
     })
   }
@@ -123,6 +127,7 @@ async function main(): Promise<void> {
         modality: 'CT',
         scheduledAt: new Date(Date.now() + i * 3600000),
         state: i === 0 ? AppointmentState.SCHEDULED : AppointmentState.COMPLETED,
+        tenantId: 'default',
       },
     })
   }
@@ -140,7 +145,7 @@ async function main(): Promise<void> {
     await prisma.radsTemplate.upsert({
       where: { id: `${r.category}_${r.code}`.replace(/\s+/g, '_') },
       update: {},
-      create: { id: `${r.category}_${r.code}`.replace(/\s+/g, '_'), ...r },
+      create: { id: `${r.category}_${r.code}`.replace(/\s+/g, '_'), ...r, tenantId: 'default' },
     })
   }
   console.log('[seed] 5 RADS templates')

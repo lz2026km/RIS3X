@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import { getCurrentTenantId } from '../common/interceptors/tenant-context.interceptor'
 
 export interface CreateTemplateDto {
   name: string
@@ -36,7 +37,7 @@ export class TemplatesService {
   }
 
   async create(dto: CreateTemplateDto) {
-    return this.prisma.reportTemplate.create({ data: dto })
+    return this.prisma.reportTemplate.create({ data: { ...dto, tenantId: getCurrentTenantId() } })
   }
 
   async update(id: string, dto: { name?: string; category?: string; bodyPart?: string; body?: string; tags?: string[] }) {
@@ -66,6 +67,7 @@ export class TemplatesService {
         tags: original.tags,
         createdById: original.createdById,
         version: 1,
+        tenantId: getCurrentTenantId(),
       },
     })
   }

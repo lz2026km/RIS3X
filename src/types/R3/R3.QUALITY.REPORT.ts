@@ -215,3 +215,5 @@ export function isQuarterlyReport(r: unknown): r is QuarterlyQualityReport {
 export function isAnnualReport(r: unknown): r is AnnualQualityReport {
   return typeof r === 'object' && r !== null && 'yearOverYear' in r && 'annualTargets' in r;
 }
+
+export type QualityKPI = any;

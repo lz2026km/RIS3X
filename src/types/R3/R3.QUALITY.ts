@@ -250,3 +250,6 @@ export interface QualityScoringConfig {
   useAcr: boolean;
   useRSNA: boolean;
 }
+
+export type QuarterlyQualityReport = any;
+export type AnnualQualityReport = any;

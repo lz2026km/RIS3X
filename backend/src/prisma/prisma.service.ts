@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common'
+﻿import { Injectable, OnModuleInit } from '@nestjs/common'
 import { PrismaClient } from '@prisma/client'
 import { getCurrentTenantId } from '../common/interceptors/tenant-context.interceptor'
 import { dbConnectionErrorsCounter } from '../observability/metrics.factory'
@@ -23,34 +23,31 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
   }
 }
 
-export const createPrismaWithTenant = () => {
-  const prisma = new PrismaClient()
-  return prisma.$extends({
+export const createPrismaWithTenant = (client: PrismaClient) => {
+  return client.$extends({
     query: {
       $allModels: {
         async $allOperations({ model, operation, args, query }) {
           const tenantId = getCurrentTenantId()
           if (!tenantId) return query(args)
 
-          if (operation === 'create' || operation === 'createMany') {
-            if (args.data) {
-              const data = args.data as Record<string, unknown>
-              if (!data['tenantId']) data['tenantId'] = tenantId
+          const a = args as Record<string, any>
+
+          if (operation === 'create') {
+            if (a.data && !a.data['tenantId']) a.data['tenantId'] = tenantId
+          } else if (operation === 'createMany') {
+            if (a.data && Array.isArray(a.data)) {
+              for (const item of a.data) {
+                if (!item['tenantId']) item['tenantId'] = tenantId
+              }
             }
-          }
-
-          if (operation === 'findUnique' || operation === 'findFirst' || operation === 'findMany' || operation === 'count' || operation === 'aggregate') {
-            args.where = { ...args.where, tenantId }
-          }
-
-          if (operation === 'update' || operation === 'updateMany' || operation === 'delete' || operation === 'deleteMany') {
-            args.where = { ...args.where, tenantId }
-          }
-
-          if (operation === 'upsert') {
-            args.where = { ...args.where, tenantId }
-            const createData = args.create as Record<string, unknown>
-            if (createData && !createData['tenantId']) createData['tenantId'] = tenantId
+          } else if (['findUnique', 'findFirst', 'findMany', 'count', 'aggregate'].includes(operation)) {
+            a.where = { ...a.where, tenantId }
+          } else if (['update', 'updateMany', 'delete', 'deleteMany'].includes(operation)) {
+            a.where = { ...a.where, tenantId }
+          } else if (operation === 'upsert') {
+            a.where = { ...a.where, tenantId }
+            if (a.create && !a.create['tenantId']) a.create['tenantId'] = tenantId
           }
 
           return query(args)

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
+import { getCurrentTenantId } from '../../common/interceptors/tenant-context.interceptor'
 
 @Injectable()
 export class AuditService {
@@ -15,7 +16,7 @@ export class AuditService {
     userAgent?: string
     success?: boolean
   }) {
-    return this.prisma.auditLog.create({ data: params })
+    return this.prisma.auditLog.create({ data: { ...params, tenantId: getCurrentTenantId() } })
   }
 
   async list(query: {

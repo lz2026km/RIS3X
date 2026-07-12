@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { PrismaService } from '../prisma/prisma.service'
+import { getCurrentTenantId } from '../common/interceptors/tenant-context.interceptor'
 
 @Injectable()
 export class CaService {
@@ -12,17 +13,17 @@ export class CaService {
   }
 
   async uploadCertificate(body: any) {
-    const data = await this.prisma.auditLog.create({ data: { action: 'UPLOAD', resource: 'ca-certificate', detail: body ?? {} } })
+    const data = await this.prisma.auditLog.create({ data: { action: 'UPLOAD', resource: 'ca-certificate', detail: body ?? {}, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
 
   async revokeCertificate(id: string) {
-    const data = await this.prisma.auditLog.create({ data: { action: 'REVOKE', resource: 'ca-certificate', resourceId: id } })
+    const data = await this.prisma.auditLog.create({ data: { action: 'REVOKE', resource: 'ca-certificate', resourceId: id, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
 
   async signDocument(body: any) {
-    const data = await this.prisma.auditLog.create({ data: { action: 'SIGN', resource: 'ca-document', detail: body ?? {} } })
+    const data = await this.prisma.auditLog.create({ data: { action: 'SIGN', resource: 'ca-document', detail: body ?? {}, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
 
@@ -32,7 +33,7 @@ export class CaService {
   }
 
   async verifySignature(body: any) {
-    const data = await this.prisma.auditLog.create({ data: { action: 'VERIFY', resource: 'ca-signature', detail: body ?? {} } })
+    const data = await this.prisma.auditLog.create({ data: { action: 'VERIFY', resource: 'ca-signature', detail: body ?? {}, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
 

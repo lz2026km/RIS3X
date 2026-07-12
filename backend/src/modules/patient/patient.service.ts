@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
+import { getCurrentTenantId } from '../../common/interceptors/tenant-context.interceptor'
 import type { Patient } from '@prisma/client'
 
 export interface CreatePatientDto {
@@ -58,6 +59,7 @@ export class PatientService {
         idCard: dto.idCard,
         phone: dto.phone,
         type: dto.type ?? 'OUTPATIENT',
+        tenantId: getCurrentTenantId(),
       },
     })
   }

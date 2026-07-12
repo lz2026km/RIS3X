@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import { getCurrentTenantId } from '../common/interceptors/tenant-context.interceptor'
 
 export interface NotifyDto {
   criticalId: string
@@ -55,6 +56,7 @@ export class CriticalsService {
         severity: dto.severity as any,
         method: dto.method as any,
         state: 'FOUND',
+        tenantId: getCurrentTenantId(),
       },
     })
   }
@@ -88,6 +90,7 @@ export class CriticalsService {
       recipientPhone: dto.recipientPhone,
       status: this.simulateDelivery(channel),
       triggeredAt: new Date(),
+      tenantId: getCurrentTenantId() ?? 'default',
     }))
     return this.prisma.criticalValueNotification.createMany({ data: records })
   }
@@ -107,6 +110,7 @@ export class CriticalsService {
         status: this.simulateDelivery(channel),
         escalated: true,
         triggeredAt: new Date(),
+        tenantId: getCurrentTenantId() ?? 'default',
       }))
     )
     return this.prisma.criticalValueNotification.createMany({ data: records })

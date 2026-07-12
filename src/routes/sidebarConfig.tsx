@@ -12,6 +12,7 @@ import {
   Box,
   Camera,
   FileText,
+  Layers,
   ShieldCheck,
   BarChart3,
   ClipboardCheck,
@@ -72,8 +73,10 @@ import {
   Archive,
   Hammer,
   Fingerprint,
+  Video,
 } from "lucide-react";
 import type { ReactNode } from "react";
+import { GitCompare } from "lucide-react";
 
 export type Role = "医生" | "技师" | "护士" | "管理员" | "主任";
 
@@ -212,6 +215,12 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: <MessageSquare size={18} />,
         labelKey: "nav.consultation",
         roles: ["医生", "主任", "管理员",],
+      },
+      {
+        path: "/tele/conference",
+        icon: <Monitor size={18} />,
+        labelKey: "nav.teleConference",
+        roles: ["医生", "主任", "技师", "管理员",],
       },
       {
         path: "/report-review",
@@ -370,10 +379,22 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         roles: ["主任", "管理员"],
       },
       {
+        path: "/qc/image-ai",
+        icon: <Sparkles size={18} />,
+        labelKey: "nav.qcImageAi",
+        roles: ["主任", "管理员", "技师"],
+      },
+      {
         path: "/cosign",
-        icon: <UserCheck size={18} />,
+        icon: React.createElement(UserCheck, { size: 18 }),
         labelKey: "nav.cosign",
         roles: ["主任", "管理员"],
+      },
+      {
+        path: "/radpath/tracker",
+        icon: React.createElement(GitCompare, { size: 18 }),
+        labelKey: "nav.radpathTracker",
+        roles: ["医生", "主任", "管理员",],
       },
     ],
   },
@@ -422,6 +443,18 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         roles: ["医生", "技师", "主任", "管理员",],
       },
       {
+        path: "/dicom/fusion",
+        icon: <Layers size={18} />,
+        labelKey: "nav.dicomFusion",
+        roles: ["医生", "技师", "主任", "管理员",],
+      },
+      {
+        path: "/dicom/volume-viewer",
+        icon: <Box size={18} />,
+        labelKey: "nav.dicomVolume",
+        roles: ["医生", "技师", "主任", "管理员",],
+      },
+      {
         path: "/print-management",
         icon: <Printer size={18} />,
         labelKey: "nav.filmPrint",
@@ -462,6 +495,12 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.aiMedicalDevice",
         roles: ["医生", "主任", "管理员",],
       },
+      {
+        path: "/ai-cad",
+        icon: <Crosshair size={18} />,
+        labelKey: "nav.aiCad",
+        roles: ["医生", "主任", "技师", "管理员",],
+      },
     ],
   },
   {
@@ -484,6 +523,12 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: <GraduationCap size={18} />,
         labelKey: "nav.typicalCases",
         roles: ["主任", "管理员"],
+      },
+      {
+        path: "/teach/lecture",
+        icon: <Video size={18} />,
+        labelKey: "nav.teachLecture",
+        roles: ["医生", "主任", "技师", "管理员",],
       },
       {
         path: "/finding-library",
@@ -812,6 +857,12 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         roles: ["主任", "管理员"],
       },
       {
+        path: "/operations/oee",
+        icon: <Gauge size={18} />,
+        labelKey: "nav.oeDashboard",
+        roles: ["主任", "管理员", "技师"],
+      },
+      {
         path: "/cardiac/database",
         icon: <Database size={18} />,
         labelKey: "nav.cvDatabase",
@@ -841,16 +892,34 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.hrOperations",
         roles: ["主任", "管理员"],
       },
-      {
-        path: "/ops/dashboard",
-        icon: <Gauge size={18} />,
-        labelKey: "nav.opsDashboard",
-        roles: ["主任", "管理员"],
-      },
+  {
+    path: "/ops/dashboard",
+    icon: <Gauge size={18} />,
+    labelKey: "nav.opsDashboard",
+    roles: ["主任", "管理员"],
+  },
+  {
+    path: "/operations/occupancy",
+    icon: <LayoutDashboard size={18} />,
+    labelKey: "nav.roomOccupancy",
+    roles: ["主任", "管理员", "技师"],
+  },
       {
         path: "/quality/department",
         icon: <Award size={18} />,
         labelKey: "nav.departmentQuality",
+        roles: ["主任", "管理员"],
+      },
+      {
+        path: "/analytics/benchmark-v2",
+        icon: <BarChart3 size={18} />,
+        labelKey: "nav.benchmarkCompare",
+        roles: ["主任", "管理员"],
+      },
+      {
+        path: "/analytics/benchmark-ai-diagnosis",
+        icon: <Target size={18} />,
+        labelKey: "nav.aiDiagnosisAccuracy",
         roles: ["主任", "管理员"],
       },
     ],

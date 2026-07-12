@@ -1,0 +1,23 @@
+{
+  "title": "AI Image QC",
+  "subtitle": "Artifact / Exposure / Positioning / Overall Score",
+  "all": "All",
+  "totalScores": "Total Scores",
+  "avgArtifact": "Avg Artifact",
+  "avgExposure": "Avg Exposure",
+  "avgPositioning": "Avg Positioning",
+  "artifactScore": "Artifact Score",
+  "exposureScore": "Exposure Score",
+  "positioningScore": "Positioning Score",
+  "overallScore": "Overall Score",
+  "overallTrend": "Overall Score Trend",
+  "scoreTable": "Score Details",
+  "instanceId": "Instance ID",
+  "modality": "Modality",
+  "scoreDate": "Score Date",
+  "noData": "No data",
+  "excellent": "Excellent",
+  "good": "Good",
+  "poor": "Poor",
+  "operator": "Operator"
+}

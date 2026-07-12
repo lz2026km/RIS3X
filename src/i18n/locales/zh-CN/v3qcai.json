@@ -1,0 +1,23 @@
+{
+  "title": "影像 AI 自动质控",
+  "subtitle": "伪影评分 / 曝光评分 / 体位评分 / 综合评分",
+  "all": "全部",
+  "totalScores": "评分总数",
+  "avgArtifact": "伪影均分",
+  "avgExposure": "曝光均分",
+  "avgPositioning": "体位均分",
+  "artifactScore": "伪影评分",
+  "exposureScore": "曝光评分",
+  "positioningScore": "体位评分",
+  "overallScore": "总体评分",
+  "overallTrend": "总体评分趋势",
+  "scoreTable": "评分结果明细",
+  "instanceId": "实例 ID",
+  "modality": "模态",
+  "scoreDate": "评分日期",
+  "noData": "暂无数据",
+  "excellent": "优秀",
+  "good": "良好",
+  "poor": "较差",
+  "operator": "操作人"
+}

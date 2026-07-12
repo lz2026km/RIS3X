@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import { getCurrentTenantId } from '../common/interceptors/tenant-context.interceptor'
 
 @Injectable()
 export class AiPlatformService {
@@ -16,7 +17,7 @@ export class AiPlatformService {
   }
 
   async deployAiModel(body: any) {
-    const data = await this.prisma.auditLog.create({ data: { action: 'DEPLOY', resource: 'ai-model', detail: body } })
+    const data = await this.prisma.auditLog.create({ data: { action: 'DEPLOY', resource: 'ai-model', detail: body, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
 
@@ -36,7 +37,7 @@ export class AiPlatformService {
   }
 
   async generateStructuredReport(body: any) {
-    const data = await this.prisma.auditLog.create({ data: { action: 'GENERATE', resource: 'ai-structured-report', detail: body } })
+    const data = await this.prisma.auditLog.create({ data: { action: 'GENERATE', resource: 'ai-structured-report', detail: body, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
 
@@ -51,7 +52,7 @@ export class AiPlatformService {
   }
 
   async createAiOrchestration(body: any) {
-    const data = await this.prisma.auditLog.create({ data: { action: 'CREATE', resource: 'ai-orchestration', detail: body } })
+    const data = await this.prisma.auditLog.create({ data: { action: 'CREATE', resource: 'ai-orchestration', detail: body, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
 

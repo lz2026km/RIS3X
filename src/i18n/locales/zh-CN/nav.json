@@ -103,6 +103,7 @@
   "defectManagement": "缺陷管理",
   "qcDashboard": "质控总看板",
   "qcImage": "影像质控",
+  "qcImageAi": "影像 AI 自动质控",
   "qcRadiologistAnnual": "医生年度档案",
   "specialAssessment": "特殊评估",
   "statsDashboardV2": "统计大屏V2",
@@ -126,6 +127,7 @@
   "reportExport": "报告导出",
   "devices": "设备管理",
   "dicomBrowser": "DICOM 浏览器",
+  "dicomFusion": "PET-CT/MR 融合",
   "revenue": "营收管理",
   "chargeItems": "收费项目",
   "accountsReceivable": "应收账款",
@@ -262,5 +264,8 @@
   "fhirBulkExportDetail": "Bulk Export 详情",
   "dicomNetwork": "DICOM 网络",
   "dimse": "DIMSE 服务",
-  "dimseUpload": "DIMSE 上传"
+  "dimseUpload": "DIMSE 上传",
+  "aiCad": "AI 阅片助手",
+  "teleConference": "远程实时阅片",
+  "radpathTracker": "Rad-Path 一致性追踪"
 }

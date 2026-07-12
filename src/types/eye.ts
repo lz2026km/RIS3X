@@ -1697,3 +1697,5 @@ export interface ClinicalTrial {
   results?: string;
 }
 
+
+export type EyeStudy = any;

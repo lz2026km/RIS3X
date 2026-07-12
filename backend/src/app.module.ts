@@ -23,6 +23,7 @@ import { ReportsQualityModule } from './reports-quality/reports-quality.module'
 import { DicomWebModule } from './dicom-web/dicom-web.module'
 import { NotificationsModule } from './notifications/notifications.module'
 import { AiModule } from './modules/ai/ai.module'
+import { CadModule } from './modules/cad/cad.module'
 import { StatsModule } from './modules/stats/stats.module'
 import { ComplianceModule } from './modules/compliance/compliance.module'
 import { PatientModule } from './modules/patient/patient.module'
@@ -50,7 +51,15 @@ import { DicomDimseModule } from './dicom-dimse/dicom-dimse.module'
 import { CaModule } from './ca/ca.module'
 import { DeviceMgmtModule } from './devicemgmt/devicemgmt.module'
 import { AiPlatformModule } from './aiplatform/aiplatform.module'
+import { TeleModule } from './modules/tele/tele.module'
 import { OlapModule } from './modules/olap/olap.module'
+import { FusionModule } from './modules/fusion/fusion.module'
+import { OccupancyModule } from './modules/occupancy/occupancy.module'
+import { VolumeModule } from './modules/volume/volume.module'
+import { BenchmarkModule } from './modules/benchmark/benchmark.module'
+import { AiDiagnosisModule } from './modules/ai-diagnosis/ai-diagnosis.module'
+import { TeachModule } from './modules/teach/teach.module'
+import { ImageAiModule } from './modules/qc/image-ai.module'
 import { MobileModule } from './mobile/mobile.module'
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard'
 import { RolesGuard } from './common/guards/roles.guard'
@@ -83,6 +92,7 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter'
     DicomWebModule,
     NotificationsModule,
     AiModule,
+    CadModule,
     StatsModule,
     ComplianceModule,
     PatientModule,
@@ -111,7 +121,17 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter'
     AiPlatformModule,
     DicomDimseModule,
     OlapModule,
+    OccupancyModule,
+    FusionModule,
+    OeeModule,
+    VolumeModule,
+    TeachModule,
+    ImageAiModule,
+    RadPathModule,
+    TeleModule,
     MobileModule,
+    BenchmarkModule,
+    AiDiagnosisModule,
   ],
   controllers: [HealthController],
   providers: [

@@ -1,0 +1,25 @@
+{
+  "title": "Device OEE Dashboard",
+  "subtitle": "Overall Equipment Effectiveness",
+  "today": "Today",
+  "week": "This Week",
+  "month": "This Month",
+  "custom": "Custom",
+  "kpi": {
+    "oee": "Overall OEE",
+    "availability": "Availability",
+    "performance": "Performance",
+    "quality": "Quality"
+  },
+  "trend": "OEE Trend",
+  "cause": "Low OEE Cause Analysis",
+  "deviceList": "Device OEE List",
+  "deviceName": "Device Name",
+  "model": "Model",
+  "modality": "Modality",
+  "oee": "OEE%",
+  "availabilityCol": "Availability%",
+  "performanceCol": "Performance%",
+  "qualityCol": "Quality%",
+  "trendCol": "Trend"
+}

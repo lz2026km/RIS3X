@@ -15,10 +15,10 @@ const config: Config = {
   coverageDirectory: './coverage',
   coverageThreshold: {
     global: {
-      branches: 15,
-      functions: 15,
-      lines: 15,
-      statements: 15,
+      branches: 30,
+      functions: 25,
+      lines: 30,
+      statements: 30,
     },
   },
   moduleNameMapper: {

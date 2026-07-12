@@ -179,9 +179,12 @@
   "userManagement": "User Management",
   "vnaDashboard": "VNA Dashboard",
   "cosign": "CoSign Workflow",
+  "oeDashboard": "OEE Dashboard",
   "reviewCenter": "Review Center",
   "qualityControlV3": "Quality Control",
   "fhirServer": "FHIR Server",
   "iheConnectathon": "IHE Connectathon",
-  "mllpMonitor": "MLLP Monitor"
+  "mllpMonitor": "MLLP Monitor",
+  "dicomVolume": "3D Volume Rendering",
+  "dicomFusion": "Image Fusion"
 }

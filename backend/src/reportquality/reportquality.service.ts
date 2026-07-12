@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import { getCurrentTenantId } from '../common/interceptors/tenant-context.interceptor'
 
 @Injectable()
 export class ReportQualityService {
@@ -26,7 +27,7 @@ export class ReportQualityService {
   }
 
   async createDefectEntry(body: any) {
-    const data = await this.prisma.auditLog.create({ data: { action: 'CREATE', resource: 'defect-library', detail: body } })
+    const data = await this.prisma.auditLog.create({ data: { action: 'CREATE', resource: 'defect-library', detail: body, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
 

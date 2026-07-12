@@ -1,12 +1,13 @@
 import { Injectable, ForbiddenException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
+import { getCurrentTenantId } from '../../common/interceptors/tenant-context.interceptor'
 
 @Injectable()
 export class ExportApprovalService {
   constructor(private readonly prisma: PrismaService) {}
 
   async request(params: { requesterId: string; resource: string; resourceId?: string; reason: string }) {
-    return this.prisma.exportApproval.create({ data: params })
+    return this.prisma.exportApproval.create({ data: { ...params, tenantId: getCurrentTenantId() } })
   }
 
   async approve(id: string, approverId: string) {

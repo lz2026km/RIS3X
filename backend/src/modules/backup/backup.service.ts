@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
+import { getCurrentTenantId } from '../../common/interceptors/tenant-context.interceptor'
 import * as crypto from 'crypto'
 import * as fs from 'fs/promises'
 import * as path from 'path'
@@ -57,6 +58,7 @@ export class BackupService {
         checksum,
         createdBy: userId,
         filePath: filepath,
+        tenantId: getCurrentTenantId(),
       },
     })
 

@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
+import { getCurrentTenantId } from '../../common/interceptors/tenant-context.interceptor'
 import type { Exam } from '@prisma/client'
 
 export interface CreateExamDto {
@@ -64,6 +65,7 @@ export class ExamService {
         scheduledAt: dto.scheduledAt ? new Date(dto.scheduledAt) : null,
         deviceId: dto.deviceId,
         state: 'SCHEDULED',
+        tenantId: getCurrentTenantId(),
       },
     })
   }

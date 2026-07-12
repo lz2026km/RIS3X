@@ -1,13 +1,21 @@
-/**
+﻿/**
  * G005 放射RIS系统 v3.0.1 - Prisma Module
  */
 import { Global, Module, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
 import { PrismaClient } from '@prisma/client'
-import { PrismaService } from './prisma.service'
+import { PrismaService, createPrismaWithTenant } from './prisma.service'
 
 @Global()
 @Module({
-  providers: [PrismaService],
+  providers: [
+    {
+      provide: PrismaService,
+      useFactory: () => {
+        const base = new PrismaService()
+        return createPrismaWithTenant(base) as unknown as PrismaService
+      },
+    },
+  ],
   exports: [PrismaService],
 })
 export class PrismaModule implements OnModuleInit, OnModuleDestroy {

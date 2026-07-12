@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
+import { getCurrentTenantId } from '../../common/interceptors/tenant-context.interceptor'
 import type { Device } from '@prisma/client'
 
 export interface CreateDeviceDto {
@@ -55,6 +56,7 @@ export class DeviceService {
         modality: dto.modality,
         manufacturer: dto.manufacturer,
         location: dto.location,
+        tenantId: getCurrentTenantId(),
       },
     })
   }

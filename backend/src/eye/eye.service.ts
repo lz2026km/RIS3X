@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import { getCurrentTenantId } from '../common/interceptors/tenant-context.interceptor'
 import type { CreateEyeStudyDto } from './dto/create-eye.dto'
 import type { UpdateEyeStudyDto } from './dto/update-eye.dto'
 import { getIolAConstantsByModel } from '../../../src/data/eyeAConstants'
@@ -31,6 +32,7 @@ export class EyeService {
         bodyPart: dto.bodyPart,
         findings: dto.findings ?? '',
         impressions: dto.impressions ?? '',
+        tenantId: getCurrentTenantId(),
       },
     })
   }
@@ -78,7 +80,7 @@ export class EyeService {
   }
 
   createAiInference(data: { studyId: string; modelId: string; diagnosis: string; confidence: number; heatmapUrl?: string }) {
-    return this.prisma.eyeAiInference.create({ data })
+    return this.prisma.eyeAiInference.create({ data: { ...data, tenantId: getCurrentTenantId() } })
   }
 
   listIolLenses() {

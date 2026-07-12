@@ -97,6 +97,9 @@ export const NAMESPACES = [
   "app",
   "materials",
   "print",
+  "benchmark",
+  "v3qcai",
+  "oee",
 ] as const;
 export type Namespace = (typeof NAMESPACES)[number];
 

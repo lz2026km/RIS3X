@@ -4,9 +4,9 @@ import { AsyncLocalStorage } from 'async_hooks'
 
 export const tenantStorage = new AsyncLocalStorage<{ tenantId: string }>()
 
-export function getCurrentTenantId(): string | undefined {
+export function getCurrentTenantId(): string {
   const store = tenantStorage.getStore()
-  return store?.tenantId
+  return store?.tenantId ?? 'default'
 }
 
 @Injectable()

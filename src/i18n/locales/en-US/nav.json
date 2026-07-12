@@ -103,6 +103,7 @@
   "defectManagement": "Defect Management",
   "qcDashboard": "QC Dashboard",
   "qcImage": "Image QC",
+  "qcImageAi": "AI Image QC",
   "qcRadiologistAnnual": "Radiologist Annual",
   "specialAssessment": "Special Assessment",
   "statsDashboardV2": "Stats Dashboard V2",
@@ -238,6 +239,7 @@
   "workloadHeatmap": "Workload Heatmap",
   "slaPolicy": "SLA Policy",
   "dicomBrowserPro": "DICOM Browser Pro",
+  "dicomFusion": "PET-CT/MR Fusion",
   "eyeReportWrite": "Eye Report Writing",
   "eyeStrabismus": "Strabismus",
   "eyeNeuro": "Neuro-Ophthalmology",
@@ -262,5 +264,8 @@
   "fhirBulkExportDetail": "Bulk Export Detail",
   "dicomNetwork": "DICOM Network",
   "dimse": "DIMSE Service",
-  "dimseUpload": "DIMSE Upload"
+  "dimseUpload": "DIMSE Upload",
+  "aiCad": "AI Reading Assistant",
+  "teleConference": "Tele-Conference",
+  "radpathTracker": "Rad-Path Consistency"
 }

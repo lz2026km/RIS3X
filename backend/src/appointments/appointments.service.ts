@@ -3,6 +3,7 @@
  */
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import { getCurrentTenantId } from '../common/interceptors/tenant-context.interceptor'
 import type { Appointment, AppointmentState } from '@prisma/client'
 
 export interface CreateAppointmentDto {
@@ -77,6 +78,7 @@ export class AppointmentsService {
           modality: dto.modality,
           deviceId: dto.deviceId,
           scheduledAt: new Date(dto.startAt),
+          tenantId: getCurrentTenantId(),
         },
       })
     })

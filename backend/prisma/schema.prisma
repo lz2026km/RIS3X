@@ -227,6 +227,7 @@ model Report {
   exam         Exam?         @relation(fields: [examId], references: [id], onDelete: SetNull)
   radiologist  User?         @relation("ReportRadiologist", fields: [radiologistId], references: [id], onDelete: SetNull)
   revisions    ReportRevision[]
+  radPathRecords RadPathRecord[]
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
 
@@ -723,6 +724,27 @@ model RiskItem {
   @@map("risk_items")
 }
 
+// rad-path 一致性追踪
+model RadPathRecord {
+  id           String                          @id @default(cuid())
+  tenantId     String                          @map("tenant_id")
+  reportId     String                          @map("report_id")
+  pathologyId  String                          @map("pathology_id")
+  radFinding   String                          @map("rad_finding")
+  pathResult   String                          @map("path_result")
+  consistency  String                          @default("pending")
+  notes        String?
+  report       Report                          @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  createdAt    DateTime                        @default(now()) @map("created_at")
+  updatedAt    DateTime                        @updatedAt @map("updated_at")
+
+  @@index([reportId])
+  @@index([pathologyId])
+  @@index([consistency])
+  @@index([tenantId])
+  @@map("rad_path_records")
+}
+
 // v3.0.6.11-7: 牙科模块
 
 model DentalStudy {
@@ -1053,4 +1075,37 @@ model InsuranceAudit {
   @@index([auditType, status])
   @@index([tenantId])
   @@map("insurance_audits")
+}
+
+model TeachLecture {
+  id        String   @id @default(cuid())
+  tenantId  String   @map("tenant_id")
+  title     String
+  patientId String?  @map("patient_id")
+  examId    String?  @map("exam_id")
+  reportId  String?  @map("report_id")
+  createdBy String?  @map("created_by")
+  duration  Int      @default(0) @map("duration")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  blobs     TeachLectureBlob[]
+
+  @@index([tenantId])
+  @@index([createdBy])
+  @@map("teach_lectures")
+}
+
+model TeachLectureBlob {
+  id        String   @id @default(cuid())
+  lectureId String   @map("lecture_id")
+  lecture   TeachLecture @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+  sequence  Int      @map("sequence")
+  filename  String
+  sizeBytes Int      @map("size_bytes")
+  tenantId  String   @map("tenant_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([lectureId])
+  @@index([tenantId])
+  @@map("teach_lecture_blobs")
 }

@@ -1,5 +1,6 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import { getCurrentTenantId } from '../common/interceptors/tenant-context.interceptor'
 import type { AdverseEvent, AdverseEventType, AdverseEventSeverity, AdverseEventStatus, RcaInvestigation, RiskItem } from '@prisma/client'
 import type { InputJsonValue } from '@prisma/client/runtime/library.js'
 
@@ -121,6 +122,7 @@ export class SafetyService {
       data: {
         ...rest,
         ...(reportedAt ? { reportedAt: new Date(reportedAt) } : {}),
+        tenantId: getCurrentTenantId(),
       },
     })
   }
@@ -179,6 +181,7 @@ export class SafetyService {
         fishboneData: fishboneData ?? [],
         fiveWhys: fiveWhys ?? [],
         capaPlans: capaPlans ?? [],
+        tenantId: getCurrentTenantId(),
       },
     })
   }
@@ -238,6 +241,7 @@ export class SafetyService {
         rpn: rpn ?? 0,
         riskLevel: riskLevel ?? 'medium',
         ...(identifiedAt ? { identifiedAt: new Date(identifiedAt) } : {}),
+        tenantId: getCurrentTenantId(),
       },
     })
   }
