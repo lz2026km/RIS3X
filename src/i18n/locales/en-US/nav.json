@@ -254,5 +254,13 @@
   "dentalPhoto": "Intraoral Photos",
   "searchPlaceholder": "Search patient/exam/report...",
   "ihePam": "IHE PAM",
-  "iheVisit": "IHE Visit"
+  "iheVisit": "IHE Visit",
+  "pixManager": "PIX Manager",
+  "hl7Archive": "HL7 Archive",
+  "hl7Builder": "HL7 Builder",
+  "fhirBulkExport": "FHIR Bulk Export",
+  "fhirBulkExportDetail": "Bulk Export Detail",
+  "dicomNetwork": "DICOM Network",
+  "dimse": "DIMSE Service",
+  "dimseUpload": "DIMSE Upload"
 }

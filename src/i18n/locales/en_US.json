@@ -41,7 +41,7 @@
   },
   "app": {
     "title": "005 Radiology Information System",
-    "version": "v3.0.2.11 · Ten-PACS Parity Patch",
+    "version": "v3.0.6.11-17 · Full Chain Data Realization + Tertiary Compliance + antd 6 Upgrade",
     "loading": "Loading RIS...",
     "hospital": "Handong Provincial Hospital · Radiology",
     "systemStatus": "System Normal",

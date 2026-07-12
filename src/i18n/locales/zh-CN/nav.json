@@ -254,5 +254,13 @@
   "dentalPhoto": "口内照片",
   "searchPlaceholder": "搜索患者/检查号/报告...",
   "ihePam": "IHE PAM 消息",
-  "iheVisit": "IHE 就诊管理"
+  "iheVisit": "IHE 就诊管理",
+  "pixManager": "PIX 主索引",
+  "hl7Archive": "HL7 归档",
+  "hl7Builder": "HL7 构造器",
+  "fhirBulkExport": "FHIR Bulk Export",
+  "fhirBulkExportDetail": "Bulk Export 详情",
+  "dicomNetwork": "DICOM 网络",
+  "dimse": "DIMSE 服务",
+  "dimseUpload": "DIMSE 上传"
 }
