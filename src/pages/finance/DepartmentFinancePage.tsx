@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { message } from 'antd'
+import { financeApi, type RevenueAnalysisDto, type CostAccountingDto } from '../../services/api/financeApi'
 import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend, PieChart, Pie, Cell,
@@ -46,6 +47,12 @@ const INSURANCE_MIX = [
 
 export default function DepartmentFinancePage() {
   const [period, setPeriod] = useState<Period>('monthly')
+  const [revenueData, setRevenueData] = useState<RevenueAnalysisDto | null>(null)
+  const [costData, setCostData] = useState<CostAccountingDto | null>(null)
+  useEffect(() => {
+    financeApi.getRevenueAnalysis().then(res => { if (res.success) setRevenueData(res.data); }).catch(() => {})
+    financeApi.getCostAccounting().then(res => { if (res.success) setCostData(res.data); }).catch(() => {})
+  }, [period])
 
   const totalRev = MONTHLY_REVENUE.reduce((s, m) => s + m.revenue, 0)
   const totalCost = MONTHLY_REVENUE.reduce((s, m) => s + m.cost, 0)

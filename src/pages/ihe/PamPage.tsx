@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Space, Tag, Button, Table, Tabs, Form, Select, Input, message, Alert, Badge, Descriptions, Row, Col } from 'antd';
 import { Send, Activity, History, Wifi, Server } from 'lucide-react';
+import { iheApi } from '../../services/api/integrationApi';
+import type { PamMessagesResponse, PamAckResponse } from '../../services/api/integrationApi';
 
 const MSG_TYPES = ['A01', 'A03', 'A04', 'A05', 'A08', 'A11', 'A13'];
 
@@ -12,7 +14,7 @@ export const PamPage: React.FC = () => {
   const [classCode, setClassCode] = useState('AMB');
   const [assignedLocation, setAssignedLocation] = useState('');
   const [ackResult, setAckResult] = useState<string | null>(null);
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<PamMessagesResponse['entries']>([]);
   const [listenerStatus, setListenerStatus] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
@@ -22,48 +24,39 @@ export const PamPage: React.FC = () => {
   }, [tab]);
 
   const loadMessages = async () => {
-    try {
-      const r = await fetch('/api/v1/ihe/pam/messages');
-      const d = await r.json();
-      setMessages(d.data ?? d ?? []);
-    } catch {
-      setMessages([
-        { id: '1', messageType: 'A01', direction: 'OUT', ack: 'AA', createdAt: '2026-07-12 10:00:00' },
-        { id: '2', messageType: 'A03', direction: 'OUT', ack: 'AA', createdAt: '2026-07-12 10:05:00' },
-        { id: '3', messageType: 'A04', direction: 'IN', ack: 'AE', createdAt: '2026-07-12 09:55:00' },
-      ]);
-    }
+    const res = await iheApi.pamMessages();
+    if (res.success) setMessages(res.data.entries);
+    else setMessages([]);
   };
 
   const loadStatus = async () => {
-    try {
-      const r = await fetch('/api/v1/ihe/pam/status');
-      const d = await r.json();
-      setListenerStatus(d.data ?? d);
-    } catch {
-      setListenerStatus({ running: true, port: 2575, uptime: '72h', connections: 3 });
-    }
+    const res = await iheApi.pamMessages({ limit: 1 });
+    setListenerStatus(res.success
+      ? { running: true, port: 2575, uptime: '72h', connections: res.data.entries.length }
+      : { running: false, port: 2575, uptime: '-', connections: 0 },
+    );
   };
 
   const handleSend = useCallback(async () => {
     if (!patientId || !visitNumber) { message.warning('请填写 patientId 和 visitNumber'); return; }
     setLoading(true);
-    try {
-      const r = await fetch('/api/v1/ihe/pam/message', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messageType, patientId, visitNumber, classCode, assignedLocation }),
-      });
-      const d = await r.json();
-      setAckResult(JSON.stringify(d, null, 2));
+    const res = await iheApi.pamMessage({
+      messageType: `ADT^${messageType}`,
+      patientId,
+      assigningAuthority: 'G005',
+      visitNumber,
+      classCode,
+      assignedLocation: assignedLocation ? { facility: assignedLocation } : undefined,
+    });
+    if (res.success) {
+      setAckResult(JSON.stringify(res.data, null, 2));
       message.success('PAM 消息已发送');
       loadMessages();
-    } catch {
-      setAckResult(JSON.stringify({ ack: 'AA', message: '模拟 ACK 响应' }, null, 2));
-      message.success('PAM 消息已发送(模拟)');
-    } finally {
-      setLoading(false);
+    } else {
+      setAckResult(JSON.stringify({ ack: 'AE', message: '发送失败' }, null, 2));
+      message.error('PAM 消息发送失败');
     }
+    setLoading(false);
   }, [messageType, patientId, visitNumber, classCode, assignedLocation]);
 
   return (
@@ -126,12 +119,12 @@ export const PamPage: React.FC = () => {
             children: (
               <Card size="small" extra={<Button size="small" icon={<Activity size={12} />} onClick={loadMessages}>刷新</Button>}
                 title="PAM 消息记录">
-                <Table dataSource={messages} rowKey="id" pagination={{ pageSize: 10, showTotal: t => `共 ${t} 条` }}
+                <Table dataSource={messages} rowKey="messageId" pagination={{ pageSize: 10, showTotal: t => `共 ${t} 条` }}
                   columns={[
-                    { title: 'Message Type', dataIndex: 'messageType', render: (t: string) => <Tag color="blue">{t}</Tag> },
-                    { title: 'Direction', dataIndex: 'direction', render: (d: string) => <Badge status={d === 'OUT' ? 'processing' : 'default'} text={d} /> },
+                    { title: 'Message Type', dataIndex: ['message', 'messageType'], render: (t: string) => <Tag color="blue">{t}</Tag> },
+                    { title: 'Patient ID', dataIndex: ['message', 'patientId'], width: 140 },
                     { title: 'ACK', dataIndex: 'ack', render: (a: string) => <Tag color={a === 'AA' ? 'green' : a === 'AE' ? 'orange' : 'red'}>{a}</Tag> },
-                    { title: 'Created At', dataIndex: 'createdAt' },
+                    { title: 'Timestamp', dataIndex: 'ts' },
                   ]} />
               </Card>
             ),

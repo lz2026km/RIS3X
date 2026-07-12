@@ -14,7 +14,7 @@
  *  - 质控看板 - 实时聚合
  *  - CQI 持续改进 - PDCA 项目
  */
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import {
   ShieldCheck, Activity, AlertOctagon, FileText, Users, Monitor,
   Camera, BarChart3, TrendingUp, TrendingDown, Calendar,
@@ -33,6 +33,7 @@ import {
   DEVICE_MASTER, DEVICES_BY_MODALITY, DEVICES_BY_STATUS,
 } from "../../data/master";
 import { DOCTOR_PERFORMANCE_PRE, DAILY_KPI_PRE } from "../../data/_generators";
+import { qcextApi, type QcDashboardDto, type QcStatsDto } from '../../services/api/qcextApi';
 
 type QCTab = "overview" | "image" | "report" | "workflow" | "equipment" | "personnel" | "operations" | "ai" | "cqi";
 
@@ -40,6 +41,13 @@ export default function RadiologyQCDashboardPage() {
   const [activeTab, setActiveTab] = useState<QCTab>("overview");
   const [refreshKey, setRefreshKey] = useState(0);
   const [dateRange, setDateRange] = useState("本月");
+  const [dashboardData, setDashboardData] = useState<QcDashboardDto | null>(null);
+  const [qcStats, setQcStats] = useState<QcStatsDto | null>(null);
+  const fetchData = useCallback(() => {
+    qcextApi.getQcDashboard().then(res => { if (res.success) setDashboardData(res.data); }).catch(() => {});
+    qcextApi.getQcStats().then(res => { if (res.success) setQcStats(res.data); }).catch(() => {});
+  }, []);
+  useEffect(() => { fetchData(); }, [fetchData, refreshKey]);
 
   // ========== 总览数据计算 ==========
   const overviewStats = useMemo(() => {

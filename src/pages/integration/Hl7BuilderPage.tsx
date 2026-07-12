@@ -1,9 +1,10 @@
 import React, { useState, useCallback } from "react";
 import {
-  Card, Space, Tag, Button, Tabs, Form, Input, InputNumber, message, Alert,
+  Card, Space, Tag, Button, Tabs, Form, Input, message,
 } from "antd";
 import { Code, Eye, Send, Hammer, FileText } from "lucide-react";
-import { api } from "../../services/api/client";
+import { hl7Api } from "../../services/api/integrationApi";
+import type { Hl7Report } from "../../services/api/integrationApi";
 
 interface BuilderForm {
   patientId: string;
@@ -47,12 +48,27 @@ export const Hl7BuilderPage: React.FC = () => {
     setLoading((p) => ({ ...p, preview: true }));
     setPreview(null);
     const values = getValues();
-    const res = await api.post<string>("/hl7/oru", {
-      messageType: activeTab,
-      ...values,
-    });
+    const payload: Hl7Report = {
+      accessionNumber: values.accessionNumber,
+      patientName: values.patientName,
+      patientId: values.patientId,
+      patientSex: '',
+      modality: '',
+      studyDate: '',
+      studyTime: '',
+      findings: values.reportFinding,
+      conclusion: values.reportImpression,
+      authorName: '',
+      authorId: '',
+      reportId: values.examId,
+    };
+    const res = activeTab === 'ORM^O01'
+      ? await hl7Api.buildOrm({ ...payload, bodyPart: '', orderNumber: '', orderingDoctor: '' })
+      : activeTab === 'DFT^P03'
+        ? await hl7Api.buildDft({ ...payload, invoiceNumber: '', totalAmount: '', chargeCode: '', chargeName: '' })
+        : await hl7Api.buildOru(payload);
     if (res.success) {
-      setPreview(res.data);
+      setPreview(res.data.message);
     } else {
       message.error("生成预览失败");
     }
@@ -62,10 +78,7 @@ export const Hl7BuilderPage: React.FC = () => {
   const handleSend = async () => {
     setLoading((p) => ({ ...p, send: true }));
     const values = getValues();
-    const res = await api.post("/hl7/push-oru", {
-      messageType: activeTab,
-      ...values,
-    });
+    const res = await hl7Api.pushOru(values.examId, values.examId);
     if (res.success) {
       message.success("消息已发送到远端");
     } else {

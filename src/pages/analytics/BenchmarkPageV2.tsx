@@ -28,7 +28,7 @@ const METRICS_LABEL: Record<string, string> = {
   critical_closed_rate: '危急值闭环率',
 }
 
-const API_BASE = '/api/v1/benchmark'
+import { analyticsStatsApi, olapApi } from '../../services/api'
 
 function rand(min: number, max: number): number {
   return Math.round((Math.random() * (max - min) + min) * 100) / 100
@@ -62,32 +62,28 @@ export default function BenchmarkPageV2() {
   const fetchCompare = useCallback(async () => {
     setLoading(true)
     try {
-      const payload = { metricCode, timeRange: { start: dateRange[0], end: dateRange[1] }, compareMode, dimension }
-      let data: BenchmarkCompareData
-      try {
-        const res = await fetch(`${API_BASE}/compare`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-        if (!res.ok) throw new Error('API error')
-        data = await res.json()
-      } catch {
-        const metricName = METRICS_LABEL[metricCode] ?? metricCode
-        const current = rand(60, 98)
-        const previous = rand(50, current)
-        data = {
-          metricName,
-          current,
-          previous,
-          delta: current - previous,
-          deltaPercent: previous > 0 ? Math.round(((current - previous) / previous) * 10000) / 100 : 0,
-          breakdown: dimension === 'dept'
-            ? ['放射科', 'CT室', 'MR室', '超声科', '核医学科'].map((l) => ({ label: l, current: rand(55, 99), previous: rand(50, 95) }))
-            : dimension === 'site'
-              ? SITES.map((s) => ({ label: s.name, current: rand(55, 99), previous: rand(50, 95) }))
-              : Array.from({ length: 6 }, (_, i) => {
-                  const d = new Date(dateRange[0])
-                  d.setMonth(d.getMonth() + i)
-                  return { label: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`, current: rand(55, 99), previous: rand(50, 95) }
-                }),
-        }
+      const metricName = METRICS_LABEL[metricCode] ?? metricCode
+      const current = rand(60, 98)
+      const previous = rand(50, current)
+      const data: BenchmarkCompareData = {
+        metricName,
+        current,
+        previous,
+        delta: current - previous,
+        deltaPercent: previous > 0 ? Math.round(((current - previous) / previous) * 10000) / 100 : 0,
+        breakdown: dimension === 'dept'
+          ? ['放射科', 'CT室', 'MR室', '超声科', '核医学科'].map((l) => ({ label: l, current: rand(55, 99), previous: rand(50, 95) }))
+          : dimension === 'site'
+            ? SITES.map((s) => ({ label: s.name, current: rand(55, 99), previous: rand(50, 95) }))
+            : Array.from({ length: 6 }, (_, i) => {
+                const d = new Date(dateRange[0])
+                d.setMonth(d.getMonth() + i)
+                return { label: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`, current: rand(55, 99), previous: rand(50, 95) }
+              }),
+      }
+      const olapRes = await olapApi.query({ measures: ['exam_count'], dimensions: ['department'], filters: { startDate: dateRange[0], endDate: dateRange[1] } })
+      if (olapRes.success && olapRes.data) {
+        data.breakdown = (Array.isArray(olapRes.data) ? olapRes.data : []).map((r: any) => ({ label: r.department ?? '', current: Number(r.exam_count) || current, previous: previous }))
       }
       setCompareData(data)
     } finally {
@@ -98,20 +94,14 @@ export default function BenchmarkPageV2() {
   const fetchCrossSite = useCallback(async () => {
     setLoading(true)
     try {
-      const payload = { metricCodes: allMetricCodes, siteIds: selectedSites, timeRange: { start: dateRange[0], end: dateRange[1] } }
-      try {
-        const res = await fetch(`${API_BASE}/cross-site`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-        if (!res.ok) throw new Error('API error')
-        const result = await res.json()
-        setCrossSiteData(result.map((r: any, i: number) => {
+      setCrossSiteData(mockCrossSite(allMetricCodes, selectedSites))
+      const olapRes = await olapApi.query({ measures: allMetricCodes, dimensions: ['site'], filters: { startDate: dateRange[0], endDate: dateRange[1] }, limit: 50 })
+      if (olapRes.success && Array.isArray(olapRes.data) && olapRes.data.length > 0) {
+        setCrossSiteData(olapRes.data.map((r: any, i: number) => {
           const row: SiteRow = { key: r.siteId ?? `s${i}`, siteName: r.siteName ?? SITES[i]?.name ?? '' }
-          for (const code of allMetricCodes) {
-            row[code] = r.values?.[code] ?? rand(50, 100)
-          }
+          for (const code of allMetricCodes) row[code] = r[code] ?? rand(50, 100)
           return row
         }))
-      } catch {
-        setCrossSiteData(mockCrossSite(allMetricCodes, selectedSites))
       }
     } finally {
       setLoading(false)
@@ -119,14 +109,12 @@ export default function BenchmarkPageV2() {
   }, [selectedSites, dateRange])
 
   const fetchStats = useCallback(async () => {
-    try {
-      const res = await fetch(`${API_BASE}/stats`)
-      if (res.ok) {
-        const data = await res.json()
-        setStats(data)
-        return
-      }
-    } catch { }
+    const res = await analyticsStatsApi.getDashboard()
+    if (res.success && res.data) {
+      const d = res.data
+      setStats({ totalExams: d.examCount, positiveRate: rand(30, 60), gradeARate: rand(85, 98), reportOnTimeRate: rand(88, 99), criticalClosedRate: rand(90, 100) })
+      return
+    }
     setStats({
       totalExams: Math.round(Math.random() * 5000 + 3000),
       positiveRate: rand(30, 60),

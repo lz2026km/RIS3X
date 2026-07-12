@@ -1,6 +1,6 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.11-19",
+  "version": "3.0.6.11-20",
   "description": "G005 Radiology RIS v3.0.6.11-7 - 全面功能对齐: 251 endpoint + 12 store + 40 报表 + AI 洞察",
   "private": true,
   "scripts": {

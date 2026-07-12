@@ -49,12 +49,27 @@ async function bootstrap(): Promise<void> {
   )
 
   const config = new DocumentBuilder()
-    .setTitle('G005 Radiology RIS API')
-    .setVersion('3.0.7.0')
+    .setTitle('G005-RISv API')
+    .setDescription('G005 放射信息系统 API 文档')
+    .setVersion('3.0.6.11-20')
     .addBearerAuth()
     .build()
   const document = SwaggerModule.createDocument(app, config)
   SwaggerModule.setup('api/docs', app, document)
+
+  app.getHttpAdapter().get('/api/docs-json', (_req: Request, res: Response) => {
+    res.json(document)
+  })
+
+  if (process.env['GENERATE_OPENAPI']) {
+    const fs = require('fs')
+    const path = require('path')
+    const outputPath = path.resolve(__dirname, '..', 'openapi.json')
+    fs.writeFileSync(outputPath, JSON.stringify(document, null, 2), 'utf-8')
+    console.log(`OpenAPI spec written to ${outputPath}`)
+    await app.close()
+    return
+  }
 
   const port = Number(process.env['PORT'] ?? 3001)
   await app.listen(port)

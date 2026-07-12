@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend, PieChart, Pie, Cell,
@@ -7,6 +7,7 @@ import {
   CheckCircle, XCircle, AlertTriangle, TrendingUp, BarChart3,
   PieChart as PieIcon, Download, Activity,
 } from 'lucide-react'
+import { reportQualityApi } from '../../services/api'
 
 const SCORE_TREND = [
   { month: '1月', score: 82, passRate: 88 },
@@ -44,11 +45,19 @@ const RECENT_CHECKS = [
 ]
 
 export default function DepartmentQualityPage() {
+  const [apiStats, setApiStats] = useState<{ total: number; avgScore: number } | null>(null)
+
+  useEffect(() => {
+    reportQualityApi.getStats().then(res => {
+      if (res.success) setApiStats(res.data.data)
+    })
+  }, [])
+
+  const avgScore = apiStats?.avgScore ?? SCORE_TREND[SCORE_TREND.length - 1].score
   const totalChecks = CHECK_RESULTS.reduce((s, c) => s + c.total, 0)
   const totalPassed = CHECK_RESULTS.reduce((s, c) => s + c.passed, 0)
   const totalFailed = CHECK_RESULTS.reduce((s, c) => s + c.failed, 0)
   const overallPassRate = ((totalPassed / totalChecks) * 100).toFixed(1)
-  const avgScore = SCORE_TREND[SCORE_TREND.length - 1].score
 
   const barData = CHECK_RESULTS.map(c => ({ category: c.category, passed: c.passed, failed: c.failed }))
 

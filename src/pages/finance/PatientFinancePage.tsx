@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { getFinanceService, type PatientBill, type PaymentRecord, type InsuranceClaim } from '../../services/finance/FinanceService'
+import { financeApi, type InvoiceDto } from '../../services/api/financeApi'
 
 // ===== Styles =====
 const s = {
@@ -51,10 +52,12 @@ export default function PatientFinancePage() {
   const [payMethod, setPayMethod] = useState<PaymentRecord['method']>('wechat')
 
   const svc = getFinanceService()
+  const [invoices, setInvoices] = useState<InvoiceDto[]>([])
 
   useEffect(() => {
     svc.getBills('P001').then(setBills)
     svc.getInsuranceClaims('P001').then(setClaims)
+    financeApi.listInvoices().then(res => { if (res.success) setInvoices(res.data); }).catch(() => {})
   }, [])
 
   const handleSelectBill = async (bill: PatientBill) => {

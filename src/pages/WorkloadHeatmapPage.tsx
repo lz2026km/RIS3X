@@ -1,14 +1,12 @@
-/**
- * G005 RIS v3.0.6.6 - 工作负载热力图页面
- * 20 点升级
- */
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { BarChart3 } from 'lucide-react';
+import { Spin } from 'antd';
 import WorkloadHeatmap from '../components/worklist/WorkloadHeatmap';
 import { WorkloadBalancer } from '../services/worklist/WorkloadBalancer';
 import { HeatmapBuilder } from '../services/worklist/HeatmapBuilder';
+import { workflowApi } from '../services/api/workflowApi';
 
-const SITES = [
+const FALLBACK_SITES = [
   { siteId: 'SITE-MAIN', siteName: '总院', doctors: 28, activeStudies: 142, pendingReports: 86, completedToday: 168, averageReportMinutes: 18, utilizationPct: 92 },
   { siteId: 'SITE-EAST', siteName: '东院区', doctors: 14, activeStudies: 64, pendingReports: 38, completedToday: 78, averageReportMinutes: 20, utilizationPct: 78 },
   { siteId: 'SITE-WEST', siteName: '西院区', doctors: 12, activeStudies: 48, pendingReports: 28, completedToday: 62, averageReportMinutes: 22, utilizationPct: 68 },
@@ -32,8 +30,42 @@ const KpiCard: React.FC<{ label: string; value: number; unit: string; color: str
 export default function WorkloadHeatmapPage() {
   const balancer = useMemo(() => new WorkloadBalancer(), []);
   const builder = useMemo(() => new HeatmapBuilder(), []);
-  const sites = useMemo(() => balancer.ingest(SITES), [balancer]);
+  const [siteData, setSiteData] = useState(FALLBACK_SITES);
+  const [workflowMeta, setWorkflowMeta] = useState<{ definitions: number; slaPolicies: number; routingRules: number }>({ definitions: 0, slaPolicies: 0, routingRules: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadWorkflowMeta();
+  }, []);
+
+  const loadWorkflowMeta = async () => {
+    setLoading(true);
+    try {
+      const [defRes, slaRes, ruleRes] = await Promise.all([
+        workflowApi.listDefinitions(),
+        workflowApi.listSlaPolicies(),
+        workflowApi.listRoutingRules(),
+      ]);
+      setWorkflowMeta({
+        definitions: (defRes.data as any[])?.length ?? 0,
+        slaPolicies: (slaRes.data as any[])?.length ?? 0,
+        routingRules: (ruleRes.data as any[])?.length ?? 0,
+      });
+    } catch { /* use fallback */ } finally {
+      setLoading(false);
+    }
+  };
+
+  const sites = useMemo(() => balancer.ingest(siteData), [balancer, siteData]);
   const cells = useMemo(() => builder.build({ sites }), [builder, sites]);
+
+  if (loading) {
+    return (
+      <div style={{ padding: 24, background: '#f8fafc', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: 24, background: '#f8fafc', minHeight: '100vh' }}>
@@ -42,7 +74,7 @@ export default function WorkloadHeatmapPage() {
           <BarChart3 size={20} />
           <div>
             <div style={{ fontSize: 16, fontWeight: 800 }}>工作负载热力图</div>
-            <div style={{ fontSize: 12, opacity: 0.85 }}>跨院区 24 小时负荷监控 · 自动均衡</div>
+            <div style={{ fontSize: 12, opacity: 0.85 }}>跨院区 24 小时负荷监控 · 工作流 {workflowMeta.definitions} 定义 · SLA {workflowMeta.slaPolicies} 策略</div>
           </div>
         </div>
       </header>

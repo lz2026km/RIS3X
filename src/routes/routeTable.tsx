@@ -857,6 +857,9 @@ export const routes: RouteObject[] = [
   wrapped("/radpath/tracker", React.createElement(RadPathTrackerPage)),
   wrapped("/radpath/detail/:reportId", React.createElement(RadPathDetailPage)),
   wrapped("/teach/lecture", React.createElement(TeachLecturePage)),
+  wrapped("/system/audit", React.createElement(lazy(() => import("../pages/AuditPage")))),
+  wrapped("/system/backup", React.createElement(lazy(() => import("../pages/BackupPage")))),
+  wrapped("/system/tenant-config", React.createElement(lazy(() => import("../pages/TenantConfigPage")))),
   {
     path: "*",
     element: React.createElement(Navigate, { to: "/", replace: true }),

@@ -24,51 +24,52 @@ export interface ExamDto {
   imageCount?: number
 }
 
+export interface CreateExamDto {
+  patientId: string
+  accessionNumber: string
+  modality: string
+  bodyPart: string
+  scheduledAt?: string
+  deviceId?: string
+}
+
+export interface UpdateExamDto {
+  state?: string
+  startedAt?: string
+  completedAt?: string
+  deviceId?: string
+}
+
 export const examApi = {
   list: (params?: ExamQueryParams) =>
-    api.get<ExamDto[]>(`/worklist?${new URLSearchParams(params as Record<string, string>).toString()}`),
+    api.get<ExamDto[]>(`/exams?${new URLSearchParams(params as Record<string, string>).toString()}`),
 
   getById: (id: string) =>
-    api.get<ExamDto>(`/worklist/${id}`),
+    api.get<ExamDto>(`/exams/${id}`),
 
-  create: async (data: Partial<ExamDto>) => {
-    const res = await api.post<ExamDto>('/worklist', data)
-    await invalidateApiCache('/worklist')
-    await invalidateApiCacheByPrefix('/worklist')
+  create: async (data: CreateExamDto) => {
+    const res = await api.post<ExamDto>('/exams', data)
+    await invalidateApiCache('/exams')
+    await invalidateApiCacheByPrefix('/exams')
+    return res
+  },
+
+  update: async (id: string, data: UpdateExamDto) => {
+    const res = await api.patch<ExamDto>(`/exams/${id}`, data)
+    await invalidateApiCache(`/exams/${id}`)
+    await invalidateApiCacheByPrefix('/exams')
+    return res
+  },
+
+  delete: async (id: string) => {
+    const res = await api.delete<null>(`/exams/${id}`)
+    await invalidateApiCacheByPrefix('/exams')
     return res
   },
 
   updateStatus: async (id: string, status: string) => {
-    const res = await api.put<ExamDto>(`/worklist/${id}/status`, { status })
-    await invalidateApiCache(`/worklist/${id}`)
-    return res
-  },
-
-  checkIn: async (id: string) => {
-    const res = await api.post<ExamDto>(`/worklist/${id}/checkin`)
-    await invalidateApiCache(`/worklist/${id}`)
-    await invalidateApiCacheByPrefix('/worklist')
-    return res
-  },
-
-  start: async (id: string) => {
-    const res = await api.post<ExamDto>(`/worklist/${id}/start`)
-    await invalidateApiCache(`/worklist/${id}`)
-    await invalidateApiCacheByPrefix('/worklist')
-    return res
-  },
-
-  complete: async (id: string) => {
-    const res = await api.post<ExamDto>(`/worklist/${id}/complete`)
-    await invalidateApiCache(`/worklist/${id}`)
-    await invalidateApiCacheByPrefix('/worklist')
-    return res
-  },
-
-  cancel: async (id: string) => {
-    const res = await api.post<ExamDto>(`/worklist/${id}/cancel`)
-    await invalidateApiCache(`/worklist/${id}`)
-    await invalidateApiCacheByPrefix('/worklist')
+    const res = await api.patch<ExamDto>(`/exams/${id}`, { state: status })
+    await invalidateApiCache(`/exams/${id}`)
     return res
   },
 }

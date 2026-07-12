@@ -1,5 +1,7 @@
 import { t } from '../../i18n/appI18n'
 import { Plus } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { qcextApi, type QcDefectDto, type QcStatsDto } from '../../services/api/qcextApi'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell,
   ResponsiveContainer, PieChart as RechartsPie, Pie,
@@ -90,6 +92,12 @@ const inspectionStats: InspectionStats = {
 }
 
 export default function QCDefectPanel({ gradeDistributionData, reportDefectData, onViewDetail, onNewRecord }: QCDefectPanelProps) {
+  const [defects, setDefects] = useState<QcDefectDto[]>([]);
+  const [stats, setStats] = useState<QcStatsDto | null>(null);
+  useEffect(() => {
+    qcextApi.listQcDefects().then(res => { if (res.success) setDefects(res.data); }).catch(() => {});
+    qcextApi.getQcStats().then(res => { if (res.success) setStats(res.data); }).catch(() => {});
+  }, []);
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>

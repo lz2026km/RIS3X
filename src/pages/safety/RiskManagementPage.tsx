@@ -4,9 +4,9 @@ import {
 } from 'recharts'
 import { ShieldAlert, AlertTriangle, CheckCircle, Plus, BarChart3, Target } from 'lucide-react'
 import {
-  getRiskRegister, createRiskItem, updateRiskMitigation, calculateRiskLevel,
-  type RiskItem, type RiskLevel,
-} from '../../services/safety/riskManagementService'
+  getRiskItems, createRiskItem, updateRiskItem,
+  type RiskItem, type RiskLevel, type RiskCategory,
+} from '../../services/api/safetyApi'
 
 const LEVEL_COLORS: Record<RiskLevel, string> = {
   'very-low': '#22c55e',
@@ -40,11 +40,11 @@ export default function RiskManagementPage() {
   const [formData, setFormData] = useState<Partial<RiskItem>>({})
   const [mitigateData, setMitigateData] = useState({ plan: '', owner: '', deadline: '' })
 
-  useEffect(() => { getRiskRegister().then(d => setRisks(d ?? [])) }, [])
+  useEffect(() => { getRiskItems().then(d => setRisks(d ?? [])) }, [])
 
-  const filtered = filter === 'all' ? risks : risks.filter(r => r.level === filter)
+  const filtered = filter === 'all' ? risks : risks.filter(r => r.riskLevel === filter)
   const byLevel = risks.reduce<Record<string, number>>((acc, r) => {
-    acc[r.level] = (acc[r.level] ?? 0) + 1
+    acc[r.riskLevel] = (acc[r.riskLevel] ?? 0) + 1
     return acc
   }, {})
   const levelData = Object.entries(LEVEL_LABELS).map(([k, v]) => ({ name: v, count: byLevel[k] ?? 0 }))
@@ -57,22 +57,28 @@ export default function RiskManagementPage() {
   const handleSubmit = async () => {
     if (!formData.title || !formData.likelihood || !formData.severity) return
     await createRiskItem({
+      riskType: formData.category ?? 'clinical',
       title: formData.title,
       description: formData.description ?? '',
-      category: (formData.category ?? 'clinical') as RiskItem['category'],
+      category: (formData.category ?? 'clinical') as RiskCategory,
       likelihood: formData.likelihood,
       severity: formData.severity,
       identifiedBy: formData.identifiedBy ?? '当前用户',
     })
-    const data = await getRiskRegister()
+    const data = await getRiskItems()
     setRisks(data)
     setShowForm(false)
     setFormData({})
   }
 
   const handleMitigate = async (riskId: string) => {
-    await updateRiskMitigation(riskId, mitigateData.plan, mitigateData.owner, mitigateData.deadline)
-    const data = await getRiskRegister()
+    await updateRiskItem(riskId, {
+      mitigationPlan: mitigateData.plan,
+      mitigationOwner: mitigateData.owner,
+      mitigationDeadline: mitigateData.deadline,
+      status: 'mitigating',
+    })
+    const data = await getRiskItems()
     setRisks(data)
     setShowMitigate(null)
     setMitigateData({ plan: '', owner: '', deadline: '' })
@@ -95,7 +101,7 @@ export default function RiskManagementPage() {
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>识别新风险</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
               <input style={{ background: '#0d1117', color: '#f0f6fc', border: '1px solid #30363d', borderRadius: 4, padding: '6px 10px' }} placeholder="风险标题" value={formData.title ?? ''} onChange={e => setFormData({ ...formData, title: e.target.value })} />
-              <select style={{ background: '#0d1117', color: '#f0f6fc', border: '1px solid #30363d', borderRadius: 4, padding: '6px 10px' }} value={formData.category ?? ''} onChange={e => setFormData({ ...formData, category: e.target.value })}>
+              <select style={{ background: '#0d1117', color: '#f0f6fc', border: '1px solid #30363d', borderRadius: 4, padding: '6px 10px' }} value={formData.category ?? ''} onChange={e => setFormData({ ...formData, category: e.target.value as RiskCategory })}>
                 <option value="">选择类别</option>
                 {Object.entries(CATEGORY_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </select>
@@ -120,7 +126,7 @@ export default function RiskManagementPage() {
         <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
           {[
             { title: '风险总数', value: risks.length, icon: ShieldAlert, color: '#e11d48' },
-            { title: '极高/高风险', value: risks.filter(r => r.level === 'high' || r.level === 'very-high').length, icon: AlertTriangle, color: '#dc2626' },
+            { title: '极高/高风险', value: risks.filter(r => r.riskLevel === 'high' || r.riskLevel === 'very-high').length, icon: AlertTriangle, color: '#dc2626' },
             { title: '已缓解', value: risks.filter(r => r.status === 'mitigating').length, icon: CheckCircle, color: '#22c55e' },
             { title: '监控中', value: risks.filter(r => r.status === 'monitoring').length, icon: Target, color: '#3b82f6' },
           ].map((k, i) => (
@@ -165,7 +171,7 @@ export default function RiskManagementPage() {
         <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
           {(['all', 'very-low', 'low', 'medium', 'high', 'very-high'] as const).map(s => (
             <button key={s} onClick={() => setFilter(s)} style={{ padding: '4px 12px', borderRadius: 4, border: `1px solid ${filter === s ? '#e11d48' : '#30363d'}`, background: filter === s ? '#e11d4820' : 'transparent', color: filter === s ? '#e11d48' : '#8b949e', cursor: 'pointer', fontSize: 12 }}>
-              {LEVEL_LABELS[s] ?? '全部'}
+              {s === 'all' ? '全部' : LEVEL_LABELS[s as RiskLevel]}
             </button>
           ))}
         </div>
@@ -190,9 +196,9 @@ export default function RiskManagementPage() {
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>{r.title}</td>
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#8b949e', fontSize: 12 }}>{CATEGORY_LABELS[r.category]}</td>
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>{r.likelihood}×{r.severity}</td>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', fontWeight: 700, color: LEVEL_COLORS[r.level] }}>{r.rpn}</td>
+                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', fontWeight: 700, color: LEVEL_COLORS[r.riskLevel] }}>{r.rpn}</td>
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>
-                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${LEVEL_COLORS[r.level]}20`, color: LEVEL_COLORS[r.level] }}>{LEVEL_LABELS[r.level]}</span>
+                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${LEVEL_COLORS[r.riskLevel]}20`, color: LEVEL_COLORS[r.riskLevel] }}>{LEVEL_LABELS[r.riskLevel]}</span>
                   </td>
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>
                     <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: r.status === 'mitigating' ? '#22c55e20' : r.status === 'monitoring' ? '#3b82f620' : '#8b949e20', color: r.status === 'mitigating' ? '#22c55e' : r.status === 'monitoring' ? '#3b82f6' : '#8b949e' }}>

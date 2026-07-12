@@ -3,8 +3,9 @@
 // Phase R2：按设备 / 部位 / 病种 三维分类树 + 拖拽管理
 // ============================================================
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { templatesApi } from '../services/api/templatesApi';
 import {
   FolderTree, Folder, FolderOpen, FileText, Plus, Edit2,
   ChevronRight, ChevronDown, Search, Tag, Layers,
@@ -73,12 +74,13 @@ const TreeNode: React.FC<{
   onToggle: (id: string) => void;
   onSelect: (id: string) => void;
   searchTerm: string;
-}> = ({ node, depth, expanded, selectedId, onToggle, onSelect, searchTerm }) => {
+  templateCount: Record<string, number>;
+}> = ({ node, depth, expanded, selectedId, onToggle, onSelect, searchTerm, templateCount }) => {
   const isExpanded = expanded.has(node.id);
   const isSelected = selectedId === node.id;
   const hasChildren = node.children.length > 0;
-  const tplCount = TEMPLATE_COUNT_MAP[node.id] || 0;
-  const totalCount = useMemo(() => countTemplatesInTreeWithOverride(node), [node]);
+  const tplCount = templateCount[node.id] || 0;
+  const totalCount = useMemo(() => countTemplatesInTreeWithOverride(node, templateCount), [node, templateCount]);
 
   // 搜索高亮匹配
   const matchesSearch = searchTerm && (
@@ -162,6 +164,7 @@ const TreeNode: React.FC<{
               onToggle={onToggle}
               onSelect={onSelect}
               searchTerm={searchTerm}
+              templateCount={templateCount}
             />
           ))}
         </div>
@@ -182,11 +185,12 @@ function hasMatchingDescendant(node: TemplateCategoryNode, term: string): boolea
 }
 
 // 工具：带覆盖的计数
-function countTemplatesInTreeWithOverride(node: TemplateCategoryNode): number {
-  const own = TEMPLATE_COUNT_MAP[node.id] || 0;
+function countTemplatesInTreeWithOverride(node: TemplateCategoryNode, countMap?: Record<string, number>): number {
+  const map = countMap || TEMPLATE_COUNT_MAP;
+  const own = map[node.id] || 0;
   let total = own;
   for (const c of node.children) {
-    total += countTemplatesInTreeWithOverride(c);
+    total += countTemplatesInTreeWithOverride(c, map);
   }
   return total;
 }
@@ -202,6 +206,19 @@ export default function TemplateCategoryPage() {
   const [selectedId, setSelectedId] = useState<string | null>('cat-ct-chest');
   const [search, setSearch] = useState('');
   const [viewMode, setViewMode] = useState<'tree' | 'flat'>('tree');
+  const [templateCount, setTemplateCount] = useState<Record<string, number>>(TEMPLATE_COUNT_MAP);
+
+  useEffect(() => {
+    templatesApi.list().then(res => {
+      if (res.success && Array.isArray(res.data)) {
+        const byCategory: Record<string, number> = {}
+        res.data.forEach(t => {
+          byCategory[t.category] = (byCategory[t.category] || 0) + 1
+        })
+        setTemplateCount(prev => ({ ...prev, ...byCategory }))
+      }
+    })
+  }, [])
 
   const stats = useMemo(() => countByLevel(TEMPLATE_CATEGORY_TREE), []);
   const flatList = useMemo(() => flattenCategoryTree(TEMPLATE_CATEGORY_TREE), []);
@@ -214,7 +231,7 @@ export default function TemplateCategoryPage() {
   };
 
   const selectedNode = selectedId ? findCategoryById(TEMPLATE_CATEGORY_TREE, selectedId) : null;
-  const selectedStats = selectedNode ? countTemplatesInTreeWithOverride(selectedNode) : 0;
+  const selectedStats = selectedNode ? countTemplatesInTreeWithOverride(selectedNode, templateCount) : 0;
   const selectedChildren = selectedNode ? selectedNode.children : [];
 
   return (
@@ -325,6 +342,7 @@ export default function TemplateCategoryPage() {
                   onToggle={toggle}
                   onSelect={setSelectedId}
                   searchTerm={search}
+                  templateCount={templateCount}
                 />
               ))
             ) : (
@@ -445,12 +463,12 @@ export default function TemplateCategoryPage() {
                 {/* 该分类下的模板 */}
                 <div>
                   <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <FileText size={12} /> 模板列表 (本分类 {TEMPLATE_COUNT_MAP[selectedNode.id] || 0} / 全部后代 {selectedStats})
+                    <FileText size={12} /> 模板列表 (本分类 {templateCount[selectedNode.id] || 0} / 全部后代 {selectedStats})
                   </div>
                   <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 6, padding: 12, minHeight: 80, fontSize: 12, color: '#475569' }}>
-                    {TEMPLATE_COUNT_MAP[selectedNode.id] ? (
+                    {templateCount[selectedNode.id] ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                        {Array.from({ length: TEMPLATE_COUNT_MAP[selectedNode.id] }).map((_, i) => (
+                        {Array.from({ length: templateCount[selectedNode.id] }).map((_, i) => (
                           <div key={i} style={{
                             padding: 8, background: '#fff', borderRadius: 4,
                             border: '1px solid #e2e8f0',

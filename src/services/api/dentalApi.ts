@@ -2,7 +2,10 @@
 // 对标: 3Shape / Sirona / Planmeca / Carestream
 import { api } from './client';
 
-const DENTAL_API = '/api/v1/dental';
+// 后端 NestJS 路由前缀: @Controller('dental') + globalPrefix 'api' = /api/dental
+// API_BASE(client.ts) 已提供 /api/v1(mock) 或 http://host/api(real)
+// 所以此处只需写 /dental
+const DENTAL_API = '/dental';
 
 export interface DentalStudy {
   id: string;
@@ -146,4 +149,28 @@ export const dentalApi = {
   exportSurgicalGuide: (id: string) => api.post<any>(`${DENTAL_API}/guide/${id}/export`),
   checkImplantPrices: (brand: string, models: string[]) =>
     api.get<any[]>(`${DENTAL_API}/implant/inventory/price-check?brand=${brand}&models=${models.join(',')}`),
+
+  // ===== [v3.0.6.11-20] 后端真实端点 18 个对齐 =====
+  // AI 发现 (2)
+  listAiFindings: () => api.get<any[]>(`${DENTAL_API}/ai-findings`),
+  createAiFinding: (data: any) => api.post<any>(`${DENTAL_API}/ai-findings`, data),
+
+  // 种植体 CRUD (3)
+  listImplants: () => api.get<any[]>(`${DENTAL_API}/implants`),
+  createImplant: (data: any) => api.post<any>(`${DENTAL_API}/implants`, data),
+  updateImplant: (id: string, data: any) => api.put<any>(`${DENTAL_API}/implants/${id}`, data),
+
+  // 预约 CRUD (3)
+  listAppointments: () => api.get<any[]>(`${DENTAL_API}/appointments`),
+  createAppointment: (data: any) => api.post<any>(`${DENTAL_API}/appointments`, data),
+  updateAppointment: (id: string, data: any) => api.put<any>(`${DENTAL_API}/appointments/${id}`, data),
+
+  // 发票 CRUD (2)
+  listInvoices: () => api.get<any[]>(`${DENTAL_API}/invoices`),
+  createInvoice: (data: any) => api.post<any>(`${DENTAL_API}/invoices`, data),
+
+  // 库存 CRUD (3)
+  listInventory: () => api.get<any[]>(`${DENTAL_API}/inventory`),
+  addInventoryItem: (data: any) => api.post<any>(`${DENTAL_API}/inventory`, data),
+  updateInventoryItem: (id: string, data: any) => api.put<any>(`${DENTAL_API}/inventory/${id}`, data),
 };

@@ -2,6 +2,7 @@
 // G005 放射RIS系统 - 国家数据上报页面 v1.0.0
 // Phase 5b: FHIR报告 · 多监管机构 · 预提交校验 · 审计追踪 · 计划报告
 import { useState, useEffect } from 'react'
+import { datareportApi, type NationalReportDto, type DataReportDto } from '../services/api/datareportApi'
 import {
   BarChart3, PieChart as PieChartIcon, Activity, TrendingUp, TrendingDown,
   Upload, Download, FileText, CheckCircle, AlertTriangle, Clock, ShieldCheck,

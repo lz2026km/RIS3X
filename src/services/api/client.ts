@@ -1,9 +1,46 @@
 import type { ApiResponse } from './types'
 import { withRetry } from './retry'
-import { getToken } from '../../utils/auth'
+import { getToken, refreshToken } from '../../utils/auth'
 import { checkAccess, type AccessContext, type ResourceType } from '../auth/rbacService'
 
-const API_BASE = '/api/v1'
+// ────────────────────────────────────────────────────────────────────────────
+// API Mode: real | mock
+// ────────────────────────────────────────────────────────────────────────────
+type ApiMode = 'real' | 'mock'
+const API_MODE: ApiMode = (import.meta.env.VITE_API_MODE as ApiMode) || 'mock'
+// Real mode: 后端 NestJS globalPrefix 为 'api' (见 backend/src/main.ts)
+// Mock mode: MSW handlers 拦截 /api/v1/... 路径
+const API_BASE = API_MODE === 'real'
+  ? (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api')
+  : '/api/v1'
+
+// ────────────────────────────────────────────────────────────────────────────
+// 内联 JWT 解码 (无额外依赖,仅提取 payload)
+// ────────────────────────────────────────────────────────────────────────────
+interface JwtPayload {
+  sub?: string
+  tenantId?: string
+  role?: string
+  [key: string]: unknown
+}
+
+function decodeJwt(token: string): JwtPayload | null {
+  try {
+    const parts = token.split('.')
+    if (parts.length !== 3) return null
+    const raw = atob(parts[1]!.replace(/-/g, '+').replace(/_/g, '/'))
+    return JSON.parse(raw) as JwtPayload
+  } catch {
+    return null
+  }
+}
+
+function getTenantId(): string | undefined {
+  const token = getToken()
+  if (!token) return undefined
+  const payload = decodeJwt(token)
+  return payload?.tenantId
+}
 
 // ────────────────────────────────────────────────────────────────────────────
 // v3.0.6.13 内存 LRU 缓存 (替代原先依赖 Service Worker CLEAR_API_CACHE 的方案)
@@ -72,6 +109,11 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<ApiR
   }
   if (token) headers['Authorization'] = `Bearer ${token}`
 
+  if (API_MODE === 'real') {
+    const tenantId = getTenantId()
+    if (tenantId) headers['X-Tenant-Id'] = tenantId
+  }
+
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 30000);
 
@@ -82,7 +124,15 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<ApiR
   };
 
   try {
-    const res = await withRetry(() => fetch(url, mergedOptions));
+    const res = await withRetry(
+      async () => {
+        const response = await fetch(url, mergedOptions);
+        if (response.status === 429) throw { status: 429, message: 'Too Many Requests' }
+        if (response.status === 401) throw { status: 401, message: 'Unauthorized' }
+        return response
+      },
+      { onUnauthorized: refreshToken },
+    );
     clearTimeout(timeoutId);
     if (res.status === 204) return { success: true, data: null as unknown as T }
     const body = await res.json()
@@ -94,6 +144,15 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<ApiR
     return body
   } catch (err) {
     clearTimeout(timeoutId);
+    const errObj = err as { status?: number; message?: string }
+    if (errObj.status === 401) {
+      console.warn(`[API] ${method} ${url} 401 after token refresh`)
+      return {
+        success: false,
+        data: null as unknown as T,
+        error: { code: 'UNAUTHORIZED', message: '登录已过期，请重新登录' },
+      }
+    }
     console.error(`[API] Network error ${method} ${url}:`, err)
     return {
       success: false,
@@ -107,6 +166,7 @@ export const api = {
   get: <T>(path: string) => request<T>(path, { method: 'GET' }),
   post: <T>(path: string, body?: unknown) => request<T>(path, { method: 'POST', body: body ? JSON.stringify(body) : undefined }),
   put: <T>(path: string, body?: unknown) => request<T>(path, { method: 'PUT', body: body ? JSON.stringify(body) : undefined }),
+  patch: <T>(path: string, body?: unknown) => request<T>(path, { method: 'PATCH', body: body ? JSON.stringify(body) : undefined }),
   delete: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
 }
 

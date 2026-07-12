@@ -1,9 +1,10 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   BarChart3, TrendingUp, TrendingDown, Download, Calendar,
   AlertTriangle, CheckCircle, Activity, RefreshCw, ArrowUp, ArrowDown,
 } from 'lucide-react'
 import type { CdsStatsOverview } from '../../services/cds'
+import { cdsApi } from '../../services/api/cdsApi'
 
 type Period = '7d' | '30d' | '90d'
 
@@ -12,30 +13,6 @@ const PERIOD_OPTIONS: { value: Period; label: string }[] = [
   { value: '30d', label: '近30天' },
   { value: '90d', label: '近90天' },
 ]
-
-const MOCK_OVERVIEW: CdsStatsOverview = {
-  totalRules: 18,
-  activeRules: 15,
-  totalOverrides: 42,
-  overrideRate: 0.086,
-  suggestionAcceptanceRate: 0.73,
-  pathwayCompletionRate: 0.64,
-  contrastAlertsThisMonth: 12,
-  topOverriddenRules: [
-    { ruleId: 'ar-002', ruleName: '胸痛检查适宜性', count: 15 },
-    { ruleId: 'ar-001', ruleName: '头痛CT/MRI适宜性', count: 11 },
-    { ruleId: 'ar-003', ruleName: '腰痛DR适宜性', count: 7 },
-  ],
-  topPathways: [
-    { pathwayId: 'pw-001', pathwayName: '肺结节评估路径', activationCount: 47 },
-    { pathwayId: 'pw-002', pathwayName: '缺血性脑卒中路径', activationCount: 32 },
-  ],
-  dailyUsage: Array.from({ length: 30 }, (_, i) => ({
-    date: new Date(Date.now() - (29 - i) * 86400000).toISOString().slice(0, 10),
-    suggestions: Math.floor(Math.random() * 20 + 10),
-    overrides: Math.floor(Math.random() * 5),
-  })),
-}
 
 function StatCard({ title, value, unit, icon: Icon, trend, trendValue, color }: {
   title: string; value: string | number; unit?: string; icon: typeof Activity; trend?: 'up' | 'down'; trendValue?: string; color: string
@@ -61,17 +38,47 @@ function StatCard({ title, value, unit, icon: Icon, trend, trendValue, color }: 
 
 export default function CdsStatisticsPage() {
   const [period, setPeriod] = useState<Period>('30d')
+  const [overview, setOverview] = useState<CdsStatsOverview | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    cdsApi.getCdsStatistics().then((res) => {
+      if (cancelled) return
+      if (res.success) setOverview(res.data)
+      setLoading(false)
+    })
+    return () => { cancelled = true }
+  }, [])
 
   const chartData = useMemo(() => {
+    if (!overview) return []
     const days = period === '7d' ? 7 : period === '30d' ? 30 : 90
-    return MOCK_OVERVIEW.dailyUsage.slice(-days)
-  }, [period])
+    return overview.dailyUsage.slice(-days)
+  }, [period, overview])
 
   const maxVal = Math.max(...chartData.map(d => d.suggestions), 1)
   const barWidth = Math.max(8, Math.min(24, Math.floor(600 / chartData.length)))
 
-  const acceptanceRate = (MOCK_OVERVIEW.suggestionAcceptanceRate * 100).toFixed(0)
-  const overrideRatePct = (MOCK_OVERVIEW.overrideRate * 100).toFixed(1)
+  const acceptanceRate = overview ? (overview.suggestionAcceptanceRate * 100).toFixed(0) : '0'
+  const overrideRatePct = overview ? (overview.overrideRate * 100).toFixed(1) : '0'
+
+  if (loading) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#0d1117', color: '#8b949e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>
+        加载统计数据...
+      </div>
+    )
+  }
+
+  if (!overview) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#0d1117', color: '#8b949e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>
+        无法加载统计数据
+      </div>
+    )
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
@@ -85,7 +92,7 @@ export default function CdsStatisticsPage() {
               {opt.label}
             </button>
           ))}
-          <button onClick={() => { const csv = 'CDS统计报表\n总规则数,采纳率,覆盖次数,路径完成率\n' + MOCK_OVERVIEW.totalRules + ',' + (MOCK_OVERVIEW.suggestionAcceptanceRate * 100).toFixed(0) + '%,' + MOCK_OVERVIEW.totalOverrides + ',' + (MOCK_OVERVIEW.pathwayCompletionRate * 100).toFixed(0) + '%'; const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'CDS统计报表.csv'; a.click(); URL.revokeObjectURL(url); }} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: 'rgba(255,255,255,0.15)', color: '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button onClick={() => { const csv = 'CDS统计报表\n总规则数,采纳率,覆盖次数,路径完成率\n' + overview.totalRules + ',' + (overview.suggestionAcceptanceRate * 100).toFixed(0) + '%,' + overview.totalOverrides + ',' + (overview.pathwayCompletionRate * 100).toFixed(0) + '%'; const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'CDS统计报表.csv'; a.click(); URL.revokeObjectURL(url); }} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: 'rgba(255,255,255,0.15)', color: '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Download size={14} />导出
           </button>
         </div>
@@ -93,11 +100,11 @@ export default function CdsStatisticsPage() {
 
       <div style={{ padding: '20px 24px' }}>
         <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
-          <StatCard title="活跃规则" value={MOCK_OVERVIEW.activeRules} unit={`/ ${MOCK_OVERVIEW.totalRules}`} icon={CheckCircle} trend="up" trendValue="较上月 +2" color="#22c55e" />
+          <StatCard title="活跃规则" value={overview.activeRules} unit={`/ ${overview.totalRules}`} icon={CheckCircle} trend="up" trendValue="较上月 +2" color="#22c55e" />
           <StatCard title="规则覆盖率" value={overrideRatePct} unit="%" icon={Activity} trend="down" trendValue="较上月 -1.2%" color="#3b82f6" />
           <StatCard title="建议采纳率" value={acceptanceRate} unit="%" icon={TrendingUp} trend="up" trendValue="较上月 +5.3%" color="#22c55e" />
-          <StatCard title="路径完成率" value={(MOCK_OVERVIEW.pathwayCompletionRate * 100).toFixed(0)} unit="%" icon={TrendingUp} trend="up" trendValue="较上月 +3.1%" color="#f59e0b" />
-          <StatCard title="造影剂警报" value={MOCK_OVERVIEW.contrastAlertsThisMonth} unit="本月" icon={AlertTriangle} trend="down" trendValue="较上月 -2" color="#ef4444" />
+          <StatCard title="路径完成率" value={(overview.pathwayCompletionRate * 100).toFixed(0)} unit="%" icon={TrendingUp} trend="up" trendValue="较上月 +3.1%" color="#f59e0b" />
+          <StatCard title="造影剂警报" value={overview.contrastAlertsThisMonth} unit="本月" icon={AlertTriangle} trend="down" trendValue="较上月 -2" color="#ef4444" />
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
@@ -119,7 +126,7 @@ export default function CdsStatisticsPage() {
 
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc' }}>常被覆盖规则 TOP 3</div>
-            {MOCK_OVERVIEW.topOverriddenRules.map((r, i) => (
+            {overview.topOverriddenRules.map((r, i) => (
               <div key={r.ruleId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < 2 ? '1px solid #21262d' : 'none' }}>
                 <span style={{ width: 24, height: 24, borderRadius: '50%', background: i === 0 ? '#ef4444' : i === 1 ? '#f59e0b' : '#3b82f6', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 600 }}>{i + 1}</span>
                 <div style={{ flex: 1 }}>
@@ -135,7 +142,7 @@ export default function CdsStatisticsPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc' }}>热门临床路径</div>
-            {MOCK_OVERVIEW.topPathways.map((p, i) => (
+            {overview.topPathways.map((p, i) => (
               <div key={p.pathwayId} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < 1 ? '1px solid #21262d' : 'none' }}>
                 <RouteIcon color="#22c55e" />
                 <div style={{ flex: 1 }}>
@@ -152,10 +159,10 @@ export default function CdsStatisticsPage() {
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc' }}>汇总指标</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               {[
-                { label: '总规则数', value: MOCK_OVERVIEW.totalRules, color: '#3b82f6' },
-                { label: '总覆盖次数', value: MOCK_OVERVIEW.totalOverrides, color: '#ef4444' },
+                { label: '总规则数', value: overview.totalRules, color: '#3b82f6' },
+                { label: '总覆盖次数', value: overview.totalOverrides, color: '#ef4444' },
                 { label: '覆盖率', value: `${overrideRatePct}%`, color: '#f59e0b' },
-                { label: '路径完成率', value: `${(MOCK_OVERVIEW.pathwayCompletionRate * 100).toFixed(0)}%`, color: '#22c55e' },
+                { label: '路径完成率', value: `${(overview.pathwayCompletionRate * 100).toFixed(0)}%`, color: '#22c55e' },
               ].map(item => (
                 <div key={item.label} style={{ padding: '12px', background: '#0d1117', borderRadius: 6, textAlign: 'center' }}>
                   <div style={{ fontSize: 22, fontWeight: 700, color: item.color }}>{item.value}</div>

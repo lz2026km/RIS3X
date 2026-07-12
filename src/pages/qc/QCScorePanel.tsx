@@ -11,6 +11,8 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import QCFilter from './QCFilter'
+import { useState, useEffect } from 'react'
+import { qcextApi, type QcScoreDto, type QcStatsDto } from '../../services/api/qcextApi'
 
 const PRIMARY = '#1e40af'
 const PRIMARY_LIGHT = '#2563eb'
@@ -207,6 +209,12 @@ export default function QCScorePanel({
   setShowRatingModal,
   setDetailModal,
 }: QCScorePanelProps) {
+  const [scores, setScores] = useState<QcScoreDto[]>([]);
+  const [qcStats, setQcStats] = useState<QcStatsDto | null>(null);
+  useEffect(() => {
+    qcextApi.listQcScores().then(res => { if (res.success) setScores(res.data); }).catch(() => {});
+    qcextApi.getQcStats().then(res => { if (res.success) setQcStats(res.data); }).catch(() => {});
+  }, []);
   const statCardsReport = [
     { label: '今日审核数', value: reportQCData.filter(r => r.date === '2026-05-01').length, icon: <FileText size={18} color={ACCENT} />, bg: '#eff6ff', color: ACCENT },
     { label: '平均评分', value: '87.3', icon: <Star size={18} color={'#f59e0b'} />, bg: '#fef3c7', color: '#f59e0b' },

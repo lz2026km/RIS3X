@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, Upload, Button, message, Table, Tag, Space, Alert, Typography } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
-import { api } from '../../services/api/client';
+import { dicomDimseApi } from '../../services/api/dicomApi';
 
 const UPLOAD_COLUMNS = [
   { title: 'File Name', dataIndex: 'fileName', key: 'fileName' },
@@ -16,12 +16,24 @@ export const DimseUploadPage: React.FC = () => {
 
   const handleUpload = async (file: File) => {
     setUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
     try {
-      const res = await api.post<{ s3Url: string; sizeBytes: number }>('/dicom-dimse/upload', formData);
+      const reader = new FileReader();
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      const body = {
+        sopInstanceUid: crypto.randomUUID(),
+        bucketName: undefined,
+        endpoint: undefined,
+        accessKey: undefined,
+        secretKey: undefined,
+        region: undefined,
+      };
+      const res = await dicomDimseApi.uploadToS3(body);
       if (res.success) {
-        setRecords(prev => [...prev, { fileName: file.name, sizeBytes: res.data!.sizeBytes ?? file.size, s3Url: res.data!.s3Url, status: 'SUCCESS' }]);
+        setRecords(prev => [...prev, { fileName: file.name, sizeBytes: file.size, s3Url: res.data?.message || '', status: res.data?.status || 'SUCCESS' }]);
         message.success('S3 upload successful');
       } else {
         setRecords(prev => [...prev, { fileName: file.name, sizeBytes: file.size, s3Url: '', status: 'FAIL' }]);

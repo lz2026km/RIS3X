@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { patientPortalApi, type PortalPatientDto, type PortalClinicalDataDto } from '../services/api/patientPortalApi';
 
 // ============ Types ============
 interface PatientInfo {
@@ -1041,6 +1042,10 @@ const PatientPortalPage: React.FC = () => {
   });
   const [appointmentSuccess, setAppointmentSuccess] = useState<string | null>(null);
 
+  // API data
+  const [apiPatients, setApiPatients] = useState<PortalPatientDto[]>([]);
+  const [apiClinicalData, setApiClinicalData] = useState<PortalClinicalDataDto[]>([]);
+
   // Load from localStorage on mount
   useEffect(() => {
     const storedWindow = getStoredData<ImagePreview[]>('g005_portal_window', []);
@@ -1063,6 +1068,21 @@ const PatientPortalPage: React.FC = () => {
       // Restore share log if needed
     }
   }, []);
+
+  // Fetch data from real backend
+  useEffect(() => {
+    if (!loggedIn) return;
+
+    const fetchAll = async () => {
+      const [patientsRes, clinicalRes] = await Promise.all([
+        patientPortalApi.listPatients().catch(() => ({ success: false, data: { data: [] } })),
+        patientPortalApi.listClinicalData().catch(() => ({ success: false, data: { data: [] } })),
+      ]);
+      if (patientsRes.success) setApiPatients(patientsRes.data.data);
+      if (clinicalRes.success) setApiClinicalData(clinicalRes.data.data);
+    };
+    fetchAll();
+  }, [loggedIn]);
 
   // Report status polling - simulates progression
   useEffect(() => {
@@ -1233,6 +1253,43 @@ const PatientPortalPage: React.FC = () => {
   const successCount = MOCK_PUSH_RECORDS.filter(r => r.status === '成功' || r.status === '已查看').length;
   const successRate = Math.round((successCount / MOCK_PUSH_RECORDS.length) * 100);
 
+  // Derived data from API (fallback to mock)
+  const displayPatient = apiPatients.length > 0
+    ? {
+        name: apiPatients[0].name || MOCK_PATIENT.name,
+        gender: apiPatients[0].gender || MOCK_PATIENT.gender,
+        age: apiPatients[0].age || MOCK_PATIENT.age,
+        idNumber: apiPatients[0].idNumber || MOCK_PATIENT.idNumber,
+        phone: apiPatients[0].phone || MOCK_PATIENT.phone,
+      }
+    : MOCK_PATIENT;
+
+  const displayExams = apiClinicalData.length > 0
+    ? apiClinicalData.map(cd => ({
+        id: cd.id,
+        examItem: cd.examType || '未知检查',
+        examDate: cd.examDate || '—',
+        bodyPart: cd.bodyPart || '—',
+        device: '—',
+        reportStatus: (cd.reportStatus === '已出报告' ? '已出报告' : '报告待出') as '已出报告' | '报告待出' | '审核中',
+        hasImages: false,
+        reportContent: cd.findings || cd.diagnosis ? `检查描述：\n${cd.findings || ''}\n\n诊断意见：\n${cd.diagnosis || ''}` : undefined,
+      }))
+    : MOCK_EXAMS;
+
+  const displayReports = apiClinicalData.length > 0
+    ? apiClinicalData.filter(cd => cd.reportStatus === '已出报告').map(cd => ({
+        id: cd.id,
+        examType: cd.examType || '未知检查',
+        examDate: cd.examDate || '—',
+        status: '已出报告' as const,
+        findings: cd.findings || '',
+        diagnosis: cd.diagnosis || '',
+        advice: '',
+        hasFilm: false,
+      }))
+    : MOCK_PATIENT_REPORTS;
+
   // Get image filter style for DICOM preview
   const getImageFilter = (img: ImagePreview) => {
     const brightness = img.windowCenter / 40;
@@ -1292,21 +1349,21 @@ const PatientPortalPage: React.FC = () => {
           <div style={styles.patientAvatar}>👤</div>
           <div>
             <div style={{ fontSize: '22px', fontWeight: 600, color: '#f8fafc', marginBottom: '4px' }}>
-              {MOCK_PATIENT.name}
+              {displayPatient.name}
             </div>
             <div style={{ fontSize: '14px', color: '#94a3b8' }}>
-              {MOCK_PATIENT.gender} · {MOCK_PATIENT.age}岁
+              {displayPatient.gender} · {displayPatient.age}岁
             </div>
           </div>
         </div>
         <div style={styles.patientInfo}>
           <div style={styles.patientField}>
             <span style={styles.fieldLabel}>证件号码</span>
-            <span style={styles.fieldValue}>{MOCK_PATIENT.idNumber}</span>
+            <span style={styles.fieldValue}>{displayPatient.idNumber}</span>
           </div>
           <div style={styles.patientField}>
             <span style={styles.fieldLabel}>手机号</span>
-            <span style={styles.fieldValue}>{MOCK_PATIENT.phone}</span>
+            <span style={styles.fieldValue}>{displayPatient.phone}</span>
           </div>
         </div>
       </div>
@@ -1326,7 +1383,7 @@ const PatientPortalPage: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {MOCK_EXAMS.map(exam => (
+            {displayExams.map(exam => (
               <tr key={exam.id}>
                 <td style={styles.td}>{exam.examItem}</td>
                 <td style={styles.td}>{exam.examDate}</td>
@@ -1456,7 +1513,7 @@ const PatientPortalPage: React.FC = () => {
       {/* Report Section */}
       <div style={styles.reportSection}>
         <h2 style={styles.sectionTitle}>检查报告</h2>
-        {MOCK_EXAMS.filter(e => e.reportContent).map(exam => (
+        {displayExams.filter(e => e.reportContent).map(exam => (
           <div key={exam.id} style={{ marginBottom: '12px' }}>
             <div
               style={styles.reportHeader}
@@ -1866,7 +1923,7 @@ const PatientPortalPage: React.FC = () => {
             </span>
           </div>
 
-          {MOCK_PATIENT_REPORTS.map(report => (
+          {displayReports.map(report => (
             <div
               key={report.id}
               style={styles.reportListItem}

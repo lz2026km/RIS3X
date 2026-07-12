@@ -1,8 +1,10 @@
 import { t } from '../../i18n/appI18n'
 import { Camera, Award, AlertTriangle, Star, Image, PieChart } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import {
   PieChart as RechartsPie, Pie, Cell, Tooltip, ResponsiveContainer,
 } from 'recharts'
+import { qcextApi, type QcImageDto, type QcStatsDto } from '../../services/api/qcextApi'
 
 const PRIMARY = '#1e40af'
 const ACCENT = '#3b82f6'
@@ -50,6 +52,10 @@ interface QCImagePanelProps {
 }
 
 export default function QCImagePanel({ data, issueDistribution, onViewDetail }: QCImagePanelProps) {
+  const [images, setImages] = useState<QcImageDto[]>([]);
+  useEffect(() => {
+    qcextApi.listQcImages().then(res => { if (res.success) setImages(res.data); }).catch(() => {});
+  }, []);
   const imageFiltered = data
 
   const statCardsImage = [

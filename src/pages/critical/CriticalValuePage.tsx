@@ -5,9 +5,8 @@ import {
   ShieldAlert, CheckCircle, CheckSquare,
 } from "lucide-react"
 import { message } from "antd"
-import { criticalApi } from "../../services/api"
-import { LoadingBanner, ErrorBanner } from "../../components/feedback"
 import { useCriticalStore } from "../../store"
+import { LoadingBanner, ErrorBanner } from "../../components/feedback"
 import { toStoreStatus } from "./types"
 import type { CriticalValue, FollowUpRecord } from "./types"
 import type { NotificationMethod } from "../../services/api/criticalApi"
@@ -64,13 +63,14 @@ export default function CriticalValuePage() {
     let cancelled = false
     void (async () => {
       setLoading(true)
-      const res = await criticalApi.list()
+      await useCriticalStore.getState().load()
       if (cancelled) return
-      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-        setCriticalValues(res.data as unknown as CriticalValue[])
+      const { values, error } = useCriticalStore.getState()
+      if (values.length > 0) {
+        setCriticalValues(values as unknown as CriticalValue[])
         setLoadError(null)
       } else {
-        setLoadError("API 不可用")
+        setLoadError(error ?? "暂无数据")
       }
       setLoading(false)
     })()

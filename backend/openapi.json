@@ -1,0 +1,8668 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Liveness probe",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/api/health/ready": {
+      "get": {
+        "operationId": "HealthController_ready",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Readiness probe (incl. DB, Cache, Queue)",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "账号密码登录",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/refresh": {
+      "post": {
+        "operationId": "AuthController_refresh",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "刷新 access token (使用 HttpOnly refresh cookie)",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/totp/verify": {
+      "post": {
+        "operationId": "AuthController_verifyTotp",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "TOTP验证",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/totp/setup": {
+      "post": {
+        "operationId": "AuthController_setupTotp",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "设置TOTP",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/totp/disable": {
+      "post": {
+        "operationId": "AuthController_disableTotp",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "关闭TOTP",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "operationId": "AuthController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "当前登录用户",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/change-password": {
+      "post": {
+        "operationId": "AuthController_changePassword",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "修改密码",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/users": {
+      "get": {
+        "operationId": "UsersController_list",
+        "parameters": [
+          {
+            "name": "skip",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      },
+      "post": {
+        "operationId": "UsersController_create",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "operationId": "UsersController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      },
+      "patch": {
+        "operationId": "UsersController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      },
+      "delete": {
+        "operationId": "UsersController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/users/{id}/activity": {
+      "get": {
+        "operationId": "UsersController_getActivity",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/reports": {
+      "get": {
+        "operationId": "ReportsController_list",
+        "parameters": [
+          {
+            "name": "skip",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "reports"
+        ]
+      },
+      "post": {
+        "operationId": "ReportsController_create",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "reports"
+        ]
+      }
+    },
+    "/api/reports/{id}": {
+      "get": {
+        "operationId": "ReportsController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "reports"
+        ]
+      },
+      "patch": {
+        "operationId": "ReportsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "reports"
+        ]
+      },
+      "delete": {
+        "operationId": "ReportsController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "reports"
+        ]
+      }
+    },
+    "/api/reports/{id}/transition": {
+      "post": {
+        "operationId": "ReportsController_transition",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "reports"
+        ]
+      }
+    },
+    "/api/appointments": {
+      "get": {
+        "operationId": "AppointmentsController_list",
+        "parameters": [
+          {
+            "name": "skip",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "deviceId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateFrom",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateTo",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "appointments"
+        ]
+      },
+      "post": {
+        "operationId": "AppointmentsController_create",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "appointments"
+        ]
+      }
+    },
+    "/api/appointments/{id}": {
+      "get": {
+        "operationId": "AppointmentsController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "appointments"
+        ]
+      },
+      "patch": {
+        "operationId": "AppointmentsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "appointments"
+        ]
+      },
+      "delete": {
+        "operationId": "AppointmentsController_cancel",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "appointments"
+        ]
+      }
+    },
+    "/api/criticals": {
+      "get": {
+        "operationId": "CriticalsController_list",
+        "parameters": [
+          {
+            "name": "skip",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "severity",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateFrom",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateTo",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "criticals"
+        ]
+      },
+      "post": {
+        "operationId": "CriticalsController_create",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "criticals"
+        ]
+      }
+    },
+    "/api/criticals/{id}": {
+      "get": {
+        "operationId": "CriticalsController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "criticals"
+        ]
+      },
+      "patch": {
+        "operationId": "CriticalsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "criticals"
+        ]
+      },
+      "delete": {
+        "operationId": "CriticalsController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "criticals"
+        ]
+      }
+    },
+    "/api/criticals/notify": {
+      "post": {
+        "operationId": "CriticalsController_notify",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "criticals"
+        ]
+      }
+    },
+    "/api/criticals/escalate": {
+      "post": {
+        "operationId": "CriticalsController_escalate",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "criticals"
+        ]
+      }
+    },
+    "/api/criticals/{criticalId}/history": {
+      "get": {
+        "operationId": "CriticalsController_listHistory",
+        "parameters": [
+          {
+            "name": "criticalId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "criticals"
+        ]
+      }
+    },
+    "/api/templates": {
+      "get": {
+        "operationId": "TemplatesController_list",
+        "parameters": [
+          {
+            "name": "category",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "bodyPart",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "keyword",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "templates"
+        ]
+      },
+      "post": {
+        "operationId": "TemplatesController_create",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "templates"
+        ]
+      }
+    },
+    "/api/templates/{id}": {
+      "get": {
+        "operationId": "TemplatesController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "templates"
+        ]
+      },
+      "patch": {
+        "operationId": "TemplatesController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "templates"
+        ]
+      },
+      "delete": {
+        "operationId": "TemplatesController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "templates"
+        ]
+      }
+    },
+    "/api/templates/{id}/clone": {
+      "post": {
+        "operationId": "TemplatesController_clone",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "templates"
+        ]
+      }
+    },
+    "/api/files/upload-url": {
+      "get": {
+        "operationId": "FilesController_getUploadUrl",
+        "parameters": [
+          {
+            "name": "filename",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "files"
+        ]
+      }
+    },
+    "/api/files/upload-complete": {
+      "post": {
+        "operationId": "FilesController_confirm",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "files"
+        ]
+      }
+    },
+    "/api/hl7/oru": {
+      "post": {
+        "operationId": "Hl7Controller_oru",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "hl7"
+        ]
+      }
+    },
+    "/api/hl7/batch": {
+      "post": {
+        "operationId": "Hl7Controller_batch",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "hl7"
+        ]
+      }
+    },
+    "/api/hl7/orm": {
+      "post": {
+        "operationId": "Hl7Controller_orm",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "hl7"
+        ]
+      }
+    },
+    "/api/hl7/dft": {
+      "post": {
+        "operationId": "Hl7Controller_dft",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "hl7"
+        ]
+      }
+    },
+    "/api/hl7/push-oru": {
+      "post": {
+        "operationId": "Hl7Controller_pushOru",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "hl7"
+        ]
+      }
+    },
+    "/api/reports/quality/rules": {
+      "get": {
+        "operationId": "ReportsQualityController_rules",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "reports-quality"
+        ]
+      }
+    },
+    "/api/reports/quality/evaluate": {
+      "post": {
+        "operationId": "ReportsQualityController_evaluate",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "reports-quality"
+        ]
+      }
+    },
+    "/api/reports/quality/history/{reportId}": {
+      "get": {
+        "operationId": "ReportsQualityController_history",
+        "parameters": [
+          {
+            "name": "reportId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "reports-quality"
+        ]
+      }
+    },
+    "/api/reports/quality/trend/{reportId}": {
+      "get": {
+        "operationId": "ReportsQualityController_trend",
+        "parameters": [
+          {
+            "name": "reportId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "days",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "reports-quality"
+        ]
+      }
+    },
+    "/api/reports/quality/re-evaluate/{reportId}": {
+      "post": {
+        "operationId": "ReportsQualityController_reEvaluate",
+        "parameters": [
+          {
+            "name": "reportId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "reports-quality"
+        ]
+      }
+    },
+    "/api/dicom-web/capabilities": {
+      "get": {
+        "operationId": "DicomWebController_capabilities",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dicom-web"
+        ]
+      }
+    },
+    "/api/dicom-web/studies": {
+      "get": {
+        "operationId": "DicomWebController_searchStudies",
+        "parameters": [
+          {
+            "name": "PatientID",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Modality",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "StudyInstanceUID",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "offset",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dicom-web"
+        ]
+      }
+    },
+    "/api/dicom-web/studies/{study}/series": {
+      "get": {
+        "operationId": "DicomWebController_searchSeries",
+        "parameters": [
+          {
+            "name": "study",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dicom-web"
+        ]
+      }
+    },
+    "/api/dicom-web/studies/{study}/instances": {
+      "get": {
+        "operationId": "DicomWebController_searchInstances",
+        "parameters": [
+          {
+            "name": "study",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "series",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dicom-web"
+        ]
+      }
+    },
+    "/api/dicom-web/studies/{study}/series/{series}/instances/{sop}": {
+      "get": {
+        "operationId": "DicomWebController_retrieve",
+        "parameters": [
+          {
+            "name": "sop",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dicom-web"
+        ]
+      }
+    },
+    "/api/dicom-web/studies/{study}/series/{series}/instances/{sop}/metadata": {
+      "get": {
+        "operationId": "DicomWebController_metadata",
+        "parameters": [
+          {
+            "name": "sop",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dicom-web"
+        ]
+      }
+    },
+    "/api/dicom-web/studies/{study}": {
+      "post": {
+        "operationId": "DicomWebController_store",
+        "parameters": [
+          {
+            "name": "study",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dicom-web"
+        ]
+      }
+    },
+    "/api/notifications/unread/{userId}": {
+      "get": {
+        "operationId": "NotificationsController_unread",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/notifications/history/{userId}": {
+      "get": {
+        "operationId": "NotificationsController_history",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/notifications/read/{id}": {
+      "post": {
+        "operationId": "NotificationsController_read",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/notifications": {
+      "post": {
+        "operationId": "NotificationsController_create",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/notifications/broadcast": {
+      "post": {
+        "operationId": "NotificationsController_broadcast",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/notifications/push-subscribe": {
+      "post": {
+        "operationId": "NotificationsController_pushSubscribe",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/ai/generate": {
+      "post": {
+        "operationId": "AiController_generate",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ai"
+        ]
+      }
+    },
+    "/api/ai/review": {
+      "post": {
+        "operationId": "AiController_review",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ai"
+        ]
+      }
+    },
+    "/api/ai/score": {
+      "post": {
+        "operationId": "AiController_score",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ai"
+        ]
+      }
+    },
+    "/api/ai/providers": {
+      "get": {
+        "operationId": "AiController_getProviders",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ai"
+        ]
+      }
+    },
+    "/api/ai/cad/detect": {
+      "post": {
+        "operationId": "CadController_detect",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DetectDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ai/cad"
+        ]
+      }
+    },
+    "/api/ai/cad/result/{instanceId}": {
+      "get": {
+        "operationId": "CadController_getResult",
+        "parameters": [
+          {
+            "name": "instanceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ai/cad"
+        ]
+      }
+    },
+    "/api/stats/dashboard": {
+      "get": {
+        "operationId": "StatsController_getDashboard",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "stats"
+        ]
+      }
+    },
+    "/api/compliance/report": {
+      "get": {
+        "operationId": "ComplianceController_getReport",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "compliance"
+        ]
+      }
+    },
+    "/api/patients": {
+      "get": {
+        "operationId": "PatientController_list",
+        "parameters": [
+          {
+            "name": "skip",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "name",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "phone",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "patients"
+        ]
+      },
+      "post": {
+        "operationId": "PatientController_create",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "patients"
+        ]
+      }
+    },
+    "/api/patients/{id}": {
+      "get": {
+        "operationId": "PatientController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "patients"
+        ]
+      },
+      "patch": {
+        "operationId": "PatientController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "patients"
+        ]
+      },
+      "delete": {
+        "operationId": "PatientController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "patients"
+        ]
+      }
+    },
+    "/api/patients/{id}/reports": {
+      "get": {
+        "operationId": "PatientController_getReports",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "patients"
+        ]
+      }
+    },
+    "/api/exams": {
+      "get": {
+        "operationId": "ExamController_list",
+        "parameters": [
+          {
+            "name": "skip",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "patientId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "modality",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateFrom",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateTo",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "exams"
+        ]
+      },
+      "post": {
+        "operationId": "ExamController_create",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/api/exams/{id}": {
+      "get": {
+        "operationId": "ExamController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "exams"
+        ]
+      },
+      "patch": {
+        "operationId": "ExamController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "exams"
+        ]
+      },
+      "delete": {
+        "operationId": "ExamController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/api/devices": {
+      "get": {
+        "operationId": "DeviceController_list",
+        "parameters": [
+          {
+            "name": "skip",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "modality",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "devices"
+        ]
+      },
+      "post": {
+        "operationId": "DeviceController_create",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "devices"
+        ]
+      }
+    },
+    "/api/devices/{id}": {
+      "get": {
+        "operationId": "DeviceController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "devices"
+        ]
+      },
+      "patch": {
+        "operationId": "DeviceController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "devices"
+        ]
+      },
+      "delete": {
+        "operationId": "DeviceController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "devices"
+        ]
+      }
+    },
+    "/api/devices/{id}/stats": {
+      "get": {
+        "operationId": "DeviceController_getStats",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "devices"
+        ]
+      }
+    },
+    "/api/audit": {
+      "get": {
+        "operationId": "AuditController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "瀹¤鏃ュ織鍒楄〃",
+        "tags": [
+          "audit"
+        ]
+      }
+    },
+    "/api/audit/stats": {
+      "get": {
+        "operationId": "AuditController_stats",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "瀹¤鏃ュ織缁熻",
+        "tags": [
+          "audit"
+        ]
+      }
+    },
+    "/api/backup": {
+      "post": {
+        "operationId": "BackupController_create",
+        "parameters": [
+          {
+            "name": "type",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "创建备份",
+        "tags": [
+          "backup"
+        ]
+      },
+      "get": {
+        "operationId": "BackupController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "备份列表",
+        "tags": [
+          "backup"
+        ]
+      }
+    },
+    "/api/backup/{id}/download": {
+      "get": {
+        "operationId": "BackupController_download",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "下载备份文件",
+        "tags": [
+          "backup"
+        ]
+      }
+    },
+    "/api/backup/{id}/restore": {
+      "post": {
+        "operationId": "BackupController_restore",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "恢复备份",
+        "tags": [
+          "backup"
+        ]
+      }
+    },
+    "/api/export-approval": {
+      "post": {
+        "operationId": "ExportApprovalController_request",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "鐢宠瀵煎嚭",
+        "tags": [
+          "export-approval"
+        ]
+      },
+      "get": {
+        "operationId": "ExportApprovalController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "瀵煎嚭瀹℃壒鍒楄〃",
+        "tags": [
+          "export-approval"
+        ]
+      }
+    },
+    "/api/export-approval/{id}/approve": {
+      "post": {
+        "operationId": "ExportApprovalController_approve",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "鎵瑰噯瀵煎嚭",
+        "tags": [
+          "export-approval"
+        ]
+      }
+    },
+    "/api/export-approval/{id}/reject": {
+      "post": {
+        "operationId": "ExportApprovalController_reject",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "鎷掔粷瀵煎嚭",
+        "tags": [
+          "export-approval"
+        ]
+      }
+    },
+    "/api/compliance-docs": {
+      "get": {
+        "operationId": "ComplianceDocsController_report",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "鐢熸垚鍚堣鏂囨。鎶ュ憡",
+        "tags": [
+          "compliance-docs"
+        ]
+      }
+    },
+    "/api/safety/adverse-events": {
+      "post": {
+        "operationId": "SafetyController_createAdverseEvent",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "safety"
+        ]
+      },
+      "get": {
+        "operationId": "SafetyController_getAdverseEvents",
+        "parameters": [
+          {
+            "name": "status",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "severity",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "eventType",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "safety"
+        ]
+      }
+    },
+    "/api/safety/adverse-events/{id}": {
+      "get": {
+        "operationId": "SafetyController_getAdverseEvent",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "safety"
+        ]
+      },
+      "put": {
+        "operationId": "SafetyController_updateAdverseEvent",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "safety"
+        ]
+      },
+      "delete": {
+        "operationId": "SafetyController_deleteAdverseEvent",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "safety"
+        ]
+      }
+    },
+    "/api/safety/rca-investigations": {
+      "post": {
+        "operationId": "SafetyController_createRcaInvestigation",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "safety"
+        ]
+      },
+      "get": {
+        "operationId": "SafetyController_getRcaInvestigations",
+        "parameters": [
+          {
+            "name": "capaStatus",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "safety"
+        ]
+      }
+    },
+    "/api/safety/rca-investigations/{id}": {
+      "get": {
+        "operationId": "SafetyController_getRcaInvestigation",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "safety"
+        ]
+      },
+      "put": {
+        "operationId": "SafetyController_updateRcaInvestigation",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "safety"
+        ]
+      },
+      "delete": {
+        "operationId": "SafetyController_deleteRcaInvestigation",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "safety"
+        ]
+      }
+    },
+    "/api/safety/risk-items": {
+      "post": {
+        "operationId": "SafetyController_createRiskItem",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "safety"
+        ]
+      },
+      "get": {
+        "operationId": "SafetyController_getRiskItems",
+        "parameters": [
+          {
+            "name": "riskLevel",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "safety"
+        ]
+      }
+    },
+    "/api/safety/risk-items/{id}": {
+      "get": {
+        "operationId": "SafetyController_getRiskItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "safety"
+        ]
+      },
+      "put": {
+        "operationId": "SafetyController_updateRiskItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "safety"
+        ]
+      },
+      "delete": {
+        "operationId": "SafetyController_deleteRiskItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "safety"
+        ]
+      }
+    },
+    "/api/api/eye/studies": {
+      "get": {
+        "operationId": "EyeController_listStudies",
+        "parameters": [
+          {
+            "name": "skip",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "eye"
+        ]
+      },
+      "post": {
+        "operationId": "EyeController_createStudy",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "eye"
+        ]
+      }
+    },
+    "/api/api/eye/studies/{id}": {
+      "get": {
+        "operationId": "EyeController_getStudy",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "eye"
+        ]
+      },
+      "put": {
+        "operationId": "EyeController_updateStudy",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "eye"
+        ]
+      },
+      "delete": {
+        "operationId": "EyeController_deleteStudy",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "eye"
+        ]
+      }
+    },
+    "/api/api/eye/patients/{patientId}/studies": {
+      "get": {
+        "operationId": "EyeController_listStudiesByPatient",
+        "parameters": [
+          {
+            "name": "patientId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "eye"
+        ]
+      }
+    },
+    "/api/api/eye/emr/{patientId}": {
+      "get": {
+        "operationId": "EyeController_getEmr",
+        "parameters": [
+          {
+            "name": "patientId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "eye"
+        ]
+      },
+      "put": {
+        "operationId": "EyeController_updateEmr",
+        "parameters": [
+          {
+            "name": "patientId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "eye"
+        ]
+      }
+    },
+    "/api/api/eye/ai/models": {
+      "get": {
+        "operationId": "EyeController_listAiModels",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "eye"
+        ]
+      }
+    },
+    "/api/api/eye/ai/inferences": {
+      "post": {
+        "operationId": "EyeController_createAiInference",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "eye"
+        ]
+      }
+    },
+    "/api/api/eye/iol/lenses": {
+      "get": {
+        "operationId": "EyeController_listIolLenses",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "eye"
+        ]
+      }
+    },
+    "/api/api/eye/iol/calculate/barrett": {
+      "post": {
+        "operationId": "EyeController_calculateBarrett",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "eye"
+        ]
+      }
+    },
+    "/api/api/eye/iol/calculate/kane": {
+      "post": {
+        "operationId": "EyeController_calculateKane",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "eye"
+        ]
+      }
+    },
+    "/api/api/eye/reports": {
+      "get": {
+        "operationId": "EyeController_listReports",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "eye"
+        ]
+      },
+      "post": {
+        "operationId": "EyeController_generateReport",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "eye"
+        ]
+      }
+    },
+    "/api/dental/studies": {
+      "get": {
+        "operationId": "DentalController_listStudies",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dental"
+        ]
+      },
+      "post": {
+        "operationId": "DentalController_createStudy",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dental"
+        ]
+      }
+    },
+    "/api/dental/studies/{id}": {
+      "get": {
+        "operationId": "DentalController_getStudy",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dental"
+        ]
+      },
+      "put": {
+        "operationId": "DentalController_updateStudy",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dental"
+        ]
+      },
+      "delete": {
+        "operationId": "DentalController_deleteStudy",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dental"
+        ]
+      }
+    },
+    "/api/dental/ai-findings": {
+      "get": {
+        "operationId": "DentalController_listAiFindings",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dental"
+        ]
+      },
+      "post": {
+        "operationId": "DentalController_createAiFinding",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dental"
+        ]
+      }
+    },
+    "/api/dental/implants": {
+      "get": {
+        "operationId": "DentalController_listImplants",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dental"
+        ]
+      },
+      "post": {
+        "operationId": "DentalController_createImplant",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dental"
+        ]
+      }
+    },
+    "/api/dental/implants/{id}": {
+      "put": {
+        "operationId": "DentalController_updateImplant",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dental"
+        ]
+      }
+    },
+    "/api/dental/appointments": {
+      "get": {
+        "operationId": "DentalController_listAppointments",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dental"
+        ]
+      },
+      "post": {
+        "operationId": "DentalController_createAppointment",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dental"
+        ]
+      }
+    },
+    "/api/dental/appointments/{id}": {
+      "put": {
+        "operationId": "DentalController_updateAppointment",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dental"
+        ]
+      }
+    },
+    "/api/dental/invoices": {
+      "get": {
+        "operationId": "DentalController_listInvoices",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dental"
+        ]
+      },
+      "post": {
+        "operationId": "DentalController_createInvoice",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dental"
+        ]
+      }
+    },
+    "/api/dental/inventory": {
+      "get": {
+        "operationId": "DentalController_listInventory",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dental"
+        ]
+      },
+      "post": {
+        "operationId": "DentalController_addInventoryItem",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dental"
+        ]
+      }
+    },
+    "/api/dental/inventory/{id}": {
+      "put": {
+        "operationId": "DentalController_updateInventoryItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dental"
+        ]
+      }
+    },
+    "/api/workflow/definitions": {
+      "get": {
+        "operationId": "WorkflowController_listDefinitions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "workflow"
+        ]
+      },
+      "post": {
+        "operationId": "WorkflowController_createDefinition",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "workflow"
+        ]
+      }
+    },
+    "/api/workflow/definitions/{id}": {
+      "get": {
+        "operationId": "WorkflowController_getDefinition",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "workflow"
+        ]
+      },
+      "put": {
+        "operationId": "WorkflowController_updateDefinition",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "workflow"
+        ]
+      },
+      "delete": {
+        "operationId": "WorkflowController_deleteDefinition",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "workflow"
+        ]
+      }
+    },
+    "/api/workflow/definitions/{id}/activate": {
+      "post": {
+        "operationId": "WorkflowController_activateDefinition",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "workflow"
+        ]
+      }
+    },
+    "/api/workflow/definitions/{id}/steps": {
+      "get": {
+        "operationId": "WorkflowController_listSteps",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "workflow"
+        ]
+      },
+      "post": {
+        "operationId": "WorkflowController_addStep",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "workflow"
+        ]
+      }
+    },
+    "/api/workflow/sla-policies": {
+      "get": {
+        "operationId": "WorkflowController_listSlaPolicies",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "workflow"
+        ]
+      },
+      "post": {
+        "operationId": "WorkflowController_createSlaPolicy",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "workflow"
+        ]
+      }
+    },
+    "/api/workflow/sla-policies/{id}": {
+      "put": {
+        "operationId": "WorkflowController_updateSlaPolicy",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "workflow"
+        ]
+      }
+    },
+    "/api/workflow/routing-rules": {
+      "get": {
+        "operationId": "WorkflowController_listRoutingRules",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "workflow"
+        ]
+      },
+      "post": {
+        "operationId": "WorkflowController_createRoutingRule",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "workflow"
+        ]
+      }
+    },
+    "/api/workflow/routing-rules/{id}": {
+      "put": {
+        "operationId": "WorkflowController_updateRoutingRule",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "workflow"
+        ]
+      },
+      "delete": {
+        "operationId": "WorkflowController_deleteRoutingRule",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "workflow"
+        ]
+      }
+    },
+    "/api/finance/charge-items": {
+      "get": {
+        "operationId": "FinanceController_listChargeItems",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "finance"
+        ]
+      },
+      "post": {
+        "operationId": "FinanceController_createChargeItem",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "finance"
+        ]
+      }
+    },
+    "/api/finance/charge-items/{id}": {
+      "put": {
+        "operationId": "FinanceController_updateChargeItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "finance"
+        ]
+      }
+    },
+    "/api/finance/invoices": {
+      "get": {
+        "operationId": "FinanceController_listInvoices",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "finance"
+        ]
+      },
+      "post": {
+        "operationId": "FinanceController_createInvoice",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "finance"
+        ]
+      }
+    },
+    "/api/finance/invoices/{id}": {
+      "get": {
+        "operationId": "FinanceController_getInvoice",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "finance"
+        ]
+      }
+    },
+    "/api/finance/invoices/{id}/pay": {
+      "post": {
+        "operationId": "FinanceController_payInvoice",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "finance"
+        ]
+      }
+    },
+    "/api/finance/revenue-analysis": {
+      "get": {
+        "operationId": "FinanceController_getRevenueAnalysis",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "finance"
+        ]
+      }
+    },
+    "/api/finance/cost-accounting": {
+      "get": {
+        "operationId": "FinanceController_getCostAccounting",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "finance"
+        ]
+      }
+    },
+    "/api/finance/financial-reports": {
+      "get": {
+        "operationId": "FinanceController_getFinancialReports",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "finance"
+        ]
+      }
+    },
+    "/api/api/data-report/national-reports": {
+      "get": {
+        "operationId": "DataReportController_listNationalReports",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "data-report"
+        ]
+      },
+      "post": {
+        "operationId": "DataReportController_createNationalReport",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "data-report"
+        ]
+      }
+    },
+    "/api/api/data-report/national-reports/{id}": {
+      "get": {
+        "operationId": "DataReportController_getNationalReport",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "data-report"
+        ]
+      }
+    },
+    "/api/api/data-report/data-reports": {
+      "get": {
+        "operationId": "DataReportController_listDataReports",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "data-report"
+        ]
+      },
+      "post": {
+        "operationId": "DataReportController_createDataReport",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "data-report"
+        ]
+      }
+    },
+    "/api/api/data-report/data-reports/{id}": {
+      "get": {
+        "operationId": "DataReportController_getDataReport",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "data-report"
+        ]
+      }
+    },
+    "/api/api/data-report/insurance-audits": {
+      "get": {
+        "operationId": "DataReportController_listInsuranceAudits",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "data-report"
+        ]
+      }
+    },
+    "/api/api/data-report/insurance-audits/{id}": {
+      "get": {
+        "operationId": "DataReportController_getInsuranceAudit",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "data-report"
+        ]
+      }
+    },
+    "/api/api/data-report/enterprise-search": {
+      "get": {
+        "operationId": "DataReportController_enterpriseSearch",
+        "parameters": [
+          {
+            "name": "q",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "data-report"
+        ]
+      }
+    },
+    "/api/regional/imaging": {
+      "get": {
+        "operationId": "RegionalController_listRegionalImaging",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "regional"
+        ]
+      }
+    },
+    "/api/regional/imaging/{id}": {
+      "get": {
+        "operationId": "RegionalController_getRegionalImaging",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "regional"
+        ]
+      }
+    },
+    "/api/regional/reports": {
+      "get": {
+        "operationId": "RegionalController_listRegionalReports",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "regional"
+        ]
+      }
+    },
+    "/api/regional/reports/{id}": {
+      "get": {
+        "operationId": "RegionalController_getRegionalReport",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "regional"
+        ]
+      }
+    },
+    "/api/regional/schedule": {
+      "get": {
+        "operationId": "RegionalController_getDepartmentSchedule",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "regional"
+        ]
+      }
+    },
+    "/api/regional/schedule/{id}": {
+      "put": {
+        "operationId": "RegionalController_updateSchedule",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "regional"
+        ]
+      }
+    },
+    "/api/regional/departments": {
+      "get": {
+        "operationId": "RegionalController_listDepartments",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "regional"
+        ]
+      }
+    },
+    "/api/regional/medical-alliance": {
+      "get": {
+        "operationId": "RegionalController_listMedicalAlliance",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "regional"
+        ]
+      }
+    },
+    "/api/regional/integration/fhir": {
+      "get": {
+        "operationId": "RegionalController_getFhirStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "regional"
+        ]
+      }
+    },
+    "/api/regional/integration/ihe": {
+      "get": {
+        "operationId": "RegionalController_getIheStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "regional"
+        ]
+      }
+    },
+    "/api/regional/integration/mllp": {
+      "get": {
+        "operationId": "RegionalController_getMllpStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "regional"
+        ]
+      }
+    },
+    "/api/patient-portal/patients": {
+      "get": {
+        "operationId": "PatientPortalController_listPortalPatients",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "patient-portal"
+        ]
+      }
+    },
+    "/api/patient-portal/patients/{id}": {
+      "get": {
+        "operationId": "PatientPortalController_getPortalPatient",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "patient-portal"
+        ]
+      }
+    },
+    "/api/patient-portal/clinical-data": {
+      "get": {
+        "operationId": "PatientPortalController_listClinicalData",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "patient-portal"
+        ]
+      }
+    },
+    "/api/patient-portal/clinical-data/{id}": {
+      "get": {
+        "operationId": "PatientPortalController_getClinicalData",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "patient-portal"
+        ]
+      }
+    },
+    "/api/patient-portal/education": {
+      "get": {
+        "operationId": "PatientPortalController_listEducation",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "patient-portal"
+        ]
+      }
+    },
+    "/api/patient-portal/education/{id}": {
+      "get": {
+        "operationId": "PatientPortalController_getEducation",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "patient-portal"
+        ]
+      }
+    },
+    "/api/patient-portal/mobile/patients": {
+      "get": {
+        "operationId": "PatientPortalController_getPatientMobile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "patient-portal"
+        ]
+      }
+    },
+    "/api/patient-portal/mobile/doctors": {
+      "get": {
+        "operationId": "PatientPortalController_getDoctorMobile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "patient-portal"
+        ]
+      }
+    },
+    "/api/patient-portal/mobile/nurses": {
+      "get": {
+        "operationId": "PatientPortalController_getNurseMobile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "patient-portal"
+        ]
+      }
+    },
+    "/api/patient-portal/mobile/techs": {
+      "get": {
+        "operationId": "PatientPortalController_getTechMobile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "patient-portal"
+        ]
+      }
+    },
+    "/api/cosign/pending": {
+      "get": {
+        "operationId": "CosignController_listPendingCosigns",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cosign"
+        ]
+      }
+    },
+    "/api/cosign/pending/{id}": {
+      "get": {
+        "operationId": "CosignController_getPendingCosign",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cosign"
+        ]
+      }
+    },
+    "/api/cosign/pending/{id}/approve": {
+      "post": {
+        "operationId": "CosignController_approveCosign",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cosign"
+        ]
+      }
+    },
+    "/api/cosign/pending/{id}/reject": {
+      "post": {
+        "operationId": "CosignController_rejectCosign",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cosign"
+        ]
+      }
+    },
+    "/api/cosign/history": {
+      "get": {
+        "operationId": "CosignController_listCosignHistory",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cosign"
+        ]
+      }
+    },
+    "/api/cosign/rules": {
+      "get": {
+        "operationId": "CosignController_listCosignRules",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cosign"
+        ]
+      },
+      "post": {
+        "operationId": "CosignController_createCosignRule",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cosign"
+        ]
+      }
+    },
+    "/api/cosign/stats": {
+      "get": {
+        "operationId": "CosignController_getCosignStats",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cosign"
+        ]
+      }
+    },
+    "/api/cds/guidelines": {
+      "get": {
+        "operationId": "CdsController_listGuidelines",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cds"
+        ]
+      },
+      "post": {
+        "operationId": "CdsController_createGuideline",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cds"
+        ]
+      }
+    },
+    "/api/cds/guidelines/{id}": {
+      "get": {
+        "operationId": "CdsController_getGuideline",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cds"
+        ]
+      }
+    },
+    "/api/cds/alerts": {
+      "get": {
+        "operationId": "CdsController_listAlerts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cds"
+        ]
+      }
+    },
+    "/api/cds/alerts/{id}/acknowledge": {
+      "post": {
+        "operationId": "CdsController_acknowledgeAlert",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cds"
+        ]
+      }
+    },
+    "/api/cds/dose-monitoring": {
+      "get": {
+        "operationId": "CdsController_getDoseMonitoring",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cds"
+        ]
+      }
+    },
+    "/api/cds/statistics": {
+      "get": {
+        "operationId": "CdsController_getCdsStatistics",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cds"
+        ]
+      }
+    },
+    "/api/cds/rules": {
+      "get": {
+        "operationId": "CdsController_listCdsRules",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cds"
+        ]
+      },
+      "post": {
+        "operationId": "CdsController_createCdsRule",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cds"
+        ]
+      }
+    },
+    "/api/cds/management": {
+      "get": {
+        "operationId": "CdsController_getCdsManagement",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cds"
+        ]
+      }
+    },
+    "/api/critical-ext/rules": {
+      "get": {
+        "operationId": "CriticalExtController_listCriticalRules",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "critical-ext"
+        ]
+      },
+      "post": {
+        "operationId": "CriticalExtController_createCriticalRule",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "critical-ext"
+        ]
+      }
+    },
+    "/api/critical-ext/rules/{id}": {
+      "put": {
+        "operationId": "CriticalExtController_updateCriticalRule",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "critical-ext"
+        ]
+      },
+      "delete": {
+        "operationId": "CriticalExtController_deleteCriticalRule",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "critical-ext"
+        ]
+      }
+    },
+    "/api/critical-ext/stats": {
+      "get": {
+        "operationId": "CriticalExtController_getCriticalStats",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "critical-ext"
+        ]
+      }
+    },
+    "/api/critical-ext/stats/summary": {
+      "get": {
+        "operationId": "CriticalExtController_getCriticalSummary",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "critical-ext"
+        ]
+      }
+    },
+    "/api/critical-ext/stats/timeline": {
+      "get": {
+        "operationId": "CriticalExtController_getCriticalTimeline",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "critical-ext"
+        ]
+      }
+    },
+    "/api/critical-ext/center": {
+      "get": {
+        "operationId": "CriticalExtController_listCriticalCenter",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "critical-ext"
+        ]
+      }
+    },
+    "/api/critical-ext/center/{id}": {
+      "get": {
+        "operationId": "CriticalExtController_getCriticalCenterItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "critical-ext"
+        ]
+      }
+    },
+    "/api/critical-ext/auto-detect": {
+      "post": {
+        "operationId": "CriticalExtController_autoDetectCritical",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "critical-ext"
+        ]
+      }
+    },
+    "/api/critical-ext/close-loop": {
+      "post": {
+        "operationId": "CriticalExtController_closeCriticalLoop",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "critical-ext"
+        ]
+      }
+    },
+    "/api/critical-ext/receiver": {
+      "get": {
+        "operationId": "CriticalExtController_getReceiverPortal",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "critical-ext"
+        ]
+      }
+    },
+    "/api/qc-ext/dashboard": {
+      "get": {
+        "operationId": "QcExtController_getQcDashboard",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "qc-ext"
+        ]
+      }
+    },
+    "/api/qc-ext/dashboard/{id}": {
+      "get": {
+        "operationId": "QcExtController_getQcDashboardItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "qc-ext"
+        ]
+      }
+    },
+    "/api/qc-ext/image": {
+      "get": {
+        "operationId": "QcExtController_listQcImages",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "qc-ext"
+        ]
+      }
+    },
+    "/api/qc-ext/image/{id}": {
+      "get": {
+        "operationId": "QcExtController_getQcImage",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "qc-ext"
+        ]
+      }
+    },
+    "/api/qc-ext/image/{id}/rate": {
+      "post": {
+        "operationId": "QcExtController_rateQcImage",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "qc-ext"
+        ]
+      }
+    },
+    "/api/qc-ext/radiologist-annual": {
+      "get": {
+        "operationId": "QcExtController_listRadiologistAnnual",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "qc-ext"
+        ]
+      }
+    },
+    "/api/qc-ext/radiologist-annual/{id}": {
+      "get": {
+        "operationId": "QcExtController_getRadiologistAnnual",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "qc-ext"
+        ]
+      }
+    },
+    "/api/qc-ext/defect": {
+      "get": {
+        "operationId": "QcExtController_listQcDefects",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "qc-ext"
+        ]
+      },
+      "post": {
+        "operationId": "QcExtController_reportQcDefect",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "qc-ext"
+        ]
+      }
+    },
+    "/api/qc-ext/stats": {
+      "get": {
+        "operationId": "QcExtController_getQcStats",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "qc-ext"
+        ]
+      }
+    },
+    "/api/qc-ext/scores": {
+      "get": {
+        "operationId": "QcExtController_listQcScores",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "qc-ext"
+        ]
+      }
+    },
+    "/api/report-quality/score-rules": {
+      "get": {
+        "operationId": "ReportQualityController_listScoreRules",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "report-quality"
+        ]
+      },
+      "post": {
+        "operationId": "ReportQualityController_createScoreRule",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "report-quality"
+        ]
+      }
+    },
+    "/api/report-quality/score-rules/{id}": {
+      "put": {
+        "operationId": "ReportQualityController_updateScoreRule",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "report-quality"
+        ]
+      }
+    },
+    "/api/report-quality/defect-library": {
+      "get": {
+        "operationId": "ReportQualityController_listDefectLibrary",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "report-quality"
+        ]
+      },
+      "post": {
+        "operationId": "ReportQualityController_createDefectEntry",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "report-quality"
+        ]
+      }
+    },
+    "/api/report-quality/defect-library/{id}": {
+      "put": {
+        "operationId": "ReportQualityController_updateDefectEntry",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "report-quality"
+        ]
+      }
+    },
+    "/api/report-quality/ai-report-drafts": {
+      "get": {
+        "operationId": "ReportQualityController_listAiReportDrafts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "report-quality"
+        ]
+      },
+      "post": {
+        "operationId": "ReportQualityController_createAiReportDraft",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "report-quality"
+        ]
+      }
+    },
+    "/api/report-quality/stats": {
+      "get": {
+        "operationId": "ReportQualityController_getReportQualityStats",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "report-quality"
+        ]
+      }
+    },
+    "/api/ca/certificates": {
+      "get": {
+        "operationId": "CaController_listCertificates",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ca"
+        ]
+      },
+      "post": {
+        "operationId": "CaController_uploadCertificate",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ca"
+        ]
+      }
+    },
+    "/api/ca/certificates/{id}": {
+      "delete": {
+        "operationId": "CaController_revokeCertificate",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ca"
+        ]
+      }
+    },
+    "/api/ca/sign": {
+      "post": {
+        "operationId": "CaController_signDocument",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ca"
+        ]
+      }
+    },
+    "/api/ca/signatures": {
+      "get": {
+        "operationId": "CaController_listSignatures",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ca"
+        ]
+      }
+    },
+    "/api/ca/verify": {
+      "post": {
+        "operationId": "CaController_verifySignature",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ca"
+        ]
+      }
+    },
+    "/api/ca/config": {
+      "get": {
+        "operationId": "CaController_getCaConfig",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ca"
+        ]
+      },
+      "put": {
+        "operationId": "CaController_updateCaConfig",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ca"
+        ]
+      }
+    },
+    "/api/ca/history": {
+      "get": {
+        "operationId": "CaController_getCaHistory",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ca"
+        ]
+      }
+    },
+    "/api/fhir/r4/Patient/{id}": {
+      "get": {
+        "operationId": "FhirController_readPatient",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "fhir"
+        ]
+      },
+      "put": {
+        "operationId": "FhirController_updatePatient",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "fhir"
+        ]
+      },
+      "delete": {
+        "operationId": "FhirController_deletePatient",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "fhir"
+        ]
+      }
+    },
+    "/api/fhir/r4/Patient": {
+      "get": {
+        "operationId": "FhirController_searchPatient",
+        "parameters": [
+          {
+            "name": "name",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "identifier",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "birthdate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "_count",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "fhir"
+        ]
+      },
+      "post": {
+        "operationId": "FhirController_createPatient",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "fhir"
+        ]
+      }
+    },
+    "/api/fhir/r4/Patient/{id}/$everything": {
+      "get": {
+        "operationId": "FhirController_patientEverything",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "fhir"
+        ]
+      }
+    },
+    "/api/fhir/r4/Observation/{id}": {
+      "get": {
+        "operationId": "FhirController_readObservation",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "fhir"
+        ]
+      }
+    },
+    "/api/fhir/r4/Observation": {
+      "get": {
+        "operationId": "FhirController_searchObservation",
+        "parameters": [
+          {
+            "name": "patient",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "_count",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "fhir"
+        ]
+      }
+    },
+    "/api/fhir/r4/DiagnosticReport/{id}": {
+      "get": {
+        "operationId": "FhirController_readDiagnosticReport",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "fhir"
+        ]
+      }
+    },
+    "/api/fhir/r4/DiagnosticReport": {
+      "get": {
+        "operationId": "FhirController_searchDiagnosticReport",
+        "parameters": [
+          {
+            "name": "patient",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "_count",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "fhir"
+        ]
+      }
+    },
+    "/api/fhir/r4/ImagingStudy/{id}": {
+      "get": {
+        "operationId": "FhirController_readImagingStudy",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "fhir"
+        ]
+      }
+    },
+    "/api/fhir/r4/ImagingStudy": {
+      "get": {
+        "operationId": "FhirController_searchImagingStudy",
+        "parameters": [
+          {
+            "name": "patient",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "modality",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "_count",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "fhir"
+        ]
+      }
+    },
+    "/api/fhir/r4/Subscription": {
+      "post": {
+        "operationId": "FhirController_createSubscription",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "fhir"
+        ]
+      },
+      "get": {
+        "operationId": "FhirController_searchSubscription",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "fhir"
+        ]
+      }
+    },
+    "/api/fhir/r4/Subscription/{id}": {
+      "get": {
+        "operationId": "FhirController_getSubscription",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "fhir"
+        ]
+      },
+      "delete": {
+        "operationId": "FhirController_deleteSubscription",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "fhir"
+        ]
+      }
+    },
+    "/api/fhir/r4/$export": {
+      "get": {
+        "operationId": "FhirController_bulkExport",
+        "parameters": [
+          {
+            "name": "_outputFormat",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "_since",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "_type",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "fhir"
+        ]
+      }
+    },
+    "/api/fhir/r4/$export-status/{jobId}": {
+      "get": {
+        "operationId": "FhirController_bulkExportStatus",
+        "parameters": [
+          {
+            "name": "jobId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "fhir"
+        ]
+      }
+    },
+    "/api/fhir/r4/.well-known/smart-configuration": {
+      "get": {
+        "operationId": "SmartAuthController_wellKnownSmart",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "fhir-smart"
+        ]
+      }
+    },
+    "/api/fhir/r4/auth/authorize": {
+      "get": {
+        "operationId": "SmartAuthController_authorize",
+        "parameters": [
+          {
+            "name": "client_id",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "redirect_uri",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scope",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "patient",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "encounter",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "fhir-smart"
+        ]
+      }
+    },
+    "/api/fhir/r4/auth/token": {
+      "post": {
+        "operationId": "SmartAuthController_token",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "fhir-smart"
+        ]
+      }
+    },
+    "/api/device-mgmt/equipment-lifecycle": {
+      "get": {
+        "operationId": "DeviceMgmtController_listEquipmentLifecycle",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "device-mgmt"
+        ]
+      }
+    },
+    "/api/device-mgmt/equipment-lifecycle/{id}": {
+      "get": {
+        "operationId": "DeviceMgmtController_getEquipmentLifecycle",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "device-mgmt"
+        ]
+      },
+      "put": {
+        "operationId": "DeviceMgmtController_updateEquipmentLifecycle",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "device-mgmt"
+        ]
+      }
+    },
+    "/api/device-mgmt/devices": {
+      "get": {
+        "operationId": "DeviceMgmtController_listDevices",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "device-mgmt"
+        ]
+      }
+    },
+    "/api/device-mgmt/devices/{id}": {
+      "get": {
+        "operationId": "DeviceMgmtController_getDevice",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "device-mgmt"
+        ]
+      },
+      "put": {
+        "operationId": "DeviceMgmtController_updateDevice",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "device-mgmt"
+        ]
+      }
+    },
+    "/api/device-mgmt/faults": {
+      "get": {
+        "operationId": "DeviceMgmtController_listDeviceFaults",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "device-mgmt"
+        ]
+      },
+      "post": {
+        "operationId": "DeviceMgmtController_reportDeviceFault",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "device-mgmt"
+        ]
+      }
+    },
+    "/api/device-mgmt/materials": {
+      "get": {
+        "operationId": "DeviceMgmtController_listMaterials",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "device-mgmt"
+        ]
+      },
+      "post": {
+        "operationId": "DeviceMgmtController_addMaterial",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "device-mgmt"
+        ]
+      }
+    },
+    "/api/device-mgmt/dose-tracking": {
+      "get": {
+        "operationId": "DeviceMgmtController_getDoseTracking",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "device-mgmt"
+        ]
+      },
+      "post": {
+        "operationId": "DeviceMgmtController_recordDose",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "device-mgmt"
+        ]
+      }
+    },
+    "/api/device-mgmt/contrast/adverse-reactions": {
+      "get": {
+        "operationId": "DeviceMgmtController_listAdverseReactions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "device-mgmt"
+        ]
+      },
+      "post": {
+        "operationId": "DeviceMgmtController_reportAdverseReaction",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "device-mgmt"
+        ]
+      }
+    },
+    "/api/device-mgmt/contrast/injection": {
+      "get": {
+        "operationId": "DeviceMgmtController_getInjectionWorkstation",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "device-mgmt"
+        ]
+      }
+    },
+    "/api/device-mgmt/contrast/inventory": {
+      "get": {
+        "operationId": "DeviceMgmtController_getContrastInventory",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "device-mgmt"
+        ]
+      }
+    },
+    "/api/device-mgmt/contrast/inventory/{id}": {
+      "put": {
+        "operationId": "DeviceMgmtController_updateContrastInventory",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "device-mgmt"
+        ]
+      }
+    },
+    "/api/device-mgmt/contrast/quality": {
+      "get": {
+        "operationId": "DeviceMgmtController_getContrastQuality",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "device-mgmt"
+        ]
+      }
+    },
+    "/api/ai-platform/models": {
+      "get": {
+        "operationId": "AiPlatformController_listAiModels",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ai-platform"
+        ]
+      }
+    },
+    "/api/ai-platform/models/{id}": {
+      "get": {
+        "operationId": "AiPlatformController_getAiModel",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ai-platform"
+        ]
+      }
+    },
+    "/api/ai-platform/models/{id}/deploy": {
+      "post": {
+        "operationId": "AiPlatformController_deployAiModel",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ai-platform"
+        ]
+      }
+    },
+    "/api/ai-platform/qc": {
+      "get": {
+        "operationId": "AiPlatformController_listAiQcResults",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ai-platform"
+        ]
+      }
+    },
+    "/api/ai-platform/qc/{id}": {
+      "get": {
+        "operationId": "AiPlatformController_getAiQcResult",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ai-platform"
+        ]
+      }
+    },
+    "/api/ai-platform/structured-reports": {
+      "get": {
+        "operationId": "AiPlatformController_listAiStructuredReports",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ai-platform"
+        ]
+      },
+      "post": {
+        "operationId": "AiPlatformController_generateStructuredReport",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ai-platform"
+        ]
+      }
+    },
+    "/api/ai-platform/medical-devices": {
+      "get": {
+        "operationId": "AiPlatformController_listAiMedicalDevices",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ai-platform"
+        ]
+      }
+    },
+    "/api/ai-platform/orchestration": {
+      "get": {
+        "operationId": "AiPlatformController_getAiOrchestration",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ai-platform"
+        ]
+      },
+      "post": {
+        "operationId": "AiPlatformController_createAiOrchestration",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ai-platform"
+        ]
+      }
+    },
+    "/api/ai-platform/fusion": {
+      "get": {
+        "operationId": "AiPlatformController_getAiFusionWorkspace",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ai-platform"
+        ]
+      }
+    },
+    "/api/ai-platform/assist": {
+      "get": {
+        "operationId": "AiPlatformController_getAiAssist",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ai-platform"
+        ]
+      }
+    },
+    "/api/ai-platform/marketplace": {
+      "get": {
+        "operationId": "AiPlatformController_getAiMarketplace",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ai-platform"
+        ]
+      }
+    },
+    "/api/dicom-dimse/echo": {
+      "post": {
+        "operationId": "DicomDimseController_cEcho",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dicom-dimse"
+        ]
+      }
+    },
+    "/api/dicom-dimse/store": {
+      "post": {
+        "operationId": "DicomDimseController_cStore",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dicom-dimse"
+        ]
+      }
+    },
+    "/api/dicom-dimse/find": {
+      "post": {
+        "operationId": "DicomDimseController_cFind",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dicom-dimse"
+        ]
+      }
+    },
+    "/api/dicom-dimse/move": {
+      "post": {
+        "operationId": "DicomDimseController_cMove",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dicom-dimse"
+        ]
+      }
+    },
+    "/api/dicom-dimse/upload": {
+      "post": {
+        "operationId": "DicomDimseController_upload",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dicom-dimse"
+        ]
+      }
+    },
+    "/api/api/v1/olap/query": {
+      "post": {
+        "operationId": "OlapController_query",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Execute OLAP query",
+        "tags": [
+          "olap"
+        ]
+      }
+    },
+    "/api/api/v1/olap/metadata": {
+      "get": {
+        "operationId": "OlapController_getMetadata",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Get OLAP metrics and dimensions metadata",
+        "tags": [
+          "olap"
+        ]
+      }
+    },
+    "/api/occupancy/rooms": {
+      "get": {
+        "operationId": "OccupancyController_getRooms",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "occupancy"
+        ]
+      }
+    },
+    "/api/occupancy/queue/{roomId}": {
+      "get": {
+        "operationId": "OccupancyController_getQueue",
+        "parameters": [
+          {
+            "name": "roomId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "occupancy"
+        ]
+      }
+    },
+    "/api/occupancy/trends": {
+      "get": {
+        "operationId": "OccupancyController_getTrends",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "occupancy"
+        ]
+      }
+    },
+    "/api/occupancy/room/{roomId}/status": {
+      "post": {
+        "operationId": "OccupancyController_updateStatus",
+        "parameters": [
+          {
+            "name": "roomId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "occupancy"
+        ]
+      }
+    },
+    "/api/fusion/register": {
+      "post": {
+        "operationId": "FusionController_register",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Multi-modal image registration",
+        "tags": [
+          "fusion"
+        ]
+      }
+    },
+    "/api/fusion/render": {
+      "post": {
+        "operationId": "FusionController_render",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Render fusion frame",
+        "tags": [
+          "fusion"
+        ]
+      }
+    },
+    "/api/fusion/series/{patientId}": {
+      "get": {
+        "operationId": "FusionController_getSeries",
+        "parameters": [
+          {
+            "name": "patientId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Query multi-modal series for a patient",
+        "tags": [
+          "fusion"
+        ]
+      }
+    },
+    "/api/oee/list": {
+      "get": {
+        "operationId": "OeeController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "oee"
+        ]
+      }
+    },
+    "/api/oee/detail/{deviceId}": {
+      "get": {
+        "operationId": "OeeController_detail",
+        "parameters": [
+          {
+            "name": "deviceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "oee"
+        ]
+      }
+    },
+    "/api/oee/trend/{deviceId}": {
+      "get": {
+        "operationId": "OeeController_trend",
+        "parameters": [
+          {
+            "name": "deviceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "oee"
+        ]
+      }
+    },
+    "/api/oee/stats": {
+      "get": {
+        "operationId": "OeeController_stats",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "oee"
+        ]
+      }
+    },
+    "/api/volume/reconstruct": {
+      "post": {
+        "operationId": "VolumeController_reconstruct",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "volume"
+        ]
+      }
+    },
+    "/api/volume/status/{jobId}": {
+      "get": {
+        "operationId": "VolumeController_status",
+        "parameters": [
+          {
+            "name": "jobId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "volume"
+        ]
+      }
+    },
+    "/api/volume/mpr": {
+      "post": {
+        "operationId": "VolumeController_mpr",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "volume"
+        ]
+      }
+    },
+    "/api/volume/mip": {
+      "post": {
+        "operationId": "VolumeController_mip",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "volume"
+        ]
+      }
+    },
+    "/api/teach/lecture": {
+      "post": {
+        "operationId": "TeachController_create",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "创建示教录制",
+        "tags": [
+          "teach"
+        ]
+      }
+    },
+    "/api/teach/lecture/{id}/blob": {
+      "post": {
+        "operationId": "TeachController_uploadBlob",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sequence",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "上传录制 blob（分片）",
+        "tags": [
+          "teach"
+        ]
+      }
+    },
+    "/api/teach/lecture/{id}": {
+      "get": {
+        "operationId": "TeachController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "获取录制详情",
+        "tags": [
+          "teach"
+        ]
+      },
+      "delete": {
+        "operationId": "TeachController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "删除录制",
+        "tags": [
+          "teach"
+        ]
+      }
+    },
+    "/api/teach/lectures": {
+      "get": {
+        "operationId": "TeachController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "录制备列表",
+        "tags": [
+          "teach"
+        ]
+      }
+    },
+    "/api/qc/image-ai/score": {
+      "post": {
+        "operationId": "ImageAiController_score",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "qc",
+          "image-ai"
+        ]
+      }
+    },
+    "/api/qc/image-ai/result/{instanceId}": {
+      "get": {
+        "operationId": "ImageAiController_getResult",
+        "parameters": [
+          {
+            "name": "instanceId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "qc",
+          "image-ai"
+        ]
+      }
+    },
+    "/api/qc/image-ai/stats": {
+      "get": {
+        "operationId": "ImageAiController_stats",
+        "parameters": [
+          {
+            "name": "modality",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateFrom",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateTo",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "operatorId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "qc",
+          "image-ai"
+        ]
+      }
+    },
+    "/api/radpath/create": {
+      "post": {
+        "operationId": "RadPathController_create",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "radpath"
+        ]
+      }
+    },
+    "/api/radpath/report/{reportId}": {
+      "get": {
+        "operationId": "RadPathController_findByReport",
+        "parameters": [
+          {
+            "name": "reportId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "radpath"
+        ]
+      }
+    },
+    "/api/radpath/pathology/{pathId}": {
+      "get": {
+        "operationId": "RadPathController_findByPathology",
+        "parameters": [
+          {
+            "name": "pathId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "radpath"
+        ]
+      }
+    },
+    "/api/radpath/consistency": {
+      "put": {
+        "operationId": "RadPathController_updateConsistency",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "radpath"
+        ]
+      }
+    },
+    "/api/radpath/stats": {
+      "get": {
+        "operationId": "RadPathController_getStats",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "radpath"
+        ]
+      }
+    },
+    "/api/tele/session": {
+      "post": {
+        "operationId": "TeleController_createSession",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tele"
+        ]
+      }
+    },
+    "/api/tele/join": {
+      "post": {
+        "operationId": "TeleController_joinSession",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tele"
+        ]
+      }
+    },
+    "/api/tele/signal": {
+      "post": {
+        "operationId": "TeleController_handleSignal",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tele"
+        ]
+      }
+    },
+    "/api/tele/signal/{sessionId}": {
+      "get": {
+        "operationId": "TeleController_getPendingSignals",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "peer",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tele"
+        ]
+      }
+    },
+    "/api/tele/session/{sessionId}": {
+      "get": {
+        "operationId": "TeleController_getSession",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tele"
+        ]
+      },
+      "delete": {
+        "operationId": "TeleController_endSession",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tele"
+        ]
+      }
+    },
+    "/api/tele/chat": {
+      "post": {
+        "operationId": "TeleController_sendChat",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tele"
+        ]
+      }
+    },
+    "/api/tele/chat/{sessionId}": {
+      "get": {
+        "operationId": "TeleController_getChat",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tele"
+        ]
+      }
+    },
+    "/api/tele/cursor": {
+      "post": {
+        "operationId": "TeleController_updateCursor",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tele"
+        ]
+      }
+    },
+    "/api/tele/cursor/{sessionId}": {
+      "get": {
+        "operationId": "TeleController_getCursors",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "tele"
+        ]
+      }
+    },
+    "/api/mobile/jscode2session": {
+      "get": {
+        "operationId": "MobileController_jscode2session",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "mobile"
+        ]
+      }
+    },
+    "/api/api/v1/benchmark/list": {
+      "get": {
+        "operationId": "BenchmarkController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Available benchmark metrics",
+        "tags": [
+          "benchmark"
+        ]
+      }
+    },
+    "/api/api/v1/benchmark/compare": {
+      "post": {
+        "operationId": "BenchmarkController_compare",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "YoY / QoQ comparison",
+        "tags": [
+          "benchmark"
+        ]
+      }
+    },
+    "/api/api/v1/benchmark/cross-site": {
+      "post": {
+        "operationId": "BenchmarkController_crossSite",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Cross-site comparison",
+        "tags": [
+          "benchmark"
+        ]
+      }
+    },
+    "/api/api/v1/benchmark/stats": {
+      "get": {
+        "operationId": "BenchmarkController_stats",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Hospital-wide stats summary",
+        "tags": [
+          "benchmark"
+        ]
+      }
+    },
+    "/api/api/v1/ai-diagnosis/accuracy": {
+      "post": {
+        "operationId": "AiDiagnosisController_accuracy",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "AI diagnosis accuracy metrics",
+        "tags": [
+          "ai-diagnosis"
+        ]
+      }
+    },
+    "/api/api/v1/ai-diagnosis/trend": {
+      "get": {
+        "operationId": "AiDiagnosisController_trend",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "AI accuracy trend",
+        "tags": [
+          "ai-diagnosis"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "G005-RISv API",
+    "description": "G005 放射信息系统 API 文档",
+    "version": "3.0.6.11-20",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "DetectDto": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  }
+}

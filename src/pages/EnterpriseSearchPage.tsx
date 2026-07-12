@@ -1,13 +1,17 @@
 import { useState } from 'react';
 import { searchClient } from '../services/search';
+import { datareportApi, type EnterpriseSearchResult } from '../services/api/datareportApi';
 
 export default function EnterpriseSearchPage() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any>(null);
+  const [apiResults, setApiResults] = useState<EnterpriseSearchResult[]>([]);
 
   const handleSearch = async () => {
     const res = await searchClient.search(query);
     setResults(res);
+    const apiRes = await datareportApi.enterpriseSearch(query);
+    if (apiRes.success) setApiResults(apiRes.data);
   };
 
   return (

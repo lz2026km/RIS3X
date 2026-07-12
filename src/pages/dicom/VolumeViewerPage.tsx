@@ -3,6 +3,7 @@ import { Card, Space, Tag, Button, Row, Col, Select, Spin, Tabs, Empty, message,
 import { Box, Activity, List, Layers, RefreshCw } from 'lucide-react'
 import VolumeRenderer from '../../components/v3/dicom/VolumeRenderer'
 import { useTranslation } from 'react-i18next'
+import { dicomWebApi } from '../../services/api/dicomApi'
 
 interface SeriesInfo {
   seriesUID: string
@@ -12,16 +13,9 @@ interface SeriesInfo {
   instances: number
 }
 
-const MOCK_SERIES: SeriesInfo[] = [
-  { seriesUID: '1.2.840.113619.2.55.3.604250.1.1.20260701.1', seriesNumber: 301, seriesDescription: 'CT 3.0 C+ 腹部', modality: 'CT', instances: 256 },
-  { seriesUID: '1.2.840.113619.2.55.3.604250.1.1.20260701.2', seriesNumber: 401, seriesDescription: 'CT 3.0 平扫 腹部', modality: 'CT', instances: 192 },
-  { seriesUID: '1.2.840.113619.2.55.3.604250.1.1.20260701.3', seriesNumber: 501, seriesDescription: 'MR 3D T1 颅脑', modality: 'MR', instances: 224 },
-  { seriesUID: '1.2.840.113619.2.55.3.604250.1.1.20260701.4', seriesNumber: 601, seriesDescription: 'CT 冠脉 CTA', modality: 'CT', instances: 480 },
-]
-
 const VolumeViewerPage: React.FC = () => {
   const { t } = useTranslation('v3dicom')
-  const [series, setSeries] = useState<SeriesInfo[]>(MOCK_SERIES)
+  const [series, setSeries] = useState<SeriesInfo[]>([])
   const [selectedUid, setSelectedUid] = useState<string | undefined>()
   const [loading, setLoading] = useState(false)
   const [reconstructing, setReconstructing] = useState(false)
@@ -29,13 +23,30 @@ const VolumeViewerPage: React.FC = () => {
   const [jobId, setJobId] = useState<string | null>(null)
   const [volumeDims, setVolumeDims] = useState<{ x: number; y: number; z: number } | null>(null)
 
+  useEffect(() => {
+    const studyUid = new URLSearchParams(window.location.search).get('studyUID')
+    if (!studyUid) return
+    setLoading(true)
+    dicomWebApi.searchSeries(studyUid).then(res => {
+      if (res.success) {
+        setSeries(res.data.map(s => ({
+          seriesUID: s.seriesInstanceUID,
+          seriesNumber: s.seriesNumber,
+          seriesDescription: s.seriesDescription,
+          modality: s.modality,
+          instances: s.numberOfSeriesRelatedInstances,
+        })))
+      }
+    }).finally(() => setLoading(false))
+  }, [])
+
   const handleReconstruct = async () => {
     if (!selectedUid) { message.warning('请先选择序列'); return }
     setReconstructing(true)
     setProgress(0)
     setVolumeDims(null)
     try {
-      const res = await fetch('/api/v1/volume/reconstruct', {
+      const res = await fetch('/api/volume/reconstruct', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ seriesUID: selectedUid }),
@@ -46,7 +57,7 @@ const VolumeViewerPage: React.FC = () => {
         setVolumeDims(data.volume)
         const poll = setInterval(async () => {
           try {
-            const sr = await fetch(`/api/v1/volume/status/${data.jobId}`)
+            const sr = await fetch(`/api/volume/status/${data.jobId}`)
             const sd = await sr.json()
             setProgress(sd.progress)
             if (sd.status === 'completed' || sd.progress >= 100) {

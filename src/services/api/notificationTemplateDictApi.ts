@@ -6,33 +6,53 @@ export interface NotificationDto {
   id: string;
   title: string;
   content: string;
-  type: 'critical' | 'review' | 'system' | 'reminder' | 'task';
-  severity?: 'info' | 'warning' | 'error' | 'critical';
+  type: 'REPORT' | 'CRITICAL' | 'SYSTEM' | 'APPOINTMENT' | 'TASK';
+  severity?: 'INFO' | 'WARN' | 'ERROR' | 'CRITICAL';
   isRead: boolean;
   createdAt: string;
-  patientId?: string;
-  patientName?: string;
-  doctorId?: string;
-  doctorName?: string;
-  actionUrl?: string;
-  expiresAt?: string;
+  userId: string;
+  link?: string;
+  targetId?: string;
+}
+
+export interface CreateNotificationData {
+  userId: string;
+  type: 'CRITICAL' | 'REPORT' | 'TASK' | 'SYSTEM' | 'APPOINTMENT';
+  severity?: 'INFO' | 'WARN' | 'ERROR' | 'CRITICAL';
+  title: string;
+  content: string;
+  link?: string;
+  targetId?: string;
+}
+
+export interface BroadcastNotificationData {
+  userIds: string[];
+  type: 'CRITICAL' | 'REPORT' | 'TASK' | 'SYSTEM' | 'APPOINTMENT';
+  severity?: 'INFO' | 'WARN' | 'ERROR' | 'CRITICAL';
+  title: string;
+  content: string;
+  link?: string;
+  targetId?: string;
 }
 
 export const notificationApi = {
-  list: (params?: { isRead?: boolean; type?: string; pageSize?: number }) =>
-    api.get<NotificationDto[]>(`/notifications?${new URLSearchParams(params as Record<string, string> ?? {}).toString()}`),
+  getUnreadCount: (userId: string) =>
+    api.get<{ unread: number }>(`/notifications/unread/${userId}`),
 
-  unread: () =>
-    api.get<{ unread: number; total: number; recent: NotificationDto[] }>('/notifications/unread-count'),
+  getHistory: (userId: string, limit?: number) =>
+    api.get<NotificationDto[]>(`/notifications/history/${userId}${limit ? `?limit=${limit}` : ''}`),
 
   markRead: (id: string) =>
-    api.put<{ id: string; isRead: boolean; readAt: string }>(`/notifications/${id}/read`, {}),
+    api.post<{ id: string; isRead: boolean; readAt: string }>(`/notifications/read/${id}`),
 
-  markAllRead: () =>
-    api.post<{ markedAt: string; count: number }>('/notifications/mark-all-read', {}),
+  create: (data: CreateNotificationData) =>
+    api.post<NotificationDto>('/notifications', data),
 
-  getPrefs: () =>
-    api.get<{ userId: string; channels: { email: boolean; sms: boolean; inApp: boolean; dingtalk: boolean } }>('/notifications/prefs'),
+  broadcast: (data: BroadcastNotificationData) =>
+    api.post<{ broadcasted: number }>('/notifications/broadcast', data),
+
+  pushSubscribe: (data: { userId: string; endpoint: string; keys: { p256dh: string; auth: string } }) =>
+    api.post<{ subscribed: boolean }>('/notifications/push-subscribe', data),
 };
 
 // ============= 模板 =============

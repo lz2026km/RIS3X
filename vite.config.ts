@@ -299,6 +299,12 @@ export default defineConfig({
       'Content-Security-Policy': CSP_HEADER(true),
     },
     proxy: {
+      // /api/v1 → 后端 NestJS globalPrefix = api (无 /v1), 需要 rewrite
+      '/api/v1': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/api\/v1/, '/api'),
+      },
       '/api': {
         target: 'http://localhost:3001',
         changeOrigin: true,

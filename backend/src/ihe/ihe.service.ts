@@ -373,6 +373,52 @@ export class IheService {
     }
   }
 
+  async getVisitDetail(patientId: string, visitNumber?: string): Promise<(VisitState & { timeline: any[]; inProgressAt?: string; completedAt?: string; adtMessages: any[] }) | null> {
+    if (visitNumber) {
+      const v = await this.prisma.patientVisit.findUnique({
+        where: { patientId_visitNumber: { patientId, visitNumber } },
+      })
+      if (!v) return null
+      const timeline = await this.getVisitTimeline(patientId, visitNumber)
+      const adtMessages = await this.getVisitAdtMessages(patientId, visitNumber)
+      return {
+        patientId: v.patientId,
+        visitNumber: v.visitNumber,
+        status: v.status as VisitStatus,
+        classCode: v.classCode ?? undefined,
+        assignedLocation: v.assignedLocation as any,
+        admitDateTime: v.admitDateTime?.toISOString(),
+        dischargeDateTime: v.dischargeDateTime?.toISOString(),
+        inProgressAt: v.inProgressAt?.toISOString(),
+        completedAt: v.completedAt?.toISOString(),
+        timeline,
+        adtMessages,
+      }
+    }
+    const visits = await this.prisma.patientVisit.findMany({
+      where: { patientId },
+      orderBy: { updatedAt: 'desc' },
+      take: 1,
+    })
+    if (visits.length === 0) return null
+    const v = visits[0]!
+    const timeline = await this.getVisitTimeline(patientId, v.visitNumber)
+    const adtMessages = await this.getVisitAdtMessages(patientId, v.visitNumber)
+    return {
+      patientId: v.patientId,
+      visitNumber: v.visitNumber,
+      status: v.status as VisitStatus,
+      classCode: v.classCode ?? undefined,
+      assignedLocation: v.assignedLocation as any,
+      admitDateTime: v.admitDateTime?.toISOString(),
+      dischargeDateTime: v.dischargeDateTime?.toISOString(),
+      inProgressAt: v.inProgressAt?.toISOString(),
+      completedAt: v.completedAt?.toISOString(),
+      timeline,
+      adtMessages,
+    }
+  }
+
   async getVisitState(patientId: string, visitNumber?: string): Promise<VisitState | null> {
     if (visitNumber) {
       const v = await this.prisma.patientVisit.findUnique({
@@ -803,6 +849,29 @@ export class IheService {
     if (dto.messageType === 'ADT^A08') {
       this.logger.log(`PAM ${dto.messageType} → 更新患者 ${patient.id} 信息`)
     }
+  }
+
+  async getVisitTimeline(patientId: string, visitNumber: string): Promise<Array<{ event: string; timestamp: string; description: string }>> {
+    const log = await this.readPamLog()
+    return log
+      .filter((e) => e.message.patientId === patientId && (e.message as any).visitNumber === visitNumber)
+      .map((e) => ({
+        event: e.message.messageType,
+        timestamp: e.ts,
+        description: e.ack === 'AA' ? '处理成功' : `处理失败: ${((e as any).errors as string[] | undefined)?.join(', ') ?? ''}`,
+      }))
+  }
+
+  async getVisitAdtMessages(patientId: string, visitNumber: string): Promise<Array<{ id: string; messageType: string; timestamp: string; content: string }>> {
+    const log = await this.readPamLog()
+    return log
+      .filter((e) => e.message.patientId === patientId && (e.message as any).visitNumber === visitNumber)
+      .map((e, i) => ({
+        id: `${i + 1}`,
+        messageType: e.message.messageType.replace('ADT^', ''),
+        timestamp: e.ts,
+        content: `MSH|^~\\&|G005_RIS|G005|IHE|PAM|${e.ts.replace(/[-:.TZ]/g, '').slice(0, 14)}||${e.message.messageType}|${e.messageId}|P|2.5.1`,
+      }))
   }
 
   // ===========================================================

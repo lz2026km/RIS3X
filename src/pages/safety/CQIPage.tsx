@@ -7,7 +7,7 @@ import { TrendingUp, CheckCircle, Target, Plus, BarChart3, Activity } from 'luci
 import {
   getCqiDashboard, createCqiProject, closeCqiProject,
   type CqiProject, type CqiStatus,
-} from '../../services/safety/cqiService'
+} from '../../services/api/safetyApi'
 
 const STATUS_LABELS: Record<CqiStatus, string> = {
   planning: '规划中',
@@ -28,7 +28,7 @@ export default function CQIPage() {
   const [selectedProject, setSelectedProject] = useState<CqiProject | null>(null)
   const [filter, setFilter] = useState<CqiStatus | 'all'>('all')
 
-  useEffect(() => { setProjects(getCqiDashboard()) }, [])
+  useEffect(() => { getCqiDashboard().then(setProjects) }, [])
 
   const filtered = filter === 'all' ? projects : projects.filter(p => p.status === filter)
   const statusData = Object.entries(STATUS_LABELS).map(([k, v]) => ({
@@ -59,8 +59,7 @@ export default function CQIPage() {
             teamMembers: [],
             startDate: new Date().toISOString().slice(0, 10),
             targetEndDate: '',
-          })
-          setProjects(getCqiDashboard())
+          }).then(() => getCqiDashboard().then(setProjects))
         }} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
           <Plus size={14} />新建CQI
         </button>
@@ -136,9 +135,10 @@ export default function CQIPage() {
 
             {selectedProject.status !== 'closed' && (
               <div style={{ marginTop: 16 }}>
-                <button onClick={() => {
-                  closeCqiProject(selectedProject.id, '项目取得预期效果', '持续监测并定期回顾')
-                  setProjects(getCqiDashboard())
+                <button onClick={async () => {
+                  await closeCqiProject(selectedProject.id, '项目取得预期效果', '持续监测并定期回顾')
+                  const data = await getCqiDashboard()
+                  setProjects(data)
                   setSelectedProject(null)
                 }} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#0891b2', color: '#fff', cursor: 'pointer', fontSize: 13 }}>
                   关闭项目
@@ -188,7 +188,7 @@ export default function CQIPage() {
             <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
               {(['all', 'planning', 'active', 'sustaining', 'closed'] as const).map(s => (
                 <button key={s} onClick={() => setFilter(s)} style={{ padding: '4px 12px', borderRadius: 4, border: `1px solid ${filter === s ? '#0891b2' : '#30363d'}`, background: filter === s ? '#0891b220' : 'transparent', color: filter === s ? '#0891b2' : '#8b949e', cursor: 'pointer', fontSize: 12 }}>
-                  {STATUS_LABELS[s] ?? '全部'}
+                  {s === 'all' ? '全部' : STATUS_LABELS[s as CqiStatus]}
                 </button>
               ))}
             </div>

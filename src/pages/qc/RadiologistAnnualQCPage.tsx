@@ -2,7 +2,7 @@
  * G005 RIS v3.0.6.8-27 - 医生年度质控档案
  * 展示每位医生全年的质控 KPI 趋势 + 评分历史
  */
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { Users, Award, TrendingUp, TrendingDown, ChevronRight } from "lucide-react";
 import { PageContainer } from "../../components/common/PageContainer";
 import { PageHeader } from "../../components/common/PageHeader";
@@ -10,10 +10,15 @@ import { StickyActionBar } from "../../components/common/StickyActionBar";
 import { StatCard, StatCardGrid } from "../../components/common/StatCard";
 import { DOCTOR_MASTER, DOCTORS_BY_TITLE } from "../../data/master";
 import { DOCTOR_PERFORMANCE_PRE } from "../../data/_generators";
+import { qcextApi, type RadiologistAnnualDto } from '../../services/api/qcextApi';
 
 export default function RadiologistAnnualQCPage() {
   const [selectedId, setSelectedId] = useState<string | null>(DOCTOR_MASTER[0]?.id || null);
   const [search, setSearch] = useState("");
+  const [annualData, setAnnualData] = useState<RadiologistAnnualDto[]>([]);
+  useEffect(() => {
+    qcextApi.listRadiologistAnnual().then(res => { if (res.success) setAnnualData(res.data); }).catch(() => {});
+  }, []);
 
   const filteredDoctors = useMemo(() => {
     return DOCTOR_MASTER.filter((d) =>

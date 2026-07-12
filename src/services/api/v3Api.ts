@@ -76,3 +76,35 @@ export const v3AnalyticsApi = {
   getABTestResults: (params?: any) => api.get<any[]>(`/analytics/ab-test?${new URLSearchParams(params ?? {}).toString()}`),
   getErrorLog: (params?: any) => api.get<any[]>(`/analytics/error-log?${new URLSearchParams(params ?? {}).toString()}`),
 };
+
+// ============= v3 AI Platform (4 方法) =============
+export interface AiGenerateDto {
+  templateId: string
+  patientId: string
+  findings: string
+  clinicalHistory?: string
+}
+
+export interface AiReviewDto {
+  reportId: string
+  content: string
+}
+
+export interface AiScoreDto {
+  reportId: string
+  criteria?: string[]
+}
+
+export const v3AiPlatformApi = {
+  generate: (dto: AiGenerateDto) =>
+    api.post<any>('/ai/generate', dto),
+
+  review: (dto: AiReviewDto) =>
+    api.post<any>('/ai/review', dto),
+
+  score: (dto: AiScoreDto) =>
+    api.post<any>('/ai/score', dto),
+
+  getProviders: () =>
+    api.get<{ providers: string[]; active: string }>('/ai/providers'),
+};

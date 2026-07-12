@@ -1,45 +1,11 @@
-/**
- * G005 RIS v3.0.6.6 - 路由规则编辑页面
- * 30 点升级
- */
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { GitBranch, Play, Save, Eye } from 'lucide-react';
+import { message } from 'antd';
 import RoutingRuleBuilder from '../components/workflow/RoutingRuleBuilder';
 import type { RoutingRule } from '../types/workflow';
 import { RoutingEngine } from '../services/workflow/rules/RoutingEngine';
-
-const SAMPLE_RULES: RoutingRule[] = [
-  {
-    id: 'rr-001',
-    name: '急诊 CT 优先主任',
-    priority: 100,
-    enabled: true,
-    conditions: { all: [{ fact: 'priority', operator: 'equal', value: 'critical' }, { fact: 'modality', operator: 'equal', value: 'CT' }] },
-    event: { type: 'escalate' },
-    target: { doctorId: 'D006', siteId: 'SITE-MAIN' },
-    explanation: '急诊 CT 自动升级至主任医师',
-  },
-  {
-    id: 'rr-002',
-    name: 'MR 等待超时转院区',
-    priority: 50,
-    enabled: true,
-    conditions: { all: [{ fact: 'modality', operator: 'equal', value: 'MR' }, { fact: 'waitingMinutes', operator: 'greaterThan', value: 60 }] },
-    event: { type: 'redirect_site' },
-    target: { siteId: 'SITE-BRANCH' },
-    explanation: 'MR 等待超过 60 分钟转分院',
-  },
-  {
-    id: 'rr-003',
-    name: '住院患者指定',
-    priority: 30,
-    enabled: true,
-    conditions: { all: [{ fact: 'patientType', operator: 'equal', value: '住院' }] },
-    event: { type: 'assign_doctor' },
-    target: { doctorId: 'D002' },
-    explanation: '住院患者优先指派李慧敏',
-  },
-];
+import { workflowApi } from '../services/api/workflowApi';
+import type { RoutingRuleDto } from '../services/api/workflowApi';
 
 const SAMPLE_FACTS = [
   { studyId: 'S-001', modality: 'CT', priority: 'critical', patientType: '急诊', age: 65, waitingMinutes: 5, criticalFinding: true },
@@ -47,14 +13,74 @@ const SAMPLE_FACTS = [
   { studyId: 'S-003', modality: 'CT', priority: 'normal', patientType: '住院', age: 78, waitingMinutes: 30, criticalFinding: false },
 ];
 
+function toRoutingRule(dto: RoutingRuleDto): RoutingRule {
+  return {
+    id: dto.id,
+    name: dto.name,
+    description: dto.description,
+    priority: dto.priority,
+    enabled: dto.enabled,
+    conditions: dto.conditions as unknown as RoutingRule['conditions'],
+    event: dto.event as unknown as RoutingRule['event'],
+    target: dto.target as unknown as RoutingRule['target'],
+    explanation: dto.explanation,
+  };
+}
+
+function toDto(rule: RoutingRule): Partial<RoutingRuleDto> {
+  return {
+    name: rule.name,
+    description: rule.description,
+    priority: rule.priority,
+    enabled: rule.enabled,
+    conditions: rule.conditions as unknown as Record<string, unknown>,
+    event: rule.event as unknown as Record<string, unknown>,
+    target: rule.target as unknown as Record<string, unknown> | undefined,
+    explanation: rule.explanation,
+  };
+}
+
 export default function RoutingRulePage() {
-  const [rules, setRules] = useState<RoutingRule[]>(SAMPLE_RULES);
+  const [rules, setRules] = useState<RoutingRule[]>([]);
+  const [loading, setLoading] = useState(false);
   const engine = useMemo(() => {
     const e = new RoutingEngine();
     rules.forEach((r) => e.addRule(r));
     return e;
   }, [rules]);
   const [results, setResults] = useState<Array<{ studyId: string; matched: string[]; target?: string }>>([]);
+
+  useEffect(() => {
+    loadRules();
+  }, []);
+
+  const loadRules = async () => {
+    setLoading(true);
+    try {
+      const res = await workflowApi.listRoutingRules();
+      if (res.success && Array.isArray(res.data)) {
+        setRules((res.data as RoutingRuleDto[]).map(toRoutingRule));
+      }
+    } catch { /* ignore */ } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRulesChange = async (next: RoutingRule[]) => {
+    setRules(next);
+  };
+
+  const handleSave = async () => {
+    for (const rule of rules) {
+      const dto = toDto(rule);
+      const res = await workflowApi.updateRoutingRule(rule.id, dto);
+      if (!res.success) {
+        message.error(`保存规则 "${rule.name}" 失败: ${res.error?.message ?? ''}`);
+        return;
+      }
+    }
+    message.success('全部规则已保存');
+  };
 
   const runSimulation = async () => {
     const out: Array<{ studyId: string; matched: string[]; target?: string }> = [];
@@ -82,13 +108,13 @@ export default function RoutingRulePage() {
             <button onClick={runSimulation} style={btnPrimary}>
               <Play size={12} /> 模拟执行
             </button>
-            <button style={btnSecondary}><Save size={12} /> 保存</button>
+            <button onClick={handleSave} style={btnSecondary}><Save size={12} /> 保存</button>
           </div>
         </div>
       </header>
       <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 320px', overflow: 'hidden' }}>
         <div style={{ borderRight: '1px solid #e2e8f0' }}>
-          <RoutingRuleBuilder rules={rules} onChange={setRules} />
+          <RoutingRuleBuilder rules={rules} onChange={handleRulesChange} />
         </div>
         <aside style={{ background: '#fff', padding: 12, overflowY: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>

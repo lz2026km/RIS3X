@@ -30,6 +30,7 @@ import {
 } from "../data/qualityScoreMock";
 import { AppModal } from "../components/common/AppModal";
 import { ConfirmDialog } from "../components/ConfirmDialog";
+import { reportQualityApi } from "../services/api";
 
 // ============================================================
 // 分类配置
@@ -86,6 +87,7 @@ export default function ReportDefectLibraryPage() {
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [defectList, setDefects] = useState<DefectItem[]>(defects);
   const [filterSeverity, setFilterSeverity] = useState<string>("all");
+  const [apiKpi, setApiKpi] = useState(QUALITY_KPI);
   const [selectedDefect, setSelectedDefect] = useState<DefectItem | null>(
     defects[0] || null,
   );
@@ -116,6 +118,34 @@ export default function ReportDefectLibraryPage() {
     return () => clearTimeout(t);
   }, [toast.show]);
 
+  useEffect(() => {
+    reportQualityApi.getDefectLibrary().then(res => {
+      if (res.success && res.data?.data?.length) {
+        const mapped: DefectItem[] = res.data.data.map((entry, i) => {
+          const detail = (entry.detail || {}) as Record<string, unknown>
+          return {
+            id: entry.id,
+            code: (detail.code as string) || `DEF-${i + 1}`,
+            name: (detail.name as string) || '未知缺陷',
+            category: (detail.category as DefectCategory) || 'description',
+            severity: (detail.severity as DefectItem['severity']) || 'minor',
+            description: (detail.description as string) || '',
+            examples: (detail.examples as string[]) || [],
+            solution: (detail.solution as string) || '',
+            count: (detail.count as number) || 0,
+          }
+        })
+        setDefects(mapped)
+      }
+    })
+    reportQualityApi.getStats().then(res => {
+      if (res.success) {
+        const stats = res.data.data
+        setApiKpi(prev => ({ ...prev, totalEvaluated: stats.total, avgScore: stats.avgScore }))
+      }
+    })
+  }, [])
+
   const resetForm = () => {
     setFormState({
       code: "",
@@ -145,7 +175,7 @@ export default function ReportDefectLibraryPage() {
     setShowEditModal(true);
   };
 
-  const handleSaveNew = () => {
+  const handleSaveNew = async () => {
     if (!formState.code.trim() || !formState.name.trim()) {
       setToast({ show: true, type: "error", message: "编码与名称必填" });
       return;
@@ -169,9 +199,10 @@ export default function ReportDefectLibraryPage() {
       type: "success",
       message: `已新增缺陷：${newDefect.name}`,
     });
+    await reportQualityApi.createDefectEntry(newDefect);
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!selectedDefect) return;
     setDefects((prev) =>
       prev.map((x) =>
@@ -193,6 +224,14 @@ export default function ReportDefectLibraryPage() {
       show: true,
       type: "success",
       message: `已更新：${formState.name || selectedDefect.name}`,
+    });
+    await reportQualityApi.updateDefectEntry(selectedDefect.id, {
+      code: formState.code.trim() || selectedDefect.code,
+      name: formState.name.trim() || selectedDefect.name,
+      category: formState.category,
+      severity: formState.severity,
+      description: formState.description.trim(),
+      solution: formState.solution.trim(),
     });
   };
 
@@ -278,8 +317,8 @@ export default function ReportDefectLibraryPage() {
             </span>
           </h1>
           <p style={{ fontSize: 12, color: "#64748b", margin: "4px 0 0" }}>
-            {defects.length} 类缺陷 · 6 大分类 · 累计触发{" "}
-            {QUALITY_KPI.totalEvaluated} 次评分
+            {defectList.length} 类缺陷 · 6 大分类 · 累计触发{" "}
+            {apiKpi.totalEvaluated} 次评分
           </p>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
@@ -403,8 +442,8 @@ export default function ReportDefectLibraryPage() {
             gap: 8,
           }}
         >
-          {QUALITY_KPI.defectTopList.map((d, i) => {
-            const defect = defects.find((x) => x.code === d.code);
+          {apiKpi.defectTopList.map((d, i) => {
+            const defect = defectList.find((x) => x.code === d.code);
             return (
               <div
                 key={d.code}

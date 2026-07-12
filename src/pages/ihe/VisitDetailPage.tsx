@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Card, Space, Tag, Table, Descriptions, Steps, Divider } from 'antd';
+import { Card, Space, Tag, Table, Descriptions, Steps, Divider, message } from 'antd';
 import { Activity, Clock, ArrowRight, GitBranch } from 'lucide-react';
+import { iheApi } from '../../services/api/integrationApi';
+import type { VisitState } from '../../services/api/integrationApi';
 
 const STATE_STEPS = [
   { key: 'registered', title: 'Registered', color: 'default' },
@@ -17,38 +19,35 @@ const STATE_MAP: Record<string, number> = {
 
 export const VisitDetailPage: React.FC = () => {
   const { patientId, visitNumber } = useParams<{ patientId: string; visitNumber: string }>();
-  const [visit, setVisit] = useState<any>(null);
+  const [visit, setVisit] = useState<VisitState | null>(null);
 
   useEffect(() => {
-    loadVisit();
+    if (patientId && visitNumber) loadVisit();
   }, [patientId, visitNumber]);
 
   const loadVisit = async () => {
-    try {
-      const r = await fetch(`/api/v1/ihe/pam/visit-detail?patientId=${patientId}&visitNumber=${visitNumber}`);
-      const d = await r.json();
-      setVisit(d.data ?? d);
-    } catch {
+    if (!patientId || !visitNumber) return;
+    const res = await iheApi.getVisitDetail(patientId, visitNumber);
+    if (res.success) {
+      setVisit(res.data);
+    } else {
       setVisit({
         patientId,
         visitNumber,
         status: 'inProgress',
         classCode: 'AMB',
-        assignedLocation: 'RAD-A01',
         admitDateTime: '2026-07-12 08:00:00',
-        inProgressAt: '2026-07-12 09:15:00',
-        completedAt: null,
-        dischargeDateTime: null,
         adtMessages: [
           { id: '1', messageType: 'A01', timestamp: '2026-07-12 08:00:00', content: 'MSH|^~\\&|...' },
           { id: '2', messageType: 'A08', timestamp: '2026-07-12 09:15:00', content: 'MSH|^~\\&|...' },
           { id: '3', messageType: 'A08', timestamp: '2026-07-12 09:30:00', content: 'MSH|^~\\&|...' },
         ],
       });
+      message.warning('使用模拟数据');
     }
   };
 
-  const currentIdx = visit ? (STATE_MAP[visit.status] ?? 0) : 0;
+  const currentIdx = visit ? (STATE_MAP[visit.status as keyof typeof STATE_MAP] ?? 0) : 0;
 
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
@@ -86,11 +85,11 @@ export const VisitDetailPage: React.FC = () => {
 
           <Card size="small" title={<span><Clock size={14} style={{ marginRight: 4 }} />时间戳</span>}>
             <Descriptions column={2} size="small" bordered>
-              <Descriptions.Item label="入院 (Admit)">{visit.admitDateTime ?? '-'}</Descriptions.Item>
-              <Descriptions.Item label="开始 (In Progress)">{visit.inProgressAt ?? '-'}</Descriptions.Item>
-              <Descriptions.Item label="完成 (Completed)">{visit.completedAt ?? '-'}</Descriptions.Item>
-              <Descriptions.Item label="出院 (Discharge)">{visit.dischargeDateTime ?? '-'}</Descriptions.Item>
-            </Descriptions>
+                <Descriptions.Item label="入院 (Admit)">{visit?.admitDateTime ?? '-'}</Descriptions.Item>
+                <Descriptions.Item label="开始 (In Progress)">{visit?.inProgressAt ?? '-'}</Descriptions.Item>
+                <Descriptions.Item label="完成 (Completed)">{visit?.completedAt ?? '-'}</Descriptions.Item>
+                <Descriptions.Item label="出院 (Discharge)">{visit?.dischargeDateTime ?? '-'}</Descriptions.Item>
+              </Descriptions>
           </Card>
 
           <Card size="small" title={<span><GitBranch size={14} style={{ marginRight: 4 }} />触发的 ADT 消息</span>}>

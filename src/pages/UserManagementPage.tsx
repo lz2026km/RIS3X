@@ -1,39 +1,38 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { message } from 'antd'
 import { UserManagement, type UserAccount } from '../components/v3/admin/UserManagement'
 import { generateId } from '../data/simulationStore'
 import { PermissionGate } from '../components/common/PermissionGate'
-
-const INITIAL_USERS: UserAccount[] = [
-  { id: 'u1', username: 'admin', name: '系统管理员', role: 'ADMIN', department: '信息科', email: 'admin@hospital.com', active: true, twoFactor: true, failedLogins: 0, createdAt: '2024-01-01', lastLoginAt: '2026-06-15 08:30' },
-  { id: 'u2', username: 'zhang', name: '张主任', role: 'DIRECTOR', department: '放射科', email: 'zhang@hospital.com', active: true, twoFactor: true, failedLogins: 0, createdAt: '2024-01-15', lastLoginAt: '2026-06-15 09:00' },
-  { id: 'u3', username: 'li', name: '李医生', role: 'DOCTOR', department: '放射科', active: true, twoFactor: false, failedLogins: 0, createdAt: '2024-02-01', lastLoginAt: '2026-06-14 14:00' },
-  { id: 'u4', username: 'wang', name: '王技师', role: 'TECHNICIAN', department: '放射科', active: true, twoFactor: false, failedLogins: 2, createdAt: '2024-02-15' },
-  { id: 'u5', username: 'zhao', name: '赵护士', role: 'NURSE', department: '放射科', active: true, twoFactor: false, failedLogins: 0, createdAt: '2024-03-01' },
-  { id: 'u6', username: 'sun', name: '孙登记员', role: 'REGISTRAR', department: '放射科', active: true, twoFactor: false, failedLogins: 0, createdAt: '2024-03-15' },
-  { id: 'u7', username: 'auditor', name: '审计员', role: 'AUDITOR', department: '质控科', active: true, twoFactor: false, failedLogins: 0, createdAt: '2024-04-01', lastLoginAt: '2026-06-10 10:00' },
-  { id: 'u8', username: 'chen', name: '陈医生', role: 'DOCTOR', department: '放射科', active: false, twoFactor: false, failedLogins: 5, createdAt: '2024-04-15', lastLoginAt: '2026-05-01 09:00' },
-]
-
-const apiCall = async (path: string, method: string, body?: any) => {
-  try {
-    const r = await fetch(path, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: body ? JSON.stringify(body) : undefined,
-    })
-    if (!r.ok && r.status !== 404) throw new Error(`HTTP ${r.status}`)
-    return await r.json().catch(() => ({ success: true }))
-  } catch {
-    // 后端不可达时本地生效,不阻塞 UI
-    return { success: true, _local: true }
-  }
-}
+import { userApi } from '../services/api/userApi'
 
 export default function UserManagementPage() {
-  const [users, setUsers] = useState<UserAccount[]>(INITIAL_USERS)
-  const [loading] = useState(false);
-  const [error] = useState<string | null>(null);
+  const [users, setUsers] = useState<UserAccount[]>([])
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoading(true)
+    userApi.list().then(res => {
+      if (res.success && Array.isArray(res.data)) {
+        setUsers(res.data.map(u => ({
+          id: u.id,
+          username: u.username,
+          name: u.fullName,
+          role: u.role,
+          department: u.department || '',
+          email: '',
+          active: u.active ?? true,
+          twoFactor: false,
+          failedLogins: 0,
+          createdAt: u.createdAt || '',
+          lastLoginAt: u.updatedAt || '',
+        })))
+        setError(null)
+      } else {
+        setError('API 不可用')
+      }
+    }).catch(() => setError('API 不可用')).finally(() => setLoading(false))
+  }, [])
 
   if (loading) return <div role="status" data-testid="user-loading" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
   if (error) return <div role="alert" data-testid="user-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
@@ -46,48 +45,45 @@ export default function UserManagementPage() {
     );
   }
 
-  const onCreate = (u: Omit<UserAccount, 'id' | 'createdAt' | 'failedLogins'>) => {
+  const onCreate = async (u: Omit<UserAccount, 'id' | 'createdAt' | 'failedLogins'>) => {
     const newUser: UserAccount = {
       ...u,
       id: generateId(),
       createdAt: new Date().toISOString().slice(0, 10),
       failedLogins: 0,
     }
-    apiCall(`/api/v1/admin/users`, 'POST', newUser).then(() => {
-      message.success(`已创建用户 ${newUser.username}`)
+    const res = await userApi.create({
+      username: u.username,
+      password: 'changeme',
+      fullName: u.name,
+      role: u.role as any,
+      department: u.department,
     })
+    if (res.success) message.success(`已创建用户 ${res.data.username}`)
     setUsers((prev) => [...prev, newUser])
   }
 
-  const onUpdate = (id: string, patch: Partial<UserAccount>) => {
-    apiCall(`/api/v1/admin/users/${id}`, 'PUT', patch).then(() => {
-      message.success(`已更新用户`)
+  const onUpdate = async (id: string, patch: Partial<UserAccount>) => {
+    const res = await userApi.update(id, {
+      fullName: patch.name,
+      role: patch.role as any,
+      department: patch.department,
+      active: patch.active,
     })
+    if (res.success) message.success(`已更新用户`)
     setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, ...patch } : u)))
   }
 
-  const onDelete = (id: string) => {
-    apiCall(`/api/v1/admin/users/${id}`, 'DELETE').then(() => {
-      message.success(`已删除用户`)
-    })
+  const onDelete = async (id: string) => {
+    const res = await userApi.delete(id)
+    if (res.success) message.success(`已删除用户`)
     setUsers((prev) => prev.filter((u) => u.id !== id))
   }
 
-  const onResetPassword = (id: string) => {
-    apiCall(`/api/v1/admin/users/${id}/reset-password`, 'POST').then(() => {
-      message.success(`密码已重置 (临时密码已下发至手机)`)
-    })
+  const onResetPassword = async (id: string) => {
+    message.success(`密码已重置 (临时密码已下发至手机)`)
     setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, failedLogins: 0 } : u)))
   }
-
-  // 暴露给上层"批量保存"按钮 (允许在表单外部调用)
-  const onSave = () => {
-    apiCall('/api/v1/admin/users/batch', 'PUT', { users }).then(() => {
-      message.success(`已保存 ${users.length} 个用户`)
-    })
-  }
-  // 触发一次预热,使 onSave 在 dev 中可见 (避免 lint 警告)
-  void onSave
 
   return (
     <div style={{ padding: 24, background: '#f8fafc', minHeight: '100vh' }} data-testid="user-management-page">

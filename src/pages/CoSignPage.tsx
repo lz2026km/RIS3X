@@ -19,14 +19,8 @@ import {
   Eye,
   Loader2,
 } from 'lucide-react'
-import {
-  COSIGN_KPI,
-  COSIGN_CALENDAR,
-  COSIGN_EMERGENCY,
-  COSIGN_DASHBOARD_KPI,
-} from '../data/cosignMock'
 import { useReportStore } from '../store/reportStore'
-import { reportApi } from '../services/api/reportApi'
+import { cosignApi, type CosignStatsDto } from '../services/api/reviewApi'
 import { useAuth } from '../hooks/useAuth'
 import { canApprove } from '../services/auth/rbacService'
 
@@ -59,6 +53,10 @@ const CoSignPage: React.FC = () => {
   const [actionPending, setActionPending] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
 
+  // cosign 后端数据
+  const [kpi, setKpi] = useState<CosignStatsDto | null>(null)
+  const [loadingKpi, setLoadingKpi] = useState(false)
+
   // v3.0.6.11: 接 reportStore 真实报告数据
   const reports = useReportStore((s) => s.reports)
   const storeLoad = useReportStore((s) => s.load)
@@ -70,6 +68,18 @@ const CoSignPage: React.FC = () => {
   useEffect(() => {
     void storeLoad()
   }, [storeLoad])
+
+  // 从后端加载 cosign 统计数据
+  useEffect(() => {
+    let cancelled = false
+    setLoadingKpi(true)
+    cosignApi.getStats().then((res) => {
+      if (!cancelled && res.success) setKpi(res.data)
+    }).finally(() => {
+      if (!cancelled) setLoadingKpi(false)
+    })
+    return () => { cancelled = true }
+  }, [])
 
   // 收件箱只显示在 store 中未结案(coSignReview / submitted)的报告;
   // 若 store 未加载到,降级使用 mock inbox 以保留 UI 可见性。
@@ -128,10 +138,9 @@ const CoSignPage: React.FC = () => {
     setActionPending(true)
     setActionError(null)
     try {
-      const res = await reportApi.cosign(detailItem.reportId, currentUserId)
+      const res = await cosignApi.approve(detail.id, { note: '' })
       if (res.success) {
         setProcessed((prev) => ({ ...prev, [detail.id]: 'approved' }))
-        // 重新加载 store 以反映状态变化
         await storeLoad()
         closeDetail()
       } else {
@@ -154,7 +163,7 @@ const CoSignPage: React.FC = () => {
     setActionPending(true)
     setActionError(null)
     try {
-      const res = await reportApi.reject(detailItem.reportId, rejectReason.trim())
+      const res = await cosignApi.reject(detail.id, { reason: rejectReason.trim() })
       if (res.success) {
         setProcessed((prev) => ({ ...prev, [detail.id]: 'rejected' }))
         await storeLoad()
@@ -169,8 +178,27 @@ const CoSignPage: React.FC = () => {
     }
   }
 
-  const schedule = useMemo(() => COSIGN_CALENDAR, [])
-  const emergency = useMemo(() => COSIGN_EMERGENCY, [])
+  const [schedule, setSchedule] = useState<Array<{ id: string; date: string; shiftType: string; reviewerName: string; startTime: string; endTime: string; reviewerTitle?: string }>>([])
+  const [emergency, setEmergency] = useState<Array<{ id: string; patientName: string; modality: string; bodyPart: string; criticalLevel: string; triggeredAt: string; reportId?: string }>>([])
+
+  useEffect(() => {
+    let cancelled = false
+    cosignApi.listPending().then((res) => {
+      if (!cancelled && res.success) {
+        const items = Array.isArray(res.data) ? res.data : []
+        setSchedule(items.slice(0, 8).map((it) => ({
+          id: it.id,
+          date: it.submittedAt?.slice(0, 10) ?? '',
+          shiftType: '双签',
+          reviewerName: it.authorName,
+          startTime: '',
+          endTime: '',
+          reviewerTitle: 'reviewer',
+        })))
+      }
+    }).catch(() => {})
+    return () => { cancelled = true }
+  }, [])
 
   return (
     <div className="p-6 space-y-4" data-testid="cosign-page">
@@ -194,7 +222,7 @@ const CoSignPage: React.FC = () => {
         </div>
         <div className="rounded-lg border bg-white p-4">
           <div className="text-sm text-gray-500 flex items-center gap-1"><Clock size={14}/>平均响应</div>
-          <div className="text-2xl font-bold mt-1">{COSIGN_KPI.avgResponseMinutes}min</div>
+          <div className="text-2xl font-bold mt-1">{kpi?.avgResponseMinutes ?? '-'}min</div>
         </div>
         <div className="rounded-lg border bg-white p-4">
           <div className="text-sm text-gray-500 flex items-center gap-1"><AlertTriangle size={14}/>急诊</div>
@@ -202,7 +230,7 @@ const CoSignPage: React.FC = () => {
         </div>
         <div className="rounded-lg border bg-white p-4">
           <div className="text-sm text-gray-500 flex items-center gap-1"><CheckCircle size={14}/>SLA 达成</div>
-          <div className="text-2xl font-bold mt-1 text-green-600">{COSIGN_DASHBOARD_KPI.onTimeRate}%</div>
+          <div className="text-2xl font-bold mt-1 text-green-600">{kpi?.onTimeRate ?? 0}%</div>
         </div>
       </div>
 
@@ -335,22 +363,25 @@ const CoSignPage: React.FC = () => {
         <div className="grid grid-cols-2 gap-4">
           <div className="rounded-lg border bg-white p-4">
             <h3 className="font-semibold mb-2 flex items-center gap-2"><Award size={18}/>月度 KPI</h3>
-            <div className="space-y-1 text-sm">
-              <div className="flex justify-between"><span className="text-gray-500">触发总数</span><span className="font-medium">{COSIGN_DASHBOARD_KPI.totalTriggered}</span></div>
-              <div className="flex justify-between"><span className="text-gray-500">已签发</span><span className="font-medium text-green-600">{COSIGN_DASHBOARD_KPI.totalSigned}</span></div>
-              <div className="flex justify-between"><span className="text-gray-500">已拒签</span><span className="font-medium">{COSIGN_DASHBOARD_KPI.totalRejected}</span></div>
-              <div className="flex justify-between"><span className="text-gray-500">已过期</span><span className="font-medium text-red-600">{COSIGN_DASHBOARD_KPI.totalExpired}</span></div>
-              <div className="flex justify-between"><span className="text-gray-500">SLA 达成率</span><span className="font-medium">{COSIGN_DASHBOARD_KPI.onTimeRate}%</span></div>
-              <div className="flex justify-between"><span className="text-gray-500">平均耗时</span><span className="font-medium">{COSIGN_DASHBOARD_KPI.avgResponseMinutes}min</span></div>
-            </div>
+            {loadingKpi ? (
+              <div className="text-center py-4 text-gray-500">
+                <Loader2 size={20} className="mx-auto animate-spin" />
+              </div>
+            ) : (
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between"><span className="text-gray-500">总待签</span><span className="font-medium">{kpi?.pending ?? 0}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">已签发</span><span className="font-medium text-green-600">{kpi?.totalSigned ?? '-'}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">已拒签</span><span className="font-medium">{kpi?.totalRejected ?? '-'}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">SLA 达成率</span><span className="font-medium">{kpi?.onTimeRate ?? 0}%</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">平均耗时</span><span className="font-medium">{kpi?.avgResponseMinutes ?? '-'}min</span></div>
+              </div>
+            )}
           </div>
           <div className="rounded-lg border bg-white p-4">
-            <h3 className="font-semibold mb-2">分类统计</h3>
+            <h3 className="font-semibold mb-2">数据概况</h3>
             <div className="space-y-1 text-sm">
-              <div className="flex justify-between"><span className="text-gray-500">冲突数</span><span className="font-medium">{COSIGN_DASHBOARD_KPI.conflictCount}</span></div>
-              <div className="flex justify-between"><span className="text-gray-500">已解决冲突</span><span className="font-medium">{COSIGN_DASHBOARD_KPI.conflictResolvedCount}</span></div>
-              <div className="flex justify-between"><span className="text-gray-500">临时授权</span><span className="font-medium">{COSIGN_DASHBOARD_KPI.tempAuthActive}</span></div>
-              <div className="flex justify-between"><span className="text-gray-500">批量签</span><span className="font-medium">{COSIGN_DASHBOARD_KPI.batchCount}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">总双签记录</span><span className="font-medium">{kpi?.total ?? 0}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">平均处理时长</span><span className="font-medium">{kpi?.avgHours ?? '-'}h</span></div>
             </div>
           </div>
         </div>

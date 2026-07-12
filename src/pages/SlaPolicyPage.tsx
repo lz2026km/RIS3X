@@ -1,28 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Clock, Plus, Search, ToggleLeft, ToggleRight, Trash2, Edit3 } from 'lucide-react';
-import { Table, Button, Modal, Form, Input, InputNumber, Select, Tag, message, Popconfirm, Space } from 'antd';
+import { Table, Button, Modal, Form, Input, InputNumber, Select, Tag, message, Popconfirm, Space, Spin } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-
-interface SLAPolicy {
-  id: string;
-  name: string;
-  modality: string;
-  priority: string;
-  targetMinutes: number;
-  warningMinutes: number;
-  escalationMinutes: number;
-  active: boolean;
-}
-
-const SEED: SLAPolicy[] = [
-  { id: '1', name: 'CT危急', modality: 'CT', priority: 'critical', targetMinutes: 30, warningMinutes: 20, escalationMinutes: 45, active: true },
-  { id: '2', name: 'CT紧急', modality: 'CT', priority: 'urgent', targetMinutes: 90, warningMinutes: 60, escalationMinutes: 120, active: true },
-  { id: '3', name: 'CT常规', modality: 'CT', priority: 'normal', targetMinutes: 240, warningMinutes: 180, escalationMinutes: 360, active: false },
-  { id: '4', name: 'MR危急', modality: 'MR', priority: 'critical', targetMinutes: 45, warningMinutes: 30, escalationMinutes: 60, active: true },
-  { id: '5', name: 'MR紧急', modality: 'MR', priority: 'urgent', targetMinutes: 180, warningMinutes: 120, escalationMinutes: 240, active: true },
-  { id: '6', name: 'DR危急', modality: 'DR', priority: 'critical', targetMinutes: 15, warningMinutes: 10, escalationMinutes: 20, active: true },
-  { id: '7', name: 'DR常规', modality: 'DR', priority: 'normal', targetMinutes: 120, warningMinutes: 90, escalationMinutes: 180, active: false },
-];
+import { workflowApi } from '../services/api/workflowApi';
+import type { SLAPolicyDto } from '../services/api/workflowApi';
 
 const MODALITIES = ['CT', 'MR', 'DR', 'US', 'DSA', 'MG', 'PET-CT'];
 const PRIORITIES = [
@@ -32,12 +13,29 @@ const PRIORITIES = [
 ];
 
 export default function SlaPolicyPage() {
-  const [policies, setPolicies] = useState<SLAPolicy[]>(SEED);
+  const [policies, setPolicies] = useState<SLAPolicyDto[]>([]);
+  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState<SLAPolicy | null>(null);
+  const [editing, setEditing] = useState<SLAPolicyDto | null>(null);
   const [form] = Form.useForm();
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    loadPolicies();
+  }, []);
+
+  const loadPolicies = async () => {
+    setLoading(true);
+    try {
+      const res = await workflowApi.listSlaPolicies();
+      if (res.success && Array.isArray(res.data)) {
+        setPolicies(res.data as SLAPolicyDto[]);
+      }
+    } catch { /* ignore */ } finally {
+      setLoading(false);
+    }
+  };
 
   const filtered = useMemo(() => {
     if (!search) return policies;
@@ -45,16 +43,18 @@ export default function SlaPolicyPage() {
     return policies.filter(p => p.name.toLowerCase().includes(q) || p.modality.toLowerCase().includes(q) || p.priority.toLowerCase().includes(q));
   }, [policies, search]);
 
-  const handleSave = async (values: any) => {
+  const handleSaveAll = async () => {
     setSaving(true);
     try {
-      await fetch('/api/v1/sla/policies', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ policies: values }),
-      });
-    } catch { /* local only */ }
-    setSaving(false);
+      for (const p of policies) {
+        await workflowApi.updateSlaPolicy(p.id, p);
+      }
+      message.success('全部策略已保存');
+    } catch {
+      message.error('保存失败');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const openAdd = () => {
@@ -63,7 +63,7 @@ export default function SlaPolicyPage() {
     setModalOpen(true);
   };
 
-  const openEdit = (record: SLAPolicy) => {
+  const openEdit = (record: SLAPolicyDto) => {
     setEditing(record);
     form.setFieldsValue(record);
     setModalOpen(true);
@@ -71,29 +71,48 @@ export default function SlaPolicyPage() {
 
   const handleOk = async () => {
     const values = await form.validateFields();
-    if (editing) {
-      setPolicies(prev => prev.map(p => p.id === editing.id ? { ...p, ...values } : p));
-      message.success('策略已更新');
-    } else {
-      const newPolicy: SLAPolicy = { id: `sla-${Date.now()}`, ...values, active: true };
-      setPolicies(prev => [...prev, newPolicy]);
-      message.success('策略已创建');
+    try {
+      if (editing) {
+        const res = await workflowApi.updateSlaPolicy(editing.id, values);
+        if (res.success) {
+          setPolicies(prev => prev.map(p => p.id === editing.id ? { ...p, ...values } as SLAPolicyDto : p));
+          message.success('策略已更新');
+        } else {
+          message.error(res.error?.message ?? '更新失败');
+        }
+      } else {
+        const res = await workflowApi.createSlaPolicy({ ...values, active: true });
+        if (res.success) {
+          setPolicies(prev => [...prev, res.data as SLAPolicyDto]);
+          message.success('策略已创建');
+        } else {
+          message.error(res.error?.message ?? '创建失败');
+        }
+      }
+      setModalOpen(false);
+    } catch {
+      message.error('操作失败');
     }
-    setModalOpen(false);
-    handleSave(policies);
   };
 
-  const toggleActive = (id: string) => {
-    setPolicies(prev => prev.map(p => p.id === id ? { ...p, active: !p.active } : p));
-    message.success('状态已切换');
+  const toggleActive = async (id: string) => {
+    const p = policies.find(x => x.id === id);
+    if (!p) return;
+    const res = await workflowApi.updateSlaPolicy(id, { active: !p.active });
+    if (res.success) {
+      setPolicies(prev => prev.map(p => p.id === id ? { ...p, active: !p.active } : p));
+      message.success('状态已切换');
+    } else {
+      message.error(res.error?.message ?? '切换失败');
+    }
   };
 
   const handleDelete = (id: string) => {
     setPolicies(prev => prev.filter(p => p.id !== id));
-    message.success('策略已删除');
+    message.success('策略已删除（本地）');
   };
 
-  const columns: ColumnsType<SLAPolicy> = [
+  const columns: ColumnsType<SLAPolicyDto> = [
     { title: '策略名称', dataIndex: 'name', key: 'name', width: 160 },
     {
       title: '设备类型', dataIndex: 'modality', key: 'modality', width: 100,
@@ -141,11 +160,15 @@ export default function SlaPolicyPage() {
       <div style={{ background: '#fff', borderRadius: 8, padding: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <Input placeholder="搜索策略名称/设备/优先级..." prefix={<Search size={14} />} value={search} onChange={e => setSearch(e.target.value)} style={{ width: 300 }} allowClear />
-          <Button type="primary" icon={<Plus size={14} />} onClick={openAdd}>新增策略</Button>
+          <Button type="primary" icon={<Plus size={14} />} onClick={openAdd} disabled={loading}>新增策略</Button>
         </div>
-        <Table columns={columns} dataSource={filtered} rowKey="id" pagination={false} size="middle" />
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
+        ) : (
+          <Table columns={columns} dataSource={filtered} rowKey="id" pagination={false} size="middle" />
+        )}
         <div style={{ marginTop: 16, textAlign: 'right' }}>
-          <Button type="primary" loading={saving} onClick={() => handleSave(policies)} icon={<Clock size={14} />}>保存全部</Button>
+          <Button type="primary" loading={saving} onClick={handleSaveAll} icon={<Clock size={14} />}>保存全部</Button>
         </div>
       </div>
       <Modal title={editing ? '编辑策略' : '新增策略'} open={modalOpen} onOk={handleOk} onCancel={() => setModalOpen(false)} width={520}>

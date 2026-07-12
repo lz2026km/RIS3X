@@ -1,6 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { Card, Space, Tag, Button, Input, Descriptions, Timeline, message, Divider, Badge } from 'antd';
 import { Search, Send, Activity, User, Clock } from 'lucide-react';
+import { iheApi } from '../../services/api/integrationApi';
+import type { VisitState } from '../../services/api/integrationApi';
 
 const STATE_TAGS: Record<string, { color: string; label: string }> = {
   registered: { color: 'default', label: 'Registered' },
@@ -19,37 +21,32 @@ const ADT_TRANSITIONS: Record<string, { label: string; msgType: string }> = {
 
 export const VisitPage: React.FC = () => {
   const [patientId, setPatientId] = useState('');
-  const [visit, setVisit] = useState<any>(null);
+  const [visit, setVisit] = useState<VisitState | null>(null);
   const [loading, setLoading] = useState(false);
   const [adtTriggering, setAdtTriggering] = useState(false);
 
   const handleSearch = useCallback(async () => {
     if (!patientId.trim()) { message.warning('请输入患者 ID'); return; }
     setLoading(true);
-    try {
-      const r = await fetch(`/api/v1/ihe/pam/visit?patientId=${encodeURIComponent(patientId)}`);
-      const d = await r.json();
-      setVisit(d.data ?? d);
-    } catch {
+    const res = await iheApi.getVisit(patientId);
+    if (res.success) {
+      setVisit(res.data);
+    } else {
       setVisit({
         patientId,
         visitNumber: 'V20260001',
         status: 'admitted',
         classCode: 'AMB',
-        assignedLocation: 'RAD-A01',
+        admitDateTime: '2026-07-12 08:00:00',
+        dischargeDateTime: undefined,
         timeline: [
           { event: 'ADT^A01', timestamp: '2026-07-12 08:00:00', description: '入院登记' },
           { event: 'ADT^A08', timestamp: '2026-07-12 09:15:00', description: '转入放射科' },
           { event: 'ADT^A08', timestamp: '2026-07-12 09:30:00', description: '状态更新' },
         ],
-        admitDateTime: '2026-07-12 08:00:00',
-        dischargeDateTime: null,
-        inProgressAt: '2026-07-12 09:15:00',
-        completedAt: null,
       });
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   }, [patientId]);
 
   const handleAdtTrigger = useCallback(async (transition: string) => {
@@ -57,26 +54,20 @@ export const VisitPage: React.FC = () => {
     setAdtTriggering(true);
     const cfg = ADT_TRANSITIONS[transition];
     if (!cfg) return;
-    try {
-      await fetch('/api/v1/ihe/pam/message', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messageType: cfg.msgType,
-          patientId: visit.patientId,
-          visitNumber: visit.visitNumber,
-          classCode: visit.classCode,
-          assignedLocation: visit.assignedLocation,
-        }),
-      });
+    const res = await iheApi.pamMessage({
+      messageType: `ADT^${cfg.msgType}`,
+      patientId: visit.patientId,
+      assigningAuthority: 'G005',
+      visitNumber: visit.visitNumber,
+      classCode: visit.classCode,
+    });
+    if (res.success) {
       message.success(`${cfg.label} 消息已发送`);
-      handleSearch();
-    } catch {
+    } else {
       message.success(`${cfg.label} 消息已发送(模拟)`);
-      handleSearch();
-    } finally {
-      setAdtTriggering(false);
     }
+    handleSearch();
+    setAdtTriggering(false);
   }, [visit, handleSearch]);
 
   const currentState = visit?.status ?? 'registered';

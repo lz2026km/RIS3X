@@ -1,64 +1,57 @@
 import { useState } from "react";
 import {
   Card, Button, Typography, Alert, Input, Space, Tag, Descriptions,
-  Divider, List, Switch, message, Steps, Row, Col, Statistic,
+  Divider, List, Switch, Steps, Row, Col, Statistic,
 } from "antd";
 import {
   Shield, Smartphone, Key, QrCode, CheckCircle, Copy, RefreshCw,
   Mail, MessageSquare, Eye, EyeOff, Clock, AlertTriangle,
 } from "lucide-react";
-import { mfaService, displaySecret } from "../../services/security";
-import type { MfaEnrollment } from "../../types/security";
+import { mfaApi } from "../../services/api/mfaApi";
+import { message as antdMessage } from "antd";
 
 const { Title, Text, Paragraph } = Typography;
-
-const MOCK_ENROLLMENT: MfaEnrollment = {
-  userId: "current-user",
-  methods: ["totp", "sms"],
-  primaryMethod: "totp",
-  totpSecret: "JBSWY3DPEHPK3PXP",
-  phoneNumber: "138****1234",
-  email: "user@hospital.cn",
-  backupCodes: ["A1B2C3", "D4E5F6", "G7H8I9", "J0K1L2", "M3N4O5"],
-  enrolledAt: "2026-06-01T08:00:00.000Z",
-  lastUsedAt: "2026-07-08T08:00:00.000Z",
-  enabled: true,
-};
 
 export default function MfaSetupPage() {
   const [step, setStep] = useState(0);
   const [method, setMethod] = useState<"totp" | "sms" | "email">("totp");
   const [code, setCode] = useState("");
-  const [enrollment, setEnrollment] = useState<MfaEnrollment>(MOCK_ENROLLMENT);
-  const [enabled, setEnabled] = useState(enrollment.enabled);
+  const [enabled, setEnabled] = useState(false);
   const [showSecret, setShowSecret] = useState(false);
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
   const [verifying, setVerifying] = useState(false);
+  const [secret, setSecret] = useState("");
+  const [backupCodes, setBackupCodes] = useState<string[]>([]);
 
-  const secret = enrollment.totpSecret || "JBSWY3DPEHPK3PXP";
-
-  const handleStart = () => {
-    if (method === "totp") setStep(1);
-    else setStep(1);
+  const handleStart = async () => {
+    if (method !== "totp") { setStep(1); return; }
+    setVerifying(true);
+    const res = await mfaApi.setupTotp();
+    setVerifying(false);
+    if (res.success && res.data) {
+      setSecret(res.data.secret);
+      setStep(1);
+    } else {
+      antdMessage.error(res.error?.message || "获取TOTP密钥失败");
+    }
   };
 
   const handleVerify = async () => {
     if (!code || code.length < 6) {
-      message.warning("请输入 6 位验证码");
+      antdMessage.warning("请输入 6 位验证码");
       return;
     }
     setVerifying(true);
     try {
-      const challenge = mfaService.issueChallenge({ userId: enrollment.userId, method, ipAddress: "127.0.0.1" });
-      const r = await mfaService.verifyChallenge(challenge.challengeId, code);
-      if (r.success) {
+      const res = await mfaApi.verifyTotp(code);
+      if (res.success && res.data?.verified) {
         setResult({ success: true, message: "验证成功！MFA 已启用" });
-        setEnrollment({ ...enrollment, enabled: true });
         setEnabled(true);
+        setBackupCodes(res.data.backupCodes || []);
         setStep(3);
-        message.success("MFA 验证通过");
+        antdMessage.success("MFA 验证通过");
       } else {
-        setResult({ success: false, message: r.reason ?? "验证码错误" });
+        setResult({ success: false, message: res.error?.message || "验证码错误" });
       }
     } catch {
       setResult({ success: false, message: "验证失败，请重试" });
@@ -67,23 +60,25 @@ export default function MfaSetupPage() {
     }
   };
 
-  const handleToggle = (checked: boolean) => {
-    setEnabled(checked);
-    setEnrollment({ ...enrollment, enabled: checked });
-    message.success(checked ? "MFA 已启用" : "MFA 已禁用");
+  const handleToggle = async (checked: boolean) => {
+    if (checked) {
+      handleStart();
+    } else {
+      const res = await mfaApi.disableTotp();
+      if (res.success) {
+        setEnabled(false);
+        setStep(0);
+        setSecret("");
+        antdMessage.success("MFA 已禁用");
+      } else {
+        antdMessage.error(res.error?.message || "关闭失败");
+      }
+    }
   };
 
   const copyBackupCodes = () => {
-    navigator.clipboard.writeText(enrollment.backupCodes.join("\n"));
-    message.success("备用码已复制");
-  };
-
-  const regenerateCodes = () => {
-    const newCodes = mfaService.regenerateBackupCodes(enrollment.userId);
-    if (newCodes) {
-      setEnrollment({ ...enrollment, backupCodes: newCodes });
-      message.success("备用码已重新生成");
-    }
+    navigator.clipboard.writeText(backupCodes.join("\n"));
+    antdMessage.success("备用码已复制");
   };
 
   return (
@@ -105,14 +100,14 @@ export default function MfaSetupPage() {
         </Col>
         <Col span={8}>
           <Card size="small">
-            <Statistic title="认证方式" value={enrollment.methods.length} suffix={`种`} prefix={<Key size={14} />} />
+            <Statistic title="认证方式" value={enabled ? 1 : 0} suffix={`种`} prefix={<Key size={14} />} />
           </Card>
         </Col>
         <Col span={8}>
           <Card size="small">
             <Statistic
               title="上次使用"
-              value={enrollment.lastUsedAt ? new Date(enrollment.lastUsedAt).toLocaleDateString() : "从未"}
+              value={enabled ? "最近" : "从未"}
               prefix={<Clock size={14} />}
             />
           </Card>
@@ -126,7 +121,7 @@ export default function MfaSetupPage() {
         </div>
 
         <Steps
-          current={enabled && step > 0 ? step : 0}
+          current={step}
           style={{ marginBottom: 24 }}
           items={[
             { title: "选择方式", icon: <Shield size={14} /> },
@@ -168,7 +163,7 @@ export default function MfaSetupPage() {
               </Button>
             </Space>
             <Divider />
-            <Button type="primary" onClick={handleStart} disabled={!enabled}>下一步</Button>
+            <Button type="primary" onClick={handleStart}>下一步</Button>
           </div>
         )}
 
@@ -225,10 +220,10 @@ export default function MfaSetupPage() {
               </div>
             )}
             {method === "sms" && (
-              <Alert message="短信验证码已发送至 {enrollment.phoneNumber}" type="success" showIcon />
+              <Alert message="短信验证码已发送至已绑定手机" type="success" showIcon />
             )}
             {method === "email" && (
-              <Alert message="验证码已发送至 {enrollment.email}" type="success" showIcon />
+              <Alert message="验证码已发送至已绑定邮箱" type="success" showIcon />
             )}
             <Space>
               <Input
@@ -268,10 +263,10 @@ export default function MfaSetupPage() {
                 <Tag color="green">已启用</Tag>
               </Descriptions.Item>
               <Descriptions.Item label="注册时间">
-                {new Date(enrollment.enrolledAt).toLocaleString()}
+                当前会话
               </Descriptions.Item>
               <Descriptions.Item label="上次使用">
-                {enrollment.lastUsedAt ? new Date(enrollment.lastUsedAt).toLocaleString() : "从未使用"}
+                当前会话
               </Descriptions.Item>
             </Descriptions>
             <Divider />
@@ -282,13 +277,12 @@ export default function MfaSetupPage() {
             <List
               size="small"
               bordered
-              dataSource={enrollment.backupCodes}
+              dataSource={backupCodes}
               renderItem={(c: string) => <List.Item><Text code>{c}</Text></List.Item>}
               style={{ maxWidth: 400, marginBottom: 16 }}
             />
             <Space>
               <Button icon={<Copy size={14} />} onClick={copyBackupCodes}>复制备用码</Button>
-              <Button icon={<RefreshCw size={14} />} onClick={regenerateCodes}>重新生成</Button>
             </Space>
           </div>
         )}

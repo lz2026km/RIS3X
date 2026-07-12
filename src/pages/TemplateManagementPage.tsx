@@ -1,7 +1,7 @@
-// @ts-nocheck
 // G005 放射科RIS系统 - 检查模板管理页面 v1.0.0
 // 功能：CT/MRI/X线报告模板维护，含搜索、新增/编辑/删除、预览功能
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { templatesApi } from '../services/api/templatesApi'
 import { useNavigate } from 'react-router-dom'
 import {
   ClipboardList, ListOrdered, FileEdit, Tag, Plus, X, Search, Eye,
@@ -125,6 +125,30 @@ export default function TemplateManagementPage() {
   const pageSize = 10
   const [activeTab, setActiveTab] = useState<'manage' | 'version' | 'analytics' | 'share'>('manage')
 
+  useEffect(() => {
+    templatesApi.list().then((res: any) => {
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        const mapped = res.data.map((d: any) => ({
+          id: d.id,
+          code: d.category + '-' + d.bodyPart,
+          name: d.name,
+          modality: 'CT',
+          category: d.category,
+          subCategory: d.bodyPart,
+          content: d.body,
+          tags: d.tags || [],
+          author: d.createdById,
+          createTime: d.createdAt || '',
+          updateTime: d.updatedAt || '',
+          usageCount: 0,
+          status: 'active',
+          version: 'v1.0',
+        }))
+        setTemplates(mapped)
+      }
+    })
+  }, [])
+
   const showToast = (msg: string) => {
     setToast(msg)
     setTimeout(() => setToast(null), 2500)
@@ -167,7 +191,7 @@ export default function TemplateManagementPage() {
     setShowPreview(true)
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.code || !formData.name || !formData.content) {
       setValidationError('请填写必填项（模板代码、名称、内容）')
       setTimeout(() => setValidationError(null), 3000)
@@ -175,15 +199,33 @@ export default function TemplateManagementPage() {
     }
     if (modalMode === 'add') {
       const newTemplate: TemplateRecord = { ...formData as TemplateRecord, id: generateId(), author: '当前用户', createTime: formatDate(new Date()), updateTime: formatDate(new Date()), usageCount: 0 }
+      await templatesApi.create({
+        name: formData.name!,
+        category: formData.category || 'general',
+        bodyPart: formData.subCategory || 'general',
+        body: formData.content!,
+        createdById: 'current',
+        tags: formData.tags,
+      })
       setTemplates([newTemplate, ...templates])
     } else {
+      await templatesApi.update(formData.id!, {
+        name: formData.name,
+        category: formData.category,
+        bodyPart: formData.subCategory,
+        body: formData.content,
+        tags: formData.tags,
+      })
       setTemplates(templates.map(tpl => tpl.id === formData.id ? { ...tpl, ...formData, updateTime: formatDate(new Date()) } as TemplateRecord : tpl))
     }
     setShowModal(false)
   }
 
-  const handleDelete = (id: string) => {
-    if (confirm('确定要删除该模板吗？')) setTemplates(templates.filter(tpl => tpl.id !== id))
+  const handleDelete = async (id: string) => {
+    if (confirm('确定要删除该模板吗？')) {
+      await templatesApi.delete(id)
+      setTemplates(templates.filter(tpl => tpl.id !== id))
+    }
   }
 
   const handleCopy = (content: string) => {

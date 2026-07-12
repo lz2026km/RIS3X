@@ -8,9 +8,9 @@ import {
   Activity, BarChart3, ShieldAlert,
 } from 'lucide-react'
 import {
-  getAdverseEvents, getAdverseEventTrend, reportAdverseEvent,
-  type AdverseEvent, type EventSeverity, type EventStatus, type EventCategory, type AdverseEventTrend,
-} from '../../services/safety/adverseEventService'
+  getAdverseEvents, getAdverseEventTrend, createAdverseEvent,
+  type AdverseEvent, type EventSeverity, type EventStatus, type EventCategory, type AdverseEventTrendItem,
+} from '../../services/api/safetyApi'
 
 const SEVERITY_COLORS: Record<EventSeverity, string> = {
   'near-miss': '#8b5cf6',
@@ -50,7 +50,7 @@ const STATUS_LABELS: Record<EventStatus, string> = {
 
 export default function AdverseEventPage() {
   const [events, setEvents] = useState<AdverseEvent[]>([])
-  const [trend, setTrend] = useState<AdverseEventTrend[]>([])
+  const [trend, setTrend] = useState<AdverseEventTrendItem[]>([])
   const [showForm, setShowForm] = useState(false)
   const [filter, setFilter] = useState<EventStatus | 'all'>('all')
   const [formData, setFormData] = useState<Partial<AdverseEvent>>({})
@@ -71,14 +71,15 @@ export default function AdverseEventPage() {
 
   const handleSubmit = async () => {
     if (!formData.eventType || !formData.severity || !formData.description) return
-    await reportAdverseEvent({
+    await createAdverseEvent({
       eventType: formData.eventType as EventCategory,
       severity: formData.severity as EventSeverity,
       description: formData.description,
+      department: formData.location ?? '未指定',
+      reportedBy: formData.reportedBy ?? '当前用户',
       patientId: formData.patientId,
       patientName: formData.patientName,
-      reportedBy: formData.reportedBy ?? '当前用户',
-      location: formData.location ?? '未指定',
+      location: formData.location,
       contributingFactors: formData.contributingFactors ?? [],
       actionsTaken: formData.actionsTaken ?? [],
       rootCauseIds: [],

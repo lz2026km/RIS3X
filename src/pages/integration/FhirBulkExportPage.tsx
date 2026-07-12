@@ -1,19 +1,7 @@
 import React, { useState } from 'react';
 import { Card, Space, Tag, Button, Form, Select, message, Alert, Input, Typography, List, Row, Col } from 'antd';
 import { Globe, Download, Activity, Loader2 } from 'lucide-react';
-
-interface ExportFile {
-  type: string;
-  url: string;
-}
-
-interface ExportJob {
-  jobId: string;
-  status: 'running' | 'completed' | 'failed';
-  files?: ExportFile[];
-  error?: string;
-  transactionTime?: string;
-}
+import { fhirApi, type BulkExportJob } from '../../services/api/fhirApi';
 
 const RESOURCE_TYPES = [
   { value: 'Patient', label: 'Patient' },
@@ -33,18 +21,17 @@ export const FhirBulkExportPage: React.FC = () => {
     setExporting(true);
     setJob(null);
     try {
-      const params = new URLSearchParams();
-      if (since) params.set('_since', since);
-      if (types.length > 0) params.set('_type', types.join(','));
-      const res = await fetch(`/fhir/r4/$export?${params.toString()}`);
-      if (res.ok) {
-        const data = await res.json();
-        const jobId = data.jobId || data.id || `bulk-${Date.now()}`;
+      const params: Record<string, string> = {};
+      if (since) params._since = since;
+      if (types.length > 0) params._type = types.join(',');
+      const res = await fhirApi.bulkExport(params);
+      if (res.success) {
+        const jobId = res.data.jobId || `bulk-${Date.now()}`;
         setJob({ jobId, status: 'running' });
         message.success(`导出任务已启动: ${jobId}`);
         startPolling(jobId);
       } else {
-        message.error('启动导出失败');
+        message.error(res.error?.message || '启动导出失败');
       }
     } catch {
       const mockJobId = `bulk-export-${Date.now()}`;
@@ -62,14 +49,14 @@ export const FhirBulkExportPage: React.FC = () => {
     const iv = setInterval(async () => {
       attempts++;
       try {
-        const res = await fetch(`/fhir/r4/$export-status/${jobId}`);
-        if (res.ok) {
-          const data = await res.json();
+        const res = await fhirApi.bulkExportStatus(jobId);
+        if (res.success) {
+          const data = res.data;
           if (data.status === 'completed' || data.status === 'failed') {
             clearInterval(iv);
             setPolling(false);
             if (data.status === 'completed') {
-              setJob({ jobId, status: 'completed', files: data.output || data.files || [], transactionTime: data.transactionTime });
+              setJob({ jobId, status: 'completed', files: data.output || [], transactionTime: data.transactionTime });
               message.success('导出完成');
             } else {
               setJob({ jobId, status: 'failed', error: data.error || '导出失败' });
@@ -82,9 +69,9 @@ export const FhirBulkExportPage: React.FC = () => {
           clearInterval(iv);
           setPolling(false);
           setJob({ jobId, status: 'completed', files: [
-            { type: 'Patient', url: `/fhir/r4/export/${jobId}/Patient.ndjson` },
-            { type: 'Observation', url: `/fhir/r4/export/${jobId}/Observation.ndjson` },
-            { type: 'DiagnosticReport', url: `/fhir/r4/export/${jobId}/DiagnosticReport.ndjson` },
+            { type: 'Patient', url: `/api/fhir/r4/export/${jobId}/Patient.ndjson` },
+            { type: 'Observation', url: `/api/fhir/r4/export/${jobId}/Observation.ndjson` },
+            { type: 'DiagnosticReport', url: `/api/fhir/r4/export/${jobId}/DiagnosticReport.ndjson` },
           ], transactionTime: new Date().toISOString() });
           message.success('导出完成 (模拟)');
         }

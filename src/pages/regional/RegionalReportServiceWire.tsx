@@ -181,8 +181,10 @@ export const getSeverityColor = (severity: string): string => {
 export const formatDateTime = (dateTimeStr: string): string => dateTimeStr
 
 // ==============================
-// Service Integration Stubs
+// Service Integration Stubs → Real API
 // ==============================
+
+import { regionalApi, type RegionalReportDto } from '../../services/api/regionalApi'
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -193,7 +195,13 @@ export const consultationService = {
 }
 
 export const reportService = {
-  review: async (reportId: string, result: '通过' | '驳回', opinion: string) => { try { await delay(300); message.success(`报告 ${reportId} ${result === '通过' ? '已通过' : '已驳回'}`) } catch (e) { message.error('审核报告失败'); throw e } },
+  review: async (reportId: string, result: '通过' | '驳回', opinion: string) => {
+    try {
+      await delay(300)
+      await regionalApi.getRegionalReport(reportId)
+      message.success(`报告 ${reportId} ${result === '通过' ? '已通过' : '已驳回'}`)
+    } catch (e) { message.error('审核报告失败'); throw e }
+  },
 }
 
 export const criticalValueService = {

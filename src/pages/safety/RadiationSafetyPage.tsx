@@ -6,16 +6,22 @@ import {
 import { Activity, CheckCircle, AlertTriangle, Shield, BarChart3, Download, Zap } from 'lucide-react'
 import {
   getDoseRecords, checkAlaraCompliance, getProtocolOptimizationSuggestions,
-  type DoseRecord, type AlaraComplianceStatus,
-} from '../../services/safety/radiationSafetyService'
+  type DoseRecord, type AlaraComplianceStatus, type ProtocolOptimizationSuggestion,
+} from '../../services/api/safetyApi'
 
 const MODALITY_COLORS: Record<string, string> = { CT: '#3b82f6', MR: '#8b5cf6', DR: '#22c55e', DSA: '#f59e0b', MG: '#ef4444' }
 
 export default function RadiationSafetyPage() {
-  const [doseRecords] = useState<DoseRecord[]>(getDoseRecords())
-  const [compliance] = useState<AlaraComplianceStatus[]>(checkAlaraCompliance())
-  const [optimizations] = useState(getProtocolOptimizationSuggestions())
+  const [doseRecords, setDoseRecords] = useState<DoseRecord[]>([])
+  const [compliance, setCompliance] = useState<AlaraComplianceStatus[]>([])
+  const [optimizations, setOptimizations] = useState<ProtocolOptimizationSuggestion[]>([])
   const [activeTab, setActiveTab] = useState<'overview' | 'records' | 'alerts' | 'optimize'>('overview')
+
+  useEffect(() => {
+    getDoseRecords().then(setDoseRecords)
+    checkAlaraCompliance().then(setCompliance)
+    getProtocolOptimizationSuggestions().then(setOptimizations)
+  }, [])
 
   const dlpData = doseRecords.filter(r => r.dlp).map(r => ({ name: r.patientName, dlp: r.dlp, ctDoseIndex: r.ctDoseIndex }))
   const complianceData = compliance.map(c => ({ name: c.modality, rate: c.complianceRate, avgDose: c.avgDose }))

@@ -4,9 +4,9 @@ import {
 } from 'recharts'
 import { Search, CheckCircle, AlertTriangle, FileText, Plus, BarChart3 } from 'lucide-react'
 import {
-  getRcaInvestigations, createRcaInvestigation, closeRca,
+  getRcaInvestigations, createRcaInvestigation, updateRcaInvestigation,
   type RcaInvestigation, type RcaStatus,
-} from '../../services/safety/rcaService'
+} from '../../services/api/safetyApi'
 
 const STATUS_LABELS: Record<RcaStatus, string> = {
   open: '待分析',
@@ -33,11 +33,11 @@ export default function RCAAnalysisPage() {
 
   useEffect(() => { getRcaInvestigations().then(setRcas) }, [])
 
-  const filtered = filter === 'all' ? rcas : rcas.filter(r => r.status === filter)
+  const filtered = filter === 'all' ? rcas : rcas.filter(r => r.capaStatus === filter)
   const statusData = Object.entries(STATUS_LABELS).map(([k, v]) => ({
-    name: v, count: rcas.filter(r => r.status === k).length,
+    name: v, count: rcas.filter(r => r.capaStatus === k).length,
   }))
-  const capaStatusData = rcas.flatMap(r => r.capaPlans).reduce<Record<string, number>>((acc, c) => {
+  const capaStatusData = rcas.flatMap(r => r.capaPlans ?? []).reduce<Record<string, number>>((acc, c) => {
     acc[c.implementationStatus] = (acc[c.implementationStatus] ?? 0) + 1
     return acc
   }, {})
@@ -48,10 +48,10 @@ export default function RCAAnalysisPage() {
 
   const handleCreateRca = async () => {
     const rca = await createRcaInvestigation({
-      eventId: `AE-${String(rcas.length + 1).padStart(3, '0')}`,
+      adverseEventId: `AE-${String(rcas.length + 1).padStart(3, '0')}`,
       eventTitle: '新调查',
       description: '待补充事件描述',
-      dateOccurred: new Date().toISOString().slice(0, 10),
+      dateOccurred: new Date().toISOString(),
       teamMembers: [],
       fishboneData: [],
       fiveWhys: [],
@@ -65,7 +65,13 @@ export default function RCAAnalysisPage() {
 
   const handleCloseRca = async () => {
     if (!selectedRca) return
-    await closeRca(selectedRca.id, '当前用户', 'RCA调查完成', '总结经验教训')
+    await updateRcaInvestigation(selectedRca.id, {
+      capaStatus: 'closed',
+      closedBy: '当前用户',
+      closedAt: new Date().toISOString(),
+      conclusion: 'RCA调查完成',
+      lessonsLearned: '总结经验教训',
+    })
     const data = await getRcaInvestigations()
     setRcas(data)
     setSelectedRca(null)
@@ -86,9 +92,9 @@ export default function RCAAnalysisPage() {
         <div style={{ display: 'flex', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
           {[
             { title: 'RCA总数', value: rcas.length, icon: FileText, color: '#dc2626' },
-            { title: '分析中', value: rcas.filter(r => r.status === 'analyzing').length, icon: Search, color: '#3b82f6' },
-            { title: 'CAPA实施中', value: rcas.filter(r => r.status === 'implementing').length, icon: AlertTriangle, color: '#8b5cf6' },
-            { title: '已关闭', value: rcas.filter(r => r.status === 'closed').length, icon: CheckCircle, color: '#22c55e' },
+            { title: '分析中', value: rcas.filter(r => r.capaStatus === 'analyzing').length, icon: Search, color: '#3b82f6' },
+            { title: 'CAPA实施中', value: rcas.filter(r => r.capaStatus === 'implementing').length, icon: AlertTriangle, color: '#8b5cf6' },
+            { title: '已关闭', value: rcas.filter(r => r.capaStatus === 'closed').length, icon: CheckCircle, color: '#22c55e' },
           ].map((k, i) => (
             <div key={i} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: '16px 20px', flex: 1, minWidth: 140 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}><span style={{ fontSize: 12, color: '#8b949e' }}>{k.title}</span><k.icon size={20} style={{ color: k.color }} /></div>
@@ -104,15 +110,15 @@ export default function RCAAnalysisPage() {
                 <div style={{ fontSize: 16, fontWeight: 600 }}>{selectedRca.eventTitle}</div>
                 <div style={{ fontSize: 12, color: '#8b949e' }}>{selectedRca.id} · {selectedRca.dateOccurred}</div>
               </div>
-              <span style={{ padding: '4px 12px', borderRadius: 4, fontSize: 12, background: `${STATUS_COLORS[selectedRca.status]}20`, color: STATUS_COLORS[selectedRca.status] }}>{STATUS_LABELS[selectedRca.status]}</span>
+              <span style={{ padding: '4px 12px', borderRadius: 4, fontSize: 12, background: `${STATUS_COLORS[selectedRca.capaStatus]}20`, color: STATUS_COLORS[selectedRca.capaStatus] }}>{STATUS_LABELS[selectedRca.capaStatus]}</span>
             </div>
             <div style={{ marginBottom: 16, color: '#8b949e', fontSize: 13 }}>{selectedRca.description}</div>
 
             <div style={{ marginBottom: 16 }}>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>根因</div>
-              {selectedRca.rootCauses.length > 0 ? (
+              {(selectedRca.rootCauses ?? []).length > 0 ? (
                 <ul style={{ margin: 0, padding: '0 0 0 20px', color: '#ef4444', fontSize: 13 }}>
-                  {selectedRca.rootCauses.map((rc, i) => <li key={i}>{rc}</li>)}
+                  {(selectedRca.rootCauses ?? []).map((rc, i) => <li key={i}>{rc}</li>)}
                 </ul>
               ) : (
                 <div style={{ color: '#8b949e', fontSize: 13 }}>尚未确定根因</div>
@@ -121,9 +127,9 @@ export default function RCAAnalysisPage() {
 
             <div style={{ marginBottom: 16 }}>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>鱼骨图分析</div>
-              {selectedRca.fishboneData.length > 0 ? (
+              {(selectedRca.fishboneData ?? []).length > 0 ? (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  {selectedRca.fishboneData.map((fb, i) => (
+                  {(selectedRca.fishboneData ?? []).map((fb, i) => (
                     <div key={i} style={{ background: '#0d1117', borderRadius: 6, padding: 12, border: '1px solid #21262d' }}>
                       <div style={{ fontSize: 13, fontWeight: 600, color: '#f59e0b', marginBottom: 6 }}>{fb.category}</div>
                       {fb.causes.map((c, j) => <div key={j} style={{ fontSize: 12, color: '#8b949e', marginBottom: 2 }}>• {c}</div>)}
@@ -137,7 +143,7 @@ export default function RCAAnalysisPage() {
 
             <div style={{ marginBottom: 16 }}>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>5-Whys 分析</div>
-              {selectedRca.fiveWhys.length > 0 ? selectedRca.fiveWhys.map((fw, i) => (
+              {(selectedRca.fiveWhys ?? []).length > 0 ? (selectedRca.fiveWhys ?? []).map((fw, i) => (
                 <div key={i} style={{ background: '#0d1117', borderRadius: 6, padding: 12, border: '1px solid #21262d', marginBottom: 8 }}>
                   <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 4 }}>问题: {fw.problem}</div>
                   {fw.whys.map((w, j) => (
@@ -154,7 +160,7 @@ export default function RCAAnalysisPage() {
 
             <div>
               <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>CAPA计划</div>
-              {selectedRca.capaPlans.length > 0 ? selectedRca.capaPlans.map((cp, i) => (
+              {(selectedRca.capaPlans ?? []).length > 0 ? (selectedRca.capaPlans ?? []).map((cp, i) => (
                 <div key={i} style={{ background: '#0d1117', borderRadius: 6, padding: 12, border: '1px solid #21262d', marginBottom: 8 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                     <span style={{ fontSize: 13, color: '#f0f6fc' }}>{cp.id}</span>
@@ -171,7 +177,7 @@ export default function RCAAnalysisPage() {
               )}
             </div>
 
-            {selectedRca.status !== 'closed' && (
+            {selectedRca.capaStatus !== 'closed' && (
               <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
                 <button onClick={handleCloseRca} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#dc2626', color: '#fff', cursor: 'pointer', fontSize: 13 }}>
                   关闭RCA
@@ -218,7 +224,7 @@ export default function RCAAnalysisPage() {
             <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
               {(['all', 'open', 'analyzing', 'capa-planned', 'implementing', 'verified', 'closed'] as const).map(s => (
                 <button key={s} onClick={() => setFilter(s)} style={{ padding: '4px 12px', borderRadius: 4, border: `1px solid ${filter === s ? '#dc2626' : '#30363d'}`, background: filter === s ? '#dc262620' : 'transparent', color: filter === s ? '#dc2626' : '#8b949e', cursor: 'pointer', fontSize: 12 }}>
-                  {STATUS_LABELS[s] ?? '全部'}
+                  {s === 'all' ? '全部' : STATUS_LABELS[s as RcaStatus]}
                 </button>
               ))}
             </div>
@@ -242,11 +248,11 @@ export default function RCAAnalysisPage() {
                       <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#6e7681', fontSize: 12 }}>{r.id}</td>
                       <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>{r.eventTitle}</td>
                       <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>
-                        <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${STATUS_COLORS[r.status]}20`, color: STATUS_COLORS[r.status] }}>{STATUS_LABELS[r.status]}</span>
+                        <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${STATUS_COLORS[r.capaStatus]}20`, color: STATUS_COLORS[r.capaStatus] }}>{STATUS_LABELS[r.capaStatus]}</span>
                       </td>
-                      <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#8b949e', fontSize: 12 }}>{r.teamMembers.join(', ') || '-'}</td>
-                      <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>{r.rootCauses.length}</td>
-                      <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>{r.capaPlans.length}</td>
+                      <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#8b949e', fontSize: 12 }}>{(r.teamMembers ?? []).join(', ') || '-'}</td>
+                      <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>{(r.rootCauses ?? []).length}</td>
+                      <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>{(r.capaPlans ?? []).length}</td>
                       <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>
                         <button onClick={() => setSelectedRca(r)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#3b82f6', cursor: 'pointer', fontSize: 12 }}>
                           查看

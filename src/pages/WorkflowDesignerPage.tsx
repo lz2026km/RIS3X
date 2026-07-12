@@ -1,10 +1,12 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { DndContext, useDraggable, useDroppable, DragEndEvent } from '@dnd-kit/core';
 import { Layers, Save, Play, Upload, List, History, GripVertical, Plus, CheckCircle2, X } from 'lucide-react';
-import { Table, Button, Tag, message, Modal, Input, Select } from 'antd';
+import { Table, Button, Tag, message, Modal, Input, Select, Spin } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { canApprove } from '../services/auth/rbacService';
 import { useAuth } from '../hooks/useAuth';
+import { workflowApi } from '../services/api/workflowApi';
+import type { WorkflowDefinitionDto, WorkflowStepDto } from '../services/api/workflowApi';
 
 type StepType = { key: string; label: string; color: string };
 
@@ -102,19 +104,54 @@ export default function WorkflowDesignerPage() {
   const { user } = useAuth()
   const currentUserId = user?.id ?? ''
   const workflowOwnerId = currentUserId
-  const [canvasNodes, setCanvasNodes] = useState<CanvasNode[]>([
-    { id: 'n1', type: 'review', label: '初审', x: 40, y: 60 },
-    { id: 'n2', type: 'write', label: '报告撰写', x: 220, y: 60 },
-    { id: 'n3', type: 'cosign', label: '主任会签', x: 400, y: 60 },
-    { id: 'n4', type: 'qc', label: '质控审核', x: 580, y: 60 },
-  ]);
+  const [canvasNodes, setCanvasNodes] = useState<CanvasNode[]>([]);
   const [selectedNode, setSelectedNode] = useState<CanvasNode | null>(null);
-  const [stepList, setStepList] = useState(MOCK_STEPS);
+  const [stepList, setStepList] = useState<WorkflowStepDto[]>([]);
+  const [definitions, setDefinitions] = useState<WorkflowDefinitionDto[]>([]);
+  const [currentDefId, setCurrentDefId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [savedToast, setSavedToast] = useState<string | null>(null);
   const [showVersion, setShowVersion] = useState(false);
   const [showNewStep, setShowNewStep] = useState(false);
   const [newStepForm, setNewStepForm] = useState({ name: '', type: 'write', assignee: '', sla: 30 });
+
+  useEffect(() => {
+    loadDefinitions()
+  }, [])
+
+  const loadDefinitions = async () => {
+    setLoading(true)
+    try {
+      const res = await workflowApi.listDefinitions()
+      if (res.success && Array.isArray(res.data)) {
+        setDefinitions(res.data as WorkflowDefinitionDto[])
+        if (res.data.length > 0) {
+          const def = res.data[0]!
+          setCurrentDefId(def.id)
+          void loadCanvas(def)
+        }
+      }
+    } catch { /* ignore */ } finally {
+      setLoading(false)
+    }
+  }
+
+  const loadCanvas = async (def: WorkflowDefinitionDto) => {
+    if (def.graph?.nodes) {
+      setCanvasNodes(def.graph.nodes.map(n => ({
+        id: n.id,
+        type: n.kind === 'task' ? ((n.config as Record<string, string>)?.stepType ?? 'write') : n.kind,
+        label: n.name,
+        x: n.position.x,
+        y: n.position.y,
+      })))
+    }
+    const stepRes = await workflowApi.listSteps(def.id)
+    if (stepRes.success && Array.isArray(stepRes.data)) {
+      setStepList(stepRes.data as WorkflowStepDto[])
+    }
+  }
 
   const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
@@ -140,13 +177,31 @@ export default function WorkflowDesignerPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await fetch('/api/v1/workflow/templates', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: '工作流', nodes: canvasNodes, edges: [] }),
-      });
-      message.success('工作流已保存');
-      setSavedToast('已保存至服务器');
+      const payload: Partial<WorkflowDefinitionDto> = {
+        name: '工作流',
+        graph: {
+          id: 'graph-1',
+          name: '工作流图',
+          version: '1.0',
+          nodes: canvasNodes.map(n => ({
+            id: n.id,
+            name: n.label,
+            kind: 'task' as const,
+            position: { x: n.x, y: n.y },
+            config: { stepType: n.type },
+          })),
+          edges: [],
+        },
+      };
+      const res = currentDefId
+        ? await workflowApi.updateDefinition(currentDefId, payload)
+        : await workflowApi.createDefinition(payload);
+      if (res.success) {
+        message.success('工作流已保存');
+        setSavedToast('已保存至服务器');
+      } else {
+        message.warning('保存接口不可用，已本地暂存');
+      }
     } catch {
       setSavedToast('已本地暂存');
       message.warning('保存接口不可用，已本地暂存');
@@ -156,7 +211,7 @@ export default function WorkflowDesignerPage() {
     }
   };
 
-  const stepColumns: ColumnsType<typeof MOCK_STEPS[0]> = [
+  const stepColumns: ColumnsType<WorkflowStepDto> = [
     { title: '步骤名称', dataIndex: 'name', key: 'name' },
     {
       title: '类型', dataIndex: 'type', key: 'type',
@@ -166,7 +221,7 @@ export default function WorkflowDesignerPage() {
       },
     },
     { title: '负责人', dataIndex: 'assignee', key: 'assignee' },
-    { title: 'SLA(分钟)', dataIndex: 'sla', key: 'sla' },
+    { title: 'SLA(分钟)', dataIndex: 'slaMinutes', key: 'slaMinutes' },
     {
       title: '状态', dataIndex: 'status', key: 'status',
       render: (s: string) => <Tag color={s === 'active' ? 'green' : 'default'}>{s === 'active' ? '启用' : '停用'}</Tag>,
@@ -185,12 +240,15 @@ export default function WorkflowDesignerPage() {
           {savedToast && <span style={{ background: '#10b981', padding: '4px 12px', borderRadius: 12, fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 4 }}><CheckCircle2 size={12} />{savedToast}</span>}
           {saving && <span style={{ fontSize: 12, opacity: 0.85 }}>保存中…</span>}
           <Button size="small" ghost icon={<History size={14} />} onClick={() => setShowVersion(true)}>历史版本</Button>
-          <Button size="small" ghost icon={<Play size={14} />} onClick={() => {
+          <Button size="small" ghost icon={<Play size={14} />} onClick={async () => {
             if (!canApprove(currentUserId, workflowOwnerId)) {
               message.error('禁止自审：不能激活自己的工作流');
-            } else {
-              message.success('工作流已激活');
+              return;
             }
+            if (!currentDefId) { message.warning('请先创建并保存工作流'); return; }
+            const res = await workflowApi.activateDefinition(currentDefId);
+            if (res.success) message.success('工作流已激活');
+            else message.error(res.error?.message ?? '激活失败');
           }}>激活</Button>
           <Button size="small" ghost icon={<Upload size={14} />}>部署</Button>
           <Button size="small" type="primary" loading={saving} icon={<Save size={14} />} onClick={handleSave}>保存</Button>
@@ -230,12 +288,28 @@ export default function WorkflowDesignerPage() {
       <Modal title="历史版本" open={showVersion} onCancel={() => setShowVersion(false)} footer={null} width={500}>
         <Table size="small" columns={[
           { title: '版本', dataIndex: 'version', key: 'version' },
-          { title: '日期', dataIndex: 'date', key: 'date' },
-          { title: '作者', dataIndex: 'author', key: 'author' },
-          { title: '状态', dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={s === '已部署' ? 'green' : 'default'}>{s}</Tag> },
-        ]} dataSource={MOCK_VERSIONS} rowKey="version" pagination={false} />
+          { title: '日期', dataIndex: 'updatedAt', key: 'updatedAt' },
+          { title: '状态', dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={s === 'deployed' || s === 'active' ? 'green' : 'default'}>{s}</Tag> },
+        ]} dataSource={definitions.map(d => ({ ...d, key: d.id }))} rowKey="id" pagination={false} />
       </Modal>
-      <Modal title="新建步骤" open={showNewStep} onCancel={() => setShowNewStep(false)} onOk={() => { setStepList(prev => [...prev, { key: `s-${Date.now()}`, ...newStepForm, status: 'active' }]); setShowNewStep(false); message.success('步骤已创建'); }}>
+      <Modal title="新建步骤" open={showNewStep} onCancel={() => setShowNewStep(false)} onOk={async () => {
+        if (!currentDefId) { message.warning('请先保存工作流'); return; }
+        const res = await workflowApi.addStep(currentDefId, {
+          name: newStepForm.name,
+          type: newStepForm.type,
+          assignee: newStepForm.assignee,
+          slaMinutes: newStepForm.sla,
+          status: 'active',
+          order: stepList.length + 1,
+        });
+        if (res.success) {
+          setStepList(prev => [...prev, res.data as WorkflowStepDto]);
+          message.success('步骤已创建');
+        } else {
+          message.error(res.error?.message ?? '创建失败');
+        }
+        setShowNewStep(false);
+      }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div><label style={{ fontWeight: 600, display: 'block', marginBottom: 4 }}>步骤名称</label><Input value={newStepForm.name} onChange={e => setNewStepForm(f => ({ ...f, name: e.target.value }))} /></div>
           <div><label style={{ fontWeight: 600, display: 'block', marginBottom: 4 }}>类型</label><Select value={newStepForm.type} onChange={v => setNewStepForm(f => ({ ...f, type: v }))} options={STEP_TYPES.map(t => ({ value: t.key, label: t.label }))} style={{ width: '100%' }} /></div>

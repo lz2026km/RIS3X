@@ -3,7 +3,7 @@
 // Phase R4：5 大维度 + 权重 + 评分规则 + 等级映射
 // ============================================================
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Sliders, Award, Plus, Save,
   TrendingUp, CheckCircle2, AlertCircle, Sparkles,
@@ -17,6 +17,7 @@ import {
   type ScoreDimension,
   type ScoreGradeConfig,
 } from '../data/qualityScoreMock';
+import { reportQualityApi } from '../services/api';
 
 // ============================================================
 // 主组件
@@ -27,6 +28,7 @@ export default function ReportScoreRulePage() {
   const [selectedDim, setSelectedDim] = useState<string>('dim-completeness');
   const [grades] = useState<ScoreGradeConfig[]>(SCORE_GRADES);
   const [saveMessage, setSaveMessage] = useState<string>('');
+  const [kpi, setKpi] = useState(QUALITY_KPI);
 
   // 当前选中维度
   const currentDim = dimensions.find(d => d.id === selectedDim);
@@ -38,6 +40,40 @@ export default function ReportScoreRulePage() {
 
   // 权重合计
   const totalWeight = dimensions.reduce((sum, d) => sum + d.weight, 0);
+
+  useEffect(() => {
+    reportQualityApi.getRules().then(res => {
+      if (res.success && res.data?.dimensions?.length) {
+        const mapped: ScoreDimension[] = res.data.dimensions.map((d, i) => ({
+          id: `dim-${d.key}`,
+          name: d.label,
+          weight: d.weight,
+          description: `${d.label} (满分 ${d.max})`,
+          evaluationCriteria: [],
+          scoringRules: [{ score: d.max, condition: `${d.label} 达标` }],
+          color: ['#3b82f6', '#7c3aed', '#10b981', '#f59e0b', '#0891b2', '#dc2626', '#8b5cf6', '#06b6d4'][i % 8],
+          icon: '📊',
+        }))
+        setDimensions(mapped)
+      }
+    })
+    reportQualityApi.getStats().then(res => {
+      if (res.success) {
+        const stats = res.data.data
+        setKpi(prev => ({ ...prev, totalEvaluated: stats.total, avgScore: stats.avgScore }))
+      }
+    })
+  }, [])
+
+  const handleSave = async () => {
+    setSaveMessage('正在保存...')
+    try {
+      await reportQualityApi.createScoreRule({ dimensions, weights: dimensions.map(d => d.weight) })
+      setSaveMessage('配置已保存 - 权重合计: ' + (totalWeight * 100).toFixed(0) + '%')
+    } catch {
+      setSaveMessage('保存失败')
+    }
+  }
 
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
@@ -63,7 +99,7 @@ export default function ReportScoreRulePage() {
             <RotateCcw size={12} /> 恢复默认
           </button>
           <button
-            onClick={() => setSaveMessage('配置已保存 (本地) - 权重合计: ' + (totalWeight * 100).toFixed(0) + '%')}
+            onClick={handleSave}
             style={{
               padding: '6px 12px', border: 'none', borderRadius: 6,
               background: '#10b981', color: '#fff', fontSize: 12, fontWeight: 600,
@@ -77,11 +113,11 @@ export default function ReportScoreRulePage() {
 
       {/* KPI 概览 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, marginBottom: 16 }}>
-        <KpiCard icon={FileText} label="累计评分" value={QUALITY_KPI.totalEvaluated} color="#3b82f6" />
-        <KpiCard icon={TrendingUp} label="平均分" value={QUALITY_KPI.avgScore} color="#10b981" />
-        <KpiCard icon={CheckCircle2} label="甲级率" value={`${QUALITY_KPI.gradeRate.甲}%`} color="#047857" />
-        <KpiCard icon={Sparkles} label="AI 采纳率" value={`${QUALITY_KPI.aiAcceptanceRate}%`} color="#7c3aed" />
-        <KpiCard icon={AlertCircle} label="需重训" value={QUALITY_KPI.retrainingNeeded} color="#f59e0b" />
+        <KpiCard icon={FileText} label="累计评分" value={kpi.totalEvaluated} color="#3b82f6" />
+        <KpiCard icon={TrendingUp} label="平均分" value={kpi.avgScore} color="#10b981" />
+        <KpiCard icon={CheckCircle2} label="甲级率" value={`${kpi.gradeRate.甲}%`} color="#047857" />
+        <KpiCard icon={Sparkles} label="AI 采纳率" value={`${kpi.aiAcceptanceRate}%`} color="#7c3aed" />
+        <KpiCard icon={AlertCircle} label="需重训" value={kpi.retrainingNeeded} color="#f59e0b" />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 12 }}>

@@ -24,6 +24,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { t } from '../../i18n/appI18n';
 import { COLORS, styles, StatCard, DeviceUsageChart, QualityScoreChart, DoseTrendChart, ConsultationPieChart, ExamVolumeChart } from './DataReportCharts';
+import { datareportApi, type NationalReportDto, type DataReportDto } from '../../services/api/datareportApi';
 
 // ============ 数据 ============
 const REPORT_STATUS_COLORS = { 已上报: COLORS.success, 待上报: COLORS.warning, 上报中: COLORS.primaryLight, 上报失败: COLORS.danger, 已确认: COLORS.success, 待确认: COLORS.warning };
@@ -770,7 +771,15 @@ export default function DataReportTable({
   handleExport, setShowUploadModal, setUploadDataType,
   setShowNewConsultationModal, setSelectedDevice,
   selectedExportFormat, setSelectedExportFormat,
+  nationalReports: propNationalReports,
+  dataReports: propDataReports,
 }) {
+  const [nationalReports, setNationalReports] = useState<NationalReportDto[]>(propNationalReports || []);
+  const [dataReports, setDataReports] = useState<DataReportDto[]>(propDataReports || []);
+  useEffect(() => {
+    datareportApi.listNationalReports().then(res => { if (res.success) setNationalReports(res.data); }).catch(() => {});
+    datareportApi.listDataReports().then(res => { if (res.success) setDataReports(res.data); }).catch(() => {});
+  }, []);
   const renderTabContent = () => {
     switch (activeTab) {
       case "examVolume":

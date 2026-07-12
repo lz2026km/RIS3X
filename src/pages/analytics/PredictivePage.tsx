@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Card, Row, Col, Select, Button, DatePicker, Space, Tag, Statistic, Empty, message,
 } from 'antd';
@@ -10,6 +10,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   Area, AreaChart,
 } from 'recharts';
+import { analyticsStatsApi } from '../../services/api';
 
 const { RangePicker } = DatePicker;
 
@@ -45,6 +46,14 @@ const mockAccuracy = { value: 93.5, previous: 91.2 };
 export default function PredictivePage() {
   const [department, setDepartment] = useState('放射科');
   const [dateRange, setDateRange] = useState<[string, string]>(['2026-04-03', '2026-06-02']);
+  const [dashboard, setDashboard] = useState<any>(null);
+
+  useEffect(() => {
+    void (async () => {
+      const res = await analyticsStatsApi.getDashboard()
+      if (res.success && res.data) setDashboard(res.data)
+    })()
+  }, [])
 
   const chartData = useMemo(() => generateForecast(department), [department]);
 

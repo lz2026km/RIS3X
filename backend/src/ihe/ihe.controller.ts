@@ -113,6 +113,28 @@ export class IheController {
     }
   }
 
+  @Get('pam/visit')
+  async getVisit(
+    @Query('patientId') patientId: string,
+    @Query('visitNumber') visitNumber?: string,
+  ) {
+    if (!patientId) return { error: 'patientId required' }
+    const full = await this.service.getVisitDetail(patientId, visitNumber)
+    if (!full) return { error: 'visit not found' }
+    return full
+  }
+
+  @Get('pam/visit-detail')
+  async getVisitDetailRoute(
+    @Query('patientId') patientId: string,
+    @Query('visitNumber') visitNumber: string,
+  ) {
+    if (!patientId || !visitNumber) return { error: 'patientId and visitNumber required' }
+    const full = await this.service.getVisitDetail(patientId, visitNumber)
+    if (!full) return { error: 'visit not found' }
+    return full
+  }
+
   @Get('pam/messages')
   async pamMessages(
     @Query('limit') limit?: string,

@@ -40,7 +40,7 @@ import {
   initialExamItems,
   initialUsers,
 } from "../data/initialData";
-import { appointmentApi } from "../services/api";
+import { appointmentApi, type AppointmentDto } from "../services/api";
 import { LoadingBanner, ErrorBanner } from "../components/feedback";
 import {
   replayOrderEvent,
@@ -1399,6 +1399,12 @@ export default function AppointmentPage() {
     selectedDevice,
   ]);
 
+  // 日历视图使用今日预约
+  const filteredAppointments = useMemo(() => {
+    const today = formatDate(new Date());
+    return appointments.filter(a => a.examDate === today);
+  }, [appointments]);
+
   // 提醒统计
   const reminderStats = useMemo(() => {
     const total = reminderRecords.length;
@@ -1960,7 +1966,7 @@ export default function AppointmentPage() {
               formErrors={formErrors}
               setFormErrors={setFormErrors}
               setValidationError={setValidationError}
-              handleSubmit={handleSubmit}
+              handleSubmit={handleCreateAppointment}
               findConflicts={findConflicts}
               appointments={appointments}
               timeSlots={timeSlots}

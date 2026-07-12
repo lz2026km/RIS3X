@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Card, Space, Tag, Button, Table, Tabs, Row, Col, message, Input, Form, Select, Modal, Popconfirm, Alert } from 'antd';
 import { Send, Search, Plus, Delete, Users, Fingerprint, Activity } from 'lucide-react';
+import { iheApi } from '../../services/api/integrationApi';
 
 const { TextArea } = Input;
 
@@ -23,18 +24,18 @@ interface PixQueryResult {
   count: number;
   patientId: string;
   sourceDomain: string;
-  results: {
+  results: Array<{
     patientId: string;
     assigningAuthority: string;
-    identifiers: { domain: string; value: string }[];
-    name?: { family: string; given: string[] };
-  }[];
+    identifiers: Array<{ domain: string; value: string; assigningAuthority: string }>;
+    name: { family: string; given: string[] };
+  }>;
 }
 
 interface PdqResult {
   patientId: string;
   assigningAuthority: string;
-  identifiers: { domain: string; value: string }[];
+  identifiers: Array<{ domain: string; value: string }>;
   name: { family: string; given: string[] };
   birthDate: string;
   gender: string;
@@ -65,7 +66,7 @@ export const PixPage: React.FC = () => {
   const [querying, setQuerying] = useState(false);
   const [pdqLoading, setPdqLoading] = useState(false);
 
-  const handleFeed = async () => {
+  const handleFeed = useCallback(async () => {
     setSending(true);
     setFeedResult(null);
     let pid = '';
@@ -75,18 +76,17 @@ export const PixPage: React.FC = () => {
       const body = {
         patientId: values.patientId,
         assigningAuthority: values.assigningAuthority,
-        identifiers: values.identifiers?.split('\n').filter(Boolean).map((l: string) => {
+        identifiers: (values.identifiers?.split('\n').filter(Boolean) as string[] ?? []).map((l: string) => {
           const [domain, value] = l.split('|');
           return { domain: domain?.trim() || '', value: value?.trim() || '', assigningAuthority: values.assigningAuthority };
-        }) || [],
+        }),
         name: { family: values.familyName || values.patientId, given: [values.givenName || ''] },
         birthDate: values.birthDate || '2000-01-01',
         gender: values.gender || 'U',
       };
-      const res = await fetch('/api/ihe/pix/feed', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-      if (res.ok) {
-        const data = await res.json();
-        setFeedResult({ success: true, ack: data.ack || 'AA', storedPid: data.storedPid || pid, transaction: data.transaction });
+      const res = await iheApi.pixFeed(body);
+      if (res.success) {
+        setFeedResult({ success: true, ack: res.data.ack, storedPid: res.data.storedPid || pid });
         message.success('PIX Feed 发送成功');
       } else {
         setFeedResult({ success: false, ack: 'AE' });
@@ -94,12 +94,12 @@ export const PixPage: React.FC = () => {
       }
     } catch {
       message.warning('使用模拟响应');
-      setFeedResult({ success: true, ack: 'AA', storedPid: pid || feedForm.getFieldValue('patientId'), transaction: `TXN-${Date.now()}` });
+      setFeedResult({ success: true, ack: 'AA', storedPid: pid || feedForm.getFieldValue('patientId') });
     }
     setSending(false);
-  };
+  }, [feedForm]);
 
-  const handleQuery = async () => {
+  const handleQuery = useCallback(async () => {
     setQuerying(true);
     setQueryResult(null);
     const qv = queryForm.getFieldsValue();
@@ -108,12 +108,11 @@ export const PixPage: React.FC = () => {
       const body = {
         patientId: values.patientId,
         sourceDomain: values.sourceDomain,
-        targetDomains: values.targetDomains?.split('\n').filter(Boolean).map((s: string) => s.trim()) || [],
+        targetDomains: (values.targetDomains?.split('\n').filter(Boolean) as string[] ?? []).map((s: string) => s.trim()),
       };
-      const res = await fetch('/api/ihe/pix/query', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-      if (res.ok) {
-        const data: PixQueryResult = await res.json();
-        setQueryResult(data);
+      const res = await iheApi.pixQuery(body);
+      if (res.success) {
+        setQueryResult(res.data);
         message.success('PIX Query 完成');
       } else {
         message.error('PIX Query 失败');
@@ -131,28 +130,28 @@ export const PixPage: React.FC = () => {
         results: domains.map((d: string) => ({
           patientId: mockPid,
           assigningAuthority: d,
-          identifiers: [{ domain: d, value: `${d}-${mockPid}` }],
+          identifiers: [{ domain: d, value: `${d}-${mockPid}`, assigningAuthority: d }],
           name: { family: '张', given: ['三'] },
         })),
       });
     }
     setQuerying(false);
-  };
+  }, [queryForm]);
 
-  const handlePdqQuery = async () => {
+  const handlePdqQuery = useCallback(async () => {
     setPdqLoading(true);
     setPdqResults([]);
     try {
       const values = await pdqForm.validateFields();
-      const params = new URLSearchParams();
-      if (values.patientId) params.set('patientId', values.patientId);
-      if (values.name) params.set('name', values.name);
-      if (values.birthDate) params.set('birthDate', values.birthDate);
-      if (values.gender) params.set('gender', values.gender);
-      const res = await fetch(`/api/ihe/pdq/query?${params.toString()}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(values) });
-      if (res.ok) {
-        const data: PdqResult[] = await res.json();
-        setPdqResults(data.sort((a, b) => b.confidence - a.confidence));
+      const body = {
+        patientId: values.patientId,
+        familyName: values.name,
+        birthDate: values.birthDate,
+        gender: values.gender,
+      };
+      const res = await iheApi.pdqQuery(body);
+      if (res.success) {
+        setPdqResults(res.data.results.sort((a, b) => b.confidence - a.confidence));
         message.success('PDQ 查询完成');
       } else {
         message.error('PDQ 查询失败');
@@ -165,7 +164,7 @@ export const PixPage: React.FC = () => {
       ]);
     }
     setPdqLoading(false);
-  };
+  }, [pdqForm]);
 
   const handleAddMapping = async () => {
     try {

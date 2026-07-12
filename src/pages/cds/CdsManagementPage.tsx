@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import {
   FileCheck,
   AlertTriangle,
@@ -23,6 +23,7 @@ import {
   Save,
 } from "lucide-react";
 import type { CdsRuleSummary, CdsAuditEntry } from "../../services/cds";
+import { cdsApi } from "../../services/api/cdsApi";
 
 type RuleTab = "appropriateness" | "pathway" | "contrast" | "drug";
 
@@ -33,101 +34,7 @@ const TAB_CONFIG: { key: RuleTab; label: string; icon: typeof Shield }[] = [
   { key: "drug", label: "药物交互", icon: Pill },
 ];
 
-const MOCK_RULES: CdsRuleSummary[] = [
-  {
-    type: "appropriateness",
-    id: "ar-001",
-    name: "头痛CT/MRI适宜性",
-    isActive: true,
-    version: "1.0",
-    updatedTime: "2025-06-01T00:00:00Z",
-    usageCount: 128,
-  },
-  {
-    type: "appropriateness",
-    id: "ar-002",
-    name: "胸痛检查适宜性",
-    isActive: true,
-    version: "2.0",
-    updatedTime: "2025-05-15T00:00:00Z",
-    usageCount: 95,
-  },
-  {
-    type: "appropriateness",
-    id: "ar-003",
-    name: "腰痛DR适宜性",
-    isActive: true,
-    version: "1.1",
-    updatedTime: "2025-04-10T00:00:00Z",
-    usageCount: 203,
-  },
-  {
-    type: "pathway",
-    id: "pw-001",
-    name: "肺结节评估路径",
-    isActive: true,
-    version: "1.0",
-    updatedTime: "2025-06-01T00:00:00Z",
-    usageCount: 47,
-  },
-  {
-    type: "pathway",
-    id: "pw-002",
-    name: "缺血性脑卒中路径",
-    isActive: true,
-    version: "1.0",
-    updatedTime: "2025-05-15T00:00:00Z",
-    usageCount: 32,
-  },
-  {
-    type: "contrast",
-    id: "cp-001",
-    name: "碘海醇注射协议",
-    isActive: true,
-    version: "2.1",
-    updatedTime: "2025-04-20T00:00:00Z",
-    usageCount: 512,
-  },
-  {
-    type: "contrast",
-    id: "cp-002",
-    name: "碘克沙醇注射协议",
-    isActive: true,
-    version: "1.3",
-    updatedTime: "2025-03-10T00:00:00Z",
-    usageCount: 178,
-  },
-  {
-    type: "drug",
-    id: "di-001",
-    name: "二甲双胍-造影剂交互",
-    isActive: true,
-    version: "1.0",
-    updatedTime: "2025-02-01T00:00:00Z",
-    usageCount: 67,
-  },
-];
-
-const MOCK_AUDIT: CdsAuditEntry[] = [
-  {
-    id: "ca-001",
-    ruleId: "ar-001",
-    ruleType: "appropriateness",
-    action: "updated",
-    performedBy: "dr-admin",
-    performedAt: "2025-06-01T10:00:00Z",
-    details: "更新头痛规则为v1.0",
-  },
-  {
-    id: "ca-002",
-    ruleId: "pw-001",
-    ruleType: "pathway",
-    action: "activated",
-    performedBy: "dr-admin",
-    performedAt: "2025-05-20T08:30:00Z",
-    details: "激活肺结节路径",
-  },
-];
+const INITIAL_FORM = { name: "", description: "", version: "1.0" };
 
 const TYPE_COLORS: Record<CdsRuleSummary["type"], string> = {
   appropriateness: "#3b82f6",
@@ -144,55 +51,66 @@ const TYPE_LABELS: Record<CdsRuleSummary["type"], string> = {
 };
 
 export default function CdsManagementPage() {
-  const [rules, setRules] = useState<CdsRuleSummary[]>(MOCK_RULES);
+  const [rules, setRules] = useState<CdsRuleSummary[]>([]);
+  const [audit, setAudit] = useState<CdsAuditEntry[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<RuleTab>("appropriateness");
   const [searchText, setSearchText] = useState("");
   const [showInactive, setShowInactive] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showAudit, setShowAudit] = useState(false);
   const [showNewRuleModal, setShowNewRuleModal] = useState(false);
-  const [newRuleForm, setNewRuleForm] = useState({
-    name: "",
-    description: "",
-    version: "1.0",
-  });
+  const [newRuleForm, setNewRuleForm] = useState({ ...INITIAL_FORM });
   const [toast, setToast] = useState<{
     show: boolean;
     message: string;
     type: "success" | "error";
   }>({ show: false, message: "", type: "success" });
 
+  const showToast = useCallback((message: string, type: "success" | "error") => {
+    setToast({ show: true, message, type });
+  }, []);
+
   useEffect(() => {
     if (!toast.show) return;
-    const t = setTimeout(
-      () => setToast((t0) => ({ ...t0, show: false })),
-      2000,
-    );
+    const t = setTimeout(() => setToast((t0) => ({ ...t0, show: false })), 2000);
     return () => clearTimeout(t);
   }, [toast.show]);
 
-  const handleCreateRule = () => {
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    const [rulesRes, mgmtRes] = await Promise.all([
+      cdsApi.listCdsRules(),
+      cdsApi.getCdsManagement(),
+    ]);
+    if (rulesRes.success) setRules(rulesRes.data);
+    if (mgmtRes.success) setAudit(mgmtRes.data.audit);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { fetchData() }, [fetchData]);
+
+  const handleCreateRule = async () => {
     if (!newRuleForm.name.trim()) {
-      setToast({ show: true, message: "规则名称不能为空", type: "error" });
+      showToast("规则名称不能为空", "error");
       return;
     }
-    const newRule: CdsRuleSummary = {
+    const res = await cdsApi.createCdsRule({
       type: activeTab,
-      id: `cds-${Date.now()}`,
       name: newRuleForm.name.trim(),
-      isActive: true,
       version: newRuleForm.version || "1.0",
+      isActive: true,
       updatedTime: new Date().toISOString(),
       usageCount: 0,
-    };
-    setRules((prev) => [newRule, ...prev]);
-    setShowNewRuleModal(false);
-    setNewRuleForm({ name: "", description: "", version: "1.0" });
-    setToast({
-      show: true,
-      message: `规则「${newRule.name}」已创建`,
-      type: "success",
     });
+    if (res.success) {
+      setShowNewRuleModal(false);
+      setNewRuleForm({ ...INITIAL_FORM });
+      showToast(`规则「${newRuleForm.name.trim()}」已创建`, "success");
+      fetchData();
+    } else {
+      showToast(res.error?.message || "创建失败", "error");
+    }
   };
 
   const filteredRules = useMemo(() => {
@@ -297,7 +215,7 @@ export default function CdsManagementPage() {
             审计日志
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {MOCK_AUDIT.map((entry) => (
+            {audit.map((entry) => (
               <div
                 key={entry.id}
                 style={{

@@ -128,3 +128,74 @@ export const reviewApi = {
   sla: () =>
     api.get<{ total: number; breached: number; onTime: number }>('/reviews/sla'),
 };
+
+// ============= Cosign (双签) =============
+export interface CosignPendingDto {
+  id: string;
+  reportId: string;
+  patientName: string;
+  modality: string;
+  bodyPart: string;
+  priority: string;
+  submittedAt: string;
+  authorId?: string;
+  authorName: string;
+  reason: string;
+  level: string;
+  waitingHours: number;
+  clinicalInfo?: string;
+}
+
+export interface CosignHistoryDto {
+  id: string;
+  reportId: string;
+  action: string;
+  actor: string;
+  actorId: string;
+  timestamp: string;
+  detail?: string;
+}
+
+export interface CosignRuleDto {
+  id: string;
+  name: string;
+  trigger: string;
+  enabled: boolean;
+  createdAt: string;
+}
+
+export interface CosignStatsDto {
+  total: number;
+  pending: number;
+  avgHours: number;
+  totalSigned?: number;
+  totalRejected?: number;
+  onTimeRate?: number;
+  avgResponseMinutes?: number;
+}
+
+export const cosignApi = {
+  listPending: (params?: { status?: string; pageSize?: number }) =>
+    api.get<CosignPendingDto[]>(`/cosign/pending?${new URLSearchParams(params as Record<string, string> ?? {}).toString()}`),
+
+  getPending: (id: string) =>
+    api.get<CosignPendingDto>(`/cosign/pending/${id}`),
+
+  approve: (id: string, data: { note?: string; certificateId?: string }) =>
+    api.post<CosignPendingDto>(`/cosign/pending/${id}/approve`, data),
+
+  reject: (id: string, data: { reason: string }) =>
+    api.post<CosignPendingDto>(`/cosign/pending/${id}/reject`, data),
+
+  listHistory: (params?: { reportId?: string; pageSize?: number }) =>
+    api.get<CosignHistoryDto[]>(`/cosign/history?${new URLSearchParams(params as Record<string, string> ?? {}).toString()}`),
+
+  listRules: () =>
+    api.get<CosignRuleDto[]>('/cosign/rules'),
+
+  createRule: (data: { name: string; trigger: string; enabled?: boolean }) =>
+    api.post<CosignRuleDto>('/cosign/rules', data),
+
+  getStats: () =>
+    api.get<CosignStatsDto>('/cosign/stats'),
+};

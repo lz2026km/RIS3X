@@ -1,9 +1,10 @@
-import React, { useMemo, useState } from "react"
+import React, { useMemo, useState, useEffect } from "react"
 import { useTranslation } from "react-i18next"
 import { Camera, Activity, TrendingUp, BarChart3, Calendar, AlertTriangle, CheckCircle } from "lucide-react"
 import { PageContainer } from "../../components/common/PageContainer"
 import { PageHeader } from "../../components/common/PageHeader"
 import { StatCard, StatCardGrid } from "../../components/common/StatCard"
+import { qcextApi, type QcImageDto } from '../../services/api/qcextApi'
 
 interface AiScoreRecord {
   id: string
@@ -56,6 +57,10 @@ export default function QcImageAiPage() {
   const [modality, setModality] = useState("all")
   const [dateFrom, setDateFrom] = useState("")
   const [dateTo, setDateTo] = useState("")
+  const [aiImages, setAiImages] = useState<QcImageDto[]>([])
+  useEffect(() => {
+    qcextApi.listQcImages().then(res => { if (res.success) setAiImages(res.data); }).catch(() => {});
+  }, [])
 
   const filtered = useMemo(() => {
     return MOCK_DATA.filter(r => {

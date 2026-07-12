@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { login as authLogin, setToken } from '@/utils/auth';
 import type { UserRole } from '@/types';
 
 const DEMO_USERS: { label: string; role: UserRole; name: string }[] = [
@@ -19,6 +20,7 @@ export default function LoginPage() {
   const [username, setUsername] = useState('admin');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? '/';
 
@@ -26,12 +28,39 @@ export default function LoginPage() {
     if (isAuthenticated) navigate(from, { replace: true });
   }, [isAuthenticated, navigate, from]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!username.trim() || !password.trim()) {
       setError('请输入用户名和密码');
       return;
     }
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/v1/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username.trim(), password }),
+      });
+      if (res.ok) {
+        const body = await res.json();
+        if (body.success && body.data) {
+          setToken(body.data);
+          const payload = {
+            id: body.data.userId || `demo-${selectedRole}`,
+            name: body.data.userName || DEMO_USERS.find(d => d.role === selectedRole)?.name || selectedRole,
+            role: selectedRole,
+            department: '放射科',
+            phone: '',
+            username: username.trim(),
+            title: body.data.title || DEMO_USERS.find(d => d.role === selectedRole)?.label || '',
+          };
+          try { localStorage.setItem('ris_current_user', JSON.stringify(payload)); } catch {}
+          navigate(from, { replace: true });
+          return;
+        }
+      }
+    } catch {}
     const matched = DEMO_USERS.find((d) => d.role === selectedRole) ?? DEMO_USERS[0]!;
     const payload = {
       id: `demo-${selectedRole}`,
@@ -46,9 +75,9 @@ export default function LoginPage() {
       localStorage.setItem('ris_current_user', JSON.stringify(payload));
     } catch (err) {
       setError('无法写入登录状态: ' + (err as Error).message);
+      setSubmitting(false);
       return;
     }
-    setError(null);
     navigate(from, { replace: true });
   };
 

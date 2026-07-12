@@ -1,4 +1,4 @@
-import { api } from './client'
+import { api, invalidateApiCacheByPrefix } from './client'
 import type { PatientQueryParams } from './types'
 
 export interface PatientDto {
@@ -31,6 +31,24 @@ export const patientApi = {
   getById: (id: string) =>
     api.get<PatientDto>(`/patients/${id}`),
 
+  create: async (data: Partial<PatientDto>) => {
+    const res = await api.post<PatientDto>('/patients', data)
+    await invalidateApiCacheByPrefix('/patients')
+    return res
+  },
+
+  update: async (id: string, data: Partial<PatientDto>) => {
+    const res = await api.patch<PatientDto>(`/patients/${id}`, data)
+    await invalidateApiCacheByPrefix('/patients')
+    return res
+  },
+
+  delete: async (id: string) => {
+    const res = await api.delete<null>(`/patients/${id}`)
+    await invalidateApiCacheByPrefix('/patients')
+    return res
+  },
+
   getExams: (id: string) =>
     api.get<unknown[]>(`/patients/${id}/exams`),
 
@@ -54,10 +72,4 @@ export const patientApi = {
 
   bulkImport: (data: Partial<PatientDto>[]) =>
     api.post<{ imported: number }>('/patients/bulk-import', { patients: data }),
-
-  create: (data: Partial<PatientDto>) =>
-    api.post<PatientDto>('/patients', data),
-
-  update: (id: string, data: Partial<PatientDto>) =>
-    api.put<PatientDto>(`/patients/${id}`, data),
 }

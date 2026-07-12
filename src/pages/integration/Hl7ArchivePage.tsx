@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
-  Card, Space, Tag, Button, Table, Input, Select, DatePicker, Tooltip, message,
+  Card, Space, Tag, Button, Table, Select, DatePicker, message,
 } from "antd";
 import { Archive, Filter, RotateCcw, Search, ChevronDown, ChevronRight, AlertCircle, CheckCircle, Clock, Send } from "lucide-react";
-import { api } from "../../services/api/client";
+import { hl7Api } from "../../services/api/integrationApi";
+import type { Hl7ArchiveRecord } from "../../services/api/integrationApi";
 import dayjs from "dayjs";
 
 const { RangePicker } = DatePicker;
@@ -31,13 +32,13 @@ export const Hl7ArchivePage: React.FC = () => {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
-    const params = new URLSearchParams();
-    if (filterType) params.set("messageType", filterType);
-    if (filterDirection) params.set("direction", filterDirection);
-    if (filterAck) params.set("ackStatus", filterAck);
-    if (dateRange?.[0]) params.set("from", dateRange[0].toISOString());
-    if (dateRange?.[1]) params.set("to", dateRange[1].toISOString());
-    const res = await api.get<Hl7ArchiveRecord[]>(`/hl7/archive?${params.toString()}`);
+    const res = await hl7Api.getArchive({
+      messageType: filterType,
+      direction: filterDirection,
+      ackStatus: filterAck,
+      from: dateRange?.[0]?.toISOString(),
+      to: dateRange?.[1]?.toISOString(),
+    });
     if (res.success) setData(res.data);
     setLoading(false);
   }, [filterType, filterDirection, filterAck, dateRange]);
@@ -45,7 +46,7 @@ export const Hl7ArchivePage: React.FC = () => {
   useEffect(() => { fetchData(); }, [fetchData]);
 
   const handleRetry = async (record: Hl7ArchiveRecord) => {
-    const res = await api.post("/hl7/batch", { ids: [record.id] });
+    const res = await hl7Api.retryBatch([record.id]);
     if (res.success) {
       message.success("已触发重发");
       fetchData();

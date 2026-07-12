@@ -1,4 +1,3 @@
-// @ts-nocheck
 // ============================================================
 // G005 放射科RIS系统 - 通知中心页面 v1.0.0
 // 统一管理所有系统通知，支持分类、筛选、设置
@@ -12,7 +11,8 @@ import {
   Mail, Smartphone, Monitor,   EyeOff, BarChart3
 } from 'lucide-react'
 import { initialUsers } from '../data/initialData'
-import { userApi } from '../services/api'
+import { userApi, notificationApi } from '../services/api'
+import type { NotificationDto } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 
 // ============================================================
@@ -1019,10 +1019,33 @@ function PreferencesPanel({ preferences, onUpdate }: { preferences: UserNotifyPr
 }
 
 // ============================================================
+// 后端类型映射
+// ============================================================
+function mapNotificationType(type: string): SystemNotification['type'] {
+  switch (type) {
+    case 'REPORT': return 'report_completed'
+    case 'CRITICAL': return 'critical_value'
+    case 'SYSTEM': return 'system'
+    case 'APPOINTMENT': return 'appointment'
+    case 'TASK': return 'consultation'
+    default: return 'system'
+  }
+}
+
+function mapSeverityToPriority(severity?: string): 'high' | 'normal' | 'low' {
+  switch (severity) {
+    case 'CRITICAL':
+    case 'ERROR': return 'high'
+    case 'WARN': return 'normal'
+    default: return 'low'
+  }
+}
+
+// ============================================================
 // 主页面组件
 // ============================================================
 export default function NotificationCenter() {
-  const allNotifications = useMemo(() => generateMockNotifications(), [])
+  const mockNotifications = useMemo(() => generateMockNotifications(), [])
 
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -1033,22 +1056,58 @@ export default function NotificationCenter() {
       setLoading(true)
       const res = await userApi.list()
       if (cancelled) return
-      if (res.success) {
-        setLoadError(null)
-      } else {
-        setLoadError('API 不可用,使用本地数据')
+      if (!res.success) {
+        setLoadError('API 不可用，使用本地数据')
       }
       setLoading(false)
     })()
     return () => { cancelled = true }
   }, [])
 
+  const [apiNotifications, setApiNotifications] = useState<SystemNotification[]>([])
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      const res = await notificationApi.getHistory('current', 200)
+      if (cancelled) return
+      if (res.success && res.data) {
+        setApiNotifications(res.data.map((n: NotificationDto) => ({
+          id: n.id,
+          type: mapNotificationType(n.type),
+          title: n.title,
+          content: n.content,
+          recipientId: n.userId,
+          recipientName: n.userId,
+          status: n.isRead ? 'read' : 'unread',
+          priority: mapSeverityToPriority(n.severity),
+          sentAt: n.createdAt,
+          readAt: undefined,
+          relatedId: n.targetId,
+          relatedType: n.type.toLowerCase(),
+        })))
+      }
+    })()
+    return () => { cancelled = true }
+  }, [])
+
+  const allNotifications = useMemo(
+    () => apiNotifications.length > 0 ? apiNotifications : mockNotifications,
+    [apiNotifications, mockNotifications],
+  )
+
   const [activeTab, setActiveTab] = useState('all')
   const [searchText, setSearchText] = useState('')
   const [selectedNotification, setSelectedNotification] = useState<SystemNotification | null>(null)
   const [showSettings, setShowSettings] = useState(false)
   const [showDetailModal, setShowDetailModal] = useState(false)
-  const [notifications, setNotifications] = useState<SystemNotification[]>(allNotifications)
+  const [notifications, setNotifications] = useState<SystemNotification[]>([])
+
+  useEffect(() => {
+    if (allNotifications.length > 0 && notifications.length === 0) {
+      setNotifications(allNotifications)
+    }
+  }, [allNotifications])
 
   const [settings, setSettings] = useState<NotificationSettings>({
     reportCompleted: true,
@@ -1136,6 +1195,7 @@ export default function NotificationCenter() {
     setNotifications(prev => prev.map(n =>
       n.id === id ? { ...n, status: 'read' as const, readAt: new Date().toISOString() } : n
     ))
+    void notificationApi.markRead(id)
   }, [])
 
   // 一键已读
