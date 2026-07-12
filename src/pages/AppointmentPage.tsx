@@ -1494,7 +1494,7 @@ export default function AppointmentPage() {
   };
 
   // 新建预约提交
-  const handleCreateAppointment = () => {
+  const handleCreateAppointment = async () => {
     const errs: Record<string, string> = {};
     if (!formData.patientName.trim()) errs.patientName = "请输入患者姓名";
     if (
@@ -1558,6 +1558,7 @@ export default function AppointmentPage() {
       createdAt: new Date().toLocaleString("zh-CN"),
       updatedAt: new Date().toLocaleString("zh-CN"),
     };
+    await appointmentApi.create(newApt);
     setAppointments((prev) => [...prev, newApt]);
     setShowForm(false);
     setFormErrors({});
@@ -1586,7 +1587,7 @@ export default function AppointmentPage() {
   };
 
   // 取消预约
-  const handleCancelAppointment = () => {
+  const handleCancelAppointment = async () => {
     if (!selectedAppointment || !cancelReason) {
       setCancelReasonError("请选择取消原因");
       return;
@@ -1601,6 +1602,7 @@ export default function AppointmentPage() {
       setCancelReasonError("当前状态不允许取消");
       return;
     }
+    await appointmentApi.cancel(selectedAppointment.id);
     setAppointments((prev) =>
       prev.map((a) =>
         a.id === selectedAppointment.id

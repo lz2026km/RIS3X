@@ -391,12 +391,12 @@ export default function WorklistPage() {
 
   const stats = useMemo(() => {
     return {
-      total: filteredExams.length,
-      critical: filteredExams.filter(e => e.priority === '危重' || e.priority === '紧急').length,
-      completed: filteredExams.filter(e => ['已报告', '已发布'].includes(e.status)).length,
-      pending: filteredExams.filter(e => ['已登记', '待检查', '检查中', '待报告'].includes(e.status)).length,
+      total: exams.length,
+      critical: exams.filter(e => e.priority === '危重' || e.priority === '紧急').length,
+      completed: exams.filter(e => ['已报告', '已发布'].includes(e.status)).length,
+      pending: exams.filter(e => ['已登记', '待检查', '检查中', '待报告'].includes(e.status)).length,
     }
-  }, [filteredExams])
+  }, [exams])
 
   const resetFilters = () => {
     const today = new Date();

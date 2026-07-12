@@ -8,6 +8,7 @@ import { message } from 'antd'
 import type { RadiologyReport } from '../../types'
 import { StatusBadge, StatusTimeline, REPORT_STATUS_META, REPORT_STATUS_ORDER } from '../../components/report'
 import MfaVerifyModal from '../../components/security/MfaVerifyModal'
+import { useReportStore } from '../../store'
 
 const PRIMARY = '#1e3a5f'
 const WHITE = '#ffffff'
@@ -273,6 +274,11 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
         </div>
 
         <div className="no-print" style={{ padding: '12px 20px', borderTop: '1px solid #e2e8f0', display: 'flex', gap: 8, justifyContent: 'flex-end', flexShrink: 0 }}>
+          {report.status === '书写中' && (
+            <button onClick={async () => { await useReportStore.getState().submit(report.id); onClose(); }} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#3182ce', color: WHITE, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <CheckCircle size={14} /> 提交审核
+            </button>
+          )}
           {report.status === '待审核' && (
             <button onClick={() => { setPendingReviewReport(report); setShowMfa(true); }} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#6d28d9', color: WHITE, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
               <ShieldCheck size={14} /> 审核报告

@@ -1,0 +1,233 @@
+import React, { useState } from 'react';
+import { Card, Tabs, Table, Button, Form, Input, Select, DatePicker, Upload, message, Tag, Space, Alert, InputNumber } from 'antd';
+import { UploadOutlined, SendOutlined, SearchOutlined, ForwardOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { api } from '../../services/api/client';
+
+const { RangePicker } = DatePicker;
+
+const ECHO_COLUMNS: any = [
+  { title: 'AE Title', dataIndex: 'aeTitle', key: 'aeTitle' },
+  { title: 'IP', dataIndex: 'ip', key: 'ip' },
+  { title: 'Port', dataIndex: 'port', key: 'port' },
+  { title: 'Modality', dataIndex: 'modality', key: 'modality' },
+  { title: 'Ping', dataIndex: 'pingMs', key: 'pingMs', render: (v: number | null) => v != null ? `${v} ms` : '-' },
+  { title: 'Status', dataIndex: 'status', key: 'status', render: (v: string | null) => v ? <Tag color={v === 'SUCCESS' ? 'green' : 'red'} icon={v === 'SUCCESS' ? <CheckCircleOutlined /> : <CloseCircleOutlined />}>{v}</Tag> : '-' },
+  {
+    title: 'Action', key: 'action', render: (_: any, __: any) => (
+      <Button type="primary" size="small" icon={<SendOutlined />} loading={__._echoing} onClick={() => {}}>ECHO 测试</Button>
+    ),
+  },
+];
+
+const MWL_COLUMNS = [
+  { title: 'Patient Name', dataIndex: 'patientName', key: 'patientName' },
+  { title: 'Patient ID', dataIndex: 'patientId', key: 'patientId' },
+  { title: 'Accession#', dataIndex: 'accessionNumber', key: 'accessionNumber' },
+  { title: 'Modality', dataIndex: 'modality', key: 'modality' },
+  { title: 'Study Date', dataIndex: 'studyDate', key: 'studyDate' },
+  { title: 'Status', dataIndex: 'status', key: 'status' },
+];
+
+const C_STORE_COLUMNS = [
+  { title: 'SOP Instance UID', dataIndex: 'sopInstanceUid', key: 'sopInstanceUid', ellipsis: true },
+  { title: 'Storage Path', dataIndex: 'storagePath', key: 'storagePath', ellipsis: true },
+  { title: 'Size', dataIndex: 'sizeBytes', key: 'sizeBytes', render: (v: number) => v ? `${(v / 1024).toFixed(1)} KB` : '-' },
+  { title: 'Status', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : 'red'}>{v}</Tag> },
+];
+
+const C_MOVE_COLUMNS = [
+  { title: 'Study UID', dataIndex: 'studyUid', key: 'studyUid', ellipsis: true },
+  { title: 'Destination AE', dataIndex: 'destAe', key: 'destAe' },
+  { title: 'Transfer Count', dataIndex: 'transferredCount', key: 'transferredCount' },
+  { title: 'Status', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : 'red'}>{v}</Tag> },
+];
+
+const MOCK_DEVICES = [
+  { aeTitle: 'CT_SCANNER_01', ip: '192.168.1.101', port: 11112, modality: 'CT', pingMs: null as number | null, status: null as string | null, _echoing: false },
+  { aeTitle: 'MR_SCANNER_02', ip: '192.168.1.102', port: 11113, modality: 'MR', pingMs: null as number | null, status: null as string | null, _echoing: false },
+  { aeTitle: 'XA_LAB_01', ip: '192.168.1.103', port: 11114, modality: 'XA', pingMs: null as number | null, status: null as string | null, _echoing: false },
+];
+
+export const DimsePage: React.FC = () => {
+  const [activeTab, setActiveTab] = useState('echo');
+  const [devices, setDevices] = useState(MOCK_DEVICES);
+  const [mwlResults, setMwlResults] = useState<any[]>([]);
+  const [mwlLoading, setMwlLoading] = useState(false);
+  const [mwlForm] = Form.useForm();
+  const [storeResults, setStoreResults] = useState<any[]>([]);
+  const [storeLoading, setStoreLoading] = useState(false);
+  const [moveForm] = Form.useForm();
+  const [moveResults, setMoveResults] = useState<any[]>([]);
+  const [moveLoading, setMoveLoading] = useState(false);
+
+  const handleEcho = async (device: any) => {
+    setDevices(prev => prev.map(d => d.aeTitle === device.aeTitle ? { ...d, _echoing: true } : d));
+    const start = performance.now();
+    const res = await api.post<{ pingMs: number; status: string }>('/dicom-dimse/echo', { aeTitle: device.aeTitle, ip: device.ip, port: device.port });
+    const elapsed = Math.round(performance.now() - start);
+    if (res.success) {
+      setDevices(prev => prev.map(d => d.aeTitle === device.aeTitle ? { ...d, pingMs: res.data!.pingMs ?? elapsed, status: 'SUCCESS', _echoing: false } : d));
+    } else {
+      setDevices(prev => prev.map(d => d.aeTitle === device.aeTitle ? { ...d, pingMs: elapsed, status: 'FAIL', _echoing: false } : d));
+    }
+  };
+
+  const handleMwlQuery = async (values: any) => {
+    setMwlLoading(true);
+    const params: any = {};
+    if (values.patientName) params.patientName = values.patientName;
+    if (values.patientId) params.patientId = values.patientId;
+    if (values.accessionNumber) params.accessionNumber = values.accessionNumber;
+    if (values.modality) params.modality = values.modality;
+    if (values.dateRange) {
+      params.startDate = values.dateRange[0].format('YYYY-MM-DD');
+      params.endDate = values.dateRange[1].format('YYYY-MM-DD');
+    }
+    const res = await api.post<any[]>('/dicom-dimse/find', params);
+    if (res.success) {
+      setMwlResults(res.data!);
+    } else {
+      message.error(res.error?.message || 'Query failed');
+    }
+    setMwlLoading(false);
+  };
+
+  const handleStore = async (file: File) => {
+    setStoreLoading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await api.post<any>('/dicom-dimse/store', formData);
+    if (res.success) {
+      setStoreResults(prev => [...prev, { ...res.data, status: 'SUCCESS' }]);
+      message.success('Store successful');
+    } else {
+      setStoreResults(prev => [...prev, { fileName: file.name, status: 'FAIL', sopInstanceUid: '-', storagePath: '-', sizeBytes: file.size }]);
+      message.error(res.error?.message || 'Store failed');
+    }
+    setStoreLoading(false);
+  };
+
+  const handleMove = async (values: any) => {
+    setMoveLoading(true);
+    const res = await api.post<{ transferredCount: number }>('/dicom-dimse/move', {
+      studyUid: values.studyUid,
+      destAe: values.destAe,
+      destHost: values.destHost,
+      destPort: values.destPort,
+    });
+    if (res.success) {
+      setMoveResults(prev => [...prev, { studyUid: values.studyUid, destAe: values.destAe, transferredCount: res.data!.transferredCount, status: 'SUCCESS' }]);
+      message.success(`Move completed: ${res.data!.transferredCount} instances transferred`);
+    } else {
+      setMoveResults(prev => [...prev, { studyUid: values.studyUid, destAe: values.destAe, transferredCount: 0, status: 'FAIL' }]);
+      message.error(res.error?.message || 'Move failed');
+    }
+    setMoveLoading(false);
+  };
+
+  const tabItems = [
+    {
+      key: 'echo',
+      label: <Space><SendOutlined />C-ECHO</Space>,
+      children: (
+        <Card size="small" title="DICOM 设备列表">
+          <Table
+            dataSource={devices}
+            rowKey="aeTitle"
+            pagination={false}
+            columns={ECHO_COLUMNS.map((col: any) => col.key === 'action' ? { ...col, render: (_: any, record: any) => (
+              <Button type="primary" size="small" icon={<SendOutlined />} loading={record._echoing} onClick={() => handleEcho(record)}>ECHO 测试</Button>
+            )} : col)}
+          />
+        </Card>
+      ),
+    },
+    {
+      key: 'mwl',
+      label: <Space><SearchOutlined />MWL (C-FIND)</Space>,
+      children: (
+        <>
+          <Card size="small" style={{ marginBottom: 16 }}>
+            <Form form={mwlForm} layout="inline" onFinish={handleMwlQuery} initialValues={{ modality: undefined }}>
+              <Form.Item name="patientName" label="Name"><Input placeholder="Patient Name" allowClear /></Form.Item>
+              <Form.Item name="patientId" label="ID"><Input placeholder="Patient ID" allowClear /></Form.Item>
+              <Form.Item name="accessionNumber" label="Accession"><Input placeholder="Accession#" allowClear /></Form.Item>
+              <Form.Item name="modality" label="Modality">
+                <Select allowClear placeholder="All" style={{ width: 100 }}>
+                  <Select.Option value="CT">CT</Select.Option>
+                  <Select.Option value="MR">MR</Select.Option>
+                  <Select.Option value="XA">XA</Select.Option>
+                  <Select.Option value="US">US</Select.Option>
+                </Select>
+              </Form.Item>
+              <Form.Item name="dateRange" label="Date"><RangePicker /></Form.Item>
+              <Form.Item><Button type="primary" htmlType="submit" icon={<SearchOutlined />} loading={mwlLoading}>查询</Button></Form.Item>
+            </Form>
+          </Card>
+          <Card size="small" title="Worklist 条目">
+            <Table dataSource={mwlResults} rowKey={(r, i) => r.accessionNumber || `${i}`} columns={MWL_COLUMNS} loading={mwlLoading} pagination={{ pageSize: 10 }} />
+          </Card>
+        </>
+      ),
+    },
+    {
+      key: 'cstore',
+      label: <Space><UploadOutlined />C-STORE</Space>,
+      children: (
+        <Card size="small" title="DICOM 文件上传">
+          <Upload
+            accept=".dcm"
+            showUploadList={false}
+            beforeUpload={(file) => { handleStore(file); return false; }}
+            disabled={storeLoading}
+          >
+            <Button icon={<UploadOutlined />} loading={storeLoading} disabled={storeLoading}>选择 .dcm 文件</Button>
+          </Upload>
+          <Alert message="支持 DICOM .dcm 文件上传，系统将解析并存储至 PACS" type="info" showIcon style={{ marginTop: 12, marginBottom: 12 }} />
+          <Table dataSource={storeResults} rowKey={(r, i) => r.sopInstanceUid || `${i}`} columns={C_STORE_COLUMNS} pagination={false} />
+        </Card>
+      ),
+    },
+    {
+      key: 'cmove',
+      label: <Space><ForwardOutlined />C-MOVE</Space>,
+      children: (
+        <>
+          <Card size="small" style={{ marginBottom: 16 }}>
+            <Form form={moveForm} layout="inline" onFinish={handleMove}>
+              <Form.Item name="studyUid" label="Study UID" rules={[{ required: true, message: '请输入 Study UID' }]}>
+                <Input placeholder="1.2.840.xxxxx" style={{ width: 320 }} />
+              </Form.Item>
+              <Form.Item name="destAe" label="目标 AE" rules={[{ required: true }]}>
+                <Input placeholder="DEST_AE" />
+              </Form.Item>
+              <Form.Item name="destHost" label="Host">
+                <Input placeholder="192.168.1.200" />
+              </Form.Item>
+              <Form.Item name="destPort" label="Port">
+                <InputNumber placeholder="11112" min={1} max={65535} />
+              </Form.Item>
+              <Form.Item><Button type="primary" htmlType="submit" icon={<ForwardOutlined />} loading={moveLoading}>转发</Button></Form.Item>
+            </Form>
+          </Card>
+          <Card size="small" title="转存记录">
+            <Table dataSource={moveResults} rowKey={(r, i) => `${r.studyUid}-${i}`} columns={C_MOVE_COLUMNS} pagination={false} />
+          </Card>
+        </>
+      ),
+    },
+  ];
+
+  return (
+    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+      <Space style={{ marginBottom: 16 }}>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>DICOM DIMSE 设备集成</span>
+        <Tag color="blue">v3.0</Tag>
+      </Space>
+      <Alert message="DIMSE (DICOM Message Service Element) 设备集成测试与管理工作台，支持 C-ECHO、C-FIND (MWL)、C-STORE、C-MOVE 四种服务" type="info" showIcon style={{ marginBottom: 16 }} />
+      <Tabs activeKey={activeTab} onChange={setActiveTab} items={tabItems} />
+    </div>
+  );
+};
+
+export default DimsePage;

@@ -34,7 +34,6 @@ import {
   ClipboardList,
   ListOrdered,
   ScrollText,
-  FileEdit,
   AlertOctagon,
   MessageSquare,
   TrendingUp,
@@ -69,6 +68,10 @@ import {
   Image,
   Calculator,
   Sparkles,
+  Upload,
+  Archive,
+  Hammer,
+  Fingerprint,
 } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -572,10 +575,22 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     section: "nav.regionalCoordination",
     items: [
       {
-        path: "/regional-imaging",
-        icon: <Network size={18} />,
-        labelKey: "nav.regionalImaging",
-        roles: ["管理员"],
+        path: "/ihe/pix",
+        icon: <Fingerprint size={18} />,
+        labelKey: "nav.pixManager",
+        roles: ["主任", "管理员", "技师"],
+      },
+      {
+        path: "/integration/fhir/bulk-export",
+        icon: <Download size={18} />,
+        labelKey: "nav.fhirBulkExport",
+        roles: ["主任", "管理员", "技师"],
+      },
+      {
+        path: "/integration/fhir/bulk-export-detail",
+        icon: <Activity size={18} />,
+        labelKey: "nav.fhirBulkExportDetail",
+        roles: ["主任", "管理员", "技师"],
       },
       {
         path: "/regional-report",
@@ -618,6 +633,53 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: <Network size={18} />,
         labelKey: "nav.mllpMonitor",
         roles: ["管理员"],
+      },
+      {
+        path: "/integration/hl7-archive",
+        icon: <Archive size={18} />,
+        labelKey: "nav.hl7Archive",
+        roles: ["管理员"],
+      },
+      {
+        path: "/integration/hl7-builder",
+        icon: <Hammer size={18} />,
+        labelKey: "nav.hl7Builder",
+        roles: ["管理员"],
+      },
+      {
+        path: "/integration/mllp-monitor",
+        icon: <Network size={18} />,
+        labelKey: "nav.mllpMonitor",
+        roles: ["管理员"],
+      },
+      {
+        path: "/ihe/pam",
+        icon: <Network size={18} />,
+        labelKey: "nav.ihePam",
+        roles: ["主任", "管理员", "技师"],
+      },
+      {
+        path: "/ihe/visit",
+        icon: <Activity size={18} />,
+        labelKey: "nav.iheVisit",
+        roles: ["医生", "主任", "技师", "管理员"],
+      },
+    ],
+  },
+  {
+    section: "nav.dicomNetwork",
+    items: [
+      {
+        path: "/integration/dimse",
+        icon: <Activity size={18} />,
+        labelKey: "nav.dimse",
+        roles: ["技师", "管理员", "医生", "主任"],
+      },
+      {
+        path: "/integration/dimse/upload",
+        icon: <Upload size={18} />,
+        labelKey: "nav.dimseUpload",
+        roles: ["技师", "管理员"],
       },
     ],
   },

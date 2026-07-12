@@ -134,6 +134,7 @@ export default function ReportPage() {
         message.error('禁止自审：不能审核自己的报告');
         return;
       }
+      await useReportStore.getState().review(reportId, 'initial', user?.id ?? '', user?.name ?? '', suggestion, 0);
       setMfaReportId(reportId);
     } else {
       await useReportStore.getState().reject(reportId);
@@ -205,7 +206,7 @@ export default function ReportPage() {
       <ReviewResultModal show={reviewResultModal.show} reportId={reviewResultModal.reportId} result={reviewResultModal.result} suggestion={reviewResultModal.suggestion} onClose={() => setReviewResultModal(r => ({ ...r, show: false }))} />
       <BatchResultModal show={batchResultModal.show} title={batchResultModal.title} message={batchResultModal.message} type={batchResultModal.type} onClose={() => setBatchResultModal(b => ({ ...b, show: false }))} />
       <PrintModal show={printModal.show} title={printModal.title} message={printModal.message} onClose={() => setPrintModal(p => ({ ...p, show: false }))} onPrint={() => { setPrintModal(p => ({ ...p, show: false })); window.print(); }} />
-      <BulkActionModal show={bulkActionModal.show} action={bulkActionModal.action} count={bulkActionModal.count} loading={bulkActionModal.loading} onClose={() => setBulkActionModal(b => ({ ...b, show: false }))} onConfirm={() => { const action = bulkActionModal.action; setBulkActionModal(b => ({ ...b, loading: true })); setTimeout(() => { if (action === 'publish') { setAllReports(prev => prev.map(r => selectedIds.has(r.id) && r.status === '待审核' ? { ...r, status: '已发布', publishedTime: new Date().toISOString(), publishedBy: '当前用户' } : r)); } else if (action === 'delete') { setAllReports(prev => prev.filter(r => !selectedIds.has(r.id))); } setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(`${action === 'publish' ? '发布' : '删除'}成功`, 'success'); }, 1000); }} />
+      <BulkActionModal show={bulkActionModal.show} action={bulkActionModal.action} count={bulkActionModal.count} loading={bulkActionModal.loading} onClose={() => setBulkActionModal(b => ({ ...b, show: false }))} onConfirm={async () => { const action = bulkActionModal.action; setBulkActionModal(b => ({ ...b, loading: true })); if (action === 'publish') { for (const id of selectedIds) { await useReportStore.getState().publish(id, 85); } setAllReports(prev => prev.map(r => selectedIds.has(r.id) && r.status === '待审核' ? { ...r, status: '已发布', publishedTime: new Date().toISOString(), publishedBy: '当前用户' } : r)); } else if (action === 'delete') { setAllReports(prev => prev.filter(r => !selectedIds.has(r.id))); } setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(`${action === 'publish' ? '发布' : '删除'}成功`, 'success'); }} />
     </PageContainer>
   );
 }

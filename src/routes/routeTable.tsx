@@ -122,6 +122,11 @@ const IheConnectathonPage = lazy(
 const MllpMonitorPage = lazy(
   () => import("../pages/integration/MllpMonitorPage"),
 );
+const Hl7ArchivePage = lazy(() => import("../pages/integration/Hl7ArchivePage"));
+const Hl7BuilderPage = lazy(() => import("../pages/integration/Hl7BuilderPage"));
+const MllpConfigPage = lazy(() => import("../pages/integration/MllpConfigPage"));
+const DimsePage = lazy(() => import("../pages/integration/DimsePage"));
+const DimseUploadPage = lazy(() => import("../pages/integration/DimseUploadPage"));
 const NuclearStatsPage = lazy(() => import("../pages/NuclearStatsPage"));
 const AIMedicalDevicePage = lazy(() => import("../pages/AIMedicalDevicePage"));
 const TermSynonymGraphPage = lazy(
@@ -322,6 +327,12 @@ const DicomSrManagerPage = lazy(() => import("../pages/imaging/DicomSrManagerPag
 const TerminologyServerPage = lazy(() => import("../pages/clinical/TerminologyServerPage"));
 const ReportTemplateManagerPage = lazy(() => import("../pages/reports/ReportTemplateManagerPage"));
 const IheIntegrationPage = lazy(() => import("../pages/integration/IheIntegrationPage"));
+const PixPage = lazy(() => import("../pages/ihe/PixPage"));
+const FhirBulkExportPage = lazy(() => import("../pages/integration/FhirBulkExportPage"));
+const FhirBulkExportDetailPage = lazy(() => import("../pages/integration/FhirBulkExportDetailPage"));
+const PamPage = lazy(() => import("../pages/ihe/PamPage"));
+const VisitPage = lazy(() => import("../pages/ihe/VisitPage"));
+const VisitDetailPage = lazy(() => import("../pages/ihe/VisitDetailPage"));
 const AiFusionWorkspacePage = lazy(() => import("../pages/ai/AiFusionWorkspacePage"));
 const ClinicalCalculatorHubPage = lazy(() => import("../pages/clinical/ClinicalCalculatorHubPage"));
 const ConsentEducationPage = lazy(() => import("../pages/consent/ConsentEducationPage"));
@@ -491,6 +502,17 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/eye/report-write": ["医生", "主任", "管理员"],
   "/eye/kpi-dashboard": ["主任", "管理员"],
   "/admin/config": ["管理员"],
+  "/ihe/pam": ["主任", "管理员", "技师"],
+  "/ihe/visit": ["医生", "主任", "技师", "管理员"],
+  "/ihe/visit-detail/:patientId/:visitNumber": ["医生", "主任", "技师", "管理员"],
+  "/ihe/pix": ["主任", "管理员", "技师"],
+  "/integration/fhir/bulk-export": ["主任", "管理员", "技师"],
+  "/integration/fhir/bulk-export-detail": ["主任", "管理员", "技师"],
+  "/integration/hl7-archive": ["技师", "管理员"],
+  "/integration/hl7-builder": ["技师", "管理员"],
+  "/integration/mllp-config": ["管理员"],
+  "/integration/dimse": ["技师", "管理员", "医生", "主任"],
+  "/integration/dimse/upload": ["技师", "管理员"],
 };
 
 function rolesFor(path: string): ReadonlyArray<Role> | undefined {
@@ -675,21 +697,14 @@ export const routes: RouteObject[] = [
     React.createElement(PatientEducationPage),
   ),
   wrapped("/hie/medical-alliance", React.createElement(MedicalAlliancePage)),
-  wrapped(
-    "/integration/fhir-server",
-    React.createElement(FhirServerPage),
-    ["医生", "技师", "管理员", "主任"],
-  ),
-  wrapped(
-    "/integration/ihe-connectathon",
-    React.createElement(IheConnectathonPage),
-    ["医生", "技师", "管理员", "主任"],
-  ),
-  wrapped(
-    "/integration/mllp-monitor",
-    React.createElement(MllpMonitorPage),
-    ["技师", "管理员"],
-  ),
+  wrapped("/integration/fhir-server", React.createElement(FhirServerPage)),
+  wrapped("/integration/ihe-connectathon", React.createElement(IheConnectathonPage)),
+  wrapped("/integration/mllp-monitor", React.createElement(MllpMonitorPage)),
+  wrapped("/integration/hl7-archive", React.createElement(Hl7ArchivePage)),
+  wrapped("/integration/hl7-builder", React.createElement(Hl7BuilderPage)),
+  wrapped("/integration/mllp-config", React.createElement(MllpConfigPage)),
+  wrapped("/integration/dimse", React.createElement(DimsePage)),
+  wrapped("/integration/dimse/upload", React.createElement(DimseUploadPage)),
   wrapped("/kiosk/check-in", React.createElement(KioskCheckIn)),
   wrapped("/mobile/patient", React.createElement(PatientMobileApp)),
   wrapped("/mobile/doctor", React.createElement(DoctorMobileWorkstation)),
@@ -757,6 +772,12 @@ export const routes: RouteObject[] = [
   wrapped("/terminology-server", React.createElement(TerminologyServerPage)), // [v3.0.6.8-73]
   wrapped("/report-templates", React.createElement(ReportTemplateManagerPage)), // [v3.0.6.8-74]
   wrapped("/ihe-integration", React.createElement(IheIntegrationPage)), // [v3.0.6.8-75]
+  wrapped("/ihe/pix", React.createElement(PixPage)),
+  wrapped("/integration/fhir/bulk-export", React.createElement(FhirBulkExportPage)),
+  wrapped("/integration/fhir/bulk-export-detail", React.createElement(FhirBulkExportDetailPage)),
+  wrapped("/ihe/pam", React.createElement(PamPage)),
+  wrapped("/ihe/visit", React.createElement(VisitPage)),
+  wrapped("/ihe/visit-detail/:patientId/:visitNumber", React.createElement(VisitDetailPage)),
   wrapped("/ai-fusion-workspace", React.createElement(AiFusionWorkspacePage)), // [v3.0.6.8-76]
   wrapped("/clinical-calculators", React.createElement(ClinicalCalculatorHubPage)), // [v3.0.6.8-78]
   wrapped("/consent-education", React.createElement(ConsentEducationPage)), // [v3.0.6.8-79]

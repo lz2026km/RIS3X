@@ -252,5 +252,7 @@
   "dentalBilling": "Billing & Insurance",
   "dentalSchedule": "Schedule & PSR",
   "dentalPhoto": "Intraoral Photos",
-  "searchPlaceholder": "Search patient/exam/report..."
+  "searchPlaceholder": "Search patient/exam/report...",
+  "ihePam": "IHE PAM",
+  "iheVisit": "IHE Visit"
 }

@@ -252,5 +252,7 @@
   "dentalBilling": "收费 · 医保",
   "dentalSchedule": "排班 · PSR",
   "dentalPhoto": "口内照片",
-  "searchPlaceholder": "搜索患者/检查号/报告..."
+  "searchPlaceholder": "搜索患者/检查号/报告...",
+  "ihePam": "IHE PAM 消息",
+  "iheVisit": "IHE 就诊管理"
 }

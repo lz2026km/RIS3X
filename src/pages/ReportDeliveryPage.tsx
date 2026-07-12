@@ -7,7 +7,6 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, Badge } from 'antd';
 import { Layers, FileText, Receipt, Smartphone } from 'lucide-react';
-import { api } from '../services/api';
 import {
   Send, MessageSquare, Smartphone as SmartphoneIcon, Mail, Database, Printer, Cloud, Film,
   CheckCircle2, RefreshCw, Loader2,
@@ -84,7 +83,7 @@ export default function ReportDeliveryPage() {
     setSending(true);
     setSendProgress(0);
     for (const id of Array.from(selectedRecords)) {
-      await api.post('/delivery', { reportId: id, channel: filterChannel === 'all' ? 'wechat' : filterChannel, recipient: '' })
+      await fetch('/api/v1/dist/tasks', { method: 'POST', body: JSON.stringify({ reportId: id, channel: filterChannel === 'all' ? 'wechat' : filterChannel, recipient: '' }) })
     }
     setSendProgress(100);
     setSending(false);
