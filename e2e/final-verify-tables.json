@@ -1,0 +1,232 @@
+{
+  "total": 30,
+  "passed": 9,
+  "failed": 21,
+  "results": [
+    {
+      "page": "/worklist",
+      "hasTable": true,
+      "hasHeaders": true,
+      "hasRows": false,
+      "isEmpty": false,
+      "passed": true
+    },
+    {
+      "page": "/patients",
+      "hasTable": true,
+      "hasHeaders": true,
+      "hasRows": true,
+      "isEmpty": false,
+      "passed": true
+    },
+    {
+      "page": "/exams",
+      "hasTable": true,
+      "hasHeaders": true,
+      "hasRows": true,
+      "isEmpty": false,
+      "passed": true
+    },
+    {
+      "page": "/reports",
+      "hasTable": true,
+      "hasHeaders": true,
+      "hasRows": true,
+      "isEmpty": false,
+      "passed": true
+    },
+    {
+      "page": "/appointments",
+      "hasTable": false,
+      "hasHeaders": false,
+      "hasRows": false,
+      "isEmpty": false,
+      "passed": false
+    },
+    {
+      "page": "/queue-call",
+      "hasTable": false,
+      "hasHeaders": false,
+      "hasRows": false,
+      "isEmpty": false,
+      "passed": false
+    },
+    {
+      "page": "/critical-value",
+      "hasTable": false,
+      "hasHeaders": false,
+      "hasRows": false,
+      "isEmpty": false,
+      "passed": false
+    },
+    {
+      "page": "/devices",
+      "hasTable": true,
+      "hasHeaders": true,
+      "hasRows": true,
+      "isEmpty": false,
+      "passed": true
+    },
+    {
+      "page": "/consultation",
+      "hasTable": false,
+      "hasHeaders": false,
+      "hasRows": false,
+      "isEmpty": false,
+      "passed": false
+    },
+    {
+      "page": "/dose-track",
+      "hasTable": false,
+      "hasHeaders": false,
+      "hasRows": false,
+      "isEmpty": false,
+      "passed": false
+    },
+    {
+      "page": "/materials",
+      "hasTable": true,
+      "hasHeaders": true,
+      "hasRows": true,
+      "isEmpty": false,
+      "passed": true
+    },
+    {
+      "page": "/operation-log",
+      "hasTable": false,
+      "hasHeaders": false,
+      "hasRows": false,
+      "isEmpty": false,
+      "passed": false
+    },
+    {
+      "page": "/notification-center",
+      "hasTable": false,
+      "hasHeaders": false,
+      "hasRows": false,
+      "isEmpty": false,
+      "passed": false
+    },
+    {
+      "page": "/safety/adverse-events",
+      "hasTable": true,
+      "hasHeaders": true,
+      "hasRows": false,
+      "isEmpty": false,
+      "passed": true
+    },
+    {
+      "page": "/contrast/inventory",
+      "hasTable": false,
+      "hasHeaders": false,
+      "hasRows": false,
+      "isEmpty": false,
+      "passed": false
+    },
+    {
+      "page": "/cardiac/database",
+      "hasTable": true,
+      "hasHeaders": true,
+      "hasRows": true,
+      "isEmpty": false,
+      "passed": true
+    },
+    {
+      "page": "/cds/management",
+      "hasTable": false,
+      "hasHeaders": false,
+      "hasRows": false,
+      "isEmpty": false,
+      "passed": false
+    },
+    {
+      "page": "/finance/department",
+      "hasTable": false,
+      "hasHeaders": false,
+      "hasRows": false,
+      "isEmpty": false,
+      "passed": false
+    },
+    {
+      "page": "/finance/patient",
+      "hasTable": false,
+      "hasHeaders": false,
+      "hasRows": false,
+      "isEmpty": false,
+      "passed": false
+    },
+    {
+      "page": "/charge-items",
+      "hasTable": false,
+      "hasHeaders": false,
+      "hasRows": false,
+      "isEmpty": false,
+      "passed": false
+    },
+    {
+      "page": "/accounts-receivable",
+      "hasTable": false,
+      "hasHeaders": false,
+      "hasRows": false,
+      "isEmpty": false,
+      "passed": false
+    },
+    {
+      "page": "/user-management",
+      "hasTable": false,
+      "hasHeaders": false,
+      "hasRows": false,
+      "isEmpty": false,
+      "passed": false
+    },
+    {
+      "page": "/dictionary",
+      "hasTable": true,
+      "hasHeaders": true,
+      "hasRows": true,
+      "isEmpty": false,
+      "passed": true
+    },
+    {
+      "page": "/report-review",
+      "hasTable": false,
+      "hasHeaders": false,
+      "hasRows": false,
+      "isEmpty": false,
+      "passed": false
+    },
+    {
+      "page": "/keyword-check",
+      "hasTable": false,
+      "hasHeaders": false,
+      "hasRows": false,
+      "isEmpty": false,
+      "passed": false
+    },
+    {
+      "page": "/defect-management",
+      "passed": false,
+      "reason": "page.waitForTimeout: Target page, context or browser has been closed"
+    },
+    {
+      "page": "/quality-control",
+      "passed": false,
+      "reason": "page.goto: Target page, context or browser has been closed"
+    },
+    {
+      "page": "/workflow-designer",
+      "passed": false,
+      "reason": "page.goto: Target page, context or browser has been closed"
+    },
+    {
+      "page": "/routing-rules",
+      "passed": false,
+      "reason": "page.goto: Target page, context or browser has been closed"
+    },
+    {
+      "page": "/sla-policy",
+      "passed": false,
+      "reason": "page.goto: Target page, context or browser has been closed"
+    }
+  ]
+}

@@ -25,9 +25,9 @@ export class ScheduleService {
   @Cron(CronExpression.EVERY_MINUTE)
   async checkCriticalTimeout(): Promise<void> {
     this.logger.log('Running critical value timeout check')
-    const timedOut = await this.prisma.critical.findMany({
+    const timedOut = await this.prisma.criticalValue.findMany({
       where: {
-        acknowledgedAt: null,
+        ackedAt: null,
         createdAt: { lt: new Date(Date.now() - 30 * 60 * 1000) },
       },
     })

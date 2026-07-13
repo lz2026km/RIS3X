@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { PrismaService } from '../../prisma/prisma.service'
 
-interface MetricDef {
+export interface MetricDef {
   id: string; name: string; dimension: string; aggregation: string; format: string; unit?: string; description: string
 }
-interface DimensionDef {
+export interface DimensionDef {
   id: string; name: string; type: string; description: string
 }
 interface OLAPFilter {

@@ -1,0 +1,1475 @@
+{
+  "version": "3.0.6.11-22",
+  "total": 213,
+  "passed": 15,
+  "failed": 198,
+  "results": [
+    {
+      "path": "/",
+      "labelKey": "nav.homeOverview",
+      "url": "http://localhost:5191/",
+      "passed": true
+    },
+    {
+      "path": "/worklist",
+      "labelKey": "nav.worklist",
+      "url": "http://localhost:5191/worklist",
+      "passed": true
+    },
+    {
+      "path": "/exams",
+      "labelKey": "nav.examRecords",
+      "url": "http://localhost:5191/exams",
+      "passed": true
+    },
+    {
+      "path": "/patients",
+      "labelKey": "nav.patientManage",
+      "url": "http://localhost:5191/patients",
+      "passed": true
+    },
+    {
+      "path": "/appointments",
+      "labelKey": "nav.appointment",
+      "url": "http://localhost:5191/appointments",
+      "passed": true
+    },
+    {
+      "path": "/appointment-management",
+      "labelKey": "nav.appointmentManage",
+      "url": "http://localhost:5191/appointment-management",
+      "passed": true
+    },
+    {
+      "path": "/queue-call",
+      "labelKey": "nav.queueCall",
+      "url": "http://localhost:5191/queue-call",
+      "passed": true
+    },
+    {
+      "path": "/follow-up",
+      "labelKey": "nav.followUp",
+      "url": "http://localhost:5191/follow-up",
+      "passed": true
+    },
+    {
+      "path": "/kiosk/check-in",
+      "labelKey": "nav.kioskCheckIn",
+      "url": "http://localhost:5191/kiosk/check-in",
+      "passed": true
+    },
+    {
+      "path": "/patient/self-service",
+      "labelKey": "nav.selfServicePortal",
+      "url": "http://localhost:5191/patient/self-service",
+      "passed": true
+    },
+    {
+      "path": "/patient/service-management",
+      "labelKey": "nav.serviceManagement",
+      "url": "http://localhost:5191/patient/service-management",
+      "passed": true
+    },
+    {
+      "path": "/patients/:id/360",
+      "labelKey": "nav.patient360",
+      "url": "http://localhost:5191/patients/:id/360",
+      "passed": false,
+      "reason": "url_mismatch"
+    },
+    {
+      "path": "/write-report",
+      "labelKey": "nav.writeReport",
+      "url": "http://localhost:5191/write-report",
+      "passed": true
+    },
+    {
+      "path": "/reports/v3-write",
+      "labelKey": "nav.writeReportV3",
+      "url": "http://localhost:5191/reports/v3-write",
+      "passed": true
+    },
+    {
+      "path": "/reports",
+      "labelKey": "nav.reportList",
+      "url": "http://localhost:5191/reports",
+      "passed": true
+    },
+    {
+      "path": "/critical-value",
+      "labelKey": "nav.criticalValue",
+      "url": "http://localhost:5191/critical-value",
+      "passed": true
+    },
+    {
+      "path": "/consultation",
+      "labelKey": "nav.consultation",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/co"
+    },
+    {
+      "path": "/tele/conference",
+      "labelKey": "nav.teleConference",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/te"
+    },
+    {
+      "path": "/report-review",
+      "labelKey": "nav.reportReview",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re"
+    },
+    {
+      "path": "/report-revisions",
+      "labelKey": "nav.reportRevisions",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re"
+    },
+    {
+      "path": "/collaboration",
+      "labelKey": "nav.collaboration",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/co"
+    },
+    {
+      "path": "/keyword-check",
+      "labelKey": "nav.keywordCheck",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ke"
+    },
+    {
+      "path": "/report-score-rule",
+      "labelKey": "nav.scoreRule",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re"
+    },
+    {
+      "path": "/report-defect-library",
+      "labelKey": "nav.defectLibrary",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re"
+    },
+    {
+      "path": "/ai-report-draft",
+      "labelKey": "nav.aiReportDraft",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ai"
+    },
+    {
+      "path": "/critical-value-rule",
+      "labelKey": "nav.cvRule",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/cr"
+    },
+    {
+      "path": "/critical-value-stats",
+      "labelKey": "nav.cvStats",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/cr"
+    },
+    {
+      "path": "/special-assessment",
+      "labelKey": "nav.specialAssessment",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/sp"
+    },
+    {
+      "path": "/report-export",
+      "labelKey": "nav.reportExport",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re"
+    },
+    {
+      "path": "/publish",
+      "labelKey": "nav.publish",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/pu"
+    },
+    {
+      "path": "/report-delivery",
+      "labelKey": "nav.reportDelivery",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re"
+    },
+    {
+      "path": "/patient-report-portal",
+      "labelKey": "nav.patientPortal",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/pa"
+    },
+    {
+      "path": "/ca-signature",
+      "labelKey": "nav.caSignature",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ca"
+    },
+    {
+      "path": "/blockchain-proof",
+      "labelKey": "nav.blockchainProof",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/bl"
+    },
+    {
+      "path": "/cds/management",
+      "labelKey": "nav.cdsManagement",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/cd"
+    },
+    {
+      "path": "/cds/statistics",
+      "labelKey": "nav.cdsStatistics",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/cd"
+    },
+    {
+      "path": "/review-center",
+      "labelKey": "nav.reviewCenter",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re"
+    },
+    {
+      "path": "/quality-control",
+      "labelKey": "nav.qualityControlV3",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/qu"
+    },
+    {
+      "path": "/critical-value-center",
+      "labelKey": "nav.criticalValueCenter",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/cr"
+    },
+    {
+      "path": "/defect-management",
+      "labelKey": "nav.defectManagement",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de"
+    },
+    {
+      "path": "/qc-dashboard",
+      "labelKey": "nav.qcDashboard",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/qc"
+    },
+    {
+      "path": "/qc-image",
+      "labelKey": "nav.qcImage",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/qc"
+    },
+    {
+      "path": "/qc-radiologist-annual",
+      "labelKey": "nav.qcRadiologistAnnual",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/qc"
+    },
+    {
+      "path": "/qc/image-ai",
+      "labelKey": "nav.qcImageAi",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/qc"
+    },
+    {
+      "path": "/cosign",
+      "labelKey": "nav.cosign",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/co"
+    },
+    {
+      "path": "/radpath/tracker",
+      "labelKey": "nav.radpathTracker",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ra"
+    },
+    {
+      "path": "/workflow-designer",
+      "labelKey": "nav.workflowDesigner",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/wo"
+    },
+    {
+      "path": "/routing-rules",
+      "labelKey": "nav.routingRules",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ro"
+    },
+    {
+      "path": "/workload-heatmap",
+      "labelKey": "nav.workloadHeatmap",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/wo"
+    },
+    {
+      "path": "/sla-policy",
+      "labelKey": "nav.slaPolicy",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/sl"
+    },
+    {
+      "path": "/dicom-viewer",
+      "labelKey": "nav.dicomBrowser",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/di"
+    },
+    {
+      "path": "/dicom-viewer-pro",
+      "labelKey": "nav.dicomBrowserPro",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/di"
+    },
+    {
+      "path": "/dicom/fusion",
+      "labelKey": "nav.dicomFusion",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/di"
+    },
+    {
+      "path": "/dicom/volume-viewer",
+      "labelKey": "nav.dicomVolume",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/di"
+    },
+    {
+      "path": "/print-management",
+      "labelKey": "nav.filmPrint",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/pr"
+    },
+    {
+      "path": "/ai-assist",
+      "labelKey": "nav.aiAssist",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ai"
+    },
+    {
+      "path": "/vna-dashboard",
+      "labelKey": "nav.vnaDashboard",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/vn"
+    },
+    {
+      "path": "/ai-qc",
+      "labelKey": "nav.aiQc",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ai"
+    },
+    {
+      "path": "/ai-structured-report",
+      "labelKey": "nav.aiStructuredReport",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ai"
+    },
+    {
+      "path": "/ai-medical-device",
+      "labelKey": "nav.aiMedicalDevice",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ai"
+    },
+    {
+      "path": "/ai-cad",
+      "labelKey": "nav.aiCad",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ai"
+    },
+    {
+      "path": "/qc",
+      "labelKey": "nav.imageQc",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/qc"
+    },
+    {
+      "path": "/equipment-efficiency",
+      "labelKey": "nav.equipmentEfficiency",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/eq"
+    },
+    {
+      "path": "/typical-cases",
+      "labelKey": "nav.typicalCases",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ty"
+    },
+    {
+      "path": "/teach/lecture",
+      "labelKey": "nav.teachLecture",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/te"
+    },
+    {
+      "path": "/finding-library",
+      "labelKey": "nav.typicalFindings",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/fi"
+    },
+    {
+      "path": "/term-library",
+      "labelKey": "nav.reportGlossary",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/te"
+    },
+    {
+      "path": "/template-management",
+      "labelKey": "nav.templateManage",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/te"
+    },
+    {
+      "path": "/template-designer",
+      "labelKey": "nav.templateDesigner",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/te"
+    },
+    {
+      "path": "/template-inheritance",
+      "labelKey": "nav.templateInheritance",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/te"
+    },
+    {
+      "path": "/template-category",
+      "labelKey": "nav.templateCategory",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/te"
+    },
+    {
+      "path": "/term-synonym-graph",
+      "labelKey": "nav.termSynonymGraph",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/te"
+    },
+    {
+      "path": "/report-phrase-bank",
+      "labelKey": "nav.phraseBank",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re"
+    },
+    {
+      "path": "/safety/adverse-events",
+      "labelKey": "nav.adverseEvents",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/sa"
+    },
+    {
+      "path": "/safety/cqi",
+      "labelKey": "nav.cqi",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/sa"
+    },
+    {
+      "path": "/safety/patient-safety-goals",
+      "labelKey": "nav.patientSafetyGoals",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/sa"
+    },
+    {
+      "path": "/safety/radiation-safety",
+      "labelKey": "nav.radiationSafety",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/sa"
+    },
+    {
+      "path": "/safety/rca-analysis",
+      "labelKey": "nav.rcaAnalysis",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/sa"
+    },
+    {
+      "path": "/safety/risk-management",
+      "labelKey": "nav.riskManagement",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/sa"
+    },
+    {
+      "path": "/ihe/pix",
+      "labelKey": "nav.pixManager",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ih"
+    },
+    {
+      "path": "/integration/fhir/bulk-export",
+      "labelKey": "nav.fhirBulkExport",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/in"
+    },
+    {
+      "path": "/integration/fhir/bulk-export-detail",
+      "labelKey": "nav.fhirBulkExportDetail",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/in"
+    },
+    {
+      "path": "/regional-report",
+      "labelKey": "nav.regionalReport",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re"
+    },
+    {
+      "path": "/schedule",
+      "labelKey": "nav.departmentSchedule",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/sc"
+    },
+    {
+      "path": "/department",
+      "labelKey": "nav.departmentManage",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de"
+    },
+    {
+      "path": "/hie/medical-alliance",
+      "labelKey": "nav.medicalAlliance",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/hi"
+    },
+    {
+      "path": "/integration/fhir-server",
+      "labelKey": "nav.fhirServer",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/in"
+    },
+    {
+      "path": "/integration/ihe-connectathon",
+      "labelKey": "nav.iheConnectathon",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/in"
+    },
+    {
+      "path": "/integration/mllp-monitor",
+      "labelKey": "nav.mllpMonitor",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/in"
+    },
+    {
+      "path": "/integration/hl7-archive",
+      "labelKey": "nav.hl7Archive",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/in"
+    },
+    {
+      "path": "/integration/hl7-builder",
+      "labelKey": "nav.hl7Builder",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/in"
+    },
+    {
+      "path": "/ihe/pam",
+      "labelKey": "nav.ihePam",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ih"
+    },
+    {
+      "path": "/ihe/visit",
+      "labelKey": "nav.iheVisit",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ih"
+    },
+    {
+      "path": "/integration/dimse",
+      "labelKey": "nav.dimse",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/in"
+    },
+    {
+      "path": "/integration/dimse/upload",
+      "labelKey": "nav.dimseUpload",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/in"
+    },
+    {
+      "path": "/cancer-screen",
+      "labelKey": "nav.cancerScreen",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ca"
+    },
+    {
+      "path": "/patient-portal",
+      "labelKey": "nav.patientImageQuery",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/pa"
+    },
+    {
+      "path": "/clinical-data",
+      "labelKey": "nav.clinicalData",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/cl"
+    },
+    {
+      "path": "/education/patient-education",
+      "labelKey": "nav.patientEducation",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ed"
+    },
+    {
+      "path": "/mobile/patient",
+      "labelKey": "nav.patientMobileApp",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/mo"
+    },
+    {
+      "path": "/mobile/doctor",
+      "labelKey": "nav.doctorMobileWorkstation",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/mo"
+    },
+    {
+      "path": "/mobile/nurse",
+      "labelKey": "nav.nurseMobileWorkstation",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/mo"
+    },
+    {
+      "path": "/mobile/tech",
+      "labelKey": "nav.techMobileWorkstation",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/mo"
+    },
+    {
+      "path": "/statistics",
+      "labelKey": "nav.statistics",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/st"
+    },
+    {
+      "path": "/green-it",
+      "labelKey": "nav.greenIt",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/gr"
+    },
+    {
+      "path": "/department-dashboard",
+      "labelKey": "nav.departmentDashboard",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de"
+    },
+    {
+      "path": "/operations-center",
+      "labelKey": "nav.operationsCenter",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/op"
+    },
+    {
+      "path": "/cost-analysis",
+      "labelKey": "nav.costAnalysis",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/co"
+    },
+    {
+      "path": "/stats-report",
+      "labelKey": "nav.dataStats",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/st"
+    },
+    {
+      "path": "/nuclear-stats",
+      "labelKey": "nav.nuclearStats",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/nu"
+    },
+    {
+      "path": "/report-kpi-dashboard",
+      "labelKey": "nav.kpiDashboard",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re"
+    },
+    {
+      "path": "/doctor-workload",
+      "labelKey": "nav.doctorWorkload",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/do"
+    },
+    {
+      "path": "/diagnosis-accuracy",
+      "labelKey": "nav.diagnosisAccuracy",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/di"
+    },
+    {
+      "path": "/report-timeliness",
+      "labelKey": "nav.reportTimeliness",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re"
+    },
+    {
+      "path": "/report-search",
+      "labelKey": "nav.reportSearch",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re"
+    },
+    {
+      "path": "/operations/oee",
+      "labelKey": "nav.oeDashboard",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/op"
+    },
+    {
+      "path": "/cardiac/database",
+      "labelKey": "nav.cvDatabase",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ca"
+    },
+    {
+      "path": "/cardiac/operations",
+      "labelKey": "nav.cvOperations",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ca"
+    },
+    {
+      "path": "/cardiac/qc",
+      "labelKey": "nav.cvQc",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ca"
+    },
+    {
+      "path": "/ops/devices",
+      "labelKey": "nav.deviceOps",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/op"
+    },
+    {
+      "path": "/ops/hr",
+      "labelKey": "nav.hrOperations",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/op"
+    },
+    {
+      "path": "/ops/dashboard",
+      "labelKey": "nav.opsDashboard",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/op"
+    },
+    {
+      "path": "/operations/occupancy",
+      "labelKey": "nav.roomOccupancy",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/op"
+    },
+    {
+      "path": "/quality/department",
+      "labelKey": "nav.departmentQuality",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/qu"
+    },
+    {
+      "path": "/analytics/benchmark-v2",
+      "labelKey": "nav.benchmarkCompare",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/an"
+    },
+    {
+      "path": "/analytics/benchmark-ai-diagnosis",
+      "labelKey": "nav.aiDiagnosisAccuracy",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/an"
+    },
+    {
+      "path": "/charge-items",
+      "labelKey": "nav.chargeItems",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ch"
+    },
+    {
+      "path": "/accounts-receivable",
+      "labelKey": "nav.accountsReceivable",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ac"
+    },
+    {
+      "path": "/revenue-analysis",
+      "labelKey": "nav.revenueAnalysis",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re"
+    },
+    {
+      "path": "/cost-accounting",
+      "labelKey": "nav.costAccounting",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/co"
+    },
+    {
+      "path": "/financial-reports",
+      "labelKey": "nav.financialReports",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/fi"
+    },
+    {
+      "path": "/national-report",
+      "labelKey": "nav.nationalReport",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/na"
+    },
+    {
+      "path": "/data-report-center",
+      "labelKey": "nav.dataReportCenter",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/da"
+    },
+    {
+      "path": "/insurance-audit",
+      "labelKey": "nav.insuranceAudit",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/in"
+    },
+    {
+      "path": "/enterprise-search",
+      "labelKey": "nav.enterpriseSearch",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/en"
+    },
+    {
+      "path": "/eye",
+      "labelKey": "nav.eyeWorkspace",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/pacs",
+      "labelKey": "nav.eyePacs",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/pacs/fundus",
+      "labelKey": "nav.eyeFundus",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/pacs/oct",
+      "labelKey": "nav.eyeOct",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/pacs/oct-a",
+      "labelKey": "nav.eyeOcta",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/pacs/visual-field",
+      "labelKey": "nav.eyeVisualField",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/pacs/topography",
+      "labelKey": "nav.eyeTopography",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/pacs/ffa",
+      "labelKey": "nav.eyeFfa",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/pacs/compare",
+      "labelKey": "nav.eyeCompare",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/pacs/montage",
+      "labelKey": "nav.eyeMontage",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/ris",
+      "labelKey": "nav.eyeRis",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/report-write",
+      "labelKey": "nav.eyeReportWrite",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/ris/iol-calculator",
+      "labelKey": "nav.eyeIol",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/ris/va",
+      "labelKey": "nav.eyeVa",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/ris/iop",
+      "labelKey": "nav.eyeIop",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/emr",
+      "labelKey": "nav.eyeEmr",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/ai",
+      "labelKey": "nav.eyeAi",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/kpi-dashboard",
+      "labelKey": "nav.eyeKpi",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/pacs/real-viewer",
+      "labelKey": "nav.eyePacsReal",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/pacs/viewer",
+      "labelKey": "nav.eyePacsViewer",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/ai-report",
+      "labelKey": "nav.eyeAiReport",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/toric-planner",
+      "labelKey": "nav.eyeToric",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/sub/strabismus",
+      "labelKey": "nav.eyeStrabismus",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/sub/neuro",
+      "labelKey": "nav.eyeNeuro",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/sub/oncology",
+      "labelKey": "nav.eyeOncology",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/sub/cornea",
+      "labelKey": "nav.eyeCornea",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/sub/contact-lens",
+      "labelKey": "nav.eyeContactLens",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/sub/low-vision",
+      "labelKey": "nav.eyeLowVision",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/sub/cataract",
+      "labelKey": "nav.eyeCataract",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/sub/refractive",
+      "labelKey": "nav.eyeRefractive",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/tele",
+      "labelKey": "nav.eyeTele",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/case-library",
+      "labelKey": "nav.eyeCaseLibrary",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/eye/optometry-loop",
+      "labelKey": "nav.eyeOptometryLoop",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey"
+    },
+    {
+      "path": "/dental",
+      "labelKey": "nav.dentalWorkspace",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de"
+    },
+    {
+      "path": "/dental/studies",
+      "labelKey": "nav.dentalPacs",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de"
+    },
+    {
+      "path": "/dental/chart",
+      "labelKey": "nav.dentalChart",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de"
+    },
+    {
+      "path": "/dental/ai",
+      "labelKey": "nav.dentalAi",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de"
+    },
+    {
+      "path": "/dental/treatment",
+      "labelKey": "nav.dentalTreatment",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de"
+    },
+    {
+      "path": "/dental/implant",
+      "labelKey": "nav.dentalImplant",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de"
+    },
+    {
+      "path": "/dental/ortho",
+      "labelKey": "nav.dentalOrtho",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de"
+    },
+    {
+      "path": "/dental/tele",
+      "labelKey": "nav.dentalTele",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de"
+    },
+    {
+      "path": "/dental/inventory",
+      "labelKey": "nav.dentalInventory",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de"
+    },
+    {
+      "path": "/dental/dashboard",
+      "labelKey": "nav.dentalDashboard",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de"
+    },
+    {
+      "path": "/dental/cad",
+      "labelKey": "nav.dentalCad",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de"
+    },
+    {
+      "path": "/dental/implant-3d",
+      "labelKey": "nav.dentalImplant3d",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de"
+    },
+    {
+      "path": "/dental/guide",
+      "labelKey": "nav.dentalGuide",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de"
+    },
+    {
+      "path": "/dental/ceph",
+      "labelKey": "nav.dentalCeph",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de"
+    },
+    {
+      "path": "/dental/aligner",
+      "labelKey": "nav.dentalAligner",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de"
+    },
+    {
+      "path": "/dental/volume-viewer",
+      "labelKey": "nav.dentalVolume",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de"
+    },
+    {
+      "path": "/dental/patient-view",
+      "labelKey": "nav.dentalEmr",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de"
+    },
+    {
+      "path": "/dental/billing",
+      "labelKey": "nav.dentalBilling",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de"
+    },
+    {
+      "path": "/dental/schedule",
+      "labelKey": "nav.dentalSchedule",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de"
+    },
+    {
+      "path": "/dental/photo",
+      "labelKey": "nav.dentalPhoto",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de"
+    },
+    {
+      "path": "/user-management",
+      "labelKey": "nav.userManagement",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/us"
+    },
+    {
+      "path": "/admin/config",
+      "labelKey": "nav.clinicalConfig",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ad"
+    },
+    {
+      "path": "/dictionary",
+      "labelKey": "nav.dataDictionary",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/di"
+    },
+    {
+      "path": "/operation-log",
+      "labelKey": "nav.operationLog",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/op"
+    },
+    {
+      "path": "/notification-center",
+      "labelKey": "nav.notification",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/no"
+    },
+    {
+      "path": "/system/dicom-print",
+      "labelKey": "nav.dicomPrint",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/sy"
+    },
+    {
+      "path": "/business-continuity",
+      "labelKey": "nav.businessContinuity",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/bu"
+    },
+    {
+      "path": "/multi-site",
+      "labelKey": "nav.multiSiteDashboard",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/mu"
+    },
+    {
+      "path": "/cloud-storage",
+      "labelKey": "nav.cloudStorage",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/cl"
+    },
+    {
+      "path": "/finance/department",
+      "labelKey": "nav.departmentFinance",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/fi"
+    },
+    {
+      "path": "/finance/patient",
+      "labelKey": "nav.patientFinance",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/fi"
+    },
+    {
+      "path": "/system/audit",
+      "labelKey": "nav.systemAudit",
+      "passed": false,
+      "reason": "error: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/sy"
+    },
+    {
+      "path": "/system/backup",
+      "labelKey": "nav.systemBackup",
+      "passed": false,
+      "reason": "error: locator.click: Test timeout of 600000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testi"
+    },
+    {
+      "path": "/system/tenant-config",
+      "labelKey": "nav.tenantConfig",
+      "skipped": true,
+      "reason": "link_not_found"
+    },
+    {
+      "path": "/system/compliance",
+      "labelKey": "nav.systemCompliance",
+      "skipped": true,
+      "reason": "link_not_found"
+    },
+    {
+      "path": "/security/mfa-setup",
+      "labelKey": "nav.mfaSetup",
+      "skipped": true,
+      "reason": "link_not_found"
+    },
+    {
+      "path": "/equipment-lifecycle",
+      "labelKey": "nav.equipmentLifecycle",
+      "skipped": true,
+      "reason": "link_not_found"
+    },
+    {
+      "path": "/devices",
+      "labelKey": "nav.devices",
+      "skipped": true,
+      "reason": "link_not_found"
+    },
+    {
+      "path": "/device-fault",
+      "labelKey": "nav.faultRegister",
+      "skipped": true,
+      "reason": "link_not_found"
+    },
+    {
+      "path": "/materials",
+      "labelKey": "nav.materialsManage",
+      "skipped": true,
+      "reason": "link_not_found"
+    },
+    {
+      "path": "/dose-track",
+      "labelKey": "nav.doseTrack",
+      "skipped": true,
+      "reason": "link_not_found"
+    },
+    {
+      "path": "/contrast/adverse-reactions",
+      "labelKey": "nav.adverseReactions",
+      "skipped": true,
+      "reason": "link_not_found"
+    },
+    {
+      "path": "/contrast/injection-workstation",
+      "labelKey": "nav.injectionWorkstation",
+      "skipped": true,
+      "reason": "link_not_found"
+    },
+    {
+      "path": "/contrast/inventory",
+      "labelKey": "nav.contrastInventory",
+      "skipped": true,
+      "reason": "link_not_found"
+    },
+    {
+      "path": "/contrast/quality-compliance",
+      "labelKey": "nav.contrastQualityCompliance",
+      "skipped": true,
+      "reason": "link_not_found"
+    }
+  ],
+  "p0Fixes": [
+    "sidebar /patients/:id/360: URL=http://localhost:5191/patients/:id/360 期望=/patients/test-id-001/360",
+    "sidebar /consultation: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/co",
+    "sidebar /tele/conference: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/te",
+    "sidebar /report-review: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re",
+    "sidebar /report-revisions: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re",
+    "sidebar /collaboration: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/co",
+    "sidebar /keyword-check: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ke",
+    "sidebar /report-score-rule: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re",
+    "sidebar /report-defect-library: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re",
+    "sidebar /ai-report-draft: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ai",
+    "sidebar /critical-value-rule: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/cr",
+    "sidebar /critical-value-stats: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/cr",
+    "sidebar /special-assessment: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/sp",
+    "sidebar /report-export: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re",
+    "sidebar /publish: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/pu",
+    "sidebar /report-delivery: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re",
+    "sidebar /patient-report-portal: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/pa",
+    "sidebar /ca-signature: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ca",
+    "sidebar /blockchain-proof: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/bl",
+    "sidebar /cds/management: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/cd",
+    "sidebar /cds/statistics: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/cd",
+    "sidebar /review-center: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re",
+    "sidebar /quality-control: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/qu",
+    "sidebar /critical-value-center: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/cr",
+    "sidebar /defect-management: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de",
+    "sidebar /qc-dashboard: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/qc",
+    "sidebar /qc-image: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/qc",
+    "sidebar /qc-radiologist-annual: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/qc",
+    "sidebar /qc/image-ai: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/qc",
+    "sidebar /cosign: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/co",
+    "sidebar /radpath/tracker: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ra",
+    "sidebar /workflow-designer: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/wo",
+    "sidebar /routing-rules: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ro",
+    "sidebar /workload-heatmap: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/wo",
+    "sidebar /sla-policy: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/sl",
+    "sidebar /dicom-viewer: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/di",
+    "sidebar /dicom-viewer-pro: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/di",
+    "sidebar /dicom/fusion: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/di",
+    "sidebar /dicom/volume-viewer: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/di",
+    "sidebar /print-management: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/pr",
+    "sidebar /ai-assist: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ai",
+    "sidebar /vna-dashboard: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/vn",
+    "sidebar /ai-qc: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ai",
+    "sidebar /ai-structured-report: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ai",
+    "sidebar /ai-medical-device: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ai",
+    "sidebar /ai-cad: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ai",
+    "sidebar /qc: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/qc",
+    "sidebar /equipment-efficiency: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/eq",
+    "sidebar /typical-cases: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ty",
+    "sidebar /teach/lecture: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/te",
+    "sidebar /finding-library: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/fi",
+    "sidebar /term-library: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/te",
+    "sidebar /template-management: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/te",
+    "sidebar /template-designer: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/te",
+    "sidebar /template-inheritance: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/te",
+    "sidebar /template-category: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/te",
+    "sidebar /term-synonym-graph: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/te",
+    "sidebar /report-phrase-bank: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re",
+    "sidebar /safety/adverse-events: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/sa",
+    "sidebar /safety/cqi: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/sa",
+    "sidebar /safety/patient-safety-goals: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/sa",
+    "sidebar /safety/radiation-safety: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/sa",
+    "sidebar /safety/rca-analysis: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/sa",
+    "sidebar /safety/risk-management: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/sa",
+    "sidebar /ihe/pix: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ih",
+    "sidebar /integration/fhir/bulk-export: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/in",
+    "sidebar /integration/fhir/bulk-export-detail: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/in",
+    "sidebar /regional-report: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re",
+    "sidebar /schedule: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/sc",
+    "sidebar /department: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de",
+    "sidebar /hie/medical-alliance: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/hi",
+    "sidebar /integration/fhir-server: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/in",
+    "sidebar /integration/ihe-connectathon: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/in",
+    "sidebar /integration/mllp-monitor: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/in",
+    "sidebar /integration/hl7-archive: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/in",
+    "sidebar /integration/hl7-builder: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/in",
+    "sidebar /ihe/pam: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ih",
+    "sidebar /ihe/visit: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ih",
+    "sidebar /integration/dimse: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/in",
+    "sidebar /integration/dimse/upload: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/in",
+    "sidebar /cancer-screen: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ca",
+    "sidebar /patient-portal: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/pa",
+    "sidebar /clinical-data: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/cl",
+    "sidebar /education/patient-education: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ed",
+    "sidebar /mobile/patient: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/mo",
+    "sidebar /mobile/doctor: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/mo",
+    "sidebar /mobile/nurse: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/mo",
+    "sidebar /mobile/tech: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/mo",
+    "sidebar /statistics: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/st",
+    "sidebar /green-it: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/gr",
+    "sidebar /department-dashboard: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de",
+    "sidebar /operations-center: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/op",
+    "sidebar /cost-analysis: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/co",
+    "sidebar /stats-report: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/st",
+    "sidebar /nuclear-stats: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/nu",
+    "sidebar /report-kpi-dashboard: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re",
+    "sidebar /doctor-workload: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/do",
+    "sidebar /diagnosis-accuracy: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/di",
+    "sidebar /report-timeliness: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re",
+    "sidebar /report-search: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re",
+    "sidebar /operations/oee: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/op",
+    "sidebar /cardiac/database: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ca",
+    "sidebar /cardiac/operations: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ca",
+    "sidebar /cardiac/qc: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ca",
+    "sidebar /ops/devices: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/op",
+    "sidebar /ops/hr: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/op",
+    "sidebar /ops/dashboard: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/op",
+    "sidebar /operations/occupancy: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/op",
+    "sidebar /quality/department: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/qu",
+    "sidebar /analytics/benchmark-v2: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/an",
+    "sidebar /analytics/benchmark-ai-diagnosis: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/an",
+    "sidebar /charge-items: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ch",
+    "sidebar /accounts-receivable: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ac",
+    "sidebar /revenue-analysis: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/re",
+    "sidebar /cost-accounting: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/co",
+    "sidebar /financial-reports: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/fi",
+    "sidebar /national-report: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/na",
+    "sidebar /data-report-center: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/da",
+    "sidebar /insurance-audit: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/in",
+    "sidebar /enterprise-search: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/en",
+    "sidebar /eye: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/pacs: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/pacs/fundus: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/pacs/oct: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/pacs/oct-a: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/pacs/visual-field: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/pacs/topography: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/pacs/ffa: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/pacs/compare: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/pacs/montage: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/ris: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/report-write: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/ris/iol-calculator: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/ris/va: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/ris/iop: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/emr: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/ai: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/kpi-dashboard: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/pacs/real-viewer: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/pacs/viewer: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/ai-report: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/toric-planner: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/sub/strabismus: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/sub/neuro: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/sub/oncology: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/sub/cornea: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/sub/contact-lens: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/sub/low-vision: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/sub/cataract: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/sub/refractive: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/tele: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/case-library: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /eye/optometry-loop: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ey",
+    "sidebar /dental: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de",
+    "sidebar /dental/studies: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de",
+    "sidebar /dental/chart: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de",
+    "sidebar /dental/ai: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de",
+    "sidebar /dental/treatment: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de",
+    "sidebar /dental/implant: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de",
+    "sidebar /dental/ortho: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de",
+    "sidebar /dental/tele: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de",
+    "sidebar /dental/inventory: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de",
+    "sidebar /dental/dashboard: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de",
+    "sidebar /dental/cad: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de",
+    "sidebar /dental/implant-3d: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de",
+    "sidebar /dental/guide: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de",
+    "sidebar /dental/ceph: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de",
+    "sidebar /dental/aligner: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de",
+    "sidebar /dental/volume-viewer: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de",
+    "sidebar /dental/patient-view: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de",
+    "sidebar /dental/billing: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de",
+    "sidebar /dental/schedule: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de",
+    "sidebar /dental/photo: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/de",
+    "sidebar /user-management: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/us",
+    "sidebar /admin/config: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/ad",
+    "sidebar /dictionary: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/di",
+    "sidebar /operation-log: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/op",
+    "sidebar /notification-center: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/no",
+    "sidebar /system/dicom-print: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/sy",
+    "sidebar /business-continuity: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/bu",
+    "sidebar /multi-site: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/mu",
+    "sidebar /cloud-storage: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/cl",
+    "sidebar /finance/department: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/fi",
+    "sidebar /finance/patient: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/fi",
+    "sidebar /system/audit: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"nav-/sy",
+    "sidebar /system/backup: locator.click: Test timeout of 600000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-testi"
+  ]
+}

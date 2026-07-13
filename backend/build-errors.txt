@@ -1,0 +1,190 @@
+﻿
+> g005-backend@3.0.1 build E:\opencode work\FS 3X\G005-RISv-3.0.0\backend
+> nest build
+
+node.exe : [96msrc/app.module.ts[0m:[93m126[0m:[93m5[0m - [91merror[0m[90m TS2552: [0mCannot find name 'OeeMo
+dule'. Did you mean 'EyeModule'?
+所在位置 C:\Users\lz\AppData\Roaming\npm\pnpm.ps1:24 字符: 5
++     & "node$exe"  "$basedir/node_modules/pnpm/bin/pnpm.cjs" $args
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([96msrc/app.mo...an 'EyeModule'?:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+[7m126[0m     OeeModule,
+[7m   [0m [91m    ~~~~~~~~~[0m
+[96msrc/app.module.ts[0m:[93m130[0m:[93m5[0m - [91merror[0m[90m TS2552: [0mCannot find name 'RadPathModule'. 
+Did you mean 'AuthModule'?
+
+[7m130[0m     RadPathModule,
+[7m   [0m [91m    ~~~~~~~~~~~~~[0m
+[96msrc/ihe/ihe.service.ts[0m:[93m384[0m:[93m7[0m - [91merror[0m[90m TS2322: [0mType '{ patientId: string; vi
+sitNumber: string; status: VisitStatus; classCode: string | undefined; assignedLocation: any; admitDateTime: string | u
+ndefined; dischargeDateTime: string | undefined; inProgressAt: string | undefined; completedAt: string | undefined; tim
+eline: { ...; }[]; adtMessages: { ...; }[]; }' is not assignable to type 'VisitState & { timeline: any[]; inProgressAt?
+: string | undefined; completedAt?: string | undefined; adtMessages: any[]; }'.
+  Property 'updatedAt' is missing in type '{ patientId: string; visitNumber: string; status: VisitStatus; classCode: st
+ring | undefined; assignedLocation: any; admitDateTime: string | undefined; dischargeDateTime: string | undefined; inPr
+ogressAt: string | undefined; completedAt: string | undefined; timeline: { ...; }[]; adtMessages: { ...; }[]; }' but re
+quired in type 'VisitState'.
+
+[7m384[0m       return {
+[7m   [0m [91m      ~~~~~~[0m
+
+  [96msrc/ihe/ihe.service.ts[0m:[93m127[0m:[93m3[0m
+    [7m127[0m   updatedAt: string
+    [7m   [0m [96m  ~~~~~~~~~[0m
+    'updatedAt' is declared here.
+[96msrc/ihe/ihe.service.ts[0m:[93m407[0m:[93m5[0m - [91merror[0m[90m TS2322: [0mType '{ patientId: string; vi
+sitNumber: string; status: VisitStatus; classCode: string | undefined; assignedLocation: any; admitDateTime: string | u
+ndefined; dischargeDateTime: string | undefined; inProgressAt: string | undefined; completedAt: string | undefined; tim
+eline: { ...; }[]; adtMessages: { ...; }[]; }' is not assignable to type 'VisitState & { timeline: any[]; inProgressAt?
+: string | undefined; completedAt?: string | undefined; adtMessages: any[]; }'.
+  Property 'updatedAt' is missing in type '{ patientId: string; visitNumber: string; status: VisitStatus; classCode: st
+ring | undefined; assignedLocation: any; admitDateTime: string | undefined; dischargeDateTime: string | undefined; inPr
+ogressAt: string | undefined; completedAt: string | undefined; timeline: { ...; }[]; adtMessages: { ...; }[]; }' but re
+quired in type 'VisitState'.
+
+[7m407[0m     return {
+[7m   [0m [91m    ~~~~~~[0m
+
+  [96msrc/ihe/ihe.service.ts[0m:[93m127[0m:[93m3[0m
+    [7m127[0m   updatedAt: string
+    [7m   [0m [96m  ~~~~~~~~~[0m
+    'updatedAt' is declared here.
+[96msrc/main.ts[0m:[93m28[0m:[93m20[0m - [91merror[0m[90m TS2339: [0mProperty 'Handlers' does not exist on ty
+pe 'typeof import("E:/opencode work/FS 3X/G005-RISv-3.0.0/backend/node_modules/.pnpm/@sentry+node@8.55.2/node_modules/@
+sentry/node/build/types/index")'.
+
+[7m28[0m     app.use(Sentry.Handlers.requestHandler())
+[7m  [0m [91m                   ~~~~~~~~[0m
+[96msrc/main.ts[0m:[93m29[0m:[93m20[0m - [91merror[0m[90m TS2339: [0mProperty 'Handlers' does not exist on ty
+pe 'typeof import("E:/opencode work/FS 3X/G005-RISv-3.0.0/backend/node_modules/.pnpm/@sentry+node@8.55.2/node_modules/@
+sentry/node/build/types/index")'.
+
+[7m29[0m     app.use(Sentry.Handlers.errorHandler())
+[7m  [0m [91m                   ~~~~~~~~[0m
+[96msrc/modules/occupancy/occupancy.service.ts[0m:[93m34[0m:[93m37[0m - [91merror[0m[90m TS2339: [0mProperty 
+'examRoom' does not exist on type 'PrismaService'.
+
+[7m34[0m     const rooms = await this.prisma.examRoom.findMany({ orderBy: { roomNo: 'asc' } })
+[7m  [0m [91m                                    ~~~~~~~~[0m
+[96msrc/modules/occupancy/occupancy.service.ts[0m:[93m36[0m:[93m22[0m - [91merror[0m[90m TS7006: [0mParameter
+ 'r' implicitly has an 'any' type.
+
+[7m36[0m     return rooms.map(r => {
+[7m  [0m [91m                     ~[0m
+[96msrc/modules/occupancy/occupancy.service.ts[0m:[93m53[0m:[93m36[0m - [91merror[0m[90m TS2339: [0mProperty 
+'examRoom' does not exist on type 'PrismaService'.
+
+[7m53[0m     const room = await this.prisma.examRoom.findUnique({ where: { id: roomId } })
+[7m  [0m [91m                                   ~~~~~~~~[0m
+[96msrc/modules/occupancy/occupancy.service.ts[0m:[93m56[0m:[93m16[0m - [91merror[0m[90m TS2353: [0mObject li
+teral may only specify known properties, and 'roomId' does not exist in type 'ExamWhereInput'.
+
+[7m56[0m       where: { roomId, status: 'WAITING' },
+[7m  [0m [91m               ~~~~~~[0m
+[96msrc/modules/occupancy/occupancy.service.ts[0m:[93m64[0m:[93m24[0m - [91merror[0m[90m TS2339: [0mProperty 
+'patientName' does not exist on type '{ id: string; tenantId: string; createdAt: Date; state: string; version: number; 
+patientId: string; accessionNumber: string; modality: string; bodyPart: string; scheduledAt: Date | null; startedAt: Da
+te | null; completedAt: Date | null; deviceId: string | null; }'.
+
+[7m64[0m         patientName: e.patientName ?? '--',
+[7m  [0m [91m                       ~~~~~~~~~~~[0m
+[96msrc/modules/occupancy/occupancy.service.ts[0m:[93m65[0m:[93m21[0m - [91merror[0m[90m TS2339: [0mProperty 
+'examItem' does not exist on type '{ id: string; tenantId: string; createdAt: Date; state: string; version: number; pat
+ientId: string; accessionNumber: string; modality: string; bodyPart: string; scheduledAt: Date | null; startedAt: Date 
+| null; completedAt: Date | null; deviceId: string | null; }'.
+
+[7m65[0m         examItem: e.examItem ?? '--',
+[7m  [0m [91m                    ~~~~~~~~[0m
+[96msrc/modules/occupancy/occupancy.service.ts[0m:[93m74[0m:[93m37[0m - [91merror[0m[90m TS2339: [0mProperty 
+'examRoom' does not exist on type 'PrismaService'.
+
+[7m74[0m     const rooms = await this.prisma.examRoom.findMany()
+[7m  [0m [91m                                    ~~~~~~~~[0m
+[96msrc/modules/occupancy/occupancy.service.ts[0m:[93m90[0m:[93m36[0m - [91merror[0m[90m TS2339: [0mProperty 
+'examRoom' does not exist on type 'PrismaService'.
+
+[7m90[0m     const room = await this.prisma.examRoom.findUnique({ where: { id: roomId } })
+[7m  [0m [91m                                   ~~~~~~~~[0m
+[96msrc/modules/occupancy/occupancy.service.ts[0m:[93m94[0m:[93m39[0m - [91merror[0m[90m TS2339: [0mProperty 
+'examRoom' does not exist on type 'PrismaService'.
+
+[7m94[0m     const updated = await this.prisma.examRoom.update({
+[7m  [0m [91m                                      ~~~~~~~~[0m
+[96msrc/modules/teach/teach.controller.ts[0m:[93m24[0m:[93m69[0m - [91merror[0m[90m TS2694: [0mNamespace 'glo
+bal.Express' has no exported member 'Multer'.
+
+[7m24[0m   uploadBlob(@Param('id') id: string, @UploadedFile() file: Express.Multer.File, @Query('sequence') sequence
+?: string) {
+[7m  [0m [91m                                                                    ~~~~~~[0m
+[96msrc/queue/queue.module.ts[0m:[93m4[0m:[93m10[0m - [91merror[0m[90m TS2305: [0mModule '"./queue.consumer"'
+ has no exported member 'QueueConsumer'.
+
+[7m4[0m import { QueueConsumer } from './queue.consumer'
+[7m [0m [91m         ~~~~~~~~~~~~~[0m
+[96msrc/schedule/schedule.service.ts[0m:[93m28[0m:[93m40[0m - [91merror[0m[90m TS2339: [0mProperty 'critical'
+ does not exist on type 'PrismaService'.
+
+[7m28[0m     const timedOut = await this.prisma.critical.findMany({
+[7m  [0m [91m                                       ~~~~~~~~[0m
+[96msrc/modules/tele/tele.controller.ts[0m:[93m50[0m:[93m3[0m - [91merror[0m[90m TS4053: [0mReturn type of pu
+blic method from exported class has or is using name 'Session' from external module "E:/opencode work/FS 3X/G005-RISv-3
+.0.0/backend/src/modules/tele/tele.service" but cannot be named.
+
+[7m50[0m   createSession(@Body(new ZodValidationPipe(CreateSessionSchema)) body: z.infer<typeof CreateSessionSchema>)
+ {
+[7m  [0m [91m  ~~~~~~~~~~~~~[0m
+[96msrc/modules/tele/tele.controller.ts[0m:[93m55[0m:[93m3[0m - [91merror[0m[90m TS4053: [0mReturn type of pu
+blic method from exported class has or is using name 'Session' from external module "E:/opencode work/FS 3X/G005-RISv-3
+.0.0/backend/src/modules/tele/tele.service" but cannot be named.
+
+[7m55[0m   joinSession(@Body(new ZodValidationPipe(JoinSessionSchema)) body: z.infer<typeof JoinSessionSchema>) {
+[7m  [0m [91m  ~~~~~~~~~~~[0m
+[96msrc/modules/tele/tele.controller.ts[0m:[93m66[0m:[93m3[0m - [91merror[0m[90m TS4053: [0mReturn type of pu
+blic method from exported class has or is using name 'SignalMessage' from external module "E:/opencode work/FS 3X/G005-
+RISv-3.0.0/backend/src/modules/tele/tele.service" but cannot be named.
+
+[7m66[0m   getPendingSignals(
+[7m  [0m [91m  ~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/tele/tele.controller.ts[0m:[93m74[0m:[93m3[0m - [91merror[0m[90m TS4053: [0mReturn type of pu
+blic method from exported class has or is using name 'Session' from external module "E:/opencode work/FS 3X/G005-RISv-3
+.0.0/backend/src/modules/tele/tele.service" but cannot be named.
+
+[7m74[0m   getSession(@Param('sessionId') sessionId: string) {
+[7m  [0m [91m  ~~~~~~~~~~[0m
+[96msrc/modules/tele/tele.controller.ts[0m:[93m87[0m:[93m3[0m - [91merror[0m[90m TS4053: [0mReturn type of pu
+blic method from exported class has or is using name 'ChatMessage' from external module "E:/opencode work/FS 3X/G005-RI
+Sv-3.0.0/backend/src/modules/tele/tele.service" but cannot be named.
+
+[7m87[0m   sendChat(@Body(new ZodValidationPipe(ChatSchema)) body: z.infer<typeof ChatSchema>) {
+[7m  [0m [91m  ~~~~~~~~[0m
+[96msrc/modules/tele/tele.controller.ts[0m:[93m99[0m:[93m3[0m - [91merror[0m[90m TS4053: [0mReturn type of pu
+blic method from exported class has or is using name 'ChatMessage' from external module "E:/opencode work/FS 3X/G005-RI
+Sv-3.0.0/backend/src/modules/tele/tele.service" but cannot be named.
+
+[7m99[0m   getChat(
+[7m  [0m [91m  ~~~~~~~[0m
+[96msrc/modules/tele/tele.controller.ts[0m:[93m121[0m:[93m3[0m - [91merror[0m[90m TS4053: [0mReturn type of p
+ublic method from exported class has or is using name 'CursorPosition' from external module "E:/opencode work/FS 3X/G00
+5-RISv-3.0.0/backend/src/modules/tele/tele.service" but cannot be named.
+
+[7m121[0m   getCursors(@Param('sessionId') sessionId: string) {
+[7m   [0m [91m  ~~~~~~~~~~[0m
+[96msrc/modules/olap/olap.controller.ts[0m:[93m26[0m:[93m3[0m - [91merror[0m[90m TS4053: [0mReturn type of pu
+blic method from exported class has or is using name 'DimensionDef' from external module "E:/opencode work/FS 3X/G005-R
+ISv-3.0.0/backend/src/modules/olap/olap.service" but cannot be named.
+
+[7m26[0m   getMetadata() {
+[7m  [0m [91m  ~~~~~~~~~~~[0m
+[96msrc/modules/olap/olap.controller.ts[0m:[93m26[0m:[93m3[0m - [91merror[0m[90m TS4053: [0mReturn type of pu
+blic method from exported class has or is using name 'MetricDef' from external module "E:/opencode work/FS 3X/G005-RISv
+-3.0.0/backend/src/modules/olap/olap.service" but cannot be named.
+
+[7m26[0m   getMetadata() {
+[7m  [0m [91m  ~~~~~~~~~~~[0m
+
+Found 27 error(s).
+
+鈥塃LIFECYCLE鈥?Command failed with exit code 1.

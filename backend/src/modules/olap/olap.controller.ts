@@ -2,6 +2,7 @@ import { Controller, Post, Get, Body, InternalServerErrorException, Logger } fro
 import { Roles } from '../../common/decorators/roles.decorator'
 import { ApiTags, ApiOperation } from '@nestjs/swagger'
 import { OlapService } from './olap.service'
+import type { DimensionDef, MetricDef } from './olap.service'
 
 @ApiTags('olap')
 @Roles('ADMIN', 'DIRECTOR')

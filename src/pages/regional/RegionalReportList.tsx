@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { message } from 'antd'
 import {
   Video, FileText, Clock, CheckCircle, Send, Search, Filter, RefreshCw, ChevronRight, Plus, Eye,
   ShieldCheck, BadgeCheck, XCircle, ClipboardList, ShieldAlert, BarChart3, Activity,
@@ -80,7 +81,7 @@ export const ConsultationList: React.FC<ConsultationListProps> = ({
       </div>
       <div style={styles.tabContainer}>
         {[{ key: 'list', label: '会诊记录', icon: <ClipboardList size={14} /> }, { key: 'apply', label: '发起申请', icon: <Plus size={14} /> }].map(tab => (
-          <button key={tab.key} style={{ ...styles.tab, ...(consultationTab === tab.key ? styles.tabActive : {}) }} onClick={() => {}}>{tab.icon}{tab.label}</button>
+          <button key={tab.key} style={{ ...styles.tab, ...(consultationTab === tab.key ? styles.tabActive : {}) }} onClick={() => message.info('远程会诊标签切换功能开发中，敬请期待')}>{tab.icon}{tab.label}</button>
         ))}
       </div>
       <div style={styles.searchBox}>

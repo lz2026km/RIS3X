@@ -3,6 +3,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { TeleService } from './tele.service'
+import type { Session, SignalMessage, ChatMessage, CursorPosition } from './tele.service'
 
 const CreateSessionSchema = z.object({
   hostId: z.string().min(1),

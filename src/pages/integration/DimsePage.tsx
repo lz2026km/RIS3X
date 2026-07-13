@@ -14,7 +14,7 @@ const ECHO_COLUMNS: any = [
   { title: 'Status', dataIndex: 'status', key: 'status', render: (v: string | null) => v ? <Tag color={v === 'SUCCESS' ? 'green' : 'red'} icon={v === 'SUCCESS' ? <CheckCircleOutlined /> : <CloseCircleOutlined />}>{v}</Tag> : '-' },
   {
     title: 'Action', key: 'action', render: (_: any, __: any) => (
-      <Button type="primary" size="small" icon={<SendOutlined />} loading={__._echoing} onClick={() => {}}>ECHO 测试</Button>
+      <Button type="primary" size="small" icon={<SendOutlined />} loading={__._echoing} onClick={() => message.info('ECHO 功能开发中，敬请期待')}>ECHO 测试</Button>
     ),
   },
 ];

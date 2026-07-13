@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common'
 import { v4 as uuid } from 'uuid'
 
-interface Session {
+export interface Session {
   id: string
   hostId: string
   hostName: string
@@ -12,7 +12,7 @@ interface Session {
   createdAt: Date
 }
 
-interface SignalMessage {
+export interface SignalMessage {
   type: 'offer' | 'answer' | 'ice-candidate'
   from: string
   to: string
@@ -20,7 +20,7 @@ interface SignalMessage {
   payload?: unknown
 }
 
-interface ChatMessage {
+export interface ChatMessage {
   id: string
   sessionId: string
   userId: string
@@ -29,7 +29,7 @@ interface ChatMessage {
   timestamp: string
 }
 
-interface CursorPosition {
+export interface CursorPosition {
   sessionId: string
   userId: string
   userName: string

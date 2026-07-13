@@ -25,8 +25,7 @@ async function bootstrap(): Promise<void> {
       environment: process.env['NODE_ENV'] ?? 'development',
       tracesSampleRate: 0.1,
     })
-    app.use(Sentry.Handlers.requestHandler())
-    app.use(Sentry.Handlers.errorHandler())
+    app.use(Sentry.expressErrorHandler())
   }
 
   app.use('/metrics', async (_req: Request, res: Response) => {

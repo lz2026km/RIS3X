@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { BullModule } from '@nestjs/bull'
 import { QueueService } from './queue.service'
-import { QueueConsumer } from './queue.consumer'
+import { ReportExportConsumer, Hl7SendConsumer, AiInferenceConsumer } from './queue.consumer'
 
 @Module({
   imports: [
@@ -17,7 +17,7 @@ import { QueueConsumer } from './queue.consumer'
       { name: 'aiInference' },
     ),
   ],
-  providers: [QueueService, QueueConsumer],
+  providers: [QueueService, ReportExportConsumer, Hl7SendConsumer, AiInferenceConsumer],
   exports: [QueueService],
 })
 export class QueueModule {}

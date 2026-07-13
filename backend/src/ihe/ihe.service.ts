@@ -391,6 +391,7 @@ export class IheService {
         dischargeDateTime: v.dischargeDateTime?.toISOString(),
         inProgressAt: v.inProgressAt?.toISOString(),
         completedAt: v.completedAt?.toISOString(),
+        updatedAt: v.updatedAt.toISOString(),
         timeline,
         adtMessages,
       }
@@ -414,6 +415,7 @@ export class IheService {
       dischargeDateTime: v.dischargeDateTime?.toISOString(),
       inProgressAt: v.inProgressAt?.toISOString(),
       completedAt: v.completedAt?.toISOString(),
+      updatedAt: v.updatedAt.toISOString(),
       timeline,
       adtMessages,
     }

@@ -21,7 +21,7 @@ export class TeachController {
   @ApiOperation({ summary: '上传录制 blob（分片）' })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('blob'))
-  uploadBlob(@Param('id') id: string, @UploadedFile() file: Express.Multer.File, @Query('sequence') sequence?: string) {
+  uploadBlob(@Param('id') id: string, @UploadedFile() file: any, @Query('sequence') sequence?: string) {
     const seq = sequence ? parseInt(sequence) : 0
     return this.teach.uploadBlob(id, file.buffer, seq)
   }

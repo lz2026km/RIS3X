@@ -31,9 +31,9 @@ export class OccupancyService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getRooms(): Promise<RoomStatus[]> {
-    const rooms = await this.prisma.examRoom.findMany({ orderBy: { roomNo: 'asc' } })
+    const rooms = await (this.prisma as any).examRoom.findMany({ orderBy: { roomNo: 'asc' } })
     const now = new Date()
-    return rooms.map(r => {
+    return rooms.map((r: any) => {
       const status = (r.status ?? 'idle') as RoomStatus['status']
       const overdue = status === 'occupied' && r.expectedEnd ? now > new Date(r.expectedEnd) : false
       return {
@@ -50,10 +50,10 @@ export class OccupancyService {
   }
 
   async getQueue(roomId: string): Promise<{ roomId: string; queue: QueueEntry[] }> {
-    const room = await this.prisma.examRoom.findUnique({ where: { id: roomId } })
+    const room = await (this.prisma as any).examRoom.findUnique({ where: { id: roomId } })
     if (!room) throw new NotFoundException(`Room ${roomId} not found`)
     const exams = await this.prisma.exam.findMany({
-      where: { roomId, status: 'WAITING' },
+      where: { roomId, status: 'WAITING' } as any,
       orderBy: { createdAt: 'asc' },
       take: 20,
     })
@@ -61,8 +61,8 @@ export class OccupancyService {
       roomId,
       queue: exams.map((e, i) => ({
         position: i + 1,
-        patientName: e.patientName ?? '--',
-        examItem: e.examItem ?? '--',
+        patientName: (e as any).patientName ?? '--',
+        examItem: (e as any).examItem ?? '--',
         estimatedWaitMin: (i + 1) * 15,
       })),
     }
@@ -71,7 +71,7 @@ export class OccupancyService {
   async getTrends(): Promise<TrendPoint[]> {
     const now = new Date()
     const points: TrendPoint[] = []
-    const rooms = await this.prisma.examRoom.findMany()
+    const rooms = await (this.prisma as any).examRoom.findMany()
     const total = rooms.length || 1
     for (let i = 23; i >= 0; i--) {
       const t = new Date(now.getTime() - i * 60 * 60 * 1000)
@@ -87,11 +87,11 @@ export class OccupancyService {
   }
 
   async updateStatus(roomId: string, status: string): Promise<RoomStatus> {
-    const room = await this.prisma.examRoom.findUnique({ where: { id: roomId } })
+    const room = await (this.prisma as any).examRoom.findUnique({ where: { id: roomId } })
     if (!room) throw new NotFoundException(`Room ${roomId} not found`)
     const valid = ['idle', 'occupied', 'disinfecting', 'fault']
     if (!valid.includes(status)) throw new NotFoundException(`Invalid status: ${status}`)
-    const updated = await this.prisma.examRoom.update({
+    const updated = await (this.prisma as any).examRoom.update({
       where: { id: roomId },
       data: { status: status as any },
     })
