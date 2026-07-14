@@ -47,6 +47,7 @@ const API_MODE: ApiMode = resolveApiMode()
 const API_BASE = API_MODE === 'real'
   ? (resolveApiBaseUrl() || 'http://localhost:3001/api')
   : '/api/v1'
+export { API_BASE }
 
 // ────────────────────────────────────────────────────────────────────────────
 // 内联 JWT 解码 (无额外依赖,仅提取 payload)

@@ -108,3 +108,52 @@ export const v3AiPlatformApi = {
   getProviders: () =>
     api.get<{ providers: string[]; active: string }>('/ai/providers'),
 };
+
+export interface AiDraftMeta {
+  patientId: string
+  patientName?: string
+  studyInstanceUid?: string
+  modality: string
+  bodyPart?: string
+  clinicalHistory?: string
+  findings?: string
+  impression?: string
+}
+
+export interface AiDraftParagraph {
+  id: string
+  heading: string
+  content: string
+  confidence: number
+  editable: boolean
+}
+
+export interface AiDraftResult {
+  paragraphs: AiDraftParagraph[]
+  overallConfidence: number
+  modelVersion: string
+  tokensUsed: number
+}
+
+export interface DraftTemplate {
+  id: string
+  name: string
+  modality: string
+  bodyPart: string
+  description: string
+  sections: string[]
+}
+
+export const v3AiDraftApi = {
+  draft: (meta: AiDraftMeta) =>
+    api.post<AiDraftResult>('/ai/draft', meta),
+
+  continueDraft: (meta: AiDraftMeta, existingContent: string) =>
+    api.post<AiDraftResult>('/ai/draft/continue', { meta, existingContent }),
+
+  rewriteDraft: (meta: AiDraftMeta, targetParagraph: string, instruction: string) =>
+    api.post<AiDraftResult>('/ai/draft/rewrite', { meta, targetParagraph, instruction }),
+
+  getTemplates: (modality?: string) =>
+    api.get<{ templates: DraftTemplate[] }>(`/ai/draft/templates${modality ? `?modality=${modality}` : ''}`),
+};

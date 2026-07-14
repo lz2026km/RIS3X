@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { message } from 'antd'
 import {
   AlertTriangle, X, Phone, MessageSquare, Bell, Mail, Smartphone, MessageCircle,
-  CheckCircle, Timer, ArrowUp, Settings, Plus,
+  CheckCircle, Timer, ArrowUp, Settings, Plus, Edit3,
 } from 'lucide-react'
 import type { CriticalValue } from './types'
 import { PRIMARY_COLOR, PRIMARY_LIGHT } from './types'
@@ -156,6 +156,100 @@ export const NotifyModal = ({ cv, phone, notes, method, onSetPhone, onSetNotes, 
           <div style={{ display: 'flex', gap: 10 }}>
             <button onClick={onCancel} style={footerBtn()}>取消</button>
             <button onClick={onConfirm} style={{ ...footerBtn(true), display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}><Phone size={14} /> 确认通知</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// -------------- VoiceCallModal --------------
+export const VoiceCallModal = ({ cv, phone, onSetPhone, onConfirm, onCancel }: {
+  cv: CriticalValue | null; phone: string
+  onSetPhone: (v: string) => void; onConfirm: () => void; onCancel: () => void
+}) => {
+  useEffect(() => {
+    if (!cv) return
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.stopPropagation(); onCancel() } }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [cv, onCancel])
+  if (!cv) return null
+  return (
+    <div onClick={onCancel} role="dialog" aria-modal="true" aria-label="电话通知" style={overlayStyle}>
+      <div onClick={(e) => e.stopPropagation()} style={{ ...panelStyle, width: 420 }}>
+        <div style={{ padding: '20px 24px', borderBottom: '1px solid #e2e8f0', background: 'linear-gradient(135deg, #ea580c 0%, #f97316 100%)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Phone size={20} style={{ color: '#fff' }} />
+            <div>
+              <div style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>电话通知临床</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)' }}>{cv.patientName} · 电话通知记录</div>
+            </div>
+          </div>
+          <button onClick={onCancel} aria-label="关闭弹窗" style={headerBtnStyle}><X size={16} style={{ color: '#fff' }} /></button>
+        </div>
+        <div style={{ padding: 24 }}>
+          <div style={{ marginBottom: 20 }}>
+            <label htmlFor="cv-voicecall-phone" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6 }}>联系电话</label>
+            <input id="cv-voicecall-phone" type="text" value={phone} onChange={(e) => onSetPhone(e.target.value)} placeholder="请输入临床联系电话" aria-label="联系电话" style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
+          </div>
+          <div style={{ background: '#fff7ed', borderRadius: 8, padding: '10px 14px', border: '1px solid #fed7aa', marginBottom: 20 }}>
+            <div style={{ fontSize: 12, color: '#9a3412', lineHeight: 1.6 }}>电话通知后，系统将自动记录通知时间及操作人，进入下一步"临床确认"流程。</div>
+          </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button onClick={onCancel} style={footerBtn()}>取消</button>
+            <button onClick={onConfirm} disabled={!phone} style={{ ...footerBtn(true), display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, opacity: phone ? 1 : 0.5, cursor: phone ? 'pointer' : 'not-allowed' }}><Phone size={14} /> 确认电话通知</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// -------------- ClinicalReceiptModal --------------
+export const ClinicalReceiptModal = ({ cv, doctor, comment, onSetDoctor, onSetComment, onConfirm, onCancel }: {
+  cv: CriticalValue | null; doctor: string; comment: string
+  onSetDoctor: (v: string) => void; onSetComment: (v: string) => void; onConfirm: () => void; onCancel: () => void
+}) => {
+  useEffect(() => {
+    if (!cv) return
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.stopPropagation(); onCancel() } }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [cv, onCancel])
+  if (!cv) return null
+  return (
+    <div onClick={onCancel} role="dialog" aria-modal="true" aria-label="临床回执" style={overlayStyle}>
+      <div onClick={(e) => e.stopPropagation()} style={{ ...panelStyle, width: 480 }}>
+        <div style={{ padding: '20px 24px', borderBottom: '1px solid #e2e8f0', background: 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Edit3 size={20} style={{ color: '#fff' }} />
+            <div>
+              <div style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>临床回执</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)' }}>{cv.patientName} · 临床确认签字回传</div>
+            </div>
+          </div>
+          <button onClick={onCancel} aria-label="关闭弹窗" style={headerBtnStyle}><X size={16} style={{ color: '#fff' }} /></button>
+        </div>
+        <div style={{ padding: 24 }}>
+          <div style={{ marginBottom: 16 }}>
+            <label htmlFor="cv-receipt-doctor" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6 }}>临床确认医生 *</label>
+            <input id="cv-receipt-doctor" type="text" value={doctor} onChange={(e) => onSetDoctor(e.target.value)} placeholder="请输入确认医生姓名" aria-label="确认医生" style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <label htmlFor="cv-receipt-comment" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6 }}>临床意见/备注</label>
+            <textarea id="cv-receipt-comment" value={comment} onChange={(e) => onSetComment(e.target.value)} placeholder="请输入临床处理意见或备注" aria-label="临床意见" rows={3} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6 }}>签名确认</div>
+            <div style={{ background: '#f0fdf4', borderRadius: 8, padding: '12px 16px', border: '2px dashed #86efac', textAlign: 'center' }}>
+              <div style={{ fontSize: 28, marginBottom: 4 }}>✍️</div>
+              <div style={{ fontSize: 12, color: '#16a34a' }}>点击此处签名（模拟签名板）</div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button onClick={onCancel} style={footerBtn()}>取消</button>
+            <button onClick={onConfirm} disabled={!doctor} style={{ ...footerBtn(true), display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, opacity: doctor ? 1 : 0.5, cursor: doctor ? 'pointer' : 'not-allowed' }}><Edit3 size={14} /> 确认回执</button>
           </div>
         </div>
       </div>
@@ -410,6 +504,13 @@ export interface CriticalValueModalsProps {
   notifyPhone: string; notifyNotes: string; notifyMethod: string
   onSetNotifyPhone: (v: string) => void; onSetNotifyNotes: (v: string) => void
   onSetNotifyMethod: (v: string) => void; onConfirmNotify: () => void; onCancelNotify: () => void
+  showVoiceCallModal: boolean; voiceCallCV: CriticalValue | null
+  voiceCallPhone: string; onSetVoiceCallPhone: (v: string) => void
+  onConfirmVoiceCall: () => void; onCancelVoiceCall: () => void
+  showReceiptModal: boolean; receiptCV: CriticalValue | null
+  receiptDoctor: string; receiptComment: string
+  onSetReceiptDoctor: (v: string) => void; onSetReceiptComment: (v: string) => void
+  onConfirmReceipt: () => void; onCancelReceipt: () => void
   showConfirmModal: boolean; confirmMessage: string
   onConfirm: () => void; onCancelConfirm: () => void
   showSettings: boolean; onCloseSettings: () => void; showToastFn: (msg: string, type?: 'success' | 'error') => void
@@ -424,6 +525,15 @@ export const CriticalValueModals = (p: CriticalValueModalsProps) => (
     <NotifyModal cv={p.notifyCV} phone={p.notifyPhone} notes={p.notifyNotes} method={p.notifyMethod}
       onSetPhone={p.onSetNotifyPhone} onSetNotes={p.onSetNotifyNotes} onSetMethod={p.onSetNotifyMethod}
       onConfirm={p.onConfirmNotify} onCancel={p.onCancelNotify} />
+    {p.showVoiceCallModal && p.voiceCallCV && (
+      <VoiceCallModal cv={p.voiceCallCV} phone={p.voiceCallPhone}
+        onSetPhone={p.onSetVoiceCallPhone} onConfirm={p.onConfirmVoiceCall} onCancel={p.onCancelVoiceCall} />
+    )}
+    {p.showReceiptModal && p.receiptCV && (
+      <ClinicalReceiptModal cv={p.receiptCV} doctor={p.receiptDoctor} comment={p.receiptComment}
+        onSetDoctor={p.onSetReceiptDoctor} onSetComment={p.onSetReceiptComment}
+        onConfirm={p.onConfirmReceipt} onCancel={p.onCancelReceipt} />
+    )}
     <ConfirmModal message={p.confirmMessage} onConfirm={p.onConfirm} onCancel={p.onCancelConfirm} />
     {p.showSettings && <RulesSettingsModal onClose={p.onCloseSettings} showToast={p.showToastFn} />}
     {p.showTransferModal && p.transferCV && (

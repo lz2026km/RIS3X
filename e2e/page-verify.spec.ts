@@ -1,0 +1,43 @@
+import { test, expect } from '@playwright/test'
+
+const BASE = 'http://localhost:5191'
+
+async function login(page: any) {
+  await page.goto(`${BASE}/login`, { waitUntil: 'networkidle', timeout: 30000 })
+  await page.waitForTimeout(2000)
+  await page.selectOption('select', '主任')
+  await page.locator('input').nth(0).fill('admin')
+  await page.locator('input').nth(1).fill('123')
+  await page.click('button[type="submit"]')
+  await page.waitForTimeout(3000)
+}
+
+test.describe('Page Verification', () => {
+  test('screenshot all main pages', async ({ page }) => {
+    await login(page)
+    const pages = ['/', '/worklist', '/reports', '/critical-value', '/dicom-viewer']
+    for (const p of pages) {
+      await page.goto(`${BASE}${p}`, { waitUntil: 'domcontentloaded', timeout: 30000 })
+      await page.waitForTimeout(2000)
+      await page.screenshot({ path: `e2e/screenshots/${p.replace(/\//g, '_') || 'home'}.png`, fullPage: true })
+    }
+  })
+
+  test('final verify - routes and buttons', async ({ page }) => {
+    await login(page)
+    const routes = ['/', '/worklist', '/reports', '/patients', '/critical-value', '/dicom-viewer', '/eye', '/dental']
+    for (const route of routes) {
+      const resp = await page.goto(`${BASE}${route}`, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => null)
+      await page.waitForTimeout(1000)
+      expect(resp).not.toBeNull()
+    }
+  })
+
+  test('page audit - check page content', async ({ page }) => {
+    await login(page)
+    await page.goto(`${BASE}/worklist`, { waitUntil: 'domcontentloaded', timeout: 30000 })
+    await page.waitForTimeout(3000)
+    const body = await page.locator('body').textContent() || ''
+    expect(body.length).toBeGreaterThan(100)
+  })
+})

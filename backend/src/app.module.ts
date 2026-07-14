@@ -58,6 +58,8 @@ import { OccupancyModule } from './modules/occupancy/occupancy.module'
 import { VolumeModule } from './modules/volume/volume.module'
 import { BenchmarkModule } from './modules/benchmark/benchmark.module'
 import { AiDiagnosisModule } from './modules/ai-diagnosis/ai-diagnosis.module'
+import { DicomCompressModule } from './modules/dicom-compress/dicom-compress.module'
+import { TriageModule } from './modules/triage/triage.module'
 import { TeachModule } from './modules/teach/teach.module'
 import { OeeModule } from './modules/oee/oee.module'
 import { RadPathModule } from './modules/radpath/radpath.module'
@@ -134,6 +136,8 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter'
     MobileModule,
     BenchmarkModule,
     AiDiagnosisModule,
+     TriageModule,
+     DicomCompressModule,
   ],
   controllers: [HealthController],
   providers: [

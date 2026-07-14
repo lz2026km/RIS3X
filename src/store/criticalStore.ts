@@ -24,10 +24,16 @@ interface CriticalValue {
   patientName: string
   finding: string
   severity: string
-  status: 'pending' | 'notified' | 'acknowledged' | 'resolving' | 'resolved' | 'closed_loop' | 'escalated' | 'cancelled'
+  status: 'pending' | 'notified' | 'voice_called' | 'acknowledged' | 'receipted' | 'resolving' | 'resolved' | 'closed_loop' | 'escalated' | 'cancelled'
   triggeredAt: string
   notifiedAt?: string
+  voiceCalledAt?: string
+  voiceCalledBy?: string
   acknowledgedAt?: string
+  confirmedBy?: string
+  confirmedAt?: string
+  confirmedSignature?: string
+  confirmedComment?: string
   resolvedAt?: string
   escalatedAt?: string
   escalatedTo?: string
@@ -41,7 +47,9 @@ interface CriticalState {
   /** 内部:每个危急值一个 actor,机器是其真实状态来源 */
   actors: Map<string, Actor<CriticalMachine>>
   load: () => Promise<void>
+  voiceCall: (id: string, phoneNumber: string) => Promise<void>
   acknowledge: (id: string) => Promise<void>
+  clinicalReceipt: (id: string, data: { confirmedBy: string; signature?: string; comment?: string }) => Promise<void>
   resolve: (id: string) => Promise<void>
   notify: (id: string, method?: ApiNotificationMethod) => Promise<void>
   escalate: (id: string, to: string) => Promise<void>
@@ -53,7 +61,9 @@ interface CriticalState {
 const MACHINE_STATE_TO_STORE: Record<string, CriticalValue['status']> = {
   found: 'pending',
   notified: 'notified',
+  voice_called: 'voice_called',
   acknowledged: 'acknowledged',
+  receipted: 'receipted',
   resolving: 'resolving',
   resolved: 'resolved',
   closed_loop: 'resolved',
@@ -79,7 +89,7 @@ function buildActorFor(value: CriticalValue): Actor<CriticalMachine> {
   })
   actor.start()
   // 把 actor 推进到当前 store status,这样后续 send() 才会被状态机接受
-  if (value.status === 'notified' || value.status === 'acknowledged' || value.status === 'resolved' || value.status === 'escalated') {
+  if (value.status === 'notified' || value.status === 'voice_called' || value.status === 'acknowledged' || value.status === 'receipted' || value.status === 'resolved' || value.status === 'escalated') {
     actor.send({
       type: 'NOTIFY',
       to: '',
@@ -87,8 +97,14 @@ function buildActorFor(value: CriticalValue): Actor<CriticalMachine> {
       by: '',
     })
   }
-  if (value.status === 'acknowledged' || value.status === 'resolved') {
+  if (value.status === 'voice_called' || value.status === 'acknowledged' || value.status === 'receipted' || value.status === 'resolved') {
+    actor.send({ type: 'VOICE_CALL', by: value.voiceCalledBy ?? '', phoneNumber: '' })
+  }
+  if (value.status === 'acknowledged' || value.status === 'receipted' || value.status === 'resolved') {
     actor.send({ type: 'ACKNOWLEDGE', by: '' })
+  }
+  if (value.status === 'receipted' || value.status === 'resolved') {
+    actor.send({ type: 'RECEIPT', by: value.confirmedBy ?? '' })
   }
   if (value.status === 'resolved') {
     actor.send({ type: 'START_PROCESSING', doctorId: '' })
@@ -101,7 +117,7 @@ function buildActorFor(value: CriticalValue): Actor<CriticalMachine> {
 }
 
 let _escalationTimer: ReturnType<typeof setInterval> | null = null
-const STUCK_STATES = ['found', 'notified', 'acknowledged', 'resolving']
+const STUCK_STATES = ['found', 'notified', 'voice_called', 'acknowledged', 'receipted', 'resolving']
 
 export const useCriticalStore = create<CriticalState>((set, get) => ({
   values: [],
@@ -163,6 +179,50 @@ export const useCriticalStore = create<CriticalState>((set, get) => ({
     if (_escalationTimer) {
       clearInterval(_escalationTimer)
       _escalationTimer = null
+    }
+  },
+
+  voiceCall: async (id, phoneNumber) => {
+    set({ error: null })
+    try {
+      const res = await criticalApi.voiceCall(id, { calledBy: 'current-user', phoneNumber })
+      if (res.success) {
+        const actor = get().actors.get(id)
+        if (actor) actor.send({ type: 'VOICE_CALL', by: 'current-user', phoneNumber })
+        set((s) => ({
+          values: s.values.map((v) =>
+            v.id === id
+              ? { ...v, status: 'voice_called' as const, voiceCalledAt: new Date().toISOString(), voiceCalledBy: 'current-user' }
+              : v
+          ),
+        }))
+      } else {
+        set({ error: res.error?.message ?? '电话通知失败' })
+      }
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : '网络错误' })
+    }
+  },
+
+  clinicalReceipt: async (id, data) => {
+    set({ error: null })
+    try {
+      const res = await criticalApi.clinicalReceipt(id, data)
+      if (res.success) {
+        const actor = get().actors.get(id)
+        if (actor) actor.send({ type: 'RECEIPT', by: data.confirmedBy, signature: data.signature, comment: data.comment })
+        set((s) => ({
+          values: s.values.map((v) =>
+            v.id === id
+              ? { ...v, status: 'receipted' as const, confirmedBy: data.confirmedBy, confirmedAt: new Date().toISOString(), confirmedSignature: data.signature, confirmedComment: data.comment }
+              : v
+          ),
+        }))
+      } else {
+        set({ error: res.error?.message ?? '回执失败' })
+      }
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : '网络错误' })
     }
   },
 

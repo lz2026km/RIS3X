@@ -273,5 +273,7 @@
   "oeDashboard": "OEE 看板",
   "roomOccupancy": "检查室占用率",
   "benchmarkCompare": "报表同比环比",
-  "aiDiagnosisAccuracy": "AI 准确率仪表盘"
+  "aiDiagnosisAccuracy": "AI 准确率仪表盘",
+  "triageWorklist": "AI 分检工作台",
+  "dicomWeb": "DICOMweb"
 }

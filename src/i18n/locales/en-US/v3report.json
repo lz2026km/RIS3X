@@ -23,7 +23,6 @@
   "printB5": "B5",
   "printIncludeImage": "Include Image",
   "printIncludeSeal": "Include Hospital Seal",
-
   "typicalCasesTitle": "Typical Cases Library",
   "typicalCasesHeader": "Typical Cases Library",
   "hospitalSubtitle": "Teaching & Research Library",
@@ -126,7 +125,6 @@
   "csvHeaderDiagnosis": "Diagnosis",
   "csvHeaderExamType": "Exam Type",
   "csvHeaderTypicalFeatures": "Typical Features",
-
   "findingLibraryTitle": "Typical Finding Library",
   "findingCount": "{{count}} findings",
   "findingCurrentDisplay": "Current Display",
@@ -165,7 +163,6 @@
   "findingUsage": "Used {{count}} times",
   "findingMore": "{{count}} more...",
   "findingPlaceholderImage": "Typical Finding Illustration",
-
   "writing.v3065.voiceCommands": "Voice Commands",
   "writing.v3065.voiceStart": "Start Recording",
   "writing.v3065.voiceStop": "Stop Recording",
@@ -198,7 +195,6 @@
   "writing.v3065.voiceNoSpeech": "No speech detected",
   "writing.v3065.voiceTimeout": "Recognition timeout",
   "writing.v3065.voiceNetworkError": "Network error, please retry",
-
   "writing.v3065.aiDraft": "AI Draft",
   "writing.v3065.aiDraftTitle": "AI Assistant",
   "writing.v3065.aiDraftTab": "AI Draft",
@@ -232,7 +228,6 @@
   "writing.v3065.aiProcessingTime": "Processing Time",
   "writing.v3065.aiTokenUsage": "Token Usage",
   "writing.v3065.aiScore": "AI Score",
-
   "writing.v3065.templateLungRads": "Lung-RADS",
   "writing.v3065.templateLungRadsDesc": "Lung Nodule Screening Template",
   "writing.v3065.templateLungRadsCategory": "Lung-RADS Category",
@@ -255,7 +250,6 @@
   "writing.v3065.templateLungRadsCategory4B": "4B-Highly Suspicious",
   "writing.v3065.templateLungRadsCategory4X": "4X-Very Suspicious",
   "writing.v3065.templateLungRadsManagement": "Management",
-
   "writing.v3065.templateCadRads": "CAD-RADS",
   "writing.v3065.templateCadRadsDesc": "Coronary Artery Template",
   "writing.v3065.templateCadRadsCategory": "CAD-RADS Category",
@@ -275,7 +269,6 @@
   "writing.v3065.templateCadRadsNonCalcified": "Non-Calcified Plaque",
   "writing.v3065.templateCadRadsMixed": "Mixed Plaque",
   "writing.v3065.templateCadRadsHighRisk": "High-Risk Plaque Features",
-
   "writing.v3065.templateLiRads": "LI-RADS",
   "writing.v3065.templateLiRadsDesc": "Liver Imaging Template",
   "writing.v3065.templateLiRadsCategory": "LI-RADS Category",
@@ -294,7 +287,6 @@
   "writing.v3065.templateLiRadsNoduleSize": "Nodule Size",
   "writing.v3065.templateLiRadsFat": "Fat-containing",
   "writing.v3065.templateLiRadsHemorrhage": "Hemorrhage",
-
   "writing.v3065.templateTiRads": "TI-RADS",
   "writing.v3065.templateTiRadsDesc": "Thyroid Imaging Template",
   "writing.v3065.templateTiRadsCategory": "TI-RADS Category",
@@ -322,7 +314,6 @@
   "writing.v3065.templateTiRadsPunctate": "Punctate Echogenic Foci",
   "writing.v3065.templateTiRadsMacrocalcification": "Macrocalcification",
   "writing.v3065.templateTiRadsPeripheral": "Peripheral Calcification",
-
   "writing.v3065.templateCRads": "C-RADS",
   "writing.v3065.templateCRadsDesc": "Colon Imaging Template",
   "writing.v3065.templateCRadsCategory": "C-RADS Category",
@@ -337,7 +328,6 @@
   "writing.v3065.templateCRadsPedunculated": "Pedunculated",
   "writing.v3065.templateCRadsFlat": "Flat",
   "writing.v3065.templateCRadsLocation": "Location",
-
   "writing.v3065.templateORads": "O-RADS",
   "writing.v3065.templateORadsDesc": "Ovarian Imaging Template",
   "writing.v3065.templateORadsCategory": "O-RADS Category",
@@ -354,7 +344,6 @@
   "writing.v3065.templateORadsSolidComponent": "Solid Component",
   "writing.v3065.templateORadsAscites": "Ascites",
   "writing.v3065.templateORadsPeritoneal": "Peritoneal Implants",
-
   "writing.v3065.templateTNM": "TNM Staging",
   "writing.v3065.templateTNMDesc": "TNM Staging Template",
   "writing.v3065.templateTNMStage": "TNM Stage",
@@ -379,7 +368,6 @@
   "writing.v3065.templateTNMStage2": "Stage II",
   "writing.v3065.templateTNMStage3": "Stage III",
   "writing.v3065.templateTNMStage4": "Stage IV",
-
   "writing.v3065.annotationTool": "Annotation Tools",
   "writing.v3065.annotationArrow": "Arrow",
   "writing.v3065.annotationText": "Text",
@@ -410,7 +398,6 @@
   "writing.v3065.annotationMultiFrame": "Multi-Frame Annotation",
   "writing.v3065.annotationFrameSelect": "Frame Select",
   "writing.v3065.annotationSeriesSelect": "Series Select",
-
   "writing.v3065.editorMultimodal": "Multimodal Embed",
   "writing.v3065.editorMultimodalImage": "Embed Image",
   "writing.v3065.editorMultimodalVideo": "Embed Video",
@@ -493,7 +480,6 @@
   "writing.v3065.editorAlignJustify": "Justify",
   "writing.v3065.editorDirectionLtr": "Left to Right",
   "writing.v3065.editorDirectionRtl": "Right to Left",
-
   "template.recist.title": "RECIST 1.1 Solid Tumor Response",
   "template.birads.title": "BI-RADS Breast Imaging Report",
   "template.pirads.title": "PI-RADS v2.1 Prostate MRI",
@@ -551,5 +537,9 @@
   "template.tnm.t": "T Category",
   "template.tnm.n": "N Category",
   "template.tnm.m": "M Category",
-  "template.tnm.stage": "Stage Group"
+  "template.tnm.stage": "Stage Group",
+  "archiveTitle": "Report Archive",
+  "archiveLock": "Lock",
+  "archiveUnlock": "Unlock",
+  "archiveAudit": "Audit"
 }

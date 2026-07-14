@@ -121,6 +121,9 @@ export type {
 export { complianceApi } from './complianceApi'
 export type { ComplianceReportDto, ComplianceDocDto } from './complianceApi'
 
+export { radsApi } from './radsApi'
+export type { RadsScore, RadsHistoryEntry } from './radsApi'
+
 export { exportApprovalApi, olapApi, analyticsStatsApi } from './analyticsApi'
 export type {
   ExportApprovalDto, ExportApprovalListParams,

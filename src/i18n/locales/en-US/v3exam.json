@@ -320,5 +320,7 @@
       "title": "Dose Reference",
       "content": "CT Head DLP ref ~700-800 mGy·cm; Chest CT ~400-600 mGy·cm; Coronary CTA ~800-1200 mGy·cm; DSA Coronary ~2000-4000 mGy·m²; Mammography ~3-6 mGy. Per GBZ 130-2020, exams exceeding guidance levels should undergo patient dose optimization analysis. Thresholds are based on national standards. AAPM ref values from AAPM recommendations; EU ref values from EU Commission guidelines."
     }
-  }
+  },
+  "aptTitle": "Appointment Calendar",
+  "wfTitle": "Exam Workflow Board"
 }

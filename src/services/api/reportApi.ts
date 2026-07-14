@@ -1,38 +1,8 @@
 import { api, invalidateApiCache, invalidateApiCacheByPrefix } from './client'
 import type { ReportQueryParams } from './types'
+import type { ReportDto } from '../../types/dto'
 
-export interface ReportDto {
-  id: string
-  reportId: string
-  patientId: string
-  patientName: string
-  examId: string
-  modality: string
-  bodyPart: string
-  status: string
-  findings?: string
-  diagnosis?: string
-  impression?: string
-  recommendations?: string
-  createdTime: string
-  updatedTime: string
-  doctorId?: string
-  qualityScore?: number
-  reviewerId?: string
-  coSignerId?: string
-  qcGrade?: string
-  defectCount?: number
-  icd10?: string
-  clinicalDiagnosis?: string
-  priority?: string
-  hasCriticalValue?: boolean
-  reportAt?: string
-  reviewedAt?: string
-  signedAt?: string
-  signatureHash?: string
-  rejectReason?: string
-  reviseReason?: string
-}
+export type { ReportDto }
 
 export const reportApi = {
   list: (params?: ReportQueryParams) =>

@@ -355,6 +355,8 @@ export const translations: Translations = {
     // [v3.0.6.11-19/20] 新增 6 个 nav key 补全
     "nav.teleConference": "远程实时阅片",
     "nav.aiCad": "AI 阅片助手",
+    "nav.aiRadsScoring": "AI 阅片助手 V3",
+    "nav.aiDraft": "AI 报告草稿",
     "nav.teachLecture": "教学讲座",
     "nav.roomOccupancy": "检查室占用率",
     "nav.benchmarkCompare": "报表同比环比",
@@ -2054,6 +2056,8 @@ export const translations: Translations = {
     // [v3.0.6.11-19/20] 新增 7 个 nav key 补全
     "nav.teleConference": "Tele-Conference Reading",
     "nav.aiCad": "AI Reading Assistant",
+    "nav.aiRadsScoring": "AI RADS Scoring V3",
+    "nav.aiDraft": "AI Report Draft",
     "nav.teachLecture": "Teaching Lecture",
     "nav.oeDashboard": "OEE Dashboard",
     "nav.roomOccupancy": "Room Occupancy",

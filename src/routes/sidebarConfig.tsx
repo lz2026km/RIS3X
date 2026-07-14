@@ -75,7 +75,7 @@ import {
   Video,
 } from "lucide-react";
 import type { ReactNode } from "react";
-import { GitCompare } from "lucide-react";
+import { GitCompare, FileDown, Globe } from "lucide-react";
 
 export type Role = "医生" | "技师" | "护士" | "管理员" | "主任";
 
@@ -114,6 +114,12 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: <ListChecks size={18} />,
         labelKey: "nav.worklist",
         roles: ["医生", "技师", "护士", "管理员", "主任"],
+      },
+      {
+        path: "/triage/worklist",
+        icon: <ListOrdered size={18} />,
+        labelKey: "nav.triageWorklist",
+        roles: ["医生", "主任", "管理员"],
       },
       {
         path: "/exams",
@@ -471,6 +477,18 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.vnaDashboard",
         roles: ["医生", "技师", "主任", "管理员",],
       },
+      {
+        path: "/dicom/web",
+        icon: <Globe size={18} />,
+        labelKey: "nav.dicomWeb",
+        roles: ["医生", "技师", "主任", "管理员",],
+      },
+      {
+        path: "/dicom/compress",
+        icon: <FileDown size={18} />,
+        labelKey: "nav.dicomCompress",
+        roles: ["医生", "技师", "主任", "管理员",],
+      },
     ],
   },
   {
@@ -495,9 +513,21 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         roles: ["医生", "主任", "管理员",],
       },
       {
+        path: "/ai-draft",
+        icon: <FileText size={18} />,
+        labelKey: "nav.aiDraft",
+        roles: ["医生", "主任", "管理员",],
+      },
+      {
         path: "/ai-cad",
         icon: <Crosshair size={18} />,
         labelKey: "nav.aiCad",
+        roles: ["医生", "主任", "技师", "管理员",],
+      },
+      {
+        path: "/ai/rads-scoring",
+        icon: <Sparkles size={18} />,
+        labelKey: "nav.aiRadsScoring",
         roles: ["医生", "主任", "技师", "管理员",],
       },
     ],
@@ -673,12 +703,6 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         roles: ["管理员"],
       },
       {
-        path: "/integration/mllp-monitor",
-        icon: <Network size={18} />,
-        labelKey: "nav.mllpMonitor",
-        roles: ["管理员"],
-      },
-      {
         path: "/integration/hl7-archive",
         icon: <Archive size={18} />,
         labelKey: "nav.hl7Archive",
@@ -688,12 +712,6 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/integration/hl7-builder",
         icon: <Hammer size={18} />,
         labelKey: "nav.hl7Builder",
-        roles: ["管理员"],
-      },
-      {
-        path: "/integration/mllp-monitor",
-        icon: <Network size={18} />,
-        labelKey: "nav.mllpMonitor",
         roles: ["管理员"],
       },
       {

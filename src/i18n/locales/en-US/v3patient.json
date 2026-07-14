@@ -35,5 +35,8 @@
   "emergencyContact": "Emergency Contact",
   "emergencyPhone": "Emergency Phone",
   "preferredLanguage": "Preferred Language",
-  "preferredContact": "Preferred Contact"
+  "preferredContact": "Preferred Contact",
+  "title": "Patient 360 View",
+  "mergeTitle": "Patient Merge / MPI",
+  "duplicate": "Duplicates"
 }

@@ -69,17 +69,10 @@ export const NAMESPACES = [
   "audit",
   "similarCase",
   "sr",
-  "v3criticalV2",
-  "patientV2",
-  "examV2",
-  "adminV2",
-  "statsV2",
   "qcimage",
   "reportV2",
   "regional",
-  "mobileV2",
   "v3quality",
-  "v3archive",
   "v3cosign",
   "v3ai",
   "v3pwa",
@@ -100,6 +93,8 @@ export const NAMESPACES = [
   "benchmark",
   "v3qcai",
   "oee",
+  "rads",
+  "dicomCompress",
 ] as const;
 export type Namespace = (typeof NAMESPACES)[number];
 

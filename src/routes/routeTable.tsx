@@ -25,6 +25,7 @@ const DoseTrackPage = lazy(() => import("../pages/DoseTrackPage"));
 const QueueCallPage = lazy(() => import("../pages/QueueCallPage"));
 const DicomViewerClassicPage = lazy(() => import("../pages/DicomViewerPage"));
 const DicomViewerProPage = lazy(() => import("../pages/dicom/DicomViewerPro"));
+const DicomCompressPage = lazy(() => import("../pages/dicom/DicomCompressPage"));
 const TypicalCasesPage = lazy(() => import("../pages/TypicalCasesPage"));
 const FindingLibraryPage = lazy(() => import("../pages/FindingLibraryPage"));
 const OperationLogPage = lazy(() => import("../pages/OperationLogPage"));
@@ -32,7 +33,6 @@ const NotificationCenter = lazy(() => import("../pages/NotificationCenter"));
 const SchedulePage = lazy(() => import("../pages/SchedulePage"));
 const ClinicalConfigCenter = lazy(() => import("../pages/admin/ClinicalConfigCenter"));
 const DepartmentPage = lazy(() => import("../pages/DepartmentPage"));
-const MaterialsPage = lazy(() => import("../pages/MaterialsPage"));
 const PrintManagementPage = lazy(() => import("../pages/PrintManagementPage"));
 const RegionalReportPage = lazy(() => import("../pages/RegionalReportPage"));
 const AIAssistPage = lazy(() => import("../pages/AIAssistPage"));
@@ -329,6 +329,7 @@ const OEEDashboardPage = lazy(() => import("../pages/operations/OEEDashboardPage
 const ClinicalPathwayPage = lazy(() => import("../pages/clinical/ClinicalPathwayPage"));
 const AuditCompliancePage = lazy(() => import("../pages/compliance/AuditCompliancePage"));
 const DicomSrManagerPage = lazy(() => import("../pages/imaging/DicomSrManagerPage"));
+const DicomWebPage = lazy(() => import("../pages/dicom/DicomWebPage"));
 const FusionPage = lazy(() => import("../pages/dicom/FusionPage"));
 const VolumeViewerPage = lazy(() => import("../pages/dicom/VolumeViewerPage"));
 const TerminologyServerPage = lazy(() => import("../pages/clinical/TerminologyServerPage"));
@@ -343,6 +344,8 @@ const VisitDetailPage = lazy(() => import("../pages/ihe/VisitDetailPage"));
 const TeleConferencePage = lazy(() => import("../pages/tele/TeleConferencePage"));
 const AiFusionWorkspacePage = lazy(() => import("../pages/ai/AiFusionWorkspacePage"));
 const AiCadPage = lazy(() => import("../pages/ai/AiCadPage"));
+const AiDraftPage = lazy(() => import("../pages/ai/AiDraftPage"));
+const AiRadsPage = lazy(() => import("../pages/ai/AiRadsPage"));
 const ClinicalCalculatorHubPage = lazy(() => import("../pages/clinical/ClinicalCalculatorHubPage"));
 const ConsentEducationPage = lazy(() => import("../pages/consent/ConsentEducationPage"));
 const PatientSafetyDashboardPage = lazy(() => import("../pages/safety/PatientSafetyDashboardPage"));
@@ -396,6 +399,7 @@ const EyeKpiDashboardPage = lazy(() => import("../pages/eye/EyeKpiDashboardPage"
 const TeachLecturePage = lazy(() => import("../pages/teach/TeachLecturePage"));
 const RadPathTrackerPage = lazy(() => import("../pages/radpath/RadPathTrackerPage"));
 const RadPathDetailPage = lazy(() => import("../pages/radpath/RadPathDetailPage"));
+const TriagePage = lazy(() => import("../pages/triage/TriagePage"));
 
 // 从 sidebarConfig 构建 path -> roles 映射
 const ALL_ROLES: ReadonlyArray<Role> = [
@@ -421,6 +425,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/mammo/operations": ["主任", "管理员"],
   "/mammo/quality": ["主任", "管理员"],
   "/workbench": ALL_ROLES,
+  "/triage/worklist": ["医生", "主任", "管理员"],
   "/eye": ["医生", "主任", "技师", "管理员"],
   "/eye/pacs": ["医生", "主任", "技师", "管理员"],
   "/eye/pacs/viewer": ["医生", "主任", "技师", "管理员"],
@@ -507,6 +512,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/clinical-pathways": ["医生", "主任", "管理员", "护士"], // [v3.0.6.8-70]
   "/audit-compliance": ["主任", "管理员"], // [v3.0.6.8-71]
   "/dicom-sr-manager": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-72]
+  "/dicom/web": ["医生", "主任", "技师", "管理员"],
   "/dicom/fusion": ["医生", "主任", "技师", "管理员"], // [v3.0.6.11-18] PET-CT/MR fusion
   "/dicom/volume-viewer": ["医生", "主任", "技师", "管理员"], // [v3.0.6.11-18] 3D Volume Rendering
   "/terminology-server": ["医生", "主任", "技师", "管理员", "护士"], // [v3.0.6.8-73]
@@ -514,6 +520,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/ihe-integration": ["主任", "管理员", "技师"], // [v3.0.6.8-75]
   "/ai-fusion-workspace": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-76]
   "/ai-cad": ["医生", "主任", "技师", "管理员"],
+  "/ai-draft": ["医生", "主任", "管理员"],
   "/clinical-calculators": ["医生", "主任", "技师", "护士", "管理员"], // [v3.0.6.8-78]
   "/consent-education": ["医生", "主任", "技师", "护士", "管理员"], // [v3.0.6.8-79]
   "/patient-safety": ["主任", "管理员", "护士"], // [v3.0.6.8-80]
@@ -541,6 +548,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/system/backup": ["管理员"],
   "/system/tenant-config": ["管理员"],
   "/system/compliance": ["管理员", "主任"],
+  "/dicom/compress": ["医生", "技师", "主任", "管理员"],
 };
 
 function rolesFor(path: string): ReadonlyArray<Role> | undefined {
@@ -593,7 +601,6 @@ export const routes: RouteObject[] = [
   wrapped("/notification-center", React.createElement(NotificationCenter)),
   wrapped("/schedule", React.createElement(SchedulePage)),
   wrapped("/department", React.createElement(DepartmentPage)),
-  wrapped("/materials", React.createElement(MaterialsPage)),
   wrapped("/print-management", React.createElement(PrintManagementPage)),
   wrapped("/regional-report", React.createElement(RegionalReportPage)),
   wrapped("/ai-assist", React.createElement(AIAssistPage)),
@@ -799,6 +806,7 @@ export const routes: RouteObject[] = [
   wrapped("/clinical-pathways", React.createElement(ClinicalPathwayPage)), // [v3.0.6.8-70]
   wrapped("/audit-compliance", React.createElement(AuditCompliancePage)), // [v3.0.6.8-71]
   wrapped("/dicom-sr-manager", React.createElement(DicomSrManagerPage)), // [v3.0.6.8-72]
+  wrapped("/dicom/web", React.createElement(DicomWebPage)),
   wrapped("/terminology-server", React.createElement(TerminologyServerPage)), // [v3.0.6.8-73]
   wrapped("/report-templates", React.createElement(ReportTemplateManagerPage)), // [v3.0.6.8-74]
   wrapped("/ihe-integration", React.createElement(IheIntegrationPage)), // [v3.0.6.8-75]
@@ -812,6 +820,8 @@ export const routes: RouteObject[] = [
   wrapped("/dicom/volume-viewer", React.createElement(VolumeViewerPage)), // [v3.0.6.11-18] 3D Volume Rendering
   wrapped("/ai-fusion-workspace", React.createElement(AiFusionWorkspacePage)), // [v3.0.6.8-76]
   wrapped("/ai-cad", React.createElement(AiCadPage)),
+  wrapped("/ai-draft", React.createElement(AiDraftPage)),
+  wrapped("/ai/rads-scoring", React.createElement(AiRadsPage)),
   wrapped("/clinical-calculators", React.createElement(ClinicalCalculatorHubPage)), // [v3.0.6.8-78]
   wrapped("/consent-education", React.createElement(ConsentEducationPage)), // [v3.0.6.8-79]
   wrapped("/patient-safety", React.createElement(PatientSafetyDashboardPage)), // [v3.0.6.8-80]
@@ -862,10 +872,12 @@ export const routes: RouteObject[] = [
   wrapped("/qc/image-ai", React.createElement(QcImageAiPage)),
   wrapped("/radpath/tracker", React.createElement(RadPathTrackerPage)),
   wrapped("/radpath/detail/:reportId", React.createElement(RadPathDetailPage)),
+  wrapped("/triage/worklist", React.createElement(TriagePage)),
   wrapped("/teach/lecture", React.createElement(TeachLecturePage)),
   wrapped("/system/audit", React.createElement(lazy(() => import("../pages/AuditPage")))),
   wrapped("/system/backup", React.createElement(lazy(() => import("../pages/BackupPage")))),
   wrapped("/system/tenant-config", React.createElement(lazy(() => import("../pages/TenantConfigPage")))),
+  wrapped("/dicom/compress", React.createElement(DicomCompressPage)),
   // [v3.0.6.11-21] P0 fix: MFA 设置页接入路由
   wrapped("/security/mfa-setup", React.createElement(lazy(() => import("../pages/security/MfaSetupPage")))),
   // [v3.0.6.11-21] P0 fix: 合规管理页接入路由

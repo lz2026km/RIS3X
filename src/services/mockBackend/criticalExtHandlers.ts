@@ -85,4 +85,18 @@ export const criticalExtHandlers = [
     try { create('criticalRules', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
+
+  // voice-call bridge
+  http.post(`${API}/:criticalId/voice-call`, async ({ params, request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { id: params.criticalId, voiceCalledBy: body.calledBy, voiceCalledAt: new Date().toISOString() }, meta: {} });
+  }),
+
+  // clinical receipt
+  http.post(`${API}/:criticalId/clinical-receipt`, async ({ params, request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { id: params.criticalId, confirmedBy: body.confirmedBy, confirmedAt: body.confirmedAt || new Date().toISOString() }, meta: {} });
+  }),
 ];

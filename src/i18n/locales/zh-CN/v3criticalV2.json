@@ -1,8 +1,0 @@
-{
-  "title": "危急值升级",
-  "pending": "待通知",
-  "notified": "已通知待确认",
-  "overdue": "超时未完成",
-  "completed": "已完成",
-  "statsTitle": "危急值统计"
-}

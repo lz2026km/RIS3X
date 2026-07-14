@@ -1,0 +1,16 @@
+{
+  "title": "RADS 自动评分",
+  "scoreType": "评分类型",
+  "patientId": "患者 ID",
+  "noduleSize": "结节大小",
+  "spiculatedMargin": "毛刺征边缘",
+  "startScoring": "开始评分",
+  "loadHistory": "加载历史",
+  "findings": "发现项",
+  "recommendations": "建议",
+  "confidence": "置信度",
+  "historyTrend": "评分历史趋势",
+  "lungRads": "Lung-RADS",
+  "biRads": "BI-RADS",
+  "piRads": "PI-RADS"
+}

@@ -1,44 +1,8 @@
 import { api, invalidateApiCache, invalidateApiCacheByPrefix } from './client'
 import type { ExamQueryParams } from './types'
+import type { ExamDto, CreateExamDto, UpdateExamDto } from '../../types/dto'
 
-export interface ExamDto {
-  id: string
-  examId: string
-  patientId: string
-  patientName: string
-  gender: string
-  age: number
-  modality: string
-  bodyPart: string
-  status: string
-  priority: string
-  scheduledAt: string
-  patientType: string
-  deviceId?: string
-  roomId?: string
-  doctorId?: string
-  contrastUsed?: boolean
-  radiationDose?: number
-  dlp?: number
-  technicianId?: string
-  imageCount?: number
-}
-
-export interface CreateExamDto {
-  patientId: string
-  accessionNumber: string
-  modality: string
-  bodyPart: string
-  scheduledAt?: string
-  deviceId?: string
-}
-
-export interface UpdateExamDto {
-  state?: string
-  startedAt?: string
-  completedAt?: string
-  deviceId?: string
-}
+export type { ExamDto, CreateExamDto, UpdateExamDto }
 
 export const examApi = {
   list: (params?: ExamQueryParams) =>

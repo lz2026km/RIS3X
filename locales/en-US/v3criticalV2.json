@@ -2,6 +2,9 @@
   "title": "Critical Value Escalation",
   "pending": "Pending",
   "notified": "Notified",
+  "voice_called": "Voice Called",
+  "acknowledged": "Acknowledged",
+  "receipted": "Receipted",
   "overdue": "Overdue",
   "completed": "Completed",
   "statsTitle": "Critical Stats"

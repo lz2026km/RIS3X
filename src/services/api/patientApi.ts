@@ -1,28 +1,8 @@
 import { api, invalidateApiCacheByPrefix } from './client'
 import type { PatientQueryParams } from './types'
+import type { PatientDto } from '../../types/dto'
 
-export interface PatientDto {
-  id: string
-  patientId?: string
-  name: string
-  patientName?: string
-  gender: string
-  age: number
-  birthDate?: string
-  phone?: string
-  idCard?: string
-  address?: string
-  patientType?: string
-  insuranceType?: string
-  emergencyContact?: string
-  allergyHistory?: string
-  medicalHistory?: string
-  bloodType?: string
-  department?: string
-  diagnosis?: string
-  lastVisitAt?: string
-  registeredAt?: string
-}
+export type { PatientDto }
 
 export const patientApi = {
   list: (params?: PatientQueryParams) =>

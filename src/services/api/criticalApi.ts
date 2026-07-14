@@ -16,7 +16,13 @@ export interface CriticalValueDto {
   status: string
   triggeredAt: string
   notifiedAt?: string
+  voiceCalledAt?: string
+  voiceCalledBy?: string
   acknowledgedAt?: string
+  confirmedBy?: string
+  confirmedAt?: string
+  confirmedSignature?: string
+  confirmedComment?: string
   resolvedAt?: string
   doctorId?: string
   notifiedTo?: string
@@ -97,6 +103,12 @@ export const criticalApi = {
 
   delete: (id: string) =>
     api.delete(`/criticals/${id}`),
+
+  voiceCall: (id: string, data: { calledBy: string; phoneNumber: string; note?: string }) =>
+    api.post<CriticalValueDto>(`/criticals/${id}/voice-call`, data),
+
+  clinicalReceipt: (id: string, data: { confirmedBy: string; signature?: string; comment?: string }) =>
+    api.post<CriticalValueDto>(`/criticals/${id}/clinical-receipt`, data),
 
   acknowledge: (id: string) =>
     api.patch<CriticalValueDto>(`/criticals/${id}`, { state: 'ACKNOWLEDGED' }),

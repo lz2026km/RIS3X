@@ -42,5 +42,18 @@
   "acceptanceRate": "采纳率",
   "review": "AI内容审核",
   "reviewReport": "审核报告",
-  "streaming": "流式生成"
+  "streaming": "流式生成",
+  "draftTitle": "AI 报告草稿",
+  "draftGenerate": "生成 AI 草稿",
+  "draftContinue": "续写",
+  "draftRewrite": "改写段落",
+  "draftAccept": "接受",
+  "draftReject": "拒绝",
+  "draftEdit": "编辑",
+  "draftConfidence": "置信度",
+  "draftSelectPatient": "选择患者",
+  "draftSelectExam": "选择检查",
+  "draftParagraphs": "生成段落",
+  "draftNoResult": "请选择患者和检查后生成",
+  "draftGenerating": "AI 正在生成报告段落..."
 }

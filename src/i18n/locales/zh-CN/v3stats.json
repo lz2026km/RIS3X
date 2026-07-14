@@ -293,5 +293,6 @@
       "perCapitaProfitColumn": "人均利润(万)",
       "profitRateColumn": "利润率"
     }
-  }
+  },
+  "opsTitle": "实时运营仪表盘"
 }

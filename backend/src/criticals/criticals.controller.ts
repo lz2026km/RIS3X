@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { Roles } from '../common/decorators/roles.decorator'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
-import { CriticalsService, NotifyDto, EscalateDto } from './criticals.service'
+import { CriticalsService, NotifyDto, EscalateDto, VoiceCallDto, ClinicalReceiptDto } from './criticals.service'
 
 const ChannelEnum = z.enum(['SMS', 'WECHAT', 'PHONE', 'DINGTALK', 'APP'])
 const CategoryEnum = z.enum(['LIFE_THREATENING', 'URGENT', 'IMPORTANT'])
@@ -26,6 +26,19 @@ const EscalateSchema = z.object({
   newRecipients: z.array(z.object({ name: z.string(), dept: z.string(), phone: z.string() })).min(1),
 })
 
+const VoiceCallSchema = z.object({
+  calledBy: z.string().min(1),
+  phoneNumber: z.string().min(1),
+  note: z.string().optional(),
+})
+
+const ClinicalReceiptSchema = z.object({
+  confirmedBy: z.string().min(1),
+  confirmedAt: z.string().datetime().optional(),
+  signature: z.string().optional(),
+  comment: z.string().optional(),
+})
+
 const CreateCriticalSchema = z.object({
   examId: z.string().optional(),
   description: z.string().min(1),
@@ -36,7 +49,7 @@ const CreateCriticalSchema = z.object({
 const UpdateCriticalSchema = z.object({
   description: z.string().optional(),
   severity: z.enum(['LOW', 'HIGH', 'URGENT', 'CRITICAL']).optional(),
-  state: z.enum(['FOUND', 'NOTIFIED', 'ACKNOWLEDGED', 'RESOLVING', 'RESOLVED']).optional(),
+  state: z.enum(['FOUND', 'NOTIFIED', 'VOICE_CALLED', 'ACKNOWLEDGED', 'RECEIPTED', 'RESOLVING', 'RESOLVED']).optional(),
   notifiedTo: z.string().optional(),
   ackedBy: z.string().optional(),
   resolvedBy: z.string().optional(),
@@ -83,6 +96,16 @@ export class CriticalsController {
   @Delete(':id')
   delete(@Param('id') id: string) {
     return this.service.delete(id)
+  }
+
+  @Post(':id/voice-call')
+  voiceCall(@Param('id') id: string, @Body(new ZodValidationPipe(VoiceCallSchema)) body: VoiceCallDto) {
+    return this.service.voiceCall(id, body)
+  }
+
+  @Post(':id/clinical-receipt')
+  clinicalReceipt(@Param('id') id: string, @Body(new ZodValidationPipe(ClinicalReceiptSchema)) body: ClinicalReceiptDto) {
+    return this.service.clinicalReceipt(id, body)
   }
 
   @Post('notify')

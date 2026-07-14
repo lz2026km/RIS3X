@@ -3,9 +3,9 @@
  * G005 Radiology RIS System
  */
 export { SearchInput } from './SearchInput';
-export { FilterBar } from './FilterBar';
-export { DataTable } from './DataTable';
-export { ErrorBoundary } from './ErrorBoundary';
+export { DataTable } from './data/DataTable';
+export { FilterBar } from './common/FilterBar';
+export { ErrorBoundary, useErrorCapture, ErrorBoundaryProvider } from './ErrorBoundary';
 export { AppEmpty as EmptyState } from './feedback';
 export { LanguageSwitcher } from './LanguageSwitcher';
 export { ToastProvider } from './ToastProvider';

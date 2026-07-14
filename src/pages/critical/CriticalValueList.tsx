@@ -126,10 +126,12 @@ interface CriticalValueRowProps {
   onProcess: () => void
   onViewDetail: () => void
   onContactClinical: () => void
+  onVoiceCall: () => void
+  onClinicalReceipt: () => void
   onTransferToFollowUp: () => void
 }
 
-const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, onContactClinical, onTransferToFollowUp }: CriticalValueRowProps) => {
+const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, onContactClinical, onVoiceCall, onClinicalReceipt, onTransferToFollowUp }: CriticalValueRowProps) => {
   const statusCfg = STATUS_CONFIG[cv.status] || STATUS_CONFIG['pending']
   const severityCfg = SEVERITY_CONFIG[cv.severity] || SEVERITY_CONFIG['高危']
   const StatusIcon = statusCfg.icon || Bell
@@ -173,17 +175,27 @@ const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, o
       </div>
       <div style={{ fontSize: 12, color: '#64748b' }}>{cv.processingTime ? (cv.processingTime || '').split(' ')[1] || cv.processingTime : '-'}</div>
       <div style={{ fontSize: 12, color: '#64748b' }}>{cv.processingDuration || '-'}</div>
-      <div style={{ display: 'flex', gap: 6 }}>
-        {(cv.status === '待处理' || cv.status === 'pending' || cv.status === 'notified' || cv.status === 'acknowledged') && (
-          <button onClick={onProcess} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #059669', background: '#d1fae5', color: '#059669', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-            <Edit3 size={11} />处理
+      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+        {(cv.status === '待处理' || cv.status === 'pending' || cv.status === 'notified' || cv.status === 'voice_called' || cv.status === 'acknowledged' || cv.status === 'receipted') && (
+          <button onClick={onProcess} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #059669', background: '#d1fae5', color: '#059669', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+            <Edit3 size={10} />处理
           </button>
         )}
-        <button onClick={onViewDetail} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #1e3a5f', background: '#fff', color: '#1e3a5f', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-          <Eye size={11} />详情
+        <button onClick={onViewDetail} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #1e3a5f', background: '#fff', color: '#1e3a5f', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+          <Eye size={10} />详情
         </button>
-        <button onClick={onContactClinical} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #d97706', background: '#fff', color: '#d97706', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-          <Phone size={11} />联系
+        {(cv.status === 'notified' || cv.status === '已通知') && (
+          <button onClick={onVoiceCall} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #ea580c', background: '#fff7ed', color: '#ea580c', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+            <Phone size={10} />电话
+          </button>
+        )}
+        {(cv.status === 'acknowledged' || cv.status === '已接收') && (
+          <button onClick={onClinicalReceipt} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #16a34a', background: '#f0fdf4', color: '#16a34a', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+            <Edit3 size={10} />回执
+          </button>
+        )}
+        <button onClick={onContactClinical} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #d97706', background: '#fff', color: '#d97706', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+          <Phone size={10} />联系
         </button>
       </div>
       <div>
@@ -210,13 +222,15 @@ interface CriticalValueListProps {
   onProcess: (cv: CriticalValue) => void
   onViewDetail: (cv: CriticalValue) => void
   onContactClinical: (cv: CriticalValue) => void
+  onVoiceCall: (cv: CriticalValue) => void
+  onClinicalReceipt: (cv: CriticalValue) => void
   onTransferToFollowUp: (cv: CriticalValue) => void
   criticalValues: CriticalValue[]
 }
 
 export const CriticalValueList = ({
   filtered, selectedIds, onToggleSelect, onToggleSelectAll,
-  onProcess, onViewDetail, onContactClinical, onTransferToFollowUp, criticalValues,
+  onProcess, onViewDetail, onContactClinical, onVoiceCall, onClinicalReceipt, onTransferToFollowUp, criticalValues,
 }: CriticalValueListProps) => {
   const allSelected = filtered.length > 0 && selectedIds.size === filtered.length
 
@@ -266,6 +280,8 @@ export const CriticalValueList = ({
             onProcess={() => onProcess(cv)}
             onViewDetail={() => onViewDetail(cv)}
             onContactClinical={() => onContactClinical(cv)}
+            onVoiceCall={() => onVoiceCall(cv)}
+            onClinicalReceipt={() => onClinicalReceipt(cv)}
             onTransferToFollowUp={() => onTransferToFollowUp(cv)}
           />
         ))

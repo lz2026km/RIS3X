@@ -1,0 +1,36 @@
+{
+  "title": "DICOM Compression",
+  "card": {
+    "compress": {
+      "title": "Compression Settings",
+      "fileId": "DICOM File",
+      "syntax": "Transfer Syntax",
+      "lossy": "Lossy",
+      "lossless": "Lossless",
+      "compressBtn": "Compress",
+      "decompressBtn": "Decompress"
+    },
+    "progress": {
+      "title": "Task Progress",
+      "taskId": "Task ID",
+      "status": "Status",
+      "originalSize": "Original Size",
+      "compressedSize": "Compressed Size",
+      "ratio": "Compression Ratio",
+      "compressing": "Compressing...",
+      "doneMsg": "Compression completed",
+      "failedMsg": "Compression failed",
+      "noTask": "No compression task"
+    },
+    "ratio": {
+      "title": "Compression Ratio Statistics"
+    }
+  },
+  "table": {
+    "instanceId": "Instance ID",
+    "sopClass": "SOP Class",
+    "originalSize": "Original Size",
+    "compressedSize": "Compressed Size",
+    "ratio": "Ratio"
+  }
+}

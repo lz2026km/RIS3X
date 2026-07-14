@@ -1,0 +1,16 @@
+{
+  "title": "RADS Scoring",
+  "scoreType": "Score Type",
+  "patientId": "Patient ID",
+  "noduleSize": "Nodule Size",
+  "spiculatedMargin": "Spiculated Margin",
+  "startScoring": "Start Scoring",
+  "loadHistory": "Load History",
+  "findings": "Findings",
+  "recommendations": "Recommendations",
+  "confidence": "Confidence",
+  "historyTrend": "Score History Trend",
+  "lungRads": "Lung-RADS",
+  "biRads": "BI-RADS",
+  "piRads": "PI-RADS"
+}

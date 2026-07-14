@@ -23,7 +23,6 @@
   "printB5": "B5",
   "printIncludeImage": "含影像",
   "printIncludeSeal": "含医院章",
-
   "typicalCasesTitle": "典型病例库",
   "typicalCasesHeader": "典型病例库",
   "hospitalSubtitle": "教学与研究资料库",
@@ -126,7 +125,6 @@
   "csvHeaderDiagnosis": "诊断",
   "csvHeaderExamType": "检查类型",
   "csvHeaderTypicalFeatures": "典型特征",
-
   "findingLibraryTitle": "典型征象图文库",
   "findingCount": "共{{count}}条征象",
   "findingCurrentDisplay": "当前显示",
@@ -165,7 +163,6 @@
   "findingUsage": "使用{{count}}次",
   "findingMore": "还有{{count}}条...",
   "findingPlaceholderImage": "典型征象示意图",
-
   "writing.v3065.voiceCommands": "语音命令",
   "writing.v3065.voiceStart": "开始录音",
   "writing.v3065.voiceStop": "停止录音",
@@ -198,7 +195,6 @@
   "writing.v3065.voiceNoSpeech": "未检测到语音",
   "writing.v3065.voiceTimeout": "语音识别超时",
   "writing.v3065.voiceNetworkError": "网络错误，请重试",
-
   "writing.v3065.aiDraft": "AI 初稿",
   "writing.v3065.aiDraftTitle": "AI 智能辅助",
   "writing.v3065.aiDraftTab": "AI 草稿",
@@ -232,7 +228,6 @@
   "writing.v3065.aiProcessingTime": "处理时间",
   "writing.v3065.aiTokenUsage": "Token 用量",
   "writing.v3065.aiScore": "AI 评分",
-
   "writing.v3065.templateLungRads": "Lung-RADS",
   "writing.v3065.templateLungRadsDesc": "肺结节筛查报告模板",
   "writing.v3065.templateLungRadsCategory": "Lung-RADS 分类",
@@ -255,7 +250,6 @@
   "writing.v3065.templateLungRadsCategory4B": "4B-高度可疑",
   "writing.v3065.templateLungRadsCategory4X": "4X-非常可疑",
   "writing.v3065.templateLungRadsManagement": "处理建议",
-
   "writing.v3065.templateCadRads": "CAD-RADS",
   "writing.v3065.templateCadRadsDesc": "冠状动脉报告模板",
   "writing.v3065.templateCadRadsCategory": "CAD-RADS 分类",
@@ -275,7 +269,6 @@
   "writing.v3065.templateCadRadsNonCalcified": "非钙化斑块",
   "writing.v3065.templateCadRadsMixed": "混合斑块",
   "writing.v3065.templateCadRadsHighRisk": "高危斑块特征",
-
   "writing.v3065.templateLiRads": "LI-RADS",
   "writing.v3065.templateLiRadsDesc": "肝脏影像报告模板",
   "writing.v3065.templateLiRadsCategory": "LI-RADS 分类",
@@ -294,7 +287,6 @@
   "writing.v3065.templateLiRadsNoduleSize": "结节大小",
   "writing.v3065.templateLiRadsFat": "含脂",
   "writing.v3065.templateLiRadsHemorrhage": "出血",
-
   "writing.v3065.templateTiRads": "TI-RADS",
   "writing.v3065.templateTiRadsDesc": "甲状腺影像报告模板",
   "writing.v3065.templateTiRadsCategory": "TI-RADS 分类",
@@ -322,7 +314,6 @@
   "writing.v3065.templateTiRadsPunctate": "点状强回声",
   "writing.v3065.templateTiRadsMacrocalcification": "粗大钙化",
   "writing.v3065.templateTiRadsPeripheral": "边缘钙化",
-
   "writing.v3065.templateCRads": "C-RADS",
   "writing.v3065.templateCRadsDesc": "结肠影像报告模板",
   "writing.v3065.templateCRadsCategory": "C-RADS 分类",
@@ -337,7 +328,6 @@
   "writing.v3065.templateCRadsPedunculated": "有蒂",
   "writing.v3065.templateCRadsFlat": "扁平",
   "writing.v3065.templateCRadsLocation": "位置",
-
   "writing.v3065.templateORads": "O-RADS",
   "writing.v3065.templateORadsDesc": "卵巢影像报告模板",
   "writing.v3065.templateORadsCategory": "O-RADS 分类",
@@ -354,7 +344,6 @@
   "writing.v3065.templateORadsSolidComponent": "实性成分",
   "writing.v3065.templateORadsAscites": "腹水",
   "writing.v3065.templateORadsPeritoneal": "腹膜种植",
-
   "writing.v3065.templateTNM": "TNM 分期",
   "writing.v3065.templateTNMDesc": "肿瘤 TNM 分期模板",
   "writing.v3065.templateTNMStage": "TNM 分期",
@@ -379,7 +368,6 @@
   "writing.v3065.templateTNMStage2": "II期",
   "writing.v3065.templateTNMStage3": "III期",
   "writing.v3065.templateTNMStage4": "IV期",
-
   "writing.v3065.annotationTool": "标注工具",
   "writing.v3065.annotationArrow": "箭头",
   "writing.v3065.annotationText": "文字",
@@ -410,7 +398,6 @@
   "writing.v3065.annotationMultiFrame": "多帧标注",
   "writing.v3065.annotationFrameSelect": "帧选择",
   "writing.v3065.annotationSeriesSelect": "序列选择",
-
   "writing.v3065.editorMultimodal": "多模态嵌入",
   "writing.v3065.editorMultimodalImage": "嵌入影像",
   "writing.v3065.editorMultimodalVideo": "嵌入视频",
@@ -493,7 +480,6 @@
   "writing.v3065.editorAlignJustify": "两端对齐",
   "writing.v3065.editorDirectionLtr": "从左到右",
   "writing.v3065.editorDirectionRtl": "从右到左",
-
   "template.recist.title": "RECIST 1.1 实体瘤疗效评估",
   "template.birads.title": "BI-RADS 乳腺影像报告",
   "template.pirads.title": "PI-RADS v2.1 前列腺MRI评估",
@@ -551,5 +537,9 @@
   "template.tnm.t": "T分期",
   "template.tnm.n": "N分期",
   "template.tnm.m": "M分期",
-  "template.tnm.stage": "综合分期"
+  "template.tnm.stage": "综合分期",
+  "archiveTitle": "报告归档",
+  "archiveLock": "锁定",
+  "archiveUnlock": "解锁",
+  "archiveAudit": "审计"
 }

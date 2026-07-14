@@ -1,4 +1,5 @@
-import { api } from './client'
+import { api, API_BASE } from './client'
+import { getToken } from '../../utils/auth'
 import type { ApiResponse } from './types'
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -96,6 +97,37 @@ export const dicomWebApi = {
 
   storeInstance: (studyInstanceUid: string, body: StoreInstancePayload) =>
     api.post<{ id: string }>(`/dicom-web/studies/${encodeURIComponent(studyInstanceUid)}`, body),
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // WADO-RS 完整实现
+  // ══════════════════════════════════════════════════════════════════════════
+
+  wadoRsRetrieveStudy: (studyUID: string) =>
+    api.get<ArrayBuffer>(`/dicom-web/studies/${encodeURIComponent(studyUID)}`),
+
+  wadoRsRetrieveSeries: (studyUID: string, seriesUID: string) =>
+    api.get<ArrayBuffer>(`/dicom-web/studies/${encodeURIComponent(studyUID)}/series/${encodeURIComponent(seriesUID)}`),
+
+  wadoRsRetrieveInstance: (studyUID: string, seriesUID: string, instanceUID: string) =>
+    api.get<ArrayBuffer>(`/dicom-web/studies/${encodeURIComponent(studyUID)}/series/${encodeURIComponent(seriesUID)}/instances/${encodeURIComponent(instanceUID)}`),
+
+  wadoRsMetadata: (studyUID: string) =>
+    api.get<Record<string, unknown>[]>(`/dicom-web/studies/${encodeURIComponent(studyUID)}/metadata`),
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // STOW-RS (multipart/related)
+  // ══════════════════════════════════════════════════════════════════════════
+  stowRsStore: async (studyUID: string, dicomData: Blob | File): Promise<{ id: string }> => {
+    const token = getToken()
+    const headers: Record<string, string> = {
+      Accept: 'application/dicom+json',
+    }
+    if (token) headers['Authorization'] = `Bearer ${token}`
+    const url = `${API_BASE}/dicom-web/studies/${encodeURIComponent(studyUID)}`
+    const res = await fetch(url, { method: 'POST', headers, body: dicomData })
+    if (!res.ok) throw new Error(`STOW-RS failed: ${res.status}`)
+    return res.json()
+  },
 }
 
 // ══════════════════════════════════════════════════════════════════════════

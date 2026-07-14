@@ -22,5 +22,7 @@
   "voiceResult": "Result",
   "voiceInsert": "Insert to Report",
   "scanQr": "Scan QR",
-  "scanResult": "Result"
+  "scanResult": "Result",
+  "worklist": "Worklist",
+  "critical": "Critical Response"
 }

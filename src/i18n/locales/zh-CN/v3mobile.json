@@ -22,5 +22,7 @@
   "voiceResult": "识别结果",
   "voiceInsert": "插入到报告",
   "scanQr": "扫码",
-  "scanResult": "扫码结果"
+  "scanResult": "扫码结果",
+  "worklist": "工作列表",
+  "critical": "危急值响应"
 }

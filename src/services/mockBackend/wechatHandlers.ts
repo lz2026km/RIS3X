@@ -9,25 +9,7 @@ const getBase = () =>
     ? window.location.origin
     : "http://localhost:5191") + "/api/v1";
 
-const MOCK_OPENID_PREFIX = "mock_open_";
-const MOCK_PATIENT_REPORTS = [
-  { id: "RPT-2026-0001", studyId: "STD-001", modality: "CT", bodyPart: "胸部", examDescription: "胸部 CT 平扫", status: "published", reportDate: "2026-07-01T10:30:00+08:00", radiologist: "张三主任医师", hasCriticalFinding: false, pdfAvailable: true },
-  { id: "RPT-2026-0002", studyId: "STD-002", modality: "MR", bodyPart: "头部", examDescription: "头部 MR 平扫+DWI", status: "published", reportDate: "2026-07-02T14:20:00+08:00", radiologist: "李四副主任医师", hasCriticalFinding: true, pdfAvailable: true },
-  { id: "RPT-2026-0003", studyId: "STD-003", modality: "DR", bodyPart: "胸部正侧位", examDescription: "胸部正侧位 DR", status: "preliminary", reportDate: "2026-07-03T08:15:00+08:00", radiologist: "王五主治医师", hasCriticalFinding: false, pdfAvailable: false },
-];
-const MOCK_EXAM_STATUS = {
-  "EXM-001": {
-    examId: "EXM-001", patientId: "P100001",
-    status: "in_progress", scheduledAt: "2026-07-04T09:00:00+08:00",
-    startedAt: "2026-07-04T09:15:00+08:00", modality: "CT", room: "CT-1",
-    queuePosition: 1, estimatedWaitMinutes: 10, hasCriticalFinding: false,
-    timeline: [
-      { step: "scheduled", at: "2026-07-03T10:00:00+08:00" },
-      { step: "arrived", at: "2026-07-04T08:50:00+08:00" },
-      { step: "in_progress", at: "2026-07-04T09:15:00+08:00", operator: "技师小赵" },
-    ],
-  },
-};
+import { MOCK_OPENID_PREFIX, MOCK_PATIENT_REPORTS, MOCK_EXAM_STATUS } from './data/index';
 
 export const wechatHandlers = [
   // 1. jscode2session

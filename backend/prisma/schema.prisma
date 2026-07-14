@@ -55,7 +55,9 @@ enum DeviceState {
 enum CriticalState {
   FOUND
   NOTIFIED
+  VOICE_CALLED
   ACKNOWLEDGED
+  RECEIPTED
   RESOLVING
   RESOLVED
 }
@@ -281,8 +283,14 @@ model CriticalValue {
   state         CriticalState      @default(FOUND)
   method        NotificationMethod @default(SYSTEM)
   notifiedTo    String?            @map("notified_to")
+  voiceCalledAt DateTime?          @map("voice_called_at")
+  voiceCalledBy String?            @map("voice_called_by")
   ackedBy       String?            @map("acked_by")
   ackedAt       DateTime?          @map("acked_at")
+  confirmedBy   String?            @map("confirmed_by")
+  confirmedAt   DateTime?          @map("confirmed_at")
+  confirmedSignature String?       @map("confirmed_signature")
+  confirmedComment  String?        @map("confirmed_comment")
   resolvedBy    String?            @map("resolved_by")
   resolvedAt    DateTime?          @map("resolved_at")
   createdAt     DateTime           @default(now()) @map("created_at")

@@ -41,5 +41,10 @@
     "CV-RAD-013": "Severe Contrast Reaction",
     "CV-RAD-014": "Acute Pericardial Tamponade",
     "CV-RAD-015": "Ectopic Pregnancy Rupture"
-  }
+  },
+  "pending": "Pending",
+  "notified": "Notified",
+  "overdue": "Overdue",
+  "completed": "Completed",
+  "statsTitle": "Critical Stats"
 }

@@ -58,6 +58,13 @@ export default function CriticalValuePage() {
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [confirmType, setConfirmType] = useState<"notify" | "process">("notify")
   const [confirmMessage, setConfirmMessage] = useState("")
+  const [showVoiceCallModal, setShowVoiceCallModal] = useState(false)
+  const [voiceCallCV, setVoiceCallCV] = useState<CriticalValue | null>(null)
+  const [voiceCallPhone, setVoiceCallPhone] = useState("")
+  const [showReceiptModal, setShowReceiptModal] = useState(false)
+  const [receiptCV, setReceiptCV] = useState<CriticalValue | null>(null)
+  const [receiptDoctor, setReceiptDoctor] = useState("")
+  const [receiptComment, setReceiptComment] = useState("")
 
   useEffect(() => {
     let cancelled = false
@@ -106,6 +113,32 @@ export default function CriticalValuePage() {
   const showToast = (message: string, type: "success" | "error" = "success") => {
     setToast({ show: true, message, type })
     setTimeout(() => setToast({ show: false, message: "", type: "success" }), 3000)
+  }
+
+  const handleVoiceCall = (cv: CriticalValue) => {
+    setVoiceCallCV(cv); setVoiceCallPhone(cv.phone || ""); setShowVoiceCallModal(true)
+  }
+
+  const handleConfirmVoiceCall = async () => {
+    if (voiceCallCV) {
+      await useCriticalStore.getState().voiceCall(voiceCallCV.id, voiceCallPhone)
+      log("voice_call", voiceCallCV.id, { phone: voiceCallPhone })
+      showToast("电话通知已记录")
+    }
+    setShowVoiceCallModal(false); setVoiceCallCV(null); setVoiceCallPhone("")
+  }
+
+  const handleClinicalReceipt = (cv: CriticalValue) => {
+    setReceiptCV(cv); setReceiptDoctor(""); setReceiptComment(""); setShowReceiptModal(true)
+  }
+
+  const handleConfirmReceipt = async () => {
+    if (receiptCV && receiptDoctor) {
+      await useCriticalStore.getState().clinicalReceipt(receiptCV.id, { confirmedBy: receiptDoctor, comment: receiptComment })
+      log("clinical_receipt", receiptCV.id, { confirmedBy: receiptDoctor })
+      showToast("临床回执已记录")
+    }
+    setShowReceiptModal(false); setReceiptCV(null); setReceiptDoctor(""); setReceiptComment("")
   }
 
   const handleContactClinical = (cv: CriticalValue) => {
@@ -168,7 +201,7 @@ export default function CriticalValuePage() {
 
   useKeyboardShortcuts([
     SHORTCUTS.SUBMIT(() => { if (showProcessModal && processCV) handleConfirmProcess(); else if (showConfirmModal) handleConfirm() }),
-    SHORTCUTS.CANCEL(() => { setShowProcessModal(false); setProcessCV(null); setShowNotifyModal(false); setNotifyCV(null); setShowConfirmModal(false); setShowSettings(false); setSelectedCV(null) }),
+    SHORTCUTS.CANCEL(() => { setShowProcessModal(false); setProcessCV(null); setShowNotifyModal(false); setNotifyCV(null); setShowVoiceCallModal(false); setVoiceCallCV(null); setShowReceiptModal(false); setReceiptCV(null); setShowConfirmModal(false); setShowSettings(false); setSelectedCV(null) }),
     SHORTCUTS.REFRESH(() => { setSelectedIds(new Set()) }),
   ])
   useNavigationShortcuts([
@@ -236,7 +269,7 @@ export default function CriticalValuePage() {
           filtered={filtered} selectedIds={selectedIds}
           onToggleSelect={toggleSelect} onToggleSelectAll={toggleSelectAll}
           onProcess={handleProcess} onViewDetail={handleViewDetail}
-          onContactClinical={handleContactClinical} onTransferToFollowUp={handleTransferToFollowUp}
+          onContactClinical={handleContactClinical} onVoiceCall={handleVoiceCall} onClinicalReceipt={handleClinicalReceipt} onTransferToFollowUp={handleTransferToFollowUp}
           criticalValues={criticalValues}
         />
         {selectedCV && (
@@ -255,6 +288,13 @@ export default function CriticalValuePage() {
         notifyPhone={notifyPhone} notifyNotes={notifyNotes} notifyMethod={notifyMethod}
         onSetNotifyPhone={setNotifyPhone} onSetNotifyNotes={setNotifyNotes} onSetNotifyMethod={setNotifyMethod}
         onConfirmNotify={handleConfirmNotify} onCancelNotify={() => { setShowNotifyModal(false); setNotifyCV(null) }}
+        showVoiceCallModal={showVoiceCallModal} voiceCallCV={voiceCallCV}
+        voiceCallPhone={voiceCallPhone} onSetVoiceCallPhone={setVoiceCallPhone}
+        onConfirmVoiceCall={handleConfirmVoiceCall} onCancelVoiceCall={() => { setShowVoiceCallModal(false); setVoiceCallCV(null); setVoiceCallPhone("") }}
+        showReceiptModal={showReceiptModal} receiptCV={receiptCV}
+        receiptDoctor={receiptDoctor} receiptComment={receiptComment}
+        onSetReceiptDoctor={setReceiptDoctor} onSetReceiptComment={setReceiptComment}
+        onConfirmReceipt={handleConfirmReceipt} onCancelReceipt={() => { setShowReceiptModal(false); setReceiptCV(null); setReceiptDoctor(""); setReceiptComment("") }}
         showConfirmModal={showConfirmModal} confirmMessage={confirmMessage}
         onConfirm={handleConfirm} onCancelConfirm={() => setShowConfirmModal(false)}
         showSettings={showSettings} onCloseSettings={() => setShowSettings(false)} showToastFn={showToast}

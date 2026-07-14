@@ -293,5 +293,6 @@
       "perCapitaProfitColumn": "Per Capita(10k)",
       "profitRateColumn": "Profit Rate"
     }
-  }
+  },
+  "opsTitle": "Realtime Ops"
 }

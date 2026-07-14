@@ -123,17 +123,6 @@ export function useVirtualList({
 
 // ============= 节流/防抖增强 =============
 
-/** requestIdleCallback 包装(降级 setTimeout) */
-export function runWhenIdle(cb: () => void, timeout = 5000): void {
-  if (typeof window === 'undefined') return;
-  if ('requestIdleCallback' in window) {
-    (window as Window & { requestIdleCallback: (cb: () => void, opts?: { timeout?: number }) => void })
-      .requestIdleCallback(cb, { timeout });
-  } else {
-    setTimeout(cb, 1);
-  }
-}
-
 /** 资源预连接(对第三方域名) */
 export function preconnectTo(origin: string): void {
   if (typeof document === 'undefined') return;
@@ -143,15 +132,7 @@ export function preconnectTo(origin: string): void {
   document.head.appendChild(link);
 }
 
-/** 资源预加载 */
-export function preloadImage(src: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve();
-    img.onerror = reject;
-    img.src = src;
-  });
-}
+export { runWhenIdle, preloadImage } from './performance';
 
 // ============= 长任务切片 =============
 

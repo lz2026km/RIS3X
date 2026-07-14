@@ -1,13 +1,14 @@
 import { create } from 'zustand'
 import {
   getAdverseEvents, createAdverseEvent, updateAdverseEvent, deleteAdverseEvent,
-  getRcaInvestigations, createRcaInvestigation, updateRcaInvestigation, deleteRcaInvestigation,
-  getRiskItems, createRiskItem, updateRiskItem, deleteRiskItem,
+  getRcaInvestigations, createRcaInvestigation, updateRcaInvestigation,
+  getRiskItems, createRiskItem, updateRiskItem,
   getCqiDashboard, createCqiProject, closeCqiProject,
   getPatientSafetyGoals,
   type AdverseEvent, type RcaInvestigation, type RiskItem, type CqiProject,
-  type PatientSafetyGoal, type EventSeverity, type EventCategory, type RiskCategory, type RcaStatus,
+  type PatientSafetyGoal,
 } from '../services/api/safetyApi'
+import { createCrudStore } from './helpers'
 
 interface SafetyState {
   adverseEvents: AdverseEvent[]
@@ -47,95 +48,35 @@ export const useSafetyStore = create<SafetyState>((set, get) => ({
   loading: false,
   error: null,
 
-  loadAdverseEvents: async () => {
-    set({ loading: true, error: null })
-    try {
-      const data = await getAdverseEvents()
-      set({ adverseEvents: data, loading: false })
-    } catch {
-      set({ error: '加载不良事件失败', loading: false })
-    }
-  },
+  ...createCrudStore<AdverseEvent>({
+    field: 'adverseEvents',
+    label: '不良事件',
+    api: { list: getAdverseEvents, create: createAdverseEvent, update: updateAdverseEvent, delete: deleteAdverseEvent },
+  })(set, get),
 
-  loadRcaInvestigations: async () => {
-    set({ loading: true, error: null })
-    try {
-      const data = await getRcaInvestigations()
-      set({ rcaInvestigations: data, loading: false })
-    } catch {
-      set({ error: '加载RCA调查失败', loading: false })
-    }
-  },
+  ...createCrudStore<RcaInvestigation>({
+    field: 'rcaInvestigations',
+    label: 'RCA调查',
+    api: { list: getRcaInvestigations, create: createRcaInvestigation },
+  })(set, get),
 
-  loadRiskItems: async () => {
-    set({ loading: true, error: null })
-    try {
-      const data = await getRiskItems()
-      set({ riskItems: data, loading: false })
-    } catch {
-      set({ error: '加载风险项失败', loading: false })
-    }
-  },
+  ...createCrudStore<RiskItem>({
+    field: 'riskItems',
+    label: '风险项',
+    api: { list: getRiskItems, create: createRiskItem },
+  })(set, get),
 
-  loadCqiProjects: async () => {
-    set({ loading: true, error: null })
-    try {
-      const data = await getCqiDashboard()
-      set({ cqiProjects: data, loading: false })
-    } catch {
-      set({ error: '加载CQI项目失败', loading: false })
-    }
-  },
+  ...createCrudStore<CqiProject>({
+    field: 'cqiProjects',
+    label: 'CQI项目',
+    api: { list: getCqiDashboard, create: createCqiProject },
+  })(set, get),
 
-  loadSafetyGoals: async () => {
-    set({ loading: true, error: null })
-    try {
-      const data = await getPatientSafetyGoals()
-      set({ safetyGoals: data, loading: false })
-    } catch {
-      set({ error: '加载安全目标失败', loading: false })
-    }
-  },
-
-  createAdverseEvent: async (data) => {
-    set({ loading: true, error: null })
-    try {
-      await createAdverseEvent(data)
-      await get().loadAdverseEvents()
-    } catch {
-      set({ error: '创建不良事件失败', loading: false })
-    }
-  },
-
-  updateAdverseEvent: async (id, data) => {
-    set({ loading: true, error: null })
-    try {
-      await updateAdverseEvent(id, data)
-      await get().loadAdverseEvents()
-    } catch {
-      set({ error: '更新不良事件失败', loading: false })
-    }
-  },
-
-  deleteAdverseEvent: async (id) => {
-    set({ loading: true, error: null })
-    try {
-      await deleteAdverseEvent(id)
-      await get().loadAdverseEvents()
-    } catch {
-      set({ error: '删除不良事件失败', loading: false })
-    }
-  },
-
-  createRcaInvestigation: async (data) => {
-    set({ loading: true, error: null })
-    try {
-      await createRcaInvestigation(data)
-      await get().loadRcaInvestigations()
-    } catch {
-      set({ error: '创建RCA调查失败', loading: false })
-    }
-  },
+  ...createCrudStore<PatientSafetyGoal>({
+    field: 'safetyGoals',
+    label: '安全目标',
+    api: { list: getPatientSafetyGoals },
+  })(set, get),
 
   closeRca: async (id) => {
     set({ loading: true, error: null })
@@ -150,16 +91,6 @@ export const useSafetyStore = create<SafetyState>((set, get) => ({
     }
   },
 
-  createRiskItem: async (data) => {
-    set({ loading: true, error: null })
-    try {
-      await createRiskItem(data)
-      await get().loadRiskItems()
-    } catch {
-      set({ error: '创建风险项失败', loading: false })
-    }
-  },
-
   mitigateRisk: async (id, plan, owner, deadline) => {
     set({ loading: true, error: null })
     try {
@@ -167,16 +98,6 @@ export const useSafetyStore = create<SafetyState>((set, get) => ({
       await get().loadRiskItems()
     } catch {
       set({ error: '更新风险缓解失败', loading: false })
-    }
-  },
-
-  createCqiProject: async (data) => {
-    set({ loading: true, error: null })
-    try {
-      await createCqiProject(data)
-      await get().loadCqiProjects()
-    } catch {
-      set({ error: '创建CQI项目失败', loading: false })
     }
   },
 

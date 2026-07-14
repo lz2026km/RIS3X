@@ -273,5 +273,7 @@
   "oeDashboard": "OEE Dashboard",
   "roomOccupancy": "Room Occupancy",
   "benchmarkCompare": "Benchmark Compare",
-  "aiDiagnosisAccuracy": "AI Diagnosis Accuracy"
+  "aiDiagnosisAccuracy": "AI Diagnosis Accuracy",
+  "triageWorklist": "AI Triage Worklist",
+  "dicomWeb": "DICOMweb"
 }

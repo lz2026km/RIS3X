@@ -5,6 +5,7 @@ import { createActor } from 'xstate'
 import { examApi } from '../services/api'
 import type { ExamDto } from '../services/api'
 import { examMachine, type ExamStateName } from '../machines/examMachine'
+import { createCrudStore } from './helpers'
 
 const EXAM_STATUS_TO_STATE: Record<string, ExamStateName> = {
   '已申请': 'ordered',
@@ -177,19 +178,13 @@ export const useExamStore = create<ExamState>((set, get) => ({
   loading: false,
   error: null,
 
-  load: async () => {
-    set({ loading: true, error: null })
-    try {
-      const res = await examApi.list({})
-      if (res.success && Array.isArray(res.data)) {
-        set({ exams: res.data as ExamDto[], loading: false, error: null })
-      } else {
-        set({ loading: false, error: res.error?.message ?? '加载失败' })
-      }
-    } catch (err) {
-      set({ loading: false, error: err instanceof Error ? err.message : '网络错误' })
-    }
-  },
+  ...createCrudStore<ExamDto>({
+    field: 'exams',
+    label: '检查',
+    api: { list: () => examApi.list({}) },
+    methodName: 'load',
+    loadErrorMsg: '加载失败',
+  })(set, get),
 
   transition: async (id, action) => {
     set({ error: null })

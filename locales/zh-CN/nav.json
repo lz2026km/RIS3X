@@ -191,5 +191,8 @@
   "systemBackup": "数据备份",
   "tenantConfig": "租户合规",
   "systemCompliance": "合规管理",
-  "mfaSetup": "MFA 设置"
+  "mfaSetup": "MFA 设置",
+  "aiRadsScoring": "AI 阅片助手 V3",
+  "dicomCompress": "DICOM 压缩",
+  "dicomWeb": "DICOMweb"
 }

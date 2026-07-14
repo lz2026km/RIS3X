@@ -41,5 +41,9 @@
   "logLogin": "Login Log",
   "logError": "Error Log",
   "logDataChange": "Data Change",
-  "logExport": "Export Log"
+  "logExport": "Export Log",
+  "deviceMgmt": "Device Management",
+  "role": "Role",
+  "permission": "Permission",
+  "2FA": "2FA"
 }

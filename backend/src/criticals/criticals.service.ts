@@ -20,6 +20,19 @@ export interface EscalateDto {
   newRecipients: { name: string; dept: string; phone: string }[]
 }
 
+export interface VoiceCallDto {
+  calledBy: string
+  phoneNumber: string
+  note?: string
+}
+
+export interface ClinicalReceiptDto {
+  confirmedBy: string
+  confirmedAt?: string
+  signature?: string
+  comment?: string
+}
+
 @Injectable()
 export class CriticalsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -68,6 +81,30 @@ export class CriticalsService {
     if (dto.ackedBy) data.ackedAt = new Date()
     if (dto.resolvedBy) data.resolvedAt = new Date()
     return this.prisma.criticalValue.update({ where: { id }, data })
+  }
+
+  async voiceCall(id: string, dto: VoiceCallDto) {
+    const existing = await this.prisma.criticalValue.findUnique({ where: { id } })
+    if (!existing) throw new NotFoundException(`CriticalValue ${id} not found`)
+    return this.prisma.criticalValue.update({
+      where: { id },
+      data: { state: 'VOICE_CALLED', voiceCalledAt: new Date(), voiceCalledBy: dto.calledBy },
+    })
+  }
+
+  async clinicalReceipt(id: string, dto: ClinicalReceiptDto) {
+    const existing = await this.prisma.criticalValue.findUnique({ where: { id } })
+    if (!existing) throw new NotFoundException(`CriticalValue ${id} not found`)
+    return this.prisma.criticalValue.update({
+      where: { id },
+      data: {
+        state: 'RECEIPTED',
+        confirmedBy: dto.confirmedBy,
+        confirmedAt: dto.confirmedAt ? new Date(dto.confirmedAt) : new Date(),
+        confirmedSignature: dto.signature,
+        confirmedComment: dto.comment,
+      },
+    })
   }
 
   async delete(id: string) {

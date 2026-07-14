@@ -159,6 +159,17 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, mockFollowUp
                 ))}
               </div>
             </div>
+            <div style={{ background: '#fff7ed', borderRadius: 10, padding: 16, border: '1px solid #fed7aa', marginBottom: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                <PhoneIncoming size={16} style={{ color: '#ea580c' }} />
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#ea580c' }}>电话通知</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                {[{ label: '电话通知人', value: cv.voiceCalledBy || cv.receivingDoctorName || '待通知' }, { label: '通知时间', value: cv.voiceCalledAt || cv.receivingTime || '-' }].map(item => (
+                  <div key={item.label}><div style={labelStyle}>{item.label}</div><div style={{ ...valueStyle, color: item.value === '待通知' || item.value === '-' ? '#94a3b8' : '#1e3a5f' }}>{item.value}</div></div>
+                ))}
+              </div>
+            </div>
             <div style={{ background: '#f8fafc', borderRadius: 10, padding: 16, border: '1px solid #e2e8f0', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <Stethoscope size={16} style={{ color: '#1e3a5f' }} />
@@ -167,6 +178,17 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, mockFollowUp
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 {[{ label: '接收医生', value: cv.receivingDoctorName || '待指定' }, { label: '接收时间', value: cv.receivingTime || '-' }, { label: '临床回复', value: cv.acknowledgedBy || '待回复' }, { label: '回复时间', value: cv.acknowledgedTime || '-' }].map(item => (
                   <div key={item.label}><div style={labelStyle}>{item.label}</div><div style={{ ...valueStyle, color: item.value === '待指定' || item.value === '待回复' || item.value === '-' ? '#94a3b8' : '#1e3a5f' }}>{item.value}</div></div>
+                ))}
+              </div>
+            </div>
+            <div style={{ background: '#f0fdf4', borderRadius: 10, padding: 16, border: '1px solid #bbf7d0', marginBottom: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                <CheckCircle size={16} style={{ color: '#16a34a' }} />
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#16a34a' }}>临床回执</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                {[{ label: '确认医生', value: cv.confirmedBy || '待回执' }, { label: '回执时间', value: cv.confirmedAt || '-' }, { label: '签名', value: cv.confirmedSignature || '-' }, { label: '回执备注', value: cv.confirmedComment || '-' }].map(item => (
+                  <div key={item.label}><div style={labelStyle}>{item.label}</div><div style={{ ...valueStyle, color: item.value === '待回执' || item.value === '-' ? '#94a3b8' : '#1e3a5f' }}>{item.value}</div></div>
                 ))}
               </div>
             </div>

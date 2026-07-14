@@ -1,0 +1,36 @@
+{
+  "title": "DICOM 压缩",
+  "card": {
+    "compress": {
+      "title": "压缩设置",
+      "fileId": "DICOM 文件",
+      "syntax": "传输语法",
+      "lossy": "有损",
+      "lossless": "无损",
+      "compressBtn": "压缩",
+      "decompressBtn": "解压"
+    },
+    "progress": {
+      "title": "任务进度",
+      "taskId": "任务 ID",
+      "status": "状态",
+      "originalSize": "原始大小",
+      "compressedSize": "压缩大小",
+      "ratio": "压缩比",
+      "compressing": "压缩中...",
+      "doneMsg": "压缩完成",
+      "failedMsg": "压缩失败",
+      "noTask": "暂无压缩任务"
+    },
+    "ratio": {
+      "title": "压缩比统计"
+    }
+  },
+  "table": {
+    "instanceId": "实例 ID",
+    "sopClass": "SOP Class",
+    "originalSize": "原始大小",
+    "compressedSize": "压缩大小",
+    "ratio": "压缩比"
+  }
+}

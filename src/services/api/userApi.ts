@@ -1,30 +1,7 @@
 import { api } from './client'
+import type { UserDto, CreateUserDto, UpdateUserDto } from '../../types/dto'
 
-export interface UserDto {
-  id: string
-  username: string
-  fullName: string
-  role: 'DOCTOR' | 'TECHNICIAN' | 'NURSE' | 'ADMIN' | 'DIRECTOR'
-  department?: string
-  active?: boolean
-  createdAt?: string
-  updatedAt?: string
-}
-
-export interface CreateUserDto {
-  username: string
-  password: string
-  fullName: string
-  role: 'DOCTOR' | 'TECHNICIAN' | 'NURSE' | 'ADMIN' | 'DIRECTOR'
-  department?: string
-}
-
-export interface UpdateUserDto {
-  fullName?: string
-  role?: 'DOCTOR' | 'TECHNICIAN' | 'NURSE' | 'ADMIN' | 'DIRECTOR'
-  department?: string
-  active?: boolean
-}
+export type { UserDto, CreateUserDto, UpdateUserDto }
 
 export const userApi = {
   list: (skip = 0, take = 20) =>

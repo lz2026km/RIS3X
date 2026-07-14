@@ -1,9 +1,6 @@
 /**
- * G005 放射RIS系统 v3.0.0 - 危急值 5 节点状态机
- * Phase T3-W6: XState 5 完整落地
- *
- * 危急值 5 节点闭环:
- *   found(发现) → notified(通知) → acknowledged(确认) → resolving(处理) → resolved(闭环)
+ * G005 放射RIS系统 v3.0.0 - 危急值 5 步闭环状态机
+ * 5步闭环: found → notified → voice_called → acknowledged → receipted → resolving → resolved
  *   任意时刻可: escalate(升级) / cancel(取消)
  */
 
@@ -13,7 +10,9 @@ import { createMachine, assign } from 'xstate';
 export type CriticalStateName =
   | 'found'         // 发现危急值
   | 'notified'      // 已通知
+  | 'voice_called'  // 电话通知
   | 'acknowledged'  // 已确认
+  | 'receipted'     // 临床回执
   | 'resolving'     // 处理中
   | 'resolved'      // 已闭环
   | 'closed_loop'   // 闭环确认
@@ -24,7 +23,9 @@ export type CriticalStateName =
 export const CRITICAL_STATE_LABEL: Record<CriticalStateName, string> = {
   found: '已发现',
   notified: '已通知',
+  voice_called: '电话通知',
   acknowledged: '已确认',
+  receipted: '临床回执',
   resolving: '处理中',
   resolved: '已闭环',
   closed_loop: '闭环确认',
@@ -52,8 +53,14 @@ export interface CriticalContext {
   notifiedAt: string | null;
   notificationMethod: NotificationMethod | null;
   notificationAttempts: number;
+  voiceCalledBy: string | null;
+  voiceCalledAt: string | null;
   acknowledgedBy: string | null;
   acknowledgedAt: string | null;
+  confirmedBy: string | null;
+  confirmedAt: string | null;
+  confirmedSignature: string | null;
+  confirmedComment: string | null;
   processingDoctor: string | null;
   processingAt: string | null;
   processingNote: string | null;
@@ -80,7 +87,9 @@ export interface CriticalStateEvent {
 export type CriticalEvent =
   | { type: 'NOTIFY'; to: string; method: NotificationMethod; by: string }
   | { type: 'NOTIFY_FAILED'; by: string }
+  | { type: 'VOICE_CALL'; by: string; phoneNumber: string }
   | { type: 'ACKNOWLEDGE'; by: string }
+  | { type: 'RECEIPT'; by: string; signature?: string; comment?: string }
   | { type: 'START_PROCESSING'; doctorId: string; note?: string }
   | { type: 'COMPLETE_PROCESSING'; note: string }
   | { type: 'ESCALATE'; to: string; reason: string }
@@ -104,8 +113,14 @@ const initialContext = (input: {
   notifiedAt: null,
   notificationMethod: null,
   notificationAttempts: 0,
+  voiceCalledBy: null,
+  voiceCalledAt: null,
   acknowledgedBy: null,
   acknowledgedAt: null,
+  confirmedBy: null,
+  confirmedAt: null,
+  confirmedSignature: null,
+  confirmedComment: null,
   processingDoctor: null,
   processingAt: null,
   processingNote: null,
@@ -165,6 +180,14 @@ export const criticalValueMachine = createMachine({
 
     notified: {
       on: {
+        VOICE_CALL: {
+          target: 'voice_called',
+          actions: assign({
+            voiceCalledBy: ({ event }) => event.by,
+            voiceCalledAt: () => new Date().toISOString(),
+            history: ({ context, event }) => [...context.history, { state: 'voice_called', timestamp: new Date().toISOString(), actorId: event.by, note: event.phoneNumber }],
+          }),
+        },
         ACKNOWLEDGE: {
           target: 'acknowledged',
           actions: assign({
@@ -195,7 +218,66 @@ export const criticalValueMachine = createMachine({
       },
     },
 
+    voice_called: {
+      on: {
+        ACKNOWLEDGE: {
+          target: 'acknowledged',
+          actions: assign({
+            acknowledgedBy: ({ event }) => event.by,
+            acknowledgedAt: () => new Date().toISOString(),
+            history: ({ context, event }) => [...context.history, { state: 'acknowledged', timestamp: new Date().toISOString(), actorId: event.by }],
+          }),
+        },
+        ESCALATE: {
+          target: 'escalated',
+          actions: assign({
+            escalatedTo: ({ event }) => event.to,
+            escalatedAt: () => new Date().toISOString(),
+            history: ({ context, event }) => [...context.history, { state: 'escalated', timestamp: new Date().toISOString(), actorId: event.to, note: event.reason }],
+          }),
+        },
+        CANCEL: {
+          target: 'cancelled',
+          actions: assign({
+            history: ({ context, event }) => [...context.history, { state: 'cancelled', timestamp: new Date().toISOString(), actorId: event.by, note: event.reason }],
+          }),
+        },
+      },
+    },
+
     acknowledged: {
+      on: {
+        RECEIPT: {
+          target: 'receipted',
+          actions: assign({
+            confirmedBy: ({ event }) => event.by,
+            confirmedAt: () => new Date().toISOString(),
+            confirmedSignature: ({ event }) => event.signature ?? null,
+            confirmedComment: ({ event }) => event.comment ?? null,
+            history: ({ context, event }) => [...context.history, { state: 'receipted', timestamp: new Date().toISOString(), actorId: event.by, note: event.comment }],
+          }),
+        },
+        START_PROCESSING: {
+          target: 'resolving',
+          actions: assign({
+            processingDoctor: ({ event }) => event.doctorId,
+            processingAt: () => new Date().toISOString(),
+            processingNote: ({ event }) => event.note ?? null,
+            history: ({ context, event }) => [...context.history, { state: 'resolving', timestamp: new Date().toISOString(), actorId: event.doctorId }],
+          }),
+        },
+        ESCALATE: {
+          target: 'escalated',
+          actions: assign({
+            escalatedTo: ({ event }) => event.to,
+            escalatedAt: () => new Date().toISOString(),
+            history: ({ context, event }) => [...context.history, { state: 'escalated', timestamp: new Date().toISOString(), actorId: event.to, note: event.reason }],
+          }),
+        },
+      },
+    },
+
+    receipted: {
       on: {
         START_PROCESSING: {
           target: 'resolving',

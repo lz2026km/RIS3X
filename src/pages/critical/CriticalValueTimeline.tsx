@@ -10,10 +10,10 @@ const stageConfig: Record<string, { bg: string; color: string; borderColor: stri
 
 const stageColors: Record<string, { bg: string; color: string; borderColor: string; glowColor: string }> = {
   '发现': { bg: '#fef2f2', color: '#dc2626', borderColor: '#dc2626', glowColor: 'rgba(220,38,38,0.4)' },
-  '通报临床': { bg: '#fff7ed', color: '#ea580c', borderColor: '#ea580c', glowColor: 'rgba(234,88,12,0.4)' },
-  '处理中': { bg: '#fef9c3', color: '#ca8a04', borderColor: '#ca8a04', glowColor: 'rgba(202,138,4,0.4)' },
-  '已处理': { bg: '#dcfce7', color: '#16a34a', borderColor: '#16a34a', glowColor: 'rgba(22,163,74,0.4)' },
-  '已归档': { bg: '#dbeafe', color: '#2563eb', borderColor: '#2563eb', glowColor: 'rgba(37,99,235,0.4)' },
+  '电话通知': { bg: '#fff7ed', color: '#ea580c', borderColor: '#ea580c', glowColor: 'rgba(234,88,12,0.4)' },
+  '临床确认': { bg: '#fef9c3', color: '#ca8a04', borderColor: '#ca8a04', glowColor: 'rgba(202,138,4,0.4)' },
+  '临床回执': { bg: '#dcfce7', color: '#16a34a', borderColor: '#16a34a', glowColor: 'rgba(22,163,74,0.4)' },
+  '闭环完成': { bg: '#dbeafe', color: '#2563eb', borderColor: '#2563eb', glowColor: 'rgba(37,99,235,0.4)' },
 }
 
 export const ClosedLoopTracker = ({ cv }: { cv: CriticalValue }) => {
@@ -109,10 +109,11 @@ export const ClosedLoopTracker5Nodes = ({ cv }: { cv: CriticalValue }) => {
   const getCurrentStageIndex = (): number => {
     if (!cv.reportedTime) return -1
     if (cv.transferredToFollowUp) return 4
-    if (cv.status === '已处理') return 3
-    if (cv.processingTime) return 2
-    if (cv.acknowledgedTime) return 2
-    if (cv.receivingTime) return 1
+    if (cv.status === '已处理' || cv.status === 'resolved') return 4
+    if (cv.confirmedBy || cv.confirmedAt) return 3
+    if (cv.acknowledgedBy || cv.acknowledgedTime) return 2
+    if (cv.voiceCalledAt || cv.voiceCalledBy) return 1
+    if (cv.receivingTime || cv.receivingDoctorName) return 1
     return 0
   }
 
@@ -120,10 +121,10 @@ export const ClosedLoopTracker5Nodes = ({ cv }: { cv: CriticalValue }) => {
 
   const stages: ClosedLoopStage5[] = [
     { key: '发现', label: '🔴 发现', time: cv.reportedTime, user: cv.reportedByName, measure: cv.findingDetails?.substring(0, 20) + '...', done: !!cv.reportedTime, active: currentStageIndex === 0 },
-    { key: '通报临床', label: '🟠 通报临床', time: cv.receivingTime, user: cv.receivingDoctorName, measure: cv.notificationMethod || '系统通知', done: !!cv.acknowledgedTime, active: currentStageIndex === 1 },
-    { key: '处理中', label: '🟡 处理中', time: cv.acknowledgedTime, user: cv.acknowledgedBy, measure: cv.processingMeasure?.substring(0, 20) + '...' || '临床处理中', done: !!cv.processingTime, active: currentStageIndex === 2 },
-    { key: '已处理', label: '🟢 已处理', time: cv.processingTime, user: cv.processingDoctorName, measure: cv.processingResult?.substring(0, 20) + '...' || '处理完成', done: cv.status === '已处理' && !cv.transferredToFollowUp, active: currentStageIndex === 3 },
-    { key: '已归档', label: '🔵 已归档', time: cv.transferredToFollowUp ? cv.followUpDate : undefined, user: cv.transferredToFollowUp ? '系统' : undefined, measure: cv.transferredToFollowUp ? `随访编号：${cv.followUpId}` : (cv.status === '已处理' ? '待转随访' : '处理中'), done: !!cv.transferredToFollowUp, active: currentStageIndex === 4 },
+    { key: '电话通知', label: '🟠 电话通知', time: cv.voiceCalledAt || cv.receivingTime, user: cv.voiceCalledBy || cv.receivingDoctorName, measure: '电话通知临床', done: !!(cv.voiceCalledAt || cv.receivingTime), active: currentStageIndex === 1 },
+    { key: '临床确认', label: '🟡 临床确认', time: cv.acknowledgedTime, user: cv.acknowledgedBy, measure: '临床已确认', done: !!(cv.acknowledgedBy || cv.acknowledgedTime), active: currentStageIndex === 2 },
+    { key: '临床回执', label: '🟢 临床回执', time: cv.confirmedAt, user: cv.confirmedBy, measure: cv.confirmedComment?.substring(0, 20) || '已签字回传', done: !!(cv.confirmedBy || cv.confirmedAt), active: currentStageIndex === 3 },
+    { key: '闭环完成', label: '🔵 闭环完成', time: cv.transferredToFollowUp ? cv.followUpDate : undefined, user: cv.transferredToFollowUp ? '系统' : undefined, measure: cv.transferredToFollowUp ? `随访编号：${cv.followUpId}` : (cv.status === '已处理' || cv.status === 'resolved' ? '已闭环' : '处理中'), done: !!(cv.transferredToFollowUp || cv.status === '已处理' || cv.status === 'resolved'), active: currentStageIndex === 4 },
   ]
 
   return (
@@ -157,7 +158,7 @@ export const ClosedLoopTracker5Nodes = ({ cv }: { cv: CriticalValue }) => {
                     <div style={{ position: 'absolute', top: -2, right: -2, width: 16, height: 16, borderRadius: '50%', background: '#f59e0b', border: '3px solid #fff', animation: 'pulse 1.5s infinite' }} />
                   )}
                   <span style={{ fontSize: 20 }}>
-                    {stage.key === '发现' ? '🔴' : stage.key === '通报临床' ? '🟠' : stage.key === '处理中' ? '🟡' : stage.key === '已处理' ? '🟢' : '🔵'}
+                    {stage.key === '发现' ? '🔴' : stage.key === '电话通知' ? '🟠' : stage.key === '临床确认' ? '🟡' : stage.key === '临床回执' ? '🟢' : '🔵'}
                   </span>
                 </div>
                 <div style={{ marginTop: 8, fontSize: 12, fontWeight: 700, color: isDone ? cfg.color : '#94a3b8', textAlign: 'center', whiteSpace: 'nowrap' }}>

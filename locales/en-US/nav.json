@@ -191,5 +191,8 @@
   "systemBackup": "Backup Manager",
   "tenantConfig": "Tenant Compliance",
   "systemCompliance": "Compliance",
-  "mfaSetup": "MFA Setup"
+  "mfaSetup": "MFA Setup",
+  "aiRadsScoring": "AI RADS Scoring V3",
+  "dicomCompress": "DICOM Compress",
+  "dicomWeb": "DICOMweb"
 }

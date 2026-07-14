@@ -42,5 +42,18 @@
   "acceptanceRate": "Acceptance Rate",
   "review": "AI Content Review",
   "reviewReport": "Review Report",
-  "streaming": "Streaming Generation"
+  "streaming": "Streaming Generation",
+  "draftTitle": "AI Report Draft",
+  "draftGenerate": "Generate AI Draft",
+  "draftContinue": "Continue",
+  "draftRewrite": "Rewrite Paragraph",
+  "draftAccept": "Accept",
+  "draftReject": "Reject",
+  "draftEdit": "Edit",
+  "draftConfidence": "Confidence",
+  "draftSelectPatient": "Select Patient",
+  "draftSelectExam": "Select Exam",
+  "draftParagraphs": "Generated Paragraphs",
+  "draftNoResult": "Select patient and exam to generate",
+  "draftGenerating": "AI is generating report paragraphs..."
 }

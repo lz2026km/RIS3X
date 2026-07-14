@@ -41,5 +41,9 @@
   "logLogin": "登录日志",
   "logError": "错误日志",
   "logDataChange": "数据变更",
-  "logExport": "导出日志"
+  "logExport": "导出日志",
+  "deviceMgmt": "设备管理",
+  "role": "角色",
+  "permission": "权限",
+  "2FA": "双因素"
 }

@@ -22,7 +22,9 @@ export interface DocumentItem {
 export type CriticalValueStatus =
   | 'pending'
   | 'notified'
+  | 'voice_called'
   | 'acknowledged'
+  | 'receipted'
   | 'resolving'
   | 'resolved'
   | 'closed_loop'
@@ -63,6 +65,12 @@ export interface CriticalValue {
   acknowledged?: boolean
   acknowledgedBy?: string
   acknowledgedTime?: string
+  voiceCalledAt?: string
+  voiceCalledBy?: string
+  confirmedBy?: string
+  confirmedAt?: string
+  confirmedSignature?: string
+  confirmedComment?: string
   status: CriticalValueStatus | string
   processingDoctor?: string
   processingDoctorName?: string
@@ -117,7 +125,9 @@ export const PRIMARY_BG = '#eff6ff'
 export const STATUS_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
   pending: { bg: '#fee2e2', color: '#dc2626', label: '待处理' },
   notified: { bg: '#fef3c7', color: '#d97706', label: '已通知' },
+  voice_called: { bg: '#fef2f2', color: '#ea580c', label: '电话通知' },
   acknowledged: { bg: '#dbeafe', color: '#2563eb', label: '已接收' },
+  receipted: { bg: '#f0fdf4', color: '#16a34a', label: '已回执' },
   resolving: { bg: '#fef3c7', color: '#d97706', label: '处理中' },
   resolved: { bg: '#d1fae5', color: '#059669', label: '已处理' },
   closed_loop: { bg: '#dcfce7', color: '#047857', label: '已闭环' },
