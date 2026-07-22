@@ -1,0 +1,19 @@
+{
+  "templateConfig": "模板配置",
+  "selectTemplate": "选择 SR 模板",
+  "reportId": "报告 ID",
+  "reportIdPlaceholder": "输入报告 ID...",
+  "findings": "影像所见 / Findings",
+  "findingsPlaceholder": "输入影像所见内容...",
+  "impression": "诊断印象 / Impression",
+  "impressionPlaceholder": "输入诊断印象...",
+  "generate": "生成 SR",
+  "generating": "正在生成 SR...",
+  "srPreview": "SR 预览",
+  "copyContent": "复制内容",
+  "noSr": "尚未生成 SR",
+  "enterReportId": "请输入报告ID",
+  "generateSuccess": "SR 生成成功",
+  "offlineMode": "离线模式: 已生成本地模拟 SR",
+  "copied": "已复制"
+}

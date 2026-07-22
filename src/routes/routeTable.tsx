@@ -26,6 +26,7 @@ const QueueCallPage = lazy(() => import("../pages/QueueCallPage"));
 const DicomViewerClassicPage = lazy(() => import("../pages/DicomViewerPage"));
 const DicomViewerProPage = lazy(() => import("../pages/dicom/DicomViewerPro"));
 const DicomCompressPage = lazy(() => import("../pages/dicom/DicomCompressPage"));
+const Dicom4dPage = lazy(() => import("../pages/dicom/Dicom4dPage"));
 const TypicalCasesPage = lazy(() => import("../pages/TypicalCasesPage"));
 const FindingLibraryPage = lazy(() => import("../pages/FindingLibraryPage"));
 const OperationLogPage = lazy(() => import("../pages/OperationLogPage"));
@@ -249,6 +250,11 @@ const LoginPage = lazy(() => import("../pages/LoginPage"));
 const ForbiddenPage = lazy(() => import("../pages/ForbiddenPage"));
 const ReviewCenterPage = lazy(() => import("../pages/ReviewCenterPage"));
 const QualityControlPage = lazy(() => import("../pages/QualityControlPage"));
+const NlpCheckPage = lazy(() => import("../pages/report/NlpCheckPage"));
+const AsrPage = lazy(() => import("../pages/report/AsrPage"));
+const SnomedPage = lazy(() => import("../pages/report/SnomedPage"));
+const RuleConfigPanel = lazy(() => import("../pages/cds/RuleConfigPanel"));
+const RdsrPage = lazy(() => import("../pages/dose/RdsrPage"));
 const CriticalValueCenterPage = lazy(
   () => import("../pages/CriticalValueCenterPage"),
 );
@@ -328,9 +334,11 @@ const SchedulingCenterPage = lazy(() => import("../pages/operations/SchedulingCe
 const OEEDashboardPage = lazy(() => import("../pages/operations/OEEDashboardPage"));
 const ClinicalPathwayPage = lazy(() => import("../pages/clinical/ClinicalPathwayPage"));
 const AuditCompliancePage = lazy(() => import("../pages/compliance/AuditCompliancePage"));
-const DicomSrManagerPage = lazy(() => import("../pages/imaging/DicomSrManagerPage"));
+const DicomSrPage = lazy(() => import("../pages/dicom/DicomSrPage"));
 const DicomWebPage = lazy(() => import("../pages/dicom/DicomWebPage"));
+const RadiomicsPage = lazy(() => import("../pages/dicom/RadiomicsPage"));
 const FusionPage = lazy(() => import("../pages/dicom/FusionPage"));
+const FusionV2Page = lazy(() => import("../pages/dicom/FusionV2Page"));
 const VolumeViewerPage = lazy(() => import("../pages/dicom/VolumeViewerPage"));
 const TerminologyServerPage = lazy(() => import("../pages/clinical/TerminologyServerPage"));
 const ReportTemplateManagerPage = lazy(() => import("../pages/reports/ReportTemplateManagerPage"));
@@ -400,8 +408,22 @@ const TeachLecturePage = lazy(() => import("../pages/teach/TeachLecturePage"));
 const RadPathTrackerPage = lazy(() => import("../pages/radpath/RadPathTrackerPage"));
 const RadPathDetailPage = lazy(() => import("../pages/radpath/RadPathDetailPage"));
 const TriagePage = lazy(() => import("../pages/triage/TriagePage"));
+const OrchestratorPage = lazy(() => import("../pages/workflow/OrchestratorPage"));
 
-// 从 sidebarConfig 构建 path -> roles 映射
+  // [Sprint 4] F13 AI Marketplace
+  const AiMarketplacePage = lazy(() => import("../pages/ai/AiMarketplacePage"));
+  // [Sprint 4] F14 Cross-Modal Search
+  const CrossModalSearchPage = lazy(() => import("../pages/dicom/CrossModalSearchPage"));
+  // [Sprint 4] F15 Dual Read Workflow
+  const DualReadPage = lazy(() => import("../pages/review/DualReadPage"));
+  // [Sprint 4] F16 Tele-Sign
+  const TeleSignPage = lazy(() => import("../pages/tele/TeleSignPage"));
+  // [Sprint 4] F17 Smart Route
+  const SmartRoutePage = lazy(() => import("../pages/workflow/SmartRoutePage"));
+  // [Sprint 4] F18 HL7 SIU
+  const Hl7SiuPage = lazy(() => import("../pages/integration/Hl7SiuPage"));
+
+  // 从 sidebarConfig 构建 path -> roles 映射
 const ALL_ROLES: ReadonlyArray<Role> = [
   "医生",
   "技师",
@@ -514,6 +536,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/dicom-sr-manager": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-72]
   "/dicom/web": ["医生", "主任", "技师", "管理员"],
   "/dicom/fusion": ["医生", "主任", "技师", "管理员"], // [v3.0.6.11-18] PET-CT/MR fusion
+  "/dicom/fusion-v2": ["医生", "主任", "技师", "管理员"], // [v3.0.6.11-22] Multi-modal fusion V2
   "/dicom/volume-viewer": ["医生", "主任", "技师", "管理员"], // [v3.0.6.11-18] 3D Volume Rendering
   "/terminology-server": ["医生", "主任", "技师", "管理员", "护士"], // [v3.0.6.8-73]
   "/report-templates": ["医生", "主任", "技师", "管理员", "护士"], // [v3.0.6.8-74]
@@ -548,7 +571,23 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/system/backup": ["管理员"],
   "/system/tenant-config": ["管理员"],
   "/system/compliance": ["管理员", "主任"],
+  "/dicom/radiomics": ["医生", "主任", "管理员"],
   "/dicom/compress": ["医生", "技师", "主任", "管理员"],
+  "/dicom/sr-manager": ["医生", "技师", "主任", "管理员"],
+  "/orchestrator": ["管理员", "主任"],
+  "/nlp/spellcheck": ["医生", "主任", "管理员"],
+  "/asr/transcribe": ["医生", "主任", "管理员"],
+  "/snomed/encode": ["医生", "主任", "管理员"],
+  "/cds/rule-config": ["主任", "管理员"],
+  "/rdsr": ["技师", "管理员", "主任"],
+  // [Sprint 4] F13-F18 角色映射
+  "/ai-marketplace": ["医生", "主任", "管理员"],
+  "/cross-modal-search": ["医生", "主任", "技师", "管理员"],
+  "/dual-read": ["医生", "主任", "管理员"],
+  "/tele-sign": ["医生", "主任", "管理员"],
+  "/smart-route": ["管理员"],
+  "/hl7-siu": ["技师", "管理员"],
+  "/dicom/4d": ["医生", "技师", "主任", "管理员"],
 };
 
 function rolesFor(path: string): ReadonlyArray<Role> | undefined {
@@ -805,7 +844,8 @@ export const routes: RouteObject[] = [
   wrapped("/operations/oee", React.createElement(OEEDashboardPage)),
   wrapped("/clinical-pathways", React.createElement(ClinicalPathwayPage)), // [v3.0.6.8-70]
   wrapped("/audit-compliance", React.createElement(AuditCompliancePage)), // [v3.0.6.8-71]
-  wrapped("/dicom-sr-manager", React.createElement(DicomSrManagerPage)), // [v3.0.6.8-72]
+  wrapped("/dicom-sr-manager", React.createElement(DicomSrPage)), // [v3.0.6.8-72]
+  wrapped("/dicom/sr-manager", React.createElement(DicomSrPage)), // DICOM SR 结构化报告
   wrapped("/dicom/web", React.createElement(DicomWebPage)),
   wrapped("/terminology-server", React.createElement(TerminologyServerPage)), // [v3.0.6.8-73]
   wrapped("/report-templates", React.createElement(ReportTemplateManagerPage)), // [v3.0.6.8-74]
@@ -817,6 +857,7 @@ export const routes: RouteObject[] = [
   wrapped("/ihe/visit", React.createElement(VisitPage)),
   wrapped("/ihe/visit-detail/:patientId/:visitNumber", React.createElement(VisitDetailPage)),
   wrapped("/dicom/fusion", React.createElement(FusionPage)), // [v3.0.6.11-18] PET-CT/MR fusion
+  wrapped("/dicom/fusion-v2", React.createElement(FusionV2Page)), // [v3.0.6.11-22] Multi-modal fusion V2
   wrapped("/dicom/volume-viewer", React.createElement(VolumeViewerPage)), // [v3.0.6.11-18] 3D Volume Rendering
   wrapped("/ai-fusion-workspace", React.createElement(AiFusionWorkspacePage)), // [v3.0.6.8-76]
   wrapped("/ai-cad", React.createElement(AiCadPage)),
@@ -877,11 +918,28 @@ export const routes: RouteObject[] = [
   wrapped("/system/audit", React.createElement(lazy(() => import("../pages/AuditPage")))),
   wrapped("/system/backup", React.createElement(lazy(() => import("../pages/BackupPage")))),
   wrapped("/system/tenant-config", React.createElement(lazy(() => import("../pages/TenantConfigPage")))),
+  wrapped("/dicom/radiomics", React.createElement(RadiomicsPage)),
+  wrapped("/dicom/4d", React.createElement(Dicom4dPage)),
   wrapped("/dicom/compress", React.createElement(DicomCompressPage)),
+  wrapped("/orchestrator", React.createElement(OrchestratorPage)),
   // [v3.0.6.11-21] P0 fix: MFA 设置页接入路由
   wrapped("/security/mfa-setup", React.createElement(lazy(() => import("../pages/security/MfaSetupPage")))),
   // [v3.0.6.11-21] P0 fix: 合规管理页接入路由
   wrapped("/system/compliance", React.createElement(lazy(() => import("../pages/CompliancePage")))),
+  // [Sprint 3] F07-F12 新页面路由
+  wrapped("/qc/image-ai", React.createElement(QcImageAiPage)),
+  wrapped("/nlp/spellcheck", React.createElement(NlpCheckPage)),
+  wrapped("/asr/transcribe", React.createElement(AsrPage)),
+  wrapped("/snomed/encode", React.createElement(SnomedPage)),
+  wrapped("/cds/rule-config", React.createElement(RuleConfigPanelPage)),
+  wrapped("/rdsr", React.createElement(RdsrPage)),
+  // [Sprint 4] F13-F18 新页面路由
+  wrapped("/ai-marketplace", React.createElement(AiMarketplacePage)),
+  wrapped("/cross-modal-search", React.createElement(CrossModalSearchPage)),
+  wrapped("/dual-read", React.createElement(DualReadPage)),
+  wrapped("/tele-sign", React.createElement(TeleSignPage)),
+  wrapped("/smart-route", React.createElement(SmartRoutePage)),
+  wrapped("/hl7-siu", React.createElement(Hl7SiuPage)),
   {
     path: "*",
     element: React.createElement(Navigate, { to: "/", replace: true }),

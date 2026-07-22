@@ -1117,3 +1117,97 @@ model TeachLectureBlob {
   @@index([tenantId])
   @@map("teach_lecture_blobs")
 }
+
+// v3.0.6.11-22: Orchestrator flow engine (SLA-driven auto-dispatch)
+
+model OrchestratorFlow {
+  id          String   @id @default(cuid())
+  tenantId    String   @map("tenant_id")
+  name        String
+  description String   @default("")
+  steps       Json     @default("[]")
+  active      Boolean  @default(true)
+  version     Int      @default(1)
+  slaConfigId String?  @map("sla_config_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  slaConfig   SlaConfig? @relation(fields: [slaConfigId], references: [id])
+  executions  FlowExecution[]
+
+  @@index([tenantId])
+  @@map("orchestrator_flows")
+}
+
+model FlowExecution {
+  id             String    @id @default(cuid())
+  tenantId       String    @map("tenant_id")
+  flowId         String    @map("flow_id")
+  flow           OrchestratorFlow @relation(fields: [flowId], references: [id])
+  status         String    @default("PENDING")
+  currentStep    Int       @default(0) @map("current_step")
+  context        Json      @default("{}")
+  startedAt      DateTime? @map("started_at")
+  completedAt    DateTime? @map("completed_at")
+  slaDeadline    DateTime? @map("sla_deadline")
+  slaBreached    Boolean   @default(false) @map("sla_breached")
+  trigger        String?   @default("manual")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  stepExecutions FlowStepExecution[]
+
+  @@index([flowId])
+  @@index([status])
+  @@index([tenantId])
+  @@index([createdAt])
+  @@map("flow_executions")
+}
+
+model FlowStepExecution {
+  id           String    @id @default(cuid())
+  tenantId     String    @map("tenant_id")
+  executionId  String    @map("execution_id")
+  execution    FlowExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  stepIndex    Int       @map("step_index")
+  stepName     String    @map("step_name")
+  stepType     String    @map("step_type")
+  status       String    @default("PENDING")
+  assigneeId   String?   @map("assignee_id")
+  assigneeName String?   @map("assignee_name")
+  autoDispatch Boolean   @default(false) @map("auto_dispatch")
+  slaMinutes   Int?      @map("sla_minutes")
+  condition    String?   @default("")
+  startedAt    DateTime? @map("started_at")
+  completedAt  DateTime? @map("completed_at")
+  slaDeadline  DateTime? @map("sla_deadline")
+  slaBreached  Boolean   @default(false) @map("sla_breached")
+  result       Json?
+  error        String?
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  @@index([executionId])
+  @@index([status])
+  @@index([tenantId])
+  @@map("flow_step_executions")
+}
+
+model SlaConfig {
+  id              String   @id @default(cuid())
+  tenantId        String   @map("tenant_id")
+  name            String
+  stepType        String?  @map("step_type")
+  priority        String   @default("NORMAL")
+  targetMinutes   Int      @map("target_minutes")
+  warningMinutes  Int      @map("warning_minutes")
+  autoEscalate    Boolean  @default(false) @map("auto_escalate")
+  escalateRole    String?  @map("escalate_role")
+  notifyOnBreach  Boolean  @default(true) @map("notify_on_breach")
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  flows           OrchestratorFlow[]
+
+  @@index([stepType, priority])
+  @@index([tenantId])
+  @@map("sla_configs")
+}

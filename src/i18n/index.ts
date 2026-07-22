@@ -95,6 +95,11 @@ export const NAMESPACES = [
   "oee",
   "rads",
   "dicomCompress",
+  "radiomics",
+  "orchestrator",
+  "worklistSmart",
+  "dicomSr",
+  "dicom4d",
 ] as const;
 export type Namespace = (typeof NAMESPACES)[number];
 

@@ -19,14 +19,17 @@ test.describe('v3.0.6.11-7 综合验证', () => {
 
   async function loginAs(page: any, role: string) {
     await page.goto(`${BASE}/login`, { waitUntil: 'load', timeout: 30000 })
-    await page.waitForTimeout(2000)
-    // Retry loop for MSW + React render
-    for (let i = 0; i < 10; i++) {
-      const sel = await page.locator('select').count().catch(() => 0)
-      if (sel > 0) break
-      await page.waitForTimeout(1000)
+    await page.waitForTimeout(3000)
+    // Try Ant Design Select first, fallback to native select
+    const antSelect = page.locator('.ant-select-selector').first();
+    if (await antSelect.isVisible().catch(() => false)) {
+      await antSelect.click();
+      await page.waitForTimeout(500);
+      await page.locator(`.ant-select-item-option[title="${role}"]`).first().click();
+      await page.waitForTimeout(500);
+    } else {
+      await page.selectOption('select', role, { timeout: 15000 }).catch(() => {});
     }
-    await page.selectOption('select', role, { timeout: 15000 })
     await page.locator('input').nth(0).fill('admin')
     await page.locator('input').nth(1).fill('123')
     await page.click('button[type="submit"]')

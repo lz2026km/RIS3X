@@ -194,5 +194,12 @@
   "mfaSetup": "MFA Setup",
   "aiRadsScoring": "AI RADS Scoring V3",
   "dicomCompress": "DICOM Compress",
-  "dicomWeb": "DICOMweb"
+  "dicomWeb": "DICOMweb",
+  "aiMarketplace": "AI Marketplace",
+  "crossModalSearch": "Cross-Modal Search",
+  "dualRead": "Dual Read Workflow",
+  "teleSign": "Remote Sign",
+  "smartRoute": "Smart Routing",
+  "hl7Siu": "HL7 SIU^S12",
+  "dicom4d": "4D Dynamic"
 }

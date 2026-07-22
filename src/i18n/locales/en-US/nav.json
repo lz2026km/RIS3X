@@ -240,6 +240,7 @@
   "slaPolicy": "SLA Policy",
   "dicomBrowserPro": "DICOM Browser Pro",
   "dicomFusion": "PET-CT/MR Fusion",
+  "fusionV2": "Multi-Modal Fusion V2",
   "eyeReportWrite": "Eye Report Writing",
   "eyeStrabismus": "Strabismus",
   "eyeNeuro": "Neuro-Ophthalmology",
@@ -275,5 +276,9 @@
   "benchmarkCompare": "Benchmark Compare",
   "aiDiagnosisAccuracy": "AI Diagnosis Accuracy",
   "triageWorklist": "AI Triage Worklist",
-  "dicomWeb": "DICOMweb"
+  "dicomWeb": "DICOMweb",
+  "orchestrator": "Task Orchestration",
+  "dicomSr": "DICOM Structured Report",
+  "radiomics": "Radiomics",
+  "dicom4d": "4D Dynamic"
 }

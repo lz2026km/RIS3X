@@ -75,7 +75,7 @@ import {
   Video,
 } from "lucide-react";
 import type { ReactNode } from "react";
-import { GitCompare, FileDown, Globe } from "lucide-react";
+import { GitCompare, FileDown, Globe, FileSignature, Scan, Microscope, Mic, BookOpen, Code } from "lucide-react";
 
 export type Role = "医生" | "技师" | "护士" | "管理员" | "主任";
 
@@ -227,6 +227,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.teleConference",
         roles: ["医生", "主任", "技师", "管理员",],
       },
+      // [Sprint 4] F16 Tele-Sign
+      {
+        path: "/tele-sign",
+        icon: <FileSignature size={18} />,
+        labelKey: "nav.teleSign",
+        roles: ["医生", "主任", "管理员",],
+      },
       {
         path: "/report-review",
         icon: <ClipboardCheck size={18} />,
@@ -243,6 +250,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/collaboration",
         icon: <Users size={18} />,
         labelKey: "nav.collaboration",
+        roles: ["医生", "主任", "管理员",],
+      },
+      // [Sprint 4] F15 Dual Read
+      {
+        path: "/dual-read",
+        icon: <GitCompare size={18} />,
+        labelKey: "nav.dualRead",
         roles: ["医生", "主任", "管理员",],
       },
       {
@@ -318,6 +332,24 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         roles: ["医生", "主任", "管理员",],
       },
       {
+        path: "/nlp/spellcheck",
+        icon: <BookOpen size={18} />,
+        labelKey: "nav.nlpSpellcheck",
+        roles: ["医生", "主任", "管理员",],
+      },
+      {
+        path: "/asr/transcribe",
+        icon: <Mic size={18} />,
+        labelKey: "nav.asrTranscribe",
+        roles: ["医生", "主任", "管理员",],
+      },
+      {
+        path: "/snomed/encode",
+        icon: <Code size={18} />,
+        labelKey: "nav.snomedEncode",
+        roles: ["医生", "主任", "管理员",],
+      },
+      {
         path: "/blockchain-proof",
         icon: <Link2 size={18} />,
         labelKey: "nav.blockchainProof",
@@ -334,6 +366,12 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: <BarChart3 size={18} />,
         labelKey: "nav.cdsStatistics",
         roles: ["医生", "主任", "管理员",],
+      },
+      {
+        path: "/cds/rule-config",
+        icon: <Sliders size={18} />,
+        labelKey: "nav.ruleConfig",
+        roles: ["主任", "管理员"],
       },
     ],
   },
@@ -430,6 +468,19 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.slaPolicy",
         roles: ["管理员"],
       },
+      // [Sprint 4] F17 Smart Route
+      {
+        path: "/smart-route",
+        icon: <GitBranch size={18} />,
+        labelKey: "nav.smartRoute",
+        roles: ["管理员"],
+      },
+      {
+        path: "/orchestrator",
+        icon: <GitBranch size={18} />,
+        labelKey: "nav.orchestrator",
+        roles: ["管理员", "主任"],
+      },
     ],
   },
   {
@@ -451,6 +502,12 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/dicom/fusion",
         icon: <Layers size={18} />,
         labelKey: "nav.dicomFusion",
+        roles: ["医生", "技师", "主任", "管理员",],
+      },
+      {
+        path: "/dicom/fusion-v2",
+        icon: <Layers size={18} />,
+        labelKey: "nav.fusionV2",
         roles: ["医生", "技师", "主任", "管理员",],
       },
       {
@@ -488,6 +545,38 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: <FileDown size={18} />,
         labelKey: "nav.dicomCompress",
         roles: ["医生", "技师", "主任", "管理员",],
+      },
+      {
+        path: "/dicom/4d",
+        icon: <Activity size={18} />,
+        labelKey: "nav.dicom4d",
+        roles: ["医生", "技师", "主任", "管理员",],
+      },
+      // [Sprint 4] F14 Cross-Modal Search
+      {
+        path: "/cross-modal-search",
+        icon: <Search size={18} />,
+        labelKey: "nav.crossModalSearch",
+        roles: ["医生", "主任", "技师", "管理员",],
+      },
+      // [Sprint 4] F14 Cross-Modal Search
+      {
+        path: "/cross-modal-search",
+        icon: <Search size={18} />,
+        labelKey: "nav.crossModalSearch",
+        roles: ["医生", "主任", "技师", "管理员",],
+      },
+      {
+        path: "/dicom/sr-manager",
+        icon: <FileText size={18} />,
+        labelKey: "nav.dicomSr",
+        roles: ["医生", "技师", "主任", "管理员",],
+      },
+      {
+        path: "/dicom/radiomics",
+        icon: <Activity size={18} />,
+        labelKey: "nav.radiomics",
+        roles: ["医生", "主任", "管理员",],
       },
     ],
   },
@@ -529,6 +618,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: <Sparkles size={18} />,
         labelKey: "nav.aiRadsScoring",
         roles: ["医生", "主任", "技师", "管理员",],
+      },
+      // [Sprint 4] F13 AI Marketplace
+      {
+        path: "/ai-marketplace",
+        icon: <Cpu size={18} />,
+        labelKey: "nav.aiMarketplace",
+        roles: ["医生", "主任", "管理员",],
       },
     ],
   },
@@ -713,6 +809,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: <Hammer size={18} />,
         labelKey: "nav.hl7Builder",
         roles: ["管理员"],
+      },
+      // [Sprint 4] F18 HL7 SIU
+      {
+        path: "/hl7-siu",
+        icon: <CalendarClock size={18} />,
+        labelKey: "nav.hl7Siu",
+        roles: ["技师", "管理员"],
       },
       {
         path: "/ihe/pam",
@@ -1478,6 +1581,12 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/dose-track",
         icon: <Activity size={18} />,
         labelKey: "nav.doseTrack",
+        roles: ["技师", "管理员"],
+      },
+      {
+        path: "/rdsr",
+        icon: <Activity size={18} />,
+        labelKey: "nav.rdsr",
         roles: ["技师", "管理员"],
       },
       {

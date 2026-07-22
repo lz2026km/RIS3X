@@ -1,0 +1,19 @@
+{
+  "templateConfig": "Template Config",
+  "selectTemplate": "Select SR Template",
+  "reportId": "Report ID",
+  "reportIdPlaceholder": "Enter report ID...",
+  "findings": "Findings",
+  "findingsPlaceholder": "Enter findings...",
+  "impression": "Impression",
+  "impressionPlaceholder": "Enter impression...",
+  "generate": "Generate SR",
+  "generating": "Generating SR...",
+  "srPreview": "SR Preview",
+  "copyContent": "Copy Content",
+  "noSr": "No SR generated",
+  "enterReportId": "Please enter report ID",
+  "generateSuccess": "SR generated successfully",
+  "offlineMode": "Offline: local mock SR generated",
+  "copied": "Copied"
+}

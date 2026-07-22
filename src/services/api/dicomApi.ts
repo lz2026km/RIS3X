@@ -211,3 +211,43 @@ export const dicomDimseApi = {
   uploadToS3: (body: UploadS3Request) =>
     api.post<DimseResponse>('/dicom-dimse/upload', body),
 }
+
+// ══════════════════════════════════════════════════════════════════════════
+// DICOM 4D
+// ══════════════════════════════════════════════════════════════════════════
+
+export interface Series4D {
+  seriesUid: string
+  studyUid: string
+  patientName: string
+  patientId: string
+  modality: string
+  seriesDescription: string
+  frameCount: number
+  frameRate: number
+  gatingType: 'cardiac' | 'respiratory' | 'both'
+  dimensions: { width: number; height: number }
+}
+
+export interface FrameData4D {
+  frameIndex: number
+  timestamp: string
+  phase: number
+  dataUrl: string
+}
+
+export interface PhaseInfo4D {
+  seriesUid: string
+  gatingType: 'cardiac' | 'respiratory' | 'both'
+  cardiacPhase: number
+  respiratoryPhase: number
+  cardiacCycleMs: number
+  respiratoryCycleMs: number
+  frameCount: number
+}
+
+export const dicom4dApi = {
+  list: () => api.post<Series4D[]>('/dicom/4d/list', {}),
+  frames: (seriesUid: string) => api.post<FrameData4D[]>('/dicom/4d/frames', { seriesUid }),
+  phase: (seriesUid: string) => api.get<PhaseInfo4D>(`/dicom/4d/phase/${encodeURIComponent(seriesUid)}`),
+}

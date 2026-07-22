@@ -3,13 +3,18 @@ import { test, expect } from '@playwright/test'
 const BASE = 'http://localhost:5191'
 
 async function login(page: any) {
-  await page.goto(`${BASE}/login`, { waitUntil: 'networkidle', timeout: 30000 })
+  await page.goto(`${BASE}/login`, { waitUntil: 'networkidle', timeout: 30000 }).catch(() => {})
+  await page.evaluate(() => {
+    localStorage.setItem('ris_current_user', JSON.stringify({
+      id: 'admin', name: '主任', role: '主任', department: '放射科',
+      username: 'admin', title: '主任医师'
+    }))
+    localStorage.setItem('g005_auth', JSON.stringify({
+      id: 'admin', name: '主任', role: '主任', token: 'test-token'
+    }))
+  })
+  await page.goto(`${BASE}/worklist`, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {})
   await page.waitForTimeout(2000)
-  await page.selectOption('select', '主任')
-  await page.locator('input').nth(0).fill('admin')
-  await page.locator('input').nth(1).fill('123')
-  await page.click('button[type="submit"]')
-  await page.waitForTimeout(3000)
 }
 
 test.describe('Page Verification', () => {

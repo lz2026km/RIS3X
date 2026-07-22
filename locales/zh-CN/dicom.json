@@ -55,5 +55,21 @@
   "patientInfo": "患者信息",
   "imageInfo": "图像信息",
   "upload": "上传 DICOM",
-  "dragHere": "拖拽 DICOM 文件到这里"
+  "dragHere": "拖拽 DICOM 文件到这里",
+  "dicom4d": {
+    "title": "4D 动态影像",
+    "series": "4D 序列",
+    "selectSeries": "选择 4D 序列",
+    "speed": "速度",
+    "loop": "循环",
+    "loopOff": "关闭",
+    "cardiacPhase": "心动周期相位",
+    "respiratoryPhase": "呼吸周期相位",
+    "phase": "相位",
+    "systole": "收缩期",
+    "diastole": "舒张期",
+    "inspiration": "吸气",
+    "expiration": "呼气",
+    "loadError": "加载 4D 系列失败"
+  }
 }

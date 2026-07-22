@@ -3,7 +3,7 @@ import { Roles } from '../../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
-import { ImageAiService, type AiScoreDto, type AiStatsQuery } from './image-ai.service'
+import { ImageAiService, type AiScoreDto, type AiScoreDtoV2, type AiStatsQuery } from './image-ai.service'
 
 const ScoreSchema = z.object({
   instanceId: z.string().min(1),
@@ -21,6 +21,27 @@ const ScoreSchema = z.object({
   operatorId: z.string().optional(),
 })
 
+const ScoreV2Schema = z.object({
+  instanceId: z.string().min(1),
+  modality: z.string().min(1),
+  artifactScores: z.object({
+    motion: z.number().min(1).max(5),
+    metal: z.number().min(1).max(5),
+    ring: z.number().min(1).max(5),
+  }),
+  positioningScores: z.object({
+    setup: z.number().min(1).max(5),
+    rotation: z.number().min(1).max(5),
+    offset: z.number().min(1).max(5),
+  }),
+  exposure: z.object({
+    value: z.enum(['不足', '正常', '过度']),
+    score: z.number().min(1).max(5),
+  }),
+  overall: z.number().min(1).max(5),
+  operatorId: z.string().optional(),
+})
+
 @ApiTags('qc', 'image-ai')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR')
@@ -33,9 +54,19 @@ export class ImageAiController {
     return this.service.score(body)
   }
 
+  @Post('score-v2')
+  scoreV2(@Body(new ZodValidationPipe(ScoreV2Schema)) body: AiScoreDtoV2) {
+    return this.service.scoreV2(body)
+  }
+
   @Get('result/:instanceId')
   getResult(@Param('instanceId') instanceId: string) {
     return this.service.getResult(instanceId)
+  }
+
+  @Get('result-v2/:instanceId')
+  getResultV2(@Param('instanceId') instanceId: string) {
+    return this.service.getResultV2(instanceId)
   }
 
   @Get('stats')
@@ -47,5 +78,16 @@ export class ImageAiController {
   ) {
     const query: AiStatsQuery = { modality, dateFrom, dateTo, operatorId }
     return this.service.stats(query)
+  }
+
+  @Get('stats-v2')
+  statsV2(
+    @Query('modality') modality?: string,
+    @Query('dateFrom') dateFrom?: string,
+    @Query('dateTo') dateTo?: string,
+    @Query('operatorId') operatorId?: string,
+  ) {
+    const query: AiStatsQuery = { modality, dateFrom, dateTo, operatorId }
+    return this.service.statsV2(query)
   }
 }

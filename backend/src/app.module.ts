@@ -54,16 +54,32 @@ import { AiPlatformModule } from './aiplatform/aiplatform.module'
 import { TeleModule } from './modules/tele/tele.module'
 import { OlapModule } from './modules/olap/olap.module'
 import { FusionModule } from './modules/fusion/fusion.module'
+import { FusionV2Module } from './modules/fusion-v2/fusion-v2.module'
 import { OccupancyModule } from './modules/occupancy/occupancy.module'
 import { VolumeModule } from './modules/volume/volume.module'
 import { BenchmarkModule } from './modules/benchmark/benchmark.module'
 import { AiDiagnosisModule } from './modules/ai-diagnosis/ai-diagnosis.module'
 import { DicomCompressModule } from './modules/dicom-compress/dicom-compress.module'
+import { Dicom4dModule } from './modules/dicom-4d/dicom-4d.module'
+import { AiMarketplaceModule } from './modules/ai-marketplace/ai-marketplace.module'
+import { CrossModalModule } from './modules/cross-modal/cross-modal.module'
+import { DualReadModule } from './modules/dual-read/dual-read.module'
+import { TeleSignModule } from './modules/tele-sign/tele-sign.module'
+import { SmartRouteModule } from './modules/smart-route/smart-route.module'
+import { Hl7SiuModule } from './modules/hl7-siu/hl7-siu.module'
+import { RadiomicsModule } from './modules/radiomics/radiomics.module'
+import { WorklistSmartModule } from './modules/worklist-smart/worklist-smart.module'
 import { TriageModule } from './modules/triage/triage.module'
 import { TeachModule } from './modules/teach/teach.module'
 import { OeeModule } from './modules/oee/oee.module'
 import { RadPathModule } from './modules/radpath/radpath.module'
+import { OrchestratorModule } from './modules/orchestrator/orchestrator.module'
 import { ImageAiModule } from './modules/qc/image-ai.module'
+import { NlpModule } from './modules/nlp/nlp.module'
+import { AsrModule } from './modules/asr/asr.module'
+import { SnomedModule } from './modules/snomed/snomed.module'
+import { RdsrModule } from './modules/rdsr/rdsr.module'
+import { DicomSrModule } from './modules/dicom-sr/dicom-sr.module'
 import { MobileModule } from './mobile/mobile.module'
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard'
 import { RolesGuard } from './common/guards/roles.guard'
@@ -115,7 +131,11 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter'
     RegionalModule,
     PatientPortalModule,
     CosignModule,
-    CdsModule,
+     CdsModule,
+     NlpModule,
+     AsrModule,
+     SnomedModule,
+     RdsrModule,
     CriticalExtModule,
     QcExtModule,
     ReportQualityModule,
@@ -126,7 +146,8 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter'
     DicomDimseModule,
     OlapModule,
     OccupancyModule,
-    FusionModule,
+     FusionModule,
+     FusionV2Module,
     OeeModule,
     VolumeModule,
     TeachModule,
@@ -137,7 +158,18 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter'
     BenchmarkModule,
     AiDiagnosisModule,
      TriageModule,
-     DicomCompressModule,
+      DicomCompressModule,
+     Dicom4dModule,
+    AiMarketplaceModule,
+    CrossModalModule,
+    DualReadModule,
+    TeleSignModule,
+    SmartRouteModule,
+    Hl7SiuModule,
+     RadiomicsModule,
+     OrchestratorModule,
+     WorklistSmartModule,
+     DicomSrModule,
   ],
   controllers: [HealthController],
   providers: [

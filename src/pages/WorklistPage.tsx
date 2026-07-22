@@ -15,6 +15,8 @@ import { createActor } from 'xstate'
 import { examMachine } from '../machines/examMachine'
 import { POLL_INTERVAL_MS } from '../config/examStatusMapping'
 import type { RadiologyExam, ExamStatus } from '../types'
+import type { SmartScoreResult } from '../services/api/worklistSmartApi'
+import { worklistSmartApi } from '../services/api/worklistSmartApi'
 
 import {
   FilterBar,
@@ -33,6 +35,8 @@ import BatchActionBar from '../components/batch/BatchActionBar'
 import { AppButton } from '../components/common/AppButton'
 import { useOperationLog } from '../hooks/useOperationLog'
 import { useKeyboardShortcuts, useNavigationShortcuts, SHORTCUTS } from '../hooks/useKeyboardShortcuts'
+import { SmartSortPanel } from '../components/worklist/SmartSortPanel'
+import { SortCompareModal } from '../components/worklist/SortCompareModal'
 
 // ============================================================
 // 类型定义
@@ -210,6 +214,11 @@ export default function WorklistPage() {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
 
+  const [smartSortEnabled, setSmartSortEnabled] = useState(false)
+  const [smartExplanations, setSmartExplanations] = useState<Array<{ id: string; text: string; score: number }>>([])
+  const [showSortCompare, setShowSortCompare] = useState(false)
+  const [sortCompareItems, setSortCompareItems] = useState<Array<{ exam: RadiologyExam; beforeRank: number; afterRank: number; score?: number; reasons?: string[] }>>([])
+
   useEffect(() => {
     let mounted = true
     let timer: ReturnType<typeof setInterval> | null = null
@@ -379,6 +388,81 @@ export default function WorklistPage() {
     })
   }, [exams, filtersKey])
 
+  const computeSmartScoreInput = useCallback((exam: RadiologyExam) => {
+    const waitMs = exam.createdTime ? Date.now() - new Date(exam.createdTime).getTime() : 0
+    const waitingMinutes = Math.max(0, Math.floor(waitMs / 60000))
+    const urgencyMap: Record<string, number> = { '危重': 3, '紧急': 2, '会诊': 1, '普通': 0 }
+    const urgency = urgencyMap[exam.priority] ?? 0
+    const age = typeof exam.age === 'number' ? exam.age : (exam.age ? parseInt(String(exam.age), 10) || 0 : 0)
+    return {
+      id: exam.id,
+      urgency,
+      waitingMinutes,
+      age,
+      modality: exam.modality,
+      bodyPart: exam.bodyPart,
+      patientType: exam.patientType,
+      priority: exam.priority,
+      criticalFinding: exam.criticalFinding ?? false,
+    }
+  }, [])
+
+  const smartOrderedExams = useMemo(() => {
+    if (!smartSortEnabled) return filteredExams
+    const inputs = filteredExams.map(computeSmartScoreInput)
+    const scored = inputs.map((input) => {
+      const urgencyScore = Math.max(0, Math.min(1, (input.urgency + 3) / 6))
+      const waitScore = input.waitingMinutes > 0 ? Math.min(1, Math.log2(1 + input.waitingMinutes) / 12) : 0
+      const ageScore = (input.age ?? 0) >= 65 ? 0.8 : (input.age ?? 0) <= 12 ? 0.6 : 0
+      const highParts = new Set(['头颅', '头部', '脑血管', '主动脉', '冠状动脉', '肺动脉'])
+      const examTypeScore = highParts.has(input.bodyPart ?? '') ? 1.0 : 0
+      const total = urgencyScore * 0.35 + waitScore * 0.30 + ageScore * 0.15 + examTypeScore * 0.20
+      const reasons: string[] = []
+      if (input.urgency > 0) reasons.push(`紧急度+${input.urgency}`)
+      if (input.waitingMinutes > 30) reasons.push(`等待${input.waitingMinutes}min`)
+      if ((input.age ?? 0) >= 65) reasons.push('高龄患者')
+      if ((input.age ?? 0) <= 12) reasons.push('儿童患者')
+      if (examTypeScore > 0) reasons.push(`${input.bodyPart}优先`)
+      if (reasons.length === 0) reasons.push('常规排序')
+      return { id: input.id, score: Math.round(total * 1000) / 10, reasons }
+    })
+
+    const scoreMap = new Map(scored.map(s => [s.id, s]))
+    const sorted = [...filteredExams].sort((a, b) => {
+      const sa = scoreMap.get(a.id)?.score ?? 0
+      const sb = scoreMap.get(b.id)?.score ?? 0
+      return sb - sa
+    })
+
+    const explanations = sorted.slice(0, 20).map(e => ({
+      id: e.id,
+      text: `${e.patientName} ${e.examItemName} → ${scoreMap.get(e.id)?.reasons.join('、') || ''}`,
+      score: scoreMap.get(e.id)?.score ?? 0,
+    }))
+    setSmartExplanations(explanations)
+
+    return sorted
+  }, [filteredExams, smartSortEnabled, computeSmartScoreInput])
+
+  const handleToggleSmartSort = useCallback((enabled: boolean) => {
+    setSmartSortEnabled(enabled)
+    if (enabled) {
+      const items = filteredExams.map((exam, idx) => {
+        const input = computeSmartScoreInput(exam)
+        const urgencyScore = Math.max(0, Math.min(1, (input.urgency + 3) / 6))
+        const waitScore = input.waitingMinutes > 0 ? Math.min(1, Math.log2(1 + input.waitingMinutes) / 12) : 0
+        const ageScore = (input.age ?? 0) >= 65 ? 0.8 : (input.age ?? 0) <= 12 ? 0.6 : 0
+        const highParts = new Set(['头颅', '头部', '脑血管', '主动脉', '冠状动脉', '肺动脉'])
+        const examTypeScore = highParts.has(input.bodyPart ?? '') ? 1.0 : 0
+        const total = urgencyScore * 0.35 + waitScore * 0.30 + ageScore * 0.15 + examTypeScore * 0.20
+        return { exam, beforeRank: idx + 1, afterRank: 0, score: Math.round(total * 1000) / 10 }
+      })
+      items.sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+      items.forEach((item, idx) => { item.afterRank = idx + 1 })
+      setSortCompareItems(items)
+    }
+  }, [filteredExams, computeSmartScoreInput])
+
   const slaCriticalExams = useMemo(() => filteredExams.filter(e => getSLAInfo(e.createdTime).status === 'critical'), [filteredExams])
 
   const prevCriticalCount = useRef(0)
@@ -413,7 +497,8 @@ export default function WorklistPage() {
     })
   }
 
-  const allSelected = filteredExams.length > 0 && selectedIds.size === filteredExams.length
+  const displayExams = smartSortEnabled ? smartOrderedExams : filteredExams
+  const allSelected = displayExams.length > 0 && selectedIds.size === displayExams.length
 
   const clearSelection = () => {
     setSelectedIds(new Set())
@@ -782,9 +867,16 @@ export default function WorklistPage() {
         onSavePresetNameChange={setSavePresetName}
       />
 
+      <SmartSortPanel
+        enabled={smartSortEnabled}
+        onToggle={handleToggleSmartSort}
+        explanations={smartExplanations}
+        onCompare={() => setShowSortCompare(true)}
+      />
+
       {viewMode === 'list' && (
         <ListView
-          exams={filteredExams}
+          exams={smartOrderedExams}
           selectedIds={selectedIds}
           onSelect={setSelectedIds}
           onRowClick={setSelectedExam}
@@ -794,7 +886,7 @@ export default function WorklistPage() {
 
       {viewMode === 'card' && (
         <CardView
-          exams={filteredExams}
+          exams={smartOrderedExams}
           selectedIds={selectedIds}
           onSelect={setSelectedIds}
           onRowClick={setSelectedExam}
@@ -811,7 +903,7 @@ export default function WorklistPage() {
           }
         }}>
           <KanbanView
-            exams={filteredExams}
+            exams={smartOrderedExams}
             onRowClick={setSelectedExam}
           />
           <DragOverlay />
@@ -1077,6 +1169,13 @@ export default function WorklistPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {showSortCompare && (
+        <SortCompareModal
+          items={sortCompareItems}
+          onClose={() => setShowSortCompare(false)}
+        />
       )}
     </PageContainer>
   )

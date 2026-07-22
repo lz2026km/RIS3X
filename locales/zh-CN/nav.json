@@ -194,5 +194,11 @@
   "mfaSetup": "MFA 设置",
   "aiRadsScoring": "AI 阅片助手 V3",
   "dicomCompress": "DICOM 压缩",
-  "dicomWeb": "DICOMweb"
+  "dicomWeb": "DICOMweb",
+  "aiMarketplace": "AI 模型市场",
+  "crossModalSearch": "跨模态检索",
+  "dualRead": "双阅片工作流",
+  "teleSign": "远程双签",
+  "smartRoute": "智能路由",
+  "hl7Siu": "HL7 SIU^S12"
 }

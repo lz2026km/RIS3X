@@ -1,54 +1,65 @@
-import React, { useMemo, useState, useEffect } from "react"
+import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Camera, Activity, TrendingUp, BarChart3, Calendar, AlertTriangle, CheckCircle } from "lucide-react"
+import { Camera, Activity, TrendingUp, BarChart3, Calendar, AlertTriangle, CheckCircle, Zap, Target, Eye } from "lucide-react"
 import { PageContainer } from "../../components/common/PageContainer"
 import { PageHeader } from "../../components/common/PageHeader"
 import { StatCard, StatCardGrid } from "../../components/common/StatCard"
-import { qcextApi, type QcImageDto } from '../../services/api/qcextApi'
 
-interface AiScoreRecord {
+interface ArtifactScores {
+  motion: number
+  metal: number
+  ring: number
+}
+
+interface PositioningScores {
+  setup: number
+  rotation: number
+  offset: number
+}
+
+interface ExposureScore {
+  value: string
+  score: number
+}
+
+interface AiScoreRecordV2 {
   id: string
   instanceId: string
   modality: string
-  motionArtifact: number
-  metalArtifact: number
-  ringArtifact: number
-  exposureLow: number
-  exposureNormal: number
-  exposureOver: number
-  positioningCorrect: number
-  positioningMildRotation: number
-  positioningSevereOffset: number
+  artifactScores: ArtifactScores
+  positioningScores: PositioningScores
+  exposure: ExposureScore
   overall: number
   operatorId?: string
   createdAt: string
 }
 
-const MOCK_DATA: AiScoreRecord[] = Array.from({ length: 24 }, (_, i) => {
-  const modalities = ["CT", "MR", "DR", "CBCT"]
-  const mod = modalities[i % 4]
+const MODALITIES = ["CT", "MR", "DR", "CBCT"]
+const EXPOSURE_VALUES = ["不足", "正常", "过度"]
+
+const MOCK_DATA_V2: AiScoreRecordV2[] = Array.from({ length: 24 }, (_, i) => {
+  const mod = MODALITIES[i % 4]
+  const ev = EXPOSURE_VALUES[i % 3]
   return {
-    id: `ai-${i}`,
-    instanceId: `inst-${1000 + i}`,
+    id: `v2-${i}`,
+    instanceId: `inst-${2000 + i}`,
     modality: mod,
-    motionArtifact: +(2 + Math.random() * 3).toFixed(1),
-    metalArtifact: +(2 + Math.random() * 3).toFixed(1),
-    ringArtifact: +(2 + Math.random() * 3).toFixed(1),
-    exposureLow: +(2 + Math.random() * 3).toFixed(1),
-    exposureNormal: +(2 + Math.random() * 3).toFixed(1),
-    exposureOver: +(2 + Math.random() * 3).toFixed(1),
-    positioningCorrect: +(2 + Math.random() * 3).toFixed(1),
-    positioningMildRotation: +(2 + Math.random() * 3).toFixed(1),
-    positioningSevereOffset: +(2 + Math.random() * 3).toFixed(1),
+    artifactScores: {
+      motion: +(2 + Math.random() * 3).toFixed(1),
+      metal: +(2 + Math.random() * 3).toFixed(1),
+      ring: +(2 + Math.random() * 3).toFixed(1),
+    },
+    positioningScores: {
+      setup: +(2 + Math.random() * 3).toFixed(1),
+      rotation: +(2 + Math.random() * 3).toFixed(1),
+      offset: +(2 + Math.random() * 3).toFixed(1),
+    },
+    exposure: { value: ev, score: +(2 + Math.random() * 3).toFixed(1) },
     overall: +(2 + Math.random() * 3).toFixed(1),
     operatorId: `op-${(i % 3) + 1}`,
     createdAt: new Date(2026, 6, 1 + Math.floor(i / 2)).toISOString(),
   }
 })
-
-const artifactAvg = (r: AiScoreRecord) => (r.motionArtifact + r.metalArtifact + r.ringArtifact) / 3
-const exposureAvg = (r: AiScoreRecord) => (r.exposureLow + r.exposureNormal + r.exposureOver) / 3
-const positioningAvg = (r: AiScoreRecord) => (r.positioningCorrect + r.positioningMildRotation + r.positioningSevereOffset) / 3
 
 const MODALITY_OPTIONS = ["all", "CT", "MR", "DR", "CBCT"]
 
@@ -57,13 +68,10 @@ export default function QcImageAiPage() {
   const [modality, setModality] = useState("all")
   const [dateFrom, setDateFrom] = useState("")
   const [dateTo, setDateTo] = useState("")
-  const [aiImages, setAiImages] = useState<QcImageDto[]>([])
-  useEffect(() => {
-    qcextApi.listQcImages().then(res => { if (res.success) setAiImages(res.data); }).catch(() => {});
-  }, [])
+  const [activeTab, setActiveTab] = useState<"v1" | "v2">("v2")
 
   const filtered = useMemo(() => {
-    return MOCK_DATA.filter(r => {
+    return MOCK_DATA_V2.filter(r => {
       if (modality !== "all" && r.modality !== modality) return false
       if (dateFrom && r.createdAt.slice(0, 10) < dateFrom) return false
       if (dateTo && r.createdAt.slice(0, 10) > dateTo) return false
@@ -73,18 +81,16 @@ export default function QcImageAiPage() {
 
   const stats = useMemo(() => {
     const total = filtered.length
-    if (total === 0) return { total, avgArtifact: 0, avgExposure: 0, avgPositioning: 0, avgOverall: 0, excellent: 0, good: 0, poor: 0 }
-    const avgArtifact = filtered.reduce((s, r) => s + artifactAvg(r), 0) / total
-    const avgExposure = filtered.reduce((s, r) => s + exposureAvg(r), 0) / total
-    const avgPositioning = filtered.reduce((s, r) => s + positioningAvg(r), 0) / total
+    if (total === 0) return { total, avgArtifactOverall: 0, avgPositioningOverall: 0, avgExposure: 0, avgOverall: 0, excellent: 0, good: 0, poor: 0 }
+    const avgArtifactOverall = filtered.reduce((s, r) => s + (r.artifactScores.motion + r.artifactScores.metal + r.artifactScores.ring) / 3, 0) / total
+    const avgPositioningOverall = filtered.reduce((s, r) => s + (r.positioningScores.setup + r.positioningScores.rotation + r.positioningScores.offset) / 3, 0) / total
+    const avgExposure = filtered.reduce((s, r) => s + r.exposure.score, 0) / total
     const avgOverall = filtered.reduce((s, r) => s + r.overall, 0) / total
     const excellent = filtered.filter(r => r.overall >= 4).length
     const good = filtered.filter(r => r.overall >= 3 && r.overall < 4).length
     const poor = filtered.filter(r => r.overall < 3).length
-    return { total, avgArtifact, avgExposure, avgPositioning, avgOverall, excellent, good, poor }
+    return { total, avgArtifactOverall, avgPositioningOverall, avgExposure, avgOverall, excellent, good, poor }
   }, [filtered])
-
-  const chartBarMax = 5
 
   const trendData = useMemo(() => {
     const map: Record<string, number[]> = {}
@@ -118,49 +124,77 @@ export default function QcImageAiPage() {
           </div>
         </div>
 
+        <div style={{ marginBottom: 16, display: "flex", gap: 8 }}>
+          <button onClick={() => setActiveTab("v1")} style={{ padding: "6px 16px", background: activeTab === "v1" ? "#1e40af" : "#fff", color: activeTab === "v1" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "v1" ? "#1e40af" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
+            V1
+          </button>
+          <button onClick={() => setActiveTab("v2")} style={{ padding: "6px 16px", background: activeTab === "v2" ? "#1e40af" : "#fff", color: activeTab === "v2" ? "#fff" : "#475569", border: "1px solid " + (activeTab === "v2" ? "#1e40af" : "#cbd5e1"), borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
+            V2 {t("detailed")}
+          </button>
+        </div>
+
         <StatCardGrid columns={4} gap={12}>
           <StatCard label={t("totalScores")} value={stats.total} icon={<Activity size={20} />} color="#3b82f6" />
-          <StatCard label={t("avgArtifact")} value={stats.avgArtifact.toFixed(1)} icon={<AlertTriangle size={20} />} color="#f59e0b" subValue={artifactLabel(stats.avgArtifact)} />
-          <StatCard label={t("avgExposure")} value={stats.avgExposure.toFixed(1)} icon={<BarChart3 size={20} />} color="#10b981" subValue={artifactLabel(stats.avgExposure)} />
-          <StatCard label={t("avgPositioning")} value={stats.avgPositioning.toFixed(1)} icon={<CheckCircle size={20} />} color="#8b5cf6" subValue={artifactLabel(stats.avgPositioning)} />
+          <StatCard label={t("artifactScore")} value={stats.avgArtifactOverall.toFixed(1)} icon={<AlertTriangle size={20} />} color="#f59e0b" subValue={artifactLabel(stats.avgArtifactOverall)} />
+          <StatCard label={t("positioningScore")} value={stats.avgPositioningOverall.toFixed(1)} icon={<Target size={20} />} color="#8b5cf6" subValue={artifactLabel(stats.avgPositioningOverall)} />
+          <StatCard label={t("exposureScore")} value={stats.avgExposure.toFixed(1)} icon={<BarChart3 size={20} />} color="#10b981" subValue={artifactLabel(stats.avgExposure)} />
         </StatCardGrid>
 
-        <div style={{ display: "flex", gap: 20, marginTop: 24 }}>
-          <div style={{ flex: 1, background: "#fff", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 15, fontWeight: 700, color: "#1e293b", margin: "0 0 16px" }}>{t("artifactScore")}</h3>
-            <BarChart data={filtered} getValue={artifactAvg} color="#f59e0b" max={chartBarMax} />
-          </div>
-          <div style={{ flex: 1, background: "#fff", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 15, fontWeight: 700, color: "#1e293b", margin: "0 0 16px" }}>{t("exposureScore")}</h3>
-            <BarChart data={filtered} getValue={exposureAvg} color="#10b981" max={chartBarMax} />
-          </div>
-          <div style={{ flex: 1, background: "#fff", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 15, fontWeight: 700, color: "#1e293b", margin: "0 0 16px" }}>{t("positioningScore")}</h3>
-            <BarChart data={filtered} getValue={positioningAvg} color="#8b5cf6" max={chartBarMax} />
-          </div>
-        </div>
-
-        <div style={{ marginTop: 24, background: "#fff", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-          <h3 style={{ fontSize: 15, fontWeight: 700, color: "#1e293b", margin: "0 0 16px" }}>{t("overallTrend")}</h3>
-          {trendData.length > 0 ? (
-            <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 120, padding: "0 8px" }}>
-              {trendData.map((p, i) => {
-                const h = (p.avgOverall / chartBarMax) * 100
-                return (
-                  <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                    <span style={{ fontSize: 10, color: "#475569", fontWeight: 600 }}>{p.avgOverall.toFixed(1)}</span>
-                    <div style={{ width: "100%", maxWidth: 32, height: 100, background: "#f1f5f9", borderRadius: "4px 4px 0 0", position: "relative", overflow: "hidden" }}>
-                      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: `${h}%`, background: "#3b82f6", borderRadius: "4px 4px 0 0", transition: "height 0.3s" }} />
-                    </div>
-                    <span style={{ fontSize: 9, color: "#94a3b8", transform: "rotate(-45deg)", whiteSpace: "nowrap" }}>{p.date.slice(5)}</span>
-                  </div>
-                )
-              })}
+        {activeTab === "v2" && (
+          <>
+            <div style={{ display: "flex", gap: 20, marginTop: 24 }}>
+              <div style={{ flex: 1, background: "#fff", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}><Zap size={16} color="#f59e0b" /> {t("artifactDetail")}</h3>
+                <SubBarChart data={filtered} getValues={r => [r.artifactScores.motion, r.artifactScores.metal, r.artifactScores.ring]} colors={["#f59e0b", "#ef4444", "#8b5cf6"]} labels={[t("motion"), t("metal"), t("ring")]} max={5} />
+              </div>
+              <div style={{ flex: 1, background: "#fff", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}><Eye size={16} color="#8b5cf6" /> {t("positioningDetail")}</h3>
+                <SubBarChart data={filtered} getValues={r => [r.positioningScores.setup, r.positioningScores.rotation, r.positioningScores.offset]} colors={["#8b5cf6", "#3b82f6", "#06b6d4"]} labels={[t("setup"), t("rotation"), t("offset")]} max={5} />
+              </div>
+              <div style={{ flex: 1, background: "#fff", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}><Activity size={16} color="#10b981" /> {t("exposureDetail")}</h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "8px 0" }}>
+                  {EXPOSURE_VALUES.map(ev => {
+                    const items = filtered.filter(r => r.exposure.value === ev)
+                    const avg = items.length ? items.reduce((s, r) => s + r.exposure.score, 0) / items.length : 0
+                    const color = ev === "正常" ? "#10b981" : ev === "不足" ? "#f59e0b" : "#ef4444"
+                    return (
+                      <div key={ev} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <span style={{ width: 40, fontSize: 12, fontWeight: 600, color }}>{ev}</span>
+                        <div style={{ flex: 1, height: 12, background: "#f1f5f9", borderRadius: 6, overflow: "hidden" }}>
+                          <div style={{ width: `${(avg / 5) * 100}%`, height: "100%", background: color, borderRadius: 6, transition: "width 0.3s" }} />
+                        </div>
+                        <span style={{ width: 30, fontSize: 11, fontWeight: 700, color: "#475569", textAlign: "right" }}>{avg.toFixed(1)}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
             </div>
-          ) : (
-            <div style={{ padding: 40, textAlign: "center", color: "#94a3b8" }}>{t("noData")}</div>
-          )}
-        </div>
+
+            <div style={{ marginTop: 24, background: "#fff", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+              <h3 style={{ fontSize: 15, fontWeight: 700, color: "#1e293b", margin: "0 0 16px", display: "flex", alignItems: "center", gap: 6 }}><TrendingUp size={18} color="#3b82f6" /> {t("overallTrend")}</h3>
+              {trendData.length > 0 ? (
+                <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 120, padding: "0 8px" }}>
+                  {trendData.map((p, i) => {
+                    const h = (p.avgOverall / 5) * 100
+                    return (
+                      <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                        <span style={{ fontSize: 10, color: "#475569", fontWeight: 600 }}>{p.avgOverall.toFixed(1)}</span>
+                        <div style={{ width: "100%", maxWidth: 32, height: 100, background: "#f1f5f9", borderRadius: "4px 4px 0 0", position: "relative", overflow: "hidden" }}>
+                          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: `${h}%`, background: "linear-gradient(to top, #3b82f6, #60a5fa)", borderRadius: "4px 4px 0 0", transition: "height 0.3s" }} />
+                        </div>
+                        <span style={{ fontSize: 9, color: "#94a3b8", transform: "rotate(-45deg)", whiteSpace: "nowrap" }}>{p.date.slice(5)}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                <div style={{ padding: 40, textAlign: "center", color: "#94a3b8" }}>{t("noData")}</div>
+              )}
+            </div>
+          </>
+        )}
 
         <div style={{ marginTop: 24, background: "#fff", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
           <h3 style={{ fontSize: 15, fontWeight: 700, color: "#1e293b", margin: "0 0 16px" }}>{t("scoreTable")}</h3>
@@ -168,23 +202,22 @@ export default function QcImageAiPage() {
             <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ background: "#f8fafc" }}>
-                  {[t("instanceId"), t("modality"), t("artifactScore"), t("exposureScore"), t("positioningScore"), t("overallScore"), t("scoreDate")].map(h => (
+                  {[t("instanceId"), t("modality"), t("artifactScore"), t("positioningScore"), t("exposureScore"), t("overallScore"), t("scoreDate")].map(h => (
                     <th key={h} style={{ padding: 10, textAlign: "left", fontWeight: 600, color: "#475569", borderBottom: "2px solid #e2e8f0", whiteSpace: "nowrap" }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {filtered.slice(0, 50).map(r => {
-                  const a = artifactAvg(r)
-                  const e = exposureAvg(r)
-                  const p = positioningAvg(r)
+                  const a = (r.artifactScores.motion + r.artifactScores.metal + r.artifactScores.ring) / 3
+                  const p = (r.positioningScores.setup + r.positioningScores.rotation + r.positioningScores.offset) / 3
                   return (
                     <tr key={r.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
                       <td style={{ padding: 10, fontFamily: "monospace", fontSize: 11 }}>{r.instanceId}</td>
                       <td style={{ padding: 10 }}><span style={{ background: modalityColor(r.modality), color: "#fff", padding: "2px 8px", borderRadius: 4, fontWeight: 600 }}>{r.modality}</span></td>
                       <td style={{ padding: 10 }}>{scoreBadge(a)}</td>
-                      <td style={{ padding: 10 }}>{scoreBadge(e)}</td>
                       <td style={{ padding: 10 }}>{scoreBadge(p)}</td>
+                      <td style={{ padding: 10 }}>{scoreBadge(r.exposure.score)}</td>
                       <td style={{ padding: 10 }}>{scoreBadge(r.overall)}</td>
                       <td style={{ padding: 10, color: "#64748b" }}>{r.createdAt.slice(0, 10)}</td>
                     </tr>
@@ -199,20 +232,38 @@ export default function QcImageAiPage() {
   )
 }
 
-function BarChart({ data, getValue, color, max }: { data: AiScoreRecord[]; getValue: (r: AiScoreRecord) => number; color: string; max: number }) {
+function SubBarChart({ data, getValues, colors, labels, max }: {
+  data: AiScoreRecordV2[]
+  getValues: (r: AiScoreRecordV2) => number[]
+  colors: string[]
+  labels: string[]
+  max: number
+}) {
   const items = data.slice(0, 20)
   return (
-    <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 100, padding: "0 4px" }}>
-      {items.map((r, i) => {
-        const h = (getValue(r) / max) * 100
-        return (
-          <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-            <div style={{ width: "100%", maxWidth: 20, height: 80, background: "#f1f5f9", borderRadius: "3px 3px 0 0", position: "relative", overflow: "hidden" }}>
-              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: `${h}%`, background: color, borderRadius: "3px 3px 0 0", transition: "height 0.3s" }} />
+    <div>
+      <div style={{ display: "flex", gap: 12, marginBottom: 8 }}>
+        {labels.map((l, i) => (
+          <span key={l} style={{ fontSize: 11, fontWeight: 600, color: colors[i], display: "flex", alignItems: "center", gap: 4 }}>
+            <span style={{ width: 8, height: 8, borderRadius: "50%", background: colors[i], display: "inline-block" }} />{l}
+          </span>
+        ))}
+      </div>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 80 }}>
+        {items.map((r, i) => {
+          const vals = getValues(r)
+          return (
+            <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
+              <div style={{ width: "100%", maxWidth: 24, height: 70, background: "#f1f5f9", borderRadius: "2px", position: "relative", overflow: "hidden" }}>
+                {vals.map((v, vi) => {
+                  const bottom = vals.slice(0, vi).reduce((s, x) => s + (x / max) * 70, 0)
+                  return <div key={vi} style={{ position: "absolute", bottom: bottom, left: 0, right: 0, height: `${(v / max) * 70}px`, background: colors[vi], borderRadius: "2px 2px 0 0", transition: "height 0.3s" }} />
+                })}
+              </div>
             </div>
-          </div>
-        )
-      })}
+          )
+        })}
+      </div>
     </div>
   )
 }

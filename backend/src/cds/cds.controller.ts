@@ -1,7 +1,7 @@
 ﻿import { Controller, Get, HttpCode, HttpStatus, Post, Put, Delete, Param, Body, Query } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { CdsService } from './cds.service'
+import { CdsService, type RuleEvaluateRequest, type RulePriorityRequest } from './cds.service'
 
 @ApiTags('cds')
 @ApiBearerAuth()
@@ -41,4 +41,10 @@ export class CdsController {
 
   @Get('management')
   getCdsManagement() { return this.svc.getCdsManagement() }
+
+  @Post('rule/evaluate')
+  evaluateRule(@Body() body: RuleEvaluateRequest) { return this.svc.evaluateRule(body) }
+
+  @Put('rule/priority')
+  updateRulePriority(@Body() body: RulePriorityRequest) { return this.svc.updateRulePriority(body) }
 }

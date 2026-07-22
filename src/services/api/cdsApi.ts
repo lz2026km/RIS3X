@@ -33,6 +33,27 @@ export interface CdsManagementDto {
   audit: CdsAuditEntry[]
 }
 
+export interface RuleEvaluateRequest {
+  patientId?: string
+  examType?: string
+  modality?: string
+  age?: number
+  gender?: string
+  clinicalInfo?: string
+  priorFindings?: string
+}
+
+export interface RuleEvaluateResult {
+  ruleId: string
+  ruleName: string
+  priority: number
+  triggered: boolean
+  severity: 'info' | 'warning' | 'critical'
+  message: string
+  suggestions: string[]
+  source: string
+}
+
 export const cdsApi = {
   listGuidelines: () =>
     api.get<CdsGuidelineDto[]>('/cds/guidelines'),
@@ -63,4 +84,10 @@ export const cdsApi = {
 
   getCdsManagement: () =>
     api.get<CdsManagementDto>('/cds/management'),
+
+  evaluateRule: (body: RuleEvaluateRequest) =>
+    api.post<{ results: RuleEvaluateResult[] }>('/cds/rule/evaluate', body),
+
+  updateRulePriority: (ruleId: string, priority: number) =>
+    api.put<{ success: boolean }>('/cds/rule/priority', { ruleId, priority }),
 }
