@@ -1,5 +1,46 @@
 # CHANGELOG
 
+## v3.0.6.11-31 (2026-07-22) — 文档全量版本同步
+
+> **目标**: 全仓库 10+ 文档版本号统一同步至 v3.0.6.11-31
+> **范围**: README / CHANGELOG / OPERATIONS_MANUAL / BACKUP_RECOVERY / DEPLOYMENT_CHECKLIST / MONITORING / THREE_A_COMPLIANCE / 3 份前序审计报告
+
+### 文档同步
+- README.md 版本号 + 路线图 + 致谢更新
+- CHANGELOG.md 新增 v3.0.6.11-25/v3.0.6.11-30/v3.0.6.11-31 条目
+- OPERATIONS_MANUAL.md 版本同步 + 日期更新
+- BACKUP_RECOVERY.md 版本同步
+- DEPLOYMENT_CHECKLIST.md 版本同步
+- MONITORING.md 版本同步
+- THREE_A_COMPLIANCE.md 三甲条款审查日期更新
+- AUDIT_REPORT / COVERAGE_REPORT / FINAL_VERIFICATION 版本同步至 31
+
+---
+
+## v3.0.6.11-30 (2026-07-22) — 文档完善 & 包版本对齐
+
+> **目标**: package.json 版本对齐至 3.0.6.11-30，文档最后完善
+
+### 变更
+- package.json 版本更新至 3.0.6.11-30
+- 全量文档日期同步
+- 版本号统一对齐
+
+---
+
+## v3.0.6.11-25 (2026-07-14) — 死代码清理 & 路由对齐
+
+> **生成**: 死代码扫描报告 (DEAD_CODE_REPORT_V3.0.6.11-25)
+> **范围**: routeTable.tsx vs sidebarConfig.tsx 对齐
+
+### 死代码清理
+- 路由表中未在侧栏配置中注册的路由识别
+- 牙科模块遗留路由清理
+- 废弃 DICOM 页面路由整理
+- 重复路由合并
+
+---
+
 ## v3.0.6.8-40 (2026-06-26) — 眼科深化 Phase 2 (7 PR 并行)
 
 > **目标**: 对标 Topcon Synergy 8.0 (国内第一梯队, 全球第二梯队)

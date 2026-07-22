@@ -2,7 +2,7 @@ replicaCount: 2
 
 image:
   repository: g005/ris
-  tag: 3.0.3.30
+  tag: 3.0.6.11-15
   pullPolicy: IfNotPresent
 
 service:
@@ -15,6 +15,10 @@ ingress:
   className: nginx
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
+  tls:
+    - hosts:
+        - ris.g005.local
+      secretName: g005-ris-tls
   hosts:
     - host: ris.g005.local
       paths:
@@ -37,6 +41,12 @@ autoscaling:
   maxReplicas: 10
   targetCPUUtilizationPercentage: 70
   targetMemoryUtilizationPercentage: 80
+
+secrets:
+  jwtSecret: "change-me-in-production"
+  dbPassword: "change-me-in-production"
+  tlsCrt: ""
+  tlsKey: ""
 
 env:
   - name: NODE_ENV

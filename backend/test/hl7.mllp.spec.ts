@@ -65,7 +65,7 @@ describe('Hl7Service - MLLP / ACK', () => {
     it('sends AA ack over socket', (done) => {
       const server = net.createServer((socket) => {
         socket.on('data', () => {
-          svc['sendAck'](socket, 'MSH|^~\\&|G005|RAD|EXT|HIS|20260712120000||ADT^A01|CTL001|P|2.5.1\rPID|||P001\r', 'AA')
+          svc['sendAck'](socket, 'MSH|^~\\&|G005|RAD|EXT|HIS|20260712120000||ADT^A01|CTL001|P|2.5.1\rPID|||P001\r', 'AA', 'ADT^A01')
         })
       })
 

@@ -6,6 +6,43 @@ metadata:
     app: g005-ris
 ---
 apiVersion: v1
+kind: LimitRange
+metadata:
+  name: g005-ris-limitrange
+  labels:
+    app: g005-ris
+spec:
+  limits:
+    - max:
+        cpu: "2"
+        memory: 2Gi
+      min:
+        cpu: 100m
+        memory: 128Mi
+      default:
+        cpu: 500m
+        memory: 512Mi
+      defaultRequest:
+        cpu: 200m
+        memory: 256Mi
+      type: Container
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: g005-ris-quota
+  labels:
+    app: g005-ris
+spec:
+  hard:
+    requests.cpu: "4"
+    requests.memory: 8Gi
+    limits.cpu: "8"
+    limits.memory: 16Gi
+    persistentvolumeclaims: "5"
+    pods: "20"
+---
+apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: g005-ris-pv
@@ -43,6 +80,11 @@ metadata:
     app: g005-ris
 spec:
   replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: g005-ris
@@ -180,13 +222,23 @@ spec:
     - Egress
   ingress:
     - from:
-        - namespaceSelector: {}
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: g005-ris
       ports:
         - port: 3001
         - port: 5173
   egress:
     - to:
-        - namespaceSelector: {}
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: g005-ris
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
       ports:
         - port: 443
         - port: 80
@@ -217,6 +269,17 @@ spec:
         target:
           type: Utilization
           averageUtilization: 80
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: g005-ris-tls
+  labels:
+    app: g005-ris
+type: kubernetes.io/tls
+stringData:
+  tls.crt: ""  # 生产环境请替换为实际证书
+  tls.key: ""  # 生产环境请替换为实际私钥
 ---
 apiVersion: v1
 kind: ConfigMap

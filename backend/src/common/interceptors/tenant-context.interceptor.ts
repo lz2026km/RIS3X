@@ -1,4 +1,4 @@
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common'
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler, ForbiddenException } from '@nestjs/common'
 import { Observable } from 'rxjs'
 import { AsyncLocalStorage } from 'async_hooks'
 
@@ -13,7 +13,12 @@ export function getCurrentTenantId(): string {
 export class TenantContextInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const request = context.switchToHttp().getRequest()
-    const tenantId = request.user?.tenantId || request.headers?.['x-tenant-id'] || 'default'
+    const jwtTenant = request.user?.tenantId
+    const headerTenant = request.headers?.['x-tenant-id']
+    if (jwtTenant && headerTenant && jwtTenant !== headerTenant) {
+      throw new ForbiddenException('Tenant mismatch: x-tenant-id does not match JWT tenant')
+    }
+    const tenantId = jwtTenant || headerTenant || 'default'
     return new Observable((subscriber) => {
       tenantStorage.run({ tenantId }, () => {
         next.handle().subscribe({

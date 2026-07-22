@@ -32,7 +32,9 @@ enum ReportState {
   ASSIGNED
   WRITING
   SUBMITTED
-  REVIEWING
+  INITIAL_REVIEW
+  FINAL_REVIEW
+  CO_SIGN_REVIEW
   REVIEWED
   SIGNING
   SIGNED
@@ -41,7 +43,12 @@ enum ReportState {
   AMENDED
   WITHDRAWN
   REJECTED
+  ESCALATED
   ARCHIVED
+  RECTIFYING
+  SUPPLEMENTING
+  SUPPLEMENTED
+  REDISTRIBUTING
 }
 
 enum DeviceState {
@@ -60,6 +67,9 @@ enum CriticalState {
   RECEIPTED
   RESOLVING
   RESOLVED
+  CLOSED_LOOP
+  ESCALATED
+  CANCELLED
 }
 
 enum CriticalSeverity {
@@ -88,6 +98,7 @@ enum PatientType {
 enum AppointmentState {
   SCHEDULED
   CONFIRMED
+  REGISTERED
   CHECKED_IN
   IN_PROGRESS
   COMPLETED
@@ -202,7 +213,7 @@ model Exam {
   deviceId        String?  @map("device_id")
   state           String   @default("SCHEDULED")
   version         Int      @default(0)
-  patient         Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  patient         Patient  @relation(fields: [patientId], references: [id], onDelete: Restrict)
   device          Device?  @relation(fields: [deviceId], references: [id])
   reports         Report[]
   createdAt       DateTime @default(now()) @map("created_at")
@@ -213,27 +224,38 @@ model Exam {
 }
 
 model Report {
-  id           String        @id @default(cuid())
-  tenantId     String        @map("tenant_id")
-  patientId    String        @map("patient_id")
-  examId       String?       @map("exam_id")
-  radiologistId String?      @map("radiologist_id")
-  state        ReportState   @default(PENDING_ASSIGNMENT)
-  findings     String        @default("")
-  conclusion   String        @default("")
-  signedAt     DateTime?     @map("signed_at")
-  isCritical   Boolean       @default(false) @map("is_critical")
-  qualityScore Int?          @map("quality_score")
-  version      Int           @default(0)
-  patient      Patient       @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  id                 String        @id @default(cuid())
+  tenantId           String        @map("tenant_id")
+  patientId          String        @map("patient_id")
+  examId             String?       @map("exam_id")
+  radiologistId      String?       @map("radiologist_id")
+  state              ReportState   @default(PENDING_ASSIGNMENT)
+  findings           String        @default("")
+  diagnosis          String        @default("")
+  impression         String        @default("")
+  recommendations    String        @default("")
+  conclusion         String        @default("")
+  signedAt           DateTime?     @map("signed_at")
+  rejectReason       String?       @map("reject_reason")
+  reviewerId         String?       @map("reviewer_id")
+  coSignerId         String?       @map("co_signer_id")
+  coSignedAt         DateTime?     @map("co_signed_at")
+  amendmentReason    String?       @map("amendment_reason")
+  rectificationCount Int           @default(0) @map("rectification_count")
+  supplementCount    Int           @default(0) @map("supplement_count")
+  isCritical         Boolean       @default(false) @map("is_critical")
+  qualityScore       Int?          @map("quality_score")
+  version            Int           @default(0)
+  patient      Patient       @relation(fields: [patientId], references: [id], onDelete: Restrict)
   exam         Exam?         @relation(fields: [examId], references: [id], onDelete: SetNull)
-  radiologist  User?         @relation("ReportRadiologist", fields: [radiologistId], references: [id], onDelete: SetNull)
-  revisions    ReportRevision[]
-  radPathRecords RadPathRecord[]
-  createdAt    DateTime      @default(now()) @map("created_at")
-  updatedAt    DateTime      @updatedAt @map("updated_at")
+  radiologist        User?         @relation("ReportRadiologist", fields: [radiologistId], references: [id], onDelete: SetNull)
+  revisions          ReportRevision[]
+  radPathRecords     RadPathRecord[]
+  createdAt          DateTime      @default(now()) @map("created_at")
+  updatedAt          DateTime      @updatedAt @map("updated_at")
 
   @@index([state, patientId])
+  @@index([radiologistId])
   @@index([tenantId])
   @@map("reports")
 }
@@ -312,6 +334,7 @@ model Appointment {
   version     Int              @default(0)
   createdAt   DateTime         @default(now()) @map("created_at")
 
+  @@index([patientId])
   @@index([scheduledAt, state])
   @@index([deviceId, scheduledAt])
   @@index([tenantId])
@@ -563,7 +586,7 @@ model EyeStudy {
   status      String   @default("PENDING")
   findings    String   @default("")
   impressions String   @default("")
-  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Restrict)
   inferences  EyeAiInference[]
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
@@ -824,6 +847,7 @@ model DentalAppointment {
   notes       String   @default("")
   createdAt   DateTime @default(now()) @map("created_at")
 
+  @@index([patientId])
   @@index([scheduledAt, state])
   @@index([tenantId])
   @@map("dental_appointments")

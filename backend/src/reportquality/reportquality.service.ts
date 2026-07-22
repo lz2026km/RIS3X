@@ -11,12 +11,12 @@ export class ReportQualityService {
     return { data }
   }
 
-  async createScoreRule(body: any) {
+  async createScoreRule(body: Record<string, unknown>) {
     const data = await this.prisma.systemConfig.create({ data: { key: `score_rule_${Date.now()}`, value: body } })
     return { data: [data] }
   }
 
-  async updateScoreRule(id: string, body: any) {
+  async updateScoreRule(id: string, body: Record<string, unknown>) {
     const data = await this.prisma.systemConfig.update({ where: { key: id }, data: { value: body } })
     return { data: [data] }
   }
@@ -26,12 +26,12 @@ export class ReportQualityService {
     return { data }
   }
 
-  async createDefectEntry(body: any) {
+  async createDefectEntry(body: Record<string, unknown>) {
     const data = await this.prisma.auditLog.create({ data: { action: 'CREATE', resource: 'defect-library', detail: body, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
 
-  async updateDefectEntry(id: string, body: any) {
+  async updateDefectEntry(id: string, body: Record<string, unknown>) {
     const data = await this.prisma.auditLog.update({ where: { id }, data: { detail: body } })
     return { data: [data] }
   }
@@ -41,7 +41,7 @@ export class ReportQualityService {
     return { data }
   }
 
-  async createAiReportDraft(body: any) {
+  async createAiReportDraft(body: Record<string, unknown>) {
     const data = await this.prisma.report.create({ data: body })
     return { data: [data] }
   }

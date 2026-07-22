@@ -9,6 +9,7 @@ export interface JwtPayload {
   username: string
   role: string
   tenantId?: string
+  tokenVersion?: number
 }
 
 const MAX_FAILED_ATTEMPTS = 5
@@ -77,7 +78,7 @@ export class AuthService {
     }
 
     if (!totpRequired) {
-      const payload: JwtPayload = { sub: user.id, username: user.username, role: user.role, tenantId: user.tenantId }
+      const payload: JwtPayload = { sub: user.id, username: user.username, role: user.role, tenantId: user.tenantId, tokenVersion: user.tokenVersion }
       const accessToken = await this.jwt.signAsync(payload)
       return {
         accessToken,
@@ -85,7 +86,7 @@ export class AuthService {
       }
     }
 
-    const tempPayload: JwtPayload & { totpPending: true } = { sub: user.id, username: user.username, role: user.role, tenantId: user.tenantId, totpPending: true }
+    const tempPayload: JwtPayload & { totpPending: true } = { sub: user.id, username: user.username, role: user.role, tenantId: user.tenantId, tokenVersion: user.tokenVersion, totpPending: true }
     const tempToken = await this.jwt.signAsync(tempPayload, { expiresIn: '5m' })
     return {
       accessToken: tempToken,
@@ -105,7 +106,7 @@ export class AuthService {
     })
     if (!verified) throw new UnauthorizedException('TOTP验证码错误')
 
-    const payload: JwtPayload = { sub: user.id, username: user.username, role: user.role }
+    const payload: JwtPayload = { sub: user.id, username: user.username, role: user.role, tokenVersion: user.tokenVersion }
     const accessToken = await this.jwt.signAsync(payload)
     return {
       accessToken,
@@ -149,9 +150,17 @@ export class AuthService {
    * refresh-token cookie has been verified. TTL stays at 15m (mirrors
    * JwtModule.signOptions.expiresIn).
    */
-  async refresh(userId: string, username: string, role: string): Promise<{ accessToken: string; user: { id: string; username: string; role: string } }> {
-    const payload: JwtPayload = { sub: userId, username, role }
+  async refresh(userId: string, username: string, role: string, tenantId?: string): Promise<{ accessToken: string; user: { id: string; username: string; role: string } }> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { tokenVersion: true } })
+    const payload: JwtPayload = { sub: userId, username, role, tenantId, tokenVersion: user?.tokenVersion }
     const accessToken = await this.jwt.signAsync(payload)
     return { accessToken, user: { id: userId, username, role } }
+  }
+
+  async logout(userId: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { tokenVersion: { increment: 1 } },
+    })
   }
 }

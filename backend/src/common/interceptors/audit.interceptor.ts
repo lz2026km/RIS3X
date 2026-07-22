@@ -5,14 +5,26 @@ import { AuditService } from '../../modules/audit/audit.service'
 
 const SENSITIVE_ACTIONS = new Set([
   'POST:/auth/login',
+  'POST:/auth/logout',
   'POST:/auth/change-password',
   'POST:/users',
   'PATCH:/users',
   'DELETE:/users',
   'PATCH:/users/:id/role',
+  'POST:/files/upload-complete',
   'DELETE:/reports',
   'DELETE:/patients',
   'DELETE:/exams',
+  'DELETE:/appointments',
+  'PATCH:/appointments/:id',
+  'POST:/criticals',
+  'PATCH:/criticals/:id',
+  'DELETE:/criticals/:id',
+  'POST:/safety/adverse-events',
+  'POST:/safety/rca-investigations',
+  'POST:/hl7/oru',
+  'POST:/hl7/orm',
+  'POST:/hl7/dft',
 ])
 
 @Injectable()

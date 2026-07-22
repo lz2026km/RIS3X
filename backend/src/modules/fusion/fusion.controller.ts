@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { Roles } from '../../common/decorators/roles.decorator'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { FusionService } from './fusion.service'
@@ -24,6 +25,7 @@ const RenderSchema = z.object({
 
 @ApiTags('fusion')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR', 'DOCTOR')
 @Controller('fusion')
 export class FusionController {
   constructor(private readonly svc: FusionService) {}

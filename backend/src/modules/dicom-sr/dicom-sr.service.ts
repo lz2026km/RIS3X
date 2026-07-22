@@ -108,21 +108,24 @@ export class DicomSrService {
     const studyDate = now.toISOString().slice(0, 10).replace(/-/g, '')
     const studyTime = now.toISOString().slice(11, 19).replace(/:/g, '')
     const studyUID = `1.2.840.10008.5.1.4.1.1.2.1.${Date.now()}`
-    const seriesUID = `${sopUID}.99`
+    const seriesUID = `${opts.sopInstanceUID}.99`
 
     const items = opts.contentItems
       .map((item, i) => {
         const relType = item.value ? 'CONTAINS' : 'CONTAINS'
         const val = item.value || '(empty)'
+        const codeValue = item.name
         return `  (0040A010) SQ (Content Item)
     (0040A040) CS = ${relType}
     (0040A043) SQ (Concept Name Code Sequence)
-      (00080100) SH = DCM
-      (00080102) SH = ${item.name}
+      (00080100) SH = ${codeValue}
+      (00080102) SH = DCM
       (00080104) LO = ${item.label}
     (0040A160) UT = ${val}`
       })
       .join('\n')
+
+    const sopClassUid = opts.templateId === 'TID 1500' ? '1.2.840.10008.5.1.4.1.1.88.33' : '1.2.840.10008.5.1.4.1.1.88.22'
 
     return `# DICOM Structured Report
 # DICOM Standard: PS 3.3-2024
@@ -136,7 +139,7 @@ export class DicomSrService {
 # Generated: ${now.toISOString()}
 #
 (00080005) CS = ISO_IR 100
-(00080016) UI = 1.2.840.10008.5.1.4.1.1.88.11
+(00080016) UI = ${sopClassUid}
 (00080018) UI = ${opts.sopInstanceUID}
 (00080020) DA = ${studyDate}
 (00080030) TM = ${studyTime}

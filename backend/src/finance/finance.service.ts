@@ -10,12 +10,12 @@ export class FinanceService {
     return { data }
   }
 
-  async createChargeItem(body: any) {
+  async createChargeItem(body: Record<string, unknown>) {
     const data = await this.prisma.chargeItem.create({ data: body })
     return { data: [data] }
   }
 
-  async updateChargeItem(id: string, body: any) {
+  async updateChargeItem(id: string, body: Record<string, unknown>) {
     const data = await this.prisma.chargeItem.update({ where: { id }, data: body })
     return { data: [data] }
   }
@@ -25,7 +25,7 @@ export class FinanceService {
     return { data }
   }
 
-  async createInvoice(body: any) {
+  async createInvoice(body: Record<string, unknown>) {
     const data = await this.prisma.invoice.create({ data: body })
     return { data: [data] }
   }
@@ -35,7 +35,7 @@ export class FinanceService {
     return { data: data ? [data] : [] }
   }
 
-  async payInvoice(body: any) {
+  async payInvoice(body: Record<string, unknown>) {
     const { id, ...rest } = body
     const data = await this.prisma.invoice.update({ where: { id }, data: { status: 'PAID', ...rest } })
     return { data: [data] }

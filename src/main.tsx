@@ -5,13 +5,14 @@ import App from "./App";
 
 import "./i18n/index.ts";
 import { reportWebVitals } from "./observability/webVitals";
+import { initSentry } from "./observability/sentry";
 
 import "./styles/animations.css";
 import "./styles/transitions.css";
 import "./styles/responsive.css";
 import "./styles/z-index.css";
 
-const APP_VERSION = "3.0.6.11-17";
+const APP_VERSION = "3.0.6.11-31";
 console.info(`[v${APP_VERSION}] === BOOT START ===`);
 console.info(`[v${APP_VERSION}] Location:`, window.location.href);
 
@@ -102,8 +103,11 @@ async function bootstrap(): Promise<void> {
     console.warn(`[v${APP_VERSION}] MSW unavailable, API will fallback`);
   }
 
-  // Phase 3: 渲染 React
-  console.info(`[v${APP_VERSION}] Phase 3: React render`);
+  // Phase 3: Init Sentry
+  initSentry();
+
+  // Phase 4: 渲染 React
+  console.info(`[v${APP_VERSION}] Phase 4: React render`);
   const rootEl = document.getElementById("root");
   if (!rootEl) {
     console.error(`[v${APP_VERSION}] FATAL: no #root element`);

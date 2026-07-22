@@ -10,12 +10,12 @@ export class CriticalExtService {
     return { data }
   }
 
-  async createCriticalRule(body: any) {
+  async createCriticalRule(body: Record<string, unknown>) {
     const data = await this.prisma.systemConfig.create({ data: { key: `critical_rule_${Date.now()}`, value: body } })
     return { data: [data] }
   }
 
-  async updateCriticalRule(id: string, body: any) {
+  async updateCriticalRule(id: string, body: Record<string, unknown>) {
     const data = await this.prisma.systemConfig.update({ where: { key: id }, data: { value: body } })
     return { data: [data] }
   }
@@ -52,12 +52,12 @@ export class CriticalExtService {
     return { data: data ? [data] : [] }
   }
 
-  async autoDetectCritical(body: any) {
+  async autoDetectCritical(body: Record<string, unknown>) {
     const data = await this.prisma.criticalValue.create({ data: body })
     return { data: [data] }
   }
 
-  async closeCriticalLoop(body: any) {
+  async closeCriticalLoop(body: Record<string, unknown>) {
     const { id, ...rest } = body
     const data = await this.prisma.criticalValue.update({ where: { id }, data: { state: 'RESOLVED', ...rest } })
     return { data: [data] }

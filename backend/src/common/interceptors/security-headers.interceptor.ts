@@ -13,6 +13,7 @@ export class SecurityHeadersInterceptor implements NestInterceptor {
         response.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload')
         response.setHeader('X-XSS-Protection', '0')
         response.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
+        response.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https: wss:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'")
         return data
       }),
     )

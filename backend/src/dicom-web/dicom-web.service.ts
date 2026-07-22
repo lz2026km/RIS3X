@@ -119,7 +119,7 @@ export class DicomWebService {
     metaElements.push(encodeElement(0x0002, 0x000D, 'UI', valBytes(studyUid)))
     metaElements.push(encodeElement(0x0002, 0x000E, 'UI', valBytes(seriesUid)))
     metaElements.push(encodeElement(0x0002, 0x0010, 'UI', valBytes(transferSyntax)))
-    metaElements.push(encodeElement(0x0002, 0x0012, 'UI', valBytes('1.2.840.10008.5.1.4.1.1.2')))
+    metaElements.push(encodeElement(0x0002, 0x0012, 'UI', valBytes('1.2.840.10008.5.1.4.1.2.1.1')))
     metaElements.push(encodeElement(0x0002, 0x0013, 'SH', valBytes('G005-RIS-WADO-3.0')))
 
     const metaBody = Buffer.concat(metaElements)
@@ -174,7 +174,8 @@ export class DicomWebService {
     sopClassUid: string,
     sizeBytes: number,
     storagePath: string,
-    patientId?: string
+    patientId?: string,
+    transferSyntax?: string
   ) {
     const model = (this.prisma as any).dicomInstance
     if (!model?.create) {
@@ -190,6 +191,7 @@ export class DicomWebService {
         patientId,
         sizeBytes,
         storagePath,
+        transferSyntax,
       },
     })
   }

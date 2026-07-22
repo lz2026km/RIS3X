@@ -1,6 +1,5 @@
 ﻿/**
- * G005 鏀惧皠RIS绯荤粺 v3.0.2.2 - 閫氱煡鎺у埗鍣?
- * 4 绔偣
+ * G005 RIS v3.0.6.11-31 - Notifications Controller
  */
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
@@ -58,7 +57,7 @@ export class NotificationsController {
 
   @Post('broadcast')
   @HttpCode(HttpStatus.CREATED)
-  broadcast(@Body(new ZodValidationPipe(BroadcastSchema)) body: any) {
+  broadcast(@Body(new ZodValidationPipe(BroadcastSchema)) body: z.infer<typeof BroadcastSchema>) {
     const { userIds, ...dto } = body
     return this.service.broadcast(userIds, dto)
   }

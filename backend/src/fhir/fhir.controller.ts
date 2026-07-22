@@ -11,7 +11,7 @@ import { FhirService } from './fhir.service'
 export class FhirController {
   constructor(private readonly service: FhirService) {}
 
-  // 鈹€鈹€ Patient 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+  // --- Patient ---
   @Get('Patient/:id')
   readPatient(@Param('id') id: string) {
     return this.service.readPatient(id)
@@ -29,12 +29,12 @@ export class FhirController {
 
   @Post('Patient')
   @HttpCode(HttpStatus.CREATED)
-  createPatient(@Body() body: any) {
+  createPatient(@Body() body: Record<string, unknown>) {
     return this.service.createPatient(body)
   }
 
   @Put('Patient/:id')
-  updatePatient(@Param('id') id: string, @Body() body: any) {
+  updatePatient(@Param('id') id: string, @Body() body: Record<string, unknown>) {
     return this.service.updatePatient(id, body)
   }
 
@@ -48,7 +48,7 @@ export class FhirController {
     return this.service.patientEverything(id)
   }
 
-  // 鈹€鈹€ Observation 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+  // --- Observation ---
   @Get('Observation/:id')
   readObservation(@Param('id') id: string) {
     return this.service.readObservation(id)
@@ -59,7 +59,7 @@ export class FhirController {
     return this.service.searchObservation({ patient, _count })
   }
 
-  // 鈹€鈹€ DiagnosticReport 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+  // --- DiagnosticReport ---
   @Get('DiagnosticReport/:id')
   readDiagnosticReport(@Param('id') id: string) {
     return this.service.readDiagnosticReport(id)
@@ -74,7 +74,7 @@ export class FhirController {
     return this.service.searchDiagnosticReport({ patient, status, _count })
   }
 
-  // 鈹€鈹€ ImagingStudy 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+  // --- ImagingStudy ---
   @Get('ImagingStudy/:id')
   readImagingStudy(@Param('id') id: string) {
     return this.service.readImagingStudy(id)
@@ -89,10 +89,10 @@ export class FhirController {
     return this.service.searchImagingStudy({ patient, modality, _count })
   }
 
-  // 鈹€鈹€ Subscription 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+  // --- Subscription ---
   @Post('Subscription')
   @HttpCode(HttpStatus.CREATED)
-  createSubscription(@Body() body: any) {
+  createSubscription(@Body() body: Record<string, unknown>) {
     return this.service.createSubscription(body)
   }
 
@@ -111,7 +111,7 @@ export class FhirController {
     return this.service.deleteSubscription(id)
   }
 
-  // 鈹€鈹€ Bulk Data Export 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+  // --- Bulk Data Export ---
   @Get('$export')
   async bulkExport(
     @Query('_outputFormat') _outputFormat?: string,
@@ -121,19 +121,18 @@ export class FhirController {
   ) {
     const { jobId } = await this.service.bulkExport(_outputFormat, _since, _type)
     if (res) {
-      res.status(202)
       res.setHeader('Content-Location', `/fhir/r4/$export-status/${jobId}`)
     }
+    return { jobId, statusCode: 202 }
     return { jobId }
   }
 
   @Get('$export-status/:jobId')
   async bulkExportStatus(@Param('jobId') jobId: string, @Res({ passthrough: true }) res: Response) {
     const result = await this.service.bulkExportStatus(jobId)
+    res.setHeader('Content-Type', typeof result === 'string' ? 'application/fhir+ndjson' : 'application/json')
     if (typeof result === 'string') {
-      res.setHeader('Content-Type', 'application/fhir+ndjson')
       res.setHeader('Content-Disposition', 'attachment; filename="export.ndjson"')
-      return result
     }
     return result
   }

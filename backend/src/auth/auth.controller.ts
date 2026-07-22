@@ -1,11 +1,11 @@
 import { Body, Controller, Get, Post, Req, UnauthorizedException } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { Throttle } from '@nestjs/throttler'
 import { Public } from '../common/decorators/public.decorator'
 import { Roles } from '../common/decorators/roles.decorator'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
 import { AuthService } from './auth.service'
-// TODO v3.0.4: 安装 @nestjs/throttler 并应用 5 req/min 限流
 
 export const LoginSchema = z.object({
   username: z.string().min(2).max(64),
@@ -32,20 +32,18 @@ export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
   @Public()
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('login')
   @ApiOperation({ summary: '账号密码登录' })
   async login(@Body(new ZodValidationPipe(LoginSchema)) dto: LoginDto, @Req() req: { ip: string }) {
     return this.auth.login(dto.username, dto.password, req.ip)
   }
 
-  @Public()
   @Post('refresh')
-  @ApiOperation({ summary: '刷新 access token (使用 HttpOnly refresh cookie)' })
-  async refresh(@Req() req: { user?: { sub: string; username: string; role: string } }) {
-    if (!req.user) {
-      throw new UnauthorizedException('缺少有效的 refresh token，请重新登录')
-    }
-    return this.auth.refresh(req.user.sub, req.user.username, req.user.role)
+  @ApiOperation({ summary: '刷新 access token (使用当前有效的 Bearer token)' })
+  async refresh(@Req() req: { user: { sub: string; username: string; role: string; tenantId?: string } }) {
+    const result = await this.auth.refresh(req.user.sub, req.user.username, req.user.role, req.user.tenantId)
+    return { success: true, data: { token: result.accessToken, expiresAt: Date.now() + 15 * 60 * 1000, userId: result.user.id, userName: result.user.username, role: result.user.role } }
   }
 
   @Post('totp/verify')
@@ -70,6 +68,12 @@ export class AuthController {
   @ApiOperation({ summary: '当前登录用户' })
   me(@Req() req: { user: { sub: string } }) {
     return this.auth.me(req.user.sub)
+  }
+
+  @Post('logout')
+  @ApiOperation({ summary: '登出（使所有当前 token 失效）' })
+  logout(@Req() req: { user: { sub: string } }) {
+    return this.auth.logout(req.user.sub)
   }
 
   @Post('change-password')

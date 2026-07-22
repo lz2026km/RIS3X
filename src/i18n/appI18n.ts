@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "G005放射信息系统",
     "app.version":
-      "v3.0.6.11-17 · 全链路数据真实化+三甲评审达标+antd 6升级",
+      "v3.0.6.11-31 · 端到端验证+终极发布+18域审计报告",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -1906,7 +1906,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "G005 Radiology Information System",
     "app.version":
-            "v3.0.6.11-17 · Full Chain Data Realization + Tertiary Compliance + antd 6 Upgrade",
+            "v3.0.6.11-31 · E2E Verification + Final Release + 18 Domain Audit",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",

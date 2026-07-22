@@ -81,3 +81,30 @@ spec:
           annotations:
             summary: "危急值报告超时"
             description: "95% 的危急值报告响应时间超过 30s (当前值: {{ $value }}s)"
+
+        - alert: QueueBackpressure
+          expr: queue_jobs_waiting{job="g005-ris"} > 100
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "队列积压 (>100 等待)"
+            description: "队列 {{ $labels.queue }} 中有 {{ $value }} 个任务等待处理"
+
+        - alert: CacheFailure
+          expr: rate(cache_misses_total{job="g005-ris"}[5m]) > 100
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "缓存未命中率过高"
+            description: "缓存未命中速率 {{ $value }}/s，可能缓存服务异常"
+
+        - alert: HighCPUUsage
+          expr: (1 - avg(rate(node_cpu_seconds_total{mode="idle",job="node-exporter"}[5m]))) * 100 > 90
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            summary: "CPU 使用率超过 90%"
+            description: "节点 CPU 使用率 {{ $value }}% 已超过 90% 阈值"

@@ -12,7 +12,7 @@ export class CaService {
     return { data }
   }
 
-  async uploadCertificate(body: any) {
+  async uploadCertificate(body: Record<string, unknown>) {
     const data = await this.prisma.auditLog.create({ data: { action: 'UPLOAD', resource: 'ca-certificate', detail: body ?? {}, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
@@ -22,7 +22,7 @@ export class CaService {
     return { data: [data] }
   }
 
-  async signDocument(body: any) {
+  async signDocument(body: Record<string, unknown>) {
     const data = await this.prisma.auditLog.create({ data: { action: 'SIGN', resource: 'ca-document', detail: body ?? {}, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
@@ -32,7 +32,7 @@ export class CaService {
     return { data }
   }
 
-  async verifySignature(body: any) {
+  async verifySignature(body: Record<string, unknown>) {
     const data = await this.prisma.auditLog.create({ data: { action: 'VERIFY', resource: 'ca-signature', detail: body ?? {}, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
@@ -42,7 +42,7 @@ export class CaService {
     return { data }
   }
 
-  async updateCaConfig(body: any) {
+  async updateCaConfig(body: Record<string, unknown>) {
     const results = []
     for (const [key, value] of Object.entries(body)) {
       const item = await this.prisma.systemConfig.upsert({

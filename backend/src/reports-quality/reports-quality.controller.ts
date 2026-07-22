@@ -1,6 +1,5 @@
 ﻿/**
- * G005 鏀惧皠RIS绯荤粺 v3.0.2.2 - 鎶ュ憡璐ㄩ噺鎺у埗鍣?
- * 5 绔偣:GET rules / POST evaluate / GET history / GET trend / POST re-evaluate
+ * G005 RIS v3.0.6.11-31 - Reports Quality Controller
  */
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'

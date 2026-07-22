@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { Roles } from '../../common/decorators/roles.decorator'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { AiMarketplaceService } from './ai-marketplace.service'
@@ -13,6 +14,7 @@ const DeploySchema = z.object({
 
 @ApiTags('ai-marketplace')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('ai-marketplace')
 export class AiMarketplaceController {
   constructor(private readonly service: AiMarketplaceService) {}

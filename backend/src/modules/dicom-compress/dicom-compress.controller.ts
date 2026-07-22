@@ -1,8 +1,11 @@
 import { Controller, Get, Post, Param, Body, Logger } from '@nestjs/common'
-import { ApiTags, ApiOperation } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger'
+import { Roles } from '../../common/decorators/roles.decorator'
 import { DicomCompressService } from './dicom-compress.service'
 
 @ApiTags('dicom-compress')
+@ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
 @Controller('api/v1/dicom/compress')
 export class DicomCompressController {
   private readonly logger = new Logger(DicomCompressController.name)

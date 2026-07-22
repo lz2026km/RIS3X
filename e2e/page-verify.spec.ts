@@ -3,8 +3,7 @@ import { test, expect } from '@playwright/test'
 const BASE = 'http://localhost:5191'
 
 async function login(page: any) {
-  await page.goto(`${BASE}/login`, { waitUntil: 'networkidle', timeout: 30000 }).catch(() => {})
-  await page.evaluate(() => {
+  await page.addInitScript(() => {
     localStorage.setItem('ris_current_user', JSON.stringify({
       id: 'admin', name: '主任', role: '主任', department: '放射科',
       username: 'admin', title: '主任医师'
@@ -14,7 +13,7 @@ async function login(page: any) {
     }))
   })
   await page.goto(`${BASE}/worklist`, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {})
-  await page.waitForTimeout(2000)
+  await page.waitForTimeout(3000)
 }
 
 test.describe('Page Verification', () => {

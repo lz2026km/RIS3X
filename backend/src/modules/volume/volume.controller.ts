@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Param, Body } from '@nestjs/common'
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger'
+import { Roles } from '../../common/decorators/roles.decorator'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { VolumeService } from './volume.service'
@@ -10,6 +11,7 @@ const MipSchema = z.object({ jobId: z.string().min(1), direction: z.enum(['axial
 
 @ApiTags('volume')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
 @Controller('volume')
 export class VolumeController {
   constructor(private readonly service: VolumeService) {}

@@ -205,14 +205,15 @@ export class OlapService {
       const v = typeof f.value === 'string' ? `%${f.value}%` : String(f.value)
       return Prisma.sql`${col} LIKE ${v}`
     }
-    if (['<', '<=', '>', '>=', '='].includes(f.operator)) {
-      const op = f.operator
+    const OP_MAP: Record<string, string> = { '<': '<', '<=': '<=', '>': '>', '>=': '>=', '=': '=', eq: '=', ne: '<>', lt: '<', lte: '<=', gt: '>', gte: '>=' }
+    const sqlOp = OP_MAP[f.operator]
+    if (!sqlOp) return null
+    if (['<', '<=', '>', '>=', '='].includes(sqlOp)) {
       const v = typeof f.value === 'string' ? f.value : Number(f.value)
-      return Prisma.sql`${col} ${Prisma.raw(op)} ${v}`
+      return Prisma.sql`${col} ${Prisma.raw(sqlOp)} ${v}`
     }
-    const op = f.operator === 'eq' ? '=' : f.operator === 'ne' ? '<>' : f.operator === 'lt' ? '<' : f.operator === 'lte' ? '<=' : f.operator === 'gt' ? '>' : f.operator === 'gte' ? '>=' : '='
     const v = typeof f.value === 'string' ? f.value : String(f.value)
-    return Prisma.sql`${col} ${Prisma.raw(op)} ${v}`
+    return Prisma.sql`${col} ${Prisma.raw(sqlOp)} ${v}`
   }
 
   private buildSQL(query: OLAPQuery): Prisma.Sql {

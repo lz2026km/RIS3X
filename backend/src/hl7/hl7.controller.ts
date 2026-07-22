@@ -1,6 +1,5 @@
 ﻿/**
- * G005 鏀惧皠RIS绯荤粺 v3.0.2 - HL7 鎺у埗鍣? * 2 绔偣:POST oru / POST batch
- * v3.0.6.11-9: 娣诲姞 POST orm / POST dft
+ * G005 RIS v3.0.6.11-31 - HL7 Controller
  */
 import { Body, Controller, HttpCode, HttpStatus, NotFoundException, Post } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
@@ -121,14 +120,7 @@ export class Hl7Controller {
   @Post('push-oru')
   @HttpCode(HttpStatus.CREATED)
   async pushOru(@Body() body: { examId: string; reportId: string }) {
-    const exam = await (this.service as any).prisma.exam.findUnique({
-      where: { id: body.examId },
-      include: { patient: true, reports: true },
-    })
-    if (!exam) throw new Error('Exam not found')
-    const report = exam.reports.find((r: any) => r.id === body.reportId)
-    if (!report) throw new Error('Report not found')
-    await this.service.pushOruOnExamCompletion(exam, report)
+    await this.service.pushOruById(body.examId, body.reportId)
     return { pushed: true, examId: body.examId, reportId: body.reportId }
   }
 }

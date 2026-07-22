@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Param, Query, Body, Req, UploadedFile, UseInterceptors } from '@nestjs/common'
+import { Controller, Get, Post, Delete, Param, Query, Body, Req, UploadedFile, UseInterceptors, BadRequestException } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { Roles } from '../../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiOperation, ApiTags, ApiConsumes } from '@nestjs/swagger'
@@ -20,8 +20,13 @@ export class TeachController {
   @Post('lecture/:id/blob')
   @ApiOperation({ summary: '上传录制 blob（分片）' })
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('blob'))
+  @UseInterceptors(FileInterceptor('blob', { limits: { fileSize: 50 * 1024 * 1024 } }))
   uploadBlob(@Param('id') id: string, @UploadedFile() file: any, @Query('sequence') sequence?: string) {
+    if (!file) throw new BadRequestException('文件不能为空')
+    const allowedMimes = ['video/webm', 'video/mp4', 'application/octet-stream']
+    if (file.mimetype && !allowedMimes.includes(file.mimetype)) {
+      throw new BadRequestException('不支持的文件类型')
+    }
     const seq = sequence ? parseInt(sequence) : 0
     return this.teach.uploadBlob(id, file.buffer, seq)
   }

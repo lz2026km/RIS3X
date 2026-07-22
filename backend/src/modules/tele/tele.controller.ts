@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { Roles } from '../../common/decorators/roles.decorator'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { TeleService } from './tele.service'
@@ -43,6 +44,7 @@ const CursorSchema = z.object({
 
 @ApiTags('tele')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
 @Controller('tele')
 export class TeleController {
   constructor(private readonly service: TeleService) {}

@@ -17,10 +17,10 @@ export class DentalController {
   getStudy(@Param('id') id: string) { return this.svc.getStudy(id) }
 
   @Post('studies')
-  createStudy(@Body() body: any) { return this.svc.createStudy(body) }
+  createStudy(@Body() body: Record<string, unknown>) { return this.svc.createStudy(body) }
 
   @Put('studies/:id')
-  updateStudy(@Param('id') id: string, @Body() body: any) { return this.svc.updateStudy(id, body) }
+  updateStudy(@Param('id') id: string, @Body() body: Record<string, unknown>) { return this.svc.updateStudy(id, body) }
 
   @Delete('studies/:id')
   deleteStudy(@Param('id') id: string) { return this.svc.deleteStudy(id) }
@@ -29,38 +29,38 @@ export class DentalController {
   listAiFindings() { return this.svc.listAiFindings() }
 
   @Post('ai-findings')
-  createAiFinding(@Body() body: any) { return this.svc.createAiFinding(body) }
+  createAiFinding(@Body() body: Record<string, unknown>) { return this.svc.createAiFinding(body) }
 
   @Get('implants')
   listImplants() { return this.svc.listImplants() }
 
   @Post('implants')
-  createImplant(@Body() body: any) { return this.svc.createImplant(body) }
+  createImplant(@Body() body: Record<string, unknown>) { return this.svc.createImplant(body) }
 
   @Put('implants/:id')
-  updateImplant(@Param('id') id: string, @Body() body: any) { return this.svc.updateImplant(id, body) }
+  updateImplant(@Param('id') id: string, @Body() body: Record<string, unknown>) { return this.svc.updateImplant(id, body) }
 
   @Get('appointments')
   listAppointments() { return this.svc.listAppointments() }
 
   @Post('appointments')
-  createAppointment(@Body() body: any) { return this.svc.createAppointment(body) }
+  createAppointment(@Body() body: Record<string, unknown>) { return this.svc.createAppointment(body) }
 
   @Put('appointments/:id')
-  updateAppointment(@Param('id') id: string, @Body() body: any) { return this.svc.updateAppointment(id, body) }
+  updateAppointment(@Param('id') id: string, @Body() body: Record<string, unknown>) { return this.svc.updateAppointment(id, body) }
 
   @Get('invoices')
   listInvoices() { return this.svc.listInvoices() }
 
   @Post('invoices')
-  createInvoice(@Body() body: any) { return this.svc.createInvoice(body) }
+  createInvoice(@Body() body: Record<string, unknown>) { return this.svc.createInvoice(body) }
 
   @Get('inventory')
   listInventory() { return this.svc.listInventory() }
 
   @Post('inventory')
-  addInventoryItem(@Body() body: any) { return this.svc.addInventoryItem(body) }
+  addInventoryItem(@Body() body: Record<string, unknown>) { return this.svc.addInventoryItem(body) }
 
   @Put('inventory/:id')
-  updateInventoryItem(@Param('id') id: string, @Body() body: any) { return this.svc.updateInventoryItem(id, body) }
+  updateInventoryItem(@Param('id') id: string, @Body() body: Record<string, unknown>) { return this.svc.updateInventoryItem(id, body) }
 }

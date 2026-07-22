@@ -70,7 +70,12 @@ export class DicomDimseService {
     if (!this.supportedStorageSopClasses.has(dto.sopClassUid)) {
       throw new BadRequestException(`Unsupported SOP Class UID: ${dto.sopClassUid}`)
     }
-    const tsList = ['1.2.840.10008.1.2', '1.2.840.10008.1.2.1', '1.2.840.10008.1.2.4.70']
+    const tsList = [
+      '1.2.840.10008.1.2',       '1.2.840.10008.1.2.1',   '1.2.840.10008.1.2.4.50',
+      '1.2.840.10008.1.2.4.51',  '1.2.840.10008.1.2.4.57', '1.2.840.10008.1.2.4.70',
+      '1.2.840.10008.1.2.4.80',  '1.2.840.10008.1.2.4.81', '1.2.840.10008.1.2.4.90',
+      '1.2.840.10008.1.2.4.91',
+    ]
     const ts = dto.transferSyntax ?? '1.2.840.10008.1.2.1'
     if (!tsList.includes(ts)) {
       throw new BadRequestException(`Unsupported Transfer Syntax UID: ${ts}`)
@@ -374,7 +379,7 @@ export class DicomDimseService {
     metaElements.push(encodeMeta('0002000D', 'UI', valBuf(opts.studyInstanceUid)))
     metaElements.push(encodeMeta('0002000E', 'UI', valBuf(opts.seriesInstanceUid)))
     metaElements.push(encodeMeta('00020010', 'UI', valBuf(opts.transferSyntax)))
-    metaElements.push(encodeMeta('00020012', 'UI', valBuf('1.2.840.10008.5.1.4.1.1.2')))
+    metaElements.push(encodeMeta('00020012', 'UI', valBuf('1.2.840.10008.5.1.4.1.2.1.1')))
     metaElements.push(encodeMeta('00020013', 'SH', valBuf('G005-RIS-DIMSE-3.0')))
     const metaBody = Buffer.concat(metaElements)
     const glBuf = u32le(metaBody.length)

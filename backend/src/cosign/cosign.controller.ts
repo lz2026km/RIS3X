@@ -17,10 +17,10 @@ export class CosignController {
   getPendingCosign(@Param('id') id: string) { return this.svc.getPendingCosign(id) }
 
   @Post('pending/:id/approve')
-  approveCosign(@Body() body: any) { return this.svc.approveCosign(body) }
+  approveCosign(@Body() body: Record<string, unknown>) { return this.svc.approveCosign(body) }
 
   @Post('pending/:id/reject')
-  rejectCosign(@Body() body: any) { return this.svc.rejectCosign(body) }
+  rejectCosign(@Body() body: Record<string, unknown>) { return this.svc.rejectCosign(body) }
 
   @Get('history')
   listCosignHistory() { return this.svc.listCosignHistory() }
@@ -29,7 +29,7 @@ export class CosignController {
   listCosignRules() { return this.svc.listCosignRules() }
 
   @Post('rules')
-  createCosignRule(@Body() body: any) { return this.svc.createCosignRule(body) }
+  createCosignRule(@Body() body: Record<string, unknown>) { return this.svc.createCosignRule(body) }
 
   @Get('stats')
   getCosignStats() { return this.svc.getCosignStats() }

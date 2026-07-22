@@ -30,7 +30,7 @@ export class RegionalService {
     return { data }
   }
 
-  async updateSchedule(id: string, body: any) {
+  async updateSchedule(id: string, body: Record<string, unknown>) {
     const data = await this.prisma.appointment.update({ where: { id }, data: body })
     return { data: [data] }
   }

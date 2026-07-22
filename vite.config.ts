@@ -196,7 +196,7 @@ export default defineConfig({
   },
 
   build: {
-    target: 'es2020',
+    target: 'es2022',
     cssCodeSplit: true,
     sourcemap: false,
     minify: 'esbuild',
@@ -204,6 +204,14 @@ export default defineConfig({
     reportCompressedSize: true,
     chunkSizeWarningLimit: 600,
     rollupOptions: {
+      treeshake: {
+        preset: 'recommended',
+        propertyReadSideEffects: false,
+        moduleSideEffects: (id) => {
+          if (/\.css$/.test(id)) return true;
+          return false;
+        },
+      },
       output: {
         format: 'es',
         // 手动分包
@@ -219,7 +227,7 @@ export default defineConfig({
           'three-vendor': ['three'],
 
           // 协同(Yjs)
-          'collab-vendor': ['yjs', 'y-webrtc', 'lib0', 'comlink'],
+          'collab-vendor': ['yjs', 'y-webrtc'],
 
           // 状态机
           'xstate-vendor': ['xstate', '@xstate/react'],
@@ -229,7 +237,6 @@ export default defineConfig({
             'date-fns',
             'date-fns-tz',
             'decimal.js',
-            'decimal.js-light',
             'uuid',
             'pinyin-pro',
             'qrcode',
@@ -292,7 +299,7 @@ export default defineConfig({
   base: process.env['VITE_BASE_PATH'] || '/',
 
   server: {
-    port: 5195,
+    port: 5191,
     host: '0.0.0.0',
     headers: {
       ...SECURITY_HEADERS,

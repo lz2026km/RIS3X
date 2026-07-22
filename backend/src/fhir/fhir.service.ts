@@ -372,12 +372,21 @@ export class FhirService implements OnModuleInit {
   }
 
   // ── FHIR Resource Builders ─────────────────────────────
-  private toFhirPatient(p: any): Record<string, any> {
+  private splitName(fullName: string): { family: string; given: string[] } {
+    const parts = fullName.trim().split(/\s+/)
+    if (parts.length <= 1) return { family: fullName, given: [fullName] }
+    const family = parts[parts.length - 1]!
+    const given = parts.slice(0, -1)
+    return { family, given }
+  }
+
+  private toFhirPatient(p: any): Record<string, unknown> {
+    const { family, given } = this.splitName(p.name)
     return {
       resourceType: 'Patient',
       id: p.id,
       identifier: p.idCard ? [{ system: 'urn:oid:1.2.36.146.595.217.0.1', value: p.idCard }] : [],
-      name: [{ family: p.name, given: [p.name] }],
+      name: [{ family, given }],
       gender: p.gender?.toLowerCase(),
       birthDate: p.birthDate?.toISOString().split('T')[0],
       telecom: p.phone ? [{ system: 'phone', value: p.phone }] : [],
@@ -385,7 +394,7 @@ export class FhirService implements OnModuleInit {
     }
   }
 
-  private toFhirObservation(o: any): Record<string, any> {
+  private toFhirObservation(o: any): Record<string, unknown> {
     return {
       resourceType: 'Observation',
       id: o.id,
@@ -398,7 +407,7 @@ export class FhirService implements OnModuleInit {
     }
   }
 
-  private toFhirDiagnosticReport(r: any): Record<string, any> {
+  private toFhirDiagnosticReport(r: any): Record<string, unknown> {
     return {
       resourceType: 'DiagnosticReport',
       id: r.id,
@@ -406,13 +415,13 @@ export class FhirService implements OnModuleInit {
       code: { coding: [{ system: 'http://loinc.org', code: '18782-3', display: 'Radiology Diagnostic report' }] },
       subject: { reference: `Patient/${r.patientId}` },
       effectiveDateTime: r.createdAt?.toISOString(),
-      result: [{ reference: `Observation/${r.id}` }],
+      result: [{ reference: `urn:uuid:${r.id}` }],
       conclusion: r.conclusion,
       meta: { lastUpdated: r.updatedAt?.toISOString() ?? r.createdAt.toISOString() },
     }
   }
 
-  private toFhirImagingStudy(e: any): Record<string, any> {
+  private toFhirImagingStudy(e: any): Record<string, unknown> {
     return {
       resourceType: 'ImagingStudy',
       id: e.id,
@@ -431,12 +440,17 @@ export class FhirService implements OnModuleInit {
     }
   }
 
-  private Bundle(entries: Record<string, any>[]) {
+  private fhirBaseUrl(): string {
+    return process.env['FHIR_BASE_URL'] ?? 'https://fhir.local'
+  }
+
+  private Bundle(entries: Record<string, unknown>[]) {
+    const base = this.fhirBaseUrl()
     return {
       resourceType: 'Bundle',
       type: 'searchset',
       total: entries.length,
-      entry: entries.map((e) => ({ resource: e, fullUrl: `https://fhir.local/${e.resourceType}/${e.id}` })),
+      entry: entries.map((e) => ({ resource: e, fullUrl: `${base}/${e.resourceType}/${e.id}` })),
     }
   }
 }

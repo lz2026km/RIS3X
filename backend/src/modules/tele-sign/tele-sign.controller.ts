@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Post } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { Roles } from '../../common/decorators/roles.decorator'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { TeleSignService } from './tele-sign.service'
@@ -25,6 +26,7 @@ const RejectSchema = z.object({
 
 @ApiTags('tele-sign')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR', 'DOCTOR')
 @Controller('tele-sign')
 export class TeleSignController {
   constructor(private readonly service: TeleSignService) {}

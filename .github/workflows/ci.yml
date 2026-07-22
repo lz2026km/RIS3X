@@ -107,7 +107,44 @@ jobs:
           path: dist/
 
   # ============================================================
-  # 5. E2E (Playwright)
+  # 5. Docker 构建与推送
+  # ============================================================
+  docker:
+    name: Docker Build & Push
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: g005/ris
+          tags: |
+            type=semver,pattern={{version}}
+            type=ref,event=branch
+            type=sha,prefix=
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ============================================================
+  # 6. E2E (Playwright)
   # ============================================================
   e2e:
     name: E2E Tests
@@ -132,7 +169,7 @@ jobs:
           path: playwright-report/
 
   # ============================================================
-  # 6. Lighthouse CI
+  # 7. Lighthouse CI
   # ============================================================
   lighthouse:
     name: Lighthouse
@@ -153,7 +190,7 @@ jobs:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
 
   # ============================================================
-  # 7. 安全 + 依赖审查
+  # 8. 安全 + 依赖审查
   # ============================================================
   security:
     name: Security & Dependencies
@@ -186,12 +223,12 @@ jobs:
           sarif_file: 'trivy-fs.sarif'
 
   # ============================================================
-  # 8. 总状态汇总
+  # 9. 总状态汇总
   # ============================================================
   all-green:
     name: All Checks
     runs-on: ubuntu-latest
-    needs: [lint, typecheck, test, build, e2e, lighthouse, security]
+    needs: [lint, typecheck, test, build, docker, e2e, lighthouse, security]
     if: always()
     steps:
       - name: Summary

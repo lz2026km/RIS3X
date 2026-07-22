@@ -1,5 +1,6 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common'
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { Roles } from '../../common/decorators/roles.decorator'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { DualReadService } from './dual-read.service'
@@ -19,6 +20,7 @@ const ArbitrateSchema = z.object({
 
 @ApiTags('dual-read')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
 @Controller('dual-read')
 export class DualReadController {
   constructor(private readonly service: DualReadService) {}
@@ -36,7 +38,7 @@ export class DualReadController {
     return this.service.arbitrate(id, body.arbitratorId, body.arbitratorName, body.report)
   }
 
-  @Get('arbitrate/:id')
+  @Post('arbitrate/:id')
   arbitrateGet(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(ArbitrateSchema)) body: z.infer<typeof ArbitrateSchema>,

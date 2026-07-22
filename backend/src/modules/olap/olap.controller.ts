@@ -13,7 +13,7 @@ export class OlapController {
 
   @Post('query')
   @ApiOperation({ summary: 'Execute OLAP query' })
-  async query(@Body() body: any) {
+  async query(@Body() body: Record<string, unknown>) {
     try {
       return await this.olapService.executeQuery(body)
     } catch (err) {

@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Post, Put } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { Roles } from '../../common/decorators/roles.decorator'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { SmartRouteService } from './smart-route.service'
@@ -15,6 +16,7 @@ const AssignSchema = z.object({
 
 @ApiTags('smart-route')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR', 'DOCTOR')
 @Controller('smart-route')
 export class SmartRouteController {
   constructor(private readonly service: SmartRouteService) {}

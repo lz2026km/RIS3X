@@ -14,25 +14,25 @@ export class ReportQualityController {
   listScoreRules() { return this.svc.listScoreRules() }
 
   @Post('score-rules')
-  createScoreRule(@Body() body: any) { return this.svc.createScoreRule(body) }
+  createScoreRule(@Body() body: Record<string, unknown>) { return this.svc.createScoreRule(body) }
 
   @Put('score-rules/:id')
-  updateScoreRule(@Param('id') id: string, @Body() body: any) { return this.svc.updateScoreRule(id, body) }
+  updateScoreRule(@Param('id') id: string, @Body() body: Record<string, unknown>) { return this.svc.updateScoreRule(id, body) }
 
   @Get('defect-library')
   listDefectLibrary() { return this.svc.listDefectLibrary() }
 
   @Post('defect-library')
-  createDefectEntry(@Body() body: any) { return this.svc.createDefectEntry(body) }
+  createDefectEntry(@Body() body: Record<string, unknown>) { return this.svc.createDefectEntry(body) }
 
   @Put('defect-library/:id')
-  updateDefectEntry(@Param('id') id: string, @Body() body: any) { return this.svc.updateDefectEntry(id, body) }
+  updateDefectEntry(@Param('id') id: string, @Body() body: Record<string, unknown>) { return this.svc.updateDefectEntry(id, body) }
 
   @Get('ai-report-drafts')
   listAiReportDrafts() { return this.svc.listAiReportDrafts() }
 
   @Post('ai-report-drafts')
-  createAiReportDraft(@Body() body: any) { return this.svc.createAiReportDraft(body) }
+  createAiReportDraft(@Body() body: Record<string, unknown>) { return this.svc.createAiReportDraft(body) }
 
   @Get('stats')
   getReportQualityStats() { return this.svc.getReportQualityStats() }

@@ -31,40 +31,58 @@ export interface RuleEvaluateResult {
 export class CdsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async evaluateRule(req: RuleEvaluateRequest): Promise<{ results: RuleEvaluateResult[] }> {
-    const results: RuleEvaluateResult[] = [
-      {
-        ruleId: 'contrast-001',
-        ruleName: '造影剂适应症检查',
-        priority: 1,
-        triggered: req.examType?.includes('增强') ?? false,
-        severity: 'warning',
-        message: req.examType?.includes('增强') ? '增强检查需确认肾功能正常' : '无需增强',
-        suggestions: ['检查血清肌酐水平', '确认eGFR > 30 mL/min/1.73m²'],
-        source: 'ACR Manual on Contrast Media',
-      },
-      {
-        ruleId: 'dose-001',
-        ruleName: '辐射剂量优化',
-        priority: 2,
-        triggered: req.modality === 'CT' && (req.age ?? 0) < 18,
-        severity: 'warning',
-        message: (req.age ?? 0) < 18 ? '儿童CT检查建议使用低剂量协议' : '剂量在正常范围',
-        suggestions: ['启用儿童低剂量协议', '考虑MRI替代检查'],
-        source: 'Image Gently Campaign',
-      },
-      {
-        ruleId: 'protocol-001',
-        ruleName: '检查协议匹配',
-        priority: 3,
-        triggered: true,
-        severity: 'info',
-        message: `推荐检查方案: ${req.examType ?? '常规'}扫描`,
-        suggestions: ['标准扫描序列', '如需增强请添加对比剂'],
-        source: 'RSNA Radiology Protocols',
-      },
-    ]
-    return { results }
+  async evaluateRule(req: RuleEvaluateRequest): Promise<{ cards: any[]; systemActions: any[] }> {
+    const cards: any[] = []
+
+    const contrastTriggered = req.examType?.includes('增强') ?? false
+    if (contrastTriggered) {
+      cards.push({
+        uuid: 'contrast-001',
+        summary: '造影剂适应症检查',
+        indicator: 'warning',
+        detail: '增强检查需确认肾功能正常',
+        source: { label: 'ACR Manual on Contrast Media' },
+        suggestions: [{
+          label: '检查血清肌酐水平',
+          actions: [{ type: 'create', description: 'Order serum creatinine lab', resource: { resourceType: 'ServiceRequest' } }],
+        }, {
+          label: '确认eGFR > 30 mL/min/1.73m²',
+          actions: [{ type: 'create', description: 'Check eGFR before contrast' }],
+        }],
+      })
+    }
+
+    const doseTriggered = req.modality === 'CT' && (req.age ?? 0) < 18
+    if (doseTriggered) {
+      cards.push({
+        uuid: 'dose-001',
+        summary: '辐射剂量优化',
+        indicator: 'warning',
+        detail: '儿童CT检查建议使用低剂量协议',
+        source: { label: 'Image Gently Campaign' },
+        suggestions: [{
+          label: '启用儿童低剂量协议',
+          actions: [{ type: 'update', description: 'Switch to pediatric low-dose protocol' }],
+        }, {
+          label: '考虑MRI替代检查',
+          actions: [{ type: 'create', description: 'Order MRI instead', resource: { resourceType: 'ServiceRequest' } }],
+        }],
+      })
+    }
+
+    cards.push({
+      uuid: 'protocol-001',
+      summary: '检查协议匹配',
+      indicator: 'info',
+      detail: `推荐检查方案: ${req.examType ?? '常规'}扫描`,
+      source: { label: 'RSNA Radiology Protocols' },
+      suggestions: [{
+        label: '标准扫描序列',
+        actions: [{ type: 'update', description: 'Apply standard scan protocol' }],
+      }],
+    })
+
+    return { cards, systemActions: [] }
   }
 
   async updateRulePriority(req: RulePriorityRequest): Promise<{ success: boolean }> {
@@ -81,7 +99,7 @@ export class CdsService {
     return { data: data ? [data] : [] }
   }
 
-  async createGuideline(body: any) {
+  async createGuideline(body: Record<string, unknown>) {
     const data = await this.prisma.systemConfig.create({ data: { key: `cds_guideline_${Date.now()}`, value: body } })
     return { data: [data] }
   }
@@ -91,7 +109,7 @@ export class CdsService {
     return { data }
   }
 
-  async acknowledgeAlert(body: any) {
+  async acknowledgeAlert(body: Record<string, unknown>) {
     const { id, ...rest } = body
     const data = await this.prisma.notification.update({ where: { id }, data: { read: true, ...rest } })
     return { data: [data] }
@@ -112,7 +130,7 @@ export class CdsService {
     return { data }
   }
 
-  async createCdsRule(body: any) {
+  async createCdsRule(body: Record<string, unknown>) {
     const data = await this.prisma.systemConfig.create({ data: { key: `cds_rule_${Date.now()}`, value: body } })
     return { data: [data] }
   }

@@ -53,7 +53,7 @@ export class DataReportService {
     return { data: data ? [data] : [] }
   }
 
-  async createDataReport(body: any) {
+  async createDataReport(body: Record<string, unknown>) {
     const data = await this.prisma.report.create({ data: body as any })
     return { data: [data] }
   }

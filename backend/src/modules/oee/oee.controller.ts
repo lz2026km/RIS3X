@@ -1,9 +1,11 @@
 import { Controller, Get, Param } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { Roles } from '../../common/decorators/roles.decorator'
 import { OeeService } from './oee.service'
 
 @ApiTags('oee')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR', 'TECHNICIAN')
 @Controller('oee')
 export class OeeController {
   constructor(private readonly service: OeeService) {}

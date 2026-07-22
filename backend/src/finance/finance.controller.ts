@@ -14,22 +14,22 @@ export class FinanceController {
   listChargeItems() { return this.svc.listChargeItems() }
 
   @Post('charge-items')
-  createChargeItem(@Body() body: any) { return this.svc.createChargeItem(body) }
+  createChargeItem(@Body() body: Record<string, unknown>) { return this.svc.createChargeItem(body) }
 
   @Put('charge-items/:id')
-  updateChargeItem(@Param('id') id: string, @Body() body: any) { return this.svc.updateChargeItem(id, body) }
+  updateChargeItem(@Param('id') id: string, @Body() body: Record<string, unknown>) { return this.svc.updateChargeItem(id, body) }
 
   @Get('invoices')
   listInvoices() { return this.svc.listInvoices() }
 
   @Post('invoices')
-  createInvoice(@Body() body: any) { return this.svc.createInvoice(body) }
+  createInvoice(@Body() body: Record<string, unknown>) { return this.svc.createInvoice(body) }
 
   @Get('invoices/:id')
   getInvoice(@Param('id') id: string) { return this.svc.getInvoice(id) }
 
   @Post('invoices/:id/pay')
-  payInvoice(@Body() body: any) { return this.svc.payInvoice(body) }
+  payInvoice(@Body() body: Record<string, unknown>) { return this.svc.payInvoice(body) }
 
   @Get('revenue-analysis')
   getRevenueAnalysis() { return this.svc.getRevenueAnalysis() }

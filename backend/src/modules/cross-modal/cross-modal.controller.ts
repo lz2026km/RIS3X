@@ -1,5 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { Roles } from '../../common/decorators/roles.decorator'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { CrossModalService } from './cross-modal.service'
@@ -14,6 +15,7 @@ const SimilarSchema = z.object({
 
 @ApiTags('cross-modal')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
 @Controller('cross-modal')
 export class CrossModalController {
   constructor(private readonly service: CrossModalService) {}

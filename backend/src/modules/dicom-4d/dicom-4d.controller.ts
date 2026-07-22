@@ -1,8 +1,11 @@
 import { Controller, Post, Get, Param, Body, Logger } from '@nestjs/common'
-import { ApiTags, ApiOperation } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger'
+import { Roles } from '../../common/decorators/roles.decorator'
 import { Dicom4dService } from './dicom-4d.service'
 
 @ApiTags('dicom-4d')
+@ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
 @Controller('dicom/4d')
 export class Dicom4dController {
   private readonly logger = new Logger(Dicom4dController.name)

@@ -1,5 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { Roles } from '../../common/decorators/roles.decorator'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { Hl7SiuService } from './hl7-siu.service'
@@ -23,6 +24,7 @@ const ParseSchema = z.object({
 
 @ApiTags('hl7-siu')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR')
 @Controller('hl7')
 export class Hl7SiuController {
   constructor(private readonly service: Hl7SiuService) {}

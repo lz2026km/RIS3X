@@ -15,12 +15,12 @@ export class DentalService {
     return { data: data ? [data] : [] }
   }
 
-  async createStudy(body: any) {
+  async createStudy(body: Record<string, unknown>) {
     const data = await this.prisma.dentalStudy.create({ data: body })
     return { data: [data] }
   }
 
-  async updateStudy(id: string, body: any) {
+  async updateStudy(id: string, body: Record<string, unknown>) {
     const data = await this.prisma.dentalStudy.update({ where: { id }, data: body })
     return { data: [data] }
   }
@@ -35,7 +35,7 @@ export class DentalService {
     return { data }
   }
 
-  async createAiFinding(body: any) {
+  async createAiFinding(body: Record<string, unknown>) {
     const data = await this.prisma.dentalAiFinding.create({ data: body })
     return { data: [data] }
   }
@@ -45,12 +45,12 @@ export class DentalService {
     return { data }
   }
 
-  async createImplant(body: any) {
+  async createImplant(body: Record<string, unknown>) {
     const data = await this.prisma.dentalImplant.create({ data: body })
     return { data: [data] }
   }
 
-  async updateImplant(id: string, body: any) {
+  async updateImplant(id: string, body: Record<string, unknown>) {
     const data = await this.prisma.dentalImplant.update({ where: { id }, data: body })
     return { data: [data] }
   }
@@ -60,12 +60,12 @@ export class DentalService {
     return { data }
   }
 
-  async createAppointment(body: any) {
+  async createAppointment(body: Record<string, unknown>) {
     const data = await this.prisma.dentalAppointment.create({ data: body })
     return { data: [data] }
   }
 
-  async updateAppointment(id: string, body: any) {
+  async updateAppointment(id: string, body: Record<string, unknown>) {
     const data = await this.prisma.dentalAppointment.update({ where: { id }, data: body })
     return { data: [data] }
   }
@@ -75,7 +75,7 @@ export class DentalService {
     return { data }
   }
 
-  async createInvoice(body: any) {
+  async createInvoice(body: Record<string, unknown>) {
     const data = await this.prisma.dentalInvoice.create({ data: body })
     return { data: [data] }
   }
@@ -85,12 +85,12 @@ export class DentalService {
     return { data }
   }
 
-  async addInventoryItem(body: any) {
+  async addInventoryItem(body: Record<string, unknown>) {
     const data = await this.prisma.dentalInventoryItem.create({ data: body })
     return { data: [data] }
   }
 
-  async updateInventoryItem(id: string, body: any) {
+  async updateInventoryItem(id: string, body: Record<string, unknown>) {
     const data = await this.prisma.dentalInventoryItem.update({ where: { id }, data: body })
     return { data: [data] }
   }

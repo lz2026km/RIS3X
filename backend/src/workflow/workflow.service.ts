@@ -10,7 +10,7 @@ export class WorkflowService {
     return { data }
   }
 
-  async createDefinition(body: any) {
+  async createDefinition(body: Record<string, unknown>) {
     const data = await this.prisma.workflowDefinition.create({ data: body })
     return { data: [data] }
   }
@@ -20,7 +20,7 @@ export class WorkflowService {
     return { data: data ? [data] : [] }
   }
 
-  async updateDefinition(id: string, body: any) {
+  async updateDefinition(id: string, body: Record<string, unknown>) {
     const data = await this.prisma.workflowDefinition.update({ where: { id }, data: body })
     return { data: [data] }
   }
@@ -30,7 +30,7 @@ export class WorkflowService {
     return { data: [] }
   }
 
-  async activateDefinition(body: any) {
+  async activateDefinition(body: Record<string, unknown>) {
     const { id, ...rest } = body
     const data = await this.prisma.workflowDefinition.update({ where: { id }, data: { active: true, ...rest } })
     return { data: [data] }
@@ -41,7 +41,7 @@ export class WorkflowService {
     return { data }
   }
 
-  async addStep(body: any) {
+  async addStep(body: Record<string, unknown>) {
     const data = await this.prisma.workflowStep.create({ data: body })
     return { data: [data] }
   }
@@ -51,12 +51,12 @@ export class WorkflowService {
     return { data }
   }
 
-  async createSlaPolicy(body: any) {
+  async createSlaPolicy(body: Record<string, unknown>) {
     const data = await this.prisma.slaPolicy.create({ data: body })
     return { data: [data] }
   }
 
-  async updateSlaPolicy(id: string, body: any) {
+  async updateSlaPolicy(id: string, body: Record<string, unknown>) {
     const data = await this.prisma.slaPolicy.update({ where: { id }, data: body })
     return { data: [data] }
   }
@@ -66,12 +66,12 @@ export class WorkflowService {
     return { data }
   }
 
-  async createRoutingRule(body: any) {
+  async createRoutingRule(body: Record<string, unknown>) {
     const data = await this.prisma.routingRule.create({ data: body })
     return { data: [data] }
   }
 
-  async updateRoutingRule(id: string, body: any) {
+  async updateRoutingRule(id: string, body: Record<string, unknown>) {
     const data = await this.prisma.routingRule.update({ where: { id }, data: body })
     return { data: [data] }
   }

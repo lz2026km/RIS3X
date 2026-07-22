@@ -1,5 +1,5 @@
 ﻿/**
- * G005 鏀惧皠RIS绯荤粺 v3.0.2 - 鏂囦欢鎺у埗鍣?
+ * G005 RIS v3.0.6.11-31 - Files Controller
  */
 import { Body, Controller, Get, Post, Query } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
@@ -30,7 +30,7 @@ export class FilesController {
   }
 
   @Post('upload-complete')
-  confirm(@Body(new ZodValidationPipe(UploadCompleteSchema)) body: any) {
+  confirm(@Body(new ZodValidationPipe(UploadCompleteSchema)) body: z.infer<typeof UploadCompleteSchema>) {
     return this.service.confirmUpload(body.token, body.metadata)
   }
 }

@@ -16,7 +16,7 @@ export class DeviceMgmtService {
     return { data: data ? [data] : [] }
   }
 
-  async updateEquipmentLifecycle(id: string, body: any) {
+  async updateEquipmentLifecycle(id: string, body: Record<string, unknown>) {
     const data = await this.prisma.device.update({ where: { id }, data: body })
     return { data: [data] }
   }
@@ -31,7 +31,7 @@ export class DeviceMgmtService {
     return { data: data ? [data] : [] }
   }
 
-  async updateDevice(id: string, body: any) {
+  async updateDevice(id: string, body: Record<string, unknown>) {
     const data = await this.prisma.device.update({ where: { id }, data: body })
     return { data: [data] }
   }
@@ -41,7 +41,7 @@ export class DeviceMgmtService {
     return { data }
   }
 
-  async reportDeviceFault(body: any) {
+  async reportDeviceFault(body: Record<string, unknown>) {
     const data = await this.prisma.auditLog.create({ data: { action: 'REPORT', resource: 'device-fault', detail: body, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
@@ -51,7 +51,7 @@ export class DeviceMgmtService {
     return { data }
   }
 
-  async addMaterial(body: any) {
+  async addMaterial(body: Record<string, unknown>) {
     const data = await this.prisma.auditLog.create({ data: { action: 'ADD', resource: 'device-material', detail: body, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
@@ -61,7 +61,7 @@ export class DeviceMgmtService {
     return { data }
   }
 
-  async recordDose(body: any) {
+  async recordDose(body: Record<string, unknown>) {
     const data = await this.prisma.auditLog.create({ data: { action: 'RECORD', resource: 'dose-tracking', detail: body, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
@@ -71,7 +71,7 @@ export class DeviceMgmtService {
     return { data }
   }
 
-  async reportAdverseReaction(body: any) {
+  async reportAdverseReaction(body: Record<string, unknown>) {
     const data = await this.prisma.adverseEvent.create({ data: { ...body, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
@@ -86,7 +86,7 @@ export class DeviceMgmtService {
     return { data }
   }
 
-  async updateContrastInventory(id: string, body: any) {
+  async updateContrastInventory(id: string, body: Record<string, unknown>) {
     const data = await this.prisma.auditLog.update({ where: { id }, data: { detail: body } })
     return { data: [data] }
   }

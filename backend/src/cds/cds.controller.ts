@@ -18,13 +18,13 @@ export class CdsController {
 
   @Post('guidelines')
   @HttpCode(HttpStatus.CREATED)
-  createGuideline(@Body() body: any) { return this.svc.createGuideline(body) }
+  createGuideline(@Body() body: Record<string, unknown>) { return this.svc.createGuideline(body) }
 
   @Get('alerts')
   listAlerts() { return this.svc.listAlerts() }
 
   @Post('alerts/:id/acknowledge')
-  acknowledgeAlert(@Body() body: any) { return this.svc.acknowledgeAlert(body) }
+  acknowledgeAlert(@Body() body: Record<string, unknown>) { return this.svc.acknowledgeAlert(body) }
 
   @Get('dose-monitoring')
   getDoseMonitoring() { return this.svc.getDoseMonitoring() }
@@ -37,7 +37,7 @@ export class CdsController {
 
   @Post('rules')
   @HttpCode(HttpStatus.CREATED)
-  createCdsRule(@Body() body: any) { return this.svc.createCdsRule(body) }
+  createCdsRule(@Body() body: Record<string, unknown>) { return this.svc.createCdsRule(body) }
 
   @Get('management')
   getCdsManagement() { return this.svc.getCdsManagement() }

@@ -16,7 +16,7 @@ export class AiPlatformService {
     return { data: data ? [data] : [] }
   }
 
-  async deployAiModel(body: any) {
+  async deployAiModel(body: Record<string, unknown>) {
     const data = await this.prisma.auditLog.create({ data: { action: 'DEPLOY', resource: 'ai-model', detail: body, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
@@ -36,7 +36,7 @@ export class AiPlatformService {
     return { data }
   }
 
-  async generateStructuredReport(body: any) {
+  async generateStructuredReport(body: Record<string, unknown>) {
     const data = await this.prisma.auditLog.create({ data: { action: 'GENERATE', resource: 'ai-structured-report', detail: body, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
@@ -51,7 +51,7 @@ export class AiPlatformService {
     return { data }
   }
 
-  async createAiOrchestration(body: any) {
+  async createAiOrchestration(body: Record<string, unknown>) {
     const data = await this.prisma.auditLog.create({ data: { action: 'CREATE', resource: 'ai-orchestration', detail: body, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }

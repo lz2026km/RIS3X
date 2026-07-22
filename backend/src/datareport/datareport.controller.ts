@@ -21,7 +21,7 @@ export class DataReportController {
 
   @Post('national-reports')
   @HttpCode(HttpStatus.CREATED)
-  createNationalReport(@Body() body: any) {
+  createNationalReport(@Body() body: Record<string, unknown>) {
     return this.svc.createNationalReport(body);
   }
 
@@ -37,7 +37,7 @@ export class DataReportController {
 
   @Post('data-reports')
   @HttpCode(HttpStatus.CREATED)
-  createDataReport(@Body() body: any) {
+  createDataReport(@Body() body: Record<string, unknown>) {
     return this.svc.createDataReport(body);
   }
 

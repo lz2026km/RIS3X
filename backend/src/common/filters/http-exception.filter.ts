@@ -1,5 +1,6 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus, Logger } from '@nestjs/common'
 import { HttpAdapterHost } from '@nestjs/core'
+import * as Sentry from '@sentry/node'
 import type { Request } from 'express'
 
 @Catch()
@@ -52,6 +53,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
         `${request.method} ${request.url} - ${httpStatus}`,
         exception instanceof Error ? exception.stack : undefined,
       )
+      Sentry.captureException(exception, {
+        tags: { httpStatus: String(httpStatus), method: request.method, path: request.url },
+      })
     } else if (httpStatus >= 400) {
       this.logger.warn(`${request.method} ${request.url} - ${httpStatus}: ${JSON.stringify(message)}`)
     }

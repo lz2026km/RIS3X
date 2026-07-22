@@ -1,6 +1,5 @@
 ﻿/**
- * G005 鏀惧皠RIS绯荤粺 v3.0.2.2 - DICOMweb 鎺у埗鍣?
- * 6 绔偣
+ * G005 RIS v3.0.6.11-31 - DICOMweb Controller
  */
 import { Body, Controller, Get, Param, Post, Query, Res } from '@nestjs/common'
 import type { Response } from 'express'
@@ -61,11 +60,11 @@ export class DicomWebController {
   }
 
   @Get('studies/:study/series/:series/instances/:sop')
-  async retrieve(@Param('sop') sop: string, @Res() res: Response) {
+  async retrieve(@Param('sop') sop: string, @Res({ passthrough: true }) res: Response) {
     const r = await this.service.retrieveInstance(sop)
     res.setHeader('Content-Type', 'application/dicom')
     res.setHeader('Content-Length', r.buffer.length.toString())
-    res.send(r.buffer)
+    return r.buffer
   }
 
   @Get('studies/:study/series/:series/instances/:sop/metadata')
@@ -76,7 +75,7 @@ export class DicomWebController {
   @Post('studies/:study')
   store(
     @Param('study') study: string,
-    @Body(new ZodValidationPipe(StoreSchema)) body: any
+    @Body(new ZodValidationPipe(StoreSchema)) body: z.infer<typeof StoreSchema>
   ) {
     return this.service.storeInstance(
       body.studyInstanceUid ?? study,

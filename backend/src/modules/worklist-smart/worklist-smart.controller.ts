@@ -5,6 +5,7 @@ import { Roles } from '../../common/decorators/roles.decorator'
 
 @ApiTags('worklist-smart')
 @ApiBearerAuth()
+@Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
 @Controller('worklist-smart')
 export class WorklistSmartController {
   constructor(private readonly service: WorklistSmartService) {}

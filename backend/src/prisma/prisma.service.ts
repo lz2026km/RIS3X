@@ -31,7 +31,7 @@ export const createPrismaWithTenant = (client: PrismaClient) => {
           const tenantId = getCurrentTenantId()
           if (!tenantId) return query(args)
 
-          const a = args as Record<string, any>
+          const a = args as Record<string, unknown>
 
           if (operation === 'create') {
             if (a.data && !a.data['tenantId']) a.data['tenantId'] = tenantId

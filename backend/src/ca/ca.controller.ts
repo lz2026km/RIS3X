@@ -15,27 +15,27 @@ export class CaController {
 
   @Post('certificates')
   @HttpCode(HttpStatus.CREATED)
-  uploadCertificate(@Body() body: any) { return this.svc.uploadCertificate(body) }
+  uploadCertificate(@Body() body: Record<string, unknown>) { return this.svc.uploadCertificate(body) }
 
   @Delete('certificates/:id')
   revokeCertificate(@Param('id') id: string) { return this.svc.revokeCertificate(id) }
 
   @Post('sign')
   @HttpCode(HttpStatus.CREATED)
-  signDocument(@Body() body: any) { return this.svc.signDocument(body) }
+  signDocument(@Body() body: Record<string, unknown>) { return this.svc.signDocument(body) }
 
   @Get('signatures')
   listSignatures() { return this.svc.listSignatures() }
 
   @Post('verify')
   @HttpCode(HttpStatus.CREATED)
-  verifySignature(@Body() body: any) { return this.svc.verifySignature(body) }
+  verifySignature(@Body() body: Record<string, unknown>) { return this.svc.verifySignature(body) }
 
   @Get('config')
   getCaConfig() { return this.svc.getCaConfig() }
 
   @Put('config')
-  updateCaConfig(@Body() body: any) { return this.svc.updateCaConfig(body) }
+  updateCaConfig(@Body() body: Record<string, unknown>) { return this.svc.updateCaConfig(body) }
 
   @Get('history')
   getCaHistory() { return this.svc.getCaHistory() }

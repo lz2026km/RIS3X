@@ -66,7 +66,7 @@ function generateRandomHistory(patientId: string): RadsHistoryEntry[] {
 export class CadRadsService {
   private confidence = 0.88
 
-  scoreLung(dicomFields: Record<string, any>): RadsScore {
+  scoreLung(dicomFields: Record<string, unknown>): RadsScore {
     const size = dicomFields.noduleSizeMm ?? Math.floor(Math.random() * 20) + 2
     let score = '1'
     if (size > 15) score = '4B'
@@ -78,14 +78,14 @@ export class CadRadsService {
     return { ...entry, score, confidence: this.confidence }
   }
 
-  scoreBreast(dicomFields: Record<string, any>): RadsScore {
+  scoreBreast(dicomFields: Record<string, unknown>): RadsScore {
     const biradsKeys = Object.keys(biRads)
     const score = dicomFields.biradsCategory ?? biradsKeys[Math.floor(Math.random() * biradsKeys.length)]
     const entry = biRads[score] ?? biRads['1']
     return { ...entry, score, confidence: this.confidence }
   }
 
-  scoreProstate(dicomFields: Record<string, any>): RadsScore {
+  scoreProstate(dicomFields: Record<string, unknown>): RadsScore {
     const p = Math.random()
     let score = '1'
     if (p > 0.95) score = '5'

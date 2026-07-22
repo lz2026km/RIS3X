@@ -16,12 +16,12 @@ export class CosignService {
     return { data: data ? [data] : [] }
   }
 
-  async approveCosign(body: any) {
+  async approveCosign(body: Record<string, unknown>) {
     const data = await this.prisma.auditLog.create({ data: { action: 'APPROVE', resource: 'cosign', detail: body, success: true, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
 
-  async rejectCosign(body: any) {
+  async rejectCosign(body: Record<string, unknown>) {
     const data = await this.prisma.auditLog.create({ data: { action: 'REJECT', resource: 'cosign', detail: body, success: false, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
@@ -36,7 +36,7 @@ export class CosignService {
     return { data }
   }
 
-  async createCosignRule(body: any) {
+  async createCosignRule(body: Record<string, unknown>) {
     const data = await this.prisma.systemConfig.create({ data: { key: `cosign_rule_${Date.now()}`, value: body } })
     return { data: [data] }
   }

@@ -1,21 +1,15 @@
 
-> g005-radiology-ris@3.0.6.11-21 dev E:\opencode work\FS 3X\G005-RISv-3.0.0
+> g005-radiology-ris@3.0.6.11-31 dev E:\opencode work\FS 3X\G005-RISv-3.0.0
 > vite --port 5191
 
+Re-optimizing dependencies because lockfile has changed
+Port 5191 is in use, trying another one...
 
-  [32m[1mVITE[22m v5.4.11[39m  [2mready in [0m[1m450[22m[2m[0m ms[22m
+  [32m[1mVITE[22m v5.4.11[39m  [2mready in [0m[1m888[22m[2m[0m ms[22m
 
-  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5191[22m/[39m
-  [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.3.219:[1m5191[22m/[39m
-  [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.239.1:[1m5191[22m/[39m
-  [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.14.1:[1m5191[22m/[39m
-[2m20:02:29[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/HomePage.tsx, /src/pages/critical/CriticalValuePage.tsx, /src/pages/critical/CriticalValueList.tsx, /src/pages/CoSignPage.tsx, /src/pages/QueueCallPage.tsx, /src/pages/quality/DepartmentQualityPage.tsx, /src/pages/analytics/BenchmarkPageV2.tsx, /src/pages/admin/PatientDeviceManagementPage.tsx[22m
-[2m20:02:35[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/analytics/BenchmarkPageV2.tsx[22m
-[2m20:02:42[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/analytics/BenchmarkPageV2.tsx[22m
-[2m20:02:48[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/HomePage.tsx, /src/pages/critical/CriticalValuePage.tsx, /src/pages/critical/CriticalValueList.tsx, /src/pages/CoSignPage.tsx, /src/pages/QueueCallPage.tsx, /src/pages/quality/DepartmentQualityPage.tsx, /src/pages/analytics/BenchmarkPageV2.tsx[22m
-[2m20:06:16[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/dental/DentalPhotoPage.tsx[22m
-[2m20:06:44[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2msrc/services/mockBackend/olapHandlers.ts[22m
-[2m20:07:05[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/eye/ris/EyeRisPage.tsx[22m
-[2m20:08:37[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/ai/CADOverlay.tsx[22m
-[2m20:16:05[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/analytics/BenchmarkAiDiagnosisPage.tsx[22m
- ELIFECYCLE  Command failed with exit code 4294967295.
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5192[22m/[39m
+  [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.3.219:[1m5192[22m/[39m
+  [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.239.1:[1m5192[22m/[39m
+  [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.14.1:[1m5192[22m/[39m
+  [32m➜[39m  [1mNetwork[22m: [36mhttp://172.29.176.1:[1m5192[22m/[39m
+ ELIFECYCLE  Command failed with exit code 1.

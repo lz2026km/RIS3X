@@ -26,7 +26,7 @@ export class RegionalController {
   getDepartmentSchedule() { return this.svc.getDepartmentSchedule() }
 
   @Put('schedule/:id')
-  updateSchedule(@Param('id') id: string, @Body() body: any) { return this.svc.updateSchedule(id, body) }
+  updateSchedule(@Param('id') id: string, @Body() body: Record<string, unknown>) { return this.svc.updateSchedule(id, body) }
 
   @Get('departments')
   listDepartments() { return this.svc.listDepartments() }

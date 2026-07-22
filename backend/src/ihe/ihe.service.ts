@@ -83,7 +83,7 @@ const VISIT_TRANSITIONS: Record<string, VisitStatus | null> = {
   'ADT^A04': 'registered',
   'ADT^A05': 'registered',
   'ADT^A08': null,
-  'ADT^A11': 'registered',
+  'ADT^A11': null,
   'ADT^A13': 'completed',
 }
 

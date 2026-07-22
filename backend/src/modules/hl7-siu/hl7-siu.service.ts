@@ -27,13 +27,13 @@ export class Hl7SiuService {
     const now = new Date()
     const controlId = `SIU-G005-${input.patientId}-${now.getTime()}`
     const msh = [
-      'MSH|^~\\&|G005_RIS|G005|HIS|HOSPITAL|' + this.fmtDT(now) + '||SIU^S12|' + controlId + '|P|2.5',
+      'MSH|^~\\&|G005_RIS|G005|HIS|HOSPITAL|' + this.fmtDT(now) + '||SIU^S12|' + controlId + '|P|2.5.1',
     ].join('\r')
     const pid = [
-      'PID|1||' + input.patientId + '^^^HOSPITAL||' + input.patientName + '||' + input.patientSex + '||||||',
+      'PID|1||' + input.patientId + '^^^G005&1.2.840.113556.1.8000.2554.1.300&ISO^MR||' + input.patientName + '^' + input.patientName + '||' + input.patientSex.replace(/-/g, '') + '||||||',
     ].join('\r')
     const sch = [
-      'SCH|1||' + input.doctorId + '^^^HOSPITAL^DR||' + input.doctorName + '|' + input.department + '|||' + this.fmtDT(input.startDateTime) + '|' + this.fmtDT(input.endDateTime),
+      'SCH|1||' + input.doctorId + '^^^G005&1.2.840.113556.1.8000.2554.1.300&ISO^DR||' + input.doctorName + '|' + input.department + '|||' + this.fmtDT(input.startDateTime) + '|' + this.fmtDT(input.endDateTime),
     ].join('\r')
     const note = input.note ? ['NTE|1|' + input.note].join('\r') : ''
     const message = [msh, pid, sch, note].filter(Boolean).join('\r')
@@ -76,7 +76,7 @@ export class Hl7SiuService {
     return result
   }
 
-  private fmtDT(dt: string): string {
+  private fmtDT(dt: string | Date): string {
     const d = new Date(dt)
     return d.toISOString().replace(/[-:T.Z]/g, '').slice(0, 14)
   }

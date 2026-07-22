@@ -23,12 +23,14 @@ export class TeachService {
     const lecture = await this.prisma.teachLecture.findUnique({ where: { id } })
     if (!lecture) throw new NotFoundException('Lecture not found')
 
-    const blobDir = process.env['TEACH_BLOB_DIR'] || '/data/teach'
+    const blobDir = path.resolve(process.env['TEACH_BLOB_DIR'] || '/data/teach')
     const fs = await import('fs/promises')
     const path = await import('path')
     await fs.mkdir(blobDir, { recursive: true })
     const filename = `${id}-${String(sequence).padStart(5, '0')}.webm`
-    await fs.writeFile(path.join(blobDir, filename), blob)
+    const safePath = path.join(blobDir, filename)
+    if (!safePath.startsWith(blobDir)) throw new Error('path traversal detected')
+    await fs.writeFile(safePath, blob)
 
     await this.prisma.teachLectureBlob.create({
       data: {
@@ -81,7 +83,9 @@ export class TeachService {
     const blobDir = process.env['TEACH_BLOB_DIR'] || '/data/teach'
     const blobs = await this.prisma.teachLectureBlob.findMany({ where: { lectureId: id } })
     for (const b of blobs) {
-      try { await fs.unlink(path.join(blobDir, b.filename)) } catch {}
+      const safePath = path.resolve(blobDir, path.basename(b.filename))
+      if (!safePath.startsWith(path.resolve(blobDir))) continue
+      try { await fs.unlink(safePath) } catch {}
     }
     await this.prisma.teachLectureBlob.deleteMany({ where: { lectureId: id } })
     await this.prisma.teachLecture.delete({ where: { id } })

@@ -1,7 +1,5 @@
 /**
- * G005 放射RIS系统 v3.0.2 - HL7 报告导出服务
- * v3.0.6.11-8: 添加 MLLP TCP Listener + ADT A01/A04 解析
- * v3.0.6.11-9: 添加 ORM/DFT/SIU 消息解析、ACK 重试、ADT 持久化、TLS、IP 白名单
+ * G005 RIS v3.0.6.11-31 - HL7 Service
  */
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import * as net from 'net'
@@ -81,7 +79,7 @@ export interface Hl7MessageArchive {
   messageType: string
   controlId: string
   rawMessage: string
-  parsed: Record<string, any>
+  parsed: Record<string, unknown>
   direction: 'INBOUND' | 'OUTBOUND'
   ackStatus?: string
   retryCount?: number
@@ -214,7 +212,7 @@ export class Hl7Service implements OnModuleInit {
     const segments = raw.split('\r')
     const msh = segments.find((s) => s.startsWith('MSH'))
     if (!msh) {
-      this.sendAck(socket, raw, 'AR')
+      this.sendAck(socket, raw, 'AR', 'UNKNOWN')
       return
     }
     const fields = msh.split('|')
@@ -256,7 +254,7 @@ export class Hl7Service implements OnModuleInit {
       ackCode = 'AE'
     }
 
-    this.sendAck(socket, raw, ackCode)
+    this.sendAck(socket, raw, ackCode, messageType)
   }
 
   private async handleAdtMessage(segments: string[], messageType: string): Promise<void> {
@@ -544,7 +542,7 @@ export class Hl7Service implements OnModuleInit {
     })
   }
 
-  private sendAck(socket: net.Socket, rawMessage: string, ackCode: string): void {
+  private sendAck(socket: net.Socket, rawMessage: string, ackCode: string, originalMessageType: string): void {
     const mshMatch = rawMessage.match(/MSH\|([^\r]+)/)
     const fields = mshMatch ? mshMatch[1].split('|') : []
     const sendingApp = fields[2] ?? ''
@@ -554,6 +552,7 @@ export class Hl7Service implements OnModuleInit {
     const controlId = fields[9] ?? ''
     const version = fields[11] ?? '2.5.1'
 
+    const ackMessageType = originalMessageType && originalMessageType !== 'UNKNOWN' ? `ACK^${originalMessageType}` : 'ACK'
     const ack = [
       'MSH',
       '^~\\&',
@@ -563,7 +562,7 @@ export class Hl7Service implements OnModuleInit {
       sendingFacility,
       new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14),
       '',
-      'ACK',
+      ackMessageType,
       `ACK-${controlId}`,
       'P',
       version,
@@ -596,6 +595,17 @@ export class Hl7Service implements OnModuleInit {
         retryCount: 0,
       },
     }).catch((err) => this.logger.warn(`Failed to archive HL7 message: ${(err as Error).message}`))
+  }
+
+  async pushOruById(examId: string, reportId: string): Promise<void> {
+    const exam = await this.prisma.exam.findUnique({
+      where: { id: examId },
+      include: { patient: true, reports: true },
+    })
+    if (!exam) throw new Error('Exam not found')
+    const report = exam.reports.find((r) => r.id === reportId)
+    if (!report) throw new Error('Report not found')
+    return this.pushOruOnExamCompletion(exam, report)
   }
 
   async pushOruOnExamCompletion(exam: any, report: any): Promise<void> {
@@ -670,11 +680,11 @@ export class Hl7Service implements OnModuleInit {
       'PID',
       '1',
       '',
-      `${r.patientId}^^^G005^MR`,
+      `${r.patientId}^^^G005&1.2.840.113556.1.8000.2554.1.300&ISO^MR`,
       '',
-      `${r.patientName}`,
+      `${r.patientName}^${r.patientName}`,
       '',
-      `${r.patientBirthDate ?? ''}`,
+      `${(r.patientBirthDate ?? '').replace(/-/g, '')}`,
       `${r.patientSex === 'M' ? 'M' : r.patientSex === 'F' ? 'F' : 'O'}`,
     ].join(HL7_DELIMS.field)
 
@@ -683,34 +693,34 @@ export class Hl7Service implements OnModuleInit {
     const obr = [
       'OBR',
       '1',
-      `${r.accessionNumber}^^G005^ACC`,
-      `${r.accessionNumber}^^G005^ACC`,
-      `${r.modality}^${r.modality}^CPT`,
+      `${r.accessionNumber}^^G005&1.2.840.113556.1.8000.2554.1.300&ISO^FILL`,
+      `${r.accessionNumber}^^G005&1.2.840.113556.1.8000.2554.1.300&ISO^FILL`,
+      `${r.modality}^${r.modality}^DCM`,
       '',
       '',
-      `${r.studyDate}${r.studyTime}`,
-      '',
-      '',
-      '',
+      `${r.studyDate.replace(/-/g, '')}${r.studyTime.replace(/:/g, '')}`,
       '',
       '',
       '',
       '',
       '',
-      `${r.authorId}^${r.authorName}^^G005^DOC`,
+      '',
+      '',
+      '',
+      `${r.authorId}^${r.authorName}^^^G005^DOC`,
     ].join(HL7_DELIMS.field)
 
     const obxLines: string[] = []
     let obxSeq = 1
     obxLines.push(
-      ['OBX', String(obxSeq++), 'TX', 'FINDINGS^Impression^L', '', this.escapeText(r.findings)].join(HL7_DELIMS.field)
+      ['OBX', String(obxSeq++), 'TX', '18782-3^Radiology study observation^LN', '', this.escapeText(r.findings)].join(HL7_DELIMS.field)
     )
     obxLines.push(
-      ['OBX', String(obxSeq++), 'TX', 'CONCLUSION^Conclusion^L', '', this.escapeText(r.conclusion)].join(HL7_DELIMS.field)
+      ['OBX', String(obxSeq++), 'TX', '19005-8^Radiology study conclusion^LN', '', this.escapeText(r.conclusion)].join(HL7_DELIMS.field)
     )
     if (r.radsCategory) {
       obxLines.push(
-        ['OBX', String(obxSeq++), 'CE', 'RADS^RADS Category^L', '', r.radsCategory].join(HL7_DELIMS.field)
+        ['OBX', String(obxSeq++), 'CE', 'RADS^RADS Category^DCM', '', r.radsCategory].join(HL7_DELIMS.field)
       )
     }
 
@@ -740,11 +750,11 @@ export class Hl7Service implements OnModuleInit {
       'PID',
       '1',
       '',
-      `${o.patientId}^^^G005^MR`,
+      `${o.patientId}^^^G005&1.2.840.113556.1.8000.2554.1.300&ISO^MR`,
       '',
-      o.patientName,
+      `${o.patientName}^${o.patientName}`,
       '',
-      o.patientBirthDate ?? '',
+      (o.patientBirthDate ?? '').replace(/-/g, ''),
       o.patientSex === 'M' ? 'M' : o.patientSex === 'F' ? 'F' : 'O',
     ].join(HL7_DELIMS.field)
 
@@ -772,11 +782,11 @@ export class Hl7Service implements OnModuleInit {
     const obr = [
       'OBR',
       '1',
-      `${o.accessionNumber}^^G005^ACC`,
-      `${o.accessionNumber}^^G005^ACC`,
-      `${o.modality}^${o.modality}^CPT`,
+      `${o.accessionNumber}^^G005&1.2.840.113556.1.8000.2554.1.300&ISO^FILL`,
+      `${o.accessionNumber}^^G005&1.2.840.113556.1.8000.2554.1.300&ISO^FILL`,
+      `${o.modality}^${o.modality}^DCM`,
       '',
-      `${o.studyDate ?? ''}${o.studyTime ?? ''}`,
+      `${(o.studyDate ?? '').replace(/-/g, '')}${(o.studyTime ?? '').replace(/:/g, '')}`,
       '',
       '',
       '',
@@ -812,9 +822,9 @@ export class Hl7Service implements OnModuleInit {
       'PID',
       '1',
       '',
-      `${d.patientId}^^^G005^MR`,
+      `${d.patientId}^^^G005&1.2.840.113556.1.8000.2554.1.300&ISO^MR`,
       '',
-      d.patientName,
+      `${d.patientName}^${d.patientName}`,
       '',
       '',
       d.patientSex === 'M' ? 'M' : d.patientSex === 'F' ? 'F' : 'O',

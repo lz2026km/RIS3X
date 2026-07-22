@@ -5,6 +5,7 @@ import { PrismaService } from '../prisma/prisma.service'
 import { CacheService } from '../cache/cache.service'
 import { InjectQueue } from '@nestjs/bull'
 import type { Queue } from 'bull'
+import { version } from '../../package.json'
 
 @ApiTags('health')
 @Public()
@@ -23,7 +24,7 @@ export class HealthController {
   check(): { status: string; version: string; timestamp: number } {
     return {
       status: 'ok',
-      version: '3.0.1',
+      version,
       timestamp: Date.now(),
     }
   }
@@ -70,6 +71,6 @@ export class HealthController {
     }
 
     const allOk = db && cache && Object.values(queues).every(Boolean)
-    return { status: allOk ? 'ok' : 'degraded', db, cache, queues, version: '3.0.1' }
+    return { status: allOk ? 'ok' : 'degraded', db, cache, queues, version }
   }
 }

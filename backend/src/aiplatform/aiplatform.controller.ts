@@ -17,7 +17,7 @@ export class AiPlatformController {
   getAiModel(@Param('id') id: string) { return this.svc.getAiModel(id) }
 
   @Post('models/:id/deploy')
-  deployAiModel(@Body() body: any) { return this.svc.deployAiModel(body) }
+  deployAiModel(@Body() body: Record<string, unknown>) { return this.svc.deployAiModel(body) }
 
   @Get('qc')
   listAiQcResults() { return this.svc.listAiQcResults() }
@@ -29,7 +29,7 @@ export class AiPlatformController {
   listAiStructuredReports() { return this.svc.listAiStructuredReports() }
 
   @Post('structured-reports')
-  generateStructuredReport(@Body() body: any) { return this.svc.generateStructuredReport(body) }
+  generateStructuredReport(@Body() body: Record<string, unknown>) { return this.svc.generateStructuredReport(body) }
 
   @Get('medical-devices')
   listAiMedicalDevices() { return this.svc.listAiMedicalDevices() }
@@ -38,7 +38,7 @@ export class AiPlatformController {
   getAiOrchestration() { return this.svc.getAiOrchestration() }
 
   @Post('orchestration')
-  createAiOrchestration(@Body() body: any) { return this.svc.createAiOrchestration(body) }
+  createAiOrchestration(@Body() body: Record<string, unknown>) { return this.svc.createAiOrchestration(body) }
 
   @Get('fusion')
   getAiFusionWorkspace() { return this.svc.getAiFusionWorkspace() }

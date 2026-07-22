@@ -27,7 +27,7 @@ export class QcExtService {
     return { data: data ? [data] : [] }
   }
 
-  async rateQcImage(body: any) {
+  async rateQcImage(body: Record<string, unknown>) {
     const { id, ...rest } = body
     const data = await this.prisma.dicomInstance.update({ where: { id }, data: rest })
     return { data: [data] }
@@ -48,7 +48,7 @@ export class QcExtService {
     return { data }
   }
 
-  async reportQcDefect(body: any) {
+  async reportQcDefect(body: Record<string, unknown>) {
     const data = await this.prisma.auditLog.create({ data: { action: 'REPORT', resource: 'qc-defect', detail: body, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
