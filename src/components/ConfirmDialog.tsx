@@ -185,7 +185,7 @@ interface FieldErrorProps {
   message: string
 }
 
-export function FieldError({ message }: FieldErrorProps) {
+export const FieldError = React.memo(function FieldError({ message }: FieldErrorProps) {
   return (
     <div style={{
       display: 'flex',
@@ -199,7 +199,7 @@ export function FieldError({ message }: FieldErrorProps) {
       <span>{message}</span>
     </div>
   )
-}
+})
 
 /**
  * 表单字段包装器 - 带错误显示
@@ -211,7 +211,7 @@ interface FormFieldProps {
   children: React.ReactNode
 }
 
-export function FormField({ label, error, required, children }: FormFieldProps) {
+export const FormField = React.memo(function FormField({ label, error, required, children }: FormFieldProps) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
       <label style={{ fontSize: 13, fontWeight: 500, color: '#334155' }}>
@@ -222,6 +222,6 @@ export function FormField({ label, error, required, children }: FormFieldProps) 
       {error && <FieldError message={error} />}
     </div>
   )
-}
+})
 
 export default ConfirmDialog

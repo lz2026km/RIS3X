@@ -1,6 +1,6 @@
 // G005 放射科RIS系统 - 科室排班管理页面 v1.0.0
 // 功能：技师/医师班次管理、节假日配置、代班换班、排班统计
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import {
   Calendar, Clock, Settings, ChevronLeft, ChevronRight,
   Plus, X, Check, Search, RefreshCw, AlertCircle, CheckCircle,
@@ -701,6 +701,12 @@ export default function SchedulePage() {
   const [, setHolidayError] = useState('')
   const [, setShowExportModal] = useState(false)
   const [, setExportProgress] = useState(0)
+  const exportIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  useEffect(() => { return () => { if (exportIntervalRef.current) clearInterval(exportIntervalRef.current) } }, [])
+  const handleExport = useCallback(() => {
+    setShowExportModal(true); setExportProgress(0)
+    exportIntervalRef.current = setInterval(() => { setExportProgress(prev => { if (prev >= 100) { if (exportIntervalRef.current) clearInterval(exportIntervalRef.current); exportIntervalRef.current = null; setTimeout(() => setShowExportModal(false), 500); return 100 }; return prev + 25 }) }, 150)
+  }, [])
 
   // Phase 4b - 自动排班状态
   const [autoResult, setAutoResult] = useState<AutoScheduleCandidate[][] | null>(null)
@@ -1067,7 +1073,7 @@ export default function SchedulePage() {
               <Calendar size={16} />
               节假日配置
             </button>
-            <button style={btnStyle(C.textMid)} onClick={() => { setShowExportModal(true); setExportProgress(0); const interval = setInterval(() => { setExportProgress(prev => { if (prev >= 100) { clearInterval(interval); setTimeout(() => { setShowExportModal(false); setExportProgress(0) }, 500); return 100 }; return prev + 25 }) }, 150) }}>
+            <button style={btnStyle(C.textMid)} onClick={handleExport}>
               <Download size={16} />
               导出排班
             </button>

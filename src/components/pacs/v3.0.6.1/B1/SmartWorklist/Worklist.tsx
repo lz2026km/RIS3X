@@ -3,7 +3,7 @@
  * 对标:GE Smart Reading Worklist - 多维度评分排序
  */
 import React, { useEffect, useMemo, useState } from 'react'
-import { Card, Table, Tag, Space, Button, Row, Col } from 'antd'
+import { Card, Table, Tag, Space, Button, Row, Col, Empty } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { Filter, RefreshCw, User } from 'lucide-react'
 import { WorklistHeader } from './WorklistHeader'
@@ -141,6 +141,7 @@ export const SmartWorklist: React.FC<SmartWorklistProps> = ({ items, onClaim, on
               columns={columns}
               rowSelection={{ selectedRowKeys, onChange: setSelectedRowKeys }}
               pagination={{ pageSize: 10 }}
+              locale={{ emptyText: <Empty description="暂无工作列表" /> }}
               scroll={{ x: 800 }}
             />
           </Card>

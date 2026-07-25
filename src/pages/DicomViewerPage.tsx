@@ -23,9 +23,9 @@ import {
 } from '../utils/DicomManager'
 import { getRecommendedPresets, WindowPreset as DicomWindowPreset } from '../utils/WindowPresets'
 import type { Series, DicomImage, ExamItem, HistoryExam, Measurement, Annotation, MeasureType, Tool, MeasureSubMenu, LayoutMode, RightTab, AnnotationType, PseudoColorMode, CompareLayout, ViewMode, MipDirection, VrAxis, WindowPreset, InteractiveMeasure } from './dicom/DicomViewerTypes'
-import { WINDOW_PRESETS, SERIES_COLORS, PSEUDO_COLOR_PRESETS, ANNOTATION_COLORS, ANNOTATION_COLOR_NAMES, PRIMARY, PRIMARY_LIGHT, CARD_BG, PANEL_BG } from './dicom/DicomViewerTypes'
+import { SERIES_COLORS, PSEUDO_COLOR_PRESETS, ANNOTATION_COLORS, ANNOTATION_COLOR_NAMES, PRIMARY, PRIMARY_LIGHT, CARD_BG, PANEL_BG } from './dicom/DicomViewerTypes'
 import { useWindowingState } from '../utils/windowingStorage'
-import { getPresetsForModality } from '../utils/modalityPresets'
+import { getPresetsForModality, CT_DEFAULT_WW, CT_DEFAULT_WL } from '../utils/modalityPresets'
 import { DicomCanvas, MIPCanvas, VRCanvas } from './dicom/DicomViewerSubComponents'
 import ToolbarSection from './dicom/ToolbarSection'
 import ViewportArea from './dicom/ViewportArea'
@@ -108,8 +108,8 @@ export default function DicomViewerPage() {
   const [brightness, setBrightness] = useState(100)
   const [contrast, setContrast] = useState(100)
   const [invert, setInvert] = useState(false)
-  const [ww, setWw] = useState(400)
-  const [wl, setWl] = useState(40)
+  const [ww, setWw] = useState(CT_DEFAULT_WW)
+  const [wl, setWl] = useState(CT_DEFAULT_WL)
   const [activePresetIdx, setActivePresetIdx] = useState<number | null>(null)
   const [activeMprIdx, setActiveMprIdx] = useState(0)
 
@@ -280,7 +280,7 @@ export default function DicomViewerPage() {
     else if (tool === 'rotate') setRotation(r => (r + 90) % 360)
     else if (tool === 'flipH') setFlipH(f => !f)
     else if (tool === 'flipV') setFlipV(f => !f)
-    else if (tool === 'reset') { setZoom(100); setPanX(0); setPanY(0); setRotation(0); setFlipH(false); setFlipV(false); setBrightness(100); setContrast(100); setInvert(false); setWw(400); setWl(40) }
+    else if (tool === 'reset') { setZoom(100); setPanX(0); setPanY(0); setRotation(0); setFlipH(false); setFlipV(false); setBrightness(100); setContrast(100); setInvert(false); setWw(CT_DEFAULT_WW); setWl(CT_DEFAULT_WL) }
     else if (tool === 'play') setIsPlaying(p => !p)
     else if (tool === 'print') setShowPrintPreview(true)
     else { setActiveTool(tool); setShowWlPopup(false); setMeasureSubMenu(null) }

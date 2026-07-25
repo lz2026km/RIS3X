@@ -1,4 +1,4 @@
-﻿/**
+/**
  * G005 放射RIS系统 v3.0.5.0 (R4) - 简单 i18n 翻译函数与 locale 切换
  * R3 1100+ 功能点,i18n 命名空间合并
  * 对外导出:t(key, params) / getCurrentLocale() / onLocaleChange() / notifyLocaleChange()
@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "G005放射信息系统",
     "app.version":
-      "v3.0.6.11-32 · 按钮-Tab真实可达性审计+200路由深度回归",
+      "v3.0.6.11-33 · 按钮-Tab真实可达性审计+200路由深度回归",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -212,7 +212,7 @@ export const translations: Translations = {
     "oee.availability": "可用性%",
     "oee.performance": "性能%",
     "oee.quality": "质量%",
-    "oee.trend": "趋势",
+    "oee.trendShort": "趋势",
     "oee.causeBreakdown": "停机故障",
     "oee.causeSetup": "换型调整",
     "oee.causeSpeed": "速度减速",
@@ -1906,7 +1906,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "G005 Radiology Information System",
     "app.version":
-            "v3.0.6.11-32 · Button-Tab Reality Audit + 200 Route Deep Regression",
+            "v3.0.6.11-33 · Button-Tab Reality Audit + 200 Route Deep Regression",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",

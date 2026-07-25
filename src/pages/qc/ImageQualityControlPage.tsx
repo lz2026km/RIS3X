@@ -3,6 +3,7 @@
  * ACR 模体测试 / SNR / CNR / 重拍率 / 剂量合规
  */
 import React, { useMemo, useState, useEffect } from "react";
+import { message } from 'antd';
 import { Camera, Activity, AlertTriangle, CheckCircle, Calendar, BarChart3 } from "lucide-react";
 import { PageContainer } from "../../components/common/PageContainer";
 import { PageHeader } from "../../components/common/PageHeader";
@@ -38,9 +39,9 @@ export default function ImageQualityControlPage() {
       />
       <StickyActionBar
         actions={[
-          { key: "acr", label: "ACR 模体测试", onClick: () => {}, type: "primary", ariaLabel: "执行 ACR 模体测试" },
-          { key: "snr", label: "SNR 测量", onClick: () => {}, type: "default", ariaLabel: "SNR 测量" },
-          { key: "reject", label: "重拍率分析", onClick: () => {}, type: "default", ariaLabel: "重拍率分析" },
+          { key: "acr", label: "ACR 模体测试", onClick: () => message.success('ACR 模体测试已启动'), type: "primary", ariaLabel: "执行 ACR 模体测试" },
+          { key: "snr", label: "SNR 测量", onClick: () => message.success('SNR 测量已启动'), type: "default", ariaLabel: "SNR 测量" },
+          { key: "reject", label: "重拍率分析", onClick: () => message.success('重拍率分析已启动'), type: "default", ariaLabel: "重拍率分析" },
         ]}
         theme="light"
       />

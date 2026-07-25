@@ -3,7 +3,7 @@
  * AI 算法编排 (肺结节 / 乳腺 / 骨折 / Covid)
  */
 import React, { useMemo, useState } from 'react'
-import { Card, Row, Col, Tag, Statistic, Table, Space } from 'antd'
+import { Card, Row, Col, Tag, Statistic, Table, Space, Empty } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { Brain, Zap, CheckCircle, AlertCircle } from 'lucide-react'
 
@@ -132,6 +132,7 @@ export const AIManager: React.FC<AIManagerProps> = ({ models = MOCK_MODELS }) =>
           columns={columns}
           dataSource={list}
           pagination={false}
+          locale={{ emptyText: <Empty description="暂无 AI 模型" /> }}
         />
       </Card>
     </div>

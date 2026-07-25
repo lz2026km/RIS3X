@@ -3,7 +3,7 @@
  * 对标:GE Teaching Files / RADLEX - 影像所见 / 诊断 / 教学要点 案例库
  */
 import React, { useState, useEffect } from 'react'
-import { Card, Table, Statistic, Row, Col, Tag, Progress } from 'antd'
+import { Card, Table, Statistic, Row, Col, Tag, Progress, Empty } from 'antd'
 
 interface TeachingCase {
   id: string
@@ -331,6 +331,7 @@ const Teach: React.FC = () => {
           dataSource={filteredCases}
           columns={columns}
           pagination={{ pageSize: 8 }}
+          locale={{ emptyText: <Empty description="暂无匹配病例" /> }}
           scroll={{ x: 1400 }}
           expandable={{
             expandedRowRender: (record) => (

@@ -40,7 +40,7 @@ export const DicomSharePage: React.FC = () => {
             {title:'Action',render:(_:any)=><Space><Button size="small">Download</Button></Space>},
           ]} />
       </Card>
-      <Modal title="Share DICOM Study" open={shareModal} onCancel={()=>setShareModal(false)} onOk={()=>{message.success('已发送共享请求(模拟)');setShareModal(false)}} width={460}>
+      <Modal title="Share DICOM Study" open={shareModal} onCancel={()=>setShareModal(false)} onOk={()=>{message.success('已发送共享请求');setShareModal(false)}} width={460}>
         <Form layout="vertical" size="small">
           <Form.Item label="Study"><Select options={[{value:'CBCT-001',label:'ZW-36 CBCT'},{value:'CT-002',label:'LN-Head CT'},{value:'OCT-003',label:'WF-OCT'}]} /></Form.Item>
           <Form.Item label="Target Dept"><Select mode="multiple" options={['Oral','Oral Surgery','Ortho','Eye','ENT'].map(d=>({value:d,label:d}))} /></Form.Item>

@@ -42,7 +42,7 @@ export default function MlpsAuditPage() {
       )}
 
       <Card title="检查项明细" extra={<Text type="secondary">{result.recommendation}</Text>}>
-        <Table dataSource={result.items} rowKey="id" size="small" pagination={{ pageSize: 20, showSizeChanger: true }}
+        <Table dataSource={result.items} rowKey="id" size="small" pagination={{ pageSize: 20, showSizeChanger: true }} locale={{ emptyText: <Empty description="无检查项" /> }}
           columns={[
             { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
             { title: '控制项', dataIndex: 'control', key: 'control', width: 120 },

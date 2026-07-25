@@ -41,7 +41,7 @@ const ACTIVITY_CONFIG: Record<CollabActivity['action'], { icon: any; color: stri
 };
 
 // ============================================================
-// 报告模拟内容
+// 报告内容
 // ============================================================
 const MOCK_REPORT_CONTENT = {
   findings: '右肺下叶见一不规则软组织肿块影，大小约 4.5cm×3.8cm，边缘呈分叶状，伴毛刺，增强扫描示不均匀强化。肿块与周围血管关系密切，纵隔内见肿大淋巴结，短径约 12mm。',
@@ -71,7 +71,7 @@ export default function CollaborationPage() {
   const [showResolved, setShowResolved] = useState(false);
   // 自动滚动
   const [autoScroll, setAutoScroll] = useState(true);
-  // 当前用户（模拟）
+  // 当前用户
   const currentUser = users[0]; // 张明远
 
   // 过滤当前报告的评论
@@ -94,7 +94,7 @@ export default function CollaborationPage() {
     return users.filter(u => u.currentPage?.includes(selectedReportId));
   }, [users, selectedReportId]);
 
-  // 模拟光标位置自动更新
+  // 光标位置自动更新
   const [cursorPositions, setCursorPositions] = useState<Record<string, { x: number; y: number; visible: boolean }>>({});
   useEffect(() => {
     const interval = setInterval(() => {
@@ -102,7 +102,7 @@ export default function CollaborationPage() {
         const next = { ...prev };
         for (const u of reportOnlineUsers) {
           if (u.cursorPos) {
-            // 模拟光标微移
+            // 光标微移
             next[u.id] = {
               x: u.cursorPos.x + Math.sin(Date.now() / 1000 + u.id.charCodeAt(0)) * 8,
               y: u.cursorPos.y + Math.cos(Date.now() / 1200 + u.id.charCodeAt(0)) * 6,
@@ -251,7 +251,7 @@ export default function CollaborationPage() {
               </div>
             </div>
 
-            {/* 模拟编辑区 */}
+            {/* 协作编辑区 */}
             <div style={{
               position: 'relative', padding: 16,
               background: '#f8fafc', borderRadius: 6,
@@ -260,7 +260,7 @@ export default function CollaborationPage() {
             }}>
               {MOCK_REPORT_CONTENT[activeField]}
 
-              {/* 模拟其他用户光标 */}
+              {/* 其他用户光标 */}
               {Object.entries(cursorPositions).map(([uid, pos]) => {
                 const user = reportOnlineUsers.find(u => u.id === uid);
                 if (!user || !pos.visible) return null;
@@ -281,7 +281,7 @@ export default function CollaborationPage() {
                 );
               })}
 
-              {/* 模拟选区高亮 */}
+              {/* 选区高亮 */}
               <div style={{
                 position: 'absolute', left: 50, top: 70,
                 padding: '2px 4px', background: 'rgba(124, 58, 237, 0.2)',

@@ -129,6 +129,14 @@ export function DataTable<T extends Record<string, unknown> = Record<string, unk
     })
   }, [])
 
+  useEffect(() => {
+    return () => {
+      if (dragRef.current?.moveHandler) document.removeEventListener('mousemove', dragRef.current.moveHandler)
+      if (dragRef.current?.upHandler) document.removeEventListener('mouseup', dragRef.current.upHandler)
+      dragRef.current = null
+    }
+  }, [])
+
   const handleDragStart = useCallback((key: string, e: React.MouseEvent) => {
     if (dragRef.current?.moveHandler) document.removeEventListener('mousemove', dragRef.current.moveHandler)
     if (dragRef.current?.upHandler) document.removeEventListener('mouseup', dragRef.current.upHandler)

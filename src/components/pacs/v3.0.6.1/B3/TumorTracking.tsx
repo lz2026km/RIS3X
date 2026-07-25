@@ -2,7 +2,7 @@
  * G005 放射RIS系统 v3.0.6.1 - Philips Tumor Tracking (肿瘤随访 RECIST)
  */
 import React from 'react'
-import { Card, Table, Tag, Space, Row, Col, Statistic, Button } from 'antd'
+import { Card, Table, Tag, Space, Row, Col, Statistic, Button, Empty } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { TrendingUp, TrendingDown, Activity } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, Legend } from 'recharts'
@@ -105,6 +105,7 @@ export const TumorTracking: React.FC<TumorTrackingProps> = ({ lesions = MOCK }) 
           columns={columns}
           dataSource={lesions}
           pagination={false}
+          locale={{ emptyText: <Empty description="暂无随访记录" /> }}
         />
         <Space style={{ marginTop: 8 }}>
           <Button size="small" type="primary">新增评估</Button>

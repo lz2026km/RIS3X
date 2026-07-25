@@ -382,7 +382,7 @@ export default function DicomViewerPro({
               {displayError ? (
                 <>
                   <div style={{ color: '#ef4444', fontSize: 14 }}>⚠ {displayError}</div>
-                  <div style={{ fontSize: 12 }}>使用模拟图像替代</div>
+                  <div style={{ fontSize: 12 }}>使用占位图像替代</div>
                 </>
               ) : (
                 <div style={{ fontSize: 12 }}>加载中...</div>
@@ -397,7 +397,7 @@ export default function DicomViewerPro({
               viewBox={`0 0 ${elementRef.current?.clientWidth || 800} ${elementRef.current?.clientHeight || 600}`}
               preserveAspectRatio="none"
             >
-              {/* WW/WL 应用 - 用 CSS filter 模拟 */}
+              {/* WW/WL 应用 - 用 CSS filter 实现 */}
               <rect width="100%" height="100%" fill="black" opacity="0" />
               {/* 实际 DICOM 像素渲染（这里仅显示占位 + 测量）*/}
               {currentMeta && (

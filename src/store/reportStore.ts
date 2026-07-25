@@ -267,9 +267,9 @@ export const useReportStore = create<ReportState>((set, get) => ({
   },
 
   submit: async (id) => {
-    set({ error: null })
+    set({ loading: true, error: null })
     const report = get().reports.find((r) => r.id === id)
-    if (!report) return
+    if (!report) { set({ loading: false }); return }
     const actor = buildReportActor(report)
     const before = actor.getSnapshot().value as ReportStateName
     actor.send({ type: 'SUBMIT' })
@@ -277,7 +277,7 @@ export const useReportStore = create<ReportState>((set, get) => ({
     if (before === after) {
       actor.stop()
       console.warn(`[reportStore] machine rejected SUBMIT for ${id} (was ${before})`)
-      set({ error: `状态机拒绝: SUBMIT (当前状态 ${before})` })
+      set({ loading: false, error: `状态机拒绝: SUBMIT (当前状态 ${before})` })
       return
     }
     try {
@@ -286,21 +286,22 @@ export const useReportStore = create<ReportState>((set, get) => ({
       if (res.success) {
         set((s) => ({
           reports: s.reports.map((r) => (r.id === id ? { ...r, status: machineStateToLabel(after) } : r)),
+          loading: false,
         }))
       } else {
-        set({ error: res.error?.message ?? '提交失败' })
+        set({ loading: false, error: res.error?.message ?? '提交失败' })
       }
     } catch (err) {
       actor.stop()
-      set({ error: errorMessage(err, '网络错误') })
+      set({ loading: false, error: errorMessage(err, '网络错误') })
     }
   },
 
   review: async (id, type, doctorId, doctorName, suggestion, score) => {
-    set({ error: null })
+    set({ loading: true, error: null })
     const beforeStatus = get().reports.find((r) => r.id === id)?.status
     const report = get().reports.find((r) => r.id === id)
-    if (!report) return
+    if (!report) { set({ loading: false }); return }
     const actor = buildReportActor(report)
     const before2 = actor.getSnapshot().value as ReportStateName
     if (type === 'initial') {
@@ -309,7 +310,7 @@ export const useReportStore = create<ReportState>((set, get) => ({
       if (before2 === after1) {
         actor.stop()
         console.warn(`[reportStore] machine rejected START_INITIAL_REVIEW for ${id} (was ${before2})`)
-        set({ error: `状态机拒绝: START_INITIAL_REVIEW (当前状态 ${before2})` })
+        set({ loading: false, error: `状态机拒绝: START_INITIAL_REVIEW (当前状态 ${before2})` })
         return
       }
       actor.send({ type: 'APPROVE_INITIAL' })
@@ -319,7 +320,7 @@ export const useReportStore = create<ReportState>((set, get) => ({
       if (before2 === after1) {
         actor.stop()
         console.warn(`[reportStore] machine rejected START_FINAL_REVIEW for ${id} (was ${before2})`)
-        set({ error: `状态机拒绝: START_FINAL_REVIEW (当前状态 ${before2})` })
+        set({ loading: false, error: `状态机拒绝: START_FINAL_REVIEW (当前状态 ${before2})` })
         return
       }
       actor.send({ type: 'APPROVE_FINAL' })
@@ -339,12 +340,14 @@ export const useReportStore = create<ReportState>((set, get) => ({
                 }
               : r,
           ),
+          loading: false,
         }))
       } else {
         set((s) => ({
           reports: s.reports.map((r) =>
             r.id === id ? { ...r, status: beforeStatus ?? r.status } : r,
           ),
+          loading: false,
           error: res.error?.message ?? '审核提交失败',
         }))
       }
@@ -354,15 +357,16 @@ export const useReportStore = create<ReportState>((set, get) => ({
         reports: s.reports.map((r) =>
           r.id === id ? { ...r, status: beforeStatus ?? r.status } : r,
         ),
+        loading: false,
         error: errorMessage(err, '网络错误'),
       }))
     }
   },
 
   sign: async (id) => {
-    set({ error: null })
+    set({ loading: true, error: null })
     const report = get().reports.find((r) => r.id === id)
-    if (!report) return
+    if (!report) { set({ loading: false }); return }
     const actor = buildReportActor(report)
     const before = actor.getSnapshot().value as ReportStateName
     actor.send({ type: 'START_SIGN' })
@@ -370,7 +374,7 @@ export const useReportStore = create<ReportState>((set, get) => ({
     if (before === afterStart) {
       actor.stop()
       console.warn(`[reportStore] machine rejected START_SIGN for ${id} (was ${before})`)
-      set({ error: `状态机拒绝: START_SIGN (当前状态 ${before})` })
+      set({ loading: false, error: `状态机拒绝: START_SIGN (当前状态 ${before})` })
       return
     }
     actor.send({ type: 'COMPLETE_SIGN' })
@@ -381,20 +385,21 @@ export const useReportStore = create<ReportState>((set, get) => ({
       if (res.success) {
         set((s) => ({
           reports: s.reports.map((r) => (r.id === id ? { ...r, status: machineStateToLabel(after) } : r)),
+          loading: false,
         }))
       } else {
-        set({ error: res.error?.message ?? '签发失败' })
+        set({ loading: false, error: res.error?.message ?? '签发失败' })
       }
     } catch (err) {
       actor.stop()
-      set({ error: errorMessage(err, '网络错误') })
+      set({ loading: false, error: errorMessage(err, '网络错误') })
     }
   },
 
   publish: async (id, qualityScore) => {
-    set({ error: null })
+    set({ loading: true, error: null })
     const report = get().reports.find((r) => r.id === id)
-    if (!report) return
+    if (!report) { set({ loading: false }); return }
     const actor = buildReportActor(report)
     const before = actor.getSnapshot().value as ReportStateName
     actor.send({ type: 'PUBLISH', qualityScore })
@@ -402,7 +407,7 @@ export const useReportStore = create<ReportState>((set, get) => ({
     if (before === after) {
       actor.stop()
       console.warn(`[reportStore] machine rejected PUBLISH for ${id} (was ${before}, score=${qualityScore ?? 'unknown'})`)
-      set({ error: `状态机拒绝: PUBLISH (当前状态 ${before}, 质控分 ${qualityScore ?? 0} < 60)` })
+      set({ loading: false, error: `状态机拒绝: PUBLISH (当前状态 ${before}, 质控分 ${qualityScore ?? 0} < 60)` })
       return
     }
     try {
@@ -411,20 +416,21 @@ export const useReportStore = create<ReportState>((set, get) => ({
       if (res.success) {
         set((s) => ({
           reports: s.reports.map((r) => (r.id === id ? { ...r, status: machineStateToLabel(after) } : r)),
+          loading: false,
         }))
       } else {
-        set({ error: res.error?.message ?? '发布失败' })
+        set({ loading: false, error: res.error?.message ?? '发布失败' })
       }
     } catch (err) {
       actor.stop()
-      set({ error: errorMessage(err, '网络错误') })
+      set({ loading: false, error: errorMessage(err, '网络错误') })
     }
   },
 
   reject: async (id, reason) => {
-    set({ error: null })
+    set({ loading: true, error: null })
     const report = get().reports.find((r) => r.id === id)
-    if (!report) return
+    if (!report) { set({ loading: false }); return }
     const actor = buildReportActor(report)
     const before = actor.getSnapshot().value as ReportStateName
     actor.send({ type: 'REJECT', reason })
@@ -432,7 +438,7 @@ export const useReportStore = create<ReportState>((set, get) => ({
     if (before === after) {
       actor.stop()
       console.warn(`[reportStore] machine rejected REJECT for ${id} (was ${before})`)
-      set({ error: `状态机拒绝: REJECT (当前状态 ${before})` })
+      set({ loading: false, error: `状态机拒绝: REJECT (当前状态 ${before})` })
       return
     }
     try {
@@ -441,20 +447,21 @@ export const useReportStore = create<ReportState>((set, get) => ({
       if (res.success) {
         set((s) => ({
           reports: s.reports.map((r) => (r.id === id ? { ...r, status: machineStateToLabel(after) } : r)),
+          loading: false,
         }))
       } else {
-        set({ error: res.error?.message ?? '驳回失败' })
+        set({ loading: false, error: res.error?.message ?? '驳回失败' })
       }
     } catch (err) {
       actor.stop()
-      set({ error: errorMessage(err, '网络错误') })
+      set({ loading: false, error: errorMessage(err, '网络错误') })
     }
   },
 
   revise: async (id) => {
-    set({ error: null })
+    set({ loading: true, error: null })
     const report = get().reports.find((r) => r.id === id)
-    if (!report) return
+    if (!report) { set({ loading: false }); return }
     const actor = buildReportActor(report)
     const before = actor.getSnapshot().value as ReportStateName
     actor.send({ type: 'START_AMEND', reason: '修订请求' })
@@ -462,7 +469,7 @@ export const useReportStore = create<ReportState>((set, get) => ({
     if (before === after) {
       actor.stop()
       console.warn(`[reportStore] machine rejected START_AMEND for ${id} (was ${before})`)
-      set({ error: `状态机拒绝: START_AMEND (当前状态 ${before})` })
+      set({ loading: false, error: `状态机拒绝: START_AMEND (当前状态 ${before})` })
       return
     }
     try {
@@ -471,13 +478,14 @@ export const useReportStore = create<ReportState>((set, get) => ({
       if (res.success) {
         set((s) => ({
           reports: s.reports.map((r) => (r.id === id ? { ...r, status: machineStateToLabel(after) } : r)),
+          loading: false,
         }))
       } else {
-        set({ error: res.error?.message ?? '修订失败' })
+        set({ loading: false, error: res.error?.message ?? '修订失败' })
       }
     } catch (err) {
       actor.stop()
-      set({ error: errorMessage(err, '网络错误') })
+      set({ loading: false, error: errorMessage(err, '网络错误') })
     }
   },
 }))

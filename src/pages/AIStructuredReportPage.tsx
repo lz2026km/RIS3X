@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 
 // ============================================================================
 // Types
@@ -602,6 +602,15 @@ const AIStructuredReportPage: React.FC = () => {
     useState<SpecialtyTab>("ct");
   const [selectedTemplate, setSelectedTemplate] = useState<string>("");
   const [isRecording, setIsRecording] = useState<boolean>(false);
+  const recordTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const toastTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  useEffect(() => {
+    return () => {
+      if (recordTimeoutRef.current) clearTimeout(recordTimeoutRef.current);
+      toastTimeoutsRef.current.forEach(clearTimeout);
+    };
+  }, []);
   const [showPreview, setShowPreview] = useState<boolean>(false);
   const [expandedHistory, setExpandedHistory] = useState<string | null>(null);
   const [previewJson, setPreviewJson] = useState<string>("");
@@ -681,7 +690,8 @@ const AIStructuredReportPage: React.FC = () => {
   const handleVoiceRecord = useCallback(() => {
     setIsRecording(!isRecording);
     if (!isRecording) {
-      setTimeout(() => setIsRecording(false), 3000);
+      if (recordTimeoutRef.current) clearTimeout(recordTimeoutRef.current);
+      recordTimeoutRef.current = setTimeout(() => setIsRecording(false), 3000);
     }
   }, [isRecording]);
 
@@ -811,29 +821,26 @@ const AIStructuredReportPage: React.FC = () => {
   };
 
   const handleSubmit = useCallback(() => {
-    if (!validate()) {
+    const showToast = (text: string, bg: string) => {
       const toast = document.createElement("div");
-      toast.textContent = "请填写必填字段";
-      toast.style.cssText =
-        "position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#dc2626;color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15)";
+      toast.textContent = text;
+      toast.style.cssText = `position:fixed;top:24px;left:50%;transform:translateX(-50%);background:${bg};color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15)`;
       document.body.appendChild(toast);
-      setTimeout(() => {
+      const t1 = setTimeout(() => {
         toast.style.opacity = "0";
         toast.style.transition = "opacity 0.3s";
-        setTimeout(() => document.body.removeChild(toast), 300);
+        const t2 = setTimeout(() => {
+          if (document.body.contains(toast)) document.body.removeChild(toast);
+        }, 300);
+        toastTimeoutsRef.current.push(t2);
       }, 2000);
+      toastTimeoutsRef.current.push(t1);
+    };
+    if (!validate()) {
+      showToast("请填写必填字段", "#dc2626");
       return;
     }
-    const toast = document.createElement("div");
-    toast.textContent = "报告已提交保存";
-    toast.style.cssText =
-      "position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#059669;color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15);animation:fadeIn 0.3s ease";
-    document.body.appendChild(toast);
-    setTimeout(() => {
-      toast.style.opacity = "0";
-      toast.style.transition = "opacity 0.3s";
-      setTimeout(() => document.body.removeChild(toast), 300);
-    }, 2000);
+    showToast("报告已提交保存", "#059669");
   }, [formData]);
 
   // ============================================================================

@@ -47,10 +47,10 @@ export const ClinicalPathwayPage: React.FC = () => {
             {title:'Progress',dataIndex:'progress',render:(p:number)=><Progress percent={p} size="small" />},
             {title:'Patients',dataIndex:'patients'},
             {title:'Status',dataIndex:'status',render:(s:string)=><Badge status={s==='active'?'processing':'default'} text={s} />},
-            {title:'Action',render:()=><Space><Button size="small" icon={<Play size={10}/>}>Activate</Button><Button size="small" icon={<PauseCircle size={10}/>}>Pause</Button></Space>},
+            {title:'Action',render:()=><Space><Button size="small" icon={<Play size={10}/>} onClick={() => message.success('路径已激活')}>Activate</Button><Button size="small" icon={<PauseCircle size={10}/>} onClick={() => message.success('路径已暂停')}>Pause</Button></Space>},
           ]} />
       </Card>
-      <Card extra={<Button type="primary">+ Enroll Patient</Button>} size="small" title="Patient Pathway Tracking">
+      <Card extra={<Button type="primary" onClick={() => message.success('患者登记已提交')}>+ Enroll Patient</Button>} size="small" title="Patient Pathway Tracking">
         <Table dataSource={patients} rowKey="id" pagination={false}
           columns={[
             {title:'Patient',dataIndex:'patient'},{title:'Pathway',dataIndex:'pathway'},

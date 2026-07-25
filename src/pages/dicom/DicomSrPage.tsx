@@ -59,7 +59,7 @@ export const DicomSrPage: React.FC = () => {
       const content = buildMockSr(templateId, reportId, findings, impression)
       const doc: SrDocument = { id, reportId, templateId, tid: templateId === 'tid1500' ? '1500' : '2000', content, status: 'GENERATED', generatedAt: new Date().toISOString(), sopInstanceUID: `1.2.840.10008.5.1.4.1.1.88.11.1.${Date.now()}` }
       setSrDoc(doc)
-      message.info(t('dicomSr.offlineMode') || '离线模式: 已生成本地模拟 SR')
+      message.info(t('dicomSr.offlineMode') || '离线模式: 已生成本地 SR')
     } finally {
       setGenerating(false)
     }

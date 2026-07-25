@@ -316,7 +316,6 @@ interface DicomViewportGridProps {
   showPseudoColorPanel: boolean
   showAnnotationPanel: boolean
   activePresetIdx: number | null
-  WINDOW_PRESETS: WindowPreset[]
   pseudoColorMode: PseudoColorMode
   pseudoColorTools: { mode: PseudoColorMode; icon: React.ReactNode; label: string }[]
   annotationTypes: { type: string; icon: React.ReactNode; label: string }[]

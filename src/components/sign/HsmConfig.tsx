@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Descriptions, Tag, Space, Typography, Button, Alert, Row, Col, Statistic, Table, Select, Input, InputNumber, Form, Modal, message } from 'antd';
+import { Card, Descriptions, Tag, Space, Typography, Button, Alert, Row, Col, Statistic, Table, Select, Input, InputNumber, Form, Modal, message, Empty } from 'antd';
 import { Shield, RefreshCw, Key, Server, Wifi, WifiOff, Cpu, HardDrive, Activity } from 'lucide-react';
 import { hsmAdapter } from '../../services/sign/HsmAdapter';
 import type { HsmConfig, HsmSlot, HsmToken, HsmKeyHandle, HsmSession, HsmVendor, HsmKeyAlgo } from '../../types/sign';
@@ -151,7 +151,7 @@ export const HsmConfigPanel: React.FC<HsmConfigProps> = ({ onConfigChange }) => 
           {keys.length > 0 && (
             <>
               <Title level={5}>密钥列表</Title>
-              <Table size="small" dataSource={keys} columns={keyColumns} rowKey="handleId" pagination={false} />
+              <Table size="small" dataSource={keys} columns={keyColumns} rowKey="handleId" pagination={false} locale={{ emptyText: <Empty description="暂无密钥" /> }} />
             </>
           )}
         </>

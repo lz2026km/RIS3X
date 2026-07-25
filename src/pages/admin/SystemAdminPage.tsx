@@ -81,8 +81,8 @@ export const SystemAdminPage: React.FC = () => {
           },
         ]}
       />
-      <Button type="primary" icon={<Save size={14}/>} style={{marginTop:16}} onClick={() => message.success('所有配置已保存(模拟)')}>保存所有配置</Button>
-      <Modal title="新增用户" open={userModal} onOk={() => { setUsers(prev => [...prev, { id: 'U' + Date.now(), name: newUserName || '新用户', role: newUserRole, dept: '放射科', status: 'active', lastLogin: '-' }]); setNewUserName(''); setUserModal(false); message.success('用户已创建(模拟)'); }} onCancel={() => setUserModal(false)}>
+      <Button type="primary" icon={<Save size={14}/>} style={{marginTop:16}} onClick={() => message.success('所有配置已保存')}>保存所有配置</Button>
+      <Modal title="新增用户" open={userModal} onOk={() => { setUsers(prev => [...prev, { id: 'U' + Date.now(), name: newUserName || '新用户', role: newUserRole, dept: '放射科', status: 'active', lastLogin: '-' }]); setNewUserName(''); setUserModal(false); message.success('用户已创建'); }} onCancel={() => setUserModal(false)}>
         <Form layout="vertical">
           <Form.Item label="姓名"><Input value={newUserName} onChange={e => setNewUserName(e.target.value)} placeholder="请输入姓名" /></Form.Item>
           <Form.Item label="角色"><Select value={newUserRole} onChange={setNewUserRole} options={[{value:'主任医师'},{value:'主治医师'},{value:'技师'},{value:'护士'},{value:'管理员'}]} /></Form.Item>

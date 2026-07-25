@@ -100,10 +100,10 @@ export const VoiceFieldNavigator: React.FC<Props> = ({ reportId, fields, onFocus
         </div>
       )}
 
-      {/* 模拟语音命令 */}
+      {/* 语音命令 */}
       <div className="mb-3">
         <div className="text-xs font-semibold text-slate-600 mb-1 flex items-center gap-1">
-          <Mic className="w-3 h-3" /> 模拟语音命令
+          <Mic className="w-3 h-3" /> 语音命令
         </div>
         <Space wrap size={4}>
           {nav.fields.slice(0, 5).map((f: VoiceFieldTarget) => (

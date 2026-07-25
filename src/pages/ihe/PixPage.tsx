@@ -93,7 +93,7 @@ export const PixPage: React.FC = () => {
         message.error('PIX Feed 发送失败');
       }
     } catch {
-      message.warning('使用模拟响应');
+      message.warning('PIX Feed 服务不可用，已使用演示响应');
       setFeedResult({ success: true, ack: 'AA', storedPid: pid || feedForm.getFieldValue('patientId') });
     }
     setSending(false);
@@ -118,7 +118,7 @@ export const PixPage: React.FC = () => {
         message.error('PIX Query 失败');
       }
     } catch {
-      message.warning('使用模拟数据');
+      message.warning('PIX Query 服务不可用，已使用演示数据');
       const mockPid = qv.patientId || 'P001';
       const mockSrc = qv.sourceDomain || 'HOSPITAL_A';
       const domains = (qv.targetDomains || 'HOSPITAL_B').split('\n').filter(Boolean).map((s: string) => s.trim());
@@ -157,7 +157,7 @@ export const PixPage: React.FC = () => {
         message.error('PDQ 查询失败');
       }
     } catch {
-      message.warning('使用模拟数据');
+      message.warning('PDQ 服务不可用，已使用演示数据');
       setPdqResults([
         { patientId: 'P001', assigningAuthority: 'HOSPITAL_A', identifiers: [{ domain: 'HOSPITAL_A', value: 'P001' }], name: { family: '张', given: ['三'] }, birthDate: '1985-06-15', gender: 'M', address: '测试地址1', phone: '13800138001', confidence: 0.98 },
         { patientId: 'CL-1002', assigningAuthority: 'CLINIC_B', identifiers: [{ domain: 'CLINIC_B', value: 'CL-1002' }], name: { family: '张', given: ['三'] }, birthDate: '1985-06-15', gender: 'M', address: '测试地址2', phone: '13800138002', confidence: 0.85 },

@@ -3,7 +3,7 @@
  * 对标:Siemens syngo.via 3D - 体绘制/MIP/MPR 三模式切换
  */
 import React, { useMemo, useState } from 'react'
-import { Card, Row, Col, Table, Tag, Statistic, Progress, Tabs, Space, Button } from 'antd'
+import { Card, Row, Col, Table, Tag, Statistic, Progress, Tabs, Space, Button, Empty } from 'antd'
 import { Box, Layers, GitBranch, Cpu, Clock, MemoryStick } from 'lucide-react'
 
 export type RenderMode = 'VR' | 'MIP' | 'MPR'
@@ -195,6 +195,7 @@ export const VIS3D: React.FC<VIS3DProps> = ({ onModeChange, onSelectStudy }) => 
           dataSource={filtered}
           columns={columns}
           pagination={false}
+          locale={{ emptyText: <Empty description="暂无 3D 数据" /> }}
           onRow={(record) => ({
             onClick: () => onSelectStudy?.(record.id),
             style: { cursor: 'pointer' },

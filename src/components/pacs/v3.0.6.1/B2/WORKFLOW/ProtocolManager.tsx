@@ -2,7 +2,7 @@
  * G005 放射RIS系统 v3.0.6.1 - Siemens 扫描协议管理 (Protocol Manager)
  */
 import React, { useState } from 'react'
-import { Card, Table, Tag, Space, Button, Input } from 'antd'
+import { Card, Table, Tag, Space, Button, Input, Empty } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { Plus, Search, Settings } from 'lucide-react'
 import { ScanProtocol, type ScanProtocolConfig } from './ScanProtocol'
@@ -66,6 +66,7 @@ export const ProtocolManager: React.FC<ProtocolManagerProps> = ({ protocols = MO
           columns={columns}
           dataSource={filtered}
           pagination={false}
+          locale={{ emptyText: <Empty description="无匹配协议" /> }}
         />
       </Card>
       <div style={{ height: 12 }} />

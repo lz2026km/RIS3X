@@ -1,4 +1,4 @@
-export const DEPLOY_VERSION = '3.0.6.11-32';
+﻿export const DEPLOY_VERSION = '3.0.6.11-33'; // must match image tags in values.yaml & Chart.yaml appVersion
 
 export interface DeployConfig {
   environment: 'development' | 'staging' | 'production';

@@ -3,7 +3,7 @@
  * PET/CT/MR 融合
  */
 import React, { useMemo, useState } from 'react'
-import { Card, Row, Col, Tag, Statistic, Table, Space, Slider } from 'antd'
+import { Card, Row, Col, Tag, Statistic, Table, Space, Slider, Empty } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { Layers, Crosshair, Zap } from 'lucide-react'
 
@@ -127,6 +127,7 @@ export const Fusion: React.FC = () => {
           columns={columns}
           dataSource={list}
           pagination={false}
+          locale={{ emptyText: <Empty description="暂无融合数据" /> }}
         />
       </Card>
 

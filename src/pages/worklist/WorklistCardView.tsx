@@ -1,3 +1,4 @@
+import React, { useCallback } from 'react'
 import {
   Scan, Monitor, Radio, Clock, AlertTriangle,
   CheckSquare, Square, Images, LayoutGrid,
@@ -81,14 +82,14 @@ interface CardViewProps {
   onRowClick: (exam: RadiologyExam) => void
 }
 
-export function CardView({ exams, selectedIds, onSelect, onRowClick }: CardViewProps) {
-  const toggleSelect = (id: string, e: React.MouseEvent) => {
+export const CardView = React.memo(function CardView({ exams, selectedIds, onSelect, onRowClick }: CardViewProps) {
+  const toggleSelect = useCallback((id: string, e: React.MouseEvent) => {
     e.stopPropagation()
     const newSet = new Set(selectedIds)
     if (newSet.has(id)) newSet.delete(id)
     else newSet.add(id)
     onSelect(newSet)
-  }
+  }, [selectedIds, onSelect])
 
   return (
     <div style={{
@@ -280,4 +281,4 @@ export function CardView({ exams, selectedIds, onSelect, onRowClick }: CardViewP
       )}
     </div>
   )
-}
+})

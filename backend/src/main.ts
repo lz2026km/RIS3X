@@ -21,6 +21,11 @@ async function bootstrap(): Promise<void> {
     app.getHttpAdapter().getInstance().set('trust proxy', /^\d+$/.test(trustProxy) ? Number(trustProxy) : trustProxy)
   }
 
+  const jwtSecret = process.env['JWT_SECRET']?.trim()
+  if (!jwtSecret || (process.env['NODE_ENV'] === 'production' && Buffer.byteLength(jwtSecret) < 32)) {
+    throw new Error('JWT_SECRET is required (≥32 bytes in production). Run: openssl rand -base64 32')
+  }
+
   client.collectDefaultMetrics({ register: client.register })
 
   if (process.env['SENTRY_DSN']) {
@@ -85,7 +90,12 @@ async function bootstrap(): Promise<void> {
     return
   }
 
-  const port = Number(process.env['PORT'] ?? 3001)
+  const rawPort = process.env['PORT']
+  const port = rawPort ? (() => {
+    const n = Number(rawPort)
+    if (!Number.isInteger(n) || n < 1 || n > 65535) throw new Error(`PORT must be 1-65535, got "${rawPort}"`)
+    return n
+  })() : 3001
   await app.listen(port)
 
   const logger = app.get(PinoLogger)

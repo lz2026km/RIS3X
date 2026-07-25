@@ -5,7 +5,7 @@ metadata:
   labels:
     {{- include "g005-ris.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.autoscaling.enabled | ternary .Values.autoscaling.minReplicas .Values.replicaCount }}
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -20,6 +20,10 @@ spec:
         {{- include "g005-ris.selectorLabels" . | nindent 8 }}
     spec:
       serviceAccountName: {{ include "g005-ris.fullname" . }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       securityContext:
         runAsNonRoot: true
         fsGroup: 1001
@@ -48,6 +52,12 @@ spec:
             - secretRef:
                 name: {{ required "secrets.existingSecret is required when secrets.create is false" .Values.secrets.existingSecret }}
             {{- end }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.probes.livenessPath }}
+              port: api
+            failureThreshold: 30
+            periodSeconds: 10
           livenessProbe:
             httpGet:
               path: {{ .Values.probes.livenessPath }}

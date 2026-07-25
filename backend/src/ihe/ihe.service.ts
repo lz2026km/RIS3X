@@ -191,7 +191,7 @@ export class IheService {
     try {
       await this.upsertLocalPatientFromPix(record)
     } catch (err) {
-      this.logger.warn(`PIX Feed → 本地 Patient 同步失败: ${(err as Error).message}`)
+      this.logger.error(`PIX Feed → 本地 Patient 同步失败: ${(err as Error).message}`, (err as Error).stack)
     }
 
     await this.auditNotify('ITI-8', 'C', dto.patientId, dto.assigningAuthority)
@@ -473,7 +473,7 @@ export class IheService {
     try {
       await this.applyPamToLocalPatient(dto)
     } catch (err) {
-      this.logger.warn(`PAM ${dto.messageType} 应用到本地 Patient 失败: ${(err as Error).message}`)
+      this.logger.error(`PAM ${dto.messageType} 应用到本地 Patient 失败: ${(err as Error).message}`, (err as Error).stack)
     }
 
     const visitNumber = dto.visitNumber ?? `VN-${Date.now()}`

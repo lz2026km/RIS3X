@@ -1,4 +1,4 @@
-# Dead Code Marker
+﻿# Dead Code Marker
 > Generated: 2026-07-22
 > Base: v3.0.6.11-25 → v3.0.6.11-32
 > Action: Comment-only marking (no deletion)

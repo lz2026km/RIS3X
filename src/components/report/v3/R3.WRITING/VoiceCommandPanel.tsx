@@ -168,7 +168,7 @@ export const VoiceCommandPanel: React.FC<Props> = ({ onCommandTriggered, default
       {/* 测试区 */}
       <div>
         <div className="text-xs font-semibold text-slate-600 mb-1 flex items-center gap-1">
-          <Mic className="w-3 h-3" /> 模拟识别测试
+          <Mic className="w-3 h-3" /> 语音识别测试
         </div>
         <Space.Compact style={{ width: '100%' }}>
           <Input

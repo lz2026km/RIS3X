@@ -3,7 +3,7 @@
  * 对标:GE Critical Results Workflow - 发现 → 通知 → 确认 → 处置 → 追踪 全流程
  */
 import React, { useState, useEffect } from 'react'
-import { Card, Table, Statistic, Row, Col, Tag, Progress } from 'antd'
+import { Card, Table, Statistic, Row, Col, Tag, Progress, Empty } from 'antd'
 
 interface CriticalEvent {
   id: string
@@ -237,6 +237,7 @@ const Critical: React.FC = () => {
           columns={columns}
           pagination={false}
           scroll={{ x: 1200 }}
+          locale={{ emptyText: <Empty description="暂无危急值" /> }}
         />
       </Card>
     </div>

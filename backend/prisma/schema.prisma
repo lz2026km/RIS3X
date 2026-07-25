@@ -221,6 +221,7 @@ model Exam {
 
   @@index([patientId, modality])
   @@index([tenantId])
+  @@index([tenantId, state])
   @@map("exams")
 }
 
@@ -258,6 +259,8 @@ model Report {
   @@index([state, patientId])
   @@index([radiologistId])
   @@index([tenantId])
+  @@index([tenantId, state])
+  @@index([tenantId, radiologistId])
   @@map("reports")
 }
 
@@ -401,21 +404,22 @@ model LoginLog {
 model CriticalValueNotification {
   id            String   @id @default(cuid())
   tenantId      String   @map("tenant_id")
-  criticalId    String   @map("critical_id")
-  patientName   String   @map("patient_name")
-  patientId     String   @map("patient_id")
+  criticalId    String           @map("critical_id")
+  critical      CriticalValue    @relation(fields: [criticalId], references: [id], onDelete: Cascade)
+  patientName   String           @map("patient_name")
+  patientId     String           @map("patient_id")
   category      String
   finding       String
   channel       String
-  recipientName String   @map("recipient_name")
-  recipientDept String   @map("recipient_dept")
-  recipientPhone String  @map("recipient_phone")
+  recipientName String           @map("recipient_name")
+  recipientDept String           @map("recipient_dept")
+  recipientPhone String          @map("recipient_phone")
   status        String
-  ackerName     String?  @map("acker_name")
-  ackedAt       DateTime? @map("acked_at")
-  escalated     Boolean  @default(false)
-  triggeredAt   DateTime @map("triggered_at")
-  createdAt     DateTime @default(now()) @map("created_at")
+  ackerName     String?          @map("acker_name")
+  ackedAt       DateTime?        @map("acked_at")
+  escalated     Boolean          @default(false)
+  triggeredAt   DateTime         @map("triggered_at")
+  createdAt     DateTime         @default(now()) @map("created_at")
 
   @@index([criticalId])
   @@index([status, triggeredAt])
@@ -468,6 +472,7 @@ model ReportQualityScore {
   id          String   @id @default(cuid())
   tenantId    String   @map("tenant_id")
   reportId    String   @map("report_id")
+  report      Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
   totalScore  Int      @map("total_score")
   grade       String
   dimensions  Json
@@ -492,6 +497,7 @@ model DicomInstance {
   sizeBytes         Int?     @map("size_bytes")
   transferSyntax    String?  @map("transfer_syntax")
   reportId          String?  @map("report_id")
+  report            Report?  @relation(fields: [reportId], references: [id], onDelete: SetNull)
   createdAt         DateTime @default(now()) @map("created_at")
 
   @@index([studyInstanceUid])
@@ -504,6 +510,7 @@ model Notification {
   id        String    @id @default(cuid())
   tenantId  String    @map("tenant_id")
   userId    String    @map("user_id")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   type      String
   severity  String    @default("INFO")
   title     String
@@ -511,7 +518,7 @@ model Notification {
   link      String?
   read      Boolean   @default(false)
   readAt    DateTime? @map("read_at")
-  targetId  String?  @map("target_id")
+  targetId  String?   @map("target_id")
   createdAt DateTime  @default(now()) @map("created_at")
 
   @@index([userId, read, createdAt])

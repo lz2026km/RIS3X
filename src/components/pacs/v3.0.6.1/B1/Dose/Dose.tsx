@@ -3,7 +3,7 @@
  * 对标:GE DoseWatch - CT/DR/MR DLP/CTDI/累积剂量 全程追踪
  */
 import React, { useState, useEffect } from 'react'
-import { Card, Table, Statistic, Row, Col, Tag, Progress } from 'antd'
+import { Card, Table, Statistic, Row, Col, Tag, Progress, Empty } from 'antd'
 
 interface DoseRecord {
   id: string
@@ -241,6 +241,7 @@ const Dose: React.FC = () => {
           columns={columns}
           pagination={{ pageSize: 8 }}
           scroll={{ x: 1300 }}
+          locale={{ emptyText: <Empty description="暂无剂量记录" /> }}
         />
       </Card>
     </div>

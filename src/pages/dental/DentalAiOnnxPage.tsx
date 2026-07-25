@@ -48,7 +48,7 @@ export const DentalAiOnnxPage: React.FC = () => {
         const modelData = await response.arrayBuffer();
         sess = await ort.InferenceSession.create(modelData);
       } catch {
-        message.warning('YOLOv8n-dental.onnx 未找到, 使用模拟推理');
+        message.warning('YOLOv8n-dental.onnx 未找到, 已切换至离线推理模式');
         // Real fallback: instantiate a minimal InferenceSession-like via ort
         // but if no model available, mark as null and use mock branch
         sess = null as unknown as InferenceSession;

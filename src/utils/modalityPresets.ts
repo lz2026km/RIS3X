@@ -16,38 +16,63 @@ export function getPresetsForModality(modality: string): SimpleWindowPreset[] {
       { name: '肺窗', ww: 1500, wl: -600 },
       { name: '纵隔窗', ww: 400, wl: 40 },
       { name: '骨窗', ww: 2000, wl: 400 },
+      { name: '脑窗', ww: 80, wl: 40 },
+      { name: '软组织', ww: 400, wl: 40 },
     ];
   }
   if (modality === 'MR') {
     return [
-      { name: 'T1', ww: WINDOW_PRESETS_DETAILED.MR_T1.ww, wl: WINDOW_PRESETS_DETAILED.MR_T1.wc },
-      { name: 'T2', ww: WINDOW_PRESETS_DETAILED.MR_T2.ww, wl: WINDOW_PRESETS_DETAILED.MR_T2.wc },
-      { name: 'FLAIR', ww: WINDOW_PRESETS_DETAILED.MR_FLAIR.ww, wl: WINDOW_PRESETS_DETAILED.MR_FLAIR.wc },
+      { name: 'T1', ww: 800, wl: 400 },
+      { name: 'T2', ww: 1500, wl: 750 },
+      { name: 'FLAIR', ww: 1500, wl: 750 },
+      { name: 'DWI', ww: 1500, wl: 750 },
     ];
   }
-  if (modality === 'DR') {
+  if (modality === 'DR' || modality === 'XR') {
     return [
-      { name: 'DR 胸片', ww: WINDOW_PRESETS_DETAILED.DR_CHEST.ww, wl: WINDOW_PRESETS_DETAILED.DR_CHEST.wc },
-      { name: 'DR 骨窗', ww: WINDOW_PRESETS_DETAILED.DR_BONE.ww, wl: WINDOW_PRESETS_DETAILED.DR_BONE.wc },
+      { name: 'DR 胸片', ww: 2500, wl: 1250 },
+      { name: 'DR 骨窗', ww: 2000, wl: 500 },
+      { name: 'DR 腹部', ww: 1800, wl: 900 },
     ];
   }
   if (modality === 'MG') {
     return [
-      { name: 'MG 乳腺', ww: WINDOW_PRESETS_DETAILED.MG_DEFAULT.ww, wl: WINDOW_PRESETS_DETAILED.MG_DEFAULT.wc },
+      { name: 'MG 乳腺', ww: 2500, wl: 1250 },
     ];
   }
   if (modality === 'US') {
     return [
-      { name: 'US 腹部', ww: WINDOW_PRESETS_DETAILED.US_DEFAULT.ww, wl: WINDOW_PRESETS_DETAILED.US_DEFAULT.wc },
+      { name: 'US 腹部', ww: 255, wl: 128 },
     ];
   }
   if (modality === 'PT') {
     return [
-      { name: 'PET 默认', ww: WINDOW_PRESETS_DETAILED.PT_DEFAULT.ww, wl: WINDOW_PRESETS_DETAILED.PT_DEFAULT.wc },
+      { name: 'PET 默认', ww: 5000, wl: 2500 },
+    ];
+  }
+  if (modality === 'CBCT') {
+    return [
+      { name: 'CBCT 骨窗', ww: 2500, wl: 1200 },
+      { name: 'CBCT 软组织', ww: 800, wl: 400 },
+    ];
+  }
+  if (modality === 'XA' || modality === 'DSA') {
+    return [
+      { name: '血管窗', ww: 400, wl: 100 },
     ];
   }
   return [
     { name: '骨窗', ww: 2000, wl: 400 },
     { name: '软组织', ww: 400, wl: 40 },
+    { name: '肺窗', ww: 1500, wl: -600 },
   ];
 }
+
+export const CT_DEFAULT_WW = 400;
+export const CT_DEFAULT_WL = 40;
+export const FUSION_CT_WW = 1200;
+export const FUSION_CT_WL = 400;
+export const FUSION_PET_WW = 800;
+export const FUSION_PET_WL = 200;
+export const MR_DEFAULT_WW = 800;
+export const MR_DEFAULT_WL = 400;

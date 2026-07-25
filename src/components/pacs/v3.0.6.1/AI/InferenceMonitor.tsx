@@ -2,7 +2,7 @@
  * G005 放射RIS系统 v3.0.6.1 - AI 推理监控 (实时吞吐/延迟/错误率)
  */
 import React, { useEffect, useState } from 'react'
-import { Card, Row, Col, Tag, Statistic, Table } from 'antd'
+import { Card, Row, Col, Tag, Statistic, Table, Empty } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { Activity, Zap, AlertTriangle, Server } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, Legend } from 'recharts'
@@ -96,6 +96,7 @@ export const InferenceMonitor: React.FC<InferenceMonitorProps> = ({ records = MO
           columns={columns}
           dataSource={data}
           pagination={{ pageSize: 10 }}
+          locale={{ emptyText: <Empty description="暂无推理日志" /> }}
         />
       </Card>
     </div>

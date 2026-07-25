@@ -3,11 +3,12 @@
 import { create } from 'zustand'
 import { createActor, type Actor } from 'xstate'
 import { criticalApi } from '../services/api'
-import type { NotificationMethod as ApiNotificationMethod } from '../services/api/criticalApi'
+import type { CriticalValueDto, NotificationMethod as ApiNotificationMethod } from '../services/api'
 import { criticalValueMachine, type CriticalMachine, type NotificationMethod as MachineNotificationMethod } from '../machines/criticalValueMachine'
 import { criticalValueService } from '../services/quality/criticalValueService'
 
 type NotificationMethod = MachineNotificationMethod
+type CriticalValueStatus = 'pending' | 'notified' | 'voice_called' | 'acknowledged' | 'receipted' | 'resolving' | 'resolved' | 'closed_loop' | 'escalated' | 'cancelled'
 
 const NOTIFICATION_METHOD_MAP: Record<string, MachineNotificationMethod> = {
   PHONE: 'phone', SMS: 'sms', SYSTEM: 'system', EMAIL: 'email', WECHAT: 'wechat', DINGTALK: 'dingtalk',
@@ -19,33 +20,10 @@ function toMachineMethod(method?: string): MachineNotificationMethod {
   return lower ?? (method.toLowerCase() as MachineNotificationMethod)
 }
 
-interface CriticalValue {
-  id: string
-  patientName: string
-  finding: string
-  severity: string
-  status: 'pending' | 'notified' | 'voice_called' | 'acknowledged' | 'receipted' | 'resolving' | 'resolved' | 'closed_loop' | 'escalated' | 'cancelled'
-  triggeredAt: string
-  notifiedAt?: string
-  voiceCalledAt?: string
-  voiceCalledBy?: string
-  acknowledgedAt?: string
-  confirmedBy?: string
-  confirmedAt?: string
-  confirmedSignature?: string
-  confirmedComment?: string
-  resolvedAt?: string
-  escalatedAt?: string
-  escalatedTo?: string
-  notificationMethod?: ApiNotificationMethod
-}
-
 interface CriticalState {
-  values: CriticalValue[]
+  values: CriticalValueDto[]
   loading: boolean
   error: string | null
-  /** 内部:每个危急值一个 actor,机器是其真实状态来源 */
-  actors: Map<string, Actor<CriticalMachine>>
   load: () => Promise<void>
   voiceCall: (id: string, phoneNumber: string) => Promise<void>
   acknowledge: (id: string) => Promise<void>
@@ -58,7 +36,7 @@ interface CriticalState {
 }
 
 /** Map criticalMachine state value → store status string */
-const MACHINE_STATE_TO_STORE: Record<string, CriticalValue['status']> = {
+const MACHINE_STATE_TO_STORE: Record<string, CriticalValueStatus> = {
   found: 'pending',
   notified: 'notified',
   voice_called: 'voice_called',
@@ -71,17 +49,20 @@ const MACHINE_STATE_TO_STORE: Record<string, CriticalValue['status']> = {
   cancelled: 'cancelled',
 }
 
+/** Actor 存在模块级 Map 中(不入 Zustand state,避免序列化问题) */
+const actorsMap = new Map<string, Actor<CriticalMachine>>()
+
 /** 从列表 DTO 重建一个最小的 machine input 上下文。 */
-function buildActorFor(value: CriticalValue): Actor<CriticalMachine> {
+function buildActorFor(value: CriticalValueDto): Actor<CriticalMachine> {
   const actor = createActor(criticalValueMachine, {
     input: {
       criticalId: value.id,
-      reportId: '',
-      examId: '',
-      patientId: '',
+      reportId: value.reportId ?? '',
+      examId: value.examId ?? '',
+      patientId: value.patientId ?? '',
       patientName: value.patientName,
       finding: value.finding,
-      category: '',
+      category: value.category ?? '',
       severity: (value.severity as 'critical' | 'urgent' | 'high') ?? 'critical',
       reportedBy: '',
       reportedAt: value.triggeredAt,
@@ -111,7 +92,7 @@ function buildActorFor(value: CriticalValue): Actor<CriticalMachine> {
     actor.send({ type: 'COMPLETE_PROCESSING', note: '' })
   }
   if (value.status === 'escalated') {
-    actor.send({ type: 'ESCALATE', to: value.escalatedTo ?? '', reason: 'replay' })
+    actor.send({ type: 'ESCALATE', to: (value as unknown as { escalatedTo?: string }).escalatedTo ?? '', reason: 'replay' })
   }
   return actor
 }
@@ -123,28 +104,28 @@ export const useCriticalStore = create<CriticalState>((set, get) => ({
   values: [],
   loading: false,
   error: null,
-  actors: new Map(),
 
   load: async () => {
     set({ loading: true, error: null })
     try {
       const res = await criticalApi.list()
       if (res.success && Array.isArray(res.data)) {
-        const values = res.data as CriticalValue[]
-        const actors = new Map<string, Actor<CriticalMachine>>()
-        const previousActors = get().actors
-        values.forEach((v) => {
-          const existing = previousActors.get(v.id)
-          if (existing) {
-            actors.set(v.id, existing)
-          } else {
-            actors.set(v.id, buildActorFor(v))
+        const values = res.data as CriticalValueDto[]
+        // 清理不再出现的 actor
+        const currentIds = new Set(values.map(v => v.id))
+        actorsMap.forEach((actor, id) => {
+          if (!currentIds.has(id)) {
+            actor.stop()
+            actorsMap.delete(id)
           }
         })
-        previousActors.forEach((actor, id) => {
-          if (!actors.has(id)) actor.stop()
+        // 为新条目创建 actor
+        values.forEach((v) => {
+          if (!actorsMap.has(v.id)) {
+            actorsMap.set(v.id, buildActorFor(v))
+          }
         })
-        set({ values, actors, loading: false, error: null })
+        set({ values, loading: false, error: null })
         get().startEscalationWatcher()
       } else {
         set({ loading: false, error: res.error?.message ?? '加载失败' })
@@ -157,9 +138,9 @@ export const useCriticalStore = create<CriticalState>((set, get) => ({
   startEscalationWatcher: () => {
     if (_escalationTimer) clearInterval(_escalationTimer)
     _escalationTimer = setInterval(() => {
-      const { values, actors } = get()
+      const { values } = get()
       values.forEach((v) => {
-        const actor = actors.get(v.id)
+        const actor = actorsMap.get(v.id)
         if (!actor) return
         const state = actor.getSnapshot().value as string
         if (STUCK_STATES.includes(state)) {
@@ -167,7 +148,7 @@ export const useCriticalStore = create<CriticalState>((set, get) => ({
           criticalValueService.runEscalationChain(v.id).catch(() => {})
           set((s) => ({
             values: s.values.map((x) =>
-              x.id === v.id ? { ...x, status: 'escalated' as const, escalatedAt: new Date().toISOString() } : x,
+              x.id === v.id ? { ...x, status: 'escalated' as CriticalValueStatus, escalatedAt: new Date().toISOString() } : x,
             ),
           }))
         }
@@ -183,7 +164,7 @@ export const useCriticalStore = create<CriticalState>((set, get) => ({
   },
 
   voiceCall: async (id, phoneNumber) => {
-    set({ error: null })
+    set({ loading: true, error: null })
     try {
       const res = await criticalApi.voiceCall(id, { calledBy: 'current-user', phoneNumber })
       if (res.success) {
@@ -195,17 +176,18 @@ export const useCriticalStore = create<CriticalState>((set, get) => ({
               ? { ...v, status: 'voice_called' as const, voiceCalledAt: new Date().toISOString(), voiceCalledBy: 'current-user' }
               : v
           ),
+          loading: false,
         }))
       } else {
-        set({ error: res.error?.message ?? '电话通知失败' })
+        set({ loading: false, error: res.error?.message ?? '电话通知失败' })
       }
     } catch (err) {
-      set({ error: err instanceof Error ? err.message : '网络错误' })
+      set({ loading: false, error: err instanceof Error ? err.message : '网络错误' })
     }
   },
 
   clinicalReceipt: async (id, data) => {
-    set({ error: null })
+    set({ loading: true, error: null })
     try {
       const res = await criticalApi.clinicalReceipt(id, data)
       if (res.success) {
@@ -217,17 +199,18 @@ export const useCriticalStore = create<CriticalState>((set, get) => ({
               ? { ...v, status: 'receipted' as const, confirmedBy: data.confirmedBy, confirmedAt: new Date().toISOString(), confirmedSignature: data.signature, confirmedComment: data.comment }
               : v
           ),
+          loading: false,
         }))
       } else {
-        set({ error: res.error?.message ?? '回执失败' })
+        set({ loading: false, error: res.error?.message ?? '回执失败' })
       }
     } catch (err) {
-      set({ error: err instanceof Error ? err.message : '网络错误' })
+      set({ loading: false, error: err instanceof Error ? err.message : '网络错误' })
     }
   },
 
   acknowledge: async (id) => {
-    set({ error: null })
+    set({ loading: true, error: null })
     try {
       const res = await criticalApi.acknowledge(id)
       if (res.success) {
@@ -237,17 +220,18 @@ export const useCriticalStore = create<CriticalState>((set, get) => ({
           values: s.values.map((v) =>
             v.id === id ? { ...v, status: 'acknowledged' as const, acknowledgedAt: new Date().toISOString() } : v
           ),
+          loading: false,
         }))
       } else {
-        set({ error: res.error?.message ?? '确认失败' })
+        set({ loading: false, error: res.error?.message ?? '确认失败' })
       }
     } catch (err) {
-      set({ error: err instanceof Error ? err.message : '网络错误' })
+      set({ loading: false, error: err instanceof Error ? err.message : '网络错误' })
     }
   },
 
   resolve: async (id) => {
-    set({ error: null })
+    set({ loading: true, error: null })
     try {
       const res = await criticalApi.resolve(id)
       if (res.success) {
@@ -262,17 +246,18 @@ export const useCriticalStore = create<CriticalState>((set, get) => ({
           values: s.values.map((v) =>
             v.id === id ? { ...v, status: 'resolved' as const, resolvedAt: new Date().toISOString() } : v
           ),
+          loading: false,
         }))
       } else {
-        set({ error: res.error?.message ?? '闭环失败' })
+        set({ loading: false, error: res.error?.message ?? '闭环失败' })
       }
     } catch (err) {
-      set({ error: err instanceof Error ? err.message : '网络错误' })
+      set({ loading: false, error: err instanceof Error ? err.message : '网络错误' })
     }
   },
 
   notify: async (id, method) => {
-    set({ error: null })
+    set({ loading: true, error: null })
     try {
       const finalMethod = toMachineMethod(method)
       const apiMethod = method ?? 'SYSTEM'
@@ -286,17 +271,18 @@ export const useCriticalStore = create<CriticalState>((set, get) => ({
               ? { ...v, status: 'notified' as const, notifiedAt: new Date().toISOString(), notificationMethod: apiMethod as ApiNotificationMethod }
               : v
           ),
+          loading: false,
         }))
       } else {
-        set({ error: res.error?.message ?? '通知失败' })
+        set({ loading: false, error: res.error?.message ?? '通知失败' })
       }
     } catch (err) {
-      set({ error: err instanceof Error ? err.message : '网络错误' })
+      set({ loading: false, error: err instanceof Error ? err.message : '网络错误' })
     }
   },
 
   escalate: async (id, to) => {
-    set({ error: null })
+    set({ loading: true, error: null })
     try {
       const res = await criticalApi.escalate(id, to, '通知超时')
       if (res.success) {
@@ -308,12 +294,13 @@ export const useCriticalStore = create<CriticalState>((set, get) => ({
               ? { ...v, status: 'escalated' as const, escalatedAt: new Date().toISOString(), escalatedTo: to }
               : v
           ),
+          loading: false,
         }))
       } else {
-        set({ error: res.error?.message ?? '升级失败' })
+        set({ loading: false, error: res.error?.message ?? '升级失败' })
       }
     } catch (err) {
-      set({ error: err instanceof Error ? err.message : '网络错误' })
+      set({ loading: false, error: err instanceof Error ? err.message : '网络错误' })
     }
   },
 }))

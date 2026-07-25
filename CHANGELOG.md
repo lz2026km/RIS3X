@@ -1,4 +1,36 @@
-# CHANGELOG
+﻿# CHANGELOG
+
+## v3.0.6.11-33 (2026-07-25) — BUG 采集管理 + 窗宽窗位审计 + 版本全量同步
+
+> **目标**: 全仓库版本号同步至 v3.0.6.11-33 + 新增 BUG 采集 + 窗宽窗位审计
+> **范围**: 19 处源码 + 17 份文档版本字符串 + 3 份新增审计报告
+
+### 文档同步
+- README.md / CHANGELOG.md / CONTRIBUTING.md → v3.0.6.11-33
+- OPERATIONS_MANUAL.md / BACKUP_RECOVERY.md / DEPLOYMENT_CHECKLIST.md / MONITORING.md → v3.0.6.11-33
+- AUDIT_REPORT_V3.0.6.11-18.md / COVERAGE_REPORT_V3.0.6.11-20.md / FINAL_VERIFICATION_V3.0.6.11-22.md / DEAD_CODE_REPORT_V3.0.6.11-25.md 内部版本号 → v3.0.6.11-33
+- THREE_A_COMPLIANCE.md 版本同步记录表追加 3.0.6.11-33 行
+- ULTIMATE_AUDIT_V3.0.6.11-32.md 标记已归档
+- 新增 ULTIMATE_AUDIT_V3.0.6.11-33.md (终极审计 V3)
+- 新增 BUG_COLLECTION_V3.0.6.11-33.md (BUG 采集管理)
+- 新增 WINDOW_LEVEL_V3.0.6.11-33.md (窗宽窗位审计)
+
+### 源码版本同步
+- package.json (root) → 3.0.6.11-33 + description 同步
+- backend/package.json → 3.0.6.11-33
+- index.html title + `window.__appVersion` → 3.0.6.11-33
+- src/main.tsx → 3.0.6.11-33
+- src/i18n/appI18n.ts + 4 个 locale 文件 → 3.0.6.11-33
+- .env.example → 3.0.6.11-33
+- deploy/index.ts / deploy/helm/values.yaml / deploy/kubernetes.yaml → 3.0.6.11-33
+- 6 个 backend controller header → 3.0.6.11-33
+
+### 新增能力
+- BUG_COLLECTION_V3.0.6.11-33.md — 全量 BUG 采集、分类、修复计划
+- WINDOW_LEVEL_V3.0.6.11-33.md — DICOM 窗宽窗位预设 + 交互全量审计
+- ULTIMATE_AUDIT_V3.0.6.11-33.md — 终极审计 V3 (V2 + BUG 采集 + 窗宽窗位)
+
+---
 
 ## v3.0.6.11-32 (2026-07-22) — 按钮-Tab 真实可达性审计 + 200 路由深度回归
 

@@ -1,5 +1,5 @@
 ﻿/**
- * G005 RIS v3.0.6.11-32 - Notifications Controller
+ * G005 RIS v3.0.6.11-33 - Notifications Controller
  */
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'

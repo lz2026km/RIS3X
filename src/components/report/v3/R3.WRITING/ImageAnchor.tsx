@@ -214,7 +214,7 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
                   <Button size="small" icon={<Maximize2 className="w-3 h-3" />} />
                   {frameMode === 'cine' && (
                     <>
-                      <Button size="small" icon={<Play className="w-3 h-3" />} onClick={() => message.info('播放动态(模拟)')} />
+                      <Button size="small" icon={<Play className="w-3 h-3" />} onClick={() => message.info('播放动态(暂未实现)')} disabled style={{ opacity: 0.5, cursor: 'not-allowed' }} />
                     </>
                   )}
                 </div>
@@ -300,7 +300,7 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
           <div className="flex items-center gap-1 p-1 bg-slate-50 rounded flex-wrap">
             {TOOLS_PANEL.map((tool) => (
               <Tooltip key={tool.key} title={tool.label}>
-                <Button size="small" type="text" icon={<tool.icon className="w-3.5 h-3.5" />} onClick={() => message.info('工具切换(模拟)')} />
+                <Button size="small" type="text" icon={<tool.icon className="w-3.5 h-3.5" />} onClick={() => setActiveTool(tool.key)} />
               </Tooltip>
             ))}
           </div>

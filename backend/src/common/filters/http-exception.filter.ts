@@ -24,9 +24,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const httpStatus = exception instanceof HttpException
       ? exception.getStatus()
       : HttpStatus.INTERNAL_SERVER_ERROR
-    const responseBody = exception instanceof HttpException && httpStatus < 500
+    const isClientError = exception instanceof HttpException && httpStatus < 500
+    const responseBody = isClientError
       ? exception.getResponse()
-      : { message: 'Internal Server Error' }
+      : { message: exception instanceof Error ? exception.message : 'Internal Server Error' }
 
     let message: unknown = 'Internal Server Error'
     let errors: unknown
@@ -63,7 +64,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
       method: request.method,
       timestamp: new Date().toISOString(),
     }
-    if (errors) errorResponse['errors'] = errors
 
     if (httpStatus >= 500) {
       this.logger.error(

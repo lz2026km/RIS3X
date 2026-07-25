@@ -2,7 +2,7 @@
  * G005 放射RIS系统 v3.0.6.1 - AI 算法注册中心
  */
 import React, { useState } from 'react'
-import { Card, Table, Tag, Space, Button, Input, Modal, Form, Select, InputNumber } from 'antd'
+import { Card, Table, Tag, Space, Button, Input, Modal, Form, Select, InputNumber, Empty } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { Plus, Search, Code, GitBranch } from 'lucide-react'
 
@@ -68,6 +68,7 @@ export const AlgorithmRegistry: React.FC<AlgorithmRegistryProps> = ({ algorithms
           columns={columns}
           dataSource={filtered}
           pagination={{ pageSize: 10 }}
+          locale={{ emptyText: <Empty description="暂无匹配算法" /> }}
         />
       </Card>
 

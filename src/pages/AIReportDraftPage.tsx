@@ -3,7 +3,7 @@
 // Phase R4：基于临床病史自动生成报告初稿
 // ============================================================
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { message } from 'antd';
 import {
@@ -45,6 +45,14 @@ export default function AIReportDraftPage() {
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const selectedTemplate = AI_DRAFT_TEMPLATES.find(t => t.id === selectedTemplateId);
 
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, []);
+
   // 生成草稿
   const handleGenerate = async () => {
     if (!clinicalHistory.trim() && !selectedTemplate) {
@@ -66,13 +74,14 @@ export default function AIReportDraftPage() {
     ];
 
     let i = 0;
-    const interval = setInterval(() => {
+    intervalRef.current = setInterval(() => {
       if (i < stages.length) {
         setGenProgress(stages[i].p);
         setGenStage(stages[i].s);
         i++;
       } else {
-        clearInterval(interval);
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        intervalRef.current = null;
         setGenerating(false);
       }
     }, 600);
@@ -84,7 +93,8 @@ export default function AIReportDraftPage() {
         findings: clinicalHistory,
       });
 
-      clearInterval(interval);
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      intervalRef.current = null;
       setGenProgress(100);
       setGenStage('生成完成！');
 
@@ -109,7 +119,8 @@ export default function AIReportDraftPage() {
         throw new Error(res.error?.message || 'AI 生成失败');
       }
     } catch (e: any) {
-      clearInterval(interval);
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      intervalRef.current = null;
       setGenerating(false);
 
       let draft = selectedTemplate;

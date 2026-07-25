@@ -1778,7 +1778,6 @@ const HomePage: FC = () => {
   // ============================================================
   const renderDoctorSchedule = () => {
     // 筛选今日排班
-    // TODO: 使用实际日期替代硬编码
     const todayStr = new Date().toISOString().slice(0, 10)
     const todaySchedule = initialDoctorSchedules.filter(
       s => s.date === todayStr
@@ -1808,7 +1807,7 @@ const HomePage: FC = () => {
             fontSize: 12,
             color: COLORS.textMuted,
           }}>
-             {/* TODO: 使用实际日期替代硬编码 */}{dateString}
+             {dateString}
           </span>
         </div>
 

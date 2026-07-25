@@ -3,7 +3,7 @@
  * 对标:GE DoseWatch - CT/DR/MR 辐射剂量全程追踪
  */
 import React, { useEffect, useMemo, useState } from 'react'
-import { Card, Row, Col, Statistic, Table, Tag, Select } from 'antd'
+import { Card, Row, Col, Statistic, Table, Tag, Select, Empty } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { Activity, AlertTriangle, TrendingUp, Shield } from 'lucide-react'
 import { DoseChart } from './DoseChart'
@@ -140,6 +140,7 @@ export const DoseTracker: React.FC<DoseTrackerProps> = ({ records, onSelectProto
           columns={columns}
           dataSource={data}
           pagination={{ pageSize: 10 }}
+          locale={{ emptyText: <Empty description="暂无剂量记录" /> }}
         />
       </Card>
 

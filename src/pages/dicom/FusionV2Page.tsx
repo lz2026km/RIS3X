@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Layers, Maximize2, Minus, Monitor, Move, Plus, RotateCw, Sun, ZoomIn, ZoomOut, Crosshair, Square, Circle, Pen, Grid3X3 } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
+import { FUSION_CT_WW, FUSION_CT_WL, FUSION_PET_WW, FUSION_PET_WL } from '../../utils/modalityPresets'
 
 type ViewPlane = 'axial' | 'coronal' | 'sagittal'
 type FusionMode = 'pet-ct' | 'mr-dwi' | 'mr-mr'
@@ -358,8 +359,8 @@ export default function FusionV2Page() {
   const [sliceIndex, setSliceIndex] = useState(64)
   const [showCrosshair, setShowCrosshair] = useState(true)
   const [linkedScroll, setLinkedScroll] = useState(true)
-  const [wwl, setWWL] = useState<WWWL>({ ww: 1200, wl: 400 })
-  const [fusionWWL, setFusionWWL] = useState<WWWL>({ ww: 800, wl: 200 })
+  const [wwl, setWWL] = useState<WWWL>({ ww: FUSION_CT_WW, wl: FUSION_CT_WL })
+  const [fusionWWL, setFusionWWL] = useState<WWWL>({ ww: FUSION_PET_WW, wl: FUSION_PET_WL })
   const [viewState, setViewState] = useState<ViewState>({ zoom: 1, panX: 0, panY: 0 })
   const [dragging, setDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
@@ -411,8 +412,8 @@ export default function FusionV2Page() {
   const handleZoomOut = useCallback(() => setViewState(prev => ({ ...prev, zoom: Math.max(0.2, prev.zoom / 1.2) })), [])
   const handleReset = useCallback(() => {
     setViewState({ zoom: 1, panX: 0, panY: 0 })
-    setWWL({ ww: 1200, wl: 400 })
-    setFusionWWL({ ww: 800, wl: 200 })
+    setWWL({ ww: FUSION_CT_WW, wl: FUSION_CT_WL })
+    setFusionWWL({ ww: FUSION_PET_WW, wl: FUSION_PET_WL })
   }, [])
 
   const handleRegister = useCallback(() => {

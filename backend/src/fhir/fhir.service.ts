@@ -4,11 +4,17 @@ import { QueueService } from '../queue/queue.service'
 import { NotificationsGateway } from '../notifications/notifications.gateway'
 import { randomUUID, createHmac } from 'crypto'
 import { setTimeout } from 'timers/promises'
+import { CreatePatientSchema, CreateSubscriptionSchema, UpdatePatientSchema } from './fhir.schema'
+import { z } from 'zod'
+
+type CreatePatientDto = z.infer<typeof CreatePatientSchema>
+type UpdatePatientDto = z.infer<typeof UpdatePatientSchema>
+type CreateSubscriptionDto = z.infer<typeof CreateSubscriptionSchema>
 
 @Injectable()
 export class FhirService implements OnModuleInit {
   private readonly logger = new Logger(FhirService.name)
-  private subscriptions: Map<string, { endpoint: string; criteria: any; channel: any }> = new Map()
+  private subscriptions: Map<string, { endpoint: string; criteria: unknown; channel: Record<string, unknown> }> = new Map()
 
   constructor(
     private readonly prisma: PrismaService,
@@ -54,15 +60,16 @@ export class FhirService implements OnModuleInit {
     return this.Bundle(patients.map((p) => this.toFhirPatient(p)))
   }
 
-  async createPatient(body: any) {
+  async createPatient(body: CreatePatientDto) {
+    const genderMap: Record<string, 'MALE' | 'FEMALE' | 'OTHER'> = { male: 'MALE', female: 'FEMALE', other: 'OTHER', unknown: 'OTHER' }
     const p = await this.prisma.patient.create({
       data: {
-        tenantId: body.tenantId ?? 'default',
-        name: body.name ?? '',
-        gender: body.gender?.toUpperCase() ?? 'OTHER',
+        tenantId: 'default',
+        name: body.name?.[0]?.family ?? '',
+        gender: genderMap[body.gender ?? ''] ?? 'OTHER',
         birthDate: body.birthDate ? new Date(body.birthDate) : null,
-        idCard: body.identifier ?? null,
-        phone: body.phone ?? null,
+        idCard: body.identifier?.[0]?.value ?? null,
+        phone: body.telecom?.find((t) => t.system === 'phone')?.value ?? null,
       },
     })
     const resource = this.toFhirPatient(p)
@@ -71,17 +78,18 @@ export class FhirService implements OnModuleInit {
     return resource
   }
 
-  async updatePatient(id: string, body: any) {
+  async updatePatient(id: string, body: UpdatePatientDto) {
+    const genderMap: Record<string, 'MALE' | 'FEMALE' | 'OTHER'> = { male: 'MALE', female: 'FEMALE', other: 'OTHER', unknown: 'OTHER' }
     const existing = await this.prisma.patient.findUnique({ where: { id } })
     if (!existing) throw new NotFoundException(`Patient ${id} not found`)
     const p = await this.prisma.patient.update({
       where: { id },
       data: {
-        name: body.name ?? existing.name,
-        gender: body.gender?.toUpperCase() ?? existing.gender,
+        name: body.name?.[0]?.family ?? existing.name,
+        gender: body.gender ? genderMap[body.gender] ?? 'OTHER' : existing.gender,
         birthDate: body.birthDate ? new Date(body.birthDate) : existing.birthDate,
-        idCard: body.identifier ?? existing.idCard,
-        phone: body.phone ?? existing.phone,
+        idCard: body.identifier?.[0]?.value ?? existing.idCard,
+        phone: body.telecom?.find((t) => t.system === 'phone')?.value ?? existing.phone,
       },
     })
     return this.toFhirPatient(p)
@@ -204,23 +212,21 @@ export class FhirService implements OnModuleInit {
   }
 
   // ── FHIR Subscription ──────────────────────────────────
-  private validateSubscription(body: any): string[] {
+  private validateSubscription(body: CreateSubscriptionDto): string[] {
     const errors: string[] = []
-    const validStatuses = ['requested', 'active', 'error', 'off']
-    const validChannelTypes = ['rest-hook', 'websocket', 'email', 'sms', 'message']
     if (!body.criteria || typeof body.criteria !== 'string') errors.push('Subscription.criteria is required and must be a string')
     if (!body.channel || typeof body.channel !== 'object') {
       errors.push('Subscription.channel is required')
-    } else if (!body.channel.type || !validChannelTypes.includes(body.channel.type)) {
-      errors.push(`Subscription.channel.type must be one of: ${validChannelTypes.join(', ')}`)
+    } else if (!body.channel.type) {
+      errors.push('Subscription.channel.type is required')
     }
-    if (body.status && !validStatuses.includes(body.status)) {
-      errors.push(`Subscription.status must be one of: ${validStatuses.join(', ')}`)
+    if (body.status && !['requested', 'active', 'error', 'off'].includes(body.status)) {
+      errors.push('Subscription.status must be one of: requested, active, error, off')
     }
     return errors
   }
 
-  async createSubscription(body: any) {
+  async createSubscription(body: CreateSubscriptionDto) {
     const validationErrors = this.validateSubscription(body)
     if (validationErrors.length > 0) {
       throw new BadRequestException({
@@ -232,24 +238,19 @@ export class FhirService implements OnModuleInit {
         })),
       })
     }
-    const id = body.id ?? randomUUID()
     const resource = {
-      resourceType: 'Subscription',
       ...body,
-      id,
-      status: body.status ?? 'active',
-      criteria: body.criteria,
-      channel: body.channel,
+      id: randomUUID(),
     }
     await this.prisma.fhirResource.upsert({
-      where: { id },
+      where: { id: resource.id },
       create: {
-        id,
+        id: resource.id,
         tenantId: 'default',
         resourceType: 'Subscription',
-        content: resource as any,
+        content: resource,
       },
-      update: { content: resource as any, versionId: { increment: 1 } },
+      update: { content: resource, versionId: { increment: 1 } },
     })
     await this.reloadSubscriptions()
     return resource
@@ -286,10 +287,10 @@ export class FhirService implements OnModuleInit {
     return createHmac('sha256', this.hmacSecret()).update(payload).digest('hex')
   }
 
-  private async notifySubscriptions(resourceType: string, resource: any) {
+  private async notifySubscriptions(resourceType: string, resource: Record<string, unknown>) {
     const now = new Date().toISOString()
     for (const [id, sub] of this.subscriptions) {
-      if (!sub.criteria || sub.criteria.includes(resourceType)) {
+      if (!sub.criteria || (typeof sub.criteria === 'string' && sub.criteria.includes(resourceType))) {
         const payload = JSON.stringify({
           resourceType: 'Bundle',
           type: 'notification',
@@ -330,13 +331,13 @@ export class FhirService implements OnModuleInit {
           data: {
             content: {
               ...(sub.channel ? { channel: sub.channel } : {}),
-              criteria: sub.criteria,
+              criteria: String(sub.criteria ?? ''),
               status: 'active',
               _delivery: {
                 lastDeliveryStatus: deliveryOk ? 'success' : 'failed',
                 lastDeliveryAt: now,
               },
-            },
+            } as any,
           },
         }).catch((err) => this.logger.warn(`Failed to update FHIR subscription delivery status: ${(err as Error).message}`))
       }

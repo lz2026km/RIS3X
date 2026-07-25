@@ -6,6 +6,24 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 
+// Module type shims for Cornerstone3D dynamic imports
+interface CsModule {
+  init?: () => void;
+  cache?: { setMaxCacheSize?: (size: number) => void };
+  RenderingEngine?: { getOrCreate?: (id: string) => RenderingEngine | undefined };
+  Enums?: { ViewportType?: Record<string, string> };
+}
+interface RenderingEngine {
+  enableElement: (opts: { viewportId: string; type?: string; element: HTMLElement; defaultOptions?: { background: number[] } }) => void;
+  getViewport: (id: string) => ViewportLike;
+  destroy: () => void;
+}
+interface ViewportLike {
+  destroy?: () => void;
+  setImageIds?: (ids: string[]) => void;
+  setProperties?: (props: Record<string, unknown>) => void;
+}
+
 // 全局状态: Cornerstone3D 初始化状态
 let cornerstoneInitPromise: Promise<boolean> | null = null;
 
@@ -17,18 +35,19 @@ export async function initCornerstone3D(): Promise<boolean> {
       const csTools = await import('@cornerstonejs/tools');
       const csDicom = await import('@cornerstonejs/dicom-image-loader');
 
-      const csDicomImageLoader: any = (csDicom as any).default || csDicom;
+      const csDicomImageLoader = (csDicom as unknown as CsModule).default || csDicom;
       if (csDicomImageLoader?.init) {
         csDicomImageLoader.init();
       }
 
-      if ((csCore as any).cache?.setMaxCacheSize) {
-        (csCore as any).cache.setMaxCacheSize(2 * 1024 * 1024 * 1024);
+      const csCoreModule = csCore as unknown as CsModule;
+      if (csCoreModule.cache?.setMaxCacheSize) {
+        csCoreModule.cache.setMaxCacheSize(2 * 1024 * 1024 * 1024);
       }
 
-      // [v3.0.6.8-34] 初始化工具系统 + 注册标注工具
-      if ((csTools as any).init) {
-        (csTools as any).init();
+      const csToolsModule = csTools as unknown as CsModule;
+      if (csToolsModule.init) {
+        csToolsModule.init();
       }
 
       // 标注工具: Length / Angle / Rectangle / Ellipse / Arrow / Text / Freehand
@@ -73,10 +92,10 @@ export function useViewport(elementId: string, options: {
   imageIds: string[];
   modality?: string;
   preset?: string;
-  onMount?: (viewport: any) => void;
+  onMount?: (viewport: ViewportLike) => void;
 }) {
   const elementRef = useRef<HTMLDivElement | null>(null);
-  const viewportRef = useRef<any>(null);
+  const viewportRef = useRef<ViewportLike | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -99,13 +118,14 @@ export function useViewport(elementId: string, options: {
 
         // [v3.0.6.8-34] 真实 RenderingEngine + viewport 接入
         const element = elementRef.current;
-        const renderingEngine = (csCore as any).RenderingEngine?.getOrCreate?.('eye-rendering-engine');
+        const csCoreModule = csCore as unknown as CsModule;
+        const renderingEngine = csCoreModule.RenderingEngine?.getOrCreate?.('eye-rendering-engine');
         const viewportId = `eye-viewport-${elementId}`;
         if (renderingEngine && element) {
           try {
             renderingEngine.enableElement({
               viewportId,
-              type: (csCore as any).Enums?.ViewportType?.ORTHOGRAPHIC || 'orthographic',
+              type: csCoreModule.Enums?.ViewportType?.ORTHOGRAPHIC || 'orthographic',
               element,
               defaultOptions: { background: [0, 0, 0] },
             });
@@ -125,9 +145,9 @@ export function useViewport(elementId: string, options: {
           setIsLoading(false);
           options.onMount?.(viewportRef.current);
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
         if (mounted) {
-          setError(e.message);
+          setError(e instanceof Error ? e.message : String(e));
           setIsLoading(false);
         }
       }
@@ -135,7 +155,6 @@ export function useViewport(elementId: string, options: {
     run();
     return () => {
       mounted = false;
-      // 清理 viewport
       const vp = viewportRef.current;
       if (vp?.destroy) vp.destroy();
     };

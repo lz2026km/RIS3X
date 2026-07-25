@@ -130,7 +130,7 @@ export class DicomDimseService {
           },
         })
       } catch (e) {
-        this.logger.warn(`Failed to persist DICOM instance: ${(e as Error).message}`)
+        this.logger.error(`Failed to persist DICOM instance metadata: ${(e as Error).message}`, (e as Error).stack)
       }
     }
 
@@ -323,7 +323,8 @@ export class DicomDimseService {
       })
       this.logger.log(`Uploaded to S3: ${url}`)
     } catch (e) {
-      this.logger.warn(`S3 upload failed (simulated): ${(e as Error).message}`)
+      this.logger.error(`S3 upload failed: ${(e as Error).message}`, (e as Error).stack)
+      throw new BadRequestException(`S3 upload failed: ${(e as Error).message}`)
     }
     return { status: 'SUCCESS', url }
   }

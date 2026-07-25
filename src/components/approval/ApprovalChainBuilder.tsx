@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Table, Tag, Space, Typography, Button, Alert, Modal, Form, Input, Select, message, Tooltip, Popconfirm } from 'antd';
+import { Card, Table, Tag, Space, Typography, Button, Alert, Modal, Form, Input, Select, message, Tooltip, Popconfirm, Empty } from 'antd';
 import { GitBranch, Plus, Edit3, Trash2, Copy, CheckCircle2, ArrowUpDown } from 'lucide-react';
 import { approvalChainService } from '../../services/approval/ApprovalChain';
 import type { ApprovalChainTemplate, ApprovalLevel, ApprovalRole } from '../../types/sign';
@@ -155,7 +155,7 @@ export const ApprovalChainBuilder: React.FC<ApprovalChainBuilderProps> = ({ onSe
       style={{ width: '100%' }}
     >
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
-      <Table size="small" dataSource={templates} columns={columns} rowKey="id" pagination={false} />
+      <Table size="small" dataSource={templates} columns={columns} rowKey="id" pagination={false} locale={{ emptyText: <Empty description="暂无审批链" /> }} />
 
       <Modal
         title={editing ? '编辑审批链' : '新建审批链'}

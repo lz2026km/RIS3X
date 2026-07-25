@@ -75,7 +75,7 @@ export const FhirBulkExportDetailPage: React.FC = () => {
         setPreviews(prev => ({ ...prev, [file.type]: text }));
       } else {
         setPreviews(prev => ({ ...prev, [file.type]: DEMO_NDJSON[file.type as keyof typeof DEMO_NDJSON] || '' }));
-        message.info('使用预览模拟数据');
+        message.info('无法加载远程数据，已使用本地演示数据');
       }
     } catch {
       setPreviews(prev => ({ ...prev, [file.type]: DEMO_NDJSON[file.type as keyof typeof DEMO_NDJSON] || '' }));

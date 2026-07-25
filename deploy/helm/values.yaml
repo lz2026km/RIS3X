@@ -1,15 +1,17 @@
-replicaCount: 2
+﻿replicaCount: 2
 
 image:
   repository: g005/ris-backend
-  tag: 3.0.6.11-32
+  tag: 3.0.6.11-33
   pullPolicy: IfNotPresent
+
+imagePullSecrets: []
 
 frontend:
   enabled: true
   image:
     repository: g005/ris-frontend
-    tag: 3.0.6.11-32
+    tag: 3.0.6.11-33
     pullPolicy: IfNotPresent
   port: 8080
   resources:
@@ -28,10 +30,10 @@ service:
 ingress:
   enabled: true
   className: nginx
+  certManager:
+    enabled: false
+    clusterIssuer: letsencrypt-prod
   annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: "200m"
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-  tls:
     - hosts:
         - ris.g005.local
       secretName: g005-ris-tls
@@ -95,6 +97,9 @@ networkPolicy:
     - monitoring
   egressNamespaces:
     - kube-system
+
+pdb:
+  create: true
 
 probes:
   livenessPath: /api/health

@@ -19,7 +19,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
     const activation = super.canActivate(context)
     const allowed = isObservable(activation) ? await lastValueFrom(activation) : await activation
-    if (!allowed) return false
+    if (!allowed) throw new UnauthorizedException()
 
     const allowTotpPending = this.reflector.getAllAndOverride<boolean>(ALLOW_TOTP_PENDING_KEY, [
       context.getHandler(),

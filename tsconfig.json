@@ -46,8 +46,18 @@
       "@types": ["src/types"],
       "@types/*": ["src/types/*"],
       "@i18n": ["src/i18n"],
+      "@i18n/*": ["src/i18n/*"],
       "@machines/*": ["src/machines/*"],
-      "@styles/*": ["src/styles/*"]
+      "@machines": ["src/machines"],
+      "@styles/*": ["src/styles/*"],
+      "@store/*": ["src/store/*"],
+      "@store": ["src/store"],
+      "@observability/*": ["src/observability/*"],
+      "@observability": ["src/observability"],
+      "@security/*": ["src/security/*"],
+      "@security": ["src/security"],
+      "@a11y/*": ["src/a11y/*"],
+      "@a11y": ["src/a11y"]
     },
     "types": ["vite/client", "node", "@testing-library/jest-dom"]
   },

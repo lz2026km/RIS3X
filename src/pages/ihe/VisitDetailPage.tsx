@@ -43,7 +43,7 @@ export const VisitDetailPage: React.FC = () => {
           { id: '3', messageType: 'A08', timestamp: '2026-07-12 09:30:00', content: 'MSH|^~\\&|...' },
         ],
       });
-      message.warning('使用模拟数据');
+      message.warning('无法加载就诊数据，已使用演示数据');
     }
   };
 

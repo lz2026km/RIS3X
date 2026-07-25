@@ -231,7 +231,7 @@ export default defineConfig({
               return 'collab-vendor';
             }
             // 状态机
-            if (id.includes('/xstate/') || id.includes('/@xstate/react/')) {
+            if (id.includes('/xstate/')) {
               return 'xstate-vendor';
             }
             // 工具(已 tree-shake, zustand/decimal.js 等~346KB)
@@ -276,9 +276,13 @@ export default defineConfig({
             if (id.includes('/@sentry/')) {
               return 'sentry-vendor';
             }
-            // docx/exceljs (只在导出页使用)
-            if (id.includes('/docx/') || id.includes('/exceljs/')) {
-              return 'doc-vendor';
+            // docx (Word 导出, ~800KB)
+            if (id.includes('/docx/')) {
+              return 'docx-vendor';
+            }
+            // exceljs (Excel 导出, ~400KB)
+            if (id.includes('/exceljs/')) {
+              return 'exceljs-vendor';
             }
             // tiptap (富文本编辑器)
             if (id.includes('/@tiptap/')) {

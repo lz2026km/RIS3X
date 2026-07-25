@@ -8,11 +8,6 @@ import {
   EXAM_REPORT_PRE, DOCTOR_PERFORMANCE_PRE, DAILY_KPI_PRE,
   COSIGN_TASKS_PRE, QUALITY_SCORE_PRE,
 } from '../../data/_generators';
-// [v3.0.6.11-10] 统一演示数据 (由 unified-fix.mjs 生成, 100% 关联)
-import { GENERATED_CRITICAL_VALUES } from '../../data/unifiedCriticalValues';
-import { KPI_HISTORY } from '../../data/kpiHistory';
-import { SITE_CONFIG } from '../../data/siteMasterMock';
-import { GENERATED_INVOICES } from '../../data/unifiedFinanceMock';
 // [Agent-B.1] Fallback 检查数据 (200 条 RAD-EX001..RAD-EX200)
 import { initialRadiologyExams } from '../../data/initialData';
 // [v3.0.6.12-A4] 危急值种子数据 (规则/级别/升级/KPI) 由 criticalValueMock 提供,
@@ -481,15 +476,26 @@ export async function initStore(): Promise<void> {
     //   assignments (3) / workloads (6) / kpi-personal / sla / sla-config (单条快照)
     seedReviewAssistCollections();
 
-    // [v3.0.6.11-10] 生成的演示数据
+    // [v3.0.6.11-10] 生成的演示数据 (动态导入, 避免大量 mock 数据打入主 bundle)
     try {
-      GENERATED_CRITICAL_VALUES.forEach((cv: any) => getCollection('criticalEvents').set(cv.id, cv));
-      KPI_HISTORY && Object.entries(KPI_HISTORY).forEach(([kpiId, days]) => {
-        days.forEach((d: any) => getCollection('kpiHistory').set(`${kpiId}-${d.date}`, d));
+      const [
+        { GENERATED_CRITICAL_VALUES: cv },
+        { KPI_HISTORY: kpiH },
+        { GENERATED_INVOICES: inv },
+        { SITE_CONFIG: sc },
+      ] = await Promise.all([
+        import('../../data/unifiedCriticalValues'),
+        import('../../data/kpiHistory'),
+        import('../../data/unifiedFinanceMock'),
+        import('../../data/siteMasterMock'),
+      ]);
+      cv.forEach((cvItem: any) => getCollection('criticalEvents').set(cvItem.id, cvItem));
+      kpiH && Object.entries(kpiH).forEach(([kpiId, days]) => {
+        (days as any[]).forEach((d: any) => getCollection('kpiHistory').set(`${kpiId}-${d.date}`, d));
       });
-      GENERATED_INVOICES && GENERATED_INVOICES.forEach((inv: any) => getCollection('invoices').set(inv.invoiceId, inv));
-      SITE_CONFIG && SITE_CONFIG.forEach((s: any) => getCollection('sites').set(s.siteId, s));
-      console.info(`[RIS Seed] 加载了 ${GENERATED_CRITICAL_VALUES.length} 条危急值, ${Object.keys(KPI_HISTORY||{}).length} 个KPI, ${(GENERATED_INVOICES||[]).length} 张发票, ${(SITE_CONFIG||[]).length} 个院区`);
+      inv && inv.forEach((invItem: any) => getCollection('invoices').set(invItem.invoiceId, invItem));
+      sc && sc.forEach((s: any) => getCollection('sites').set(s.siteId, s));
+      console.info(`[RIS Seed] 加载了 ${cv.length} 条危急值, ${Object.keys(kpiH||{}).length} 个KPI, ${(inv||[]).length} 张发票, ${(sc||[]).length} 个院区`);
     } catch (e) {
       console.warn('[RIS Seed] 部分演示数据加载失败（不影响运行）:', (e as Error).message);
     }
@@ -576,6 +582,33 @@ export async function initStore(): Promise<void> {
   return initPromise;
 }
 
+// [v3.0.6.12-B5] 延迟加载模块 (用于同步路径, 避免静态导入大 mock 数据)
+let _heavyDataPromise: Promise<void> | null = null;
+function loadHeavyDataAsync(): void {
+  if (_heavyDataPromise) return;
+  _heavyDataPromise = (async () => {
+    try {
+      const [
+        { GENERATED_CRITICAL_VALUES: cv },
+        { KPI_HISTORY: kpiH },
+        { GENERATED_INVOICES: inv },
+        { SITE_CONFIG: sc },
+      ] = await Promise.all([
+        import('../../data/unifiedCriticalValues'),
+        import('../../data/kpiHistory'),
+        import('../../data/unifiedFinanceMock'),
+        import('../../data/siteMasterMock'),
+      ]);
+      cv.forEach((cvItem: any) => getCollection('criticalEvents').set(cvItem.id, cvItem));
+      kpiH && Object.entries(kpiH).forEach(([kpiId, days]) => {
+        (days as any[]).forEach((d: any) => getCollection('kpiHistory').set(`${kpiId}-${d.date}`, d));
+      });
+      inv && inv.forEach((invItem: any) => getCollection('invoices').set(invItem.invoiceId, invItem));
+      sc && sc.forEach((s: any) => getCollection('sites').set(s.siteId, s));
+    } catch (e) { console.warn('[RIS Seed] 重数据同步加载跳过:', (e as Error).message); }
+  })();
+}
+
 // ==================== 同步初始化 (用于同步代码路径) ====================
 export function ensureInitialized(): void {
   if (initialized) return;
@@ -592,15 +625,8 @@ export function ensureInitialized(): void {
   COSIGN_TASKS_PRE.forEach(c => getCollection('cosignTasks').set(c.id, c));
   DOCTOR_PERFORMANCE_PRE.forEach(d => getCollection('doctorPerformance').set(d.id, d));
   DAILY_KPI_PRE.forEach(d => getCollection('dailyKpi').set(d.date, d));
-  // [v3.0.6.11-10] 同步加载部分生成数据
-  try {
-    GENERATED_CRITICAL_VALUES.forEach((cv: any) => getCollection('criticalEvents').set(cv.id, cv));
-    if (KPI_HISTORY) Object.entries(KPI_HISTORY).forEach(([kpiId, days]) => {
-      (days as any[]).forEach((d: any) => getCollection('kpiHistory').set(`${kpiId}-${d.date}`, d));
-    });
-    if (GENERATED_INVOICES) GENERATED_INVOICES.forEach((inv: any) => getCollection('invoices').set(inv.invoiceId, inv));
-    if (SITE_CONFIG) SITE_CONFIG.forEach((s: any) => getCollection('sites').set(s.siteId, s));
-  } catch (e) { console.warn('[RIS Seed] 同步加载警告:', (e as Error).message); }
+  // [v3.0.6.12-B5] 重数据异步加载 (不阻塞同步路径, 首次 list/get 会触发)
+  loadHeavyDataAsync();
   // [v3.0.6.12-A4] 危急值元数据 (规则/级别/升级/KPI) 同步加载
   CRITICAL_RULES.forEach(r => getCollection('criticalRules').set(r.id, r));
   CRITICAL_LEVELS.forEach(l => getCollection('criticalLevels').set(l.level, l));

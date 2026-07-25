@@ -3,7 +3,7 @@
  * 对标:Siemens syngo.via Cardiac - EF/EDV/ESV/SV/CO + 室壁运动
  */
 import React, { useMemo, useState } from 'react'
-import { Card, Row, Col, Table, Tag, Statistic, Progress, Tabs, Space, Badge } from 'antd'
+import { Card, Row, Col, Table, Tag, Statistic, Progress, Tabs, Space, Badge, Empty } from 'antd'
 import { Heart, Activity, Droplet, Zap, GitBranch } from 'lucide-react'
 
 export type WallMotionGrade = 'NORMAL' | 'HYPOKINESIS' | 'AKINESIS' | 'DYSKINESIS'
@@ -244,6 +244,7 @@ export const Cardiac: React.FC<CardiacProps> = ({ onSelectPatient }) => {
               dataSource={MOCK_PATIENTS}
               columns={patientColumns}
               pagination={false}
+              locale={{ emptyText: <Empty description="暂无心功能数据" /> }}
               rowClassName={(r) => (r.id === selected ? 'ant-table-row-selected' : '')}
               onRow={(record) => ({
                 onClick: () => {
@@ -298,6 +299,7 @@ export const Cardiac: React.FC<CardiacProps> = ({ onSelectPatient }) => {
                         dataSource={current.segments}
                         columns={segmentColumns}
                         pagination={false}
+                        locale={{ emptyText: <Empty description="暂无室壁数据" /> }}
                       />
                     ),
                   },

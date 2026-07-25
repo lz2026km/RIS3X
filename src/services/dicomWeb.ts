@@ -192,9 +192,12 @@ export const WINDOW_PRESETS_DETAILED: Record<string, { ww: number; wc: number; m
   MR_DWI:        { ww: 1500, wc: 750, modality: ['MR'], description: 'MR DWI 窗' },
   DR_CHEST:      { ww: 2500, wc: 1250, modality: ['DR'], description: 'DR 胸片窗' },
   DR_BONE:       { ww: 2000, wc: 500, modality: ['DR'], description: 'DR 骨窗' },
+  DR_ABDOMEN:    { ww: 1800, wc: 900, modality: ['DR'], description: 'DR 腹部窗' },
   MG_DEFAULT:    { ww: 2500, wc: 1250, modality: ['MG'], description: 'MG 乳腺窗' },
   US_DEFAULT:    { ww: 255, wc: 128, modality: ['US'], description: 'US 腹部窗' },
   PT_DEFAULT:    { ww: 5000, wc: 2500, modality: ['PT'], description: 'PET 默认窗' },
+  CBCT_BONE:     { ww: 2500, wc: 1200, modality: ['CBCT'], description: 'CBCT 骨窗' },
+  CBCT_SOFT:     { ww: 800, wc: 400, modality: ['CBCT'], description: 'CBCT 软组织窗' },
 };
 
 export const WINDOW_PRESETS_LIST = Object.entries(WINDOW_PRESETS_DETAILED).map(([key, val]) => ({

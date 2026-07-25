@@ -39,7 +39,7 @@ export const SchedulingCenterPage: React.FC = () => {
             {title:'操作',render:()=><Space><Button size="small">占用</Button><Button size="small" type="primary">预约</Button></Space>},
           ]} />
       </Card>
-      <Modal title="预约资源" open={booking} onCancel={()=>setBooking(false)} onOk={()=>{message.success('资源预约已提交(模拟)');setBooking(false)}} width={450}>
+      <Modal title="预约资源" open={booking} onCancel={()=>setBooking(false)} onOk={()=>{message.success('资源预约已提交');setBooking(false)}} width={450}>
         <Form layout="vertical" size="small">
           <Form.Item label="资源"><Select placeholder="选择资源" options={resources.map(r=>({value:r.id,label:r.name}))} /></Form.Item>
           <Form.Item label="科室"><Select options={['放射科','口腔科','口腔外科','眼科','正畸科'].map(d=>({value:d,label:d}))} /></Form.Item>

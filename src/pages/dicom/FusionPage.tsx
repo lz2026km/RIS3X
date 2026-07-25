@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Layers, Maximize2, Minus, Monitor, Move, Plus, RotateCw, Sun, ZoomIn, ZoomOut } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
+import { FUSION_CT_WW, FUSION_CT_WL, FUSION_PET_WW, FUSION_PET_WL } from '../../utils/modalityPresets'
 
 type ViewPlane = 'axial' | 'coronal' | 'sagittal'
 type FusionMode = 'pet-ct' | 'mr-dwi'
@@ -237,8 +238,8 @@ export default function FusionPage() {
   const [plane, setPlane] = useState<ViewPlane>('axial')
   const [sliceIndex, setSliceIndex] = useState(64)
   const [showCrosshair, setShowCrosshair] = useState(true)
-  const [wwl, setWWL] = useState<WWWL>({ ww: 1200, wl: 400 })
-  const [fusionWWL, setFusionWWL] = useState<WWWL>({ ww: 800, wl: 200 })
+  const [wwl, setWWL] = useState<WWWL>({ ww: FUSION_CT_WW, wl: FUSION_CT_WL })
+  const [fusionWWL, setFusionWWL] = useState<WWWL>({ ww: FUSION_PET_WW, wl: FUSION_PET_WL })
   const [viewState, setViewState] = useState<ViewState>({ zoom: 1, panX: 0, panY: 0 })
   const [dragging, setDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
@@ -289,8 +290,8 @@ export default function FusionPage() {
 
   const handleReset = useCallback(() => {
     setViewState({ zoom: 1, panX: 0, panY: 0 })
-    setWWL({ ww: 1200, wl: 400 })
-    setFusionWWL({ ww: 800, wl: 200 })
+    setWWL({ ww: FUSION_CT_WW, wl: FUSION_CT_WL })
+    setFusionWWL({ ww: FUSION_PET_WW, wl: FUSION_PET_WL })
   }, [])
 
   const btnStyle: React.CSSProperties = {

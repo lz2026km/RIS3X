@@ -2,7 +2,7 @@
  * G005 放射RIS系统 v3.0.6.1 - Canon Vitrea Cardiac (冠脉分析)
  */
 import React, { useMemo, useState } from 'react'
-import { Card, Row, Col, Tag, Statistic, Table, Space } from 'antd'
+import { Card, Row, Col, Tag, Statistic, Table, Space, Empty } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { Heart, Activity, GitBranch } from 'lucide-react'
 
@@ -127,6 +127,7 @@ export const Cardiac: React.FC = () => {
           columns={columns}
           dataSource={list}
           pagination={false}
+          locale={{ emptyText: <Empty description="暂无冠脉数据" /> }}
         />
       </Card>
     </div>

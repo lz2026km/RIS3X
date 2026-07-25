@@ -1,5 +1,12 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import { CreateCriticalRuleSchema, UpdateCriticalRuleSchema, AutoDetectCriticalSchema, CloseCriticalLoopSchema } from './criticalext.schema'
+import { z } from 'zod'
+
+type CreateCriticalRuleDto = z.infer<typeof CreateCriticalRuleSchema>
+type UpdateCriticalRuleDto = z.infer<typeof UpdateCriticalRuleSchema>
+type AutoDetectCriticalDto = z.infer<typeof AutoDetectCriticalSchema>
+type CloseCriticalLoopDto = z.infer<typeof CloseCriticalLoopSchema>
 
 @Injectable()
 export class CriticalExtService {
@@ -10,13 +17,13 @@ export class CriticalExtService {
     return { data }
   }
 
-  async createCriticalRule(body: any) {
-    const data = await this.prisma.systemConfig.create({ data: { key: `critical_rule_${Date.now()}`, value: body } })
+  async createCriticalRule(body: CreateCriticalRuleDto) {
+    const data = await this.prisma.systemConfig.create({ data: { key: `critical_rule_${Date.now()}`, value: body as any } })
     return { data: [data] }
   }
 
-  async updateCriticalRule(id: string, body: any) {
-    const data = await this.prisma.systemConfig.update({ where: { key: id }, data: { value: body } })
+  async updateCriticalRule(id: string, body: UpdateCriticalRuleDto) {
+    const data = await this.prisma.systemConfig.update({ where: { key: id }, data: { value: body as any } })
     return { data: [data] }
   }
 
@@ -52,14 +59,14 @@ export class CriticalExtService {
     return { data: data ? [data] : [] }
   }
 
-  async autoDetectCritical(body: any) {
-    const data = await this.prisma.criticalValue.create({ data: body })
+  async autoDetectCritical(body: AutoDetectCriticalDto) {
+    const data = await this.prisma.criticalValue.create({ data: body as any })
     return { data: [data] }
   }
 
-  async closeCriticalLoop(body: any) {
-    const { id, ...rest } = body
-    const data = await this.prisma.criticalValue.update({ where: { id }, data: { state: 'RESOLVED', ...rest } })
+  async closeCriticalLoop(body: CloseCriticalLoopDto) {
+    const { criticalId, resolution, ...rest } = body
+    const data = await this.prisma.criticalValue.update({ where: { id: criticalId }, data: { state: 'RESOLVED', ...rest } as any })
     return { data: [data] }
   }
 

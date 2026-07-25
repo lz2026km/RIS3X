@@ -39,6 +39,25 @@ interface SafetyState {
   closeCqi: (id: string) => Promise<void>
 }
 
+let _loadCount = 0
+
+function startLoading(set: (partial: Partial<SafetyState>) => void) {
+  _loadCount++
+  if (_loadCount === 1) set({ loading: true })
+}
+
+function endLoading(set: (partial: Partial<SafetyState>) => void) {
+  _loadCount--
+  if (_loadCount <= 0) { _loadCount = 0; set({ loading: false }) }
+}
+
+function createLoadWrapper<S extends Record<string, unknown>>(set: (partial: Partial<SafetyState>) => void, fn: () => Promise<void>): () => Promise<void> {
+  return async () => {
+    startLoading(set)
+    try { await fn() } finally { endLoading(set) }
+  }
+}
+
 export const useSafetyStore = create<SafetyState>((set, get) => ({
   adverseEvents: [],
   rcaInvestigations: [],
@@ -48,35 +67,41 @@ export const useSafetyStore = create<SafetyState>((set, get) => ({
   loading: false,
   error: null,
 
-  ...createCrudStore<AdverseEvent>({
-    field: 'adverseEvents',
-    label: '不良事件',
-    api: { list: getAdverseEvents, create: createAdverseEvent, update: updateAdverseEvent, delete: deleteAdverseEvent },
-  })(set, get),
-
-  ...createCrudStore<RcaInvestigation>({
-    field: 'rcaInvestigations',
-    label: 'RCA调查',
-    api: { list: getRcaInvestigations, create: createRcaInvestigation },
-  })(set, get),
-
-  ...createCrudStore<RiskItem>({
-    field: 'riskItems',
-    label: '风险项',
-    api: { list: getRiskItems, create: createRiskItem },
-  })(set, get),
-
-  ...createCrudStore<CqiProject>({
-    field: 'cqiProjects',
-    label: 'CQI项目',
-    api: { list: getCqiDashboard, create: createCqiProject },
-  })(set, get),
-
-  ...createCrudStore<PatientSafetyGoal>({
-    field: 'safetyGoals',
-    label: '安全目标',
-    api: { list: getPatientSafetyGoals },
-  })(set, get),
+  ...(function buildSafeCruds() {
+    const ae = createCrudStore<AdverseEvent>({
+      field: 'adverseEvents', label: '不良事件',
+      api: { list: getAdverseEvents, create: createAdverseEvent, update: updateAdverseEvent, delete: deleteAdverseEvent },
+    })(set, get)
+    const rca = createCrudStore<RcaInvestigation>({
+      field: 'rcaInvestigations', label: 'RCA调查',
+      api: { list: getRcaInvestigations, create: createRcaInvestigation },
+    })(set, get)
+    const ri = createCrudStore<RiskItem>({
+      field: 'riskItems', label: '风险项',
+      api: { list: getRiskItems, create: createRiskItem },
+    })(set, get)
+    const cqi = createCrudStore<CqiProject>({
+      field: 'cqiProjects', label: 'CQI项目',
+      api: { list: getCqiDashboard, create: createCqiProject },
+    })(set, get)
+    const sg = createCrudStore<PatientSafetyGoal>({
+      field: 'safetyGoals', label: '安全目标',
+      api: { list: getPatientSafetyGoals },
+    })(set, get)
+    return {
+      loadAdverseEvents: createLoadWrapper(set, ae.loadAdverseEvents!),
+      loadRcaInvestigations: createLoadWrapper(set, rca.loadRcaInvestigations!),
+      loadRiskItems: createLoadWrapper(set, ri.loadRiskItems!),
+      loadCqiProjects: createLoadWrapper(set, cqi.loadCqiProjects!),
+      loadSafetyGoals: createLoadWrapper(set, sg.loadSafetyGoals!),
+      createAdverseEvent: ae.createAdverseEvent!,
+      updateAdverseEvent: ae.updateAdverseEvent!,
+      deleteAdverseEvent: ae.deleteAdverseEvent!,
+      createRcaInvestigation: rca.createRcaInvestigation!,
+      createRiskItem: ri.createRiskItem!,
+      createCqiProject: cqi.createCqiProject!,
+    }
+  })(),
 
   closeRca: async (id) => {
     set({ loading: true, error: null })
@@ -88,9 +113,7 @@ export const useSafetyStore = create<SafetyState>((set, get) => ({
       if (!result) throw new Error('关闭RCA失败')
       await get().loadRcaInvestigations()
     } catch (err) {
-      set({ error: err instanceof Error ? err.message : '关闭RCA失败' })
-    } finally {
-      set({ loading: false })
+      set({ loading: false, error: err instanceof Error ? err.message : '关闭RCA失败' })
     }
   },
 
@@ -101,9 +124,7 @@ export const useSafetyStore = create<SafetyState>((set, get) => ({
       if (!result) throw new Error('更新风险缓解失败')
       await get().loadRiskItems()
     } catch (err) {
-      set({ error: err instanceof Error ? err.message : '更新风险缓解失败' })
-    } finally {
-      set({ loading: false })
+      set({ loading: false, error: err instanceof Error ? err.message : '更新风险缓解失败' })
     }
   },
 
@@ -114,9 +135,7 @@ export const useSafetyStore = create<SafetyState>((set, get) => ({
       if (!result) throw new Error('关闭CQI项目失败')
       await get().loadCqiProjects()
     } catch (err) {
-      set({ error: err instanceof Error ? err.message : '关闭CQI项目失败' })
-    } finally {
-      set({ loading: false })
+      set({ loading: false, error: err instanceof Error ? err.message : '关闭CQI项目失败' })
     }
   },
 }))

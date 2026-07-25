@@ -3,7 +3,7 @@
 // 功能：课题管理 / 数据抽取 / 标签管理 / 导出管理
 // 新增：DICOM脱敏引擎 / 队列构建器 / IRB工作流 / 数据导出管线 / 数据质量看板
 // ============================================================
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import {
   FlaskConical, Plus, X, Search, Edit2, Trash2, Download, Tag, Folder, FileText, Calendar, User, Clock,
   Eye, EyeOff, AlertCircle,
@@ -371,11 +371,14 @@ function ExtractTab() {
   const [selectedExamTypes, setSelectedExamTypes] = useState<ExamType[]>([])
   const [showExtractModal, setShowExtractModal] = useState(false)
   const [extractProgress, setExtractProgress] = useState(0)
+  const extractIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const extractMountedRef = useRef(true)
+  useEffect(() => { extractMountedRef.current = true; return () => { extractMountedRef.current = false; if (extractIntervalRef.current) clearInterval(extractIntervalRef.current) } }, [])
   const examTypeOptions: ExamType[] = ['CT', 'MR', 'DXR', 'US', 'MG', 'PET', 'SPECT']
   const toggleExamType = (type: ExamType) => { setSelectedExamTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]) }
   const handleExtract = () => {
     setShowExtractModal(true); setExtractProgress(0)
-    const interval = setInterval(() => { setExtractProgress(prev => { if (prev >= 100) { clearInterval(interval); setTimeout(() => { setShowExtractModal(false); showToast(`数据抽取完成，共处理 ${mockExamRecords.length} 条记录`, 'success') }, 500); return 100 }; return prev + Math.floor(Math.random() * 15) + 5 }) }, 300)
+    extractIntervalRef.current = setInterval(() => { setExtractProgress(prev => { if (prev >= 100) { if (extractIntervalRef.current) clearInterval(extractIntervalRef.current); extractIntervalRef.current = null; setTimeout(() => { if (extractMountedRef.current) { setShowExtractModal(false); showToast(`数据抽取完成，共处理 ${mockExamRecords.length} 条记录`, 'success') } }, 500); return 100 }; return prev + Math.floor(Math.random() * 15) + 5 }) }, 300)
   }
   return (
     <div>
@@ -742,10 +745,13 @@ function ExportPipelineTab() {
   const [auditLog] = useState(mockExportAudit)
   const [showProgress, setShowProgress] = useState(false)
   const [progress, setProgress] = useState(0)
+  const exportIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const exportMountedRef = useRef(true)
+  useEffect(() => { exportMountedRef.current = true; return () => { exportMountedRef.current = false; if (exportIntervalRef.current) clearInterval(exportIntervalRef.current) } }, [])
 
   const runExport = () => {
     setShowProgress(true); setProgress(0)
-    const interval = setInterval(() => { setProgress(prev => { if (prev >= 100) { clearInterval(interval); setTimeout(() => { setShowProgress(false); showToast(`导出完成 (CSV, 320条记录, 含数据字典)`, 'success') }, 500); return 100 }; return prev + Math.floor(Math.random() * 20) + 5 }) }, 200)
+    exportIntervalRef.current = setInterval(() => { setProgress(prev => { if (prev >= 100) { if (exportIntervalRef.current) clearInterval(exportIntervalRef.current); exportIntervalRef.current = null; setTimeout(() => { if (exportMountedRef.current) { setShowProgress(false); showToast(`导出完成 (CSV, 320条记录, 含数据字典)`, 'success') } }, 500); return 100 }; return prev + Math.floor(Math.random() * 20) + 5 }) }, 200)
   }
 
   return (

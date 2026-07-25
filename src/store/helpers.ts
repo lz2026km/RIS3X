@@ -50,21 +50,19 @@ export function createCrudStore<Dto>(config: CrudStoreConfig<Dto>) {
       try {
         const res = await config.api.list()
         if (Array.isArray(res)) {
-          set({ [config.field]: res, error: null })
+          set({ [config.field]: res, loading: false, error: null })
         } else if (res && typeof res === 'object' && 'success' in res) {
           const r = res as { success: boolean; data?: Dto[]; error?: { message?: string } }
           if (r.success && Array.isArray(r.data)) {
-            set({ [config.field]: r.data, error: null })
+            set({ [config.field]: r.data, loading: false, error: null })
           } else {
-            set({ error: r.error?.message ?? loadError })
+            set({ loading: false, error: r.error?.message ?? loadError })
           }
         } else {
-          set({ error: loadError })
+          set({ loading: false, error: loadError })
         }
       } catch (err) {
-        set({ error: errorMessage(err, loadError) })
-      } finally {
-        set({ loading: false })
+        set({ loading: false, error: errorMessage(err, loadError) })
       }
     }
 
@@ -81,9 +79,7 @@ export function createCrudStore<Dto>(config: CrudStoreConfig<Dto>) {
           assertMutationResult(result, failure)
           await load()
         } catch (err) {
-          set({ error: errorMessage(err, failure) })
-        } finally {
-          set({ loading: false })
+          set({ loading: false, error: errorMessage(err, failure) })
         }
       }
     }
@@ -97,9 +93,7 @@ export function createCrudStore<Dto>(config: CrudStoreConfig<Dto>) {
           assertMutationResult(result, failure)
           await load()
         } catch (err) {
-          set({ error: errorMessage(err, failure) })
-        } finally {
-          set({ loading: false })
+          set({ loading: false, error: errorMessage(err, failure) })
         }
       }
     }
@@ -113,9 +107,7 @@ export function createCrudStore<Dto>(config: CrudStoreConfig<Dto>) {
           assertMutationResult(result, failure)
           await load()
         } catch (err) {
-          set({ error: errorMessage(err, failure) })
-        } finally {
-          set({ loading: false })
+          set({ loading: false, error: errorMessage(err, failure) })
         }
       }
     }

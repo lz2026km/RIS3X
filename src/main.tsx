@@ -1,4 +1,4 @@
-// v3.0.6.11-7: 全面功能对齐版 - 251 endpoint + 12 store + 40 报表 + AI 洞察
+﻿// v3.0.6.11-7: 全面功能对齐版 - 251 endpoint + 12 store + 40 报表 + AI 洞察
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
@@ -14,7 +14,7 @@ import "./styles/transitions.css";
 import "./styles/responsive.css";
 import "./styles/z-index.css";
 
-const APP_VERSION = "3.0.6.11-32";
+const APP_VERSION = "3.0.6.11-33";
 console.info(`[v${APP_VERSION}] === BOOT START ===`);
 console.info(`[v${APP_VERSION}] Location:`, window.location.href);
 

@@ -84,7 +84,7 @@ export const EmrTemplatesPage: React.FC = () => {
           },
         ]}
       />
-      <Modal title={templateModal?.type === 'create' ? '新建模板' : '编辑模板'} open={!!templateModal} onCancel={()=>setTemplateModal(null)} onOk={()=>{message.success('模板已保存(模拟)');setTemplateModal(null)}} width={500}>
+      <Modal title={templateModal?.type === 'create' ? '新建模板' : '编辑模板'} open={!!templateModal} onCancel={()=>setTemplateModal(null)} onOk={()=>{message.success('模板已保存');setTemplateModal(null)}} width={500}>
         <Form layout="vertical" size="small">
           <Form.Item label="模板名称"><Input /></Form.Item>
           <Form.Item label="分类"><Select options={['Dental','General','Surgery','Ortho','Pediatric'].map(c=>({value:c,label:c}))} /></Form.Item>

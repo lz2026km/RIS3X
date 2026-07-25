@@ -213,7 +213,7 @@ interface BoneAgeRecord {
 }
 
 // ============================================================
-// 模拟数据
+// 演示数据
 // ============================================================
 
 /** AI诊断推荐数据 */
@@ -1231,7 +1231,7 @@ interface GrowthCurveProps {
 }
 
 const GrowthCurve: React.FC<GrowthCurveProps> = ({ currentHeight, currentWeight, age, gender, geneticHeight }) => {
-  // 模拟生长曲线数据点
+  // 生长曲线数据点
   const heightCurvePoints = gender === '男'
     ? [[2, 85], [4, 103], [6, 117], [8, 130], [10, 140], [12, 150], [14, 165], [16, 172], [18, 175]]
     : [[2, 83], [4, 101], [6, 115], [8, 127], [10, 138], [12, 148], [14, 158], [16, 162], [18, 164]]
@@ -1774,7 +1774,7 @@ const AIAssistPage: React.FC = () => {
                 border: `1px solid ${COLORS.border}`,
                 position: 'relative'
               }}>
-                {/* 模拟DICOM图像区域 */}
+                {/* DICOM图像区域 */}
                 <div style={{
                   width: '100%',
                   aspectRatio: '16/10',
@@ -1786,7 +1786,7 @@ const AIAssistPage: React.FC = () => {
                   position: 'relative',
                   overflow: 'hidden'
                 }}>
-                  {/* 模拟CT横断面 */}
+                  {/* CT横断面示意 */}
                   <div style={{
                     width: '80%',
                     height: '80%',

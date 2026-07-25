@@ -3,7 +3,7 @@
  * T1/T2 mapping + 钆延迟强化 (LGE)
  */
 import React, { useMemo, useState } from 'react'
-import { Card, Row, Col, Tag, Statistic, Table, Space } from 'antd'
+import { Card, Row, Col, Tag, Statistic, Table, Space, Empty } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { Heart, Droplet, Activity } from 'lucide-react'
 
@@ -132,6 +132,7 @@ export const CMR42: React.FC<CMR42Props> = ({ patients = MOCK }) => {
           columns={columns}
           dataSource={list}
           pagination={false}
+          locale={{ emptyText: <Empty description="暂无 CMR 数据" /> }}
         />
       </Card>
     </div>

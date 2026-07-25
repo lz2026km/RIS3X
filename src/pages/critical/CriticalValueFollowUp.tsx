@@ -274,7 +274,7 @@ export const FollowUpTab = ({ cv, mockRecords }: FollowUpTabProps) => {
         followUpDate: new Date().toISOString().split("T")[0],
         notes: cv.findingDetails.substring(0, 100),
       });
-      message.success(`回访记录已创建(ID: ${result.data?.id || "模拟ID"})`);
+      message.success(`回访记录已创建(ID: ${result.data?.id || "待同步"})`);
     } catch {
       const fallbackId = `FU${Date.now().toString().slice(-8)}`;
       message.success(`回访记录已创建(${fallbackId})`);

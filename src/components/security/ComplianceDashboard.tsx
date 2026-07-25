@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { Card, Row, Col, Statistic, Tag, Table, Progress, Typography, Alert, Space, Tabs } from 'antd'
+import { Card, Row, Col, Statistic, Tag, Table, Progress, Typography, Alert, Space, Tabs, Empty } from 'antd'
 import { Shield, CheckCircle, XCircle, AlertTriangle, BarChart3, Activity, Target, Award } from 'lucide-react'
 import { mlpsService } from '../../services/compliance/mlps/MlpsService'
 import { hipaaService } from '../../services/compliance/hipaa/HipaaService'
@@ -23,7 +23,7 @@ export default function ComplianceDashboard() {
           <Col key={area} span={6}><Card size="small" title={area}><Progress percent={s.score} size="small" format={p => `${p}%`} /></Card></Col>
         ))}
       </Row>
-      <Table dataSource={mlps.items} rowKey="id" size="small" pagination={false} scroll={{ y: 300 }}
+      <Table dataSource={mlps.items} rowKey="id" size="small" pagination={false} scroll={{ y: 300 }} locale={{ emptyText: <Empty description="暂无等保数据" /> }}
         columns={[
           { title: '控制项', dataIndex: 'control', key: 'control', width: 120 },
           { title: '领域', dataIndex: 'area', key: 'area', width: 80, render: (v: string) => <Tag>{v}</Tag> },
@@ -45,7 +45,7 @@ export default function ComplianceDashboard() {
         <Col span={8}><Card size="small"><Statistic title="隐私规则" value={hipaa.privacyScore} suffix="/100" prefix={<Shield size={14} />} /></Card></Col>
         <Col span={8}><Card size="small"><Statistic title="安全规则" value={hipaa.securityScore} suffix="/100" prefix={<Activity size={14} />} /></Card></Col>
       </Row>
-      <Table dataSource={hipaa.safeguards} rowKey="id" size="small" pagination={false} scroll={{ y: 300 }}
+      <Table dataSource={hipaa.safeguards} rowKey="id" size="small" pagination={false} scroll={{ y: 300 }} locale={{ emptyText: <Empty description="暂无 HIPAA 数据" /> }}
         columns={[
           { title: '措施', dataIndex: 'name', key: 'name', width: 200 },
           { title: '类型', dataIndex: 'category', key: 'category', width: 100, render: (v: string) => <Tag>{v}</Tag> },
@@ -65,7 +65,7 @@ export default function ComplianceDashboard() {
         <Col span={8}><Card size="small"><Statistic title="已接受风险" value={iso.risksAccepted} prefix={<CheckCircle size={14} color="green" />} /></Card></Col>
         <Col span={8}><Card size="small"><Statistic title="已处理风险" value={iso.risksTreated} prefix={<Activity size={14} color="blue" />} /></Card></Col>
       </Row>
-      <Table dataSource={iso.controls} rowKey="id" size="small" pagination={false} scroll={{ y: 300 }}
+      <Table dataSource={iso.controls} rowKey="id" size="small" pagination={false} scroll={{ y: 300 }} locale={{ emptyText: <Empty description="暂无 ISO 数据" /> }}
         columns={[
           { title: '控制 ID', dataIndex: 'id', key: 'id', width: 80 },
           { title: '控制', dataIndex: 'control', key: 'control', width: 150 },

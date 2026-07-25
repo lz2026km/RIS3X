@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 import { AlertTriangle, Zap, Monitor, Clock, Move, Sparkles } from 'lucide-react'
 import { initialModalityDevices } from '../../data/initialData'
 import type { RadiologyExam } from '../../types'
@@ -72,6 +72,136 @@ const calculatePriority = (exam: RadiologyExam): PriorityScore => {
   return { level: '低', score: totalScore, color: '#059669', bg: '#d1fae5' }
 }
 
+interface KanbanCardProps {
+  exam: RadiologyExam
+  isDragging: boolean
+  draggedExamId: string | null
+  onDragStart: (e: React.DragEvent, exam: RadiologyExam) => void
+  onDragEnd: () => void
+  onRowClick: (exam: RadiologyExam) => void
+  smartScore: AIPriorityScore | undefined
+}
+
+const KanbanCard = React.memo(function KanbanCard({
+  exam,
+  isDragging,
+  onDragStart,
+  onDragEnd,
+  onRowClick,
+  smartScore,
+}: KanbanCardProps) {
+  const device = getDeviceById(exam.deviceId ?? '')
+  const pc = PRIORITY_CONFIG[exam.priority] || PRIORITY_CONFIG['普通']!
+
+  return (
+    <div
+      draggable
+      onDragStart={e => onDragStart(e, exam)}
+      onDragEnd={onDragEnd}
+      onClick={() => onRowClick(exam)}
+      style={{
+        background: '#fff',
+        borderRadius: 8,
+        padding: '10px 12px',
+        marginBottom: 8,
+        cursor: 'move',
+        border: '1px solid #e2e8f0',
+        boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+        opacity: isDragging ? 0.5 : 1,
+        transition: 'all 0.15s',
+      }}
+      onMouseEnter={e => {
+        if (!isDragging) {
+          e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)'
+          e.currentTarget.style.transform = 'translateY(-1px)'
+        }
+      }}
+      onMouseLeave={e => {
+        if (!isDragging) {
+          e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)'
+          e.currentTarget.style.transform = 'translateY(0)'
+        }
+      }}
+    >
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        marginBottom: 6,
+      }}>
+        <div style={{
+          fontWeight: 600,
+          color: '#1e3a5f',
+          fontSize: 12,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 4,
+        }}>
+          {exam.patientName}
+          {exam.priority === '危重' && <AlertTriangle size={10} style={{ color: '#dc2626' }} />}
+          {exam.priority === '紧急' && <Zap size={10} style={{ color: '#d97706' }} />}
+        </div>
+        <Move size={12} style={{ color: '#cbd5e1', flexShrink: 0 }} />
+      </div>
+
+      <div style={{ fontSize: 12, color: '#64748b', marginBottom: 6 }}>
+        {exam.examItemName}
+      </div>
+
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        fontSize: 12,
+        color: '#94a3b8',
+      }}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+          <Monitor size={10} />
+          {device?.name?.split('（')[0] || '-'}
+        </span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+          <Clock size={10} />
+          {exam.examTime || '-'}
+        </span>
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
+        {(() => {
+          const sla = getSLAInfo(exam.createdTime)
+          const autoPri = calculatePriority(exam)
+          const smart = smartScore
+          const smartLevel = smart ? smart.level : null
+          const smartColor = smartLevel === 'critical' ? '#dc2626' : smartLevel === 'urgent' ? '#d97706' : smartLevel === 'normal' ? '#475569' : '#059669'
+          const smartBg = smartLevel === 'critical' ? '#fee2e2' : smartLevel === 'urgent' ? '#fef3c7' : smartLevel === 'normal' ? '#f1f5f9' : '#d1fae5'
+          const smartLabel = smartLevel === 'critical' ? '危重' : smartLevel === 'urgent' ? '紧急' : smartLevel === 'normal' ? '普通' : '低'
+          return (
+            <>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 12, fontWeight: 600, color: sla.color }}>
+                <div style={{ width: 5, height: 5, borderRadius: '50%', background: sla.color }} />
+                {sla.elapsedMinutes}m
+              </span>
+              <span style={{ fontSize: 8, padding: '1px 4px', borderRadius: 2, background: autoPri.bg, color: autoPri.color, fontWeight: 600 }}>
+                {autoPri.level}
+              </span>
+              {smart && (
+                <span
+                  title={`AI 评分 ${smart.score.toFixed(1)} / 100 · ${smart.reasons.join('; ')}`}
+                  data-testid="smart-priority-badge"
+                  style={{ fontSize: 8, padding: '1px 4px', borderRadius: 2, background: smartBg, color: smartColor, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 2 }}
+                >
+                  <Sparkles size={8} /> AI {smartLabel} {smart.score.toFixed(0)}
+                </span>
+              )}
+            </>
+          )
+        })()}
+      </div>
+
+      <div style={{ height: 2, borderRadius: 1, background: pc.color, marginTop: 8 }} />
+    </div>
+  )
+})
+
 // ============================================================
 // KanbanView
 // ============================================================
@@ -128,120 +258,6 @@ export function KanbanView({ exams, onRowClick }: KanbanViewProps) {
     setDragOverColumn(null)
   }
 
-  const KanbanCard = ({ exam }: { exam: RadiologyExam }) => {
-    const device = getDeviceById(exam.deviceId ?? '')
-    const pc = PRIORITY_CONFIG[exam.priority] || PRIORITY_CONFIG['普通']!
-    const isDragging = draggedExam?.id === exam.id
-
-    return (
-      <div
-        draggable
-        onDragStart={e => handleDragStart(e, exam)}
-        onDragEnd={handleDragEnd}
-        onClick={() => onRowClick(exam)}
-        style={{
-          background: '#fff',
-          borderRadius: 8,
-          padding: '10px 12px',
-          marginBottom: 8,
-          cursor: 'move',
-          border: '1px solid #e2e8f0',
-          boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-          opacity: isDragging ? 0.5 : 1,
-          transition: 'all 0.15s',
-        }}
-        onMouseEnter={e => {
-          if (!isDragging) {
-            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)'
-            e.currentTarget.style.transform = 'translateY(-1px)'
-          }
-        }}
-        onMouseLeave={e => {
-          if (!isDragging) {
-            e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)'
-            e.currentTarget.style.transform = 'translateY(0)'
-          }
-        }}
-      >
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          marginBottom: 6,
-        }}>
-          <div style={{
-            fontWeight: 600,
-            color: '#1e3a5f',
-            fontSize: 12,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 4,
-          }}>
-            {exam.patientName}
-            {exam.priority === '危重' && <AlertTriangle size={10} style={{ color: '#dc2626' }} />}
-            {exam.priority === '紧急' && <Zap size={10} style={{ color: '#d97706' }} />}
-          </div>
-          <Move size={12} style={{ color: '#cbd5e1', flexShrink: 0 }} />
-        </div>
-
-        <div style={{ fontSize: 12, color: '#64748b', marginBottom: 6 }}>
-          {exam.examItemName}
-        </div>
-
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          fontSize: 12,
-          color: '#94a3b8',
-        }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-            <Monitor size={10} />
-            {device?.name?.split('（')[0] || '-'}
-          </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-            <Clock size={10} />
-            {exam.examTime || '-'}
-          </span>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
-          {(() => {
-            const sla = getSLAInfo(exam.createdTime)
-            const autoPri = calculatePriority(exam)
-            const smart = smartScores.get(exam.id)
-            const smartLevel = smart ? smart.level : null
-            const smartColor = smartLevel === 'critical' ? '#dc2626' : smartLevel === 'urgent' ? '#d97706' : smartLevel === 'normal' ? '#475569' : '#059669'
-            const smartBg = smartLevel === 'critical' ? '#fee2e2' : smartLevel === 'urgent' ? '#fef3c7' : smartLevel === 'normal' ? '#f1f5f9' : '#d1fae5'
-            const smartLabel = smartLevel === 'critical' ? '危重' : smartLevel === 'urgent' ? '紧急' : smartLevel === 'normal' ? '普通' : '低'
-            return (
-              <>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 12, fontWeight: 600, color: sla.color }}>
-                  <div style={{ width: 5, height: 5, borderRadius: '50%', background: sla.color }} />
-                  {sla.elapsedMinutes}m
-                </span>
-                <span style={{ fontSize: 8, padding: '1px 4px', borderRadius: 2, background: autoPri.bg, color: autoPri.color, fontWeight: 600 }}>
-                  {autoPri.level}
-                </span>
-                {smart && (
-                  <span
-                    title={`AI 评分 ${smart.score.toFixed(1)} / 100 · ${smart.reasons.join('; ')}`}
-                    data-testid="smart-priority-badge"
-                    style={{ fontSize: 8, padding: '1px 4px', borderRadius: 2, background: smartBg, color: smartColor, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 2 }}
-                  >
-                    <Sparkles size={8} /> AI {smartLabel} {smart.score.toFixed(0)}
-                  </span>
-                )}
-              </>
-            )
-          })()}
-        </div>
-
-        <div style={{ height: 2, borderRadius: 1, background: pc.color, marginTop: 8 }} />
-      </div>
-    )
-  }
-
   return (
     <div style={{
       display: 'grid',
@@ -291,7 +307,16 @@ export function KanbanView({ exams, onRowClick }: KanbanViewProps) {
 
             <div style={{ minHeight: 100 }}>
               {columnExams.map(exam => (
-                <KanbanCard key={exam.id} exam={exam} />
+                <KanbanCard
+                  key={exam.id}
+                  exam={exam}
+                  isDragging={draggedExam?.id === exam.id}
+                  draggedExamId={draggedExam?.id ?? null}
+                  onDragStart={handleDragStart}
+                  onDragEnd={handleDragEnd}
+                  onRowClick={onRowClick}
+                  smartScore={smartScores.get(exam.id)}
+                />
               ))}
               {columnExams.length === 0 && (
                 <div style={{ textAlign: 'center', color: '#cbd5e1', fontSize: 12, padding: '20px 0' }}>

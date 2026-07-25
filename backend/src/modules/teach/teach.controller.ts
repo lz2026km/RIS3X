@@ -25,7 +25,7 @@ export class TeachController {
   @ApiOperation({ summary: '上传录制 blob（分片）' })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('blob', { limits: { fileSize: 50 * 1024 * 1024 } }))
-  uploadBlob(@Param('id') id: string, @UploadedFile() file: any, @Query('sequence') sequence?: string) {
+  uploadBlob(@Param('id') id: string, @UploadedFile() file: { buffer: Buffer; mimetype?: string }, @Query('sequence') sequence?: string) {
     if (!file) throw new BadRequestException('文件不能为空')
     const allowedMimes = ['video/webm', 'video/mp4', 'application/octet-stream']
     if (file.mimetype && !allowedMimes.includes(file.mimetype)) {

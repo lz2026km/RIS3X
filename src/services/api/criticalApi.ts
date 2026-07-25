@@ -163,4 +163,30 @@ export const criticalApi = {
 
   getReceiverPortal: () =>
     api.get<unknown>('/criticals/receiver'),
+
+  // critical-ext endpoints
+  listCriticalExtRules: () =>
+    api.get<CriticalRuleDto[]>('/critical-ext/rules'),
+  createCriticalExtRule: (data: Partial<CriticalRuleDto>) =>
+    api.post<CriticalRuleDto>('/critical-ext/rules', data),
+  updateCriticalExtRule: (id: string, data: Partial<CriticalRuleDto>) =>
+    api.put<CriticalRuleDto>(`/critical-ext/rules/${id}`, data),
+  deleteCriticalExtRule: (id: string) =>
+    api.delete(`/critical-ext/rules/${id}`),
+  getCriticalExtStats: () =>
+    api.get<CriticalStatsDto>('/critical-ext/stats'),
+  getCriticalExtSummary: () =>
+    api.get<CriticalSummaryDto>('/critical-ext/stats/summary'),
+  getCriticalExtTimeline: () =>
+    api.get<CriticalTimelineDto[]>('/critical-ext/stats/timeline'),
+  listCriticalExtCenter: () =>
+    api.get<CriticalCenterDto[]>('/critical-ext/center'),
+  getCriticalExtCenterItem: (id: string) =>
+    api.get<CriticalCenterDto>(`/critical-ext/center/${id}`),
+  criticalExtAutoDetect: (data: { examId: string; finding: string }) =>
+    api.post<{ id: string }>('/critical-ext/auto-detect', data),
+  criticalExtCloseLoop: (data: { criticalId: string; note: string }) =>
+    api.post<{ id: string }>('/critical-ext/close-loop', data),
+  getCriticalExtReceiverPortal: () =>
+    api.get<unknown>('/critical-ext/receiver'),
 }

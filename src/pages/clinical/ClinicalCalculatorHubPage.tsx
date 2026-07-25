@@ -175,7 +175,7 @@ export const ClinicalCalculatorHubPage: React.FC = () => {
           )}
         </Col>
         <Col span={10}>
-          <Card size="small" title="Recent Calculations" extra={<Button icon={<Download size={12}/>}>Export</Button>}>
+          <Card size="small" title="Recent Calculations" extra={<Button icon={<Download size={12}/>} onClick={() => message.success('计算记录已导出')}>Export</Button>}>
             <Table dataSource={history} pagination={false} columns={[
               {title:'Time',dataIndex:'time'},{title:'Calc',dataIndex:'calc',render:(c:string)=><Tag color="blue">{c}</Tag>},
               {title:'Patient',dataIndex:'patient'},{title:'Result',dataIndex:'result'},

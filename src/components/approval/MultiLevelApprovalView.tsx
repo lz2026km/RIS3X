@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Table, Tag, Space, Typography, Button, Alert, Descriptions, Steps, Input, Modal, message, Badge, Progress } from 'antd';
+import { Card, Table, Tag, Space, Typography, Button, Alert, Descriptions, Steps, Input, Modal, message, Badge, Progress, Empty } from 'antd';
 import { ClipboardList, CheckCircle2, XCircle, Clock, User, Send, Search, AlertTriangle } from 'lucide-react';
 import { multiLevelApprovalService } from '../../services/approval/MultiLevelApproval';
 import type { MultiLevelApprovalState, ApprovalAction, ApprovalParticipant, ApprovalDecision } from '../../types/sign';
@@ -156,10 +156,10 @@ export const MultiLevelApprovalView: React.FC<MultiLevelApprovalViewProps> = ({ 
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
 
       <Title level={5}>进行中</Title>
-      <Table size="small" dataSource={inflight} columns={columns} rowKey="approvalId" pagination={false} style={{ marginBottom: 16 }} />
+      <Table size="small" dataSource={inflight} columns={columns} rowKey="approvalId" pagination={false} style={{ marginBottom: 16 }} locale={{ emptyText: <Empty description="无进行中审批" /> }} />
 
       <Title level={5}>已完成</Title>
-      <Table size="small" dataSource={completed} columns={columns} rowKey="approvalId" pagination={false} />
+      <Table size="small" dataSource={completed} columns={columns} rowKey="approvalId" pagination={false} locale={{ emptyText: <Empty description="无已完成审批" /> }} />
 
       <Modal
         title={`审批详情 - ${detail?.reportId ?? ''}`}

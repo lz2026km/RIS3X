@@ -2,7 +2,7 @@
  * G005 放射RIS系统 v3.0.6.1 - 安全审计 (HIPAA / 等级保护)
  */
 import React from 'react'
-import { Card, Row, Col, Tag, Space, Statistic, Table, Alert } from 'antd'
+import { Card, Row, Col, Tag, Space, Statistic, Table, Alert, Empty } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { Shield, AlertTriangle, Lock, User } from 'lucide-react'
 
@@ -75,6 +75,7 @@ export const SecurityAudit: React.FC<SecurityAuditProps> = ({ logs = MOCK }) => 
           columns={columns}
           dataSource={logs}
           pagination={{ pageSize: 10 }}
+          locale={{ emptyText: <Empty description="暂无审计日志" /> }}
         />
       </Card>
     </div>

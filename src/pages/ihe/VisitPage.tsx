@@ -64,7 +64,7 @@ export const VisitPage: React.FC = () => {
     if (res.success) {
       message.success(`${cfg.label} 消息已发送`);
     } else {
-      message.success(`${cfg.label} 消息已发送(模拟)`);
+      message.warning(`${cfg.label} 消息发送失败，请检查 IHE 连接`);
     }
     handleSearch();
     setAdtTriggering(false);

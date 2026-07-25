@@ -5,10 +5,10 @@ import { initialRadiologyExams } from '../../data/initialData'
 import { DicomCanvas, MIPCanvas, VRCanvas } from './DicomViewerSubComponents'
 import AnnotationOverlay from './AnnotationOverlay'
 import type { Tool, PseudoColorMode, MeasureSubMenu, LayoutMode, ViewMode, MipDirection, AnnotationType, Series, DicomImage, Measurement, Annotation, VrAxis } from './DicomViewerTypes'
-import { WINDOW_PRESETS, ANNOTATION_COLORS, ANNOTATION_COLOR_NAMES, PRIMARY, CARD_BG } from './DicomViewerTypes'
+import { ANNOTATION_COLORS, ANNOTATION_COLOR_NAMES, PRIMARY, CARD_BG } from './DicomViewerTypes'
 import { useFocusTrap } from '../../a11y/SkipLink'
 import { useEscape } from '../../hooks/useEscape'
-import { getPresetsForModality } from '../../utils/modalityPresets'
+import { getPresetsForModality, CT_DEFAULT_WW, CT_DEFAULT_WL } from '../../utils/modalityPresets'
 
 const s = {
   centerArea: { flex: 1, display: 'flex', flexDirection: 'column' as const, overflow: 'hidden', background: '#0f172a', position: 'relative' as const },
@@ -329,7 +329,7 @@ export default function ViewportArea(props: Props) {
               <span style={{ ...s.compareLabel, ...s.compareLabelRight }}>历史: {compareExam?.examDate}</span>
               <div style={{ ...s.imageWrapper, width: '100%', height: '100%' }}>
                 <DicomCanvas zoom={zoom} rotation={rotation} flipH={flipH} flipV={flipV} ww={ww} wl={wl} brightness={brightness} contrast={contrast} invert={invert}
-                  activeTool={activeTool} panX={panX} panY={panY} windowPreset={WINDOW_PRESETS[activePresetIdx || 0]?.name || ''}
+                  activeTool={activeTool} panX={panX} panY={panY} windowPreset={currentPresets[activePresetIdx || 0]?.name || ''}
                   measureType={measureSubMenu} activeSeries={activeSeries} imageIndex={syncScroll ? imageIndex : compareImageIndex} images={images} pseudoColorMode={pseudoColorMode} />
                 {showDiffHighlight && diffRegions.map(region => (
                   <div key={`r-${region.id}`} style={{ ...s.diffRegion, ...(region.type === 'increase' ? {} : region.type === 'new' ? s.diffRegionNew : s.diffRegionImproved), left: region.x, top: region.y, width: region.w, height: region.h }} />
@@ -342,7 +342,7 @@ export default function ViewportArea(props: Props) {
         ) : (
           <div style={{ ...s.imageWrapper, width: gridConfig.cols === 2 ? 'calc(50% - 4px)' : '100%', height: gridConfig.rows === 2 ? 'calc(50% - 4px)' : '100%' }}>
             {viewMode === 'MPR' && <DicomCanvas zoom={zoom} rotation={rotation} flipH={flipH} flipV={flipV} ww={ww} wl={wl} brightness={brightness} contrast={contrast} invert={invert}
-              activeTool={activeTool} panX={panX} panY={panY} windowPreset={WINDOW_PRESETS[activePresetIdx || 0]?.name || ''}
+              activeTool={activeTool} panX={panX} panY={panY} windowPreset={currentPresets[activePresetIdx || 0]?.name || ''}
               measureType={measureSubMenu} activeSeries={activeSeries} imageIndex={imageIndex} images={images} pseudoColorMode={pseudoColorMode} onWheel={handleImageWheel} />}
             {viewMode === 'MIP' && <div style={s.mipCanvasContainer}><MIPCanvas mipDirection={mipDirection} mipFrame={mipFrame} totalFrames={images.length} ww={ww} wl={wl} /></div>}
             {viewMode === 'VR' && <div style={s.vrCanvasContainer}><VRCanvas rotX={vrRotX} rotY={vrRotY} rotZ={vrRotZ} opacity={vrOpacity} /></div>}
@@ -464,7 +464,7 @@ export default function ViewportArea(props: Props) {
               ))}
             </div>
             <div style={{ marginTop: 8, display: 'flex', gap: 6 }}>
-              <button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff', flex: 1 }} onClick={() => { setWw(400); setWl(40); setActivePresetIdx(null) }}>重置</button>
+              <button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff', flex: 1 }} onClick={() => { setWw(CT_DEFAULT_WW); setWl(CT_DEFAULT_WL); setActivePresetIdx(null) }}>重置</button>
               <button style={{ ...s.reportBtn, background: '#e2e8f0', color: '#475569', flex: 1 }} onClick={closeWlPopup}>关闭 (Esc)</button>
             </div>
           </div>

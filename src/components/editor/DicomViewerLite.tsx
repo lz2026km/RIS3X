@@ -422,7 +422,7 @@ export default function DicomViewerLite({
             transform: `scale(${zoom}) translate(${pan.x}px, ${pan.y}px)`,
             transition: 'transform 0.1s',
           }}>
-            <img src={mockImage} alt="CT slice" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: `brightness(${1 + (WINDOW_PRESETS[preset].wc / 1000)}) contrast(${WINDOW_PRESETS[preset].ww / 500})` }} />
+            <img src={mockImage} alt="CT slice" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: `brightness(${1 + (WINDOW_PRESETS[preset].wc / 1000)}) contrast(${WINDOW_PRESETS[preset].ww / 500})` }} />
           </div>
 
           {/* SVG overlay for measurements, crosshair, grid */}
@@ -504,7 +504,7 @@ export default function DicomViewerLite({
                 left: `${-mousePx.x * 2 + 60}px`,
                 top: `${-mousePx.y * 2 + 60}px`,
               }}>
-                <img src={mockImage} alt="" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: `brightness(${1 + (WINDOW_PRESETS[preset].wc / 1000)}) contrast(${WINDOW_PRESETS[preset].ww / 500})` }} />
+                <img src={mockImage} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: `brightness(${1 + (WINDOW_PRESETS[preset].wc / 1000)}) contrast(${WINDOW_PRESETS[preset].ww / 500})` }} />
               </div>
             </div>
           )}

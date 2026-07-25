@@ -130,18 +130,26 @@ function dropCacheByPrefix(fullPrefix: string): void {
   }
 }
 
+function captureCsrfToken(response: Response): void {
+  const token = response.headers.get('x-csrf-token')
+  if (token && typeof window !== 'undefined') {
+    try { window.sessionStorage.setItem('ris_csrf_token', token) } catch { /* noop */ }
+  }
+}
+
 function getCsrfToken(): string {
   const storageKey = 'ris_csrf_token'
   if (typeof window !== 'undefined') {
     try {
       const existing = window.sessionStorage.getItem(storageKey)
       if (existing) return existing
-      const token = crypto.randomUUID().replace(/-/g, '')
-      window.sessionStorage.setItem(storageKey, token)
-      return token
-    } catch {}
+    } catch { /* noop */ }
   }
-  return crypto.randomUUID().replace(/-/g, '')
+  const token = crypto.randomUUID().replace(/-/g, '')
+  if (typeof window !== 'undefined') {
+    try { window.sessionStorage.setItem(storageKey, token) } catch { /* noop */ }
+  }
+  return token
 }
 
 function apiError(body: unknown, status: number): { code: string; message: string } {
@@ -210,7 +218,11 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<ApiR
       },
       { onUnauthorized: refreshToken },
     )
-    if (res.status === 204) return { success: true, data: null as unknown as T }
+    if (res.status === 204) {
+      captureCsrfToken(res)
+      return { success: true, data: null as unknown as T }
+    }
+    captureCsrfToken(res)
     const body = await readBody(res)
     if (!res.ok) {
       return { success: false, data: null as unknown as T, error: apiError(body, res.status) }
@@ -357,8 +369,8 @@ export async function switchApiMode(mode: ApiMode, baseUrl?: string): Promise<vo
 }
 
 /**
- * v3.0.6.11-21: 返回当前生效的 mode(供 UI 显示或调试)。
+ * v3.0.6.11-21: 返回当前生效的 mode(每次调用重新解析,避免 `switchApiMode` 后 stale)。
  */
 export function currentApiMode(): ApiMode {
-  return API_MODE;
+  return resolveApiMode();
 }

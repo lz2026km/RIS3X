@@ -3,7 +3,7 @@
  * 多平面重建 (MPR) + 体绘制 (VR)
  */
 import React, { useMemo, useState } from 'react'
-import { Card, Row, Col, Tag, Statistic, Table, Space, Tabs } from 'antd'
+import { Card, Row, Col, Tag, Statistic, Table, Space, Tabs, Empty } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { Layout, Box, Layers } from 'lucide-react'
 
@@ -130,6 +130,7 @@ export const Workspace: React.FC<VitreaWorkspaceProps> = ({ studies = MOCK, user
                 columns={columns}
                 dataSource={list.filter((x) => x.mode === 'MPR' || x.mode === 'MIP')}
                 pagination={false}
+                locale={{ emptyText: <Empty description="暂无 MPR 数据" /> }}
               />
             ) },
             { key: 'vr', label: '体绘制 (VR)', children: (
@@ -139,6 +140,7 @@ export const Workspace: React.FC<VitreaWorkspaceProps> = ({ studies = MOCK, user
                 columns={columns}
                 dataSource={list.filter((x) => x.mode === 'VR' || x.mode === 'SSD')}
                 pagination={false}
+                locale={{ emptyText: <Empty description="暂无 VR 数据" /> }}
               />
             ) },
             { key: 'all', label: '全部研究', children: (
@@ -148,6 +150,7 @@ export const Workspace: React.FC<VitreaWorkspaceProps> = ({ studies = MOCK, user
                 columns={columns}
                 dataSource={list}
                 pagination={false}
+                locale={{ emptyText: <Empty description="暂无研究数据" /> }}
               />
             ) },
           ]}

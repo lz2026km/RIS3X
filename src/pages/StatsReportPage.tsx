@@ -540,7 +540,7 @@ export default function StatsReportPage() {
   }
 
   // CSV导出
-  const exportToCSV = (data: any[]) => {
+  const exportToCSV = (data: Record<string, unknown>[]) => {
     const headers = getHeaders()
     const rows = data.map(item => getRowValues(item))
     
@@ -557,12 +557,11 @@ export default function StatsReportPage() {
   }
 
   // Excel导出（使用CSV模拟）
-  const exportToExcel = (data: any[]) => {
+  const exportToExcel = (data: Record<string, unknown>[]) => {
     exportToCSV(data)
   }
 
-  // 打印导出
-  const exportToPrint = (data: any[]) => {
+  const exportToPrint = (data: Record<string, unknown>[]) => {
     const printWindow = window.open('', '_blank')
     if (!printWindow) return
     

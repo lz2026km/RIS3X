@@ -3,7 +3,7 @@
  * 对标:Siemens AI-Rad Companion Chest - 肺结节/实性/磨玻璃/钙化 自动检出
  */
 import React, { useMemo, useState } from 'react'
-import { Card, Row, Col, Table, Tag, Statistic, Progress, Tabs, Space, Badge } from 'antd'
+import { Card, Row, Col, Table, Tag, Statistic, Progress, Tabs, Space, Badge, Empty } from 'antd'
 import { Brain, Eye, Target, ShieldCheck, AlertTriangle } from 'lucide-react'
 
 export type ChestLesionType = 'NODULE' | 'SOLID' | 'GGO' | 'CALCIFICATION' | 'MIXED'
@@ -193,6 +193,7 @@ export const AIRAD: React.FC<AIRADProps> = ({ onAccept, onReject }) => {
           dataSource={filtered}
           columns={columns}
           pagination={false}
+          locale={{ emptyText: <Empty description="无匹配病灶" /> }}
           onRow={(record) => ({
             onClick: () => {
               if (record.reviewed) onReject?.(record.id)

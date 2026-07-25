@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Table, Tag, Space, Typography, Button, Alert, Badge, Tooltip, Descriptions, Modal, Form, Input, Select, InputNumber, message } from 'antd';
+import { Card, Table, Tag, Space, Typography, Button, Alert, Badge, Tooltip, Descriptions, Modal, Form, Input, Select, InputNumber, message, Empty } from 'antd';
 import { Key, ShieldCheck, AlertTriangle, RefreshCw, Plus, RotateCcw, Ban, PlayCircle, PauseCircle } from 'lucide-react';
 import type { CertificateInfo } from '../../types/R3/R3.SIGN';
 import type { CertLifecycleStatus, CertLifecycleEvent } from '../../types/sign';
@@ -194,6 +194,7 @@ export const CertManager: React.FC<CertManagerProps> = ({ userId, onSelect, show
         columns={columns}
         rowKey="id"
         pagination={false}
+        locale={{ emptyText: <Empty description="暂无证书" /> }}
         onRow={(r) => ({
           onClick: () => setSelectedCert(r),
           style: { cursor: 'pointer', background: selectedCert?.id === r.id ? '#f0f5ff' : undefined },
@@ -208,6 +209,7 @@ export const CertManager: React.FC<CertManagerProps> = ({ userId, onSelect, show
             dataSource={certEvents}
             rowKey="id"
             pagination={false}
+            locale={{ emptyText: <Empty description="暂无证书事件" /> }}
             columns={[
               { title: '类型', dataIndex: 'type', key: 'type', render: (t: string) => <Tag>{t}</Tag> },
               { title: '时间', dataIndex: 'occurredAt', key: 'occurredAt', render: (t: string) => new Date(t).toLocaleString('zh-CN') },

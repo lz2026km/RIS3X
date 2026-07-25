@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { message } from 'antd';
 import {
@@ -60,6 +60,13 @@ export default function CASignaturePage() {
   });
 
   const selectedCert = certs.find(c => c.id === selectedCertId);
+  const signIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (signIntervalRef.current) clearInterval(signIntervalRef.current);
+    };
+  }, []);
 
   const handleSign = useCallback(async () => {
     if (!selectedCert || selectedCert.status === 'expired' || selectedCert.status === 'revoked') {
@@ -73,10 +80,11 @@ export default function CASignaturePage() {
     }
     setIsSigning(true);
     setSigningProgress(0);
-    const interval = setInterval(() => {
+    signIntervalRef.current = setInterval(() => {
       setSigningProgress(prev => {
         if (prev >= 100) {
-          clearInterval(interval);
+          if (signIntervalRef.current) clearInterval(signIntervalRef.current);
+          signIntervalRef.current = null;
           return 100;
         }
         return prev + 5;
@@ -88,7 +96,8 @@ export default function CASignaturePage() {
       certId: selectedCert.certId,
       algorithm: selectedCert.algorithm,
     });
-    clearInterval(interval);
+    if (signIntervalRef.current) clearInterval(signIntervalRef.current);
+    signIntervalRef.current = null;
     setSigningProgress(100);
 
     if (res.success) {

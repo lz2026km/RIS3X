@@ -1,5 +1,18 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import { CreateDentalStudySchema, UpdateDentalStudySchema, CreateAiFindingSchema, CreateImplantSchema, UpdateImplantSchema, CreateDentalAppointmentSchema, UpdateDentalAppointmentSchema, CreateDentalInvoiceSchema, AddInventoryItemSchema, UpdateInventoryItemSchema } from './dental.schema'
+import { z } from 'zod'
+
+type CreateDentalStudyDto = z.infer<typeof CreateDentalStudySchema>
+type UpdateDentalStudyDto = z.infer<typeof UpdateDentalStudySchema>
+type CreateAiFindingDto = z.infer<typeof CreateAiFindingSchema>
+type CreateImplantDto = z.infer<typeof CreateImplantSchema>
+type UpdateImplantDto = z.infer<typeof UpdateImplantSchema>
+type CreateDentalAppointmentDto = z.infer<typeof CreateDentalAppointmentSchema>
+type UpdateDentalAppointmentDto = z.infer<typeof UpdateDentalAppointmentSchema>
+type CreateDentalInvoiceDto = z.infer<typeof CreateDentalInvoiceSchema>
+type AddInventoryItemDto = z.infer<typeof AddInventoryItemSchema>
+type UpdateInventoryItemDto = z.infer<typeof UpdateInventoryItemSchema>
 
 @Injectable()
 export class DentalService {
@@ -15,13 +28,13 @@ export class DentalService {
     return { data: data ? [data] : [] }
   }
 
-  async createStudy(body: Record<string, unknown>) {
-    const data = await this.prisma.dentalStudy.create({ data: body })
+  async createStudy(body: CreateDentalStudyDto) {
+    const data = await this.prisma.dentalStudy.create({ data: body as any })
     return { data: [data] }
   }
 
-  async updateStudy(id: string, body: Record<string, unknown>) {
-    const data = await this.prisma.dentalStudy.update({ where: { id }, data: body })
+  async updateStudy(id: string, body: UpdateDentalStudyDto) {
+    const data = await this.prisma.dentalStudy.update({ where: { id }, data: body as any })
     return { data: [data] }
   }
 
@@ -35,8 +48,8 @@ export class DentalService {
     return { data }
   }
 
-  async createAiFinding(body: Record<string, unknown>) {
-    const data = await this.prisma.dentalAiFinding.create({ data: body })
+  async createAiFinding(body: CreateAiFindingDto) {
+    const data = await this.prisma.dentalAiFinding.create({ data: body as any })
     return { data: [data] }
   }
 
@@ -45,13 +58,13 @@ export class DentalService {
     return { data }
   }
 
-  async createImplant(body: Record<string, unknown>) {
-    const data = await this.prisma.dentalImplant.create({ data: body })
+  async createImplant(body: CreateImplantDto) {
+    const data = await this.prisma.dentalImplant.create({ data: body as any })
     return { data: [data] }
   }
 
-  async updateImplant(id: string, body: Record<string, unknown>) {
-    const data = await this.prisma.dentalImplant.update({ where: { id }, data: body })
+  async updateImplant(id: string, body: UpdateImplantDto) {
+    const data = await this.prisma.dentalImplant.update({ where: { id }, data: body as any })
     return { data: [data] }
   }
 
@@ -60,13 +73,13 @@ export class DentalService {
     return { data }
   }
 
-  async createAppointment(body: Record<string, unknown>) {
-    const data = await this.prisma.dentalAppointment.create({ data: body })
+  async createAppointment(body: CreateDentalAppointmentDto) {
+    const data = await this.prisma.dentalAppointment.create({ data: body as any })
     return { data: [data] }
   }
 
-  async updateAppointment(id: string, body: Record<string, unknown>) {
-    const data = await this.prisma.dentalAppointment.update({ where: { id }, data: body })
+  async updateAppointment(id: string, body: UpdateDentalAppointmentDto) {
+    const data = await this.prisma.dentalAppointment.update({ where: { id }, data: body as any })
     return { data: [data] }
   }
 
@@ -75,8 +88,8 @@ export class DentalService {
     return { data }
   }
 
-  async createInvoice(body: Record<string, unknown>) {
-    const data = await this.prisma.dentalInvoice.create({ data: body })
+  async createInvoice(body: CreateDentalInvoiceDto) {
+    const data = await this.prisma.dentalInvoice.create({ data: body as any })
     return { data: [data] }
   }
 
@@ -85,13 +98,13 @@ export class DentalService {
     return { data }
   }
 
-  async addInventoryItem(body: Record<string, unknown>) {
-    const data = await this.prisma.dentalInventoryItem.create({ data: body })
+  async addInventoryItem(body: AddInventoryItemDto) {
+    const data = await this.prisma.dentalInventoryItem.create({ data: body as any })
     return { data: [data] }
   }
 
-  async updateInventoryItem(id: string, body: Record<string, unknown>) {
-    const data = await this.prisma.dentalInventoryItem.update({ where: { id }, data: body })
+  async updateInventoryItem(id: string, body: UpdateInventoryItemDto) {
+    const data = await this.prisma.dentalInventoryItem.update({ where: { id }, data: body as any })
     return { data: [data] }
   }
 }

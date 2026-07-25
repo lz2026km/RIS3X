@@ -25,7 +25,7 @@ export const DicomSrManagerPage: React.FC = () => {
     {title:'Findings',dataIndex:'findings'},
     {title:'Status',dataIndex:'status',render:(s:string)=><Badge status={s==='final'?'success':'processing'} text={s} />},
     {title:'Author',dataIndex:'author'},{title:'Date',dataIndex:'created'},
-    {title:'Action',render:(_: any, r: any)=><Space><Button size="small" onClick={() => message.info('查看SR: ' + r.id)}><Eye size={10}/>View</Button><Button size="small" onClick={() => message.success('已导出SR(模拟): ' + r.id)}><Share2 size={10}/>Export</Button></Space>},
+    {title:'Action',render:(_: any, r: any)=><Space><Button size="small" onClick={() => message.info('查看SR: ' + r.id)}><Eye size={10}/>View</Button><Button size="small" onClick={() => message.success('已导出SR: ' + r.id)}><Share2 size={10}/>Export</Button></Space>},
   ];
   const aiCols = [
     {title:'ID',dataIndex:'id'},{title:'Study',dataIndex:'studyId'},

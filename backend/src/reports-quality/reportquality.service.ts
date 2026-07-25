@@ -1,5 +1,13 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import { CreateScoreRuleSchema, UpdateScoreRuleSchema, CreateDefectEntrySchema, UpdateDefectEntrySchema, CreateAiReportDraftSchema } from '../reportquality/reportquality.schema'
+import { z } from 'zod'
+
+type CreateScoreRuleDto = z.infer<typeof CreateScoreRuleSchema>
+type UpdateScoreRuleDto = z.infer<typeof UpdateScoreRuleSchema>
+type CreateDefectEntryDto = z.infer<typeof CreateDefectEntrySchema>
+type UpdateDefectEntryDto = z.infer<typeof UpdateDefectEntrySchema>
+type CreateAiReportDraftDto = z.infer<typeof CreateAiReportDraftSchema>
 
 @Injectable()
 export class ReportQualityService {
@@ -10,13 +18,13 @@ export class ReportQualityService {
     return { data }
   }
 
-  async createScoreRule(body: any) {
-    const data = await this.prisma.systemConfig.create({ data: { key: `score_rule_${Date.now()}`, value: body } })
+  async createScoreRule(body: CreateScoreRuleDto) {
+    const data = await this.prisma.systemConfig.create({ data: { key: `score_rule_${Date.now()}`, value: body as any } })
     return { data: [data] }
   }
 
-  async updateScoreRule(id: string, body: any) {
-    const data = await this.prisma.systemConfig.update({ where: { key: id }, data: { value: body } })
+  async updateScoreRule(id: string, body: UpdateScoreRuleDto) {
+    const data = await this.prisma.systemConfig.update({ where: { key: id }, data: { value: body as any } })
     return { data: [data] }
   }
 
@@ -25,13 +33,13 @@ export class ReportQualityService {
     return { data }
   }
 
-  async createDefectEntry(body: any) {
-    const data = await this.prisma.auditLog.create({ data: { action: 'CREATE', resource: 'defect-library', detail: body } as any })
+  async createDefectEntry(body: CreateDefectEntryDto) {
+    const data = await this.prisma.auditLog.create({ data: { tenantId: 'default', action: 'CREATE', resource: 'defect-library', detail: body as any } })
     return { data: [data] }
   }
 
-  async updateDefectEntry(id: string, body: any) {
-    const data = await this.prisma.auditLog.update({ where: { id }, data: { detail: body } })
+  async updateDefectEntry(id: string, body: UpdateDefectEntryDto) {
+    const data = await this.prisma.auditLog.update({ where: { id }, data: { detail: body as any } })
     return { data: [data] }
   }
 
@@ -40,7 +48,7 @@ export class ReportQualityService {
     return { data }
   }
 
-  async createAiReportDraft(body: any) {
+  async createAiReportDraft(body: CreateAiReportDraftDto) {
     const data = await this.prisma.report.create({ data: body as any })
     return { data: [data] }
   }

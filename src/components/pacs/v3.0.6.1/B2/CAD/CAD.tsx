@@ -3,7 +3,7 @@
  * 对标:Siemens syngo.CT Lung CAD - 肺结节检出/位置/大小/形态/恶性概率
  */
 import React, { useMemo, useState } from 'react'
-import { Card, Row, Col, Table, Tag, Statistic, Progress, Space, Slider, Switch, Button } from 'antd'
+import { Card, Row, Col, Table, Tag, Statistic, Progress, Space, Slider, Switch, Button, Empty } from 'antd'
 import { Scan, Ruler, Shapes, Activity, Filter } from 'lucide-react'
 
 export type NoduleMorphology = 'SOLID' | 'PART_SOLID' | 'GROUND_GLASS' | 'CALCIFIED'
@@ -232,6 +232,7 @@ export const CAD: React.FC<CADProps> = ({ onAccept, onReject }) => {
           dataSource={filtered}
           columns={columns}
           pagination={false}
+          locale={{ emptyText: <Empty description="无匹配结节" /> }}
           onRow={(record) => ({
             onClick: () => onAccept?.(record.id),
             style: { cursor: 'pointer' },

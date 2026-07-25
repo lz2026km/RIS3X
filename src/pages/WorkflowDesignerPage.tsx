@@ -239,8 +239,8 @@ export default function WorkflowDesignerPage() {
           </div>
           {savedToast && <span style={{ background: '#10b981', padding: '4px 12px', borderRadius: 12, fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 4 }}><CheckCircle2 size={12} />{savedToast}</span>}
           {saving && <span style={{ fontSize: 12, opacity: 0.85 }}>保存中…</span>}
-          <Button size="small" ghost icon={<History size={14} />} onClick={() => setShowVersion(true)}>历史版本</Button>
-          <Button size="small" ghost icon={<Play size={14} />} onClick={async () => {
+          <Button size="small" variant="outlined" icon={<History size={14} />} onClick={() => setShowVersion(true)}>历史版本</Button>
+          <Button size="small" variant="outlined" icon={<Play size={14} />} onClick={async () => {
             if (!canApprove(currentUserId, workflowOwnerId)) {
               message.error('禁止自审：不能激活自己的工作流');
               return;
@@ -250,7 +250,7 @@ export default function WorkflowDesignerPage() {
             if (res.success) message.success('工作流已激活');
             else message.error(res.error?.message ?? '激活失败');
           }}>激活</Button>
-          <Button size="small" ghost icon={<Upload size={14} />}>部署</Button>
+          <Button size="small" variant="outlined" icon={<Upload size={14} />}>部署</Button>
           <Button size="small" type="primary" loading={saving} icon={<Save size={14} />} onClick={handleSave}>保存</Button>
         </header>
         <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>

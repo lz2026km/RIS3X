@@ -187,12 +187,12 @@ export const useExamStore = create<ExamState>((set, get) => ({
   })(set, get),
 
   transition: async (id, action) => {
-    set({ error: null })
+    set({ loading: true, error: null })
     try {
       const plan = ACTION_PLANS[action]
       const exam = get().exams.find((e) => e.id === id)
       if (!exam) {
-        set({ error: `Exam ${id} not found in store` })
+        set({ loading: false, error: `Exam ${id} not found in store` })
         return
       }
       const actor = buildExamActor(exam)
@@ -200,6 +200,7 @@ export const useExamStore = create<ExamState>((set, get) => ({
       const event = plan.buildEvent()
       if (!event) {
         actor.stop()
+        set({ loading: false })
         return
       }
       actor.send(event as never)
@@ -207,7 +208,7 @@ export const useExamStore = create<ExamState>((set, get) => ({
       if (beforeState === afterState) {
         console.warn(`[examStore] machine rejected ${action} for ${id} (was ${beforeState}); refusing to call API`)
         actor.stop()
-        set({ error: `状态机拒绝: ${action} (当前状态 ${beforeState})` })
+        set({ loading: false, error: `状态机拒绝: ${action} (当前状态 ${beforeState})` })
         return
       }
       const res = await plan.apiFn(id)
@@ -215,13 +216,14 @@ export const useExamStore = create<ExamState>((set, get) => ({
       if (res.success) {
         set((state) => ({
           exams: state.exams.map((e) => (e.id === id ? { ...e, status: afterState } : e)),
+          loading: false,
           error: null,
         }))
       } else {
-        set({ error: res.error?.message ?? '操作失败' })
+        set({ loading: false, error: res.error?.message ?? '操作失败' })
       }
     } catch (err) {
-      set({ error: err instanceof Error ? err.message : '网络错误' })
+      set({ loading: false, error: err instanceof Error ? err.message : '网络错误' })
     }
   },
 }))

@@ -58,7 +58,7 @@ export const FhirBulkExportPage: React.FC = () => {
     } catch {
       const mockJobId = `bulk-export-${Date.now()}`;
       setJob({ jobId: mockJobId, status: 'running' });
-      message.success(`导出任务已启动 (模拟): ${mockJobId}`);
+      message.info(`导出任务已在离线模式启动: ${mockJobId}`);
       startPolling(mockJobId);
     }
     setExporting(false);
@@ -98,7 +98,7 @@ export const FhirBulkExportPage: React.FC = () => {
             { type: 'Observation', url: `/api/fhir/r4/export/${jobId}/Observation.ndjson` },
             { type: 'DiagnosticReport', url: `/api/fhir/r4/export/${jobId}/DiagnosticReport.ndjson` },
           ], transactionTime: new Date().toISOString() });
-          message.success('导出完成 (模拟)');
+          message.info('导出完成 (离线模式)');
         }
       }
       if (attempts >= maxAttempts) {

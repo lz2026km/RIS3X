@@ -84,8 +84,15 @@ export class AuditInterceptor implements NestInterceptor {
   }
 
   private record(entry: Parameters<AuditService['log']>[0]): void {
-    void this.audit.log(entry).catch((error: unknown) => {
+    try {
+      const promise = this.audit.log(entry)
+      if (promise && typeof promise.catch === 'function') {
+        void promise.catch((error: unknown) => {
+          this.logger.error('Failed to persist audit log', error instanceof Error ? error.stack : undefined)
+        })
+      }
+    } catch (error: unknown) {
       this.logger.error('Failed to persist audit log', error instanceof Error ? error.stack : undefined)
-    })
+    }
   }
 }

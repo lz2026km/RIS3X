@@ -1,4 +1,4 @@
-apiVersion: v1
+﻿apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: g005-ris
@@ -83,7 +83,7 @@ spec:
         fsGroup: 1001
       containers:
         - name: backend
-          image: g005/ris-backend:3.0.6.11-32
+          image: g005/ris-backend:3.0.6.11-33
           securityContext:
             runAsNonRoot: true
             runAsUser: 1001
@@ -123,7 +123,7 @@ spec:
               cpu: 1000m
               memory: 1Gi
         - name: frontend
-          image: g005/ris-frontend:3.0.6.11-32
+          image: g005/ris-frontend:3.0.6.11-33
           securityContext:
             runAsNonRoot: true
             runAsUser: 101

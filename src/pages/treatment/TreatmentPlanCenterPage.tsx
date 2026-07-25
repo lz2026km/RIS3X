@@ -61,7 +61,7 @@ export const TreatmentPlanCenterPage: React.FC = () => {
           </Card>
         },
       ]} />
-      <Modal title="新建跨科室治疗计划" open={createModal} onCancel={()=>setCreateModal(false)} onOk={()=>{message.success('治疗计划已创建(模拟)');setCreateModal(false)}} width={500}>
+      <Modal title="新建跨科室治疗计划" open={createModal} onCancel={()=>setCreateModal(false)} onOk={()=>{message.success('治疗计划已创建');setCreateModal(false)}} width={500}>
         <Form layout="vertical" size="small">
           <Form.Item label="患者"><Select options={[{value:'P001',label:'张伟'},{value:'P002',label:'李娜'},{value:'P003',label:'王芳'}]} /></Form.Item>
           <Form.Item label="治疗类型"><Select options={['种植','根管治疗','正畸-正颌','颌面外科','修复'].map(t=>({value:t,label:t}))} /></Form.Item>

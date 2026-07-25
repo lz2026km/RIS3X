@@ -123,7 +123,7 @@ export default function GuidelineLibraryPage() {
               allowClear
             />
           </div>
-          <Table columns={columns} dataSource={filtered} rowKey="id" pagination={{ pageSize: 10, showTotal: (t) => `共 ${t} 条` }} size="middle" />
+          <Table columns={columns} dataSource={filtered} rowKey="id" pagination={{ pageSize: 10, showTotal: (t) => `共 ${t} 条` }} size="middle" locale={{ emptyText: <Empty description="无匹配指南" /> }} />
         </div>
       </div>
       <Modal

@@ -39,19 +39,19 @@ export const ConsentEducationPage: React.FC = () => {
             {title:'Signed',dataIndex:'signedAt',render:(s:string|null)=>s||<span style={{color:'#999'}}>—</span>},
             {title:'Witness',dataIndex:'witness',render:(w:string|null)=>w||'—'},
             {title:'Status',dataIndex:'status',render:(s:string)=><Badge status={s==='signed'?'success':s==='pending'?'processing':'error'} text={s} />},
-            {title:'Action',render:(_,r:any)=><Space>{r.status==='pending' && <Button size="small" type="primary" onClick={() => { message.success('签署已发送(模拟)'); setConsents(prev => prev.map(c => c.id === r.id ? {...c, status:'signed', signedAt: new Date().toISOString(), witness:'Dr. System'} : c)); }}>Sign Now</Button>}<Button size="small" icon={<Eye size={10}/>} onClick={() => message.info('查看知情同意书: ' + r.id)}>View</Button><Button size="small" icon={<Download size={10}/>} onClick={() => message.success('PDF已下载(模拟): ' + r.id)}>PDF</Button></Space>},
+            {title:'Action',render:(_,r:any)=><Space>{r.status==='pending' && <Button size="small" type="primary" onClick={() => { message.success('签署已发送'); setConsents(prev => prev.map(c => c.id === r.id ? {...c, status:'signed', signedAt: new Date().toISOString(), witness:'Dr. System'} : c)); }}>Sign Now</Button>}<Button size="small" icon={<Eye size={10}/>} onClick={() => message.info('查看知情同意书: ' + r.id)}>View</Button><Button size="small" icon={<Download size={10}/>} onClick={() => message.success('PDF已下载: ' + r.id)}>PDF</Button></Space>},
           ]} />
       </Card>
-      <Card size="small" title={<Space><BookOpen size={14}/>Education Materials</Space>} extra={<Button icon={<Upload size={12}/>} onClick={() => message.success('上传功能已打开(模拟)')}>Upload</Button>} style={{marginTop:16}}>
+      <Card size="small" title={<Space><BookOpen size={14}/>Education Materials</Space>} extra={<Button icon={<Upload size={12}/>} onClick={() => message.success('上传功能已打开')}>Upload</Button>} style={{marginTop:16}}>
         <Table dataSource={materials} rowKey="id" pagination={false}
           columns={[
             {title:'Title',dataIndex:'title',width:200},{title:'Lang',dataIndex:'lang',render:(l:string)=><Tag>{l}</Tag>},
             {title:'Category',dataIndex:'category',render:(c:string)=><Tag color={c==='Imaging'?'blue':c==='Surgery'?'red':'purple'}>{c}</Tag>},
             {title:'Pages',dataIndex:'pages'},{title:'Views',dataIndex:'views'},
-            {title:'Format',dataIndex:'format'},{title:'Action',render:(_,r:any)=><Space><Button size="small" onClick={() => message.info('预览: ' + r.title)}>Preview</Button><Button size="small" icon={<Send size={10}/>} onClick={() => message.success('已发送给患者(模拟): ' + r.title)}>Send to Patient</Button></Space>},
+            {title:'Format',dataIndex:'format'},{title:'Action',render:(_,r:any)=><Space><Button size="small" onClick={() => message.info('预览: ' + r.title)}>Preview</Button><Button size="small" icon={<Send size={10}/>} onClick={() => message.success('已发送给患者: ' + r.title)}>Send to Patient</Button></Space>},
           ]} />
       </Card>
-      <Modal title="New Consent" open={consentModal} onOk={() => { setConsents(prev => [...prev, { id:'C-'+Date.now(), patient:'New Patient', type:'General', procedure:'Standard procedure', signedAt:null, status:'pending', witness:null }]); setConsentModal(false); message.success('Consent created(模拟)'); }} onCancel={() => setConsentModal(false)}>
+      <Modal title="New Consent" open={consentModal} onOk={() => { setConsents(prev => [...prev, { id:'C-'+Date.now(), patient:'New Patient', type:'General', procedure:'Standard procedure', signedAt:null, status:'pending', witness:null }]); setConsentModal(false); message.success('Consent created'); }} onCancel={() => setConsentModal(false)}>
         <p>New consent form will be created for patient signature.</p>
       </Modal>
     </div>

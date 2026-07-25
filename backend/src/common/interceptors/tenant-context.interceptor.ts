@@ -48,12 +48,13 @@ export class TenantContextInterceptor implements NestInterceptor {
       enforce = true
     }
 
+    const store: TenantContext = { tenantId, enforce }
     return new Observable((subscriber) => {
-      const subscription = tenantStorage.run({ tenantId, enforce }, () => next.handle().subscribe({
-        next: (value) => subscriber.next(value),
-        error: (error) => subscriber.error(error),
-        complete: () => subscriber.complete(),
-      }))
+      const subscription = next.handle().subscribe({
+        next: (value) => tenantStorage.run(store, () => subscriber.next(value)),
+        error: (error) => tenantStorage.run(store, () => subscriber.error(error)),
+        complete: () => tenantStorage.run(store, () => subscriber.complete()),
+      })
       return () => subscription.unsubscribe()
     })
   }

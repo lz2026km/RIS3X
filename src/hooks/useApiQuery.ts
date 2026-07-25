@@ -114,8 +114,7 @@ export function useApiQuery<T>(
     if (immediate) {
       void refetch();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [immediate, refetch]);
 
   return { data, loading, error, refetch };
 }

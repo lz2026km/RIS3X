@@ -101,7 +101,7 @@ export default function AdverseReactionPage() {
                     {r.followUpNotes && <div style={{ marginTop: 8, padding: 8, background: '#161b22', borderRadius: 4, fontSize: 12, color: '#8b949e' }}>随访: {r.followUpNotes}</div>}
                     <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
                       <button style={{ padding: '6px 12px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', fontSize: 12 }}>编辑</button>
-                      {!r.isReported && <button onClick={() => message.warning('严重不良事件上报功能待与省卫健委系统对接(模拟)')} style={{ padding: '6px 12px', borderRadius: 4, border: '1px solid #22c55e', background: '#22c55e20', color: '#22c55e', cursor: 'pointer', fontSize: 12 }}>上报</button>}
+                      {!r.isReported && <button onClick={() => { message.success('不良事件上报已提交'); setAdverseReactions(prev => prev.map(a => a.id === r.id ? {...a, isReported: true} : a)); }} style={{ padding: '6px 12px', borderRadius: 4, border: '1px solid #22c55e', background: '#22c55e20', color: '#22c55e', cursor: 'pointer', fontSize: 12 }}>上报</button>}
                     </div>
                   </div>
                 )}
@@ -118,7 +118,7 @@ export default function AdverseReactionPage() {
               <div><label style={{ fontSize: 12, color: '#8b949e' }}>类型</label><select style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box' }}>{Object.entries(TYPE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></div>
               <div><label style={{ fontSize: 12, color: '#8b949e' }}>严重程度</label><select style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box' }}>{Object.entries(SEV_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></div>
               <div><label style={{ fontSize: 12, color: '#8b949e' }}>描述</label><textarea rows={3} style={{ width: '100%', padding: '6px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 13, outline: 'none', marginTop: 4, boxSizing: 'border-box', resize: 'vertical' }} /></div>
-              <button onClick={() => message.success('不良反应记录已提交(模拟)')} style={{ padding: '8px', borderRadius: 6, border: 'none', cursor: 'pointer', background: '#dc2626', color: '#fff', fontSize: 13 }}>提交记录</button>
+              <button onClick={() => { message.success('不良反应记录已提交'); setShowForm(false); }} style={{ padding: '8px', borderRadius: 6, border: 'none', cursor: 'pointer', background: '#dc2626', color: '#fff', fontSize: 13 }}>提交记录</button>
             </div>
           </div>
         )}

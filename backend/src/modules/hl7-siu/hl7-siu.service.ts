@@ -67,10 +67,10 @@ export class Hl7SiuService {
       } else if (line.startsWith('SCH')) {
         const segs = line.split('|')
         result['doctorId'] = segs[3]?.split('^')[0] || ''
-        result['doctorName'] = segs[4] || ''
-        result['department'] = segs[5] || ''
-        result['startDateTime'] = segs[7] || ''
-        result['endDateTime'] = segs[8] || ''
+        result['doctorName'] = segs[5] || ''
+        result['department'] = segs[6] || ''
+        result['startDateTime'] = segs[9] || ''
+        result['endDateTime'] = segs[10] || ''
       }
     }
     return result

@@ -1,5 +1,5 @@
 ﻿/**
- * G005 RIS v3.0.6.11-32 - Files Controller
+ * G005 RIS v3.0.6.11-33 - Files Controller
  */
 import { Body, Controller, Get, Post, Query } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'

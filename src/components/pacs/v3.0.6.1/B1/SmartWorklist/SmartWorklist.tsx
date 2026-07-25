@@ -3,7 +3,7 @@
  * 对标:GE Smart Reading Worklist - 多维度评分排序(紧急度 × 等待 × AI 评分)
  */
 import React, { useState, useEffect } from 'react'
-import { Card, Table, Statistic, Row, Col, Tag, Progress } from 'antd'
+import { Card, Table, Statistic, Row, Col, Tag, Progress, Empty } from 'antd'
 
 interface WorklistEntry {
   id: string
@@ -252,6 +252,7 @@ const SmartWorklist: React.FC = () => {
           columns={columns}
           pagination={{ pageSize: 8 }}
           scroll={{ x: 1000 }}
+          locale={{ emptyText: <Empty description="暂无工作列表" /> }}
         />
       </Card>
     </div>

@@ -123,6 +123,7 @@ export const PRIMARY_LIGHT = '#2d4a6f'
 export const CARD_BG = '#ffffff'
 export const PANEL_BG = '#f0f4f8'
 
+/** @deprecated Use getPresetsForModality from utils/modalityPresets instead */
 export const WINDOW_PRESETS: WindowPreset[] = [
   { name: '骨窗', ww: 2000, wl: 400 },
   { name: '肺窗', ww: 1500, wl: -600 },

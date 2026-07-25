@@ -2,7 +2,7 @@
  * G005 放射RIS系统 v3.0.6.1 - 联邦学习 (Federated Learning) 协调
  */
 import React from 'react'
-import { Card, Row, Col, Tag, Space, Statistic, Progress, Table } from 'antd'
+import { Card, Row, Col, Tag, Space, Statistic, Progress, Table, Empty } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { Network, Shield, Server } from 'lucide-react'
 
@@ -78,6 +78,7 @@ export const FederatedLearning: React.FC<FederatedLearningProps> = ({ nodes = MO
           columns={columns}
           dataSource={nodes}
           pagination={false}
+          locale={{ emptyText: <Empty description="暂无联邦节点" /> }}
         />
         <Space style={{ marginTop: 8 }} wrap>
           <Tag color="blue">差分隐私 ε=1.0</Tag>

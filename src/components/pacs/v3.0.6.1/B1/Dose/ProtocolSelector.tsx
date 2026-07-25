@@ -2,7 +2,7 @@
  * G005 放射RIS系统 v3.0.6.1 - 扫描协议选择器
  */
 import React, { useMemo } from 'react'
-import { Select, Table, Tag } from 'antd'
+import { Select, Table, Tag, Empty } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { DoseRecord } from './DoseTracker'
 
@@ -39,7 +39,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({ records, onS
         onChange={(v) => onSelect?.(v)}
         options={protocols.map((p) => ({ value: p.protocol, label: p.protocol }))}
       />
-      <Table size="small" rowKey="protocol" columns={columns} dataSource={protocols} pagination={false} />
+      <Table size="small" rowKey="protocol" columns={columns} dataSource={protocols} pagination={false} locale={{ emptyText: <Empty description="暂无协议" /> }} />
     </div>
   )
 }
