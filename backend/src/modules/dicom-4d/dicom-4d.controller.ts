@@ -2,6 +2,10 @@ import { Controller, Post, Get, Param, Body, Logger } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger'
 import { Roles } from '../../common/decorators/roles.decorator'
 import { Dicom4dService } from './dicom-4d.service'
+import { z } from 'zod'
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
+
+const FramesSchema = z.object({ seriesUid: z.string().min(1) })
 
 @ApiTags('dicom-4d')
 @ApiBearerAuth()
@@ -19,7 +23,7 @@ export class Dicom4dController {
 
   @Post('frames')
   @ApiOperation({ summary: 'Get 4D frame sequence' })
-  getFrames(@Body() body: { seriesUid: string }) {
+  getFrames(@Body(new ZodValidationPipe(FramesSchema)) body: { seriesUid: string }) {
     return this.service.getFrames(body.seriesUid)
   }
 

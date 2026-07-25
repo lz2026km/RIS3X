@@ -36,4 +36,32 @@ export const examApi = {
     await invalidateApiCache(`/exams/${id}`)
     return res
   },
+
+  checkIn: async (id: string) => {
+    const res = await api.post<ExamDto>(`/worklist/${id}/checkin`)
+    await invalidateApiCache(`/exams/${id}`)
+    await invalidateApiCacheByPrefix('/exams')
+    return res
+  },
+
+  start: async (id: string) => {
+    const res = await api.post<ExamDto>(`/worklist/${id}/start`)
+    await invalidateApiCache(`/exams/${id}`)
+    await invalidateApiCacheByPrefix('/exams')
+    return res
+  },
+
+  complete: async (id: string) => {
+    const res = await api.post<ExamDto>(`/worklist/${id}/complete`)
+    await invalidateApiCache(`/exams/${id}`)
+    await invalidateApiCacheByPrefix('/exams')
+    return res
+  },
+
+  cancel: async (id: string, reason?: string) => {
+    const res = await api.post<ExamDto>(`/worklist/${id}/cancel`, { reason })
+    await invalidateApiCache(`/exams/${id}`)
+    await invalidateApiCacheByPrefix('/exams')
+    return res
+  },
 }

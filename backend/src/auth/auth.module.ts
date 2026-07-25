@@ -3,24 +3,26 @@
  * 简版:登录 / 刷新 / 当前用户 / 修改密码
  */
 import { Module } from '@nestjs/common'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { JwtModule } from '@nestjs/jwt'
 import { PassportModule } from '@nestjs/passport'
 import { AuthService } from './auth.service'
 import { AuthController } from './auth.controller'
 import { JwtStrategy } from './jwt.strategy'
 
-const jwtSecret = process.env['JWT_SECRET']
-
-if (!jwtSecret) {
-  throw new Error('JWT_SECRET environment variable is required')
-}
-
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.register({
-      secret: jwtSecret,
-      signOptions: { expiresIn: '15m' },
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        const secret = config.get<string>('JWT_SECRET')
+        if (!secret || (config.get<string>('NODE_ENV') === 'production' && Buffer.byteLength(secret) < 32)) {
+          throw new Error('JWT_SECRET must be at least 32 bytes in production')
+        }
+        return { secret, signOptions: { expiresIn: '15m' as const, algorithm: 'HS256' as const } }
+      },
     }),
   ],
   controllers: [AuthController],

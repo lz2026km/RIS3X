@@ -204,69 +204,87 @@ export default defineConfig({
     reportCompressedSize: true,
     chunkSizeWarningLimit: 600,
     rollupOptions: {
-      treeshake: {
-        preset: 'recommended',
-        propertyReadSideEffects: false,
-        moduleSideEffects: (id) => {
-          if (/\.css$/.test(id)) return true;
-          return false;
-        },
-      },
+      treeshake: true,
       output: {
         format: 'es',
-        // 手动分包
-        manualChunks: {
-          // 核心 React 栈
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-
-          // antd (拆分为 antd + icons, 避免 icons 拖慢 antd 首屏)
-          'antd-vendor': ['antd', '@ant-design/cssinjs'],
-          'antd-icons-vendor': ['@ant-design/icons'],
-
-          // 3D
-          'three-vendor': ['three'],
-
-          // 协同(Yjs)
-          'collab-vendor': ['yjs', 'y-webrtc'],
-
-          // 状态机
-          'xstate-vendor': ['xstate', '@xstate/react'],
-
-          // 工具
-          'utils-vendor': [
-            'date-fns',
-            'date-fns-tz',
-            'decimal.js',
-            'uuid',
-            'pinyin-pro',
-            'qrcode',
-            'dompurify',
-            'zod',
-            'zustand',
-          ],
-
-          // 图表(拆分避免单一 chunk >500KB)
-          'recharts-vendor': ['recharts'],
-          'lucide-vendor': ['lucide-react'],
-          'dnd-kit-vendor': ['@dnd-kit/core', '@dnd-kit/sortable'],
-
-          // DICOM 堆栈已从 manualChunks 移除(@cornerstonejs/* / dcmjs / dicom-parser)
-          // 改为由 Rollup 动态产出按需 chunk,避免被 modulepreload 强拉
-
-          // 数据库
-          'db-vendor': ['dexie', 'dexie-react-hooks'],
-
-          // DICOM
-          'dicom-vendor': ['@cornerstonejs/core', '@cornerstonejs/dicom-image-loader', '@cornerstonejs/tools', 'dcmjs', 'dicom-parser'],
-
-          // html2canvas
-          'html2canvas-vendor': ['html2canvas'],
-
-          // 规则引擎
-          'rules-vendor': ['json-rules-engine'],
-
-          // PDF
-          'pdf-vendor': ['jspdf'],
+        // 手动分包(使用函数形式确保与Rollup解析的模块ID匹配)
+        manualChunks(id) {
+          // node_modules 内的模块按包名分组
+          if (id.includes('node_modules')) {
+            // 核心 React 栈
+            if (id.includes('/react/') || id.includes('/react-dom/') || id.includes('/react-router-dom/')) {
+              return 'react-vendor';
+            }
+            // antd (~1.1MB, 单独分包避免影响首屏)
+            if (id.includes('/antd/') || id.includes('/@ant-design/cssinjs/')) {
+              return 'antd-vendor';
+            }
+            if (id.includes('/@ant-design/icons/')) {
+              return 'antd-icons-vendor';
+            }
+            // 3D (~734KB)
+            if (id.includes('/three/')) {
+              return 'three-vendor';
+            }
+            // 协同
+            if (id.includes('/yjs/') || id.includes('/y-webrtc/') || id.includes('/y-websocket/') || id.includes('/y-protocols/')) {
+              return 'collab-vendor';
+            }
+            // 状态机
+            if (id.includes('/xstate/') || id.includes('/@xstate/react/')) {
+              return 'xstate-vendor';
+            }
+            // 工具(已 tree-shake, zustand/decimal.js 等~346KB)
+            if (id.includes('/date-fns/') || id.includes('/decimal.js/') || id.includes('/uuid/') || id.includes('/pinyin-pro/') || id.includes('/qrcode/') || id.includes('/dompurify/') || id.includes('/zod/') || id.includes('/zustand/') || id.includes('/date-fns-tz/')) {
+              return 'utils-vendor';
+            }
+            // 图表
+            if (id.includes('/recharts/')) {
+              return 'recharts-vendor';
+            }
+            if (id.includes('/lucide-react/')) {
+              return 'lucide-vendor';
+            }
+            if (id.includes('/@dnd-kit/')) {
+              return 'dnd-kit-vendor';
+            }
+            // 数据库
+            if (id.includes('/dexie/') || id.includes('/dexie-react-hooks/')) {
+              return 'db-vendor';
+            }
+            // DICOM (~3MB, corner stone 全家桶)
+            if (id.includes('/@cornerstonejs/') || id.includes('/dcmjs/') || id.includes('/dicom-parser/')) {
+              return 'dicom-vendor';
+            }
+            // html2canvas (~198KB)
+            if (id.includes('/html2canvas/')) {
+              return 'html2canvas-vendor';
+            }
+            // 规则引擎
+            if (id.includes('/json-rules-engine/')) {
+              return 'rules-vendor';
+            }
+            // PDF (~389KB)
+            if (id.includes('/jspdf/')) {
+              return 'pdf-vendor';
+            }
+            // i18n
+            if (id.includes('/i18next/') || id.includes('/react-i18next/')) {
+              return 'i18n-vendor';
+            }
+            // sentry
+            if (id.includes('/@sentry/')) {
+              return 'sentry-vendor';
+            }
+            // docx/exceljs (只在导出页使用)
+            if (id.includes('/docx/') || id.includes('/exceljs/')) {
+              return 'doc-vendor';
+            }
+            // tiptap (富文本编辑器)
+            if (id.includes('/@tiptap/')) {
+              return 'tiptap-vendor';
+            }
+          }
         },
         // 文件名 hash
         chunkFileNames: 'assets/[name]-[hash].js',

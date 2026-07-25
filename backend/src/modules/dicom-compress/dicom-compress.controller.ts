@@ -2,6 +2,11 @@ import { Controller, Get, Post, Param, Body, Logger } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger'
 import { Roles } from '../../common/decorators/roles.decorator'
 import { DicomCompressService } from './dicom-compress.service'
+import { z } from 'zod'
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
+
+const CompressSchema = z.object({ fileId: z.string().min(1), transferSyntax: z.string().min(1) })
+const DecompressSchema = z.object({ fileId: z.string().min(1) })
 
 @ApiTags('dicom-compress')
 @ApiBearerAuth()
@@ -13,7 +18,7 @@ export class DicomCompressController {
 
   @Post()
   @ApiOperation({ summary: 'Compress DICOM file with specified transfer syntax' })
-  compress(@Body() body: { fileId: string; transferSyntax: string }) {
+  compress(@Body(new ZodValidationPipe(CompressSchema)) body: { fileId: string; transferSyntax: string }) {
     return this.service.compress(body.fileId, body.transferSyntax)
   }
 
@@ -25,7 +30,7 @@ export class DicomCompressController {
 
   @Post('decompress')
   @ApiOperation({ summary: 'Decompress DICOM file to original transfer syntax' })
-  decompress(@Body() body: { fileId: string }) {
+  decompress(@Body(new ZodValidationPipe(DecompressSchema)) body: { fileId: string }) {
     return this.service.decompress(body.fileId)
   }
 

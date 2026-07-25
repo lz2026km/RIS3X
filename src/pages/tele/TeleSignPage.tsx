@@ -131,7 +131,7 @@ const TeleSignPage: React.FC = () => {
           <Text strong>签署人: </Text><Text>{selectedSession?.signerName}</Text><br />
           <Text strong>状态: </Text><Tag color={selectedSession?.status === 'approved' ? 'green' : selectedSession?.status === 'rejected' ? 'red' : 'orange'}>{selectedSession?.status === 'approved' ? '已批准' : selectedSession?.status === 'rejected' ? '已拒绝' : '待签署'}</Tag><br />
           {selectedSession?.comment && <><Text strong>备注: </Text><Text>{selectedSession.comment}</Text></>}
-          {selectedSession?.signatureData && <div style={{ marginTop: 16 }}><Text strong>签名:</Text><img src={selectedSession.signatureData} alt="signature" style={{ maxWidth: 200, border: '1px solid #eee', marginTop: 8 }} /></div>}
+          {selectedSession?.signatureData && <div style={{ marginTop: 16 }}><Text strong>签名:</Text><img src={selectedSession.signatureData} alt="signature" loading="lazy" decoding="async" style={{ maxWidth: 200, border: '1px solid #eee', marginTop: 8 }} /></div>}
         </Card>
       </Modal>
     </div>

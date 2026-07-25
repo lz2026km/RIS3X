@@ -1,6 +1,10 @@
 import { Controller, Get, HttpCode, HttpStatus, Post, Query, Body } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { SmartAuthService } from './smart-auth.service'
+import { z } from 'zod'
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
+
+const TokenSchema = z.object({ code: z.string().min(1), client_id: z.string().min(1) })
 
 @ApiTags('fhir-smart')
 @Controller('fhir/r4')
@@ -27,7 +31,7 @@ export class SmartAuthController {
 
   @Post('auth/token')
   @HttpCode(HttpStatus.CREATED)
-  token(@Body('code') code: string, @Body('client_id') clientId: string) {
-    return this.smartAuth.token(code, clientId)
+  token(@Body(new ZodValidationPipe(TokenSchema)) body: { code: string; client_id: string }) {
+    return this.smartAuth.token(body.code, body.client_id)
   }
 }

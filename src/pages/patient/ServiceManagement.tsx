@@ -250,7 +250,20 @@ export default function ServiceManagement() {
               <option value="en">English</option>
             </select>
           </div>
-          <button style={{ ...s.btn, marginTop: 16 }} onClick={() => alert('偏好设置已保存')}>保存设置</button>
+          <button
+            style={{ ...s.btn, marginTop: 16 }}
+            onClick={() => {
+              try {
+                window.localStorage.setItem('ris_patient_prefs', JSON.stringify(prefs));
+                const verb = navigator?.language?.startsWith('zh') ? '已保存偏好设置' : 'Preferences saved';
+                window.alert?.(verb);
+                setSuccessCode(verb);
+                setTimeout(() => setSuccessCode(null), 3000);
+              } catch (e) {
+                window.alert?.('保存失败: ' + (e as Error).message);
+              }
+            }}
+          >保存设置</button>
         </div>
       )}
     </div>

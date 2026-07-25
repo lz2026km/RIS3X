@@ -1,7 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { INestApplication } from '@nestjs/common'
 import request from 'supertest'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { StatsModule } from '../src/modules/stats/stats.module'
+import { CacheService } from '../src/cache/cache.service'
 
 describe('Stats (e2e)', () => {
   let app: INestApplication
@@ -9,7 +11,12 @@ describe('Stats (e2e)', () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [StatsModule],
-    }).compile()
+    })
+      .overrideProvider(CACHE_MANAGER)
+      .useValue({ get: jest.fn().mockResolvedValue(null), set: jest.fn(), reset: jest.fn() })
+      .overrideProvider(CacheService)
+      .useValue({ get: jest.fn().mockResolvedValue(null), set: jest.fn().mockResolvedValue(undefined), reset: jest.fn().mockResolvedValue(undefined) })
+      .compile()
 
     app = moduleFixture.createNestApplication()
     await app.init()

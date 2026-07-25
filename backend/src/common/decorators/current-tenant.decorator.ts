@@ -1,8 +1,6 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common'
+import { createParamDecorator } from '@nestjs/common'
+import { getCurrentTenantId } from '../interceptors/tenant-context.interceptor'
 
 export const CurrentTenant = createParamDecorator(
-  (_data: unknown, ctx: ExecutionContext): string => {
-    const request = ctx.switchToHttp().getRequest()
-    return request.user?.tenantId || request.headers?.['x-tenant-id'] || 'default'
-  },
+  (): string => getCurrentTenantId(),
 )

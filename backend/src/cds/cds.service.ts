@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import type { InputJsonValue } from '@prisma/client/runtime/library.js'
 
 export interface RuleEvaluateRequest {
   patientId?: string
@@ -100,7 +101,7 @@ export class CdsService {
   }
 
   async createGuideline(body: Record<string, unknown>) {
-    const data = await this.prisma.systemConfig.create({ data: { key: `cds_guideline_${Date.now()}`, value: body } })
+    const data = await this.prisma.systemConfig.create({ data: { key: `cds_guideline_${Date.now()}`, value: body as InputJsonValue } })
     return { data: [data] }
   }
 
@@ -111,7 +112,7 @@ export class CdsService {
 
   async acknowledgeAlert(body: Record<string, unknown>) {
     const { id, ...rest } = body
-    const data = await this.prisma.notification.update({ where: { id }, data: { read: true, ...rest } })
+    const data = await this.prisma.notification.update({ where: { id: id as string }, data: { read: true, ...rest } as any })
     return { data: [data] }
   }
 
@@ -131,7 +132,7 @@ export class CdsService {
   }
 
   async createCdsRule(body: Record<string, unknown>) {
-    const data = await this.prisma.systemConfig.create({ data: { key: `cds_rule_${Date.now()}`, value: body } })
+    const data = await this.prisma.systemConfig.create({ data: { key: `cds_rule_${Date.now()}`, value: body as InputJsonValue } })
     return { data: [data] }
   }
 

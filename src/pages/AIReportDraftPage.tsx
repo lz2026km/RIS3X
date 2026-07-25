@@ -5,6 +5,7 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { message } from 'antd';
 import {
   Sparkles, Wand2, Brain, FileText,
   Save, RefreshCw, Loader2, CheckCircle2,
@@ -16,6 +17,7 @@ import {
   type AIDraftTemplate,
 } from '../data/qualityScoreMock';
 import { extendedReportMock } from '../data/reportSubsystemMock';
+import { v3WritingApi } from '../services/api/v3Api';
 
 // ============================================================
 // 主组件
@@ -44,9 +46,9 @@ export default function AIReportDraftPage() {
   const selectedTemplate = AI_DRAFT_TEMPLATES.find(t => t.id === selectedTemplateId);
 
   // 生成草稿
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!clinicalHistory.trim() && !selectedTemplate) {
-      alert('请输入临床病史或选择 AI 场景模板');
+      message.warning('请输入临床病史或选择 AI 场景模板');
       return;
     }
 
@@ -72,48 +74,125 @@ export default function AIReportDraftPage() {
       } else {
         clearInterval(interval);
         setGenerating(false);
-
-        // 选择匹配的模板
-        let draft = selectedTemplate;
-        if (!draft) {
-          // 简单的关键词匹配
-          const text = clinicalHistory.toLowerCase();
-          if (text.includes('肺') || text.includes('胸')) {
-            draft = AI_DRAFT_TEMPLATES.find(t => t.scenario.includes('肺'));
-          } else if (text.includes('肝')) {
-            draft = AI_DRAFT_TEMPLATES.find(t => t.scenario.includes('肝'));
-          } else if (text.includes('脑') || text.includes('梗') || text.includes('中风')) {
-            draft = AI_DRAFT_TEMPLATES.find(t => t.scenario.includes('脑'));
-          } else if (text.includes('腰') || text.includes('椎')) {
-            draft = AI_DRAFT_TEMPLATES.find(t => t.scenario.includes('腰椎'));
-          } else if (text.includes('乳腺')) {
-            draft = AI_DRAFT_TEMPLATES.find(t => t.scenario.includes('乳腺'));
-          } else {
-            draft = AI_DRAFT_TEMPLATES[0]; // 默认
-          }
-        }
-
-        if (draft) {
-          setGeneratedDraft(draft);
-          setEditedFindings(draft.generatedFindings);
-          setEditedDiagnosis(draft.generatedDiagnosis);
-          setEditedImpression(draft.generatedImpression);
-          setSelectedTemplateId(draft.id);
-        }
       }
     }, 600);
+
+    try {
+      const res = await v3WritingApi.aiDraft({
+        templateId: selectedTemplate?.id ?? 'default',
+        patientId: selectedReportId,
+        findings: clinicalHistory,
+      });
+
+      clearInterval(interval);
+      setGenProgress(100);
+      setGenStage('生成完成！');
+
+      if (res.success && res.data) {
+        const draft: AIDraftTemplate = {
+          id: res.data.id ?? `draft-${Date.now()}`,
+          scenario: selectedTemplate?.scenario ?? '智能生成',
+          modality: currentReport?.modality ?? 'CT',
+          bodyPart: currentReport?.bodyPart ?? '胸部',
+          confidence: res.data.confidence ?? 0.85,
+          generatedFindings: res.data.findings ?? '',
+          generatedDiagnosis: res.data.diagnosis ?? '',
+          generatedImpression: res.data.impression ?? '',
+          sources: res.data.sources ?? ['AI Model v2.3'],
+        };
+        setGeneratedDraft(draft);
+        setEditedFindings(draft.generatedFindings);
+        setEditedDiagnosis(draft.generatedDiagnosis);
+        setEditedImpression(draft.generatedImpression);
+        setSelectedTemplateId(draft.id);
+      } else {
+        throw new Error(res.error?.message || 'AI 生成失败');
+      }
+    } catch (e: any) {
+      clearInterval(interval);
+      setGenerating(false);
+
+      let draft = selectedTemplate;
+      if (!draft) {
+        const text = clinicalHistory.toLowerCase();
+        if (text.includes('肺') || text.includes('胸')) {
+          draft = AI_DRAFT_TEMPLATES.find(t => t.scenario.includes('肺'));
+        } else if (text.includes('肝')) {
+          draft = AI_DRAFT_TEMPLATES.find(t => t.scenario.includes('肝'));
+        } else if (text.includes('脑') || text.includes('梗') || text.includes('中风')) {
+          draft = AI_DRAFT_TEMPLATES.find(t => t.scenario.includes('脑'));
+        } else if (text.includes('腰') || text.includes('椎')) {
+          draft = AI_DRAFT_TEMPLATES.find(t => t.scenario.includes('腰椎'));
+        } else if (text.includes('乳腺')) {
+          draft = AI_DRAFT_TEMPLATES.find(t => t.scenario.includes('乳腺'));
+        } else {
+          draft = AI_DRAFT_TEMPLATES[0];
+        }
+      }
+
+      if (draft) {
+        setGeneratedDraft(draft);
+        setEditedFindings(draft.generatedFindings);
+        setEditedDiagnosis(draft.generatedDiagnosis);
+        setEditedImpression(draft.generatedImpression);
+        setSelectedTemplateId(draft.id);
+        message.warning(`AI 服务暂不可用，使用离线模式: ${e?.message || ''}`);
+      } else {
+        message.error('AI 生成失败: ' + (e?.message || String(e)));
+      }
+    }
   };
 
   // 应用到报告书写
-  const applyToReport = () => {
+  const applyToReport = async () => {
     if (!generatedDraft) return;
-    alert(`已应用 AI 初稿到报告书写页！\n\n所见：${editedFindings.slice(0, 50)}...\n诊断：${editedDiagnosis}\n意见：${editedImpression}`);
+    try {
+      const res = await v3WritingApi.aiDraft({
+        templateId: generatedDraft.id,
+        patientId: currentReport?.patientId ?? selectedReportId,
+        findings: `${editedFindings}\n\n诊断：${editedDiagnosis}\n意见：${editedImpression}`,
+      });
+      if (res.success) {
+        message.success(`已应用 AI 初稿到报告书写页 · 诊断: ${editedDiagnosis}`);
+      } else {
+        message.warning(`已跳转到报告页 · ${res.error?.message || 'AI 服务暂不可用'}`);
+      }
+    } catch (e: any) {
+      message.warning(`已跳转到报告页 · ${e?.message || String(e)}`);
+    }
     navigate('/report-write-v2/' + selectedReportId);
   };
 
   // 保存为草稿
-  const saveAsDraft = () => {
-    alert('已保存为草稿（模拟）');
+  const saveAsDraft = async () => {
+    if (!generatedDraft) {
+      message.warning('请先生成 AI 草稿');
+      return;
+    }
+    try {
+      const res = await v3WritingApi.saveDraft(selectedReportId, {
+        templateId: generatedDraft.id,
+        reportId: selectedReportId,
+        patientName: currentReport?.patientName,
+        modality: currentReport?.modality,
+        bodyPart: currentReport?.bodyPart,
+        clinicalHistory,
+        findings: editedFindings,
+        diagnosis: editedDiagnosis,
+        impression: editedImpression,
+        scenario: generatedDraft.scenario,
+        confidence: generatedDraft.confidence,
+        savedAt: new Date().toISOString(),
+        status: 'draft',
+      });
+      if (res.success) {
+        message.success(`草稿已保存 · ID ${(res.data as any)?.id ?? selectedReportId}`);
+      } else {
+        message.error(res.error?.message || '保存失败');
+      }
+    } catch (e: any) {
+      message.error('保存失败: ' + (e?.message || String(e)));
+    }
   };
 
   return (

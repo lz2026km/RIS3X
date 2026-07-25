@@ -2,6 +2,8 @@
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { CosignService } from './cosign.service'
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
+import { ApproveCosignSchema, CreateCosignRuleSchema, RejectCosignSchema } from './cosign.schema'
 
 @ApiTags('cosign')
 @ApiBearerAuth()
@@ -17,10 +19,10 @@ export class CosignController {
   getPendingCosign(@Param('id') id: string) { return this.svc.getPendingCosign(id) }
 
   @Post('pending/:id/approve')
-  approveCosign(@Body() body: Record<string, unknown>) { return this.svc.approveCosign(body) }
+  approveCosign(@Body(new ZodValidationPipe(ApproveCosignSchema)) body: Record<string, unknown>) { return this.svc.approveCosign(body) }
 
   @Post('pending/:id/reject')
-  rejectCosign(@Body() body: Record<string, unknown>) { return this.svc.rejectCosign(body) }
+  rejectCosign(@Body(new ZodValidationPipe(RejectCosignSchema)) body: Record<string, unknown>) { return this.svc.rejectCosign(body) }
 
   @Get('history')
   listCosignHistory() { return this.svc.listCosignHistory() }
@@ -29,7 +31,7 @@ export class CosignController {
   listCosignRules() { return this.svc.listCosignRules() }
 
   @Post('rules')
-  createCosignRule(@Body() body: Record<string, unknown>) { return this.svc.createCosignRule(body) }
+  createCosignRule(@Body(new ZodValidationPipe(CreateCosignRuleSchema)) body: Record<string, unknown>) { return this.svc.createCosignRule(body) }
 
   @Get('stats')
   getCosignStats() { return this.svc.getCosignStats() }

@@ -1,5 +1,6 @@
 import { t } from '../i18n/appI18n'
 import ViewerSelector from '../components/common/ViewerSelector'
+import AppModal from '../components/common/AppModal'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import {
   ZoomIn, ZoomOut, Move, Sun, RotateCw, RotateCcw, FlipHorizontal, FlipVertical,
@@ -23,6 +24,8 @@ import {
 import { getRecommendedPresets, WindowPreset as DicomWindowPreset } from '../utils/WindowPresets'
 import type { Series, DicomImage, ExamItem, HistoryExam, Measurement, Annotation, MeasureType, Tool, MeasureSubMenu, LayoutMode, RightTab, AnnotationType, PseudoColorMode, CompareLayout, ViewMode, MipDirection, VrAxis, WindowPreset, InteractiveMeasure } from './dicom/DicomViewerTypes'
 import { WINDOW_PRESETS, SERIES_COLORS, PSEUDO_COLOR_PRESETS, ANNOTATION_COLORS, ANNOTATION_COLOR_NAMES, PRIMARY, PRIMARY_LIGHT, CARD_BG, PANEL_BG } from './dicom/DicomViewerTypes'
+import { useWindowingState } from '../utils/windowingStorage'
+import { getPresetsForModality } from '../utils/modalityPresets'
 import { DicomCanvas, MIPCanvas, VRCanvas } from './dicom/DicomViewerSubComponents'
 import ToolbarSection from './dicom/ToolbarSection'
 import ViewportArea from './dicom/ViewportArea'
@@ -87,6 +90,15 @@ export default function DicomViewerPage() {
   const [isPlaying, setIsPlaying] = useState(false)
   const playRef = useRef<NodeJS.Timeout | null>(null)
 
+  useEffect(() => {
+    return () => {
+      if (playRef.current) {
+        clearInterval(playRef.current)
+        playRef.current = null
+      }
+    }
+  }, [])
+
   const [zoom, setZoom] = useState(100)
   const [panX, setPanX] = useState(0)
   const [panY, setPanY] = useState(0)
@@ -100,6 +112,38 @@ export default function DicomViewerPage() {
   const [wl, setWl] = useState(40)
   const [activePresetIdx, setActivePresetIdx] = useState<number | null>(null)
   const [activeMprIdx, setActiveMprIdx] = useState(0)
+
+  useEffect(() => {
+    const raw = (() => { try { return localStorage.getItem('g005_dicom_viewer_v1') } catch { return null } })()
+    if (!raw) return
+    try {
+      const saved = JSON.parse(raw)
+      if (typeof saved.zoom === 'number') setZoom(saved.zoom)
+      if (typeof saved.rotation === 'number') setRotation(saved.rotation)
+      if (typeof saved.flipH === 'boolean') setFlipH(saved.flipH)
+      if (typeof saved.flipV === 'boolean') setFlipV(saved.flipV)
+      if (typeof saved.brightness === 'number') setBrightness(saved.brightness)
+      if (typeof saved.contrast === 'number') setContrast(saved.contrast)
+      if (typeof saved.invert === 'boolean') setInvert(saved.invert)
+      if (typeof saved.ww === 'number') setWw(saved.ww)
+      if (typeof saved.wl === 'number') setWl(saved.wl)
+      if (saved.activePresetIdx === null || typeof saved.activePresetIdx === 'number') {
+        setActivePresetIdx(saved.activePresetIdx)
+      }
+    } catch {
+      /* ignore corrupted storage */
+    }
+  }, [])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('g005_dicom_viewer_v1', JSON.stringify({
+        zoom, rotation, flipH, flipV, brightness, contrast, invert, ww, wl, activePresetIdx,
+      }))
+    } catch {
+      /* quota exceeded; ignore */
+    }
+  }, [zoom, rotation, flipH, flipV, brightness, contrast, invert, ww, wl, activePresetIdx])
 
   const [viewMode, setViewMode] = useState<ViewMode>('MPR')
   const [mipDirection, setMipDirection] = useState<MipDirection>('axial')
@@ -250,11 +294,7 @@ export default function DicomViewerPage() {
     if (deltaY !== 0 || deltaX !== 0) setActivePresetIdx(null)
   }
 
-  const getCurrentPresets = () => {
-    if (exam.modality === 'CT') return [{ name: '肺窗', ww: 1500, wl: -600 }, { name: '纵隔窗', ww: 400, wl: 40 }, { name: '骨窗', ww: 2000, wl: 400 }]
-    if (exam.modality === 'MR') return [{ name: 'T1', ww: 400, wl: 40 }, { name: 'T2', ww: 800, wl: 200 }, { name: 'FLAIR', ww: 1000, wl: 400 }]
-    return [{ name: '骨窗', ww: 2000, wl: 400 }, { name: '软组织', ww: 400, wl: 40 }]
-  }
+  const getCurrentPresets = () => getPresetsForModality(exam.modality)
 
   const handleLayoutChange = (newLayout: LayoutMode) => setLayout(newLayout)
   const handleSeriesSelect = (idx: number) => { setActiveSeriesIdx(idx); setImageIndex(0) }
@@ -434,35 +474,34 @@ export default function DicomViewerPage() {
         </div>
 
         {/* 打印预览Modal */}
-        {showPrintPreview && (
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
-            onClick={() => setShowPrintPreview(false)}>
-            <div style={{ background: '#fff', borderRadius: 12, padding: 24, width: 640, maxHeight: '80vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.4)' }}
-              onClick={e => e.stopPropagation()}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                <span style={{ fontSize: 16, fontWeight: 700, color: PRIMARY }}>胶片打印预览</span>
-                <button onClick={() => setShowPrintPreview(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}><X size={18} /></button>
-              </div>
-              <div style={{ background: '#111', padding: 16, borderRadius: 8, marginBottom: 16 }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, marginBottom: 12 }}>
-                  {['序列1-层面1', '序列1-层面2', '序列2-层面1', '序列2-层面2'].map((label, i) => (
-                    <div key={i} style={{ background: '#222', borderRadius: 4, padding: '40px 20px', textAlign: 'center', color: '#666', fontSize: 12 }}>
-                      <div style={{ fontSize: 40, marginBottom: 8, opacity: 0.3 }}>▣</div>{label}
-                    </div>
-                  ))}
+        <AppModal
+          open={showPrintPreview}
+          onClose={() => setShowPrintPreview(false)}
+          title="胶片打印预览"
+          icon={<Printer size={18} color="#fff" />}
+          iconBg={PRIMARY}
+          width={640}
+          footer={
+            <>
+              <button style={{ ...s.reportBtn, background: '#f0f4f8', color: PRIMARY }} onClick={() => setShowPrintPreview(false)}>取消</button>
+              <button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }} onClick={() => { showToast('正在发送打印任务...'); setShowPrintPreview(false) }}><Printer size={14} />确认打印</button>
+            </>
+          }
+        >
+          <div style={{ background: '#111', padding: 16, borderRadius: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, marginBottom: 12 }}>
+              {['序列1-层面1', '序列1-层面2', '序列2-层面1', '序列2-层面2'].map((label, i) => (
+                <div key={i} style={{ background: '#222', borderRadius: 4, padding: '40px 20px', textAlign: 'center', color: '#666', fontSize: 12 }}>
+                  <div style={{ fontSize: 40, marginBottom: 8, opacity: 0.3 }}>▣</div>{label}
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#888', fontSize: 12 }}>
-                  <span>Patient: {exam.patientName} | {exam.patientId}</span>
-                  <span>{exam.examItemName} | {exam.deviceName?.split('（')[0]}</span>
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                <button style={{ ...s.reportBtn, background: '#f0f4f8', color: PRIMARY }} onClick={() => setShowPrintPreview(false)}>取消</button>
-                <button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }} onClick={() => { showToast('正在发送打印任务...'); setShowPrintPreview(false) }}><Printer size={14} />确认打印</button>
-              </div>
+              ))}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#888', fontSize: 12 }}>
+              <span>Patient: {exam.patientName} | {exam.patientId}</span>
+              <span>{exam.examItemName} | {exam.deviceName?.split('（')[0]}</span>
             </div>
           </div>
-        )}
+        </AppModal>
 
         {/* Toast 提示 */}
         {toastVisible && (

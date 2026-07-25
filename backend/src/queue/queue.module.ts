@@ -9,6 +9,9 @@ import { ReportExportConsumer, Hl7SendConsumer, AiInferenceConsumer } from './qu
       redis: {
         host: process.env['REDIS_HOST'] ?? 'localhost',
         port: parseInt(process.env['REDIS_PORT'] ?? '6379'),
+        password: process.env['REDIS_PASSWORD'] || undefined,
+        db: parseInt(process.env['REDIS_DB'] ?? '0'),
+        tls: process.env['REDIS_TLS'] === 'true' ? {} : undefined,
       },
     }),
     BullModule.registerQueue(

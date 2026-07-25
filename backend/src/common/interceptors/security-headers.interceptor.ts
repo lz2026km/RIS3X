@@ -1,21 +1,24 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common'
 import { Observable } from 'rxjs'
-import { map } from 'rxjs/operators'
+
+interface HeaderResponse {
+  setHeader(name: string, value: string): void
+}
+
+export function applySecurityHeaders(response: HeaderResponse): void {
+  response.setHeader('X-Content-Type-Options', 'nosniff')
+  response.setHeader('X-Frame-Options', 'DENY')
+  response.setHeader('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload')
+  response.setHeader('X-XSS-Protection', '0')
+  response.setHeader('Referrer-Policy', 'no-referrer')
+  response.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=()')
+  response.setHeader('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'")
+}
 
 @Injectable()
 export class SecurityHeadersInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
-    const response = context.switchToHttp().getResponse()
-    return next.handle().pipe(
-      map((data) => {
-        response.setHeader('X-Content-Type-Options', 'nosniff')
-        response.setHeader('X-Frame-Options', 'DENY')
-        response.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload')
-        response.setHeader('X-XSS-Protection', '0')
-        response.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
-        response.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https: wss:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'")
-        return data
-      }),
-    )
+    applySecurityHeaders(context.switchToHttp().getResponse<HeaderResponse>())
+    return next.handle()
   }
 }

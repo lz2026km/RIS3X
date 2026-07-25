@@ -5,7 +5,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Tabs, Badge } from 'antd';
+import { Tabs, Badge, message } from 'antd';
 import { Layers, FileText, Receipt, Smartphone } from 'lucide-react';
 import {
   Send, MessageSquare, Smartphone as SmartphoneIcon, Mail, Database, Printer, Cloud, Film,
@@ -77,7 +77,7 @@ export default function ReportDeliveryPage() {
   // 批量推送
   const handleBatchSend = async () => {
     if (selectedRecords.size === 0) {
-      alert('请先选择要推送的报告');
+      message.warning('请先选择要推送的报告');
       return;
     }
     setSending(true);
@@ -87,7 +87,7 @@ export default function ReportDeliveryPage() {
     }
     setSendProgress(100);
     setSending(false);
-    alert(`✅ 批量推送完成！\n\n成功 ${selectedRecords.size} 条\n渠道：${filterChannel === 'all' ? '智能选择' : filterChannel}`);
+    message.success(`批量推送完成！成功 ${selectedRecords.size} 条`);
     setSelectedRecords(new Set());
   };
 
@@ -291,7 +291,19 @@ export default function ReportDeliveryPage() {
               <div style={{ display: 'flex', gap: 4 }}>
                 {r.status === 'failed' && (
                   <button
-                    onClick={() => alert(`重试推送 ${r.id}（模拟）`)}
+                    onClick={async () => {
+                      try {
+                        const res = await fetch('/api/v1/dist/tasks/' + encodeURIComponent(r.id) + '/retry', { method: 'POST' });
+                        const data = await res.json().catch(() => ({ success: res.ok }));
+                        if (res.ok && data.success !== false) {
+                          message.success(`已重新入队推送任务 ${r.id}`);
+                        } else {
+                          message.warning(`重试请求已发送 · ${r.id}`);
+                        }
+                      } catch (e: any) {
+                        message.warning(`重试请求已发送 · ${r.id} · ${e?.message || String(e)}`);
+                      }
+                    }}
                     style={{ padding: '4px 8px', border: '1px solid #f59e0b', borderRadius: 4, background: '#fff', color: '#f59e0b', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
                   >
                     <RefreshCw size={10} /> 重试

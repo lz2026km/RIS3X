@@ -545,7 +545,7 @@ export const ReportRichEditor: React.FC<Props> = ({
             <div className="flex gap-2 overflow-x-auto">
               {doc.images.map((img) => (
                 <div key={img.id} className="relative w-20 h-20 border border-slate-200 rounded overflow-hidden bg-white flex-shrink-0">
-                  <img src={img.src} alt={img.alt} className="w-full h-full object-cover" />
+                  <img src={img.src} alt={img.alt} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                   {img.keyImage && <Star className="w-3 h-3 absolute top-1 right-1 text-amber-500 fill-amber-500" />}
                 </div>
               ))}

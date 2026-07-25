@@ -5,18 +5,13 @@ import { api } from '../../services/api/client';
 
 const { RangePicker } = DatePicker;
 
-const ECHO_COLUMNS: any = [
+const ECHO_COLUMNS: any[] = [
   { title: 'AE Title', dataIndex: 'aeTitle', key: 'aeTitle' },
   { title: 'IP', dataIndex: 'ip', key: 'ip' },
   { title: 'Port', dataIndex: 'port', key: 'port' },
   { title: 'Modality', dataIndex: 'modality', key: 'modality' },
   { title: 'Ping', dataIndex: 'pingMs', key: 'pingMs', render: (v: number | null) => v != null ? `${v} ms` : '-' },
   { title: 'Status', dataIndex: 'status', key: 'status', render: (v: string | null) => v ? <Tag color={v === 'SUCCESS' ? 'green' : 'red'} icon={v === 'SUCCESS' ? <CheckCircleOutlined /> : <CloseCircleOutlined />}>{v}</Tag> : '-' },
-  {
-    title: 'Action', key: 'action', render: (_: any, __: any) => (
-      <Button type="primary" size="small" icon={<SendOutlined />} loading={__._echoing} onClick={() => message.info('ECHO 功能开发中，敬请期待')}>ECHO 测试</Button>
-    ),
-  },
 ];
 
 const MWL_COLUMNS = [
@@ -135,9 +130,16 @@ export const DimsePage: React.FC = () => {
             dataSource={devices}
             rowKey="aeTitle"
             pagination={false}
-            columns={ECHO_COLUMNS.map((col: any) => col.key === 'action' ? { ...col, render: (_: any, record: any) => (
-              <Button type="primary" size="small" icon={<SendOutlined />} loading={record._echoing} onClick={() => handleEcho(record)}>ECHO 测试</Button>
-            )} : col)}
+            columns={[
+              ...ECHO_COLUMNS,
+              {
+                title: 'Action',
+                key: 'action',
+                render: (_: any, record: any) => (
+                  <Button type="primary" size="small" icon={<SendOutlined />} loading={record._echoing} onClick={() => handleEcho(record)}>ECHO 测试</Button>
+                ),
+              },
+            ]}
           />
         </Card>
       ),

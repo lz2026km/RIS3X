@@ -1,8 +1,9 @@
 import { useState, useMemo } from "react";
 import {
-  Table, Card, DatePicker, Select, Input, Button, Space, Tag, Badge,
+  Card, DatePicker, Select, Input, Button, Space, Tag, Badge,
   message, Typography, Tooltip, Statistic, Row, Col,
 } from "antd";
+import { ProTable, type ProColumn } from "../../components/data/ProTable";
 import {
   Shield, Search, Download, FileJson, FileText, AlertTriangle,
   CheckCircle, XCircle, Clock, Filter, Calendar,
@@ -182,13 +183,14 @@ export default function AuditLogPage() {
       </Card>
 
       <Card style={{ borderRadius: 8 }} bodyStyle={{ padding: 0 }}>
-        <Table
+        <ProTable<AuditLogEntry>
           dataSource={filtered}
-          columns={columns}
+          columns={columns as ProColumn<AuditLogEntry>[]}
           rowKey="id"
-          size="small"
+          showToolbar={false}
           pagination={{ pageSize: 20, showSizeChanger: true, showTotal: (t) => `共 ${t} 条` }}
           scroll={{ x: 1100 }}
+          size="small"
         />
       </Card>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Card, Button, Space, Typography, Alert, Row, Col, Tag, Progress, Checkbox, Divider, message, Statistic } from 'antd';
 import { ScanFace, Fingerprint, Mic, Eye, ShieldCheck, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import type { BiometricModality, BiometricMultiModalResult } from '../../types/sign';
@@ -32,6 +32,14 @@ export const MultiModalSignature: React.FC<MultiModalSignatureProps> = ({
   const [verifying, setVerifying] = useState(false);
   const [result, setResult] = useState<BiometricMultiModalResult | null>(null);
   const [progress, setProgress] = useState(0);
+  const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => () => {
+    if (progressRef.current !== null) {
+      clearInterval(progressRef.current);
+      progressRef.current = null;
+    }
+  }, []);
 
   const toggleModality = (m: BiometricModality) => {
     setSelected((prev) =>
@@ -47,10 +55,10 @@ export const MultiModalSignature: React.FC<MultiModalSignatureProps> = ({
     setVerifying(true);
     setProgress(0);
     setResult(null);
+    progressRef.current = setInterval(() => {
+      setProgress((p) => Math.min(p + 15, 90));
+    }, 300);
     try {
-      const interval = setInterval(() => {
-        setProgress((p) => Math.min(p + 15, 90));
-      }, 300);
       const samples = selected.map((m) => ({
         sampleId: `sample-${m}-${Date.now()}`,
         userId,
@@ -66,7 +74,6 @@ export const MultiModalSignature: React.FC<MultiModalSignatureProps> = ({
         samples,
         deviceId: 'mock-device',
       });
-      clearInterval(interval);
       setProgress(100);
       setResult(res);
       if (res.success) {
@@ -81,6 +88,10 @@ export const MultiModalSignature: React.FC<MultiModalSignatureProps> = ({
       message.error(msg);
       onError?.(msg);
     } finally {
+      if (progressRef.current !== null) {
+        clearInterval(progressRef.current);
+        progressRef.current = null;
+      }
       setVerifying(false);
     }
   };

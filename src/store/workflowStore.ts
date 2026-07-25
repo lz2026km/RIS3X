@@ -30,7 +30,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
     try {
       const res = await workflowApi.listDefinitions()
       if (res.success && Array.isArray(res.data)) {
-        set({ definitions: res.data as WorkflowDefinitionDto[], loading: false })
+        set({ definitions: res.data as WorkflowDefinitionDto[], loading: false, error: null })
       } else {
         set({ loading: false, error: res.error?.message ?? '加载失败' })
       }
@@ -47,6 +47,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
         set((state) => ({
           steps: { ...state.steps, [definitionId]: res.data as WorkflowStepDto[] },
           loading: false,
+          error: null,
         }))
       } else {
         set({ loading: false, error: res.error?.message ?? '加载失败' })
@@ -61,7 +62,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
     try {
       const res = await workflowApi.listSlaPolicies()
       if (res.success && Array.isArray(res.data)) {
-        set({ slaPolicies: res.data as SLAPolicyDto[], loading: false })
+        set({ slaPolicies: res.data as SLAPolicyDto[], loading: false, error: null })
       } else {
         set({ loading: false, error: res.error?.message ?? '加载失败' })
       }
@@ -75,7 +76,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
     try {
       const res = await workflowApi.listRoutingRules()
       if (res.success && Array.isArray(res.data)) {
-        set({ routingRules: res.data as RoutingRuleDto[], loading: false })
+        set({ routingRules: res.data as RoutingRuleDto[], loading: false, error: null })
       } else {
         set({ loading: false, error: res.error?.message ?? '加载失败' })
       }
@@ -92,10 +93,15 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
         workflowApi.listSlaPolicies(),
         workflowApi.listRoutingRules(),
       ])
+      const failure = [defRes, slaRes, ruleRes].find((response) => !response.success)
+      if (failure) {
+        set({ loading: false, error: failure.error?.message ?? '加载工作流配置失败' })
+        return
+      }
       set({
-        definitions: (defRes.success && Array.isArray(defRes.data)) ? defRes.data as WorkflowDefinitionDto[] : [],
-        slaPolicies: (slaRes.success && Array.isArray(slaRes.data)) ? slaRes.data as SLAPolicyDto[] : [],
-        routingRules: (ruleRes.success && Array.isArray(ruleRes.data)) ? ruleRes.data as RoutingRuleDto[] : [],
+        definitions: Array.isArray(defRes.data) ? defRes.data as WorkflowDefinitionDto[] : [],
+        slaPolicies: Array.isArray(slaRes.data) ? slaRes.data as SLAPolicyDto[] : [],
+        routingRules: Array.isArray(ruleRes.data) ? ruleRes.data as RoutingRuleDto[] : [],
         loading: false,
         error: null,
       })

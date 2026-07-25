@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { message } from 'antd'
 import { Search, ListChecks, Camera, Monitor, Play, CheckCircle, Clock, ChevronRight, AlertCircle, Wifi, WifiOff, XCircle } from 'lucide-react'
 import { replayDeviceEvent } from '../../../utils/deviceStateAdapter'
 
@@ -75,15 +76,15 @@ export default function TechMobileWorkstation() {
   })
 
   const handleStartExam = useCallback((id: string) => {
-    alert(`开始检查: ${id}`)
+    message.success(`开始检查: ${id}`)
   }, [])
 
   const handleCompleteExam = useCallback((id: string) => {
-    alert(`完成检查: ${id}`)
+    message.success(`完成检查: ${id}`)
   }, [])
 
   const handleScan = useCallback(() => {
-    alert('扫码枪/相机扫描条码')
+    message.info('扫码枪/相机扫描条码')
   }, [])
 
   return (

@@ -93,7 +93,7 @@ export const BrandingConfig: React.FC<BrandingConfigProps> = ({ onConfigChange }
         <div>
           <label style={{ fontSize: 12, color: '#475569', display: 'block', marginBottom: 2 }}><Image size={11} /> Logo</label>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            {config.logoDataUrl && <img src={config.logoDataUrl} alt="logo" style={{ height: 32, borderRadius: 4 }} />}
+            {config.logoDataUrl && <img src={config.logoDataUrl} alt="logo" decoding="async" style={{ height: 32, borderRadius: 4 }} />}
             <label style={{ padding: '4px 10px', border: '1px solid #7c3aed', borderRadius: 4, background: '#f5f3ff', color: '#7c3aed', fontSize: 12, cursor: 'pointer' }}>
               上传
               <input type="file" accept="image/*" onChange={handleLogoUpload} style={{ display: 'none' }} />

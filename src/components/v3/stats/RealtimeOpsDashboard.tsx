@@ -62,6 +62,7 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
   }, [refreshInterval])
 
   const summary = useMemo(() => {
+    void tick
     const now = Date.now()
     const recent = events.filter((e) => now - new Date(e.at).getTime() < 60 * 60 * 1000) // 1h
     return {
@@ -70,7 +71,7 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
       criticalsLastHour: recent.filter((e) => e.type === 'CRITICAL').length,
       errorsLastHour: recent.filter((e) => e.type === 'ERROR').length,
     }
-  }, [events])
+  }, [events, tick])
 
   const deviceStats = useMemo(() => {
     return {
@@ -90,7 +91,7 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
   }, [events])
 
   return (
-    <div data-testid="realtime-ops-dashboard" key={tick}>
+    <div data-testid="realtime-ops-dashboard">
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={6}>
           <Card>

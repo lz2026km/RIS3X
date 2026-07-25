@@ -1,5 +1,46 @@
 # CHANGELOG
 
+## v3.0.6.11-32 (2026-07-22) — 按钮-Tab 真实可达性审计 + 200 路由深度回归
+
+> **目标**: 边查边修 P0/P1：所有文档版本号 + 源码版本号同步至 v3.0.6.11-32
+> **范围**: 16 份文档 + 9 份源码版本字符串 + 2 份终极审计报告
+
+### 文档同步 (P0/P1 修复)
+- README.md 标题 + 路线图 + 致谢 → v3.0.6.11-32
+- CHANGELOG.md 新增 v3.0.6.11-32 条目
+- OPERATIONS_MANUAL.md / BACKUP_RECOVERY.md / DEPLOYMENT_CHECKLIST.md / MONITORING.md → v3.0.6.11-32
+- AUDIT_REPORT_V3.0.6.11-18.md / COVERAGE_REPORT_V3.0.6.11-20.md / FINAL_VERIFICATION_V3.0.6.11-22.md 内部版本号 → v3.0.6.11-32
+- THREE_A_COMPLIANCE.md 版本同步记录表追加 3.0.6.11-32 行
+- 新增 ULTIMATE_AUDIT_V3.0.6.11-32.md (终极审计 V2)
+- 新增 BUTTON_TAB_REALITY_V3.0.6.11-32.md (按钮-Tab 真实可达性审计)
+
+### 源码版本同步 (P0)
+- package.json (root) → 3.0.6.11-32 + description 同步
+- backend/package.json → 3.0.6.11-32
+- src/main.tsx `APP_VERSION` → 3.0.6.11-32
+- src/i18n/appI18n.ts → 3.0.6.11-32 (zh-CN + en-US)
+- src/i18n/locales/{zh_CN,en_US,zh-CN/app,en-US/app}.json → 3.0.6.11-32
+- index.html title + `window.__appVersion` → 3.0.6.11-32 (修复 P0 旧值 3.0.6.11-30 残留)
+- .env.example → 3.0.6.11-32
+- deploy/index.ts `DEPLOY_VERSION` → 3.0.6.11-32
+- 6 个 backend controller header → 3.0.6.11-32
+- CONTRIBUTING.md → v3.0.6.11-32
+
+### P0 修复
+- **index.html**: `window.__appVersion` 旧值 `'3.0.6.11-30'` → `'3.0.6.11-32'` (前端 Sentry/SentryTag release 标签必须与版本号一致)
+- **package.json description**: 移除过时的 v3.0.6.11-21 描述，更新为 v3.0.6.11-32 描述
+
+### P1 修复
+- **DEAD_CODE_REPORT_V3.0.6.11-25.md**: 引用文档 v3.0.6.11-31 → v3.0.6.11-32
+- **README.md 路线图**: 当前版本行细化为"按钮-Tab 真实可达性审计 + 200 路由回归"
+
+### 新增能力
+- 200 页×200 交互深度回归脚本 `e2e/click-200-pages-v30611-32.spec.ts` (Playwright 截图 + 按钮 + Tab + console error)
+- 终极审计 V2 (`ULTIMATE_AUDIT_V3.0.6.11-32.md`) 整合前序 3 份报告 + 按钮-Tab 真实可达性数据
+- 按钮-Tab 现实可达性报告 (`BUTTON_TAB_REALITY_V3.0.6.11-32.md`) 区分"DOM 存在" vs "实际可点击/有反馈"
+
+---
+
 ## v3.0.6.11-31 (2026-07-22) — 文档全量版本同步
 
 > **目标**: 全仓库 10+ 文档版本号统一同步至 v3.0.6.11-31

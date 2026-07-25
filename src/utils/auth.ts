@@ -177,10 +177,29 @@ export function clearToken(): void {
  */
 export async function refreshToken(): Promise<boolean> {
   try {
-    const res = await fetch('/api/v1/auth/refresh', {
+    const storedMode = (() => {
+      try { return window.localStorage.getItem('ris_api_mode')?.toLowerCase() } catch { return undefined }
+    })()
+    const envMode = import.meta.env.VITE_API_MODE?.toLowerCase()
+    const realMode = ['real', 'api', 'backend'].includes(storedMode ?? envMode ?? '')
+      || (!storedMode && !envMode && ['false', '0', 'off'].includes(import.meta.env.VITE_USE_MSW?.toLowerCase() ?? ''))
+    const baseUrl = realMode
+      ? (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api').replace(/\/$/, '')
+      : '/api/v1'
+    let csrfToken = window.sessionStorage.getItem('ris_csrf_token')
+    if (!csrfToken) {
+      csrfToken = crypto.randomUUID().replace(/-/g, '')
+      window.sessionStorage.setItem('ris_csrf_token', csrfToken)
+    }
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': csrfToken,
+    }
+    if (inMemoryToken?.token) headers.Authorization = `Bearer ${inMemoryToken.token}`
+    const res = await fetch(`${baseUrl}/auth/refresh`, {
       method: 'POST',
       credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
     });
     if (!res.ok) return false;
     const body = (await res.json()) as {

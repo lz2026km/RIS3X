@@ -149,7 +149,7 @@ export const DentalAiOnnxPage: React.FC = () => {
                 <AntdUpload accept="image/*" showUploadList={false} beforeUpload={(f) => { handleFileChange(f); return false; }}>
                   <Button block icon={<Upload size={14} />} style={{ marginTop: 12 }}>上传根尖片/咬合翼片</Button>
                 </AntdUpload>
-                {imagePreview && <div style={{ marginTop: 8 }}><img src={imagePreview} alt="preview" style={{ width: '100%', maxHeight: 200, objectFit: 'contain', borderRadius: 4 }} /></div>}
+                {imagePreview && <div style={{ marginTop: 8 }}><img src={imagePreview} alt="preview" loading="lazy" decoding="async" style={{ width: '100%', maxHeight: 200, objectFit: 'contain', borderRadius: 4 }} /></div>}
                 <Button type="primary" block icon={<Scan size={14} />} onClick={runInference} loading={loading} style={{ marginTop: 12 }}>
                   运行推理
                 </Button>

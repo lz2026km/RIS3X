@@ -3,6 +3,8 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { DataReportService } from './datareport.service';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
+import { CreateDataReportSchema, CreateNationalReportSchema } from './datareport.schema';
 @ApiTags('data-report')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR')
@@ -21,7 +23,7 @@ export class DataReportController {
 
   @Post('national-reports')
   @HttpCode(HttpStatus.CREATED)
-  createNationalReport(@Body() body: Record<string, unknown>) {
+  createNationalReport(@Body(new ZodValidationPipe(CreateNationalReportSchema)) body: Record<string, unknown>) {
     return this.svc.createNationalReport(body);
   }
 
@@ -37,7 +39,7 @@ export class DataReportController {
 
   @Post('data-reports')
   @HttpCode(HttpStatus.CREATED)
-  createDataReport(@Body() body: Record<string, unknown>) {
+  createDataReport(@Body(new ZodValidationPipe(CreateDataReportSchema)) body: Record<string, unknown>) {
     return this.svc.createDataReport(body);
   }
 

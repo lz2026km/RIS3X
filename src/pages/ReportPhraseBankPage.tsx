@@ -84,7 +84,7 @@ export default function ReportPhraseBankPage() {
   // 复制到剪贴板
   const handleCopy = (text: string) => {
     navigator.clipboard?.writeText(text);
-    alert('已复制到剪贴板！');
+    message.success('已复制到剪贴板！');
   };
 
   return (

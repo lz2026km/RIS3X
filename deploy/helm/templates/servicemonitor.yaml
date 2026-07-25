@@ -1,0 +1,19 @@
+{{- if .Values.monitoring.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "g005-ris.fullname" . }}
+  namespace: {{ default .Release.Namespace .Values.monitoring.serviceMonitor.namespace }}
+  labels:
+    {{- include "g005-ris.labels" . | nindent 4 }}
+spec:
+  jobLabel: app.kubernetes.io/name
+  selector:
+    matchLabels:
+      {{- include "g005-ris.selectorLabels" . | nindent 6 }}
+  endpoints:
+    - port: api
+      path: /metrics
+      interval: {{ .Values.monitoring.serviceMonitor.interval }}
+      scrapeTimeout: {{ .Values.monitoring.serviceMonitor.scrapeTimeout }}
+{{- end }}

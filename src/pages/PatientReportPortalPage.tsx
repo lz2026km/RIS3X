@@ -4,6 +4,7 @@
 // ============================================================
 
 import React, { useState } from 'react';
+import { message } from 'antd';
 import {
   Smartphone, Download, Share2, Eye,
   ChevronRight, FileText, Link2,
@@ -14,6 +15,7 @@ import {
 } from '../data/deliveryExportSignatureMock';
 import ShareDialog from '../components/portal/ShareDialog';
 import QrShareButton from '../components/portal/QrShareButton';
+import { patientPortalApi } from '../services/api/patientPortalApi';
 
 // ============================================================
 // 主组件
@@ -47,7 +49,18 @@ export default function PatientReportPortalPage() {
             <Link2 size={14} /> 分享链接
           </button>
           <button
-            onClick={() => alert('预览 H5 患者端（模拟）\n\n模拟手机界面：登录 → 实名 → 报告列表 → 详情 → 影像 → 下载')}
+            onClick={async () => {
+              try {
+                const res = await patientPortalApi.listPatients();
+                if (res.success) {
+                  message.success(`H5 患者端已就绪 · 后端共 ${res.data?.data?.length ?? 0} 位患者可服务`);
+                } else {
+                  message.warning('H5 患者端离线预览模式');
+                }
+              } catch (e: any) {
+                message.warning('H5 患者端离线预览模式: ' + (e?.message || String(e)));
+              }
+            }}
             style={{ padding: '6px 12px', border: '1px solid #3b82f6', borderRadius: 6, background: '#fff', color: '#1e40af', fontSize: 12, cursor: 'pointer' }}
           >
             预览 H5
@@ -167,7 +180,14 @@ export default function PatientReportPortalPage() {
         doctorName="张医师"
         resourceIds={selectedAccess ? [selectedAccess.id] : []}
         resourceSummary={`${selectedAccess?.patientName ?? ''} 检查报告`}
-        onCreated={(url) => alert(`分享链接已生成:\n${url}`)}
+        onCreated={async (url) => {
+          try {
+            await navigator.clipboard.writeText(url);
+            message.success(`分享链接已生成并复制到剪贴板`);
+          } catch {
+            message.success(`分享链接已生成: ${url}`);
+          }
+        }}
       />
     </div>
   );

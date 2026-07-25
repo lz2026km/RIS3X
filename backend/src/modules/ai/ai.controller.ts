@@ -3,6 +3,24 @@ import { Roles } from '../../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { AiService, AiGenerateDto, AiReviewDto, AiScoreDto } from './ai.service'
 import { AiDraftService, type DicomMetadata } from './ai-draft.service'
+import { z } from 'zod'
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
+
+const GenerateSchema = z.object({ modality: z.string().min(1), bodyPart: z.string().min(1), findings: z.string(), impression: z.string().optional(), clinicalHistory: z.string().optional() })
+const ReviewSchema = z.object({ reportText: z.string(), findings: z.string(), conclusion: z.string() })
+const ScoreSchema = ReviewSchema.extend({ radsCategory: z.string().optional(), hasCritical: z.boolean().optional() })
+const MetadataSchema = z.object({
+  patientId: z.string().min(1),
+  patientName: z.string().optional(),
+  studyInstanceUid: z.string().optional(),
+  modality: z.string().min(1),
+  bodyPart: z.string().optional(),
+  clinicalHistory: z.string().optional(),
+  findings: z.string().optional(),
+  impression: z.string().optional(),
+})
+const ContinueSchema = z.object({ meta: MetadataSchema, existingContent: z.string().min(1) })
+const RewriteSchema = z.object({ meta: MetadataSchema, targetParagraph: z.string().min(1), instruction: z.string().min(1) })
 
 @ApiTags('ai')
 @ApiBearerAuth()
@@ -15,17 +33,17 @@ export class AiController {
   ) {}
 
   @Post('generate')
-  generate(@Body() dto: AiGenerateDto) {
+  generate(@Body(new ZodValidationPipe(GenerateSchema)) dto: AiGenerateDto) {
     return this.service.generateReport(dto)
   }
 
   @Post('review')
-  review(@Body() dto: AiReviewDto) {
+  review(@Body(new ZodValidationPipe(ReviewSchema)) dto: AiReviewDto) {
     return this.service.reviewReport(dto)
   }
 
   @Post('score')
-  score(@Body() dto: AiScoreDto) {
+  score(@Body(new ZodValidationPipe(ScoreSchema)) dto: AiScoreDto) {
     return this.service.scoreReport(dto)
   }
 
@@ -35,17 +53,17 @@ export class AiController {
   }
 
   @Post('draft')
-  draft(@Body() meta: DicomMetadata) {
+  draft(@Body(new ZodValidationPipe(MetadataSchema)) meta: DicomMetadata) {
     return this.draftService.draft(meta)
   }
 
   @Post('draft/continue')
-  continueDraft(@Body() body: { meta: DicomMetadata; existingContent: string }) {
+  continueDraft(@Body(new ZodValidationPipe(ContinueSchema)) body: { meta: DicomMetadata; existingContent: string }) {
     return this.draftService.continueDraft(body.meta, body.existingContent)
   }
 
   @Post('draft/rewrite')
-  rewriteDraft(@Body() body: { meta: DicomMetadata; targetParagraph: string; instruction: string }) {
+  rewriteDraft(@Body(new ZodValidationPipe(RewriteSchema)) body: { meta: DicomMetadata; targetParagraph: string; instruction: string }) {
     return this.draftService.rewriteDraft(body.meta, body.targetParagraph, body.instruction)
   }
 

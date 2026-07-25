@@ -7,6 +7,18 @@ import { CreateEyeStudySchema } from './dto/create-eye.dto'
 import type { CreateEyeStudyDto } from './dto/create-eye.dto'
 import { UpdateEyeStudySchema } from './dto/update-eye.dto'
 import type { UpdateEyeStudyDto } from './dto/update-eye.dto'
+import { z } from 'zod'
+
+const UpdateEmrSchema = z.object({ notes: z.string().optional() })
+const AiInferenceSchema = z.object({
+  studyId: z.string().min(1),
+  modelId: z.string().min(1),
+  diagnosis: z.string().min(1),
+  confidence: z.number().min(0).max(1),
+  heatmapUrl: z.string().url().optional(),
+})
+const IolCalculationSchema = z.object({ lensId: z.string().min(1), axialLength: z.number().positive(), keratometry: z.number().positive() })
+const GenerateReportSchema = z.object({ studyId: z.string().min(1), template: z.string().optional() })
 
 @ApiTags('eye')
 @ApiBearerAuth()
@@ -52,7 +64,7 @@ export class EyeController {
   }
 
   @Put('emr/:patientId')
-  updateEmr(@Param('patientId') patientId: string, @Body() data: { notes?: string }) {
+  updateEmr(@Param('patientId') patientId: string, @Body(new ZodValidationPipe(UpdateEmrSchema)) data: { notes?: string }) {
     return this.eye.updateEmr(patientId, data)
   }
 
@@ -63,7 +75,7 @@ export class EyeController {
 
   @Post('ai/inferences')
   @HttpCode(HttpStatus.CREATED)
-  createAiInference(@Body() data: { studyId: string; modelId: string; diagnosis: string; confidence: number; heatmapUrl?: string }) {
+  createAiInference(@Body(new ZodValidationPipe(AiInferenceSchema)) data: { studyId: string; modelId: string; diagnosis: string; confidence: number; heatmapUrl?: string }) {
     return this.eye.createAiInference(data)
   }
 
@@ -73,12 +85,12 @@ export class EyeController {
   }
 
   @Post('iol/calculate/barrett')
-  calculateBarrett(@Body() data: { lensId: string; axialLength: number; keratometry: number }) {
+  calculateBarrett(@Body(new ZodValidationPipe(IolCalculationSchema)) data: { lensId: string; axialLength: number; keratometry: number }) {
     return this.eye.calculateBarrett(data)
   }
 
   @Post('iol/calculate/kane')
-  calculateKane(@Body() data: { lensId: string; axialLength: number; keratometry: number }) {
+  calculateKane(@Body(new ZodValidationPipe(IolCalculationSchema)) data: { lensId: string; axialLength: number; keratometry: number }) {
     return this.eye.calculateKane(data)
   }
 
@@ -89,7 +101,7 @@ export class EyeController {
 
   @Post('reports')
   @HttpCode(HttpStatus.CREATED)
-  generateReport(@Body() data: { studyId: string; template?: string }) {
+  generateReport(@Body(new ZodValidationPipe(GenerateReportSchema)) data: { studyId: string; template?: string }) {
     return this.eye.generateReport(data)
   }
 }

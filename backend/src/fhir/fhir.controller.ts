@@ -3,6 +3,8 @@ import type { Response } from 'express'
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { FhirService } from './fhir.service'
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
+import { CreatePatientSchema, CreateSubscriptionSchema, UpdatePatientSchema } from './fhir.schema'
 
 @ApiTags('fhir')
 @Controller('fhir/r4')
@@ -29,12 +31,12 @@ export class FhirController {
 
   @Post('Patient')
   @HttpCode(HttpStatus.CREATED)
-  createPatient(@Body() body: Record<string, unknown>) {
+  createPatient(@Body(new ZodValidationPipe(CreatePatientSchema)) body: Record<string, unknown>) {
     return this.service.createPatient(body)
   }
 
   @Put('Patient/:id')
-  updatePatient(@Param('id') id: string, @Body() body: Record<string, unknown>) {
+  updatePatient(@Param('id') id: string, @Body(new ZodValidationPipe(UpdatePatientSchema)) body: Record<string, unknown>) {
     return this.service.updatePatient(id, body)
   }
 
@@ -92,7 +94,7 @@ export class FhirController {
   // --- Subscription ---
   @Post('Subscription')
   @HttpCode(HttpStatus.CREATED)
-  createSubscription(@Body() body: Record<string, unknown>) {
+  createSubscription(@Body(new ZodValidationPipe(CreateSubscriptionSchema)) body: Record<string, unknown>) {
     return this.service.createSubscription(body)
   }
 

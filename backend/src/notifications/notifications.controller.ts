@@ -1,5 +1,5 @@
 ﻿/**
- * G005 RIS v3.0.6.11-31 - Notifications Controller
+ * G005 RIS v3.0.6.11-32 - Notifications Controller
  */
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
@@ -26,6 +26,12 @@ const BroadcastSchema = z.object({
   content: z.string().min(1),
   link: z.string().optional(),
   targetId: z.string().optional(),
+})
+
+const PushSubscriptionSchema = z.object({
+  userId: z.string().min(1),
+  endpoint: z.string().url(),
+  keys: z.object({ p256dh: z.string().min(1), auth: z.string().min(1) }),
 })
 
 @ApiTags('notifications')
@@ -64,7 +70,7 @@ export class NotificationsController {
 
   @Post('push-subscribe')
   @HttpCode(HttpStatus.CREATED)
-  pushSubscribe(@Body() body: { userId: string; endpoint: string; keys: { p256dh: string; auth: string } }) {
+  pushSubscribe(@Body(new ZodValidationPipe(PushSubscriptionSchema)) body: { userId: string; endpoint: string; keys: { p256dh: string; auth: string } }) {
     return this.service.savePushSubscription(body.userId, body)
   }
 }

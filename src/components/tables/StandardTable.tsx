@@ -11,7 +11,7 @@
  *  - emptyText / loading / sticky
  */
 import { type ReactNode, type CSSProperties, useMemo, useState } from "react";
-import { Table } from "antd";
+import { Table, Pagination } from "antd";
 import type { TableProps, ColumnType } from "antd/es/table";
 import { Empty } from "antd";
 import {
@@ -23,9 +23,8 @@ import {
 import { ColumnSettingsPanel, type ColumnSetting } from "../common/ColumnSettings";
 
 export interface StandardTableColumn<T = Record<string, unknown>> {
-  /** 字段 key / dataIndex */
   key: string;
-  /** 标题 */
+  dataIndex?: ColumnType<T>["dataIndex"];
   title: ReactNode;
   /** 列宽 */
   width?: number | string;
@@ -33,6 +32,9 @@ export interface StandardTableColumn<T = Record<string, unknown>> {
   align?: ColumnAlign;
   /** 是否可排序 */
   sortable?: boolean;
+  filters?: ColumnType<T>["filters"];
+  onFilter?: ColumnType<T>["onFilter"];
+  filterMultiple?: boolean;
   /** 是否 fixed 锁定列 */
   fixed?: "left" | "right";
   /** ellipsis */
@@ -128,7 +130,7 @@ export function StandardTable<T extends { id?: string | number }>({
   loading = false,
   emptyText = "暂无数据",
   emptyRender,
-  sticky = true,
+  sticky = false,
   stickyTop = 0,
   pagination,
   sortField,
@@ -258,15 +260,19 @@ export function StandardTable<T extends { id?: string | number }>({
     }
     visibleColumns.forEach((c) => {
       const isNumeric = c.align === "right";
+      const isAction = ["action", "actions", "operation", "operations", "操作"].includes(c.key.toLowerCase());
       const col: ColumnType<T> = {
         key: c.key,
         title: c.title,
-        dataIndex: c.key as never,
+        dataIndex: c.dataIndex ?? c.key,
         width: typeof c.width === "number" ? c.width : undefined,
         align: c.align,
-        fixed: c.fixed,
+        fixed: c.fixed ?? (isAction ? "right" : undefined),
         ellipsis: c.ellipsis,
         sorter: !!c.sortable,
+        filters: c.filters,
+        onFilter: c.onFilter,
+        filterMultiple: c.filterMultiple,
         sortOrder:
           sortField === c.key
             ? sortOrder === "asc"
@@ -311,6 +317,7 @@ export function StandardTable<T extends { id?: string | number }>({
       showSizeChanger: pagination.showSizeChanger ?? true,
       showQuickJumper: pagination.showQuickJumper ?? true,
       pageSizeOptions: opts.map(String),
+      showTotal: (total: number) => `共 ${total} 条`,
       onChange: pagination.onChange,
     };
   }, [pagination]);
@@ -408,9 +415,8 @@ export function StandardTable<T extends { id?: string | number }>({
                       </td>
                     )}
                     {visibleColumns.map((c) => {
-                      const raw = (row as unknown as Record<string, unknown>)[
-                        c.key
-                      ];
+                      const dataKey = typeof c.dataIndex === "string" ? c.dataIndex : c.key;
+                      const raw = (row as unknown as Record<string, unknown>)[dataKey];
                       const isNumeric = c.align === "right";
                       return (
                         <td
@@ -436,6 +442,11 @@ export function StandardTable<T extends { id?: string | number }>({
               })}
             </tbody>
           </table>
+        )}
+        {antdPagination && (
+          <div style={{ position: "sticky", bottom: 0, padding: "12px 16px", background: "#fff", borderTop: "1px solid #e2e8f0", display: "flex", justifyContent: "flex-end" }}>
+            <Pagination {...antdPagination} />
+          </div>
         )}
       </div>
     );

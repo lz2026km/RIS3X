@@ -181,7 +181,7 @@ export default function ReportPage() {
 
         <div className="no-print">
           {viewMode === "list" ? (
-            <ReportTableView reports={filteredReports} expandedId={expandedId} onToggleExpand={id => setExpandedId(prev => (prev === id ? null : id))} selectedIds={selectedIds} onToggleSelect={handleToggleSelect} onSelectAll={handleSelectAll} onDeselectAll={handleDeselectAll} onView={r => setDetailReport(r)} onReview={r => setReviewReport(r)} onPrint={r => { setDetailReport(r); }} onReject={r => { setDetailReport(r); }} onExportPDF={r => { setExportModal({ show: true, title: "导出PDF", message: `正在导出报告 ${r.reportId}...`, complete: false }); setTimeout(() => { setExportModal(m => ({ ...m, complete: true, message: `报告 ${r.reportId} 已导出` })); setTimeout(() => setExportModal(m => ({ ...m, show: false })), 2000); }, 1000); }} />
+            <ReportTableView reports={filteredReports} loading={loading} expandedId={expandedId} onToggleExpand={id => setExpandedId(prev => (prev === id ? null : id))} selectedIds={selectedIds} onToggleSelect={handleToggleSelect} onSelectAll={handleSelectAll} onDeselectAll={handleDeselectAll} onView={r => setDetailReport(r)} onReview={r => setReviewReport(r)} onPrint={r => { setDetailReport(r); }} onReject={r => { setDetailReport(r); }} onExportPDF={r => { setExportModal({ show: true, title: "导出PDF", message: `正在导出报告 ${r.reportId}...`, complete: false }); setTimeout(() => { setExportModal(m => ({ ...m, complete: true, message: `报告 ${r.reportId} 已导出` })); setTimeout(() => setExportModal(m => ({ ...m, show: false })), 2000); }, 1000); }} />
           ) : (
             <ReportKanbanView reports={filteredReports} onView={r => setDetailReport(r)} onReview={r => setReviewReport(r)} />
           )}

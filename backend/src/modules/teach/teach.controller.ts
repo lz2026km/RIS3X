@@ -3,6 +3,10 @@ import { FileInterceptor } from '@nestjs/platform-express'
 import { Roles } from '../../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiOperation, ApiTags, ApiConsumes } from '@nestjs/swagger'
 import { TeachService } from './teach.service'
+import { z } from 'zod'
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
+
+const CreateLectureSchema = z.object({ title: z.string().min(1).max(200), patientId: z.string().min(1).optional(), examId: z.string().min(1).optional(), reportId: z.string().min(1).optional() })
 
 @ApiTags('teach')
 @Controller('teach')
@@ -13,7 +17,7 @@ export class TeachController {
 
   @Post('lecture')
   @ApiOperation({ summary: '创建示教录制' })
-  create(@Body() body: { title: string; patientId?: string; examId?: string; reportId?: string }, @Req() req: { user: { sub: string } }) {
+  create(@Body(new ZodValidationPipe(CreateLectureSchema)) body: { title: string; patientId?: string; examId?: string; reportId?: string }, @Req() req: { user: { sub: string } }) {
     return this.teach.create({ ...body, userId: req.user.sub })
   }
 

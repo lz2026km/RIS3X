@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, Req, UnauthorizedException } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { Throttle } from '@nestjs/throttler'
-import { Public } from '../common/decorators/public.decorator'
+import { AllowTotpPending, Public } from '../common/decorators/public.decorator'
 import { Roles } from '../common/decorators/roles.decorator'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
@@ -36,7 +36,20 @@ export class AuthController {
   @Post('login')
   @ApiOperation({ summary: '账号密码登录' })
   async login(@Body(new ZodValidationPipe(LoginSchema)) dto: LoginDto, @Req() req: { ip: string }) {
-    return this.auth.login(dto.username, dto.password, req.ip)
+    const result = await this.auth.login(dto.username, dto.password, req.ip)
+    return {
+      accessToken: result.accessToken,
+      user: result.user,
+      success: true,
+      data: {
+        token: result.accessToken,
+        expiresAt: Date.now() + 15 * 60 * 1000,
+        userId: result.user.id,
+        userName: result.user.username,
+        role: result.user.role,
+        totpRequired: result.user.totpRequired,
+      },
+    }
   }
 
   @Post('refresh')
@@ -46,6 +59,7 @@ export class AuthController {
     return { success: true, data: { token: result.accessToken, expiresAt: Date.now() + 15 * 60 * 1000, userId: result.user.id, userName: result.user.username, role: result.user.role } }
   }
 
+  @AllowTotpPending()
   @Post('totp/verify')
   @ApiOperation({ summary: 'TOTP验证' })
   verifyTotp(@Req() req: { user: { sub: string } }, @Body(new ZodValidationPipe(TotpSchema)) dto: TotpDto) {

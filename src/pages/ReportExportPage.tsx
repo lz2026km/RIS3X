@@ -5,7 +5,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Tabs, Badge } from 'antd';
+import { Tabs, Badge, message } from 'antd';
 import {
   Download, FileText, FileType, FileCode, Globe, Server, FileJson,
   CheckCircle2, Eye, Loader2, Layers, Sparkles, Code2, Database,
@@ -67,7 +67,7 @@ export default function ReportExportPage() {
         if (prev >= 100) {
           clearInterval(interval);
           setExporting(false);
-          alert(`✅ 导出完成！\n\n模板：${selectedTemplate.name}\n报告数：${selectedReports.size}\n大小估算：${selectedTemplate.estimatedSize} × ${selectedReports.size}\n\n文件已下载到本地。`);
+          message.success(`导出完成！模板：${selectedTemplate.name} · 报告数：${selectedReports.size}`);
           return 100;
         }
         return prev + 10;
@@ -293,7 +293,23 @@ export default function ReportExportPage() {
                 {/* 导出按钮 */}
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button
-                    onClick={() => alert('预览（模拟）')}
+                    onClick={() => {
+                      const sampleReport = extendedReportMock.find(r => selectedReports.has(r.id)) ?? extendedReportMock[0];
+                      if (!selectedTemplate || !sampleReport) {
+                        message.warning('请先选择模板和报告');
+                        return;
+                      }
+                      const previewHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>预览 · ${selectedTemplate.name}</title></head><body style="font-family:'PingFang SC','Microsoft YaHei',sans-serif;padding:24px;color:#1e293b"><h2 style="color:#1e40af;border-bottom:2px solid #1e40af;padding-bottom:8px">${sampleReport.patientName} · ${sampleReport.modality} ${sampleReport.bodyPart}</h2><div><strong>报告ID:</strong> ${sampleReport.id}</div><div><strong>模板:</strong> ${selectedTemplate.name} (${selectedTemplate.format})</div><div><strong>预估大小:</strong> ${selectedTemplate.estimatedSize}</div><h3>所见</h3><pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:6px">${(sampleReport.findings || '暂无').slice(0, 400)}...</pre><h3>诊断</h3><pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:6px">${(sampleReport.diagnosis || '暂无').slice(0, 300)}</pre><p style="margin-top:24px;color:#94a3b8;font-size:12px">这是预览样例 · 仅用于检查版式与字段</p></body></html>`;
+                      const blob = new Blob([previewHtml], { type: 'text/html;charset=utf-8' });
+                      const url = URL.createObjectURL(blob);
+                      const win = window.open(url, '_blank');
+                      if (win) {
+                        message.success(`预览已生成 · 模板 ${selectedTemplate.name}`);
+                      } else {
+                        message.info('浏览器拦截了新窗口，请允许弹窗后重试');
+                      }
+                      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+                    }}
                     style={{ flex: 1, padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
                   >
                     <Eye size={12} /> 预览样例

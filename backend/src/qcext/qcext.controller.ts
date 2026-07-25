@@ -2,6 +2,8 @@
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { QcExtService } from './qcext.service'
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
+import { RateQcImageSchema, ReportQcDefectSchema } from './qcext.schema'
 
 @ApiTags('qc-ext')
 @ApiBearerAuth()
@@ -23,7 +25,7 @@ export class QcExtController {
   getQcImage(@Param('id') id: string) { return this.svc.getQcImage(id) }
 
   @Post('image/:id/rate')
-  rateQcImage(@Body() body: Record<string, unknown>) { return this.svc.rateQcImage(body) }
+  rateQcImage(@Body(new ZodValidationPipe(RateQcImageSchema)) body: Record<string, unknown>) { return this.svc.rateQcImage(body) }
 
   @Get('radiologist-annual')
   listRadiologistAnnual() { return this.svc.listRadiologistAnnual() }
@@ -35,7 +37,7 @@ export class QcExtController {
   listQcDefects() { return this.svc.listQcDefects() }
 
   @Post('defect')
-  reportQcDefect(@Body() body: Record<string, unknown>) { return this.svc.reportQcDefect(body) }
+  reportQcDefect(@Body(new ZodValidationPipe(ReportQcDefectSchema)) body: Record<string, unknown>) { return this.svc.reportQcDefect(body) }
 
   @Get('stats')
   getQcStats() { return this.svc.getQcStats() }

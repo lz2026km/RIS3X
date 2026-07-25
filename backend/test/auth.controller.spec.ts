@@ -40,13 +40,17 @@ describe('AuthController', () => {
     auth.login.mockResolvedValue({ accessToken: 't', user: { id: 'u1', username: 'doc', role: 'DOCTOR', totpRequired: false } })
     const r = await ctrl.login({ username: 'doc', password: 'pass' }, { ip: '1.2.3.4' } as any)
     expect(auth.login).toHaveBeenCalledWith('doc', 'pass', '1.2.3.4')
-    expect(r.accessToken).toBe('t')
+    expect(r.success).toBe(true)
+    expect(r.data.token).toBe('t')
+    expect(r.data.userId).toBe('u1')
   })
 
   it('refresh calls auth.refresh', async () => {
     auth.refresh.mockResolvedValue({ accessToken: 't', user: { id: 'u1', username: 'doc', role: 'DOCTOR' } })
     const r = await ctrl.refresh({ user: { sub: 'u1', username: 'doc', role: 'DOCTOR' } } as any)
-    expect(r.accessToken).toBe('t')
+    expect(r.success).toBe(true)
+    expect(r.data.token).toBe('t')
+    expect(r.data.userId).toBe('u1')
   })
 
   it('verifyTotp calls auth.verifyTotp', async () => {

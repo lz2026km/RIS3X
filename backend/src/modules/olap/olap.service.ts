@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { PrismaService } from '../../prisma/prisma.service'
+import { getCurrentTenantId } from '../../common/interceptors/tenant-context.interceptor'
 
 export interface MetricDef {
   id: string; name: string; dimension: string; aggregation: string; format: string; unit?: string; description: string
@@ -137,18 +138,14 @@ export class OlapService {
   }
 
   async executeQuery(query: OLAPQuery) {
-    const cacheKey = JSON.stringify(query)
+    const tenantId = getCurrentTenantId()
+    const cacheKey = JSON.stringify({ tenantId, query })
     const cached = this.cache.get(cacheKey)
     if (cached && cached.expiresAt > Date.now()) {
       return cached.data
     }
 
-    let rows: Record<string, unknown>[] = []
-    try {
-      rows = (await this.prisma.$queryRaw(this.buildSQL(query))) as Record<string, unknown>[]
-    } catch {
-      rows = []
-    }
+    const rows = (await this.prisma.$queryRaw(this.buildSQL(query))) as Record<string, unknown>[]
 
     const result = {
       columns: [
@@ -216,7 +213,7 @@ export class OlapService {
     return Prisma.sql`${col} ${Prisma.raw(sqlOp)} ${v}`
   }
 
-  private buildSQL(query: OLAPQuery): Prisma.Sql {
+  private buildSQL(query: OLAPQuery, tenantId: string): Prisma.Sql {
     const dimSelects: Prisma.Sql[] = []
     for (const d of query.dimensions) {
       if (!DIMENSION_COLUMN_MAP[d]) continue
@@ -240,7 +237,7 @@ export class OlapService {
       ? Prisma.join(measureSelects, ', ')
       : Prisma.sql`NULL`
 
-    const whereParts: Prisma.Sql[] = [Prisma.sql`1=1`]
+    const whereParts: Prisma.Sql[] = [Prisma.sql`e.tenant_id = ${tenantId}`]
     if (query.filters) {
       for (const f of query.filters) {
         const clause = this.buildFilter(f)
@@ -250,16 +247,17 @@ export class OlapService {
     const whereClause = Prisma.join(whereParts, ' AND ')
 
     const joins = Prisma.sql`
-      LEFT JOIN "devices" d ON e.device_id = d.id
-      LEFT JOIN "users" u ON r.radiologist_id = u.id
-      LEFT JOIN "patients" p ON e.patient_id = p.id
-      LEFT JOIN "appointments" a ON e.accession_number = a.id::text
-      LEFT JOIN "report_quality_scores" rqs ON rqs.report_id = r.id
-      LEFT JOIN "report_revisions" rr ON rr.report_id = r.id
-      LEFT JOIN "critical_values" cv ON cv.exam_id = e.id
-      LEFT JOIN "invoices" i ON i.patient_id = p.id
-      LEFT JOIN "charge_items" ci ON ci.id = i.id::text
-      LEFT JOIN "eye_ai_inferences" ei ON ei.study_id = p.id::text
+      LEFT JOIN "reports" r ON r.exam_id = e.id AND r.tenant_id = e.tenant_id
+      LEFT JOIN "devices" d ON e.device_id = d.id AND d.tenant_id = e.tenant_id
+      LEFT JOIN "users" u ON r.radiologist_id = u.id AND u.tenant_id = e.tenant_id
+      LEFT JOIN "patients" p ON e.patient_id = p.id AND p.tenant_id = e.tenant_id
+      LEFT JOIN "appointments" a ON e.accession_number = a.id::text AND a.tenant_id = e.tenant_id
+      LEFT JOIN "report_quality_scores" rqs ON rqs.report_id = r.id AND rqs.tenant_id = e.tenant_id
+      LEFT JOIN "report_revisions" rr ON rr.report_id = r.id AND rr.tenant_id = e.tenant_id
+      LEFT JOIN "critical_values" cv ON cv.exam_id = e.id AND cv.tenant_id = e.tenant_id
+      LEFT JOIN "invoices" i ON i.patient_id = p.id AND i.tenant_id = e.tenant_id
+      LEFT JOIN "charge_items" ci ON ci.id = i.id::text AND ci.tenant_id = e.tenant_id
+      LEFT JOIN "eye_ai_inferences" ei ON ei.study_id = p.id::text AND ei.tenant_id = e.tenant_id
     `
 
     let groupByClause: Prisma.Sql = Prisma.empty

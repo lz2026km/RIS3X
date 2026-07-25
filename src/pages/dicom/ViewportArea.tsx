@@ -1,3 +1,4 @@
+import { useCallback, useMemo } from 'react'
 import { t } from '../../i18n/appI18n'
 import { ChevronLeft, ChevronRight, Grid3x3, History, GitCompare, Minimize2, Maximize2, Sun, ArrowLeftRight, Layers, RotateCw, RotateCcw, Ruler, Triangle, CircleIcon, RectIcon, Circle, Activity, Trash2, Palette, CheckCircle, PenTool, X, EyeIcon, EyeOff, Lock, Unlock, ZoomIn, ZoomOut, Move, FlipHorizontal, FlipVertical, RefreshCw, Play, Pause, Printer } from 'lucide-react'
 import { initialRadiologyExams } from '../../data/initialData'
@@ -5,6 +6,9 @@ import { DicomCanvas, MIPCanvas, VRCanvas } from './DicomViewerSubComponents'
 import AnnotationOverlay from './AnnotationOverlay'
 import type { Tool, PseudoColorMode, MeasureSubMenu, LayoutMode, ViewMode, MipDirection, AnnotationType, Series, DicomImage, Measurement, Annotation, VrAxis } from './DicomViewerTypes'
 import { WINDOW_PRESETS, ANNOTATION_COLORS, ANNOTATION_COLOR_NAMES, PRIMARY, CARD_BG } from './DicomViewerTypes'
+import { useFocusTrap } from '../../a11y/SkipLink'
+import { useEscape } from '../../hooks/useEscape'
+import { getPresetsForModality } from '../../utils/modalityPresets'
 
 const s = {
   centerArea: { flex: 1, display: 'flex', flexDirection: 'column' as const, overflow: 'hidden', background: '#0f172a', position: 'relative' as const },
@@ -221,6 +225,34 @@ export default function ViewportArea(props: Props) {
     deleteAnnotation, toggleAnnotationVisibility, toggleAnnotationLock, enterCompareMode, exitCompareMode,
     exportMeasurements, getCurrentPresets } = props
 
+  const wlPopupRef = useFocusTrap(showWlPopup)
+  const measureMenuRef = useFocusTrap(activeTool === 'measure' && measureSubMenu !== null)
+  const pseudoColorPanelRef = useFocusTrap(showPseudoColorPanel)
+
+  useEscape(showWlPopup, () => setShowWlPopup(false), { stopPropagation: true })
+  useEscape(activeTool === 'measure' && measureSubMenu !== null, () => setMeasureSubMenu(null), { stopPropagation: true })
+  useEscape(showPseudoColorPanel, () => setShowPseudoColorPanel(false), { stopPropagation: true })
+
+  const closeWlPopup = useCallback(() => {
+    setShowWlPopup(false)
+  }, [setShowWlPopup])
+
+  const closePseudoColor = useCallback(() => {
+    setShowPseudoColorPanel(false)
+  }, [setShowPseudoColorPanel])
+
+  const closeMeasureMenu = useCallback(() => {
+    setMeasureSubMenu(null)
+  }, [setMeasureSubMenu])
+
+  const modalityPresets = useMemo(() => getPresetsForModality(exam.modality), [exam.modality])
+  const currentPresets = useMemo(() => {
+    const fromProp = getCurrentPresets()
+    return fromProp && fromProp.length > 0 ? fromProp : modalityPresets
+  }, [getCurrentPresets, modalityPresets])
+
+  const activePresetName = activePresetIdx != null ? currentPresets[activePresetIdx]?.name ?? '' : ''
+
   return (
     <div style={s.centerArea}>
       <div style={s.roiToolbar}>
@@ -283,7 +315,7 @@ export default function ViewportArea(props: Props) {
               <span style={s.compareLabel}>当前: {exam.examDate}</span>
               <div style={{ ...s.imageWrapper, width: '100%', height: '100%' }}>
                 <DicomCanvas zoom={zoom} rotation={rotation} flipH={flipH} flipV={flipV} ww={ww} wl={wl} brightness={brightness} contrast={contrast} invert={invert}
-                  activeTool={activeTool} panX={panX} panY={panY} windowPreset={WINDOW_PRESETS[activePresetIdx || 0]?.name || ''}
+                  activeTool={activeTool} panX={panX} panY={panY} windowPreset={activePresetName}
                   measureType={measureSubMenu} activeSeries={activeSeries} imageIndex={imageIndex} images={images} pseudoColorMode={pseudoColorMode} />
                 {showDiffHighlight && diffRegions.map(region => (
                   <div key={region.id} style={{ ...s.diffRegion, ...(region.type === 'increase' ? {} : region.type === 'new' ? s.diffRegionNew : s.diffRegionImproved), left: region.x, top: region.y, width: region.w, height: region.h }} />
@@ -332,8 +364,8 @@ export default function ViewportArea(props: Props) {
                 <span style={{ color: '#f87171', fontWeight: 700 }}>WL:{Math.round(wl)}</span>
               </div>
               <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-                {getCurrentPresets().map((p, i) => (
-                  <button key={p.name} onClick={() => handlePresetClick(p, i + 100)}
+                {currentPresets.map((p, i) => (
+                  <button key={p.name} onClick={() => handlePresetClick(p, i)}
                     style={{ padding: '2px 6px', borderRadius: 4, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(0,0,0,0.5)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{p.name}</button>
                 ))}
               </div>
@@ -416,30 +448,30 @@ export default function ViewportArea(props: Props) {
         )}
 
         {showWlPopup && (
-          <div style={s.wlPopup} onClick={e => e.stopPropagation()}>
+          <div ref={wlPopupRef} role="dialog" aria-modal="true" aria-label={t('dcm.wlSettings')} style={s.wlPopup} onClick={e => e.stopPropagation()}>
             <div style={s.wlPopupTitle}><Sun size={14} color={PRIMARY} />{t('dcm.wlSettings')}</div>
             <div style={s.wlSliderRow}><span style={s.wlLabel}>{t('dcm.wwLabel')}</span>
-              <input type="range" min={50} max={4000} value={ww} onChange={e => { setWw(+e.target.value); setActivePresetIdx(null) }} style={s.wlSlider} />
+              <input type="range" min={50} max={4000} value={ww} aria-label={t('dcm.wwLabel')} onChange={e => { setWw(+e.target.value); setActivePresetIdx(null) }} style={s.wlSlider} />
               <span style={s.wlVal}>{ww}</span>
             </div>
             <div style={s.wlSliderRow}><span style={s.wlLabel}>{t('dcm.wlLabel')}</span>
-              <input type="range" min={-1000} max={1000} value={wl} onChange={e => { setWl(+e.target.value); setActivePresetIdx(null) }} style={s.wlSlider} />
+              <input type="range" min={-1000} max={1000} value={wl} aria-label={t('dcm.wlLabel')} onChange={e => { setWl(+e.target.value); setActivePresetIdx(null) }} style={s.wlSlider} />
               <span style={s.wlVal}>{wl}</span>
             </div>
-            <div style={{ marginTop: 8, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
-              {WINDOW_PRESETS.map((p, i) => (
-                <button key={p.name} style={{ ...s.presetBtn, fontSize: 12, padding: '3px 6px', ...(activePresetIdx === i ? s.presetBtnActive : {}) }} onClick={() => handlePresetClick(p, i)}>{p.name}</button>
+            <div style={{ marginTop: 8, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }} role="group" aria-label="窗位预设">
+              {currentPresets.map((p, i) => (
+                <button key={p.name} style={{ ...s.presetBtn, fontSize: 12, padding: '3px 6px', ...(activePresetIdx === i ? s.presetBtnActive : {}) }} onClick={() => handlePresetClick(p, i)} title={`WW:${p.ww} WL:${p.wl}`}>{p.name}</button>
               ))}
             </div>
             <div style={{ marginTop: 8, display: 'flex', gap: 6 }}>
               <button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff', flex: 1 }} onClick={() => { setWw(400); setWl(40); setActivePresetIdx(null) }}>重置</button>
-              <button style={{ ...s.reportBtn, background: '#e2e8f0', color: '#475569', flex: 1 }} onClick={() => setShowWlPopup(false)}>关闭</button>
+              <button style={{ ...s.reportBtn, background: '#e2e8f0', color: '#475569', flex: 1 }} onClick={closeWlPopup}>关闭 (Esc)</button>
             </div>
           </div>
         )}
 
         {activeTool === 'measure' && measureSubMenu !== null && (
-          <div style={s.measureMenu} onClick={e => e.stopPropagation()}>
+          <div ref={measureMenuRef} role="dialog" aria-modal="true" aria-label="测量工具" style={s.measureMenu} onClick={e => e.stopPropagation()}>
             {(['line', 'angle', 'ellipse', 'rectangle', 'circle', 'ctvalue'] as MeasureSubMenu[]).map(type => (
               <button key={type} style={{ ...s.measureMenuItem, ...(measureSubMenu === type ? { background: `${PRIMARY}15`, color: PRIMARY } : {}) }} onClick={() => setMeasureSubMenu(type)}>
                 {type === 'line' ? '长度测量' : type === 'angle' ? '角度测量' : type === 'ellipse' ? '椭圆ROI' : type === 'rectangle' ? '矩形ROI' : type === 'circle' ? '圆ROI' : 'CT值(HU)'}
@@ -448,11 +480,12 @@ export default function ViewportArea(props: Props) {
             <div style={{ borderTop: '1px solid #e2e8f0', marginTop: 4, paddingTop: 4 }}>
               <button style={{ ...s.measureMenuItem, color: '#ef4444' }} onClick={clearAllMeasures}>清除测量</button>
             </div>
+            <button style={{ ...s.measureMenuItem, color: '#64748b', justifyContent: 'center' }} onClick={closeMeasureMenu}>关闭 (Esc)</button>
           </div>
         )}
 
         {showPseudoColorPanel && (
-          <div style={s.pseudoColorPanel} onClick={e => e.stopPropagation()}>
+          <div ref={pseudoColorPanelRef} role="dialog" aria-modal="true" aria-label="伪彩显示" style={s.pseudoColorPanel} onClick={e => e.stopPropagation()}>
             <div style={s.pseudoColorPanelTitle}><Palette size={14} color={PRIMARY} />伪彩显示</div>
             {pseudoColorTools.map(({ mode, icon, label }) => (
               <button key={mode} style={{ ...s.pseudoColorBtn, ...(pseudoColorMode === mode ? s.pseudoColorBtnActive : {}) }}
@@ -462,7 +495,7 @@ export default function ViewportArea(props: Props) {
                 {pseudoColorMode === mode && <CheckCircle size={12} />}
               </button>
             ))}
-            <button style={{ ...s.reportBtn, background: '#f0f4f8', color: '#64748b', marginTop: 4 }} onClick={() => setShowPseudoColorPanel(false)}>关闭</button>
+            <button style={{ ...s.reportBtn, background: '#f0f4f8', color: '#64748b', marginTop: 4 }} onClick={closePseudoColor}>关闭 (Esc)</button>
           </div>
         )}
       </div>

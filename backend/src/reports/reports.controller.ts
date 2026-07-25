@@ -42,7 +42,7 @@ export class ReportsController {
     const parsedState = state && ReportStateEnum.safeParse(state).success
       ? (state as z.infer<typeof ReportStateEnum>)
       : undefined
-    return this.reports.list({ skip: Number(skip ?? 0), take: Number(take ?? 20), state: parsedState })
+    return this.reports.list({ skip: Number(skip ?? 0), take: Number(take ?? 20), state: parsedState as any })
   }
 
   @Get(':id')
@@ -57,7 +57,7 @@ export class ReportsController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateReportSchema)) body: z.infer<typeof UpdateReportSchema>) {
-    return this.reports.update(id, body)
+    return this.reports.update(id, body as { findings?: string; conclusion?: string })
   }
 
   @Delete(':id')
@@ -76,6 +76,6 @@ export class ReportsController {
     @Body(new ZodValidationPipe(z.object({ to: ReportStateEnum, actorId: z.string().min(1) })))
     body: { to: z.infer<typeof ReportStateEnum>; actorId: string }
   ) {
-    return this.reports.transition(id, body.to, body.actorId)
+    return this.reports.transition(id, body.to as any, body.actorId)
   }
 }

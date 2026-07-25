@@ -77,8 +77,15 @@ export function DataTable<T extends Record<string, unknown> = Record<string, unk
   const [editingCell, setEditingCell] = useState<{ row: string; col: string } | null>(null)
   const [editValue, setEditValue] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const dragRef = useRef<{ key: string; startX: number } | null>(null)
+  const dragRef = useRef<{ key: string; startX: number; moveHandler: ((ev: MouseEvent) => void) | null; upHandler: (() => void) | null } | null>(null)
   const tableRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => () => {
+    const d = dragRef.current
+    if (!d) return
+    if (d.moveHandler) document.removeEventListener('mousemove', d.moveHandler)
+    if (d.upHandler) document.removeEventListener('mouseup', d.upHandler)
+  }, [])
 
   const totalRows = totalProp ?? dataSource.length
   const totalPages = Math.ceil(totalRows / pageSize)
@@ -123,29 +130,33 @@ export function DataTable<T extends Record<string, unknown> = Record<string, unk
   }, [])
 
   const handleDragStart = useCallback((key: string, e: React.MouseEvent) => {
-    dragRef.current = { key, startX: e.clientX }
+    if (dragRef.current?.moveHandler) document.removeEventListener('mousemove', dragRef.current.moveHandler)
+    if (dragRef.current?.upHandler) document.removeEventListener('mouseup', dragRef.current.upHandler)
     const handler = (ev: MouseEvent) => {
-      if (!dragRef.current) return
-      const move = ev.clientX - dragRef.current.startX
+      const cur = dragRef.current
+      if (!cur) return
+      const move = ev.clientX - cur.startX
       if (Math.abs(move) > 20) {
-        const fromIdx = columnOrder.indexOf(dragRef.current.key)
+        const fromIdx = columnOrder.indexOf(cur.key)
         const toIdx = Math.min(Math.max(fromIdx + (move > 0 ? 1 : -1), 0), columnOrder.length - 1)
         if (fromIdx !== toIdx) {
           const newOrder = [...columnOrder]
           newOrder.splice(fromIdx, 1)
-          newOrder.splice(toIdx, 0, dragRef.current.key)
+          newOrder.splice(toIdx, 0, cur.key)
           setColumnOrder(newOrder)
         }
-        dragRef.current = null
         document.removeEventListener('mousemove', handler)
         document.removeEventListener('mouseup', upHandler)
+        dragRef.current = null
       }
     }
     const upHandler = () => {
+      const cur = dragRef.current
+      if (cur?.moveHandler) document.removeEventListener('mousemove', cur.moveHandler)
+      if (cur?.upHandler) document.removeEventListener('mouseup', cur.upHandler)
       dragRef.current = null
-      document.removeEventListener('mousemove', handler)
-      document.removeEventListener('mouseup', upHandler)
     }
+    dragRef.current = { key, startX: e.clientX, moveHandler: handler, upHandler }
     document.addEventListener('mousemove', handler)
     document.addEventListener('mouseup', upHandler)
   }, [columnOrder])

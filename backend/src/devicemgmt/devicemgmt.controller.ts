@@ -2,6 +2,16 @@
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { DeviceMgmtService } from './devicemgmt.service'
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
+import {
+  AddMaterialSchema,
+  RecordDoseSchema,
+  ReportAdverseReactionSchema,
+  ReportDeviceFaultSchema,
+  UpdateContrastInventorySchema,
+  UpdateDeviceSchema,
+  UpdateEquipmentLifecycleSchema,
+} from './devicemgmt.schema'
 
 @ApiTags('device-mgmt')
 @ApiBearerAuth()
@@ -17,7 +27,7 @@ export class DeviceMgmtController {
   getEquipmentLifecycle(@Param('id') id: string) { return this.svc.getEquipmentLifecycle(id) }
 
   @Put('equipment-lifecycle/:id')
-  updateEquipmentLifecycle(@Param('id') id: string, @Body() body: Record<string, unknown>) { return this.svc.updateEquipmentLifecycle(id, body) }
+  updateEquipmentLifecycle(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateEquipmentLifecycleSchema)) body: Record<string, unknown>) { return this.svc.updateEquipmentLifecycle(id, body) }
 
   @Get('devices')
   listDevices() { return this.svc.listDevices() }
@@ -26,32 +36,32 @@ export class DeviceMgmtController {
   getDevice(@Param('id') id: string) { return this.svc.getDevice(id) }
 
   @Put('devices/:id')
-  updateDevice(@Param('id') id: string, @Body() body: Record<string, unknown>) { return this.svc.updateDevice(id, body) }
+  updateDevice(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateDeviceSchema)) body: Record<string, unknown>) { return this.svc.updateDevice(id, body) }
 
   @Get('faults')
   listDeviceFaults() { return this.svc.listDeviceFaults() }
 
   @Post('faults')
-  reportDeviceFault(@Body() body: Record<string, unknown>) { return this.svc.reportDeviceFault(body) }
+  reportDeviceFault(@Body(new ZodValidationPipe(ReportDeviceFaultSchema)) body: Record<string, unknown>) { return this.svc.reportDeviceFault(body) }
 
   @Get('materials')
   listMaterials() { return this.svc.listMaterials() }
 
   @Post('materials')
-  addMaterial(@Body() body: Record<string, unknown>) { return this.svc.addMaterial(body) }
+  addMaterial(@Body(new ZodValidationPipe(AddMaterialSchema)) body: Record<string, unknown>) { return this.svc.addMaterial(body) }
 
   @Get('dose-tracking')
   getDoseTracking() { return this.svc.getDoseTracking() }
 
   @Post('dose-tracking')
-  recordDose(@Body() body: Record<string, unknown>) { return this.svc.recordDose(body) }
+  recordDose(@Body(new ZodValidationPipe(RecordDoseSchema)) body: Record<string, unknown>) { return this.svc.recordDose(body) }
 
   @Get('contrast/adverse-reactions')
   listAdverseReactions() { return this.svc.listAdverseReactions() }
 
   @Post('contrast/adverse-reactions')
   @HttpCode(HttpStatus.CREATED)
-  reportAdverseReaction(@Body() body: Record<string, unknown>) { return this.svc.reportAdverseReaction(body) }
+  reportAdverseReaction(@Body(new ZodValidationPipe(ReportAdverseReactionSchema)) body: Record<string, unknown>) { return this.svc.reportAdverseReaction(body) }
 
   @Get('contrast/injection')
   getInjectionWorkstation() { return this.svc.getInjectionWorkstation() }
@@ -60,7 +70,7 @@ export class DeviceMgmtController {
   getContrastInventory() { return this.svc.getContrastInventory() }
 
   @Put('contrast/inventory/:id')
-  updateContrastInventory(@Param('id') id: string, @Body() body: Record<string, unknown>) { return this.svc.updateContrastInventory(id, body) }
+  updateContrastInventory(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateContrastInventorySchema)) body: Record<string, unknown>) { return this.svc.updateContrastInventory(id, body) }
 
   @Get('contrast/quality')
   getContrastQuality() { return this.svc.getContrastQuality() }

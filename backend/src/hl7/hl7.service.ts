@@ -1,7 +1,7 @@
 /**
- * G005 RIS v3.0.6.11-31 - HL7 Service
+ * G005 RIS v3.0.6.11-32 - HL7 Service
  */
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
+import { Injectable, Logger, NotFoundException, OnModuleInit, ServiceUnavailableException } from '@nestjs/common'
 import * as net from 'net'
 import * as tls from 'tls'
 import * as fs from 'fs'
@@ -105,10 +105,7 @@ export class Hl7Service implements OnModuleInit {
     this.whitelist = rawWhitelist ? rawWhitelist.split(',').map((s) => s.trim()).filter(Boolean) : null
     this.tlsEnabled = process.env['HL7_MLLP_TLS_ENABLED'] === 'true'
     this.tlsOptions = this.tlsEnabled
-      ? {
-          key: fs.readFileSync(process.env['HL7_MLLP_TLS_KEY']!, 'utf8'),
-          cert: fs.readFileSync(process.env['HL7_MLLP_TLS_CERT']!, 'utf8'),
-        }
+      ? this.loadTlsOptions()
       : null
     this.pushConfig = {
       host: process.env['HL7_PUSH_HOST'] ?? '',
@@ -146,6 +143,20 @@ export class Hl7Service implements OnModuleInit {
     const parts = ip.split('.').map(Number)
     if (parts.length !== 4 || parts.some(isNaN)) return null
     return ((parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3]) >>> 0
+  }
+
+  private loadTlsOptions(): tls.TlsOptions {
+    const keyPath = process.env['HL7_MLLP_TLS_KEY']
+    const certPath = process.env['HL7_MLLP_TLS_CERT']
+    if (!keyPath || !certPath) {
+      throw new Error('HL7_MLLP_TLS_KEY and HL7_MLLP_TLS_CERT are required when HL7_MLLP_TLS_ENABLED=true')
+    }
+    if (!fs.existsSync(keyPath)) throw new Error(`HL7 TLS key not found: ${keyPath}`)
+    if (!fs.existsSync(certPath)) throw new Error(`HL7 TLS cert not found: ${certPath}`)
+    return {
+      key: fs.readFileSync(keyPath, 'utf8'),
+      cert: fs.readFileSync(certPath, 'utf8'),
+    }
   }
 
   private startMllpListener(): void {
@@ -602,9 +613,9 @@ export class Hl7Service implements OnModuleInit {
       where: { id: examId },
       include: { patient: true, reports: true },
     })
-    if (!exam) throw new Error('Exam not found')
+    if (!exam) throw new NotFoundException('Exam not found')
     const report = exam.reports.find((r) => r.id === reportId)
-    if (!report) throw new Error('Report not found')
+    if (!report) throw new NotFoundException('Report not found')
     return this.pushOruOnExamCompletion(exam, report)
   }
 
@@ -645,7 +656,8 @@ export class Hl7Service implements OnModuleInit {
           ackStatus: 'FAILED',
           retryCount: this.retryMax,
         },
-      }).catch((err) => this.logger.warn(`Failed to archive HL7 message: ${(err as Error).message}`))
+      }).catch((archiveError) => this.logger.warn(`Failed to archive HL7 message: ${(archiveError as Error).message}`))
+      throw new ServiceUnavailableException('HL7 ORU push failed')
     }
   }
 

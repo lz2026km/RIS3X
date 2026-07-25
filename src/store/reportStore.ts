@@ -297,6 +297,7 @@ export const useReportStore = create<ReportState>((set, get) => ({
   },
 
   review: async (id, type, doctorId, doctorName, suggestion, score) => {
+    set({ error: null })
     const beforeStatus = get().reports.find((r) => r.id === id)?.status
     const report = get().reports.find((r) => r.id === id)
     if (!report) return

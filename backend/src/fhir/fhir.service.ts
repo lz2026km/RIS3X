@@ -153,7 +153,7 @@ export class FhirService implements OnModuleInit {
   }
 
   // ── FHIR $export (Bulk Data Export) ────────────────────
-  private exportJobs = new Map<string, { status: 'running' | 'completed'; output: any }>()
+  private exportJobs = new Map<string, { status: 'running' | 'completed' | 'failed'; output: unknown }>()
 
   async bulkExport(_outputFormat?: string, _since?: string, _type?: string) {
     const jobId = randomUUID()
@@ -185,7 +185,9 @@ export class FhirService implements OnModuleInit {
           for (const e of exams) lines.push(JSON.stringify(this.toFhirImagingStudy(e)))
         }
       } catch (err) {
-        this.logger.error('Bulk export failed', (err as Error).message)
+        this.logger.error('Bulk export failed', (err as Error).stack)
+        this.exportJobs.set(jobId, { status: 'failed', output: { message: 'Bulk export failed' } })
+        return
       }
       this.exportJobs.set(jobId, { status: 'completed', output: lines.join('\n') })
     })
@@ -273,7 +275,11 @@ export class FhirService implements OnModuleInit {
   }
 
   private hmacSecret(): string {
-    return process.env['FHIR_SUBSCRIPTION_HMAC_SECRET'] ?? 'g005-default-hmac-secret'
+    const secret = process.env['FHIR_SUBSCRIPTION_HMAC_SECRET']
+    if (!secret) {
+      throw new Error('FHIR_SUBSCRIPTION_HMAC_SECRET environment variable is required')
+    }
+    return secret
   }
 
   private signPayload(payload: string): string {

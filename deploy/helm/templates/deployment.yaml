@@ -22,35 +22,90 @@ spec:
       serviceAccountName: {{ include "g005-ris.fullname" . }}
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1001
-        runAsGroup: 1001
         fsGroup: 1001
       containers:
-        - name: {{ .Chart.Name }}
+        - name: backend
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+            runAsGroup: 1001
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           ports:
-            - containerPort: {{ .Values.service.port }}
-            - containerPort: {{ .Values.service.frontendPort }}
+            - name: api
+              containerPort: {{ .Values.service.port }}
           envFrom:
             - configMapRef:
                 name: {{ include "g005-ris.fullname" . }}-config
+            {{- if .Values.secrets.create }}
             - secretRef:
                 name: {{ include "g005-ris.fullname" . }}-secret
+            {{- else }}
+            - secretRef:
+                name: {{ required "secrets.existingSecret is required when secrets.create is false" .Values.secrets.existingSecret }}
+            {{- end }}
           livenessProbe:
             httpGet:
               path: {{ .Values.probes.livenessPath }}
-              port: {{ .Values.service.port }}
+              port: api
             initialDelaySeconds: {{ .Values.probes.initialDelaySeconds }}
             periodSeconds: {{ .Values.probes.periodSeconds }}
           readinessProbe:
             httpGet:
               path: {{ .Values.probes.readinessPath }}
-              port: {{ .Values.service.port }}
+              port: api
             initialDelaySeconds: 5
             periodSeconds: 10
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          {{- if .Values.persistence.enabled }}
+          volumeMounts:
+            - name: backup-storage
+              mountPath: /data/backups
+          {{- end }}
+        {{- if .Values.frontend.enabled }}
+        - name: frontend
+          image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
+          imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 101
+            runAsGroup: 101
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          env:
+            - name: BACKEND_URL
+              value: http://127.0.0.1:{{ .Values.service.port }}
+          ports:
+            - name: frontend
+              containerPort: {{ .Values.frontend.port }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: frontend
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: frontend
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.frontend.resources | nindent 12 }}
+        {{- end }}
+      {{- if .Values.persistence.enabled }}
+      volumes:
+        - name: backup-storage
+          persistentVolumeClaim:
+            claimName: {{ default (printf "%s-pvc" (include "g005-ris.fullname" .)) .Values.persistence.existingClaim }}
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

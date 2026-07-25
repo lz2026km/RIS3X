@@ -5,7 +5,7 @@
 // 用于嵌入 ReportWriteV2Page 左侧 / ReportWriteV3Page
 // ============================================================
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import {
   ZoomIn, Move, Sun, Ruler, Type, Square,
   ArrowRight, RotateCcw, Eye, Grid3X3,
@@ -126,9 +126,18 @@ export default function DicomViewerLite({
   const [showInfoHud, setShowInfoHud] = useState(true);
   const [mousePx, setMousePx] = useState<{ x: number; y: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const lastMoveAtRef = useRef(0);
+  const pendingMoveRef = useRef<{ x: number; y: number } | null>(null);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => () => {
+    if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+  }, []);
 
   const activeSer = (series[activeSeries] || series[0])!;
-  const mockImage = activeSer ? generateMockCTImage(activeSer, slice) : '';
+  const mockImage = useMemo(() => (
+    activeSer ? generateMockCTImage(activeSer, slice) : ''
+  ), [activeSer, slice]);
 
   const fpsOptions = [1, 2, 4, 8];
 
@@ -268,8 +277,26 @@ export default function DicomViewerLite({
     const rect = containerRef.current.getBoundingClientRect();
     const pctX = (e.clientX - rect.left) / rect.width * 100;
     const pctY = (e.clientY - rect.top) / rect.height * 100;
+    const pxX = e.clientX - rect.left;
+    const pxY = e.clientY - rect.top;
+    pendingMoveRef.current = { x: pctX, y: pctY };
+    const now = performance.now();
+    if (now - lastMoveAtRef.current < 33) {
+      if (rafRef.current === null) {
+        rafRef.current = requestAnimationFrame(() => {
+          rafRef.current = null;
+          lastMoveAtRef.current = performance.now();
+          const p = pendingMoveRef.current;
+          if (!p) return;
+          setHoverPos(p);
+          setMousePx({ x: p.x * rect.width / 100, y: p.y * rect.height / 100 });
+        });
+      }
+      return;
+    }
+    lastMoveAtRef.current = now;
     setHoverPos({ x: pctX, y: pctY });
-    setMousePx({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    setMousePx({ x: pxX, y: pxY });
   }, []);
 
   if (!activeSer) {
@@ -366,7 +393,7 @@ export default function DicomViewerLite({
                 border: i === activeSeries ? '1px solid #3b82f6' : '1px solid #333',
                 borderRadius: 4, padding: 4, marginBottom: 4, cursor: 'pointer', fontSize: 12, color: '#cbd5e1',
               }}>
-                <img src={generateMockCTImage(s, 0)} alt={s.seriesDescription} style={{ width: '100%', borderRadius: 2, marginBottom: 4 }} />
+                <img src={generateMockCTImage(s, 0)} alt={s.seriesDescription} loading="lazy" decoding="async" style={{ width: '100%', borderRadius: 2, marginBottom: 4 }} />
                 <div style={{ fontWeight: 600 }}>{s.seriesDescription}</div>
                 <div style={{ color: '#64748b' }}>{s.modality} | {s.sliceCount}片</div>
               </div>
@@ -395,7 +422,7 @@ export default function DicomViewerLite({
             transform: `scale(${zoom}) translate(${pan.x}px, ${pan.y}px)`,
             transition: 'transform 0.1s',
           }}>
-            <img src={mockImage} alt="CT slice" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: `brightness(${1 + (WINDOW_PRESETS[preset].wc / 1000)}) contrast(${WINDOW_PRESETS[preset].ww / 500})` }} />
+            <img src={mockImage} alt="CT slice" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: `brightness(${1 + (WINDOW_PRESETS[preset].wc / 1000)}) contrast(${WINDOW_PRESETS[preset].ww / 500})` }} />
           </div>
 
           {/* SVG overlay for measurements, crosshair, grid */}
@@ -477,7 +504,7 @@ export default function DicomViewerLite({
                 left: `${-mousePx.x * 2 + 60}px`,
                 top: `${-mousePx.y * 2 + 60}px`,
               }}>
-                <img src={mockImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: `brightness(${1 + (WINDOW_PRESETS[preset].wc / 1000)}) contrast(${WINDOW_PRESETS[preset].ww / 500})` }} />
+                <img src={mockImage} alt="" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: `brightness(${1 + (WINDOW_PRESETS[preset].wc / 1000)}) contrast(${WINDOW_PRESETS[preset].ww / 500})` }} />
               </div>
             </div>
           )}

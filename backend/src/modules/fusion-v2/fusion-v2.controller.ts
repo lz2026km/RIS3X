@@ -5,6 +5,12 @@ import { z } from 'zod'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { FusionV2Service } from './fusion-v2.service'
 
+const num = (key: string, fallback: number): number => {
+  const raw = process.env[key]
+  const n = raw === undefined ? NaN : Number(raw)
+  return Number.isFinite(n) ? n : fallback
+}
+
 const RegisterSchema = z.object({
   fixedSeriesUid: z.string().min(1),
   movingSeriesUid: z.string().min(1),
@@ -17,10 +23,10 @@ const RenderSchema = z.object({
   plane: z.enum(['axial', 'coronal', 'sagittal']).default('axial'),
   sliceIndex: z.number().int().min(0),
   alpha: z.number().min(0).max(1).default(0.5),
-  windowWidth: z.number().positive().default(1200),
-  windowLevel: z.number().default(400),
-  fusionWindowWidth: z.number().positive().default(800),
-  fusionWindowLevel: z.number().default(200),
+  windowWidth: z.number().positive().default(num('DICOM_WINDOW_WIDTH_LUNG', 1200)),
+  windowLevel: z.number().default(num('DICOM_WINDOW_LEVEL_LUNG', -600)),
+  fusionWindowWidth: z.number().positive().default(num('DICOM_WINDOW_WIDTH_MEDIASTINAL', 400)),
+  fusionWindowLevel: z.number().default(num('DICOM_WINDOW_LEVEL_MEDIASTINAL', 40)),
 })
 
 @ApiTags('fusion-v2')

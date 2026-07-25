@@ -14,6 +14,18 @@ const AssignSchema = z.object({
   patientStatus: z.string().min(1),
 })
 
+const RoutingRuleSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  modality: z.string().min(1),
+  bodyPart: z.string().min(1),
+  patientStatus: z.string().min(1),
+  maxLoad: z.number().int().nonnegative(),
+  priority: z.number().int(),
+  enabled: z.boolean(),
+})
+const UpdateRulesSchema = z.object({ rules: z.array(RoutingRuleSchema) })
+
 @ApiTags('smart-route')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR', 'DOCTOR')
@@ -32,7 +44,7 @@ export class SmartRouteController {
   }
 
   @Put('rules')
-  updateRules(@Body() body: { rules: RoutingRule[] }) {
+  updateRules(@Body(new ZodValidationPipe(UpdateRulesSchema)) body: { rules: RoutingRule[] }) {
     return this.service.updateRules(body.rules)
   }
 

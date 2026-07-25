@@ -39,6 +39,9 @@ import type {
   PixQueryDto,
 } from './dto'
 import { IheService } from './ihe.service'
+import { z } from 'zod'
+
+const CrossReferenceSchema = z.object({ localId: z.string().min(1), remoteDomain: z.string().min(1) })
 
 @ApiTags('ihe')
 @ApiBearerAuth()
@@ -174,7 +177,7 @@ export class IheController {
   }
 
   @Post('mock/cross-reference')
-  async mockCrossReference(@Body() body: { localId: string; remoteDomain: string }) {
+  async mockCrossReference(@Body(new ZodValidationPipe(CrossReferenceSchema)) body: { localId: string; remoteDomain: string }) {
     if (!body?.localId || !body?.remoteDomain) {
       return { error: 'localId & remoteDomain required' }
     }

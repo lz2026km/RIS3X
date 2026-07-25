@@ -6,6 +6,7 @@
 
 import React, { useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { message } from 'antd';
 import {
   ChevronLeft, Save, Eye, Plus, Trash2, GripVertical,
   Type, Hash, Calendar, ToggleLeft, ListChecks, Sliders, Calculator, FileText,
@@ -18,6 +19,8 @@ import {
   STRUCTURED_FIELD_TEMPLATES,
   type TemplateFieldDefinition,
 } from '../data/structuredFieldTemplates';
+import { v3WritingApi } from '../services/api/v3Api';
+import { api } from '../services/api/client';
 
 // ============================================================
 // 字段类型配置
@@ -206,7 +209,7 @@ export default function TemplateDesignerPage() {
   };
 
   const removeSection = (sectionId: string) => {
-    if (sections.length <= 1) { alert('至少需要保留 1 个章节'); return; }
+    if (sections.length <= 1) { message.warning('至少需要保留 1 个章节'); return; }
     setSections(prev => prev.filter(s => s.id !== sectionId));
     if (selectedSectionId === sectionId) setSelectedSectionId(null);
   };
@@ -231,7 +234,7 @@ export default function TemplateDesignerPage() {
 
   // ---------- 条件规则操作 ----------
   const addConditionalRule = () => {
-    if (allFields.length < 2) { alert('至少需要 2 个字段才能创建条件规则'); return; }
+    if (allFields.length < 2) { message.warning('至少需要 2 个字段才能创建条件规则'); return; }
     const newRule: ConditionalRule = {
       id: `rule-${Date.now()}`,
       fieldId: allFields[0].id,
@@ -302,9 +305,52 @@ export default function TemplateDesignerPage() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <button onClick={() => setPreviewMode(!previewMode)} style={{ padding: '4px 10px', border: '1px solid #cbd5e1', borderRadius: 6, background: previewMode ? '#dbeafe' : '#fff', color: '#475569', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Eye size={12} /> {previewMode ? '编辑' : '预览'}</button>
-          <button onClick={() => alert('已克隆当前模板为新模板（模拟）')} style={{ padding: '4px 10px', border: '1px solid #cbd5e1', borderRadius: 6, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Copy size={12} /> 克隆</button>
+          <button onClick={async () => {
+            const sourceId = id ?? initialTemplate?.id ?? meta.code;
+            if (!sourceId) { message.warning('当前模板未关联 ID，无法克隆'); return; }
+            try {
+              const res = await api.post<{ id: string }>(`/writing/templates/${sourceId}/clone`);
+              if (res.success) {
+                const newId = (res.data as any)?.id ?? `tpl-clone-${Date.now()}`;
+                message.success(`已克隆为新模板 ${newId}`);
+                navigate(`/template-designer/${newId}`);
+              } else {
+                message.error(res.error?.message || '克隆失败');
+              }
+            } catch (e: any) {
+              message.error('克隆失败: ' + (e?.message || String(e)));
+            }
+          }} style={{ padding: '4px 10px', border: '1px solid #cbd5e1', borderRadius: 6, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Copy size={12} /> 克隆</button>
           <button onClick={() => setIsFullscreen(!isFullscreen)} style={{ padding: 4, border: '1px solid #cbd5e1', borderRadius: 6, background: '#fff', color: '#64748b', cursor: 'pointer' }} title={isFullscreen ? '退出全屏' : '全屏'}>{isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}</button>
-          <button onClick={() => alert('模板已保存（模拟）')} style={{ padding: '4px 12px', border: 'none', borderRadius: 6, background: '#10b981', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Save size={12} /> 保存模板</button>
+          <button onClick={async () => {
+            const targetId = id ?? meta.code;
+            try {
+              const res = await v3WritingApi.updateTemplate(targetId, {
+                id: targetId,
+                name: meta.name,
+                modality: meta.modality,
+                bodyPart: meta.bodyPart,
+                version: meta.version,
+                description: meta.description,
+                author: meta.author,
+                scope: meta.scope,
+                gender: meta.gender,
+                minAge: meta.minAge,
+                maxAge: meta.maxAge,
+                sections: sections.map(s => ({ id: s.id, name: s.name, order: s.order, color: s.color, fields: s.fields })),
+                srMappings,
+                conditionalRules,
+                complianceScore,
+              });
+              if (res.success) {
+                message.success(`模板 ${meta.name} 已保存 (${targetId})`);
+              } else {
+                message.error(res.error?.message || '保存失败');
+              }
+            } catch (e: any) {
+              message.error('保存失败: ' + (e?.message || String(e)));
+            }
+          }} style={{ padding: '4px 12px', border: 'none', borderRadius: 6, background: '#10b981', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Save size={12} /> 保存模板</button>
         </div>
       </div>
 
@@ -566,7 +612,23 @@ export default function TemplateDesignerPage() {
             </div>
 
             <div style={{ padding: 10, borderTop: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <button onClick={() => alert('已保存（模拟）')} style={{ padding: '6px 12px', border: 'none', borderRadius: 4, background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}><Check size={11} /> 应用属性</button>
+              <button onClick={async () => {
+                const targetId = id ?? meta.code;
+                try {
+                  const res = await v3WritingApi.updateTemplate(targetId, {
+                    sections: sections.map(s => ({ id: s.id, name: s.name, order: s.order, color: s.color, fields: s.fields })),
+                    selectedFieldPatch: selectedFieldId ? { id: selectedFieldId, field: sections.flatMap(s => s.fields).find(f => f.id === selectedFieldId) } : null,
+                    srMappings,
+                  });
+                  if (res.success) {
+                    message.success(`已应用字段属性到模板 ${meta.name}`);
+                  } else {
+                    message.error(res.error?.message || '应用失败');
+                  }
+                } catch (e: any) {
+                  message.error('应用失败: ' + (e?.message || String(e)));
+                }
+              }} style={{ padding: '6px 12px', border: 'none', borderRadius: 4, background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}><Check size={11} /> 应用属性</button>
               <button onClick={() => { if (confirm('确认删除当前选中的字段？')) removeField(selectedFieldId!); }} disabled={!selectedField} style={{ padding: '6px 12px', border: '1px solid #dc2626', borderRadius: 4, background: '#fff', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: selectedField ? 'pointer' : 'not-allowed', opacity: selectedField ? 1 : 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}><Trash2 size={11} /> 删除字段</button>
             </div>
           </div>

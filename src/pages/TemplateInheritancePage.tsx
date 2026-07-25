@@ -130,7 +130,7 @@ export default function TemplateInheritancePage() {
     if (!expandedIds.has(id)) {
       setExpandedIds(new Set([...expandedIds, id]));
     }
-    alert(`已克隆为新模板：${newNode.name}\nID: ${newNode.id}\n可在 TemplateDesignerPage 中编辑。`);
+    message.success(`已克隆为新模板：${newNode.name} (ID: ${newNode.id})，可在模板设计器中编辑。`);
   };
 
   // 继承

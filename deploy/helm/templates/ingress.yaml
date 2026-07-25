@@ -3,6 +3,8 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ include "g005-ris.fullname" . }}-ingress
+  labels:
+    {{- include "g005-ris.labels" . | nindent 4 }}
   annotations:
     {{- toYaml .Values.ingress.annotations | nindent 4 }}
 spec:
@@ -29,10 +31,10 @@ spec:
               service:
                 name: {{ include "g005-ris.fullname" $ }}-service
                 port:
-                  {{- if eq .path "/api" }}
-                  number: {{ $.Values.service.port }}
+                  {{- if hasPrefix "/api" .path }}
+                  name: api
                   {{- else }}
-                  number: {{ $.Values.service.frontendPort }}
+                  name: frontend
                   {{- end }}
           {{- end }}
     {{- end }}

@@ -1,5 +1,13 @@
 {
-  "__inputs": [],
+  "__inputs": [
+    {
+      "name": "DS_PROMETHEUS",
+      "label": "Prometheus",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ],
   "__requires": [],
   "title": "G005 RIS - 系统监控",
   "uid": "g005-ris-system",
@@ -8,32 +16,35 @@
   "panels": [
     {
       "title": "API 错误率",
-      "type": "graph",
+      "type": "timeseries",
       "gridPos": { "h": 6, "w": 8, "x": 0, "y": 0 },
       "targets": [
         {
-          "expr": "(sum(rate(http_requests_total{job=\"g005-ris\",status=~\"5..\"}[5m])) / sum(rate(http_requests_total{job=\"g005-ris\"}[5m]))) * 100",
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "(sum(rate(http_requests_total{job=\"g005-ris\",status=~\"5..\"}[5m])) / clamp_min(sum(rate(http_requests_total{job=\"g005-ris\"}[5m])), 0.001)) * 100",
           "legendFormat": "错误率 %"
         }
       ]
     },
     {
       "title": "P99 延迟",
-      "type": "graph",
+      "type": "timeseries",
       "gridPos": { "h": 6, "w": 8, "x": 8, "y": 0 },
       "targets": [
         {
-          "expr": "histogram_quantile(0.99, rate(http_request_duration_seconds_bucket{job=\"g005-ris\"}[5m]))",
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket{job=\"g005-ris\"}[5m])))",
           "legendFormat": "P99"
         }
       ]
     },
     {
       "title": "请求速率",
-      "type": "graph",
+      "type": "timeseries",
       "gridPos": { "h": 6, "w": 8, "x": 16, "y": 0 },
       "targets": [
         {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
           "expr": "sum(rate(http_requests_total{job=\"g005-ris\"}[5m]))",
           "legendFormat": "请求/s"
         }
@@ -41,14 +52,16 @@
     },
     {
       "title": "队列积压",
-      "type": "graph",
+      "type": "timeseries",
       "gridPos": { "h": 6, "w": 8, "x": 0, "y": 6 },
       "targets": [
         {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
           "expr": "sum(queue_jobs_waiting{job=\"g005-ris\"})",
           "legendFormat": "等待"
         },
         {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
           "expr": "sum(queue_jobs_active{job=\"g005-ris\"})",
           "legendFormat": "活跃"
         }
@@ -56,10 +69,11 @@
     },
     {
       "title": "队列失败任务",
-      "type": "graph",
+      "type": "timeseries",
       "gridPos": { "h": 6, "w": 8, "x": 8, "y": 6 },
       "targets": [
         {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
           "expr": "rate(queue_jobs_failed_total{job=\"g005-ris\"}[5m])",
           "legendFormat": "失败/s"
         }
@@ -67,21 +81,23 @@
     },
     {
       "title": "缓存命中率",
-      "type": "graph",
+      "type": "timeseries",
       "gridPos": { "h": 6, "w": 8, "x": 16, "y": 6 },
       "targets": [
         {
-          "expr": "rate(cache_hits_total{job=\"g005-ris\"}[5m]) / (rate(cache_hits_total{job=\"g005-ris\"}[5m]) + rate(cache_misses_total{job=\"g005-ris\"}[5m])) * 100",
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "rate(cache_hits_total{job=\"g005-ris\"}[5m]) / clamp_min(rate(cache_hits_total{job=\"g005-ris\"}[5m]) + rate(cache_misses_total{job=\"g005-ris\"}[5m]), 0.001) * 100",
           "legendFormat": "命中率 %"
         }
       ]
     },
     {
       "title": "数据库活跃连接",
-      "type": "graph",
+      "type": "timeseries",
       "gridPos": { "h": 6, "w": 8, "x": 0, "y": 12 },
       "targets": [
         {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
           "expr": "db_active_connections{job=\"g005-ris\"}",
           "legendFormat": "活跃连接"
         }
@@ -89,10 +105,11 @@
     },
     {
       "title": "数据库连接错误",
-      "type": "graph",
+      "type": "timeseries",
       "gridPos": { "h": 6, "w": 8, "x": 8, "y": 12 },
       "targets": [
         {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
           "expr": "rate(db_connection_errors_total{job=\"g005-ris\"}[5m])",
           "legendFormat": "错误/s"
         }
@@ -100,27 +117,85 @@
     },
     {
       "title": "Pod 重启次数",
-      "type": "graph",
+      "type": "timeseries",
       "gridPos": { "h": 6, "w": 8, "x": 16, "y": 12 },
       "targets": [
         {
-          "expr": "sum(rate(kube_pod_container_status_restarts_total{namespace=~\"g005-ris\"}[5m]))",
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "sum(rate(kube_pod_container_status_restarts_total{namespace=~\"$namespace\",pod=~\".*g005-ris.*\"}[5m]))",
           "legendFormat": "重启/s"
         }
       ]
     },
     {
       "title": "磁盘使用率",
-      "type": "graph",
+      "type": "timeseries",
       "gridPos": { "h": 6, "w": 12, "x": 0, "y": 18 },
       "targets": [
         {
-          "expr": "(1 - node_filesystem_avail_bytes{fstype!=\"\"} / node_filesystem_size_bytes{fstype!=\"\"}) * 100",
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "(1 - max by (instance, mountpoint) (node_filesystem_avail_bytes{fstype!=\"\",fstype!~\"tmpfs|overlay|squashfs\",mountpoint!~\"/run|/var/lib/docker/.+\"} / node_filesystem_size_bytes{fstype!=\"\",fstype!~\"tmpfs|overlay|squashfs\",mountpoint!~\"/run|/var/lib/docker/.+\"})) * 100",
           "legendFormat": "{{ instance }}"
+        }
+      ]
+    },
+    {
+      "title": "Pod CPU 使用率",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 24 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "sum by (pod) (rate(container_cpu_usage_seconds_total{namespace=~\"$namespace\",pod=~\".*g005-ris.*\",container!=\"\",image!=\"\"}[5m]))",
+          "legendFormat": "{{ pod }}"
+        }
+      ]
+    },
+    {
+      "title": "Pod 内存使用量",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 24 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "sum by (pod) (container_memory_working_set_bytes{namespace=~\"$namespace\",pod=~\".*g005-ris.*\",container!=\"\",image!=\"\"})",
+          "legendFormat": "{{ pod }}"
+        }
+      ]
+    },
+    {
+      "title": "HPA 副本数",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 24 },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "kube_horizontalpodautoscaler_status_current_replicas{namespace=~\"$namespace\",horizontalpodautoscaler=~\".*g005-ris.*\"}",
+          "legendFormat": "当前"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "kube_horizontalpodautoscaler_status_desired_replicas{namespace=~\"$namespace\",horizontalpodautoscaler=~\".*g005-ris.*\"}",
+          "legendFormat": "期望"
         }
       ]
     }
   ],
+  "templating": {
+    "list": [
+      {
+        "name": "namespace",
+        "label": "Namespace",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+        "query": { "query": "label_values(up{job=\"g005-ris\"}, namespace)", "refId": "namespace" },
+        "refresh": 1,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": { "text": "All", "value": "$__all" }
+      }
+    ]
+  },
   "tags": ["g005", "ris", "monitoring"],
-  "schemaVersion": 27
+  "schemaVersion": 39
 }

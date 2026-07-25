@@ -1,4 +1,4 @@
-import type { PatientDoseRecord } from "./types";
+import type { PatientDoseRecord, DeviceDoseData } from "./types";
 
 export const getAlertBadge = (level: string) => {
   if (level === "critical")
@@ -6,6 +6,14 @@ export const getAlertBadge = (level: string) => {
   if (level === "warning")
     return { bg: "#fffbeb", color: "#d97706", label: "警", border: "#fde68a" };
   return { bg: "#f0fdf4", color: "#16a34a", label: "正", border: "#bbf7d0" };
+};
+
+export const getStatusBadge = (status: string) => {
+  if (status === "critical")
+    return { bg: "#fef2f2", color: "#dc2626", label: "超标" };
+  if (status === "warning")
+    return { bg: "#fffbeb", color: "#d97706", label: "预警" };
+  return { bg: "#f0fdf4", color: "#16a34a", label: "正常" };
 };
 
 export const exportDoseDataToCSV = (
@@ -25,6 +33,31 @@ export const exportDoseDataToCSV = (
         row.modality, row.examItem, row.examDate, row.doseType, row.doseValue,
         row.doseUnit, row.threshold, row.alertLevel, row.device, row.examCount,
         row.cumulativeDLP,
+      ].join(","),
+    ),
+  ].join("\n");
+  const blob = new Blob(["\ufeff" + csvContent], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(link.href);
+};
+
+export const exportDeviceDoseToCSV = (
+  data: DeviceDoseData[],
+  filename: string = "device_dose.csv",
+) => {
+  const headers = [
+    "设备名称", "今日DLP", "今日CTDIvol", "今日DAP", "预警次数", "状态",
+    "检查人数", "利用率(%)", "平均CTDI", "最大CTDI",
+  ];
+  const csvContent = [
+    headers.join(","),
+    ...data.map((row) =>
+      [
+        row.device, row.todayDLP, row.todayCTDI, row.todayDAP, row.alertCount,
+        row.status, row.examCount, row.utilizationRate, row.avgCTDI, row.maxCTDI,
       ].join(","),
     ),
   ].join("\n");

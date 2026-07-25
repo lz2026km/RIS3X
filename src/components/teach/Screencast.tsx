@@ -150,6 +150,14 @@ export default function Screencast({ handleRef, onStateChange }: {
         getState: () => state,
       }
     }
+
+    return () => {
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        try { mediaRecorderRef.current.stop() } catch { /* noop */ }
+      }
+      cleanup()
+      if (handleRef) handleRef.current = undefined
+    }
   }, [handleRef, state, captureMouse, drawMouseTrail, notifyState])
 
   const cleanup = () => {

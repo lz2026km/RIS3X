@@ -3,7 +3,7 @@
  * R3.DIST 组 D:多通道推送(微信/短信/钉钉/邮件/站内/DICOM/纸质/云盘/胶片)
  * 25 升级点
  */
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import {
   Card, Space, Button, Tag, Tooltip, message, Modal, Form, Input, Select, Switch,
   Table, Empty, Statistic, Row, Col, Divider, Checkbox, Alert, Tabs, List, Progress,
@@ -60,6 +60,14 @@ export const MultiChannelSender: React.FC<Props> = ({ reportId, patientId, onSen
   const [template, setTemplate] = useState('standard-v1');
   const [priority, setPriority] = useState<'low' | 'normal' | 'high' | 'urgent'>('normal');
 
+  const sendProgressRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const hideModalTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => {
+    if (sendProgressRef.current !== null) clearInterval(sendProgressRef.current);
+    if (hideModalTimerRef.current !== null) clearTimeout(hideModalTimerRef.current);
+  }, []);
+
   const filteredTasks = useMemo(() => {
     return tasks.filter((t) => {
       if (filterChannel !== 'all' && t.channel !== filterChannel) return false;
@@ -89,37 +97,52 @@ export const MultiChannelSender: React.FC<Props> = ({ reportId, patientId, onSen
     setShowSendModal(true);
 
     // 模拟进度
-    const interval = setInterval(() => {
+    const stopProgress = () => {
+      if (sendProgressRef.current !== null) {
+        clearInterval(sendProgressRef.current);
+        sendProgressRef.current = null;
+      }
+    };
+    sendProgressRef.current = setInterval(() => {
       setSendProgress((p) => {
-        if (p >= 100) { clearInterval(interval); return 100; }
+        if (p >= 100) {
+          stopProgress();
+          return 100;
+        }
         return p + 12;
       });
     }, 200);
 
-    const result = await sendMultiChannel({
-      reportId, patientId,
-      channels: selectedChannels,
-      recipients: selectedChannels.map((c) => recipients[c] ?? '').filter(Boolean),
-    });
-    clearInterval(interval);
-    setSendProgress(100);
+    try {
+      const result = await sendMultiChannel({
+        reportId, patientId,
+        channels: selectedChannels,
+        recipients: selectedChannels.map((c) => recipients[c] ?? '').filter(Boolean),
+      });
+      stopProgress();
+      setSendProgress(100);
 
-    // 立即创建任务到列表
-    const newTasks: DeliveryTask[] = selectedChannels.map((c, i) => ({
-      id: result.taskIds[i] ?? `dt-${Date.now()}-${i}`,
-      reportId, patientId, patientName: '患者',
-      channel: c, recipient: recipients[c] ?? '',
-      template, subject: '报告通知', body: '报告已发布',
-      attachments: [],
-      status: 'sent', priority, retryCount: 0, maxRetries: 3,
-      durationMs: 1500 + i * 200, cost: 0.02, traceId: `t-${Date.now()}`,
-      ackReceived: false, metadata: {},
-    }));
-    setTasks((t) => [...newTasks, ...t]);
-    setSending(false);
-    message.success(`已发送到 ${result.sent} 个通道`);
-    onSend?.(result.taskIds);
-    setTimeout(() => setShowSendModal(false), 1000);
+      const newTasks: DeliveryTask[] = selectedChannels.map((c, i) => ({
+        id: result.taskIds[i] ?? `dt-${Date.now()}-${i}`,
+        reportId, patientId, patientName: '患者',
+        channel: c, recipient: recipients[c] ?? '',
+        template, subject: '报告通知', body: '报告已发布',
+        attachments: [],
+        status: 'sent', priority, retryCount: 0, maxRetries: 3,
+        durationMs: 1500 + i * 200, cost: 0.02, traceId: `t-${Date.now()}`,
+        ackReceived: false, metadata: {},
+      }));
+      setTasks((t) => [...newTasks, ...t]);
+      message.success(`已发送到 ${result.sent} 个通道`);
+      onSend?.(result.taskIds);
+      if (hideModalTimerRef.current !== null) clearTimeout(hideModalTimerRef.current);
+      hideModalTimerRef.current = setTimeout(() => setShowSendModal(false), 1000);
+    } catch (e) {
+      stopProgress();
+      message.error(`发送失败: ${(e as Error).message}`);
+    } finally {
+      setSending(false);
+    }
   }, [reportId, patientId, selectedChannels, recipients, template, priority, onSend]);
 
   const handleRetry = useCallback(async (taskId: string) => {

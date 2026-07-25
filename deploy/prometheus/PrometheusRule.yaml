@@ -19,8 +19,17 @@ spec:
             summary: "RIS 服务不可用"
             description: "G005 RIS 后端服务已宕机超过 1 分钟"
 
+        - alert: ServiceTargetMissing
+          expr: absent(up{job="g005-ris"}) == 1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "RIS 监控目标缺失"
+            description: "Prometheus 未发现 G005 RIS 的可抓取目标"
+
         - alert: APIErrorRateHigh
-          expr: (sum(rate(http_requests_total{job="g005-ris",status=~"5.."}[5m])) / sum(rate(http_requests_total{job="g005-ris"}[5m]))) * 100 > 5
+          expr: (sum(rate(http_requests_total{job="g005-ris",status=~"5.."}[5m])) / clamp_min(sum(rate(http_requests_total{job="g005-ris"}[5m])), 0.001)) * 100 > 5
           for: 2m
           labels:
             severity: critical
@@ -29,7 +38,7 @@ spec:
             description: "API 5xx 错误率 {{ $value }}% 已超过 5% 阈值"
 
         - alert: HighP99Latency
-          expr: histogram_quantile(0.99, rate(http_request_duration_seconds_bucket{job="g005-ris"}[5m])) > 5
+          expr: histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket{job="g005-ris"}[5m]))) > 5
           for: 2m
           labels:
             severity: warning
@@ -47,7 +56,7 @@ spec:
             description: "Pod {{ $labels.pod }} 在 15 分钟内重启了 {{ $value }} 次"
 
         - alert: DiskUsageHigh
-          expr: (1 - node_filesystem_avail_bytes{fstype!="",job="node-exporter"} / node_filesystem_size_bytes{fstype!="",job="node-exporter"}) * 100 > 85
+          expr: (1 - max by (instance, mountpoint) (node_filesystem_avail_bytes{fstype!="",fstype!~"tmpfs|overlay|squashfs",mountpoint!~"/run|/var/lib/docker/.+"} / node_filesystem_size_bytes{fstype!="",fstype!~"tmpfs|overlay|squashfs",mountpoint!~"/run|/var/lib/docker/.+"})) * 100 > 85
           for: 5m
           labels:
             severity: critical
@@ -74,7 +83,7 @@ spec:
             description: "报告生成接口出现 5xx 错误，可能影响报告 SLA"
 
         - alert: CriticalResultTimeout
-          expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="g005-ris",path=~"/api/results/.*"}[5m])) > 30
+          expr: histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{job="g005-ris",path=~"/api/results/.*"}[5m]))) > 30
           for: 1m
           labels:
             severity: critical
@@ -101,7 +110,7 @@ spec:
             description: "缓存未命中速率 {{ $value }}/s，可能缓存服务异常"
 
         - alert: HighCPUUsage
-          expr: (1 - avg(rate(node_cpu_seconds_total{mode="idle",job="node-exporter"}[5m]))) * 100 > 90
+          expr: (1 - avg by (instance) (rate(node_cpu_seconds_total{mode="idle",job="node-exporter"}[5m]))) * 100 > 90
           for: 10m
           labels:
             severity: critical

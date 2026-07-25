@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { login as authLogin, setToken } from '@/utils/auth';
+import { setToken } from '@/utils/auth';
+import { api, currentApiMode } from '@/services/api/client';
 import type { UserRole } from '@/types';
 
 const DEMO_USERS: { label: string; role: UserRole; name: string }[] = [
@@ -37,30 +38,48 @@ export default function LoginPage() {
     setSubmitting(true);
     setError(null);
     try {
-      const res = await fetch('/api/v1/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: username.trim(), password }),
-      });
-      if (res.ok) {
-        const body = await res.json();
-        if (body.success && body.data) {
-          setToken(body.data);
-          const payload = {
-            id: body.data.userId || `demo-${selectedRole}`,
-            name: body.data.userName || DEMO_USERS.find(d => d.role === selectedRole)?.name || selectedRole,
-            role: selectedRole,
-            department: '放射科',
-            phone: '',
-            username: username.trim(),
-            title: body.data.title || DEMO_USERS.find(d => d.role === selectedRole)?.label || '',
-          };
-          try { localStorage.setItem('ris_current_user', JSON.stringify(payload)); } catch {}
-          navigate(from, { replace: true });
-          return;
-        }
+      const response = await api.post<{
+        token: string;
+        expiresAt?: number;
+        userId?: string;
+        userName?: string;
+        role?: string;
+        title?: string;
+      }>('/auth/login', { username: username.trim(), password });
+      if (response.success && response.data?.token) {
+        setToken({
+          token: response.data.token,
+          refreshToken: '',
+          expiresAt: response.data.expiresAt ?? Date.now() + 15 * 60 * 1000,
+          userId: response.data.userId ?? '',
+          userName: response.data.userName ?? username.trim(),
+          role: response.data.role ?? selectedRole,
+        });
+        const payload = {
+          id: response.data.userId || `demo-${selectedRole}`,
+          name: response.data.userName || DEMO_USERS.find(d => d.role === selectedRole)?.name || selectedRole,
+          role: selectedRole,
+          department: '放射科',
+          phone: '',
+          username: username.trim(),
+          title: response.data.title || DEMO_USERS.find(d => d.role === selectedRole)?.label || '',
+        };
+        try { localStorage.setItem('ris_current_user', JSON.stringify(payload)); } catch {}
+        navigate(from, { replace: true });
+        return;
       }
-    } catch {}
+      if (currentApiMode() === 'real') {
+        setError(response.error?.message ?? '登录失败');
+        setSubmitting(false);
+        return;
+      }
+    } catch (err) {
+      if (currentApiMode() === 'real') {
+        setError(err instanceof Error ? err.message : '登录失败');
+        setSubmitting(false);
+        return;
+      }
+    }
     const matched = DEMO_USERS.find((d) => d.role === selectedRole) ?? DEMO_USERS[0]!;
     const payload = {
       id: `demo-${selectedRole}`,

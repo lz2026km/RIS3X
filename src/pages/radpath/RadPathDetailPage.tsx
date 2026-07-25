@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { message } from 'antd';
 import { ArrowLeft, CheckCircle2, XCircle, AlertTriangle, FileText, Microscope } from 'lucide-react';
 
 interface RadPathRecord {
@@ -48,7 +49,7 @@ export default function RadPathDetailPage() {
       });
       if (!res.ok) throw new Error('标记失败');
       setRecord({ ...record, consistency } as RadPathRecord);
-    } catch (e: any) { alert(e.message) } finally { setSaving(false) }
+    } catch (e: any) { message.error(e.message || '标记失败') } finally { setSaving(false) }
   }, [record]);
 
   if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>加载中...</div>;

@@ -2,6 +2,10 @@ import { Body, Controller, Post } from '@nestjs/common'
 import { Roles } from '../../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { NlpService } from './nlp.service'
+import { z } from 'zod'
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
+
+const TextSchema = z.object({ text: z.string().min(1).max(100_000) })
 
 @ApiTags('nlp')
 @ApiBearerAuth()
@@ -11,12 +15,12 @@ export class NlpController {
   constructor(private readonly svc: NlpService) {}
 
   @Post('spellcheck')
-  spellcheck(@Body() body: { text: string }) {
+  spellcheck(@Body(new ZodValidationPipe(TextSchema)) body: { text: string }) {
     return this.svc.spellcheck(body.text)
   }
 
   @Post('terminology')
-  terminology(@Body() body: { text: string }) {
+  terminology(@Body(new ZodValidationPipe(TextSchema)) body: { text: string }) {
     return this.svc.terminology(body.text)
   }
 }

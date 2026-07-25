@@ -3,6 +3,7 @@ import { api, invalidateApiCache, invalidateApiCacheByPrefix, __clearApiCacheFor
 
 vi.mock('../../../utils/auth', () => ({
   getToken: vi.fn(() => null),
+  refreshToken: vi.fn(async () => false),
 }));
 
 function mockFetchOnce(status: number, body: unknown, ok?: boolean) {

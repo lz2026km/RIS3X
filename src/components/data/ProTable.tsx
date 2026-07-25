@@ -17,53 +17,66 @@ import {
   type TableProps,
   type TablePaginationConfig,
 } from 'antd';
-import { SearchOutlined, ReloadOutlined, DownloadOutlined, FilterOutlined } from '@ant-design/icons';
+import type { ColumnType } from 'antd/es/table';
+import { SearchOutlined, ReloadOutlined, DownloadOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useDebounce } from '@utils/performance';
 
 // ============= ProTable 业务封装(搜索 + 筛选 + 分页 + 导出) =============
-export interface ProTableProps<T = Record<string, unknown>> extends Omit<TableProps<T>, 'dataSource' | 'columns'> {
+export const DEFAULT_TABLE_PAGE_SIZE = 20;
+export const TABLE_PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const;
+
+export interface ProTableProps<T extends object = Record<string, unknown>> extends Omit<TableProps<T>, 'dataSource' | 'columns' | 'rowKey'> {
   dataSource: T[];
   columns: ProColumn<T>[];
-  /** 唯一 key 字段 */
-  rowKey: keyof T | ((record: T) => string);
-  /** 搜索字段(默认搜索所有 string 字段) */
+  rowKey: TableProps<T>['rowKey'];
   searchFields?: (keyof T)[];
-  /** 搜索占位 */
   searchPlaceholder?: string;
-  /** 显示工具栏 */
   showToolbar?: boolean;
-  /** 导出回调 */
   onExport?: (data: T[]) => void;
-  /** 刷新回调 */
   onRefresh?: () => void;
-  /** 初始分页 */
   pageSize?: number;
-  /** 行选择 */
   rowSelection?: TableProps<T>['rowSelection'];
 }
 
-export interface ProColumn<T = Record<string, unknown>> {
+export interface ProColumn<T extends object = Record<string, unknown>> {
   title: ReactNode;
-  dataIndex?: keyof T | string;
+  dataIndex?: keyof T | string | readonly string[];
   key?: string;
   width?: number | string;
   fixed?: 'left' | 'right';
-  /** 排序 */
-  sorter?: (a: T, b: T) => number;
-  /** 过滤 */
-  filters?: Array<{ text: string; value: string | number }>;
-  /** 自定义渲染 */
+  sorter?: ColumnType<T>['sorter'];
+  sortOrder?: ColumnType<T>['sortOrder'];
+  defaultSortOrder?: ColumnType<T>['defaultSortOrder'];
+  filters?: ColumnType<T>['filters'];
+  onFilter?: ColumnType<T>['onFilter'];
+  filterMultiple?: boolean;
+  filteredValue?: ColumnType<T>['filteredValue'];
+  defaultFilteredValue?: ColumnType<T>['defaultFilteredValue'];
   render?: (value: unknown, record: T, index: number) => ReactNode;
-  /** 文本对齐 */
   align?: 'left' | 'center' | 'right';
-  /** 是否可搜索(默认 false) */
+  ellipsis?: boolean;
   searchable?: boolean;
-  /** 是否隐藏 */
   hidden?: boolean;
 }
 
-export function ProTable<T extends Record<string, unknown> = Record<string, unknown>>({
+function getColumnValue<T extends object>(row: T, field: keyof T | string | readonly string[]): unknown {
+  const path = Array.isArray(field) ? field : String(field).split('.');
+  return path.reduce<unknown>((value, key) =>
+    value && typeof value === 'object'
+      ? (value as Record<string, unknown>)[key]
+      : undefined, row);
+}
+
+function isActionColumn<T extends object>(column: ProColumn<T>): boolean {
+  const dataIndex = Array.isArray(column.dataIndex)
+    ? column.dataIndex[column.dataIndex.length - 1]
+    : column.dataIndex;
+  const key = String(column.key ?? dataIndex ?? '').toLowerCase();
+  return ['action', 'actions', 'operation', 'operations', '操作'].includes(key);
+}
+
+export function ProTable<T extends object = Record<string, unknown>>({
   dataSource,
   columns,
   rowKey,
@@ -72,8 +85,12 @@ export function ProTable<T extends Record<string, unknown> = Record<string, unkn
   showToolbar = true,
   onExport,
   onRefresh,
-  pageSize = 20,
+  pageSize = DEFAULT_TABLE_PAGE_SIZE,
   rowSelection,
+  pagination: paginationProp,
+  locale,
+  scroll,
+  size = 'middle',
   ...restProps
 }: ProTableProps<T>) {
   const { t } = useTranslation();
@@ -85,38 +102,43 @@ export function ProTable<T extends Record<string, unknown> = Record<string, unkn
     if (!debouncedSearch.trim()) return dataSource;
     const q = debouncedSearch.toLowerCase();
     const fields = (searchFields ?? columns
-      .filter((c) => c.searchable)
-      .map((c) => c.dataIndex ?? c.key)
-      .filter(Boolean) as (keyof T)[]);
+      .filter((c) => c.searchable && c.dataIndex && !Array.isArray(c.dataIndex))
+      .map((c) => c.dataIndex as keyof T));
     if (fields.length === 0) {
-      // 默认搜索所有 string 字段
       return dataSource.filter((row) =>
-        Object.entries(row).some(([, v]) =>
-          typeof v === 'string' && v.toLowerCase().includes(q)
+        Object.values(row).some((value) =>
+          typeof value === 'string' && value.toLowerCase().includes(q)
         )
       );
     }
     return dataSource.filter((row) =>
       fields.some((field) => {
-        const v = row[field];
-        return typeof v === 'string' && v.toLowerCase().includes(q);
+        const value = getColumnValue(row, field);
+        return String(value ?? '').toLowerCase().includes(q);
       })
     );
   }, [dataSource, debouncedSearch, columns, searchFields]);
 
-  // 过滤掉 hidden 列
   const visibleColumns = useMemo(
-    () => columns.filter((c) => !c.hidden),
+    () => columns
+      .filter((column) => !column.hidden)
+      .map((column) => isActionColumn(column) && !column.fixed
+        ? { ...column, fixed: 'right' as const }
+        : column),
     [columns]
   );
 
-  const pagination: TablePaginationConfig = {
-    pageSize,
-    showSizeChanger: true,
-    showQuickJumper: true,
-    showTotal: (total) => `${t('common.total')} ${total} ${t('common.records')}`,
-    pageSizeOptions: [10, 20, 50, 100],
-  };
+  const pagination = useMemo<TablePaginationConfig | false>(() => {
+    if (paginationProp === false) return false;
+    return {
+      pageSize,
+      showSizeChanger: true,
+      showQuickJumper: true,
+      showTotal: (total) => `${t('common.total')} ${total} ${t('common.records')}`,
+      pageSizeOptions: [...TABLE_PAGE_SIZE_OPTIONS],
+      ...paginationProp,
+    };
+  }, [pageSize, paginationProp, t]);
 
   return (
     <div style={{ background: 'var(--bg-card)', borderRadius: 'var(--radius-lg)' }}>
@@ -184,14 +206,14 @@ export function ProTable<T extends Record<string, unknown> = Record<string, unkn
 
       <Table<T>
         {...restProps}
-        rowKey={rowKey as string}
+        rowKey={rowKey}
         columns={visibleColumns as never}
         dataSource={filteredData}
         pagination={pagination}
         rowSelection={rowSelection}
-        scroll={{ x: 'max-content' }}
-        size="middle"
-        locale={{ emptyText: <Empty description={t('common.noData')} /> }}
+        scroll={{ x: 'max-content', ...scroll }}
+        size={size}
+        locale={{ emptyText: <Empty description={t('common.noData')} />, ...locale }}
       />
     </div>
   );

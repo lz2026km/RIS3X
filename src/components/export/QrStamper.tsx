@@ -57,7 +57,7 @@ export const QrStamper: React.FC<QrStamperProps> = ({ reportId, baseUrl = window
             <div style={{ width: size, height: size, background: '#f1f5f9', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 12 }}>生成中...</div>
           ) : dataUrl ? (
             <div>
-              <img src={dataUrl} alt="QR" style={{ width: size, height: size, borderRadius: 4 }} />
+              <img src={dataUrl} alt="QR" loading="lazy" decoding="async" style={{ width: size, height: size, borderRadius: 4 }} />
               {caption && <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{caption}</div>}
             </div>
           ) : (

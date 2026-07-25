@@ -1,5 +1,5 @@
 ﻿/**
- * G005 RIS v3.0.6.11-31 - HL7 Controller
+ * G005 RIS v3.0.6.11-32 - HL7 Controller
  */
 import { Body, Controller, HttpCode, HttpStatus, NotFoundException, Post } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
@@ -58,6 +58,8 @@ const DftSchema = z.object({
   chargeName: z.string(),
   transactionDate: z.string().optional(),
 })
+
+const PushOruSchema = z.object({ examId: z.string().min(1), reportId: z.string().min(1) })
 
 @ApiTags('hl7')
 @ApiBearerAuth()
@@ -119,7 +121,7 @@ export class Hl7Controller {
 
   @Post('push-oru')
   @HttpCode(HttpStatus.CREATED)
-  async pushOru(@Body() body: { examId: string; reportId: string }) {
+  async pushOru(@Body(new ZodValidationPipe(PushOruSchema)) body: { examId: string; reportId: string }) {
     await this.service.pushOruById(body.examId, body.reportId)
     return { pushed: true, examId: body.examId, reportId: body.reportId }
   }

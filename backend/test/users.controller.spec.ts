@@ -41,26 +41,26 @@ describe('UsersController', () => {
   })
 
   it('get delegates to service', async () => {
-    svc.findById.mockResolvedValue({ id: 'u1', username: 'doc', passwordHash: '', fullName: 'Dr', role: 'DOCTOR' as const, department: null, active: true, tenantId: 't', totpSecret: null, totpEnabled: false, failedLoginAttempts: 0, lockedUntil: null, createdAt: new Date(), updatedAt: new Date() })
+    svc.findById.mockResolvedValue({ id: 'u1', username: 'doc', passwordHash: '', fullName: 'Dr', role: 'DOCTOR' as const, department: null, active: true, tenantId: 't', totpSecret: null, totpEnabled: false, failedLoginAttempts: 0, lockedUntil: null, tokenVersion: 0, createdAt: new Date(), updatedAt: new Date() } as any)
     const r = await ctrl.get('u1')
     expect(svc.findById).toHaveBeenCalledWith('u1')
   })
 
   it('create delegates to service', async () => {
-    svc.create.mockResolvedValue({ id: 'u1', username: 'new', fullName: 'New', role: 'NURSE', department: null, tenantId: 't', passwordHash: '', active: true, totpSecret: null, totpEnabled: false, failedLoginAttempts: 0, lockedUntil: null, createdAt: new Date(), updatedAt: new Date() })
+    svc.create.mockResolvedValue({ id: 'u1', username: 'new', fullName: 'New', role: 'NURSE', department: null, tenantId: 't', passwordHash: '', active: true, totpSecret: null, totpEnabled: false, failedLoginAttempts: 0, lockedUntil: null, tokenVersion: 0, createdAt: new Date(), updatedAt: new Date() } as any)
     const dto = { username: 'new', password: 'pass123', fullName: 'New', role: 'NURSE' as const }
     const r = await ctrl.create(dto)
     expect(svc.create).toHaveBeenCalled()
   })
 
   it('update delegates to service', async () => {
-    svc.update.mockResolvedValue({ id: 'u1', username: 'doc', fullName: 'Updated', role: 'DOCTOR', department: null, active: false, tenantId: 't', passwordHash: '', totpSecret: null, totpEnabled: false, failedLoginAttempts: 0, lockedUntil: null, createdAt: new Date(), updatedAt: new Date() })
+    svc.update.mockResolvedValue({ id: 'u1', username: 'doc', fullName: 'Updated', role: 'DOCTOR', department: null, active: false, tenantId: 't', passwordHash: '', totpSecret: null, totpEnabled: false, failedLoginAttempts: 0, lockedUntil: null, tokenVersion: 0, createdAt: new Date(), updatedAt: new Date() } as any)
     const r = await ctrl.update('u1', { fullName: 'Updated', active: false })
     expect(svc.update).toHaveBeenCalledWith('u1', { fullName: 'Updated', active: false })
   })
 
   it('delete delegates to service', async () => {
-    svc.delete.mockResolvedValue({ id: 'u1', username: 'doc', fullName: 'Dr', role: 'DOCTOR', department: null, active: false, tenantId: 't', passwordHash: '', totpSecret: null, totpEnabled: false, failedLoginAttempts: 0, lockedUntil: null, createdAt: new Date(), updatedAt: new Date() })
+    svc.delete.mockResolvedValue({ id: 'u1', username: 'doc', fullName: 'Dr', role: 'DOCTOR', department: null, active: false, tenantId: 't', passwordHash: '', totpSecret: null, totpEnabled: false, failedLoginAttempts: 0, lockedUntil: null, tokenVersion: 0, createdAt: new Date(), updatedAt: new Date() } as any)
     const r = await ctrl.delete('u1')
     expect(svc.delete).toHaveBeenCalledWith('u1')
   })

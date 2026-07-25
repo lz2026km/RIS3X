@@ -13,7 +13,10 @@ export class ZodValidationPipe implements PipeTransform {
       throw new BadRequestException({
         ok: false,
         code: 'VALIDATION_ERROR',
-        errors: result.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        errors: result.error.issues.slice(0, 50).map((issue) => ({
+          path: issue.path.join('.') || 'body',
+          message: issue.message,
+        })),
       })
     }
     return result.data

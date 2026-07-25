@@ -2,6 +2,16 @@
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { CdsService, type RuleEvaluateRequest, type RulePriorityRequest } from './cds.service'
+import { z } from 'zod'
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
+import { AcknowledgeAlertSchema, CreateCdsRuleSchema, CreateGuidelineSchema } from './cds.schema'
+
+const RuleEvaluateSchema = z.object({
+  ruleId: z.string().min(1),
+  patientId: z.string().min(1),
+  context: z.record(z.unknown()).default({}),
+})
+const RulePrioritySchema = z.object({ ruleId: z.string().min(1), priority: z.number().int() })
 
 @ApiTags('cds')
 @ApiBearerAuth()
@@ -18,13 +28,13 @@ export class CdsController {
 
   @Post('guidelines')
   @HttpCode(HttpStatus.CREATED)
-  createGuideline(@Body() body: Record<string, unknown>) { return this.svc.createGuideline(body) }
+  createGuideline(@Body(new ZodValidationPipe(CreateGuidelineSchema)) body: Record<string, unknown>) { return this.svc.createGuideline(body) }
 
   @Get('alerts')
   listAlerts() { return this.svc.listAlerts() }
 
   @Post('alerts/:id/acknowledge')
-  acknowledgeAlert(@Body() body: Record<string, unknown>) { return this.svc.acknowledgeAlert(body) }
+  acknowledgeAlert(@Body(new ZodValidationPipe(AcknowledgeAlertSchema)) body: Record<string, unknown>) { return this.svc.acknowledgeAlert(body) }
 
   @Get('dose-monitoring')
   getDoseMonitoring() { return this.svc.getDoseMonitoring() }
@@ -37,14 +47,14 @@ export class CdsController {
 
   @Post('rules')
   @HttpCode(HttpStatus.CREATED)
-  createCdsRule(@Body() body: Record<string, unknown>) { return this.svc.createCdsRule(body) }
+  createCdsRule(@Body(new ZodValidationPipe(CreateCdsRuleSchema)) body: Record<string, unknown>) { return this.svc.createCdsRule(body) }
 
   @Get('management')
   getCdsManagement() { return this.svc.getCdsManagement() }
 
   @Post('rule/evaluate')
-  evaluateRule(@Body() body: RuleEvaluateRequest) { return this.svc.evaluateRule(body) }
+  evaluateRule(@Body(new ZodValidationPipe(RuleEvaluateSchema)) body: RuleEvaluateRequest) { return this.svc.evaluateRule(body) }
 
   @Put('rule/priority')
-  updateRulePriority(@Body() body: RulePriorityRequest) { return this.svc.updateRulePriority(body) }
+  updateRulePriority(@Body(new ZodValidationPipe(RulePrioritySchema)) body: RulePriorityRequest) { return this.svc.updateRulePriority(body) }
 }

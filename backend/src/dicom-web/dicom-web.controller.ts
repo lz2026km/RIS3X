@@ -1,5 +1,5 @@
 ﻿/**
- * G005 RIS v3.0.6.11-31 - DICOMweb Controller
+ * G005 RIS v3.0.6.11-32 - DICOMweb Controller
  */
 import { Body, Controller, Get, Param, Post, Query, Res } from '@nestjs/common'
 import type { Response } from 'express'

@@ -1,6 +1,6 @@
 # Dead Code Report
 > Generated: 2026-07-14 04:34:00
-> Updated: 2026-07-22 — All 273 items marked with `// [DEAD]` / `// [UNREF]` (see DEAD_CODE_MARKER_V3.0.6.11-31.md)
+> Updated: 2026-07-22 — All 273 items marked with `// [DEAD]` / `// [UNREF]` (see DEAD_CODE_MARKER_V3.0.6.11-32.md)
 
 ## 1. Routes in routeTable.tsx NOT in sidebarConfig.tsx
 
@@ -305,4 +305,4 @@ Scanned all 223 dead files for hardcoded secrets, internal IPs, and PHI.
 - `// [DEAD]` — 50 dead routes in routeTable.tsx
 - `// [UNREF] 2026-07-14 未被任何文件引用` — 32 pages + 191 components
 - Total markers: 273
-- New DEAD_CODE_MARKER: `docs/DEAD_CODE_MARKER_V3.0.6.11-31.md`
+- New DEAD_CODE_MARKER: `docs/DEAD_CODE_MARKER_V3.0.6.11-32.md`

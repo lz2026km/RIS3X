@@ -1,20 +1,36 @@
 replicaCount: 2
 
 image:
-  repository: g005/ris
-  tag: 3.0.6.11-15
+  repository: g005/ris-backend
+  tag: 3.0.6.11-32
   pullPolicy: IfNotPresent
+
+frontend:
+  enabled: true
+  image:
+    repository: g005/ris-frontend
+    tag: 3.0.6.11-32
+    pullPolicy: IfNotPresent
+  port: 8080
+  resources:
+    limits:
+      cpu: 500m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
 
 service:
   type: ClusterIP
   port: 3001
-  frontendPort: 5173
+  frontendPort: 80
 
 ingress:
   enabled: true
   className: nginx
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-body-size: "200m"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
   tls:
     - hosts:
         - ris.g005.local
@@ -26,6 +42,11 @@ ingress:
           pathType: Prefix
         - path: /
           pathType: Prefix
+
+tlsSecret:
+  create: false
+  cert: ""
+  key: ""
 
 resources:
   limits:
@@ -43,10 +64,10 @@ autoscaling:
   targetMemoryUtilizationPercentage: 80
 
 secrets:
-  jwtSecret: "change-me-in-production"
-  dbPassword: "change-me-in-production"
-  tlsCrt: ""
-  tlsKey: ""
+  create: false
+  existingSecret: ""
+  jwtSecret: ""
+  dbPassword: ""
 
 env:
   - name: NODE_ENV
@@ -56,9 +77,24 @@ env:
 
 persistence:
   enabled: true
+  existingClaim: ""
   storageClass: standard
   accessMode: ReadWriteOnce
   size: 10Gi
+
+monitoring:
+  serviceMonitor:
+    enabled: true
+    namespace: ""
+    interval: 30s
+    scrapeTimeout: 10s
+
+networkPolicy:
+  ingressNamespaces:
+    - ingress-nginx
+    - monitoring
+  egressNamespaces:
+    - kube-system
 
 probes:
   livenessPath: /api/health
@@ -75,7 +111,7 @@ affinity:
         podAffinityTerm:
           labelSelector:
             matchExpressions:
-              - key: app
+              - key: app.kubernetes.io/name
                 operator: In
                 values:
                   - g005-ris

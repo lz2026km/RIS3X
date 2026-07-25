@@ -12,20 +12,24 @@ import { checkAccess, type AccessContext, type ResourceType } from '../auth/rbac
 // ────────────────────────────────────────────────────────────────────────────
 type ApiMode = 'real' | 'mock'
 
+function normalizeApiMode(value: string | undefined): ApiMode | undefined {
+  const normalized = value?.trim().toLowerCase()
+  if (normalized === 'real' || normalized === 'api' || normalized === 'backend') return 'real'
+  if (normalized === 'mock' || normalized === 'msw') return 'mock'
+  return undefined
+}
+
 function resolveApiMode(): ApiMode {
-  // 1) Runtime override (highest priority - 登录后用户切到 real)
   if (typeof window !== 'undefined') {
     try {
-      const ls = window.localStorage.getItem('ris_api_mode')
-      if (ls === 'real' || ls === 'mock') return ls
-    } catch {
-      /* localStorage may be unavailable (private mode) */
-    }
+      const storedMode = normalizeApiMode(window.localStorage.getItem('ris_api_mode') ?? undefined)
+      if (storedMode) return storedMode
+    } catch {}
   }
-  // 2) Compile-time env
-  const envMode = import.meta.env.VITE_API_MODE as ApiMode | undefined
-  if (envMode === 'real' || envMode === 'mock') return envMode
-  // 3) Safe default
+  const envMode = normalizeApiMode(import.meta.env.VITE_API_MODE)
+  if (envMode) return envMode
+  const legacyMswMode = import.meta.env.VITE_USE_MSW?.trim().toLowerCase()
+  if (legacyMswMode === 'false' || legacyMswMode === '0' || legacyMswMode === 'off') return 'real'
   return 'mock'
 }
 
@@ -42,10 +46,8 @@ function resolveApiBaseUrl(): string | undefined {
 }
 
 const API_MODE: ApiMode = resolveApiMode()
-// Real mode: 后端 NestJS globalPrefix 为 'api' (见 backend/src/main.ts)
-// Mock mode: MSW handlers 拦截 /api/v1/... 路径
 const API_BASE = API_MODE === 'real'
-  ? (resolveApiBaseUrl() || 'http://localhost:3001/api')
+  ? (resolveApiBaseUrl() || 'http://localhost:3001/api').replace(/\/$/, '')
   : '/api/v1'
 export { API_BASE }
 
@@ -128,72 +130,119 @@ function dropCacheByPrefix(fullPrefix: string): void {
   }
 }
 
+function getCsrfToken(): string {
+  const storageKey = 'ris_csrf_token'
+  if (typeof window !== 'undefined') {
+    try {
+      const existing = window.sessionStorage.getItem(storageKey)
+      if (existing) return existing
+      const token = crypto.randomUUID().replace(/-/g, '')
+      window.sessionStorage.setItem(storageKey, token)
+      return token
+    } catch {}
+  }
+  return crypto.randomUUID().replace(/-/g, '')
+}
+
+function apiError(body: unknown, status: number): { code: string; message: string } {
+  if (body && typeof body === 'object') {
+    const value = body as Record<string, unknown>
+    const nested = value.error && typeof value.error === 'object'
+      ? value.error as Record<string, unknown>
+      : undefined
+    const message = nested?.message ?? value.message ?? value.error
+    const code = nested?.code ?? value.code
+    return {
+      code: typeof code === 'string' ? code : `HTTP_${status}`,
+      message: typeof message === 'string' ? message : `请求失败 (${status})`,
+    }
+  }
+  return { code: `HTTP_${status}`, message: `请求失败 (${status})` }
+}
+
+async function readBody(response: Response): Promise<unknown> {
+  try {
+    return await response.json()
+  } catch {
+    return null
+  }
+}
+
 async function request<T>(path: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
   const url = `${API_BASE}${path}`
   const method = (options.method || 'GET').toUpperCase()
-  const token = getToken()
 
   if (method === 'GET' && !options.body) {
     const cached = readCache(url, method)
     if (cached) return cached as ApiResponse<T>
   }
 
-  const headers: Record<string, string> = {
+  const baseHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),
   }
-  if (token) headers['Authorization'] = `Bearer ${token}`
-
   if (API_MODE === 'real') {
     const tenantId = getTenantId()
-    if (tenantId) headers['X-Tenant-Id'] = tenantId
+    if (tenantId) baseHeaders['X-Tenant-Id'] = tenantId
+    if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) baseHeaders['X-CSRF-Token'] = getCsrfToken()
   }
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 30000);
-
-  const mergedOptions: RequestInit = {
-    ...options,
-    headers,
-    signal: controller.signal,
-  };
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 30000)
 
   try {
     const res = await withRetry(
       async () => {
-        const response = await fetch(url, mergedOptions);
-        if (response.status === 429) throw { status: 429, message: 'Too Many Requests' }
-        if (response.status === 401) throw { status: 401, message: 'Unauthorized' }
+        const headers = { ...baseHeaders }
+        const currentToken = getToken()
+        if (currentToken) headers.Authorization = `Bearer ${currentToken}`
+        const response = await fetch(url, {
+          ...options,
+          headers,
+          signal: controller.signal,
+          credentials: API_MODE === 'real' ? 'include' : options.credentials,
+        })
+        if (response.status === 401 || response.status === 429 || response.status >= 500) {
+          const error = apiError(await readBody(response), response.status)
+          throw { status: response.status, ...error }
+        }
         return response
       },
       { onUnauthorized: refreshToken },
-    );
-    clearTimeout(timeoutId);
+    )
     if (res.status === 204) return { success: true, data: null as unknown as T }
-    const body = await res.json()
+    const body = await readBody(res)
     if (!res.ok) {
-      console.error(`[API] ${method} ${url} failed:`, body)
-      return { success: false, data: null as unknown as T, error: body.error }
+      return { success: false, data: null as unknown as T, error: apiError(body, res.status) }
     }
-    writeCache(url, method, body)
-    return body
+    const normalized = body && typeof body === 'object' && typeof (body as { success?: unknown }).success === 'boolean'
+      ? body as ApiResponse<T>
+      : { success: true, data: body as T }
+    writeCache(url, method, normalized)
+    return normalized
   } catch (err) {
-    clearTimeout(timeoutId);
-    const errObj = err as { status?: number; message?: string }
-    if (errObj.status === 401) {
-      console.warn(`[API] ${method} ${url} 401 after token refresh`)
+    const value = err as { status?: number; code?: string; message?: string; name?: string }
+    if (value.status || value.code) {
       return {
         success: false,
         data: null as unknown as T,
-        error: { code: 'UNAUTHORIZED', message: '登录已过期，请重新登录' },
+        error: {
+          code: value.code ?? `HTTP_${value.status}`,
+          message: value.message ?? `请求失败 (${value.status})`,
+        },
       }
     }
-    console.error(`[API] Network error ${method} ${url}:`, err)
+    const timedOut = value.name === 'AbortError'
     return {
       success: false,
       data: null as unknown as T,
-      error: { code: 'NETWORK_ERROR', message: '网络错误，请检查连接' },
+      error: {
+        code: timedOut ? 'TIMEOUT' : 'NETWORK_ERROR',
+        message: timedOut ? '请求超时，请稍后重试' : (value.message || '网络错误，请检查连接'),
+      },
     }
+  } finally {
+    clearTimeout(timeoutId)
   }
 }
 

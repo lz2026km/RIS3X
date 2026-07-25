@@ -18,8 +18,8 @@ import {
   Activity, Award, Zap, Database, Network, Server, Globe,
 } from 'lucide-react'
 import { Chart } from '../components/chart/Chart'
-import { DataTable } from '../components/data/DataTable'
-import type { DataTableColumn } from '../components/data/DataTable'
+import { ProTable } from '../components/data/ProTable'
+import type { ProColumn } from '../components/data/ProTable'
 import { reportDefinitions } from '../data/reportDefinitions'
 import type { ReportDefinition } from '../data/reportDefinitions'
 import { generateMockReportData } from '../data/mockReportData'
@@ -146,13 +146,21 @@ export default function DataReportCenterPage() {
     return generateReportInsight(currentReport, chartData)
   }, [currentReport, chartData])
 
-  const tableColumns: DataTableColumn[] = useMemo(() => {
+  const tableColumns: ProColumn<Record<string, unknown>>[] = useMemo(() => {
     if (!chartData.length) return []
     const keys = Object.keys(chartData[0])
     return keys.map((key) => ({
       key,
+      dataIndex: key,
       title: key,
-      width: key === 'name' ? 120 : 100,
+      width: key === 'name' ? 140 : 120,
+      searchable: true,
+      sorter: (a: Record<string, unknown>, b: Record<string, unknown>) => {
+        const left = a[key]
+        const right = b[key]
+        if (typeof left === 'number' && typeof right === 'number') return left - right
+        return String(left ?? '').localeCompare(String(right ?? ''), 'zh-CN')
+      },
       render: (val: unknown) => {
         if (typeof val === 'number') {
           if (val > 10000) return `${(val / 10000).toFixed(1)}万`
@@ -494,14 +502,19 @@ export default function DataReportCenterPage() {
                     }
                     style={{ borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
                   >
-                    <DataTable
+                    <ProTable<Record<string, unknown>>
                       columns={tableColumns}
                       dataSource={chartData as Record<string, unknown>[]}
                       rowKey="name"
-                      pageSize={PAGE_SIZE}
-                      total={chartData.length}
-                      onPageChange={(p) => setTablePage(p)}
-                      height={320}
+                      loading={loading || olapLoading}
+                      showToolbar={false}
+                      pagination={{
+                        current: tablePage,
+                        pageSize: PAGE_SIZE,
+                        onChange: setTablePage,
+                      }}
+                      scroll={{ x: 'max-content', y: 320 }}
+                      size="small"
                     />
                   </Card>
                 </div>

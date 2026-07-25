@@ -81,33 +81,42 @@ export const useSafetyStore = create<SafetyState>((set, get) => ({
   closeRca: async (id) => {
     set({ loading: true, error: null })
     try {
-      await updateRcaInvestigation(id, {
+      const result = await updateRcaInvestigation(id, {
         capaStatus: 'closed',
         closedAt: new Date().toISOString(),
       })
+      if (!result) throw new Error('关闭RCA失败')
       await get().loadRcaInvestigations()
-    } catch {
-      set({ error: '关闭RCA失败', loading: false })
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : '关闭RCA失败' })
+    } finally {
+      set({ loading: false })
     }
   },
 
   mitigateRisk: async (id, plan, owner, deadline) => {
     set({ loading: true, error: null })
     try {
-      await updateRiskItem(id, { mitigationPlan: plan, mitigationOwner: owner, mitigationDeadline: deadline, status: 'mitigating' })
+      const result = await updateRiskItem(id, { mitigationPlan: plan, mitigationOwner: owner, mitigationDeadline: deadline, status: 'mitigating' })
+      if (!result) throw new Error('更新风险缓解失败')
       await get().loadRiskItems()
-    } catch {
-      set({ error: '更新风险缓解失败', loading: false })
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : '更新风险缓解失败' })
+    } finally {
+      set({ loading: false })
     }
   },
 
   closeCqi: async (id) => {
     set({ loading: true, error: null })
     try {
-      await closeCqiProject(id, '项目完成', '持续监测')
+      const result = await closeCqiProject(id, '项目完成', '持续监测')
+      if (!result) throw new Error('关闭CQI项目失败')
       await get().loadCqiProjects()
-    } catch {
-      set({ error: '关闭CQI项目失败', loading: false })
+    } catch (err) {
+      set({ error: err instanceof Error ? err.message : '关闭CQI项目失败' })
+    } finally {
+      set({ loading: false })
     }
   },
 }))

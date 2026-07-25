@@ -2,6 +2,8 @@
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { AiPlatformService } from './aiplatform.service'
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
+import { CreateAiOrchestrationSchema, DeployAiModelSchema, GenerateStructuredReportSchema } from './aiplatform.schema'
 
 @ApiTags('ai-platform')
 @ApiBearerAuth()
@@ -17,7 +19,7 @@ export class AiPlatformController {
   getAiModel(@Param('id') id: string) { return this.svc.getAiModel(id) }
 
   @Post('models/:id/deploy')
-  deployAiModel(@Body() body: Record<string, unknown>) { return this.svc.deployAiModel(body) }
+  deployAiModel(@Body(new ZodValidationPipe(DeployAiModelSchema)) body: Record<string, unknown>) { return this.svc.deployAiModel(body) }
 
   @Get('qc')
   listAiQcResults() { return this.svc.listAiQcResults() }
@@ -29,7 +31,7 @@ export class AiPlatformController {
   listAiStructuredReports() { return this.svc.listAiStructuredReports() }
 
   @Post('structured-reports')
-  generateStructuredReport(@Body() body: Record<string, unknown>) { return this.svc.generateStructuredReport(body) }
+  generateStructuredReport(@Body(new ZodValidationPipe(GenerateStructuredReportSchema)) body: Record<string, unknown>) { return this.svc.generateStructuredReport(body) }
 
   @Get('medical-devices')
   listAiMedicalDevices() { return this.svc.listAiMedicalDevices() }
@@ -38,7 +40,7 @@ export class AiPlatformController {
   getAiOrchestration() { return this.svc.getAiOrchestration() }
 
   @Post('orchestration')
-  createAiOrchestration(@Body() body: Record<string, unknown>) { return this.svc.createAiOrchestration(body) }
+  createAiOrchestration(@Body(new ZodValidationPipe(CreateAiOrchestrationSchema)) body: Record<string, unknown>) { return this.svc.createAiOrchestration(body) }
 
   @Get('fusion')
   getAiFusionWorkspace() { return this.svc.getAiFusionWorkspace() }

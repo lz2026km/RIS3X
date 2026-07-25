@@ -16,6 +16,10 @@ async function bootstrap(): Promise<void> {
     bufferLogs: true,
   })
   app.useLogger(app.get(PinoLogger))
+  const trustProxy = process.env['TRUST_PROXY']?.trim()
+  if (trustProxy) {
+    app.getHttpAdapter().getInstance().set('trust proxy', /^\d+$/.test(trustProxy) ? Number(trustProxy) : trustProxy)
+  }
 
   client.collectDefaultMetrics({ register: client.register })
 
@@ -23,7 +27,7 @@ async function bootstrap(): Promise<void> {
     Sentry.init({
       dsn: process.env['SENTRY_DSN'],
       environment: process.env['NODE_ENV'] ?? 'development',
-      tracesSampleRate: 0.1,
+      tracesSampleRate: Number(process.env['SENTRY_TRACES_SAMPLE_RATE'] ?? 0.1),
     })
     app.use(Sentry.expressErrorHandler())
   }
@@ -33,10 +37,19 @@ async function bootstrap(): Promise<void> {
     res.end(await client.register.metrics())
   })
 
+  const isProd = process.env['NODE_ENV'] === 'production'
+  const corsOriginsRaw = process.env['CORS_ORIGINS']
+    ?? (isProd ? '' : 'http://localhost:5173,http://localhost:5191,http://localhost:4173')
+  const corsOrigins = corsOriginsRaw.split(',').map((s) => s.trim()).filter(Boolean)
+  if (isProd && corsOrigins.length === 0) {
+    throw new Error('CORS_ORIGINS must be configured in production')
+  }
+
   app.enableCors({
-    origin: (process.env['CORS_ORIGINS'] ?? 'http://localhost:5191').split(','),
+    origin: corsOrigins,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Tenant-Id'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Tenant-Id', 'X-CSRF-Token'],
+    exposedHeaders: ['X-CSRF-Token'],
     credentials: true,
   })
 

@@ -2,6 +2,10 @@ import { Body, Controller, Get, Post, Query } from '@nestjs/common'
 import { Roles } from '../../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { SnomedService } from './snomed.service'
+import { z } from 'zod'
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
+
+const EncodeSchema = z.object({ text: z.string().min(1).max(100_000), modality: z.string().optional() })
 
 @ApiTags('snomed')
 @ApiBearerAuth()
@@ -11,7 +15,7 @@ export class SnomedController {
   constructor(private readonly svc: SnomedService) {}
 
   @Post('encode')
-  encode(@Body() body: { text: string; modality?: string }) {
+  encode(@Body(new ZodValidationPipe(EncodeSchema)) body: { text: string; modality?: string }) {
     return this.svc.encode(body.text, body.modality)
   }
 

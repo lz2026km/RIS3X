@@ -2,6 +2,8 @@
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { FinanceService } from './finance.service'
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
+import { CreateChargeItemSchema, CreateInvoiceSchema, PayInvoiceSchema, UpdateChargeItemSchema } from './finance.schema'
 
 @ApiTags('finance')
 @ApiBearerAuth()
@@ -14,22 +16,22 @@ export class FinanceController {
   listChargeItems() { return this.svc.listChargeItems() }
 
   @Post('charge-items')
-  createChargeItem(@Body() body: Record<string, unknown>) { return this.svc.createChargeItem(body) }
+  createChargeItem(@Body(new ZodValidationPipe(CreateChargeItemSchema)) body: Record<string, unknown>) { return this.svc.createChargeItem(body) }
 
   @Put('charge-items/:id')
-  updateChargeItem(@Param('id') id: string, @Body() body: Record<string, unknown>) { return this.svc.updateChargeItem(id, body) }
+  updateChargeItem(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateChargeItemSchema)) body: Record<string, unknown>) { return this.svc.updateChargeItem(id, body) }
 
   @Get('invoices')
   listInvoices() { return this.svc.listInvoices() }
 
   @Post('invoices')
-  createInvoice(@Body() body: Record<string, unknown>) { return this.svc.createInvoice(body) }
+  createInvoice(@Body(new ZodValidationPipe(CreateInvoiceSchema)) body: Record<string, unknown>) { return this.svc.createInvoice(body) }
 
   @Get('invoices/:id')
   getInvoice(@Param('id') id: string) { return this.svc.getInvoice(id) }
 
   @Post('invoices/:id/pay')
-  payInvoice(@Body() body: Record<string, unknown>) { return this.svc.payInvoice(body) }
+  payInvoice(@Body(new ZodValidationPipe(PayInvoiceSchema)) body: Record<string, unknown>) { return this.svc.payInvoice(body) }
 
   @Get('revenue-analysis')
   getRevenueAnalysis() { return this.svc.getRevenueAnalysis() }

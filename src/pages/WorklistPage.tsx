@@ -497,8 +497,6 @@ export default function WorklistPage() {
     })
   }
 
-  const displayExams = smartSortEnabled ? smartOrderedExams : filteredExams
-  const allSelected = displayExams.length > 0 && selectedIds.size === displayExams.length
 
   const clearSelection = () => {
     setSelectedIds(new Set())
@@ -880,7 +878,7 @@ export default function WorklistPage() {
           selectedIds={selectedIds}
           onSelect={setSelectedIds}
           onRowClick={setSelectedExam}
-          allSelected={allSelected}
+          loading={loading}
         />
       )}
 

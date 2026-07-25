@@ -20,7 +20,7 @@ services:
           memory: 256M
     environment:
       POSTGRES_USER: g005
-      POSTGRES_PASSWORD: g005
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
       POSTGRES_DB: g005
     ports:
       - "5432:5432"
@@ -64,7 +64,7 @@ services:
       start_period: 10s
     environment:
       MINIO_ROOT_USER: g005
-      MINIO_ROOT_PASSWORD: g005-minio-secret
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD must be set}
 
   redis:
     image: redis:7-alpine
@@ -95,8 +95,8 @@ services:
 
   ris-backend:
     build:
-      context: ..
-      dockerfile: deploy/Dockerfile
+      context: ../backend
+      dockerfile: Dockerfile
       target: runner
     container_name: g005-ris-backend
     restart: on-failure
@@ -118,11 +118,12 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3001
-      - DATABASE_URL=postgresql://g005:g005@postgres:5432/g005?schema=public
+      - DATABASE_URL=postgresql://g005:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}@postgres:5432/g005?schema=public
       - REDIS_URL=redis://redis:6379
       - MINIO_ENDPOINT=http://minio:9000
       - MINIO_ACCESS_KEY=g005
-      - MINIO_SECRET_KEY=g005-minio-secret
+      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD must be set}
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET must be set}
       - BACKUP_DIR=/data/backups
     volumes:
       - backup-data:/data/backups
@@ -161,10 +162,15 @@ services:
           cpus: '0.25'
           memory: 256M
     ports:
-      - "5173:5173"
+      - "5173:8080"
     environment:
-      - NODE_ENV=production
-      - VITE_API_URL=http://ris-backend:3001
+      - BACKEND_URL=http://ris-backend:3001
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     depends_on:
       ris-backend:
         condition: service_healthy

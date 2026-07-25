@@ -63,12 +63,13 @@ interface ConsultationListProps {
   onSelect: (c: Consultation) => void
   onAccept: (c: Consultation) => void
   onApply: () => void
+  onTabChange: (key: string) => void
   searchKeyword: string
   onSearchChange: (v: string) => void
 }
 
 export const ConsultationList: React.FC<ConsultationListProps> = ({
-  consultations, selectedConsultation, consultationTab, onSelect, onAccept, onApply,
+  consultations, selectedConsultation, consultationTab, onSelect, onAccept, onApply, onTabChange,
   searchKeyword, onSearchChange
 }) => {
   return (
@@ -81,7 +82,7 @@ export const ConsultationList: React.FC<ConsultationListProps> = ({
       </div>
       <div style={styles.tabContainer}>
         {[{ key: 'list', label: '会诊记录', icon: <ClipboardList size={14} /> }, { key: 'apply', label: '发起申请', icon: <Plus size={14} /> }].map(tab => (
-          <button key={tab.key} style={{ ...styles.tab, ...(consultationTab === tab.key ? styles.tabActive : {}) }} onClick={() => message.info('远程会诊标签切换功能开发中，敬请期待')}>{tab.icon}{tab.label}</button>
+          <button key={tab.key} style={{ ...styles.tab, ...(consultationTab === tab.key ? styles.tabActive : {}) }} onClick={() => onTabChange(tab.key)}>{tab.icon}{tab.label}</button>
         ))}
       </div>
       <div style={styles.searchBox}>

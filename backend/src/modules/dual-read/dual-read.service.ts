@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { v4 as uuid } from 'uuid'
 
 export interface DualReadAssignment {
@@ -68,7 +68,7 @@ export class DualReadService {
 
   arbitrate(id: string, arbitratorId: string, arbitratorName: string, report: string): DualReadAssignment {
     const a = this.assignments.find(x => x.id === id)
-    if (!a) throw new Error('Assignment not found')
+    if (!a) throw new NotFoundException('Assignment not found')
     a.arbitratorId = arbitratorId
     a.arbitratorName = arbitratorName
     a.arbitrationReport = report

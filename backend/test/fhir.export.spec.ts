@@ -5,6 +5,8 @@ import { PrismaService } from '../src/prisma/prisma.service'
 import { QueueService } from '../src/queue/queue.service'
 import { NotificationsGateway } from '../src/notifications/notifications.gateway'
 
+process.env['FHIR_SUBSCRIPTION_HMAC_SECRET'] = 'test-hmac-secret-for-jest-suite'
+
 describe('FhirService - $export / Subscription / Resource', () => {
   let svc: FhirService
   let prisma: any

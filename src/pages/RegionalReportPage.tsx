@@ -188,7 +188,7 @@ const RegionalReportPage: React.FC = () => {
         {activeMainTab === 'consultation' && (
           consultationTab === 'detail'
             ? <ConsultationDetail selectedConsultation={selectedConsultation} opinionText={opinionText} onOpinionTextChange={setOpinionText} onBack={handleBackFromConsultationDetail} onOpenModal={(t) => { setModalType(t); setShowModal(true) }} onSubmitOpinion={handleSubmitOpinion} remoteReportContent='' onRemoteReportContentChange={() => {}} reviewText='' onReviewTextChange={() => {}} onSubmitRemoteReport={() => {}} />
-            : <ConsultationList consultations={getFilteredConsultations()} selectedConsultation={selectedConsultation} consultationTab={consultationTab} onSelect={handleSelectConsultation} onAccept={handleAcceptConsultation} onApply={handleApplyConsultation} searchKeyword={searchKeyword} onSearchChange={setSearchKeyword} />
+            : <ConsultationList consultations={getFilteredConsultations()} selectedConsultation={selectedConsultation} consultationTab={consultationTab} onSelect={handleSelectConsultation} onAccept={handleAcceptConsultation} onApply={handleApplyConsultation} onTabChange={(k) => setConsultationTab(k as 'list' | 'apply' | 'detail')} searchKeyword={searchKeyword} onSearchChange={setSearchKeyword} />
         )}
         {activeMainTab === 'report' && (
           reportTab === 'detail'

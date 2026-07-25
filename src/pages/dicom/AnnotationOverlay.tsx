@@ -1,4 +1,7 @@
+import { useCallback } from 'react'
 import type { Annotation, AnnotationType } from './DicomViewerTypes'
+import { useFocusTrap } from '../../a11y/SkipLink'
+import { useEscape } from '../../hooks/useEscape'
 
 interface Props {
   annotations: Annotation[]
@@ -34,6 +37,10 @@ export default function AnnotationOverlay(props: Props) {
 
   const PRIMARY = '#1e3a5f'
 
+  const panelRef = useFocusTrap(showAnnotationPanel)
+  useEscape(showAnnotationPanel, () => setShowAnnotationPanel(false), { stopPropagation: true })
+  const closePanel = useCallback(() => setShowAnnotationPanel(false), [setShowAnnotationPanel])
+
   return (
     <>
       {showAnnotationsOverlay && annotations.length > 0 && (
@@ -65,10 +72,10 @@ export default function AnnotationOverlay(props: Props) {
       )}
 
       {showAnnotationPanel && (
-        <div style={{ position: 'absolute' as const, left: 60, top: 200, width: 200, background: '#fff', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)', border: '1px solid #e2e8f0', zIndex: 100, padding: 10 }}>
+        <div ref={panelRef} role="dialog" aria-modal="true" aria-label="标注工具" style={{ position: 'absolute' as const, left: 60, top: 200, width: 200, background: '#fff', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)', border: '1px solid #e2e8f0', zIndex: 100, padding: 10 }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>标注工具</span>
-            <button style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }} onClick={() => setShowAnnotationPanel(false)}>✕</button>
+            <button style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }} onClick={closePanel} aria-label="关闭标注工具">✕</button>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4, marginBottom: 8 }}>
             {annotationTypes.map(({ type, icon, label }) => (
@@ -112,6 +119,14 @@ export default function AnnotationOverlay(props: Props) {
           {annotations.length > 0 && (
             <button style={{ width: '100%', padding: '6px 10px', borderRadius: 6, border: 'none', background: '#fef2f2', color: '#ef4444', marginTop: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }} onClick={clearAllAnnotations}>🗑 清除全部标注</button>
           )}
+          <button
+            type="button"
+            aria-label="关闭标注工具"
+            style={{ width: '100%', padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#f8fafc', color: '#64748b', marginTop: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+            onClick={closePanel}
+          >
+            关闭 (Esc)
+          </button>
         </div>
       )}
     </>

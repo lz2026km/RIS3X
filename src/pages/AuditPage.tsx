@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { auditApi, type AuditLogDto, type AuditStatsDto } from '../services/api/systemApi'
-import { Card, Table, Tag, Statistic, Row, Col, Space, DatePicker, Select, Button, message } from 'antd'
+import { Card, Tag, Statistic, Row, Col, Space, Select, Button } from 'antd'
+import { ProTable, type ProColumn } from '../components/data/ProTable'
 import { AuditOutlined, BarChartOutlined, ReloadOutlined } from '@ant-design/icons'
 
 export default function AuditPage() {
@@ -11,14 +12,19 @@ export default function AuditPage() {
   const [page, setPage] = useState(1)
   const [params, setParams] = useState<{ action?: string; resource?: string }>({})
 
-  const fetchLogs = async (p?: number) => {
+  const fetchLogs = async (requestedPage?: number) => {
+    const targetPage = requestedPage ?? page
     setLoading(true)
-    const res = await auditApi.list({ ...params, page: p ?? page, pageSize: 20 })
-    if (res.success && res.data) {
-      setLogs(res.data.items)
-      setTotal(res.data.total)
+    setPage(targetPage)
+    try {
+      const res = await auditApi.list({ ...params, page: targetPage, pageSize: 20 })
+      if (res.success && res.data) {
+        setLogs(res.data.items)
+        setTotal(res.data.total)
+      }
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   const fetchStats = async () => {
@@ -28,12 +34,12 @@ export default function AuditPage() {
 
   useEffect(() => { fetchLogs(1); fetchStats() }, [])
 
-  const columns = [
-    { title: '时间', dataIndex: 'createdAt', key: 'createdAt', width: 180, render: (v: string) => new Date(v).toLocaleString('zh-CN') },
-    { title: '用户', dataIndex: 'userId', key: 'userId', width: 120 },
-    { title: '操作', dataIndex: 'action', key: 'action', width: 100, render: (v: string) => <Tag color="blue">{v}</Tag> },
-    { title: '资源', dataIndex: 'resource', key: 'resource', width: 200 },
-    { title: '详情', dataIndex: 'details', key: 'details', ellipsis: true },
+  const columns: ProColumn<AuditLogDto>[] = [
+    { title: '时间', dataIndex: 'createdAt', key: 'createdAt', width: 180, sorter: (a, b) => a.createdAt.localeCompare(b.createdAt), defaultSortOrder: 'descend', render: (v) => new Date(String(v)).toLocaleString('zh-CN') },
+    { title: '用户', dataIndex: 'userId', key: 'userId', width: 120, searchable: true, sorter: (a, b) => String(a.userId).localeCompare(String(b.userId)) },
+    { title: '操作', dataIndex: 'action', key: 'action', width: 100, filters: ['CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT'].map((value) => ({ text: value, value })), onFilter: (value, record) => record.action === value, render: (v) => <Tag color="blue">{String(v)}</Tag> },
+    { title: '资源', dataIndex: 'resource', key: 'resource', width: 200, searchable: true, sorter: (a, b) => a.resource.localeCompare(b.resource) },
+    { title: '详情', dataIndex: 'details', key: 'details', ellipsis: true, render: (value) => String(value ?? '-') },
   ]
 
   return (
@@ -54,7 +60,15 @@ export default function AuditPage() {
             <Select allowClear placeholder="操作类型" style={{ width: 150 }} onChange={(v) => setParams(p => ({ ...p, action: v }))} options={['CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT'].map(a => ({ value: a, label: a }))} />
             <Button type="primary" onClick={() => fetchLogs(1)}>查询</Button>
           </Space>
-          <Table dataSource={logs} columns={columns} rowKey="id" loading={loading} pagination={{ current: page, pageSize: 20, total, onChange: (p) => { setPage(p); fetchLogs(p) } }} size="small" />
+          <ProTable<AuditLogDto>
+            dataSource={logs}
+            columns={columns}
+            rowKey="id"
+            loading={loading}
+            showToolbar={false}
+            pagination={{ current: page, pageSize: 20, total, onChange: (nextPage) => fetchLogs(nextPage) }}
+            size="small"
+          />
         </Space>
       </Card>
     </div>

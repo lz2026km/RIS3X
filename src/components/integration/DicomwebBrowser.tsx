@@ -183,7 +183,7 @@ export const DicomwebBrowser: React.FC = () => {
         <Card size="small" className="col-span-1 shadow-sm" title={<Space><Image className="w-4 h-4" /><span>预览 (WADO-RS render)</span></Space>} bodyStyle={{ padding: 8 }}>
           {thumbnail ? (
             <div className="space-y-2 text-center">
-              <img src={thumbnail} alt="thumbnail" className="w-full border rounded" />
+              <img src={thumbnail} alt="thumbnail" loading="lazy" decoding="async" className="w-full border rounded" />
               <div className="text-[10px] text-slate-500 break-all">{selectedInstance?.sopInstanceUID}</div>
             </div>
           ) : <Empty description="无缩略图" />}

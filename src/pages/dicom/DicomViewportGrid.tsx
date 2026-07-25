@@ -1,6 +1,7 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useMemo } from 'react'
 import { DicomCanvas, type MeasureSubMenuInternal } from './DicomCanvas'
 import type { Series, DicomImage, Tool, PseudoColorMode, ViewMode, CompareLayout, MipDirection } from './types'
+import { getPresetsForModality } from '../../utils/modalityPresets'
 
 const PRIMARY = '#1e3a5f'
 
@@ -362,16 +363,8 @@ export default function DicomViewportGrid(props: DicomViewportGridProps) {
 
   const currentImage = images[imageIndex] || images[0]
 
-  // Get current presets based on modality
-  const getCurrentPresets = () => {
-    if (activeSeries.modality === 'CT') {
-      return [{ name: '肺窗', ww: 1500, wl: -600 }, { name: '纵隔窗', ww: 400, wl: 40 }, { name: '骨窗', ww: 2000, wl: 400 }]
-    }
-    if (activeSeries.modality === 'MR') {
-      return [{ name: 'T1', ww: 400, wl: 40 }, { name: 'T2', ww: 800, wl: 200 }, { name: 'FLAIR', ww: 1000, wl: 400 }]
-    }
-    return [{ name: '骨窗', ww: 2000, wl: 400 }, { name: '软组织', ww: 400, wl: 40 }]
-  }
+  // Get current presets based on modality (unified with dicomWeb.WINDOW_PRESETS_LIST)
+  const currentPresets = useMemo(() => getPresetsForModality(activeSeries.modality), [activeSeries.modality])
 
   const renderCanvas = (overrideImageIndex?: number) => {
     const imgIdx = overrideImageIndex !== undefined ? overrideImageIndex : imageIndex
@@ -484,10 +477,10 @@ export default function DicomViewportGrid(props: DicomViewportGridProps) {
               <span style={{ color: '#f87171', fontWeight: 700 }}>WL:{Math.round(wl)}</span>
             </div>
             <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-              {getCurrentPresets().map((p, i) => (
+              {currentPresets.map((p, i) => (
                 <button
                   key={p.name}
-                  onClick={() => { props.onSetWw(p.ww); props.onSetWl(p.wl); props.onSetActivePresetIdx(i + 100) }}
+                  onClick={() => { props.onSetWw(p.ww); props.onSetWl(p.wl); props.onSetActivePresetIdx(i) }}
                   style={{
                     padding: '2px 6px', borderRadius: 4, border: '1px solid rgba(255,255,255,0.3)',
                     background: 'rgba(0,0,0,0.5)', color: '#fff', fontSize: 12,

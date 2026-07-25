@@ -48,7 +48,7 @@ export default function KioskCheckIn() {
       setSelectedPatient(patient)
       setStep('confirm')
     } else {
-      alert('未找到匹配的患者，请确认身份证后4位')
+      message.warning('未找到匹配的患者，请确认身份证后4位')
     }
   }
 

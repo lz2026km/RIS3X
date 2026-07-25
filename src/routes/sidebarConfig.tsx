@@ -559,13 +559,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.crossModalSearch",
         roles: ["医生", "主任", "技师", "管理员",],
       },
-      // [Sprint 4] F14 Cross-Modal Search
-      {
-        path: "/cross-modal-search",
-        icon: <Search size={18} />,
-        labelKey: "nav.crossModalSearch",
-        roles: ["医生", "主任", "技师", "管理员",],
-      },
+      // [P1-fix] 删除上方已重复的 cross-modal-search 条目
       {
         path: "/dicom/sr-manager",
         icon: <FileText size={18} />,

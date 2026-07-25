@@ -10,6 +10,7 @@ export interface JwtPayload {
   role: string
   tenantId?: string
   tokenVersion?: number
+  totpPending?: true
 }
 
 const MAX_FAILED_ATTEMPTS = 5
@@ -102,11 +103,11 @@ export class AuthService {
       secret: user.totpSecret,
       encoding: 'base32',
       token,
-      window: 0,
+      window: 1,
     })
     if (!verified) throw new UnauthorizedException('TOTP验证码错误')
 
-    const payload: JwtPayload = { sub: user.id, username: user.username, role: user.role, tokenVersion: user.tokenVersion }
+    const payload: JwtPayload = { sub: user.id, username: user.username, role: user.role, tenantId: user.tenantId, tokenVersion: user.tokenVersion }
     const accessToken = await this.jwt.signAsync(payload)
     return {
       accessToken,
@@ -141,7 +142,10 @@ export class AuthService {
     if (!u) throw new UnauthorizedException('用户不存在')
     if (!(await compare(oldPassword, u.passwordHash))) throw new UnauthorizedException('原密码错误')
     const newHash = await hash(newPassword, 10)
-    await this.prisma.user.update({ where: { id: userId }, data: { passwordHash: newHash } })
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash: newHash, tokenVersion: { increment: 1 } },
+    })
     return { ok: true }
   }
 

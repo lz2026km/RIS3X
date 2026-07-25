@@ -3,7 +3,7 @@
  */
 import { Module } from '@nestjs/common'
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler'
 import { LoggerModule } from 'nestjs-pino'
 import { CacheModule } from './cache/cache.module'
@@ -93,7 +93,17 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter'
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        const configuredTtl = Number(config.get<string>('THROTTLE_TTL_MS') ?? 60000)
+        const configuredLimit = Number(config.get<string>('THROTTLE_LIMIT') ?? 100)
+        const ttl = Number.isFinite(configuredTtl) && configuredTtl >= 1000 ? Math.floor(configuredTtl) : 60000
+        const limit = Number.isFinite(configuredLimit) && configuredLimit >= 1 ? Math.floor(configuredLimit) : 100
+        return [{ ttl, limit, blockDuration: ttl }]
+      },
+    }),
     MetricsModule,
     CacheModule,
     QueueModule,
@@ -178,13 +188,13 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter'
   ],
   controllers: [HealthController],
   providers: [
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
-    { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
     { provide: APP_INTERCEPTOR, useClass: SecurityHeadersInterceptor },
-    { provide: APP_INTERCEPTOR, useClass: CsrfInterceptor },
     { provide: APP_INTERCEPTOR, useClass: TenantContextInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: CsrfInterceptor },
     { provide: APP_FILTER, useClass: HttpExceptionFilter },
   ],
 })

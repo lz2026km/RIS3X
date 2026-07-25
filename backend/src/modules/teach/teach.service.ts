@@ -23,9 +23,9 @@ export class TeachService {
     const lecture = await this.prisma.teachLecture.findUnique({ where: { id } })
     if (!lecture) throw new NotFoundException('Lecture not found')
 
-    const blobDir = path.resolve(process.env['TEACH_BLOB_DIR'] || '/data/teach')
     const fs = await import('fs/promises')
     const path = await import('path')
+    const blobDir = path.resolve(process.env['TEACH_BLOB_DIR'] || '/data/teach')
     await fs.mkdir(blobDir, { recursive: true })
     const filename = `${id}-${String(sequence).padStart(5, '0')}.webm`
     const safePath = path.join(blobDir, filename)
@@ -85,7 +85,11 @@ export class TeachService {
     for (const b of blobs) {
       const safePath = path.resolve(blobDir, path.basename(b.filename))
       if (!safePath.startsWith(path.resolve(blobDir))) continue
-      try { await fs.unlink(safePath) } catch {}
+      try {
+        await fs.unlink(safePath)
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+      }
     }
     await this.prisma.teachLectureBlob.deleteMany({ where: { lectureId: id } })
     await this.prisma.teachLecture.delete({ where: { id } })

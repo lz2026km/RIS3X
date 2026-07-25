@@ -1,7 +1,16 @@
-import { Controller, Get, Post, Body, Logger } from '@nestjs/common'
+import { Controller, Get, Post, Body, Logger, Query } from '@nestjs/common'
+import { z } from 'zod'
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { Roles } from '../../common/decorators/roles.decorator'
 import { ApiTags, ApiOperation } from '@nestjs/swagger'
 import { AiDiagnosisService, AccuracyRequest } from './ai-diagnosis.service'
+
+const AccuracySchema = z.object({
+  startDate: z.string().datetime(),
+  endDate: z.string().datetime(),
+  siteId: z.string().optional(),
+  modality: z.string().optional(),
+})
 
 @ApiTags('ai-diagnosis')
 @Roles('ADMIN', 'DIRECTOR')
@@ -12,13 +21,13 @@ export class AiDiagnosisController {
 
   @Post('accuracy')
   @ApiOperation({ summary: 'AI diagnosis accuracy metrics' })
-  accuracy(@Body() body: AccuracyRequest) {
+  accuracy(@Body(new ZodValidationPipe(AccuracySchema)) body: AccuracyRequest) {
     return this.service.accuracy(body)
   }
 
   @Get('trend')
   @ApiOperation({ summary: 'AI accuracy trend' })
-  trend(@Body() body: AccuracyRequest) {
+  trend(@Query(new ZodValidationPipe(AccuracySchema)) body: AccuracyRequest) {
     return this.service.trend(body)
   }
 }

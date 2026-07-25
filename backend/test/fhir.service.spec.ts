@@ -92,7 +92,7 @@ describe('FhirService', () => {
       const result = await svc.readPatient('p1')
       expect(result.resourceType).toBe('Patient')
       expect(result.id).toBe('p1')
-      expect(result.name[0].family).toBe('张三')
+      expect((result as any).name[0].family).toBe('张三')
     })
 
     it('readPatient throws when not found', async () => {
@@ -163,7 +163,7 @@ describe('FhirService', () => {
       mockPrisma.exam.findUnique.mockResolvedValue(mockExam)
       const result = await svc.readImagingStudy('e1')
       expect(result.resourceType).toBe('ImagingStudy')
-      expect(result.modality[0].coding[0].code).toBe('CT')
+      expect((result as any).series[0].modality.coding[0].code).toBe('CT')
     })
 
     it('searchImagingStudy returns Bundle', async () => {

@@ -6,7 +6,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Card, Table, Tag, Space, Typography, Button, Tooltip, Descriptions, Row, Col, Progress, Empty, Alert } from 'antd';
+import { Card, Table, Tag, Space, Typography, Button, Tooltip, Descriptions, Row, Col, Progress, Empty, Alert, message } from 'antd';
 import { Link2, ExternalLink, Hash, Box, CheckCircle2, Loader2, ShieldCheck } from 'lucide-react';
 import type { BlockchainProof } from '../../../../types/R3/R3.SIGN';
 import { blockchainService } from '../../../../services/sign/blockchainService';
@@ -56,7 +56,7 @@ export const BlockchainProofView: React.FC<BlockchainProofProps> = ({
 
   const handleAnchor = async () => {
     if (!contentHash) {
-      alert('缺少 contentHash，无法上链');
+      message.warning('缺少 contentHash，无法上链');
       return;
     }
     setAnchoring(true);
@@ -77,9 +77,9 @@ export const BlockchainProofView: React.FC<BlockchainProofProps> = ({
   const handleVerify = async (txHash: string) => {
     const res = await blockchainService.verify(txHash);
     if (res.found) {
-      alert(`区块链验证通过\n区块号: ${res.proof?.blockNumber}\n确认数: ${res.proof?.confirmations}`);
+      message.success(`区块链验证通过 · 区块号: ${res.proof?.blockNumber} · 确认数: ${res.proof?.confirmations}`);
     } else {
-      alert('未找到该交易记录');
+      message.error('未找到该交易记录');
     }
   };
 

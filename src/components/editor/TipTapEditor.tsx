@@ -236,7 +236,12 @@ export default function TipTapEditor({
   const fontColorRef = useRef<HTMLDivElement>(null);
   const highlightRef = useRef<HTMLDivElement>(null);
   const editorWrapRef = useRef<HTMLDivElement>(null);
-  const saveTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  useEffect(() => () => {
+    saveTimerRef.current.forEach((id) => clearTimeout(id));
+    saveTimerRef.current = [];
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -274,14 +279,19 @@ export default function TipTapEditor({
 
   const triggerSave = useCallback(() => {
     setSaveStatus("unsaved");
-    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = setTimeout(() => {
+    saveTimerRef.current.forEach((id) => clearTimeout(id));
+    saveTimerRef.current = [];
+    const outer = setTimeout(() => {
       setSaveStatus("saving");
-      setTimeout(() => {
+      const inner = setTimeout(() => {
         setSaveStatus("saved");
         setSavedTime(new Date());
+        saveTimerRef.current = saveTimerRef.current.filter((id) => id !== inner);
       }, 800);
+      saveTimerRef.current.push(inner);
+      saveTimerRef.current = saveTimerRef.current.filter((id) => id !== outer);
     }, 1500);
+    saveTimerRef.current.push(outer);
   }, []);
 
   const editor = useEditor({

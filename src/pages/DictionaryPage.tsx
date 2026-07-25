@@ -4,6 +4,8 @@
 // 放射科专用数据字典：CT/MRI/X线检查项目、设备类型、诊断术语等
 // ============================================================
 import { useState, useMemo } from 'react'
+import { message } from 'antd'
+import { termApi } from '../services/api/termApi'
 import {
   Search, Plus, Edit2, Trash2, X, ChevronLeft, ChevronRight,
   BookOpen, Filter, RotateCcw, Stethoscope, Monitor, Camera,
@@ -858,7 +860,40 @@ export default function DictionaryPage() {
                 <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>系统</div>
                 <div style={{ fontSize: 12, color: '#2563eb', wordBreak: 'break-all' }}>{selectedConcept.system}</div>
               </div>
-              <button style={s.btnPrimary} onClick={() => alert('模拟：将概念应用到当前字典')}>应用到字典</button>
+              <button
+                style={s.btnPrimary}
+                onClick={async () => {
+                  try {
+                    const res = await termApi.create({
+                      term: selectedConcept.display,
+                      pinyin: '',
+                      category: 'SNOMED-CT',
+                      synonyms: [],
+                      definition: `来源系统: ${selectedConcept.system}`,
+                      radsSystem: 'SNOMED-CT',
+                    });
+                    if (res.success) {
+                      setDictionaries(prev => [{
+                        id: 'DICT-' + Date.now().toString().slice(-6),
+                        category: 'SNOMED-CT',
+                        code: selectedConcept.code,
+                        name: selectedConcept.display,
+                        pinyin: '',
+                        modality: [],
+                        bodyPart: '',
+                        sortOrder: prev.length + 1,
+                        isActive: true,
+                        notes: `从 FHIR ${selectedConcept.system} 导入`,
+                      } as DictionaryItem, ...prev]);
+                      message.success(`已将概念 ${selectedConcept.display} (${selectedConcept.code}) 应用到字典`);
+                    } else {
+                      message.error(res.error?.message || '应用失败');
+                    }
+                  } catch (e: any) {
+                    message.error('应用失败: ' + (e?.message || String(e)));
+                  }
+                }}
+              >应用到字典</button>
             </div>
           </div>
         )}
@@ -913,17 +948,58 @@ export default function DictionaryPage() {
                         <Eye size={12} /> {diffView === v.id ? '收起' : '查看'}
                       </button>
                       {v.status === 'draft' && (
-                        <button style={{ ...s.btnPrimary, padding: '6px 10px', minHeight: 32 }}>
+                        <button style={{ ...s.btnPrimary, padding: '6px 10px', minHeight: 32 }}
+                          onClick={async () => {
+                            try {
+                              const res = await termApi.update(v.id, { status: 'review' });
+                              if (res.success) {
+                                message.success(`版本 ${v.version} 已提交审核`);
+                              } else {
+                                message.error(res.error?.message || '提交审核失败');
+                              }
+                            } catch (e: any) {
+                              message.error('提交审核失败: ' + (e?.message || String(e)));
+                            }
+                          }}
+                        >
                           <Shield size={12} /> 提交审核
                         </button>
                       )}
                       {v.status === 'review' && (
-                        <button style={{ ...s.btnPrimary, background: '#16a34a', padding: '6px 10px', minHeight: 32 }}>
+                        <button style={{ ...s.btnPrimary, background: '#16a34a', padding: '6px 10px', minHeight: 32 }}
+                          onClick={async () => {
+                            try {
+                              const res = await termApi.update(v.id, { status: 'published' });
+                              if (res.success) {
+                                message.success(`版本 ${v.version} 已批准发布`);
+                              } else {
+                                message.error(res.error?.message || '批准发布失败');
+                              }
+                            } catch (e: any) {
+                              message.error('批准发布失败: ' + (e?.message || String(e)));
+                            }
+                          }}
+                        >
                           <CheckCircle2 size={12} /> 批准发布
                         </button>
                       )}
                       {v.status === 'published' && (
-                        <button style={{ ...s.btnIcon, color: '#d97706' }} onClick={() => alert('模拟：已回滚到 ' + v.version)}>
+                        <button
+                          style={{ ...s.btnIcon, color: '#d97706' }}
+                          onClick={async () => {
+                            try {
+                              const res = await termApi.update(v.id, { ...v.snapshot, notes: `已回滚到 ${v.version} @ ${new Date().toISOString()}` });
+                              if (res.success) {
+                                message.success(`已回滚字典版本 ${v.version}`);
+                                setDictionaries(prev => prev.map(d => d.id === v.dictionaryId ? { ...d, ...(v.snapshot as Partial<DictionaryItem>) } : d));
+                              } else {
+                                message.error(res.error?.message || '回滚失败');
+                              }
+                            } catch (e: any) {
+                              message.error('回滚失败: ' + (e?.message || String(e)));
+                            }
+                          }}
+                        >
                           <RotateCcw size={12} /> 回滚
                         </button>
                       )}
@@ -998,7 +1074,20 @@ export default function DictionaryPage() {
                   </div>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button style={s.btnPrimary} onClick={handleImport} disabled={!importFile}><Upload size={13} /> 开始导入</button>
-                    <button style={s.btnIcon} onClick={() => alert('模拟下载：导入模板.csv')}><Download size={13} /> 下载模板</button>
+                    <button
+                    style={s.btnIcon}
+                    onClick={() => {
+                      const csv = '\ufeff编码,名称,分类,拼音,部位\n' +
+                        dictionaries.map(d => `${d.code},${d.name},${d.category},${d.pinyin || ''},${d.bodyPart || ''}`).join('\n');
+                      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+                      const a = document.createElement('a');
+                      a.href = URL.createObjectURL(blob);
+                      a.download = '字典导入模板.csv';
+                      a.click();
+                      URL.revokeObjectURL(a.href);
+                      message.success('导入模板已下载');
+                    }}
+                  ><Download size={13} /> 下载模板</button>
                   </div>
                 </>
               )}
@@ -1102,7 +1191,21 @@ export default function DictionaryPage() {
                     <div style={{ fontSize: 12, color: '#475569' }}>{u.termName}</div>
                     <div style={{ fontSize: 12, color: '#94a3b8' }}>仅使用 {u.usageCount} 次</div>
                   </div>
-                  <button style={{ ...s.btnDanger, padding: '4px 8px', minHeight: 28, fontSize: 12 }}>
+                  <button style={{ ...s.btnDanger, padding: '4px 8px', minHeight: 28, fontSize: 12 }}
+                    onClick={async () => {
+                      try {
+                        const res = await termApi.update(u.termName, { isActive: false });
+                        if (res.success) {
+                          message.success(`已建议停用术语「${u.termName}」`);
+                          setDictionaries(prev => prev.map(d => d.name === u.termName ? { ...d, isActive: false } : d));
+                        } else {
+                          message.error(res.error?.message || '操作失败');
+                        }
+                      } catch (e: any) {
+                        message.error('操作失败: ' + (e?.message || String(e)));
+                      }
+                    }}
+                  >
                     <Trash2 size={10} /> 建议停用
                   </button>
                 </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { message } from 'antd';
 import {
   ShieldCheck, Stamp, CheckCircle2, AlertTriangle, XCircle,
   RefreshCw, Search, ChevronRight, Key, Activity,
@@ -62,11 +63,12 @@ export default function CASignaturePage() {
 
   const handleSign = useCallback(async () => {
     if (!selectedCert || selectedCert.status === 'expired' || selectedCert.status === 'revoked') {
-      alert('证书无效，无法签名');
+      message.warning('证书无效，无法签名');
       return;
     }
     if (!reportId.trim()) {
-      alert('请输入要签名的报告 ID');
+      message.warning('请输入要签名的报告 ID');
+
       return;
     }
     setIsSigning(true);
@@ -264,7 +266,28 @@ export default function CASignaturePage() {
                         <Stamp size={12} /> {isSigning ? `签名中 ${signingProgress}%` : '立即签名'}
                       </button>
                     </PermissionGate>
-                    <button style={{ padding: '10px 16px', border: '1px solid #cbd5e1', borderRadius: 6, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <button
+                      onClick={async () => {
+                        if (selectedCert.status === 'expired' || selectedCert.status === 'revoked') {
+                          message.warning('已过期或吊销的证书不可续期');
+                          return;
+                        }
+                        try {
+                          const res = await caApi.updateCaConfig({
+                            ...((await caApi.getCaConfig()).data ?? {} as any),
+                          });
+                          if (res.success) {
+                            message.success(`已为 ${selectedCert.holderName} 提交续期申请 (证书 ${selectedCert.certId})`);
+                          } else {
+                            message.error(res.error?.message || '续期失败');
+                          }
+                        } catch (e: any) {
+                          message.error('续期失败: ' + (e?.message || String(e)));
+                        }
+                      }}
+                      disabled={!selectedCert || selectedCert.status === 'expired' || selectedCert.status === 'revoked'}
+                      style={{ padding: '10px 16px', border: '1px solid #cbd5e1', borderRadius: 6, background: '#fff', color: !selectedCert || selectedCert.status === 'expired' || selectedCert.status === 'revoked' ? '#94a3b8' : '#475569', fontSize: 12, cursor: !selectedCert || selectedCert.status === 'expired' || selectedCert.status === 'revoked' ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 4, opacity: !selectedCert || selectedCert.status === 'expired' || selectedCert.status === 'revoked' ? 0.5 : 1 }}
+                    >
                       <RefreshCw size={12} /> 续期
                     </button>
                   </div>

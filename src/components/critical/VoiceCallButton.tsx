@@ -3,7 +3,7 @@
  * 触发 Twilio / 讯飞听见 IVR 自动外呼
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button, Tooltip, Modal, Input, Select, Space, message, Form, Statistic, Alert, Tag, Result } from 'antd';
 import { PhoneCall, Phone, Volume2, Clock } from 'lucide-react';
 import { defaultVoiceRouter } from '../../services/notification/VoiceGateway';
@@ -59,6 +59,11 @@ export const VoiceCallButton: React.FC<VoiceCallButtonProps> = ({
   const [form] = Form.useForm();
   const [calling, setCalling] = useState(false);
   const [call, setCall] = useState<CallState>({ status: 'idle' });
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => () => {
+    if (pollRef.current !== null) clearInterval(pollRef.current);
+  }, []);
 
   const trigger = async () => {
     const values = await form.validateFields();
@@ -95,13 +100,25 @@ export const VoiceCallButton: React.FC<VoiceCallButtonProps> = ({
     const gateway = defaultVoiceRouter.getGateways()[0];
     if (!gateway) return;
     let attempts = 0;
-    const interval = setInterval(async () => {
+    const stopPoll = () => {
+      if (pollRef.current !== null) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
+    };
+    pollRef.current = setInterval(async () => {
       attempts++;
       if (attempts > 30) {
-        clearInterval(interval);
+        stopPoll();
         return;
       }
-      const status = await gateway.queryCall(id);
+      let status;
+      try {
+        status = await gateway.queryCall(id);
+      } catch {
+        stopPoll();
+        return;
+      }
       setCall({
         providerCallId: id,
         status: status.status,
@@ -110,7 +127,7 @@ export const VoiceCallButton: React.FC<VoiceCallButtonProps> = ({
         dtmfDigits: status.dtmfDigits,
       });
       if (['completed', 'failed', 'no-answer', 'busy', 'dtmf-collected'].includes(status.status)) {
-        clearInterval(interval);
+        stopPoll();
       }
     }, 1500);
   };

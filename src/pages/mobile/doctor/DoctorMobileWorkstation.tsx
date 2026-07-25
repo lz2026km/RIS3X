@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { message } from 'antd'
 import { Search, Filter, ChevronRight, Monitor, Activity, FileText, Bell, User, AlertTriangle, LayoutDashboard, ListChecks, Image, Mic, BarChart3 } from 'lucide-react'
 
 export interface DoctorWorklistItem {
@@ -81,7 +82,7 @@ export default function DoctorMobileWorkstation() {
   })
 
   const handleItemClick = useCallback((item: DoctorWorklistItem) => {
-    alert(`打开 ${item.examItem} - ${item.patientName} (Accession: ${item.accessionNumber})`)
+    message.info(`打开 ${item.examItem} - ${item.patientName} (Accession: ${item.accessionNumber})`)
   }, [])
 
   return (

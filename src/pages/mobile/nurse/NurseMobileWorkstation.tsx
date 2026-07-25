@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { message } from 'antd'
 import { Search, Calendar, Bell, UserCheck, Syringe, Clock, ChevronRight, AlertCircle, CheckCircle, XCircle } from 'lucide-react'
 
 export interface NurseAppointment {
@@ -62,11 +63,11 @@ export default function NurseMobileWorkstation() {
   })
 
   const handleCheckIn = useCallback((id: string) => {
-    alert(`签到患者: ${id}`)
+    message.success(`签到患者: ${id}`)
   }, [])
 
   const handleMedication = useCallback((id: string) => {
-    alert(`记录用药: ${id}`)
+    message.success(`记录用药: ${id}`)
   }, [])
 
   return (

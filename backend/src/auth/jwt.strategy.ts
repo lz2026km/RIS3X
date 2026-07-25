@@ -1,38 +1,56 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { PassportStrategy } from '@nestjs/passport'
+import { ConfigService } from '@nestjs/config'
 import { ExtractJwt, Strategy } from 'passport-jwt'
 import type { JwtPayload } from './auth.service'
 import { PrismaService } from '../prisma/prisma.service'
 
-const JWT_SECRET = process.env['JWT_SECRET']
+type AuthenticatedUser = {
+  sub: string
+  username: string
+  role: string
+  tenantId: string
+  totpPending: boolean
+}
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   private readonly prisma: PrismaService
 
-  constructor() {
+  constructor(prisma: PrismaService, config: ConfigService) {
+    const secret = config.get<string>('JWT_SECRET')
+    if (!secret || (config.get<string>('NODE_ENV') === 'production' && Buffer.byteLength(secret) < 32)) {
+      throw new Error('JWT_SECRET must be at least 32 bytes in production')
+    }
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: JWT_SECRET,
+      secretOrKey: secret,
+      algorithms: ['HS256'],
     })
-    if (!JWT_SECRET) {
-      throw new Error('JWT_SECRET environment variable is required')
-    }
-    this.prisma = new PrismaService()
+    this.prisma = prisma
   }
 
-  async validate(payload: JwtPayload & { tokenVersion?: number }): Promise<{ sub: string; username: string; role: string; tenantId: string }> {
+  async validate(payload: JwtPayload): Promise<AuthenticatedUser> {
+    if (!payload?.sub || !Number.isInteger(payload.tokenVersion)) {
+      throw new UnauthorizedException('无效Token')
+    }
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },
-      select: { tokenVersion: true, active: true },
+      select: { username: true, role: true, tenantId: true, tokenVersion: true, active: true },
     })
     if (!user || !user.active) {
       throw new UnauthorizedException('用户不存在或已停用')
     }
-    if (payload.tokenVersion !== undefined && user.tokenVersion !== payload.tokenVersion) {
+    if (user.tokenVersion !== payload.tokenVersion) {
       throw new UnauthorizedException('Token已过期，请重新登录')
     }
-    return { sub: payload.sub, username: payload.username, role: payload.role, tenantId: payload.tenantId || '' }
+    return {
+      sub: payload.sub,
+      username: user.username,
+      role: user.role,
+      tenantId: user.tenantId,
+      totpPending: payload.totpPending === true,
+    }
   }
 }

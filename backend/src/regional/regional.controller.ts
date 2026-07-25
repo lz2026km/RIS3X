@@ -2,6 +2,8 @@
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { RegionalService } from './regional.service'
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
+import { UpdateScheduleSchema } from './regional.schema'
 
 @ApiTags('regional')
 @ApiBearerAuth()
@@ -26,7 +28,7 @@ export class RegionalController {
   getDepartmentSchedule() { return this.svc.getDepartmentSchedule() }
 
   @Put('schedule/:id')
-  updateSchedule(@Param('id') id: string, @Body() body: Record<string, unknown>) { return this.svc.updateSchedule(id, body) }
+  updateSchedule(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateScheduleSchema)) body: Record<string, unknown>) { return this.svc.updateSchedule(id, body) }
 
   @Get('departments')
   listDepartments() { return this.svc.listDepartments() }

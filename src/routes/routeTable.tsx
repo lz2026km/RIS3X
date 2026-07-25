@@ -440,6 +440,11 @@ SIDEBAR_ITEMS.forEach((section) => {
 
 // 路由表中存在但未在 sidebarConfig 列出的路径(由各页面的合理角色手动补全)
 const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
+  "/": ALL_ROLES, // 首页所有已登录角色可访问
+  "/dicom-viewer-classic": roleMap["/dicom-viewer"] ?? ALL_ROLES, // 经典DICOM浏览器,同 /dicom-viewer
+  "/ai-orchestration": roleMap["/ai-assist"] ?? ALL_ROLES, // AI 编排,同 /ai-assist
+  "/regional-imaging": roleMap["/regional-report"] ?? ALL_ROLES, // 区域影像,管理员专享
+  "/integration/mllp-monitor": roleMap["/integration/ihe-connectathon"] ?? ALL_ROLES, // MLLP 监控,管理员专享
   "/patient/:id": roleMap["/patients"] ?? ALL_ROLES,
   "/template-designer/:id": roleMap["/template-designer"] ?? ALL_ROLES,
   "/research": ["医生", "主任", "管理员"],
@@ -927,11 +932,10 @@ export const routes: RouteObject[] = [
   // [v3.0.6.11-21] P0 fix: 合规管理页接入路由
   wrapped("/system/compliance", React.createElement(lazy(() => import("../pages/CompliancePage")))),
   // [Sprint 3] F07-F12 新页面路由
-  wrapped("/qc/image-ai", React.createElement(QcImageAiPage)),
   wrapped("/nlp/spellcheck", React.createElement(NlpCheckPage)),
   wrapped("/asr/transcribe", React.createElement(AsrPage)),
   wrapped("/snomed/encode", React.createElement(SnomedPage)),
-  wrapped("/cds/rule-config", React.createElement(RuleConfigPanelPage)),
+  wrapped("/cds/rule-config", React.createElement(RuleConfigPanel)),
   wrapped("/rdsr", React.createElement(RdsrPage)),
   // [Sprint 4] F13-F18 新页面路由
   wrapped("/ai-marketplace", React.createElement(AiMarketplacePage)),
@@ -940,6 +944,20 @@ export const routes: RouteObject[] = [
   wrapped("/tele-sign", React.createElement(TeleSignPage)),
   wrapped("/smart-route", React.createElement(SmartRoutePage)),
   wrapped("/hl7-siu", React.createElement(Hl7SiuPage)),
+  // [P1-fix] 补齐 sidebar 已声明但路由表缺失的 13 个死链
+  wrapped("/appointment-management", React.createElement(AppointmentManagementPage)),
+  wrapped("/contrast/adverse-reactions", React.createElement(AdverseReactionPage)),
+  wrapped("/contrast/injection-workstation", React.createElement(ContrastInjectionWorkstationPage)),
+  wrapped("/contrast/quality-compliance", React.createElement(ContrastQualityCompliancePage)),
+  wrapped("/critical-value-center", React.createElement(CriticalValueCenterPage)),
+  wrapped("/department-dashboard", React.createElement(DepartmentDashboardPage)),
+  wrapped("/education/patient-education", React.createElement(PatientEducationPage)),
+  wrapped("/equipment-efficiency", React.createElement(EquipmentEfficiencyPage)),
+  wrapped("/patient/service-management", React.createElement(ServiceManagement)),
+  wrapped("/patient-report-portal", React.createElement(PatientReportPortalPage)),
+  wrapped("/report-defect-library", React.createElement(ReportDefectLibraryPage)),
+  wrapped("/safety/patient-safety-goals", React.createElement(PatientSafetyGoalsPage)),
+  wrapped("/template-inheritance", React.createElement(TemplateInheritancePage)),
   {
     path: "*",
     element: React.createElement(Navigate, { to: "/", replace: true }),

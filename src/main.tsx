@@ -7,12 +7,14 @@ import "./i18n/index.ts";
 import { reportWebVitals } from "./observability/webVitals";
 import { initSentry } from "./observability/sentry";
 
+import { currentApiMode } from "./services/api/client";
+
 import "./styles/animations.css";
 import "./styles/transitions.css";
 import "./styles/responsive.css";
 import "./styles/z-index.css";
 
-const APP_VERSION = "3.0.6.11-31";
+const APP_VERSION = "3.0.6.11-32";
 console.info(`[v${APP_VERSION}] === BOOT START ===`);
 console.info(`[v${APP_VERSION}] Location:`, window.location.href);
 
@@ -92,15 +94,18 @@ async function startMSWWithTimeout(timeoutMs = 10000): Promise<boolean> {
 }
 
 async function bootstrap(): Promise<void> {
-  // Phase 1: SW cleanup 同步 (避免 MSW 检测到�?controller 触发 reload)
-  console.info(`[v${APP_VERSION}] Phase 1: SW cleanup`);
-  await nukeSWAndCacheSync(3000);
+  const mockMode = currentApiMode() === "mock";
+  if (mockMode) {
+    console.info(`[v${APP_VERSION}] Phase 1: SW cleanup`);
+    await nukeSWAndCacheSync(3000);
 
-  // Phase 2: MSW 必须等启动完�?(10s timeout 保护)
-  console.info(`[v${APP_VERSION}] Phase 2: MSW start (max 10s)`);
-  const mswOk = await startMSWWithTimeout(10000);
-  if (!mswOk) {
-    console.warn(`[v${APP_VERSION}] MSW unavailable, API will fallback`);
+    console.info(`[v${APP_VERSION}] Phase 2: MSW start (max 10s)`);
+    const mswOk = await startMSWWithTimeout(10000);
+    if (!mswOk) {
+      console.warn(`[v${APP_VERSION}] MSW unavailable, API will fallback`);
+    }
+  } else {
+    console.info(`[v${APP_VERSION}] Phase 1-2: real API mode, MSW disabled`);
   }
 
   // Phase 3: Init Sentry

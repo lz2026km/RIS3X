@@ -3,17 +3,26 @@ import { Prisma } from '@prisma/client'
 import { PrismaService } from '../prisma/prisma.service'
 import { getCurrentTenantId } from '../common/interceptors/tenant-context.interceptor'
 
+function sanitizeCertificateDetail(detail: unknown): Prisma.InputJsonValue {
+  if (!detail || typeof detail !== 'object' || Array.isArray(detail)) return {}
+  const safe = { ...(detail as Record<string, unknown>) }
+  delete safe['privateKey']
+  delete safe['certificateData']
+  return safe as Prisma.InputJsonObject
+}
+
 @Injectable()
 export class CaService {
   constructor(private readonly prisma: PrismaService) {}
 
   async listCertificates() {
-    const data = await this.prisma.auditLog.findMany({ where: { resource: 'ca-certificate' }, orderBy: { createdAt: 'desc' } })
-    return { data }
+    const records = await this.prisma.auditLog.findMany({ where: { resource: 'ca-certificate' }, orderBy: { createdAt: 'desc' } })
+    return { data: records.map((record) => ({ ...record, detail: sanitizeCertificateDetail(record.detail) })) }
   }
 
   async uploadCertificate(body: Record<string, unknown>) {
-    const data = await this.prisma.auditLog.create({ data: { action: 'UPLOAD', resource: 'ca-certificate', detail: body ?? {}, tenantId: getCurrentTenantId() } })
+    const detail = sanitizeCertificateDetail(body)
+    const data = await this.prisma.auditLog.create({ data: { action: 'UPLOAD', resource: 'ca-certificate', detail, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
 
