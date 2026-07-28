@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import { message } from 'antd'
 import { Search, Filter, ChevronRight, Monitor, Activity, FileText, Bell, User, AlertTriangle, LayoutDashboard, ListChecks, Image, Mic, BarChart3 } from 'lucide-react'
-import { mobileApi, type DoctorWorklistItem, type DoctorStats } from '../../services/api'
+import { mobileApi, type DoctorWorklistItem, type DoctorStats } from '../../../services/api'
 
-export { type DoctorWorklistItem, type DoctorStats } from '../../services/api'
+export { type DoctorWorklistItem, type DoctorStats } from '../../../services/api'
 
 const PRIORITY_COLORS: Record<string, string> = {
   routine: '#64748b',

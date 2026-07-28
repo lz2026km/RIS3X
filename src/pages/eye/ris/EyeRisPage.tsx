@@ -24,7 +24,7 @@ import {
   Bell,
 } from "lucide-react";
 import CriticalValueAlert from "@/components/eye/CriticalValueAlert";
-import { eyeApi } from "../../services/api/eyeApi";
+import { eyeApi } from "../../../services/api/eyeApi";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { AppEmpty } from "@/components/feedback";
 import { PageContainer, PageHeader } from "@/components/common";

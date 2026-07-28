@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { patientPortalApi, type PortalPatientDto, type ExamHistoryItemDto, type ImagePreviewDto } from '../services/api'
+import { patientPortalApi, type PortalPatientDto, type ExamHistoryItemDto, type ImagePreviewDto } from '../../services/api'
 
 // ===== Types =====
 export type { PortalPatientDto as PatientPortalUser, ExamHistoryItemDto as ExamHistoryItem, ImagePreviewDto as ImagePreview }

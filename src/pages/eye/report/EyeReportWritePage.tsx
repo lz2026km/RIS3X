@@ -39,7 +39,7 @@ import ReportTemplateSelector from "@/components/eye/ReportTemplateSelector";
 import FindingLibraryPicker from "@/components/eye/FindingLibraryPicker";
 import GradingScalePicker from "@/components/eye/GradingScalePicker";
 import ReportDraftPanel from "@/components/eye/ReportDraftPanel";
-import { eyeApi } from "../../services/api/eyeApi";
+import { eyeApi } from "../../../services/api/eyeApi";
 import type { OphthalmologyReport, ReportTemplate, FindingLibraryItem, ReportAuditEntry, ReportPrintRecord } from "../../types/eye";
 import { AppModal } from "@/components/common/AppModal";
 const MODALITY_LABELS: Record<string, string> = { fundus_photo: '眼底彩照', oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: '视野', topography: '角膜地形图', pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: '裂隙灯', oct_a: 'OCTA', corneal_endothelium: '角膜内皮', tear_film: '泪膜', fundus_autofluorescence: '眼底自发荧光' };
