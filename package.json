@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.11-34",
-  "description": "G005 Radiology RIS v3.0.6.11-34 - 审查修复 + 版本文档同步 v3.0.6.11-34",
+  "version": "3.0.6.11-35",
+  "description": "G005 Radiology RIS v3.0.6.11-35 - 全栈深度审查+mock清理+后端对齐+窗位完善+代码质量提升",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",

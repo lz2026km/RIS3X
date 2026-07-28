@@ -191,6 +191,18 @@ export function getRecommendedPresets(modality: string, bodyPart: string): Windo
     if (normalizedBodyPart.includes('PELVIS') || normalizedBodyPart.includes('骨盆')) {
       return WINDOW_PRESETS.filter((p) => p.category === 'PELVIS')
     }
+    if (normalizedBodyPart.includes('MAMMO') || normalizedBodyPart.includes('乳腺')) {
+      return WINDOW_PRESETS.filter((p) => p.category === 'MAMMOGRAPHY')
+    }
+    if (normalizedBodyPart.includes('CARDIAC') || normalizedBodyPart.includes('心脏')) {
+      return WINDOW_PRESETS.filter((p) => p.category === 'CARDIAC' || p.name === '心脏窗')
+    }
+    if (normalizedBodyPart.includes('ANGIO') || normalizedBodyPart.includes('血管')) {
+      return WINDOW_PRESETS.filter((p) => p.category === 'ANGIO' || p.name === '血管窗')
+    }
+    if (normalizedBodyPart.includes('ORBIT') || normalizedBodyPart.includes('眼眶')) {
+      return WINDOW_PRESETS.filter((p) => p.name === '眼眶窗')
+    }
   }
 
   // MR 默认推荐

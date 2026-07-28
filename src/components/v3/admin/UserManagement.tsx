@@ -126,7 +126,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({ users, onCreate,
         size="small"
         dataSource={filtered}
         rowKey="id"
-        pagination={{ pageSize: 20 }}
+        pagination={{ pageSize: 10 }}
         data-testid="user-table"
         columns={[
           { title: '账号', dataIndex: 'username', width: 120 },

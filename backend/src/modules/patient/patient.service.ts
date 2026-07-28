@@ -88,4 +88,36 @@ export class PatientService {
       include: { exam: true },
     })
   }
+
+  async getExams(patientId: string) {
+    const patient = await this.prisma.patient.findUnique({ where: { id: patientId } })
+    if (!patient) throw new NotFoundException(`Patient ${patientId} not found`)
+    return this.prisma.exam.findMany({
+      where: { patientId },
+      orderBy: { createdAt: 'desc' },
+      include: { device: true, reports: true },
+    })
+  }
+
+  async getTimeline(patientId: string) {
+    const patient = await this.prisma.patient.findUnique({ where: { id: patientId } })
+    if (!patient) throw new NotFoundException(`Patient ${patientId} not found`)
+    const [exams, reports] = await Promise.all([
+      this.prisma.exam.findMany({
+        where: { patientId },
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, modality: true, bodyPart: true, state: true, createdAt: true, scheduledAt: true },
+      }),
+      this.prisma.report.findMany({
+        where: { patientId },
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, state: true, findings: true, createdAt: true },
+      }),
+    ])
+    const events = [
+      ...exams.map((e) => ({ type: 'exam' as const, id: e.id, modality: e.modality, bodyPart: e.bodyPart, state: e.state, date: (e.scheduledAt ?? e.createdAt)?.toISOString?.() ?? '' })),
+      ...reports.map((r) => ({ type: 'report' as const, id: r.id, state: r.state, findings: r.findings?.slice(0, 100) ?? '', date: r.createdAt?.toISOString?.() ?? '' })),
+    ].sort((a, b) => (a.date > b.date ? -1 : 1))
+    return events
+  }
 }

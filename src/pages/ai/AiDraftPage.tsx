@@ -1,24 +1,10 @@
-import React, { useState, useCallback } from 'react'
-import { Card, Select, Button, Space, Tag, Typography, Input, message, Spin, Tooltip } from 'antd'
-import { Brain, Check, X, Edit3, FileText, RefreshCw, Plus, User, Activity } from 'lucide-react'
-import { api } from '../../services/api/client'
+import React, { useState, useCallback, useEffect } from 'react'
+import { Card, Select, Button, Space, Tag, Typography, Input, message, Spin, Tooltip, Empty } from 'antd'
+import { Brain, Check, X, Edit3, FileText, RefreshCw, Plus, User, Activity, Layout } from 'lucide-react'
+import { v3AiDraftApi, type AiDraftMeta, type AiDraftParagraph, type AiDraftResult, type DraftTemplate } from '../../services/api/v3Api'
 
 const { Text, Title } = Typography
 const { TextArea } = Input
-
-interface Paragraph {
-  id: string
-  heading: string
-  content: string
-  confidence: number
-  editable: boolean
-}
-
-interface DraftResult {
-  paragraphs: Paragraph[]
-  overallConfidence: number
-  modelVersion: string
-}
 
 const MOCK_PATIENTS = [
   { id: 'p1', name: '张三', gender: '男', age: 55 },
@@ -37,38 +23,43 @@ const AiDraftPage: React.FC = () => {
   const [selectedPatient, setSelectedPatient] = useState<string | null>(null)
   const [selectedExam, setSelectedExam] = useState<string | null>(null)
   const [generating, setGenerating] = useState(false)
-  const [draftResult, setDraftResult] = useState<DraftResult | null>(null)
+  const [draftResult, setDraftResult] = useState<AiDraftResult | null>(null)
   const [editingParagraph, setEditingParagraph] = useState<string | null>(null)
   const [editContent, setEditContent] = useState('')
   const [continuePrompt, setContinuePrompt] = useState('')
   const [rewriteInstruction, setRewriteInstruction] = useState('')
   const [rewriteTarget, setRewriteTarget] = useState<string | null>(null)
+  const [templates, setTemplates] = useState<DraftTemplate[]>([])
+  const [templatesLoading, setTemplatesLoading] = useState(false)
 
   const currentExam = MOCK_EXAMS.find(e => e.id === selectedExam)
   const currentPatient = MOCK_PATIENTS.find(p => p.id === selectedPatient)
   const patientExams = MOCK_EXAMS.filter(e => e.patientId === selectedPatient)
+
+  useEffect(() => {
+    setTemplatesLoading(true)
+    v3AiDraftApi.getTemplates(currentExam?.modality).then(res => {
+      if (res.success && res.data?.templates) {
+        setTemplates(res.data.templates)
+      }
+    }).finally(() => setTemplatesLoading(false))
+  }, [currentExam?.modality])
+
+  const buildMeta = useCallback((): AiDraftMeta => ({
+    patientId: selectedPatient ?? 'mock-patient',
+    patientName: currentPatient?.name,
+    modality: currentExam?.modality ?? 'CT',
+    bodyPart: currentExam?.bodyPart ?? '胸部',
+  }), [selectedPatient, currentPatient, currentExam])
 
   const handleGenerate = useCallback(async () => {
     if (!selectedExam) { message.warning('请选择检查'); return }
     setGenerating(true)
     setDraftResult(null)
     try {
-      const res = await api.post<{
-        paragraphs: Paragraph[]
-        overallConfidence: number
-        modelVersion: string
-      }>('/ai-draft/generate', {
-        patientId: selectedPatient ?? 'mock-patient',
-        examId: selectedExam,
-        modality: currentExam?.modality ?? 'CT',
-        bodyPart: currentExam?.bodyPart ?? '胸部',
-      })
+      const res = await v3AiDraftApi.draft(buildMeta())
       if (res.success && res.data) {
-        setDraftResult({
-          paragraphs: res.data.paragraphs,
-          overallConfidence: res.data.overallConfidence,
-          modelVersion: res.data.modelVersion,
-        })
+        setDraftResult(res.data)
       } else {
         message.error(res.error?.message || '生成失败')
       }
@@ -77,25 +68,19 @@ const AiDraftPage: React.FC = () => {
     } finally {
       setGenerating(false)
     }
-  }, [selectedExam, selectedPatient, currentExam])
+  }, [selectedExam, buildMeta])
 
   const handleContinue = useCallback(async () => {
     if (!continuePrompt.trim()) { message.warning('请输入续写提示'); return }
     setGenerating(true)
     try {
-      const res = await api.post<{
-        id: string
-        heading: string
-        content: string
-        confidence: number
-        editable: boolean
-      }>('/ai-draft/continue', {
-        existingParagraphs: draftResult?.paragraphs.map(p => ({ heading: p.heading, content: p.content })) ?? [],
-        prompt: continuePrompt,
-        modality: currentExam?.modality,
-      })
+      const existingContent = draftResult?.paragraphs.map(p => `## ${p.heading}\n${p.content}`).join('\n\n') ?? ''
+      const res = await v3AiDraftApi.continueDraft(buildMeta(), existingContent + '\n\n' + continuePrompt)
       if (res.success && res.data && draftResult) {
-        setDraftResult({ ...draftResult, paragraphs: [...draftResult.paragraphs, res.data] })
+        setDraftResult({
+          ...res.data,
+          paragraphs: [...draftResult.paragraphs, ...res.data.paragraphs],
+        })
       } else {
         message.error(res.error?.message || '续写失败')
       }
@@ -105,22 +90,19 @@ const AiDraftPage: React.FC = () => {
       setContinuePrompt('')
       setGenerating(false)
     }
-  }, [continuePrompt, draftResult, currentExam])
+  }, [continuePrompt, draftResult, buildMeta])
 
   const handleRewrite = useCallback(async () => {
     if (!rewriteTarget || !rewriteInstruction.trim()) { message.warning('请选择要改写的段落并输入指令'); return }
     setGenerating(true)
     try {
       const targetParagraph = draftResult?.paragraphs.find(p => p.id === rewriteTarget)
-      const res = await api.post<{ content: string; confidence: number }>('/ai-draft/rewrite', {
-        content: targetParagraph?.content ?? '',
-        instruction: rewriteInstruction,
-        modality: currentExam?.modality,
-      })
+      const res = await v3AiDraftApi.rewriteDraft(buildMeta(), targetParagraph?.content ?? '', rewriteInstruction)
       if (res.success && res.data && draftResult) {
+        const rewritten = res.data.paragraphs[0] ?? { content: '', confidence: 0 }
         const newParagraphs = draftResult.paragraphs.map(p =>
           p.id === rewriteTarget
-            ? { ...p, content: res.data.content, confidence: res.data.confidence }
+            ? { ...p, content: rewritten.content, confidence: rewritten.confidence }
             : p,
         )
         setDraftResult({ ...draftResult, paragraphs: newParagraphs })
@@ -134,7 +116,7 @@ const AiDraftPage: React.FC = () => {
       setRewriteTarget(null)
       setGenerating(false)
     }
-  }, [rewriteTarget, rewriteInstruction, draftResult, currentExam])
+  }, [rewriteTarget, rewriteInstruction, draftResult, buildMeta])
 
   const handleAccept = (id: string) => {
     message.success(`已接受段落`)
@@ -147,7 +129,7 @@ const AiDraftPage: React.FC = () => {
     }
   }
 
-  const handleEdit = (paragraph: Paragraph) => {
+  const handleEdit = (paragraph: AiDraftParagraph) => {
     setEditingParagraph(paragraph.id)
     setEditContent(paragraph.content)
   }
@@ -208,6 +190,23 @@ const AiDraftPage: React.FC = () => {
           </Button>
         </Space>
       </Card>
+
+      {templates.length > 0 && (
+        <Card
+          title={<Space><Layout size={14} color="#7c3aed" />草稿模板</Space>}
+          size="small"
+          style={{ marginBottom: 16 }}
+          loading={templatesLoading}
+        >
+          <Space wrap>
+            {templates.map(t => (
+              <Tag key={t.id} color="purple" style={{ cursor: 'pointer', padding: '4px 8px' }}>
+                {t.name} ({t.modality})
+              </Tag>
+            ))}
+          </Space>
+        </Card>
+      )}
 
       {generating && (
         <Card style={{ marginBottom: 16, textAlign: 'center', padding: 40 }}>

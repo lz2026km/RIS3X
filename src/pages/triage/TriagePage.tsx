@@ -214,7 +214,7 @@ const TriagePage: React.FC = () => {
         columns={columns}
         rowKey="id"
         loading={loading}
-        pagination={{ pageSize: 20, showSizeChanger: true }}
+        pagination={{ pageSize: 10, showSizeChanger: true }}
       />
 
       <Modal

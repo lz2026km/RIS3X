@@ -189,7 +189,7 @@ export const FhirPatientPage: React.FC = () => {
           columns={columns}
           rowKey="id"
           loading={loading}
-          pagination={{ current: page, total, pageSize: 20, onChange: setPage }}
+          pagination={{ current: page, total, pageSize: 10, onChange: setPage }}
           size="small"
         />
       </Card>

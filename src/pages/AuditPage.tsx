@@ -17,7 +17,7 @@ export default function AuditPage() {
     setLoading(true)
     setPage(targetPage)
     try {
-      const res = await auditApi.list({ ...params, page: targetPage, pageSize: 20 })
+      const res = await auditApi.list({ ...params, page: targetPage, pageSize: 10 })
       if (res.success && res.data) {
         setLogs(res.data.items)
         setTotal(res.data.total)
@@ -66,7 +66,7 @@ export default function AuditPage() {
             rowKey="id"
             loading={loading}
             showToolbar={false}
-            pagination={{ current: page, pageSize: 20, total, onChange: (nextPage) => fetchLogs(nextPage) }}
+            pagination={{ current: page, pageSize: 10, total, onChange: (nextPage) => fetchLogs(nextPage) }}
             size="small"
           />
         </Space>

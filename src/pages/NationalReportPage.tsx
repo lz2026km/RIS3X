@@ -2,7 +2,7 @@
 // G005 放射RIS系统 - 国家数据上报页面 v1.0.0
 // Phase 5b: FHIR报告 · 多监管机构 · 预提交校验 · 审计追踪 · 计划报告
 import { useState, useEffect } from 'react'
-import { datareportApi, type NationalReportDto, type DataReportDto } from '../services/api/datareportApi'
+import { datareportApi, type NationalReportDto, type DataReportDto, type ExamStatisticsDto, type ReportLogDto, type MonthlyTrendDto } from '../services/api/datareportApi'
 import {
   BarChart3, PieChart as PieChartIcon, Activity, TrendingUp, TrendingDown,
   Upload, Download, FileText, CheckCircle, AlertTriangle, Clock, ShieldCheck,
@@ -1095,15 +1095,44 @@ export default function NationalReportPage() {
   const [submitSuccess, setSubmitSuccess] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [doseData, setDoseData] = useState<DoseReport[]>(doseReportData)
+  const [examStats, setExamStats] = useState<ExamStatistics[]>(examStatisticsData)
+  const [reportLogs, setReportLogs] = useState<ReportLog[]>(reportLogData)
+  const [monthlyTrends, setMonthlyTrends] = useState(monthlyTrendData)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      const [examRes, doseRes, logRes, trendRes] = await Promise.allSettled([
+        datareportApi.listExamStatistics(),
+        datareportApi.listNationalReports(),
+        datareportApi.listReportLogs(),
+        datareportApi.getMonthlyTrends(),
+      ])
+      if (cancelled) return
+      if (examRes.status === 'fulfilled' && examRes.value.success && Array.isArray(examRes.value.data)) {
+        setExamStats(examRes.value.data)
+      }
+      if (doseRes.status === 'fulfilled' && doseRes.value.success && Array.isArray(doseRes.value.data)) {
+        setDoseData(doseRes.value.data)
+      }
+      if (logRes.status === 'fulfilled' && logRes.value.success && Array.isArray(logRes.value.data)) {
+        setReportLogs(logRes.value.data)
+      }
+      if (trendRes.status === 'fulfilled' && trendRes.value.success && Array.isArray(trendRes.value.data)) {
+        setMonthlyTrends(trendRes.value.data)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [])
 
   // 统计数据
-  const totalExams = examStatisticsData.reduce((sum, item) => sum + item.examCount, 0)
-  const totalPositive = examStatisticsData.reduce((sum, item) => sum + item.positiveCount, 0)
-  const avgQualifiedRate = examStatisticsData.reduce((sum, item) => sum + item.qualifiedRate, 0) / examStatisticsData.length
+  const totalExams = examStats.reduce((sum, item) => sum + item.examCount, 0)
+  const totalPositive = examStats.reduce((sum, item) => sum + item.positiveCount, 0)
+  const avgQualifiedRate = examStats.length > 0 ? examStats.reduce((sum, item) => sum + item.qualifiedRate, 0) / examStats.length : 0
   const pendingReports = doseData.filter(d => d.status === '待上报').length
 
   // 筛选数据
-  const filteredExamData = examStatisticsData.filter(item =>
+  const filteredExamData = examStats.filter(item =>
     item.examType.includes(searchKeyword) || item.modality.includes(searchKeyword)
   )
 
@@ -1123,7 +1152,7 @@ export default function NationalReportPage() {
 
   const handleExport = (type: 'exam' | 'dose' | 'quality') => {
     if (type === 'exam') {
-      exportToCSV(examStatisticsData, 'exam_statistics.csv', ['ID', '设备类型', '检查项目', '检查数量', '阳性数', '阳性率', '平均报告时间', '合格率'])
+      exportToCSV(examStats, 'exam_statistics.csv', ['ID', '设备类型', '检查项目', '检查数量', '阳性数', '阳性率', '平均报告时间', '合格率'])
     } else if (type === 'dose') {
       exportToCSV(doseData, 'dose_report.csv', ['ID', '上报月份', '设备类型', '总检查数', '总DLP', '平均DLP', '总CTDI', '平均CTDI', '预警次数', '高剂量人数', '状态'])
     } else {
@@ -1220,10 +1249,10 @@ export default function NationalReportPage() {
           </div>
           <div style={styles.panelBody}>
             {[
-              { key: 'exam', label: '检查统计数据', icon: Scan, count: examStatisticsData.length },
+              { key: 'exam', label: '检查统计数据', icon: Scan, count: examStats.length },
               { key: 'dose', label: '辐射剂量数据', icon: Radio, count: doseData.length },
               { key: 'quality', label: '报告质量数据', icon: ShieldCheck, count: qualityReportData.length },
-              { key: 'log', label: '上报记录', icon: Clock, count: reportLogData.length },
+              { key: 'log', label: '上报记录', icon: Clock, count: reportLogs.length },
               { key: 'fhir', label: 'FHIR标准化', icon: FileJson, count: 3 },
               { key: 'regulator', label: '多监管机构', icon: Globe, count: regulatorTargets.length },
               { key: 'validation', label: '预提交验证', icon: CheckCircle, count: validationChecks.length },
@@ -1253,7 +1282,7 @@ export default function NationalReportPage() {
             <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px', color: COLORS.textDark }}>检查量趋势</div>
             <div style={styles.chartContainer}>
               <ResponsiveContainer width="100%" height={160}>
-                <LineChart data={monthlyTrendData}>
+                <LineChart data={monthlyTrends}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                   <YAxis tick={{ fontSize: 12 }} />
@@ -1420,7 +1449,7 @@ export default function NationalReportPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {reportLogData.map(item => (
+                  {reportLogs.map(item => (
                     <tr key={item.id}>
                       <td style={styles.td}>
                         <span style={{ padding: '3px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, backgroundColor: item.reportType === 'dose' ? '#fef3c7' : item.reportType === 'exam' ? '#dbeafe' : '#d1fae5', color: item.reportType === 'dose' ? '#d97706' : item.reportType === 'exam' ? '#2563eb' : '#16a34a' }}>
@@ -1516,7 +1545,7 @@ export default function NationalReportPage() {
             <Activity size={14} />
           </div>
           <div style={{ ...styles.panelBody, padding: '12px' }}>
-            {reportLogData.slice(0, 3).map(item => (
+            {reportLogs.slice(0, 3).map(item => (
               <div key={item.id} style={{ display: 'flex', gap: '10px', marginBottom: '12px', paddingBottom: '12px', borderBottom: '1px solid #f3f4f6' }}>
                 <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <FileText size={14} color={COLORS.primary} />
@@ -1558,7 +1587,7 @@ export default function NationalReportPage() {
         </div>
         <div style={{ padding: '16px' }}>
           <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={monthlyTrendData}>
+            <BarChart data={monthlyTrends}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis dataKey="month" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
@@ -1593,7 +1622,7 @@ export default function NationalReportPage() {
                 </div>
                 <div style={{ fontSize: '13px' }}>
                   <strong>上报内容：</strong>
-                  {submitType === 'exam' ? `${examStatisticsData.length} 条检查统计数据` :
+                  {submitType === 'exam' ? `${examStats.length} 条检查统计数据` :
                     submitType === 'dose' ? `${doseData.filter(d => d.reportMonth === selectedMonth).length} 条辐射剂量数据` :
                    `${qualityReportData.length} 条报告质量数据`}
                 </div>

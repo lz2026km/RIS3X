@@ -31,12 +31,6 @@ export const examApi = {
     return res
   },
 
-  updateStatus: async (id: string, status: string) => {
-    const res = await api.patch<ExamDto>(`/exams/${id}`, { state: status })
-    await invalidateApiCache(`/exams/${id}`)
-    return res
-  },
-
   checkIn: async (id: string) => {
     const res = await api.post<ExamDto>(`/worklist/${id}/checkin`)
     await invalidateApiCache(`/exams/${id}`)

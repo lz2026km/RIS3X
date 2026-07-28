@@ -239,7 +239,7 @@ const Dose: React.FC = () => {
           size="small"
           dataSource={filteredData}
           columns={columns}
-          pagination={{ pageSize: 8 }}
+          pagination={{ pageSize: 10 }}
           scroll={{ x: 1300 }}
           locale={{ emptyText: <Empty description="暂无剂量记录" /> }}
         />

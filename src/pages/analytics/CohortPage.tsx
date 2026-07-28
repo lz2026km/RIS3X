@@ -283,7 +283,7 @@ export default function CohortPage() {
               dataSource={cohorts}
               columns={columns}
               rowKey="id"
-              pagination={{ pageSize: 8, showTotal: t => `共 ${t} 个队列` }}
+              pagination={{ pageSize: 10, showTotal: t => `共 ${t} 个队列` }}
               size="small"
               locale={{ emptyText: <Empty description="暂无队列" /> }}
             />

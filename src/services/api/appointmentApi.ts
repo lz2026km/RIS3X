@@ -29,6 +29,66 @@ export interface AppointmentListParams {
   dateTo?: string
 }
 
+export interface WaitlistPatientDto {
+  id: string
+  patientName: string
+  phone: string
+  examItemName: string
+  modality: string
+  preferredDate: string
+  preferredTime: string
+  priority: string
+  addedAt: string
+  notified: boolean
+}
+
+export interface ReminderRecordDto {
+  id: string
+  patientName: string
+  phone: string
+  examType: string
+  examDate: string
+  examTime: string
+  reminderTime: string
+  channel: string
+  status: string
+  responseTime: string
+}
+
+export interface RescheduleRecordDto {
+  id: string
+  patientName: string
+  phone: string
+  examType: string
+  originalDate: string
+  originalTime: string
+  newDate: string
+  newTime: string
+  reason: string
+  operateTime: string
+}
+
+export interface CancellationRecordDto {
+  id: string
+  patientName: string
+  phone: string
+  examType: string
+  cancelTime: string
+  reason: string
+  rebooked: string
+}
+
+export interface AppointmentRulesDto {
+  deviceId: string
+  deviceName: string
+  maxDailyAppointments: number
+  maxPerTimeSlot: number
+  minAdvanceDays: number
+  maxAdvanceDays: number
+  noShowPenalty: number
+  enabled: boolean
+}
+
 export const appointmentApi = {
   list: (params?: AppointmentListParams) => {
     const query = new URLSearchParams()
@@ -53,4 +113,19 @@ export const appointmentApi = {
 
   cancel: (id: string) =>
     api.delete<void>(`/appointments/${id}`),
+
+  getRules: () =>
+    api.get<AppointmentRulesDto[]>('/appointments/rules'),
+
+  getWaitlist: () =>
+    api.get<WaitlistPatientDto[]>('/appointments/waitlist'),
+
+  getReminderRecords: () =>
+    api.get<ReminderRecordDto[]>('/appointments/reminders'),
+
+  getRescheduleRecords: () =>
+    api.get<RescheduleRecordDto[]>('/appointments/reschedules'),
+
+  getCancellationRecords: () =>
+    api.get<CancellationRecordDto[]>('/appointments/cancellations'),
 }

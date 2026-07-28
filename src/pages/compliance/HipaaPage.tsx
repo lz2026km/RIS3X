@@ -63,7 +63,7 @@ export default function HipaaPage() {
             {hipaa.recommendations.length > 0 && (
               <Alert type="info" message={hipaa.recommendations.map((r, i) => <div key={i}>• {r}</div>)} style={{ marginBottom: 16 }} />
             )}
-            <Table dataSource={hipaa.safeguards} rowKey="id" size="small" pagination={{ pageSize: 20 }} locale={{ emptyText: <Empty description="暂无 HIPAA 措施" /> }}
+            <Table dataSource={hipaa.safeguards} rowKey="id" size="small" pagination={{ pageSize: 10 }} locale={{ emptyText: <Empty description="暂无 HIPAA 措施" /> }}
               columns={[
                 { title: '措施', dataIndex: 'name', key: 'name', width: 200 },
                 { title: '规则', dataIndex: 'id', key: 'rule', width: 80, render: (v: string) => <Tag>{v.split('-')[0]}</Tag> },
@@ -95,7 +95,7 @@ export default function HipaaPage() {
         )},
           { key: 'iso', label: 'ISO 27001', children: (
             <div>
-              <Table dataSource={iso.controls} rowKey="id" size="small" pagination={{ pageSize: 20 }} locale={{ emptyText: <Empty description="暂无 ISO 控制" /> }}
+              <Table dataSource={iso.controls} rowKey="id" size="small" pagination={{ pageSize: 10 }} locale={{ emptyText: <Empty description="暂无 ISO 控制" /> }}
                 columns={[
                   { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
                   { title: '控制', dataIndex: 'control', key: 'control', width: 150 },

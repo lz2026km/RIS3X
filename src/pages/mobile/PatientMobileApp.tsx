@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { ChevronRight, Bell, BellOff, Phone, Lock, MessageSquare, Smartphone, CreditCard } from 'lucide-react'
 import { pushService } from '../../services/mobile/push/PushService'
 import { wechatPay } from '../../services/wechatPay'
+import { patientPortalApi, type PortalPatientDto, type PortalClinicalDataDto } from '../../services/api/patientPortalApi'
 
 // ===== Types =====
 export interface MobileUser {
@@ -32,20 +33,8 @@ export interface MobileNotification {
   time: string
 }
 
-// ===== Mock Data =====
-const MOCK_USER: MobileUser = { id: 'P001', name: '张三', avatar: '👤', verified: true, phone: '138****5678' }
-
-const MOCK_REPORTS: MobileReport[] = [
-  { id: 'R1', examType: '胸部CT平扫', examDate: '2025-05-01', status: 'ready', doctorName: '李明', hospitalName: '市人民医院', hasImages: true },
-  { id: 'R2', examType: '颅脑MRI平扫', examDate: '2025-04-15', status: 'ready', doctorName: '王芳', hospitalName: '市人民医院', hasImages: true },
-  { id: 'R3', examType: '腹部彩超', examDate: '2025-04-20', status: 'pending', hasImages: false },
-]
-
-const MOCK_NOTIFICATIONS: MobileNotification[] = [
-  { id: 'N1', title: '报告已出具', body: '您的胸部CT平扫报告已出具，点击查看', type: 'report', read: false, time: '2025-05-01 14:30' },
-  { id: 'N2', title: '预约提醒', body: '您有新的影像检查预约', type: 'appointment', read: false, time: '2025-04-28 09:00' },
-  { id: 'N3', title: '系统维护通知', body: '系统将于凌晨2:00-4:00进行维护', type: 'system', read: true, time: '2025-04-25 10:00' },
-]
+// ===== Mock Data Removed =====
+// Data now fetched from API via useEffect
 
 // ===== Styles =====
 const s = {
@@ -91,6 +80,68 @@ export default function PatientMobileApp() {
   const [payState, setPayState] = useState<'idle' | 'invoking' | 'success' | 'failed'>('idle')
   const [payError, setPayError] = useState<string | null>(null)
   const countdownRef = useRef<number | null>(null)
+
+  const [mobileUser, setMobileUser] = useState<MobileUser>({ id: 'P001', name: '加载中...', avatar: '👤', verified: false, phone: '' })
+  const [mobileReports, setMobileReports] = useState<MobileReport[]>([])
+  const [mobileNotifications, setMobileNotifications] = useState<MobileNotification[]>([])
+
+  useEffect(() => {
+    const fetchMobileData = async () => {
+      try {
+        const [userRes, reportsRes, notifRes] = await Promise.allSettled([
+          patientPortalApi.getPatientMobile(),
+          patientPortalApi.listClinicalData(),
+          patientPortalApi.listEducation(),
+        ])
+
+        if (userRes.status === 'fulfilled' && userRes.value.success) {
+          const data = userRes.value.data as PortalPatientDto[]
+          if (Array.isArray(data) && data.length > 0) {
+            const p = data[0]
+            setMobileUser({
+              id: p.id || 'P001',
+              name: p.name || '未知',
+              avatar: '👤',
+              verified: true,
+              phone: p.phone ? `${p.phone.slice(0, 3)}****${p.phone.slice(-4)}` : '***',
+            })
+          }
+        }
+
+        if (reportsRes.status === 'fulfilled' && reportsRes.value.success) {
+          const data = reportsRes.value.data as PortalClinicalDataDto[]
+          if (Array.isArray(data)) {
+            setMobileReports(data.map(d => ({
+              id: d.id,
+              examType: d.examType || '',
+              examDate: d.examDate || '',
+              status: d.reportStatus === '已完成' ? 'ready' as const : 'pending' as const,
+              doctorName: '',
+              hospitalName: '',
+              hasImages: true,
+            })))
+          }
+        }
+
+        if (notifRes.status === 'fulfilled' && notifRes.value.success) {
+          const data = notifRes.value.data as any[]
+          if (Array.isArray(data)) {
+            setMobileNotifications(data.map((n, i) => ({
+              id: n.id || `N${i + 1}`,
+              title: n.label || n.key || '通知',
+              body: n.value || '',
+              type: 'system' as const,
+              read: false,
+              time: new Date().toLocaleString('zh-CN'),
+            })))
+          }
+        }
+      } catch {
+        // Silent fail - default values will be shown
+      }
+    }
+    fetchMobileData()
+  }, [])
 
   useEffect(() => {
     if (pushService.permission === 'default') {
@@ -160,8 +211,8 @@ export default function PatientMobileApp() {
       outTradeNo: orderNo,
       totalFee,
       body: `检查报告 - ${report.examType}`,
-      openId: `mock-openid-${MOCK_USER.id}`,
-      patientId: MOCK_USER.id,
+      openId: `mock-openid-${mobileUser.id}`,
+      patientId: mobileUser.id,
       onSuccess: (res) => {
         setPayState('success')
         if (pushEnabled) {
@@ -197,8 +248,8 @@ export default function PatientMobileApp() {
       {/* Banner */}
       <div style={{ ...s.card, background: 'linear-gradient(135deg, #eff6ff, #dbeafe)', border: 'none' }}>
         <div style={{ fontSize: 12, color: '#1e40af', fontWeight: 600 }}>欢迎回来</div>
-        <div style={{ fontSize: 20, fontWeight: 700, color: '#1e3a5f', margin: '4px 0' }}>{MOCK_USER.name}</div>
-        <div style={{ fontSize: 12, color: '#64748b' }}>您有 {MOCK_REPORTS.filter(r => r.status === 'ready').length} 份新报告可查看</div>
+        <div style={{ fontSize: 20, fontWeight: 700, color: '#1e3a5f', margin: '4px 0' }}>{mobileUser.name}</div>
+        <div style={{ fontSize: 12, color: '#64748b' }}>您有 {mobileReports.filter(r => r.status === 'ready').length} 份新报告可查看</div>
       </div>
 
       {/* Quick Actions */}
@@ -222,7 +273,7 @@ export default function PatientMobileApp() {
           <div style={s.cardTitle}>最近报告</div>
           <span style={{ fontSize: 12, color: '#3b82f6', cursor: 'pointer' }} onClick={() => setActiveTab('reports')}>查看全部 →</span>
         </div>
-        {MOCK_REPORTS.slice(0, 2).map(r => (
+        {mobileReports.slice(0, 2).map(r => (
           <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f1f5f9', cursor: 'pointer' }}
             onClick={() => setSelectedReport(r)}>
             <div>
@@ -240,7 +291,7 @@ export default function PatientMobileApp() {
           <div style={s.cardTitle}>消息</div>
           <span style={{ fontSize: 12, color: '#3b82f6', cursor: 'pointer' }} onClick={() => setActiveTab('notifications')}>查看全部 →</span>
         </div>
-        {MOCK_NOTIFICATIONS.filter(n => !n.read).slice(0, 2).map(n => (
+        {mobileNotifications.filter(n => !n.read).slice(0, 2).map(n => (
           <div key={n.id} style={{ display: 'flex', gap: 10, padding: '8px 0', borderBottom: '1px solid #f1f5f9' }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#3b82f6', marginTop: 4, flexShrink: 0 }} />
             <div>
@@ -298,7 +349,7 @@ export default function PatientMobileApp() {
       ) : (
         <>
           <div style={s.cardTitle}>检查报告</div>
-          {MOCK_REPORTS.map(r => (
+          {mobileReports.map(r => (
             <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #f1f5f9', cursor: 'pointer' }} onClick={() => setSelectedReport(r)}>
               <div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{r.examType}</div>
@@ -318,7 +369,7 @@ export default function PatientMobileApp() {
   const renderNotifications = () => (
     <div style={s.card}>
       <div style={s.cardTitle}>消息中心</div>
-      {MOCK_NOTIFICATIONS.map(n => (
+      {mobileNotifications.map(n => (
         <div key={n.id} style={{ display: 'flex', gap: 10, padding: '10px 0', borderBottom: '1px solid #f1f5f9' }}>
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: n.read ? '#e2e8f0' : '#3b82f6', marginTop: 5, flexShrink: 0 }} />
           <div style={{ flex: 1 }}>
@@ -335,10 +386,10 @@ export default function PatientMobileApp() {
     <div>
       <div style={s.card}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-          <div style={{ ...s.avatar, width: 56, height: 56, fontSize: 24, background: '#dbeafe' }}>{MOCK_USER.avatar}</div>
+          <div style={{ ...s.avatar, width: 56, height: 56, fontSize: 24, background: '#dbeafe' }}>{mobileUser.avatar}</div>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{MOCK_USER.name}</div>
-            <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{MOCK_USER.phone}</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{mobileUser.name}</div>
+            <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{mobileUser.phone}</div>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -455,7 +506,7 @@ export default function PatientMobileApp() {
           <div style={s.userRow}>
             <div style={s.avatar}>👤</div>
             <div>
-              <div style={s.userName}>{MOCK_USER.name}</div>
+              <div style={s.userName}>{mobileUser.name}</div>
               <span style={s.verifiedBadge}>✓ 已认证</span>
             </div>
           </div>

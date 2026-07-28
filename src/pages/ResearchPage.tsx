@@ -13,6 +13,7 @@ import {
   GripVertical, Layers, BookOpen, FileSignature, UserCheck, ClipboardList,
   PieChart as PieChartIcon, Target, Sigma
 } from 'lucide-react'
+import { researchApi, type ResearchProjectDto, type ExamRecordDto, type ResearchLabelDto, type ExportRecordDto, type IRBSubmissionDto, type CohortDefinitionDto, type ExportAuditDto, type DataQualityScoreDto } from '../services/api/researchApi'
 
 // ==================== 类型定义 ====================
 type TabKey = 'projects' | 'extract' | 'labels' | 'export' | 'deid' | 'cohort' | 'irb' | 'exportPipeline' | 'dataQuality'
@@ -79,80 +80,7 @@ interface ExtractFilter {
   result: ResultType | ''
 }
 
-// ==================== 虚构数据 ====================
-const mockProjects: Project[] = [
-  { id: 'P001', code: 'RC-2024-001', name: '肺癌早筛多中心研究', leader: '张明远', startDate: '2024-01-15', status: '进行中', dataCount: 1250, description: '基于低剂量CT的肺癌早期筛查多中心临床研究', members: ['张明远', '李建国', '王秀英', '陈晓东'] },
-  { id: 'P002', code: 'RC-2024-002', name: '阿尔茨海默病MRI影像标志物研究', leader: '刘文彬', startDate: '2024-03-20', status: '进行中', dataCount: 680, description: '利用多模态MRI技术探索阿尔茨海默病早期影像生物标志物', members: ['刘文彬', '赵德明', '孙丽华'] },
-  { id: 'P003', code: 'RC-2023-015', name: '心血管CT-FFR应用研究', leader: '李建国', startDate: '2023-06-10', status: '已完成', dataCount: 450, description: 'CT血流储备分数(CFFR)在冠心病诊断中的应用价值评估', members: ['李建国', '张明远', '王强'] },
-  { id: 'P004', code: 'RC-2023-008', name: '脑卒中溶栓时间窗影像评估', leader: '陈晓东', startDate: '2023-09-01', status: '已归档', dataCount: 890, description: '急性脑卒中患者CT影像与溶栓疗效相关性研究', members: ['陈晓东', '刘文彬', '周伟'] },
-  { id: 'P005', code: 'RC-2024-005', name: '骨质疏松X光筛查标准制定', leader: '王秀英', startDate: '2024-06-01', status: '进行中', dataCount: 320, description: '基于双能X射线吸收法的骨质疏松自动化筛查方案研究', members: ['王秀英', '李梅', '张明远'] },
-]
-
-const mockExamRecords: ExamRecord[] = [
-  { id: 'E001', patientId: 'P10001', patientName: '王建国', age: 58, gender: '男', examType: 'CT', examDate: '2024-11-15', diagnosis: '右肺上叶结节', result: '阳性', idCard: '110101195806121234', phone: '13812345678', address: '北京市朝阳区建国路88号', modality: 'CT-01' },
-  { id: 'E002', patientId: 'P10002', patientName: '李淑芬', age: 45, gender: '女', examType: 'MR', examDate: '2024-11-14', diagnosis: '颅内未见明显异常', result: '阴性', idCard: '110102197904032345', phone: '13923456789', address: '北京市海淀区中关村大街1号', modality: 'MR-01' },
-  { id: 'E003', patientId: 'P10003', patientName: '张伟', age: 67, gender: '男', examType: 'CT', examDate: '2024-11-13', diagnosis: '左肺下叶磨玻璃密度影', result: '阳性', idCard: '110103195712151234', phone: '13734567890', address: '北京市西城区金融街8号', modality: 'CT-02' },
-  { id: 'E004', patientId: 'P10004', patientName: '刘艳', age: 52, gender: '女', examType: 'DXR', examDate: '2024-11-12', diagnosis: '胸椎骨质未见明显异常', result: '阴性', idCard: '110104197305061234', phone: '13645678901', address: '北京市东城区王府井大街66号', modality: 'DXR-01' },
-  { id: 'E005', patientId: 'P10005', patientName: '陈永强', age: 73, gender: '男', examType: 'MR', examDate: '2024-11-11', diagnosis: '双侧海马萎缩', result: '阳性', idCard: '110105195108231234', phone: '13556789012', address: '北京市石景山区古城路28号', modality: 'MR-02' },
-  { id: 'E006', patientId: 'P10006', patientName: '赵敏', age: 38, gender: '女', examType: 'US', examDate: '2024-11-10', diagnosis: '甲状腺右侧叶实性结节', result: '阳性', idCard: '110106198708151234', phone: '13467890123', address: '北京市丰台区西三环南路14号', modality: 'US-01' },
-  { id: 'E007', patientId: 'P10007', patientName: '孙国庆', age: 61, gender: '男', examType: 'CT', examDate: '2024-11-09', diagnosis: '冠脉钙化积分显著增高', result: '阳性', idCard: '110107196402101234', phone: '13378901234', address: '北京市房山区良乡拱辰大街1号', modality: 'CT-01' },
-  { id: 'E008', patientId: 'P10008', patientName: '周莉', age: 55, gender: '女', examType: 'MG', examDate: '2024-11-08', diagnosis: '右乳外上象限簇状钙化', result: '阳性', idCard: '110108197005032345', phone: '13289012345', address: '北京市通州区新华大街158号', modality: 'MG-01' },
-  { id: 'E009', patientId: 'P10009', patientName: '吴磊', age: 42, gender: '男', examType: 'MR', examDate: '2024-11-07', diagnosis: '腰椎间盘突出(L4-L5)', result: '阳性', idCard: '110109198306201234', phone: '13190123456', address: '北京市顺义区新顺南大街18号', modality: 'MR-01' },
-  { id: 'E010', patientId: 'P10010', patientName: '郑华', age: 49, gender: '女', examType: 'CT', examDate: '2024-11-06', diagnosis: '腹部CT平扫未见明显异常', result: '阴性', idCard: '110111197608141234', phone: '13091234567', address: '北京市昌平区东小口镇政府街5号', modality: 'CT-03' },
-]
-
-const mockLabels: Label[] = [
-  { id: 'L001', name: '肺结节', type: '诊断', color: '#ef4444', useCount: 456 },
-  { id: 'L002', name: '磨玻璃密度影', type: '诊断', color: '#f97316', useCount: 234 },
-  { id: 'L003', name: '冠状动脉钙化', type: '诊断', color: '#eab308', useCount: 189 },
-  { id: 'L004', name: '脑萎缩', type: '诊断', color: '#22c55e', useCount: 156 },
-  { id: 'L005', name: '肺叶', type: '部位', color: '#3b82f6', useCount: 678 },
-  { id: 'L006', name: '海马区', type: '部位', color: '#8b5cf6', useCount: 123 },
-  { id: 'L007', name: '腰椎', type: '部位', color: '#06b6d4', useCount: 267 },
-  { id: 'L008', name: '钙化灶', type: '特征', color: '#ec4899', useCount: 345 },
-  { id: 'L009', name: '肿大淋巴结', type: '特征', color: '#14b8a6', useCount: 178 },
-  { id: 'L010', name: '胸腔积液', type: '特征', color: '#f43f5e', useCount: 145 },
-]
-
-const mockExportRecords: ExportRecord[] = [
-  { id: 'EX001', projectId: 'P001', projectName: '肺癌早筛多中心研究', format: 'CSV', exportTime: '2024-11-15 14:30:25', recordCount: 320, downloadUrl: '/exports/RC-2024-001_20241115.csv', operator: '张明远' },
-  { id: 'EX002', projectId: 'P001', projectName: '肺癌早筛多中心研究', format: 'JSON', exportTime: '2024-11-14 10:15:00', recordCount: 150, downloadUrl: '/exports/RC-2024-001_20241114.json', operator: '李建国' },
-  { id: 'EX003', projectId: 'P002', projectName: '阿尔茨海默病MRI影像标志物研究', format: 'DICOM', exportTime: '2024-11-13 16:45:30', recordCount: 85, downloadUrl: '/exports/RC-2024-002_20241113.zip', operator: '刘文彬' },
-  { id: 'EX004', projectId: 'P003', projectName: '心血管CT-FFR应用研究', format: 'CSV', exportTime: '2024-11-12 09:20:10', recordCount: 450, downloadUrl: '/exports/RC-2023-015_20241112.csv', operator: '李建国' },
-  { id: 'EX005', projectId: 'P005', projectName: '骨质疏松X光筛查标准制定', format: 'JSON', exportTime: '2024-11-11 11:00:45', recordCount: 120, downloadUrl: '/exports/RC-2024-005_20241111.json', operator: '王秀英' },
-]
-
-// ==================== 新增模拟数据 ====================
-const mockIRBSubmissions = [
-  { id: 'IRB001', projectName: '肺癌早筛多中心研究', pi: '张明远', submittedDate: '2024-06-01', status: 'approved', approvedDate: '2024-07-15', expiryDate: '2025-07-15', consentForm: '知情同意书_v2.pdf' },
-  { id: 'IRB002', projectName: '阿尔茨海默病MRI研究', pi: '刘文彬', submittedDate: '2024-05-20', status: 'submitted', approvedDate: '', expiryDate: '', consentForm: '知情同意书_v1.pdf' },
-  { id: 'IRB003', projectName: '心血管CT-FFR研究', pi: '李建国', submittedDate: '2023-05-10', status: 'approved', approvedDate: '2023-06-20', expiryDate: '2024-06-20', consentForm: '知情同意书_v1.pdf' },
-  { id: 'IRB004', projectName: '骨质疏松筛查研究', pi: '王秀英', submittedDate: '2024-07-01', status: 'draft', approvedDate: '', expiryDate: '', consentForm: '' },
-]
-
-const mockCohortDefinitions = [
-  { id: 'C001', name: '肺癌高风险人群', criteria: '年龄>50 AND 吸烟史', estimatedSize: 1250, createdBy: '张明远', createdDate: '2024-06-15', lastRun: '2024-11-01' },
-  { id: 'C002', name: '阿尔茨海默病早期', criteria: '年龄60-80 AND MMSE<24', estimatedSize: 680, createdBy: '刘文彬', createdDate: '2024-07-10', lastRun: '2024-10-20' },
-  { id: 'C003', name: '冠心病高危人群', criteria: '钙化积分>100 AND 年龄>45', estimatedSize: 450, createdBy: '李建国', createdDate: '2024-04-05', lastRun: '2024-09-15' },
-]
-
-const mockExportAudit = [
-  { id: 'EA001', exportId: 'EX001', requester: '张明远', approvedBy: '管理员', exportTime: '2024-11-15 14:30', records: 320, purpose: '统计分析', status: '已批准' },
-  { id: 'EA002', exportId: 'EX003', requester: '刘文彬', approvedBy: '管理员', exportTime: '2024-11-13 16:45', records: 85, purpose: '外部协作', status: '已批准' },
-]
-
-const mockQualityScores = [
-  { field: '患者姓名', completeness: 100, consistency: 100, freshness: '实时', suggestion: '' },
-  { field: '身份证号', completeness: 95, consistency: 98, freshness: '实时', suggestion: '缺失5%的记录需要补充' },
-  { field: '诊断编码', completeness: 88, consistency: 92, freshness: 'T+1', suggestion: '建议增加ICD编码自动映射' },
-  { field: '检查类型', completeness: 100, consistency: 100, freshness: '实时', suggestion: '' },
-  { field: '检查日期', completeness: 100, consistency: 100, freshness: '实时', suggestion: '' },
-  { field: '报告医生', completeness: 100, consistency: 100, freshness: '实时', suggestion: '' },
-  { field: '影像序列', completeness: 82, consistency: 86, freshness: 'T+1', suggestion: '部分序列标签缺失，建议校验' },
-  { field: '辐射剂量', completeness: 76, consistency: 80, freshness: 'T+1', suggestion: '约24%的记录剂量信息不完整' },
-  { field: '过敏史', completeness: 65, consistency: 72, freshness: '手动', suggestion: '建议与EMR系统对接自动获取' },
-  { field: '随访记录', completeness: 58, consistency: 60, freshness: '手动', suggestion: '随访率偏低，建议建立自动提醒机制' },
-]
+// ==================== Mock data removed - fetched from API ====================
 
 // ==================== 样式常量 ====================
 const COLORS = {
@@ -280,15 +208,33 @@ function Modal({ open, onClose, title, children, width = 600 }: ModalProps) {
 
 // ==================== 课题管理Tab ====================
 function ProjectsTab() {
-  const [projects, setProjects] = useState<Project[]>(mockProjects)
+  const [projects, setProjects] = useState<Project[]>([])
+  const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [showDetailModal, setShowDetailModal] = useState(false)
   const [detailProject, setDetailProject] = useState<Project | null>(null)
   const [newProject, setNewProject] = useState<Partial<Project>>({ code: '', name: '', leader: '', startDate: '', description: '', members: [] })
-  const handleCreateProject = () => {
-    const project: Project = { id: 'P' + String(Date.now()).slice(-3), code: newProject.code || '', name: newProject.name || '', leader: newProject.leader || '', startDate: newProject.startDate || new Date().toISOString().split('T')[0], status: '进行中', dataCount: 0, description: newProject.description || '', members: newProject.members || [] }
-    setProjects([...projects, project]); setShowModal(false); setNewProject({ code: '', name: '', leader: '', startDate: '', description: '', members: [] })
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await researchApi.listProjects()
+        if (res.success && Array.isArray(res.data)) setProjects(res.data as Project[])
+      } catch { /* use empty state */ }
+      finally { setLoading(false) }
+    })()
+  }, [])
+
+  const handleCreateProject = async () => {
+    try {
+      const res = await researchApi.createProject(newProject as Partial<ResearchProjectDto>)
+      if (res.success && res.data) {
+        setProjects(prev => [...prev, res.data as Project])
+      }
+    } catch { /* fallback */ }
+    setShowModal(false)
+    setNewProject({ code: '', name: '', leader: '', startDate: '', description: '', members: [] })
   }
   const handleShowDetail = (project: Project) => { setDetailProject(project); setShowDetailModal(true) }
   return (
@@ -366,6 +312,8 @@ function ProjectsTab() {
 // ==================== 数据抽取Tab ====================
 function ExtractTab() {
   const { showToast, ToastContainer } = useToast()
+  const [examRecords, setExamRecords] = useState<ExamRecord[]>([])
+  const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<ExtractFilter>({ examTypes: [], startDate: '', endDate: '', minAge: 0, maxAge: 100, keyword: '', result: '' })
   const [showDesensitization, setShowDesensitization] = useState(true)
   const [selectedExamTypes, setSelectedExamTypes] = useState<ExamType[]>([])
@@ -374,11 +322,21 @@ function ExtractTab() {
   const extractIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const extractMountedRef = useRef(true)
   useEffect(() => { extractMountedRef.current = true; return () => { extractMountedRef.current = false; if (extractIntervalRef.current) clearInterval(extractIntervalRef.current) } }, [])
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await researchApi.listExamRecords()
+        if (res.success && Array.isArray(res.data)) setExamRecords(res.data as ExamRecord[])
+      } catch { /* use empty state */ }
+      finally { setLoading(false) }
+    })()
+  }, [])
   const examTypeOptions: ExamType[] = ['CT', 'MR', 'DXR', 'US', 'MG', 'PET', 'SPECT']
   const toggleExamType = (type: ExamType) => { setSelectedExamTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]) }
   const handleExtract = () => {
     setShowExtractModal(true); setExtractProgress(0)
-    extractIntervalRef.current = setInterval(() => { setExtractProgress(prev => { if (prev >= 100) { if (extractIntervalRef.current) clearInterval(extractIntervalRef.current); extractIntervalRef.current = null; setTimeout(() => { if (extractMountedRef.current) { setShowExtractModal(false); showToast(`数据抽取完成，共处理 ${mockExamRecords.length} 条记录`, 'success') } }, 500); return 100 }; return prev + Math.floor(Math.random() * 15) + 5 }) }, 300)
+    extractIntervalRef.current = setInterval(() => { setExtractProgress(prev => { if (prev >= 100) { if (extractIntervalRef.current) clearInterval(extractIntervalRef.current); extractIntervalRef.current = null; setTimeout(() => { if (extractMountedRef.current) { setShowExtractModal(false); showToast(`数据抽取完成，共处理 ${examRecords.length} 条记录`, 'success') } }, 500); return 100 }; return prev + Math.floor(Math.random() * 15) + 5 }) }, 300)
   }
   return (
     <div>
@@ -407,7 +365,7 @@ function ExtractTab() {
               <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: COLORS.textSecondary }}>结果</th>
               {showDesensitization && <><th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: COLORS.textSecondary }}>身份证号</th><th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: COLORS.textSecondary }}>手机号</th><th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: COLORS.textSecondary }}>地址</th></>}
             </tr></thead>
-            <tbody>{mockExamRecords.map((record, idx) => (
+            <tbody>{examRecords.map((record, idx) => (
               <tr key={record.id} style={{ background: idx % 2 === 0 ? COLORS.bgWhite : COLORS.bgGray, borderTop: '1px solid ' + COLORS.border }}>
                 <td style={{ padding: '10px 12px', color: COLORS.textSecondary }}>{record.patientId}</td>
                 <td style={{ padding: '10px 12px', fontWeight: 600, color: showDesensitization ? COLORS.textSecondary : COLORS.textPrimary }}>{showDesensitization ? maskName(record.patientName) : record.patientName}</td>
@@ -438,15 +396,32 @@ function ExtractTab() {
 
 // ==================== 数据标签化管理Tab ====================
 function LabelsTab() {
-  const [labels, setLabels] = useState<Label[]>(mockLabels)
+  const [labels, setLabels] = useState<Label[]>([])
+  const [loading, setLoading] = useState(true)
   const [showAddModal, setShowAddModal] = useState(false)
   const [newLabel, setNewLabel] = useState<Partial<Label>>({ name: '', type: '诊断', color: '#3b82f6' })
   const [searchKeyword, setSearchKeyword] = useState('')
   const [filterType, setFilterType] = useState<LabelType | ''>('')
-  const handleAddLabel = () => {
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await researchApi.listLabels()
+        if (res.success && Array.isArray(res.data)) setLabels(res.data as Label[])
+      } catch { /* use empty state */ }
+      finally { setLoading(false) }
+    })()
+  }, [])
+
+  const handleAddLabel = async () => {
     if (!newLabel.name) return
-    const label: Label = { id: 'L' + String(Date.now()).slice(-3), name: newLabel.name || '', type: newLabel.type || '诊断', color: newLabel.color || '#3b82f6', useCount: 0 }
-    setLabels([...labels, label]); setShowAddModal(false); setNewLabel({ name: '', type: '诊断', color: '#3b82f6' })
+    try {
+      const res = await researchApi.createLabel(newLabel as Partial<ResearchLabelDto>)
+      if (res.success && res.data) {
+        setLabels(prev => [...prev, res.data as Label])
+      }
+    } catch { /* fallback */ }
+    setShowAddModal(false); setNewLabel({ name: '', type: '诊断', color: '#3b82f6' })
   }
   const filteredLabels = labels.filter(label => { const matchKeyword = label.name.toLowerCase().includes(searchKeyword.toLowerCase()); const matchType = !filterType || label.type === filterType; return matchKeyword && matchType })
   return (
@@ -491,8 +466,19 @@ function LabelsTab() {
 // ==================== 导出管理Tab ====================
 function ExportTab() {
   const { showToast, ToastContainer } = useToast()
-  const [exports, setExports] = useState<ExportRecord[]>(mockExportRecords)
+  const [exports, setExports] = useState<ExportRecord[]>([])
+  const [loading, setLoading] = useState(true)
   const [showPermissionModal, setShowPermissionModal] = useState(false)
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await researchApi.listExportRecords()
+        if (res.success && Array.isArray(res.data)) setExports(res.data as ExportRecord[])
+      } catch { /* use empty state */ }
+      finally { setLoading(false) }
+    })()
+  }, [])
   const [exportPermissions, setExportPermissions] = useState({ allowCsv: true, allowJson: true, allowDicom: false, maxRecordsPerExport: 1000, requireApproval: true })
   const handleDownload = (record: ExportRecord) => { showToast(`开始下载: ${record.downloadUrl}`, 'info') }
   return (
@@ -606,7 +592,16 @@ function CohortBuilderTab() {
   const [cohortName, setCohortName] = useState('')
   const [estimatedSize, setEstimatedSize] = useState(0)
   const [showSaveDialog, setShowSaveDialog] = useState(false)
-  const [savedCohorts, setSavedCohorts] = useState(mockCohortDefinitions)
+  const [savedCohorts, setSavedCohorts] = useState<CohortDefinition[]>([])
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await researchApi.listCohorts()
+        if (res.success && Array.isArray(res.data)) setSavedCohorts(res.data as CohortDefinition[])
+      } catch { /* use empty state */ }
+    })()
+  }, [])
 
   const addCriterion = () => { setCriteria([...criteria, { field: 'age', operator: '>=', value: '', logic: 'AND' }]) }
   const removeCriterion = (idx: any) => { setCriteria(criteria.filter((_: any, i: any) => i !== idx)) }
@@ -679,8 +674,19 @@ function CohortBuilderTab() {
 // ==================== 新增: IRB工作流 ====================
 function IRBWorkflowTab() {
   const { showToast, ToastContainer } = useToast()
-  const [submissions, setSubmissions] = useState(mockIRBSubmissions)
+  const [submissions, setSubmissions] = useState<IRBSubmission[]>([])
+  const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await researchApi.listIRBSubmissions()
+        if (res.success && Array.isArray(res.data)) setSubmissions(res.data as IRBSubmission[])
+      } catch { /* use empty state */ }
+      finally { setLoading(false) }
+    })()
+  }, [])
   const [form, setForm] = useState({ projectName: '', pi: '', consentForm: '' })
   const submitIRB = () => {
     setSubmissions([...submissions, { id: `IRB${Date.now()}`, projectName: form.projectName, pi: form.pi, submittedDate: new Date().toISOString().split('T')[0], status: 'draft', approvedDate: '', expiryDate: '', consentForm: form.consentForm }])
@@ -742,12 +748,23 @@ function ExportPipelineTab() {
   const [exportFormat, setExportFormat] = useState('CSV')
   const [deidentify, setDeidentify] = useState(true)
   const [includeDict, setIncludeDict] = useState(true)
-  const [auditLog] = useState(mockExportAudit)
+  const [auditLog, setAuditLog] = useState<ExportAudit[]>([])
+  const [loading, setLoading] = useState(true)
   const [showProgress, setShowProgress] = useState(false)
   const [progress, setProgress] = useState(0)
   const exportIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const exportMountedRef = useRef(true)
   useEffect(() => { exportMountedRef.current = true; return () => { exportMountedRef.current = false; if (exportIntervalRef.current) clearInterval(exportIntervalRef.current) } }, [])
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await researchApi.listExportAudit()
+        if (res.success && Array.isArray(res.data)) setAuditLog(res.data as ExportAudit[])
+      } catch { /* use empty state */ }
+      finally { setLoading(false) }
+    })()
+  }, [])
 
   const runExport = () => {
     setShowProgress(true); setProgress(0)
@@ -806,9 +823,21 @@ function ExportPipelineTab() {
 
 // ==================== 新增: 数据质量看板 ====================
 function DataQualityTab() {
-  const [scores] = useState(mockQualityScores)
-  const overallCompleteness = Math.round(scores.reduce((s, f) => s + f.completeness, 0) / scores.length)
-  const overallConsistency = Math.round(scores.reduce((s, f) => s + f.consistency, 0) / scores.length)
+  const [scores, setScores] = useState<DataQualityScore[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await researchApi.listQualityScores()
+        if (res.success && Array.isArray(res.data)) setScores(res.data as DataQualityScore[])
+      } catch { /* use empty state */ }
+      finally { setLoading(false) }
+    })()
+  }, [])
+
+  const overallCompleteness = scores.length > 0 ? Math.round(scores.reduce((s, f) => s + f.completeness, 0) / scores.length) : 0
+  const overallConsistency = scores.length > 0 ? Math.round(scores.reduce((s, f) => s + f.consistency, 0) / scores.length) : 0
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>

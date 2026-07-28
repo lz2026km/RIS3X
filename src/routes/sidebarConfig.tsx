@@ -650,6 +650,18 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.aiRadsScoring",
         roles: ["医生", "主任", "技师", "管理员",],
       },
+      {
+        path: "/ai/review",
+        icon: <Shield size={18} />,
+        labelKey: "nav.aiReview",
+        roles: ["医生", "主任", "管理员",],
+      },
+      {
+        path: "/ai/providers",
+        icon: <Cpu size={18} />,
+        labelKey: "nav.aiProviders",
+        roles: ["管理员",],
+      },
       // [Sprint 4] F13 AI Marketplace
       {
         path: "/ai-marketplace",
@@ -834,6 +846,18 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/fhir/observation",
         icon: <Activity size={18} />,
         labelKey: "nav.fhirObservation",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      {
+        path: "/fhir/diagnostic-report",
+        icon: <FileText size={18} />,
+        labelKey: "nav.fhirDiagnosticReport",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      {
+        path: "/fhir/imaging-study",
+        icon: <Layers size={18} />,
+        labelKey: "nav.fhirImagingStudy",
         roles: ["医生", "技师", "主任", "管理员"],
       },
       {

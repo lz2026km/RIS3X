@@ -77,7 +77,7 @@ export default function AuditLogViewer() {
         </Select>
         <Text type="secondary">共 {filtered.length} 条</Text>
       </Space>
-      <Table dataSource={filtered} columns={columns} rowKey="id" size="small" pagination={{ pageSize: 25, showSizeChanger: true }} locale={{ emptyText: <Empty description="无匹配日志" /> }} />
+      <Table dataSource={filtered} columns={columns} rowKey="id" size="small" pagination={{ pageSize: 10, showSizeChanger: true }} locale={{ emptyText: <Empty description="无匹配日志" /> }} />
     </Card>
   )
 }

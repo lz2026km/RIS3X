@@ -70,6 +70,7 @@ import { SmartRouteModule } from './modules/smart-route/smart-route.module'
 import { Hl7SiuModule } from './modules/hl7-siu/hl7-siu.module'
 import { RadiomicsModule } from './modules/radiomics/radiomics.module'
 import { WorklistSmartModule } from './modules/worklist-smart/worklist-smart.module'
+import { WorklistModule } from './modules/worklist/worklist.module'
 import { TriageModule } from './modules/triage/triage.module'
 import { TeachModule } from './modules/teach/teach.module'
 import { OeeModule } from './modules/oee/oee.module'
@@ -186,6 +187,7 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter'
      RadiomicsModule,
      OrchestratorModule,
      WorklistSmartModule,
+     WorklistModule,
      DicomSrModule,
   ],
   controllers: [HealthController],

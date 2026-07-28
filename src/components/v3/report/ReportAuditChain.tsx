@@ -278,7 +278,7 @@ export const ReportAuditChain: React.FC<ReportAuditChainProps> = ({ events, onEx
           size="small"
           dataSource={filtered}
           rowKey="id"
-          pagination={{ pageSize: 20 }}
+          pagination={{ pageSize: 10 }}
           data-testid="audit-table"
           columns={[
             {

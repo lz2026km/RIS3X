@@ -250,7 +250,7 @@ const SmartWorklist: React.FC = () => {
           size="small"
           dataSource={filtered}
           columns={columns}
-          pagination={{ pageSize: 8 }}
+          pagination={{ pageSize: 10 }}
           scroll={{ x: 1000 }}
           locale={{ emptyText: <Empty description="暂无工作列表" /> }}
         />

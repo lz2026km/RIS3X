@@ -10,7 +10,7 @@ import {
   Lightbulb, Languages, FileSearch, Move, Target
 } from 'lucide-react'
 import { initialTermLibrary } from '../data/initialData'
-import { termApi } from '../services/api'
+import { termApi, type TermSuggestionDto, type SynonymRelationDto, type TranslationDto, type ExtractedTermDto, type CategoryTreeNodeDto } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 
 // ============ 类型定义 ============
@@ -153,63 +153,6 @@ const INIT_CATEGORIES: TermCategory[] = [
   { id: 'CAT-MG', name: 'MG', modality: 'MG', count: 0, color: '#ec4899' },
 ]
 
-const mockSuggestions: TermSuggestion[] = [
-  { term: '未见明显异常密度影', frequency: 3450, modality: 'CT', category: 'CT描述', context: '颅脑' },
-  { term: '双肺纹理清晰', frequency: 2890, modality: 'DR', category: 'DR描述', context: '胸部' },
-  { term: '脑实质密度均匀', frequency: 2100, modality: 'CT', category: 'CT描述', context: '颅脑' },
-  { term: '椎间盘轻度突出', frequency: 1560, modality: 'MR', category: 'MR描述', context: '脊柱' },
-  { term: '形态、信号正常', frequency: 1340, modality: 'MR', category: 'MR描述', context: '全身' },
-  { term: '未见骨折及骨破坏', frequency: 980, modality: 'DR', category: 'DR描述', context: '四肢' },
-]
-
-const mockSynonymRelations: SynonymRelation[] = [
-  { id: 'SR-1', from: '脑梗死', to: '脑梗塞', type: 'synonym', weight: 1.0 },
-  { id: 'SR-2', from: '脑梗死', to: '缺血性脑卒中', type: 'synonym', weight: 0.9 },
-  { id: 'SR-3', from: '脑梗死', to: '脑血管病', type: 'broader', weight: 0.7 },
-  { id: 'SR-4', from: '脑梗死', to: '腔隙性脑梗死', type: 'narrower', weight: 0.8 },
-  { id: 'SR-5', from: '肺结节', to: '肺部小结节', type: 'synonym', weight: 0.95 },
-  { id: 'SR-6', from: '肺结节', to: '肺占位', type: 'related', weight: 0.6 },
-  { id: 'SR-7', from: '肺结节', to: '肺部病变', type: 'broader', weight: 0.7 },
-  { id: 'SR-8', from: '骨折', to: '骨皮质断裂', type: 'synonym', weight: 0.85 },
-  { id: 'SR-9', from: '骨折', to: '骨损伤', type: 'broader', weight: 0.75 },
-  { id: 'SR-10', from: '骨折', to: '病理性骨折', type: 'narrower', weight: 0.7 },
-]
-
-const mockTranslations: LanguageEntry[] = [
-  { termId: 'TERM001', zh: '未见明显异常', en: 'No significant abnormality', ja: '明らかな異常なし', accuracy: 0.98 },
-  { termId: 'TERM002', zh: '脑梗死', en: 'Cerebral infarction', ja: '脳梗塞', accuracy: 0.99 },
-  { termId: 'TERM003', zh: '肺结节', en: 'Pulmonary nodule', ja: '肺結節', accuracy: 0.97 },
-  { termId: 'TERM004', zh: '骨折', en: 'Fracture', ja: '骨折', accuracy: 0.99 },
-  { termId: 'TERM005', zh: '椎间盘突出', en: 'Disc herniation', ja: '椎間板ヘルニア', accuracy: 0.96 },
-]
-
-const mockExtractedTerms: ExtractedTerm[] = [
-  { id: 'ET-1', term: '肺纹理增多增粗', frequency: 234, source: 'DR报告分析', status: 'pending', suggestedCategory: 'DR描述' },
-  { id: 'ET-2', term: '脑白质变性', frequency: 189, source: 'MR报告分析', status: 'pending', suggestedCategory: 'MR描述' },
-  { id: 'ET-3', term: '主动脉壁钙化', frequency: 156, source: 'CT报告分析', status: 'pending', suggestedCategory: 'CT描述' },
-  { id: 'ET-4', term: '关节间隙狭窄', frequency: 123, source: 'DR报告分析', status: 'pending', suggestedCategory: 'DR描述' },
-  { id: 'ET-5', term: '肾脏囊肿', frequency: 98, source: 'CT报告分析', status: 'pending', suggestedCategory: 'CT描述' },
-]
-
-const mockCategoryTree: CategoryTreeNode[] = [
-  {
-    id: 'CTREE-1', name: 'CT类', count: 120, color: '#3b82f6', children: [
-      { id: 'CTREE-1-1', name: 'CT-颅脑', count: 35, color: '#60a5fa', children: [] },
-      { id: 'CTREE-1-2', name: 'CT-胸部', count: 28, color: '#93c5fd', children: [] },
-      { id: 'CTREE-1-3', name: 'CT-腹部', count: 32, color: '#2563eb', children: [] },
-    ],
-  },
-  { id: 'CTREE-2', name: 'MR类', count: 95, color: '#8b5cf6', children: [
-    { id: 'CTREE-2-1', name: 'MR-颅脑', count: 30, color: '#a78bfa', children: [] },
-    { id: 'CTREE-2-2', name: 'MR-脊柱', count: 25, color: '#c4b5fd', children: [] },
-    { id: 'CTREE-2-3', name: 'MR-关节', count: 22, color: '#7c3aed', children: [] },
-  ]},
-  { id: 'CTREE-3', name: 'DR/X线类', count: 80, color: '#10b981', children: [
-    { id: 'CTREE-3-1', name: 'DR-胸部', count: 30, color: '#34d399', children: [] },
-    { id: 'CTREE-3-2', name: 'DR-四肢', count: 25, color: '#059669', children: [] },
-  ]},
-]
-
 const relationshipColors: Record<string, string> = {
   synonym: '#16a34a', broader: '#3b82f6', narrower: '#f59e0b', related: '#8b5cf6',
 }
@@ -285,14 +228,44 @@ export default function TermLibraryPage() {
   const [synonymZoom, setSynonymZoom] = useState(1)
   const [synonymPan, setSynonymPan] = useState({ x: 0, y: 0 })
   const [extractionRunning, setExtractionRunning] = useState(false)
-  const [extractedTerms, setExtractedTerms] = useState<ExtractedTerm[]>(mockExtractedTerms)
+  const [extractedTerms, setExtractedTerms] = useState<ExtractedTerm[]>([])
   const [languageSearch, setLanguageSearch] = useState('')
   const [bilingualMode, setBilingualMode] = useState(false)
   const [selectedLang, setSelectedLang] = useState<'zh' | 'en' | 'ja'>('zh')
-  const [translations] = useState<LanguageEntry[]>(mockTranslations)
-  const [categoryTree] = useState<CategoryTreeNode[]>(mockCategoryTree)
-  const [synonymRelations] = useState<SynonymRelation[]>(mockSynonymRelations)
-  const [suggestions] = useState<TermSuggestion[]>(mockSuggestions)
+  const [translations, setTranslations] = useState<LanguageEntry[]>([])
+  const [categoryTree, setCategoryTree] = useState<CategoryTreeNode[]>([])
+  const [synonymRelations, setSynonymRelations] = useState<SynonymRelation[]>([])
+  const [suggestions, setSuggestions] = useState<TermSuggestion[]>([])
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      const [sugRes, synRes, transRes, extRes, catRes] = await Promise.allSettled([
+        termApi.getSuggestions(),
+        termApi.getSynonymRelations(),
+        termApi.getTranslations(),
+        termApi.getExtractedTerms(),
+        termApi.getCategoryTree(),
+      ])
+      if (cancelled) return
+      if (sugRes.status === 'fulfilled' && sugRes.value.success && Array.isArray(sugRes.value.data)) {
+        setSuggestions(sugRes.value.data.map(s => ({ ...s } as TermSuggestion)))
+      }
+      if (synRes.status === 'fulfilled' && synRes.value.success && Array.isArray(synRes.value.data)) {
+        setSynonymRelations(synRes.value.data.map(s => ({ ...s } as SynonymRelation)))
+      }
+      if (transRes.status === 'fulfilled' && transRes.value.success && Array.isArray(transRes.value.data)) {
+        setTranslations(transRes.value.data.map(t => ({ ...t } as LanguageEntry)))
+      }
+      if (extRes.status === 'fulfilled' && extRes.value.success && Array.isArray(extRes.value.data)) {
+        setExtractedTerms(extRes.value.data.map(e => ({ ...e } as ExtractedTerm)))
+      }
+      if (catRes.status === 'fulfilled' && catRes.value.success && Array.isArray(catRes.value.data)) {
+        setCategoryTree(catRes.value.data.map(c => ({ ...c } as CategoryTreeNode)))
+      }
+    })()
+    return () => { cancelled = true }
+  }, [])
 
   const stats = {
     totalTerms: terms.length,
@@ -781,8 +754,7 @@ export default function TermLibraryPage() {
   )
 
   const renderCategoryTab = () => {
-    const [tree] = useState<CategoryTreeNode[]>(mockCategoryTree)
-    const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set(tree.map(n => n.id)))
+    const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set(categoryTree.map(n => n.id)))
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
     const toggleExpand = (id: string) => {
@@ -826,7 +798,7 @@ export default function TermLibraryPage() {
               </button>
             </div>
             <div style={{ maxHeight: 400, overflowY: 'auto', padding: 4 }}>
-              {renderTree(tree)}
+              {renderTree(categoryTree)}
             </div>
             <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>拖拽术语到分类节点进行分类</div>
           </div>

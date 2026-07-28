@@ -152,7 +152,7 @@ export const FhirSubscriptionPage: React.FC = () => {
           columns={columns}
           rowKey="id"
           loading={loading}
-          pagination={{ pageSize: 20 }}
+          pagination={{ pageSize: 10 }}
           size="small"
         />
       </Card>

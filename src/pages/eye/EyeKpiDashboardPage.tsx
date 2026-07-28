@@ -47,7 +47,7 @@ const EyeKpiDashboardPage: React.FC = () => {
           ...Object.entries(categoryIcons).map(([k]) => ({ key: k, label: { productivity: '效率', clinical: '临床', operational: '运营', financial: '财务', satisfaction: '满意度' }[k] || k })),
         ]}
       />
-      <Table dataSource={filtered} rowKey="id" size="small" pagination={{ pageSize: 20 }}
+      <Table dataSource={filtered} rowKey="id" size="small" pagination={{ pageSize: 10 }}
         columns={[
           { title: '类别', dataIndex: 'category', key: 'category', width: 70, render: (v: string) => <Tag color={categoryColors[v]}>{CATEGORY_LABELS_DICT[v] || v}</Tag> },
           { title: '指标', dataIndex: 'name', key: 'name', width: 200 },

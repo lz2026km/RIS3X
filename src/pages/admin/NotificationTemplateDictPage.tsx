@@ -242,7 +242,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
               size="small"
               dataSource={filteredDict}
               rowKey="id"
-              pagination={{ pageSize: 15 }}
+              pagination={{ pageSize: 10 }}
               columns={[
                 { title: '分类', dataIndex: 'category', render: (c) => <Tag color="blue">{c}</Tag> },
                 { title: '编码', dataIndex: 'code' },

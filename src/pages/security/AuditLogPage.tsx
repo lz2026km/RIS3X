@@ -188,7 +188,7 @@ export default function AuditLogPage() {
           columns={columns as ProColumn<AuditLogEntry>[]}
           rowKey="id"
           showToolbar={false}
-          pagination={{ pageSize: 20, showSizeChanger: true, showTotal: (t) => `共 ${t} 条` }}
+          pagination={{ pageSize: 10, showSizeChanger: true, showTotal: (t) => `共 ${t} 条` }}
           scroll={{ x: 1100 }}
           size="small"
         />

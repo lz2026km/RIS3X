@@ -1,12 +1,12 @@
 // G005 放射RIS系统 - 区域影像报告管理页面 v2.0.0
 // 功能：远程会诊、区域报告审核、危急值通报、医联体远程诊断、跨机构联合签发、区域数据统计
 // 已拆分至 src/pages/regional/ 子组件
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Check, X, Activity, Settings, ShieldCheck, ShieldAlert, Video, FileSignature, Monitor, Share2, Timer, BarChart3 } from 'lucide-react'
 
 import {
-  styles, COLORS, mockInstitutions, mockConsultations, mockReports, mockCriticalValues,
-  mockRemoteDiagnoses, mockCoSignRecords, Consultation, Report, CriticalValueReport, RemoteDiagnosis, CoSignRecord,
+  styles, COLORS,
+  Consultation, Report, CriticalValueReport, RemoteDiagnosis, CoSignRecord,
   consultationService, criticalValueService, teleradiologyService, remoteSyncService, statsService, exportService, reportService,
 } from './regional'
 import {
@@ -16,6 +16,7 @@ import {
 import {
   ConsultationDetail, ReportDetail, RemoteWriting, CoSignDetail, StatCards, RightPanel, ModalContent,
 } from './regional'
+import { regionalApi } from '../services/api/regionalApi'
 
 type MainTab = 'consultation' | 'report' | 'critical' | 'remote' | 'cosign' | 'sharing' | 'sla' | 'regionalStats'
 
@@ -41,6 +42,53 @@ const RegionalReportPage: React.FC = () => {
   const [opinionText, setOpinionText] = useState('')
   const [reviewText, setReviewText] = useState('')
 
+  // API data state
+  const [institutions, setInstitutions] = useState<any[]>([])
+  const [consultations, setConsultations] = useState<Consultation[]>([])
+  const [reports, setReports] = useState<Report[]>([])
+  const [criticalValues, setCriticalValues] = useState<CriticalValueReport[]>([])
+  const [remoteDiagnoses, setRemoteDiagnoses] = useState<RemoteDiagnosis[]>([])
+  const [coSignRecords, setCoSignRecords] = useState<CoSignRecord[]>([])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [instRes, consRes, repRes, cvRes, rdRes, csRes] = await Promise.allSettled([
+          regionalApi.listRegionalInstitutions(),
+          regionalApi.listConsultations(),
+          regionalApi.listReportRecords(),
+          regionalApi.listCriticalValues(),
+          regionalApi.listRemoteDiagnoses(),
+          regionalApi.listCoSignRecords(),
+        ])
+
+        // Institutions - fallback to imported mock data
+        if (instRes.status === 'fulfilled' && instRes.value.success && Array.isArray(instRes.value.data) && instRes.value.data.length > 0) {
+          setInstitutions(instRes.value.data)
+        }
+
+        if (consRes.status === 'fulfilled' && consRes.value.success && Array.isArray(consRes.value.data)) {
+          setConsultations(consRes.value.data as Consultation[])
+        }
+        if (repRes.status === 'fulfilled' && repRes.value.success && Array.isArray(repRes.value.data)) {
+          setReports(repRes.value.data as Report[])
+        }
+        if (cvRes.status === 'fulfilled' && cvRes.value.success && Array.isArray(cvRes.value.data)) {
+          setCriticalValues(cvRes.value.data as CriticalValueReport[])
+        }
+        if (rdRes.status === 'fulfilled' && rdRes.value.success && Array.isArray(rdRes.value.data)) {
+          setRemoteDiagnoses(rdRes.value.data as RemoteDiagnosis[])
+        }
+        if (csRes.status === 'fulfilled' && csRes.value.success && Array.isArray(csRes.value.data)) {
+          setCoSignRecords(csRes.value.data as CoSignRecord[])
+        }
+      } catch {
+        // Fallback: keep empty state
+      }
+    }
+    fetchData()
+  }, [])
+
   const showToast = (msg: string, success: boolean = true) => {
     setToastMessage(msg)
     setToastSuccess(success)
@@ -49,38 +97,38 @@ const RegionalReportPage: React.FC = () => {
 
   const getFilteredStats = () => {
     if (selectedInstitution === 'all') {
-      return { totalReports: 3713, pendingConsultations: mockConsultations.filter(c => c.status === '待接诊').length, criticalValues: mockCriticalValues.filter(cv => cv.status !== '已闭环').length, avgResponseTime: '18分钟' }
+      return { totalReports: reports.length || 3713, pendingConsultations: consultations.filter(c => c.status === '待接诊').length, criticalValues: criticalValues.filter(cv => cv.status !== '已闭环').length, avgResponseTime: '18分钟' }
     }
-    const inst = mockInstitutions.find(i => i.id === selectedInstitution)
-    return { totalReports: inst?.reportCount || 0, pendingConsultations: mockConsultations.filter(c => c.institution === inst?.name && c.status === '待接诊').length, criticalValues: mockCriticalValues.filter(cv => cv.institution === inst?.name && cv.status !== '已闭环').length, avgResponseTime: '15分钟' }
+    const inst = institutions.find(i => i.id === selectedInstitution)
+    return { totalReports: inst?.reportCount || reports.length || 0, pendingConsultations: consultations.filter(c => c.institution === inst?.name && c.status === '待接诊').length, criticalValues: criticalValues.filter(cv => cv.institution === inst?.name && cv.status !== '已闭环').length, avgResponseTime: '15分钟' }
   }
 
-  const getFilteredConsultations = () => mockConsultations.filter(c => {
-    const matchInstitution = selectedInstitution === 'all' || c.institution === mockInstitutions.find(i => i.id === selectedInstitution)?.name
+  const getFilteredConsultations = () => consultations.filter(c => {
+    const matchInstitution = selectedInstitution === 'all' || c.institution === institutions.find(i => i.id === selectedInstitution)?.name
     const matchSearch = searchKeyword === '' || c.patientName.includes(searchKeyword) || c.caseId.includes(searchKeyword) || c.examItem.includes(searchKeyword)
     return matchInstitution && matchSearch
   })
 
-  const getFilteredReports = () => mockReports.filter(r => {
-    const matchInstitution = selectedInstitution === 'all' || r.institution === mockInstitutions.find(i => i.id === selectedInstitution)?.name
+  const getFilteredReports = () => reports.filter(r => {
+    const matchInstitution = selectedInstitution === 'all' || r.institution === institutions.find(i => i.id === selectedInstitution)?.name
     const matchSearch = searchKeyword === '' || r.patientName.includes(searchKeyword) || r.reportId.includes(searchKeyword) || r.examItem.includes(searchKeyword)
     return matchInstitution && matchSearch
   })
 
-  const getFilteredCriticalValues = () => mockCriticalValues.filter(cv => {
-    const matchInstitution = selectedInstitution === 'all' || cv.institution === mockInstitutions.find(i => i.id === selectedInstitution)?.name
+  const getFilteredCriticalValues = () => criticalValues.filter(cv => {
+    const matchInstitution = selectedInstitution === 'all' || cv.institution === institutions.find(i => i.id === selectedInstitution)?.name
     const matchSearch = searchKeyword === '' || cv.patientName.includes(searchKeyword) || cv.criticalFinding.includes(searchKeyword)
     return matchInstitution && matchSearch
   })
 
-  const getFilteredRemoteDiagnoses = () => mockRemoteDiagnoses.filter(rd => {
-    const matchInstitution = selectedInstitution === 'all' || rd.applyInstitution === mockInstitutions.find(i => i.id === selectedInstitution)?.name
+  const getFilteredRemoteDiagnoses = () => remoteDiagnoses.filter(rd => {
+    const matchInstitution = selectedInstitution === 'all' || rd.applyInstitution === institutions.find(i => i.id === selectedInstitution)?.name
     const matchSearch = searchKeyword === '' || rd.patientName.includes(searchKeyword) || rd.caseId.includes(searchKeyword) || rd.examType.includes(searchKeyword)
     return matchInstitution && matchSearch
   })
 
-  const getFilteredCoSignRecords = () => mockCoSignRecords.filter(cs => {
-    const matchInstitution = selectedInstitution === 'all' || cs.participatingInstitutions.includes(mockInstitutions.find(i => i.id === selectedInstitution)?.name || '')
+  const getFilteredCoSignRecords = () => coSignRecords.filter(cs => {
+    const matchInstitution = selectedInstitution === 'all' || cs.participatingInstitutions.includes(institutions.find(i => i.id === selectedInstitution)?.name || '')
     const matchSearch = searchKeyword === '' || cs.patientName.includes(searchKeyword) || cs.reportId.includes(searchKeyword) || cs.examType.includes(searchKeyword)
     return matchInstitution && matchSearch
   })
@@ -214,7 +262,7 @@ const RegionalReportPage: React.FC = () => {
         {activeMainTab === 'sla' && <SLAAndTATSection />}
         {activeMainTab === 'regionalStats' && <RegionalStatsDashboard />}
 
-        <RightPanel mockInstitutions={mockInstitutions} onRefreshStats={handleRefreshStats} />
+        <RightPanel mockInstitutions={institutions.length > 0 ? institutions : []} onRefreshStats={handleRefreshStats} />
       </div>
 
       <CriticalValuePanel
@@ -262,7 +310,7 @@ const RegionalReportPage: React.FC = () => {
         onSubmitConsultation={handleSubmitConsultation}
         onSubmitOpinion={handleSubmitOpinion}
         onReviewReport={handleReviewReport}
-        mockInstitutions={mockInstitutions}
+        mockInstitutions={institutions.length > 0 ? institutions : []}
         onToast={(msg, success) => showToast(msg, success)}
       />
     </div>

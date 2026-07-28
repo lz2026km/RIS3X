@@ -67,7 +67,7 @@ export default function SecurityAuditPage() {
         </Space>
       </Card>
       <Card>
-        <Table dataSource={events} columns={columns} rowKey="id" size="small" pagination={{ pageSize: 20, showSizeChanger: true }} locale={{ emptyText: <Empty description="无匹配审计事件" /> }} />
+        <Table dataSource={events} columns={columns} rowKey="id" size="small" pagination={{ pageSize: 10, showSizeChanger: true }} locale={{ emptyText: <Empty description="无匹配审计事件" /> }} />
       </Card>
     </div>
   )

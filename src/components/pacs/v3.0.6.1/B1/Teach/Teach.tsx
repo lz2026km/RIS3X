@@ -330,7 +330,7 @@ const Teach: React.FC = () => {
           size="small"
           dataSource={filteredCases}
           columns={columns}
-          pagination={{ pageSize: 8 }}
+          pagination={{ pageSize: 10 }}
           locale={{ emptyText: <Empty description="暂无匹配病例" /> }}
           scroll={{ x: 1400 }}
           expandable={{

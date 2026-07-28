@@ -148,7 +148,7 @@ export default function BusinessContinuityPage() {
           dataSource={queue}
           rowKey="id"
           size="small"
-          pagination={{ pageSize: 8 }}
+          pagination={{ pageSize: 10 }}
           columns={[
             { title: "ID", dataIndex: "id", key: "id", width: 100 },
             { title: "类型", dataIndex: "type", key: "t", width: 90, render: (t: string) => <Tag color={TYPE_MAP[t].color}>{TYPE_MAP[t].label}</Tag> },

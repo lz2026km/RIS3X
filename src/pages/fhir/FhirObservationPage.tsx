@@ -113,7 +113,7 @@ export const FhirObservationPage: React.FC = () => {
           columns={columns}
           rowKey="id"
           loading={loading}
-          pagination={{ total, pageSize: 20 }}
+          pagination={{ total, pageSize: 10 }}
           size="small"
         />
       </Card>

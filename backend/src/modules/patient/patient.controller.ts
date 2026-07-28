@@ -69,4 +69,14 @@ export class PatientController {
   getReports(@Param('id') id: string) {
     return this.service.getReports(id)
   }
+
+  @Get(':id/exams')
+  getExams(@Param('id') id: string) {
+    return this.service.getExams(id)
+  }
+
+  @Get(':id/timeline')
+  getTimeline(@Param('id') id: string) {
+    return this.service.getTimeline(id)
+  }
 }

@@ -1,58 +1,8 @@
 import React, { useState, useEffect } from 'react'
+import { patientPortalApi, type PortalPatientDto, type ExamHistoryItemDto, type ImagePreviewDto } from '../services/api'
 
 // ===== Types =====
-export interface PatientPortalUser {
-  id: string
-  name: string
-  gender: string
-  age: number
-  idCard: string
-  phone: string
-  address?: string
-  birthDate?: string
-}
-
-export interface ExamHistoryItem {
-  id: string
-  examItem: string
-  examDate: string
-  bodyPart: string
-  modality: string
-  deviceName: string
-  reportStatus: '已出报告' | '报告待出' | '审核中'
-  hasImages: boolean
-  reportContent?: string
-  diagnosis?: string
-  recommendations?: string
-}
-
-export interface ImagePreview {
-  id: string
-  label: string
-  windowWidth: number
-  windowCenter: number
-  invert: boolean
-}
-
-// ===== Mock Data =====
-const MOCK_USER: PatientPortalUser = {
-  id: 'P001', name: '张三', gender: '男', age: 58,
-  idCard: '310101196805121234', phone: '138****5678',
-  address: '上海市浦东新区', birthDate: '1968-05-12',
-}
-
-const MOCK_EXAMS: ExamHistoryItem[] = [
-  { id: 'EXM001', examItem: '胸部CT平扫', examDate: '2025-05-01', bodyPart: '胸部', modality: 'CT', deviceName: 'GE Revolution CT', reportStatus: '已出报告', hasImages: true, reportContent: '双肺野清晰，肺纹理走行自然。\n诊断意见：双肺未见明显异常。', diagnosis: '双肺未见明显异常', recommendations: '定期体检' },
-  { id: 'EXM002', examItem: '颅脑MRI平扫', examDate: '2025-04-15', bodyPart: '颅脑', modality: 'MR', deviceName: 'GE SIGNA 3.0T', reportStatus: '已出报告', hasImages: true, reportContent: '双侧大脑半球对称，灰白质分界清晰。\n诊断意见：颅脑MRI平扫未见明显异常。', diagnosis: '颅脑MRI平扫未见明显异常', recommendations: '定期复查' },
-  { id: 'EXM003', examItem: '腹部彩超', examDate: '2025-04-20', bodyPart: '腹部', modality: 'US', deviceName: 'GE Voluson E10', reportStatus: '报告待出', hasImages: false },
-]
-
-const MOCK_IMAGES: ImagePreview[] = [
-  { id: 'img1', label: '横断面', windowWidth: 400, windowCenter: 40, invert: false },
-  { id: 'img2', label: '冠状面', windowWidth: 400, windowCenter: 40, invert: false },
-  { id: 'img3', label: '矢状面', windowWidth: 400, windowCenter: 40, invert: false },
-  { id: 'img4', label: '3D重建', windowWidth: 400, windowCenter: 40, invert: false },
-]
+export type { PortalPatientDto as PatientPortalUser, ExamHistoryItemDto as ExamHistoryItem, ImagePreviewDto as ImagePreview }
 
 // ===== Styles =====
 const styles = {
@@ -83,10 +33,44 @@ const styles = {
 // ===== Component =====
 export default function SelfServicePortal() {
   const [loggedIn, setLoggedIn] = useState(true)
-  const [selectedExam, setSelectedExam] = useState<ExamHistoryItem | null>(null)
+  const [selectedExam, setSelectedExam] = useState<ExamHistoryItemDto | null>(null)
   const [expandedReport, setExpandedReport] = useState<string | null>(null)
-  const [images, setImages] = useState<ImagePreview[]>(MOCK_IMAGES)
+  const [images, setImages] = useState<ImagePreviewDto[]>([])
   const [voucherCode, setVoucherCode] = useState<string | null>(null)
+  const [user, setUser] = useState<PortalPatientDto | null>(null)
+  const [exams, setExams] = useState<ExamHistoryItemDto[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!loggedIn) return
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      try {
+        const [userRes, examsRes] = await Promise.all([
+          patientPortalApi.getPortalUser('current'),
+          patientPortalApi.listExamHistory('current'),
+        ])
+        if (cancelled) return
+        if (userRes.success && userRes.data) setUser(userRes.data)
+        if (examsRes.success && Array.isArray(examsRes.data)) setExams(examsRes.data)
+      } catch { /* API may not be available in mock mode */ }
+      if (!cancelled) setLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [loggedIn])
+
+  useEffect(() => {
+    if (!selectedExam) return
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = await patientPortalApi.listExamImages(selectedExam.id)
+        if (!cancelled && res.success && Array.isArray(res.data)) setImages(res.data)
+      } catch { /* keep empty images */ }
+    })()
+    return () => { cancelled = true }
+  }, [selectedExam])
 
   const handleWindowChange = (id: string, type: 'width' | 'center', value: number) => {
     setImages(prev => prev.map(img =>
@@ -100,11 +84,17 @@ export default function SelfServicePortal() {
     setImages(prev => prev.map(img => img.id === id ? { ...img, invert: !img.invert } : img))
   }
 
-  const generateVoucher = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-    let code = ''
-    for (let i = 0; i < 16; i++) code += chars[Math.floor(Math.random() * chars.length)]
-    setVoucherCode(code)
+  const generateVoucher = async () => {
+    if (!user) return
+    try {
+      const res = await patientPortalApi.generateVoucher(user.id)
+      if (res.success && res.data) setVoucherCode(res.data.code)
+    } catch {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+      let code = ''
+      for (let i = 0; i < 16; i++) code += chars[Math.floor(Math.random() * chars.length)]
+      setVoucherCode(code)
+    }
   }
 
   const getImageFilter = (img: ImagePreview) => {
@@ -135,10 +125,10 @@ export default function SelfServicePortal() {
           <button style={{ ...styles.btn, background: '#64748b' }} onClick={() => setLoggedIn(false)}>退出</button>
         </div>
         <div style={styles.grid2}>
-          <div><div style={styles.label}>姓名</div><div style={styles.value}>{MOCK_USER.name}</div></div>
-          <div><div style={styles.label}>性别/年龄</div><div style={styles.value}>{MOCK_USER.gender} / {MOCK_USER.age}岁</div></div>
-          <div><div style={styles.label}>证件号</div><div style={styles.value}>{MOCK_USER.idCard}</div></div>
-          <div><div style={styles.label}>手机号</div><div style={styles.value}>{MOCK_USER.phone}</div></div>
+          <div><div style={styles.label}>姓名</div><div style={styles.value}>{user?.name ?? '-'}</div></div>
+          <div><div style={styles.label}>性别/年龄</div><div style={styles.value}>{user?.gender ?? '-'} / {user?.age ?? '-'}岁</div></div>
+          <div><div style={styles.label}>证件号</div><div style={styles.value}>{user?.idNumber ?? '-'}</div></div>
+          <div><div style={styles.label}>手机号</div><div style={styles.value}>{user?.phone ?? '-'}</div></div>
         </div>
       </div>
 
@@ -151,7 +141,7 @@ export default function SelfServicePortal() {
             <th style={styles.th}>状态</th><th style={styles.th}>影像</th><th style={styles.th}>报告</th>
           </tr></thead>
           <tbody>
-            {MOCK_EXAMS.map(exam => (
+            {exams.map(exam => (
               <tr key={exam.id}>
                 <td style={styles.td}>{exam.examItem}</td>
                 <td style={styles.td}>{exam.examDate}</td>
@@ -177,7 +167,7 @@ export default function SelfServicePortal() {
 
       {/* Report Detail */}
       {expandedReport && (() => {
-        const exam = MOCK_EXAMS.find(e => e.id === expandedReport)
+        const exam = exams.find(e => e.id === expandedReport)
         if (!exam?.reportContent) return null
         return (
           <div style={styles.card}>

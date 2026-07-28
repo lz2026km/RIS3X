@@ -130,7 +130,12 @@ export const WINDOW_PRESETS: WindowPreset[] = [
   { name: '脑窗', ww: 80, wl: 40 },
   { name: '腹部窗', ww: 400, wl: 50 },
   { name: '软组织', ww: 400, wl: 40 },
-  { name: '纵隔窗', ww: 350, wl: 50 },
+  { name: '纵隔窗', ww: 400, wl: 40 },
+  { name: '乳腺窗', ww: 400, wl: 300 },
+  { name: '心脏窗', ww: 350, wl: 50 },
+  { name: '肝脏增强窗', ww: 200, wl: 60 },
+  { name: '血管窗', ww: 600, wl: 200 },
+  { name: '眼眶窗', ww: 300, wl: 50 },
 ]
 
 export const SERIES_COLORS = ['#4a90d9', '#50b784', '#e5a832', '#d94a4a', '#9b59b6', '#1abc9c']

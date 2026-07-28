@@ -1,46 +1,9 @@
-import { useState, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { message } from 'antd'
 import { Search, Filter, ChevronRight, Monitor, Activity, FileText, Bell, User, AlertTriangle, LayoutDashboard, ListChecks, Image, Mic, BarChart3 } from 'lucide-react'
+import { mobileApi, type DoctorWorklistItem, type DoctorStats } from '../../services/api'
 
-export interface DoctorWorklistItem {
-  id: string
-  patientName: string
-  gender: string
-  age: number
-  modality: string
-  examItem: string
-  bodyPart: string
-  status: 'pending' | 'reading' | 'reported'
-  priority: 'routine' | 'urgent' | 'critical'
-  accessionNumber: string
-  imagesCount: number
-  createdAt: string
-}
-
-export interface DoctorStats {
-  totalPending: number
-  totalReading: number
-  completedToday: number
-  criticalFindings: number
-  avgReportTime: number
-}
-
-const MOCK_STATS: DoctorStats = {
-  totalPending: 12,
-  totalReading: 3,
-  completedToday: 18,
-  criticalFindings: 2,
-  avgReportTime: 28,
-}
-
-const MOCK_WORKLIST: DoctorWorklistItem[] = [
-  { id: 'D1', patientName: '张志刚', gender: '男', age: 62, modality: 'CT', examItem: '胸部CT平扫', bodyPart: '胸部', status: 'pending', priority: 'urgent', accessionNumber: '20260615001', imagesCount: 128, createdAt: '2026-06-15 09:00' },
-  { id: 'D2', patientName: '李秀英', gender: '女', age: 55, modality: 'MR', examItem: '头颅MR平扫', bodyPart: '头颅', status: 'pending', priority: 'routine', accessionNumber: '20260615002', imagesCount: 1200, createdAt: '2026-06-15 08:30' },
-  { id: 'D3', patientName: '王建军', gender: '男', age: 45, modality: 'CT', examItem: '腹部CT增强', bodyPart: '腹部', status: 'reading', priority: 'urgent', accessionNumber: '20260615003', imagesCount: 256, createdAt: '2026-06-15 07:45' },
-  { id: 'D4', patientName: '赵敏', gender: '女', age: 34, modality: 'DR', examItem: '胸部正位片', bodyPart: '胸部', status: 'pending', priority: 'routine', accessionNumber: '20260615004', imagesCount: 2, createdAt: '2026-06-15 10:00' },
-  { id: 'D5', patientName: '陈国强', gender: '男', age: 71, modality: 'CT', examItem: '冠脉CTA', bodyPart: '心脏', status: 'reading', priority: 'critical', accessionNumber: '20260615005', imagesCount: 512, createdAt: '2026-06-15 06:30' },
-  { id: 'D6', patientName: '刘芳', gender: '女', age: 28, modality: 'MR', examItem: '腰椎MR平扫', bodyPart: '腰椎', status: 'reported', priority: 'routine', accessionNumber: '20260615006', imagesCount: 480, createdAt: '2026-06-14 14:00' },
-]
+export { type DoctorWorklistItem, type DoctorStats } from '../../services/api'
 
 const PRIORITY_COLORS: Record<string, string> = {
   routine: '#64748b',
@@ -74,8 +37,29 @@ export default function DoctorMobileWorkstation() {
   const [tab, setTab] = useState<'worklist' | 'stats'>('worklist')
   const [filter, setFilter] = useState<'all' | 'pending' | 'reading'>('all')
   const [search, setSearch] = useState('')
+  const [worklist, setWorklist] = useState<DoctorWorklistItem[]>([])
+  const [stats, setStats] = useState<DoctorStats>({ totalPending: 0, totalReading: 0, completedToday: 0, criticalFindings: 0, avgReportTime: 0 })
+  const [loading, setLoading] = useState(true)
 
-  const filtered = MOCK_WORKLIST.filter(item => {
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      try {
+        const [wlRes, statsRes] = await Promise.all([
+          mobileApi.getDoctorWorklist({ status: filter !== 'all' ? filter : undefined, search: search || undefined }),
+          mobileApi.getDoctorStats(),
+        ])
+        if (cancelled) return
+        if (wlRes.success && Array.isArray(wlRes.data)) setWorklist(wlRes.data)
+        if (statsRes.success && statsRes.data) setStats(statsRes.data)
+      } catch { /* API may not be available in mock mode, keep empty */ }
+      if (!cancelled) setLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [filter, search])
+
+  const filtered = worklist.filter(item => {
     if (filter !== 'all' && item.status !== filter) return false
     if (search && !item.patientName.includes(search) && !item.accessionNumber.includes(search)) return false
     return true
@@ -91,10 +75,10 @@ export default function DoctorMobileWorkstation() {
         <div style={s.headerTitle}>医生移动工作站</div>
         <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>放射科 · 诊断工作台</div>
         <div style={s.statsRow}>
-          <div style={s.statCard('#dbeafe')}><div style={s.statValue}>{MOCK_STATS.totalPending}</div><div style={s.statLabel}>待报告</div></div>
-          <div style={s.statCard('#fef3c7')}><div style={s.statValue}>{MOCK_STATS.totalReading}</div><div style={s.statLabel}>报告中</div></div>
-          <div style={s.statCard('#d1fae5')}><div style={s.statValue}>{MOCK_STATS.completedToday}</div><div style={s.statLabel}>今日完成</div></div>
-          <div style={s.statCard('#fee2e2')}><div style={s.statValue}>{MOCK_STATS.criticalFindings}</div><div style={s.statLabel}>危急值</div></div>
+          <div style={s.statCard('#dbeafe')}><div style={s.statValue}>{stats.totalPending}</div><div style={s.statLabel}>待报告</div></div>
+          <div style={s.statCard('#fef3c7')}><div style={s.statValue}>{stats.totalReading}</div><div style={s.statLabel}>报告中</div></div>
+          <div style={s.statCard('#d1fae5')}><div style={s.statValue}>{stats.completedToday}</div><div style={s.statLabel}>今日完成</div></div>
+          <div style={s.statCard('#fee2e2')}><div style={s.statValue}>{stats.criticalFindings}</div><div style={s.statLabel}>危急值</div></div>
         </div>
       </div>
 
@@ -158,10 +142,10 @@ export default function DoctorMobileWorkstation() {
             <div style={{ fontSize: 14, fontWeight: 700, color: '#1e293b', marginBottom: 12 }}>工作效率统计</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
               {[
-                { label: '平均报告时间', value: `${MOCK_STATS.avgReportTime}分钟`, color: '#2563eb' },
-                { label: '今日完成', value: `${MOCK_STATS.completedToday}份`, color: '#059669' },
-                { label: '危急值', value: `${MOCK_STATS.criticalFindings}个`, color: '#dc2626' },
-                { label: '待处理', value: `${MOCK_STATS.totalPending}份`, color: '#d97706' },
+                { label: '平均报告时间', value: `${stats.avgReportTime}分钟`, color: '#2563eb' },
+                { label: '今日完成', value: `${stats.completedToday}份`, color: '#059669' },
+                { label: '危急值', value: `${stats.criticalFindings}个`, color: '#dc2626' },
+                { label: '待处理', value: `${stats.totalPending}份`, color: '#d97706' },
               ].map(stat => (
                 <div key={stat.label} style={{ padding: 12, background: '#f8fafc', borderRadius: 8 }}>
                   <div style={{ fontSize: 12, color: '#64748b' }}>{stat.label}</div>

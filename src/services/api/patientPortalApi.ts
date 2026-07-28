@@ -38,6 +38,28 @@ export interface PortalMobileUserDto {
   title?: string
 }
 
+export interface ExamHistoryItemDto {
+  id: string
+  examItem: string
+  examDate: string
+  bodyPart: string
+  modality: string
+  deviceName: string
+  reportStatus: string
+  hasImages: boolean
+  reportContent?: string
+  diagnosis?: string
+  recommendations?: string
+}
+
+export interface ImagePreviewDto {
+  id: string
+  label: string
+  windowWidth: number
+  windowCenter: number
+  invert: boolean
+}
+
 export const patientPortalApi = {
   listPatients: () =>
     api.get<{ data: PortalPatientDto[] }>('/patient-portal/patients'),
@@ -68,4 +90,19 @@ export const patientPortalApi = {
 
   getTechMobile: () =>
     api.get<{ data: PortalMobileUserDto[] }>('/patient-portal/mobile/techs'),
+
+  getPortalUser: (id: string) =>
+    api.get<PortalPatientDto>(`/patient-portal/user/${id}`),
+
+  listExamHistory: (patientId: string) =>
+    api.get<ExamHistoryItemDto[]>(`/patient-portal/exam-history?patientId=${patientId}`),
+
+  getExamReport: (examId: string) =>
+    api.get<ExamHistoryItemDto>(`/patient-portal/exam-history/${examId}/report`),
+
+  listExamImages: (examId: string) =>
+    api.get<ImagePreviewDto[]>(`/patient-portal/exam-history/${examId}/images`),
+
+  generateVoucher: (patientId: string) =>
+    api.post<{ code: string; expiresAt: string }>('/patient-portal/voucher', { patientId }),
 }

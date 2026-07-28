@@ -35,19 +35,19 @@ export { queueApi } from './queueApi'
 export type { QueueCallDto, ExamRoomStatus } from './queueApi'
 
 export { termApi } from './termApi'
-export type { TermDto } from './termApi'
+export type { TermDto, TermSuggestionDto, SynonymRelationDto, TranslationDto, ExtractedTermDto, CategoryTreeNodeDto } from './termApi'
 
 export { insuranceApi } from './insuranceApi'
 export type { InsuranceAuditDto } from './insuranceApi'
 
 export { datareportApi } from './datareportApi'
-export type { NationalReportDto, DataReportDto, InsuranceAuditDto as InsuranceAuditApiDto, EnterpriseSearchResult } from './datareportApi'
+export type { NationalReportDto, DataReportDto, InsuranceAuditDto as InsuranceAuditApiDto, EnterpriseSearchResult, ExamStatisticsDto, ReportLogDto, MonthlyTrendDto } from './datareportApi'
 
 export { qcextApi } from './qcextApi'
 export type { QcDashboardDto, QcImageDto, RadiologistAnnualDto, QcDefectDto, QcStatsDto, QcScoreDto } from './qcextApi'
 
 export { regionalApi } from './regionalApi'
-export type { RegionalImagingDto, RegionalReportDto, DepartmentScheduleDto, DepartmentDto, MedicalAllianceDto, IntegrationStatusDto } from './regionalApi'
+export type { RegionalImagingDto, RegionalReportDto, DepartmentScheduleDto, DepartmentDto, MedicalAllianceDto, IntegrationStatusDto, RegionalConsultationDto, RegionalReportRecordDto, CriticalValueReportDto, RemoteDiagnosisDto, CoSignRecordDto } from './regionalApi'
 
 export { financeApi } from './financeApi'
 export type { ChargeItemDto, InvoiceDto, RevenueAnalysisDto, CostAccountingDto, FinancialReportDto } from './financeApi'
@@ -116,6 +116,8 @@ export type {
   PortalClinicalDataDto,
   PortalEducationDto,
   PortalMobileUserDto,
+  ExamHistoryItemDto,
+  ImagePreviewDto,
 } from './patientPortalApi'
 
 export { complianceApi } from './complianceApi'
@@ -129,6 +131,9 @@ export type {
   ExportApprovalDto, ExportApprovalListParams,
   OlapQueryDto, OlapMetadataDto,
   StatsDashboardDto,
+  ForecastPointDto,
+  UtilizationDto,
+  AccuracyDto,
 } from './analyticsApi'
 
 export { triageApi } from './triageApi'
@@ -136,3 +141,18 @@ export type { TriageExamInput, TriageScoreResult, TriageFactor, TriagePendingIte
 
 export { snomedApi } from './snomedApi'
 export type { SnomedCode } from './snomedApi'
+
+export { mobileApi } from './mobileApi'
+export type { DoctorWorklistItem, DoctorStats } from './mobileApi'
+
+export { crossModalSearchApi } from './dicomApi'
+export type { CrossModalSearchResult } from './dicomApi'
+
+export { systemAdminApi } from './systemAdminApi'
+export type { SystemUserDto, SystemRoleDto, SystemConfigDto } from './systemAdminApi'
+
+export { criticalStatsApi } from './criticalStatsApi'
+export type { MissedReportStats, NotificationCompletionStats } from './criticalStatsApi'
+
+export { eyePacsApi } from './eyePacsApi'
+export type { EyeStudyDto, EyeMeasurementDto, KeyImageDto, LesionSegmentationDto, AiDiagnosisDto, EyeAnnotationDto } from './eyePacsApi'

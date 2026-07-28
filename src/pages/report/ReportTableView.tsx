@@ -153,7 +153,7 @@ export default function ReportTableView({
       loading={loading}
       showToolbar={false}
       size="small"
-      pagination={{ pageSize: 20 }}
+      pagination={{ pageSize: 10 }}
       scroll={{ x: 1250 }}
       rowSelection={{
         preserveSelectedRowKeys: true,

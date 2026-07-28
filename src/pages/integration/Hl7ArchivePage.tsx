@@ -185,7 +185,7 @@ export const Hl7ArchivePage: React.FC = () => {
         dataSource={data}
         columns={columns}
         scroll={{ x: "max-content" }}
-        pagination={{ pageSize: 20, showTotal: (t) => `共 ${t} 条` }}
+        pagination={{ pageSize: 10, showTotal: (t) => `共 ${t} 条` }}
         expandable={{
           expandedRowKeys: expandedId !== null ? [expandedId] : [],
           onExpand: (expanded, record) => setExpandedId(expanded ? record.id : null),

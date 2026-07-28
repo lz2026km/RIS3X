@@ -476,7 +476,7 @@ export default function OrchestratorPage() {
           pagination={{
             current: execPage,
             total: executions.total,
-            pageSize: 20,
+            pageSize: 10,
             onChange: p => { setExecPage(p); loadExecutions(p) },
           }}
           size="small"

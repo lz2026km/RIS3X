@@ -393,3 +393,22 @@ export const dicomSrApi = {
   findById: (id: string) =>
     api.get<DicomSrDocument>(`/dicom-sr/${encodeURIComponent(id)}`),
 }
+
+export interface CrossModalSearchResult {
+  id: string
+  patientName: string
+  patientId: string
+  modality: string
+  studyDate: string
+  description: string
+  similarity: number
+  thumbnail?: string
+}
+
+export const crossModalSearchApi = {
+  search: (params: { query: string; modality?: string; limit?: number }) =>
+    api.get<CrossModalSearchResult[]>(`/dicom/cross-modal-search?${new URLSearchParams(params as Record<string, string> ?? {}).toString()}`),
+
+  findSimilar: (id: string, limit?: number) =>
+    api.get<CrossModalSearchResult[]>(`/dicom/cross-modal-search/${encodeURIComponent(id)}/similar?limit=${limit ?? 5}`),
+}

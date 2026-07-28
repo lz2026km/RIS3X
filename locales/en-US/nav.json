@@ -230,5 +230,17 @@
   "dimseUpload": "DIMSE Upload",
   "dicomNetwork": "DICOM Network",
   "workflowV3": "Workflow V3",
-  "radiomics": "Radiomics"
+  "radiomics": "Radiomics",
+  "dicom4d": "4D Dynamic Imaging",
+  "fhirPatient": "FHIR Patient",
+  "fhirObservation": "FHIR Observation",
+  "fhirDiagnosticReport": "FHIR Diagnostic Report",
+  "fhirImagingStudy": "FHIR Imaging Study",
+  "fhirSubscription": "FHIR Subscription",
+  "dicomDimse": "DICOM DIMSE",
+  "dicomSrTemplates": "DICOM SR Templates",
+  "fusionManager": "Fusion Manager",
+  "radiomicsFeatures": "Radiomics Features",
+  "iheManager": "IHE Manager",
+  "hl7Manager": "HL7 Manager"
 }

@@ -230,5 +230,16 @@
   "dicomNetwork": "DICOM 网络",
   "workflowV3": "工作流 V3",
   "radiomics": "影像组学分析",
-  "dicom4d": "4D 动态影像"
+  "dicom4d": "4D 动态影像",
+  "fhirPatient": "FHIR 患者",
+  "fhirObservation": "FHIR 观察",
+  "fhirDiagnosticReport": "FHIR 诊断报告",
+  "fhirImagingStudy": "FHIR 影像检查",
+  "fhirSubscription": "FHIR 订阅",
+  "dicomDimse": "DICOM DIMSE",
+  "dicomSrTemplates": "DICOM SR 模板",
+  "fusionManager": "融合管理",
+  "radiomicsFeatures": "影像组学特征",
+  "iheManager": "IHE 管理",
+  "hl7Manager": "HL7 管理"
 }

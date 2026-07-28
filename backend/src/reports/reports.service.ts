@@ -139,7 +139,7 @@ export class ReportsService {
 
   async transition(id: string, to: ReportState, actorId: string, reason?: string) {
     const report = await this.prisma.report.findUnique({ where: { id } })
-    if (!report) throw new NotFoundException('Report not found')
+    if (!report) throw new NotFoundException(`Report ${id} not found`)
     return this.prisma.$transaction(async (tx) => {
       const r = await tx.report.update({
         where: { id },
@@ -152,4 +152,45 @@ export class ReportsService {
       return toReportDto(r)
     })
   }
+
+  async diff(id: string) {
+    const report = await this.prisma.report.findUnique({
+      where: { id },
+      include: { revisions: { orderBy: { createdAt: 'desc' }, take: 2 } },
+    })
+    if (!report) throw new NotFoundException(`Report ${id} not found`)
+    const revisions = (report as any).revisions ?? []
+    const oldVersion = revisions.length >= 2 ? revisions[1] : null
+    const newVersion = revisions.length >= 1 ? revisions[0] : null
+    const changes: string[] = []
+    if (oldVersion && newVersion) {
+      if (oldVersion.fromState !== newVersion.fromState) changes.push(`State: ${oldVersion.fromState} → ${newVersion.fromState}`)
+    }
+    return {
+      oldVersion: oldVersion ? { findings: oldVersion.findings ?? '', conclusion: oldVersion.conclusion ?? '', state: oldVersion.fromState } : null,
+      newVersion: newVersion ? { findings: newVersion.findings ?? '', conclusion: newVersion.conclusion ?? '', state: newVersion.toState } : null,
+      changes,
+    }
+  }
+
+  async auditTrail(id: string) {
+    const report = await this.prisma.report.findUnique({ where: { id } })
+    if (!report) throw new NotFoundException(`Report ${id} not found`)
+    const revisions = await this.prisma.reportRevision.findMany({
+      where: { reportId: id },
+      orderBy: { createdAt: 'desc' },
+    })
+    return {
+      events: revisions.map((r) => ({
+        id: r.id,
+        timestamp: r.createdAt?.toISOString() ?? '',
+        actor: r.actorId,
+        action: `${r.fromState} → ${r.toState}`,
+        fromState: r.fromState,
+        toState: r.toState,
+        reason: r.reason ?? undefined,
+      })),
+    }
+  }
+}
 }

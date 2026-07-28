@@ -66,7 +66,7 @@ export default function SessionManagerComponent() {
           </Space>
         </Card></Col>
       </Row>
-      <Table dataSource={sessions} columns={columns} rowKey="sessionId" size="small" pagination={{ pageSize: 15 }} locale={{ emptyText: <Empty description="无活跃会话" /> }} />
+      <Table dataSource={sessions} columns={columns} rowKey="sessionId" size="small" pagination={{ pageSize: 10 }} locale={{ emptyText: <Empty description="无活跃会话" /> }} />
     </Card>
   )
 }

@@ -1,5 +1,5 @@
-import React from "react";
-import { Card, Row, Col, Tag, Table, Space, Button } from "antd";
+import React, { useState, useEffect } from "react";
+import { Card, Row, Col, Tag, Table, Space, Button, Spin } from "antd";
 import {
   Image,
   Download,
@@ -11,27 +11,64 @@ import {
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import MeasurementPanel from "@/components/eye/MeasurementPanel";
 import AiDiagnosisCard from "@/components/eye/AiDiagnosisCard";
-import {
-  MOCK_EYE_STUDIES,
-  MOCK_EYE_MEASUREMENTS,
-  MOCK_KEY_IMAGES,
-  MOCK_ANNOTATIONS,
-  MOCK_LESION_SEGMENTATIONS,
-} from "@/data/eyePacsMock";
-import { MOCK_AI_DIAGNOSES } from "@/data/eyeAiMock";
+import { eyeApi } from "../../services/api/eyeApi";
+import { eyePacsApi, type EyeStudyDto, type EyeMeasurementDto, type KeyImageDto, type LesionSegmentationDto, type AiDiagnosisDto } from "../../services/api/eyePacsApi";
 const MODALITY_LABELS: Record<string, string> = { fundus_photo: '眼底彩照', oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: '视野', topography: '角膜地形图', pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: '裂隙灯', oct_a: 'OCTA', corneal_endothelium: '角膜内皮', tear_film: '泪膜', fundus_autofluorescence: '眼底自发荧光' };
 
 const FundusViewerPage: React.FC = () => {
-  const study = MOCK_EYE_STUDIES.find(
-    (s) => s.modality === "fundus_photo" && s.patientId === "p-1001",
-  )!;
-  const measurements = MOCK_EYE_MEASUREMENTS.filter(
-    (m) => m.studyId === study?.id,
-  );
-  const aiDiag = MOCK_AI_DIAGNOSES.filter((d) => d.studyId === study?.id);
-  const lesions = MOCK_LESION_SEGMENTATIONS.filter(
-    (l) => l.studyId === study?.id,
-  );
+  const [study, setStudy] = useState<EyeStudyDto | null>(null);
+  const [measurements, setMeasurements] = useState<EyeMeasurementDto[]>([]);
+  const [aiDiag, setAiDiag] = useState<AiDiagnosisDto[]>([]);
+  const [lesions, setLesions] = useState<LesionSegmentationDto[]>([]);
+  const [keyImages, setKeyImages] = useState<KeyImageDto[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setLoading(true);
+      try {
+        const studiesRes = await eyePacsApi.getStudies({ modality: "fundus_photo", patientId: "p-1001" });
+        if (cancelled) return;
+        if (studiesRes.success && Array.isArray(studiesRes.data) && studiesRes.data.length > 0) {
+          const s = studiesRes.data[0];
+          setStudy(s);
+          const [measRes, aiRes, lesionRes, kiRes] = await Promise.all([
+            eyePacsApi.getMeasurements(s.id),
+            eyeApi.getDiagnoses(s.id).catch(() => ({ success: false, data: [] })),
+            eyePacsApi.getLesionSegmentations(s.id),
+            eyePacsApi.getKeyImages(s.id),
+          ]);
+          if (cancelled) return;
+          if (measRes.success && Array.isArray(measRes.data)) setMeasurements(measRes.data);
+          if (aiRes.success && Array.isArray(aiRes.data)) setAiDiag(aiRes.data as unknown as AiDiagnosisDto[]);
+          if (lesionRes.success && Array.isArray(lesionRes.data)) setLesions(lesionRes.data);
+          if (kiRes.success && Array.isArray(kiRes.data)) setKeyImages(kiRes.data);
+        }
+      } catch {
+        // APIs may not be available
+      }
+      if (!cancelled) setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  if (loading) {
+    return (
+      <div style={{ padding: 16, background: "#f8fafc", minHeight: "calc(100vh - 56px)", textAlign: "center", paddingTop: 60 }}>
+        <Spin tip="加载眼底影像数据..." />
+      </div>
+    );
+  }
+
+  if (!study) {
+    return (
+      <div style={{ padding: 16, background: "#f8fafc", minHeight: "calc(100vh - 56px)" }}>
+        <Card><div style={{ textAlign: "center", padding: 40, color: "#94a3b8" }}>暂无眼底影像数据</div></Card>
+      </div>
+    );
+  }
+
   return (
     <div
       style={{
@@ -49,7 +86,7 @@ const FundusViewerPage: React.FC = () => {
                 <Image size={16} />
                 <span>眼底彩照查看器</span>
                 <EyeLateralityBadge eyeSide="OD" />
-                <Tag color="cyan">Topcon TRC-NW400</Tag>
+                <Tag color="cyan">{study.device}</Tag>
               </Space>
             }
             extra={
@@ -80,7 +117,7 @@ const FundusViewerPage: React.FC = () => {
               }}
             >
               <Target size={48} />
-              <span>眼底彩照模拟图像区域 (右眼后极部)</span>
+              <span>眼底彩照影像区域 ({study.patientName})</span>
               <div style={{ display: "flex", gap: 16, fontSize: 12 }}>
                 <Tag>视盘 C/D 0.55</Tag>
                 <Tag color="red">微动脉瘤 ×8</Tag>
@@ -91,7 +128,7 @@ const FundusViewerPage: React.FC = () => {
           </Card>
           <div style={{ marginTop: 8 }}>
             <MeasurementPanel
-              measurements={measurements}
+              measurements={measurements as any}
               title={`眼底测量 (${measurements.length}项)`}
             />
           </div>
@@ -107,7 +144,7 @@ const FundusViewerPage: React.FC = () => {
                   dataIndex: "type",
                   key: "type",
                   width: 100,
-                  render: (v: string) => <Tag>{MODALITY_LABELS[v] || v}</Tag>,
+                  render: (v: string) => <Tag>{v}</Tag>,
                 },
                 {
                   title: "面积",
@@ -150,45 +187,33 @@ const FundusViewerPage: React.FC = () => {
               <Row>
                 <Col span={10}>姓名:</Col>
                 <Col span={14}>
-                  <strong>李明</strong>
+                  <strong>{study.patientName}</strong>
                 </Col>
               </Row>
               <Row>
-                <Col span={10}>性别:</Col>
-                <Col span={14}>男</Col>
-              </Row>
-              <Row>
-                <Col span={10}>年龄:</Col>
-                <Col span={14}>58岁</Col>
-              </Row>
-              <Row>
-                <Col span={10}>诊断:</Col>
+                <Col span={10}>检查:</Col>
                 <Col span={14}>
-                  <Tag color="orange">糖尿病视网膜病变</Tag>
+                  <Tag color="orange">{MODALITY_LABELS[study.modality] || study.modality}</Tag>
                 </Col>
               </Row>
               <Row>
-                <Col span={10}>眼别:</Col>
-                <Col span={14}>
-                  <EyeLateralityBadge eyeSide="OD" size="small" />
-                </Col>
+                <Col span={10}>设备:</Col>
+                <Col span={14}>{study.device}</Col>
               </Row>
               <Row>
                 <Col span={10}>检查日期:</Col>
                 <Col span={14}>
-                  {new Date(study?.studyDate || "").toLocaleString()}
+                  {new Date(study.studyDate).toLocaleString()}
                 </Col>
               </Row>
             </div>
           </Card>
           {aiDiag.map((d) => (
-            <AiDiagnosisCard key={d.id} diagnosis={d} />
+            <AiDiagnosisCard key={d.id} diagnosis={d as any} />
           ))}
           <Card size="small" title="关键影像标记" style={{ marginTop: 8 }}>
             <Table
-              dataSource={MOCK_KEY_IMAGES.filter(
-                (k) => k.studyId === study?.id,
-              )}
+              dataSource={keyImages}
               rowKey="id"
               size="small"
               pagination={false}

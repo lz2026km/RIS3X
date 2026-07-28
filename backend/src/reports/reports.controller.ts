@@ -80,4 +80,14 @@ export class ReportsController {
   ) {
     return this.reports.transition(id, body.to as any, body.actorId, body.reason)
   }
+
+  @Get(':id/diff')
+  diff(@Param('id') id: string) {
+    return this.reports.diff(id)
+  }
+
+  @Get(':id/audit-trail')
+  auditTrail(@Param('id') id: string) {
+    return this.reports.auditTrail(id)
+  }
 }

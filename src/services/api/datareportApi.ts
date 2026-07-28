@@ -95,4 +95,46 @@ export const datareportApi = {
   // Enterprise search
   enterpriseSearch: (q: string) =>
     api.get<EnterpriseSearchResult[]>(`/data-report/enterprise-search?q=${encodeURIComponent(q)}`),
+
+  // Exam statistics
+  listExamStatistics: () =>
+    api.get<ExamStatisticsDto[]>('/data-report/exam-statistics'),
+
+  // Report logs
+  listReportLogs: () =>
+    api.get<ReportLogDto[]>('/data-report/report-logs'),
+
+  // Monthly trends
+  getMonthlyTrends: () =>
+    api.get<MonthlyTrendDto[]>('/data-report/monthly-trends'),
+}
+
+export interface ExamStatisticsDto {
+  id: string
+  modality: string
+  examType: string
+  examCount: number
+  positiveCount: number
+  positiveRate: number
+  avgReportTime: number
+  qualifiedRate: number
+}
+
+export interface ReportLogDto {
+  id: string
+  reportType: string
+  reportMonth: string
+  submitTime: string
+  status: string
+  operator: string
+  note?: string
+}
+
+export interface MonthlyTrendDto {
+  month: string
+  CT: number
+  MRI: number
+  DR: number
+  MG: number
+  DSA: number
 }

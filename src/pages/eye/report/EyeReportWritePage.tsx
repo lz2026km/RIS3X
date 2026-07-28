@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   Row,
@@ -17,6 +17,7 @@ import {
   Divider,
   Alert,
   Tooltip,
+  Spin,
 } from "antd";
 import {
   FileText,
@@ -38,14 +39,8 @@ import ReportTemplateSelector from "@/components/eye/ReportTemplateSelector";
 import FindingLibraryPicker from "@/components/eye/FindingLibraryPicker";
 import GradingScalePicker from "@/components/eye/GradingScalePicker";
 import ReportDraftPanel from "@/components/eye/ReportDraftPanel";
-import { MOCK_REPORT_TEMPLATES } from "@/data/eyeReportTemplatesMock";
-import {
-  MOCK_REPORTS,
-  MOCK_REPORT_AUDIT,
-  MOCK_PRINT_RECORDS,
-  MOCK_REPORT_CONSULTATIONS,
-} from "@/data/eyeImageQcMock";
-import { MOCK_FINDINGS_LIBRARY } from "@/data/eyeFindingsLibraryMock";
+import { eyeApi } from "../../services/api/eyeApi";
+import type { OphthalmologyReport, ReportTemplate, FindingLibraryItem, ReportAuditEntry, ReportPrintRecord } from "../../types/eye";
 import { AppModal } from "@/components/common/AppModal";
 const MODALITY_LABELS: Record<string, string> = { fundus_photo: '眼底彩照', oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: '视野', topography: '角膜地形图', pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: '裂隙灯', oct_a: 'OCTA', corneal_endothelium: '角膜内皮', tear_film: '泪膜', fundus_autofluorescence: '眼底自发荧光' };
 
@@ -89,11 +84,14 @@ const SEGMENT_TYPE_LABELS_DICT: Record<string, string> = {
   grading_scale: '分级标度', diagnosis: '诊断', measurement: '量测',
 };
 
-// [v3.0.6.8-86] 重构: 拆分 report 切换为 key 强制重渲染, 消除 useState 派生值反模式
+// [v3.0.6.11-35] 重构: 替换 mock 数据为真实 API 调用
 interface ReportEditorProps {
-  report: typeof MOCK_REPORTS[0];
+  report: OphthalmologyReport;
+  templates: ReportTemplate[];
+  findingsLibrary: FindingLibraryItem[];
+  auditEntries: ReportAuditEntry[];
 }
-const ReportEditor: React.FC<ReportEditorProps> = ({ report }) => {
+const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findingsLibrary, auditEntries }) => {
   const [templateId, setTemplateId] = useState(report.templateId);
   const [findings, setFindings] = useState<string[]>(report.findings);
   const [impression, setImpression] = useState(report.impression);
@@ -110,11 +108,11 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report }) => {
   );
   const [editing, setEditing] = useState("");
 
-  const template = MOCK_REPORT_TEMPLATES.find((t) => t.id === templateId);
-  const findingsData = MOCK_FINDINGS_LIBRARY.filter((f) =>
+  const template = templates.find((t) => t.id === templateId);
+  const findingsData = findingsLibrary.filter((f) =>
     findings.includes(f.id),
   );
-  const audits = MOCK_REPORT_AUDIT.filter(
+  const audits = auditEntries.filter(
     (a) => a.reportId === report.id,
   );
 
@@ -206,7 +204,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report }) => {
             textAlign: "center",
           }}
         >
-          🎙 等待语音输入...
+          等待语音输入...
         </div>
       </AppModal>
       <AppModal
@@ -615,10 +613,57 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report }) => {
   );
 };
 
-// [v3.0.6.8-86] 外层包装: 仅管理 selectedReportId, 通过 key 强制子组件重渲染
+// [v3.0.6.11-35] 外层包装: 从 API 加载数据替代 mock
 const EyeReportWritePage: React.FC = () => {
-  const [selectedReportId, setSelectedReportId] = useState(MOCK_REPORTS[0].id);
-  const report = MOCK_REPORTS.find((r) => r.id === selectedReportId);
+  const [reports, setReports] = useState<OphthalmologyReport[]>([]);
+  const [templates, setTemplates] = useState<ReportTemplate[]>([]);
+  const [findingsLibrary, setFindingsLibrary] = useState<FindingLibraryItem[]>([]);
+  const [auditEntries, setAuditEntries] = useState<ReportAuditEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedReportId, setSelectedReportId] = useState<string>("");
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setLoading(true);
+      try {
+        const [reportsRes, templatesRes, findingsRes] = await Promise.all([
+          eyeApi.getReports(),
+          eyeApi.getTemplates(),
+          eyeApi.getReports().then(() => eyeApi.getReports()),
+        ]);
+        if (cancelled) return;
+        if (reportsRes.success && Array.isArray(reportsRes.data)) {
+          setReports(reportsRes.data as unknown as OphthalmologyReport[]);
+          if ((reportsRes.data as unknown as OphthalmologyReport[]).length > 0) {
+            setSelectedReportId((reportsRes.data as unknown as OphthalmologyReport[])[0].id);
+          }
+        }
+        if (templatesRes.success && Array.isArray(templatesRes.data)) {
+          setTemplates(templatesRes.data as unknown as ReportTemplate[]);
+        }
+      } catch {
+        if (!cancelled) message.error("加载报告数据失败");
+      }
+      if (!cancelled) setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const report = reports.find((r) => r.id === selectedReportId);
+
+  if (loading) {
+    return (
+      <div style={{ padding: 24, textAlign: "center" }}>
+        <Spin tip="加载报告数据..." />
+      </div>
+    );
+  }
+
+  if (reports.length === 0) {
+    return <Alert message="暂无报告数据" type="warning" showIcon style={{ margin: 24 }} />;
+  }
+
   if (!report) return <Alert message="未找到报告" type="warning" showIcon style={{ margin: 24 }} />;
   return (
     <>
@@ -641,13 +686,19 @@ const EyeReportWritePage: React.FC = () => {
           value={selectedReportId}
           onChange={setSelectedReportId}
           style={{ width: 220 }}
-          options={MOCK_REPORTS.map((r) => ({
+          options={reports.map((r) => ({
             value: r.id,
             label: `${r.patientName} — ${MODALITY_LABELS[r.modality] || r.modality}`,
           }))}
         />
       </div>
-      <ReportEditor key={report.id} report={report} />
+      <ReportEditor
+        key={report.id}
+        report={report}
+        templates={templates}
+        findingsLibrary={findingsLibrary}
+        auditEntries={auditEntries}
+      />
     </>
   );
 };

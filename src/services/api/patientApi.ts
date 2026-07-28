@@ -29,27 +29,12 @@ export const patientApi = {
     return res
   },
 
-  getExams: (id: string) =>
-    api.get<unknown[]>(`/patients/${id}/exams`),
-
   getReports: (id: string) =>
     api.get<unknown[]>(`/patients/${id}/reports`),
 
+  getExams: (id: string) =>
+    api.get<unknown[]>(`/patients/${id}/exams`),
+
   getTimeline: (id: string) =>
     api.get<any[]>(`/patients/${id}/timeline`),
-
-  getStats: (params?: { modality?: string }) =>
-    api.get<any>(`/patients/stats?${new URLSearchParams(params as Record<string, string> ?? {}).toString()}`),
-
-  getByModality: (modality: string) =>
-    api.get<PatientDto[]>(`/patients/by-modality/${modality}`),
-
-  getByStatus: (status: string) =>
-    api.get<PatientDto[]>(`/patients/by-status/${status}`),
-
-  exportCsv: (params?: PatientQueryParams) =>
-    api.get<{ url: string }>(`/patients/export.csv?${new URLSearchParams(params as Record<string, string> ?? {}).toString()}`),
-
-  bulkImport: (data: Partial<PatientDto>[]) =>
-    api.post<{ imported: number }>('/patients/bulk-import', { patients: data }),
 }

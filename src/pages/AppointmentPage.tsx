@@ -1187,9 +1187,7 @@ export default function AppointmentPage() {
   const [listFilterDate, setListFilterDate] = useState<string>("");
   const [listFilterStatus, setListFilterStatus] = useState<string>("all");
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [appointments, setAppointments] = useState<Appointment[]>(
-    generateMockAppointments(),
-  );
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -1197,24 +1195,55 @@ export default function AppointmentPage() {
     let cancelled = false;
     void (async () => {
       setLoading(true);
-      const res = await appointmentApi.list();
-      if (cancelled) return;
-      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-        setAppointments(res.data as unknown as Appointment[]);
-        setLoadError(null);
-      } else {
-        setAppointments(generateMockAppointments());
-        setLoadError("API 不可用,使用本地 mock 数据");
+      try {
+        const [aptRes, rulesRes] = await Promise.all([
+          appointmentApi.list(),
+          appointmentApi.getRules(),
+        ]);
+        if (cancelled) return;
+        if (aptRes.success && Array.isArray(aptRes.data)) {
+          setAppointments(aptRes.data as unknown as Appointment[]);
+          setLoadError(null);
+        } else {
+          setAppointments([]);
+          setLoadError(aptRes.error?.message || "加载预约数据失败");
+        }
+        if (rulesRes.success && Array.isArray(rulesRes.data)) {
+          setRules(rulesRes.data as unknown as AppointmentRules[]);
+        }
+      } catch {
+        if (!cancelled) setLoadError("加载预约数据失败");
       }
-      setLoading(false);
+      if (!cancelled) setLoading(false);
     })();
     return () => {
       cancelled = true;
     };
   }, []);
-  const [rules, setRules] = useState<AppointmentRules[]>(
-    generateDefaultRules(),
-  );
+  const [rules, setRules] = useState<AppointmentRules[]>([]);
+
+  // 加载辅助数据 (等候名单/提醒/改期/取消)
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const [wlRes, remRes, rsRes, cxRes] = await Promise.all([
+          appointmentApi.getWaitlist().catch(() => ({ success: false, data: [] })),
+          appointmentApi.getReminderRecords().catch(() => ({ success: false, data: [] })),
+          appointmentApi.getRescheduleRecords().catch(() => ({ success: false, data: [] })),
+          appointmentApi.getCancellationRecords().catch(() => ({ success: false, data: [] })),
+        ]);
+        if (cancelled) return;
+        if (wlRes.success && Array.isArray(wlRes.data)) setWaitlist(wlRes.data as unknown as WaitlistPatient[]);
+        if (remRes.success && Array.isArray(remRes.data)) setReminderRecords(remRes.data as unknown as ReminderRecord[]);
+        if (rsRes.success && Array.isArray(rsRes.data)) setRescheduleRecords(rsRes.data as unknown as RescheduleRecord[]);
+        if (cxRes.success && Array.isArray(cxRes.data)) setCancellationRecords(cxRes.data as unknown as CancellationRecord[]);
+      } catch {
+        // secondary data APIs may not be available
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   // 右侧面板
   const [showForm, setShowForm] = useState(false);
@@ -1242,7 +1271,7 @@ export default function AppointmentPage() {
   const [selectedDay, setSelectedDay] = useState<Date>(new Date());
 
   // 等候名单
-  const [waitlist] = useState<WaitlistPatient[]>(generateMockWaitlist());
+  const [waitlist, setWaitlist] = useState<WaitlistPatient[]>([]);
   const [showWaitlist, setShowWaitlist] = useState(false);
   const [waitlistNotifyLoading, setWaitlistNotifyLoading] = useState<
     string | null
@@ -1256,15 +1285,9 @@ export default function AppointmentPage() {
   const [preventSubmitOnConflict, setPreventSubmitOnConflict] = useState(false);
 
   // 提醒相关状态
-  const [reminderRecords] = useState<ReminderRecord[]>(
-    generateMockReminderRecords(),
-  );
-  const [rescheduleRecords] = useState<RescheduleRecord[]>(
-    generateMockRescheduleRecords(),
-  );
-  const [cancellationRecords] = useState<CancellationRecord[]>(
-    generateMockCancellationRecords(),
-  );
+  const [reminderRecords, setReminderRecords] = useState<ReminderRecord[]>([]);
+  const [rescheduleRecords, setRescheduleRecords] = useState<RescheduleRecord[]>([]);
+  const [cancellationRecords, setCancellationRecords] = useState<CancellationRecord[]>([]);
   const [reminderFilterStatus, setReminderFilterStatus] =
     useState<string>("all");
   const [reminderFilterChannel, setReminderFilterChannel] =

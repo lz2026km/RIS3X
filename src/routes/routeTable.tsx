@@ -358,6 +358,8 @@ const AiFusionWorkspacePage = lazy(() => import("../pages/ai/AiFusionWorkspacePa
 const AiCadPage = lazy(() => import("../pages/ai/AiCadPage"));
 const AiDraftPage = lazy(() => import("../pages/ai/AiDraftPage"));
 const AiRadsPage = lazy(() => import("../pages/ai/AiRadsPage"));
+const AiReviewPage = lazy(() => import("../pages/ai/AiReviewPage"));
+const AiProvidersPage = lazy(() => import("../pages/ai/AiProvidersPage"));
 const ClinicalCalculatorHubPage = lazy(() => import("../pages/clinical/ClinicalCalculatorHubPage"));
 const ConsentEducationPage = lazy(() => import("../pages/consent/ConsentEducationPage"));
 const PatientSafetyDashboardPage = lazy(() => import("../pages/safety/PatientSafetyDashboardPage"));
@@ -433,6 +435,8 @@ const OrchestratorPage = lazy(() => import("../pages/workflow/OrchestratorPage")
   const FhirPatientPage = lazy(() => import("../pages/fhir/FhirPatientPage"));
   const FhirObservationPage = lazy(() => import("../pages/fhir/FhirObservationPage"));
   const FhirSubscriptionPage = lazy(() => import("../pages/fhir/FhirSubscriptionPage"));
+  const FhirDiagnosticReportPage = lazy(() => import("../pages/fhir/FhirDiagnosticReportPage"));
+  const FhirImagingStudyPage = lazy(() => import("../pages/fhir/FhirImagingStudyPage"));
   const DicomDimsePage = lazy(() => import("../pages/dicom/DicomDimsePage"));
   const DicomSrTemplatePage = lazy(() => import("../pages/dicom/DicomSrTemplatePage"));
   const FusionManagerPage = lazy(() => import("../pages/fusion/FusionManagerPage"));
@@ -607,6 +611,8 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/rdsr": ["技师", "管理员", "主任"],
   // [Sprint 4] F13-F18 角色映射
   "/ai-marketplace": ["医生", "主任", "管理员"],
+  "/ai/review": ["医生", "主任", "管理员"],
+  "/ai/providers": ["管理员"],
   "/cross-modal-search": ["医生", "主任", "技师", "管理员"],
   "/dual-read": ["医生", "主任", "管理员"],
   "/tele-sign": ["医生", "主任", "管理员"],
@@ -616,6 +622,8 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   // [audit-fix-2026-07-28] 后端端点补齐路由角色映射
   "/fhir/patient": ["医生", "技师", "主任", "管理员"],
   "/fhir/observation": ["医生", "技师", "主任", "管理员"],
+  "/fhir/diagnostic-report": ["医生", "技师", "主任", "管理员"],
+  "/fhir/imaging-study": ["医生", "技师", "主任", "管理员"],
   "/fhir/subscription": ["管理员"],
   "/dicom/dimse": ["技师", "管理员", "医生", "主任"],
   "/dicom/sr-templates": ["医生", "技师", "主任", "管理员"],
@@ -899,6 +907,8 @@ export const routes: RouteObject[] = [
   wrapped("/ai-cad", React.createElement(AiCadPage)),
   wrapped("/ai-draft", React.createElement(AiDraftPage)),
   wrapped("/ai/rads-scoring", React.createElement(AiRadsPage)),
+  wrapped("/ai/review", React.createElement(AiReviewPage)),
+  wrapped("/ai/providers", React.createElement(AiProvidersPage)),
   wrapped("/clinical-calculators", React.createElement(ClinicalCalculatorHubPage)), // [v3.0.6.8-78]
   wrapped("/consent-education", React.createElement(ConsentEducationPage)), // [v3.0.6.8-79]
   wrapped("/patient-safety", React.createElement(PatientSafetyDashboardPage)), // [v3.0.6.8-80]
@@ -981,6 +991,8 @@ export const routes: RouteObject[] = [
   // [audit-fix-2026-07-28] 后端端点补齐: FHIR/DICOM/Fusion/Radiomics/IHE/HL7 前端页面
   wrapped("/fhir/patient", React.createElement(FhirPatientPage)),
   wrapped("/fhir/observation", React.createElement(FhirObservationPage)),
+  wrapped("/fhir/diagnostic-report", React.createElement(FhirDiagnosticReportPage)),
+  wrapped("/fhir/imaging-study", React.createElement(FhirImagingStudyPage)),
   wrapped("/fhir/subscription", React.createElement(FhirSubscriptionPage)),
   wrapped("/dicom/dimse", React.createElement(DicomDimsePage)),
   wrapped("/dicom/sr-templates", React.createElement(DicomSrTemplatePage)),

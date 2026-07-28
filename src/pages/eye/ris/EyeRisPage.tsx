@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Card,
   Row,
@@ -11,6 +11,7 @@ import {
   Button,
   Timeline,
   Empty,
+  Spin,
 } from "antd";
 import {
   Activity,
@@ -23,16 +24,17 @@ import {
   Bell,
 } from "lucide-react";
 import CriticalValueAlert from "@/components/eye/CriticalValueAlert";
-import {
-  MOCK_APPOINTMENTS,
-  MOCK_SURGERY_APPOINTMENTS,
-  MOCK_FOLLOW_UPS,
-  MOCK_REFERRALS,
-} from "@/data/eyeRisMock";
-import { MOCK_CRITICAL_VALUES } from "@/data/eyeCriticalValuesMock";
+import { eyeApi } from "../../services/api/eyeApi";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { AppEmpty } from "@/components/feedback";
 import { PageContainer, PageHeader } from "@/components/common";
+import type {
+  EyeAppointment,
+  SurgeryAppointment,
+  FollowUpReminder,
+  EyeReferral,
+  CriticalValue,
+} from "../../types/eye";
 
 
 const MODALITY_LABELS: Record<string, string> = { fundus_photo: '眼底彩照', oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: '视野', topography: '角膜地形图', pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: '裂隙灯', oct_a: 'OCTA', corneal_endothelium: '角膜内皮', tear_film: '泪膜', fundus_autofluorescence: '眼底自发荧光' };
@@ -56,9 +58,41 @@ const stepIndex: Record<FlowStepKey, number> = {
 };
 
 const EyeRisPage: React.FC = () => {
+  const [appointments, setAppointments] = useState<EyeAppointment[]>([]);
+  const [surgeryAppointments, setSurgeryAppointments] = useState<SurgeryAppointment[]>([]);
+  const [followUps, setFollowUps] = useState<FollowUpReminder[]>([]);
+  const [referrals, setReferrals] = useState<EyeReferral[]>([]);
+  const [criticalValues, setCriticalValues] = useState<CriticalValue[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setLoading(true);
+      try {
+        const [aptRes, surgRes, fuRes, refRes, cvRes] = await Promise.all([
+          eyeApi.getAppointments(),
+          eyeApi.getSurgeries(),
+          eyeApi.getFollowups(),
+          eyeApi.getReferrals(),
+          eyeApi.getReports().catch(() => ({ success: false, data: [] })),
+        ]);
+        if (cancelled) return;
+        if (aptRes.success && Array.isArray(aptRes.data)) setAppointments(aptRes.data as unknown as EyeAppointment[]);
+        if (surgRes.success && Array.isArray(surgRes.data)) setSurgeryAppointments(surgRes.data as unknown as SurgeryAppointment[]);
+        if (fuRes.success && Array.isArray(fuRes.data)) setFollowUps(fuRes.data as unknown as FollowUpReminder[]);
+        if (refRes.success && Array.isArray(refRes.data)) setReferrals(refRes.data as unknown as EyeReferral[]);
+      } catch {
+        // APIs may not be available
+      }
+      if (!cancelled) setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   const today = new Date().toISOString().split("T")[0];
-  const todayApts = MOCK_APPOINTMENTS.filter((a) => a.scheduledDate === today);
-  const upcomingApts = MOCK_APPOINTMENTS.filter(
+  const todayApts = appointments.filter((a) => a.scheduledDate === today);
+  const upcomingApts = appointments.filter(
     (a) => a.scheduledDate > today,
   ).slice(0, 5);
 
@@ -105,6 +139,14 @@ const EyeRisPage: React.FC = () => {
     no_show: "error",
   };
 
+  if (loading) {
+    return (
+      <PageContainer background="slate" maxWidth="full" padding={16} testId="eye-ris-page">
+        <div style={{ textAlign: "center", padding: 60 }}><Spin tip="加载 RIS 数据..." /></div>
+      </PageContainer>
+    );
+  }
+
   return (
     <PageContainer
       background="slate"
@@ -121,18 +163,18 @@ const EyeRisPage: React.FC = () => {
             <Tag color="green">今日预约 {todayApts.length}</Tag>
             <Tag color="orange">
               危急值{" "}
-              {MOCK_CRITICAL_VALUES.filter((c) => c.status === "open").length}
+              {criticalValues.filter((c) => c.status === "open").length}
             </Tag>
             <Tag color="blue">
               待处理转诊{" "}
-              {MOCK_REFERRALS.filter((r) => r.status === "pending").length}
+              {referrals.filter((r) => r.status === "pending").length}
             </Tag>
           </>
         }
       />
 
       <CriticalValueAlert
-        items={MOCK_CRITICAL_VALUES.filter((c) => c.status !== "resolved")}
+        items={criticalValues.filter((c) => c.status !== "resolved")}
       />
 
       <Row gutter={12}>
@@ -307,7 +349,7 @@ const EyeRisPage: React.FC = () => {
             }
           >
             <Table
-              dataSource={MOCK_FOLLOW_UPS}
+              dataSource={followUps}
               rowKey="id"
               size="small"
               pagination={{
@@ -359,7 +401,7 @@ const EyeRisPage: React.FC = () => {
             }
           >
             <Table
-              dataSource={MOCK_REFERRALS}
+              dataSource={referrals}
               rowKey="id"
               size="small"
               pagination={{
@@ -407,7 +449,7 @@ const EyeRisPage: React.FC = () => {
             }
           >
             <Table
-              dataSource={MOCK_SURGERY_APPOINTMENTS}
+              dataSource={surgeryAppointments}
               rowKey="id"
               size="small"
               pagination={{

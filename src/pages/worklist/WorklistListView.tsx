@@ -284,7 +284,7 @@ export function ListView({
       showToolbar={false}
       size="small"
       sticky
-      pagination={{ pageSize: 20 }}
+      pagination={{ pageSize: 10 }}
       scroll={{ x: 1400, y: "calc(100vh - 400px)" }}
       rowSelection={{
         preserveSelectedRowKeys: true,

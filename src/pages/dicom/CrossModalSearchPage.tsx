@@ -1,50 +1,46 @@
-import React, { useState } from 'react'
-import { Card, Input, Row, Col, Typography, Space, Tag, Button, Empty, Image } from 'antd'
+import React, { useState, useEffect } from 'react'
+import { Card, Input, Row, Col, Typography, Space, Tag, Button, Empty, Image, Spin } from 'antd'
 import { Search, ImageIcon, FileText } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { crossModalSearchApi, type CrossModalSearchResult } from '../../services/api'
 
 const { Text, Title } = Typography
-
-interface SearchResult {
-  id: string
-  patientName: string
-  patientId: string
-  modality: string
-  studyDate: string
-  description: string
-  similarity: number
-  thumbnail?: string
-}
-
-const mockResults: SearchResult[] = [
-  { id: 'img-001', patientName: 'Zhang San', patientId: 'P001', modality: 'CT', studyDate: '2026-07-10', description: 'Chest CT with nodule', similarity: 0.95, thumbnail: '/mock-images/ct-001.png' },
-  { id: 'img-002', patientName: 'Li Si', patientId: 'P002', modality: 'MR', studyDate: '2026-07-11', description: 'Brain MRI tumor', similarity: 0.88, thumbnail: '/mock-images/mr-001.png' },
-  { id: 'img-003', patientName: 'Wang Wu', patientId: 'P003', modality: 'CT', studyDate: '2026-07-12', description: 'Chest CT follow-up', similarity: 0.82, thumbnail: '/mock-images/ct-002.png' },
-  { id: 'img-004', patientName: 'Zhao Liu', patientId: 'P004', modality: 'DX', studyDate: '2026-07-09', description: 'Chest X-ray pneumonia', similarity: 0.79 },
-  { id: 'img-005', patientName: 'Chen Qi', patientId: 'P005', modality: 'MR', studyDate: '2026-07-08', description: 'Knee MRI meniscus tear', similarity: 0.91, thumbnail: '/mock-images/mr-001.png' },
-]
 
 const CrossModalSearchPage: React.FC = () => {
   const { t } = useTranslation('dicom')
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<SearchResult[]>(mockResults)
+  const [results, setResults] = useState<CrossModalSearchResult[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const handleSearch = () => {
-    if (!query.trim()) { setResults(mockResults); return }
-    const q = query.toLowerCase()
-    setResults(mockResults.filter(r =>
-      r.patientName.toLowerCase().includes(q) ||
-      r.patientId.toLowerCase().includes(q) ||
-      r.modality.toLowerCase().includes(q) ||
-      r.description.toLowerCase().includes(q)
-    ))
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      try {
+        const res = await crossModalSearchApi.search({ query: '' })
+        if (!cancelled && res.success && Array.isArray(res.data)) setResults(res.data)
+      } catch { /* API may not be available */ }
+      if (!cancelled) setLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
+
+  const handleSearch = async () => {
+    setLoading(true)
+    try {
+      const res = await crossModalSearchApi.search({ query: query.trim() })
+      if (res.success && Array.isArray(res.data)) setResults(res.data)
+    } catch { /* keep current results */ }
+    setLoading(false)
   }
 
-  const handleSimilar = (id: string) => {
-    const source = mockResults.find(r => r.id === id)
-    if (!source) return
-    const similar = mockResults.filter(r => r.id !== id).sort((a, b) => b.similarity - a.similarity).slice(0, 5)
-    setResults(similar)
+  const handleSimilar = async (id: string) => {
+    setLoading(true)
+    try {
+      const res = await crossModalSearchApi.findSimilar(id)
+      if (res.success && Array.isArray(res.data)) setResults(res.data)
+    } catch { /* keep current results */ }
+    setLoading(false)
   }
 
   const modalityColors: Record<string, string> = { CT: 'cyan', MR: 'purple', DX: 'orange', MG: 'pink', US: 'blue' }
@@ -68,7 +64,7 @@ const CrossModalSearchPage: React.FC = () => {
           <Text type="secondary">支持文本和影像特征混合搜索</Text>
         </Space>
       </Card>
-      {results.length === 0 ? <Empty description="未找到匹配结果" /> : (
+      {loading ? <Spin size="large" style={{ display: 'block', margin: '40px auto' }} /> : results.length === 0 ? <Empty description="未找到匹配结果" /> : (
         <Row gutter={[16, 16]}>
           {results.map(r => (
             <Col key={r.id} xs={24} sm={12} md={8} lg={6}>

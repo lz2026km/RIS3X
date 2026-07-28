@@ -10,8 +10,8 @@ export const cosignApi = {
   pendingbyIdApprove: (id: string, data: Record<string, unknown>) => api.post<unknown>(`/cosign/pending/${id}/approve`, data),
   pendingbyIdReject: (id: string, data: Record<string, unknown>) => api.post<unknown>(`/cosign/pending/${id}/reject`, data),
   history: () => api.get<unknown>('/cosign/history'),
-  rules: () => api.get<unknown>('/cosign/rules'),
-  rules: (data: Record<string, unknown>) => api.post<unknown>('/cosign/rules', data),
+  listRules: () => api.get<unknown>('/cosign/rules'),
+  createRule: (data: Record<string, unknown>) => api.post<unknown>('/cosign/rules', data),
   stats: () => api.get<unknown>('/cosign/stats'),
 }
 

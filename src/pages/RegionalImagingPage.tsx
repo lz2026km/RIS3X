@@ -1,357 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { message } from "antd";
+import {
+  regionalApi,
+  type AccessApplicationDto,
+  type ConsultationRequestDto,
+  type AccessRecordDto,
+  type InstitutionDto,
+  type CrossInstitutionStudyDto,
+  type DocumentRegistryEntryDto,
+  type AuditTrailEntryDto,
+} from "../services/api/regionalApi";
 
 // Types
-interface AccessApplication {
-  id: string;
-  patientName: string;
-  patientId: string;
-  hospital: string;
-  modality: string;
-  studyDate: string;
-  reason: string;
-  status: "pending" | "approved" | "rejected";
-  applyDate: string;
-}
+type AccessApplication = AccessApplicationDto;
+type ConsultationRequest = ConsultationRequestDto;
+type AccessRecord = AccessRecordDto;
+type Institution = InstitutionDto;
+type DocumentEntry = DocumentRegistryEntryDto;
 
-interface ConsultationRequest {
-  id: string;
-  patientName: string;
-  hospital: string;
-  diagnosis: string;
-  priority: "normal" | "urgent" | "critical";
-  status: "open" | "in-progress" | "completed";
-  createDate: string;
-  expert?: string;
-}
-
-interface AccessRecord {
-  id: string;
-  patientName: string;
-  patientId: string;
-  studyType: string;
-  hospital: string;
-  accessTime: string;
-  accessor: string;
-  purpose: string;
-}
-
-interface Institution {
-  id: string;
-  name: string;
-  aeTitle: string;
-  address: string;
-  status: "online" | "offline" | "busy";
-}
-
-interface DocumentEntry {
-  id: string;
-  patientId: string;
-  patientName: string;
-  studyUid: string;
-  studyDescription: string;
-  modality: string;
-  institution: string;
-  date: string;
-  status: string;
-}
-
-// Mock Data
-const mockApplications: AccessApplication[] = [
-  {
-    id: "APP001",
-    patientName: "张伟",
-    patientId: "310101199001011234",
-    hospital: "东华区第一医院",
-    modality: "CT",
-    studyDate: "2026-04-28",
-    reason: "复诊对比",
-    status: "pending",
-    applyDate: "2026-05-02",
-  },
-  {
-    id: "APP002",
-    patientName: "李娜",
-    patientId: "310102198505052345",
-    hospital: "国家医学中心直属医院",
-    modality: "MRI",
-    studyDate: "2026-04-25",
-    reason: "术前评估",
-    status: "approved",
-    applyDate: "2026-05-01",
-  },
-  {
-    id: "APP003",
-    patientName: "王强",
-    patientId: "310103199203034567",
-    hospital: "青浦区分院",
-    modality: "X-Ray",
-    studyDate: "2026-04-30",
-    reason: "急诊阅片",
-    status: "pending",
-    applyDate: "2026-05-03",
-  },
-  {
-    id: "APP004",
-    patientName: "赵敏",
-    patientId: "310104198808088765",
-    hospital: "东华区第一医院",
-    modality: "CT",
-    studyDate: "2026-04-20",
-    reason: "疗效评估",
-    status: "rejected",
-    applyDate: "2026-04-30",
-  },
-];
-
-const mockConsultations: ConsultationRequest[] = [
-  {
-    id: "CON001",
-    patientName: "孙丽",
-    hospital: "东华区第一医院",
-    diagnosis: "肺部结节待查",
-    priority: "urgent",
-    status: "in-progress",
-    createDate: "2026-05-01",
-    expert: "呼吸科专家-李明",
-  },
-  {
-    id: "CON002",
-    patientName: "周杰",
-    hospital: "青浦区分院",
-    diagnosis: "脑梗死后遗症",
-    priority: "normal",
-    status: "open",
-    createDate: "2026-05-02",
-  },
-  {
-    id: "CON003",
-    patientName: "吴芳",
-    hospital: "国家医学中心直属医院",
-    diagnosis: "髋关节骨折",
-    priority: "critical",
-    status: "completed",
-    createDate: "2026-04-28",
-    expert: "骨科专家-张华",
-  },
-  {
-    id: "CON004",
-    patientName: "郑涛",
-    hospital: "东华区第一医院",
-    diagnosis: "胃癌术后复查",
-    priority: "normal",
-    status: "open",
-    createDate: "2026-05-03",
-  },
-];
-
-const mockAccessRecords: AccessRecord[] = [
-  {
-    id: "REC001",
-    patientName: "张伟",
-    patientId: "310101199001011234",
-    studyType: "胸部CT",
-    hospital: "东华区第一医院",
-    accessTime: "2026-05-02 14:30",
-    accessor: "王医生",
-    purpose: "诊断参考",
-  },
-  {
-    id: "REC002",
-    patientName: "李娜",
-    patientId: "310102198505052345",
-    studyType: "颅脑MRI",
-    hospital: "国家医学中心直属医院",
-    accessTime: "2026-05-01 09:15",
-    accessor: "李主任",
-    purpose: "会诊讨论",
-  },
-  {
-    id: "REC003",
-    patientName: "刘洋",
-    patientId: "310105199010107890",
-    studyType: "腹部CT",
-    hospital: "青浦区分院",
-    accessTime: "2026-04-30 16:45",
-    accessor: "张医生",
-    purpose: "术后评估",
-  },
-  {
-    id: "REC004",
-    patientName: "陈静",
-    patientId: "310106198303031234",
-    studyType: "心脏彩超",
-    hospital: "东华区第一医院",
-    accessTime: "2026-04-29 11:20",
-    accessor: "心内科-赵主任",
-    purpose: "治疗方案制定",
-  },
-  {
-    id: "REC005",
-    patientName: "黄磊",
-    patientId: "310107199506061234",
-    studyType: "腰椎MRI",
-    hospital: "国家医学中心直属医院",
-    accessTime: "2026-04-28 08:00",
-    accessor: "骨科-孙医生",
-    purpose: "手术规划",
-  },
-];
-
-// New mock data for cross-institution query
-const mockInstitutions: Institution[] = [
-  {
-    id: "H001",
-    name: "东华区第一医院",
-    aeTitle: "DONGHUA_PACS",
-    address: "东华区解放路100号",
-    status: "online",
-  },
-  {
-    id: "H002",
-    name: "国家医学中心直属医院",
-    aeTitle: "MEDCENTER_PACS",
-    address: "国家医学园区",
-    status: "online",
-  },
-  {
-    id: "H003",
-    name: "青浦区分院",
-    aeTitle: "QINGPU_PACS",
-    address: "青浦区新城路200号",
-    status: "online",
-  },
-  {
-    id: "H004",
-    name: "市第三人民医院",
-    aeTitle: "THIRD_PACS",
-    address: "市南区中山路300号",
-    status: "offline",
-  },
-  {
-    id: "H005",
-    name: "仁爱医院",
-    aeTitle: "RENAI_PACS",
-    address: "仁爱路50号",
-    status: "busy",
-  },
-];
-
-const mockQueryResults = [
-  {
-    id: "ST001",
-    patientId: "P10001",
-    patientName: "王建国",
-    studyUid: "1.2.840.113619.2.55.3.6047.1.1",
-    studyDescription: "胸部CT平扫",
-    modality: "CT",
-    institution: "东华区第一医院",
-    date: "2026-05-01",
-    status: "available",
-  },
-  {
-    id: "ST002",
-    patientId: "P10001",
-    patientName: "王建国",
-    studyUid: "1.2.840.113619.2.55.3.6047.1.2",
-    studyDescription: "颅脑MRI增强",
-    modality: "MR",
-    institution: "东华区第一医院",
-    date: "2026-04-28",
-    status: "available",
-  },
-  {
-    id: "ST003",
-    patientId: "P10002",
-    patientName: "李淑芬",
-    studyUid: "1.2.840.113619.2.55.3.6047.1.3",
-    studyDescription: "腹部CT增强",
-    modality: "CT",
-    institution: "国家医学中心直属医院",
-    date: "2026-05-02",
-    status: "available",
-  },
-  {
-    id: "ST004",
-    patientId: "P10003",
-    patientName: "张伟",
-    studyUid: "1.2.840.113619.2.55.3.6047.1.4",
-    studyDescription: "胸片正侧位",
-    modality: "DX",
-    institution: "青浦区分院",
-    date: "2026-04-30",
-    status: "available",
-  },
-];
-
-const mockDocRegistry: DocumentEntry[] = [
-  {
-    id: "DOC001",
-    patientId: "P10001",
-    patientName: "王建国",
-    studyUid: "1.2.840.113619.2.55.3.6047.1.1",
-    studyDescription: "胸部CT平扫",
-    modality: "CT",
-    institution: "东华区第一医院",
-    date: "2026-05-01",
-    status: "registered",
-  },
-  {
-    id: "DOC002",
-    patientId: "P10002",
-    patientName: "李淑芬",
-    studyUid: "1.2.840.113619.2.55.3.6047.1.3",
-    studyDescription: "腹部CT增强",
-    modality: "CT",
-    institution: "国家医学中心直属医院",
-    date: "2026-05-02",
-    status: "registered",
-  },
-  {
-    id: "DOC003",
-    patientId: "P10004",
-    patientName: "刘艳",
-    studyUid: "1.2.840.113619.2.55.3.6047.1.5",
-    studyDescription: "腰椎MRI矢状位",
-    modality: "MR",
-    institution: "青浦区分院",
-    date: "2026-04-29",
-    status: "registered",
-  },
-];
-
-const mockAuditTrail = [
-  {
-    id: "AUD001",
-    patientId: "P10001",
-    action: "查询",
-    institution: "东华区第一医院",
-    user: "王医生",
-    time: "2026-05-02 14:30",
-    details: "跨院调阅影像记录",
-  },
-  {
-    id: "AUD002",
-    patientId: "P10002",
-    action: "检索",
-    institution: "国家医学中心直属医院",
-    user: "李主任",
-    time: "2026-05-01 09:15",
-    details: "跨院检索患者检查",
-  },
-  {
-    id: "AUD003",
-    patientId: "P10003",
-    action: "调阅",
-    institution: "青浦区分院",
-    user: "张医生",
-    time: "2026-04-30 16:45",
-    details: "急诊远程调阅影像",
-  },
-];
+// Mock data removed - now fetched from API in each sub-component
 
 // Tab Components
 const ApplicationList: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
+  const [apps, setApps] = useState<AccessApplication[]>([]);
+  const [loading, setLoading] = useState(true);
   const [newApp, setNewApp] = useState({
     patientName: "",
     patientId: "",
@@ -360,15 +33,26 @@ const ApplicationList: React.FC = () => {
     reason: "",
   });
 
-  const handleSubmit = () => {
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await regionalApi.listApplications();
+        if (res.success && Array.isArray(res.data)) setApps(res.data);
+      } catch { message.error('加载申请列表失败'); }
+      finally { setLoading(false); }
+    })();
+  }, []);
+
+  const handleSubmit = async () => {
+    try {
+      const res = await regionalApi.createApplication(newApp);
+      if (res.success) {
+        setApps(prev => [...prev, res.data as AccessApplication]);
+        message.success('申请已提交');
+      }
+    } catch { message.error('提交申请失败'); }
     setShowModal(false);
-    setNewApp({
-      patientName: "",
-      patientId: "",
-      hospital: "东华区第一医院",
-      modality: "CT",
-      reason: "",
-    });
+    setNewApp({ patientName: "", patientId: "", hospital: "东华区第一医院", modality: "CT", reason: "" });
   };
 
   return (
@@ -392,7 +76,7 @@ const ApplicationList: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {mockApplications.map((app) => (
+          {apps.map((app) => (
             <tr key={app.id} style={styles.tableRow}>
               <td style={styles.td}>{app.id}</td>
               <td style={styles.td}>{app.patientName}</td>
@@ -505,16 +189,32 @@ const ApplicationList: React.FC = () => {
 };
 
 const ReceiveList: React.FC = () => {
-  const [apps, setApps] = useState(mockApplications);
-  const handleApprove = (id: string) => {
-    setApps(
-      apps.map((app) => (app.id === id ? { ...app, status: "approved" } : app)),
-    );
+  const [apps, setApps] = useState<AccessApplication[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await regionalApi.listApplications();
+        if (res.success && Array.isArray(res.data)) setApps(res.data);
+      } catch { message.error('加载接收列表失败'); }
+      finally { setLoading(false); }
+    })();
+  }, []);
+
+  const handleApprove = async (id: string) => {
+    try {
+      await regionalApi.approveApplication(id);
+      setApps(prev => prev.map(a => a.id === id ? { ...a, status: "approved" as const } : a));
+      message.success('已批准');
+    } catch { message.error('批准失败'); }
   };
-  const handleReject = (id: string) => {
-    setApps(
-      apps.map((app) => (app.id === id ? { ...app, status: "rejected" } : app)),
-    );
+  const handleReject = async (id: string) => {
+    try {
+      await regionalApi.rejectApplication(id);
+      setApps(prev => prev.map(a => a.id === id ? { ...a, status: "rejected" as const } : a));
+      message.success('已拒绝');
+    } catch { message.error('拒绝失败'); }
   };
 
   return (
@@ -578,22 +278,33 @@ const ConsultationRequests: React.FC = () => {
     diagnosis: "",
     priority: "normal",
   });
-  const [consultations, setConsultations] = useState(mockConsultations);
-  const handleSubmit = () => {
-    const con = {
-      id: `CON${String(consultations.length + 1).padStart(3, "0")}`,
-      ...newCon,
-      status: "open" as const,
-      createDate: new Date().toISOString().split("T")[0],
-    };
-    setConsultations([...consultations, con]);
+  const [consultations, setConsultations] = useState<ConsultationRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await regionalApi.listConsultationRequests();
+        if (res.success && Array.isArray(res.data)) setConsultations(res.data);
+      } catch { message.error('加载会诊请求失败'); }
+      finally { setLoading(false); }
+    })();
+  }, []);
+
+  const handleSubmit = async () => {
+    try {
+      const res = await regionalApi.createConsultationRequest({
+        ...newCon,
+        status: 'open',
+        createDate: new Date().toISOString().split("T")[0],
+      });
+      if (res.success) {
+        setConsultations(prev => [...prev, res.data as ConsultationRequest]);
+        message.success('会诊请求已提交');
+      }
+    } catch { message.error('提交会诊请求失败'); }
     setShowModal(false);
-    setNewCon({
-      patientName: "",
-      hospital: "东华区第一医院",
-      diagnosis: "",
-      priority: "normal",
-    });
+    setNewCon({ patientName: "", hospital: "东华区第一医院", diagnosis: "", priority: "normal" });
   };
 
   return (
@@ -799,6 +510,19 @@ const DicomViewer: React.FC = () => {
 };
 
 const AccessRecords: React.FC = () => {
+  const [records, setRecords] = useState<AccessRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await regionalApi.listAccessRecords();
+        if (res.success && Array.isArray(res.data)) setRecords(res.data);
+      } catch { message.error('加载调阅记录失败'); }
+      finally { setLoading(false); }
+    })();
+  }, []);
+
   return (
     <div style={styles.section}>
       <div style={styles.sectionHeader}>
@@ -818,7 +542,7 @@ const AccessRecords: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {mockAccessRecords.map((rec) => (
+          {records.map((rec) => (
             <tr key={rec.id} style={styles.tableRow}>
               <td style={styles.td}>{rec.id}</td>
               <td style={styles.td}>{rec.patientName}</td>
@@ -838,24 +562,41 @@ const AccessRecords: React.FC = () => {
 
 // ============ 新增: 跨机构查询 ============
 const CrossInstitutionQuery: React.FC = () => {
+  const [institutions, setInstitutions] = useState<Institution[]>([]);
   const [selectedInstitution, setSelectedInstitution] = useState("H001");
   const [queryType, setQueryType] = useState("patientId");
   const [queryValue, setQueryValue] = useState("");
-  const [results, setResults] = useState<typeof mockQueryResults>([]);
+  const [results, setResults] = useState<CrossInstitutionStudyDto[]>([]);
   const [retrieveProgress, setRetrieveProgress] = useState(0);
   const [retrieving, setRetrieving] = useState(false);
   const [queried, setQueried] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const handleQuery = () => {
-    setResults(
-      mockQueryResults.filter((r) =>
-        queryValue
-          ? r.patientId.includes(queryValue) ||
-            r.patientName.includes(queryValue)
-          : true,
-      ),
-    );
-    setQueried(true);
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await regionalApi.listInstitutions();
+        if (res.success && Array.isArray(res.data)) {
+          setInstitutions(res.data);
+          if (res.data.length > 0) setSelectedInstitution(res.data[0].id);
+        }
+      } catch { message.error('加载机构列表失败'); }
+      finally { setLoading(false); }
+    })();
+  }, []);
+
+  const handleQuery = async () => {
+    try {
+      const res = await regionalApi.crossInstitutionQuery({
+        institutionId: selectedInstitution,
+        queryType,
+        queryValue,
+      });
+      if (res.success && Array.isArray(res.data)) {
+        setResults(res.data);
+        setQueried(true);
+      }
+    } catch { message.error('跨院查询失败'); }
   };
 
   const handleRetrieve = (study: (typeof mockQueryResults)[0]) => {
@@ -918,7 +659,7 @@ const CrossInstitutionQuery: React.FC = () => {
               value={selectedInstitution}
               onChange={(e) => setSelectedInstitution(e.target.value)}
             >
-              {mockInstitutions
+              {institutions
                 .filter((i) => i.status === "online")
                 .map((i) => (
                   <option key={i.id} value={i.id}>
@@ -1004,7 +745,7 @@ const CrossInstitutionQuery: React.FC = () => {
         <div>
           <div style={{ fontSize: 13, color: "#94a3b8", marginBottom: 8 }}>
             查询结果: {results.length} 条检查记录 (来自{" "}
-            {mockInstitutions.find((i) => i.id === selectedInstitution)?.name})
+            {institutions.find((i) => i.id === selectedInstitution)?.name})
           </div>
           <table style={styles.table}>
             <thead>
@@ -1099,24 +840,42 @@ const CrossInstitutionQuery: React.FC = () => {
 // ============ 新增: IHE XDS-I ============
 const XDSIntegration: React.FC = () => {
   const [patientId, setPatientId] = useState("");
-  const [docs, setDocs] = useState<DocumentEntry[]>([]);
+  const [docs, setDocs] = useState<DocumentRegistryEntryDto[]>([]);
   const [queried, setQueried] = useState(false);
   const [pixResult, setPixResult] = useState<{
     local: string;
     remote: string;
   } | null>(null);
+  const [auditTrail, setAuditTrail] = useState<AuditTrailEntryDto[]>([]);
+  const [loadingAudit, setLoadingAudit] = useState(true);
 
-  const handleQueryRegistry = () => {
-    setDocs(
-      mockDocRegistry.filter((d) =>
-        patientId ? d.patientId.includes(patientId) : true,
-      ),
-    );
-    setQueried(true);
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await regionalApi.listAuditTrail();
+        if (res.success && Array.isArray(res.data)) setAuditTrail(res.data);
+      } catch { message.error('加载审计日志失败'); }
+      finally { setLoadingAudit(false); }
+    })();
+  }, []);
+
+  const handleQueryRegistry = async () => {
+    try {
+      const res = await regionalApi.listDocumentRegistry();
+      if (res.success && Array.isArray(res.data)) {
+        setDocs(res.data.filter(d => patientId ? d.patientId.includes(patientId) : true));
+        setQueried(true);
+      }
+    } catch { message.error('查询文档注册库失败'); }
   };
 
-  const handlePixQuery = () => {
-    setPixResult({ local: patientId, remote: `EXT-${patientId}-MAPPED` });
+  const handlePixQuery = async () => {
+    try {
+      const res = await regionalApi.pixQuery(patientId);
+      if (res.success && res.data) {
+        setPixResult(res.data as { local: string; remote: string });
+      }
+    } catch { message.error('PIX查询失败'); }
   };
 
   const handleRetrieveDoc = (doc: DocumentEntry) => {
@@ -1309,7 +1068,7 @@ const XDSIntegration: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {mockAuditTrail.map((a) => (
+            {auditTrail.map((a) => (
               <tr key={a.id} style={styles.tableRow}>
                 <td style={styles.td}>{a.patientId}</td>
                 <td style={styles.td}>{a.action}</td>

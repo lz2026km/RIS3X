@@ -128,7 +128,7 @@ export default function CloudStorageDashboardPage() {
           dataSource={ARCHIVE_JOBS}
           rowKey="id"
           size="small"
-          pagination={{ pageSize: 8 }}
+          pagination={{ pageSize: 10 }}
           columns={[
             { title: "任务", dataIndex: "id", key: "id", width: 110 },
             { title: "类型", dataIndex: "type", key: "type", width: 110, render: (t: string) => <Tag color={JOB_TYPE[t].color}>{JOB_TYPE[t].label}</Tag> },

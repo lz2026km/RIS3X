@@ -73,4 +73,32 @@ export const olapApi = {
 export const analyticsStatsApi = {
   getDashboard: () =>
     api.get<StatsDashboardDto>('/stats/dashboard'),
+
+  getForecast: (params: { department: string; startDate: string; endDate: string }) =>
+    api.get<ForecastPointDto[]>(`/stats/forecast?${new URLSearchParams(params as Record<string, string>).toString()}`),
+
+  getUtilization: () =>
+    api.get<UtilizationDto>('/stats/utilization'),
+
+  getAccuracy: () =>
+    api.get<AccuracyDto>('/stats/accuracy'),
+}
+
+export interface ForecastPointDto {
+  date: string
+  actual: number | null
+  forecast: number | null
+  upper: number | null
+  lower: number | null
+}
+
+export interface UtilizationDto {
+  current: number
+  target: number
+  max: number
+}
+
+export interface AccuracyDto {
+  value: number
+  previous: number
 }

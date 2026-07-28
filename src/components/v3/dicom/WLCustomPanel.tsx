@@ -23,8 +23,12 @@ export const WL_PRESETS: WLPreset[] = [
   { id: 'brain', name: '脑窗', ww: 80, wl: 40, color: '#3b82f6', organ: 'CT/MR 脑' },
   { id: 'softTissue', name: '软组织', ww: 400, wl: 40, color: '#8b5cf6', organ: 'CT 软组织' },
   { id: 'liver', name: '肝窗', ww: 150, wl: 30, color: '#f97316', organ: 'CT 肝' },
+  { id: 'liverContrast', name: '肝脏增强窗', ww: 200, wl: 60, color: '#ea580c', organ: 'CT 肝增强' },
   { id: 'abdomen', name: '腹窗', ww: 400, wl: 40, color: '#06b6d4', organ: 'CT 腹' },
-  { id: 'vascular', name: '血管窗', ww: 300, wl: 100, color: '#dc2626', organ: 'CTA 血管' },
+  { id: 'cardiac', name: '心脏窗', ww: 350, wl: 50, color: '#e11d48', organ: 'CT 心脏' },
+  { id: 'mammography', name: '乳腺窗', ww: 400, wl: 300, color: '#db2777', organ: 'MG 乳腺' },
+  { id: 'orbit', name: '眼眶窗', ww: 300, wl: 50, color: '#7c3aed', organ: 'CT 眼眶' },
+  { id: 'vascular', name: '血管窗', ww: 600, wl: 200, color: '#dc2626', organ: 'CTA 血管' },
 ]
 
 export interface WLCustomPanelProps {

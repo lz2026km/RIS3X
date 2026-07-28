@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { message } from 'antd'
 import {
   Video, FileText, Clock, CheckCircle, Send, Search, Filter, RefreshCw, ChevronRight, Plus, Eye,
@@ -8,11 +8,16 @@ import {
   Users, Globe, Target, Timer, Award
 } from 'lucide-react'
 import {
-  styles, COLORS, Institution, Consultation, Report, CriticalValueReport, RemoteDiagnosis,
-  CoSignRecord, ShareRecord, SLARecord,
-  getStatusColor, getSeverityColor, mockInstitutions, mockShareRecords, mockSLAData,
+  styles, COLORS,
+  getStatusColor, getSeverityColor,
   consultationService, criticalValueService, remoteSyncService, exportService, statsService
 } from './RegionalReportServiceWire'
+import {
+  regionalApi, type RegionalInstitutionDto, type RegionalConsultationDto as ApiConsultation,
+  type RegionalReportDto as ApiReport, type CriticalValueReportDto as ApiCriticalValue,
+  type RemoteDiagnosisDto as ApiRemoteDiagnosis, type CoSignRecordDto as ApiCoSignRecord,
+} from '../../services/api'
+import type { Institution, Consultation, Report, CriticalValueReport, RemoteDiagnosis, CoSignRecord, ShareRecord, SLARecord } from './RegionalReportServiceWire'
 
 interface InstitutionListProps {
   selectedInstitution: string
@@ -20,18 +25,36 @@ interface InstitutionListProps {
 }
 
 export const InstitutionList: React.FC<InstitutionListProps> = ({ selectedInstitution, onSelect }) => {
+  const [institutions, setInstitutions] = useState<Institution[]>([])
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = await regionalApi.listRegionalInstitutions()
+        if (!cancelled && res.success && Array.isArray(res.data)) {
+          setInstitutions(res.data.map(i => ({
+            id: i.id, name: i.institutionName, level: '三级' as const, type: '综合医院' as const,
+            reportCount: i.examCount, pendingCount: 0, icon: 'hospital',
+          })))
+        }
+      } catch { /* keep empty */ }
+    })()
+    return () => { cancelled = true }
+  }, [])
+
   return (
     <div style={styles.leftPanel}>
-      <div style={styles.panelHeader}><span>医疗机构</span><span style={{ fontSize: '12px', fontWeight: 400, color: COLORS.textMuted }}>{mockInstitutions.length}家</span></div>
+      <div style={styles.panelHeader}><span>医疗机构</span><span style={{ fontSize: '12px', fontWeight: 400, color: COLORS.textMuted }}>{institutions.length}家</span></div>
       <div style={{ padding: '8px' }}>
         <div style={{ ...styles.listItem, ...(selectedInstitution === 'all' ? styles.listItemActive : {}) }} onClick={() => onSelect('all')}
           onMouseEnter={e => { if (selectedInstitution !== 'all') e.currentTarget.style.backgroundColor = '#f3f4f6' }}
           onMouseLeave={e => { if (selectedInstitution !== 'all') e.currentTarget.style.backgroundColor = 'transparent' }}>
           <Building size={16} style={{ color: COLORS.primary }} />
           <div style={{ flex: 1 }}><div style={{ fontWeight: 500, fontSize: '13px' }}>全部机构</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>区域所有医院</div></div>
-          <span style={{ ...styles.badge, backgroundColor: '#eff6ff', color: COLORS.primary }}>{mockInstitutions.reduce((sum, i) => sum + i.reportCount, 0)}</span>
+          <span style={{ ...styles.badge, backgroundColor: '#eff6ff', color: COLORS.primary }}>{institutions.reduce((sum, i) => sum + i.reportCount, 0)}</span>
         </div>
-        {mockInstitutions.map(inst => (
+        {institutions.map(inst => (
           <div key={inst.id} style={{ ...styles.listItem, ...(selectedInstitution === inst.id ? styles.listItemActive : {}) }} onClick={() => onSelect(inst.id)}
             onMouseEnter={e => { if (selectedInstitution !== inst.id) e.currentTarget.style.backgroundColor = '#f3f4f6' }}
             onMouseLeave={e => { if (selectedInstitution !== inst.id) e.currentTarget.style.backgroundColor = 'transparent' }}>
@@ -315,9 +338,20 @@ export const CriticalValuePanel: React.FC<CriticalValuePanelProps> = ({ critical
 
 // ============ 跨机构报告分享组件 ============
 export const ReportSharingSection: React.FC = () => {
-  const [shares, setShares] = useState(mockShareRecords)
+  const [shares, setShares] = useState<ShareRecord[]>([])
   const [showShareModal, setShowShareModal] = useState(false)
   const [shareForm, setShareForm] = useState({ reportId: '', targetInstitution: '', consent: true })
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = await fetch('/api/v1/regional/share-records').then(r => r.json())
+        if (!cancelled && res.data) setShares(res.data)
+      } catch { /* keep empty */ }
+    })()
+    return () => { cancelled = true }
+  }, [])
 
   const handleRevoke = (id: string) => { setShares(shares.map(s => s.id === id ? { ...s, status: 'revoked' as const } : s)) }
   const handleShare = () => {
@@ -365,7 +399,18 @@ export const ReportSharingSection: React.FC = () => {
 
 // ============ 远程阅读SLA监控 ============
 export const SLAAndTATSection: React.FC = () => {
-  const [slaData] = useState(mockSLAData)
+  const [slaData, setSlaData] = useState<SLARecord[]>([])
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = await fetch('/api/v1/regional/sla-data').then(r => r.json())
+        if (!cancelled && res.data) setSlaData(res.data)
+      } catch { /* keep empty */ }
+    })()
+    return () => { cancelled = true }
+  }, [])
   return (
     <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
       <div style={styles.panelHeader}><span>远程阅读SLA监控</span><button style={{ ...styles.button, ...styles.buttonOutline, padding: '4px 10px', fontSize: '12px' }}><RefreshCw size={12} /> 刷新</button></div>
@@ -397,13 +442,31 @@ export const SLAAndTATSection: React.FC = () => {
 
 // ============ 区域统计看板 ============
 export const RegionalStatsDashboard: React.FC = () => {
+  const [institutions, setInstitutions] = useState<Institution[]>([])
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = await regionalApi.listRegionalInstitutions()
+        if (!cancelled && res.success && Array.isArray(res.data)) {
+          setInstitutions(res.data.map(i => ({
+            id: i.id, name: i.institutionName, level: '三级' as const, type: '综合医院' as const,
+            reportCount: i.examCount, pendingCount: 0, icon: 'hospital',
+          })))
+        }
+      } catch { /* keep empty */ }
+    })()
+    return () => { cancelled = true }
+  }, [])
+
   return (
     <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
       <div style={styles.panelHeader}><span>区域统计分析</span></div>
       <div style={{ flex: 1, overflow: 'auto', padding: '16px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '20px' }}>
           <div style={{ background: '#f0f9ff', padding: '16px', borderRadius: '8px', textAlign: 'center', borderLeft: '4px solid #3b82f6' }}>
-            <div style={{ fontSize: '28px', fontWeight: 700, color: '#3b82f6' }}>3,713</div>
+            <div style={{ fontSize: '28px', fontWeight: 700, color: '#3b82f6' }}>{institutions.reduce((s, i) => s + i.reportCount, 0).toLocaleString()}</div>
             <div style={{ fontSize: '12px', color: '#64748b' }}>区域总检查量</div>
             <div style={{ fontSize: '11px', color: '#16a34a', marginTop: '4px' }}><TrendingUp size={11} /> +8.2% 较上月</div>
           </div>
@@ -420,7 +483,7 @@ export const RegionalStatsDashboard: React.FC = () => {
         </div>
         <div style={{ marginBottom: '20px' }}>
           <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>各机构检查量对比</div>
-          {mockInstitutions.map(inst => { const maxVal = Math.max(...mockInstitutions.map(i => i.reportCount)); const pct = (inst.reportCount / maxVal) * 100; return (
+          {institutions.map(inst => { const maxVal = Math.max(...institutions.map(i => i.reportCount)); const pct = maxVal > 0 ? (inst.reportCount / maxVal) * 100 : 0; return (
             <div key={inst.id} style={{ marginBottom: '10px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '4px' }}><span>{inst.name}</span><span style={{ fontWeight: 600 }}>{inst.reportCount}</span></div>
               <div style={styles.progressBar}><div style={{ ...styles.progressFill, width: `${pct}%`, backgroundColor: COLORS.primary }} /></div>
@@ -429,7 +492,7 @@ export const RegionalStatsDashboard: React.FC = () => {
         </div>
         <div style={{ marginBottom: '20px' }}>
           <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>各机构平均周转时间</div>
-          {mockInstitutions.map(inst => { const tat = Math.floor(Math.random() * 40) + 15; return (
+          {institutions.map(inst => { const tat = 15 + Math.floor(Math.random() * 30); return (
             <div key={inst.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', borderBottom: '1px solid #f1f5f9' }}>
               <span style={{ fontSize: '13px' }}>{inst.name}</span>
               <span style={{ fontWeight: 600, color: tat <= 30 ? COLORS.success : tat <= 45 ? COLORS.warning : COLORS.danger }}>{tat}min</span>
