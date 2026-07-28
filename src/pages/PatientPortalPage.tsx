@@ -1288,7 +1288,7 @@ const PatientPortalPage: React.FC = () => {
         advice: '',
         hasFilm: false,
       }))
-    : MOCK_PATIENT_REPORTS;
+    : [];
 
   // Get image filter style for DICOM preview
   const getImageFilter = (img: ImagePreview) => {

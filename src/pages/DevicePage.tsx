@@ -606,6 +606,8 @@ export default function DevicePage() {
   const [, setDeviceStats] = useState<{ totalDevices: number; inUse: number; idle: number; maintenance: number } | null>(null)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [deviceFaults, setDeviceFaults] = useState<any[]>([])
+  const [equipmentLifecycle, setEquipmentLifecycle] = useState<any[]>([])
 
   useEffect(() => {
     let cancelled = false
@@ -622,6 +624,16 @@ export default function DevicePage() {
       setLoading(false)
     })()
     return () => { cancelled = true }
+  }, [])
+
+  // 加载 device-mgmt 模块数据
+  useEffect(() => {
+    deviceMgmtApi.listDeviceFaults().then(res => {
+      if (res.success && res.data) setDeviceFaults(res.data);
+    }).catch(() => {});
+    deviceMgmtApi.listEquipmentLifecycle().then(res => {
+      if (res.success && res.data) setEquipmentLifecycle(res.data);
+    }).catch(() => {});
   }, [])
 
   const TABS = [
