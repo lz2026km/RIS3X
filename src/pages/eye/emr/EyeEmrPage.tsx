@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   Row,
@@ -15,6 +15,7 @@ import {
   Alert,
   Space,
   Badge,
+  Spin,
 } from "antd";
 import {
   BookOpen,
@@ -27,19 +28,37 @@ import {
   Prescription,
 } from "lucide-react";
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
-import { MOCK_OPHTHALMOLOGY_EMR_LIST } from "@/data/eyeEmrMock";
+import { eyeApi } from "@/services/api/eyeApi";
 import { PageContainer, PageHeader } from "@/components/common";
 
 const EyeEmrPage: React.FC = () => {
-  const [selected, setSelected] = useState(MOCK_OPHTHALMOLOGY_EMR_LIST[0]);
+  const [emrList, setEmrList] = useState<any[]>([]);
+  const [selected, setSelected] = useState<any>(null);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setLoading(true);
+      try {
+        const res = await eyeApi.getEmr();
+        if (!cancelled && res.success && Array.isArray(res.data)) {
+          setEmrList(res.data);
+          if (res.data.length > 0) setSelected(res.data[0]);
+        }
+      } catch { /* API may not be available */ }
+      if (!cancelled) setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const filtered = search
-    ? MOCK_OPHTHALMOLOGY_EMR_LIST.filter(
+    ? emrList.filter(
         (e) =>
           e.patientId.includes(search) || e.chiefComplaint.includes(search),
       )
-    : MOCK_OPHTHALMOLOGY_EMR_LIST;
+    : emrList;
 
   return (
     <PageContainer background="slate" maxWidth="full" padding={16} testId="eye-emr-page">
@@ -57,6 +76,11 @@ const EyeEmrPage: React.FC = () => {
         }
       />
 
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: 60 }}><Spin tip="加载中..." /></div>
+      ) : !selected ? (
+        <Alert type="info" message="暂无病历数据" style={{ marginTop: 16 }} />
+      ) : (
       <Row gutter={12}>
         <Col span={6}>
           <Card size="small" title="病历列表">
@@ -372,6 +396,7 @@ const EyeEmrPage: React.FC = () => {
           </Card>
         </Col>
       </Row>
+      )}
     </PageContainer>
   );
 };

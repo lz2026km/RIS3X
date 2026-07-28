@@ -1,6 +1,6 @@
 // @ts-nocheck
 // G005 放射科RIS系统 - 设备故障登记页面（故障报修→维修→验收闭环管理）
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   AlertTriangle, Wrench, Activity, Clock, Search, CheckCircle,
   XCircle, RefreshCw, Plus, Filter, ChevronDown, ChevronUp,
@@ -13,6 +13,7 @@ import {
   LineChart, Line, PieChart as RePieChart, Pie, Cell, Legend,
   AreaChart, Area
 } from 'recharts'
+import { deviceMgmtApi, type DeviceFault } from '../services/api/deviceMgmtApi'
 
 // ============================================================
 // 样式常量
@@ -265,6 +266,13 @@ export default function DeviceFaultPage() {
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedRecord, setSelectedRecord] = useState<typeof INITIAL_FAULT_RECORDS[0] | null>(null)
   const [showDetailModal, setShowDetailModal] = useState(false)
+  const [apiFaults, setApiFaults] = useState<DeviceFault[]>([])
+
+  useEffect(() => {
+    deviceMgmtApi.listDeviceFaults().then(res => {
+      if (res.success && res.data) setApiFaults(res.data);
+    }).catch(() => {});
+  }, []);
 
   // 新增故障表单状态
   const [newFault, setNewFault] = useState({

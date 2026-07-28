@@ -1,19 +1,24 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Card, Table, Button, Space, Tag, Form, Input, Select, message, Descriptions, Slider, Empty, Progress } from 'antd'
 import { Layers, Play, Search, RefreshCw, Eye } from 'lucide-react'
-import { fusionApi, type FusionSeriesItem, type FusionRegisterResult, type FusionRenderResult } from '../../services/api/dicomApi'
+import {
+  fusionV2Api,
+  type FusionV2SeriesItem,
+  type FusionV2RegisterResult,
+  type FusionV2RenderResult,
+} from '../../services/api/fusionV2Api'
 
 export const FusionManagerPage: React.FC = () => {
   const [patientId, setPatientId] = useState('')
-  const [series, setSeries] = useState<FusionSeriesItem[]>([])
+  const [series, setSeries] = useState<FusionV2SeriesItem[]>([])
   const [loading, setLoading] = useState(false)
   const [fixedSeries, setFixedSeries] = useState<string>('')
   const [movingSeries, setMovingSeries] = useState<string>('')
-  const [transformType, setTransformType] = useState<'rigid' | 'affine' | 'deformable'>('rigid')
+  const [transformType, setTransformType] = useState<'rigid' | 'affine' | 'deformable' | 'nonlinear'>('rigid')
   const [registering, setRegistering] = useState(false)
-  const [registrationResult, setRegistrationResult] = useState<FusionRegisterResult | null>(null)
+  const [registrationResult, setRegistrationResult] = useState<FusionV2RegisterResult | null>(null)
   const [rendering, setRendering] = useState(false)
-  const [renderResult, setRenderResult] = useState<FusionRenderResult | null>(null)
+  const [renderResult, setRenderResult] = useState<FusionV2RenderResult | null>(null)
   const [alpha, setAlpha] = useState(50)
 
   const fetchSeries = async () => {
@@ -23,7 +28,7 @@ export const FusionManagerPage: React.FC = () => {
     }
     setLoading(true)
     try {
-      const res = await fusionApi.getSeries(patientId.trim())
+      const res = await fusionV2Api.getSeries(patientId.trim())
       if (res.success && res.data) {
         setSeries(res.data.series || [])
         message.success(`加载 ${res.data.series?.length || 0} 组序列`)
@@ -47,22 +52,23 @@ export const FusionManagerPage: React.FC = () => {
     setRegistering(true)
     setRegistrationResult(null)
     try {
-      const res = await fusionApi.register(fixedSeries, movingSeries, transformType)
+      const res = await fusionV2Api.register({ fixedSeriesUid: fixedSeries, movingSeriesUid: movingSeries, transformType })
       if (res.success && res.data) {
         setRegistrationResult(res.data)
         message.success(`配准完成: Dice=${res.data.metrics.dice.toFixed(3)}`)
       }
     } catch {
       message.warning('配准服务不可用，使用演示结果')
-      setRegistrationResult({
-        registrationId: `reg-${Date.now()}`,
-        fixedSeriesUid: fixedSeries,
-        movingSeriesUid: movingSeries,
-        transformType,
-        status: 'SUCCESS',
-        metrics: { dice: 0.92, hd95: 2.3, rmse: 1.1 },
-        matrix: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]],
-      })
+        setRegistrationResult({
+          registrationId: `reg-${Date.now()}`,
+          fixedSeriesUid: fixedSeries,
+          movingSeriesUid: movingSeries,
+          transformType,
+          status: 'completed',
+          metrics: { dice: 0.92, hd95: 2.3, rmse: 1.1 },
+          matrix: [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]],
+          processingTimeMs: 300,
+        })
     }
     setRegistering(false)
   }
@@ -75,7 +81,7 @@ export const FusionManagerPage: React.FC = () => {
     setRendering(true)
     setRenderResult(null)
     try {
-      const res = await fusionApi.render({
+      const res = await fusionV2Api.render({
         fixedSeriesUid: fixedSeries,
         movingSeriesUid: movingSeries,
         alpha: alpha / 100,
@@ -155,6 +161,7 @@ export const FusionManagerPage: React.FC = () => {
                     <Select.Option value="rigid">刚性配准 (Rigid)</Select.Option>
                     <Select.Option value="affine">仿射配准 (Affine)</Select.Option>
                     <Select.Option value="deformable">形变配准 (Deformable)</Select.Option>
+                    <Select.Option value="nonlinear">非线性配准 (Nonlinear)</Select.Option>
                   </Select>
                 </Form.Item>
                 <Space>
@@ -186,7 +193,7 @@ export const FusionManagerPage: React.FC = () => {
               <Descriptions column={3} size="small" bordered>
                 <Descriptions.Item label="Registration ID">{registrationResult.registrationId}</Descriptions.Item>
                 <Descriptions.Item label="配准类型"><Tag color="blue">{registrationResult.transformType}</Tag></Descriptions.Item>
-                <Descriptions.Item label="状态"><Tag color="green">{registrationResult.status}</Tag></Descriptions.Item>
+                <Descriptions.Item label="状态"><Tag color={registrationResult.status === 'completed' ? 'green' : 'blue'}>{registrationResult.status}</Tag></Descriptions.Item>
                 <Descriptions.Item label="Dice 系数">
                   <Progress percent={Math.round(registrationResult.metrics.dice * 100)} size="small" />
                 </Descriptions.Item>

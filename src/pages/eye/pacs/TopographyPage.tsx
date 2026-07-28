@@ -1,11 +1,30 @@
-import React from "react";
-import { Card, Row, Col, Tag, Space, Statistic } from "antd";
+import React, { useState, useEffect } from "react";
+import { Card, Row, Col, Tag, Space, Statistic, Spin } from "antd";
 import { Map, Eye, Thermometer } from "lucide-react";
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
-import { MOCK_EYE_STUDIES } from "@/data/eyePacsMock";
+import { eyeApi } from "@/services/api/eyeApi";
 
 const TopographyPage: React.FC = () => {
-  const study = MOCK_EYE_STUDIES.find((s) => s.modality === "topography");
+  const [study, setStudy] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setLoading(true);
+      try {
+        const res = await eyeApi.getStudies({ modality: 'topography' });
+        if (!cancelled && res.success && Array.isArray(res.data) && res.data.length > 0) {
+          setStudy(res.data[0]);
+        }
+      } catch { /* API may not be available */ }
+      if (!cancelled) setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  if (loading) return <div style={{ padding: 16, textAlign: 'center' }}><Spin tip="加载中..." /></div>;
+  if (!study) return <div style={{ padding: 16, textAlign: 'center' }}>无角膜地形图数据</div>;
   return (
     <div
       style={{

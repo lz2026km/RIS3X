@@ -19,14 +19,6 @@ interface PushNotificationItem {
   data?: Record<string, unknown>
 }
 
-const MOCK_PUSH_NOTIFICATIONS: PushNotificationItem[] = [
-  { id: 'PN001', title: '危急值通报', body: '患者王建军 - 血钾 6.8mmol/L，请及时处理', tag: 'critical-001', topic: 'critical', severity: 'critical', read: false, receivedAt: '2026-07-28 14:30', data: { patientId: 'P003', examId: 'E005' } },
-  { id: 'PN002', title: '报告完成通知', body: '患者张志刚 胸部CT平扫报告已完成', tag: 'report-002', topic: 'report', severity: 'info', read: true, receivedAt: '2026-07-28 13:15' },
-  { id: 'PN003', title: '排队叫号提醒', body: '候诊患者刘芳，请准备就诊', tag: 'queue-003', topic: 'appointment', severity: 'info', read: true, receivedAt: '2026-07-28 12:00' },
-  { id: 'PN004', title: '危急值跟进', body: '患者陈国强 冠脉CTA - 左前降支狭窄90%，需紧急处理', tag: 'critical-004', topic: 'critical', severity: 'critical', read: false, receivedAt: '2026-07-28 11:45', data: { patientId: 'P005', examId: 'E010' } },
-  { id: 'PN005', title: '系统升级通知', body: '系统将于今晚22:00进行维护升级', tag: 'system-005', topic: 'system', severity: 'warning', read: true, receivedAt: '2026-07-28 09:00' },
-]
-
 const SEVERITY_CONFIG: Record<string, { bg: string; color: string; borderColor: string; icon: React.ComponentType }> = {
   info: { bg: '#dbeafe', color: '#2563eb', borderColor: '#93c5fd', icon: Bell },
   warning: { bg: '#fef3c7', color: '#d97706', borderColor: '#fcd34d', icon: AlertTriangle },
@@ -41,7 +33,7 @@ const TOPIC_LABELS: Record<string, string> = {
 }
 
 export default function MobilePushPage() {
-  const [notifications, setNotifications] = useState<PushNotificationItem[]>(MOCK_PUSH_NOTIFICATIONS)
+  const [notifications, setNotifications] = useState<PushNotificationItem[]>([])
   const [filterTopic, setFilterTopic] = useState<string>('all')
   const [filterSeverity, setFilterSeverity] = useState<string>('all')
   const [pushEnabled, setPushEnabled] = useState(false)
@@ -53,6 +45,29 @@ export default function MobilePushPage() {
   useEffect(() => {
     setPushPermission(pushService.permission)
     setPushEnabled(pushService.permission === 'granted')
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = await fetch('/api/v1/mobile/push-notifications').then(r => r.json())
+        if (!cancelled && res.data && Array.isArray(res.data)) {
+          setNotifications(res.data.map((n: any) => ({
+            id: n.id || `PN${Date.now()}`,
+            title: n.title || '通知',
+            body: n.body || '',
+            tag: n.tag || '',
+            topic: n.topic || 'system',
+            severity: n.severity || 'info',
+            read: n.read || false,
+            receivedAt: n.receivedAt || new Date().toLocaleString('zh-CN'),
+            data: n.data,
+          })))
+        }
+      } catch { /* keep empty */ }
+    })()
+    return () => { cancelled = true }
   }, [])
 
   const filtered = notifications.filter((n) => {

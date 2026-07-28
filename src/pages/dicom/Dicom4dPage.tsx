@@ -11,7 +11,7 @@ interface PhaseState {
   frameRate: number
 }
 
-function generateMockPixel(frameIndex: number, totalFrames: number, size: number): ImageData {
+function generateFallbackPixel(frameIndex: number, totalFrames: number, size: number): ImageData {
   const canvas = document.createElement('canvas')
   canvas.width = size
   canvas.height = size
@@ -217,7 +217,7 @@ export default function Dicom4dPage() {
     ctx.clearRect(0, 0, w, h)
 
     if (frameCount > 0) {
-      const imgData = generateMockPixel(currentFrame, frameCount, 256)
+      const imgData = generateFallbackPixel(currentFrame, frameCount, 256)
       ctx.putImageData(imgData, Math.round((w - 256) / 2), Math.round((h - 256) / 2))
     }
 

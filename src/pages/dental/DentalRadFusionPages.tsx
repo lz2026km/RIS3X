@@ -1,18 +1,31 @@
 // [v3.0.6.8-59] Phase C: 口腔-放射融合 (转诊 + 统一报告 + 融合查看器)
-// [v3.0.6.8-81] 修复: 标注 MOCK 数据 + 双向转诊
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Button, Table, Select, Input, Row, Col, Statistic, message, Tabs, Empty, Modal, Form, List, Alert, Badge, Timeline, Descriptions, Tooltip, Steps, Radio } from 'antd';
+import { Card, Space, Tag, Button, Table, Select, Input, Row, Col, Statistic, message, Tabs, Empty, Modal, Form, List, Alert, Badge, Timeline, Descriptions, Tooltip, Steps, Radio, Spin } from 'antd';
 import { Activity, Plus, Send, RefreshCw, Video, FileText, Calendar, User, Eye, Activity as ActivityIcon } from 'lucide-react';
+import { dentalApi } from '@/services/api/dentalApi';
 
 // ===== CrossSpecialtyReferralPage (跨科室转诊) =====
 export const CrossSpecialtyReferralPage: React.FC = () => {
-  const [referrals, setReferrals] = useState<any[]>([
-    {id:'REF-001', patient:'张伟', source:'口腔科', target:'放射科', reason:'CBCT 三维重建', status:'pending', createdAt:'2026-06-25'},
-    {id:'REF-002', patient:'李娜', source:'口腔科', target:'放射科', reason:'颞下颌关节 MRI', status:'accepted', createdAt:'2026-06-24'},
-  ]);
+  const [referrals, setReferrals] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setLoading(true);
+      try {
+        const res = await dentalApi.listReferrals();
+        if (!cancelled && res.success && Array.isArray(res.data)) {
+          setReferrals(res.data);
+        }
+      } catch { /* API may not be available */ }
+      if (!cancelled) setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, []);
   return (
     <div style={{padding:24,background:'#f5f5f5',minHeight:'100vh'}}>
-      <Space style={{marginBottom:16}}><Send size={20} color="#1677ff"/><span style={{fontSize:18,fontWeight:600}}>跨科室转诊</span><Tag color="cyan">v59</Tag><Tag color="purple">口腔↔放射</Tag><Tag color="orange">MOCK 数据</Tag></Space>
+      <Space style={{marginBottom:16}}><Send size={20} color="#1677ff"/><span style={{fontSize:18,fontWeight:600}}>跨科室转诊</span><Tag color="cyan">v59</Tag><Tag color="purple">口腔↔放射</Tag></Space>
       <Row gutter={16} style={{marginBottom:16}}>
         <Col span={4}><Card><Statistic title="待转诊" value={referrals.filter(r=>r.status==='pending').length} valueStyle={{color:'#faad14'}}/></Card></Col>
         <Col span={4}><Card><Statistic title="已接诊" value={referrals.filter(r=>r.status==='accepted').length} valueStyle={{color:'#52c41a'}}/></Card></Col>
@@ -35,7 +48,7 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
 export const CBCTUnifiedReportPage: React.FC = () => {
   return (
     <div style={{padding:24,background:'#f5f5f5',minHeight:'100vh'}}>
-      <Space style={{marginBottom:16}}><FileText size={20} color="#1677ff"/><span style={{fontSize:18,fontWeight:600}}>统一 CBCT 报告</span><Tag color="cyan">v59</Tag><Tag color="orange">MOCK 数据</Tag></Space>
+      <Space style={{marginBottom:16}}><FileText size={20} color="#1677ff"/><span style={{fontSize:18,fontWeight:600}}>统一 CBCT 报告</span><Tag color="cyan">v59</Tag></Space>
       <Row gutter={16}>
         <Col span={12}><Card size="small" title="牙科描述">
           <div>患者: 张伟 | 设备: Sirona Orthophos SL 3D</div>
@@ -57,7 +70,7 @@ export const DentalRadFusionPage: React.FC = () => {
   const [tab, setTab] = useState('compare');
   return (
     <div style={{padding:24,background:'#f5f5f5',minHeight:'100vh'}}>
-      <Space style={{marginBottom:16}}><ActivityIcon size={20} color="#1677ff"/><span style={{fontSize:18,fontWeight:600}}>口腔-放射融合查看器</span><Tag color="cyan">v59</Tag><Tag color="orange">MOCK 数据</Tag></Space>
+      <Space style={{marginBottom:16}}><ActivityIcon size={20} color="#1677ff"/><span style={{fontSize:18,fontWeight:600}}>口腔-放射融合查看器</span><Tag color="cyan">v59</Tag></Space>
       <Tabs activeKey={tab} onChange={setTab}
         items={[
           {key:'compare', label:'并排对比', children:

@@ -1,12 +1,30 @@
-import React, { useState } from "react";
-import { Card, Row, Col, Tag, Space, Select, Table, Statistic } from "antd";
+import React, { useState, useEffect } from "react";
+import { Card, Row, Col, Tag, Space, Select, Table, Statistic, Spin } from "antd";
 import { ArrowLeftRight, Eye, TrendingUp, TrendingDown } from "lucide-react";
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
-import { MOCK_COMPARISON_PAIRS } from "@/data/eyeResearchMock";
+import { eyeApi } from "@/services/api/eyeApi";
 
 const ImageComparePage: React.FC = () => {
   const [pairIdx, setPairIdx] = useState(0);
-  const pair = MOCK_COMPARISON_PAIRS[pairIdx];
+  const [pairs, setPairs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setLoading(true);
+      try {
+        const res = await eyeApi.getComparison([]);
+        if (!cancelled && res.success && Array.isArray(res.data)) {
+          setPairs(res.data);
+        }
+      } catch { /* API may not be available */ }
+      if (!cancelled) setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const pair = pairs[pairIdx];
   return (
     <div
       style={{
@@ -24,7 +42,7 @@ const ImageComparePage: React.FC = () => {
               value={pairIdx}
               onChange={setPairIdx}
               style={{ width: 280 }}
-              options={MOCK_COMPARISON_PAIRS.map((p, i) => ({
+              options={pairs.map((p, i) => ({
                 value: i,
                 label: `${p.patientName} - ${p.eyeSide === "OD" ? "右" : "左"}眼 (${new Date(p.priorDate).toLocaleDateString()} vs ${new Date(p.currentDate).toLocaleDateString()})`,
               }))}

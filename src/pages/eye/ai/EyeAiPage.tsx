@@ -32,8 +32,6 @@ import {
   Clock,
 } from "lucide-react";
 import AiDiagnosisCard from "@/components/eye/AiDiagnosisCard";
-import { MOCK_AI_MODELS, MOCK_AI_DIAGNOSES } from "@/data/eyeAiMock";
-import { MOCK_EYE_STUDIES, MODALITY_LABELS } from "@/data/eyePacsMock";
 import { PageContainer, PageHeader } from "@/components/common";
 import { AppEmpty } from "@/components/feedback";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
@@ -62,17 +60,51 @@ const ROC_CURVE_DATA = [
   { fpr: 1.0, auc_dr: 1.0, auc_glaucoma: 1.0, auc_amd: 1.0, random: 1.0 },
 ];
 
+const MODALITY_LABELS: Record<string, string> = {
+  oct_a: "OCTA", corneal_endothelium: "角膜内皮", tear_film: "泪膜",
+  fundus_autofluorescence: "眼底自发荧光", fundus_photo: "眼底彩照", oct: "OCT",
+  ffa: "FFA", icga: "ICGA", visual_field: "视野", topography: "角膜地形图",
+  pentacam: "Pentacam", iol_master: "IOL Master", ubm: "UBM", slit_lamp: "裂隙灯",
+  borderline: "临界", cup_to_disc_ratio: "杯盘比", rim_width: "视盘缘宽度",
+  arteriovenous_ratio: "动静脉比", abnormal: "异常", v6: "v6", text: "文本",
+  findings_multi: "多发发现", images: "图像", productivity: "生产力", clinical: "临床",
+  operational: "运营", financial: "财务", critical_value: "危急值", pending_review: "待审核",
+};
+
 const EyeAiPage: React.FC = () => {
   const [tab, setTab] = useState("diagnoses");
   const bp = useBreakpoint();
   const isNarrow = bp === "xs" || bp === "sm";
-  const pendingDiag = MOCK_AI_DIAGNOSES.filter(
+  const [aiModels, setAiModels] = useState<any[]>([]);
+  const [aiDiagnoses, setAiDiagnoses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setLoading(true);
+      try {
+        const [modelsRes, diagRes] = await Promise.all([
+          eyeApi.listModels(),
+          eyeApi.listInferences(),
+        ]);
+        if (!cancelled) {
+          if (modelsRes.success && Array.isArray(modelsRes.data)) setAiModels(modelsRes.data);
+          if (diagRes.success && Array.isArray(diagRes.data)) setAiDiagnoses(diagRes.data);
+        }
+      } catch { /* API may not be available */ }
+      if (!cancelled) setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const pendingDiag = aiDiagnoses.filter(
     (d) => d.reviewStatus === "pending",
   );
-  const acceptedDiag = MOCK_AI_DIAGNOSES.filter(
+  const acceptedDiag = aiDiagnoses.filter(
     (d) => d.reviewStatus !== "pending",
   );
-  const totalDiag = MOCK_AI_DIAGNOSES.length;
+  const totalDiag = aiDiagnoses.length;
 
   return (
     <PageContainer background="slate" maxWidth="full" padding={16} testId="eye-ai-page">
@@ -94,7 +126,7 @@ const EyeAiPage: React.FC = () => {
           <Card size="small">
             <Statistic
               title="AI 模型数"
-              value={MOCK_AI_MODELS.length}
+              value={aiModels.length}
               prefix={<Brain size={18} color="#8b5cf6" />}
             />
           </Card>
@@ -113,7 +145,7 @@ const EyeAiPage: React.FC = () => {
             <Statistic
               title="阳性发现"
               value={
-                MOCK_AI_DIAGNOSES.filter((d) => d.severity !== "none").length
+                aiDiagnoses.filter((d) => d.severity !== "none").length
               }
               prefix={<AlertTriangle size={18} color="#ef4444" />}
             />
@@ -194,10 +226,10 @@ const EyeAiPage: React.FC = () => {
               },
               {
                 key: "models",
-                label: "AI 模型管理 (6)",
+                label: `AI 模型管理 (${aiModels.length})`,
                 children: (
                   <Table
-                    dataSource={MOCK_AI_MODELS}
+                    dataSource={aiModels}
                     rowKey="id"
                     size="small"
                     pagination={false}

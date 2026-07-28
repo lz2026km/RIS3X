@@ -13,13 +13,13 @@ interface DetailPanelProps {
   onClose: () => void
   activeTab: number
   setActiveTab: (v: number) => void
-  mockFollowUpRecords: FollowUpRecord[]
+  followUpRecords: FollowUpRecord[]
 }
 
 const labelStyle: React.CSSProperties = { fontSize: 12, color: '#94a3b8', marginBottom: 2 }
 const valueStyle: React.CSSProperties = { fontSize: 13, fontWeight: 600, color: '#1e3a5f' }
 
-export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, mockFollowUpRecords }: DetailPanelProps) => {
+export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpRecords }: DetailPanelProps) => {
   const tabs = [
     { label: '基本信息', icon: User },
     { label: '危急值详情', icon: AlertTriangle },
@@ -232,7 +232,7 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, mockFollowUp
         )}
 
         {activeTab === 4 && (
-          <FollowUpTab cv={cv} mockRecords={mockFollowUpRecords} />
+          <FollowUpTab cv={cv} records={followUpRecords} />
         )}
 
         {activeTab === 5 && (

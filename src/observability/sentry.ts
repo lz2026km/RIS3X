@@ -56,14 +56,17 @@ function scrubSensitive<T>(data: T): T {
 }
 
 /** 初始化 Sentry */
+let sentryInitialized = false;
 export function initSentry(): void {
-  if (!SENTRY_DSN) {
+  if (sentryInitialized) return;
+  if (!SENTRY_DSN || SENTRY_DSN.includes('your-sentry-dsn')) {
     if (import.meta.env.DEV) {
       console.info('[Sentry] DSN not configured, skipping init');
     }
     return;
   }
 
+  sentryInitialized = true;
   Sentry.init({
     dsn: SENTRY_DSN,
     environment: ENVIRONMENT,

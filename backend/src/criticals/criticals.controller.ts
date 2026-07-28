@@ -78,6 +78,16 @@ export class CriticalsController {
     })
   }
 
+  @Get('stats/missed')
+  getMissedStats() {
+    return this.service.getMissedStats()
+  }
+
+  @Get('stats/notification')
+  getNotificationStats() {
+    return this.service.getNotificationStats()
+  }
+
   @Get(':id')
   get(@Param('id') id: string) {
     return this.service.get(id)
@@ -121,5 +131,10 @@ export class CriticalsController {
   @Get(':criticalId/history')
   listHistory(@Param('criticalId') criticalId: string) {
     return this.service.listHistory(criticalId)
+  }
+
+  @Post(':id/escalation-chain')
+  runEscalationChain(@Param('id') id: string) {
+    return this.service.runEscalationChain(id)
   }
 }

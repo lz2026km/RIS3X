@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, Table, Modal, Form, Input, InputNumber, DatePicker, Badge, Empty, Segmented } from 'antd';
 import { Activity, Calendar, Clock, User, Armchair, Plus, CheckCircle2, BarChart3 } from 'lucide-react';
+import { dentalApi } from '@/services/api/dentalApi';
 
 const TIME_SLOTS = ['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00'];
 const APPT_TYPES = [
@@ -14,16 +15,6 @@ const APPT_TYPES = [
   { value: '种植', label: '种植' },
   { value: '正畸', label: '正畸' },
 ];
-const PATIENTS = [
-  { value: 'P100001', label: 'Zhang Wei (张伟)' },
-  { value: 'P100002', label: 'Li Na (李娜)' },
-  { value: 'P100003', label: 'Wang Fang (王芳)' },
-];
-const DENTISTS = [
-  { value: '王医生', label: '王医生' },
-  { value: '李医生', label: '李医生' },
-  { value: '张主任', label: '张主任' },
-];
 
 export const DENTAL_APPT_STATUS_LABELS_DICT: Record<string, string> = { scheduled: '已预约', 'in-progress': '进行中', completed: '已完成', cancelled: '已取消', 'no-show': '未到诊' };
 
@@ -32,6 +23,8 @@ export const DentalSchedulePage: React.FC = () => {
   const [chairs, setChairs] = useState<any[]>([]);
   const [appts, setAppts] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
+  const [patients, setPatients] = useState<any[]>([]);
+  const [dentists, setDentists] = useState<any[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
   const [selectedChair, setSelectedChair] = useState('all');
   const [createModal, setCreateModal] = useState(false);
@@ -41,14 +34,22 @@ export const DentalSchedulePage: React.FC = () => {
 
   const fetchData = async () => {
     try {
-      const [c, a, s] = await Promise.all([
-        fetch('/api/v1/dental/schedule/chairs').then(r=>r.json()).catch(()=>({data:[]})),
-        fetch(`/api/v1/dental/schedule/appointments?date=${selectedDate}`).then(r=>r.json()).catch(()=>({data:[]})),
-        fetch('/api/v1/dental/schedule/stats').then(r=>r.json()).catch(()=>({data:null})),
+      const [c, a, s, p, d] = await Promise.all([
+        dentalApi.getScheduleChairs().catch(() => ({ success: false, data: [] })),
+        dentalApi.getScheduleAppointments(selectedDate).catch(() => ({ success: false, data: [] })),
+        dentalApi.getScheduleStats().catch(() => ({ success: false, data: null })),
+        dentalApi.listPatients().catch(() => ({ success: false, data: [] })),
+        dentalApi.listDentists().catch(() => ({ success: false, data: [] })),
       ]);
       setChairs(c.data || []);
       setAppts(a.data || []);
       setStats(s.data);
+      if (p.success && Array.isArray(p.data)) {
+        setPatients(p.data.map((pt: any) => ({ value: pt.id || pt.patientId, label: `${pt.name} (${pt.id || pt.patientId})` })));
+      }
+      if (d.success && Array.isArray(d.data)) {
+        setDentists(d.data.map((dt: any) => ({ value: dt.name || dt.id, label: dt.name || dt.id })));
+      }
     } catch (e) { /* ignore */ }
   };
 
@@ -203,7 +204,7 @@ export const DentalSchedulePage: React.FC = () => {
       <Modal title="新建预约" open={createModal} onCancel={()=>{setCreateModal(false);form.resetFields();}} onOk={handleCreateAppt} confirmLoading={submitting} width={520}>
         <Form form={form} layout="vertical" size="small" initialValues={{ date: null, time: '09:00', type: '初诊', dentist: '王医生', chairId: undefined, patientId: undefined }}>
           <Form.Item label="患者" name="patientId" rules={[{ required: true, message: '请选择患者' }]}>
-            <Select options={PATIENTS} placeholder="选择患者" />
+            <Select options={patients} placeholder="选择患者" />
           </Form.Item>
           <Form.Item label="日期" name="date" rules={[{ required: true, message: '请选择日期' }]}>
             <DatePicker style={{ width: '100%' }} placeholder="选择预约日期" />
@@ -215,7 +216,7 @@ export const DentalSchedulePage: React.FC = () => {
             <Select options={chairs.map((c:any) => ({ value: c.id, label: c.name }))} placeholder="选择牙椅" />
           </Form.Item>
           <Form.Item label="医生" name="dentist" rules={[{ required: true }]}>
-            <Select options={DENTISTS} />
+            <Select options={dentists} />
           </Form.Item>
           <Form.Item label="类型" name="type" rules={[{ required: true }]}>
             <Select options={APPT_TYPES} />

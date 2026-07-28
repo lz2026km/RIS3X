@@ -1,23 +1,43 @@
-import React from "react";
-import { Card, Row, Col, Tag, Space, Statistic, Progress } from "antd";
+import React, { useState, useEffect } from "react";
+import { Card, Row, Col, Tag, Space, Statistic, Progress, Spin } from "antd";
 import { Eye, Activity, Target, Droplets } from "lucide-react";
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import AiDiagnosisCard from "@/components/eye/AiDiagnosisCard";
-import {
-  MOCK_EYE_STUDIES,
-  MOCK_EYE_MEASUREMENTS,
-  MODALITY_LABELS,
-} from "@/data/eyePacsMock";
-import { MOCK_AI_DIAGNOSES } from "@/data/eyeAiMock";
+import { eyeApi } from "@/services/api/eyeApi";
 
 const OctAngiographyPage: React.FC = () => {
-  const study = MOCK_EYE_STUDIES.find(
-    (s) => s.modality === "oct_a" && s.patientId === "p-1003",
-  )!;
-  const measurements = MOCK_EYE_MEASUREMENTS.filter(
-    (m) => m.studyId === study?.id,
-  );
-  const aiDiag = MOCK_AI_DIAGNOSES.filter((d) => d.studyId === study?.id);
+  const [study, setStudy] = useState<any>(null);
+  const [measurements, setMeasurements] = useState<any[]>([]);
+  const [aiDiag, setAiDiag] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setLoading(true);
+      try {
+        const [studiesRes, measRes, aiRes] = await Promise.all([
+          eyeApi.getStudies({ modality: 'oct_a' }),
+          eyeApi.getMeasurements().catch(() => ({ success: false, data: [] })),
+          eyeApi.listInferences().catch(() => ({ success: false, data: [] })),
+        ]);
+        if (!cancelled && studiesRes.success && Array.isArray(studiesRes.data) && studiesRes.data.length > 0) {
+          const s = studiesRes.data[0];
+          setStudy(s);
+          if (measRes.success && Array.isArray(measRes.data)) {
+            setMeasurements(measRes.data.filter((m: any) => m.studyId === s.id));
+          }
+          if (aiRes.success && Array.isArray(aiRes.data)) {
+            setAiDiag(aiRes.data.filter((d: any) => d.studyId === s.id));
+          }
+        }
+      } catch { /* API may not be available */ }
+      if (!cancelled) setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+  if (loading) return <div style={{ padding: 16, textAlign: 'center' }}><Spin tip="加载中..." /></div>;
+  if (!study) return <div style={{ padding: 16, textAlign: 'center' }}>无 OCT-A 检查数据</div>;
   return (
     <div
       style={{

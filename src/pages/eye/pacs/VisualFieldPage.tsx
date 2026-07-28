@@ -1,16 +1,39 @@
-import React from "react";
-import { Card, Row, Col, Tag, Space, Statistic } from "antd";
+import React, { useState, useEffect } from "react";
+import { Card, Row, Col, Tag, Space, Statistic, Spin } from "antd";
 import { Eye, Activity, Target, Brain } from "lucide-react";
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
-import {
-  MOCK_EYE_STUDIES,
-  MOCK_VISUAL_FIELDS,
-  MODALITY_LABELS,
-} from "@/data/eyePacsMock";
+import { eyeApi } from "@/services/api/eyeApi";
 
 const VisualFieldPage: React.FC = () => {
-  const study = MOCK_EYE_STUDIES.find((s) => s.modality === "visual_field")!;
-  const vf = MOCK_VISUAL_FIELDS.find((v) => v.studyId === study?.id);
+  const [study, setStudy] = useState<any>(null);
+  const [vf, setVf] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setLoading(true);
+      try {
+        const [studiesRes, vfRes] = await Promise.all([
+          eyeApi.getStudies({ modality: 'visual_field' }),
+          eyeApi.getVisualFields().catch(() => ({ success: false, data: [] })),
+        ]);
+        if (!cancelled && studiesRes.success && Array.isArray(studiesRes.data) && studiesRes.data.length > 0) {
+          const s = studiesRes.data[0];
+          setStudy(s);
+          if (vfRes.success && Array.isArray(vfRes.data)) {
+            const match = vfRes.data.find((v: any) => v.studyId === s.id);
+            if (match) setVf(match);
+          }
+        }
+      } catch { /* API may not be available */ }
+      if (!cancelled) setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  if (loading) return <div style={{ padding: 16, textAlign: 'center' }}><Spin tip="加载中..." /></div>;
+  if (!study) return <div style={{ padding: 16, textAlign: 'center' }}>无视野检查数据</div>;
   return (
     <div
       style={{

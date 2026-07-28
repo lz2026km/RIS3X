@@ -19,7 +19,7 @@ export const DentalImplant3DPage: React.FC = () => {
   const [selModel, setSelModel] = useState('BLT-RC-4.1x10');
   const canvas3dRef = useRef<HTMLCanvasElement>(null);
   const [activeSlice, setActiveSlice] = useState(50);
-  // MPR mock state
+  // MPR view state
   const [viewAxial, setViewAxial] = useState<'axial'|'sagittal'|'coronal'>('axial');
   const [ww, setWw] = useState(1500);
   const [wc, setWc] = useState(500);

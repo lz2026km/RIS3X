@@ -2,13 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { message } from 'antd';
 import { ArrowLeft, CheckCircle2, XCircle, AlertTriangle, FileText, Microscope } from 'lucide-react';
-
-interface RadPathRecord {
-  id: string; reportId: string; pathologyId: string; radFinding: string;
-  pathResult: string; consistency: 'concordant' | 'discordant' | 'pending';
-  notes?: string; createdAt: string;
-  report: { id: string; findings: string; conclusion: string; signedAt?: string; patient: { name: string; gender: string; birthDate?: string }; exam?: { modality: string; bodyPart: string; accessionNumber: string } };
-}
+import { radpathApi, type RadPathRecord } from '../../services/api/radpathApi';
 
 const consistencyColor: Record<string, string> = { concordant: '#10b981', discordant: '#ef4444', pending: '#94a3b8' };
 const consistencyLabel: Record<string, string> = { concordant: '一致', discordant: '不一致', pending: '待审' };
@@ -34,21 +28,25 @@ export default function RadPathDetailPage() {
   useEffect(() => {
     if (!reportId) return;
     setLoading(true);
-    fetch(`/api/radpath/report/${encodeURIComponent(reportId)}`)
-      .then(r => { if (!r.ok) throw new Error('未找到记录'); return r.json() })
-      .then(setRecord).catch(e => setError(e.message)).finally(() => setLoading(false));
+    radpathApi.findByReport(reportId)
+      .then(res => {
+        if (res.success && res.data) setRecord(res.data);
+        else throw new Error(res.error?.message || '未找到记录');
+      })
+      .catch(e => setError(e.message))
+      .finally(() => setLoading(false));
   }, [reportId]);
 
   const handleMark = useCallback(async (consistency: 'concordant' | 'discordant' | 'pending') => {
     if (!record) return;
     setSaving(true);
     try {
-      const res = await fetch('/api/radpath/consistency', {
-        method: 'PUT', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: record.id, consistency }),
-      });
-      if (!res.ok) throw new Error('标记失败');
-      setRecord({ ...record, consistency } as RadPathRecord);
+      const res = await radpathApi.updateConsistency({ id: record.id, consistency });
+      if (res.success && res.data) {
+        setRecord(res.data);
+      } else {
+        throw new Error(res.error?.message || '标记失败');
+      }
     } catch (e: any) { message.error(e.message || '标记失败') } finally { setSaving(false) }
   }, [record]);
 

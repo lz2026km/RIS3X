@@ -8,7 +8,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Library, BarChart3, ChevronRight, Edit3, Trash2, Save, Shield, Tag, Ruler, PenTool, Square, type LucideIcon } from 'lucide-react';
 import type { AnnotationTemplate } from '../../types/measurement';
 import AnnotationLibrary from '../../services/measurement/library/AnnotationLibrary';
-import { ANNOTATION_CATEGORY_DISTRIBUTION, ANNOTATION_SCOPE_DISTRIBUTION } from '../../data/measurement/annotationLibraryMock';
 
 const CATEGORY_LABEL: Record<AnnotationTemplate['category'], string> = {
   finding: '影像所见',
@@ -74,6 +73,18 @@ export default function AnnotationLibraryPage() {
 
   const selected = useMemo(() => items.find((i) => i.id === selectedId) ?? items[0], [items, selectedId]);
 
+  const categoryDistribution = useMemo(() => {
+    const dist: Record<string, number> = {};
+    items.forEach(item => { dist[item.category] = (dist[item.category] || 0) + 1; });
+    return dist;
+  }, [items]);
+
+  const scopeDistribution = useMemo(() => {
+    const dist: Record<string, number> = { private: 0, institution: 0, global: 0 };
+    items.forEach(item => { dist[item.sharedScope] = (dist[item.sharedScope] || 0) + 1; });
+    return dist;
+  }, [items]);
+
   const removeTemplate = async (id: string) => {
     if (!confirm('确认删除该模板?')) return;
     await AnnotationLibrary.remove(id);
@@ -110,8 +121,8 @@ export default function AnnotationLibraryPage() {
         </div>
         <div style={{ flex: 1 }} />
         <Stat label="总模板" value={items.length} Icon={Library} />
-        <Stat label="分类" value={Object.values(ANNOTATION_CATEGORY_DISTRIBUTION).reduce((a, b) => a + b, 0)} Icon={BarChart3} />
-        <Stat label="全院共享" value={ANNOTATION_SCOPE_DISTRIBUTION.institution} Icon={Shield} />
+        <Stat label="分类" value={Object.values(categoryDistribution).reduce((a, b) => a + b, 0)} Icon={BarChart3} />
+        <Stat label="全院共享" value={scopeDistribution.institution} Icon={Shield} />
       </header>
 
       <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr 320px', gap: 12, flex: 1, minHeight: 0 }}>
@@ -132,7 +143,7 @@ export default function AnnotationLibraryPage() {
               key={c}
               active={activeCat === c}
               label={CATEGORY_LABEL[c]}
-              count={ANNOTATION_CATEGORY_DISTRIBUTION[c]}
+              count={categoryDistribution[c] || 0}
               Icon={CATEGORY_ICON[c]}
               onClick={() => setActiveCat(c)}
             />

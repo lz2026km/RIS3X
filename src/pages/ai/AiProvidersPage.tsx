@@ -32,12 +32,12 @@ const AiProvidersPage: React.FC = () => {
         setProviderDetails(
           res.data.providers.map((p, idx) => ({
             id: p,
-            name: p === 'mock' ? 'Mock AI Provider' : `Provider ${p}`,
-            type: p === 'mock' ? '模拟' : '生产',
+            name: `Provider ${p}`,
+            type: '生产',
             status: p === res.data.active ? 'active' : 'inactive',
-            latency: Math.floor(Math.random() * 200) + 50,
-            accuracy: p === 'mock' ? 85 : Math.floor(Math.random() * 15) + 85,
-            requests: Math.floor(Math.random() * 1000) + 100,
+            latency: 0,
+            accuracy: 0,
+            requests: 0,
           }))
         )
       } else {

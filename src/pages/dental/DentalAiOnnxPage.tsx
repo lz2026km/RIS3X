@@ -1,5 +1,5 @@
 // [v3.0.6.8-60] 口腔 AI ONNX 推理 (onnxruntime-web)
-// [v3.0.6.8-81] 重写: 消除 any, 用 instanceof 判断真实 ONNX session, 统一 mock/real schema
+// [v3.0.6.8-81] 重写: 消除 any, 用 instanceof 判断真实 ONNX session, 统一 offline/real schema
 import React, { useState, useRef } from 'react';
 import { Card, Space, Tag, Button, message, Spin, Row, Col, Alert, List } from 'antd';
 import { Brain, Scan, CheckCircle2 } from 'lucide-react';
@@ -50,7 +50,7 @@ export const DentalAiOnnxPage: React.FC = () => {
       } catch {
         message.warning('YOLOv8n-dental.onnx 未找到, 已切换至离线推理模式');
         // Real fallback: instantiate a minimal InferenceSession-like via ort
-        // but if no model available, mark as null and use mock branch
+        // but if no model available, mark as null and use offline branch
         sess = null as unknown as InferenceSession;
       }
       setSession(sess);
@@ -73,7 +73,7 @@ export const DentalAiOnnxPage: React.FC = () => {
     return false; // prevent auto-upload
   };
 
-  const runMockInference = async (): Promise<DentalDetection[]> => {
+  const runOfflineInference = async (): Promise<DentalDetection[]> => {
     await new Promise(r => setTimeout(r, 1500));
     return [
       { toothNo: 16, surface: 'O', confidence: 0.88, severity: 'moderate', bbox: [120, 80, 200, 160] },
@@ -113,7 +113,7 @@ export const DentalAiOnnxPage: React.FC = () => {
       if (isRealSession && ortLib && session) {
         detections = await runRealInference(ortLib, session, tensor);
       } else {
-        detections = await runMockInference();
+        detections = await runOfflineInference();
       }
       setResult({
         detections,

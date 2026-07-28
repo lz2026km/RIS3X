@@ -7,6 +7,7 @@ import {
 import type { CriticalValue } from './types'
 import { PRIMARY_COLOR, PRIMARY_LIGHT } from './types'
 import type { NotificationMethod } from '../../services/api/criticalApi'
+import { criticalApi } from '../../services/api/criticalApi'
 import { TransferToFollowUpModal } from './CriticalValueFollowUp'
 
 // ---------- shared modal parts ----------
@@ -297,22 +298,40 @@ interface EscalationRule {
   escalateMethod: string[]; timeoutMinutes: number; enabled: boolean
 }
 
-const MOCK_ESCALATION_RULES: EscalationRule[] = [
-  { id: 'ES001', level: 1, triggerCondition: '30分钟内未确认', escalateTo: '科室主任', escalateMethod: ['电话通知', '短信通知'], timeoutMinutes: 30, enabled: true },
-  { id: 'ES002', level: 2, triggerCondition: '1小时内未处理', escalateTo: '医务科', escalateMethod: ['电话通知', '系统通知'], timeoutMinutes: 60, enabled: true },
-  { id: 'ES003', level: 3, triggerCondition: '2小时内未完成', escalateTo: '分管院长', escalateMethod: ['电话通知', '短信通知', '邮件通知'], timeoutMinutes: 120, enabled: true },
-  { id: 'ES004', level: 4, triggerCondition: '24小时内未闭环', escalateTo: '院长', escalateMethod: ['电话通知', '短信通知', '邮件通知', '现场走访'], timeoutMinutes: 1440, enabled: false },
-]
-
 export const RulesSettingsModal = ({ onClose, showToast }: {
   onClose: () => void; showToast: (msg: string, type?: 'success' | 'error') => void
 }) => {
   const [activeSection, setActiveSection] = useState<'range' | 'timeout' | 'notify' | 'escalation'>('range')
-  const [rules] = useState<CriticalValueRule[]>([
-    { id: 'R001', modality: 'CT', examItem: '冠脉CTA', resultName: '冠脉狭窄率', normalMin: '0', normalMax: '50', criticalMin: '70', criticalMax: '100', unit: '%', notifyTimeout: 30, notifyMethods: ['系统通知', '短信通知'], enabled: true },
-    { id: 'R002', modality: 'CT', examItem: '头颅CT平扫', resultName: '中线偏移', normalMin: '0', normalMax: '5', criticalMin: '5', criticalMax: '20', unit: 'mm', notifyTimeout: 15, notifyMethods: ['系统通知', '电话通知'], enabled: true },
-    { id: 'R003', modality: 'MR', examItem: '头颅MR平扫', resultName: '占位大小', normalMin: '0', normalMax: '0', criticalMin: '1', criticalMax: '200', unit: 'cm', notifyTimeout: 30, notifyMethods: ['系统通知'], enabled: true },
-  ])
+  const [rules, setRules] = useState<CriticalValueRule[]>([])
+  const [escalationRules, setEscalationRules] = useState<EscalationRule[]>([])
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = await criticalApi.listCriticalExtRules()
+        if (!cancelled && res.success && Array.isArray(res.data)) {
+          setRules(res.data as unknown as CriticalValueRule[])
+        }
+      } catch { /* API not available */ }
+      try {
+        const res = await criticalApi.listRules()
+        if (!cancelled && res.success && Array.isArray(res.data)) {
+          const mapped = (res.data as unknown[]).map((r: any, i: number) => ({
+            id: r.id || `ES${String(i + 1).padStart(3, '0')}`,
+            level: r.level || i + 1,
+            triggerCondition: r.triggerCondition || r.trigger || '',
+            escalateTo: r.escalateTo || r.role || '',
+            escalateMethod: r.escalateMethod || r.methods || ['系统通知'],
+            timeoutMinutes: r.timeoutMinutes || r.timeout || 30,
+            enabled: r.enabled ?? true,
+          }))
+          setEscalationRules(mapped)
+        }
+      } catch { /* API not available */ }
+    })()
+    return () => { cancelled = true }
+  }, [])
 
   const sections = [
     { key: 'range', label: '危急值范围', icon: AlertTriangle },
@@ -450,7 +469,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
                 </button>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {MOCK_ESCALATION_RULES.map((rule) => {
+                {escalationRules.map((rule) => {
                   const levelColors = ['#dc2626', '#d97706', '#2563eb', '#64748b']
                   return (
                     <div key={rule.id} style={{ background: '#f8fafc', borderRadius: 10, padding: 16, border: `1px solid ${rule.enabled ? '#a7f3d0' : '#e2e8f0'}`, position: 'relative', overflow: 'hidden' }}>

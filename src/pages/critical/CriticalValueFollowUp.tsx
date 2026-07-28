@@ -262,10 +262,10 @@ export const TransferToFollowUpModal = ({
 
 interface FollowUpTabProps {
   cv: CriticalValue;
-  mockRecords: FollowUpRecord[];
+  records: FollowUpRecord[];
 }
 
-export const FollowUpTab = ({ cv, mockRecords }: FollowUpTabProps) => {
+export const FollowUpTab = ({ cv, records }: FollowUpTabProps) => {
   const handleAddFollowUp = async () => {
     try {
       const result = await followUpService.create({
@@ -311,7 +311,7 @@ export const FollowUpTab = ({ cv, mockRecords }: FollowUpTabProps) => {
         </button>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        {mockRecords
+        {records
           .filter((r) => !r.relatedCVId || r.relatedCVId === cv.id)
           .slice(0, 3)
           .map((record) => (

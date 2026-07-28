@@ -7,7 +7,7 @@ import {
 import {
   styles, COLORS, Consultation, Report, RemoteDiagnosis, CoSignRecord, CriticalValueReport,
   Institution,
-  getStatusColor, getSeverityColor, mockInstitutions, consultationService, reportService
+  getStatusColor, getSeverityColor, consultationService, reportService
 } from './RegionalReportServiceWire'
 
 interface DetailProps {
@@ -305,18 +305,18 @@ export const StatCards: React.FC<StatCardsProps> = ({ filteredStats }) => {
 }
 
 interface RightPanelProps {
-  mockInstitutions: Institution[]
+  institutions: Institution[]
   onRefreshStats: () => void
 }
 
-export const RightPanel: React.FC<RightPanelProps> = ({ mockInstitutions, onRefreshStats }) => {
+export const RightPanel: React.FC<RightPanelProps> = ({ institutions, onRefreshStats }) => {
   return (
     <div style={styles.rightPanel}>
       <div style={styles.panelHeader}><span>区域统计</span><button style={{ ...styles.button, ...styles.buttonGhost, padding: '4px' }} onClick={onRefreshStats}><RefreshCw size={14} /></button></div>
       <div style={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
         <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '10px', color: COLORS.textMuted }}>各机构报告数量</div>
-        {mockInstitutions.map((inst) => {
-          const maxCount = Math.max(...mockInstitutions.map(i => i.reportCount))
+        {institutions.map((inst) => {
+          const maxCount = Math.max(...institutions.map(i => i.reportCount))
           const percentage = (inst.reportCount / maxCount) * 100
           return (
             <div key={inst.id} style={{ marginBottom: '10px' }}>
@@ -378,14 +378,14 @@ interface ModalContentProps {
   onSubmitConsultation: () => void
   onSubmitOpinion: () => void
   onReviewReport: (report: Report, result: '通过' | '驳回') => void
-  mockInstitutions: Institution[]
+  institutions: Institution[]
   onToast: (msg: string, success?: boolean) => void
 }
 
 export const ModalContent: React.FC<ModalContentProps> = ({
   modalType, showModal, onClose, consultationForm, onConsultationFormChange,
   opinionText, onOpinionTextChange, reviewText, onReviewTextChange,
-  selectedReport, onSubmitConsultation, onSubmitOpinion, onReviewReport, mockInstitutions, onToast
+  selectedReport, onSubmitConsultation, onSubmitOpinion, onReviewReport, institutions, onToast
 }) => {
   if (!showModal) return null
   const setForm = (v: any) => onConsultationFormChange({ ...consultationForm, ...v })
@@ -401,7 +401,7 @@ export const ModalContent: React.FC<ModalContentProps> = ({
                 <div style={{ ...styles.formGroup, flex: 1 }}><label style={styles.formLabel}>性别</label><select style={{ ...styles.input, width: '100%' }} value={consultationForm.gender} onChange={e => setForm({ gender: e.target.value })}><option value="男">男</option><option value="女">女</option></select></div>
                 <div style={{ ...styles.formGroup, flex: 1 }}><label style={styles.formLabel}>年龄</label><input type="number" style={{ ...styles.input, width: '100%' }} placeholder="年龄" value={consultationForm.age} onChange={e => setForm({ age: e.target.value })} /></div>
               </div>
-              <div style={styles.formGroup}><label style={styles.formLabel}>申请机构 *</label><select style={{ ...styles.input, width: '100%' }} value={consultationForm.institution} onChange={e => setForm({ institution: e.target.value })}><option value="">请选择机构</option>{mockInstitutions.map(inst => <option key={inst.id} value={inst.name}>{inst.name}</option>)}</select></div>
+              <div style={styles.formGroup}><label style={styles.formLabel}>申请机构 *</label><select style={{ ...styles.input, width: '100%' }} value={consultationForm.institution} onChange={e => setForm({ institution: e.target.value })}><option value="">请选择机构</option>{institutions.map(inst => <option key={inst.id} value={inst.name}>{inst.name}</option>)}</select></div>
             </div>
             <div style={styles.modalFooter}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={onClose}>取消</button><button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={onSubmitConsultation}>提交</button></div>
           </>
@@ -455,7 +455,7 @@ export const ModalContent: React.FC<ModalContentProps> = ({
             <div style={styles.modalBody}>
               <div style={styles.formGroup}><label style={styles.formLabel}>报告编号 *</label><input type="text" style={{ ...styles.input, width: '100%' }} placeholder="请输入报告编号" /></div>
               <div style={styles.formGroup}><label style={styles.formLabel}>检查类型</label><select style={{ ...styles.input, width: '100%' }}><option value="">请选择</option><option value="CT">CT</option><option value="MRI">MRI</option><option value="DR">DR</option><option value="超声">超声</option></select></div>
-              <div style={styles.formGroup}><label style={styles.formLabel}>参与机构</label><div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>{mockInstitutions.map(inst => <label key={inst.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><input type="checkbox" /> {inst.name}</label>)}</div></div>
+              <div style={styles.formGroup}><label style={styles.formLabel}>参与机构</label><div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>{institutions.map(inst => <label key={inst.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><input type="checkbox" /> {inst.name}</label>)}</div></div>
             </div>
             <div style={styles.modalFooter}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={onClose}>取消</button><button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={() => { onClose(); onToast('联合签发记录已创建', true) }}>创建</button></div>
           </>

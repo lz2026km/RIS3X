@@ -236,7 +236,7 @@ const RegionalReportPage: React.FC = () => {
         {activeMainTab === 'consultation' && (
           consultationTab === 'detail'
             ? <ConsultationDetail selectedConsultation={selectedConsultation} opinionText={opinionText} onOpinionTextChange={setOpinionText} onBack={handleBackFromConsultationDetail} onOpenModal={(t) => { setModalType(t); setShowModal(true) }} onSubmitOpinion={handleSubmitOpinion} remoteReportContent='' onRemoteReportContentChange={() => {}} reviewText='' onReviewTextChange={() => {}} onSubmitRemoteReport={() => {}} />
-            : <ConsultationList consultations={getFilteredConsultations()} selectedConsultation={selectedConsultation} consultationTab={consultationTab} onSelect={handleSelectConsultation} onAccept={handleAcceptConsultation} onApply={handleApplyConsultation} onTabChange={(k) => setConsultationTab(k as 'list' | 'apply' | 'detail')} searchKeyword={searchKeyword} onSearchChange={setSearchKeyword} />
+            : <ConsultationList consultations={getFilteredConsultations()} selectedConsultation={selectedConsultation} consultationTab={consultationTab} onSelect={handleSelectConsultation} onAccept={handleAcceptConsultation} onApply={handleApplyConsultation} onTabChange={(k) => setConsultationTab(k as 'list' | 'apply' | 'detail')} searchKeyword={searchKeyword} onSearchChange={setSearchKeyword} institutions={institutions.map(i => ({ id: i.id || '', name: i.institutionName || '', level: '三级' as const, type: '综合医院' as const, reportCount: i.examCount || 0, pendingCount: 0, icon: 'hospital' }))} />
         )}
         {activeMainTab === 'report' && (
           reportTab === 'detail'
@@ -262,7 +262,7 @@ const RegionalReportPage: React.FC = () => {
         {activeMainTab === 'sla' && <SLAAndTATSection />}
         {activeMainTab === 'regionalStats' && <RegionalStatsDashboard />}
 
-        <RightPanel mockInstitutions={institutions.length > 0 ? institutions : []} onRefreshStats={handleRefreshStats} />
+        <RightPanel institutions={institutions.map(i => ({ id: i.id || '', name: i.institutionName || '', level: '三级' as const, type: '综合医院' as const, reportCount: i.examCount || 0, pendingCount: 0, icon: 'hospital' }))} onRefreshStats={handleRefreshStats} />
       </div>
 
       <CriticalValuePanel
@@ -310,7 +310,7 @@ const RegionalReportPage: React.FC = () => {
         onSubmitConsultation={handleSubmitConsultation}
         onSubmitOpinion={handleSubmitOpinion}
         onReviewReport={handleReviewReport}
-        mockInstitutions={institutions.length > 0 ? institutions : []}
+        institutions={institutions.map(i => ({ id: i.id || '', name: i.institutionName || '', level: '三级' as const, type: '综合医院' as const, reportCount: i.examCount || 0, pendingCount: 0, icon: 'hospital' }))}
         onToast={(msg, success) => showToast(msg, success)}
       />
     </div>

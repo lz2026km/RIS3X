@@ -84,7 +84,6 @@ const SEGMENT_TYPE_LABELS_DICT: Record<string, string> = {
   grading_scale: '分级标度', diagnosis: '诊断', measurement: '量测',
 };
 
-// [v3.0.6.11-35] 重构: 替换 mock 数据为真实 API 调用
 interface ReportEditorProps {
   report: OphthalmologyReport;
   templates: ReportTemplate[];
@@ -613,7 +612,6 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
   );
 };
 
-// [v3.0.6.11-35] 外层包装: 从 API 加载数据替代 mock
 const EyeReportWritePage: React.FC = () => {
   const [reports, setReports] = useState<OphthalmologyReport[]>([]);
   const [templates, setTemplates] = useState<ReportTemplate[]>([]);

@@ -16,10 +16,6 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   AreaChart, Area, ComposedChart
 } from 'recharts'
-import {
-  initialStatisticsData, initialWorkloadStats, initialRadiologyExams,
-  initialModalityDevices, initialUsers, initialDailyStats
-} from '../data/initialData'
 // [v3.0.6.8-28] 主数据池 + 生成器 (替换硬编码, 三甲级真实数据)
 import {
   PATIENT_MASTER, DEVICE_MASTER, EXAM_ITEM_MASTER,

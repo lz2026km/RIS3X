@@ -18,16 +18,7 @@ import { useOperationLog } from "../../hooks/useOperationLog"
 import { useKeyboardShortcuts, useNavigationShortcuts, SHORTCUTS } from "../../hooks/useKeyboardShortcuts"
 import { canApprove } from "../../services/auth/rbacService"
 import { ClosedLoopTracker5Nodes, DetailPanel } from "."
-
-const MOCK_FOLLOWUP_RECORDS: FollowUpRecord[] = [
-  { id: "FU001", time: "2026-05-01 16:30", type: "电话回访", result: "已回复", operator: "李明辉", content: "患者已接收通知，临床已安排急诊CAG检查。", relatedCVId: "CV001", followUpDate: "2026-05-30" },
-  { id: "FU002", time: "2026-05-01 15:45", type: "短信确认", result: "已回复", operator: "王秀峰", content: "患者家属已收到短信提醒，确认前往医院途中。", relatedCVId: "CV002" },
-  { id: "FU003", time: "2026-05-01 14:20", type: "电话回访", result: "无响应", operator: "刘芳", content: "首次电话无人接听，已发送短信通知，准备二次回访。", relatedCVId: "CV003" },
-  { id: "FU004", time: "2026-05-01 11:00", type: "系统通知", result: "已回复", operator: "系统", content: "临床医生已通过系统确认接收危急值通报。", relatedCVId: "CV004" },
-  { id: "FU005", time: "2026-04-30 17:30", type: "现场走访", result: "转接成功", operator: "张海涛", content: "急诊科医生接收患者，现场交接完成。", relatedCVId: "CV007" },
-  { id: "FU-001", time: "2026-05-30 14:00", type: "电话回访", result: "已回复", operator: "李明辉", content: "冠脉支架术后1个月随访，患者无胸闷胸痛，可自行活动。", relatedCVId: "CV007", followUpDate: "2026-05-30" },
-  { id: "FU-002", time: "2026-06-03 09:45", type: "电话回访", result: "已回复", operator: "王秀峰", content: "肺栓塞溶栓后1个月随访，血氧正常，抗凝治疗中。", relatedCVId: "CV010", followUpDate: "2026-06-03" },
-]
+import { criticalApi } from "../../services/api"
 
 export default function CriticalValuePage() {
   const navigate = useNavigate()
@@ -47,6 +38,7 @@ export default function CriticalValuePage() {
   const [showTransferModal, setShowTransferModal] = useState(false)
   const [transferCV, setTransferCV] = useState<CriticalValue | null>(null)
   const [criticalValues, setCriticalValues] = useState<CriticalValue[]>([])
+  const [followUpRecords, setFollowUpRecords] = useState<FollowUpRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [toast, setToast] = useState<{ show: boolean; message: string; type: "success" | "error" }>({ show: false, message: "", type: "success" })
@@ -80,6 +72,21 @@ export default function CriticalValuePage() {
         setLoadError(error ?? "暂无数据")
       }
       setLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = await criticalApi.listFollowUpRecords()
+        if (!cancelled && res.success && Array.isArray(res.data)) {
+          setFollowUpRecords(res.data as FollowUpRecord[])
+        }
+      } catch {
+        // API may not be available
+      }
     })()
     return () => { cancelled = true }
   }, [])
@@ -186,7 +193,7 @@ export default function CriticalValuePage() {
       content: `危急值 ${transferCV.id} 已转随访，计划随访日期：${followUpDate}`,
       relatedCVId: transferCV.id, followUpDate,
     }
-    MOCK_FOLLOWUP_RECORDS.push(newFollowUpRecord)
+    setFollowUpRecords(prev => [...prev, newFollowUpRecord])
     showToast(`转随访成功！随访编号：${followUpId}，计划随访日期：${followUpDate}`)
     setShowTransferModal(false); setTransferCV(null)
   }
@@ -281,7 +288,7 @@ export default function CriticalValuePage() {
         {selectedCV && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: 480 }}>
             <ClosedLoopTracker5Nodes cv={selectedCV} />
-            <DetailPanel cv={selectedCV} onClose={() => setSelectedCV(null)} activeTab={detailTab} setActiveTab={setDetailTab} mockFollowUpRecords={MOCK_FOLLOWUP_RECORDS} />
+            <DetailPanel cv={selectedCV} onClose={() => setSelectedCV(null)} activeTab={detailTab} setActiveTab={setDetailTab} followUpRecords={followUpRecords} />
           </div>
         )}
       </div>

@@ -1,23 +1,43 @@
-import React from "react";
-import { Card, Row, Col, Tag, Space, Statistic, Alert } from "antd";
+import React, { useState, useEffect } from "react";
+import { Card, Row, Col, Tag, Space, Statistic, Alert, Spin } from "antd";
 import { Image, Eye, Clock, AlertTriangle } from "lucide-react";
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import AiDiagnosisCard from "@/components/eye/AiDiagnosisCard";
 import CriticalValueAlert from "@/components/eye/CriticalValueAlert";
-import {
-  MOCK_EYE_STUDIES,
-  MOCK_EYE_MEASUREMENTS,
-  MODALITY_LABELS,
-} from "@/data/eyePacsMock";
-import { MOCK_AI_DIAGNOSES } from "@/data/eyeAiMock";
-import { MOCK_CRITICAL_VALUES } from "@/data/eyeCriticalValuesMock";
+import { eyeApi } from "@/services/api/eyeApi";
 
 const FfaViewerPage: React.FC = () => {
-  const study = MOCK_EYE_STUDIES.find((s) => s.modality === "ffa");
-  const aiDiag = MOCK_AI_DIAGNOSES.filter((d) => d.studyId === study?.id);
-  const criticalValues = MOCK_CRITICAL_VALUES.filter(
-    (c) => c.studyId === study?.id,
-  );
+  const [study, setStudy] = useState<any>(null);
+  const [aiDiag, setAiDiag] = useState<any[]>([]);
+  const [criticalValues, setCriticalValues] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setLoading(true);
+      try {
+        const [studiesRes, aiRes, cvRes] = await Promise.all([
+          eyeApi.getStudies({ modality: 'ffa' }),
+          eyeApi.listInferences().catch(() => ({ success: false, data: [] })),
+          eyeApi.getCriticalValues().catch(() => ({ success: false, data: [] })),
+        ]);
+        if (!cancelled && studiesRes.success && Array.isArray(studiesRes.data) && studiesRes.data.length > 0) {
+          const s = studiesRes.data[0];
+          setStudy(s);
+          if (aiRes.success && Array.isArray(aiRes.data)) {
+            setAiDiag(aiRes.data.filter((d: any) => d.studyId === s.id));
+          }
+          if (cvRes.success && Array.isArray(cvRes.data)) {
+            setCriticalValues(cvRes.data.filter((c: any) => c.studyId === s.id));
+          }
+        }
+      } catch { /* API may not be available */ }
+      if (!cancelled) setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+  if (loading) return <div style={{ padding: 32, textAlign: 'center' }}><Spin tip="加载中..." /></div>;
   if (!study) {
     return (
       <div style={{ padding: 32, textAlign: "center" }}>

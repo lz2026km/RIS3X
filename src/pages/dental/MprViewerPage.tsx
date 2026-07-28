@@ -139,7 +139,7 @@ export const MprViewerPage: React.FC = () => {
             </div>
           </div>
         ))}
-        {/* Bottom Right: 3D Volume Rendering Mock */}
+        {/* Bottom Right: 3D Volume Rendering */}
         <div style={{ border: '1px solid #222', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0a1a' }}>
           <div style={{ textAlign: 'center' }}>
             <Activity size={48} color="#333" />

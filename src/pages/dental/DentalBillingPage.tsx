@@ -41,7 +41,7 @@ export const DentalBillingPage: React.FC = () => {
           outTradeNo: orderNo,
           totalFee: Math.round((currentInvoice.selfPay || 0) * 100),
           body: `口腔收费 - ${currentInvoice.id}`,
-          openId: `mock-openid-${currentInvoice.patientId || selectedPatient}`,
+          openId: currentInvoice.patientId || selectedPatient,
           patientId: currentInvoice.patientId || selectedPatient,
           onSuccess: async (res) => {
             const confirm = await fetch(`/api/v1/dental/billing/invoices/${currentInvoice.id}/pay`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ paymentMethod, transactionId: res.transactionId, outTradeNo: orderNo }) });
@@ -126,10 +126,10 @@ export const DentalBillingPage: React.FC = () => {
                   }}>医保预核验</Button>
                   <Divider style={{margin:'8px 0'}} />
                   <div style={{fontSize:12,color:'#666'}}>
-                    <div>年度医保余额: ¥17,550 / ¥30,000</div>
-                    <Progress percent={58.5} size="small" />
-                    <div>补充医疗余额: ¥6,800 / ¥10,000</div>
-                    <Progress percent={68} size="small" strokeColor="#52c41a" />
+                    <div>年度医保余额: 查询中...</div>
+                    <Progress percent={0} size="small" />
+                    <div>补充医疗余额: 查询中...</div>
+                    <Progress percent={0} size="small" strokeColor="#52c41a" />
                   </div>
                 </Card>
               </Col>
@@ -146,9 +146,9 @@ export const DentalBillingPage: React.FC = () => {
               {title:'操作',render:(_,r:any)=><Space>{r.status==='pending'&&<Button size="small" type="primary" icon={<DollarSign size={10}/>} onClick={()=>{setCurrentInvoice(r);setPayModal(true);}}>收费</Button>}<Button size="small" icon={<Printer size={10}/>}>打印</Button></Space>},
             ]} />},
           {key:'reports', label:'经营报表', children:<Row gutter={12}>
-            <Col span={8}><Card size="small" title="财务概览"><Statistic title="月营收" prefix="¥" value={185000} /><Statistic title="月成本" prefix="¥" value={62000} style={{marginTop:12}} /><Statistic title="月利润" prefix="¥" value={123000} style={{marginTop:12}} /><Progress percent={66.5} size="small" strokeColor="#52c41a" /><div style={{fontSize:11,color:'#999',marginTop:4}}>利润率 66.5%</div></Card></Col>
-            <Col span={8}><Card size="small" title="运营数据"><Statistic title="新患者" value={42} /><Statistic title="回访率" value={(68).toFixed(0)} suffix="%" style={{marginTop:12}} /><Statistic title="牙椅利用率" value={78} suffix="%" style={{marginTop:12}} /><Progress percent={78} size="small" /></Card></Col>
-            <Col span={8}><Card size="small" title="医生绩效"><List size="small" dataSource={[{n:'王医生',r:82000},{n:'李医生',r:58000},{n:'张主任',r:95000}]} renderItem={(d:any)=><List.Item><span>{d.n}</span><Tag>¥{d.r.toLocaleString()}</Tag></List.Item>} /></Card></Col>
+            <Col span={8}><Card size="small" title="财务概览"><Statistic title="月营收" prefix="¥" value={invoices.reduce((s,i)=>s+i.total,0)} /><Statistic title="待收" prefix="¥" value={totalPending} style={{marginTop:12}} /><Statistic title="已收" prefix="¥" value={totalPaid} style={{marginTop:12}} /><Progress percent={totalPaid/(totalPaid+totalPending+1)*100} size="small" strokeColor="#52c41a" /></Card></Col>
+            <Col span={8}><Card size="small" title="运营数据"><Statistic title="账单数" value={invoices.length} /><Statistic title="已付比例" value={invoices.length>0?((invoices.filter(i=>i.status==='paid').length/invoices.length)*100).toFixed(0):'0'} suffix="%" style={{marginTop:12}} /></Card></Col>
+            <Col span={8}><Card size="small" title="费用明细"><List size="small" dataSource={catalog.slice(0,3)} renderItem={(d:any)=><List.Item><span>{d.name}</span><Tag>¥{d.unitPrice}</Tag></List.Item>} /></Card></Col>
           </Row>},
         ]} />
       </Card>

@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Tag, Button, Space, Input, Table, Badge } from "antd";
+import { Tag, Button, Space, Input, Table, Badge, Spin } from "antd";
 import { Image, Search, Eye } from "lucide-react";
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
-import { MOCK_EYE_STUDIES } from "@/data/eyePacsMock";
+import { eyeApi } from "@/services/api/eyeApi";
 import { PageContainer, PageHeader } from "@/components/common";
 
 const MODALITY_LABELS: Record<string, string> = {
@@ -37,11 +37,29 @@ const MODALITY_LABELS: Record<string, string> = {
 const PacsStudyListPage: React.FC = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
-  const studies = search
-    ? MOCK_EYE_STUDIES.filter(
+  const [studies, setStudies] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setLoading(true);
+      try {
+        const res = await eyeApi.getStudies();
+        if (!cancelled && res.success && Array.isArray(res.data)) {
+          setStudies(res.data);
+        }
+      } catch { /* API may not be available */ }
+      if (!cancelled) setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const filtered = search
+    ? studies.filter(
         (s) => s.patientName.includes(search) || s.patientId.includes(search),
       )
-    : MOCK_EYE_STUDIES;
+    : studies;
 
   const columns = [
     { title: "患者", dataIndex: "patientName", key: "patientName", width: 90 },
@@ -134,11 +152,12 @@ const PacsStudyListPage: React.FC = () => {
       />
 
       <Table
-        dataSource={studies}
+        dataSource={filtered}
         columns={columns}
         rowKey="id"
         size="small"
-        pagination={false}
+        loading={loading}
+        pagination={{ pageSize: 20 }}
       />
     </PageContainer>
   );

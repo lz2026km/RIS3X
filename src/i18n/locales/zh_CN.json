@@ -940,7 +940,21 @@
     "orchestrator": "任务编排引擎",
     "dicomSr": "DICOM 结构化报告",
     "radiomics": "影像组学",
-    "dicom4d": "4D 动态影像"
+    "dicom4d": "4D 动态影像",
+    "specialtyModules": "专科模块",
+    "breastSpecialty": "乳腺专科",
+    "cardiacSpecialty": "心脏专科",
+    "orthoSpecialty": "骨科专科",
+    "neuroSpecialty": "神经专科",
+    "smartMwl": "Smart MWL 智能排序",
+    "aiTriageWorkflow": "AI 分检工作流",
+    "smartRouting": "智能路由",
+    "cosignReview": "双签 Co-sign 审核",
+    "radpathLinkage": "Rad-Path 联动",
+    "criticalValue5Step": "危急值 5 步流程",
+    "wadoRs": "WADO-RS 检索",
+    "stowRs": "STOW-RS 存储",
+    "srReport": "SR 结构化报告"
   },
   "orchestrator": {
     "title": "任务编排引擎",

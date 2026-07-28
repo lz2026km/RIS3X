@@ -28,7 +28,7 @@ export const RoomOccupancyPage: React.FC = () => {
     try {
       const res = await fetch('/api/occupancy/rooms');
       if (res.ok) setRooms(await res.json());
-    } catch { /* fallback mock */ }
+    } catch { /* empty state */ }
   }, []);
 
   const fetchTrends = useCallback(async () => {

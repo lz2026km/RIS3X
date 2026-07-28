@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Card, Row, Col, InputNumber, Select, Tag, Button } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Card, Row, Col, InputNumber, Select, Tag, Button, Spin } from 'antd';
 import { Eye, Droplets } from 'lucide-react';
 import EyeLateralityBadge from '@/components/eye/EyeLateralityBadge';
 import IopCurveChart from '@/components/eye/IopCurveChart';
-import { MOCK_IOP } from '@/data/eyeRisMock';
+import { eyeApi } from '@/services/api/eyeApi';
 
 const DEVICE_OPTIONS = [
   { value: 'nct', label: 'NCT 非接触' },
@@ -14,6 +14,23 @@ const DEVICE_OPTIONS = [
 const IntraocularPressurePage: React.FC = () => {
   const [iop, setIop] = useState({ od: 18, os: 19 });
   const [device, setDevice] = useState('nct');
+  const [iopRecords, setIopRecords] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setLoading(true);
+      try {
+        const res = await eyeApi.getIopRecords();
+        if (!cancelled && res.success && Array.isArray(res.data)) {
+          setIopRecords(res.data);
+        }
+      } catch { /* API may not be available */ }
+      if (!cancelled) setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   return (
     <div style={{ padding: 16, background: '#f8fafc', minHeight: 'calc(100vh - 56px)' }}>
@@ -48,7 +65,7 @@ const IntraocularPressurePage: React.FC = () => {
         </Col>
         <Col span={16}>
           <Card size="small" title="24h 眼压曲线">
-            <IopCurveChart records={MOCK_IOP} patientId="p-1001" />
+            <IopCurveChart records={iopRecords} patientId="p-1001" />
           </Card>
         </Col>
       </Row>

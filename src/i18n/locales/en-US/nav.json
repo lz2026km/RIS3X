@@ -295,5 +295,19 @@
   "fusionManager": "Fusion Manager",
   "radiomicsFeatures": "Radiomics Features",
   "iheManager": "IHE Integration",
-  "hl7Manager": "HL7 Message Manager"
+  "hl7Manager": "HL7 Message Manager",
+  "specialtyModules": "Specialty Modules",
+  "breastSpecialty": "Breast Specialty",
+  "cardiacSpecialty": "Cardiac Specialty",
+  "orthoSpecialty": "Orthopedic Specialty",
+  "neuroSpecialty": "Neuro Specialty",
+  "smartMwl": "Smart MWL Sort",
+  "aiTriageWorkflow": "AI Triage Workflow",
+  "smartRouting": "Smart Routing",
+  "cosignReview": "Co-sign Review",
+  "radpathLinkage": "Rad-Path Linkage",
+  "criticalValue5Step": "Critical Value 5-Step",
+  "wadoRs": "WADO-RS Retrieval",
+  "stowRs": "STOW-RS Storage",
+  "srReport": "SR Structured Report"
 }

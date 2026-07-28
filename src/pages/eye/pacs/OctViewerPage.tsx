@@ -1,11 +1,29 @@
-import React from 'react';
-import { Card, Row, Col, Tag } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Card, Row, Col, Tag, Spin } from 'antd';
 import { Activity } from 'lucide-react';
 import EyeLateralityBadge from '@/components/eye/EyeLateralityBadge';
-import { MOCK_EYE_STUDIES } from '@/data/eyePacsMock';
+import { eyeApi } from '@/services/api/eyeApi';
 
 const OctViewerPage: React.FC = () => {
-  const octStudy = MOCK_EYE_STUDIES.find((s) => s.modality === 'oct');
+  const [octStudy, setOctStudy] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setLoading(true);
+      try {
+        const res = await eyeApi.getStudies({ modality: 'oct' });
+        if (!cancelled && res.success && Array.isArray(res.data) && res.data.length > 0) {
+          setOctStudy(res.data[0]);
+        }
+      } catch { /* API may not be available */ }
+      if (!cancelled) setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  if (loading) return <div style={{ padding: 16, textAlign: 'center' }}><Spin tip="加载中..." /></div>;
   if (!octStudy) return <div style={{ padding: 16 }}>无 OCT 检查数据</div>;
 
   const etdrsData = [

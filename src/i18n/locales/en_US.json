@@ -940,7 +940,21 @@
     "orchestrator": "Task Orchestration",
     "dicomSr": "DICOM Structured Report",
     "radiomics": "Radiomics",
-    "dicom4d": "4D Dynamic"
+    "dicom4d": "4D Dynamic",
+    "specialtyModules": "Specialty Modules",
+    "breastSpecialty": "Breast Specialty",
+    "cardiacSpecialty": "Cardiac Specialty",
+    "orthoSpecialty": "Orthopedic Specialty",
+    "neuroSpecialty": "Neuro Specialty",
+    "smartMwl": "Smart MWL Sort",
+    "aiTriageWorkflow": "AI Triage Workflow",
+    "smartRouting": "Smart Routing",
+    "cosignReview": "Co-sign Review",
+    "radpathLinkage": "Rad-Path Linkage",
+    "criticalValue5Step": "Critical Value 5-Step",
+    "wadoRs": "WADO-RS Retrieval",
+    "stowRs": "STOW-RS Storage",
+    "srReport": "SR Structured Report"
   },
   "orchestrator": {
     "title": "Task Orchestration Engine",

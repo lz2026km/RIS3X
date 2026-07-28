@@ -1579,22 +1579,22 @@ const PatientPortalPage: React.FC = () => {
         <div style={styles.statCard}>
           <div style={{ ...styles.statValue, color: '#64748b' }}>{smsCount}</div>
           <div style={styles.statLabel}>短信推送量</div>
-          <div style={styles.statSubLabel}>占总推送 {Math.round((smsCount / MOCK_PUSH_RECORDS.length) * 100)}%</div>
+          <div style={styles.statSubLabel}>占总推送 {pushRecords.length > 0 ? Math.round((smsCount / pushRecords.length) * 100) : 0}%</div>
         </div>
         <div style={styles.statCard}>
           <div style={{ ...styles.statValue, color: '#16a34a' }}>{wechatCount}</div>
           <div style={styles.statLabel}>微信推送量</div>
-          <div style={styles.statSubLabel}>占总推送 {Math.round((wechatCount / MOCK_PUSH_RECORDS.length) * 100)}%</div>
+          <div style={styles.statSubLabel}>占总推送 {pushRecords.length > 0 ? Math.round((wechatCount / pushRecords.length) * 100) : 0}%</div>
         </div>
         <div style={styles.statCard}>
           <div style={{ ...styles.statValue, color: '#dc2626' }}>{emailCount}</div>
           <div style={styles.statLabel}>邮件推送量</div>
-          <div style={styles.statSubLabel}>占总推送 {Math.round((emailCount / MOCK_PUSH_RECORDS.length) * 100)}%</div>
+          <div style={styles.statSubLabel}>占总推送 {pushRecords.length > 0 ? Math.round((emailCount / pushRecords.length) * 100) : 0}%</div>
         </div>
         <div style={styles.statCard}>
           <div style={{ ...styles.statValue, color: PRIMARY_COLOR }}>{successRate}%</div>
           <div style={styles.statLabel}>总推送成功率</div>
-          <div style={styles.statSubLabel}>成功 {successCount} / 总计 {MOCK_PUSH_RECORDS.length}</div>
+          <div style={styles.statSubLabel}>成功 {successCount} / 总计 {pushRecords.length}</div>
         </div>
       </div>
 
@@ -1615,7 +1615,7 @@ const PatientPortalPage: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {MOCK_PUSH_RECORDS.map(record => (
+            {pushRecords.map(record => (
               <tr key={record.id}>
                 <td style={styles.td}>{record.patientName}</td>
                 <td style={styles.td}>{record.phone}</td>
@@ -1659,7 +1659,7 @@ const PatientPortalPage: React.FC = () => {
             <span>💬</span>
             <span>短信模板</span>
           </div>
-          {SMS_TEMPLATES.map(template => (
+          {smsTemplates.map(template => (
             <div key={template.id} style={styles.templateCard}>
               <div style={styles.templateName}>{template.name}</div>
               <div style={styles.templateContent}>{template.content}</div>
@@ -1674,7 +1674,7 @@ const PatientPortalPage: React.FC = () => {
             <span>💚</span>
             <span>微信模板</span>
           </div>
-          {WECHAT_TEMPLATES.map(template => (
+          {wechatTemplates.map(template => (
             <div key={template.id} style={styles.templateCard}>
               <div style={styles.templateName}>{template.name}</div>
               <div style={styles.templateContent}>{template.content}</div>
@@ -1969,7 +1969,7 @@ const PatientPortalPage: React.FC = () => {
                 onChange={e => setAppointmentForm(prev => ({ ...prev, department: e.target.value }))}
               >
                 <option value="">请选择科室</option>
-                {DEPARTMENTS.map(dept => (
+                {departments.map(dept => (
                   <option key={dept} value={dept}>{dept}</option>
                 ))}
               </select>
@@ -1993,7 +1993,7 @@ const PatientPortalPage: React.FC = () => {
                   onChange={e => setAppointmentForm(prev => ({ ...prev, timeSlot: e.target.value }))}
                 >
                   <option value="">请选择时段</option>
-                  {TIME_SLOTS.map(slot => (
+                  {timeSlots.map(slot => (
                     <option key={slot} value={slot}>{slot}</option>
                   ))}
                 </select>

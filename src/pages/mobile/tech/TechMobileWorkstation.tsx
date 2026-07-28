@@ -1,7 +1,8 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { message } from 'antd'
 import { Search, ListChecks, Camera, Monitor, Play, CheckCircle, Clock, ChevronRight, AlertCircle, Wifi, WifiOff, XCircle } from 'lucide-react'
 import { replayDeviceEvent } from '../../../utils/deviceStateAdapter'
+import { appointmentApi, type AppointmentDto, deviceApi, type DeviceDto } from '../../../services/api'
 
 export interface TechExamItem {
   id: string
@@ -25,22 +26,6 @@ export interface DeviceStatus {
   status: 'online' | 'offline' | 'maintenance'
   currentPatient?: string
 }
-
-const MOCK_EXAMS: TechExamItem[] = [
-  { id: 'T1', patientName: '王磊', gender: '男', age: 38, modality: 'CT', examItem: '胸部CT平扫', bodyPart: '胸部', roomName: 'CT室1', deviceName: 'CT-1', status: 'scheduled', priority: 'routine', scheduledTime: '09:00' },
-  { id: 'T2', patientName: '张丽华', gender: '女', age: 52, modality: 'MR', examItem: '腰椎MR平扫', bodyPart: '腰椎', roomName: 'MR室1', deviceName: 'MR-1', status: 'scheduled', priority: 'urgent', scheduledTime: '09:30' },
-  { id: 'T3', patientName: '刘强', gender: '男', age: 29, modality: 'DR', examItem: '胸部正位片', bodyPart: '胸部', roomName: 'DR室1', deviceName: 'DR-1', status: 'in-progress', priority: 'routine', scheduledTime: '08:45' },
-  { id: 'T4', patientName: '陈秀芳', gender: '女', age: 67, modality: 'CT', examItem: '腹部CT增强', bodyPart: '腹部', roomName: 'CT室1', deviceName: 'CT-1', status: 'completed', priority: 'urgent', scheduledTime: '08:00' },
-  { id: 'T5', patientName: '赵强', gender: '男', age: 45, modality: 'DR', examItem: '膝关节正侧位', bodyPart: '膝关节', roomName: 'DR室2', deviceName: 'DR-2', status: 'scheduled', priority: 'routine', scheduledTime: '10:00' },
-]
-
-const MOCK_DEVICES: DeviceStatus[] = [
-  { id: 'DEV-CT-01', name: 'CT-1', modality: 'CT', status: 'online', currentPatient: '王磊' },
-  { id: 'DEV-CT-02', name: 'CT-2', modality: 'CT', status: replayDeviceEvent('idle', { type: 'START_MAINTENANCE', notes: '球管季度校准', by: 'tech' }) as 'maintenance' },
-  { id: 'DEV-MR-01', name: 'MR-1', modality: 'MR', status: 'online', currentPatient: '张丽华' },
-  { id: 'DEV-DR-01', name: 'DR-1', modality: 'DR', status: 'online', currentPatient: '刘强' },
-  { id: 'DEV-DR-02', name: 'DR-2', modality: 'DR', status: replayDeviceEvent('idle', { type: 'GO_OFFLINE', reason: '网络中断', by: 'tech' }) as 'offline' },
-]
 
 const STATUS_COLORS: Record<string, string> = {
   scheduled: '#dbeafe',
@@ -68,8 +53,52 @@ export default function TechMobileWorkstation() {
   const [tab, setTab] = useState<'exams' | 'devices'>('exams')
   const [filter, setFilter] = useState<'all' | 'scheduled' | 'in-progress'>('all')
   const [search, setSearch] = useState('')
+  const [exams, setExams] = useState<TechExamItem[]>([])
+  const [devices, setDevices] = useState<DeviceStatus[]>([])
 
-  const filteredExams = MOCK_EXAMS.filter(item => {
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const [examRes, devRes] = await Promise.allSettled([
+          appointmentApi.list(),
+          deviceApi.listDevices(),
+        ])
+        if (!cancelled && examRes.status === 'fulfilled' && examRes.value.success && Array.isArray(examRes.value.data)) {
+          const stateMap: Record<string, TechExamItem['status']> = {
+            SCHEDULED: 'scheduled', CONFIRMED: 'scheduled', CHECKED_IN: 'in-progress',
+            IN_PROGRESS: 'in-progress', COMPLETED: 'completed', CANCELLED: 'completed', NO_SHOW: 'completed',
+          }
+          setExams(examRes.value.data.map((a: AppointmentDto) => ({
+            id: a.id,
+            patientName: a.patientName || '未知患者',
+            gender: '未知',
+            age: 0,
+            modality: a.modality,
+            examItem: a.room || '',
+            bodyPart: a.bodyPart || '',
+            roomName: a.room || '',
+            deviceName: a.deviceName || '',
+            status: stateMap[a.state] || 'scheduled',
+            priority: a.priority === 'URGENT' || a.priority === 'STAT' ? 'urgent' as const : 'routine' as const,
+            scheduledTime: a.startAt ? new Date(a.startAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) : '',
+          })))
+        }
+        if (!cancelled && devRes.status === 'fulfilled' && devRes.value.success && Array.isArray(devRes.value.data)) {
+          setDevices(devRes.value.data.map((d: DeviceDto) => ({
+            id: d.id,
+            name: d.name || d.deviceName || '',
+            modality: d.modality || '',
+            status: (d.status || 'offline') as 'online' | 'offline' | 'maintenance',
+            currentPatient: undefined,
+          })))
+        }
+      } catch { /* keep empty */ }
+    })()
+    return () => { cancelled = true }
+  }, [])
+
+  const filteredExams = exams.filter(item => {
     if (filter !== 'all' && item.status !== filter) return false
     if (search && !item.patientName.includes(search) && !item.examItem.includes(search)) return false
     return true
@@ -155,7 +184,7 @@ export default function TechMobileWorkstation() {
         </>
       ) : (
         <div style={{ padding: 16 }}>
-          {MOCK_DEVICES.map(device => (
+          {devices.map(device => (
             <div key={device.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: '#fff', borderRadius: 10, marginBottom: 8, border: '1px solid #e2e8f0' }}>
               {device.status === 'online' ? <Wifi size={18} color="#059669" /> : device.status === 'offline' ? <WifiOff size={18} color="#dc2626" /> : <AlertCircle size={18} color="#d97706" />}
               <div style={{ flex: 1 }}>

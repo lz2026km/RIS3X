@@ -1,6 +1,6 @@
 {
   "name": "g005-backend",
-  "version": "3.0.6.11-35",
+  "version": "3.0.6.11-40",
   "private": true,
   "description": "G005 RIS Backend (NestJS 11 + Prisma 5 + PostgreSQL)",
   "scripts": {

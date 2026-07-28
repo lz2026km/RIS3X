@@ -1,19 +1,30 @@
-import React, { useState } from 'react';
-import { Table, Tag, Button, Modal, Form, Input, InputNumber, Select, Descriptions, Space, message } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Table, Tag, Button, Modal, Form, Input, InputNumber, Select, Descriptions, Space, message, Spin } from 'antd';
 import { Plus } from 'lucide-react';
 import { DentalPageLayout, EmptyState } from './DentalShared';
+import { dentalApi } from '@/services/api/dentalApi';
 
 export const DentalInventoryPage: React.FC = () => {
-  const [items, setItems] = useState<any[]>([
-    { id: 'INV-001', name: '种植体 Straumann BLT', category: 'Implant', stock: 24, unit: 'pcs', minStock: 10 },
-    { id: 'INV-002', name: '复合树脂 Z350', category: 'Restorative', stock: 8, unit: 'tube', minStock: 12 },
-    { id: 'INV-003', name: '根管锉 ProTaper', category: 'Endo', stock: 50, unit: 'pcs', minStock: 20 },
-    { id: 'INV-004', name: '正畸托槽 Damon Q', category: 'Ortho', stock: 12, unit: 'set', minStock: 5 },
-    { id: 'INV-005', name: '局麻药 阿替卡因', category: 'Anesthesia', stock: 3, unit: 'box', minStock: 8 },
-  ]);
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [form] = Form.useForm();
   const [detail, setDetail] = useState<any | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setLoading(true);
+      try {
+        const res = await dentalApi.listInventory();
+        if (!cancelled && res.success && Array.isArray(res.data)) {
+          setItems(res.data);
+        }
+      } catch { /* API may not be available */ }
+      if (!cancelled) setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, []);
   const lowCount = items.filter(i => i.stock < i.minStock).length;
   const unitLabels: Record<string, string> = { pcs: '件', tube: '支', set: '套', box: '盒', ml: '毫升', g: '克' };
   const onCreate = () => {

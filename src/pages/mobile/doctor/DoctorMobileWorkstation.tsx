@@ -53,7 +53,7 @@ export default function DoctorMobileWorkstation() {
         if (cancelled) return
         if (wlRes.success && Array.isArray(wlRes.data)) setWorklist(wlRes.data)
         if (statsRes.success && statsRes.data) setStats(statsRes.data)
-      } catch { /* API may not be available in mock mode, keep empty */ }
+      } catch { /* API may not be available, keep empty */ }
       if (!cancelled) setLoading(false)
     })()
     return () => { cancelled = true }

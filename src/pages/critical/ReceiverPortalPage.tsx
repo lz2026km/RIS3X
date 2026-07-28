@@ -6,10 +6,10 @@
  *   通过 criticalValueAdapter 转回 R3.CRITICAL.CriticalEvent 形状.
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Card, Tag, Space, Empty, Row, Col, Statistic, Segmented, message } from 'antd';
 import { Activity, AlertOctagon, ShieldCheck, Filter, User } from 'lucide-react';
-import { list } from '../../services/mockBackend/store';
+import { criticalApi } from '../../services/api';
 import { mapUnifiedToCriticalEvents } from '../../data/criticalValueAdapter';
 import { CloseLoopAcknowledge } from '../../components/critical/CloseLoopAcknowledge';
 import { OnCallIndicator } from '../../components/critical/OnCallIndicator';
@@ -24,10 +24,22 @@ type StatusFilter = 'open' | 'all' | 'resolved';
 
 export const ReceiverPortalPage: React.FC = () => {
   const [filter, setFilter] = useState<StatusFilter>('open');
+  const [allEvents, setAllEvents] = useState<CriticalEvent[]>([]);
 
-  const allEvents = useMemo<CriticalEvent[]>(() => {
-    const unified = list<any>('criticalEvents');
-    return mapUnifiedToCriticalEvents(unified);
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await criticalApi.list();
+        if (!cancelled && res.success && Array.isArray(res.data)) {
+          const unified = res.data as unknown[];
+          setAllEvents(mapUnifiedToCriticalEvents(unified));
+        }
+      } catch {
+        // API unavailable, use empty state
+      }
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   const mine = useMemo(() => {

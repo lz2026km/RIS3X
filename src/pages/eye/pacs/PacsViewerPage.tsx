@@ -1,8 +1,8 @@
-import React from "react";
-import { Tag, Space, Button } from "antd";
+import React, { useState, useEffect } from "react";
+import { Tag, Space, Button, Spin } from "antd";
 import { Image, ArrowLeft, Download } from "lucide-react";
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
-import { MOCK_EYE_STUDIES } from "@/data/eyePacsMock";
+import { eyeApi } from "@/services/api/eyeApi";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 const MODALITY_LABELS: Record<string, string> = {
@@ -40,9 +40,35 @@ const MODALITY_LABELS: Record<string, string> = {
 const PacsViewerPage: React.FC = () => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const studyId = params.get("studyId") || "es-001";
-  const study =
-    MOCK_EYE_STUDIES.find((s) => s.id === studyId) || MOCK_EYE_STUDIES[0];
+  const studyId = params.get("studyId") || "";
+  const [study, setStudy] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setLoading(true);
+      try {
+        if (studyId) {
+          const res = await eyeApi.getStudy(studyId);
+          if (!cancelled && res.success && res.data) {
+            setStudy(res.data);
+          }
+        }
+        if (!study) {
+          const listRes = await eyeApi.getStudies();
+          if (!cancelled && listRes.success && Array.isArray(listRes.data) && listRes.data.length > 0) {
+            setStudy(listRes.data[0]);
+          }
+        }
+      } catch { /* API may not be available */ }
+      if (!cancelled) setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, [studyId]);
+
+  if (loading) return <div style={{ padding: 16, textAlign: 'center' }}><Spin tip="加载中..." /></div>;
+  if (!study) return <div style={{ padding: 16, textAlign: 'center', color: '#fff' }}>无检查数据</div>;
 
   return (
     <div

@@ -73,9 +73,10 @@ import {
   Hammer,
   Fingerprint,
   Video,
+  Server,
 } from "lucide-react";
 import type { ReactNode } from "react";
-import { GitCompare, FileDown, Globe, FileSignature, Scan, Microscope, Mic, BookOpen, Code, Siren, Clock } from "lucide-react";
+import { GitCompare, FileDown, Globe, FileSignature, Scan, Microscope, Mic, BookOpen, Code, Siren, Clock, Heart, Bone, Brain } from "lucide-react";
 
 export type Role = "医生" | "技师" | "护士" | "管理员" | "主任";
 
@@ -451,6 +452,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.radpathTracker",
         roles: ["医生", "主任", "管理员",],
       },
+      // [v3.0.6.11-40] A14 Critical Alert
+      {
+        path: "/critical-alert",
+        icon: <AlertOctagon size={18} />,
+        labelKey: "nav.criticalAlert",
+        roles: ["医生", "主任", "管理员", "护士"],
+      },
     ],
   },
   {
@@ -492,6 +500,43 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: <GitBranch size={18} />,
         labelKey: "nav.orchestrator",
         roles: ["管理员", "主任"],
+      },
+      // [v3.0.6.11-40] A16 工作流补齐: Smart MWL / AI Triage / Smart Routing / CoSign / RadPath / CriticalValue5Step
+      {
+        path: "/smart-mwl",
+        icon: <ListOrdered size={18} />,
+        labelKey: "nav.smartMwl",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      {
+        path: "/ai-triage",
+        icon: <Zap size={18} />,
+        labelKey: "nav.aiTriageWorkflow",
+        roles: ["医生", "主任", "管理员"],
+      },
+      {
+        path: "/smart-routing",
+        icon: <GitBranch size={18} />,
+        labelKey: "nav.smartRouting",
+        roles: ["管理员", "主任"],
+      },
+      {
+        path: "/cosign-review",
+        icon: <UserCheck size={18} />,
+        labelKey: "nav.cosignReview",
+        roles: ["医生", "主任", "管理员"],
+      },
+      {
+        path: "/radpath",
+        icon: <GitCompare size={18} />,
+        labelKey: "nav.radpathLinkage",
+        roles: ["医生", "主任", "管理员"],
+      },
+      {
+        path: "/critical-value-5step",
+        icon: <AlertOctagon size={18} />,
+        labelKey: "nav.criticalValue5Step",
+        roles: ["医生", "主任", "管理员", "护士"],
       },
     ],
   },
@@ -584,6 +629,25 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.radiomics",
         roles: ["医生", "主任", "管理员",],
       },
+      // [v3.0.6.11-40] A13 WADO-RS / STOW-RS / SR Report
+      {
+        path: "/dicom/wado-rs",
+        icon: <Globe size={18} />,
+        labelKey: "nav.wadoRs",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      {
+        path: "/dicom/stow-rs",
+        icon: <Upload size={18} />,
+        labelKey: "nav.stowRs",
+        roles: ["技师", "管理员"],
+      },
+      {
+        path: "/dicom/sr-report",
+        icon: <FileText size={18} />,
+        labelKey: "nav.srReport",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
       // [audit-fix-2026-07-28] DICOM/Fusion/Radiomics 管理
       {
         path: "/dicom/dimse",
@@ -661,6 +725,31 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: <Cpu size={18} />,
         labelKey: "nav.aiProviders",
         roles: ["管理员",],
+      },
+      // [v3.0.6.11-40] A12 AI CAD 子专科
+      {
+        path: "/ai/lung-cad",
+        icon: <Crosshair size={18} />,
+        labelKey: "nav.lungCad",
+        roles: ["医生", "主任", "技师", "管理员"],
+      },
+      {
+        path: "/ai/breast-cad",
+        icon: <Crosshair size={18} />,
+        labelKey: "nav.breastCad",
+        roles: ["医生", "主任", "技师", "管理员"],
+      },
+      {
+        path: "/ai/fracture-cad",
+        icon: <Crosshair size={18} />,
+        labelKey: "nav.fractureCad",
+        roles: ["医生", "主任", "技师", "管理员"],
+      },
+      {
+        path: "/ai/cardiac-ai",
+        icon: <Crosshair size={18} />,
+        labelKey: "nav.cardiacAi",
+        roles: ["医生", "主任", "技师", "管理员"],
       },
       // [Sprint 4] F13 AI Marketplace
       {
@@ -1010,10 +1099,17 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         roles: ["主任", "管理员"],
       },
       {
-        path: "/department-dashboard",
+        path: "/dept-dashboard",
         icon: <Gauge size={18} />,
         labelKey: "nav.departmentDashboard",
         roles: ["主任", "管理员"],
+      },
+      // [v3.0.6.11-40] A14 Remote Reading
+      {
+        path: "/remote-reading",
+        icon: <Globe size={18} />,
+        labelKey: "nav.remoteReading",
+        roles: ["医生", "主任", "管理员"],
       },
       {
         path: "/operations-center",
@@ -1111,12 +1207,19 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     labelKey: "nav.opsDashboard",
     roles: ["主任", "管理员"],
   },
-  {
-    path: "/operations/occupancy",
-    icon: <LayoutDashboard size={18} />,
-    labelKey: "nav.roomOccupancy",
-    roles: ["主任", "管理员", "技师"],
-  },
+      {
+        path: "/operations/occupancy",
+        icon: <LayoutDashboard size={18} />,
+        labelKey: "nav.roomOccupancy",
+        roles: ["主任", "管理员", "技师"],
+      },
+      // [v3.0.6.11-40] A14 Auto Collection
+      {
+        path: "/auto-collection",
+        icon: <Settings size={18} />,
+        labelKey: "nav.autoCollection",
+        roles: ["管理员"],
+      },
       {
         path: "/quality/department",
         icon: <Award size={18} />,
@@ -1547,6 +1650,36 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
     ],
   },
+  // [v3.0.6.11-40] A15 专科模块: 乳腺/心脏/骨科/神经
+  {
+    section: "nav.specialtyModules",
+    items: [
+      {
+        path: "/mammo/breast-specialty",
+        icon: React.createElement(Heart, { size: 18 }),
+        labelKey: "nav.breastSpecialty",
+        roles: ["医生", "主任", "管理员"],
+      },
+      {
+        path: "/cardiac/cardiac-specialty",
+        icon: React.createElement(Heart, { size: 18 }),
+        labelKey: "nav.cardiacSpecialty",
+        roles: ["医生", "主任", "管理员"],
+      },
+      {
+        path: "/ortho-specialty",
+        icon: React.createElement(Bone, { size: 18 }),
+        labelKey: "nav.orthoSpecialty",
+        roles: ["医生", "主任", "管理员"],
+      },
+      {
+        path: "/neuro-specialty",
+        icon: React.createElement(Brain, { size: 18 }),
+        labelKey: "nav.neuroSpecialty",
+        roles: ["医生", "主任", "管理员"],
+      },
+    ],
+  },
   {
     section: "nav.systemManage",
     items: [
@@ -1554,6 +1687,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/user-management",
         icon: <Shield size={18} />,
         labelKey: "nav.userManagement",
+        roles: ["管理员"],
+      },
+      // [v3.0.6.11-40] A14 PACS Admin
+      {
+        path: "/pacs-admin",
+        icon: <Server size={18} />,
+        labelKey: "nav.pacsAdmin",
         roles: ["管理员"],
       },
       {

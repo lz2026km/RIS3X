@@ -21,7 +21,7 @@ const PANEL_BG = '#1e293b'
 
 const ROI_COLORS = ['#facc15', '#ef4444', '#22c55e', '#3b82f6', '#a855f7']
 
-function mockSlice(plane: ViewPlane, slice: number, modality: 'ct' | 'pet' | 'mr' | 'dwi'): number[][] {
+function generateFallbackSlice(plane: ViewPlane, slice: number, modality: 'ct' | 'pet' | 'mr' | 'dwi'): number[][] {
   const size = 256
   const data: number[][] = []
   for (let y = 0; y < size; y++) {
@@ -230,8 +230,8 @@ const ViewportCanvas: React.FC<ViewportCanvasProps> = ({
     const w = rect.width
     const h = rect.height
 
-    const primaryData = mockSlice(plane, sliceIndex, primaryModality as any)
-    const fusionData = mockSlice(plane, sliceIndex, fusionModality as any)
+    const primaryData = generateFallbackSlice(plane, sliceIndex, primaryModality as any)
+    const fusionData = generateFallbackSlice(plane, sliceIndex, fusionModality as any)
 
     let imgData: ImageData
     if (fusionAlpha > 0) {

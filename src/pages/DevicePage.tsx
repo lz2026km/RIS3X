@@ -19,7 +19,7 @@ import {
 } from 'recharts'
 import { initialModalityDevices, initialExamRooms } from '../data/initialData'
 import { simulateApiCall } from '../data/simulationStore'
-import { deviceApi } from '../services/api'
+import { deviceApi, deviceMgmtApi } from '../services/api'
 import { replayDeviceEvent, validateDeviceStatus } from '../utils/deviceStateAdapter'
 import type { DeviceModality, DeviceState } from '../components/v3/admin/DeviceManagement'
 import {

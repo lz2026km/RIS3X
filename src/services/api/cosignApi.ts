@@ -1,18 +1,44 @@
 import { api } from './client'
-import type { ApiResponse } from './types'
 
-// Co-sign API
-// Auto-generated from NestJS @Controller('cosign')
-
-export const cosignApi = {
-  pending: () => api.get<unknown>('/cosign/pending'),
-  pendingbyId: (id: string) => api.get<unknown>(`/cosign/pending/${id}`),
-  pendingbyIdApprove: (id: string, data: Record<string, unknown>) => api.post<unknown>(`/cosign/pending/${id}/approve`, data),
-  pendingbyIdReject: (id: string, data: Record<string, unknown>) => api.post<unknown>(`/cosign/pending/${id}/reject`, data),
-  history: () => api.get<unknown>('/cosign/history'),
-  listRules: () => api.get<unknown>('/cosign/rules'),
-  createRule: (data: Record<string, unknown>) => api.post<unknown>('/cosign/rules', data),
-  stats: () => api.get<unknown>('/cosign/stats'),
+export interface CoSignItem {
+  id: string
+  reportId: string
+  patientName: string
+  modality: string
+  bodyPart: string
+  priority: string
+  submittedAt: string
+  authorId: string
+  authorName: string
+  status: string
+  waitingHours: number
 }
 
-export default cosignApi
+export interface CoSignStats {
+  total: number
+  pending: number
+  approved: number
+  rejected: number
+  avgResponseMinutes: number
+  onTimeRate: number
+}
+
+export const coSignApi = {
+  getPending: () =>
+    api.get<CoSignItem[]>('/cosign/pending'),
+
+  approve: (id: string, data: { note?: string }) =>
+    api.post<{ success: boolean }>(`/cosign/pending/${id}/approve`, data),
+
+  reject: (id: string, data: { reason: string }) =>
+    api.post<{ success: boolean }>(`/cosign/pending/${id}/reject`, data),
+
+  getHistory: () =>
+    api.get<CoSignItem[]>('/cosign/history'),
+
+  getStats: () =>
+    api.get<CoSignStats>('/cosign/stats'),
+
+  getRules: () =>
+    api.get<Array<{ id: string; name: string; condition: string; action: string; enabled: boolean }>>('/cosign/rules'),
+}

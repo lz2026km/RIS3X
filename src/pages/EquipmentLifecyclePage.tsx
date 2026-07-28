@@ -1,9 +1,10 @@
 // @ts-nocheck
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Monitor, Package, Wrench, AlertTriangle, Search, Plus,
   X, Trash2, Download, Edit, CheckCircle, Clock, XCircle
 } from 'lucide-react'
+import { deviceMgmtApi, type EquipmentLifecycle } from '../services/api/deviceMgmtApi'
 
 // ===== 演示数据：放射科设备全生命周期数据 =====
 const mockDevices = [
@@ -123,6 +124,13 @@ export default function EquipmentLifecyclePage() {
   const [deviceToScrap, setDeviceToScrap] = useState<typeof mockDevices[0] | null>(null)
   const [showMaintPlanModal, setShowMaintPlanModal] = useState(false)
   const [selectedMaintRecord, setSelectedMaintRecord] = useState<typeof maintenanceRecords[0] | null>(null)
+  const [apiLifecycleData, setApiLifecycleData] = useState<EquipmentLifecycle[]>([])
+
+  useEffect(() => {
+    deviceMgmtApi.listEquipmentLifecycle().then(res => {
+      if (res.success && res.data) setApiLifecycleData(res.data);
+    }).catch(() => {});
+  }, []);
 
   const filtered = mockDevices.filter(d => {
     const matchSearch = d.name.includes(search) || d.model.includes(search) || d.id.includes(search)

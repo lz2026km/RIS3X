@@ -2,22 +2,10 @@ import React, { useState, useCallback, useEffect } from 'react'
 import { Card, Select, Button, Space, Tag, Typography, Input, message, Spin, Tooltip, Empty } from 'antd'
 import { Brain, Check, X, Edit3, FileText, RefreshCw, Plus, User, Activity, Layout } from 'lucide-react'
 import { v3AiDraftApi, type AiDraftMeta, type AiDraftParagraph, type AiDraftResult, type DraftTemplate } from '../../services/api/v3Api'
+import { patientExamApi, type PatientInfo, type ExamInfo } from '../../services/api/patientExamApi'
 
 const { Text, Title } = Typography
 const { TextArea } = Input
-
-const MOCK_PATIENTS = [
-  { id: 'p1', name: '张三', gender: '男', age: 55 },
-  { id: 'p2', name: '李四', gender: '女', age: 42 },
-  { id: 'p3', name: '王五', gender: '男', age: 68 },
-]
-
-const MOCK_EXAMS = [
-  { id: 'e1', patientId: 'p1', modality: 'CT', bodyPart: '胸部', date: '2026-07-14', description: '胸部CT平扫' },
-  { id: 'e2', patientId: 'p1', modality: 'CT', bodyPart: '腹部', date: '2026-07-13', description: '腹部CT增强' },
-  { id: 'e3', patientId: 'p2', modality: 'MR', bodyPart: '头颅', date: '2026-07-12', description: '头颅MR平扫' },
-  { id: 'e4', patientId: 'p3', modality: 'CT', bodyPart: '腰椎', date: '2026-07-11', description: '腰椎CT平扫' },
-]
 
 const AiDraftPage: React.FC = () => {
   const [selectedPatient, setSelectedPatient] = useState<string | null>(null)
@@ -31,10 +19,36 @@ const AiDraftPage: React.FC = () => {
   const [rewriteTarget, setRewriteTarget] = useState<string | null>(null)
   const [templates, setTemplates] = useState<DraftTemplate[]>([])
   const [templatesLoading, setTemplatesLoading] = useState(false)
+  const [patients, setPatients] = useState<PatientInfo[]>([])
+  const [exams, setExams] = useState<ExamInfo[]>([])
+  const [patientsLoading, setPatientsLoading] = useState(false)
+  const [examsLoading, setExamsLoading] = useState(false)
 
-  const currentExam = MOCK_EXAMS.find(e => e.id === selectedExam)
-  const currentPatient = MOCK_PATIENTS.find(p => p.id === selectedPatient)
-  const patientExams = MOCK_EXAMS.filter(e => e.patientId === selectedPatient)
+  const currentExam = exams.find(e => e.id === selectedExam)
+  const currentPatient = patients.find(p => p.id === selectedPatient)
+  const patientExams = exams.filter(e => e.patientId === selectedPatient)
+
+  useEffect(() => {
+    setPatientsLoading(true)
+    patientExamApi.getPatients().then(res => {
+      if (res.success && Array.isArray(res.data)) {
+        setPatients(res.data)
+      }
+    }).finally(() => setPatientsLoading(false))
+  }, [])
+
+  useEffect(() => {
+    if (!selectedPatient) {
+      setExams([])
+      return
+    }
+    setExamsLoading(true)
+    patientExamApi.getExams(selectedPatient).then(res => {
+      if (res.success && Array.isArray(res.data)) {
+        setExams(res.data)
+      }
+    }).finally(() => setExamsLoading(false))
+  }, [selectedPatient])
 
   useEffect(() => {
     setTemplatesLoading(true)
@@ -46,7 +60,7 @@ const AiDraftPage: React.FC = () => {
   }, [currentExam?.modality])
 
   const buildMeta = useCallback((): AiDraftMeta => ({
-    patientId: selectedPatient ?? 'mock-patient',
+    patientId: selectedPatient ?? '',
     patientName: currentPatient?.name,
     modality: currentExam?.modality ?? 'CT',
     bodyPart: currentExam?.bodyPart ?? '胸部',
@@ -162,7 +176,8 @@ const AiDraftPage: React.FC = () => {
               placeholder="选择患者"
               value={selectedPatient}
               onChange={v => { setSelectedPatient(v); setSelectedExam(null); setDraftResult(null) }}
-              options={MOCK_PATIENTS.map(p => ({ label: `${p.name} (${p.gender}/${p.age})`, value: p.id }))}
+              options={patients.map(p => ({ label: `${p.name} (${p.gender}/${p.age})`, value: p.id }))}
+              loading={patientsLoading}
             />
           </div>
           <div style={{ minWidth: 200 }}>
@@ -174,6 +189,7 @@ const AiDraftPage: React.FC = () => {
               onChange={v => { setSelectedExam(v); setDraftResult(null) }}
               options={patientExams.map(e => ({ label: `${e.description} · ${e.date}`, value: e.id }))}
               disabled={!selectedPatient}
+              loading={examsLoading}
             />
           </div>
           {currentExam && (

@@ -35,7 +35,7 @@ import ReportBanners from './report/ReportBanners';
 import ReportToast from './report/ReportToast';
 import ReportAdvancedFilter from './report/ReportAdvancedFilter';
 import { ReviewResultModal, BatchResultModal, PrintModal, BulkActionModal } from './report/ReportResultModals';
-import { PRIMARY, PRIMARY_LIGHT, ACCENT, SUCCESS, WARNING, DANGER, PURPLE, GRAY, BG, WHITE, STATUS_CONFIG, isToday, genMockReports } from './report/reportUtils';
+import { PRIMARY, PRIMARY_LIGHT, ACCENT, SUCCESS, WARNING, DANGER, PURPLE, GRAY, BG, WHITE, STATUS_CONFIG, isToday } from './report/reportUtils';
 
 export default function ReportPage() {
   const navigate = useNavigate();
@@ -56,7 +56,7 @@ export default function ReportPage() {
       if (cancelled) return;
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
         setAllReports(res.data as RadiologyReport[]); setLoadError(null);
-      } else { setAllReports(genMockReports()); setLoadError("API 不可用,使用本地 mock 数据"); }
+      } else { setAllReports([]); setLoadError("API 不可用,暂无数据"); }
       setLoading(false);
     })();
     return () => { cancelled = true; };

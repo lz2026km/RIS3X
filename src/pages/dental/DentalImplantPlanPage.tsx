@@ -1,23 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Tag, Button, Row, Col, Statistic, List } from 'antd';
+import { Card, Tag, Button, Row, Col, Statistic, List, Spin } from 'antd';
 import { Plus } from 'lucide-react';
 import { DentalPageLayout } from './DentalShared';
+import { dentalApi } from '@/services/api/dentalApi';
 
 export const DentalImplantPlanPage: React.FC = () => {
   const [plans, setPlans] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
   const load = async () => {
-    try { const r=await fetch('/api/v1/dental/implant/plans'); const d=await r.json(); if(d.success) setPlans(d.data); } catch {}
+    setLoading(true);
+    try {
+      const res = await dentalApi.listImplantPlans();
+      if (res.success && Array.isArray(res.data)) {
+        setPlans(res.data);
+      }
+    } catch { /* API may not be available */ }
+    setLoading(false);
   };
+
   useEffect(() => { load(); }, []);
-  const fallbackPlans = [
-    { id: 'P-IMP-001', patientName: '张伟', toothNo: '36', type: 'BLT', diagnosis: '右下第一磨牙缺失', plan: 'Straumann BLT 4.1×10mm + 全瓷冠', cost: 12800, status: 'completed' },
-    { id: 'P-IMP-002', patientName: '李娜', toothNo: '46', type: 'Active', diagnosis: '右下第二磨牙缺失', plan: 'Nobel Active 4.3×10mm + 二氧化锆冠', cost: 14600, status: 'pending' },
-    { id: 'P-IMP-003', patientName: '王刚', toothNo: '16', type: 'BLT', diagnosis: '左上第一磨牙根折', plan: 'Straumann BLT 4.8×10mm 即刻种植', cost: 15600, status: 'pending' },
-    { id: 'P-IMP-004', patientName: '陈丽', toothNo: '11', type: 'Replace', diagnosis: '上前牙先天缺失', plan: 'Nobel Replace 3.5×13mm + 临时冠', cost: 18200, status: 'in_progress' },
-    { id: 'P-IMP-005', patientName: '刘强', toothNo: '26', type: 'BLT', diagnosis: '左上第二前磨牙缺失', plan: 'Straumann BLT 4.1×8mm', cost: 11800, status: 'completed' },
-    { id: 'P-IMP-006', patientName: '赵敏', toothNo: '47', type: 'CC', diagnosis: '右下第二磨牙残根', plan: 'Nobel CC 4.3×10mm + 牙冠延长', cost: 13400, status: 'completed' },
-  ];
-  const display = plans.length > 0 ? plans : fallbackPlans;
+
+  const display = plans;
   const totalCost = display.reduce((s, p) => s + (p.cost || 0), 0);
   return (
     <DentalPageLayout header={ { title: '种植规划', tags: [<Tag key='b' color='blue'>Straumann/Nobel 对标</Tag>, <Tag key='s' color='green'>4 大品牌 / 12 型号</Tag>] } }>

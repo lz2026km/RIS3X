@@ -170,7 +170,7 @@ export const AiReportWriterPage: React.FC = () => {
         const r = await fetch('/api/v1/eye/report/voice/transcribe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ audio: 'mock-base64', language: 'zh-CN', condition }),
+          body: JSON.stringify({ audio: '', language: 'zh-CN', condition }),
         });
         const data = await r.json();
         if (data.success) {

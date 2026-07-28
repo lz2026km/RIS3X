@@ -29,7 +29,7 @@ export default function ReportBanners() {
         <div style={{ fontSize: 18 }}>⚡</div>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: '#92400e' }}>v1.0.3 审核 + 修订 + 协同 三大子系统就绪</div>
-          <div style={{ fontSize: 12, color: '#78350f', marginTop: 2 }}>双审（初+终）+ 修订链 Diff + 多人实时协同 · 全部在 Mock 模式下演示</div>
+          <div style={{ fontSize: 12, color: '#78350f', marginTop: 2 }}>双审（初+终）+ 修订链 Diff + 多人实时协同</div>
         </div>
         <div style={{ display: 'flex', gap: 6 }}>
           <button onClick={() => navigate('/report-review')} style={{ padding: '5px 10px', border: '1px solid #f59e0b', borderRadius: 4, background: '#fff', color: '#92400e', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>

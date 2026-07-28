@@ -1,21 +1,38 @@
 // [v3.0.6.8-76] 多模态AI融合工作台
-import React, { useState } from 'react';
-import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Tabs, Badge, Progress, List, Tooltip, Segmented, message } from 'antd';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Tabs, Badge, Progress, List, Tooltip, Segmented, message, Spin, Empty } from 'antd';
 import { Brain, Eye, Activity, Layers, BarChart3, Crosshair, FileText, Image, Share2, Download, Sparkles } from 'lucide-react';
+import { aiFusionWorkspaceApi, type FusionStudy, type AiInsight } from '../../services/api/aiFusionWorkspaceApi';
 
 export const AiFusionWorkspacePage: React.FC = () => {
   const [modality, setModality] = useState('cbct');
-  const [studies] = useState([
-    { id:'ST-001', patient:'Zhang Wei', modalities:'CBCT+OCT+Photo', fusionScore:0.94, findings:7, aiAlerts:2, status:'complete', date:'2026-06-28' },
-    { id:'ST-002', patient:'Li Na', modalities:'CT+MRI', fusionScore:0.87, findings:5, aiAlerts:0, status:'pending', date:'2026-06-27' },
-    { id:'ST-003', patient:'Wang Fang', modalities:'OCT+Fundus+FA', fusionScore:0.91, findings:9, aiAlerts:3, status:'complete', date:'2026-06-26' },
-  ]);
-  const [aiInsights] = useState([
-    { id:'AI-001', type:'lesion', finding:'Periapical lesion #36', confidence:0.92, modality:'CBCT', source:'AI-Detector v3', actionable:true },
-    { id:'AI-002', type:'vessel', finding:'Tortuous vessels OD', confidence:0.88, modality:'OCT-A', source:'RetinaAI v2', actionable:true },
-    { id:'AI-003', type:'measurement', finding:'Crown-root ratio 0.45', confidence:0.95, modality:'CBCT', source:'OrthoAI', actionable:false },
-    { id:'AI-004', type:'classification', finding:'DR Grade 2 - Moderate', confidence:0.91, modality:'Fundus', source:'RetinaAI v2', actionable:true },
-  ]);
+  const [studies, setStudies] = useState<FusionStudy[]>([]);
+  const [aiInsights, setAiInsights] = useState<AiInsight[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true)
+    try {
+      const [studiesRes, insightsRes] = await Promise.all([
+        aiFusionWorkspaceApi.getStudies(),
+        aiFusionWorkspaceApi.getInsights(),
+      ])
+      if (studiesRes.success && Array.isArray(studiesRes.data)) {
+        setStudies(studiesRes.data)
+      }
+      if (insightsRes.success && Array.isArray(insightsRes.data)) {
+        setAiInsights(insightsRes.data)
+      }
+    } catch {
+      message.warning('融合工作台数据加载失败')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
@@ -24,12 +41,13 @@ export const AiFusionWorkspacePage: React.FC = () => {
         <Tag color="cyan">v3.0.6.8-76</Tag>
         <Tag color="purple">Late Fusion</Tag>
         <Tag color="volcano">Cross-Attention</Tag>
+        {loading && <Spin size="small" />}
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}><Card size="small"><Statistic title="Fusion Studies" value={studies.length} prefix={<Layers size={14}/>} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="AI Insights" value={aiInsights.length} prefix={<Sparkles size={14}/>} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="Actionable Alerts" value={aiInsights.filter(i=>i.actionable).length} valueStyle={{color:'#ff4d4f'}} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Avg Fusion Score" value={(studies.reduce((a,s)=>a+s.fusionScore,0)/studies.length*100).toFixed(0)} suffix="%" /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="Avg Fusion Score" value={studies.length > 0 ? (studies.reduce((a,s)=>a+s.fusionScore,0)/studies.length*100).toFixed(0) : '0'} suffix="%" /></Card></Col>
       </Row>
       <Segmented value={modality} onChange={setModality as any}
         options={[

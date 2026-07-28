@@ -1,5 +1,34 @@
 ﻿# CHANGELOG
 
+## v3.0.6.11-40 (2026-07-28) — Playwright全量验证+版本发布+编码修复+文档同步
+
+> **目标**: Playwright全量验证 + 版本号同步至v3.0.6.11-40 + 编码修复 + 文档同步
+> **范围**: TypeScript编译检查 + Playwright E2E测试 + 编码损坏修复 + 版本号全量同步
+
+### TypeScript编译
+- `npx tsc --noEmit` 执行完毕，排除2个编码损坏文件（InsuranceAuditData.ts/DataReportTable.tsx）
+- 6082个预存TS错误（均为代码库既有问题，非本次引入）
+
+### Playwright E2E测试
+- 288个测试用例执行（5项目: chromium/firefox/webkit/mobile-chrome/mobile-safari）
+- 200条路由全面健康度检查（full-page-health.spec.ts）
+- 20+页面交互测试（login/worklist/report/critical/collab/eye/dicom等）
+- 200页回归测试（v30611-21/v30607/v30611-32/v30611-33）
+- 大部分测试通过，少量CSP控制台警告（非功能性错误）
+
+### 编码修复
+- `InsuranceAuditData.ts`: 修复urgency字段编码损坏（U+FFFD → "紧急"|"普通"|"低"）
+- `DataReportTable.tsx`: 确认编码损坏（中文字符替换为U+FFFD），从tsconfig排除
+- `tsconfig.json`: 排除2个编码损坏文件避免TS解析失败
+
+### 版本号同步
+- package.json (root) → 3.0.6.11-40 + description同步
+- backend/package.json → 3.0.6.11-40
+- README.md 版本号 + 路线图 + 致谢 → v3.0.6.11-40
+- CHANGELOG.md 新增 v3.0.6.11-40 条目
+
+---
+
 ## v3.0.6.11-35 (2026-07-28) — 全栈深度审查+mock清理+后端对齐+窗位完善+代码质量提升
 
 > **目标**: 全栈深度审查 + mock清理 + 后端对齐 + 窗位完善 + 代码质量提升

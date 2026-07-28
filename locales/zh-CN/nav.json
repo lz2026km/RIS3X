@@ -241,5 +241,16 @@
   "fusionManager": "融合管理",
   "radiomicsFeatures": "影像组学特征",
   "iheManager": "IHE 管理",
-  "hl7Manager": "HL7 管理"
+  "hl7Manager": "HL7 管理",
+  "lungCad": "肺结节 AI 检测",
+  "breastCad": "乳腺 AI 检测",
+  "fractureCad": "骨折 AI 检测",
+  "cardiacAi": "心脏 AI 分析",
+  "wadoRs": "WADO-RS 检索",
+  "stowRs": "STOW-RS 存储",
+  "srReport": "SR 结构化报告",
+  "criticalAlert": "危急值告警",
+  "autoCollection": "自动采集管理",
+  "remoteReading": "远程阅片",
+  "pacsAdmin": "PACS 管理"
 }

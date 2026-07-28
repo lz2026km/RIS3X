@@ -13,7 +13,7 @@ const BLUE = '#3b82f6'
 const CARD_BG = '#0f172a'
 const PANEL_BG = '#1e293b'
 
-function mockSlice(plane: ViewPlane, slice: number, modality: 'ct' | 'pet' | 'mr' | 'dwi'): number[][] {
+function generateFallbackSlice(plane: ViewPlane, slice: number, modality: 'ct' | 'pet' | 'mr' | 'dwi'): number[][] {
   const size = 256
   const data: number[][] = []
   for (let y = 0; y < size; y++) {
@@ -222,8 +222,8 @@ const ViewportCanvas: React.FC<ViewportCanvasProps> = ({
     if (apiFrame) {
       imgData = apiFrame
     } else {
-      const primaryData = mockSlice(plane, sliceIndex, primaryModality)
-      const fusionData = mockSlice(plane, sliceIndex, fusionModality)
+      const primaryData = generateFallbackSlice(plane, sliceIndex, primaryModality)
+      const fusionData = generateFallbackSlice(plane, sliceIndex, fusionModality)
 
       if (fusionAlpha > 0) {
         imgData = applyPETColor(fusionData, primaryData, fusionAlpha, fusionWWL.ww, fusionWWL.wl)

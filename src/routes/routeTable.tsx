@@ -418,6 +418,20 @@ const TriageDashboardPage = lazy(() => import("../pages/triage/TriageDashboardPa
 const SnomedEncoderPage = lazy(() => import("../pages/snomed/SnomedEncoderPage"));
 const OrchestratorPage = lazy(() => import("../pages/workflow/OrchestratorPage"));
 
+  // [v3.0.6.11-40] A9-A14 后端模块对接路由
+  const LungCadPage = lazy(() => import("../pages/ai/LungCadPage"));
+  const BreastCadPage = lazy(() => import("../pages/ai/BreastCadPage"));
+  const FractureCadPage = lazy(() => import("../pages/ai/FractureCadPage"));
+  const CardiacAiPage = lazy(() => import("../pages/ai/CardiacAiPage"));
+  const WadoRsPage = lazy(() => import("../pages/dicom/WadoRsPage"));
+  const StowRsPage = lazy(() => import("../pages/dicom/StowRsPage"));
+  const SrReportPage = lazy(() => import("../pages/dicom/SrReportPage"));
+  const CriticalAlertPage = lazy(() => import("../pages/critical/CriticalAlertPage"));
+  const AutoCollectionPage = lazy(() => import("../pages/operations/AutoCollectionPage"));
+  const DeptDashboardPageV2 = lazy(() => import("../pages/department/DeptDashboardPage"));
+  const RemoteReadingPage = lazy(() => import("../pages/department/RemoteReadingPage"));
+  const PacsAdminPage = lazy(() => import("../pages/admin/PacsAdminPage"));
+
   // [Sprint 4] F13 AI Marketplace
   const AiMarketplacePage = lazy(() => import("../pages/ai/AiMarketplacePage"));
   // [Sprint 4] F14 Cross-Modal Search
@@ -426,6 +440,7 @@ const OrchestratorPage = lazy(() => import("../pages/workflow/OrchestratorPage")
   const DualReadPage = lazy(() => import("../pages/review/DualReadPage"));
   // [Sprint 4] F16 Tele-Sign
   const TeleSignPage = lazy(() => import("../pages/tele/TeleSignPage"));
+
   // [Sprint 4] F17 Smart Route
   const SmartRoutePage = lazy(() => import("../pages/workflow/SmartRoutePage"));
   // [Sprint 4] F18 HL7 SIU
@@ -631,6 +646,31 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/radiomics/features": ["医生", "主任", "管理员"],
   "/ihe/manager": ["主任", "管理员", "技师"],
   "/hl7/manager": ["技师", "管理员"],
+  // [workflow-gap] 7项缺失功能补齐路由角色映射
+  "/smart-mwl": ["医生", "技师", "主任", "管理员"],
+  "/ai-triage": ["医生", "主任", "管理员"],
+  "/smart-routing": ["管理员", "主任"],
+  "/cosign-review": ["医生", "主任", "管理员"],
+  "/radpath": ["医生", "主任", "管理员"],
+  "/critical-value-5step": ["医生", "主任", "管理员", "护士"],
+  // [v3.0.6.11-40] A9-A14 后端模块对接路由角色映射
+  "/ai/lung-cad": ["医生", "主任", "技师", "管理员"],
+  "/ai/breast-cad": ["医生", "主任", "技师", "管理员"],
+  "/ai/fracture-cad": ["医生", "主任", "技师", "管理员"],
+  "/ai/cardiac-ai": ["医生", "主任", "技师", "管理员"],
+  "/dicom/wado-rs": ["医生", "技师", "主任", "管理员"],
+  "/dicom/stow-rs": ["技师", "管理员"],
+  "/dicom/sr-report": ["医生", "技师", "主任", "管理员"],
+  "/critical-alert": ["医生", "主任", "管理员", "护士"],
+  "/auto-collection": ["管理员"],
+  "/dept-dashboard": ["主任", "管理员"],
+  "/remote-reading": ["医生", "主任", "管理员"],
+  "/pacs-admin": ["管理员"],
+  // [v3.0.6.11-40] A15 专科模块路由角色映射
+  "/mammo/breast-specialty": ["医生", "主任", "管理员"],
+  "/cardiac/cardiac-specialty": ["医生", "主任", "管理员"],
+  "/ortho-specialty": ["医生", "主任", "管理员"],
+  "/neuro-specialty": ["医生", "主任", "管理员"],
 };
 
 function rolesFor(path: string): ReadonlyArray<Role> | undefined {
@@ -804,6 +844,11 @@ export const routes: RouteObject[] = [
   wrapped("/finance/patient", React.createElement(PatientFinancePage)),
   wrapped("/mammo/operations", React.createElement(DepartmentOperationsPage)),
   wrapped("/mammo/quality", React.createElement(QualityManagementPage)),
+  // [v3.0.6.11-40] A15 专科模块: 乳腺/心脏/骨科/神经
+  wrapped("/mammo/breast-specialty", React.createElement(lazy(() => import("../pages/mammo/BreastSpecialtyPage")))),
+  wrapped("/cardiac/cardiac-specialty", React.createElement(lazy(() => import("../pages/cardiac/CardiacSpecialtyPage")))),
+  wrapped("/ortho-specialty", React.createElement(lazy(() => import("../pages/OrthoSpecialtyPage")))),
+  wrapped("/neuro-specialty", React.createElement(lazy(() => import("../pages/NeuroSpecialtyPage")))),
   wrapped("/patient/self-service", React.createElement(SelfServicePortal)),
   wrapped(
     "/patient/service-management",
@@ -988,6 +1033,13 @@ export const routes: RouteObject[] = [
   wrapped("/tele-sign", React.createElement(TeleSignPage)),
   wrapped("/smart-route", React.createElement(SmartRoutePage)),
   wrapped("/hl7-siu", React.createElement(Hl7SiuPage)),
+  // [workflow-gap] 7项缺失功能补齐: Smart MWL / AI Triage / Smart Routing / CoSign Review / Rad-Path
+  wrapped("/smart-mwl", React.createElement(lazy(() => import("../pages/worklist/SmartMwlPage")))),
+  wrapped("/ai-triage", React.createElement(lazy(() => import("../pages/triage/AiTriagePage")))),
+  wrapped("/smart-routing", React.createElement(lazy(() => import("../pages/workflow/SmartRoutingPage")))),
+  wrapped("/cosign-review", React.createElement(lazy(() => import("../pages/review/CoSignPage")))),
+  wrapped("/radpath", React.createElement(lazy(() => import("../pages/radpath/RadPathPage")))),
+  wrapped("/critical-value-5step", React.createElement(lazy(() => import("../pages/critical/CriticalValue5StepPage")))),
   // [audit-fix-2026-07-28] 后端端点补齐: FHIR/DICOM/Fusion/Radiomics/IHE/HL7 前端页面
   wrapped("/fhir/patient", React.createElement(FhirPatientPage)),
   wrapped("/fhir/observation", React.createElement(FhirObservationPage)),
@@ -1000,6 +1052,19 @@ export const routes: RouteObject[] = [
   wrapped("/radiomics/features", React.createElement(RadiomicsFeaturePage)),
   wrapped("/ihe/manager", React.createElement(IheManagerPage)),
   wrapped("/hl7/manager", React.createElement(Hl7ManagerPage)),
+  // [v3.0.6.11-40] A9-A14 后端模块对接路由
+  wrapped("/ai/lung-cad", React.createElement(LungCadPage)),
+  wrapped("/ai/breast-cad", React.createElement(BreastCadPage)),
+  wrapped("/ai/fracture-cad", React.createElement(FractureCadPage)),
+  wrapped("/ai/cardiac-ai", React.createElement(CardiacAiPage)),
+  wrapped("/dicom/wado-rs", React.createElement(WadoRsPage)),
+  wrapped("/dicom/stow-rs", React.createElement(StowRsPage)),
+  wrapped("/dicom/sr-report", React.createElement(SrReportPage)),
+  wrapped("/critical-alert", React.createElement(CriticalAlertPage)),
+  wrapped("/auto-collection", React.createElement(AutoCollectionPage)),
+  wrapped("/dept-dashboard", React.createElement(DeptDashboardPageV2)),
+  wrapped("/remote-reading", React.createElement(RemoteReadingPage)),
+  wrapped("/pacs-admin", React.createElement(PacsAdminPage)),
   {
     path: "*",
     element: React.createElement(Navigate, { to: "/", replace: true }),

@@ -206,12 +206,12 @@ export default function PatientMobileApp() {
     setPayState('invoking')
     setPayError(null)
     const orderNo = `RPT-${report.id}-${Date.now()}`
-    const totalFee = 5000 // Mock: 50元 = 5000分
+    const totalFee = 5000
     const r = await wechatPay.jsapiPay({
       outTradeNo: orderNo,
       totalFee,
       body: `检查报告 - ${report.examType}`,
-      openId: `mock-openid-${mobileUser.id}`,
+      openId: mobileUser.id,
       patientId: mobileUser.id,
       onSuccess: (res) => {
         setPayState('success')

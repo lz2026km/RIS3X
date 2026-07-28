@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
-import { Card, Row, Col, Tag, Statistic, Table, Progress, Tabs, Select, Space, Badge } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Card, Row, Col, Tag, Statistic, Table, Progress, Tabs, Select, Space, Badge, Spin } from 'antd';
 import { BarChart3, TrendingUp, TrendingDown, Activity, Users, DollarSign, Smile, AlertTriangle } from 'lucide-react';
-import { MOCK_QUALITY_METRICS } from '@/data/eyeQualityMock';
-import { MOCK_PATIENT_SATISFACTION } from '@/data/eyeTypicalCasesMock';
+import { eyeApi } from '@/services/api/eyeApi';
 import { PageContainer, PageHeader } from '@/components/common';
 const MODALITY_LABELS: Record<string, string> = { fundus_photo: '眼底彩照', oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: '视野', topography: '角膜地形图', pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: '裂隙灯', oct_a: 'OCTA', corneal_endothelium: '角膜内皮', tear_film: '泪膜', fundus_autofluorescence: '眼底自发荧光' };
 
@@ -12,8 +11,36 @@ const CATEGORY_LABELS_DICT: Record<string, string> = { productivity: '效率', c
 
 const EyeKpiDashboardPage: React.FC = () => {
   const [tab, setTab] = useState('all');
-  const filtered = tab === 'all' ? MOCK_QUALITY_METRICS : MOCK_QUALITY_METRICS.filter(m => m.category === tab);
-  const avgSat = MOCK_PATIENT_SATISFACTION.reduce((s, p) => s + p.overallScore, 0) / MOCK_PATIENT_SATISFACTION.length;
+  const [qualityMetrics, setQualityMetrics] = useState<any[]>([]);
+  const [patientSatisfaction, setPatientSatisfaction] = useState<any[]>([]);
+  const [kpiData, setKpiData] = useState({ dailyExams: 0, aiAdoption: 0, avgWait: 0, avgCost: 0, criticalResponse: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setLoading(true);
+      try {
+        const [qmRes, satRes, kpiRes] = await Promise.all([
+          eyeApi.getQualityMetrics(),
+          eyeApi.getPatientSatisfaction(),
+          fetch('/api/v1/eye/kpi/summary').then(r => r.json()).catch(() => ({ success: false, data: null })),
+        ]);
+        if (!cancelled) {
+          if (qmRes.success && Array.isArray(qmRes.data)) setQualityMetrics(qmRes.data);
+          if (satRes.success && Array.isArray(satRes.data)) setPatientSatisfaction(satRes.data);
+          if (kpiRes.success && kpiRes.data) setKpiData(kpiRes.data);
+        }
+      } catch { /* API may not be available */ }
+      if (!cancelled) setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const filtered = tab === 'all' ? qualityMetrics : qualityMetrics.filter(m => m.category === tab);
+  const avgSat = patientSatisfaction.length > 0
+    ? patientSatisfaction.reduce((s, p) => s + (p.overallScore || 0), 0) / patientSatisfaction.length
+    : 0;
   return (
     <PageContainer background="slate" maxWidth="full" padding={16} testId="eye-kpi-dashboard-page">
       <PageHeader
@@ -24,12 +51,12 @@ const EyeKpiDashboardPage: React.FC = () => {
       />
     {/* v3.0.6.8-23c (A8-P0-4): auto-fit 响应式 KPI 网格 */}
     <div data-testid="eye-kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 12 }}>
-      <Card size="small"><Statistic title="日均检查" value={42} suffix="人次" prefix={<Activity size={16} />} /></Card>
-      <Card size="small"><Statistic title="AI采纳率" value={72.3} suffix="%" prefix={<BarChart3 size={16} />} valueStyle={{ color: '#22c55e' }} /></Card>
+      <Card size="small"><Statistic title="日均检查" value={kpiData.dailyExams} suffix="人次" prefix={<Activity size={16} />} /></Card>
+      <Card size="small"><Statistic title="AI采纳率" value={kpiData.aiAdoption} suffix="%" prefix={<BarChart3 size={16} />} valueStyle={{ color: '#22c55e' }} /></Card>
       <Card size="small"><Statistic title="患者满意度" value={avgSat.toFixed(1)} suffix="分" prefix={<Smile size={16} color="#8b5cf6" />} /></Card>
-      <Card size="small"><Statistic title="平均候诊" value={22} suffix="min" prefix={<AlertTriangle size={16} color="#f59e0b" />} /></Card>
-      <Card size="small"><Statistic title="次均费用" value={385} suffix="元" prefix={<DollarSign size={16} color="#10b981" />} /></Card>
-      <Card size="small"><Statistic title="危急值响应" value={28} suffix="min" prefix={<AlertTriangle size={16} color="#ef4444" />} /></Card>
+      <Card size="small"><Statistic title="平均候诊" value={kpiData.avgWait} suffix="min" prefix={<AlertTriangle size={16} color="#f59e0b" />} /></Card>
+      <Card size="small"><Statistic title="次均费用" value={kpiData.avgCost} suffix="元" prefix={<DollarSign size={16} color="#10b981" />} /></Card>
+      <Card size="small"><Statistic title="危急值响应" value={kpiData.criticalResponse} suffix="min" prefix={<AlertTriangle size={16} color="#ef4444" />} /></Card>
     </div>
     <Card size="small">
       <Tabs
@@ -61,7 +88,7 @@ const EyeKpiDashboardPage: React.FC = () => {
     </Card>
     <Card size="small" title="患者满意度趋势" style={{ marginTop: 8 }}>
       <Row gutter={12}>{['沟通', '候诊', '环境', '推荐'].map((s, i) => {
-        const scores = MOCK_PATIENT_SATISFACTION.map(p => [p.communicationScore, p.waitTimeScore, p.facilityScore, p.recommendationScore][i]);
+        const scores = patientSatisfaction.map(p => [p.communicationScore, p.waitTimeScore, p.facilityScore, p.recommendationScore][i]);
         const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
         return <Col span={6} key={s}><div style={{ textAlign: 'center' }}><div style={{ fontSize: 12, color: '#64748b' }}>{s}</div><Progress type="dashboard" percent={avg} size={60} strokeColor={avg >= 90 ? '#22c55e' : avg >= 80 ? '#1677ff' : '#f59e0b'} /><div style={{ fontSize: 12, fontWeight: 600 }}>{avg}分</div></div></Col>;
       })}</Row>

@@ -15,7 +15,7 @@ export const DentalAIPage: React.FC = () => {
   const handleInfer = async (endpoint: string, setter: Function) => {
     setLoading(true);
     try {
-      const r = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"imageBase64":"mock"}' });
+      const r = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"imageBase64":""}' });
       const d = await r.json();
       if (d.success) { setter(d.data); message.success('AI 检测完成'); }
     } catch (e: any) { message.error(e.message); }

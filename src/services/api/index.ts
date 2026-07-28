@@ -16,6 +16,31 @@ export type { ReportDto } from './reportApi'
 export { deviceApi } from './deviceApi'
 export type { DeviceDto, CreateDeviceDto, UpdateDeviceDto } from './deviceApi'
 
+export { fusionV2Api } from './fusionV2Api'
+export type {
+  FusionV2RegisterDto, FusionV2RegisterResult,
+  FusionV2RenderDto, FusionV2RenderResult,
+  FusionV2SeriesItem, FusionV2SeriesResult,
+} from './fusionV2Api'
+
+export { radpathApi } from './radpathApi'
+export type {
+  RadPathCreateDto, RadPathUpdateConsistencyDto,
+  RadPathRecord, RadPathStats,
+} from './radpathApi'
+
+export { deviceMgmtApi } from './deviceMgmtApi'
+export type {
+  EquipmentLifecycle, UpdateEquipmentLifecycleDto,
+  DeviceMgmtItem, CreateDeviceMgmtDto, UpdateDeviceMgmtDto,
+  DeviceFault, ReportDeviceFaultDto,
+  Material, AddMaterialDto,
+  DoseRecord, RecordDoseDto,
+  AdverseReaction, ReportAdverseReactionDto,
+  ContrastInventory, UpdateContrastInventoryDto,
+  InjectionWorkstation, ContrastQuality,
+} from './deviceMgmtApi'
+
 export { criticalApi } from './criticalApi'
 export type { CriticalValueDto } from './criticalApi'
 
@@ -156,3 +181,82 @@ export type { MissedReportStats, NotificationCompletionStats } from './criticalS
 
 export { eyePacsApi } from './eyePacsApi'
 export type { EyeStudyDto, EyeMeasurementDto, KeyImageDto, LesionSegmentationDto, AiDiagnosisDto, EyeAnnotationDto } from './eyePacsApi'
+
+export { smartRouteApi } from './smartRouteApi'
+export type { SmartRouteRule, SmartRouteAssignment, SmartRouteStats, SmartRouteAssignDto } from './smartRouteApi'
+
+export { teachApi } from './teachApi'
+export type { TeachLecture, TeachLectureBlob, CreateLectureDto, LecturesQuery, LecturesResult } from './teachApi'
+
+export { aiDraftApi } from './aiDraftApi'
+export type { AiDraftParagraph, AiDraftResult, AiDraftGenerateDto, AiDraftRewriteDto, AiDraftRewriteResult, AiDraftContinueDto } from './aiDraftApi'
+
+export { aiMarketplaceApi } from './aiMarketplaceApi'
+export type { AiModel, DeployModelDto } from './aiMarketplaceApi'
+
+// [v3.0.6.11-40] A9-A14 后端模块对接
+export { dualReadApi } from './dualReadApi'
+export type { DualReadAssignment, CreateDualReadDto, SubmitDualReadDto, ArbitrateDto, DualReadStats } from './dualReadApi'
+
+export { qcImageAiApi } from './qcImageAiApi'
+export type { QcImageAiResult, QcImageAiIssue, QcImageAiReviewDto, QcImageAiBatchDto, QcImageAiStats } from './qcImageAiApi'
+
+export { aiPlatformApi } from './aiPlatformApi'
+export type { AiPlatformModel, AiPlatformTask, AiPlatformInferenceDto, AiPlatformStats } from './aiPlatformApi'
+
+export { aiDiagnosisApi } from './aiDiagnosisApi'
+export type { AiDiagnosisResult, AiDiagnosisConfirmDto, AiDiagnosisQueryParams, AiDiagnosisStats } from './aiDiagnosisApi'
+
+export { benchmarkApi } from './benchmarkApi'
+export type { BenchmarkRecord, BenchmarkComparison, BenchmarkAiDiagnosis, BenchmarkQueryParams, BenchmarkReport } from './benchmarkApi'
+
+export { dicomCompressApi } from './dicomCompressApi'
+export type { DicomCompressTask, DicomCompressDto, DicomCompressBatchDto, DicomCompressStats } from './dicomCompressApi'
+
+export { occupancyApi } from './occupancyApi'
+export type { OccupancyRoom, OccupancyTimelineEntry, OccupancyStats, OccupancyQueryParams } from './occupancyApi'
+
+export { oeeApi } from './oeeApi'
+export type { OeeRecord, OeeSummary, OeeQueryParams, OeeTrend, OeeDowntimeReason } from './oeeApi'
+
+export { teleApi } from './teleApi'
+export type { TeleSession, TeleParticipant, CreateTeleSessionDto, TeleMessage, TeleStats } from './teleApi'
+
+export { teleSignApi } from './teleSignApi'
+export type { TeleSignSession, TeleSignDto, TeleSignRejectDto, TeleSignQueryParams, TeleSignStats } from './teleSignApi'
+
+export { lungCadApi } from './lungCadApi'
+export type { LungNodule, LungCadResult, LungCadReviewDto, LungCadStats } from './lungCadApi'
+
+export { breastCadApi } from './breastCadApi'
+export type { BreastLesion, BreastCadResult, BreastCadReviewDto, BreastCadStats } from './breastCadApi'
+
+export { fractureCadApi } from './fractureCadApi'
+export type { FractureFinding, FractureCadResult, FractureCadReviewDto, FractureCadStats } from './fractureCadApi'
+
+export { cardiacAiApi } from './cardiacAiApi'
+export type { CardiacMeasurement, CardiacAiResult, CardiacStenosis, CardiacAiReviewDto, CardiacAiStats } from './cardiacAiApi'
+
+export { wadoRsApi } from './wadoRsApi'
+export type { WadoRsStudy, WadoRsSeries, WadoRsInstance, WadoRsQueryParams } from './wadoRsApi'
+
+export { stowRsApi } from './stowRsApi'
+export type { StowRsStoreResult, StowRsStoreResponse, StowRsQueryParams, StowRsStoredInstance } from './stowRsApi'
+
+export { srReportApi } from './srReportApi'
+export type { SrReport, SrReportContent, SrFinding, SrMeasurement, CreateSrReportDto, SrReportQueryParams } from './srReportApi'
+
+export { criticalAlertApi } from './criticalAlertApi'
+export type { CriticalAlert, CriticalAlertQueryParams, AcknowledgeAlertDto, ResolveAlertDto, CriticalAlertStats } from './criticalAlertApi'
+
+export { autoCollectionApi } from './autoCollectionApi'
+export type { AutoCollectionRule, AutoCollectionTask, AutoCollectionConfig, AutoCollectionStats } from './autoCollectionApi'
+
+export { deptDashboardApi } from './deptDashboardApi'
+export type { DeptDashboardSummary, DeptDashboardWorkload, DeptDashboardEquipment, DeptDashboardTrend, DeptDashboardQueryParams } from './deptDashboardApi'
+
+export { remoteReadingApi } from './remoteReadingApi'
+export type { RemoteReadingSession, CreateRemoteReadingDto, RemoteReadingQueryParams, RemoteReadingStats } from './remoteReadingApi'
+
+export { pacsAdminApi } from './pacsAdminApi'
+export type { PacsServer, PacsStorageGroup, PacsAssociation, PacsQueryParams, PacsAdminStats } from './pacsAdminApi'

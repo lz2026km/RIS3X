@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, Statistic, Table, Tag, Button, Space } from 'antd';
-import { TrendingUp, TrendingDown, Minus, Gauge, Activity, Zap, ShieldCheck, BarChart3, Clock } from 'lucide-react';
+import { Card, Row, Col, Statistic, Table, Tag, Button, Space, Spin, Empty } from 'antd';
+import { TrendingUp, TrendingDown, Minus, Gauge, Activity, Zap, ShieldCheck, BarChart3, Clock, Inbox } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 interface DeviceOEE {
@@ -20,44 +20,25 @@ const trendIcon = (t: string) => {
 
 const oeeColor = (v: number) => (v < 60 ? COLORS.red : v < 85 ? COLORS.yellow : COLORS.green);
 
-const MOCK_DEVICES: DeviceOEE[] = [
-  { id: 'CT-01', name: 'GE Revolution CT', model: 'Revolution CT', modality: 'CT', oee: 85.3, availability: 92.1, performance: 95.0, quality: 97.4, trend: 'up' },
-  { id: 'MR-01', name: 'Siemens Skyra', model: 'Skyra 3T', modality: 'MR', oee: 72.6, availability: 85.0, performance: 88.2, quality: 96.8, trend: 'down' },
-  { id: 'DR-01', name: 'Philips DigitalDiagnost', model: 'DigitalDiagnost 4', modality: 'DR', oee: 91.2, availability: 96.5, performance: 97.1, quality: 99.4, trend: 'up' },
-  { id: 'DR-02', name: 'Siemens Ysio', model: 'Ysio Max', modality: 'DR', oee: 78.9, availability: 88.3, performance: 91.0, quality: 98.1, trend: 'stable' },
-  { id: 'CT-02', name: 'Canon Aquilion', model: 'Aquilion ONE', modality: 'CT', oee: 55.4, availability: 72.0, performance: 80.5, quality: 95.6, trend: 'down' },
-  { id: 'MG-01', name: 'Hologic Selenia', model: 'Selenia Dimensions', modality: 'MG', oee: 68.7, availability: 82.4, performance: 86.3, quality: 96.5, trend: 'up' },
-  { id: 'DSA-01', name: 'GE Innova', model: 'Innova IGS 5', modality: 'DSA', oee: 82.0, availability: 90.0, performance: 93.5, quality: 97.8, trend: 'down' },
-];
-
-const MOCK_TREND = [
-  { date: '1/1', oee: 72, availability: 82, performance: 88, quality: 96 },
-  { date: '1/2', oee: 75, availability: 85, performance: 90, quality: 95 },
-  { date: '1/3', oee: 70, availability: 80, performance: 87, quality: 97 },
-  { date: '1/4', oee: 78, availability: 86, performance: 91, quality: 98 },
-  { date: '1/5', oee: 74, availability: 83, performance: 89, quality: 96 },
-  { date: '1/6', oee: 80, availability: 88, performance: 92, quality: 97 },
-  { date: '1/7', oee: 76, availability: 84, performance: 90, quality: 95 },
-  { date: '1/8', oee: 82, availability: 89, performance: 93, quality: 98 },
-  { date: '1/9', oee: 79, availability: 87, performance: 91, quality: 97 },
-  { date: '1/10', oee: 85, availability: 91, performance: 94, quality: 99 },
-  { date: '1/11', oee: 82, availability: 90, performance: 92, quality: 98 },
-  { date: '1/12', oee: 87, availability: 92, performance: 95, quality: 99 },
-];
-
-const MOCK_CAUSES = [
-  { name: '停机故障', value: 35 }, { name: '换型调整', value: 25 }, { name: '速度减速', value: 22 }, { name: '缺陷返工', value: 18 },
-];
-
 export const OEEDashboardPage: React.FC = () => {
-  const [devices, setDevices] = useState<DeviceOEE[]>(MOCK_DEVICES);
+  const [devices, setDevices] = useState<DeviceOEE[]>([]);
   const [timeRange, setTimeRange] = useState('today');
-  const [trendData, setTrendData] = useState(MOCK_TREND);
-  const [causeData] = useState(MOCK_CAUSES);
+  const [trendData, setTrendData] = useState<{ date: string; oee: number; availability: number; performance: number; quality: number }[]>([]);
+  const [causeData, setCauseData] = useState<{ name: string; value: number }[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/oee/list').then(r => r.json()).then(setDevices).catch(() => setDevices(MOCK_DEVICES));
-    fetch('/api/oee/trend/CT-01').then(r => r.json()).then(setTrendData).catch(() => setTrendData(MOCK_TREND));
+    setLoading(true);
+    Promise.all([
+      fetch('/api/oee/list').then(r => r.json()).catch(() => ({ success: false, data: [] })),
+      fetch('/api/oee/trend/CT-01').then(r => r.json()).catch(() => ({ success: false, data: [] })),
+      fetch('/api/oee/causes').then(r => r.json()).catch(() => ({ success: false, data: [] })),
+    ]).then(([listRes, trendRes, causeRes]) => {
+      if (listRes.success && Array.isArray(listRes.data)) setDevices(listRes.data);
+      if (trendRes.success && Array.isArray(trendRes.data)) setTrendData(trendRes.data);
+      if (causeRes.success && Array.isArray(causeRes.data)) setCauseData(causeRes.data);
+      setLoading(false);
+    });
   }, [timeRange]);
 
   const avgMetric = (key: keyof DeviceOEE) => Math.round(devices.reduce((s, d) => s + (d[key] as number), 0) / devices.length * 10) / 10;
@@ -84,6 +65,38 @@ export const OEEDashboardPage: React.FC = () => {
       <Statistic title={<Space><span style={{ color }}>{icon}</span>{title}</Space>} value={value} suffix={suffix || '%'} valueStyle={{ color }} precision={1} />
     </Card>
   );
+
+  if (loading) {
+    return (
+      <div style={{ padding: 24, background: '#f0f2f5', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Spin size="large" tip="加载中..." />
+      </div>
+    );
+  }
+
+  if (devices.length === 0) {
+    return (
+      <div style={{ padding: 24, background: '#f0f2f5', minHeight: '100vh' }}>
+        <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }}>
+          <Space>
+            <Gauge size={20} color={COLORS.blue} />
+            <span style={{ fontSize: 18, fontWeight: 600 }}>设备 OEE 看板</span>
+            <Tag color="blue">Overall Equipment Effectiveness</Tag>
+          </Space>
+          <Space>
+            {['today', 'week', 'month', 'custom'].map(t => (
+              <Button key={t} type={timeRange === t ? 'primary' : 'default'} size="small" onClick={() => setTimeRange(t)}>
+                {{ today: '今日', week: '本周', month: '本月', custom: '自定义' }[t]}
+              </Button>
+            ))}
+          </Space>
+        </Space>
+        <div style={{ background: '#fff', borderRadius: 8, padding: 20, textAlign: 'center' }}>
+          <Empty description="暂无设备 OEE 数据" image={<Inbox size={48} color="#94a3b8" />} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: 24, background: '#f0f2f5', minHeight: '100vh' }}>

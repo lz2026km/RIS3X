@@ -1,6 +1,7 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { message } from 'antd'
 import { Search, Calendar, Bell, UserCheck, Syringe, Clock, ChevronRight, AlertCircle, CheckCircle, XCircle } from 'lucide-react'
+import { appointmentApi, type AppointmentDto } from '../../../services/api'
 
 export interface NurseAppointment {
   id: string
@@ -26,14 +27,6 @@ export interface MedicationRecord {
   administeredBy: string
 }
 
-const MOCK_APPOINTMENTS: NurseAppointment[] = [
-  { id: 'N1', patientName: '张伟', gender: '男', age: 42, examItem: '腹部CT增强', modality: 'CT', status: 'waiting', appointmentTime: '09:00', contrastRequired: true, medications: ['碘海醇'] },
-  { id: 'N2', patientName: '李芳', gender: '女', age: 35, examItem: '胸部CT平扫', modality: 'CT', status: 'in-progress', appointmentTime: '09:15', contrastRequired: false, medications: [] },
-  { id: 'N3', patientName: '王建国', gender: '男', age: 68, examItem: '头颅MR平扫', modality: 'MR', status: 'waiting', appointmentTime: '09:30', contrastRequired: false, medications: [], notes: '有幽闭恐惧症史' },
-  { id: 'N4', patientName: '赵雪梅', gender: '女', age: 55, examItem: 'MG', modality: 'MG', status: 'completed', appointmentTime: '08:30', contrastRequired: false, medications: [] },
-  { id: 'N5', patientName: '刘洋', gender: '男', age: 28, examItem: '膝关节MR平扫', modality: 'MR', status: 'cancelled', appointmentTime: '08:45', contrastRequired: false, medications: [] },
-]
-
 const STATUS_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
   waiting: { bg: '#fef3c7', color: '#d97706', label: '等候中' },
   'in-progress': { bg: '#dbeafe', color: '#2563eb', label: '检查中' },
@@ -55,8 +48,38 @@ export default function NurseMobileWorkstation() {
   const [tab, setTab] = useState<'queue' | 'meds'>('queue')
   const [filter, setFilter] = useState<'all' | 'waiting' | 'in-progress'>('all')
   const [search, setSearch] = useState('')
+  const [appointments, setAppointments] = useState<NurseAppointment[]>([])
 
-  const filtered = MOCK_APPOINTMENTS.filter(item => {
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = await appointmentApi.list({ state: 'SCHEDULED' })
+        if (!cancelled && res.success && Array.isArray(res.data)) {
+          const stateMap: Record<string, NurseAppointment['status']> = {
+            SCHEDULED: 'waiting', CONFIRMED: 'waiting', CHECKED_IN: 'in-progress',
+            IN_PROGRESS: 'in-progress', COMPLETED: 'completed', CANCELLED: 'cancelled', NO_SHOW: 'cancelled',
+          }
+          setAppointments(res.data.map((a: AppointmentDto) => ({
+            id: a.id,
+            patientName: a.patientName || '未知患者',
+            gender: '未知',
+            age: 0,
+            examItem: a.room || '',
+            modality: a.modality,
+            status: stateMap[a.state] || 'waiting',
+            appointmentTime: a.startAt ? new Date(a.startAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) : '',
+            contrastRequired: false,
+            medications: [],
+            notes: a.note,
+          })))
+        }
+      } catch { /* keep empty */ }
+    })()
+    return () => { cancelled = true }
+  }, [])
+
+  const filtered = appointments.filter(item => {
     if (filter !== 'all' && item.status !== filter) return false
     if (search && !item.patientName.includes(search) && !item.examItem.includes(search)) return false
     return true
@@ -77,9 +100,9 @@ export default function NurseMobileWorkstation() {
         <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>放射科 · 护理工作台</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 12 }}>
           {[
-            { value: MOCK_APPOINTMENTS.filter(a => a.status === 'waiting').length, label: '等候', bg: '#fef3c7', color: '#d97706' },
-            { value: MOCK_APPOINTMENTS.filter(a => a.status === 'in-progress').length, label: '检查中', bg: '#dbeafe', color: '#2563eb' },
-            { value: MOCK_APPOINTMENTS.filter(a => a.contrastRequired).length, label: '需造影', bg: '#fee2e2', color: '#dc2626' },
+            { value: appointments.filter(a => a.status === 'waiting').length, label: '等候', bg: '#fef3c7', color: '#d97706' },
+            { value: appointments.filter(a => a.status === 'in-progress').length, label: '检查中', bg: '#dbeafe', color: '#2563eb' },
+            { value: appointments.filter(a => a.contrastRequired).length, label: '需造影', bg: '#fee2e2', color: '#dc2626' },
           ].map(stat => (
             <div key={stat.label} style={{ background: stat.bg, borderRadius: 8, padding: '8px', textAlign: 'center' }}>
               <div style={{ fontSize: 18, fontWeight: 800, color: stat.color }}>{stat.value}</div>
@@ -160,7 +183,7 @@ export default function NurseMobileWorkstation() {
               <Syringe size={16} color="#7c3aed" /> 造影剂/用药记录
             </div>
             <div style={{ display: 'grid', gap: 8 }}>
-              {MOCK_APPOINTMENTS.filter(a => a.contrastRequired || a.medications.length > 0).map(item => (
+              {appointments.filter(a => a.contrastRequired || a.medications.length > 0).map(item => (
                 <div key={item.id} style={{ padding: '10px 12px', background: '#f8fafc', borderRadius: 8 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{item.patientName} - {item.examItem}</div>
                   <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>

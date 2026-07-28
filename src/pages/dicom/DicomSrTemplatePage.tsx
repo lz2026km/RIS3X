@@ -21,12 +21,7 @@ export const DicomSrTemplatePage: React.FC = () => {
         setTemplates(res.data)
       }
     } catch {
-      message.warning('模板列表加载失败，使用演示数据')
-      setTemplates([
-        { id: 'tid1500', label: '结构化测量报告', labelEn: 'Measurement Report', description: '标准 DICOM SR 测量报告模板，包含 Findings + Impression + Measurements', tid: 'TID 1500' },
-        { id: 'tid2000', label: 'CAD 文档 SR', labelEn: 'CAD Document SR', description: 'CAD (计算机辅助检测) 文档模板', tid: 'TID 2000' },
-        { id: 'tid3000', label: '胸痛三联排除报告', labelEn: 'Triple Rule-Out Report', description: 'CT 胸痛三联排除报告 SR 模板', tid: 'TID 3000' },
-      ])
+      message.warning('模板列表加载失败')
     }
     setLoading(false)
   }, [])

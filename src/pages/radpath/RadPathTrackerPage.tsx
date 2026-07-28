@@ -1,17 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, Activity, CheckCircle2, XCircle, Clock, TrendingUp, PieChart, FileText, Microscope, AlertTriangle } from 'lucide-react';
-
-interface Stats {
-  total: number; concordant: number; discordant: number; pending: number;
-  positiveConsistency: number; trend: Array<{ month: string; rate: number }>;
-}
-
-interface RadPathRecord {
-  id: string; reportId: string; pathologyId: string; radFinding: string;
-  pathResult: string; consistency: 'concordant' | 'discordant' | 'pending';
-  notes?: string; createdAt: string;
-  report: { id: string; findings: string; conclusion: string; patient: { name: string }; exam?: { modality: string; bodyPart: string } };
-}
+import { radpathApi, type RadPathStats, type RadPathRecord } from '../../services/api/radpathApi';
 
 const consistencyColor: Record<string, string> = {
   concordant: '#10b981', discordant: '#ef4444', pending: '#94a3b8',
@@ -36,15 +25,22 @@ export default function RadPathTrackerPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => { fetch('/api/radpath/stats').then(r => r.json()).then(setStats).catch(() => {}) }, []);
+  useEffect(() => {
+    radpathApi.getStats().then(res => {
+      if (res.success && res.data) setStats(res.data);
+    }).catch(() => {});
+  }, []);
 
   const handleSearch = useCallback(async () => {
     if (!reportId.trim()) return;
     setLoading(true); setError(''); setRecord(null);
     try {
-      const res = await fetch(`/api/radpath/report/${encodeURIComponent(reportId.trim())}`);
-      if (!res.ok) throw new Error('未找到关联记录');
-      setRecord(await res.json());
+      const res = await radpathApi.findByReport(reportId.trim());
+      if (res.success && res.data) {
+        setRecord(res.data);
+      } else {
+        throw new Error(res.error?.message || '未找到关联记录');
+      }
     } catch (e: any) { setError(e.message) } finally { setLoading(false) }
   }, [reportId]);
 

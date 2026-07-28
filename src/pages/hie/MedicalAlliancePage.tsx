@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { regionalApi } from '../../services/api/regionalApi'
 
 interface AllianceMember {
   id: string
@@ -29,29 +30,49 @@ interface AllianceReferral {
   completedAt?: string
 }
 
-const MOCK_MEMBERS: AllianceMember[] = [
-  { id: 'AM001', name: '中山大学附属第一医院', code: 'ZS001', level: '三级甲等', type: '综合医院', region: '广州市越秀区', contactPerson: '张主任', contactPhone: '020-87755777', status: 'active', joinedAt: '2025-01-15', resourceContribution: ['CT', 'MR', 'PET-CT', '专家会诊'] },
-  { id: 'AM002', name: '广东省人民医院', code: 'GD002', level: '三级甲等', type: '综合医院', region: '广州市越秀区', contactPerson: '李科长', contactPhone: '020-83827812', status: 'active', joinedAt: '2025-02-01', resourceContribution: ['CT', 'MR', '心血管介入'] },
-  { id: 'AM003', name: '越秀区妇幼保健院', code: 'YX003', level: '二级甲等', type: '妇幼保健院', region: '广州市越秀区', contactPerson: '王院长', contactPhone: '020-83394547', status: 'active', joinedAt: '2025-03-10', resourceContribution: ['超声', '乳腺X线'] },
-  { id: 'AM004', name: '天河区人民医院', code: 'TH004', level: '二级甲等', type: '综合医院', region: '广州市天河区', contactPerson: '刘院长', contactPhone: '020-85678901', status: 'pending', joinedAt: '2026-05-20', resourceContribution: ['X光', '超声'] },
-]
-
-const referrals: AllianceReferral[] = [
-  { id: 'REF001', patientName: '张伟', patientId: 'P001', fromMemberId: 'AM003', fromMemberName: '越秀区妇幼保健院', toMemberId: 'AM001', toMemberName: '中山大学附属第一医院', diagnosis: '乳腺占位待查', priority: 'urgent', status: 'completed', createdAt: '2026-05-10', completedAt: '2026-05-12' },
-  { id: 'REF002', patientName: '李娜', patientId: 'P002', fromMemberId: 'AM003', fromMemberName: '越秀区妇幼保健院', toMemberId: 'AM001', toMemberName: '中山大学附属第一医院', diagnosis: '胎儿发育异常', priority: 'urgent', status: 'accepted', createdAt: '2026-05-25' },
-]
-
 function generateId(): string { return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}` }
 
 const MedicalAlliancePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'members' | 'referrals' | 'dashboard'>('members')
-  const [allianceReferrals, setAllianceReferrals] = useState<AllianceReferral[]>(referrals)
+  const [allianceMembers, setAllianceMembers] = useState<AllianceMember[]>([])
+  const [allianceReferrals, setAllianceReferrals] = useState<AllianceReferral[]>([])
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = await regionalApi.listMedicalAlliance()
+        if (!cancelled && res.success && Array.isArray(res.data)) {
+          setAllianceMembers(res.data.map((m: any) => ({
+            id: m.id || generateId(),
+            name: m.name || '',
+            code: m.code || '',
+            level: m.level || '',
+            type: m.type || '',
+            region: m.region || '',
+            contactPerson: m.contactPerson || '',
+            contactPhone: m.contactPhone || '',
+            status: m.status || 'active',
+            joinedAt: m.joinedAt || '',
+            resourceContribution: m.resourceContribution || [],
+          })))
+        }
+      } catch { /* keep empty */ }
+      try {
+        const res = await fetch('/api/v1/regional/alliance-referrals').then(r => r.json())
+        if (!cancelled && res.data && Array.isArray(res.data)) {
+          setAllianceReferrals(res.data)
+        }
+      } catch { /* keep empty */ }
+    })()
+    return () => { cancelled = true }
+  }, [])
 
   const handleCreateReferral = () => {
     const newRef: AllianceReferral = {
       id: generateId(), patientName: '新患者', patientId: 'P-NEW',
-      fromMemberId: 'AM003', fromMemberName: '越秀区妇幼保健院',
-      toMemberId: 'AM001', toMemberName: '中山大学附属第一医院',
+      fromMemberId: '', fromMemberName: '',
+      toMemberId: '', toMemberName: '',
       diagnosis: '转诊诊断', priority: 'normal', status: 'pending',
       createdAt: new Date().toISOString(),
     }
@@ -83,7 +104,7 @@ const MedicalAlliancePage: React.FC = () => {
       {activeTab === 'members' && (
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 500 }}>医联体成员 ({MOCK_MEMBERS.length})</h2>
+            <h2 style={{ fontSize: 18, fontWeight: 500 }}>医联体成员 ({allianceMembers.length})</h2>
           </div>
           <table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
             <thead>
@@ -97,7 +118,7 @@ const MedicalAlliancePage: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {MOCK_MEMBERS.map(m => (
+              {allianceMembers.map(m => (
                 <tr key={m.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
                   <td style={tdStyle}>{m.name}</td>
                   <td style={tdStyle}>{m.level} / {m.type}</td>
@@ -177,7 +198,7 @@ const MedicalAlliancePage: React.FC = () => {
           <h2 style={{ fontSize: 18, fontWeight: 500, marginBottom: 16 }}>联盟运营看板</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
             {[
-              { label: '成员机构', value: MOCK_MEMBERS.filter(m => m.status === 'active').length, color: '#3b82f6' },
+              { label: '成员机构', value: allianceMembers.filter(m => m.status === 'active').length, color: '#3b82f6' },
               { label: '本月转诊数', value: 8, color: '#10b981' },
               { label: '资源共享量', value: '1,256', color: '#8b5cf6' },
               { label: '转诊完成率', value: '87.5%', color: '#f59e0b' },
