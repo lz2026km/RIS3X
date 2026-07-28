@@ -1,6 +1,5 @@
 import { api, API_BASE } from './client'
 import { getToken } from '../../utils/auth'
-import type { ApiResponse } from './types'
 
 // ══════════════════════════════════════════════════════════════════════════
 // DICOMweb (QIDO-RS / WADO-RS / STOW-RS)
@@ -250,4 +249,147 @@ export const dicom4dApi = {
   list: () => api.post<Series4D[]>('/dicom/4d/list', {}),
   frames: (seriesUid: string) => api.post<FrameData4D[]>('/dicom/4d/frames', { seriesUid }),
   phase: (seriesUid: string) => api.get<PhaseInfo4D>(`/dicom/4d/phase/${encodeURIComponent(seriesUid)}`),
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// Volume 3D Rendering
+// ══════════════════════════════════════════════════════════════════════════
+
+export interface VolumeReconstructResult {
+  jobId: string
+  volume: { x: number; y: number; z: number }
+}
+
+export interface VolumeStatusResult {
+  status: string
+  progress: number
+  volume: { x: number; y: number; z: number } | null
+}
+
+export interface MprSliceResult {
+  plane: string
+  sliceIndex: number
+  totalSlices: number
+  dimensions: { width: number; height: number }
+  dataUrl: string
+}
+
+export interface MipResult {
+  direction: string
+  dimensions: { width: number; height: number }
+  dataUrl: string
+}
+
+export const volumeApi = {
+  reconstruct: (seriesUID: string) =>
+    api.post<VolumeReconstructResult>('/volume/reconstruct', { seriesUID }),
+
+  status: (jobId: string) =>
+    api.get<VolumeStatusResult>(`/volume/status/${encodeURIComponent(jobId)}`),
+
+  mpr: (jobId: string, plane: 'axial' | 'sagittal' | 'coronal', sliceIndex: number) =>
+    api.post<MprSliceResult>('/volume/mpr', { jobId, plane, sliceIndex }),
+
+  mip: (jobId: string, direction: 'axial' | 'sagittal' | 'coronal') =>
+    api.post<MipResult>('/volume/mip', { jobId, direction }),
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// PET-CT / Multi-modal Fusion
+// ══════════════════════════════════════════════════════════════════════════
+
+export interface FusionSeriesItem {
+  modality: string
+  seriesDescription: string
+  instanceCount: number
+}
+
+export interface FusionSeriesResult {
+  patientId: string
+  series: FusionSeriesItem[]
+}
+
+export interface FusionRegisterResult {
+  registrationId: string
+  fixedSeriesUid: string
+  movingSeriesUid: string
+  transformType: string
+  status: string
+  metrics: { dice: number; hd95: number; rmse: number }
+  matrix: number[][]
+}
+
+export interface FusionRenderResult {
+  frameId: string
+  width: number
+  height: number
+  alpha: number
+  plane: string
+  sliceIndex: number
+  pixelDataBase64: string
+  windowWidth: number
+  windowLevel: number
+  fusionWindowWidth: number
+  fusionWindowLevel: number
+}
+
+export const fusionApi = {
+  getSeries: (patientId: string) =>
+    api.get<FusionSeriesResult>(`/fusion/series/${encodeURIComponent(patientId)}`),
+
+  register: (fixedSeriesUid: string, movingSeriesUid: string, transformType: 'rigid' | 'affine' | 'deformable' = 'rigid') =>
+    api.post<FusionRegisterResult>('/fusion/register', { fixedSeriesUid, movingSeriesUid, transformType }),
+
+  render: (params: {
+    fixedSeriesUid: string
+    movingSeriesUid: string
+    plane?: 'axial' | 'coronal' | 'sagittal'
+    sliceIndex: number
+    alpha?: number
+    windowWidth?: number
+    windowLevel?: number
+    fusionWindowWidth?: number
+    fusionWindowLevel?: number
+  }) => api.post<FusionRenderResult>('/fusion/render', params),
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// DICOM Structured Report (SR)
+// ══════════════════════════════════════════════════════════════════════════
+
+export interface DicomSrTemplate {
+  id: string
+  label: string
+  labelEn: string
+  description: string
+  tid: string
+}
+
+export interface DicomSrDocument {
+  id: string
+  reportId: string
+  templateId: string
+  tid: string
+  content: string
+  status: string
+  generatedAt: string
+  sopInstanceUID: string
+}
+
+export interface GenerateSrPayload {
+  reportId: string
+  templateId: 'tid1500' | 'tid2000'
+  findings?: string
+  impression?: string
+}
+
+export const dicomSrApi = {
+  getTemplates: () =>
+    api.post<DicomSrTemplate[]>('/dicom-sr/templates', {}),
+
+  generate: (payload: GenerateSrPayload) =>
+    api.post<DicomSrDocument>('/dicom-sr/generate', payload),
+
+  findById: (id: string) =>
+    api.get<DicomSrDocument>(`/dicom-sr/${encodeURIComponent(id)}`),
 }

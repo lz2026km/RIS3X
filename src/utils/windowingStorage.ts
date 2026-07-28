@@ -57,7 +57,7 @@ export function saveWindowingState(modality: string, state: WindowingState): voi
     store = {};
   }
   store[modality] = state;
-  safeSetItem(STORAGE_KEY, JSON.stringify({ ...store, byModality: store }));
+  safeSetItem(STORAGE_KEY, JSON.stringify({ byModality: store }));
 }
 
 export function useWindowingState(modality: string) {

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { Card, Space, Tag, Button, Row, Col, Select, Spin, Tabs, Empty, message, Badge } from 'antd'
-import { Box, Activity, List, Layers, RefreshCw } from 'lucide-react'
+import { Card, Space, Tag, Button, Row, Col, Select, Tabs, Empty, message } from 'antd'
+import { Box, Activity, List } from 'lucide-react'
 import VolumeRenderer from '../../components/v3/dicom/VolumeRenderer'
 import { useTranslation } from 'react-i18next'
-import { dicomWebApi } from '../../services/api/dicomApi'
+import { dicomWebApi, volumeApi } from '../../services/api/dicomApi'
 
 interface SeriesInfo {
   seriesUID: string
@@ -45,34 +45,25 @@ const VolumeViewerPage: React.FC = () => {
     setReconstructing(true)
     setProgress(0)
     setVolumeDims(null)
-    try {
-      const res = await fetch('/api/volume/reconstruct', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ seriesUID: selectedUid }),
-      })
-      const data = await res.json()
-      if (data.jobId) {
-        setJobId(data.jobId)
-        setVolumeDims(data.volume)
-        const poll = setInterval(async () => {
-          try {
-            const sr = await fetch(`/api/volume/status/${data.jobId}`)
-            const sd = await sr.json()
-            setProgress(sd.progress)
-            if (sd.status === 'completed' || sd.progress >= 100) {
-              clearInterval(poll)
-              setReconstructing(false)
-              message.success('体数据重建完成')
-            }
-          } catch { clearInterval(poll); setReconstructing(false) }
-        }, 300)
-      }
-    } catch {
+    const res = await volumeApi.reconstruct(selectedUid)
+    if (!res.success) {
       setReconstructing(false)
-      message.error('重建失败，使用本地演示数据')
-      setVolumeDims({ x: 512, y: 512, z: 256 })
+      message.error(res.error?.message || '重建请求失败')
+      return
     }
+    const { jobId: newJobId, volume } = res.data
+    setJobId(newJobId)
+    setVolumeDims(volume)
+    const poll = setInterval(async () => {
+      const sr = await volumeApi.status(newJobId)
+      if (!sr.success) { clearInterval(poll); setReconstructing(false); return }
+      setProgress(sr.data.progress)
+      if (sr.data.status === 'completed' || sr.data.progress >= 100) {
+        clearInterval(poll)
+        setReconstructing(false)
+        message.success('体数据重建完成')
+      }
+    }, 300)
   }
 
   const selectedSeries = series.find(s => s.seriesUID === selectedUid)
@@ -113,9 +104,9 @@ const VolumeViewerPage: React.FC = () => {
               <Tabs
                 size="small"
                 items={[
-                  { key: 'mip', label: 'MIP', children: <div style={{ fontSize: 12, color: '#666' }}>最大密度投影<br />显示高密度结构</div> },
-                  { key: 'mpr', label: 'MPR', children: <div style={{ fontSize: 12, color: '#666' }}>多平面重建<br />轴/冠/矢三视图</div> },
-                  { key: 'vr', label: 'VR', children: <div style={{ fontSize: 12, color: '#666' }}>体绘制<br />三维容积渲染</div> },
+                  { key: 'mip', label: 'MIP', children: <Empty description="数据待接入" /> },
+                  { key: 'mpr', label: 'MPR', children: <Empty description="数据待接入" /> },
+                  { key: 'vr', label: 'VR', children: <Empty description="数据待接入" /> },
                 ]}
               />
             </div>

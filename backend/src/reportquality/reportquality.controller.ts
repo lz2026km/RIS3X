@@ -1,4 +1,5 @@
-﻿import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common'
+﻿// [DEPRECATED] 此模块已合并到 reports-quality，请勿新增引用
+import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { ReportQualityService } from './reportquality.service'

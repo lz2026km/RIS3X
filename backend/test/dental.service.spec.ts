@@ -39,9 +39,9 @@ describe('DentalService', () => {
   })
 
   it('createStudy creates dental study record', async () => {
-    const body = { patientId: 'p2', modality: 'CBCT', studyDate: '2026-07-25', description: '检查', toothNumbers: ['18'] }
+    const body = { patientId: 'p2', patientName: '张三', modality: 'CBCT', region: '上颌', toothArea: '上颌', studyDate: '2026-07-25', findings: '检查所见', impressions: '检查印象', deviceModel: 'Planmeca', fieldOfView: '15x15', imageCount: 1 }
     mockPrisma.dentalStudy.create.mockResolvedValue({ id: 's2', ...body })
-    const result = await svc.createStudy(body)
+    const result = await svc.createStudy(body as any)
     expect(mockPrisma.dentalStudy.create).toHaveBeenCalledWith({ data: body })
     expect(result.data[0].id).toBe('s2')
   })

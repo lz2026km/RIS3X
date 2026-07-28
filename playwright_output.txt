@@ -1,0 +1,1019 @@
+﻿
+Running 1245 tests using 9 workers
+
+  ok    1 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R000 / (3.6s)
+  ok   10 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R001 /workbench (2.3s)
+  ok   11 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R002 /worklist (2.4s)
+  ok   12 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R003 /patients (2.3s)
+  ok   13 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R004 /patient/:id (2.3s)
+  ok   14 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R005 /exams (2.4s)
+  ok   15 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R006 /reports (2.3s)
+  x     2 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:55:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?1. 鐧诲綍椤垫樉绀鸿鑹查€夋嫨鍣?鐢ㄦ埛鍚?瀵嗙爜/鎻愪氦鎸夐挳 (18.5s)
+  ok   16 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R007 /write-report (2.4s)
+  ok   18 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R008 /reports/v3-write (2.3s)
+  ok   19 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R009 /statistics (2.4s)
+  ok   20 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R010 /critical-value (2.3s)
+  ok   21 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R011 /term-library (2.3s)
+  ok   22 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R012 /devices (2.4s)
+  x     7 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:103:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?5. 鐐瑰嚮Dashboard瀵艰埅鍒伴椤?(32.3s)
+  x     8 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:125:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?7. 閫夋嫨鎶ヨ〃鍒嗙被鈫掑浘琛ㄦ覆鏌?(32.3s)
+  x     3 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:87:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?4. 绠＄悊鍛樹晶杈规爮鑿滃崟椤圭粺璁?搴斾负187) (32.3s)
+  x     4 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:65:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?2. 鐧诲綍涓虹鐞嗗憳鈫掗噸瀹氬悜鍒?, sidebar鏄剧ず鎵€鏈夎彍鍗?(32.4s)
+  x     6 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:114:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?6. 鏁版嵁鎶ヨ〃涓績椤甸潰鍔犺浇鍒嗙被 (32.4s)
+  x     5 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:76:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?3. 鐧诲綍涓哄尰鐢熲啋鑿滃崟浠呭惈鍖荤敓鍙闂」 (32.5s)
+  x     9 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:142:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?8. 鍗辨€ュ€奸〉闈㈡覆鏌撹〃鏍?(32.5s)
+  ok   23 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R013 /consultation (2.7s)
+  ok   31 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R014 /qc (2.5s)
+  ok   32 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R015 /appointments (2.3s)
+  ok   33 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R016 /dose-track (2.3s)
+  ok   34 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R017 /queue-call (2.3s)
+  ok   35 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R018 /dicom-viewer (2.3s)
+  ok   36 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R019 /typical-cases (2.5s)
+  x    17 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:154:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?9. 鎸変弗閲嶇▼搴﹁繃婊ゅ嵄鎬ュ€?(30.5s)
+  ok   37 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R020 /finding-library (2.4s)
+  ok   39 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R021 /operation-log (717ms)
+  ok   40 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R022 /notification-center (2.5s)
+  ok   41 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R023 /schedule (2.4s)
+  ok   42 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R024 /department (2.0s)
+  ok   43 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R025 /materials (2.3s)
+  ok   44 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R026 /print-management (2.3s)
+  x    24 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:168:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?10. 鎵归噺纭鍗辨€ュ€?(30.6s)
+  ok   45 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R027 /regional-report (1.7s)
+  x    25 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:188:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?11. 宸ヤ綔鍒楄〃椤甸潰娓叉煋鏉＄洰 (31.8s)
+  x    26 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:199:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?12. 妫€鏌ラ〉闈㈠嬀閫夊悗鏄剧ず鎵归噺鎿嶄綔鏍?(32.6s)
+  x    27 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:214:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?13. 妫€鏌ユ悳绱㈢瓫閫夊姛鑳?(32.7s)
+  x    30 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:250:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?16. 鎶ュ憡椤甸潰鍔犺浇鍒楄〃 (32.6s)
+  x    29 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:240:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?15. 鐢ㄦ埛绠＄悊椤甸潰娓叉煋 (32.7s)
+  x    28 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:229:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?14. 绠＄悊鍛樺彲璁块棶绯荤粺绠＄悊椤甸潰 (32.6s)
+  ok   47 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R028 /ai-assist (2.7s)
+
+========== AUDIT RESULT v100 ==========
+Total: 0, Pass: 0, Fail: 0, ConsoleErr: 0, StuckLoading: 0
+  x    50 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R000 / (1ms)
+  -    54 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R001 /workbench
+  -    55 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R002 /worklist
+  -    56 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R003 /patients
+  -    57 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R004 /patient/:id
+  -    58 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R005 /exams
+  -    59 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R006 /reports
+  -    60 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R007 /write-report
+  -    61 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R008 /reports/v3-write
+  -    62 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R009 /statistics
+  -    63 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R010 /critical-value
+  -    64 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R011 /term-library
+  -    65 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R012 /devices
+  -    66 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R013 /consultation
+  -    67 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R014 /qc
+  -    68 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R015 /appointments
+  -    69 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R016 /dose-track
+  -    70 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R017 /queue-call
+  -    71 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R018 /dicom-viewer
+  -    72 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R019 /typical-cases
+  -    73 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R020 /finding-library
+  -    74 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R021 /operation-log
+  -    75 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R022 /notification-center
+  -    76 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R023 /schedule
+  -    77 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R024 /department
+  -    78 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R025 /materials
+  -    79 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R026 /print-management
+  -    80 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R027 /regional-report
+  -    81 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R028 /ai-assist
+  -    82 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R029 /cost-analysis
+  -    83 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R030 /equipment-lifecycle
+  -    84 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R031 /follow-up
+  -    85 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R032 /cancer-screen
+  -    86 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R033 /national-report
+  -    87 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R034 /insurance-audit
+  -    88 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R035 /data-report-center
+  -    89 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R036 /dictionary
+  -    90 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R037 /operations-center
+  -    91 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R038 /department-dashboard
+  -    92 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R039 /stats-report
+  -    93 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R040 /clinical-data
+  -    94 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R041 /template-management
+  -    95 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R042 /template-designer
+  -    96 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R043 /template-designer/:id
+  -    97 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R044 /template-inheritance
+  -    98 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R045 /template-category
+  -    99 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R046 /report-review
+  -   100 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R047 /report-revisions
+  -   101 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R048 /collaboration
+  -   102 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R049 /keyword-check
+  -   103 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R050 /report-score-rule
+  -   104 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R051 /report-defect-library
+  -   105 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R052 /ai-report-draft
+  -   106 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R053 /critical-value-rule
+  -   107 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R054 /critical-value-stats
+  -   108 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R055 /special-assessment
+  -   109 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R056 /report-export
+  -   110 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R057 /report-delivery
+  -   111 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R058 /publish
+  -   112 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R059 /patient-report-portal
+  -   113 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R060 /ca-signature
+  -   114 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R061 /blockchain-proof
+  -   115 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R062 /appointment-management
+  -   116 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R063 /device-fault
+  -   117 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R064 /ai-qc
+  -   118 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R065 /ai-structured-report
+  -   119 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R066 /ai-medical-device
+  -   120 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R067 /regional-imaging
+  -   121 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R068 /equipment-efficiency
+  -   122 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R069 /user-management
+  -   123 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R070 /patient-portal
+  -   124 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R071 /director-dashboard
+  -   125 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R072 /green-it
+  -   126 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R073 /research
+  -   127 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R074 /nuclear-stats
+  -   128 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R075 /system/dicom-print
+  -   129 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R076 /term-synonym-graph
+  -   130 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R077 /report-phrase-bank
+  -   131 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R078 /report-kpi-dashboard
+  -   132 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R079 /doctor-workload
+  -   133 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R080 /diagnosis-accuracy
+  -   134 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R081 /report-timeliness
+  -   135 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R082 /report-search
+  -   136 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R083 /charge-items
+  -   137 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R084 /accounts-receivable
+  -   138 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R085 /revenue-analysis
+  -   139 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R086 /cost-accounting
+  -   140 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R087 /financial-reports
+  -   141 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R088 /business-continuity
+  -   142 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R089 /cloud-storage
+  -   143 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R090 /enterprise-search
+  -   144 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R091 /multi-site
+  -   145 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R092 /vna-dashboard
+  -   146 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R093 /safety/adverse-events
+  -   147 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R094 /safety/cqi
+  -   148 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R095 /safety/patient-safety-goals
+  -   149 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R096 /safety/radiation-safety
+  -   150 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R097 /safety/rca-analysis
+  -   151 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R098 /safety/risk-management
+  -   152 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R099 /contrast/adverse-reactions
+  -   153 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R100 /contrast/injection-workstation
+  -   154 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R101 /contrast/inventory
+  -   155 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R102 /contrast/quality-compliance
+  -   156 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R103 /cardiac/database
+  -   157 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R104 /cardiac/operations
+  -   158 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R105 /cardiac/qc
+  -   159 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R106 /ops/devices
+  -   160 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R107 /ops/hr
+  -   161 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R108 /ops/dashboard
+  -   162 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R109 /cds/management
+  -   163 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R110 /cds/statistics
+  -   164 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R111 /finance/department
+  -   165 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R112 /finance/patient
+  -   166 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R113 /mammo/operations
+  -   167 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R114 /mammo/quality
+  -   168 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R115 /patient/self-service
+  -   169 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R116 /patient/service-management
+  -   170 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R117 /education/patient-education
+  -   171 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R118 /hie/medical-alliance
+  -   172 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R119 /integration/fhir-server
+  -   173 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R120 /integration/ihe-connectathon
+  -   174 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R121 /integration/mllp-monitor
+  -   175 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R122 /kiosk/check-in
+  -   176 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R123 /mobile/patient
+  -   177 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R124 /mobile/doctor
+  -   178 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R125 /mobile/nurse
+  -   179 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R126 /mobile/tech
+  -   180 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R127 /quality/department
+  -   181 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R128 /review-center
+  -   182 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R129 /quality-control
+  -   183 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R130 /critical-value-center
+  -   184 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R131 /defect-management
+  -   185 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R132 /cosign
+  -   186 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R133 /workflow-designer
+  -   187 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R134 /routing-rules
+  -   188 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R135 /workload-heatmap
+  -   189 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R136 /sla-policy
+  -   190 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R137 /dental
+  -   191 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R138 /dental/chart
+  -   192 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R139 /dental/ai
+  -   193 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R140 /dental/treatment
+  -   194 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R141 /dental/implant
+  -   195 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R142 /dental/ortho
+  -   196 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R143 /dental/endo
+  -   197 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R144 /dental/perio
+  -   198 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R145 /dental/restorative
+  -   199 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R146 /dental/surgery
+  -   200 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R147 /dental/pediatric
+  -   201 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R148 /dental/tele
+  -   202 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R149 /dental/inventory
+  -   203 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R150 /dental/dashboard
+  -   204 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R151 /dental/studies
+  -   205 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R152 /dental/viewer
+  -   206 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R153 /dental/viewer/scan-3d
+  -   207 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R154 /dental/annotate
+  -   208 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R155 /dental/viewer/mpr
+  -   209 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R156 /dental/ai-onnx
+  -   210 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R157 /dental/referral
+  -   211 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R158 /dental/cbct-report
+  -   212 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R159 /dental/rad-fusion
+  -   213 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R160 /dental/cad
+  -   214 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R161 /dental/implant-3d
+  -   215 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R162 /dental/guide
+  -   216 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R163 /dental/ceph
+  -   217 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R164 /dental/aligner
+  -   218 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R165 /dental/volume-viewer
+  -   219 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R166 /dental/patient-view
+  -   220 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R167 /dental/billing
+  -   221 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R168 /dental/schedule
+  -   222 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R169 /dental/photo
+  -   223 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R170 /report-workflow
+  -   224 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R171 /patient-device-mgmt
+  -   225 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R172 /notif-tpl-dict
+  -   226 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R173 /review-check
+  -   227 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R174 /sign-amend
+  -   228 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R175 /v3-report-hub
+  -   229 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R176 /eye
+  -   230 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R177 /eye/pacs
+  -   231 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R178 /eye/pacs/viewer
+  -   232 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R179 /eye/pacs/real-viewer
+  -   233 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R180 /eye/ris
+  -   234 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R181 /eye/ris/va
+  -   235 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R182 /eye/ris/iop
+  -   236 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R183 /eye/ris/iol-calculator
+  -   237 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R184 /eye/emr
+  -   238 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R185 /eye/ai
+  -   239 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R186 /eye/ai-report
+  -   240 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R187 /eye/toric-planner
+  -   241 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R188 /eye/kpi-dashboard
+  -   242 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R189 /eye/report-write
+  -   243 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R190 /eye/sub/strabismus
+  -   244 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R191 /eye/sub/neuro
+  -   245 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R192 /eye/sub/oncology
+  -   246 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R193 /eye/sub/cornea
+  -   247 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R194 /eye/sub/contact-lens
+  -   248 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R195 /eye/sub/low-vision
+  -   249 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R196 /eye/sub/cataract
+  -   250 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R197 /eye/sub/refractive
+  -   251 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R198 /eye/tele
+  -   252 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R199 /eye/case-library
+  -   253 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R200 /eye/optometry-loop
+  -   254 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R201 /eye/pacs/fundus
+  -   255 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R202 /eye/pacs/oct
+  -   256 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R203 /eye/pacs/oct-a
+  -   257 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R204 /eye/pacs/visual-field
+  -   258 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R205 /eye/pacs/topography
+  -   259 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R206 /eye/pacs/ffa
+  -   260 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R207 /eye/pacs/compare
+  -   261 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R208 /eye/pacs/montage
+  -   262 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R209 /command-center
+  -   263 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R210 /dicom-share
+  -   264 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R211 /scheduling-center
+  -   265 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R212 /clinical-pathways
+  -   266 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R213 /audit-compliance
+  -   267 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R214 /dicom-sr-manager
+  -   268 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R215 /terminology-server
+  -   269 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R216 /report-templates
+  -   270 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R217 /ihe-integration
+  -   271 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R218 /ai-fusion-workspace
+  -   272 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R219 /clinical-calculators
+  -   273 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R220 /consent-education
+  -   274 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R221 /patient-safety
+  -   275 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R222 /emr-templates
+  -   276 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R223 /system-admin
+  -   277 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R224 /treatment-plans
+  -   278 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R225 /patient-unified
+  -   279 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R226 /qc-dashboard
+  -   280 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R227 /qc-image
+  -   281 [firefox] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R228 /qc-radiologist-annual
+  x    52 [firefox] 鈥?e2e\v30607-comprehensive.spec.ts:55:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?1. 鐧诲綍椤垫樉绀鸿鑹查€夋嫨鍣?鐢ㄦ埛鍚?瀵嗙爜/鎻愪氦鎸夐挳 (7ms)
+  x    53 [firefox] 鈥?e2e\v30607-comprehensive.spec.ts:65:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?2. 鐧诲綍涓虹鐞嗗憳鈫掗噸瀹氬悜鍒?, sidebar鏄剧ず鎵€鏈夎彍鍗?(5ms)
+  x   282 [firefox] 鈥?e2e\v30607-comprehensive.spec.ts:76:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?3. 鐧诲綍涓哄尰鐢熲啋鑿滃崟浠呭惈鍖荤敓鍙闂」 (4ms)
+  x   283 [firefox] 鈥?e2e\v30607-comprehensive.spec.ts:103:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?5. 鐐瑰嚮Dashboard瀵艰埅鍒伴椤?(7ms)
+  x   284 [firefox] 鈥?e2e\v30607-comprehensive.spec.ts:87:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?4. 绠＄悊鍛樹晶杈规爮鑿滃崟椤圭粺璁?搴斾负187) (5ms)
+  x   285 [firefox] 鈥?e2e\v30607-comprehensive.spec.ts:114:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?6. 鏁版嵁鎶ヨ〃涓績椤甸潰鍔犺浇鍒嗙被 (5ms)
+  x   286 [firefox] 鈥?e2e\v30607-comprehensive.spec.ts:125:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?7. 閫夋嫨鎶ヨ〃鍒嗙被鈫掑浘琛ㄦ覆鏌?(4ms)
+  x   287 [firefox] 鈥?e2e\v30607-comprehensive.spec.ts:142:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?8. 鍗辨€ュ€奸〉闈㈡覆鏌撹〃鏍?(6ms)
+  x   288 [firefox] 鈥?e2e\v30607-comprehensive.spec.ts:168:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?10. 鎵归噺纭鍗辨€ュ€?(4ms)
+  x   289 [firefox] 鈥?e2e\v30607-comprehensive.spec.ts:154:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?9. 鎸変弗閲嶇▼搴﹁繃婊ゅ嵄鎬ュ€?(4ms)
+  x   290 [firefox] 鈥?e2e\v30607-comprehensive.spec.ts:188:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?11. 宸ヤ綔鍒楄〃椤甸潰娓叉煋鏉＄洰 (5ms)
+  ok   51 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R029 /cost-analysis (2.6s)
+  x   292 [firefox] 鈥?e2e\v30607-comprehensive.spec.ts:199:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?12. 妫€鏌ラ〉闈㈠嬀閫夊悗鏄剧ず鎵归噺鎿嶄綔鏍?(4ms)
+  x   293 [firefox] 鈥?e2e\v30607-comprehensive.spec.ts:214:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?13. 妫€鏌ユ悳绱㈢瓫閫夊姛鑳?(3ms)
+  x   295 [firefox] 鈥?e2e\v30607-comprehensive.spec.ts:229:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?14. 绠＄悊鍛樺彲璁块棶绯荤粺绠＄悊椤甸潰 (3ms)
+  x   294 [firefox] 鈥?e2e\v30607-comprehensive.spec.ts:240:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?15. 鐢ㄦ埛绠＄悊椤甸潰娓叉煋 (3ms)
+  x   296 [firefox] 鈥?e2e\v30607-comprehensive.spec.ts:250:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?16. 鎶ュ憡椤甸潰鍔犺浇鍒楄〃 (3ms)
+  x   297 [firefox] 鈥?e2e\v30607-comprehensive.spec.ts:261:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?17. 鐐瑰嚮涔﹀啓鎶ュ憡鈫掑鑸埌鍐欐姤鍛婇〉 (6ms)
+  x   298 [firefox] 鈥?e2e\v30607-comprehensive.spec.ts:277:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?18. 鎸塯+r瀵艰埅鍒?reports (3ms)
+  x   299 [firefox] 鈥?e2e\v30607-comprehensive.spec.ts:291:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?19. 瀹¤鏃ュ織椤甸潰娓叉煋鏉＄洰 (3ms)
+  x   300 [firefox] 鈥?e2e\v30607-comprehensive.spec.ts:311:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?20. 璁块棶涓嶅瓨鍦ㄩ〉闈⑩啋閲嶅畾鍚戝埌棣栭〉鎴栨樉绀?04 (3ms)
+  x   302 [webkit] 鈥?e2e\v30607-comprehensive.spec.ts:55:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?1. 鐧诲綍椤垫樉绀鸿鑹查€夋嫨鍣?鐢ㄦ埛鍚?瀵嗙爜/鎻愪氦鎸夐挳 (2ms)
+
+========== AUDIT RESULT v100 ==========
+Total: 0, Pass: 0, Fail: 0, ConsoleErr: 0, StuckLoading: 0
+  x   301 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R000 / (0ms)
+  -   304 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R001 /workbench
+  -   305 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R002 /worklist
+  -   306 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R003 /patients
+  -   307 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R004 /patient/:id
+  -   308 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R005 /exams
+  -   309 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R006 /reports
+  -   310 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R007 /write-report
+  -   311 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R008 /reports/v3-write
+  -   312 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R009 /statistics
+  -   313 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R010 /critical-value
+  -   314 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R011 /term-library
+  -   315 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R012 /devices
+  -   316 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R013 /consultation
+  -   317 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R014 /qc
+  -   318 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R015 /appointments
+  -   319 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R016 /dose-track
+  -   320 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R017 /queue-call
+  -   321 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R018 /dicom-viewer
+  -   322 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R019 /typical-cases
+  -   323 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R020 /finding-library
+  -   324 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R021 /operation-log
+  -   325 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R022 /notification-center
+  -   326 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R023 /schedule
+  -   327 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R024 /department
+  -   328 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R025 /materials
+  -   329 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R026 /print-management
+  -   330 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R027 /regional-report
+  -   331 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R028 /ai-assist
+  -   332 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R029 /cost-analysis
+  -   333 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R030 /equipment-lifecycle
+  -   334 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R031 /follow-up
+  -   335 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R032 /cancer-screen
+  -   336 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R033 /national-report
+  -   337 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R034 /insurance-audit
+  -   338 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R035 /data-report-center
+  -   339 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R036 /dictionary
+  -   340 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R037 /operations-center
+  -   341 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R038 /department-dashboard
+  -   342 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R039 /stats-report
+  -   343 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R040 /clinical-data
+  -   344 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R041 /template-management
+  -   345 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R042 /template-designer
+  -   346 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R043 /template-designer/:id
+  -   347 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R044 /template-inheritance
+  -   348 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R045 /template-category
+  -   349 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R046 /report-review
+  -   350 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R047 /report-revisions
+  -   351 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R048 /collaboration
+  -   352 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R049 /keyword-check
+  -   353 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R050 /report-score-rule
+  -   354 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R051 /report-defect-library
+  -   355 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R052 /ai-report-draft
+  -   356 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R053 /critical-value-rule
+  -   357 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R054 /critical-value-stats
+  -   358 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R055 /special-assessment
+  -   359 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R056 /report-export
+  -   360 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R057 /report-delivery
+  -   361 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R058 /publish
+  -   362 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R059 /patient-report-portal
+  -   363 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R060 /ca-signature
+  -   364 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R061 /blockchain-proof
+  -   365 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R062 /appointment-management
+  -   366 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R063 /device-fault
+  -   367 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R064 /ai-qc
+  -   368 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R065 /ai-structured-report
+  -   369 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R066 /ai-medical-device
+  -   370 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R067 /regional-imaging
+  -   371 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R068 /equipment-efficiency
+  -   372 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R069 /user-management
+  -   373 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R070 /patient-portal
+  -   374 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R071 /director-dashboard
+  -   375 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R072 /green-it
+  -   376 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R073 /research
+  -   377 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R074 /nuclear-stats
+  -   378 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R075 /system/dicom-print
+  -   379 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R076 /term-synonym-graph
+  -   380 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R077 /report-phrase-bank
+  -   381 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R078 /report-kpi-dashboard
+  -   382 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R079 /doctor-workload
+  -   383 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R080 /diagnosis-accuracy
+  -   384 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R081 /report-timeliness
+  -   385 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R082 /report-search
+  -   386 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R083 /charge-items
+  -   387 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R084 /accounts-receivable
+  -   388 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R085 /revenue-analysis
+  -   389 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R086 /cost-accounting
+  -   390 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R087 /financial-reports
+  -   391 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R088 /business-continuity
+  -   392 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R089 /cloud-storage
+  -   393 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R090 /enterprise-search
+  -   394 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R091 /multi-site
+  -   395 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R092 /vna-dashboard
+  -   396 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R093 /safety/adverse-events
+  -   397 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R094 /safety/cqi
+  -   398 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R095 /safety/patient-safety-goals
+  -   399 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R096 /safety/radiation-safety
+  -   400 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R097 /safety/rca-analysis
+  -   401 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R098 /safety/risk-management
+  -   402 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R099 /contrast/adverse-reactions
+  -   403 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R100 /contrast/injection-workstation
+  -   404 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R101 /contrast/inventory
+  -   405 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R102 /contrast/quality-compliance
+  -   406 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R103 /cardiac/database
+  -   407 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R104 /cardiac/operations
+  -   408 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R105 /cardiac/qc
+  -   409 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R106 /ops/devices
+  -   410 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R107 /ops/hr
+  -   411 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R108 /ops/dashboard
+  -   412 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R109 /cds/management
+  -   413 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R110 /cds/statistics
+  -   414 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R111 /finance/department
+  -   415 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R112 /finance/patient
+  -   416 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R113 /mammo/operations
+  -   417 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R114 /mammo/quality
+  -   418 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R115 /patient/self-service
+  -   419 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R116 /patient/service-management
+  -   420 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R117 /education/patient-education
+  -   421 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R118 /hie/medical-alliance
+  -   422 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R119 /integration/fhir-server
+  -   423 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R120 /integration/ihe-connectathon
+  -   424 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R121 /integration/mllp-monitor
+  -   425 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R122 /kiosk/check-in
+  -   426 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R123 /mobile/patient
+  -   427 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R124 /mobile/doctor
+  -   428 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R125 /mobile/nurse
+  -   429 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R126 /mobile/tech
+  -   430 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R127 /quality/department
+  -   431 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R128 /review-center
+  -   432 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R129 /quality-control
+  -   433 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R130 /critical-value-center
+  -   434 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R131 /defect-management
+  -   435 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R132 /cosign
+  -   436 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R133 /workflow-designer
+  -   437 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R134 /routing-rules
+  -   438 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R135 /workload-heatmap
+  -   439 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R136 /sla-policy
+  -   440 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R137 /dental
+  -   441 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R138 /dental/chart
+  -   442 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R139 /dental/ai
+  -   443 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R140 /dental/treatment
+  -   444 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R141 /dental/implant
+  -   445 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R142 /dental/ortho
+  -   446 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R143 /dental/endo
+  -   447 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R144 /dental/perio
+  -   448 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R145 /dental/restorative
+  -   449 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R146 /dental/surgery
+  -   450 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R147 /dental/pediatric
+  -   451 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R148 /dental/tele
+  -   452 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R149 /dental/inventory
+  -   453 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R150 /dental/dashboard
+  -   454 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R151 /dental/studies
+  -   455 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R152 /dental/viewer
+  -   456 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R153 /dental/viewer/scan-3d
+  -   457 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R154 /dental/annotate
+  -   458 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R155 /dental/viewer/mpr
+  -   459 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R156 /dental/ai-onnx
+  -   460 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R157 /dental/referral
+  -   461 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R158 /dental/cbct-report
+  -   462 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R159 /dental/rad-fusion
+  -   463 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R160 /dental/cad
+  -   464 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R161 /dental/implant-3d
+  -   465 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R162 /dental/guide
+  -   466 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R163 /dental/ceph
+  -   467 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R164 /dental/aligner
+  -   468 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R165 /dental/volume-viewer
+  -   469 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R166 /dental/patient-view
+  -   470 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R167 /dental/billing
+  -   471 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R168 /dental/schedule
+  -   472 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R169 /dental/photo
+  -   473 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R170 /report-workflow
+  -   474 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R171 /patient-device-mgmt
+  -   475 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R172 /notif-tpl-dict
+  -   476 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R173 /review-check
+  -   477 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R174 /sign-amend
+  -   478 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R175 /v3-report-hub
+  -   479 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R176 /eye
+  -   480 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R177 /eye/pacs
+  -   481 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R178 /eye/pacs/viewer
+  -   482 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R179 /eye/pacs/real-viewer
+  -   483 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R180 /eye/ris
+  -   484 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R181 /eye/ris/va
+  -   485 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R182 /eye/ris/iop
+  -   486 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R183 /eye/ris/iol-calculator
+  -   487 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R184 /eye/emr
+  -   488 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R185 /eye/ai
+  -   489 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R186 /eye/ai-report
+  -   490 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R187 /eye/toric-planner
+  -   491 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R188 /eye/kpi-dashboard
+  -   492 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R189 /eye/report-write
+  -   493 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R190 /eye/sub/strabismus
+  -   494 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R191 /eye/sub/neuro
+  -   495 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R192 /eye/sub/oncology
+  -   496 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R193 /eye/sub/cornea
+  -   497 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R194 /eye/sub/contact-lens
+  -   498 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R195 /eye/sub/low-vision
+  -   499 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R196 /eye/sub/cataract
+  -   500 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R197 /eye/sub/refractive
+  -   501 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R198 /eye/tele
+  -   502 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R199 /eye/case-library
+  -   503 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R200 /eye/optometry-loop
+  -   504 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R201 /eye/pacs/fundus
+  -   505 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R202 /eye/pacs/oct
+  -   506 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R203 /eye/pacs/oct-a
+  -   507 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R204 /eye/pacs/visual-field
+  -   508 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R205 /eye/pacs/topography
+  -   509 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R206 /eye/pacs/ffa
+  -   510 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R207 /eye/pacs/compare
+  -   511 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R208 /eye/pacs/montage
+  -   512 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R209 /command-center
+  -   513 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R210 /dicom-share
+  -   514 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R211 /scheduling-center
+  -   515 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R212 /clinical-pathways
+  -   516 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R213 /audit-compliance
+  -   517 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R214 /dicom-sr-manager
+  -   518 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R215 /terminology-server
+  -   519 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R216 /report-templates
+  -   520 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R217 /ihe-integration
+  -   521 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R218 /ai-fusion-workspace
+  -   522 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R219 /clinical-calculators
+  -   523 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R220 /consent-education
+  -   524 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R221 /patient-safety
+  -   525 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R222 /emr-templates
+  -   526 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R223 /system-admin
+  -   527 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R224 /treatment-plans
+  -   528 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R225 /patient-unified
+  -   529 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R226 /qc-dashboard
+  -   530 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R227 /qc-image
+  -   531 [webkit] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R228 /qc-radiologist-annual
+  x   303 [webkit] 鈥?e2e\v30607-comprehensive.spec.ts:65:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?2. 鐧诲綍涓虹鐞嗗憳鈫掗噸瀹氬悜鍒?, sidebar鏄剧ず鎵€鏈夎彍鍗?(3ms)
+  ok  291 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R030 /equipment-lifecycle (2.4s)
+  x   533 [webkit] 鈥?e2e\v30607-comprehensive.spec.ts:76:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?3. 鐧诲綍涓哄尰鐢熲啋鑿滃崟浠呭惈鍖荤敓鍙闂」 (2ms)
+  x   534 [webkit] 鈥?e2e\v30607-comprehensive.spec.ts:87:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?4. 绠＄悊鍛樹晶杈规爮鑿滃崟椤圭粺璁?搴斾负187) (3ms)
+  x   535 [webkit] 鈥?e2e\v30607-comprehensive.spec.ts:103:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?5. 鐐瑰嚮Dashboard瀵艰埅鍒伴椤?(2ms)
+  x   536 [webkit] 鈥?e2e\v30607-comprehensive.spec.ts:114:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?6. 鏁版嵁鎶ヨ〃涓績椤甸潰鍔犺浇鍒嗙被 (2ms)
+  x   537 [webkit] 鈥?e2e\v30607-comprehensive.spec.ts:125:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?7. 閫夋嫨鎶ヨ〃鍒嗙被鈫掑浘琛ㄦ覆鏌?(3ms)
+  x   538 [webkit] 鈥?e2e\v30607-comprehensive.spec.ts:142:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?8. 鍗辨€ュ€奸〉闈㈡覆鏌撹〃鏍?(2ms)
+  x   539 [webkit] 鈥?e2e\v30607-comprehensive.spec.ts:154:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?9. 鎸変弗閲嶇▼搴﹁繃婊ゅ嵄鎬ュ€?(2ms)
+  x   540 [webkit] 鈥?e2e\v30607-comprehensive.spec.ts:168:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?10. 鎵归噺纭鍗辨€ュ€?(2ms)
+  x   541 [webkit] 鈥?e2e\v30607-comprehensive.spec.ts:188:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?11. 宸ヤ綔鍒楄〃椤甸潰娓叉煋鏉＄洰 (2ms)
+  x   542 [webkit] 鈥?e2e\v30607-comprehensive.spec.ts:199:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?12. 妫€鏌ラ〉闈㈠嬀閫夊悗鏄剧ず鎵归噺鎿嶄綔鏍?(2ms)
+  x   543 [webkit] 鈥?e2e\v30607-comprehensive.spec.ts:214:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?13. 妫€鏌ユ悳绱㈢瓫閫夊姛鑳?(2ms)
+  x   544 [webkit] 鈥?e2e\v30607-comprehensive.spec.ts:229:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?14. 绠＄悊鍛樺彲璁块棶绯荤粺绠＄悊椤甸潰 (3ms)
+  x   545 [webkit] 鈥?e2e\v30607-comprehensive.spec.ts:240:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?15. 鐢ㄦ埛绠＄悊椤甸潰娓叉煋 (3ms)
+  x   546 [webkit] 鈥?e2e\v30607-comprehensive.spec.ts:250:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?16. 鎶ュ憡椤甸潰鍔犺浇鍒楄〃 (3ms)
+  x   547 [webkit] 鈥?e2e\v30607-comprehensive.spec.ts:261:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?17. 鐐瑰嚮涔﹀啓鎶ュ憡鈫掑鑸埌鍐欐姤鍛婇〉 (2ms)
+  x   548 [webkit] 鈥?e2e\v30607-comprehensive.spec.ts:277:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?18. 鎸塯+r瀵艰埅鍒?reports (2ms)
+  ok  532 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R031 /follow-up (2.5s)
+  x   550 [webkit] 鈥?e2e\v30607-comprehensive.spec.ts:291:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?19. 瀹¤鏃ュ織椤甸潰娓叉煋鏉＄洰 (2ms)
+  x   551 [webkit] 鈥?e2e\v30607-comprehensive.spec.ts:311:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?20. 璁块棶涓嶅瓨鍦ㄩ〉闈⑩啋閲嶅畾鍚戝埌棣栭〉鎴栨樉绀?04 (2ms)
+  ok  549 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R032 /cancer-screen (2.4s)
+  ok  552 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R000 / (2.4s)
+  ok  556 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R033 /national-report (2.4s)
+  ok  557 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R001 /workbench (2.3s)
+  x    38 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:261:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?17. 鐐瑰嚮涔﹀啓鎶ュ憡鈫掑鑸埌鍐欐姤鍛婇〉 (30.8s)
+  ok  558 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R034 /insurance-audit (2.3s)
+  ok  559 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R002 /worklist (2.3s)
+  ok  561 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R035 /data-report-center (2.3s)
+  ok  562 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R003 /patients (2.3s)
+  ok  563 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R036 /dictionary (2.3s)
+  ok  564 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R004 /patient/:id (2.3s)
+  ok  565 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R037 /operations-center (2.3s)
+  ok  566 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R005 /exams (2.3s)
+  ok  567 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R038 /department-dashboard (2.3s)
+  ok  568 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R006 /reports (2.4s)
+  x   553 [mobile-chrome] 鈥?e2e\v30607-comprehensive.spec.ts:55:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?1. 鐧诲綍椤垫樉绀鸿鑹查€夋嫨鍣?鐢ㄦ埛鍚?瀵嗙爜/鎻愪氦鎸夐挳 (16.6s)
+  ok  569 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R039 /stats-report (2.3s)
+  ok  570 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R007 /write-report (2.3s)
+  x    46 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:277:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?18. 鎸塯+r瀵艰埅鍒?reports (31.0s)
+  ok  572 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R040 /clinical-data (2.3s)
+  ok  573 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R008 /reports/v3-write (2.3s)
+  x    48 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:291:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?19. 瀹¤鏃ュ織椤甸潰娓叉煋鏉＄洰 (30.8s)
+  ok  575 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R041 /template-management (2.4s)
+  ok  576 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R009 /statistics (2.4s)
+  x    49 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:311:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?20. 璁块棶涓嶅瓨鍦ㄩ〉闈⑩啋閲嶅畾鍚戝埌棣栭〉鎴栨樉绀?04 (31.2s)
+  ok  577 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R042 /template-designer (2.4s)
+  ok  579 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R010 /critical-value (2.4s)
+  ok  581 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R043 /template-designer/:id (2.4s)
+  ok  582 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R011 /term-library (2.3s)
+  ok  583 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R044 /template-inheritance (2.4s)
+  ok  584 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R012 /devices (2.4s)
+  x   554 [mobile-chrome] 鈥?e2e\v30607-comprehensive.spec.ts:65:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?2. 鐧诲綍涓虹鐞嗗憳鈫掗噸瀹氬悜鍒?, sidebar鏄剧ず鎵€鏈夎彍鍗?(30.4s)
+  x   555 [mobile-chrome] 鈥?e2e\v30607-comprehensive.spec.ts:76:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?3. 鐧诲綍涓哄尰鐢熲啋鑿滃崟浠呭惈鍖荤敓鍙闂」 (30.4s)
+  ok  585 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R045 /template-category (2.3s)
+  ok  586 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R013 /consultation (2.4s)
+  ok  589 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R046 /report-review (2.3s)
+  ok  590 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R014 /qc (2.3s)
+  x   560 [mobile-chrome] 鈥?e2e\v30607-comprehensive.spec.ts:87:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?4. 绠＄悊鍛樹晶杈规爮鑿滃崟椤圭粺璁?搴斾负187) (30.3s)
+  ok  591 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R047 /report-revisions (2.3s)
+  ok  592 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R015 /appointments (2.3s)
+  ok  593 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R048 /collaboration (2.3s)
+  ok  595 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R016 /dose-track (2.3s)
+  ok  596 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R049 /keyword-check (2.3s)
+  ok  597 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R017 /queue-call (2.3s)
+  ok  598 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R050 /report-score-rule (2.4s)
+  ok  599 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R018 /dicom-viewer (2.3s)
+  ok  600 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R051 /report-defect-library (2.3s)
+  ok  601 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R019 /typical-cases (2.3s)
+  x   571 [mobile-chrome] 鈥?e2e\v30607-comprehensive.spec.ts:103:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?5. 鐐瑰嚮Dashboard瀵艰埅鍒伴椤?(30.1s)
+  ok  602 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R052 /ai-report-draft (2.3s)
+  ok  603 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R020 /finding-library (2.3s)
+  x   574 [mobile-chrome] 鈥?e2e\v30607-comprehensive.spec.ts:114:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?6. 鏁版嵁鎶ヨ〃涓績椤甸潰鍔犺浇鍒嗙被 (30.3s)
+  ok  605 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R053 /critical-value-rule (2.3s)
+  ok  606 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R021 /operation-log (2.3s)
+  ok  607 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R054 /critical-value-stats (2.3s)
+  x   578 [mobile-chrome] 鈥?e2e\v30607-comprehensive.spec.ts:125:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?7. 閫夋嫨鎶ヨ〃鍒嗙被鈫掑浘琛ㄦ覆鏌?(30.3s)
+  ok  609 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R022 /notification-center (2.4s)
+  ok  610 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R055 /special-assessment (2.3s)
+  x   580 [mobile-chrome] 鈥?e2e\v30607-comprehensive.spec.ts:142:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?8. 鍗辨€ュ€奸〉闈㈡覆鏌撹〃鏍?(30.5s)
+  ok  612 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R023 /schedule (2.3s)
+  ok  613 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R056 /report-export (2.4s)
+  ok  615 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R024 /department (2.3s)
+  ok  616 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R057 /report-delivery (2.3s)
+  ok  617 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R025 /materials (2.3s)
+  x   587 [mobile-chrome] 鈥?e2e\v30607-comprehensive.spec.ts:154:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?9. 鎸変弗閲嶇▼搴﹁繃婊ゅ嵄鎬ュ€?(30.1s)
+  ok  618 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R058 /publish (2.4s)
+  x   588 [mobile-chrome] 鈥?e2e\v30607-comprehensive.spec.ts:168:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?10. 鎵归噺纭鍗辨€ュ€?(30.2s)
+  ok  619 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R026 /print-management (2.4s)
+  ok  620 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R059 /patient-report-portal (2.4s)
+  ok  622 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R027 /regional-report (2.3s)
+  ok  624 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R060 /ca-signature (2.3s)
+  x   594 [mobile-chrome] 鈥?e2e\v30607-comprehensive.spec.ts:188:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?11. 宸ヤ綔鍒楄〃椤甸潰娓叉煋鏉＄洰 (30.2s)
+  ok  625 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R028 /ai-assist (2.4s)
+  ok  626 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R061 /blockchain-proof (2.4s)
+  ok  628 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R029 /cost-analysis (2.3s)
+  ok  629 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R062 /appointment-management (2.3s)
+  ok  630 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R030 /equipment-lifecycle (2.3s)
+  ok  631 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R063 /device-fault (2.8s)
+  ok  632 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R031 /follow-up (2.3s)
+  ok  633 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R064 /ai-qc (2.2s)
+  ok  634 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R032 /cancer-screen (2.4s)
+  x   604 [mobile-chrome] 鈥?e2e\v30607-comprehensive.spec.ts:199:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?12. 妫€鏌ラ〉闈㈠嬀閫夊悗鏄剧ず鎵归噺鎿嶄綔鏍?(30.1s)
+  ok  635 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R065 /ai-structured-report (2.3s)
+  ok  636 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R033 /national-report (2.3s)
+  ok  637 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R066 /ai-medical-device (2.3s)
+  x   608 [mobile-chrome] 鈥?e2e\v30607-comprehensive.spec.ts:214:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?13. 妫€鏌ユ悳绱㈢瓫閫夊姛鑳?(30.3s)
+  ok  639 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R034 /insurance-audit (2.4s)
+  ok  640 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R067 /regional-imaging (2.5s)
+  x   611 [mobile-chrome] 鈥?e2e\v30607-comprehensive.spec.ts:229:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?14. 绠＄悊鍛樺彲璁块棶绯荤粺绠＄悊椤甸潰 (30.7s)
+  ok  642 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R035 /data-report-center (2.5s)
+
+========== AUDIT RESULT v100 ==========
+Total: 0, Pass: 0, Fail: 0, ConsoleErr: 0, StuckLoading: 0
+  x   645 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R000 / (0ms)
+  -   646 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R001 /workbench
+  -   647 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R002 /worklist
+  -   648 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R003 /patients
+  -   649 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R004 /patient/:id
+  -   650 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R005 /exams
+  -   651 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R006 /reports
+  -   652 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R007 /write-report
+  -   653 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R008 /reports/v3-write
+  -   654 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R009 /statistics
+  -   655 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R010 /critical-value
+  -   656 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R011 /term-library
+  -   657 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R012 /devices
+  -   658 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R013 /consultation
+  -   659 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R014 /qc
+  -   660 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R015 /appointments
+  -   661 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R016 /dose-track
+  -   662 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R017 /queue-call
+  -   663 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R018 /dicom-viewer
+  -   664 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R019 /typical-cases
+  -   665 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R020 /finding-library
+  -   666 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R021 /operation-log
+  -   667 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R022 /notification-center
+  -   668 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R023 /schedule
+  -   669 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R024 /department
+  -   670 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R025 /materials
+  -   671 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R026 /print-management
+  -   672 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R027 /regional-report
+  -   673 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R028 /ai-assist
+  -   674 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R029 /cost-analysis
+  -   675 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R030 /equipment-lifecycle
+  -   676 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R031 /follow-up
+  -   677 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R032 /cancer-screen
+  -   678 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R033 /national-report
+  -   679 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R034 /insurance-audit
+  -   680 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R035 /data-report-center
+  -   681 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R036 /dictionary
+  -   682 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R037 /operations-center
+  -   683 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R038 /department-dashboard
+  -   684 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R039 /stats-report
+  -   685 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R040 /clinical-data
+  -   686 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R041 /template-management
+  -   687 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R042 /template-designer
+  -   688 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R043 /template-designer/:id
+  -   689 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R044 /template-inheritance
+  -   690 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R045 /template-category
+  -   691 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R046 /report-review
+  -   692 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R047 /report-revisions
+  -   693 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R048 /collaboration
+  -   694 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R049 /keyword-check
+  -   695 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R050 /report-score-rule
+  -   696 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R051 /report-defect-library
+  -   697 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R052 /ai-report-draft
+  -   698 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R053 /critical-value-rule
+  -   699 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R054 /critical-value-stats
+  -   700 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R055 /special-assessment
+  -   701 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R056 /report-export
+  -   702 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R057 /report-delivery
+  -   703 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R058 /publish
+  -   704 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R059 /patient-report-portal
+  -   705 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R060 /ca-signature
+  -   706 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R061 /blockchain-proof
+  -   707 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R062 /appointment-management
+  -   708 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R063 /device-fault
+  -   709 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R064 /ai-qc
+  -   710 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R065 /ai-structured-report
+  -   711 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R066 /ai-medical-device
+  -   712 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R067 /regional-imaging
+  -   713 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R068 /equipment-efficiency
+  -   714 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R069 /user-management
+  -   715 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R070 /patient-portal
+  -   716 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R071 /director-dashboard
+  -   717 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R072 /green-it
+  -   718 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R073 /research
+  -   719 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R074 /nuclear-stats
+  -   720 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R075 /system/dicom-print
+  -   721 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R076 /term-synonym-graph
+  -   722 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R077 /report-phrase-bank
+  -   723 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R078 /report-kpi-dashboard
+  -   724 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R079 /doctor-workload
+  -   725 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R080 /diagnosis-accuracy
+  -   726 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R081 /report-timeliness
+  -   727 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R082 /report-search
+  -   728 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R083 /charge-items
+  -   729 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R084 /accounts-receivable
+  -   730 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R085 /revenue-analysis
+  -   731 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R086 /cost-accounting
+  -   732 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R087 /financial-reports
+  -   733 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R088 /business-continuity
+  -   734 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R089 /cloud-storage
+  -   735 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R090 /enterprise-search
+  -   736 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R091 /multi-site
+  -   737 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R092 /vna-dashboard
+  -   738 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R093 /safety/adverse-events
+  -   739 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R094 /safety/cqi
+  -   740 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R095 /safety/patient-safety-goals
+  -   741 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R096 /safety/radiation-safety
+  -   742 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R097 /safety/rca-analysis
+  -   743 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R098 /safety/risk-management
+  -   744 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R099 /contrast/adverse-reactions
+  -   745 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R100 /contrast/injection-workstation
+  -   746 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R101 /contrast/inventory
+  -   747 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R102 /contrast/quality-compliance
+  -   748 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R103 /cardiac/database
+  -   749 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R104 /cardiac/operations
+  -   750 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R105 /cardiac/qc
+  -   751 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R106 /ops/devices
+  -   752 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R107 /ops/hr
+  -   753 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R108 /ops/dashboard
+  -   754 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R109 /cds/management
+  -   755 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R110 /cds/statistics
+  -   756 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R111 /finance/department
+  -   757 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R112 /finance/patient
+  -   758 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R113 /mammo/operations
+  -   759 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R114 /mammo/quality
+  -   760 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R115 /patient/self-service
+  -   761 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R116 /patient/service-management
+  -   762 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R117 /education/patient-education
+  -   763 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R118 /hie/medical-alliance
+  -   764 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R119 /integration/fhir-server
+  -   765 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R120 /integration/ihe-connectathon
+  -   766 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R121 /integration/mllp-monitor
+  -   767 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R122 /kiosk/check-in
+  -   768 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R123 /mobile/patient
+  -   769 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R124 /mobile/doctor
+  -   770 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R125 /mobile/nurse
+  -   771 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R126 /mobile/tech
+  -   772 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R127 /quality/department
+  -   773 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R128 /review-center
+  -   774 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R129 /quality-control
+  -   775 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R130 /critical-value-center
+  -   776 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R131 /defect-management
+  -   777 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R132 /cosign
+  -   778 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R133 /workflow-designer
+  -   779 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R134 /routing-rules
+  -   780 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R135 /workload-heatmap
+  -   781 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R136 /sla-policy
+  -   782 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R137 /dental
+  -   783 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R138 /dental/chart
+  -   784 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R139 /dental/ai
+  -   785 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R140 /dental/treatment
+  -   786 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R141 /dental/implant
+  -   787 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R142 /dental/ortho
+  -   788 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R143 /dental/endo
+  -   789 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R144 /dental/perio
+  -   790 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R145 /dental/restorative
+  -   791 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R146 /dental/surgery
+  -   792 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R147 /dental/pediatric
+  -   793 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R148 /dental/tele
+  -   794 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R149 /dental/inventory
+  -   795 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R150 /dental/dashboard
+  -   796 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R151 /dental/studies
+  -   797 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R152 /dental/viewer
+  -   798 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R153 /dental/viewer/scan-3d
+  -   799 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R154 /dental/annotate
+  -   800 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R155 /dental/viewer/mpr
+  -   801 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R156 /dental/ai-onnx
+  -   802 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R157 /dental/referral
+  -   803 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R158 /dental/cbct-report
+  -   804 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R159 /dental/rad-fusion
+  -   805 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R160 /dental/cad
+  -   806 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R161 /dental/implant-3d
+  -   807 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R162 /dental/guide
+  -   808 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R163 /dental/ceph
+  -   809 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R164 /dental/aligner
+  -   810 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R165 /dental/volume-viewer
+  -   811 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R166 /dental/patient-view
+  -   812 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R167 /dental/billing
+  -   813 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R168 /dental/schedule
+  -   814 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R169 /dental/photo
+  -   815 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R170 /report-workflow
+  -   816 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R171 /patient-device-mgmt
+  -   817 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R172 /notif-tpl-dict
+  -   818 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R173 /review-check
+  -   819 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R174 /sign-amend
+  -   820 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R175 /v3-report-hub
+  -   821 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R176 /eye
+  -   822 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R177 /eye/pacs
+  -   823 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R178 /eye/pacs/viewer
+  -   824 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R179 /eye/pacs/real-viewer
+  -   825 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R180 /eye/ris
+  -   826 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R181 /eye/ris/va
+  -   827 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R182 /eye/ris/iop
+  -   828 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R183 /eye/ris/iol-calculator
+  -   829 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R184 /eye/emr
+  -   830 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R185 /eye/ai
+  -   831 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R186 /eye/ai-report
+  -   832 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R187 /eye/toric-planner
+  -   833 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R188 /eye/kpi-dashboard
+  -   834 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R189 /eye/report-write
+  -   835 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R190 /eye/sub/strabismus
+  -   836 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R191 /eye/sub/neuro
+  -   837 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R192 /eye/sub/oncology
+  -   838 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R193 /eye/sub/cornea
+  -   839 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R194 /eye/sub/contact-lens
+  -   840 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R195 /eye/sub/low-vision
+  -   841 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R196 /eye/sub/cataract
+  -   842 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R197 /eye/sub/refractive
+  -   843 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R198 /eye/tele
+  -   844 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R199 /eye/case-library
+  -   845 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R200 /eye/optometry-loop
+  -   846 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R201 /eye/pacs/fundus
+  -   847 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R202 /eye/pacs/oct
+  -   848 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R203 /eye/pacs/oct-a
+  -   849 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R204 /eye/pacs/visual-field
+  -   850 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R205 /eye/pacs/topography
+  -   851 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R206 /eye/pacs/ffa
+  -   852 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R207 /eye/pacs/compare
+  -   853 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R208 /eye/pacs/montage
+  -   854 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R209 /command-center
+  -   855 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R210 /dicom-share
+  -   856 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R211 /scheduling-center
+  -   857 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R212 /clinical-pathways
+  -   858 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R213 /audit-compliance
+  -   859 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R214 /dicom-sr-manager
+  -   860 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R215 /terminology-server
+  -   861 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R216 /report-templates
+  -   862 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R217 /ihe-integration
+  -   863 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R218 /ai-fusion-workspace
+  -   864 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R219 /clinical-calculators
+  -   865 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R220 /consent-education
+  -   866 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R221 /patient-safety
+  -   867 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R222 /emr-templates
+  -   868 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R223 /system-admin
+  -   869 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R224 /treatment-plans
+  -   870 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R225 /patient-unified
+  -   871 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R226 /qc-dashboard
+  -   872 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R227 /qc-image
+  -   873 [mobile-safari] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R228 /qc-radiologist-annual
+  x   874 [mobile-safari] 鈥?e2e\v30607-comprehensive.spec.ts:55:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?1. 鐧诲綍椤垫樉绀鸿鑹查€夋嫨鍣?鐢ㄦ埛鍚?瀵嗙爜/鎻愪氦鎸夐挳 (3ms)
+  ok  643 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R068 /equipment-efficiency (2.4s)
+  x   876 [mobile-safari] 鈥?e2e\v30607-comprehensive.spec.ts:65:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?2. 鐧诲綍涓虹鐞嗗憳鈫掗噸瀹氬悜鍒?, sidebar鏄剧ず鎵€鏈夎彍鍗?(2ms)
+  x   614 [mobile-chrome] 鈥?e2e\v30607-comprehensive.spec.ts:240:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?15. 鐢ㄦ埛绠＄悊椤甸潰娓叉煋 (30.6s)
+  ok  644 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R036 /dictionary (2.4s)
+  x   878 [mobile-safari] 鈥?e2e\v30607-comprehensive.spec.ts:76:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?3. 鐧诲綍涓哄尰鐢熲啋鑿滃崟浠呭惈鍖荤敓鍙闂」 (2ms)
+  x   879 [mobile-safari] 鈥?e2e\v30607-comprehensive.spec.ts:87:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?4. 绠＄悊鍛樹晶杈规爮鑿滃崟椤圭粺璁?搴斾负187) (2ms)
+  x   880 [mobile-safari] 鈥?e2e\v30607-comprehensive.spec.ts:103:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?5. 鐐瑰嚮Dashboard瀵艰埅鍒伴椤?(1ms)
+  x   881 [mobile-safari] 鈥?e2e\v30607-comprehensive.spec.ts:114:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?6. 鏁版嵁鎶ヨ〃涓績椤甸潰鍔犺浇鍒嗙被 (1ms)
+  x   882 [mobile-safari] 鈥?e2e\v30607-comprehensive.spec.ts:125:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?7. 閫夋嫨鎶ヨ〃鍒嗙被鈫掑浘琛ㄦ覆鏌?(2ms)
+  ok  875 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R069 /user-management (2.3s)
+  x   884 [mobile-safari] 鈥?e2e\v30607-comprehensive.spec.ts:142:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?8. 鍗辨€ュ€奸〉闈㈡覆鏌撹〃鏍?(2ms)
+  x   885 [mobile-safari] 鈥?e2e\v30607-comprehensive.spec.ts:154:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?9. 鎸変弗閲嶇▼搴﹁繃婊ゅ嵄鎬ュ€?(2ms)
+  x   886 [mobile-safari] 鈥?e2e\v30607-comprehensive.spec.ts:168:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?10. 鎵归噺纭鍗辨€ュ€?(1ms)
+  x   887 [mobile-safari] 鈥?e2e\v30607-comprehensive.spec.ts:188:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?11. 宸ヤ綔鍒楄〃椤甸潰娓叉煋鏉＄洰 (2ms)
+  ok  877 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R037 /operations-center (2.4s)
+  x   889 [mobile-safari] 鈥?e2e\v30607-comprehensive.spec.ts:199:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?12. 妫€鏌ラ〉闈㈠嬀閫夊悗鏄剧ず鎵归噺鎿嶄綔鏍?(1ms)
+  x   890 [mobile-safari] 鈥?e2e\v30607-comprehensive.spec.ts:214:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?13. 妫€鏌ユ悳绱㈢瓫閫夊姛鑳?(2ms)
+  x   891 [mobile-safari] 鈥?e2e\v30607-comprehensive.spec.ts:229:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?14. 绠＄悊鍛樺彲璁块棶绯荤粺绠＄悊椤甸潰 (1ms)
+  x   892 [mobile-safari] 鈥?e2e\v30607-comprehensive.spec.ts:240:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?15. 鐢ㄦ埛绠＄悊椤甸潰娓叉煋 (1ms)
+  x   893 [mobile-safari] 鈥?e2e\v30607-comprehensive.spec.ts:250:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?16. 鎶ュ憡椤甸潰鍔犺浇鍒楄〃 (2ms)
+  ok  883 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R070 /patient-portal (2.3s)
+  x   895 [mobile-safari] 鈥?e2e\v30607-comprehensive.spec.ts:261:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?17. 鐐瑰嚮涔﹀啓鎶ュ憡鈫掑鑸埌鍐欐姤鍛婇〉 (2ms)
+  x   896 [mobile-safari] 鈥?e2e\v30607-comprehensive.spec.ts:277:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?18. 鎸塯+r瀵艰埅鍒?reports (2ms)
+  x   897 [mobile-safari] 鈥?e2e\v30607-comprehensive.spec.ts:291:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?19. 瀹¤鏃ュ織椤甸潰娓叉煋鏉＄洰 (2ms)
+  x   898 [mobile-safari] 鈥?e2e\v30607-comprehensive.spec.ts:311:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?20. 璁块棶涓嶅瓨鍦ㄩ〉闈⑩啋閲嶅畾鍚戝埌棣栭〉鎴栨樉绀?04 (2ms)
+  x   621 [mobile-chrome] 鈥?e2e\v30607-comprehensive.spec.ts:250:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?16. 鎶ュ憡椤甸潰鍔犺浇鍒楄〃 (30.6s)
+  ok  894 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R071 /director-dashboard (2.8s)
+  ok  888 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R038 /department-dashboard (4.0s)
+  x   623 [mobile-chrome] 鈥?e2e\v30607-comprehensive.spec.ts:261:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?17. 鐐瑰嚮涔﹀啓鎶ュ憡鈫掑鑸埌鍐欐姤鍛婇〉 (30.4s)
+  ok  899 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R072 /green-it (3.1s)
+  ok  900 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R039 /stats-report (3.1s)
+  x   627 [mobile-chrome] 鈥?e2e\v30607-comprehensive.spec.ts:277:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?18. 鎸塯+r瀵艰埅鍒?reports (30.1s)
+  ok  901 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R073 /research (2.4s)
+  ok  902 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R040 /clinical-data (2.3s)
+  ok  903 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R074 /nuclear-stats (2.3s)
+  ok  904 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R041 /template-management (2.3s)
+  ok  905 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R075 /system/dicom-print (2.3s)
+  ok  906 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R042 /template-designer (2.3s)
+  ok  907 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R076 /term-synonym-graph (2.3s)
+  ok  908 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R043 /template-designer/:id (2.3s)
+  ok  909 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R077 /report-phrase-bank (2.3s)
+  ok  910 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R044 /template-inheritance (2.3s)
+  x   638 [mobile-chrome] 鈥?e2e\v30607-comprehensive.spec.ts:291:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?19. 瀹¤鏃ュ織椤甸潰娓叉煋鏉＄洰 (30.1s)
+  ok  911 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R078 /report-kpi-dashboard (2.3s)
+  ok  912 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R045 /template-category (2.3s)
+  x   641 [mobile-chrome] 鈥?e2e\v30607-comprehensive.spec.ts:311:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?20. 璁块棶涓嶅瓨鍦ㄩ〉闈⑩啋閲嶅畾鍚戝埌棣栭〉鎴栨樉绀?04 (30.1s)
+  ok  913 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R079 /doctor-workload (2.3s)
+  ok  914 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R046 /report-review (2.3s)
+  ok  915 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R080 /diagnosis-accuracy (2.3s)
+  ok  916 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R047 /report-revisions (2.3s)
+  ok  917 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R081 /report-timeliness (2.3s)
+  ok  918 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R048 /collaboration (2.3s)
+  ok  919 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R082 /report-search (2.3s)
+  ok  920 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R049 /keyword-check (2.3s)
+  ok  921 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R083 /charge-items (2.3s)
+  ok  922 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R050 /report-score-rule (2.3s)
+  ok  923 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R084 /accounts-receivable (2.3s)
+  ok  924 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R051 /report-defect-library (2.4s)
+  ok  925 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R085 /revenue-analysis (2.3s)
+  ok  926 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R052 /ai-report-draft (2.3s)
+  ok  927 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R086 /cost-accounting (2.3s)
+  ok  928 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R053 /critical-value-rule (2.3s)
+  ok  929 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R087 /financial-reports (2.3s)
+  ok  930 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R054 /critical-value-stats (2.3s)
+  ok  931 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R088 /business-continuity (2.3s)
+  ok  932 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R055 /special-assessment (2.3s)
+  ok  933 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R089 /cloud-storage (2.3s)
+  ok  934 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R056 /report-export (2.3s)
+  ok  935 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R090 /enterprise-search (2.3s)
+  ok  936 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R057 /report-delivery (2.3s)
+  ok  937 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R091 /multi-site (2.3s)
+  ok  938 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R058 /publish (2.3s)
+  ok  939 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R092 /vna-dashboard (2.3s)
+  ok  940 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R059 /patient-report-portal (2.3s)
+  ok  941 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R093 /safety/adverse-events (2.3s)
+  ok  942 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R060 /ca-signature (2.3s)
+  ok  943 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R094 /safety/cqi (2.3s)
+  ok  944 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R061 /blockchain-proof (2.3s)
+  ok  945 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R095 /safety/patient-safety-goals (2.3s)
+  ok  946 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R062 /appointment-management (2.3s)
+  ok  947 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R096 /safety/radiation-safety (2.3s)
+  ok  948 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R063 /device-fault (2.3s)
+  ok  949 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R097 /safety/rca-analysis (2.3s)
+  ok  950 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R064 /ai-qc (2.3s)
+  ok  951 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R098 /safety/risk-management (2.3s)
+  ok  952 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R065 /ai-structured-report (2.3s)
+  ok  953 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R099 /contrast/adverse-reactions (2.3s)
+  ok  954 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R066 /ai-medical-device (2.3s)
+  ok  955 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R100 /contrast/injection-workstation (2.3s)
+  ok  956 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R067 /regional-imaging (2.3s)
+  ok  957 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R101 /contrast/inventory (2.3s)
+  ok  958 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R068 /equipment-efficiency (2.3s)
+  ok  959 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R102 /contrast/quality-compliance (2.3s)
+  ok  960 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R069 /user-management (2.3s)
+  ok  961 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R103 /cardiac/database (2.3s)
+  ok  962 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R070 /patient-portal (2.3s)
+  ok  963 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R104 /cardiac/operations (2.3s)
+  ok  964 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R071 /director-dashboard (2.3s)
+  ok  965 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R105 /cardiac/qc (2.3s)
+  ok  966 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R072 /green-it (2.3s)
+  ok  967 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R106 /ops/devices (2.3s)
+  ok  968 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R073 /research (2.3s)
+  ok  969 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R107 /ops/hr (2.3s)
+  ok  970 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R074 /nuclear-stats (2.3s)
+  ok  971 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R108 /ops/dashboard (2.3s)
+  ok  972 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R075 /system/dicom-print (2.3s)
+  ok  973 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R109 /cds/management (2.3s)
+  ok  974 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R076 /term-synonym-graph (2.3s)
+  ok  975 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R110 /cds/statistics (2.3s)
+  ok  976 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R077 /report-phrase-bank (2.3s)
+  ok  977 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R111 /finance/department (2.3s)
+  ok  978 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R078 /report-kpi-dashboard (2.3s)
+  ok  979 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R112 /finance/patient (2.3s)
+  ok  980 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R079 /doctor-workload (2.3s)
+  ok  981 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R113 /mammo/operations (2.3s)
+  ok  982 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R080 /diagnosis-accuracy (2.3s)
+  ok  983 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R114 /mammo/quality (2.3s)
+  ok  984 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R081 /report-timeliness (2.3s)
+  ok  985 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R115 /patient/self-service (2.3s)
+  ok  986 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R082 /report-search (2.3s)
+  ok  987 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R116 /patient/service-management (2.3s)
+  ok  988 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R083 /charge-items (2.3s)
+  ok  989 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R117 /education/patient-education (2.3s)
+  ok  990 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R084 /accounts-receivable (2.3s)
+  ok  991 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R118 /hie/medical-alliance (2.3s)
+  ok  992 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R085 /revenue-analysis (2.3s)
+  ok  993 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R119 /integration/fhir-server (2.3s)
+  ok  994 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R086 /cost-accounting (2.3s)
+  ok  995 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R120 /integration/ihe-connectathon (2.3s)
+  ok  996 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R087 /financial-reports (2.3s)
+  ok  997 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R121 /integration/mllp-monitor (2.3s)
+  ok  998 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R088 /business-continuity (2.3s)
+  ok  999 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R122 /kiosk/check-in (2.3s)
+  ok 1000 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R089 /cloud-storage (2.3s)
+  ok 1001 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R123 /mobile/patient (2.2s)
+  ok 1002 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R090 /enterprise-search (2.3s)
+  ok 1003 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R124 /mobile/doctor (2.3s)
+  ok 1004 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R091 /multi-site (2.3s)
+  ok 1005 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R125 /mobile/nurse (2.3s)
+  ok 1006 [mobile-chrome] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R092 /vna-dashboard (2.3s)
+  ok 1007 [chromium] 鈥?e2e\full-page-health.spec.ts:106:9 鈥?鍏ㄩ潰椤甸潰鍋ュ悍搴︽鏌?v100 鈥?R126 /mobile/tech (2.3s)

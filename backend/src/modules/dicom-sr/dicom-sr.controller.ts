@@ -1,4 +1,5 @@
-import { Body, Controller, Get, NotFoundException, Param, Post } from '@nestjs/common'
+import { Body, Controller, Get, Header, NotFoundException, Param, Post, Res } from '@nestjs/common'
+import { Response } from 'express'
 import { Roles } from '../../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
@@ -34,5 +35,14 @@ export class DicomSrController {
     const doc = this.service.findById(id)
     if (!doc) throw new NotFoundException(`SR document ${id} not found`)
     return doc
+  }
+
+  @Get(':id/download')
+  @Header('Content-Type', 'application/dicom+json')
+  download(@Param('id') id: string, @Res() res: Response) {
+    const doc = this.service.findById(id)
+    if (!doc) throw new NotFoundException(`SR document ${id} not found`)
+    res.setHeader('Content-Disposition', `attachment; filename="${doc.id}.sr"`)
+    res.send(doc.content)
   }
 }

@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react'
-import { Card, Select, Button, Space, Tag, Typography, Input, message, Spin, Divider, Tooltip } from 'antd'
+import { Card, Select, Button, Space, Tag, Typography, Input, message, Spin, Tooltip } from 'antd'
 import { Brain, Check, X, Edit3, FileText, RefreshCw, Plus, User, Activity } from 'lucide-react'
+import { api } from '../../services/api/client'
 
 const { Text, Title } = Typography
 const { TextArea } = Input
@@ -51,54 +52,88 @@ const AiDraftPage: React.FC = () => {
     if (!selectedExam) { message.warning('请选择检查'); return }
     setGenerating(true)
     setDraftResult(null)
-    await new Promise(r => setTimeout(r, 1200))
-    setDraftResult({
-      paragraphs: [
-        { id: 'p1', heading: '检查技术', content: `${currentExam?.modality} ${currentExam?.bodyPart ?? ''}平扫+增强扫描`, confidence: 0.95, editable: true },
-        { id: 'p2', heading: '影像所见', content: `${currentExam?.bodyPart ?? '检查部位'} 未见明确异常密度影及占位性病变，边界清晰，形态规则`, confidence: 0.92, editable: true },
-        { id: 'p3', heading: '诊断意见', content: '未见明确异常，建议定期随访', confidence: 0.88, editable: true },
-        { id: 'p4', heading: '建议', content: '定期随访，必要时进一步检查', confidence: 0.85, editable: true },
-      ],
-      overallConfidence: 0.90,
-      modelVersion: 'deepseek-v3.0',
-    })
-    setGenerating(false)
-  }, [selectedExam, currentExam])
+    try {
+      const res = await api.post<{
+        paragraphs: Paragraph[]
+        overallConfidence: number
+        modelVersion: string
+      }>('/ai-draft/generate', {
+        patientId: selectedPatient ?? 'mock-patient',
+        examId: selectedExam,
+        modality: currentExam?.modality ?? 'CT',
+        bodyPart: currentExam?.bodyPart ?? '胸部',
+      })
+      if (res.success && res.data) {
+        setDraftResult({
+          paragraphs: res.data.paragraphs,
+          overallConfidence: res.data.overallConfidence,
+          modelVersion: res.data.modelVersion,
+        })
+      } else {
+        message.error(res.error?.message || '生成失败')
+      }
+    } catch {
+      message.error('生成请求失败')
+    } finally {
+      setGenerating(false)
+    }
+  }, [selectedExam, selectedPatient, currentExam])
 
   const handleContinue = useCallback(async () => {
     if (!continuePrompt.trim()) { message.warning('请输入续写提示'); return }
     setGenerating(true)
-    await new Promise(r => setTimeout(r, 800))
-    if (draftResult) {
-      const newParagraphs = [...draftResult.paragraphs]
-      newParagraphs.push({
-        id: `p-${Date.now()}`,
-        heading: '补充描述',
-        content: `根据"${continuePrompt}"：与既往相比，病灶无明显变化`,
-        confidence: 0.80,
-        editable: true,
+    try {
+      const res = await api.post<{
+        id: string
+        heading: string
+        content: string
+        confidence: number
+        editable: boolean
+      }>('/ai-draft/continue', {
+        existingParagraphs: draftResult?.paragraphs.map(p => ({ heading: p.heading, content: p.content })) ?? [],
+        prompt: continuePrompt,
+        modality: currentExam?.modality,
       })
-      setDraftResult({ ...draftResult, paragraphs: newParagraphs })
+      if (res.success && res.data && draftResult) {
+        setDraftResult({ ...draftResult, paragraphs: [...draftResult.paragraphs, res.data] })
+      } else {
+        message.error(res.error?.message || '续写失败')
+      }
+    } catch {
+      message.error('续写请求失败')
+    } finally {
+      setContinuePrompt('')
+      setGenerating(false)
     }
-    setContinuePrompt('')
-    setGenerating(false)
-  }, [continuePrompt, draftResult])
+  }, [continuePrompt, draftResult, currentExam])
 
   const handleRewrite = useCallback(async () => {
     if (!rewriteTarget || !rewriteInstruction.trim()) { message.warning('请选择要改写的段落并输入指令'); return }
     setGenerating(true)
-    await new Promise(r => setTimeout(r, 600))
-    if (draftResult) {
-      const newParagraphs = draftResult.paragraphs.map(p =>
-        p.id === rewriteTarget
-          ? { ...p, content: `【重写】${rewriteInstruction}：${currentExam?.bodyPart ?? ''} 未见明显异常`, confidence: 0.82 }
-          : p,
-      )
-      setDraftResult({ ...draftResult, paragraphs: newParagraphs })
+    try {
+      const targetParagraph = draftResult?.paragraphs.find(p => p.id === rewriteTarget)
+      const res = await api.post<{ content: string; confidence: number }>('/ai-draft/rewrite', {
+        content: targetParagraph?.content ?? '',
+        instruction: rewriteInstruction,
+        modality: currentExam?.modality,
+      })
+      if (res.success && res.data && draftResult) {
+        const newParagraphs = draftResult.paragraphs.map(p =>
+          p.id === rewriteTarget
+            ? { ...p, content: res.data.content, confidence: res.data.confidence }
+            : p,
+        )
+        setDraftResult({ ...draftResult, paragraphs: newParagraphs })
+      } else {
+        message.error(res.error?.message || '改写失败')
+      }
+    } catch {
+      message.error('改写请求失败')
+    } finally {
+      setRewriteInstruction('')
+      setRewriteTarget(null)
+      setGenerating(false)
     }
-    setRewriteInstruction('')
-    setRewriteTarget(null)
-    setGenerating(false)
   }, [rewriteTarget, rewriteInstruction, draftResult, currentExam])
 
   const handleAccept = (id: string) => {
@@ -247,7 +282,7 @@ const AiDraftPage: React.FC = () => {
 
       {draftResult && !generating && (
         <div style={{ marginTop: 16, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-          <Button icon={<Check size={14} />} type="primary" onClick={() => message.success('草稿已提交到报告书写页')}>
+          <Button icon={<Check size={14} />} type="primary" onClick={() => message.warning('功能建设中')}>
             全部接受并提交
           </Button>
           <Button icon={<X size={14} />} onClick={() => { setDraftResult(null); message.info('已清空') }}>

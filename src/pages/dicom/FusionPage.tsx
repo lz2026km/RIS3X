@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Layers, Maximize2, Minus, Monitor, Move, Plus, RotateCw, Sun, ZoomIn, ZoomOut } from 'lucide-react'
+import { Layers, Minus, Monitor, Move, Plus, RotateCw, Sun, ZoomIn, ZoomOut } from 'lucide-react'
 import { t } from '../../i18n/appI18n'
 import { FUSION_CT_WW, FUSION_CT_WL, FUSION_PET_WW, FUSION_PET_WL } from '../../utils/modalityPresets'
+import { fusionApi, type FusionSeriesItem } from '../../services/api/dicomApi'
 
 type ViewPlane = 'axial' | 'coronal' | 'sagittal'
 type FusionMode = 'pet-ct' | 'mr-dwi'
@@ -44,6 +45,22 @@ function mockSlice(plane: ViewPlane, slice: number, modality: 'ct' | 'pet' | 'mr
     data.push(row)
   }
   return data
+}
+
+function decodeBase64PixelData(b64: string, width: number, height: number): ImageData | null {
+  try {
+    const bin = atob(b64)
+    const bytes = new Uint8Array(bin.length)
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i)
+    const canvas = document.createElement('canvas')
+    canvas.width = width
+    canvas.height = height
+    const ctx = canvas.getContext('2d')!
+    const img = new ImageData(new Uint8ClampedArray(bytes.buffer), width, height)
+    return img
+  } catch {
+    return null
+  }
 }
 
 function applyWWL(data: number[][], ww: number, wl: number): ImageData {
@@ -168,6 +185,7 @@ interface ViewportCanvasProps {
   onMouseUp: () => void
   label: string
   fusionLabel: string
+  apiFrame?: ImageData | null
 }
 
 const ViewportCanvas: React.FC<ViewportCanvasProps> = ({
@@ -186,6 +204,7 @@ const ViewportCanvas: React.FC<ViewportCanvasProps> = ({
   onMouseUp,
   label,
   fusionLabel,
+  apiFrame,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const size = 256
@@ -199,14 +218,18 @@ const ViewportCanvas: React.FC<ViewportCanvasProps> = ({
     const w = rect.width
     const h = rect.height
 
-    const primaryData = mockSlice(plane, sliceIndex, primaryModality)
-    const fusionData = mockSlice(plane, sliceIndex, fusionModality)
-
     let imgData: ImageData
-    if (fusionAlpha > 0) {
-      imgData = applyPETColor(fusionData, primaryData, fusionAlpha, fusionWWL.ww, fusionWWL.wl)
+    if (apiFrame) {
+      imgData = apiFrame
     } else {
-      imgData = applyWWL(primaryData, wwl.ww, wwl.wl)
+      const primaryData = mockSlice(plane, sliceIndex, primaryModality)
+      const fusionData = mockSlice(plane, sliceIndex, fusionModality)
+
+      if (fusionAlpha > 0) {
+        imgData = applyPETColor(fusionData, primaryData, fusionAlpha, fusionWWL.ww, fusionWWL.wl)
+      } else {
+        imgData = applyWWL(primaryData, wwl.ww, wwl.wl)
+      }
     }
 
     drawCanvas(ctx, imgData, viewState, w, h)
@@ -244,10 +267,96 @@ export default function FusionPage() {
   const [dragging, setDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
 
+  const [backendSeries, setBackendSeries] = useState<FusionSeriesItem[]>([])
+  const [registrationId, setRegistrationId] = useState<string | null>(null)
+  const [apiFrameCache, setApiFrameCache] = useState<Map<string, ImageData>>(new Map())
+
   const primaryModality = fusionMode === 'pet-ct' ? 'ct' : 'mr'
   const fusionModality = fusionMode === 'pet-ct' ? 'pet' : 'dwi'
   const primaryLabel = fusionMode === 'pet-ct' ? 'CT' : 'MR'
   const fusionLabel = fusionMode === 'pet-ct' ? 'PET' : 'DWI'
+
+  useEffect(() => {
+    const patientId = new URLSearchParams(window.location.search).get('patientId')
+    if (!patientId) return
+    fusionApi.getSeries(patientId).then(res => {
+      if (res.success && res.data.series) {
+        setBackendSeries(res.data.series)
+      }
+    })
+  }, [])
+
+  useEffect(() => {
+    if (backendSeries.length < 2) return
+    const ctSeries = backendSeries.find(s => s.modality === 'CT' || s.modality === 'MR')
+    const petSeries = backendSeries.find(s => s.modality === 'PT' || s.modality === 'DWI')
+    if (ctSeries && petSeries && !registrationId) {
+      fusionApi.register(
+        `series-${ctSeries.seriesDescription}`,
+        `series-${petSeries.seriesDescription}`,
+        'rigid',
+      ).then(res => {
+        if (res.success) {
+          setRegistrationId(res.data.registrationId)
+        }
+      })
+    }
+  }, [backendSeries, registrationId])
+
+  const fetchBackendFrame = useCallback(async (
+    currentPlane: ViewPlane,
+    currentSlice: number,
+    currentAlpha: number,
+    currentWWL: WWWL,
+    currentFusionWWL: WWWL,
+  ): Promise<ImageData | null> => {
+    if (backendSeries.length < 2) return null
+    const ctSeries = backendSeries.find(s => s.modality === 'CT' || s.modality === 'MR')
+    const petSeries = backendSeries.find(s => s.modality === 'PT' || s.modality === 'DWI')
+    if (!ctSeries || !petSeries) return null
+
+    const cacheKey = `${currentPlane}-${currentSlice}-${currentAlpha}-${currentWWL.ww}-${currentWWL.wl}`
+    const cached = apiFrameCache.get(cacheKey)
+    if (cached) return cached
+
+    const res = await fusionApi.render({
+      fixedSeriesUid: `series-${ctSeries.seriesDescription}`,
+      movingSeriesUid: `series-${petSeries.seriesDescription}`,
+      plane: currentPlane,
+      sliceIndex: currentSlice,
+      alpha: currentAlpha,
+      windowWidth: currentWWL.ww,
+      windowLevel: currentWWL.wl,
+      fusionWindowWidth: currentFusionWWL.ww,
+      fusionWindowLevel: currentFusionWWL.wl,
+    })
+    if (res.success && res.data.pixelDataBase64) {
+      const imgData = decodeBase64PixelData(res.data.pixelDataBase64, res.data.width, res.data.height)
+      if (imgData) {
+        setApiFrameCache(prev => {
+          const next = new Map(prev)
+          if (next.size > 60) {
+            const firstKey = next.keys().next().value
+            if (firstKey) next.delete(firstKey)
+          }
+          next.set(cacheKey, imgData)
+          return next
+        })
+        return imgData
+      }
+    }
+    return null
+  }, [backendSeries, apiFrameCache])
+
+  const [currentApiFrame, setCurrentApiFrame] = useState<ImageData | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    fetchBackendFrame(plane, sliceIndex, fusionAlpha, wwl, fusionWWL).then(frame => {
+      if (!cancelled) setCurrentApiFrame(frame)
+    })
+    return () => { cancelled = true }
+  }, [plane, sliceIndex, fusionAlpha, wwl, fusionWWL, fetchBackendFrame])
 
   const handleWheel = useCallback((e: React.WheelEvent) => {
     const delta = e.deltaY > 0 ? -1 : 1
@@ -392,6 +501,7 @@ export default function FusionPage() {
               onMouseUp={handleMouseUp}
               label={primaryLabel}
               fusionLabel={fusionLabel}
+              apiFrame={currentApiFrame}
             />
           </div>
           <div style={{ display: 'flex', gap: 4, alignItems: 'center', background: PANEL_BG, borderRadius: 4, padding: '4px 8px' }}>

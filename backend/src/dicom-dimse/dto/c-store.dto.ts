@@ -12,6 +12,8 @@ export const CStoreSchema = z.object({
   studyDescription: z.string().optional(),
   seriesNumber: z.number().int().nonnegative().optional(),
   instanceNumber: z.number().int().nonnegative().optional(),
+  // 1.2.840.10008.1.2.1 = Explicit VR Little Endian
+  // 1.2.840.10008.1.2   = Implicit VR Little Endian
   transferSyntax: z.string().default('1.2.840.10008.1.2.1'),
   pixelData: z.string().optional(),
   calledAeTitle: z.string().optional(),

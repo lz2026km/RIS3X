@@ -76,8 +76,8 @@ const MeasurementPanel: React.FC<{
         },
         {
           title: "类型",
-          dataIndex: "type",
-          key: "type",
+          dataIndex: "measurementType",
+          key: "measurementType",
           width: 100,
         },
         {

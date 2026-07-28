@@ -2,7 +2,7 @@
  * G005 放射RIS系统 v3.0.6.1 - AI 可解释性面板 (Grad-CAM/特征图)
  */
 import React, { useState } from 'react'
-import { Card, Tabs, Space, Tag, Slider, Switch } from 'antd'
+import { Card, Tabs, Space, Tag, Slider, Switch, Empty } from 'antd'
 import { Eye } from 'lucide-react'
 
 export interface ExplainabilityPanelProps {
@@ -70,7 +70,7 @@ export const ExplainabilityPanel: React.FC<ExplainabilityPanelProps> = ({ algori
               </Space>
             ) },
             { key: 'similar', label: '相似病例', children: (
-              <Tag color="purple">检索 Top-5 相似病例 (基于 embedding 余弦相似度)</Tag>
+              <Empty description="数据待接入" />
             ) },
           ]}
         />

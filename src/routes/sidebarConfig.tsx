@@ -75,7 +75,7 @@ import {
   Video,
 } from "lucide-react";
 import type { ReactNode } from "react";
-import { GitCompare, FileDown, Globe, FileSignature, Scan, Microscope, Mic, BookOpen, Code } from "lucide-react";
+import { GitCompare, FileDown, Globe, FileSignature, Scan, Microscope, Mic, BookOpen, Code, Siren, Clock } from "lucide-react";
 
 export type Role = "医生" | "技师" | "护士" | "管理员" | "主任";
 
@@ -119,6 +119,12 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/triage/worklist",
         icon: <ListOrdered size={18} />,
         labelKey: "nav.triageWorklist",
+        roles: ["医生", "主任", "管理员"],
+      },
+      {
+        path: "/triage/dashboard",
+        icon: <Siren size={18} />,
+        labelKey: "nav.triageDashboard",
         roles: ["医生", "主任", "管理员"],
       },
       {
@@ -350,6 +356,12 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         roles: ["医生", "主任", "管理员",],
       },
       {
+        path: "/snomed/encoder",
+        icon: <Code size={18} />,
+        labelKey: "nav.snomedEncoder",
+        roles: ["医生", "主任", "管理员",],
+      },
+      {
         path: "/blockchain-proof",
         icon: <Link2 size={18} />,
         labelKey: "nav.blockchainProof",
@@ -572,6 +584,31 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.radiomics",
         roles: ["医生", "主任", "管理员",],
       },
+      // [audit-fix-2026-07-28] DICOM/Fusion/Radiomics 管理
+      {
+        path: "/dicom/dimse",
+        icon: <Radio size={18} />,
+        labelKey: "nav.dicomDimse",
+        roles: ["技师", "管理员", "医生", "主任"],
+      },
+      {
+        path: "/dicom/sr-templates",
+        icon: <FileText size={18} />,
+        labelKey: "nav.dicomSrTemplates",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      {
+        path: "/fusion/manager",
+        icon: <Layers size={18} />,
+        labelKey: "nav.fusionManager",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      {
+        path: "/radiomics/features",
+        icon: <Activity size={18} />,
+        labelKey: "nav.radiomicsFeatures",
+        roles: ["医生", "主任", "管理员"],
+      },
     ],
   },
   {
@@ -786,6 +823,25 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.fhirServer",
         roles: ["管理员"],
       },
+      // [audit-fix-2026-07-28] FHIR CRUD 管理
+      {
+        path: "/fhir/patient",
+        icon: <Users size={18} />,
+        labelKey: "nav.fhirPatient",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      {
+        path: "/fhir/observation",
+        icon: <Activity size={18} />,
+        labelKey: "nav.fhirObservation",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      {
+        path: "/fhir/subscription",
+        icon: <Bell size={18} />,
+        labelKey: "nav.fhirSubscription",
+        roles: ["管理员"],
+      },
       {
         path: "/integration/ihe-connectathon",
         icon: <Network size={18} />,
@@ -822,6 +878,19 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: <Activity size={18} />,
         labelKey: "nav.iheVisit",
         roles: ["医生", "主任", "技师", "管理员"],
+      },
+      // [audit-fix-2026-07-28] IHE/HL7 管理
+      {
+        path: "/ihe/manager",
+        icon: <Network size={18} />,
+        labelKey: "nav.iheManager",
+        roles: ["主任", "管理员", "技师"],
+      },
+      {
+        path: "/hl7/manager",
+        icon: <Archive size={18} />,
+        labelKey: "nav.hl7Manager",
+        roles: ["技师", "管理员"],
       },
     ],
   },
@@ -891,6 +960,12 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/mobile/tech",
         icon: <Smartphone size={18} />,
         labelKey: "nav.techMobileWorkstation",
+        roles: ["护士", "医生", "管理员",],
+      },
+      {
+        path: "/mobile/push",
+        icon: <Bell size={18} />,
+        labelKey: "nav.mobilePush",
         roles: ["护士", "医生", "管理员",],
       },
     ],
@@ -1035,6 +1110,12 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: <Target size={18} />,
         labelKey: "nav.aiDiagnosisAccuracy",
         roles: ["主任", "管理员"],
+      },
+      {
+        path: "/analytics/tat-dashboard",
+        icon: <Clock size={18} />,
+        labelKey: "nav.tatDashboard",
+        roles: ["主任", "管理员", "医生"],
       },
     ],
   },

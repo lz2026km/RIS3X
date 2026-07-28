@@ -170,8 +170,8 @@ export const RoutingRuleBuilder: React.FC<RoutingRuleBuilderProps> = ({ rules, o
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <GripVertical size={12} color="#94a3b8" />
                 <span style={{ fontWeight: 600, color: '#1e3a5f', fontSize: 13, flex: 1 }}>{rule.name}</span>
-                <span style={{ fontSize: 12, color: rule.enabled ? '#059669' : '#94a3b8' }}>
-                  {rule.enabled ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
+                <span style={{ fontSize: 12, color: rule.active ? '#059669' : '#94a3b8' }}>
+                  {rule.active ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
                 </span>
                 <button onClick={(e) => { e.stopPropagation(); handleDelete(rule.id); }} disabled={readonly} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                   <Trash2 size={12} color="#dc2626" />
@@ -211,8 +211,8 @@ export const RoutingRuleBuilder: React.FC<RoutingRuleBuilderProps> = ({ rules, o
               <div>
                 <label style={labelStyle}>启用</label>
                 <select
-                  value={selected.enabled ? 'yes' : 'no'}
-                  onChange={(e) => handleUpdateRule({ ...selected, enabled: e.target.value === 'yes' })}
+                  value={selected.active ? 'yes' : 'no'}
+                  onChange={(e) => handleUpdateRule({ ...selected, active: e.target.value === 'yes' })}
                   disabled={readonly}
                   style={inputStyle}
                 >

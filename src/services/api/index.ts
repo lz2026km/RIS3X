@@ -130,3 +130,9 @@ export type {
   OlapQueryDto, OlapMetadataDto,
   StatsDashboardDto,
 } from './analyticsApi'
+
+export { triageApi } from './triageApi'
+export type { TriageExamInput, TriageScoreResult, TriageFactor, TriagePendingItem } from './triageApi'
+
+export { snomedApi } from './snomedApi'
+export type { SnomedCode } from './snomedApi'

@@ -13,7 +13,7 @@ export interface WindowPreset {
 }
 
 // 检查部位类型
-export type BodyPart = 'HEAD' | 'CHEST' | 'ABDOMEN' | 'SPINE' | 'LIMB' | 'PELVIS' | 'UNKNOWN'
+export type BodyPart = 'HEAD' | 'CHEST' | 'ABDOMEN' | 'SPINE' | 'LIMB' | 'PELVIS' | 'MAMMOGRAPHY' | 'CARDIAC' | 'ANGIO' | 'UNKNOWN'
 
 // 所有窗宽窗位预设
 export const WINDOW_PRESETS: WindowPreset[] = [
@@ -112,6 +112,51 @@ export const WINDOW_PRESETS: WindowPreset[] = [
     category: 'PELVIS',
     description: '骨盆窗',
   },
+
+  // ========== 乳腺 (MAMMOGRAPHY) ==========
+  {
+    name: '乳腺窗',
+    ww: 400,
+    wl: 300,
+    category: 'MAMMOGRAPHY',
+    description: '乳腺钼靶窗',
+  },
+
+  // ========== 心脏 (CARDIAC) ==========
+  {
+    name: '心脏窗',
+    ww: 350,
+    wl: 50,
+    category: 'CARDIAC',
+    description: '心脏增强窗',
+  },
+
+  // ========== 肝脏增强 (LIVER CONTRAST) ==========
+  {
+    name: '肝脏增强窗',
+    ww: 200,
+    wl: 60,
+    category: 'ABDOMEN',
+    description: '肝脏增强扫描窗',
+  },
+
+  // ========== 血管 (ANGIO) ==========
+  {
+    name: '血管窗',
+    ww: 600,
+    wl: 200,
+    category: 'ANGIO',
+    description: '血管造影窗',
+  },
+
+  // ========== 眼眶 (ORBIT) ==========
+  {
+    name: '眼眶窗',
+    ww: 300,
+    wl: 50,
+    category: 'HEAD',
+    description: '眼眶软组织窗',
+  },
 ]
 
 // 根据部位获取预设
@@ -173,11 +218,13 @@ export function getDefaultWindowPreset(modality: string, bodyPart: string): Wind
 // 标准化BodyPart
 export function normalizeBodyPart(bodyPart: string): BodyPart {
   const normalized = bodyPart.toUpperCase()
-  if (normalized.includes('HEAD') || normalized.includes('脑')) return 'HEAD'
-  if (normalized.includes('CHEST') || normalized.includes('胸')) return 'CHEST'
-  if (normalized.includes('ABDOMEN') || normalized.includes('腹')) return 'ABDOMEN'
+  if (normalized.includes('HEAD') || normalized.includes('脑') || normalized.includes('ORBIT')) return 'HEAD'
+  if (normalized.includes('CHEST') || normalized.includes('胸') || normalized.includes('CARDIAC')) return 'CHEST'
+  if (normalized.includes('ABDOMEN') || normalized.includes('腹') || normalized.includes('LIVER')) return 'ABDOMEN'
   if (normalized.includes('SPINE') || normalized.includes('脊柱')) return 'SPINE'
   if (normalized.includes('LIMB') || normalized.includes('四肢')) return 'LIMB'
   if (normalized.includes('PELVIS') || normalized.includes('骨盆')) return 'PELVIS'
+  if (normalized.includes('MAMMO') || normalized.includes('乳腺')) return 'MAMMOGRAPHY'
+  if (normalized.includes('ANGIO') || normalized.includes('血管')) return 'ANGIO'
   return 'UNKNOWN'
 }

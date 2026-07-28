@@ -15,8 +15,8 @@ export const DentalTelePage: React.FC = () => {
     <DentalPageLayout header={{ title: '远程口腔会诊', icon: <Video size={20} color="#1677ff"/> }}>
       <Row gutter={16}>
         <Col span={6}><Card size="small"><Button type="primary" block onClick={createSession} icon={<Plus size={14}/>}>新建会诊</Button></Card></Col>
-        <Col span={6}><Card size="small"><Button block icon={<Upload size={14}/>} onClick={()=>message.info('选择口内照片')}>上传口内照片</Button></Card></Col>
-        <Col span={6}><Card size="small"><Button block icon={<Globe size={14}/>} onClick={()=>message.info('AI 预筛')}>AI 预筛</Button></Card></Col>
+        <Col span={6}><Card size="small"><Button block icon={<Upload size={14}/>} onClick={()=>message.warning('功能建设中')}>上传口内照片</Button></Card></Col>
+        <Col span={6}><Card size="small"><Button block icon={<Globe size={14}/>} onClick={()=>message.warning('功能建设中')}>AI 预筛</Button></Card></Col>
         <Col span={6}><Select size="large" placeholder="选择专家" style={{width:'100%'}} options={[{value:'exp-1',label:'王专家 (种植)'},{value:'exp-2',label:'李专家 (正畸)'}]} /></Col>
       </Row>
       <Card title={`会诊记录 (${sessions.length})`} size="small" style={{marginTop:16}}>

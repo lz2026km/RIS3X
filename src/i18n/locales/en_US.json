@@ -934,6 +934,7 @@
     "roomOccupancy": "Room Occupancy",
     "benchmarkCompare": "Benchmark Compare",
     "aiDiagnosisAccuracy": "AI Diagnosis Accuracy",
+    "tatDashboard": "Report TAT Dashboard",
     "triageWorklist": "AI Triage Worklist",
     "dicomWeb": "DICOMweb",
     "orchestrator": "Task Orchestration",

@@ -12,6 +12,7 @@ import {
   Maximize2, Minimize2, ChevronLeft, ChevronRight,
   Activity, Crosshair, Play, Pause, Info, Search,
 } from 'lucide-react';
+import { WINDOW_PRESETS } from '../../utils/WindowPresets';
 
 export interface DicomLiteSeries {
   id: string;
@@ -43,15 +44,6 @@ export interface DicomLiteProps {
   height?: number;
   onMeasurementCreate?: (m: DicomLiteMeasurement) => void;
 }
-
-const WINDOW_PRESETS = [
-  { label: '软组织', ww: 400, wc: 40, icon: '🫁', color: '#888' },
-  { label: '肺窗',   ww: 1500, wc: -600, icon: '🫁', color: '#aac' },
-  { label: '骨窗',   ww: 2000, wc: 400, icon: '🦴', color: '#ddd' },
-  { label: '脑窗',   ww: 80, wc: 40, icon: '🧠', color: '#667' },
-  { label: '肝窗',   ww: 150, wc: 50, icon: '🫀', color: '#966' },
-  { label: '骨盆',   ww: 400, wc: 40, icon: '🦴', color: '#bbb' },
-];
 
 // 模拟 CT 影像（用 SVG 生成伪 CT 图像）
 function generateMockCTImage(series: DicomLiteSeries, slice: number): string {
@@ -368,9 +360,9 @@ export default function DicomViewerLite({
       {/* Selector bar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 8px', background: '#1a1a1a', borderBottom: '1px solid #333', fontSize: 12, color: '#cbd5e1' }}>
         <select value={preset} onChange={e => setPreset(Number(e.target.value))} style={selectStyle}>
-          {WINDOW_PRESETS.map((p, i) => <option key={i} value={i}>{p.icon} {p.label} (WW:{p.ww} WC:{p.wc})</option>)}
+          {WINDOW_PRESETS.map((p, i) => <option key={i} value={i}>{p.name} (WW:{p.ww} WL:{p.wl})</option>)}
         </select>
-        <span style={{ color: '#64748b' }}>W:{WINDOW_PRESETS[preset].ww} L:{WINDOW_PRESETS[preset].wc}</span>
+        <span style={{ color: '#64748b' }}>W:{WINDOW_PRESETS[preset].ww} L:{WINDOW_PRESETS[preset].wl}</span>
         <div style={{ width: 1, height: 16, background: '#333' }} />
         <select value={activeSeries} onChange={e => setActiveSeries(Number(e.target.value))} style={selectStyle}>
           {series.map((s, i) => <option key={s.id} value={i}>{s.seriesDescription} ({s.sliceCount})</option>)}
@@ -422,7 +414,7 @@ export default function DicomViewerLite({
             transform: `scale(${zoom}) translate(${pan.x}px, ${pan.y}px)`,
             transition: 'transform 0.1s',
           }}>
-            <img src={mockImage} alt="CT slice" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: `brightness(${1 + (WINDOW_PRESETS[preset].wc / 1000)}) contrast(${WINDOW_PRESETS[preset].ww / 500})` }} />
+            <img src={mockImage} alt="CT slice" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: `brightness(${1 + (WINDOW_PRESETS[preset].wl / 1000)}) contrast(${WINDOW_PRESETS[preset].ww / 500})` }} />
           </div>
 
           {/* SVG overlay for measurements, crosshair, grid */}
@@ -504,7 +496,7 @@ export default function DicomViewerLite({
                 left: `${-mousePx.x * 2 + 60}px`,
                 top: `${-mousePx.y * 2 + 60}px`,
               }}>
-                <img src={mockImage} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: `brightness(${1 + (WINDOW_PRESETS[preset].wc / 1000)}) contrast(${WINDOW_PRESETS[preset].ww / 500})` }} />
+                <img src={mockImage} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: `brightness(${1 + (WINDOW_PRESETS[preset].wl / 1000)}) contrast(${WINDOW_PRESETS[preset].ww / 500})` }} />
               </div>
             </div>
           )}
@@ -526,7 +518,7 @@ export default function DicomViewerLite({
             }}>
               <div>系列: {activeSeries + 1}/{series.length}</div>
               <div>层: {slice + 1}/{activeSer.sliceCount}</div>
-              <div>WW: {WINDOW_PRESETS[preset].ww} WL: {WINDOW_PRESETS[preset].wc}</div>
+              <div>WW: {WINDOW_PRESETS[preset].ww} WL: {WINDOW_PRESETS[preset].wl}</div>
               <div>缩放: {zoom.toFixed(2)}x</div>
               <div>坐标: ({hoverPos.x.toFixed(1)}, {hoverPos.y.toFixed(1)})</div>
             </div>
@@ -559,13 +551,13 @@ export default function DicomViewerLite({
                   color: '#cbd5e1',
                 }}
               >
-                <div style={{ fontWeight: 600, marginBottom: 2 }}>{p.icon} {p.label}</div>
-                <div style={{ color: '#64748b' }}>WW: {p.ww} WL: {p.wc}</div>
+                <div style={{ fontWeight: 600, marginBottom: 2 }}>{p.name}</div>
+                <div style={{ color: '#64748b' }}>WW: {p.ww} WL: {p.wl}</div>
                 <div style={{
                   height: 6,
                   borderRadius: 2,
                   marginTop: 4,
-                  background: `linear-gradient(to right, #222, ${p.color})`,
+                  background: `linear-gradient(to right, #222, #888)`,
                 }} />
               </div>
             ))}

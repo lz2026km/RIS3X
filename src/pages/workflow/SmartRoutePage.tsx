@@ -10,7 +10,7 @@ interface RoutingRule {
   patientStatus: string
   maxLoad: number
   priority: number
-  enabled: boolean
+  active: boolean
 }
 
 interface Assignment {
@@ -24,10 +24,10 @@ interface Assignment {
 }
 
 const initRules: RoutingRule[] = [
-  { id: 'rr-001', name: 'CT Chest - Senior', modality: 'CT', bodyPart: 'Chest', patientStatus: 'Inpatient', maxLoad: 10, priority: 1, enabled: true },
-  { id: 'rr-002', name: 'MR Brain - Specialist', modality: 'MR', bodyPart: 'Brain', patientStatus: 'Any', maxLoad: 8, priority: 2, enabled: true },
-  { id: 'rr-003', name: 'DX Routine', modality: 'DX', bodyPart: 'Any', patientStatus: 'Outpatient', maxLoad: 20, priority: 3, enabled: true },
-  { id: 'rr-004', name: 'CT Emergency', modality: 'CT', bodyPart: 'Any', patientStatus: 'Emergency', maxLoad: 5, priority: 0, enabled: true },
+  { id: 'rr-001', name: 'CT Chest - Senior', modality: 'CT', bodyPart: 'Chest', patientStatus: 'Inpatient', maxLoad: 10, priority: 1, active: true },
+  { id: 'rr-002', name: 'MR Brain - Specialist', modality: 'MR', bodyPart: 'Brain', patientStatus: 'Any', maxLoad: 8, priority: 2, active: true },
+  { id: 'rr-003', name: 'DX Routine', modality: 'DX', bodyPart: 'Any', patientStatus: 'Outpatient', maxLoad: 20, priority: 3, active: true },
+  { id: 'rr-004', name: 'CT Emergency', modality: 'CT', bodyPart: 'Any', patientStatus: 'Emergency', maxLoad: 5, priority: 0, active: true },
 ]
 
 const initHistory: Assignment[] = [
@@ -56,8 +56,8 @@ const SmartRoutePage: React.FC = () => {
     })
   }
 
-  const handleToggle = (id: string, enabled: boolean) => {
-    setRules(prev => prev.map(r => r.id === id ? { ...r, enabled } : r))
+  const handleToggle = (id: string, active: boolean) => {
+    setRules(prev => prev.map(r => r.id === id ? { ...r, active } : r))
   }
 
   const stats = {
@@ -73,7 +73,7 @@ const SmartRoutePage: React.FC = () => {
     { title: '患者状态', dataIndex: 'patientStatus', key: 'patientStatus' },
     { title: '最大负载', dataIndex: 'maxLoad', key: 'maxLoad' },
     { title: '优先级', dataIndex: 'priority', key: 'priority' },
-    { title: '启用', dataIndex: 'enabled', key: 'enabled', render: (v: boolean, r: RoutingRule) => <Switch checked={v} onChange={(c) => handleToggle(r.id, c)} /> },
+    { title: '启用', dataIndex: 'active', key: 'active', render: (v: boolean, r: RoutingRule) => <Switch checked={v} onChange={(c) => handleToggle(r.id, c)} /> },
     { title: '操作', key: 'action', render: (_: unknown, r: RoutingRule) => <Button size="small" icon={<Edit3 size={14} />} onClick={() => handleEdit(r)}>编辑</Button> },
   ]
 

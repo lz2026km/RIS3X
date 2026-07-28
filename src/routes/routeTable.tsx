@@ -243,6 +243,9 @@ const NurseMobileWorkstation = lazy(
 const TechMobileWorkstation = lazy(
   () => import("../pages/mobile/tech/TechMobileWorkstation"),
 );
+const MobilePushPage = lazy(
+  () => import("../pages/mobile/MobilePushPage"),
+);
 const DepartmentQualityPage = lazy(
   () => import("../pages/quality/DepartmentQualityPage"),
 );
@@ -328,6 +331,7 @@ const PatientPortalPageV2 = lazy(() => import("../pages/patient/PatientPortalPag
 const CommandCenterPage = lazy(() => import("../pages/operations/CommandCenterPage"));
 const BenchmarkPageV2 = lazy(() => import("../pages/analytics/BenchmarkPageV2"));
 const BenchmarkAiDiagnosisPage = lazy(() => import("../pages/analytics/BenchmarkAiDiagnosisPage"));
+const TatDashboardPage = lazy(() => import("../pages/analytics/TatDashboardPage"));
 const RoomOccupancyPage = lazy(() => import("../pages/operations/RoomOccupancyPage"));
 const DicomSharePage = lazy(() => import("../pages/imaging/DicomSharePage"));
 const SchedulingCenterPage = lazy(() => import("../pages/operations/SchedulingCenterPage"));
@@ -408,6 +412,8 @@ const TeachLecturePage = lazy(() => import("../pages/teach/TeachLecturePage"));
 const RadPathTrackerPage = lazy(() => import("../pages/radpath/RadPathTrackerPage"));
 const RadPathDetailPage = lazy(() => import("../pages/radpath/RadPathDetailPage"));
 const TriagePage = lazy(() => import("../pages/triage/TriagePage"));
+const TriageDashboardPage = lazy(() => import("../pages/triage/TriageDashboardPage"));
+const SnomedEncoderPage = lazy(() => import("../pages/snomed/SnomedEncoderPage"));
 const OrchestratorPage = lazy(() => import("../pages/workflow/OrchestratorPage"));
 
   // [Sprint 4] F13 AI Marketplace
@@ -422,6 +428,17 @@ const OrchestratorPage = lazy(() => import("../pages/workflow/OrchestratorPage")
   const SmartRoutePage = lazy(() => import("../pages/workflow/SmartRoutePage"));
   // [Sprint 4] F18 HL7 SIU
   const Hl7SiuPage = lazy(() => import("../pages/integration/Hl7SiuPage"));
+
+  // [audit-fix-2026-07-28] 后端端点补齐: FHIR/DICOM/Fusion/Radiomics/IHE/HL7 前端页面
+  const FhirPatientPage = lazy(() => import("../pages/fhir/FhirPatientPage"));
+  const FhirObservationPage = lazy(() => import("../pages/fhir/FhirObservationPage"));
+  const FhirSubscriptionPage = lazy(() => import("../pages/fhir/FhirSubscriptionPage"));
+  const DicomDimsePage = lazy(() => import("../pages/dicom/DicomDimsePage"));
+  const DicomSrTemplatePage = lazy(() => import("../pages/dicom/DicomSrTemplatePage"));
+  const FusionManagerPage = lazy(() => import("../pages/fusion/FusionManagerPage"));
+  const RadiomicsFeaturePage = lazy(() => import("../pages/radiomics/RadiomicsFeaturePage"));
+  const IheManagerPage = lazy(() => import("../pages/ihe/IheManagerPage"));
+  const Hl7ManagerPage = lazy(() => import("../pages/hl7/Hl7ManagerPage"));
 
   // 从 sidebarConfig 构建 path -> roles 映射
 const ALL_ROLES: ReadonlyArray<Role> = [
@@ -453,6 +470,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/mammo/quality": ["主任", "管理员"],
   "/workbench": ALL_ROLES,
   "/triage/worklist": ["医生", "主任", "管理员"],
+  "/triage/dashboard": ["医生", "主任", "管理员"],
   "/eye": ["医生", "主任", "技师", "管理员"],
   "/eye/pacs": ["医生", "主任", "技师", "管理员"],
   "/eye/pacs/viewer": ["医生", "主任", "技师", "管理员"],
@@ -558,6 +576,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/radpath/detail/:reportId": ["医生", "主任", "管理员"],
   "/analytics/benchmark-v2": ["主任", "管理员"],
   "/analytics/benchmark-ai-diagnosis": ["主任", "管理员"],
+  "/analytics/tat-dashboard": ["主任", "管理员", "医生"],
   "/admin/config": ["管理员"],
   "/ihe/pam": ["主任", "管理员", "技师"],
   "/ihe/visit": ["医生", "主任", "技师", "管理员"],
@@ -583,6 +602,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/nlp/spellcheck": ["医生", "主任", "管理员"],
   "/asr/transcribe": ["医生", "主任", "管理员"],
   "/snomed/encode": ["医生", "主任", "管理员"],
+  "/snomed/encoder": ["医生", "主任", "管理员"],
   "/cds/rule-config": ["主任", "管理员"],
   "/rdsr": ["技师", "管理员", "主任"],
   // [Sprint 4] F13-F18 角色映射
@@ -593,6 +613,16 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/smart-route": ["管理员"],
   "/hl7-siu": ["技师", "管理员"],
   "/dicom/4d": ["医生", "技师", "主任", "管理员"],
+  // [audit-fix-2026-07-28] 后端端点补齐路由角色映射
+  "/fhir/patient": ["医生", "技师", "主任", "管理员"],
+  "/fhir/observation": ["医生", "技师", "主任", "管理员"],
+  "/fhir/subscription": ["管理员"],
+  "/dicom/dimse": ["技师", "管理员", "医生", "主任"],
+  "/dicom/sr-templates": ["医生", "技师", "主任", "管理员"],
+  "/fusion/manager": ["医生", "技师", "主任", "管理员"],
+  "/radiomics/features": ["医生", "主任", "管理员"],
+  "/ihe/manager": ["主任", "管理员", "技师"],
+  "/hl7/manager": ["技师", "管理员"],
 };
 
 function rolesFor(path: string): ReadonlyArray<Role> | undefined {
@@ -789,6 +819,7 @@ export const routes: RouteObject[] = [
   wrapped("/mobile/doctor", React.createElement(DoctorMobileWorkstation)),
   wrapped("/mobile/nurse", React.createElement(NurseMobileWorkstation)),
   wrapped("/mobile/tech", React.createElement(TechMobileWorkstation)),
+  wrapped("/mobile/push", React.createElement(MobilePushPage)),
   wrapped("/quality/department", React.createElement(DepartmentQualityPage)),
   wrapped("/review-center", React.createElement(ReviewCenterPage)),
   wrapped("/quality-control", React.createElement(QualityControlPage)),
@@ -911,6 +942,7 @@ export const routes: RouteObject[] = [
   wrapped("/eye/kpi-dashboard", React.createElement(EyeKpiDashboardPage)),
   wrapped("/analytics/benchmark-v2", React.createElement(BenchmarkPageV2)),
   wrapped("/analytics/benchmark-ai-diagnosis", React.createElement(BenchmarkAiDiagnosisPage)),
+  wrapped("/analytics/tat-dashboard", React.createElement(TatDashboardPage)),
   // [v3.0.6.8-27] 放射科质控总看板 + 影像质控 + 医生档案
   wrapped("/qc-dashboard", React.createElement(RadiologyQCDashboardPage)),
   wrapped("/qc-image", React.createElement(ImageQualityControlPage)),
@@ -919,6 +951,7 @@ export const routes: RouteObject[] = [
   wrapped("/radpath/tracker", React.createElement(RadPathTrackerPage)),
   wrapped("/radpath/detail/:reportId", React.createElement(RadPathDetailPage)),
   wrapped("/triage/worklist", React.createElement(TriagePage)),
+  wrapped("/triage/dashboard", React.createElement(TriageDashboardPage)),
   wrapped("/teach/lecture", React.createElement(TeachLecturePage)),
   wrapped("/system/audit", React.createElement(lazy(() => import("../pages/AuditPage")))),
   wrapped("/system/backup", React.createElement(lazy(() => import("../pages/BackupPage")))),
@@ -935,6 +968,7 @@ export const routes: RouteObject[] = [
   wrapped("/nlp/spellcheck", React.createElement(NlpCheckPage)),
   wrapped("/asr/transcribe", React.createElement(AsrPage)),
   wrapped("/snomed/encode", React.createElement(SnomedPage)),
+  wrapped("/snomed/encoder", React.createElement(SnomedEncoderPage)),
   wrapped("/cds/rule-config", React.createElement(RuleConfigPanel)),
   wrapped("/rdsr", React.createElement(RdsrPage)),
   // [Sprint 4] F13-F18 新页面路由
@@ -944,6 +978,16 @@ export const routes: RouteObject[] = [
   wrapped("/tele-sign", React.createElement(TeleSignPage)),
   wrapped("/smart-route", React.createElement(SmartRoutePage)),
   wrapped("/hl7-siu", React.createElement(Hl7SiuPage)),
+  // [audit-fix-2026-07-28] 后端端点补齐: FHIR/DICOM/Fusion/Radiomics/IHE/HL7 前端页面
+  wrapped("/fhir/patient", React.createElement(FhirPatientPage)),
+  wrapped("/fhir/observation", React.createElement(FhirObservationPage)),
+  wrapped("/fhir/subscription", React.createElement(FhirSubscriptionPage)),
+  wrapped("/dicom/dimse", React.createElement(DicomDimsePage)),
+  wrapped("/dicom/sr-templates", React.createElement(DicomSrTemplatePage)),
+  wrapped("/fusion/manager", React.createElement(FusionManagerPage)),
+  wrapped("/radiomics/features", React.createElement(RadiomicsFeaturePage)),
+  wrapped("/ihe/manager", React.createElement(IheManagerPage)),
+  wrapped("/hl7/manager", React.createElement(Hl7ManagerPage)),
   {
     path: "*",
     element: React.createElement(Navigate, { to: "/", replace: true }),

@@ -1,8 +1,27 @@
 import { api, invalidateApiCache, invalidateApiCacheByPrefix } from './client'
 import type { ReportQueryParams } from './types'
 import type { ReportDto } from '../../types/dto'
+import { getCurrentUser } from '../../utils/auth'
 
 export type { ReportDto }
+
+type ReportState =
+  | 'PENDING_ASSIGNMENT' | 'ASSIGNED' | 'WRITING' | 'SUBMITTED'
+  | 'INITIAL_REVIEW' | 'FINAL_REVIEW' | 'CO_SIGN_REVIEW' | 'REVIEWED'
+  | 'SIGNING' | 'SIGNED' | 'PUBLISHED' | 'AMENDING' | 'AMENDED'
+  | 'WITHDRAWN' | 'REJECTED' | 'ESCALATED' | 'ARCHIVED'
+  | 'RECTIFYING' | 'SUPPLEMENTING' | 'SUPPLEMENTED' | 'REDISTRIBUTING'
+
+async function transition(id: string, to: ReportState, reason?: string) {
+  const user = getCurrentUser()
+  const actorId = user?.id ?? 'unknown'
+  const body: Record<string, unknown> = { to, actorId }
+  if (reason) body.reason = reason
+  const res = await api.post<ReportDto>(`/reports/${id}/transition`, body)
+  await invalidateApiCache(`/reports/${id}`)
+  await invalidateApiCacheByPrefix('/reports')
+  return res
+}
 
 export const reportApi = {
   list: (params?: ReportQueryParams) =>
@@ -19,57 +38,29 @@ export const reportApi = {
   },
 
   update: async (id: string, data: Partial<ReportDto>) => {
-    const res = await api.put<ReportDto>(`/reports/${id}`, data)
+    const res = await api.patch<ReportDto>(`/reports/${id}`, data)
     await invalidateApiCache(`/reports/${id}`)
     return res
   },
 
-  submit: async (id: string) => {
-    const res = await api.post<ReportDto>(`/reports/${id}/submit`)
-    await invalidateApiCache(`/reports/${id}`)
-    await invalidateApiCacheByPrefix('/reports')
+  submit: async (id: string) => transition(id, 'SUBMITTED'),
+
+  review: async (id: string, _data?: { type: 'initial' | 'final'; doctorId: string; doctorName: string; suggestion: string; score: number }) => {
+    const res = await transition(id, 'REVIEWED')
     return res
   },
 
-  review: async (id: string, data?: { type: 'initial' | 'final'; doctorId: string; doctorName: string; suggestion: string; score: number }) => {
-    const res = await api.post<ReportDto>(`/reports/${id}/review`, data)
-    await invalidateApiCache(`/reports/${id}`)
-    return res
-  },
+  sign: async (id: string) => transition(id, 'SIGNED'),
 
-  sign: async (id: string) => {
-    const res = await api.post<ReportDto>(`/reports/${id}/sign`)
-    await invalidateApiCache(`/reports/${id}`)
-    await invalidateApiCacheByPrefix('/reports')
-    return res
-  },
+  reject: async (id: string, reason: string) => transition(id, 'REJECTED', reason),
 
-  reject: async (id: string, reason: string) => {
-    const res = await api.post<ReportDto>(`/reports/${id}/reject`, { reason })
-    await invalidateApiCache(`/reports/${id}`)
-    await invalidateApiCacheByPrefix('/reports')
-    return res
-  },
+  publish: async (id: string, _qualityScore?: number) => transition(id, 'PUBLISHED'),
 
-  publish: async (id: string, qualityScore?: number) => {
-    const res = await api.post<ReportDto>(`/reports/${id}/publish`, { qualityScore })
-    await invalidateApiCache(`/reports/${id}`)
-    await invalidateApiCacheByPrefix('/reports')
-    return res
-  },
-
-  revise: async (id: string) => {
-    const res = await api.post<ReportDto>(`/reports/${id}/revise`)
-    await invalidateApiCache(`/reports/${id}`)
-    await invalidateApiCacheByPrefix('/reports')
-    return res
-  },
+  revise: async (id: string) => transition(id, 'AMENDING'),
 
   // [v3.0.6.8-45] PR1: 双签 + 版本对比 + 审计轨迹
-  cosign: async (id: string, cosignerId: string) => {
-    const res = await api.post<ReportDto>(`/reports/${id}/cosign`, { cosignerId })
-    await invalidateApiCache(`/reports/${id}`)
-    await invalidateApiCacheByPrefix('/reports')
+  cosign: async (id: string, _cosignerId: string) => {
+    const res = await transition(id, 'CO_SIGN_REVIEW')
     return res
   },
 

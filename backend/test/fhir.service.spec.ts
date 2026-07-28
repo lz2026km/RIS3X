@@ -110,14 +110,14 @@ describe('FhirService', () => {
     it('createPatient creates and returns FHIR Patient', async () => {
       mockPrisma.patient.create.mockResolvedValue(mockPatient)
       mockPrisma.fhirResource.upsert.mockResolvedValue({})
-      const result = await svc.createPatient({ name: '张三', gender: 'MALE' })
+      const result = await svc.createPatient({ resourceType: 'Patient', name: [{ family: '张三', given: ['三'] }], gender: 'male' })
       expect(result.resourceType).toBe('Patient')
     })
 
     it('updatePatient updates and returns', async () => {
       mockPrisma.patient.findUnique.mockResolvedValue(mockPatient)
       mockPrisma.patient.update.mockResolvedValue(mockPatient)
-      const result = await svc.updatePatient('p1', { name: '李四' })
+      const result = await svc.updatePatient('p1', { name: [{ family: '李四', given: ['四'] }] })
       expect(result.resourceType).toBe('Patient')
     })
 
@@ -187,7 +187,7 @@ describe('FhirService', () => {
     it('createSubscription upserts and reloads', async () => {
       mockPrisma.fhirResource.upsert.mockResolvedValue({})
       mockPrisma.fhirResource.findMany.mockResolvedValue([])
-      const result = await svc.createSubscription({ criteria: 'Patient', channel: { type: 'rest-hook', endpoint: 'http://example.com/hook' } })
+      const result = await svc.createSubscription({ resourceType: 'Subscription', status: 'active', criteria: 'Patient', channel: { type: 'rest-hook', endpoint: 'http://example.com/hook' }, reason: 'test' })
       expect(result.resourceType).toBe('Subscription')
     })
 

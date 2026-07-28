@@ -83,7 +83,7 @@ describe('ReportsController', () => {
 
   it('transition delegates to service', async () => {
     svc.transition.mockResolvedValue(mockReport({ state: 'SUBMITTED', version: 2 }) as any)
-    const r = await ctrl.transition('r1', { to: 'SUBMITTED' as any, actorId: 'd1' })
-    expect(svc.transition).toHaveBeenCalledWith('r1', 'SUBMITTED', 'd1')
+    const r = await ctrl.transition('r1', { to: 'SUBMITTED' as any, actorId: 'd1', reason: 'review' })
+    expect(svc.transition).toHaveBeenCalledWith('r1', 'SUBMITTED', 'd1', 'review')
   })
 })

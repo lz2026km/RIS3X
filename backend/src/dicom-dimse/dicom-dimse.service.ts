@@ -274,8 +274,6 @@ export class DicomDimseService {
     sopInstanceUid: string
     bucketName?: string
     endpoint?: string
-    accessKey?: string
-    secretKey?: string
     region?: string
   }): Promise<{ status: string; url: string }> {
     const model = (this.prisma as any).dicomInstance
@@ -289,8 +287,11 @@ export class DicomDimseService {
     }
     const bucket = dto.bucketName ?? 'dicom'
     const endpoint = dto.endpoint ?? this.config.get<string>('S3_ENDPOINT', 'http://localhost:9000')
-    const accessKey = dto.accessKey ?? this.config.get<string>('S3_ACCESS_KEY', 'minioadmin')
-    const secretKey = dto.secretKey ?? this.config.get<string>('S3_SECRET_KEY', 'minioadmin')
+    const accessKey = process.env['S3_ACCESS_KEY']
+    const secretKey = process.env['S3_SECRET_KEY']
+    if (!accessKey || !secretKey) {
+      throw new BadRequestException('S3_ACCESS_KEY and S3_SECRET_KEY environment variables must be set')
+    }
     const region = dto.region ?? this.config.get<string>('S3_REGION', 'us-east-1')
     const objectKey = `${inst.studyInstanceUid}/${inst.seriesInstanceUid}/${inst.sopInstanceUid}.dcm`
     const fileBuffer = fs.readFileSync(inst.storagePath)

@@ -54,7 +54,7 @@ export const SystemAdminPage: React.FC = () => {
                   {title:'科室',dataIndex:'dept'},
                   {title:'状态',dataIndex:'status',render:(s)=><Badge status={s==='active'?'success':'default'} />},
                   {title:'最后登录',dataIndex:'lastLogin'},
-                  {title:'操作',render:(_,record)=><Space><Button size="small" icon={<Edit3 size={10}/>} onClick={() => message.info('编辑用户: ' + record.name)}/><Button size="small" danger icon={<Trash2 size={10}/>} onClick={() => { setUsers(prev => prev.filter(u => u.id !== record.id)); message.success('已删除: ' + record.name); }}/></Space>},
+                  {title:'操作',render:(_,record)=><Space><Button size="small" icon={<Edit3 size={10}/>} onClick={() => message.warning('功能开发中，请通过后台系统操作')}/><Button size="small" danger icon={<Trash2 size={10}/>} onClick={() => { setUsers(prev => prev.filter(u => u.id !== record.id)); message.success('已删除: ' + record.name); }}/></Space>},
                 ]} />
             </Card>
           },
@@ -65,14 +65,14 @@ export const SystemAdminPage: React.FC = () => {
                   {title:'角色',dataIndex:'name',render:(r)=><Tag color="purple">{r}</Tag>},
                   {title:'权限',dataIndex:'permissions',render:(p)=><>{p.map((x:string)=><Tag key={x} style={{margin:2}}>{x}</Tag>)}</>},
                   {title:'用户数',dataIndex:'userCount'},
-                  {title:'操作',render:(_,record)=><Button size="small" icon={<Edit3 size={10}/>} onClick={() => message.info('编辑角色: ' + record.name)}>编辑</Button>},
+                  {title:'操作',render:(_,record)=><Button size="small" icon={<Edit3 size={10}/>} onClick={() => message.warning('功能开发中，请通过后台系统操作')}>编辑</Button>},
                 ]} />
             </Card>
           },
           { key:'config', label:'系统配置', children:
             <Card size="small" title="配置项">
               <List dataSource={configs} renderItem={(c:any)=>(
-                <List.Item actions={[<Button size="small" icon={<Edit3 size={10}/>} onClick={() => { setConfigEditKey(c.key); message.info('编辑配置: ' + c.key); }}>编辑</Button>]}>
+                <List.Item actions={[<Button size="small" icon={<Edit3 size={10}/>} onClick={() => message.warning('功能开发中，请通过后台系统操作')}>编辑</Button>]}>
                   <List.Item.Meta title={<Space><Tag color="blue">{c.key}</Tag><Input defaultValue={c.value} size="small" style={{width:200}} /></Space>}
                     description={<span style={{fontSize:12,color:'#999'}}>{c.desc}</span>} />
                 </List.Item>
@@ -81,8 +81,8 @@ export const SystemAdminPage: React.FC = () => {
           },
         ]}
       />
-      <Button type="primary" icon={<Save size={14}/>} style={{marginTop:16}} onClick={() => message.success('所有配置已保存')}>保存所有配置</Button>
-      <Modal title="新增用户" open={userModal} onOk={() => { setUsers(prev => [...prev, { id: 'U' + Date.now(), name: newUserName || '新用户', role: newUserRole, dept: '放射科', status: 'active', lastLogin: '-' }]); setNewUserName(''); setUserModal(false); message.success('用户已创建'); }} onCancel={() => setUserModal(false)}>
+      <Button type="primary" icon={<Save size={14}/>} style={{marginTop:16}} onClick={() => message.warning('功能建设中')}>保存所有配置</Button>
+      <Modal title="新增用户" open={userModal} onOk={() => { setUsers(prev => [...prev, { id: 'U' + Date.now(), name: newUserName || '新用户', role: newUserRole, dept: '放射科', status: 'active', lastLogin: '-' }]); setNewUserName(''); setUserModal(false); message.warning('功能建设中'); }} onCancel={() => setUserModal(false)}>
         <Form layout="vertical">
           <Form.Item label="姓名"><Input value={newUserName} onChange={e => setNewUserName(e.target.value)} placeholder="请输入姓名" /></Form.Item>
           <Form.Item label="角色"><Select value={newUserRole} onChange={setNewUserRole} options={[{value:'主任医师'},{value:'主治医师'},{value:'技师'},{value:'护士'},{value:'管理员'}]} /></Form.Item>

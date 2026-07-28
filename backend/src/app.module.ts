@@ -79,6 +79,7 @@ import { ImageAiModule } from './modules/qc/image-ai.module'
 import { NlpModule } from './modules/nlp/nlp.module'
 import { AsrModule } from './modules/asr/asr.module'
 import { SnomedModule } from './modules/snomed/snomed.module'
+import { AiDraftModule } from './modules/ai-draft/ai-draft.module'
 import { RdsrModule } from './modules/rdsr/rdsr.module'
 import { DicomSrModule } from './modules/dicom-sr/dicom-sr.module'
 import { MobileModule } from './mobile/mobile.module'
@@ -150,6 +151,7 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter'
      NlpModule,
      AsrModule,
      SnomedModule,
+     AiDraftModule,
      RdsrModule,
     CriticalExtModule,
     QcExtModule,

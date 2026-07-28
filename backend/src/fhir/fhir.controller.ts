@@ -131,7 +131,6 @@ export class FhirController {
       res.setHeader('Content-Location', `/fhir/r4/$export-status/${jobId}`)
     }
     return { jobId, statusCode: 202 }
-    return { jobId }
   }
 
   @Get('$export-status/:jobId')

@@ -19,12 +19,12 @@ const STEP_TYPES: StepType[] = [
 
 interface CanvasNode { id: string; type: string; label: string; x: number; y: number }
 
-interface VersionEntry { version: string; date: string; author: string; status: string }
+interface VersionEntry { version: number; date: string; author: string; status: string }
 
 const MOCK_VERSIONS: VersionEntry[] = [
-  { version: 'v1.2', date: '2026-06-15', author: '管理员', status: '已部署' },
-  { version: 'v1.1', date: '2026-06-10', author: '管理员', status: '草稿' },
-  { version: 'v1.0', date: '2026-06-01', author: '系统', status: '已部署' },
+  { version: 1, date: '2026-06-15', author: '管理员', status: '已部署' },
+  { version: 2, date: '2026-06-10', author: '管理员', status: '草稿' },
+  { version: 3, date: '2026-06-01', author: '系统', status: '已部署' },
 ];
 
 const MOCK_STEPS = [
@@ -289,7 +289,7 @@ export default function WorkflowDesignerPage() {
         <Table size="small" columns={[
           { title: '版本', dataIndex: 'version', key: 'version' },
           { title: '日期', dataIndex: 'updatedAt', key: 'updatedAt' },
-          { title: '状态', dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={s === 'deployed' || s === 'active' ? 'green' : 'default'}>{s}</Tag> },
+          { title: '状态', dataIndex: 'active', key: 'active', render: (v: boolean) => <Tag color={v ? 'green' : 'default'}>{v ? 'active' : 'inactive'}</Tag> },
         ]} dataSource={definitions.map(d => ({ ...d, key: d.id }))} rowKey="id" pagination={false} />
       </Modal>
       <Modal title="新建步骤" open={showNewStep} onCancel={() => setShowNewStep(false)} onOk={async () => {

@@ -934,6 +934,7 @@
     "roomOccupancy": "检查室占用率",
     "benchmarkCompare": "报表同比环比",
     "aiDiagnosisAccuracy": "AI 准确率仪表盘",
+    "tatDashboard": "报告完成率TAT",
     "triageWorklist": "AI 分检工作台",
     "dicomWeb": "DICOMweb",
     "orchestrator": "任务编排引擎",

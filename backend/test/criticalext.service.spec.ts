@@ -54,7 +54,7 @@ describe('CriticalExtService', () => {
   describe('createCriticalRule', () => {
     it('creates a rule with timestamp key', async () => {
       mockPrisma.systemConfig.create.mockResolvedValue({ key: 'critical_rule_123', value: {} })
-      const result = await svc.createCriticalRule({ threshold: 90 })
+      const result = await svc.createCriticalRule({ name: 'High Priority', triggerCondition: 'severity >= HIGH', severity: 'HIGH', channels: ['SMS'], recipients: ['admin@hospital.com'] })
       expect(result.data).toHaveLength(1)
     })
   })
@@ -62,7 +62,7 @@ describe('CriticalExtService', () => {
   describe('updateCriticalRule', () => {
     it('updates existing rule', async () => {
       mockPrisma.systemConfig.update.mockResolvedValue({ key: 'critical_rule_1', value: {} })
-      const result = await svc.updateCriticalRule('critical_rule_1', { threshold: 95 })
+      const result = await svc.updateCriticalRule('critical_rule_1', { severity: 'CRITICAL' })
       expect(result.data).toHaveLength(1)
     })
   })
@@ -128,7 +128,7 @@ describe('CriticalExtService', () => {
   describe('autoDetectCritical', () => {
     it('creates critical value and returns it', async () => {
       mockPrisma.criticalValue.create.mockResolvedValue({ id: 'c1' })
-      const result = await svc.autoDetectCritical({ description: 'auto' })
+      const result = await svc.autoDetectCritical({ examId: 'e1', reportContent: '发现异常' })
       expect(result.data).toHaveLength(1)
     })
   })
@@ -136,7 +136,7 @@ describe('CriticalExtService', () => {
   describe('closeCriticalLoop', () => {
     it('updates to RESOLVED state', async () => {
       mockPrisma.criticalValue.update.mockResolvedValue({ id: 'c1', state: 'RESOLVED' })
-      const result = await svc.closeCriticalLoop({ id: 'c1', comment: 'done' })
+      const result = await svc.closeCriticalLoop({ criticalId: 'c1', resolution: '已确认并处理', resolvedBy: 'doctor1' })
       expect(result.data).toHaveLength(1)
       expect(mockPrisma.criticalValue.update).toHaveBeenCalledWith(
         expect.objectContaining({

@@ -176,12 +176,13 @@ export interface CriticalValueListSectionProps {
   onContactClinical: (cv: CriticalValue) => void
   onVoiceCall: (cv: CriticalValue) => void
   onClinicalReceipt: (cv: CriticalValue) => void
+  onAcknowledge: (cv: CriticalValue) => void
   onTransferToFollowUp: (cv: CriticalValue) => void
   criticalValues: CriticalValue[]
 }
 
 export const CriticalValueListSection = (props: CriticalValueListSectionProps) => {
-  const { filtered, selectedIds, onToggleSelect, onToggleSelectAll, onProcess, onViewDetail, onContactClinical, onVoiceCall, onClinicalReceipt, onTransferToFollowUp, criticalValues, ...filterProps } = props
+  const { filtered, selectedIds, onToggleSelect, onToggleSelectAll, onProcess, onViewDetail, onContactClinical, onVoiceCall, onClinicalReceipt, onAcknowledge, onTransferToFollowUp, criticalValues, ...filterProps } = props
 
   return (
     <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
@@ -200,6 +201,7 @@ export const CriticalValueListSection = (props: CriticalValueListSectionProps) =
           onContactClinical={onContactClinical}
           onVoiceCall={onVoiceCall}
           onClinicalReceipt={onClinicalReceipt}
+          onAcknowledge={onAcknowledge}
           onTransferToFollowUp={onTransferToFollowUp}
           criticalValues={criticalValues}
         />

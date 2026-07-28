@@ -156,24 +156,25 @@ enum AdverseEventStatus {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  tenantId      String    @map("tenant_id")
-  username      String    @unique
-  passwordHash  String    @map("password_hash")
-  fullName      String    @map("full_name")
-  role          UserRole
-  department    String?
-  active              Boolean    @default(true)
-  totpSecret          String?    @map("totp_secret")
-  totpEnabled         Boolean    @default(false) @map("totp_enabled")
-  failedLoginAttempts Int        @default(0) @map("failed_login_attempts")
-  lockedUntil         DateTime?  @map("locked_until")
-  tokenVersion        Int        @default(0) @map("token_version")
-  createdAt           DateTime   @default(now()) @map("created_at")
-  updatedAt           DateTime   @updatedAt @map("updated_at")
-  reports             Report[]   @relation("ReportRadiologist")
+  id                  String         @id @default(cuid())
+  tenantId            String         @map("tenant_id")
+  username            String         @unique
+  passwordHash        String         @map("password_hash")
+  fullName            String         @map("full_name")
+  role                UserRole
+  department          String?
+  active              Boolean        @default(true)
+  totpSecret          String?        @map("totp_secret")
+  totpEnabled         Boolean        @default(false) @map("totp_enabled")
+  failedLoginAttempts Int            @default(0) @map("failed_login_attempts")
+  lockedUntil         DateTime?      @map("locked_until")
+  tokenVersion        Int            @default(0) @map("token_version")
+  createdAt           DateTime       @default(now()) @map("created_at")
+  updatedAt           DateTime       @updatedAt @map("updated_at")
+  reports             Report[]       @relation("ReportRadiologist")
   opsLog              WorklistOp[]
   loginLogs           LoginLog[]
+  Notification        Notification[]
 
   @@index([tenantId])
   @@map("users")
@@ -202,22 +203,22 @@ model Patient {
 }
 
 model Exam {
-  id              String   @id @default(cuid())
-  tenantId        String   @map("tenant_id")
-  patientId       String   @map("patient_id")
-  accessionNumber String   @unique @map("accession_number")
+  id              String    @id @default(cuid())
+  tenantId        String    @map("tenant_id")
+  patientId       String    @map("patient_id")
+  accessionNumber String    @unique @map("accession_number")
   modality        String
-  bodyPart        String   @map("body_part")
+  bodyPart        String    @map("body_part")
   scheduledAt     DateTime? @map("scheduled_at")
   startedAt       DateTime? @map("started_at")
   completedAt     DateTime? @map("completed_at")
-  deviceId        String?  @map("device_id")
-  state           String   @default("SCHEDULED")
-  version         Int      @default(0)
-  patient         Patient  @relation(fields: [patientId], references: [id], onDelete: Restrict)
-  device          Device?  @relation(fields: [deviceId], references: [id])
+  deviceId        String?   @map("device_id")
+  state           String    @default("SCHEDULED")
+  version         Int       @default(0)
+  patient         Patient   @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  device          Device?   @relation(fields: [deviceId], references: [id])
   reports         Report[]
-  createdAt       DateTime @default(now()) @map("created_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
 
   @@index([patientId, modality])
   @@index([tenantId])
@@ -226,35 +227,37 @@ model Exam {
 }
 
 model Report {
-  id                 String        @id @default(cuid())
-  tenantId           String        @map("tenant_id")
-  patientId          String        @map("patient_id")
-  examId             String?       @map("exam_id")
-  radiologistId      String?       @map("radiologist_id")
-  state              ReportState   @default(PENDING_ASSIGNMENT)
-  findings           String        @default("")
-  diagnosis          String        @default("")
-  impression         String        @default("")
-  recommendations    String        @default("")
-  conclusion         String        @default("")
-  signedAt           DateTime?     @map("signed_at")
-  rejectReason       String?       @map("reject_reason")
-  reviewerId         String?       @map("reviewer_id")
-  coSignerId         String?       @map("co_signer_id")
-  coSignedAt         DateTime?     @map("co_signed_at")
-  amendmentReason    String?       @map("amendment_reason")
-  rectificationCount Int           @default(0) @map("rectification_count")
-  supplementCount    Int           @default(0) @map("supplement_count")
-  isCritical         Boolean       @default(false) @map("is_critical")
-  qualityScore       Int?          @map("quality_score")
-  version            Int           @default(0)
-  patient      Patient       @relation(fields: [patientId], references: [id], onDelete: Restrict)
-  exam         Exam?         @relation(fields: [examId], references: [id], onDelete: SetNull)
-  radiologist        User?         @relation("ReportRadiologist", fields: [radiologistId], references: [id], onDelete: SetNull)
+  id                 String               @id @default(cuid())
+  tenantId           String               @map("tenant_id")
+  patientId          String               @map("patient_id")
+  examId             String?              @map("exam_id")
+  radiologistId      String?              @map("radiologist_id")
+  state              ReportState          @default(PENDING_ASSIGNMENT)
+  findings           String               @default("")
+  diagnosis          String               @default("")
+  impression         String               @default("")
+  recommendations    String               @default("")
+  conclusion         String               @default("")
+  signedAt           DateTime?            @map("signed_at")
+  rejectReason       String?              @map("reject_reason")
+  reviewerId         String?              @map("reviewer_id")
+  coSignerId         String?              @map("co_signer_id")
+  coSignedAt         DateTime?            @map("co_signed_at")
+  amendmentReason    String?              @map("amendment_reason")
+  rectificationCount Int                  @default(0) @map("rectification_count")
+  supplementCount    Int                  @default(0) @map("supplement_count")
+  isCritical         Boolean              @default(false) @map("is_critical")
+  qualityScore       Int?                 @map("quality_score")
+  version            Int                  @default(0)
+  patient            Patient              @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  exam               Exam?                @relation(fields: [examId], references: [id], onDelete: SetNull)
+  radiologist        User?                @relation("ReportRadiologist", fields: [radiologistId], references: [id], onDelete: SetNull)
   revisions          ReportRevision[]
   radPathRecords     RadPathRecord[]
-  createdAt          DateTime      @default(now()) @map("created_at")
-  updatedAt          DateTime      @updatedAt @map("updated_at")
+  createdAt          DateTime             @default(now()) @map("created_at")
+  updatedAt          DateTime             @updatedAt @map("updated_at")
+  ReportQualityScore ReportQualityScore[]
+  DicomInstance      DicomInstance[]
 
   @@index([state, patientId])
   @@index([radiologistId])
@@ -281,46 +284,47 @@ model ReportRevision {
 }
 
 model Device {
-  id             String      @id @default(cuid())
-  tenantId       String      @map("tenant_id")
-  code           String      @unique
-  name           String
-  modality       String
-  manufacturer   String?
-  location       String?
-  state          DeviceState @default(IDLE)
-  todayExams     Int         @default(0) @map("today_exams")
-  todayUsageMin  Int         @default(0) @map("today_usage_min")
-  version        Int         @default(0)
-  exams          Exam[]
-  createdAt      DateTime    @default(now()) @map("created_at")
-  updatedAt      DateTime    @updatedAt @map("updated_at")
+  id            String      @id @default(cuid())
+  tenantId      String      @map("tenant_id")
+  code          String      @unique
+  name          String
+  modality      String
+  manufacturer  String?
+  location      String?
+  state         DeviceState @default(IDLE)
+  todayExams    Int         @default(0) @map("today_exams")
+  todayUsageMin Int         @default(0) @map("today_usage_min")
+  version       Int         @default(0)
+  exams         Exam[]
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
 
   @@index([tenantId])
   @@map("devices")
 }
 
 model CriticalValue {
-  id            String             @id @default(cuid())
-  tenantId      String             @map("tenant_id")
-  examId        String?            @map("exam_id")
-  description   String
-  severity      CriticalSeverity   @default(HIGH)
-  state         CriticalState      @default(FOUND)
-  method        NotificationMethod @default(SYSTEM)
-  notifiedTo    String?            @map("notified_to")
-  voiceCalledAt DateTime?          @map("voice_called_at")
-  voiceCalledBy String?            @map("voice_called_by")
-  ackedBy       String?            @map("acked_by")
-  ackedAt       DateTime?          @map("acked_at")
-  confirmedBy   String?            @map("confirmed_by")
-  confirmedAt   DateTime?          @map("confirmed_at")
-  confirmedSignature String?       @map("confirmed_signature")
-  confirmedComment  String?        @map("confirmed_comment")
-  resolvedBy    String?            @map("resolved_by")
-  resolvedAt    DateTime?          @map("resolved_at")
-  createdAt     DateTime           @default(now()) @map("created_at")
-  updatedAt     DateTime           @updatedAt @map("updated_at")
+  id                        String                      @id @default(cuid())
+  tenantId                  String                      @map("tenant_id")
+  examId                    String?                     @map("exam_id")
+  description               String
+  severity                  CriticalSeverity            @default(HIGH)
+  state                     CriticalState               @default(FOUND)
+  method                    NotificationMethod          @default(SYSTEM)
+  notifiedTo                String?                     @map("notified_to")
+  voiceCalledAt             DateTime?                   @map("voice_called_at")
+  voiceCalledBy             String?                     @map("voice_called_by")
+  ackedBy                   String?                     @map("acked_by")
+  ackedAt                   DateTime?                   @map("acked_at")
+  confirmedBy               String?                     @map("confirmed_by")
+  confirmedAt               DateTime?                   @map("confirmed_at")
+  confirmedSignature        String?                     @map("confirmed_signature")
+  confirmedComment          String?                     @map("confirmed_comment")
+  resolvedBy                String?                     @map("resolved_by")
+  resolvedAt                DateTime?                   @map("resolved_at")
+  createdAt                 DateTime                    @default(now()) @map("created_at")
+  updatedAt                 DateTime                    @updatedAt @map("updated_at")
+  CriticalValueNotification CriticalValueNotification[]
 
   @@index([state, severity])
   @@index([tenantId])
@@ -402,24 +406,24 @@ model LoginLog {
 // (Appointment / AppointmentState 在 v3.0.1 已存在,无需重复)
 
 model CriticalValueNotification {
-  id            String   @id @default(cuid())
-  tenantId      String   @map("tenant_id")
-  criticalId    String           @map("critical_id")
-  critical      CriticalValue    @relation(fields: [criticalId], references: [id], onDelete: Cascade)
-  patientName   String           @map("patient_name")
-  patientId     String           @map("patient_id")
-  category      String
-  finding       String
-  channel       String
-  recipientName String           @map("recipient_name")
-  recipientDept String           @map("recipient_dept")
-  recipientPhone String          @map("recipient_phone")
-  status        String
-  ackerName     String?          @map("acker_name")
-  ackedAt       DateTime?        @map("acked_at")
-  escalated     Boolean          @default(false)
-  triggeredAt   DateTime         @map("triggered_at")
-  createdAt     DateTime         @default(now()) @map("created_at")
+  id             String        @id @default(cuid())
+  tenantId       String        @map("tenant_id")
+  criticalId     String        @map("critical_id")
+  critical       CriticalValue @relation(fields: [criticalId], references: [id], onDelete: Cascade)
+  patientName    String        @map("patient_name")
+  patientId      String        @map("patient_id")
+  category       String
+  finding        String
+  channel        String
+  recipientName  String        @map("recipient_name")
+  recipientDept  String        @map("recipient_dept")
+  recipientPhone String        @map("recipient_phone")
+  status         String
+  ackerName      String?       @map("acker_name")
+  ackedAt        DateTime?     @map("acked_at")
+  escalated      Boolean       @default(false)
+  triggeredAt    DateTime      @map("triggered_at")
+  createdAt      DateTime      @default(now()) @map("created_at")
 
   @@index([criticalId])
   @@index([status, triggeredAt])
@@ -428,19 +432,19 @@ model CriticalValueNotification {
 }
 
 model ReportTemplate {
-  id          String   @id @default(cuid())
-  tenantId    String   @map("tenant_id")
-  name        String
-  category    String
-  bodyPart    String   @map("body_part")
-  body        String
-  parentId    String?  @map("parent_id")
-  version     Int      @default(1)
-  radsCategory String? @map("rads_category")
-  tags        String[]
-  createdById String   @map("created_by_id")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id           String   @id @default(cuid())
+  tenantId     String   @map("tenant_id")
+  name         String
+  category     String
+  bodyPart     String   @map("body_part")
+  body         String
+  parentId     String?  @map("parent_id")
+  version      Int      @default(1)
+  radsCategory String?  @map("rads_category")
+  tags         String[]
+  createdById  String   @map("created_by_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   @@index([category, bodyPart])
   @@index([tenantId])
@@ -448,18 +452,18 @@ model ReportTemplate {
 }
 
 model ReportAuditEvent {
-  id           String   @id @default(cuid())
-  tenantId     String   @map("tenant_id")
-  reportId     String   @map("report_id")
-  actor        String
-  actorRole    String   @map("actor_role")
-  action       String
-  description  String
-  detail       Json?
-  prevHash     String   @map("prev_hash")
-  hash         String
-  ip           String?
-  createdAt    DateTime @default(now()) @map("created_at")
+  id          String   @id @default(cuid())
+  tenantId    String   @map("tenant_id")
+  reportId    String   @map("report_id")
+  actor       String
+  actorRole   String   @map("actor_role")
+  action      String
+  description String
+  detail      Json?
+  prevHash    String   @map("prev_hash")
+  hash        String
+  ip          String?
+  createdAt   DateTime @default(now()) @map("created_at")
 
   @@index([reportId, createdAt])
   @@index([tenantId])
@@ -527,17 +531,17 @@ model Notification {
 }
 
 model AuditLog {
-  id        String   @id @default(cuid())
-  tenantId  String   @map("tenant_id")
-  userId    String?  @map("user_id")
-  action    String
-  resource  String
-  resourceId String? @map("resource_id")
-  detail    Json?
-  ip        String?
-  userAgent String?  @map("user_agent")
-  success   Boolean  @default(true)
-  createdAt DateTime @default(now()) @map("created_at")
+  id         String   @id @default(cuid())
+  tenantId   String   @map("tenant_id")
+  userId     String?  @map("user_id")
+  action     String
+  resource   String
+  resourceId String?  @map("resource_id")
+  detail     Json?
+  ip         String?
+  userAgent  String?  @map("user_agent")
+  success    Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at")
 
   @@index([userId, createdAt])
   @@index([action, resource])
@@ -547,18 +551,18 @@ model AuditLog {
 }
 
 model ExportApproval {
-  id          String   @id @default(cuid())
-  tenantId    String   @map("tenant_id")
-  requesterId String   @map("requester_id")
-  resource    String
-  resourceId  String?  @map("resource_id")
-  reason      String
-  status      String   @default("PENDING")
-  approverId  String?  @map("approver_id")
-  approvedAt  DateTime? @map("approved_at")
-  rejectReason String? @map("reject_reason")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id           String    @id @default(cuid())
+  tenantId     String    @map("tenant_id")
+  requesterId  String    @map("requester_id")
+  resource     String
+  resourceId   String?   @map("resource_id")
+  reason       String
+  status       String    @default("PENDING")
+  approverId   String?   @map("approver_id")
+  approvedAt   DateTime? @map("approved_at")
+  rejectReason String?   @map("reject_reason")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
 
   @@index([requesterId, status])
   @@index([status, createdAt])
@@ -567,15 +571,15 @@ model ExportApproval {
 }
 
 model BackupRecord {
-  id         String   @id @default(cuid())
-  tenantId   String   @map("tenant_id")
-  type       String
-  filePath   String?  @map("file_path")
-  sizeBytes  Int?     @map("size_bytes")
-  status     String   @default("COMPLETED")
-  checksum   String?
-  createdBy  String?  @map("created_by")
-  createdAt  DateTime @default(now()) @map("created_at")
+  id        String   @id @default(cuid())
+  tenantId  String   @map("tenant_id")
+  type      String
+  filePath  String?  @map("file_path")
+  sizeBytes Int?     @map("size_bytes")
+  status    String   @default("COMPLETED")
+  checksum  String?
+  createdBy String?  @map("created_by")
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@index([type, createdAt])
   @@index([tenantId])
@@ -585,19 +589,19 @@ model BackupRecord {
 // v3.0.4 新增: Eye 模块
 
 model EyeStudy {
-  id          String   @id @default(cuid())
-  tenantId    String   @map("tenant_id")
-  patientId   String   @map("patient_id")
+  id          String           @id @default(cuid())
+  tenantId    String           @map("tenant_id")
+  patientId   String           @map("patient_id")
   modality    String
-  bodyPart    String   @map("body_part")
-  studyDate   DateTime @default(now()) @map("study_date")
-  status      String   @default("PENDING")
-  findings    String   @default("")
-  impressions String   @default("")
-  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  bodyPart    String           @map("body_part")
+  studyDate   DateTime         @default(now()) @map("study_date")
+  status      String           @default("PENDING")
+  findings    String           @default("")
+  impressions String           @default("")
+  patient     Patient          @relation(fields: [patientId], references: [id], onDelete: Restrict)
   inferences  EyeAiInference[]
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
 
   @@index([patientId, modality])
   @@index([tenantId])
@@ -638,11 +642,11 @@ model EyeIolLens {
 
 // v3.0.6.11-10: PIX external ID mapping + Visit model
 model PatientExternalId {
-  id                String   @id @default(cuid())
-  tenantId          String   @map("tenant_id")
-  assigningAuthority String  @map("assigning_authority")
-  externalId        String   @map("external_id")
-  internalPatientId String   @map("internal_patient_id")
+  id                 String @id @default(cuid())
+  tenantId           String @map("tenant_id")
+  assigningAuthority String @map("assigning_authority")
+  externalId         String @map("external_id")
+  internalPatientId  String @map("internal_patient_id")
 
   @@unique([assigningAuthority, externalId])
   @@index([internalPatientId])
@@ -674,29 +678,29 @@ model PatientVisit {
 // v3.0.3 新增: 安全/不良事件模块
 
 model AdverseEvent {
-  id                 String                @id @default(cuid())
-  tenantId           String                @map("tenant_id")
-  eventType          AdverseEventType      @map("event_type")
-  severity           AdverseEventSeverity
-  description        String
-  department         String
-  reportedBy         String                @map("reported_by")
-  reportedAt         DateTime              @default(now()) @map("reported_at")
-  status             AdverseEventStatus    @default(REPORTED)
-  patientId          String?               @map("patient_id")
-  patientName        String?               @map("patient_name")
-  location           String                @default("")
+  id                  String               @id @default(cuid())
+  tenantId            String               @map("tenant_id")
+  eventType           AdverseEventType     @map("event_type")
+  severity            AdverseEventSeverity
+  description         String
+  department          String
+  reportedBy          String               @map("reported_by")
+  reportedAt          DateTime             @default(now()) @map("reported_at")
+  status              AdverseEventStatus   @default(REPORTED)
+  patientId           String?              @map("patient_id")
+  patientName         String?              @map("patient_name")
+  location            String               @default("")
   contributingFactors String[]             @map("contributing_factors")
-  actionsTaken       String[]              @map("actions_taken")
-  rootCauseIds       String[]              @map("root_cause_ids")
-  resolvedAt         DateTime?             @map("resolved_at")
-  resolvedBy         String?               @map("resolved_by")
-  closedAt           DateTime?             @map("closed_at")
-  closedBy           String?               @map("closed_by")
-  version            Int                   @default(0)
-  rcaInvestigations  RcaInvestigation[]
-  createdAt          DateTime              @default(now()) @map("created_at")
-  updatedAt          DateTime              @updatedAt @map("updated_at")
+  actionsTaken        String[]             @map("actions_taken")
+  rootCauseIds        String[]             @map("root_cause_ids")
+  resolvedAt          DateTime?            @map("resolved_at")
+  resolvedBy          String?              @map("resolved_by")
+  closedAt            DateTime?            @map("closed_at")
+  closedBy            String?              @map("closed_by")
+  version             Int                  @default(0)
+  rcaInvestigations   RcaInvestigation[]
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
 
   @@index([status, severity])
   @@index([eventType, reportedAt])
@@ -705,27 +709,27 @@ model AdverseEvent {
 }
 
 model RcaInvestigation {
-  id                    String        @id @default(cuid())
-  tenantId              String        @map("tenant_id")
-  adverseEventId        String        @map("adverse_event_id")
-  eventTitle            String        @map("event_title")
-  description           String        @default("")
-  dateOccurred          DateTime      @map("date_occurred")
-  dateInvestigationStarted DateTime    @default(now()) @map("date_investigation_started")
-  teamMembers           String[]      @map("team_members")
-  fishboneData          Json          @default("[]") @map("fishbone_data")
-  fiveWhys              Json          @default("[]") @map("five_whys")
-  rootCauses            String[]      @map("root_causes")
-  capaPlans             Json          @default("[]") @map("capa_plans")
-  capaStatus            String        @default("open") @map("capa_status")
-  conclusion            String?
-  lessonsLearned        String?       @map("lessons_learned")
-  closedAt              DateTime?     @map("closed_at")
-  closedBy              String?       @map("closed_by")
-  version               Int           @default(0)
-  adverseEvent          AdverseEvent  @relation(fields: [adverseEventId], references: [id], onDelete: Cascade)
-  createdAt             DateTime      @default(now()) @map("created_at")
-  updatedAt             DateTime      @updatedAt @map("updated_at")
+  id                       String       @id @default(cuid())
+  tenantId                 String       @map("tenant_id")
+  adverseEventId           String       @map("adverse_event_id")
+  eventTitle               String       @map("event_title")
+  description              String       @default("")
+  dateOccurred             DateTime     @map("date_occurred")
+  dateInvestigationStarted DateTime     @default(now()) @map("date_investigation_started")
+  teamMembers              String[]     @map("team_members")
+  fishboneData             Json         @default("[]") @map("fishbone_data")
+  fiveWhys                 Json         @default("[]") @map("five_whys")
+  rootCauses               String[]     @map("root_causes")
+  capaPlans                Json         @default("[]") @map("capa_plans")
+  capaStatus               String       @default("open") @map("capa_status")
+  conclusion               String?
+  lessonsLearned           String?      @map("lessons_learned")
+  closedAt                 DateTime?    @map("closed_at")
+  closedBy                 String?      @map("closed_by")
+  version                  Int          @default(0)
+  adverseEvent             AdverseEvent @relation(fields: [adverseEventId], references: [id], onDelete: Cascade)
+  createdAt                DateTime     @default(now()) @map("created_at")
+  updatedAt                DateTime     @updatedAt @map("updated_at")
 
   @@index([adverseEventId])
   @@index([capaStatus])
@@ -734,28 +738,28 @@ model RcaInvestigation {
 }
 
 model RiskItem {
-  id                String    @id @default(cuid())
-  tenantId          String    @map("tenant_id")
-  riskType          String    @map("risk_type")
-  title             String
-  category          String
-  description       String
-  likelihood        Int
-  severity          Int
-  rpn               Int
-  riskLevel         String    @map("risk_level")
-  status            String    @default("open")
-  identifiedBy      String    @map("identified_by")
-  identifiedAt      DateTime  @default(now()) @map("identified_at")
-  mitigationPlan    String?   @map("mitigation_plan")
-  mitigationOwner   String?   @map("mitigation_owner")
-  mitigationDeadline String?  @map("mitigation_deadline")
-  residualRpn       Int?      @map("residual_rpn")
-  closedAt          DateTime? @map("closed_at")
-  closedBy          String?   @map("closed_by")
-  version           Int       @default(0)
-  createdAt         DateTime  @default(now()) @map("created_at")
-  updatedAt         DateTime  @updatedAt @map("updated_at")
+  id                 String    @id @default(cuid())
+  tenantId           String    @map("tenant_id")
+  riskType           String    @map("risk_type")
+  title              String
+  category           String
+  description        String
+  likelihood         Int
+  severity           Int
+  rpn                Int
+  riskLevel          String    @map("risk_level")
+  status             String    @default("open")
+  identifiedBy       String    @map("identified_by")
+  identifiedAt       DateTime  @default(now()) @map("identified_at")
+  mitigationPlan     String?   @map("mitigation_plan")
+  mitigationOwner    String?   @map("mitigation_owner")
+  mitigationDeadline String?   @map("mitigation_deadline")
+  residualRpn        Int?      @map("residual_rpn")
+  closedAt           DateTime? @map("closed_at")
+  closedBy           String?   @map("closed_by")
+  version            Int       @default(0)
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
 
   @@index([riskLevel, status])
   @@index([category])
@@ -765,17 +769,17 @@ model RiskItem {
 
 // rad-path 一致性追踪
 model RadPathRecord {
-  id           String                          @id @default(cuid())
-  tenantId     String                          @map("tenant_id")
-  reportId     String                          @map("report_id")
-  pathologyId  String                          @map("pathology_id")
-  radFinding   String                          @map("rad_finding")
-  pathResult   String                          @map("path_result")
-  consistency  String                          @default("pending")
-  notes        String?
-  report       Report                          @relation(fields: [reportId], references: [id], onDelete: Cascade)
-  createdAt    DateTime                        @default(now()) @map("created_at")
-  updatedAt    DateTime                        @updatedAt @map("updated_at")
+  id          String   @id @default(cuid())
+  tenantId    String   @map("tenant_id")
+  reportId    String   @map("report_id")
+  pathologyId String   @map("pathology_id")
+  radFinding  String   @map("rad_finding")
+  pathResult  String   @map("path_result")
+  consistency String   @default("pending")
+  notes       String?
+  report      Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@index([reportId])
   @@index([pathologyId])
@@ -787,19 +791,39 @@ model RadPathRecord {
 // v3.0.6.11-7: 牙科模块
 
 model DentalStudy {
-  id          String   @id @default(cuid())
-  tenantId    String   @map("tenant_id")
-  patientId   String   @map("patient_id")
-  modality    String
-  toothArea   String   @map("tooth_area")
-  toothNumber String?  @map("tooth_number")
-  studyDate   DateTime @default(now()) @map("study_date")
-  status      String   @default("PENDING")
-  findings    String   @default("")
-  impressions String   @default("")
-  aiFindings  DentalAiFinding[]
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id               String            @id @default(cuid())
+  tenantId         String            @map("tenant_id")
+  patientId        String            @map("patient_id")
+  patientName      String            @default("") @map("patient_name")
+  modality         String
+  region           String            @default("") @map("region")
+  toothArea        String            @default("") @map("tooth_area")
+  toothNumber      String?           @map("tooth_number")
+  scanType         String?           @map("scan_type")
+  acquisitionDate  DateTime?         @map("acquisition_date")
+  studyDate        DateTime          @default(now()) @map("study_date")
+  deviceModel      String            @default("") @map("device_model")
+  fieldOfView      String            @default("") @map("field_of_view")
+  voxelSize        Float?            @map("voxel_size")
+  radiationDose    Float?            @map("radiation_dose")
+  fileSize         Int?              @map("file_size")
+  imageCount       Int?              @default(0) @map("image_count")
+  quality          String?           @map("quality")
+  indications      String            @default("") @map("indications")
+  referringDentist String            @default("") @map("referring_dentist")
+  status           String            @default("PENDING")
+  thumbnail        String?           @map("thumbnail")
+  dicomPath        String?           @map("dicom_path")
+  segments         Json?             @map("segments")
+  measurements     Json?             @map("measurements")
+  aiAnalysis       Json?             @map("ai_analysis")
+  findings         String            @default("")
+  impressions      String            @default("")
+  notes            String            @default("")
+  tags             String[]          @default([])
+  aiFindings       DentalAiFinding[]
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
 
   @@index([patientId, modality])
   @@index([tenantId])
@@ -807,16 +831,16 @@ model DentalStudy {
 }
 
 model DentalAiFinding {
-  id           String   @id @default(cuid())
-  tenantId     String   @map("tenant_id")
-  studyId      String   @map("study_id")
-  modelId      String   @map("model_id")
-  findingType  String   @map("finding_type")
-  findingDesc  String   @map("finding_desc")
-  confidence   Float
-  region       String?
-  study        DentalStudy @relation(fields: [studyId], references: [id], onDelete: Cascade)
-  createdAt    DateTime @default(now()) @map("created_at")
+  id          String      @id @default(cuid())
+  tenantId    String      @map("tenant_id")
+  studyId     String      @map("study_id")
+  modelId     String      @map("model_id")
+  findingType String      @map("finding_type")
+  findingDesc String      @map("finding_desc")
+  confidence  Float
+  region      String?
+  study       DentalStudy @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  createdAt   DateTime    @default(now()) @map("created_at")
 
   @@index([studyId])
   @@index([modelId])
@@ -825,19 +849,19 @@ model DentalAiFinding {
 }
 
 model DentalImplant {
-  id            String   @id @default(cuid())
-  tenantId      String   @map("tenant_id")
-  patientId     String   @map("patient_id")
-  toothNumber   String   @map("tooth_number")
-  implantBrand  String   @map("implant_brand")
-  implantModel  String   @map("implant_model")
-  diameter      Float
-  length        Float
-  status        String   @default("PLANNED")
-  surgeryDate   DateTime? @map("surgery_date")
-  notes         String   @default("")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  id           String    @id @default(cuid())
+  tenantId     String    @map("tenant_id")
+  patientId    String    @map("patient_id")
+  toothNumber  String    @map("tooth_number")
+  implantBrand String    @map("implant_brand")
+  implantModel String    @map("implant_model")
+  diameter     Float
+  length       Float
+  status       String    @default("PLANNED")
+  surgeryDate  DateTime? @map("surgery_date")
+  notes        String    @default("")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
 
   @@index([patientId])
   @@index([tenantId])
@@ -862,18 +886,18 @@ model DentalAppointment {
 }
 
 model DentalInvoice {
-  id             String   @id @default(cuid())
-  tenantId       String   @map("tenant_id")
-  patientId      String   @map("patient_id")
-  invoiceNumber  String   @unique @map("invoice_number")
-  totalAmount    Decimal  @map("total_amount")
-  paidAmount     Decimal  @default(0) @map("paid_amount")
-  status         String   @default("UNPAID")
-  items          Json     @default("[]")
-  issuedAt       DateTime @default(now()) @map("issued_at")
-  paidAt         DateTime? @map("paid_at")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  id            String    @id @default(cuid())
+  tenantId      String    @map("tenant_id")
+  patientId     String    @map("patient_id")
+  invoiceNumber String    @unique @map("invoice_number")
+  totalAmount   Decimal   @map("total_amount")
+  paidAmount    Decimal   @default(0) @map("paid_amount")
+  status        String    @default("UNPAID")
+  items         Json      @default("[]")
+  issuedAt      DateTime  @default(now()) @map("issued_at")
+  paidAt        DateTime? @map("paid_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
 
   @@index([patientId, status])
   @@index([tenantId])
@@ -881,18 +905,18 @@ model DentalInvoice {
 }
 
 model DentalInventoryItem {
-  id          String   @id @default(cuid())
-  tenantId    String   @map("tenant_id")
-  code        String   @unique
-  name        String
-  category    String
-  quantity    Int      @default(0)
-  unit        String
-  unitPrice   Decimal  @map("unit_price")
-  supplier    String?
-  expiryDate  DateTime? @map("expiry_date")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id         String    @id @default(cuid())
+  tenantId   String    @map("tenant_id")
+  code       String    @unique
+  name       String
+  category   String
+  quantity   Int       @default(0)
+  unit       String
+  unitPrice  Decimal   @map("unit_price")
+  supplier   String?
+  expiryDate DateTime? @map("expiry_date")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
 
   @@index([category])
   @@index([tenantId])
@@ -902,34 +926,34 @@ model DentalInventoryItem {
 // v3.0.6.11-7: 工作流&SLA/路由模块
 
 model WorkflowDefinition {
-  id          String   @id @default(cuid())
-  tenantId    String   @map("tenant_id")
+  id          String         @id @default(cuid())
+  tenantId    String         @map("tenant_id")
   name        String
-  description String   @default("")
-  stepConfig  Json     @default("[]") @map("step_config")
-  version     Int      @default(1)
-  active      Boolean  @default(true)
+  description String         @default("")
+  stepConfig  Json           @default("[]") @map("step_config")
+  version     Int            @default(1)
+  active      Boolean        @default(true)
   steps       WorkflowStep[]
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
 
   @@index([tenantId])
   @@map("workflow_definitions")
 }
 
 model WorkflowStep {
-  id                 String   @id @default(cuid())
-  tenantId           String   @map("tenant_id")
-  workflowId         String   @map("workflow_id")
-  name               String
-  stepType           String   @map("step_type")
-  assigneeRole       String?  @map("assignee_role")
-  timeoutMinutes     Int?     @map("timeout_minutes")
-  escalationRole     String?  @map("escalation_role")
-  config             Json     @default("{}")
-  orderIndex         Int      @map("order_index")
-  workflow           WorkflowDefinition @relation(fields: [workflowId], references: [id], onDelete: Cascade)
-  createdAt          DateTime @default(now()) @map("created_at")
+  id             String             @id @default(cuid())
+  tenantId       String             @map("tenant_id")
+  workflowId     String             @map("workflow_id")
+  name           String
+  stepType       String             @map("step_type")
+  assigneeRole   String?            @map("assignee_role")
+  timeoutMinutes Int?               @map("timeout_minutes")
+  escalationRole String?            @map("escalation_role")
+  config         Json               @default("{}")
+  orderIndex     Int                @map("order_index")
+  workflow       WorkflowDefinition @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  createdAt      DateTime           @default(now()) @map("created_at")
 
   @@index([workflowId, orderIndex])
   @@index([tenantId])
@@ -937,17 +961,17 @@ model WorkflowStep {
 }
 
 model SlaPolicy {
-  id              String   @id @default(cuid())
-  tenantId        String   @map("tenant_id")
-  name            String
-  modality        String?
-  priority        String   @default("NORMAL")
-  targetMinutes   Int      @map("target_minutes")
-  warningMinutes  Int      @map("warning_minutes")
-  escalationRole  String?  @map("escalation_role")
-  active          Boolean  @default(true)
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  id             String   @id @default(cuid())
+  tenantId       String   @map("tenant_id")
+  name           String
+  modality       String?
+  priority       String   @default("NORMAL")
+  targetMinutes  Int      @map("target_minutes")
+  warningMinutes Int      @map("warning_minutes")
+  escalationRole String?  @map("escalation_role")
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   @@index([modality, priority])
   @@index([tenantId])
@@ -955,17 +979,17 @@ model SlaPolicy {
 }
 
 model RoutingRule {
-  id              String   @id @default(cuid())
-  tenantId        String   @map("tenant_id")
-  name            String
-  modality        String?
-  bodyPart        String?  @map("body_part")
-  sourceDept      String?  @map("source_dept")
-  targetDept      String   @map("target_dept")
-  priority        Int      @default(0)
-  active          Boolean  @default(true)
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  id         String   @id @default(cuid())
+  tenantId   String   @map("tenant_id")
+  name       String
+  modality   String?
+  bodyPart   String?  @map("body_part")
+  sourceDept String?  @map("source_dept")
+  targetDept String   @map("target_dept")
+  priority   Int      @default(0)
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
 
   @@index([modality, bodyPart])
   @@index([tenantId])
@@ -975,16 +999,16 @@ model RoutingRule {
 // v3.0.6.11-7: 财务模块
 
 model ChargeItem {
-  id          String   @id @default(cuid())
-  tenantId    String   @map("tenant_id")
-  code        String   @unique
-  name        String
-  category    String
-  unitPrice   Decimal  @map("unit_price")
+  id                String   @id @default(cuid())
+  tenantId          String   @map("tenant_id")
+  code              String   @unique
+  name              String
+  category          String
+  unitPrice         Decimal  @map("unit_price")
   insuranceCoverage Decimal? @map("insurance_coverage")
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  active            Boolean  @default(true)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
 
   @@index([category])
   @@index([tenantId])
@@ -992,19 +1016,19 @@ model ChargeItem {
 }
 
 model Invoice {
-  id             String   @id @default(cuid())
-  tenantId       String   @map("tenant_id")
-  patientId      String   @map("patient_id")
-  invoiceNumber  String   @unique @map("invoice_number")
-  totalAmount    Decimal  @map("total_amount")
-  paidAmount     Decimal  @default(0) @map("paid_amount")
-  insuranceAmount Decimal? @map("insurance_amount")
-  status         String   @default("UNPAID")
-  items          Json     @default("[]")
-  issuedAt       DateTime @default(now()) @map("issued_at")
-  paidAt         DateTime? @map("paid_at")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  id              String    @id @default(cuid())
+  tenantId        String    @map("tenant_id")
+  patientId       String    @map("patient_id")
+  invoiceNumber   String    @unique @map("invoice_number")
+  totalAmount     Decimal   @map("total_amount")
+  paidAmount      Decimal   @default(0) @map("paid_amount")
+  insuranceAmount Decimal?  @map("insurance_amount")
+  status          String    @default("UNPAID")
+  items           Json      @default("[]")
+  issuedAt        DateTime  @default(now()) @map("issued_at")
+  paidAt          DateTime? @map("paid_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
 
   @@index([patientId, status])
   @@index([issuedAt])
@@ -1096,21 +1120,21 @@ model NationalReport {
 }
 
 model InsuranceAudit {
-  id           String   @id @default(cuid())
-  tenantId     String   @map("tenant_id")
-  patientId    String?  @map("patient_id")
-  invoiceId    String?  @map("invoice_id")
-  auditType    String   @map("audit_type")
-  finding      String   @default("")
-  amount       Decimal  @default(0)
-  status       String   @default("PENDING")
-  auditor      String?
-  auditedAt    DateTime? @map("audited_at")
-  resolution   String?  @map("resolution")
-  resolvedAt   DateTime? @map("resolved_at")
-  metadata     Json     @default("{}")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id         String    @id @default(cuid())
+  tenantId   String    @map("tenant_id")
+  patientId  String?   @map("patient_id")
+  invoiceId  String?   @map("invoice_id")
+  auditType  String    @map("audit_type")
+  finding    String    @default("")
+  amount     Decimal   @default(0)
+  status     String    @default("PENDING")
+  auditor    String?
+  auditedAt  DateTime? @map("audited_at")
+  resolution String?   @map("resolution")
+  resolvedAt DateTime? @map("resolved_at")
+  metadata   Json      @default("{}")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
 
   @@index([auditType, status])
   @@index([tenantId])
@@ -1118,16 +1142,16 @@ model InsuranceAudit {
 }
 
 model TeachLecture {
-  id        String   @id @default(cuid())
-  tenantId  String   @map("tenant_id")
+  id        String             @id @default(cuid())
+  tenantId  String             @map("tenant_id")
   title     String
-  patientId String?  @map("patient_id")
-  examId    String?  @map("exam_id")
-  reportId  String?  @map("report_id")
-  createdBy String?  @map("created_by")
-  duration  Int      @default(0) @map("duration")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  patientId String?            @map("patient_id")
+  examId    String?            @map("exam_id")
+  reportId  String?            @map("report_id")
+  createdBy String?            @map("created_by")
+  duration  Int                @default(0) @map("duration")
+  createdAt DateTime           @default(now()) @map("created_at")
+  updatedAt DateTime           @updatedAt @map("updated_at")
   blobs     TeachLectureBlob[]
 
   @@index([tenantId])
@@ -1136,14 +1160,14 @@ model TeachLecture {
 }
 
 model TeachLectureBlob {
-  id        String   @id @default(cuid())
-  lectureId String   @map("lecture_id")
+  id        String       @id @default(cuid())
+  lectureId String       @map("lecture_id")
   lecture   TeachLecture @relation(fields: [lectureId], references: [id], onDelete: Cascade)
-  sequence  Int      @map("sequence")
+  sequence  Int          @map("sequence")
   filename  String
-  sizeBytes Int      @map("size_bytes")
-  tenantId  String   @map("tenant_id")
-  createdAt DateTime @default(now()) @map("created_at")
+  sizeBytes Int          @map("size_bytes")
+  tenantId  String       @map("tenant_id")
+  createdAt DateTime     @default(now()) @map("created_at")
 
   @@index([lectureId])
   @@index([tenantId])
@@ -1153,17 +1177,17 @@ model TeachLectureBlob {
 // v3.0.6.11-22: Orchestrator flow engine (SLA-driven auto-dispatch)
 
 model OrchestratorFlow {
-  id          String   @id @default(cuid())
-  tenantId    String   @map("tenant_id")
+  id          String          @id @default(cuid())
+  tenantId    String          @map("tenant_id")
   name        String
-  description String   @default("")
-  steps       Json     @default("[]")
-  active      Boolean  @default(true)
-  version     Int      @default(1)
-  slaConfigId String?  @map("sla_config_id")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  slaConfig   SlaConfig? @relation(fields: [slaConfigId], references: [id])
+  description String          @default("")
+  steps       Json            @default("[]")
+  active      Boolean         @default(true)
+  version     Int             @default(1)
+  slaConfigId String?         @map("sla_config_id")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+  slaConfig   SlaConfig?      @relation(fields: [slaConfigId], references: [id])
   executions  FlowExecution[]
 
   @@index([tenantId])
@@ -1171,20 +1195,20 @@ model OrchestratorFlow {
 }
 
 model FlowExecution {
-  id             String    @id @default(cuid())
-  tenantId       String    @map("tenant_id")
-  flowId         String    @map("flow_id")
-  flow           OrchestratorFlow @relation(fields: [flowId], references: [id])
-  status         String    @default("PENDING")
-  currentStep    Int       @default(0) @map("current_step")
-  context        Json      @default("{}")
-  startedAt      DateTime? @map("started_at")
-  completedAt    DateTime? @map("completed_at")
-  slaDeadline    DateTime? @map("sla_deadline")
-  slaBreached    Boolean   @default(false) @map("sla_breached")
-  trigger        String?   @default("manual")
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
+  id             String              @id @default(cuid())
+  tenantId       String              @map("tenant_id")
+  flowId         String              @map("flow_id")
+  flow           OrchestratorFlow    @relation(fields: [flowId], references: [id])
+  status         String              @default("PENDING")
+  currentStep    Int                 @default(0) @map("current_step")
+  context        Json                @default("{}")
+  startedAt      DateTime?           @map("started_at")
+  completedAt    DateTime?           @map("completed_at")
+  slaDeadline    DateTime?           @map("sla_deadline")
+  slaBreached    Boolean             @default(false) @map("sla_breached")
+  trigger        String?             @default("manual")
+  createdAt      DateTime            @default(now()) @map("created_at")
+  updatedAt      DateTime            @updatedAt @map("updated_at")
   stepExecutions FlowStepExecution[]
 
   @@index([flowId])
@@ -1195,27 +1219,27 @@ model FlowExecution {
 }
 
 model FlowStepExecution {
-  id           String    @id @default(cuid())
-  tenantId     String    @map("tenant_id")
-  executionId  String    @map("execution_id")
+  id           String        @id @default(cuid())
+  tenantId     String        @map("tenant_id")
+  executionId  String        @map("execution_id")
   execution    FlowExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
-  stepIndex    Int       @map("step_index")
-  stepName     String    @map("step_name")
-  stepType     String    @map("step_type")
-  status       String    @default("PENDING")
-  assigneeId   String?   @map("assignee_id")
-  assigneeName String?   @map("assignee_name")
-  autoDispatch Boolean   @default(false) @map("auto_dispatch")
-  slaMinutes   Int?      @map("sla_minutes")
-  condition    String?   @default("")
-  startedAt    DateTime? @map("started_at")
-  completedAt  DateTime? @map("completed_at")
-  slaDeadline  DateTime? @map("sla_deadline")
-  slaBreached  Boolean   @default(false) @map("sla_breached")
+  stepIndex    Int           @map("step_index")
+  stepName     String        @map("step_name")
+  stepType     String        @map("step_type")
+  status       String        @default("PENDING")
+  assigneeId   String?       @map("assignee_id")
+  assigneeName String?       @map("assignee_name")
+  autoDispatch Boolean       @default(false) @map("auto_dispatch")
+  slaMinutes   Int?          @map("sla_minutes")
+  condition    String?       @default("")
+  startedAt    DateTime?     @map("started_at")
+  completedAt  DateTime?     @map("completed_at")
+  slaDeadline  DateTime?     @map("sla_deadline")
+  slaBreached  Boolean       @default(false) @map("sla_breached")
   result       Json?
   error        String?
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
 
   @@index([executionId])
   @@index([status])
@@ -1224,20 +1248,20 @@ model FlowStepExecution {
 }
 
 model SlaConfig {
-  id              String   @id @default(cuid())
-  tenantId        String   @map("tenant_id")
-  name            String
-  stepType        String?  @map("step_type")
-  priority        String   @default("NORMAL")
-  targetMinutes   Int      @map("target_minutes")
-  warningMinutes  Int      @map("warning_minutes")
-  autoEscalate    Boolean  @default(false) @map("auto_escalate")
-  escalateRole    String?  @map("escalate_role")
-  notifyOnBreach  Boolean  @default(true) @map("notify_on_breach")
-  active          Boolean  @default(true)
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
-  flows           OrchestratorFlow[]
+  id             String             @id @default(cuid())
+  tenantId       String             @map("tenant_id")
+  name           String
+  stepType       String?            @map("step_type")
+  priority       String             @default("NORMAL")
+  targetMinutes  Int                @map("target_minutes")
+  warningMinutes Int                @map("warning_minutes")
+  autoEscalate   Boolean            @default(false) @map("auto_escalate")
+  escalateRole   String?            @map("escalate_role")
+  notifyOnBreach Boolean            @default(true) @map("notify_on_breach")
+  active         Boolean            @default(true)
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+  flows          OrchestratorFlow[]
 
   @@index([stepType, priority])
   @@index([tenantId])

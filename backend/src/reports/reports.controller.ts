@@ -7,9 +7,11 @@ import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
 import { ReportsService } from './reports.service'
 
 const ReportStateEnum = z.enum([
-  'PENDING_ASSIGNMENT', 'ASSIGNED', 'WRITING', 'SUBMITTED', 'REVIEWING',
-  'REVIEWED', 'SIGNING', 'SIGNED', 'PUBLISHED', 'AMENDING', 'AMENDED',
-  'WITHDRAWN', 'REJECTED', 'ARCHIVED',
+  'PENDING_ASSIGNMENT', 'ASSIGNED', 'WRITING', 'SUBMITTED',
+  'INITIAL_REVIEW', 'FINAL_REVIEW', 'CO_SIGN_REVIEW',
+  'REVIEWED', 'SIGNING', 'SIGNED', 'PUBLISHED',
+  'AMENDING', 'AMENDED', 'WITHDRAWN', 'REJECTED', 'ESCALATED', 'ARCHIVED',
+  'RECTIFYING', 'SUPPLEMENTING', 'SUPPLEMENTED', 'REDISTRIBUTING',
 ])
 
 const CreateReportSchema = z.object({
@@ -73,9 +75,9 @@ export class ReportsController {
   @Post(':id/transition')
   transition(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(z.object({ to: ReportStateEnum, actorId: z.string().min(1) })))
-    body: { to: z.infer<typeof ReportStateEnum>; actorId: string }
+    @Body(new ZodValidationPipe(z.object({ to: ReportStateEnum, actorId: z.string().min(1), reason: z.string().optional() })))
+    body: { to: z.infer<typeof ReportStateEnum>; actorId: string; reason?: string }
   ) {
-    return this.reports.transition(id, body.to as any, body.actorId)
+    return this.reports.transition(id, body.to as any, body.actorId, body.reason)
   }
 }

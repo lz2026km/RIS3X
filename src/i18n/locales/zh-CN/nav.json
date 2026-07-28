@@ -275,10 +275,20 @@
   "roomOccupancy": "检查室占用率",
   "benchmarkCompare": "报表同比环比",
   "aiDiagnosisAccuracy": "AI 准确率仪表盘",
+  "tatDashboard": "报告完成率TAT",
   "triageWorklist": "AI 分检工作台",
   "dicomWeb": "DICOMweb",
   "orchestrator": "任务编排引擎",
   "dicomSr": "DICOM 结构化报告",
   "radiomics": "影像组学",
-  "dicom4d": "4D 动态影像"
+  "dicom4d": "4D 动态影像",
+  "fhirPatient": "FHIR 患者管理",
+  "fhirObservation": "FHIR 观察",
+  "fhirSubscription": "FHIR 订阅",
+  "dicomDimse": "DIMSE 管理",
+  "dicomSrTemplates": "DICOM SR 模板",
+  "fusionManager": "融合管理",
+  "radiomicsFeatures": "Radiomics 特征",
+  "iheManager": "IHE 集成管理",
+  "hl7Manager": "HL7 消息管理"
 }

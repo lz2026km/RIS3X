@@ -219,7 +219,7 @@ export const DentalCadPage: React.FC = () => {
                 <Button icon={<Eye size={14}/>} onClick={handlePreview} loading={busy}>3D 预览</Button>
                 <Button icon={<Download size={14}/>} onClick={handleSubmitMill} loading={busy}>提交研磨</Button>
               </Space>
-              <Button onClick={()=>message.info('已导出 STL')} icon={<Download size={14}/>}>导出 STL</Button>
+              <Button onClick={()=>message.warning('功能建设中')} icon={<Download size={14}/>}>导出 STL</Button>
             </Space>
             {preview && (
               <div style={{ marginTop:12, padding:8, background:'#1a1a2e', borderRadius:6, textAlign:'center', color:'#fff', fontSize:12 }}>

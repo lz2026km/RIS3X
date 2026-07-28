@@ -61,7 +61,7 @@ export default function CvDatabasePage() {
         <h1 style={{ display: 'flex', alignItems: 'center', gap: 8, margin: 0 }}>
           <Database size={24} /> CV Imaging Database
         </h1>
-        <button onClick={() => message.success('数据导出中，请稍候')} style={{ padding: '6px 16px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <button onClick={() => message.warning('功能建设中')} style={{ padding: '6px 16px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
           <Download size={16} /> Export
         </button>
       </div>

@@ -407,59 +407,51 @@ export default function WorklistPage() {
     }
   }, [])
 
-  const smartOrderedExams = useMemo(() => {
-    if (!smartSortEnabled) return filteredExams
+  const [smartSortedIds, setSmartSortedIds] = useState<string[] | null>(null)
+
+  useEffect(() => {
+    if (!smartSortEnabled || filteredExams.length === 0) {
+      setSmartSortedIds(null)
+      return
+    }
+    let cancelled = false
     const inputs = filteredExams.map(computeSmartScoreInput)
-    const scored = inputs.map((input) => {
-      const urgencyScore = Math.max(0, Math.min(1, (input.urgency + 3) / 6))
-      const waitScore = input.waitingMinutes > 0 ? Math.min(1, Math.log2(1 + input.waitingMinutes) / 12) : 0
-      const ageScore = (input.age ?? 0) >= 65 ? 0.8 : (input.age ?? 0) <= 12 ? 0.6 : 0
-      const highParts = new Set(['头颅', '头部', '脑血管', '主动脉', '冠状动脉', '肺动脉'])
-      const examTypeScore = highParts.has(input.bodyPart ?? '') ? 1.0 : 0
-      const total = urgencyScore * 0.35 + waitScore * 0.30 + ageScore * 0.15 + examTypeScore * 0.20
-      const reasons: string[] = []
-      if (input.urgency > 0) reasons.push(`紧急度+${input.urgency}`)
-      if (input.waitingMinutes > 30) reasons.push(`等待${input.waitingMinutes}min`)
-      if ((input.age ?? 0) >= 65) reasons.push('高龄患者')
-      if ((input.age ?? 0) <= 12) reasons.push('儿童患者')
-      if (examTypeScore > 0) reasons.push(`${input.bodyPart}优先`)
-      if (reasons.length === 0) reasons.push('常规排序')
-      return { id: input.id, score: Math.round(total * 1000) / 10, reasons }
-    })
-
-    const scoreMap = new Map(scored.map(s => [s.id, s]))
-    const sorted = [...filteredExams].sort((a, b) => {
-      const sa = scoreMap.get(a.id)?.score ?? 0
-      const sb = scoreMap.get(b.id)?.score ?? 0
-      return sb - sa
-    })
-
-    const explanations = sorted.slice(0, 20).map(e => ({
-      id: e.id,
-      text: `${e.patientName} ${e.examItemName} → ${scoreMap.get(e.id)?.reasons.join('、') || ''}`,
-      score: scoreMap.get(e.id)?.score ?? 0,
-    }))
-    setSmartExplanations(explanations)
-
-    return sorted
+    worklistSmartApi.reorder(inputs).then(res => {
+      if (cancelled) return
+      if (res.success && Array.isArray(res.data)) {
+        setSmartSortedIds(res.data.map((r: { id: string }) => r.id))
+        const explanations = res.data.slice(0, 20).map((r: { id: string; score: number; reasons: string[] }) => ({
+          id: r.id,
+          text: `${filteredExams.find(e => e.id === r.id)?.patientName ?? ''} ${filteredExams.find(e => e.id === r.id)?.examItemName ?? ''} → ${r.reasons.join('、') || ''}`,
+          score: r.score,
+        }))
+        setSmartExplanations(explanations)
+      } else {
+        setSmartSortedIds(null)
+      }
+    }).catch(() => { if (!cancelled) setSmartSortedIds(null) })
+    return () => { cancelled = true }
   }, [filteredExams, smartSortEnabled, computeSmartScoreInput])
+
+  const smartOrderedExams = useMemo(() => {
+    if (!smartSortEnabled || !smartSortedIds) return filteredExams
+    const idOrder = new Map(smartSortedIds.map((id, idx) => [id, idx]))
+    return [...filteredExams].sort((a, b) => (idOrder.get(a.id) ?? 9999) - (idOrder.get(b.id) ?? 9999))
+  }, [filteredExams, smartSortEnabled, smartSortedIds])
 
   const handleToggleSmartSort = useCallback((enabled: boolean) => {
     setSmartSortEnabled(enabled)
-    if (enabled) {
-      const items = filteredExams.map((exam, idx) => {
-        const input = computeSmartScoreInput(exam)
-        const urgencyScore = Math.max(0, Math.min(1, (input.urgency + 3) / 6))
-        const waitScore = input.waitingMinutes > 0 ? Math.min(1, Math.log2(1 + input.waitingMinutes) / 12) : 0
-        const ageScore = (input.age ?? 0) >= 65 ? 0.8 : (input.age ?? 0) <= 12 ? 0.6 : 0
-        const highParts = new Set(['头颅', '头部', '脑血管', '主动脉', '冠状动脉', '肺动脉'])
-        const examTypeScore = highParts.has(input.bodyPart ?? '') ? 1.0 : 0
-        const total = urgencyScore * 0.35 + waitScore * 0.30 + ageScore * 0.15 + examTypeScore * 0.20
-        return { exam, beforeRank: idx + 1, afterRank: 0, score: Math.round(total * 1000) / 10 }
-      })
-      items.sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
-      items.forEach((item, idx) => { item.afterRank = idx + 1 })
-      setSortCompareItems(items)
+    if (enabled && filteredExams.length > 0) {
+      const inputs = filteredExams.map(computeSmartScoreInput)
+      worklistSmartApi.reorder(inputs).then(res => {
+        if (res.success && Array.isArray(res.data)) {
+          const items = res.data.map((r: { id: string; score: number; rank: number; beforeRank: number }) => {
+            const exam = filteredExams.find(e => e.id === r.id)!
+            return { exam, beforeRank: r.beforeRank, afterRank: r.rank, score: r.score }
+          })
+          setSortCompareItems(items)
+        }
+      }).catch(() => { /* ignore */ })
     }
   }, [filteredExams, computeSmartScoreInput])
 

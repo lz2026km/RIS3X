@@ -275,10 +275,20 @@
   "roomOccupancy": "Room Occupancy",
   "benchmarkCompare": "Benchmark Compare",
   "aiDiagnosisAccuracy": "AI Diagnosis Accuracy",
+  "tatDashboard": "Report TAT Dashboard",
   "triageWorklist": "AI Triage Worklist",
   "dicomWeb": "DICOMweb",
   "orchestrator": "Task Orchestration",
   "dicomSr": "DICOM Structured Report",
   "radiomics": "Radiomics",
-  "dicom4d": "4D Dynamic"
+  "dicom4d": "4D Dynamic",
+  "fhirPatient": "FHIR Patient",
+  "fhirObservation": "FHIR Observation",
+  "fhirSubscription": "FHIR Subscription",
+  "dicomDimse": "DIMSE Management",
+  "dicomSrTemplates": "DICOM SR Templates",
+  "fusionManager": "Fusion Manager",
+  "radiomicsFeatures": "Radiomics Features",
+  "iheManager": "IHE Integration",
+  "hl7Manager": "HL7 Message Manager"
 }

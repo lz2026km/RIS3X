@@ -96,17 +96,18 @@ describe('Hl7Service - MLLP / ACK', () => {
       // No error means skip
     })
 
-    it('attempts push when enabled', async () => {
+    it('attempts push when enabled and throws on connection failure', async () => {
       process.env['HL7_PUSH_ENABLED'] = 'true'
       process.env['HL7_PUSH_HOST'] = '127.0.0.1'
       process.env['HL7_PUSH_PORT'] = '9999'
       const svc2 = new Hl7Service(mockPrisma as PrismaService)
       mockPrisma.hl7MessageArchive.create.mockResolvedValue({ id: 'a1' })
-      // Will fail because no server on 9999, but should not throw
-      await svc2.pushOruOnExamCompletion(
-        { accessionNumber: 'ACC001', modality: 'CT', startedAt: new Date() },
-        { id: 'r1', patientId: 'p1', findings: '正常', conclusion: '正常', patient: { name: '张三', gender: 'MALE', birthDate: new Date('1990-01-01') } },
-      )
+      await expect(
+        svc2.pushOruOnExamCompletion(
+          { accessionNumber: 'ACC001', modality: 'CT', startedAt: new Date() },
+          { id: 'r1', patientId: 'p1', findings: '正常', conclusion: '正常', patient: { name: '张三', gender: 'MALE', birthDate: new Date('1990-01-01') } },
+        ),
+      ).rejects.toThrow('HL7 ORU push failed')
       expect(mockPrisma.hl7MessageArchive.create).toHaveBeenCalled()
     })
   })

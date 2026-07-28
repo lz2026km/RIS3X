@@ -27,7 +27,7 @@ export const AuditCompliancePage: React.FC = () => {
         <Col span={4}><Card size="small"><Statistic title="Data Exports" value="7" /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="Breach Score" value="98" suffix="/100" /><Progress percent={98} size="small" strokeColor="#52c41a" /></Card></Col>
       </Row>
-      <Card size="small" title={<Space><FileSearch size={14}/>Audit Trail</Space>} extra={<Space><Button icon={<Filter size={12}/>} onClick={() => message.info('筛选面板已展开')}>Filter</Button><Button icon={<Download size={12}/>} onClick={() => message.success('审计日志已导出')}>Export</Button></Space>}>
+      <Card size="small" title={<Space><FileSearch size={14}/>Audit Trail</Space>} extra={<Space><Button icon={<Filter size={12}/>} onClick={() => message.warning('功能建设中')}>Filter</Button><Button icon={<Download size={12}/>} onClick={() => message.warning('功能建设中')}>Export</Button></Space>}>
         <Table dataSource={auditLogs} rowKey="id" pagination={false}
           columns={[
             {title:'ID',dataIndex:'id'},{title:'User',dataIndex:'user'},

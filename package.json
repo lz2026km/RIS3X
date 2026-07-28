@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.11-33",
-  "description": "G005 Radiology RIS v3.0.6.11-33 - 按钮-Tab 真实可达性审计 + 200 路由深度回归 + 文档全量同步",
+  "version": "3.0.6.11-34",
+  "description": "G005 Radiology RIS v3.0.6.11-34 - 审查修复 + 版本文档同步 v3.0.6.11-34",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",

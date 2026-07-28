@@ -362,6 +362,7 @@ export const translations: Translations = {
     "nav.roomOccupancy": "检查室占用率",
     "nav.benchmarkCompare": "报表同比环比",
     "nav.aiDiagnosisAccuracy": "AI 准确率仪表盘",
+    "nav.tatDashboard": "报告完成率TAT",
     "nav.criticalValueCenter": "危急值中心",
     "nav.defectManagement": "缺陷管理",
     // [v3.0.6.11-7] 放射科质控三甲级 - 新质控页面
@@ -1902,6 +1903,18 @@ export const translations: Translations = {
     "rdsr.trend": "剂量趋势",
     "rdsr.overThreshold": "超标统计",
     "rdsr.noStatsData": "暂无统计数据",
+    // [i18n-fix] sidebarConfig 缺失的 nav 翻译键补全
+    "nav.triageWorklist": "分诊工作列表",
+    "nav.triageDashboard": "分诊看板",
+    "nav.snomedEncoder": "SNOMED 编码器",
+    "nav.smartRoute": "智能路由",
+    "nav.crossModalSearch": "跨模态检索",
+    "nav.teleSign": "远程双签",
+    "nav.dualRead": "双阅片",
+    "nav.aiMarketplace": "AI 模型市场",
+    "nav.dicomWeb": "DICOMweb",
+    "nav.dicomCompress": "DICOM 压缩",
+    "nav.hl7Siu": "HL7 SIU 消息",
   },
   "en-US": {
     "app.title": "G005 Radiology Information System",
@@ -2223,6 +2236,7 @@ export const translations: Translations = {
     "nav.roomOccupancy": "Room Occupancy",
     "nav.benchmarkCompare": "Benchmark Compare",
     "nav.aiDiagnosisAccuracy": "AI Diagnosis Accuracy",
+    "nav.tatDashboard": "Report TAT Dashboard",
     "nav.criticalValueCenter": "Critical Value Center",
     "nav.defectManagement": "Defect Management",
     // [v3.0.6.11-7] 放射科质控三甲级 - 新质控页面
@@ -3762,6 +3776,18 @@ export const translations: Translations = {
     "rdsr.trend": "Dose Trend",
     "rdsr.overThreshold": "Over-threshold Stats",
     "rdsr.noStatsData": "No statistics data",
+    // [i18n-fix] sidebarConfig missing nav translation keys
+    "nav.triageWorklist": "Triage Worklist",
+    "nav.triageDashboard": "Triage Dashboard",
+    "nav.snomedEncoder": "SNOMED Encoder",
+    "nav.smartRoute": "Smart Routing",
+    "nav.crossModalSearch": "Cross-Modal Search",
+    "nav.teleSign": "Remote Sign",
+    "nav.dualRead": "Dual Read",
+    "nav.aiMarketplace": "AI Marketplace",
+    "nav.dicomWeb": "DICOMweb",
+    "nav.dicomCompress": "DICOM Compress",
+    "nav.hl7Siu": "HL7 SIU Message",
   },
 };
 

@@ -128,6 +128,12 @@ export default function CriticalValuePage() {
     setShowVoiceCallModal(false); setVoiceCallCV(null); setVoiceCallPhone("")
   }
 
+  const handleAcknowledge = async (cv: CriticalValue) => {
+    await useCriticalStore.getState().acknowledge(cv.id)
+    log("acknowledge", cv.id)
+    showToast("临床已确认接收")
+  }
+
   const handleClinicalReceipt = (cv: CriticalValue) => {
     setReceiptCV(cv); setReceiptDoctor(""); setReceiptComment(""); setShowReceiptModal(true)
   }
@@ -269,7 +275,7 @@ export default function CriticalValuePage() {
           filtered={filtered} selectedIds={selectedIds}
           onToggleSelect={toggleSelect} onToggleSelectAll={toggleSelectAll}
           onProcess={handleProcess} onViewDetail={handleViewDetail}
-          onContactClinical={handleContactClinical} onVoiceCall={handleVoiceCall} onClinicalReceipt={handleClinicalReceipt} onTransferToFollowUp={handleTransferToFollowUp}
+          onContactClinical={handleContactClinical} onVoiceCall={handleVoiceCall} onClinicalReceipt={handleClinicalReceipt} onAcknowledge={handleAcknowledge} onTransferToFollowUp={handleTransferToFollowUp}
           criticalValues={criticalValues}
         />
         {selectedCV && (

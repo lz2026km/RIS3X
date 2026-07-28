@@ -128,10 +128,11 @@ interface CriticalValueRowProps {
   onContactClinical: () => void
   onVoiceCall: () => void
   onClinicalReceipt: () => void
+  onAcknowledge: () => void
   onTransferToFollowUp: () => void
 }
 
-const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, onContactClinical, onVoiceCall, onClinicalReceipt, onTransferToFollowUp }: CriticalValueRowProps) => {
+const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, onContactClinical, onVoiceCall, onClinicalReceipt, onAcknowledge, onTransferToFollowUp }: CriticalValueRowProps) => {
   const statusCfg = STATUS_CONFIG[cv.status] || STATUS_CONFIG['pending']
   const severityCfg = SEVERITY_CONFIG[cv.severity] || SEVERITY_CONFIG['高危']
   const StatusIcon = statusCfg.icon || Bell
@@ -189,6 +190,11 @@ const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, o
             <Phone size={10} />电话
           </button>
         )}
+        {(cv.status === 'voice_called') && (
+          <button onClick={onAcknowledge} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #2563eb', background: '#dbeafe', color: '#2563eb', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+            <CheckCircle size={10} />确认
+          </button>
+        )}
         {(cv.status === 'acknowledged' || cv.status === '已接收') && (
           <button onClick={onClinicalReceipt} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #16a34a', background: '#f0fdf4', color: '#16a34a', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
             <Edit3 size={10} />回执
@@ -224,13 +230,14 @@ interface CriticalValueListProps {
   onContactClinical: (cv: CriticalValue) => void
   onVoiceCall: (cv: CriticalValue) => void
   onClinicalReceipt: (cv: CriticalValue) => void
+  onAcknowledge: (cv: CriticalValue) => void
   onTransferToFollowUp: (cv: CriticalValue) => void
   criticalValues: CriticalValue[]
 }
 
 export const CriticalValueList = ({
   filtered, selectedIds, onToggleSelect, onToggleSelectAll,
-  onProcess, onViewDetail, onContactClinical, onVoiceCall, onClinicalReceipt, onTransferToFollowUp, criticalValues,
+  onProcess, onViewDetail, onContactClinical, onVoiceCall, onClinicalReceipt, onAcknowledge, onTransferToFollowUp, criticalValues,
 }: CriticalValueListProps) => {
   const allSelected = filtered.length > 0 && selectedIds.size === filtered.length
 
@@ -282,6 +289,7 @@ export const CriticalValueList = ({
             onContactClinical={() => onContactClinical(cv)}
             onVoiceCall={() => onVoiceCall(cv)}
             onClinicalReceipt={() => onClinicalReceipt(cv)}
+            onAcknowledge={() => onAcknowledge(cv)}
             onTransferToFollowUp={() => onTransferToFollowUp(cv)}
           />
         ))

@@ -12,10 +12,10 @@ type CreateDefectEntryDto = z.infer<typeof CreateDefectEntrySchema>
 type UpdateDefectEntryDto = z.infer<typeof UpdateDefectEntrySchema>
 type CreateAiReportDraftDto = z.infer<typeof CreateAiReportDraftSchema>
 
-@ApiTags('report-quality')
+@ApiTags('report-quality-ext')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR')
-@Controller('reports/quality')
+@Controller('report-quality-ext')
 export class ReportQualityController {
   constructor(private readonly svc: ReportQualityService) {}
 

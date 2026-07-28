@@ -82,7 +82,7 @@ export default function DoctorMobileWorkstation() {
   })
 
   const handleItemClick = useCallback((item: DoctorWorklistItem) => {
-    message.info(`打开 ${item.examItem} - ${item.patientName} (Accession: ${item.accessionNumber})`)
+    message.warning('功能建设中')
   }, [])
 
   return (

@@ -288,7 +288,7 @@ export const DentalImplant3DPage: React.FC = () => {
             <Divider style={{margin:'8px 0'}} />
             <Space style={{width:'100%',justifyContent:'space-between'}}>
               {current.status === 'planning' && <Button type="primary" icon={<Save size={14}/>} onClick={handleApprove}>审批规划</Button>}
-              <Button icon={<Download size={14}/>} onClick={()=>message.info('导板 STL 已生成')}>导板导出</Button>
+              <Button icon={<Download size={14}/>} onClick={()=>message.warning('功能建设中')}>导板导出</Button>
               <Button icon={<AlertTriangle size={14}/>} onClick={()=>window.open('/dental/cad','_blank')}>修复设计</Button>
             </Space>
           </Card>

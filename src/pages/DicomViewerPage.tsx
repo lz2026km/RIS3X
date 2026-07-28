@@ -30,6 +30,7 @@ import { DicomCanvas, MIPCanvas, VRCanvas } from './dicom/DicomViewerSubComponen
 import ToolbarSection from './dicom/ToolbarSection'
 import ViewportArea from './dicom/ViewportArea'
 import SidebarPanel from './dicom/SidebarPanel'
+import { HangingProtocolPanel } from '../components/dicom/HangingProtocolPanel'
 
 const s = {
   root: { display: 'flex', flexDirection: 'column' as const, height: '100vh', background: '#0f172a', color: '#e2e8f0', overflow: 'hidden', fontFamily: "'PingFang SC','Microsoft YaHei',sans-serif" },
@@ -367,6 +368,17 @@ export default function DicomViewerPage() {
       <div data-testid="dicom-viewer-page" style={s.root}>
         {loading && <LoadingBanner message="正在从 API 加载影像数据..." />}
         {loadError && !loading && <ErrorBanner message={loadError} />}
+        <div style={{ position: 'absolute', top: 48, right: 296, zIndex: 40, width: 260 }}>
+          <HangingProtocolPanel
+            onApply={(p) => {
+              if (p.views?.[0]?.initialWw) setWw(p.views[0].initialWw!)
+              if (p.views?.[0]?.initialWl) setWl(p.views[0].initialWl!)
+              if (p.views?.[0]?.layout) setLayout(p.views[0].layout as any)
+            }}
+            modality={exam.modality}
+            bodyPart={exam.bodyPart}
+          />
+        </div>
         <div style={s.body}>
           <ToolbarSection
             tools={tools}

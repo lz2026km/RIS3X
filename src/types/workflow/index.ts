@@ -110,7 +110,7 @@ export interface RoutingRule {
   name: string;
   description?: string;
   priority: number;
-  enabled: boolean;
+  active: boolean;
   conditions: RuleConditionGroup;
   event: {
     type: string;

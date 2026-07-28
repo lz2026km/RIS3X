@@ -21,10 +21,10 @@ const UpdateDeviceSchema = z.object({
   state: z.enum(['IDLE', 'IN_USE', 'MAINTENANCE', 'BROKEN', 'OFFLINE']).optional(),
 })
 
-@ApiTags('devices')
+@ApiTags('device-mgmt')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR')
-@Controller('devices')
+@Controller('device-mgmt')
 export class DeviceController {
   constructor(private readonly service: DeviceService) {}
 

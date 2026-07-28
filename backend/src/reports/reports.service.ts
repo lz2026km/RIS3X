@@ -1,7 +1,37 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { QueueService } from '../queue/queue.service'
-import type { ReportState } from '@prisma/client'
+import type { ReportState, Report } from '@prisma/client'
+
+function toReportDto(r: Report & { patient?: { id: string; name: string; gender: string } | null; radiologist?: { id: string; fullName: string; role: string } | null }) {
+  return {
+    id: r.id,
+    reportId: r.id,
+    patientId: r.patientId,
+    patientName: r.patient?.name ?? '',
+    examId: r.examId ?? '',
+    modality: '',
+    bodyPart: '',
+    status: r.state,
+    findings: r.findings,
+    diagnosis: r.diagnosis,
+    impression: r.impression,
+    recommendations: r.recommendations,
+    conclusion: r.conclusion,
+    createdTime: r.createdAt?.toISOString() ?? '',
+    updatedTime: r.updatedAt?.toISOString() ?? '',
+    doctorId: r.radiologistId ?? '',
+    radiologistId: r.radiologistId,
+    state: r.state,
+    isCritical: r.isCritical,
+    hasCriticalValue: r.isCritical,
+    qualityScore: r.qualityScore,
+    reviewerId: r.reviewerId,
+    coSignerId: r.coSignerId,
+    signedAt: r.signedAt?.toISOString() ?? null,
+    rejectReason: r.rejectReason,
+  }
+}
 
 @Injectable()
 export class ReportsService {
@@ -21,7 +51,7 @@ export class ReportsService {
       }),
       this.prisma.report.count({ where: state ? { state } : undefined }),
     ])
-    return { items, total, skip, take }
+    return { items: items.map(toReportDto), total, skip, take }
   }
 
   async get(id: string) {
@@ -34,11 +64,11 @@ export class ReportsService {
       },
     })
     if (!r) throw new NotFoundException(`Report ${id} not found`)
-    return r
+    return toReportDto(r as any)
   }
 
   async create(dto: { patientId: string; examId?: string; radiologistId?: string; findings: string; conclusion: string }) {
-    return this.prisma.report.create({
+    const r = await this.prisma.report.create({
       data: {
         patientId: dto.patientId,
         examId: dto.examId,
@@ -48,7 +78,9 @@ export class ReportsService {
         state: 'PENDING_ASSIGNMENT',
         tenantId: 'default',
       },
+      include: { patient: { select: { id: true, name: true, gender: true } } },
     })
+    return toReportDto(r)
   }
 
   async update(id: string, dto: { findings?: string; conclusion?: string; state?: ReportState }) {
@@ -56,10 +88,12 @@ export class ReportsService {
       const current = await tx.report.findUnique({ where: { id } })
       if (!current) throw new NotFoundException(`Report ${id} not found`)
       try {
-        return await tx.report.update({
+        const r = await tx.report.update({
           where: { id, version: current.version },
           data: { ...dto, version: { increment: 1 } },
+          include: { patient: { select: { id: true, name: true, gender: true } } },
         })
+        return toReportDto(r)
       } catch (error: any) {
         if (error?.code === 'P2025') throw new ConflictException('版本冲突：该报告已被其他用户修改')
         throw error
@@ -77,9 +111,10 @@ export class ReportsService {
     const existing = await this.prisma.report.findUnique({ where: { id } })
     if (!existing) throw new NotFoundException(`Report ${id} not found`)
     return this.prisma.$transaction(async (tx) => {
-      const updated = await tx.report.update({
+      const r = await tx.report.update({
         where: { id },
         data: { state: 'WITHDRAWN' },
+        include: { patient: { select: { id: true, name: true, gender: true } } },
       })
       await tx.reportRevision.create({
         data: {
@@ -91,7 +126,7 @@ export class ReportsService {
           tenantId: 'default',
         },
       })
-      return updated
+      return toReportDto(r)
     })
   }
 
@@ -106,11 +141,15 @@ export class ReportsService {
     const report = await this.prisma.report.findUnique({ where: { id } })
     if (!report) throw new NotFoundException('Report not found')
     return this.prisma.$transaction(async (tx) => {
-      const updated = await tx.report.update({ where: { id }, data: { state: to } })
+      const r = await tx.report.update({
+        where: { id },
+        data: { state: to },
+        include: { patient: { select: { id: true, name: true, gender: true } } },
+      })
       await tx.reportRevision.create({
         data: { reportId: id, actorId, fromState: report.state, toState: to, reason: reason ?? null, tenantId: 'default' },
       })
-      return updated
+      return toReportDto(r)
     })
   }
 }

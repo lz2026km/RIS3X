@@ -2,7 +2,7 @@
  * G005 放射RIS系统 v3.0.6.1 - Philips IntelliSpace Portal View (门户视图)
  */
 import React from 'react'
-import { Card, Row, Col, Tag, Space, Statistic, Tabs } from 'antd'
+import { Card, Row, Col, Tag, Space, Statistic, Tabs, Empty } from 'antd'
 import { Globe, Activity, Eye } from 'lucide-react'
 
 export interface PortalViewProps {
@@ -38,10 +38,10 @@ export const PortalView: React.FC<PortalViewProps> = ({
       <Card size="small" title="IntelliSpace Portal">
         <Tabs
           items={[
-            { key: 'worklist', label: '工作列表', children: <Tag color="blue">Worklist 跨院区视图</Tag> },
-            { key: 'exam', label: '影像浏览', children: <Tag color="purple">XERO 浏览器</Tag> },
-            { key: 'report', label: '报告', children: <Tag color="green">结构化报告</Tag> },
-            { key: 'ai', label: 'AI Hub', children: <Tag color="cyan">多模型协调</Tag> },
+            { key: 'worklist', label: '工作列表', children: <Empty description="数据待接入" /> },
+            { key: 'exam', label: '影像浏览', children: <Empty description="数据待接入" /> },
+            { key: 'report', label: '报告', children: <Empty description="数据待接入" /> },
+            { key: 'ai', label: 'AI Hub', children: <Empty description="数据待接入" /> },
           ]}
         />
         <Space wrap style={{ marginTop: 8 }}>

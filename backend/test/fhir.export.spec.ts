@@ -68,7 +68,7 @@ describe('FhirService - $export / Subscription / Resource', () => {
   describe('bulkExportStatus ($export-status)', () => {
     it('returns status for running job', async () => {
       const { jobId } = await svc.bulkExport()
-      const status = await svc.bulkExportStatus(jobId)
+      const status = await svc.bulkExportStatus(jobId) as { status: string }
       expect(status.status).toBe('running')
     })
 

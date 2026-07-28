@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Smartphone, Users, Link2, Bell, FileText, Activity, Download, Share2, Eye } from 'lucide-react';
+import { message } from 'antd';
 import { PORTAL_ACCESS_MOCK, PATIENT_REPORTS_MOCK, PATIENT_NOTIFICATIONS_MOCK, PATIENT_CONSENTS_MOCK, PORTAL_KPI_MOCK } from '../../data/portalMock';
 import PatientPortalView from '../../components/portal/PatientPortalView';
 import ReportViewer from '../../components/portal/ReportViewer';
@@ -115,7 +116,7 @@ export default function PatientPortalPage() {
           <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>患者报告（{PATIENT_REPORTS_MOCK.length}）</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: 8 }}>
             {PATIENT_REPORTS_MOCK.map(r => (
-              <ReportViewer key={r.id} report={r} onDownload={(id) => alert(`下载报告 ${id}`)} />
+              <ReportViewer key={r.id} report={r} onDownload={(id) => message.warning('功能建设中')} />
             ))}
           </div>
         </div>
@@ -129,8 +130,8 @@ export default function PatientPortalPage() {
               <PatientConsentCard
                 key={c.id}
                 consent={c}
-                onSign={(id) => alert(`签署同意书 ${id}`)}
-                onReject={(id) => alert(`拒绝同意书 ${id}`)}
+                onSign={(id) => message.warning('功能建设中')}
+                onReject={(id) => message.warning('功能建设中')}
               />
             ))}
           </div>

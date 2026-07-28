@@ -247,7 +247,7 @@ export const reportHandlers = [
   }),
 
   // 更新 (带状态机校验)
-  http.put(`${API_BASE}/reports/:id`, async ({ params, request }) => {
+  http.patch(`${API_BASE}/reports/:id`, async ({ params, request }) => {
     await delay(120);
     const id = params.id as string;
     const body = (await request.json()) as any;

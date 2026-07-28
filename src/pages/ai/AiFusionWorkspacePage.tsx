@@ -51,7 +51,7 @@ export const AiFusionWorkspacePage: React.FC = () => {
           </Card>
         </Col>
       </Row>
-      <Card size="small" title={<Space><FileText size={14}/>Fusion Studies</Space>} extra={<Button icon={<Share2 size={12}/>} onClick={() => message.success('融合报告导出已启动')}>Export Fusion Report</Button>}>
+      <Card size="small" title={<Space><FileText size={14}/>Fusion Studies</Space>} extra={<Button icon={<Share2 size={12}/>} onClick={() => message.warning('功能建设中')}>Export Fusion Report</Button>}>
         <Table dataSource={studies} rowKey="id" pagination={false}
           columns={[
             {title:'Patient',dataIndex:'patient'},{title:'Modalities',dataIndex:'modalities'},
@@ -60,7 +60,7 @@ export const AiFusionWorkspacePage: React.FC = () => {
             {title:'AI Alerts',dataIndex:'aiAlerts',render:(a:number)=><Badge count={a} size="small" />},
             {title:'Status',dataIndex:'status',render:(s:string)=><Badge status={s==='complete'?'success':'processing'} text={s} />},
             {title:'Date',dataIndex:'date'},
-            {title:'Action',render:()=><Space><Button size="small" onClick={() => message.info('查看融合详情')}><Eye size={10}/>View</Button><Button size="small" onClick={() => message.success('下载已开始')}><Download size={10}/>Download</Button></Space>},
+            {title:'Action',render:()=><Space><Button size="small" onClick={() => message.warning('功能建设中')}><Eye size={10}/>View</Button><Button size="small" onClick={() => message.warning('功能建设中')}><Download size={10}/>Download</Button></Space>},
           ]} />
       </Card>
     </div>

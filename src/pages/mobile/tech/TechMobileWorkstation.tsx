@@ -80,11 +80,11 @@ export default function TechMobileWorkstation() {
   }, [])
 
   const handleCompleteExam = useCallback((id: string) => {
-    message.success(`完成检查: ${id}`)
+    message.warning('功能建设中')
   }, [])
 
   const handleScan = useCallback(() => {
-    message.info('扫码枪/相机扫描条码')
+    message.warning('功能建设中')
   }, [])
 
   return (

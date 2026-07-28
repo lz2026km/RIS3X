@@ -4,10 +4,10 @@ import type { WorkflowGraph, RoutingRule, SLAPolicyConfig } from '../../types/wo
 export interface WorkflowDefinitionDto {
   id: string
   name: string
-  version: string
+  version: number
   description?: string
   graph?: WorkflowGraph
-  status: 'draft' | 'active' | 'deployed' | 'archived'
+  active: boolean
   createdAt: string
   updatedAt: string
 }
@@ -42,7 +42,7 @@ export interface RoutingRuleDto {
   name: string
   description?: string
   priority: number
-  enabled: boolean
+  active: boolean
   conditions: Record<string, unknown>
   event: Record<string, unknown>
   target?: Record<string, unknown>
