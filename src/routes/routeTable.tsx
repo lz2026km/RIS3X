@@ -441,10 +441,22 @@ const OrchestratorPage = lazy(() => import("../pages/workflow/OrchestratorPage")
   // [Sprint 4] F16 Tele-Sign
   const TeleSignPage = lazy(() => import("../pages/tele/TeleSignPage"));
 
+  // [v3.0.6.11-41] A11-A13 PACS 对标补齐
+  const ThirdPartyAiPage = lazy(() => import("../pages/ai/ThirdPartyAiPage"));
+  const MprPage = lazy(() => import("../pages/dicom/MprPage"));
+  const MipPage = lazy(() => import("../pages/dicom/MipPage"));
+  const VrPage = lazy(() => import("../pages/dicom/VrPage"));
+  const PostProcessingPage = lazy(() => import("../pages/dicom/PostProcessingPage"));
+  const DbtPage = lazy(() => import("../pages/dicom/DbtPage"));
+  const DlDenoisePage = lazy(() => import("../pages/ai/DlDenoisePage"));
+
   // [Sprint 4] F17 Smart Route
   const SmartRoutePage = lazy(() => import("../pages/workflow/SmartRoutePage"));
   // [Sprint 4] F18 HL7 SIU
   const Hl7SiuPage = lazy(() => import("../pages/integration/Hl7SiuPage"));
+
+  // [v3.0.6.11-41] A11-A13 PACS 对标补齐: AI + DICOM + 专科
+  // (ThirdPartyAiPage, MprPage, MipPage, VrPage, PostProcessingPage, DbtPage, DlDenoisePage 已在上方声明)
 
   // [audit-fix-2026-07-28] 后端端点补齐: FHIR/DICOM/Fusion/Radiomics/IHE/HL7 前端页面
   const FhirPatientPage = lazy(() => import("../pages/fhir/FhirPatientPage"));
@@ -580,6 +592,11 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/dicom/fusion": ["医生", "主任", "技师", "管理员"], // [v3.0.6.11-18] PET-CT/MR fusion
   "/dicom/fusion-v2": ["医生", "主任", "技师", "管理员"], // [v3.0.6.11-22] Multi-modal fusion V2
   "/dicom/volume-viewer": ["医生", "主任", "技师", "管理员"], // [v3.0.6.11-18] 3D Volume Rendering
+  "/dicom/mpr": ["医生", "技师", "主任", "管理员"], // [v3.0.6.11-41] MPR
+  "/dicom/mip": ["医生", "技师", "主任", "管理员"], // [v3.0.6.11-41] MIP
+  "/dicom/vr": ["医生", "技师", "主任", "管理员"], // [v3.0.6.11-41] VR
+  "/dicom/post-processing": ["医生", "技师", "主任", "管理员"], // [v3.0.6.11-41] Post-Processing
+  "/dicom/dbt": ["医生", "技师", "主任", "管理员"], // [v3.0.6.11-41] DBT
   "/terminology-server": ["医生", "主任", "技师", "管理员", "护士"], // [v3.0.6.8-73]
   "/report-templates": ["医生", "主任", "技师", "管理员", "护士"], // [v3.0.6.8-74]
   "/ihe-integration": ["主任", "管理员", "技师"], // [v3.0.6.8-75]
@@ -658,6 +675,8 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/ai/breast-cad": ["医生", "主任", "技师", "管理员"],
   "/ai/fracture-cad": ["医生", "主任", "技师", "管理员"],
   "/ai/cardiac-ai": ["医生", "主任", "技师", "管理员"],
+  "/ai/third-party": ["管理员"],
+  "/ai/dl-denoise": ["医生", "主任", "技师", "管理员"],
   "/dicom/wado-rs": ["医生", "技师", "主任", "管理员"],
   "/dicom/stow-rs": ["技师", "管理员"],
   "/dicom/sr-report": ["医生", "技师", "主任", "管理员"],
@@ -948,6 +967,12 @@ export const routes: RouteObject[] = [
   wrapped("/dicom/fusion", React.createElement(FusionPage)), // [v3.0.6.11-18] PET-CT/MR fusion
   wrapped("/dicom/fusion-v2", React.createElement(FusionV2Page)), // [v3.0.6.11-22] Multi-modal fusion V2
   wrapped("/dicom/volume-viewer", React.createElement(VolumeViewerPage)), // [v3.0.6.11-18] 3D Volume Rendering
+  // [v3.0.6.11-41] A12 影像处理补齐路由
+  wrapped("/dicom/mpr", React.createElement(MprPage)),
+  wrapped("/dicom/mip", React.createElement(MipPage)),
+  wrapped("/dicom/vr", React.createElement(VrPage)),
+  wrapped("/dicom/post-processing", React.createElement(PostProcessingPage)),
+  wrapped("/dicom/dbt", React.createElement(DbtPage)),
   wrapped("/ai-fusion-workspace", React.createElement(AiFusionWorkspacePage)), // [v3.0.6.8-76]
   wrapped("/ai-cad", React.createElement(AiCadPage)),
   wrapped("/ai-draft", React.createElement(AiDraftPage)),
@@ -1052,11 +1077,13 @@ export const routes: RouteObject[] = [
   wrapped("/radiomics/features", React.createElement(RadiomicsFeaturePage)),
   wrapped("/ihe/manager", React.createElement(IheManagerPage)),
   wrapped("/hl7/manager", React.createElement(Hl7ManagerPage)),
-  // [v3.0.6.11-40] A9-A14 后端模块对接路由
+  // [v3.0.6.11-41] A11 AI 集成补齐路由
   wrapped("/ai/lung-cad", React.createElement(LungCadPage)),
   wrapped("/ai/breast-cad", React.createElement(BreastCadPage)),
   wrapped("/ai/fracture-cad", React.createElement(FractureCadPage)),
   wrapped("/ai/cardiac-ai", React.createElement(CardiacAiPage)),
+  wrapped("/ai/third-party", React.createElement(ThirdPartyAiPage)),
+  wrapped("/ai/dl-denoise", React.createElement(DlDenoisePage)),
   wrapped("/dicom/wado-rs", React.createElement(WadoRsPage)),
   wrapped("/dicom/stow-rs", React.createElement(StowRsPage)),
   wrapped("/dicom/sr-report", React.createElement(SrReportPage)),

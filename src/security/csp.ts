@@ -23,7 +23,7 @@ import type { MetaTagDescriptor } from './types';
 export const CSP_HEADER = (isDev: boolean): string => {
   const scriptSrc = [
     "'self'",
-    "'unsafe-inline'",  // antd 大量内联
+    isDev ? "'unsafe-inline'" : '',  // antd inline only in dev
     isDev ? "'unsafe-eval'" : '',  // Vite dev
     'https://*.sentry.io',
     'https://*.deepseek.com',

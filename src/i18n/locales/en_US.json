@@ -4402,5 +4402,49 @@
     "barcodePlaceholder": "Scan or enter accession/exam ID...",
     "barcodeScan": "Barcode Check-In",
     "printTag": "Print Wristband"
+  },
+  "qcimage": {
+    "title": "Image Quality Control",
+    "score": "QC Score",
+    "grade": "QC Grade",
+    "dimensions": "QC Dimensions",
+    "evaluate": "Evaluate",
+    "history": "History"
+  },
+  "benchmark": {
+    "title": "Benchmark Comparison",
+    "industry": "Industry Benchmark",
+    "internal": "Internal Benchmark",
+    "compare": "Compare Analysis"
+  },
+  "oee": {
+    "title": "Overall Equipment Effectiveness",
+    "availability": "Availability",
+    "performance": "Performance",
+    "quality": "Quality",
+    "overall": "Overall Efficiency"
+  },
+  "rads": {
+    "title": "RADS Grading",
+    "grade": "Grade",
+    "description": "Description"
+  },
+  "dicomCompress": {
+    "title": "DICOM Compression",
+    "lossless": "Lossless",
+    "lossy": "Lossy",
+    "ratio": "Compression Ratio"
+  },
+  "worklistSmart": {
+    "title": "Smart Worklist",
+    "autoAssign": "Auto Assign",
+    "priority": "Priority",
+    "filter": "Filter"
+  },
+  "dicom4d": {
+    "title": "4D DICOM",
+    "playback": "Playback",
+    "speed": "Speed",
+    "frame": "Frame"
   }
 }

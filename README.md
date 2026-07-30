@@ -1,8 +1,8 @@
-﻿# G005 放射科 RIS 系统 v3.0.6.11-40
+﻿# G005 放射科 RIS 系统 v3.0.6.11-41
 
 > **企业级放射信息系统 · 对标前 10 大 PACS/RIS 厂商** · 17 模块 / 9,000+ R3 点完整实施
 
-[![Version](https://img.shields.io/badge/version-3.0.6.11--40-blue.svg)](https://github.com/lz2026km/g005-radiology-ris)
+[![Version](https://img.shields.io/badge/version-3.0.6.11--41-blue.svg)](https://github.com/lz2026km/g005-radiology-ris)
 [![CI](https://github.com/lz2026km/g005-radiology-ris/actions/workflows/ci.yml/badge.svg)](https://github.com/lz2026km/g005-radiology-ris/actions/workflows/ci.yml)
 [![Test](https://img.shields.io/badge/test-159%2F159-success.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
@@ -14,7 +14,7 @@
 
 G005 是面向**三级甲等综合医院**的企业级放射信息系统(RIS)，对标全球前 10 大 PACS/RIS 厂商（GE、Siemens、Philips、Fujifilm、Carestream、Agfa、Canon、Hologic、Intelerad、Mach7），涵盖从 AI 辅助到患者门户的完整放射科工作流。
 
-**版本迭代**: v3.0.0 → v3.0.6.11-40（17 模块，9,000+ 升级点，**后端 251 端点 + IndexedDB 持久化**）
+**版本迭代**: v3.0.0 → v3.0.6.11-41（17 模块，9,000+ 升级点，**后端 251 端点 + IndexedDB 持久化**）
 
 ### v3.0.6.8-40 眼科深化 (7 PR 并行, 对标 Topcon Synergy 8.0)
 

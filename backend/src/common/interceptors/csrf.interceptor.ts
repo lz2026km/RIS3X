@@ -46,7 +46,10 @@ export class CsrfInterceptor implements NestInterceptor {
     if (origin || referer) {
       response.setHeader('Vary', 'Origin')
       this.validateOrigin(origin, referer)
+    } else {
+      throw new ForbiddenException('CSRF validation failed: missing Origin and Referer headers')
     }
+
     const token = request.headers['x-csrf-token']
     if (typeof token !== 'string' || !this.validateToken(token)) {
       throw new ForbiddenException('CSRF validation failed: invalid X-CSRF-Token')

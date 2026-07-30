@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useCornerstone3D, useViewport, useDicomMetadata } from '../../hooks/useCornerstone';
 import { WINDOW_PRESETS_LIST } from '../../services/dicomWeb';
+import { getDefaultWindowing } from '../../services/viewer/displayService';
 import { DICOM_SAMPLES, DicomSample } from '../../data/dicomSamples';
 import { TOOLS, ToolType, DicomMeasurement, createMeasurement, calculateLength, calculateAngle, calculateCobbAngle } from './tools';
 
@@ -91,8 +92,9 @@ export default function DicomViewerPro({
   const [presetKey, setPresetKey] = useState<string>(
     initialPreset || applicablePresets[0]?.key || 'CT_SOFT_TISSUE'
   );
-  const [ww, setWw] = useState(applicablePresets[0]?.ww || 400);
-  const [wc, setWc] = useState(applicablePresets[0]?.wc || 40);
+  const modalityDefaults = useMemo(() => getDefaultWindowing(effectiveModality), [effectiveModality]);
+  const [ww, setWw] = useState(applicablePresets[0]?.ww || modalityDefaults.ww);
+  const [wc, setWc] = useState(applicablePresets[0]?.wc || modalityDefaults.wc);
 
   useEffect(() => {
     const p = applicablePresets.find(p => p.key === presetKey) || applicablePresets[0];
@@ -319,7 +321,7 @@ export default function DicomViewerPro({
           </select>
         )}
         <span style={{ color: '#64748b' }}>W:{ww} L:{wc}</span>
-        <input type="range" min="0" max="3000" value={ww} onChange={e => setWw(parseInt(e.target.value))} style={{ width: 60 }} title="Width" />
+        <input type="range" min="1" max="3000" value={ww} onChange={e => setWw(Math.max(1, parseInt(e.target.value)))} style={{ width: 60 }} title="Width" />
         <input type="range" min="-1000" max="1000" value={wc} onChange={e => setWc(parseInt(e.target.value))} style={{ width: 60 }} title="Level" />
         <div style={{ width: 1, height: 16, background: '#333' }} />
         <select value={currentSample?.id || ''} onChange={e => setSelectedSampleId(e.target.value)} style={selectStyle}>

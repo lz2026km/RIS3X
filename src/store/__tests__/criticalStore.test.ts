@@ -1,11 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useCriticalStore } from '../criticalStore';
 
-const { mockList, mockAcknowledge, mockResolve, mockNotify } = vi.hoisted(() => ({
+const { mockList, mockAcknowledge, mockResolve, mockNotify, mockEscalate } = vi.hoisted(() => ({
   mockList: vi.fn(),
   mockAcknowledge: vi.fn(),
   mockResolve: vi.fn(),
   mockNotify: vi.fn(),
+  mockEscalate: vi.fn(),
 }));
 
 vi.mock('@services/api', () => ({
@@ -14,6 +15,7 @@ vi.mock('@services/api', () => ({
     acknowledge: mockAcknowledge,
     resolve: mockResolve,
     notify: mockNotify,
+    escalate: mockEscalate,
   },
 }));
 
@@ -51,15 +53,15 @@ describe('criticalStore', () => {
       expect(useCriticalStore.getState().error).toBe('网络错误');
     });
 
-    it('maintains existing actors on reload', async () => {
+    it('maintains existing values on reload', async () => {
       const data = [createValue()];
       mockList.mockResolvedValue({ success: true, data });
       await useCriticalStore.getState().load();
-      const actorsAfterFirstLoad = useCriticalStore.getState().actors;
-      expect(actorsAfterFirstLoad.size).toBe(1);
+      const valuesAfterFirstLoad = useCriticalStore.getState().values;
+      expect(valuesAfterFirstLoad).toHaveLength(1);
       mockList.mockResolvedValue({ success: true, data: [createValue()] });
       await useCriticalStore.getState().load();
-      expect(useCriticalStore.getState().actors.size).toBe(1);
+      expect(useCriticalStore.getState().values).toHaveLength(1);
     });
   });
 
@@ -119,6 +121,7 @@ describe('criticalStore', () => {
       const data = [createValue({ status: 'pending' })];
       mockList.mockResolvedValue({ success: true, data });
       await useCriticalStore.getState().load();
+      mockEscalate.mockResolvedValue({ success: true });
       await useCriticalStore.getState().escalate('cv-1', 'chief');
       expect(useCriticalStore.getState().values[0].status).toBe('escalated');
       expect(useCriticalStore.getState().values[0].escalatedTo).toBe('chief');

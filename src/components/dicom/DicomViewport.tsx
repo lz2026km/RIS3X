@@ -162,10 +162,12 @@ export default function DicomViewport({
           const idx = y * CANVAS_W + x
           const pixelIdx = idx * 4
           const r = mrData[idx * 3]!, g = mrData[idx * 3 + 1]!, b = mrData[idx * 3 + 2]!
-          const wwFactor = ww / 400, wlFactor = (wl - 40) / 100
-          pixelData[pixelIdx] = Math.max(0, Math.min(255, r * wwFactor + wlFactor * 50))
-          pixelData[pixelIdx + 1] = Math.max(0, Math.min(255, g * wwFactor + wlFactor * 50))
-          pixelData[pixelIdx + 2] = Math.max(0, Math.min(255, b * wwFactor + wlFactor * 50))
+          const rW = windowLevel(r, wl, ww) * 255
+          const gW = windowLevel(g, wl, ww) * 255
+          const bW = windowLevel(b, wl, ww) * 255
+          pixelData[pixelIdx] = Math.max(0, Math.min(255, rW))
+          pixelData[pixelIdx + 1] = Math.max(0, Math.min(255, gW))
+          pixelData[pixelIdx + 2] = Math.max(0, Math.min(255, bW))
           pixelData[pixelIdx + 3] = 255
         }
       }
@@ -176,7 +178,7 @@ export default function DicomViewport({
           const idx = y * CANVAS_W + x
           const pixelIdx = idx * 4
           const gray = rawData[idx]!
-          const windowedGray = windowLevel(gray * (ww / 400) + (wl - 40), 128, 256) * 255
+          const windowedGray = windowLevel(gray, wl, ww) * 255
           const finalGray = Math.max(0, Math.min(255, windowedGray))
           if (pseudoColorMode && pseudoColorMode !== 'none') {
             const pseudo = applyPseudoColor(finalGray, pseudoColorMode)

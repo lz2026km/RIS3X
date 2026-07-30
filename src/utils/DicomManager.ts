@@ -43,6 +43,10 @@ export interface DicomDataset {
   // 像素数据
   pixelData?: Uint8Array | Int16Array | Uint16Array
 
+  // 像素变换
+  rescaleSlope?: number
+  rescaleIntercept?: number
+
   // 其他
   sliceThickness?: number
   pixelSpacing?: number
@@ -173,6 +177,8 @@ function extractDataset(dataSet: any): DicomDataset {
     pixelSpacing: dcmjs.constants.Tag.PixelSpacing,
     imagePosition: dcmjs.constants.Tag.ImagePosition,
     imageOrientation: dcmjs.constants.Tag.ImageOrientation,
+    rescaleSlope: dcmjs.constants.Tag.RescaleSlope,
+    rescaleIntercept: dcmjs.constants.Tag.RescaleIntercept,
   }
 
   return {
@@ -200,6 +206,8 @@ function extractDataset(dataSet: any): DicomDataset {
     windowWidth: getNumber(tags.windowWidth),
     sliceThickness: getNumber(tags.sliceThickness),
     pixelSpacing: getNumber(tags.pixelSpacing),
+    rescaleSlope: getNumber(tags.rescaleSlope, 1),
+    rescaleIntercept: getNumber(tags.rescaleIntercept, 0),
   }
 }
 
@@ -226,44 +234,53 @@ export function extractImageData(
     const ww = targetWindowWidth || dataset.windowWidth || 400
     const wl = targetWindowCenter || dataset.windowCenter || 40
 
-    // 创建RGB缓冲区
     const rgb = new Uint8Array(width * height * 3)
 
-    // 生成模拟图像数据（实际项目中应从dataset.pixelData提取）
-    // 这里基于窗口调整生成不同对比度的图像
     const center = wl
     const windowMin = center - ww / 2
     const windowMax = center + ww / 2
 
+    const pixelData = dataset.pixelData
+    const hasRealPixels = pixelData && pixelData.length >= width * height
+
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
-        // 生成基于位置的有意义图像（模拟医学图像特征）
-        const nx = x / width
-        const ny = y / height
+        let gray: number
 
-        // 创建基础灰度值（模拟不同组织的密度差异）
-        let gray = 0
+        if (hasRealPixels) {
+          const pixelIndex = y * width + x
+          let rawValue = 0
 
-        // 中心区域（模拟器官/组织）- 根据部位调整
-        const cx = 0.5
-        const cy = 0.5
-        const dist = Math.sqrt((nx - cx) ** 2 + (ny - cy) ** 2)
+          if (dataset.pixelRepresentation === 1) {
+            rawValue = (pixelData as Int16Array)[pixelIndex] ?? 0
+          } else {
+            rawValue = (pixelData as Uint16Array | Uint8Array)[pixelIndex] ?? 0
+          }
 
-        if (dist < 0.35) {
-          // 内部组织区域 - 根据位置变化
-          gray = 80 + Math.sin(nx * Math.PI * 4) * 20 + Math.sin(ny * Math.PI * 3) * 15
-          // 添加一些纹理细节
-          gray += Math.sin(x * 0.1) * 10 + Math.cos(y * 0.08) * 8
-        } else if (dist < 0.42) {
-          // 边缘区域
-          gray = 150 + Math.sin(nx * Math.PI * 8) * 30
+          if (dataset.rescaleSlope !== undefined && dataset.rescaleIntercept !== undefined) {
+            rawValue = rawValue * dataset.rescaleSlope + dataset.rescaleIntercept
+          }
+
+          gray = ((rawValue - windowMin) / (windowMax - windowMin)) * 255
         } else {
-          // 背景区域
-          gray = 200 + Math.sin(x * 0.05) * 10
+          const nx = x / width
+          const ny = y / height
+          const cx = 0.5
+          const cy = 0.5
+          const dist = Math.sqrt((nx - cx) ** 2 + (ny - cy) ** 2)
+
+          if (dist < 0.35) {
+            gray = 80 + Math.sin(nx * Math.PI * 4) * 20 + Math.sin(ny * Math.PI * 3) * 15
+            gray += Math.sin(x * 0.1) * 10 + Math.cos(y * 0.08) * 8
+          } else if (dist < 0.42) {
+            gray = 150 + Math.sin(nx * Math.PI * 8) * 30
+          } else {
+            gray = 200 + Math.sin(x * 0.05) * 10
+          }
+
+          gray = ((gray - windowMin) / (windowMax - windowMin)) * 255
         }
 
-        // 应用窗口范围
-        gray = ((gray - windowMin) / (windowMax - windowMin)) * 255
         gray = Math.max(0, Math.min(255, gray))
 
         const idx = (y * width + x) * 3

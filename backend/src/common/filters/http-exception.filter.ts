@@ -4,6 +4,8 @@ import * as Sentry from '@sentry/node'
 import type { Request } from 'express'
 import { applySecurityHeaders } from '../interceptors/security-headers.interceptor'
 
+const isProd = process.env['NODE_ENV'] === 'production'
+
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(HttpExceptionFilter.name)
@@ -27,7 +29,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const isClientError = exception instanceof HttpException && httpStatus < 500
     const responseBody = isClientError
       ? exception.getResponse()
-      : { message: exception instanceof Error ? exception.message : 'Internal Server Error' }
+      : { message: 'Internal Server Error' }
 
     let message: unknown = 'Internal Server Error'
     let errors: unknown
@@ -50,16 +52,17 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     const normalizedMessage = typeof message === 'string' ? message : JSON.stringify(message)
     const requestPath = this.requestPath(request)
+    const safeMessage = (httpStatus >= 500 && isProd) ? 'Internal Server Error' : normalizedMessage
     const errorResponse: Record<string, unknown> = {
       success: false,
       data: null,
       error: {
         code: typeof responseCode === 'string' ? responseCode : `HTTP_${httpStatus}`,
-        message: normalizedMessage,
-        ...(errors ? { details: errors } : {}),
+        message: safeMessage,
+        ...((httpStatus < 500 && errors) ? { details: errors } : {}),
       },
       statusCode: httpStatus,
-      message: normalizedMessage,
+      message: safeMessage,
       path: requestPath,
       method: request.method,
       timestamp: new Date().toISOString(),

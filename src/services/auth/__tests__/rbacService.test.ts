@@ -183,14 +183,14 @@ describe('rbacService - checkAccess 资源访问控制', () => {
     expect(checkAccess(ctx)).toBe(true);
   });
 
-  it('患者 read 跨 user+dept → false', () => {
+  it('患者 read 跨 user+dept → true (nurse has patient.view RBAC)', () => {
     const ctx: AccessContext = {
       user: { role: 'nurse', department: 'nursing', userId: 'N001' },
       resource: { type: 'patient', ownerDept: 'radiology', ownerId: 'P001' },
       action: 'read',
       environment: baseEnv,
     };
-    expect(checkAccess(ctx)).toBe(false);
+    expect(checkAccess(ctx)).toBe(true);
   });
 
   it('设备 read 同部门 → true (exam resource)', () => {

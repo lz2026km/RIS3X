@@ -192,6 +192,7 @@ model Patient {
   state     String      @default("registered")
   reports   Report[]
   exams     Exam[]
+  appointments Appointment[]
   studies   EyeStudy[]
   version   Int         @default(0)
   createdAt DateTime    @default(now()) @map("created_at")
@@ -296,6 +297,7 @@ model Device {
   todayUsageMin Int         @default(0) @map("today_usage_min")
   version       Int         @default(0)
   exams         Exam[]
+  appointments  Appointment[]
   createdAt     DateTime    @default(now()) @map("created_at")
   updatedAt     DateTime    @updatedAt @map("updated_at")
 
@@ -340,6 +342,8 @@ model Appointment {
   scheduledAt DateTime         @map("scheduled_at")
   state       AppointmentState @default(SCHEDULED)
   version     Int              @default(0)
+  patient     Patient          @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  device      Device?          @relation(fields: [deviceId], references: [id])
   createdAt   DateTime         @default(now()) @map("created_at")
 
   @@index([patientId])

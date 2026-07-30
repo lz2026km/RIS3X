@@ -4402,5 +4402,49 @@
     "barcodePlaceholder": "扫码或输入登记号/检查号...",
     "barcodeScan": "扫码报到",
     "printTag": "打印条码腕带"
+  },
+  "qcimage": {
+    "title": "影像质控",
+    "score": "质控评分",
+    "grade": "质控等级",
+    "dimensions": "质控维度",
+    "evaluate": "评估",
+    "history": "历史记录"
+  },
+  "benchmark": {
+    "title": "基准对比",
+    "industry": "行业基准",
+    "internal": "内部基准",
+    "compare": "对比分析"
+  },
+  "oee": {
+    "title": "设备综合效率",
+    "availability": "可用率",
+    "performance": "性能率",
+    "quality": "质量率",
+    "overall": "综合效率"
+  },
+  "rads": {
+    "title": "RADS 分级",
+    "grade": "分级",
+    "description": "描述"
+  },
+  "dicomCompress": {
+    "title": "DICOM 压缩",
+    "lossless": "无损压缩",
+    "lossy": "有损压缩",
+    "ratio": "压缩比"
+  },
+  "worklistSmart": {
+    "title": "智能工作列表",
+    "autoAssign": "自动分配",
+    "priority": "优先级",
+    "filter": "筛选"
+  },
+  "dicom4d": {
+    "title": "4D DICOM",
+    "playback": "播放",
+    "speed": "速度",
+    "frame": "帧"
   }
 }

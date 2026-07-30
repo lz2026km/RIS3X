@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useOperationLog } from '../useOperationLog';
+import { useAuth } from '../useAuth';
 
 vi.mock('../useAuth', () => ({
-  useAuth: vi.fn(() => ({ user: { name: '管理员' } })),
+  useAuth: vi.fn(() => ({ user: { id: '1', name: '管理员', role: '管理员', department: '放射科', phone: '', username: 'admin' } })),
 }));
 
 describe('useOperationLog', () => {
@@ -72,7 +73,7 @@ describe('useOperationLog', () => {
   });
 
   it('does not crash when user is null', () => {
-    vi.mocked(require('../useAuth').useAuth).mockReturnValueOnce({ user: null });
+    vi.mocked(useAuth).mockReturnValueOnce({ user: null } as any);
     const { log } = useOperationLog('report');
     expect(() => log('write', 'rpt-1')).not.toThrow();
   });

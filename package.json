@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.11-40",
-  "description": "G005 Radiology RIS v3.0.6.11-40 - Playwright全量验证+版本发布+编码修复+文档同步",
+  "version": "3.0.6.11-41",
+  "description": "G005 Radiology RIS v3.0.6.11-41 - Fatal Bug Fix: reports syntax, window presets, security patches",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",

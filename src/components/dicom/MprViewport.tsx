@@ -3,7 +3,7 @@
 // Phase R10 W2: Axial + Coronal + Sagittal 三平面同步
 // ============================================================
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useCornerstone3D } from '../../hooks/useCornerstone';
 
 export interface MprPlane {
@@ -37,11 +37,12 @@ export default function MprViewport({
   modality = 'CT',
   defaultWw = 400,
   defaultWc = 40,
-  syncCrosshair = true,
+  syncCrosshair: initialSyncCrosshair = true,
   showAllPlanes = true,
   height = 500,
 }: MprViewportProps) {
-  const { ready } = useCornerstone3D();
+  const { ready: _ready } = useCornerstone3D();
+  const [syncCrosshair, setSyncCrosshair] = useState(initialSyncCrosshair);
   const [planes, setPlanes] = useState<Record<'axial' | 'coronal' | 'sagittal', MprPlane>>({
     axial:    { axis: 'axial',    index: Math.floor(imageIds.length / 2), windowWidth: defaultWw, windowCenter: defaultWc, zoom: 1, pan: { x: 0, y: 0 } },
     coronal:  { axis: 'coronal',  index: Math.floor(imageIds.length / 2), windowWidth: defaultWw, windowCenter: defaultWc, zoom: 1, pan: { x: 0, y: 0 } },
@@ -113,7 +114,7 @@ export default function MprViewport({
         ))}
         <div style={{ width: 1, height: 16, background: '#333' }} />
         <label style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <input type="checkbox" checked={syncCrosshair} onChange={e => /* setter via prop */ null} />
+          <input type="checkbox" checked={syncCrosshair} onChange={e => setSyncCrosshair(e.target.checked)} />
           十字线同步
         </label>
         <div style={{ flex: 1 }} />
@@ -158,10 +159,9 @@ interface PlanePanelProps {
   onWWWC: (ww: number, wc: number) => void;
 }
 
-function PlanePanel({ axis, imageIds, plane, modality, crosshair, onClick, onScroll, onWWWC }: PlanePanelProps) {
+function PlanePanel({ axis, imageIds, plane, modality: _modality, crosshair, onClick, onScroll, onWWWC }: PlanePanelProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const def = PLANE_DEFINITIONS[axis];
-  const imageId = imageIds[plane.index];
 
   useEffect(() => {
     if (!canvasRef.current) return;

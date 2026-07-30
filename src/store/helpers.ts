@@ -1,4 +1,7 @@
-type SetFn<S> = (partial: S | Partial<S> | ((state: S) => Partial<S>), replace?: boolean) => void
+type SetFn<S> = {
+  (partial: S | Partial<S> | ((state: S) => S | Partial<S>), replace?: false): void
+  (state: S | ((state: S) => S), replace: true): void
+}
 type GetFn<S> = () => S
 
 function capitalize(s: string): string {
@@ -27,9 +30,9 @@ export interface CrudStoreConfig<Dto> {
   label: string
   api: {
     list: () => Promise<Dto[] | { success: boolean; data?: Dto[]; error?: { message?: string } }>
-    create?: (data: unknown) => Promise<unknown>
-    update?: (id: string, data: Partial<Dto>) => Promise<unknown>
-    delete?: (id: string) => Promise<unknown>
+    create?: (...args: any[]) => Promise<any>
+    update?: (...args: any[]) => Promise<any>
+    delete?: (...args: any[]) => Promise<any>
   }
   methodName?: string
   loadErrorMsg?: string
@@ -75,7 +78,7 @@ export function createCrudStore<Dto>(config: CrudStoreConfig<Dto>) {
         const failure = `创建${config.label}失败`
         set({ loading: true, error: null })
         try {
-          const result = await (config.api.create as (data: unknown) => Promise<unknown>)(data)
+          const result = await (config.api.create as (...args: any[]) => Promise<any>)(data)
           assertMutationResult(result, failure)
           await load()
         } catch (err) {
@@ -89,7 +92,7 @@ export function createCrudStore<Dto>(config: CrudStoreConfig<Dto>) {
         const failure = `更新${config.label}失败`
         set({ loading: true, error: null })
         try {
-          const result = await (config.api.update as (id: string, data: Partial<Dto>) => Promise<unknown>)(id, data)
+          const result = await (config.api.update as (...args: any[]) => Promise<any>)(id, data)
           assertMutationResult(result, failure)
           await load()
         } catch (err) {
@@ -103,7 +106,7 @@ export function createCrudStore<Dto>(config: CrudStoreConfig<Dto>) {
         const failure = `删除${config.label}失败`
         set({ loading: true, error: null })
         try {
-          const result = await (config.api.delete as (id: string) => Promise<unknown>)(id)
+          const result = await (config.api.delete as (...args: any[]) => Promise<any>)(id)
           assertMutationResult(result, failure)
           await load()
         } catch (err) {

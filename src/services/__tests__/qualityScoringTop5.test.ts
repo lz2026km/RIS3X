@@ -12,7 +12,7 @@ const server = setupServer(...qualityScoringHandlers);
 
 beforeAll(async () => {
   await initStore();
-  server.listen({ onUnhandledRequest: 'bypass' });
+  server.listen({ onUnhandledRequest: 'warn' });
 });
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
@@ -32,6 +32,7 @@ describe('qualityScoringHandlers top-5 (B3)', () => {
 
   it('GET /quality/scoring/dimensions 读 store (15 条)', async () => {
     const res = await fetch(`${API_BASE}/quality/scoring/dimensions`);
+    expect(res.ok).toBe(true);
     const json: any = await res.json();
     expect(json.success).toBe(true);
     expect(json.data.length).toBe(15);
@@ -44,6 +45,7 @@ describe('qualityScoringHandlers top-5 (B3)', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ reportId: 'rpt-smoke-1' }),
     });
+    expect(postRes.ok).toBe(true);
     const postJson: any = await postRes.json();
     expect(postJson.success).toBe(true);
     const scoreId = postJson.data.scoreId;
@@ -54,6 +56,7 @@ describe('qualityScoringHandlers top-5 (B3)', () => {
     expect(stored.reportId).toBe('rpt-smoke-1');
 
     const getRes = await fetch(`${API_BASE}/quality/scoring/scores/${scoreId}`);
+    expect(getRes.ok).toBe(true);
     const getJson: any = await getRes.json();
     expect(getJson.success).toBe(true);
     expect(getJson.data.scoreId).toBe(scoreId);
@@ -62,6 +65,7 @@ describe('qualityScoringHandlers top-5 (B3)', () => {
 
   it('GET /quality/scoring/scores/:id 找不到时回退 (兼容 mock id)', async () => {
     const res = await fetch(`${API_BASE}/quality/scoring/scores/nonexistent-id`);
+    expect(res.ok).toBe(true);
     const json: any = await res.json();
     expect(json.success).toBe(true);
     expect(json.data.scoreId).toBe('nonexistent-id');
@@ -69,6 +73,7 @@ describe('qualityScoringHandlers top-5 (B3)', () => {
 
   it('GET /quality/scoring/kpi 读 store', async () => {
     const res = await fetch(`${API_BASE}/quality/scoring/kpi`);
+    expect(res.ok).toBe(true);
     const json: any = await res.json();
     expect(json.success).toBe(true);
     expect(json.data.totalEvaluated).toBe(1248);
@@ -81,11 +86,13 @@ describe('qualityScoringHandlers top-5 (B3)', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ publishBlockThreshold: 65 }),
     });
+    expect(putRes.ok).toBe(true);
     const putJson: any = await putRes.json();
     expect(putJson.data.id).toBe('default');
     expect(putJson.data.publishBlockThreshold).toBe(65);
 
     const getRes = await fetch(`${API_BASE}/quality/scoring/threshold-config`);
+    expect(getRes.ok).toBe(true);
     const getJson: any = await getRes.json();
     expect(getJson.data.publishBlockThreshold).toBe(65);
     expect(getJson.data.version).toBe(6);

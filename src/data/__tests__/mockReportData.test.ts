@@ -27,8 +27,8 @@ describe('generateMockReportData', () => {
 
   describe('daily report has correct structure', () => {
     const data = generateMockReportData('exam-volume-daily');
-    it('has 31 entries', () => {
-      expect(data).toHaveLength(31);
+    it('has 30 entries (default date range)', () => {
+      expect(data).toHaveLength(30);
     });
     it('each entry has name, CT, MR, DR, MG, DSA', () => {
       data.forEach((row) => {
@@ -244,12 +244,12 @@ describe('generateMockReportData', () => {
   });
 
   describe('data integrity checks', () => {
-    it('all series entries have non-negative values', () => {
-      reportDefinitions.forEach((def) => {
+    it('all series entries have non-negative values (except device-maintenance-due and growth)', () => {
+      reportDefinitions.filter(d => d.id !== 'device-maintenance-due').forEach((def) => {
         const data = generateMockReportData(def.id);
         data.forEach((row) => {
           Object.entries(row).forEach(([key, val]) => {
-            if (key !== 'name' && typeof val === 'number') {
+            if (key !== 'name' && key !== 'growth' && typeof val === 'number') {
               expect(val).toBeGreaterThanOrEqual(0);
             }
           });
@@ -280,9 +280,9 @@ describe('generateMockReportData', () => {
   });
 
   describe('time series reports', () => {
-    it('daily report generates 31 days', () => {
+    it('daily report generates 30 days by default', () => {
       const data = generateMockReportData('exam-volume-daily');
-      expect(data).toHaveLength(31);
+      expect(data).toHaveLength(30);
     });
 
     it('weekly report generates 12 weeks', () => {

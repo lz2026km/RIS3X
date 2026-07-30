@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
-import { CreateScoreRuleSchema, UpdateScoreRuleSchema, CreateDefectEntrySchema, UpdateDefectEntrySchema, CreateAiReportDraftSchema } from '../reportquality/reportquality.schema'
+import { CreateScoreRuleSchema, UpdateScoreRuleSchema, CreateDefectEntrySchema, UpdateDefectEntrySchema, CreateAiReportDraftSchema } from './reportquality.schema'
 import { z } from 'zod'
 
 type CreateScoreRuleDto = z.infer<typeof CreateScoreRuleSchema>

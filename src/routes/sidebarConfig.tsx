@@ -76,7 +76,7 @@ import {
   Server,
 } from "lucide-react";
 import type { ReactNode } from "react";
-import { GitCompare, FileDown, Globe, FileSignature, Scan, Microscope, Mic, BookOpen, Code, Siren, Clock, Heart, Bone, Brain } from "lucide-react";
+import { GitCompare, FileDown, Globe, FileSignature, Scan, Microscope, Mic, BookOpen, Code, Siren, Clock, Heart, Bone, Brain, Plug } from "lucide-react";
 
 export type Role = "医生" | "技师" | "护士" | "管理员" | "主任";
 
@@ -573,6 +573,37 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.dicomVolume",
         roles: ["医生", "技师", "主任", "管理员",],
       },
+      // [v3.0.6.11-41] A12 影像处理补齐: MPR / MIP / VR / 后处理 / DBT
+      {
+        path: "/dicom/mpr",
+        icon: <Layers size={18} />,
+        labelKey: "nav.mpr",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      {
+        path: "/dicom/mip",
+        icon: <Layers size={18} />,
+        labelKey: "nav.mip",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      {
+        path: "/dicom/vr",
+        icon: <Box size={18} />,
+        labelKey: "nav.vr",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      {
+        path: "/dicom/post-processing",
+        icon: <Settings size={18} />,
+        labelKey: "nav.postProcessing",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      {
+        path: "/dicom/dbt",
+        icon: <Layers size={18} />,
+        labelKey: "nav.dbt",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
       {
         path: "/print-management",
         icon: <Printer size={18} />,
@@ -757,6 +788,19 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: <Cpu size={18} />,
         labelKey: "nav.aiMarketplace",
         roles: ["医生", "主任", "管理员",],
+      },
+      // [v3.0.6.11-41] A11 AI 集成补齐: 第三方 AI + 深度学习降噪
+      {
+        path: "/ai/third-party",
+        icon: <Plug size={18} />,
+        labelKey: "nav.thirdPartyAi",
+        roles: ["管理员"],
+      },
+      {
+        path: "/ai/dl-denoise",
+        icon: <Sparkles size={18} />,
+        labelKey: "nav.dlDenoise",
+        roles: ["医生", "主任", "技师", "管理员"],
       },
     ],
   },

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
 import { getCurrentTenantId } from '../../common/interceptors/tenant-context.interceptor'
 import * as crypto from 'crypto'
@@ -33,7 +33,19 @@ export class BackupService {
       case 'FULL':
       default:
         data = {
-          users: await this.prisma.user.findMany(),
+          users: await this.prisma.user.findMany({
+            select: {
+              id: true,
+              username: true,
+              fullName: true,
+              role: true,
+              departmentId: true,
+              tenantId: true,
+              isActive: true,
+              createdAt: true,
+              updatedAt: true,
+            },
+          }),
           patients: await this.prisma.patient.findMany({ take: 5000 }),
           config: await this.prisma.systemConfig.findMany(),
           auditCount: await this.prisma.auditLog.count(),
@@ -97,6 +109,11 @@ export class BackupService {
     const content = await fs.readFile(filepath, 'utf-8')
     const data = JSON.parse(content)
 
+    const actualChecksum = crypto.createHash('sha256').update(content).digest('hex')
+    if (record.checksum && actualChecksum !== record.checksum) {
+      throw new BadRequestException('Backup file integrity check failed: checksum mismatch')
+    }
+
     if (data.config) {
       for (const cfg of data.config) {
         await this.prisma.systemConfig.upsert({
@@ -108,10 +125,11 @@ export class BackupService {
     }
     if (data.users) {
       for (const user of data.users) {
+        const { password, passwordHash, ...safeUser } = user as any
         await this.prisma.user.upsert({
-          where: { id: user.id },
-          update: user,
-          create: user,
+          where: { id: safeUser.id },
+          update: safeUser,
+          create: safeUser,
         })
       }
     }

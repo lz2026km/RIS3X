@@ -51,7 +51,7 @@ function endLoading(set: (partial: Partial<SafetyState>) => void) {
   if (_loadCount <= 0) { _loadCount = 0; set({ loading: false }) }
 }
 
-function createLoadWrapper<S extends Record<string, unknown>>(set: (partial: Partial<SafetyState>) => void, fn: () => Promise<void>): () => Promise<void> {
+function createLoadWrapper(set: (partial: Partial<SafetyState>) => void, fn: () => Promise<void>): () => Promise<void> {
   return async () => {
     startLoading(set)
     try { await fn() } finally { endLoading(set) }
@@ -71,29 +71,29 @@ export const useSafetyStore = create<SafetyState>((set, get) => ({
     const ae = createCrudStore<AdverseEvent>({
       field: 'adverseEvents', label: '不良事件',
       api: { list: getAdverseEvents, create: createAdverseEvent, update: updateAdverseEvent, delete: deleteAdverseEvent },
-    })(set, get)
+    })(set as any, get)
     const rca = createCrudStore<RcaInvestigation>({
       field: 'rcaInvestigations', label: 'RCA调查',
       api: { list: getRcaInvestigations, create: createRcaInvestigation },
-    })(set, get)
+    })(set as any, get)
     const ri = createCrudStore<RiskItem>({
       field: 'riskItems', label: '风险项',
       api: { list: getRiskItems, create: createRiskItem },
-    })(set, get)
+    })(set as any, get)
     const cqi = createCrudStore<CqiProject>({
       field: 'cqiProjects', label: 'CQI项目',
       api: { list: getCqiDashboard, create: createCqiProject },
-    })(set, get)
+    })(set as any, get)
     const sg = createCrudStore<PatientSafetyGoal>({
       field: 'safetyGoals', label: '安全目标',
       api: { list: getPatientSafetyGoals },
-    })(set, get)
+    })(set as any, get)
     return {
-      loadAdverseEvents: createLoadWrapper(set, ae.loadAdverseEvents!),
-      loadRcaInvestigations: createLoadWrapper(set, rca.loadRcaInvestigations!),
-      loadRiskItems: createLoadWrapper(set, ri.loadRiskItems!),
-      loadCqiProjects: createLoadWrapper(set, cqi.loadCqiProjects!),
-      loadSafetyGoals: createLoadWrapper(set, sg.loadSafetyGoals!),
+      loadAdverseEvents: createLoadWrapper(set as any, ae.loadAdverseEvents!),
+      loadRcaInvestigations: createLoadWrapper(set as any, rca.loadRcaInvestigations!),
+      loadRiskItems: createLoadWrapper(set as any, ri.loadRiskItems!),
+      loadCqiProjects: createLoadWrapper(set as any, cqi.loadCqiProjects!),
+      loadSafetyGoals: createLoadWrapper(set as any, sg.loadSafetyGoals!),
       createAdverseEvent: ae.createAdverseEvent!,
       updateAdverseEvent: ae.updateAdverseEvent!,
       deleteAdverseEvent: ae.deleteAdverseEvent!,

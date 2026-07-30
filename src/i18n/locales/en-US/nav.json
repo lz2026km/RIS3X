@@ -309,5 +309,17 @@
   "criticalValue5Step": "Critical Value 5-Step",
   "wadoRs": "WADO-RS Retrieval",
   "stowRs": "STOW-RS Storage",
-  "srReport": "SR Structured Report"
+  "srReport": "SR Structured Report",
+  "lungCad": "Lung Nodule AI Detection",
+  "breastCad": "Breast AI Detection",
+  "fractureCad": "Fracture AI Detection",
+  "cardiacAi": "Cardiac AI Analysis",
+  "thirdPartyAi": "Third-Party AI Integration",
+  "mpr": "MPR Multi-Planar Reconstruction",
+  "mip": "MIP Maximum Intensity Projection",
+  "vr": "VR Volume Rendering",
+  "postProcessing": "3D Post-Processing",
+  "dbt": "DBT Tomosynthesis",
+  "dlDenoise": "Deep Learning Denoise",
+  "petCtFusion": "PET-CT Fusion"
 }

@@ -3,7 +3,7 @@ import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { ReportQualityService } from './reportquality.service'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
-import { CreateAiReportDraftSchema, CreateDefectEntrySchema, CreateScoreRuleSchema, UpdateDefectEntrySchema, UpdateScoreRuleSchema } from '../reportquality/reportquality.schema'
+import { CreateAiReportDraftSchema, CreateDefectEntrySchema, CreateScoreRuleSchema, UpdateDefectEntrySchema, UpdateScoreRuleSchema } from './reportquality.schema'
 import { z } from 'zod'
 
 type CreateScoreRuleDto = z.infer<typeof CreateScoreRuleSchema>

@@ -58,7 +58,7 @@ export const WINDOW_PRESETS: WindowPreset[] = [
   {
     name: '骨窗',
     ww: 2000,
-    wl: 300,
+    wl: 400,
     category: 'CHEST',
     description: '胸部骨骼',
   },
@@ -67,7 +67,7 @@ export const WINDOW_PRESETS: WindowPreset[] = [
   {
     name: '肝窗',
     ww: 150,
-    wl: 30,
+    wl: 50,
     category: 'ABDOMEN',
     description: '肝脏窗',
   },

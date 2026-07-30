@@ -19,11 +19,25 @@ export interface SmartTokenResponse {
 @Injectable()
 export class SmartAuthService {
   private authCodes = new Map<string, { clientId: string; scope: string; patientId?: string; encounterId?: string; userId: string }>()
+  private revokedTokens = new Set<string>()
+  private revokedTokensExpiry = new Map<string, number>()
 
   constructor(
     private readonly jwt: JwtService,
     private readonly prisma: PrismaService,
-  ) {}
+  ) {
+    setInterval(() => this.cleanupRevokedTokens(), 60 * 60 * 1000)
+  }
+
+  private cleanupRevokedTokens() {
+    const now = Date.now()
+    for (const [token, expiry] of this.revokedTokensExpiry) {
+      if (expiry < now) {
+        this.revokedTokens.delete(token)
+        this.revokedTokensExpiry.delete(token)
+      }
+    }
+  }
 
   async authorize(clientId: string, redirectUri: string, scope: string, state: string, userId: string, patientId?: string, encounterId?: string) {
     const code = randomUUID()
@@ -60,6 +74,38 @@ export class SmartAuthService {
     return response
   }
 
+  async revokeToken(token: string): Promise<void> {
+    try {
+      const payload = this.jwt.verify(token)
+      const exp = payload.exp ? payload.exp * 1000 : Date.now() + 60 * 60 * 1000
+      this.revokedTokens.add(token)
+      this.revokedTokensExpiry.set(token, exp)
+    } catch {
+      throw new UnauthorizedException('Invalid token')
+    }
+  }
+
+  isTokenRevoked(token: string): boolean {
+    return this.revokedTokens.has(token)
+  }
+
+  async introspectToken(token: string): Promise<{ active: boolean; scope?: string; sub?: string; exp?: number }> {
+    if (this.revokedTokens.has(token)) {
+      return { active: false }
+    }
+    try {
+      const payload = this.jwt.verify(token)
+      return {
+        active: true,
+        scope: payload.scope,
+        sub: payload.sub,
+        exp: payload.exp,
+      }
+    } catch {
+      return { active: false }
+    }
+  }
+
   smartConfiguration() {
     const baseUrl = process.env['FHIR_BASE_URL'] ?? 'http://localhost:3001/api/fhir/r4'
     const authUrl = process.env['SMART_AUTH_URL'] ?? 'http://localhost:3001/api/fhir/r4'
@@ -68,6 +114,8 @@ export class SmartAuthService {
       jwks_uri: `${authUrl}/.well-known/jwks.json`,
       authorization_endpoint: `${authUrl}/auth/authorize`,
       token_endpoint: `${authUrl}/auth/token`,
+      revocation_endpoint: `${authUrl}/auth/revoke`,
+      introspection_endpoint: `${authUrl}/auth/introspect`,
       grant_types_supported: ['authorization_code'],
       token_endpoint_auth_methods_supported: ['client_secret_basic'],
       scopes_supported: ['openid', 'profile', 'fhirUser', 'patient/*.read', 'user/*.read'],

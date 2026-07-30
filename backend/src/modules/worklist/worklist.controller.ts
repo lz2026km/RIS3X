@@ -2,6 +2,12 @@ import { Body, Controller, Param, Post } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { Roles } from '../../common/decorators/roles.decorator'
 import { WorklistService } from './worklist.service'
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
+import { z } from 'zod'
+
+const CancelBodySchema = z.object({
+  reason: z.string().max(500).optional(),
+})
 
 @ApiTags('worklist')
 @ApiBearerAuth()
@@ -26,7 +32,7 @@ export class WorklistController {
   }
 
   @Post(':id/cancel')
-  cancel(@Param('id') id: string, @Body() body: { reason?: string }) {
-    return this.service.cancel(id, body?.reason)
+  cancel(@Param('id') id: string, @Body(new ZodValidationPipe(CancelBodySchema)) body: { reason?: string }) {
+    return this.service.cancel(id, body.reason)
   }
 }

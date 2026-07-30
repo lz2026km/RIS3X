@@ -309,5 +309,17 @@
   "criticalValue5Step": "危急值 5 步流程",
   "wadoRs": "WADO-RS 检索",
   "stowRs": "STOW-RS 存储",
-  "srReport": "SR 结构化报告"
+  "srReport": "SR 结构化报告",
+  "lungCad": "肺结节 AI 检测",
+  "breastCad": "乳腺 AI 检测",
+  "fractureCad": "骨折 AI 检测",
+  "cardiacAi": "心脏 AI 分析",
+  "thirdPartyAi": "第三方 AI 集成",
+  "mpr": "MPR 多平面重建",
+  "mip": "MIP 最大密度投影",
+  "vr": "VR 体绘制",
+  "postProcessing": "3D 后处理",
+  "dbt": "DBT 断层合成",
+  "dlDenoise": "深度学习降噪",
+  "petCtFusion": "PET-CT 融合"
 }

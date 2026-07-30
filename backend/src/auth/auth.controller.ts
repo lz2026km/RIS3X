@@ -9,7 +9,7 @@ import { AuthService } from './auth.service'
 
 export const LoginSchema = z.object({
   username: z.string().min(2).max(64),
-  password: z.string().min(6).max(128),
+  password: z.string().min(8).max(128),
 })
 export type LoginDto = z.infer<typeof LoginSchema>
 

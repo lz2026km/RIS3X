@@ -23,7 +23,7 @@ export class DeviceService {
   constructor(private readonly prisma: PrismaService) {}
 
   async list(params: { skip?: number; take?: number; modality?: string; state?: string }) {
-    const where: any = {}
+    const where: { modality?: string; state?: string } = {}
     if (params.modality) where.modality = params.modality
     if (params.state) where.state = params.state
     const [items, total] = await Promise.all([
@@ -55,7 +55,7 @@ export class DeviceService {
         modality: dto.modality,
         manufacturer: dto.manufacturer,
         location: dto.location,
-      } as any,
+      },
     })
   }
 

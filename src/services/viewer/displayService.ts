@@ -52,9 +52,9 @@ export function applyHdrToneMapping(
   const exposure = Math.pow(2, params.exposure)
 
   for (let i = 0; i < data.length; i += 4) {
-    let r = (data[i] / 255) * exposure
-    let g = (data[i + 1] / 255) * exposure
-    let b = (data[i + 2] / 255) * exposure
+    let r = (data[i]! / 255) * exposure
+    let g = (data[i + 1]! / 255) * exposure
+    let b = (data[i + 2]! / 255) * exposure
 
     if (params.method === 'reinhard') {
       r = r / (1 + r)
@@ -74,7 +74,7 @@ export function applyHdrToneMapping(
     output[i] = Math.round(r * 255)
     output[i + 1] = Math.round(g * 255)
     output[i + 2] = Math.round(b * 255)
-    output[i + 3] = data[i + 3]
+    output[i + 3] = data[i + 3]!
   }
 
   return { data: output, width, height, bitsStored: 8 }
@@ -93,16 +93,17 @@ export function applyWindowLevel(
   const half = windowWidth / 2
   const low = windowCenter - half
   const high = windowCenter + half
+  const range = high - low || 1
 
   for (let i = 0; i < data.length; i += 4) {
-    const pixel = (data[i] / 255) * maxVal
-    let value = ((pixel - low) / (high - low)) * maxVal
+    const pixel = (data[i]! / 255) * maxVal
+    let value = ((pixel - low) / range) * maxVal
     value = Math.max(0, Math.min(maxVal, value))
     const gray = Math.round((value / maxVal) * 255)
     output[i] = gray
     output[i + 1] = gray
     output[i + 2] = gray
-    output[i + 3] = data[i + 3]
+    output[i + 3] = data[i + 3]!
   }
 
   return { data: output, width, height, bitsStored }
@@ -119,4 +120,23 @@ export function getDisplayCalibration(): DisplayCalibration {
 export function saveDisplayCalibration(cal: Partial<DisplayCalibration>): void {
   const current = getDisplayCalibration()
   localStorage.setItem('g005_display_calibration', JSON.stringify({ ...current, ...cal }))
+}
+
+export function normalizeWindowingValue(val: number | number[] | undefined, fallback: number): number {
+  if (val === undefined || val === null) return fallback
+  if (Array.isArray(val)) return val.length > 0 ? val[0]! : fallback
+  return val
+}
+
+export function getDefaultWindowing(modality: string): { ww: number; wc: number } {
+  switch (modality.toUpperCase()) {
+    case 'CT': return { ww: 400, wc: 40 }
+    case 'MR': return { ww: 600, wc: 300 }
+    case 'US': return { ww: 256, wc: 128 }
+    case 'XA': return { ww: 512, wc: 256 }
+    case 'CR':
+    case 'DR': return { ww: 2000, wc: 200 }
+    case 'MG': return { ww: 500, wc: 250 }
+    default: return { ww: 400, wc: 40 }
+  }
 }

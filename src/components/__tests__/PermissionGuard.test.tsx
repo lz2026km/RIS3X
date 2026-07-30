@@ -1,17 +1,18 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { PermissionGuard } from '../PermissionGuard';
+import { useAuth } from '@/hooks/useAuth';
 
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: vi.fn(() => ({
-    user: { role: 'admin', name: '管理员', permissions: ['report:write', 'report:sign', 'report:publish'] },
+    user: { id: '1', name: '管理员', role: '管理员' as const, department: '放射科', phone: '13800000000', username: 'admin', permissions: ['report:update', 'report:sign', 'report:publish'] },
   })),
 }));
 
 describe('PermissionGuard', () => {
   it('renders children when user has required single permission', () => {
     render(
-      <PermissionGuard permission="report:write">
+      <PermissionGuard permission="report:update">
         <div>可写报告</div>
       </PermissionGuard>
     );
@@ -20,7 +21,7 @@ describe('PermissionGuard', () => {
 
   it('renders children when user has one of required permissions (any)', () => {
     render(
-      <PermissionGuard permission={['report:delete', 'report:write']}>
+      <PermissionGuard permission={['report:delete', 'report:update']}>
         <div>有权限</div>
       </PermissionGuard>
     );
@@ -29,7 +30,7 @@ describe('PermissionGuard', () => {
 
   it('renders children when user has all required permissions', () => {
     render(
-      <PermissionGuard permission={['report:write', 'report:sign']} requireAll>
+      <PermissionGuard permission={['report:update', 'report:sign']} requireAll>
         <div>写和签</div>
       </PermissionGuard>
     );
@@ -56,9 +57,9 @@ describe('PermissionGuard', () => {
   });
 
   it('renders fallback when no user is present', () => {
-    vi.mocked(require('@/hooks/useAuth').useAuth).mockReturnValueOnce({ user: null });
+    vi.mocked(useAuth).mockReturnValueOnce({ user: null } as any);
     render(
-      <PermissionGuard permission="report:write" fallback={<span>请登录</span>}>
+      <PermissionGuard permission="report:update" fallback={<span>请登录</span>}>
         <div>内容</div>
       </PermissionGuard>
     );
@@ -67,9 +68,9 @@ describe('PermissionGuard', () => {
   });
 
   it('uses provided user prop over auth context', () => {
-    const limitedUser = { role: 'viewer', name: '观察者', permissions: ['report:read'] };
+    const limitedUser = { id: '2', name: '观察者', role: '技师' as const, department: '放射科', phone: '', username: 'viewer', permissions: ['report:read'] as any[] };
     render(
-      <PermissionGuard permission="report:write" user={limitedUser}>
+      <PermissionGuard permission="report:update" user={limitedUser as any}>
         <div>不应显示</div>
       </PermissionGuard>
     );
@@ -78,7 +79,7 @@ describe('PermissionGuard', () => {
 
   it('accepts single permission as string', () => {
     render(
-      <PermissionGuard permission="report:write">
+      <PermissionGuard permission="report:update">
         <div>单权限</div>
       </PermissionGuard>
     );
@@ -87,7 +88,7 @@ describe('PermissionGuard', () => {
 
   it('accepts multiple permissions as array', () => {
     render(
-      <PermissionGuard permission={['report:write', 'report:sign']}>
+      <PermissionGuard permission={['report:update', 'report:sign']}>
         <div>多权限</div>
       </PermissionGuard>
     );
@@ -96,7 +97,7 @@ describe('PermissionGuard', () => {
 
   it('requires all permissions when requireAll is true', () => {
     render(
-      <PermissionGuard permission={['report:write', 'report:delete']} requireAll fallback={<span>权限不足</span>}>
+      <PermissionGuard permission={['report:update', 'report:delete']} requireAll fallback={<span>权限不足</span>}>
         <div>全部需要</div>
       </PermissionGuard>
     );
@@ -106,7 +107,7 @@ describe('PermissionGuard', () => {
 
   it('renders nested children correctly', () => {
     render(
-      <PermissionGuard permission="report:write">
+      <PermissionGuard permission="report:update">
         <div>
           <span>外层</span>
           <span>内层</span>
@@ -127,9 +128,9 @@ describe('PermissionGuard', () => {
   });
 
   it('works with admin role having all permissions', () => {
-    vi.mocked(require('@/hooks/useAuth').useAuth).mockReturnValueOnce({
-      user: { role: 'admin', name: '管理员', permissions: ['*'] },
-    });
+    vi.mocked(useAuth).mockReturnValueOnce({
+      user: { id: '1', name: '管理员', role: '管理员' as const, department: '放射科', phone: '', username: 'admin', permissions: ['report:update', 'report:delete', 'report:sign', 'report:publish'] as any[] },
+    } as any);
     render(
       <PermissionGuard permission="report:delete">
         <div>管理员可见</div>
@@ -139,11 +140,11 @@ describe('PermissionGuard', () => {
   });
 
   it('works with viewer role having limited access', () => {
-    vi.mocked(require('@/hooks/useAuth').useAuth).mockReturnValueOnce({
-      user: { role: 'viewer', name: '观察者', permissions: ['report:read'] },
-    });
+    vi.mocked(useAuth).mockReturnValueOnce({
+      user: { id: '2', name: '观察者', role: '技师' as const, department: '放射科', phone: '', username: 'viewer', permissions: ['report:read'] as any[] },
+    } as any);
     render(
-      <PermissionGuard permission="report:write" fallback={<span>只读</span>}>
+      <PermissionGuard permission="report:update" fallback={<span>只读</span>}>
         <div>写报告</div>
       </PermissionGuard>
     );

@@ -98,6 +98,11 @@ export class Hl7Service implements OnModuleInit {
 
   private pushConfig: Hl7PushConfig = { host: '', port: 2575, enabled: false }
 
+  private static maskPii(value: string): string {
+    if (!value || value.length <= 2) return '**'
+    return value[0] + '*'.repeat(value.length - 2) + value[value.length - 1]
+  }
+
   constructor(private readonly prisma: PrismaService) {
     this.retryMax = Number(process.env['HL7_MLLP_RETRY_MAX'] ?? 3)
     this.retryInterval = Number(process.env['HL7_MLLP_RETRY_INTERVAL'] ?? 5000)
@@ -277,7 +282,7 @@ export class Hl7Service implements OnModuleInit {
     const rawDob = pidFields[7] ?? ''
     const rawSex = pidFields[8] ?? ''
 
-    this.logger.log(`ADT ${messageType}: MRN=${patientMrn}, name=${patientName}, DOB=${rawDob}, sex=${rawSex}`)
+    this.logger.log(`ADT ${messageType}: MRN=${Hl7Service.maskPii(patientMrn)}, name=${Hl7Service.maskPii(patientName)}, DOB=${rawDob}, sex=${rawSex}`)
 
     const birthDate = rawDob ? new Date(rawDob.slice(0, 4) + '-' + rawDob.slice(4, 6) + '-' + rawDob.slice(6, 8)) : null
     const gender: Gender = rawSex === 'M' ? 'MALE' : rawSex === 'F' ? 'FEMALE' : 'OTHER'
@@ -295,7 +300,7 @@ export class Hl7Service implements OnModuleInit {
           birthDate,
         },
       })
-      this.logger.log(`ADT: updated patient ${existing.id} (MRN=${patientMrn})`)
+      this.logger.log(`ADT: updated patient ${existing.id} (MRN=${Hl7Service.maskPii(patientMrn)})`)
     } else {
       await this.prisma.patient.create({
         data: {
@@ -307,7 +312,7 @@ export class Hl7Service implements OnModuleInit {
           type: 'OUTPATIENT' as PatientType,
         },
       })
-      this.logger.log(`ADT: created patient with MRN=${patientMrn}`)
+      this.logger.log(`ADT: created patient with MRN=${Hl7Service.maskPii(patientMrn)}`)
     }
   }
 
@@ -333,7 +338,7 @@ export class Hl7Service implements OnModuleInit {
     const modality = obrFields[15]?.split('^')[0] ?? ''
     const orderControl = orcFields[1] ?? ''
 
-    this.logger.log(`ORM^O01: orderControl=${orderControl}, accession=${accessionNumber}, modality=${modality}, patient=${patientName}`)
+    this.logger.log(`ORM^O01: orderControl=${orderControl}, accession=${accessionNumber}, modality=${modality}, patient=${Hl7Service.maskPii(patientName)}`)
 
     const birthDate = rawDob ? new Date(rawDob.slice(0, 4) + '-' + rawDob.slice(4, 6) + '-' + rawDob.slice(6, 8)) : null
     const gender: Gender = rawSex === 'M' ? 'MALE' : rawSex === 'F' ? 'FEMALE' : 'OTHER'
@@ -388,7 +393,7 @@ export class Hl7Service implements OnModuleInit {
     const patientMrn = pidFields[3]?.split('^')[0] ?? ''
     const patientName = pidFields[5]?.split('^')[0] ?? ''
 
-    this.logger.log(`DFT^P03: patient=${patientName}, MRN=${patientMrn}`)
+    this.logger.log(`DFT^P03: patient=${Hl7Service.maskPii(patientName)}, MRN=${Hl7Service.maskPii(patientMrn)}`)
 
     if (ft1 || dg1) {
       const ft1Fields = ft1?.split('|') ?? []
@@ -418,7 +423,7 @@ export class Hl7Service implements OnModuleInit {
     const rawSex = pidFields[8] ?? ''
     const modality = aig ? aig.split('|')[3]?.split('^')[0] ?? '' : schFields[9]?.split('^')[0] ?? ''
 
-    this.logger.log(`SIU^S12: patient=${patientName}, MRN=${patientMrn}, modality=${modality}`)
+    this.logger.log(`SIU^S12: patient=${Hl7Service.maskPii(patientName)}, MRN=${Hl7Service.maskPii(patientMrn)}, modality=${modality}`)
 
     const birthDate = rawDob ? new Date(rawDob.slice(0, 4) + '-' + rawDob.slice(4, 6) + '-' + rawDob.slice(6, 8)) : null
     const gender: Gender = rawSex === 'M' ? 'MALE' : rawSex === 'F' ? 'FEMALE' : 'OTHER'
