@@ -66,7 +66,7 @@ export default function DoctorMobileWorkstation() {
   })
 
   const handleItemClick = useCallback((item: DoctorWorklistItem) => {
-    message.warning('功能建设中')
+    message.info('该功能暂不可用')
   }, [])
 
   return (

@@ -141,11 +141,11 @@ export class TemplateEngine {
         }
         return arr
           .map(item =>
-            inner.replace(new RegExp(`\\{\\{\\s*${varName}\\.(\\w+)\\s*\\}\\}`, 'g'), (_2, prop: string) =>
+            inner.replace(new RegExp(`\\{\\{\\s*${varName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\.(\\w+)\\s*\\}\\}`, 'g'), (_2, prop: string) =>
               typeof item === 'object' && item !== null && prop in (item as object)
                 ? String((item as Record<string, unknown>)[prop])
                 : '',
-            ).replace(new RegExp(`\\{\\{\\s*${varName}\\s*\\}\\}`, 'g'), String(item)),
+            ).replace(new RegExp(`\\{\\{\\s*${varName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\}\\}`, 'g'), String(item)),
           )
           .join('');
       },

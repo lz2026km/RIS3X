@@ -211,7 +211,7 @@ export const criticalValueService = {
         minutes: node.triggerAfterMinutes,
       };
       const renderedMessage = Object.entries(vars).reduce(
-        (acc, [k, v]) => acc.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v)),
+        (acc, [k, v]) => acc.replace(new RegExp(`\\{${k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\}`, 'g'), String(v)),
         node.messageTemplate,
       );
       let smsResults = 0;

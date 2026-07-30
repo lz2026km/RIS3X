@@ -1,5 +1,5 @@
-// [v3.0.6.8-42] PR 9: 教学病例库
-// 对标: Heidelberg 病例库 + 科研 DICOM 标注 + DICOM PS 3.15 脱敏
+// [v3.0.6.8-42] PR 9: 教学病例�?
+// 对标: Heidelberg 病例�?+ 科研 DICOM 标注 + DICOM PS 3.15 脱敏
 import React, { useState, useEffect } from 'react';
 import {
   Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, message,
@@ -19,13 +19,13 @@ const MODALITY_LABELS_DICT: Record<string, string> = {
   fundus: '眼底照相', fundus_photo: '眼底照相', oct: 'OCT', oct_a: 'OCT-A',
   oct_bscan: 'OCT B-Scan', ffa: 'FFA', icga: 'ICG',
   corneal_endothelium: '角膜内皮', tear_film: '泪膜',
-  fundus_autofluorescence: '眼底自发荧光', slit_lamp: '裂隙灯',
-  topography: '角膜地形图', visual_field: '视野',
-  specular: '角膜内皮镜', ultrasound: '眼部超声',
+  fundus_autofluorescence: '眼底自发荧光', slit_lamp: '裂隙�?,
+  topography: '角膜地形�?, visual_field: '视野',
+  specular: '角膜内皮�?, ultrasound: '眼部超声',
 };
 const STATUS_LABELS_DICT: Record<string, string> = {
-  archive: '已归档', published: '已发布', pending_review: '待审核',
-  critical_value: '危急值', draft: '草稿',
+  archive: '已归�?, published: '已发�?, pending_review: '待审�?,
+  critical_value: '危急�?, draft: '草稿',
 };
 
 export const CaseLibraryPage: React.FC = () => {
@@ -56,7 +56,7 @@ export const CaseLibraryPage: React.FC = () => {
         const pr = await fetch('/api/v1/eye/edu/annotation-projects');
         const pd = await pr.json();
         if (pd.success) setProjects(pd.data);
-      } catch {}
+      } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
     })();
   }, []);
 
@@ -84,7 +84,7 @@ export const CaseLibraryPage: React.FC = () => {
         }),
       });
       const data = await r.json();
-      if (data.success) message.success('标注已添加');
+      if (data.success) message.success('标注已添�?);
     } catch (e: any) { message.error(e.message); }
   };
 
@@ -97,7 +97,7 @@ export const CaseLibraryPage: React.FC = () => {
         body: JSON.stringify({ caseId: selectedCase.id, annotations: [{ label: '视盘', annotationType: 'roi' }], format: 'sr-tid1500' }),
       });
       const data = await r.json();
-      if (data.success) { setSrExportResult(data.data); message.success('DICOM-SR 已导出'); }
+      if (data.success) { setSrExportResult(data.data); message.success('DICOM-SR 已导�?); }
     } catch (e: any) { message.error(e.message); }
   };
 
@@ -114,7 +114,7 @@ export const CaseLibraryPage: React.FC = () => {
     } catch (e: any) { message.error(e.message); }
   };
 
-  // 队列筛选
+  // 队列筛�?
   const handleCohort = async () => {
     try {
       const r = await fetch('/api/v1/eye/edu/cohort', {
@@ -137,7 +137,7 @@ export const CaseLibraryPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <BookOpen size={20} />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>眼科教学病例库</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>眼科教学病例�?/span>
         <Tag color="cyan">PR9</Tag>
         <Tag color="purple">v3.0.6.8-42</Tag>
         <Tag color="blue">DICOM 标注 + SR 导出</Tag>
@@ -149,7 +149,7 @@ export const CaseLibraryPage: React.FC = () => {
         onChange={setActiveTab}
         type="card"
         items={[
-          { key: 'cases', label: <span><Library size={14} /> 病例库</span>, children: (
+          { key: 'cases', label: <span><Library size={14} /> 病例�?/span>, children: (
           <>
           <Row gutter={16}>
             <Col span={10}>
@@ -157,33 +157,33 @@ export const CaseLibraryPage: React.FC = () => {
                 title={
                   <Space>
                     <Filter size={16} />
-                    病例检索
+                    病例检�?
                   </Space>
                 }
                 size="small"
               >
                 <Input
-                  placeholder="搜索患者姓名 / 主诉"
+                  placeholder="搜索患者姓�?/ 主诉"
                   prefix={<Search size={14} />}
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                   style={{ marginBottom: 8 }}
                 />
                 <Select
-                  placeholder="按病种筛选"
+                  placeholder="按病种筛�?
                   value={diseaseFilter || undefined}
                   onChange={setDiseaseFilter}
                   allowClear
                   style={{ width: '100%', marginBottom: 8 }}
                   options={[
                     { value: 'DR', label: 'DR 糖尿病视网膜病变' },
-                    { value: 'AMD', label: 'AMD 老年黄斑变性' },
-                    { value: '青光眼', label: '青光眼' },
-                    { value: '白内障', label: '白内障' },
+                    { value: 'AMD', label: 'AMD 老年黄斑变�? },
+                    { value: '青光�?, label: '青光�? },
+                    { value: '白内�?, label: '白内�? },
                   ]}
                 />
                 <Button type="primary" block icon={<Filter size={14} />} onClick={handleCohort}>
-                  科研队列筛选
+                  科研队列筛�?
                 </Button>
 
                 {cohort && (
@@ -196,16 +196,16 @@ export const CaseLibraryPage: React.FC = () => {
                     {stats && (
                       <div style={{ marginTop: 12, fontSize: 12 }}>
                         <Row gutter={[8, 4]}>
-                          <Col span={12}><Statistic title="男" value={stats.demographics.male} /></Col>
-                          <Col span={12}><Statistic title="女" value={stats.demographics.female} /></Col>
-                          <Col span={24}><Statistic title="平均年龄" value={stats.demographics.meanAge} suffix="岁" /></Col>
+                          <Col span={12}><Statistic title="�? value={stats.demographics.male} /></Col>
+                          <Col span={12}><Statistic title="�? value={stats.demographics.female} /></Col>
+                          <Col span={24}><Statistic title="平均年龄" value={stats.demographics.meanAge} suffix="�? /></Col>
                         </Row>
                         <Divider style={{ margin: '8px 0' }} />
                         <div style={{ fontWeight: 600, marginBottom: 4 }}>病种分布:</div>
                         {Object.entries(stats.diseaseDistribution).map(([k, v]: any) => (
                           <div key={k} style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <span>{k}</span>
-                            <span style={{ fontWeight: 600 }}>{v} 例</span>
+                            <span style={{ fontWeight: 600 }}>{v} �?/span>
                           </div>
                         ))}
                       </div>
@@ -220,7 +220,7 @@ export const CaseLibraryPage: React.FC = () => {
                 title={
                   <Space>
                     <GraduationCap size={16} />
-                    病例列表 (前 20)
+                    病例列表 (�?20)
                     <Tag color="blue">{cases.length}</Tag>
                   </Space>
                 }
@@ -244,12 +244,12 @@ export const CaseLibraryPage: React.FC = () => {
                           <Space>
                             <span>{c.patientName || '未知'}</span>
                             <Tag color="cyan">{MODALITY_LABELS_DICT[c.modality] || c.modality || '眼底照相'}</Tag>
-                            <Tag>{STATUS_LABELS_DICT[c.status] || c.status || '已归档'}</Tag>
+                            <Tag>{STATUS_LABELS_DICT[c.status] || c.status || '已归�?}</Tag>
                           </Space>
                         }
                         description={
                           <span style={{ fontSize: 11, color: '#999' }}>
-                            ID: {c.id || c.reportId} | {c.chiefComplaint || '常规检查'}
+                            ID: {c.id || c.reportId} | {c.chiefComplaint || '常规检�?}
                           </span>
                         }
                       />
@@ -274,9 +274,9 @@ export const CaseLibraryPage: React.FC = () => {
             {selectedCase && (
               <>
                 <Descriptions bordered column={1} size="small">
-                  <Descriptions.Item label="患者">{selectedCase.patientName}</Descriptions.Item>
-                  <Descriptions.Item label="模态">{MODALITY_LABELS_DICT[selectedCase.modality] || selectedCase.modality || '眼底照相'}</Descriptions.Item>
-                  <Descriptions.Item label="检查部位">{selectedCase.bodyPart || '-'}</Descriptions.Item>
+                  <Descriptions.Item label="患�?>{selectedCase.patientName}</Descriptions.Item>
+                  <Descriptions.Item label="模�?>{MODALITY_LABELS_DICT[selectedCase.modality] || selectedCase.modality || '眼底照相'}</Descriptions.Item>
+                  <Descriptions.Item label="检查部�?>{selectedCase.bodyPart || '-'}</Descriptions.Item>
                   <Descriptions.Item label="主诉">{selectedCase.chiefComplaint || '-'}</Descriptions.Item>
                   <Descriptions.Item label="诊断">{selectedCase.diagnosis || selectedCase.impression || '-'}</Descriptions.Item>
                 </Descriptions>
@@ -310,7 +310,7 @@ export const CaseLibraryPage: React.FC = () => {
                             </Form.Item>
                           </Form>
                           <Alert
-                            message="标注将使用 DICOM-SR TID 1500 标准导出"
+                            message="标注将使�?DICOM-SR TID 1500 标准导出"
                             type="info"
                             showIcon
                             style={{ marginTop: 8 }}
@@ -330,7 +330,7 @@ export const CaseLibraryPage: React.FC = () => {
                             <div style={{ marginTop: 12, fontSize: 12 }}>
                               <div>SOP Instance UID: <code>{srExportResult.sopInstanceUID}</code></div>
                               <div>格式: {srExportResult.format}</div>
-                              <div>内容项: {srExportResult.contentSequence?.length || 0}</div>
+                              <div>内容�? {srExportResult.contentSequence?.length || 0}</div>
                             </div>
                           )}
                         </>
@@ -347,9 +347,9 @@ export const CaseLibraryPage: React.FC = () => {
                           {deidentifiedResult && (
                             <div style={{ marginTop: 12 }}>
                               <Tag color="green">{deidentifiedResult.deidentifiedId}</Tag>
-                              <div style={{ fontSize: 12, marginTop: 8 }}>已执行操作:</div>
+                              <div style={{ fontSize: 12, marginTop: 8 }}>已执行操�?</div>
                               {deidentifiedResult.actions.map((a: string, i: number) => (
-                                <div key={i} style={{ fontSize: 12, color: '#666' }}>• {a}</div>
+                                <div key={i} style={{ fontSize: 12, color: '#666' }}>�?{a}</div>
                               ))}
                             </div>
                           )}
@@ -373,7 +373,7 @@ export const CaseLibraryPage: React.FC = () => {
                     {p.completed} / {p.total} 标注
                   </div>
                   <Tag color={p.status === 'completed' ? 'green' : 'blue'} style={{ marginTop: 4 }}>
-                    {p.status === 'completed' ? '已完成' : '进行中'}
+                    {p.status === 'completed' ? '已完�? : '进行�?}
                   </Tag>
                 </Card>
               </Col>

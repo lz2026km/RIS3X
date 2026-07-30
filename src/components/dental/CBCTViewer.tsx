@@ -159,7 +159,7 @@ export const CBCTViewer: React.FC<CBCTViewerProps> = ({
       viewportRef.current = null;
       try {
         renderingEngine?.destroy?.();
-      } catch {}
+      } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
     };
   }, [imageIdsKey, onViewportReady, preset, resolvedImageIds, slice, view, wc, ww]);
 

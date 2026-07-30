@@ -39,19 +39,19 @@ export const DentalImplant3DPage: React.FC = () => {
   const handleSelectPlan = async (plan: any) => {
     setCurrent(plan);
     setMode('plan');
-    // [v3.0.6.8-105] 修复: 先 set selBrand, 加载 models, 然后用 plan 的 model 覆盖
+    // [v3.0.6.8-105] 修复: �?set selBrand, 加载 models, 然后�?plan �?model 覆盖
     setSelBrand(plan.brand);
     try {
       const ms = await dentalApi.getImplantModels(plan.brand);
       if (Array.isArray(ms)) {
         setModels(ms);
-        setSelModel(plan.model); // 直接使用 plan 的 model, 不被 useEffect 覆盖
+        setSelModel(plan.model); // 直接使用 plan �?model, 不被 useEffect 覆盖
       }
       const nd = await dentalApi.getImplantNerveDistance(plan.id);
       if (nd && nd.distances) setNerveData(nd);
       const bd = await dentalApi.getImplantBoneDensityRoi(plan.id);
       if (bd) setBoneData(bd);
-    } catch {}
+    } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
   };
 
   const handleValidate = async () => {
@@ -70,7 +70,7 @@ export const DentalImplant3DPage: React.FC = () => {
     setBusy(true);
     try {
       await dentalApi.approveImplantPlan(current.id);
-      message.success('规划已审批');
+      message.success('规划已审�?);
       setMode('list');
     } catch (e: any) { message.error(e.message); }
     setBusy(false);
@@ -113,7 +113,7 @@ export const DentalImplant3DPage: React.FC = () => {
       i === -60 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
     }
     ctx.stroke();
-    // 植入体
+    // 植入�?
     if (current) {
       const ex = w/2 + 30, ey = h/2 - 10;
       ctx.save(); ctx.translate(ex, ey); ctx.rotate(0.1);
@@ -124,7 +124,7 @@ export const DentalImplant3DPage: React.FC = () => {
       ctx.beginPath(); ctx.arc(0, -30, 6, 0, Math.PI*2);
       ctx.fillStyle = '#52c41a'; ctx.fill();
       ctx.restore();
-      // 神经管
+      // 神经�?
       ctx.strokeStyle = '#ff4d4f'; ctx.lineWidth = 2; ctx.setLineDash([4,4]);
       ctx.beginPath();
       ctx.moveTo(w/2-80, h/2+30); ctx.lineTo(w/2+20, h/2+10); ctx.lineTo(w/2+60, h/2+20);
@@ -151,9 +151,9 @@ export const DentalImplant3DPage: React.FC = () => {
           <Tag color="blue">Implant Studio 对标</Tag>
         </Space>
         <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={4}><Card size="small"><Statistic title="总规划" value={plans.length} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title="待审批" value={plans.filter((p:any)=>p.status==='planning').length} valueStyle={{color:'#faad14'}} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title="已审批" value={plans.filter((p:any)=>p.status==='approved').length} valueStyle={{color:'#52c41a'}} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title="总规�? value={plans.length} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title="待审�? value={plans.filter((p:any)=>p.status==='planning').length} valueStyle={{color:'#faad14'}} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title="已审�? value={plans.filter((p:any)=>p.status==='approved').length} valueStyle={{color:'#52c41a'}} /></Card></Col>
           <Col span={4}><Card size="small"><Statistic title="已有导板" value={plans.filter((p:any)=>p.guideDesigned).length} /></Card></Col>
         </Row>
         <Row gutter={16}>
@@ -189,7 +189,7 @@ export const DentalImplant3DPage: React.FC = () => {
                     <Badge status={p.status==='approved'?'success':p.status==='planning'?'processing':'default'} text={p.status} />
                   </Space>
                   <div style={{fontSize:11,color:'#999',marginTop:4}}>
-                    {p.model} | 神距: {p.distanceToNerve}mm | 骨密度: {p.boneDensityAtApex}HU | {p.createdAt?.slice(0,10)}
+                    {p.model} | 神距: {p.distanceToNerve}mm | 骨密�? {p.boneDensityAtApex}HU | {p.createdAt?.slice(0,10)}
                   </div>
                 </Card>
               ))}
@@ -236,7 +236,7 @@ export const DentalImplant3DPage: React.FC = () => {
               <Col span={12}><Form.Item label="窗位" size="small"><InputNumber value={wc} onChange={v=>setWc(v||500)} min={-1000} max={2000} step={100} style={{width:'100%'}} /></Form.Item></Col>
             </Row>
           </Card>
-          <Card size="small" title={<Space><Layers size={14}/>种植体参数</Space>} style={{marginTop:8}}>
+          <Card size="small" title={<Space><Layers size={14}/>种植体参�?/Space>} style={{marginTop:8}}>
             <Row gutter={12}>
               <Col span={12}><Form.Item label="品牌" size="small"><Select value={selBrand} onChange={v=>{setSelBrand(v);}} options={brands.map((b:any)=>({value:b.id,label:b.name}))} /></Form.Item></Col>
               <Col span={12}><Form.Item label="型号" size="small"><Select value={selModel} onChange={v=>setSelModel(v)} options={models.map((m:any)=>({value:m.id,label:m.name}))} /></Form.Item></Col>
@@ -254,14 +254,14 @@ export const DentalImplant3DPage: React.FC = () => {
               <Card size="small" title={<Space><AlertTriangle size={14}/>安全分析</Space>}>
                 <Statistic title="距神经管" value={`${safeDist} mm`} valueStyle={{color:safe?'#52c41a':'#ff4d4f'}} prefix={safe?null:<AlertTriangle size={14}/>} />
                 <Progress percent={Math.min(100, safeDist / 4 * 100)} size="small" strokeColor={safe?'#52c41a':'#ff4d4f'} style={{marginTop:8}} />
-                <div style={{fontSize:12,color:'#666',marginTop:4}}>安全阈值: ≥2mm</div>
+                <div style={{fontSize:12,color:'#666',marginTop:4}}>安全阈�? �?mm</div>
                 <Divider style={{margin:'6px 0'}} />
                 {nerveData?.closestNerve && <Alert type={nerveData.closestNerve.safe?'success':'error'} message={`最邻近神经: ${nerveData.closestNerve.distance}mm`} showIcon />}
               </Card>
             </Col>
             <Col span={12}>
-              <Card size="small" title={<Space><BarChart3 size={14}/>骨密度</Space>}>
-                <Statistic title="骨质量" value={boneData?.overallQuality || 'D2/D3'} valueStyle={{color:'#1677ff',fontSize:13}} />
+              <Card size="small" title={<Space><BarChart3 size={14}/>骨密�?/Space>}>
+                <Statistic title="骨质�? value={boneData?.overallQuality || 'D2/D3'} valueStyle={{color:'#1677ff',fontSize:13}} />
                 <div style={{display:'flex',gap:4,marginTop:8}}>
                   {boneData?.measurements?.slice(0,3).map((m:any,i:number)=>(
                     <div key={i} style={{flex:1,textAlign:'center',padding:4,background:'#f0f5ff',borderRadius:4}}>
@@ -279,7 +279,7 @@ export const DentalImplant3DPage: React.FC = () => {
             <Button type="primary" onClick={handleValidate} loading={busy} icon={<CheckCircle2 size={14}/>}>运行验证</Button>
             {validation && (
               <div style={{marginTop:8}}>
-                <Alert type={validation.data?.valid?'success':'error'} message={validation.data?.valid?'规划通过, 无冲突':'存在冲突'} showIcon />
+                <Alert type={validation.data?.valid?'success':'error'} message={validation.data?.valid?'规划通过, 无冲�?:'存在冲突'} showIcon />
                 {validation.data?.decisions?.map((d:any,i:number)=>(
                   <Tag key={i} color={d.severity==='info'?'blue':d.severity==='critical'?'red':'orange'} style={{marginTop:4}}>{d.action}</Tag>
                 ))}
@@ -288,12 +288,12 @@ export const DentalImplant3DPage: React.FC = () => {
             <Divider style={{margin:'8px 0'}} />
             <Space style={{width:'100%',justifyContent:'space-between'}}>
               {current.status === 'planning' && <Button type="primary" icon={<Save size={14}/>} onClick={handleApprove}>审批规划</Button>}
-              <Button icon={<Download size={14}/>} onClick={()=>message.warning('功能建设中')}>导板导出</Button>
+              <Button icon={<Download size={14}/>} onClick={()=>message.warning('功能建设�?)}>导板导出</Button>
               <Button icon={<AlertTriangle size={14}/>} onClick={()=>window.open('/dental/cad','_blank')}>修复设计</Button>
             </Space>
           </Card>
           {current.guideDesigned && (
-            <Alert style={{marginTop:8}} message={<Space><CheckCircle2 size={14} color="#52c41a"/>手术导板已设计</Space>} description={`导板文件: ${current.guideFile}`} type="success" showIcon />
+            <Alert style={{marginTop:8}} message={<Space><CheckCircle2 size={14} color="#52c41a"/>手术导板已设�?/Space>} description={`导板文件: ${current.guideFile}`} type="success" showIcon />
           )}
         </Col>
       </Row>

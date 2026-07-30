@@ -82,7 +82,7 @@ export const SmsSender: React.FC<SmsSenderProps> = ({
       ...vars,
     };
     return Object.entries(merged).reduce(
-      (acc, [k, v]) => acc.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v)),
+      (acc, [k, v]) => acc.replace(new RegExp(`\\{${k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\}`, 'g'), String(v)),
       tpl?.content ?? '',
     );
   };

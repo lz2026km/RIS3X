@@ -163,7 +163,7 @@ export const VoiceDictationPro: React.FC<VoiceDictationProProps> = ({
       if (!vocabEnabled) return text
       let result = text
       for (const [k, v] of Object.entries(medicalVocabulary)) {
-        const re = new RegExp(k, 'gi')
+        const re = new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi')
         result = result.replace(re, v)
       }
       // 自动标点

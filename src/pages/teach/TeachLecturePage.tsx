@@ -104,7 +104,7 @@ export default function TeachLecturePage() {
           videoRef.current.play()
         }
       }
-    } catch {}
+    } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
   }
 
   const handleDelete = async (id: string) => {
@@ -112,7 +112,7 @@ export default function TeachLecturePage() {
     try {
       await fetch(`${API_BASE}/lecture/${id}`, { method: 'DELETE' })
       await fetchLectures()
-    } catch {}
+    } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
   }
 
   const toggleFullscreen = async () => {

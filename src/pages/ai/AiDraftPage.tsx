@@ -297,7 +297,7 @@ const AiDraftPage: React.FC = () => {
 
       {draftResult && !generating && (
         <div style={{ marginTop: 16, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-          <Button icon={<Check size={14} />} type="primary" onClick={() => message.warning('功能建设中')}>
+          <Button icon={<Check size={14} />} type="primary" disabled>
             全部接受并提交
           </Button>
           <Button icon={<X size={14} />} onClick={() => { setDraftResult(null); message.info('已清空') }}>

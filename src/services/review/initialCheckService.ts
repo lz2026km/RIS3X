@@ -111,7 +111,7 @@ const validateSingle = (item: InitialCheckItem, payload: { findings?: string; im
     }
   }
   if (item.patterns && item.patterns.length > 0) {
-    const hit = item.patterns.some((p) => new RegExp(p, 'i').test(source));
+    const hit = item.patterns.some((p) => { try { return new RegExp(p, 'i').test(source); } catch { return false; } });
     if (!hit) {
       if (item.required) {
         result.canPass = false;

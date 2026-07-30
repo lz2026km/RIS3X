@@ -1,6 +1,6 @@
 // [v3.0.6.8-45] PR1: 报告流程核心页面
-// 报告全流程操作: submit → review → sign → publish + cosign + diff + auditTrail
-// 对标: Nuance PowerScribe 360 / 3M CodeAssist / 国内一线 RIS
+// 报告全流程操�? submit �?review �?sign �?publish + cosign + diff + auditTrail
+// 对标: Nuance PowerScribe 360 / 3M CodeAssist / 国内一�?RIS
 import React, { useState, useEffect } from 'react';
 import {
   Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, message,
@@ -19,8 +19,8 @@ const { TextArea } = Input;
 // 报告状态机
 const REPORT_STATES = ['draft', 'submitted', 'reviewed', 'signed', 'published', 'rejected', 'revised'];
 const STATE_LABELS: Record<string, string> = {
-  draft: '草稿', submitted: '已提交', reviewed: '已审核', signed: '已签名',
-  published: '已发布', rejected: '已驳回', revised: '已修订',
+  draft: '草稿', submitted: '已提�?, reviewed: '已审�?, signed: '已签�?,
+  published: '已发�?, rejected: '已驳�?, revised: '已修�?,
 };
 const STATE_COLORS: Record<string, string> = {
   draft: 'default', submitted: 'processing', reviewed: 'cyan', signed: 'blue',
@@ -57,7 +57,7 @@ export const ReportWorkflowPage: React.FC = () => {
 
   useEffect(() => { loadReports(); }, []);
 
-  // 选中报告 → 加载 diff + auditTrail
+  // 选中报告 �?加载 diff + auditTrail
   const handleSelect = async (r: any) => {
     setSelectedReport(r);
     if (r.id) {
@@ -66,7 +66,7 @@ export const ReportWorkflowPage: React.FC = () => {
         if (dR.success) setDiffData(dR.data);
         const aR = await reportApi.auditTrail(r.id);
         if (aR.success) setAuditTrail(aR.data);
-      } catch {}
+      } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
     }
   };
 
@@ -133,8 +133,8 @@ export const ReportWorkflowPage: React.FC = () => {
       </Row>
 
       <Tabs activeKey={activeTab} onChange={setActiveTab} type="card">
-        {/* 工作流操作 */}
-        <Tabs.TabPane tab={<span><GitBranch size={14} /> 工作流操作</span>} key="workflow">
+        {/* 工作流操�?*/}
+        <Tabs.TabPane tab={<span><GitBranch size={14} /> 工作流操�?/span>} key="workflow">
           <Row gutter={16}>
             <Col span={10}>
               <Card
@@ -144,7 +144,7 @@ export const ReportWorkflowPage: React.FC = () => {
                   <Space>
                     <Select
                       size="small"
-                      placeholder="状态"
+                      placeholder="状�?
                       value={filter.status || undefined}
                       onChange={v => setFilter({ ...filter, status: v })}
                       allowClear
@@ -153,7 +153,7 @@ export const ReportWorkflowPage: React.FC = () => {
                     />
                     <Input.Search
                       size="small"
-                      placeholder="搜索患者/ID"
+                      placeholder="搜索患�?ID"
                       value={filter.keyword}
                       onChange={e => setFilter({ ...filter, keyword: e.target.value })}
                       style={{ width: 160 }}
@@ -232,9 +232,9 @@ export const ReportWorkflowPage: React.FC = () => {
                     }
                   >
                     <Descriptions column={2} size="small" bordered>
-                      <Descriptions.Item label="患者">{selectedReport.patientName}</Descriptions.Item>
+                      <Descriptions.Item label="患�?>{selectedReport.patientName}</Descriptions.Item>
                       <Descriptions.Item label="ID">{selectedReport.id}</Descriptions.Item>
-                      <Descriptions.Item label="模态">{selectedReport.modality}</Descriptions.Item>
+                      <Descriptions.Item label="模�?>{selectedReport.modality}</Descriptions.Item>
                       <Descriptions.Item label="部位">{selectedReport.bodyPart}</Descriptions.Item>
                       <Descriptions.Item label="诊断" span={2}>{selectedReport.diagnosis || selectedReport.impression || '-'}</Descriptions.Item>
                       <Descriptions.Item label="建议" span={2}>{selectedReport.recommendations || '-'}</Descriptions.Item>
@@ -270,7 +270,7 @@ export const ReportWorkflowPage: React.FC = () => {
                                   <div>
                                     <div><b>{e.actor}</b>: {e.action}</div>
                                     <div style={{ fontSize: 12, color: '#666' }}>
-                                      {e.fromState} → <b>{e.toState}</b> · {new Date(e.timestamp).toLocaleString('zh-CN')}
+                                      {e.fromState} �?<b>{e.toState}</b> · {new Date(e.timestamp).toLocaleString('zh-CN')}
                                     </div>
                                     {e.reason && <div style={{ fontSize: 12, color: '#f5222d' }}>原因: {e.reason}</div>}
                                   </div>
@@ -301,12 +301,12 @@ export const ReportWorkflowPage: React.FC = () => {
                 description: (
                   <span style={{ fontSize: 12, color: '#666' }}>
                     {s === 'draft' && '医生编辑报告草稿'}
-                    {s === 'submitted' && '提交给上级审核'}
+                    {s === 'submitted' && '提交给上级审�?}
                     {s === 'reviewed' && '上级医生审核通过'}
                     {s === 'signed' && '使用 CA 证书电子签名'}
-                    {s === 'published' && '正式发布, 患者可见'}
-                    {s === 'rejected' && '驳回, 需修改后重新提交'}
-                    {s === 'revised' && '已修订, 流程重新开始'}
+                    {s === 'published' && '正式发布, 患者可�?}
+                    {s === 'rejected' && '驳回, 需修改后重新提�?}
+                    {s === 'revised' && '已修�? 流程重新开�?}
                   </span>
                 ),
                 status: STATE_COLORS[s] === 'green' ? 'finish' : STATE_COLORS[s] === 'red' ? 'error' : 'process',
@@ -326,13 +326,13 @@ export const ReportWorkflowPage: React.FC = () => {
       >
         {actionModal?.type === 'reject' && (
           <>
-            <Alert message="请填写驳回原因 (至少 5 字)" type="warning" showIcon style={{ marginBottom: 8 }} />
-            <TextArea rows={3} value={actionReason} onChange={e => setActionReason(e.target.value)} placeholder="例如: 影像征象描述不完整" />
+            <Alert message="请填写驳回原�?(至少 5 �?" type="warning" showIcon style={{ marginBottom: 8 }} />
+            <TextArea rows={3} value={actionReason} onChange={e => setActionReason(e.target.value)} placeholder="例如: 影像征象描述不完�? />
           </>
         )}
         {actionModal?.type === 'publish' && (
           <>
-            <Alert message="请确认质量评分 (0-100)" type="info" showIcon style={{ marginBottom: 8 }} />
+            <Alert message="请确认质量评�?(0-100)" type="info" showIcon style={{ marginBottom: 8 }} />
             <InputNumber min={0} max={100} value={actionQuality} onChange={v => setActionQuality(v || 85)} style={{ width: '100%' }} />
           </>
         )}

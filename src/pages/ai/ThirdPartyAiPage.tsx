@@ -81,7 +81,7 @@ const ThirdPartyAiPage: React.FC = () => {
       setAddOpen(false)
       form.resetFields()
       message.success('已添加')
-    } catch {}
+    } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
   }
 
   return (

@@ -116,7 +116,7 @@ export default function PatientPortalPage() {
           <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>患者报告（{PATIENT_REPORTS_MOCK.length}）</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: 8 }}>
             {PATIENT_REPORTS_MOCK.map(r => (
-              <ReportViewer key={r.id} report={r} onDownload={(id) => message.warning('功能建设中')} />
+              <ReportViewer key={r.id} report={r} onDownload={(id) => message.info('下载功能暂不可用')} />
             ))}
           </div>
         </div>
@@ -130,8 +130,8 @@ export default function PatientPortalPage() {
               <PatientConsentCard
                 key={c.id}
                 consent={c}
-                onSign={(id) => message.warning('功能建设中')}
-                onReject={(id) => message.warning('功能建设中')}
+                onSign={(id) => message.info('签署功能暂不可用')}
+                onReject={(id) => message.info('拒绝功能暂不可用')}
               />
             ))}
           </div>

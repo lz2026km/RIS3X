@@ -5,7 +5,7 @@ import { radpathApi as radPathApi, type RadPathRecord, type RadPathStats } from 
 import { message } from 'antd'
 
 const consistencyColor: Record<string, string> = { concordant: '#10b981', discordant: '#ef4444', pending: '#94a3b8' }
-const consistencyLabel: Record<string, string> = { concordant: '一致', discordant: '不一致', pending: '待审' }
+const consistencyLabel: Record<string, string> = { concordant: '一�?, discordant: '不一�?, pending: '待审' }
 
 const RadPathPage: React.FC = () => {
   const [records, setRecords] = useState<RadPathRecord[]>([])
@@ -20,11 +20,11 @@ const RadPathPage: React.FC = () => {
 
   const fetchRecords = useCallback(async () => {
     setLoading(true)
-    try { const res = await radPathApi.getRecords(); if (res.success) setRecords(res.data) } catch {} finally { setLoading(false) }
+    try { const res = await radPathApi.getRecords(); if (res.success) setRecords(res.data) } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); } finally { setLoading(false) }
   }, [])
 
   const fetchStats = useCallback(async () => {
-    try { const res = await radPathApi.getStats(); if (res.success) setStats(res.data) } catch {}
+    try { const res = await radPathApi.getStats(); if (res.success) setStats(res.data) } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
   }, [])
 
   useEffect(() => { fetchRecords(); fetchStats() }, [fetchRecords, fetchStats])
@@ -34,7 +34,7 @@ const RadPathPage: React.FC = () => {
     try {
       const res = await radPathApi.matchReport(matchReportId, matchPathologyId)
       if (res.success) { message.success('匹配成功'); setShowMatchModal(false); fetchRecords() }
-    } catch {}
+    } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
   }
 
   const filteredRecords = records.filter(r => !search || r.reportId.toLowerCase().includes(search.toLowerCase()) || r.report.patient.name.toLowerCase().includes(search.toLowerCase()))
@@ -42,9 +42,9 @@ const RadPathPage: React.FC = () => {
   const columns = [
     { title: '报告ID', dataIndex: 'reportId', key: 'reportId', render: (id: string) => <span style={{ fontFamily: 'monospace' }}>{id}</span> },
     { title: '病理ID', dataIndex: 'pathologyId', key: 'pathologyId', render: (id: string) => <span style={{ fontFamily: 'monospace' }}>{id}</span> },
-    { title: '患者', key: 'patient', render: (_: unknown, r: RadPathRecord) => r.report.patient.name },
-    { title: '检查', key: 'exam', render: (_: unknown, r: RadPathRecord) => r.report.exam ? `${r.report.exam.modality}/${r.report.exam.bodyPart}` : '-' },
-    { title: '一致性', dataIndex: 'consistency', key: 'consistency', render: (c: string) => <Tag color={consistencyColor[c]}>{consistencyLabel[c]}</Tag> },
+    { title: '患�?, key: 'patient', render: (_: unknown, r: RadPathRecord) => r.report.patient.name },
+    { title: '检�?, key: 'exam', render: (_: unknown, r: RadPathRecord) => r.report.exam ? `${r.report.exam.modality}/${r.report.exam.bodyPart}` : '-' },
+    { title: '一致�?, dataIndex: 'consistency', key: 'consistency', render: (c: string) => <Tag color={consistencyColor[c]}>{consistencyLabel[c]}</Tag> },
     { title: '操作', key: 'actions', render: (_: unknown, r: RadPathRecord) => <Button size="small" onClick={() => { setSelectedRecord(r); setShowDetail(true) }}>详情</Button> },
   ]
 
@@ -55,8 +55,8 @@ const RadPathPage: React.FC = () => {
       </div>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}><Card size="small"><Statistic title="总对照数" value={stats?.total ?? records.length} prefix={<FileText size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="一致" value={stats?.concordant ?? 0} valueStyle={{ color: '#52c41a' }} prefix={<CheckCircle2 size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="不一致" value={stats?.discordant ?? 0} valueStyle={{ color: '#ff4d4f' }} prefix={<XCircle size={16} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="一�? value={stats?.concordant ?? 0} valueStyle={{ color: '#52c41a' }} prefix={<CheckCircle2 size={16} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="不一�? value={stats?.discordant ?? 0} valueStyle={{ color: '#ff4d4f' }} prefix={<XCircle size={16} />} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="一致率" value={stats?.positiveConsistency ?? 0} suffix="%" prefix={<TrendingUp size={16} />} /></Card></Col>
       </Row>
       <Card extra={<Space>
@@ -72,11 +72,11 @@ const RadPathPage: React.FC = () => {
             <Descriptions bordered column={2} size="small" style={{ marginBottom: 16 }}>
               <Descriptions.Item label="报告ID">{selectedRecord.reportId}</Descriptions.Item>
               <Descriptions.Item label="病理ID">{selectedRecord.pathologyId}</Descriptions.Item>
-              <Descriptions.Item label="一致性"><Tag color={consistencyColor[selectedRecord.consistency]}>{consistencyLabel[selectedRecord.consistency]}</Tag></Descriptions.Item>
+              <Descriptions.Item label="一致�?><Tag color={consistencyColor[selectedRecord.consistency]}>{consistencyLabel[selectedRecord.consistency]}</Tag></Descriptions.Item>
               <Descriptions.Item label="创建时间">{new Date(selectedRecord.createdAt).toLocaleString('zh-CN')}</Descriptions.Item>
             </Descriptions>
             <Row gutter={16}>
-              <Col span={12}><Card size="small" title="影像报告"><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>所见</div><div style={{ fontSize: 13, padding: 8, background: '#f8fafc', borderRadius: 4, minHeight: 60 }}>{selectedRecord.radFinding || selectedRecord.report.findings}</div><div style={{ fontSize: 12, color: '#64748b', margin: '12px 0 4px' }}>结论</div><div style={{ fontSize: 13, padding: 8, background: '#f8fafc', borderRadius: 4 }}>{selectedRecord.report.conclusion}</div></Card></Col>
+              <Col span={12}><Card size="small" title="影像报告"><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>所�?/div><div style={{ fontSize: 13, padding: 8, background: '#f8fafc', borderRadius: 4, minHeight: 60 }}>{selectedRecord.radFinding || selectedRecord.report.findings}</div><div style={{ fontSize: 12, color: '#64748b', margin: '12px 0 4px' }}>结论</div><div style={{ fontSize: 13, padding: 8, background: '#f8fafc', borderRadius: 4 }}>{selectedRecord.report.conclusion}</div></Card></Col>
               <Col span={12}><Card size="small" title="病理报告"><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>病理结果</div><div style={{ fontSize: 13, padding: 8, background: '#f0fdf4', borderRadius: 4, minHeight: 100 }}>{selectedRecord.pathResult}</div></Card></Col>
             </Row>
           </div>

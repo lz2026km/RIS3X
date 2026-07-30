@@ -37,10 +37,10 @@ export const DentalDashboardPage: React.FC = () => {
         </Card></Col>
         <Col xs={24} md={12}><Card size="small" title="快捷入口">
           <Space wrap>
-            <Button onClick={() => message.warning('功能建设中')}>种植规划</Button>
-            <Button onClick={() => message.warning('功能建设中')}>正畸</Button>
-            <Button onClick={() => message.warning('功能建设中')}>库存管理</Button>
-            <Button onClick={() => message.warning('功能建设中')}>患者随访</Button>
+            <Button disabled>种植规划</Button>
+            <Button disabled>正畸</Button>
+            <Button disabled>库存管理</Button>
+            <Button disabled>患者随访</Button>
           </Space>
         </Card></Col>
       </Row>

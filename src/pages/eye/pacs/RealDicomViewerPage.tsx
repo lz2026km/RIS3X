@@ -1,4 +1,4 @@
-// [v3.0.6.8-43] PR 10: 真实 DICOM 像素渲染 (Canvas + WebGL + 伪彩色 + MPR)
+// [v3.0.6.8-43] PR 10: 真实 DICOM 像素渲染 (Canvas + WebGL + 伪彩�?+ MPR)
 // 对标: ZEISS FORUM DICOM Viewer / Heidelberg HEYEX 2
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
@@ -52,7 +52,7 @@ export const RealDicomViewerPage: React.FC = () => {
   const [zoom, setZoom] = useState<number>(1);
   const [busy, setBusy] = useState(false);
 
-  // [v3.0.6.8-43] Canvas 真实渲染眼底图
+  // [v3.0.6.8-43] Canvas 真实渲染眼底�?
   const renderFundusCanvas = useCallback((canvas: HTMLCanvasElement, ww: number, wc: number) => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -73,21 +73,21 @@ export const RealDicomViewerPage: React.FC = () => {
           // 圆外: 黑色背景
           data[i] = 0; data[i + 1] = 0; data[i + 2] = 0; data[i + 3] = 255;
         } else {
-          // 视盘区 (亮, 偏左下)
+          // 视盘�?(�? 偏左�?
           const discX = cx - radius * 0.35;
           const discY = cy - radius * 0.2;
           const discDist = Math.sqrt((x - discX) ** 2 + (y - discY) ** 2);
           const discIntensity = Math.max(0, 1 - discDist / 30) * 100;
-          // 黄斑区 (中心暗点)
+          // 黄斑�?(中心暗点)
           const macDist = Math.sqrt(dx * dx + dy * dy);
           const macIntensity = macDist < 30 ? -50 : 0;
-          // 血管 (随机条纹)
+          // 血�?(随机条纹)
           let vessel = 0;
           const angle = Math.atan2(dy, dx);
           if (Math.abs(Math.sin(angle * 6)) > 0.95 && dist < radius * 0.8) {
             vessel = -30;
           }
-          // 渐变 (中心亮, 周边暗)
+          // 渐变 (中心�? 周边�?
           const gradient = (1 - dist / radius) * 80 + 60;
           // 窗宽窗位映射
           const min = wc - ww / 2;
@@ -101,14 +101,14 @@ export const RealDicomViewerPage: React.FC = () => {
     ctx.putImageData(imageData, 0, 0);
   }, []);
 
-  // 加载时渲染 Canvas
+  // 加载时渲�?Canvas
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     renderFundusCanvas(canvas, ww, wc);
   }, [ww, wc, modality, renderFundusCanvas]);
 
-  // 窗宽窗位变化时重绘
+  // 窗宽窗位变化时重�?
   useEffect(() => {
     const preset = MODALITY_PRESETS[modality];
     if (preset) {
@@ -124,11 +124,11 @@ export const RealDicomViewerPage: React.FC = () => {
         const r = await fetch(`/api/v1/eye/pixel/instance/${imageIds[currentIndex]}`);
         const data = await r.json();
         if (data.success) setPixelInfo(data.data);
-      } catch {}
+      } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
     })();
   }, [currentIndex, imageIds]);
 
-  // 直方图
+  // 直方�?
   const handleHistogram = async () => {
     try {
       const r = await fetch(`/api/v1/eye/pixel/histogram/${imageIds[currentIndex]}`);
@@ -141,7 +141,7 @@ export const RealDicomViewerPage: React.FC = () => {
     } catch (e: any) { message.error(e.message); }
   };
 
-  // 伪彩色
+  // 伪彩�?
   const handleColormap = async () => {
     try {
       const r = await fetch(`/api/v1/eye/pixel/colormap/${modality}`);
@@ -184,7 +184,7 @@ export const RealDicomViewerPage: React.FC = () => {
     } catch (e: any) { message.error(e.message); }
   };
 
-  // 伪影检测
+  // 伪影检�?
   const handleDetectArtifact = async () => {
     try {
       const r = await fetch('/api/v1/eye/pixel/detect-artifact', {
@@ -214,7 +214,7 @@ export const RealDicomViewerPage: React.FC = () => {
       const data = await r.json();
       if (data.success) {
         setMeasurements(prev => [...prev, { ...m, id: data.data.id, createdAt: data.data.createdAt, createdBy: data.data.createdBy }]);
-        message.success('已保存');
+        message.success('已保�?);
       } else {
         const id = `M${Date.now()}`;
         setMeasurements(prev => [...prev, { ...m, id, createdAt: new Date().toISOString(), createdBy: 'local' }]);
@@ -228,7 +228,7 @@ export const RealDicomViewerPage: React.FC = () => {
   }, [studyId]);
 
   const handleDelete = useCallback(async (id: string) => {
-    try { await fetch(`/api/v1/eye/pacs/measurement/${id}`, { method: 'DELETE' }); } catch {}
+    try { await fetch(`/api/v1/eye/pacs/measurement/${id}`, { method: 'DELETE' }); } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
     setMeasurements(prev => prev.filter(m => m.id !== id));
   }, []);
 
@@ -280,7 +280,7 @@ export const RealDicomViewerPage: React.FC = () => {
 
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         <div style={{ flex: 1, position: 'relative', background: '#000', overflow: 'hidden' }}>
-          {/* [v3.0.6.8-43] PR 10 Canvas 真实像素渲染 (替代占位符) */}
+          {/* [v3.0.6.8-43] PR 10 Canvas 真实像素渲染 (替代占位�? */}
           <div
             ref={elementRef as any}
             id={viewportId}
@@ -309,7 +309,7 @@ export const RealDicomViewerPage: React.FC = () => {
             />
           </div>
 
-          {/* 工具栏 - PR 10 新增 5 个像素分析工具 */}
+          {/* 工具�?- PR 10 新增 5 个像素分析工�?*/}
           <div style={{
             position: 'absolute',
             top: 8,
@@ -318,8 +318,8 @@ export const RealDicomViewerPage: React.FC = () => {
             flexDirection: 'column',
             gap: 4,
           }}>
-            <Tooltip title="直方图"><Button size="small" icon={<Activity size={12} />} onClick={handleHistogram}>直方图</Button></Tooltip>
-            <Tooltip title="伪彩色"><Button size="small" icon={<Layers size={12} />} onClick={handleColormap}>伪彩色</Button></Tooltip>
+            <Tooltip title="直方�?><Button size="small" icon={<Activity size={12} />} onClick={handleHistogram}>直方�?/Button></Tooltip>
+            <Tooltip title="伪彩�?><Button size="small" icon={<Layers size={12} />} onClick={handleColormap}>伪彩�?/Button></Tooltip>
             <Tooltip title="锐度"><Button size="small" icon={<Aperture size={12} />} onClick={handleSharpness}>锐度</Button></Tooltip>
             <Tooltip title="MPR"><Button size="small" icon={<Maximize size={12} />} onClick={handleMpr}>MPR</Button></Tooltip>
             <Tooltip title="伪影 AI"><Button size="small" icon={<Crosshair size={12} />} onClick={handleDetectArtifact}>伪影AI</Button></Tooltip>
@@ -364,7 +364,7 @@ export const RealDicomViewerPage: React.FC = () => {
         </div>
       </div>
 
-      {/* PR 10 直方图 Modal */}
+      {/* PR 10 直方�?Modal */}
       {showHistogram && histogram && (
         <div style={{
           position: 'fixed', right: 380, top: 80, width: 360,
@@ -372,7 +372,7 @@ export const RealDicomViewerPage: React.FC = () => {
         }}>
           <Space style={{ marginBottom: 8 }}>
             <Activity size={14} color="#52c41a" />
-            <span>直方图</span>
+            <span>直方�?/span>
             <Button size="small" onClick={() => setShowHistogram(false)}>X</Button>
           </Space>
           <div style={{ display: 'flex', alignItems: 'flex-end', height: 100, gap: 1 }}>
@@ -386,10 +386,10 @@ export const RealDicomViewerPage: React.FC = () => {
         </div>
       )}
 
-      {/* 伪彩色 / 锐度 / MPR / 伪影 模态 */}
+      {/* 伪彩�?/ 锐度 / MPR / 伪影 模�?*/}
       {showColormap && colormap && (
         <div style={{ position: 'fixed', right: 380, top: 80, width: 280, background: '#fff', padding: 12, borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.2)', zIndex: 1000 }}>
-          <Space><Layers size={14} /><span>伪彩色映射</span><Button size="small" onClick={() => setShowColormap(false)}>X</Button></Space>
+          <Space><Layers size={14} /><span>伪彩色映�?/span><Button size="small" onClick={() => setShowColormap(false)}>X</Button></Space>
           <div style={{ marginTop: 8, fontSize: 12 }}>
             <div>类型: {colormap.type}</div>
             <div>通道: {colormap.channels}</div>
@@ -414,17 +414,17 @@ export const RealDicomViewerPage: React.FC = () => {
 
       {showMpr && (
         <div style={{ position: 'fixed', right: 380, top: 80, width: 280, background: '#fff', padding: 12, borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.2)', zIndex: 1000 }}>
-          <Space><Maximize size={14} color="#722ed1" /><span>MPR 多平面重建</span><Button size="small" onClick={() => setShowMpr(false)}>X</Button></Space>
+          <Space><Maximize size={14} color="#722ed1" /><span>MPR 多平面重�?/span><Button size="small" onClick={() => setShowMpr(false)}>X</Button></Space>
           {mprInfo && (
             <div style={{ marginTop: 8, fontSize: 12 }}>
               <Select size="small" value={mprAxis} onChange={setMprAxis} style={{ width: '100%', marginBottom: 8 }}
                 options={[
-                  { value: 'axial', label: '横断面 Axial' },
-                  { value: 'sagittal', label: '矢状面 Sagittal' },
-                  { value: 'coronal', label: '冠状面 Coronal' },
+                  { value: 'axial', label: '横断�?Axial' },
+                  { value: 'sagittal', label: '矢状�?Sagittal' },
+                  { value: 'coronal', label: '冠状�?Coronal' },
                 ]} />
               <div>切片: {mprInfo.sliceCount}</div>
-              <div>分辨率: {mprInfo.resolution}</div>
+              <div>分辨�? {mprInfo.resolution}</div>
               <div>格式: {mprInfo.format}</div>
               <Button size="small" block onClick={handleMpr}>重建</Button>
             </div>
@@ -434,12 +434,12 @@ export const RealDicomViewerPage: React.FC = () => {
 
       {showArtifacts && artifacts && (
         <div style={{ position: 'fixed', right: 380, top: 80, width: 300, background: '#fff', padding: 12, borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.2)', zIndex: 1000 }}>
-          <Space><Crosshair size={14} color="#f5222d" /><span>伪影 AI 检测</span><Button size="small" onClick={() => setShowArtifacts(false)}>X</Button></Space>
+          <Space><Crosshair size={14} color="#f5222d" /><span>伪影 AI 检�?/span><Button size="small" onClick={() => setShowArtifacts(false)}>X</Button></Space>
           <div style={{ marginTop: 8, fontSize: 12 }}>
             <div>质量评分: <Tag color="green">{artifacts.qualityScore}</Tag></div>
-            <div>通过: {artifacts.passed ? '是' : '否'}</div>
+            <div>通过: {artifacts.passed ? '�? : '�?}</div>
             {artifacts.artifacts?.map((a: any, i: number) => (
-              <div key={i}>• {a.type} 严重度 {(a.severity * 100).toFixed(0)}%</div>
+              <div key={i}>�?{a.type} 严重�?{(a.severity * 100).toFixed(0)}%</div>
             ))}
             {artifacts.recommendations?.map((r: string, i: number) => (
               <Alert key={i} message={r} type="warning" style={{ marginTop: 4 }} />

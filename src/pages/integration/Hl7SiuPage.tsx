@@ -93,8 +93,8 @@ const Hl7SiuPage: React.FC = () => {
                 <Text strong>消息内容:</Text>
                 <TextArea rows={8} value={siuResult.message} readOnly style={{ marginTop: 8, fontFamily: 'monospace' }} />
                 <Space style={{ marginTop: 16 }}>
-                  <Button icon={<Eye size={14} />} onClick={() => message.warning('功能建设中')}>预览</Button>
-                  <Button type="primary" icon={<Send size={14} />} onClick={() => message.warning('功能建设中')}>发送</Button>
+                  <Button icon={<Eye size={14} />} disabled>预览</Button>
+                  <Button type="primary" icon={<Send size={14} />} disabled>发送</Button>
                 </Space>
               </div>
             )}

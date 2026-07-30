@@ -238,7 +238,7 @@ export const handlers = [
       sessionKey: 'mock_session_key_' + Date.now(),
       patientId: 'P100001',
       patientNameMasked: '张*',
-      token: 'mock_jwt_' + Math.random().toString(36).slice(2, 10),
+      token: 'mock-token-' + Date.now(),
       expiresIn: 7200,
     });
   }),

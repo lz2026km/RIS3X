@@ -211,7 +211,7 @@ const FUNCTIONS: Record<string, (...args: unknown[]) => unknown> = {
   },
   match: (str: unknown, pattern: unknown) => {
     try {
-      return new RegExp(String(pattern)).test(String(str ?? ""));
+      return new RegExp(String(pattern).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).test(String(str ?? ""));
     } catch {
       return false;
     }

@@ -109,11 +109,11 @@ export default function TechMobileWorkstation() {
   }, [])
 
   const handleCompleteExam = useCallback((id: string) => {
-    message.warning('功能建设中')
+    message.info('完成检查功能暂不可用')
   }, [])
 
   const handleScan = useCallback(() => {
-    message.warning('功能建设中')
+    message.info('扫码功能暂不可用')
   }, [])
 
   return (

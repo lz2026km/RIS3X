@@ -64,7 +64,7 @@ export default function LoginPage() {
           username: username.trim(),
           title: response.data.title || DEMO_USERS.find(d => d.role === selectedRole)?.label || '',
         };
-        try { localStorage.setItem('ris_current_user', JSON.stringify(payload)); } catch {}
+        try { localStorage.setItem('ris_current_user', JSON.stringify(payload)); } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
         navigate(from, { replace: true });
         return;
       }

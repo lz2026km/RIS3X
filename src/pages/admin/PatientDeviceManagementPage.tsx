@@ -63,7 +63,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
       setPatientExams(eR.data || []);
       setPatientReports(rR.data || []);
       setPatientTimeline(tR.data || []);
-    } catch {}
+    } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
   };
 
   // 患者 CRUD
@@ -262,7 +262,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
                         try {
                           const hR = await deviceApi.getMaintenanceHistory(d.id);
                           setDeviceHistory(hR.data || []);
-                        } catch {}
+                        } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
                       }}
                       style={{ cursor: 'pointer' }}
                       actions={[

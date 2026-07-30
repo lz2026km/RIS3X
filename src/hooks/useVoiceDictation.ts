@@ -1,6 +1,6 @@
 // ============================================================
 // G005 放射RIS系统 v2.0.0 - 语音听写 (Web Speech API)
-// Phase R8 W4-C: 中文连续听写 + 字段级焦点 + 语音命令
+// Phase R8 W4-C: 中文连续听写 + 字段级焦�?+ 语音命令
 // ============================================================
 
 import { useState, useCallback, useRef, useEffect } from 'react';
@@ -53,7 +53,7 @@ export function useVoiceDictation(options: VoiceDictationOptions = {}) {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
 
-  // 初始化检测
+  // 初始化检�?
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -63,7 +63,7 @@ export function useVoiceDictation(options: VoiceDictationOptions = {}) {
 
   const start = useCallback(() => {
     if (!isSupported) {
-      setError('当前浏览器不支持语音识别（请使用 Chrome/Edge）');
+      setError('当前浏览器不支持语音识别（请使用 Chrome/Edge�?);
       return;
     }
     if (isListening) return;
@@ -146,7 +146,7 @@ export function useVoiceDictation(options: VoiceDictationOptions = {}) {
 
   const stop = useCallback(() => {
     if (recognitionRef.current) {
-      try { recognitionRef.current.stop(); } catch {}
+      try { recognitionRef.current.stop(); } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
       recognitionRef.current = null;
     }
     if (timerRef.current) {
@@ -159,7 +159,7 @@ export function useVoiceDictation(options: VoiceDictationOptions = {}) {
 
   const pause = useCallback(() => {
     if (recognitionRef.current && isListening) {
-      try { recognitionRef.current.stop(); } catch {}
+      try { recognitionRef.current.stop(); } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
       setIsPaused(true);
     }
   }, [isListening]);
@@ -178,7 +178,7 @@ export function useVoiceDictation(options: VoiceDictationOptions = {}) {
 
   useEffect(() => () => {
     if (recognitionRef.current) {
-      try { recognitionRef.current.stop(); } catch {}
+      try { recognitionRef.current.stop(); } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
     }
     if (timerRef.current) clearInterval(timerRef.current);
   }, []);
@@ -202,11 +202,11 @@ export function useVoiceDictation(options: VoiceDictationOptions = {}) {
 // 语音命令处理（中文）
 export function processVoiceCommand(text: string): { command: string; cleanText: string } {
   const commands: Array<{ pattern: RegExp; command: string }> = [
-    { pattern: /^(换行|回车|另起一行)/, command: '\n' },
-    { pattern: /(新段|新段落|另起一段)/, command: '\n\n' },
-    { pattern: /^(冒号|分号)/, command: '：' },
-    { pattern: /(句号|。)/, command: '。' },
-    { pattern: /(逗号|，)/, command: '，' },
+    { pattern: /^(换行|回车|另起一�?/, command: '\n' },
+    { pattern: /(新段|新段落|另起一�?/, command: '\n\n' },
+    { pattern: /^(冒号|分号)/, command: '�? },
+    { pattern: /(句号|�?/, command: '�? },
+    { pattern: /(逗号|�?/, command: '�? },
     { pattern: /^(删除)/, command: 'DELETE' },
   ];
 

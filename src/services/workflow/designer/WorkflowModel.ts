@@ -328,7 +328,7 @@ export function evaluateCondition(condition: WorkflowCondition | undefined, fact
     case 'contains':
       return typeof lhs === 'string' && typeof rhs === 'string' && lhs.includes(rhs);
     case 'regex':
-      return typeof lhs === 'string' && typeof rhs === 'string' && new RegExp(rhs).test(lhs);
+      return typeof lhs === 'string' && typeof rhs === 'string' && (() => { try { return new RegExp(rhs).test(lhs); } catch { return false; } })();
     default:
       return false;
   }

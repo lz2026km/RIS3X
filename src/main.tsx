@@ -87,7 +87,7 @@ async function startMSWWithTimeout(timeoutMs = 10000): Promise<boolean> {
           `  reg[${i}]: scope=${r.scope}, active=${r.active?.state}, installing=${r.installing?.state}, waiting=${r.waiting?.state}`,
         );
       });
-    } catch {}
+    } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
     console.warn(`[v${APP_VERSION}] MSW failed (continuing anyway):`, err);
     return false;
   }

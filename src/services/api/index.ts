@@ -120,7 +120,7 @@ export type {
 export { templatesApi } from './templatesApi'
 export type { TemplateDto, TemplateListParams } from './templatesApi'
 
-export { auditApi, backupApi } from './systemApi'
+export { backupApi } from './systemApi'
 export type { AuditLogDto, AuditListParams, AuditStatsDto, AuditListResponse, BackupDto, BackupListParams } from './systemApi'
 
 export { notificationApi } from './notificationTemplateDictApi'
@@ -260,3 +260,41 @@ export type { RemoteReadingSession, CreateRemoteReadingDto, RemoteReadingQueryPa
 
 export { pacsAdminApi } from './pacsAdminApi'
 export type { PacsServer, PacsStorageGroup, PacsAssociation, PacsQueryParams, PacsAdminStats } from './pacsAdminApi'
+
+// [v3.0.6.11-42] F07 后端模块对接
+export { criticalExtApi } from './criticalExtApi'
+export type { CriticalExtRuleDto, CriticalExtStatsDto, CriticalExtSummaryDto, CriticalExtTimelineDto, CriticalExtCenterDto } from './criticalExtApi'
+
+export { cadApi } from './cadApi'
+export type { CadModelDto, CadAnalysisDto, CadFindingDto } from './cadApi'
+
+export { complianceDocsApi } from './complianceDocsApi'
+export type { ComplianceDocDto, ComplianceDocListParams } from './complianceDocsApi'
+
+export { crossModalApi } from './crossModalApi'
+export type { CrossModalSearchDto, CrossModalSearchResult, CrossModalIndexStatus } from './crossModalApi'
+
+export { dicom4dApi } from './dicom4dApi'
+export type { Dicom4dStudyDto, Dicom4dPlaybackDto, Dicom4dMeasurementDto, Dicom4dAnalysisDto } from './dicom4dApi'
+
+// [v3.0.6.11-42] F08 后端模块对接
+export { volumeApi } from './volumeApi'
+export type { VolumeStudyDto, VolumeRenderDto, VolumeRenderResult, VolumeVrDto, VolumeMprDto, VolumeSegmentationDto } from './volumeApi'
+
+export { worklistApi } from './worklistApi'
+export type { WorklistItemDto, WorklistQueryParams, WorklistStatsDto } from './worklistApi'
+
+export { notificationsApi } from './notificationsApi'
+export type { NotificationDto, NotificationQueryParams, NotificationStatsDto, PushSubscriptionDto } from './notificationsApi'
+
+export { olapApi } from './olapApi'
+export type { OlapCubeDto, OlapQueryResult, OlapDrillDownDto, OlapChartDataDto } from './olapApi'
+
+export { auditApi } from './auditApi'
+export type { AuditEventDto, AuditQueryParams, AuditAggregationDto } from './auditApi'
+
+export { fusionApi } from './fusionApi'
+export type { FusionStudyDto, FusionRegisterDto, FusionRegistrationResult, FusionRenderDto, FusionRenderResult } from './fusionApi'
+
+export { smartAuthApi } from './smartAuthApi'
+export type { SmartAuthSessionDto, SmartAuthPolicyDto, SmartAuthRuleDto, SmartAuthMfaDto, SmartAuthVerifyDto } from './smartAuthApi'

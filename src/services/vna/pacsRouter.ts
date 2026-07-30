@@ -40,7 +40,7 @@ function evaluateCondition(condition: VnaRoutingCondition, study: DicomStudy): b
     case 'equals': return fieldValue === val;
     case 'contains': return fieldValue.includes(val);
     case 'startsWith': return fieldValue.startsWith(val);
-    case 'regex': return new RegExp(val).test(fieldValue);
+    case 'regex': try { return new RegExp(val).test(fieldValue); } catch { return false; }
     case 'in': return Array.isArray(condition.value) && condition.value.includes(fieldValue);
     default: return false;
   }

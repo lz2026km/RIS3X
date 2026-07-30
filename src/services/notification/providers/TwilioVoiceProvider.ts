@@ -114,7 +114,7 @@ export class TwilioVoiceProvider {
       return '<?xml version="1.0" encoding="UTF-8"?><Response><Say>IVR menu not found</Say></Response>';
     }
     const greeting = Object.entries(vars).reduce(
-      (acc, [k, v]) => acc.replace(new RegExp(`\\{${k}\\}`, 'g'), v),
+      (acc, [k, v]) => acc.replace(new RegExp(`\\{${k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\}`, 'g'), v),
       menu.greeting,
     );
     const gather = menu.items

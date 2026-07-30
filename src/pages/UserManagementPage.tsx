@@ -54,7 +54,7 @@ export default function UserManagementPage() {
     }
     const res = await userApi.create({
       username: u.username,
-      password: 'changeme',
+      password: '',
       fullName: u.name,
       role: u.role as any,
       department: u.department,

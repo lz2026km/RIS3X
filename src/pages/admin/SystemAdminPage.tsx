@@ -123,7 +123,7 @@ export const SystemAdminPage: React.FC = () => {
           ]}
         />
       )}
-      <Button type="primary" icon={<Save size={14}/>} style={{marginTop:16}} onClick={() => message.warning('功能建设中')}>保存所有配置</Button>
+      <Button type="primary" icon={<Save size={14}/>} style={{marginTop:16}} disabled>保存所有配置</Button>
       <Modal title="新增用户" open={userModal} onOk={handleCreateUser} onCancel={() => setUserModal(false)}>
         <Form layout="vertical">
           <Form.Item label="姓名"><Input value={newUserName} onChange={e => setNewUserName(e.target.value)} placeholder="请输入姓名" /></Form.Item>

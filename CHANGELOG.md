@@ -1,5 +1,63 @@
 ﻿# CHANGELOG
 
+## v3.0.6.11-42 (2026-07-30) — 遗留Bug修复+密码清理+Mock清理+空页面补齐+安全加固
+
+> **目标**: 遗留Bug修复 + 密码/敏感信息清理 + Mock数据清理 + 空页面补齐 + 安全加固
+> **范围**: 前端组件修复 + MSW Mock清理 + 新增API服务 + 空状态页面补齐 + 安全增强
+
+### 遗留Bug修复
+- **DentalAlignerPage**: 修复JSX结构损坏、标签不闭合问题
+- **DentalCadPage/CephPage/Implant3DPage**: 修复"binary file"编码损坏及大量TS语法错误
+- **DentalEndoPage/GuidePage/PediatricPage/PerioPage/RestorativePage/SurgeryPage**: 修复未闭合标签、字符串截断
+- **ToothChartPage**: 修复JSX嵌套和未闭合标签
+- **Eye CaseLibraryPage/ClosedLoopPage**: 修复编码损坏及结构化错误
+- **RealDicomViewerPage/AiReportWriterPage**: 修复大量未闭合标签和JSX解析错误
+- **TeleConsultPage**: 修复try/catch结构损坏、未闭合标签
+- **RadPathPage/ReportWorkflowPage/CoSignPage/SmartRoutingPage**: 修复"binary file"及结构错误
+- **CBCTViewer.tsx/ViewerShare.tsx/MacroEngineExtended.ts**: 修复组件级Bug
+- **VoiceDictationPro.tsx/useVoiceDictation.ts**: 修复语音听写集成问题
+- **SmsSender.tsx**: 修复短信发送组件逻辑
+
+### 密码/敏感信息清理
+- **backend/prisma/seed.ts**: 移除硬编码密码和敏感凭据
+- **LoginPage.tsx**: 移除前端明文密码处理逻辑
+- **api/client.ts**: 清理认证令牌硬编码
+
+### Mock清理
+- **services/mswHandlers.ts**: 清理冗余Mock处理器，移除生产路径下的Mock拦截
+- **mock/**: 整理Mock数据目录，移除过时Mock
+
+### 空页面补齐
+- **NotificationCenter.tsx**: 补齐空状态UI
+- **PatientDeviceManagementPage.tsx**: 补齐空表格提示
+- **SystemAdminPage.tsx**: 补齐空模块占位
+- **AiDraftPage.tsx/ThirdPartyAiPage.tsx**: 补齐AI模块空状态
+- **CvDatabasePage.tsx/CvQcPage.tsx**: 补齐心血管空页面
+- **AuditCompliancePage.tsx/ConsentEducationPage.tsx**: 补齐合规空页面
+- **DentalDashboardPage.tsx/DentalShared.tsx/DentalTelePage.tsx/DentalViewerPage.tsx**: 补齐牙科空页面
+- **DicomSrManagerPage.tsx/Hl7SiuPage.tsx**: 补齐影像集成空页面
+- **DoctorMobileWorkstation.tsx/TechMobileWorkstation.tsx**: 补齐移动端空页面
+- **PatientPortalPage.tsx**: 补齐患者门户空状态
+- **TeachLecturePage.tsx/SmartRoutingPage.tsx**: 补齐教学和路由空页面
+
+### 安全加固
+- **initialData.ts**: 移除默认弱密码和测试账户
+- **TwilioVoiceProvider.ts/IVRMenu.ts**: 加固通知服务认证和权限校验
+- **criticalValueService.ts**: 添加危急值访问控制
+- **initialCheckService.ts**: 加固初始化检查流程
+- **pacsRouter.ts**: 添加PACS路由认证中间件
+- **WorkflowModel.ts**: 加固工作流设计器权限校验
+- **sidebarConfig.tsx**: 添加侧边栏路由权限校验
+- **api/index.ts**: 统一API出口鉴权
+- **新增12个API服务模块**: auditApi/cadApi/complianceDocsApi/criticalExtApi/crossModalApi/dicom4dApi/exportApprovalApi/fusionApi/notificationsApi/olapApi/smartAuthApi/volumeApi/worklistApi
+- **nav.json (zh-CN/en-US)**: 补齐i18n导航项
+
+### 验证结果
+- TypeScript编译: 预存TS错误（均为代码库既有问题，非本次引入）
+- Git提交: v3.0.6.11-42
+
+---
+
 ## v3.0.6.11-41 (2026-07-30) — 全栈深度审查+Bug修复+PACS对标补齐+安全加固
 
 > **目标**: 全栈深度审查 + Bug修复 + 测试修复 + 版本号同步

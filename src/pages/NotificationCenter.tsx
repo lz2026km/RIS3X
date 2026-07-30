@@ -1153,7 +1153,7 @@ export default function NotificationCenter() {
           gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3)
           osc.start(audioCtx.currentTime)
           osc.stop(audioCtx.currentTime + 0.3)
-        } catch {}
+        } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
         return updated
       })
     }, 15000)

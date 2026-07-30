@@ -12,11 +12,11 @@ async function main(): Promise<void> {
 
   // 5 角色用户
   const users = [
-    { username: 'admin', password: 'admin123', fullName: '系统管理员', role: UserRole.ADMIN, department: '信息中心' },
-    { username: 'director_li', password: 'pass1234', fullName: '李明辉', role: UserRole.DIRECTOR, department: '放射科' },
-    { username: 'doctor_wang', password: 'pass1234', fullName: '王芳', role: UserRole.DOCTOR, department: '放射科' },
-    { username: 'doctor_zhang', password: 'pass1234', fullName: '张伟', role: UserRole.DOCTOR, department: '放射科' },
-    { username: 'tech_liu', password: 'pass1234', fullName: '刘洋', role: UserRole.TECHNICIAN, department: 'CT 室' },
+    { username: 'admin', password: 'Admin@123', fullName: '系统管理员', role: UserRole.ADMIN, department: '信息中心' },
+    { username: 'director_li', password: 'Dir@2024', fullName: '李明辉', role: UserRole.DIRECTOR, department: '放射科' },
+    { username: 'doctor_wang', password: 'Doc@2024', fullName: '王芳', role: UserRole.DOCTOR, department: '放射科' },
+    { username: 'doctor_zhang', password: 'Doc@2024', fullName: '张伟', role: UserRole.DOCTOR, department: '放射科' },
+    { username: 'tech_liu', password: 'Tech@2024', fullName: '刘洋', role: UserRole.TECHNICIAN, department: 'CT 室' },
   ]
   for (const u of users) {
     const passwordHash = await hash(u.password, 10)

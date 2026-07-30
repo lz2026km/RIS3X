@@ -142,7 +142,7 @@ export default function CvQcPage() {
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-        <button onClick={() => message.warning('功能建设中')} style={{ padding: '8px 16px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <button disabled style={{ padding: '8px 16px', background: '#94a3b8', color: '#fff', border: 'none', borderRadius: 6, cursor: 'not-allowed', display: 'flex', alignItems: 'center', gap: 6 }}>
           <BarChart3 size={16} /> Generate QC Report
         </button>
       </div>

@@ -141,7 +141,7 @@ export const DentalViewerPage: React.FC = () => {
                   <div>置信度: {(study.aiAnalysis.confidence * 100).toFixed(0)}%</div>
                   <div>模型: {study.aiAnalysis.modelVersion}</div>
                   <Divider style={{ margin: '8px 0' }} />
-                  <Button size="small" icon={<Activity size={12} />} onClick={() => message.warning('功能建设中')}>运行 AI 分析</Button>
+                  <Button size="small" icon={<Activity size={12} />} disabled>运行 AI 分析</Button>
                 </Card>
               ) : <Card><Empty description="无 AI 分析" /></Card>,
               },

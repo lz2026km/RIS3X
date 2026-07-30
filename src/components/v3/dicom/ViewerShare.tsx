@@ -46,7 +46,7 @@ export const ViewerShare: React.FC<ViewerShareProps> = ({
     try {
       const result = onGenerate
         ? await onGenerate({ studyId, password: password || undefined, expiry })
-        : { url: `${baseUrl}/share/${studyId}?t=demo&exp=${expiry}`, token: 'demo-token' }
+        : { url: `${baseUrl}/share/${studyId}?t=demo&exp=${expiry}`, token: '' }
       setGenerated(result)
       message.success('分享链接已生成')
     } catch {

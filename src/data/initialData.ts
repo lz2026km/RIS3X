@@ -11776,7 +11776,7 @@ export const initialUsers = [
     role: "radiologist",
     department: "放射科",
     title: "主任医师",
-    password: "123",
+    password: "",
   },
   {
     id: "R002",
@@ -11784,7 +11784,7 @@ export const initialUsers = [
     role: "radiologist",
     department: "放射科",
     title: "副主任医师",
-    password: "123",
+    password: "",
   },
   {
     id: "R003",
@@ -11792,7 +11792,7 @@ export const initialUsers = [
     role: "radiologist",
     department: "放射科",
     title: "主治医师",
-    password: "123",
+    password: "",
   },
   {
     id: "R004",
@@ -11800,7 +11800,7 @@ export const initialUsers = [
     role: "radiologist",
     department: "放射科",
     title: "主治医师",
-    password: "123",
+    password: "",
   },
   {
     id: "R005",
@@ -11808,7 +11808,7 @@ export const initialUsers = [
     role: "technologist",
     department: "放射科技师组",
     title: "主管技师",
-    password: "123",
+    password: "",
   },
   {
     id: "R006",
@@ -11816,7 +11816,7 @@ export const initialUsers = [
     role: "technologist",
     department: "放射科技师组",
     title: "技师",
-    password: "123",
+    password: "",
   },
   {
     id: "R007",
@@ -11824,7 +11824,7 @@ export const initialUsers = [
     role: "technologist",
     department: "放射科技师组",
     title: "技师",
-    password: "123",
+    password: "",
   },
   {
     id: "R008",
@@ -11832,7 +11832,7 @@ export const initialUsers = [
     role: "admin",
     department: "放射科",
     title: "护士长",
-    password: "123",
+    password: "",
   },
   {
     id: "R009",
@@ -11840,7 +11840,7 @@ export const initialUsers = [
     role: "radiologist",
     department: "放射科",
     title: "住院医师",
-    password: "123",
+    password: "",
   },
   {
     id: "R010",
@@ -11848,7 +11848,7 @@ export const initialUsers = [
     role: "radiologist",
     department: "放射科",
     title: "住院医师",
-    password: "123",
+    password: "",
   },
   {
     id: "R011",
@@ -11856,7 +11856,7 @@ export const initialUsers = [
     role: "technologist",
     department: "放射科技师组",
     title: "技师",
-    password: "123",
+    password: "",
   },
   {
     id: "R012",
@@ -11864,7 +11864,7 @@ export const initialUsers = [
     role: "technologist",
     department: "放射科技师组",
     title: "技师",
-    password: "123",
+    password: "",
   },
   {
     id: "R013",
@@ -11872,7 +11872,7 @@ export const initialUsers = [
     role: "nurse",
     department: "放射科",
     title: "主管护师",
-    password: "123",
+    password: "",
   },
   {
     id: "R014",
@@ -11880,7 +11880,7 @@ export const initialUsers = [
     role: "nurse",
     department: "放射科",
     title: "护师",
-    password: "123",
+    password: "",
   },
   {
     id: "R015",
@@ -11888,7 +11888,7 @@ export const initialUsers = [
     role: "physicist",
     department: "放射科",
     title: "物理师",
-    password: "123",
+    password: "",
   },
   {
     id: "R016",
@@ -11896,7 +11896,7 @@ export const initialUsers = [
     role: "engineer",
     department: "放射科",
     title: "工程师",
-    password: "123",
+    password: "",
   },
   {
     id: "R017",
@@ -11904,7 +11904,7 @@ export const initialUsers = [
     role: "receptionist",
     department: "放射科",
     title: "登记员",
-    password: "123",
+    password: "",
   },
   {
     id: "R018",
@@ -11912,7 +11912,7 @@ export const initialUsers = [
     role: "radiologist",
     department: "放射科",
     title: "规培医师",
-    password: "123",
+    password: "",
   },
   {
     id: "R019",
@@ -11920,7 +11920,7 @@ export const initialUsers = [
     role: "technologist",
     department: "放射科技师组",
     title: "主管技师",
-    password: "123",
+    password: "",
   },
   {
     id: "R020",
@@ -11928,7 +11928,7 @@ export const initialUsers = [
     role: "admin",
     department: "放射科",
     title: "护士长",
-    password: "123",
+    password: "",
   },
 ];
 

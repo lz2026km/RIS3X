@@ -372,7 +372,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
           {activeSection === 'range' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
-                <button onClick={() => message.warning('功能建设中')} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: '1px solid #1e3a5f', background: '#1e3a5f', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                <button disabled style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: '1px solid #94a3b8', background: '#94a3b8', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'not-allowed' }}>
                   <Plus size={14} />添加规则
                 </button>
               </div>
@@ -397,7 +397,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
                         <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 600, background: rule.enabled ? '#d1fae5' : '#fee2e2', color: rule.enabled ? '#059669' : '#dc2626' }}>{rule.enabled ? '已启用' : '已禁用'}</span>
                       </td>
                       <td style={{ padding: '10px 12px' }}>
-                        <button onClick={() => message.warning('功能建设中')} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: 12, cursor: 'pointer' }}>编辑</button>
+                        <button disabled style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #e2e8f0', background: '#f1f5f9', color: '#94a3b8', fontSize: 12, cursor: 'not-allowed' }}>编辑</button>
                       </td>
                     </tr>
                   ))}
@@ -464,7 +464,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
                 <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.7 }}>当危急值在规定时间内未得到确认或处理时，系统将自动按照以下规则逐级升级通知，确保危急值得到及时响应。升级规则按照紧急程度分为4个层级。</div>
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
-                <button onClick={() => message.warning('功能建设中')} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: '1px solid #d97706', background: '#fffbeb', color: '#d97706', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                <button disabled style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: '1px solid #94a3b8', background: '#f1f5f9', color: '#94a3b8', fontSize: 12, fontWeight: 600, cursor: 'not-allowed' }}>
                   <Plus size={14} />添加规则
                 </button>
               </div>
@@ -495,7 +495,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
                             </div>
                           </div>
                         </div>
-                        <button onClick={() => message.warning('功能建设中')} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: 12, cursor: 'pointer' }}>编辑</button>
+                        <button disabled style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #e2e8f0', background: '#f1f5f9', color: '#94a3b8', fontSize: 12, cursor: 'not-allowed' }}>编辑</button>
                       </div>
                     </div>
                   )

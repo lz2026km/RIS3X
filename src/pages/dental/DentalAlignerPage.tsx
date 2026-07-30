@@ -36,7 +36,7 @@ export const DentalAlignerPage: React.FC = () => {
       ]);
       if (sr.success) setStages(sr.data || []);
       if (pr.success) setProgress(pr.data);
-    } catch {}
+    } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
     setBusy(false);
   };
 
@@ -122,10 +122,10 @@ export const DentalAlignerPage: React.FC = () => {
           <Tag color="purple">Invisalign 对标</Tag>
         </Space>
         <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={4}><Card size="small"><Statistic title="总方案" value={plans.length} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title="治疗中" value={plans.filter((p:any)=>p.status==='in-progress').length} valueStyle={{color:'#1677ff'}} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title="已完成" value={plans.filter((p:any)=>p.status==='completed').length} valueStyle={{color:'#52c41a'}} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title="待开始" value={plans.filter((p:any)=>p.status==='pending').length} valueStyle={{color:'#faad14'}} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title="总方�? value={plans.length} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title="治疗�? value={plans.filter((p:any)=>p.status==='in-progress').length} valueStyle={{color:'#1677ff'}} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title="已完�? value={plans.filter((p:any)=>p.status==='completed').length} valueStyle={{color:'#52c41a'}} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title="待开�? value={plans.filter((p:any)=>p.status==='pending').length} valueStyle={{color:'#faad14'}} /></Card></Col>
         </Row>
         <Row gutter={[12, 12]}>
           {plans.map((p: any) => (
@@ -137,7 +137,7 @@ export const DentalAlignerPage: React.FC = () => {
                 </Space>
                 <div style={{ marginTop: 4, fontSize: 12, color: '#999' }}>
                   {p.diagnosis?.slice(0, 40)}...<br />
-                  阶段 {p.currentStage}/{p.totalStages} | 每副 {p.wearDaysPerStage}天 | {p.doctor}
+                  阶段 {p.currentStage}/{p.totalStages} | 每副 {p.wearDaysPerStage}�?| {p.doctor}
                 </div>
                 {p.status === 'in-progress' && <Progress percent={Math.round(p.currentStage / p.totalStages * 100)} size="small" style={{ marginTop: 4 }} />}
               </Card>
@@ -162,7 +162,7 @@ export const DentalAlignerPage: React.FC = () => {
       </Space>
       <Row gutter={12}>
         <Col span={16}>
-          <Card size="small" title={<Space><Box size={14}/>3D 牙移动模拟</Space>}
+          <Card size="small" title={<Space><Box size={14}/>3D 牙移动模�?/Space>}
             extra={<Space>
               <Button size="small" icon={<SkipBack size={10}/>} onClick={() => setCurrentStage(Math.max(0, currentStage - 1))} disabled={currentStage <= 0} />
               <Button size="small" icon={playing ? <Pause size={10}/> : <Play size={10}/>} type={playing ? 'primary' : 'default'} onClick={() => setPlaying(!playing)} />
@@ -174,9 +174,9 @@ export const DentalAlignerPage: React.FC = () => {
           <Card size="small" title={<Space><BarChart3 size={14}/>阶段详情</Space>} style={{ marginTop: 8 }}>
             <Row gutter={8}>
               <Col span={6}><Statistic title="阶段编号" value={`${currentStage + 1}/${stages.length}`} /></Col>
-              <Col span={6}><Statistic title="牙齿移动数" value={movements.length} /></Col>
-              <Col span={6}><Statistic title="佩戴天数" value={current?.wearDaysPerStage || 7} suffix="天" /></Col>
-              <Col span={6}><Statistic title="完成度" value={progressPct} suffix="%" /></Col>
+              <Col span={6}><Statistic title="牙齿移动�? value={movements.length} /></Col>
+              <Col span={6}><Statistic title="佩戴天数" value={current?.wearDaysPerStage || 7} suffix="�? /></Col>
+              <Col span={6}><Statistic title="完成�? value={progressPct} suffix="%" /></Col>
             </Row>
             {movements.length > 0 && (
               <div style={{ marginTop: 8 }}>
@@ -194,21 +194,21 @@ export const DentalAlignerPage: React.FC = () => {
             {progress && (
               <>
                 <div style={{ marginBottom: 8 }}>
-                  <span style={{ fontSize: 12, color: '#999' }}>依从性 </span>
+                  <span style={{ fontSize: 12, color: '#999' }}>依从�?</span>
                   <Progress percent={Math.round(progress.patientCompliance * 100)} size="small" strokeColor={progress.patientCompliance > 0.85 ? '#52c41a' : '#faad14'} />
                 </div>
-                <Tag color={progress.trackingQuality === 'good' ? 'green' : progress.trackingQuality === 'fair' ? 'orange' : 'red'}>{progress.trackingQuality === 'good' ? '追踪良好' : progress.trackingQuality === 'fair' ? '一般' : '需警惕'}</Tag>
+                <Tag color={progress.trackingQuality === 'good' ? 'green' : progress.trackingQuality === 'fair' ? 'orange' : 'red'}>{progress.trackingQuality === 'good' ? '追踪良好' : progress.trackingQuality === 'fair' ? '一�? : '需警惕'}</Tag>
                 <div style={{ marginTop: 8, fontSize: 12, color: '#666' }}>
-                  当前阶段已佩戴: {progress.lastStageWornDays}天<br />
+                  当前阶段已佩�? {progress.lastStageWornDays}�?br />
                   下一阶段: {progress.nextStageDate}
                 </div>
-                {progress.refinementSuggested && <Tag color="red" style={{ marginTop: 4 }}>建议精调 ({progress.refinementCount}次)</Tag>}
+                {progress.refinementSuggested && <Tag color="red" style={{ marginTop: 4 }}>建议精调 ({progress.refinementCount}�?</Tag>}
               </>
             )}
           </Card>
           <Card size="small" title={<Space><Save size={14}/>附件 & IPR</Space>} style={{ marginTop: 8 }}>
             <div style={{ fontSize: 12 }}>
-              <b>附件 ({current?.attachments?.length || 0}个)</b>
+              <b>附件 ({current?.attachments?.length || 0}�?</b>
               {current?.attachments?.map((a: any, i: number) => (
                 <Tag key={i} color="purple" style={{ margin: 2 }}>#{a.toothNo} {a.type}</Tag>
               ))}
@@ -224,19 +224,19 @@ export const DentalAlignerPage: React.FC = () => {
             <Space direction="vertical" style={{ width: '100%' }}>
               <Button block icon={<CheckCircle2 size={14}/>} onClick={async () => {
                 await fetch(`/api/v1/dental/ortho/aligner-plans/${current.id}/approve`, { method: 'POST' });
-                message.success('方案已审批');
+                message.success('方案已审�?);
               }}>审批方案</Button>
               <Button block icon={<Save size={14}/>} onClick={async () => {
                 await fetch(`/api/v1/dental/ortho/aligner-plans/${current.id}/order-lab`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ lab: 'AlignTech', quantity: 6, shippingMethod: 'express' }) });
                 message.success('已提交加工厂');
-              }}>提交加工 (6副)</Button>
+              }}>提交加工 (6�?</Button>
             </Space>
           </Card>
           <Steps
             direction="vertical"
             size="small"
             current={currentStage}
-            items={stages.slice(0, Math.min(8, stages.length)).map((_: any, i: number) => ({ title: `第 ${i + 1} 副`, description: i <= currentStage ? '已佩戴' : '待佩戴' }))}
+            items={stages.slice(0, Math.min(8, stages.length)).map((_: any, i: number) => ({ title: `�?${i + 1} 副`, description: i <= currentStage ? '已佩�? : '待佩�? }))}
             style={{ marginTop: 8 }}
           />
         </Col>

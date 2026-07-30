@@ -10,7 +10,7 @@ export const DentalOrthoPage: React.FC = () => {
       <Table dataSource={plans} rowKey="id" columns={[
         {title:'患者',dataIndex:'patientName'},{title:'诊断',dataIndex:'diagnosis'},{title:'计划',dataIndex:'plan'},
         {title:'费用',render:(_,t:any)=>'¥'+t.cost},{title:'状态',dataIndex:'status',render:(s:string)=><Tag>{s}</Tag>},
-        {title:'',render:(_,t:any)=><Button size="small" onClick={()=>message.warning('功能建设中')}>进度</Button>},
+        {title:'',render:(_,t:any)=><Button size="small" disabled>进度</Button>},
       ]} pagination={false} />
     </DentalPageLayout>
   );

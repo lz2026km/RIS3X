@@ -39,7 +39,7 @@ class IVRMenuServiceImpl implements IVRMenuService {
     const menu = this.get(menuId);
     if (!menu) return null;
     const greetingRendered = Object.entries(vars).reduce(
-      (acc, [k, v]) => acc.replace(new RegExp(`\\{${k}\\}`, 'g'), v),
+      (acc, [k, v]) => acc.replace(new RegExp(`\\{${k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\}`, 'g'), v),
       menu.greeting,
     );
     return {

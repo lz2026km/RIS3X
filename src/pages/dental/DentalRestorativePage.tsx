@@ -19,30 +19,30 @@ export const DentalRestorativePage: React.FC = () => {
       const v = await form.validateFields();
       const r = await fetch('/api/v1/dental/treatments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...v, type: 'Restorative' }) });
       const d = await r.json();
-      if (d.success) { message.success('已创建修复治疗'); setModalOpen(false); form.resetFields(); load(); }
+      if (d.success) { message.success('已创建修复治�?); setModalOpen(false); form.resetFields(); load(); }
       else message.error(d.message || '创建失败');
-    } catch {}
+    } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
   };
   return (
     <DentalPageLayout header={{ title: '修复 (CAD/CAM)', extra: (
       <Button type="primary" icon={<Plus size={14} />} onClick={() => setModalOpen(true)}>新建修复</Button>
     ) }}>
-      {loading ? <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div> :
+      {loading ? <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载�?..</div> :
        treats.length === 0 ? <EmptyState tip="暂无修复记录" onCreate={() => setModalOpen(true)} createLabel="新建修复" /> :
        <Table rowKey="id" size="small" pagination={{ pageSize: 10 }} dataSource={treats} columns={[
-         { title: '患者', dataIndex: 'patientName', width: 100 },
+         { title: '患�?, dataIndex: 'patientName', width: 100 },
          { title: '牙位', dataIndex: 'toothNo', width: 80, render: (n?: number) => n ? <Tag color="blue">#{n}</Tag> : '-' },
-         { title: '面', dataIndex: 'toothSurface', width: 60 },
+         { title: '�?, dataIndex: 'toothSurface', width: 60 },
          { title: '材料', dataIndex: 'material', width: 100, render: (m?: string) => m ? <Tag color="cyan">{m}</Tag> : '-' },
          { title: '费用', dataIndex: 'cost', width: 80, render: (v?: number) => v != null ? `¥${v}` : '-' },
-         { title: '状态', dataIndex: 'status', width: 90, render: (s?: string) => <Tag>{s || '-'}</Tag> },
+         { title: '状�?, dataIndex: 'status', width: 90, render: (s?: string) => <Tag>{s || '-'}</Tag> },
          { title: '操作', width: 180, render: (_, t) => <TreatmentActions record={t} /> },
        ]} />}
       <Modal title="新建修复治疗" open={modalOpen} onCancel={() => setModalOpen(false)} onOk={onCreate} okText="创建">
         <Form form={form} layout="vertical">
-          <Form.Item label="患者 ID" name="patientId" rules={[{ required: true }]}><Input /></Form.Item>
+          <Form.Item label="患�?ID" name="patientId" rules={[{ required: true }]}><Input /></Form.Item>
           <Form.Item label="牙位" name="toothNo"><InputNumber min={11} max={48} style={{ width: '100%' }} /></Form.Item>
-          <Form.Item label="面" name="toothSurface">
+          <Form.Item label="�? name="toothSurface">
             <Select options={[{ value: 'O', label: 'O 颌面' }, { value: 'M', label: 'M 近中' }, { value: 'D', label: 'D 远中' }, { value: 'B', label: 'B 颊侧' }, { value: 'L', label: 'L 舌侧' }]} />
           </Form.Item>
           <Form.Item label="材料" name="material">

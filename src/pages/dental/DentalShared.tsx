@@ -42,8 +42,8 @@ export const EmptyState: React.FC<{ tip?: string; onCreate?: () => void; createL
 
 export const TreatmentActions: React.FC<{ record: DentalTreatment }> = ({ record }) => (
   <Space size={4}>
-    <Button size="small" onClick={() => message.warning('功能建设中')}>详情</Button>
-    <Button size="small" type="link" onClick={() => message.warning('功能建设中')}>随访</Button>
+    <Button size="small" disabled>详情</Button>
+    <Button size="small" type="link" disabled>随访</Button>
   </Space>
 );
 

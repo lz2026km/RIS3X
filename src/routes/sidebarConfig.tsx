@@ -1692,6 +1692,391 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.dentalPhoto",
         roles: ["医生", "技师", "主任", "管理员",],
       },
+      // [v3.0.6.11-42] P2 牙体牙髓
+      {
+        path: "/dental/endo",
+        icon: React.createElement(Activity, { size: 18 }),
+        labelKey: "nav.dentalEndo",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      // [v3.0.6.11-42] P2 牙周
+      {
+        path: "/dental/perio",
+        icon: React.createElement(Activity, { size: 18 }),
+        labelKey: "nav.dentalPerio",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      // [v3.0.6.11-42] P2 修复
+      {
+        path: "/dental/restorative",
+        icon: React.createElement(Activity, { size: 18 }),
+        labelKey: "nav.dentalRestorative",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      // [v3.0.6.11-42] P2 口腔外科
+      {
+        path: "/dental/surgery",
+        icon: React.createElement(Activity, { size: 18 }),
+        labelKey: "nav.dentalSurgery",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      // [v3.0.6.11-42] P2 儿牙
+      {
+        path: "/dental/pediatric",
+        icon: React.createElement(Activity, { size: 18 }),
+        labelKey: "nav.dentalPediatric",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      // [v3.0.6.11-42] P2 口腔影像查看
+      {
+        path: "/dental/viewer",
+        icon: React.createElement(Eye, { size: 18 }),
+        labelKey: "nav.dentalViewer",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      // [v3.0.6.11-42] P2 3D扫描查看
+      {
+        path: "/dental/viewer/scan-3d",
+        icon: React.createElement(Box, { size: 18 }),
+        labelKey: "nav.dentalScan3d",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      // [v3.0.6.11-42] P2 口腔标注
+      {
+        path: "/dental/annotate",
+        icon: React.createElement(Pen, { size: 18 }),
+        labelKey: "nav.dentalAnnotate",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      // [v3.0.6.11-42] P2 MPR重建
+      {
+        path: "/dental/viewer/mpr",
+        icon: React.createElement(Layers, { size: 18 }),
+        labelKey: "nav.dentalMpr",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      // [v3.0.6.11-42] P2 口腔ONNX AI
+      {
+        path: "/dental/ai-onnx",
+        icon: React.createElement(Cpu, { size: 18 }),
+        labelKey: "nav.dentalAiOnnx",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      // [v3.0.6.11-42] P2 口腔转诊
+      {
+        path: "/dental/referral",
+        icon: React.createElement(Users, { size: 18 }),
+        labelKey: "nav.dentalReferral",
+        roles: ["医生", "主任", "管理员"],
+      },
+      // [v3.0.6.11-42] P2 CBCT报告
+      {
+        path: "/dental/cbct-report",
+        icon: React.createElement(FileText, { size: 18 }),
+        labelKey: "nav.dentalCbctReport",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      // [v3.0.6.11-42] P2 口腔影像融合
+      {
+        path: "/dental/rad-fusion",
+        icon: React.createElement(Layers, { size: 18 }),
+        labelKey: "nav.dentalRadFusion",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+    ],
+  },
+  // [v3.0.6.11-42] P2 质量提升新增: 乳腺专科
+  {
+    section: "nav.specialtyModules",
+    items: [
+      {
+        path: "/mammo/operations",
+        icon: <Heart size={18} />,
+        labelKey: "nav.mammoOperations",
+        roles: ["主任", "管理员"],
+      },
+      {
+        path: "/mammo/quality",
+        icon: <ShieldCheck size={18} />,
+        labelKey: "nav.mammoQuality",
+        roles: ["主任", "管理员"],
+      },
+    ],
+  },
+  // [v3.0.6.11-42] P2 质量提升新增: 区域协同
+  {
+    section: "nav.regionalCoordination",
+    items: [
+      {
+        path: "/regional-imaging",
+        icon: <Image size={18} />,
+        labelKey: "nav.regionalImaging",
+        roles: ["管理员"],
+      },
+      {
+        path: "/integration/mllp-monitor",
+        icon: <Radio size={18} />,
+        labelKey: "nav.mllpMonitor",
+        roles: ["管理员", "技师"],
+      },
+      {
+        path: "/integration/mllp-config",
+        icon: <Settings size={18} />,
+        labelKey: "nav.mllpConfig",
+        roles: ["管理员"],
+      },
+      {
+        path: "/ihe-integration",
+        icon: <Network size={18} />,
+        labelKey: "nav.iheIntegration",
+        roles: ["主任", "管理员", "技师"],
+      },
+    ],
+  },
+  // [v3.0.6.11-42] P2 质量提升新增: 数据分析
+  {
+    section: "nav.dataAnalysis",
+    items: [
+      {
+        path: "/director-dashboard",
+        icon: <LayoutDashboard size={18} />,
+        labelKey: "nav.directorDashboard",
+        roles: ["主任", "管理员"],
+      },
+      {
+        path: "/command-center",
+        icon: <Monitor size={18} />,
+        labelKey: "nav.commandCenter",
+        roles: ["主任", "管理员"],
+      },
+    ],
+  },
+  // [v3.0.6.11-42] P2 质量提升新增: 质控补充
+  {
+    section: "nav.qualityControl",
+    items: [
+      {
+        path: "/research",
+        icon: <GraduationCap size={18} />,
+        labelKey: "nav.research",
+        roles: ["医生", "主任", "管理员"],
+      },
+      {
+        path: "/report-templates",
+        icon: <FileStack size={18} />,
+        labelKey: "nav.reportTemplates",
+        roles: ["医生", "主任", "技师", "管理员", "护士"],
+      },
+      {
+        path: "/clinical-calculators",
+        icon: <Calculator size={18} />,
+        labelKey: "nav.clinicalCalculators",
+        roles: ["医生", "主任", "技师", "护士", "管理员"],
+      },
+      {
+        path: "/patient-safety",
+        icon: <Shield size={18} />,
+        labelKey: "nav.patientSafety",
+        roles: ["主任", "管理员", "护士"],
+      },
+    ],
+  },
+  // [v3.0.6.11-42] P2 质量提升新增: 系统管理
+  {
+    section: "nav.systemManage",
+    items: [
+      {
+        path: "/emr-templates",
+        icon: <FileText size={18} />,
+        labelKey: "nav.emrTemplates",
+        roles: ["医生", "主任", "管理员"],
+      },
+      {
+        path: "/system-admin",
+        icon: <Settings size={18} />,
+        labelKey: "nav.systemAdmin",
+        roles: ["管理员"],
+      },
+      {
+        path: "/audit-compliance",
+        icon: <ShieldCheck size={18} />,
+        labelKey: "nav.auditCompliance",
+        roles: ["主任", "管理员"],
+      },
+      {
+        path: "/terminology-server",
+        icon: <Server size={18} />,
+        labelKey: "nav.terminologyServer",
+        roles: ["医生", "主任", "技师", "管理员", "护士"],
+      },
+      {
+        path: "/patient-device-mgmt",
+        icon: <Monitor size={18} />,
+        labelKey: "nav.patientDeviceMgmt",
+        roles: ["医生", "主任", "技师", "管理员"],
+      },
+      {
+        path: "/notif-tpl-dict",
+        icon: <Bell size={18} />,
+        labelKey: "nav.notifTplDict",
+        roles: ["医生", "主任", "技师", "管理员"],
+      },
+      {
+        path: "/audit",
+        icon: <History size={18} />,
+        labelKey: "nav.audit",
+        roles: ["管理员"],
+      },
+      {
+        path: "/authority",
+        icon: <Shield size={18} />,
+        labelKey: "nav.authority",
+        roles: ["管理员"],
+      },
+      {
+        path: "/dictionary",
+        icon: <BookOpen size={18} />,
+        labelKey: "nav.dictionary",
+        roles: ["管理员"],
+      },
+    ],
+  },
+  // [v3.0.6.11-42] P2 质量提升新增: 患者管理
+  {
+    section: "nav.patientManagement",
+    items: [
+      {
+        path: "/treatment-plans",
+        icon: <ClipboardList size={18} />,
+        labelKey: "nav.treatmentPlans",
+        roles: ["医生", "主任", "管理员"],
+      },
+      {
+        path: "/patient-unified",
+        icon: <Users size={18} />,
+        labelKey: "nav.patientUnified",
+        roles: ["医生", "主任", "技师", "管理员"],
+      },
+    ],
+  },
+  // [v3.0.6.11-42] P2 质量提升新增: 影像打印
+  {
+    section: "nav.imagingPrint",
+    items: [
+      {
+        path: "/dicom-share",
+        icon: <Send size={18} />,
+        labelKey: "nav.dicomShare",
+        roles: ["医生", "主任", "技师", "管理员", "护士"],
+      },
+      {
+        path: "/dicom-sr-manager",
+        icon: <FileText size={18} />,
+        labelKey: "nav.dicomSrManager",
+        roles: ["医生", "主任", "技师", "管理员"],
+      },
+      {
+        path: "/print-management",
+        icon: <Printer size={18} />,
+        labelKey: "nav.printManagement",
+        roles: ["技师", "管理员"],
+      },
+    ],
+  },
+  // [v3.0.6.11-42] P2 质量提升新增: 工作流
+  {
+    section: "nav.workflowV3",
+    items: [
+      {
+        path: "/scheduling-center",
+        icon: <CalendarClock size={18} />,
+        labelKey: "nav.schedulingCenter",
+        roles: ["主任", "管理员", "技师"],
+      },
+      {
+        path: "/clinical-pathways",
+        icon: <GitBranch size={18} />,
+        labelKey: "nav.clinicalPathways",
+        roles: ["医生", "主任", "管理员", "护士"],
+      },
+    ],
+  },
+  // [v3.0.6.11-42] P2 质量提升新增: AI智能
+  {
+    section: "nav.aiIntelligence",
+    items: [
+      {
+        path: "/ai-fusion-workspace",
+        icon: <Layers size={18} />,
+        labelKey: "nav.aiFusionWorkspace",
+        roles: ["医生", "主任", "技师", "管理员"],
+      },
+    ],
+  },
+  // [v3.0.6.11-42] P2 质量提升新增: 患者服务
+  {
+    section: "nav.patientService",
+    items: [
+      {
+        path: "/consent-education",
+        icon: <BookOpen size={18} />,
+        labelKey: "nav.consentEducation",
+        roles: ["医生", "主任", "技师", "护士", "管理员"],
+      },
+    ],
+  },
+  // [v3.0.6.11-42] P2 质量提升新增: 报告管理
+  {
+    section: "nav.reportManagement",
+    items: [
+      {
+        path: "/report-workflow",
+        icon: <GitBranch size={18} />,
+        labelKey: "nav.reportWorkflow",
+        roles: ["医生", "主任", "管理员"],
+      },
+      {
+        path: "/review-check",
+        icon: <ClipboardCheck size={18} />,
+        labelKey: "nav.reviewCheck",
+        roles: ["医生", "主任", "管理员"],
+      },
+      {
+        path: "/sign-amend",
+        icon: <FileSignature size={18} />,
+        labelKey: "nav.signAmend",
+        roles: ["医生", "主任", "管理员"],
+      },
+      {
+        path: "/v3-report-hub",
+        icon: <FileText size={18} />,
+        labelKey: "nav.v3ReportHub",
+        roles: ["医生", "主任", "管理员"],
+      },
+    ],
+  },
+  // [v3.0.6.11-42] P2 质量提升新增: 设备物资
+  {
+    section: "nav.equipmentMaterials",
+    items: [
+      {
+        path: "/materials",
+        icon: <Package size={18} />,
+        labelKey: "nav.materials",
+        roles: ["技师", "管理员"],
+      },
+      {
+        path: "/supplies",
+        icon: <Package size={18} />,
+        labelKey: "nav.supplies",
+        roles: ["技师", "管理员"],
+      },
+      {
+        path: "/radiology-materials",
+        icon: <Package size={18} />,
+        labelKey: "nav.radiologyMaterials",
+        roles: ["技师", "管理员"],
+      },
     ],
   },
   // [v3.0.6.11-40] A15 专科模块: 乳腺/心脏/骨科/神经

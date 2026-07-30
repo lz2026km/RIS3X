@@ -24,7 +24,7 @@ function resolveApiMode(): ApiMode {
     try {
       const storedMode = normalizeApiMode(window.localStorage.getItem('ris_api_mode') ?? undefined)
       if (storedMode) return storedMode
-    } catch {}
+    } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
   }
   const envMode = normalizeApiMode(import.meta.env.VITE_API_MODE)
   if (envMode) return envMode
