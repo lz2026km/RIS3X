@@ -1,5 +1,5 @@
 /**
- * G005 放射RIS系统 v3.0.6.11-7 - NestJS 根模块（扩 14 新 module）
+ * G005 放射RIS系统 v3.0.6.11-43 - NestJS 根模块（扩 14 新 module）
  */
 import { Module } from '@nestjs/common'
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'

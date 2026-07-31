@@ -54,7 +54,7 @@ interface QCImagePanelProps {
 export default function QCImagePanel({ data, issueDistribution, onViewDetail }: QCImagePanelProps) {
   const [images, setImages] = useState<QcImageDto[]>([]);
   useEffect(() => {
-    qcextApi.listQcImages().then(res => { if (res.success) setImages(res.data); }).catch(() => {});
+    qcextApi.listQcImages().then(res => { if (res.success) setImages(res.data); }).catch((err) => { console.error('[F04]', err); });
   }, []);
   const imageFiltered = data
 

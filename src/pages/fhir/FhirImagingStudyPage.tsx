@@ -16,8 +16,8 @@ export const FhirImagingStudyPage: React.FC = () => {
     try {
       const res = await fhirApi.searchImagingStudy({ _count: '20', ...params })
       if (res.success && res.data) {
-        const entries = (res.data as any).entry || []
-        setStudies(entries.map((e: any) => e.resource))
+        const entries = res.data.entry || []
+        setStudies(entries.map((e) => e.resource as FhirImagingStudy))
         setTotal(res.data.total || entries.length)
       }
     } catch {

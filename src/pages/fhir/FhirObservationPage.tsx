@@ -16,8 +16,8 @@ export const FhirObservationPage: React.FC = () => {
     try {
       const res = await fhirApi.searchObservation({ _count: '20', ...params })
       if (res.success && res.data) {
-        const entries = (res.data as any).entry || []
-        setObservations(entries.map((e: any) => e.resource))
+        const entries = res.data.entry || []
+        setObservations(entries.map((e) => e.resource as FhirObservation))
         setTotal(res.data.total || entries.length)
       }
     } catch {

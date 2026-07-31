@@ -212,8 +212,8 @@ export default function QCScorePanel({
   const [scores, setScores] = useState<QcScoreDto[]>([]);
   const [qcStats, setQcStats] = useState<QcStatsDto | null>(null);
   useEffect(() => {
-    qcextApi.listQcScores().then(res => { if (res.success) setScores(res.data); }).catch(() => {});
-    qcextApi.getQcStats().then(res => { if (res.success) setQcStats(res.data); }).catch(() => {});
+    qcextApi.listQcScores().then(res => { if (res.success) setScores(res.data); }).catch((err) => { console.error('[F04]', err); });
+    qcextApi.getQcStats().then(res => { if (res.success) setQcStats(res.data); }).catch((err) => { console.error('[F04]', err); });
   }, []);
   const statCardsReport = [
     { label: '今日审核数', value: reportQCData.filter(r => r.date === '2026-05-01').length, icon: <FileText size={18} color={ACCENT} />, bg: '#eff6ff', color: ACCENT },

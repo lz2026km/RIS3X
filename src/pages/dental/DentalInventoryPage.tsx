@@ -20,7 +20,7 @@ export const DentalInventoryPage: React.FC = () => {
         if (!cancelled && res.success && Array.isArray(res.data)) {
           setItems(res.data);
         }
-      } catch { /* API may not be available */ }
+      } catch (err) { console.error('[F04]', err); }
       if (!cancelled) setLoading(false);
     })();
     return () => { cancelled = true; };
@@ -34,7 +34,7 @@ export const DentalInventoryPage: React.FC = () => {
       setModalOpen(false);
       form.resetFields();
       message.success(`已新增库存项 ${newItem.id}`);
-    }).catch(() => {});
+    }).catch((err) => { console.error('[F04]', err); });
   };
   const onAdjust = (delta: number) => {
     if (!detail) return;

@@ -50,8 +50,8 @@ export default function DepartmentFinancePage() {
   const [revenueData, setRevenueData] = useState<RevenueAnalysisDto | null>(null)
   const [costData, setCostData] = useState<CostAccountingDto | null>(null)
   useEffect(() => {
-    financeApi.getRevenueAnalysis().then(res => { if (res.success) setRevenueData(res.data); }).catch(() => {})
-    financeApi.getCostAccounting().then(res => { if (res.success) setCostData(res.data); }).catch(() => {})
+    financeApi.getRevenueAnalysis().then(res => { if (res.success) setRevenueData(res.data); }).catch((err) => { console.error('[F04]', err); })
+    financeApi.getCostAccounting().then(res => { if (res.success) setCostData(res.data); }).catch((err) => { console.error('[F04]', err); })
   }, [period])
 
   const totalRev = MONTHLY_REVENUE.reduce((s, m) => s + m.revenue, 0)

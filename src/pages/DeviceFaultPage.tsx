@@ -271,7 +271,7 @@ export default function DeviceFaultPage() {
   useEffect(() => {
     deviceMgmtApi.listDeviceFaults().then(res => {
       if (res.success && res.data) setApiFaults(res.data);
-    }).catch(() => {});
+    }).catch((err) => { console.error('[F04]', err); });
   }, []);
 
   // 新增故障表单状态

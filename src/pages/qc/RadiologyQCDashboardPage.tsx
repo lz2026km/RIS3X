@@ -44,8 +44,8 @@ export default function RadiologyQCDashboardPage() {
   const [dashboardData, setDashboardData] = useState<QcDashboardDto | null>(null);
   const [qcStats, setQcStats] = useState<QcStatsDto | null>(null);
   const fetchData = useCallback(() => {
-    qcextApi.getQcDashboard().then(res => { if (res.success) setDashboardData(res.data); }).catch(() => {});
-    qcextApi.getQcStats().then(res => { if (res.success) setQcStats(res.data); }).catch(() => {});
+    qcextApi.getQcDashboard().then(res => { if (res.success) setDashboardData(res.data); }).catch((err) => { console.error('[F04]', err); });
+    qcextApi.getQcStats().then(res => { if (res.success) setQcStats(res.data); }).catch((err) => { console.error('[F04]', err); });
   }, []);
   useEffect(() => { fetchData(); }, [fetchData, refreshKey]);
 

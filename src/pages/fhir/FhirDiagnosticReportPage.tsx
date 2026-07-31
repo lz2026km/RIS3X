@@ -16,8 +16,8 @@ export const FhirDiagnosticReportPage: React.FC = () => {
     try {
       const res = await fhirApi.searchDiagnosticReport({ _count: '20', ...params })
       if (res.success && res.data) {
-        const entries = (res.data as any).entry || []
-        setReports(entries.map((e: any) => e.resource))
+        const entries = res.data.entry || []
+        setReports(entries.map((e) => e.resource as FhirDiagnosticReport))
         setTotal(res.data.total || entries.length)
       }
     } catch {

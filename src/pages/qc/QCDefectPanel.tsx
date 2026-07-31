@@ -95,8 +95,8 @@ export default function QCDefectPanel({ gradeDistributionData, reportDefectData,
   const [defects, setDefects] = useState<QcDefectDto[]>([]);
   const [stats, setStats] = useState<QcStatsDto | null>(null);
   useEffect(() => {
-    qcextApi.listQcDefects().then(res => { if (res.success) setDefects(res.data); }).catch(() => {});
-    qcextApi.getQcStats().then(res => { if (res.success) setStats(res.data); }).catch(() => {});
+    qcextApi.listQcDefects().then(res => { if (res.success) setDefects(res.data); }).catch((err) => { console.error('[F04]', err); });
+    qcextApi.getQcStats().then(res => { if (res.success) setStats(res.data); }).catch((err) => { console.error('[F04]', err); });
   }, []);
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>

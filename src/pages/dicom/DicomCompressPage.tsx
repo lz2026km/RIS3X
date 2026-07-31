@@ -67,7 +67,7 @@ export default function DicomCompressPage() {
         setSyntaxes(data)
         if (data.length > 0) setSelectedSyntax(data[0].uid)
       })
-      .catch(() => {})
+      .catch((err) => { console.error('[F04]', err); })
     fetchRatioData()
   }, [])
 
@@ -77,7 +77,7 @@ export default function DicomCompressPage() {
       ids.map(id =>
         fetch(`${API_BASE}/ratio/${id}`).then(r => r.json() as Promise<CompressRatio>)
       )
-    ).then(setRatioData).catch(() => {})
+    ).then(setRatioData).catch((err) => { console.error('[F04]', err); })
   }, [])
 
   const startPolling = useCallback((taskId: string) => {

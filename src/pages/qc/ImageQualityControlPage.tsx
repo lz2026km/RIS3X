@@ -16,7 +16,7 @@ export default function ImageQualityControlPage() {
   const [modality, setModality] = useState<string>("all");
   const [qcImages, setQcImages] = useState<QcImageDto[]>([]);
   useEffect(() => {
-    qcextApi.listQcImages().then(res => { if (res.success) setQcImages(res.data); }).catch(() => {});
+    qcextApi.listQcImages().then(res => { if (res.success) setQcImages(res.data); }).catch((err) => { console.error('[F04]', err); });
   }, []);
 
   const stats = useMemo(() => {

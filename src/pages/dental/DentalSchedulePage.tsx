@@ -35,11 +35,11 @@ export const DentalSchedulePage: React.FC = () => {
   const fetchData = async () => {
     try {
       const [c, a, s, p, d] = await Promise.all([
-        dentalApi.getScheduleChairs().catch(() => ({ success: false, data: [] })),
-        dentalApi.getScheduleAppointments(selectedDate).catch(() => ({ success: false, data: [] })),
-        dentalApi.getScheduleStats().catch(() => ({ success: false, data: null })),
-        dentalApi.listPatients().catch(() => ({ success: false, data: [] })),
-        dentalApi.listDentists().catch(() => ({ success: false, data: [] })),
+        dentalApi.getScheduleChairs().catch((err) => { console.error('[F04]', err); return { success: false, data: [] }; }),
+        dentalApi.getScheduleAppointments(selectedDate).catch((err) => { console.error('[F04]', err); return { success: false, data: [] }; }),
+        dentalApi.getScheduleStats().catch((err) => { console.error('[F04]', err); return { success: false, data: null }; }),
+        dentalApi.listPatients().catch((err) => { console.error('[F04]', err); return { success: false, data: [] }; }),
+        dentalApi.listDentists().catch((err) => { console.error('[F04]', err); return { success: false, data: [] }; }),
       ]);
       setChairs(c.data || []);
       setAppts(a.data || []);
@@ -50,7 +50,7 @@ export const DentalSchedulePage: React.FC = () => {
       if (d.success && Array.isArray(d.data)) {
         setDentists(d.data.map((dt: any) => ({ value: dt.name || dt.id, label: dt.name || dt.id })));
       }
-    } catch (e) { /* ignore */ }
+    } catch (e) { console.error('[F04]', e); }
   };
 
   useEffect(() => { fetchData(); }, [selectedDate]);
@@ -81,7 +81,7 @@ export const DentalSchedulePage: React.FC = () => {
       } else {
         message.error('创建失败: ' + (data.error?.message || '未知错误'));
       }
-    } catch (e) { /* validation failed or network error */ }
+    } catch (e) { console.error('[F04]', e); }
     setSubmitting(false);
   };
 

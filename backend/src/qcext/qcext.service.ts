@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 import { PrismaService } from '../prisma/prisma.service'
 import { getCurrentTenantId } from '../common/interceptors/tenant-context.interceptor'
 
@@ -28,8 +29,9 @@ export class QcExtService {
   }
 
   async rateQcImage(body: Record<string, unknown>) {
-    const { id, ...rest } = body
-    const data = await this.prisma.dicomInstance.update({ where: { id }, data: rest })
+    const { id: _id, ...rest } = body
+    const id = body['id'] as string
+    const data = await this.prisma.dicomInstance.update({ where: { id }, data: rest as any })
     return { data: [data] }
   }
 
@@ -49,7 +51,7 @@ export class QcExtService {
   }
 
   async reportQcDefect(body: Record<string, unknown>) {
-    const data = await this.prisma.auditLog.create({ data: { action: 'REPORT', resource: 'qc-defect', detail: body, tenantId: getCurrentTenantId() } })
+    const data = await this.prisma.auditLog.create({ data: { action: 'REPORT', resource: 'qc-defect', detail: body as Prisma.InputJsonValue, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
 

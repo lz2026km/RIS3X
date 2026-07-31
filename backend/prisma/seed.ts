@@ -89,7 +89,7 @@ async function main(): Promise<void> {
           patientId: pt.id,
           examId: exam.id,
           radiologistId: doctorWang.id,
-          state: i === 0 ? ReportState.SIGNED : i === 1 ? ReportState.REVIEWING : ReportState.WRITING,
+          state: i === 0 ? ReportState.SIGNED : i === 1 ? ReportState.INITIAL_REVIEW : ReportState.WRITING,
           findings: `双肺纹理清晰,未见明显异常密度影。\n气管支气管通畅。`,
           conclusion: i === 0 ? '胸部 CT 平扫未见明显异常。' : '待进一步评估。',
           signedAt: i === 0 ? new Date() : null,

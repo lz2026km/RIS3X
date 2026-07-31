@@ -129,7 +129,7 @@ export default function EquipmentLifecyclePage() {
   useEffect(() => {
     deviceMgmtApi.listEquipmentLifecycle().then(res => {
       if (res.success && res.data) setApiLifecycleData(res.data);
-    }).catch(() => {});
+    }).catch((err) => { console.error('[F04]', err); });
   }, []);
 
   const filtered = mockDevices.filter(d => {

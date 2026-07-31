@@ -57,7 +57,7 @@ export default function PatientFinancePage() {
   useEffect(() => {
     svc.getBills('P001').then(setBills)
     svc.getInsuranceClaims('P001').then(setClaims)
-    financeApi.listInvoices().then(res => { if (res.success) setInvoices(res.data); }).catch(() => {})
+    financeApi.listInvoices().then(res => { if (res.success) setInvoices(res.data); }).catch((err) => { console.error('[F04]', err); })
   }, [])
 
   const handleSelectBill = async (bill: PatientBill) => {

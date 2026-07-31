@@ -23,17 +23,17 @@ export class DeviceService {
   constructor(private readonly prisma: PrismaService) {}
 
   async list(params: { skip?: number; take?: number; modality?: string; state?: string }) {
-    const where: { modality?: string; state?: string } = {}
+    const where: { modality?: string; state?: 'IDLE' | 'IN_USE' | 'MAINTENANCE' | 'BROKEN' | 'OFFLINE' } = {}
     if (params.modality) where.modality = params.modality
-    if (params.state) where.state = params.state
+    if (params.state) where.state = params.state as typeof where.state
     const [items, total] = await Promise.all([
       this.prisma.device.findMany({
-        where,
+        where: where as any,
         skip: params.skip ?? 0,
         take: params.take ?? 50,
         orderBy: { createdAt: 'desc' },
       }),
-      this.prisma.device.count({ where }),
+      this.prisma.device.count({ where: where as any }),
     ])
     return { items, total }
   }
@@ -55,6 +55,7 @@ export class DeviceService {
         modality: dto.modality,
         manufacturer: dto.manufacturer,
         location: dto.location,
+        tenantId: 'default',
       },
     })
   }

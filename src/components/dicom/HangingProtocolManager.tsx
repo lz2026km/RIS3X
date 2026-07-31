@@ -3,6 +3,7 @@
  * 补齐挂片协议功能：导入导出、模板库、高级匹配、批量管理
  */
 import React, { useState, useCallback, useMemo } from 'react'
+import { message } from 'antd'
 import {
   Settings, Star, Plus, Trash2, Download, Upload, Copy,
   ChevronDown, ChevronUp, Layout, LayoutGrid, Grid3x3,
@@ -162,7 +163,7 @@ function HangingProtocolManagerInner({ onApply, modality, bodyPart }: HangingPro
       setShowImport(false)
       setImportJson('')
     } catch {
-      alert('JSON 格式错误')
+      message.error('JSON 格式错误')
     }
   }, [importJson, addProtocol])
 

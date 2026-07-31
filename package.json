@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.11-42",
-  "description": "G005 Radiology RIS v3.0.6.11-42 - Legacy Bug Fix + Password Cleanup + Mock Cleanup + Empty Pages + Security Hardening",
+  "version": "3.0.6.11-43",
+  "description": "G005 Radiology RIS v3.0.6.11-43 - Version Unification + Mock Migration + CORS Hardening",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",

@@ -160,6 +160,24 @@ export class CriticalsService {
     })
   }
 
+  async getMissedStats() {
+    const missed = await this.prisma.criticalValue.count({ where: { state: 'FOUND' } })
+    const total = await this.prisma.criticalValue.count()
+    return { missed, total }
+  }
+
+  async getNotificationStats() {
+    const byStatus = await this.prisma.criticalValueNotification.groupBy({ by: ['status'], _count: { id: true } })
+    const total = await this.prisma.criticalValueNotification.count()
+    return { byStatus, total }
+  }
+
+  async runEscalationChain(id: string) {
+    const existing = await this.prisma.criticalValue.findUnique({ where: { id } })
+    if (!existing) throw new NotFoundException(`CriticalValue ${id} not found`)
+    return this.prisma.criticalValue.update({ where: { id }, data: { state: 'ESCALATED' } })
+  }
+
   private simulateDelivery(_channel: string): string {
     return Math.random() > 0.05 ? 'SUCCESS' : 'FAILED'
   }

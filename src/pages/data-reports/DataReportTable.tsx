@@ -180,7 +180,7 @@ const ReportBuilder = () => {
         }));
         setDataSources(sources);
       })
-      .catch(() => {});
+      .catch((err) => { console.error('[F04]', err); });
   }, []);
 
   const dimSensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
@@ -783,8 +783,8 @@ export default function DataReportTable({
   const [nationalReports, setNationalReports] = useState<NationalReportDto[]>(propNationalReports || []);
   const [dataReports, setDataReports] = useState<DataReportDto[]>(propDataReports || []);
   useEffect(() => {
-    datareportApi.listNationalReports().then(res => { if (res.success) setNationalReports(res.data); }).catch(() => {});
-    datareportApi.listDataReports().then(res => { if (res.success) setDataReports(res.data); }).catch(() => {});
+    datareportApi.listNationalReports().then(res => { if (res.success) setNationalReports(res.data); }).catch((err) => { console.error('[F04]', err); });
+    datareportApi.listDataReports().then(res => { if (res.success) setDataReports(res.data); }).catch((err) => { console.error('[F04]', err); });
   }, []);
   const renderTabContent = () => {
     switch (activeTab) {

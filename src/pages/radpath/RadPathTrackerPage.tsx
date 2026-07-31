@@ -28,7 +28,7 @@ export default function RadPathTrackerPage() {
   useEffect(() => {
     radpathApi.getStats().then(res => {
       if (res.success && res.data) setStats(res.data);
-    }).catch(() => {});
+    }).catch((err) => { console.error('[F04]', err); });
   }, []);
 
   const handleSearch = useCallback(async () => {

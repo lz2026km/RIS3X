@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 import { PrismaService } from '../prisma/prisma.service'
 import { getCurrentTenantId } from '../common/interceptors/tenant-context.interceptor'
 
@@ -42,7 +43,7 @@ export class DeviceMgmtService {
   }
 
   async reportDeviceFault(body: Record<string, unknown>) {
-    const data = await this.prisma.auditLog.create({ data: { action: 'REPORT', resource: 'device-fault', detail: body, tenantId: getCurrentTenantId() } })
+    const data = await this.prisma.auditLog.create({ data: { action: 'REPORT', resource: 'device-fault', detail: body as Prisma.InputJsonValue, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
 
@@ -52,7 +53,7 @@ export class DeviceMgmtService {
   }
 
   async addMaterial(body: Record<string, unknown>) {
-    const data = await this.prisma.auditLog.create({ data: { action: 'ADD', resource: 'device-material', detail: body, tenantId: getCurrentTenantId() } })
+    const data = await this.prisma.auditLog.create({ data: { action: 'ADD', resource: 'device-material', detail: body as Prisma.InputJsonValue, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
 
@@ -62,7 +63,7 @@ export class DeviceMgmtService {
   }
 
   async recordDose(body: Record<string, unknown>) {
-    const data = await this.prisma.auditLog.create({ data: { action: 'RECORD', resource: 'dose-tracking', detail: body, tenantId: getCurrentTenantId() } })
+    const data = await this.prisma.auditLog.create({ data: { action: 'RECORD', resource: 'dose-tracking', detail: body as Prisma.InputJsonValue, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
 
@@ -72,7 +73,7 @@ export class DeviceMgmtService {
   }
 
   async reportAdverseReaction(body: Record<string, unknown>) {
-    const data = await this.prisma.adverseEvent.create({ data: { ...body, tenantId: getCurrentTenantId() } })
+    const data = await this.prisma.adverseEvent.create({ data: { tenantId: getCurrentTenantId(), eventType: (body['eventType'] as any) ?? 'OTHER', severity: (body['severity'] as any) ?? 'MINOR', description: (body['description'] as string) ?? '', department: (body['department'] as string) ?? '', reportedBy: (body['reportedBy'] as string) ?? 'unknown', ...body as any } })
     return { data: [data] }
   }
 
@@ -87,7 +88,7 @@ export class DeviceMgmtService {
   }
 
   async updateContrastInventory(id: string, body: Record<string, unknown>) {
-    const data = await this.prisma.auditLog.update({ where: { id }, data: { detail: body } })
+    const data = await this.prisma.auditLog.update({ where: { id }, data: { detail: body as Prisma.InputJsonValue } })
     return { data: [data] }
   }
 

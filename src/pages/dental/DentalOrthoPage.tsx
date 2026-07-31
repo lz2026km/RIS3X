@@ -4,7 +4,7 @@ import { DentalPageLayout } from './DentalShared';
 
 export const DentalOrthoPage: React.FC = () => {
   const [plans, setPlans] = useState<any[]>([]);
-  useEffect(() => { fetch('/api/v1/dental/ortho/plans').then(r=>r.json()).then(d=>{if(d.success)setPlans(d.data)}).catch(()=>{}); }, []);
+  useEffect(() => { fetch('/api/v1/dental/ortho/plans').then(r=>r.json()).then(d=>{if(d.success)setPlans(d.data)}).catch((err) => { console.error('[F04]', err); }); }, []);
   return (
     <DentalPageLayout header={{ title: '正畸' }}>
       <Table dataSource={plans} rowKey="id" columns={[

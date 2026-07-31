@@ -158,7 +158,7 @@ export default function MobileSettingsPage() {
 
           {renderToggle('语音唤醒', `"${settings.voiceWakeWord}" 唤醒`, settings.voiceActivation, v => {
             save({ voiceActivation: v })
-            if (v) voiceActivation.start().catch(() => {})
+            if (v) voiceActivation.start().catch((err) => { console.error('[F04]', err); })
             else voiceActivation.stop()
           })}
 

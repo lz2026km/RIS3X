@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 import { PrismaService } from '../prisma/prisma.service'
 import { getCurrentTenantId } from '../common/interceptors/tenant-context.interceptor'
 
@@ -17,12 +18,12 @@ export class CosignService {
   }
 
   async approveCosign(body: Record<string, unknown>) {
-    const data = await this.prisma.auditLog.create({ data: { action: 'APPROVE', resource: 'cosign', detail: body, success: true, tenantId: getCurrentTenantId() } })
+    const data = await this.prisma.auditLog.create({ data: { action: 'APPROVE', resource: 'cosign', detail: body as Prisma.InputJsonValue, success: true, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
 
   async rejectCosign(body: Record<string, unknown>) {
-    const data = await this.prisma.auditLog.create({ data: { action: 'REJECT', resource: 'cosign', detail: body, success: false, tenantId: getCurrentTenantId() } })
+    const data = await this.prisma.auditLog.create({ data: { action: 'REJECT', resource: 'cosign', detail: body as Prisma.InputJsonValue, success: false, tenantId: getCurrentTenantId() } })
     return { data: [data] }
   }
 
@@ -37,7 +38,7 @@ export class CosignService {
   }
 
   async createCosignRule(body: Record<string, unknown>) {
-    const data = await this.prisma.systemConfig.create({ data: { key: `cosign_rule_${Date.now()}`, value: body } })
+    const data = await this.prisma.systemConfig.create({ data: { key: `cosign_rule_${Date.now()}`, value: body as Prisma.InputJsonValue } })
     return { data: [data] }
   }
 

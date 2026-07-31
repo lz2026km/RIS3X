@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 import { PrismaService } from '../../prisma/prisma.service'
 import { getCurrentTenantId } from '../../common/interceptors/tenant-context.interceptor'
 
@@ -48,7 +49,7 @@ export class OrchestratorService {
         tenantId,
         name: dto.name,
         description: dto.description ?? '',
-        steps: dto.steps,
+        steps: dto.steps as unknown as Prisma.InputJsonValue,
         slaConfigId: dto.slaConfigId,
       },
       include: { slaConfig: true },
@@ -76,7 +77,7 @@ export class OrchestratorService {
     if (!flow) throw new NotFoundException(`Flow ${flowId} not found`)
 
     const tenantId = getCurrentTenantId()
-    const steps = flow.steps as FlowStepDefinition[]
+    const steps = flow.steps as unknown as FlowStepDefinition[]
     const now = new Date()
 
     let slaDeadline: Date | undefined
@@ -94,7 +95,7 @@ export class OrchestratorService {
         status: 'RUNNING',
         currentStep: 0,
         startedAt: now,
-        context: dto.context ?? {},
+        context: (dto.context ?? {}) as unknown as Prisma.InputJsonValue,
         slaDeadline,
         trigger: dto.executionId ?? 'manual',
       },
@@ -118,7 +119,7 @@ export class OrchestratorService {
     if (!execution) throw new NotFoundException(`Execution ${executionId} not found`)
     if (execution.status === 'COMPLETED') throw new BadRequestException('Execution already completed')
 
-    const steps = execution.flow.steps as FlowStepDefinition[]
+    const steps = execution.flow.steps as unknown as FlowStepDefinition[]
     const nextIndex = execution.currentStep + 1
 
     if (nextIndex >= steps.length) {

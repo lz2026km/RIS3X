@@ -630,10 +630,10 @@ export default function DevicePage() {
   useEffect(() => {
     deviceMgmtApi.listDeviceFaults().then(res => {
       if (res.success && res.data) setDeviceFaults(res.data);
-    }).catch(() => {});
+    }).catch((err) => { console.error('[F04]', err); });
     deviceMgmtApi.listEquipmentLifecycle().then(res => {
       if (res.success && res.data) setEquipmentLifecycle(res.data);
-    }).catch(() => {});
+    }).catch((err) => { console.error('[F04]', err); });
   }, [])
 
   const TABS = [

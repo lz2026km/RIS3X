@@ -18,8 +18,8 @@ export const DentalVolumeViewerPage: React.FC = () => {
   const [showCurved, setShowCurved] = useState(false);
 
   useEffect(() => {
-    fetch('/api/v1/dental/volume/studies').then(r=>r.json()).then(d=>{if(d.success)setStudies(d.data||[]);}).catch(()=>{});
-    fetch('/api/v1/dental/volume/presets').then(r=>r.json()).then(d=>{if(d.success)setPresets(d.data||[]);}).catch(()=>{});
+    fetch('/api/v1/dental/volume/studies').then(r=>r.json()).then(d=>{if(d.success)setStudies(d.data||[]);}).catch((err) => { console.error('[F04]', err); });
+    fetch('/api/v1/dental/volume/presets').then(r=>r.json()).then(d=>{if(d.success)setPresets(d.data||[]);}).catch((err) => { console.error('[F04]', err); });
   }, []);
 
   const handleSelect = (s: any) => { setCurrent(s); setSliceIdx(Math.floor((s.slices||400)/2)); setMode('viewer'); };

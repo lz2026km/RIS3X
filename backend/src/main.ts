@@ -1,5 +1,5 @@
 /**
- * G005 放射RIS系统 v3.0.7.0 - NestJS 后端入口
+ * G005 放射RIS系统 v3.0.6.11-43 - NestJS 后端入口
  * 启动 NestJS + ValidationPipe + CORS + Swagger + Prometheus /metrics
  */
 import { NestFactory } from '@nestjs/core'
@@ -37,7 +37,29 @@ async function bootstrap(): Promise<void> {
     app.use(Sentry.expressErrorHandler())
   }
 
+  const METRICS_ALLOWED_IPS = (process.env['METRICS_ALLOWED_IPS'] ?? '127.0.0.1,::1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16')
+    .split(',').map((s) => s.trim()).filter(Boolean)
+  const isAllowedIp = (ip: string): boolean => {
+    for (const allowed of METRICS_ALLOWED_IPS) {
+      if (allowed.includes('/')) {
+        const [range, bits] = allowed.split('/')
+        const mask = ~((1 << (32 - Number(bits))) - 1) >>> 0
+        const ipNum = ip.split('.').reduce((acc, octet) => (acc << 8) + Number(octet), 0) >>> 0
+        const rangeNum = range.split('.').reduce((acc, octet) => (acc << 8) + Number(octet), 0) >>> 0
+        if ((ipNum & mask) === (rangeNum & mask)) return true
+      } else if (ip === allowed) {
+        return true
+      }
+    }
+    return false
+  }
   app.use('/metrics', async (_req: Request, res: Response) => {
+    const clientIp = (_req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ?? _req.socket.remoteAddress ?? ''
+    const normalizedIp = clientIp.replace('::ffff:', '')
+    if (!isAllowedIp(normalizedIp)) {
+      res.status(403).json({ statusCode: 403, message: 'Forbidden: /metrics access denied' })
+      return
+    }
     res.set('Content-Type', client.register.contentType)
     res.end(await client.register.metrics())
   })
@@ -70,13 +92,31 @@ async function bootstrap(): Promise<void> {
   const config = new DocumentBuilder()
     .setTitle('G005-RISv API')
     .setDescription('G005 放射信息系统 API 文档')
-    .setVersion('3.0.6.11-20')
+    .setVersion('3.0.6.11-43')
     .addBearerAuth()
     .build()
   const document = SwaggerModule.createDocument(app, config)
-  SwaggerModule.setup('api/docs', app, document)
 
+  const SWAGGER_DISABLED = process.env['SWAGGER_DISABLED'] === 'true'
+  if (!SWAGGER_DISABLED) {
+    SwaggerModule.setup('api/docs', app, document, {
+      swaggerOptions: {
+        persistAuthorization: true,
+        docExpansion: 'none',
+        filter: true,
+      },
+    })
+  }
+
+  const swaggerIpWhitelist = (process.env['SWAGGER_ALLOWED_IPS'] ?? '127.0.0.1,::1')
+    .split(',').map((s) => s.trim()).filter(Boolean)
   app.getHttpAdapter().get('/api/docs-json', (_req: Request, res: Response) => {
+    const clientIp = (_req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ?? _req.socket.remoteAddress ?? ''
+    const normalizedIp = clientIp.replace('::ffff:', '')
+    if (isProd && !swaggerIpWhitelist.includes(normalizedIp) && !swaggerIpWhitelist.some((ip) => ip.includes('/') && isAllowedIp(ip))) {
+      res.status(403).json({ statusCode: 403, message: 'Forbidden: OpenAPI spec access denied in production' })
+      return
+    }
     res.json(document)
   })
 
@@ -99,7 +139,7 @@ async function bootstrap(): Promise<void> {
   await app.listen(port)
 
   const logger = app.get(PinoLogger)
-  logger.log(`G005 Backend v3.0.7.0 listening on http://localhost:${port}/api`)
+  logger.log(`G005 Backend v3.0.6.11-43 listening on http://localhost:${port}/api`)
 }
 
 void bootstrap()

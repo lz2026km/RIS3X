@@ -1,5 +1,5 @@
 /**
- * G005 放射RIS系统 - 路由表 v3.0.6.8
+ * G005 放射RIS系统 - 路由表 v3.0.6.11-43
  * 122+ lazy 页面 + Login + Forbidden + Navigate 重定向
  * 全部路由由 RequireAuth 包裹(基于 sidebarConfig 的角色映射)
  */

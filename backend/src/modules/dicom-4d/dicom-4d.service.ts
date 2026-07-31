@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 
-interface Series4D {
+export interface Series4D {
   seriesUid: string
   studyUid: string
   patientName: string
@@ -13,14 +13,14 @@ interface Series4D {
   dimensions: { width: number; height: number }
 }
 
-interface FrameData {
+export interface FrameData {
   frameIndex: number
   timestamp: string
   phase: number
   dataUrl: string
 }
 
-interface PhaseInfo {
+export interface PhaseInfo {
   seriesUid: string
   gatingType: 'cardiac' | 'respiratory' | 'both'
   cardiacPhase: number

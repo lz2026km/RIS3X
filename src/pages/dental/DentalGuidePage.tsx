@@ -8,8 +8,8 @@ import { dentalApi } from '../../services/api/dentalApi';
 const GUIDE_TYPES = [
   { value: 'fully-guided', label: '全程导板 (Fully Guided)' },
   { value: 'partially-guided', label: '半程导板 (Partially)' },
-  { value: 'pilot-drill', label: '先锋钻导�? },
-  { value: 'sleeveless', label: '无套筒导�? },
+  { value: 'pilot-drill', label: '先锋钻导�? },
+  { value: 'sleeveless', label: '无套筒导�? },
 ];
 
 export const DentalGuidePage: React.FC = () => {
@@ -23,15 +23,15 @@ export const DentalGuidePage: React.FC = () => {
   const [newGuide, setNewGuide] = useState({ plan3dId: '', type: 'fully-guided', material: 'resin-print', sleeveType: '' });
 
   useEffect(() => {
-    dentalApi.listSurgicalGuides().then(r => { if (Array.isArray(r)) setGuides(r); }).catch(() => {});
-    dentalApi.listImplantPlans3d().then(r => { if (Array.isArray(r)) setPlans(r); }).catch(() => {});
-    dentalApi.getGuideSleeves().then(r => { if (Array.isArray(r)) setSleeves(r); }).catch(() => {});
-    dentalApi.getGuideMaterials().then(r => { if (Array.isArray(r)) setMaterials(r); }).catch(() => {});
+    dentalApi.listSurgicalGuides().then(r => { if (Array.isArray(r)) setGuides(r); }).catch((err) => { console.error('[F04]', err); });
+    dentalApi.listImplantPlans3d().then(r => { if (Array.isArray(r)) setPlans(r); }).catch((err) => { console.error('[F04]', err); });
+    dentalApi.getGuideSleeves().then(r => { if (Array.isArray(r)) setSleeves(r); }).catch((err) => { console.error('[F04]', err); });
+    dentalApi.getGuideMaterials().then(r => { if (Array.isArray(r)) setMaterials(r); }).catch((err) => { console.error('[F04]', err); });
   }, []);
 
   const handleBrandChange = (brand: string) => {
-    dentalApi.getAbutments(brand).then(r => { if (Array.isArray(r)) setAbutments(r); }).catch(() => {});
-    dentalApi.getGuideSleeves(brand).then(r => { if (Array.isArray(r)) setSleeves(r); }).catch(() => {});
+    dentalApi.getAbutments(brand).then(r => { if (Array.isArray(r)) setAbutments(r); }).catch((err) => { console.error('[F04]', err); });
+    dentalApi.getGuideSleeves(brand).then(r => { if (Array.isArray(r)) setSleeves(r); }).catch((err) => { console.error('[F04]', err); });
   };
 
   const handleCreate = async () => {
@@ -39,7 +39,7 @@ export const DentalGuidePage: React.FC = () => {
     setBusy(true);
     try {
       await dentalApi.createSurgicalGuide(newGuide);
-      message.success('导板设计已创�?);
+      message.success('导板设计已创�?);
       const list = await dentalApi.listSurgicalGuides();
       if (Array.isArray(list)) setGuides(list);
     } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
@@ -50,7 +50,7 @@ export const DentalGuidePage: React.FC = () => {
     setBusy(true);
     try {
       const res = await dentalApi.exportSurgicalGuide(id);
-      message.success(`导板已生�? ${res.size}`);
+      message.success(`导板已生�? ${res.size}`);
     } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
     setBusy(false);
   };
@@ -65,8 +65,8 @@ export const DentalGuidePage: React.FC = () => {
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}><Card size="small"><Statistic title="导板总数" value={guides.length} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="设计�? value={guides.filter((g:any)=>g.status==='designing').length} valueStyle={{color:'#faad14'}} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="已导�?STL" value={guides.filter((g:any)=>g.guideFile).length} valueStyle={{color:'#52c41a'}} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="设计�? value={guides.filter((g:any)=>g.status==='designing').length} valueStyle={{color:'#faad14'}} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="已导�?STL" value={guides.filter((g:any)=>g.guideFile).length} valueStyle={{color:'#52c41a'}} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="基台选项" value={abutments.length} /></Card></Col>
       </Row>
       <Tabs activeKey={tab} onChange={setTab} items={[
@@ -96,13 +96,13 @@ export const DentalGuidePage: React.FC = () => {
                       <Badge status={g.status==='designed'?'success':'processing'} text={g.status} />
                     </Space>
                     <div style={{fontSize:11,color:'#999',marginTop:4}}>
-                      {g.material} | {g.sleeveType || '待选择套筒'} | {g.fixationPin ? '含固定钉' : '不含固定�?} | {g.createdAt?.slice(0,10)}
+                      {g.material} | {g.sleeveType || '待选择套筒'} | {g.fixationPin ? '含固定钉' : '不含固定�?} | {g.createdAt?.slice(0,10)}
                     </div>
                     <Divider style={{margin:'4px 0'}} />
                     <Space>
                       {g.status === 'designing' && <Button size="small" icon={<Eye size={10}/>}>预览</Button>}
                       <Button size="small" icon={<Download size={10}/>} onClick={()=>handleExportStl(g.id)}>导出 STL</Button>
-                      {g.guideFile && <Tag color="green" icon={<CheckCircle2 size={10}/>}>已导�?/Tag>}
+                      {g.guideFile && <Tag color="green" icon={<CheckCircle2 size={10}/>}>已导�?/Tag>}
                     </Space>
                   </Card>
                 ))}

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 
-interface CompressTask {
+export interface CompressTask {
   id: string
   fileId: string
   transferSyntax: string
@@ -13,7 +13,7 @@ interface CompressTask {
   updatedAt: string
 }
 
-interface CompressRatio {
+export interface CompressRatio {
   instanceId: string
   sopClass: string
   sopClassName: string
@@ -23,7 +23,7 @@ interface CompressRatio {
   transferSyntax: string
 }
 
-interface TransferSyntax {
+export interface TransferSyntax {
   uid: string
   name: string
   lossy: boolean

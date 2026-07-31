@@ -27,7 +27,7 @@ export const MprViewerPage: React.FC = () => {
     if (!studyId) { setLoading(false); return; }
     fetch(`/api/v1/dental/studies/${studyId}`).then(r=>r.json()).then(d => {
       if (d.success) setStudy(d.data);
-    }).catch(() => {}).finally(() => setLoading(false));
+    }).catch((err) => { console.error('[F04]', err); }).finally(() => setLoading(false));
   }, [studyId]);
 
   // Generate simulated DICOM slice canvas

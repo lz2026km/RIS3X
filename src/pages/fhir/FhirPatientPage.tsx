@@ -23,8 +23,8 @@ export const FhirPatientPage: React.FC = () => {
     try {
       const res = await fhirApi.searchPatient({ _count: '20', ...params })
       if (res.success && res.data) {
-        const entries = (res.data as any).entry || []
-        setPatients(entries.map((e: any) => e.resource))
+        const entries = res.data.entry || []
+        setPatients(entries.map((e) => e.resource as FhirPatient))
         setTotal(res.data.total || entries.length)
       }
     } catch {

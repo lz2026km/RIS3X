@@ -17,7 +17,7 @@ export default function RadiologistAnnualQCPage() {
   const [search, setSearch] = useState("");
   const [annualData, setAnnualData] = useState<RadiologistAnnualDto[]>([]);
   useEffect(() => {
-    qcextApi.listRadiologistAnnual().then(res => { if (res.success) setAnnualData(res.data); }).catch(() => {});
+    qcextApi.listRadiologistAnnual().then(res => { if (res.success) setAnnualData(res.data); }).catch((err) => { console.error('[F04]', err); });
   }, []);
 
   const filteredDoctors = useMemo(() => {

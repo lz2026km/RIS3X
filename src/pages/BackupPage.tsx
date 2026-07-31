@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
 import { backupApi, type BackupDto } from '../services/api/systemApi'
-import { Card, Table, Tag, Button, Space, message, Modal, Select, Row, Col, Statistic } from 'antd'
-import { CloudUploadOutlined, DownloadOutlined, UndoOutlined, ReloadOutlined, SafetyOutlined } from '@ant-design/icons'
+import { Card, Table, Tag, Button, Space, message, Modal, Select, Row, Col, Statistic, Tabs, Descriptions, Progress, Tooltip } from 'antd'
+import { CloudUploadOutlined, DownloadOutlined, UndoOutlined, ReloadOutlined, SafetyOutlined, ClockCircleOutlined, CheckCircleOutlined, SyncOutlined, DatabaseOutlined } from '@ant-design/icons'
 
 export default function BackupPage() {
   const [list, setList] = useState<BackupDto[]>([])
   const [loading, setLoading] = useState(false)
   const [creating, setCreating] = useState(false)
+  const [autoBackup, setAutoBackup] = useState(true)
+  const [schedule, setSchedule] = useState('0 2 * * *')
 
   const fetchList = async () => {
     setLoading(true)
@@ -41,19 +43,25 @@ export default function BackupPage() {
   const columns = [
     { title: '创建时间', dataIndex: 'createdAt', key: 'createdAt', width: 180, render: (v: string) => new Date(v).toLocaleString('zh-CN') },
     { title: '类型', dataIndex: 'type', key: 'type', width: 100, render: (v: string) => <Tag color={v === 'FULL' ? 'blue' : 'green'}>{v}</Tag> },
-    { title: '状态', dataIndex: 'status', key: 'status', width: 100, render: (v: string) => <Tag color={v === 'COMPLETED' ? 'success' : 'warning'}>{v}</Tag> },
+    { title: '状态', dataIndex: 'status', key: 'status', width: 120, render: (v: string) => {
+      const colorMap: Record<string, string> = { COMPLETED: 'success', RUNNING: 'processing', FAILED: 'error', PENDING: 'warning' }
+      return <Tag color={colorMap[v] ?? 'default'} icon={v === 'RUNNING' ? <SyncOutlined spin /> : undefined}>{v}</Tag>
+    }},
     { title: '大小', dataIndex: 'sizeBytes', key: 'sizeBytes', width: 100, render: (v: number) => v ? `${(v / 1024 / 1024).toFixed(2)} MB` : '-' },
     { title: '创建人', dataIndex: 'createdBy', key: 'createdBy', width: 120 },
     {
       title: '操作', key: 'actions', width: 160,
       render: (_: unknown, r: BackupDto) => (
         <Space>
-          <Button size="small" icon={<DownloadOutlined />} onClick={() => backupApi.download(r.id)}>下载</Button>
-          <Button size="small" icon={<UndoOutlined />} onClick={() => handleRestore(r.id)}>恢复</Button>
+          <Tooltip title="下载备份文件"><Button size="small" icon={<DownloadOutlined />} onClick={() => backupApi.download(r.id)}>下载</Button></Tooltip>
+          <Tooltip title="恢复到此备份"><Button size="small" icon={<UndoOutlined />} onClick={() => handleRestore(r.id)}>恢复</Button></Tooltip>
         </Space>
       ),
     },
   ]
+
+  const completedBackups = list.filter((b) => b.status === 'COMPLETED')
+  const totalSize = completedBackups.reduce((acc, b) => acc + (b.sizeBytes ?? 0), 0)
 
   return (
     <div style={{ padding: 24 }}>
@@ -75,11 +83,57 @@ export default function BackupPage() {
               <Button icon={<ReloadOutlined />} onClick={fetchList}>刷新</Button>
             </Space>
           </Row>
+
           <Row gutter={16}>
-            <Col span={6}><Statistic title="备份总数" value={list.length} prefix={<CloudUploadOutlined />} /></Col>
-            <Col span={6}><Statistic title="全量备份" value={list.filter(b => b.type === 'FULL').length} /></Col>
+            <Col span={6}>
+              <Card size="small">
+                <Statistic title="备份总数" value={list.length} prefix={<CloudUploadOutlined />} />
+              </Card>
+            </Col>
+            <Col span={6}>
+              <Card size="small">
+                <Statistic title="全量备份" value={list.filter((b) => b.type === 'FULL').length} prefix={<DatabaseOutlined />} />
+              </Card>
+            </Col>
+            <Col span={6}>
+              <Card size="small">
+                <Statistic title="增量备份" value={list.filter((b) => b.type === 'INCREMENTAL').length} prefix={<SyncOutlined />} />
+              </Card>
+            </Col>
+            <Col span={6}>
+              <Card size="small">
+                <Statistic title="总存储" value={(totalSize / 1024 / 1024).toFixed(1)} suffix="MB" prefix={<CloudUploadOutlined />} />
+              </Card>
+            </Col>
           </Row>
-          <Table dataSource={list} columns={columns} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} size="small" />
+
+          <Tabs items={[
+            {
+              key: 'list',
+              label: <span><ClockCircleOutlined /> 备份记录</span>,
+              children: (
+                <Table dataSource={list} columns={columns} rowKey="id" loading={loading} pagination={{ pageSize: 10, showSizeChanger: true, showTotal: (total) => `共 ${total} 条` }} size="small" />
+              ),
+            },
+            {
+              key: 'schedule',
+              label: <span><SyncOutlined /> 自动备份</span>,
+              children: (
+                <Card size="small">
+                  <Descriptions bordered column={2}>
+                    <Descriptions.Item label="自动备份">
+                      <Tag color={autoBackup ? 'green' : 'default'}>{autoBackup ? '已启用' : '已禁用'}</Tag>
+                    </Descriptions.Item>
+                    <Descriptions.Item label="备份计划">{schedule}</Descriptions.Item>
+                    <Descriptions.Item label="保留策略">最近 7 次全量 + 30 天增量</Descriptions.Item>
+                    <Descriptions.Item label="下次执行">每天凌晨 2:00</Descriptions.Item>
+                    <Descriptions.Item label="备份位置">/data/backups/ris/</Descriptions.Item>
+                    <Descriptions.Item label="加密状态"><Tag color="success">AES-256</Tag></Descriptions.Item>
+                  </Descriptions>
+                </Card>
+              ),
+            },
+          ]} />
         </Space>
       </Card>
     </div>

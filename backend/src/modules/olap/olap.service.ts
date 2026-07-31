@@ -10,7 +10,7 @@ export interface DimensionDef {
   id: string; name: string; type: string; description: string
 }
 interface OLAPFilter {
-  dimension: string; operator: string; value: unknown
+  dimension: string; operator: string; value?: unknown
 }
 interface OLAPQuery {
   dimensions: string[]; measures: string[]; filters?: OLAPFilter[]
@@ -145,7 +145,7 @@ export class OlapService {
       return cached.data
     }
 
-    const rows = (await this.prisma.$queryRaw(this.buildSQL(query))) as Record<string, unknown>[]
+    const rows = (await this.prisma.$queryRaw(this.buildSQL(query, tenantId))) as Record<string, unknown>[]
 
     const result = {
       columns: [

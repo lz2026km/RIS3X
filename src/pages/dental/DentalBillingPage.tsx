@@ -22,9 +22,9 @@ export const DentalBillingPage: React.FC = () => {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/v1/dental/billing/fee-catalog').then(r=>r.json()).then(d=>{if(d.success)setCatalog(d.data||[]);}).catch(()=>{}),
-      fetch('/api/v1/dental/billing/payment-methods').then(r=>r.json()).then(d=>{if(d.success)setPayMethods(d.data||[]);}).catch(()=>{}),
-      fetch(`/api/v1/dental/billing/invoices?patientId=${selectedPatient}`).then(r=>r.json()).then(d=>{if(d.success)setInvoices(d.data||[]);}).catch(()=>{}),
+      fetch('/api/v1/dental/billing/fee-catalog').then(r=>r.json()).then(d=>{if(d.success)setCatalog(d.data||[]);}).catch((err) => { console.error('[F04]', err); }),
+      fetch('/api/v1/dental/billing/payment-methods').then(r=>r.json()).then(d=>{if(d.success)setPayMethods(d.data||[]);}).catch((err) => { console.error('[F04]', err); }),
+      fetch(`/api/v1/dental/billing/invoices?patientId=${selectedPatient}`).then(r=>r.json()).then(d=>{if(d.success)setInvoices(d.data||[]);}).catch((err) => { console.error('[F04]', err); }),
     ]);
   }, [selectedPatient]);
 

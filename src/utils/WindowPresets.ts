@@ -7,9 +7,34 @@
 export interface WindowPreset {
   name: string
   ww: number // Window Width
-  wl: number // Window Level
+  wc: number // Window Center (canonical name)
+  wl?: number // @deprecated Use `wc`. Kept for backward compat.
   category: string
   description?: string
+}
+
+function makePreset(p: Omit<WindowPreset, 'wl'>): WindowPreset {
+  return { ...p, wl: p.wc }
+}
+
+const USER_PRESETS_KEY = 'ris_user_window_presets'
+
+export function getUserPresets(): WindowPreset[] {
+  try {
+    const raw = localStorage.getItem(USER_PRESETS_KEY)
+    return raw ? JSON.parse(raw) : []
+  } catch { return [] }
+}
+
+export function saveUserPreset(preset: WindowPreset): void {
+  const presets = getUserPresets().filter(p => p.name !== preset.name)
+  presets.push(preset)
+  localStorage.setItem(USER_PRESETS_KEY, JSON.stringify(presets))
+}
+
+export function deleteUserPreset(name: string): void {
+  const presets = getUserPresets().filter(p => p.name !== name)
+  localStorage.setItem(USER_PRESETS_KEY, JSON.stringify(presets))
 }
 
 // 检查部位类型
@@ -18,145 +43,175 @@ export type BodyPart = 'HEAD' | 'CHEST' | 'ABDOMEN' | 'SPINE' | 'LIMB' | 'PELVIS
 // 所有窗宽窗位预设
 export const WINDOW_PRESETS: WindowPreset[] = [
   // ========== 头部 (HEAD) ==========
-  {
+  makePreset({
     name: '脑窗',
     ww: 80,
-    wl: 40,
+    wc: 40,
     category: 'HEAD',
     description: '脑组织窗',
-  },
-  {
+  }),
+  makePreset({
     name: '骨窗',
     ww: 2000,
-    wl: 500,
+    wc: 500,
     category: 'HEAD',
     description: '颅骨骨窗',
-  },
-  {
+  }),
+  makePreset({
     name: '软组织窗',
     ww: 400,
-    wl: 40,
+    wc: 40,
     category: 'HEAD',
     description: '头部软组织',
-  },
+  }),
 
   // ========== 胸部 (CHEST) ==========
-  {
+  makePreset({
     name: '肺窗',
     ww: 1500,
-    wl: -600,
+    wc: -600,
     category: 'CHEST',
     description: '肺部纵隔窗',
-  },
-  {
+  }),
+  makePreset({
     name: '纵隔窗',
     ww: 400,
-    wl: 40,
+    wc: 40,
     category: 'CHEST',
     description: '纵隔软组织窗',
-  },
-  {
+  }),
+  makePreset({
     name: '骨窗',
     ww: 2000,
-    wl: 400,
+    wc: 400,
     category: 'CHEST',
     description: '胸部骨骼',
-  },
+  }),
 
   // ========== 腹部 (ABDOMEN) ==========
-  {
+  makePreset({
     name: '肝窗',
     ww: 150,
-    wl: 50,
+    wc: 50,
     category: 'ABDOMEN',
     description: '肝脏窗',
-  },
-  {
+  }),
+  makePreset({
     name: '腹窗',
     ww: 350,
-    wl: 50,
+    wc: 50,
     category: 'ABDOMEN',
     description: '腹部常规窗',
-  },
-  {
+  }),
+  makePreset({
     name: '骨窗',
     ww: 2000,
-    wl: 400,
+    wc: 400,
     category: 'ABDOMEN',
     description: '腹部骨骼',
-  },
+  }),
 
   // ========== 脊柱 (SPINE) ==========
-  {
+  makePreset({
     name: '脊柱窗',
     ww: 1800,
-    wl: 400,
+    wc: 400,
     category: 'SPINE',
     description: '脊柱椎体窗',
-  },
+  }),
 
   // ========== 四肢 (LIMB) ==========
-  {
+  makePreset({
     name: '四肢窗',
     ww: 2000,
-    wl: 500,
+    wc: 500,
     category: 'LIMB',
     description: '四肢骨窗',
-  },
+  }),
 
   // ========== 骨盆 (PELVIS) ==========
-  {
+  makePreset({
     name: '骨盆窗',
     ww: 1800,
-    wl: 400,
+    wc: 400,
     category: 'PELVIS',
     description: '骨盆窗',
-  },
+  }),
 
   // ========== 乳腺 (MAMMOGRAPHY) ==========
-  {
+  makePreset({
     name: '乳腺窗',
     ww: 400,
-    wl: 300,
+    wc: 300,
     category: 'MAMMOGRAPHY',
     description: '乳腺钼靶窗',
-  },
+  }),
 
   // ========== 心脏 (CARDIAC) ==========
-  {
+  makePreset({
     name: '心脏窗',
     ww: 350,
-    wl: 50,
+    wc: 50,
     category: 'CARDIAC',
     description: '心脏增强窗',
-  },
+  }),
 
   // ========== 肝脏增强 (LIVER CONTRAST) ==========
-  {
+  makePreset({
     name: '肝脏增强窗',
     ww: 200,
-    wl: 60,
+    wc: 60,
     category: 'ABDOMEN',
     description: '肝脏增强扫描窗',
-  },
+  }),
 
   // ========== 血管 (ANGIO) ==========
-  {
+  makePreset({
     name: '血管窗',
     ww: 600,
-    wl: 200,
+    wc: 200,
     category: 'ANGIO',
     description: '血管造影窗',
-  },
+  }),
 
   // ========== 眼眶 (ORBIT) ==========
-  {
+  makePreset({
     name: '眼眶窗',
     ww: 300,
-    wl: 50,
+    wc: 50,
     category: 'HEAD',
     description: '眼眶软组织窗',
-  },
+  }),
+
+  // ========== MR 预设 (MR) ==========
+  makePreset({
+    name: 'MR T1',
+    ww: 1200,
+    wc: 400,
+    category: 'MR',
+    description: 'MRI T1 加权像',
+  }),
+  makePreset({
+    name: 'MR T2',
+    ww: 1600,
+    wc: 600,
+    category: 'MR',
+    description: 'MRI T2 加权像',
+  }),
+  makePreset({
+    name: 'MR FLAIR',
+    ww: 1400,
+    wc: 500,
+    category: 'MR',
+    description: 'MRI FLAIR 序列',
+  }),
+  makePreset({
+    name: 'MR DWI',
+    ww: 1000,
+    wc: 500,
+    category: 'MR',
+    description: 'MRI 弥散加权成像',
+  }),
 ]
 
 // 根据部位获取预设
@@ -207,9 +262,20 @@ export function getRecommendedPresets(modality: string, bodyPart: string): Windo
 
   // MR 默认推荐
   if (modality === 'MR') {
-    return WINDOW_PRESETS.filter(
-      (p) => p.name === '软组织窗' || p.name === '脑窗'
-    )
+    const normalizedLower = normalizedBodyPart.toLowerCase()
+    if (normalizedLower.includes('t1') || normalizedLower.includes('T1')) {
+      return WINDOW_PRESETS.filter((p) => p.category === 'MR' && p.name === 'MR T1')
+    }
+    if (normalizedLower.includes('t2') || normalizedLower.includes('T2')) {
+      return WINDOW_PRESETS.filter((p) => p.category === 'MR' && p.name === 'MR T2')
+    }
+    if (normalizedLower.includes('flair') || normalizedLower.includes('FLAIR')) {
+      return WINDOW_PRESETS.filter((p) => p.category === 'MR' && p.name === 'MR FLAIR')
+    }
+    if (normalizedLower.includes('dwi') || normalizedLower.includes('DWI')) {
+      return WINDOW_PRESETS.filter((p) => p.category === 'MR' && p.name === 'MR DWI')
+    }
+    return WINDOW_PRESETS.filter((p) => p.category === 'MR')
   }
 
   // DR/XR 默认推荐骨窗
@@ -224,7 +290,7 @@ export function getRecommendedPresets(modality: string, bodyPart: string): Windo
 // 获取默认窗宽窗位
 export function getDefaultWindowPreset(modality: string, bodyPart: string): WindowPreset {
   const presets = getRecommendedPresets(modality, bodyPart)
-  return presets[0] ?? { name: '默认', ww: 400, wl: 40, category: 'UNKNOWN' }
+  return presets[0] ?? makePreset({ name: '默认', ww: 400, wc: 40, category: 'UNKNOWN' })
 }
 
 // 标准化BodyPart

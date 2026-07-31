@@ -67,20 +67,20 @@ export class CadRadsService {
   private confidence = 0.88
 
   scoreLung(dicomFields: Record<string, unknown>): RadsScore {
-    const size = dicomFields.noduleSizeMm ?? Math.floor(Math.random() * 20) + 2
+    const size = (dicomFields.noduleSizeMm as number) ?? Math.floor(Math.random() * 20) + 2
     let score = '1'
     if (size > 15) score = '4B'
     else if (size > 8) score = '4A'
     else if (size > 6) score = '3'
     else if (size > 0) score = '2'
-    if (dicomFields.spiculatedMargin && size >= 8) score = '4X'
+    if (dicomFields.spiculatedMargin && (size as number) >= 8) score = '4X'
     const entry = lungRadss[score] ?? lungRadss['1']
     return { ...entry, score, confidence: this.confidence }
   }
 
   scoreBreast(dicomFields: Record<string, unknown>): RadsScore {
     const biradsKeys = Object.keys(biRads)
-    const score = dicomFields.biradsCategory ?? biradsKeys[Math.floor(Math.random() * biradsKeys.length)]
+    const score = (dicomFields.biradsCategory as string) ?? biradsKeys[Math.floor(Math.random() * biradsKeys.length)]
     const entry = biRads[score] ?? biRads['1']
     return { ...entry, score, confidence: this.confidence }
   }

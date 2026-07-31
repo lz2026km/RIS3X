@@ -32,7 +32,7 @@ export default function OfflineModePage() {
     const interval = setInterval(refresh, 5000)
     const handleOnline = () => {
       setConnectivity('online')
-      offlineSync.sync().catch(() => {})
+      offlineSync.sync().catch((err) => { console.error('[F04]', err); })
     }
     const handleOffline = () => setConnectivity('offline')
     window.addEventListener('online', handleOnline)

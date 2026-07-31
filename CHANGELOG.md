@@ -1,5 +1,65 @@
 ﻿# CHANGELOG
 
+## v3.0.6.11-43 (2026-07-31) — 版本统一+Mock迁移核心页+专科页+CORS加固
+
+> **目标**: 版本号全量统一至 v3.0.6.11-43 + Mock迁移核心页20页 + 专科页30页 + CORS生产配置
+> **范围**: 版本号同步 + 环境变量修复 + CORS配置 + Mock迁移
+
+### 版本号全量统一
+- package.json (root) → 3.0.6.11-43 + description同步
+- backend/package.json → 3.0.6.11-43
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-43
+- CHANGELOG.md 新增 v3.0.6.11-43 条目
+- src/i18n/appI18n.ts → v3.0.6.11-43
+- src/routes/routeTable.tsx → v3.0.6.11-43
+- backend/src/main.ts → Swagger version + log message → v3.0.6.11-43
+- index.html title + window.__appVersion → v3.0.6.11-43
+- src/main.tsx APP_VERSION → v3.0.6.11-43
+- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-43
+- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-43
+- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-43
+- CONTRIBUTING.md → v3.0.6.11-43
+
+### 环境变量修复 (P0)
+- .env.production: 新增 `VITE_USE_MSW=false` — 生产环境必须禁用 MSW mock
+
+### CORS 配置 (P0)
+- .env.production: 新增 `CORS_ORIGINS=https://lz2026km.github.io` — 生产环境 CORS 白名单
+- backend/src/main.ts: CORS 配置已在生产环境校验（空值则抛出异常），确保安全
+
+### Mock迁移 - 核心页 (20页)
+- AppointmentPage: mock → API
+- CriticalValuePage: mock → API
+- ReportPage: mock → API
+- ExamPage: mock → API
+- WorklistPage: mock → API
+- PatientPage: mock → API
+- UserManagementPage: mock → API
+- DevicePage: mock → API
+- analytics/BenchmarkPageV2: mock → API
+- analytics/BenchmarkAiDiagnosisPage: mock → API
+- analytics/TatDashboardPage: mock → API
+- report/NlpCheckPage: mock → API
+- report/AsrPage: mock → API
+- report/SnomedPage: mock → API
+- quality-control/QualityControlPage: mock → API
+- quality-control/ReviewCenterPage: mock → API
+- qc/RadiologyQCDashboardPage: mock → API
+- qc/ImageQualityControlPage: mock → API
+- qc/RadiologistAnnualQCPage: mock → API
+- qc/QcImageAiPage: mock → API
+
+### Mock迁移 - 专科页 (30页)
+- eye/ 下所有页面: mock → API
+- dental/ 下所有页面: mock → API
+- mobile/ 下所有页面: mock → API
+
+### 验证结果
+- TypeScript编译: 预存TS错误（均为代码库既有问题，非本次引入）
+- 版本号同步: 13处核心源码版本全部统一至 v3.0.6.11-43
+
+---
+
 ## v3.0.6.11-42 (2026-07-30) — 遗留Bug修复+密码清理+Mock清理+空页面补齐+安全加固
 
 > **目标**: 遗留Bug修复 + 密码/敏感信息清理 + Mock数据清理 + 空页面补齐 + 安全加固

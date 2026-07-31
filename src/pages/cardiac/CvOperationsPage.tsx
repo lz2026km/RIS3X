@@ -9,6 +9,16 @@ type KpiCard = {
   icon: React.ReactNode
 }
 
+type WorkloadRow = {
+  name: string
+  ccta: number
+  cmr: number
+  echo: number
+  cath: number
+  total: number
+  status: string
+}
+
 type Protocol = {
   id: string
   name: string
@@ -141,20 +151,20 @@ export default function CvOperationsPage() {
               </tr>
             </thead>
             <tbody>
-              {[
+              {([
                 { name: 'Dr. Liu Qiang', ccta: 3, cmr: 2, echo: 4, cath: 1, total: 10, status: 'on-duty' },
                 { name: 'Dr. Zhao Min', ccta: 1, cmr: 3, echo: 2, cath: 0, total: 6, status: 'on-duty' },
                 { name: 'Dr. Sun Hong', ccta: 0, cmr: 0, echo: 0, cath: 0, total: 0, status: 'off-duty' },
                 { name: 'Dr. Zhou Li', ccta: 2, cmr: 1, echo: 1, cath: 2, total: 6, status: 'on-call' },
                 { name: 'Dr. Wu Jing', ccta: 0, cmr: 0, echo: 0, cath: 3, total: 3, status: 'cath-lab' },
                 { name: 'Dr. Xu Yue', ccta: 0, cmr: 0, echo: 4, cath: 0, total: 4, status: 'echo-lab' },
-              ].map(r => (
+              ] as WorkloadRow[]).map(r => (
                 <tr key={r.name} style={{ borderBottom: '1px solid #f1f5f9' }}>
                   <td style={{ padding: '8px 12px', fontWeight: 500 }}>{r.name}</td>
-                  <td style={{ padding: '8px 12px', textAlign: 'center' }}>{(r as any).ccta}</td>
-                  <td style={{ padding: '8px 12px', textAlign: 'center' }}>{(r as any).cmr}</td>
-                  <td style={{ padding: '8px 12px', textAlign: 'center' }}>{(r as any).echo}</td>
-                  <td style={{ padding: '8px 12px', textAlign: 'center' }}>{(r as any).cath}</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'center' }}>{r.ccta}</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'center' }}>{r.cmr}</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'center' }}>{r.echo}</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'center' }}>{r.cath}</td>
                   <td style={{ padding: '8px 12px', textAlign: 'center', fontWeight: 600 }}>{r.total}</td>
                   <td style={{ padding: '8px 12px', textAlign: 'center' }}>
                     <span style={{

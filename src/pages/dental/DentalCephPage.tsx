@@ -6,12 +6,12 @@ import { Activity, Crosshair, Eye, Save, BarChart3, RotateCcw, Target, TrendingU
 import { dentalApi } from '../../services/api/dentalApi';
 
 const ANALYSIS_TYPES = [
-  { value: 'steiner', label: 'Steiner 分析�?(SNA/SNB/ANB)' },
-  { value: 'downs', label: 'Downs 分析�? },
-  { value: 'mcmamara', label: 'McNamara 分析�?(线距)' },
-  { value: 'ricketts', label: 'Ricketts 分析�?(面部生长)' },
-  { value: 'tweeds', label: 'Tweed 分析�?(诊断三角)' },
-  { value: 'coben', label: 'Coben 分析�?(颅底三角)' },
+  { value: 'steiner', label: 'Steiner 分析�?(SNA/SNB/ANB)' },
+  { value: 'downs', label: 'Downs 分析�? },
+  { value: 'mcmamara', label: 'McNamara 分析�?(线距)' },
+  { value: 'ricketts', label: 'Ricketts 分析�?(面部生长)' },
+  { value: 'tweeds', label: 'Tweed 分析�?(诊断三角)' },
+  { value: 'coben', label: 'Coben 分析�?(颅底三角)' },
 ];
 
 export const DentalCephPage: React.FC = () => {
@@ -29,9 +29,9 @@ export const DentalCephPage: React.FC = () => {
 
   useEffect(() => {
     dentalApi.getCadMaterials() // just to init connection
-      .catch(() => {});
+      .catch((err) => { console.error('[F04]', err); });
     fetchStudies();
-    dentalApi.getCadTemplates().catch(() => {}); // ignore
+    dentalApi.getCadTemplates().catch((err) => { console.error('[F04]', err); }); // ignore
   }, []);
 
   const fetchStudies = async () => {
@@ -105,11 +105,11 @@ export const DentalCephPage: React.FC = () => {
     ctx.strokeStyle = '#334155'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.arc(220, 150, 60, -0.5, 1.0); ctx.stroke();
     ctx.beginPath(); ctx.ellipse(240, 250, 60, 80, 0, 0, Math.PI); ctx.stroke();
-    // 标记�?+ 连接�?
+    // 标记�?+ 连接�?
     const pts = Object.entries(landmarks);
     if (pts.length > 0) {
       ctx.strokeStyle = '#555'; ctx.lineWidth = 1;
-      // 连接 SN + NA + NB + Pog-Me �?
+      // 连接 SN + NA + NB + Pog-Me �?
       const lines = [['N','S'],['N','A'],['A','B'],['B','Pog'],['Pog','Me'],['Go','Me'],['Go','Ar'],['Ar','S'],['ANS','PNS'],['Or','Po']];
       lines.forEach(([a,b]) => {
         if (landmarks[a] && landmarks[b]) {
@@ -130,13 +130,13 @@ export const DentalCephPage: React.FC = () => {
     if (!current || !cephCanvasRef.current) return;
     const rect = cephCanvasRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left, y = e.clientY - rect.top;
-    // 找最近的标记�?
+    // 找最近的标记�?
     const closest = Object.entries(landmarks).reduce((best, [k, v]) => {
       const d = Math.hypot(v.x - x, v.y - y);
       return d < best.dist ? { key: k, dist: d } : best;
     }, { key: '', dist: 100 });
     if (closest.dist < 20) { setDragPoint(closest.key); return; }
-    // 自动添加新点 (使用默认�?
+    // 自动添加新点 (使用默认�?
     const labels = ['A','B','C','D','E','Pt','Or','Po','Go','Me'];
     const existing = Object.keys(landmarks);
     const nextLabel = labels.find(l => !existing.includes(l)) || `P${existing.length + 1}`;
@@ -161,9 +161,9 @@ export const DentalCephPage: React.FC = () => {
           <Tag color="purple">Dolphin 对标</Tag>
         </Space>
         <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={4}><Card size="small"><Statistic title="总片�? value={studies.length} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title="已分�? value={studies.filter((s:any)=>s.status==='analyzed').length} valueStyle={{color:'#52c41a'}} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title="待分�? value={studies.filter((s:any)=>s.status==='pending').length} valueStyle={{color:'#faad14'}} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title="总片�? value={studies.length} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title="已分�? value={studies.filter((s:any)=>s.status==='analyzed').length} valueStyle={{color:'#52c41a'}} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title="待分�? value={studies.filter((s:any)=>s.status==='pending').length} valueStyle={{color:'#faad14'}} /></Card></Col>
           <Col span={4}><Card size="small"><Statistic title="分析类型" value={analysisTypes.length} /></Card></Col>
         </Row>
         <Row gutter={12}>
@@ -174,7 +174,7 @@ export const DentalCephPage: React.FC = () => {
                   <Tag color="blue">{s.patientName}</Tag>
                   <Badge status={s.status === 'analyzed' ? 'success' : 'processing'} text={s.status} />
                 </Space>
-                <div style={{ marginTop: 4, fontSize: 12, color: '#999' }}>{s.age}�?{s.gender === 'M' ? '�? : '�?} | {s.analysisType || '未分�?} | {s.acquisitionDate}</div>
+                <div style={{ marginTop: 4, fontSize: 12, color: '#999' }}>{s.age}�?{s.gender === 'M' ? '�? : '�?} | {s.analysisType || '未分�?} | {s.acquisitionDate}</div>
               </Card>
             </Col>
           ))}
@@ -190,12 +190,12 @@ export const DentalCephPage: React.FC = () => {
         <Crosshair size={18} color="#1677ff" />
         <span style={{ fontSize: 16, fontWeight: 600 }}>头影测量 - {current?.patientName}</span>
         <Tag color="cyan">v3.0.6.8-90</Tag>
-        <Tag color="blue">{current?.age}�?/Tag>
+        <Tag color="blue">{current?.age}�?/Tag>
       </Space>
       <Row gutter={12}>
         <Col span={16}>
-          <Card size="small" title={<Space><Target size={14}/>解剖标志点标�?/Space>}
-            extra={<Tooltip title="点击添加标记�? 拖拽移动已有标记�?><Tag>点击/拖拽</Tag></Tooltip>}>
+          <Card size="small" title={<Space><Target size={14}/>解剖标志点标�?/Space>}
+            extra={<Tooltip title="点击添加标记�? 拖拽移动已有标记�?><Tag>点击/拖拽</Tag></Tooltip>}>
             <canvas ref={cephCanvasRef} width={480} height={400}
               onClick={handleCanvasClick}
               onMouseDown={(e) => {
@@ -214,7 +214,7 @@ export const DentalCephPage: React.FC = () => {
               style={{ width: '100%', height: 360, borderRadius: 8, cursor: 'crosshair' }} />
             <Space style={{ marginTop: 8 }}>
               <Button size="small" icon={<Eye size={10}/>} onClick={handleRunAnalysis} type="primary" loading={busy}>运行 {ANALYSIS_TYPES.find(a=>a.value===selType)?.label || '分析'}</Button>
-              <Button size="small" icon={<Save size={10}/>} onClick={async () => { await fetch(`/api/v1/dental/ceph/${current.id}/landmarks`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ landmarks }) }); message.success('已保�?); }}>保存标记</Button>
+              <Button size="small" icon={<Save size={10}/>} onClick={async () => { await fetch(`/api/v1/dental/ceph/${current.id}/landmarks`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ landmarks }) }); message.success('已保�?); }}>保存标记</Button>
               <Select value={selType} onChange={setSelType} size="small" options={ANALYSIS_TYPES} style={{ width: 260 }} />
               <Button size="small" icon={<TrendingUp size={10}/>} onClick={handleArchAnalysis} loading={busy}>牙弓分析</Button>
             </Space>
@@ -230,17 +230,17 @@ export const DentalCephPage: React.FC = () => {
                 size="small"
                 pagination={false}
                 columns={[
-                  { title: '测量�?, dataIndex: 'label', width: 100 },
-                  { title: '�?, dataIndex: 'value', width: 60, render: (v: number) => <b>{v}</b> },
+                  { title: '测量�?, dataIndex: 'label', width: 100 },
+                  { title: '�?, dataIndex: 'value', width: 60, render: (v: number) => <b>{v}</b> },
                   { title: '单位', dataIndex: 'unit', width: 40 },
                   { title: '正常范围', dataIndex: 'norm', width: 80, render: (n: any) => `${n.min}-${n.max}` },
-                  { title: '状�?, dataIndex: 'status', width: 80, render: (s: string) => <Badge status={s === 'normal' ? 'success' : 'warning'} text={s} /> },
+                  { title: '状�?, dataIndex: 'status', width: 80, render: (s: string) => <Badge status={s === 'normal' ? 'success' : 'warning'} text={s} /> },
                 ]}
               />
             </Card>
           ) : (
             <Card size="small" title="分析结果">
-              <Empty description="点击「运行分析」生成测量结�? />
+              <Empty description="点击「运行分析」生成测量结�? />
             </Card>
           )}
           {archData && (
@@ -250,7 +250,7 @@ export const DentalCephPage: React.FC = () => {
                 <Tag>下颌弓长 {archData.mandibleArch.archLength}mm</Tag>
                 <Tag>上颌拥挤 {archData.discrepancy.maxillaCrowding}mm</Tag>
                 <Tag>下颌拥挤 {archData.discrepancy.mandibleCrowding}mm</Tag>
-                <Tag color={archData.discrepancy.needExtraction ? 'red' : 'green'}>{archData.discrepancy.needExtraction ? '需拔牙' : '非拔�?}</Tag>
+                <Tag color={archData.discrepancy.needExtraction ? 'red' : 'green'}>{archData.discrepancy.needExtraction ? '需拔牙' : '非拔�?}</Tag>
               </Space>
             </Card>
           )}

@@ -27,6 +27,12 @@ const CardiacSpecialtyPage = () => {
   const [search, setSearch] = useState('');
   const [modalityFilter, setModalityFilter] = useState('');
   const [tab, setTab] = useState<'coronary' | 'function' | 'analysis' | 'stats'>('coronary');
+  const tabs = [
+    { key: 'coronary' as const, label: '冠脉评估' },
+    { key: 'function' as const, label: '心功能分析' },
+    { key: 'analysis' as const, label: '心脏分析' },
+    { key: 'stats' as const, label: '统计分析' },
+  ];
   const filtered = useMemo(() => {
     let list = [...mockPatients];
     if (search) list = list.filter(r => r.name.includes(search) || r.id.includes(search));
@@ -66,8 +72,8 @@ const CardiacSpecialtyPage = () => {
       </div>
 
       <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
-        {[{ key: 'coronary', label: '冠脉评估' }, { key: 'function', label: '心功能分析' }, { key: 'analysis', label: '心脏分析' }, { key: 'stats', label: '统计分析' }].map(t => (
-          <button key={t.key} onClick={() => setTab(t.key as any)} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, background: tab === t.key ? '#1e40af' : '#f1f5f9', color: tab === t.key ? '#fff' : '#64748b' }}>{t.label}</button>
+        {tabs.map(t => (
+          <button key={t.key} onClick={() => setTab(t.key)} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, background: tab === t.key ? '#1e40af' : '#f1f5f9', color: tab === t.key ? '#fff' : '#64748b' }}>{t.label}</button>
         ))}
       </div>
 

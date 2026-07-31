@@ -95,7 +95,7 @@ export const SystemAdminPage: React.FC = () => {
                     {title:'科室',dataIndex:'dept'},
                     {title:'状态',dataIndex:'status',render:(s)=><Badge status={s==='active'?'success':'default'} />},
                     {title:'最后登录',dataIndex:'lastLogin'},
-                    {title:'操作',render:(_,record)=><Space><Button size="small" icon={<Edit3 size={10}/>} onClick={() => message.warning('功能开发中，请通过后台系统操作')}/><Button size="small" danger icon={<Trash2 size={10}/>} onClick={() => handleDeleteUser(record)}/></Space>},
+                    {title:'操作',render:(_,record)=><Space><Button size="small" icon={<Edit3 size={10}/>} disabled title="功能开发中，请通过后台系统操作"/><Button size="small" danger icon={<Trash2 size={10}/>} onClick={() => handleDeleteUser(record)}/></Space>},
                   ]} />
               </Card>
             },
@@ -106,14 +106,14 @@ export const SystemAdminPage: React.FC = () => {
                     {title:'角色',dataIndex:'name',render:(r)=><Tag color="purple">{r}</Tag>},
                     {title:'权限',dataIndex:'permissions',render:(p)=><>{p.map((x:string)=><Tag key={x} style={{margin:2}}>{x}</Tag>)}</>},
                     {title:'用户数',dataIndex:'userCount'},
-                    {title:'操作',render:(_,record)=><Button size="small" icon={<Edit3 size={10}/>} onClick={() => message.warning('功能开发中，请通过后台系统操作')}>编辑</Button>},
+                    {title:'操作',render:(_,record)=><Button size="small" icon={<Edit3 size={10}/>} disabled title="功能开发中，请通过后台系统操作">编辑</Button>},
                   ]} />
               </Card>
             },
             { key:'config', label:'系统配置', children:
               <Card size="small" title="配置项">
                 <List dataSource={configs} renderItem={(c:any)=>(
-                  <List.Item actions={[<Button size="small" icon={<Edit3 size={10}/>} onClick={() => message.warning('功能开发中，请通过后台系统操作')}>编辑</Button>]}>
+                  <List.Item actions={[<Button size="small" icon={<Edit3 size={10}/>} disabled title="功能开发中，请通过后台系统操作">编辑</Button>]}>
                     <List.Item.Meta title={<Space><Tag color="blue">{c.key}</Tag><Input defaultValue={c.value} size="small" style={{width:200}} /></Space>}
                       description={<span style={{fontSize:12,color:'#999'}}>{c.desc}</span>} />
                   </List.Item>

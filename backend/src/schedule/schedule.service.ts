@@ -71,7 +71,7 @@ export class ScheduleService {
     this.logger.log('Running report timeout escalation check')
     const timeoutReports = await this.prisma.report.findMany({
       where: {
-        state: { in: ['SUBMITTED', 'REVIEWING'] },
+        state: { in: ['SUBMITTED', 'INITIAL_REVIEW'] as any },
         updatedAt: { lt: new Date(Date.now() - 2 * 60 * 60 * 1000) },
       },
     })

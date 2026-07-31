@@ -51,7 +51,7 @@ export default function CriticalValue5StepPage() {
           setData(res.data)
         }
       })
-      .catch(() => {})
+      .catch((err) => { console.error('[F04]', err); })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, [])
@@ -217,7 +217,7 @@ export default function CriticalValue5StepPage() {
         setLoading(true)
         fetch('/api/v1/critical/value5step/list').then(r => r.json()).then(res => {
           if (res.success && Array.isArray(res.data)) setData(res.data)
-        }).catch(() => {}).finally(() => setLoading(false))
+        }).catch((err) => { console.error('[F04]', err); }).finally(() => setLoading(false))
       }}>刷新</Button>}>
         {loading ? (
           <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>

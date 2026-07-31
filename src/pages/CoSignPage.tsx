@@ -196,7 +196,7 @@ const CoSignPage: React.FC = () => {
           reviewerTitle: 'reviewer',
         })))
       }
-    }).catch(() => {})
+    }).catch((err) => { console.error('[F04]', err); })
     return () => { cancelled = true }
   }, [])
 
