@@ -55,8 +55,8 @@ export const ProTableBasic: Story = {
         { title: '危急值', dataIndex: 'criticalFinding', width: 80, render: (v) => v ? <Tag color="red">是</Tag> : <Tag>否</Tag> },
         { title: '检查时间', dataIndex: 'examDate', width: 160 },
       ]}
-      onExport={(data) => alert(`导出 ${data.length} 条报告`)}
-      onRefresh={() => alert('刷新数据')}
+      onExport={(data) => { console.log(`[ProTable] 导出 ${data.length} 条报告`); }}
+      onRefresh={() => { console.log('[ProTable] 刷新数据'); }}
     />
   ),
 };

@@ -41,9 +41,7 @@ const AiReviewPage: React.FC = () => {
       } else {
         message.error(res.error?.message || '审核失败')
       }
-    } catch {
-      message.error('审核请求失败')
-    } finally {
+    } catch (err) { console.error('[AiReview] review failed:', err); message.error('审核请求失败') } finally {
       setLoading(false)
     }
   }, [reportText])

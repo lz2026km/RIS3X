@@ -39,7 +39,7 @@ export const EmptyWithAction: Story = {
       variant="no-data"
       action={{
         label: '新建报告',
-        onClick: () => alert('新建报告'),
+        onClick: () => { console.log('[Empty] 新建报告'); },
       }}
     />
   ),

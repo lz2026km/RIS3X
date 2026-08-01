@@ -38,8 +38,8 @@ function resolveApiBaseUrl(): string | undefined {
     try {
       const ls = window.localStorage.getItem('ris_api_base_url')
       if (ls) return ls
-    } catch {
-      /* noop */
+    } catch (err) {
+      console.error('[ApiClient] resolveApiBaseUrl failed:', err)
     }
   }
   return import.meta.env.VITE_API_BASE_URL

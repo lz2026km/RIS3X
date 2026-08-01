@@ -109,7 +109,7 @@ export default function DoseTrackingTable({
                     </td>
                     <td style={{ padding: "10px 12px" }}>
                       <span style={{ padding: "2px 8px", background: badge.bg, color: badge.color, borderRadius: 4, fontSize: 12, fontWeight: 700 }}>
-                        {badge.label}�?                      </span>
+                        {badge.label}?                      </span>
                     </td>
                     <td style={{ padding: "10px 12px" }}>
                       <button
@@ -168,11 +168,11 @@ function PatientDetailCard({ patient }: { patient: PatientDoseRecord }) {
           </div>
           <div>
             <div style={{ fontSize: 14, fontWeight: 700, color: "#1e3a5f" }}>{patient.patientName}</div>
-            <div style={{ fontSize: 12, color: "#64748b" }}>{patient.gender} · {patient.age}�?· ID: {patient.patientId}</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>{patient.gender} · {patient.age}?· ID: {patient.patientId}</div>
           </div>
         </div>
         <span style={{ padding: "4px 10px", background: badge.bg, color: badge.color, border: `1px solid ${badge.border}`, borderRadius: 6, fontSize: 12, fontWeight: 700 }}>
-          {badge.label}级预�?        </span>
+          {badge.label}级预?        </span>
       </div>
       <div style={{ padding: 16 }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>

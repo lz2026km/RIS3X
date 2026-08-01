@@ -23,9 +23,7 @@ const AiMarketplacePage: React.FC = () => {
       if (res.success && Array.isArray(res.data)) {
         setModels(res.data)
       }
-    } catch {
-      message.warning('模型列表加载失败')
-    } finally {
+    } catch (err) { console.error('[AiMarketplace] fetchModels failed:', err); message.warning('模型列表加载失败') } finally {
       setLoading(false)
     }
   }, [])
@@ -72,9 +70,7 @@ const AiMarketplacePage: React.FC = () => {
           } else {
             message.error(res.error?.message || '卸载失败')
           }
-        } catch {
-          message.error('卸载请求失败')
-        }
+        } catch (err) { console.error('[AiMarketplace] removeModel failed:', err); message.error('卸载请求失败') }
       }
     })
   }

@@ -17,7 +17,7 @@ export const DentalTelePage: React.FC = () => {
         <Col span={6}><Card size="small"><Button type="primary" block onClick={createSession} icon={<Plus size={14}/>}>新建会诊</Button></Card></Col>
         <Col span={6}><Card size="small"><Button block icon={<Upload size={14}/>} disabled>上传口内照片</Button></Card></Col>
         <Col span={6}><Card size="small"><Button block icon={<Globe size={14}/>} disabled>AI 预筛</Button></Card></Col>
-        <Col span={6}><Select size="large" placeholder="选择专家" style={{width:'100%'}} options={[{value:'exp-1',label:'王专�?(种植)'},{value:'exp-2',label:'李专�?(正畸)'}]} /></Col>
+        <Col span={6}><Select size="large" placeholder="选择专家" style={{width:'100%'}} options={[{value:'exp-1',label:'王专?(种植)'},{value:'exp-2',label:'李专?(正畸)'}]} /></Col>
       </Row>
       <Card title={`会诊记录 (${sessions.length})`} size="small" style={{marginTop:16}}>
         {sessions.length===0? <Empty description="暂无会诊记录" /> :

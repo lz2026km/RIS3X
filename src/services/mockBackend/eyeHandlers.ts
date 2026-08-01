@@ -2902,7 +2902,7 @@ const eyeTeleconsultModule = [
     });
   }),
 
-  // 4) 远程会诊意见征集
+  // 4) 远程会诊意见见征集
   http.post(`${API_BASE}/tele/consult`, async ({ request }) => {
     await delay(150);
     const body = (await request.json()) as { sessionId: string; specialistId: string; question: string };
@@ -2920,7 +2920,7 @@ const eyeTeleconsultModule = [
     });
   }),
 
-  // 5) 远程会诊意见答复
+  // 5) 远程会诊意见见答复
   http.post(`${API_BASE}/tele/answer`, async ({ request }) => {
     await delay(200);
     const body = (await request.json()) as { consultId: string; opinion: string; recommendation: string };

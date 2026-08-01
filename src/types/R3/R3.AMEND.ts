@@ -56,7 +56,7 @@ export const SUPPLEMENT_TYPES: { id: SupplementType; label: string; icon: string
   { id: 'comparison-prior', label: '对比片', icon: '🖼️' },
   { id: 'follow-up', label: '随访结果', icon: '🔄' },
   { id: 'addendum', label: '补充说明', icon: '📝' },
-  { id: 'consultation', label: '会诊意见', icon: '👥' },
+  { id: 'consultation', label: '会诊意见见', icon: '👥' },
   { id: 'lab-result', label: '实验室结果', icon: '🧪' },
 ];
 

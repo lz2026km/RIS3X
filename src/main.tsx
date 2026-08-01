@@ -1,4 +1,4 @@
-﻿// v3.0.6.11-43: 功能补齐 + 前端深度修复版
+﻿// v3.0.6.11-49: 核心 Bug 修复版
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
@@ -14,11 +14,11 @@ import "./styles/transitions.css";
 import "./styles/responsive.css";
 import "./styles/z-index.css";
 
-const APP_VERSION = "3.0.6.11-43";
+const APP_VERSION = "3.0.6.11-49";
 console.info(`[v${APP_VERSION}] === BOOT START ===`);
 console.info(`[v${APP_VERSION}] Location:`, window.location.href);
 
-// v3.0.6.11-6: 同步等待 SW cleanup 完成 (避免 MSW 检测到�?SW 触发 reload)
+// v3.0.6.11-6: 同步等待 SW cleanup 完成 (避免 MSW 检测到?SW 触发 reload)
 async function nukeSWAndCacheSync(timeoutMs = 3000): Promise<void> {
   if (typeof navigator === "undefined" || !("serviceWorker" in navigator))
     return;

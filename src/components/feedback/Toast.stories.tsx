@@ -84,13 +84,13 @@ const ConfirmDemo = () => {
       <Space wrap>
         <Button
           danger
-          onClick={() => confirm.delete('测试报告 #001', () => alert('已删除'))}
+          onClick={() => confirm.delete('测试报告 #001', () => { console.log('[Confirm] 已删除'); })}
         >
           删除操作
         </Button>
         <Button
           type="primary"
-          onClick={() => confirm.submit('报告 #002', () => alert('已提交审核'))}
+          onClick={() => confirm.submit('报告 #002', () => { console.log('[Confirm] 已提交审核'); })}
         >
           提交审核
         </Button>
@@ -99,7 +99,7 @@ const ConfirmDemo = () => {
             confirm.confirm({
               title: '自定义确认',
               content: '这是一个普通确认对话框',
-              onOk: () => alert('已确认'),
+              onOk: () => { console.log('[Confirm] 已确认'); },
             })
           }
         >

@@ -68,14 +68,14 @@ export const ConsultationDetail: React.FC<DetailProps> = ({
         </div>
         {c.status === '已完成' && c.consultationOpinion && (
           <div style={{ marginBottom: '24px' }}>
-            <h4 style={{ marginBottom: '12px', fontSize: '14px', color: COLORS.textMuted }}>会诊意见</h4>
+            <h4 style={{ marginBottom: '12px', fontSize: '14px', color: COLORS.textMuted }}>会诊意见见</h4>
             <div style={{ backgroundColor: '#f0fdf4', borderRadius: '8px', padding: '16px', border: `1px solid ${COLORS.success}` }}>{c.consultationOpinion}</div>
           </div>
         )}
         {c.status === '会诊中' && (
           <div style={{ marginBottom: '24px' }}>
-            <h4 style={{ marginBottom: '12px', fontSize: '14px', color: COLORS.textMuted }}>填写会诊意见</h4>
-            <textarea style={{ ...styles.textarea, width: '100%', minHeight: '150px' }} placeholder="请输入会诊意见..." value={opinionText} onChange={e => onOpinionTextChange(e.target.value)} />
+            <h4 style={{ marginBottom: '12px', fontSize: '14px', color: COLORS.textMuted }}>填写会诊意见见</h4>
+            <textarea style={{ ...styles.textarea, width: '100%', minHeight: '150px' }} placeholder="请输入会诊意见见..." value={opinionText} onChange={e => onOpinionTextChange(e.target.value)} />
             <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end' }}>
               <button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={() => onOpenModal('opinion')}><Check size={14} /> 提交意见</button>
             </div>
@@ -408,8 +408,8 @@ export const ModalContent: React.FC<ModalContentProps> = ({
         )}
         {modalType === 'opinion' && (
           <>
-            <div style={styles.modalHeader}><span>填写会诊意见</span><X size={20} style={{ cursor: 'pointer' }} onClick={onClose} /></div>
-            <div style={styles.modalBody}><div style={styles.formGroup}><label style={styles.formLabel}>会诊意见</label><textarea style={{ ...styles.textarea, width: '100%', minHeight: '150px' }} placeholder="请详细填写会诊意见..." value={opinionText} onChange={e => onOpinionTextChange(e.target.value)} /></div></div>
+            <div style={styles.modalHeader}><span>填写会诊意见见</span><X size={20} style={{ cursor: 'pointer' }} onClick={onClose} /></div>
+            <div style={styles.modalBody}><div style={styles.formGroup}><label style={styles.formLabel}>会诊意见见</label><textarea style={{ ...styles.textarea, width: '100%', minHeight: '150px' }} placeholder="请详细填写会诊意见见..." value={opinionText} onChange={e => onOpinionTextChange(e.target.value)} /></div></div>
             <div style={styles.modalFooter}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={onClose}>取消</button><button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={onSubmitOpinion}>提交意见</button></div>
           </>
         )}

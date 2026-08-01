@@ -241,7 +241,7 @@ export default function ConsultationPage() {
 
   const handleSubmitConclusion = () => {
     if (!conclusionText.trim()) {
-      showToast('请填写会诊意见', 'info')
+      showToast('请填写会诊意见见', 'info')
       return
     }
     setShowConclusionModal(true)

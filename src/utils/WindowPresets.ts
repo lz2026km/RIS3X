@@ -23,18 +23,47 @@ export function getUserPresets(): WindowPreset[] {
   try {
     const raw = localStorage.getItem(USER_PRESETS_KEY)
     return raw ? JSON.parse(raw) : []
-  } catch { return [] }
+  } catch (err) { console.error('[WindowPresets] getUserPresets failed:', err); return [] }
 }
 
 export function saveUserPreset(preset: WindowPreset): void {
   const presets = getUserPresets().filter(p => p.name !== preset.name)
   presets.push(preset)
-  localStorage.setItem(USER_PRESETS_KEY, JSON.stringify(presets))
+  try {
+    localStorage.setItem(USER_PRESETS_KEY, JSON.stringify(presets))
+  } catch (err) { console.error('[WindowPresets] saveUserPreset failed:', err) }
 }
 
 export function deleteUserPreset(name: string): void {
   const presets = getUserPresets().filter(p => p.name !== name)
-  localStorage.setItem(USER_PRESETS_KEY, JSON.stringify(presets))
+  try {
+    localStorage.setItem(USER_PRESETS_KEY, JSON.stringify(presets))
+  } catch (err) { console.error('[WindowPresets] deleteUserPreset failed:', err) }
+}
+
+export function updateUserPreset(name: string, updates: Partial<Omit<WindowPreset, 'name'>>): void {
+  const presets = getUserPresets()
+  const idx = presets.findIndex(p => p.name === name)
+  if (idx >= 0) {
+    presets[idx] = { ...presets[idx], ...updates, wl: updates.wc ?? presets[idx].wc }
+    try {
+      localStorage.setItem(USER_PRESETS_KEY, JSON.stringify(presets))
+    } catch (err) { console.error('[WindowPresets] updateUserPreset failed:', err) }
+  }
+}
+
+export function exportUserPresets(): string {
+  return JSON.stringify(getUserPresets(), null, 2)
+}
+
+export function importUserPresets(json: string): boolean {
+  try {
+    const parsed = JSON.parse(json) as WindowPreset[]
+    if (!Array.isArray(parsed)) return false
+    const valid = parsed.filter(p => p.name && typeof p.ww === 'number' && typeof p.wc === 'number')
+    localStorage.setItem(USER_PRESETS_KEY, JSON.stringify(valid))
+    return true
+  } catch (err) { console.error('[WindowPresets] importUserPresets failed:', err); return false }
 }
 
 // 检查部位类型
@@ -211,6 +240,62 @@ export const WINDOW_PRESETS: WindowPreset[] = [
     wc: 500,
     category: 'MR',
     description: 'MRI 弥散加权成像',
+  }),
+  makePreset({
+    name: 'MR T1 增强',
+    ww: 1200,
+    wc: 450,
+    category: 'MR',
+    description: 'MRI T1 增强扫描',
+  }),
+  makePreset({
+    name: 'MR T2* (SWI)',
+    ww: 1400,
+    wc: 550,
+    category: 'MR',
+    description: 'MRI T2* 磁敏感加权',
+  }),
+  makePreset({
+    name: 'MR 脑白质',
+    ww: 1600,
+    wc: 650,
+    category: 'MR',
+    description: 'MRI 脑白质病变专用',
+  }),
+  makePreset({
+    name: 'MR 脊柱',
+    ww: 1800,
+    wc: 700,
+    category: 'MR',
+    description: 'MRI 脊柱成像',
+  }),
+  makePreset({
+    name: 'MR 关节',
+    ww: 1400,
+    wc: 500,
+    category: 'MR',
+    description: 'MRI 关节软组织',
+  }),
+  makePreset({
+    name: 'MR 腹部',
+    ww: 1200,
+    wc: 400,
+    category: 'MR',
+    description: 'MRI 腹部成像',
+  }),
+  makePreset({
+    name: 'MR MRA',
+    ww: 800,
+    wc: 300,
+    category: 'MR',
+    description: 'MRI 血管成像',
+  }),
+  makePreset({
+    name: 'MR DWI (b1000)',
+    ww: 800,
+    wc: 400,
+    category: 'MR',
+    description: 'MRI DWI b=1000 弥散',
   }),
 ]
 

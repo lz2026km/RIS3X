@@ -29,9 +29,7 @@ export const SystemAdminPage: React.FC = () => {
         if (usersRes.success && Array.isArray(usersRes.data)) setUsers(usersRes.data);
         if (rolesRes.success && Array.isArray(rolesRes.data)) setRoles(rolesRes.data);
         if (configsRes.success && Array.isArray(configsRes.data)) setConfigs(configsRes.data);
-      } catch {
-        if (!cancelled) message.error('加载系统管理数据失败');
-      }
+      } catch (err) { console.error('[SystemAdmin] load failed:', err); if (!cancelled) message.error('加载系统管理数据失败'); }
       if (!cancelled) setLoading(false);
     })();
     return () => { cancelled = true; };
@@ -48,9 +46,7 @@ export const SystemAdminPage: React.FC = () => {
       } else {
         message.error(res.error?.message || '创建失败');
       }
-    } catch {
-      message.error('创建用户失败');
-    }
+    } catch (err) { console.error('[SystemAdmin] createUser failed:', err); message.error('创建用户失败'); }
   };
 
   const handleDeleteUser = async (record: SystemUserDto) => {
@@ -62,9 +58,7 @@ export const SystemAdminPage: React.FC = () => {
       } else {
         message.error(res.error?.message || '删除失败');
       }
-    } catch {
-      message.error('删除用户失败');
-    }
+    } catch (err) { console.error('[SystemAdmin] deleteUser failed:', err); message.error('删除用户失败'); }
   };
 
   return (

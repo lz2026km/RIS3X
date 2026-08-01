@@ -1,6 +1,6 @@
 import { api, invalidateApiCacheByPrefix } from './client'
 
-// ©¤©¤ Equipment Lifecycle ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
+//  Equipment Lifecycle 
 export interface EquipmentLifecycle {
   id: string
   name: string
@@ -24,7 +24,7 @@ export interface UpdateEquipmentLifecycleDto {
   notes?: string
 }
 
-// ©¤©¤ Device (CRUD) ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
+//  Device (CRUD) 
 export interface DeviceMgmtItem {
   id: string
   code: string
@@ -51,7 +51,7 @@ export interface UpdateDeviceMgmtDto {
   state?: 'IDLE' | 'IN_USE' | 'MAINTENANCE' | 'BROKEN' | 'OFFLINE'
 }
 
-// ©¤©¤ Device Fault ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
+//  Device Fault 
 export interface DeviceFault {
   id: string
   deviceId: string
@@ -69,7 +69,7 @@ export interface ReportDeviceFaultDto {
   reportedBy: string
 }
 
-// ©¤©¤ Material ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
+//  Material 
 export interface Material {
   id: string
   name: string
@@ -88,7 +88,7 @@ export interface AddMaterialDto {
   minStock?: number
 }
 
-// ©¤©¤ Dose Tracking ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
+//  Dose Tracking 
 export interface DoseRecord {
   id: string
   patientId: string
@@ -108,7 +108,7 @@ export interface RecordDoseDto {
   recordedAt?: string
 }
 
-// ©¤©¤ Contrast Agent ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
+//  Contrast Agent 
 export interface AdverseReaction {
   id: string
   patientId: string
@@ -160,9 +160,9 @@ export interface ContrastQuality {
   expiryDate: string
 }
 
-// ©¤©¤ API Client ©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤
+//  API Client 
 export const deviceMgmtApi = {
-  // ©¤©¤ Equipment Lifecycle ©¤©¤
+  //  Equipment Lifecycle 
   listEquipmentLifecycle: () =>
     api.get<EquipmentLifecycle[]>('/device-mgmt/equipment-lifecycle'),
 
@@ -175,7 +175,7 @@ export const deviceMgmtApi = {
     return res
   },
 
-  // ©¤©¤ Devices (devicemgmt controller) ©¤©¤
+  //  Devices (devicemgmt controller) 
   listDevices: () =>
     api.get<DeviceMgmtItem[]>('/device-mgmt/devices'),
 
@@ -188,7 +188,7 @@ export const deviceMgmtApi = {
     return res
   },
 
-  // ©¤©¤ Device Faults ©¤©¤
+  //  Device Faults 
   listDeviceFaults: () =>
     api.get<DeviceFault[]>('/device-mgmt/faults'),
 
@@ -198,7 +198,7 @@ export const deviceMgmtApi = {
     return res
   },
 
-  // ©¤©¤ Materials ©¤©¤
+  //  Materials 
   listMaterials: () =>
     api.get<Material[]>('/device-mgmt/materials'),
 
@@ -208,7 +208,7 @@ export const deviceMgmtApi = {
     return res
   },
 
-  // ©¤©¤ Dose Tracking ©¤©¤
+  //  Dose Tracking 
   getDoseTracking: () =>
     api.get<DoseRecord[]>('/device-mgmt/dose-tracking'),
 
@@ -218,7 +218,7 @@ export const deviceMgmtApi = {
     return res
   },
 
-  // ©¤©¤ Contrast: Adverse Reactions ©¤©¤
+  //  Contrast: Adverse Reactions 
   listAdverseReactions: () =>
     api.get<AdverseReaction[]>('/device-mgmt/contrast/adverse-reactions'),
 
@@ -228,11 +228,11 @@ export const deviceMgmtApi = {
     return res
   },
 
-  // ©¤©¤ Contrast: Injection Workstation ©¤©¤
+  //  Contrast: Injection Workstation 
   getInjectionWorkstation: () =>
     api.get<InjectionWorkstation>('/device-mgmt/contrast/injection'),
 
-  // ©¤©¤ Contrast: Inventory ©¤©¤
+  //  Contrast: Inventory 
   getContrastInventory: () =>
     api.get<ContrastInventory[]>('/device-mgmt/contrast/inventory'),
 
@@ -242,11 +242,11 @@ export const deviceMgmtApi = {
     return res
   },
 
-  // ©¤©¤ Contrast: Quality ©¤©¤
+  //  Contrast: Quality 
   getContrastQuality: () =>
     api.get<ContrastQuality[]>('/device-mgmt/contrast/quality'),
 
-  // ©¤©¤ Device CRUD (device.controller) ©¤©¤
+  //  Device CRUD (device.controller) 
   list: (params?: { skip?: number; take?: number; modality?: string; state?: string }) => {
     const query = params ? '?' + new URLSearchParams(params as Record<string, string>).toString() : ''
     return api.get<DeviceMgmtItem[]>(`/device-mgmt${query}`)

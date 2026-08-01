@@ -39,9 +39,7 @@ export class DeepSeekProvider implements IReportGenerationProvider, IReportRevie
         finishReason: resp.choices[0]?.finish_reason === 'stop' ? 'stop' : 'length',
         usage: resp.usage ? { promptTokens: resp.usage.prompt_tokens, completionTokens: resp.usage.completion_tokens } : undefined,
       }
-    } catch {
-      return { id: '', content: '', finishReason: 'error', usage: undefined }
-    }
+    } catch (err) { console.error('[DeepSeek] complete failed:', err); return { id: '', content: '', finishReason: 'error', usage: undefined } }
   }
 
   async *completeStream(request: AiCompletionRequest): AsyncGenerator<AiStreamChunk, void, void> {
@@ -60,9 +58,7 @@ export class DeepSeekProvider implements IReportGenerationProvider, IReportRevie
           yield { id: chunk.id, content, finishReason: chunk.choices[0]?.finish_reason as 'stop' | 'length' | null }
         }
       }
-    } catch {
-      yield { id: '', content: '', finishReason: 'error' }
-    }
+    } catch (err) { console.error('[DeepSeek] completeStream failed:', err); yield { id: '', content: '', finishReason: 'error' } }
   }
 
   async generateReport(input: ReportGenerationInput): Promise<ReportGenerationOutput> {
@@ -90,9 +86,7 @@ export class DeepSeekProvider implements IReportGenerationProvider, IReportRevie
         sections,
         confidence: 0.9,
       }
-    } catch {
-      return { reportText: '', sections: [], confidence: 0 }
-    }
+    } catch (err) { console.error('[DeepSeek] generateReport failed:', err); return { reportText: '', sections: [], confidence: 0 } }
   }
 
   async *generateReportStream(input: ReportGenerationInput): AsyncGenerator<AiStreamChunk, ReportGenerationOutput, void> {

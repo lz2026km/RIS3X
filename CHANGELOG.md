@@ -1,5 +1,56 @@
 ﻿# CHANGELOG
 
+## v3.0.6.11-49 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
+
+> **目标**: 后端深度修复 + 安全加固 + 类型修复 + 测试验证 + 性能检查 + 版本号全量统一
+> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-49
+
+### A13: 后端安全加固
+- `jwt-auth.guard.ts`: 验证Public/TOTP守卫正确性，支持Observable和Promise
+- 全局拦截器注册: SecurityHeaders + TenantContext + Audit + Csrf 4个拦截器全局注册
+- Swagger生产环境可禁用: `SWAGGER_DISABLED=true` + IP白名单 + OpenAPI JSON端点保护
+- `/metrics` 端点: IP白名单 + CIDR子网匹配
+- CORS生产环境强制配置: 空值则启动失败
+- JWT_SECRET: 生产环境≥32字节强制校验
+- CSRF_SECRET: 生产环境≥32字节强制校验
+- ValidationPipe: whitelist + transform + forbidNonWhitelisted
+- 后端TypeScript编译: `npx tsc --noEmit` 通过
+
+### A14: 后端类型修复
+- Prisma schema: 40+ 模型完整性验证，含索引、关系、级联删除
+- Service类型检查: 全部后端Service类型一致性验证通过
+
+### A15: 后端测试
+- `npx jest --passWithNoTests`: 47 suites / 436 tests 全部通过
+
+### A16: 后端性能
+- Prisma查询: 合理使用@@index索引优化
+- 核心模型均包含tenantId多租户索引
+- 报告/检查/危急值等高频查询均有复合索引
+
+### A19: 版本号全量统一
+- backend/package.json → 3.0.6.11-49
+- backend/src/main.ts → Swagger version + log message → v3.0.6.11-49
+- backend/src/app.module.ts → v3.0.6.11-49
+- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-49
+- index.html title + window.__appVersion → v3.0.6.11-49
+- src/i18n/appI18n.ts → v3.0.6.11-49
+- src/main.tsx APP_VERSION → v3.0.6.11-49
+- src/routes/routeTable.tsx → v3.0.6.11-49
+- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-49
+- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-49
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-49
+- CONTRIBUTING.md → v3.0.6.11-49
+- CHANGELOG.md 新增 v3.0.6.11-49 条目
+
+### 验证结果
+- 后端TypeScript编译: 通过 (0 errors)
+- 后端Jest测试: 47 suites / 436 tests 全部通过
+- Prisma schema完整性: 40+ 模型验证通过
+- 安全加固: 8项安全检查全部通过
+
+---
+
 ## v3.0.6.11-43 (2026-07-31) — 版本统一+Mock迁移核心页+专科页+CORS加固
 
 > **目标**: 版本号全量统一至 v3.0.6.11-43 + Mock迁移核心页20页 + 专科页30页 + CORS生产配置

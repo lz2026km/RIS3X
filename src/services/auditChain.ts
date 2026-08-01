@@ -51,11 +51,11 @@ function loadLog(): AuditEntry[] {
   try {
     const raw = localStorage.getItem(AUDIT_KEY);
     return raw ? JSON.parse(raw) as AuditEntry[] : [];
-  } catch { return []; }
+  } catch (err) { console.error('[AuditChain] loadLog failed:', err); return []; }
 }
 
 function saveLog(log: AuditEntry[]): void {
-  try { localStorage.setItem(AUDIT_KEY, JSON.stringify(log)); } catch { /* quota */ }
+  try { localStorage.setItem(AUDIT_KEY, JSON.stringify(log)); } catch (err) { console.error('[AuditChain] saveLog quota exceeded:', err); }
 }
 
 async function hmacLike(data: string): Promise<string> {

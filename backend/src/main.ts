@@ -1,5 +1,5 @@
 /**
- * G005 放射RIS系统 v3.0.6.11-43 - NestJS 后端入口
+ * G005 放射RIS系统 v3.0.6.11-49 - NestJS 后端入口
  * 启动 NestJS + ValidationPipe + CORS + Swagger + Prometheus /metrics
  */
 import { NestFactory } from '@nestjs/core'
@@ -92,7 +92,7 @@ async function bootstrap(): Promise<void> {
   const config = new DocumentBuilder()
     .setTitle('G005-RISv API')
     .setDescription('G005 放射信息系统 API 文档')
-    .setVersion('3.0.6.11-43')
+    .setVersion('3.0.6.11-49')
     .addBearerAuth()
     .build()
   const document = SwaggerModule.createDocument(app, config)
@@ -120,6 +120,18 @@ async function bootstrap(): Promise<void> {
     res.json(document)
   })
 
+  if (isProd) {
+    app.getHttpAdapter().get('/api/docs', (_req: Request, res: Response) => {
+      const clientIp = (_req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ?? _req.socket.remoteAddress ?? ''
+      const normalizedIp = clientIp.replace('::ffff:', '')
+      if (!swaggerIpWhitelist.includes(normalizedIp) && !swaggerIpWhitelist.some((ip) => ip.includes('/') && isAllowedIp(ip))) {
+        res.status(403).json({ statusCode: 403, message: 'Forbidden: Swagger UI access denied in production' })
+        return
+      }
+      res.redirect('/api/docs')
+    })
+  }
+
   if (process.env['GENERATE_OPENAPI']) {
     const fs = require('fs')
     const path = require('path')
@@ -139,7 +151,7 @@ async function bootstrap(): Promise<void> {
   await app.listen(port)
 
   const logger = app.get(PinoLogger)
-  logger.log(`G005 Backend v3.0.6.11-43 listening on http://localhost:${port}/api`)
+  logger.log(`G005 Backend v3.0.6.11-49 listening on http://localhost:${port}/api`)
 }
 
 void bootstrap()

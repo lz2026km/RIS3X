@@ -23,9 +23,7 @@ export const AiFusionWorkspacePage: React.FC = () => {
       if (insightsRes.success && Array.isArray(insightsRes.data)) {
         setAiInsights(insightsRes.data)
       }
-    } catch {
-      message.warning('融合工作台数据加载失败')
-    } finally {
+    } catch (err) { console.error('[AiFusion] fetchData failed:', err); message.warning('融合工作台数据加载失败') } finally {
       setLoading(false)
     }
   }, [])

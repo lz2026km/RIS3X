@@ -1,4 +1,4 @@
-// [v3.0.6.8-53] 牙位图页�?(FDI 编号 32 �?
+// [v3.0.6.8-53] 牙位图页?(FDI 编号 32 ?
 import React, { useState, useEffect } from 'react';
 import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, Table, Empty, Tooltip } from 'antd';
 import { Eye, Activity, Stethoscope } from 'lucide-react';
@@ -32,13 +32,13 @@ export const ToothChartPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f5f5' }}>
       <Space style={{ marginBottom: 16 }}>
         <Stethoscope size={20} color="#1677ff" />
-        <Activity size={20} /><span style={{ fontSize: 18, fontWeight: 600 }}>牙位�?(FDI)</span>
+        <Activity size={20} /><span style={{ fontSize: 18, fontWeight: 600 }}>牙位?(FDI)</span>
         <Tag color="cyan">v3.0.6.8-53</Tag>
         <Tag color="blue">32 颗牙</Tag>
       </Space>
       <Row gutter={16}>
         <Col span={18}>
-          <Card size="small" title="牙位�?>
+          <Card size="small" title="牙位?>
             {[FDI_ROW_1, FDI_ROW_2, FDI_ROW_3, FDI_ROW_4].map((row, ri) => (
               <div key={ri} style={{ display: 'flex', justifyContent: 'center', gap: 6, marginBottom: 12 }}>
                 {ri === 0 && <div style={{ writingMode: 'vertical-lr', marginRight: 8, color: '#999' }}>上颌</div>}
@@ -60,7 +60,7 @@ export const ToothChartPage: React.FC = () => {
                         }}
                       >
                         <div>{t}</div>
-                        {hasCaries && <div style={{ fontSize: 8, color: '#f5222d' }}>�?/div>}
+                        {hasCaries && <div style={{ fontSize: 8, color: '#f5222d' }}>?/div>}
                       </div>
                     </Tooltip>
                   );
@@ -73,7 +73,7 @@ export const ToothChartPage: React.FC = () => {
           <Card size="small" title={activeTooth ? `FDI ${activeTooth}` : '牙齿详情'}>
             {activeTooth && chart?.teeth?.[activeTooth] ? (
               <div>
-                <div>状�? <Tag color={STATUS_COLORS[chart.teeth[activeTooth].status]}>{chart.teeth[activeTooth].status}</Tag></div>
+                <div>状? <Tag color={STATUS_COLORS[chart.teeth[activeTooth].status]}>{chart.teeth[activeTooth].status}</Tag></div>
                 <div>牙面: {['O','M','D','B','L'].map(s => (
                   <Tag key={s} color={chart.teeth[activeTooth].surfaces[s] === 'Healthy' ? 'green' : 'orange'}>{s}: {chart.teeth[activeTooth].surfaces[s]}</Tag>
                 ))}</div>

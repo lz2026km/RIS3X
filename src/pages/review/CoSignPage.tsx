@@ -4,7 +4,7 @@ import { Users, CheckCircle, XCircle, Clock, BarChart3, RefreshCw, User, Eye } f
 import { coSignApi, type CoSignItem, type CoSignStats } from '../../services/api/coSignApi'
 
 const statusColor: Record<string, string> = { pending: 'orange', approved: 'green', rejected: 'red' }
-const statusLabel: Record<string, string> = { pending: '待处�?, approved: '已通过', rejected: '已拒�? }
+const statusLabel: Record<string, string> = { pending: '待处?, approved: '已通过', rejected: '已拒? }
 
 const CoSignPage: React.FC = () => {
   const [items, setItems] = useState<CoSignItem[]>([])
@@ -36,23 +36,23 @@ const CoSignPage: React.FC = () => {
   }
 
   const handleReject = async () => {
-    if (!selectedItem || !rejectReason.trim()) { message.warning('请输入拒绝原�?); return }
+    if (!selectedItem || !rejectReason.trim()) { message.warning('请输入拒绝原?); return }
     setActionLoading(true)
     try {
       const res = await coSignApi.reject(selectedItem.id, { reason: rejectReason })
-      if (res.success) { message.success('已拒�?); setItems(prev => prev.filter(i => i.id !== selectedItem.id)); setShowDetail(false); setShowRejectModal(false); setRejectReason(''); fetchStats() }
+      if (res.success) { message.success('已拒?); setItems(prev => prev.filter(i => i.id !== selectedItem.id)); setShowDetail(false); setShowRejectModal(false); setRejectReason(''); fetchStats() }
     } catch { message.error('操作失败') } finally { setActionLoading(false) }
   }
 
   const columns = [
     { title: '报告ID', dataIndex: 'reportId', key: 'reportId', render: (id: string) => <span style={{ fontFamily: 'monospace' }}>{id}</span> },
-    { title: '患�?, dataIndex: 'patientName', key: 'patientName' },
-    { title: '检�?, dataIndex: 'modality', key: 'modality', render: (m: string) => <Tag color="blue">{m}</Tag> },
+    { title: '患者, dataIndex: 'patientName', key: 'patientName' },
+    { title: '检?, dataIndex: 'modality', key: 'modality', render: (m: string) => <Tag color="blue">{m}</Tag> },
     { title: '部位', dataIndex: 'bodyPart', key: 'bodyPart' },
     { title: '提交医生', dataIndex: 'authorName', key: 'authorName', render: (n: string) => <Space><User size={14} />{n}</Space> },
     { title: '等待(h)', dataIndex: 'waitingHours', key: 'waitingHours', render: (h: number) => <span style={{ color: h > 24 ? '#ff4d4f' : '#666' }}>{h}h</span> },
-    { title: '优先�?, dataIndex: 'priority', key: 'priority', render: (p: string) => <Tag color={p === 'stat' ? 'red' : p === 'urgent' ? 'orange' : 'blue'}>{p === 'stat' ? '加�? : p === 'urgent' ? '紧�? : '常规'}</Tag> },
-    { title: '状�?, dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={statusColor[s]}>{statusLabel[s]}</Tag> },
+    { title: '优先?, dataIndex: 'priority', key: 'priority', render: (p: string) => <Tag color={p === 'stat' ? 'red' : p === 'urgent' ? 'orange' : 'blue'}>{p === 'stat' ? '加? : p === 'urgent' ? '紧? : '常规'}</Tag> },
+    { title: '状?, dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={statusColor[s]}>{statusLabel[s]}</Tag> },
     { title: '操作', key: 'actions', render: (_: unknown, r: CoSignItem) => <Button size="small" icon={<Eye size={14} />} onClick={() => { setSelectedItem(r); setShowDetail(true) }}>详情</Button> },
   ]
 
@@ -62,10 +62,10 @@ const CoSignPage: React.FC = () => {
         <Users size={20} color="#722ed1" /><h1 style={{ fontSize: 20, margin: 0 }}>双签 Co-sign 审核</h1><Tag color="purple">报告双签流程</Tag>
       </div>
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title="待双�? value={stats?.pending ?? items.filter(i => i.status === 'pending').length} valueStyle={{ color: '#faad14' }} prefix={<Clock size={16} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="待双? value={stats?.pending ?? items.filter(i => i.status === 'pending').length} valueStyle={{ color: '#faad14' }} prefix={<Clock size={16} />} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="已通过" value={stats?.approved ?? 0} valueStyle={{ color: '#52c41a' }} prefix={<CheckCircle size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="已拒�? value={stats?.rejected ?? 0} valueStyle={{ color: '#ff4d4f' }} prefix={<XCircle size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="SLA达成�? value={stats?.onTimeRate ?? 0} suffix="%" prefix={<BarChart3 size={16} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="已拒? value={stats?.rejected ?? 0} valueStyle={{ color: '#ff4d4f' }} prefix={<XCircle size={16} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="SLA达成? value={stats?.onTimeRate ?? 0} suffix="%" prefix={<BarChart3 size={16} />} /></Card></Col>
       </Row>
       <Card extra={<Button icon={<RefreshCw size={14} />} onClick={() => { fetchPending(); fetchStats() }}>刷新</Button>}>
         <Table dataSource={items} columns={columns} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} size="small" />
@@ -77,15 +77,15 @@ const CoSignPage: React.FC = () => {
       </Space>)} width={600}>
         {selectedItem && <Descriptions bordered column={2} size="small">
           <Descriptions.Item label="报告ID">{selectedItem.reportId}</Descriptions.Item>
-          <Descriptions.Item label="患�?>{selectedItem.patientName}</Descriptions.Item>
-          <Descriptions.Item label="检�?>{selectedItem.modality}</Descriptions.Item>
+          <Descriptions.Item label="患者>{selectedItem.patientName}</Descriptions.Item>
+          <Descriptions.Item label="检?>{selectedItem.modality}</Descriptions.Item>
           <Descriptions.Item label="部位">{selectedItem.bodyPart}</Descriptions.Item>
           <Descriptions.Item label="提交医生">{selectedItem.authorName}</Descriptions.Item>
           <Descriptions.Item label="等待时间">{selectedItem.waitingHours}h</Descriptions.Item>
         </Descriptions>}
       </Modal>
       <Modal title="拒绝原因" open={showRejectModal} onOk={handleReject} onCancel={() => { setShowRejectModal(false); setRejectReason('') }} confirmLoading={actionLoading}>
-        <Input.TextArea rows={4} value={rejectReason} onChange={e => setRejectReason(e.target.value)} placeholder="请输入拒绝原�?.." />
+        <Input.TextArea rows={4} value={rejectReason} onChange={e => setRejectReason(e.target.value)} placeholder="请输入拒绝原?.." />
       </Modal>
     </div>
   )

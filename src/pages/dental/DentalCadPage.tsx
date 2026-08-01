@@ -1,4 +1,4 @@
-// [v3.0.6.8-87] Phase 1: 修复 CAD/CAM 设计工作�?
+// [v3.0.6.8-87] Phase 1: 修复 CAD/CAM 设计工作?
 // 对标: Sirona Cerec + 3Shape Dental Designer
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, Space, Tag, Button, Select, Row, Col, Statistic, Form, InputNumber, Radio, Tabs, message, Spin, Empty, Tooltip, Badge, Progress, Alert, Divider } from 'antd';
@@ -7,11 +7,11 @@ import { dentalApi } from '../../services/api/dentalApi';
 
 const DESIGN_TYPES = [
   { value: 'inlay', label: '嵌体 Inlay' },
-  { value: 'onlay', label: '高嵌�?Onlay' },
+  { value: 'onlay', label: '高嵌?Onlay' },
   { value: 'crown', label: '全冠 Crown' },
   { value: 'veneer', label: '贴面 Veneer' },
   { value: 'abutment', label: '基台 Abutment' },
-  { value: 'implant-crown', label: '种植�?Implant Crown' },
+  { value: 'implant-crown', label: '种植?Implant Crown' },
 ];
 
 export const DentalCadPage: React.FC = () => {
@@ -69,13 +69,13 @@ export const DentalCadPage: React.FC = () => {
     try {
       await dentalApi.submitMill(current.id, 'sirona-mcxl');
       await dentalApi.updateCadStatus(current.id, 'milling');
-      message.success('已提交至研磨�?);
+      message.success('已提交至研磨?);
       setMode('list');
     } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
     setBusy(false);
   };
 
-  // 绘制边缘�?Canvas
+  // 绘制边缘?Canvas
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -97,7 +97,7 @@ export const DentalCadPage: React.FC = () => {
     ctx.ellipse(cx, cy, 80, 100, 0, 0, Math.PI * 2);
     ctx.strokeStyle = '#555'; ctx.lineWidth = 1; ctx.stroke();
     ctx.fillStyle = '#2a2a4e'; ctx.fill();
-    // 边缘�?
+    // 边缘?
     if (marginPoints.length > 0) {
       ctx.beginPath();
       marginPoints.forEach((p, i) => {
@@ -135,9 +135,9 @@ export const DentalCadPage: React.FC = () => {
         </Space>
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={4}><Card size="small"><Statistic title="设计总数" value={designs.length} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title="待研�? value={designs.filter((d:any)=>d.status==='designed').length} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title="已粘�? value={designs.filter((d:any)=>d.status==='cemented').length} valueStyle={{color:'#52c41a'}} /></Card></Col>
-          <Col span={4}><Card size="small"><Statistic title="本月产�? prefix="¥" value={designs.length * 2500} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title="待研? value={designs.filter((d:any)=>d.status==='designed').length} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title="已粘? value={designs.filter((d:any)=>d.status==='cemented').length} valueStyle={{color:'#52c41a'}} /></Card></Col>
+          <Col span={4}><Card size="small"><Statistic title="本月产? prefix="¥" value={designs.length * 2500} /></Card></Col>
         </Row>
         <Row gutter={16}>
           <Col span={8}>
@@ -145,10 +145,10 @@ export const DentalCadPage: React.FC = () => {
               <Form layout="vertical" size="small">
                 <Form.Item label="修复类型"><Select value={designParams.type} onChange={v => setDesignParams({...designParams, type: v})} options={DESIGN_TYPES} /></Form.Item>
                 <Form.Item label="牙位 (FDI)"><InputNumber value={designParams.toothNo} onChange={v => setDesignParams({...designParams, toothNo: v || 11})} min={11} max={48} step={1} style={{width:'100%'}} /></Form.Item>
-                <Form.Item label="患�?><Select value={designParams.patientId} onChange={v => setDesignParams({...designParams, patientId: v})} options={[{value:'P100001',label:'张伟 - 16'},{value:'P100002',label:'李娜 - 26'},{value:'P100003',label:'王芳 - 14'}]} /></Form.Item>
+                <Form.Item label="患者><Select value={designParams.patientId} onChange={v => setDesignParams({...designParams, patientId: v})} options={[{value:'P100001',label:'张伟 - 16'},{value:'P100002',label:'李娜 - 26'},{value:'P100003',label:'王芳 - 14'}]} /></Form.Item>
                 <Form.Item label="材料"><Select value={designParams.material} onChange={v => setDesignParams({...designParams, material: v})} options={materials.map((m:any)=>({value:m.id,label:m.name}))} /></Form.Item>
                 <Form.Item label="比色"><Select value={designParams.shade} onChange={v => setDesignParams({...designParams, shade: v})} options={shades ? Object.keys(shades).map(k=>({value:k,label:k})) : []} /></Form.Item>
-                <Button type="primary" block icon={<Pen size={14}/>} onClick={handleCreate} loading={busy}>开始设�?/Button>
+                <Button type="primary" block icon={<Pen size={14}/>} onClick={handleCreate} loading={busy}>开始设?/Button>
               </Form>
             </Card>
           </Col>
@@ -182,28 +182,28 @@ export const DentalCadPage: React.FC = () => {
         <Button icon={<RotateCcw size={14}/>} onClick={() => setMode('list')}>返回列表</Button>
         <span style={{ fontSize: 16, fontWeight: 600 }}>修复设计 - {DESIGN_TYPES.find(t=>t.value===current?.type)?.label} #{current?.toothNo}</span>
         <Tag color="cyan">v3.0.6.8-87</Tag>
-        <Tag color="blue" icon={<Settings size={10}/>}>边缘线绘�?/Tag>
+        <Tag color="blue" icon={<Settings size={10}/>}>边缘线绘?/Tag>
       </Space>
       <Row gutter={12}>
         <Col span={14}>
-          <Card size="small" title={<Space><MousePointer2 size={14}/>边缘线绘�?{drawing ? <Tag color="green">绘制�?/Tag> : <Tag>点击开�?/Tag>}</Space>}
-            extra={<Space><Button size="small" type={drawing?'primary':'default'} onClick={()=>setDrawing(!drawing)}>{drawing?'完成绘制':'开始绘�?}</Button>
+          <Card size="small" title={<Space><MousePointer2 size={14}/>边缘线绘?{drawing ? <Tag color="green">绘制?/Tag> : <Tag>点击开?/Tag>}</Space>}
+            extra={<Space><Button size="small" type={drawing?'primary':'default'} onClick={()=>setDrawing(!drawing)}>{drawing?'完成绘制':'开始绘?}</Button>
             <Button size="small" icon={<RotateCcw size={10}/>} onClick={()=>setMarginPoints([])}>清除</Button>
             <Button size="small" type="primary" onClick={handleSaveMargin} icon={<Save size={10}/>}>保存边缘</Button></Space>}>
             <canvas ref={canvasRef} width={500} height={400} onClick={handleCanvasClick}
               style={{ width: '100%', height: 360, borderRadius: 8, cursor: drawing ? 'crosshair' : 'default' }} />
-            <div style={{ fontSize: 11, color: '#999', marginTop: 4 }}>点击牙齿轮廓边缘添加控制�?(已标�?{marginPoints.length} �?</div>
+            <div style={{ fontSize: 11, color: '#999', marginTop: 4 }}>点击牙齿轮廓边缘添加控制?(已标?{marginPoints.length} ?</div>
           </Card>
           <Card size="small" title={<Space><Settings size={14}/>设计参数</Space>} style={{marginTop:8}}>
             <Row gutter={12}>
-              <Col span={8}><Form.Item label="解剖形�? size="small"><Select value={current?.occlusalAnatomy||'anatomic'} options={[{value:'anatomic',label:'解剖�?},{value:'semi-anatomic',label:'半解剖式'},{value:'flat',label:'平面�?}]} /></Form.Item></Col>
+              <Col span={8}><Form.Item label="解剖形? size="small"><Select value={current?.occlusalAnatomy||'anatomic'} options={[{value:'anatomic',label:'解剖?},{value:'semi-anatomic',label:'半解剖式'},{value:'flat',label:'平面?}]} /></Form.Item></Col>
               <Col span={8}><Form.Item label="厚度 (mm)" size="small"><InputNumber value={current?.thickness||1.5} min={0.5} max={4} step={0.1} style={{width:'100%'}} /></Form.Item></Col>
               <Col span={8}><Form.Item label="粘接间隙 (μm)" size="small"><InputNumber value={current?.cementGap||30} min={10} max={100} step={5} style={{width:'100%'}} /></Form.Item></Col>
             </Row>
           </Card>
         </Col>
         <Col span={10}>
-          <Card size="small" title={<Space><Palette size={14}/>材料与比�?/Space>}>
+          <Card size="small" title={<Space><Palette size={14}/>材料与比?/Space>}>
             <Row gutter={[8,8]}>
               <Col span={12}><Form.Item label="材料" size="small" style={{margin:0}}><Select value={current?.material||'zirconia'} options={materials.map((m:any)=>({value:m.id,label:m.name,brand:m.shades}))} /></Form.Item></Col>
               <Col span={12}><Form.Item label="VITA 比色" size="small" style={{margin:0}}><Select value={current?.colorShade||'A2'} options={shades ? Object.keys(shades).map(k=>({value:k,label:k})) : []} /></Form.Item></Col>
@@ -219,7 +219,7 @@ export const DentalCadPage: React.FC = () => {
                 <Button icon={<Eye size={14}/>} onClick={handlePreview} loading={busy}>3D 预览</Button>
                 <Button icon={<Download size={14}/>} onClick={handleSubmitMill} loading={busy}>提交研磨</Button>
               </Space>
-              <Button onClick={()=>message.warning('功能建设�?)} icon={<Download size={14}/>}>导出 STL</Button>
+              <Button onClick={()=>message.warning('功能建设?)} icon={<Download size={14}/>}>导出 STL</Button>
             </Space>
             {preview && (
               <div style={{ marginTop:12, padding:8, background:'#1a1a2e', borderRadius:6, textAlign:'center', color:'#fff', fontSize:12 }}>
@@ -229,7 +229,7 @@ export const DentalCadPage: React.FC = () => {
               </div>
             )}
             {current?.status === 'milling' && (
-              <Alert style={{marginTop:8}} message={<Space><Spin size="small"/>研磨�? Sirona CEREC MC XL</Space>} type="info" showIcon />
+              <Alert style={{marginTop:8}} message={<Space><Spin size="small"/>研磨? Sirona CEREC MC XL</Space>} type="info" showIcon />
             )}
           </Card>
           <Card size="small" title="设计流程" style={{marginTop:8}}>

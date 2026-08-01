@@ -77,9 +77,7 @@ const AiDraftPage: React.FC = () => {
       } else {
         message.error(res.error?.message || '生成失败')
       }
-    } catch {
-      message.error('生成请求失败')
-    } finally {
+    } catch (err) { console.error('[AiDraft] generate failed:', err); message.error('生成请求失败') } finally {
       setGenerating(false)
     }
   }, [selectedExam, buildMeta])
@@ -98,9 +96,7 @@ const AiDraftPage: React.FC = () => {
       } else {
         message.error(res.error?.message || '续写失败')
       }
-    } catch {
-      message.error('续写请求失败')
-    } finally {
+    } catch (err) { console.error('[AiDraft] continue failed:', err); message.error('续写请求失败') } finally {
       setContinuePrompt('')
       setGenerating(false)
     }
@@ -123,9 +119,7 @@ const AiDraftPage: React.FC = () => {
       } else {
         message.error(res.error?.message || '改写失败')
       }
-    } catch {
-      message.error('改写请求失败')
-    } finally {
+    } catch (err) { console.error('[AiDraft] rewrite failed:', err); message.error('改写请求失败') } finally {
       setRewriteInstruction('')
       setRewriteTarget(null)
       setGenerating(false)

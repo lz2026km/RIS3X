@@ -1,5 +1,5 @@
 // [v3.0.6.8-41] PR 8: 远程眼科 (WebRTC) + 视光中心闭环
-// 对标: Topcon Harmony + Biotronics3D 3Dnet Cloud + 视光中心 (OK�?角膜塑形�?
+// 对标: Topcon Harmony + Biotronics3D 3Dnet Cloud + 视光中心 (OK?角膜塑形?
 import React, { useState, useEffect } from 'react';
 import {
   Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, message,
@@ -82,11 +82,11 @@ export const TeleConsultPage: React.FC = () => {
         body: JSON.stringify({ patientId, studyId, participants, mode }),
       });
       const data = await r.json();
-      if (data.success) { setSession(data.data); message.success('会诊会话已建�?); }
+      if (data.success) { setSession(data.data); message.success('会诊会话已建立); }
     } catch (e: any) { message.error(e.message); }
   };
 
-  // 远程�?
+  // 远程?
   const handleStream = async () => {
     try {
       const r = await fetch('/api/v1/eye/tele/stream', {
@@ -98,15 +98,15 @@ export const TeleConsultPage: React.FC = () => {
     } catch (e: any) { message.error(e.message); }
   };
 
-  // 会诊意见
+  // 会诊意见见
   const handleConsult = async () => {
     try {
       const r = await fetch('/api/v1/eye/tele/consult', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId: session?.sessionId, specialistId: 'D005', question: '请评估该眼底彩照�?DR 分级�?AMD 风险' }),
+        body: JSON.stringify({ sessionId: session?.sessionId, specialistId: 'D005', question: '请评估该眼底彩照DR 分级和AMD 风险' }),
       });
       const data = await r.json();
-      if (data.success) { setConsult(data.data); message.success('会诊意见已发�?); }
+      if (data.success) { setConsult(data.data); message.success('会诊意见见已发布); }
     } catch (e: any) { message.error(e.message); }
   };
 
@@ -123,11 +123,11 @@ export const TeleConsultPage: React.FC = () => {
         }),
       });
       const data = await r.json();
-      if (data.success) { setRefraction(data.data); message.success('验光处方已保�?); }
+      if (data.success) { setRefraction(data.data); message.success('验光处方已保存); }
     } catch (e: any) { message.error(e.message); }
   };
 
-  // OK �?
+  // OK ?
   const handleOkLens = async () => {
     try {
       const r = await fetch('/api/v1/eye/optometry/ok-lens', {
@@ -155,7 +155,7 @@ export const TeleConsultPage: React.FC = () => {
         <Tag color="cyan">PR8</Tag>
         <Tag color="purple">v3.0.6.8-41</Tag>
         <Tag color="blue">WebRTC + 5G 边缘</Tag>
-        <Tag color="green">OK�?/ 角膜塑形</Tag>
+        <Tag color="green">OK?/ 角膜塑形</Tag>
       </Space>
 
       <Tabs
@@ -168,7 +168,7 @@ export const TeleConsultPage: React.FC = () => {
             <Col span={10}>
               <Card title="会诊参数" size="small">
                 <Form layout="vertical" size="small">
-                  <Form.Item label="患�?ID">
+                  <Form.Item label="患者ID">
                     <Input value={patientId} onChange={e => setPatientId(e.target.value)} />
                   </Form.Item>
                   <Form.Item label="Study ID">
@@ -187,17 +187,17 @@ export const TeleConsultPage: React.FC = () => {
                       value={participants}
                       onChange={setParticipants}
                       options={[
-                        { value: 'D001', label: 'D001 张主�? },
-                        { value: 'D002', label: 'D002 王医�? },
-                        { value: 'D003', label: 'D003 李医�? },
-                        { value: 'D005', label: 'D005 孙会诊专�? },
+                        { value: 'D001', label: 'D001 张主? },
+                        { value: 'D002', label: 'D002 王医? },
+                        { value: 'D003', label: 'D003 李医? },
+                        { value: 'D005', label: 'D005 孙会诊专? },
                       ]}
                     />
                   </Form.Item>
                   <Space>
                     <Button type="primary" icon={<Video size={14} />} onClick={handleCreateSession}>建立会诊</Button>
-                    <Button icon={<Share2 size={14} />} onClick={handleStream} disabled={!session}>远程�?/Button>
-                    <Button icon={<Send size={14} />} onClick={handleConsult} disabled={!session}>会诊意见</Button>
+                    <Button icon={<Share2 size={14} />} onClick={handleStream} disabled={!session}>远程?/Button>
+                    <Button icon={<Send size={14} />} onClick={handleConsult} disabled={!session}>会诊意见见</Button>
                   </Space>
                 </Form>
               </Card>
@@ -247,7 +247,7 @@ export const TeleConsultPage: React.FC = () => {
                     <>
                       <Video size={64} color={videoOn ? '#1677ff' : '#444'} />
                       <div style={{ marginTop: 16, fontSize: 14 }}>会诊 {session.sessionId}</div>
-                      <div style={{ fontSize: 12, color: '#666' }}>患�?{session.patientId} | {session.mode} | {session.participants.length} 参与�?/div>
+                      <div style={{ fontSize: 12, color: '#666' }}>患者{session.patientId} | {session.mode} | {session.participants.length} 参与?/div>
                     </>
                   ) : (
                     <>
@@ -257,7 +257,7 @@ export const TeleConsultPage: React.FC = () => {
                   )}
                   {recording && (
                     <div style={{ position: 'absolute', top: 8, right: 8, color: '#ff4d4f', fontWeight: 700 }}>
-                      �?REC {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}
+                      ?REC {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}
                     </div>
                   )}
                 </div>
@@ -296,14 +296,14 @@ export const TeleConsultPage: React.FC = () => {
                   title={
                     <Space>
                       <Send size={16} color="#52c41a" />
-                      会诊意见
+                      会诊意见见
                     </Space>
                   }
                   size="small"
                   style={{ marginTop: 16 }}
                 >
                   <Alert
-                    message={`状�? ${consult.status} | SLA: ${consult.sla.responseTime}`}
+                    message={`状? ${consult.status} | SLA: ${consult.sla.responseTime}`}
                     type="info"
                     showIcon
                   />
@@ -345,12 +345,12 @@ export const TeleConsultPage: React.FC = () => {
                 </Form>
               </Card>
 
-              <Card title="OK �?(角膜塑形�?" size="small" style={{ marginTop: 16 }}>
+              <Card title="OK ?(角膜塑形?" size="small" style={{ marginTop: 16 }}>
                 <Form layout="vertical" size="small">
                   <Form.Item label="目标减少度数 (D)">
                     <Slider min={1} max={6} step={0.5} value={targetReduction} onChange={setTargetReduction} marks={{ 1: '1D', 3: '3D', 6: '6D' }} />
                   </Form.Item>
-                  <Button type="primary" block icon={<Sparkles size={14} />} onClick={handleOkLens}>生成 OK 镜设�?/Button>
+                  <Button type="primary" block icon={<Sparkles size={14} />} onClick={handleOkLens}>生成 OK 镜设?/Button>
                 </Form>
               </Card>
             </Col>
@@ -387,7 +387,7 @@ export const TeleConsultPage: React.FC = () => {
                   title={
                     <Space>
                       <Sparkles size={16} color="#722ed1" />
-                      OK �?(角膜塑形�? 设计
+                      OK ?(角膜塑形? 设计
                     </Space>
                   }
                   size="small"
@@ -395,7 +395,7 @@ export const TeleConsultPage: React.FC = () => {
                 >
                   <Row gutter={[16, 16]}>
                     <Col span={8}><Statistic title="基弧 (BC)" value={okLens.design.baseCurve.toFixed(2)} suffix="mm" /></Col>
-                    <Col span={8}><Statistic title="反转弧深�? value={okLens.design.returnZoneDepth} suffix="mm" /></Col>
+                    <Col span={8}><Statistic title="反转弧深? value={okLens.design.returnZoneDepth} suffix="mm" /></Col>
                     <Col span={8}><Statistic title="着陆角" value={okLens.design.landingZoneAngle} suffix="°" /></Col>
                     <Col span={8}><Statistic title="直径" value={okLens.design.diameter} suffix="mm" /></Col>
                     <Col span={8}><Statistic title="目标减少" value={Math.abs(okLens.design.targetReduction)} suffix="D" /></Col>

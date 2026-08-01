@@ -155,7 +155,7 @@ const RegionalReportPage: React.FC = () => {
   }
 
   const handleSubmitOpinion = () => {
-    if (!opinionText.trim()) { showToast('请填写会诊意见', false); return }
+    if (!opinionText.trim()) { showToast('请填写会诊意见见', false); return }
     consultationService.submitOpinion(selectedConsultation?.id || '', opinionText)
     setShowModal(false); setOpinionText('')
   }

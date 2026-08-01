@@ -45,7 +45,7 @@ const FormDemo = () => {
       form={form}
       layout="vertical"
       style={{ maxWidth: 800 }}
-      onFinish={(values) => alert(JSON.stringify(values, null, 2))}
+      onFinish={(values) => { console.log('[Form] submit:', JSON.stringify(values, null, 2)); }}
     >
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
         <Card title="文本输入" size="small">
@@ -258,7 +258,7 @@ const FormDemo = () => {
           <AppUploadButton
             accept="image/*,.pdf,.dcm"
             multiple
-            onUpload={(files) => alert(`上传 ${files.length} 个文件`)}
+            onUpload={(files) => { console.log(`[Upload] 上传 ${files.length} 个文件`); }}
           >
             上传 DICOM 影像或报告
           </AppUploadButton>

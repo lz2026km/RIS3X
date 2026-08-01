@@ -125,7 +125,7 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 export const consultationService = {
   create: async (data: any) => { try { await delay(500); message.success('会诊申请已提交'); return { id: `C${Date.now()}`, ...data } } catch (e) { message.error('会诊申请提交失败'); throw e } },
   accept: async (id: string) => { try { await delay(300); message.success(`已接受会诊 ${id}`) } catch (e) { message.error('接受会诊失败'); throw e } },
-  submitOpinion: async (id: string, opinion: string) => { try { await delay(300); message.success('会诊意见已提交') } catch (e) { message.error('提交会诊意见失败'); throw e } },
+  submitOpinion: async (id: string, opinion: string) => { try { await delay(300); message.success('会诊意见见已提交') } catch (e) { message.error('提交会诊意见见失败'); throw e } },
 }
 
 export const reportService = {

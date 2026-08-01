@@ -43,9 +43,7 @@ const AiProvidersPage: React.FC = () => {
       } else {
         message.error(res.error?.message || '获取提供商失败')
       }
-    } catch {
-      message.error('获取提供商请求失败')
-    } finally {
+    } catch (err) { console.error('[AiProviders] fetchProviders failed:', err); message.error('获取提供商请求失败') } finally {
       setLoading(false)
     }
   }
