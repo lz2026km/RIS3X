@@ -1,11 +1,11 @@
 /**
- * G005 放射RIS系统 v3.0.5.0 (R4) - 简单 i18n 翻译函数与 locale 切换
+ * G005 放射RIS系统 v3.0.6.11-50 - 简单 i18n 翻译函数与 locale 切换
  * R3 1100+ 功能点,i18n 命名空间合并
  * 对外导出:t(key, params) / getCurrentLocale() / onLocaleChange() / notifyLocaleChange()
  */
 import type { ReactNode } from "react";
 
-export type Locale = "zh-CN" | "en-US" | "ar" | "he" | "fa" | "ur";
+export type Locale = "zh-CN" | "en-US";
 
 export type TranslationDict = Record<string, string>;
 
@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "G005放射信息系统",
     "app.version":
-      "v3.0.6.11-49 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
+      "v3.0.6.11-50 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -1608,7 +1608,8 @@ export const translations: Translations = {
     "fusion.opacity": "融合透明度",
     "fusion.crosshair": "定位线",
     "fusion.slice": "层位",
-    "fusion.hint": "鼠标滚轮切换层面 · 拖动调整窗宽窗位 · Shift+拖动平移 · Ctrl+滚轮缩放",
+    "fusion.hint":
+      "鼠标滚轮切换层面 · 拖动调整窗宽窗位 · Shift+拖动平移 · Ctrl+滚轮缩放",
     "fusion.rigid": "刚性配准",
     "fusion.affine": "仿射配准",
     "fusion.deformable": "可变形配准",
@@ -1789,7 +1790,8 @@ export const translations: Translations = {
     "v3stats.exportExcel": "导出 Excel",
     "v3stats.exportCsv": "导出 CSV",
     "v3stats.statistics.title": "统计分析",
-    "v3stats.statistics.subtitle": "放射科全维度数据洞察 · 检查量趋势 · 阳性率分析 · 收入统计 · 经营分析 · 医师工作量 · 设备产能 · 患者画像",
+    "v3stats.statistics.subtitle":
+      "放射科全维度数据洞察 · 检查量趋势 · 阳性率分析 · 收入统计 · 经营分析 · 医师工作量 · 设备产能 · 患者画像",
     // [Sprint 3] F07-F12 页面 i18n
     "v3qcai.title": "影像 AI 自动质控 V2",
     "v3qcai.subtitle": "伪影/体位/曝光细化评分 · 三栏柱状图 · 趋势折线图",
@@ -1919,7 +1921,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "G005 Radiology Information System",
     "app.version":
-            "v3.0.6.11-33 · Button-Tab Reality Audit + 200 Route Deep Regression",
+      "v3.0.6.11-50 · Strict Review + Params + Security + Features + Mock Cleanup + 200-page Verification",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
@@ -2092,7 +2094,8 @@ export const translations: Translations = {
     "nav.doseTrack": "Dose Tracking",
     // [v3.0.6.11-7] doseTrack module 69 translation keys (DoseTrackPage + 4 sub-components)
     "doseTrack.title": "Radiation Dose Tracking",
-    "doseTrack.subtitle": "Real-time per-patient radiation dose monitoring, ALARA compliant",
+    "doseTrack.subtitle":
+      "Real-time per-patient radiation dose monitoring, ALARA compliant",
     "doseTrack.allStatus": "All Status",
     "doseTrack.searchPlaceholder": "Search patient name / ID / accession",
     "doseTrack.exportPatient": "Export Patient Report",
@@ -2376,7 +2379,8 @@ export const translations: Translations = {
     "qc.criticalReporting": "Critical Value Reporting",
     "qc.trend": "Trend",
     "qc.top3Comparison": "TOP3 Multi-dimension Comparison",
-    "qc.imageQualityStandard": "Image Quality Rating Standard (National/Provincial)",
+    "qc.imageQualityStandard":
+      "Image Quality Rating Standard (National/Provincial)",
     "qc.reportQualityStandard": "Report Quality Rating Standard",
     "qc.reportTimelinessStandard": "Report Timeliness Standard",
     "qc.criticalValueStandard": "Critical Value Missed Report Standard",
@@ -2583,7 +2587,8 @@ export const translations: Translations = {
     "dc.load": "Load",
     "dc.widgetPanel": "Widget Panel",
     "dc.reportCanvas": "Report Canvas",
-    "dc.emptyHint": "Drag widgets from the left panel to start building your report",
+    "dc.emptyHint":
+      "Drag widgets from the left panel to start building your report",
     "dc.configureWidget": "Configure Widget",
     "dc.dataSource": "Data Source",
     "dc.dimension": "Dimension",
@@ -2935,10 +2940,12 @@ export const translations: Translations = {
     "worklist.exportExcel": "Export Excel",
     "worklist.batchResult": "Batch Result",
     "worklist.operationSuccess": "Operation Successful",
-    "worklist.operationDesc": "Successfully performed {{action}} on {{count}} items",
+    "worklist.operationDesc":
+      "Successfully performed {{action}} on {{count}} items",
     "worklist.confirmTitle": "Notice",
     "worklist.confirmStart": "Start Exam",
-    "worklist.confirmStartMsg": "Confirm starting exam for {{patient}}: {{exam}}?",
+    "worklist.confirmStartMsg":
+      "Confirm starting exam for {{patient}}: {{exam}}?",
     "worklist.confirmCancel": "Cancel Exam",
     "worklist.confirmCancelMsg": "Confirm cancelling exam for {{patient}}?",
     "worklist.confirmCancelMsg2": "Are you sure you want to cancel this exam?",
@@ -3203,7 +3210,8 @@ export const translations: Translations = {
     "v3report.findingFilterByDiseaseType": "By Disease Type",
     "v3report.findingFavoritesList": "Favorites List",
     "v3report.findingNoFavorites": "No favorites",
-    "v3report.findingFavoritesHint": "Click the star icon on cards to add favorites",
+    "v3report.findingFavoritesHint":
+      "Click the star icon on cards to add favorites",
     "v3report.findingMostUsed": "Most Used",
     "v3report.findingFilter": "Filter",
     "v3report.findingResultCount": "{{count}} findings",
@@ -3224,7 +3232,8 @@ export const translations: Translations = {
     "v3report.findingUsageCount": "Usage Count",
     "v3report.findingApplicableModalities": "Applicable Exams",
     "v3report.findingTypicalDiseases": "Typical Diseases",
-    "v3report.findingCopiedToClipboard": "Copied to clipboard! Paste into your report.",
+    "v3report.findingCopiedToClipboard":
+      "Copied to clipboard! Paste into your report.",
     "v3report.findingInsertToReport": "Insert into Report",
     "v3report.findingUsage": "Used {{count}} times",
     "v3report.findingMore": "{{count}} more...",
@@ -3295,7 +3304,8 @@ export const translations: Translations = {
     "v3report.writing.v3065.aiTokenUsage": "Token Usage",
     "v3report.writing.v3065.aiScore": "AI Score",
     "v3report.writing.v3065.templateLungRads": "Lung-RADS",
-    "v3report.writing.v3065.templateLungRadsDesc": "Lung Nodule Screening Template",
+    "v3report.writing.v3065.templateLungRadsDesc":
+      "Lung Nodule Screening Template",
     "v3report.writing.v3065.templateLungRadsCategory": "Lung-RADS Category",
     "v3report.writing.v3065.templateLungRadsScore": "Lung-RADS Score",
     "v3report.writing.v3065.templateLungRadsNoduleSize": "Nodule Size",
@@ -3332,9 +3342,11 @@ export const translations: Translations = {
     "v3report.writing.v3065.templateCadRadsLM": "LM",
     "v3report.writing.v3065.templateCadRadsPlaque": "Plaque Type",
     "v3report.writing.v3065.templateCadRadsCalcified": "Calcified Plaque",
-    "v3report.writing.v3065.templateCadRadsNonCalcified": "Non-Calcified Plaque",
+    "v3report.writing.v3065.templateCadRadsNonCalcified":
+      "Non-Calcified Plaque",
     "v3report.writing.v3065.templateCadRadsMixed": "Mixed Plaque",
-    "v3report.writing.v3065.templateCadRadsHighRisk": "High-Risk Plaque Features",
+    "v3report.writing.v3065.templateCadRadsHighRisk":
+      "High-Risk Plaque Features",
     "v3report.writing.v3065.templateLiRads": "LI-RADS",
     "v3report.writing.v3065.templateLiRadsDesc": "Liver Imaging Template",
     "v3report.writing.v3065.templateLiRadsCategory": "LI-RADS Category",
@@ -3344,9 +3356,11 @@ export const translations: Translations = {
     "v3report.writing.v3065.templateLiRadsLR3": "LR-3 Intermediate",
     "v3report.writing.v3065.templateLiRadsLR4": "LR-4 Probably HCC",
     "v3report.writing.v3065.templateLiRadsLR5": "LR-5 Definitely HCC",
-    "v3report.writing.v3065.templateLiRadsLRM": "LR-M Probable Malignant non-HCC",
+    "v3report.writing.v3065.templateLiRadsLRM":
+      "LR-M Probable Malignant non-HCC",
     "v3report.writing.v3065.templateLiRadsLRTIV": "LR-TIV Tumor in Vein",
-    "v3report.writing.v3065.templateLiRadsArterialPhase": "Arterial Phase Enhancement",
+    "v3report.writing.v3065.templateLiRadsArterialPhase":
+      "Arterial Phase Enhancement",
     "v3report.writing.v3065.templateLiRadsWashout": "Washout",
     "v3report.writing.v3065.templateLiRadsCapsule": "Capsule",
     "v3report.writing.v3065.templateLiRadsThreshold": "Threshold Growth",
@@ -3376,10 +3390,13 @@ export const translations: Translations = {
     "v3report.writing.v3065.templateTiRadsTallerThanWide": "Taller Than Wide",
     "v3report.writing.v3065.templateTiRadsSmooth": "Smooth",
     "v3report.writing.v3065.templateTiRadsIrregular": "Irregular",
-    "v3report.writing.v3065.templateTiRadsExtrathyroidal": "Extrathyroidal Extension",
+    "v3report.writing.v3065.templateTiRadsExtrathyroidal":
+      "Extrathyroidal Extension",
     "v3report.writing.v3065.templateTiRadsPunctate": "Punctate Echogenic Foci",
-    "v3report.writing.v3065.templateTiRadsMacrocalcification": "Macrocalcification",
-    "v3report.writing.v3065.templateTiRadsPeripheral": "Peripheral Calcification",
+    "v3report.writing.v3065.templateTiRadsMacrocalcification":
+      "Macrocalcification",
+    "v3report.writing.v3065.templateTiRadsPeripheral":
+      "Peripheral Calcification",
     "v3report.writing.v3065.templateCRads": "C-RADS",
     "v3report.writing.v3065.templateCRadsDesc": "Colon Imaging Template",
     "v3report.writing.v3065.templateCRadsCategory": "C-RADS Category",
@@ -3400,9 +3417,11 @@ export const translations: Translations = {
     "v3report.writing.v3065.templateORadsScore": "O-RADS Score",
     "v3report.writing.v3065.templateORadsO0": "O-RADS 0-Incomplete",
     "v3report.writing.v3065.templateORadsO1": "O-RADS 1-Normal",
-    "v3report.writing.v3065.templateORadsO2": "O-RADS 2-Almost Certainly Benign",
+    "v3report.writing.v3065.templateORadsO2":
+      "O-RADS 2-Almost Certainly Benign",
     "v3report.writing.v3065.templateORadsO3": "O-RADS 3-Low Malignancy Risk",
-    "v3report.writing.v3065.templateORadsO4": "O-RADS 4-Intermediate Malignancy Risk",
+    "v3report.writing.v3065.templateORadsO4":
+      "O-RADS 4-Intermediate Malignancy Risk",
     "v3report.writing.v3065.templateORadsO5": "O-RADS 5-High Malignancy Risk",
     "v3report.writing.v3065.templateORadsSimpleCyst": "Simple Cyst",
     "v3report.writing.v3065.templateORadsSeptation": "Septation",
@@ -3482,7 +3501,8 @@ export const translations: Translations = {
     "fusion.opacity": "Fusion Opacity",
     "fusion.crosshair": "Crosshair",
     "fusion.slice": "Slice",
-    "fusion.hint": "Scroll to change slice · Drag to adjust WW/WL · Shift+Drag to pan",
+    "fusion.hint":
+      "Scroll to change slice · Drag to adjust WW/WL · Shift+Drag to pan",
     "fusion.rigid": "Rigid",
     "fusion.affine": "Affine",
     "fusion.deformable": "Deformable",
@@ -3588,7 +3608,8 @@ export const translations: Translations = {
     "v3report.template.lungRads.category4A": "4A - Suspicious",
     "v3report.template.lungRads.category4B": "4B - Highly Suspicious",
     "v3report.template.lungRads.category4X": "4X - Aggressive",
-    "v3report.template.lungRads.modifierS": "S - Clinically Significant Infection",
+    "v3report.template.lungRads.modifierS":
+      "S - Clinically Significant Infection",
     "v3report.template.lungRads.modifierC": "C - Prior Lung Cancer",
     "v3report.template.cadRads.title": "CAD-RADS 2.0 Coronary CTA",
     "v3report.template.cadRads.category": "CAD-RADS Category",
@@ -3733,7 +3754,8 @@ export const translations: Translations = {
     "snomed.searchPlaceholder": "Search by keyword...",
     "snomed.noSearchResults": "No matching codes found",
     "cds.ruleConfigTitle": "CDS Rule Config Panel",
-    "cds.ruleConfigSubtitle": "Rule Evaluation · Priority Management · Multi-Source Suggestions",
+    "cds.ruleConfigSubtitle":
+      "Rule Evaluation · Priority Management · Multi-Source Suggestions",
     "cds.evalParams": "Evaluation Parameters",
     "cds.examType": "Exam Type",
     "cds.modality": "Modality",
@@ -3745,7 +3767,8 @@ export const translations: Translations = {
     "cds.evalResults": "Evaluation Results",
     "cds.rulePriority": "Rule Priority",
     "rdsr.title": "RDSR Dose Analysis",
-    "rdsr.subtitle": "RDSR Parse · DRLS Compare · Dose Stats · Over-threshold Alerts",
+    "rdsr.subtitle":
+      "RDSR Parse · DRLS Compare · Dose Stats · Over-threshold Alerts",
     "rdsr.parse": "Parse RDSR",
     "rdsr.drls": "DRLs Compare",
     "rdsr.stats": "Dose Stats",
@@ -3822,7 +3845,7 @@ export const t = (key: string, params?: Record<string, unknown>): string => {
   return text;
 };
 
-export const getDirection = (locale: Locale): "ltr" | "rtl" => {
+export const getDirection = (locale: string): "ltr" | "rtl" => {
   return locale === "ar" ||
     locale === "he" ||
     locale === "fa" ||
@@ -3832,4 +3855,3 @@ export const getDirection = (locale: Locale): "ltr" | "rtl" => {
 };
 
 export type IconRenderer = () => ReactNode;
-

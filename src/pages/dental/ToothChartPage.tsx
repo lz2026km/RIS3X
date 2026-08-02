@@ -1,66 +1,120 @@
 // [v3.0.6.8-53] 牙位图页?(FDI 编号 32 ?
-import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, Table, Empty, Tooltip } from 'antd';
-import { Eye, Activity, Stethoscope } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Card, Space, Tag, Row, Col, Empty, Tooltip } from "antd";
+import { Activity, Stethoscope } from "lucide-react";
 
 export const ToothChartPage: React.FC = () => {
-  const [patientId] = useState('P100000');
+  const [patientId] = useState("P100000");
   const [chart, setChart] = useState<any>(null);
   const [activeTooth, setActiveTooth] = useState<number | null>(null);
-  
+
   useEffect(() => {
     (async () => {
       try {
         const r = await fetch(`/api/v1/dental/chart/${patientId}`);
         const d = await r.json();
         if (d.success) setChart(d.data);
-      } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
+      } catch (e) {
+        console.warn("[F03] Error:", (e as Error)?.message);
+      }
     })();
   }, [patientId]);
 
-  const FDI_ROW_1 = [18,17,16,15,14,13,12,11];
-  const FDI_ROW_2 = [21,22,23,24,25,26,27,28];
-  const FDI_ROW_3 = [31,32,33,34,35,36,37,38];
-  const FDI_ROW_4 = [41,42,43,44,45,46,47,48];
-  
+  const FDI_ROW_1 = [18, 17, 16, 15, 14, 13, 12, 11];
+  const FDI_ROW_2 = [21, 22, 23, 24, 25, 26, 27, 28];
+  const FDI_ROW_3 = [31, 32, 33, 34, 35, 36, 37, 38];
+  const FDI_ROW_4 = [41, 42, 43, 44, 45, 46, 47, 48];
+
   const STATUS_COLORS: Record<string, string> = {
-    Healthy: '#52c41a', Caries: '#faad14', Restored: '#1890ff',
-    Missing: '#d9d9d9', Crown: '#722ed1', RootCanal: '#f5222d', Implant: '#13c2c2',
+    Healthy: "#52c41a",
+    Caries: "#faad14",
+    Restored: "#1890ff",
+    Missing: "#d9d9d9",
+    Crown: "#722ed1",
+    RootCanal: "#f5222d",
+    Implant: "#13c2c2",
   };
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5' }}>
+    <div style={{ padding: 24, background: "#f5f5f5" }}>
       <Space style={{ marginBottom: 16 }}>
         <Stethoscope size={20} color="#1677ff" />
-        <Activity size={20} /><span style={{ fontSize: 18, fontWeight: 600 }}>牙位?(FDI)</span>
+        <Activity size={20} />
+        <span style={{ fontSize: 18, fontWeight: 600 }}>牙位图 (FDI)</span>
         <Tag color="cyan">v3.0.6.8-53</Tag>
         <Tag color="blue">32 颗牙</Tag>
       </Space>
       <Row gutter={16}>
         <Col span={18}>
-          <Card size="small" title="牙位?>
+          <Card size="small" title="牙位图">
             {[FDI_ROW_1, FDI_ROW_2, FDI_ROW_3, FDI_ROW_4].map((row, ri) => (
-              <div key={ri} style={{ display: 'flex', justifyContent: 'center', gap: 6, marginBottom: 12 }}>
-                {ri === 0 && <div style={{ writingMode: 'vertical-lr', marginRight: 8, color: '#999' }}>上颌</div>}
-                {ri === 3 && <div style={{ writingMode: 'vertical-lr', marginRight: 8, color: '#999' }}>下颌</div>}
-                {row.map(t => {
+              <div
+                key={ri}
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: 6,
+                  marginBottom: 12,
+                }}
+              >
+                {ri === 0 && (
+                  <div
+                    style={{
+                      writingMode: "vertical-lr",
+                      marginRight: 8,
+                      color: "#999",
+                    }}
+                  >
+                    上颌
+                  </div>
+                )}
+                {ri === 3 && (
+                  <div
+                    style={{
+                      writingMode: "vertical-lr",
+                      marginRight: 8,
+                      color: "#999",
+                    }}
+                  >
+                    下颌
+                  </div>
+                )}
+                {row.map((t) => {
                   const tooth = chart?.teeth?.[t];
-                  const color = STATUS_COLORS[tooth?.status || 'Missing'];
+                  const color = STATUS_COLORS[tooth?.status || "Missing"];
                   const surfaces = tooth?.surfaces || {};
-                  const hasCaries = Object.values(surfaces).some((s: any) => s?.includes('Caries'));
+                  const hasCaries = Object.values(surfaces).some((s: any) =>
+                    s?.includes("Caries"),
+                  );
                   return (
-                    <Tooltip key={t} title={`FDI ${t}: ${tooth?.status || '缺失'} ${hasCaries ? ' (龋齿)' : ''}`}>
+                    <Tooltip
+                      key={t}
+                      title={`FDI ${t}: ${tooth?.status || "缺失"} ${hasCaries ? " (龋齿)" : ""}`}
+                    >
                       <div
-                        onClick={() => setActiveTooth(t === activeTooth ? null : t)}
+                        onClick={() =>
+                          setActiveTooth(t === activeTooth ? null : t)
+                        }
                         style={{
-                          width: 40, height: 48, border: `2px solid ${activeTooth === t ? '#1677ff' : '#d9d9d9'}`,
-                          borderRadius: 8, background: color, display: 'flex', flexDirection: 'column',
-                          alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-                          fontSize: 11, fontWeight: 600, color: tooth?.status === 'Missing' ? '#999' : '#fff',
+                          width: 40,
+                          height: 48,
+                          border: `2px solid ${activeTooth === t ? "#1677ff" : "#d9d9d9"}`,
+                          borderRadius: 8,
+                          background: color,
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          cursor: "pointer",
+                          fontSize: 11,
+                          fontWeight: 600,
+                          color: tooth?.status === "Missing" ? "#999" : "#fff",
                         }}
                       >
                         <div>{t}</div>
-                        {hasCaries && <div style={{ fontSize: 8, color: '#f5222d' }}>?/div>}
+                        {hasCaries && (
+                          <div style={{ fontSize: 8, color: "#f5222d" }}>●</div>
+                        )}
                       </div>
                     </Tooltip>
                   );
@@ -70,23 +124,50 @@ export const ToothChartPage: React.FC = () => {
           </Card>
         </Col>
         <Col span={6}>
-          <Card size="small" title={activeTooth ? `FDI ${activeTooth}` : '牙齿详情'}>
+          <Card
+            size="small"
+            title={activeTooth ? `FDI ${activeTooth}` : "牙齿详情"}
+          >
             {activeTooth && chart?.teeth?.[activeTooth] ? (
               <div>
-                <div>状? <Tag color={STATUS_COLORS[chart.teeth[activeTooth].status]}>{chart.teeth[activeTooth].status}</Tag></div>
-                <div>牙面: {['O','M','D','B','L'].map(s => (
-                  <Tag key={s} color={chart.teeth[activeTooth].surfaces[s] === 'Healthy' ? 'green' : 'orange'}>{s}: {chart.teeth[activeTooth].surfaces[s]}</Tag>
-                ))}</div>
-                {chart.teeth[activeTooth].cariesGrade && <div>龋齿分级: {chart.teeth[activeTooth].cariesGrade}</div>}
+                <div>
+                  状?{" "}
+                  <Tag color={STATUS_COLORS[chart.teeth[activeTooth].status]}>
+                    {chart.teeth[activeTooth].status}
+                  </Tag>
+                </div>
+                <div>
+                  牙面:{" "}
+                  {["O", "M", "D", "B", "L"].map((s) => (
+                    <Tag
+                      key={s}
+                      color={
+                        chart.teeth[activeTooth].surfaces[s] === "Healthy"
+                          ? "green"
+                          : "orange"
+                      }
+                    >
+                      {s}: {chart.teeth[activeTooth].surfaces[s]}
+                    </Tag>
+                  ))}
+                </div>
+                {chart.teeth[activeTooth].cariesGrade && (
+                  <div>龋齿分级: {chart.teeth[activeTooth].cariesGrade}</div>
+                )}
                 {chart.teeth[activeTooth].periodontal && (
                   <Card size="small" title="牙周" style={{ marginTop: 8 }}>
                     <div>PD: {chart.teeth[activeTooth].periodontal.pd}mm</div>
                     <div>CAL: {chart.teeth[activeTooth].periodontal.cal}mm</div>
-                    <div>BOP: {chart.teeth[activeTooth].periodontal.bop ? '+' : '-'}</div>
+                    <div>
+                      BOP:{" "}
+                      {chart.teeth[activeTooth].periodontal.bop ? "+" : "-"}
+                    </div>
                   </Card>
                 )}
               </div>
-            ) : <Empty description="点击牙位查看详情" />}
+            ) : (
+              <Empty description="点击牙位查看详情" />
+            )}
           </Card>
         </Col>
       </Row>

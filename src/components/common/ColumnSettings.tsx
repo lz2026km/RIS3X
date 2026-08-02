@@ -1,9 +1,5 @@
 import { useState, useCallback } from "react";
-import {
-  DndContext,
-  closestCenter,
-  type DragEndEvent,
-} from "@dnd-kit/core";
+import { DndContext, closestCenter, type DragEndEvent } from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
@@ -30,21 +26,28 @@ interface ColumnSettingsPanelProps {
 
 const STORAGE_PREFIX = "g005-col-settings-";
 
-function loadSaved(tableId: string, fallback: ColumnSetting[]): ColumnSetting[] {
+function loadSaved(
+  tableId: string,
+  fallback: ColumnSetting[],
+): ColumnSetting[] {
   try {
     const raw = localStorage.getItem(STORAGE_PREFIX + tableId);
     if (raw) {
       const parsed = JSON.parse(raw) as ColumnSetting[];
       if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     }
-  } catch { /* ignore */ }
+  } catch (err) {
+    console.warn(`[ColumnSettings] loadSaved(${tableId}) failed`, err);
+  }
   return fallback;
 }
 
 function saveToStorage(tableId: string, settings: ColumnSetting[]) {
   try {
     localStorage.setItem(STORAGE_PREFIX + tableId, JSON.stringify(settings));
-  } catch { /* ignore */ }
+  } catch (err) {
+    console.warn(`[ColumnSettings] saveToStorage(${tableId}) failed`, err);
+  }
 }
 
 interface SortableItemProps {
@@ -56,8 +59,22 @@ interface SortableItemProps {
   onCycleFixed: () => void;
 }
 
-function SortableItem({ id, label, visible, fixed, onToggle, onCycleFixed }: SortableItemProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+function SortableItem({
+  id,
+  label,
+  visible,
+  fixed,
+  onToggle,
+  onCycleFixed,
+}: SortableItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
 
   return (
     <div
@@ -81,8 +98,19 @@ function SortableItem({ id, label, visible, fixed, onToggle, onCycleFixed }: Sor
     >
       <span style={{ color: "#cbd5e1", fontSize: 12, flexShrink: 0 }}>⠿</span>
       <label
-        style={{ flex: 1, fontSize: 12, color: "#334155", cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
-        onClick={(e) => { e.stopPropagation(); onToggle(); }}
+        style={{
+          flex: 1,
+          fontSize: 12,
+          color: "#334155",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggle();
+        }}
       >
         <input
           type="checkbox"
@@ -93,7 +121,10 @@ function SortableItem({ id, label, visible, fixed, onToggle, onCycleFixed }: Sor
         {label}
       </label>
       <button
-        onClick={(e) => { e.stopPropagation(); onCycleFixed(); }}
+        onClick={(e) => {
+          e.stopPropagation();
+          onCycleFixed();
+        }}
         title={fixed ? `固定${fixed === "left" ? "左侧" : "右侧"}` : "不固定"}
         style={{
           border: "none",
@@ -112,9 +143,16 @@ function SortableItem({ id, label, visible, fixed, onToggle, onCycleFixed }: Sor
   );
 }
 
-export function ColumnSettingsPanel({ tableId, columns: _columns, value, onChange }: ColumnSettingsPanelProps) {
+export function ColumnSettingsPanel({
+  tableId,
+  columns: _columns,
+  value,
+  onChange,
+}: ColumnSettingsPanelProps) {
   const [open, setOpen] = useState(false);
-  const [local, setLocal] = useState<ColumnSetting[]>(() => loadSaved(tableId, value));
+  const [local, setLocal] = useState<ColumnSetting[]>(() =>
+    loadSaved(tableId, value),
+  );
 
   const sync = useCallback(
     (next: ColumnSetting[]) => {
@@ -142,7 +180,15 @@ export function ColumnSettingsPanel({ tableId, columns: _columns, value, onChang
     sync(
       local.map((c) =>
         c.key === key
-          ? { ...c, fixed: c.fixed === false ? "left" : c.fixed === "left" ? "right" : false }
+          ? {
+              ...c,
+              fixed:
+                c.fixed === false
+                  ? "left"
+                  : c.fixed === "left"
+                    ? "right"
+                    : false,
+            }
           : c,
       ),
     );
@@ -155,10 +201,19 @@ export function ColumnSettingsPanel({ tableId, columns: _columns, value, onChang
 
   return (
     <div style={{ position: "relative", display: "inline-block" }}>
-      <AppButton variant="text" size="compact" onClick={handleOpen} icon={<Settings size={14} />} style={{ color: "#64748b" }} />
+      <AppButton
+        variant="text"
+        size="compact"
+        onClick={handleOpen}
+        icon={<Settings size={14} />}
+        style={{ color: "#64748b" }}
+      />
       {open && (
         <>
-          <div style={{ position: "fixed", inset: 0, zIndex: 999 }} onClick={() => setOpen(false)} />
+          <div
+            style={{ position: "fixed", inset: 0, zIndex: 999 }}
+            onClick={() => setOpen(false)}
+          />
           <div
             style={{
               position: "absolute",
@@ -188,12 +243,26 @@ export function ColumnSettingsPanel({ tableId, columns: _columns, value, onChang
               }}
             >
               <span>列设置</span>
-              <button onClick={() => setOpen(false)} style={{ border: "none", background: "none", cursor: "pointer", padding: 2 }}>
+              <button
+                onClick={() => setOpen(false)}
+                style={{
+                  border: "none",
+                  background: "none",
+                  cursor: "pointer",
+                  padding: 2,
+                }}
+              >
                 <X size={14} />
               </button>
             </div>
-            <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={local.map((c) => c.key)} strategy={verticalListSortingStrategy}>
+            <DndContext
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={local.map((c) => c.key)}
+                strategy={verticalListSortingStrategy}
+              >
                 {local.map((col) => (
                   <SortableItem
                     key={col.key}
@@ -207,7 +276,14 @@ export function ColumnSettingsPanel({ tableId, columns: _columns, value, onChang
                 ))}
               </SortableContext>
             </DndContext>
-            <div style={{ padding: "8px 12px", borderTop: "1px solid #e2e8f0", fontSize: 11, color: "#94a3b8" }}>
+            <div
+              style={{
+                padding: "8px 12px",
+                borderTop: "1px solid #e2e8f0",
+                fontSize: 11,
+                color: "#94a3b8",
+              }}
+            >
               拖拽排序 · 勾选显隐 · 点击 ◀▶ 固定列
             </div>
           </div>

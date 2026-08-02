@@ -56,7 +56,7 @@ export interface StatsData {
 
 // ---------- 演示数据 ----------
 
-export export const pendingAuditData: PendingAudit[] = [
+export const pendingAuditData: PendingAudit[] = [
   {
     id: "AUD001",
     patientName: "张伟",
@@ -809,8 +809,8 @@ export export const pendingAuditData: PendingAudit[] = [
   },
 ];
 
-// 审核历史 - 100"
-export export const auditHistory: AuditHistory[] = [
+// 审核历史 - 100条
+export const auditHistory: AuditHistory[] = [
   {
     id: 1,
     patientName: "张三",
@@ -897,7 +897,7 @@ export export const auditHistory: AuditHistory[] = [
     result: "拒绝",
     auditor: "张审",
     auditTime: "2026-05-01 10:30",
-    reason: "脑梗死发病超"4小时，不在医保适应证时间窗",
+    reason: "脑梗死发病超过4小时，不在医保适应证时间窗",
   },
   {
     id: 8,
@@ -1032,7 +1032,7 @@ export export const auditHistory: AuditHistory[] = [
     result: "拒绝",
     auditor: "王审",
     auditTime: "2026-05-01 14:30",
-    reason: "既往有肝素诱导血小板减少"HIT)病史",
+    reason: "既往有肝素诱导血小板减少(HIT)病史",
   },
   {
     id: 19,
@@ -1082,7 +1082,7 @@ export export const auditHistory: AuditHistory[] = [
     result: "拒绝",
     auditor: "张审",
     auditTime: "2026-05-01 15:30",
-    reason: "不在医保限定的时间窗"发病6小时"",
+    reason: "不在医保限定的时间窗内发病6小时",
   },
   {
     id: 23,
@@ -1131,7 +1131,7 @@ export export const auditHistory: AuditHistory[] = [
     result: "补充资料",
     auditor: "李审",
     auditTime: "2026-05-01 16:30",
-    reason: "需提供肾功"eGFR)检测结",
+    reason: "需提供肾功能(eGFR)检测结果",
   },
   {
     id: 27,
@@ -1765,7 +1765,7 @@ export export const auditHistory: AuditHistory[] = [
     result: "拒绝",
     auditor: "王审",
     auditTime: "2026-04-29 15:45",
-    reason: "INR值超".5",
+    reason: "INR值超过3.5",
   },
   {
     id: 79,
@@ -2035,8 +2035,8 @@ export export const auditHistory: AuditHistory[] = [
   },
 ];
 
-// 限制药品"
-export export const restrictedDrugs: RestrictedDrug[] = [
+// 限制药品
+export const restrictedDrugs: RestrictedDrug[] = [
   {
     id: 1,
     name: "碘海醇注射液",
@@ -2106,24 +2106,24 @@ export export const restrictedDrugs: RestrictedDrug[] = [
     name: "普通肝素钠注射",
     category: "抗凝药物",
     restriction:
-      "限介入手术抗凝，禁用于有出血倾向、肝素诱导血小板减少"HIT)患",
-    applicableExams: "DSA/血管介"肿瘤栓塞/取栓",
-    notes: "需监测ACT，目标"50-300",
+      "限介入手术抗凝，禁用于有出血倾向、肝素诱导血小板减少(HIT)患者",
+    applicableExams: "DSA/血管介入/肿瘤栓塞/取栓",
+    notes: "需监测ACT，目标值50-300",
   },
   {
     id: 10,
     name: "低分子肝素钠注射",
     category: "抗凝药物",
-    restriction: "限介入手术抗凝及术后预防性抗凝，限二级以上医疗机",
-    applicableExams: "外周血管介"支架术后/深静脉血栓预",
-    notes: "皮下注射，无需监测ACT，使用方",
+    restriction: "限介入手术抗凝及术后预防性抗凝，限二级以上医疗机构",
+    applicableExams: "外周血管介入/支架术后/深静脉血栓预防",
+    notes: "皮下注射，无需监测ACT，使用方便",
   },
   {
     id: 11,
     name: "阿加曲班注射",
     category: "抗凝药物",
-    restriction: "限急性缺血性脑卒中抗凝，发"8小时内使用，医保适应证严格限",
-    applicableExams: "急性脑梗死取栓"动脉内溶",
+    restriction: "限急性缺血性脑卒中抗凝，发病8小时内使用，医保适应证严格限制",
+    applicableExams: "急性脑梗死取栓、动脉内溶栓",
     notes: "直接凝血酶抑制剂，需监测APTT",
   },
   {
@@ -2131,29 +2131,29 @@ export export const restrictedDrugs: RestrictedDrug[] = [
     name: "磺达肝癸钠注射液",
     category: "抗凝药物",
     restriction: "限DSA手术抗凝，限二级以上医疗机构使用",
-    applicableExams: "DSA/血管介入手",
-    notes: "选择性Xa因子抑制剂，肾脏清除",
+    applicableExams: "DSA/血管介入手术",
+    notes: "选择性Xa因子抑制剂，肾脏清除快",
   },
   {
     id: 13,
     name: "比伐卢定注射",
     category: "抗凝药物",
     restriction: "限PCI术中抗凝，限二级以上医疗机构使用",
-    applicableExams: "冠脉介入/PCI"急性心梗介入治",
-    notes: "直接凝血酶抑制剂，作用可",
+    applicableExams: "冠脉介入/PCI、急性心梗介入治疗",
+    notes: "直接凝血酶抑制剂，作用可逆",
   },
   {
     id: 14,
     name: "利伐沙班",
     category: "抗凝药物",
-    restriction: "限深静脉血"DVT)和肺栓塞(PE)治疗及预防复",
-    applicableExams: "骨科DVT预防/血管外科术后抗",
+    restriction: "限深静脉血栓(DVT)和肺栓塞(PE)治疗及预防复发",
+    applicableExams: "骨科DVT预防/血管外科术后抗凝",
     notes: "口服Xa因子抑制剂，胃肠道吸收好",
   },
 ];
 
-// 适应证规"
-export export const indicationRules: IndicationRule[] = [
+// 适应证规则
+export const indicationRules: IndicationRule[] = [
   {
     id: 1,
     examType: "CT增强",
@@ -2182,7 +2182,7 @@ export export const indicationRules: IndicationRule[] = [
     drugName: "阿加曲班注射",
     drugCategory: "抗凝药物",
     insuranceRequirement:
-      "限急性缺血性脑卒中(发病48小时"使用；医保严格限定适应证，需神经科会诊记",
+      "限急性缺血性脑卒中(发病48小时内)使用；医保严格限定适应证，需神经科会诊记录",
     description: "阿加曲班用于急性脑梗死动脉内介入治疗后的抗凝，需监测APTT",
   },
   {
@@ -2218,7 +2218,7 @@ export export const indicationRules: IndicationRule[] = [
 ];
 
 // 统计数据
-export export const statsData: StatsData = {
+export const statsData: StatsData = {
   passRate: 78.5,
   totalPending: 50,
   todayProcessed: 12,
@@ -2229,8 +2229,8 @@ export export const statsData: StatsData = {
 // 医保基金监控数据
 // ============================================================
 
-// "0天基金使用趋势（万元"
-export export const fundTrendData = [
+// 近30天基金使用趋势（万元）
+export const fundTrendData = [
   { date: "04-28", amount: 16.8, budget: 16.7 },
   { date: "04-29", amount: 15.2, budget: 16.7 },
   { date: "04-30", amount: 18.5, budget: 16.7 },
@@ -2263,8 +2263,8 @@ export export const fundTrendData = [
   { date: "05-27", amount: 17.2, budget: 16.7 },
 ];
 
-// "2个月基金使用趋势（万元）
-export export const fundMonthlyData = [
+// 近12个月基金使用趋势（万元）
+export const fundMonthlyData = [
   { month: "2025-06", amount: 468, budget: 500 },
   { month: "2025-07", amount: 485, budget: 500 },
   { month: "2025-08", amount: 492, budget: 500 },
@@ -2280,7 +2280,7 @@ export export const fundMonthlyData = [
 ];
 
 // 科室使用分布（二八定律）
-export export const deptUsageData = [
+export const deptUsageData = [
   { name: "心内", value: 20, amount: 98.4, color: "#ef4444" },
   { name: "神经内科", value: 18, amount: 88.5, color: "#f97316" },
   { name: "呼吸内科", value: 15, amount: 73.8, color: "#eab308" },
@@ -2291,20 +2291,20 @@ export export const deptUsageData = [
 ];
 
 // 基金监控KPI
-export export const fundMonitorKPI = {
-  usageRate: 78.4, // 本月基金使用"
-  balanceWarning: "正常", // 余额预警：正"警告/超限
+export const fundMonitorKPI = {
+  usageRate: 78.4, // 本月基金使用率
+  balanceWarning: "正常", // 余额预警：正常/警告/超限
   violationCount: 23, // 违规使用次数
-  passRateTrend: 78.5, // 审核通过"
-  monthlyBudget: 5000000, // 月度预算（元"
+  passRateTrend: 78.5, // 审核通过率
+  monthlyBudget: 5000000, // 月度预算（元）
   usedAmount: 3920000, // 已使用金额（元）
-  balanceAmount: 1080000, // 余额（元"
-  warningThreshold: 0.85, // 预警阈"85%
-  criticalThreshold: 0.95, // 超限阈"95%
+  balanceAmount: 1080000, // 余额（元）
+  warningThreshold: 0.85, // 预警阈值85%
+  criticalThreshold: 0.95, // 超限阈值95%
 };
 
 // 违规使用预警列表
-export export const violationAlerts = [
+export const violationAlerts = [
   {
     id: "VIO001",
     patientName: "张三",
@@ -2322,7 +2322,7 @@ export export const violationAlerts = [
     dept: "神经内科",
     drugName: "钆双胺注射液",
     violationType: "剂量超标",
-    description: "eGFR=25ml/min，低于安全阈"0ml/min，存在肾源性纤维化风险",
+    description: "eGFR=25ml/min，低于安全阈值0ml/min，存在肾源性纤维化风险",
     time: "2026-05-27 10:15",
   },
   {
@@ -2332,7 +2332,7 @@ export export const violationAlerts = [
     dept: "呼吸内科",
     drugName: "碘普罗胺注射",
     violationType: "重复使用",
-    description: "同一患"天内进行两次CT增强检查，累计辐射剂量超标",
+    description: "同一患者24小时内进行两次CT增强检查，累计辐射剂量超标",
     time: "2026-05-26 14:20",
   },
   {
@@ -2387,8 +2387,8 @@ export export const violationAlerts = [
   },
 ];
 
-// 审核通过率趋势（"0天）
-export export const passRateTrendData = [
+// 审核通过率趋势（近30天）
+export const passRateTrendData = [
   { date: "04-28", rate: 76.5 },
   { date: "04-29", rate: 78.2 },
   { date: "04-30", rate: 75.8 },

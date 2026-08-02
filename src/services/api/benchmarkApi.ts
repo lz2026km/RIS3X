@@ -1,81 +1,90 @@
-import { api } from './client'
+import { api } from "./client";
 
 // Benchmark (对标分析) API
-// Backend: /benchmark/*
+// [v3.0.6.11-50] 路径统一: 前端 /benchmark/* → 后端 /api/v1/benchmark/* (modules/benchmark.controller)
+//   后端实际端点: list / compare / cross-site / stats
 
 export interface BenchmarkRecord {
-  id: string
-  hospitalId: string
-  hospitalName: string
-  category: string
-  metricName: string
-  value: number
-  unit: string
-  period: string
-  rank?: number
-  percentile?: number
+  id: string;
+  hospitalId: string;
+  hospitalName: string;
+  category: string;
+  metricName: string;
+  value: number;
+  unit: string;
+  period: string;
+  rank?: number;
+  percentile?: number;
 }
 
 export interface BenchmarkComparison {
-  metricName: string
-  localValue: number
-  benchmarkValue: number
-  deviation: number
-  unit: string
-  grade: 'excellent' | 'good' | 'average' | 'below_average' | 'poor'
+  metricName: string;
+  localValue: number;
+  benchmarkValue: number;
+  deviation: number;
+  unit: string;
+  grade: "excellent" | "good" | "average" | "below_average" | "poor";
 }
 
 export interface BenchmarkAiDiagnosis {
-  id: string
-  hospitalId: string
-  hospitalName: string
-  modality: string
-  aiModel: string
-  sensitivity: number
-  specificity: number
-  accuracy: number
-  auc: number
-  f1Score: number
-  totalCases: number
-  period: string
+  id: string;
+  hospitalId: string;
+  hospitalName: string;
+  modality: string;
+  aiModel: string;
+  sensitivity: number;
+  specificity: number;
+  accuracy: number;
+  auc: number;
+  f1Score: number;
+  totalCases: number;
+  period: string;
 }
 
 export interface BenchmarkQueryParams {
-  category?: string
-  period?: string
-  hospitalId?: string
-  page?: number
-  pageSize?: number
+  category?: string;
+  period?: string;
+  hospitalId?: string;
+  page?: number;
+  pageSize?: number;
 }
 
 export interface BenchmarkReport {
-  id: string
-  title: string
-  generatedAt: string
-  period: string
-  comparisons: BenchmarkComparison[]
-  summary: string
+  id: string;
+  title: string;
+  generatedAt: string;
+  period: string;
+  comparisons: BenchmarkComparison[];
+  summary: string;
+}
+
+export interface BenchmarkTimeRange {
+  start: string;
+  end: string;
+}
+
+export interface BenchmarkCompareDto {
+  metricCode: string;
+  timeRange: BenchmarkTimeRange;
+  compareMode: "yoy" | "qoq";
+  dimension?: "dept" | "site" | "time";
+  dimensionValues?: string[];
+}
+
+export interface BenchmarkCrossSiteDto {
+  metricCodes: string[];
+  siteIds: string[];
+  timeRange: BenchmarkTimeRange;
 }
 
 export const benchmarkApi = {
-  listRecords: (params?: BenchmarkQueryParams) =>
-    api.get<BenchmarkRecord[]>(`/benchmark/records?${new URLSearchParams(params ?? {}).toString()}`),
+  listMetrics: () => api.get<unknown[]>("/api/v1/benchmark/list"),
 
-  getRecord: (id: string) =>
-    api.get<BenchmarkRecord>(`/benchmark/records/${id}`),
+  compare: (dto: BenchmarkCompareDto) =>
+    api.post<unknown>("/api/v1/benchmark/compare", dto),
 
-  getComparisons: (params?: { category?: string; period?: string }) =>
-    api.get<BenchmarkComparison[]>(`/benchmark/comparisons?${new URLSearchParams(params ?? {}).toString()}`),
+  crossSite: (dto: BenchmarkCrossSiteDto) =>
+    api.post<unknown>("/api/v1/benchmark/cross-site", dto),
 
-  getAiDiagnosisBenchmarks: (params?: { modality?: string; period?: string }) =>
-    api.get<BenchmarkAiDiagnosis[]>(`/benchmark/ai-diagnosis?${new URLSearchParams(params ?? {}).toString()}`),
-
-  generateReport: (period: string) =>
-    api.post<BenchmarkReport>('/benchmark/reports', { period }),
-
-  listReports: (params?: { page?: number; pageSize?: number }) =>
-    api.get<BenchmarkReport[]>(`/benchmark/reports?${new URLSearchParams(params ?? {}).toString()}`),
-
-  getReport: (id: string) =>
-    api.get<BenchmarkReport>(`/benchmark/reports/${id}`),
-}
+  stats: () => api.get<unknown>("/api/v1/benchmark/stats"),
+};

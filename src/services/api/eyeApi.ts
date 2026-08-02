@@ -4,19 +4,24 @@
 // v3.0.6.11-21 P0: 移除冗余 `/api/v1` 前缀(由 client.ts API_BASE 在 mock 模式提供)。
 //   修复前: client BASE=/api/v1 + path=/api/v1/eye/... => /api/v1/api/v1/eye/... 不匹配 MSW
 //   修复后: client BASE=/api/v1 + path=/eye/...        => /api/v1/eye/... 匹配 MSW
-import { api } from './client';
+// v3.0.6.11-50 确认: EYE_API='/eye' 正确,无需修改。
+//   - mock 模式:  BASE='/api/v1' + '/eye/...' => /api/v1/eye/... 匹配 eyeHandlers.ts
+//   - real 模式:  BASE='.../api' + '/eye/...' => /api/eye/...  匹配后端 @Controller('api/eye')
+//     后端 controller 自带 '/api' 前缀,恰好与 client.ts 的 API_BASE('/api') 拼接互补,无双重前缀。
+import { api } from "./client";
 
-const EYE_API = '/eye';
+const EYE_API = "/eye";
 
 export interface EyeStudy {
   id: string;
   patientId: string;
   patientName: string;
-  modality: 'OCT' | 'Fundus' | 'FA' | 'ICG' | 'SlitLamp' | 'VisualField' | 'Biometry';
-  eye: 'OD' | 'OS' | 'OU';
+  modality:
+    "OCT" | "Fundus" | "FA" | "ICG" | "SlitLamp" | "VisualField" | "Biometry";
+  eye: "OD" | "OS" | "OU";
   acquisitionDate: string;
   deviceModel: string;
-  status: 'acquired' | 'reviewed' | 'reported' | 'archived';
+  status: "acquired" | "reviewed" | "reported" | "archived";
   indications?: string;
 }
 
@@ -26,7 +31,7 @@ export interface EyeAiDiagnosis {
   modelName: string;
   diagnosis: string;
   confidence: number;
-  severity: 'mild' | 'moderate' | 'severe';
+  severity: "mild" | "moderate" | "severe";
   timestamp: string;
   confirmed: boolean;
 }
@@ -41,7 +46,13 @@ export interface IolConstant {
 }
 
 export interface IolCalculationResult {
-  formula: 'SRK-T' | 'BarrettUniversalII' | 'Holladay2' | 'HofferQ' | 'HillRBF' | 'Kane';
+  formula:
+    | "SRK-T"
+    | "BarrettUniversalII"
+    | "Holladay2"
+    | "HofferQ"
+    | "HillRBF"
+    | "Kane";
   targetRefraction: number;
   predictedPower: number;
   predictedRefraction: number;
@@ -51,101 +62,162 @@ export interface IolCalculationResult {
 
 export interface SubspecialtyExam {
   id: string;
-  subspecialty: 'strabismus' | 'neuro' | 'oncology' | 'cornea' | 'cataract' | 'refractive' | 'contact-lens' | 'low-vision';
+  subspecialty:
+    | "strabismus"
+    | "neuro"
+    | "oncology"
+    | "cornea"
+    | "cataract"
+    | "refractive"
+    | "contact-lens"
+    | "low-vision";
   patientId: string;
   diagnosis: string;
   examDate: string;
   findings: Record<string, any>;
 }
 
-function buildQuery(params?: Record<string, string | number | boolean | undefined>): string {
-  if (!params) return '';
-  const filtered = Object.entries(params).filter(([_, v]) => v !== undefined && v !== '');
-  if (filtered.length === 0) return '';
-  return '?' + new URLSearchParams(filtered as [string, string][]).toString();
+function buildQuery(
+  params?: Record<string, string | number | boolean | undefined>,
+): string {
+  if (!params) return "";
+  const filtered = Object.entries(params).filter(
+    ([_, v]) => v !== undefined && v !== "",
+  );
+  if (filtered.length === 0) return "";
+  return "?" + new URLSearchParams(filtered as [string, string][]).toString();
 }
 
 export const eyeApi = {
   // ===== Studies / PACS =====
-  getStudies: (params?: Record<string, any>) => api.get(`${EYE_API}/pacs/studies${buildQuery(params)}`),
+  getStudies: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/pacs/studies${buildQuery(params)}`),
   getStudy: (id: string) => api.get(`${EYE_API}/pacs/studies/${id}`),
-  getStudiesByModality: (modality: string) => api.get(`${EYE_API}/pacs/studies/by-modality/${modality}`),
-  getStudiesByLaterality: (side: 'OD' | 'OS' | 'OU') => api.get(`${EYE_API}/pacs/studies/by-laterality/${side}`),
-  getStudiesByPatient: (patientId: string) => api.get(`${EYE_API}/pacs/studies/by-patient/${patientId}`),
-  getSeries: (params?: Record<string, any>) => api.get(`${EYE_API}/pacs/series${buildQuery(params)}`),
+  getStudiesByModality: (modality: string) =>
+    api.get(`${EYE_API}/pacs/studies/by-modality/${modality}`),
+  getStudiesByLaterality: (side: "OD" | "OS" | "OU") =>
+    api.get(`${EYE_API}/pacs/studies/by-laterality/${side}`),
+  getStudiesByPatient: (patientId: string) =>
+    api.get(`${EYE_API}/pacs/studies/by-patient/${patientId}`),
+  getSeries: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/pacs/series${buildQuery(params)}`),
   getSeriesById: (id: string) => api.get(`${EYE_API}/pacs/series/${id}`),
   getInstance: (id: string) => api.get(`${EYE_API}/pacs/instances/${id}`),
-  getDicomPaths: (studyId: string) => api.get(`${EYE_API}/pacs/wado/${studyId}`),
-  getAnnotations: (params?: Record<string, any>) => api.get(`${EYE_API}/pacs/annotations${buildQuery(params)}`),
-  getAnnotationsByStudy: (studyId: string) => api.get(`${EYE_API}/pacs/annotations?studyId=${encodeURIComponent(studyId)}`),
-  createAnnotation: (data: any) => api.post(`${EYE_API}/pacs/annotations`, data),
-  deleteAnnotation: (id: string) => api.delete(`${EYE_API}/pacs/annotations/${id}`),
-  getMosaic: (studyIds: string[]) => api.post(`${EYE_API}/pacs/montage`, { studyIds }),
-  getComparison: (studyIds: string[]) => api.post(`${EYE_API}/pacs/compare`, { studyIds }),
-  getKeyImages: (params?: Record<string, any>) => api.get(`${EYE_API}/pacs/key-images${buildQuery(params)}`),
-  getKeyImagesByStudy: (studyId: string) => api.get(`${EYE_API}/pacs/key-images?studyId=${encodeURIComponent(studyId)}`),
-  getMeasurements: (params?: Record<string, any>) => api.get(`${EYE_API}/pacs/measurements${buildQuery(params)}`),
+  getDicomPaths: (studyId: string) =>
+    api.get(`${EYE_API}/pacs/wado/${studyId}`),
+  getAnnotations: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/pacs/annotations${buildQuery(params)}`),
+  getAnnotationsByStudy: (studyId: string) =>
+    api.get(
+      `${EYE_API}/pacs/annotations?studyId=${encodeURIComponent(studyId)}`,
+    ),
+  createAnnotation: (data: any) =>
+    api.post(`${EYE_API}/pacs/annotations`, data),
+  deleteAnnotation: (id: string) =>
+    api.delete(`${EYE_API}/pacs/annotations/${id}`),
+  getMosaic: (studyIds: string[]) =>
+    api.post(`${EYE_API}/pacs/montage`, { studyIds }),
+  getComparison: (studyIds: string[]) =>
+    api.post(`${EYE_API}/pacs/compare`, { studyIds }),
+  getKeyImages: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/pacs/key-images${buildQuery(params)}`),
+  getKeyImagesByStudy: (studyId: string) =>
+    api.get(
+      `${EYE_API}/pacs/key-images?studyId=${encodeURIComponent(studyId)}`,
+    ),
+  getMeasurements: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/pacs/measurements${buildQuery(params)}`),
 
   // ===== RIS =====
-  getAppointments: (params?: Record<string, any>) => api.get(`${EYE_API}/ris/appointments${buildQuery(params)}`),
+  getAppointments: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/ris/appointments${buildQuery(params)}`),
   getAppointment: (id: string) => api.get(`${EYE_API}/ris/appointments/${id}`),
   getTodayAppointments: () => api.get(`${EYE_API}/ris/appointments/today`),
-  createAppointment: (data: any) => api.post(`${EYE_API}/ris/appointments`, data),
-  updateAppointment: (id: string, data: any) => api.put(`${EYE_API}/ris/appointments/${id}`, data),
-  cancelAppointment: (id: string) => api.delete(`${EYE_API}/ris/appointments/${id}`),
-  checkinAppointment: (id: string) => api.post(`${EYE_API}/ris/appointments/${id}/checkin`),
-  startAppointment: (id: string) => api.post(`${EYE_API}/ris/appointments/${id}/start`),
-  completeAppointment: (id: string) => api.post(`${EYE_API}/ris/appointments/${id}/complete`),
-  cancelAppointmentRequest: (id: string) => api.post(`${EYE_API}/ris/appointments/${id}/cancel`),
-  getFollowups: (params?: Record<string, any>) => api.get(`${EYE_API}/ris/follow-ups${buildQuery(params)}`),
-  getSurgeries: (params?: Record<string, any>) => api.get(`${EYE_API}/ris/surgeries${buildQuery(params)}`),
+  createAppointment: (data: any) =>
+    api.post(`${EYE_API}/ris/appointments`, data),
+  updateAppointment: (id: string, data: any) =>
+    api.put(`${EYE_API}/ris/appointments/${id}`, data),
+  cancelAppointment: (id: string) =>
+    api.delete(`${EYE_API}/ris/appointments/${id}`),
+  checkinAppointment: (id: string) =>
+    api.post(`${EYE_API}/ris/appointments/${id}/checkin`),
+  startAppointment: (id: string) =>
+    api.post(`${EYE_API}/ris/appointments/${id}/start`),
+  completeAppointment: (id: string) =>
+    api.post(`${EYE_API}/ris/appointments/${id}/complete`),
+  cancelAppointmentRequest: (id: string) =>
+    api.post(`${EYE_API}/ris/appointments/${id}/cancel`),
+  getFollowups: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/ris/follow-ups${buildQuery(params)}`),
+  getSurgeries: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/ris/surgeries${buildQuery(params)}`),
   getSurgery: (id: string) => api.get(`${EYE_API}/ris/surgeries/${id}`),
   scheduleSurgery: (data: any) => api.post(`${EYE_API}/ris/surgeries`, data),
   deleteSurgery: (id: string) => api.delete(`${EYE_API}/ris/surgeries/${id}`),
-  getReferrals: (params?: Record<string, any>) => api.get(`${EYE_API}/ris/referrals${buildQuery(params)}`),
+  getReferrals: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/ris/referrals${buildQuery(params)}`),
   createReferral: (data: any) => api.post(`${EYE_API}/ris/referrals`, data),
-  acceptReferral: (id: string) => api.post(`${EYE_API}/ris/referrals/${id}/accept`),
-  getSchedules: (params?: Record<string, any>) => api.get(`${EYE_API}/ris/schedules${buildQuery(params)}`),
+  acceptReferral: (id: string) =>
+    api.post(`${EYE_API}/ris/referrals/${id}/accept`),
+  getSchedules: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/ris/schedules${buildQuery(params)}`),
   getWorkflowStatus: () => api.get(`${EYE_API}/ris/workflow-status`),
 
   // ===== EMR =====
-  getEmr: (params?: Record<string, any>) => api.get(`${EYE_API}/emr/records${buildQuery(params)}`),
+  getEmr: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/emr/records${buildQuery(params)}`),
   getEmrById: (id: string) => api.get(`${EYE_API}/emr/records/${id}`),
-  getEmrByPatient: (patientId: string) => api.get(`${EYE_API}/emr/records/by-patient/${patientId}`),
+  getEmrByPatient: (patientId: string) =>
+    api.get(`${EYE_API}/emr/records/by-patient/${patientId}`),
   createEmr: (data: any) => api.post(`${EYE_API}/emr/records`, data),
-  updateEmr: (id: string, data: any) => api.put(`${EYE_API}/emr/records/${id}`, data),
-  getOcularExam: (params?: Record<string, any>) => api.get(`${EYE_API}/emr/ophthalmic-exams${buildQuery(params)}`),
-  getOcularExamByPatient: (patientId: string) => api.get(`${EYE_API}/emr/ophthalmic-exams/by-patient/${patientId}`),
-  getPreop: (params?: Record<string, any>) => api.get(`${EYE_API}/emr/preop-assessments${buildQuery(params)}`),
-  getAnesthesia: (params?: Record<string, any>) => api.get(`${EYE_API}/emr/anes-assessments${buildQuery(params)}`),
+  updateEmr: (id: string, data: any) =>
+    api.put(`${EYE_API}/emr/records/${id}`, data),
+  getOcularExam: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/emr/ophthalmic-exams${buildQuery(params)}`),
+  getOcularExamByPatient: (patientId: string) =>
+    api.get(`${EYE_API}/emr/ophthalmic-exams/by-patient/${patientId}`),
+  getPreop: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/emr/preop-assessments${buildQuery(params)}`),
+  getAnesthesia: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/emr/anes-assessments${buildQuery(params)}`),
   convertVision: (data: any) => api.post(`${EYE_API}/emr/convert-vision`, data),
 
   // ===== AI =====
-  listModels: (params?: Record<string, any>) => api.get(`${EYE_API}/ai/models${buildQuery(params)}`),
+  listModels: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/ai/models${buildQuery(params)}`),
   getModel: (id: string) => api.get(`${EYE_API}/ai/models/${id}`),
   toggleModel: (id: string) => api.put(`${EYE_API}/ai/models/${id}/toggle`),
   registerModel: (data: any) => api.post(`${EYE_API}/ai/models`, data),
   // Note: legacy POST /eye/ai/inference has no equivalent handler. Use POST /eye/ai/inferences below.
-  runInference: (data: { studyId: string; modelId: string; [k: string]: any }) => api.post(`${EYE_API}/ai/inferences`, data),
-  listInferences: (params?: Record<string, any>) => api.get(`${EYE_API}/ai/inferences${buildQuery(params)}`),
+  runInference: (data: {
+    studyId: string;
+    modelId: string;
+    [k: string]: any;
+  }) => api.post(`${EYE_API}/ai/inferences`, data),
+  listInferences: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/ai/inferences${buildQuery(params)}`),
   listPendingInferences: () => api.get(`${EYE_API}/ai/inferences/pending`),
   getInference: (id: string) => api.get(`${EYE_API}/ai/inferences/${id}`),
   getDiagnoses: (id: string) => api.get(`${EYE_API}/ai/inferences/${id}`),
-  overrideInference: (id: string, data: any) => api.post(`${EYE_API}/ai/inferences/${id}/override`, data),
+  overrideInference: (id: string, data: any) =>
+    api.post(`${EYE_API}/ai/inferences/${id}/override`, data),
   submitFeedback: (data: any) => api.post(`${EYE_API}/ai/feedback`, data),
   getAiFeedback: () => api.get(`${EYE_API}/ai/feedback`),
   trainModel: (data: any) => api.post(`${EYE_API}/ai/train`, data),
   getAiAudit: () => api.get(`${EYE_API}/ai/audit`),
-  getHeatmaps: (params?: Record<string, any>) => api.get(`${EYE_API}/ai/heatmaps${buildQuery(params)}`),
+  getHeatmaps: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/ai/heatmaps${buildQuery(params)}`),
   getHeatmap: (id: string) => api.get(`${EYE_API}/ai/heatmaps/${id}`),
   createHeatmap: (data: any) => api.post(`${EYE_API}/ai/heatmaps`, data),
   getRocCurve: (modelId: string) => api.get(`${EYE_API}/ai/roc/${modelId}`),
-  getDiseaseDistribution: () => api.get(`${EYE_API}/ai/stats/disease-distribution`),
+  getDiseaseDistribution: () =>
+    api.get(`${EYE_API}/ai/stats/disease-distribution`),
   compareModels: () => api.get(`${EYE_API}/ai/models/compare`),
 
   // ===== IOL Calculator =====
   // Eyehandlers 没有 iol/constant/* 与 iol/calculate,保留旧调用并附 TODO
-  getIolConstants: (model: string) => api.get(`${EYE_API}/iol/constant/${model}`),
+  getIolConstants: (model: string) =>
+    api.get(`${EYE_API}/iol/constant/${model}`),
   calculateIol: (data: {
     model: string;
     formula: string;
@@ -159,32 +231,50 @@ export const eyeApi = {
   getIolInventory: () => api.get(`${EYE_API}/iol/inventory`),
 
   // ===== Reports (handler 路径前缀是 /report/ 单数) =====
-  getReports: (params?: Record<string, any>) => api.get(`${EYE_API}/report/reports${buildQuery(params)}`),
+  getReports: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/report/reports${buildQuery(params)}`),
   getReport: (id: string) => api.get(`${EYE_API}/report/reports/${id}`),
   createReport: (data: any) => api.post(`${EYE_API}/report/reports`, data),
-  updateReport: (id: string, data: any) => api.put(`${EYE_API}/report/reports/${id}`, data),
-  submitReport: (id: string) => api.post(`${EYE_API}/report/reports/${id}/submit`),
-  signReport: (id: string, signature: string) => api.post(`${EYE_API}/report/reports/${id}/sign`, { signature }),
-  printReport: (id: string) => api.post(`${EYE_API}/report/reports/${id}/export`),
-  triggerCriticalReport: (id: string, data: any) => api.post(`${EYE_API}/report/reports/${id}/trigger-critical`, data),
-  cosignReport: (id: string, data: any) => api.post(`${EYE_API}/report/reports/${id}/cosign`, data),
-  getReportHistory: (patientId: string) => api.get(`${EYE_API}/report/reports/history/${patientId}`),
+  updateReport: (id: string, data: any) =>
+    api.put(`${EYE_API}/report/reports/${id}`, data),
+  submitReport: (id: string) =>
+    api.post(`${EYE_API}/report/reports/${id}/submit`),
+  signReport: (id: string, signature: string) =>
+    api.post(`${EYE_API}/report/reports/${id}/sign`, { signature }),
+  printReport: (id: string) =>
+    api.post(`${EYE_API}/report/reports/${id}/export`),
+  triggerCriticalReport: (id: string, data: any) =>
+    api.post(`${EYE_API}/report/reports/${id}/trigger-critical`, data),
+  cosignReport: (id: string, data: any) =>
+    api.post(`${EYE_API}/report/reports/${id}/cosign`, data),
+  getReportHistory: (patientId: string) =>
+    api.get(`${EYE_API}/report/reports/history/${patientId}`),
   getDrafts: () => api.get(`${EYE_API}/report/drafts`),
   createDraft: (data: any) => api.post(`${EYE_API}/report/drafts`, data),
   getDraft: (id: string) => api.get(`${EYE_API}/report/drafts/${id}`),
   deleteDraft: (id: string) => api.delete(`${EYE_API}/report/drafts/${id}`),
-  getTemplates: (params?: Record<string, any>) => api.get(`${EYE_API}/report/templates${buildQuery(params)}`),
+  getTemplates: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/report/templates${buildQuery(params)}`),
   getTemplate: (id: string) => api.get(`${EYE_API}/report/templates/${id}`),
   createTemplate: (data: any) => api.post(`${EYE_API}/report/templates`, data),
-  aiAssistReport: (data: { studyId: string; prompt: string; [k: string]: any }) => api.post(`${EYE_API}/report/ai/continue`, data),
-  aiRewriteReport: (data: any) => api.post(`${EYE_API}/report/ai/rewrite`, data),
+  aiAssistReport: (data: {
+    studyId: string;
+    prompt: string;
+    [k: string]: any;
+  }) => api.post(`${EYE_API}/report/ai/continue`, data),
+  aiRewriteReport: (data: any) =>
+    api.post(`${EYE_API}/report/ai/rewrite`, data),
   aiReportHistory: () => api.get(`${EYE_API}/report/ai/history`),
-  aiReportFeedback: (data: any) => api.post(`${EYE_API}/report/ai/feedback`, data),
-  getPrompts: (condition: string) => api.get(`${EYE_API}/report/prompts/${condition}`),
+  aiReportFeedback: (data: any) =>
+    api.post(`${EYE_API}/report/ai/feedback`, data),
+  getPrompts: (condition: string) =>
+    api.get(`${EYE_API}/report/prompts/${condition}`),
   asrFeedback: (data: any) => api.post(`${EYE_API}/report/asr/feedback`, data),
   nlpExtract: (data: any) => api.post(`${EYE_API}/report/nlp/extract`, data),
-  voiceTranscribe: (data: any) => api.post(`${EYE_API}/report/voice/transcribe`, data),
-  getPrintRecords: (params?: Record<string, any>) => api.get(`${EYE_API}/report/print-records${buildQuery(params)}`),
+  voiceTranscribe: (data: any) =>
+    api.post(`${EYE_API}/report/voice/transcribe`, data),
+  getPrintRecords: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/report/print-records${buildQuery(params)}`),
 
   // ===== Subspecialty =====
   getSubspecialtyRecords: (sub: string, params?: Record<string, any>) =>
@@ -196,14 +286,19 @@ export const eyeApi = {
 
   // ===== Patient Journey =====
   getJourney: (patientId: string) => api.get(`${EYE_API}/journey/${patientId}`),
-  getEducation: (patientId: string) => api.get(`${EYE_API}/journey/${patientId}/education`),
-  getInsurance: (patientId: string) => api.get(`${EYE_API}/journey/${patientId}/insurance`),
-  getJourneyNotifications: (patientId: string) => api.get(`${EYE_API}/journey/${patientId}/notifications`),
+  getEducation: (patientId: string) =>
+    api.get(`${EYE_API}/journey/${patientId}/education`),
+  getInsurance: (patientId: string) =>
+    api.get(`${EYE_API}/journey/${patientId}/insurance`),
+  getJourneyNotifications: (patientId: string) =>
+    api.get(`${EYE_API}/journey/${patientId}/notifications`),
 
   // ===== Contact Lens (实际 handler 路径) =====
   getContactLensInventory: () => api.get(`${EYE_API}/contact-lens/inventory`),
-  contactLensFitting: (data: any) => api.post(`${EYE_API}/contact-lens/fitting`, data),
-  lowVisionPrescription: (data: any) => api.post(`${EYE_API}/low-vision/prescription`, data),
+  contactLensFitting: (data: any) =>
+    api.post(`${EYE_API}/contact-lens/fitting`, data),
+  lowVisionPrescription: (data: any) =>
+    api.post(`${EYE_API}/low-vision/prescription`, data),
 };
 
 export default eyeApi;

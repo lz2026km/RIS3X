@@ -1,11 +1,46 @@
 ﻿# CHANGELOG
 
+## v3.0.6.11-50 (2026-08-02) — 严格审查+21文件编码修复+安全P0修复+TOTP改造+14端点对接+Mock清理+窗位完善
+
+> **目标**: 全量验证 + 版本发布，严格审查遗留问题收尾
+> **范围**: 后端编译/测试全通过 + 前端构建成功 + 版本号全量统一至v3.0.6.11-50
+
+### F17: 全量验证
+
+- 后端TypeScript编译: `npx tsc --noEmit` → 0 错误 通过
+- 后端Jest测试: `npx jest --passWithNoTests` → 47 suites / 441 tests 全部通过
+- 前端TypeScript编译: `npx tsc --noEmit` → 记录剩余错误 5808（遗留 noUnusedLocals 严格模式问题，非本次引入）
+- 前端构建: `npx vite build` → 成功，dist 产物 454 entries / PWA 生成
+
+### F18: 版本号全量统一 + 文档
+
+- package.json → 3.0.6.11-50（含 package-lock.json）
+- backend/package.json → 3.0.6.11-50
+- index.html title + window.__appVersion → v3.0.6.11-50
+- src/main.tsx APP_VERSION → v3.0.6.11-50
+- backend/src/main.ts + app.module.ts → v3.0.6.11-50
+- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-50
+- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-50
+- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-50
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-50
+- CHANGELOG.md 新增 v3.0.6.11-50 条目
+
+### 验证结果
+
+- 后端编译: 通过 (0 errors)
+- 后端测试: 47 suites / 441 tests 全部通过
+- 前端构建: 通过 (vite build 成功)
+- 前端类型检查: 5808 错误（遗留，记录在案）
+
+---
+
 ## v3.0.6.11-49 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
 
 > **目标**: 后端深度修复 + 安全加固 + 类型修复 + 测试验证 + 性能检查 + 版本号全量统一
 > **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-49
 
 ### A13: 后端安全加固
+
 - `jwt-auth.guard.ts`: 验证Public/TOTP守卫正确性，支持Observable和Promise
 - 全局拦截器注册: SecurityHeaders + TenantContext + Audit + Csrf 4个拦截器全局注册
 - Swagger生产环境可禁用: `SWAGGER_DISABLED=true` + IP白名单 + OpenAPI JSON端点保护
@@ -17,18 +52,22 @@
 - 后端TypeScript编译: `npx tsc --noEmit` 通过
 
 ### A14: 后端类型修复
+
 - Prisma schema: 40+ 模型完整性验证，含索引、关系、级联删除
 - Service类型检查: 全部后端Service类型一致性验证通过
 
 ### A15: 后端测试
+
 - `npx jest --passWithNoTests`: 47 suites / 436 tests 全部通过
 
 ### A16: 后端性能
+
 - Prisma查询: 合理使用@@index索引优化
 - 核心模型均包含tenantId多租户索引
 - 报告/检查/危急值等高频查询均有复合索引
 
 ### A19: 版本号全量统一
+
 - backend/package.json → 3.0.6.11-49
 - backend/src/main.ts → Swagger version + log message → v3.0.6.11-49
 - backend/src/app.module.ts → v3.0.6.11-49
@@ -44,6 +83,7 @@
 - CHANGELOG.md 新增 v3.0.6.11-49 条目
 
 ### 验证结果
+
 - 后端TypeScript编译: 通过 (0 errors)
 - 后端Jest测试: 47 suites / 436 tests 全部通过
 - Prisma schema完整性: 40+ 模型验证通过
@@ -57,6 +97,7 @@
 > **范围**: 版本号同步 + 环境变量修复 + CORS配置 + Mock迁移
 
 ### 版本号全量统一
+
 - package.json (root) → 3.0.6.11-43 + description同步
 - backend/package.json → 3.0.6.11-43
 - README.md 版本号 + badge + 路线图 → v3.0.6.11-43
@@ -72,13 +113,16 @@
 - CONTRIBUTING.md → v3.0.6.11-43
 
 ### 环境变量修复 (P0)
+
 - .env.production: 新增 `VITE_USE_MSW=false` — 生产环境必须禁用 MSW mock
 
 ### CORS 配置 (P0)
+
 - .env.production: 新增 `CORS_ORIGINS=https://lz2026km.github.io` — 生产环境 CORS 白名单
 - backend/src/main.ts: CORS 配置已在生产环境校验（空值则抛出异常），确保安全
 
 ### Mock迁移 - 核心页 (20页)
+
 - AppointmentPage: mock → API
 - CriticalValuePage: mock → API
 - ReportPage: mock → API
@@ -101,11 +145,13 @@
 - qc/QcImageAiPage: mock → API
 
 ### Mock迁移 - 专科页 (30页)
+
 - eye/ 下所有页面: mock → API
 - dental/ 下所有页面: mock → API
 - mobile/ 下所有页面: mock → API
 
 ### 验证结果
+
 - TypeScript编译: 预存TS错误（均为代码库既有问题，非本次引入）
 - 版本号同步: 13处核心源码版本全部统一至 v3.0.6.11-43
 
@@ -117,6 +163,7 @@
 > **范围**: 前端组件修复 + MSW Mock清理 + 新增API服务 + 空状态页面补齐 + 安全增强
 
 ### 遗留Bug修复
+
 - **DentalAlignerPage**: 修复JSX结构损坏、标签不闭合问题
 - **DentalCadPage/CephPage/Implant3DPage**: 修复"binary file"编码损坏及大量TS语法错误
 - **DentalEndoPage/GuidePage/PediatricPage/PerioPage/RestorativePage/SurgeryPage**: 修复未闭合标签、字符串截断
@@ -130,15 +177,18 @@
 - **SmsSender.tsx**: 修复短信发送组件逻辑
 
 ### 密码/敏感信息清理
+
 - **backend/prisma/seed.ts**: 移除硬编码密码和敏感凭据
 - **LoginPage.tsx**: 移除前端明文密码处理逻辑
 - **api/client.ts**: 清理认证令牌硬编码
 
 ### Mock清理
+
 - **services/mswHandlers.ts**: 清理冗余Mock处理器，移除生产路径下的Mock拦截
 - **mock/**: 整理Mock数据目录，移除过时Mock
 
 ### 空页面补齐
+
 - **NotificationCenter.tsx**: 补齐空状态UI
 - **PatientDeviceManagementPage.tsx**: 补齐空表格提示
 - **SystemAdminPage.tsx**: 补齐空模块占位
@@ -152,6 +202,7 @@
 - **TeachLecturePage.tsx/SmartRoutingPage.tsx**: 补齐教学和路由空页面
 
 ### 安全加固
+
 - **initialData.ts**: 移除默认弱密码和测试账户
 - **TwilioVoiceProvider.ts/IVRMenu.ts**: 加固通知服务认证和权限校验
 - **criticalValueService.ts**: 添加危急值访问控制
@@ -164,6 +215,7 @@
 - **nav.json (zh-CN/en-US)**: 补齐i18n导航项
 
 ### 验证结果
+
 - TypeScript编译: 预存TS错误（均为代码库既有问题，非本次引入）
 - Git提交: v3.0.6.11-42
 
@@ -175,6 +227,7 @@
 > **范围**: 前端单元测试修复 + i18n完整性补齐 + 版本号全量同步 + 文档更新
 
 ### 测试修复
+
 - **PermissionGuard测试**: 修复权限类型不匹配(`report:write` → `report:update`)，修复`require()`模块解析问题
 - **mockReportData测试**: 修复日期范围默认值(31→30天)，排除`device-maintenance-due`负值和`growth`字段
 - **reportDefinitions测试**: 同步报告定义数量(70→72)
@@ -185,16 +238,19 @@
 - **rbacService测试**: 修正患者跨科室访问控制测试预期（nurse具有patient.view权限）
 
 ### i18n完整性
+
 - zh_CN.json: 新增7个命名空间(qcimage/benchmark/oee/rads/dicomCompress/worklistSmart/dicom4d)
 - en_US.json: 同步新增7个命名空间，中英文翻译一致
 
 ### 版本号同步
+
 - package.json (root) → 3.0.6.11-41 + description同步
 - backend/package.json → 3.0.6.11-41
 - README.md 版本号 + badge + 路线图 → v3.0.6.11-41
 - CHANGELOG.md 新增 v3.0.6.11-41 条目
 
 ### 验证结果
+
 - TypeScript编译: 8263个预存TS错误（均为代码库既有问题，非本次引入）
 - 前端单元测试: 1239通过 / 5失败（1 a11y超时 + 4 MSW jsdom环境问题，均为预存问题）
 - 测试修复率: 20 → 5（修复15个失败用例）
@@ -207,10 +263,12 @@
 > **范围**: TypeScript编译检查 + Playwright E2E测试 + 编码损坏修复 + 版本号全量同步
 
 ### TypeScript编译
+
 - `npx tsc --noEmit` 执行完毕，排除2个编码损坏文件（InsuranceAuditData.ts/DataReportTable.tsx）
 - 6082个预存TS错误（均为代码库既有问题，非本次引入）
 
 ### Playwright E2E测试
+
 - 288个测试用例执行（5项目: chromium/firefox/webkit/mobile-chrome/mobile-safari）
 - 200条路由全面健康度检查（full-page-health.spec.ts）
 - 20+页面交互测试（login/worklist/report/critical/collab/eye/dicom等）
@@ -218,11 +276,13 @@
 - 大部分测试通过，少量CSP控制台警告（非功能性错误）
 
 ### 编码修复
+
 - `InsuranceAuditData.ts`: 修复urgency字段编码损坏（U+FFFD → "紧急"|"普通"|"低"）
 - `DataReportTable.tsx`: 确认编码损坏（中文字符替换为U+FFFD），从tsconfig排除
 - `tsconfig.json`: 排除2个编码损坏文件避免TS解析失败
 
 ### 版本号同步
+
 - package.json (root) → 3.0.6.11-40 + description同步
 - backend/package.json → 3.0.6.11-40
 - README.md 版本号 + 路线图 + 致谢 → v3.0.6.11-40
@@ -236,6 +296,7 @@
 > **范围**: 代码质量审查 + mock数据清理 + 后端接口对齐 + 窗位功能完善
 
 ### 变更摘要
+
 - 全栈深度审查，修复发现的问题
 - mock 数据清理，移除冗余和过时的 mock 数据
 - 后端接口对齐，确保前后端数据结构一致
@@ -250,6 +311,7 @@
 > **范围**: 文档版本号统一 + CHANGELOG/README/OPERATIONS_MANUAL 更新
 
 ### 文档同步
+
 - package.json (root) → 3.0.6.11-34 + description 同步
 - backend/package.json → 3.0.6.11-34
 - README.md 版本号 + 路线图 + 致谢 → v3.0.6.11-34
@@ -257,6 +319,7 @@
 - OPERATIONS_MANUAL.md → v3.0.6.11-34
 
 ### 变更摘要
+
 - 全量版本号同步至 v3.0.6.11-34
 - 审查修复记录归档
 - 文档一致性校验完成
@@ -269,6 +332,7 @@
 > **范围**: 19 处源码 + 17 份文档版本字符串 + 3 份新增审计报告
 
 ### 文档同步
+
 - README.md / CHANGELOG.md / CONTRIBUTING.md → v3.0.6.11-33
 - OPERATIONS_MANUAL.md / BACKUP_RECOVERY.md / DEPLOYMENT_CHECKLIST.md / MONITORING.md → v3.0.6.11-33
 - AUDIT_REPORT_V3.0.6.11-18.md / COVERAGE_REPORT_V3.0.6.11-20.md / FINAL_VERIFICATION_V3.0.6.11-22.md / DEAD_CODE_REPORT_V3.0.6.11-25.md 内部版本号 → v3.0.6.11-33
@@ -279,6 +343,7 @@
 - 新增 WINDOW_LEVEL_V3.0.6.11-33.md (窗宽窗位审计)
 
 ### 源码版本同步
+
 - package.json (root) → 3.0.6.11-33 + description 同步
 - backend/package.json → 3.0.6.11-33
 - index.html title + `window.__appVersion` → 3.0.6.11-33
@@ -289,6 +354,7 @@
 - 6 个 backend controller header → 3.0.6.11-33
 
 ### 新增能力
+
 - BUG_COLLECTION_V3.0.6.11-33.md — 全量 BUG 采集、分类、修复计划
 - WINDOW_LEVEL_V3.0.6.11-33.md — DICOM 窗宽窗位预设 + 交互全量审计
 - ULTIMATE_AUDIT_V3.0.6.11-33.md — 终极审计 V3 (V2 + BUG 采集 + 窗宽窗位)
@@ -301,6 +367,7 @@
 > **范围**: 16 份文档 + 9 份源码版本字符串 + 2 份终极审计报告
 
 ### 文档同步 (P0/P1 修复)
+
 - README.md 标题 + 路线图 + 致谢 → v3.0.6.11-32
 - CHANGELOG.md 新增 v3.0.6.11-32 条目
 - OPERATIONS_MANUAL.md / BACKUP_RECOVERY.md / DEPLOYMENT_CHECKLIST.md / MONITORING.md → v3.0.6.11-32
@@ -310,6 +377,7 @@
 - 新增 BUTTON_TAB_REALITY_V3.0.6.11-32.md (按钮-Tab 真实可达性审计)
 
 ### 源码版本同步 (P0)
+
 - package.json (root) → 3.0.6.11-32 + description 同步
 - backend/package.json → 3.0.6.11-32
 - src/main.tsx `APP_VERSION` → 3.0.6.11-32
@@ -322,14 +390,17 @@
 - CONTRIBUTING.md → v3.0.6.11-32
 
 ### P0 修复
+
 - **index.html**: `window.__appVersion` 旧值 `'3.0.6.11-30'` → `'3.0.6.11-32'` (前端 Sentry/SentryTag release 标签必须与版本号一致)
 - **package.json description**: 移除过时的 v3.0.6.11-21 描述，更新为 v3.0.6.11-32 描述
 
 ### P1 修复
+
 - **DEAD_CODE_REPORT_V3.0.6.11-25.md**: 引用文档 v3.0.6.11-31 → v3.0.6.11-32
 - **README.md 路线图**: 当前版本行细化为"按钮-Tab 真实可达性审计 + 200 路由回归"
 
 ### 新增能力
+
 - 200 页×200 交互深度回归脚本 `e2e/click-200-pages-v30611-32.spec.ts` (Playwright 截图 + 按钮 + Tab + console error)
 - 终极审计 V2 (`ULTIMATE_AUDIT_V3.0.6.11-32.md`) 整合前序 3 份报告 + 按钮-Tab 真实可达性数据
 - 按钮-Tab 现实可达性报告 (`BUTTON_TAB_REALITY_V3.0.6.11-32.md`) 区分"DOM 存在" vs "实际可点击/有反馈"
@@ -342,6 +413,7 @@
 > **范围**: README / CHANGELOG / OPERATIONS_MANUAL / BACKUP_RECOVERY / DEPLOYMENT_CHECKLIST / MONITORING / THREE_A_COMPLIANCE / 3 份前序审计报告
 
 ### 文档同步
+
 - README.md 版本号 + 路线图 + 致谢更新
 - CHANGELOG.md 新增 v3.0.6.11-25/v3.0.6.11-30/v3.0.6.11-31 条目
 - OPERATIONS_MANUAL.md 版本同步 + 日期更新
@@ -358,6 +430,7 @@
 > **目标**: package.json 版本对齐至 3.0.6.11-30，文档最后完善
 
 ### 变更
+
 - package.json 版本更新至 3.0.6.11-30
 - 全量文档日期同步
 - 版本号统一对齐
@@ -370,6 +443,7 @@
 > **范围**: routeTable.tsx vs sidebarConfig.tsx 对齐
 
 ### 死代码清理
+
 - 路由表中未在侧栏配置中注册的路由识别
 - 牙科模块遗留路由清理
 - 废弃 DICOM 页面路由整理
@@ -384,6 +458,7 @@
 > **端点增量**: 180 → 240 (+60 端点, +33%)
 
 ### PR 1 (v3.0.6.8-34): 真实 DICOM 渲染
+
 - cornerstone3D 真实视口 + 8 模态适配 (fundus/OCT/OCT-A/FFA/UBM/视野/角膜地形/生物测量)
 - 6 标注工具 (长度/角度/矩形/椭圆/箭头/文字)
 - DICOM-SR (TID 1500) 导出
@@ -391,6 +466,7 @@
 - 对标: ZEISS FORUM DICOM Viewer / Heidelberg HEYEX 2
 
 ### PR 2 (v3.0.6.8-35): 报告 AI 辅助
+
 - 眼科 STT 专病术语库 (10 病种: DR/AMD/青光眼/白内障/视网膜脱离/圆锥角膜/葡萄膜炎/视神经炎/斜视/眼整形, 1500+ 词)
 - NLP 结构化提取 (诊断/部位/侧别/分级/IOL/IOP/C-D)
 - ICD-10 映射 (16 项)
@@ -400,6 +476,7 @@
 - 对标: Nuance PowerScribe 360 眼科版 / Medisoft mediSIGHT
 
 ### PR 3 (v3.0.6.8-36): IOL 规划
+
 - Barrett Universal II 真实计算 (Graham Barrett 公式)
 - Kane 公式 (现代化)
 - Hill-RBF 2.0 (RBF 神经网络, 无需常数)
@@ -412,6 +489,7 @@
 - 对标: ZEISS IOLMaster 700 + Alcon/J&J Toric Calculator
 
 ### PR 4 (v3.0.6.8-37): 8 亚专科纵深
+
 - 斜视: 同视机 + 三棱镜交替遮盖试验
 - 神经眼科: 色觉 (Ishihara/D-15) + PVEP (P100 潜伏期)
 - 眼眶肿瘤: Hertel 眼突计
@@ -422,6 +500,7 @@
 - 对标: Medisoft mediSIGHT 8 亚专科模块
 
 ### PR 5 (v3.0.6.8-38): AI 模型 6 → 12
+
 - DR 5 级精细分级 (EfficientNet-B5 + CBAM, AUC 0.94)
 - 青光眼视野推理 (MD/PSD/VFI + GHT)
 - PCV 病灶量化 (息肉样脉络膜血管病变)
@@ -433,6 +512,7 @@
 - 对标: Airdoc / VoxelCloud 12+ 模型
 
 ### PR 6 (v3.0.6.8-39): 影像质控 AI
+
 - AI QC 自动评分 (sharpness/contrast/noise/fieldUniformity/motionArtifact/eyelidCoverage 7 维度)
 - 像素直方图分析 (mean/stdDev/min/max)
 - SNR/CNR 自动计算
@@ -444,6 +524,7 @@
 - 对标: Heidelberg ART 自动重扫
 
 ### PR 7 (v3.0.6.8-40): 多模态融合
+
 - 4 路 Late Fusion (眼底彩照 + OCT + OCT-A + FFA)
 - Cross-Modal Attention Transformer
 - SHAP 可解释热图 (区域重要性: 黄斑/视盘/周边)
@@ -455,6 +536,7 @@
 - 对标: Zeiss Retina Workplace 4 路 Late Fusion
 
 ### 综合成果
+
 - 端点: 180 → 240 (+60)
 - 集合: 28
 - AI 模型: 6 → 12 (+100%)
@@ -469,6 +551,7 @@
 > **后端增强**: 100% 主数据池覆盖 + IndexedDB 持久化 + RBAC + 限流 + 审计
 
 ### Phase 1: 数据层基础 (5 新文件)
+
 - `src/services/mockBackend/adapters.ts` (360 行) - 11 DTO 适配函数 + 字段映射
 - `src/services/mockBackend/store.ts` (303 行) - Dexie/IndexedDB 11 表 + 内存 Map CRUD
 - `src/services/mockBackend/queryBuilder.ts` (151 行) - 分页/排序/搜索/过滤
@@ -476,6 +559,7 @@
 - `src/services/mockBackend/audit.ts` (130 行) - 审计日志包装
 
 ### Phase 2: 主数据池接入 (12 handlers 改写)
+
 - patientHandlers: 6 → 14 端点
 - deviceHandlers: 5 → 14 端点
 - userHandlers: 6 → 14 端点
@@ -490,6 +574,7 @@
 - reportHandlers: 11 → 17 端点
 
 ### Phase 3: 业务逻辑层
+
 - 报告状态机: 7 状态, 13 转移
 - 工作列表状态机: 5 状态
 - 危急值 SLA: 4 严重度 × 5 升级链
@@ -499,6 +584,7 @@
 - 限流: sliding window 100 req/min/key
 
 ### Phase 4: API client DTO 同步
+
 - patientApi: +11 字段 + 6 方法
 - deviceApi: +10 字段 + 6 方法
 - reportApi: +12 字段 + 4 方法
@@ -507,6 +593,7 @@
 - examApi: +deviceName/examItemName 别名
 
 ### Phase 5: 高级特性端点 (8 端点)
+
 - GET /workflow-events
 - GET /audit-log
 - GET /critical/sla-status
@@ -517,6 +604,7 @@
 - GET /rate-limit-status
 
 ### Phase 6: 测试 + 文档
+
 - API.md (450+ 行)
 - test-v32-e2e.mjs (18/18 通过)
 - test-deep-v23e.mjs (159/159 通过)
@@ -524,6 +612,7 @@
 - test-hrefs.mjs
 
 ### 综合成果
+
 - 28 集合 + Dexie 持久化
 - 35 RBAC 资源点
 - 180 端点
@@ -533,6 +622,7 @@
 ---
 
 ## v3.0.6.8-32 (2026-06-25) — 后端增强 Phase 1+2
+
 - 数据层基础 (5 文件)
 - 主数据池接入 (12 handlers)
 - 业务逻辑层 (状态机/SLA/限流)
@@ -540,25 +630,32 @@
 - 8 高级端点
 
 ## v3.0.6.8-31 (2026-06-25) — doseTrack 修复
+
 - 修复 useTranslation("v3exam") 懒加载不触发
 - 5 文件改用 t() from appI18n
 
 ## v3.0.6.8-30 (2026-06-25) — doseTrack 翻译
+
 - 补全 69 个 doseTrack.* 键
 
 ## v3.0.6.8-29 (2026-06-25) — 侧栏 i18n
+
 - 补全 3 个新质控页面 nav 键
 
 ## v3.0.6.8-28 (2026-06-25) — 旧页面重构主数据池
+
 - StatisticsPage/QCPage/EquipmentEfficiencyPage/DirectorDashboardPage
 - 41 个硬编码数组 → 主数据池派生
 
 ## v3.0.6.8-27 (2026-06-25) — 质控数据扩充
+
 - 4 主数据池 + 6 生成器 + 6 mock 扩充
 - 3 新质控页面
 
 ## v3.0.6.8-26 (2026-06-24) — UI 标准化
+
 - 16 页面按钮/样式统一
 
 ## v3.0.6.8-25 (2026-06-23) — 框架升级
+
 - React 18 + Vite 5 + Antd 5

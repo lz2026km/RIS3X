@@ -1,90 +1,119 @@
-import { api, invalidateApiCache } from './client'
+import { api } from "./client";
 
 // Tele (远程会诊) API
-// Backend: /tele/*
+// [v3.0.6.11-50] 路径统一: 前端 /tele/sessions/* → 后端 /tele/* (modules/tele.controller)
+//   后端实际端点: session / join / signal / chat / cursor
 
 export interface TeleSession {
-  id: string
-  title: string
-  patientName: string
-  patientId: string
-  studyId: string
-  modality: string
-  hostDoctorId: string
-  hostDoctorName: string
-  participants: TeleParticipant[]
-  status: 'waiting' | 'in_progress' | 'completed' | 'cancelled'
-  startedAt?: string
-  endedAt?: string
-  createdAt: string
+  id: string;
+  title: string;
+  patientName: string;
+  patientId: string;
+  studyId: string;
+  modality: string;
+  hostDoctorId: string;
+  hostDoctorName: string;
+  participants: TeleParticipant[];
+  status: "waiting" | "in_progress" | "completed" | "cancelled";
+  startedAt?: string;
+  endedAt?: string;
+  createdAt: string;
 }
 
 export interface TeleParticipant {
-  id: string
-  doctorId: string
-  doctorName: string
-  department: string
-  role: 'host' | 'guest' | 'observer'
-  joinedAt?: string
-  leftAt?: string
+  id: string;
+  doctorId: string;
+  doctorName: string;
+  department: string;
+  role: "host" | "guest" | "observer";
+  joinedAt?: string;
+  leftAt?: string;
 }
 
 export interface CreateTeleSessionDto {
-  title: string
-  patientId: string
-  studyId: string
-  participantIds: string[]
+  hostId: string;
+  hostName: string;
+  studyUids?: string[];
+}
+
+export interface JoinTeleSessionDto {
+  sessionId: string;
+  guestId: string;
+  guestName: string;
+}
+
+export interface TeleSignalMessage {
+  type: "offer" | "answer" | "ice-candidate";
+  from: string;
+  to: string;
+  sessionId: string;
+  payload: unknown;
+}
+
+export interface TeleChatMessageDto {
+  sessionId: string;
+  userId: string;
+  userName: string;
+  text: string;
+}
+
+export interface TeleCursorDto {
+  sessionId: string;
+  userId: string;
+  userName: string;
+  x: number;
+  y: number;
+  color?: string;
 }
 
 export interface TeleMessage {
-  id: string
-  sessionId: string
-  senderId: string
-  senderName: string
-  content: string
-  type: 'text' | 'annotation' | 'measurement'
-  createdAt: string
+  id: string;
+  sessionId: string;
+  senderId: string;
+  senderName: string;
+  content: string;
+  type: "text" | "annotation" | "measurement";
+  createdAt: string;
 }
 
 export interface TeleStats {
-  totalSessions: number
-  completedSessions: number
-  avgDurationMinutes: number
-  activeSessions: number
-  departmentDistribution: { department: string; count: number }[]
+  totalSessions: number;
+  completedSessions: number;
+  avgDurationMinutes: number;
+  activeSessions: number;
+  departmentDistribution: { department: string; count: number }[];
 }
 
 export const teleApi = {
-  listSessions: (params?: { status?: string; page?: number; pageSize?: number }) =>
-    api.get<TeleSession[]>(`/tele/sessions?${new URLSearchParams(params ?? {}).toString()}`),
+  createSession: (data: CreateTeleSessionDto) =>
+    api.post<TeleSession>("/tele/session", data),
 
-  getSession: (id: string) =>
-    api.get<TeleSession>(`/tele/sessions/${id}`),
+  joinSession: (data: JoinTeleSessionDto) =>
+    api.post<TeleSession>("/tele/join", data),
 
-  createSession: async (data: CreateTeleSessionDto) => {
-    const res = await api.post<TeleSession>('/tele/sessions', data)
-    await invalidateApiCache('/tele/sessions')
-    return res
-  },
+  getSession: (id: string) => api.get<TeleSession>(`/tele/session/${id}`),
 
-  joinSession: (id: string) =>
-    api.post<TeleSession>(`/tele/sessions/${id}/join`, {}),
+  endSession: (id: string) => api.delete(`/tele/session/${id}`),
 
-  leaveSession: (id: string) =>
-    api.post<TeleSession>(`/tele/sessions/${id}/leave`, {}),
+  sendSignal: (data: TeleSignalMessage) =>
+    api.post<{ ok: boolean }>("/tele/signal", data),
 
-  endSession: async (id: string) => {
-    const res = await api.post<TeleSession>(`/tele/sessions/${id}/end`, {})
-    await invalidateApiCache('/tele/sessions')
-    return res
-  },
+  getPendingSignals: (sessionId: string, peer?: string) =>
+    api.get<TeleSignalMessage[]>(
+      `/tele/signal/${sessionId}?${peer ? `peer=${encodeURIComponent(peer)}` : ""}`,
+    ),
 
-  sendMessage: (sessionId: string, content: string) =>
-    api.post<TeleMessage>(`/tele/sessions/${sessionId}/messages`, { content }),
+  sendMessage: (data: TeleChatMessageDto) =>
+    api.post<TeleMessage>("/tele/chat", data),
 
-  listMessages: (sessionId: string) =>
-    api.get<TeleMessage[]>(`/tele/sessions/${sessionId}/messages`),
+  listMessages: (sessionId: string, since?: string) =>
+    api.get<TeleMessage[]>(
+      `/tele/chat/${sessionId}?${since ? `since=${encodeURIComponent(since)}` : ""}`,
+    ),
 
-  getStats: () =>
-    api.get<TeleStats>('/tele/stats'),
-}
+  updateCursor: (data: TeleCursorDto) =>
+    api.post<{ ok: boolean }>("/tele/cursor", data),
+
+  getCursors: (sessionId: string) =>
+    api.get<TeleCursorDto[]>(`/tele/cursor/${sessionId}`),
+};

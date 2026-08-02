@@ -1,84 +1,65 @@
-import { api, invalidateApiCache } from './client'
+import { api } from "./client";
 
 // Dual Read (双阅片) API
-// Backend: /dual-read/*
+// [v3.0.6.11-50] 路径统一: 前端 /dual-read/assignments/* → 后端 /dual-read/* (modules/dual-read.controller)
+//   后端实际端点: assign / arbitrate/:id / list / discrepancy
 
 export interface DualReadAssignment {
-  id: string
-  studyId: string
-  patientName: string
-  patientId: string
-  modality: string
-  reader1Id: string
-  reader1Name: string
-  reader2Id: string
-  reader2Name: string
-  report1?: string
-  report2?: string
-  status: 'pending' | 'reader1_done' | 'reader2_done' | 'both_done' | 'arbitrated'
-  discrepancyScore?: number
-  arbitrationReport?: string
-  arbitratorId?: string
-  arbitratorName?: string
-  createdAt: string
-  updatedAt: string
+  id: string;
+  studyId: string;
+  patientName: string;
+  patientId: string;
+  modality: string;
+  reader1Id: string;
+  reader1Name: string;
+  reader2Id: string;
+  reader2Name: string;
+  report1?: string;
+  report2?: string;
+  status:
+    "pending" | "reader1_done" | "reader2_done" | "both_done" | "arbitrated";
+  discrepancyScore?: number;
+  arbitrationReport?: string;
+  arbitratorId?: string;
+  arbitratorName?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateDualReadDto {
-  studyId: string
-  patientId: string
-  reader1Id: string
-  reader2Id: string
+  studyId: string;
+  patientName: string;
+  patientId: string;
+  modality: string;
 }
 
 export interface SubmitDualReadDto {
-  report: string
-  readerNumber: 1 | 2
+  report: string;
+  readerNumber: 1 | 2;
 }
 
 export interface ArbitrateDto {
-  arbitrationReport: string
+  arbitratorId: string;
+  arbitratorName: string;
+  report: string;
 }
 
 export interface DualReadStats {
-  totalAssignments: number
-  pendingCount: number
-  bothDoneCount: number
-  arbitratedCount: number
-  avgDiscrepancy: number
+  totalAssignments: number;
+  pendingCount: number;
+  bothDoneCount: number;
+  arbitratedCount: number;
+  avgDiscrepancy: number;
 }
 
 export const dualReadApi = {
-  listAssignments: (params?: { status?: string; page?: number; pageSize?: number }) =>
-    api.get<DualReadAssignment[]>(`/dual-read/assignments?${new URLSearchParams(params ?? {}).toString()}`),
+  listAssignments: () => api.get<DualReadAssignment[]>("/dual-read/list"),
 
-  getAssignment: (id: string) =>
-    api.get<DualReadAssignment>(`/dual-read/assignments/${id}`),
+  createAssignment: (data: CreateDualReadDto) =>
+    api.post<DualReadAssignment>("/dual-read/assign", data),
 
-  createAssignment: async (data: CreateDualReadDto) => {
-    const res = await api.post<DualReadAssignment>('/dual-read/assignments', data)
-    await invalidateApiCache('/dual-read/assignments')
-    return res
-  },
+  arbitrate: (id: string, data: ArbitrateDto) =>
+    api.post<DualReadAssignment>(`/dual-read/arbitrate/${id}`, data),
 
-  submitReport: async (assignmentId: string, data: SubmitDualReadDto) => {
-    const res = await api.post<DualReadAssignment>(`/dual-read/assignments/${assignmentId}/submit`, data)
-    await invalidateApiCache(`/dual-read/assignments/${assignmentId}`)
-    return res
-  },
-
-  arbitrate: async (assignmentId: string, data: ArbitrateDto) => {
-    const res = await api.post<DualReadAssignment>(`/dual-read/assignments/${assignmentId}/arbitrate`, data)
-    await invalidateApiCache(`/dual-read/assignments/${assignmentId}`)
-    return res
-  },
-
-  getStats: () =>
-    api.get<DualReadStats>('/dual-read/stats'),
-
-  deleteAssignment: async (id: string) => {
-    const res = await api.delete(`/dual-read/assignments/${id}`)
-    await invalidateApiCache('/dual-read/assignments')
-    return res
-  },
-}
+  getDiscrepancyStats: () => api.get<DualReadStats>("/dual-read/discrepancy"),
+};

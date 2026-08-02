@@ -1,11 +1,36 @@
 import { useState } from "react";
 import {
-  Card, Button, Typography, Alert, Input, Space, Tag, Descriptions,
-  Divider, List, Switch, Steps, Row, Col, Statistic,
+  Card,
+  Button,
+  Typography,
+  Alert,
+  Input,
+  Space,
+  Tag,
+  Descriptions,
+  Divider,
+  List,
+  Switch,
+  Steps,
+  Row,
+  Col,
+  Statistic,
+  Modal,
 } from "antd";
 import {
-  Shield, Smartphone, Key, QrCode, CheckCircle, Copy, RefreshCw,
-  Mail, MessageSquare, Eye, EyeOff, Clock, AlertTriangle,
+  Shield,
+  Smartphone,
+  Key,
+  QrCode,
+  CheckCircle,
+  Copy,
+  RefreshCw,
+  Mail,
+  MessageSquare,
+  Eye,
+  EyeOff,
+  Clock,
+  AlertTriangle,
 } from "lucide-react";
 import { mfaApi } from "../../services/api/mfaApi";
 import { message as antdMessage } from "antd";
@@ -18,13 +43,20 @@ export default function MfaSetupPage() {
   const [code, setCode] = useState("");
   const [enabled, setEnabled] = useState(false);
   const [showSecret, setShowSecret] = useState(false);
-  const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [result, setResult] = useState<{
+    success: boolean;
+    message: string;
+  } | null>(null);
   const [verifying, setVerifying] = useState(false);
   const [secret, setSecret] = useState("");
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
+  const [disableOpen, setDisableOpen] = useState(false);
 
   const handleStart = async () => {
-    if (method !== "totp") { setStep(1); return; }
+    if (method !== "totp") {
+      setStep(1);
+      return;
+    }
     setVerifying(true);
     const res = await mfaApi.setupTotp();
     setVerifying(false);
@@ -51,7 +83,10 @@ export default function MfaSetupPage() {
         setStep(3);
         antdMessage.success("MFA 验证通过");
       } else {
-        setResult({ success: false, message: res.error?.message || "验证码错误" });
+        setResult({
+          success: false,
+          message: res.error?.message || "验证码错误",
+        });
       }
     } catch {
       setResult({ success: false, message: "验证失败，请重试" });
@@ -64,15 +99,30 @@ export default function MfaSetupPage() {
     if (checked) {
       handleStart();
     } else {
-      const res = await mfaApi.disableTotp();
+      setDisableOpen(true);
+    }
+  };
+
+  const handleDisable = async () => {
+    if (!code || code.length < 6) {
+      antdMessage.warning("请输入当前 6 位 TOTP 验证码");
+      return;
+    }
+    setVerifying(true);
+    try {
+      const res = await mfaApi.disableTotp(code);
       if (res.success) {
         setEnabled(false);
         setStep(0);
         setSecret("");
+        setCode("");
+        setDisableOpen(false);
         antdMessage.success("MFA 已禁用");
       } else {
         antdMessage.error(res.error?.message || "关闭失败");
       }
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -83,7 +133,15 @@ export default function MfaSetupPage() {
 
   return (
     <div style={{ padding: 24, maxWidth: 800, margin: "0 auto" }}>
-      <Title level={3} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+      <Title
+        level={3}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          marginBottom: 16,
+        }}
+      >
         <Shield size={22} /> 多因素认证 (MFA) 设置
       </Title>
 
@@ -94,13 +152,20 @@ export default function MfaSetupPage() {
               title="当前状态"
               value={enabled ? "已启用" : "未启用"}
               valueStyle={{ color: enabled ? "#059669" : "#dc2626" }}
-              prefix={enabled ? <Shield size={14} /> : <AlertTriangle size={14} />}
+              prefix={
+                enabled ? <Shield size={14} /> : <AlertTriangle size={14} />
+              }
             />
           </Card>
         </Col>
         <Col span={8}>
           <Card size="small">
-            <Statistic title="认证方式" value={enabled ? 1 : 0} suffix={`种`} prefix={<Key size={14} />} />
+            <Statistic
+              title="认证方式"
+              value={enabled ? 1 : 0}
+              suffix={`种`}
+              prefix={<Key size={14} />}
+            />
           </Card>
         </Col>
         <Col span={8}>
@@ -115,8 +180,17 @@ export default function MfaSetupPage() {
       </Row>
 
       <Card style={{ borderRadius: 8, marginBottom: 16 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-          <Text strong style={{ fontSize: 15 }}>启用/禁用 MFA</Text>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 16,
+          }}
+        >
+          <Text strong style={{ fontSize: 15 }}>
+            启用/禁用 MFA
+          </Text>
           <Switch checked={enabled} onChange={handleToggle} />
         </div>
 
@@ -138,7 +212,8 @@ export default function MfaSetupPage() {
             </Paragraph>
             <Space direction="vertical" style={{ width: "100%" }}>
               <Button
-                size="large" block
+                size="large"
+                block
                 type={method === "totp" ? "primary" : "default"}
                 icon={<QrCode size={16} />}
                 onClick={() => setMethod("totp")}
@@ -146,7 +221,8 @@ export default function MfaSetupPage() {
                 TOTP 验证器 (Google / Microsoft Authenticator)
               </Button>
               <Button
-                size="large" block
+                size="large"
+                block
                 type={method === "sms" ? "primary" : "default"}
                 icon={<MessageSquare size={16} />}
                 onClick={() => setMethod("sms")}
@@ -154,7 +230,8 @@ export default function MfaSetupPage() {
                 短信验证码
               </Button>
               <Button
-                size="large" block
+                size="large"
+                block
                 type={method === "email" ? "primary" : "default"}
                 icon={<Mail size={16} />}
                 onClick={() => setMethod("email")}
@@ -163,7 +240,9 @@ export default function MfaSetupPage() {
               </Button>
             </Space>
             <Divider />
-            <Button type="primary" onClick={handleStart}>下一步</Button>
+            <Button type="primary" onClick={handleStart}>
+              下一步
+            </Button>
           </div>
         )}
 
@@ -176,7 +255,15 @@ export default function MfaSetupPage() {
               style={{ marginBottom: 16 }}
             />
             {method === "totp" && (
-              <div style={{ textAlign: "center", padding: 16, background: "#fafafa", borderRadius: 8, marginBottom: 16 }}>
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: 16,
+                  background: "#fafafa",
+                  borderRadius: 8,
+                  marginBottom: 16,
+                }}
+              >
                 <div style={{ fontSize: 48, marginBottom: 12 }}>📱</div>
                 <div
                   style={{
@@ -189,7 +276,9 @@ export default function MfaSetupPage() {
                   }}
                 >
                   {showSecret ? (
-                    <Text code style={{ fontSize: 18, letterSpacing: 2 }}>{secret || "—"}</Text>
+                    <Text code style={{ fontSize: 18, letterSpacing: 2 }}>
+                      {secret || "—"}
+                    </Text>
                   ) : (
                     <Text code style={{ fontSize: 18, letterSpacing: 2 }}>
                       {secret
@@ -211,21 +300,34 @@ export default function MfaSetupPage() {
                     type="link"
                     size="small"
                     icon={<Copy size={14} />}
-                    onClick={() => { navigator.clipboard.writeText(secret); antdMessage.success("密钥已复制"); }}
+                    onClick={() => {
+                      navigator.clipboard.writeText(secret);
+                      antdMessage.success("密钥已复制");
+                    }}
                   >
                     复制密钥
                   </Button>
                 </div>
                 <Paragraph style={{ marginTop: 8 }}>
-                  <Text type="secondary">在验证器应用中输入此密钥或扫描二维码</Text>
+                  <Text type="secondary">
+                    在验证器应用中输入此密钥或扫描二维码
+                  </Text>
                 </Paragraph>
               </div>
             )}
             {method === "sms" && (
-              <Alert message="短信验证码已发送至已绑定手机" type="success" showIcon />
+              <Alert
+                message="短信验证码已发送至已绑定手机"
+                type="success"
+                showIcon
+              />
             )}
             {method === "email" && (
-              <Alert message="验证码已发送至已绑定邮箱" type="success" showIcon />
+              <Alert
+                message="验证码已发送至已绑定邮箱"
+                type="success"
+                showIcon
+              />
             )}
             <Space>
               <Input
@@ -235,7 +337,9 @@ export default function MfaSetupPage() {
                 maxLength={6}
                 style={{ width: 180 }}
               />
-              <Button type="primary" onClick={handleVerify} loading={verifying}>验证</Button>
+              <Button type="primary" onClick={handleVerify} loading={verifying}>
+                验证
+              </Button>
             </Space>
             {result && (
               <Alert
@@ -264,31 +368,61 @@ export default function MfaSetupPage() {
               <Descriptions.Item label="状态">
                 <Tag color="green">已启用</Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="注册时间">
-                当前会话
-              </Descriptions.Item>
-              <Descriptions.Item label="上次使用">
-                当前会话
-              </Descriptions.Item>
+              <Descriptions.Item label="注册时间">当前会话</Descriptions.Item>
+              <Descriptions.Item label="上次使用">当前会话</Descriptions.Item>
             </Descriptions>
             <Divider />
-            <Title level={5} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Title
+              level={5}
+              style={{ display: "flex", alignItems: "center", gap: 8 }}
+            >
               备用恢复码 <Tag color="orange">请妥善保管</Tag>
             </Title>
-            <Paragraph><Text type="secondary">每个代码只能使用一次，建议保存到安全位置</Text></Paragraph>
+            <Paragraph>
+              <Text type="secondary">
+                每个代码只能使用一次，建议保存到安全位置
+              </Text>
+            </Paragraph>
             <List
               size="small"
               bordered
               dataSource={backupCodes}
-              renderItem={(c: string) => <List.Item><Text code>{c}</Text></List.Item>}
+              renderItem={(c: string) => (
+                <List.Item>
+                  <Text code>{c}</Text>
+                </List.Item>
+              )}
               style={{ maxWidth: 400, marginBottom: 16 }}
             />
             <Space>
-              <Button icon={<Copy size={14} />} onClick={copyBackupCodes}>复制备用码</Button>
+              <Button icon={<Copy size={14} />} onClick={copyBackupCodes}>
+                复制备用码
+              </Button>
             </Space>
           </div>
         )}
       </Card>
+
+      <Modal
+        title="关闭 MFA"
+        open={disableOpen}
+        okText="确认关闭"
+        okButtonProps={{ danger: true }}
+        confirmLoading={verifying}
+        onCancel={() => setDisableOpen(false)}
+        onOk={handleDisable}
+      >
+        <Paragraph>
+          关闭 MFA 需要二次认证，请输入当前 6 位 TOTP 验证码。
+        </Paragraph>
+        <Input
+          placeholder="输入 6 位验证码"
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          maxLength={6}
+          autoFocus
+        />
+      </Modal>
     </div>
   );
 }

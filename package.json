@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.11-49",
-  "description": "G005 Radiology RIS v3.0.6.11-49 - Core Bug Fix",
+  "version": "3.0.6.11-50",
+  "description": "G005 Radiology RIS v3.0.6.11-50 - Core Bug Fix",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",
@@ -60,7 +60,6 @@
     "@tiptap/extension-underline": "^3.26.1",
     "@tiptap/react": "^3.26.1",
     "@tiptap/starter-kit": "^3.26.1",
-
     "antd": "^6.5.0",
     "date-fns": "3.6.0",
     "date-fns-tz": "3.2.0",

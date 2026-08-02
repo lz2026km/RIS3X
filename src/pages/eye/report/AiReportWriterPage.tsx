@@ -1,23 +1,41 @@
 // [v3.0.6.8-35] PR 2: AI 报告书写页面
 // 眼科专病 STT + NLP 结构化提?+ AI 续写 + 多轮改写 + 反馈闭环
 // 对标: Nuance PowerScribe 360 眼科?/ Medisoft mediSIGHT
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback } from "react";
 import {
-  Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, message,
-  Tabs, List, Rate, Modal, Spin, Empty, Tooltip, Progress, Alert, InputNumber, Switch, Typography,
-} from 'antd';
+  Card,
+  Space,
+  Tag,
+  Button,
+  Select,
+  Input,
+  Form,
+  Row,
+  Col,
+  Divider,
+  message,
+  List,
+  Rate,
+  Modal,
+  Spin,
+  Empty,
+  Tooltip,
+  Progress,
+  Alert,
+  Switch,
+} from "antd";
 import {
-  Mic, Sparkles, Send, Save, RefreshCw, Wand2, Languages, Tag as TagIcon,
-  ChevronRight, FileText, History, Star, AlertCircle, BookOpen,
-} from 'lucide-react';
+  Mic,
+  Sparkles,
+  Save,
+  RefreshCw,
+  Wand2,
+  FileText,
+  History,
+  BookOpen,
+} from "lucide-react";
 
 const { TextArea } = Input;
-
-interface AIDiagnosis {
-  name: string;
-  code: string;
-  confidence: number;
-}
 
 interface ExtractionResult {
   sourceText: string;
@@ -43,22 +61,24 @@ interface AISuggestion {
   rating?: number;
 }
 
-const { Text } = Typography || ({} as any);
-
 export const AiReportWriterPage: React.FC = () => {
-  const [patientName, setPatientName] = useState('张三');
-  const [patientId, setPatientId] = useState('P000001');
-  const [condition, setCondition] = useState<string>('dr');
-  const [modality, setModality] = useState<string>('fundus');
-  const [findings, setFindings] = useState('右眼视盘边界清晰,色淡红,杯盘比约 0.3。视网膜平伏,黄斑中心凹反光未见明显异常。');
-  const [aiText, setAiText] = useState('');
+  const [patientName, setPatientName] = useState("张三");
+  const [patientId, setPatientId] = useState("P000001");
+  const [condition, setCondition] = useState<string>("dr");
+  const [modality, setModality] = useState<string>("fundus");
+  const [findings, setFindings] = useState(
+    "右眼视盘边界清晰,色淡红,杯盘比约 0.3。视网膜平伏,黄斑中心凹反光未见明显异常。",
+  );
+  const [aiText, setAiText] = useState("");
   const [busy, setBusy] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [extraction, setExtraction] = useState<ExtractionResult | null>(null);
   const [vocab, setVocab] = useState<any>(null);
   const [history, setHistory] = useState<AISuggestion[]>([]);
-  const [rewriteStyle, setRewriteStyle] = useState<'concise' | 'detailed' | 'academic'>('detailed');
-  const [rewriteInstruction, setRewriteInstruction] = useState('');
+  const [rewriteStyle, setRewriteStyle] = useState<
+    "concise" | "detailed" | "academic"
+  >("detailed");
+  const [rewriteInstruction, setRewriteInstruction] = useState("");
   const [recording, setRecording] = useState(false);
   const [sttProgress, setSttProgress] = useState(0);
   const [showVocabModal, setShowVocabModal] = useState(false);
@@ -70,30 +90,45 @@ export const AiReportWriterPage: React.FC = () => {
       const r = await fetch(`/api/v1/eye/report/asr/vocab/${cond}`);
       const data = await r.json();
       if (data.success) setVocab(data.data);
-    } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
+    } catch (e) {
+      console.warn("[F03] Error:", (e as Error)?.message);
+    }
   }, []);
 
-  React.useEffect(() => { loadVocab(condition); }, [condition, loadVocab]);
+  React.useEffect(() => {
+    loadVocab(condition);
+  }, [condition, loadVocab]);
 
   // AI 续写
   const handleContinue = useCallback(async () => {
     setBusy(true);
     try {
-      const r = await fetch('/api/v1/eye/report/ai/continue', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ patientName, findings, modality, condition, maxWords: 300 }),
+      const r = await fetch("/api/v1/eye/report/ai/continue", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patientName,
+          findings,
+          modality,
+          condition,
+          maxWords: 300,
+        }),
       });
       const data = await r.json();
       if (data.success) {
         setAiText(data.data.text);
-        setHistory(prev => [{
-          id: `H${Date.now()}`,
-          text: data.data.text,
-          condition,
-          wordCount: data.data.wordCount,
-          generatedAt: data.data.generatedAt,
-        }, ...prev].slice(0, 10));
+        setHistory((prev) =>
+          [
+            {
+              id: `H${Date.now()}`,
+              text: data.data.text,
+              condition,
+              wordCount: data.data.wordCount,
+              generatedAt: data.data.generatedAt,
+            },
+            ...prev,
+          ].slice(0, 10),
+        );
         message.success(`已生成 ${data.data.wordCount} 字报告`);
       }
     } catch (e: any) {
@@ -106,20 +141,24 @@ export const AiReportWriterPage: React.FC = () => {
   // 多轮改写
   const handleRewrite = useCallback(async () => {
     if (!aiText || !rewriteInstruction) {
-      message.warning('请先AI 文本并输入改写指令);
+      message.warning("请先有 AI 文本并输入改写指令");
       return;
     }
     setBusy(true);
     try {
-      const r = await fetch('/api/v1/eye/report/ai/rewrite', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ originalText: aiText, instruction: rewriteInstruction, style: rewriteStyle }),
+      const r = await fetch("/api/v1/eye/report/ai/rewrite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          originalText: aiText,
+          instruction: rewriteInstruction,
+          style: rewriteStyle,
+        }),
       });
       const data = await r.json();
       if (data.success) {
         setAiText(data.data.rewritten);
-        message.success('已改写');
+        message.success("已改写");
       }
     } catch (e: any) {
       message.error(`改写失败: ${e.message}`);
@@ -130,18 +169,21 @@ export const AiReportWriterPage: React.FC = () => {
 
   // NLP 提取
   const handleExtract = useCallback(async () => {
-    if (!aiText) { message.warning('请先AI 文本'); return; }
+    if (!aiText) {
+      message.warning("请先有 AI 文本");
+      return;
+    }
     setExtracting(true);
     try {
-      const r = await fetch('/api/v1/eye/report/nlp/extract', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const r = await fetch("/api/v1/eye/report/nlp/extract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: aiText, condition }),
       });
       const data = await r.json();
       if (data.success) {
         setExtraction(data.data);
-        message.success('NLP 提取完成');
+        message.success("NLP 提取完成");
       }
     } catch (e: any) {
       message.error(`提取失败: ${e.message}`);
@@ -155,7 +197,7 @@ export const AiReportWriterPage: React.FC = () => {
     setRecording(true);
     setSttProgress(0);
     const interval = setInterval(() => {
-      setSttProgress(p => {
+      setSttProgress((p) => {
         if (p >= 100) {
           clearInterval(interval);
           setRecording(false);
@@ -167,35 +209,52 @@ export const AiReportWriterPage: React.FC = () => {
     // 30s 后停? 模拟语音转文?
     setTimeout(async () => {
       try {
-        const r = await fetch('/api/v1/eye/report/voice/transcribe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ audio: '', language: 'zh-CN', condition }),
+        const r = await fetch("/api/v1/eye/report/voice/transcribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ audio: "", language: "zh-CN", condition }),
         });
         const data = await r.json();
         if (data.success) {
-          setFindings(prev => prev ? prev + ' ' + data.data.text : data.data.text);
-          message.success(`已识别${data.data.termsDetected?.length || 0} 个术语`);
+          setFindings((prev) =>
+            prev ? prev + " " + data.data.text : data.data.text,
+          );
+          message.success(
+            `已识别${data.data.termsDetected?.length || 0} 个术语`,
+          );
         }
-      } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
+      } catch (e) {
+        console.warn("[F03] Error:", (e as Error)?.message);
+      }
     }, 7000);
   }, [condition]);
 
   // 反馈
-  const handleFeedback = useCallback(async (suggestion: AISuggestion, rating: number) => {
-    try {
-      await fetch('/api/v1/eye/report/ai/feedback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reportId: suggestion.id, aiText: suggestion.text, rating }),
-      });
-      setHistory(prev => prev.map(h => h.id === suggestion.id ? { ...h, rating } : h));
-      message.success('反馈已记录');
-    } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
-  }, []);
+  const handleFeedback = useCallback(
+    async (suggestion: AISuggestion, rating: number) => {
+      try {
+        await fetch("/api/v1/eye/report/ai/feedback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            reportId: suggestion.id,
+            aiText: suggestion.text,
+            rating,
+          }),
+        });
+        setHistory((prev) =>
+          prev.map((h) => (h.id === suggestion.id ? { ...h, rating } : h)),
+        );
+        message.success("反馈已记录");
+      } catch (e) {
+        console.warn("[F03] Error:", (e as Error)?.message);
+      }
+    },
+    [],
+  );
 
   return (
-    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+    <div style={{ padding: 24, background: "#f5f5f5", minHeight: "100vh" }}>
       <Space style={{ marginBottom: 16 }}>
         <FileText size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>眼科 AI 报告书写</span>
@@ -212,12 +271,18 @@ export const AiReportWriterPage: React.FC = () => {
               <Row gutter={8}>
                 <Col span={12}>
                   <Form.Item label="患者姓名">
-                    <Input value={patientName} onChange={e => setPatientName(e.target.value)} />
+                    <Input
+                      value={patientName}
+                      onChange={(e) => setPatientName(e.target.value)}
+                    />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item label="患者ID">
-                    <Input value={patientId} onChange={e => setPatientId(e.target.value)} />
+                    <Input
+                      value={patientId}
+                      onChange={(e) => setPatientId(e.target.value)}
+                    />
                   </Form.Item>
                 </Col>
               </Row>
@@ -228,63 +293,86 @@ export const AiReportWriterPage: React.FC = () => {
                       value={condition}
                       onChange={setCondition}
                       options={[
-                        { value: 'dr', label: '糖尿病视网膜病变 (DR)' },
-                        { value: 'amd', label: '老年黄斑变性(AMD)' },
-                        { value: 'glaucoma', label: '青光眼' },
-                        { value: 'cataract', label: '白内障' },
-                        { value: 'retinal-detachment', label: '视网膜脱离' },
-                        { value: 'keratoconus', label: '圆锥角膜' },
-                        { value: 'uveitis', label: '葡萄膜炎' },
-                        { value: 'optic-neuritis', label: '视神经炎' },
-                        { value: 'strabismus', label: '斜视' },
-                        { value: 'oculoplasty', label: '眼整形' },
-                        { value: 'default', label: '通用' },
+                        { value: "dr", label: "糖尿病视网膜病变 (DR)" },
+                        { value: "amd", label: "老年黄斑变性(AMD)" },
+                        { value: "glaucoma", label: "青光眼" },
+                        { value: "cataract", label: "白内障" },
+                        { value: "retinal-detachment", label: "视网膜脱离" },
+                        { value: "keratoconus", label: "圆锥角膜" },
+                        { value: "uveitis", label: "葡萄膜炎" },
+                        { value: "optic-neuritis", label: "视神经炎" },
+                        { value: "strabismus", label: "斜视" },
+                        { value: "oculoplasty", label: "眼整形" },
+                        { value: "default", label: "通用" },
                       ]}
                     />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item label="影像模态>
+                  <Form.Item label="影像模态">
                     <Select
                       value={modality}
                       onChange={setModality}
                       options={[
-                        { value: 'fundus', label: '眼底彩照' },
-                        { value: 'oct', label: 'OCT' },
-                        { value: 'octa', label: 'OCT-A' },
-                        { value: 'ffa', label: 'FFA' },
-                        { value: 'visualfield', label: '视野' },
-                        { value: 'topography', label: '角膜地形图 },
-                        { value: 'slitlamp', label: '裂隙灯 },
-                        { value: 'autofluorescence', label: '自发荧光' },
+                        { value: "fundus", label: "眼底彩照" },
+                        { value: "oct", label: "OCT" },
+                        { value: "octa", label: "OCT-A" },
+                        { value: "ffa", label: "FFA" },
+                        { value: "visualfield", label: "视野" },
+                        { value: "topography", label: "角膜地形图" },
+                        { value: "slitlamp", label: "裂隙灯" },
+                        { value: "autofluorescence", label: "自发荧光" },
                       ]}
                     />
                   </Form.Item>
                 </Col>
               </Row>
-              <Form.Item label={
-                <Space>
-                  <span>检查所见</span>
-                  <Switch size="small" checked={voiceEnabled} onChange={setVoiceEnabled} checkedChildren="语音" unCheckedChildren="键盘" />
-                  {voiceEnabled && (
-                    <Tooltip title="按住说话 7 秒">
-                      <Button size="small" icon={<Mic size={12} />} onClick={handleRecord} danger={recording}>
-                        {recording ? '录音中..' : '开始录音'}
-                      </Button>
-                    </Tooltip>
-                  )}
-                  <Button size="small" icon={<BookOpen size={12} />} onClick={() => setShowVocabModal(true)}>
-                    术语库
-                  </Button>
-                </Space>
-              }>
+              <Form.Item
+                label={
+                  <Space>
+                    <span>检查所见</span>
+                    <Switch
+                      size="small"
+                      checked={voiceEnabled}
+                      onChange={setVoiceEnabled}
+                      checkedChildren="语音"
+                      unCheckedChildren="键盘"
+                    />
+                    {voiceEnabled && (
+                      <Tooltip title="按住说话 7 秒">
+                        <Button
+                          size="small"
+                          icon={<Mic size={12} />}
+                          onClick={handleRecord}
+                          danger={recording}
+                        >
+                          {recording ? "录音中.." : "开始录音"}
+                        </Button>
+                      </Tooltip>
+                    )}
+                    <Button
+                      size="small"
+                      icon={<BookOpen size={12} />}
+                      onClick={() => setShowVocabModal(true)}
+                    >
+                      术语库
+                    </Button>
+                  </Space>
+                }
+              >
                 <TextArea
                   value={findings}
-                  onChange={e => setFindings(e.target.value)}
+                  onChange={(e) => setFindings(e.target.value)}
                   rows={5}
                   placeholder="输入检查所见或使用语音识别"
                 />
-                {recording && <Progress percent={sttProgress} size="small" status="active" />}
+                {recording && (
+                  <Progress
+                    percent={sttProgress}
+                    size="small"
+                    status="active"
+                  />
+                )}
               </Form.Item>
             </Form>
           </Card>
@@ -319,21 +407,21 @@ export const AiReportWriterPage: React.FC = () => {
                 保存报告
               </Button>
             </Space>
-            <Divider style={{ margin: '8px 0' }} />
-            <Space.Compact style={{ width: '100%' }}>
+            <Divider style={{ margin: "8px 0" }} />
+            <Space.Compact style={{ width: "100%" }}>
               <Input
                 placeholder="改写指令, 如 简化语言 / 添加 OCT 描述 / 转为英文"
                 value={rewriteInstruction}
-                onChange={e => setRewriteInstruction(e.target.value)}
+                onChange={(e) => setRewriteInstruction(e.target.value)}
               />
               <Select
                 value={rewriteStyle}
                 onChange={setRewriteStyle as any}
                 style={{ width: 100 }}
                 options={[
-                  { value: 'concise', label: '精简' },
-                  { value: 'detailed', label: '详细' },
-                  { value: 'academic', label: '学术' },
+                  { value: "concise", label: "精简" },
+                  { value: "detailed", label: "详细" },
+                  { value: "academic", label: "学术" },
                 ]}
               />
             </Space.Compact>
@@ -347,23 +435,25 @@ export const AiReportWriterPage: React.FC = () => {
               <Space>
                 <Sparkles size={16} color="#1677ff" />
                 AI 生成报告
-                {extraction && <Tag color="green">NLP 已提交/Tag>}
+                {extraction && <Tag color="green">NLP 已提取</Tag>}
               </Space>
             }
             size="small"
             styles={{ body: { minHeight: 280 } }}
           >
             {busy ? (
-              <div style={{ textAlign: 'center', padding: 60 }}>
+              <div style={{ textAlign: "center", padding: 60 }}>
                 <Spin size="large" />
-                <div style={{ marginTop: 16, color: '#666' }}>DeepSeek-Opthalmic 推理中..</div>
+                <div style={{ marginTop: 16, color: "#666" }}>
+                  DeepSeek-Opthalmic 推理中...
+                </div>
               </div>
             ) : aiText ? (
               <TextArea
                 value={aiText}
-                onChange={e => setAiText(e.target.value)}
+                onChange={(e) => setAiText(e.target.value)}
                 rows={14}
-                style={{ fontSize: 14, lineHeight: 1.6, fontFamily: 'inherit' }}
+                style={{ fontSize: 14, lineHeight: 1.6, fontFamily: "inherit" }}
               />
             ) : (
               <Empty description="点击 AI 续写 生成报告" />
@@ -376,7 +466,9 @@ export const AiReportWriterPage: React.FC = () => {
                 <Space>
                   <Wand2 size={16} color="#52c41a" />
                   NLP 结构化提取
-                  <Tag color="cyan">置信度 {(extraction.confidence * 100).toFixed(0)}%</Tag>
+                  <Tag color="cyan">
+                    置信度 {(extraction.confidence * 100).toFixed(0)}%
+                  </Tag>
                 </Space>
               }
               size="small"
@@ -387,20 +479,30 @@ export const AiReportWriterPage: React.FC = () => {
               ) : (
                 <Row gutter={[8, 8]}>
                   <Col span={8}>
-                    <Tag color="blue">侧别: {extraction.extracted.laterality || '未识别'}</Tag>
+                    <Tag color="blue">
+                      侧别: {extraction.extracted.laterality || "未识别"}
+                    </Tag>
                   </Col>
                   <Col span={8}>
-                    <Tag color="green">分级: {extraction.extracted.grade || '未识别'}</Tag>
+                    <Tag color="green">
+                      分级: {extraction.extracted.grade || "未识别"}
+                    </Tag>
                   </Col>
                   <Col span={8}>
                     <Tag color="purple">模型: {extraction.model}</Tag>
                   </Col>
                   <Col span={24}>
-                    <Divider style={{ margin: '4px 0' }} />
-                    <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>诊断 (ICD-10):</div>
+                    <Divider style={{ margin: "4px 0" }} />
+                    <div
+                      style={{ fontSize: 12, color: "#666", marginBottom: 4 }}
+                    >
+                      诊断 (ICD-10):
+                    </div>
                     {extraction.extracted.diagnoses.length > 0 ? (
                       extraction.extracted.diagnoses.map((d, i) => (
-                        <Tag key={i} color="geekblue" style={{ margin: 2 }}>{d}</Tag>
+                        <Tag key={i} color="geekblue" style={{ margin: 2 }}>
+                          {d}
+                        </Tag>
                       ))
                     ) : (
                       <Tag>未识别</Tag>
@@ -418,7 +520,9 @@ export const AiReportWriterPage: React.FC = () => {
                   )}
                   {extraction.extracted.cdRatio && (
                     <Col span={8}>
-                      <Tag color="cyan">C/D: {extraction.extracted.cdRatio}</Tag>
+                      <Tag color="cyan">
+                        C/D: {extraction.extracted.cdRatio}
+                      </Tag>
                     </Col>
                   )}
                 </Row>
@@ -440,13 +544,13 @@ export const AiReportWriterPage: React.FC = () => {
               <List
                 size="small"
                 dataSource={history}
-                renderItem={item => (
+                renderItem={(item) => (
                   <List.Item
                     actions={[
                       <Rate
                         key="rate"
                         value={item.rating || 0}
-                        onChange={r => handleFeedback(item, r)}
+                        onChange={(r) => handleFeedback(item, r)}
                       />,
                     ]}
                   >
@@ -454,12 +558,14 @@ export const AiReportWriterPage: React.FC = () => {
                       title={
                         <Space>
                           <Tag color="cyan">{item.condition}</Tag>
-                          <span style={{ fontSize: 12, color: '#999' }}>{item.wordCount} 字</span>
+                          <span style={{ fontSize: 12, color: "#999" }}>
+                            {item.wordCount} 字
+                          </span>
                         </Space>
                       }
                       description={
-                        <div style={{ fontSize: 11, color: '#999' }}>
-                          {new Date(item.generatedAt).toLocaleString('zh-CN')}
+                        <div style={{ fontSize: 11, color: "#999" }}>
+                          {new Date(item.generatedAt).toLocaleString("zh-CN")}
                         </div>
                       }
                     />
@@ -476,7 +582,7 @@ export const AiReportWriterPage: React.FC = () => {
         title={
           <Space>
             <BookOpen size={16} />
-            眼科 {vocab?.cn || '术语库'}
+            眼科 {vocab?.cn || "术语库"}
             {vocab && <Tag color="cyan">{vocab.terms.length} 个</Tag>}
           </Space>
         }
@@ -488,7 +594,7 @@ export const AiReportWriterPage: React.FC = () => {
         {vocab ? (
           <>
             <Alert
-              message={vocab.cn + ' / ' + vocab.en}
+              message={vocab.cn + " / " + vocab.en}
               type="info"
               showIcon
               style={{ marginBottom: 12 }}
@@ -498,8 +604,11 @@ export const AiReportWriterPage: React.FC = () => {
                 <Tag.CheckableTag
                   key={i}
                   checked={false}
-                  onChange={checked => {
-                    if (checked) setFindings(prev => prev + (prev.endsWith(' ') ? '' : ' ') + t);
+                  onChange={(checked) => {
+                    if (checked)
+                      setFindings(
+                        (prev) => prev + (prev.endsWith(" ") ? "" : " ") + t,
+                      );
                   }}
                   style={{ margin: 4, fontSize: 13 }}
                 >
@@ -509,7 +618,7 @@ export const AiReportWriterPage: React.FC = () => {
             </div>
           </>
         ) : (
-          <Empty description="暂无术语库 />
+          <Empty description="暂无术语库" />
         )}
       </Modal>
     </div>

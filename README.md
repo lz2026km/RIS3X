@@ -1,4 +1,4 @@
-﻿# G005 放射科 RIS 系统 v3.0.6.11-49
+﻿# G005 放射科 RIS 系统 v3.0.6.11-50
 
 > **企业级放射信息系统 · 对标前 10 大 PACS/RIS 厂商** · 17 模块 / 9,000+ R3 点完整实施
 
@@ -14,7 +14,7 @@
 
 G005 是面向**三级甲等综合医院**的企业级放射信息系统(RIS)，对标全球前 10 大 PACS/RIS 厂商（GE、Siemens、Philips、Fujifilm、Carestream、Agfa、Canon、Hologic、Intelerad、Mach7），涵盖从 AI 辅助到患者门户的完整放射科工作流。
 
-**版本迭代**: v3.0.0 → v3.0.6.11-49（17 模块，9,000+ 升级点，**后端 251 端点 + IndexedDB 持久化**）
+**版本迭代**: v3.0.0 → v3.0.6.11-50（17 模块，9,000+ 升级点，**后端 251 端点 + IndexedDB 持久化**）
 
 ### v3.0.6.8-40 眼科深化 (7 PR 并行, 对标 Topcon Synergy 8.0)
 
@@ -38,32 +38,33 @@ G005 是面向**三级甲等综合医院**的企业级放射信息系统(RIS)，
 
 ### 核心能力矩阵（17 模块 9,000+ 点）
 
-| # | 模块 | 升级点 | 对标厂商 | 新文件 |
-|:-:|------|:------:|---------|:-----:|
-| 1 | **AI 增强** (编排/市场/联邦/检测/追踪/反馈/治理) | 1,100 | GE Edison, Siemens AI-Rad | 27 |
-| 2 | **工作流管理** (BPMN 设计器/智能列表/负载均衡/路由/SLA) | 900 | Intelerad Clario, Philips PerformanceBridge | 23 |
-| 3 | **报告模板** (11 RADS 计算器/自动填充/计算引擎/条件逻辑) | 800 | Carestream Vue, Intelerad InSight | 27 |
-| 4 | **影像后处理** (CPR/血管分析/心功能/灌注/分割/PET SUV) | 900 | Canon Vitrea, Siemens syngo.via | 23 |
-| 5 | **危急值管理** (SMS/语音IVR/闭环确认/PACS 自动检测/JCI) | 600 | GE Centricity, Fujifilm RadNav | 25 |
-| 6 | **语音/听写** (云STT/医学词库/100+命令/声纹/字段导航) | 540 | Philips SpeechMagic, Carestream PowerScribe | 22 |
-| 7 | **影像锚定/标注** (病灶追踪/DICOM SR TID 1500/3D 测量/ROI) | 500 | GE Edison, Siemens syngo | 20 |
-| 8 | **多模态融合** (自动配准/PET SUV/多模态AI/病理-影像) | 400 | Philips IMR, Siemens syngo Fusion | 21 |
-| 9 | **集成 IHE/FHIR/HL7** (MLLP/FHIR R4/XDS.b/DICOMweb/ATNA) | 620 | Agfa XERO, GE Centricity | 22 |
-| 10 | **签名/审批/合规** (多模态生物特征/证书生命周期/多级审批/HSM) | 400 | GE CA Sign, Hologic MQSA | 16 |
-| 11 | **协作/实时** (WebSocket/在线状态/评论/屏幕共享/版本对比) | 400 | Philips Collaboration, Intelerad | 12 |
-| 12 | **临床决策支持 CDS** (禁忌症50+/药物相互作用/剂量告警/路径) | 600 | ACR Select, Philips CDS | 16 |
-| 13 | **数据分析/KPI 大盘** (50+KPI/拖拽仪表盘/预测/基准/桑基图) | 500 | Siemens teamplay, Philips PerformanceBridge | 23 |
-| 14 | **安全/等保** (HSM/MFA/零信任/PHI检测/等保2.0/HIPAA/GDPR) | 500 | GE Security, Agfa Security | 21 |
-| 15 | **移动/平板** (离线同步/生物识别/推送/手势/语音激活) | 300 | Fujifilm Synapse Mobility, Carestream Vue Motion | 15 |
-| 16 | **导出/打印** (批量ZIP/加密PDF/PPTX/QR印章/水印/SFTP) | 500 | Carestream Export, Siemens syngo | 16 |
-| 17 | **患者门户** (患者访问/加密分享/多通道通知/同意管理/QR) | 200 | MyVue, UnityVue Portal | 13 |
-| | **合计** | **~9,360** | **10 大厂商** | **~430** |
+|  #  | 模块                                                          |   升级点   | 对标厂商                                         |  新文件  |
+| :-: | ------------------------------------------------------------- | :--------: | ------------------------------------------------ | :------: |
+|  1  | **AI 增强** (编排/市场/联邦/检测/追踪/反馈/治理)              |   1,100    | GE Edison, Siemens AI-Rad                        |    27    |
+|  2  | **工作流管理** (BPMN 设计器/智能列表/负载均衡/路由/SLA)       |    900     | Intelerad Clario, Philips PerformanceBridge      |    23    |
+|  3  | **报告模板** (11 RADS 计算器/自动填充/计算引擎/条件逻辑)      |    800     | Carestream Vue, Intelerad InSight                |    27    |
+|  4  | **影像后处理** (CPR/血管分析/心功能/灌注/分割/PET SUV)        |    900     | Canon Vitrea, Siemens syngo.via                  |    23    |
+|  5  | **危急值管理** (SMS/语音IVR/闭环确认/PACS 自动检测/JCI)       |    600     | GE Centricity, Fujifilm RadNav                   |    25    |
+|  6  | **语音/听写** (云STT/医学词库/100+命令/声纹/字段导航)         |    540     | Philips SpeechMagic, Carestream PowerScribe      |    22    |
+|  7  | **影像锚定/标注** (病灶追踪/DICOM SR TID 1500/3D 测量/ROI)    |    500     | GE Edison, Siemens syngo                         |    20    |
+|  8  | **多模态融合** (自动配准/PET SUV/多模态AI/病理-影像)          |    400     | Philips IMR, Siemens syngo Fusion                |    21    |
+|  9  | **集成 IHE/FHIR/HL7** (MLLP/FHIR R4/XDS.b/DICOMweb/ATNA)      |    620     | Agfa XERO, GE Centricity                         |    22    |
+| 10  | **签名/审批/合规** (多模态生物特征/证书生命周期/多级审批/HSM) |    400     | GE CA Sign, Hologic MQSA                         |    16    |
+| 11  | **协作/实时** (WebSocket/在线状态/评论/屏幕共享/版本对比)     |    400     | Philips Collaboration, Intelerad                 |    12    |
+| 12  | **临床决策支持 CDS** (禁忌症50+/药物相互作用/剂量告警/路径)   |    600     | ACR Select, Philips CDS                          |    16    |
+| 13  | **数据分析/KPI 大盘** (50+KPI/拖拽仪表盘/预测/基准/桑基图)    |    500     | Siemens teamplay, Philips PerformanceBridge      |    23    |
+| 14  | **安全/等保** (HSM/MFA/零信任/PHI检测/等保2.0/HIPAA/GDPR)     |    500     | GE Security, Agfa Security                       |    21    |
+| 15  | **移动/平板** (离线同步/生物识别/推送/手势/语音激活)          |    300     | Fujifilm Synapse Mobility, Carestream Vue Motion |    15    |
+| 16  | **导出/打印** (批量ZIP/加密PDF/PPTX/QR印章/水印/SFTP)         |    500     | Carestream Export, Siemens syngo                 |    16    |
+| 17  | **患者门户** (患者访问/加密分享/多通道通知/同意管理/QR)       |    200     | MyVue, UnityVue Portal                           |    13    |
+|     | **合计**                                                      | **~9,360** | **10 大厂商**                                    | **~430** |
 
 ---
 
 ## 🖼️ 截图
 
 > 截图存放于 `screenshots/` 目录，包含以下页面:
+>
 > - **首页仪表盘**: `screenshots/home.png`
 > - **工作列表**: `screenshots/worklist.png`
 > - **报告编辑器**: `screenshots/report-editor.png`
@@ -113,6 +114,7 @@ npm run storybook          # Storybook(6006)
 ## 🏗️ 技术栈
 
 ### 核心
+
 - **React 18.3.1** + **TypeScript 5.6** + **Vite 5.4**
 - **antd 5.21** + **lucide-react**
 - **XState 5.18**（7 状态机：报告 20 态/检查 14 态/订单 6 态/危急值 7 态/设备 5 态/协同 5 态/索赔 8 态）
@@ -121,21 +123,26 @@ npm run storybook          # Storybook(6006)
 - **React Router 6.28**（129 懒加载路由）
 
 ### 影像
+
 - **@cornerstonejs 4.22**（DICOM 渲染引擎：MPR/MIP/VR/CPR）
 - **dcmjs 0.52** + **three 0.184**（3D 体积渲染）
 
 ### 图表
+
 - **recharts 2.15**（柱状/折线/饼图/面积/散点/雷达/桑基图）
 
 ### 编辑器
+
 - **@tiptap/react 3.26**（ProseMirror 富文本编辑器）
 - **pinyin-pro 3.26**（中文拼音搜索）
 
 ### 集成
+
 - **msw 2.6**（浏览器端 Mock 服务，150+ 端点）
 - **DICOM / HL7 v2 / FHIR R4 / IHE / DICOMweb 全套模拟集成**
 
 ### 安全
+
 - **CA 数字签名**（SM2-SM3 国密，mock）
 - **MFA 多因子认证（TOTP/SMS/Email）**
 - **RBAC + ABAC 权限控制**
@@ -144,6 +151,7 @@ npm run storybook          # Storybook(6006)
 - **PHI 检测与脱敏**
 
 ### 测试
+
 - **Vitest 2.0** + **@testing-library/react 16**
 - **Playwright 1.49**（E2E）
 - **Storybook 8.4**
@@ -193,29 +201,29 @@ g005-radiology-ris/
 
 ## 🎯 7 大 XState 状态机
 
-| 状态机 | 状态数 | 说明 |
-|--------|:------:|------|
-| `reportMachine` | 20 | 草稿→初审(主治)→终审(主任)→CoSign(双签)→发布→升级/整改/补充 |
-| `examMachine` | 14 | 预约→报到→检查中→暂停→完成→影像到达→质控→待报告→已报告→发布 |
-| `orderMachine` | 6 | 开单→确认→执行→计费→完成→归档 |
-| `criticalValueMachine` | 7 + 1 | 发现→通知→确认→处理→升级→解决→关闭 + 已闭环 |
-| `deviceMachine` | 5 | 在线/离线/维护/使用中/空闲 |
-| `collaborationMachine` | 5 + 1 | 空闲/编辑中/等待/保存/冲突 + 屏幕共享中 |
-| `claimsMachine` (RCM) | 8 | 提交→审核→通过/拒赔→申诉→解决 |
+| 状态机                 | 状态数 | 说明                                                        |
+| ---------------------- | :----: | ----------------------------------------------------------- |
+| `reportMachine`        |   20   | 草稿→初审(主治)→终审(主任)→CoSign(双签)→发布→升级/整改/补充 |
+| `examMachine`          |   14   | 预约→报到→检查中→暂停→完成→影像到达→质控→待报告→已报告→发布 |
+| `orderMachine`         |   6    | 开单→确认→执行→计费→完成→归档                               |
+| `criticalValueMachine` | 7 + 1  | 发现→通知→确认→处理→升级→解决→关闭 + 已闭环                 |
+| `deviceMachine`        |   5    | 在线/离线/维护/使用中/空闲                                  |
+| `collaborationMachine` | 5 + 1  | 空闲/编辑中/等待/保存/冲突 + 屏幕共享中                     |
+| `claimsMachine` (RCM)  |   8    | 提交→审核→通过/拒赔→申诉→解决                               |
 
 ---
 
 ## 📊 性能指标
 
-| 指标 | 值 |
-|------|:----:|
-| 代码总行数 | ~283,000 |
-| TS/TSX 文件 | ~1,020 |
-| 页面路由 | 129+ |
-| 状态机 | 7 台（68 态） |
-| 中英文 i18n 键 | 2,200+ |
-| 模块总数 | 17 |
-| 总升级点 | ~9,360 |
+| 指标           |      值       |
+| -------------- | :-----------: |
+| 代码总行数     |   ~283,000    |
+| TS/TSX 文件    |    ~1,020     |
+| 页面路由       |     129+      |
+| 状态机         | 7 台（68 态） |
+| 中英文 i18n 键 |    2,200+     |
+| 模块总数       |      17       |
+| 总升级点       |    ~9,360     |
 
 ---
 
@@ -237,36 +245,36 @@ g005-radiology-ris/
 
 ## 📚 文档
 
-| 文档 | 路径 |
-|------|------|
-| 运维手册 | `docs/OPERATIONS_MANUAL.md` |
-| 备份恢复 | `docs/BACKUP_RECOVERY.md` |
-| 部署检查清单 | `docs/DEPLOYMENT_CHECKLIST.md` |
-| 监控告警 | `docs/MONITORING.md` |
-| PACS 对标规格 | `docs/v3.0.6.1-B*.md`（8 份） |
-| 版本说明 | `CHANGELOG.md` |
+| 文档          | 路径                           |
+| ------------- | ------------------------------ |
+| 运维手册      | `docs/OPERATIONS_MANUAL.md`    |
+| 备份恢复      | `docs/BACKUP_RECOVERY.md`      |
+| 部署检查清单  | `docs/DEPLOYMENT_CHECKLIST.md` |
+| 监控告警      | `docs/MONITORING.md`           |
+| PACS 对标规格 | `docs/v3.0.6.1-B*.md`（8 份）  |
+| 版本说明      | `CHANGELOG.md`                 |
 
 ---
 
 ## 🗺️ 版本路线图
 
-| 版本 | 核心内容 | 状态 |
-|------|---------|:----:|
-| v3.0.0 → v3.0.5.0 | 前端重构 + 5 R3 模块 + 20 厂商对标 | ✅ 完成 |
-| v3.0.5.1 | 修复 MSW 路径 + 最终发布 | ✅ 完成 |
-| v3.0.6.1 | 4 PACS 厂商 MVP (GE/Siemens/Philips/Canon) | ✅ 完成 |
-| v3.0.6.8-xx | 17 模块 9,000+ 升级点 + 眼科深化 | ✅ 完成 |
-| **v3.0.6.11-49** | **严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证** | ✅ **当前** |
-| v3.0.6.11-33 | 251 端点 + 12 Store + 40 报表 + 按钮-Tab 真实可达性审计 + 200 路由回归 | ✅ 完成 |
-| v3.0.6.2 | 修复 9 项导航点击报错 | ✅ 完成 |
-| v3.0.6.3 | 全面审查修复 25 项问题（20 agent） | ✅ 完成 |
-| v3.0.6.5 | 报告书写 480 点扩展（10 vendor benchmark） | ✅ 完成 |
-| v3.0.6.7 | AI/工作流/模板/影像/危急值/语音/标注/融合/集成（9 模块） | ✅ 完成 |
-| v3.0.6.8-xx | 签名/协作/CDS/KPI/安全/移动/导出/门户（8 模块 9,000+ 点） | ✅ 完成 |
-| v3.0.7 | 后端 NestJS + JWT + Prisma + 真实 FHIR/HL7 | 🔄 规划 |
-| v3.0.8 | 真实 PACS 集成（Orthanc/本地 DICOM） | 📅 规划 |
-| v3.0.9 | 原生 iOS/Android App | 📅 规划 |
-| v4.0 | SaaS 多租户商业版 | 📅 规划 |
+| 版本              | 核心内容                                                                     |    状态     |
+| ----------------- | ---------------------------------------------------------------------------- | :---------: |
+| v3.0.0 → v3.0.5.0 | 前端重构 + 5 R3 模块 + 20 厂商对标                                           |   ✅ 完成   |
+| v3.0.5.1          | 修复 MSW 路径 + 最终发布                                                     |   ✅ 完成   |
+| v3.0.6.1          | 4 PACS 厂商 MVP (GE/Siemens/Philips/Canon)                                   |   ✅ 完成   |
+| v3.0.6.8-xx       | 17 模块 9,000+ 升级点 + 眼科深化                                             |   ✅ 完成   |
+| **v3.0.6.11-50**  | **严格审查+21文件编码修复+安全P0修复+TOTP改造+14端点对接+Mock清理+窗位完善** | ✅ **当前** |
+| v3.0.6.11-33      | 251 端点 + 12 Store + 40 报表 + 按钮-Tab 真实可达性审计 + 200 路由回归       |   ✅ 完成   |
+| v3.0.6.2          | 修复 9 项导航点击报错                                                        |   ✅ 完成   |
+| v3.0.6.3          | 全面审查修复 25 项问题（20 agent）                                           |   ✅ 完成   |
+| v3.0.6.5          | 报告书写 480 点扩展（10 vendor benchmark）                                   |   ✅ 完成   |
+| v3.0.6.7          | AI/工作流/模板/影像/危急值/语音/标注/融合/集成（9 模块）                     |   ✅ 完成   |
+| v3.0.6.8-xx       | 签名/协作/CDS/KPI/安全/移动/导出/门户（8 模块 9,000+ 点）                    |   ✅ 完成   |
+| v3.0.7            | 后端 NestJS + JWT + Prisma + 真实 FHIR/HL7                                   |   🔄 规划   |
+| v3.0.8            | 真实 PACS 集成（Orthanc/本地 DICOM）                                         |   📅 规划   |
+| v3.0.9            | 原生 iOS/Android App                                                         |   📅 规划   |
+| v4.0              | SaaS 多租户商业版                                                            |   📅 规划   |
 
 ---
 
@@ -296,7 +304,7 @@ G005 v3.0.6.11-40 由 **DeepSeek-v4-Flash** 多 Agent 协作完成，共 17 个 
 
 ---
 
-**v3.0.6.11-49** — 17 模块 · 9,000+ 点 · 10 大厂商对标 · 17 agent 并行  
+**v3.0.6.11-50** — 17 模块 · 9,000+ 点 · 10 大厂商对标 · 17 agent 并行  
 **站点**: [https://lz2026km.github.io/g005-radiology-ris](https://lz2026km.github.io/g005-radiology-ris)  
 **仓库**: [github.com/lz2026km/g005-radiology-ris](https://github.com/lz2026km/g005-radiology-ris)  
 **平台**: React 18 + TypeScript + Vite + Antd + XState 5 + Recharts

@@ -1,4 +1,4 @@
-﻿// v3.0.6.11-49: 核心 Bug 修复版
+﻿// v3.0.6.11-50: 核心 Bug 修复版
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
@@ -14,7 +14,7 @@ import "./styles/transitions.css";
 import "./styles/responsive.css";
 import "./styles/z-index.css";
 
-const APP_VERSION = "3.0.6.11-49";
+const APP_VERSION = "3.0.6.11-50";
 console.info(`[v${APP_VERSION}] === BOOT START ===`);
 console.info(`[v${APP_VERSION}] Location:`, window.location.href);
 
@@ -87,7 +87,9 @@ async function startMSWWithTimeout(timeoutMs = 10000): Promise<boolean> {
           `  reg[${i}]: scope=${r.scope}, active=${r.active?.state}, installing=${r.installing?.state}, waiting=${r.waiting?.state}`,
         );
       });
-    } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
+    } catch (e) {
+      console.warn("[F03] Error:", (e as Error)?.message);
+    }
     console.warn(`[v${APP_VERSION}] MSW failed (continuing anyway):`, err);
     return false;
   }

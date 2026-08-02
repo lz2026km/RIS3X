@@ -3,7 +3,7 @@
 // Phase R8 W4-C: 中文连续听写 + 字段级焦?+ 语音命令
 // ============================================================
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect } from "react";
 
 declare global {
   interface Window {
@@ -13,9 +13,9 @@ declare global {
 }
 
 export interface VoiceDictationOptions {
-  lang?: string;               // 默认 'zh-CN'
-  continuous?: boolean;        // 默认 true
-  interimResults?: boolean;    // 默认 true
+  lang?: string; // 默认 'zh-CN'
+  continuous?: boolean; // 默认 true
+  interimResults?: boolean; // 默认 true
   onResult?: (transcript: string, isFinal: boolean) => void;
   onError?: (error: string) => void;
   onEnd?: () => void;
@@ -33,7 +33,7 @@ export interface VoiceState {
 
 export function useVoiceDictation(options: VoiceDictationOptions = {}) {
   const {
-    lang = 'zh-CN',
+    lang = "zh-CN",
     continuous = true,
     interimResults = true,
     onResult,
@@ -44,8 +44,8 @@ export function useVoiceDictation(options: VoiceDictationOptions = {}) {
   const [isSupported, setIsSupported] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [transcript, setTranscript] = useState('');
-  const [interimTranscript, setInterimTranscript] = useState('');
+  const [transcript, setTranscript] = useState("");
+  const [interimTranscript, setInterimTranscript] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [duration, setDuration] = useState(0);
 
@@ -55,7 +55,7 @@ export function useVoiceDictation(options: VoiceDictationOptions = {}) {
 
   // 初始化检?
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       setIsSupported(!!SR);
     }
@@ -63,7 +63,7 @@ export function useVoiceDictation(options: VoiceDictationOptions = {}) {
 
   const start = useCallback(() => {
     if (!isSupported) {
-      setError('当前浏览器不支持语音识别（请使用 Chrome/Edge?);
+      setError("当前浏览器不支持语音识别（请使用 Chrome/Edge");
       return;
     }
     if (isListening) return;
@@ -77,8 +77,8 @@ export function useVoiceDictation(options: VoiceDictationOptions = {}) {
       recognition.maxAlternatives = 1;
 
       recognition.onresult = (event: any) => {
-        let interim = '';
-        let final = '';
+        let interim = "";
+        let final = "";
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const transcriptPart = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
@@ -92,17 +92,17 @@ export function useVoiceDictation(options: VoiceDictationOptions = {}) {
           onResult?.(interim, false);
         }
         if (final) {
-          setTranscript(prev => prev + final);
-          setInterimTranscript('');
+          setTranscript((prev) => prev + final);
+          setInterimTranscript("");
           onResult?.(final, true);
         }
       };
 
       recognition.onerror = (event: any) => {
-        const errMsg = event.error || '未知错误';
+        const errMsg = event.error || "未知错误";
         setError(errMsg);
         onError?.(errMsg);
-        if (errMsg === 'no-speech' || errMsg === 'audio-capture') {
+        if (errMsg === "no-speech" || errMsg === "audio-capture") {
           // 自动重启
           setTimeout(() => {
             if (isListening) start();
@@ -130,8 +130,8 @@ export function useVoiceDictation(options: VoiceDictationOptions = {}) {
       setIsListening(true);
       setIsPaused(false);
       setError(null);
-      setTranscript('');
-      setInterimTranscript('');
+      setTranscript("");
+      setInterimTranscript("");
       setDuration(0);
       startTimeRef.current = Date.now();
 
@@ -139,14 +139,28 @@ export function useVoiceDictation(options: VoiceDictationOptions = {}) {
         setDuration(Math.floor((Date.now() - startTimeRef.current) / 1000));
       }, 1000);
     } catch (e: any) {
-      setError(e.message || '启动失败');
+      setError(e.message || "启动失败");
       setIsListening(false);
     }
-  }, [isSupported, isListening, isPaused, lang, continuous, interimResults, onResult, onError, onEnd]);
+  }, [
+    isSupported,
+    isListening,
+    isPaused,
+    lang,
+    continuous,
+    interimResults,
+    onResult,
+    onError,
+    onEnd,
+  ]);
 
   const stop = useCallback(() => {
     if (recognitionRef.current) {
-      try { recognitionRef.current.stop(); } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {
+        console.warn("[F03] Error:", (e as Error)?.message);
+      }
       recognitionRef.current = null;
     }
     if (timerRef.current) {
@@ -159,7 +173,11 @@ export function useVoiceDictation(options: VoiceDictationOptions = {}) {
 
   const pause = useCallback(() => {
     if (recognitionRef.current && isListening) {
-      try { recognitionRef.current.stop(); } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {
+        console.warn("[F03] Error:", (e as Error)?.message);
+      }
       setIsPaused(true);
     }
   }, [isListening]);
@@ -170,18 +188,25 @@ export function useVoiceDictation(options: VoiceDictationOptions = {}) {
 
   const reset = useCallback(() => {
     stop();
-    setTranscript('');
-    setInterimTranscript('');
+    setTranscript("");
+    setInterimTranscript("");
     setDuration(0);
     setError(null);
   }, [stop]);
 
-  useEffect(() => () => {
-    if (recognitionRef.current) {
-      try { recognitionRef.current.stop(); } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
-    }
-    if (timerRef.current) clearInterval(timerRef.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (e) {
+          console.warn("[F03] Error:", (e as Error)?.message);
+        }
+      }
+      if (timerRef.current) clearInterval(timerRef.current);
+    },
+    [],
+  );
 
   return {
     isSupported,
@@ -200,21 +225,24 @@ export function useVoiceDictation(options: VoiceDictationOptions = {}) {
 }
 
 // 语音命令处理（中文）
-export function processVoiceCommand(text: string): { command: string; cleanText: string } {
+export function processVoiceCommand(text: string): {
+  command: string;
+  cleanText: string;
+} {
   const commands: Array<{ pattern: RegExp; command: string }> = [
-    { pattern: /^(换行|回车|另起一?/, command: '\n' },
-    { pattern: /(新段|新段落|另起一?/, command: '\n\n' },
-    { pattern: /^(冒号|分号)/, command: '? },
-    { pattern: /(句号|?/, command: '? },
-    { pattern: /(逗号|?/, command: '? },
-    { pattern: /^(删除)/, command: 'DELETE' },
+    { pattern: /^(换行|回车|另起一行)/, command: "\n" },
+    { pattern: /(新段|新段落|另起一行)/, command: "\n\n" },
+    { pattern: /^(冒号|分号)/, command: ":" },
+    { pattern: /(句号|。)/, command: "。" },
+    { pattern: /(逗号|，)/, command: "，" },
+    { pattern: /^(删除)/, command: "DELETE" },
   ];
 
   for (const { pattern, command } of commands) {
     if (pattern.test(text)) {
-      const cleanText = text.replace(pattern, '').trim();
+      const cleanText = text.replace(pattern, "").trim();
       return { command, cleanText };
     }
   }
-  return { command: '', cleanText: text };
+  return { command: "", cleanText: text };
 }

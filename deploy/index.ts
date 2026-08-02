@@ -1,7 +1,7 @@
-﻿export const DEPLOY_VERSION = '3.0.6.11-49'; // must match image tags in values.yaml & Chart.yaml appVersion
+﻿export const DEPLOY_VERSION = "3.0.6.11-50"; // must match image tags in values.yaml & Chart.yaml appVersion
 
 export interface DeployConfig {
-  environment: 'development' | 'staging' | 'production';
+  environment: "development" | "staging" | "production";
   replicas: number;
   dockerImageTag: string;
   registry: string;
@@ -9,20 +9,22 @@ export interface DeployConfig {
   helmReleaseName: string;
 }
 
-export function getDefaultDeployConfig(env: DeployConfig['environment'] = 'development'): DeployConfig {
+export function getDefaultDeployConfig(
+  env: DeployConfig["environment"] = "development",
+): DeployConfig {
   return {
     environment: env,
-    replicas: env === 'production' ? 3 : 1,
+    replicas: env === "production" ? 3 : 1,
     dockerImageTag: `g005/ris:${DEPLOY_VERSION}`,
-    registry: 'docker.io',
+    registry: "docker.io",
     namespace: `g005-${env}`,
-    helmReleaseName: 'g005-ris',
+    helmReleaseName: "g005-ris",
   };
 }
 
 export function validateDeployConfig(config: DeployConfig): string[] {
   const errors: string[] = [];
-  if (config.replicas < 1) errors.push('Replicas must be >= 1');
-  if (config.replicas > 20) errors.push('Replicas must be <= 20');
+  if (config.replicas < 1) errors.push("Replicas must be >= 1");
+  if (config.replicas > 20) errors.push("Replicas must be <= 20");
   return errors;
 }

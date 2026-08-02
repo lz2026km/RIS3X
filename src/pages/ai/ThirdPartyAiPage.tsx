@@ -1,118 +1,381 @@
-import React, { useState } from 'react'
-import { Card, Table, Button, Tag, Space, Row, Col, Statistic, Modal, Form, Input, Select, message, Badge, Switch } from 'antd'
-import { Plug, Trash2, Plus, CheckCircle, Shield, Zap } from 'lucide-react'
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  Card,
+  Table,
+  Button,
+  Tag,
+  Space,
+  Row,
+  Col,
+  Statistic,
+  Modal,
+  Form,
+  Input,
+  Select,
+  message,
+  Badge,
+  Switch,
+  Spin,
+  Alert,
+  Descriptions,
+} from "antd";
+import {
+  Plug,
+  Trash2,
+  Plus,
+  CheckCircle,
+  Shield,
+  Zap,
+  RefreshCw,
+} from "lucide-react";
+import { aiPlatformApi } from "../../services/api/aiPlatformApi";
+import type {
+  AiPlatformModel,
+  AiPlatformStats,
+} from "../../services/api/aiPlatformApi";
 
-interface ThirdPartyAiProvider {
-  id: string
-  name: string
-  type: string
-  endpoint: string
-  status: 'connected' | 'disconnected' | 'error'
-  apiKey?: string
-  model: string
-  lastSync: string
-  requestCount: number
-  avgLatency: number
-  accuracy: number
-  enabled: boolean
-}
-
-const mockProviders: ThirdPartyAiProvider[] = [
-  { id: 'tp-001', name: 'Google Cloud Vision AI', type: 'cloud', endpoint: 'https://vision.googleapis.com/v1', status: 'connected', model: 'chest-xray-v3', lastSync: '2026-07-28T10:00:00Z', requestCount: 1250, avgLatency: 120, accuracy: 0.94, enabled: true },
-  { id: 'tp-002', name: 'Microsoft Azure Health', type: 'cloud', endpoint: 'https://api.health.azure.com/v1', status: 'connected', model: 'radiology-cad-v2', lastSync: '2026-07-28T09:30:00Z', requestCount: 890, avgLatency: 150, accuracy: 0.91, enabled: true },
-  { id: 'tp-003', name: 'AWS HealthImaging', type: 'cloud', endpoint: 'https://runtime.healthimaging.amazonaws.com', status: 'disconnected', model: 'mri-analysis-v1', lastSync: '2026-07-27T18:00:00Z', requestCount: 0, avgLatency: 0, accuracy: 0, enabled: false },
-  { id: 'tp-004', name: '本地部署模型', type: 'on-premise', endpoint: 'http://192.168.1.100:8080/api/v1', status: 'connected', model: 'custom-ct-cad-v1', lastSync: '2026-07-28T10:15:00Z', requestCount: 3200, avgLatency: 85, accuracy: 0.89, enabled: true },
-  { id: 'tp-005', name: 'Baidu Medical AI', type: 'cloud', endpoint: 'https://ai.baidu.com/medical/v1', status: 'error', model: 'lung-nodule-v2', lastSync: '2026-07-26T12:00:00Z', requestCount: 150, avgLatency: 0, accuracy: 0.87, enabled: false },
-]
-
-const statusLabel: Record<string, string> = { connected: '已连接', disconnected: '已断开', error: '异常' }
-const typeColor: Record<string, string> = { cloud: 'blue', on_premise: 'purple' }
-const typeLabel: Record<string, string> = { cloud: '云端', on_premise: '本地' }
+const statusLabel: Record<string, string> = {
+  active: "已连接",
+  inactive: "已断开",
+  deprecated: "异常",
+};
+const statusBadge: Record<string, "success" | "default" | "error"> = {
+  active: "success",
+  inactive: "default",
+  deprecated: "error",
+};
+const typeColor: Record<string, string> = {
+  diagnosis: "blue",
+  segmentation: "purple",
+  detection: "cyan",
+  classification: "geekblue",
+  nlp: "orange",
+};
+const typeLabel: Record<string, string> = {
+  diagnosis: "诊断",
+  segmentation: "分割",
+  detection: "检测",
+  classification: "分类",
+  nlp: "NLP",
+};
 
 const ThirdPartyAiPage: React.FC = () => {
-  const [providers, setProviders] = useState(mockProviders)
-  const [addOpen, setAddOpen] = useState(false)
-  const [selected, setSelected] = useState<ThirdPartyAiProvider | null>(null)
-  const [form] = Form.useForm()
+  const [providers, setProviders] = useState<AiPlatformModel[]>([]);
+  const [stats, setStats] = useState<AiPlatformStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [addOpen, setAddOpen] = useState(false);
+  const [detail, setDetail] = useState<AiPlatformModel | null>(null);
+  const [form] = Form.useForm();
 
-  const connected = providers.filter(p => p.status === 'connected').length
-  const totalRequests = providers.reduce((s, p) => s + p.requestCount, 0)
-  const avgAccuracy = providers.filter(p => p.accuracy > 0).reduce((s, p) => s + p.accuracy, 0) / (providers.filter(p => p.accuracy > 0).length || 1)
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const [modelsRes, statsRes] = await Promise.all([
+        aiPlatformApi.listModels(),
+        aiPlatformApi.getStats(),
+      ]);
+      if (modelsRes.success) setProviders(modelsRes.data ?? []);
+      else setError(modelsRes.error?.message ?? "加载失败");
+      if (statsRes.success) setStats(statsRes.data);
+    } catch (e) {
+      setError((e as Error)?.message ?? "加载失败");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const columns = [
-    { title: '名称', dataIndex: 'name', key: 'name', render: (v: string) => <Space><Plug size={14} color="#1677ff" />{v}</Space> },
-    { title: '类型', dataIndex: 'type', key: 'type', render: (v: string) => <Tag color={typeColor[v]}>{typeLabel[v] || v}</Tag> },
-    { title: '模型', dataIndex: 'model', key: 'model' },
-    { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Badge status={v === 'connected' ? 'success' : v === 'error' ? 'error' : 'default'} text={statusLabel[v]} /> },
-    { title: '准确率', dataIndex: 'accuracy', key: 'accuracy', render: (v: number) => v > 0 ? `${(v * 100).toFixed(0)}%` : '-' },
-    { title: '请求量', dataIndex: 'requestCount', key: 'requestCount' },
-    { title: '延迟', dataIndex: 'avgLatency', key: 'avgLatency', render: (v: number) => v > 0 ? `${v}ms` : '-' },
-    { title: '启用', dataIndex: 'enabled', key: 'enabled', render: (v: boolean) => <Switch size="small" checked={v} onChange={(checked) => {
-      setProviders(prev => prev.map(p => p.id === selected?.id ? { ...p, enabled: checked } : p))
-    }} /> },
-    { title: '操作', key: 'action', render: (_: unknown, r: ThirdPartyAiProvider) => (
-      <Space>
-        <Button size="small" type="primary" onClick={() => { setSelected(r) }}>详情</Button>
-        <Button size="small" danger icon={<Trash2 size={14} />} onClick={() => {
-          setProviders(prev => prev.filter(p => p.id !== r.id))
-          message.success('已移除')
-        }}>移除</Button>
-      </Space>
-    )},
-  ]
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const connected = providers.filter((p) => p.status === "active").length;
+  const totalRequests = stats?.totalInferences ?? 0;
+  const avgAccuracy =
+    providers
+      .filter((p) => (p.accuracy ?? 0) > 0)
+      .reduce((s, p) => s + (p.accuracy ?? 0), 0) /
+    (providers.filter((p) => (p.accuracy ?? 0) > 0).length || 1);
+
+  const handleToggle = async (record: AiPlatformModel, checked: boolean) => {
+    const res = await aiPlatformApi.updateModel(record.id, {
+      status: checked ? "active" : "inactive",
+    });
+    if (res.success) {
+      setProviders((prev) =>
+        prev.map((p) =>
+          p.id === record.id
+            ? { ...p, status: checked ? "active" : "inactive" }
+            : p,
+        ),
+      );
+      message.success(checked ? "已启用" : "已停用");
+    } else {
+      message.error(res.error?.message ?? "操作失败");
+    }
+  };
+
+  const handleDelete = async (record: AiPlatformModel) => {
+    const res = await aiPlatformApi.deleteModel(record.id);
+    if (res.success) {
+      setProviders((prev) => prev.filter((p) => p.id !== record.id));
+      message.success("已移除");
+    } else {
+      message.error(res.error?.message ?? "移除失败");
+    }
+  };
 
   const handleAdd = async () => {
     try {
-      const values = await form.validateFields()
-      const newProvider: ThirdPartyAiProvider = {
-        id: `tp-${Date.now()}`,
+      const values = await form.validateFields();
+      const res = await aiPlatformApi.deployModel({
         name: values.name,
         type: values.type,
         endpoint: values.endpoint,
-        status: 'connected',
-        model: values.model,
-        lastSync: new Date().toISOString(),
-        requestCount: 0,
-        avgLatency: 0,
-        accuracy: 0,
-        enabled: true,
+        version: values.model ?? "1.0",
+        modality: [],
+        description: "",
+        status: "active",
+      });
+      if (res.success) {
+        setProviders((prev) => [res.data!, ...prev]);
+        setAddOpen(false);
+        form.resetFields();
+        message.success("已添加");
+      } else {
+        message.error(res.error?.message ?? "添加失败");
       }
-      setProviders(prev => [newProvider, ...prev])
-      setAddOpen(false)
-      form.resetFields()
-      message.success('已添加')
-    } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
-  }
+    } catch (e) {
+      console.warn("[F03] Error:", (e as Error)?.message);
+    }
+  };
+
+  const columns = [
+    {
+      title: "名称",
+      dataIndex: "name",
+      key: "name",
+      render: (v: string) => (
+        <Space>
+          <Plug size={14} color="#1677ff" />
+          {v}
+        </Space>
+      ),
+    },
+    {
+      title: "类型",
+      dataIndex: "type",
+      key: "type",
+      render: (v: string) => (
+        <Tag color={typeColor[v]}>{typeLabel[v] || v}</Tag>
+      ),
+    },
+    { title: "模型", dataIndex: "version", key: "version" },
+    {
+      title: "状态",
+      dataIndex: "status",
+      key: "status",
+      render: (v: string) => (
+        <Badge
+          status={statusBadge[v] ?? "default"}
+          text={statusLabel[v] || v}
+        />
+      ),
+    },
+    {
+      title: "准确率",
+      dataIndex: "accuracy",
+      key: "accuracy",
+      render: (v?: number) =>
+        (v ?? 0) > 0 ? `${((v ?? 0) * 100).toFixed(0)}%` : "-",
+    },
+    {
+      title: "启用",
+      dataIndex: "status",
+      key: "enabled",
+      render: (v: string, r: AiPlatformModel) => (
+        <Switch
+          size="small"
+          checked={v === "active"}
+          onChange={(checked) => void handleToggle(r, checked)}
+        />
+      ),
+    },
+    {
+      title: "操作",
+      key: "action",
+      render: (_: unknown, r: AiPlatformModel) => (
+        <Space>
+          <Button size="small" type="primary" onClick={() => setDetail(r)}>
+            详情
+          </Button>
+          <Button
+            size="small"
+            danger
+            icon={<Trash2 size={14} />}
+            onClick={() => void handleDelete(r)}
+          >
+            移除
+          </Button>
+        </Space>
+      ),
+    },
+  ];
 
   return (
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16 }}>
         <Plug size={20} color="#1677ff" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>第三方 AI 集成</span>
+        <Button
+          size="small"
+          icon={<RefreshCw size={14} />}
+          onClick={() => void load()}
+          loading={loading}
+        >
+          刷新
+        </Button>
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card><Statistic title="提供商总数" value={providers.length} prefix={<Plug size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title="已连接" value={connected} valueStyle={{ color: '#52c41a' }} prefix={<CheckCircle size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title="总请求量" value={totalRequests} prefix={<Zap size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title="平均准确率" value={`${(avgAccuracy * 100).toFixed(1)}%`} prefix={<Shield size={16} />} /></Card></Col>
+        <Col span={6}>
+          <Card>
+            <Statistic
+              title="提供商总数"
+              value={providers.length}
+              prefix={<Plug size={16} />}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic
+              title="已连接"
+              value={connected}
+              valueStyle={{ color: "#52c41a" }}
+              prefix={<CheckCircle size={16} />}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic
+              title="总请求量"
+              value={totalRequests}
+              prefix={<Zap size={16} />}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic
+              title="平均准确率"
+              value={`${(avgAccuracy * 100).toFixed(1)}%`}
+              prefix={<Shield size={16} />}
+            />
+          </Card>
+        </Col>
       </Row>
+      {error && (
+        <Alert
+          type="error"
+          showIcon
+          style={{ marginBottom: 16 }}
+          message={error}
+          action={
+            <Button size="small" onClick={() => void load()}>
+              重试
+            </Button>
+          }
+        />
+      )}
       <Card
-        extra={<Button type="primary" icon={<Plus size={14} />} onClick={() => setAddOpen(true)}>添加提供商</Button>}
+        extra={
+          <Button
+            type="primary"
+            icon={<Plus size={14} />}
+            onClick={() => setAddOpen(true)}
+          >
+            添加提供商
+          </Button>
+        }
       >
-        <Table rowKey="id" dataSource={providers} columns={columns} pagination={false} size="small" />
+        <Spin spinning={loading}>
+          <Table
+            rowKey="id"
+            dataSource={providers}
+            columns={columns}
+            pagination={false}
+            size="small"
+          />
+        </Spin>
       </Card>
-      <Modal title="添加第三方 AI 提供商" open={addOpen} onOk={handleAdd} onCancel={() => setAddOpen(false)}>
+      <Modal
+        title="添加第三方 AI 提供商"
+        open={addOpen}
+        onOk={handleAdd}
+        onCancel={() => setAddOpen(false)}
+      >
         <Form form={form} layout="vertical">
-          <Form.Item name="name" label="名称" rules={[{ required: true }]}><Input /></Form.Item>
-          <Form.Item name="type" label="类型" rules={[{ required: true }]}>
-            <Select options={[{ value: 'cloud', label: '云端' }, { value: 'on_premise', label: '本地' }]} />
+          <Form.Item name="name" label="名称" rules={[{ required: true }]}>
+            <Input />
           </Form.Item>
-          <Form.Item name="endpoint" label="端点" rules={[{ required: true }]}><Input /></Form.Item>
-          <Form.Item name="model" label="模型名称" rules={[{ required: true }]}><Input /></Form.Item>
+          <Form.Item name="type" label="类型" rules={[{ required: true }]}>
+            <Select
+              options={[
+                { value: "diagnosis", label: "诊断" },
+                { value: "segmentation", label: "分割" },
+                { value: "detection", label: "检测" },
+                { value: "classification", label: "分类" },
+                { value: "nlp", label: "NLP" },
+              ]}
+            />
+          </Form.Item>
+          <Form.Item name="endpoint" label="端点" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="model" label="模型版本">
+            <Input placeholder="1.0" />
+          </Form.Item>
         </Form>
       </Modal>
+      <Modal
+        title={`提供商详情 - ${detail?.name}`}
+        open={detail != null}
+        onCancel={() => setDetail(null)}
+        footer={null}
+      >
+        {detail && (
+          <Descriptions column={1} size="small" bordered>
+            <Descriptions.Item label="名称">{detail.name}</Descriptions.Item>
+            <Descriptions.Item label="类型">
+              {typeLabel[detail.type] || detail.type}
+            </Descriptions.Item>
+            <Descriptions.Item label="模型版本">
+              {detail.version}
+            </Descriptions.Item>
+            <Descriptions.Item label="端点">
+              {detail.endpoint}
+            </Descriptions.Item>
+            <Descriptions.Item label="状态">
+              {statusLabel[detail.status] || detail.status}
+            </Descriptions.Item>
+            <Descriptions.Item label="准确率">
+              {detail.accuracy != null
+                ? `${(detail.accuracy * 100).toFixed(0)}%`
+                : "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="创建时间">
+              {detail.createdAt}
+            </Descriptions.Item>
+            <Descriptions.Item label="描述">
+              {detail.description || "-"}
+            </Descriptions.Item>
+          </Descriptions>
+        )}
+      </Modal>
     </div>
-  )
-}
+  );
+};
 
-export default ThirdPartyAiPage
+export default ThirdPartyAiPage;

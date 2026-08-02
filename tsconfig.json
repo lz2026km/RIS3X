@@ -62,5 +62,12 @@
     "types": ["vite/client", "node", "@testing-library/jest-dom"]
   },
   "include": ["src", "e2e"],
-  "exclude": ["node_modules", "dist", "storybook-static", "playwright-report", "test-results", "coverage", "src/pages/data-reports/DataReportTable.tsx", "src/data/InsuranceAuditData.ts"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "storybook-static",
+    "playwright-report",
+    "test-results",
+    "coverage"
+  ]
 }

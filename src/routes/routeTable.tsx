@@ -1,5 +1,5 @@
 /**
- * G005 放射RIS系统 - 路由表 v3.0.6.11-49
+ * G005 放射RIS系统 - 路由表 v3.0.6.11-50
  * 122+ lazy 页面 + Login + Forbidden + Navigate 重定向
  * 全部路由由 RequireAuth 包裹(基于 sidebarConfig 的角色映射)
  */
@@ -15,7 +15,9 @@ const ReportPage = lazy(() => import("../pages/ReportPage"));
 const ReportWritePage = lazy(() => import("../pages/ReportWritePage"));
 const WorklistPage = lazy(() => import("../pages/WorklistPage"));
 const StatisticsPage = lazy(() => import("../pages/StatisticsPage"));
-const CriticalValuePage = lazy(() => import("../pages/critical/CriticalValuePage"));
+const CriticalValuePage = lazy(
+  () => import("../pages/critical/CriticalValuePage"),
+);
 const TermLibraryPage = lazy(() => import("../pages/TermLibraryPage"));
 const DevicePage = lazy(() => import("../pages/DevicePage"));
 const ConsultationPage = lazy(() => import("../pages/ConsultationPage"));
@@ -25,14 +27,18 @@ const DoseTrackPage = lazy(() => import("../pages/DoseTrackPage"));
 const QueueCallPage = lazy(() => import("../pages/QueueCallPage"));
 const DicomViewerClassicPage = lazy(() => import("../pages/DicomViewerPage"));
 const DicomViewerProPage = lazy(() => import("../pages/dicom/DicomViewerPro"));
-const DicomCompressPage = lazy(() => import("../pages/dicom/DicomCompressPage"));
+const DicomCompressPage = lazy(
+  () => import("../pages/dicom/DicomCompressPage"),
+);
 const Dicom4dPage = lazy(() => import("../pages/dicom/Dicom4dPage"));
 const TypicalCasesPage = lazy(() => import("../pages/TypicalCasesPage"));
 const FindingLibraryPage = lazy(() => import("../pages/FindingLibraryPage"));
 const OperationLogPage = lazy(() => import("../pages/OperationLogPage"));
 const NotificationCenter = lazy(() => import("../pages/NotificationCenter"));
 const SchedulePage = lazy(() => import("../pages/SchedulePage"));
-const ClinicalConfigCenter = lazy(() => import("../pages/admin/ClinicalConfigCenter"));
+const ClinicalConfigCenter = lazy(
+  () => import("../pages/admin/ClinicalConfigCenter"),
+);
 const DepartmentPage = lazy(() => import("../pages/DepartmentPage"));
 const PrintManagementPage = lazy(() => import("../pages/PrintManagementPage"));
 const RegionalReportPage = lazy(() => import("../pages/RegionalReportPage"));
@@ -116,18 +122,28 @@ const DirectorDashboardPage = lazy(
 const GreenITPage = lazy(() => import("../pages/GreenITPage"));
 const ResearchPage = lazy(() => import("../pages/ResearchPage"));
 const DicomPrintPage = lazy(() => import("../pages/System/DicomPrintPage"));
-const FhirServerPage = lazy(() => import("../pages/integration/FhirServerPage"));
+const FhirServerPage = lazy(
+  () => import("../pages/integration/FhirServerPage"),
+);
 const IheConnectathonPage = lazy(
   () => import("../pages/integration/IheConnectathonPage"),
 );
 const MllpMonitorPage = lazy(
   () => import("../pages/integration/MllpMonitorPage"),
 );
-const Hl7ArchivePage = lazy(() => import("../pages/integration/Hl7ArchivePage"));
-const Hl7BuilderPage = lazy(() => import("../pages/integration/Hl7BuilderPage"));
-const MllpConfigPage = lazy(() => import("../pages/integration/MllpConfigPage"));
+const Hl7ArchivePage = lazy(
+  () => import("../pages/integration/Hl7ArchivePage"),
+);
+const Hl7BuilderPage = lazy(
+  () => import("../pages/integration/Hl7BuilderPage"),
+);
+const MllpConfigPage = lazy(
+  () => import("../pages/integration/MllpConfigPage"),
+);
 const DimsePage = lazy(() => import("../pages/integration/DimsePage"));
-const DimseUploadPage = lazy(() => import("../pages/integration/DimseUploadPage"));
+const DimseUploadPage = lazy(
+  () => import("../pages/integration/DimseUploadPage"),
+);
 const NuclearStatsPage = lazy(() => import("../pages/NuclearStatsPage"));
 const AIMedicalDevicePage = lazy(() => import("../pages/AIMedicalDevicePage"));
 const TermSynonymGraphPage = lazy(
@@ -243,9 +259,7 @@ const NurseMobileWorkstation = lazy(
 const TechMobileWorkstation = lazy(
   () => import("../pages/mobile/tech/TechMobileWorkstation"),
 );
-const MobilePushPage = lazy(
-  () => import("../pages/mobile/MobilePushPage"),
-);
+const MobilePushPage = lazy(() => import("../pages/mobile/MobilePushPage"));
 const DepartmentQualityPage = lazy(
   () => import("../pages/quality/DepartmentQualityPage"),
 );
@@ -272,9 +286,15 @@ const RoutingRulePage = lazy(() => import("../pages/RoutingRulePage"));
 const WorkloadHeatmapPage = lazy(() => import("../pages/WorkloadHeatmapPage"));
 const SlaPolicyPage = lazy(() => import("../pages/SlaPolicyPage"));
 // [v3.0.6.8-27] 新增质控页面
-const RadiologyQCDashboardPage = lazy(() => import("../pages/qc/RadiologyQCDashboardPage"));
-const ImageQualityControlPage = lazy(() => import("../pages/qc/ImageQualityControlPage"));
-const RadiologistAnnualQCPage = lazy(() => import("../pages/qc/RadiologistAnnualQCPage"));
+const RadiologyQCDashboardPage = lazy(
+  () => import("../pages/qc/RadiologyQCDashboardPage"),
+);
+const ImageQualityControlPage = lazy(
+  () => import("../pages/qc/ImageQualityControlPage"),
+);
+const RadiologistAnnualQCPage = lazy(
+  () => import("../pages/qc/RadiologistAnnualQCPage"),
+);
 const QcImageAiPage = lazy(() => import("../pages/qc/QcImageAiPage"));
 
 const EyeWorkspacePage = lazy(() => import("../pages/eye/EyeWorkspacePage"));
@@ -283,25 +303,48 @@ const PacsStudyListPage = lazy(
 );
 const PacsViewerPage = lazy(() => import("../pages/eye/pacs/PacsViewerPage"));
 // [v3.0.6.8-34] PR 1: 真实 DICOM 渲染
-const RealDicomViewerPage = lazy(() => import("../pages/eye/pacs/RealDicomViewerPage"));
+const RealDicomViewerPage = lazy(
+  () => import("../pages/eye/pacs/RealDicomViewerPage"),
+);
 // [v3.0.6.8-35] PR 2: AI 报告书写
-const AiReportWriterPage = lazy(() => import("../pages/eye/report/AiReportWriterPage"));
+const AiReportWriterPage = lazy(
+  () => import("../pages/eye/report/AiReportWriterPage"),
+);
 // [v3.0.6.8-36] PR 3: IOL 规划 (Toric 散光)
-const ToricPlannerPage = lazy(() => import("../pages/eye/ris/ToricPlannerPage"));
+const ToricPlannerPage = lazy(
+  () => import("../pages/eye/ris/ToricPlannerPage"),
+);
 // [v3.0.6.8-37] PR 4: 8 亚专科纵深
-import { StrabismusPage, NeuroOphthalmologyPage, OcularOncologyPage, CorneaPage, ContactLensFittingPage, LowVisionPage, CataractPage, RefractivePage } from "../pages/eye/sub/SubspecialtyExamsPage";
+import {
+  StrabismusPage,
+  NeuroOphthalmologyPage,
+  OcularOncologyPage,
+  CorneaPage,
+  ContactLensFittingPage,
+  LowVisionPage,
+  CataractPage,
+  RefractivePage,
+} from "../pages/eye/sub/SubspecialtyExamsPage";
 // [v3.0.6.8-41] PR 8: 远程眼科 + 视光中心
 const TeleConsultPage = lazy(() => import("../pages/eye/tele/TeleConsultPage"));
 // [v3.0.6.8-42] PR 9: 教学病例库
 const CaseLibraryPage = lazy(() => import("../pages/eye/edu/CaseLibraryPage"));
 // [v3.0.6.8-44] PR 11: 视光中心闭环
-const OptometryClosedLoopPage = lazy(() => import("../pages/eye/optometry/OptometryClosedLoopPage"));
+const OptometryClosedLoopPage = lazy(
+  () => import("../pages/eye/optometry/OptometryClosedLoopPage"),
+);
 // [v3.0.6.8-45] PR 1: 报告流程核心
-const ReportWorkflowPage = lazy(() => import("../pages/reports/ReportWorkflowPage"));
+const ReportWorkflowPage = lazy(
+  () => import("../pages/reports/ReportWorkflowPage"),
+);
 // [v3.0.6.8-46] PR 2: 患者 + 设备管理
-const PatientDeviceManagementPage = lazy(() => import("../pages/admin/PatientDeviceManagementPage"));
+const PatientDeviceManagementPage = lazy(
+  () => import("../pages/admin/PatientDeviceManagementPage"),
+);
 // [v3.0.6.8-47] PR 3: 通知 + 模板 + 词典
-const NotificationTemplateDictPage = lazy(() => import("../pages/admin/NotificationTemplateDictPage"));
+const NotificationTemplateDictPage = lazy(
+  () => import("../pages/admin/NotificationTemplateDictPage"),
+);
 // [v3.0.6.8-48] PR 4: 初核 + 终核 + 复审
 const ReviewCheckPage = lazy(() => import("../pages/review/ReviewCheckPage"));
 // [v3.0.6.8-49] PR 5: CA 签名 + 修订
@@ -312,76 +355,160 @@ const V3ReportHubPage = lazy(() => import("../pages/v3/V3ReportHubPage"));
 const MaterialsV2Page = lazy(() => import("../pages/materials/MaterialsPage"));
 const ToothChartPage = lazy(() => import("../pages/dental/ToothChartPage"));
 const DentalAIPage = lazy(() => import("../pages/dental/DentalAIPage"));
-const DentalWorkspacePage = lazy(() => import("../pages/dental/DentalWorkspacePage"));
-const DentalTreatmentPage = lazy(() => import("../pages/dental/DentalTreatmentPage"));
-const DentalImplantPlanPage = lazy(() => import("../pages/dental/DentalImplantPlanPage"));
+const DentalWorkspacePage = lazy(
+  () => import("../pages/dental/DentalWorkspacePage"),
+);
+const DentalTreatmentPage = lazy(
+  () => import("../pages/dental/DentalTreatmentPage"),
+);
+const DentalImplantPlanPage = lazy(
+  () => import("../pages/dental/DentalImplantPlanPage"),
+);
 const DentalOrthoPage = lazy(() => import("../pages/dental/DentalOrthoPage"));
 const DentalEndoPage = lazy(() => import("../pages/dental/DentalEndoPage"));
 const DentalPerioPage = lazy(() => import("../pages/dental/DentalPerioPage"));
-const DentalRestorativePage = lazy(() => import("../pages/dental/DentalRestorativePage"));
-const DentalSurgeryPage = lazy(() => import("../pages/dental/DentalSurgeryPage"));
-const DentalPediatricPage = lazy(() => import("../pages/dental/DentalPediatricPage"));
+const DentalRestorativePage = lazy(
+  () => import("../pages/dental/DentalRestorativePage"),
+);
+const DentalSurgeryPage = lazy(
+  () => import("../pages/dental/DentalSurgeryPage"),
+);
+const DentalPediatricPage = lazy(
+  () => import("../pages/dental/DentalPediatricPage"),
+);
 const DentalTelePage = lazy(() => import("../pages/dental/DentalTelePage"));
-const DentalInventoryPage = lazy(() => import("../pages/dental/DentalInventoryPage"));
-const DentalDashboardPage = lazy(() => import("../pages/dental/DentalDashboardPage"));
+const DentalInventoryPage = lazy(
+  () => import("../pages/dental/DentalInventoryPage"),
+);
+const DentalDashboardPage = lazy(
+  () => import("../pages/dental/DentalDashboardPage"),
+);
 const EmrTemplatesPage = lazy(() => import("../pages/emr/EmrTemplatesPage"));
 const SystemAdminPage = lazy(() => import("../pages/admin/SystemAdminPage"));
-const TreatmentPlanCenterPage = lazy(() => import("../pages/treatment/TreatmentPlanCenterPage"));
-const PatientPortalPageV2 = lazy(() => import("../pages/patient/PatientPortalPage"));
-const CommandCenterPage = lazy(() => import("../pages/operations/CommandCenterPage"));
-const BenchmarkPageV2 = lazy(() => import("../pages/analytics/BenchmarkPageV2"));
-const BenchmarkAiDiagnosisPage = lazy(() => import("../pages/analytics/BenchmarkAiDiagnosisPage"));
-const TatDashboardPage = lazy(() => import("../pages/analytics/TatDashboardPage"));
-const RoomOccupancyPage = lazy(() => import("../pages/operations/RoomOccupancyPage"));
+const TreatmentPlanCenterPage = lazy(
+  () => import("../pages/treatment/TreatmentPlanCenterPage"),
+);
+const PatientPortalPageV2 = lazy(
+  () => import("../pages/patient/PatientPortalPage"),
+);
+const CommandCenterPage = lazy(
+  () => import("../pages/operations/CommandCenterPage"),
+);
+const BenchmarkPageV2 = lazy(
+  () => import("../pages/analytics/BenchmarkPageV2"),
+);
+const BenchmarkAiDiagnosisPage = lazy(
+  () => import("../pages/analytics/BenchmarkAiDiagnosisPage"),
+);
+const TatDashboardPage = lazy(
+  () => import("../pages/analytics/TatDashboardPage"),
+);
+const RoomOccupancyPage = lazy(
+  () => import("../pages/operations/RoomOccupancyPage"),
+);
 const DicomSharePage = lazy(() => import("../pages/imaging/DicomSharePage"));
-const SchedulingCenterPage = lazy(() => import("../pages/operations/SchedulingCenterPage"));
-const OEEDashboardPage = lazy(() => import("../pages/operations/OEEDashboardPage"));
-const ClinicalPathwayPage = lazy(() => import("../pages/clinical/ClinicalPathwayPage"));
-const AuditCompliancePage = lazy(() => import("../pages/compliance/AuditCompliancePage"));
+const SchedulingCenterPage = lazy(
+  () => import("../pages/operations/SchedulingCenterPage"),
+);
+const OEEDashboardPage = lazy(
+  () => import("../pages/operations/OEEDashboardPage"),
+);
+const ClinicalPathwayPage = lazy(
+  () => import("../pages/clinical/ClinicalPathwayPage"),
+);
+const AuditCompliancePage = lazy(
+  () => import("../pages/compliance/AuditCompliancePage"),
+);
 const DicomSrPage = lazy(() => import("../pages/dicom/DicomSrPage"));
 const DicomWebPage = lazy(() => import("../pages/dicom/DicomWebPage"));
 const RadiomicsPage = lazy(() => import("../pages/dicom/RadiomicsPage"));
 const FusionPage = lazy(() => import("../pages/dicom/FusionPage"));
 const FusionV2Page = lazy(() => import("../pages/dicom/FusionV2Page"));
 const VolumeViewerPage = lazy(() => import("../pages/dicom/VolumeViewerPage"));
-const TerminologyServerPage = lazy(() => import("../pages/clinical/TerminologyServerPage"));
-const ReportTemplateManagerPage = lazy(() => import("../pages/reports/ReportTemplateManagerPage"));
-const IheIntegrationPage = lazy(() => import("../pages/integration/IheIntegrationPage"));
+const TerminologyServerPage = lazy(
+  () => import("../pages/clinical/TerminologyServerPage"),
+);
+const ReportTemplateManagerPage = lazy(
+  () => import("../pages/reports/ReportTemplateManagerPage"),
+);
+const IheIntegrationPage = lazy(
+  () => import("../pages/integration/IheIntegrationPage"),
+);
 const PixPage = lazy(() => import("../pages/ihe/PixPage"));
-const FhirBulkExportPage = lazy(() => import("../pages/integration/FhirBulkExportPage"));
-const FhirBulkExportDetailPage = lazy(() => import("../pages/integration/FhirBulkExportDetailPage"));
+const FhirBulkExportPage = lazy(
+  () => import("../pages/integration/FhirBulkExportPage"),
+);
+const FhirBulkExportDetailPage = lazy(
+  () => import("../pages/integration/FhirBulkExportDetailPage"),
+);
 const PamPage = lazy(() => import("../pages/ihe/PamPage"));
 const VisitPage = lazy(() => import("../pages/ihe/VisitPage"));
 const VisitDetailPage = lazy(() => import("../pages/ihe/VisitDetailPage"));
-const TeleConferencePage = lazy(() => import("../pages/tele/TeleConferencePage"));
-const AiFusionWorkspacePage = lazy(() => import("../pages/ai/AiFusionWorkspacePage"));
+const TeleConferencePage = lazy(
+  () => import("../pages/tele/TeleConferencePage"),
+);
+const AiFusionWorkspacePage = lazy(
+  () => import("../pages/ai/AiFusionWorkspacePage"),
+);
 const AiCadPage = lazy(() => import("../pages/ai/AiCadPage"));
 const AiDraftPage = lazy(() => import("../pages/ai/AiDraftPage"));
 const AiRadsPage = lazy(() => import("../pages/ai/AiRadsPage"));
 const AiReviewPage = lazy(() => import("../pages/ai/AiReviewPage"));
 const AiProvidersPage = lazy(() => import("../pages/ai/AiProvidersPage"));
-const ClinicalCalculatorHubPage = lazy(() => import("../pages/clinical/ClinicalCalculatorHubPage"));
-const ConsentEducationPage = lazy(() => import("../pages/consent/ConsentEducationPage"));
-const PatientSafetyDashboardPage = lazy(() => import("../pages/safety/PatientSafetyDashboardPage"));
+const ClinicalCalculatorHubPage = lazy(
+  () => import("../pages/clinical/ClinicalCalculatorHubPage"),
+);
+const ConsentEducationPage = lazy(
+  () => import("../pages/consent/ConsentEducationPage"),
+);
+const PatientSafetyDashboardPage = lazy(
+  () => import("../pages/safety/PatientSafetyDashboardPage"),
+);
 const DentalCadPage = lazy(() => import("../pages/dental/DentalCadPage"));
-const DentalImplant3DPage = lazy(() => import("../pages/dental/DentalImplant3DPage"));
+const DentalImplant3DPage = lazy(
+  () => import("../pages/dental/DentalImplant3DPage"),
+);
 const DentalGuidePage = lazy(() => import("../pages/dental/DentalGuidePage"));
 const DentalCephPage = lazy(() => import("../pages/dental/DentalCephPage"));
-const DentalAlignerPage = lazy(() => import("../pages/dental/DentalAlignerPage"));
-const DentalVolumeViewerPage = lazy(() => import("../pages/dental/DentalVolumeViewerPage"));
+const DentalAlignerPage = lazy(
+  () => import("../pages/dental/DentalAlignerPage"),
+);
+const DentalVolumeViewerPage = lazy(
+  () => import("../pages/dental/DentalVolumeViewerPage"),
+);
 const DentalEmrPage = lazy(() => import("../pages/dental/DentalEmrPage"));
-const DentalBillingPage = lazy(() => import("../pages/dental/DentalBillingPage"));
-const DentalSchedulePage = lazy(() => import("../pages/dental/DentalSchedulePage"));
+const DentalBillingPage = lazy(
+  () => import("../pages/dental/DentalBillingPage"),
+);
+const DentalSchedulePage = lazy(
+  () => import("../pages/dental/DentalSchedulePage"),
+);
 const DentalPhotoPage = lazy(() => import("../pages/dental/DentalPhotoPage"));
-const DentalStudiesPage = lazy(() => import("../pages/dental/DentalStudiesPage"));
+const DentalStudiesPage = lazy(
+  () => import("../pages/dental/DentalStudiesPage"),
+);
 const DentalViewerPage = lazy(() => import("../pages/dental/DentalViewerPage"));
 const Scan3DViewerPage = lazy(() => import("../pages/dental/Scan3DViewerPage"));
-const PanoramicAnnotatorPage = lazy(() => import("../pages/dental/PanoramicAnnotatorPage"));
+const PanoramicAnnotatorPage = lazy(
+  () => import("../pages/dental/PanoramicAnnotatorPage"),
+);
 const MprViewerPage = lazy(() => import("../pages/dental/MprViewerPage"));
 const DentalAiOnnxPage = lazy(() => import("../pages/dental/DentalAiOnnxPage"));
-const CrossSpecialtyReferralPage = lazy(() => import("../pages/dental/DentalRadFusionPages").then(m => ({ default: m.CrossSpecialtyReferralPage })));
-const CBCTUnifiedReportPage = lazy(() => import("../pages/dental/DentalRadFusionPages").then(m => ({ default: m.CBCTUnifiedReportPage })));
-const DentalRadFusionPage = lazy(() => import("../pages/dental/DentalRadFusionPages").then(m => ({ default: m.DentalRadFusionPage })));
+const CrossSpecialtyReferralPage = lazy(() =>
+  import("../pages/dental/DentalRadFusionPages").then((m) => ({
+    default: m.CrossSpecialtyReferralPage,
+  })),
+);
+const CBCTUnifiedReportPage = lazy(() =>
+  import("../pages/dental/DentalRadFusionPages").then((m) => ({
+    default: m.CBCTUnifiedReportPage,
+  })),
+);
+const DentalRadFusionPage = lazy(() =>
+  import("../pages/dental/DentalRadFusionPages").then((m) => ({
+    default: m.DentalRadFusionPage,
+  })),
+);
 const OctViewerPage = lazy(() => import("../pages/eye/pacs/OctViewerPage"));
 const IolCalculatorPage = lazy(
   () => import("../pages/eye/ris/IolCalculatorPage"),
@@ -409,69 +536,107 @@ const EyeAiPage = lazy(() => import("../pages/eye/ai/EyeAiPage"));
 const EyeReportWritePage = lazy(
   () => import("../pages/eye/report/EyeReportWritePage"),
 );
-const EyeKpiDashboardPage = lazy(() => import("../pages/eye/EyeKpiDashboardPage"));
+const EyeKpiDashboardPage = lazy(
+  () => import("../pages/eye/EyeKpiDashboardPage"),
+);
 const TeachLecturePage = lazy(() => import("../pages/teach/TeachLecturePage"));
-const RadPathTrackerPage = lazy(() => import("../pages/radpath/RadPathTrackerPage"));
-const RadPathDetailPage = lazy(() => import("../pages/radpath/RadPathDetailPage"));
+const RadPathTrackerPage = lazy(
+  () => import("../pages/radpath/RadPathTrackerPage"),
+);
+const RadPathDetailPage = lazy(
+  () => import("../pages/radpath/RadPathDetailPage"),
+);
 const TriagePage = lazy(() => import("../pages/triage/TriagePage"));
-const TriageDashboardPage = lazy(() => import("../pages/triage/TriageDashboardPage"));
-const SnomedEncoderPage = lazy(() => import("../pages/snomed/SnomedEncoderPage"));
-const OrchestratorPage = lazy(() => import("../pages/workflow/OrchestratorPage"));
+const TriageDashboardPage = lazy(
+  () => import("../pages/triage/TriageDashboardPage"),
+);
+const SnomedEncoderPage = lazy(
+  () => import("../pages/snomed/SnomedEncoderPage"),
+);
+const OrchestratorPage = lazy(
+  () => import("../pages/workflow/OrchestratorPage"),
+);
 
-  // [v3.0.6.11-40] A9-A14 后端模块对接路由
-  const LungCadPage = lazy(() => import("../pages/ai/LungCadPage"));
-  const BreastCadPage = lazy(() => import("../pages/ai/BreastCadPage"));
-  const FractureCadPage = lazy(() => import("../pages/ai/FractureCadPage"));
-  const CardiacAiPage = lazy(() => import("../pages/ai/CardiacAiPage"));
-  const WadoRsPage = lazy(() => import("../pages/dicom/WadoRsPage"));
-  const StowRsPage = lazy(() => import("../pages/dicom/StowRsPage"));
-  const SrReportPage = lazy(() => import("../pages/dicom/SrReportPage"));
-  const CriticalAlertPage = lazy(() => import("../pages/critical/CriticalAlertPage"));
-  const AutoCollectionPage = lazy(() => import("../pages/operations/AutoCollectionPage"));
-  const DeptDashboardPageV2 = lazy(() => import("../pages/department/DeptDashboardPage"));
-  const RemoteReadingPage = lazy(() => import("../pages/department/RemoteReadingPage"));
-  const PacsAdminPage = lazy(() => import("../pages/admin/PacsAdminPage"));
+// [v3.0.6.11-40] A9-A14 后端模块对接路由
+const LungCadPage = lazy(() => import("../pages/ai/LungCadPage"));
+const BreastCadPage = lazy(() => import("../pages/ai/BreastCadPage"));
+const FractureCadPage = lazy(() => import("../pages/ai/FractureCadPage"));
+const CardiacAiPage = lazy(() => import("../pages/ai/CardiacAiPage"));
+const WadoRsPage = lazy(() => import("../pages/dicom/WadoRsPage"));
+const StowRsPage = lazy(() => import("../pages/dicom/StowRsPage"));
+const SrReportPage = lazy(() => import("../pages/dicom/SrReportPage"));
+const CriticalAlertPage = lazy(
+  () => import("../pages/critical/CriticalAlertPage"),
+);
+const AutoCollectionPage = lazy(
+  () => import("../pages/operations/AutoCollectionPage"),
+);
+const DeptDashboardPageV2 = lazy(
+  () => import("../pages/department/DeptDashboardPage"),
+);
+const RemoteReadingPage = lazy(
+  () => import("../pages/department/RemoteReadingPage"),
+);
+const PacsAdminPage = lazy(() => import("../pages/admin/PacsAdminPage"));
 
-  // [Sprint 4] F13 AI Marketplace
-  const AiMarketplacePage = lazy(() => import("../pages/ai/AiMarketplacePage"));
-  // [Sprint 4] F14 Cross-Modal Search
-  const CrossModalSearchPage = lazy(() => import("../pages/dicom/CrossModalSearchPage"));
-  // [Sprint 4] F15 Dual Read Workflow
-  const DualReadPage = lazy(() => import("../pages/review/DualReadPage"));
-  // [Sprint 4] F16 Tele-Sign
-  const TeleSignPage = lazy(() => import("../pages/tele/TeleSignPage"));
+// [Sprint 4] F13 AI Marketplace
+const AiMarketplacePage = lazy(() => import("../pages/ai/AiMarketplacePage"));
+// [Sprint 4] F14 Cross-Modal Search
+const CrossModalSearchPage = lazy(
+  () => import("../pages/dicom/CrossModalSearchPage"),
+);
+// [Sprint 4] F15 Dual Read Workflow
+const DualReadPage = lazy(() => import("../pages/review/DualReadPage"));
+// [Sprint 4] F16 Tele-Sign
+const TeleSignPage = lazy(() => import("../pages/tele/TeleSignPage"));
 
-  // [v3.0.6.11-41] A11-A13 PACS 对标补齐
-  const ThirdPartyAiPage = lazy(() => import("../pages/ai/ThirdPartyAiPage"));
-  const MprPage = lazy(() => import("../pages/dicom/MprPage"));
-  const MipPage = lazy(() => import("../pages/dicom/MipPage"));
-  const VrPage = lazy(() => import("../pages/dicom/VrPage"));
-  const PostProcessingPage = lazy(() => import("../pages/dicom/PostProcessingPage"));
-  const DbtPage = lazy(() => import("../pages/dicom/DbtPage"));
-  const DlDenoisePage = lazy(() => import("../pages/ai/DlDenoisePage"));
+// [v3.0.6.11-41] A11-A13 PACS 对标补齐
+const ThirdPartyAiPage = lazy(() => import("../pages/ai/ThirdPartyAiPage"));
+const MprPage = lazy(() => import("../pages/dicom/MprPage"));
+const MipPage = lazy(() => import("../pages/dicom/MipPage"));
+const VrPage = lazy(() => import("../pages/dicom/VrPage"));
+const PostProcessingPage = lazy(
+  () => import("../pages/dicom/PostProcessingPage"),
+);
+const DbtPage = lazy(() => import("../pages/dicom/DbtPage"));
+const DlDenoisePage = lazy(() => import("../pages/ai/DlDenoisePage"));
 
-  // [Sprint 4] F17 Smart Route
-  const SmartRoutePage = lazy(() => import("../pages/workflow/SmartRoutePage"));
-  // [Sprint 4] F18 HL7 SIU
-  const Hl7SiuPage = lazy(() => import("../pages/integration/Hl7SiuPage"));
+// [Sprint 4] F17 Smart Route
+const SmartRoutePage = lazy(() => import("../pages/workflow/SmartRoutePage"));
+// [Sprint 4] F18 HL7 SIU
+const Hl7SiuPage = lazy(() => import("../pages/integration/Hl7SiuPage"));
 
-  // [v3.0.6.11-41] A11-A13 PACS 对标补齐: AI + DICOM + 专科
-  // (ThirdPartyAiPage, MprPage, MipPage, VrPage, PostProcessingPage, DbtPage, DlDenoisePage 已在上方声明)
+// [v3.0.6.11-41] A11-A13 PACS 对标补齐: AI + DICOM + 专科
+// (ThirdPartyAiPage, MprPage, MipPage, VrPage, PostProcessingPage, DbtPage, DlDenoisePage 已在上方声明)
 
-  // [audit-fix-2026-07-28] 后端端点补齐: FHIR/DICOM/Fusion/Radiomics/IHE/HL7 前端页面
-  const FhirPatientPage = lazy(() => import("../pages/fhir/FhirPatientPage"));
-  const FhirObservationPage = lazy(() => import("../pages/fhir/FhirObservationPage"));
-  const FhirSubscriptionPage = lazy(() => import("../pages/fhir/FhirSubscriptionPage"));
-  const FhirDiagnosticReportPage = lazy(() => import("../pages/fhir/FhirDiagnosticReportPage"));
-  const FhirImagingStudyPage = lazy(() => import("../pages/fhir/FhirImagingStudyPage"));
-  const DicomDimsePage = lazy(() => import("../pages/dicom/DicomDimsePage"));
-  const DicomSrTemplatePage = lazy(() => import("../pages/dicom/DicomSrTemplatePage"));
-  const FusionManagerPage = lazy(() => import("../pages/fusion/FusionManagerPage"));
-  const RadiomicsFeaturePage = lazy(() => import("../pages/radiomics/RadiomicsFeaturePage"));
-  const IheManagerPage = lazy(() => import("../pages/ihe/IheManagerPage"));
-  const Hl7ManagerPage = lazy(() => import("../pages/hl7/Hl7ManagerPage"));
+// [audit-fix-2026-07-28] 后端端点补齐: FHIR/DICOM/Fusion/Radiomics/IHE/HL7 前端页面
+const FhirPatientPage = lazy(() => import("../pages/fhir/FhirPatientPage"));
+const FhirObservationPage = lazy(
+  () => import("../pages/fhir/FhirObservationPage"),
+);
+const FhirSubscriptionPage = lazy(
+  () => import("../pages/fhir/FhirSubscriptionPage"),
+);
+const FhirDiagnosticReportPage = lazy(
+  () => import("../pages/fhir/FhirDiagnosticReportPage"),
+);
+const FhirImagingStudyPage = lazy(
+  () => import("../pages/fhir/FhirImagingStudyPage"),
+);
+const DicomDimsePage = lazy(() => import("../pages/dicom/DicomDimsePage"));
+const DicomSrTemplatePage = lazy(
+  () => import("../pages/dicom/DicomSrTemplatePage"),
+);
+const FusionManagerPage = lazy(
+  () => import("../pages/fusion/FusionManagerPage"),
+);
+const RadiomicsFeaturePage = lazy(
+  () => import("../pages/radiomics/RadiomicsFeaturePage"),
+);
+const IheManagerPage = lazy(() => import("../pages/ihe/IheManagerPage"));
+const Hl7ManagerPage = lazy(() => import("../pages/hl7/Hl7ManagerPage"));
 
-  // 从 sidebarConfig 构建 path -> roles 映射
+// 从 sidebarConfig 构建 path -> roles 映射
 const ALL_ROLES: ReadonlyArray<Role> = [
   "医生",
   "技师",
@@ -492,8 +657,9 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/dicom-viewer-classic": roleMap["/dicom-viewer"] ?? ALL_ROLES, // 经典DICOM浏览器,同 /dicom-viewer
   "/ai-orchestration": roleMap["/ai-assist"] ?? ALL_ROLES, // AI 编排,同 /ai-assist
   "/regional-imaging": roleMap["/regional-report"] ?? ALL_ROLES, // 区域影像,管理员专享
-  "/integration/mllp-monitor": roleMap["/integration/ihe-connectathon"] ?? ALL_ROLES, // MLLP 监控,管理员专享
-  "/patient/:id": roleMap["/patients"] ?? ALL_ROLES,
+  "/integration/mllp-monitor":
+    roleMap["/integration/ihe-connectathon"] ?? ALL_ROLES, // MLLP 监控,管理员专享
+  "/patients/:id": roleMap["/patients"] ?? ALL_ROLES,
   "/template-designer/:id": roleMap["/template-designer"] ?? ALL_ROLES,
   "/research": ["医生", "主任", "管理员"],
   "/director-dashboard": ["主任", "管理员"],
@@ -616,7 +782,12 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/admin/config": ["管理员"],
   "/ihe/pam": ["主任", "管理员", "技师"],
   "/ihe/visit": ["医生", "主任", "技师", "管理员"],
-  "/ihe/visit-detail/:patientId/:visitNumber": ["医生", "主任", "技师", "管理员"],
+  "/ihe/visit-detail/:patientId/:visitNumber": [
+    "医生",
+    "主任",
+    "技师",
+    "管理员",
+  ],
   "/ihe/pix": ["主任", "管理员", "技师"],
   "/integration/fhir/bulk-export": ["主任", "管理员", "技师"],
   "/integration/fhir/bulk-export-detail": ["主任", "管理员", "技师"],
@@ -718,7 +889,7 @@ export const routes: RouteObject[] = [
   wrapped("/workbench", React.createElement(HomePage)),
   wrapped("/worklist", React.createElement(WorklistPage)), // [audit-fix-2026-07-02]
   wrapped("/patients", React.createElement(PatientPage)),
-  wrapped("/patient/:id", React.createElement(PatientPage)),
+  wrapped("/patients/:id", React.createElement(PatientPage)),
   wrapped("/patients/:id/360", React.createElement(Patient360Page)),
   wrapped("/exams", React.createElement(ExamPage)),
   wrapped("/reports", React.createElement(ReportPage)),
@@ -805,6 +976,7 @@ export const routes: RouteObject[] = [
     React.createElement(EquipmentEfficiencyPage),
   ),
   wrapped("/user-management", React.createElement(UserManagementPage)),
+  wrapped("/authority", React.createElement(UserManagementPage)), // [F16] 权限管理: 侧边栏 /authority 对齐
   wrapped("/admin/config", React.createElement(ClinicalConfigCenter)),
   wrapped("/patient-portal", React.createElement(PatientPortalPage)),
   wrapped("/director-dashboard", React.createElement(DirectorDashboardPage)),
@@ -864,10 +1036,26 @@ export const routes: RouteObject[] = [
   wrapped("/mammo/operations", React.createElement(DepartmentOperationsPage)),
   wrapped("/mammo/quality", React.createElement(QualityManagementPage)),
   // [v3.0.6.11-40] A15 专科模块: 乳腺/心脏/骨科/神经
-  wrapped("/mammo/breast-specialty", React.createElement(lazy(() => import("../pages/mammo/BreastSpecialtyPage")))),
-  wrapped("/cardiac/cardiac-specialty", React.createElement(lazy(() => import("../pages/cardiac/CardiacSpecialtyPage")))),
-  wrapped("/ortho-specialty", React.createElement(lazy(() => import("../pages/OrthoSpecialtyPage")))),
-  wrapped("/neuro-specialty", React.createElement(lazy(() => import("../pages/NeuroSpecialtyPage")))),
+  wrapped(
+    "/mammo/breast-specialty",
+    React.createElement(
+      lazy(() => import("../pages/mammo/BreastSpecialtyPage")),
+    ),
+  ),
+  wrapped(
+    "/cardiac/cardiac-specialty",
+    React.createElement(
+      lazy(() => import("../pages/cardiac/CardiacSpecialtyPage")),
+    ),
+  ),
+  wrapped(
+    "/ortho-specialty",
+    React.createElement(lazy(() => import("../pages/OrthoSpecialtyPage"))),
+  ),
+  wrapped(
+    "/neuro-specialty",
+    React.createElement(lazy(() => import("../pages/NeuroSpecialtyPage"))),
+  ),
   wrapped("/patient/self-service", React.createElement(SelfServicePortal)),
   wrapped(
     "/patient/service-management",
@@ -879,7 +1067,10 @@ export const routes: RouteObject[] = [
   ),
   wrapped("/hie/medical-alliance", React.createElement(MedicalAlliancePage)),
   wrapped("/integration/fhir-server", React.createElement(FhirServerPage)),
-  wrapped("/integration/ihe-connectathon", React.createElement(IheConnectathonPage)),
+  wrapped(
+    "/integration/ihe-connectathon",
+    React.createElement(IheConnectathonPage),
+  ),
   wrapped("/integration/mllp-monitor", React.createElement(MllpMonitorPage)),
   wrapped("/integration/hl7-archive", React.createElement(Hl7ArchivePage)),
   wrapped("/integration/hl7-builder", React.createElement(Hl7BuilderPage)),
@@ -959,11 +1150,20 @@ export const routes: RouteObject[] = [
   wrapped("/report-templates", React.createElement(ReportTemplateManagerPage)), // [v3.0.6.8-74]
   wrapped("/ihe-integration", React.createElement(IheIntegrationPage)), // [v3.0.6.8-75]
   wrapped("/ihe/pix", React.createElement(PixPage)),
-  wrapped("/integration/fhir/bulk-export", React.createElement(FhirBulkExportPage)),
-  wrapped("/integration/fhir/bulk-export-detail", React.createElement(FhirBulkExportDetailPage)),
+  wrapped(
+    "/integration/fhir/bulk-export",
+    React.createElement(FhirBulkExportPage),
+  ),
+  wrapped(
+    "/integration/fhir/bulk-export-detail",
+    React.createElement(FhirBulkExportDetailPage),
+  ),
   wrapped("/ihe/pam", React.createElement(PamPage)),
   wrapped("/ihe/visit", React.createElement(VisitPage)),
-  wrapped("/ihe/visit-detail/:patientId/:visitNumber", React.createElement(VisitDetailPage)),
+  wrapped(
+    "/ihe/visit-detail/:patientId/:visitNumber",
+    React.createElement(VisitDetailPage),
+  ),
   wrapped("/dicom/fusion", React.createElement(FusionPage)), // [v3.0.6.11-18] PET-CT/MR fusion
   wrapped("/dicom/fusion-v2", React.createElement(FusionV2Page)), // [v3.0.6.11-22] Multi-modal fusion V2
   wrapped("/dicom/volume-viewer", React.createElement(VolumeViewerPage)), // [v3.0.6.11-18] 3D Volume Rendering
@@ -979,7 +1179,10 @@ export const routes: RouteObject[] = [
   wrapped("/ai/rads-scoring", React.createElement(AiRadsPage)),
   wrapped("/ai/review", React.createElement(AiReviewPage)),
   wrapped("/ai/providers", React.createElement(AiProvidersPage)),
-  wrapped("/clinical-calculators", React.createElement(ClinicalCalculatorHubPage)), // [v3.0.6.8-78]
+  wrapped(
+    "/clinical-calculators",
+    React.createElement(ClinicalCalculatorHubPage),
+  ), // [v3.0.6.8-78]
   wrapped("/consent-education", React.createElement(ConsentEducationPage)), // [v3.0.6.8-79]
   wrapped("/patient-safety", React.createElement(PatientSafetyDashboardPage)), // [v3.0.6.8-80]
   wrapped("/eye/pacs/real-viewer", React.createElement(RealDicomViewerPage)), // [v3.0.6.8-34] PR 1
@@ -998,12 +1201,17 @@ export const routes: RouteObject[] = [
   wrapped("/eye/case-library", React.createElement(CaseLibraryPage)), // [v3.0.6.8-42] PR 9
   wrapped("/eye/optometry-loop", React.createElement(OptometryClosedLoopPage)), // [v3.0.6.8-44] PR 11
   wrapped("/report-workflow", React.createElement(ReportWorkflowPage)), // [v3.0.6.8-45] PR 1
-  wrapped("/patient-device-mgmt", React.createElement(PatientDeviceManagementPage)), // [v3.0.6.8-46] PR 2
+  wrapped(
+    "/patient-device-mgmt",
+    React.createElement(PatientDeviceManagementPage),
+  ), // [v3.0.6.8-46] PR 2
   wrapped("/notif-tpl-dict", React.createElement(NotificationTemplateDictPage)), // [v3.0.6.8-47] PR 3
   wrapped("/review-check", React.createElement(ReviewCheckPage)), // [v3.0.6.8-48] PR 4
   wrapped("/sign-amend", React.createElement(SignAmendPage)), // [v3.0.6.8-49] PR 5
   wrapped("/v3-report-hub", React.createElement(V3ReportHubPage)), // [v3.0.6.8-50] PR 6
   wrapped("/materials", React.createElement(MaterialsV2Page)), // [v3.0.6.8-51] PR 7
+  wrapped("/supplies", React.createElement(MaterialsV2Page)), // [F16] 耗材: 侧边栏 /supplies 对齐
+  wrapped("/radiology-materials", React.createElement(MaterialsV2Page)), // [F16] 放射耗材: 侧边栏 /radiology-materials 对齐
   wrapped("/eye/pacs/oct", React.createElement(OctViewerPage)),
   wrapped("/eye/ris/iol-calculator", React.createElement(IolCalculatorPage)),
   wrapped("/eye/ris/va", React.createElement(VisionExamPage)),
@@ -1021,29 +1229,54 @@ export const routes: RouteObject[] = [
   wrapped("/eye/report-write", React.createElement(EyeReportWritePage)),
   wrapped("/eye/kpi-dashboard", React.createElement(EyeKpiDashboardPage)),
   wrapped("/analytics/benchmark-v2", React.createElement(BenchmarkPageV2)),
-  wrapped("/analytics/benchmark-ai-diagnosis", React.createElement(BenchmarkAiDiagnosisPage)),
+  wrapped(
+    "/analytics/benchmark-ai-diagnosis",
+    React.createElement(BenchmarkAiDiagnosisPage),
+  ),
   wrapped("/analytics/tat-dashboard", React.createElement(TatDashboardPage)),
   // [v3.0.6.8-27] 放射科质控总看板 + 影像质控 + 医生档案
   wrapped("/qc-dashboard", React.createElement(RadiologyQCDashboardPage)),
   wrapped("/qc-image", React.createElement(ImageQualityControlPage)),
-  wrapped("/qc-radiologist-annual", React.createElement(RadiologistAnnualQCPage)),
+  wrapped(
+    "/qc-radiologist-annual",
+    React.createElement(RadiologistAnnualQCPage),
+  ),
   wrapped("/qc/image-ai", React.createElement(QcImageAiPage)),
   wrapped("/radpath/tracker", React.createElement(RadPathTrackerPage)),
   wrapped("/radpath/detail/:reportId", React.createElement(RadPathDetailPage)),
   wrapped("/triage/worklist", React.createElement(TriagePage)),
   wrapped("/triage/dashboard", React.createElement(TriageDashboardPage)),
   wrapped("/teach/lecture", React.createElement(TeachLecturePage)),
-  wrapped("/system/audit", React.createElement(lazy(() => import("../pages/AuditPage")))),
-  wrapped("/system/backup", React.createElement(lazy(() => import("../pages/BackupPage")))),
-  wrapped("/system/tenant-config", React.createElement(lazy(() => import("../pages/TenantConfigPage")))),
+  wrapped(
+    "/system/audit",
+    React.createElement(lazy(() => import("../pages/AuditPage"))),
+  ),
+  wrapped(
+    "/audit",
+    React.createElement(lazy(() => import("../pages/AuditPage"))),
+  ), // [F16] 侧边栏 /audit 对齐
+  wrapped(
+    "/system/backup",
+    React.createElement(lazy(() => import("../pages/BackupPage"))),
+  ),
+  wrapped(
+    "/system/tenant-config",
+    React.createElement(lazy(() => import("../pages/TenantConfigPage"))),
+  ),
   wrapped("/dicom/radiomics", React.createElement(RadiomicsPage)),
   wrapped("/dicom/4d", React.createElement(Dicom4dPage)),
   wrapped("/dicom/compress", React.createElement(DicomCompressPage)),
   wrapped("/orchestrator", React.createElement(OrchestratorPage)),
   // [v3.0.6.11-21] P0 fix: MFA 设置页接入路由
-  wrapped("/security/mfa-setup", React.createElement(lazy(() => import("../pages/security/MfaSetupPage")))),
+  wrapped(
+    "/security/mfa-setup",
+    React.createElement(lazy(() => import("../pages/security/MfaSetupPage"))),
+  ),
   // [v3.0.6.11-21] P0 fix: 合规管理页接入路由
-  wrapped("/system/compliance", React.createElement(lazy(() => import("../pages/CompliancePage")))),
+  wrapped(
+    "/system/compliance",
+    React.createElement(lazy(() => import("../pages/CompliancePage"))),
+  ),
   // [Sprint 3] F07-F12 新页面路由
   wrapped("/nlp/spellcheck", React.createElement(NlpCheckPage)),
   wrapped("/asr/transcribe", React.createElement(AsrPage)),
@@ -1059,16 +1292,41 @@ export const routes: RouteObject[] = [
   wrapped("/smart-route", React.createElement(SmartRoutePage)),
   wrapped("/hl7-siu", React.createElement(Hl7SiuPage)),
   // [workflow-gap] 7项缺失功能补齐: Smart MWL / AI Triage / Smart Routing / CoSign Review / Rad-Path
-  wrapped("/smart-mwl", React.createElement(lazy(() => import("../pages/worklist/SmartMwlPage")))),
-  wrapped("/ai-triage", React.createElement(lazy(() => import("../pages/triage/AiTriagePage")))),
-  wrapped("/smart-routing", React.createElement(lazy(() => import("../pages/workflow/SmartRoutingPage")))),
-  wrapped("/cosign-review", React.createElement(lazy(() => import("../pages/review/CoSignPage")))),
-  wrapped("/radpath", React.createElement(lazy(() => import("../pages/radpath/RadPathPage")))),
-  wrapped("/critical-value-5step", React.createElement(lazy(() => import("../pages/critical/CriticalValue5StepPage")))),
+  wrapped(
+    "/smart-mwl",
+    React.createElement(lazy(() => import("../pages/worklist/SmartMwlPage"))),
+  ),
+  wrapped(
+    "/ai-triage",
+    React.createElement(lazy(() => import("../pages/triage/AiTriagePage"))),
+  ),
+  wrapped(
+    "/smart-routing",
+    React.createElement(
+      lazy(() => import("../pages/workflow/SmartRoutingPage")),
+    ),
+  ),
+  wrapped(
+    "/cosign-review",
+    React.createElement(lazy(() => import("../pages/review/CoSignPage"))),
+  ),
+  wrapped(
+    "/radpath",
+    React.createElement(lazy(() => import("../pages/radpath/RadPathPage"))),
+  ),
+  wrapped(
+    "/critical-value-5step",
+    React.createElement(
+      lazy(() => import("../pages/critical/CriticalValue5StepPage")),
+    ),
+  ),
   // [audit-fix-2026-07-28] 后端端点补齐: FHIR/DICOM/Fusion/Radiomics/IHE/HL7 前端页面
   wrapped("/fhir/patient", React.createElement(FhirPatientPage)),
   wrapped("/fhir/observation", React.createElement(FhirObservationPage)),
-  wrapped("/fhir/diagnostic-report", React.createElement(FhirDiagnosticReportPage)),
+  wrapped(
+    "/fhir/diagnostic-report",
+    React.createElement(FhirDiagnosticReportPage),
+  ),
   wrapped("/fhir/imaging-study", React.createElement(FhirImagingStudyPage)),
   wrapped("/fhir/subscription", React.createElement(FhirSubscriptionPage)),
   wrapped("/dicom/dimse", React.createElement(DicomDimsePage)),
@@ -1094,6 +1352,6 @@ export const routes: RouteObject[] = [
   wrapped("/pacs-admin", React.createElement(PacsAdminPage)),
   {
     path: "*",
-    element: React.createElement(Navigate, { to: "/", replace: true }),
+    element: React.createElement(Navigate, { to: "/forbidden", replace: true }),
   },
 ];
