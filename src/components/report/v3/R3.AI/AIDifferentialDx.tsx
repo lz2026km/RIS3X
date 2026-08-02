@@ -35,7 +35,7 @@ export const AIDifferentialDxView: React.FC<AIDifferentialDxProps> = ({ reportId
   if (loading) {
     return (
       <Card>
-        <Space direction="vertical" align="center" style={{ width: '100%', padding: 24 }}>
+        <Space orientation="vertical" align="center" style={{ width: '100%', padding: 24 }}>
           <Spin indicator={<Diff size={32} className="spin" />} />
           <Text>AI 正在分析鉴别诊断...</Text>
         </Space>
@@ -44,7 +44,7 @@ export const AIDifferentialDxView: React.FC<AIDifferentialDxProps> = ({ reportId
   }
 
   if (error) {
-    return <Alert type="error" showIcon message={error} />;
+    return <Alert type="error" showIcon title={error} />;
   }
 
   if (!ddx) {
@@ -79,7 +79,7 @@ export const AIDifferentialDxView: React.FC<AIDifferentialDxProps> = ({ reportId
         type="info"
         showIcon
         style={{ marginBottom: 12 }}
-        message={
+        title={
           <Space>
             <Text strong>主要诊断</Text>
             <Tag color="blue">{ddx.primaryDiagnosis}</Tag>
@@ -108,7 +108,7 @@ export const AIDifferentialDxView: React.FC<AIDifferentialDxProps> = ({ reportId
             value={ddx.confidence.overall * 100}
             suffix="%"
             precision={0}
-            valueStyle={{ color: ddx.confidence.overall >= 0.85 ? '#10b981' : '#2563eb' }}
+            styles={{ content: {  color: ddx.confidence.overall >= 0.85 ? '#10b981' : '#2563eb'  } }}
           />
         </Col>
       </Row>
@@ -116,7 +116,7 @@ export const AIDifferentialDxView: React.FC<AIDifferentialDxProps> = ({ reportId
       <Divider orientation="left" plain>
         <Text strong>鉴别诊断列表</Text>
       </Divider>
-      <Space direction="vertical" style={{ width: '100%' }}>
+      <Space orientation="vertical" style={{ width: '100%' }}>
         {ddx.differentials.map((d, idx) => (
           <DifferentialCard key={d.id} d={d} rank={idx + 1} />
         ))}
@@ -174,7 +174,7 @@ const DifferentialCard: React.FC<{ d: AIDifferentialEntry; rank: number }> = ({ 
   const probColor = probPercent >= 50 ? 'red' : probPercent >= 25 ? 'orange' : 'blue';
   return (
     <Card size="small" style={{ borderColor: probColor === 'red' ? '#dc2626' : '#e5e7eb' }}>
-      <Space direction="vertical" style={{ width: '100%' }}>
+      <Space orientation="vertical" style={{ width: '100%' }}>
         <Space>
           <Tag color={probColor}>#{rank}</Tag>
           <Text strong>{d.diagnosis}</Text>

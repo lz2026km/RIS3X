@@ -27,9 +27,9 @@ export const DentalImplantPlanPage: React.FC = () => {
     <DentalPageLayout header={ { title: '种植规划', tags: [<Tag key='b' color='blue'>Straumann/Nobel 对标</Tag>, <Tag key='s' color='green'>4 大品牌 / 12 型号</Tag>] } }>
       <Row gutter={12} style={ { marginBottom: 12 } }>
         <Col span={6}><Card size={'small'}><Statistic title={'规划总数'} value={display.length} prefix={<Plus size={12} />} /></Card></Col>
-        <Col span={6}><Card size={'small'}><Statistic title={'待种植'} value={display.filter(p => p.status === 'pending').length} valueStyle={ { color: '#faad14' } } /></Card></Col>
-        <Col span={6}><Card size={'small'}><Statistic title={'已完成'} value={display.filter(p => p.status === 'completed').length} valueStyle={ { color: '#52c41a' } } /></Card></Col>
-        <Col span={6}><Card size={'small'}><Statistic title={'累计费用'} value={(totalCost / 10000).toFixed(1)} suffix={'万'} valueStyle={ { color: '#1677ff' } } /></Card></Col>
+        <Col span={6}><Card size={'small'}><Statistic title={'待种植'} value={display.filter(p => p.status === 'pending').length} styles={{ content: { color: '#faad14' } }} /></Card></Col>
+        <Col span={6}><Card size={'small'}><Statistic title={'已完成'} value={display.filter(p => p.status === 'completed').length} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
+        <Col span={6}><Card size={'small'}><Statistic title={'累计费用'} value={(totalCost / 10000).toFixed(1)} suffix={'万'} styles={{ content: { color: '#1677ff' } }} /></Card></Col>
       </Row>
       <Row gutter={16}>
         <Col span={16}>

@@ -144,7 +144,7 @@ export const FhirBulkExportPage: React.FC = () => {
             }>
               <div style={{ fontFamily: 'monospace', fontSize: 13, marginBottom: 8 }}>Job ID: {job.jobId}</div>
               {job.transactionTime && <div style={{ fontSize: 12, color: '#999', marginBottom: 8 }}>Transaction Time: {job.transactionTime}</div>}
-              {job.error && <Alert type="error" message={job.error} showIcon style={{ marginBottom: 8 }} />}
+              {job.error && <Alert type="error" title={job.error} showIcon style={{ marginBottom: 8 }} />}
               {job.files && (
                 <>
                   <div style={{ fontWeight: 600, marginBottom: 4 }}>输出文件:</div>

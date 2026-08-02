@@ -82,7 +82,7 @@ export const ModelGovernance: React.FC = () => {
                 totalDrift < 0.25 ? <AlertTriangle size={14} color="#f59e0b" /> :
                 <AlertTriangle size={14} color="#ef4444" />
               }
-              valueStyle={{ color: totalDrift < 0.1 ? '#10b981' : totalDrift < 0.25 ? '#f59e0b' : '#ef4444' }}
+              styles={{ content: {  color: totalDrift < 0.1 ? '#10b981' : totalDrift < 0.25 ? '#f59e0b' : '#ef4444'  } }}
             />
           </Card>
         </Col>
@@ -92,7 +92,7 @@ export const ModelGovernance: React.FC = () => {
               title={<span style={{ color: '#94a3b8' }}>平均成功率</span>}
               value={(avgSuccess * 100).toFixed(1)}
               suffix="%"
-              valueStyle={{ color: '#10b981' }}
+              styles={{ content: {  color: '#10b981'  } }}
             />
           </Card>
         </Col>
@@ -102,7 +102,7 @@ export const ModelGovernance: React.FC = () => {
               title={<span style={{ color: '#94a3b8' }}>平均延迟</span>}
               value={Math.round(avgLatency)}
               suffix="ms"
-              valueStyle={{ color: '#3b82f6' }}
+              styles={{ content: {  color: '#3b82f6'  } }}
             />
           </Card>
         </Col>
@@ -112,7 +112,7 @@ export const ModelGovernance: React.FC = () => {
               title={<span style={{ color: '#94a3b8' }}>变体数</span>}
               value={variants.length}
               prefix={<GitCompare size={14} color="#8b5cf6" />}
-              valueStyle={{ color: '#f1f5f9' }}
+              styles={{ content: {  color: '#f1f5f9'  } }}
             />
           </Card>
         </Col>
@@ -167,10 +167,10 @@ export const ModelGovernance: React.FC = () => {
                       </Col>
                       <Col span={10}>
                         <Row gutter={8}>
-                          <Col span={12}><Statistic title="总调用" value={m.totalCalls} valueStyle={{ fontSize: 14, color: '#f1f5f9' }} /></Col>
-                          <Col span={12}><Statistic title="P95" value={m.p95LatencyMs} suffix="ms" valueStyle={{ fontSize: 14, color: '#3b82f6' }} /></Col>
-                          <Col span={12}><Statistic title="P99" value={m.p99LatencyMs} suffix="ms" valueStyle={{ fontSize: 14, color: '#f59e0b' }} /></Col>
-                          <Col span={12}><Statistic title="漂移分" value={m.driftScore.toFixed(3)} valueStyle={{ fontSize: 14, color: '#f1f5f9' }} /></Col>
+                          <Col span={12}><Statistic title="总调用" value={m.totalCalls} styles={{ content: {  fontSize: 14, color: '#f1f5f9'  } }} /></Col>
+                          <Col span={12}><Statistic title="P95" value={m.p95LatencyMs} suffix="ms" styles={{ content: {  fontSize: 14, color: '#3b82f6'  } }} /></Col>
+                          <Col span={12}><Statistic title="P99" value={m.p99LatencyMs} suffix="ms" styles={{ content: {  fontSize: 14, color: '#f59e0b'  } }} /></Col>
+                          <Col span={12}><Statistic title="漂移分" value={m.driftScore.toFixed(3)} styles={{ content: {  fontSize: 14, color: '#f1f5f9'  } }} /></Col>
                         </Row>
                       </Col>
                     </Row>
@@ -200,20 +200,20 @@ export const ModelGovernance: React.FC = () => {
                   <Col span={12}>
                     <Card size="small" title={comparison.variantA.name} style={{ background: '#0f172a', borderColor: '#334155' }}>
                       <Row gutter={8}>
-                        <Col span={12}><Statistic title="成功率" value={(comparison.metricsA.successRate * 100).toFixed(1)} suffix="%" valueStyle={{ fontSize: 16 }} /></Col>
-                        <Col span={12}><Statistic title="延迟" value={comparison.metricsA.avgLatencyMs} suffix="ms" valueStyle={{ fontSize: 16 }} /></Col>
-                        <Col span={12}><Statistic title="漂移" value={comparison.metricsA.driftScore.toFixed(3)} valueStyle={{ fontSize: 16 }} /></Col>
-                        <Col span={12}><Statistic title="调用" value={comparison.metricsA.totalCalls} valueStyle={{ fontSize: 16 }} /></Col>
+                        <Col span={12}><Statistic title="成功率" value={(comparison.metricsA.successRate * 100).toFixed(1)} suffix="%" styles={{ content: {  fontSize: 16  } }} /></Col>
+                        <Col span={12}><Statistic title="延迟" value={comparison.metricsA.avgLatencyMs} suffix="ms" styles={{ content: {  fontSize: 16  } }} /></Col>
+                        <Col span={12}><Statistic title="漂移" value={comparison.metricsA.driftScore.toFixed(3)} styles={{ content: {  fontSize: 16  } }} /></Col>
+                        <Col span={12}><Statistic title="调用" value={comparison.metricsA.totalCalls} styles={{ content: {  fontSize: 16  } }} /></Col>
                       </Row>
                     </Card>
                   </Col>
                   <Col span={12}>
                     <Card size="small" title={comparison.variantB.name} style={{ background: '#0f172a', borderColor: '#334155' }}>
                       <Row gutter={8}>
-                        <Col span={12}><Statistic title="成功率" value={(comparison.metricsB.successRate * 100).toFixed(1)} suffix="%" valueStyle={{ fontSize: 16 }} /></Col>
-                        <Col span={12}><Statistic title="延迟" value={comparison.metricsB.avgLatencyMs} suffix="ms" valueStyle={{ fontSize: 16 }} /></Col>
-                        <Col span={12}><Statistic title="漂移" value={comparison.metricsB.driftScore.toFixed(3)} valueStyle={{ fontSize: 16 }} /></Col>
-                        <Col span={12}><Statistic title="调用" value={comparison.metricsB.totalCalls} valueStyle={{ fontSize: 16 }} /></Col>
+                        <Col span={12}><Statistic title="成功率" value={(comparison.metricsB.successRate * 100).toFixed(1)} suffix="%" styles={{ content: {  fontSize: 16  } }} /></Col>
+                        <Col span={12}><Statistic title="延迟" value={comparison.metricsB.avgLatencyMs} suffix="ms" styles={{ content: {  fontSize: 16  } }} /></Col>
+                        <Col span={12}><Statistic title="漂移" value={comparison.metricsB.driftScore.toFixed(3)} styles={{ content: {  fontSize: 16  } }} /></Col>
+                        <Col span={12}><Statistic title="调用" value={comparison.metricsB.totalCalls} styles={{ content: {  fontSize: 16  } }} /></Col>
                       </Row>
                     </Card>
                   </Col>

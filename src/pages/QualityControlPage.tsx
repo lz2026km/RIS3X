@@ -69,7 +69,7 @@ const QualityControlPage: React.FC = () => {
         items={[
           { key: 'dashboard', label: <Space><Activity size={14} />实时仪表盘</Space>, children: <QualityDashboard /> },
           { key: 'score', label: <Space><BarChart3 size={14} />评分</Space>, children: (
-            <Space direction="vertical" style={{ width: '100%' }} size={12}>
+            <Space orientation="vertical" style={{ width: '100%' }} size={12}>
               <Card size="small" title="选择报告">
                 <Space wrap>
                   {QUALITY_SCORES.map((s) => (

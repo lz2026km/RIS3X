@@ -44,7 +44,7 @@ export const DentalDashboardPage: React.FC = () => {
           </Space>
         </Card></Col>
       </Row>
-      <Alert message={`数据更新于 ${refreshAt.toLocaleTimeString('zh-CN')}`} type="success" showIcon />
+      <Alert title={`数据更新于 ${refreshAt.toLocaleTimeString('zh-CN')}`} type="success" showIcon />
     </DentalPageLayout>
   );
 };

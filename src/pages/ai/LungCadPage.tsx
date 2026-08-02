@@ -141,7 +141,7 @@ const LungCadPage: React.FC = () => {
                 ).length
               }
               prefix={<AlertTriangle size={16} />}
-              valueStyle={{ color: "#ff4d4f" }}
+              styles={{ content: {  color: "#ff4d4f"  } }}
             />
           </Card>
         </Col>
@@ -173,7 +173,7 @@ const LungCadPage: React.FC = () => {
           type="error"
           showIcon
           style={{ marginBottom: 16 }}
-          message={error}
+          title={error}
           action={
             <Button size="small" onClick={() => void load()}>
               重试

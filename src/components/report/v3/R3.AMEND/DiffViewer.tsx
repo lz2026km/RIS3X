@@ -101,7 +101,7 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
       }
       style={{ width: '100%' }}
     >
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
+      {error && <Alert type="error" showIcon title={error} style={{ marginBottom: 12 }} />}
 
       <Row gutter={16} style={{ marginBottom: 12 }}>
         <Col span={8}>
@@ -153,13 +153,13 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
               title="新增"
               value={totalAdditions}
               prefix={<Plus size={14} color="#10b981" />}
-              valueStyle={{ color: '#10b981', fontSize: 16 }}
+              styles={{ content: {  color: '#10b981', fontSize: 16  } }}
             />
             <Statistic
               title="删除"
               value={totalDeletions}
               prefix={<Minus size={14} color="#ef4444" />}
-              valueStyle={{ color: '#ef4444', fontSize: 16 }}
+              styles={{ content: {  color: '#ef4444', fontSize: 16  } }}
             />
           </Space>
         </Col>

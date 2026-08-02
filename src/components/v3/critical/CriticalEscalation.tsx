@@ -151,7 +151,7 @@ export const CriticalEscalation: React.FC<CriticalEscalationProps> = ({
       </div>
 
       <Steps
-        direction="vertical"
+        orientation="vertical"
         size="small"
         current={events.length - 1}
         items={events.map((e) => ({
@@ -191,7 +191,7 @@ export const CriticalEscalation: React.FC<CriticalEscalationProps> = ({
         okText="确认"
         cancelText="取消"
       >
-        <Space direction="vertical" style={{ width: '100%' }}>
+        <Space orientation="vertical" style={{ width: '100%' }}>
           <div>选择已确认的接收人:</div>
           <Select
             data-testid="escalation-ack-select"

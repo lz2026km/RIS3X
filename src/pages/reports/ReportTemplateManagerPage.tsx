@@ -34,7 +34,7 @@ export const ReportTemplateManagerPage: React.FC = () => {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}><Card size="small"><Statistic title="Templates" value={templates.length} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="Snippets" value={snippets.length} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Published" value={templates.filter(t=>t.status==='published').length} valueStyle={{color:'#52c41a'}} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="Published" value={templates.filter(t=>t.status==='published').length} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="Total Usage" value={templates.reduce((a,t)=>a+t.usage,0)} /></Card></Col>
       </Row>
       <Card size="small" extra={<Button type="primary" icon={<Plus size={12}/>}>New Template</Button>} title={<Space><FileText size={14}/>Report Templates</Space>}>

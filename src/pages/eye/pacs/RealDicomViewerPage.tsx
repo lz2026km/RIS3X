@@ -394,7 +394,7 @@ export const RealDicomViewerPage: React.FC = () => {
                 setWw(v || 400);
                 setWWWC(v || 400, wc);
               }}
-              addonAfter="W"
+              suffix="W"
             />
           </Tooltip>
           <Tooltip title="窗位">
@@ -408,7 +408,7 @@ export const RealDicomViewerPage: React.FC = () => {
                 setWc(v || 40);
                 setWWWC(ww, v || 40);
               }}
-              addonAfter="C"
+              suffix="C"
             />
           </Tooltip>
           <Slider
@@ -815,7 +815,7 @@ export const RealDicomViewerPage: React.FC = () => {
             {artifacts.recommendations?.map((r: string, i: number) => (
               <Alert
                 key={i}
-                message={r}
+                title={r}
                 type="warning"
                 style={{ marginTop: 4 }}
               />

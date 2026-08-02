@@ -222,7 +222,7 @@ const VisualFieldPage: React.FC = () => {
                     title={s.title}
                     value={s.value}
                     suffix={s.suffix}
-                    valueStyle={{ fontSize: 20, color: s.color }}
+                    styles={{ content: {  fontSize: 20, color: s.color  } }}
                   />
                 </Col>
               ))}
@@ -242,7 +242,7 @@ const VisualFieldPage: React.FC = () => {
                     title={s.title}
                     value={s.value}
                     suffix={s.suffix || ""}
-                    valueStyle={{ fontSize: 16 }}
+                    styles={{ content: {  fontSize: 16  } }}
                   />
                 </Col>
               ))}

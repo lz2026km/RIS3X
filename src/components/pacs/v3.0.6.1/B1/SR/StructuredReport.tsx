@@ -60,7 +60,7 @@ export const StructuredReport: React.FC<StructuredReportProps> = ({ template = M
               key: 'edit',
               label: '编辑',
               children: (
-                <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                <Space orientation="vertical" size={12} style={{ width: '100%' }}>
                   <TemplatePicker value={tpl.id} onChange={(_id, tplMeta) => setTpl(tplMeta ?? MOCK_TEMPLATE)} />
                   <FieldEditor fields={tpl.fields as SRField[]} values={values} onChange={setVal} />
                   <Space>

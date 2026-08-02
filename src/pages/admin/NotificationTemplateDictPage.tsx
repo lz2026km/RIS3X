@@ -134,7 +134,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
           <Row gutter={16}>
             <Col span={4}>
               <Card size="small">
-                <Statistic title="未读" value={unreadCount} valueStyle={{ color: '#f5222d' }} />
+                <Statistic title="未读" value={unreadCount} styles={{ content: {  color: '#f5222d'  } }} />
               </Card>
             </Col>
             <Col span={4}>
@@ -144,7 +144,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
             </Col>
             <Col span={4}>
               <Card size="small">
-                <Statistic title="危急" value={notifs.filter((n: any) => n.severity === 'critical').length} valueStyle={{ color: '#f5222d' }} />
+                <Statistic title="危急" value={notifs.filter((n: any) => n.severity === 'critical').length} styles={{ content: {  color: '#f5222d'  } }} />
               </Card>
             </Col>
             <Col span={12}>

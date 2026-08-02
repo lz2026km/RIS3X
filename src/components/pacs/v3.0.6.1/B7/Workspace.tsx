@@ -95,14 +95,14 @@ export const Workspace: React.FC<VitreaWorkspaceProps> = ({ studies = MOCK, user
               title="平均 FPS"
               value={stats.avgFps}
               precision={1}
-              valueStyle={{ color: '#16a34a' }}
+              styles={{ content: {  color: '#16a34a'  } }}
               prefix={<Box size={14} />}
             />
           </Card>
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Space direction="vertical" size={2}>
+            <Space orientation="vertical" size={2}>
               <Tag color="blue">Vitrea v7.15</Tag>
               <Tag color="purple">{user}</Tag>
             </Space>

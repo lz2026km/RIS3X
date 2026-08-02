@@ -278,7 +278,7 @@ export const AIDraftPanel: React.FC<Props> = ({
 
   const renderDDX = () => (
     <div className="space-y-2">
-      <Alert type="info" showIcon message="AI 鉴别诊断建议，仅供参考" />
+      <Alert type="info" showIcon title="AI 鉴别诊断建议，仅供参考" />
       {MOCK_DDX.map((d, i) => (
         <div key={i} className="flex items-center justify-between p-2 bg-slate-50 rounded">
           <div className="flex-1">
@@ -324,7 +324,7 @@ export const AIDraftPanel: React.FC<Props> = ({
 
   const renderPreread = () => (
     <div className="space-y-2">
-      <Alert type="warning" showIcon message="AI 预读标注，标注可疑区域供医师重点关注" />
+      <Alert type="warning" showIcon title="AI 预读标注，标注可疑区域供医师重点关注" />
       {MOCK_PREREAD.map((p, i) => (
         <div key={i} className="p-2 border-l-4 rounded" style={{ borderLeftColor: p.color }}>
           <div className="flex items-center justify-between">

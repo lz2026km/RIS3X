@@ -112,7 +112,7 @@ const DualReadPage: React.FC = () => {
         </Modal>
       )}
       <Modal title="分配双阅" open={assignOpen} onOk={handleAssign} onCancel={() => setAssignOpen(false)}>
-        <Space direction="vertical" style={{ width: '100%' }}>
+        <Space orientation="vertical" style={{ width: '100%' }}>
           <Input placeholder="检查号" value={newAssign.studyId} onChange={e => setNewAssign(prev => ({ ...prev, studyId: e.target.value }))} />
           <Input placeholder="患者姓名" value={newAssign.patientName} onChange={e => setNewAssign(prev => ({ ...prev, patientName: e.target.value }))} />
           <Input placeholder="患者ID" value={newAssign.patientId} onChange={e => setNewAssign(prev => ({ ...prev, patientId: e.target.value }))} />

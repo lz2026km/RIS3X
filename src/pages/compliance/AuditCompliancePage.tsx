@@ -23,7 +23,7 @@ export const AuditCompliancePage: React.FC = () => {
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}><Card size="small"><Statistic title="Today Events" value={auditLogs.length} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Denied" value={auditLogs.filter(l=>l.result==='denied').length} valueStyle={{color:'#ff4d4f'}} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="Denied" value={auditLogs.filter(l=>l.result==='denied').length} styles={{ content: { color:'#ff4d4f' } }} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="Data Exports" value="7" /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="Breach Score" value="98" suffix="/100" /><Progress percent={98} size="small" strokeColor="#52c41a" /></Card></Col>
       </Row>

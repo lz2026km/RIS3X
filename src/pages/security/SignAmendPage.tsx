@@ -148,10 +148,10 @@ export const SignAmendPage: React.FC = () => {
       </Space>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title="有效证书" value={certs.filter(c => c.status === 'valid').length} valueStyle={{ color: '#52c41a' }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="已过期" value={certs.filter(c => c.status === 'expired').length} valueStyle={{ color: '#faad14' }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="已吊销" value={certs.filter(c => c.status === 'revoked').length} valueStyle={{ color: '#ff4d4f' }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="修订中" value={amends.filter(a => a.status === 'in_progress').length} valueStyle={{ color: '#1677ff' }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="有效证书" value={certs.filter(c => c.status === 'valid').length} styles={{ content: {  color: '#52c41a'  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="已过期" value={certs.filter(c => c.status === 'expired').length} styles={{ content: {  color: '#faad14'  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="已吊销" value={certs.filter(c => c.status === 'revoked').length} styles={{ content: {  color: '#ff4d4f'  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="修订中" value={amends.filter(a => a.status === 'in_progress').length} styles={{ content: {  color: '#1677ff'  } }} /></Card></Col>
       </Row>
 
       <Tabs activeKey={activeTab} onChange={setActiveTab} type="card">
@@ -209,7 +209,7 @@ export const SignAmendPage: React.FC = () => {
               <Alert
                 style={{ marginTop: 12 }}
                 type="success"
-                message={`区块链存证: TxHash ${chainProof.txHash?.slice(0, 16)}...`}
+                title={`区块链存证: TxHash ${chainProof.txHash?.slice(0, 16)}...`}
                 description={
                   <div>
                     <div>报告: {chainProof.reportId}</div>
@@ -306,14 +306,14 @@ export const SignAmendPage: React.FC = () => {
         )}
         {certModal.type === 'revoke' && (
           <div>
-            <Alert message={`将吊销证书 ${certModal.data.id} (${certModal.data.subject?.commonName})`} type="warning" showIcon style={{ marginBottom: 8 }} />
+            <Alert title={`将吊销证书 ${certModal.data.id} (${certModal.data.subject?.commonName})`} type="warning" showIcon style={{ marginBottom: 8 }} />
             <Form.Item label="吊销原因"><TextArea rows={3} value={certModal.data.reason} onChange={e => setCertModal({ ...certModal, data: { ...certModal.data, reason: e.target.value } })} /></Form.Item>
             <Button type="primary" danger block onClick={handleRevoke}>确认吊销</Button>
           </div>
         )}
         {certModal.type === 'sign' && (
           <div>
-            <Alert message={`使用证书 ${certModal.data.certId} 签名报告 ${certModal.data.reportId}`} type="info" showIcon style={{ marginBottom: 8 }} />
+            <Alert title={`使用证书 ${certModal.data.certId} 签名报告 ${certModal.data.reportId}`} type="info" showIcon style={{ marginBottom: 8 }} />
             <Form.Item label="报告 Hash (模拟)"><Input value={'mock-hash-' + (certModal.data.reportId || 'xxx')} disabled /></Form.Item>
             <Button type="primary" block onClick={handleSign}>执行签名</Button>
           </div>
@@ -322,7 +322,7 @@ export const SignAmendPage: React.FC = () => {
           <div>
             <Form.Item label="签名 Hash"><Input.Search value={certModal.data.signatureHash} onChange={e => setCertModal({ ...certModal, data: { ...certModal.data, signatureHash: e.target.value } })} enterButton="验证" onSearch={handleVerify} /></Form.Item>
             {verifyResult && (
-              <Alert message={verifyResult.valid ? '✓ 签名有效' : '✗ 签名无效'} type={verifyResult.valid ? 'success' : 'error'} showIcon style={{ marginTop: 12 }} description={`签署人: ${verifyResult.signer || '未知'} | 时间: ${verifyResult.signedAt || '未知'}`} />
+              <Alert title={verifyResult.valid ? '✓ 签名有效' : '✗ 签名无效'} type={verifyResult.valid ? 'success' : 'error'} showIcon style={{ marginTop: 12 }} description={`签署人: ${verifyResult.signer || '未知'} | 时间: ${verifyResult.signedAt || '未知'}`} />
             )}
           </div>
         )}
@@ -351,7 +351,7 @@ export const SignAmendPage: React.FC = () => {
         )}
         {amendModal.type === 'complete' && (
           <div>
-            <Alert message={`完成修订 ${amendModal.data.id} (${amendModal.data.reportId})`} type="info" showIcon style={{ marginBottom: 8 }} />
+            <Alert title={`完成修订 ${amendModal.data.id} (${amendModal.data.reportId})`} type="info" showIcon style={{ marginBottom: 8 }} />
             <Form.Item label="最终说明"><TextArea rows={2} value={amendModal.data.reason} onChange={e => setAmendModal({ ...amendModal, data: { ...amendModal.data, reason: e.target.value } })} /></Form.Item>
             <Form.Item label="修订内容"><TextArea rows={3} value={amendModal.data.changes} onChange={e => setAmendModal({ ...amendModal, data: { ...amendModal.data, changes: e.target.value } })} /></Form.Item>
             <Button type="primary" block onClick={handleAmendComplete}>标记完成</Button>
@@ -359,14 +359,14 @@ export const SignAmendPage: React.FC = () => {
         )}
         {amendModal.type === 'approve' && (
           <div>
-            <Alert message={`批准修订 ${amendModal.data.id}`} type="success" showIcon style={{ marginBottom: 8 }} />
+            <Alert title={`批准修订 ${amendModal.data.id}`} type="success" showIcon style={{ marginBottom: 8 }} />
             <Form.Item label="批注 (可选)"><TextArea rows={2} value={amendModal.data.comment} onChange={e => setAmendModal({ ...amendModal, data: { ...amendModal.data, comment: e.target.value } })} /></Form.Item>
             <Button type="primary" block onClick={handleAmendApprove}>确认批准</Button>
           </div>
         )}
         {amendModal.type === 'reject' && (
           <div>
-            <Alert message={`驳回修订 ${amendModal.data.id}`} type="warning" showIcon style={{ marginBottom: 8 }} />
+            <Alert title={`驳回修订 ${amendModal.data.id}`} type="warning" showIcon style={{ marginBottom: 8 }} />
             <Form.Item label="驳回原因"><TextArea rows={3} value={amendModal.data.reason} onChange={e => setAmendModal({ ...amendModal, data: { ...amendModal.data, reason: e.target.value } })} /></Form.Item>
             <Button type="primary" danger block onClick={handleAmendReject}>确认驳回</Button>
           </div>

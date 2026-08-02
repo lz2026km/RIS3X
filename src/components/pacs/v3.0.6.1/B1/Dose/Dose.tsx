@@ -153,32 +153,32 @@ const Dose: React.FC = () => {
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="总检查" value={total} valueStyle={{ color: '#3b82f6' }} />
+            <Statistic title="总检查" value={total} styles={{ content: {  color: '#3b82f6'  } }} />
           </Card>
         </Col>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="CT 检查" value={ctStudies} valueStyle={{ color: '#3b82f6' }} />
+            <Statistic title="CT 检查" value={ctStudies} styles={{ content: {  color: '#3b82f6'  } }} />
           </Card>
         </Col>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="超阈值" value={exceededCount} valueStyle={{ color: '#dc2626' }} />
+            <Statistic title="超阈值" value={exceededCount} styles={{ content: {  color: '#dc2626'  } }} />
           </Card>
         </Col>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="接近阈值" value={warningCount} valueStyle={{ color: '#f59e0b' }} />
+            <Statistic title="接近阈值" value={warningCount} styles={{ content: {  color: '#f59e0b'  } }} />
           </Card>
         </Col>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="平均有效剂量" value={avgEffective} suffix="mSv" precision={2} valueStyle={{ color: '#16a34a' }} />
+            <Statistic title="平均有效剂量" value={avgEffective} suffix="mSv" precision={2} styles={{ content: {  color: '#16a34a'  } }} />
           </Card>
         </Col>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="总 DLP" value={totalDLP} suffix="mGy·cm" valueStyle={{ color: '#3b82f6' }} />
+            <Statistic title="总 DLP" value={totalDLP} suffix="mGy·cm" styles={{ content: {  color: '#3b82f6'  } }} />
           </Card>
         </Col>
       </Row>

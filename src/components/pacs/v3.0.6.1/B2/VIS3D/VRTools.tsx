@@ -26,7 +26,7 @@ export const VRTools: React.FC<VRToolsProps> = ({ preset, onChange }) => {
         onChange={(e) => onChange(e.target.value)}
         style={{ width: '100%' }}
       >
-        <Space direction="vertical" size={4} style={{ width: '100%' }}>
+        <Space orientation="vertical" size={4} style={{ width: '100%' }}>
           {PRESETS.map((p) => (
             <Radio key={p.value} value={p.value} style={{ width: '100%' }}>
               <Space>

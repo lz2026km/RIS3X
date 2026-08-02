@@ -26,9 +26,9 @@ export const ConsentEducationPage: React.FC = () => {
         <Tag color="green">e-Signature</Tag>
       </Space>
       <Row gutter={16} style={{marginBottom:16}}>
-        <Col span={4}><Card size="small"><Statistic title="Pending" value={consents.filter(c=>c.status==='pending').length} valueStyle={{color:'#faad14'}} prefix={<Clock size={14}/>} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Signed" value={consents.filter(c=>c.status==='signed').length} valueStyle={{color:'#52c41a'}} prefix={<CheckCircle2 size={14}/>} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Refused" value={consents.filter(c=>c.status==='refused').length} valueStyle={{color:'#ff4d4f'}} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="Pending" value={consents.filter(c=>c.status==='pending').length} styles={{ content: { color:'#faad14' } }} prefix={<Clock size={14}/>} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="Signed" value={consents.filter(c=>c.status==='signed').length} styles={{ content: { color:'#52c41a' } }} prefix={<CheckCircle2 size={14}/>} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="Refused" value={consents.filter(c=>c.status==='refused').length} styles={{ content: { color:'#ff4d4f' } }} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="Materials" value={materials.length} prefix={<BookOpen size={14}/>} /></Card></Col>
       </Row>
       <Card size="small" title={<Space><FileSignature size={14}/>Patient Consents</Space>} extra={<Button type="primary" onClick={() => setConsentModal(true)}>+ New Consent</Button>}>

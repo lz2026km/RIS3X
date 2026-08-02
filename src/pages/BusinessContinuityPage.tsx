@@ -86,12 +86,12 @@ export default function BusinessContinuityPage() {
       </Card>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card><Statistic title="同步队列" value={status?.total ?? 0} prefix={<RefreshCw size={16} />} valueStyle={{ color: "#0ea5e9" }} /></Card></Col>
-        <Col span={4}><Card><Statistic title="待同步" value={status?.pending ?? 0} valueStyle={{ color: "#f59e0b" }} /></Card></Col>
-        <Col span={4}><Card><Statistic title="已完成" value={status?.completed ?? 0} prefix={<CheckCircle size={16} />} valueStyle={{ color: "#10b981" }} /></Card></Col>
-        <Col span={4}><Card><Statistic title="失败" value={status?.failed ?? 0} prefix={<XCircle size={16} />} valueStyle={{ color: "#dc2626" }} /></Card></Col>
-        <Col span={4}><Card><Statistic title="冲突" value={status?.conflicts ?? 0} prefix={<AlertTriangle size={16} />} valueStyle={{ color: "#7c3aed" }} /></Card></Col>
-        <Col span={4}><Card><Statistic title="平均延迟" value={(REPLICAS.reduce((s, r) => s + r.lagMs, 0) / REPLICAS.length).toFixed(0)} suffix="ms" valueStyle={{ color: "#1e40af" }} /></Card></Col>
+        <Col span={4}><Card><Statistic title="同步队列" value={status?.total ?? 0} prefix={<RefreshCw size={16} />} styles={{ content: {  color: "#0ea5e9"  } }} /></Card></Col>
+        <Col span={4}><Card><Statistic title="待同步" value={status?.pending ?? 0} styles={{ content: {  color: "#f59e0b"  } }} /></Card></Col>
+        <Col span={4}><Card><Statistic title="已完成" value={status?.completed ?? 0} prefix={<CheckCircle size={16} />} styles={{ content: {  color: "#10b981"  } }} /></Card></Col>
+        <Col span={4}><Card><Statistic title="失败" value={status?.failed ?? 0} prefix={<XCircle size={16} />} styles={{ content: {  color: "#dc2626"  } }} /></Card></Col>
+        <Col span={4}><Card><Statistic title="冲突" value={status?.conflicts ?? 0} prefix={<AlertTriangle size={16} />} styles={{ content: {  color: "#7c3aed"  } }} /></Card></Col>
+        <Col span={4}><Card><Statistic title="平均延迟" value={(REPLICAS.reduce((s, r) => s + r.lagMs, 0) / REPLICAS.length).toFixed(0)} suffix="ms" styles={{ content: {  color: "#1e40af"  } }} /></Card></Col>
       </Row>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
@@ -122,7 +122,7 @@ export default function BusinessContinuityPage() {
               items={conflicts.map(c => ({
                 color: c.status === "escalated" ? "red" : c.status === "pending" ? "orange" : "green",
                 children: (
-                  <Space direction="vertical" size={2} style={{ width: "100%" }}>
+                  <Space orientation="vertical" size={2} style={{ width: "100%" }}>
                     <Space>
                       <Tag color={c.type === "version_conflict" ? "blue" : c.type === "data_conflict" ? "orange" : "purple"}>
                         {c.type === "version_conflict" ? "版本冲突" : c.type === "data_conflict" ? "数据冲突" : "结构冲突"}

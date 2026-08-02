@@ -23,7 +23,7 @@ export const SchedulingCenterPage: React.FC = () => {
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}><Card><Statistic title="设备总数" value={12} /></Card></Col>
-        <Col span={6}><Card><Statistic title="在线" value={10} valueStyle={{color:'#52c41a'}} /></Card></Col>
+        <Col span={6}><Card><Statistic title="在线" value={10} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
         <Col span={6}><Card><Statistic title="今日预约" value={48} /></Card></Col>
         <Col span={6}><Card><Statistic title="平均利用率" value={71} suffix="%" /><Progress percent={71} size="small" /></Card></Col>
       </Row>

@@ -10,11 +10,11 @@ export const DentalWorkspacePage: React.FC = () => {
     <DentalPageLayout header={{ title: '口腔工作台' }}>
       <Row gutter={16}>
         <Col span={6}><Card hoverable><Statistic title="今日检查" value={12} prefix={<Calendar size={14}/>} /></Card></Col>
-        <Col span={6}><Card hoverable><Statistic title="待报告" value={3} valueStyle={{ color: '#faad14' }} /></Card></Col>
-        <Col span={6}><Card hoverable><Statistic title="待治疗" value={5} valueStyle={{ color: '#1677ff' }} /></Card></Col>
-        <Col span={6}><Card hoverable><Statistic title="已完成" value={8} valueStyle={{ color: '#52c41a' }} /></Card></Col>
+        <Col span={6}><Card hoverable><Statistic title="待报告" value={3} styles={{ content: {  color: '#faad14'  } }} /></Card></Col>
+        <Col span={6}><Card hoverable><Statistic title="待治疗" value={5} styles={{ content: {  color: '#1677ff'  } }} /></Card></Col>
+        <Col span={6}><Card hoverable><Statistic title="已完成" value={8} styles={{ content: {  color: '#52c41a'  } }} /></Card></Col>
       </Row>
-      {!loading && <Alert style={{ marginTop: 16 }} message="工作台已就绪" type="success" showIcon />}
+      {!loading && <Alert style={{ marginTop: 16 }} title="工作台已就绪" type="success" showIcon />}
     </DentalPageLayout>
   );
 };

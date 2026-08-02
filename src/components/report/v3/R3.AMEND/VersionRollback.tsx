@@ -78,7 +78,7 @@ export const VersionRollback: React.FC<VersionRollbackProps> = ({ reportId, onRo
       }
       style={{ width: '100%' }}
     >
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
+      {error && <Alert type="error" showIcon title={error} style={{ marginBottom: 12 }} />}
 
       <Row gutter={16} style={{ marginBottom: 12 }}>
         <Col span={8}>
@@ -89,7 +89,7 @@ export const VersionRollback: React.FC<VersionRollbackProps> = ({ reportId, onRo
             title="剩余修订次数"
             value={remaining}
             suffix={`/ ${AMEND_COUNT_LIMIT}`}
-            valueStyle={{ color: remaining > 0 ? '#10b981' : '#ef4444' }}
+            styles={{ content: {  color: remaining > 0 ? '#10b981' : '#ef4444'  } }}
           />
         </Col>
         <Col span={8}>
@@ -106,7 +106,7 @@ export const VersionRollback: React.FC<VersionRollbackProps> = ({ reportId, onRo
         style={{ marginBottom: 12 }}
       />
 
-      <Space direction="vertical" style={{ width: '100%' }}>
+      <Space orientation="vertical" style={{ width: '100%' }}>
         <div>
           <Text strong>选择回滚目标版本</Text>
           <Select

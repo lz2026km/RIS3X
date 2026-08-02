@@ -403,12 +403,12 @@ export const CosignSchedule: React.FC = () => {
         </Space>
         {kpi && (
           <Row gutter={12} style={{ marginTop: 12 }}>
-            <Col span={4}><Statistic title={<span style={{ color: '#fff' }}>已触发</span>} value={kpi.totalTriggered} valueStyle={{ color: '#fff', fontSize: 18 }} prefix={<Zap size={14} />} /></Col>
-            <Col span={4}><Statistic title={<span style={{ color: '#fff' }}>已签</span>} value={kpi.totalSigned} valueStyle={{ color: '#bbf7d0', fontSize: 18 }} prefix={<CheckCircle2 size={14} />} /></Col>
-            <Col span={4}><Statistic title={<span style={{ color: '#fff' }}>按时率</span>} value={kpi.onTimeRate} suffix="%" valueStyle={{ color: '#bbf7d0', fontSize: 18 }} prefix={<TrendingUp size={14} />} /></Col>
-            <Col span={4}><Statistic title={<span style={{ color: '#fff' }}>冲突</span>} value={kpi.conflictCount} valueStyle={{ color: '#fca5a5', fontSize: 18 }} prefix={<AlertTriangle size={14} />} /></Col>
-            <Col span={4}><Statistic title={<span style={{ color: '#fff' }}>临时授权</span>} value={kpi.tempAuthActive} valueStyle={{ color: '#fff', fontSize: 18 }} prefix={<Key size={14} />} /></Col>
-            <Col span={4}><Statistic title={<span style={{ color: '#fff' }}>平均响应</span>} value={kpi.avgResponseMinutes} suffix="m" valueStyle={{ color: '#fff', fontSize: 18 }} prefix={<Clock size={14} />} /></Col>
+            <Col span={4}><Statistic title={<span style={{ color: '#fff' }}>已触发</span>} value={kpi.totalTriggered} styles={{ content: {  color: '#fff', fontSize: 18  } }} prefix={<Zap size={14} />} /></Col>
+            <Col span={4}><Statistic title={<span style={{ color: '#fff' }}>已签</span>} value={kpi.totalSigned} styles={{ content: {  color: '#bbf7d0', fontSize: 18  } }} prefix={<CheckCircle2 size={14} />} /></Col>
+            <Col span={4}><Statistic title={<span style={{ color: '#fff' }}>按时率</span>} value={kpi.onTimeRate} suffix="%" styles={{ content: {  color: '#bbf7d0', fontSize: 18  } }} prefix={<TrendingUp size={14} />} /></Col>
+            <Col span={4}><Statistic title={<span style={{ color: '#fff' }}>冲突</span>} value={kpi.conflictCount} styles={{ content: {  color: '#fca5a5', fontSize: 18  } }} prefix={<AlertTriangle size={14} />} /></Col>
+            <Col span={4}><Statistic title={<span style={{ color: '#fff' }}>临时授权</span>} value={kpi.tempAuthActive} styles={{ content: {  color: '#fff', fontSize: 18  } }} prefix={<Key size={14} />} /></Col>
+            <Col span={4}><Statistic title={<span style={{ color: '#fff' }}>平均响应</span>} value={kpi.avgResponseMinutes} suffix="m" styles={{ content: {  color: '#fff', fontSize: 18  } }} prefix={<Clock size={14} />} /></Col>
           </Row>
         )}
       </div>
@@ -525,7 +525,7 @@ export const CosignSchedule: React.FC = () => {
                     style={{ marginBottom: 12 }}
                     type="info"
                     showIcon
-                    message={`默认 SLA: ${slaConfig.defaultMinutes}m · 警告 ${slaConfig.warnMinutes}m · 超时升级到 ${slaConfig.escalateToRole ?? 'director'}`}
+                    title={`默认 SLA: ${slaConfig.defaultMinutes}m · 警告 ${slaConfig.warnMinutes}m · 超时升级到 ${slaConfig.escalateToRole ?? 'director'}`}
                   />
                 )}
                 <Table
@@ -682,7 +682,7 @@ export const CosignSchedule: React.FC = () => {
                   style={{ marginBottom: 12 }}
                   type={skipConfig.enabled ? 'success' : 'warning'}
                   showIcon
-                  message={`跳过功能 ${skipConfig.enabled ? '已启用' : '已停用'} · 需 ${skipConfig.authorizedRoles.join('/')} 授权 · 审计等级 ${skipConfig.auditLevel}`}
+                  title={`跳过功能 ${skipConfig.enabled ? '已启用' : '已停用'} · 需 ${skipConfig.authorizedRoles.join('/')} 授权 · 审计等级 ${skipConfig.auditLevel}`}
                 />
                 <Table
                   size="small"
@@ -854,8 +854,8 @@ export const CosignSchedule: React.FC = () => {
         footer={<Button onClick={() => setAutoAssignModal(false)}>关闭</Button>}
       >
         {autoAssignResult && (
-          <Space direction="vertical" style={{ width: '100%' }}>
-            <Alert type={autoAssignResult.assigned ? 'success' : 'warning'} message={autoAssignResult.reason} showIcon />
+          <Space orientation="vertical" style={{ width: '100%' }}>
+            <Alert type={autoAssignResult.assigned ? 'success' : 'warning'} title={autoAssignResult.reason} showIcon />
             {autoAssignResult.assigned && (
               <Card size="small" type="inner">
                 <p><strong>姓名:</strong>{autoAssignResult.assigned.name}</p>
@@ -952,8 +952,8 @@ export const CosignSchedule: React.FC = () => {
         cancelText="取消"
       >
         {conflictResolveModal && (
-          <Space direction="vertical" style={{ width: '100%' }}>
-            <Alert type="warning" message={`类型:${CONFLICT_META[conflictResolveModal.conflict.conflictType]?.label} · ${conflictResolveModal.conflict.description}`} />
+          <Space orientation="vertical" style={{ width: '100%' }}>
+            <Alert type="warning" title={`类型:${CONFLICT_META[conflictResolveModal.conflict.conflictType]?.label} · ${conflictResolveModal.conflict.description}`} />
             <div>
               <strong>解决方案:</strong>
               <Select
@@ -988,7 +988,7 @@ export const CosignSchedule: React.FC = () => {
               h.step === 'skip' ? 'gray' :
               h.step === 'escalate' ? 'purple' : 'blue',
             children: (
-              <Space direction="vertical" size={2}>
+              <Space orientation="vertical" size={2}>
                 <Space><strong>{h.action}</strong><Tag>{h.step}</Tag></Space>
                 <span style={{ fontSize: 12, color: '#64748b' }}>{h.actorName} · {h.timestamp.slice(0, 16).replace('T', ' ')}</span>
                 {h.detail && <span style={{ fontSize: 12 }}>{h.detail}</span>}

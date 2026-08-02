@@ -371,7 +371,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
         onOk={() => handleDeviceMaintain(deviceModal.data.id, '定期维护')}
         width={400}
       >
-        <Alert message="将为该设备创建维护指令" type="info" showIcon style={{ marginBottom: 8 }} />
+        <Alert title="将为该设备创建维护指令" type="info" showIcon style={{ marginBottom: 8 }} />
         <p>设备: {deviceModal.data.name} ({deviceModal.data.id})</p>
       </Modal>
     </div>

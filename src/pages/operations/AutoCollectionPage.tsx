@@ -46,7 +46,7 @@ const AutoCollectionPage: React.FC = () => {
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}><Card><Statistic title="总规则" value={rules.length} /></Card></Col>
-        <Col span={6}><Card><Statistic title="已启用" value={rules.filter(r => r.enabled).length} valueStyle={{ color: '#52c41a' }} /></Card></Col>
+        <Col span={6}><Card><Statistic title="已启用" value={rules.filter(r => r.enabled).length} styles={{ content: {  color: '#52c41a'  } }} /></Card></Col>
         <Col span={6}><Card><Statistic title="已禁用" value={rules.filter(r => !r.enabled).length} /></Card></Col>
       </Row>
       <Card extra={<Button type="primary" icon={<Play size={14} />}>新建规则</Button>}>

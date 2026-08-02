@@ -29,7 +29,7 @@ export default function DiagnosticAccuracyGauge({ data, overallRate, totalCases 
             value={overallRate}
             suffix="%"
             prefix={<CheckCircleOutlined style={{ color: CHART_COLORS.success }} />}
-            valueStyle={{ color: CHART_COLORS.success }}
+            styles={{ content: {  color: CHART_COLORS.success  } }}
           />
         </Col>
         <Col span={8}>

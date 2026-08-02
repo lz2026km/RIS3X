@@ -153,10 +153,10 @@ export const ReportWatermark: React.FC<Props> = ({ reportId, onApply, readOnly =
   return (
     <div className="space-y-3">
       <Row gutter={8}>
-        <Col span={6}><Card size="small"><Statistic title="水印规则" value={watermarks.length} prefix={<Droplet className="w-3 h-3" style={{ color: '#dc2626' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="已启用" value={watermarks.filter((w) => w.enabled).length} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="文字" value={watermarks.filter((w) => w.type === 'text').length} prefix={<Type className="w-3 h-3" style={{ color: '#3b82f6' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="图像/QR" value={watermarks.filter((w) => w.type === 'image' || w.type === 'qrcode').length} prefix={<ImageIcon className="w-3 h-3" style={{ color: '#7c3aed' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="水印规则" value={watermarks.length} prefix={<Droplet className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="已启用" value={watermarks.filter((w) => w.enabled).length} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="文字" value={watermarks.filter((w) => w.type === 'text').length} prefix={<Type className="w-3 h-3" style={{ color: '#3b82f6' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="图像/QR" value={watermarks.filter((w) => w.type === 'image' || w.type === 'qrcode').length} prefix={<ImageIcon className="w-3 h-3" style={{ color: '#7c3aed' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
       </Row>
 
       <div className="grid grid-cols-3 gap-3">

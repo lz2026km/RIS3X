@@ -23,14 +23,14 @@ export const WorklistHeader: React.FC<WorklistHeaderProps> = ({ stats, onRefresh
     <Card size="small" data-testid="worklist-header">
       <Row gutter={12}>
         <Col span={6}>
-          <Statistic title="总条目" value={stats.total} prefix={<Users size={14} />} valueStyle={{ fontSize: 18 }} />
+          <Statistic title="总条目" value={stats.total} prefix={<Users size={14} />} styles={{ content: {  fontSize: 18  } }} />
         </Col>
         <Col span={6}>
           <Statistic
             title="急诊"
             value={stats.stat}
             prefix={<AlertTriangle size={14} color="#dc2626" />}
-            valueStyle={{ color: '#dc2626', fontSize: 18 }}
+            styles={{ content: {  color: '#dc2626', fontSize: 18  } }}
           />
         </Col>
         <Col span={6}>
@@ -38,14 +38,14 @@ export const WorklistHeader: React.FC<WorklistHeaderProps> = ({ stats, onRefresh
             title="等待"
             value={stats.waiting}
             prefix={<Clock size={14} color="#f59e0b" />}
-            valueStyle={{ color: '#f59e0b', fontSize: 18 }}
+            styles={{ content: {  color: '#f59e0b', fontSize: 18  } }}
           />
         </Col>
         <Col span={6}>
           <Statistic
             title="平均等待(分钟)"
             value={stats.avgWait}
-            valueStyle={{ color: stats.avgWait > 60 ? '#dc2626' : '#0f172a', fontSize: 18 }}
+            styles={{ content: {  color: stats.avgWait > 60 ? '#dc2626' : '#0f172a', fontSize: 18  } }}
           />
         </Col>
       </Row>

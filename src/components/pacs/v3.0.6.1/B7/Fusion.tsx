@@ -102,7 +102,7 @@ export const Fusion: React.FC = () => {
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Space direction="vertical" size={2}>
+            <Space orientation="vertical" size={2}>
               <Tag color="blue">PET/CT</Tag>
               <Tag color="purple">PET/MR</Tag>
               <Tag color="cyan">CT/MR</Tag>

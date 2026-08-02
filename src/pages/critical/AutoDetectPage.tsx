@@ -32,7 +32,7 @@ export const AutoDetectPage: React.FC = () => {
           <Statistic title="NLP 文本规则" value={rules.filter((r) => r.source === 'text' || r.source === 'both').length} prefix={<BookOpen size={14} />} />
         </Col>
         <Col span={6}>
-          <Statistic title="识别时延" value="<1" suffix="s" prefix={<Activity size={14} />} valueStyle={{ color: '#10b981' }} />
+          <Statistic title="识别时延" value="<1" suffix="s" prefix={<Activity size={14} />} styles={{ content: {  color: '#10b981'  } }} />
         </Col>
       </Row>
 
@@ -46,7 +46,7 @@ export const AutoDetectPage: React.FC = () => {
       <AutoDetectPanel />
 
       <Card size="small" title={<Space><BookOpen size={14} /><strong>内置规则</strong></Space>}>
-        <Space direction="vertical" size={6} style={{ width: '100%' }}>
+        <Space orientation="vertical" size={6} style={{ width: '100%' }}>
           {rules.map((r) => (
             <div key={r.id} style={{ padding: 8, borderRadius: 6, background: '#f8fafc', borderLeft: `3px solid ${r.severity === 'critical' ? '#dc2626' : r.severity === 'urgent' ? '#f59e0b' : '#3b82f6'}` }}>
               <Space wrap>

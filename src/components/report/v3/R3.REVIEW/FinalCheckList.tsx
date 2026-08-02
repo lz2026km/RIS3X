@@ -363,7 +363,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
   const renderConsistency = () => (
     <div data-testid="final-checklist-consistency" role="region" aria-label="临床一致性">
       {!consistency ? <Empty description="暂无一致性数据" /> : (
-        <Space direction="vertical" style={{ width: '100%' }} size={12}>
+        <Space orientation="vertical" style={{ width: '100%' }} size={12}>
           <Card size="small">
             <Row gutter={12}>
               <Col span={8}>
@@ -371,7 +371,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                   title="一致性评分"
                   value={Math.round(consistency.overallScore * 100)}
                   suffix="/100"
-                  valueStyle={{ color: consistency.overallScore >= 0.9 ? '#10b981' : consistency.overallScore >= 0.7 ? '#f59e0b' : '#dc2626' }}
+                  styles={{ content: {  color: consistency.overallScore >= 0.9 ? '#10b981' : consistency.overallScore >= 0.7 ? '#f59e0b' : '#dc2626'  } }}
                   prefix={<Activity size={14} />}
                 />
               </Col>
@@ -380,7 +380,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                   title="AI 置信度"
                   value={Math.round(consistency.aiConfidence * 100)}
                   suffix="%"
-                  valueStyle={{ color: '#3b82f6', fontSize: 16 }}
+                  styles={{ content: {  color: '#3b82f6', fontSize: 16  } }}
                   prefix={<Zap size={14} />}
                 />
               </Col>
@@ -388,7 +388,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                 <Statistic
                   title="一致性等级"
                   value={consistency.consistencyLevel}
-                  valueStyle={{ color: '#7c3aed', fontSize: 16 }}
+                  styles={{ content: {  color: '#7c3aed', fontSize: 16  } }}
                   prefix={<ShieldCheck size={14} />}
                 />
               </Col>
@@ -398,7 +398,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
             <Alert
               type="warning"
               showIcon
-              message={`检测到 ${consistency.contradictions.length} 处矛盾`}
+              title={`检测到 ${consistency.contradictions.length} 处矛盾`}
               description={
                 <List
                   size="small"
@@ -452,16 +452,16 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
 
   const renderScoring = () => (
     <div data-testid="final-checklist-scoring" role="region" aria-label="终评分">
-      <Space direction="vertical" style={{ width: '100%' }} size={12}>
+      <Space orientation="vertical" style={{ width: '100%' }} size={12}>
         {scoring ? (
           <Card size="small" title={`终评分 · ${scoring.grade} · ${scoring.totalScore}分`} extra={
             <Tag color={scoring.passed ? 'green' : 'red'}>{scoring.passed ? '通过' : scoring.blocked ? '阻塞' : '未达'}</Tag>
           }>
             <Row gutter={12} style={{ marginBottom: 12 }}>
-              <Col span={6}><Statistic title="总分" value={scoring.totalScore} suffix="/100" valueStyle={{ color: '#7c3aed' }} /></Col>
-              <Col span={6}><Statistic title="通过" value={scoring.passed ? '是' : '否'} valueStyle={{ color: scoring.passed ? '#10b981' : '#dc2626' }} /></Col>
-              <Col span={6}><Statistic title="阻塞" value={scoring.blocked ? '是' : '否'} valueStyle={{ color: scoring.blocked ? '#dc2626' : '#10b981' }} /></Col>
-              <Col span={6}><Statistic title="与初评差" value={scoring.deltaFromInitial ?? 0} valueStyle={{ fontSize: 16, color: (scoring.deltaFromInitial ?? 0) >= 0 ? '#10b981' : '#dc2626' }} /></Col>
+              <Col span={6}><Statistic title="总分" value={scoring.totalScore} suffix="/100" styles={{ content: {  color: '#7c3aed'  } }} /></Col>
+              <Col span={6}><Statistic title="通过" value={scoring.passed ? '是' : '否'} styles={{ content: {  color: scoring.passed ? '#10b981' : '#dc2626'  } }} /></Col>
+              <Col span={6}><Statistic title="阻塞" value={scoring.blocked ? '是' : '否'} styles={{ content: {  color: scoring.blocked ? '#dc2626' : '#10b981'  } }} /></Col>
+              <Col span={6}><Statistic title="与初评差" value={scoring.deltaFromInitial ?? 0} styles={{ content: {  fontSize: 16, color: (scoring.deltaFromInitial ?? 0) >= 0 ? '#10b981' : '#dc2626'  } }} /></Col>
             </Row>
             {scoring.dimensionScores.map((d) => (
               <div key={d.code} style={{ padding: '6px 0', borderBottom: '1px solid #f1f5f9' }}>
@@ -480,12 +480,12 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
               </div>
             ))}
             {scoring.hardFailures.length > 0 && (
-              <Alert type="error" showIcon style={{ marginTop: 8 }} message="硬性失败" description={
+              <Alert type="error" showIcon style={{ marginTop: 8 }} title="硬性失败" description={
                 <Space wrap>{scoring.hardFailures.map((f) => <Tag key={f} color="red">{f}</Tag>)}</Space>
               } />
             )}
             {scoring.softWarnings.length > 0 && (
-              <Alert type="warning" showIcon style={{ marginTop: 8 }} message="软性警告" description={
+              <Alert type="warning" showIcon style={{ marginTop: 8 }} title="软性警告" description={
                 <Space wrap>{scoring.softWarnings.map((w) => <Tag key={w} color="orange">{w}</Tag>)}</Space>
               } />
             )}
@@ -567,7 +567,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
     <div data-testid="final-checklist-workload" role="region" aria-label="终核工作量">
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={6}><Statistic title="本组总终核" value={workload.reduce((a, w) => a + w.totalFinalChecks, 0)} prefix={<ClipboardCheck size={14} />} /></Col>
-        <Col span={6}><Statistic title="本组驳回" value={workload.reduce((a, w) => a + w.rejectedCount, 0)} prefix={<RotateCcw size={14} />} valueStyle={{ color: '#dc2626' }} /></Col>
+        <Col span={6}><Statistic title="本组驳回" value={workload.reduce((a, w) => a + w.rejectedCount, 0)} prefix={<RotateCcw size={14} />} styles={{ content: {  color: '#dc2626'  } }} /></Col>
         <Col span={6}><Statistic title="平均评分" value={workload.length === 0 ? 0 : Math.round(workload.reduce((a, w) => a + w.averageScore, 0) / workload.length)} prefix={<Award size={14} />} /></Col>
         <Col span={6}><Statistic title="平均耗时" value={workload.length === 0 ? 0 : Math.round(workload.reduce((a, w) => a + w.averageDurationMin, 0) / workload.length)} suffix="min" prefix={<Timer size={14} />} /></Col>
       </Row>
@@ -587,12 +587,12 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
               }
               description={
                 <Row gutter={8} style={{ marginTop: 6 }}>
-                  <Col span={4}><Statistic title="总数" value={w.totalFinalChecks} valueStyle={{ fontSize: 14 }} /></Col>
-                  <Col span={4}><Statistic title="一次性通过" value={w.passedFirstTime} valueStyle={{ fontSize: 14, color: '#10b981' }} /></Col>
-                  <Col span={4}><Statistic title="驳回" value={w.rejectedCount} valueStyle={{ fontSize: 14, color: '#dc2626' }} /></Col>
-                  <Col span={4}><Statistic title="均分" value={w.averageScore} valueStyle={{ fontSize: 14, color: '#3b82f6' }} /></Col>
-                  <Col span={4}><Statistic title="按时率" value={`${w.onTimeRate}%`} valueStyle={{ fontSize: 14, color: '#10b981' }} /></Col>
-                  <Col span={4}><Statistic title="阻塞率" value={`${w.blockerRate}%`} valueStyle={{ fontSize: 14, color: w.blockerRate > 5 ? '#dc2626' : '#10b981' }} /></Col>
+                  <Col span={4}><Statistic title="总数" value={w.totalFinalChecks} styles={{ content: {  fontSize: 14  } }} /></Col>
+                  <Col span={4}><Statistic title="一次性通过" value={w.passedFirstTime} styles={{ content: {  fontSize: 14, color: '#10b981'  } }} /></Col>
+                  <Col span={4}><Statistic title="驳回" value={w.rejectedCount} styles={{ content: {  fontSize: 14, color: '#dc2626'  } }} /></Col>
+                  <Col span={4}><Statistic title="均分" value={w.averageScore} styles={{ content: {  fontSize: 14, color: '#3b82f6'  } }} /></Col>
+                  <Col span={4}><Statistic title="按时率" value={`${w.onTimeRate}%`} styles={{ content: {  fontSize: 14, color: '#10b981'  } }} /></Col>
+                  <Col span={4}><Statistic title="阻塞率" value={`${w.blockerRate}%`} styles={{ content: {  fontSize: 14, color: w.blockerRate > 5 ? '#dc2626' : '#10b981'  } }} /></Col>
                 </Row>
               }
             />
@@ -605,7 +605,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
   const renderPrior = () => (
     <div data-testid="final-checklist-prior" role="region" aria-label="既往报告对比">
       {!prior ? <Empty description="无既往同部位报告" /> : (
-        <Space direction="vertical" style={{ width: '100%' }} size={12}>
+        <Space orientation="vertical" style={{ width: '100%' }} size={12}>
           <Card size="small" title={
             <Space>
               <GitCompareArrows size={14} />
@@ -623,7 +623,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
             <strong>AI 摘要:</strong>
             <div style={{ fontSize: 12, padding: 8, background: '#f0f9ff', borderRadius: 4, marginTop: 4 }}>{prior.aiSummary}</div>
             {prior.recommendedAction && (
-              <Alert type="info" showIcon style={{ marginTop: 8 }} message="建议" description={prior.recommendedAction} />
+              <Alert type="info" showIcon style={{ marginTop: 8 }} title="建议" description={prior.recommendedAction} />
             )}
           </Card>
           <Card size="small" title="对比明细">
@@ -631,7 +631,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
               dataSource={prior.findings}
               renderItem={(f) => (
                 <List.Item style={{ padding: '6px 0' }}>
-                  <Space direction="vertical" size={2} style={{ width: '100%' }}>
+                  <Space orientation="vertical" size={2} style={{ width: '100%' }}>
                     <Space>
                       <Tag color={f.significance === 'critical' ? 'red' : f.significance === 'major' ? 'orange' : f.significance === 'moderate' ? 'gold' : 'blue'}>{f.significance}</Tag>
                       <strong>{f.field}</strong>
@@ -663,7 +663,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
           dataSource={multiSigs}
           renderItem={(m) => (
             <List.Item key={m.id} style={{ padding: 10, background: '#fff', borderRadius: 6, marginBottom: 6, border: '1px solid #e2e8f0' }}>
-              <Space direction="vertical" size={4} style={{ width: '100%' }}>
+              <Space orientation="vertical" size={4} style={{ width: '100%' }}>
                 <Space>
                   <Tag color="purple">{m.id}</Tag>
                   <Tag color={m.trigger === 'critical' ? 'red' : m.trigger === 'special' ? 'purple' : 'blue'}>{m.trigger}</Tag>
@@ -708,7 +708,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
               key={e.id}
               style={{ padding: 10, background: e.severity === 'life-threatening' ? '#fef2f2' : '#fffbeb', borderRadius: 6, marginBottom: 6, border: `1px solid ${e.severity === 'life-threatening' ? '#fecaca' : '#fed7aa'}` }}
             >
-              <Space direction="vertical" size={4} style={{ width: '100%' }}>
+              <Space orientation="vertical" size={4} style={{ width: '100%' }}>
                 <Space wrap>
                   <Bell size={14} color={e.severity === 'life-threatening' ? '#dc2626' : '#f59e0b'} />
                   <Tag color={e.severity === 'life-threatening' ? 'red' : e.severity === 'critical' ? 'volcano' : 'orange'}>{e.severity}</Tag>
@@ -739,7 +739,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
   const renderWorkflow = () => (
     <div data-testid="final-checklist-workflow" role="region" aria-label="工作流配置">
       {!config ? <Empty description="暂无工作流配置" /> : (
-        <Space direction="vertical" style={{ width: '100%' }} size={12}>
+        <Space orientation="vertical" style={{ width: '100%' }} size={12}>
           <Card size="small" title={
             <Space>
               <Settings2 size={14} />
@@ -794,7 +794,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                 type="info"
                 showIcon
                 style={{ marginBottom: 4 }}
-                message={REJECT_TARGET_META[t].label}
+                title={REJECT_TARGET_META[t].label}
                 description={REJECT_TARGET_META[t].description}
               />
             ))}
@@ -829,11 +829,11 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
           </Space>
         </Space>
         <Row gutter={12} style={{ marginTop: 12 }}>
-          <Col span={5}><Statistic title={<span style={{ color: '#fff' }}>清单总数</span>} value={stats.total} valueStyle={{ color: '#fff', fontSize: 18 }} prefix={<FileText size={14} />} /></Col>
-          <Col span={5}><Statistic title={<span style={{ color: '#fff' }}>进行中</span>} value={stats.inProgress} valueStyle={{ color: '#fff', fontSize: 18 }} prefix={<Activity size={14} />} /></Col>
-          <Col span={5}><Statistic title={<span style={{ color: '#fff' }}>已完成</span>} value={stats.completed} valueStyle={{ color: '#fff', fontSize: 18 }} prefix={<CheckCircle2 size={14} />} /></Col>
-          <Col span={5}><Statistic title={<span style={{ color: '#fff' }}>阻塞</span>} value={stats.blocked} valueStyle={{ color: '#fca5a5', fontSize: 18 }} prefix={<AlertTriangle size={14} />} /></Col>
-          <Col span={4}><Statistic title={<span style={{ color: '#fff' }}>平均分</span>} value={stats.avgScore} valueStyle={{ color: '#fff', fontSize: 18 }} prefix={<Award size={14} />} /></Col>
+          <Col span={5}><Statistic title={<span style={{ color: '#fff' }}>清单总数</span>} value={stats.total} styles={{ content: {  color: '#fff', fontSize: 18  } }} prefix={<FileText size={14} />} /></Col>
+          <Col span={5}><Statistic title={<span style={{ color: '#fff' }}>进行中</span>} value={stats.inProgress} styles={{ content: {  color: '#fff', fontSize: 18  } }} prefix={<Activity size={14} />} /></Col>
+          <Col span={5}><Statistic title={<span style={{ color: '#fff' }}>已完成</span>} value={stats.completed} styles={{ content: {  color: '#fff', fontSize: 18  } }} prefix={<CheckCircle2 size={14} />} /></Col>
+          <Col span={5}><Statistic title={<span style={{ color: '#fff' }}>阻塞</span>} value={stats.blocked} styles={{ content: {  color: '#fca5a5', fontSize: 18  } }} prefix={<AlertTriangle size={14} />} /></Col>
+          <Col span={4}><Statistic title={<span style={{ color: '#fff' }}>平均分</span>} value={stats.avgScore} styles={{ content: {  color: '#fff', fontSize: 18  } }} prefix={<Award size={14} />} /></Col>
         </Row>
       </div>
 
@@ -927,7 +927,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                   <Popconfirm
                     title="驳回该报告"
                     description={
-                      <Space direction="vertical" size={4}>
+                      <Space orientation="vertical" size={4}>
                         <Radio.Group value={rejectTarget} onChange={(e) => setRejectTarget(e.target.value)}>
                           {Object.entries(REJECT_TARGET_META).map(([k, v]) => (
                             <Radio key={k} value={k}>{v.label}</Radio>
@@ -954,12 +954,12 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
             >
               {summary && (
                 <Row gutter={12} style={{ marginBottom: 12 }}>
-                  <Col span={4}><Statistic title="通过" value={summary.passed} valueStyle={{ fontSize: 14, color: '#10b981' }} prefix={<CheckCircle2 size={12} />} /></Col>
-                  <Col span={4}><Statistic title="失败" value={summary.failed} valueStyle={{ fontSize: 14, color: '#dc2626' }} prefix={<XCircle size={12} />} /></Col>
-                  <Col span={4}><Statistic title="警告" value={summary.warning} valueStyle={{ fontSize: 14, color: '#f59e0b' }} prefix={<AlertTriangle size={12} />} /></Col>
-                  <Col span={4}><Statistic title="得分" value={summary.percentage} suffix="%" valueStyle={{ fontSize: 14, color: '#3b82f6' }} prefix={<Award size={12} />} /></Col>
-                  <Col span={4}><Statistic title="等级" value={summary.grade} valueStyle={{ fontSize: 14, color: '#7c3aed' }} prefix={<ShieldCheck size={12} />} /></Col>
-                  <Col span={4}><Statistic title="阻塞" value={summary.blockers} valueStyle={{ fontSize: 14, color: summary.blockers > 0 ? '#dc2626' : '#10b981' }} prefix={<CircleSlash size={12} />} /></Col>
+                  <Col span={4}><Statistic title="通过" value={summary.passed} styles={{ content: {  fontSize: 14, color: '#10b981'  } }} prefix={<CheckCircle2 size={12} />} /></Col>
+                  <Col span={4}><Statistic title="失败" value={summary.failed} styles={{ content: {  fontSize: 14, color: '#dc2626'  } }} prefix={<XCircle size={12} />} /></Col>
+                  <Col span={4}><Statistic title="警告" value={summary.warning} styles={{ content: {  fontSize: 14, color: '#f59e0b'  } }} prefix={<AlertTriangle size={12} />} /></Col>
+                  <Col span={4}><Statistic title="得分" value={summary.percentage} suffix="%" styles={{ content: {  fontSize: 14, color: '#3b82f6'  } }} prefix={<Award size={12} />} /></Col>
+                  <Col span={4}><Statistic title="等级" value={summary.grade} styles={{ content: {  fontSize: 14, color: '#7c3aed'  } }} prefix={<ShieldCheck size={12} />} /></Col>
+                  <Col span={4}><Statistic title="阻塞" value={summary.blockers} styles={{ content: {  fontSize: 14, color: summary.blockers > 0 ? '#dc2626' : '#10b981'  } }} prefix={<CircleSlash size={12} />} /></Col>
                 </Row>
               )}
               <Tabs
@@ -990,7 +990,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
         onOk={handleAddNote}
         okText="添加"
         cancelText="取消"
-        destroyOnClose
+        destroyOnHidden
       >
         <Form form={noteForm} layout="vertical" initialValues={{ type: 'comment', visibility: 'team', pinned: false }}>
           <Form.Item name="type" label="类型" rules={[{ required: true }]}>
@@ -1027,7 +1027,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
         okText="触发"
         cancelText="取消"
         okButtonProps={{ danger: true }}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form form={emForm} layout="vertical" initialValues={{ trigger: 'critical-finding', severity: 'critical', channels: ['sms', 'in-app', 'phone'] }}>
           <Form.Item name="trigger" label="触发原因" rules={[{ required: true }]}>
@@ -1062,7 +1062,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
         onOk={handleRequestMultiSig}
         okText="发起"
         cancelText="取消"
-        destroyOnClose
+        destroyOnHidden
       >
         <Form layout="vertical">
           <Form.Item label="原因">

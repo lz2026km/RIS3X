@@ -54,7 +54,7 @@ export const SecurityAudit: React.FC<SecurityAuditProps> = ({ logs = MOCK }) => 
     <div data-testid="security-audit">
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={6}><Card size="small"><Statistic title="总事件" value={logs.length} prefix={<Shield size={14} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="拒绝访问" value={denied} valueStyle={{ color: '#dc2626' }} prefix={<Lock size={14} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="拒绝访问" value={denied} styles={{ content: {  color: '#dc2626'  } }} prefix={<Lock size={14} />} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="导出次数" value={exports} prefix={<AlertTriangle size={14} />} /></Card></Col>
         <Col span={6}><Card size="small"><Tag color="green">HIPAA</Tag><Tag color="blue">等保 2.0 三级</Tag></Card></Col>
       </Row>
@@ -63,7 +63,7 @@ export const SecurityAudit: React.FC<SecurityAuditProps> = ({ logs = MOCK }) => 
         <Alert
           type="error"
           showIcon
-          message={`检测到 ${denied} 次拒绝访问事件,请关注`}
+          title={`检测到 ${denied} 次拒绝访问事件,请关注`}
           style={{ marginBottom: 12 }}
         />
       )}

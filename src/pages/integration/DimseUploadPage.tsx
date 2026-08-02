@@ -54,7 +54,7 @@ export const DimseUploadPage: React.FC = () => {
         <Tag color="blue">v3.0</Tag>
       </Space>
       <Alert
-        message="上传 DICOM 文件至 S3 兼容对象存储，支持标准 .dcm 格式文件"
+        title="上传 DICOM 文件至 S3 兼容对象存储，支持标准 .dcm 格式文件"
         type="info"
         showIcon
         style={{ marginBottom: 16 }}

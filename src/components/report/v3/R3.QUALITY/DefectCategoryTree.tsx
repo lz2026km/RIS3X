@@ -180,7 +180,7 @@ export const DefectCategoryTree: React.FC<{
             <Statistic
               title={<span style={{ color: '#fff' }}>一级分类</span>}
               value={totals.categories}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Layers size={14} />}
             />
           </Col>
@@ -188,7 +188,7 @@ export const DefectCategoryTree: React.FC<{
             <Statistic
               title={<span style={{ color: '#fff' }}>缺陷总数</span>}
               value={totals.total}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<BookOpen size={14} />}
             />
           </Col>
@@ -196,14 +196,14 @@ export const DefectCategoryTree: React.FC<{
             <Statistic
               title={<span style={{ color: '#fff' }}>逻辑+危急</span>}
               value={totals.critical}
-              valueStyle={{ color: '#fca5a5', fontSize: 18 }}
+              styles={{ content: {  color: '#fca5a5', fontSize: 18  } }}
             />
           </Col>
           <Col span={6}>
             <Statistic
               title={<span style={{ color: '#fff' }}>层级</span>}
               value="2"
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<TreePine size={14} />}
             />
           </Col>
@@ -280,7 +280,7 @@ export const DefectCategoryTree: React.FC<{
             }
           >
             {selectedNode ? (
-              <Space direction="vertical" style={{ width: '100%' }} size={10}>
+              <Space orientation="vertical" style={{ width: '100%' }} size={10}>
                 <Space>
                   <div
                     style={{
@@ -324,7 +324,7 @@ export const DefectCategoryTree: React.FC<{
                 {selectedNode.data.defects.length > 0 && (
                   <div>
                     <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>缺陷样例</div>
-                    <Space direction="vertical" style={{ width: '100%' }} size={4}>
+                    <Space orientation="vertical" style={{ width: '100%' }} size={4}>
                       {selectedNode.data.defects.slice(0, 3).map((d) => (
                         <div
                           key={d.id}

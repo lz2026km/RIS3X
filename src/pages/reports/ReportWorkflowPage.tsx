@@ -190,7 +190,7 @@ export const ReportWorkflowPage: React.FC = () => {
               <Statistic
                 title={STATE_LABELS[s]}
                 value={n as number}
-                valueStyle={{
+                styles={{ content: { 
                   color:
                     STATE_COLORS[s] === "green"
                       ? "#52c41a"
@@ -198,7 +198,7 @@ export const ReportWorkflowPage: React.FC = () => {
                         ? "#ff4d4f"
                         : "#1677ff",
                   fontSize: 20,
-                }}
+                 } }}
               />
             </Card>
           </Col>
@@ -541,7 +541,7 @@ export const ReportWorkflowPage: React.FC = () => {
         >
           <Card>
             <Steps
-              direction="vertical"
+              orientation="vertical"
               current={REPORT_STATES.indexOf("published")}
               items={REPORT_STATES.map((s) => ({
                 title: (
@@ -587,7 +587,7 @@ export const ReportWorkflowPage: React.FC = () => {
         {actionModal?.type === "reject" && (
           <>
             <Alert
-              message="请填写驳回原因 (至少 5 字)"
+              title="请填写驳回原因 (至少 5 字)"
               type="warning"
               showIcon
               style={{ marginBottom: 8 }}
@@ -603,7 +603,7 @@ export const ReportWorkflowPage: React.FC = () => {
         {actionModal?.type === "publish" && (
           <>
             <Alert
-              message="请确认质量评分 (0-100)"
+              title="请确认质量评分 (0-100)"
               type="info"
               showIcon
               style={{ marginBottom: 8 }}
@@ -620,7 +620,7 @@ export const ReportWorkflowPage: React.FC = () => {
         {actionModal?.type === "cosign" && (
           <>
             <Alert
-              message="选择双签专家"
+              title="选择双签专家"
               type="info"
               showIcon
               style={{ marginBottom: 8 }}
@@ -636,7 +636,7 @@ export const ReportWorkflowPage: React.FC = () => {
           actionModal?.type || "",
         ) && (
           <Alert
-            message={`确认执行 ${actionModal?.type} 操作?`}
+            title={`确认执行 ${actionModal?.type} 操作?`}
             type="info"
             showIcon
           />

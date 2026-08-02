@@ -28,9 +28,9 @@ export const CumulativeReport: React.FC<CumulativeReportProps> = ({ records }) =
   return (
     <div data-testid="cumulative-report">
       <Row gutter={8} style={{ marginBottom: 8 }}>
-        <Col span={8}><Statistic title="累计患者" value={grouped.length} valueStyle={{ fontSize: 14 }} /></Col>
-        <Col span={8}><Statistic title="累计剂量" value={records.reduce((s, r) => s + r.effectiveDose_mSv, 0).toFixed(1)} suffix="mSv" valueStyle={{ fontSize: 14 }} /></Col>
-        <Col span={8}><Statistic title="高累积" value={grouped.filter((g) => g.totalDose > 20).length} valueStyle={{ fontSize: 14, color: '#dc2626' }} /></Col>
+        <Col span={8}><Statistic title="累计患者" value={grouped.length} styles={{ content: {  fontSize: 14  } }} /></Col>
+        <Col span={8}><Statistic title="累计剂量" value={records.reduce((s, r) => s + r.effectiveDose_mSv, 0).toFixed(1)} suffix="mSv" styles={{ content: {  fontSize: 14  } }} /></Col>
+        <Col span={8}><Statistic title="高累积" value={grouped.filter((g) => g.totalDose > 20).length} styles={{ content: {  fontSize: 14, color: '#dc2626'  } }} /></Col>
       </Row>
       <div style={{ maxHeight: 200, overflow: 'auto' }}>
         {grouped.map((g) => (

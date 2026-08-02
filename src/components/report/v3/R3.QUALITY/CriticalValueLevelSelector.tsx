@@ -128,7 +128,7 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
             <Statistic
               title={<span style={{ color: '#fff' }}>分级数</span>}
               value={orderedLevels.length}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Layers size={14} />}
             />
           </Col>
@@ -137,7 +137,7 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
               title={<span style={{ color: '#fff' }}>最高响应</span>}
               value={orderedLevels.length > 0 ? Math.min(...orderedLevels.map((l) => l.responseDeadline)) : 0}
               suffix="分钟"
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Zap size={14} />}
             />
           </Col>
@@ -145,7 +145,7 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
             <Statistic
               title={<span style={{ color: '#fff' }}>通知渠道</span>}
               value={channelUniverse.length}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Bell size={14} />}
             />
           </Col>
@@ -153,7 +153,7 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
             <Statistic
               title={<span style={{ color: '#fff' }}>本月触发</span>}
               value={totalThisMonth}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Target size={14} />}
             />
           </Col>
@@ -163,7 +163,7 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
       <Alert
         type="info"
         showIcon
-        message="危急值根据响应时效、影响范围等分为 4 级,分级决定默认通报渠道与升级规则"
+        title="危急值根据响应时效、影响范围等分为 4 级,分级决定默认通报渠道与升级规则"
         description="分级标准遵循国家卫健委 2024 版放射科危急值目录及院内危急值管理 SOP"
         style={{ marginBottom: 12 }}
       />
@@ -212,7 +212,7 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
                         <div style={{ fontSize: 12, color: '#64748b' }}>{l.labelEn}</div>
                       </div>
                     </Space>
-                    <Space direction="vertical" align="end" size={2}>
+                    <Space orientation="vertical" align="end" size={2}>
                       <Tag color={l.color}>P{l.priority}</Tag>
                       <Badge count={count} style={{ backgroundColor: l.color }} />
                     </Space>
@@ -308,7 +308,7 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
 
       {showKPI && kpi && (
         <Card size="small" title="分级分布" style={{ marginTop: 12 }}>
-          <Space direction="vertical" style={{ width: '100%' }} size={6}>
+          <Space orientation="vertical" style={{ width: '100%' }} size={6}>
             {LEVEL_ORDER.map((lv) => {
               const meta = orderedLevels.find((l) => l.level === lv);
               if (!meta) return null;

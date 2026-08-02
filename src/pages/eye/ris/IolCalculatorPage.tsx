@@ -105,7 +105,7 @@ const IolCalculatorPage: React.FC = () => {
                 style={{ marginTop: 8 }}
                 type="success"
                 showIcon
-                message={`已提交${patientId ? `至患者 ${patientId}` : '计算结果'}`}
+                title={`已提交${patientId ? `至患者 ${patientId}` : '计算结果'}`}
               />
             )}
           </Card>
@@ -129,7 +129,7 @@ const IolCalculatorPage: React.FC = () => {
                 {initialInput.gender && <Descriptions.Item label="性别">{initialInput.gender === 'male' ? '男' : '女'}</Descriptions.Item>}
               </Descriptions>
             ) : (
-              <Alert type="info" showIcon message="未指定 URL 参数,使用默认 8 公式测算" />
+              <Alert type="info" showIcon title="未指定 URL 参数,使用默认 8 公式测算" />
             )}
             <Button
               icon={<RotateCcw size={12} />}

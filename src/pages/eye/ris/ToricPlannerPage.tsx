@@ -332,37 +332,37 @@ export const ToricPlannerPage: React.FC = () => {
                       <Statistic
                         title="角膜散光 (术前)"
                         value={toricPlan.preOpCornealAstigmatism}
-                        valueStyle={{ color: '#1677ff', fontSize: 18 }}
+                        styles={{ content: {  color: '#1677ff', fontSize: 18  } }}
                       />
                     </Col>
                     <Col span={12}>
                       <Statistic
                         title="SIA"
                         value={toricPlan.surgicallyInducedAstigmatism}
-                        valueStyle={{ color: '#faad14', fontSize: 18 }}
+                        styles={{ content: {  color: '#faad14', fontSize: 18  } }}
                       />
                     </Col>
                     <Col span={12}>
                       <Statistic
                         title="残余散光"
                         value={toricPlan.residualAstigmatism}
-                        valueStyle={{
+                        styles={{ content: { 
                           color: parseFloat(toricPlan.residualAstigmatism) < 0.5 ? '#52c41a' : '#ff4d4f',
                           fontSize: 18,
-                        }}
+                         } }}
                       />
                     </Col>
                     <Col span={12}>
                       <Statistic
                         title="建议 IOL 轴位"
                         value={toricPlan.suggestedAxis + '°'}
-                        valueStyle={{ color: '#722ed1', fontSize: 18 }}
+                        styles={{ content: {  color: '#722ed1', fontSize: 18  } }}
                       />
                     </Col>
                     <Col span={24}>
                       <Divider style={{ margin: '4px 0' }} />
                       <Alert
-                        message={toricPlan.method}
+                        title={toricPlan.method}
                         description={toricPlan.note}
                         type="info"
                         showIcon
@@ -442,7 +442,7 @@ export const ToricPlannerPage: React.FC = () => {
                       <Statistic
                         title="预测等效球镜"
                         value={postopPrediction.predictedSE}
-                        valueStyle={{ color: '#1677ff', fontSize: 24 }}
+                        styles={{ content: {  color: '#1677ff', fontSize: 24  } }}
                         suffix="D"
                       />
                     </Col>
@@ -450,13 +450,13 @@ export const ToricPlannerPage: React.FC = () => {
                       <Statistic
                         title="预测 UCVA"
                         value={postopPrediction.predictedUCVA}
-                        valueStyle={{ color: '#52c41a', fontSize: 24 }}
+                        styles={{ content: {  color: '#52c41a', fontSize: 24  } }}
                       />
                     </Col>
                     <Col span={24}>
                       <Divider style={{ margin: '4px 0' }} />
                       <Alert
-                        message={postopPrediction.method}
+                        title={postopPrediction.method}
                         description={`目标度数: ${postopPrediction.targetPower} D · 置信度: ${(postopPrediction.confidence * 100).toFixed(0)}%`}
                         type="success"
                         showIcon

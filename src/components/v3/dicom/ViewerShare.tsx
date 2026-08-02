@@ -90,7 +90,7 @@ export const ViewerShare: React.FC<ViewerShareProps> = ({
       )}
 
       {!generated ? (
-        <Space direction="vertical" style={{ width: '100%' }}>
+        <Space orientation="vertical" style={{ width: '100%' }}>
           <div>
             <label style={{ fontSize: 12, fontWeight: 600 }}>
               <Lock size={12} style={{ verticalAlign: 'middle' }} /> 访问密码(可选)

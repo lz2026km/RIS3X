@@ -199,7 +199,7 @@ export const DefectRemediationTracker: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>总数</span>}
               value={stats.total}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<ListChecks size={14} />}
             />
           </Col>
@@ -207,7 +207,7 @@ export const DefectRemediationTracker: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>待整改</span>}
               value={stats.pending}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Clock size={14} />}
             />
           </Col>
@@ -215,7 +215,7 @@ export const DefectRemediationTracker: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>整改中</span>}
               value={stats.inProgress}
-              valueStyle={{ color: '#fde68a', fontSize: 18 }}
+              styles={{ content: {  color: '#fde68a', fontSize: 18  } }}
               prefix={<Edit size={14} />}
             />
           </Col>
@@ -223,7 +223,7 @@ export const DefectRemediationTracker: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>已整改</span>}
               value={stats.rectified}
-              valueStyle={{ color: '#bbf7d0', fontSize: 18 }}
+              styles={{ content: {  color: '#bbf7d0', fontSize: 18  } }}
               prefix={<CheckCircle2 size={14} />}
             />
           </Col>
@@ -231,7 +231,7 @@ export const DefectRemediationTracker: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>已逾期</span>}
               value={stats.overdue}
-              valueStyle={{ color: '#fecaca', fontSize: 18 }}
+              styles={{ content: {  color: '#fecaca', fontSize: 18  } }}
               prefix={<AlertTriangle size={14} />}
             />
           </Col>
@@ -240,7 +240,7 @@ export const DefectRemediationTracker: React.FC = () => {
               title={<span style={{ color: '#fff' }}>修复率</span>}
               value={stats.fixRate}
               suffix="%"
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<TrendingUp size={14} />}
             />
           </Col>
@@ -438,7 +438,7 @@ export const DefectRemediationTracker: React.FC = () => {
             </div>
           </Card>
           <Card size="small" title="分类缺陷率" style={{ marginTop: 12 }}>
-            <Space direction="vertical" style={{ width: '100%' }} size={6}>
+            <Space orientation="vertical" style={{ width: '100%' }} size={6}>
               {Object.entries(defectRateByCategory)
                 .sort((a, b) => b[1].total - a[1].total)
                 .map(([cat, v]) => {
@@ -480,7 +480,7 @@ export const DefectRemediationTracker: React.FC = () => {
         cancelText="取消"
         width={560}
       >
-        <Space direction="vertical" style={{ width: '100%' }} size={10}>
+        <Space orientation="vertical" style={{ width: '100%' }} size={10}>
           <div>
             <div style={{ marginBottom: 4, fontSize: 12 }}>报告 ID</div>
             <Input value={editing?.reportId} disabled />
@@ -509,7 +509,7 @@ export const DefectRemediationTracker: React.FC = () => {
         width={520}
       >
         {detailModal && (
-          <Space direction="vertical" style={{ width: '100%' }} size={8}>
+          <Space orientation="vertical" style={{ width: '100%' }} size={8}>
             <Space wrap>
               <Tag color={SEVERITY_META[detailModal.severity].color}>
                 {SEVERITY_META[detailModal.severity].label}

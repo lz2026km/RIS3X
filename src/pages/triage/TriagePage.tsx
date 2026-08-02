@@ -194,12 +194,12 @@ const TriagePage: React.FC = () => {
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title={t("triage.critical")} value={criticalCount} valueStyle={{ color: "#cf1322" }} />
+            <Statistic title={t("triage.critical")} value={criticalCount} styles={{ content: {  color: "#cf1322"  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title={t("triage.urgent")} value={urgentCount} valueStyle={{ color: "#fa8c16" }} />
+            <Statistic title={t("triage.urgent")} value={urgentCount} styles={{ content: {  color: "#fa8c16"  } }} />
           </Card>
         </Col>
         <Col span={6}>

@@ -115,7 +115,7 @@ export const MultiModalSignature: React.FC<MultiModalSignatureProps> = ({
       <Row gutter={16}>
         <Col span={12}>
           <Title level={5}>选择识别模态</Title>
-          <Space direction="vertical" style={{ width: '100%' }}>
+          <Space orientation="vertical" style={{ width: '100%' }}>
             {(Object.entries(MODALITY_META) as [BiometricModality, typeof MODALITY_META[BiometricModality]][]).map(([key, meta]) => (
               <Checkbox
                 key={key}
@@ -149,11 +149,11 @@ export const MultiModalSignature: React.FC<MultiModalSignatureProps> = ({
 
         <Col span={12}>
           {result ? (
-            <Space direction="vertical" style={{ width: '100%' }}>
+            <Space orientation="vertical" style={{ width: '100%' }}>
               <Alert
                 type={result.success ? 'success' : 'error'}
                 showIcon
-                message={result.success ? '验证通过' : '验证拒绝'}
+                title={result.success ? '验证通过' : '验证拒绝'}
                 description={
                   result.success
                     ? `融合评分 ${(result.fusionScore * 100).toFixed(1)}%`
@@ -168,10 +168,10 @@ export const MultiModalSignature: React.FC<MultiModalSignatureProps> = ({
                         title={MODALITY_META[m].label}
                         value={((result.modalityScores[m] ?? 0) * 100).toFixed(1)}
                         suffix="%"
-                        valueStyle={{
+                        styles={{ content: { 
                           color: (result.modalityScores[m] ?? 0) >= (m === 'fingerprint' ? 0.9 : m === 'iris' ? 0.92 : m === 'face' ? 0.85 : 0.8) ? '#10b981' : '#ef4444',
                           fontSize: 18,
-                        }}
+                         } }}
                       />
                     </Card>
                   </Col>
@@ -193,7 +193,7 @@ export const MultiModalSignature: React.FC<MultiModalSignatureProps> = ({
             <Alert
               type="info"
               showIcon
-              message="多模态融合验证"
+              title="多模态融合验证"
               description={
                 <div>
                   <Text>选择至少一种模态进行验证, 系统将进行融合评分。</Text>

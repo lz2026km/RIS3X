@@ -110,7 +110,7 @@ export const ChatRoom: React.FC<ChatRoomProps> = ({
                     padding: '6px 0',
                   }}
                 >
-                  <Space direction={mine ? 'horizontal-reverse' : 'horizontal'} align="start">
+                  <Space orientation={mine ? 'horizontal-reverse' : 'horizontal'} align="start">
                     <Avatar style={{ background: m.author.avatarColor }}>{m.author.name.slice(0, 1)}</Avatar>
                     <div
                       style={{

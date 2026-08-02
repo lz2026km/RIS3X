@@ -120,7 +120,7 @@ export const StatisticBasic: Story = {
 export const StatisticWithProgress: Story = {
   render: () => (
     <Card title="报告质量分布" style={{ width: 400 }}>
-      <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+      <Space orientation="vertical" size="middle" style={{ width: '100%' }}>
         <AppStatistic
           title="平均质量分"
           value={85.6}
@@ -130,7 +130,7 @@ export const StatisticWithProgress: Story = {
         />
         <div>
           <div style={{ marginBottom: 4, fontSize: 13, color: '#64748b' }}>质量分布</div>
-          <Space direction="vertical" size="small" style={{ width: '100%' }}>
+          <Space orientation="vertical" size="small" style={{ width: '100%' }}>
             <div>优秀 (90-100) <Progress percent={40} strokeColor="#22c55e" /></div>
             <div>良好 (80-89) <Progress percent={35} strokeColor="#3b82f6" /></div>
             <div>合格 (70-79) <Progress percent={15} strokeColor="#f59e0b" /></div>

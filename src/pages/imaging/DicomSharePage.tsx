@@ -24,8 +24,8 @@ export const DicomSharePage: React.FC = () => {
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}><Card size="small"><Statistic title="Today" value="12" /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Pending" value={numPending} valueStyle={{color:'#faad14'}} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Done" value={numReceived} valueStyle={{color:'#52c41a'}} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="Pending" value={numPending} styles={{ content: { color:'#faad14' } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="Done" value={numReceived} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="Total" value="1.2" suffix="GB" /></Card></Col>
       </Row>
       <Card extra={<Button type="primary" icon={<Send size={12}/>} onClick={()=>setShareModal(true)}>Share</Button>} size="small" title="Transfer Records">

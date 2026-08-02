@@ -225,7 +225,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
             <Statistic
               title={<span style={{ color: '#fff' }}>规则总数</span>}
               value={stats.total}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Settings size={14} />}
             />
           </Col>
@@ -233,7 +233,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
             <Statistic
               title={<span style={{ color: '#fff' }}>已启用</span>}
               value={stats.enabled}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Bell size={14} />}
             />
           </Col>
@@ -241,7 +241,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
             <Statistic
               title={<span style={{ color: '#fff' }}>危急级</span>}
               value={stats.critical}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<AlertCircle size={14} />}
             />
           </Col>
@@ -249,7 +249,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
             <Statistic
               title={<span style={{ color: '#fff' }}>紧急级</span>}
               value={stats.urgent}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Clock size={14} />}
             />
           </Col>
@@ -257,7 +257,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
             <Statistic
               title={<span style={{ color: '#fff' }}>月触发估算</span>}
               value={stats.autoTrigger}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Zap size={14} />}
             />
           </Col>
@@ -266,7 +266,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
               title={<span style={{ color: '#fff' }}>平均响应</span>}
               value={Math.round((stats.autoTrigger / Math.max(stats.enabled, 1)) * 10) / 10}
               suffix="min"
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Activity size={14} />}
             />
           </Col>
@@ -276,7 +276,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
       <Alert
         type="warning"
         showIcon
-        message="自动升级策略:危急值超时未通报则按规则升级至上级医务,确保 10 分钟内完成通报闭环"
+        title="自动升级策略:危急值超时未通报则按规则升级至上级医务,确保 10 分钟内完成通报闭环"
         style={{ marginBottom: 12 }}
       />
 
@@ -418,7 +418,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
         okButtonProps={{ icon: <Save size={12} /> }}
       >
         {editing && (
-          <Space direction="vertical" style={{ width: '100%' }} size={10}>
+          <Space orientation="vertical" style={{ width: '100%' }} size={10}>
             <Row gutter={8}>
               <Col span={12}>
                 <div style={{ marginBottom: 4, fontSize: 12 }}>来源级别</div>

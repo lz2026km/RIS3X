@@ -83,16 +83,16 @@ export const AutoReportPreview: React.FC<Props> = (props) => {
         <>
           <Row gutter={8} className="mb-2">
             <Col span={6}>
-              <Statistic title="段落数" value={draft.sections.length} valueStyle={{ fontSize: 18 }} />
+              <Statistic title="段落数" value={draft.sections.length} styles={{ content: {  fontSize: 18  } }} />
             </Col>
             <Col span={6}>
-              <Statistic title="综合置信度" value={Math.round(draft.totalConfidence * 100)} suffix="%" valueStyle={{ fontSize: 18, color: '#10b981' }} />
+              <Statistic title="综合置信度" value={Math.round(draft.totalConfidence * 100)} suffix="%" styles={{ content: {  fontSize: 18, color: '#10b981'  } }} />
             </Col>
             <Col span={6}>
-              <Statistic title="RADS 类型" value={draft.radsType ?? '无'} valueStyle={{ fontSize: 14 }} />
+              <Statistic title="RADS 类型" value={draft.radsType ?? '无'} styles={{ content: {  fontSize: 14  } }} />
             </Col>
             <Col span={6}>
-              <Statistic title="模型版本" value={draft.modelVersion} valueStyle={{ fontSize: 12 }} />
+              <Statistic title="模型版本" value={draft.modelVersion} styles={{ content: {  fontSize: 12  } }} />
             </Col>
           </Row>
 

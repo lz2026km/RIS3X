@@ -111,7 +111,7 @@ export const ReviewSLA: React.FC = () => {
               title={<span style={{ color: '#fff' }}>按时率</span>}
               value={sla.onTimeRate}
               suffix="%"
-              valueStyle={{ color: '#fff', fontSize: 20 }}
+              styles={{ content: {  color: '#fff', fontSize: 20  } }}
               prefix={<Target size={16} />}
             />
           </Col>
@@ -119,7 +119,7 @@ export const ReviewSLA: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>超时任务</span>}
               value={sla.overdueCount}
-              valueStyle={{ color: '#fca5a5', fontSize: 20 }}
+              styles={{ content: {  color: '#fca5a5', fontSize: 20  } }}
               prefix={<AlertTriangle size={16} />}
             />
           </Col>
@@ -128,7 +128,7 @@ export const ReviewSLA: React.FC = () => {
               title={<span style={{ color: '#fff' }}>平均初审</span>}
               value={sla.averageInitialMinutes}
               suffix="分钟"
-              valueStyle={{ color: '#fff', fontSize: 20 }}
+              styles={{ content: {  color: '#fff', fontSize: 20  } }}
               prefix={<Clock size={16} />}
             />
           </Col>
@@ -137,7 +137,7 @@ export const ReviewSLA: React.FC = () => {
               title={<span style={{ color: '#fff' }}>平均终审</span>}
               value={sla.averageFinalMinutes}
               suffix="分钟"
-              valueStyle={{ color: '#fff', fontSize: 20 }}
+              styles={{ content: {  color: '#fff', fontSize: 20  } }}
               prefix={<Clock size={16} />}
             />
           </Col>

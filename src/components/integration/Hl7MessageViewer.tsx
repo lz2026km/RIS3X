@@ -66,12 +66,12 @@ export const Hl7MessageViewer: React.FC = () => {
   return (
     <div className="space-y-3">
       <Row gutter={8}>
-        <Col span={4}><Card size="small"><Statistic title="样本数" value={HL7V2_SAMPLES.length} prefix={<Database className="w-3 h-3" style={{ color: '#7c3aed' }} />} valueStyle={{ fontSize: 16 }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="ADT" value={HL7V2_SAMPLES.filter((s) => s.type === 'ADT').length} prefix={<Activity className="w-3 h-3" style={{ color: '#10b981' }} />} valueStyle={{ fontSize: 16 }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="ORU" value={HL7V2_SAMPLES.filter((s) => s.type === 'ORU').length} prefix={<FileText className="w-3 h-3" style={{ color: '#3b82f6' }} />} valueStyle={{ fontSize: 16 }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="段数" value={parsed?.msg.segments.length ?? 0} prefix={<Layers className="w-3 h-3" style={{ color: '#dc2626' }} />} valueStyle={{ fontSize: 16 }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="字节" value={new Blob([selected.message]).size} prefix={<Hash className="w-3 h-3" style={{ color: '#0891b2' }} />} valueStyle={{ fontSize: 16 }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="状态" value={parsed?.validation.passed ? '✓ 通过' : `✗ ${parsed?.validation.errors ?? 0}`} valueStyle={{ fontSize: 14, color: parsed?.validation.passed ? '#10b981' : '#dc2626' }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="样本数" value={HL7V2_SAMPLES.length} prefix={<Database className="w-3 h-3" style={{ color: '#7c3aed' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="ADT" value={HL7V2_SAMPLES.filter((s) => s.type === 'ADT').length} prefix={<Activity className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="ORU" value={HL7V2_SAMPLES.filter((s) => s.type === 'ORU').length} prefix={<FileText className="w-3 h-3" style={{ color: '#3b82f6' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="段数" value={parsed?.msg.segments.length ?? 0} prefix={<Layers className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="字节" value={new Blob([selected.message]).size} prefix={<Hash className="w-3 h-3" style={{ color: '#0891b2' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="状态" value={parsed?.validation.passed ? '✓ 通过' : `✗ ${parsed?.validation.errors ?? 0}`} styles={{ content: {  fontSize: 14, color: parsed?.validation.passed ? '#10b981' : '#dc2626'  } }} /></Card></Col>
       </Row>
 
       <div className="grid grid-cols-4 gap-3">
@@ -140,7 +140,7 @@ export const Hl7MessageViewer: React.FC = () => {
                   children: (
                     <div className="space-y-1">
                       <Alert type={parsed.validation.passed ? 'success' : 'error'} showIcon
-                        message={parsed.validation.passed ? '✓ 验证通过' : `✗ ${parsed.validation.errors} 个错误, ${parsed.validation.warnings} 个警告`} />
+                        title={parsed.validation.passed ? '✓ 验证通过' : `✗ ${parsed.validation.errors} 个错误, ${parsed.validation.warnings} 个警告`} />
                       {parsed.validation.issues.map((iss, i) => (
                         <div key={i} className={`p-2 text-xs rounded ${iss.level === 'error' ? 'bg-red-50 text-red-700' : iss.level === 'warning' ? 'bg-amber-50 text-amber-700' : 'bg-slate-50'}`}>
                           <Space>

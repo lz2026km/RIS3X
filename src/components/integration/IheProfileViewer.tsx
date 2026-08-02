@@ -27,10 +27,10 @@ export const IheProfileViewer: React.FC = () => {
   return (
     <div className="space-y-3">
       <Row gutter={8}>
-        <Col span={4}><Card size="small"><Statistic title="Profiles" value={IHE_PROFILES.length} prefix={<Layers className="w-3 h-3" style={{ color: '#dc2626' }} />} valueStyle={{ fontSize: 16 }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="Home Community" value={domain.homeCommunityId} prefix={<Globe className="w-3 h-3" style={{ color: '#3b82f6' }} />} valueStyle={{ fontSize: 12 }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="Registry" value={domain.registryUniqueId} prefix={<Server className="w-3 h-3" style={{ color: '#7c3aed' }} />} valueStyle={{ fontSize: 12 }} /></Card></Col>
-        <Col span={8}><Card size="small"><Statistic title="Assigning Authority" value={domain.assigningAuthorityId} prefix={<Hash className="w-3 h-3" style={{ color: '#10b981' }} />} valueStyle={{ fontSize: 12 }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="Profiles" value={IHE_PROFILES.length} prefix={<Layers className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="Home Community" value={domain.homeCommunityId} prefix={<Globe className="w-3 h-3" style={{ color: '#3b82f6' }} />} styles={{ content: {  fontSize: 12  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="Registry" value={domain.registryUniqueId} prefix={<Server className="w-3 h-3" style={{ color: '#7c3aed' }} />} styles={{ content: {  fontSize: 12  } }} /></Card></Col>
+        <Col span={8}><Card size="small"><Statistic title="Assigning Authority" value={domain.assigningAuthorityId} prefix={<Hash className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 12  } }} /></Card></Col>
       </Row>
 
       <div className="grid grid-cols-4 gap-3">
@@ -136,7 +136,7 @@ const Playground: React.FC<{ profile: IheProfileMeta }> = ({ profile }) => {
 
   return (
     <div className="space-y-3">
-      <Alert type="info" showIcon message={`当前 Profile: ${profile.nameEn}`} description="点击下方按钮可触发相应的 IHE 交易(浏览器内 mock 实现)" />
+      <Alert type="info" showIcon title={`当前 Profile: ${profile.nameEn}`} description="点击下方按钮可触发相应的 IHE 交易(浏览器内 mock 实现)" />
       <div className="grid grid-cols-2 gap-2">
         {profile.id === 'XDS.b' && (
           <>
@@ -181,7 +181,7 @@ const Playground: React.FC<{ profile: IheProfileMeta }> = ({ profile }) => {
           <Button block icon={<Activity className="w-3 h-3" />} loading={busy} onClick={() => run(async () => ({ sent: true, endpoint: 'audit://g005.local/iti-20', ts: new Date().toISOString() }), 'atnaAudit')}>发送审计</Button>
         )}
         {!['XDS.b', 'PIX', 'PDQ', 'PAM', 'ATNA'].includes(profile.id) && (
-          <Alert type="warning" message={`${profile.nameEn} 暂未提供 mock 交易执行`} />
+          <Alert type="warning" title={`${profile.nameEn} 暂未提供 mock 交易执行`} />
         )}
       </div>
       {result && (

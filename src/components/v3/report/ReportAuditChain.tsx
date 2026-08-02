@@ -221,7 +221,7 @@ export const ReportAuditChain: React.FC<ReportAuditChainProps> = ({ events, onEx
           </Col>
           <Col span={6}>
             <Card size="small">
-              <Statistic title="关键事件" value={stats.critical + stats.high} valueStyle={{ color: '#dc2626' }} />
+              <Statistic title="关键事件" value={stats.critical + stats.high} styles={{ content: {  color: '#dc2626'  } }} />
             </Card>
           </Col>
           <Col span={6}>
@@ -231,7 +231,7 @@ export const ReportAuditChain: React.FC<ReportAuditChainProps> = ({ events, onEx
           </Col>
           <Col span={6}>
             <Card size="small">
-              <Space direction="vertical" size={4} style={{ width: '100%' }}>
+              <Space orientation="vertical" size={4} style={{ width: '100%' }}>
                 <Button
                   size="small"
                   icon={<Hash size={12} />}
@@ -314,7 +314,7 @@ export const ReportAuditChain: React.FC<ReportAuditChainProps> = ({ events, onEx
               dataIndex: 'actor',
               width: 100,
               render: (v, r: AuditEvent) => (
-                <Space size={2} direction="vertical">
+                <Space size={2} orientation="vertical">
                   <span style={{ fontSize: 12 }}>{v}</span>
                   <span style={{ fontSize: 12, color: '#94a3b8' }}>{r.actorRole}</span>
                 </Space>
@@ -367,9 +367,9 @@ export const ReportAuditChain: React.FC<ReportAuditChainProps> = ({ events, onEx
         width={600}
       >
         {selected && (
-          <Space direction="vertical" size={8} style={{ width: '100%' }}>
+          <Space orientation="vertical" size={8} style={{ width: '100%' }}>
             <Card size="small">
-              <Space direction="vertical" size={4} style={{ width: '100%' }}>
+              <Space orientation="vertical" size={4} style={{ width: '100%' }}>
                 <div>
                   <Tag color={ACTION_META[selected.action].color}>{ACTION_META[selected.action].label}</Tag>
                   <Tag color={SEVERITY_COLORS[ACTION_META[selected.action].severity]}>

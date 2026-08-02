@@ -148,12 +148,12 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="未来待开始" value={stats.upcoming} valueStyle={{ color: '#ca8a04' }} />
+            <Statistic title="未来待开始" value={stats.upcoming} styles={{ content: {  color: '#ca8a04'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="已完成" value={stats.completed} valueStyle={{ color: '#16a34a' }} />
+            <Statistic title="已完成" value={stats.completed} styles={{ content: {  color: '#16a34a'  } }} />
           </Card>
         </Col>
       </Row>
@@ -204,7 +204,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
             {dayAppointments.length === 0 ? (
               <Empty description="该日无预约" />
             ) : (
-              <Space direction="vertical" size={6} style={{ width: '100%' }}>
+              <Space orientation="vertical" size={6} style={{ width: '100%' }}>
                 {dayAppointments
                   .sort((a, b) => a.startAt.localeCompare(b.startAt))
                   .map((a) => {

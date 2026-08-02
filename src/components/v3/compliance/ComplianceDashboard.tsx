@@ -115,7 +115,7 @@ export default function ComplianceDashboard() {
               title="综合评分"
               value={report.overallScore}
               suffix="/ 100"
-              valueStyle={{ color: getScoreColor(report.overallScore) }}
+              styles={{ content: {  color: getScoreColor(report.overallScore)  } }}
               prefix={<SafetyCertificateOutlined />}
             />
           </Card>
@@ -126,7 +126,7 @@ export default function ComplianceDashboard() {
               title="合规率"
               value={report.overallCompliance}
               suffix="%"
-              valueStyle={{ color: getScoreColor(report.overallCompliance) }}
+              styles={{ content: {  color: getScoreColor(report.overallCompliance)  } }}
             />
           </Card>
         </Col>
@@ -145,7 +145,7 @@ export default function ComplianceDashboard() {
               title="已达标"
               value={report.items.filter((i) => i.implemented).length}
               suffix={`/ ${report.items.length}`}
-              valueStyle={{ color: '#10b981' }}
+              styles={{ content: {  color: '#10b981'  } }}
               prefix={<CheckCircleOutlined />}
             />
           </Card>

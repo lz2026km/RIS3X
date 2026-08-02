@@ -85,11 +85,11 @@ export const DeliveryReceiptComponent: React.FC<Props> = ({ reportId, taskId }) 
     <div className="space-y-3">
       {/* 概览 */}
       <Row gutter={8}>
-        <Col span={5}><Card size="small"><Statistic title="总回执" value={stats.total} prefix={<FileText className="w-3 h-3" style={{ color: '#3b82f6' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title="已送达" value={stats.delivered} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title="已阅读" value={stats.read} prefix={<Eye className="w-3 h-3" style={{ color: '#059669' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title="失败" value={stats.failed} prefix={<XCircle className="w-3 h-3" style={{ color: '#dc2626' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="送达率" value={stats.successRate} suffix="%" valueStyle={{ fontSize: 18, color: '#10b981' }} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title="总回执" value={stats.total} prefix={<FileText className="w-3 h-3" style={{ color: '#3b82f6' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title="已送达" value={stats.delivered} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title="已阅读" value={stats.read} prefix={<Eye className="w-3 h-3" style={{ color: '#059669' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title="失败" value={stats.failed} prefix={<XCircle className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="送达率" value={stats.successRate} suffix="%" styles={{ content: {  fontSize: 18, color: '#10b981'  } }} /></Card></Col>
       </Row>
 
       <div className="grid grid-cols-5 gap-3">
@@ -237,7 +237,7 @@ export const DeliveryReceiptComponent: React.FC<Props> = ({ reportId, taskId }) 
             <Alert
               type={verifyResult.verified ? 'success' : 'error'}
               showIcon
-              message={verifyResult.verified ? '签名验证通过' : '签名验证失败'}
+              title={verifyResult.verified ? '签名验证通过' : '签名验证失败'}
               description={verifyResult.details}
             />
             <div className="text-xs text-slate-500 space-y-1">

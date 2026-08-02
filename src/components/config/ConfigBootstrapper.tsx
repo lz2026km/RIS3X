@@ -38,7 +38,7 @@ export const ConfigBootstrapper: React.FC<{ children: ReactNode }> = ({ children
   if (state === "pending") {
     return (
       <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", background: "#f0f2f5" }}>
-        <Space direction="vertical" align="center" size={12}>
+        <Space orientation="vertical" align="center" size={12}>
           <Text type="secondary">Loading clinical configuration…</Text>
         </Space>
       </div>
@@ -65,7 +65,7 @@ const ConfigurationErrorPage: React.FC<{ error: Error; onRetry: () => void }> = 
         <Alert
           type="error"
           showIcon
-          message={error.message}
+          title={error.message}
           style={{ textAlign: "left", marginBottom: 12 }}
         />
         <Paragraph style={{ textAlign: "left" }}>

@@ -111,7 +111,7 @@ export const ReviewAIHint: React.FC<ReviewAIHintProps> = ({ reportId, onAccept }
             <Statistic
               title={<span style={{ color: '#fff' }}>AI 建议评分</span>}
               value={result.suggestedScore}
-              valueStyle={{ color: '#fff', fontSize: 20 }}
+              styles={{ content: {  color: '#fff', fontSize: 20  } }}
               prefix={<Target size={14} />}
             />
           </Col>
@@ -120,7 +120,7 @@ export const ReviewAIHint: React.FC<ReviewAIHintProps> = ({ reportId, onAccept }
               title={<span style={{ color: '#fff' }}>置信度</span>}
               value={(result.confidence * 100).toFixed(0)}
               suffix="%"
-              valueStyle={{ color: '#fff', fontSize: 20 }}
+              styles={{ content: {  color: '#fff', fontSize: 20  } }}
               prefix={<TrendingUp size={14} />}
             />
           </Col>
@@ -128,7 +128,7 @@ export const ReviewAIHint: React.FC<ReviewAIHintProps> = ({ reportId, onAccept }
             <Statistic
               title={<span style={{ color: '#fff' }}>风险等级</span>}
               value={RISK_META[result.riskLevel].label}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<AlertTriangle size={14} />}
             />
           </Col>
@@ -136,7 +136,7 @@ export const ReviewAIHint: React.FC<ReviewAIHintProps> = ({ reportId, onAccept }
             <Statistic
               title={<span style={{ color: '#fff' }}>缺陷数</span>}
               value={result.defects.length}
-              valueStyle={{ color: result.criticalFindingDetected ? '#fca5a5' : '#fff', fontSize: 20 }}
+              styles={{ content: {  color: result.criticalFindingDetected ? '#fca5a5' : '#fff', fontSize: 20  } }}
               prefix={<AlertTriangle size={14} />}
             />
           </Col>

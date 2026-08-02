@@ -27,7 +27,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ value, onChange }) => 
 
   return (
     <Card size="small" title="筛选器" data-testid="filter-panel">
-      <Space direction="vertical" size={10} style={{ width: '100%' }}>
+      <Space orientation="vertical" size={10} style={{ width: '100%' }}>
         <Input
           size="small"
           prefix={<Search size={12} />}

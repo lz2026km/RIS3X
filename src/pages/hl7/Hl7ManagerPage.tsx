@@ -248,7 +248,7 @@ export const Hl7ManagerPage: React.FC = () => {
         <Tag color="blue">v2.x</Tag>
         <Tag color="green">ORU / ORM / DFT</Tag>
       </Space>
-      <Alert message="HL7 消息构建与发送管理，支持 ORU (报告)、ORM (医嘱)、DFT (财务) 三种消息类型" type="info" showIcon style={{ marginBottom: 16 }} />
+      <Alert title="HL7 消息构建与发送管理，支持 ORU (报告)、ORM (医嘱)、DFT (财务) 三种消息类型" type="info" showIcon style={{ marginBottom: 16 }} />
       <Tabs activeKey={tab} onChange={setTab} items={tabItems} />
     </div>
   )

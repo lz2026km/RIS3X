@@ -141,7 +141,7 @@ export const MllpConfigPage: React.FC = () => {
       <Row gutter={8}>
         <Col span={8}>
           <Card size="small" className="shadow-sm" title={<Space><Server className="w-4 h-4" /><span>监听器状态</span></Space>}>
-            <Space direction="vertical" className="w-full">
+            <Space orientation="vertical" className="w-full">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-slate-500">运行状态</span>
                 <Switch
@@ -203,12 +203,12 @@ export const MllpConfigPage: React.FC = () => {
           <Row gutter={[8, 8]}>
             <Col span={12}>
               <Card size="small">
-                <Statistic title="总连接" value={status?.totalConnections ?? 0} prefix={<Wifi className="w-3 h-3" />} valueStyle={{ fontSize: 16 }} />
+                <Statistic title="总连接" value={status?.totalConnections ?? 0} prefix={<Wifi className="w-3 h-3" />} styles={{ content: {  fontSize: 16  } }} />
               </Card>
             </Col>
             <Col span={12}>
               <Card size="small">
-                <Statistic title="总消息" value={status?.totalMessages ?? 0} prefix={<Terminal className="w-3 h-3" />} valueStyle={{ fontSize: 16 }} />
+                <Statistic title="总消息" value={status?.totalMessages ?? 0} prefix={<Terminal className="w-3 h-3" />} styles={{ content: {  fontSize: 16  } }} />
               </Card>
             </Col>
           </Row>

@@ -55,14 +55,14 @@ export const SignatureTimestampView: React.FC<SignatureTimestampProps> = ({ repo
       }
       style={{ width: '100%' }}
     >
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
+      {error && <Alert type="error" showIcon title={error} style={{ marginBottom: 12 }} />}
 
       <Row gutter={16} style={{ marginBottom: 12 }}>
         <Col span={8}>
-          <Statistic title="国家级 TSA" value={national} prefix={<ShieldCheck size={14} />} valueStyle={{ color: '#10b981' }} />
+          <Statistic title="国家级 TSA" value={national} prefix={<ShieldCheck size={14} />} styles={{ content: {  color: '#10b981'  } }} />
         </Col>
         <Col span={8}>
-          <Statistic title="医院级 TSA" value={hospital} prefix={<Building2 size={14} />} valueStyle={{ color: '#2563eb' }} />
+          <Statistic title="医院级 TSA" value={hospital} prefix={<Building2 size={14} />} styles={{ content: {  color: '#2563eb'  } }} />
         </Col>
         <Col span={8}>
           <Statistic title="有效率" value={timestamps.length ? Math.round((valid / timestamps.length) * 100) : 0} suffix="%" />
@@ -72,7 +72,7 @@ export const SignatureTimestampView: React.FC<SignatureTimestampProps> = ({ repo
       {timestamps.length === 0 ? (
         <Empty description={loading ? '加载中...' : '暂无时间戳记录'} />
       ) : (
-        <Space direction="vertical" style={{ width: '100%' }}>
+        <Space orientation="vertical" style={{ width: '100%' }}>
           {timestamps.map((ts) => {
             const meta = TRUST_META[ts.trustLevel];
             return (
@@ -127,7 +127,7 @@ export const SignatureTimestampView: React.FC<SignatureTimestampProps> = ({ repo
         type="info"
         showIcon
         style={{ marginTop: 12 }}
-        message="时间戳说明"
+        title="时间戳说明"
         description={
           <Paragraph style={{ fontSize: 12, marginBottom: 0 }}>
             本系统优先使用国家级 TSA (国家授时中心)，医院级 TSA 作为补充。所有时间戳均符合 RFC 3161 标准，具有法律效力。

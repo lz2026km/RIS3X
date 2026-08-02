@@ -260,7 +260,7 @@ export const ReportQualityScore: React.FC<ReportQualityScoreProps> = (props) => 
               value={result.totalScore}
               suffix="/100"
               prefix={<TrendingUp size={14} color="#3b82f6" />}
-              valueStyle={{ color: result.totalScore >= 80 ? '#16a34a' : result.totalScore >= 60 ? '#ca8a04' : '#dc2626' }}
+              styles={{ content: {  color: result.totalScore >= 80 ? '#16a34a' : result.totalScore >= 60 ? '#ca8a04' : '#dc2626'  } }}
             />
           </Card>
         </Col>

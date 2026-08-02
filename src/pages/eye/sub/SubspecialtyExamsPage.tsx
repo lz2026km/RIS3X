@@ -73,7 +73,7 @@ export const StrabismusPage: React.FC = () => {
               <Row gutter={[16, 16]}>
                 <Col span={8}>
                   <Statistic title="水平" value={`${result.result.horizontal.value} ${result.result.horizontal.unit}`}
-                    valueStyle={{ color: Math.abs(result.result.horizontal.value) > 10 ? '#ff4d4f' : '#52c41a' }} />
+                    styles={{ content: {  color: Math.abs(result.result.horizontal.value) > 10 ? '#ff4d4f' : '#52c41a'  } }} />
                   <div style={{ fontSize: 12, color: '#666' }}>{result.result.horizontal.type}</div>
                 </Col>
                 <Col span={8}>
@@ -85,7 +85,7 @@ export const StrabismusPage: React.FC = () => {
                 </Col>
                 <Col span={24}>
                   <Divider style={{ margin: '4px 0' }} />
-                  <Alert message={result.diagnosis} type={result.diagnosis === '正常' ? 'success' : 'warning'} showIcon />
+                  <Alert title={result.diagnosis} type={result.diagnosis === '正常' ? 'success' : 'warning'} showIcon />
                 </Col>
                 <Col span={24}>
                   <div style={{ fontSize: 11, color: '#999' }}>方法: {result.method}</div>
@@ -169,12 +169,12 @@ export const NeuroOphthalmologyPage: React.FC = () => {
           <Card title="检查结果" size="small">
             {result ? (
               result.type === 'color' ? (
-                <Alert message={result.diagnosis} description={`${result.method} | 错误: ${result.errors}`} type={result.diagnosis.includes('异常') ? 'warning' : 'success'} showIcon />
+                <Alert title={result.diagnosis} description={`${result.method} | 错误: ${result.errors}`} type={result.diagnosis.includes('异常') ? 'warning' : 'success'} showIcon />
               ) : (
                 <Row gutter={[16, 16]}>
-                  <Col span={12}><Statistic title="P100 潜伏期" value={`${result.p100Latency.value} ${result.p100Latency.unit}`} valueStyle={{ color: result.p100Latency.normal ? '#52c41a' : '#ff4d4f' }} /></Col>
+                  <Col span={12}><Statistic title="P100 潜伏期" value={`${result.p100Latency.value} ${result.p100Latency.unit}`} styles={{ content: {  color: result.p100Latency.normal ? '#52c41a' : '#ff4d4f'  } }} /></Col>
                   <Col span={12}><Statistic title="P100 振幅" value={`${result.p100Amplitude.value} ${result.p100Amplitude.unit}`} /></Col>
-                  <Col span={24}><Alert message={result.diagnosis} type={result.diagnosis.includes('正常') ? 'success' : 'warning'} showIcon /></Col>
+                  <Col span={24}><Alert title={result.diagnosis} type={result.diagnosis.includes('正常') ? 'success' : 'warning'} showIcon /></Col>
                 </Row>
               )
             ) : <Empty />}
@@ -226,8 +226,8 @@ export const OcularOncologyPage: React.FC = () => {
               <Row gutter={[16, 16]}>
                 <Col span={8}><Statistic title="OD" value={result.od.value} suffix="mm" /></Col>
                 <Col span={8}><Statistic title="OS" value={result.os.value} suffix="mm" /></Col>
-                <Col span={8}><Statistic title="差值" value={result.difference} suffix="mm" valueStyle={{ color: result.difference > 2 ? '#ff4d4f' : '#52c41a' }} /></Col>
-                <Col span={24}><Alert message={result.diagnosis} type={result.diagnosis === '双眼对称' ? 'success' : 'warning'} showIcon /></Col>
+                <Col span={8}><Statistic title="差值" value={result.difference} suffix="mm" styles={{ content: {  color: result.difference > 2 ? '#ff4d4f' : '#52c41a'  } }} /></Col>
+                <Col span={24}><Alert title={result.diagnosis} type={result.diagnosis === '双眼对称' ? 'success' : 'warning'} showIcon /></Col>
               </Row>
             ) : <Empty />}
           </Card>
@@ -276,10 +276,10 @@ export const CorneaPage: React.FC = () => {
           <Card title="结果" size="small">
             {result ? (
               <Row gutter={[16, 16]}>
-                <Col span={8}><Statistic title="Kmax" value={result.kmax.value} suffix="D" valueStyle={{ color: result.kmax.value > 47 ? '#ff4d4f' : '#52c41a' }} /></Col>
-                <Col span={8}><Statistic title="最薄点" value={result.thinnestPachy.value} suffix="μm" valueStyle={{ color: result.thinnestPachy.value < 480 ? '#ff4d4f' : '#52c41a' }} /></Col>
-                <Col span={8}><Statistic title="BAD 评分" value={result.badScore} valueStyle={{ color: result.badScore >= 2 ? '#ff4d4f' : '#52c41a' }} /></Col>
-                <Col span={24}><Alert message={result.diagnosis} type={result.isKeratoconus ? 'error' : 'success'} showIcon /></Col>
+                <Col span={8}><Statistic title="Kmax" value={result.kmax.value} suffix="D" styles={{ content: {  color: result.kmax.value > 47 ? '#ff4d4f' : '#52c41a'  } }} /></Col>
+                <Col span={8}><Statistic title="最薄点" value={result.thinnestPachy.value} suffix="μm" styles={{ content: {  color: result.thinnestPachy.value < 480 ? '#ff4d4f' : '#52c41a'  } }} /></Col>
+                <Col span={8}><Statistic title="BAD 评分" value={result.badScore} styles={{ content: {  color: result.badScore >= 2 ? '#ff4d4f' : '#52c41a'  } }} /></Col>
+                <Col span={24}><Alert title={result.diagnosis} type={result.isKeratoconus ? 'error' : 'success'} showIcon /></Col>
               </Row>
             ) : <Empty />}
           </Card>
@@ -344,7 +344,7 @@ export const ContactLensFittingPage: React.FC = () => {
                 <Col span={8}><Statistic title="基弧" value={result.bc} suffix="mm" /></Col>
                 <Col span={8}><Statistic title="直径" value={result.dia} suffix="mm" /></Col>
                 <Col span={8}><Statistic title="度数" value={result.power} suffix="D" /></Col>
-                <Col span={24}><Alert message={`配适: ${result.fit}`} type="success" showIcon /></Col>
+                <Col span={24}><Alert title={`配适: ${result.fit}`} type="success" showIcon /></Col>
               </Row>
             ) : <Empty />}
           </Card>
@@ -415,7 +415,7 @@ export const LowVisionPage: React.FC = () => {
                     <div>助视: {result.leftEye.device}</div>
                   </Card>
                 </Col>
-                <Col span={24}><Alert message="推荐助视器" description={result.deviceRecommendation} type="success" showIcon /></Col>
+                <Col span={24}><Alert title="推荐助视器" description={result.deviceRecommendation} type="success" showIcon /></Col>
               </Row>
             ) : <Empty />}
           </Card>
@@ -468,11 +468,11 @@ export const CataractPage: React.FC = () => {
           <Card title="结果" size="small">
             {result ? (
               <Row gutter={[16, 16]}>
-                <Col span={8}><Statistic title="核 NO" value={result.nuclearGrade} valueStyle={{ color: gradeColor(result.nuclearGrade) }} /></Col>
-                <Col span={8}><Statistic title="皮质 C" value={result.corticalGrade} valueStyle={{ color: gradeColor(result.corticalGrade) }} /></Col>
-                <Col span={8}><Statistic title="后囊下 P" value={result.pscGrade} valueStyle={{ color: gradeColor(result.pscGrade) }} /></Col>
-                <Col span={24}><Statistic title="总分级" value={result.totalScore} valueStyle={{ color: result.totalScore >= 4 ? '#ff4d4f' : '#52c41a' }} /></Col>
-                <Col span={24}><Alert message={result.diagnosis} description={`建议: ${result.recommendation}`} type={result.needsSurgery ? 'warning' : 'success'} showIcon /></Col>
+                <Col span={8}><Statistic title="核 NO" value={result.nuclearGrade} styles={{ content: {  color: gradeColor(result.nuclearGrade)  } }} /></Col>
+                <Col span={8}><Statistic title="皮质 C" value={result.corticalGrade} styles={{ content: {  color: gradeColor(result.corticalGrade)  } }} /></Col>
+                <Col span={8}><Statistic title="后囊下 P" value={result.pscGrade} styles={{ content: {  color: gradeColor(result.pscGrade)  } }} /></Col>
+                <Col span={24}><Statistic title="总分级" value={result.totalScore} styles={{ content: {  color: result.totalScore >= 4 ? '#ff4d4f' : '#52c41a'  } }} /></Col>
+                <Col span={24}><Alert title={result.diagnosis} description={`建议: ${result.recommendation}`} type={result.needsSurgery ? 'warning' : 'success'} showIcon /></Col>
               </Row>
             ) : <Empty description="点击评估" />}
           </Card>
@@ -551,13 +551,13 @@ export const RefractivePage: React.FC = () => {
                 </Col>
                 <Col span={24}>
                   <Alert
-                    message={`推荐术式: ${result.recommendedProcedure}`}
+                    title={`推荐术式: ${result.recommendedProcedure}`}
                     description={`理由: ${result.procedureRationale}`}
                     type="info" showIcon />
                 </Col>
                 <Col span={24}>
                   <Alert
-                    message={`预期术后视力: ${result.expectedPostopVA}`}
+                    title={`预期术后视力: ${result.expectedPostopVA}`}
                     description={`风险等级: ${result.riskLevel}`}
                     type={result.riskLevel === 'low' ? 'success' : 'warning'} showIcon />
                 </Col>

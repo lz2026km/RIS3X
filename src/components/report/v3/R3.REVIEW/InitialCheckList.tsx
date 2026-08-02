@@ -152,7 +152,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
             <Statistic
               title={<span style={{ color: '#fff' }}>总数</span>}
               value={stats.total}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<FileText size={14} />}
             />
           </Col>
@@ -160,7 +160,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
             <Statistic
               title={<span style={{ color: '#fff' }}>待审</span>}
               value={stats.pending}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Clock size={14} />}
             />
           </Col>
@@ -168,7 +168,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
             <Statistic
               title={<span style={{ color: '#fff' }}>审核中</span>}
               value={stats.inProgress}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Eye size={14} />}
             />
           </Col>
@@ -176,7 +176,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
             <Statistic
               title={<span style={{ color: '#fff' }}>超时</span>}
               value={stats.overdue}
-              valueStyle={{ color: '#fca5a5', fontSize: 18 }}
+              styles={{ content: {  color: '#fca5a5', fontSize: 18  } }}
               prefix={<AlertCircle size={14} />}
             />
           </Col>
@@ -184,7 +184,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
             <Statistic
               title={<span style={{ color: '#fff' }}>危急</span>}
               value={stats.critical}
-              valueStyle={{ color: '#fca5a5', fontSize: 18 }}
+              styles={{ content: {  color: '#fca5a5', fontSize: 18  } }}
               prefix={<AlertTriangle size={14} />}
             />
           </Col>

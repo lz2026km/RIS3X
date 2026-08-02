@@ -44,7 +44,7 @@ const FfaViewerPage: React.FC = () => {
         <Alert
           type="warning"
           showIcon
-          message="无 FFA 检查数据"
+          title="无 FFA 检查数据"
           description="当前未加载眼底血管造影(FFA)检查数据,请先在检查列表中选择 FFA 检查。"
           style={{ maxWidth: 480, margin: "60px auto" }}
         />
@@ -126,7 +126,7 @@ const FfaViewerPage: React.FC = () => {
                     title={s.title}
                     value={s.value}
                     suffix={s.suffix || ""}
-                    valueStyle={{ fontSize: 16 }}
+                    styles={{ content: {  fontSize: 16  } }}
                   />
                   <div style={{ fontSize: 12, color: "#94a3b8" }}>{s.note}</div>
                 </Col>
@@ -146,7 +146,7 @@ const FfaViewerPage: React.FC = () => {
               检查: {MODALITY_LABELS[study?.modality || "ffa"]}
               <br />
               <Alert
-                message="活动性 CNV,需 72h 内抗 VEGF 治疗"
+                title="活动性 CNV,需 72h 内抗 VEGF 治疗"
                 type="warning"
                 showIcon
                 style={{ fontSize: 12, marginTop: 8 }}

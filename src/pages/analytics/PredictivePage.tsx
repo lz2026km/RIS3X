@@ -207,7 +207,7 @@ export default function PredictivePage() {
           type="error"
           showIcon
           style={{ marginBottom: 16 }}
-          message={error}
+          title={error}
           action={
             <Button size="small" onClick={() => void load()}>
               重试
@@ -311,7 +311,7 @@ export default function PredictivePage() {
         </Col>
 
         <Col xs={24} lg={8}>
-          <Space direction="vertical" style={{ width: "100%" }} size={16}>
+          <Space orientation="vertical" style={{ width: "100%" }} size={16}>
             <Card
               title={
                 <Space>
@@ -385,7 +385,7 @@ export default function PredictivePage() {
               <Statistic
                 value={accuracy.value}
                 suffix="%"
-                valueStyle={{ color: "#f97316", fontSize: 36, fontWeight: 700 }}
+                styles={{ content: {  color: "#f97316", fontSize: 36, fontWeight: 700  } }}
               />
               <div
                 style={{

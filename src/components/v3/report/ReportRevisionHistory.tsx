@@ -134,22 +134,22 @@ export const ReportRevisionHistory: React.FC<ReportRevisionHistoryProps> = ({
           </Col>
           <Col span={6}>
             <Card size="small">
-              <Statistic title="编辑次数" value={stats.edits} valueStyle={{ color: '#ca8a04' }} />
+              <Statistic title="编辑次数" value={stats.edits} styles={{ content: {  color: '#ca8a04'  } }} />
             </Card>
           </Col>
           <Col span={6}>
             <Card size="small">
-              <Statistic title="通过次数" value={stats.approvals} valueStyle={{ color: '#16a34a' }} />
+              <Statistic title="通过次数" value={stats.approvals} styles={{ content: {  color: '#16a34a'  } }} />
             </Card>
           </Col>
           <Col span={6}>
             <Card size="small">
-              <Statistic title="退回次数" value={stats.rejections} valueStyle={{ color: '#dc2626' }} />
+              <Statistic title="退回次数" value={stats.rejections} styles={{ content: {  color: '#dc2626'  } }} />
             </Card>
           </Col>
         </Row>
 
-        <Space style={{ marginBottom: 12, width: '100%' }} direction="vertical">
+        <Space style={{ marginBottom: 12, width: '100%' }} orientation="vertical">
           <Input
             prefix={<Search size={12} />}
             placeholder="搜索修改人/字段/意见..."
@@ -188,7 +188,7 @@ export const ReportRevisionHistory: React.FC<ReportRevisionHistoryProps> = ({
               if (!a.after || !b.after) return <Empty description="无文本可对比" />
               const d = diff(a.after, b.after)
               return (
-                <Space direction="vertical" size={8} style={{ width: '100%' }}>
+                <Space orientation="vertical" size={8} style={{ width: '100%' }}>
                   <div>
                     <Tag color="green">新增</Tag>
                     {d.added.length > 0 ? d.added.map((w) => <Tag key={w} color="green" style={{ margin: 2 }}>{w}</Tag>) : <span style={{ fontSize: 12, color: '#94a3b8' }}>无</span>}
@@ -265,7 +265,7 @@ export const ReportRevisionHistory: React.FC<ReportRevisionHistoryProps> = ({
         width={580}
       >
         {selected && (
-          <Space direction="vertical" size={12} style={{ width: '100%' }}>
+          <Space orientation="vertical" size={12} style={{ width: '100%' }}>
             <Descriptions size="small" column={2} bordered>
               <Descriptions.Item label="版本">v{selected.version}</Descriptions.Item>
               <Descriptions.Item label="类型">

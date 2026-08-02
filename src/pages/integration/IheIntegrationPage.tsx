@@ -42,9 +42,9 @@ export const IheIntegrationPage: React.FC = () => {
       <Card size="small" title="Affinity Domain" style={{marginBottom:16}} extra={<Button icon={<RefreshCw size={12}/>} onClick={fetchStatus} loading={loading}>刷新</Button>}>
         {domain ? (
           <Row gutter={16}>
-            <Col span={8}><Statistic title="名称" value={domain.name} valueStyle={{fontSize:14}} /></Col>
-            <Col span={8}><Statistic title="Home Community ID" value={domain.homeCommunityId} valueStyle={{fontSize:12, fontFamily:'monospace'}} /></Col>
-            <Col span={8}><Statistic title="Assigning Authority" value={domain.assigningAuthorityId} valueStyle={{fontSize:12, fontFamily:'monospace'}} /></Col>
+            <Col span={8}><Statistic title="名称" value={domain.name} styles={{ content: { fontSize:14 } }} /></Col>
+            <Col span={8}><Statistic title="Home Community ID" value={domain.homeCommunityId} styles={{ content: { fontSize:12, fontFamily:'monospace' } }} /></Col>
+            <Col span={8}><Statistic title="Assigning Authority" value={domain.assigningAuthorityId} styles={{ content: { fontSize:12, fontFamily:'monospace' } }} /></Col>
           </Row>
         ) : (
           <Tag color="default">暂无数据</Tag>

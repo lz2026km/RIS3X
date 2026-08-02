@@ -42,7 +42,7 @@ const AiTriagePage: React.FC = () => {
       </div>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}><Card size="small"><Statistic title="总分检数" value={items.length} prefix={<FileText size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="危急" value={items.filter(i => i.level === 'CRITICAL').length} valueStyle={{ color: '#cf1322' }} prefix={<AlertTriangle size={16} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="危急" value={items.filter(i => i.level === 'CRITICAL').length} styles={{ content: {  color: '#cf1322'  } }} prefix={<AlertTriangle size={16} />} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="AI准确率" value={95} suffix="%" prefix={<CheckCircle size={16} />} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="平均处理" value={120} suffix="ms" prefix={<Clock size={16} />} /></Card></Col>
       </Row>
@@ -52,8 +52,8 @@ const AiTriagePage: React.FC = () => {
       <Modal title="AI分检详情" open={showDetail} onCancel={() => { setShowDetail(false); setSelectedItem(null) }} footer={null} width={600}>
         {selectedItem && (<div>
           <Row gutter={16} style={{ marginBottom: 16 }}>
-            <Col span={8}><Card size="small"><Statistic title="综合评分" value={selectedItem.score} valueStyle={{ color: levelColor[selectedItem.level] }} /></Card></Col>
-            <Col span={8}><Card size="small"><Statistic title="优先级" value={levelLabel[selectedItem.level]} valueStyle={{ color: levelColor[selectedItem.level] }} /></Card></Col>
+            <Col span={8}><Card size="small"><Statistic title="综合评分" value={selectedItem.score} styles={{ content: {  color: levelColor[selectedItem.level]  } }} /></Card></Col>
+            <Col span={8}><Card size="small"><Statistic title="优先级" value={levelLabel[selectedItem.level]} styles={{ content: {  color: levelColor[selectedItem.level]  } }} /></Card></Col>
             <Col span={8}><Card size="small"><Statistic title="AI置信度" value={`${(selectedItem.aiConfidence * 100).toFixed(1)}%`} /></Card></Col>
           </Row>
           <Card size="small" title="评估因子" style={{ marginBottom: 16 }}>

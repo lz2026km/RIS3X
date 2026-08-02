@@ -80,7 +80,7 @@ const AiRadsPage: React.FC = () => {
               style={{ width: 160 }}
             />
           </div>
-          <Divider type="vertical" />
+          <Divider orientation="vertical" />
           <div>
             <Text strong>{t('patientId')}: </Text>
             <Select
@@ -96,7 +96,7 @@ const AiRadsPage: React.FC = () => {
           </div>
           {radsType === 'lung' && (
             <>
-              <Divider type="vertical" />
+              <Divider orientation="vertical" />
               <div>
                 <Text strong>{t('noduleSize')} (mm): </Text>
                 <InputNumber min={1} max={50} value={noduleSize} onChange={(v) => setNoduleSize(v ?? 8)} style={{ width: 80 }} />

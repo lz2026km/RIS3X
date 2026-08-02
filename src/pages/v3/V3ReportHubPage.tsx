@@ -84,10 +84,10 @@ export const V3ReportHubPage: React.FC = () => {
       </Space>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title="报告模板" value={templates.length} valueStyle={{ color: '#1677ff' }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="分发任务" value={tasks.length} valueStyle={{ color: '#52c41a' }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="报告模板" value={templates.length} styles={{ content: {  color: '#1677ff'  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="分发任务" value={tasks.length} styles={{ content: {  color: '#52c41a'  } }} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="FHIR 资源" value={fhirList.length} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="AI 草稿" value={aiDrafts.length} valueStyle={{ color: '#722ed1' }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="AI 草稿" value={aiDrafts.length} styles={{ content: {  color: '#722ed1'  } }} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="Webhooks" value={webhooks.length} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="质控报告" value={qcReports.length} /></Card></Col>
       </Row>
@@ -98,10 +98,10 @@ export const V3ReportHubPage: React.FC = () => {
             {dash ? (
               <Row gutter={[16, 16]}>
                 <Col span={8}><Statistic title="总报告" value={dash.totalReports || 0} /></Col>
-                <Col span={8}><Statistic title="已审" value={dash.reviewed || 0} valueStyle={{ color: '#52c41a' }} /></Col>
+                <Col span={8}><Statistic title="已审" value={dash.reviewed || 0} styles={{ content: {  color: '#52c41a'  } }} /></Col>
                 <Col span={8}><Statistic title="平均 TAT" value={dash.avgTAT || 0} suffix="h" /></Col>
                 <Col span={8}><Statistic title="签名率" value={dash.signedRate || 0} suffix="%" /></Col>
-                <Col span={8}><Statistic title="AI 采纳" value={dash.aiAdoption || 0} suffix="%" valueStyle={{ color: '#722ed1' }} /></Col>
+                <Col span={8}><Statistic title="AI 采纳" value={dash.aiAdoption || 0} suffix="%" styles={{ content: {  color: '#722ed1'  } }} /></Col>
                 <Col span={8}><Statistic title="分发成功率" value={dash.distSuccess || 0} suffix="%" /></Col>
               </Row>
             ) : <Empty description="加载中" />}

@@ -626,7 +626,7 @@ export default function CohortPage() {
                 type="error"
                 showIcon
                 style={{ marginBottom: 12 }}
-                message={error}
+                title={error}
                 action={
                   <Button size="small" onClick={() => void refreshSizes()}>
                     重试
@@ -671,7 +671,7 @@ export default function CohortPage() {
                     title="匹配记录"
                     value={resultData.count}
                     suffix="条"
-                    valueStyle={{ color: "#7c3aed" }}
+                    styles={{ content: {  color: "#7c3aed"  } }}
                   />
                 </Card>
               </Col>

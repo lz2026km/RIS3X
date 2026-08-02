@@ -262,10 +262,10 @@ const EyeRisPage: React.FC = () => {
                   key: "action",
                   width: 120,
                   render: () => (
-                    <Button.Group size="small">
+                    <Space.Compact size="small">
                       <Button>到检</Button>
                       <Button>叫号</Button>
-                    </Button.Group>
+                    </Space.Compact>
                   ),
                 },
               ]}

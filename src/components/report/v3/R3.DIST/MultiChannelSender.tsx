@@ -198,12 +198,12 @@ export const MultiChannelSender: React.FC<Props> = ({ reportId, patientId, onSen
     <div className="space-y-3">
       {/* 队列状态 */}
       <Row gutter={8}>
-        <Col span={4}><Card size="small"><Statistic title="待发送" value={queue.pending} prefix={<Clock className="w-3 h-3" style={{ color: '#f59e0b' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="发送中" value={queue.sending} prefix={<Loader2 className="w-3 h-3 animate-spin" style={{ color: '#3b82f6' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="已送达" value={queue.delivered} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="失败" value={queue.failed} prefix={<XCircle className="w-3 h-3" style={{ color: '#dc2626' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="今日" value={queue.totalToday} prefix={<Activity className="w-3 h-3" style={{ color: '#7c3aed' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="成功率" value={queue.successRate * 100} suffix="%" precision={1} valueStyle={{ fontSize: 18, color: '#10b981' }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="待发送" value={queue.pending} prefix={<Clock className="w-3 h-3" style={{ color: '#f59e0b' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="发送中" value={queue.sending} prefix={<Loader2 className="w-3 h-3 animate-spin" style={{ color: '#3b82f6' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="已送达" value={queue.delivered} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="失败" value={queue.failed} prefix={<XCircle className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="今日" value={queue.totalToday} prefix={<Activity className="w-3 h-3" style={{ color: '#7c3aed' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="成功率" value={queue.successRate * 100} suffix="%" precision={1} styles={{ content: {  fontSize: 18, color: '#10b981'  } }} /></Card></Col>
       </Row>
 
       {/* 通道选择 + 发送按钮 */}
@@ -318,7 +318,7 @@ export const MultiChannelSender: React.FC<Props> = ({ reportId, patientId, onSen
               </Form.Item>
             </Form>
             <Divider className="my-2" />
-            <Alert type="info" message={`预计费用: ¥${(selectedChannels.length * 0.02).toFixed(3)} | 预计耗时: ${(selectedChannels.length * 0.5).toFixed(1)}s`} />
+            <Alert type="info" title={`预计费用: ¥${(selectedChannels.length * 0.02).toFixed(3)} | 预计耗时: ${(selectedChannels.length * 0.5).toFixed(1)}s`} />
             <div className="flex justify-end gap-2">
               <Button onClick={() => setShowSendModal(false)}>取消</Button>
               <Button type="primary" icon={<Send className="w-3 h-3" />} onClick={handleSend}>确认发送</Button>

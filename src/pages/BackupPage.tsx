@@ -66,7 +66,7 @@ export default function BackupPage() {
   return (
     <div style={{ padding: 24 }}>
       <Card>
-        <Space direction="vertical" style={{ width: '100%' }}>
+        <Space orientation="vertical" style={{ width: '100%' }}>
           <Row justify="space-between" align="middle">
             <h2 style={{ margin: 0 }}><SafetyOutlined /> 备份管理</h2>
             <Space>

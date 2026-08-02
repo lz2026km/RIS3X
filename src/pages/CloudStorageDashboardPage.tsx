@@ -55,12 +55,12 @@ export default function CloudStorageDashboardPage() {
       </Card>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card><Statistic title="总对象数" value={totalObjects} valueStyle={{ color: "#0ea5e9" }} /></Card></Col>
-        <Col span={4}><Card><Statistic title="总容量 (TB)" value={(totalCapacity / 1024).toFixed(1)} valueStyle={{ color: "#1e40af" }} /></Card></Col>
-        <Col span={4}><Card><Statistic title="已用 (TB)" value={(totalUsed / 1024).toFixed(1)} suffix={`${usedPct.toFixed(1)}%`} valueStyle={{ color: "#dc2626" }} /></Card></Col>
-        <Col span={4}><Card><Statistic title="24h 写入" value="42.8 MB" valueStyle={{ color: "#10b981" }} /></Card></Col>
-        <Col span={4}><Card><Statistic title="24h 读取" value="124.2 MB" valueStyle={{ color: "#0891b2" }} /></Card></Col>
-        <Col span={4}><Card><Statistic title="压缩节省" value={`${COMPRESSION.savedGb} GB`} valueStyle={{ color: "#7c3aed" }} /></Card></Col>
+        <Col span={4}><Card><Statistic title="总对象数" value={totalObjects} styles={{ content: {  color: "#0ea5e9"  } }} /></Card></Col>
+        <Col span={4}><Card><Statistic title="总容量 (TB)" value={(totalCapacity / 1024).toFixed(1)} styles={{ content: {  color: "#1e40af"  } }} /></Card></Col>
+        <Col span={4}><Card><Statistic title="已用 (TB)" value={(totalUsed / 1024).toFixed(1)} suffix={`${usedPct.toFixed(1)}%`} styles={{ content: {  color: "#dc2626"  } }} /></Card></Col>
+        <Col span={4}><Card><Statistic title="24h 写入" value="42.8 MB" styles={{ content: {  color: "#10b981"  } }} /></Card></Col>
+        <Col span={4}><Card><Statistic title="24h 读取" value="124.2 MB" styles={{ content: {  color: "#0891b2"  } }} /></Card></Col>
+        <Col span={4}><Card><Statistic title="压缩节省" value={`${COMPRESSION.savedGb} GB`} styles={{ content: {  color: "#7c3aed"  } }} /></Card></Col>
       </Row>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
@@ -118,7 +118,7 @@ export default function CloudStorageDashboardPage() {
               <Text>压缩后 {(COMPRESSION.compressedBytes / 1e12).toFixed(2)} TB</Text>
             </div>
             <Progress percent={COMPRESSION.ratio * 100} strokeColor="#7c3aed" format={(p) => `${((p ?? 0) / 100).toFixed(2)}x`} />
-            <Alert type="success" showIcon message={`节省 ${COMPRESSION.savedGb} GB 存储空间`} style={{ marginTop: 8 }} />
+            <Alert type="success" showIcon title={`节省 ${COMPRESSION.savedGb} GB 存储空间`} style={{ marginTop: 8 }} />
           </Card>
         </Col>
       </Row>

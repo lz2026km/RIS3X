@@ -86,12 +86,12 @@ export default function MultiSiteDashboardPage() {
       </Card>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card><Statistic title="总站点" value={sites.length} prefix={<Building2 size={16} />} valueStyle={{ color: "#1e40af" }} /></Card></Col>
-        <Col span={4}><Card><Statistic title="在线" value={activeCount} prefix={<CheckCircle size={16} color="#10b981" />} valueStyle={{ color: "#10b981" }} suffix={`/ ${sites.length}`} /></Card></Col>
-        <Col span={4}><Card><Statistic title="总检查数" value={totalStudies} valueStyle={{ color: "#0891b2" }} /></Card></Col>
-        <Col span={4}><Card><Statistic title="总患者数" value={totalPatients} valueStyle={{ color: "#7c3aed" }} /></Card></Col>
-        <Col span={4}><Card><Statistic title="总用户数" value={totalUsers} valueStyle={{ color: "#d97706" }} /></Card></Col>
-        <Col span={4}><Card><Statistic title="总存储 (GB)" value={totalStorage.toLocaleString()} prefix={<Database size={16} />} valueStyle={{ color: "#dc2626" }} /></Card></Col>
+        <Col span={4}><Card><Statistic title="总站点" value={sites.length} prefix={<Building2 size={16} />} styles={{ content: {  color: "#1e40af"  } }} /></Card></Col>
+        <Col span={4}><Card><Statistic title="在线" value={activeCount} prefix={<CheckCircle size={16} color="#10b981" />} styles={{ content: {  color: "#10b981"  } }} suffix={`/ ${sites.length}`} /></Card></Col>
+        <Col span={4}><Card><Statistic title="总检查数" value={totalStudies} styles={{ content: {  color: "#0891b2"  } }} /></Card></Col>
+        <Col span={4}><Card><Statistic title="总患者数" value={totalPatients} styles={{ content: {  color: "#7c3aed"  } }} /></Card></Col>
+        <Col span={4}><Card><Statistic title="总用户数" value={totalUsers} styles={{ content: {  color: "#d97706"  } }} /></Card></Col>
+        <Col span={4}><Card><Statistic title="总存储 (GB)" value={totalStorage.toLocaleString()} prefix={<Database size={16} />} styles={{ content: {  color: "#dc2626"  } }} /></Card></Col>
       </Row>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
@@ -102,14 +102,14 @@ export default function MultiSiteDashboardPage() {
         </Col>
         <Col span={8}>
           <Card title={<><Activity size={16} /> 同步状态</>} style={{ marginBottom: 16 }}>
-            <Statistic title="最近同步延迟" value={syncRate.toFixed(1)} suffix="%" valueStyle={{ color: syncRate > 90 ? "#10b981" : "#f59e0b" }} />
+            <Statistic title="最近同步延迟" value={syncRate.toFixed(1)} suffix="%" styles={{ content: {  color: syncRate > 90 ? "#10b981" : "#f59e0b"  } }} />
             <div style={{ marginTop: 12 }}>
               <Text>8 个站点平均延迟 <strong>{(sites.reduce((s, x) => s + x.latencyMs, 0) / sites.length).toFixed(1)} ms</strong></Text>
               <Progress percent={Math.min(100, (sites.filter(s => s.status === "active").length / sites.length) * 100)} status="active" />
             </div>
           </Card>
           <Card title={<><Shield size={16} /> 高可用性</>}>
-            <Space direction="vertical" size={8} style={{ width: "100%" }}>
+            <Space orientation="vertical" size={8} style={{ width: "100%" }}>
               <div>主库 <Tag color="green">正常</Tag></div>
               <div>异地容灾 <Tag color="green">已同步</Tag></div>
               <div>RPO 目标 <Tag color="blue">≤ 60s</Tag></div>

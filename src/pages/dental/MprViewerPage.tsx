@@ -101,8 +101,8 @@ export const MprViewerPage: React.FC = () => {
           <span style={{ color: '#888', fontSize: 11 }}>{study?.patientName || studyId}</span>
         </Space>
         <Space>
-          <InputNumber size="small" value={ww} onChange={setWw} min={1} max={2000} style={{ width: 80 }} addonAfter="W" />
-          <InputNumber size="small" value={wc} onChange={setWc} min={-500} max={500} style={{ width: 80 }} addonAfter="C" />
+          <InputNumber size="small" value={ww} onChange={setWw} min={1} max={2000} style={{ width: 80 }} suffix="W" />
+          <InputNumber size="small" value={wc} onChange={setWc} min={-500} max={500} style={{ width: 80 }} suffix="C" />
           <Button size="small" icon={<RotateCcw size={14} />} onClick={() => { setWw(400); setWc(40); }}>重置</Button>
         </Space>
       </div>

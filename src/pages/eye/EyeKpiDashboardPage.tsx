@@ -52,7 +52,7 @@ const EyeKpiDashboardPage: React.FC = () => {
     {/* v3.0.6.8-23c (A8-P0-4): auto-fit 响应式 KPI 网格 */}
     <div data-testid="eye-kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 12 }}>
       <Card size="small"><Statistic title="日均检查" value={kpiData.dailyExams} suffix="人次" prefix={<Activity size={16} />} /></Card>
-      <Card size="small"><Statistic title="AI采纳率" value={kpiData.aiAdoption} suffix="%" prefix={<BarChart3 size={16} />} valueStyle={{ color: '#22c55e' }} /></Card>
+      <Card size="small"><Statistic title="AI采纳率" value={kpiData.aiAdoption} suffix="%" prefix={<BarChart3 size={16} />} styles={{ content: {  color: '#22c55e'  } }} /></Card>
       <Card size="small"><Statistic title="患者满意度" value={avgSat.toFixed(1)} suffix="分" prefix={<Smile size={16} color="#8b5cf6" />} /></Card>
       <Card size="small"><Statistic title="平均候诊" value={kpiData.avgWait} suffix="min" prefix={<AlertTriangle size={16} color="#f59e0b" />} /></Card>
       <Card size="small"><Statistic title="次均费用" value={kpiData.avgCost} suffix="元" prefix={<DollarSign size={16} color="#10b981" />} /></Card>

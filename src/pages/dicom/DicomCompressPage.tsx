@@ -214,7 +214,7 @@ export default function DicomCompressPage() {
       <Row gutter={[16, 16]}>
         <Col xs={24} lg={8}>
           <Card title={t("card.compress.title")} variant="outlined">
-            <Space direction="vertical" style={{ width: "100%" }}>
+            <Space orientation="vertical" style={{ width: "100%" }}>
               <div>
                 <Text strong>{t("card.compress.fileId")}</Text>
                 <Select
@@ -279,7 +279,7 @@ export default function DicomCompressPage() {
                     <Statistic
                       title={t("card.progress.taskId")}
                       value={task.id}
-                      valueStyle={{ fontSize: 14 }}
+                      styles={{ content: {  fontSize: 14  } }}
                     />
                   </Col>
                   <Col span={8}>
@@ -304,7 +304,7 @@ export default function DicomCompressPage() {
                   <div style={{ marginTop: 16 }}>
                     <Alert
                       type="success"
-                      message={t("card.progress.doneMsg")}
+                      title={t("card.progress.doneMsg")}
                       showIcon
                     />
                     <Row gutter={16} style={{ marginTop: 12 }}>
@@ -338,7 +338,7 @@ export default function DicomCompressPage() {
                 ) : task.status === "failed" ? (
                   <Alert
                     type="error"
-                    message={task.error ?? t("card.progress.failedMsg")}
+                    title={task.error ?? t("card.progress.failedMsg")}
                     showIcon
                   />
                 ) : null}

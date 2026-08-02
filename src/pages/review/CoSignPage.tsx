@@ -211,7 +211,7 @@ const CoSignPage: React.FC = () => {
                 stats?.pending ??
                 items.filter((i) => i.status === "pending").length
               }
-              valueStyle={{ color: "#faad14" }}
+              styles={{ content: {  color: "#faad14"  } }}
               prefix={<Clock size={16} />}
             />
           </Card>
@@ -221,7 +221,7 @@ const CoSignPage: React.FC = () => {
             <Statistic
               title="已通过"
               value={stats?.approved ?? 0}
-              valueStyle={{ color: "#52c41a" }}
+              styles={{ content: {  color: "#52c41a"  } }}
               prefix={<CheckCircle2 size={16} />}
             />
           </Card>
@@ -231,7 +231,7 @@ const CoSignPage: React.FC = () => {
             <Statistic
               title="已拒绝"
               value={stats?.rejected ?? 0}
-              valueStyle={{ color: "#ff4d4f" }}
+              styles={{ content: {  color: "#ff4d4f"  } }}
               prefix={<XCircle size={16} />}
             />
           </Card>

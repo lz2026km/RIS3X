@@ -116,10 +116,10 @@ export const VoiceFeedback: React.FC<Props> = ({
 
       {level !== 'minimal' && (
         <Row gutter={8} className="mt-2">
-          <Col span={6}><Statistic title="音量" value={(rmsLevel * 100).toFixed(0)} suffix="%" valueStyle={{ fontSize: 12 }} /></Col>
-          <Col span={6}><Statistic title="信噪比" value={snr.toFixed(1)} suffix="dB" valueStyle={{ fontSize: 12, color: snr > 15 ? '#10b981' : '#f59e0b' }} /></Col>
-          <Col span={6}><Statistic title="语音概率" value={(speechProb * 100).toFixed(0)} suffix="%" valueStyle={{ fontSize: 12 }} /></Col>
-          <Col span={6}><Statistic title="延迟" value={audioMetrics?.latencyMs.toFixed(0) ?? '0'} suffix="ms" valueStyle={{ fontSize: 12 }} /></Col>
+          <Col span={6}><Statistic title="音量" value={(rmsLevel * 100).toFixed(0)} suffix="%" styles={{ content: {  fontSize: 12  } }} /></Col>
+          <Col span={6}><Statistic title="信噪比" value={snr.toFixed(1)} suffix="dB" styles={{ content: {  fontSize: 12, color: snr > 15 ? '#10b981' : '#f59e0b'  } }} /></Col>
+          <Col span={6}><Statistic title="语音概率" value={(speechProb * 100).toFixed(0)} suffix="%" styles={{ content: {  fontSize: 12  } }} /></Col>
+          <Col span={6}><Statistic title="延迟" value={audioMetrics?.latencyMs.toFixed(0) ?? '0'} suffix="ms" styles={{ content: {  fontSize: 12  } }} /></Col>
         </Row>
       )}
 

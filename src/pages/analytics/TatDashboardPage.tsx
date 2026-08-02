@@ -337,7 +337,7 @@ export default function TatDashboardPage() {
             type="error"
             showIcon
             style={{ marginBottom: 16 }}
-            message={error}
+            title={error}
             action={
               <Button size="small" onClick={() => void load()}>
                 重试
@@ -353,7 +353,7 @@ export default function TatDashboardPage() {
                   title="平均 TAT"
                   value={stats.avgTat}
                   suffix="min"
-                  valueStyle={{
+                  styles={{ content: { 
                     color:
                       stats.avgTat <= 30
                         ? "#059669"
@@ -362,7 +362,7 @@ export default function TatDashboardPage() {
                           : "#dc2626",
                     fontSize: 28,
                     fontWeight: 800,
-                  }}
+                   } }}
                   prefix={
                     stats.avgTat <= 30 ? (
                       <TrendingUp size={18} />
@@ -379,7 +379,7 @@ export default function TatDashboardPage() {
                   title="按时完成率"
                   value={stats.onTimeRate}
                   suffix="%"
-                  valueStyle={{
+                  styles={{ content: { 
                     color:
                       stats.onTimeRate >= 80
                         ? "#059669"
@@ -388,7 +388,7 @@ export default function TatDashboardPage() {
                           : "#dc2626",
                     fontSize: 28,
                     fontWeight: 800,
-                  }}
+                   } }}
                   prefix={
                     stats.onTimeRate >= 80 ? (
                       <CheckCircle size={18} />
@@ -405,11 +405,11 @@ export default function TatDashboardPage() {
                   title="报告完成率"
                   value={stats.completionRate}
                   suffix="%"
-                  valueStyle={{
+                  styles={{ content: { 
                     color: "#1e3a5f",
                     fontSize: 28,
                     fontWeight: 800,
-                  }}
+                   } }}
                   prefix={<Activity size={18} />}
                 />
               </Card>
@@ -419,11 +419,11 @@ export default function TatDashboardPage() {
                 <Statistic
                   title="总检查数"
                   value={stats.total}
-                  valueStyle={{
+                  styles={{ content: { 
                     color: "#1e3a5f",
                     fontSize: 28,
                     fontWeight: 800,
-                  }}
+                   } }}
                   prefix={<BarChart3 size={18} />}
                 />
               </Card>

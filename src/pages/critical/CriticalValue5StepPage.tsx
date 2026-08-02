@@ -196,19 +196,19 @@ export default function CriticalValue5StepPage() {
           <Card size="small"><Statistic title="总数" value={stats.total} /></Card>
         </Col>
         <Col span={4}>
-          <Card size="small"><Statistic title="待通知" value={stats.step2} valueStyle={{ color: '#dc2626' }} prefix={<Phone size={14} />} /></Card>
+          <Card size="small"><Statistic title="待通知" value={stats.step2} styles={{ content: {  color: '#dc2626'  } }} prefix={<Phone size={14} />} /></Card>
         </Col>
         <Col span={4}>
-          <Card size="small"><Statistic title="待确认" value={stats.step3} valueStyle={{ color: '#ca8a04' }} prefix={<CheckCircle size={14} />} /></Card>
+          <Card size="small"><Statistic title="待确认" value={stats.step3} styles={{ content: {  color: '#ca8a04'  } }} prefix={<CheckCircle size={14} />} /></Card>
         </Col>
         <Col span={4}>
-          <Card size="small"><Statistic title="待回执" value={stats.step4} valueStyle={{ color: '#16a34a' }} prefix={<FileCheck size={14} />} /></Card>
+          <Card size="small"><Statistic title="待回执" value={stats.step4} styles={{ content: {  color: '#16a34a'  } }} prefix={<FileCheck size={14} />} /></Card>
         </Col>
         <Col span={4}>
-          <Card size="small"><Statistic title="待闭环" value={stats.step5} valueStyle={{ color: '#2563eb' }} prefix={<Archive size={14} />} /></Card>
+          <Card size="small"><Statistic title="待闭环" value={stats.step5} styles={{ content: {  color: '#2563eb'  } }} prefix={<Archive size={14} />} /></Card>
         </Col>
         <Col span={4}>
-          <Card size="small"><Statistic title="已完成" value={stats.step5} valueStyle={{ color: '#059669' }} prefix={<CheckCircle size={14} />} /></Card>
+          <Card size="small"><Statistic title="已完成" value={stats.step5} styles={{ content: {  color: '#059669'  } }} prefix={<CheckCircle size={14} />} /></Card>
         </Col>
       </Row>
 
@@ -241,7 +241,7 @@ export default function CriticalValue5StepPage() {
             <h4>5步进度</h4>
             <Steps
               current={selected.currentStep}
-              direction="vertical"
+              orientation="vertical"
               size="small"
               items={STEP_CONFIG.map((step, idx) => {
                 const stepData = Object.values(selected.steps)[idx]
@@ -295,7 +295,7 @@ export default function CriticalValue5StepPage() {
               <div style={{ marginBottom: 4, fontSize: 12, color: '#666' }}>联系电话</div>
               <Input value={actionPhone} onChange={e => setActionPhone(e.target.value)} placeholder="请输入联系电话" />
             </div>
-            <Alert message="电话通知后将自动记录通知时间及操作人" type="info" showIcon />
+            <Alert title="电话通知后将自动记录通知时间及操作人" type="info" showIcon />
           </div>
         )}
         {actionType === 'acknowledge' && (
@@ -315,7 +315,7 @@ export default function CriticalValue5StepPage() {
           </div>
         )}
         {actionType === 'close' && (
-          <Alert message="确认闭环后，该危急值将标记为已完成" type="warning" showIcon />
+          <Alert title="确认闭环后，该危急值将标记为已完成" type="warning" showIcon />
         )}
       </Modal>
     </div>

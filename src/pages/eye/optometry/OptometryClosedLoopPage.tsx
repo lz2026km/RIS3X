@@ -204,7 +204,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
               <Statistic
                 title="OK 镜患者"
                 value={stats.okLensPatients}
-                valueStyle={{ color: "#1677ff" }}
+                styles={{ content: {  color: "#1677ff"  } }}
               />
             </Card>
           </Col>
@@ -213,7 +213,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
               <Statistic
                 title="离焦镜患者"
                 value={stats.defocusLensPatients}
-                valueStyle={{ color: "#722ed1" }}
+                styles={{ content: {  color: "#722ed1"  } }}
               />
             </Card>
           </Col>
@@ -223,7 +223,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                 title="进展率"
                 value={stats.progressionRate}
                 suffix="D/年"
-                valueStyle={{ color: "#52c41a" }}
+                styles={{ content: {  color: "#52c41a"  } }}
               />
             </Card>
           </Col>
@@ -319,14 +319,14 @@ export const OptometryClosedLoopPage: React.FC = () => {
                                   ? "中"
                                   : "低"
                             }
-                            valueStyle={{
+                            styles={{ content: { 
                               color:
                                 screening.myopiaRisk === "high"
                                   ? "#f5222d"
                                   : screening.myopiaRisk === "medium"
                                     ? "#faad14"
                                     : "#52c41a",
-                            }}
+                             } }}
                           />
                         </Col>
                         <Col span={8}>
@@ -364,7 +364,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                             (r: string, i: number) => (
                               <Alert
                                 key={i}
-                                message={r}
+                                title={r}
                                 type={
                                   screening.myopiaRisk === "high"
                                     ? "warning"
@@ -530,7 +530,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                     </Form>
                     {okTrial && (
                       <Alert
-                        message={`配适: ${okTrial.fit === "optimal" ? "理想" : okTrial.fit === "too-tight" ? "过紧" : "过松"}`}
+                        title={`配适: ${okTrial.fit === "optimal" ? "理想" : okTrial.fit === "too-tight" ? "过紧" : "过松"}`}
                         description={okTrial.recommendation}
                         type={okTrial.fit === "optimal" ? "success" : "warning"}
                         showIcon

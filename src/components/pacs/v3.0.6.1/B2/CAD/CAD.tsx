@@ -85,7 +85,7 @@ export const CAD: React.FC<CADProps> = ({ onAccept, onReject }) => {
       title: '患者',
       key: 'patient',
       render: (_: unknown, r: LungNodule) => (
-        <Space direction="vertical" size={0}>
+        <Space orientation="vertical" size={0}>
           <span style={{ fontWeight: 600 }}>{r.patientName}</span>
           <span style={{ fontSize: 12, color: '#64748b' }}>
             {r.patientId} · {r.patientSex === 'M' ? '男' : '女'} · {r.patientAge} 岁
@@ -162,22 +162,22 @@ export const CAD: React.FC<CADProps> = ({ onAccept, onReject }) => {
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="检出结节总数" value={stats.total} prefix={<Scan size={14} color="#3b82f6" />} valueStyle={{ color: '#3b82f6' }} />
+            <Statistic title="检出结节总数" value={stats.total} prefix={<Scan size={14} color="#3b82f6" />} styles={{ content: {  color: '#3b82f6'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="高风险(≥50%)" value={stats.highRisk} prefix={<Activity size={14} color="#dc2626" />} valueStyle={{ color: '#dc2626' }} />
+            <Statistic title="高风险(≥50%)" value={stats.highRisk} prefix={<Activity size={14} color="#dc2626" />} styles={{ content: {  color: '#dc2626'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="平均大小" value={stats.avgSize} precision={1} suffix="mm" valueStyle={{ color: '#8b5cf6' }} />
+            <Statistic title="平均大小" value={stats.avgSize} precision={1} suffix="mm" styles={{ content: {  color: '#8b5cf6'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="平均检出置信度" value={stats.avgConf} precision={2} valueStyle={{ color: '#16a34a' }} />
+            <Statistic title="平均检出置信度" value={stats.avgConf} precision={2} styles={{ content: {  color: '#16a34a'  } }} />
           </Card>
         </Col>
       </Row>
@@ -201,7 +201,7 @@ export const CAD: React.FC<CADProps> = ({ onAccept, onReject }) => {
       >
         <Row gutter={16}>
           <Col span={10}>
-            <Space direction="vertical" size={4} style={{ width: '100%' }}>
+            <Space orientation="vertical" size={4} style={{ width: '100%' }}>
               <span style={{ fontSize: 12 }}>
                 <Filter size={12} /> 最小尺寸 ≥ {minSize} mm
               </span>
@@ -209,7 +209,7 @@ export const CAD: React.FC<CADProps> = ({ onAccept, onReject }) => {
             </Space>
           </Col>
           <Col span={10}>
-            <Space direction="vertical" size={4} style={{ width: '100%' }}>
+            <Space orientation="vertical" size={4} style={{ width: '100%' }}>
               <span style={{ fontSize: 12 }}>
                 恶性概率阈值 ≥ {(malignancyFloor * 100).toFixed(0)}%
               </span>

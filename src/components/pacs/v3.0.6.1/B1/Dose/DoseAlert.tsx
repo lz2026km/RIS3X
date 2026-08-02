@@ -13,10 +13,10 @@ export interface DoseAlertProps {
 
 export const DoseAlert: React.FC<DoseAlertProps> = ({ records, onAction }) => {
   if (records.length === 0) {
-    return <Alert type="success" message="无超阈值记录" showIcon />
+    return <Alert type="success" title="无超阈值记录" showIcon />
   }
   return (
-    <Space direction="vertical" size={8} style={{ width: '100%' }} data-testid="dose-alert">
+    <Space orientation="vertical" size={8} style={{ width: '100%' }} data-testid="dose-alert">
       {records.map((r) => (
         <Alert
           key={r.id}

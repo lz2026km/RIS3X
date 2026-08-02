@@ -28,7 +28,7 @@ export const CADMammo: React.FC<CADMammoProps> = ({ onAccept }) => {
             <Statistic
               title="高危"
               value={MOCK.filter((d) => d.severity === 'HIGH' || d.severity === 'CRITICAL').length}
-              valueStyle={{ color: '#dc2626' }}
+              styles={{ content: {  color: '#dc2626'  } }}
             />
           </Card>
         </Col>

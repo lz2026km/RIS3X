@@ -61,7 +61,7 @@ export const PwaInstallPrompt: React.FC = () => {
       }}
       data-testid="pwa-install-prompt"
     >
-      <Space direction="vertical" style={{ width: '100%' }} size={8}>
+      <Space orientation="vertical" style={{ width: '100%' }} size={8}>
         <Space style={{ justifyContent: 'space-between', width: '100%' }}>
           <Space>
             <Smartphone size={20} color="#1e3a5f" />

@@ -188,11 +188,11 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
             ]}
           />
           <div className="w-1" />
-          <Button.Group>
+          <Space.Compact>
             <Button size="small" icon={<ZoomOut className="w-3 h-3" />} onClick={() => setZoom((z) => Math.max(0.5, z - 0.1))} />
             <Button size="small">{(zoom * 100).toFixed(0)}%</Button>
             <Button size="small" icon={<ZoomIn className="w-3 h-3" />} onClick={() => setZoom((z) => Math.min(3, z + 0.1))} />
-          </Button.Group>
+          </Space.Compact>
         </div>
 
         <div className="grid grid-cols-3 gap-3">

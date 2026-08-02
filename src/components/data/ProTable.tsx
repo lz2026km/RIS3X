@@ -257,7 +257,7 @@ export function AppStatistic({
       prefix={prefix}
       suffix={suffix}
       loading={loading}
-      valueStyle={{ color: color ?? 'var(--color-gray-900)', fontSize: 28, fontWeight: 600 }}
+      styles={{ content: {  color: color ?? 'var(--color-gray-900)', fontSize: 28, fontWeight: 600  } }}
     >
       {trend && (
         <div

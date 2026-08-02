@@ -114,7 +114,7 @@ export const RejectTemplateModal: React.FC<RejectTemplateModalProps> = ({
           确认退回
         </Button>,
       ]}
-      destroyOnClose
+      destroyOnHidden
     >
       <Alert
         type="warning"

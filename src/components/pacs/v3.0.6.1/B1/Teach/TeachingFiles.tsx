@@ -55,7 +55,7 @@ export const TeachingFiles: React.FC = () => {
             <Statistic
               title="本月新增"
               value={3}
-              valueStyle={{ color: '#16a34a' }}
+              styles={{ content: {  color: '#16a34a'  } }}
               prefix={<Plus size={14} />}
             />
           </Card>

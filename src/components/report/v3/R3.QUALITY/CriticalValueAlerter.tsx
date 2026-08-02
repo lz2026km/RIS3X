@@ -293,7 +293,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
             <Statistic
               title={<span style={{ color: '#fff' }}>本月总数</span>}
               value={kpi?.totalThisMonth ?? stats.total}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Activity size={14} />}
             />
           </Col>
@@ -301,7 +301,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
             <Statistic
               title={<span style={{ color: '#fff' }}>待通报</span>}
               value={stats.pending}
-              valueStyle={{ color: stats.pending > 0 ? '#fca5a5' : '#fff', fontSize: 18 }}
+              styles={{ content: {  color: stats.pending > 0 ? '#fca5a5' : '#fff', fontSize: 18  } }}
               prefix={<PhoneCall size={14} />}
             />
           </Col>
@@ -309,7 +309,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
             <Statistic
               title={<span style={{ color: '#fff' }}>已确认</span>}
               value={stats.acknowledged}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<CheckCircle2 size={14} />}
             />
           </Col>
@@ -317,7 +317,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
             <Statistic
               title={<span style={{ color: '#fff' }}>已处置</span>}
               value={stats.resolved}
-              valueStyle={{ color: '#bbf7d0', fontSize: 18 }}
+              styles={{ content: {  color: '#bbf7d0', fontSize: 18  } }}
               prefix={<CheckCircle2 size={14} />}
             />
           </Col>
@@ -326,10 +326,10 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
               title={<span style={{ color: '#fff' }}>通报按时率</span>}
               value={(kpi?.onTimeNotificationRate ?? parseFloat(stats.onTimeRate)).toFixed(1)}
               suffix="%"
-              valueStyle={{
+              styles={{ content: { 
                 color: (kpi?.onTimeNotificationRate ?? parseFloat(stats.onTimeRate)) >= 90 ? '#bbf7d0' : '#fca5a5',
                 fontSize: 18,
-              }}
+               } }}
               prefix={<Zap size={14} />}
             />
           </Col>
@@ -337,7 +337,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
             <Statistic
               title={<span style={{ color: '#fff' }}>平均响应(min)</span>}
               value={kpi?.avgResponseTimeMinutes?.toFixed(1) ?? '-'}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Clock size={14} />}
             />
           </Col>
@@ -348,7 +348,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
         <Row gutter={12} style={{ marginBottom: 12 }}>
           <Col span={6}>
             <Card size="small" title="按分级分布">
-              <Space direction="vertical" size={4} style={{ width: '100%' }}>
+              <Space orientation="vertical" size={4} style={{ width: '100%' }}>
                 {(Object.keys(kpi.byLevel) as CriticalLevel[]).map((lv) => {
                   const v = kpi.byLevel[lv] ?? 0;
                   const total = Object.values(kpi.byLevel).reduce((a, b) => a + b, 0) || 1;
@@ -409,7 +409,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
           </Col>
           <Col span={6}>
             <Card size="small" title="30 天趋势">
-              <Space direction="vertical" size={2} style={{ width: '100%' }}>
+              <Space orientation="vertical" size={2} style={{ width: '100%' }}>
                 <Space style={{ width: '100%', justifyContent: 'space-between' }}>
                   <span style={{ fontSize: 12 }}>双审完成率</span>
                   <Tag color="green">{kpi.dualReviewCompletion.toFixed(1)}%</Tag>
@@ -601,7 +601,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                   </div>
                 }
               />
-              <Space direction="vertical" size={2} align="end">
+              <Space orientation="vertical" size={2} align="end">
                 {e.status === 'pending' && (
                   <Button
                     size="small"
@@ -701,7 +701,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
         width={520}
       >
         {detailEvent && (
-          <Space direction="vertical" size={12} style={{ width: '100%' }}>
+          <Space orientation="vertical" size={12} style={{ width: '100%' }}>
             <Card size="small" title="基本信息">
               <Row gutter={[8, 8]}>
                 <Col span={12}>
@@ -886,7 +886,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
             )}
 
             <Card size="small" title="元数据">
-              <Space direction="vertical" size={2} style={{ fontSize: 12 }}>
+              <Space orientation="vertical" size={2} style={{ fontSize: 12 }}>
                 <div>
                   <strong>Event ID:</strong> {detailEvent.id}
                 </div>
@@ -911,7 +911,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
         cancelText="取消"
       >
         {notifyModal.event && (
-          <Space direction="vertical" style={{ width: '100%' }}>
+          <Space orientation="vertical" style={{ width: '100%' }}>
             <div>
               <strong>{notifyModal.event.patientName}</strong> · {notifyModal.event.ruleName}
             </div>

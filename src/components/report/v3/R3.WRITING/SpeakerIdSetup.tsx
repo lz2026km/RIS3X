@@ -168,7 +168,7 @@ export const SpeakerIdSetup: React.FC<Props> = ({ userId, userName, onEnrolled }
           type="success"
           showIcon
           className="mb-3"
-          message={`已注册声纹 · 共 ${existingProfile.enrollmentSamples.length} 个样本 · 成功率 ${(existingProfile.successRate * 100).toFixed(1)}%`}
+          title={`已注册声纹 · 共 ${existingProfile.enrollmentSamples.length} 个样本 · 成功率 ${(existingProfile.successRate * 100).toFixed(1)}%`}
           action={
             <Space>
               <Button size="small" onClick={runVerify}>验证声纹</Button>
@@ -184,7 +184,7 @@ export const SpeakerIdSetup: React.FC<Props> = ({ userId, userName, onEnrolled }
             type="info"
             showIcon
             className="mb-3"
-            message={`请清晰朗读以下内容 ${SAMPLE_COUNT} 次,每次 3 秒`}
+            title={`请清晰朗读以下内容 ${SAMPLE_COUNT} 次,每次 3 秒`}
             description={<span className="text-xs italic">{SAMPLE_PHRASE}</span>}
           />
           <div className="bg-purple-50 border border-purple-200 rounded p-4 mb-3 text-center">
@@ -228,8 +228,8 @@ export const SpeakerIdSetup: React.FC<Props> = ({ userId, userName, onEnrolled }
           {samples.length > 0 && (
             <div className="mt-3 pt-3 border-t border-slate-200">
               <Row gutter={8}>
-                <Col span={8}><Statistic title="已采集" value={`${samples.length}/${SAMPLE_COUNT}`} valueStyle={{ fontSize: 14 }} /></Col>
-                <Col span={8}><Statistic title="平均质量" value={(avgQuality * 100).toFixed(0)} suffix="%" valueStyle={{ fontSize: 14, color: avgQuality >= 0.85 ? '#10b981' : '#f59e0b' }} /></Col>
+                <Col span={8}><Statistic title="已采集" value={`${samples.length}/${SAMPLE_COUNT}`} styles={{ content: {  fontSize: 14  } }} /></Col>
+                <Col span={8}><Statistic title="平均质量" value={(avgQuality * 100).toFixed(0)} suffix="%" styles={{ content: {  fontSize: 14, color: avgQuality >= 0.85 ? '#10b981' : '#f59e0b'  } }} /></Col>
                 <Col span={8}><Button type="primary" size="small" icon={<Save className="w-3 h-3" />} onClick={enrollProfile} disabled={samples.length < SAMPLE_COUNT} block>提交注册</Button></Col>
               </Row>
             </div>
@@ -246,11 +246,11 @@ export const SpeakerIdSetup: React.FC<Props> = ({ userId, userName, onEnrolled }
 
       {step === 2 && existingProfile && (
         <div>
-          <Alert type="success" showIcon className="mb-3" message="声纹注册成功!" description={`已为 ${existingProfile.userName} 建立声纹档案`} />
+          <Alert type="success" showIcon className="mb-3" title="声纹注册成功!" description={`已为 ${existingProfile.userName} 建立声纹档案`} />
           <Row gutter={8} className="mb-3">
-            <Col span={8}><Statistic title="样本数" value={existingProfile.enrollmentSamples.length} valueStyle={{ fontSize: 14 }} /></Col>
-            <Col span={8}><Statistic title="基频" value={existingProfile.pitchMean.toFixed(1)} suffix="Hz" valueStyle={{ fontSize: 14 }} /></Col>
-            <Col span={8}><Statistic title="语速" value={existingProfile.speechRate.toFixed(0)} suffix="字/分" valueStyle={{ fontSize: 14 }} /></Col>
+            <Col span={8}><Statistic title="样本数" value={existingProfile.enrollmentSamples.length} styles={{ content: {  fontSize: 14  } }} /></Col>
+            <Col span={8}><Statistic title="基频" value={existingProfile.pitchMean.toFixed(1)} suffix="Hz" styles={{ content: {  fontSize: 14  } }} /></Col>
+            <Col span={8}><Statistic title="语速" value={existingProfile.speechRate.toFixed(0)} suffix="字/分" styles={{ content: {  fontSize: 14  } }} /></Col>
           </Row>
           <Space>
             <Button type="primary" icon={<Shield className="w-4 h-4" />} onClick={runVerify}>立即验证</Button>

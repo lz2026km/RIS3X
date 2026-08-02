@@ -70,7 +70,7 @@ export const RevocationList: React.FC<RevocationListProps> = ({ autoLoad = true 
       extra={<Button icon={<RefreshCw size={14} />} onClick={() => void load()} loading={loading}>刷新</Button>}
       style={{ width: '100%' }}
     >
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
+      {error && <Alert type="error" showIcon title={error} style={{ marginBottom: 12 }} />}
 
       {crlFull && (
         <Row gutter={16} style={{ marginBottom: 12 }}>
@@ -111,7 +111,7 @@ export const RevocationList: React.FC<RevocationListProps> = ({ autoLoad = true 
             key: 'ocsp',
             label: 'OCSP 查询',
             children: (
-              <Space direction="vertical" style={{ width: '100%' }}>
+              <Space orientation="vertical" style={{ width: '100%' }}>
                 <Space>
                   <input
                     placeholder="输入证书序列号"

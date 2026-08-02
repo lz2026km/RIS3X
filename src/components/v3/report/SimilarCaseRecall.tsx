@@ -225,7 +225,7 @@ export const SimilarCaseRecall: React.FC<SimilarCaseRecallProps> = ({
       >
         {currentReport && (
           <Card size="small" style={{ marginBottom: 12, background: '#f0f9ff' }} data-testid="sc-current">
-            <Space direction="vertical" size={2} style={{ width: '100%' }}>
+            <Space orientation="vertical" size={2} style={{ width: '100%' }}>
               <div style={{ fontSize: 12, fontWeight: 600 }}>
                 <Filter size={12} /> 当前报告:
               </div>
@@ -249,7 +249,7 @@ export const SimilarCaseRecall: React.FC<SimilarCaseRecallProps> = ({
           </Col>
           <Col span={6}>
             <Card size="small">
-              <Statistic title="匹配" value={stats.matched} valueStyle={{ color: '#3b82f6' }} />
+              <Statistic title="匹配" value={stats.matched} styles={{ content: {  color: '#3b82f6'  } }} />
             </Card>
           </Col>
           <Col span={6}>
@@ -259,12 +259,12 @@ export const SimilarCaseRecall: React.FC<SimilarCaseRecallProps> = ({
           </Col>
           <Col span={6}>
             <Card size="small">
-              <Statistic title="最高相似度" value={stats.topScore + '%'} valueStyle={{ color: '#16a34a' }} />
+              <Statistic title="最高相似度" value={stats.topScore + '%'} styles={{ content: {  color: '#16a34a'  } }} />
             </Card>
           </Col>
         </Row>
 
-        <Space direction="vertical" size={8} style={{ width: '100%', marginBottom: 12 }}>
+        <Space orientation="vertical" size={8} style={{ width: '100%', marginBottom: 12 }}>
           <Input
             prefix={<Search size={12} />}
             placeholder="搜索病例..."

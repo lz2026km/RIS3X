@@ -110,9 +110,9 @@ export const DentalSchedulePage: React.FC = () => {
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={3}><Card size="small"><Statistic title="今日预约" value={stats?.todayAppointments || 0} /></Card></Col>
-        <Col span={3}><Card size="small"><Statistic title="已完成" value={stats?.completed || 0} valueStyle={{color:'#52c41a'}} /></Card></Col>
-        <Col span={3}><Card size="small"><Statistic title="进行中" value={stats?.inProgress || 0} valueStyle={{color:'#faad14'}} /></Card></Col>
-        <Col span={3}><Card size="small"><Statistic title="爽约" value={stats?.noShow || 0} valueStyle={{color:'#ff4d4f'}} /></Card></Col>
+        <Col span={3}><Card size="small"><Statistic title="已完成" value={stats?.completed || 0} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
+        <Col span={3}><Card size="small"><Statistic title="进行中" value={stats?.inProgress || 0} styles={{ content: { color:'#faad14' } }} /></Card></Col>
+        <Col span={3}><Card size="small"><Statistic title="爽约" value={stats?.noShow || 0} styles={{ content: { color:'#ff4d4f' } }} /></Card></Col>
         <Col span={3}><Card size="small"><Statistic title="椅位利用率" value={Math.round((stats?.chairUtilization||0)*100)} suffix="%" /></Card></Col>
         <Col span={3}><Card size="small"><Statistic title="平均等待" value={stats?.avgWaitTime || 0} suffix="min" /></Card></Col>
         <Col span={6}><DatePicker value={null} defaultValue={null} placeholder={selectedDate} onChange={d => d && setSelectedDate(d.format('YYYY-MM-DD'))} style={{width:'100%'}} /></Col>

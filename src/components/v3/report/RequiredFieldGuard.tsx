@@ -312,7 +312,7 @@ export const RequiredFieldGuard: React.FC<RequiredFieldGuardProps> = ({
         <Alert
           type="error"
           showIcon
-          message={`发现 ${result.errors.length} 个必填/错误项,请修正后再提交`}
+          title={`发现 ${result.errors.length} 个必填/错误项,请修正后再提交`}
           style={{ marginBottom: 12 }}
         />
         <List

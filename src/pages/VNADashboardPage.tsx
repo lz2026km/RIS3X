@@ -51,19 +51,19 @@ export default function VNADashboardPage() {
       </Card>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card><Statistic title="集群状态" value={onlineNodes === VNA_NODES.length ? "健康" : "降级"} valueStyle={{ color: degradedNodes > 0 ? "#f59e0b" : "#10b981" }} prefix={onlineNodes === VNA_NODES.length ? <CheckCircle size={16} /> : <AlertTriangle size={16} />} /></Card></Col>
-        <Col span={4}><Card><Statistic title="总实例数" value={totalInstances} prefix={<Database size={16} />} valueStyle={{ color: "#7c3aed" }} /></Card></Col>
-        <Col span={4}><Card><Statistic title="总研究数" value="148,523" valueStyle={{ color: "#0891b2" }} /></Card></Col>
-        <Col span={4}><Card><Statistic title="缓存命中率" value={(avgHitRate * 100).toFixed(1)} suffix="%" valueStyle={{ color: "#10b981" }} prefix={<Zap size={16} />} /></Card></Col>
-        <Col span={4}><Card><Statistic title="存储 (TB)" value={(totalCapacity / 1024).toFixed(1)} valueStyle={{ color: "#dc2626" }} /></Card></Col>
-        <Col span={4}><Card><Statistic title="关联数 (DICOM)" value="124" valueStyle={{ color: "#1e40af" }} /></Card></Col>
+        <Col span={4}><Card><Statistic title="集群状态" value={onlineNodes === VNA_NODES.length ? "健康" : "降级"} styles={{ content: {  color: degradedNodes > 0 ? "#f59e0b" : "#10b981"  } }} prefix={onlineNodes === VNA_NODES.length ? <CheckCircle size={16} /> : <AlertTriangle size={16} />} /></Card></Col>
+        <Col span={4}><Card><Statistic title="总实例数" value={totalInstances} prefix={<Database size={16} />} styles={{ content: {  color: "#7c3aed"  } }} /></Card></Col>
+        <Col span={4}><Card><Statistic title="总研究数" value="148,523" styles={{ content: {  color: "#0891b2"  } }} /></Card></Col>
+        <Col span={4}><Card><Statistic title="缓存命中率" value={(avgHitRate * 100).toFixed(1)} suffix="%" styles={{ content: {  color: "#10b981"  } }} prefix={<Zap size={16} />} /></Card></Col>
+        <Col span={4}><Card><Statistic title="存储 (TB)" value={(totalCapacity / 1024).toFixed(1)} styles={{ content: {  color: "#dc2626"  } }} /></Card></Col>
+        <Col span={4}><Card><Statistic title="关联数 (DICOM)" value="124" styles={{ content: {  color: "#1e40af"  } }} /></Card></Col>
       </Row>
 
       {degradedNodes > 0 && (
         <Alert
           type="warning"
           showIcon
-          message={`检测到 ${degradedNodes} 个节点降级运行`}
+          title={`检测到 ${degradedNodes} 个节点降级运行`}
           description="VNA-CACHE-QD (青岛) 节点 IO 负载过高 (85%)，缓存命中率下降至 78%。建议扩容或迁移负载。"
           style={{ marginBottom: 16 }}
         />
@@ -104,7 +104,7 @@ export default function VNADashboardPage() {
           <Card title={<Space><Zap size={16} />缓存指标</Space>} style={{ marginBottom: 16 }}>
             <Statistic title="总请求数" value={CACHE_METRICS.totalRequests.toLocaleString()} />
             <div style={{ marginTop: 8 }}>
-              <Space direction="vertical" size={4} style={{ width: "100%" }}>
+              <Space orientation="vertical" size={4} style={{ width: "100%" }}>
                 <div style={{ display: "flex", justifyContent: "space-between" }}><Text>命中</Text><Text strong>{CACHE_METRICS.cacheHits.toLocaleString()}</Text></div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}><Text>未命中</Text><Text type="danger">{CACHE_METRICS.cacheMisses.toLocaleString()}</Text></div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}><Text>驱逐</Text><Text>{CACHE_METRICS.evictions.toLocaleString()}</Text></div>

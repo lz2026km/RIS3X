@@ -33,7 +33,7 @@ export const TerminologyServerPage: React.FC = () => {
         <Col span={4}><Card size="small"><Statistic title="Total Concepts" value="24,582" prefix={<Code size={14}/>} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="Mappings" value={mappings.length} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="Systems" value="4" /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Active Mappings" value={mappings.filter(m=>m.status==='active').length} valueStyle={{color:'#52c41a'}} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="Active Mappings" value={mappings.filter(m=>m.status==='active').length} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
       </Row>
       <Card size="small" title={<Space><Search size={14}/>Concept Search</Space>}>
         <Input.Search value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search by code, term, or concept ID..." style={{maxWidth:500,marginBottom:16}} />

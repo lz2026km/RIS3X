@@ -171,14 +171,14 @@ export const CBCTViewer: React.FC<CBCTViewerProps> = ({
     <div style={{ position: 'relative', height, background: '#000', borderRadius: 8, overflow: 'hidden' }}>
       <div ref={elementRef} style={{ width: '100%', height: '100%' }} />
       {resolvedImageIds.length === 0 && (
-        <Alert type="warning" message="未找到 DICOM 图像" description="请从 PACS 返回 wadouri/wadors DICOM 路径" style={{ position: 'absolute', left: 12, right: 12, top: 12 }} />
+        <Alert type="warning" title="未找到 DICOM 图像" description="请从 PACS 返回 wadouri/wadors DICOM 路径" style={{ position: 'absolute', left: 12, right: 12, top: 12 }} />
       )}
       {loading && (
         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.45)' }}>
           <Spin />
         </div>
       )}
-      {error && <Alert type="error" message={error} style={{ position: 'absolute', left: 12, right: 12, bottom: 12 }} />}
+      {error && <Alert type="error" title={error} style={{ position: 'absolute', left: 12, right: 12, bottom: 12 }} />}
       <div style={{ position: 'absolute', top: 8, left: 8, display: 'flex', gap: 4, pointerEvents: 'none' }}>
         <Tag color="cyan">Cornerstone3D</Tag>
         <Tag color="blue">{view === 'volume' ? 'Volume Rendering' : view.toUpperCase()}</Tag>

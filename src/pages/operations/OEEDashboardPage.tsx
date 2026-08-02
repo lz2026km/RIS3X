@@ -62,7 +62,7 @@ export const OEEDashboardPage: React.FC = () => {
 
   const KpiCard = ({ title, value, icon, color, suffix }: { title: string; value: number; icon: React.ReactNode; color: string; suffix?: string }) => (
     <Card size="small" hoverable style={{ borderLeft: `4px solid ${color}` }}>
-      <Statistic title={<Space><span style={{ color }}>{icon}</span>{title}</Space>} value={value} suffix={suffix || '%'} valueStyle={{ color }} precision={1} />
+      <Statistic title={<Space><span style={{ color }}>{icon}</span>{title}</Space>} value={value} suffix={suffix || '%'} styles={{ content: {  color  } }} precision={1} />
     </Card>
   );
 

@@ -157,7 +157,7 @@ export const StructuredFieldForm: React.FC<Props> = ({
             value={values[f.key] as number | null}
             min={f.min}
             max={f.max}
-            addonAfter={f.unitOptions ? (
+            suffix={f.unitOptions ? (
               <Select size="small" defaultValue={f.unit ?? f.unitOptions[0]} style={{ width: 70 }} options={f.unitOptions.map((u) => ({ value: u, label: u }))} />
             ) : f.unit}
             onChange={(v) => handleValueChange(f.key, v)}
@@ -323,12 +323,12 @@ export const StructuredFieldForm: React.FC<Props> = ({
               value={completion.percent}
               suffix="%"
               prefix={completion.percent === 100 ? <CheckCircle2 className="w-4 h-4" style={{ color: '#10b981' }} /> : <AlertTriangle className="w-4 h-4" style={{ color: '#f59e0b' }} />}
-              valueStyle={{ color: completion.percent === 100 ? '#10b981' : '#f59e0b', fontSize: 24 }}
+              styles={{ content: {  color: completion.percent === 100 ? '#10b981' : '#f59e0b', fontSize: 24  } }}
             />
             <Progress percent={completion.percent} showInfo={false} strokeColor={completion.percent === 100 ? '#10b981' : '#f59e0b'} />
           </Col>
           <Col span={6}>
-            <Statistic title="字段质量分" value={fieldScore} suffix="/100" prefix={<Award className="w-4 h-4" style={{ color: '#3b82f6' }} />} valueStyle={{ color: '#3b82f6', fontSize: 24 }} />
+            <Statistic title="字段质量分" value={fieldScore} suffix="/100" prefix={<Award className="w-4 h-4" style={{ color: '#3b82f6' }} />} styles={{ content: {  color: '#3b82f6', fontSize: 24  } }} />
           </Col>
           <Col span={6}>
             <Statistic title="已填字段" value={completion.filled} suffix={`/ ${completion.total}`} prefix={<Hash className="w-4 h-4" style={{ color: '#8b5cf6' }} />} />
@@ -382,7 +382,7 @@ const SummaryCard: React.FC<{ templateId: StructuredTemplate['id']; values: Reco
         <Row gutter={16}>
           <Col span={6}><Statistic title="长径总和" value={response.sumOfDiameters} suffix="mm" /></Col>
           <Col span={6}><Statistic title="基线总和" value={response.baselineSum} suffix="mm" /></Col>
-          <Col span={6}><Statistic title="变化" value={response.percentChange} suffix="%" precision={1} valueStyle={{ color: response.percentChange < 0 ? '#10b981' : '#dc2626' }} /></Col>
+          <Col span={6}><Statistic title="变化" value={response.percentChange} suffix="%" precision={1} styles={{ content: {  color: response.percentChange < 0 ? '#10b981' : '#dc2626'  } }} /></Col>
           <Col span={6}>
             <Tag color={{ CR: 'green', PR: 'blue', SD: 'orange', PD: 'red', NE: 'default' }[response.category]} style={{ fontSize: 16, padding: '4px 12px' }}>
               {response.categoryLabel} ({response.category})

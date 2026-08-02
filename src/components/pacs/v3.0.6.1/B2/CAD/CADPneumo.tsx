@@ -33,7 +33,7 @@ export const CADPneumo: React.FC<CADPneumoProps> = ({ onAccept }) => {
             <Statistic
               title="危急"
               value={MOCK.filter((d) => d.severity === 'CRITICAL').length}
-              valueStyle={{ color: '#dc2626' }}
+              styles={{ content: {  color: '#dc2626'  } }}
               prefix={<AlertCircle size={14} />}
             />
           </Card>
@@ -45,7 +45,7 @@ export const CADPneumo: React.FC<CADPneumoProps> = ({ onAccept }) => {
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Space direction="vertical" size={4} style={{ width: '100%' }}>
+            <Space orientation="vertical" size={4} style={{ width: '100%' }}>
               <span style={{ fontSize: 12 }}>阈值:{threshold.toFixed(2)}</span>
               <Slider min={0} max={1} step={0.05} value={threshold} onChange={setThreshold} />
               <Switch size="small" checked={autoAck} onChange={setAutoAck} checkedChildren="自动确认" unCheckedChildren="手动" />

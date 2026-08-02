@@ -73,7 +73,7 @@ const PacsAdminPage: React.FC = () => {
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}><Card><Statistic title="服务器" value={servers.length} prefix={<Server size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title="在线" value={servers.filter(s => s.status === 'online').length} prefix={<Wifi size={16} />} valueStyle={{ color: '#52c41a' }} /></Card></Col>
+        <Col span={6}><Card><Statistic title="在线" value={servers.filter(s => s.status === 'online').length} prefix={<Wifi size={16} />} styles={{ content: {  color: '#52c41a'  } }} /></Card></Col>
         <Col span={6}><Card><Statistic title="总检查数" value={servers.reduce((s, sv) => s + sv.studyCount, 0).toLocaleString()} prefix={<Activity size={16} />} /></Card></Col>
         <Col span={6}><Card><Statistic title="总存储" value={formatBytes(servers.reduce((s, sv) => s + sv.storageBytes, 0))} prefix={<Database size={16} />} /></Card></Col>
       </Row>

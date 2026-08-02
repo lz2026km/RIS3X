@@ -125,10 +125,10 @@ export const ReviewCheckPage: React.FC = () => {
 
       {initialSummary && (
         <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={5}><Card size="small"><Statistic title="初核待审" value={initialSummary.pending} valueStyle={{ color: '#faad14' }} /></Card></Col>
-          <Col span={5}><Card size="small"><Statistic title="初核已通过" value={initialSummary.approved} valueStyle={{ color: '#52c41a' }} /></Card></Col>
-          <Col span={5}><Card size="small"><Statistic title="终核已通过" value={finalSummary?.approved || 0} valueStyle={{ color: '#52c41a' }} /></Card></Col>
-          <Col span={5}><Card size="small"><Statistic title="复审工作量" value={workload?.pending || 0} valueStyle={{ color: '#1677ff' }} /></Card></Col>
+          <Col span={5}><Card size="small"><Statistic title="初核待审" value={initialSummary.pending} styles={{ content: {  color: '#faad14'  } }} /></Card></Col>
+          <Col span={5}><Card size="small"><Statistic title="初核已通过" value={initialSummary.approved} styles={{ content: {  color: '#52c41a'  } }} /></Card></Col>
+          <Col span={5}><Card size="small"><Statistic title="终核已通过" value={finalSummary?.approved || 0} styles={{ content: {  color: '#52c41a'  } }} /></Card></Col>
+          <Col span={5}><Card size="small"><Statistic title="复审工作量" value={workload?.pending || 0} styles={{ content: {  color: '#1677ff'  } }} /></Card></Col>
         </Row>
       )}
 
@@ -193,8 +193,8 @@ export const ReviewCheckPage: React.FC = () => {
             size="small"
             extra={
               <Space>
-                <Statistic title="平均评分" value={finalSummary?.avgScore || 0} valueStyle={{ color: '#52c41a', fontSize: 14 }} />
-                <Statistic title="平均 TAT" value={(finalSummary?.avgTAT || 0).toFixed(1)} suffix="h" valueStyle={{ color: '#1677ff', fontSize: 14 }} />
+                <Statistic title="平均评分" value={finalSummary?.avgScore || 0} styles={{ content: {  color: '#52c41a', fontSize: 14  } }} />
+                <Statistic title="平均 TAT" value={(finalSummary?.avgTAT || 0).toFixed(1)} suffix="h" styles={{ content: {  color: '#1677ff', fontSize: 14  } }} />
                 <Button icon={<RefreshCw size={12} />} onClick={loadFinal}>刷新</Button>
               </Space>
             }
@@ -231,9 +231,9 @@ export const ReviewCheckPage: React.FC = () => {
         <Tabs.TabPane tab={<span><Shield size={14} /> 复审 (14 端点)</span>} key="review">
           <Row gutter={16} style={{ marginBottom: 16 }}>
             <Col span={6}><Card size="small"><Statistic title="总任务" value={reviews.length} /></Card></Col>
-            <Col span={6}><Card size="small"><Statistic title="待审" value={reviews.filter(r => r.status === 'pending').length} valueStyle={{ color: '#faad14' }} /></Card></Col>
-            <Col span={6}><Card size="small"><Statistic title="已完成" value={reviews.filter(r => r.status === 'approved').length} valueStyle={{ color: '#52c41a' }} /></Card></Col>
-            <Col span={6}><Card size="small"><Statistic title="SLA 达成" value={sla ? `${sla.onTime}/${sla.total}` : '-'} valueStyle={{ color: '#52c41a' }} /></Card></Col>
+            <Col span={6}><Card size="small"><Statistic title="待审" value={reviews.filter(r => r.status === 'pending').length} styles={{ content: {  color: '#faad14'  } }} /></Card></Col>
+            <Col span={6}><Card size="small"><Statistic title="已完成" value={reviews.filter(r => r.status === 'approved').length} styles={{ content: {  color: '#52c41a'  } }} /></Card></Col>
+            <Col span={6}><Card size="small"><Statistic title="SLA 达成" value={sla ? `${sla.onTime}/${sla.total}` : '-'} styles={{ content: {  color: '#52c41a'  } }} /></Card></Col>
           </Row>
           <Card
             title="复审任务"
@@ -278,7 +278,7 @@ export const ReviewCheckPage: React.FC = () => {
       >
         {initialActionModal && (
           <div>
-            <Alert message={`报告: ${initialActionModal.item.reportId} | ${initialActionModal.item.patientName}`} type="info" showIcon style={{ marginBottom: 12 }} />
+            <Alert title={`报告: ${initialActionModal.item.reportId} | ${initialActionModal.item.patientName}`} type="info" showIcon style={{ marginBottom: 12 }} />
             <Form.Item label="原因/备注">
               <TextArea rows={3} value={actionReason} onChange={e => setActionReason(e.target.value)} />
             </Form.Item>
@@ -296,7 +296,7 @@ export const ReviewCheckPage: React.FC = () => {
       >
         {finalActionModal && (
           <div>
-            <Alert message={`报告: ${finalActionModal.item.reportId}`} type="info" showIcon style={{ marginBottom: 12 }} />
+            <Alert title={`报告: ${finalActionModal.item.reportId}`} type="info" showIcon style={{ marginBottom: 12 }} />
             {finalActionModal.type === 'score' && (
               <Form.Item label="评分 (0-100)">
                 <InputNumber min={0} max={100} value={scoreValue} onChange={v => setScoreValue(v || 85)} style={{ width: '100%' }} />

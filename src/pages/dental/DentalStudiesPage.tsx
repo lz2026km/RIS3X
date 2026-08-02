@@ -48,10 +48,10 @@ export const DentalStudiesPage: React.FC = () => {
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}><Card size="small"><Statistic title="全部" value={stats.total} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="CBCT" value={stats.cbct} valueStyle={{ color: '#722ed1' }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="全景片" value={stats.panoramic} valueStyle={{ color: '#1677ff' }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="根尖片" value={stats.periapical} valueStyle={{ color: '#52c41a' }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="口扫" value={stats.scan} valueStyle={{ color: '#13c2c2' }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="CBCT" value={stats.cbct} styles={{ content: {  color: '#722ed1'  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="全景片" value={stats.panoramic} styles={{ content: {  color: '#1677ff'  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="根尖片" value={stats.periapical} styles={{ content: {  color: '#52c41a'  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="口扫" value={stats.scan} styles={{ content: {  color: '#13c2c2'  } }} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="今日" value={studies.filter(s => s.acquisitionDate === new Date().toISOString().slice(0,10)).length} /></Card></Col>
       </Row>
       <Card

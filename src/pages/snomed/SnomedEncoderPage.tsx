@@ -166,17 +166,17 @@ const SnomedEncoderPage: React.FC = () => {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}>
           <Card>
-            <Statistic title="匹配编码" value={codes.length} valueStyle={{ color: '#1677ff' }} />
+            <Statistic title="匹配编码" value={codes.length} styles={{ content: {  color: '#1677ff'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="精确匹配" value={exactCount} valueStyle={{ color: '#52c41a' }} />
+            <Statistic title="精确匹配" value={exactCount} styles={{ content: {  color: '#52c41a'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="部分匹配" value={partialCount} valueStyle={{ color: '#fa8c16' }} />
+            <Statistic title="部分匹配" value={partialCount} styles={{ content: {  color: '#fa8c16'  } }} />
           </Card>
         </Col>
         <Col span={6}>

@@ -353,21 +353,19 @@ export default function DataReportCenterPage() {
           <div style={{ padding: '8px 0' }}>
             <Collapse
               ghost
-              expandIconPosition="end"
+              expandIconPlacement="end"
               activeKey={expandedKeys}
               onChange={(keys) => setExpandedKeys(keys as string[])}
               size="small"
-            >
-              {treeData.map((cat) => (
-                <Panel
-                  key={cat.key}
-                  header={
-                    <span style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>
-                      {cat.title}
-                      <Tag style={{ marginLeft: 6, fontSize: 10 }}>{cat.children?.length || 0}</Tag>
-                    </span>
-                  }
-                >
+              items={treeData.map((cat) => ({
+                key: cat.key,
+                label: (
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>
+                    {cat.title}
+                    <Tag style={{ marginLeft: 6, fontSize: 10 }}>{cat.children?.length || 0}</Tag>
+                  </span>
+                ),
+                children: (
                   <Menu
                     mode="inline"
                     selectedKeys={[selectedReportId]}
@@ -403,9 +401,9 @@ export default function DataReportCenterPage() {
                     }))}
                     onClick={({ key }) => setSelectedReportId(key)}
                   />
-                </Panel>
-              ))}
-            </Collapse>
+                ),
+              }))}
+            />
           </div>
         </Sider>
         <Content style={{ padding: 16, overflow: 'auto', height: fullscreen ? 'calc(100vh - 56px)' : 'calc(100vh - 56px)' }}>

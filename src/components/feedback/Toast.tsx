@@ -167,7 +167,7 @@ export interface AppModalProps {
   /** 点击遮罩关闭 */
   maskClosable?: boolean;
   /** 销毁内部(关闭后不保留) */
-  destroyOnClose?: boolean;
+  destroyOnHidden?: boolean;
   /** a11y: aria-describedby */
   description?: ReactNode;
 }
@@ -184,7 +184,7 @@ export function AppModal({
   confirmLoading = false,
   keyboard = true,
   maskClosable = true,
-  destroyOnClose = true,
+  destroyOnHidden = true,
   description,
 }: AppModalProps) {
   const { t } = useTranslation();
@@ -203,7 +203,7 @@ export function AppModal({
       confirmLoading={confirmLoading}
       keyboard={keyboard}
       maskClosable={maskClosable}
-      destroyOnClose={destroyOnClose}
+      destroyOnHidden={destroyOnHidden}
       // a11y (v3.0.3.31: 修复 dangling aria-labelledby 引用 - AntD Modal 自动管理 id)
       aria-describedby={description ? 'app-modal-desc' : undefined}
     >

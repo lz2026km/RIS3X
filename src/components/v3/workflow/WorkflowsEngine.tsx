@@ -102,13 +102,13 @@ export const WorkflowsEngine: React.FC<WorkflowsEngineProps> = ({ workflows, onA
           <Statistic title="总工作流" value={stats.total} />
         </Col>
         <Col span={6}>
-          <Statistic title="运行中" value={stats.running} valueStyle={{ color: '#3b82f6' }} />
+          <Statistic title="运行中" value={stats.running} styles={{ content: {  color: '#3b82f6'  } }} />
         </Col>
         <Col span={6}>
-          <Statistic title="已完成" value={stats.completed} valueStyle={{ color: '#16a34a' }} />
+          <Statistic title="已完成" value={stats.completed} styles={{ content: {  color: '#16a34a'  } }} />
         </Col>
         <Col span={6}>
-          <Statistic title="失败" value={stats.failed} valueStyle={{ color: '#dc2626' }} />
+          <Statistic title="失败" value={stats.failed} styles={{ content: {  color: '#dc2626'  } }} />
         </Col>
       </Row>
 
@@ -131,7 +131,7 @@ export const WorkflowsEngine: React.FC<WorkflowsEngineProps> = ({ workflows, onA
       {filtered.length === 0 ? (
         <Empty description="无工作流" />
       ) : (
-        <Space direction="vertical" size={8} style={{ width: '100%' }} data-testid="we-list">
+        <Space orientation="vertical" size={8} style={{ width: '100%' }} data-testid="we-list">
           {filtered.map((w) => {
             const sm = STATE_META[w.state]
             const currentIdx = w.nodes.findIndex((n) => n.id === w.currentNodeId)

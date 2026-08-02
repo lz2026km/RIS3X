@@ -113,10 +113,10 @@ export const HsmConfigPanel: React.FC<HsmConfigProps> = ({ onConfigChange }) => 
       }
       style={{ width: '100%' }}
     >
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
+      {error && <Alert type="error" showIcon title={error} style={{ marginBottom: 12 }} />}
 
       {!initialized && (
-        <Alert type="info" showIcon message="HSM 未初始化" description="点击「初始化 HSM」以连接 PKCS#11 设备" />
+        <Alert type="info" showIcon title="HSM 未初始化" description="点击「初始化 HSM」以连接 PKCS#11 设备" />
       )}
 
       {config && (

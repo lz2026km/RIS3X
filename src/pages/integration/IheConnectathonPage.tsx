@@ -210,7 +210,7 @@ export const IheConnectathonPage: React.FC = () => {
               </Space>
             }
           >
-            <Space direction="vertical" className="w-full">
+            <Space orientation="vertical" className="w-full">
               <div>
                 <div className="text-xs text-slate-500">
                   <span style={{ color: "red" }}>*</span> 名称
@@ -338,7 +338,7 @@ export const IheConnectathonPage: React.FC = () => {
                       style={{ color: "#7c3aed" }}
                     />
                   }
-                  valueStyle={{ fontSize: 16 }}
+                  styles={{ content: {  fontSize: 16  } }}
                 />
               </Card>
             </Col>
@@ -353,7 +353,7 @@ export const IheConnectathonPage: React.FC = () => {
                       style={{ color: "#10b981" }}
                     />
                   }
-                  valueStyle={{ fontSize: 16 }}
+                  styles={{ content: {  fontSize: 16  } }}
                   suffix={`/ ${session?.totalCount ?? 0}`}
                 />
               </Card>
@@ -369,7 +369,7 @@ export const IheConnectathonPage: React.FC = () => {
                       style={{ color: "#f59e0b" }}
                     />
                   }
-                  valueStyle={{ fontSize: 16 }}
+                  styles={{ content: {  fontSize: 16  } }}
                 />
               </Card>
             </Col>
@@ -381,7 +381,7 @@ export const IheConnectathonPage: React.FC = () => {
                   prefix={
                     <XCircle className="w-3 h-3" style={{ color: "#dc2626" }} />
                   }
-                  valueStyle={{ fontSize: 16 }}
+                  styles={{ content: {  fontSize: 16  } }}
                 />
               </Card>
             </Col>
@@ -393,7 +393,7 @@ export const IheConnectathonPage: React.FC = () => {
                   prefix={
                     <Clock className="w-3 h-3" style={{ color: "#64748b" }} />
                   }
-                  valueStyle={{ fontSize: 16 }}
+                  styles={{ content: {  fontSize: 16  } }}
                 />
               </Card>
             </Col>

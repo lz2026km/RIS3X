@@ -252,7 +252,7 @@ const ThirdPartyAiPage: React.FC = () => {
             <Statistic
               title="已连接"
               value={connected}
-              valueStyle={{ color: "#52c41a" }}
+              styles={{ content: {  color: "#52c41a"  } }}
               prefix={<CheckCircle size={16} />}
             />
           </Card>
@@ -281,7 +281,7 @@ const ThirdPartyAiPage: React.FC = () => {
           type="error"
           showIcon
           style={{ marginBottom: 16 }}
-          message={error}
+          title={error}
           action={
             <Button size="small" onClick={() => void load()}>
               重试

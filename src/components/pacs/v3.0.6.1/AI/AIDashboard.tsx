@@ -54,7 +54,7 @@ export const AIDashboard: React.FC = () => {
               title="成功率"
               value={Math.round((totals.success / totals.calls) * 100)}
               suffix="%"
-              valueStyle={{ color: '#16a34a' }}
+              styles={{ content: {  color: '#16a34a'  } }}
               prefix={<CheckCircle size={14} />}
             />
           </Card>

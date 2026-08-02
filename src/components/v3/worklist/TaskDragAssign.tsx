@@ -82,7 +82,7 @@ const DraggableCard: React.FC<{
               </div>
             )}
           </div>
-          <Space direction="vertical" size={4} align="end">
+          <Space orientation="vertical" size={4} align="end">
             <Tag color={priorityColor[item.priority]}>{item.priority}</Tag>
             {item.assignee && (
               <Tooltip title={item.assignee}>

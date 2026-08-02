@@ -167,7 +167,7 @@ export default function RadiomicsPage() {
         <Col span={12}>
           <Card title={t('radiomics:selectInstance')} size="small">
             {rois.map((roi, idx) => (
-              <Space key={roi.key} direction="vertical" style={{ width: '100%', marginBottom: 16 }}>
+              <Space key={roi.key} orientation="vertical" style={{ width: '100%', marginBottom: 16 }}>
                 <Space>
                   <Text strong>ROI #{idx + 1}</Text>
                   {rois.length > 1 && (
@@ -234,7 +234,7 @@ export default function RadiomicsPage() {
                 scroll={{ y: 360 }}
               />
             ) : (
-              <Alert message={t('radiomics:noData')} type="info" showIcon />
+              <Alert title={t('radiomics:noData')} type="info" showIcon />
             )}
           </Card>
         </Col>

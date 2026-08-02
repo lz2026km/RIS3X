@@ -44,7 +44,7 @@ export const AiFusionWorkspacePage: React.FC = () => {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}><Card size="small"><Statistic title="Fusion Studies" value={studies.length} prefix={<Layers size={14}/>} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="AI Insights" value={aiInsights.length} prefix={<Sparkles size={14}/>} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Actionable Alerts" value={aiInsights.filter(i=>i.actionable).length} valueStyle={{color:'#ff4d4f'}} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="Actionable Alerts" value={aiInsights.filter(i=>i.actionable).length} styles={{ content: { color:'#ff4d4f' } }} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="Avg Fusion Score" value={studies.length > 0 ? (studies.reduce((a,s)=>a+s.fusionScore,0)/studies.length*100).toFixed(0) : '0'} suffix="%" /></Card></Col>
       </Row>
       <Segmented value={modality} onChange={setModality as any}

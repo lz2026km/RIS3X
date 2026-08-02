@@ -188,7 +188,7 @@ export const CADOverlay: React.FC<CADOverlayProps> = ({
 
       <div>
         <Card size="small" title="图例" style={{ marginBottom: 12 }}>
-          <Space direction="vertical" style={{ width: '100%' }} size={4}>
+          <Space orientation="vertical" style={{ width: '100%' }} size={4}>
             {['nodule', 'calcification'].map((t) => (
               <div
                 key={t}

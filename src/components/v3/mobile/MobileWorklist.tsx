@@ -95,9 +95,9 @@ export const MobileWorklist: React.FC<MobileWorklistProps> = ({ items, onSelect,
         </div>
       )}
       <ARow gutter={8} style={{ marginBottom: 12 }}>
-        <ACol span={8}><ACard size="small"><AStatistic title="待办" value={stats.pending} valueStyle={{ fontSize: 18, color: '#3b82f6' }} /></ACard></ACol>
-        <ACol span={8}><ACard size="small"><AStatistic title="危急" value={stats.critical} valueStyle={{ fontSize: 18, color: '#dc2626' }} /></ACard></ACol>
-        <ACol span={8}><ACard size="small"><AStatistic title="完成" value={stats.completed} valueStyle={{ fontSize: 18, color: '#16a34a' }} /></ACard></ACol>
+        <ACol span={8}><ACard size="small"><AStatistic title="待办" value={stats.pending} styles={{ content: {  fontSize: 18, color: '#3b82f6'  } }} /></ACard></ACol>
+        <ACol span={8}><ACard size="small"><AStatistic title="危急" value={stats.critical} styles={{ content: {  fontSize: 18, color: '#dc2626'  } }} /></ACard></ACol>
+        <ACol span={8}><ACard size="small"><AStatistic title="完成" value={stats.completed} styles={{ content: {  fontSize: 18, color: '#16a34a'  } }} /></ACard></ACol>
       </ARow>
       <Input placeholder="搜索患者" value={search} onChange={(e) => setSearch(e.target.value)} style={{ marginBottom: 8 }} data-testid="mob-search" allowClear />
       <ATabs activeKey={tab} onChange={(k) => setTab(k as any)}

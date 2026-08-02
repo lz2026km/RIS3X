@@ -115,22 +115,22 @@ export const FHIRDiagnosticReportComponent: React.FC<Props> = ({ reportId, patie
       <Row gutter={8}>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="DiagnosticReport" value={documents.length} prefix={<FileJson className="w-3 h-3" style={{ color: '#ea580c' }} />} valueStyle={{ fontSize: 18 }} />
+            <Statistic title="DiagnosticReport" value={documents.length} prefix={<FileJson className="w-3 h-3" style={{ color: '#ea580c' }} />} styles={{ content: {  fontSize: 18  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="已验证" value={documents.filter((d) => d.validation.passed).length} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} valueStyle={{ fontSize: 18 }} />
+            <Statistic title="已验证" value={documents.filter((d) => d.validation.passed).length} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 18  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="已发送" value={0} prefix={<Globe className="w-3 h-3" style={{ color: '#3b82f6' }} />} valueStyle={{ fontSize: 18 }} />
+            <Statistic title="已发送" value={0} prefix={<Globe className="w-3 h-3" style={{ color: '#3b82f6' }} />} styles={{ content: {  fontSize: 18  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="Bundle" value={documents.length} prefix={<Layers className="w-3 h-3" style={{ color: '#7c3aed' }} />} valueStyle={{ fontSize: 18 }} suffix="资源" />
+            <Statistic title="Bundle" value={documents.length} prefix={<Layers className="w-3 h-3" style={{ color: '#7c3aed' }} />} styles={{ content: {  fontSize: 18  } }} suffix="资源" />
           </Card>
         </Col>
       </Row>
@@ -312,7 +312,7 @@ export const FHIRDiagnosticReportComponent: React.FC<Props> = ({ reportId, patie
 
       <Modal title={<Space><Lock className="w-4 h-4" /><span>SMART on FHIR OAuth2</span></Space>} open={showOAuth} onCancel={() => setShowOAuth(false)} footer={null}>
         <div className="space-y-3">
-          <Alert type="info" message="SMART on FHIR OAuth2 认证" description="使用 OpenID Connect + OAuth2 进行身份认证与授权" />
+          <Alert type="info" title="SMART on FHIR OAuth2 认证" description="使用 OpenID Connect + OAuth2 进行身份认证与授权" />
           <div className="text-xs space-y-1">
             <div>授权端点: <span className="font-mono text-blue-600">https://fhir.hospital.com/oauth2/authorize</span></div>
             <div>Token 端点: <span className="font-mono text-blue-600">https://fhir.hospital.com/oauth2/token</span></div>

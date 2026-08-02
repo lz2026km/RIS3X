@@ -47,16 +47,16 @@ export const EmptyWithAction: Story = {
 
 export const Progress: Story = {
   render: () => (
-    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+    <Space orientation="vertical" size="large" style={{ width: '100%' }}>
       <Card title="基础进度条" size="small">
-        <Space direction="vertical" style={{ width: '100%' }}>
+        <Space orientation="vertical" style={{ width: '100%' }}>
           <AppProgress percent={30} ariaLabel="加载 30%" />
           <AppProgress percent={70} ariaLabel="加载 70%" />
           <AppProgress percent={100} ariaLabel="完成" />
         </Space>
       </Card>
       <Card title="彩色进度条" size="small">
-        <Space direction="vertical" style={{ width: '100%' }}>
+        <Space orientation="vertical" style={{ width: '100%' }}>
           <AppProgress percent={50} strokeColor="#1e40af" />
           <AppProgress percent={50} strokeColor={{ from: '#1e40af', to: '#10b981' }} />
         </Space>
@@ -70,7 +70,7 @@ export const Progress: Story = {
 
 export const AlertBasic: Story = {
   render: () => (
-    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+    <Space orientation="vertical" size="middle" style={{ width: '100%' }}>
       <AppAlert type="info" message="信息提示" />
       <AppAlert type="success" message="成功消息" description="操作已成功完成" />
       <AppAlert type="warning" message="警告消息" description="请注意数据完整性" closable />

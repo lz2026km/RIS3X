@@ -47,7 +47,7 @@ export const VolumeRenderer: React.FC<VolumeRendererProps> = ({
             <Statistic
               title="Study"
               value={studyId}
-              valueStyle={{ fontSize: 12 }}
+              styles={{ content: {  fontSize: 12  } }}
             />
           </Card>
         </Col>
@@ -87,7 +87,7 @@ export const VolumeRenderer: React.FC<VolumeRendererProps> = ({
               }}
             />
             <Space
-              direction="vertical"
+              orientation="vertical"
               size={8}
               style={{ marginTop: 12, width: "100%" }}
             >

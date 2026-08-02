@@ -180,7 +180,7 @@ export const ReportDicomSRExport: React.FC<ReportDicomSRExportProps> = ({
           <Alert
             type="error"
             showIcon
-            message="SR 文档未通过验证"
+            title="SR 文档未通过验证"
             description={
               <ul style={{ margin: 0, paddingLeft: 18 }}>
                 {validation.errors.map((e, i) => (
@@ -195,7 +195,7 @@ export const ReportDicomSRExport: React.FC<ReportDicomSRExportProps> = ({
           <Alert
             type="warning"
             showIcon
-            message="SR 文档警告"
+            title="SR 文档警告"
             description={
               <ul style={{ margin: 0, paddingLeft: 18 }}>
                 {validation.warnings.map((w, i) => (

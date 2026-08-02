@@ -187,7 +187,7 @@ export const CertManager: React.FC<CertManagerProps> = ({ userId, onSelect, show
       }
       style={{ width: '100%' }}
     >
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
+      {error && <Alert type="error" showIcon title={error} style={{ marginBottom: 12 }} />}
       <Table
         size="small"
         dataSource={certs}

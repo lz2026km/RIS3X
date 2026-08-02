@@ -127,7 +127,7 @@ export const ReportTemplatedGenerator: React.FC<ReportTemplatedGeneratorProps> =
             title="候选模板"
             value={candidates.length}
             prefix={<FileText size={14} />}
-            valueStyle={{ fontSize: 16 }}
+            styles={{ content: {  fontSize: 16  } }}
           />
         </Col>
         <Col span={8}>
@@ -136,7 +136,7 @@ export const ReportTemplatedGenerator: React.FC<ReportTemplatedGeneratorProps> =
             value={top ? top.score : 0}
             suffix="/100"
             prefix={<Sparkles size={14} color="#722ed1" />}
-            valueStyle={{ fontSize: 16, color: top && top.score >= 70 ? '#16a34a' : '#ca8a04' }}
+            styles={{ content: {  fontSize: 16, color: top && top.score >= 70 ? '#16a34a' : '#ca8a04'  } }}
           />
         </Col>
         <Col span={8}>
@@ -144,7 +144,7 @@ export const ReportTemplatedGenerator: React.FC<ReportTemplatedGeneratorProps> =
             title="部位"
             value={bodyPart || '未指定'}
             prefix={<Target size={14} />}
-            valueStyle={{ fontSize: 16 }}
+            styles={{ content: {  fontSize: 16  } }}
           />
         </Col>
       </Row>

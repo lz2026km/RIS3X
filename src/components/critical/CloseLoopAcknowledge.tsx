@@ -110,7 +110,7 @@ export const CloseLoopAcknowledge: React.FC<CloseLoopAcknowledgeProps> = ({
           type="error"
           showIcon
           style={{ marginBottom: 12 }}
-          message={`SLA 超时:已耗时 ${elapsed} 分钟,推荐立即处理或升级`}
+          title={`SLA 超时:已耗时 ${elapsed} 分钟,推荐立即处理或升级`}
         />
       )}
 
@@ -129,7 +129,7 @@ export const CloseLoopAcknowledge: React.FC<CloseLoopAcknowledgeProps> = ({
       <Row gutter={12}>
         <Col span={14}>
           <Card size="small" type="inner" title="危急值信息">
-            <Space direction="vertical" size={4} style={{ width: '100%' }}>
+            <Space orientation="vertical" size={4} style={{ width: '100%' }}>
               <Space wrap>
                 <Badge color="#7c3aed" />
                 <strong>{critical.patientName}</strong>
@@ -153,21 +153,21 @@ export const CloseLoopAcknowledge: React.FC<CloseLoopAcknowledgeProps> = ({
         </Col>
         <Col span={10}>
           <Card size="small" type="inner" title="操作">
-            <Space direction="vertical" style={{ width: '100%' }} size={6}>
+            <Space orientation="vertical" style={{ width: '100%' }} size={6}>
               <Row gutter={6}>
                 <Col span={12}>
                   <Statistic
                     title="报告→接收"
                     value={elapsed}
                     suffix="min"
-                    valueStyle={{ fontSize: 16, color: slaBreached ? '#dc2626' : '#10b981' }}
+                    styles={{ content: {  fontSize: 16, color: slaBreached ? '#dc2626' : '#10b981'  } }}
                   />
                 </Col>
                 <Col span={12}>
                   <Statistic
                     title="状态"
                     value={critical.status}
-                    valueStyle={{ fontSize: 14 }}
+                    styles={{ content: {  fontSize: 14  } }}
                   />
                 </Col>
               </Row>

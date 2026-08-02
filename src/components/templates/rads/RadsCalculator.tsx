@@ -189,7 +189,7 @@ export const RadsCalculator: React.FC<Props> = ({
                               min={f.min}
                               max={f.max}
                               onChange={(v) => handleValueChange(f.key, v)}
-                              addonAfter={f.unit}
+                              suffix={f.unit}
                               style={{ width: '100%' }}
                             />
                           );
@@ -253,11 +253,11 @@ export const RadsCalculator: React.FC<Props> = ({
                   <Statistic
                     title="分类"
                     value={result.category}
-                    valueStyle={{ color, fontSize: 18 }}
+                    styles={{ content: {  color, fontSize: 18  } }}
                   />
                 </Col>
                 <Col span={12}>
-                  <Statistic title="评分" value={result.score} suffix="/100" valueStyle={{ fontSize: 18 }} />
+                  <Statistic title="评分" value={result.score} suffix="/100" styles={{ content: {  fontSize: 18  } }} />
                 </Col>
               </Row>
               <Divider style={{ margin: '8px 0' }} />
@@ -268,13 +268,13 @@ export const RadsCalculator: React.FC<Props> = ({
               <Alert
                 type={result.riskLevel === 'very-high' ? 'error' : result.riskLevel === 'high' ? 'warning' : 'info'}
                 showIcon
-                message={result.recommendation}
+                title={result.recommendation}
                 style={{ marginBottom: 8 }}
               />
               {result.warnings.length > 0 && (
                 <Alert
                   type="warning" showIcon
-                  message={`${result.warnings.length} 个必填项缺失`}
+                  title={`${result.warnings.length} 个必填项缺失`}
                   description={result.warnings.slice(0, 3).join(';')}
                   style={{ marginBottom: 8 }}
                 />

@@ -193,7 +193,7 @@ const s: Record<string, React.CSSProperties> = {
     borderRadius: 8,
     border: "1px solid var(--border-color, #475569)",
     background: "var(--bg-deep, #0f172a)",
-    color: "var(--text-muted, #64748b)",
+    color: "var(--text-muted, #94a3b8)",
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
@@ -485,7 +485,7 @@ export function AppLayout() {
                   {t("app.title")}
                 </div>
                 <div
-                  style={{ fontSize: 12, color: "var(--text-muted, #8b919e)" }}
+                  style={{ fontSize: 12, color: "var(--text-muted, #94a3b8)" }}
                 >
                   {t("app.version")}
                 </div>
@@ -545,7 +545,7 @@ export function AppLayout() {
                   <div
                     style={{
                       fontSize: 12,
-                      color: "var(--text-muted, #64748b)",
+                      color: "var(--text-muted, #94a3b8)",
                       whiteSpace: "nowrap",
                       textOverflow: "ellipsis",
                       overflow: "hidden",
@@ -611,7 +611,7 @@ export function AppLayout() {
             </span>
             <span
               style={{
-                color: "var(--text-muted, #64748b)",
+                color: "var(--text-muted, #94a3b8)",
                 fontSize: 14,
                 margin: "0 4px",
                 userSelect: "none",
@@ -677,7 +677,7 @@ export function AppLayout() {
                 alignItems: "center",
                 gap: 6,
                 fontSize: 12,
-                color: "var(--text-muted, #64748b)",
+                color: "var(--text-muted, #94a3b8)",
               }}
             >
               <Activity size={14} style={{ color: "#22c55e" }} />
@@ -717,6 +717,7 @@ export function AppLayout() {
           className="print-area"
           tabIndex={-1}
           style={s.content}
+          role="main"
         >
           <h1 className="sr-only">{`${t("app.title")} - ${sectionTitle || t("app.hospital")}`}</h1>
           <React.Suspense fallback={<Loading />}>

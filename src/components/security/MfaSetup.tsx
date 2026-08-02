@@ -74,7 +74,7 @@ export default function MfaSetup({ userId, userName, onComplete }: MfaSetupProps
       {step === 0 && (
         <div>
           <Paragraph>选择一个 MFA 方法以增强账户安全性</Paragraph>
-          <Space direction="vertical" style={{ width: '100%' }}>
+          <Space orientation="vertical" style={{ width: '100%' }}>
             <Button size="large" block type={method === 'totp' ? 'primary' : 'default'} icon={<QrCode size={16} />}
               onClick={() => setMethod('totp')}>TOTP 验证器 (Google Authenticator / Microsoft Authenticator)</Button>
             <Button size="large" block type={method === 'sms' ? 'primary' : 'default'} icon={<MessageSquare size={16} />}
@@ -89,7 +89,7 @@ export default function MfaSetup({ userId, userName, onComplete }: MfaSetupProps
 
       {step === 1 && (
         <div>
-          <Alert message="使用 TOTP 验证器扫描下方密钥, 或手动输入" type="info" showIcon style={{ marginBottom: 16 }} />
+          <Alert title="使用 TOTP 验证器扫描下方密钥, 或手动输入" type="info" showIcon style={{ marginBottom: 16 }} />
           {method === 'totp' && (
             <div style={{ textAlign: 'center', padding: 16 }}>
               <Paragraph copyable={{ text: secret }}><Text code style={{ fontSize: 16 }}>{displaySecret(secret)}</Text></Paragraph>
@@ -107,13 +107,13 @@ export default function MfaSetup({ userId, userName, onComplete }: MfaSetupProps
         <div>
           <Input placeholder="输入验证码" value={code} onChange={e => setCode(e.target.value)} maxLength={6} style={{ width: 200 }} />
           <Button type="primary" onClick={verifyCode} style={{ marginLeft: 8 }}>验证</Button>
-          {result && <Alert type={result.success ? 'success' : 'error'} message={result.message} showIcon style={{ marginTop: 16 }} />}
+          {result && <Alert type={result.success ? 'success' : 'error'} title={result.message} showIcon style={{ marginTop: 16 }} />}
         </div>
       )}
 
       {step === 3 && enrollment && (
         <div>
-          <Alert message="MFA 已成功启用" type="success" showIcon icon={<CheckCircle size={16} />} style={{ marginBottom: 16 }} />
+          <Alert title="MFA 已成功启用" type="success" showIcon icon={<CheckCircle size={16} />} style={{ marginBottom: 16 }} />
           <Descriptions column={1} bordered size="small">
             <Descriptions.Item label="方法">{enrollment.primaryMethod}</Descriptions.Item>
             <Descriptions.Item label="状态"><Tag color="green">已启用</Tag></Descriptions.Item>

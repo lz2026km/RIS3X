@@ -133,9 +133,9 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ open, onClose, onC
       closable={false}
       centered
       width={400}
-      destroyOnClose
+      destroyOnHidden
     >
-      <Space direction="vertical" style={{ width: '100%' }} size={8}>
+      <Space orientation="vertical" style={{ width: '100%' }} size={8}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Text strong>{title}</Text>
           <Button type="text" size="small" icon={<X size={14} />} onClick={onClose} />

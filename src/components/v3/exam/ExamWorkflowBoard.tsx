@@ -96,17 +96,17 @@ export const ExamWorkflowBoard: React.FC<ExamWorkflowBoardProps> = ({ items, onA
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="急诊" value={stats.stat} valueStyle={{ color: '#dc2626' }} />
+            <Statistic title="急诊" value={stats.stat} styles={{ content: {  color: '#dc2626'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="危急值" value={stats.critical} valueStyle={{ color: '#dc2626' }} />
+            <Statistic title="危急值" value={stats.critical} styles={{ content: {  color: '#dc2626'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="检查中" value={stats.inExam} valueStyle={{ color: '#ca8a04' }} />
+            <Statistic title="检查中" value={stats.inExam} styles={{ content: {  color: '#ca8a04'  } }} />
           </Card>
         </Col>
       </Row>

@@ -57,7 +57,7 @@ export const AIPreRead: React.FC<AIPreReadProps> = ({ reportId, onApplySuggestio
   if (loading) {
     return (
       <Card>
-        <Space direction="vertical" align="center" style={{ width: '100%', padding: 24 }}>
+        <Space orientation="vertical" align="center" style={{ width: '100%', padding: 24 }}>
           <Spin indicator={<ScanSearch size={32} className="spin" />} />
           <Text>AI 正在预审...</Text>
         </Space>
@@ -66,7 +66,7 @@ export const AIPreRead: React.FC<AIPreReadProps> = ({ reportId, onApplySuggestio
   }
 
   if (error) {
-    return <Alert type="error" showIcon message={error} />;
+    return <Alert type="error" showIcon title={error} />;
   }
 
   if (!review) {
@@ -108,7 +108,7 @@ export const AIPreRead: React.FC<AIPreReadProps> = ({ reportId, onApplySuggestio
             title="缺陷数"
             value={review.defects.length}
             prefix={<AlertCircle size={14} color="#f59e0b" />}
-            valueStyle={{ color: '#f59e0b' }}
+            styles={{ content: {  color: '#f59e0b'  } }}
           />
         </Col>
         <Col span={6}>
@@ -116,7 +116,7 @@ export const AIPreRead: React.FC<AIPreReadProps> = ({ reportId, onApplySuggestio
             title="建议数"
             value={review.suggestions.length}
             prefix={<Lightbulb size={14} color="#2563eb" />}
-            valueStyle={{ color: '#2563eb' }}
+            styles={{ content: {  color: '#2563eb'  } }}
           />
         </Col>
         <Col span={6}>
@@ -176,7 +176,7 @@ export const AIPreRead: React.FC<AIPreReadProps> = ({ reportId, onApplySuggestio
             const sev = SEVERITY_META[d.severity];
             return (
               <List.Item>
-                <Space direction="vertical" size={2} style={{ width: '100%' }}>
+                <Space orientation="vertical" size={2} style={{ width: '100%' }}>
                   <Space>
                     <Tag color={sev.color}>{sev.label}</Tag>
                     <Tag>{TYPE_LABEL[d.type] ?? d.type}</Tag>
@@ -188,7 +188,7 @@ export const AIPreRead: React.FC<AIPreReadProps> = ({ reportId, onApplySuggestio
                       type="success"
                       showIcon
                       style={{ marginTop: 4 }}
-                      message={
+                      title={
                         <Space>
                           <Lightbulb size={12} />
                           <span>建议: {d.fixSuggestion}</span>
@@ -216,7 +216,7 @@ export const AIPreRead: React.FC<AIPreReadProps> = ({ reportId, onApplySuggestio
                 </Button>,
               ]}
             >
-              <Space direction="vertical" size={4} style={{ width: '100%' }}>
+              <Space orientation="vertical" size={4} style={{ width: '100%' }}>
                 <Space>
                   <Tag color="blue">{s.category}</Tag>
                   <Text strong>{s.field}</Text>
@@ -236,10 +236,10 @@ export const AIPreRead: React.FC<AIPreReadProps> = ({ reportId, onApplySuggestio
       )}
 
       {tab === 'diff' && (
-        <Space direction="vertical" style={{ width: '100%' }}>
+        <Space orientation="vertical" style={{ width: '100%' }}>
           {review.diff.map((d) => (
             <Card key={d.field} size="small" title={`字段: ${d.field}`}>
-              <Space direction="vertical" size={4} style={{ width: '100%' }}>
+              <Space orientation="vertical" size={4} style={{ width: '100%' }}>
                 <Text type="secondary" style={{ fontSize: 12 }}>一致率: {d.agreementPercent}%</Text>
                 <div>
                   <Tag color="purple">AI</Tag>
@@ -260,7 +260,7 @@ export const AIPreRead: React.FC<AIPreReadProps> = ({ reportId, onApplySuggestio
       )}
 
       {tab === 'consistency' && (
-        <Space direction="vertical" style={{ width: '100%' }}>
+        <Space orientation="vertical" style={{ width: '100%' }}>
           <Space>
             <Tag color={review.consistency.imageReportMatch ? 'green' : 'red'}>
               影像-报告: {review.consistency.imageReportMatch ? '一致' : '不一致'}
@@ -276,14 +276,14 @@ export const AIPreRead: React.FC<AIPreReadProps> = ({ reportId, onApplySuggestio
             <Alert
               type="warning"
               showIcon
-              message={`不一致字段: ${review.consistency.mismatchedFields.join(', ')}`}
+              title={`不一致字段: ${review.consistency.mismatchedFields.join(', ')}`}
             />
           )}
         </Space>
       )}
 
       {tab === 'terminology' && (
-        <Space direction="vertical" style={{ width: '100%' }}>
+        <Space orientation="vertical" style={{ width: '100%' }}>
           <Space>
             <Hash size={14} />
             <Text>RadLex 术语: {review.terminology.radlexHits.length} 个</Text>

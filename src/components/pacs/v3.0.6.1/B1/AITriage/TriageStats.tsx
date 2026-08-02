@@ -33,13 +33,13 @@ export const TriageStats: React.FC<TriageStatsProps> = ({ queue, categories }) =
     <div data-testid="triage-stats">
       <Row gutter={8} style={{ marginBottom: 8 }}>
         <Col span={12}>
-          <Statistic title="总队列" value={total} valueStyle={{ fontSize: 16 }} />
+          <Statistic title="总队列" value={total} styles={{ content: {  fontSize: 16  } }} />
         </Col>
         <Col span={12}>
           <Statistic
             title="高置信度(≥0.85)"
             value={queue.filter((q) => q.confidence >= 0.85).length}
-            valueStyle={{ fontSize: 16, color: '#16a34a' }}
+            styles={{ content: {  fontSize: 16, color: '#16a34a'  } }}
           />
         </Col>
       </Row>

@@ -197,11 +197,11 @@ export const FaceRecognition: React.FC<FaceRecognitionProps> = ({
 
         <Col span={12}>
           {result ? (
-            <Space direction="vertical" style={{ width: '100%' }}>
+            <Space orientation="vertical" style={{ width: '100%' }}>
               <Alert
                 type={isSuccess ? 'success' : 'error'}
                 showIcon
-                message={isSuccess ? `识别通过 (置信度 ${confidencePct}%)` : `识别失败: ${result.errorMessage ?? '未知错误'}`}
+                title={isSuccess ? `识别通过 (置信度 ${confidencePct}%)` : `识别失败: ${result.errorMessage ?? '未知错误'}`}
               />
               <Row gutter={8}>
                 <Col span={12}>
@@ -209,7 +209,7 @@ export const FaceRecognition: React.FC<FaceRecognitionProps> = ({
                     title="人脸置信度"
                     value={Number(confidencePct)}
                     suffix="%"
-                    valueStyle={{ color: isSuccess ? '#10b981' : '#ef4444' }}
+                    styles={{ content: {  color: isSuccess ? '#10b981' : '#ef4444'  } }}
                   />
                 </Col>
                 <Col span={12}>
@@ -217,22 +217,22 @@ export const FaceRecognition: React.FC<FaceRecognitionProps> = ({
                     title="活体评分"
                     value={Number(livenessPct)}
                     suffix="%"
-                    valueStyle={{ color: Number(livenessPct) >= 80 ? '#10b981' : '#f59e0b' }}
+                    styles={{ content: {  color: Number(livenessPct) >= 80 ? '#10b981' : '#f59e0b'  } }}
                   />
                 </Col>
               </Row>
               <Text type="secondary">设备指纹: {result.deviceFingerprint}</Text>
               <Text type="secondary">验证时间: {new Date(result.verifiedAt).toLocaleString('zh-CN')}</Text>
               {!isSuccess && (
-                <Alert type="warning" message="请重新调整姿势或光线后再次识别" showIcon />
+                <Alert type="warning" title="请重新调整姿势或光线后再次识别" showIcon />
               )}
             </Space>
           ) : (
-            <Space direction="vertical" style={{ width: '100%' }}>
+            <Space orientation="vertical" style={{ width: '100%' }}>
               <Alert
                 type="info"
                 showIcon
-                message="使用说明"
+                title="使用说明"
                 description={
                   <Paragraph style={{ fontSize: 12, marginBottom: 0 }}>
                     <Shield size={12} /> 请正对摄像头，光线充足，不要佩戴口罩/墨镜。识别过程约 3-5 秒。
@@ -243,7 +243,7 @@ export const FaceRecognition: React.FC<FaceRecognitionProps> = ({
             </Space>
           )}
 
-          {error && <Alert type="error" showIcon message={error} />}
+          {error && <Alert type="error" showIcon title={error} />}
         </Col>
       </Row>
 

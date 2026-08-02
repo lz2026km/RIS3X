@@ -127,11 +127,11 @@ export const FhirResourceExplorer: React.FC = () => {
   return (
     <div className="space-y-3">
       <Row gutter={8}>
-        <Col span={4}><Card size="small"><Statistic title="资源总数" value={stats.total} prefix={<Database className="w-3 h-3" style={{ color: '#ea580c' }} />} valueStyle={{ fontSize: 16 }} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title="资源类型" value={stats.types.length} prefix={<ListTree className="w-3 h-3" style={{ color: '#7c3aed' }} />} valueStyle={{ fontSize: 16 }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="FHIR Server" value={server.getBaseUrl()} prefix={<Server className="w-3 h-3" style={{ color: '#0891b2' }} />} valueStyle={{ fontSize: 13 }} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title="FHIR 版本" value={server.getVersion()} prefix={<Globe className="w-3 h-3" style={{ color: '#10b981' }} />} valueStyle={{ fontSize: 16 }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="审计" value={server.getAuditLog().length} prefix={<Activity className="w-3 h-3" style={{ color: '#dc2626' }} />} valueStyle={{ fontSize: 16 }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="资源总数" value={stats.total} prefix={<Database className="w-3 h-3" style={{ color: '#ea580c' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title="资源类型" value={stats.types.length} prefix={<ListTree className="w-3 h-3" style={{ color: '#7c3aed' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="FHIR Server" value={server.getBaseUrl()} prefix={<Server className="w-3 h-3" style={{ color: '#0891b2' }} />} styles={{ content: {  fontSize: 13  } }} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title="FHIR 版本" value={server.getVersion()} prefix={<Globe className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="审计" value={server.getAuditLog().length} prefix={<Activity className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
       </Row>
 
       <Card size="small" className="shadow-sm" title={
@@ -167,8 +167,8 @@ export const FhirResourceExplorer: React.FC = () => {
             <Button icon={<RefreshCw className="w-3 h-3" />} onClick={() => { setSearchParams({}); setResults(server.listByType(type)); }}>重置</Button>
           </Col>
         </Row>
-        {seedMessage && <Alert className="mt-2" type="success" showIcon message={seedMessage} />}
-        {operationOutcome && <Alert className="mt-2" type="error" showIcon message={`${operationOutcome.issue[0]?.code ?? 'error'}: ${operationOutcome.issue[0]?.diagnostics ?? ''}`} closable onClose={() => setOperationOutcome(null)} />}
+        {seedMessage && <Alert className="mt-2" type="success" showIcon title={seedMessage} />}
+        {operationOutcome && <Alert className="mt-2" type="error" showIcon title={`${operationOutcome.issue[0]?.code ?? 'error'}: ${operationOutcome.issue[0]?.diagnostics ?? ''}`} closable onClose={() => setOperationOutcome(null)} />}
       </Card>
 
       <div className="grid grid-cols-5 gap-3">

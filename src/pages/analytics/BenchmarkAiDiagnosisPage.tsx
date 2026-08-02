@@ -124,7 +124,7 @@ export default function BenchmarkAiDiagnosisPage() {
             <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
               <Col span={4}>
                 <Card size="small" style={{ borderRadius: 8, textAlign: 'center' }}>
-                  <Statistic title="总案例数" value={accuracy.totalCases} suffix="例" valueStyle={{ color: '#8b5cf6', fontSize: 20 }} />
+                  <Statistic title="总案例数" value={accuracy.totalCases} suffix="例" styles={{ content: {  color: '#8b5cf6', fontSize: 20  } }} />
                 </Card>
               </Col>
               <Col span={4}>
@@ -149,7 +149,7 @@ export default function BenchmarkAiDiagnosisPage() {
               </Col>
               <Col span={4}>
                 <Card size="small" style={{ borderRadius: 8, textAlign: 'center' }}>
-                  <Statistic title="总体准确率" value={accuracy.accuracy} suffix="%" valueStyle={{ color: '#10b981', fontSize: 20 }} />
+                  <Statistic title="总体准确率" value={accuracy.accuracy} suffix="%" styles={{ content: {  color: '#10b981', fontSize: 20  } }} />
                 </Card>
               </Col>
             </Row>

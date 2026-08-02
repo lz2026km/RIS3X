@@ -594,7 +594,7 @@ export const AiReportWriterPage: React.FC = () => {
         {vocab ? (
           <>
             <Alert
-              message={vocab.cn + " / " + vocab.en}
+              title={vocab.cn + " / " + vocab.en}
               type="info"
               showIcon
               style={{ marginBottom: 12 }}

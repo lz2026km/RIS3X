@@ -98,17 +98,17 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
       <Row gutter={8} style={{ marginBottom: 12 }}>
         <Col span={8}>
           <Card>
-            <Statistic title="待响应" value={stats.pending} valueStyle={{ fontSize: 18, color: '#dc2626' }} prefix={<Bell size={14} />} />
+            <Statistic title="待响应" value={stats.pending} styles={{ content: {  fontSize: 18, color: '#dc2626'  } }} prefix={<Bell size={14} />} />
           </Card>
         </Col>
         <Col span={8}>
           <Card>
-            <Statistic title="危及生命" value={stats.lifeThreatening} valueStyle={{ fontSize: 18, color: '#dc2626' }} prefix={<AlertOctagon size={14} />} />
+            <Statistic title="危及生命" value={stats.lifeThreatening} styles={{ content: {  fontSize: 18, color: '#dc2626'  } }} prefix={<AlertOctagon size={14} />} />
           </Card>
         </Col>
         <Col span={8}>
           <Card>
-            <Statistic title="已确认" value={stats.acked} valueStyle={{ fontSize: 18, color: '#16a34a' }} prefix={<CheckCircle size={14} />} />
+            <Statistic title="已确认" value={stats.acked} styles={{ content: {  fontSize: 18, color: '#16a34a'  } }} prefix={<CheckCircle size={14} />} />
           </Card>
         </Col>
       </Row>
@@ -183,7 +183,7 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
         data-testid="mob-cv-modal"
       >
         {selected && (
-          <Space direction="vertical" size={8} style={{ width: '100%' }}>
+          <Space orientation="vertical" size={8} style={{ width: '100%' }}>
             <Card size="small" style={{ background: '#fef2f2' }}>
               <div style={{ fontSize: 16, fontWeight: 600 }}>{selected.patientName}</div>
               <div style={{ fontSize: 12, color: '#475569' }}>
@@ -202,7 +202,7 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
               </div>
               <div style={{ fontSize: 12, color: '#94a3b8' }}>触发 {selected.triggeredAt} · {selected.triggeredBy}</div>
             </Card>
-            <Space style={{ width: '100%' }} direction="vertical" size={6}>
+            <Space style={{ width: '100%' }} orientation="vertical" size={6}>
               <Button
                 type="primary"
                 block

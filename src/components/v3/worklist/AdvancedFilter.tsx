@@ -280,7 +280,7 @@ export const AdvancedFilter: React.FC<AdvancedFilterProps> = ({
           </Col>
           <Col span={12}>
             <Form.Item label="特殊标记">
-              <Space direction="vertical" size={4}>
+              <Space orientation="vertical" size={4}>
                 <Tag.CheckableTag checked={!!value.isStat} onChange={(c) => update({ isStat: c })}>
                   特诊床边
                 </Tag.CheckableTag>

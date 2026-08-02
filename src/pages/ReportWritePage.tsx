@@ -382,14 +382,14 @@ export default function ReportWritePage() {
         onCancel={() => setShowSubmit(false)}
         footer={null}
         width={580}
-        destroyOnClose
+        destroyOnHidden
       >
         {conflicts.length > 0 && (
           <Alert
             type="error"
             showIcon
             className="mb-3"
-            message={
+            title={
               <div>
                 <div className="font-semibold">检测到 {conflicts.length} 项关键词冲突</div>
                 {conflicts.map((c: any, i: number) => (
@@ -403,7 +403,7 @@ export default function ReportWritePage() {
           type={preScore.passed ? 'success' : 'warning'}
           showIcon
           className="mb-3"
-          message={preScore.passed ? '所有检查项已通过,可以提交' : `部分检查项未通过 (${PASSED_COUNT}/${preScore.checklist.length})`}
+          title={preScore.passed ? '所有检查项已通过,可以提交' : `部分检查项未通过 (${PASSED_COUNT}/${preScore.checklist.length})`}
         />
         <div className="space-y-3">
           <div>
@@ -456,7 +456,7 @@ function DiffViewModal({ oldText, newText, label, onClose }: { oldText: string; 
       onCancel={onClose}
       footer={null}
       width={720}
-      destroyOnClose
+      destroyOnHidden
     >
       <div className="grid grid-cols-2 gap-4">
         <div>

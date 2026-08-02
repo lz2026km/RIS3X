@@ -233,27 +233,27 @@ const Teach: React.FC = () => {
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={5}>
           <Card size="small">
-            <Statistic title="案例总数" value={total} valueStyle={{ color: '#3b82f6' }} />
+            <Statistic title="案例总数" value={total} styles={{ content: {  color: '#3b82f6'  } }} />
           </Card>
         </Col>
         <Col span={5}>
           <Card size="small">
-            <Statistic title="总浏览" value={totalViews} valueStyle={{ color: '#16a34a' }} />
+            <Statistic title="总浏览" value={totalViews} styles={{ content: {  color: '#16a34a'  } }} />
           </Card>
         </Col>
         <Col span={5}>
           <Card size="small">
-            <Statistic title="总点赞" value={totalLikes} valueStyle={{ color: '#f59e0b' }} />
+            <Statistic title="总点赞" value={totalLikes} styles={{ content: {  color: '#f59e0b'  } }} />
           </Card>
         </Col>
         <Col span={5}>
           <Card size="small">
-            <Statistic title="平均浏览" value={avgViews} valueStyle={{ color: '#8b5cf6' }} />
+            <Statistic title="平均浏览" value={avgViews} styles={{ content: {  color: '#8b5cf6'  } }} />
           </Card>
         </Col>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="本月新增" value={newThisMonth} valueStyle={{ color: '#dc2626' }} />
+            <Statistic title="本月新增" value={newThisMonth} styles={{ content: {  color: '#dc2626'  } }} />
           </Card>
         </Col>
       </Row>

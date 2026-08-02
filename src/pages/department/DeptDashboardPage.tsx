@@ -40,7 +40,7 @@ const DeptDashboardPage: React.FC = () => {
         <Col span={4}><Card><Statistic title="检查数" value={summaryData.totalStudies} prefix={<Activity size={16} />} /></Card></Col>
         <Col span={4}><Card><Statistic title="报告数" value={summaryData.totalReports} prefix={<FileText size={16} />} /></Card></Col>
         <Col span={4}><Card><Statistic title="平均报告时间" value={`${summaryData.avgReportTime}分`} prefix={<Clock size={16} />} /></Card></Col>
-        <Col span={4}><Card><Statistic title="危急值" value={summaryData.criticalValues} prefix={<AlertTriangle size={16} />} valueStyle={{ color: '#ff4d4f' }} /></Card></Col>
+        <Col span={4}><Card><Statistic title="危急值" value={summaryData.criticalValues} prefix={<AlertTriangle size={16} />} styles={{ content: {  color: '#ff4d4f'  } }} /></Card></Col>
         <Col span={4}><Card><Statistic title="设备利用率" value={`${summaryData.equipmentUtilization}%`} prefix={<Monitor size={16} />} /></Card></Col>
       </Row>
       <Card title="医生工作量" style={{ marginBottom: 16 }}>

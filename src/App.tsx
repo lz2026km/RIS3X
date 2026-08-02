@@ -5,7 +5,7 @@
  * v3.0.6.8-107: 在 Provider 之前挂载 <ConfigBootstrapper> 以加载 clinicalConfig
  */
 import React, { useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import "./styles/design-system.css";
 import { Provider, initTheme } from "./components/Provider";
 import { NProgressBar } from "./components/NProgressBar";
@@ -56,6 +56,7 @@ export default function App() {
  * - 已登录用户: 显示完整的 AppLayout (含 sidebar + Routes)
  */
 function AuthGate() {
+  const location = useLocation();
   const { isAuthenticated } = useAuth();
 
   // 未登录: 直接渲染 LoginPage (不在 AppLayout 内,避免循环)

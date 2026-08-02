@@ -138,7 +138,7 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
               title="报告审核率"
               value={summary.avgApproval}
               suffix="%"
-              valueStyle={{ color: Number(summary.avgApproval) >= 95 ? CHART_COLORS.success : CHART_COLORS.amber }}
+              styles={{ content: {  color: Number(summary.avgApproval) >= 95 ? CHART_COLORS.success : CHART_COLORS.amber  } }}
               prefix={<CheckCircle size={14} color={CHART_COLORS.success} />}
             />
             <Progress percent={Number(summary.avgApproval)} size="small" showInfo={false} strokeColor={Number(summary.avgApproval) >= 95 ? CHART_COLORS.success : CHART_COLORS.amber} />

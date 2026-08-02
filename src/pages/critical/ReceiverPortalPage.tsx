@@ -99,13 +99,13 @@ export const ReceiverPortalPage: React.FC = () => {
               <Statistic title="未关闭" value={stats.total} prefix={<Activity size={14} />} />
             </Col>
             <Col span={6}>
-              <Statistic title="危急级" value={stats.critical} valueStyle={{ color: '#dc2626' }} prefix={<AlertOctagon size={14} />} />
+              <Statistic title="危急级" value={stats.critical} styles={{ content: {  color: '#dc2626'  } }} prefix={<AlertOctagon size={14} />} />
             </Col>
             <Col span={6}>
-              <Statistic title="超时" value={stats.overdue} valueStyle={{ color: '#7f1d1d' }} />
+              <Statistic title="超时" value={stats.overdue} styles={{ content: {  color: '#7f1d1d'  } }} />
             </Col>
             <Col span={6}>
-              <Statistic title="本人按时率" value={stats.timelyRate} suffix="%" valueStyle={{ color: stats.timelyRate >= 95 ? '#10b981' : '#f59e0b' }} />
+              <Statistic title="本人按时率" value={stats.timelyRate} suffix="%" styles={{ content: {  color: stats.timelyRate >= 95 ? '#10b981' : '#f59e0b'  } }} />
             </Col>
           </Row>
 
@@ -130,7 +130,7 @@ export const ReceiverPortalPage: React.FC = () => {
             {mine.length === 0 ? (
               <Empty description="无事件" />
             ) : (
-              <Space direction="vertical" size={12} style={{ width: '100%' }}>
+              <Space orientation="vertical" size={12} style={{ width: '100%' }}>
                 {mine.map((e) => (
                   <CloseLoopAcknowledge
                     key={e.id}
@@ -145,10 +145,10 @@ export const ReceiverPortalPage: React.FC = () => {
           </Card>
         </Col>
         <Col span={8}>
-          <Space direction="vertical" size={12} style={{ width: '100%' }}>
+          <Space orientation="vertical" size={12} style={{ width: '100%' }}>
             <OnCallIndicator />
             <Card size="small" title={<Space><ShieldCheck size={14} color="#10b981" /><span>SLA 守则</span></Space>}>
-              <Space direction="vertical" size={4} style={{ fontSize: 12 }}>
+              <Space orientation="vertical" size={4} style={{ fontSize: 12 }}>
                 <span>• 危急值 5 分钟内必须确认接收</span>
                 <span>• 紧急 10 分钟内,警告 30 分钟内</span>
                 <span>• 一票否决事件:30 分钟内关闭</span>

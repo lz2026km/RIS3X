@@ -110,17 +110,17 @@ export const RevisionHistory: React.FC<RevisionHistoryProps> = ({
       }
       style={{ width: '100%' }}
     >
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
+      {error && <Alert type="error" showIcon title={error} style={{ marginBottom: 12 }} />}
 
       <Row gutter={16} style={{ marginBottom: 12 }}>
         <Col span={6}>
           <Statistic title="修订总数" value={stats.total} suffix={`/ ${AMEND_COUNT_LIMIT}`} />
         </Col>
         <Col span={6}>
-          <Statistic title="已完成" value={stats.completed} prefix={<CheckCircle2 size={14} />} valueStyle={{ color: '#10b981' }} />
+          <Statistic title="已完成" value={stats.completed} prefix={<CheckCircle2 size={14} />} styles={{ content: {  color: '#10b981'  } }} />
         </Col>
         <Col span={6}>
-          <Statistic title="回滚" value={stats.rolledBack} prefix={<RotateCcw size={14} />} valueStyle={{ color: '#f59e0b' }} />
+          <Statistic title="回滚" value={stats.rolledBack} prefix={<RotateCcw size={14} />} styles={{ content: {  color: '#f59e0b'  } }} />
         </Col>
         <Col span={6}>
           <Statistic title="最新版本" value={`v${stats.lastVersion}`} />
@@ -128,7 +128,7 @@ export const RevisionHistory: React.FC<RevisionHistoryProps> = ({
       </Row>
 
       {remaining === 0 && (
-        <Alert type="warning" showIcon message={`已达到修订次数上限 ${AMEND_COUNT_LIMIT}，无法继续修订`} style={{ marginBottom: 12 }} />
+        <Alert type="warning" showIcon title={`已达到修订次数上限 ${AMEND_COUNT_LIMIT}，无法继续修订`} style={{ marginBottom: 12 }} />
       )}
 
       {revisions.length === 0 ? (
@@ -163,7 +163,7 @@ export const RevisionHistory: React.FC<RevisionHistoryProps> = ({
                   dot: meta.icon,
                   color: meta.color,
                   children: (
-                    <Space direction="vertical" size={2}>
+                    <Space orientation="vertical" size={2}>
                       <Space>
                         <Tag color={meta.color}>{meta.label}</Tag>
                         <Text strong>v{r.version}</Text>

@@ -133,13 +133,13 @@ export const PatientProfile360: React.FC<PatientProfile360Props> = ({
           <Col flex="280px">
             <Row gutter={8}>
               <Col span={8}>
-                <Statistic title="检查数" value={stats.totalExams} valueStyle={{ fontSize: 18 }} />
+                <Statistic title="检查数" value={stats.totalExams} styles={{ content: {  fontSize: 18  } }} />
               </Col>
               <Col span={8}>
-                <Statistic title="报告数" value={stats.totalReports} valueStyle={{ fontSize: 18 }} />
+                <Statistic title="报告数" value={stats.totalReports} styles={{ content: {  fontSize: 18  } }} />
               </Col>
               <Col span={8}>
-                <Statistic title="危急值" value={stats.criticalCount} valueStyle={{ fontSize: 18, color: '#dc2626' }} />
+                <Statistic title="危急值" value={stats.criticalCount} styles={{ content: {  fontSize: 18, color: '#dc2626'  } }} />
               </Col>
             </Row>
           </Col>

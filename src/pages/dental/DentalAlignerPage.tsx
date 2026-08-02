@@ -194,7 +194,7 @@ export const DentalAlignerPage: React.FC = () => {
                 value={
                   plans.filter((p: any) => p.status === "in-progress").length
                 }
-                valueStyle={{ color: "#1677ff" }}
+                styles={{ content: {  color: "#1677ff"  } }}
               />
             </Card>
           </Col>
@@ -205,7 +205,7 @@ export const DentalAlignerPage: React.FC = () => {
                 value={
                   plans.filter((p: any) => p.status === "completed").length
                 }
-                valueStyle={{ color: "#52c41a" }}
+                styles={{ content: {  color: "#52c41a"  } }}
               />
             </Card>
           </Col>
@@ -214,7 +214,7 @@ export const DentalAlignerPage: React.FC = () => {
               <Statistic
                 title="待开始"
                 value={plans.filter((p: any) => p.status === "pending").length}
-                valueStyle={{ color: "#faad14" }}
+                styles={{ content: {  color: "#faad14"  } }}
               />
             </Card>
           </Col>
@@ -462,7 +462,7 @@ export const DentalAlignerPage: React.FC = () => {
             </div>
           </Card>
           <Card size="small" title="操作" style={{ marginTop: 8 }}>
-            <Space direction="vertical" style={{ width: "100%" }}>
+            <Space orientation="vertical" style={{ width: "100%" }}>
               <Button
                 block
                 icon={<CheckCircle2 size={14} />}
@@ -500,7 +500,7 @@ export const DentalAlignerPage: React.FC = () => {
             </Space>
           </Card>
           <Steps
-            direction="vertical"
+            orientation="vertical"
             size="small"
             current={currentStage}
             items={stages

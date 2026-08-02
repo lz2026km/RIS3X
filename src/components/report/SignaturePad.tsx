@@ -284,7 +284,7 @@ export function SignaturePad({
               </div>
             </div>
           ) : (
-            <Alert type="warning" message="未加载证书信息" description="请传入有效的 certificateInfo 属性" showIcon style={{ marginBottom: 12 }} />
+            <Alert type="warning" title="未加载证书信息" description="请传入有效的 certificateInfo 属性" showIcon style={{ marginBottom: 12 }} />
           )}
         </div>
       )}

@@ -312,7 +312,7 @@ export const QualityScorePanel: React.FC<{
               title={<span style={{ color: '#fff' }}>完整性均分</span>}
               value={score.categoryScores.completeness}
               precision={1}
-              valueStyle={{ color: '#fff', fontSize: 22 }}
+              styles={{ content: {  color: '#fff', fontSize: 22  } }}
               prefix={<FileText size={14} />}
               suffix="/100"
             />
@@ -322,7 +322,7 @@ export const QualityScorePanel: React.FC<{
               title={<span style={{ color: '#fff' }}>准确性均分</span>}
               value={score.categoryScores.accuracy}
               precision={1}
-              valueStyle={{ color: '#fff', fontSize: 22 }}
+              styles={{ content: {  color: '#fff', fontSize: 22  } }}
               prefix={<Target size={14} />}
               suffix="/100"
             />
@@ -332,7 +332,7 @@ export const QualityScorePanel: React.FC<{
               title={<span style={{ color: '#fff' }}>时效性均分</span>}
               value={score.categoryScores.timeliness}
               precision={1}
-              valueStyle={{ color: '#fff', fontSize: 22 }}
+              styles={{ content: {  color: '#fff', fontSize: 22  } }}
               prefix={<Clock size={14} />}
               suffix="/100"
             />
@@ -343,10 +343,10 @@ export const QualityScorePanel: React.FC<{
             <Statistic
               title={<span style={{ color: '#fff' }}>可发布</span>}
               value={score.publishable ? '是' : '否'}
-              valueStyle={{
+              styles={{ content: { 
                 color: score.publishable ? '#bbf7d0' : '#fca5a5',
                 fontSize: 18,
-              }}
+               } }}
               prefix={score.publishable ? <CheckCircle2 size={14} /> : <AlertTriangle size={14} />}
             />
           </Col>
@@ -354,10 +354,10 @@ export const QualityScorePanel: React.FC<{
             <Statistic
               title={<span style={{ color: '#fff' }}>奖励资格</span>}
               value={score.bonusEligible ? '是' : '否'}
-              valueStyle={{
+              styles={{ content: { 
                 color: score.bonusEligible ? '#bbf7d0' : '#fcd34d',
                 fontSize: 18,
-              }}
+               } }}
               prefix={score.bonusEligible ? <Sparkles size={14} /> : <Zap size={14} />}
             />
           </Col>
@@ -365,7 +365,7 @@ export const QualityScorePanel: React.FC<{
             <Statistic
               title={<span style={{ color: '#fff' }}>评估耗时</span>}
               value={score.durationMs}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Activity size={14} />}
               suffix="ms"
             />
@@ -378,7 +378,7 @@ export const QualityScorePanel: React.FC<{
           type="error"
           showIcon
           style={{ marginBottom: 12 }}
-          message={`一票否决触发: ${score.hardFailTriggered.join(', ')}`}
+          title={`一票否决触发: ${score.hardFailTriggered.join(', ')}`}
           description="总分已置零或低于发布阈值,请立即整改"
         />
       )}

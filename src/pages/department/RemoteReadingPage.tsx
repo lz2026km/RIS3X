@@ -51,7 +51,7 @@ const RemoteReadingPage: React.FC = () => {
         <Col span={6}><Card><Statistic title="总会诊" value={sessions.length} prefix={<Globe size={16} />} /></Card></Col>
         <Col span={6}><Card><Statistic title="进行中" value={sessions.filter(s => s.status === 'in_progress').length} prefix={<Clock size={16} />} /></Card></Col>
         <Col span={6}><Card><Statistic title="已完成" value={sessions.filter(s => s.status === 'completed').length} prefix={<CheckCircle size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title="紧急" value={sessions.filter(s => s.priority === 'stat' || s.priority === 'urgent').length} prefix={<Send size={16} />} valueStyle={{ color: '#ff4d4f' }} /></Card></Col>
+        <Col span={6}><Card><Statistic title="紧急" value={sessions.filter(s => s.priority === 'stat' || s.priority === 'urgent').length} prefix={<Send size={16} />} styles={{ content: {  color: '#ff4d4f'  } }} /></Card></Col>
       </Row>
       <Card>
         <Table rowKey="id" dataSource={sessions} columns={columns} pagination={false} size="small" />

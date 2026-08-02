@@ -76,7 +76,7 @@ import {
   Server,
 } from "lucide-react";
 import type { ReactNode } from "react";
-import { GitCompare, FileDown, Globe, FileSignature, Scan, Microscope, Mic, BookOpen, Code, Siren, Clock, Heart, Bone, Brain, Plug } from "lucide-react";
+import { GitCompare, FileDown, Globe, FileSignature, Scan, Microscope, Mic, Code, Siren, Heart, Bone, Brain, Plug } from "lucide-react";
 
 export type Role = "医生" | "技师" | "护士" | "管理员" | "主任";
 

@@ -92,7 +92,7 @@ export const ExamDoseTracker: React.FC<ExamDoseTrackerProps> = ({ records, onSel
               value={stats.totalEffective}
               suffix="mSv"
               prefix={<Activity size={14} color="#dc2626" />}
-              valueStyle={{ color: '#dc2626' }}
+              styles={{ content: {  color: '#dc2626'  } }}
             />
           </Card>
         </Col>
@@ -112,7 +112,7 @@ export const ExamDoseTracker: React.FC<ExamDoseTrackerProps> = ({ records, onSel
               title="超出 DRL"
               value={stats.overLimit}
               prefix={<AlertTriangle size={14} color="#dc2626" />}
-              valueStyle={{ color: stats.overLimit > 0 ? '#dc2626' : '#16a34a' }}
+              styles={{ content: {  color: stats.overLimit > 0 ? '#dc2626' : '#16a34a'  } }}
             />
           </Card>
         </Col>

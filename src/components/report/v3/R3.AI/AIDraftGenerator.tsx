@@ -102,7 +102,7 @@ export const AIDraftGenerator: React.FC<AIDraftGeneratorProps> = ({
       }
       style={{ width: '100%' }}
     >
-      <Space direction="vertical" style={{ width: '100%' }}>
+      <Space orientation="vertical" style={{ width: '100%' }}>
         <Row gutter={16}>
           <Col span={12}>
             <Text type="secondary">场景</Text>
@@ -144,7 +144,7 @@ export const AIDraftGenerator: React.FC<AIDraftGeneratorProps> = ({
           {generating ? 'AI 正在生成...' : '一键生成 AI 草稿'}
         </Button>
 
-        {error && <Alert type="error" showIcon message={error} />}
+        {error && <Alert type="error" showIcon title={error} />}
 
         {generating && (
           <Card size="small">
@@ -177,7 +177,7 @@ export const AIDraftGenerator: React.FC<AIDraftGeneratorProps> = ({
               </Tag>
             </Space>
           }>
-            <Space direction="vertical" style={{ width: '100%' }}>
+            <Space orientation="vertical" style={{ width: '100%' }}>
               <div>
                 <Text type="secondary">影像所见</Text>
                 <Paragraph
@@ -285,7 +285,7 @@ export const AIDraftGenerator: React.FC<AIDraftGeneratorProps> = ({
         <Alert
           type="info"
           showIcon
-          message="边界声明"
+          title="边界声明"
           description="AI 草稿仅供参考，最终诊断以执业医师为准。模型为 mock 实现，所有输出均为预设响应。"
         />
       </Space>

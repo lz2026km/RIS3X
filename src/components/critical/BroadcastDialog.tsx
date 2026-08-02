@@ -114,7 +114,7 @@ export const BroadcastDialog: React.FC<BroadcastDialogProps> = ({
           <Tag color="red">紧急</Tag>
         </Space>
       }
-      destroyOnClose
+      destroyOnHidden
     >
       {result ? (
         <Result
@@ -123,7 +123,7 @@ export const BroadcastDialog: React.FC<BroadcastDialogProps> = ({
           title="广播完成"
           subTitle={`已通知 ${result.totalRecipients} 人,耗时 ${result.durationMs} ms`}
           extra={
-            <Space direction="vertical" style={{ width: '100%' }}>
+            <Space orientation="vertical" style={{ width: '100%' }}>
               {Object.entries(result.perChannel).map(([ch, list]) => {
                 const ok = list.filter((r) => r.success).length;
                 return (
@@ -224,7 +224,7 @@ export const BroadcastDialog: React.FC<BroadcastDialogProps> = ({
                   title="预计收件人"
                   value={previewPhones().length}
                   prefix={<Users size={14} />}
-                  valueStyle={{ fontSize: 18 }}
+                  styles={{ content: {  fontSize: 18  } }}
                 />
               </Col>
               <Col span={12}>
@@ -233,7 +233,7 @@ export const BroadcastDialog: React.FC<BroadcastDialogProps> = ({
                   value={previewPhones().length * 0.05 * channels.length}
                   prefix="¥"
                   precision={2}
-                  valueStyle={{ fontSize: 18 }}
+                  styles={{ content: {  fontSize: 18  } }}
                 />
               </Col>
             </Row>
@@ -241,7 +241,7 @@ export const BroadcastDialog: React.FC<BroadcastDialogProps> = ({
               <Alert
                 style={{ marginTop: 8 }}
                 type="info"
-                message="语音通道将触发 Twilio / 讯飞听见 自动外呼,DTMF 按键 '2' = 确认知悉"
+                title="语音通道将触发 Twilio / 讯飞听见 自动外呼,DTMF 按键 '2' = 确认知悉"
               />
             )}
           </Card>

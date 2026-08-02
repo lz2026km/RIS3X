@@ -501,7 +501,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
           {/* 危急值触发 */}
           {status === "critical_value" && (
             <Alert
-              message={
+              title={
                 <span>
                   <AlertTriangle size={14} /> 危急值触发: {report.criticalValue}
                 </span>
@@ -659,10 +659,10 @@ const EyeReportWritePage: React.FC = () => {
   }
 
   if (reports.length === 0) {
-    return <Alert message="暂无报告数据" type="warning" showIcon style={{ margin: 24 }} />;
+    return <Alert title="暂无报告数据" type="warning" showIcon style={{ margin: 24 }} />;
   }
 
-  if (!report) return <Alert message="未找到报告" type="warning" showIcon style={{ margin: 24 }} />;
+  if (!report) return <Alert title="未找到报告" type="warning" showIcon style={{ margin: 24 }} />;
   return (
     <>
       <div

@@ -70,7 +70,7 @@ export const JciReport: React.FC<JciReportProps> = ({ months = 6, onDownload }) 
             title={`通知及时率 (≥${targets.notifyWithinTarget}%)`}
             value={curr.notifyWithinTarget}
             suffix="%"
-            valueStyle={{ fontSize: 22, color: curr.notifyWithinTarget >= targets.notifyWithinTarget ? '#10b981' : '#dc2626' }}
+            styles={{ content: {  fontSize: 22, color: curr.notifyWithinTarget >= targets.notifyWithinTarget ? '#10b981' : '#dc2626'  } }}
             prefix={curr.notifyWithinTarget >= targets.notifyWithinTarget ? <CheckCircle2 size={14} /> : <AlertTriangle size={14} />}
           />
           {prev && (
@@ -84,7 +84,7 @@ export const JciReport: React.FC<JciReportProps> = ({ months = 6, onDownload }) 
             title={`关闭及时率 (≤60min, 目标 ${targets.closeWithinTarget}%)`}
             value={curr.closeWithinTarget}
             suffix="%"
-            valueStyle={{ fontSize: 22, color: curr.closeWithinTarget >= targets.closeWithinTarget ? '#10b981' : '#dc2626' }}
+            styles={{ content: {  fontSize: 22, color: curr.closeWithinTarget >= targets.closeWithinTarget ? '#10b981' : '#dc2626'  } }}
             prefix={<Clock size={14} />}
           />
           {prev && (
@@ -98,7 +98,7 @@ export const JciReport: React.FC<JciReportProps> = ({ months = 6, onDownload }) 
             title={`双审完成率 (≥${targets.dualReviewCompletion}%)`}
             value={curr.dualReviewCompletion}
             suffix="%"
-            valueStyle={{ fontSize: 22, color: curr.dualReviewCompletion >= targets.dualReviewCompletion ? '#10b981' : '#dc2626' }}
+            styles={{ content: {  fontSize: 22, color: curr.dualReviewCompletion >= targets.dualReviewCompletion ? '#10b981' : '#dc2626'  } }}
             prefix={<CheckCircle2 size={14} />}
           />
         </Col>
@@ -107,7 +107,7 @@ export const JciReport: React.FC<JciReportProps> = ({ months = 6, onDownload }) 
             title="中位通知时长"
             value={curr.medianNotifyMinutes}
             suffix="min"
-            valueStyle={{ fontSize: 22 }}
+            styles={{ content: {  fontSize: 22  } }}
             prefix={<Activity size={14} />}
           />
           <Tag style={{ marginTop: 4 }}>P95 = {curr.p95NotifyMinutes} min</Tag>
@@ -118,7 +118,7 @@ export const JciReport: React.FC<JciReportProps> = ({ months = 6, onDownload }) 
         <Col span={12}>
           <Card size="small" type="inner" title="趋势 (近 6 月)">
             {snapshots.length === 0 ? <Empty /> : (
-              <Space direction="vertical" size={6} style={{ width: '100%' }}>
+              <Space orientation="vertical" size={6} style={{ width: '100%' }}>
                 {snapshots.map((s) => (
                   <div key={s.month}>
                     <Space style={{ width: '100%', justifyContent: 'space-between', fontSize: 12 }}>
@@ -168,7 +168,7 @@ export const JciReport: React.FC<JciReportProps> = ({ months = 6, onDownload }) 
           type="warning"
           showIcon
           style={{ marginTop: 12 }}
-          message={`本月漏报 ${curr.missedReports} 起,请核查 PACS SR 解析与字典匹配`}
+          title={`本月漏报 ${curr.missedReports} 起,请核查 PACS SR 解析与字典匹配`}
         />
       )}
     </Card>

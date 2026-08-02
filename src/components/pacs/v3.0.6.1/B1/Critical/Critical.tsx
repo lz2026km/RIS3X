@@ -137,32 +137,32 @@ const Critical: React.FC = () => {
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="危急值总数" value={total} valueStyle={{ color: '#3b82f6' }} />
+            <Statistic title="危急值总数" value={total} styles={{ content: {  color: '#3b82f6'  } }} />
           </Card>
         </Col>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="待通知" value={discovered} valueStyle={{ color: '#dc2626' }} />
+            <Statistic title="待通知" value={discovered} styles={{ content: {  color: '#dc2626'  } }} />
           </Card>
         </Col>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="超期未确认" value={overdueAck} valueStyle={{ color: '#dc2626' }} />
+            <Statistic title="超期未确认" value={overdueAck} styles={{ content: {  color: '#dc2626'  } }} />
           </Card>
         </Col>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="已确认" value={acked} valueStyle={{ color: '#16a34a' }} />
+            <Statistic title="已确认" value={acked} styles={{ content: {  color: '#16a34a'  } }} />
           </Card>
         </Col>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="已闭环" value={tracked} valueStyle={{ color: '#16a34a' }} />
+            <Statistic title="已闭环" value={tracked} styles={{ content: {  color: '#16a34a'  } }} />
           </Card>
         </Col>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="平均确认(分)" value={avgAck} valueStyle={{ color: '#16a34a' }} />
+            <Statistic title="平均确认(分)" value={avgAck} styles={{ content: {  color: '#16a34a'  } }} />
           </Card>
         </Col>
       </Row>

@@ -98,7 +98,7 @@ const ReviewCenterPage: React.FC = () => {
         )}
       >
         {selectedTask ? (
-          <Space direction="vertical" style={{ width: '100%' }} size={12}>
+          <Space orientation="vertical" style={{ width: '100%' }} size={12}>
             <Card size="small" title={<Space><FileText size={14} />报告内容</Space>}>
               <div style={{ fontSize: 12 }}>
                 <p><strong>报告 ID：</strong>{selectedTask.reportId}</p>

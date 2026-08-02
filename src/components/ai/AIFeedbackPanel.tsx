@@ -154,9 +154,9 @@ export const AIFeedbackPanel: React.FC<AIFeedbackPanelProps> = ({
             children: aggregate && aggregate.total > 0 ? (
               <div>
                 <Row gutter={8} style={{ marginBottom: 12 }}>
-                  <Col span={8}><Statistic title="总数" value={aggregate.total} valueStyle={{ fontSize: 16, color: '#f1f5f9' }} /></Col>
-                  <Col span={8}><Statistic title="接受率" value={(aggregate.acceptRate * 100).toFixed(0)} suffix="%" valueStyle={{ fontSize: 16, color: '#10b981' }} /></Col>
-                  <Col span={8}><Statistic title="评分" value={aggregate.avgRating.toFixed(1)} suffix="/5" valueStyle={{ fontSize: 16, color: '#fbbf24' }} /></Col>
+                  <Col span={8}><Statistic title="总数" value={aggregate.total} styles={{ content: {  fontSize: 16, color: '#f1f5f9'  } }} /></Col>
+                  <Col span={8}><Statistic title="接受率" value={(aggregate.acceptRate * 100).toFixed(0)} suffix="%" styles={{ content: {  fontSize: 16, color: '#10b981'  } }} /></Col>
+                  <Col span={8}><Statistic title="评分" value={aggregate.avgRating.toFixed(1)} suffix="/5" styles={{ content: {  fontSize: 16, color: '#fbbf24'  } }} /></Col>
                 </Row>
                 <div style={{ marginBottom: 8 }}>
                   <div style={{ fontSize: 12, color: '#94a3b8' }}>接受 {(aggregate.acceptRate * 100).toFixed(0)}%</div>

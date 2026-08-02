@@ -34,8 +34,8 @@ export const TreatmentPlanCenterPage: React.FC = () => {
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}><Card><Statistic title="总计划" value={stats.total} /></Card></Col>
-        <Col span={4}><Card><Statistic title="执行中" value={stats.active} valueStyle={{color:'#1677ff'}} /></Card></Col>
-        <Col span={4}><Card><Statistic title="已完成" value={stats.completed} valueStyle={{color:'#52c41a'}} /></Card></Col>
+        <Col span={4}><Card><Statistic title="执行中" value={stats.active} styles={{ content: { color:'#1677ff' } }} /></Card></Col>
+        <Col span={4}><Card><Statistic title="已完成" value={stats.completed} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
       </Row>
       <Tabs activeKey={tab} onChange={setTab} items={[
         { key:'plans', label:'治疗计划', children:
@@ -54,7 +54,7 @@ export const TreatmentPlanCenterPage: React.FC = () => {
         },
         { key:'timeline', label:'项目时间线', children:
           <Card size="small" title="PLAN-001: 种植修复时间线">
-            <Steps current={2} direction="vertical" items={timelineData['PLAN-001'].map(s => ({
+            <Steps current={2} orientation="vertical" items={timelineData['PLAN-001'].map(s => ({
               title: <Space>{s.step}<Tag color={s.status==='completed'?'green':s.status==='in_progress'?'blue':'default'}>{s.status}</Tag></Space>,
               description: s.date,
             }))} />

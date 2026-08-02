@@ -65,7 +65,7 @@ export const NhqmReport: React.FC<NhqmReportProps> = ({ quarters = 4, onDownload
             title="本季事件总数"
             value={total}
             prefix={<Activity size={14} />}
-            valueStyle={{ fontSize: 22 }}
+            styles={{ content: {  fontSize: 22  } }}
           />
         </Col>
         <Col span={6}>
@@ -73,7 +73,7 @@ export const NhqmReport: React.FC<NhqmReportProps> = ({ quarters = 4, onDownload
             title="上报准备度"
             value={curr.readinessScore}
             suffix="%"
-            valueStyle={{ fontSize: 22, color: curr.readinessScore >= 90 ? '#10b981' : '#f59e0b' }}
+            styles={{ content: {  fontSize: 22, color: curr.readinessScore >= 90 ? '#10b981' : '#f59e0b'  } }}
             prefix={<FileCheck2 size={14} />}
           />
         </Col>
@@ -82,7 +82,7 @@ export const NhqmReport: React.FC<NhqmReportProps> = ({ quarters = 4, onDownload
             title="覆盖目录"
             value={curr.entries.filter((e) => e.eventCount > 0).length}
             suffix={`/ ${curr.entries.length}`}
-            valueStyle={{ fontSize: 22 }}
+            styles={{ content: {  fontSize: 22  } }}
             prefix={<ListTree size={14} />}
           />
         </Col>
@@ -90,14 +90,14 @@ export const NhqmReport: React.FC<NhqmReportProps> = ({ quarters = 4, onDownload
           <Statistic
             title="缺项"
             value={curr.missingFields.length}
-            valueStyle={{ fontSize: 22, color: curr.missingFields.length === 0 ? '#10b981' : '#dc2626' }}
+            styles={{ content: {  fontSize: 22, color: curr.missingFields.length === 0 ? '#10b981' : '#dc2626'  } }}
             prefix={<AlertOctagon size={14} />}
           />
         </Col>
       </Row>
 
       {curr.missingFields.length > 0 && (
-        <Alert type="warning" showIcon style={{ marginBottom: 12 }} message={`缺项: ${curr.missingFields.join(', ')}`} />
+        <Alert type="warning" showIcon style={{ marginBottom: 12 }} title={`缺项: ${curr.missingFields.join(', ')}`} />
       )}
 
       <Table

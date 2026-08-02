@@ -82,7 +82,7 @@ export const AIRAD: React.FC<AIRADProps> = ({ onAccept, onReject }) => {
       title: '病灶',
       key: 'patient',
       render: (_: unknown, r: AIRadFinding) => (
-        <Space direction="vertical" size={0}>
+        <Space orientation="vertical" size={0}>
           <Space wrap>
             <span style={{ fontWeight: 600 }}>{r.patientName}</span>
             <Badge color={r.reviewed ? 'green' : 'red'} text={r.reviewed ? '已复核' : '待审'} />
@@ -140,27 +140,27 @@ export const AIRAD: React.FC<AIRADProps> = ({ onAccept, onReject }) => {
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={5}>
           <Card size="small">
-            <Statistic title="AI 检出总数" value={stats.total} prefix={<Eye size={14} color="#3b82f6" />} valueStyle={{ color: '#3b82f6' }} />
+            <Statistic title="AI 检出总数" value={stats.total} prefix={<Eye size={14} color="#3b82f6" />} styles={{ content: {  color: '#3b82f6'  } }} />
           </Card>
         </Col>
         <Col span={5}>
           <Card size="small">
-            <Statistic title="高风险(4+)" value={stats.highRisk} prefix={<AlertTriangle size={14} color="#dc2626" />} valueStyle={{ color: '#dc2626' }} />
+            <Statistic title="高风险(4+)" value={stats.highRisk} prefix={<AlertTriangle size={14} color="#dc2626" />} styles={{ content: {  color: '#dc2626'  } }} />
           </Card>
         </Col>
         <Col span={5}>
           <Card size="small">
-            <Statistic title="恶性概率 > 50%" value={stats.malignant} prefix={<Target size={14} color="#8b5cf6" />} valueStyle={{ color: '#8b5cf6' }} />
+            <Statistic title="恶性概率 > 50%" value={stats.malignant} prefix={<Target size={14} color="#8b5cf6" />} styles={{ content: {  color: '#8b5cf6'  } }} />
           </Card>
         </Col>
         <Col span={5}>
           <Card size="small">
-            <Statistic title="平均置信度" value={stats.avgConf} precision={2} prefix={<Brain size={14} color="#f59e0b" />} valueStyle={{ color: '#f59e0b' }} />
+            <Statistic title="平均置信度" value={stats.avgConf} precision={2} prefix={<Brain size={14} color="#f59e0b" />} styles={{ content: {  color: '#f59e0b'  } }} />
           </Card>
         </Col>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="待复核" value={stats.pending} prefix={<ShieldCheck size={14} color="#16a34a" />} valueStyle={{ color: '#16a34a' }} />
+            <Statistic title="待复核" value={stats.pending} prefix={<ShieldCheck size={14} color="#16a34a" />} styles={{ content: {  color: '#16a34a'  } }} />
           </Card>
         </Col>
       </Row>

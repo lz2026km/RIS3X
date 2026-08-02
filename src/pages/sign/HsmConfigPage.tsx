@@ -191,7 +191,7 @@ export default function HsmConfigPage() {
 
       {statusLog && (
         <Alert
-          message={statusLog}
+          title={statusLog}
           type={connected ? "success" : "info"}
           showIcon
           closable

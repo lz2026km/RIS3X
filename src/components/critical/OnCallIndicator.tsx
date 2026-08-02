@@ -117,7 +117,7 @@ export const OnCallIndicator: React.FC<OnCallIndicatorProps> = ({
       {list.length === 0 ? (
         <Empty description="当前无值班信息" />
       ) : (
-        <Space direction="vertical" size={6} style={{ width: '100%' }}>
+        <Space orientation="vertical" size={6} style={{ width: '100%' }}>
           {list.map(({ role, doctor }) => (
             <DoctorRow key={role} doctor={doctor!} role={role} onSelect={onSelect} compact={compact} />
           ))}

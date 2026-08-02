@@ -89,7 +89,7 @@ export const VisitPage: React.FC = () => {
       </Card>
 
       {visit && (
-        <Space direction="vertical" style={{ width: '100%' }} size={16}>
+        <Space orientation="vertical" style={{ width: '100%' }} size={16}>
           <Card size="small" title={<Space><User size={14} />就诊信息</Space>}>
             <Descriptions column={2} size="small" bordered>
               <Descriptions.Item label="Patient ID">{visit.patientId}</Descriptions.Item>

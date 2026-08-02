@@ -167,7 +167,7 @@ export const ReportCoSignPanel: React.FC<ReportCoSignPanelProps> = ({
             title="事件总数"
             value={sortedEvents.length}
             prefix={<FileSignature size={14} />}
-            valueStyle={{ fontSize: 16 }}
+            styles={{ content: {  fontSize: 16  } }}
           />
         </Col>
         <Col span={8}>
@@ -203,7 +203,7 @@ export const ReportCoSignPanel: React.FC<ReportCoSignPanelProps> = ({
         <Alert
           type="info"
           showIcon
-          message={`当前状态 ${stateMeta.label},等待 ${
+          title={`当前状态 ${stateMeta.label},等待 ${
             initialState === 'DRAFT' ? '住院医师' : initialState === 'SIGNED_BY_RESIDENT' ? '主治' : '主任'
           } 处理`}
           style={{ marginBottom: 12 }}
@@ -256,7 +256,7 @@ export const ReportCoSignPanel: React.FC<ReportCoSignPanelProps> = ({
         confirmLoading={signing}
         data-testid="rcsp-modal"
       >
-        <Space direction="vertical" size={8} style={{ width: '100%' }}>
+        <Space orientation="vertical" size={8} style={{ width: '100%' }}>
           <div>
             操作人:<Tag color={ROLE_META[currentRole].color}>{currentUser}</Tag>
             <Tag color="blue">{ROLE_META[currentRole].label}</Tag>

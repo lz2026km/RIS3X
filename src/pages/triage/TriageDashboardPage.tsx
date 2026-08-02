@@ -251,22 +251,22 @@ const TriageDashboardPage: React.FC = () => {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}>
           <Card>
-            <Statistic title="待分检" value={pendingCount} valueStyle={{ color: '#1677ff' }} prefix={<Clock size={16} />} />
+            <Statistic title="待分检" value={pendingCount} styles={{ content: {  color: '#1677ff'  } }} prefix={<Clock size={16} />} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="危急" value={criticalCount} valueStyle={{ color: '#cf1322' }} prefix={<AlertTriangle size={16} />} />
+            <Statistic title="危急" value={criticalCount} styles={{ content: {  color: '#cf1322'  } }} prefix={<AlertTriangle size={16} />} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="紧急" value={urgentCount} valueStyle={{ color: '#fa8c16' }} />
+            <Statistic title="紧急" value={urgentCount} styles={{ content: {  color: '#fa8c16'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="已完成" value={completedCount} valueStyle={{ color: '#52c41a' }} />
+            <Statistic title="已完成" value={completedCount} styles={{ content: {  color: '#52c41a'  } }} />
           </Card>
         </Col>
       </Row>
@@ -320,10 +320,10 @@ const TriageDashboardPage: React.FC = () => {
         <Card title="AI 评分结果" style={{ marginTop: 16 }}>
           <Row gutter={16}>
             <Col span={6}>
-              <Statistic title="总评分" value={scoreResult.score} valueStyle={{ color: scoreColor(scoreResult.score) }} />
+              <Statistic title="总评分" value={scoreResult.score} styles={{ content: {  color: scoreColor(scoreResult.score)  } }} />
             </Col>
             <Col span={6}>
-              <Statistic title="分级" value={levelLabel[scoreResult.level]} valueStyle={{ color: levelColor[scoreResult.level] }} />
+              <Statistic title="分级" value={levelLabel[scoreResult.level]} styles={{ content: {  color: levelColor[scoreResult.level]  } }} />
             </Col>
             <Col span={12}>
               <Text strong>评分因子:</Text>

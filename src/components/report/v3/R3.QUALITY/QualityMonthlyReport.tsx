@@ -171,7 +171,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
             <Statistic
               title={<span style={{ color: '#fff' }}>评估总数</span>}
               value={report.totalReports}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<FileText size={14} />}
             />
           </Col>
@@ -179,7 +179,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
             <Statistic
               title={<span style={{ color: '#fff' }}>平均分</span>}
               value={report.avgScore.toFixed(1)}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Award size={14} />}
             />
           </Col>
@@ -188,10 +188,10 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
               title={<span style={{ color: '#fff' }}>环比</span>}
               value={report.monthOverMonth}
               suffix="%"
-              valueStyle={{
+              styles={{ content: { 
                 color: report.monthOverMonth > 0 ? '#bbf7d0' : '#fca5a5',
                 fontSize: 18,
-              }}
+               } }}
               prefix={<TrendingUp size={14} />}
             />
           </Col>
@@ -200,7 +200,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
               title={<span style={{ color: '#fff' }}>修复率</span>}
               value={report.fixRate}
               suffix="%"
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
             />
           </Col>
           <Col span={5}>
@@ -208,7 +208,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
               title={<span style={{ color: '#fff' }}>自动评估率</span>}
               value={report.autoRate}
               suffix="%"
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Sparkles size={14} />}
             />
           </Col>
@@ -224,7 +224,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
               <Row gutter={12}>
                 <Col span={6}>
                   <Card size="small" title={<Space><BarChart3 size={14} />本月核心指标</Space>}>
-                    <Space direction="vertical" style={{ width: '100%' }}>
+                    <Space orientation="vertical" style={{ width: '100%' }}>
                       <div>
                         <div style={{ fontSize: 12, color: '#64748b' }}>甲级率</div>
                         <Progress
@@ -284,7 +284,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                 <Col span={6}>
                   <Card size="small" title={<Space><Users size={14} />KPI 摘要</Space>}>
                     {kpi && (
-                      <Space direction="vertical" size={6} style={{ width: '100%' }}>
+                      <Space orientation="vertical" size={6} style={{ width: '100%' }}>
                         <div>
                           <span style={{ color: '#64748b', fontSize: 12 }}>AI 采纳率: </span>
                           <strong style={{ color: '#7c3aed' }}>{(kpi.aiAcceptanceRate * 100).toFixed(1)}%</strong>

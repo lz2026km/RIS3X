@@ -79,7 +79,7 @@ const EyeEmrPage: React.FC = () => {
       {loading ? (
         <div style={{ textAlign: 'center', padding: 60 }}><Spin tip="加载中..." /></div>
       ) : !selected ? (
-        <Alert type="info" message="暂无病历数据" style={{ marginTop: 16 }} />
+        <Alert type="info" title="暂无病历数据" style={{ marginTop: 16 }} />
       ) : (
       <Row gutter={12}>
         <Col span={6}>

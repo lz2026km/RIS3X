@@ -105,10 +105,10 @@ export const HLCDAExporter: React.FC<Props> = ({ reportId, patientId, onExport }
   return (
     <div className="space-y-3">
       <Row gutter={8}>
-        <Col span={6}><Card size="small"><Statistic title="CDA 文档" value={documents.length} prefix={<FileCode className="w-3 h-3" style={{ color: '#7c3aed' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="验证通过" value={documents.filter((d) => d.validation.passed).length} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="总大小" value={(documents.reduce((a, d) => a + d.size, 0) / 1024).toFixed(1)} suffix="KB" prefix={<Layers className="w-3 h-3" style={{ color: '#0891b2' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="签名算法" value="SM2" prefix={<Shield className="w-3 h-3" style={{ color: '#dc2626' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="CDA 文档" value={documents.length} prefix={<FileCode className="w-3 h-3" style={{ color: '#7c3aed' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="验证通过" value={documents.filter((d) => d.validation.passed).length} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="总大小" value={(documents.reduce((a, d) => a + d.size, 0) / 1024).toFixed(1)} suffix="KB" prefix={<Layers className="w-3 h-3" style={{ color: '#0891b2' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="签名算法" value="SM2" prefix={<Shield className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
       </Row>
 
       <div className="grid grid-cols-4 gap-3">
@@ -195,7 +195,7 @@ export const HLCDAExporter: React.FC<Props> = ({ reportId, patientId, onExport }
                         <Alert
                           type={validationResult.passed ? 'success' : 'error'}
                           showIcon
-                          message={validationResult.passed ? '✓ CDA 验证通过(HL7 CDA R2 + 模板)' : '✗ CDA 验证失败'}
+                          title={validationResult.passed ? '✓ CDA 验证通过(HL7 CDA R2 + 模板)' : '✗ CDA 验证失败'}
                           description={
                             <div className="space-y-1 mt-1">
                               {validationResult.errors.length > 0 && validationResult.errors.map((e, i) => <div key={i} className="text-xs text-red-600">• {e}</div>)}

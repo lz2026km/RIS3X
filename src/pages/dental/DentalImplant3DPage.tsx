@@ -250,7 +250,7 @@ export const DentalImplant3DPage: React.FC = () => {
               <Statistic
                 title="待审批"
                 value={plans.filter((p: any) => p.status === "planning").length}
-                valueStyle={{ color: "#faad14" }}
+                styles={{ content: {  color: "#faad14"  } }}
               />
             </Card>
           </Col>
@@ -259,7 +259,7 @@ export const DentalImplant3DPage: React.FC = () => {
               <Statistic
                 title="已审批"
                 value={plans.filter((p: any) => p.status === "approved").length}
-                valueStyle={{ color: "#52c41a" }}
+                styles={{ content: {  color: "#52c41a"  } }}
               />
             </Card>
           </Col>
@@ -563,7 +563,7 @@ export const DentalImplant3DPage: React.FC = () => {
                 <Statistic
                   title="距神经管"
                   value={`${safeDist} mm`}
-                  valueStyle={{ color: safe ? "#52c41a" : "#ff4d4f" }}
+                  styles={{ content: {  color: safe ? "#52c41a" : "#ff4d4f"  } }}
                   prefix={safe ? null : <AlertTriangle size={14} />}
                 />
                 <Progress
@@ -579,7 +579,7 @@ export const DentalImplant3DPage: React.FC = () => {
                 {nerveData?.closestNerve && (
                   <Alert
                     type={nerveData.closestNerve.safe ? "success" : "error"}
-                    message={`最邻近神经: ${nerveData.closestNerve.distance}mm`}
+                    title={`最邻近神经: ${nerveData.closestNerve.distance}mm`}
                     showIcon
                   />
                 )}
@@ -598,7 +598,7 @@ export const DentalImplant3DPage: React.FC = () => {
                 <Statistic
                   title="骨质量"
                   value={boneData?.overallQuality || "D2/D3"}
-                  valueStyle={{ color: "#1677ff", fontSize: 13 }}
+                  styles={{ content: {  color: "#1677ff", fontSize: 13  } }}
                 />
                 <div style={{ display: "flex", gap: 4, marginTop: 8 }}>
                   {boneData?.measurements
@@ -660,7 +660,7 @@ export const DentalImplant3DPage: React.FC = () => {
               <div style={{ marginTop: 8 }}>
                 <Alert
                   type={validation.data?.valid ? "success" : "error"}
-                  message={
+                  title={
                     validation.data?.valid ? "规划通过, 无冲突" : "存在冲突"
                   }
                   showIcon
@@ -710,7 +710,7 @@ export const DentalImplant3DPage: React.FC = () => {
           {current.guideDesigned && (
             <Alert
               style={{ marginTop: 8 }}
-              message={
+              title={
                 <Space>
                   <CheckCircle2 size={14} color="#52c41a" />
                   手术导板已设计

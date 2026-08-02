@@ -187,7 +187,7 @@ const EyeWorkspacePage: React.FC = () => {
                   }
                   value={kpiValues[k.key as keyof typeof kpiValues]}
                   prefix={<k.Icon className="v4-icon" style={{ color: k.color }} />}
-                  valueStyle={{ fontSize: 22, color: k.color }}
+                  styles={{ content: {  fontSize: 22, color: k.color  } }}
                 />
               </Card>
             </Col>

@@ -41,7 +41,7 @@ export const DetectionCard: React.FC<DetectionCardProps> = ({ detection, onAccep
       style={{ marginBottom: 8, borderLeft: `4px solid ${sev.color === 'magenta' ? '#c026d3' : sev.color === 'red' ? '#dc2626' : sev.color === 'orange' ? '#f59e0b' : '#16a34a'}` }}
       data-testid={`cad-${detection.id}`}
     >
-      <Space direction="vertical" size={6} style={{ width: '100%' }}>
+      <Space orientation="vertical" size={6} style={{ width: '100%' }}>
         <Space wrap>
           <Tag color={sev.color}>{sev.label}</Tag>
           <Tag color="blue">{detection.laterality}</Tag>

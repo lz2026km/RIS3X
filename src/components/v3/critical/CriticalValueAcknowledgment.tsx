@@ -79,16 +79,16 @@ export const CriticalValueAcknowledgment: React.FC<CriticalValueAcknowledgmentPr
     >
       <Row gutter={8} style={{ marginBottom: 12 }}>
         <Col span={6}>
-          <Statistic title="待确认" value={stats.pending} valueStyle={{ color: '#dc2626', fontSize: 16 }} />
+          <Statistic title="待确认" value={stats.pending} styles={{ content: {  color: '#dc2626', fontSize: 16  } }} />
         </Col>
         <Col span={6}>
-          <Statistic title="已确认" value={stats.acked} valueStyle={{ color: '#16a34a', fontSize: 16 }} />
+          <Statistic title="已确认" value={stats.acked} styles={{ content: {  color: '#16a34a', fontSize: 16  } }} />
         </Col>
         <Col span={6}>
-          <Statistic title="总事件" value={stats.total} valueStyle={{ fontSize: 16 }} />
+          <Statistic title="总事件" value={stats.total} styles={{ content: {  fontSize: 16  } }} />
         </Col>
         <Col span={6}>
-          <Statistic title="WS 状态" value={connected ? '✓' : '×'} valueStyle={{ color: connected ? '#16a34a' : '#dc2626', fontSize: 16 }} />
+          <Statistic title="WS 状态" value={connected ? '✓' : '×'} styles={{ content: {  color: connected ? '#16a34a' : '#dc2626', fontSize: 16  } }} />
         </Col>
       </Row>
 

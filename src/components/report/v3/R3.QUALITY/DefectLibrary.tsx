@@ -176,7 +176,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
             <Statistic
               title={<span style={{ color: '#fff' }}>缺陷总数</span>}
               value={stats.total}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<BookOpen size={14} />}
             />
           </Col>
@@ -184,7 +184,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
             <Statistic
               title={<span style={{ color: '#fff' }}>启用</span>}
               value={stats.active}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<TagIcon size={14} />}
             />
           </Col>
@@ -192,14 +192,14 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
             <Statistic
               title={<span style={{ color: '#fff' }}>自定义</span>}
               value={stats.custom}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
             />
           </Col>
           <Col span={4}>
             <Statistic
               title={<span style={{ color: '#fff' }}>严重</span>}
               value={stats.critical}
-              valueStyle={{ color: '#fca5a5', fontSize: 18 }}
+              styles={{ content: {  color: '#fca5a5', fontSize: 18  } }}
               prefix={<AlertOctagon size={14} />}
             />
           </Col>
@@ -207,7 +207,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
             <Statistic
               title={<span style={{ color: '#fff' }}>触发总数</span>}
               value={stats.totalHits}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Activity size={14} />}
             />
           </Col>
@@ -215,7 +215,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
             <Statistic
               title={<span style={{ color: '#fff' }}>平均 SLA(h)</span>}
               value={stats.avgFix}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Star size={14} />}
             />
           </Col>
@@ -435,7 +435,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                   {items.length === 0 ? (
                     <Empty description="该分类暂无模板" />
                   ) : (
-                    <Space direction="vertical" style={{ width: '100%' }} size={6}>
+                    <Space orientation="vertical" style={{ width: '100%' }} size={6}>
                       {items.map((d) => (
                         <div
                           key={d.id}
@@ -470,7 +470,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
         <Row gutter={[12, 12]}>
           <Col span={14}>
             <Card size="small" title="按分类分布">
-              <Space direction="vertical" style={{ width: '100%' }} size={8}>
+              <Space orientation="vertical" style={{ width: '100%' }} size={8}>
                 {DEFECT_CATEGORIES.map((cat) => {
                   const c = byCategory[cat.code] ?? 0;
                   const max = Math.max(1, ...Object.values(byCategory));
@@ -509,7 +509,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
           </Col>
           <Col span={10}>
             <Card size="small" title="按严重度">
-              <Space direction="vertical" style={{ width: '100%' }}>
+              <Space orientation="vertical" style={{ width: '100%' }}>
                 {(['critical', 'major', 'minor'] as DefectSeverityLevel[]).map((s) => {
                   const c = defects.filter((d) => d.severity === s).length;
                   return (
@@ -559,7 +559,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
         cancelText="取消"
         width={680}
       >
-        <Space direction="vertical" style={{ width: '100%' }} size={10}>
+        <Space orientation="vertical" style={{ width: '100%' }} size={10}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
               <div style={{ marginBottom: 4, fontSize: 12 }}>编码 *</div>
@@ -627,7 +627,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
         width={480}
       >
         {detailDrawer && (
-          <Space direction="vertical" style={{ width: '100%' }} size={12}>
+          <Space orientation="vertical" style={{ width: '100%' }} size={12}>
             <Space>
               <Tag color={SEVERITY_META[detailDrawer.severity].color}>
                 {SEVERITY_META[detailDrawer.severity].label}

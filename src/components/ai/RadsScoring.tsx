@@ -56,7 +56,7 @@ const RadsScoring: React.FC<RadsScoringProps> = ({ result, history, loading }) =
   const trendIds = Array.isArray(history) ? history : []
 
   return (
-    <Space direction="vertical" style={{ width: '100%' }} size="middle">
+    <Space orientation="vertical" style={{ width: '100%' }} size="middle">
       {result && (
         <Card size="small">
           <div style={{ display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap' }}>

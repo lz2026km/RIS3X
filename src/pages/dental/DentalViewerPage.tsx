@@ -48,8 +48,8 @@ export const DentalViewerPage: React.FC = () => {
           <Tag color="purple">v3.0.6.8-54</Tag>
         </Space>
         <Space>
-          <Tooltip title="窗宽"><InputNumber size="small" value={ww} onChange={setWw} min={1} max={2000} style={{ width: 80 }} addonAfter="W" /></Tooltip>
-          <Tooltip title="窗位"><InputNumber size="small" value={wc} onChange={setWc} min={-500} max={500} style={{ width: 80 }} addonAfter="C" /></Tooltip>
+          <Tooltip title="窗宽"><InputNumber size="small" value={ww} onChange={setWw} min={1} max={2000} style={{ width: 80 }} suffix="W" /></Tooltip>
+          <Tooltip title="窗位"><InputNumber size="small" value={wc} onChange={setWc} min={-500} max={500} style={{ width: 80 }} suffix="C" /></Tooltip>
           <Slider min={50} max={300} value={zoom} onChange={setZoom} style={{ width: 100 }} />
           <Tooltip title="放大"><Button size="small" icon={<ZoomIn size={14} />} onClick={() => setZoom(z => Math.min(300, z + 20))} /></Tooltip>
           <Tooltip title="缩小"><Button size="small" icon={<ZoomOut size={14} />} onClick={() => setZoom(z => Math.max(50, z - 20))} /></Tooltip>

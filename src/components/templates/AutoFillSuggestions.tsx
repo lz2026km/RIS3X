@@ -100,7 +100,7 @@ export const AutoFillSuggestions: React.FC<Props> = ({ context, onApply, onApply
           <Statistic
             title="建议总数"
             value={summary.total}
-            valueStyle={{ fontSize: 18, color: '#8b5cf6' }}
+            styles={{ content: {  fontSize: 18, color: '#8b5cf6'  } }}
             prefix={<Wand2 className="w-4 h-4" />}
           />
         </Col>
@@ -108,7 +108,7 @@ export const AutoFillSuggestions: React.FC<Props> = ({ context, onApply, onApply
           <Statistic
             title="高置信度"
             value={summary.high}
-            valueStyle={{ fontSize: 18, color: '#10b981' }}
+            styles={{ content: {  fontSize: 18, color: '#10b981'  } }}
             prefix={<CheckIcon className="w-4 h-4" />}
           />
         </Col>
@@ -116,7 +116,7 @@ export const AutoFillSuggestions: React.FC<Props> = ({ context, onApply, onApply
           <Statistic
             title="需审核"
             value={summary.needs}
-            valueStyle={{ fontSize: 18, color: '#f59e0b' }}
+            styles={{ content: {  fontSize: 18, color: '#f59e0b'  } }}
             prefix={<ShieldIcon className="w-4 h-4" />}
           />
         </Col>
@@ -190,7 +190,7 @@ export const AutoFillSuggestions: React.FC<Props> = ({ context, onApply, onApply
                           type="info"
                           showIcon
                           className="mt-1"
-                          message={<span className="text-xs">{s.evidence}</span>}
+                          title={<span className="text-xs">{s.evidence}</span>}
                         />
                       )}
                       {s.suggestedValue !== undefined && s.suggestedValue !== null && (

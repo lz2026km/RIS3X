@@ -170,27 +170,27 @@ const SmartWorklist: React.FC = () => {
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={5}>
           <Card size="small">
-            <Statistic title="待处理总数" value={total} valueStyle={{ color: '#3b82f6' }} />
+            <Statistic title="待处理总数" value={total} styles={{ content: {  color: '#3b82f6'  } }} />
           </Card>
         </Col>
         <Col span={5}>
           <Card size="small">
-            <Statistic title="P0 急诊" value={p0Count} valueStyle={{ color: '#dc2626' }} />
+            <Statistic title="P0 急诊" value={p0Count} styles={{ content: {  color: '#dc2626'  } }} />
           </Card>
         </Col>
         <Col span={5}>
           <Card size="small">
-            <Statistic title="待读" value={waitingCount} valueStyle={{ color: '#f59e0b' }} />
+            <Statistic title="待读" value={waitingCount} styles={{ content: {  color: '#f59e0b'  } }} />
           </Card>
         </Col>
         <Col span={5}>
           <Card size="small">
-            <Statistic title="平均等待(分)" value={avgWait} valueStyle={{ color: avgWait > 60 ? '#dc2626' : '#16a34a' }} />
+            <Statistic title="平均等待(分)" value={avgWait} styles={{ content: {  color: avgWait > 60 ? '#dc2626' : '#16a34a'  } }} />
           </Card>
         </Col>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="AI 已标记" value={aiCount} valueStyle={{ color: '#8b5cf6' }} />
+            <Statistic title="AI 已标记" value={aiCount} styles={{ content: {  color: '#8b5cf6'  } }} />
           </Card>
         </Col>
       </Row>

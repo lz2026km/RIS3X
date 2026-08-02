@@ -126,7 +126,7 @@ const CardiacAiPage: React.FC = () => {
                   (r) => r.cadRads && ["3", "4", "5"].includes(r.cadRads),
                 ).length
               }
-              valueStyle={{ color: "#ff4d4f" }}
+              styles={{ content: {  color: "#ff4d4f"  } }}
             />
           </Card>
         </Col>
@@ -141,7 +141,7 @@ const CardiacAiPage: React.FC = () => {
           type="error"
           showIcon
           style={{ marginBottom: 16 }}
-          message={error}
+          title={error}
           action={
             <Button size="small" onClick={() => void load()}>
               重试

@@ -180,7 +180,7 @@ export function AppAlert({
   return (
     <Alert
       type={type}
-      message={message}
+      title={message}
       description={description}
       closable={closable}
       onClose={onClose}

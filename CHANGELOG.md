@@ -1,29 +1,43 @@
 ﻿# CHANGELOG
 
+## v3.0.6.11-51 (2026-08-02) — 浏览器点击验证+AuthGate修复+antd6迁移+WCAG修复+MSW对齐
+
+> **目标**: 本地部署 + 浏览器点击验证，排除全部反馈 Bug
+> **范围**: Playwright 全量验证（54+231+200 页全绿）+ 修复部署验证中发现的所有真实 Bug
+
+### 部署验证发现的真实 Bug 修复
+
+- **AuthGate 登录跳转 Bug**（P0）: `src/App.tsx` AuthGate 不订阅 location，SPA 内登录后 `navigate('/')` 不触发重渲染 → 被 catch-all 重定向到 /forbidden。添加 `useLocation()` 订阅修复
+- **sidebarConfig.tsx 重复导入**（P0）: `BookOpen`/`Clock` 重复导入导致 Vite 编译 500，整个应用无法启动。删除重复项
+- **CriticalValueList 崩溃**（P0）: `criticalStore` 缺失 `actors` 字段（`useCriticalStore((s) => s.actors)` 返回 undefined → `.values()` 崩溃）。接口+初始化补全
+- **MSW criticals 路径不匹配**（P0）: MSW handler 注册 `/api/v1/critical`（单数），前端请求 `/criticals`（复数）→ 全部 500。改为复数并补齐基础 CRUD/stats/history/escalation 端点
+- **antd v6 API 迁移**（P1, 1000+ 处）: `Space direction`→`orientation`(221)、`Statistic valueStyle`→`styles.content`(698)、`Collapse expandIconPosition`→`expandIconPlacement`、`Modal destroyOnClose`→`destroyOnHidden`(20)、`Divider type`→`orientation`(11)、`Button.Group`→`Space.Compact`(6)、`InputNumber addonAfter`→`suffix`(10)、`Alert message`→`title`(222)
+- **WCAG 2.1 AA 修复**（P1）: 登录页 label/select-name/landmark/对比度 5 项违规清零；首页 main landmark、region、scrollable-region-focusable、对比度（sidebar 版本号/系统状态/收起按钮/分隔符）全部修复
+- **测试脚本与环境对齐**（P2）: eye.spec/full-page-health.spec 端口 5199→5191；collab/critical/dicom 补登录步骤；a11y waitForURL 正则修复
+
+### 验证结果
+
+- 前端构建: `npx vite build` → 成功（46s, 454 entries）
+- 后端测试: `npx jest` → 47 suites / 441 tests 全通过
+- Playwright: login 5/5、worklist 3/3、v30607 20/20、a11y 4/4、collab 2/2、critical 2/2、user-flow 1/1、dicom 2/2、eye 5/5、report、mobile、page-verify 5/5、click-200-pages 2/2 → **全部通过**
+
 ## v3.0.6.11-50 (2026-08-02) — 严格审查+21文件编码修复+安全P0修复+TOTP改造+14端点对接+Mock清理+窗位完善
-
-> **目标**: 全量验证 + 版本发布，严格审查遗留问题收尾
-> **范围**: 后端编译/测试全通过 + 前端构建成功 + 版本号全量统一至v3.0.6.11-50
-
-### F17: 全量验证
-
-- 后端TypeScript编译: `npx tsc --noEmit` → 0 错误 通过
 - 后端Jest测试: `npx jest --passWithNoTests` → 47 suites / 441 tests 全部通过
 - 前端TypeScript编译: `npx tsc --noEmit` → 记录剩余错误 5808（遗留 noUnusedLocals 严格模式问题，非本次引入）
 - 前端构建: `npx vite build` → 成功，dist 产物 454 entries / PWA 生成
 
 ### F18: 版本号全量统一 + 文档
 
-- package.json → 3.0.6.11-50（含 package-lock.json）
-- backend/package.json → 3.0.6.11-50
-- index.html title + window.__appVersion → v3.0.6.11-50
-- src/main.tsx APP_VERSION → v3.0.6.11-50
-- backend/src/main.ts + app.module.ts → v3.0.6.11-50
-- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-50
-- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-50
-- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-50
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-50
-- CHANGELOG.md 新增 v3.0.6.11-50 条目
+- package.json → 3.0.6.11-51（含 package-lock.json）
+- backend/package.json → 3.0.6.11-51
+- index.html title + window.__appVersion → v3.0.6.11-51
+- src/main.tsx APP_VERSION → v3.0.6.11-51
+- backend/src/main.ts + app.module.ts → v3.0.6.11-51
+- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-51
+- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-51
+- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-51
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-51
+- CHANGELOG.md 新增 v3.0.6.11-51 条目
 
 ### 验证结果
 
@@ -34,10 +48,10 @@
 
 ---
 
-## v3.0.6.11-49 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
+## v3.0.6.11-51 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
 
 > **目标**: 后端深度修复 + 安全加固 + 类型修复 + 测试验证 + 性能检查 + 版本号全量统一
-> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-49
+> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-51
 
 ### A13: 后端安全加固
 
@@ -68,19 +82,19 @@
 
 ### A19: 版本号全量统一
 
-- backend/package.json → 3.0.6.11-49
-- backend/src/main.ts → Swagger version + log message → v3.0.6.11-49
-- backend/src/app.module.ts → v3.0.6.11-49
-- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-49
-- index.html title + window.__appVersion → v3.0.6.11-49
-- src/i18n/appI18n.ts → v3.0.6.11-49
-- src/main.tsx APP_VERSION → v3.0.6.11-49
-- src/routes/routeTable.tsx → v3.0.6.11-49
-- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-49
-- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-49
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-49
-- CONTRIBUTING.md → v3.0.6.11-49
-- CHANGELOG.md 新增 v3.0.6.11-49 条目
+- backend/package.json → 3.0.6.11-51
+- backend/src/main.ts → Swagger version + log message → v3.0.6.11-51
+- backend/src/app.module.ts → v3.0.6.11-51
+- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-51
+- index.html title + window.__appVersion → v3.0.6.11-51
+- src/i18n/appI18n.ts → v3.0.6.11-51
+- src/main.tsx APP_VERSION → v3.0.6.11-51
+- src/routes/routeTable.tsx → v3.0.6.11-51
+- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-51
+- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-51
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-51
+- CONTRIBUTING.md → v3.0.6.11-51
+- CHANGELOG.md 新增 v3.0.6.11-51 条目
 
 ### 验证结果
 

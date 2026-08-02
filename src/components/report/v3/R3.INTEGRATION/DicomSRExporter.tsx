@@ -100,10 +100,10 @@ export const DicomSRExporter: React.FC<Props> = ({ reportId, patientId, onExport
   return (
     <div className="space-y-3">
       <Row gutter={8}>
-        <Col span={6}><Card size="small"><Statistic title="SR 文档" value={documents.length} prefix={<Database className="w-3 h-3" style={{ color: '#0891b2' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="已验证" value={documents.filter((d) => d.validation.passed).length} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="已发送" value={0} prefix={<Send className="w-3 h-3" style={{ color: '#3b82f6' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="总大小" value={(documents.reduce((a, d) => a + d.size, 0) / 1024).toFixed(1)} suffix="KB" prefix={<Layers className="w-3 h-3" style={{ color: '#7c3aed' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="SR 文档" value={documents.length} prefix={<Database className="w-3 h-3" style={{ color: '#0891b2' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="已验证" value={documents.filter((d) => d.validation.passed).length} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="已发送" value={0} prefix={<Send className="w-3 h-3" style={{ color: '#3b82f6' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="总大小" value={(documents.reduce((a, d) => a + d.size, 0) / 1024).toFixed(1)} suffix="KB" prefix={<Layers className="w-3 h-3" style={{ color: '#7c3aed' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
       </Row>
 
       <div className="grid grid-cols-4 gap-3">

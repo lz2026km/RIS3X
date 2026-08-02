@@ -87,7 +87,7 @@ export const Cardiac: React.FC = () => {
             <Statistic
               title="重度/闭塞"
               value={stats.severe}
-              valueStyle={{ color: '#dc2626' }}
+              styles={{ content: {  color: '#dc2626'  } }}
               prefix={<Activity size={14} color="#dc2626" />}
             />
           </Card>
@@ -104,7 +104,7 @@ export const Cardiac: React.FC = () => {
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Space direction="vertical" size={2}>
+            <Space orientation="vertical" size={2}>
               <Tag color="blue">冠脉提取</Tag>
               <Tag color="purple">FFR-CT</Tag>
             </Space>

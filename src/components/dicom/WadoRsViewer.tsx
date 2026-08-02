@@ -95,7 +95,7 @@ export default function WadoRsViewer({ studyUID }: Props) {
     <Card title={t('viewer')} extra={study && <Button icon={<DownloadOutlined />} onClick={handleDownload}>{t('upload')}</Button>}>
       <Spin spinning={loading}>
         {study && (
-          <Space direction="vertical" style={{ width: '100%' }} size="small">
+          <Space orientation="vertical" style={{ width: '100%' }} size="small">
             <Text strong>{study.patientName} ({study.patientID})</Text>
             <Text type="secondary">{study.studyDescription} | {study.studyDate}</Text>
           </Space>

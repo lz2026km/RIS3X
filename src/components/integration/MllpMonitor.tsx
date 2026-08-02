@@ -96,12 +96,12 @@ export const MllpMonitor: React.FC = () => {
   return (
     <div className="space-y-3">
       <Row gutter={8}>
-        <Col span={4}><Card size="small"><Statistic title="状态" value={stats.running ? '运行中' : '已停止'} prefix={stats.running ? <Wifi className="w-3 h-3" style={{ color: '#10b981' }} /> : <WifiOff className="w-3 h-3" style={{ color: '#dc2626' }} />} valueStyle={{ fontSize: 16 }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="端口" value={stats.port} prefix={<Server className="w-3 h-3" style={{ color: '#7c3aed' }} />} valueStyle={{ fontSize: 16 }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="连接" value={stats.connections.length} prefix={<Activity className="w-3 h-3" style={{ color: '#0891b2' }} />} valueStyle={{ fontSize: 16 }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="报文" value={stats.totalMessages} prefix={<FileText className="w-3 h-3" style={{ color: '#3b82f6' }} />} valueStyle={{ fontSize: 16 }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="ACK" value={stats.totalAckSent} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} valueStyle={{ fontSize: 16 }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="错误" value={stats.totalError} prefix={<AlertCircle className="w-3 h-3" style={{ color: '#dc2626' }} />} valueStyle={{ fontSize: 16 }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="状态" value={stats.running ? '运行中' : '已停止'} prefix={stats.running ? <Wifi className="w-3 h-3" style={{ color: '#10b981' }} /> : <WifiOff className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="端口" value={stats.port} prefix={<Server className="w-3 h-3" style={{ color: '#7c3aed' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="连接" value={stats.connections.length} prefix={<Activity className="w-3 h-3" style={{ color: '#0891b2' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="报文" value={stats.totalMessages} prefix={<FileText className="w-3 h-3" style={{ color: '#3b82f6' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="ACK" value={stats.totalAckSent} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="错误" value={stats.totalError} prefix={<AlertCircle className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
       </Row>
 
       <Card size="small" className="shadow-sm" title={
@@ -191,7 +191,7 @@ export const MllpMonitor: React.FC = () => {
                   key: 'validate', label: '验证',
                   children: selectedMessage.validation ? (
                     <div className="space-y-1">
-                      <Alert type={selectedMessage.validation.passed ? 'success' : 'error'} showIcon message={selectedMessage.validation.passed ? '✓ 验证通过' : `✗ ${selectedMessage.validation.errors} 个错误`} />
+                      <Alert type={selectedMessage.validation.passed ? 'success' : 'error'} showIcon title={selectedMessage.validation.passed ? '✓ 验证通过' : `✗ ${selectedMessage.validation.errors} 个错误`} />
                       {selectedMessage.validation.issues.map((iss, i) => (
                         <div key={i} className={`p-1.5 text-xs rounded ${iss.level === 'error' ? 'bg-red-50 text-red-700' : iss.level === 'warning' ? 'bg-amber-50 text-amber-700' : 'bg-slate-50'}`}>
                           <Tag color={iss.level === 'error' ? 'red' : iss.level === 'warning' ? 'orange' : 'default'}>{iss.code}</Tag>

@@ -116,7 +116,7 @@ export const FhirServerPage: React.FC = () => {
             </Card>
           },
           { key:'query', label:'FHIR 查询', children:
-            <Space direction="vertical" style={{width:'100%'}}>
+            <Space orientation="vertical" style={{width:'100%'}}>
               <Card size="small">
                 <Space.Compact style={{width:'100%'}}>
                   <Input value={fhirQuery} onChange={e=>setFhirQuery(e.target.value)} placeholder='_count=5&name:contains=张' />

@@ -25,7 +25,7 @@ type Story = StoryObj;
 const ToastDemo = () => {
   const toast = useToast();
   return (
-    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+    <Space orientation="vertical" size="middle" style={{ width: '100%' }}>
       <Card title="Toast 消息" size="small">
         <Space wrap>
           <Button onClick={() => toast.success('操作成功')} type="primary">成功</Button>
@@ -53,7 +53,7 @@ const NotificationDemo = () => {
   const notification = useNotification();
   return (
     <Card title="Notification 通知" size="small">
-      <Space direction="vertical" style={{ width: '100%' }}>
+      <Space orientation="vertical" style={{ width: '100%' }}>
         <Space wrap>
           <Button onClick={() => notification.success('成功', '数据已保存到服务器')}>成功通知</Button>
           <Button danger onClick={() => notification.error('错误', '网络连接中断')}>错误通知</Button>

@@ -46,7 +46,7 @@ export const TriageCard: React.FC<TriageCardProps> = ({ item, compact = false, o
       style={{ marginBottom: 8, borderLeft: `4px solid ${item.priority === 'STAT' ? '#dc2626' : '#f59e0b'}` }}
       bodyStyle={{ padding: compact ? 8 : 12 }}
     >
-      <Space direction="vertical" size={4} style={{ width: '100%' }}>
+      <Space orientation="vertical" size={4} style={{ width: '100%' }}>
         <Space wrap>
           <Tag color={cat.color} style={{ fontWeight: 600 }}>{cat.label}</Tag>
           <PriorityBadge priority={item.priority} />

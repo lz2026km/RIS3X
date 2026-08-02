@@ -267,7 +267,7 @@ export const DentalCephPage: React.FC = () => {
                 value={
                   studies.filter((s: any) => s.status === "analyzed").length
                 }
-                valueStyle={{ color: "#52c41a" }}
+                styles={{ content: {  color: "#52c41a"  } }}
               />
             </Card>
           </Col>
@@ -278,7 +278,7 @@ export const DentalCephPage: React.FC = () => {
                 value={
                   studies.filter((s: any) => s.status === "pending").length
                 }
-                valueStyle={{ color: "#faad14" }}
+                styles={{ content: {  color: "#faad14"  } }}
               />
             </Card>
           </Col>

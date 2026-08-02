@@ -119,7 +119,7 @@ test.describe.serial('全面页面健康度检查 v100', () => {
 
       let status = 0, len = 0, hasAnt = false, html = '', hasRender = false;
       try {
-        const resp = await page.goto(`http://127.0.0.1:5199/g005-radiology-ris${route}`, {
+        const resp = await page.goto(`http://localhost:5191${route}`, {
           timeout: 25000, waitUntil: 'domcontentloaded'
         });
         status = resp?.status() ?? 0;

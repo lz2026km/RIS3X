@@ -215,27 +215,27 @@ export default function BenchmarkPageV2() {
         <Row gutter={[12, 12]}>
           <Col span={4}>
             <Card size="small" style={{ borderRadius: 8 }}>
-              <Statistic title="总检查量" value={stats.totalExams ?? '--'} suffix="例" valueStyle={{ fontSize: 20, color: '#3b82f6' }} />
+              <Statistic title="总检查量" value={stats.totalExams ?? '--'} suffix="例" styles={{ content: {  fontSize: 20, color: '#3b82f6'  } }} />
             </Card>
           </Col>
           <Col span={5}>
             <Card size="small" style={{ borderRadius: 8 }}>
-              <Statistic title="阳性率" value={stats.positiveRate ?? '--'} suffix="%" valueStyle={{ fontSize: 20, color: '#f59e0b' }} />
+              <Statistic title="阳性率" value={stats.positiveRate ?? '--'} suffix="%" styles={{ content: {  fontSize: 20, color: '#f59e0b'  } }} />
             </Card>
           </Col>
           <Col span={5}>
             <Card size="small" style={{ borderRadius: 8 }}>
-              <Statistic title="甲级片率" value={stats.gradeARate ?? '--'} suffix="%" valueStyle={{ fontSize: 20, color: '#10b981' }} />
+              <Statistic title="甲级片率" value={stats.gradeARate ?? '--'} suffix="%" styles={{ content: {  fontSize: 20, color: '#10b981'  } }} />
             </Card>
           </Col>
           <Col span={5}>
             <Card size="small" style={{ borderRadius: 8 }}>
-              <Statistic title="报告及时率" value={stats.reportOnTimeRate ?? '--'} suffix="%" valueStyle={{ fontSize: 20, color: '#6366f1' }} />
+              <Statistic title="报告及时率" value={stats.reportOnTimeRate ?? '--'} suffix="%" styles={{ content: {  fontSize: 20, color: '#6366f1'  } }} />
             </Card>
           </Col>
           <Col span={5}>
             <Card size="small" style={{ borderRadius: 8 }}>
-              <Statistic title="危急值闭环率" value={stats.criticalClosedRate ?? '--'} suffix="%" valueStyle={{ fontSize: 20, color: '#ec4899' }} />
+              <Statistic title="危急值闭环率" value={stats.criticalClosedRate ?? '--'} suffix="%" styles={{ content: {  fontSize: 20, color: '#ec4899'  } }} />
             </Card>
           </Col>
         </Row>

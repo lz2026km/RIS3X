@@ -74,17 +74,17 @@ export const DeviceManagement: React.FC<DeviceManagementProps> = ({ devices, onC
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="在线" value={stats.online} valueStyle={{ color: '#16a34a' }} />
+            <Statistic title="在线" value={stats.online} styles={{ content: {  color: '#16a34a'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="使用中" value={stats.busy} valueStyle={{ color: '#dc2626' }} />
+            <Statistic title="使用中" value={stats.busy} styles={{ content: {  color: '#dc2626'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="离线/维护" value={stats.offline} valueStyle={{ color: '#94a3b8' }} />
+            <Statistic title="离线/维护" value={stats.offline} styles={{ content: {  color: '#94a3b8'  } }} />
           </Card>
         </Col>
       </Row>

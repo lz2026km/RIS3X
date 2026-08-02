@@ -72,7 +72,7 @@ export const SystemAdminPage: React.FC = () => {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}><Card><Statistic title="用户" value={users.length} /></Card></Col>
         <Col span={4}><Card><Statistic title="角色" value={roles.length} /></Card></Col>
-        <Col span={4}><Card><Statistic title="在线" value="2" valueStyle={{color:'#52c41a'}} /></Card></Col>
+        <Col span={4}><Card><Statistic title="在线" value="2" styles={{ content: { color:'#52c41a' } }} /></Card></Col>
       </Row>
 
       {loading ? (

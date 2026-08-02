@@ -195,7 +195,7 @@ export const BatchActions: React.FC<BatchActionsProps> = ({
         okText="确认改派"
         cancelText="取消"
       >
-        <Space direction="vertical" style={{ width: '100%' }}>
+        <Space orientation="vertical" style={{ width: '100%' }}>
           <div>将 <strong>{selectedCount}</strong> 条检查改派给:</div>
           <Select
             data-testid="batch-reassign-select"
@@ -217,7 +217,7 @@ export const BatchActions: React.FC<BatchActionsProps> = ({
         okText="导出"
         cancelText="取消"
       >
-        <Space direction="vertical" style={{ width: '100%' }}>
+        <Space orientation="vertical" style={{ width: '100%' }}>
           <div>导出 <strong>{selectedCount}</strong> 条检查,格式:</div>
           <Select
             value={exportFormat}

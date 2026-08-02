@@ -97,14 +97,14 @@ export const TimeStampDisplay: React.FC<TimeStampDisplayProps> = ({ reportId, au
       extra={<Button icon={<RefreshCw size={14} />} onClick={() => void load()} loading={loading}>刷新</Button>}
       style={{ width: '100%' }}
     >
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
+      {error && <Alert type="error" showIcon title={error} style={{ marginBottom: 12 }} />}
 
       <Row gutter={16} style={{ marginBottom: 12 }}>
         <Col span={8}>
-          <Statistic title="国家级 TSA" value={national} prefix={<ShieldCheck size={14} />} valueStyle={{ color: '#10b981' }} />
+          <Statistic title="国家级 TSA" value={national} prefix={<ShieldCheck size={14} />} styles={{ content: {  color: '#10b981'  } }} />
         </Col>
         <Col span={8}>
-          <Statistic title="医院级 TSA" value={hospital} prefix={<Building2 size={14} />} valueStyle={{ color: '#2563eb' }} />
+          <Statistic title="医院级 TSA" value={hospital} prefix={<Building2 size={14} />} styles={{ content: {  color: '#2563eb'  } }} />
         </Col>
         <Col span={8}>
           <Statistic title="总计" value={tokens.length} prefix={<Clock size={14} />} />
@@ -116,7 +116,7 @@ export const TimeStampDisplay: React.FC<TimeStampDisplayProps> = ({ reportId, au
           type={verifyResult.isValid ? 'success' : 'error'}
           showIcon
           style={{ marginBottom: 12 }}
-          message={`验证 ${verifyResult.isValid ? '通过' : '失败'}`}
+          title={`验证 ${verifyResult.isValid ? '通过' : '失败'}`}
           description={verifyResult.failureReasons.join('; ') || '时间戳有效'}
           closable
           onClose={() => setVerifyResult(null)}

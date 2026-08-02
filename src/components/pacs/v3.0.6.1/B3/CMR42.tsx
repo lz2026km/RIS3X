@@ -88,7 +88,7 @@ export const CMR42: React.FC<CMR42Props> = ({ patients = MOCK }) => {
               value={stats.avgEf}
               precision={1}
               suffix="%"
-              valueStyle={{ color: '#16a34a' }}
+              styles={{ content: {  color: '#16a34a'  } }}
             />
           </Card>
         </Col>
@@ -109,7 +109,7 @@ export const CMR42: React.FC<CMR42Props> = ({ patients = MOCK }) => {
               title="LGE 阳性"
               value={stats.lgePos}
               prefix={<Activity size={14} color="#f59e0b" />}
-              valueStyle={{ color: '#f59e0b' }}
+              styles={{ content: {  color: '#f59e0b'  } }}
             />
           </Card>
         </Col>

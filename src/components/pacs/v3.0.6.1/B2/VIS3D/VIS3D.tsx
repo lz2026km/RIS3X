@@ -73,7 +73,7 @@ export const VIS3D: React.FC<VIS3DProps> = ({ onModeChange, onSelectStudy }) => 
       title: '患者',
       key: 'patient',
       render: (_: unknown, r: VIS3DStudy) => (
-        <Space direction="vertical" size={0}>
+        <Space orientation="vertical" size={0}>
           <span style={{ fontWeight: 600 }}>{r.patientName}</span>
           <span style={{ fontSize: 12, color: '#64748b' }}>{r.patientId}</span>
         </Space>
@@ -140,22 +140,22 @@ export const VIS3D: React.FC<VIS3DProps> = ({ onModeChange, onSelectStudy }) => 
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="总渲染次数" value={stats.total} prefix={<Cpu size={14} color="#3b82f6" />} valueStyle={{ color: '#3b82f6' }} />
+            <Statistic title="总渲染次数" value={stats.total} prefix={<Cpu size={14} color="#3b82f6" />} styles={{ content: {  color: '#3b82f6'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="已完成" value={stats.done} suffix={`/ ${stats.total}`} prefix={<Layers size={14} color="#16a34a" />} valueStyle={{ color: '#16a34a' }} />
+            <Statistic title="已完成" value={stats.done} suffix={`/ ${stats.total}`} prefix={<Layers size={14} color="#16a34a" />} styles={{ content: {  color: '#16a34a'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="平均渲染耗时" value={stats.avgMs} suffix="ms" prefix={<Clock size={14} color="#f59e0b" />} valueStyle={{ color: '#f59e0b' }} />
+            <Statistic title="平均渲染耗时" value={stats.avgMs} suffix="ms" prefix={<Clock size={14} color="#f59e0b" />} styles={{ content: {  color: '#f59e0b'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="显存占用" value={(stats.vramTotal / 1024).toFixed(2)} suffix="GB" prefix={<MemoryStick size={14} color="#8b5cf6" />} valueStyle={{ color: '#8b5cf6' }} />
+            <Statistic title="显存占用" value={(stats.vramTotal / 1024).toFixed(2)} suffix="GB" prefix={<MemoryStick size={14} color="#8b5cf6" />} styles={{ content: {  color: '#8b5cf6'  } }} />
           </Card>
         </Col>
       </Row>

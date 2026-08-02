@@ -76,22 +76,22 @@ export const ReportReviewCenter: React.FC<ReportReviewCenterProps> = ({ reports,
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={6}>
           <Card>
-            <Statistic title="待审核" value={counts.pending} prefix={<Clock size={14} color="#3b82f6" />} valueStyle={{ color: '#3b82f6' }} />
+            <Statistic title="待审核" value={counts.pending} prefix={<Clock size={14} color="#3b82f6" />} styles={{ content: {  color: '#3b82f6'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="危急值" value={counts.critical} prefix={<AlertCircle size={14} color="#dc2626" />} valueStyle={{ color: '#dc2626' }} />
+            <Statistic title="危急值" value={counts.critical} prefix={<AlertCircle size={14} color="#dc2626" />} styles={{ content: {  color: '#dc2626'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="已通过" value={counts.approved} prefix={<CheckCircle size={14} color="#16a34a" />} valueStyle={{ color: '#16a34a' }} />
+            <Statistic title="已通过" value={counts.approved} prefix={<CheckCircle size={14} color="#16a34a" />} styles={{ content: {  color: '#16a34a'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="已退回" value={counts.rejected} prefix={<XCircle size={14} color="#ef4444" />} valueStyle={{ color: '#ef4444' }} />
+            <Statistic title="已退回" value={counts.rejected} prefix={<XCircle size={14} color="#ef4444" />} styles={{ content: {  color: '#ef4444'  } }} />
           </Card>
         </Col>
       </Row>
@@ -176,7 +176,7 @@ export const ReportReviewCenter: React.FC<ReportReviewCenterProps> = ({ reports,
         width={680}
       >
         {current && (
-          <Space direction="vertical" size={12} style={{ width: '100%' }}>
+          <Space orientation="vertical" size={12} style={{ width: '100%' }}>
             <Descriptions size="small" column={2} bordered>
               <Descriptions.Item label="姓名">{current.patientName}</Descriptions.Item>
               <Descriptions.Item label="ID">{current.patientId}</Descriptions.Item>

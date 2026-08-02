@@ -111,10 +111,10 @@ export const EmergencyOverrideDialog: React.FC<EmergencyOverrideDialogProps> = (
       }
       style={{ width: '100%' }}
     >
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
+      {error && <Alert type="error" showIcon title={error} style={{ marginBottom: 12 }} />}
 
       {records.length === 0 ? (
-        <Alert type="info" showIcon message="暂无应急授权记录" />
+        <Alert type="info" showIcon title="暂无应急授权记录" />
       ) : (
         <List
           dataSource={records}
@@ -163,7 +163,7 @@ export const EmergencyOverrideDialog: React.FC<EmergencyOverrideDialogProps> = (
         onOk={handleInitiate}
         onCancel={() => setInitModal(false)}
       >
-        <Alert type="warning" showIcon message="紧急授权需 3 位见证人 (3-eye principle) 同时授权方可生效" style={{ marginBottom: 12 }} />
+        <Alert type="warning" showIcon title="紧急授权需 3 位见证人 (3-eye principle) 同时授权方可生效" style={{ marginBottom: 12 }} />
         <Form form={form} layout="vertical">
           <Form.Item name="reportId" label="报告 ID" rules={[{ required: true }]}><Input /></Form.Item>
           <Form.Item name="severity" label="严重程度" rules={[{ required: true }]} initialValue="critical">
@@ -186,7 +186,7 @@ export const EmergencyOverrideDialog: React.FC<EmergencyOverrideDialogProps> = (
         width={560}
       >
         {detail && (
-          <Space direction="vertical" style={{ width: '100%' }}>
+          <Space orientation="vertical" style={{ width: '100%' }}>
             <Descriptions column={2} size="small" bordered>
               <Descriptions.Item label="状态" span={2}>
                 <Tag color={statusMeta[detail.status]?.color}>{statusMeta[detail.status]?.label}</Tag>

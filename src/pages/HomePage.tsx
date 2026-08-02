@@ -1319,7 +1319,7 @@ const HomePage: FC = () => {
       <div style={{
         maxHeight: 280,
         overflowY: 'auto',
-      }}>
+      }} tabIndex={0} aria-label="设备列表">
         {devices.map((device) => (
           <div
             key={device.id}
@@ -1409,7 +1409,7 @@ const HomePage: FC = () => {
         </div>
       </div>
 
-      <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+      <div style={{ maxHeight: 400, overflowY: 'auto' }} tabIndex={0} aria-label="待检列表">
         {pendingExams.map((exam, index) => (
           <div
             key={exam.id}
@@ -1607,7 +1607,7 @@ const HomePage: FC = () => {
           </div>
         </div>
       ) : (
-        <div style={{ maxHeight: 320, overflowY: 'auto' }}>
+        <div style={{ maxHeight: 320, overflowY: 'auto' }} tabIndex={0} aria-label="危急值列表">
           {criticalPending.map((cv, index) => (
             <div
               key={cv.id}

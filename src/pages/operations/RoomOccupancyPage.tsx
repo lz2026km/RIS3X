@@ -72,9 +72,9 @@ export const RoomOccupancyPage: React.FC = () => {
 
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
         <Col span={6}><Card size="small"><Statistic title="总检查室" value={total} suffix={`间`} prefix={<LayoutDashboard size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="当前占用" value={occupied} valueStyle={{ color: '#1677ff' }} prefix={<Users size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="空闲" value={idle} valueStyle={{ color: '#52c41a' }} prefix={<Circle size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="故障" value={fault} valueStyle={{ color: fault ? '#ff4d4f' : undefined }} prefix={<AlertTriangle size={16} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="当前占用" value={occupied} styles={{ content: {  color: '#1677ff'  } }} prefix={<Users size={16} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="空闲" value={idle} styles={{ content: {  color: '#52c41a'  } }} prefix={<Circle size={16} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="故障" value={fault} styles={{ content: {  color: fault ? '#ff4d4f' : undefined  } }} prefix={<AlertTriangle size={16} />} /></Card></Col>
       </Row>
 
       <Row gutter={[16, 16]}>
@@ -162,7 +162,7 @@ export const RoomOccupancyPage: React.FC = () => {
               <div style={{ color: '#52c41a', padding: 12, textAlign: 'center' }}>暂无超时房间</div>
             ) : (
               rooms.filter(r => r.overdue).map(r => (
-                <Alert key={r.id} type="error" showIcon message={`${r.roomNo} 超时 >15min`} style={{ marginBottom: 8 }}
+                <Alert key={r.id} type="error" showIcon title={`${r.roomNo} 超时 >15min`} style={{ marginBottom: 8 }}
                   description={`患者: ${r.currentPatient ?? '--'} | 预计结束: ${r.expectedEnd ? new Date(r.expectedEnd).toLocaleTimeString() : '--'}`}
                 />
               ))
@@ -170,7 +170,7 @@ export const RoomOccupancyPage: React.FC = () => {
           </Card>
 
           <Card size="small" title={<Space><Circle size={14} />手动更新状态</Space>} style={{ marginTop: 16 }}>
-            <Space direction="vertical" style={{ width: '100%' }}>
+            <Space orientation="vertical" style={{ width: '100%' }}>
               <Select placeholder="选择房间" style={{ width: '100%' }}
                 options={rooms.map(r => ({ value: r.id, label: r.roomNo }))}
                 onChange={v => setSelectedRoom(v)}

@@ -80,7 +80,7 @@ export const DentalBillingPage: React.FC = () => {
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}><Card size="small"><Statistic title="今日收入" prefix="¥" value={invoices.filter(i=>i.status==='paid').reduce((s,i)=>s+i.total,0)} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="待缴费" prefix="¥" value={totalPending} valueStyle={{color:totalPending>0?'#faad14':'#52c41a'}} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="待缴费" prefix="¥" value={totalPending} styles={{ content: { color:totalPending>0?'#faad14':'#52c41a' } }} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="医保支出" prefix="¥" value={invoices.reduce((s,i)=>s+i.insuranceCover,0)} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="回款率" value={(totalPaid/(totalPaid+totalPending+1)*100).toFixed(0)} suffix="%" /></Card></Col>
         <Col span={4}>

@@ -60,7 +60,7 @@ export const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ theme = 'lig
               key: 'controls',
               label: '控件',
               children: (
-                <Space direction="vertical" size={10}>
+                <Space orientation="vertical" size={10}>
                   <Switch defaultChecked />
                   <Slider defaultValue={50} />
                   <Space>

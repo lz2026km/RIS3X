@@ -113,9 +113,9 @@ export const CloseLoopPage: React.FC = () => {
 
       <Row gutter={12}>
         <Col span={6}><Statistic title="事件总数" value={stats.total} prefix={<Bell size={14} />} /></Col>
-        <Col span={6}><Statistic title="未关闭" value={stats.open} valueStyle={{ color: '#f59e0b' }} /></Col>
-        <Col span={6}><Statistic title="已超时" value={stats.overdue} valueStyle={{ color: '#dc2626' }} prefix={<Clock size={14} />} /></Col>
-        <Col span={6}><Statistic title="已升级" value={stats.escalated} valueStyle={{ color: '#7c3aed' }} /></Col>
+        <Col span={6}><Statistic title="未关闭" value={stats.open} styles={{ content: {  color: '#f59e0b'  } }} /></Col>
+        <Col span={6}><Statistic title="已超时" value={stats.overdue} styles={{ content: {  color: '#dc2626'  } }} prefix={<Clock size={14} />} /></Col>
+        <Col span={6}><Statistic title="已升级" value={stats.escalated} styles={{ content: {  color: '#7c3aed'  } }} /></Col>
       </Row>
 
       <Row gutter={12}>
@@ -153,7 +153,7 @@ export const CloseLoopPage: React.FC = () => {
                     padding: '8px 10px',
                   }}
                 >
-                  <Space direction="vertical" size={2} style={{ flex: 1 }}>
+                  <Space orientation="vertical" size={2} style={{ flex: 1 }}>
                     <Space size={4}>
                       <Tag color={e.level === 'critical' ? 'red' : e.level === 'urgent' ? 'orange' : 'blue'}>
                         {e.ruleCode}
@@ -195,7 +195,7 @@ export const CloseLoopPage: React.FC = () => {
         <Alert
           type="error"
           showIcon
-          message={`${stats.overdue} 起事件已超时,请优先处理`}
+          title={`${stats.overdue} 起事件已超时,请优先处理`}
           icon={<AlertOctagon size={16} />}
         />
       )}

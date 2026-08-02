@@ -105,11 +105,11 @@ const OctAngiographyPage: React.FC = () => {
                     title={m.type}
                     value={m.value}
                     suffix={m.unit}
-                    valueStyle={{
+                    styles={{ content: { 
                       fontSize: 18,
                       color:
                         m.interpretation === "abnormal" ? "#ef4444" : "#0f172a",
-                    }}
+                     } }}
                   />
                 </Col>
               ))}

@@ -236,7 +236,7 @@ const CardiacSpecialtyPage = () => {
             type="error"
             showIcon
             style={{ marginBottom: 16 }}
-            message={error}
+            title={error}
             action={
               <Button size="small" onClick={() => void load()}>
                 重试

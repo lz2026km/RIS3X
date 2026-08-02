@@ -37,7 +37,7 @@ export const AcknowledgeModal: React.FC<AcknowledgeModalProps> = ({ open, item, 
       data-testid="ack-modal"
     >
       {item && (
-        <Space direction="vertical" size={8} style={{ width: '100%' }}>
+        <Space orientation="vertical" size={8} style={{ width: '100%' }}>
           <div><Tag color="red">{item.finding}</Tag></div>
           <Form layout="vertical" size="small">
             <Form.Item label="确认人" required>

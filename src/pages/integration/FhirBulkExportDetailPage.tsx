@@ -117,7 +117,7 @@ export const FhirBulkExportDetailPage: React.FC = () => {
           {status.startedAt && <Descriptions.Item label="Started At">{status.startedAt}</Descriptions.Item>}
           {status.progress && <Descriptions.Item label="Progress">{status.progress}</Descriptions.Item>}
         </Descriptions>
-        {status.error && <Alert type="error" message={status.error} showIcon style={{ marginTop: 8 }} />}
+        {status.error && <Alert type="error" title={status.error} showIcon style={{ marginTop: 8 }} />}
       </Card>
 
       {status.files && status.files.length > 0 && (

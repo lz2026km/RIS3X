@@ -95,7 +95,7 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="超时率" value={data.overdueRate.toFixed(1)} suffix="%" valueStyle={{ color: data.overdueRate > 10 ? CHART_COLORS.error : CHART_COLORS.success }} />
+            <Statistic title="超时率" value={data.overdueRate.toFixed(1)} suffix="%" styles={{ content: {  color: data.overdueRate > 10 ? CHART_COLORS.error : CHART_COLORS.success  } }} />
             <Progress percent={data.overdueRate} size="small" status={data.overdueRate > 10 ? 'exception' : 'normal'} showInfo={false} />
           </Card>
         </Col>

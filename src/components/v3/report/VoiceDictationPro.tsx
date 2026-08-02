@@ -345,13 +345,13 @@ export const VoiceDictationPro: React.FC<VoiceDictationProProps> = ({
         <Statistic
           title="时长"
           value={`${totalTime}s`}
-          valueStyle={{ fontSize: 12 }}
+          styles={{ content: {  fontSize: 12  } }}
           prefix={null}
         />
         <Statistic
           title="字数"
           value={wordCount}
-          valueStyle={{ fontSize: 12 }}
+          styles={{ content: {  fontSize: 12  } }}
         />
       </Space>
 
@@ -374,7 +374,7 @@ export const VoiceDictationPro: React.FC<VoiceDictationProProps> = ({
 
       {showSettings && (
         <Card size="small" style={{ marginTop: 8, background: '#f8fafc' }} data-testid="vdp-settings-panel">
-          <Space direction="vertical" size={4} style={{ width: '100%' }}>
+          <Space orientation="vertical" size={4} style={{ width: '100%' }}>
             <Space>
               <span style={{ fontSize: 12 }}>医学词库</span>
               <Switch size="small" checked={vocabEnabled} onChange={setVocabEnabled} />

@@ -88,7 +88,7 @@ export const DoseWise: React.FC<DoseWiseProps> = ({ protocols = MOCK }) => {
             <Statistic
               title="超 DRL"
               value={stats.exceeded}
-              valueStyle={{ color: '#dc2626' }}
+              styles={{ content: {  color: '#dc2626'  } }}
               prefix={<AlertTriangle size={14} color="#dc2626" />}
             />
           </Card>
@@ -105,7 +105,7 @@ export const DoseWise: React.FC<DoseWiseProps> = ({ protocols = MOCK }) => {
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Space direction="vertical" size={2}>
+            <Space orientation="vertical" size={2}>
               <Tag color="blue">ALARA 原则</Tag>
               <Tag color="green">ICRP 推荐</Tag>
             </Space>

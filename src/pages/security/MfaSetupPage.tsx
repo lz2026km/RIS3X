@@ -151,7 +151,7 @@ export default function MfaSetupPage() {
             <Statistic
               title="当前状态"
               value={enabled ? "已启用" : "未启用"}
-              valueStyle={{ color: enabled ? "#059669" : "#dc2626" }}
+              styles={{ content: {  color: enabled ? "#059669" : "#dc2626"  } }}
               prefix={
                 enabled ? <Shield size={14} /> : <AlertTriangle size={14} />
               }
@@ -210,7 +210,7 @@ export default function MfaSetupPage() {
             <Paragraph type="secondary" style={{ marginBottom: 16 }}>
               选择一个 MFA 方式来增强账户安全性
             </Paragraph>
-            <Space direction="vertical" style={{ width: "100%" }}>
+            <Space orientation="vertical" style={{ width: "100%" }}>
               <Button
                 size="large"
                 block
@@ -249,7 +249,7 @@ export default function MfaSetupPage() {
         {step === 1 && (
           <div>
             <Alert
-              message="使用 TOTP 验证器扫描或手动输入密钥"
+              title="使用 TOTP 验证器扫描或手动输入密钥"
               type="info"
               showIcon
               style={{ marginBottom: 16 }}
@@ -317,14 +317,14 @@ export default function MfaSetupPage() {
             )}
             {method === "sms" && (
               <Alert
-                message="短信验证码已发送至已绑定手机"
+                title="短信验证码已发送至已绑定手机"
                 type="success"
                 showIcon
               />
             )}
             {method === "email" && (
               <Alert
-                message="验证码已发送至已绑定邮箱"
+                title="验证码已发送至已绑定邮箱"
                 type="success"
                 showIcon
               />
@@ -344,7 +344,7 @@ export default function MfaSetupPage() {
             {result && (
               <Alert
                 type={result.success ? "success" : "error"}
-                message={result.message}
+                title={result.message}
                 showIcon
                 style={{ marginTop: 12 }}
               />
@@ -355,7 +355,7 @@ export default function MfaSetupPage() {
         {step === 3 && (
           <div>
             <Alert
-              message="MFA 已成功启用"
+              title="MFA 已成功启用"
               type="success"
               showIcon
               icon={<CheckCircle size={16} />}

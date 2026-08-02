@@ -186,7 +186,7 @@ export const HangingProtocolSwitcher: React.FC<HangingProtocolSwitcherProps> = (
         width={720}
         footer={null}
       >
-        <Space direction="vertical" style={{ width: '100%' }}>
+        <Space orientation="vertical" style={{ width: '100%' }}>
           {protocols.map((p) => (
             <Card
               key={p.id}

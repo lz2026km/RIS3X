@@ -63,9 +63,9 @@ export const VoiceFieldNavigator: React.FC<Props> = ({ reportId, fields, onFocus
       className="shadow-sm"
     >
       <Row gutter={8} className="mb-3">
-        <Col span={8}><Statistic title="完成字段" value={`${completedCount}/${nav.fields.length}`} valueStyle={{ fontSize: 14 }} /></Col>
-        <Col span={8}><Statistic title="必填完成" value={`${completedRequired}/${totalRequired}`} valueStyle={{ fontSize: 14, color: completedRequired === totalRequired ? '#10b981' : '#f59e0b' }} /></Col>
-        <Col span={8}><Statistic title="完成度" value={percent} suffix="%" valueStyle={{ fontSize: 14 }} /></Col>
+        <Col span={8}><Statistic title="完成字段" value={`${completedCount}/${nav.fields.length}`} styles={{ content: {  fontSize: 14  } }} /></Col>
+        <Col span={8}><Statistic title="必填完成" value={`${completedRequired}/${totalRequired}`} styles={{ content: {  fontSize: 14, color: completedRequired === totalRequired ? '#10b981' : '#f59e0b'  } }} /></Col>
+        <Col span={8}><Statistic title="完成度" value={percent} suffix="%" styles={{ content: {  fontSize: 14  } }} /></Col>
       </Row>
       <Progress percent={percent} size="small" showInfo={false} strokeColor="#3b82f6" />
 

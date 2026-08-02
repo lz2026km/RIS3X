@@ -79,7 +79,7 @@ export const DicomSrPage: React.FC = () => {
       </Space>
 
       <Card title={t('dicomSr.templateConfig') || '模板配置'} size="small" style={{ marginBottom: 16 }}>
-        <Space direction="vertical" style={{ width: '100%' }} size="middle">
+        <Space orientation="vertical" style={{ width: '100%' }} size="middle">
           <div>
             <Text strong>{t('dicomSr.selectTemplate') || '选择 SR 模板'}:</Text>
             <div style={{ marginTop: 8 }}>

@@ -56,7 +56,7 @@ export default function MobileSettingsPage() {
 
   const renderSection = (title: string, icon: React.ReactNode, children: React.ReactNode) => (
     <Card size="small" style={{ marginBottom: 8 }}>
-      <Space direction="vertical" style={{ width: '100%' }} size={8}>
+      <Space orientation="vertical" style={{ width: '100%' }} size={8}>
         <Space><div style={{ color: '#3b82f6' }}>{icon}</div><Text strong>{title}</Text></Space>
         {children}
       </Space>
@@ -93,7 +93,7 @@ export default function MobileSettingsPage() {
         onDisable={() => save({ pushEnabled: false })} />
 
       {renderSection('安全', <Shield size={16} />,
-        <Space direction="vertical" style={{ width: '100%' }} size={4}>
+        <Space orientation="vertical" style={{ width: '100%' }} size={4}>
           {renderToggle('生物识别登录', '使用 Face ID / 指纹快速登录', settings.biometricEnabled,
             v => v ? setShowBiometric(true) : save({ biometricEnabled: false, biometricType: 'none' }))}
           {settings.biometricEnabled && (
@@ -113,7 +113,7 @@ export default function MobileSettingsPage() {
       )}
 
       {renderSection('通知', <Bell size={16} />,
-        <Space direction="vertical" style={{ width: '100%' }} size={4}>
+        <Space orientation="vertical" style={{ width: '100%' }} size={4}>
           {renderToggle('推送通知', '接收报告和危急值提醒', settings.pushEnabled,
             v => v ? save({ pushEnabled: true }) : save({ pushEnabled: false }))}
 
@@ -136,7 +136,7 @@ export default function MobileSettingsPage() {
       )}
 
       {renderSection('离线与同步', <Wifi size={16} />,
-        <Space direction="vertical" style={{ width: '100%' }} size={4}>
+        <Space orientation="vertical" style={{ width: '100%' }} size={4}>
           {renderToggle('离线模式', '优先使用本地缓存', settings.offlineMode, v => save({ offlineMode: v }))}
           {renderToggle('自动同步', '连接网络后自动同步', settings.autoSync, v => save({ autoSync: v }))}
           {renderToggle('仅 Wi-Fi 同步', '仅在 Wi-Fi 下同步数据', settings.syncOnWifiOnly, v => save({ syncOnWifiOnly: v }))}
@@ -150,7 +150,7 @@ export default function MobileSettingsPage() {
       )}
 
       {renderSection('体验', <Smartphone size={16} />,
-        <Space direction="vertical" style={{ width: '100%' }} size={4}>
+        <Space orientation="vertical" style={{ width: '100%' }} size={4}>
           {renderToggle('触觉反馈', '按键和操作时的振动反馈', settings.hapticsEnabled, v => {
             save({ hapticsEnabled: v })
             haptics.setEnabled(v)
@@ -176,7 +176,7 @@ export default function MobileSettingsPage() {
       )}
 
       {renderSection('外观', <Palette size={16} />,
-        <Space direction="vertical" style={{ width: '100%' }} size={4}>
+        <Space orientation="vertical" style={{ width: '100%' }} size={4}>
           <div style={{ padding: '4px 0' }}>
             <Text style={{ fontSize: 13 }}>语言</Text>
             <Select value={settings.language} onChange={v => save({ language: v as 'zh-CN' | 'en-US' })}

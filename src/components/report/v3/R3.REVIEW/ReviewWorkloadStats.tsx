@@ -219,7 +219,7 @@ export const ReviewWorkloadStats: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>总完成</span>}
               value={overallStats.total}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<CheckCircle2 size={14} />}
             />
           </Col>
@@ -227,7 +227,7 @@ export const ReviewWorkloadStats: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>总驳回</span>}
               value={overallStats.rejected}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<XCircle size={14} />}
             />
           </Col>
@@ -236,7 +236,7 @@ export const ReviewWorkloadStats: React.FC = () => {
               title={<span style={{ color: '#fff' }}>平均时长</span>}
               value={overallStats.avgTime}
               suffix="分钟"
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Clock size={14} />}
             />
           </Col>
@@ -245,7 +245,7 @@ export const ReviewWorkloadStats: React.FC = () => {
               title={<span style={{ color: '#fff' }}>平均按时率</span>}
               value={overallStats.onTime}
               suffix="%"
-              valueStyle={{ color: '#bbf7d0', fontSize: 18 }}
+              styles={{ content: {  color: '#bbf7d0', fontSize: 18  } }}
               prefix={<Target size={14} />}
             />
           </Col>

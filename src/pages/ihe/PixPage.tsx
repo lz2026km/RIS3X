@@ -376,7 +376,7 @@ export const PixPage: React.FC = () => {
                     {feedResult && (
                       <Alert
                         type={feedResult.success ? "success" : "error"}
-                        message={`ACK: ${feedResult.ack}${feedResult.storedPid ? ` | Stored PID: ${feedResult.storedPid}` : ""}${feedResult.transaction ? ` | TXN: ${feedResult.transaction}` : ""}`}
+                        title={`ACK: ${feedResult.ack}${feedResult.storedPid ? ` | Stored PID: ${feedResult.storedPid}` : ""}${feedResult.transaction ? ` | TXN: ${feedResult.transaction}` : ""}`}
                         showIcon
                         style={{ marginTop: 8 }}
                       />

@@ -269,9 +269,9 @@ export const DentalPhotoPage: React.FC = () => {
               <Card size="small" title="Share Case with Patient">
                 {shareLink ? (
                   <Alert
-                    message="Share link generated"
+                    title="Share link generated"
                     description={
-                      <Space direction="vertical" style={{ width: '100%' }}>
+                      <Space orientation="vertical" style={{ width: '100%' }}>
                         <code style={{ background: '#f5f5f5', padding: 4, borderRadius: 4, display: 'block' }}>
                           {shareLink}
                         </code>
@@ -307,7 +307,7 @@ export const DentalPhotoPage: React.FC = () => {
         cancelText="Cancel"
         width={520}
       >
-        <Space direction="vertical" style={{ width: '100%' }}>
+        <Space orientation="vertical" style={{ width: '100%' }}>
           <div>
             <label style={{ display: 'block', marginBottom: 4, fontSize: 12 }}>Category</label>
             <Select value={uploadCategory} onChange={setUploadCategory} style={{ width: '100%' }}
@@ -338,7 +338,7 @@ export const DentalPhotoPage: React.FC = () => {
         footer={null}
         width={720}
         title={preview?.label}
-        destroyOnClose
+        destroyOnHidden
       >
         {preview && (
           <div>

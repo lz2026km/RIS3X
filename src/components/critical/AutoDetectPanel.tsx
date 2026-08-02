@@ -108,7 +108,7 @@ export const AutoDetectPanel: React.FC<AutoDetectPanelProps> = ({ studies = MOCK
             title="监听中研究"
             value={stats.total}
             prefix={<FlaskConical size={14} />}
-            valueStyle={{ fontSize: 18 }}
+            styles={{ content: {  fontSize: 18  } }}
           />
         </Col>
         <Col span={6}>
@@ -116,7 +116,7 @@ export const AutoDetectPanel: React.FC<AutoDetectPanelProps> = ({ studies = MOCK
             title="触发检测"
             value={stats.triggered}
             prefix={<Zap size={14} color="#f59e0b" />}
-            valueStyle={{ fontSize: 18, color: '#f59e0b' }}
+            styles={{ content: {  fontSize: 18, color: '#f59e0b'  } }}
           />
         </Col>
         <Col span={6}>
@@ -124,7 +124,7 @@ export const AutoDetectPanel: React.FC<AutoDetectPanelProps> = ({ studies = MOCK
             title="命中危急"
             value={stats.critical}
             prefix={<AlertOctagon size={14} color="#dc2626" />}
-            valueStyle={{ fontSize: 18, color: '#dc2626' }}
+            styles={{ content: {  fontSize: 18, color: '#dc2626'  } }}
           />
         </Col>
         <Col span={6}>
@@ -133,7 +133,7 @@ export const AutoDetectPanel: React.FC<AutoDetectPanelProps> = ({ studies = MOCK
             value="<1"
             suffix="s"
             prefix={<Activity size={14} />}
-            valueStyle={{ fontSize: 18, color: '#10b981' }}
+            styles={{ content: {  fontSize: 18, color: '#10b981'  } }}
           />
         </Col>
       </Row>
@@ -141,7 +141,7 @@ export const AutoDetectPanel: React.FC<AutoDetectPanelProps> = ({ studies = MOCK
       {detected.length === 0 ? (
         <Empty description="暂无自动检测命中" />
       ) : (
-        <Space direction="vertical" style={{ width: '100%' }} size={6}>
+        <Space orientation="vertical" style={{ width: '100%' }} size={6}>
           {detected.map(({ input, hits }) => {
             const top = hits[0]!;
             const m = SEVERITY_META[top.criticalHint.severity];
@@ -202,7 +202,7 @@ export const AutoDetectPanel: React.FC<AutoDetectPanelProps> = ({ studies = MOCK
         width={520}
       >
         {drawer.input && (
-          <Space direction="vertical" style={{ width: '100%' }} size={12}>
+          <Space orientation="vertical" style={{ width: '100%' }} size={12}>
             <Descriptions size="small" column={2} bordered>
               <Descriptions.Item label="Study UID">{drawer.input.studyInstanceUid}</Descriptions.Item>
               <Descriptions.Item label="患者">{drawer.input.patientName}</Descriptions.Item>
@@ -211,7 +211,7 @@ export const AutoDetectPanel: React.FC<AutoDetectPanelProps> = ({ studies = MOCK
             </Descriptions>
             <Alert
               type="info"
-              message="DICOM SR TID 1500 Measurable 文档已自动解析"
+              title="DICOM SR TID 1500 Measurable 文档已自动解析"
               description={`来源: ${drawer.doc?.sopInstanceUid ?? '-'}`}
               showIcon
             />

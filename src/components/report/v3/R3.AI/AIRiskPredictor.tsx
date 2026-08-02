@@ -55,7 +55,7 @@ export const AIRiskPredictor: React.FC<AIRiskPredictorProps> = ({ reportId, auto
   if (loading) {
     return (
       <Card>
-        <Space direction="vertical" align="center" style={{ width: '100%', padding: 24 }}>
+        <Space orientation="vertical" align="center" style={{ width: '100%', padding: 24 }}>
           <Spin indicator={<Activity size={32} className="spin" />} />
           <Text>AI 正在分析风险...</Text>
         </Space>
@@ -64,7 +64,7 @@ export const AIRiskPredictor: React.FC<AIRiskPredictorProps> = ({ reportId, auto
   }
 
   if (error) {
-    return <Alert type="error" showIcon message={error} />;
+    return <Alert type="error" showIcon title={error} />;
   }
 
   if (!prediction) {
@@ -111,7 +111,7 @@ export const AIRiskPredictor: React.FC<AIRiskPredictorProps> = ({ reportId, auto
             value={prediction.riskScore * 100}
             suffix="%"
             precision={0}
-            valueStyle={{ color: riskMeta.color === 'red' ? '#dc2626' : riskMeta.color === 'orange' ? '#f59e0b' : '#10b981' }}
+            styles={{ content: {  color: riskMeta.color === 'red' ? '#dc2626' : riskMeta.color === 'orange' ? '#f59e0b' : '#10b981'  } }}
           />
         </Col>
         <Col span={8}>
@@ -140,7 +140,7 @@ export const AIRiskPredictor: React.FC<AIRiskPredictorProps> = ({ reportId, auto
           const catMeta = CATEGORY_META[factor.category];
           return (
             <List.Item>
-              <Space direction="vertical" size={4} style={{ width: '100%' }}>
+              <Space orientation="vertical" size={4} style={{ width: '100%' }}>
                 <Space>
                   <Tag color={catMeta.color}>{catMeta.label}</Tag>
                   <Text strong>{factor.name}</Text>
@@ -162,7 +162,7 @@ export const AIRiskPredictor: React.FC<AIRiskPredictorProps> = ({ reportId, auto
         dataSource={prediction.predictedOutcomes}
         renderItem={(outcome) => (
           <List.Item>
-            <Space direction="vertical" size={4} style={{ width: '100%' }}>
+            <Space orientation="vertical" size={4} style={{ width: '100%' }}>
               <Space>
                 <Tag color="blue">{outcome.probability >= 0.5 ? '高概率' : outcome.probability >= 0.2 ? '中概率' : '低概率'}</Tag>
                 <Text strong>{outcome.outcome}</Text>
@@ -178,7 +178,7 @@ export const AIRiskPredictor: React.FC<AIRiskPredictorProps> = ({ reportId, auto
       <Divider orientation="left" plain>
         <Text strong>早期预警</Text>
       </Divider>
-      <Space direction="vertical" style={{ width: '100%' }}>
+      <Space orientation="vertical" style={{ width: '100%' }}>
         {prediction.earlyWarnings.map((w) => {
           const sevMeta = SEVERITY_META[w.severity];
           return (
@@ -187,7 +187,7 @@ export const AIRiskPredictor: React.FC<AIRiskPredictorProps> = ({ reportId, auto
               type={w.severity === 'critical' ? 'error' : w.severity === 'warning' ? 'warning' : 'info'}
               showIcon
               icon={sevMeta.icon}
-              message={
+              title={
                 <Space>
                   <Tag color={sevMeta.color}>{sevMeta.label}</Tag>
                   <Text>{w.message}</Text>

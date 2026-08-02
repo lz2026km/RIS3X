@@ -105,10 +105,10 @@ export const PatientReportPortal: React.FC<Props> = ({ reportId, patientId }) =>
     <div className="space-y-3">
       {/* 概览 */}
       <Row gutter={8}>
-        <Col span={6}><Card size="small"><Statistic title="链接总数" value={stats.total} prefix={<Link2 className="w-3 h-3" style={{ color: '#3b82f6' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="有效链接" value={stats.active} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="已查看" value={stats.viewed} prefix={<Eye className="w-3 h-3" style={{ color: '#0891b2' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="已撤销" value={stats.revoked} prefix={<XCircle className="w-3 h-3" style={{ color: '#dc2626' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="链接总数" value={stats.total} prefix={<Link2 className="w-3 h-3" style={{ color: '#3b82f6' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="有效链接" value={stats.active} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="已查看" value={stats.viewed} prefix={<Eye className="w-3 h-3" style={{ color: '#0891b2' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="已撤销" value={stats.revoked} prefix={<XCircle className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
       </Row>
 
       <Card size="small" className="shadow-sm" title={

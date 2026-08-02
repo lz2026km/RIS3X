@@ -36,8 +36,8 @@ export const ClinicalPathwayPage: React.FC = () => {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}><Card size="small"><Statistic title="Active Pathways" value={pathways.filter(p=>p.status==='active').length} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="Patients in CP" value={patients.length} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="On Track" value={patients.filter(p=>p.status==='on-track').length} valueStyle={{color:'#52c41a'}} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Delayed" value={patients.filter(p=>p.status==='delayed').length} valueStyle={{color:'#ff4d4f'}} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="On Track" value={patients.filter(p=>p.status==='on-track').length} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="Delayed" value={patients.filter(p=>p.status==='delayed').length} styles={{ content: { color:'#ff4d4f' } }} /></Card></Col>
       </Row>
       <Card size="small" title="Defined Pathways" style={{ marginBottom: 16 }}>
         <Table dataSource={pathways} rowKey="id" pagination={false}

@@ -83,19 +83,19 @@ export default function OfflineModePage() {
       <Row gutter={8} style={{ marginBottom: 12 }}>
         <Col span={12}>
           <Card size="small">
-            <Statistic title="队列" value={queueCount} prefix={<CloudUpload size={14} />} valueStyle={{ fontSize: 18, color: '#3b82f6' }} />
+            <Statistic title="队列" value={queueCount} prefix={<CloudUpload size={14} />} styles={{ content: {  fontSize: 18, color: '#3b82f6'  } }} />
           </Card>
         </Col>
         <Col span={12}>
           <Card size="small">
             <Statistic title="缓存" value={stats ? `${(stats.totalSizeBytes / 1024 / 1024).toFixed(1)}MB` : '-'}
-              prefix={<HardDrive size={14} />} valueStyle={{ fontSize: 18, color: '#16a34a' }} />
+              prefix={<HardDrive size={14} />} styles={{ content: {  fontSize: 18, color: '#16a34a'  } }} />
           </Card>
         </Col>
       </Row>
 
       <Card size="small" style={{ marginBottom: 12 }}>
-        <Space direction="vertical" style={{ width: '100%' }} size={8}>
+        <Space orientation="vertical" style={{ width: '100%' }} size={8}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Space>
               {connectivity === 'online' ? <Wifi size={14} color="#16a34a" /> : <WifiOff size={14} color="#dc2626" />}
@@ -122,7 +122,7 @@ export default function OfflineModePage() {
       </Card>
 
       <Card size="small" style={{ marginBottom: 12 }}>
-        <Space direction="vertical" style={{ width: '100%' }} size={8}>
+        <Space orientation="vertical" style={{ width: '100%' }} size={8}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text strong>离线模式</Text>
             <Switch checked={offlineMode} onChange={setOfflineMode} />
@@ -148,7 +148,7 @@ export default function OfflineModePage() {
 
       {stats && (
         <Card size="small" style={{ marginTop: 12 }}>
-          <Space direction="vertical" style={{ width: '100%' }} size={4}>
+          <Space orientation="vertical" style={{ width: '100%' }} size={4}>
             <Row gutter={8}>
               <Col span={8}><Text style={{ fontSize: 12, color: '#94a3b8' }}>配额</Text></Col>
               <Col span={8}><Text style={{ fontSize: 12, color: '#94a3b8' }}>已用</Text></Col>

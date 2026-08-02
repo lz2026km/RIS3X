@@ -94,7 +94,7 @@ const TopographyPage: React.FC = () => {
                     title={s.title}
                     value={s.value}
                     suffix={s.suffix || ""}
-                    valueStyle={{ fontSize: 16 }}
+                    styles={{ content: {  fontSize: 16  } }}
                   />
                 </Col>
               ))}
@@ -136,7 +136,7 @@ const TopographyPage: React.FC = () => {
                   <Statistic
                     title={s.title}
                     value={s.value}
-                    valueStyle={{ fontSize: 16, color: s.color }}
+                    styles={{ content: {  fontSize: 16, color: s.color  } }}
                   />
                   <div style={{ fontSize: 12, color: "#94a3b8" }}>{s.note}</div>
                 </Col>

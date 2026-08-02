@@ -169,7 +169,7 @@ export const TemplateInheritanceManager: React.FC<TemplateInheritanceManagerProp
             <Empty description="请选择左侧模板查看详情" />
           ) : (
             <div data-testid="tim-detail">
-              <Space direction="vertical" style={{ width: '100%' }} size={12}>
+              <Space orientation="vertical" style={{ width: '100%' }} size={12}>
                 <div>
                   <Space>
                     <FileText size={20} color="#1e3a5f" />

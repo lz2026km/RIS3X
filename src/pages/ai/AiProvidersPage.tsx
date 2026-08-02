@@ -119,12 +119,12 @@ const AiProvidersPage: React.FC = () => {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}>
           <Card>
-            <Statistic title="总提供商数" value={providers?.providers.length ?? 0} valueStyle={{ color: '#1677ff' }} />
+            <Statistic title="总提供商数" value={providers?.providers.length ?? 0} styles={{ content: {  color: '#1677ff'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="活跃提供商" value={providers ? 1 : 0} valueStyle={{ color: '#52c41a' }} />
+            <Statistic title="活跃提供商" value={providers ? 1 : 0} styles={{ content: {  color: '#52c41a'  } }} />
           </Card>
         </Col>
         <Col span={6}>

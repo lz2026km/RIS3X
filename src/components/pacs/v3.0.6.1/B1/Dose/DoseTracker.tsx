@@ -84,7 +84,7 @@ export const DoseTracker: React.FC<DoseTrackerProps> = ({ records, onSelectProto
               title="超阈值"
               value={stats.exceeded}
               prefix={<AlertTriangle size={14} color="#dc2626" />}
-              valueStyle={{ color: '#dc2626' }}
+              styles={{ content: {  color: '#dc2626'  } }}
             />
           </Card>
         </Col>
@@ -96,7 +96,7 @@ export const DoseTracker: React.FC<DoseTrackerProps> = ({ records, onSelectProto
               suffix="mSv"
               precision={2}
               prefix={<Shield size={14} color="#16a34a" />}
-              valueStyle={{ color: '#16a34a' }}
+              styles={{ content: {  color: '#16a34a'  } }}
             />
           </Card>
         </Col>

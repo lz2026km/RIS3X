@@ -47,7 +47,7 @@ const FormDemo = () => {
       style={{ maxWidth: 800 }}
       onFinish={(values) => { console.log('[Form] submit:', JSON.stringify(values, null, 2)); }}
     >
-      <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+      <Space orientation="vertical" size="middle" style={{ width: '100%' }}>
         <Card title="文本输入" size="small">
           <Space wrap size="middle" align="start" style={{ width: '100%' }}>
             <Form.Item label="患者姓名" name="name" rules={[{ required: true }]}>
@@ -285,7 +285,7 @@ export const FormBasic: Story = {
 // 单独展示
 export const TextInputBasic: Story = {
   render: () => (
-    <Space direction="vertical" size="middle" style={{ width: 400 }}>
+    <Space orientation="vertical" size="middle" style={{ width: 400 }}>
       <AppTextInput placeholder="基础输入" />
       <AppTextInput placeholder="带前缀" prefix="@" />
       <AppTextInput placeholder="带后缀" suffix=".com" />
@@ -298,7 +298,7 @@ export const TextInputBasic: Story = {
 
 export const NumberFieldBasic: Story = {
   render: () => (
-    <Space direction="vertical" size="middle" style={{ width: 300 }}>
+    <Space orientation="vertical" size="middle" style={{ width: 300 }}>
       <AppNumberField placeholder="整数" min={0} max={100} />
       <AppNumberField placeholder="小数" min={0} max={100} step={0.01} precision={2} />
       <AppNumberField placeholder="带前缀" prefix="¥" min={0} />
@@ -309,7 +309,7 @@ export const NumberFieldBasic: Story = {
 
 export const SwitchBasic: Story = {
   render: () => (
-    <Space direction="vertical" size="middle">
+    <Space orientation="vertical" size="middle">
       <AppSwitchField />
       <AppSwitchField defaultChecked checkedChildren="开" unCheckedChildren="关" />
       <AppSwitchField loading />
@@ -320,7 +320,7 @@ export const SwitchBasic: Story = {
 
 export const SliderBasic: Story = {
   render: () => (
-    <Space direction="vertical" size="middle" style={{ width: 400 }}>
+    <Space orientation="vertical" size="middle" style={{ width: 400 }}>
       <AppSlider defaultValue={30} />
       <AppSlider defaultValue={[20, 60]} range />
       <AppSlider defaultValue={30} marks={{ 0: '0°C', 26: '26°C', 37: '37°C', 100: { style: { color: '#f50' }, label: <strong>100°C</strong> } }} />
@@ -330,7 +330,7 @@ export const SliderBasic: Story = {
 
 export const ColorPickerBasic: Story = {
   render: () => (
-    <Space direction="vertical" size="middle">
+    <Space orientation="vertical" size="middle">
       <AppColorPickerField defaultValue="#1e40af" />
       <AppColorPickerField defaultValue="#10b981" showText />
     </Space>
@@ -339,7 +339,7 @@ export const ColorPickerBasic: Story = {
 
 export const RateBasic: Story = {
   render: () => (
-    <Space direction="vertical" size="middle">
+    <Space orientation="vertical" size="middle">
       <AppRateField defaultValue={3} />
       <AppRateField defaultValue={3.5} allowHalf />
       <AppRateField count={10} defaultValue={7} />

@@ -132,7 +132,7 @@ export const ResponseAssessmentChart: React.FC<ResponseAssessmentChartProps> = (
               value={summary?.baseline ?? 0}
               precision={1}
               suffix="mm"
-              valueStyle={{ color: '#f1f5f9' }}
+              styles={{ content: {  color: '#f1f5f9'  } }}
             />
           </Card>
         </Col>
@@ -143,7 +143,7 @@ export const ResponseAssessmentChart: React.FC<ResponseAssessmentChartProps> = (
               value={summary?.current ?? 0}
               precision={1}
               suffix="mm"
-              valueStyle={{ color: '#f1f5f9' }}
+              styles={{ content: {  color: '#f1f5f9'  } }}
             />
           </Card>
         </Col>
@@ -159,7 +159,7 @@ export const ResponseAssessmentChart: React.FC<ResponseAssessmentChartProps> = (
                 (summary?.percent ?? 0) > 0 ? <TrendingUp size={14} color="#ef4444" /> :
                 <Minus size={14} color="#94a3b8" />
               }
-              valueStyle={{ color: (summary?.percent ?? 0) < 0 ? '#10b981' : (summary?.percent ?? 0) > 0 ? '#ef4444' : '#f1f5f9' }}
+              styles={{ content: {  color: (summary?.percent ?? 0) < 0 ? '#10b981' : (summary?.percent ?? 0) > 0 ? '#ef4444' : '#f1f5f9'  } }}
             />
           </Card>
         </Col>
@@ -168,7 +168,7 @@ export const ResponseAssessmentChart: React.FC<ResponseAssessmentChartProps> = (
             <Statistic
               title={<span style={{ color: '#94a3b8' }}>总体反应</span>}
               value={summary ? RESPONSE_LABELS[summary.response]! : '-'}
-              valueStyle={{ color: summary ? RESPONSE_COLORS[summary.response] : '#94a3b8', fontSize: 20 }}
+              styles={{ content: {  color: summary ? RESPONSE_COLORS[summary.response] : '#94a3b8', fontSize: 20  } }}
             />
           </Card>
         </Col>
@@ -241,11 +241,11 @@ export const ResponseAssessmentChart: React.FC<ResponseAssessmentChartProps> = (
         </Space>
         {comparison && (
           <div style={{ marginTop: 12, display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
-            <Statistic title="新发病灶" value={comparison.newLesions} valueStyle={{ color: '#ef4444' }} />
-            <Statistic title="消失" value={comparison.disappearedLesions} valueStyle={{ color: '#10b981' }} />
-            <Statistic title="进展" value={comparison.progressed} valueStyle={{ color: '#ef4444' }} />
-            <Statistic title="缓解" value={comparison.responded} valueStyle={{ color: '#10b981' }} />
-            <Statistic title="稳定" value={comparison.stable} valueStyle={{ color: '#f59e0b' }} />
+            <Statistic title="新发病灶" value={comparison.newLesions} styles={{ content: {  color: '#ef4444'  } }} />
+            <Statistic title="消失" value={comparison.disappearedLesions} styles={{ content: {  color: '#10b981'  } }} />
+            <Statistic title="进展" value={comparison.progressed} styles={{ content: {  color: '#ef4444'  } }} />
+            <Statistic title="缓解" value={comparison.responded} styles={{ content: {  color: '#10b981'  } }} />
+            <Statistic title="稳定" value={comparison.stable} styles={{ content: {  color: '#f59e0b'  } }} />
           </div>
         )}
       </Card>

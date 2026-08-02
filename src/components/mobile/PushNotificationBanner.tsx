@@ -55,7 +55,7 @@ export const PushNotificationBanner: React.FC<PushNotificationBannerProps> = ({ 
   if (lastNotification && onNotificationClick) {
     return (
       <Alert
-        message={
+        title={
           <Space>
             <BellRing size={14} color="#3b82f6" />
             <Text strong>{lastNotification.title}</Text>
@@ -78,7 +78,7 @@ export const PushNotificationBanner: React.FC<PushNotificationBannerProps> = ({ 
   if (permission === 'denied') {
     return (
       <Alert
-        message={<Space><BellOff size={14} /> 推送通知已被禁用</Space>}
+        title={<Space><BellOff size={14} /> 推送通知已被禁用</Space>}
         type="warning"
         showIcon={false}
         style={{ marginBottom: 8, fontSize: 12 }}
@@ -90,7 +90,7 @@ export const PushNotificationBanner: React.FC<PushNotificationBannerProps> = ({ 
   if (permission === 'default') {
     return (
       <Alert
-        message={<Space><Bell size={14} /> 开启推送通知以接收报告和危急值提醒</Space>}
+        title={<Space><Bell size={14} /> 开启推送通知以接收报告和危急值提醒</Space>}
         type="info"
         showIcon={false}
         style={{ marginBottom: 8, fontSize: 12 }}
@@ -106,7 +106,7 @@ export const PushNotificationBanner: React.FC<PushNotificationBannerProps> = ({ 
 
   return (
     <Alert
-      message={
+      title={
         <Space>
           <Bell size={14} color="#16a34a" />
           <Text style={{ fontSize: 12 }}>推送通知已开启</Text>

@@ -18,7 +18,7 @@ export interface AppModalProps {
   closeOnMaskClick?: boolean;
   closeOnEsc?: boolean;
   showCloseButton?: boolean;
-  destroyOnClose?: boolean;
+  destroyOnHidden?: boolean;
   className?: string;
   contentStyle?: CSSProperties;
   zIndex?: number;
@@ -51,7 +51,7 @@ export function AppModal({
   closeOnMaskClick = true,
   closeOnEsc = true,
   showCloseButton = true,
-  destroyOnClose = false,
+  destroyOnHidden = false,
   className,
   contentStyle,
   zIndex,
@@ -100,7 +100,7 @@ export function AppModal({
     };
   }, [open]);
 
-  if (!open && destroyOnClose) return null;
+  if (!open && destroyOnHidden) return null;
   if (!open) return null;
 
   const handleMaskClick = () => {

@@ -44,7 +44,7 @@ export const CardiacAnalysis: React.FC<CardiacAnalysisProps> = ({ data = MOCK })
               value={data.lv_ef}
               suffix="%"
               prefix={<Heart size={14} color="#dc2626" />}
-              valueStyle={{ color: data.lv_ef < 50 ? '#dc2626' : '#16a34a', fontSize: 18 }}
+              styles={{ content: {  color: data.lv_ef < 50 ? '#dc2626' : '#16a34a', fontSize: 18  } }}
             />
           </Card>
         </Col>

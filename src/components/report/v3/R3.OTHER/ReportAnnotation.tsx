@@ -135,10 +135,10 @@ export const ReportAnnotation: React.FC<Props> = ({ reportId, onAdd, readOnly = 
   return (
     <div className="space-y-3">
       <Row gutter={8}>
-        <Col span={6}><Card size="small"><Statistic title="总便签" value={notes.length} prefix={<StickyNote className="w-3 h-3" style={{ color: '#f59e0b' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="待处理" value={notes.filter((n) => n.status === 'open').length} prefix={<Clock className="w-3 h-3" style={{ color: '#dc2626' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="已解决" value={notes.filter((n) => n.status === 'resolved').length} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="已置顶" value={notes.filter((n) => n.pinned).length} prefix={<Pin className="w-3 h-3" style={{ color: '#7c3aed' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="总便签" value={notes.length} prefix={<StickyNote className="w-3 h-3" style={{ color: '#f59e0b' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="待处理" value={notes.filter((n) => n.status === 'open').length} prefix={<Clock className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="已解决" value={notes.filter((n) => n.status === 'resolved').length} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="已置顶" value={notes.filter((n) => n.pinned).length} prefix={<Pin className="w-3 h-3" style={{ color: '#7c3aed' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
       </Row>
 
       <div className="grid grid-cols-3 gap-3">

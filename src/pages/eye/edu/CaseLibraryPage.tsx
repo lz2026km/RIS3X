@@ -278,7 +278,7 @@ export const CaseLibraryPage: React.FC = () => {
                       {cohort && (
                         <div style={{ marginTop: 12 }}>
                           <Alert
-                            message={`队列 ${cohort.cohortId}: ${cohort.totalCases} 例`}
+                            title={`队列 ${cohort.cohortId}: ${cohort.totalCases} 例`}
                             type="success"
                             showIcon
                           />
@@ -490,7 +490,7 @@ export const CaseLibraryPage: React.FC = () => {
                                   </Form.Item>
                                 </Form>
                                 <Alert
-                                  message="标注将使用 DICOM-SR TID 1500 标准导出"
+                                  title="标注将使用 DICOM-SR TID 1500 标准导出"
                                   type="info"
                                   showIcon
                                   style={{ marginTop: 8 }}

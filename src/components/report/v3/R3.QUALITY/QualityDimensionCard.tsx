@@ -228,7 +228,7 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
             <Statistic
               title={<span style={{ color: '#fff' }}>维度总数</span>}
               value={dimensions.length}
-              valueStyle={{ color: '#fff', fontSize: 20 }}
+              styles={{ content: {  color: '#fff', fontSize: 20  } }}
               prefix={<Target size={14} />}
             />
           </Col>
@@ -236,7 +236,7 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
             <Statistic
               title={<span style={{ color: '#fff' }}>已启用</span>}
               value={Object.values(enabled).filter(Boolean).length}
-              valueStyle={{ color: '#fff', fontSize: 20 }}
+              styles={{ content: {  color: '#fff', fontSize: 20  } }}
               prefix={<CheckCircle2 size={14} />}
             />
           </Col>
@@ -245,10 +245,10 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
               title={<span style={{ color: '#fff' }}>权重合计</span>}
               value={Math.round(totalWeight * 100)}
               suffix="%"
-              valueStyle={{
+              styles={{ content: { 
                 color: Math.abs(totalWeight - 1) > 0.01 ? '#fca5a5' : '#bbf7d0',
                 fontSize: 20,
-              }}
+               } }}
               prefix={<Settings size={14} />}
             />
           </Col>
@@ -423,7 +423,7 @@ const ThresholdTab: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>危急值 (分钟)</span>}
               value={draft.criticalMaxMinutes}
-              valueStyle={{ color: '#fff', fontSize: 22 }}
+              styles={{ content: {  color: '#fff', fontSize: 22  } }}
               prefix={<Zap size={14} />}
               suffix=" min"
             />
@@ -432,7 +432,7 @@ const ThresholdTab: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>急诊 (小时)</span>}
               value={draft.emergencyMaxHours}
-              valueStyle={{ color: '#fff', fontSize: 22 }}
+              styles={{ content: {  color: '#fff', fontSize: 22  } }}
               prefix={<TrendingUp size={14} />}
               suffix=" h"
             />
@@ -441,7 +441,7 @@ const ThresholdTab: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>普通 (小时)</span>}
               value={draft.routineMaxHours}
-              valueStyle={{ color: '#fff', fontSize: 22 }}
+              styles={{ content: {  color: '#fff', fontSize: 22  } }}
               prefix={<History size={14} />}
               suffix=" h"
             />
@@ -450,7 +450,7 @@ const ThresholdTab: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>发布阈值</span>}
               value={draft.publishBlockThreshold}
-              valueStyle={{ color: '#fff', fontSize: 22 }}
+              styles={{ content: {  color: '#fff', fontSize: 22  } }}
               prefix={<Target size={14} />}
             />
           </Col>
@@ -665,7 +665,7 @@ const HistoryTab: React.FC = () => {
       >
         <Row gutter={12}>
           <Col xs={24} sm={6}>
-            <Statistic title={<span style={{ color: '#fff' }}>历史总数</span>} value={total} valueStyle={{ color: '#fff', fontSize: 20 }} prefix={<History size={14} />} />
+            <Statistic title={<span style={{ color: '#fff' }}>历史总数</span>} value={total} styles={{ content: {  color: '#fff', fontSize: 20  } }} prefix={<History size={14} />} />
           </Col>
           <Col xs={12} sm={6}>
             <Select
@@ -750,13 +750,13 @@ const ReportTab: React.FC = () => {
       >
         <Row gutter={12}>
           <Col xs={24} sm={8}>
-            <Statistic title={<span style={{ color: '#fff' }}>报告格式</span>} value={format.toUpperCase()} valueStyle={{ color: '#fff', fontSize: 20 }} prefix={<FileText size={14} />} />
+            <Statistic title={<span style={{ color: '#fff' }}>报告格式</span>} value={format.toUpperCase()} styles={{ content: {  color: '#fff', fontSize: 20  } }} prefix={<FileText size={14} />} />
           </Col>
           <Col xs={24} sm={8}>
-            <Statistic title={<span style={{ color: '#fff' }}>已生成</span>} value={reportUrl ? '1' : '0'} valueStyle={{ color: '#fff', fontSize: 20 }} prefix={<Download size={14} />} />
+            <Statistic title={<span style={{ color: '#fff' }}>已生成</span>} value={reportUrl ? '1' : '0'} styles={{ content: {  color: '#fff', fontSize: 20  } }} prefix={<Download size={14} />} />
           </Col>
           <Col xs={24} sm={8}>
-            <Statistic title={<span style={{ color: '#fff' }}>报告类型</span>} value="15 维度" valueStyle={{ color: '#fff', fontSize: 20 }} prefix={<Sparkles size={14} />} />
+            <Statistic title={<span style={{ color: '#fff' }}>报告类型</span>} value="15 维度" styles={{ content: {  color: '#fff', fontSize: 20  } }} prefix={<Sparkles size={14} />} />
           </Col>
         </Row>
       </Card>
@@ -808,7 +808,7 @@ const ReportTab: React.FC = () => {
             style={{ marginTop: 12 }}
             type="success"
             showIcon
-            message="报告已生成"
+            title="报告已生成"
             description={<code style={{ fontSize: 12 }}>{reportUrl}</code>}
           />
         )}
@@ -893,7 +893,7 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
             <Statistic
               title={<span style={{ color: '#fff' }}>联动总数</span>}
               value={bonuses.length}
-              valueStyle={{ color: '#fff', fontSize: 20 }}
+              styles={{ content: {  color: '#fff', fontSize: 20  } }}
               prefix={<Award size={14} />}
             />
           </Col>
@@ -901,7 +901,7 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
             <Statistic
               title={<span style={{ color: '#fff' }}>已启用</span>}
               value={bonuses.filter((b) => b.enabled).length}
-              valueStyle={{ color: '#fff', fontSize: 20 }}
+              styles={{ content: {  color: '#fff', fontSize: 20  } }}
               prefix={<CheckCircle2 size={14} />}
             />
           </Col>
@@ -909,7 +909,7 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
             <Statistic
               title={<span style={{ color: '#fff' }}>累计触发</span>}
               value={bonuses.reduce((a, b) => a + b.triggeredCount, 0)}
-              valueStyle={{ color: '#fff', fontSize: 20 }}
+              styles={{ content: {  color: '#fff', fontSize: 20  } }}
               prefix={<Sparkles size={14} />}
             />
           </Col>
@@ -917,7 +917,7 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
             <Statistic
               title={<span style={{ color: '#fff' }}>受益人数</span>}
               value={bonuses.reduce((a, b) => a + b.beneficiariesCount, 0)}
-              valueStyle={{ color: '#fff', fontSize: 20 }}
+              styles={{ content: {  color: '#fff', fontSize: 20  } }}
               prefix={<Target size={14} />}
             />
           </Col>
@@ -954,21 +954,21 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
                     title="阈值"
                     value={b.thresholdScore}
                     suffix="分"
-                    valueStyle={{ fontSize: 14 }}
+                    styles={{ content: {  fontSize: 14  } }}
                   />
                 </Col>
                 <Col span={8}>
                   <Statistic
                     title="已触发"
                     value={b.triggeredCount}
-                    valueStyle={{ fontSize: 14 }}
+                    styles={{ content: {  fontSize: 14  } }}
                   />
                 </Col>
                 <Col span={8}>
                   <Statistic
                     title="受益"
                     value={b.beneficiariesCount}
-                    valueStyle={{ fontSize: 14 }}
+                    styles={{ content: {  fontSize: 14  } }}
                   />
                 </Col>
               </Row>
@@ -1051,16 +1051,16 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
       >
         <Row gutter={12}>
           <Col xs={12} sm={6}>
-            <Statistic title={<span style={{ color: '#fff' }}>模板总数</span>} value={templates.length} valueStyle={{ color: '#fff', fontSize: 20 }} prefix={<Layers size={14} />} />
+            <Statistic title={<span style={{ color: '#fff' }}>模板总数</span>} value={templates.length} styles={{ content: {  color: '#fff', fontSize: 20  } }} prefix={<Layers size={14} />} />
           </Col>
           <Col xs={12} sm={6}>
-            <Statistic title={<span style={{ color: '#fff' }}>已发布</span>} value={templates.filter((t) => t.published).length} valueStyle={{ color: '#fff', fontSize: 20 }} prefix={<CheckCircle2 size={14} />} />
+            <Statistic title={<span style={{ color: '#fff' }}>已发布</span>} value={templates.filter((t) => t.published).length} styles={{ content: {  color: '#fff', fontSize: 20  } }} prefix={<CheckCircle2 size={14} />} />
           </Col>
           <Col xs={12} sm={6}>
-            <Statistic title={<span style={{ color: '#fff' }}>基础分均值</span>} value={Math.round((templates.reduce((a, t) => a + t.baseScore, 0) / templates.length) * 10) / 10} valueStyle={{ color: '#fff', fontSize: 20 }} prefix={<Target size={14} />} />
+            <Statistic title={<span style={{ color: '#fff' }}>基础分均值</span>} value={Math.round((templates.reduce((a, t) => a + t.baseScore, 0) / templates.length) * 10) / 10} styles={{ content: {  color: '#fff', fontSize: 20  } }} prefix={<Target size={14} />} />
           </Col>
           <Col xs={12} sm={6}>
-            <Statistic title={<span style={{ color: '#fff' }}>当前模板</span>} value={templates.find((t) => t.templateId === selectedId)?.templateName ?? '-'} valueStyle={{ color: '#fff', fontSize: 14 }} prefix={<FileText size={14} />} />
+            <Statistic title={<span style={{ color: '#fff' }}>当前模板</span>} value={templates.find((t) => t.templateId === selectedId)?.templateName ?? '-'} styles={{ content: {  color: '#fff', fontSize: 14  } }} prefix={<FileText size={14} />} />
           </Col>
         </Row>
       </Card>

@@ -118,7 +118,7 @@ const AiReviewPage: React.FC = () => {
                       title="综合评分"
                       value={result.overallScore}
                       suffix="/ 100"
-                      valueStyle={{ color: scoreColor(result.overallScore), fontSize: 28 }}
+                      styles={{ content: {  color: scoreColor(result.overallScore), fontSize: 28  } }}
                     />
                     <Progress
                       percent={result.overallScore}
@@ -128,7 +128,7 @@ const AiReviewPage: React.FC = () => {
                     />
                   </Col>
                   <Col span={12}>
-                    <Statistic title="问题数" value={result.issues.length} valueStyle={{ color: result.issues.length > 0 ? '#ff4d4f' : '#52c41a' }} />
+                    <Statistic title="问题数" value={result.issues.length} styles={{ content: {  color: result.issues.length > 0 ? '#ff4d4f' : '#52c41a'  } }} />
                     <Statistic title="建议数" value={result.suggestions.length} style={{ marginTop: 8 }} />
                   </Col>
                 </Row>

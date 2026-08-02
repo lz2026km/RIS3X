@@ -316,7 +316,7 @@ export const ReportRichEditor: React.FC<Props> = ({
         <Select size="small" defaultValue={doc.style.fontFamily ?? 'SimSun'} style={{ width: 110 }} options={FONT_FAMILIES} onChange={(v) => applyFormat('fontName', v)} />
         <Select size="small" defaultValue={doc.style.fontSize ?? 14} style={{ width: 80 }} options={FONT_SIZES.map((s) => ({ value: s, label: `${s}px` }))} onChange={(v) => applyFormat('fontSize', String(v))} />
 
-        <Divider type="vertical" />
+        <Divider orientation="vertical" />
 
         <Tooltip title="粗体 Ctrl+B">
           <Button size="small" type="text" icon={<Bold className="w-4 h-4" />} onClick={() => applyFormat('bold')} />
@@ -340,31 +340,31 @@ export const ReportRichEditor: React.FC<Props> = ({
           <Button size="small" type="text" icon={<Minus className="w-4 h-4" />} onClick={insertHorizontalRule} />
         </Tooltip>
 
-        <Divider type="vertical" />
+        <Divider orientation="vertical" />
 
         <ColorPicker size="small" onChange={(c) => applyFormat('foreColor', c.toHexString())} />
         <ColorPicker size="small" onChange={(c) => applyFormat('hiliteColor', c.toHexString())} showText={() => '背景'} />
 
-        <Divider type="vertical" />
+        <Divider orientation="vertical" />
 
         <Tooltip title="左对齐"><Button size="small" type="text" icon={<AlignLeft className="w-4 h-4" />} onClick={() => applyFormat('justifyLeft')} /></Tooltip>
         <Tooltip title="居中"><Button size="small" type="text" icon={<AlignCenter className="w-4 h-4" />} onClick={() => applyFormat('justifyCenter')} /></Tooltip>
         <Tooltip title="右对齐"><Button size="small" type="text" icon={<AlignRight className="w-4 h-4" />} onClick={() => applyFormat('justifyRight')} /></Tooltip>
         <Tooltip title="两端对齐"><Button size="small" type="text" icon={<AlignJustify className="w-4 h-4" />} onClick={() => applyFormat('justifyFull')} /></Tooltip>
 
-        <Divider type="vertical" />
+        <Divider orientation="vertical" />
 
         <Tooltip title="有序列表"><Button size="small" type="text" icon={<ListOrdered className="w-4 h-4" />} onClick={() => applyFormat('insertOrderedList')} /></Tooltip>
         <Tooltip title="无序列表"><Button size="small" type="text" icon={<List className="w-4 h-4" />} onClick={() => applyFormat('insertUnorderedList')} /></Tooltip>
 
-        <Divider type="vertical" />
+        <Divider orientation="vertical" />
 
         <Tooltip title="H1"><Button size="small" type="text" icon={<Heading1 className="w-4 h-4" />} onClick={() => applyFormat('formatBlock', 'H1')} /></Tooltip>
         <Tooltip title="H2"><Button size="small" type="text" icon={<Heading2 className="w-4 h-4" />} onClick={() => applyFormat('formatBlock', 'H2')} /></Tooltip>
         <Tooltip title="H3"><Button size="small" type="text" icon={<Heading3 className="w-4 h-4" />} onClick={() => applyFormat('formatBlock', 'H3')} /></Tooltip>
         <Tooltip title="引用"><Button size="small" type="text" icon={<Quote className="w-4 h-4" />} onClick={() => applyFormat('formatBlock', 'BLOCKQUOTE')} /></Tooltip>
 
-        <Divider type="vertical" />
+        <Divider orientation="vertical" />
 
         <Tooltip title="插入图像">
           <Button size="small" type="text" icon={<ImageIcon className="w-4 h-4" />} onClick={insertImage} />
@@ -397,12 +397,12 @@ export const ReportRichEditor: React.FC<Props> = ({
           <Button size="small" type="text" icon={<Layers className="w-4 h-4" />} onClick={() => insertEmbedPlaceholder('MIP', 'MIP切片')}>MIP</Button>
         </Tooltip>
 
-        <Divider type="vertical" />
+        <Divider orientation="vertical" />
 
         <Tooltip title="撤销 Ctrl+Z"><Button size="small" type="text" icon={<Undo className="w-4 h-4" />} onClick={() => applyFormat('undo')} /></Tooltip>
         <Tooltip title="重做 Ctrl+Y"><Button size="small" type="text" icon={<Redo className="w-4 h-4" />} onClick={() => applyFormat('redo')} /></Tooltip>
 
-        <Divider type="vertical" />
+        <Divider orientation="vertical" />
         <Tooltip title="对比先前">
           <Button size="small" type={showComparison ? 'primary' : 'text'} icon={<FileText className="w-4 h-4" />} onClick={() => setShowComparison((v) => !v)}>对比</Button>
         </Tooltip>
@@ -413,7 +413,7 @@ export const ReportRichEditor: React.FC<Props> = ({
           <Button size="small" type="text" icon={<Sparkles className="w-4 h-4" />} loading={summarizing} onClick={handleAutoSummary}>摘要</Button>
         </Tooltip>
 
-        <Divider type="vertical" />
+        <Divider orientation="vertical" />
 
         <Tooltip title={voiceListening ? '停止语音听写' : '语音听写'}>
           <Button

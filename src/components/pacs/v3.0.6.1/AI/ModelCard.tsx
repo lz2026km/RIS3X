@@ -60,7 +60,7 @@ export const ModelCard: React.FC<{ model?: ModelCardProps }> = ({ model = MOCK }
       </Descriptions>
       <div style={{ marginTop: 12 }}>
         <div style={{ fontSize: 12, marginBottom: 4 }}>性能指标</div>
-        <Space direction="vertical" size={4} style={{ width: '100%' }}>
+        <Space orientation="vertical" size={4} style={{ width: '100%' }}>
           {Object.entries(m.metrics).map(([k, v]) => (
             <div key={k}>
               <Space style={{ fontSize: 12, width: '100%', justifyContent: 'space-between' }}>

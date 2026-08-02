@@ -27,7 +27,7 @@ export const MammoCAD: React.FC<MammoCADProps> = ({ patientId = 'P20240618001', 
     <div data-testid="mammo-cad">
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={5}><Card size="small"><Statistic title="候选病灶" value={marks.length} prefix={<Eye size={14} />} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title="高置信" value={marks.filter((m) => m.confidence >= 0.8).length} valueStyle={{ color: '#dc2626' }} prefix={<Zap size={14} />} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title="高置信" value={marks.filter((m) => m.confidence >= 0.8).length} styles={{ content: {  color: '#dc2626'  } }} prefix={<Zap size={14} />} /></Card></Col>
         <Col span={5}><Card size="small"><Statistic title="阈值显示" value={filtered.length} /></Card></Col>
         <Col span={9}>
           <Card size="small">

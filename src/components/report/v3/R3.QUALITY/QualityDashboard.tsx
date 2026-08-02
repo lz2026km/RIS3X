@@ -124,7 +124,7 @@ export const QualityDashboard: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>待评估</span>}
               value={dashboard.realtime.pendingEvaluation}
-              valueStyle={{ color: '#fff', fontSize: 22 }}
+              styles={{ content: {  color: '#fff', fontSize: 22  } }}
               prefix={<Layers size={16} />}
             />
           </Col>
@@ -132,7 +132,7 @@ export const QualityDashboard: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>今日完成</span>}
               value={dashboard.realtime.completedToday}
-              valueStyle={{ color: '#bbf7d0', fontSize: 22 }}
+              styles={{ content: {  color: '#bbf7d0', fontSize: 22  } }}
               prefix={<CheckCircle2 size={16} />}
             />
           </Col>
@@ -140,7 +140,7 @@ export const QualityDashboard: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>评估中</span>}
               value={dashboard.realtime.inProgressEvaluation}
-              valueStyle={{ color: '#fff', fontSize: 22 }}
+              styles={{ content: {  color: '#fff', fontSize: 22  } }}
               prefix={<Zap size={16} />}
             />
           </Col>
@@ -148,10 +148,10 @@ export const QualityDashboard: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>危急值漏报</span>}
               value={dashboard.realtime.criticalMissedToday}
-              valueStyle={{
+              styles={{ content: { 
                 color: dashboard.realtime.criticalMissedToday > 0 ? '#fca5a5' : '#bbf7d0',
                 fontSize: 22,
-              }}
+               } }}
               prefix={<AlertTriangle size={16} />}
             />
           </Col>

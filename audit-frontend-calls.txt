@@ -1,4 +1,0 @@
-﻿delete /dictionary/${id}
-delete /templates/${id}
-delete /writing/templates/${id}
-post /reports/123/sign

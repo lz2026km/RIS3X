@@ -78,7 +78,7 @@ export const TumorTracking: React.FC<TumorTrackingProps> = ({ lesions = MOCK }) 
               precision={1}
               suffix="%"
               prefix={trendUp ? <TrendingUp size={14} color="#dc2626" /> : <TrendingDown size={14} color="#16a34a" />}
-              valueStyle={{ color: trendUp ? '#dc2626' : '#16a34a' }}
+              styles={{ content: {  color: trendUp ? '#dc2626' : '#16a34a'  } }}
             />
           </Card>
         </Col>

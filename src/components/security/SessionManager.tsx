@@ -56,9 +56,9 @@ export default function SessionManagerComponent() {
     <Card title={<><Shield size={16} style={{ marginRight: 8 }} />会话管理</>}>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}><Card size="small"><Statistic title="总会话" value={stats.total} prefix={<Globe size={14} />} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="活跃" value={stats.active} valueStyle={{ color: '#3f8600' }} prefix={<Monitor size={14} />} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="空闲" value={stats.idle} valueStyle={{ color: '#faad14' }} prefix={<Clock size={14} />} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="已撤销" value={stats.revoked} valueStyle={{ color: '#cf1322' }} prefix={<LogOut size={14} />} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="活跃" value={stats.active} styles={{ content: {  color: '#3f8600'  } }} prefix={<Monitor size={14} />} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="空闲" value={stats.idle} styles={{ content: {  color: '#faad14'  } }} prefix={<Clock size={14} />} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="已撤销" value={stats.revoked} styles={{ content: {  color: '#cf1322'  } }} prefix={<LogOut size={14} />} /></Card></Col>
         <Col span={8}><Card size="small" title="策略">
           <Space wrap>
             <span>并发: <Select size="small" value={policy.maxConcurrentSessions} onChange={v => updatePolicy('maxConcurrentSessions', v)} style={{ width: 60 }}>{[1,2,3,5,10].map(n => <Select.Option key={n} value={n}>{n}</Select.Option>)}</Select></span>

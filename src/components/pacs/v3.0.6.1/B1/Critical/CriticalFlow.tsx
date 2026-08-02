@@ -71,17 +71,17 @@ export const CriticalFlow: React.FC<CriticalFlowProps> = ({ items, onAcknowledge
     <div data-testid="critical-flow">
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={5}><Card size="small"><Statistic title="总数" value={stats.total} prefix={<Activity size={14} />} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title="待确认" value={stats.overdue} valueStyle={{ color: '#dc2626' }} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title="已确认未闭环" value={stats.acked} valueStyle={{ color: '#f59e0b' }} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title="平均确认(分)" value={stats.avgAckMin} valueStyle={{ color: '#16a34a' }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="已闭环" value={data.filter((d) => d.closedAt).length} valueStyle={{ color: '#3b82f6' }} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title="待确认" value={stats.overdue} styles={{ content: {  color: '#dc2626'  } }} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title="已确认未闭环" value={stats.acked} styles={{ content: {  color: '#f59e0b'  } }} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title="平均确认(分)" value={stats.avgAckMin} styles={{ content: {  color: '#16a34a'  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="已闭环" value={data.filter((d) => d.closedAt).length} styles={{ content: {  color: '#3b82f6'  } }} /></Card></Col>
       </Row>
 
       <Row gutter={12}>
         <Col span={10}>
           <Card size="small" title="危急值列表">
             {data.length === 0 ? <Empty /> : (
-              <Space direction="vertical" size={8} style={{ width: '100%' }}>
+              <Space orientation="vertical" size={8} style={{ width: '100%' }}>
                 {data.map((d) => (
                   <CriticalAlert
                     key={d.id}
@@ -97,7 +97,7 @@ export const CriticalFlow: React.FC<CriticalFlowProps> = ({ items, onAcknowledge
         <Col span={14}>
           <Card size="small" title={current ? `流程:${current.patientName}` : '流程详情'}>
             {current && (
-              <Space direction="vertical" size={12} style={{ width: '100%' }}>
+              <Space orientation="vertical" size={12} style={{ width: '100%' }}>
                 <Steps
                   current={stepIdx}
                   items={[

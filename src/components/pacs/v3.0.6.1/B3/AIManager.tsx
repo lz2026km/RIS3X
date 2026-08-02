@@ -88,7 +88,7 @@ export const AIManager: React.FC<AIManagerProps> = ({ models = MOCK_MODELS }) =>
               title="在线模型"
               value={stats.online}
               prefix={<CheckCircle size={14} color="#16a34a" />}
-              valueStyle={{ color: '#16a34a' }}
+              styles={{ content: {  color: '#16a34a'  } }}
             />
           </Card>
         </Col>

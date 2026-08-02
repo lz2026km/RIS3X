@@ -52,7 +52,7 @@ export const AnnotationTool: React.FC<AnnotationToolProps> = ({ onAdd }) => {
 
   return (
     <Card size="small" title="标注工具" data-testid="annotation-tool">
-      <Space direction="vertical" size={10} style={{ width: '100%' }}>
+      <Space orientation="vertical" size={10} style={{ width: '100%' }}>
         <Space wrap>
           <Radio.Group value={tool} onChange={(e) => setTool(e.target.value)} size="small">
             <Radio.Button value="arrow"><ArrowRight size={12} /></Radio.Button>

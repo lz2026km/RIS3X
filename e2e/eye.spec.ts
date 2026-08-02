@@ -4,7 +4,7 @@
 import { test, expect } from '@playwright/test'
 
 test.describe('眼科专科模块', () => {
-  test.use({ baseURL: 'http://127.0.0.1:5199/g005-radiology-ris' });
+  test.use({ baseURL: process.env['E2E_BASE_URL'] ?? 'http://localhost:5191' });
 
   test('眼科工作台加载', async ({ page }) => {
     await page.goto('/login', { waitUntil: 'domcontentloaded' })

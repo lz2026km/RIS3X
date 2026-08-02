@@ -107,11 +107,11 @@ export const DicomwebBrowser: React.FC = () => {
   return (
     <div className="space-y-3">
       <Row gutter={8}>
-        <Col span={4}><Card size="small"><Statistic title="实例总数" value={stowStats.totalInstances} prefix={<Database className="w-3 h-3" style={{ color: '#0891b2' }} />} valueStyle={{ fontSize: 16 }} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title="总字节" value={(stowStats.totalBytes / 1024).toFixed(1)} suffix="KB" prefix={<Layers className="w-3 h-3" style={{ color: '#7c3aed' }} />} valueStyle={{ fontSize: 16 }} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title="Study 命中" value={studyResult?.total ?? 0} prefix={<ListTree className="w-3 h-3" style={{ color: '#10b981' }} />} valueStyle={{ fontSize: 16 }} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title="Series 命中" value={seriesResult?.total ?? 0} prefix={<FolderTree className="w-3 h-3" style={{ color: '#3b82f6' }} />} valueStyle={{ fontSize: 16 }} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title="Instance 命中" value={instanceResult?.total ?? 0} prefix={<FileText className="w-3 h-3" style={{ color: '#dc2626' }} />} valueStyle={{ fontSize: 16 }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="实例总数" value={stowStats.totalInstances} prefix={<Database className="w-3 h-3" style={{ color: '#0891b2' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title="总字节" value={(stowStats.totalBytes / 1024).toFixed(1)} suffix="KB" prefix={<Layers className="w-3 h-3" style={{ color: '#7c3aed' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title="Study 命中" value={studyResult?.total ?? 0} prefix={<ListTree className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title="Series 命中" value={seriesResult?.total ?? 0} prefix={<FolderTree className="w-3 h-3" style={{ color: '#3b82f6' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title="Instance 命中" value={instanceResult?.total ?? 0} prefix={<FileText className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
       </Row>
 
       <Card size="small" className="shadow-sm" title={
@@ -198,7 +198,7 @@ export const DicomwebBrowser: React.FC = () => {
 
       <Modal title={<Space><Upload className="w-4 h-4" /><span>STOW-RS 上传</span></Space>} open={uploadOpen} onCancel={() => setUploadOpen(false)} footer={null} width={520}>
         <UploadForm onSubmit={(reqs) => { handleUpload(reqs); setUploadOpen(false); }} />
-        {uploadResult && <Alert className="mt-2" type={uploadResult.status === 'success' ? 'success' : 'warning'} message={`成功 ${uploadResult.storeCount} / 失败 ${uploadResult.failedCount}`} />}
+        {uploadResult && <Alert className="mt-2" type={uploadResult.status === 'success' ? 'success' : 'warning'} title={`成功 ${uploadResult.storeCount} / 失败 ${uploadResult.failedCount}`} />}
       </Modal>
     </div>
   );

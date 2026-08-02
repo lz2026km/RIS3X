@@ -93,12 +93,12 @@ export const UserManagement: React.FC<UserManagementProps> = ({ users, onCreate,
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="活跃" value={stats.active} valueStyle={{ color: '#16a34a' }} />
+            <Statistic title="活跃" value={stats.active} styles={{ content: {  color: '#16a34a'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="双因素认证" value={stats.twoFA} valueStyle={{ color: '#3b82f6' }} prefix={<KeyRound size={14} />} />
+            <Statistic title="双因素认证" value={stats.twoFA} styles={{ content: {  color: '#3b82f6'  } }} prefix={<KeyRound size={14} />} />
           </Card>
         </Col>
         <Col span={6}>
@@ -276,11 +276,11 @@ export const UserManagement: React.FC<UserManagementProps> = ({ users, onCreate,
         data-testid="user-perm-modal"
       >
         {permModal && (
-          <Space direction="vertical" size={8} style={{ width: '100%' }}>
+          <Space orientation="vertical" size={8} style={{ width: '100%' }}>
             <Alert
               type="info"
               showIcon
-              message={`角色 ${ROLE_META[permModal.role].label} 默认权限`}
+              title={`角色 ${ROLE_META[permModal.role].label} 默认权限`}
               description={
                 <Space wrap>
                   {ROLE_PERMISSIONS[permModal.role].map((p) => <Tag key={p}>{p}</Tag>)}
@@ -291,7 +291,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({ users, onCreate,
               <Alert
                 type="warning"
                 showIcon
-                message="自定义覆盖"
+                title="自定义覆盖"
                 description={
                   <Space wrap>
                     {permModal.customPermissions.map((p) => <Tag key={p} color="orange">{p}</Tag>)}

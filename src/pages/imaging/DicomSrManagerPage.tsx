@@ -47,8 +47,8 @@ export const DicomSrManagerPage: React.FC = () => {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}><Card size="small"><Statistic title="SR Docs" value={srList.length} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="AI Findings" value={aiFindings.length} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Confirmed" value={confirmedAI} valueStyle={{color:'#52c41a'}} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Pending" value={pendingAI} valueStyle={{color:'#faad14'}} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="Confirmed" value={confirmedAI} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="Pending" value={pendingAI} styles={{ content: { color:'#faad14' } }} /></Card></Col>
       </Row>
       <Card size="small">
         <Tabs items={[

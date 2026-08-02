@@ -24,6 +24,7 @@ interface CriticalState {
   values: CriticalValueDto[]
   loading: boolean
   error: string | null
+  actors: Map<string, Actor<CriticalMachine>>
   load: () => Promise<void>
   voiceCall: (id: string, phoneNumber: string) => Promise<void>
   acknowledge: (id: string) => Promise<void>
@@ -104,6 +105,7 @@ export const useCriticalStore = create<CriticalState>((set, get) => ({
   values: [],
   loading: false,
   error: null,
+  actors: actorsMap,
 
   load: async () => {
     set({ loading: true, error: null })

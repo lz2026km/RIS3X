@@ -49,7 +49,7 @@ export const AIRadChest: React.FC<AIRadChestProps> = ({ patientId = 'P2024061800
             <Statistic
               title="高风险(Lung-RADS 4+)"
               value={stats.highRisk}
-              valueStyle={{ color: '#dc2626' }}
+              styles={{ content: {  color: '#dc2626'  } }}
               prefix={<Brain size={14} />}
             />
           </Card>
@@ -59,7 +59,7 @@ export const AIRadChest: React.FC<AIRadChestProps> = ({ patientId = 'P2024061800
             <Statistic
               title="恶性概率 > 50%"
               value={stats.malignant}
-              valueStyle={{ color: '#dc2626' }}
+              styles={{ content: {  color: '#dc2626'  } }}
               prefix={<TrendingUp size={14} />}
             />
           </Card>
@@ -70,7 +70,7 @@ export const AIRadChest: React.FC<AIRadChestProps> = ({ patientId = 'P2024061800
               title="平均置信度"
               value={stats.avgConf}
               precision={2}
-              valueStyle={{ color: '#16a34a' }}
+              styles={{ content: {  color: '#16a34a'  } }}
             />
           </Card>
         </Col>

@@ -109,9 +109,9 @@ export const MaterialsPage: React.FC = () => {
       </Space>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title="IOL 总数" value={iols.length} valueStyle={{ color: '#1677ff' }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="低库存" value={lowStock.length} valueStyle={{ color: '#faad14' }} prefix={<AlertTriangle size={14} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="即将过期" value={expiring.length} valueStyle={{ color: '#ff4d4f' }} prefix={<Calendar size={14} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="IOL 总数" value={iols.length} styles={{ content: {  color: '#1677ff'  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="低库存" value={lowStock.length} styles={{ content: {  color: '#faad14'  } }} prefix={<AlertTriangle size={14} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="即将过期" value={expiring.length} styles={{ content: {  color: '#ff4d4f'  } }} prefix={<Calendar size={14} />} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="接触镜 SKU" value={lenses.length} /></Card></Col>
       </Row>
 
@@ -170,7 +170,7 @@ export const MaterialsPage: React.FC = () => {
               type="warning"
               showIcon
               style={{ marginTop: 16 }}
-              message={`低库存告警: ${lowStock.length} 项需要补货`}
+              title={`低库存告警: ${lowStock.length} 项需要补货`}
               description={lowStock.map(i => `${i.model} (${i.power}D) @ ${i.stockLocation}`).join('; ')}
             />
           )}
@@ -179,7 +179,7 @@ export const MaterialsPage: React.FC = () => {
               type="error"
               showIcon
               style={{ marginTop: 8 }}
-              message={`即将过期告警: ${expiring.length} 项 90 天内到期`}
+              title={`即将过期告警: ${expiring.length} 项 90 天内到期`}
               description={expiring.map(i => `${i.model} (${i.batchNumber}) 到期: ${i.expiryDate?.slice(0, 10)}`).join('; ')}
             />
           )}
@@ -259,7 +259,7 @@ export const MaterialsPage: React.FC = () => {
           </Form>
         ) : (
           <div>
-            <Alert message={`出库: ${iolModal.data.model} (${iolModal.data.power}D) @ ${iolModal.data.stockLocation}`} type="info" showIcon style={{ marginBottom: 8 }} />
+            <Alert title={`出库: ${iolModal.data.model} (${iolModal.data.power}D) @ ${iolModal.data.stockLocation}`} type="info" showIcon style={{ marginBottom: 8 }} />
             <Form.Item label="出库原因"><Input value={iolModal.data.reason} onChange={e => setIolModal({ ...iolModal, data: { ...iolModal.data, reason: e.target.value } })} placeholder="手术植入 / 报损 / 调拨" /></Form.Item>
             <Form.Item label="患者 ID (可选)"><Input value={iolModal.data.patientId} onChange={e => setIolModal({ ...iolModal, data: { ...iolModal.data, patientId: e.target.value } })} placeholder="P000001" /></Form.Item>
             <Form.Item label="术者 (可选)"><Input value={iolModal.data.surgeon} onChange={e => setIolModal({ ...iolModal, data: { ...iolModal.data, surgeon: e.target.value } })} placeholder="D001" /></Form.Item>
@@ -278,7 +278,7 @@ export const MaterialsPage: React.FC = () => {
       >
         {lensModal.type === 'fitting' ? (
           <div>
-            <Alert message="试戴镜片: " type="info" showIcon style={{ marginBottom: 8 }} description={`${lensModal.data.id} (${lensModal.data.brand} ${lensModal.data.series})`} />
+            <Alert title="试戴镜片: " type="info" showIcon style={{ marginBottom: 8 }} description={`${lensModal.data.id} (${lensModal.data.brand} ${lensModal.data.series})`} />
             <Form.Item label="患者 ID"><Input value={lensModal.data.patientId} onChange={e => setLensModal({ ...lensModal, data: { ...lensModal.data, patientId: e.target.value } })} /></Form.Item>
             <Button type="primary" block onClick={async () => {
               try {

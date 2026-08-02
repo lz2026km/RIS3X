@@ -462,7 +462,7 @@ export const StructuredFieldEditor: React.FC<StructuredFieldEditorProps> = ({
             value={value === null || value === undefined ? null : Number(value)}
             min={f.min}
             max={f.max}
-            addonAfter={f.unit}
+            suffix={f.unit}
             style={{ width: '100%' }}
             placeholder={f.placeholder}
             onChange={(v) => updateValue(f.key, v ?? null)}

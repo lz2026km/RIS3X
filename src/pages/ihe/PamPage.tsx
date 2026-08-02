@@ -107,7 +107,7 @@ export const PamPage: React.FC = () => {
                         {ackResult}
                       </pre>
                     ) : (
-                      <Alert message="发送 PAM 消息后将在此处显示 HL7 ACK 响应" type="info" showIcon />
+                      <Alert title="发送 PAM 消息后将在此处显示 HL7 ACK 响应" type="info" showIcon />
                     )}
                   </Card>
                 </Col>
@@ -143,7 +143,7 @@ export const PamPage: React.FC = () => {
                     <Descriptions.Item label="Connections">{listenerStatus.connections ?? 0}</Descriptions.Item>
                   </Descriptions>
                 ) : (
-                  <Alert message="正在加载 MLLP 状态..." type="info" showIcon />
+                  <Alert title="正在加载 MLLP 状态..." type="info" showIcon />
                 )}
               </Card>
             ),

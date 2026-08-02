@@ -53,7 +53,7 @@ export default function AuditPage() {
   return (
     <div style={{ padding: 24 }}>
       <Card>
-        <Space direction="vertical" style={{ width: '100%' }}>
+        <Space orientation="vertical" style={{ width: '100%' }}>
           <Row justify="space-between" align="middle">
             <h2 style={{ margin: 0 }}><AuditOutlined /> 审计日志</h2>
             <Space>
@@ -70,7 +70,7 @@ export default function AuditPage() {
                   <Col span={6}><Card size="small"><Statistic title="总日志数" value={stats.total} prefix={<AuditOutlined />} /></Card></Col>
                   <Col span={6}><Card size="small"><Statistic title="24h 内" value={stats.last24h} prefix={<BarChartOutlined />} /></Card></Col>
                   <Col span={6}><Card size="small"><Statistic title="活跃用户" value="-" prefix={<UserOutlined />} /></Card></Col>
-                  <Col span={6}><Card size="small"><Statistic title="安全事件" value="0" valueStyle={{ color: '#52c41a' }} /></Card></Col>
+                  <Col span={6}><Card size="small"><Statistic title="安全事件" value="0" styles={{ content: {  color: '#52c41a'  } }} /></Card></Col>
                 </Row>
               ) : <Card size="small"><Statistic title="加载中..." value="-" /></Card>,
             },

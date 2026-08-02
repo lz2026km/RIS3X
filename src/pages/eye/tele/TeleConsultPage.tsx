@@ -330,7 +330,7 @@ export const TeleConsultPage: React.FC = () => {
                             title="延迟 P95"
                             value={turnInfo.latency.p95}
                             suffix="ms"
-                            valueStyle={{ color: "#52c41a" }}
+                            styles={{ content: {  color: "#52c41a"  } }}
                           />
                         </Col>
                         <Col span={12}>
@@ -342,7 +342,7 @@ export const TeleConsultPage: React.FC = () => {
                         </Col>
                         <Col span={24}>
                           <Alert
-                            message="5G 边缘切片"
+                            title="5G 边缘切片"
                             description={`节点: ${turnInfo && turnInfo["5G"] ? turnInfo["5G"].edgeNodeId : "N/A"} | 切片: ${turnInfo && turnInfo["5G"] ? turnInfo["5G"].slice : "N/A"}`}
                             type="success"
                             showIcon
@@ -471,7 +471,7 @@ export const TeleConsultPage: React.FC = () => {
                       style={{ marginTop: 16 }}
                     >
                       <Alert
-                        message={`状态: ${consult.status} | SLA: ${consult.sla.responseTime}`}
+                        title={`状态: ${consult.status} | SLA: ${consult.sla.responseTime}`}
                         type="info"
                         showIcon
                       />
@@ -663,7 +663,7 @@ export const TeleConsultPage: React.FC = () => {
                         </Col>
                         <Col span={24}>
                           <Alert
-                            message={`处方类型: ${refraction.prescriptionType} | 有效期至: ${refraction.validUntil.slice(0, 10)}`}
+                            title={`处方类型: ${refraction.prescriptionType} | 有效期至: ${refraction.validUntil.slice(0, 10)}`}
                             type="success"
                             showIcon
                           />
@@ -726,7 +726,7 @@ export const TeleConsultPage: React.FC = () => {
                         </Col>
                         <Col span={24}>
                           <Alert
-                            message={okLens.fittingNotes}
+                            title={okLens.fittingNotes}
                             type="info"
                             showIcon
                           />

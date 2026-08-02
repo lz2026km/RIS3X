@@ -128,7 +128,7 @@ const StowRsPage: React.FC = () => {
               title="成功存储"
               value={instances.length}
               prefix={<CheckCircle size={16} />}
-              valueStyle={{ color: "#52c41a" }}
+              styles={{ content: {  color: "#52c41a"  } }}
             />
           </Card>
         </Col>
@@ -138,7 +138,7 @@ const StowRsPage: React.FC = () => {
           type="error"
           showIcon
           style={{ marginBottom: 16 }}
-          message={error}
+          title={error}
           action={
             <Button size="small" onClick={() => void load()}>
               重试

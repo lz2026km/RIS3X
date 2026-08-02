@@ -90,7 +90,7 @@ const ClinicalConfigCenter: React.FC = () => {
         <Alert
           type="error"
           showIcon
-          message="Clinical Configuration 加载失败"
+          title="Clinical Configuration 加载失败"
           description={bootError.message}
         />
       </PageContainer>
@@ -112,7 +112,7 @@ const ClinicalConfigCenter: React.FC = () => {
       ),
       children: (
         <Card>
-          <Space direction="vertical" size={16} style={{ width: "100%" }}>
+          <Space orientation="vertical" size={16} style={{ width: "100%" }}>
             <Row gutter={16}>
               <Col span={8}>
                 <Statistic title="条目数" value={count} suffix="项" />
@@ -128,7 +128,7 @@ const ClinicalConfigCenter: React.FC = () => {
             <Alert
               type="info"
               showIcon
-              message={m.description}
+              title={m.description}
               description={<Text code style={{ fontSize: 12 }}>{m.defaultPath}</Text>}
             />
 
@@ -169,7 +169,7 @@ const ClinicalConfigCenter: React.FC = () => {
       <Alert
         type="warning"
         showIcon
-        message="阶段 3 admin UI - 只读"
+        title="阶段 3 admin UI - 只读"
         description="当前只读视图显示 7 个临床配置模块的当前内容。后续阶段会加入编辑表单 + diff preview + 保存。修改任一 JSON 需重新启动 dev server (阶段 5 HMR)。"
         style={{ marginBottom: 12 }}
       />

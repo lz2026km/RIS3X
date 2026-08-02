@@ -118,7 +118,7 @@ export const SegmentationEditor: React.FC<SegmentationEditorProps> = ({
 
         <Col span={8}>
           <Card size="small" title="参数" style={{ marginBottom: 12 }}>
-            <Space direction="vertical" style={{ width: '100%' }}>
+            <Space orientation="vertical" style={{ width: '100%' }}>
               <div>
                 <div style={{ fontSize: 12, color: '#94a3b8' }}>分割提示</div>
                 <Input.TextArea
@@ -166,8 +166,8 @@ export const SegmentationEditor: React.FC<SegmentationEditorProps> = ({
           {mask && (
             <Card size="small" title="结果" style={{ marginBottom: 12 }}>
               <Row gutter={8}>
-                <Col span={12}><Statistic title={<span style={{ color: '#94a3b8', fontSize: 12 }}>Dice</span>} value={mask.diceScore} precision={3} valueStyle={{ fontSize: 18, color: '#10b981' }} /></Col>
-                <Col span={12}><Statistic title={<span style={{ color: '#94a3b8', fontSize: 12 }}>类数</span>} value={mask.classes.length} valueStyle={{ fontSize: 18, color: '#3b82f6' }} /></Col>
+                <Col span={12}><Statistic title={<span style={{ color: '#94a3b8', fontSize: 12 }}>Dice</span>} value={mask.diceScore} precision={3} styles={{ content: {  fontSize: 18, color: '#10b981'  } }} /></Col>
+                <Col span={12}><Statistic title={<span style={{ color: '#94a3b8', fontSize: 12 }}>类数</span>} value={mask.classes.length} styles={{ content: {  fontSize: 18, color: '#3b82f6'  } }} /></Col>
               </Row>
               <Divider style={{ margin: '8px 0', borderColor: '#334155' }} />
               <List

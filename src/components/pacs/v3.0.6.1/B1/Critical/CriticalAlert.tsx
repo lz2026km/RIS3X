@@ -32,7 +32,7 @@ export const CriticalAlert: React.FC<CriticalAlertProps> = ({ item, selected, on
         borderLeft: `4px solid ${isAcked ? '#16a34a' : '#dc2626'}`,
       }}
     >
-      <Space direction="vertical" size={4} style={{ width: '100%' }}>
+      <Space orientation="vertical" size={4} style={{ width: '100%' }}>
         <Space wrap>
           <AlertCircle size={14} color={isAcked ? '#16a34a' : '#dc2626'} />
           <span style={{ fontWeight: 600 }}>{item.patientName}</span>

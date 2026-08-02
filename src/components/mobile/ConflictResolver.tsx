@@ -96,15 +96,15 @@ export const ConflictResolver: React.FC<ConflictResolverProps> = ({ open, onClos
         ) : null
       }
       width={520}
-      destroyOnClose
+      destroyOnHidden
     >
       {loading ? <Spin style={{ display: 'block', margin: '24px auto' }} /> : conflicts.length === 0 ? (
         <Empty description="无冲突" image={Empty.PRESENTED_IMAGE_SIMPLE} />
       ) : (
-        <Space direction="vertical" style={{ width: '100%', maxHeight: 480, overflowY: 'auto' }} size={12}>
+        <Space orientation="vertical" style={{ width: '100%', maxHeight: 480, overflowY: 'auto' }} size={12}>
           {conflicts.map(c => (
             <Card key={c.id} size="small" style={{ borderLeft: '3px solid #faad14' }}>
-              <Space direction="vertical" style={{ width: '100%' }} size={8}>
+              <Space orientation="vertical" style={{ width: '100%' }} size={8}>
                 <Space>
                   <Tag color="blue">{c.entityType}</Tag>
                   <Tag>{c.entityId}</Tag>

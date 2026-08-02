@@ -154,7 +154,7 @@ export const ApprovalChainBuilder: React.FC<ApprovalChainBuilderProps> = ({ onSe
       extra={<Button type="primary" icon={<Plus size={14} />} onClick={openCreate}>新建审批链</Button>}
       style={{ width: '100%' }}
     >
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
+      {error && <Alert type="error" showIcon title={error} style={{ marginBottom: 12 }} />}
       <Table size="small" dataSource={templates} columns={columns} rowKey="id" pagination={false} locale={{ emptyText: <Empty description="暂无审批链" /> }} />
 
       <Modal

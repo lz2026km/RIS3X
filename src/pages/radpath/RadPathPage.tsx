@@ -184,7 +184,7 @@ const RadPathPage: React.FC = () => {
             <Statistic
               title="一致"
               value={stats?.concordant ?? 0}
-              valueStyle={{ color: "#52c41a" }}
+              styles={{ content: {  color: "#52c41a"  } }}
               prefix={<CheckCircle2 size={16} />}
             />
           </Card>
@@ -194,7 +194,7 @@ const RadPathPage: React.FC = () => {
             <Statistic
               title="不一致"
               value={stats?.discordant ?? 0}
-              valueStyle={{ color: "#ff4d4f" }}
+              styles={{ content: {  color: "#ff4d4f"  } }}
               prefix={<XCircle size={16} />}
             />
           </Card>

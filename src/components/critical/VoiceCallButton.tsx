@@ -181,7 +181,7 @@ export const VoiceCallButton: React.FC<VoiceCallButtonProps> = ({
               <Alert
                 type="info"
                 showIcon
-                message={
+                title={
                   <span>
                     <strong>IVR 菜单:{menu.name}</strong>
                     <div style={{ fontSize: 12, marginTop: 4 }}>"{menu.greeting}"</div>
@@ -202,7 +202,7 @@ export const VoiceCallButton: React.FC<VoiceCallButtonProps> = ({
             </Space>
           </Form>
         ) : (
-          <Space direction="vertical" style={{ width: '100%' }}>
+          <Space orientation="vertical" style={{ width: '100%' }}>
             <Result
               status={call.status === 'failed' || call.status === 'no-answer' ? 'warning' : 'success'}
               icon={<PhoneCall size={36} color={call.status === 'failed' ? '#dc2626' : '#10b981'} />}
@@ -213,7 +213,7 @@ export const VoiceCallButton: React.FC<VoiceCallButtonProps> = ({
               <Statistic title="通话时长" value={call.durationSec} suffix="s" />
             )}
             {call.dtmfDigits && call.dtmfDigits.length > 0 && (
-              <Alert type="success" message={`医生按键: ${call.dtmfDigits.join(', ')} → 自动确认接收`} />
+              <Alert type="success" title={`医生按键: ${call.dtmfDigits.join(', ')} → 自动确认接收`} />
             )}
             <Button block onClick={() => setOpen(false)}>关闭</Button>
           </Space>

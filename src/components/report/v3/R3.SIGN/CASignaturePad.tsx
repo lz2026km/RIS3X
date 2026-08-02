@@ -226,17 +226,17 @@ export const CASignaturePad: React.FC<CASignaturePadProps> = ({
           type="error"
           showIcon
           style={{ marginBottom: 12 }}
-          message={`质量门禁未通过 (${qualityScore} < ${QUALITY_GATE.minimumScore})`}
+          title={`质量门禁未通过 (${qualityScore} < ${QUALITY_GATE.minimumScore})`}
           description="需先提升报告质量后再签发"
         />
       )}
 
       {error && (
-        <Alert type="error" showIcon style={{ marginBottom: 12 }} message={error} closable onClose={() => setError(null)} />
+        <Alert type="error" showIcon style={{ marginBottom: 12 }} title={error} closable onClose={() => setError(null)} />
       )}
 
       {stage === 'select-cert' && (
-        <Space direction="vertical" style={{ width: '100%' }}>
+        <Space orientation="vertical" style={{ width: '100%' }}>
           <Form layout="vertical" form={form}>
             <Form.Item label="选择证书" required>
               <Select
@@ -260,7 +260,7 @@ export const CASignaturePad: React.FC<CASignaturePadProps> = ({
               </Select>
             </Form.Item>
             {certificates.length === 0 && (
-              <Alert type="info" message={`未找到用户 ${authorName} (${authorId}) 的证书`} showIcon />
+              <Alert type="info" title={`未找到用户 ${authorName} (${authorId}) 的证书`} showIcon />
             )}
             <Form.Item label="签章算法">
               <Select value={algorithm} onChange={setAlgorithm} style={{ width: 200 }}>
@@ -283,11 +283,11 @@ export const CASignaturePad: React.FC<CASignaturePadProps> = ({
       )}
 
       {stage === 'auth' && selectedCert && (
-        <Space direction="vertical" style={{ width: '100%' }}>
+        <Space orientation="vertical" style={{ width: '100%' }}>
           <Alert
             type="info"
             showIcon
-            message={`即将使用证书 ${selectedCert.serialNumber}`}
+            title={`即将使用证书 ${selectedCert.serialNumber}`}
             description={`签发者: ${selectedCert.subject.commonName} | 有效期至 ${selectedCert.notAfter.slice(0, 10)}`}
           />
           <Form layout="vertical">
@@ -297,7 +297,7 @@ export const CASignaturePad: React.FC<CASignaturePadProps> = ({
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="请输入证书密码"
-                addonAfter={
+                suffix={
                   <span style={{ cursor: 'pointer' }} onClick={() => setShowPassword((s) => !s)}>
                     {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                   </span>
@@ -309,11 +309,11 @@ export const CASignaturePad: React.FC<CASignaturePadProps> = ({
       )}
 
       {stage === 'biometric' && (
-        <Space direction="vertical" style={{ width: '100%' }}>
+        <Space orientation="vertical" style={{ width: '100%' }}>
           <Alert
             type={bioVerified ? 'success' : 'warning'}
             showIcon
-            message={bioVerified ? '二次校验已通过' : '请选择模态并完成二次校验'}
+            title={bioVerified ? '二次校验已通过' : '请选择模态并完成二次校验'}
           />
           <Row gutter={16}>
             <Col span={8}>
@@ -345,7 +345,7 @@ export const CASignaturePad: React.FC<CASignaturePadProps> = ({
             </Col>
             <Col span={8}>
               <Card size="small" title="多模态备选">
-                <Alert type="info" showIcon message="支持 face / fingerprint / voice 三模态混合验证" style={{ fontSize: 12 }} />
+                <Alert type="info" showIcon title="支持 face / fingerprint / voice 三模态混合验证" style={{ fontSize: 12 }} />
               </Card>
             </Col>
           </Row>
@@ -384,7 +384,7 @@ export const CASignaturePad: React.FC<CASignaturePadProps> = ({
           </Col>
           <Col span={12}>
             <Title level={5}>签章元数据</Title>
-            <Space direction="vertical" size={4} style={{ width: '100%' }}>
+            <Space orientation="vertical" size={4} style={{ width: '100%' }}>
               <Text>报告 ID: {reportId}</Text>
               <Text>签章医师: {authorName} ({authorTitle})</Text>
               <Text>证书: {selectedCert.serialNumber}</Text>
@@ -410,7 +410,7 @@ export const CASignaturePad: React.FC<CASignaturePadProps> = ({
       )}
 
       {stage === 'signing' && (
-        <Space direction="vertical" style={{ width: '100%' }}>
+        <Space orientation="vertical" style={{ width: '100%' }}>
           <Progress percent={percent} status="active" />
           {signProgress.map((p, idx) => (
             <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -423,10 +423,10 @@ export const CASignaturePad: React.FC<CASignaturePadProps> = ({
       )}
 
       {stage === 'done' && result && (
-        <Space direction="vertical" style={{ width: '100%' }}>
-          <Alert type="success" showIcon message="签章完成" description={`签名 ${result.signatureId}`} />
+        <Space orientation="vertical" style={{ width: '100%' }}>
+          <Alert type="success" showIcon title="签章完成" description={`签名 ${result.signatureId}`} />
           <Card size="small" title="签章结果">
-            <Space direction="vertical" size={6} style={{ width: '100%' }}>
+            <Space orientation="vertical" size={6} style={{ width: '100%' }}>
               <Text copyable>签名 ID: {result.signatureId}</Text>
               <Text copyable={{ text: result.contentHash }}>内容 Hash: {result.contentHash.slice(0, 32)}...</Text>
               <Text copyable={{ text: result.signatureValue }}>签名值: {result.signatureValue.slice(0, 32)}...</Text>

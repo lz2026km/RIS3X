@@ -153,7 +153,7 @@ export const MultiLevelApprovalView: React.FC<MultiLevelApprovalViewProps> = ({ 
       extra={<Button icon={<Send size={14} />} onClick={() => void load()} loading={loading}>刷新</Button>}
       style={{ width: '100%' }}
     >
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
+      {error && <Alert type="error" showIcon title={error} style={{ marginBottom: 12 }} />}
 
       <Title level={5}>进行中</Title>
       <Table size="small" dataSource={inflight} columns={columns} rowKey="approvalId" pagination={false} style={{ marginBottom: 16 }} locale={{ emptyText: <Empty description="无进行中审批" /> }} />
@@ -169,7 +169,7 @@ export const MultiLevelApprovalView: React.FC<MultiLevelApprovalViewProps> = ({ 
         width={640}
       >
         {detail && (
-          <Space direction="vertical" style={{ width: '100%' }}>
+          <Space orientation="vertical" style={{ width: '100%' }}>
             <Descriptions column={2} size="small" bordered>
               <Descriptions.Item label="审批 ID">{detail.approvalId}</Descriptions.Item>
               <Descriptions.Item label="状态">
@@ -212,7 +212,7 @@ export const MultiLevelApprovalView: React.FC<MultiLevelApprovalViewProps> = ({ 
                       type={a.decision === 'approved' ? 'success' : 'error'}
                       showIcon
                       icon={meta?.icon}
-                      message={
+                      title={
                         <Space>
                           <Text strong>{a.approverName}</Text>
                           <Tag color={meta?.color}>{meta?.label}</Tag>
@@ -228,7 +228,7 @@ export const MultiLevelApprovalView: React.FC<MultiLevelApprovalViewProps> = ({ 
             )}
 
             {detail.status === 'in-progress' && (
-              <Space direction="vertical" style={{ width: '100%' }}>
+              <Space orientation="vertical" style={{ width: '100%' }}>
                 <Input.TextArea
                   placeholder="审批意见..."
                   value={comment}

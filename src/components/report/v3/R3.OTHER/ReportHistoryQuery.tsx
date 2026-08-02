@@ -125,12 +125,12 @@ export const ReportHistoryQuery: React.FC<Props> = ({ onSelect, height = 600 }) 
     <div className="space-y-3">
       {/* 概览 */}
       <Row gutter={8}>
-        <Col span={4}><Card size="small"><Statistic title="查询结果" value={stats.total} suffix={`/ ${VIRTUAL_REPORT_TOTAL}`} prefix={<FileSearch className="w-3 h-3" style={{ color: '#3b82f6' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="待审" value={stats.review} prefix={<Clock className="w-3 h-3" style={{ color: '#f59e0b' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="已发布" value={stats.published} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="含危急值" value={stats.critical} prefix={<Sparkles className="w-3 h-3" style={{ color: '#dc2626' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="平均质量分" value={stats.avgQuality} suffix="/100" prefix={<BarChart3 className="w-3 h-3" style={{ color: '#7c3aed' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="已签发" value={stats.sign} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#059669' }} />} valueStyle={{ fontSize: 18 }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="查询结果" value={stats.total} suffix={`/ ${VIRTUAL_REPORT_TOTAL}`} prefix={<FileSearch className="w-3 h-3" style={{ color: '#3b82f6' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="待审" value={stats.review} prefix={<Clock className="w-3 h-3" style={{ color: '#f59e0b' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="已发布" value={stats.published} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="含危急值" value={stats.critical} prefix={<Sparkles className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="平均质量分" value={stats.avgQuality} suffix="/100" prefix={<BarChart3 className="w-3 h-3" style={{ color: '#7c3aed' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="已签发" value={stats.sign} prefix={<CheckCircle2 className="w-3 h-3" style={{ color: '#059669' }} />} styles={{ content: {  fontSize: 18  } }} /></Card></Col>
       </Row>
 
       {/* 筛选 + 工具栏 */}

@@ -54,7 +54,7 @@ export const FederatedLearning: React.FC<FederatedLearningProps> = ({ nodes = MO
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="在线" value={online} valueStyle={{ color: '#16a34a' }} />
+            <Statistic title="在线" value={online} styles={{ content: {  color: '#16a34a'  } }} />
           </Card>
         </Col>
         <Col span={6}>

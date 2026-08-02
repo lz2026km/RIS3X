@@ -145,7 +145,7 @@ export const DentalGuidePage: React.FC = () => {
             <Statistic
               title="设计中"
               value={guides.filter((g: any) => g.status === "designing").length}
-              valueStyle={{ color: "#faad14" }}
+              styles={{ content: {  color: "#faad14"  } }}
             />
           </Card>
         </Col>
@@ -154,7 +154,7 @@ export const DentalGuidePage: React.FC = () => {
             <Statistic
               title="已导出STL"
               value={guides.filter((g: any) => g.guideFile).length}
-              valueStyle={{ color: "#52c41a" }}
+              styles={{ content: {  color: "#52c41a"  } }}
             />
           </Card>
         </Col>

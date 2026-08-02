@@ -89,9 +89,9 @@ export const VoiceCommandPanel: React.FC<Props> = ({ onCommandTriggered, default
       className="shadow-sm"
     >
       <Row gutter={8} className="mb-3">
-        <Col span={8}><Statistic title="命令总数" value={stats.total} prefix={<Command className="w-3 h-3" />} valueStyle={{ fontSize: 14 }} /></Col>
-        <Col span={8}><Statistic title="分类" value={stats.categories} prefix={<Layout className="w-3 h-3" />} valueStyle={{ fontSize: 14 }} /></Col>
-        <Col span={8}><Statistic title="已触发" value={stats.recent} prefix={<Zap className="w-3 h-3" />} valueStyle={{ fontSize: 14 }} /></Col>
+        <Col span={8}><Statistic title="命令总数" value={stats.total} prefix={<Command className="w-3 h-3" />} styles={{ content: {  fontSize: 14  } }} /></Col>
+        <Col span={8}><Statistic title="分类" value={stats.categories} prefix={<Layout className="w-3 h-3" />} styles={{ content: {  fontSize: 14  } }} /></Col>
+        <Col span={8}><Statistic title="已触发" value={stats.recent} prefix={<Zap className="w-3 h-3" />} styles={{ content: {  fontSize: 14  } }} /></Col>
       </Row>
 
       <Input

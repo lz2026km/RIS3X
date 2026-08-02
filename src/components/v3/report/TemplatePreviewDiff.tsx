@@ -145,7 +145,7 @@ export const TemplatePreviewDiff: React.FC<TemplatePreviewDiffProps> = ({
                   <Alert
                     type="info"
                     showIcon
-                    message="此模板包含变量,可在下方修改后预览"
+                    title="此模板包含变量,可在下方修改后预览"
                     style={{ marginBottom: 8 }}
                   />
                 )}
@@ -232,7 +232,7 @@ export const TemplatePreviewDiff: React.FC<TemplatePreviewDiffProps> = ({
                     })}
                   </pre>
                 ) : (
-                  <Alert type="info" showIcon message="当前报告为空,无差异可对比" />
+                  <Alert type="info" showIcon title="当前报告为空,无差异可对比" />
                 )}
               </div>
             ),
@@ -242,7 +242,7 @@ export const TemplatePreviewDiff: React.FC<TemplatePreviewDiffProps> = ({
 
       <Space style={{ marginTop: 12 }}>
         <span>应用方式:</span>
-        <Button.Group>
+        <Space.Compact>
           <Button
             type={mode === 'append' ? 'primary' : 'default'}
             onClick={() => setMode('append')}
@@ -259,7 +259,7 @@ export const TemplatePreviewDiff: React.FC<TemplatePreviewDiffProps> = ({
           >
             替换
           </Button>
-        </Button.Group>
+        </Space.Compact>
         {mode === 'replace' && (
           <Tag color="orange" icon={<AlertCircle size={10} />}>
             替换会清空当前所见和结论

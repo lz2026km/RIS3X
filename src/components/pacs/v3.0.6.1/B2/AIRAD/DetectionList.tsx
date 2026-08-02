@@ -57,7 +57,7 @@ export const DetectionList: React.FC<DetectionListProps> = ({ findings, selected
               <Button key="acc" size="small" type="link" onClick={(e) => { e.stopPropagation(); onAccept?.(f.id) }}>采纳</Button>,
             ]}
           >
-            <Space direction="vertical" size={2} style={{ width: '100%' }}>
+            <Space orientation="vertical" size={2} style={{ width: '100%' }}>
               <Space wrap>
                 <Tag color={meta.color}>{meta.label}</Tag>
                 <Tag color="blue">{f.size_mm} mm</Tag>

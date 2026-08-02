@@ -89,11 +89,11 @@ export const AtnaAuditLog: React.FC = () => {
   return (
     <div className="space-y-3">
       <Row gutter={8}>
-        <Col span={4}><Card size="small"><Statistic title="事件总数" value={stats.count} prefix={<Database className="w-3 h-3" style={{ color: '#dc2626' }} />} valueStyle={{ fontSize: 16 }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="序列号" value={stats.sequence} prefix={<Hash className="w-3 h-3" style={{ color: '#7c3aed' }} />} valueStyle={{ fontSize: 16 }} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title="容量 / 保留" value={`${stats.count}/${stats.capacity}`} suffix={`${stats.retentionDays}天`} prefix={<Shield className="w-3 h-3" style={{ color: '#10b981' }} />} valueStyle={{ fontSize: 14 }} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title="哈希链" value={chain.ok ? '✓ 完整' : `✗ 断裂 @${chain.brokenAt}`} prefix={chain.ok ? <Lock className="w-3 h-3" style={{ color: '#10b981' }} /> : <AlertCircle className="w-3 h-3" style={{ color: '#dc2626' }} />} valueStyle={{ fontSize: 14, color: chain.ok ? '#10b981' : '#dc2626' }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="筛选结果" value={entries.length} prefix={<Search className="w-3 h-3" style={{ color: '#3b82f6' }} />} valueStyle={{ fontSize: 16 }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="事件总数" value={stats.count} prefix={<Database className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="序列号" value={stats.sequence} prefix={<Hash className="w-3 h-3" style={{ color: '#7c3aed' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title="容量 / 保留" value={`${stats.count}/${stats.capacity}`} suffix={`${stats.retentionDays}天`} prefix={<Shield className="w-3 h-3" style={{ color: '#10b981' }} />} styles={{ content: {  fontSize: 14  } }} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title="哈希链" value={chain.ok ? '✓ 完整' : `✗ 断裂 @${chain.brokenAt}`} prefix={chain.ok ? <Lock className="w-3 h-3" style={{ color: '#10b981' }} /> : <AlertCircle className="w-3 h-3" style={{ color: '#dc2626' }} />} styles={{ content: {  fontSize: 14, color: chain.ok ? '#10b981' : '#dc2626'  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="筛选结果" value={entries.length} prefix={<Search className="w-3 h-3" style={{ color: '#3b82f6' }} />} styles={{ content: {  fontSize: 16  } }} /></Card></Col>
       </Row>
 
       <Card size="small" className="shadow-sm" title={

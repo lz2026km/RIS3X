@@ -35,10 +35,10 @@ export const PatientSafetyDashboardPage: React.FC = () => {
         <Segmented value={range} onChange={setRange as any} options={[{value:'today',label:'Today'},{value:'week',label:'Week'},{value:'month',label:'Month'}]} />
       </Space>
       <Row gutter={16} style={{marginBottom:16}}>
-        <Col span={4}><Card size="small"><Statistic title="Safety Score" value={94} suffix="/100" prefix={<Shield size={14}/>} valueStyle={{color:'#52c41a'}} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Open Incidents" value={incidents.filter(i=>i.status==='open'||i.status==='investigating').length} valueStyle={{color:'#faad14'}} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Closed Today" value={incidents.filter(i=>i.status==='closed').length} valueStyle={{color:'#52c41a'}} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Critical Alerts" value={alerts.filter(a=>a.level==='critical').length} valueStyle={{color:'#ff4d4f'}} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="Safety Score" value={94} suffix="/100" prefix={<Shield size={14}/>} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="Open Incidents" value={incidents.filter(i=>i.status==='open'||i.status==='investigating').length} styles={{ content: { color:'#faad14' } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="Closed Today" value={incidents.filter(i=>i.status==='closed').length} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="Critical Alerts" value={alerts.filter(a=>a.level==='critical').length} styles={{ content: { color:'#ff4d4f' } }} /></Card></Col>
       </Row>
       <Row gutter={16} style={{marginBottom:16}}>
         <Col span={16}>

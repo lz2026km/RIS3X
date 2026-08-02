@@ -26,7 +26,7 @@ export const PortalView: React.FC<PortalViewProps> = ({
         </Col>
         <Col span={8}>
           <Card size="small">
-            <Statistic title="待审核" value={unread} valueStyle={{ color: '#dc2626' }} prefix={<Activity size={14} />} />
+            <Statistic title="待审核" value={unread} styles={{ content: {  color: '#dc2626'  } }} prefix={<Activity size={14} />} />
           </Card>
         </Col>
         <Col span={8}>

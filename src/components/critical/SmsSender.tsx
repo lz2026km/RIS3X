@@ -147,7 +147,7 @@ export const SmsSender: React.FC<SmsSenderProps> = ({
           <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>
             <Hash size={10} /> 预览
           </div>
-          <Alert type="info" message={renderPreview()} />
+          <Alert type="info" title={renderPreview()} />
           <Space size={20} style={{ marginTop: 12 }}>
             <Statistic
               title="预计费用"
@@ -155,12 +155,12 @@ export const SmsSender: React.FC<SmsSenderProps> = ({
               prefix={<DollarSign size={12} />}
               precision={3}
               suffix="元"
-              valueStyle={{ fontSize: 14 }}
+              styles={{ content: {  fontSize: 14  } }}
             />
             <Statistic
               title="字符"
               value={renderPreview().length}
-              valueStyle={{ fontSize: 14 }}
+              styles={{ content: {  fontSize: 14  } }}
             />
           </Space>
           <Space style={{ width: '100%', justifyContent: 'flex-end', marginTop: 12 }}>

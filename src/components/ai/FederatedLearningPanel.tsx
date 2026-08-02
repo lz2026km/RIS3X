@@ -163,7 +163,7 @@ export const FederatedLearningPanel: React.FC = () => {
               precision={2}
               suffix="ε"
               prefix={<Shield size={16} color="#8b5cf6" />}
-              valueStyle={{ color: '#f1f5f9' }}
+              styles={{ content: {  color: '#f1f5f9'  } }}
             />
             <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
               已用 {budget.used.toFixed(2)} / 总额 {budget.total.toFixed(2)}
@@ -176,7 +176,7 @@ export const FederatedLearningPanel: React.FC = () => {
               title={<span style={{ color: '#94a3b8' }}>本站点</span>}
               value="协和医院"
               prefix={<Users size={16} color="#3b82f6" />}
-              valueStyle={{ color: '#f1f5f9', fontSize: 16 }}
+              styles={{ content: {  color: '#f1f5f9', fontSize: 16  } }}
             />
             <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>数据量: 12,580 例</div>
           </Card>
@@ -187,7 +187,7 @@ export const FederatedLearningPanel: React.FC = () => {
               title={<span style={{ color: '#94a3b8' }}>完成轮次</span>}
               value={rounds.filter((r) => r.status === 'completed').length}
               prefix={<GitMerge size={16} color="#10b981" />}
-              valueStyle={{ color: '#f1f5f9' }}
+              styles={{ content: {  color: '#f1f5f9'  } }}
             />
           </Card>
         </Col>
@@ -197,7 +197,7 @@ export const FederatedLearningPanel: React.FC = () => {
               title={<span style={{ color: '#94a3b8' }}>总参与方</span>}
               value={rounds.reduce((max, r) => Math.max(max, r.participants), 0)}
               prefix={<Activity size={16} color="#06b6d4" />}
-              valueStyle={{ color: '#f1f5f9' }}
+              styles={{ content: {  color: '#f1f5f9'  } }}
             />
           </Card>
         </Col>

@@ -125,7 +125,7 @@ export const PatientMergeTool: React.FC<PatientMergeToolProps> = ({
       style={{ background: role === 'source' ? '#eff6ff' : '#fef3c7' }}
       data-testid={`merge-${role}-${c.id}`}
     >
-      <Space direction="vertical" size={2} style={{ width: '100%' }}>
+      <Space orientation="vertical" size={2} style={{ width: '100%' }}>
         <div style={{ fontSize: 12 }}><IdCard size={10} /> {c.idCard ?? '-'}</div>
         <div style={{ fontSize: 12 }}><Phone size={10} /> {c.phone ?? '-'}</div>
         <div style={{ fontSize: 12 }}><Calendar size={10} /> {c.birthDate}</div>
@@ -144,12 +144,12 @@ export const PatientMergeTool: React.FC<PatientMergeToolProps> = ({
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="高风险(≥80)" value={stats.highRisk} valueStyle={{ color: '#dc2626' }} />
+            <Statistic title="高风险(≥80)" value={stats.highRisk} styles={{ content: {  color: '#dc2626'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="中风险(60-79)" value={stats.mediumRisk} valueStyle={{ color: '#ca8a04' }} />
+            <Statistic title="中风险(60-79)" value={stats.mediumRisk} styles={{ content: {  color: '#ca8a04'  } }} />
           </Card>
         </Col>
         <Col span={6}>
@@ -244,11 +244,11 @@ export const PatientMergeTool: React.FC<PatientMergeToolProps> = ({
         data-testid="merge-confirm-modal"
       >
         {confirm && (
-          <Space direction="vertical" size={12} style={{ width: '100%' }}>
+          <Space orientation="vertical" size={12} style={{ width: '100%' }}>
             <Alert
               type="warning"
               showIcon
-              message={`合并将保留 1 位患者档案,另 1 位 ${keepId === confirm.source.id ? '匹配' : '源'}将被归档。所有检查/报告将迁移到保留档案。`}
+              title={`合并将保留 1 位患者档案,另 1 位 ${keepId === confirm.source.id ? '匹配' : '源'}将被归档。所有检查/报告将迁移到保留档案。`}
             />
             <div>
               <strong>保留档案:</strong>

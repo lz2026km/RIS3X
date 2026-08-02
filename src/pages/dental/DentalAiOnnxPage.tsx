@@ -142,8 +142,8 @@ export const DentalAiOnnxPage: React.FC = () => {
           <Card title="模型管理" size="small">
             {modelStatus === 'idle' && <Button type="primary" block icon={<Brain size={14} />} loading={loading} onClick={loadModel}>初始化 ONNX Runtime Web</Button>}
             {modelStatus === 'loading' && <Spin />}
-            {modelStatus === 'ready' && <Alert type="success" message="ONNX Runtime Web 已就绪" description={session ? 'YOLOv8n-dental 模型 (真实推理)' : 'YOLOv8n-dental 模型 (模拟模式)'} showIcon />}
-            {modelStatus === 'error' && <Alert type="error" message="初始化失败" description="浏览器不支持 WebGL 或 ONNX Runtime" showIcon />}
+            {modelStatus === 'ready' && <Alert type="success" title="ONNX Runtime Web 已就绪" description={session ? 'YOLOv8n-dental 模型 (真实推理)' : 'YOLOv8n-dental 模型 (模拟模式)'} showIcon />}
+            {modelStatus === 'error' && <Alert type="error" title="初始化失败" description="浏览器不支持 WebGL 或 ONNX Runtime" showIcon />}
             {modelStatus === 'ready' && (
               <>
                 <AntdUpload accept="image/*" showUploadList={false} beforeUpload={(f) => { handleFileChange(f); return false; }}>
@@ -161,7 +161,7 @@ export const DentalAiOnnxPage: React.FC = () => {
           <Card title={result ? `推理结果 (${result.isRealInference ? '真实推理' : '模拟推理'})` : '结果'} size="small">
             {result ? (
               <div>
-                <Alert type="success" message={`检测到 ${result.detections.length} 个病灶`} description={`框架: ${result.framework} | 模型: ${result.model}`} style={{ marginBottom: 12 }} showIcon />
+                <Alert type="success" title={`检测到 ${result.detections.length} 个病灶`} description={`框架: ${result.framework} | 模型: ${result.model}`} style={{ marginBottom: 12 }} showIcon />
                 <List dataSource={result.detections} renderItem={(d: DentalDetection) => (
                   <List.Item>
                     <Space>

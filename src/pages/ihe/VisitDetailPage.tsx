@@ -60,7 +60,7 @@ export const VisitDetailPage: React.FC = () => {
       </Space>
 
       {visit && (
-        <Space direction="vertical" style={{ width: '100%' }} size={16}>
+        <Space orientation="vertical" style={{ width: '100%' }} size={16}>
           <Card size="small" title={<Space><Activity size={14} />5 态状态机</Space>}>
             <Steps current={currentIdx} size="small"
               items={STATE_STEPS.map((s, i) => ({

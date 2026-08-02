@@ -131,10 +131,10 @@ const DbtPage: React.FC = () => {
             </div>
             <div style={{ borderTop: '1px solid #334155', paddingTop: 8, marginTop: 8 }}>
               <Row gutter={[8, 8]}>
-                <Col span={12}><Statistic title="投照角度" value={`${(currentAngle / totalAngles * 15 - 7.5).toFixed(1)}°`} valueStyle={{ fontSize: 14 }} /></Col>
-                <Col span={12}><Statistic title="总帧数" value={totalAngles} valueStyle={{ fontSize: 14 }} /></Col>
-                <Col span={12}><Statistic title="合成模式" value="DBT" valueStyle={{ fontSize: 14 }} /></Col>
-                <Col span={12}><Statistic title="分辨率" value="256×256" valueStyle={{ fontSize: 14 }} /></Col>
+                <Col span={12}><Statistic title="投照角度" value={`${(currentAngle / totalAngles * 15 - 7.5).toFixed(1)}°`} styles={{ content: {  fontSize: 14  } }} /></Col>
+                <Col span={12}><Statistic title="总帧数" value={totalAngles} styles={{ content: {  fontSize: 14  } }} /></Col>
+                <Col span={12}><Statistic title="合成模式" value="DBT" styles={{ content: {  fontSize: 14  } }} /></Col>
+                <Col span={12}><Statistic title="分辨率" value="256×256" styles={{ content: {  fontSize: 14  } }} /></Col>
               </Row>
             </div>
           </Card>

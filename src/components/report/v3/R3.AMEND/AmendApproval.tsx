@@ -108,17 +108,17 @@ export const AmendApprovalView: React.FC<AmendApprovalProps> = ({
       }
       style={{ width: '100%' }}
     >
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
+      {error && <Alert type="error" showIcon title={error} style={{ marginBottom: 12 }} />}
 
       <Row gutter={16} style={{ marginBottom: 12 }}>
         <Col span={8}>
-          <Statistic title="待审批" value={pending.length} prefix={<Clock size={14} />} valueStyle={{ color: '#f59e0b' }} />
+          <Statistic title="待审批" value={pending.length} prefix={<Clock size={14} />} styles={{ content: {  color: '#f59e0b'  } }} />
         </Col>
         <Col span={8}>
-          <Statistic title="已通过" value={approved.length} prefix={<CheckCircle2 size={14} />} valueStyle={{ color: '#10b981' }} />
+          <Statistic title="已通过" value={approved.length} prefix={<CheckCircle2 size={14} />} styles={{ content: {  color: '#10b981'  } }} />
         </Col>
         <Col span={8}>
-          <Statistic title="已驳回" value={rejected.length} prefix={<ShieldX size={14} />} valueStyle={{ color: '#ef4444' }} />
+          <Statistic title="已驳回" value={rejected.length} prefix={<ShieldX size={14} />} styles={{ content: {  color: '#ef4444'  } }} />
         </Col>
       </Row>
 
@@ -165,7 +165,7 @@ export const AmendApprovalView: React.FC<AmendApprovalProps> = ({
                     </Space>
                   }
                   description={
-                    <Space direction="vertical" size={2}>
+                    <Space orientation="vertical" size={2}>
                       <Space size={4}>
                         <User size={12} />
                         <Text type="secondary" style={{ fontSize: 12 }}>{item.requesterName}</Text>
@@ -175,7 +175,7 @@ export const AmendApprovalView: React.FC<AmendApprovalProps> = ({
                       <Text style={{ fontSize: 12 }}>{item.reason}</Text>
                       <Text type="secondary" style={{ fontSize: 12 }}>{new Date(item.createdAt).toLocaleString('zh-CN')}</Text>
                       {item.rejectedReason && (
-                        <Alert type="error" showIcon message={`驳回原因: ${item.rejectedReason}`} style={{ marginTop: 4 }} />
+                        <Alert type="error" showIcon title={`驳回原因: ${item.rejectedReason}`} style={{ marginTop: 4 }} />
                       )}
                     </Space>
                   }

@@ -235,7 +235,7 @@ export const DentalCadPage: React.FC = () => {
                 value={
                   designs.filter((d: any) => d.status === "cemented").length
                 }
-                valueStyle={{ color: "#52c41a" }}
+                styles={{ content: {  color: "#52c41a"  } }}
               />
             </Card>
           </Col>
@@ -602,7 +602,7 @@ export const DentalCadPage: React.FC = () => {
             {current?.status === "milling" && (
               <Alert
                 style={{ marginTop: 8 }}
-                message={
+                title={
                   <Space>
                     <Spin size="small" />
                     研磨中: Sirona CEREC MC XL

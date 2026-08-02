@@ -131,7 +131,7 @@ export const Cardiac: React.FC<CardiacProps> = ({ onSelectPatient }) => {
       title: '患者',
       key: 'patient',
       render: (_: unknown, r: CardiacPatient) => (
-        <Space direction="vertical" size={0}>
+        <Space orientation="vertical" size={0}>
           <Space>
             <span style={{ fontWeight: 600 }}>{r.patientName}</span>
             <Badge color={r.abnormalSegments > 0 ? 'red' : 'green'} text={r.abnormalSegments > 0 ? '异常' : '正常'} />
@@ -199,7 +199,7 @@ export const Cardiac: React.FC<CardiacProps> = ({ onSelectPatient }) => {
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="患者总数" value={stats.total} prefix={<Heart size={14} color="#dc2626" />} valueStyle={{ color: '#dc2626' }} />
+            <Statistic title="患者总数" value={stats.total} prefix={<Heart size={14} color="#dc2626" />} styles={{ content: {  color: '#dc2626'  } }} />
           </Card>
         </Col>
         <Col span={6}>
@@ -210,18 +210,18 @@ export const Cardiac: React.FC<CardiacProps> = ({ onSelectPatient }) => {
               precision={1}
               suffix="%"
               prefix={<Activity size={14} color={efColor(stats.avgEf)} />}
-              valueStyle={{ color: efColor(stats.avgEf) }}
+              styles={{ content: {  color: efColor(stats.avgEf)  } }}
             />
           </Card>
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="EF < 50%" value={stats.lowEf} prefix={<Zap size={14} color="#f59e0b" />} valueStyle={{ color: '#f59e0b' }} />
+            <Statistic title="EF < 50%" value={stats.lowEf} prefix={<Zap size={14} color="#f59e0b" />} styles={{ content: {  color: '#f59e0b'  } }} />
           </Card>
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Statistic title="异常病例" value={stats.abnormal} prefix={<Droplet size={14} color="#8b5cf6" />} valueStyle={{ color: '#8b5cf6' }} />
+            <Statistic title="异常病例" value={stats.abnormal} prefix={<Droplet size={14} color="#8b5cf6" />} styles={{ content: {  color: '#8b5cf6'  } }} />
           </Card>
         </Col>
       </Row>
@@ -269,10 +269,10 @@ export const Cardiac: React.FC<CardiacProps> = ({ onSelectPatient }) => {
             >
               <Row gutter={8} style={{ marginBottom: 8 }}>
                 <Col span={12}>
-                  <Statistic title="LVEF" value={current.ef} suffix="%" valueStyle={{ color: efColor(current.ef), fontSize: 22 }} />
+                  <Statistic title="LVEF" value={current.ef} suffix="%" styles={{ content: {  color: efColor(current.ef), fontSize: 22  } }} />
                 </Col>
                 <Col span={12}>
-                  <Statistic title="CO" value={current.coLpm} precision={1} suffix="L/min" valueStyle={{ fontSize: 22 }} />
+                  <Statistic title="CO" value={current.coLpm} precision={1} suffix="L/min" styles={{ content: {  fontSize: 22  } }} />
                 </Col>
               </Row>
               <Row gutter={8} style={{ marginBottom: 8 }}>
@@ -312,7 +312,7 @@ export const Cardiac: React.FC<CardiacProps> = ({ onSelectPatient }) => {
                         value={current.massG}
                         suffix="g"
                         prefix={<Heart size={14} color="#dc2626" />}
-                        valueStyle={{ color: current.massG > 150 ? '#dc2626' : '#16a34a', fontSize: 22 }}
+                        styles={{ content: {  color: current.massG > 150 ? '#dc2626' : '#16a34a', fontSize: 22  } }}
                       />
                     ),
                   },

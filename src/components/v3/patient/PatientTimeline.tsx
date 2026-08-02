@@ -83,16 +83,16 @@ export const PatientTimeline: React.FC<PatientTimelineProps> = ({ patientId, eve
     >
       <Row gutter={8} style={{ marginBottom: 12 }}>
         <Col span={6}>
-          <Statistic title="总事件" value={stats.total} valueStyle={{ fontSize: 16 }} />
+          <Statistic title="总事件" value={stats.total} styles={{ content: {  fontSize: 16  } }} />
         </Col>
         <Col span={6}>
-          <Statistic title="检查" value={stats.exams} valueStyle={{ fontSize: 16, color: '#3b82f6' }} />
+          <Statistic title="检查" value={stats.exams} styles={{ content: {  fontSize: 16, color: '#3b82f6'  } }} />
         </Col>
         <Col span={6}>
-          <Statistic title="报告" value={stats.reports} valueStyle={{ fontSize: 16, color: '#1e3a5f' }} />
+          <Statistic title="报告" value={stats.reports} styles={{ content: {  fontSize: 16, color: '#1e3a5f'  } }} />
         </Col>
         <Col span={6}>
-          <Statistic title="危急值" value={stats.critical} valueStyle={{ fontSize: 16, color: '#dc2626' }} />
+          <Statistic title="危急值" value={stats.critical} styles={{ content: {  fontSize: 16, color: '#dc2626'  } }} />
         </Col>
       </Row>
 

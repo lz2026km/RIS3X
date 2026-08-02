@@ -25,10 +25,10 @@ export default function MlpsAuditPage() {
       </Space>
 
       <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col span={4}><Card size="small"><Statistic title="综合评分" value={result.overallScore} suffix="/100" prefix={<Award size={14} />} valueStyle={{ color: result.overallScore >= 85 ? '#3f8600' : '#faad14' }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="综合评分" value={result.overallScore} suffix="/100" prefix={<Award size={14} />} styles={{ content: {  color: result.overallScore >= 85 ? '#3f8600' : '#faad14'  } }} /></Card></Col>
         {Object.entries(result.areaSummaries).map(([area, s]) => (
           <Col key={area} span={4}><Card size="small" title={areaLabels[area] ?? area}>
-            <Statistic title={s.compliant + s.partial + s.nonCompliant + '项'} value={s.score} suffix="/100" valueStyle={{ fontSize: 18 }} />
+            <Statistic title={s.compliant + s.partial + s.nonCompliant + '项'} value={s.score} suffix="/100" styles={{ content: {  fontSize: 18  } }} />
             <Progress percent={s.score} size="small" format={p => `${p}%`} />
             <Space size={4} style={{ marginTop: 4 }}>
               <Tag color="green">{s.compliant}</Tag><Tag color="orange">{s.partial}</Tag><Tag color="red">{s.nonCompliant}</Tag>
@@ -38,7 +38,7 @@ export default function MlpsAuditPage() {
       </Row>
 
       {result.gapAnalysis.length > 0 && (
-        <Alert type="warning" message={`${result.gapAnalysis.length} 项差距项, 建议优先处理低分领域`} style={{ marginBottom: 16 }} showIcon />
+        <Alert type="warning" title={`${result.gapAnalysis.length} 项差距项, 建议优先处理低分领域`} style={{ marginBottom: 16 }} showIcon />
       )}
 
       <Card title="检查项明细" extra={<Text type="secondary">{result.recommendation}</Text>}>

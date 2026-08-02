@@ -43,7 +43,7 @@ const SmartMwlPage: React.FC = () => {
   const columns = [
     { title: '优先级', dataIndex: 'priority', key: 'priority', width: 80, render: (p: string) => <Tag color={p === '危重' ? 'red' : p === '紧急' ? 'orange' : 'blue'}>{p}</Tag> },
     { title: '患者', dataIndex: 'patientName', key: 'patientName', render: (name: string, r: SmartMwlItem) => <Space><User size={14} /><span>{name}</span><span style={{ color: '#666', fontSize: 12 }}>{r.gender} / {r.age}岁</span></Space> },
-    { title: '检查项目', dataIndex: 'examItem', key: 'examItem', render: (item: string, r: SmartMwlItem) => <Space direction="vertical" size={0}><span>{item}</span><span style={{ color: '#666', fontSize: 12 }}>{r.modality} · {r.bodyPart}</span></Space> },
+    { title: '检查项目', dataIndex: 'examItem', key: 'examItem', render: (item: string, r: SmartMwlItem) => <Space orientation="vertical" size={0}><span>{item}</span><span style={{ color: '#666', fontSize: 12 }}>{r.modality} · {r.bodyPart}</span></Space> },
     { title: '患者类型', dataIndex: 'patientType', key: 'patientType', width: 100, render: (type: string) => <Tag>{type}</Tag> },
     { title: '状态', dataIndex: 'status', key: 'status', width: 100, render: (s: string) => <Tag color={s === '待检查' ? 'blue' : 'green'}>{s}</Tag> },
     { title: '等待时间', dataIndex: 'createdTime', key: 'waitTime', width: 100, render: (t: string) => { const h = Math.floor((Date.now() - new Date(t).getTime()) / 3600000); return <span style={{ color: h > 2 ? '#ff4d4f' : '#666' }}>{h}h</span> } },
@@ -60,8 +60,8 @@ const SmartMwlPage: React.FC = () => {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}><Card size="small"><Statistic title="总检查数" value={items.length} prefix={<FileText size={16} />} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="平均等待" value={0} suffix="min" prefix={<Clock size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="危急" value={0} valueStyle={{ color: '#cf1322' }} prefix={<AlertTriangle size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="紧急" value={0} valueStyle={{ color: '#fa8c16' }} prefix={<Clock size={16} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="危急" value={0} styles={{ content: {  color: '#cf1322'  } }} prefix={<AlertTriangle size={16} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="紧急" value={0} styles={{ content: {  color: '#fa8c16'  } }} prefix={<Clock size={16} />} /></Card></Col>
       </Row>
       <Card title="检查列表" extra={<Space>
         <Input placeholder="搜索" prefix={<Search size={14} />} value={search} onChange={e => setSearch(e.target.value)} style={{ width: 200 }} />
@@ -75,8 +75,8 @@ const SmartMwlPage: React.FC = () => {
         <Modal title={`AI评分 - ${selectedItem.patientName}`} open={!!selectedItem} onCancel={() => { setSelectedItem(null); setScoreResult(null) }} footer={null} width={600}>
           <Card size="small" style={{ marginBottom: 16 }}>
             <Row gutter={16}>
-              <Col span={8}><Statistic title="综合评分" value={scoreResult.totalScore} valueStyle={{ color: levelColor[scoreResult.level] === 'red' ? '#cf1322' : '#1677ff' }} /></Col>
-              <Col span={8}><Statistic title="优先级" value={levelLabel[scoreResult.level]} valueStyle={{ color: levelColor[scoreResult.level] }} /></Col>
+              <Col span={8}><Statistic title="综合评分" value={scoreResult.totalScore} styles={{ content: {  color: levelColor[scoreResult.level] === 'red' ? '#cf1322' : '#1677ff'  } }} /></Col>
+              <Col span={8}><Statistic title="优先级" value={levelLabel[scoreResult.level]} styles={{ content: {  color: levelColor[scoreResult.level]  } }} /></Col>
             </Row>
           </Card>
           <div style={{ marginBottom: 16 }}><h4>评分因子</h4>{scoreResult.factors.map((f, i) => <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}><span style={{ width: 120 }}>{f.name}</span><Slider style={{ flex: 1 }} value={f.contribution * 100} disabled /><span style={{ width: 60, textAlign: 'right' }}>{(f.contribution * 100).toFixed(1)}%</span></div>)}</div>

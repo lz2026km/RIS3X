@@ -298,7 +298,7 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
       }
     >
       {!isSupported && (
-        <Alert type="info" showIcon className="mb-3" message="当前浏览器不支持 Web Speech API,使用 Mock 模拟识别过程" />
+        <Alert type="info" showIcon className="mb-3" title="当前浏览器不支持 Web Speech API,使用 Mock 模拟识别过程" />
       )}
 
       <div className="space-y-3">
@@ -360,10 +360,10 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
 
         {/* 3. 统计 */}
         <Row gutter={8}>
-          <Col span={6}><Statistic title="时长" value={duration} suffix="s" prefix={<Clock className="w-3 h-3" />} valueStyle={{ fontSize: 14 }} /></Col>
-          <Col span={6}><Statistic title="词数" value={session?.totalWords ?? 0} prefix={<Type className="w-3 h-3" />} valueStyle={{ fontSize: 14 }} /></Col>
-          <Col span={6}><Statistic title="分段" value={session?.segments.length ?? 0} prefix={<FileText className="w-3 h-3" />} valueStyle={{ fontSize: 14 }} /></Col>
-          <Col span={6}><Statistic title="重试" value={0} prefix={<Activity className="w-3 h-3" />} valueStyle={{ fontSize: 14 }} /></Col>
+          <Col span={6}><Statistic title="时长" value={duration} suffix="s" prefix={<Clock className="w-3 h-3" />} styles={{ content: {  fontSize: 14  } }} /></Col>
+          <Col span={6}><Statistic title="词数" value={session?.totalWords ?? 0} prefix={<Type className="w-3 h-3" />} styles={{ content: {  fontSize: 14  } }} /></Col>
+          <Col span={6}><Statistic title="分段" value={session?.segments.length ?? 0} prefix={<FileText className="w-3 h-3" />} styles={{ content: {  fontSize: 14  } }} /></Col>
+          <Col span={6}><Statistic title="重试" value={0} prefix={<Activity className="w-3 h-3" />} styles={{ content: {  fontSize: 14  } }} /></Col>
         </Row>
 
         {/* 4. 识别文本显示 */}

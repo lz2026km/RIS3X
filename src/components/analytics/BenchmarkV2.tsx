@@ -216,13 +216,13 @@ export default function BenchmarkV2({
       {data && (
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={6}>
-            <Statistic title="当前值" value={data.current} suffix={metricCode === 'exam_count' ? '例' : '%'} valueStyle={{ color: '#3b82f6' }} />
+            <Statistic title="当前值" value={data.current} suffix={metricCode === 'exam_count' ? '例' : '%'} styles={{ content: {  color: '#3b82f6'  } }} />
           </Col>
           <Col span={6}>
-            <Statistic title="前期值" value={data.previous} suffix={metricCode === 'exam_count' ? '例' : '%'} valueStyle={{ color: '#94a3b8' }} />
+            <Statistic title="前期值" value={data.previous} suffix={metricCode === 'exam_count' ? '例' : '%'} styles={{ content: {  color: '#94a3b8'  } }} />
           </Col>
           <Col span={6}>
-            <Statistic title="差值" value={data.delta} prefix={data.delta >= 0 ? '+' : ''} valueStyle={{ color: data.delta >= 0 ? '#10b981' : '#ef4444' }} />
+            <Statistic title="差值" value={data.delta} prefix={data.delta >= 0 ? '+' : ''} styles={{ content: {  color: data.delta >= 0 ? '#10b981' : '#ef4444'  } }} />
           </Col>
           <Col span={6}>
             <Statistic
@@ -230,7 +230,7 @@ export default function BenchmarkV2({
               value={data.deltaPercent}
               suffix="%"
               prefix={data.deltaPercent >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-              valueStyle={{ color: data.deltaPercent >= 0 ? '#10b981' : '#ef4444' }}
+              styles={{ content: {  color: data.deltaPercent >= 0 ? '#10b981' : '#ef4444'  } }}
             />
           </Col>
         </Row>

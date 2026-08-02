@@ -107,7 +107,7 @@ export const DentalPageLayout: React.FC<{
 }> = ({ header, alert, children }) => (
   <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
     <DentalPageHeader {...header} />
-    {alert && <Alert message={alert.message} type={alert.type || 'info'} showIcon style={{ marginBottom: 12 }} />}
+    {alert && <Alert title={alert.message} type={alert.type || 'info'} showIcon style={{ marginBottom: 12 }} />}
     {children}
   </div>
 );

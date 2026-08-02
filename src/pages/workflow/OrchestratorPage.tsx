@@ -494,7 +494,7 @@ export default function OrchestratorPage() {
         style={{ flex: 1, display: "flex", flexDirection: "column", gap: 12 }}
       >
         <Card size="small" styles={{ body: { padding: 16 } }}>
-          <Space direction="vertical" style={{ width: "100%" }}>
+          <Space orientation="vertical" style={{ width: "100%" }}>
             <Input
               placeholder={t("orchestrator.flowName")}
               value={flowName}
@@ -565,7 +565,7 @@ export default function OrchestratorPage() {
           title={t("orchestrator.slaConfig")}
           styles={{ body: { padding: 12 } }}
         >
-          <Space direction="vertical" style={{ width: "100%" }}>
+          <Space orientation="vertical" style={{ width: "100%" }}>
             {slaConfigs.map((sc) => (
               <div
                 key={sc.id}
@@ -605,9 +605,9 @@ export default function OrchestratorPage() {
               title={t("orchestrator.slaComplianceRate")}
               value={slaStats.slaComplianceRate}
               suffix="%"
-              valueStyle={{
+              styles={{ content: { 
                 color: slaStats.slaComplianceRate >= 90 ? "#22c55e" : "#f59e0b",
-              }}
+               } }}
             />
             <Statistic
               title={t("orchestrator.avgCompletionMin")}
@@ -637,7 +637,7 @@ export default function OrchestratorPage() {
         setModalVisible(false);
       }}
     >
-      <Space direction="vertical" style={{ width: "100%" }}>
+      <Space orientation="vertical" style={{ width: "100%" }}>
         <div>
           <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 13 }}>
             {t("orchestrator.stepName")}
@@ -733,7 +733,7 @@ export default function OrchestratorPage() {
       onCancel={() => setSlaModalVisible(false)}
       onOk={handleSaveSla}
     >
-      <Space direction="vertical" style={{ width: "100%" }}>
+      <Space orientation="vertical" style={{ width: "100%" }}>
         <div>
           <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 13 }}>
             {t("orchestrator.slaName")}
@@ -824,12 +824,12 @@ export default function OrchestratorPage() {
               title={t("orchestrator.slaComplianceRate")}
               value={slaStats?.slaComplianceRate ?? 100}
               suffix="%"
-              valueStyle={{
+              styles={{ content: { 
                 color:
                   (slaStats?.slaComplianceRate ?? 100) >= 90
                     ? "#22c55e"
                     : "#f59e0b",
-              }}
+               } }}
             />
           </Card>
         </Col>
@@ -847,12 +847,12 @@ export default function OrchestratorPage() {
             <Statistic
               title={t("orchestrator.breachedExecutions")}
               value={slaStats?.breachedExecutions ?? 0}
-              valueStyle={{
+              styles={{ content: { 
                 color:
                   (slaStats?.breachedExecutions ?? 0) > 0
                     ? "#ef4444"
                     : undefined,
-              }}
+               } }}
             />
           </Card>
         </Col>

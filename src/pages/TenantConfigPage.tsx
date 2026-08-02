@@ -52,7 +52,7 @@ export default function TenantConfigPage() {
 
   return (
     <div style={{ padding: 24 }}>
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <Space orientation="vertical" size="large" style={{ width: '100%' }}>
         <Row justify="space-between" align="middle">
           <h2 style={{ margin: 0 }}><SafetyCertificateOutlined /> 租户配置管理</h2>
           <Button icon={<ReloadOutlined />} onClick={fetch} loading={loading}>刷新</Button>
@@ -61,7 +61,7 @@ export default function TenantConfigPage() {
         <Row gutter={16}>
           <Col span={6}>
             <Card size="small">
-              <Statistic title="合规状态" value={report?.compliant ? '合规' : '不合规'} valueStyle={{ color: report?.compliant ? '#52c41a' : '#ff4d4f' }} prefix={report?.compliant ? <CheckCircleOutlined /> : <CloseCircleOutlined />} />
+              <Statistic title="合规状态" value={report?.compliant ? '合规' : '不合规'} styles={{ content: {  color: report?.compliant ? '#52c41a' : '#ff4d4f'  } }} prefix={report?.compliant ? <CheckCircleOutlined /> : <CloseCircleOutlined />} />
             </Card>
           </Col>
           <Col span={6}>
@@ -117,7 +117,7 @@ export default function TenantConfigPage() {
           {
             key: 'checks',
             label: <span><SafetyOutlined /> 合规检查 ({checks.length})</span>,
-            children: loading ? <Spin /> : !report ? <Alert message="无法获取合规报告" type="error" /> : (
+            children: loading ? <Spin /> : !report ? <Alert title="无法获取合规报告" type="error" /> : (
               <Table dataSource={checks} columns={columns} rowKey="id" pagination={false} size="small" />
             ),
           },

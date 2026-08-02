@@ -54,7 +54,7 @@ export default function PhiScanner() {
 
   return (
     <Card title={<><Shield size={16} style={{ marginRight: 8 }} />PHI 扫描与去标识化</>}>
-      <Space direction="vertical" style={{ width: '100%' }}>
+      <Space orientation="vertical" style={{ width: '100%' }}>
         <TextArea rows={6} value={text} onChange={e => setText(e.target.value)} placeholder="粘贴包含 PHI 的文本..." />
         <Space>
           <Button type="primary" icon={<Search size={14} />} onClick={handleScan}>扫描 PHI</Button>
@@ -68,12 +68,12 @@ export default function PhiScanner() {
           <Row gutter={16} style={{ marginBottom: 16 }}>
             <Col span={6}><Card size="small"><Statistic title="检测类别" value={result.categories.length} prefix={<FileText size={14} />} /></Card></Col>
             <Col span={6}><Card size="small"><Statistic title="匹配项" value={matches.length} prefix={<AlertTriangle size={14} />} /></Card></Col>
-            <Col span={6}><Card size="small"><Statistic title="风险等级" value={assessment?.riskLevel ?? '-'} valueStyle={{ color: assessment?.riskLevel === 'critical' ? '#f5222d' : assessment?.riskLevel === 'high' ? '#fa8c16' : '#52c41a' }} /></Card></Col>
+            <Col span={6}><Card size="small"><Statistic title="风险等级" value={assessment?.riskLevel ?? '-'} styles={{ content: {  color: assessment?.riskLevel === 'critical' ? '#f5222d' : assessment?.riskLevel === 'high' ? '#fa8c16' : '#52c41a'  } }} /></Card></Col>
             <Col span={6}><Card size="small"><Statistic title="信息保留" value={Math.round(result.retentionRatio * 100)} suffix="%" prefix={<CheckCircle size={14} />} /></Card></Col>
           </Row>
 
           <Alert type={assessment?.riskLevel === 'critical' ? 'error' : assessment?.riskLevel === 'high' ? 'warning' : 'info'}
-            message={`风险评估: ${assessment?.riskLevel?.toUpperCase() ?? '未知'} (${assessment?.score ?? 0}/100)`}
+            title={`风险评估: ${assessment?.riskLevel?.toUpperCase() ?? '未知'} (${assessment?.score ?? 0}/100)`}
             description={matches.length > 0 ? `发现 ${matches.length} 项 PHI, 建议使用 Safe Harbor 去标识化` : '未检测到 PHI'}
             showIcon style={{ marginBottom: 16 }} />
 

@@ -178,12 +178,12 @@ export const BlockchainProofView: React.FC<BlockchainProofProps> = ({
       }
       style={{ width: '100%' }}
     >
-      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} />}
+      {error && <Alert type="error" showIcon title={error} style={{ marginBottom: 12 }} />}
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}>
           <Card size="small">
-            <Space direction="vertical" size={0}>
+            <Space orientation="vertical" size={0}>
               <Text type="secondary">存证数</Text>
               <Title level={3} style={{ margin: 0 }}>{proofs.length}</Title>
             </Space>
@@ -191,7 +191,7 @@ export const BlockchainProofView: React.FC<BlockchainProofProps> = ({
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Space direction="vertical" size={0}>
+            <Space orientation="vertical" size={0}>
               <Text type="secondary">平均确认</Text>
               <Title level={3} style={{ margin: 0 }}>{avgConfirmations}</Title>
             </Space>
@@ -199,7 +199,7 @@ export const BlockchainProofView: React.FC<BlockchainProofProps> = ({
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Space direction="vertical" size={0}>
+            <Space orientation="vertical" size={0}>
               <Text type="secondary">内容 Hash</Text>
               <Text style={{ fontFamily: 'monospace', fontSize: 12 }} copyable={{ text: contentHash ?? '-' }}>
                 {contentHash ? contentHash.slice(0, 18) + '...' : '-'}
@@ -209,7 +209,7 @@ export const BlockchainProofView: React.FC<BlockchainProofProps> = ({
         </Col>
         <Col span={6}>
           <Card size="small">
-            <Space direction="vertical" size={0}>
+            <Space orientation="vertical" size={0}>
               <Text type="secondary">不可篡改</Text>
               <Tag color={isImmutable ? 'green' : 'orange'} style={{ fontSize: 16, padding: '4px 12px' }}>
                 {isImmutable ? '✓ 已确认' : '⏳ 存证中'}
@@ -236,7 +236,7 @@ export const BlockchainProofView: React.FC<BlockchainProofProps> = ({
           type="success"
           showIcon
           style={{ marginTop: 12 }}
-          message="存证验证提示"
+          title="存证验证提示"
           description={
             <Paragraph style={{ marginBottom: 0, fontSize: 12 }}>
               <Hash size={12} /> 区块确认数 ≥ 12 时视为最终确认；本系统已通过 SHA-256 算法将报告内容哈希写入区块，任何篡改都会导致哈希不匹配。

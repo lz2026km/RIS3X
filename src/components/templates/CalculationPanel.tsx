@@ -219,11 +219,11 @@ export const CalculationPanel: React.FC<Props> = ({ initialCalc = 'bmi', onApply
                   value={typeof output.value === 'number' ? output.value : JSON.stringify(output.value)}
                   precision={typeof output.value === 'number' ? 2 : 0}
                   suffix={output.meta.unit}
-                  valueStyle={{
+                  styles={{ content: { 
                     color: output.category === 'critical' ? '#dc2626' :
                       output.category === 'abnormal' ? '#f59e0b' : '#10b981',
                     fontSize: 22,
-                  }}
+                   } }}
                 />
               </Col>
               <Col span={12}>

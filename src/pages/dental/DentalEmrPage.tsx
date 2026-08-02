@@ -72,8 +72,8 @@ export const DentalEmrPage: React.FC = () => {
             </Col>
             <Col span={3}><Card size="small"><Statistic title="就诊次数" value={overview.totalVisits} prefix={<Calendar size={12}/>} /></Card></Col>
             <Col span={3}><Card size="small"><Statistic title="累计消费" prefix="¥" value={overview.totalSpent} /></Card></Col>
-            <Col span={3}><Card size="small"><Statistic title="待缴费" prefix="¥" value={overview.summary?.unpaid || 0} valueStyle={{ color: (overview.summary?.unpaid || 0) > 0 ? '#ff4d4f' : '#52c41a' }} /></Card></Col>
-            <Col span={3}><Card size="small"><Statistic title="待复诊" value={overview.summary?.appointments || 0} valueStyle={{ color: (overview.summary?.appointments || 0) > 0 ? '#faad14' : '#52c41a' }} /></Card></Col>
+            <Col span={3}><Card size="small"><Statistic title="待缴费" prefix="¥" value={overview.summary?.unpaid || 0} styles={{ content: {  color: (overview.summary?.unpaid || 0) > 0 ? '#ff4d4f' : '#52c41a'  } }} /></Card></Col>
+            <Col span={3}><Card size="small"><Statistic title="待复诊" value={overview.summary?.appointments || 0} styles={{ content: {  color: (overview.summary?.appointments || 0) > 0 ? '#faad14' : '#52c41a'  } }} /></Card></Col>
             <Col span={6}>
               <Card size="small">
                 <Space wrap>

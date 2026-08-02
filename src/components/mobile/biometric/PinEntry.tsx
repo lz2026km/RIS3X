@@ -101,9 +101,9 @@ export const PinEntry: React.FC<PinEntryProps> = ({ open, mode, userId, onSucces
       closable={false}
       centered
       width={320}
-      destroyOnClose
+      destroyOnHidden
     >
-      <Space direction="vertical" align="center" style={{ width: '100%', padding: '16px 0' }} size={16}>
+      <Space orientation="vertical" align="center" style={{ width: '100%', padding: '16px 0' }} size={16}>
         <div style={{ color: '#3b82f6' }}><Lock size={36} /></div>
         <Text strong style={{ fontSize: 16 }}>
           {locked ? '已锁定' : step === 'confirm' ? '请再次输入 PIN 码确认' : mode === 'create' ? '设置 PIN 码' : mode === 'change' ? '输入新 PIN 码' : '输入 PIN 码'}

@@ -103,7 +103,7 @@ export function SettingsPanel({
         onCancel={() => setOpen(false)}
         footer={null}
         width={640}
-        destroyOnClose
+        destroyOnHidden
       >
         <Tabs
           defaultActiveKey="layout"

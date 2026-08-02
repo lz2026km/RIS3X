@@ -163,7 +163,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
             <Statistic
               title={<span style={{ color: '#fff' }}>可用</span>}
               value={reviewers.filter((r) => r.status === 'online').length}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Users size={14} />}
             />
           </Col>
@@ -171,7 +171,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
             <Statistic
               title={<span style={{ color: '#fff' }}>总待审</span>}
               value={reviewers.reduce((a, r) => a + r.pendingCount, 0)}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Clock size={14} />}
             />
           </Col>
@@ -179,7 +179,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
             <Statistic
               title={<span style={{ color: '#fff' }}>今日完成</span>}
               value={reviewers.reduce((a, r) => a + r.completedToday, 0)}
-              valueStyle={{ color: '#fff', fontSize: 18 }}
+              styles={{ content: {  color: '#fff', fontSize: 18  } }}
               prefix={<Zap size={14} />}
             />
           </Col>

@@ -16,7 +16,7 @@ export const ThreeDControls: React.FC<ThreeDControlsProps> = ({ rotation, onRota
   const [zoom, setZoom] = React.useState(100)
   return (
     <div data-testid="threed-controls">
-      <Space direction="vertical" size={10} style={{ width: '100%' }}>
+      <Space orientation="vertical" size={10} style={{ width: '100%' }}>
         <Row gutter={6}>
           <Col span={12}>
             <Button block size="small" icon={<RotateCw size={12} />}>旋转</Button>

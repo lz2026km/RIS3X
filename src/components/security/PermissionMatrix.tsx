@@ -73,7 +73,7 @@ export default function PermissionMatrix() {
   return (
     <Card>
       <Title level={4}><Shield style={{ marginRight: 8 }} />RBAC 权限矩阵</Title>
-      <Alert message="6 个角色, 22 个细粒度权限, 支持角色继承和最小权限原则" type="info" showIcon style={{ marginBottom: 16 }} />
+      <Alert title="6 个角色, 22 个细粒度权限, 支持角色继承和最小权限原则" type="info" showIcon style={{ marginBottom: 16 }} />
       <Space style={{ marginBottom: 16 }}>
         <Switch checked={showDetail} onChange={setShowDetail} checkedChildren={<Unlock size={12} />} unCheckedChildren={<Lock size={12} />} />
         <Text>{showDetail ? '详细视图' : '分组视图'}</Text>

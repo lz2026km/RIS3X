@@ -12,7 +12,7 @@ export const MIPPanel: React.FC<MIPPanelProps> = () => {
   const [thickness, setThickness] = React.useState(10)
   return (
     <div data-testid="mip-panel">
-      <Space direction="vertical" size={8} style={{ width: '100%' }}>
+      <Space orientation="vertical" size={8} style={{ width: '100%' }}>
         <Space>
           <Tag color="blue">Slab 厚度: {thickness} mm</Tag>
         </Space>

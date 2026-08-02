@@ -27,8 +27,8 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
     <div style={{padding:24,background:'#f5f5f5',minHeight:'100vh'}}>
       <Space style={{marginBottom:16}}><Send size={20} color="#1677ff"/><span style={{fontSize:18,fontWeight:600}}>跨科室转诊</span><Tag color="cyan">v59</Tag><Tag color="purple">口腔↔放射</Tag></Space>
       <Row gutter={16} style={{marginBottom:16}}>
-        <Col span={4}><Card><Statistic title="待转诊" value={referrals.filter(r=>r.status==='pending').length} valueStyle={{color:'#faad14'}}/></Card></Col>
-        <Col span={4}><Card><Statistic title="已接诊" value={referrals.filter(r=>r.status==='accepted').length} valueStyle={{color:'#52c41a'}}/></Card></Col>
+        <Col span={4}><Card><Statistic title="待转诊" value={referrals.filter(r=>r.status==='pending').length} styles={{ content: { color:'#faad14' } }}/></Card></Col>
+        <Col span={4}><Card><Statistic title="已接诊" value={referrals.filter(r=>r.status==='accepted').length} styles={{ content: { color:'#52c41a' } }}/></Card></Col>
       </Row>
       <Card extra={<Button type="primary" icon={<Plus size={12}/>}>发起转诊</Button>} size="small" title="转诊列表">
         <Table dataSource={referrals} rowKey="id" columns={[

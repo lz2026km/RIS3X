@@ -99,7 +99,7 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
               title="在线用户"
               value={onlineUsers}
               prefix={<Users size={14} color={CHART_COLORS.primary} />}
-              valueStyle={{ color: CHART_COLORS.primary }}
+              styles={{ content: {  color: CHART_COLORS.primary  } }}
             />
             <Badge status="processing" text="实时" />
           </Card>
@@ -120,7 +120,7 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
               title="1h 危急值"
               value={summary.criticalsLastHour}
               prefix={<AlertOctagon size={14} color={CHART_COLORS.error} />}
-              valueStyle={{ color: summary.criticalsLastHour > 0 ? CHART_COLORS.error : CHART_COLORS.success }}
+              styles={{ content: {  color: summary.criticalsLastHour > 0 ? CHART_COLORS.error : CHART_COLORS.success  } }}
             />
           </Card>
         </Col>
@@ -146,7 +146,7 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
               title="1h 系统错误"
               value={summary.errorsLastHour}
               prefix={<Server size={14} color={summary.errorsLastHour > 0 ? CHART_COLORS.error : CHART_COLORS.success} />}
-              valueStyle={{ color: summary.errorsLastHour > 0 ? CHART_COLORS.error : CHART_COLORS.success }}
+              styles={{ content: {  color: summary.errorsLastHour > 0 ? CHART_COLORS.error : CHART_COLORS.success  } }}
             />
           </Card>
         </Col>
@@ -225,7 +225,7 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
                       data-testid={`ops-device-${d.id}`}
                       style={{ borderColor: stateColor }}
                     >
-                      <Space direction="vertical" size={2} style={{ width: '100%' }}>
+                      <Space orientation="vertical" size={2} style={{ width: '100%' }}>
                         <Space size={4}>
                           <Tag color="blue">{d.modality}</Tag>
                           <span style={{ fontSize: 12, fontWeight: 500 }}>{d.name}</span>
@@ -296,7 +296,7 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
         </Col>
         <Col span={8}>
           <Card size="small" title="系统状态" data-testid="ops-system-status">
-            <Space direction="vertical" size={6} style={{ width: '100%' }}>
+            <Space orientation="vertical" size={6} style={{ width: '100%' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span>数据库</span>
                 <Badge status="success" text="正常" />

@@ -75,9 +75,9 @@ export const BiometricPrompt: React.FC<BiometricPromptProps> = ({ open, userId, 
       closable={false}
       centered
       width={340}
-      destroyOnClose
+      destroyOnHidden
     >
-      <Space direction="vertical" align="center" style={{ width: '100%', padding: '24px 0' }} size={16}>
+      <Space orientation="vertical" align="center" style={{ width: '100%', padding: '24px 0' }} size={16}>
         {status === 'success' ? (
           <Result status="success" title="验证成功" />
         ) : status === 'error' ? (
@@ -86,7 +86,7 @@ export const BiometricPrompt: React.FC<BiometricPromptProps> = ({ open, userId, 
             title="验证失败"
             subTitle={errorMsg}
             extra={
-              <Space direction="vertical" size={8}>
+              <Space orientation="vertical" size={8}>
                 {attempts > 0 && <Button type="primary" onClick={handleAuthenticate}>重试 ({attempts})</Button>}
                 {onFallbackToPin && <Button onClick={onFallbackToPin}>使用 PIN 码</Button>}
                 <Button onClick={onCancel}>取消</Button>
@@ -102,7 +102,7 @@ export const BiometricPrompt: React.FC<BiometricPromptProps> = ({ open, userId, 
               {mode === 'verify-action' ? `验证身份${actionLabel ? `: ${actionLabel}` : ''}` : BIOMETRIC_LABELS[bioType]}
             </Title>
             <Text type="secondary">{mode === 'verify-action' ? '请验证身份以继续此操作' : `使用${BIOMETRIC_LABELS[bioType]}快速登录`}</Text>
-            <Space direction="vertical" style={{ width: '100%' }} size={8}>
+            <Space orientation="vertical" style={{ width: '100%' }} size={8}>
               <Button type="primary" size="large" block icon={<Shield size={16} />} onClick={handleAuthenticate} loading={status === 'authenticating'}>
                 {status === 'authenticating' ? '验证中...' : `验证${BIOMETRIC_LABELS[bioType]}`}
               </Button>

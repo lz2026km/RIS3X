@@ -53,8 +53,8 @@ export const EscalationRules: React.FC<EscalationRulesProps> = ({ items, rules =
   return (
     <Card size="small" title={<Space><ArrowUp size={14} />升级规则 (SLA)</Space>} data-testid="escalation-rules">
       <Row gutter={12} style={{ marginBottom: 8 }}>
-        <Col span={8}><Statistic title="本月触发" value={metrics.total} valueStyle={{ fontSize: 14 }} /></Col>
-        <Col span={8}><Statistic title="已升级" value={metrics.escalated} valueStyle={{ fontSize: 14, color: '#f59e0b' }} /></Col>
+        <Col span={8}><Statistic title="本月触发" value={metrics.total} styles={{ content: {  fontSize: 14  } }} /></Col>
+        <Col span={8}><Statistic title="已升级" value={metrics.escalated} styles={{ content: {  fontSize: 14, color: '#f59e0b'  } }} /></Col>
         <Col span={8}>
           <div style={{ fontSize: 12, color: '#64748b' }}>升级率</div>
           <Progress percent={metrics.ratio} size="small" strokeColor="#f59e0b" />

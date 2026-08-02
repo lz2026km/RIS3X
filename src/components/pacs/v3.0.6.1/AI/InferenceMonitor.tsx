@@ -67,9 +67,9 @@ export const InferenceMonitor: React.FC<InferenceMonitorProps> = ({ records = MO
     <div data-testid="inference-monitor">
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={5}><Card size="small"><Statistic title="总推理" value={stats.total} prefix={<Activity size={14} />} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title="成功" value={stats.ok} valueStyle={{ color: '#16a34a' }} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title="告警" value={stats.warn} valueStyle={{ color: '#f59e0b' }} prefix={<AlertTriangle size={14} />} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title="错误" value={stats.error} valueStyle={{ color: '#dc2626' }} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title="成功" value={stats.ok} styles={{ content: {  color: '#16a34a'  } }} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title="告警" value={stats.warn} styles={{ content: {  color: '#f59e0b'  } }} prefix={<AlertTriangle size={14} />} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title="错误" value={stats.error} styles={{ content: {  color: '#dc2626'  } }} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="平均耗时" value={stats.avgMs} suffix="ms" prefix={<Zap size={14} />} /></Card></Col>
       </Row>
 

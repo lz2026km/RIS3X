@@ -101,7 +101,7 @@ const FractureCadPage: React.FC = () => {
             <Statistic
               title="严重骨折"
               value={results.filter((r) => r.severity === "severe").length}
-              valueStyle={{ color: "#ff4d4f" }}
+              styles={{ content: {  color: "#ff4d4f"  } }}
             />
           </Card>
         </Col>
@@ -119,7 +119,7 @@ const FractureCadPage: React.FC = () => {
           type="error"
           showIcon
           style={{ marginBottom: 16 }}
-          message={error}
+          title={error}
           action={
             <Button size="small" onClick={() => void load()}>
               重试

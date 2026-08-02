@@ -183,15 +183,15 @@ export const DicomMprViewer: React.FC<DicomMprViewerProps> = ({
           <Statistic
             title="窗位 WC"
             value={wc}
-            valueStyle={{ fontSize: 14 }}
+            styles={{ content: {  fontSize: 14  } }}
             prefix={<Maximize2 size={12} />}
           />
         </Col>
         <Col span={6}>
-          <Statistic title="窗宽 WW" value={ww} valueStyle={{ fontSize: 14 }} />
+          <Statistic title="窗宽 WW" value={ww} styles={{ content: {  fontSize: 14  } }} />
         </Col>
         <Col span={6}>
-          <Statistic title="缩放" value={zoom.toFixed(1)} suffix="x" valueStyle={{ fontSize: 14 }} />
+          <Statistic title="缩放" value={zoom.toFixed(1)} suffix="x" styles={{ content: {  fontSize: 14  } }} />
         </Col>
         <Col span={6}>
           <Statistic

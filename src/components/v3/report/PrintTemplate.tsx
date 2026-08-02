@@ -54,7 +54,7 @@ export const PrintTemplate: React.FC<PrintTemplateProps> = ({
       cancelText="取消"
       width={520}
     >
-      <Space direction="vertical" style={{ width: '100%' }}>
+      <Space orientation="vertical" style={{ width: '100%' }}>
         <div>
           <div style={{ marginBottom: 6, fontSize: 12, fontWeight: 600 }}>
             <FileText size={12} /> 纸张规格
@@ -72,7 +72,7 @@ export const PrintTemplate: React.FC<PrintTemplateProps> = ({
 
         <div>
           <div style={{ marginBottom: 6, fontSize: 12, fontWeight: 600 }}>包含内容</div>
-          <Space direction="vertical">
+          <Space orientation="vertical">
             <Space>
               <Switch
                 size="small"

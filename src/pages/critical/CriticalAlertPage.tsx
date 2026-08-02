@@ -69,9 +69,9 @@ const CriticalAlertPage: React.FC = () => {
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}><Card><Statistic title="总告警" value={alerts.length} prefix={<Bell size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title="待处理" value={alerts.filter(a => a.status === 'active').length} valueStyle={{ color: '#ff4d4f' }} /></Card></Col>
+        <Col span={6}><Card><Statistic title="待处理" value={alerts.filter(a => a.status === 'active').length} styles={{ content: {  color: '#ff4d4f'  } }} /></Card></Col>
         <Col span={6}><Card><Statistic title="已确认" value={alerts.filter(a => a.status === 'acknowledged').length} /></Card></Col>
-        <Col span={6}><Card><Statistic title="已解决" value={alerts.filter(a => a.status === 'resolved').length} valueStyle={{ color: '#52c41a' }} /></Card></Col>
+        <Col span={6}><Card><Statistic title="已解决" value={alerts.filter(a => a.status === 'resolved').length} styles={{ content: {  color: '#52c41a'  } }} /></Card></Col>
       </Row>
       <Card>
         <Table rowKey="id" dataSource={alerts} columns={columns} pagination={false} size="small" />

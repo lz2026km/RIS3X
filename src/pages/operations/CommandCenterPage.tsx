@@ -31,8 +31,8 @@ export const CommandCenterPage: React.FC = () => {
           <Col span={8}><Card size="small" title={<Space><Camera size={14}/>放射科</Space>}>
             <Row gutter={[8,8]}>
               <Col span={8}><Statistic title="检查数" value={data.radiology.exams} /></Col>
-              <Col span={8}><Statistic title="待报告" value={data.radiology.pendingReports} valueStyle={{color:'#faad14'}} /></Col>
-              <Col span={8}><Statistic title="危急值" value={data.radiology.criticalValues} valueStyle={{color:'#ff4d4f'}} /></Col>
+              <Col span={8}><Statistic title="待报告" value={data.radiology.pendingReports} styles={{ content: { color:'#faad14' } }} /></Col>
+              <Col span={8}><Statistic title="危急值" value={data.radiology.criticalValues} styles={{ content: { color:'#ff4d4f' } }} /></Col>
               <Col span={12}><Statistic title="平均 TAT" value={data.radiology.avgTAT} suffix="min" /></Col>
               <Col span={12}><Statistic title="质控分" value={data.radiology.avgScore} suffix="/100" prefix={<CheckCircle2 size={14} />} /></Col>
             </Row>
@@ -41,7 +41,7 @@ export const CommandCenterPage: React.FC = () => {
             <Row gutter={[8,8]}>
               <Col span={8}><Statistic title="患者" value={data.dental.patients} /></Col>
               <Col span={8}><Statistic title="治疗" value={data.dental.treatments} /></Col>
-              <Col span={8}><Statistic title="种植" value={data.dental.implants} valueStyle={{color:'#722ed1'}} /></Col>
+              <Col span={8}><Statistic title="种植" value={data.dental.implants} styles={{ content: { color:'#722ed1' } }} /></Col>
               <Col span={12}><Statistic title="今日收入" prefix="¥" value={data.dental.revenue} /></Col>
               <Col span={12}><Statistic title="门诊均收" prefix="¥" value={(data.dental.revenue / data.dental.patients).toFixed(0)} /></Col>
             </Row>
@@ -49,8 +49,8 @@ export const CommandCenterPage: React.FC = () => {
           <Col span={8}><Card size="small" title={<Space><Monitor size={14}/>系统</Space>}>
             <Row gutter={[8,8]}>
               <Col span={8}><Statistic title="用户" value={data.system.users} /></Col>
-              <Col span={8}><Statistic title="在线" value={data.system.onlineNow} valueStyle={{color:'#52c41a'}} /></Col>
-              <Col span={8}><Statistic title="告警" value={data.system.activeAlerts} valueStyle={{color:'#ff4d4f'}} /></Col>
+              <Col span={8}><Statistic title="在线" value={data.system.onlineNow} styles={{ content: { color:'#52c41a' } }} /></Col>
+              <Col span={8}><Statistic title="告警" value={data.system.activeAlerts} styles={{ content: { color:'#ff4d4f' } }} /></Col>
               <Col span={12}><Statistic title="用户活跃率" value={(data.system.onlineNow / data.system.users * 100).toFixed(1)} suffix="%" /></Col>
               <Col span={12}><Progress percent={75} size="small" strokeColor="#52c41a" /><div style={{fontSize:11,color:'#999'}}>系统健康度</div></Col>
             </Row>

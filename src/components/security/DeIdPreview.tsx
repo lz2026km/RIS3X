@@ -34,8 +34,8 @@ export default function DeIdPreview() {
 
   return (
     <Card title={<><Shield size={16} style={{ marginRight: 8 }} />去标识化预览</>}>
-      <Space direction="vertical" style={{ width: '100%' }}>
-        <Alert message="基于 HIPAA Safe Harbor 18 项标识符规则, 自动检测并脱敏 PHI" type="info" showIcon style={{ marginBottom: 16 }} />
+      <Space orientation="vertical" style={{ width: '100%' }}>
+        <Alert title="基于 HIPAA Safe Harbor 18 项标识符规则, 自动检测并脱敏 PHI" type="info" showIcon style={{ marginBottom: 16 }} />
 
         <div style={{ display: 'flex', gap: 16, marginBottom: 16 }}>
           <div style={{ flex: 1 }}>

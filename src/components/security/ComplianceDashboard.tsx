@@ -18,7 +18,7 @@ export default function ComplianceDashboard() {
   const renderMlps = () => (
     <div>
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title="等保 3 级评分" value={mlps.overallScore} suffix="/100" prefix={<Shield size={14} />} valueStyle={{ color: mlps.overallScore >= 85 ? '#3f8600' : '#faad14' }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="等保 3 级评分" value={mlps.overallScore} suffix="/100" prefix={<Shield size={14} />} styles={{ content: {  color: mlps.overallScore >= 85 ? '#3f8600' : '#faad14'  } }} /></Card></Col>
         {Object.entries(mlps.areaSummaries).map(([area, s]) => (
           <Col key={area} span={6}><Card size="small" title={area}><Progress percent={s.score} size="small" format={p => `${p}%`} /></Card></Col>
         ))}
@@ -34,7 +34,7 @@ export default function ComplianceDashboard() {
           { title: '评分', dataIndex: 'score', key: 'score', width: 60, render: (v: number) => <Progress percent={v} size="small" format={() => `${v}`} /> },
           { title: '描述', dataIndex: 'description', key: 'description', ellipsis: true },
         ]} />
-      {mlps.gapAnalysis.length > 0 && <Alert type="warning" message={`${mlps.gapAnalysis.length} 项差距待修复`} style={{ marginTop: 16 }} />}
+      {mlps.gapAnalysis.length > 0 && <Alert type="warning" title={`${mlps.gapAnalysis.length} 项差距待修复`} style={{ marginTop: 16 }} />}
     </div>
   )
 
@@ -53,7 +53,7 @@ export default function ComplianceDashboard() {
           { title: '评分', dataIndex: 'score', key: 'score', width: 60 },
         ]} />
       {hipaa.recommendations.length > 0 && (
-        <Alert type="info" message={hipaa.recommendations.join('; ')} style={{ marginTop: 16 }} />
+        <Alert type="info" title={hipaa.recommendations.join('; ')} style={{ marginTop: 16 }} />
       )}
     </div>
   )
@@ -79,7 +79,7 @@ export default function ComplianceDashboard() {
     <div>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}><Card size="small"><Statistic title="请求总数" value={gdprStats.totalRequests} prefix={<BarChart3 size={14} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="逾期" value={gdprStats.overdue} valueStyle={{ color: '#cf1322' }} prefix={<AlertTriangle size={14} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="逾期" value={gdprStats.overdue} styles={{ content: {  color: '#cf1322'  } }} prefix={<AlertTriangle size={14} />} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="平均响应" value={gdprStats.avgResponseDays} suffix="天" /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="处理活动" value={gdprService.listProcessingActivities().length} /></Card></Col>
       </Row>

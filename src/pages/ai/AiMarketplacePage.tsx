@@ -96,9 +96,9 @@ const AiMarketplacePage: React.FC = () => {
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}><Card><Statistic title="模型总数" value={models.length} prefix={<Cpu size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title="运行中" value={running} valueStyle={{ color: '#52c41a' }} prefix={<Rocket size={16} />} /></Card></Col>
+        <Col span={6}><Card><Statistic title="运行中" value={running} styles={{ content: {  color: '#52c41a'  } }} prefix={<Rocket size={16} />} /></Card></Col>
         <Col span={6}><Card><Statistic title="平均准确率" value={`${(avgAcc * 100).toFixed(1)}%`} prefix={<RefreshCw size={16} />} /></Card></Col>
-        <Col span={6}><Card><Statistic title="异常" value={models.filter(m => m.status === 'error').length} valueStyle={{ color: '#ff4d4f' }} prefix={<StopCircle size={16} />} /></Card></Col>
+        <Col span={6}><Card><Statistic title="异常" value={models.filter(m => m.status === 'error').length} styles={{ content: {  color: '#ff4d4f'  } }} prefix={<StopCircle size={16} />} /></Card></Col>
       </Row>
       <Card
         extra={<Button type="primary" icon={<Plus size={14} />} onClick={() => setDeployOpen(true)}>部署模型</Button>}

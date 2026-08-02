@@ -75,7 +75,7 @@ export const AITriage: React.FC<AITriageProps> = ({ onAssign, autoRefreshMs = 30
               title="待分诊总数"
               value={stats.total}
               prefix={<Users size={14} color="#3b82f6" />}
-              valueStyle={{ color: '#3b82f6', fontSize: 20 }}
+              styles={{ content: {  color: '#3b82f6', fontSize: 20  } }}
             />
           </Card>
         </Col>
@@ -85,7 +85,7 @@ export const AITriage: React.FC<AITriageProps> = ({ onAssign, autoRefreshMs = 30
               title="AI 标记"
               value={stats.aiFlagged}
               prefix={<Brain size={14} color="#8b5cf6" />}
-              valueStyle={{ color: '#8b5cf6', fontSize: 20 }}
+              styles={{ content: {  color: '#8b5cf6', fontSize: 20  } }}
             />
             <Progress percent={Math.round((stats.aiFlagged / Math.max(stats.total, 1)) * 100)} showInfo={false} strokeColor="#8b5cf6" size="small" />
           </Card>
@@ -96,7 +96,7 @@ export const AITriage: React.FC<AITriageProps> = ({ onAssign, autoRefreshMs = 30
               title="STAT 急诊"
               value={stats.statCount}
               prefix={<AlertTriangle size={14} color="#dc2626" />}
-              valueStyle={{ color: '#dc2626', fontSize: 20 }}
+              styles={{ content: {  color: '#dc2626', fontSize: 20  } }}
             />
           </Card>
         </Col>
@@ -107,7 +107,7 @@ export const AITriage: React.FC<AITriageProps> = ({ onAssign, autoRefreshMs = 30
               value={stats.avgConfidence}
               precision={2}
               prefix={<Zap size={14} color="#f59e0b" />}
-              valueStyle={{ color: '#f59e0b', fontSize: 20 }}
+              styles={{ content: {  color: '#f59e0b', fontSize: 20  } }}
             />
           </Card>
         </Col>
@@ -117,7 +117,7 @@ export const AITriage: React.FC<AITriageProps> = ({ onAssign, autoRefreshMs = 30
               title="WS"
               value={connected ? '在线' : '离线'}
               prefix={<Activity size={14} color={connected ? '#16a34a' : '#dc2626'} />}
-              valueStyle={{ color: connected ? '#16a34a' : '#dc2626', fontSize: 16 }}
+              styles={{ content: {  color: connected ? '#16a34a' : '#dc2626', fontSize: 16  } }}
             />
           </Card>
         </Col>

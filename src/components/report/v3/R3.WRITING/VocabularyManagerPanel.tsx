@@ -165,10 +165,10 @@ export const VocabularyManagerPanel: React.FC<Props> = ({ onSelect, filterModali
       className="shadow-sm"
     >
       <Row gutter={8} className="mb-3">
-        <Col span={6}><Statistic title="总术语" value={stats.total} valueStyle={{ fontSize: 14 }} /></Col>
-        <Col span={6}><Statistic title="词典数" value={dictionaries.length} valueStyle={{ fontSize: 14 }} /></Col>
-        <Col span={6}><Statistic title="分类" value={VOCABULARY_CATEGORIES.length} valueStyle={{ fontSize: 14 }} /></Col>
-        <Col span={6}><Statistic title="高权重" value={allTerms.filter((t: MedicalTerm) => t.weight >= 90).length} valueStyle={{ fontSize: 14, color: '#f59e0b' }} /></Col>
+        <Col span={6}><Statistic title="总术语" value={stats.total} styles={{ content: {  fontSize: 14  } }} /></Col>
+        <Col span={6}><Statistic title="词典数" value={dictionaries.length} styles={{ content: {  fontSize: 14  } }} /></Col>
+        <Col span={6}><Statistic title="分类" value={VOCABULARY_CATEGORIES.length} styles={{ content: {  fontSize: 14  } }} /></Col>
+        <Col span={6}><Statistic title="高权重" value={allTerms.filter((t: MedicalTerm) => t.weight >= 90).length} styles={{ content: {  fontSize: 14, color: '#f59e0b'  } }} /></Col>
       </Row>
 
       <Tabs

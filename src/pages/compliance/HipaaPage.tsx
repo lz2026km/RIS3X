@@ -40,7 +40,7 @@ export default function HipaaPage() {
       </Row>
 
       {hipaa.gapItems.length > 0 && (
-        <Alert type="warning" message={`${hipaa.gapItems.length} 项差距: ${hipaa.gapItems.join(', ')}`} style={{ marginBottom: 16 }} showIcon />
+        <Alert type="warning" title={`${hipaa.gapItems.length} 项差距: ${hipaa.gapItems.join(', ')}`} style={{ marginBottom: 16 }} showIcon />
       )}
 
       <Tabs
@@ -61,7 +61,7 @@ export default function HipaaPage() {
               <Col span={4}><Card size="small"><Statistic title="不符合" value={hipaa.safeguards.filter(s => s.status === 'not-met').length} prefix={<AlertTriangle size={14} color="red" />} /></Card></Col>
             </Row>
             {hipaa.recommendations.length > 0 && (
-              <Alert type="info" message={hipaa.recommendations.map((r, i) => <div key={i}>• {r}</div>)} style={{ marginBottom: 16 }} />
+              <Alert type="info" title={hipaa.recommendations.map((r, i) => <div key={i}>• {r}</div>)} style={{ marginBottom: 16 }} />
             )}
             <Table dataSource={hipaa.safeguards} rowKey="id" size="small" pagination={{ pageSize: 10 }} locale={{ emptyText: <Empty description="暂无 HIPAA 措施" /> }}
               columns={[
@@ -79,7 +79,7 @@ export default function HipaaPage() {
             <Row gutter={16} style={{ marginBottom: 16 }}>
               <Col span={6}><Card size="small"><Statistic title="DSAR 请求" value={gdprStats.totalRequests} /></Card></Col>
               <Col span={6}><Card size="small"><Statistic title="已处理" value={gdprStats.byStatus.completed ?? 0} /></Card></Col>
-              <Col span={6}><Card size="small"><Statistic title="逾期" value={gdprStats.overdue} valueStyle={{ color: '#cf1322' }} /></Card></Col>
+              <Col span={6}><Card size="small"><Statistic title="逾期" value={gdprStats.overdue} styles={{ content: {  color: '#cf1322'  } }} /></Card></Col>
               <Col span={6}><Card size="small"><Statistic title="处理活动" value={gdprService.listProcessingActivities().length} /></Card></Col>
             </Row>
             <Table dataSource={gdprService.listProcessingActivities()} rowKey="id" size="small" pagination={false} locale={{ emptyText: <Empty description="暂无处理活动" /> }}
