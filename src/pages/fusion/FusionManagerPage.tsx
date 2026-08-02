@@ -193,7 +193,7 @@ export const FusionManagerPage: React.FC = () => {
               <Descriptions column={3} size="small" bordered>
                 <Descriptions.Item label="Registration ID">{registrationResult.registrationId}</Descriptions.Item>
                 <Descriptions.Item label="配准类型"><Tag color="blue">{registrationResult.transformType}</Tag></Descriptions.Item>
-                <Descriptions.Item label="状态"><Tag color={registrationResult.status === 'completed' ? 'green' : 'blue'}>{registrationResult.status}</Tag></Descriptions.Item>
+                <Descriptions.Item label="状态"><Tag color={registrationResult.status === 'completed' ? 'green' : 'blue'}>{({ completed: '已完成', running: '进行中', pending: '待处理', failed: '失败' } as Record<string, string>)[registrationResult.status] ?? registrationResult.status}</Tag></Descriptions.Item>
                 <Descriptions.Item label="Dice 系数">
                   <Progress percent={Math.round(registrationResult.metrics.dice * 100)} size="small" />
                 </Descriptions.Item>

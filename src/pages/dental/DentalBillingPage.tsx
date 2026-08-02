@@ -142,7 +142,7 @@ export const DentalBillingPage: React.FC = () => {
               {title:'总金额',dataIndex:'total',render:(v:number)=>`¥${v}`,width:80},
               {title:'医保报销',dataIndex:'insuranceCover',render:(v:number)=>`¥${v}`,width:80},
               {title:'自付',dataIndex:'selfPay',render:(v:number)=>`¥${v}`},
-              {title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='paid'?'success':s==='pending'?'warning':'default'} text={s} />,width:80},
+              {title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='paid'?'success':s==='pending'?'warning':'default'} text={{ paid:'已支付', pending:'待支付' }[s] ?? s} />,width:80},
               {title:'操作',render:(_,r:any)=><Space>{r.status==='pending'&&<Button size="small" type="primary" icon={<DollarSign size={10}/>} onClick={()=>{setCurrentInvoice(r);setPayModal(true);}}>收费</Button>}<Button size="small" icon={<Printer size={10}/>}>打印</Button></Space>},
             ]} />},
           {key:'reports', label:'经营报表', children:<Row gutter={12}>

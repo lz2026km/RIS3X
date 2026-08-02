@@ -75,7 +75,7 @@ export const FhirSubscriptionPage: React.FC = () => {
 
   const columns = [
     {
-      title: 'ID',
+      title: '编号',
       dataIndex: 'id',
       key: 'id',
       width: 100,
@@ -186,7 +186,7 @@ export const FhirSubscriptionPage: React.FC = () => {
               <Select options={[
                 { value: 'id-only', label: 'ID Only' },
                 { value: 'full-resource', label: 'Full Resource' },
-                { value: 'none', label: 'None' },
+                { value: 'none', label: '无' },
               ]} />
             </Form.Item>
           </div>

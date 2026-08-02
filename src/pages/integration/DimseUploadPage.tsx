@@ -4,10 +4,10 @@ import { UploadOutlined } from '@ant-design/icons';
 import { dicomDimseApi } from '../../services/api/dicomApi';
 
 const UPLOAD_COLUMNS = [
-  { title: 'File Name', dataIndex: 'fileName', key: 'fileName' },
-  { title: 'Size', dataIndex: 'sizeBytes', key: 'sizeBytes', render: (v: number) => v ? `${(v / 1024).toFixed(1)} KB` : '-' },
+  { title: '文件名', dataIndex: 'fileName', key: 'fileName' },
+  { title: '大小', dataIndex: 'sizeBytes', key: 'sizeBytes', render: (v: number) => v ? `${(v / 1024).toFixed(1)} KB` : '-' },
   { title: 'S3 URL', dataIndex: 's3Url', key: 's3Url', ellipsis: true, render: (v: string) => v ? <Typography.Text copyable style={{ fontSize: 12 }}>{v}</Typography.Text> : '-' },
-  { title: 'Status', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : 'red'}>{v}</Tag> },
+  { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : 'red'}>{v}</Tag> },
 ];
 
 export const DimseUploadPage: React.FC = () => {
@@ -34,14 +34,14 @@ export const DimseUploadPage: React.FC = () => {
       const res = await dicomDimseApi.uploadToS3(body);
       if (res.success) {
         setRecords(prev => [...prev, { fileName: file.name, sizeBytes: file.size, s3Url: res.data?.message || '', status: res.data?.status || 'SUCCESS' }]);
-        message.success('S3 upload successful');
+        message.success('S3 上传成功');
       } else {
         setRecords(prev => [...prev, { fileName: file.name, sizeBytes: file.size, s3Url: '', status: 'FAIL' }]);
-        message.error(res.error?.message || 'Upload failed');
+        message.error(res.error?.message || '上传失败');
       }
     } catch {
       setRecords(prev => [...prev, { fileName: file.name, sizeBytes: file.size, s3Url: '', status: 'FAIL' }]);
-      message.error('Upload failed');
+      message.error('上传失败');
     }
     setUploading(false);
   };

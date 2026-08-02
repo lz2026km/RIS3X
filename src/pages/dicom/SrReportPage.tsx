@@ -57,7 +57,7 @@ const SrReportPage: React.FC = () => {
   }, [load]);
 
   const columns = [
-    { title: "ID", dataIndex: "id", key: "id" },
+    { title: "编号", dataIndex: "id", key: "id" },
     { title: "患者", dataIndex: "patientName", key: "patientName" },
     { title: "标题", dataIndex: "title", key: "title" },
     {
@@ -178,7 +178,7 @@ const SrReportPage: React.FC = () => {
               size="small"
               style={{ marginBottom: 16 }}
             >
-              <Descriptions.Item label="ID">{detail.id}</Descriptions.Item>
+              <Descriptions.Item label="编号">{detail.id}</Descriptions.Item>
               <Descriptions.Item label="患者">
                 {detail.patientName} ({detail.patientId})
               </Descriptions.Item>

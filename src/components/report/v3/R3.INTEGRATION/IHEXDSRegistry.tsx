@@ -157,7 +157,7 @@ export const IHEXDSRegistry: React.FC<Props> = ({ reportId, patientId, onRegiste
                           <div className="font-mono text-red-600">{selected.registryId}</div>
                         </div>
                         <div className="p-2 bg-slate-50 rounded">
-                          <div className="text-slate-500">Home Community</div>
+                          <div className="text-slate-500">主社区</div>
                           <div className="font-mono text-xs">{selected.homeCommunityId}</div>
                         </div>
                         <div className="p-2 bg-slate-50 rounded">

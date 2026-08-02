@@ -159,7 +159,7 @@ export default function Dicom4dPage() {
         setPlaying(false)
       }
     } catch {
-      message.error(t('dicom4d.loadError', 'Failed to load 4D series'))
+      message.error(t('dicom4d.loadError', '4D 序列加载失败'))
     } finally {
       setLoading(false)
     }

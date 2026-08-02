@@ -12,6 +12,18 @@ const severityColor: Record<AuditSeverity, string> = {
   error: 'red', critical: 'volcano', alert: 'magenta', emergency: 'purple',
 }
 
+const CATEGORY_LABEL: Record<string, string> = {
+  auth: '认证',
+  authorization: '授权',
+  data_access: '数据访问',
+  data_change: '数据变更',
+  system: '系统',
+  security: '安全',
+  compliance: '合规',
+  phi: 'PHI',
+  admin: '管理员',
+}
+
 export default function AuditLogViewer() {
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState<AuditCategory | ''>('')
@@ -70,7 +82,7 @@ export default function AuditLogViewer() {
       <Space wrap style={{ marginBottom: 16 }}>
         <Input prefix={<Search size={14} />} placeholder="搜索操作人/动作/目标..." value={search} onChange={e => setSearch(e.target.value)} style={{ width: 280 }} allowClear />
         <Select placeholder="分类" allowClear style={{ width: 120 }} value={category || undefined} onChange={v => setCategory(v ?? '')}>
-          {(['auth', 'authorization', 'data_access', 'data_change', 'system', 'security', 'compliance', 'phi', 'admin'] as AuditCategory[]).map(c => <Select.Option key={c} value={c}>{c}</Select.Option>)}
+          {(['auth', 'authorization', 'data_access', 'data_change', 'system', 'security', 'compliance', 'phi', 'admin'] as AuditCategory[]).map(c => <Select.Option key={c} value={c}>{CATEGORY_LABEL[c] ?? c}</Select.Option>)}
         </Select>
         <Select placeholder="严重度" allowClear style={{ width: 100 }} value={severity || undefined} onChange={v => setSeverity(v ?? '')}>
           {(['debug', 'info', 'notice', 'warning', 'error', 'critical'] as AuditSeverity[]).map(s => <Select.Option key={s} value={s}>{s}</Select.Option>)}

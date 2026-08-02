@@ -40,7 +40,7 @@ export const FhirObservationPage: React.FC = () => {
 
   const columns = [
     {
-      title: 'ID',
+      title: '编号',
       dataIndex: 'id',
       key: 'id',
       width: 100,

@@ -100,7 +100,7 @@ const SnomedEncoderPage: React.FC = () => {
       ),
     },
     {
-      title: 'Concept ID',
+      title: '概念 ID',
       dataIndex: 'conceptId',
       key: 'conceptId',
       render: (id: string) => (

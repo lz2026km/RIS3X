@@ -22,9 +22,9 @@ interface Assignment {
 }
 
 const initAssignments: Assignment[] = [
-  { id: 'da-001', studyId: 'STU001', patientName: 'Zhang San', patientId: 'P001', modality: 'CT', reader1Name: 'Dr. Wang', reader2Name: 'Dr. Li', report1: '右肺上叶见磨玻璃结节，大小约1.2cm×0.8cm，边界欠清。', report2: '右肺上叶磨玻璃密度影，建议密切随访。', status: 'both_done', discrepancyScore: 0.15 },
-  { id: 'da-002', studyId: 'STU002', patientName: 'Li Si', patientId: 'P002', modality: 'MR', reader1Name: 'Dr. Wang', reader2Name: 'Dr. Zhang', report1: '左侧基底节区急性梗死灶。', report2: '左侧基底节区急性期脑梗死，建议DWI序列复查。', status: 'arbitrated', discrepancyScore: 0.05, arbitrationReport: '左侧基底节区急性脑梗死，建议临床干预。', arbitratorName: 'Dr. Chen' },
-  { id: 'da-003', studyId: 'STU003', patientName: 'Wang Wu', patientId: 'P003', modality: 'DX', reader1Name: 'Dr. Li', reader2Name: 'Dr. Liu', status: 'pending' },
+  { id: 'da-001', studyId: 'STU001', patientName: '张三', patientId: 'P001', modality: 'CT', reader1Name: '王医生', reader2Name: '李医生', report1: '右肺上叶见磨玻璃结节，大小约1.2cm×0.8cm，边界欠清。', report2: '右肺上叶磨玻璃密度影，建议密切随访。', status: 'both_done', discrepancyScore: 0.15 },
+  { id: 'da-002', studyId: 'STU002', patientName: '李四', patientId: 'P002', modality: 'MR', reader1Name: '王医生', reader2Name: '张医生', report1: '左侧基底节区急性梗死灶。', report2: '左侧基底节区急性期脑梗死，建议DWI序列复查。', status: 'arbitrated', discrepancyScore: 0.05, arbitrationReport: '左侧基底节区急性脑梗死，建议临床干预。', arbitratorName: '陈医生' },
+  { id: 'da-003', studyId: 'STU003', patientName: '王五', patientId: 'P003', modality: 'DX', reader1Name: '李医生', reader2Name: '刘医生', status: 'pending' },
 ]
 
 const statusMap: Record<string, { color: string; label: string }> = {
@@ -45,7 +45,7 @@ const DualReadPage: React.FC = () => {
 
   const handleArbitrate = () => {
     if (!selectedAssignment || !arbitrateReport) return
-    setAssignments(prev => prev.map(a => a.id === selectedAssignment.id ? { ...a, status: 'arbitrated', arbitrationReport: arbitrateReport, arbitratorName: 'Dr. Admin', discrepancyScore: Math.round(Math.random() * 30) / 100 } : a))
+    setAssignments(prev => prev.map(a => a.id === selectedAssignment.id ? { ...a, status: 'arbitrated', arbitrationReport: arbitrateReport, arbitratorName: '管理员', discrepancyScore: Math.round(Math.random() * 30) / 100 } : a))
     setArbitrateOpen(false)
     setArbitrateReport('')
     message.success('仲裁完成')

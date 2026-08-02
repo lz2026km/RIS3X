@@ -155,7 +155,7 @@ export default function ComplianceDashboard() {
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         {report.categories.map((cat) => (
           <Col xs={24} sm={12} lg={6} key={cat.category}>
-            <Card size="small" title={cat.name}>
+            <Card size="small" title={CATEGORY_MAP[cat.category] ?? cat.name}>
               <Progress
                 type="dashboard"
                 percent={cat.averageScore}

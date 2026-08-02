@@ -154,7 +154,7 @@ export default function MultiSiteDashboardPage() {
                   size="small"
                   pagination={false}
                   columns={[
-                    { title: "ID", dataIndex: "id", key: "id", width: 80 },
+                    { title: "编号", dataIndex: "id", key: "id", width: 80 },
                     { title: "名称", dataIndex: "name", key: "name" },
                     { title: "源 AE", dataIndex: "sourceSite", key: "src", width: 110 },
                     { title: "目标 AE", dataIndex: "destSite", key: "dst", width: 110 },

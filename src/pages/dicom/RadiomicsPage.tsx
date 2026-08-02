@@ -121,7 +121,7 @@ export default function RadiomicsPage() {
 
   const handleCompare = useCallback(async () => {
     if (results.length < 2) {
-      message.warning('Need at least 2 ROIs to compare')
+      message.warning('至少需要 2 个 ROI 才能比较')
       return
     }
     setCompareMode(true)
@@ -271,7 +271,7 @@ export default function RadiomicsPage() {
 function RadarChart({ config }: { config: any }) {
   const colors = ['#1890ff', '#52c41a', '#faad14', '#f5222d', '#722ed1', '#13c2c2']
   const { radar, series } = config
-  if (!radar?.indicator?.length) return <div style={{ height: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999' }}>No data</div>
+  if (!radar?.indicator?.length) return <div style={{ height: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999' }}>暂无数据</div>
   const cx = 200, cy = 200, r = 160, levels = 5
   const n = radar.indicator.length
   const angleStep = (2 * Math.PI) / n

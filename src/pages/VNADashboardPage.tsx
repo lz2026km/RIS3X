@@ -81,7 +81,7 @@ export default function VNADashboardPage() {
                 { title: "节点 ID", dataIndex: "id", key: "id", width: 90 },
                 { title: "主机名", dataIndex: "hostname", key: "host", width: 240 },
                 { title: "角色", dataIndex: "role", key: "role", width: 90, render: (r: string) => <Tag color={ROLE_MAP[r].color}>{ROLE_MAP[r].label}</Tag> },
-                { title: "IP", dataIndex: "ip", key: "ip", width: 130 },
+                { title: "IP 地址", dataIndex: "ip", key: "ip", width: 130 },
                 { title: "状态", dataIndex: "status", key: "status", width: 90, render: (s: string) => <Tag color={STATUS_MAP[s].color}>{STATUS_MAP[s].label}</Tag> },
                 { title: "存储使用", key: "usage", width: 160, render: (_: any, r: any) => {
                   const pct = (r.storageUsed / r.storageTotal) * 100;
@@ -134,7 +134,7 @@ export default function VNADashboardPage() {
           size="small"
           pagination={false}
           columns={[
-            { title: "ID", dataIndex: "id", key: "id", width: 90 },
+            { title: "编号", dataIndex: "id", key: "id", width: 90 },
             { title: "名称", dataIndex: "name", key: "name" },
             { title: "源 AE", dataIndex: "sourceAe", key: "src", width: 100 },
             { title: "目标 AE", dataIndex: "destAe", key: "dst", width: 140 },

@@ -32,31 +32,31 @@ export const ReportTemplateManagerPage: React.FC = () => {
         <Tag color="blue">Smart Snippets</Tag>
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title="Templates" value={templates.length} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Snippets" value={snippets.length} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Published" value={templates.filter(t=>t.status==='published').length} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Total Usage" value={templates.reduce((a,t)=>a+t.usage,0)} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="模板" value={templates.length} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="片段" value={snippets.length} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="已发布" value={templates.filter(t=>t.status==='published').length} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="总使用量" value={templates.reduce((a,t)=>a+t.usage,0)} /></Card></Col>
       </Row>
       <Card size="small" extra={<Button type="primary" icon={<Plus size={12}/>}>New Template</Button>} title={<Space><FileText size={14}/>Report Templates</Space>}>
         <Table dataSource={templates} rowKey="id" pagination={false}
           columns={[
-            {title:'Name',dataIndex:'name',width:200},
-            {title:'Category',dataIndex:'category',render:(c:string)=><Tag color={c==='Structured'?'blue':'green'}>{c}</Tag>},
-            {title:'Modality',dataIndex:'modality'},{title:'Body Part',dataIndex:'bodyPart'},
-            {title:'Ver',dataIndex:'version',render:(v:number)=><Tag>{'v'+v}</Tag>},
-            {title:'Usage',dataIndex:'usage'},{title:'Shared',dataIndex:'shared',render:(s:boolean)=><Badge status={s?'success':'default'} />},
-            {title:'Status',dataIndex:'status',render:(s:string)=><Badge status={s==='published'?'success':'default'} text={s} />},
-            {title:'Action',render:()=><Space><Button size="small" icon={<Edit3 size={10}/>}>Edit</Button><Button size="small" icon={<Copy size={10}/>}>Clone</Button></Space>},
+            {title:'名称',dataIndex:'name',width:200},
+            {title:'类别',dataIndex:'category',render:(c:string)=><Tag color={c==='Structured'?'blue':'green'}>{c}</Tag>},
+            {title:'Modality',dataIndex:'modality'},{title:'检查部位',dataIndex:'bodyPart'},
+            {title:'版本',dataIndex:'version',render:(v:number)=><Tag>{'v'+v}</Tag>},
+            {title:'使用量',dataIndex:'usage'},{title:'Shared',dataIndex:'shared',render:(s:boolean)=><Badge status={s?'success':'default'} />},
+            {title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='published'?'success':'default'} text={s} />},
+            {title:'操作',render:()=><Space><Button size="small" icon={<Edit3 size={10}/>}>编辑</Button><Button size="small" icon={<Copy size={10}/>}>克隆</Button></Space>},
           ]} />
       </Card>
       <Card size="small" title={<Space><Layers size={14}/>Smart Snippets</Space>} style={{marginTop:16}} extra={<Button icon={<Plus size={12}/>}>New Snippet</Button>}>
         <Table dataSource={snippets} rowKey="id" pagination={false}
           columns={[
-            {title:'Name',dataIndex:'name',width:240},{title:'Content',dataIndex:'content',width:300,render:(c:string)=><Typography.Paragraph ellipsis={{rows:1}} style={{margin:0,fontSize:12}}>{c}</Typography.Paragraph>},
-            {title:'Category',dataIndex:'category',render:(c:string)=><Tag color={c==='Normal'?'green':c==='Dental'?'purple':'orange'}>{c}</Tag>},
-            {title:'Shortcut',dataIndex:'shortcuts',render:(s:string)=><Tag color="geekblue">{s}</Tag>},
-            {title:'Usage',dataIndex:'usage'},
-            {title:'Action',render:()=><Space><Button size="small"><Edit3 size={10}/></Button><Button size="small"><Copy size={10}/></Button></Space>},
+            {title:'名称',dataIndex:'name',width:240},{title:'内容',dataIndex:'content',width:300,render:(c:string)=><Typography.Paragraph ellipsis={{rows:1}} style={{margin:0,fontSize:12}}>{c}</Typography.Paragraph>},
+            {title:'类别',dataIndex:'category',render:(c:string)=><Tag color={c==='Normal'?'green':c==='Dental'?'purple':'orange'}>{c}</Tag>},
+            {title:'快捷键',dataIndex:'shortcuts',render:(s:string)=><Tag color="geekblue">{s}</Tag>},
+            {title:'使用量',dataIndex:'usage'},
+            {title:'操作',render:()=><Space><Button size="small"><Edit3 size={10}/></Button><Button size="small"><Copy size={10}/></Button></Space>},
           ]} />
       </Card>
     </div>

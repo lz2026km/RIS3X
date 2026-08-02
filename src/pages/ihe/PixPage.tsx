@@ -282,9 +282,9 @@ export const PixPage: React.FC = () => {
       dataIndex: "assigningAuthority",
       key: "aa",
     },
-    { title: "Patient ID", dataIndex: "patientId", key: "pid" },
+    { title: "患者 ID", dataIndex: "patientId", key: "pid" },
     {
-      title: "Identifiers",
+      title: "标识符",
       key: "ids",
       render: (_: any, r: any) =>
         r.identifiers?.map((i: any) => (
@@ -294,7 +294,7 @@ export const PixPage: React.FC = () => {
         )),
     },
     {
-      title: "Name",
+      title: "姓名",
       key: "name",
       render: (_: any, r: any) =>
         r.name ? `${r.name.family} ${r.name.given?.join(" ")}` : "-",
@@ -332,7 +332,7 @@ export const PixPage: React.FC = () => {
                     <Form form={feedForm} layout="vertical" size="small">
                       <Form.Item
                         name="patientId"
-                        label="Patient ID"
+                        label="患者 ID"
                         rules={[{ required: true }]}
                       >
                         <Input placeholder="例如: P001" />
@@ -346,18 +346,18 @@ export const PixPage: React.FC = () => {
                       </Form.Item>
                       <Form.Item
                         name="identifiers"
-                        label="Identifiers (每行 domain|value)"
+                        label="标识符 (每行 domain|value)"
                       >
                         <TextArea rows={3} placeholder="HOSPITAL_A|P001" />
                       </Form.Item>
                       <Row gutter={8}>
                         <Col span={12}>
-                          <Form.Item name="familyName" label="Family Name">
+                          <Form.Item name="familyName" label="姓">
                             <Input placeholder="姓" />
                           </Form.Item>
                         </Col>
                         <Col span={12}>
-                          <Form.Item name="givenName" label="Given Name">
+                          <Form.Item name="givenName" label="名">
                             <Input placeholder="名" />
                           </Form.Item>
                         </Col>
@@ -401,21 +401,21 @@ export const PixPage: React.FC = () => {
                     <Form form={queryForm} layout="vertical" size="small">
                       <Form.Item
                         name="patientId"
-                        label="Patient ID"
+                        label="患者 ID"
                         rules={[{ required: true }]}
                       >
                         <Input placeholder="例如: P001" />
                       </Form.Item>
                       <Form.Item
                         name="sourceDomain"
-                        label="Source Domain"
+                        label="来源域"
                         rules={[{ required: true }]}
                       >
                         <Input placeholder="例如: HOSPITAL_A" />
                       </Form.Item>
                       <Form.Item
                         name="targetDomains"
-                        label="Target Domains (每行一个)"
+                        label="目标域 (每行一个)"
                         rules={[{ required: true }]}
                       >
                         <TextArea
@@ -493,13 +493,13 @@ export const PixPage: React.FC = () => {
                       title: "Assigning Authority",
                       dataIndex: "assigningAuthority",
                     },
-                    { title: "External ID", dataIndex: "externalId" },
+                    { title: "外部 ID", dataIndex: "externalId" },
                     {
-                      title: "Internal Patient ID",
+                      title: "内部患者 ID",
                       dataIndex: "internalPatientId",
                     },
                     {
-                      title: "Action",
+                      title: "操作",
                       render: (_: any, r: PixMapping) => (
                         <Popconfirm
                           title="确认删除?"
@@ -536,20 +536,20 @@ export const PixPage: React.FC = () => {
                     title="Patient Demographics Query (ITI-21)"
                   >
                     <Form form={pdqForm} layout="vertical" size="small">
-                      <Form.Item name="patientId" label="Patient ID">
+                      <Form.Item name="patientId" label="患者 ID">
                         <Input placeholder="例如: P001" />
                       </Form.Item>
-                      <Form.Item name="name" label="Name">
+                      <Form.Item name="name" label="姓名">
                         <Input placeholder="患者姓名" />
                       </Form.Item>
                       <Row gutter={8}>
                         <Col span={12}>
-                          <Form.Item name="birthDate" label="Birth Date">
+                          <Form.Item name="birthDate" label="出生日期">
                             <Input placeholder="YYYY-MM-DD" />
                           </Form.Item>
                         </Col>
                         <Col span={12}>
-                          <Form.Item name="gender" label="Gender">
+                          <Form.Item name="gender" label="性别">
                             <Select
                               allowClear
                               placeholder="选择性别"
@@ -587,21 +587,21 @@ export const PixPage: React.FC = () => {
                         pagination={false}
                         size="small"
                         columns={[
-                          { title: "Patient ID", dataIndex: "patientId" },
+                          { title: "患者 ID", dataIndex: "patientId" },
                           {
                             title: "Authority",
                             dataIndex: "assigningAuthority",
                           },
                           {
-                            title: "Name",
+                            title: "姓名",
                             render: (_: any, r: PdqResult) =>
                               `${r.name.family} ${r.name.given?.join(" ")}`,
                           },
-                          { title: "Birth Date", dataIndex: "birthDate" },
-                          { title: "Gender", dataIndex: "gender" },
-                          { title: "Phone", dataIndex: "phone" },
+                          { title: "出生日期", dataIndex: "birthDate" },
+                          { title: "性别", dataIndex: "gender" },
+                          { title: "电话", dataIndex: "phone" },
                           {
-                            title: "Confidence",
+                            title: "置信度",
                             dataIndex: "confidence",
                             render: (v: number) => (
                               <Tag
@@ -644,14 +644,14 @@ export const PixPage: React.FC = () => {
           </Form.Item>
           <Form.Item
             name="externalId"
-            label="External ID"
+            label="外部 ID"
             rules={[{ required: true }]}
           >
             <Input placeholder="例如: P001" />
           </Form.Item>
           <Form.Item
             name="internalPatientId"
-            label="Internal Patient ID"
+            label="内部患者 ID"
             rules={[{ required: true }]}
           >
             <Input placeholder="例如: G005-00001" />

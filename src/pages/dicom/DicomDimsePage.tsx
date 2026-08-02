@@ -3,36 +3,38 @@ import { Card, Tabs, Table, Button, Form, Input, Select, Upload, message, Tag, S
 import { Send, Search, Upload, ArrowRight, CheckCircle, XCircle, Radio, RefreshCw, Plus } from 'lucide-react'
 import { dicomDimseApi } from '../../services/api/dicomApi'
 
+const DIMSE_STATUS_LABEL: Record<string, string> = { SUCCESS: '成功' };
+
 const ECHO_COLUMNS: any[] = [
   { title: 'AE Title', dataIndex: 'aeTitle', key: 'aeTitle' },
-  { title: 'IP', dataIndex: 'ip', key: 'ip' },
-  { title: 'Port', dataIndex: 'port', key: 'port' },
+  { title: 'IP 地址', dataIndex: 'ip', key: 'ip' },
+  { title: '端口', dataIndex: 'port', key: 'port' },
   { title: 'Modality', dataIndex: 'modality', key: 'modality' },
-  { title: 'Ping', dataIndex: 'pingMs', key: 'pingMs', render: (v: number | null) => v != null ? `${v} ms` : '-' },
-  { title: 'Status', dataIndex: 'status', key: 'status', render: (v: string | null) => v ? <Tag color={v === 'SUCCESS' ? 'green' : 'red'} icon={v === 'SUCCESS' ? <CheckCircle size={14} /> : <XCircle size={14} />}>{v}</Tag> : '-' },
+  { title: '连通性', dataIndex: 'pingMs', key: 'pingMs', render: (v: number | null) => v != null ? `${v} ms` : '-' },
+  { title: '状态', dataIndex: 'status', key: 'status', render: (v: string | null) => v ? <Tag color={v === 'SUCCESS' ? 'green' : 'red'} icon={v === 'SUCCESS' ? <CheckCircle size={14} /> : <XCircle size={14} />}>{DIMSE_STATUS_LABEL[v] ?? v}</Tag> : '-' },
 ]
 
 const MWL_COLUMNS = [
-  { title: 'Patient Name', dataIndex: 'patientName', key: 'patientName' },
-  { title: 'Patient ID', dataIndex: 'patientId', key: 'patientId' },
+  { title: '患者姓名', dataIndex: 'patientName', key: 'patientName' },
+  { title: '患者 ID', dataIndex: 'patientId', key: 'patientId' },
   { title: 'Accession#', dataIndex: 'accessionNumber', key: 'accessionNumber' },
   { title: 'Modality', dataIndex: 'modality', key: 'modality' },
-  { title: 'Study Date', dataIndex: 'studyDate', key: 'studyDate' },
-  { title: 'Status', dataIndex: 'status', key: 'status' },
+  { title: '检查日期', dataIndex: 'studyDate', key: 'studyDate' },
+  { title: '状态', dataIndex: 'status', key: 'status' },
 ]
 
 const C_STORE_COLUMNS = [
   { title: 'SOP Instance UID', dataIndex: 'sopInstanceUid', key: 'sopInstanceUid', ellipsis: true },
-  { title: 'Storage Path', dataIndex: 'storagePath', key: 'storagePath', ellipsis: true },
-  { title: 'Size', dataIndex: 'sizeBytes', key: 'sizeBytes', render: (v: number) => v ? `${(v / 1024).toFixed(1)} KB` : '-' },
-  { title: 'Status', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : 'red'}>{v}</Tag> },
+  { title: '存储路径', dataIndex: 'storagePath', key: 'storagePath', ellipsis: true },
+  { title: '大小', dataIndex: 'sizeBytes', key: 'sizeBytes', render: (v: number) => v ? `${(v / 1024).toFixed(1)} KB` : '-' },
+  { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : 'red'}>{DIMSE_STATUS_LABEL[v] ?? v}</Tag> },
 ]
 
 const C_MOVE_COLUMNS = [
   { title: 'Study UID', dataIndex: 'studyUid', key: 'studyUid', ellipsis: true },
   { title: 'Destination AE', dataIndex: 'destAe', key: 'destAe' },
-  { title: 'Transfer Count', dataIndex: 'transferredCount', key: 'transferredCount' },
-  { title: 'Status', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : 'red'}>{v}</Tag> },
+  { title: '传输数', dataIndex: 'transferredCount', key: 'transferredCount' },
+  { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : 'red'}>{DIMSE_STATUS_LABEL[v] ?? v}</Tag> },
 ]
 
 interface DimseDevice {
@@ -155,7 +157,7 @@ export const DicomDimsePage: React.FC = () => {
             columns={[
               ...ECHO_COLUMNS,
               {
-                title: 'Action',
+                title: '操作',
                 key: 'action',
                 render: (_: any, record: DimseDevice) => (
                   <Button type="primary" size="small" icon={<Send />} loading={record._echoing} onClick={() => handleEcho(record)}>ECHO 测试</Button>
@@ -173,11 +175,11 @@ export const DicomDimsePage: React.FC = () => {
         <>
           <Card size="small" style={{ marginBottom: 16 }}>
             <Form form={mwlForm} layout="inline" onFinish={handleMwlQuery}>
-              <Form.Item name="patientName" label="Name"><Input placeholder="Patient Name" allowClear /></Form.Item>
-              <Form.Item name="patientId" label="ID"><Input placeholder="Patient ID" allowClear /></Form.Item>
+              <Form.Item name="patientName" label="名称"><Input placeholder="患者姓名" allowClear /></Form.Item>
+              <Form.Item name="patientId" label="编号"><Input placeholder="患者 ID" allowClear /></Form.Item>
               <Form.Item name="accessionNumber" label="Accession"><Input placeholder="Accession#" allowClear /></Form.Item>
               <Form.Item name="modality" label="Modality">
-                <Select allowClear placeholder="All" style={{ width: 100 }}>
+                <Select allowClear placeholder="全部" style={{ width: 100 }}>
                   <Select.Option value="CT">CT</Select.Option>
                   <Select.Option value="MR">MR</Select.Option>
                   <Select.Option value="XA">XA</Select.Option>
@@ -224,10 +226,10 @@ export const DicomDimsePage: React.FC = () => {
               <Form.Item name="destAe" label="目标 AE" rules={[{ required: true }]}>
                 <Input placeholder="DEST_AE" />
               </Form.Item>
-              <Form.Item name="destHost" label="Host">
+              <Form.Item name="destHost" label="主机">
                 <Input placeholder="192.168.1.200" />
               </Form.Item>
-              <Form.Item name="destPort" label="Port">
+              <Form.Item name="destPort" label="端口">
                 <InputNumber placeholder="11112" min={1} max={65535} />
               </Form.Item>
               <Form.Item><Button type="primary" htmlType="submit" icon={<ArrowRight />} loading={moveLoading}>转发</Button></Form.Item>
@@ -257,10 +259,10 @@ export const DicomDimsePage: React.FC = () => {
             <Input placeholder="例如: CT_SCANNER_03" />
           </Form.Item>
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '0 8px' }}>
-            <Form.Item name="ip" label="IP Address" rules={[{ required: true }]}>
+            <Form.Item name="ip" label="IP 地址" rules={[{ required: true }]}>
               <Input placeholder="192.168.1.105" />
             </Form.Item>
-            <Form.Item name="port" label="Port" rules={[{ required: true }]}>
+            <Form.Item name="port" label="端口" rules={[{ required: true }]}>
               <InputNumber placeholder="11112" min={1} max={65535} style={{ width: '100%' }} />
             </Form.Item>
             <Form.Item name="modality" label="Modality" rules={[{ required: true }]}>

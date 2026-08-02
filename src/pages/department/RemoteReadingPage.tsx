@@ -18,9 +18,9 @@ interface RemoteReadingItem {
 }
 
 const mockSessions: RemoteReadingItem[] = [
-  { id: 'rr-001', studyId: 'STU050', patientName: 'Zhang San', modality: 'CT', referringDoctor: 'Dr. Chen', readingDoctor: 'Dr. Wang', priority: 'urgent', status: 'completed', requestedAt: '2026-07-28T08:00:00Z', completedAt: '2026-07-28T09:30:00Z' },
-  { id: 'rr-002', studyId: 'STU051', patientName: 'Li Si', modality: 'MR', referringDoctor: 'Dr. Liu', readingDoctor: 'Dr. Li', priority: 'routine', status: 'in_progress', requestedAt: '2026-07-28T10:00:00Z' },
-  { id: 'rr-003', studyId: 'STU052', patientName: 'Wang Wu', modality: 'DX', referringDoctor: 'Dr. Chen', readingDoctor: 'Dr. Zhang', priority: 'stat', status: 'pending', requestedAt: '2026-07-28T11:00:00Z' },
+  { id: 'rr-001', studyId: 'STU050', patientName: '张三', modality: 'CT', referringDoctor: '陈医生', readingDoctor: '王医生', priority: 'urgent', status: 'completed', requestedAt: '2026-07-28T08:00:00Z', completedAt: '2026-07-28T09:30:00Z' },
+  { id: 'rr-002', studyId: 'STU051', patientName: '李四', modality: 'MR', referringDoctor: '刘医生', readingDoctor: '李医生', priority: 'routine', status: 'in_progress', requestedAt: '2026-07-28T10:00:00Z' },
+  { id: 'rr-003', studyId: 'STU052', patientName: '王五', modality: 'DX', referringDoctor: '陈医生', readingDoctor: '张医生', priority: 'stat', status: 'pending', requestedAt: '2026-07-28T11:00:00Z' },
 ]
 
 const priorityColor: Record<string, string> = { routine: 'blue', urgent: 'orange', stat: 'red' }

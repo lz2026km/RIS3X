@@ -84,11 +84,11 @@ export const FhirBulkExportDetailPage: React.FC = () => {
   };
 
   const ndjsonColumns = [
-    { title: 'Resource Type', dataIndex: 'type', key: 'type', render: (t: string) => <Tag color="blue">{t}</Tag> },
-    { title: 'File', dataIndex: 'url', key: 'url', render: (u: string) => <Typography.Text copyable style={{ fontSize: 12, fontFamily: 'monospace' }}>{u}</Typography.Text> },
-    { title: 'Size', dataIndex: 'size', key: 'size', render: (s: number) => s ? `${(s / 1024).toFixed(1)} KB` : '-' },
+    { title: '资源类型', dataIndex: 'type', key: 'type', render: (t: string) => <Tag color="blue">{t}</Tag> },
+    { title: '文件', dataIndex: 'url', key: 'url', render: (u: string) => <Typography.Text copyable style={{ fontSize: 12, fontFamily: 'monospace' }}>{u}</Typography.Text> },
+    { title: '大小', dataIndex: 'size', key: 'size', render: (s: number) => s ? `${(s / 1024).toFixed(1)} KB` : '-' },
     {
-      title: 'Actions', key: 'actions', render: (_: any, r: NdjsonFile) => (
+      title: '操作', key: 'actions', render: (_: any, r: NdjsonFile) => (
         <Space>
           <Button size="small" icon={<Eye size={12} />} loading={loadingPreview[r.type]} onClick={() => handlePreview(r)}>预览</Button>
           <Button size="small" icon={<Download size={12} />} href={r.url} target="_blank">下载</Button>
@@ -101,7 +101,7 @@ export const FhirBulkExportDetailPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Globe size={20} color="#1677ff" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR Bulk Export Detail</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR 批量导出详情</span>
         <Tag color="cyan">v3.0.6.8</Tag>
         <Badge status={status.status === 'completed' ? 'success' : status.status === 'failed' ? 'error' : 'processing'} text={status.status} />
       </Space>
@@ -110,12 +110,12 @@ export const FhirBulkExportDetailPage: React.FC = () => {
         extra={<Space>{status.status === 'running' && <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> 轮询中...</>}</Space>}>
         <Descriptions column={2} size="small">
           <Descriptions.Item label="Job ID"><Typography.Text copyable>{status.jobId}</Typography.Text></Descriptions.Item>
-          <Descriptions.Item label="Status">
+          <Descriptions.Item label="状态">
             <Tag color={status.status === 'completed' ? 'green' : status.status === 'failed' ? 'red' : 'blue'}>{status.status}</Tag>
           </Descriptions.Item>
-          {status.transactionTime && <Descriptions.Item label="Transaction Time">{status.transactionTime}</Descriptions.Item>}
-          {status.startedAt && <Descriptions.Item label="Started At">{status.startedAt}</Descriptions.Item>}
-          {status.progress && <Descriptions.Item label="Progress">{status.progress}</Descriptions.Item>}
+          {status.transactionTime && <Descriptions.Item label="事务时间">{status.transactionTime}</Descriptions.Item>}
+          {status.startedAt && <Descriptions.Item label="开始时间">{status.startedAt}</Descriptions.Item>}
+          {status.progress && <Descriptions.Item label="进度">{status.progress}</Descriptions.Item>}
         </Descriptions>
         {status.error && <Alert type="error" title={status.error} showIcon style={{ marginTop: 8 }} />}
       </Card>

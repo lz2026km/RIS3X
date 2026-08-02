@@ -5,11 +5,11 @@ import { iheApi } from '../../services/api/integrationApi';
 import type { VisitState } from '../../services/api/integrationApi';
 
 const STATE_TAGS: Record<string, { color: string; label: string }> = {
-  registered: { color: 'default', label: 'Registered' },
-  admitted: { color: 'blue', label: 'Admitted' },
-  inProgress: { color: 'processing', label: 'In Progress' },
-  completed: { color: 'green', label: 'Completed' },
-  discharged: { color: 'red', label: 'Discharged' },
+  registered: { color: 'default', label: '已登记' },
+  admitted: { color: 'blue', label: '已入院' },
+  inProgress: { color: 'processing', label: '进行中' },
+  completed: { color: 'green', label: '已完成' },
+  discharged: { color: 'red', label: '已出院' },
 };
 
 const ADT_TRANSITIONS: Record<string, { label: string; msgType: string }> = {

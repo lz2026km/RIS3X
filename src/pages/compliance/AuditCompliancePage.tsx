@@ -22,29 +22,29 @@ export const AuditCompliancePage: React.FC = () => {
         <Tag color="orange">Grade 3 Class A</Tag>
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title="Today Events" value={auditLogs.length} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Denied" value={auditLogs.filter(l=>l.result==='denied').length} styles={{ content: { color:'#ff4d4f' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Data Exports" value="7" /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Breach Score" value="98" suffix="/100" /><Progress percent={98} size="small" strokeColor="#52c41a" /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="今日事件" value={auditLogs.length} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="已拒绝" value={auditLogs.filter(l=>l.result==='denied').length} styles={{ content: { color:'#ff4d4f' } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="数据导出" value="7" /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="违规评分" value="98" suffix="/100" /><Progress percent={98} size="small" strokeColor="#52c41a" /></Card></Col>
       </Row>
-      <Card size="small" title={<Space><FileSearch size={14}/>Audit Trail</Space>} extra={<Space><Button icon={<Filter size={12}/>} disabled>Filter</Button><Button icon={<Download size={12}/>} disabled>Export</Button></Space>}>
+      <Card size="small" title={<Space><FileSearch size={14}/>审计轨迹</Space>} extra={<Space><Button icon={<Filter size={12}/>} disabled>筛选</Button><Button icon={<Download size={12}/>} disabled>导出</Button></Space>}>
         <Table dataSource={auditLogs} rowKey="id" pagination={false}
           columns={[
-            {title:'ID',dataIndex:'id'},{title:'User',dataIndex:'user'},
-            {title:'Action',dataIndex:'action',render:(a:string)=><Tag color={a.startsWith('VIEW')?'blue':a.startsWith('EXPORT')?'orange':a.startsWith('MODIFY')?'purple':a.startsWith('USER')?'cyan':'default'}>{a}</Tag>},
-            {title:'Target',dataIndex:'target'},{title:'IP',dataIndex:'ip'},
-            {title:'Time',dataIndex:'timestamp'},
-            {title:'Result',dataIndex:'result',render:(r:string)=><Badge status={r==='allowed'?'success':'error'} text={r} />},
-            {title:'Action',render:(_,r:any)=><Button size="small" onClick={()=>setDetailModal(r)}><Eye size={10}/></Button>},
+            {title:'编号',dataIndex:'id'},{title:'用户',dataIndex:'user'},
+            {title:'操作',dataIndex:'action',render:(a:string)=><Tag color={a.startsWith('VIEW')?'blue':a.startsWith('EXPORT')?'orange':a.startsWith('MODIFY')?'purple':a.startsWith('USER')?'cyan':'default'}>{a}</Tag>},
+            {title:'目标',dataIndex:'target'},{title:'IP 地址',dataIndex:'ip'},
+            {title:'时间',dataIndex:'timestamp'},
+            {title:'结果',dataIndex:'result',render:(r:string)=><Badge status={r==='allowed'?'success':'error'} text={r} />},
+            {title:'操作',render:(_,r:any)=><Button size="small" onClick={()=>setDetailModal(r)}><Eye size={10}/></Button>},
           ]} />
       </Card>
-      <Modal title="Audit Detail" open={!!detailModal} onCancel={()=>setDetailModal(null)} footer={null} width={500}>
+      <Modal title="审计详情" open={!!detailModal} onCancel={()=>setDetailModal(null)} footer={null} width={500}>
         {detailModal && <div><Timeline items={[
-          {key:'evt-id', content:<><b>Event ID</b><br/>{detailModal.id}</>},
-          {key:'evt-user', content:<><b>User</b><br/>{detailModal.user} @ {detailModal.ip}</>},
-          {key:'evt-action', content:<><b>Action</b><br/>{detailModal.action} on {detailModal.target}</>},
-          {key:'evt-time', content:<><b>Timestamp</b><br/>{detailModal.timestamp}</>},
-          {key:'evt-result', content:<><b>Result: </b><Tag color={detailModal.result==='allowed'?'green':'red'}>{detailModal.result}</Tag><br/><i>{detailModal.reason}</i></>},
+          {key:'evt-id', content:<><b>事件编号</b><br/>{detailModal.id}</>},
+          {key:'evt-user', content:<><b>用户</b><br/>{detailModal.user} @ {detailModal.ip}</>},
+          {key:'evt-action', content:<><b>操作</b><br/>{detailModal.action} on {detailModal.target}</>},
+          {key:'evt-time', content:<><b>时间戳</b><br/>{detailModal.timestamp}</>},
+          {key:'evt-result', content:<><b>结果: </b><Tag color={detailModal.result==='allowed'?'green':'red'}>{detailModal.result}</Tag><br/><i>{detailModal.reason}</i></>},
         ]} /></div>}
       </Modal>
     </div>

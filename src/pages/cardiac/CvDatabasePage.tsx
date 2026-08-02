@@ -187,7 +187,7 @@ export default function CvDatabasePage() {
         >
           <Search size={18} color="#64748b" />
           <input
-            placeholder="Search by patient name or case ID..."
+            placeholder="按患者姓名或病例号搜索..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{
@@ -211,7 +211,7 @@ export default function CvDatabasePage() {
             fontSize: 14,
           }}
         >
-          <option value="">All Modalities</option>
+          <option value="">全部设备</option>
           {FILTER_MODALITIES.map((m) => (
             <option key={m} value={m}>
               {m}
@@ -229,7 +229,7 @@ export default function CvDatabasePage() {
             fontSize: 14,
           }}
         >
-          <option value="">All Anatomy</option>
+          <option value="">全部部位</option>
           {FILTER_ANATOMIES.map((a) => (
             <option key={a} value={a}>
               {a}
@@ -441,7 +441,7 @@ export default function CvDatabasePage() {
               <dd>{selectedCase.modality}</dd>
               <dt style={{ color: "#64748b", fontWeight: 500 }}>Anatomy</dt>
               <dd>{selectedCase.anatomy}</dd>
-              <dt style={{ color: "#64748b", fontWeight: 500 }}>Study Date</dt>
+              <dt style={{ color: "#64748b", fontWeight: 500 }}>检查日期</dt>
               <dd>{selectedCase.studyDate}</dd>
               <dt style={{ color: "#64748b", fontWeight: 500 }}>Diagnosis</dt>
               <dd>{selectedCase.diagnosis}</dd>

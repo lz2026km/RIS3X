@@ -54,7 +54,7 @@ const AiRadsPage: React.FC = () => {
       if (res.success) {
         setHistory(res.data)
       } else {
-        message.error(res.error?.message || 'Failed to load history')
+        message.error(res.error?.message || '历史记录加载失败')
       }
     } finally {
       setLoading(false)

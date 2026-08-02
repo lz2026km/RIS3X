@@ -115,7 +115,7 @@ export default function CvQcPage() {
               <th style={{ padding: '10px 16px', textAlign: 'left' }}>Metric</th>
               <th style={{ padding: '10px 16px', textAlign: 'center' }}>Current</th>
               <th style={{ padding: '10px 16px', textAlign: 'center' }}>Target</th>
-              <th style={{ padding: '10px 16px', textAlign: 'center' }}>Status</th>
+              <th style={{ padding: '10px 16px', textAlign: 'center' }}>状态</th>
             </tr>
           </thead>
           <tbody>

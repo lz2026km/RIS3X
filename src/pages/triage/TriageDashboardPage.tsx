@@ -181,7 +181,7 @@ const TriageDashboardPage: React.FC = () => {
       render: (s: string) => (
         <Badge
           status={s === 'COMPLETED' ? 'success' : s === 'ASSIGNED' ? 'processing' : 'default'}
-          text={s === 'ASSIGNED' ? '已分配' : s === 'COMPLETED' ? '已完成' : '待分检'}
+          text={s === 'ASSIGNED' ? '已分诊' : s === 'COMPLETED' ? '已完成' : s === 'PENDING' ? '待分诊' : s}
         />
       ),
     },

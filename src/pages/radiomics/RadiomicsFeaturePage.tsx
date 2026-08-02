@@ -120,7 +120,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
       <Card size="small" style={{ marginBottom: 16 }}>
         <Space wrap>
           <Input
-            placeholder="Instance ID"
+            placeholder="实例 ID"
             value={instanceId}
             onChange={e => setInstanceId(e.target.value)}
             style={{ width: 200 }}
@@ -158,7 +158,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
         <Card size="small" title="多实例比较">
           <Space>
             <Input
-              placeholder="Instance IDs (逗号分隔)"
+              placeholder="实例 ID (逗号分隔)"
               value={compareIds}
               onChange={e => setCompareIds(e.target.value)}
               style={{ width: 280 }}
@@ -196,9 +196,9 @@ export const RadiomicsFeaturePage: React.FC = () => {
             size="small"
             pagination={false}
             columns={[
-              { title: 'Instance ID', dataIndex: 'instanceId', key: 'instanceId' },
+              { title: '实例 ID', dataIndex: 'instanceId', key: 'instanceId' },
               { title: '特征数', key: 'count', render: (_: any, r: RadiomicsResult) => r.features?.length || 0 },
-              { title: 'Shape Volume', key: 'volume', render: (_: any, r: RadiomicsResult) => r.features?.find(f => f.name === 'Volume')?.value?.toFixed(2) || '-' },
+              { title: '体积', key: 'volume', render: (_: any, r: RadiomicsResult) => r.features?.find(f => f.name === 'Volume')?.value?.toFixed(2) || '-' },
             ]}
           />
         </Card>

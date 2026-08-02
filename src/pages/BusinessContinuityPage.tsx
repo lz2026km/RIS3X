@@ -150,7 +150,7 @@ export default function BusinessContinuityPage() {
           size="small"
           pagination={{ pageSize: 10 }}
           columns={[
-            { title: "ID", dataIndex: "id", key: "id", width: 100 },
+            { title: "编号", dataIndex: "id", key: "id", width: 100 },
             { title: "类型", dataIndex: "type", key: "t", width: 90, render: (t: string) => <Tag color={TYPE_MAP[t].color}>{TYPE_MAP[t].label}</Tag> },
             { title: "操作", dataIndex: "operation", key: "o", width: 80, render: (o: string) => <Tag color={OP_MAP[o].color}>{OP_MAP[o].label}</Tag> },
             { title: "负载", dataIndex: "payload", key: "p", width: 180 },

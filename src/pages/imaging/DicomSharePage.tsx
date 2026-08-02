@@ -23,28 +23,28 @@ export const DicomSharePage: React.FC = () => {
         <Tag color="purple">DICOM TLS</Tag>
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title="Today" value="12" /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Pending" value={numPending} styles={{ content: { color:'#faad14' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Done" value={numReceived} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Total" value="1.2" suffix="GB" /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="今日" value="12" /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="待处理" value={numPending} styles={{ content: { color:'#faad14' } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="已完成" value={numReceived} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="总量" value="1.2" suffix="GB" /></Card></Col>
       </Row>
-      <Card extra={<Button type="primary" icon={<Send size={12}/>} onClick={()=>setShareModal(true)}>Share</Button>} size="small" title="Transfer Records">
+      <Card extra={<Button type="primary" icon={<Send size={12}/>} onClick={()=>setShareModal(true)}>分享</Button>} size="small" title="Transfer Records">
         <Table dataSource={shares} rowKey="id" pagination={false}
           columns={[
-            {title:'ID',dataIndex:'id'},{title:'Study',dataIndex:'studyId'},{title:'Patient',dataIndex:'patient'},
-            {title:'From',dataIndex:'from',render:(f:string)=><Tag color="blue">{f}</Tag>},
-            {title:'To',dataIndex:'to',render:(t:string)=><Tag color="purple">{t}</Tag>},
-            {title:'Size',dataIndex:'size'},
-            {title:'Status',dataIndex:'status',render:(s:string)=><Tag color={statusColor[s] || 'default'}>{s}</Tag>},
-            {title:'Time',dataIndex:'sentAt'},
-            {title:'Action',render:(_:any)=><Space><Button size="small">Download</Button></Space>},
+            {title:'编号',dataIndex:'id'},{title:'Study',dataIndex:'studyId'},{title:'患者',dataIndex:'patient'},
+            {title:'来源',dataIndex:'from',render:(f:string)=><Tag color="blue">{f}</Tag>},
+            {title:'去向',dataIndex:'to',render:(t:string)=><Tag color="purple">{t}</Tag>},
+            {title:'大小',dataIndex:'size'},
+            {title:'状态',dataIndex:'status',render:(s:string)=><Tag color={statusColor[s] || 'default'}>{s}</Tag>},
+            {title:'时间',dataIndex:'sentAt'},
+            {title:'操作',render:(_:any)=><Space><Button size="small">下载</Button></Space>},
           ]} />
       </Card>
       <Modal title="Share DICOM Study" open={shareModal} onCancel={()=>setShareModal(false)} onOk={()=>{message.success('已发送共享请求');setShareModal(false)}} width={460}>
         <Form layout="vertical" size="small">
           <Form.Item label="Study"><Select options={[{value:'CBCT-001',label:'ZW-36 CBCT'},{value:'CT-002',label:'LN-Head CT'},{value:'OCT-003',label:'WF-OCT'}]} /></Form.Item>
-          <Form.Item label="Target Dept"><Select mode="multiple" options={['Oral','Oral Surgery','Ortho','Eye','ENT'].map(d=>({value:d,label:d}))} /></Form.Item>
-          <Form.Item label="Protocol"><Select options={[{value:'dicom-tls',label:'DICOM TLS'},{value:'wado',label:'WADO'}]} /></Form.Item>
+          <Form.Item label="目标科室"><Select mode="multiple" options={['Oral','Oral Surgery','Ortho','Eye','ENT'].map(d=>({value:d,label:d}))} /></Form.Item>
+          <Form.Item label="协议"><Select options={[{value:'dicom-tls',label:'DICOM TLS'},{value:'wado',label:'WADO'}]} /></Form.Item>
         </Form>
       </Modal>
     </div>

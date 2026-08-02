@@ -246,7 +246,7 @@ export const ReviewCheckPage: React.FC = () => {
               rowKey="id"
               pagination={{ pageSize: 10 }}
               columns={[
-                { title: 'ID', dataIndex: 'id' },
+                { title: '编号', dataIndex: 'id' },
                 { title: '类型', dataIndex: 'type', render: (t) => <Tag color="blue">{t}</Tag> },
                 { title: '报告', dataIndex: 'reportId' },
                 { title: '状态', dataIndex: 'status', render: (s) => <Tag color={s === 'approved' ? 'green' : s === 'rejected' ? 'red' : 'orange'}>{s}</Tag> },

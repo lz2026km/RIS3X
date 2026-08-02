@@ -40,7 +40,7 @@ export const FhirImagingStudyPage: React.FC = () => {
 
   const columns = [
     {
-      title: 'ID',
+      title: '编号',
       dataIndex: 'id',
       key: 'id',
       width: 100,
@@ -66,13 +66,13 @@ export const FhirImagingStudyPage: React.FC = () => {
       render: (_: any, r: FhirImagingStudy) => r.subject?.reference || '-',
     },
     {
-      title: 'Series',
+      title: '序列',
       dataIndex: 'numberOfSeries',
       key: 'numberOfSeries',
       render: (v: number) => v != null ? <Badge count={v} style={{ backgroundColor: '#1677ff' }} /> : '-',
     },
     {
-      title: 'Instances',
+      title: '实例数',
       dataIndex: 'numberOfInstances',
       key: 'numberOfInstances',
       render: (v: number) => v != null ? <Badge count={v} style={{ backgroundColor: '#52c41a' }} /> : '-',
@@ -106,7 +106,7 @@ export const FhirImagingStudyPage: React.FC = () => {
             <Input placeholder="Patient ID / Reference" allowClear style={{ width: 200 }} />
           </Form.Item>
           <Form.Item name="modality" label="Modality">
-            <Select allowClear placeholder="All" style={{ width: 120 }}>
+            <Select allowClear placeholder="全部" style={{ width: 120 }}>
               <Select.Option value="CT">CT</Select.Option>
               <Select.Option value="MR">MR</Select.Option>
               <Select.Option value="US">US</Select.Option>
@@ -160,7 +160,7 @@ export const FhirImagingStudyPage: React.FC = () => {
                 <div style={{ maxHeight: 200, overflow: 'auto' }}>
                   {selectedStudy.series.map((s, i) => (
                     <div key={i} style={{ padding: '4px 0', borderBottom: '1px solid #f0f0f0' }}>
-                      <Tag color="blue">{s.modality?.coding?.[0]?.code || 'N/A'}</Tag>
+                      <Tag color="blue">{s.modality?.coding?.[0]?.code || '—'}</Tag>
                       <span style={{ fontSize: 12 }}>#{s.number || i + 1} - {s.description || 'No description'}</span>
                       <span style={{ color: '#999', marginLeft: 8 }}>({s.numberOfInstances || 0} instances)</span>
                     </div>

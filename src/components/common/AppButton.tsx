@@ -67,11 +67,11 @@ export interface AppButtonProps
   children?: ReactNode;
   /** 点击事件 */
   onClick?: (e: MouseEvent<HTMLElement>) => void;
-  /** 涓轰粈涓堝喅瀹氬～鐣?鍦?Tooltip 涓噸鏄庝负浣曢棴鐒?*/
+  /** 为什么决定默认渲染? Tooltip 中重新说明为何闭合 */
   disabledReason?: string;
-  /** HTML button type (form submit/reset) - 灏?variant 鐨?type 绛栫暐鏄犲皠 */
+  /** HTML button type (form submit/reset) - 将 variant 的 type 策略映射 */
   htmlType?: 'button' | 'submit' | 'reset';
-  /** 娴嬭瘯 ID */
+  /** 测试 ID */
   testId?: string;
 }
 

@@ -64,7 +64,7 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 12, fontSize: 12, color: '#cbd5e1' }}>
       <div style={{ background: '#1a1a1a', borderRadius: 8, padding: 12 }}>
-        <h3 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 600, color: '#fbbf24' }}>Cohort Filter</h3>
+        <h3 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 600, color: '#fbbf24' }}>队列筛选</h3>
 
         <div style={{ marginBottom: 8 }}>
           <label style={{ display: 'block', marginBottom: 4, color: '#94a3b8' }}>Query Name</label>

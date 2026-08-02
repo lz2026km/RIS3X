@@ -148,17 +148,17 @@ export const DentalPhotoPage: React.FC = () => {
           ]}
         />
         <Button type="primary" icon={<Camera size={14} />} onClick={() => setUploadOpen(true)}>
-          Upload Photo
+          上传照片
         </Button>
         <Button icon={<Share2 size={14} />} onClick={handleGenerateShare}>
-          Generate Share Link
+          生成分享链接
         </Button>
       </Space>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="Total" value={photos.length} />
+            <Statistic title="照片总数" value={photos.length} />
           </Card>
         </Col>
         <Col span={4}>
@@ -183,9 +183,9 @@ export const DentalPhotoPage: React.FC = () => {
         </Col>
       </Row>
 
-      <Card size="small" title="Photo Gallery">
+      <Card size="small" title="照片图库">
         {photos.length === 0 ? (
-          <Empty description="暂无照片, 点击右上角 'Upload Photo' 上传第一张" />
+          <Empty description="暂无照片, 点击右上角 '上传照片' 上传第一张" />
         ) : (
           <Row gutter={[12, 12]}>
             {photos.map(p => (
@@ -209,7 +209,7 @@ export const DentalPhotoPage: React.FC = () => {
                   <Tag color={CAT_COLORS[p.category]}>{CAT_LABEL[p.category] || p.category}</Tag>
                   <div style={{ fontSize: 12, fontWeight: 500, marginTop: 2 }}>{p.label}</div>
                   <div style={{ fontSize: 10, color: '#999', marginTop: 2 }}>
-                    {p.takenAt?.slice(0, 10) || 'N/A'}
+                    {p.takenAt?.slice(0, 10) || '—'}
                   </div>
                 </Card>
               </Col>
@@ -226,7 +226,7 @@ export const DentalPhotoPage: React.FC = () => {
             children: (
               <Row gutter={16}>
                 <Col span={12}>
-                  <Card size="small" title="Before Treatment">
+                  <Card size="small" title="治疗前">
                     {photos.length > 1 ? (
                       <img
                         src={photos[photos.length - 1].url}
@@ -253,8 +253,8 @@ export const DentalPhotoPage: React.FC = () => {
                 </Col>
                 <Col span={24} style={{ marginTop: 12 }}>
                   <Space>
-                    <Button icon={<ZoomIn size={14} />} onClick={() => setZoom(Math.min(2, zoom + 0.2))}>Zoom In</Button>
-                    <Button icon={<ZoomOut size={14} />} onClick={() => setZoom(Math.max(0.5, zoom - 0.2))}>Zoom Out</Button>
+                    <Button icon={<ZoomIn size={14} />} onClick={() => setZoom(Math.min(2, zoom + 0.2))}>放大</Button>
+                    <Button icon={<ZoomOut size={14} />} onClick={() => setZoom(Math.max(0.5, zoom - 0.2))}>缩小</Button>
                     <Slider min={0.5} max={2} step={0.1} value={zoom} onChange={setZoom} style={{ width: 200 }} />
                     <span>Zoom: {(zoom * 100).toFixed(0)}%</span>
                   </Space>
@@ -281,7 +281,7 @@ export const DentalPhotoPage: React.FC = () => {
                           <Button size="small" icon={<Download size={10} />} onClick={() => {
                             navigator.clipboard?.writeText(shareLink);
                             message.success('已复制');
-                          }}>Copy Link</Button>
+                          }}>复制链接</Button>
                         </Space>
                       </Space>
                     }
@@ -299,22 +299,22 @@ export const DentalPhotoPage: React.FC = () => {
 
       {/* 上传照片 Modal */}
       <Modal
-        title="Upload Photo"
+        title="上传照片"
         open={uploadOpen}
         onCancel={() => { setUploadOpen(false); setUploadFile(null); setUploadLabel(''); }}
         onOk={handleUpload}
-        okText="Upload"
-        cancelText="Cancel"
+        okText="上传"
+        cancelText="取消"
         width={520}
       >
         <Space orientation="vertical" style={{ width: '100%' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: 4, fontSize: 12 }}>Category</label>
+            <label style={{ display: 'block', marginBottom: 4, fontSize: 12 }}>分类</label>
             <Select value={uploadCategory} onChange={setUploadCategory} style={{ width: '100%' }}
               options={PHOTO_CATEGORIES.map(c => ({ value: c.value, label: c.label }))} />
           </div>
           <div>
-            <label style={{ display: 'block', marginBottom: 4, fontSize: 12 }}>Label</label>
+            <label style={{ display: 'block', marginBottom: 4, fontSize: 12 }}>标签</label>
             <input
               value={uploadLabel}
               onChange={e => setUploadLabel(e.target.value)}
@@ -323,9 +323,9 @@ export const DentalPhotoPage: React.FC = () => {
             />
           </div>
           <div>
-            <label style={{ display: 'block', marginBottom: 4, fontSize: 12 }}>Image File</label>
+            <label style={{ display: 'block', marginBottom: 4, fontSize: 12 }}>图片文件</label>
             <Upload {...uploadProps} listType="picture">
-              <Button icon={<Camera size={14} />}>Select Image</Button>
+              <Button icon={<Camera size={14} />}>选择图片</Button>
             </Upload>
           </div>
         </Space>

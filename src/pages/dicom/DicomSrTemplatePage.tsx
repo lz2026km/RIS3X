@@ -78,7 +78,7 @@ export const DicomSrTemplatePage: React.FC = () => {
 
   const columns = [
     {
-      title: 'ID',
+      title: '编号',
       dataIndex: 'id',
       key: 'id',
       width: 120,
@@ -170,7 +170,7 @@ export const DicomSrTemplatePage: React.FC = () => {
       >
         {selectedTemplate ? (
           <Descriptions column={1} size="small" bordered>
-            <Descriptions.Item label="ID">{selectedTemplate.id}</Descriptions.Item>
+            <Descriptions.Item label="编号">{selectedTemplate.id}</Descriptions.Item>
             <Descriptions.Item label="中文名称">{selectedTemplate.label}</Descriptions.Item>
             <Descriptions.Item label="English Name">{selectedTemplate.labelEn}</Descriptions.Item>
             <Descriptions.Item label="TID">{selectedTemplate.tid}</Descriptions.Item>

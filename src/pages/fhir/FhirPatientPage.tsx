@@ -110,7 +110,7 @@ export const FhirPatientPage: React.FC = () => {
 
   const columns = [
     {
-      title: 'ID',
+      title: '编号',
       dataIndex: 'id',
       key: 'id',
       width: 120,
@@ -167,8 +167,8 @@ export const FhirPatientPage: React.FC = () => {
           <Form.Item name="name" label="姓名">
             <Input placeholder="患者姓名" allowClear style={{ width: 160 }} />
           </Form.Item>
-          <Form.Item name="identifier" label="ID">
-            <Input placeholder="Patient ID" allowClear style={{ width: 160 }} />
+          <Form.Item name="identifier" label="编号">
+            <Input placeholder="患者 ID" allowClear style={{ width: 160 }} />
           </Form.Item>
           <Form.Item>
             <Space>

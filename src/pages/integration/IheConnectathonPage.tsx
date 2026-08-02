@@ -457,7 +457,7 @@ export const IheConnectathonPage: React.FC = () => {
                 dataSource={session.testCases}
                 columns={[
                   {
-                    title: "Profile",
+                    title: "配置",
                     dataIndex: "profile",
                     key: "profile",
                     render: (v) => <Tag color="red">{v}</Tag>,
@@ -465,7 +465,7 @@ export const IheConnectathonPage: React.FC = () => {
                   },
                   { title: "标题", dataIndex: "titleEn", key: "titleEn" },
                   {
-                    title: "Actor / Role",
+                    title: "参与者/角色",
                     key: "actor",
                     render: (_, r) => (
                       <span className="text-xs">

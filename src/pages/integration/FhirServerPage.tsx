@@ -107,8 +107,8 @@ export const FhirServerPage: React.FC = () => {
             } title={`资源: ${resourceType} (${resources.length})`}>
               <Table dataSource={resources} rowKey="id" pagination={false}
                 columns={[
-                  {title:'ID', dataIndex:'id'},
-                  {title:'Type', dataIndex:'resourceType', render:(t)=><Tag color="blue">{t}</Tag>},
+                  {title:'编号', dataIndex:'id'},
+                  {title:'类型', dataIndex:'resourceType', render:(t)=><Tag color="blue">{t}</Tag>},
                   {title:'名称', render:(_,r)=>r.name?.[0]?.text || r.code?.text || r.id},
                   {title:'性别', dataIndex:'gender'},
                   {title:'出生日期', dataIndex:'birthDate'},

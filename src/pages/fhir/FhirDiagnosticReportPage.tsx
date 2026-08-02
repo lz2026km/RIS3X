@@ -40,7 +40,7 @@ export const FhirDiagnosticReportPage: React.FC = () => {
 
   const columns = [
     {
-      title: 'ID',
+      title: '编号',
       dataIndex: 'id',
       key: 'id',
       width: 100,
@@ -101,7 +101,7 @@ export const FhirDiagnosticReportPage: React.FC = () => {
             <Input placeholder="Patient ID / Reference" allowClear style={{ width: 200 }} />
           </Form.Item>
           <Form.Item name="status" label="状态">
-            <Select allowClear placeholder="All" style={{ width: 140 }}>
+            <Select allowClear placeholder="全部" style={{ width: 140 }}>
               <Select.Option value="final">Final</Select.Option>
               <Select.Option value="preliminary">Preliminary</Select.Option>
               <Select.Option value="amended">Amended</Select.Option>

@@ -1,6 +1,6 @@
 /**
- * G005 鏀惧皠RIS绯荤粺 v3.0.1 - 鍏ㄥ眬璺敱琛ㄤ笌渚ц竟鏍忛厤缃?
- * 浠?v3.0.0 鍗曚綋 App.tsx (768 琛? 鎷嗗嚭,渚夸簬鎸夊煙鍒嗘枃浠剁淮鎶?
+ * G005 放射RIS系统 v3.0.1 - 全局路由表与侧边栏配置
+ * 从 v3.0.0 单体 App.tsx (768 行) 拆出,便于按域分文件维护
  */
 import React from "react";
 import {
@@ -415,7 +415,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.defectManagement",
         roles: ["主任", "管理员"],
       },
-      // [v3.0.6.8-27] 鏀惧皠绉戣川鎺ф€荤湅鏉?(鏂板)
+      // [v3.0.6.8-27] 放射科质控总看板(新增)
       {
         path: "/qc-dashboard",
         icon: <ShieldCheck size={18} />,
@@ -1465,7 +1465,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.eyeKpi",
         roles: ["医生", "技师", "主任", "管理员",],
       },
-      // [v3.0.6.8-85] 琛ラ綈 14 鏉＄溂绉戝鑸?(PR1-PR11)
+      // [v3.0.6.8-85] 补齐 14 条眼科导航(PR1-PR11)
       {
         path: "/eye/pacs/real-viewer",
         icon: <Image size={18} />,
@@ -1558,7 +1558,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
     ],
   },
-  // [v3.0.6.8-54] 鍙ｈ厰涓撶
+  // [v3.0.6.8-54] 口腔专科
   {
     section: "nav.dentalSpecialty",
     items: [
@@ -1622,70 +1622,70 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.dentalDashboard",
         roles: ["医生", "技师", "主任", "管理员",],
       },
-      // [v3.0.6.8-87] Phase 1: 淇 CAD/CAM
+      // [v3.0.6.8-87] Phase 1: 修复 CAD/CAM
       {
         path: "/dental/cad",
         icon: React.createElement(Pen, { size: 18 }),
         labelKey: "nav.dentalCad",
         roles: ["医生", "技师", "主任", "管理员",],
       },
-      // [v3.0.6.8-88] Phase 1: 绉嶆 3D 瑙勫垝
+      // [v3.0.6.8-88] Phase 1: 种植 3D 规划
       {
         path: "/dental/implant-3d",
         icon: React.createElement(Box, { size: 18 }),
         labelKey: "nav.dentalImplant3d",
         roles: ["医生", "技师", "主任", "管理员",],
       },
-      // [v3.0.6.8-89] Phase 1: 瀵兼澘 + 涓婇儴
+      // [v3.0.6.8-89] Phase 1: 导板 + 上部
       {
         path: "/dental/guide",
         icon: React.createElement(Layers, { size: 18 }),
         labelKey: "nav.dentalGuide",
         roles: ["医生", "技师", "主任", "管理员",],
       },
-      // [v3.0.6.8-90] Phase 2: 澶村奖娴嬮噺
+      // [v3.0.6.8-90] Phase 2: 头影测量
       {
         path: "/dental/ceph",
         icon: React.createElement(Crosshair, { size: 18 }),
         labelKey: "nav.dentalCeph",
         roles: ["医生", "技师", "主任", "管理员",],
       },
-      // [v3.0.6.8-92] Phase 2: 闅愬舰鐭不
+      // [v3.0.6.8-92] Phase 2: 隐形矫治
       {
         path: "/dental/aligner",
         icon: React.createElement(Layers, { size: 18 }),
         labelKey: "nav.dentalAligner",
         roles: ["医生", "技师", "主任", "管理员",],
       },
-      // [v3.0.6.8-93] Phase 3: CBCT 浣撴覆鏌?
+      // [v3.0.6.8-93] Phase 3: CBCT 体渲染
       {
         path: "/dental/volume-viewer",
         icon: React.createElement(Box, { size: 18 }),
         labelKey: "nav.dentalVolume",
         roles: ["医生", "技师", "主任", "管理员",],
       },
-      // [v3.0.6.8-94] Phase 4: 360掳 鎮ｈ€呰鍥?
+      // [v3.0.6.8-94] Phase 4: 360° 患者视图
       {
         path: "/dental/patient-view",
         icon: React.createElement(Users, { size: 18 }),
         labelKey: "nav.dentalEmr",
         roles: ["医生", "技师", "主任", "管理员",],
       },
-      // [v3.0.6.8-95] Phase 4: 鏀惰垂/鍒掍环
+      // [v3.0.6.8-95] Phase 4: 收费/划价
       {
         path: "/dental/billing",
         icon: React.createElement(DollarSign, { size: 18 }),
         labelKey: "nav.dentalBilling",
         roles: ["医生", "技师", "主任", "管理员",],
       },
-      // [v3.0.6.8-96] Phase 4: 鎺掔彮+PSR
+      // [v3.0.6.8-96] Phase 4: 排班+PSR
       {
         path: "/dental/schedule",
         icon: React.createElement(Calendar, { size: 18 }),
         labelKey: "nav.dentalSchedule",
         roles: ["医生", "技师", "主任", "管理员",],
       },
-      // [v3.0.6.8-98] Phase 5: 鍙ｅ唴鐓х墖
+      // [v3.0.6.8-98] Phase 5: 口内照片
       {
         path: "/dental/photo",
         icon: React.createElement(Camera, { size: 18 }),

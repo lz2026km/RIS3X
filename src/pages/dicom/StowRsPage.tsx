@@ -82,7 +82,7 @@ const StowRsPage: React.FC = () => {
       ),
     },
     { title: "患者", dataIndex: "patientName", key: "patientName" },
-    { title: "ID", dataIndex: "patientId", key: "patientId" },
+    { title: "编号", dataIndex: "patientId", key: "patientId" },
     {
       title: "模态",
       dataIndex: "modality",

@@ -71,10 +71,10 @@ export default function CvOperationsPage() {
       </h1>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-        <button style={tabStyle('overview')} onClick={() => setSelectedTab('overview')}>Overview</button>
-        <button style={tabStyle('protocols')} onClick={() => setSelectedTab('protocols')}>Protocols</button>
-        <button style={tabStyle('workload')} onClick={() => setSelectedTab('workload')}>Workload</button>
-        <button style={tabStyle('inventory')} onClick={() => setSelectedTab('inventory')}>Inventory</button>
+        <button style={tabStyle('overview')} onClick={() => setSelectedTab('overview')}>总览</button>
+        <button style={tabStyle('protocols')} onClick={() => setSelectedTab('protocols')}>协议</button>
+        <button style={tabStyle('workload')} onClick={() => setSelectedTab('workload')}>工作量</button>
+        <button style={tabStyle('inventory')} onClick={() => setSelectedTab('inventory')}>库存</button>
       </div>
 
       {selectedTab === 'overview' && (
@@ -93,7 +93,7 @@ export default function CvOperationsPage() {
           </div>
 
           <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0', padding: 16 }}>
-            <h3 style={{ margin: '0 0 12px', fontSize: 16 }}>Activity Timeline — Today</h3>
+            <h3 style={{ margin: '0 0 12px', fontSize: 16 }}>活动时间线 — 今日</h3>
             <div style={{ fontSize: 14, color: '#64748b' }}>
               {['08:00 — CCTA: Triple Rule Out (Pt #P1023)', '08:30 — CMR: Cardiomyopathy (Pt #P1045)', '09:00 — Cath Lab: Primary PCI (Pt #P1067)', '10:00 — Echo: Stress Echo (Pt #P1082)', '11:30 — Vascular: Carotid Duplex (Pt #P1095)', '13:00 — CMR: Viability (Pt #P1101)', '14:00 — CCTA: TAVR Planning (Pt #P1118)', '15:00 — Cath Lab: Staged PCI (Pt #P1132)'].map((e, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: i < 7 ? '1px solid #f1f5f9' : 'none' }}>
@@ -111,9 +111,9 @@ export default function CvOperationsPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                <th style={{ padding: '10px 16px', textAlign: 'left' }}>Protocol</th>
+                <th style={{ padding: '10px 16px', textAlign: 'left' }}>协议</th>
                 <th style={{ padding: '10px 16px', textAlign: 'left' }}>Modality</th>
-                <th style={{ padding: '10px 16px', textAlign: 'left' }}>Indication</th>
+                <th style={{ padding: '10px 16px', textAlign: 'left' }}>适应证</th>
                 <th style={{ padding: '10px 16px', textAlign: 'center' }}>Active Cases</th>
                 <th style={{ padding: '10px 16px', textAlign: 'left' }}>Last Used</th>
               </tr>
@@ -146,8 +146,8 @@ export default function CvOperationsPage() {
                 <th style={{ padding: '8px 12px', textAlign: 'center' }}>CMR</th>
                 <th style={{ padding: '8px 12px', textAlign: 'center' }}>Echo</th>
                 <th style={{ padding: '8px 12px', textAlign: 'center' }}>Cath</th>
-                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Total</th>
-                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Status</th>
+                <th style={{ padding: '8px 12px', textAlign: 'center' }}>合计</th>
+                <th style={{ padding: '8px 12px', textAlign: 'center' }}>状态</th>
               </tr>
             </thead>
             <tbody>

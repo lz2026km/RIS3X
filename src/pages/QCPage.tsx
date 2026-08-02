@@ -790,7 +790,7 @@ export default function QCPage() {
         <h1 style={{ fontSize: 20, fontWeight: 700, color: PRIMARY, margin: '0 0 6px', display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ width: 32, height: 32, background: PRIMARY, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <ShieldCheck size={18} color='#fff' />
-          </div>{t('qc.title')}<span style={{ fontSize: 12, fontWeight: 400, color: GRAY, marginLeft: 8 }}>Quality Control Center</span>
+          </div>{t('qc.title')}<span style={{ fontSize: 12, fontWeight: 400, color: GRAY, marginLeft: 8 }}>质控中心</span>
         </h1>
         <p style={{ fontSize: 13, color: GRAY, margin: 0 }}>{t('qc.subtitle')}</p>
       </div>

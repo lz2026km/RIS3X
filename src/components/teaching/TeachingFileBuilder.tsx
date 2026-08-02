@@ -123,7 +123,7 @@ export const TeachingFileBuilder: React.FC<TeachingFileBuilderProps> = ({
       <div style={{ marginTop: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
           <span style={{ color: '#94a3b8' }}>Annotations ({annotations.length})</span>
-          <button onClick={addAnnotation} style={{ background: '#1e40af', border: 'none', borderRadius: 4, padding: '2px 8px', color: '#fff', fontSize: 12, cursor: 'pointer' }}>+ Add</button>
+          <button onClick={addAnnotation} style={{ background: '#1e40af', border: 'none', borderRadius: 4, padding: '2px 8px', color: '#fff', fontSize: 12, cursor: 'pointer' }}>+ 添加</button>
         </div>
         {annotations.map(a => (
           <div key={a.id} style={{ display: 'flex', gap: 4, alignItems: 'center', marginBottom: 4, background: '#0a0a0a', padding: '4px 8px', borderRadius: 4 }}>
@@ -137,7 +137,7 @@ export const TeachingFileBuilder: React.FC<TeachingFileBuilderProps> = ({
         <label style={{ display: 'block', marginBottom: 4, color: '#94a3b8' }}>References</label>
         <div style={{ display: 'flex', gap: 4 }}>
           <input value={refInput} onChange={e => setRefInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && addReference()} placeholder="Add reference..." style={{ flex: 1, background: '#0a0a0a', border: '1px solid #333', borderRadius: 4, padding: '4px 8px', color: '#cbd5e1' }} />
-          <button onClick={addReference} style={{ background: '#1e40af', border: 'none', borderRadius: 4, padding: '4px 12px', color: '#fff', fontSize: 12, cursor: 'pointer' }}>Add</button>
+          <button onClick={addReference} style={{ background: '#1e40af', border: 'none', borderRadius: 4, padding: '4px 12px', color: '#fff', fontSize: 12, cursor: 'pointer' }}>添加</button>
         </div>
         {references.map((r, i) => (
           <div key={i} style={{ marginTop: 4, fontSize: 12, color: '#64748b' }}>{i + 1}. {r}</div>
@@ -153,8 +153,8 @@ export const TeachingFileBuilder: React.FC<TeachingFileBuilderProps> = ({
         <button onClick={handleSave} disabled={saving} style={{ background: '#059669', border: 'none', borderRadius: 4, padding: '6px 16px', color: '#fff', fontSize: 12, cursor: 'pointer' }}>
           {saving ? 'Saving...' : 'Save Case'}
         </button>
-        <button onClick={() => onExport?.('pdf')} style={{ background: '#1e40af', border: 'none', borderRadius: 4, padding: '6px 12px', color: '#fff', fontSize: 12, cursor: 'pointer' }}>Export PDF</button>
-        <button onClick={() => onExport?.('pptx')} style={{ background: '#7c3aed', border: 'none', borderRadius: 4, padding: '6px 12px', color: '#fff', fontSize: 12, cursor: 'pointer' }}>Export PPT</button>
+        <button onClick={() => onExport?.('pdf')} style={{ background: '#1e40af', border: 'none', borderRadius: 4, padding: '6px 12px', color: '#fff', fontSize: 12, cursor: 'pointer' }}>导出 PDF</button>
+        <button onClick={() => onExport?.('pptx')} style={{ background: '#7c3aed', border: 'none', borderRadius: 4, padding: '6px 12px', color: '#fff', fontSize: 12, cursor: 'pointer' }}>导出 PPT</button>
       </div>
     </div>
   )

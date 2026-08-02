@@ -29,16 +29,16 @@ export const PatientSafetyDashboardPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Shield size={20} color="#1677ff" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>Patient Safety & Quality Dashboard</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>患者安全与质量仪表板</span>
         <Tag color="cyan">v3.0.6.8-80</Tag>
         <Tag color="red" icon={<AlertTriangle size={10}/>}>Real-time</Tag>
         <Segmented value={range} onChange={setRange as any} options={[{value:'today',label:'Today'},{value:'week',label:'Week'},{value:'month',label:'Month'}]} />
       </Space>
       <Row gutter={16} style={{marginBottom:16}}>
-        <Col span={4}><Card size="small"><Statistic title="Safety Score" value={94} suffix="/100" prefix={<Shield size={14}/>} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Open Incidents" value={incidents.filter(i=>i.status==='open'||i.status==='investigating').length} styles={{ content: { color:'#faad14' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Closed Today" value={incidents.filter(i=>i.status==='closed').length} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Critical Alerts" value={alerts.filter(a=>a.level==='critical').length} styles={{ content: { color:'#ff4d4f' } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="安全评分" value={94} suffix="/100" prefix={<Shield size={14}/>} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="未关闭事件" value={incidents.filter(i=>i.status==='open'||i.status==='investigating').length} styles={{ content: { color:'#faad14' } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="今日关闭" value={incidents.filter(i=>i.status==='closed').length} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="严重告警" value={alerts.filter(a=>a.level==='critical').length} styles={{ content: { color:'#ff4d4f' } }} /></Card></Col>
       </Row>
       <Row gutter={16} style={{marginBottom:16}}>
         <Col span={16}>
@@ -75,12 +75,12 @@ export const PatientSafetyDashboardPage: React.FC = () => {
       <Card size="small" title={<Space><Heart size={14}/>Recent Safety Incidents</Space>}>
         <Table dataSource={incidents} rowKey="id" pagination={false}
           columns={[
-            {title:'Time',dataIndex:'time',width:80},
-            {title:'Type',dataIndex:'type'},
-            {title:'Patient',dataIndex:'patient'},
-            {title:'Severity',dataIndex:'severity',render:(s:string)=><Tag color={s==='critical'?'red':s==='moderate'?'orange':'blue'}>{s}</Tag>},
-            {title:'Ward',dataIndex:'ward'},
-            {title:'Status',dataIndex:'status',render:(s:string)=><Badge status={s==='open'?'error':s==='investigating'?'warning':'success'} text={s} />},
+            {title:'时间',dataIndex:'time',width:80},
+            {title:'类型',dataIndex:'type'},
+            {title:'患者',dataIndex:'patient'},
+            {title:'严重程度',dataIndex:'severity',render:(s:string)=><Tag color={s==='critical'?'red':s==='moderate'?'orange':'blue'}>{s}</Tag>},
+            {title:'病区',dataIndex:'ward'},
+            {title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='open'?'error':s==='investigating'?'warning':'success'} text={s} />},
           ]} />
       </Card>
     </div>

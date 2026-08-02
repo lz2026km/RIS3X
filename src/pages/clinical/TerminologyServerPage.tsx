@@ -30,29 +30,29 @@ export const TerminologyServerPage: React.FC = () => {
         <Tag color="purple">RIDICOM</Tag>
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title="Total Concepts" value="24,582" prefix={<Code size={14}/>} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Mappings" value={mappings.length} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Systems" value="4" /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="概念总数" value="24,582" prefix={<Code size={14}/>} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="映射数" value={mappings.length} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="系统数" value="4" /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="Active Mappings" value={mappings.filter(m=>m.status==='active').length} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
       </Row>
-      <Card size="small" title={<Space><Search size={14}/>Concept Search</Space>}>
-        <Input.Search value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search by code, term, or concept ID..." style={{maxWidth:500,marginBottom:16}} />
+      <Card size="small" title={<Space><Search size={14}/>概念检索</Space>}>
+        <Input.Search value={query} onChange={e=>setQuery(e.target.value)} placeholder="按代码、术语或概念 ID 搜索..." style={{maxWidth:500,marginBottom:16}} />
         <Table dataSource={results} rowKey="code" pagination={false}
           columns={[
-            {title:'Code',dataIndex:'code'},{title:'System',dataIndex:'system',render:(s:string)=><Tag color={s==='SNOMED-CT'?'blue':s==='ICD-11'?'volcano':s==='LOINC'?'green':'purple'}>{s}</Tag>},
-            {title:'Display',dataIndex:'display',width:240},
-            {title:'Concept ID',dataIndex:'conceptId'},
-            {title:'Semantic Tag',dataIndex:'semanticTag',render:(t:string)=><Tag>{t}</Tag>},
-            {title:'Status',dataIndex:'active',render:(a:boolean)=><Badge status={a?'success':'default'} text={a?'Active':'Inactive'} />},
+            {title:'代码',dataIndex:'code'},{title:'System',dataIndex:'system',render:(s:string)=><Tag color={s==='SNOMED-CT'?'blue':s==='ICD-11'?'volcano':s==='LOINC'?'green':'purple'}>{s}</Tag>},
+            {title:'显示名',dataIndex:'display',width:240},
+            {title:'概念 ID',dataIndex:'conceptId'},
+            {title:'语义标签',dataIndex:'semanticTag',render:(t:string)=><Tag>{t}</Tag>},
+            {title:'状态',dataIndex:'active',render:(a:boolean)=><Badge status={a?'success':'default'} text={a?'Active':'Inactive'} />},
           ]} />
       </Card>
       <Card size="small" title={<Space><Layers size={14}/>Cross-System Mappings</Space>} style={{marginTop:16}}>
         <Table dataSource={mappings} rowKey={(r:any)=>r.source+r.target} pagination={false}
           columns={[
-            {title:'Source',dataIndex:'source',render:(s:string)=><Tag color="blue">{s}</Tag>},
-            {title:'Target',dataIndex:'target',render:(t:string)=><Tag color="volcano">{t}</Tag>},
-            {title:'Map Type',dataIndex:'mapType',render:(m:string)=><Tag color={m==='equivalent'?'green':'orange'}>{m}</Tag>},
-            {title:'Status',dataIndex:'status',render:(s:string)=><Badge status={s==='active'?'success':'default'} text={s} />},
+            {title:'来源',dataIndex:'source',render:(s:string)=><Tag color="blue">{s}</Tag>},
+            {title:'目标',dataIndex:'target',render:(t:string)=><Tag color="volcano">{t}</Tag>},
+            {title:'映射类型',dataIndex:'mapType',render:(m:string)=><Tag color={m==='equivalent'?'green':'orange'}>{m}</Tag>},
+            {title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='active'?'success':'default'} text={s} />},
           ]} />
       </Card>
     </div>

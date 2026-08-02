@@ -18,9 +18,9 @@ interface SignSession {
 }
 
 const initSessions: SignSession[] = [
-  { id: 'ts-001', reportId: 'RPT001', reportTitle: 'Chest CT Report', patientName: 'Zhang San', signerName: 'Dr. Wang', status: 'pending', createdAt: '2026-07-11T10:00:00Z' },
-  { id: 'ts-002', reportId: 'RPT002', reportTitle: 'Brain MRI Report', patientName: 'Li Si', signerName: 'Dr. Li', status: 'approved', signatureData: 'data:image/png;base64,sig', createdAt: '2026-07-10T14:00:00Z' },
-  { id: 'ts-003', reportId: 'RPT003', reportTitle: 'Chest X-Ray Report', patientName: 'Wang Wu', signerName: 'Dr. Zhang', status: 'rejected', comment: '需要补充影像学描述', createdAt: '2026-07-09T09:00:00Z' },
+  { id: 'ts-001', reportId: 'RPT001', reportTitle: '胸部 CT 报告', patientName: '张三', signerName: '王医生', status: 'pending', createdAt: '2026-07-11T10:00:00Z' },
+  { id: 'ts-002', reportId: 'RPT002', reportTitle: '脑部 MRI 报告', patientName: '李四', signerName: '李医生', status: 'approved', signatureData: 'data:image/png;base64,sig', createdAt: '2026-07-10T14:00:00Z' },
+  { id: 'ts-003', reportId: 'RPT003', reportTitle: '胸部 X 光报告', patientName: '王五', signerName: '张医生', status: 'rejected', comment: '需要补充影像学描述', createdAt: '2026-07-09T09:00:00Z' },
 ]
 
 const TeleSignPage: React.FC = () => {

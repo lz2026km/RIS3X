@@ -14,6 +14,13 @@ import { signApi, amendApi } from '@/services/api/signAmendApi';
 
 const { TextArea } = Input;
 
+const AMEND_STATUS_LABEL: Record<string, string> = {
+  draft: '草稿',
+  in_progress: '进行中',
+  completed: '完成',
+  rejected: '已驳回',
+};
+
 export const SignAmendPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('cert');
   // CA 证书
@@ -247,10 +254,10 @@ export const SignAmendPage: React.FC = () => {
               rowKey="id"
               pagination={{ pageSize: 10 }}
               columns={[
-                { title: 'ID', dataIndex: 'id' },
+                { title: '编号', dataIndex: 'id' },
                 { title: '报告', dataIndex: 'reportId' },
                 { title: '版本', dataIndex: 'version' },
-                { title: '状态', dataIndex: 'status', render: (s) => <Tag color={s === 'completed' ? 'green' : s === 'in_progress' ? 'blue' : s === 'rejected' ? 'red' : 'orange'}>{s}</Tag> },
+                { title: '状态', dataIndex: 'status', render: (s) => <Tag color={s === 'completed' ? 'green' : s === 'in_progress' ? 'blue' : s === 'rejected' ? 'red' : 'orange'}>{AMEND_STATUS_LABEL[s] ?? s}</Tag> },
                 { title: '原因', dataIndex: 'reason', ellipsis: true },
                 { title: '作者', dataIndex: 'authorName' },
                 { title: '时间', render: (_, a) => a.startTime?.slice(0,16) },
@@ -273,7 +280,7 @@ export const SignAmendPage: React.FC = () => {
               <Timeline
                 items={(amendHistory.history || []).map((a: any) => ({
                   color: a.status === 'completed' ? 'green' : a.status === 'rejected' ? 'red' : 'blue',
-                  children: <div><Tag color="blue">v{a.version}</Tag> {a.authorName} - {a.status} - {a.reason} <span style={{ color: '#999' }}>· {a.startTime?.slice(0, 16)}</span></div>,
+                  children: <div><Tag color="blue">v{a.version}</Tag> {a.authorName} - {AMEND_STATUS_LABEL[a.status] ?? a.status} - {a.reason} <span style={{ color: '#999' }}>· {a.startTime?.slice(0, 16)}</span></div>,
                 }))}
               />
             </Card>

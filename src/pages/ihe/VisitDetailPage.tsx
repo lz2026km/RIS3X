@@ -6,11 +6,11 @@ import { iheApi } from '../../services/api/integrationApi';
 import type { VisitState } from '../../services/api/integrationApi';
 
 const STATE_STEPS = [
-  { key: 'registered', title: 'Registered', color: 'default' },
-  { key: 'admitted', title: 'Admitted', color: 'blue' },
-  { key: 'inProgress', title: 'In Progress', color: 'processing' },
-  { key: 'completed', title: 'Completed', color: 'green' },
-  { key: 'discharged', title: 'Discharged', color: 'red' },
+  { key: 'registered', title: '已登记', color: 'default' },
+  { key: 'admitted', title: '已入院', color: 'blue' },
+  { key: 'inProgress', title: '进行中', color: 'processing' },
+  { key: 'completed', title: '已完成', color: 'green' },
+  { key: 'discharged', title: '已出院', color: 'red' },
 ];
 
 const STATE_MAP: Record<string, number> = {
@@ -95,10 +95,10 @@ export const VisitDetailPage: React.FC = () => {
           <Card size="small" title={<span><GitBranch size={14} style={{ marginRight: 4 }} />触发的 ADT 消息</span>}>
             <Table dataSource={visit.adtMessages} rowKey="id" pagination={false}
               columns={[
-                { title: 'ID', dataIndex: 'id', width: 60 },
-                { title: 'Message Type', dataIndex: 'messageType', render: (t: string) => <Tag color="blue">ADT^{t}</Tag> },
-                { title: 'Timestamp', dataIndex: 'timestamp' },
-                { title: 'Content', dataIndex: 'content', render: (c: string) => (
+                { title: '编号', dataIndex: 'id', width: 60 },
+                { title: '消息类型', dataIndex: 'messageType', render: (t: string) => <Tag color="blue">ADT^{t}</Tag> },
+                { title: '时间戳', dataIndex: 'timestamp' },
+                { title: '内容', dataIndex: 'content', render: (c: string) => (
                   <span style={{ fontFamily: 'monospace', fontSize: 11, background: '#f5f5f5', padding: '2px 6px', borderRadius: 3 }}>
                     {c.slice(0, 50)}{c.length > 50 ? '...' : ''}
                   </span>

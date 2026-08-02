@@ -14,19 +14,19 @@ const GradingScalePicker: React.FC<{
 }> = ({ scaleId, value, onChange }) => {
   const { scales } = useGradingScales();
   const scale = scales.find((s: any) => s.id === scaleId);
-  if (!scale) return <Tag color="default">璇峰厛閫夋嫨妯℃澘</Tag>;
+  if (!scale) return <Tag color="default">请先选择模板</Tag>;
   return (
     <Space>
       <span style={{ fontSize: 12 }}>{scale.name}</span>
       <Select
         value={value || undefined}
         onChange={(v) => onChange && onChange(v)}
-        placeholder="閫夋嫨鍒嗙骇"
+        placeholder="选择分级"
         style={{ width: 200 }}
         optionLabelProp="label"
         options={scale.options.map((o: any) => ({
           value: o.grade,
-          label: `${o.label} 鈥?${o.description.substring(0, 30)}`,
+          label: `${o.label} …${o.description.substring(0, 30)}`,
         }))}
       />
     </Space>

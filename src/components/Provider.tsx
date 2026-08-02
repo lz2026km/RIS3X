@@ -1,15 +1,15 @@
 /**
- * G005 鏀惧皠RIS绯荤粺 v3.0.0 - Provider 缁勫悎
- * v3.0.6.8-23c: 涓婚 + 鍝嶅簲寮?+ a11y 绯荤粺閲嶆瀯
+ * G005 放射RIS系统 v3.0.0 - Provider 组合
+ * v3.0.6.8-23c: 主题 + 响应式 + a11y 系统重构
  *
- * 缁勫悎:
- *   - ErrorBoundary(鍏ㄥ眬閿欒鍏滃簳)
- *   - antd ConfigProvider(涓婚 + 涓枃 locale)
- *   - antd App(鍏ㄥ眬 message/notification)
+ * 组合:
+ *   - ErrorBoundary(全局错误兜底)
+ *   - antd ConfigProvider(主题 + 中文 locale)
+ *   - antd App(全局 message/notification)
  *   - SkipLink + useScreenReaderAnnouncer(a11y)
- *   - Sentry 閿欒鐩戞帶
- *   - Web Vitals 鎬ц兘鐩戞帶
- *   - CSP + Security Meta 娉ㄥ叆
+ *   - Sentry 错误监控
+ *   - Web Vitals 性能监控
+ *   - CSP + Security Meta 注入
  */
 
 import { useEffect, useState, type ReactNode } from "react";
@@ -146,7 +146,7 @@ function ErrorFallback({
       }}
     >
       <h1 style={{ color: "#dc2626", fontSize: 24, marginBottom: 16 }}>
-        鈿狅笍 鍑虹幇閿欒
+        ⚠️ 出现错误
       </h1>
       <pre
         style={{
@@ -174,7 +174,7 @@ function ErrorFallback({
           fontSize: 14,
         }}
       >
-        閲嶈瘯
+        重试
       </button>
     </div>
   );
@@ -212,11 +212,11 @@ export function Provider({ children }: ProviderProps): JSX.Element {
 
   useEffect(() => {
     const label = isHighContrast
-      ? "楂樺姣斿害妯″紡"
+      ? "高对比度模式"
       : isDark
-        ? "娣辫壊妯″紡"
-        : "娴呰壊妯″紡";
-    announce(`宸插垏鎹㈠埌${label}`, "polite");
+        ? "深色模式"
+        : "浅色模式";
+    announce(`已切换到${label}`, "polite");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [themeMode]);
 

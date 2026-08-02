@@ -169,7 +169,7 @@ function CanvasStep({
         </div>
       </div>
       <Space>
-        <Tooltip title="Edit">
+        <Tooltip title="编辑">
           <Button
             type="text"
             size="small"
@@ -309,7 +309,7 @@ export default function OrchestratorPage() {
       }
       loadFlows();
     } catch {
-      message.error("Save failed");
+      message.error("保存失败");
     }
     setSaving(false);
   };
@@ -321,17 +321,17 @@ export default function OrchestratorPage() {
       loadExecutions(1);
       loadSlaStats();
     } catch {
-      message.error("Trigger failed");
+      message.error("触发失败");
     }
   };
 
   const handleNextStep = async (executionId: string) => {
     try {
       await orchestratorApi.triggerNextStep(executionId);
-      message.success("Next step triggered");
+      message.success("已触发下一步");
       loadExecutions(execPage);
     } catch {
-      message.error("Trigger next step failed");
+      message.error("触发下一步失败");
     }
   };
 
@@ -342,7 +342,7 @@ export default function OrchestratorPage() {
       setSlaModalVisible(false);
       loadSlaConfigs();
     } catch {
-      message.error("SLA save failed");
+      message.error("SLA 保存失败");
     }
   };
 
@@ -403,7 +403,7 @@ export default function OrchestratorPage() {
       render: (d: string) => new Date(d).toLocaleString(),
     },
     {
-      title: "Steps",
+      title: "步骤",
       key: "steps",
       render: (_, r) => (
         <Space size={4} wrap>
@@ -421,7 +421,7 @@ export default function OrchestratorPage() {
       ),
     },
     {
-      title: "Action",
+      title: "操作",
       key: "action",
       width: 100,
       render: (_, r) => {
@@ -923,7 +923,7 @@ export default function OrchestratorPage() {
                 onClick={() => handleTriggerFlow(flow.id)}
               />
             </Tooltip>,
-            <Tooltip title="View">
+            <Tooltip title="查看">
               <Button
                 type="text"
                 icon={<List size={14} />}

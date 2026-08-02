@@ -19,21 +19,21 @@ export const DicomSrManagerPage: React.FC = () => {
   const confirmedAI = aiFindings.filter(f => f.status === 'confirmed').length;
 
   const srCols = [
-    {title:'ID',dataIndex:'id'},{title:'Study',dataIndex:'studyId'},
-    {title:'Type',dataIndex:'type',render:(t:string)=><Tag color={t==='AI Finding'?'blue':'green'}>{t}</Tag>},
+    {title:'编号',dataIndex:'id'},{title:'Study',dataIndex:'studyId'},
+    {title:'类型',dataIndex:'type',render:(t:string)=><Tag color={t==='AI Finding'?'blue':'green'}>{t}</Tag>},
     {title:'Modality',dataIndex:'modality',render:(m:string)=><Tag>{m}</Tag>},
-    {title:'Findings',dataIndex:'findings'},
-    {title:'Status',dataIndex:'status',render:(s:string)=><Badge status={s==='final'?'success':'processing'} text={s} />},
-    {title:'Author',dataIndex:'author'},{title:'Date',dataIndex:'created'},
-    {title:'Action',render:(_: any, r: any)=><Space><Button size="small" disabled><Eye size={10}/>View</Button><Button size="small" disabled><Share2 size={10}/>Export</Button></Space>},
+    {title:'所见',dataIndex:'findings'},
+    {title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='final'?'success':'processing'} text={s} />},
+    {title:'作者',dataIndex:'author'},{title:'日期',dataIndex:'created'},
+    {title:'操作',render:(_: any, r: any)=><Space><Button size="small" disabled><Eye size={10}/>查看</Button><Button size="small" disabled><Share2 size={10}/>导出</Button></Space>},
   ];
   const aiCols = [
-    {title:'ID',dataIndex:'id'},{title:'Study',dataIndex:'studyId'},
-    {title:'Finding',dataIndex:'finding',width:280},
-    {title:'Confidence',dataIndex:'confidence',render:(c:number)=><><Progress percent={Math.round(c*100)} size="small"/><span style={{fontSize:11,marginLeft:4}}>{(c*100).toFixed(0)}%</span></>},
-    {title:'Status',dataIndex:'status',render:(s:string)=><Badge status={s==='confirmed'?'success':s==='pending'?'processing':'default'} text={s} />},
+    {title:'编号',dataIndex:'id'},{title:'Study',dataIndex:'studyId'},
+    {title:'所见',dataIndex:'finding',width:280},
+    {title:'置信度',dataIndex:'confidence',render:(c:number)=><><Progress percent={Math.round(c*100)} size="small"/><span style={{fontSize:11,marginLeft:4}}>{(c*100).toFixed(0)}%</span></>},
+    {title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='confirmed'?'success':s==='pending'?'processing':'default'} text={s} />},
     {title:'Modality',dataIndex:'modality'},
-    {title:'Action',render:(_: any, r: any)=><Space><Button size="small" onClick={() => { setAiFindings(prev => prev.map((f: any) => f.id === r.id ? {...f, status:'confirmed'} : f)); message.success('已确认: ' + r.finding); }}>Confirm</Button><Button size="small" onClick={() => { setAiFindings(prev => prev.map((f: any) => f.id === r.id ? {...f, status:'dismissed'} : f)); message.success('已忽略: ' + r.finding); }}>Dismiss</Button></Space>},
+    {title:'操作',render:(_: any, r: any)=><Space><Button size="small" onClick={() => { setAiFindings(prev => prev.map((f: any) => f.id === r.id ? {...f, status:'confirmed'} : f)); message.success('已确认: ' + r.finding); }}>确认</Button><Button size="small" onClick={() => { setAiFindings(prev => prev.map((f: any) => f.id === r.id ? {...f, status:'dismissed'} : f)); message.success('已忽略: ' + r.finding); }}>忽略</Button></Space>},
   ];
 
   return (
@@ -45,10 +45,10 @@ export const DicomSrManagerPage: React.FC = () => {
         <Tag color="purple">TID 1500</Tag>
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title="SR Docs" value={srList.length} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="AI Findings" value={aiFindings.length} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Confirmed" value={confirmedAI} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Pending" value={pendingAI} styles={{ content: { color:'#faad14' } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="SR 文档" value={srList.length} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="AI 发现" value={aiFindings.length} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="已确认" value={confirmedAI} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="待处理" value={pendingAI} styles={{ content: { color:'#faad14' } }} /></Card></Col>
       </Row>
       <Card size="small">
         <Tabs items={[

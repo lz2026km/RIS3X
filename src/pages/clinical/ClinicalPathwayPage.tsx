@@ -34,35 +34,35 @@ export const ClinicalPathwayPage: React.FC = () => {
         <Tag color="green" icon={<Activity size={10}/>}>CP-based care</Tag>
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title="Active Pathways" value={pathways.filter(p=>p.status==='active').length} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Patients in CP" value={patients.length} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="On Track" value={patients.filter(p=>p.status==='on-track').length} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Delayed" value={patients.filter(p=>p.status==='delayed').length} styles={{ content: { color:'#ff4d4f' } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="活动路径" value={pathways.filter(p=>p.status==='active').length} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="路径内患者" value={patients.length} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="按计划" value={patients.filter(p=>p.status==='on-track').length} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="已延迟" value={patients.filter(p=>p.status==='delayed').length} styles={{ content: { color:'#ff4d4f' } }} /></Card></Col>
       </Row>
       <Card size="small" title="Defined Pathways" style={{ marginBottom: 16 }}>
         <Table dataSource={pathways} rowKey="id" pagination={false}
           columns={[
-            {title:'Name',dataIndex:'name'},{title:'Dept',dataIndex:'dept'},
-            {title:'Current Phase',dataIndex:'phase'},
-            {title:'Progress',dataIndex:'progress',render:(p:number)=><Progress percent={p} size="small" />},
-            {title:'Patients',dataIndex:'patients'},
-            {title:'Status',dataIndex:'status',render:(s:string)=><Badge status={s==='active'?'processing':'default'} text={s} />},
-            {title:'Action',render:()=><Space><Button size="small" icon={<Play size={10}/>} onClick={() => message.success('路径已激活')}>Activate</Button><Button size="small" icon={<PauseCircle size={10}/>} onClick={() => message.success('路径已暂停')}>Pause</Button></Space>},
+            {title:'姓名',dataIndex:'name'},{title:'科室',dataIndex:'dept'},
+            {title:'当前阶段',dataIndex:'phase'},
+            {title:'进度',dataIndex:'progress',render:(p:number)=><Progress percent={p} size="small" />},
+            {title:'患者数',dataIndex:'patients'},
+            {title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='active'?'processing':'default'} text={s} />},
+            {title:'操作',render:()=><Space><Button size="small" icon={<Play size={10}/>} onClick={() => message.success('路径已激活')}>启用</Button><Button size="small" icon={<PauseCircle size={10}/>} onClick={() => message.success('路径已暂停')}>暂停</Button></Space>},
           ]} />
       </Card>
       <Card extra={<Button type="primary" onClick={() => message.success('患者登记已提交')}>+ Enroll Patient</Button>} size="small" title="Patient Pathway Tracking">
         <Table dataSource={patients} rowKey="id" pagination={false}
           columns={[
-            {title:'Patient',dataIndex:'patient'},{title:'Pathway',dataIndex:'pathway'},
-            {title:'Step',render:(_,r:PatientPathway)=><Tag>{r.step}/{r.totalSteps}</Tag>},
-            {title:'Status',dataIndex:'status',render:(s:string)=><Badge status={s==='on-track'?'success':s==='delayed'?'error':'default'} text={s} />},
-            {title:'Entered',dataIndex:'enteredAt'},
-            {title:'Variance',dataIndex:'variance',render:(v:string|null)=><span style={{color:v?'#ff4d4f':'#52c41a',fontSize:12}}>{v || 'None'}</span>},
-            {title:'Action',render:(_,r:PatientPathway)=><Button size="small" onClick={()=>setDetail(r)}>View Steps</Button>},
+            {title:'患者',dataIndex:'patient'},{title:'Pathway',dataIndex:'pathway'},
+            {title:'步骤',render:(_,r:PatientPathway)=><Tag>{r.step}/{r.totalSteps}</Tag>},
+            {title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='on-track'?'success':s==='delayed'?'error':'default'} text={s} />},
+            {title:'录入时间',dataIndex:'enteredAt'},
+            {title:'偏差',dataIndex:'variance',render:(v:string|null)=><span style={{color:v?'#ff4d4f':'#52c41a',fontSize:12}}>{v || '无'}</span>},
+            {title:'操作',render:(_,r:PatientPathway)=><Button size="small" onClick={()=>setDetail(r)}>查看步骤</Button>},
           ]} />
       </Card>
       <Modal title={`Pathway Detail - ${detail?.patient}`} open={!!detail} onCancel={()=>setDetail(null)} footer={null} width={480}>
-        {detail && <Timeline items={Array.from({length:detail.totalSteps},(_,i)=>({children:<><b>Step {i+1}</b><Tag color={i+1<=detail.step?'green':'default'}>{i+1<=detail.step?'Done':'Pending'}</Tag></>,dot:i+1<=detail.step?<CheckCircle2 size={14} color="#52c41a"/>:<Clock size={14}/>}))} />}
+        {detail && <Timeline items={Array.from({length:detail.totalSteps},(_,i)=>({children:<><b>步骤 {i+1}</b><Tag color={i+1<=detail.step?'green':'default'}>{i+1<=detail.step?'Done':'Pending'}</Tag></>,dot:i+1<=detail.step?<CheckCircle2 size={14} color="#52c41a"/>:<Clock size={14}/>}))} />}
       </Modal>
     </div>
   );

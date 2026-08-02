@@ -115,7 +115,7 @@ export default function AuditLogPage() {
       ),
     },
     {
-      title: "IP", dataIndex: "source", key: "source", width: 130,
+      title: "IP 地址", dataIndex: "source", key: "source", width: 130,
       render: (s: AuditLogEntry["source"]) => <Text type="secondary" style={{ fontSize: 12 }}>{s.ipAddress}</Text>,
     },
   ];

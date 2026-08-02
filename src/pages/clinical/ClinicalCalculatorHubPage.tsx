@@ -152,7 +152,7 @@ export const ClinicalCalculatorHubPage: React.FC = () => {
                     <Col span={12} key={inp}>
                       <Form.Item label={inp}>
                         {['sex','htn','dm','chf','stroke','vascular','renal','liver','bleed','inr','drugs','alcohol','clinicalSigns','peLikely','hr','immobilization','prevDVT','hemoptysis','malignancy','ascites','encephalopathy','riskFactors','priorAngina','stChanges','anteriorST','bbb'].includes(inp)?
-                          <Select value={inputs[inp]} onChange={v=>setInputs({...inputs,[inp]:v})} options={[{value:'yes',label:'Yes'},{value:'no',label:'No'}].concat(inp==='sex'?[{value:'female',label:'Female'},{value:'male',label:'Male'}]:[]).concat(inp==='ascites'?[{value:'mild',label:'Mild'},{value:'moderate',label:'Moderate'}]:[]).concat(inp==='encephalopathy'?[{value:'grade1',label:'Grade I-II'},{value:'grade2',label:'Grade III-IV'}]:[]).concat(inp==='inr'?[{value:'unstable',label:'Unstable'}]:[])} />:
+                          <Select value={inputs[inp]} onChange={v=>setInputs({...inputs,[inp]:v})} options={[{value:'yes',label:'是'},{value:'no',label:'否'}].concat(inp==='sex'?[{value:'female',label:'女'},{value:'male',label:'男'}]:[]).concat(inp==='ascites'?[{value:'mild',label:'轻度'},{value:'moderate',label:'中度'}]:[]).concat(inp==='encephalopathy'?[{value:'grade1',label:'一级-二级'},{value:'grade2',label:'三级-四级'}]:[]).concat(inp==='inr'?[{value:'unstable',label:'不稳定'}]:[])} />:
                           <Input type="number" value={inputs[inp]||''} onChange={e=>setInputs({...inputs,[inp]:e.target.value})} />
                         }
                       </Form.Item>
@@ -161,7 +161,7 @@ export const ClinicalCalculatorHubPage: React.FC = () => {
                 </Row>
                 <Space>
                   <Button type="primary" onClick={handleCalc}>Calculate</Button>
-                  <Button onClick={()=>{setInputs({});setResult(null);}}>Reset</Button>
+                  <Button onClick={()=>{setInputs({});setResult(null);}}>重置</Button>
                 </Space>
               </Form>
               {result && (
@@ -175,7 +175,7 @@ export const ClinicalCalculatorHubPage: React.FC = () => {
           )}
         </Col>
         <Col span={10}>
-          <Card size="small" title="Recent Calculations" extra={<Button icon={<Download size={12}/>} onClick={() => message.success('计算记录已导出')}>Export</Button>}>
+          <Card size="small" title="Recent Calculations" extra={<Button icon={<Download size={12}/>} onClick={() => message.success('计算记录已导出')}>导出</Button>}>
             <Table dataSource={history} pagination={false} columns={[
               {title:'Time',dataIndex:'time'},{title:'Calc',dataIndex:'calc',render:(c:string)=><Tag color="blue">{c}</Tag>},
               {title:'Patient',dataIndex:'patient'},{title:'Result',dataIndex:'result'},

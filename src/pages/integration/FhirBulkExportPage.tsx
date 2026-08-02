@@ -10,6 +10,12 @@ const RESOURCE_TYPES = [
   { value: 'ImagingStudy', label: 'ImagingStudy' },
 ];
 
+const JOB_STATUS_LABEL: Record<string, string> = {
+  completed: '已完成',
+  failed: '失败',
+  pending: '进行中',
+};
+
 export const FhirBulkExportPage: React.FC = () => {
   const [since, setSince] = useState<string>('');
   const [types, setTypes] = useState<string[]>([]);
@@ -111,7 +117,7 @@ export const FhirBulkExportPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Globe size={20} color="#1677ff" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR Bulk Export</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR 批量导出</span>
         <Tag color="cyan">v3.0.6.8</Tag>
         <Tag color="purple">R4 $export</Tag>
       </Space>
@@ -138,7 +144,7 @@ export const FhirBulkExportPage: React.FC = () => {
               <Space>
                 <Activity size={14} />
                 导出任务
-                <Tag color={job.status === 'completed' ? 'green' : job.status === 'failed' ? 'red' : 'blue'}>{job.status}</Tag>
+                <Tag color={job.status === 'completed' ? 'green' : job.status === 'failed' ? 'red' : 'blue'}>{JOB_STATUS_LABEL[job.status] ?? job.status}</Tag>
                 {polling && <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> 轮询中...</>}
               </Space>
             }>

@@ -1,5 +1,42 @@
 ﻿# CHANGELOG
 
+## v3.0.6.11-52 (2026-08-02) — 全量翻译修复：侧边栏95key+页面英文中文化+状态值映射+乱码修复
+
+> **目标**: 排查并修复整个软件的翻译 Bug 与遗漏（导航栏/页面/组件），侧边栏英文清零
+> **范围**: 两套 i18n 系统对齐 + 页面级英文 UI 中文化 + 状态值映射 + GBK 乱码修复
+
+### 侧边栏翻译（P0，用户反馈核心）
+
+- **根因**: 项目存在两套 i18n 系统（自定义 `appI18n.ts` + i18next），sidebarConfig 的 329 个 labelKey 中 95 个在 appI18n 字典缺失 → 侧边栏显示原始 `nav.xxx` 英文 key
+- **修复**: 从 `locales/zh-CN/nav.json` + `en-US/nav.json` 提取翻译，批量补入 appI18n.ts（zh+en 各 95 条），含 `nav.specialtyModules` 等 section 标题
+- **结果**: 侧边栏 346/346 key 100% 覆盖，浏览器实测 `nav.` 前缀残留 = 0
+
+### 页面级英文中文化（P1）
+
+- 13 处英文 toast → 中文（OrchestratorPage×5、DimsePage×2、DimseUploadPage×2、RadiomicsPage、AiRadsPage、Dicom4dPage）
+- 42 文件表格列标题/label/placeholder 中文化：DicomDimsePage/DimsePage（各 18 列）、PixPage、Fhir* 系列、TerminologyServerPage、ConsentEducationPage、ClinicalPathwayPage、DicomSrManagerPage、CvOperationsPage、AiFusionWorkspacePage 等
+- 英文按钮/卡片标题/页头：DentalPhotoPage（Upload Photo/Photo Gallery/Before Treatment/Total 等 12 处）、HomePage "radiological department"、QCPage "Quality Control Center"、ConfigBootstrapper Loading/Retry、PatientSafetyDashboardPage、FhirBulkExport 页头等
+- 专有名词按行业惯例保留：AE Title、SOP Instance UID、Study UID、Modality、BI-RADS、CAD-RADS、COPD、RPO/RTO、OD/OS、Snellen、LogMAR、AVT/FAZ/CSME 等
+
+### 状态值映射 + 组件层（P2）
+
+- 12 处 Badge/Tag 英文状态值映射中文：FhirBulkExportPage（JOB_STATUS_LABEL）、DentalBillingPage、SignAmendPage、TreatmentPlanCenterPage、DicomDimsePage（SUCCESS→成功）、FusionManagerPage、TriageDashboardPage、VisitDetailPage/VisitPage、Hl7ArchivePage、N/A→"—"（3 处）
+- 8 个组件英文：TeachingFileBuilder、ResearchDashboard、ComplianceDashboard、AtnaAuditLog、AuditLogViewer、IHEXDSRegistry、ConfigBootstrapper 等
+- demo 数据英文姓名/标题 → 中文（RemoteReadingPage、DualReadPage、TeleSignPage、ConsentEducationPage）
+
+### GBK 乱码文件修复（P3）
+
+- 6 个文件乱码修复（UTF-8/GBK 双重编码）：`src/a11y/SkipLink.tsx`、`src/components/Provider.tsx`、`src/components/common/AppButton.tsx`、`src/components/eye/GradingScalePicker.tsx`、`src/pages/dose/mockData.ts`、`src/routes/sidebarConfig.tsx`
+- 73 行 GBK 往返恢复 + 历史损坏点重建，全部 UTF-8 无 BOM
+
+### 验证
+
+- 侧边栏 346/346 key 覆盖（脚本验证）+ 浏览器实测 `nav.` 前缀 0 残留
+- 抽样 10 页英文残留扫描：全部 OK（/dental/photo、/cardiac、/ai、/compliance、/consent、/clinical、/workflow、/fhir、/tele、首页）
+- 全库英文 UI 残留扫描：仅剩 YYYY-MM-DD（日期格式）与 Word XML 内部标记，均为合理保留
+- `npx vite build` 成功（42s）
+- Playwright 回归：login/worklist/v30607/v30611-21 → 35/35 通过
+
 ## v3.0.6.11-51 (2026-08-02) — 浏览器点击验证+AuthGate修复+antd6迁移+WCAG修复+MSW对齐
 
 > **目标**: 本地部署 + 浏览器点击验证，排除全部反馈 Bug
@@ -28,16 +65,16 @@
 
 ### F18: 版本号全量统一 + 文档
 
-- package.json → 3.0.6.11-51（含 package-lock.json）
-- backend/package.json → 3.0.6.11-51
-- index.html title + window.__appVersion → v3.0.6.11-51
-- src/main.tsx APP_VERSION → v3.0.6.11-51
-- backend/src/main.ts + app.module.ts → v3.0.6.11-51
-- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-51
-- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-51
-- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-51
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-51
-- CHANGELOG.md 新增 v3.0.6.11-51 条目
+- package.json → 3.0.6.11-52（含 package-lock.json）
+- backend/package.json → 3.0.6.11-52
+- index.html title + window.__appVersion → v3.0.6.11-52
+- src/main.tsx APP_VERSION → v3.0.6.11-52
+- backend/src/main.ts + app.module.ts → v3.0.6.11-52
+- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-52
+- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-52
+- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-52
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-52
+- CHANGELOG.md 新增 v3.0.6.11-52 条目
 
 ### 验证结果
 
@@ -48,10 +85,10 @@
 
 ---
 
-## v3.0.6.11-51 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
+## v3.0.6.11-52 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
 
 > **目标**: 后端深度修复 + 安全加固 + 类型修复 + 测试验证 + 性能检查 + 版本号全量统一
-> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-51
+> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-52
 
 ### A13: 后端安全加固
 
@@ -82,19 +119,19 @@
 
 ### A19: 版本号全量统一
 
-- backend/package.json → 3.0.6.11-51
-- backend/src/main.ts → Swagger version + log message → v3.0.6.11-51
-- backend/src/app.module.ts → v3.0.6.11-51
-- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-51
-- index.html title + window.__appVersion → v3.0.6.11-51
-- src/i18n/appI18n.ts → v3.0.6.11-51
-- src/main.tsx APP_VERSION → v3.0.6.11-51
-- src/routes/routeTable.tsx → v3.0.6.11-51
-- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-51
-- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-51
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-51
-- CONTRIBUTING.md → v3.0.6.11-51
-- CHANGELOG.md 新增 v3.0.6.11-51 条目
+- backend/package.json → 3.0.6.11-52
+- backend/src/main.ts → Swagger version + log message → v3.0.6.11-52
+- backend/src/app.module.ts → v3.0.6.11-52
+- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-52
+- index.html title + window.__appVersion → v3.0.6.11-52
+- src/i18n/appI18n.ts → v3.0.6.11-52
+- src/main.tsx APP_VERSION → v3.0.6.11-52
+- src/routes/routeTable.tsx → v3.0.6.11-52
+- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-52
+- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-52
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-52
+- CONTRIBUTING.md → v3.0.6.11-52
+- CHANGELOG.md 新增 v3.0.6.11-52 条目
 
 ### 验证结果
 

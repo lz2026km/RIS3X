@@ -42,10 +42,10 @@ export const AiFusionWorkspacePage: React.FC = () => {
         {loading && <Spin size="small" />}
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title="Fusion Studies" value={studies.length} prefix={<Layers size={14}/>} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="AI Insights" value={aiInsights.length} prefix={<Sparkles size={14}/>} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Actionable Alerts" value={aiInsights.filter(i=>i.actionable).length} styles={{ content: { color:'#ff4d4f' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Avg Fusion Score" value={studies.length > 0 ? (studies.reduce((a,s)=>a+s.fusionScore,0)/studies.length*100).toFixed(0) : '0'} suffix="%" /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="融合研究" value={studies.length} prefix={<Layers size={14}/>} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="AI 洞察" value={aiInsights.length} prefix={<Sparkles size={14}/>} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="可操作告警" value={aiInsights.filter(i=>i.actionable).length} styles={{ content: { color:'#ff4d4f' } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="平均融合评分" value={studies.length > 0 ? (studies.reduce((a,s)=>a+s.fusionScore,0)/studies.length*100).toFixed(0) : '0'} suffix="%" /></Card></Col>
       </Row>
       <Segmented value={modality} onChange={setModality as any}
         options={[
@@ -70,13 +70,13 @@ export const AiFusionWorkspacePage: React.FC = () => {
       <Card size="small" title={<Space><FileText size={14}/>Fusion Studies</Space>} extra={<Button icon={<Share2 size={12}/>} disabled>Export Fusion Report</Button>}>
         <Table dataSource={studies} rowKey="id" pagination={false}
           columns={[
-            {title:'Patient',dataIndex:'patient'},{title:'Modalities',dataIndex:'modalities'},
-            {title:'Fusion Score',dataIndex:'fusionScore',render:(s:number)=><Progress percent={Math.round(s*100)} size="small" strokeColor={s>0.9?'#52c41a':s>0.8?'#faad14':'#ff4d4f'} />},
-            {title:'Findings',dataIndex:'findings'},
-            {title:'AI Alerts',dataIndex:'aiAlerts',render:(a:number)=><Badge count={a} size="small" />},
-            {title:'Status',dataIndex:'status',render:(s:string)=><Badge status={s==='complete'?'success':'processing'} text={s} />},
-            {title:'Date',dataIndex:'date'},
-            {title:'Action',render:()=><Space><Button size="small" disabled><Eye size={10}/>View</Button><Button size="small" disabled><Download size={10}/>Download</Button></Space>},
+            {title:'患者',dataIndex:'patient'},{title:'设备',dataIndex:'modalities'},
+            {title:'融合评分',dataIndex:'fusionScore',render:(s:number)=><Progress percent={Math.round(s*100)} size="small" strokeColor={s>0.9?'#52c41a':s>0.8?'#faad14':'#ff4d4f'} />},
+            {title:'所见',dataIndex:'findings'},
+            {title:'AI 告警',dataIndex:'aiAlerts',render:(a:number)=><Badge count={a} size="small" />},
+            {title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='complete'?'success':'processing'} text={s} />},
+            {title:'日期',dataIndex:'date'},
+            {title:'操作',render:()=><Space><Button size="small" disabled><Eye size={10}/>查看</Button><Button size="small" disabled><Download size={10}/>下载</Button></Space>},
           ]} />
       </Card>
     </div>

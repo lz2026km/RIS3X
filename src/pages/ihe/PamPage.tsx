@@ -77,11 +77,11 @@ export const PamPage: React.FC = () => {
                 <Col span={8}>
                   <Card size="small" title="消息配置">
                     <Form layout="vertical" size="small">
-                      <Form.Item label="Message Type">
+                      <Form.Item label="消息类型">
                         <Select value={messageType} onChange={setMessageType}
                           options={MSG_TYPES.map(t => ({ value: t, label: `ADT^${t}` }))} />
                       </Form.Item>
-                      <Form.Item label="Patient ID" required>
+                      <Form.Item label="患者 ID" required>
                         <Input value={patientId} onChange={e => setPatientId(e.target.value)} placeholder="P0001" />
                       </Form.Item>
                       <Form.Item label="Visit Number" required>
@@ -121,10 +121,10 @@ export const PamPage: React.FC = () => {
                 title="PAM 消息记录">
                 <Table dataSource={messages} rowKey="messageId" pagination={{ pageSize: 10, showTotal: t => `共 ${t} 条` }}
                   columns={[
-                    { title: 'Message Type', dataIndex: ['message', 'messageType'], render: (t: string) => <Tag color="blue">{t}</Tag> },
-                    { title: 'Patient ID', dataIndex: ['message', 'patientId'], width: 140 },
+                    { title: '消息类型', dataIndex: ['message', 'messageType'], render: (t: string) => <Tag color="blue">{t}</Tag> },
+                    { title: '患者 ID', dataIndex: ['message', 'patientId'], width: 140 },
                     { title: 'ACK', dataIndex: 'ack', render: (a: string) => <Tag color={a === 'AA' ? 'green' : a === 'AE' ? 'orange' : 'red'}>{a}</Tag> },
-                    { title: 'Timestamp', dataIndex: 'ts' },
+                    { title: '时间戳', dataIndex: 'ts' },
                   ]} />
               </Card>
             ),
@@ -135,10 +135,10 @@ export const PamPage: React.FC = () => {
               <Card size="small" title={<Space><Server size={14} />MLLP Listener</Space>}>
                 {listenerStatus ? (
                   <Descriptions column={2} size="small" bordered>
-                    <Descriptions.Item label="Status">
+                    <Descriptions.Item label="状态">
                       <Badge status={listenerStatus.running ? 'success' : 'error'} text={listenerStatus.running ? 'Running' : 'Stopped'} />
                     </Descriptions.Item>
-                    <Descriptions.Item label="Port">{listenerStatus.port ?? 2575}</Descriptions.Item>
+                    <Descriptions.Item label="端口">{listenerStatus.port ?? 2575}</Descriptions.Item>
                     <Descriptions.Item label="Uptime">{listenerStatus.uptime ?? '-'}</Descriptions.Item>
                     <Descriptions.Item label="Connections">{listenerStatus.connections ?? 0}</Descriptions.Item>
                   </Descriptions>

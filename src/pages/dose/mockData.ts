@@ -1,4 +1,4 @@
-﻿// ============ 妯℃嫙鏁版嵁 ============
+// ============ 模拟数据 ============
 
 // AAPM/欧盟CT剂量参考值
 export const AAPM_EU_REFERENCES: AAPMReference[] = [
@@ -19,7 +19,7 @@ export const doseHistoryData = [
   { date: "05-01", CT: 850, MR: 0, DR: 95, DSA: 200, MG: 4 },
 ];
 
-// CTDIvol瓒嬪娍鏁版嵁
+// CTDIvol趋势数据
 export const ctdivolTrendData = [
   { date: "04-25", CT1: 22.5, CT2: 18.2, threshold: 50 },
   { date: "04-26", CT1: 21.8, CT2: 17.5, threshold: 50 },
@@ -30,7 +30,7 @@ export const ctdivolTrendData = [
   { date: "05-01", CT1: 19.5, CT2: 14.8, threshold: 50 },
 ];
 
-// 璁惧DAP瀵规瘮鏁版嵁
+// 设备DAP对比数据
 export const deviceDAPComparison = [
   { device: "CT-1", DAP: 850, threshold: 1000, avgDAP: 720 },
   { device: "CT-2", DAP: 620, threshold: 1000, avgDAP: 680 },
@@ -40,7 +40,7 @@ export const deviceDAPComparison = [
   { device: "MG-1", DAP: 8, threshold: 10, avgDAP: 7.2 },
 ];
 
-// 鏈堝害鍓傞噺瓒嬪娍鏁版嵁
+// 月度剂量趋势数据
 export const monthlyDoseTrend: MonthlyDoseTrend[] = [
   {
     month: "2025-07",
@@ -114,7 +114,7 @@ export const monthlyDoseTrend: MonthlyDoseTrend[] = [
   },
 ];
 
-// 璁惧换装前嶅悗瀵规瘮鏁版嵁
+// 设备换装前后对比数据
 export const equipmentUpgradeComparison = [
   {
     period: "placeholder",
@@ -377,7 +377,7 @@ patientName: "患者I",
 gender: "女",
     age: 5,
     modality: "CT",
-    examItem: "鑳搁儴CT",
+    examItem: "胸部CT",
     examDate: "2026-05-01",
     doseType: "DLP",
     doseValue: 280,
@@ -415,7 +415,7 @@ patientName: "患者K",
 gender: "女",
     age: 45,
     modality: "CT",
-    examItem: "鑵归儴CT骞虫壂",
+    examItem: "腹部CT平扫",
     examDate: "2026-04-30",
     doseType: "DLP",
     doseValue: 780,
@@ -433,7 +433,7 @@ patientName: "患者L",
 gender: "男",
     age: 55,
     modality: "CT",
-    examItem: "鑳搁儴CT澧炲己",
+    examItem: "胸部CT增强",
     examDate: "2026-04-30",
     doseType: "DLP",
     doseValue: 950,
@@ -562,7 +562,7 @@ export const cumulativeStats: CumulativeStats = {
   doseReductionRate: 5.2,
 };
 
-// 涔宠吅鍓傞噺杩借釜鏁版嵁
+// 乳腺剂量追踪数据
 export const breastDoseRecords: BreastDoseRecord[] = [
   {
     id: "B001",
@@ -670,7 +670,7 @@ patientName: "患者E",
   },
 ];
 
-// 鍎跨鍓傞噺杩借釜鏁版嵁
+// 儿童剂量追踪数据
 export const pediatricDoseRecords: PediatricDoseRecord[] = [
   {
     id: "P001",
@@ -697,7 +697,7 @@ patientName: "患者G",
 gender: "男",
     examDate: "2026-05-01",
     modality: "CT",
-    examItem: "鑳搁儴CT",
+    examItem: "胸部CT",
     doseValue: 280,
     doseUnit: "mGy路cm",
     doseReductionFactor: 0.4,
@@ -729,7 +729,7 @@ patientName: "患者I",
 gender: "男",
     examDate: "2026-04-30",
     modality: "CT",
-    examItem: "鑵归儴CT",
+    examItem: "腹部CT",
     doseValue: 350,
     doseUnit: "mGy路cm",
     doseReductionFactor: 0.4,
@@ -761,7 +761,7 @@ patientName: "患者K",
 gender: "男",
     examDate: "2026-04-29",
     modality: "CT",
-    examItem: "鑳搁儴CT",
+    examItem: "胸部CT",
     doseValue: 380,
     doseUnit: "mGy路cm",
     doseReductionFactor: 0.7,
@@ -770,7 +770,7 @@ gender: "男",
   },
 ];
 
-// DICOM SR 妯℃嫙鏁版嵁
+// DICOM SR 模拟数据
 export const dicomSRRecords: DICOMSRRecord[] = [
   {
     id: "SR001",
@@ -834,7 +834,7 @@ examItem: "MRI检查",
   },
 ];
 
-// 绱鍓傞噺妯℃嫙鏁版嵁
+// 累计剂量模拟数据
 export const cumulativeDoseData: CumulativeDosePoint[] = [
   { date: "2026-01", cumulativeDLP: 850, threshold: 1000, examCount: 3 },
   { date: "2026-02", cumulativeDLP: 1650, threshold: 2000, examCount: 5 },
@@ -843,11 +843,11 @@ export const cumulativeDoseData: CumulativeDosePoint[] = [
   { date: "2026-05", cumulativeDLP: 4200, threshold: 5000, examCount: 12 },
 ];
 
-// 宸ヤ綔浜哄憳鍓傞噺妯℃嫙鏁版嵁
+// 工作人员剂量模拟数据
 export const staffDoseRecords: StaffDoseRecord[] = [
   {
     id: "S001",
-    staffName: "鏉庢槑",
+    staffName: "李明",
     department: "placeholder",
     role: "placeholder",
     monthlyDose: 0.85,
@@ -865,9 +865,9 @@ export const staffDoseRecords: StaffDoseRecord[] = [
   },
   {
     id: "S002",
-    staffName: "鐜嬭姵",
+    staffName: "王芳",
     department: "placeholder",
-    role: "鏀惧皠鍖诲笀",
+    role: "放射医师",
     monthlyDose: 0.62,
     annualDose: 3.1,
     annualLimit: 20,
@@ -883,9 +883,9 @@ export const staffDoseRecords: StaffDoseRecord[] = [
   },
   {
     id: "S003",
-    staffName: "寮犱紵",
+    staffName: "张伟",
     department: "placeholder",
-    role: "浠嬪叆鍖诲笀",
+    role: "介入医师",
     monthlyDose: 1.85,
     annualDose: 9.2,
     annualLimit: 20,
@@ -901,7 +901,7 @@ export const staffDoseRecords: StaffDoseRecord[] = [
   },
   {
     id: "S004",
-    staffName: "闄堥潤",
+    staffName: "陈静",
     department: "placeholder",
     role: "placeholder",
     monthlyDose: 0.18,
@@ -919,9 +919,9 @@ export const staffDoseRecords: StaffDoseRecord[] = [
   },
   {
     id: "S005",
-    staffName: "鍒樻晱",
+    staffName: "刘敏",
     department: "placeholder",
-    role: "鎶ゅ笀",
+    role: "护师",
     monthlyDose: 0.42,
     annualDose: 2.1,
     annualLimit: 20,
@@ -937,7 +937,7 @@ export const staffDoseRecords: StaffDoseRecord[] = [
   },
   {
     id: "S006",
-    staffName: "璧靛己",
+    staffName: "赵强",
     department: "placeholder",
     role: "placeholder",
     monthlyDose: 0.55,
@@ -955,7 +955,7 @@ export const staffDoseRecords: StaffDoseRecord[] = [
   },
 ];
 
-// DRL閰嶇疆鏁版嵁
+// DRL配置数据
 export const drlRecords: DRLRecord[] = [
   {
     modality: "CT",
@@ -981,7 +981,7 @@ export const drlRecords: DRLRecord[] = [
   },
   {
     modality: "CT",
-    examType: "鑵归儴CT骞虫壂",
+    examType: "腹部CT平扫",
     nationalDRL: 800,
     localDRL: 750,
     hospitalAvg: 740,
@@ -1036,7 +1036,7 @@ export const drlRecords: DRLRecord[] = [
   },
 ];
 
-// 鍓傞噺鎺у埗鍥炬暟鎹?
+// 剂量控制图数据
 export const controlChartData: ControlChartPoint[] = [
   { date: "04-25", mean: 22.5, ucl: 32, lcl: 12, range: 8.5, rangeUcl: 15 },
   { date: "04-26", mean: 21.8, ucl: 32, lcl: 12, range: 7.2, rangeUcl: 15 },
@@ -1047,7 +1047,7 @@ export const controlChartData: ControlChartPoint[] = [
   { date: "05-01", mean: 19.5, ucl: 32, lcl: 12, range: 6.2, rangeUcl: 15 },
 ];
 
-// 鍎跨鍗忚浼樺寲寤鸿
+// 儿童协议优化建议
 export const pediatricProtocols: PediatricProtocol[] = [
   {
     ageGroup: "placeholder",
@@ -1074,7 +1074,7 @@ export const pediatricProtocols: PediatricProtocol[] = [
     recommendedKVP: 120,
     recommendedMAS: 100,
     doseReductionFactor: 0.7,
-    protocolName: "闈掑皯骞村ご閮–T",
+    protocolName: "青少年头部CT",
   },
   {
     ageGroup: "placeholder",
@@ -1101,7 +1101,7 @@ export const pediatricProtocols: PediatricProtocol[] = [
     recommendedKVP: 120,
     recommendedMAS: 70,
     doseReductionFactor: 0.65,
-    protocolName: "闈掑皯骞磋兏閮–T",
+    protocolName: "青少年胸部CT",
   },
 ];
 

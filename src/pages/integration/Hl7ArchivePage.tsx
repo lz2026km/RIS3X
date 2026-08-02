@@ -63,7 +63,7 @@ export const Hl7ArchivePage: React.FC = () => {
       render: (v: string) => <Tag color="purple">{v}</Tag>,
       width: 140,
     },
-    { title: "Control ID", dataIndex: "controlId", key: "controlId", width: 180 },
+    { title: "控制 ID", dataIndex: "controlId", key: "controlId", width: 180 },
     {
       title: "方向",
       dataIndex: "direction",
@@ -168,9 +168,9 @@ export const Hl7ArchivePage: React.FC = () => {
             onChange={setFilterAck}
             style={{ width: 150 }}
             options={[
-              { value: "SUCCESS", label: "SUCCESS" },
-              { value: "FAILED", label: "FAILED" },
-              { value: "PENDING", label: "PENDING" },
+              { value: "SUCCESS", label: "成功" },
+              { value: "FAILED", label: "失败" },
+              { value: "PENDING", label: "待处理" },
             ]}
           />
           <RangePicker value={dateRange as any} onChange={(v) => setDateRange(v as any)} />

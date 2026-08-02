@@ -34,7 +34,7 @@ export const IheIntegrationPage: React.FC = () => {
         ))}
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title="Transactions" value={transactions.length} prefix={<Activity size={14}/>} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="事务数" value={transactions.length} prefix={<Activity size={14}/>} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="PIX Records" value={pixCount} prefix={<Activity size={14}/>} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="PDQ Cache" value={pdqCount} prefix={<Activity size={14}/>} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="PAM Log" value={status?.metrics.pamLogSize ?? 0} prefix={<Activity size={14}/>} /></Card></Col>
@@ -50,10 +50,10 @@ export const IheIntegrationPage: React.FC = () => {
           <Tag color="default">暂无数据</Tag>
         )}
       </Card>
-      <Card size="small" title={<Space><ArrowLeftRight size={14}/>Supported IHE Transactions</Space>}>
+      <Card size="small" title={<Space><ArrowLeftRight size={14}/>支持的 IHE 事务</Space>}>
         <Table dataSource={transactions.map((t, i) => ({ key: i, transaction: t }))} rowKey="key" pagination={false}
           columns={[
-            { title: 'Transaction', dataIndex: 'transaction', render: (t: string) => <Tag color="blue">{t}</Tag> },
+            { title: '事务', dataIndex: 'transaction', render: (t: string) => <Tag color="blue">{t}</Tag> },
           ]} />
       </Card>
     </div>

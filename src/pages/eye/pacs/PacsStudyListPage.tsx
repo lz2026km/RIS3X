@@ -63,7 +63,7 @@ const PacsStudyListPage: React.FC = () => {
 
   const columns = [
     { title: "患者", dataIndex: "patientName", key: "patientName", width: 90 },
-    { title: "ID", dataIndex: "patientId", key: "patientId", width: 80 },
+    { title: "编号", dataIndex: "patientId", key: "patientId", width: 80 },
     {
       title: "眼别",
       dataIndex: "eyeSide",

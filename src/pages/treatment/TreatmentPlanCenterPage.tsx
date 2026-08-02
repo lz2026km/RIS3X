@@ -5,6 +5,13 @@ import { Activity, Plus, Send, FileText, Calendar, User, CheckCircle2, Clock, Al
 
 const { TextArea } = Input;
 
+const PLAN_STATUS_LABEL: Record<string, string> = {
+  planned: '已计划',
+  in_progress: '进行中',
+  completed: '已完成',
+  pending: '待处理',
+};
+
 export const TreatmentPlanCenterPage: React.FC = () => {
   const [tab, setTab] = useState('plans');
   const [createModal, setCreateModal] = useState(false);
@@ -42,11 +49,11 @@ export const TreatmentPlanCenterPage: React.FC = () => {
           <Card extra={<Button type="primary" icon={<Plus size={12}/>} onClick={()=>setCreateModal(true)}>新建治疗计划</Button>} size="small" title={`${plans.length} 项`}>
             <Table dataSource={plans} rowKey="id" pagination={false}
               columns={[
-                {title:'ID',dataIndex:'id'},{title:'患者',dataIndex:'patient'},
+                {title:'编号',dataIndex:'id'},{title:'患者',dataIndex:'patient'},
                 {title:'类型',dataIndex:'type',render:(t)=><Tag color={t==='种植'?'blue':t==='根管治疗'?'green':'purple'}>{t}</Tag>},
                 {title:'涉及科室',dataIndex:'department',render:(d)=><Tag color="orange">{d}</Tag>},
                 {title:'进展',dataIndex:'progress',render:(p)=><><Badge status={p===1?'success':'processing'} />{Math.round(p*100)}%</>},
-                {title:'状态',dataIndex:'status',render:(s)=><Tag color={s==='completed'?'green':s==='in_progress'?'blue':'default'}>{s}</Tag>},
+                {title:'状态',dataIndex:'status',render:(s)=><Tag color={s==='completed'?'green':s==='in_progress'?'blue':'default'}>{PLAN_STATUS_LABEL[s] ?? s}</Tag>},
                 {title:'描述',dataIndex:'desc',ellipsis:true},
                 {title:'开始',dataIndex:'startDate'},
               ]} />
@@ -55,7 +62,7 @@ export const TreatmentPlanCenterPage: React.FC = () => {
         { key:'timeline', label:'项目时间线', children:
           <Card size="small" title="PLAN-001: 种植修复时间线">
             <Steps current={2} orientation="vertical" items={timelineData['PLAN-001'].map(s => ({
-              title: <Space>{s.step}<Tag color={s.status==='completed'?'green':s.status==='in_progress'?'blue':'default'}>{s.status}</Tag></Space>,
+              title: <Space>{s.step}<Tag color={s.status==='completed'?'green':s.status==='in_progress'?'blue':'default'}>{PLAN_STATUS_LABEL[s.status] ?? s.status}</Tag></Space>,
               description: s.date,
             }))} />
           </Card>

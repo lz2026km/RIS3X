@@ -120,7 +120,7 @@ export const Hl7ManagerPage: React.FC = () => {
   }
 
   const archiveColumns = [
-    { title: 'ID', dataIndex: 'id', key: 'id', width: 60 },
+    { title: '编号', dataIndex: 'id', key: 'id', width: 60 },
     {
       title: '消息类型',
       dataIndex: 'messageType',
@@ -146,7 +146,7 @@ export const Hl7ManagerPage: React.FC = () => {
         return <Tag color={map[s] || 'default'}>{s}</Tag>
       },
     },
-    { title: 'Control ID', dataIndex: 'controlId', key: 'controlId', ellipsis: true },
+    { title: '控制 ID', dataIndex: 'controlId', key: 'controlId', ellipsis: true },
     { title: '重试', dataIndex: 'retryCount', key: 'retryCount', width: 60 },
     { title: '时间', dataIndex: 'createdAt', key: 'createdAt', render: (t: string) => new Date(t).toLocaleString() },
   ]
@@ -160,12 +160,12 @@ export const Hl7ManagerPage: React.FC = () => {
           <Form form={oruForm} layout="vertical" size="small">
             <Row gutter={16}>
               <Col span={8}><Form.Item name="accessionNumber" label="Accession#" rules={[{ required: true }]}><Input placeholder="检查号" /></Form.Item></Col>
-              <Col span={8}><Form.Item name="patientId" label="Patient ID" rules={[{ required: true }]}><Input placeholder="患者ID" /></Form.Item></Col>
+              <Col span={8}><Form.Item name="patientId" label="患者 ID" rules={[{ required: true }]}><Input placeholder="患者ID" /></Form.Item></Col>
               <Col span={8}><Form.Item name="patientName" label="Patient Name" rules={[{ required: true }]}><Input placeholder="患者姓名" /></Form.Item></Col>
               <Col span={8}><Form.Item name="modality" label="Modality" rules={[{ required: true }]}><Select placeholder="选择"><Select.Option value="CT">CT</Select.Option><Select.Option value="MR">MR</Select.Option><Select.Option value="US">US</Select.Option><Select.Option value="XA">XA</Select.Option></Select></Form.Item></Col>
               <Col span={8}><Form.Item name="patientSex" label="Sex"><Select placeholder="选择" allowClear><Select.Option value="M">M</Select.Option><Select.Option value="F">F</Select.Option><Select.Option value="O">O</Select.Option></Select></Form.Item></Col>
-              <Col span={8}><Form.Item name="studyDate" label="Study Date"><Input placeholder="YYYY-MM-DD" /></Form.Item></Col>
-              <Col span={12}><Form.Item name="findings" label="Findings" rules={[{ required: true }]}><Input.TextArea rows={3} placeholder="影像所见" /></Form.Item></Col>
+              <Col span={8}><Form.Item name="studyDate" label="检查日期"><Input placeholder="YYYY-MM-DD" /></Form.Item></Col>
+              <Col span={12}><Form.Item name="findings" label="所见" rules={[{ required: true }]}><Input.TextArea rows={3} placeholder="影像所见" /></Form.Item></Col>
               <Col span={12}><Form.Item name="conclusion" label="Conclusion" rules={[{ required: true }]}><Input.TextArea rows={3} placeholder="诊断结论" /></Form.Item></Col>
               <Col span={8}><Form.Item name="authorName" label="Author"><Input placeholder="报告医生" /></Form.Item></Col>
               <Col span={8}><Form.Item name="authorId" label="Author ID"><Input placeholder="医生工号" /></Form.Item></Col>
@@ -185,11 +185,11 @@ export const Hl7ManagerPage: React.FC = () => {
         <Card size="small" title="HL7 ORM^O01 - 医嘱消息">
           <Form form={ormForm} layout="vertical" size="small">
             <Row gutter={16}>
-              <Col span={8}><Form.Item name="patientId" label="Patient ID" rules={[{ required: true }]}><Input placeholder="患者ID" /></Form.Item></Col>
+              <Col span={8}><Form.Item name="patientId" label="患者 ID" rules={[{ required: true }]}><Input placeholder="患者ID" /></Form.Item></Col>
               <Col span={8}><Form.Item name="patientName" label="Patient Name" rules={[{ required: true }]}><Input placeholder="患者姓名" /></Form.Item></Col>
               <Col span={8}><Form.Item name="accessionNumber" label="Accession#" rules={[{ required: true }]}><Input placeholder="检查号" /></Form.Item></Col>
               <Col span={8}><Form.Item name="modality" label="Modality" rules={[{ required: true }]}><Select placeholder="选择"><Select.Option value="CT">CT</Select.Option><Select.Option value="MR">MR</Select.Option><Select.Option value="US">US</Select.Option></Select></Form.Item></Col>
-              <Col span={8}><Form.Item name="bodyPart" label="Body Part" rules={[{ required: true }]}><Input placeholder="检查部位" /></Form.Item></Col>
+              <Col span={8}><Form.Item name="bodyPart" label="检查部位" rules={[{ required: true }]}><Input placeholder="检查部位" /></Form.Item></Col>
               <Col span={8}><Form.Item name="orderNumber" label="Order#" rules={[{ required: true }]}><Input placeholder="医嘱号" /></Form.Item></Col>
               <Col span={8}><Form.Item name="orderingDoctor" label="Ordering Doctor" rules={[{ required: true }]}><Input placeholder="开单医生" /></Form.Item></Col>
               <Col span={8}><Form.Item name="patientSex" label="Sex"><Select placeholder="选择" allowClear><Select.Option value="M">M</Select.Option><Select.Option value="F">F</Select.Option></Select></Form.Item></Col>
@@ -208,10 +208,10 @@ export const Hl7ManagerPage: React.FC = () => {
         <Card size="small" title="HL7 DFT^P03 - 财务交易">
           <Form form={dftForm} layout="vertical" size="small">
             <Row gutter={16}>
-              <Col span={8}><Form.Item name="patientId" label="Patient ID" rules={[{ required: true }]}><Input placeholder="患者ID" /></Form.Item></Col>
+              <Col span={8}><Form.Item name="patientId" label="患者 ID" rules={[{ required: true }]}><Input placeholder="患者ID" /></Form.Item></Col>
               <Col span={8}><Form.Item name="patientName" label="Patient Name" rules={[{ required: true }]}><Input placeholder="患者姓名" /></Form.Item></Col>
               <Col span={8}><Form.Item name="invoiceNumber" label="Invoice#" rules={[{ required: true }]}><Input placeholder="发票号" /></Form.Item></Col>
-              <Col span={8}><Form.Item name="totalAmount" label="Total Amount" rules={[{ required: true }]}><InputNumber placeholder="金额" style={{ width: '100%' }} /></Form.Item></Col>
+              <Col span={8}><Form.Item name="totalAmount" label="总金额" rules={[{ required: true }]}><InputNumber placeholder="金额" style={{ width: '100%' }} /></Form.Item></Col>
               <Col span={8}><Form.Item name="chargeCode" label="Charge Code" rules={[{ required: true }]}><Input placeholder="收费编码" /></Form.Item></Col>
               <Col span={8}><Form.Item name="chargeName" label="Charge Name" rules={[{ required: true }]}><Input placeholder="收费项目" /></Form.Item></Col>
             </Row>

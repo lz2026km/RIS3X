@@ -84,7 +84,7 @@ export const SystemAdminPage: React.FC = () => {
               <Card size="small" extra={<Button type="primary" icon={<Plus size={12}/>} onClick={() => setUserModal(true)}>新增用户</Button>} title={`${users.length} 用户`}>
                 <Table dataSource={users} rowKey="id" pagination={false}
                   columns={[
-                    {title:'ID',dataIndex:'id'},{title:'姓名',dataIndex:'name'},
+                    {title:'编号',dataIndex:'id'},{title:'姓名',dataIndex:'name'},
                     {title:'角色',dataIndex:'role',render:(r)=><Tag color="blue">{r}</Tag>},
                     {title:'科室',dataIndex:'dept'},
                     {title:'状态',dataIndex:'status',render:(s)=><Badge status={s==='active'?'success':'default'} />},

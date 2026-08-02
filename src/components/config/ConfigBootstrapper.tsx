@@ -39,7 +39,7 @@ export const ConfigBootstrapper: React.FC<{ children: ReactNode }> = ({ children
     return (
       <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", background: "#f0f2f5" }}>
         <Space orientation="vertical" align="center" size={12}>
-          <Text type="secondary">Loading clinical configuration…</Text>
+          <Text type="secondary">正在加载临床配置…</Text>
         </Space>
       </div>
     );
@@ -53,11 +53,11 @@ const ConfigurationErrorPage: React.FC<{ error: Error; onRetry: () => void }> = 
       <Result
         status="error"
         icon={<BugOutlined />}
-        title="Clinical Configuration Error"
+        title="临床配置加载失败"
         subTitle="应用启动失败：clinicalConfig 模块加载或校验未通过"
         extra={[
           <Button key="retry" type="primary" icon={<ReloadOutlined />} onClick={onRetry}>
-            Retry
+            重试
           </Button>,
         ]}
         style={{ maxWidth: 720, background: "#fff", padding: 24, borderRadius: 8 }}

@@ -204,7 +204,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
                       { key: 'exams', label: <span><Stethoscope size={12} /> 检查 ({patientExams.length})</span>, children: (
                         <Table size="small" dataSource={patientExams} rowKey="id" pagination={false}
                           columns={[
-                            { title: 'ID', dataIndex: 'id' },
+                            { title: '编号', dataIndex: 'id' },
                             { title: '模态', dataIndex: 'modality' },
                             { title: '部位', dataIndex: 'bodyPart' },
                             { title: '状态', dataIndex: 'status' },

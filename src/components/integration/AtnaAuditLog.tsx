@@ -113,7 +113,7 @@ export const AtnaAuditLog: React.FC = () => {
           <Col span={6}><div className="text-xs text-slate-500 mb-1">用户 ID</div><Input value={filters.userID} onChange={(e) => setFilters((f) => ({ ...f, userID: e.target.value }))} /></Col>
           <Col span={6}><div className="text-xs text-slate-500 mb-1">事件代码 (DCM)</div><Input value={filters.eventCode} onChange={(e) => setFilters((f) => ({ ...f, eventCode: e.target.value }))} placeholder="110110 / 110107" /></Col>
           <Col span={6}><div className="text-xs text-slate-500 mb-1">结果</div><Select value={filters.outcome} onChange={(v) => setFilters((f) => ({ ...f, outcome: v as AtnaEventOutcome | '' }))} className="w-full" allowClear options={[
-            { value: 'Success', label: 'Success' },
+            { value: 'Success', label: '成功' },
             { value: 'MinorFailure', label: 'MinorFailure' },
             { value: 'SeriousFailure', label: 'SeriousFailure' },
             { value: 'MajorFailure', label: 'MajorFailure' },

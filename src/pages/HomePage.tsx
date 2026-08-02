@@ -630,7 +630,7 @@ const HomePage: FC = () => {
             }}>
               <span>{HOSPITAL_NAME}</span>
               <span style={{ color: 'rgba(255,255,255,0.5)' }}>|</span>
-              <span> radiological department </span>
+              <span>放射科</span>
             </div>
           </div>
         </div>
