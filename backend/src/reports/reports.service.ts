@@ -1,6 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { QueueService } from '../queue/queue.service'
+import { getCurrentTenantId } from '../common/interceptors/tenant-context.interceptor'
 import type { ReportState, Report } from '@prisma/client'
 
 function toReportDto(r: Report & { patient?: { id: string; name: string; gender: string } | null; radiologist?: { id: string; fullName: string; role: string } | null }) {
@@ -76,7 +77,7 @@ export class ReportsService {
         findings: dto.findings,
         conclusion: dto.conclusion,
         state: 'PENDING_ASSIGNMENT',
-        tenantId: 'default',
+        tenantId: getCurrentTenantId(),
       },
       include: { patient: { select: { id: true, name: true, gender: true } } },
     })
@@ -123,7 +124,7 @@ export class ReportsService {
           fromState: existing.state,
           toState: 'WITHDRAWN',
           reason,
-          tenantId: 'default',
+          tenantId: getCurrentTenantId(),
         },
       })
       return toReportDto(r)
@@ -147,7 +148,7 @@ export class ReportsService {
         include: { patient: { select: { id: true, name: true, gender: true } } },
       })
       await tx.reportRevision.create({
-        data: { reportId: id, actorId, fromState: report.state, toState: to, reason: reason ?? null, tenantId: 'default' },
+        data: { reportId: id, actorId, fromState: report.state, toState: to, reason: reason ?? null, tenantId: getCurrentTenantId() },
       })
       return toReportDto(r)
     })

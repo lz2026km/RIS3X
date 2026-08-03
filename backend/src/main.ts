@@ -8,6 +8,7 @@ import { Logger as PinoLogger } from "nestjs-pino";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
 import { Request, Response, NextFunction } from "express";
+import * as express from "express";
 import client from "prom-client";
 import * as Sentry from "@sentry/node";
 import { writeFileSync } from "fs";
@@ -123,6 +124,11 @@ async function bootstrap(): Promise<void> {
   });
 
   app.setGlobalPrefix("api");
+  // v3.0.6.11-60: files 上传端点使用 raw body (DICOM/PDF 二进制, 最大 110MB)
+  app.use(
+    "/api/files/upload",
+    express.raw({ type: "*/*", limit: "110mb" }),
+  );
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

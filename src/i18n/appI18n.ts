@@ -1,5 +1,5 @@
 /**
- * G005 放射RIS系统 v3.0.6.11-60 - 简单 i18n 翻译函数与 locale 切换
+ * G005 放射RIS系统 v3.0.6.11-61 - 简单 i18n 翻译函数与 locale 切换
  * R3 1100+ 功能点,i18n 命名空间合并
  * 对外导出:t(key, params) / getCurrentLocale() / onLocaleChange() / notifyLocaleChange()
  */
@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "G005放射信息系统",
     "app.version":
-      "v3.0.6.11-60 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
+      "v3.0.6.11-61 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -1911,6 +1911,7 @@ export const translations: Translations = {
     "nav.snomedEncoder": "SNOMED 编码器",
     "nav.smartRoute": "智能路由",
     "nav.crossModalSearch": "跨模态检索",
+    "nav.similarCaseSearch": "相似病例检索",
     "nav.teleSign": "远程双签",
     "nav.dualRead": "双阅片",
     "nav.aiMarketplace": "AI 模型市场",
@@ -2016,7 +2017,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "G005 Radiology Information System",
     "app.version":
-      "v3.0.6.11-60 · Strict Review + Params + Security + Features + Mock Cleanup + 200-page Verification",
+      "v3.0.6.11-61 · Strict Review + Params + Security + Features + Mock Cleanup + 200-page Verification",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
@@ -3900,6 +3901,7 @@ export const translations: Translations = {
     "nav.snomedEncoder": "SNOMED Encoder",
     "nav.smartRoute": "Smart Routing",
     "nav.crossModalSearch": "Cross-Modal Search",
+    "nav.similarCaseSearch": "Similar Case Search",
     "nav.teleSign": "Remote Sign",
     "nav.dualRead": "Dual Read",
     "nav.aiMarketplace": "AI Marketplace",

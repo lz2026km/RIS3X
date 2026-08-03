@@ -333,6 +333,8 @@ const COLLECTIONS = [
   'consents',
   'dental_ai_findings',
   'value5step',
+  // [v3.0.6.11-61] 环境式 AI 报告草稿
+  'ai_report_drafts',
 ] as const;
 type Collection = typeof COLLECTIONS[number];
 

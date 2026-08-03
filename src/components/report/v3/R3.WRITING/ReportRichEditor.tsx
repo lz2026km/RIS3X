@@ -36,6 +36,9 @@ interface Props {
   /** 外部文本插入请求(语音听写等),插入后通过 onExternalInsertConsumed 通知消费 */
   externalInsert?: { text: string; ts: number } | null;
   onExternalInsertConsumed?: () => void;
+  /** v3.0.6.11-61: 外部整篇替换请求(AI 草稿接受),替换后通过 onExternalSetConsumed 通知消费 */
+  externalSet?: { plainText: string; html?: string; ts: number } | null;
+  onExternalSetConsumed?: () => void;
 }
 
 const FONT_FAMILIES = [
@@ -56,6 +59,7 @@ export const ReportRichEditor: React.FC<Props> = ({
   reportId, initialHtml, initialPlainText, onChange, onSave, readOnly = false,
   enableCollaboration = false, wsUrl, userName = '匿名用户', userId,
   externalInsert = null, onExternalInsertConsumed,
+  externalSet = null, onExternalSetConsumed,
 }) => {
   const [doc, setDoc] = useState<RichEditorDocument>({
     ...RICH_DOCUMENT_MOCK,
@@ -176,6 +180,23 @@ export const ReportRichEditor: React.FC<Props> = ({
     void handleContentChange();
     onExternalInsertConsumed?.();
   }, [externalInsert, applyFormat, handleContentChange, onExternalInsertConsumed]);
+
+  // v3.0.6.11-61: 外部整篇替换 (AI 草稿接受) → 清空现有内容后写入新文本
+  useEffect(() => {
+    if (!externalSet || !externalSet.plainText) return;
+    const el = editorRef.current;
+    if (el) {
+      el.focus();
+      el.innerHTML = '';
+      try {
+        document.execCommand('insertText', false, externalSet.plainText);
+      } catch {
+        el.textContent = externalSet.plainText;
+      }
+    }
+    void handleContentChange();
+    onExternalSetConsumed?.();
+  }, [externalSet, handleContentChange, onExternalSetConsumed]);
 
   const toggleVoice = useCallback(() => {
     if (voiceListening) {

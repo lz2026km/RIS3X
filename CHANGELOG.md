@@ -1,5 +1,48 @@
 ﻿# CHANGELOG
 
+## v3.0.6.11-61 (2026-08-03) — Phase4前沿：环境式AI报告+云存储S3/MinIO+患者门户+相似病例+多租户SaaS
+
+> **目标**: 四阶段对标计划 Phase 4（2025-2026 行业前沿趋势）实施
+> **范围**: 环境式 AI 报告 / 云存储双驱动 / 患者门户成熟化 / 相似病例检索 / 多租户 SaaS（97 suites/969 tests）
+
+### F1: 环境式 AI 报告（对标 Philips Ambient / Siemens）
+
+- `backend/src/aiplatform/report-templates.ts`：14 个模态×部位模板库（CT/MR/DR/US），NLG 骨架填充 + style 三档
+- `POST /ai/report-draft` + accept/modify/get（AiReportDraft 模型，草稿→正式落报告表）
+- 前端 ReportWritePage："AI 草稿"按钮 → 输入弹窗 → diff 确认面板（接受/修改/放弃）
+- 浏览器实测 11/11 通过（生成→对比→修改→接受→编辑器更新）
+
+### F2: 云存储 S3/MinIO 双驱动（对标 GE True PACS Cloud / Sectra One Cloud）
+
+- `backend/src/common/storage/`：StorageDriver 接口 + local 驱动 + **S3 驱动（零 AWS SDK，原生 SigV4 签名，MinIO 兼容）**
+- DICOM（dicom-dimse/dicom-web）+ VNA + Files 三处全部接入抽象层；`STORAGE_DRIVER` env 切换
+- `GET/PUT /system/storage-config` + 连通测试 + 统计
+- 前端 CloudStorageDashboardPage：监控大盘 + 存储配置双 Tab（驱动选择/S3 表单/连接测试）
+
+### F3: 患者门户成熟化 + 门诊一体化（对标 Fujifilm Synapse One）
+
+- 后端 +6 端点：appointments CRUD/reports/images/feedback
+- 前端 SelfServicePortal 287→800 行：6 Tab（首页待办/检查预约/我的报告/我的影像/宣教/满意度反馈）
+- 自助预约全流程（类型→部位→日历→时段→确认→单号）；浏览器 25/25 通过
+
+### F4: 相似病例检索（对标 Siemens Similar Patient Search）
+
+- `backend/src/modules/similar-case/`：80 词临床关键词 + Jaccard 文本相似 + 特征匹配 + SNOMED 加权；24 例演示病例
+- 前端 /similar-case 页面（匿名结果卡/相似度/高亮）+ 报告书写页"相似病例"Tab（自动基于草稿检索 Top5）
+- 浏览器实测：GGO 病例检索 Top1 排名正确
+
+### F5: 多租户 SaaS 基础（对标 Sectra One Cloud）
+
+- 租户隔离审计：JWT 优先（不可伪造）+ Prisma 自动 tenant 注入（55+ 模型含 tenantId）+ 修复 audit/reports 跨租户读取漏洞
+- `backend/src/modules/tenant/`：current/usage/profile/features + Admin 租户管理（list/create/status）
+- 前端 TenantConfigPage：租户信息/用量/8 功能开关/管理员租户列表
+
+### 验证结果
+
+- 后端: tsc 0 错误、**jest 97 suites / 969 tests 全部通过**
+- 前端: vite build 成功（1m56s）、Playwright 回归 15/15
+- 浏览器实测: 5 个新页面全部真实渲染（AI 草稿/云存储/患者门户/相似病例/租户配置）、0 JS 错误
+
 ## v3.0.6.11-60 (2026-08-03) — Phase2收尾+Phase3对标补齐：AI编排/智能MWL/BI/剂量DRL/压缩真实化/SR全链路/VNA/Auto-hanging+多RADS
 
 > **目标**: 对标前十大 PACS 厂商（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/CH/Infinitt），四阶段计划 Phase 2 收尾 + Phase 3 全部实施
@@ -39,7 +82,7 @@
 
 ### Phase 0: 10×80 对标文档
 
-- 新增 `docs/PACS_BENCHMARK_V3.0.6.11-60.md`：10 厂商 × 80 项功能矩阵（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/Change Healthcare/Infinitt）
+- 新增 `docs/PACS_BENCHMARK_V3.0.6.11-61.md`：10 厂商 × 80 项功能矩阵（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/Change Healthcare/Infinitt）
 - G005 完成度 38.8%（31✅/30🟡/19❌），对标 Sectra 87.5%/GE 85.0%
 - 四阶段路线图：Phase1 修复断裂点（本次）→ Phase2 mock 降级/覆盖率 → Phase3 AI Orchestrator/BI/剂量 → Phase4 云部署/环境式报告
 
@@ -148,16 +191,16 @@
 
 ### F18: 版本号全量统一 + 文档
 
-- package.json → 3.0.6.11-60（含 package-lock.json）
-- backend/package.json → 3.0.6.11-60
-- index.html title + window.__appVersion → v3.0.6.11-60
-- src/main.tsx APP_VERSION → v3.0.6.11-60
-- backend/src/main.ts + app.module.ts → v3.0.6.11-60
-- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-60
-- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-60
-- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-60
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-60
-- CHANGELOG.md 新增 v3.0.6.11-60 条目
+- package.json → 3.0.6.11-61（含 package-lock.json）
+- backend/package.json → 3.0.6.11-61
+- index.html title + window.__appVersion → v3.0.6.11-61
+- src/main.tsx APP_VERSION → v3.0.6.11-61
+- backend/src/main.ts + app.module.ts → v3.0.6.11-61
+- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-61
+- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-61
+- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-61
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-61
+- CHANGELOG.md 新增 v3.0.6.11-61 条目
 
 ### 验证结果
 
@@ -168,10 +211,10 @@
 
 ---
 
-## v3.0.6.11-60 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
+## v3.0.6.11-61 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
 
 > **目标**: 后端深度修复 + 安全加固 + 类型修复 + 测试验证 + 性能检查 + 版本号全量统一
-> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-60
+> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-61
 
 ### A13: 后端安全加固
 
@@ -202,19 +245,19 @@
 
 ### A19: 版本号全量统一
 
-- backend/package.json → 3.0.6.11-60
-- backend/src/main.ts → Swagger version + log message → v3.0.6.11-60
-- backend/src/app.module.ts → v3.0.6.11-60
-- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-60
-- index.html title + window.__appVersion → v3.0.6.11-60
-- src/i18n/appI18n.ts → v3.0.6.11-60
-- src/main.tsx APP_VERSION → v3.0.6.11-60
-- src/routes/routeTable.tsx → v3.0.6.11-60
-- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-60
-- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-60
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-60
-- CONTRIBUTING.md → v3.0.6.11-60
-- CHANGELOG.md 新增 v3.0.6.11-60 条目
+- backend/package.json → 3.0.6.11-61
+- backend/src/main.ts → Swagger version + log message → v3.0.6.11-61
+- backend/src/app.module.ts → v3.0.6.11-61
+- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-61
+- index.html title + window.__appVersion → v3.0.6.11-61
+- src/i18n/appI18n.ts → v3.0.6.11-61
+- src/main.tsx APP_VERSION → v3.0.6.11-61
+- src/routes/routeTable.tsx → v3.0.6.11-61
+- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-61
+- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-61
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-61
+- CONTRIBUTING.md → v3.0.6.11-61
+- CHANGELOG.md 新增 v3.0.6.11-61 条目
 
 ### 验证结果
 

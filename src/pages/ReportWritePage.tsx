@@ -5,13 +5,13 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   Layout, Card, Space, Button, Tag, Tooltip, Tabs, Divider,
-  Alert, message, Modal, Progress, Empty, Badge,
+  Alert, message, Modal, Progress, Empty, Badge, Input, Select, Spin,
 } from 'antd';
 import {
   Save, Send, FileText, Mic, Image as ImageIcon, Type,
   Brain, History, Eye, ChevronLeft, ChevronRight, Sparkles,
   Tag as TagIcon, BarChart3, StickyNote, RefreshCw, AlertCircle,
-  ListChecks, FileCheck, CheckCircle2, PanelRightClose, PanelRightOpen,
+  ListChecks, FileCheck, CheckCircle2, PanelRightClose, PanelRightOpen, Edit3,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -19,6 +19,8 @@ import {
 } from '@data/reportWritingMock';
 import { detectConflicts } from '@services/keywordConflictDetector';
 import { computeDiff, type DiffChunk } from '@services/reportDiffEngine';
+import { aiDraftApi, type AiReportDraft, type ReportDraftStyle } from '@services/api/aiDraftApi';
+import { similarCaseApi, type SimilarCaseResult } from '@services/api';
 import { StructuredFieldForm } from '@components/report/v3/R3.WRITING/StructuredFieldForm';
 import { ReportRichEditor } from '@components/report/v3/R3.WRITING/ReportRichEditor';
 import { AIDraftPanel } from '@components/report/v3/R3.WRITING/AIDraftPanel';
@@ -28,14 +30,18 @@ import { ImageAnchorComponent } from '@components/report/v3/R3.WRITING/ImageAnch
 const { Sider, Content } = Layout;
 
 /* ---------- 右侧各 Tab 内容（懒加载） ---------- */
-function AITab({ reportId, modality, bodyPart }: { reportId: string; modality: string; bodyPart: string }) {
+function AITab({ reportId, modality, bodyPart, onApplyToEditor }: { reportId: string; modality: string; bodyPart: string; onApplyToEditor: (text: string) => void }) {
   return (
     <AIDraftPanel
       reportId={reportId}
       modality={modality}
       bodyPart={bodyPart}
       clinicalInfo="女性 58 岁,体检发现右肺上叶结节 1 周,无明显症状。"
-      onAccept={() => message.success('已应用 AI 草稿到编辑器')}
+      onAccept={(result) => {
+        const text = [result?.findings, result?.impression, result?.recommendations].filter(Boolean).join('\n\n');
+        onApplyToEditor(text || result?.findings || '');
+        message.success('已应用 AI 草稿到编辑器');
+      }}
     />
   );
 }
@@ -67,19 +73,77 @@ function HistoryTab({ priorReports, currentText, onCompare }: { priorReports: an
   );
 }
 
-function SimilarTab({ similarCases }: { similarCases: any[] }) {
-  if (similarCases.length === 0) return <Empty description="无相似病例" />;
+function SimilarTab({ reportText, modality, bodyPart }: { reportText: string; modality: string; bodyPart: string }) {
+  const [cases, setCases] = useState<SimilarCaseResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [detail, setDetail] = useState<SimilarCaseResult | null>(null);
+
+  const run = useCallback(async (text: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await similarCaseApi.search({ reportText: text.trim(), modality, bodyPart, limit: 5 });
+      if (res.success && Array.isArray(res.data)) setCases(res.data);
+      else setError('检索服务返回异常');
+    } catch {
+      setError('相似病例检索失败');
+    } finally {
+      setLoading(false);
+    }
+  }, [modality, bodyPart]);
+
+  useEffect(() => {
+    if (reportText.trim()) void run(reportText);
+  }, [reportText, run]);
+
+  if (error) return <Alert type="error" showIcon message={error} />;
+  if (loading) return <div style={{ textAlign: 'center', padding: 16 }}><Spin size="small" /> 检索中…</div>;
+  if (cases.length === 0) return <Empty description="输入报告文本后自动检索相似病例" />;
   return (
     <div className="space-y-2">
-      {similarCases.map((c: any) => (
-        <div key={c.id} className="p-2 border border-slate-200 rounded text-xs">
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-slate-500">基于当前草稿文本 · Top {cases.length}</span>
+        <Button size="small" icon={<RefreshCw className="w-3 h-3" />} onClick={() => run(reportText)}>刷新</Button>
+      </div>
+      {cases.map((c) => (
+        <div key={c.id} className="p-2 border border-slate-200 rounded text-xs cursor-pointer hover:bg-slate-50" onClick={() => setDetail(c)}>
           <div className="flex items-center justify-between">
-            <Tag color="purple">{c.reportId}</Tag>
-            <Tag color="blue">{typeof c.similarityScore === 'number' ? (c.similarityScore * 100).toFixed(0) : '--'}%</Tag>
+            <Space size={4}>
+              <Tag color="purple">{c.reportId}</Tag>
+              <Tag color="cyan">{c.modality}</Tag>
+              <Tag>{c.bodyPart}</Tag>
+              <span className="text-slate-400">{c.gender}{c.age}岁</span>
+            </Space>
+            <Tag color="blue">{c.similarity}%</Tag>
           </div>
           <div className="text-slate-700 mt-1 line-clamp-2">{c.impression}</div>
+          <Progress percent={c.similarity} size="small" strokeColor={c.similarity >= 70 ? '#16a34a' : '#f59e0b'} showInfo={false} style={{ marginTop: 4 }} />
         </div>
       ))}
+      <Modal
+        open={!!detail}
+        title={detail ? `相似病例 ${detail.reportId} (相似度 ${detail.similarity}%)` : ''}
+        footer={null}
+        width={560}
+        onCancel={() => setDetail(null)}
+      >
+        {detail && (
+          <div className="space-y-2 text-xs">
+            <div>
+              <span className="text-slate-500">模态:</span> <Tag color="cyan">{detail.modality}</Tag>
+              <span className="text-slate-500 ml-2">部位:</span> <Tag>{detail.bodyPart}</Tag>
+              <span className="text-slate-500 ml-2">性别/年龄:</span> {detail.gender} / {detail.age}岁
+            </div>
+            <div className="font-semibold text-slate-700">影像所见</div>
+            <div className="text-slate-700 leading-relaxed">{detail.findings}</div>
+            <div className="font-semibold text-slate-700">诊断意见</div>
+            <div className="text-slate-700 leading-relaxed">{detail.impression}</div>
+            {detail.conclusion && <div><Tag color="purple">{detail.conclusion}</Tag></div>}
+            <div className="text-slate-400">报告已匿名化</div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }
@@ -223,6 +287,16 @@ export default function ReportWritePage() {
   const [conflicts, setConflicts] = useState<any[]>([]);
   const [diffTarget, setDiffTarget] = useState<{ oldText: string; label: string } | null>(null);
   const [voiceInsert, setVoiceInsert] = useState<{ text: string; ts: number } | null>(null);
+  // [v3.0.6.11-61] 环境式 AI 报告草稿 (生成式草稿 + 医生确认)
+  const [aiUi, setAiUi] = useState<{ open: boolean; clinical: string; findings: string; style: ReportDraftStyle; loading: boolean; error: string | null }>({
+    open: false, clinical: '女性 58 岁,体检发现右肺上叶结节 1 周,无明显症状。', findings: '', style: 'standard', loading: false, error: null,
+  });
+  const [aiDraft, setAiDraft] = useState<AiReportDraft | null>(null);
+  const [aiConfirm, setAiConfirm] = useState(false);
+  const [aiEditMode, setAiEditMode] = useState(false);
+  const [aiEditText, setAiEditText] = useState('');
+  const [aiActionLoading, setAiActionLoading] = useState(false);
+  const [editorSet, setEditorSet] = useState<{ plainText: string; ts: number } | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -249,6 +323,64 @@ export default function ReportWritePage() {
     }
   }, [reportId, preScore, context, navigate]);
 
+  // [v3.0.6.11-61] 环境式 AI 草稿生成
+  const handleAiGenerate = useCallback(async () => {
+    setAiUi((u) => ({ ...u, loading: true, error: null }));
+    const res = await aiDraftApi.generateReportDraft({
+      reportId: context.reportId,
+      patientId: context.patientId,
+      modality: context.modality,
+      bodyPart: context.bodyPart,
+      clinicalInfo: aiUi.clinical,
+      findings: aiUi.findings,
+      style: aiUi.style,
+    });
+    if (res.success && res.data) {
+      setAiDraft(res.data);
+      setAiEditText(res.data.draftText);
+      setAiEditMode(false);
+      setAiConfirm(true);
+      setAiUi((u) => ({ ...u, open: false, loading: false }));
+    } else {
+      setAiUi((u) => ({ ...u, loading: false, error: res.error?.message ?? 'AI 草稿生成失败' }));
+    }
+  }, [aiUi.clinical, aiUi.findings, aiUi.style, context.reportId, context.patientId, context.modality, context.bodyPart]);
+
+  // 医生接受: 草稿 → 正式, 应用至编辑器
+  const handleAiAccept = useCallback(async () => {
+    if (!aiDraft) return;
+    setAiActionLoading(true);
+    const res = await aiDraftApi.acceptDraft(aiDraft.id);
+    if (res.success && res.data) {
+      setEditorSet({ plainText: res.data.draftText, ts: Date.now() });
+      setAiConfirm(false);
+      message.success('已接受 AI 草稿并应用至编辑器');
+    } else {
+      message.error(res.error?.message ?? '接受草稿失败');
+    }
+    setAiActionLoading(false);
+  }, [aiDraft]);
+
+  // 医生修改后保存
+  const handleAiModifySave = useCallback(async () => {
+    if (!aiDraft) return;
+    setAiActionLoading(true);
+    const res = await aiDraftApi.modifyDraft(aiDraft.id, aiEditText);
+    if (res.success && res.data) {
+      setEditorSet({ plainText: res.data.draftText, ts: Date.now() });
+      setAiConfirm(false);
+      message.success('已保存修改并应用至编辑器');
+    } else {
+      message.error(res.error?.message ?? '保存修改失败');
+    }
+    setAiActionLoading(false);
+  }, [aiDraft, aiEditText]);
+
+  const applyAiTextToEditor = useCallback((text: string) => {
+    if (!text) return;
+    setEditorSet({ plainText: text, ts: Date.now() });
+  }, []);
+
   const siderTabs = useMemo(() => [
     { key: 'ai', label: <Space size={4}><Sparkles className="w-3 h-3" />AI 草稿</Space>, children: null },
     { key: 'voice', label: <Space size={4}><Mic className="w-3 h-3" />语音</Space>, children: null },
@@ -263,10 +395,10 @@ export default function ReportWritePage() {
 
   const renderActiveTab = () => {
     switch (activeToolsTab) {
-      case 'ai': return <AITab reportId={reportId} modality={context.modality} bodyPart={context.bodyPart} />;
+      case 'ai': return <AITab reportId={reportId} modality={context.modality} bodyPart={context.bodyPart} onApplyToEditor={applyAiTextToEditor} />;
       case 'voice': return <VoiceTab reportId={reportId} onInsert={(text) => setVoiceInsert({ text, ts: Date.now() })} onTextChange={() => { /* 实时文本由编辑器插入按钮统一处理 */ }} />;
       case 'history': return <HistoryTab priorReports={context.priorReports} currentText={context.document.plainText} onCompare={(oldText, label) => setDiffTarget({ oldText, label })} />;
-      case 'similar': return <SimilarTab similarCases={context.similarCases} />;
+      case 'similar': return <SimilarTab reportText={context.document.plainText} modality={context.modality} bodyPart={context.bodyPart} />;
       case 'score': return <ScoreTab preScore={preScore} />;
       case 'drafts': return <DraftsTab drafts={drafts} />;
       case 'kw': return <KWTab keywords={KEYWORD_HIGHLIGHTS_MOCK} />;
@@ -294,6 +426,9 @@ export default function ReportWritePage() {
           <Tag color="cyan" className="v3-topbar-hide-mobile">{context.template?.name || 'RECIST 1.1'}</Tag>
         </div>
         <div className="v3-topbar-right">
+          <Tooltip title="环境式 AI 生成报告草稿 (所见+结论+建议)">
+            <Button icon={<Sparkles className="w-4 h-4" />} onClick={() => setAiUi((u) => ({ ...u, open: true }))}>AI 草稿</Button>
+          </Tooltip>
           <Tooltip title="保存草稿"><Button icon={<Save className="w-4 h-4" />}>保存</Button></Tooltip>
           <span className="v3-topbar-stats v3-topbar-hide-mobile">
             {context.document.wordCount} 字 / {Math.round(context.document.writingDurationSec / 60)} 分
@@ -346,6 +481,8 @@ export default function ReportWritePage() {
               onChange={(doc) => setContext((c) => ({ ...c, document: doc }))}
               externalInsert={voiceInsert}
               onExternalInsertConsumed={() => setVoiceInsert(null)}
+              externalSet={editorSet}
+              onExternalSetConsumed={() => setEditorSet(null)}
             />
           </Card>
 
@@ -437,6 +574,36 @@ export default function ReportWritePage() {
           </div>
         </div>
       </Modal>
+      {/* [v3.0.6.11-61] 环境式 AI 报告草稿: 输入弹窗 + 确认面板 */}
+      <AiDraftInputModal
+        open={aiUi.open}
+        modality={context.modality}
+        bodyPart={context.bodyPart}
+        clinical={aiUi.clinical}
+        findings={aiUi.findings}
+        style={aiUi.style}
+        loading={aiUi.loading}
+        error={aiUi.error}
+        onClinical={(v) => setAiUi((u) => ({ ...u, clinical: v }))}
+        onFindings={(v) => setAiUi((u) => ({ ...u, findings: v }))}
+        onStyle={(v) => setAiUi((u) => ({ ...u, style: v }))}
+        onCancel={() => setAiUi((u) => ({ ...u, open: false, error: null }))}
+        onGenerate={handleAiGenerate}
+      />
+      {aiConfirm && aiDraft && (
+        <AiDraftConfirmModal
+          draft={aiDraft}
+          currentText={context.document.plainText}
+          editMode={aiEditMode}
+          editText={aiEditText}
+          actionLoading={aiActionLoading}
+          onEditMode={setAiEditMode}
+          onEditText={setAiEditText}
+          onAccept={handleAiAccept}
+          onModifySave={handleAiModifySave}
+          onDiscard={() => setAiConfirm(false)}
+        />
+      )}
       {/* 版本对比 Modal */}
       {diffTarget && (
         <DiffViewModal
@@ -447,6 +614,167 @@ export default function ReportWritePage() {
         />
       )}
     </Layout>
+  );
+}
+
+/* ---------- [v3.0.6.11-61] 环境式 AI 报告草稿: 输入弹窗 + 确认面板 ---------- */
+
+const AI_STYLE_OPTIONS = [
+  { value: 'concise', label: '简洁', desc: '每段仅保留要点' },
+  { value: 'standard', label: '标准', desc: '完整结构化模板' },
+  { value: 'detailed', label: '详细', desc: '模板 + 补充描述' },
+];
+
+function AiDraftInputModal({ open, modality, bodyPart, clinical, findings, style, loading, error, onClinical, onFindings, onStyle, onCancel, onGenerate }: {
+  open: boolean;
+  modality: string;
+  bodyPart: string;
+  clinical: string;
+  findings: string;
+  style: ReportDraftStyle;
+  loading: boolean;
+  error: string | null;
+  onClinical: (v: string) => void;
+  onFindings: (v: string) => void;
+  onStyle: (v: ReportDraftStyle) => void;
+  onCancel: () => void;
+  onGenerate: () => void;
+}) {
+  return (
+    <Modal
+      title={<Space><Sparkles className="w-4 h-4" style={{ color: '#7c3aed' }} /><span>AI 生成报告草稿</span><Tag color="purple">{modality} - {bodyPart}</Tag></Space>}
+      open={open}
+      onCancel={onCancel}
+      width={560}
+      destroyOnHidden
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button onClick={onCancel}>取消</Button>
+          <Button type="primary" icon={<Sparkles className="w-3 h-3" />} onClick={onGenerate} loading={loading} disabled={loading}>
+            生成草稿
+          </Button>
+        </div>
+      }
+    >
+      <div className="space-y-3 pt-2">
+        <Alert type="info" showIcon message="AI 草稿仅供临床参考,最终诊断须由执业医师确认" className="mb-2" />
+        <div>
+          <div className="text-xs font-semibold text-slate-600 mb-1">临床信息</div>
+          <Input.TextArea
+            value={clinical}
+            onChange={(e) => onClinical(e.target.value)}
+            placeholder="请输入主诉/现病史/既往史等临床信息"
+            rows={3}
+          />
+        </div>
+        <div>
+          <div className="text-xs font-semibold text-slate-600 mb-1">发现关键词 (可选)</div>
+          <Input
+            value={findings}
+            onChange={(e) => onFindings(e.target.value)}
+            placeholder="例: 右肺上叶结节影 / 腰椎退行性变"
+          />
+        </div>
+        <div>
+          <div className="text-xs font-semibold text-slate-600 mb-1">详细度</div>
+          <Select
+            value={style}
+            onChange={onStyle}
+            style={{ width: '100%' }}
+            options={AI_STYLE_OPTIONS.map((s) => ({ value: s.value, label: `${s.label} (${s.desc})` }))}
+          />
+        </div>
+        {loading && (
+          <div className="flex items-center gap-2 text-xs text-purple-600">
+            <Spin size="small" />
+            <span>正在按 {modality}-{bodyPart} 模板库生成报告草稿...</span>
+          </div>
+        )}
+        {error && <Alert type="error" showIcon message={error} />}
+      </div>
+    </Modal>
+  );
+}
+
+function AiDraftConfirmModal({ draft, currentText, editMode, editText, actionLoading, onEditMode, onEditText, onAccept, onModifySave, onDiscard }: {
+  draft: AiReportDraft;
+  currentText: string;
+  editMode: boolean;
+  editText: string;
+  actionLoading: boolean;
+  onEditMode: (v: boolean) => void;
+  onEditText: (v: string) => void;
+  onAccept: () => void;
+  onModifySave: () => void;
+  onDiscard: () => void;
+}) {
+  const chunks = useMemo(() => computeDiff(currentText, editMode ? editText : draft.draftText), [currentText, editMode, editText, draft.draftText]);
+  const renderDiffPane = (showAdded: boolean, text: string) => (
+    <div className="border border-slate-200 rounded p-3 text-xs max-h-[380px] overflow-y-auto font-mono leading-relaxed whitespace-pre-wrap">
+      {showAdded ? (
+        chunks.map((chunk: DiffChunk, i: number) =>
+          chunk.type === 'added' ? (
+            <span key={i} className="bg-green-100 text-green-800">{chunk.text}</span>
+          ) : chunk.type === 'removed' ? null : (
+            <span key={i}>{chunk.text}</span>
+          )
+        )
+      ) : (
+        chunks.map((chunk: DiffChunk, i: number) =>
+          chunk.type === 'removed' ? (
+            <span key={i} className="bg-red-100 text-red-800 line-through">{chunk.text}</span>
+          ) : chunk.type === 'added' ? null : (
+            <span key={i}>{chunk.text}</span>
+          )
+        )
+      )}
+      {chunks.length === 0 && <span className="text-slate-400">(内容一致)</span>}
+      <span className="hidden">{text}</span>
+    </div>
+  );
+  return (
+    <Modal
+      title={<Space><Sparkles className="w-4 h-4" style={{ color: '#7c3aed' }} /><span>AI 草稿确认</span><Tag color="purple">{draft.style}</Tag><Tag color="blue">置信度 {(draft.confidence * 100).toFixed(0)}%</Tag></Space>}
+      open
+      onCancel={onDiscard}
+      width={900}
+      destroyOnHidden
+      footer={
+        <div className="flex justify-between items-center">
+          <span className="text-xs text-slate-400">模型 {draft.modelVersion} · 生成于 {new Date(draft.createdAt).toLocaleString()}</span>
+          <div className="flex gap-2">
+            <Button onClick={onDiscard} disabled={actionLoading}>放弃</Button>
+            {!editMode ? (
+              <Button icon={<Edit3 className="w-3 h-3" />} onClick={() => onEditMode(true)} disabled={actionLoading}>修改</Button>
+            ) : (
+              <Button icon={<CheckCircle2 className="w-3 h-3" />} onClick={onModifySave} loading={actionLoading}>保存修改</Button>
+            )}
+            <Button type="primary" icon={<CheckCircle2 className="w-3 h-3" />} onClick={onAccept} loading={actionLoading} disabled={actionLoading}>
+              接受并应用到编辑器
+            </Button>
+          </div>
+        </div>
+      }
+    >
+      <Alert type="warning" showIcon message="AI 草稿仅供临床参考,接受前请核对所见与诊断的准确性" className="mb-3" />
+      {editMode ? (
+        <div className="space-y-2">
+          <div className="text-xs font-semibold text-slate-600">编辑草稿内容 (保存后提交 /ai/report-draft/:id/modify)</div>
+          <Input.TextArea value={editText} onChange={(e) => onEditText(e.target.value)} rows={12} />
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <h4 className="text-xs font-semibold text-slate-500 mb-2">当前编辑器内容 (删除高亮)</h4>
+            {renderDiffPane(false, currentText)}
+          </div>
+          <div>
+            <h4 className="text-xs font-semibold text-slate-500 mb-2">AI 草稿 (新增高亮)</h4>
+            {renderDiffPane(true, editText || draft.draftText)}
+          </div>
+        </div>
+      )}
+    </Modal>
   );
 }
 

@@ -654,6 +654,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.crossModalSearch",
         roles: ["医生", "主任", "技师", "管理员",],
       },
+      // [v3.0.6.11-60] G005 相似病例检索 (对标 Siemens Similar Patient Search)
+      {
+        path: "/similar-case",
+        icon: <Brain size={18} />,
+        labelKey: "nav.similarCaseSearch",
+        roles: ["医生", "主任", "技师", "管理员",],
+      },
       // [P1-fix] 删除上方已重复的 cross-modal-search 条目
       {
         path: "/dicom/sr-manager",

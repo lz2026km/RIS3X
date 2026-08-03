@@ -1,8 +1,8 @@
 // [v3.0.6.11-7] /api/v1/patient-portal MSW handlers
+// [v3.1] 补全: appointments / reports / images / feedback 端点 (G005 患者门户成熟化)
 import { http, HttpResponse, delay } from 'msw';
-import { list, get, create, update, remove } from './store';
+import { list, get, findOne } from './store';
 import { parseQuery, applyQuery } from './queryBuilder';
-import { v4 as uuidv4 } from 'uuid';
 
 const API = '/api/v1/patient-portal';
 
@@ -68,6 +68,130 @@ const EDUCATION_MATERIALS = [
   },
 ];
 
+// ===== [v3.1] 患者门户种子数据 (无数据时可演示) =====
+
+const PORTAL_APPOINTMENTS_SEED: any[] = [
+  { id: 'AP-P001-001', patientId: 'P001', patientName: '张三', modality: 'CT', bodyPart: '胸部', scheduledAt: '2026-08-04T09:00:00+08:00', state: 'CONFIRMED', createdAt: '2026-07-28T10:12:00+08:00' },
+  { id: 'AP-P001-002', patientId: 'P001', patientName: '张三', modality: 'MR', bodyPart: '颅脑', scheduledAt: '2026-08-05T14:30:00+08:00', state: 'SCHEDULED', createdAt: '2026-07-29T09:30:00+08:00' },
+  { id: 'AP-P001-003', patientId: 'P001', patientName: '张三', modality: 'DR', bodyPart: '胸部', scheduledAt: '2026-08-06T10:00:00+08:00', state: 'SCHEDULED', createdAt: '2026-07-30T15:40:00+08:00' },
+  { id: 'AP-P002-001', patientId: 'P002', patientName: '李四', modality: 'DR', bodyPart: '腰椎', scheduledAt: '2026-08-04T10:30:00+08:00', state: 'CHECKED_IN', createdAt: '2026-07-25T11:20:00+08:00' },
+];
+
+const PORTAL_REPORTS_SEED: any[] = [
+  {
+    id: 'RPT-P001-001', patientId: 'P001', patientName: '张三', modality: 'CT', bodyPart: '胸部',
+    examDate: '2026-07-20T10:00:00+08:00', state: 'PUBLISHED', signedAt: '2026-07-20T15:32:00+08:00',
+    findings: '双肺纹理清晰，未见明显实变影。纵隔结构居中，未见明显肿大淋巴结。心影大小正常。',
+    diagnosis: '双肺未见明显异常',
+    impression: '胸部CT平扫未见明显异常。',
+    recommendations: '建议保持健康生活方式，定期体检随访。',
+    conclusion: '未见明显异常',
+    isCritical: false,
+  },
+  {
+    id: 'RPT-P001-002', patientId: 'P001', patientName: '张三', modality: 'MR', bodyPart: '颅脑',
+    examDate: '2026-06-15T09:30:00+08:00', state: 'PUBLISHED', signedAt: '2026-06-15T17:20:00+08:00',
+    findings: '脑实质内未见明显异常信号灶，脑室系统形态正常，中线结构居中，脑沟脑回无异常。',
+    diagnosis: '头颅MR平扫未见明显异常',
+    impression: '头颅MR平扫未见明显异常。',
+    recommendations: '无明显异常，如症状持续建议神经内科门诊随访。',
+    conclusion: '未见明显异常',
+    isCritical: false,
+  },
+  {
+    id: 'RPT-P002-001', patientId: 'P002', patientName: '李四', modality: 'DR', bodyPart: '腰椎',
+    examDate: '2026-07-08T11:00:00+08:00', state: 'PUBLISHED', signedAt: '2026-07-08T16:45:00+08:00',
+    findings: '腰椎生理曲度存在，各椎体形态规整，椎间隙未见明显变窄。',
+    diagnosis: '腰椎DR未见明显异常',
+    impression: '腰椎正侧位片未见明显异常。',
+    recommendations: '建议避免久坐，加强腰背肌锻炼。',
+    conclusion: '未见明显异常',
+    isCritical: false,
+  },
+];
+
+const PORTAL_STUDY_SEED = (studyUid: string) => ({
+  studyInstanceUid: studyUid,
+  studyDate: '2026-07-20T10:00:00+08:00',
+  modality: 'CT',
+  description: '胸部平扫',
+  series: [
+    {
+      seriesInstanceUid: '1.2.826.0.1.3680043.8.498.202607201000001',
+      modality: 'CT',
+      seriesNumber: 2,
+      instanceCount: 120,
+      wadoRs: {
+        instances: `/dicom-web/studies/${studyUid}/series/1.2.826.0.1.3680043.8.498.202607201000001/instances`,
+      },
+    },
+    {
+      seriesInstanceUid: '1.2.826.0.1.3680043.8.498.202607201000002',
+      modality: 'CT',
+      seriesNumber: 3,
+      instanceCount: 1,
+      wadoRs: {
+        instances: `/dicom-web/studies/${studyUid}/series/1.2.826.0.1.3680043.8.498.202607201000002/instances`,
+      },
+    },
+  ],
+  wadoRs: { study: `/dicom-web/studies/${studyUid}` },
+});
+
+// ===== [v3.1] 检查记录 / 影像预览 / 凭证 种子 =====
+const PORTAL_USER_SEED = (id: string) => ({
+  id,
+  name: '张三',
+  gender: '男',
+  age: 45,
+  birthDate: '1981-03-12',
+  phone: '13800138000',
+  idNumber: '110101198103121234',
+  createdAt: '2025-09-01T10:00:00+08:00',
+});
+
+const PORTAL_EXAM_HISTORY_SEED = [
+  {
+    id: 'EX-P001-001', examItem: '胸部CT平扫', examDate: '2026-07-20', bodyPart: '胸部', modality: 'CT',
+    deviceName: 'CT-01 联影 uCT 780', reportStatus: '已出报告', hasImages: true,
+    reportContent: '胸部CT平扫：双肺纹理清晰，未见明显实变影。纵隔结构居中，未见明显肿大淋巴结。心影大小正常。',
+    diagnosis: '双肺未见明显异常',
+    recommendations: '建议保持健康生活方式，定期体检随访。',
+  },
+  {
+    id: 'EX-P001-002', examItem: '头颅MR平扫', examDate: '2026-06-15', bodyPart: '颅脑', modality: 'MR',
+    deviceName: 'MR-01 联影 uMR 790', reportStatus: '已出报告', hasImages: true,
+    reportContent: '头颅MR平扫：脑实质内未见明显异常信号灶，脑室系统形态正常，中线结构居中。',
+    diagnosis: '头颅MR平扫未见明显异常',
+    recommendations: '如症状持续建议神经内科门诊随访。',
+  },
+  {
+    id: 'EX-P001-003', examItem: '腰椎DR正侧位', examDate: '2026-07-08', bodyPart: '腰椎', modality: 'DR',
+    deviceName: 'DR-01 联影 uDR 780i', reportStatus: '已出报告', hasImages: false,
+    reportContent: '腰椎DR正侧位：腰椎生理曲度存在，各椎体形态规整，椎间隙未见明显变窄。',
+    diagnosis: '腰椎DR未见明显异常',
+    recommendations: '建议避免久坐，加强腰背肌锻炼。',
+  },
+];
+
+const PORTAL_IMAGE_PREVIEWS_SEED = [
+  { id: 'IMG-EX-P001-001-1', label: '定位像', windowWidth: 1200, windowCenter: 40, invert: false },
+  { id: 'IMG-EX-P001-001-2', label: '肺窗', windowWidth: 1600, windowCenter: -500, invert: false },
+  { id: 'IMG-EX-P001-001-3', label: '纵隔窗', windowWidth: 400, windowCenter: 40, invert: false },
+];
+
+// 内存态: 会话内创建/提交的数据
+let portalAppointments: any[] = [...PORTAL_APPOINTMENTS_SEED];
+let portalFeedback: any[] = [];
+
+const lookupPatientName = (patientId: string): string | undefined => {
+  try {
+    return findOne<any>('patients', p => p.id === patientId)?.name;
+  } catch {
+    return undefined;
+  }
+};
+
 export const patientPortalHandlers = [
   http.get(`${API}/patients`, async ({ request }) => {
     await delay(delayMs());
@@ -75,14 +199,19 @@ export const patientPortalHandlers = [
     const opts = parseQuery(url);
     let items: any[] = [];
     try { items = list<any>('patients'); } catch {}
-    if (!items.length) items = [{"id":"P001","name":"张三","phone":"13800138000"}];
+    if (!items.some((p: any) => p.phone === '13800138000' || p.id === 'P001')) {
+      items = [{
+        id: 'P001', name: '张三', gender: '男', age: 45, birthDate: '1981-03-12',
+        phone: '13800138000', idNumber: '110101198103121234', createdAt: '2025-09-01T10:00:00+08:00',
+      }, ...items];
+    }
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
   http.get(`${API}/patients/:id`, async ({ params }) => {
     await delay(delayMs());
     let item: any = null;
-    try { item = get<any>('patient', params.id as string); } catch {}
+    try { item = get<any>('patients', params.id as string); } catch {}
     if (!item) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
     return HttpResponse.json({ success: true, data: item });
   }),
@@ -91,7 +220,6 @@ export const patientPortalHandlers = [
     const url = new URL(request.url);
     const opts = parseQuery(url);
     let items: any[] = [];
-    try { items = list<any>('data'); } catch {}
     if (!items.length) items = [{"id":"CD001","patientId":"P001","type":"化验","value":"正常"}];
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
@@ -101,29 +229,140 @@ export const patientPortalHandlers = [
     const url = new URL(request.url);
     const opts = parseQuery(url);
     let items: any[] = [];
-    try { items = list<any>('materials'); } catch {}
-    if (!items.length) items = EDUCATION_MATERIALS;
+    if (!items.length) items = EDUCATION_MATERIALS.map(m => ({ ...m, key: m.id }));
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
-  http.get(`${API}/mobile/patients`, async ({ request }) => {
+
+  // ===== [v3.1] 患者预约列表 =====
+  http.get(`${API}/appointments`, async ({ request }) => {
     await delay(delayMs());
     const url = new URL(request.url);
-    const opts = parseQuery(url);
-    let items: any[] = [];
-    try { items = list<any>('null'); } catch {}
-    if (!items.length) items = {"appVersion":"2.1.0","features":["预约","查询报告"]};
-    const result = applyQuery(items, opts);
-    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
+    const patientId = url.searchParams.get('patientId');
+    let items: any[] = portalAppointments;
+    if (patientId) items = items.filter(a => a.patientId === patientId);
+    return HttpResponse.json({ success: true, data: items, meta: { total: items.length } });
   }),
-  http.get(`${API}/mobile/doctors`, async ({ request }) => {
+
+  // ===== [v3.1] 自助预约创建 =====
+  http.post(`${API}/appointments`, async ({ request }) => {
+    await delay(delayMs());
+    const body = await request.json().catch(() => null) as any;
+    if (!body || !body.patientId || !body.modality || !body.scheduledAt) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'VALIDATION_ERROR', message: 'patientId/modality/scheduledAt 为必填字段' } },
+        { status: 400 },
+      );
+    }
+    const appt: any = {
+      id: `AP-${body.patientId}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      patientId: body.patientId,
+      patientName: body.patientName || lookupPatientName(body.patientId) || '演示患者',
+      modality: body.modality,
+      bodyPart: body.bodyPart,
+      scheduledAt: body.scheduledAt,
+      state: 'SCHEDULED',
+      createdAt: new Date().toISOString(),
+    };
+    portalAppointments = [appt, ...portalAppointments];
+    return HttpResponse.json({ success: true, data: appt, meta: { total: portalAppointments.length } }, { status: 201 });
+  }),
+
+  // ===== [v3.1] 患者报告列表 =====
+  http.get(`${API}/reports`, async ({ request }) => {
     await delay(delayMs());
     const url = new URL(request.url);
-    const opts = parseQuery(url);
-    let items: any[] = [];
-    try { items = list<any>('null'); } catch {}
-    if (!items.length) items = {"appVersion":"2.1.0","features":["移动阅片","审批"]};
-    const result = applyQuery(items, opts);
-    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
+    const patientId = url.searchParams.get('patientId');
+    let items: any[] = PORTAL_REPORTS_SEED;
+    if (patientId) items = items.filter(r => r.patientId === patientId);
+    return HttpResponse.json({ success: true, data: items, meta: { total: items.length } });
+  }),
+
+  // ===== [v3.1] 报告详情 =====
+  http.get(`${API}/reports/:id`, async ({ params }) => {
+    await delay(delayMs());
+    const id = params.id as string;
+    const report = PORTAL_REPORTS_SEED.find(r => r.id === id);
+    if (!report) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    return HttpResponse.json({ success: true, data: report });
+  }),
+
+  // ===== [v3.1] 影像查看 (检查列表 + WADO-RS 引用) =====
+  http.get(`${API}/images/:studyUid`, async ({ params }) => {
+    await delay(delayMs());
+    const studyUid = decodeURIComponent(params.studyUid as string);
+    return HttpResponse.json({ success: true, data: PORTAL_STUDY_SEED(studyUid) });
+  }),
+
+  // ===== [v3.1] 满意度反馈 =====
+  http.post(`${API}/feedback`, async ({ request }) => {
+    await delay(delayMs());
+    const body = await request.json().catch(() => null) as any;
+    const rating = body?.rating;
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'VALIDATION_ERROR', message: 'rating 必须为 1-5 的整数' } },
+        { status: 400 },
+      );
+    }
+    const record: any = {
+      id: `feedback_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      patientId: body?.patientId,
+      patientName: body?.patientName || (body?.patientId ? lookupPatientName(body.patientId) : undefined),
+      rating,
+      category: body?.category || 'general',
+      comment: body?.comment || '',
+      createdAt: new Date().toISOString(),
+    };
+    portalFeedback = [record, ...portalFeedback];
+    return HttpResponse.json({ success: true, data: record }, { status: 201 });
+  }),
+
+  // ===== [v3.1] 患者档案(登录会话) =====
+  http.get(`${API}/user/:id`, async ({ params }) => {
+    await delay(delayMs());
+    return HttpResponse.json({ success: true, data: PORTAL_USER_SEED(params.id as string) });
+  }),
+
+  // ===== [Phase 2] 检查记录 / 报告 / 影像预览 / 下载凭证 =====
+  http.get(`${API}/exam-history`, async ({ request }) => {
+    await delay(delayMs());
+    const url = new URL(request.url);
+    const patientId = url.searchParams.get('patientId');
+    let items = PORTAL_EXAM_HISTORY_SEED;
+    if (patientId) items = items.filter(e => e.id.includes(patientId) || patientId.includes('P001'));
+    return HttpResponse.json({ success: true, data: items });
+  }),
+  http.get(`${API}/exam-history/:id/report`, async ({ params }) => {
+    await delay(delayMs());
+    const exam = PORTAL_EXAM_HISTORY_SEED.find(e => e.id === params.id);
+    if (!exam) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    return HttpResponse.json({ success: true, data: exam });
+  }),
+  http.get(`${API}/exam-history/:id/images`, async ({ params }) => {
+    await delay(delayMs());
+    const exam = PORTAL_EXAM_HISTORY_SEED.find(e => e.id === params.id);
+    if (!exam?.hasImages) {
+      return HttpResponse.json({ success: true, data: [] });
+    }
+    return HttpResponse.json({ success: true, data: PORTAL_IMAGE_PREVIEWS_SEED });
+  }),
+  http.post(`${API}/voucher`, async ({ request }) => {
+    await delay(delayMs());
+    const body = await request.json().catch(() => null) as any;
+    const expires = new Date(Date.now() + 24 * 3600 * 1000).toISOString();
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 16; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    return HttpResponse.json({ success: true, data: { code, expiresAt: expires, patientId: body?.patientId } });
+  }),
+
+  http.get(`${API}/mobile/patients`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json({ success: true, data: {"appVersion":"2.1.0","features":["预约","查询报告"]} });
+  }),
+  http.get(`${API}/mobile/doctors`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json({ success: true, data: {"appVersion":"2.1.0","features":["移动阅片","审批"]} });
   }),
 ];

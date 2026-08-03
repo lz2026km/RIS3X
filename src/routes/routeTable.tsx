@@ -585,6 +585,8 @@ const AiMarketplacePage = lazy(() => import("../pages/ai/AiMarketplacePage"));
 const CrossModalSearchPage = lazy(
   () => import("../pages/dicom/CrossModalSearchPage"),
 );
+// [v3.0.6.11-60] G005 相似病例检索 (对标 Siemens Similar Patient Search)
+const SimilarCasePage = lazy(() => import("../pages/case/SimilarCasePage"));
 // [Sprint 4] F15 Dual Read Workflow
 const DualReadPage = lazy(() => import("../pages/review/DualReadPage"));
 // [Sprint 4] F16 Tele-Sign
@@ -822,6 +824,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/ai/review": ["医生", "主任", "管理员"],
   "/ai/providers": ["管理员"],
   "/cross-modal-search": ["医生", "主任", "技师", "管理员"],
+  "/similar-case": ["医生", "主任", "技师", "管理员"],
   "/dual-read": ["医生", "主任", "管理员"],
   "/tele-sign": ["医生", "主任", "管理员"],
   "/smart-route": ["管理员"],
@@ -1294,6 +1297,7 @@ export const routes: RouteObject[] = [
   // [Sprint 4] F13-F18 新页面路由
   wrapped("/ai-marketplace", React.createElement(AiMarketplacePage)),
   wrapped("/cross-modal-search", React.createElement(CrossModalSearchPage)),
+  wrapped("/similar-case", React.createElement(SimilarCasePage)),
   wrapped("/dual-read", React.createElement(DualReadPage)),
   wrapped("/tele-sign", React.createElement(TeleSignPage)),
   wrapped("/smart-route", React.createElement(SmartRoutePage)),

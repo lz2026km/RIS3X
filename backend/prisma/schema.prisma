@@ -392,6 +392,29 @@ model SystemConfig {
   @@map("system_config")
 }
 
+// v3.0.6.11-60: 多租户 SaaS 基础 - 租户档案 (对标 Sectra One Cloud / Philips HealthSuite)
+// features Json: { aiOrchestration: bool, biDashboard: bool, doseManagement: bool,
+//                 vna: bool, similarCases: bool, environmentReport: bool,
+//                 mobileApp: bool, teleRadiology: bool }
+// config Json:  { locale, timezone, branding, contactEmail, notificationChannels }
+model Tenant {
+  id             String   @id @default(cuid())
+  code           String   @unique
+  name           String
+  status         String   @default("ACTIVE") // ACTIVE | DISABLED
+  license        String   @default("Enterprise")
+  maxUsers       Int      @default(200)
+  maxStorageGb   Int      @default(1024)
+  maxExams       Int      @default(100000)
+  features       Json     @default("{}")
+  config         Json     @default("{}")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@map("tenants")
+}
+
 model LoginLog {
   id        String   @id @default(cuid())
   tenantId  String   @map("tenant_id")
@@ -1379,6 +1402,24 @@ model AiWorkflowIntegration {
   @@map("ai_workflow_integrations")
 }
 
+// v3.0.6.11-61: 环境式 AI 报告草稿 (生成式草稿 + 医生确认)
+// 流程: POST /ai/report-draft 生成 -> 医生 接受/修改 -> 落 reports 表
+model AiReportDraft {
+  id         String    @id @default(cuid())
+  reportId   String    @map("report_id")
+  draftText  String    @map("draft_text")
+  style      String    @default("standard")
+  status     String    @default("PENDING")
+  createdBy  String?   @map("created_by")
+  acceptedAt DateTime? @map("accepted_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  @@index([reportId])
+  @@index([status])
+  @@map("ai_report_drafts")
+}
+
 model CompressTask {
   id             String    @id @default(cuid())
   instanceUid    String
@@ -1550,4 +1591,21 @@ model VnaObject {
   @@index([objectType])
   @@index([tenantId])
   @@map("vna_objects")
+}
+
+// v3.0.6.11-60: 相似病例检索 - 结果有用性反馈 (对标 Siemens Similar Patient Search)
+// reportId: 检索源报告; targetReportId: 返回的相似病例; useful: 医生是否认为结果有用
+model SimilarCaseFeedback {
+  id             String   @id @default(cuid())
+  tenantId       String   @map("tenant_id")
+  reportId       String   @map("report_id")
+  targetReportId String   @map("target_report_id")
+  useful         Boolean
+  comment        String?  @default("")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@index([reportId, targetReportId])
+  @@index([tenantId])
+  @@index([useful])
+  @@map("similar_case_feedbacks")
 }

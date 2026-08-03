@@ -1,4 +1,9 @@
 import { Injectable } from '@nestjs/common'
+import {
+  buildReportDraft,
+  serializeDraft,
+  type ReportStyle,
+} from './report-templates'
 
 export interface AiGenerateDto {
   modality: string
@@ -6,6 +11,8 @@ export interface AiGenerateDto {
   findings: string
   impression?: string
   clinicalHistory?: string
+  clinicalInfo?: string
+  style?: ReportStyle
 }
 
 export interface AiReviewDto {
@@ -24,16 +31,32 @@ export interface AiScoreDto {
 
 @Injectable()
 export class AiService {
+  /**
+   * v3.0.6.11-61: 环境式报告生成 (对标 Philips Ambient Reporting / Siemens 结构化报告)
+   * 输入 临床信息 + 检查(模态/部位) + 发现关键词 → 基于模板库生成完整草稿
+   * 支持 ?style=concise|standard|detailed
+   */
   async generateReport(dto: AiGenerateDto) {
+    const built = buildReportDraft({
+      modality: dto.modality,
+      bodyPart: dto.bodyPart,
+      clinicalInfo: dto.clinicalInfo ?? dto.clinicalHistory,
+      findings: dto.findings,
+      style: dto.style ?? 'standard',
+    })
+    const sections = built.sections.map((s) => ({
+      heading: s.heading,
+      content: s.content,
+    }))
     return {
       provider: 'mock',
-      sections: [
-        { heading: '检查技术', content: `${dto.modality} 平扫+增强扫描` },
-        { heading: '影像所见', content: dto.findings || `${dto.bodyPart} 未见异常` },
-        { heading: '影像诊断', content: dto.impression || '未见明确异常' },
-        { heading: '建议', content: '定期随访' },
-      ],
-      confidence: 0.85,
+      style: dto.style ?? 'standard',
+      sections,
+      draftText: serializeDraft(built.sections),
+      findingsText: built.findingsText,
+      conclusionText: built.conclusionText,
+      recommendation: built.recommendation,
+      confidence: 0.9,
     }
   }
 

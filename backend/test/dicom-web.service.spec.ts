@@ -1,7 +1,9 @@
 import { Test } from '@nestjs/testing'
 import { NotFoundException } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { DicomWebService } from '../src/dicom-web/dicom-web.service'
 import { PrismaService } from '../src/prisma/prisma.service'
+import { STORAGE_DRIVER } from '../src/common/storage/storage.module'
 
 describe('DicomWebService', () => {
   let svc: DicomWebService
@@ -36,6 +38,8 @@ describe('DicomWebService', () => {
       providers: [
         DicomWebService,
         { provide: PrismaService, useValue: mockPrisma },
+        { provide: ConfigService, useValue: { get: (key: string, fallback?: string) => fallback ?? 'dicom' } },
+        { provide: STORAGE_DRIVER, useValue: { get: async () => Buffer.alloc(0), put: async () => undefined } },
       ],
     }).compile()
     svc = module.get(DicomWebService)
@@ -66,7 +70,7 @@ describe('DicomWebService', () => {
     })
 
     it('returns empty array when model missing', async () => {
-      const svcNoModel = new DicomWebService({} as any)
+      const svcNoModel = new DicomWebService({} as any, { get: () => undefined } as any)
       const result = await svcNoModel.searchStudies({})
       expect(result).toEqual([])
     })

@@ -1,5 +1,112 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import { getCurrentTenantId } from '../common/interceptors/tenant-context.interceptor'
+
+export interface CreatePortalAppointmentDto {
+  patientId: string
+  modality: string
+  bodyPart?: string
+  scheduledAt: string | Date
+  deviceId?: string
+}
+
+export interface CreatePortalFeedbackDto {
+  patientId?: string
+  patientName?: string
+  rating: number
+  category?: string
+  comment?: string
+}
+
+// ===== 无数据 seed 演示 (数据库为空时返回, 保证患者门户可演示) =====
+const SEED_APPOINTMENTS = [
+  { id: 'AP-P001-001', patientId: 'P001', patientName: '张三', modality: 'CT', bodyPart: '胸部', scheduledAt: '2026-08-04T09:00:00+08:00', state: 'CONFIRMED' },
+  { id: 'AP-P001-002', patientId: 'P001', patientName: '张三', modality: 'MR', bodyPart: '颅脑', scheduledAt: '2026-08-05T14:30:00+08:00', state: 'SCHEDULED' },
+  { id: 'AP-P001-003', patientId: 'P001', patientName: '张三', modality: 'DR', bodyPart: '胸部', scheduledAt: '2026-08-06T10:00:00+08:00', state: 'SCHEDULED' },
+  { id: 'AP-P002-001', patientId: 'P002', patientName: '李四', modality: 'DR', bodyPart: '腰椎', scheduledAt: '2026-08-04T10:30:00+08:00', state: 'CHECKED_IN' },
+]
+
+const SEED_REPORTS = [
+  {
+    id: 'RPT-P001-001', patientId: 'P001', patientName: '张三', modality: 'CT', bodyPart: '胸部',
+    examDate: '2026-07-20T10:00:00+08:00', state: 'PUBLISHED', signedAt: '2026-07-20T15:32:00+08:00',
+    findings: '双肺纹理清晰，未见明显实变影。纵隔结构居中，未见明显肿大淋巴结。',
+    diagnosis: '双肺未见明显异常',
+    impression: '胸部CT平扫未见明显异常。',
+    recommendations: '建议定期体检随访。',
+    conclusion: '未见明显异常',
+    isCritical: false,
+  },
+  {
+    id: 'RPT-P001-002', patientId: 'P001', patientName: '张三', modality: 'MR', bodyPart: '颅脑',
+    examDate: '2026-06-15T09:30:00+08:00', state: 'PUBLISHED', signedAt: '2026-06-15T17:20:00+08:00',
+    findings: '脑实质内未见明显异常信号灶，脑室系统形态正常，中线结构居中。',
+    diagnosis: '头颅MR平扫未见明显异常',
+    impression: '头颅MR平扫未见明显异常。',
+    recommendations: '无明显异常，如症状持续建议神经内科门诊随访。',
+    conclusion: '未见明显异常',
+    isCritical: false,
+  },
+]
+
+const SEED_STUDY = (studyUid: string) => ({
+  studyInstanceUid: studyUid,
+  studyDate: '2026-07-20T10:00:00+08:00',
+  modality: 'CT',
+  description: '胸部平扫',
+  series: [
+    {
+      seriesInstanceUid: '1.2.826.0.1.3680043.8.498.202607201000001',
+      modality: 'CT',
+      seriesNumber: 2,
+      instanceCount: 120,
+      wadoRs: {
+        instances: `/api/dicom-web/studies/${studyUid}/series/1.2.826.0.1.3680043.8.498.202607201000001/instances`,
+      },
+    },
+    {
+      seriesInstanceUid: '1.2.826.0.1.3680043.8.498.202607201000002',
+      modality: 'CT',
+      seriesNumber: 3,
+      instanceCount: 1,
+      wadoRs: {
+        instances: `/api/dicom-web/studies/${studyUid}/series/1.2.826.0.1.3680043.8.498.202607201000002/instances`,
+      },
+    },
+  ],
+  wadoRs: { study: `/api/dicom-web/studies/${studyUid}` },
+})
+
+function mapAppointment(a: any) {
+  return {
+    id: a.id,
+    patientId: a.patientId,
+    patientName: a.patient?.name,
+    modality: a.modality,
+    scheduledAt: a.scheduledAt,
+    state: a.state,
+    createdAt: a.createdAt,
+  }
+}
+
+function mapReport(r: any) {
+  return {
+    id: r.id,
+    patientId: r.patientId,
+    examId: r.examId,
+    state: r.state,
+    modality: r.exam?.modality,
+    bodyPart: r.exam?.bodyPart,
+    examDate: r.exam?.completedAt ?? r.createdAt,
+    signedAt: r.signedAt,
+    findings: r.findings,
+    diagnosis: r.diagnosis,
+    impression: r.impression,
+    recommendations: r.recommendations,
+    conclusion: r.conclusion,
+    isCritical: r.isCritical,
+  }
+}
 
 @Injectable()
 export class PatientPortalService {
@@ -53,5 +160,127 @@ export class PatientPortalService {
   async getTechMobile() {
     const data = await this.prisma.user.findMany({ where: { role: 'TECHNICIAN' }, take: 20 })
     return { data }
+  }
+
+  // ===== 患者门户 v3.1: 自助预约 / 报告 / 影像 / 反馈 =====
+
+  async listAppointments(patientId?: string) {
+    const tenantId = getCurrentTenantId()
+    const where: any = { tenantId }
+    if (patientId) where.patientId = patientId
+    const items = await this.prisma.appointment.findMany({
+      where,
+      orderBy: { scheduledAt: 'desc' },
+      take: 50,
+      include: { patient: true },
+    })
+    if (items.length === 0) {
+      const data = patientId
+        ? SEED_APPOINTMENTS.filter(a => a.patientId === patientId)
+        : SEED_APPOINTMENTS
+      return { data }
+    }
+    return { data: items.map(mapAppointment) }
+  }
+
+  async createAppointment(dto: CreatePortalAppointmentDto) {
+    const patient = await this.prisma.patient.findUnique({ where: { id: dto.patientId } })
+    if (!patient) throw new NotFoundException(`Patient ${dto.patientId} not found`)
+    const scheduledAt = new Date(dto.scheduledAt)
+    const appointment = await this.prisma.appointment.create({
+      data: {
+        tenantId: getCurrentTenantId(),
+        patientId: dto.patientId,
+        modality: dto.modality,
+        deviceId: dto.deviceId,
+        scheduledAt,
+        state: 'SCHEDULED',
+      },
+      include: { patient: true },
+    })
+    return { data: { ...mapAppointment(appointment), bodyPart: dto.bodyPart } }
+  }
+
+  async listReports(patientId?: string) {
+    const tenantId = getCurrentTenantId()
+    const where: any = { tenantId, state: { in: ['PUBLISHED', 'AMENDED'] } }
+    if (patientId) where.patientId = patientId
+    const items = await this.prisma.report.findMany({
+      where,
+      orderBy: { signedAt: 'desc' },
+      take: 50,
+      include: { exam: true },
+    })
+    if (items.length === 0) {
+      const data = patientId
+        ? SEED_REPORTS.filter(r => r.patientId === patientId)
+        : SEED_REPORTS
+      return { data }
+    }
+    return { data: items.map(mapReport) }
+  }
+
+  async getReport(id: string) {
+    const report = await this.prisma.report.findUnique({
+      where: { id },
+      include: { exam: true },
+    })
+    if (!report) {
+      const seed = SEED_REPORTS.find(r => r.id === id)
+      return { data: seed ?? null }
+    }
+    return { data: mapReport(report) }
+  }
+
+  async listImages(studyUid: string) {
+    let instances: any[] = []
+    try {
+      instances = await this.prisma.dicomInstance.findMany({
+        where: { studyInstanceUid: studyUid, tenantId: getCurrentTenantId() },
+        take: 500,
+      })
+    } catch {
+      instances = []
+    }
+    if (instances.length === 0) return { data: SEED_STUDY(studyUid) }
+    const groups = new Map<string, any[]>()
+    for (const inst of instances) {
+      const key = inst.seriesInstanceUid
+      if (!groups.has(key)) groups.set(key, [])
+      groups.get(key)!.push(inst)
+    }
+    const series = Array.from(groups.entries()).map(([seriesInstanceUid, list]) => ({
+      seriesInstanceUid,
+      modality: list[0]?.modality ?? 'OT',
+      instanceCount: list.length,
+      wadoRs: {
+        instances: `/api/dicom-web/studies/${studyUid}/series/${seriesInstanceUid}/instances`,
+        frames: `/api/dicom-web/studies/${studyUid}/series/${seriesInstanceUid}/frames`,
+      },
+    }))
+    return {
+      data: {
+        studyInstanceUid: studyUid,
+        modality: series[0]?.modality,
+        series,
+        wadoRs: { study: `/api/dicom-web/studies/${studyUid}` },
+      },
+    }
+  }
+
+  async createFeedback(dto: CreatePortalFeedbackDto) {
+    const record = {
+      id: `feedback_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      patientId: dto.patientId,
+      patientName: dto.patientName,
+      rating: dto.rating,
+      category: dto.category ?? 'general',
+      comment: dto.comment ?? '',
+      createdAt: new Date().toISOString(),
+    }
+    await this.prisma.systemConfig.create({
+      data: { key: record.id, value: record as any },
+    })
+    return { data: record }
   }
 }

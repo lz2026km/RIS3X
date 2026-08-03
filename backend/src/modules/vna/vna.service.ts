@@ -2,13 +2,17 @@
  * G005 RIS v3.0.6.11-60 - VNA 厂商中立归档服务 (Vendor Neutral Archive 基础版)
  * 对标 Agfa Enterprise Imaging / Sectra VNA / GE Datalogue
  * 职责: 非 DICOM 内容归档 (document/image) + WORM 不可变锁定 + DICOM 检查统一视图
- * 存储: backend/vna-storage/ 本地目录; 元数据 Prisma 持久化, DB 不可用时回退内存 Map
+ * 存储: 本地目录 (backend/vna-storage/) 或 S3/MinIO (StorageDriver 抽象, STORAGE_DRIVER=s3);
+ *       元数据 Prisma 持久化, DB 不可用时回退内存 Map
  */
-import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException, Optional, Inject } from '@nestjs/common'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as crypto from 'node:crypto'
 import { PrismaService } from '../../prisma/prisma.service'
+import { STORAGE_DRIVER } from '../../common/storage/storage.module'
+import { LocalStorageDriver } from '../../common/storage/local-storage.driver'
+import type { StorageDriver } from '../../common/storage/storage.interface'
 
 export type VnaObjectType = 'document' | 'image'
 
@@ -138,9 +142,14 @@ function resolveStorageDir(): string {
 export class VnaService {
   private readonly logger = new Logger(VnaService.name)
   private readonly storageDir = resolveStorageDir()
+  private readonly storage: StorageDriver
   private readonly memory = new Map<string, MemoryObject>()
 
-  constructor(private readonly prisma: PrismaService) {
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional() @Inject(STORAGE_DRIVER) storageDriver?: StorageDriver,
+  ) {
+    this.storage = storageDriver ?? new LocalStorageDriver({ root: this.storageDir })
     try {
       fs.mkdirSync(this.storageDir, { recursive: true })
     } catch (err) {
@@ -260,13 +269,12 @@ export class VnaService {
   private async persistFile(id: string, originalName: string, buffer: Buffer): Promise<string> {
     const safeBase = path.basename(originalName).replace(/[^\w.\-\u4e00-\u9fa5]/g, '_').slice(0, 80)
     const filename = `${id}_${safeBase || 'object.bin'}`
-    const target = path.join(this.storageDir, filename)
     try {
-      await fs.promises.writeFile(target, buffer)
-      return target
+      await this.storage.put(filename, buffer)
+      return filename
     } catch (err) {
       this.logger.warn(`[VNA] persistFile failed, keep in memory: ${(err as Error).message}`)
-      return target
+      return filename
     }
   }
 
@@ -292,13 +300,13 @@ export class VnaService {
 
   async getObjectContent(id: string): Promise<{ buffer: Buffer; mimeType: string; filename: string }> {
     const obj = await this.getObject(id)
-    // 磁盘文件优先
+    // 存储驱动 (本地磁盘 / S3) 优先
     if (obj.storagePath) {
       try {
-        const buffer = await fs.promises.readFile(obj.storagePath)
+        const buffer = await this.storage.get(obj.storagePath)
         return { buffer, mimeType: obj.mimeType, filename: obj.name }
       } catch (err) {
-        this.logger.warn(`[VNA] readFile failed for ${obj.storagePath}: ${(err as Error).message}`)
+        this.logger.warn(`[VNA] storage.get failed for ${obj.storagePath}: ${(err as Error).message}`)
       }
     }
     const mem = this.memoryGet(id)

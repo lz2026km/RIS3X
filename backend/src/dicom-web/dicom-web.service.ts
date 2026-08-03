@@ -1,13 +1,27 @@
 /**
  * G005 放射RIS系统 v3.0.2.2 - DICOMweb 服务
  * 实现 PS 3.18 QIDO-RS / WADO-RS / STOW-RS 简化版
+ * v3.0.6.11-60: DICOM 文件读写统一走 StorageDriver (本地 / S3 双驱动)
  */
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, NotFoundException, Optional, Inject } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { PrismaService } from '../prisma/prisma.service'
+import { STORAGE_DRIVER } from '../common/storage/storage.module'
+import { LocalStorageDriver } from '../common/storage/local-storage.driver'
+import type { StorageDriver } from '../common/storage/storage.interface'
 
 @Injectable()
 export class DicomWebService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly storage: StorageDriver
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly config: ConfigService,
+    @Optional() @Inject(STORAGE_DRIVER) storageDriver?: StorageDriver,
+  ) {
+    const root = this.config.get<string>('DICOM_STORAGE_DIR', 'dicom') || 'dicom'
+    this.storage = storageDriver ?? new LocalStorageDriver({ root })
+  }
 
   /**
    * QIDO-RS: Search for Studies
@@ -55,7 +69,7 @@ export class DicomWebService {
   /**
    * WADO-RS: Retrieve Instance
    * GET /dicom-web/studies/{study}/series/{series}/instances/{sop}
-   * 返回真实 DICOM Part 10 格式 buffer (DICM magic + 元数据 + 像素数据占位)
+   * 优先读取 StorageDriver 中的真实 DICOM 文件; 无文件时回退构建 Part 10 占位 buffer
    */
   async retrieveInstance(sopInstanceUid: string): Promise<{ id: string; storagePath: string; size: number; mimeType: string; buffer: Buffer }> {
     const model = (this.prisma as any).dicomInstance
@@ -65,7 +79,18 @@ export class DicomWebService {
     const inst = await model.findUnique({ where: { sopInstanceUid } })
     if (!inst) throw new NotFoundException(`Instance ${sopInstanceUid} not found`)
 
-    const buffer = this.buildPart10Buffer(inst)
+    let buffer: Buffer | null = null
+    if (inst.storagePath) {
+      try {
+        const raw = await this.storage.get(inst.storagePath)
+        buffer = raw && raw.length > 0 ? raw : null
+      } catch {
+        buffer = null
+      }
+    }
+    if (!buffer) {
+      buffer = this.buildPart10Buffer(inst)
+    }
     return {
       id: inst.id,
       storagePath: inst.storagePath ?? `wado-rs://default/${sopInstanceUid}`,

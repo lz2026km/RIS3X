@@ -60,6 +60,77 @@ export interface ImagePreviewDto {
   invert: boolean
 }
 
+export interface PortalAppointmentDto {
+  id: string
+  patientId: string
+  patientName?: string
+  modality: string
+  bodyPart?: string
+  scheduledAt: string
+  state: string
+  createdAt?: string
+}
+
+export interface CreatePortalAppointmentInput {
+  patientId: string
+  modality: string
+  bodyPart?: string
+  scheduledAt: string
+  deviceId?: string
+}
+
+export interface PortalReportDto {
+  id: string
+  patientId: string
+  examId?: string
+  state: string
+  modality?: string
+  bodyPart?: string
+  examDate?: string
+  signedAt?: string
+  findings?: string
+  diagnosis?: string
+  impression?: string
+  recommendations?: string
+  conclusion?: string
+  isCritical?: boolean
+}
+
+export interface PortalImageSeriesDto {
+  seriesInstanceUid: string
+  modality: string
+  seriesNumber?: number
+  instanceCount: number
+  wadoRs: { instances: string; frames?: string }
+}
+
+export interface PortalImageStudyDto {
+  studyInstanceUid: string
+  studyDate?: string
+  modality?: string
+  description?: string
+  series: PortalImageSeriesDto[]
+  wadoRs: { study: string }
+}
+
+export interface PortalFeedbackDto {
+  id: string
+  patientId?: string
+  patientName?: string
+  rating: number
+  category?: string
+  comment?: string
+  createdAt: string
+}
+
+export interface CreatePortalFeedbackInput {
+  patientId?: string
+  patientName?: string
+  rating: number
+  category?: string
+  comment?: string
+}
+
 export const patientPortalApi = {
   listPatients: () =>
     api.get<{ data: PortalPatientDto[] }>('/patient-portal/patients'),
@@ -105,4 +176,28 @@ export const patientPortalApi = {
 
   generateVoucher: (patientId: string) =>
     api.post<{ code: string; expiresAt: string }>('/patient-portal/voucher', { patientId }),
+
+  // ===== v3.1 患者门户: 自助预约 / 报告 / 影像 / 反馈 =====
+
+  listAppointments: (patientId?: string) =>
+    api.get<PortalAppointmentDto[]>(
+      `/patient-portal/appointments${patientId ? `?patientId=${encodeURIComponent(patientId)}` : ''}`,
+    ),
+
+  createAppointment: (input: CreatePortalAppointmentInput) =>
+    api.post<PortalAppointmentDto>('/patient-portal/appointments', input),
+
+  listReports: (patientId?: string) =>
+    api.get<PortalReportDto[]>(
+      `/patient-portal/reports${patientId ? `?patientId=${encodeURIComponent(patientId)}` : ''}`,
+    ),
+
+  getReport: (id: string) =>
+    api.get<PortalReportDto | null>(`/patient-portal/reports/${id}`),
+
+  listImages: (studyUid: string) =>
+    api.get<PortalImageStudyDto | null>(`/patient-portal/images/${encodeURIComponent(studyUid)}`),
+
+  submitFeedback: (input: CreatePortalFeedbackInput) =>
+    api.post<PortalFeedbackDto>('/patient-portal/feedback', input),
 }

@@ -30,7 +30,7 @@ export class AuditService {
   }) {
     const page = query.page || 1
     const pageSize = query.pageSize || 20
-    const where: any = {}
+    const where: any = { tenantId: getCurrentTenantId() }
     if (query.userId) where.userId = query.userId
     if (query.action) where.action = query.action
     if (query.resource) where.resource = query.resource
@@ -54,9 +54,12 @@ export class AuditService {
 
   async stats() {
     const [total, last24h] = await Promise.all([
-      this.prisma.auditLog.count(),
+      this.prisma.auditLog.count({ where: { tenantId: getCurrentTenantId() } }),
       this.prisma.auditLog.count({
-        where: { createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } },
+        where: {
+          tenantId: getCurrentTenantId(),
+          createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+        },
       }),
     ])
     return { total, last24h }

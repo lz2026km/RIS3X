@@ -1,27 +1,27 @@
-import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common'
+import { Injectable, Logger, NotFoundException, BadRequestException, Optional, Inject } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import * as fs from 'node:fs'
 import * as net from 'node:net'
-import * as http from 'node:http'
-import * as https from 'node:https'
-import * as path from 'node:path'
 import { PrismaService } from '../prisma/prisma.service'
+import { STORAGE_DRIVER } from '../common/storage/storage.module'
+import { LocalStorageDriver } from '../common/storage/local-storage.driver'
+import { S3StorageDriver } from '../common/storage/s3-storage.driver'
+import type { StorageDriver } from '../common/storage/storage.interface'
 import type { CFindMwlDto } from './dto'
 
 @Injectable()
 export class DicomDimseService {
   private readonly logger = new Logger(DicomDimseService.name)
   private readonly storageDir: string
+  private readonly storage: StorageDriver
   private readonly supportedStorageSopClasses: Set<string>
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
+    @Optional() @Inject(STORAGE_DRIVER) storageDriver?: StorageDriver,
   ) {
     this.storageDir = this.config.get<string>('DICOM_STORAGE_DIR', 'dicom')
-    if (!fs.existsSync(this.storageDir)) {
-      fs.mkdirSync(this.storageDir, { recursive: true })
-    }
+    this.storage = storageDriver ?? new LocalStorageDriver({ root: this.storageDir })
     this.supportedStorageSopClasses = new Set([
       '1.2.840.10008.5.1.4.1.1.1',    // CR Image
       '1.2.840.10008.5.1.4.1.1.2',    // CT Image
@@ -84,17 +84,12 @@ export class DicomDimseService {
       if (!/^[A-Za-z0-9._-]+$/.test(uid)) {
         throw new BadRequestException(`Invalid UID: ${uid}`)
       }
+      if (uid.includes('..')) {
+        throw new BadRequestException(`Path traversal detected: ${uid}`)
+      }
       return uid
     }
-    const sopDir = path.join(this.storageDir, safeUid(dto.studyInstanceUid), safeUid(dto.seriesInstanceUid))
-    const resolvedDir = path.resolve(sopDir)
-    if (!resolvedDir.startsWith(path.resolve(this.storageDir))) {
-      throw new BadRequestException('Path traversal detected')
-    }
-    if (!fs.existsSync(sopDir)) {
-      fs.mkdirSync(sopDir, { recursive: true })
-    }
-    const filePath = path.join(sopDir, `${safeUid(dto.sopInstanceUid)}.dcm`)
+    const objectKey = `${safeUid(dto.studyInstanceUid)}/${safeUid(dto.seriesInstanceUid)}/${safeUid(dto.sopInstanceUid)}.dcm`
     const pixelBuf = dto.pixelData ? Buffer.from(dto.pixelData, 'base64') : Buffer.alloc(128, 0)
     const dicomBuffer = this.buildPart10Buffer({
       sopClassUid: dto.sopClassUid,
@@ -111,7 +106,7 @@ export class DicomDimseService {
       instanceNumber: dto.instanceNumber,
       modality: dto.modality,
     })
-    fs.writeFileSync(filePath, dicomBuffer)
+    await this.storage.put(objectKey, dicomBuffer, { contentType: 'application/dicom' })
     const sizeBytes = dicomBuffer.length
 
     const model = (this.prisma as any).dicomInstance
@@ -125,7 +120,7 @@ export class DicomDimseService {
             sopClassUid: dto.sopClassUid,
             modality: dto.modality,
             sizeBytes,
-            storagePath: filePath,
+            storagePath: objectKey,
             transferSyntax: ts,
           },
         })
@@ -134,7 +129,7 @@ export class DicomDimseService {
       }
     }
 
-    return { sopInstanceUid: dto.sopInstanceUid, storagePath: filePath, sizeBytes }
+    return { sopInstanceUid: dto.sopInstanceUid, storagePath: objectKey, sizeBytes }
   }
 
   async cFindMwl(query: CFindMwlDto): Promise<{ matches: number; items: any[] }> {
@@ -239,24 +234,24 @@ export class DicomDimseService {
     let completed = 0
     let failed = 0
     for (const inst of instances) {
-      if (inst.storagePath && fs.existsSync(inst.storagePath)) {
-        try {
-          const data = fs.readFileSync(inst.storagePath)
-          const client = new net.Socket()
-          await new Promise<void>((resolve, reject) => {
-            client.connect(port, host, () => {
-              client.write(data)
-            })
-            client.on('end', resolve)
-            client.on('error', reject)
-            setTimeout(() => { client.destroy(); resolve() }, 10000).unref()
+      if (!inst.storagePath) {
+        failed++
+        continue
+      }
+      try {
+        const data = await this.storage.get(inst.storagePath)
+        const client = new net.Socket()
+        await new Promise<void>((resolve, reject) => {
+          client.connect(port, host, () => {
+            client.write(data)
           })
-          completed++
-        } catch (e) {
-          this.logger.error(`C-MOVE transfer failed for ${inst.sopInstanceUid}: ${(e as Error).message}`)
-          failed++
-        }
-      } else {
+          client.on('end', resolve)
+          client.on('error', reject)
+          setTimeout(() => { client.destroy(); resolve() }, 10000).unref()
+        })
+        completed++
+      } catch (e) {
+        this.logger.error(`C-MOVE transfer failed for ${inst.sopInstanceUid}: ${(e as Error).message}`)
         failed++
       }
     }
@@ -282,47 +277,24 @@ export class DicomDimseService {
     }
     const inst = await model.findUnique({ where: { sopInstanceUid: dto.sopInstanceUid } })
     if (!inst) throw new NotFoundException(`Instance ${dto.sopInstanceUid} not found`)
-    if (!inst.storagePath || !fs.existsSync(inst.storagePath)) {
-      throw new NotFoundException(`File not found on disk for ${dto.sopInstanceUid}`)
+    if (!inst.storagePath) {
+      throw new NotFoundException(`File not found for ${dto.sopInstanceUid}`)
     }
-    const bucket = dto.bucketName ?? 'dicom'
-    const endpoint = dto.endpoint ?? this.config.get<string>('S3_ENDPOINT', 'http://localhost:9000')
+    const bucket = dto.bucketName ?? process.env['S3_BUCKET'] ?? this.config.get<string>('S3_BUCKET', 'dicom')
+    const endpoint = dto.endpoint ?? process.env['S3_ENDPOINT'] ?? this.config.get<string>('S3_ENDPOINT', 'http://localhost:9000')
     const accessKey = process.env['S3_ACCESS_KEY']
     const secretKey = process.env['S3_SECRET_KEY']
     if (!accessKey || !secretKey) {
       throw new BadRequestException('S3_ACCESS_KEY and S3_SECRET_KEY environment variables must be set')
     }
-    const region = dto.region ?? this.config.get<string>('S3_REGION', 'us-east-1')
+    const region = dto.region ?? process.env['S3_REGION'] ?? this.config.get<string>('S3_REGION', 'us-east-1')
     const objectKey = `${inst.studyInstanceUid}/${inst.seriesInstanceUid}/${inst.sopInstanceUid}.dcm`
-    const fileBuffer = fs.readFileSync(inst.storagePath)
     const url = `${endpoint}/${bucket}/${objectKey}`
     try {
-      const parsed = new URL(endpoint)
-      const useTls = parsed.protocol === 'https:'
-      const httpModule = useTls ? https : http
-      const auth = Buffer.from(`${accessKey}:${secretKey}`).toString('base64')
-      const reqOptions = {
-        hostname: parsed.hostname,
-        port: parsed.port || (useTls ? 443 : 80),
-        path: `/${bucket}/${objectKey}`,
-        method: 'PUT',
-        headers: {
-          'Authorization': `Basic ${auth}`,
-          'Content-Type': 'application/dicom',
-          'Content-Length': fileBuffer.length.toString(),
-          'x-amz-acl': 'private',
-        },
-      }
-      await new Promise<void>((resolve, reject) => {
-        const req = httpModule.request(reqOptions, (res) => {
-          res.on('data', () => {})
-          res.on('end', resolve)
-        })
-        req.on('error', reject)
-        req.write(fileBuffer)
-        req.end()
-      })
-      this.logger.log(`Uploaded to S3: ${url}`)
+      const fileBuffer = await this.storage.get(inst.storagePath)
+      const driver = new S3StorageDriver({ endpoint, bucket, accessKey, secretKey, region })
+      await driver.put(objectKey, fileBuffer, { contentType: 'application/dicom' })
+      this.logger.log(`Uploaded to S3 (SigV4): ${url}`)
     } catch (e) {
       this.logger.error(`S3 upload failed: ${(e as Error).message}`, (e as Error).stack)
       throw new BadRequestException(`S3 upload failed: ${(e as Error).message}`)

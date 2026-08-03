@@ -63,6 +63,7 @@ import { DicomCompressModule } from "./modules/dicom-compress/dicom-compress.mod
 import { Dicom4dModule } from "./modules/dicom-4d/dicom-4d.module";
 import { AiMarketplaceModule } from "./modules/ai-marketplace/ai-marketplace.module";
 import { CrossModalModule } from "./modules/cross-modal/cross-modal.module";
+import { SimilarCaseModule } from "./modules/similar-case/similar-case.module";
 import { DualReadModule } from "./modules/dual-read/dual-read.module";
 import { TeleSignModule } from "./modules/tele-sign/tele-sign.module";
 import { SmartRouteModule } from "./modules/smart-route/smart-route.module";
@@ -85,6 +86,7 @@ import { DicomSrModule } from "./modules/dicom-sr/dicom-sr.module";
 import { HangingModule } from "./modules/hanging/hanging.module";
 import { BiModule } from "./modules/bi/bi.module";
 import { VnaModule } from "./modules/vna/vna.module";
+import { TenantModule } from "./modules/tenant/tenant.module";
 import { MobileModule } from "./mobile/mobile.module";
 import { JwtAuthGuard } from "./common/guards/jwt-auth.guard";
 import { RolesGuard } from "./common/guards/roles.guard";
@@ -93,10 +95,14 @@ import { CsrfInterceptor } from "./common/interceptors/csrf.interceptor";
 import { SecurityHeadersInterceptor } from "./common/interceptors/security-headers.interceptor";
 import { TenantContextInterceptor } from "./common/interceptors/tenant-context.interceptor";
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
+import { StorageModule } from "./common/storage/storage.module";
+import { SystemStorageModule } from "./system-storage/system-storage.module";
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    StorageModule,
+    SystemStorageModule,
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -194,6 +200,7 @@ import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
     Dicom4dModule,
     AiMarketplaceModule,
     CrossModalModule,
+    SimilarCaseModule,
     DualReadModule,
     TeleSignModule,
     SmartRouteModule,
@@ -205,6 +212,7 @@ import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
     DicomSrModule,
     HangingModule,
     VnaModule,
+    TenantModule,
   ],
   controllers: [HealthController],
   providers: [

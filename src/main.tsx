@@ -1,5 +1,5 @@
-﻿// v3.0.6.11-60: 核心 Bug 修复版
-// v3.0.6.11-60: PWA 恢复 — build 模式注册 Service Worker (dev 为 no-op, 不干扰 MSW)
+﻿// v3.0.6.11-61: 核心 Bug 修复版
+// v3.0.6.11-61: PWA 恢复 — build 模式注册 Service Worker (dev 为 no-op, 不干扰 MSW)
 /// <reference types="vite-plugin-pwa/client" />
 import React from "react";
 import ReactDOM from "react-dom/client";
@@ -17,7 +17,7 @@ import "./styles/transitions.css";
 import "./styles/responsive.css";
 import "./styles/z-index.css";
 
-const APP_VERSION = "3.0.6.11-60";
+const APP_VERSION = "3.0.6.11-61";
 console.info(`[v${APP_VERSION}] === BOOT START ===`);
 console.info(`[v${APP_VERSION}] Location:`, window.location.href);
 

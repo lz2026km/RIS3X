@@ -10,6 +10,9 @@
 import { http, HttpResponse, delay } from 'msw';
 import { newPagesHandlers } from './newPagesHandlers';
 import { systemHandlers } from './systemHandlers'; // [v3.0.6.11-21] system/audit, system/backup, system/tenant-config
+// [v3.0.6.11-60] 多租户 SaaS 基础: /api/v1/tenant/*
+import { tenantHandlers } from './tenantHandlers';
+import { storageHandlers } from './storageHandlers'; // [v3.0.6.11-60] cloud-storage 配置
 // [v3.0.6.8-32] 主数据池 + 业务逻辑
 import {
   list, get, create, update, remove, findMany, findOne, stats, isUsingIndexedDB, listAudit,
@@ -49,6 +52,8 @@ import { dicom4dHandlers } from './dicom4dHandlers';
 import { dicomCompressHandlers } from './dicomCompressHandlers'; // [v3.0.6.11-60] DICOM 压缩真实化
 import { screeningHandlers } from './screeningHandlers';
 import { searchHandlers } from './searchHandlers';
+// [v3.0.6.11-60] 相似病例检索 (POST /similar-case/search, GET /similar-case/:reportId, POST /similar-case/feedback)
+import { similarCaseHandlers } from './similarCaseHandlers';
 // [v3.0.6.8-83] 眼科专科 252 端点 (20 模块, 含 PR1-PR11)
 import { eyeHandlers } from './eyeHandlers';
 // [v3.0.6.8-53] 口腔专科 (Day 1: PACS 24 端点)
@@ -69,6 +74,8 @@ import { aiPlatformHandlers } from './aiPlatformHandlers';
 // [v3.0.6.11-60] AI Orchestrator 编排平台 (模型注册/部署/工作流集成/推理任务)
 import { aiOrchestratorHandlers } from './aiOrchestratorHandlers';
 import { aiDiagnosisHandlers } from './aiDiagnosisHandlers';
+// [v3.0.6.11-61] 环境式 AI 报告草稿 (生成式草稿 + 医生确认: /ai/report-draft/*)
+import { reportDraftHandlers } from './reportDraftHandlers';
 import { volumeHandlers } from './volumeHandlers';
 import { dentalHandlers } from './dentalHandlers';
 import { olapHandlers } from './olapHandlers';
@@ -2687,6 +2694,8 @@ export const handlers = [
   ...dentalHandlers, // [v3.0.6.8-53] 口腔 24 端点 (Day 1 PACS)
   ...newPagesHandlers, // [v3.0.6.8-77] v67-v76 新页面后端
   ...systemHandlers,   // [v3.0.6.11-21] system/audit, system/backup, system/tenant-config, compliance
+  ...tenantHandlers,   // [v3.0.6.11-60] 多租户: current/usage/profile/features + admin list/create/status
+  ...storageHandlers,  // [v3.0.6.11-60] cloud-storage 配置 /system/storage-config
   ...wechatHandlers, // [P0-12 v3.0.7] 微信小程序 8 端点
   ...dentalNewHandlers,
   ...workflowHandlers,
@@ -2706,12 +2715,14 @@ export const handlers = [
   ...aiOrchestratorHandlers,
   ...aiPlatformHandlers,
   ...aiDiagnosisHandlers, // [v3.0.6.11-53] AI CAD 端点 (lung/breast/fracture/cardiac + stats/accuracy)
+  ...reportDraftHandlers, // [v3.0.6.11-61] 环境式 AI 报告草稿 (/ai/report-draft/*)
   ...volumeHandlers, // [v3.0.6.11-53] 3D 体数据端点 (series/reconstruct/mpr/mip/vr)
   ...asrHandlers, // [Phase 1.4] ASR 语音识别端点
   ...olapHandlers,
   ...biHandlers, // [v3.0.6.11-60] BI 仪表板 (kpi/timeliness/rvu/oee/sla/trend)
   // [Phase 2] 壳页面真实化 - 新端点 (kiosk/fusion/4d/screening/search)
   ...searchHandlers, // 全局搜索 /search, /search/suggest
+  ...similarCaseHandlers, // [v3.0.6.11-60] 相似病例检索 (Jaccard + 特征 + SNOMED)
   ...kioskHandlers,  // 自助签到机
   ...fusionHandlers, // 多模态融合
   ...dicom4dHandlers, // 4D 动态影像

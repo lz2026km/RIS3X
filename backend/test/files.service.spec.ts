@@ -5,7 +5,7 @@ describe('FilesService', () => {
   let svc: FilesService
 
   beforeEach(() => {
-    svc = new FilesService()
+    svc = new FilesService({ get: () => 'uploads' } as any)
   })
 
   it('getUploadUrl returns presigned URL for allowed mime', () => {

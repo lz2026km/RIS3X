@@ -236,7 +236,12 @@ export { mfaApi } from "./mfaApi";
 export type { TotpSetupResponse, TotpVerifyResponse } from "./mfaApi";
 
 export { tenantApi } from "./tenantApi";
-export type { ComplianceReport } from "./tenantApi";
+export type {
+  ComplianceReport,
+  TenantFeatures,
+  TenantProfile,
+  TenantUsage,
+} from "./tenantApi";
 
 export { patientPortalApi } from "./patientPortalApi";
 export type {
@@ -246,6 +251,13 @@ export type {
   PortalMobileUserDto,
   ExamHistoryItemDto,
   ImagePreviewDto,
+  PortalAppointmentDto,
+  CreatePortalAppointmentInput,
+  PortalReportDto,
+  PortalImageSeriesDto,
+  PortalImageStudyDto,
+  PortalFeedbackDto,
+  CreatePortalFeedbackInput,
 } from "./patientPortalApi";
 
 export { complianceApi } from "./complianceApi";
@@ -570,6 +582,13 @@ export type {
   CrossModalSearchResult,
   CrossModalIndexStatus,
 } from "./crossModalApi";
+
+export { similarCaseApi } from "./similarCaseApi";
+export type {
+  SimilarCaseSearchDto,
+  SimilarCaseResult,
+  SimilarCaseFeedbackDto,
+} from "./similarCaseApi";
 
 export { dicom4dApi } from "./dicom4dApi";
 export type {
