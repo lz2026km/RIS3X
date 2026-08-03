@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
-import { CreateCriticalRuleSchema, UpdateCriticalRuleSchema, AutoDetectCriticalSchema, CloseCriticalLoopSchema } from '../criticals/criticalext.schema'
+import { CreateCriticalRuleSchema, UpdateCriticalRuleSchema, AutoDetectCriticalSchema, CloseCriticalLoopSchema } from './criticalext.schema'
 import { z } from 'zod'
 
 type CreateCriticalRuleDto = z.infer<typeof CreateCriticalRuleSchema>

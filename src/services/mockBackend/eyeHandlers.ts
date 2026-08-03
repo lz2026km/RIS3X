@@ -180,14 +180,7 @@ const eyeRisModule = [
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
   // 14) 完成随访
-  http.post(`${API_BASE}/ris/follow-ups/:id/complete`, async ({ params, request }) => {
-    await delay(50);
-    const id = params.id as string;
-    const body = (await request.json().catch(() => ({}))) as any;
-    const updated = update<any>('eye_follow_ups', id, { status: 'completed', completedAt: new Date().toISOString(), notes: body.notes });
-    if (updated) auditUpdate('eye_follow_ups', updated);
-    return HttpResponse.json({ success: true, data: updated });
-  }),
+  
 
   // 15) 转诊列表
   http.get(`${API_BASE}/ris/referrals`, async ({ request }) => {
@@ -278,12 +271,7 @@ const eyeRisModule = [
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
   // 25) 排班冲突检测
-  http.post(`${API_BASE}/ris/schedules/conflict-check`, async ({ request }) => {
-    await delay(60);
-    const body = (await request.json()) as { doctorId: string; startTime: string; endTime: string };
-    const conflicts = list<any>('eye_schedules').filter((s: any) => s.doctorId === body.doctorId);
-    return HttpResponse.json({ success: true, data: { conflictCount: conflicts.length, conflicts: conflicts.slice(0, 5) } });
-  }),
+  
   // 26) RIS 工作流状态总览
   http.get(`${API_BASE}/ris/workflow-status`, async () => {
     await delay(40);
@@ -394,14 +382,7 @@ const eyePacsModule = [
   }),
 
   // 13) Instance 列表
-  http.get(`${API_BASE}/pacs/instances`, async ({ request }) => {
-    await delay(50);
-    const url = new URL(request.url);
-    const opts = parseQuery(url);
-    const all = list<any>('eye_instances');
-    const result = applyQuery(all, opts, ['instanceType']);
-    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
-  }),
+  
   // 14) Instance 详情
   http.get(`${API_BASE}/pacs/instances/:id`, async ({ params }) => {
     await delay(40);
@@ -410,13 +391,7 @@ const eyePacsModule = [
     return HttpResponse.json({ success: true, data: i });
   }),
   // 15) 创建 Instance
-  http.post(`${API_BASE}/pacs/instances`, async ({ request }) => {
-    await delay(80);
-    const body = (await request.json()) as any;
-    const newItem = { ...body, id: body.id || `INS${Date.now()}` };
-    create('eye_instances', newItem);
-    return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
-  }),
+  
   // 16) 删除 Instance
   http.delete(`${API_BASE}/pacs/instances/:id`, async ({ params }) => {
     const id = params.id as string;
@@ -432,20 +407,9 @@ const eyePacsModule = [
     return HttpResponse.json({ success: true, data: { studyId: params.studyId, contentType: 'application/dicom', pixelDataRef: `data:image/png;base64,...` } });
   }),
   // 18) DICOM-web QIDO (查询)
-  http.get(`${API_BASE}/pacs/qido/studies`, async ({ request }) => {
-    await delay(50);
-    const url = new URL(request.url);
-    const patientId = url.searchParams.get('PatientID');
-    let all = list<any>('eye_studies');
-    if (patientId) all = all.filter((s: any) => s.patientId === patientId);
-    return HttpResponse.json({ success: true, data: all, meta: { total: all.length } });
-  }),
+  
   // 19) DICOM-web STOW (存储)
-  http.post(`${API_BASE}/pacs/stow/studies`, async ({ request }) => {
-    await delay(200);
-    const body = (await request.json()) as any;
-    return HttpResponse.json({ success: true, data: { received: true, sopInstanceUID: body.sopInstanceUID } });
-  }),
+  
 
   // 20) 测量列表
   http.get(`${API_BASE}/pacs/measurements`, async ({ request }) => {
@@ -502,22 +466,9 @@ const eyePacsModule = [
     return new HttpResponse(null, { status: ok ? 204 : 404 });
   }),
   // 27) 病灶分割列表
-  http.get(`${API_BASE}/pacs/lesion-segmentations`, async ({ request }) => {
-    await delay(50);
-    const url = new URL(request.url);
-    const opts = parseQuery(url);
-    const all = list<any>('eye_lesion_segmentations');
-    const result = applyQuery(all, opts, ['lesionType']);
-    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
-  }),
+  
   // 28) 创建分割
-  http.post(`${API_BASE}/pacs/lesion-segmentations`, async ({ request }) => {
-    await delay(100);
-    const body = (await request.json()) as any;
-    const newItem = { ...body, id: body.id || `LS${Date.now()}` };
-    create('eye_lesion_segmentations', newItem);
-    return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
-  }),
+  
   // 29) 拼图 (montage) 创建
   http.post(`${API_BASE}/pacs/montage`, async ({ request }) => {
     await delay(200);
@@ -599,17 +550,7 @@ const eyeEmrModule = [
     return new HttpResponse(null, { status: ok ? 204 : 404 });
   }),
 
-  // 7-14) 8 段病史: chiefComplaint/presentIllness/pastHistory/systemicHistory/medication/allergy/familyHistory/socialHistory
-  ...['chief-complaint', 'present-illness', 'past-history', 'systemic-history', 'medication', 'allergy', 'family-history', 'social-history'].map((segment) =>
-    http.put(`${API_BASE}/emr/records/:id/${segment}`, async ({ params, request }) => {
-      await delay(40);
-      const id = params.id as string;
-      const body = (await request.json()) as any;
-      const updated = update<any>('eye_emrs', id, { [segment]: body.content || body, [`${segment}UpdatedAt`]: new Date().toISOString() });
-      if (updated) auditUpdate('eye_emrs', updated);
-      return HttpResponse.json({ success: true, data: updated });
-    })
-  ),
+  // [Phase 2 MSW 降级] 8 段病史端点 (emr/records/:id/chief-complaint 等) 无前端调用,已移除
 
   // 15) 眼科检查列表 (裂隙灯/眼底/房角镜等)
   http.get(`${API_BASE}/emr/ophthalmic-exams`, async ({ request }) => {
@@ -998,11 +939,7 @@ const eyeReportModule = [
     return new HttpResponse(null, { status: ok ? 204 : 404 });
   }),
   // 16) 按专科
-  http.get(`${API_BASE}/report/templates/by-specialty/:specialty`, async ({ params }) => {
-    await delay(40);
-    const all = list<any>('eye_report_templates').filter((t: any) => t.specialty === params.specialty);
-    return HttpResponse.json({ success: true, data: all, meta: { total: all.length } });
-  }),
+  
 
   // 17) 打印记录
   http.get(`${API_BASE}/report/print-records`, async ({ request }) => {
@@ -1051,122 +988,40 @@ const eyeReportModule = [
 // ============= EyeKpiModule (16 端点) =============
 const eyeKpiModule = [
   // 1) 6 维 KPI 概览
-  http.get(`${API_BASE}/kpi/overview`, async () => {
-    await delay(60);
-    const all = list<any>('eye_kpis');
-    const byCategory: Record<string, any[]> = {};
-    for (const k of all) {
-      const cat = k.category || k.metricName || 'general';
-      if (!byCategory[cat]) byCategory[cat] = [];
-      byCategory[cat].push(k);
-    }
-    return HttpResponse.json({ success: true, data: { total: all.length, byCategory } });
-  }),
+  
   // 2) KPI 详情
-  http.get(`${API_BASE}/kpi/metrics/:id`, async ({ params }) => {
-    await delay(40);
-    const k = get<any>('eye_kpis', params.id as string);
-    if (!k) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
-    return HttpResponse.json({ success: true, data: k });
-  }),
+  
   // 3) 按类别
-  http.get(`${API_BASE}/kpi/metrics/by-category/:category`, async ({ params }) => {
-    await delay(40);
-    const all = list<any>('eye_kpis').filter((k: any) => k.category === params.category || k.metricName === params.category);
-    return HttpResponse.json({ success: true, data: all, meta: { total: all.length } });
-  }),
+  
   // 4) 创建 KPI
-  http.post(`${API_BASE}/kpi/metrics`, async ({ request }) => {
-    await delay(50);
-    const body = (await request.json()) as any;
-    const newItem = { ...body, id: body.id || `KPI${Date.now()}` };
-    create('eye_kpis', newItem);
-    return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
-  }),
+  
   // 5) 更新 KPI
-  http.put(`${API_BASE}/kpi/metrics/:id`, async ({ params, request }) => {
-    await delay(40);
-    const id = params.id as string;
-    const body = (await request.json()) as any;
-    const updated = update<any>('eye_kpis', id, body);
-    return HttpResponse.json({ success: true, data: updated });
-  }),
+  
   // 6) 删除 KPI
-  http.delete(`${API_BASE}/kpi/metrics/:id`, async ({ params }) => {
-    const id = params.id as string;
-    const ok = remove('eye_kpis', id);
-    return new HttpResponse(null, { status: ok ? 204 : 404 });
-  }),
+  
 
   // 7) 趋势 (按时间)
-  http.get(`${API_BASE}/kpi/trend`, async ({ request }) => {
-    await delay(50);
-    const url = new URL(request.url);
-    const metric = url.searchParams.get('metric') || 'examCount';
-    const days = parseInt(url.searchParams.get('days') || '30');
-    const trend = Array.from({ length: days }, (_, i) => ({
-      date: new Date(Date.now() - i * 86400000).toISOString().slice(0, 10),
-      value: 50 + Math.floor(seedRand(metric + '-' + i) * 50), // [v3.0.6.8-85] 确定性
-    })).reverse();
-    return HttpResponse.json({ success: true, data: trend });
-  }),
+  
   // 8) 趋势详情
-  http.get(`${API_BASE}/kpi/trend/:metricId`, async ({ params }) => {
-    await delay(40);
-    const days = 30;
-    return HttpResponse.json({ success: true, data: { metricId: params.metricId, points: Array.from({ length: days }, (_, i) => ({ date: `D${i}`, value: seedRand(params.metricId + '-t' + i) * 100 })) } });
-  }),
+  
   // 9) 趋势预测
-  http.post(`${API_BASE}/kpi/trend/predict`, async ({ request }) => {
-    await delay(80);
-    const body = (await request.json()) as { metricId: string; days: number };
-    return HttpResponse.json({ success: true, data: { metricId: body.metricId, predictions: [], confidence: 0.85 } });
-  }),
+  
   // 10) 同比环比
-  http.get(`${API_BASE}/kpi/compare`, async ({ request }) => {
-    await delay(40);
-    const url = new URL(request.url);
-    const metric = url.searchParams.get('metric') || 'examCount';
-    return HttpResponse.json({ success: true, data: { metric, current: 100, previous: 90, yoy: 110, mom: 95 } });
-  }),
+  
 
   // 11) 医生维度
-  http.get(`${API_BASE}/kpi/by-doctor`, async () => {
-    await delay(50);
-    const doctors = ['D001', 'D002', 'D003', 'D004', 'D005'];
-    return HttpResponse.json({ success: true, data: doctors.map(d => ({ doctorId: d, examCount: 50 + seedRand(d + '-e') * 100, avgScore: 85 + seedRand(d + '-s') * 10 })) });
-  }),
+  
   // 12) 医生个人 KPI
-  http.get(`${API_BASE}/kpi/by-doctor/:doctorId`, async ({ params }) => {
-    await delay(40);
-    return HttpResponse.json({ success: true, data: { doctorId: params.doctorId, examCount: 120, reportCount: 100, avgTAT: 45 } });
-  }),
+  
   // 13) 目标值列表
-  http.get(`${API_BASE}/kpi/targets`, async () => {
-    await delay(40);
-    return HttpResponse.json({ success: true, data: [
-      { metric: 'examCount', target: 5000, period: 'monthly' },
-      { metric: 'avgScore', target: 90, period: 'monthly' },
-    ] });
-  }),
+  
   // 14) 设置目标
-  http.post(`${API_BASE}/kpi/targets`, async ({ request }) => {
-    await delay(40);
-    const body = (await request.json()) as any;
-    return HttpResponse.json({ success: true, data: { id: `TGT${Date.now()}`, ...body } }, { status: 201 });
-  }),
+  
 
   // 15) 影像质控指标
-  http.get(`${API_BASE}/kpi/quality-metrics`, async () => {
-    await delay(50);
-    const all = list<any>('eye_quality_metrics');
-    return HttpResponse.json({ success: true, data: all, meta: { total: all.length } });
-  }),
+  
   // 16) 患者满意度
-  http.get(`${API_BASE}/kpi/satisfaction`, async () => {
-    await delay(40);
-    return HttpResponse.json({ success: true, data: { overall: 92, communication: 90, waitingTime: 85, environment: 95, recommendation: 93 } });
-  }),
+  
 ];
 
 // ============= EyeSubspecialtyModule (24 端点 = 8 亚专科 × 3) =============
@@ -1183,194 +1038,64 @@ const SUBSPECIALTY_TYPES = [
 
 const eyeSubspecialtyModule = SUBSPECIALTY_TYPES.flatMap((sub) => [
   // 1) 列表
-  http.get(`${API_BASE}/subspecialty/${sub.key}/records`, async ({ request }) => {
-    await delay(50);
-    const url = new URL(request.url);
-    const opts = parseQuery(url);
-    const all = list<any>('eye_clinical_subspecialties').filter((r: any) => r.subspecialtyType === sub.key);
-    const result = applyQuery(all, opts);
-    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
-  }),
+  
   // 2) 详情
-  http.get(`${API_BASE}/subspecialty/${sub.key}/records/:id`, async ({ params }) => {
-    await delay(40);
-    const r = get<any>('eye_clinical_subspecialties', params.id as string);
-    if (!r || r.subspecialtyType !== sub.key) return HttpResponse.json({ success: false }, { status: 404 });
-    return HttpResponse.json({ success: true, data: r });
-  }),
+  
   // 3) 创建
-  http.post(`${API_BASE}/subspecialty/${sub.key}/records`, async ({ request }) => {
-    await delay(80);
-    const body = (await request.json()) as any;
-    const newItem = { ...body, id: body.id || `${sub.key.toUpperCase()}${Date.now()}`, subspecialtyType: sub.key, createdAt: new Date().toISOString() };
-    create('eye_clinical_subspecialties', newItem);
-    return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
-  }),
+  
 ]);
 
 // ============= EyePatientJourneyModule (18 端点) =============
 const eyePatientJourneyModule = [
   // 1) 患者旅程时间线
-  http.get(`${API_BASE}/journey/timeline/:patientId`, async ({ params }) => {
-    await delay(60);
-    const all = list<any>('eye_journey_events').filter((e: any) => e.patientId === params.patientId);
-    const timeline = all.sort((a: any, b: any) => (b.eventDate || b.createdAt || '').localeCompare(a.eventDate || a.createdAt || ''));
-    return HttpResponse.json({ success: true, data: timeline, meta: { total: timeline.length } });
-  }),
+  
   // 2) 患者旅程总览
-  http.get(`${API_BASE}/journey/overview/:patientId`, async ({ params }) => {
-    await delay(50);
-    const events = list<any>('eye_journey_events').filter((e: any) => e.patientId === params.patientId);
-    const byType: Record<string, number> = {};
-    for (const e of events) {
-      const t = e.eventType || 'other';
-      byType[t] = (byType[t] || 0) + 1;
-    }
-    return HttpResponse.json({ success: true, data: { total: events.length, byType, firstEvent: events[0], lastEvent: events[events.length - 1] } });
-  }),
+  
   // 3) 创建事件
-  http.post(`${API_BASE}/journey/events`, async ({ request }) => {
-    await delay(50);
-    const body = (await request.json()) as any;
-    const newItem = { ...body, id: body.id || `EVT${Date.now()}`, createdAt: new Date().toISOString() };
-    create('eye_journey_events', newItem);
-    return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
-  }),
+  
   // 4) 按类型
-  http.get(`${API_BASE}/journey/events/by-type/:type`, async ({ params }) => {
-    await delay(40);
-    const all = list<any>('eye_journey_events').filter((e: any) => e.eventType === params.type);
-    return HttpResponse.json({ success: true, data: all, meta: { total: all.length } });
-  }),
+  
 
   // 5) 宣教材料列表
-  http.get(`${API_BASE}/journey/education`, async ({ request }) => {
-    await delay(50);
-    const url = new URL(request.url);
-    const opts = parseQuery(url);
-    const all = list<any>('eye_education_materials');
-    const result = applyQuery(all, opts, ['title', 'category']);
-    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
-  }),
+  
   // 6) 宣教详情
-  http.get(`${API_BASE}/journey/education/:id`, async ({ params }) => {
-    await delay(30);
-    const e = get<any>('eye_education_materials', params.id as string);
-    if (!e) return HttpResponse.json({ success: false }, { status: 404 });
-    return HttpResponse.json({ success: true, data: e });
-  }),
+  
   // 7) 创建宣教
-  http.post(`${API_BASE}/journey/education`, async ({ request }) => {
-    await delay(50);
-    const body = (await request.json()) as any;
-    const newItem = { ...body, id: body.id || `EDU${Date.now()}` };
-    create('eye_education_materials', newItem);
-    return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
-  }),
+  
   // 8) 推送宣教给患者
-  http.post(`${API_BASE}/journey/education/:id/send`, async ({ params, request }) => {
-    await delay(50);
-    const body = (await request.json()) as { patientId: string; channel: string };
-    return HttpResponse.json({ success: true, data: { educationId: params.id, ...body, sentAt: new Date().toISOString() } });
-  }),
+  
 
   // 9) 保险索赔列表
-  http.get(`${API_BASE}/journey/insurance-claims`, async ({ request }) => {
-    await delay(50);
-    const url = new URL(request.url);
-    const opts = parseQuery(url);
-    const all = list<any>('eye_insurance_claims');
-    const result = applyQuery(all, opts, ['patientName', 'claimNo']);
-    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
-  }),
+  
   // 10) 创建索赔
-  http.post(`${API_BASE}/journey/insurance-claims`, async ({ request }) => {
-    await delay(80);
-    const body = (await request.json()) as any;
-    const newItem = { ...body, id: body.id || `IC${Date.now()}`, status: 'submitted', submittedAt: new Date().toISOString() };
-    create('eye_insurance_claims', newItem);
-    return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
-  }),
+  
   // 11) 索赔详情
-  http.get(`${API_BASE}/journey/insurance-claims/:id`, async ({ params }) => {
-    await delay(40);
-    const c = get<any>('eye_insurance_claims', params.id as string);
-    if (!c) return HttpResponse.json({ success: false }, { status: 404 });
-    return HttpResponse.json({ success: true, data: c });
-  }),
+  
 
   // 12) 通知模板列表
-  http.get(`${API_BASE}/journey/notification-templates`, async () => {
-    await delay(40);
-    const all = list<any>('eye_schedules').filter((s: any) => s.templateType === 'notification' || s.channel);
-    return HttpResponse.json({ success: true, data: all, meta: { total: all.length } });
-  }),
+  
   // 13) 发送通知
-  http.post(`${API_BASE}/journey/notifications/send`, async ({ request }) => {
-    await delay(60);
-    const body = (await request.json()) as { patientId: string; templateId: string; channel: string };
-    return HttpResponse.json({ success: true, data: { notificationId: `N${Date.now()}`, ...body, sentAt: new Date().toISOString() } }, { status: 201 });
-  }),
+  
   // 14) 通知历史
-  http.get(`${API_BASE}/journey/notifications/history/:patientId`, async ({ params }) => {
-    await delay(40);
-    return HttpResponse.json({ success: true, data: [{ patientId: params.patientId, channel: 'sms', sentAt: new Date().toISOString(), status: 'delivered' }] });
-  }),
+  
 
   // 15) 旅程规则
-  http.get(`${API_BASE}/journey/rules`, async () => {
-    await delay(40);
-    return HttpResponse.json({ success: true, data: [
-      { ruleId: 'R001', trigger: 'post_surgery', action: 'send_followup_7d' },
-      { ruleId: 'R002', trigger: 'critical_value', action: 'notify_doctor_immediately' },
-    ] });
-  }),
+  
   // 16) 创建规则
-  http.post(`${API_BASE}/journey/rules`, async ({ request }) => {
-    await delay(40);
-    const body = (await request.json()) as any;
-    return HttpResponse.json({ success: true, data: { ruleId: `R${Date.now()}`, ...body } }, { status: 201 });
-  }),
+  
 
   // 17) 旅程事件统计
-  http.get(`${API_BASE}/journey/stats`, async () => {
-    await delay(50);
-    const all = list<any>('eye_journey_events');
-    const byType: Record<string, number> = {};
-    for (const e of all) {
-      const t = e.eventType || 'other';
-      byType[t] = (byType[t] || 0) + 1;
-    }
-    return HttpResponse.json({ success: true, data: { total: all.length, byType } });
-  }),
+  
   // 18) 端到端旅程状态
-  http.get(`${API_BASE}/journey/status/:patientId`, async ({ params }) => {
-    await delay(40);
-    return HttpResponse.json({ success: true, data: { patientId: params.patientId, currentStage: 'diagnosis', completedSteps: ['screening', 'consultation'], pendingSteps: ['treatment', 'followup'] } });
-  }),
+  
 ];
 
 // ============= RBAC 资源点查询端点 (35 端点外) =============
 const eyeRbacModule = [
   // 列出所有 RBAC 资源点
-  http.get(`${API_BASE}/rbac/points`, async () => {
-    await delay(20);
-    return HttpResponse.json({ success: true, data: RBAC_POINTS, meta: { total: RBAC_POINTS.length } });
-  }),
+  
   // 角色-资源点映射
-  http.get(`${API_BASE}/rbac/role-matrix`, async () => {
-    await delay(20);
-    return HttpResponse.json({
-      success: true,
-      data: {
-        doctor: RBAC_POINTS.filter(p => !p.includes(':delete') && !p.includes(':train')),
-        director: RBAC_POINTS,
-        technician: RBAC_POINTS.filter(p => p.startsWith('eye:study:') || p.startsWith('eye:report:read') || p.startsWith('eye:emr:read')),
-        nurse: RBAC_POINTS.filter(p => p.includes(':read') || p.startsWith('eye:ris:')),
-        admin: RBAC_POINTS,
-      },
-    });
-  }),
+  
 ];
 
 // ============= [v3.0.6.8-34] PR 1: 真实 DICOM 渲染 + 标注 + DICOM-SR (12 端点) =============
@@ -1418,30 +1143,10 @@ const PR1_WINDOWING_PRESETS: Record<string, any[]> = {
 
 const eyePacsRenderModule = [
   // 1) Viewport 初始化
-  http.post(`${API_BASE}/pacs/viewport/init`, async ({ request }) => {
-    await delay(80);
-    const body = (await request.json()) as { studyId: string; modality: string; imageIds: string[] };
-    return HttpResponse.json({
-      success: true,
-      data: {
-        viewportId: `vp-${body.studyId || 'default'}`,
-        studyId: body.studyId,
-        modality: body.modality,
-        imageCount: body.imageIds?.length || 0,
-        engineReady: true,
-        renderingBackend: 'cornerstone3d-webgl',
-        initializedAt: new Date().toISOString(),
-      },
-    });
-  }),
+  
 
   // 2) 8 模态窗宽窗位预设
-  http.get(`${API_BASE}/pacs/viewport/preset/:modality`, async ({ params }) => {
-    await delay(40);
-    const m = params.modality as string;
-    const presets = PR1_WINDOWING_PRESETS[m] || PR1_WINDOWING_PRESETS['fundus'];
-    return HttpResponse.json({ success: true, data: presets, meta: { modality: m, total: presets.length } });
-  }),
+  
 
   // 3) 保存测量
   http.post(`${API_BASE}/pacs/measurement`, async ({ request }) => {
@@ -1531,37 +1236,13 @@ const eyePacsRenderModule = [
   }),
 
   // 7) 切换窗宽窗位
-  http.post(`${API_BASE}/pacs/windowing/preset`, async ({ request }) => {
-    await delay(30);
-    const body = (await request.json()) as { studyId: string; preset: string; modality: string };
-    const preset = (PR1_WINDOWING_PRESETS[body.modality] || []).find(p => p.name === body.preset);
-    return HttpResponse.json({ success: true, data: { preset: preset || null, applied: !!preset } });
-  }),
+  
 
   // 8) 列出所有模态预设
-  http.get(`${API_BASE}/pacs/windowing/presets/:modality`, async ({ params }) => {
-    await delay(20);
-    const m = params.modality as string;
-    return HttpResponse.json({ success: true, data: PR1_WINDOWING_PRESETS[m] || [] });
-  }),
+  
 
   // 9) 保存标注
-  http.post(`${API_BASE}/pacs/annotation`, async ({ request }) => {
-    await delay(40);
-    const body = (await request.json()) as any;
-    const newItem = {
-      id: `AN${Date.now()}`,
-      studyId: body.studyId,
-      annotationType: body.annotationType || 'TextMarker',
-      text: body.text,
-      coordinates: body.coordinates || [],
-      color: body.color || '#1677ff',
-      createdAt: new Date().toISOString(),
-      createdBy: body.createdBy || 'system',
-    };
-    try { create('eye_annotations', newItem); } catch {}
-    return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
-  }),
+  
 
   // 10) 获取 Study 标注列表
   http.get(`${API_BASE}/pacs/annotation/:studyId`, async ({ params }) => {
@@ -1580,20 +1261,7 @@ const eyePacsRenderModule = [
   }),
 
   // 12) 帧加载 (CINE 模式)
-  http.post(`${API_BASE}/pacs/frame/load`, async ({ request }) => {
-    await delay(20);
-    const body = (await request.json()) as { studyId: string; frameIndex: number; totalFrames: number };
-    return HttpResponse.json({
-      success: true,
-      data: {
-        studyId: body.studyId,
-        currentFrame: body.frameIndex,
-        totalFrames: body.totalFrames,
-        progress: ((body.frameIndex + 1) / body.totalFrames * 100).toFixed(1) + '%',
-        loadedAt: new Date().toISOString(),
-      },
-    });
-  }),
+  
 ];
 
 // ============= [v3.0.6.8-35] PR 2: 报告 AI 辅助 (10 端点) =============
@@ -1767,18 +1435,7 @@ const eyeReportAiModule = [
   }),
 
   // 4) ICD-10 映射
-  http.get(`${API_BASE}/report/nlp/icd-map`, async ({ request }) => {
-    await delay(30);
-    const url = new URL(request.url);
-    const q = url.searchParams.get('q') || '';
-    const results: any[] = [];
-    for (const [name, info] of Object.entries(PR2_ICD10_MAP)) {
-      if (!q || name.includes(q) || info.code.includes(q)) {
-        results.push({ name, ...info });
-      }
-    }
-    return HttpResponse.json({ success: true, data: results, meta: { total: results.length, query: q } });
-  }),
+  
 
   // 5) AI 续写
   http.post(`${API_BASE}/report/ai/continue`, async ({ request }) => {
@@ -2040,25 +1697,7 @@ const eyeIolModule = [
   }),
 
   // 4) Hill-RBF
-  http.post(`${API_BASE}/iol/calculate/hill-rbf`, async ({ request }) => {
-    await delay(150);
-    const body = (await request.json()) as any;
-    // Hill-RBF: 基于大数据集,无需常数
-    const Km = (body.K1 + body.K2) / 2;
-    const power = 118.4 - 0.9 * Km - 0.05 * (body.AL - 23.5) - 0.03 * (body.ACD - 4.0);
-    return HttpResponse.json({
-      success: true,
-      data: {
-        formula: 'Hill-RBF',
-        power: Math.round(power * 2) / 2,
-        method: 'Hill-RBF 2.0',
-        inputs: body,
-        source: 'Hill-RBF 2.0 (RBF 神经网络, 无需常数)',
-        note: '实际部署需调用 Hill-RBF API 服务',
-        calculatedAt: new Date().toISOString(),
-      },
-    });
-  }),
+  
 
   // 5) Toric 散光晶体规划
   http.post(`${API_BASE}/iol/toric/plan`, async ({ request }) => {
@@ -2182,22 +1821,7 @@ const eyeSubspecialtyDepthModule = [
   }),
 
   // 2) 斜视 - 三棱镜
-  http.post(`${API_BASE}/subspecialty/strabismus/prism`, async ({ request }) => {
-    await delay(60);
-    const body = (await request.json()) as { patientId: string; distance: 'near' | 'far'; horizontal: number; vertical: number };
-    return HttpResponse.json({
-      success: true,
-      data: {
-        patientId: body.patientId,
-        distance: body.distance,
-        horizontal: body.horizontal,
-        vertical: body.vertical,
-        unit: 'Δ',
-        method: '三棱镜交替遮盖试验 (Prism Alternate Cover Test)',
-        examinedAt: new Date().toISOString(),
-      },
-    });
-  }),
+  
 
   // 3) 神经眼科 - 色觉
   http.post(`${API_BASE}/subspecialty/neuro/color-vision`, async ({ request }) => {
@@ -2289,24 +1913,7 @@ const eyeSubspecialtyDepthModule = [
   }),
 
   // 7) 角膜病 - BAD 指数
-  http.post(`${API_BASE}/subspecialty/cornea/bad`, async ({ request }) => {
-    await delay(80);
-    const body = (await request.json()) as { patientId: string; eye: 'OD' | 'OS'; badValue: number };
-    let category = '正常';
-    if (body.badValue > 2.5) category = '异常 (圆锥角膜可疑)';
-    else if (body.badValue > 1.6) category = '可疑';
-    return HttpResponse.json({
-      success: true,
-      data: {
-        patientId: body.patientId,
-        eye: body.eye,
-        badValue: body.badValue,
-        category,
-        method: 'Belin Ambrosio Display (BAD) 指数',
-        examinedAt: new Date().toISOString(),
-      },
-    });
-  }),
+  
 
   // 8) 接触镜 - 库存
   http.get(`${API_BASE}/contact-lens/inventory`, async () => {
@@ -2359,185 +1966,28 @@ const eyeSubspecialtyDepthModule = [
 
 const eyeAiExtendedModule = [
   // 1) DR 5 级精细分级模型 (特殊端点, 不被 /ai/models/:id 拦截)
-  http.get(`${API_BASE}/ai/models/dr-grader`, async () => {
-    await delay(40);
-    return HttpResponse.json({
-      success: true,
-      data: {
-        modelId: 'dr-grader-v3',
-        id: 'dr-grader',
-        modelName: 'DR 五级精细分级',
-        type: 'classification',
-        diseaseCategory: 'DR',
-        architecture: 'EfficientNet-B5 + CBAM',
-        trainingData: 'EyePACS + 内部 500 例',
-        metrics: { auc: 0.94, sensitivity: 0.91, specificity: 0.93, f1: 0.92 },
-        grades: [
-          { grade: 0, label: '无 DR', color: '#52c41a' },
-          { grade: 1, label: '轻度 NPDR', color: '#1677ff' },
-          { grade: 2, label: '中度 NPDR', color: '#faad14' },
-          { grade: 3, label: '重度 NPDR', color: '#fa541c' },
-          { grade: 4, label: '增殖性 PDR', color: '#f5222d' },
-        ],
-        outputSize: 512,
-        inferenceTime: '350ms (CPU) / 80ms (GPU)',
-      },
-    });
-  }),
+  
 
   // 2) DR 推理
-  http.post(`${API_BASE}/ai/infer/dr`, async ({ request }) => {
-    await delay(500);
-    const body = (await request.json()) as { studyId: string; patientId: string; imageBase64?: string };
-    const grade = Math.floor(seedRand(body.studyId + 'dr') * 5); // [v3.0.6.8-85] 确定性
-    const grades = ['无 DR', '轻度 NPDR', '中度 NPDR', '重度 NPDR', '增殖性 PDR'];
-    return HttpResponse.json({
-      success: true,
-      data: {
-        diagnosisId: `DR${Date.now()}`,
-        studyId: body.studyId,
-        patientId: body.patientId,
-        modelId: 'dr-grader-v3',
-        grade: { value: grade, label: grades[grade] },
-        confidence: 0.85 + seedRand(body.studyId + 'dr-cf') * 0.1,
-        probabilities: Array.from({ length: 5 }, (_, i) => ({ grade: i, probability: seedRand(body.studyId + 'p' + i) })),
-        biomarkers: {
-          microaneurysms: Math.floor(seedRand(body.studyId + 'ma') * 30),
-          hemorrhages: Math.floor(seedRand(body.studyId + 'he') * 20),
-          hardExudates: Math.floor(seedRand(body.studyId + 'ex') * 15),
-        },
-        heatmapUrl: 'data:image/png;base64,GRADCAM...',
-        inferredAt: new Date().toISOString(),
-      },
-    });
-  }),
+  
 
   // 3) 青光眼视野推理
-  http.post(`${API_BASE}/ai/infer/glaucoma-vf`, async ({ request }) => {
-    await delay(400);
-    const body = (await request.json()) as { studyId: string; visualFieldData: number[][] };
-    const md = -8.5 - Math.random() * 5;
-    const psd = 4.2 + Math.random() * 3;
-    return HttpResponse.json({
-      success: true,
-      data: {
-        diagnosisId: `GLF${Date.now()}`,
-        studyId: body.studyId,
-        modelId: 'glaucoma-vf-v2',
-        metrics: { MD: md.toFixed(2), PSD: psd.toFixed(2), VFI: (100 + md).toFixed(0) },
-        ght: md < -6 ? 'Outside Normal Limits' : md < -3 ? 'Borderline' : 'Within Normal Limits',
-        progressionRisk: Math.abs(md) > 8 ? '高' : Math.abs(md) > 5 ? '中' : '低',
-        inferredAt: new Date().toISOString(),
-      },
-    });
-  }),
+  
 
   // 4) PCV 病灶量化
-  http.post(`${API_BASE}/ai/infer/pcv-quant`, async ({ request }) => {
-    await delay(500);
-    const body = (await request.json()) as { studyId: string };
-    return HttpResponse.json({
-      success: true,
-      data: {
-        diagnosisId: `PCV${Date.now()}`,
-        studyId: body.studyId,
-        modelId: 'pcv-segmentor-v2',
-        lesionType: '息肉样脉络膜血管病变 (PCV)',
-        measurements: {
-          totalArea: 4.2 + Math.random() * 2, // mm²
-          branchCount: Math.floor(Math.random() * 8) + 1,
-          polyCount: Math.floor(Math.random() * 5),
-          maxDiameter: 1.8 + Math.random() * 0.8, // mm
-        },
-        iou: 0.84,
-        volume: 12.5 + Math.random() * 5, // mm³
-        heatmapUrl: 'data:image/png;base64,PCV...',
-        inferredAt: new Date().toISOString(),
-      },
-    });
-  }),
+  
 
   // 5) AMD-GA 量化
-  http.post(`${API_BASE}/ai/infer/amd-ga`, async ({ request }) => {
-    await delay(450);
-    const body = (await request.json()) as { studyId: string };
-    return HttpResponse.json({
-      success: true,
-      data: {
-        diagnosisId: `AMG${Date.now()}`,
-        studyId: body.studyId,
-        modelId: 'amd-ga-segmentor-v2',
-        type: 'Geographic Atrophy (GA)',
-        measurements: {
-          gaArea: 2.1 + Math.random() * 3, // mm²
-          growthRate: 0.4 + Math.random() * 0.3, // mm²/year
-          centerInvolvement: Math.random() > 0.5,
-          lesionCount: Math.floor(Math.random() * 3) + 1,
-        },
-        dice: 0.78,
-        inferredAt: new Date().toISOString(),
-      },
-    });
-  }),
+  
 
   // 6) CNV 病灶量化
-  http.post(`${API_BASE}/ai/infer/cnv-quant`, async ({ request }) => {
-    await delay(450);
-    const body = (await request.json()) as { studyId: string };
-    return HttpResponse.json({
-      success: true,
-      data: {
-        diagnosisId: `CNV${Date.now()}`,
-        studyId: body.studyId,
-        modelId: 'cnv-quant-v2',
-        cnvType: ['Type 1 (隐匿型)', 'Type 2 (典型)', 'Mixed'][Math.floor(Math.random() * 3)],
-        measurements: {
-          area: 0.8 + Math.random() * 1.5, // mm²
-          volume: 0.5 + Math.random() * 2, // mm³
-          flowSignal: 80 + Math.random() * 20, // %
-          centralInvolvement: Math.random() > 0.6,
-        },
-        iou: 0.82,
-        inferredAt: new Date().toISOString(),
-      },
-    });
-  }),
+  
 
   // 7) 生物标志物
-  http.get(`${API_BASE}/ai/biomarker/:studyId`, async ({ params }) => {
-    await delay(50);
-    return HttpResponse.json({
-      success: true,
-      data: {
-        studyId: params.studyId,
-        biomarkers: {
-          retinalThickness: 285 + Math.random() * 30, // μm
-          choroidalThickness: 240 + Math.random() * 50,
-          vesselDensity: 48 + Math.random() * 10, // %
-          faZArea: 0.32 + Math.random() * 0.15, // mm²
-          perifovealFlow: 38 + Math.random() * 8, // %
-        },
-        modelId: 'biomarker-v1',
-        extractedAt: new Date().toISOString(),
-      },
-    });
-  }),
+  
 
   // 8) 模型对比
-  http.post(`${API_BASE}/ai/governance/compare`, async ({ request }) => {
-    await delay(100);
-    const body = (await request.json()) as { modelIds: string[] };
-    const all = list<any>('eye_ai_models');
-    const filtered = all.filter((m: any) => body.modelIds.includes(m.id || m.modelId));
-    return HttpResponse.json({
-      success: true,
-      data: filtered.map((m: any) => ({
-        ...m,
-        metrics: { auc: 0.85 + Math.random() * 0.1, sensitivity: 0.80 + Math.random() * 0.15, specificity: 0.82 + Math.random() * 0.15 },
-      })),
-      meta: { compared: filtered.length, total: body.modelIds.length },
-    });
-  }),
+  
 ];
 
 // ============= [v3.0.6.8-39] PR 6: 影像质控 AI (6 端点) =============
@@ -2546,129 +1996,22 @@ const eyeAiExtendedModule = [
 
 const eyeQcAiModule = [
   // 1) AI QC 自动评分
-  http.post(`${API_BASE}/qc/auto-grade`, async ({ request }) => {
-    await delay(300);
-    const body = (await request.json()) as { instanceId: string; pixelData?: number[] };
-    const score = 70 + Math.random() * 30;
-    const snr = 25 + Math.random() * 15;
-    const cnr = 3.5 + Math.random() * 3;
-    const artifacts: string[] = [];
-    if (score < 80) artifacts.push('运动伪影');
-    if (snr < 30) artifacts.push('低信噪比');
-    if (cnr < 4) artifacts.push('低对比度');
-    return HttpResponse.json({
-      success: true,
-      data: {
-        instanceId: body.instanceId,
-        overallScore: score.toFixed(1),
-        snr: snr.toFixed(1),
-        cnr: cnr.toFixed(1),
-        artifacts: artifacts.length > 0 ? artifacts : ['无明显伪影'],
-        grade: score >= 90 ? 'A (优)' : score >= 80 ? 'B (良)' : score >= 70 ? 'C (合格)' : 'D (不合格)',
-        passed: score >= 75,
-        recommendations: score < 80 ? ['建议重扫', '调整患者配合'] : ['通过'],
-        gradedAt: new Date().toISOString(),
-      },
-    });
-  }),
+  
 
   // 2) QC 分数详情
-  http.get(`${API_BASE}/qc/score/:instanceId`, async ({ params }) => {
-    await delay(30);
-    return HttpResponse.json({
-      success: true,
-      data: {
-        instanceId: params.instanceId,
-        score: {
-          overall: 85,
-          sharpness: 88,
-          contrast: 82,
-          noise: 87,
-          fieldUniformity: 84,
-          motionArtifact: 90,
-          eyelidCoverage: 85,
-        },
-        histogram: {
-          mean: 128,
-          stdDev: 45,
-          min: 12,
-          max: 245,
-        },
-        gradedAt: new Date().toISOString(),
-      },
-    });
-  }),
+  
 
   // 3) 拦截 (Reject)
-  http.post(`${API_BASE}/qc/reject`, async ({ request }) => {
-    await delay(50);
-    const body = (await request.json()) as { instanceId: string; reason: string; severity: 'low' | 'medium' | 'high' };
-    return HttpResponse.json({
-      success: true,
-      data: {
-        rejectId: `REJ${Date.now()}`,
-        instanceId: body.instanceId,
-        reason: body.reason,
-        severity: body.severity,
-        rescanRequired: true,
-        rejectedAt: new Date().toISOString(),
-      },
-    });
-  }),
+  
 
   // 4) 重扫指令 (DICOM Modality Worklist)
-  http.post(`${API_BASE}/qc/rescan`, async ({ request }) => {
-    await delay(80);
-    const body = (await request.json()) as { instanceId: string; modality: string; protocol?: string };
-    return HttpResponse.json({
-      success: true,
-      data: {
-        rescanId: `RESCAN${Date.now()}`,
-        instanceId: body.instanceId,
-        modality: body.modality,
-        protocol: body.protocol || '标准协议',
-        scheduledAt: new Date(Date.now() + 600000).toISOString(),
-        dcmMwLEntry: `MWL.${body.instanceId}.${Date.now()}`,
-        sentAt: new Date().toISOString(),
-      },
-    });
-  }),
+  
 
   // 5) 拦截规则
-  http.get(`${API_BASE}/qc/rules`, async () => {
-    await delay(20);
-    return HttpResponse.json({
-      success: true,
-      data: [
-        { ruleId: 'R001', dimension: 'sharpness', threshold: 70, severity: 'high' },
-        { ruleId: 'R002', dimension: 'snr', threshold: 25, severity: 'high' },
-        { ruleId: 'R003', dimension: 'cnr', threshold: 3, severity: 'medium' },
-        { ruleId: 'R004', dimension: 'motion', threshold: 80, severity: 'high' },
-        { ruleId: 'R005', dimension: 'eyelid', threshold: 75, severity: 'medium' },
-      ],
-    });
-  }),
+  
 
   // 6) QC 统计
-  http.get(`${API_BASE}/qc/stats`, async () => {
-    await delay(30);
-    return HttpResponse.json({
-      success: true,
-      data: {
-        totalGraded: 1234,
-        passed: 1100,
-        rejected: 134,
-        rejectionRate: 0.108,
-        topRejectionReasons: [
-          { reason: '运动伪影', count: 45 },
-          { reason: '眼睑遮挡', count: 32 },
-          { reason: '低信噪比', count: 28 },
-        ],
-        avgScore: 82.5,
-        timestamp: new Date().toISOString(),
-      },
-    });
-  }),
+  
 ];
 
 // ============= [v3.0.6.8-40] PR 7: 多模态融合 (8 端点) =============
@@ -2677,164 +2020,28 @@ const eyeQcAiModule = [
 
 const eyeFusionModule = [
   // 1) Late Fusion
-  http.post(`${API_BASE}/fusion/late`, async ({ request }) => {
-    await delay(600);
-    const body = (await request.json()) as {
-      studyId: string;
-      modalities: { fundus?: string; oct?: string; octa?: string; ffa?: string };
-    };
-    return HttpResponse.json({
-      success: true,
-      data: {
-        fusionId: `FUSE${Date.now()}`,
-        studyId: body.studyId,
-        modalities: Object.keys(body.modalities || {}),
-        fused: {
-          dr: { probability: 0.78, severity: '中度 NPDR' },
-          amd: { probability: 0.15, severity: '无' },
-          glaucoma: { probability: 0.08, severity: '可疑' },
-          overallRisk: '中等',
-          recommendation: '建议 3 月内复查',
-        },
-        modalityWeights: { fundus: 0.35, oct: 0.30, octa: 0.20, ffa: 0.15 },
-        method: 'Late Fusion (各模态单独 embedding → concat → MLP)',
-        computedAt: new Date().toISOString(),
-      },
-    });
-  }),
+  
 
   // 2) Cross-Modal Attention 融合
-  http.post(`${API_BASE}/fusion/attention`, async ({ request }) => {
-    await delay(800);
-    const body = (await request.json()) as { studyId: string; modalities: any };
-    return HttpResponse.json({
-      success: true,
-      data: {
-        fusionId: `ATTN${Date.now()}`,
-        studyId: body.studyId,
-        attentionScores: {
-          fundus_to_oct: 0.62,
-          oct_to_octa: 0.85,
-          octa_to_ffa: 0.71,
-        },
-        fused: {
-          dr: 0.82,
-          amd: 0.10,
-          glaucoma: 0.05,
-        },
-        method: 'Cross-Modal Attention Transformer',
-        computedAt: new Date().toISOString(),
-      },
-    });
-  }),
+  
 
   // 3) 融合结果
-  http.get(`${API_BASE}/fusion/result/:studyId`, async ({ params }) => {
-    await delay(40);
-    return HttpResponse.json({
-      success: true,
-      data: {
-        studyId: params.studyId,
-        fused: { dr: 0.75, amd: 0.12, glaucoma: 0.10 },
-        confidence: 0.85,
-        method: 'Late Fusion',
-        computedAt: new Date().toISOString(),
-      },
-    });
-  }),
+  
 
   // 4) SHAP 解释
-  http.get(`${API_BASE}/fusion/explain/:resultId`, async ({ params }) => {
-    await delay(80);
-    return HttpResponse.json({
-      success: true,
-      data: {
-        resultId: params.resultId,
-        shapValues: {
-          fundus_microaneurysm: 0.32,
-          oct_retinal_thickness: 0.28,
-          octa_vessel_density: 0.18,
-          ffa_leakage: 0.15,
-        },
-        baseValue: 0.10,
-        explanation: '主要风险因素: 眼底微动脉瘤 (32%) + OCT 视网膜厚度异常 (28%)',
-        computedAt: new Date().toISOString(),
-      },
-    });
-  }),
+  
 
   // 5) 融合 → 报告联动
-  http.post(`${API_BASE}/fusion/report`, async ({ request }) => {
-    await delay(400);
-    const body = (await request.json()) as { fusionId: string; reportType: string };
-    return HttpResponse.json({
-      success: true,
-      data: {
-        reportId: `RPTAUTO${Date.now()}`,
-        fusionId: body.fusionId,
-        content: `多模态融合结果提示: 中度 NPDR。建议结合 FFA 进一步确认。`,
-        autoGenerated: true,
-        needsConfirmation: true,
-        generatedAt: new Date().toISOString(),
-      },
-    });
-  }),
+  
 
   // 6) 融合对比
-  http.get(`${API_BASE}/fusion/comparison`, async ({ request }) => {
-    await delay(50);
-    const url = new URL(request.url);
-    const studyId = url.searchParams.get('studyId');
-    return HttpResponse.json({
-      success: true,
-      data: {
-        studyId,
-        comparison: {
-          late: { dr: 0.75, amd: 0.12, glaucoma: 0.10 },
-          attention: { dr: 0.82, amd: 0.10, glaucoma: 0.05 },
-        },
-        agreement: 0.87,
-        recommendedMethod: 'attention',
-      },
-    });
-  }),
+  
 
   // 7) 多模态配准
-  http.post(`${API_BASE}/fusion/register`, async ({ request }) => {
-    await delay(300);
-    const body = (await request.json()) as { fundusStudyId: string; octStudyId: string };
-    return HttpResponse.json({
-      success: true,
-      data: {
-        registrationId: `REG${Date.now()}`,
-        fundusStudyId: body.fundusStudyId,
-        octStudyId: body.octStudyId,
-        transform: { translation: [12.5, -3.2], rotation: 2.1, scale: 1.02 },
-        rmse: 1.8,
-        registeredAt: new Date().toISOString(),
-      },
-    });
-  }),
+  
 
   // 8) 融合热图
-  http.get(`${API_BASE}/fusion/heatmap/:id`, async ({ params }) => {
-    await delay(40);
-    return HttpResponse.json({
-      success: true,
-      data: {
-        heatmapId: params.id,
-        type: 'shap-fusion',
-        width: 512,
-        height: 512,
-        url: 'data:image/png;base64,FUSIONHEATMAP...',
-        regionHighlights: [
-          { region: '黄斑区', importance: 0.45 },
-          { region: '视盘区', importance: 0.25 },
-          { region: '周边视网膜', importance: 0.30 },
-        ],
-      },
-    });
-  }),
+  
 ];
 
 // ============= [v3.0.6.8-41] PR 8: 远程眼科 + 视光中心 (10 端点) =============
@@ -2921,20 +2128,7 @@ const eyeTeleconsultModule = [
   }),
 
   // 5) 远程会诊意见见答复
-  http.post(`${API_BASE}/tele/answer`, async ({ request }) => {
-    await delay(200);
-    const body = (await request.json()) as { consultId: string; opinion: string; recommendation: string };
-    return HttpResponse.json({
-      success: true,
-      data: {
-        consultId: body.consultId,
-        opinion: body.opinion,
-        recommendation: body.recommendation,
-        signatureHash: 'mock-' + Date.now().toString(36),
-        answeredAt: new Date().toISOString(),
-      },
-    });
-  }),
+  
 
   // 6) 视光中心 - 验光记录
   http.post(`${API_BASE}/optometry/refraction`, async ({ request }) => {
@@ -3013,44 +2207,10 @@ const eyeTeleconsultModule = [
   }),
 
   // 9) 视光中心 - 配镜订单
-  http.post(`${API_BASE}/optometry/order`, async ({ request }) => {
-    await delay(100);
-    const body = (await request.json()) as any;
-    return HttpResponse.json({
-      success: true,
-      data: {
-        orderId: `ORD${Date.now()}`,
-        patientId: body.patientId,
-        frame: body.frame || 'Ray-Ban RB5154',
-        lens: body.lens || 'Essilor Crizal Prevencia',
-        prescription: body.prescription,
-        price: { frame: 1200, lens: 800, total: 2000, currency: 'CNY' },
-        estimatedDelivery: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString().slice(0, 10),
-        status: 'confirmed',
-        orderedAt: new Date().toISOString(),
-      },
-    });
-  }),
+  
 
   // 10) 视光中心 - 配镜订单跟踪
-  http.get(`${API_BASE}/optometry/order/:orderId`, async ({ params }) => {
-    await delay(30);
-    return HttpResponse.json({
-      success: true,
-      data: {
-        orderId: params.orderId,
-        status: 'in_production',
-        progress: 0.65,
-        stages: [
-          { stage: 'confirmed', completedAt: new Date().toISOString() },
-          { stage: 'cutting', completedAt: new Date().toISOString() },
-          { stage: 'assembly', inProgress: true },
-          { stage: 'qc', pending: true },
-          { stage: 'shipped', pending: true },
-        ],
-      },
-    });
-  }),
+  
 ];
 
 // ============= [v3.0.6.8-42] PR 9: 教学病例库 (10 端点) =============
@@ -3264,21 +2424,7 @@ const eyePixelRenderModule = [
   }),
 
   // 2) 原始像素 (压缩为简化)
-  http.get(`${API_BASE}/pixel/instance/:instanceId/raw`, async ({ params }) => {
-    // 实际生产应该返回 DICOM Part 10 字节流
-    // 这里返回 base64 编码的合成眼底图
-    return HttpResponse.json({
-      success: true,
-      data: {
-        contentType: 'application/dicom',
-        encoding: 'base64',
-        bytes: 'SIMULATED_DICOM_BYTES_FOR_' + params.instanceId,
-        width: 512,
-        height: 512,
-        note: '生产环境应返回 DICOM Part 10 字节流 (使用 dcmjs 库解析)',
-      },
-    });
-  }),
+  
 
   // 3) 伪彩色映射 (Color Map)
   http.get(`${API_BASE}/pixel/colormap/:modality`, async ({ params }) => {
@@ -3314,21 +2460,7 @@ const eyePixelRenderModule = [
   }),
 
   // 5) 3D 体绘制 (Volume Rendering)
-  http.post(`${API_BASE}/pixel/volume-render`, async ({ request }) => {
-    await delay(300);
-    const body = (await request.json()) as { studyId: string; transferFunction: 'mip' | 'minip' | 'avg' | 'alpha' };
-    return HttpResponse.json({
-      success: true,
-      data: {
-        vrId: `VR${Date.now()}`,
-        studyId: body.studyId,
-        transferFunction: body.transferFunction || 'mip',
-        fps: 60,
-        method: 'WebGL Ray Casting',
-        renderedAt: new Date().toISOString(),
-      },
-    });
-  }),
+  
 
   // 6) 伪影检测 (AI 像素分析)
   http.post(`${API_BASE}/pixel/detect-artifact`, async ({ request }) => {
@@ -3506,23 +2638,7 @@ const eyeOptometryClosedLoopModule = [
   }),
 
   // 6) 视光复查记录
-  http.post(`${API_BASE}/optometry/followup`, async ({ request }) => {
-    await delay(80);
-    const body = (await request.json()) as { patientId: string; visitType: '1d' | '1w' | '1m' | '3m' | '6m' | '12m'; visionUCVA: { od: string; os: string }; cornealHealth: string };
-    return HttpResponse.json({
-      success: true,
-      data: {
-        followupId: `FU${Date.now()}`,
-        patientId: body.patientId,
-        visitType: body.visitType,
-        visionUCVA: body.visionUCVA,
-        cornealHealth: body.cornealHealth,
-        assessment: body.visionUCVA.od === '1.0' ? 'OK 镜效果良好' : '需调整参数',
-        nextVisit: new Date(Date.now() + (body.visitType === '1d' ? 6 : 30) * 24 * 3600 * 1000).toISOString().slice(0, 10),
-        recordedAt: new Date().toISOString(),
-      },
-    });
-  }),
+  
 
   // 7) 视光中心统计
   http.get(`${API_BASE}/optometry/stats`, async () => {
@@ -3547,24 +2663,7 @@ const eyeOptometryClosedLoopModule = [
   }),
 
   // 8) 视光中心订单跟踪
-  http.get(`${API_BASE}/optometry/order-status/:orderId`, async ({ params }) => {
-    await delay(30);
-    return HttpResponse.json({
-      success: true,
-      data: {
-        orderId: params.orderId,
-        status: 'shipped',
-        stages: [
-          { stage: 'order_placed', completedAt: new Date().toISOString() },
-          { stage: 'production', completedAt: new Date().toISOString() },
-          { stage: 'qc', completedAt: new Date().toISOString() },
-          { stage: 'shipped', completedAt: new Date().toISOString() },
-          { stage: 'delivered', pending: true },
-        ],
-        estimatedArrival: new Date(Date.now() + 2 * 24 * 3600 * 1000).toISOString().slice(0, 10),
-      },
-    });
-  }),
+  
 ];
 
 // 汇总所有端点

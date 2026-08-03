@@ -1,15 +1,17 @@
 // G005 放射科RIS系统 - 绿色IT无纸化环保统计页面 v1.0.0
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Leaf, FileText, Printer, CheckCircle, TrendingUp, TrendingDown,
   LineChart as LineChartIcon,
   Calculator, TreePine, Percent, Zap, BarChart3, Award,
-  Lightbulb, ClipboardList, AlertTriangle
+  Lightbulb, ClipboardList, AlertTriangle, Activity, ShieldAlert, Clock, BarChart2
 } from 'lucide-react'
+import { Spin, Alert } from 'antd'
 import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts'
+import { statsApi } from '../services/api/statsApi'
 
 // ============================================================
 // 样式常量
@@ -1397,12 +1399,137 @@ const ISO14001Compliance = () => {
 }
 
 // ============================================================
+// [Phase 2] 实时运行统计（statsApi 真实数据）
+// ============================================================
+function RunStatsTab() {
+  const [stats, setStats] = useState<any>(null)
+  const [trend, setTrend] = useState<any[]>([])
+  const [byModality, setByModality] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const [dailyRes, trendRes, modalityRes] = await Promise.all([
+          statsApi.getDaily(),
+          statsApi.getTrend(30),
+          statsApi.getByModality(),
+        ])
+        if (cancelled) return
+        if (dailyRes.success && dailyRes.data) setStats(dailyRes.data)
+        else setError('运行统计加载失败')
+        if (trendRes.success && Array.isArray(trendRes.data)) {
+          setTrend(trendRes.data.map((d: any, i: number) => ({
+            ...d,
+            date: d.date || d.day || `D${i + 1}`,
+          })))
+        }
+        if (modalityRes.success) {
+          const raw = modalityRes.data as any
+          if (Array.isArray(raw)) {
+            setByModality(raw)
+          } else if (raw && typeof raw === 'object') {
+            setByModality(Object.entries(raw).map(([modality, v]: [string, any]) => ({
+              modality,
+              count: v?.total ?? v?.count ?? (typeof v === 'number' ? v : 0),
+            })))
+          }
+        }
+      } catch {
+        if (!cancelled) setError('运行统计加载失败，请稍后重试')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [])
+
+  if (loading) {
+    return <div style={{ padding: 48, textAlign: 'center' }}><Spin size="large" tip="正在加载运行统计..."><div style={{ height: 60 }} /></Spin></div>
+  }
+
+  if (error) {
+    return <Alert type="error" showIcon message={error} />
+  }
+
+  const cards = [
+    { label: '今日检查量', value: stats?.examCount ?? 0, unit: '例', icon: Activity, color: '#2563eb', bg: '#eff6ff' },
+    { label: '今日报告量', value: stats?.reportCount ?? 0, unit: '份', icon: FileText, color: '#059669', bg: '#ecfdf5' },
+    { label: '危急值事件', value: stats?.criticalCount ?? 0, unit: '件', icon: ShieldAlert, color: '#dc2626', bg: '#fef2f2' },
+    { label: '平均TAT', value: stats?.avgTAT != null ? stats.avgTAT.toFixed(1) : '-', unit: '小时', icon: Clock, color: '#7c3aed', bg: '#f5f3ff' },
+  ]
+
+  return (
+    <div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 20 }}>
+        {cards.map(c => (
+          <div key={c.label} style={{ background: c.bg, borderRadius: 12, padding: '18px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 44, height: 44, borderRadius: 10, background: c.color + '22', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <c.icon size={22} color={c.color} />
+            </div>
+            <div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: '#1e293b', lineHeight: 1.1 }}>
+                {c.value}<span style={{ fontSize: 13, fontWeight: 400, color: '#64748b', marginLeft: 4 }}>{c.unit}</span>
+              </div>
+              <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{c.label}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ background: C.white, borderRadius: 12, padding: 20, border: `1px solid ${C.border}`, marginBottom: 16 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: '#1e293b', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <BarChart2 size={16} color={C.primary} /> 近30天检查量趋势
+        </div>
+        {trend.length === 0 ? (
+          <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', padding: 24 }}>暂无趋势数据</div>
+        ) : (
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={trend}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#94a3b8' }} />
+              <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} />
+              <Tooltip />
+              <Legend wrapperStyle={{ fontSize: 12 }} />
+              <Line type="monotone" dataKey="examCount" name="检查量" stroke={C.primary} strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="reportCount" name="报告量" stroke="#059669" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
+      </div>
+
+      {byModality.length > 0 && (
+        <div style={{ background: C.white, borderRadius: 12, padding: 20, border: `1px solid ${C.border}` }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#1e293b', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <BarChart3 size={16} color={C.green} /> 设备模态工作量分布
+          </div>
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={byModality}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <XAxis dataKey="modality" tick={{ fontSize: 11, fill: '#94a3b8' }} />
+              <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} />
+              <Tooltip />
+              <Bar dataKey="count" name="检查量" fill={C.primary} radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ============================================================
 // 主页面组件
 // ============================================================
 export default function GreenITPage() {
-  const [activeTab, setActiveTab] = useState<'trend' | 'carbon' | 'signature' | 'cost' | 'paper' | 'energy' | 'digitization' | 'greenTips' | 'iso'>('trend')
+  const [activeTab, setActiveTab] = useState<'run' | 'trend' | 'carbon' | 'signature' | 'cost' | 'paper' | 'energy' | 'digitization' | 'greenTips' | 'iso'>('run')
 
   const tabs = [
+    { key: 'run', label: '实时运行统计', icon: <BarChart2 size={16} /> },
     { key: 'trend', label: '无纸化率趋势', icon: <LineChartIcon size={16} /> },
     { key: 'carbon', label: '碳排放折算', icon: <Leaf size={16} /> },
     { key: 'signature', label: '电子签名统计', icon: <CheckCircle size={16} /> },
@@ -1521,6 +1648,7 @@ export default function GreenITPage() {
 
         {/* Tab内容 */}
         <div style={{ padding: 24 }}>
+          {activeTab === 'run' && <RunStatsTab />}
           {activeTab === 'trend' && <PaperlessTrendTab />}
           {activeTab === 'carbon' && <CarbonTab />}
           {activeTab === 'signature' && <SignatureTab />}

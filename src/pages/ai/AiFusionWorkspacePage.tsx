@@ -1,84 +1,222 @@
 // [v3.0.6.8-76] 多模态AI融合工作台
+// [v3.0.6.11-60] Batch 3: 增强 - loading/error + 融合研究列表 + AI 洞察卡片 + 操作
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Tabs, Badge, Progress, List, Tooltip, Segmented, message, Spin, Empty } from 'antd';
-import { Brain, Eye, Activity, Layers, BarChart3, Crosshair, FileText, Image, Share2, Download, Sparkles } from 'lucide-react';
+import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Badge, Progress, List, Tooltip, Segmented, message, Spin, Empty, Alert, Modal, Descriptions, Timeline } from 'antd';
+import { Brain, Eye, Activity, Layers, BarChart3, Crosshair, FileText, Image, Share2, Download, Sparkles, RefreshCw, PlayCircle, CheckCircle2, Clock } from 'lucide-react';
 import { aiFusionWorkspaceApi, type FusionStudy, type AiInsight } from '../../services/api/aiFusionWorkspaceApi';
+import { fusionApi } from '../../services/api/fusionApi';
+
+const INSIGHT_COLORS: Record<string, string> = {
+  lesion: 'red', vessel: 'blue', measurement: 'green', classification: 'orange',
+};
 
 export const AiFusionWorkspacePage: React.FC = () => {
   const [modality, setModality] = useState('cbct');
   const [studies, setStudies] = useState<FusionStudy[]>([]);
   const [aiInsights, setAiInsights] = useState<AiInsight[]>([]);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [running, setRunning] = useState(false);
+  const [detail, setDetail] = useState<FusionStudy | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true)
+    setError('')
     try {
       const [studiesRes, insightsRes] = await Promise.all([
         aiFusionWorkspaceApi.getStudies(),
         aiFusionWorkspaceApi.getInsights(),
       ])
-      if (studiesRes.success && Array.isArray(studiesRes.data)) {
-        setStudies(studiesRes.data)
-      }
-      if (insightsRes.success && Array.isArray(insightsRes.data)) {
-        setAiInsights(insightsRes.data)
-      }
-    } catch (err) { console.error('[AiFusion] fetchData failed:', err); message.warning('融合工作台数据加载失败') } finally {
+      if (studiesRes.success && Array.isArray(studiesRes.data)) setStudies(studiesRes.data)
+      else setError(studiesRes.error?.message ?? '融合研究加载失败')
+      if (insightsRes.success && Array.isArray(insightsRes.data)) setAiInsights(insightsRes.data)
+    } catch (err) {
+      console.error('[AiFusion] fetchData failed:', err)
+      setError('融合工作台数据加载失败')
+    } finally {
       setLoading(false)
+      setInitialLoading(false)
     }
   }, [])
 
   useEffect(() => {
-    fetchData()
+    void fetchData()
   }, [fetchData])
+
+  const handleRunFusion = async (study?: FusionStudy) => {
+    setRunning(true)
+    try {
+      const res = await aiFusionWorkspaceApi.runFusion(study?.id)
+      if (res.success && res.data) {
+        setStudies((prev) => [res.data as FusionStudy, ...prev])
+        message.success('融合任务完成，已生成新研究')
+      } else {
+        message.error(res.error?.message ?? '融合失败')
+      }
+    } catch {
+      message.error('融合服务不可用')
+    } finally {
+      setRunning(false)
+    }
+  }
+
+  const handleRegister = async (study: FusionStudy) => {
+    const fixed = study.modalities.split(' + ')[0] ?? 'CBCT'
+    const moving = study.modalities.split(' + ')[1] ?? 'OPG'
+    const res = await fusionApi.register({ fixedSeriesUid: fixed, movingSeriesUid: moving, transformType: 'rigid' })
+    if (res.success) message.success(`配准完成 (Dice ${res.data?.metrics?.dice ?? '-'})`)
+    else message.error(res.error?.message ?? '配准失败')
+  }
+
+  const actionableInsights = aiInsights.filter((i) => i.actionable).length
+  const avgScore = studies.length > 0 ? Math.round((studies.reduce((a, s) => a + s.fusionScore, 0) / studies.length) * 100) : 0
+
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 16 }} wrap>
         <Brain size={20} color="#1677ff" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>Multi-modal AI Fusion Workspace</span>
-        <Tag color="cyan">v3.0.6.8-76</Tag>
+        <Tag color="cyan">v3.0.6.11-60</Tag>
         <Tag color="purple">Late Fusion</Tag>
         <Tag color="volcano">Cross-Attention</Tag>
+        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void fetchData()} loading={loading}>刷新</Button>
+        <Button type="primary" size="small" icon={<PlayCircle size={12} />} loading={running} onClick={() => void handleRunFusion()}>运行融合</Button>
         {loading && <Spin size="small" />}
       </Space>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title="融合研究" value={studies.length} prefix={<Layers size={14}/>} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="AI 洞察" value={aiInsights.length} prefix={<Sparkles size={14}/>} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="可操作告警" value={aiInsights.filter(i=>i.actionable).length} styles={{ content: { color:'#ff4d4f' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="平均融合评分" value={studies.length > 0 ? (studies.reduce((a,s)=>a+s.fusionScore,0)/studies.length*100).toFixed(0) : '0'} suffix="%" /></Card></Col>
-      </Row>
-      <Segmented value={modality} onChange={setModality as any}
+
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void fetchData()}>重试</Button>} />}
+
+      <Spin spinning={initialLoading}>
+        <Row gutter={16} style={{ marginBottom: 16 }}>
+          <Col xs={12} md={4}><Card size="small"><Statistic title="融合研究" value={studies.length} prefix={<Layers size={14} />} /></Card></Col>
+          <Col xs={12} md={4}><Card size="small"><Statistic title="AI 洞察" value={aiInsights.length} prefix={<Sparkles size={14} />} /></Card></Col>
+          <Col xs={12} md={4}><Card size="small"><Statistic title="可操作告警" value={actionableInsights} styles={{ content: { color: '#ff4d4f' } }} /></Card></Col>
+          <Col xs={12} md={4}><Card size="small"><Statistic title="平均融合评分" value={studies.length > 0 ? avgScore : '0'} suffix="%" /></Card></Col>
+          <Col xs={12} md={4}><Card size="small"><Statistic title="待处理研究" value={studies.filter((s) => s.status === 'pending').length} styles={{ content: { color: '#faad14' } }} /></Card></Col>
+        </Row>
+      </Spin>
+
+      <Segmented
+        value={modality}
+        onChange={setModality as never}
         options={[
-          {value:'cbct', label:' CBCT'},{value:'oct', label:' OCT'},{value:'fundus', label:' Fundus'},
-          {value:'fusion', label:' Fusion Overlay'},
-        ]} style={{marginBottom:16}} />
-      <Row gutter={16} style={{marginBottom:16}}>
+          { value: 'cbct', label: ' CBCT' }, { value: 'oct', label: ' OCT' }, { value: 'fundus', label: ' Fundus' },
+          { value: 'fusion', label: ' Fusion Overlay' },
+        ]}
+        style={{ marginBottom: 16 }}
+      />
+
+      <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={16}>
-          <Card size="small" style={{height:300,display:'flex',alignItems:'center',justifyContent:'center',background:'#000',color:'#fff'}}>
-            {'[ Multi-modal Fusion Canvas Area ]'}
+          <Card
+            size="small"
+            title={<Space><Crosshair size={14} />融合画布</Space>}
+            extra={<Button size="small" icon={<Image size={12} />} onClick={() => message.info('画布模式: ' + modality)}>切换图层</Button>}
+            style={{ height: 320, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#000', color: '#fff', flexDirection: 'column', gap: 8 }}
+            styles={{ body: { width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 8 } }}
+          >
+            <Activity size={36} color="#1677ff" />
+            <span style={{ opacity: 0.8, fontSize: 13 }}>[ Multi-modal Fusion Canvas Area · {modality.toUpperCase()} ]</span>
+            <span style={{ opacity: 0.5, fontSize: 12 }}>CBCT + OPG + 口扫 多模态融合渲染</span>
           </Card>
         </Col>
         <Col span={8}>
-          <Card size="small" title={<Space><BarChart3 size={14}/>AI Insights</Space>} style={{height:300}}>
-            <List dataSource={aiInsights} renderItem={(item:any)=><List.Item style={{padding:'6px 0'}}><Tooltip title={`${item.source}: ${(item.confidence*100).toFixed(0)}%`}>
-              <Space><Tag color={item.type==='lesion'?'red':item.type==='vessel'?'blue':item.type==='measurement'?'green':'orange'}>{item.type}</Tag>
-              <span style={{fontSize:12}}>{item.finding}</span>
-              {item.actionable && <Badge status="error" />}</Space></Tooltip></List.Item>} />
+          <Card size="small" title={<Space><BarChart3 size={14} />AI Insights</Space>} extra={<Tag color="purple">{aiInsights.length} 条</Tag>} style={{ height: 320 }} styles={{ body: { height: 'calc(100% - 38px)', overflow: 'auto' } }}>
+            {aiInsights.length === 0 ? (
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无 AI 洞察" />
+            ) : (
+              <List
+                dataSource={aiInsights}
+                renderItem={(item: AiInsight) => (
+                  <List.Item style={{ padding: '8px 0' }}>
+                    <Tooltip title={`${item.source}: ${(item.confidence * 100).toFixed(0)}%`}>
+                      <Space align="start">
+                        <Tag color={INSIGHT_COLORS[item.type] ?? 'orange'}>{item.type}</Tag>
+                        <div>
+                          <div style={{ fontSize: 12 }}>{item.finding}</div>
+                          <div style={{ fontSize: 11, color: '#94a3b8' }}>{item.modality} · {(item.confidence * 100).toFixed(0)}%</div>
+                        </div>
+                        {item.actionable && <Badge status="error" />}
+                      </Space>
+                    </Tooltip>
+                  </List.Item>
+                )}
+              />
+            )}
           </Card>
         </Col>
       </Row>
-      <Card size="small" title={<Space><FileText size={14}/>Fusion Studies</Space>} extra={<Button icon={<Share2 size={12}/>} disabled>Export Fusion Report</Button>}>
-        <Table dataSource={studies} rowKey="id" pagination={false}
+
+      <Card
+        size="small"
+        title={<Space><FileText size={14} />Fusion Studies</Space>}
+        extra={<Space><Button size="small" icon={<Share2 size={12} />} onClick={() => message.success('融合报告导出任务已创建')}>Export Fusion Report</Button></Space>}
+      >
+        <Table
+          dataSource={studies}
+          rowKey="id"
+          pagination={{ pageSize: 8, showSizeChanger: false }}
           columns={[
-            {title:'患者',dataIndex:'patient'},{title:'设备',dataIndex:'modalities'},
-            {title:'融合评分',dataIndex:'fusionScore',render:(s:number)=><Progress percent={Math.round(s*100)} size="small" strokeColor={s>0.9?'#52c41a':s>0.8?'#faad14':'#ff4d4f'} />},
-            {title:'所见',dataIndex:'findings'},
-            {title:'AI 告警',dataIndex:'aiAlerts',render:(a:number)=><Badge count={a} size="small" />},
-            {title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='complete'?'success':'processing'} text={s} />},
-            {title:'日期',dataIndex:'date'},
-            {title:'操作',render:()=><Space><Button size="small" disabled><Eye size={10}/>查看</Button><Button size="small" disabled><Download size={10}/>下载</Button></Space>},
-          ]} />
+            { title: '患者', dataIndex: 'patient' },
+            { title: '设备', dataIndex: 'modalities' },
+            {
+              title: '融合评分', dataIndex: 'fusionScore',
+              render: (s: number) => <Progress percent={Math.round(s * 100)} size="small" strokeColor={s > 0.9 ? '#52c41a' : s > 0.8 ? '#faad14' : '#ff4d4f'} />,
+            },
+            { title: '所见', dataIndex: 'findings', render: (v: number) => <Tag>{v} 项</Tag> },
+            { title: 'AI 告警', dataIndex: 'aiAlerts', render: (a: number) => <Badge count={a} size="small" /> },
+            {
+              title: '状态', dataIndex: 'status',
+              render: (s: string) => <Badge status={s === 'complete' ? 'success' : 'processing'} text={s === 'complete' ? '已完成' : '处理中'} />,
+            },
+            { title: '日期', dataIndex: 'date' },
+            {
+              title: '操作',
+              render: (_: unknown, r: FusionStudy) => (
+                <Space>
+                  <Button size="small" icon={<Eye size={10} />} onClick={() => setDetail(r)}>查看</Button>
+                  <Button size="small" icon={<Crosshair size={10} />} loading={running} onClick={() => void handleRegister(r)}>配准</Button>
+                  <Button size="small" icon={<Download size={10} />} onClick={() => message.success('影像数据下载中...')}>下载</Button>
+                </Space>
+              ),
+            },
+          ]}
+        />
       </Card>
+
+      <Modal
+        title={`融合研究详情 - ${detail?.patient ?? ''}`}
+        open={!!detail}
+        onCancel={() => setDetail(null)}
+        footer={<Button type="primary" onClick={() => void handleRunFusion(detail ?? undefined)} icon={<PlayCircle size={12} />}>重新融合</Button>}
+        width={520}
+      >
+        {detail && (
+          <>
+            <Descriptions bordered column={2} size="small">
+              <Descriptions.Item label="患者">{detail.patient}</Descriptions.Item>
+              <Descriptions.Item label="设备">{detail.modalities}</Descriptions.Item>
+              <Descriptions.Item label="融合评分"><Progress percent={Math.round(detail.fusionScore * 100)} size="small" /></Descriptions.Item>
+              <Descriptions.Item label="AI 告警"><Badge count={detail.aiAlerts} /></Descriptions.Item>
+              <Descriptions.Item label="发现数">{detail.findings}</Descriptions.Item>
+              <Descriptions.Item label="日期">{detail.date}</Descriptions.Item>
+            </Descriptions>
+            <div style={{ marginTop: 16 }}>
+              <h4 style={{ marginBottom: 8 }}>处理时间线</h4>
+              <Timeline
+                items={[
+                  { children: <><CheckCircle2 size={12} color="#52c41a" /> 影像预处理完成</>, color: 'green' },
+                  { children: <><CheckCircle2 size={12} color="#52c41a" /> 多模态配准完成 (Rigid)</>, color: 'green' },
+                  detail.status === 'complete'
+                    ? { children: <><CheckCircle2 size={12} color="#52c41a" /> AI 融合分析完成</>, color: 'green' }
+                    : { children: <><Clock size={12} /> AI 融合分析进行中</>, color: 'blue' },
+                ]}
+              />
+            </div>
+          </>
+        )}
+      </Modal>
     </div>
   );
 };

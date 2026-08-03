@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import {
   FileText, X, User, Stethoscope, Calendar, Activity, Printer, History,
   ShieldCheck, Zap, CheckCircle, AlertTriangle, Edit3, Download,
-  ChevronDown, ChevronRight, Clock,
+  ChevronDown, ChevronRight, Clock, FileCheck2,
 } from 'lucide-react'
 import { message } from 'antd'
 import type { RadiologyReport } from '../../types'
@@ -72,9 +72,10 @@ export interface ReportDetailDrawerProps {
   onReview: (r: RadiologyReport) => void
   onPrint: (r: RadiologyReport) => void
   onExportPDF: (r: RadiologyReport) => void
+  onGenerateSr?: (r: RadiologyReport) => void
 }
 
-export default function ReportDetailDrawer({ report, onClose, onReview, onPrint, onExportPDF }: ReportDetailDrawerProps) {
+export default function ReportDetailDrawer({ report, onClose, onReview, onPrint, onExportPDF, onGenerateSr }: ReportDetailDrawerProps) {
   const [tab, setTab] = useState<'content' | 'history' | 'print' | 'timeline'>('content')
   const [showHistory, setShowHistory] = useState(false)
   const [showMfa, setShowMfa] = useState(false)
@@ -287,6 +288,11 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
           <button onClick={() => onExportPDF(report)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid #e2e8f0', background: WHITE, color: GRAY, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Download size={14} /> 导出PDF
           </button>
+          {onGenerateSr && (
+            <button onClick={() => onGenerateSr(report)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid #0891b2', background: '#ecfeff', color: '#155e75', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <FileCheck2 size={14} /> 生成SR
+            </button>
+          )}
           <button onClick={() => onPrint(report)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid #e2e8f0', background: WHITE, color: GRAY, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Printer size={14} /> 打印
           </button>

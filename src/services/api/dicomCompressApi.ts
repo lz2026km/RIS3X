@@ -1,64 +1,132 @@
 import { api, invalidateApiCache } from './client'
 
-// DICOM Compress (DICOM 压缩) API
+// DICOM Compress (DICOM 压缩真实化) API
 // Backend: /api/v1/dicom/compress/*
 
 export interface DicomCompressTask {
   id: string
-  studyInstanceUid: string
-  patientName: string
-  modality: string
+  fileId: string
+  transferSyntax: string
+  status: 'pending' | 'processing' | 'done' | 'failed'
+  progress: number
   originalSize: number
-  compressedSize?: number
-  compressionRatio?: number
-  algorithm: 'jpeg' | 'jpeg2000' | 'jpegls' | 'rle' | 'lossless-jpeg'
+  compressedSize: number | null
+  ratio?: number
+  modality?: string
+  algorithmName?: string
+  lossless?: boolean
+  simulated?: boolean
+  elapsedMs?: number
   quality?: number
-  status: 'queued' | 'processing' | 'completed' | 'failed'
   error?: string
   createdAt: string
-  completedAt?: string
+  updatedAt: string
 }
 
 export interface DicomCompressDto {
-  studyInstanceUid: string
+  fileId: string
   algorithm: 'jpeg' | 'jpeg2000' | 'jpegls' | 'rle' | 'lossless-jpeg'
   quality?: number
   lossless?: boolean
+  dataBase64?: string
 }
 
 export interface DicomCompressBatchDto {
-  studyInstanceUids: string[]
+  fileIds: string[]
   algorithm: 'jpeg' | 'jpeg2000' | 'jpegls' | 'rle' | 'lossless-jpeg'
   quality?: number
   lossless?: boolean
 }
 
-export interface DicomCompressStats {
-  totalCompressed: number
-  totalSavedBytes: number
-  avgCompressionRatio: number
-  algorithmDistribution: { algorithm: string; count: number }[]
-  dailyStats: { date: string; count: number; savedBytes: number }[]
+export interface CompressInstance {
+  fileId: string
+  fileName: string
+  sopInstanceUid: string
+  modality: string
+  seriesDescription: string
+  patientName: string
+  rows: number
+  columns: number
+  sizeBytes: number
 }
 
+export interface RatioAgg {
+  algorithm: string
+  algorithmName: string
+  modality: string
+  count: number
+  avgRatio: number
+  avgOriginalSize: number
+  avgCompressedSize: number
+  savedBytes: number
+}
+
+export interface CompressRatioStats {
+  totalTasks: number
+  totalSavedBytes: number
+  avgRatio: number
+  byAlgorithm: RatioAgg[]
+  byModality: RatioAgg[]
+}
+
+export interface DicomCompressStats {
+  totalTasks: number
+  completedTasks: number
+  failedTasks: number
+  totalSavedBytes: number
+  avgRatio: number
+  algorithmDistribution: { algorithm: string; algorithmName: string; count: number }[]
+}
+
+// 传输语法 UID 快捷别名 (与后端 SUPPORTED_SYNTAXES 对应)
+export const COMPRESS_SYNTAXES = {
+  jpeg2000Lossless: '1.2.840.10008.1.2.4.90',
+  jpeg2000Lossy: '1.2.840.10008.1.2.4.91',
+  rle: '1.2.840.10008.1.2.5',
+  jpeglsLossless: '1.2.840.10008.1.2.4.80',
+  jpeglsLossy: '1.2.840.10008.1.2.4.81',
+  jpegBaseline: '1.2.840.10008.1.2.4.50',
+} as const
+
 export const dicomCompressApi = {
-  listTasks: (params?: { status?: string; algorithm?: string; page?: number; pageSize?: number }) =>
-    api.get<DicomCompressTask[]>(`/dicom/compress/tasks?${new URLSearchParams(params ?? {}).toString()}`),
+  listInstances: () => api.get<CompressInstance[]>('/dicom/compress/instances'),
+
+  listTasks: (params?: { status?: string; algorithm?: string; page?: number; pageSize?: number }) => {
+    const qs = new URLSearchParams()
+    if (params?.status) qs.set('status', params.status)
+    if (params?.algorithm) qs.set('algorithm', params.algorithm)
+    if (params?.page !== undefined) qs.set('page', String(params.page))
+    if (params?.pageSize !== undefined) qs.set('pageSize', String(params.pageSize))
+    return api.get<DicomCompressTask[]>(`/dicom/compress/tasks?${qs.toString()}`)
+  },
 
   getTask: (id: string) =>
     api.get<DicomCompressTask>(`/dicom/compress/tasks/${id}`),
 
-  compress: async (data: DicomCompressDto) => {
+  getStatus: (id: string) =>
+    api.get<DicomCompressTask>(`/dicom/compress/status/${id}`),
+
+  compress: async (data: { fileId: string; transferSyntax: string; quality?: number; dataBase64?: string }) => {
     const res = await api.post<DicomCompressTask>('/dicom/compress', data)
     await invalidateApiCache('/dicom/compress/tasks')
     return res
   },
 
-  batchCompress: async (data: DicomCompressBatchDto) => {
+  batchCompress: async (data: { fileIds: string[]; transferSyntax: string; quality?: number }) => {
     const res = await api.post<DicomCompressTask[]>('/dicom/compress/batch', data)
     await invalidateApiCache('/dicom/compress/tasks')
     return res
   },
+
+  decompress: async (fileId: string) => {
+    const res = await api.post<DicomCompressTask>('/dicom/compress/decompress', { fileId })
+    await invalidateApiCache('/dicom/compress/tasks')
+    return res
+  },
+
+  getRatios: () => api.get<CompressRatioStats>('/dicom/compress/ratios'),
+
+  getStats: () => api.get<DicomCompressStats>('/dicom/compress/stats'),
 
   cancelTask: async (id: string) => {
     const res = await api.post<DicomCompressTask>(`/dicom/compress/tasks/${id}/cancel`, {})
@@ -71,7 +139,4 @@ export const dicomCompressApi = {
     await invalidateApiCache('/dicom/compress/tasks')
     return res
   },
-
-  getStats: () =>
-    api.get<DicomCompressStats>('/dicom/compress/stats'),
 }

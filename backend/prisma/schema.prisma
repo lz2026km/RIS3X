@@ -255,6 +255,7 @@ model Report {
   radiologist        User?                @relation("ReportRadiologist", fields: [radiologistId], references: [id], onDelete: SetNull)
   revisions          ReportRevision[]
   radPathRecords     RadPathRecord[]
+  srDocuments        SrDocument[]
   createdAt          DateTime             @default(now()) @map("created_at")
   updatedAt          DateTime             @updatedAt @map("updated_at")
   ReportQualityScore ReportQualityScore[]
@@ -1041,6 +1042,33 @@ model Invoice {
 }
 
 // v3.0.6.11-8: HL7 消息归档 (v3.0.6.11-9: +ack_status, retry_count)
+// v3.0.6.11-60: DICOM SR 结构化报告文档存储
+model SrDocument {
+  id                String    @id @default(cuid())
+  tenantId          String    @map("tenant_id")
+  reportId          String    @map("report_id")
+  report            Report    @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  templateId        String    @map("template_id")
+  tid               String
+  content           Json
+  rawContent        String    @map("raw_content")
+  status            String    @default("draft")
+  sopInstanceUid    String    @unique @map("sop_instance_uid")
+  studyInstanceUid  String    @map("study_instance_uid")
+  seriesInstanceUid String    @map("series_instance_uid")
+  sopClassUid       String    @map("sop_class_uid")
+  hl7ControlId      String?   @map("hl7_control_id")
+  hl7Message        String?   @map("hl7_message")
+  pushedAt          DateTime? @map("pushed_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  @@index([reportId])
+  @@index([tenantId])
+  @@index([status])
+  @@map("sr_documents")
+}
+
 model Hl7MessageArchive {
   id          String   @id @default(cuid())
   tenantId    String   @map("tenant_id")
@@ -1295,19 +1323,60 @@ model OeeRecord {
 }
 
 model AiModel {
-  id         String    @id @default(cuid())
-  name       String
-  version    String
-  vendor     String?
-  category   String?
-  status     String    @default("running")
-  deployedAt DateTime?
-  config     Json?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id                 String                  @id @default(cuid())
+  name               String
+  version            String
+  vendor             String?
+  category           String?
+  status             String                  @default("REGISTERED")
+  endpoint           String?
+  triggerConditions  Json?
+  deployedAt         DateTime?
+  config             Json?
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  aiJobs             AiJob[]
+  workflowIntegrations AiWorkflowIntegration[]
 
   @@index([status])
+  @@index([vendor])
   @@map("ai_models")
+}
+
+model AiJob {
+  id          String    @id @default(cuid())
+  modelId     String
+  examId      String?
+  status      String    @default("QUEUED")
+  trigger     String    @default("MANUAL")
+  result      Json?
+  error       String?
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  model       AiModel   @relation(fields: [modelId], references: [id], onDelete: Cascade)
+
+  @@index([modelId])
+  @@index([examId])
+  @@index([status])
+  @@map("ai_jobs")
+}
+
+model AiWorkflowIntegration {
+  id               String    @id @default(cuid())
+  modelId          String
+  name             String
+  triggerConditions Json?
+  targetWorkflow   String
+  status           String    @default("ACTIVE")
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  model            AiModel   @relation(fields: [modelId], references: [id], onDelete: Cascade)
+
+  @@index([modelId])
+  @@index([targetWorkflow])
+  @@map("ai_workflow_integrations")
 }
 
 model CompressTask {
@@ -1414,4 +1483,71 @@ model WorklistSmartScore {
 
   @@index([examId, scoredAt])
   @@map("worklist_smart_scores")
+}
+
+// v3.0.6.11-60: 剂量管理 DRL - DoseRecord (RDSR 剂量记录持久化)
+model DoseRecord {
+  id          String   @id @default(cuid())
+  tenantId    String   @map("tenant_id")
+  patientId   String?  @map("patient_id")
+  patientName String?  @map("patient_name")
+  examId      String?  @map("exam_id")
+  studyUid    String   @map("study_uid")
+  modality    String   @default("CT")
+  bodyPart    String   @map("body_part")
+  ctdiVol     Float    @map("ctdi_vol")
+  dlp         Float
+  ssde        Float?
+  date        DateTime @map("exam_date")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([patientId, date])
+  @@index([date])
+  @@index([modality, date])
+  @@index([tenantId])
+  @@map("dose_records")
+}
+
+// v3.0.6.11-60: Auto-hanging 自动布局 (对标 GE/Siemens/Fujifilm)
+// layout Json: { rows, cols, seriesOrder: string[] }
+model HangingProtocol {
+  id          String   @id @default(cuid())
+  tenantId    String   @map("tenant_id")
+  name        String
+  modality    String
+  bodyPart    String   @map("body_part")
+  layout      Json
+  priority    Int      @default(0)
+  description String   @default("")
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([modality, bodyPart])
+  @@index([tenantId])
+  @@map("hanging_protocols")
+}
+
+// v3.0.6.11-60: VNA 厂商中立归档 - 非 DICOM 内容对象 (WORM 不可变归档)
+// objectType: document | image; wormLocked 后禁止 delete/覆盖 (对标 Agfa/Sectra/GE Datalogue)
+model VnaObject {
+  id          String   @id @default(cuid())
+  tenantId    String   @map("tenant_id")
+  patientId   String?  @map("patient_id")
+  studyUid    String?  @map("study_uid")
+  objectType  String   @default("document") @map("object_type")
+  name        String
+  description String?  @map("description")
+  mimeType    String   @map("mime_type")
+  size        Int      @default(0)
+  storagePath String?  @map("storage_path")
+  wormLocked  Boolean  @default(false) @map("worm_locked")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([patientId])
+  @@index([studyUid])
+  @@index([objectType])
+  @@index([tenantId])
+  @@map("vna_objects")
 }

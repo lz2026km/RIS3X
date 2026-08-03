@@ -33,6 +33,7 @@ import DRLManagement from "./dose/DRLManagement";
 import PediatricProtocolOptimization from "./dose/PediatricProtocolOptimization";
 import StaffDoseMonitoring from "./dose/StaffDoseMonitoring";
 import DoseControlCharts from "./dose/DoseControlCharts";
+import DoseLiveMonitor from "./dose/DoseLiveMonitor";
 import DeviceDoseCard from "./dose/DeviceDoseCard";
 import DeviceHistoryModal from "./dose/DeviceHistoryModal";
 import {
@@ -48,6 +49,7 @@ import { exportDoseDataToCSV, exportDeviceDoseToCSV } from "./dose/utils";
 
 type View =
   | "overview"
+  | "live"
   | "patient"
   | "device"
   | "alert"
@@ -138,6 +140,8 @@ export default function DoseTrackPage() {
           onViewDeviceHistory={(device) => setDeviceHistoryDevice(device)}
         />
       )}
+
+      {view === "live" && <DoseLiveMonitor />}
 
       {view === "patient" && (
         <DoseTrackingTable

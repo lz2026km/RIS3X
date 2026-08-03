@@ -45,6 +45,26 @@ const piRads: Record<string, { category: string; description: string; findings: 
   '5': { category: 'PI-RADS 5', description: '极高概率', findings: ['T2WI 低信号实性病变 > 1.5cm', 'DWI 明显受限', 'ADC 显著降低'], recommendations: '立即活检' },
 }
 
+// v3.0.6.11-60: LI-RADS (肝脏) — 对照 LI-RADS v2018 简化规则
+const liRads: Record<string, { category: string; description: string; findings: string[]; recommendations: string }> = {
+  'LR-1': { category: 'LI-RADS LR-1', description: '肯定良性', findings: ['无增强的单纯囊肿/血管瘤', '典型良性特征'], recommendations: '无需特殊处理，常规随访' },
+  'LR-2': { category: 'LI-RADS LR-2', description: '可能良性', findings: ['小病灶无高危特征'], recommendations: '6个月常规随访' },
+  'LR-3': { category: 'LI-RADS LR-3', description: 'HCC 中度概率', findings: ['动脉期非环状强化但无廓清', '≥10mm 无强化特征'], recommendations: '3-6个月增强MR/CT随访' },
+  'LR-4': { category: 'LI-RADS LR-4', description: 'HCC 高度概率', findings: ['≥10mm 动脉期非环状强化+廓清', '增厚假包膜'], recommendations: '多学科会诊，考虑活检' },
+  'LR-5': { category: 'LI-RADS LR-5', description: '肯定 HCC', findings: ['≥10mm 动脉期非环状强化+廓清+包膜', '≥10mm 阈值增长'], recommendations: '多学科会诊，启动HCC治疗路径' },
+  'LR-M': { category: 'LI-RADS LR-M', description: '可能恶性(非HCC)', findings: ['环状动脉强化', '结节内结节征', '靶样廓清'], recommendations: '建议活检明确病理' },
+  'LR-TIV': { category: 'LI-RADS LR-TIV', description: '肿瘤侵犯静脉', findings: ['门静脉/肝静脉内软组织充盈缺损'], recommendations: '考虑血管内肿瘤侵犯，立即多学科会诊' },
+}
+
+// v3.0.6.11-60: TI-RADS (甲状腺) — 对照 ACR TI-RADS 2017 计分
+const tiRads: Record<string, { category: string; description: string; findings: string[]; recommendations: string }> = {
+  'TR1': { category: 'TI-RADS TR1', description: '良性', findings: ['纯囊性/海绵状结节', '无任何高风险特征'], recommendations: '无需FNA，常规随访' },
+  'TR2': { category: 'TI-RADS TR2', description: '不可疑', findings: ['基本良性特征'], recommendations: '无需FNA，常规随访' },
+  'TR3': { category: 'TI-RADS TR3', description: '轻度可疑', findings: ['低风险组合特征'], recommendations: '≥2.5cm 建议FNA；随访' },
+  'TR4': { category: 'TI-RADS TR4', description: '中度可疑', findings: ['中等风险组合特征'], recommendations: '≥1.5cm 建议FNA；随访' },
+  'TR5': { category: 'TI-RADS TR5', description: '高度可疑', findings: ['实性低回声+毛刺/显著钙化', '≥1cm 高风险组合'], recommendations: '≥1cm 建议FNA' },
+}
+
 const mockHistoryStore = new Map<string, RadsHistoryEntry[]>()
 
 function generateRandomHistory(patientId: string): RadsHistoryEntry[] {
@@ -60,6 +80,11 @@ function generateRandomHistory(patientId: string): RadsHistoryEntry[] {
     result.push({ date: d.toISOString().slice(0, 10), score: sc, category: `${type} ${sc}`, confidence: +(0.75 + Math.random() * 0.2).toFixed(2) })
   }
   return result
+}
+
+const toSize = (v: unknown, fallback: number): number => {
+  const n = Number(v)
+  return Number.isFinite(n) && n > 0 ? n : fallback
 }
 
 @Injectable()
@@ -85,15 +110,119 @@ export class CadRadsService {
     return { ...entry, score, confidence: this.confidence }
   }
 
+  // v3.0.6.11-60: 确定性 PI-RADS — TZ 以 T2 为主、PZ 以 DWI 为主, 按特征分级 1-5
   scoreProstate(dicomFields: Record<string, unknown>): RadsScore {
-    const p = Math.random()
-    let score = '1'
-    if (p > 0.95) score = '5'
-    else if (p > 0.85) score = '4'
-    else if (p > 0.7) score = '3'
-    else if (p > 0.5) score = '2'
-    const entry = piRads[score] ?? piRads['1']
-    return { ...entry, score, confidence: this.confidence }
+    const zone = (dicomFields.lesionZone as string) ?? 'PZ'
+    const size = toSize(dicomFields.lesionSizeMm, 0)
+    const dwi = (dicomFields.dwiSignal as string) ?? 'low'
+    const t2 = (dicomFields.t2Signal as string) ?? 'low'
+    const adc = toSize(dicomFields.adcValue, 0)
+
+    let score = '2'
+    const findings: string[] = []
+    if (zone === 'TZ') {
+      if (t2 === 'low' && size >= 15) { score = '5'; findings.push('T2WI 低信号实性病变 ≥ 1.5cm') }
+      else if (t2 === 'low' && (dwi === 'high' || size >= 10)) { score = '4'; findings.push('T2WI 低信号病变伴 DWI 高信号') }
+      else if (t2 === 'mild' || dwi === 'mild') { score = '3'; findings.push('DWI 轻度受限或 T2 中等信号') }
+      else { score = '2'; findings.push('T2WI 均匀低信号，DWI 无高信号') }
+    } else {
+      if (dwi === 'high' && (size >= 15 || (adc > 0 && adc <= 800))) { score = '5'; findings.push('DWI 明显受限 + ADC ≤ 800') }
+      else if (dwi === 'high') { score = '4'; findings.push('DWI 明显高信号') }
+      else if (dwi === 'mild') { score = '3'; findings.push('DWI 轻度高信号') }
+      else { score = '2'; findings.push('DWI 无高信号') }
+    }
+    if (zone === 'AFS') {
+      score = ['1', '2'].includes(score) ? '3' : score
+      findings.push('前纤维肌基质区 (AFS) 病灶：归类为中等概率')
+    }
+    const entry = piRads[score] ?? piRads['3']
+    return { ...entry, score, findings: findings.length > 0 ? findings : entry.findings, confidence: this.confidence }
+  }
+
+  // v3.0.6.11-60: 确定性 LI-RADS (肝脏) — 动脉期强化/廓清/包膜/阈值增长/静脉侵犯
+  scoreLiver(dicomFields: Record<string, unknown>): RadsScore {
+    const size = toSize(dicomFields.sizeMm, 0)
+    const arterial = (dicomFields.arterialPhaseEnhancement as string) ?? 'none'
+    const washout = (dicomFields.washout as string) ?? 'no'
+    const capsule = (dicomFields.enhancingCapsule as string) ?? 'no'
+    const thresholdGrowth = (dicomFields.thresholdGrowth as string) ?? 'no'
+    const tumorInVein = (dicomFields.tumorInVein as string) ?? 'no'
+    const observationType = (dicomFields.observationType as string) ?? 'nodule'
+
+    let score = 'LR-1'
+    const findings: string[] = []
+    if (tumorInVein === 'yes') {
+      score = 'LR-TIV'
+      findings.push('静脉内软组织充盈缺损 (门静脉/肝静脉)')
+    } else if (arterial === 'rim' || arterial === 'nodule-in-nodule' || arterial === 'corona') {
+      score = size >= 10 ? 'LR-M' : 'LR-3'
+      findings.push(`动脉期环状/结节内结节/冠状强化 (${arterial})`)
+    } else if (observationType === 'nonnodular') {
+      score = size >= 20 && washout === 'yes' ? 'LR-4' : 'LR-3'
+      findings.push('非结节性观病变')
+    } else if (arterial === 'nonrim' && size >= 20 && washout === 'yes' && capsule === 'yes') {
+      score = 'LR-5'
+      findings.push('≥20mm 动脉期非环状强化 + 廓清 + 假包膜')
+    } else if (arterial === 'nonrim' && size >= 10 && washout === 'yes') {
+      score = capsule === 'yes' || thresholdGrowth === 'yes' ? 'LR-5' : 'LR-4'
+      findings.push('≥10mm 动脉期非环状强化 + 廓清')
+    } else if (arterial === 'nonrim' && size >= 10 && thresholdGrowth === 'yes') {
+      score = 'LR-5'
+      findings.push('≥10mm 动脉期非环状强化 + 阈值增长')
+    } else if (arterial === 'nonrim' || washout === 'yes' || capsule === 'yes' || thresholdGrowth === 'yes') {
+      score = 'LR-3'
+      findings.push('存在动脉期非环状强化/廓清/包膜/阈值增长中的单一高危特征')
+    } else if (size > 0 && size < 10) {
+      score = 'LR-3'
+      findings.push('≤10mm 无强化特征的病灶')
+    } else if (observationType === 'cystic' || arterial === 'none') {
+      score = 'LR-1'
+      findings.push('无动脉期强化的单纯囊肿/良性特征')
+    } else {
+      score = 'LR-2'
+      findings.push('小病灶(≤10mm) 无高危特征')
+    }
+    const entry = liRads[score] ?? liRads['LR-2']
+    return { ...entry, score, findings: findings.length > 0 ? findings : entry.findings, confidence: this.confidence }
+  }
+
+  // v3.0.6.11-60: 确定性 TI-RADS (甲状腺) — ACR TI-RADS 2017 计分
+  scoreThyroid(dicomFields: Record<string, unknown>): RadsScore {
+    const composition = (dicomFields.composition as string) ?? 'mixed'
+    const echogenicity = (dicomFields.echogenicity as string) ?? 'iso'
+    const shape = (dicomFields.shape as string) ?? 'wider-than-tall'
+    const margins = (dicomFields.margins as string) ?? 'smooth'
+    const foci = (dicomFields.echogenicFoci as string) ?? 'none'
+
+    const compPts: Record<string, number> = { cystic: 0, spongiform: 0, mixed: 1, solid: 2 }
+    const echoPts: Record<string, number> = { anechoic: 0, hyper: 1, iso: 1, hypo: 2 }
+    const shapePts: Record<string, number> = { 'wider-than-tall': 0, 'taller-than-wide': 1 }
+    const marginPts: Record<string, number> = { smooth: 0, 'ill-defined': 0, lobulated: 2, irregular: 3, extrathyroidal: 3 }
+    const fociPts: Record<string, number> = { none: 0, comet: 0, macrocalc: 1, rim: 2, punctate: 3 }
+
+    let points = 0
+    if (composition !== 'cystic' && composition !== 'spongiform') {
+      points += compPts[composition] ?? 1
+      points += echoPts[echogenicity] ?? 1
+      points += shapePts[shape] ?? 0
+      points += marginPts[margins] ?? 0
+      points += fociPts[foci] ?? 0
+    }
+
+    let score = 'TR1'
+    if (composition === 'cystic' || composition === 'spongiform') score = 'TR1'
+    else if (points <= 2) score = 'TR2'
+    else if (points === 3) score = 'TR3'
+    else if (points <= 6) score = 'TR4'
+    else score = 'TR5'
+
+    const findings = [
+      `成分: ${composition}, 回声: ${echogenicity}, 形态: ${shape}`,
+      `边缘: ${margins}, 钙化灶: ${foci}`,
+      `ACR 计分: ${points} 分`,
+    ]
+    const entry = tiRads[score] ?? tiRads['TR3']
+    return { ...entry, score, findings, confidence: this.confidence }
   }
 
   getHistory(patientId: string): RadsHistoryEntry[] {

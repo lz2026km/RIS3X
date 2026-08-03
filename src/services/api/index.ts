@@ -481,6 +481,7 @@ export type {
 } from "./stowRsApi";
 
 export { srReportApi } from "./srReportApi";
+export { srDocumentApi } from "./srReportApi";
 export type {
   SrReport,
   SrReportContent,
@@ -488,6 +489,17 @@ export type {
   SrMeasurement,
   CreateSrReportDto,
   SrReportQueryParams,
+} from "./srReportApi";
+export type {
+  SrDocument,
+  SrStatus,
+  SrContentTree,
+  SrSection,
+  SrContentItem,
+  SrConceptName,
+  GenerateSrPayload,
+  PushOruResult,
+  SrTemplateInfo,
 } from "./srReportApi";
 
 export { criticalAlertApi } from "./criticalAlertApi";
@@ -625,3 +637,19 @@ export type {
   SmartAuthMfaDto,
   SmartAuthVerifyDto,
 } from "./smartAuthApi";
+
+export { kioskApi } from "./kioskApi";
+export type {
+  KioskPatientDto,
+  KioskCheckInRequest,
+  KioskCheckInResultDto,
+  KioskTodayStatsDto,
+} from "./kioskApi";
+
+export { screeningApi } from "./screeningApi";
+export type {
+  ScreeningStatsDto,
+  ScreeningQueueItemDto,
+  ScreeningTrendDto,
+} from "./screeningApi";
+

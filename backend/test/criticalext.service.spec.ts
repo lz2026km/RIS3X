@@ -1,160 +1,92 @@
-import { Test } from '@nestjs/testing'
-import { CriticalExtService } from '../src/criticals/criticalext.service'
-import { PrismaService } from '../src/prisma/prisma.service'
+import { CriticalExtService } from '../src/criticalext/criticalext.service'
 
 describe('CriticalExtService', () => {
   let svc: CriticalExtService
-  let prisma: any
+  let mockPrisma: any
 
-  const mockPrisma = {
-    systemConfig: {
-      findMany: jest.fn(),
-      findUnique: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-    },
-    criticalValue: {
-      findMany: jest.fn(),
-      findUnique: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      count: jest.fn(),
-      groupBy: jest.fn(),
-    },
-    criticalValueNotification: {
-      findMany: jest.fn(),
-    },
-  }
-
-  beforeAll(async () => {
-    const module = await Test.createTestingModule({
-      providers: [
-        CriticalExtService,
-        { provide: PrismaService, useValue: mockPrisma },
-      ],
-    }).compile()
-    svc = module.get(CriticalExtService)
-    prisma = module.get(PrismaService)
+  beforeEach(() => {
+    mockPrisma = {
+      systemConfig: { findMany: jest.fn(), create: jest.fn(), update: jest.fn(), delete: jest.fn() },
+      criticalValue: {
+        count: jest.fn(),
+        groupBy: jest.fn(),
+        findMany: jest.fn(),
+        findUnique: jest.fn(),
+        create: jest.fn(),
+        update: jest.fn(),
+      },
+      criticalValueNotification: { findMany: jest.fn() },
+    }
+    svc = new CriticalExtService(mockPrisma)
   })
 
-  beforeEach(() => jest.clearAllMocks())
-
-  describe('listCriticalRules', () => {
-    it('returns rules with startsWith filter', async () => {
-      mockPrisma.systemConfig.findMany.mockResolvedValue([{ key: 'critical_rule_1', value: {} }])
-      const result = await svc.listCriticalRules()
-      expect(result.data).toHaveLength(1)
-      expect(mockPrisma.systemConfig.findMany).toHaveBeenCalledWith({
-        where: { key: { startsWith: 'critical_rule_' } },
-      })
-    })
+  it('listCriticalRules queries rule configs', async () => {
+    mockPrisma.systemConfig.findMany.mockResolvedValue([{ key: 'critical_rule_1' }])
+    const r = await svc.listCriticalRules()
+    expect(mockPrisma.systemConfig.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: { key: { startsWith: 'critical_rule_' } } }))
+    expect(r.data).toHaveLength(1)
   })
 
-  describe('createCriticalRule', () => {
-    it('creates a rule with timestamp key', async () => {
-      mockPrisma.systemConfig.create.mockResolvedValue({ key: 'critical_rule_123', value: {} })
-      const result = await svc.createCriticalRule({ name: 'High Priority', triggerCondition: 'severity >= HIGH', severity: 'HIGH', channels: ['SMS'], recipients: ['admin@hospital.com'] })
-      expect(result.data).toHaveLength(1)
-    })
+  it('createCriticalRule validates and creates', async () => {
+    mockPrisma.systemConfig.create.mockResolvedValue({ id: 'c1' })
+    const r = await svc.createCriticalRule({ name: '高钾血症', triggerCondition: 'K > 6.5', severity: 'CRITICAL', channels: ['SMS', 'APP'], recipients: ['值班医师'] })
+    expect(mockPrisma.systemConfig.create).toHaveBeenCalled()
+    expect(r.data).toHaveLength(1)
   })
 
-  describe('updateCriticalRule', () => {
-    it('updates existing rule', async () => {
-      mockPrisma.systemConfig.update.mockResolvedValue({ key: 'critical_rule_1', value: {} })
-      const result = await svc.updateCriticalRule('critical_rule_1', { severity: 'CRITICAL' })
-      expect(result.data).toHaveLength(1)
-    })
+  it('createCriticalRule passes body through to config', async () => {
+    mockPrisma.systemConfig.create.mockResolvedValue({ id: 'c2' })
+    const r = await svc.createCriticalRule({ name: '低血糖', triggerCondition: 'GLU < 2.8', severity: 'HIGH', channels: ['APP'], recipients: ['护士站'] })
+    expect(mockPrisma.systemConfig.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ key: expect.stringMatching(/^critical_rule_/) }) }))
+    expect(r.data).toHaveLength(1)
   })
 
-  describe('deleteCriticalRule', () => {
-    it('deletes rule by key', async () => {
-      mockPrisma.systemConfig.delete.mockResolvedValue({} as any)
-      const result = await svc.deleteCriticalRule('critical_rule_1')
-      expect(result.data).toEqual([])
-    })
+  it('updateCriticalRule and deleteCriticalRule mutate config', async () => {
+    mockPrisma.systemConfig.update.mockResolvedValue({ key: 'critical_rule_1' })
+    await svc.updateCriticalRule('critical_rule_1', { name: 'x', enabled: false })
+    expect(mockPrisma.systemConfig.update).toHaveBeenCalledWith(expect.objectContaining({ where: { key: 'critical_rule_1' } }))
+    mockPrisma.systemConfig.delete.mockResolvedValue({})
+    await expect(svc.deleteCriticalRule('critical_rule_1')).resolves.toEqual({ data: [] })
   })
 
-  describe('getCriticalStats', () => {
-    it('returns stats with total, byState, bySeverity', async () => {
-      mockPrisma.criticalValue.count.mockResolvedValue(10)
-      mockPrisma.criticalValue.groupBy.mockResolvedValueOnce([{ state: 'FOUND', _count: { id: 5 } }])
-      mockPrisma.criticalValue.groupBy.mockResolvedValueOnce([{ severity: 'HIGH', _count: { id: 3 } }])
-      const result = await svc.getCriticalStats()
-      expect(result.data.total).toBe(10)
-      expect(result.data.byState).toHaveLength(1)
-      expect(result.data.bySeverity).toHaveLength(1)
-    })
+  it('getCriticalStats counts values by state and severity', async () => {
+    mockPrisma.criticalValue.count.mockResolvedValue(5)
+    mockPrisma.criticalValue.groupBy.mockResolvedValue([])
+    const r = await svc.getCriticalStats()
+    expect(r.data.total).toBe(5)
+    expect(mockPrisma.criticalValue.groupBy).toHaveBeenCalledTimes(2)
   })
 
-  describe('getCriticalSummary', () => {
-    it('returns recent criticals', async () => {
-      mockPrisma.criticalValue.findMany.mockResolvedValue([{ id: 'c1' }])
-      const result = await svc.getCriticalSummary()
-      expect(result.data).toHaveLength(1)
-    })
+  it('getCriticalSummary and listCriticalCenter list values', async () => {
+    mockPrisma.criticalValue.findMany.mockResolvedValue([{ id: 'v1' }])
+    await expect(svc.getCriticalSummary()).resolves.toMatchObject({ data: [{ id: 'v1' }] })
+    await expect(svc.listCriticalCenter()).resolves.toMatchObject({ data: [{ id: 'v1' }] })
   })
 
-  describe('getCriticalTimeline', () => {
-    it('returns recent notifications', async () => {
-      mockPrisma.criticalValueNotification.findMany.mockResolvedValue([{ id: 'n1' }])
-      const result = await svc.getCriticalTimeline()
-      expect(result.data).toHaveLength(1)
-    })
+  it('getCriticalTimeline and getReceiverPortal list notifications', async () => {
+    mockPrisma.criticalValueNotification.findMany.mockResolvedValue([{ id: 'n1' }])
+    await expect(svc.getCriticalTimeline()).resolves.toMatchObject({ data: [{ id: 'n1' }] })
+    await svc.getReceiverPortal()
+    expect(mockPrisma.criticalValueNotification.findMany).toHaveBeenLastCalledWith(expect.objectContaining({ where: { status: 'PENDING' } }))
   })
 
-  describe('listCriticalCenter', () => {
-    it('returns all criticals', async () => {
-      mockPrisma.criticalValue.findMany.mockResolvedValue([{ id: 'c1' }])
-      const result = await svc.listCriticalCenter()
-      expect(result.data).toHaveLength(1)
-    })
+  it('getCriticalCenterItem wraps value or empty', async () => {
+    mockPrisma.criticalValue.findUnique.mockResolvedValue({ id: 'v1' })
+    await expect(svc.getCriticalCenterItem('v1')).resolves.toMatchObject({ data: [{ id: 'v1' }] })
+    mockPrisma.criticalValue.findUnique.mockResolvedValue(null)
+    await expect(svc.getCriticalCenterItem('x')).resolves.toEqual({ data: [] })
   })
 
-  describe('getCriticalCenterItem', () => {
-    it('returns item when found', async () => {
-      mockPrisma.criticalValue.findUnique.mockResolvedValue({ id: 'c1' })
-      const result = await svc.getCriticalCenterItem('c1')
-      expect(result.data).toHaveLength(1)
-    })
-
-    it('returns empty array when not found', async () => {
-      mockPrisma.criticalValue.findUnique.mockResolvedValue(null)
-      const result = await svc.getCriticalCenterItem('x')
-      expect(result.data).toEqual([])
-    })
+  it('autoDetectCritical validates and creates', async () => {
+    mockPrisma.criticalValue.create.mockResolvedValue({ id: 'v1' })
+    const r = await svc.autoDetectCritical({ examId: 'e1', reportContent: '患者血钾明显升高，提示高钾血症', radiologistId: 'r1' })
+    expect(r.data).toHaveLength(1)
   })
 
-  describe('autoDetectCritical', () => {
-    it('creates critical value and returns it', async () => {
-      mockPrisma.criticalValue.create.mockResolvedValue({ id: 'c1' })
-      const result = await svc.autoDetectCritical({ examId: 'e1', reportContent: '发现异常' })
-      expect(result.data).toHaveLength(1)
-    })
-  })
-
-  describe('closeCriticalLoop', () => {
-    it('updates to RESOLVED state', async () => {
-      mockPrisma.criticalValue.update.mockResolvedValue({ id: 'c1', state: 'RESOLVED' })
-      const result = await svc.closeCriticalLoop({ criticalId: 'c1', resolution: '已确认并处理', resolvedBy: 'doctor1' })
-      expect(result.data).toHaveLength(1)
-      expect(mockPrisma.criticalValue.update).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: { id: 'c1' },
-          data: expect.objectContaining({ state: 'RESOLVED' }),
-        })
-      )
-    })
-  })
-
-  describe('getReceiverPortal', () => {
-    it('returns pending notifications', async () => {
-      mockPrisma.criticalValueNotification.findMany.mockResolvedValue([{ id: 'n1', status: 'PENDING' }])
-      const result = await svc.getReceiverPortal()
-      expect(result.data).toHaveLength(1)
-      expect(mockPrisma.criticalValueNotification.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { status: 'PENDING' } })
-      )
-    })
+  it('closeCriticalLoop updates to RESOLVED', async () => {
+    mockPrisma.criticalValue.update.mockResolvedValue({ id: 'v1' })
+    const r = await svc.closeCriticalLoop({ criticalId: 'v1', resolution: '已处理', resolvedBy: 'dr-1' })
+    expect(mockPrisma.criticalValue.update).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ state: 'RESOLVED' }) }))
+    expect(r.data).toHaveLength(1)
   })
 })

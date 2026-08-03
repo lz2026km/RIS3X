@@ -3,15 +3,18 @@
 // G005 放射科早癌筛查平台
 // 放射科早癌筛查 - 肺癌LDCT/乳腺癌/消化道癌筛查管理
 // ============================================================
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
+import { Spin, message as antdMessage } from 'antd'
 import {
   Users, AlertTriangle, Target, Heart, MapPin, TrendingUp,
   Plus, Search, Filter, Download, RefreshCw,
   Activity, Shield, Clock, CheckCircle, XCircle, PauseCircle,
   ArrowUp, ArrowDown, AlertCircle, Microscope, Calendar,
   ChevronDown, ChevronRight, Edit, Trash2, Eye, ClipboardList,
-  Circle, FileSearch, UserCheck, Inbox, Wind, Scan, FileImage
+  Circle, FileSearch, UserCheck, Inbox, Wind, Scan, FileImage,
+  ListOrdered, Flag
 } from 'lucide-react'
+import { screeningApi } from '../services/api/screeningApi'
 
 // ---------- 统计数据 ----------
 const statsData = [
@@ -189,6 +192,81 @@ const CancerScreenPage = () => {
   const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
     setToast({ msg, type })
     setTimeout(() => setToast(null), 3000)
+  }
+
+  // [Phase 2] 真实 API 数据：统计 + 筛查队列
+  const [liveStats, setLiveStats] = useState<typeof statsData | null>(null)
+  const [queue, setQueue] = useState<any[]>([])
+  const [queueLoading, setQueueLoading] = useState(false)
+  const [queueError, setQueueError] = useState<string | null>(null)
+  const [queueStatusFilter, setQueueStatusFilter] = useState('全部')
+  const [queueTypeFilter, setQueueTypeFilter] = useState('全部')
+  const [queueKeyword, setQueueKeyword] = useState('')
+  const [queueTabOpen, setQueueTabOpen] = useState(false)
+
+  const loadQueue = useCallback(async () => {
+    setQueueLoading(true)
+    setQueueError(null)
+    try {
+      const res = await screeningApi.listQueue({
+        status: queueStatusFilter === '全部' ? undefined : queueStatusFilter,
+        screenType: queueTypeFilter === '全部' ? undefined : queueTypeFilter,
+        keyword: queueKeyword || undefined,
+      })
+      if (res.success && Array.isArray(res.data)) setQueue(res.data)
+      else setQueueError('筛查队列加载失败')
+    } catch {
+      setQueueError('筛查队列加载失败，请稍后重试')
+    } finally {
+      setQueueLoading(false)
+    }
+  }, [queueStatusFilter, queueTypeFilter, queueKeyword])
+
+  useEffect(() => {
+    void (async () => {
+      const [statsRes, queueRes] = await Promise.all([screeningApi.getStats(), screeningApi.listQueue()])
+      if (statsRes.success && statsRes.data) {
+        const d = statsRes.data as any
+        setLiveStats([
+          { label: 'LDCT筛查人数', value: d.ldctCount.toLocaleString(), unit: '人', icon: Wind, color: '#2563eb', bg: '#eff6ff' },
+          { label: '乳腺筛查人数', value: d.breastCount.toLocaleString(), unit: '人', sub: '含钼靶/超声', icon: Heart, color: '#ec4899', bg: '#fdf2f8' },
+          { label: '高危结节检出', value: d.highRiskCount.toLocaleString(), unit: '例', sub: 'LDCT 14.9%', icon: AlertTriangle, color: '#ea580c', bg: '#fff7ed' },
+          { label: '早癌/疑似早癌', value: d.earlyCancerCount.toLocaleString(), unit: '例', sub: '检出率2.37%', icon: Target, color: '#dc2626', bg: '#fef2f2' },
+          { label: 'BI-RADS 4+', value: d.birads4Plus.toLocaleString(), unit: '例', icon: Scan, color: '#7c3aed', bg: '#f5f3ff' },
+          { label: '本月新增筛查', value: d.monthlyNew.toLocaleString(), unit: '人', trend: 'up', icon: TrendingUp, color: '#0891b2', bg: '#ecfeff' },
+        ])
+      }
+      if (queueRes.success && Array.isArray(queueRes.data)) setQueue(queueRes.data)
+      else setQueueError('筛查队列加载失败')
+    })()
+  }, [])
+
+  const handleMarkScreening = async (item: any) => {
+    try {
+      const res = await screeningApi.markScreening(item.id, { screenType: item.screenType, doctor: '张伟医生' })
+      if (res.success && res.data) {
+        showToast(`已标记 ${res.data.patientName} 为 ${res.data.screenType} 筛查`, 'success')
+        void loadQueue()
+      } else {
+        antdMessage.error(res.error?.message || '标记失败')
+      }
+    } catch {
+      antdMessage.error('标记服务暂不可用')
+    }
+  }
+
+  const handleQueueStatus = async (item: any, status: string) => {
+    try {
+      const res = await screeningApi.updateStatus(item.id, { status })
+      if (res.success) {
+        showToast(`已将 ${item.patientName} 更新为「${status}」`, 'success')
+        void loadQueue()
+      } else {
+        antdMessage.error(res.error?.message || '更新失败')
+      }
+    } catch {
+      antdMessage.error('更新服务暂不可用')
+    }
   }
 
   // ---------- 数据 ----------
@@ -425,7 +503,7 @@ const CancerScreenPage = () => {
 
       {/* 6大指标卡片 */}
       <div style={s.statsRow}>
-        {statsData.map((stat, i) => <StatCard key={i} {...stat} />)}
+        {(liveStats || statsData).map((stat, i) => <StatCard key={i} {...stat} />)}
       </div>
 
       {/* 功能区Tab导航 */}
@@ -435,6 +513,7 @@ const CancerScreenPage = () => {
           { label: '高危评估', icon: AlertTriangle },
           { label: '早癌/结节检出', icon: Microscope },
           { label: '影像数据地图', icon: MapPin },
+          { label: `筛查队列 (${queue.length})`, icon: ListOrdered },
         ].map((t, i) => (
           <button
             key={i}
@@ -825,6 +904,102 @@ const biRadsStats = [
               <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowDetailModal(false)}>关闭</button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ========== 功能区5: 筛查队列（真实 API） ========== */}
+      {tab === 5 && (
+        <div style={s.section}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <div style={s.sectionTitle}><ListOrdered size={16} color='#2563eb' />筛查队列（实时）</div>
+            <button style={{ ...s.btn, padding: '6px 12px' }} onClick={() => void loadQueue()}><RefreshCw size={13} /> 刷新</button>
+          </div>
+          <div style={s.taskToolbar}>
+            <input
+              style={s.searchInput}
+              placeholder='搜索患者姓名 / 检查ID / 登记号...'
+              value={queueKeyword}
+              onChange={e => setQueueKeyword(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && void loadQueue()}
+            />
+            <select style={{ ...s.formSelect, width: 140 }} value={queueStatusFilter} onChange={e => { setQueueStatusFilter(e.target.value); }}>
+              {['全部', '已登记', '筛查中', '已完成', '异常', '待审核'].map(st => <option key={st} value={st}>{st}</option>)}
+            </select>
+            <select style={{ ...s.formSelect, width: 140 }} value={queueTypeFilter} onChange={e => { setQueueTypeFilter(e.target.value); }}>
+              {['全部', 'LDCT', 'MG', '乳腺超声', '消化道'].map(ty => <option key={ty} value={ty}>{ty}</option>)}
+            </select>
+            <button style={{ ...s.btnPrimary, padding: '6px 14px' }} onClick={() => void loadQueue()}><Search size={13} /> 查询</button>
+          </div>
+
+          {queueLoading ? (
+            <div style={{ padding: 40, textAlign: 'center' }}><Spin tip="加载筛查队列..."><div style={{ height: 40 }} /></Spin></div>
+          ) : queueError ? (
+            <div style={{ padding: 24, textAlign: 'center', color: '#dc2626', fontSize: 13 }}>{queueError}</div>
+          ) : (
+            <div style={s.scrollBox}>
+              <table style={s.table}>
+                <thead>
+                  <tr>
+                    <th style={s.th}>登记号</th>
+                    <th style={s.th}>患者</th>
+                    <th style={s.th}>性别/年龄</th>
+                    <th style={s.th}>筛查类型</th>
+                    <th style={s.th}>检查日期</th>
+                    <th style={s.th}>状态</th>
+                    <th style={s.th}>结果</th>
+                    <th style={s.th}>RADS</th>
+                    <th style={s.th}>机构</th>
+                    <th style={s.th}>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {queue.map(item => (
+                    <tr key={item.id}>
+                      <td style={s.td}><span style={{ fontFamily: 'monospace', fontSize: 11 }}>{item.examId || item.id}</span></td>
+                      <td style={{ ...s.td, fontWeight: 600 }}>{item.patientName}</td>
+                      <td style={s.td}>{item.gender} / {item.age}岁</td>
+                      <td style={s.td}><ScreenTypeBadge type={item.screenType} /></td>
+                      <td style={s.td}>{item.screenDate}</td>
+                      <td style={s.td}>
+                        <span style={{
+                          ...s.statusBadge,
+                          background: item.status === '已完成' ? '#f0fdf4' : item.status === '异常' ? '#fef2f2' : item.status === '筛查中' ? '#eff6ff' : '#f1f5f9',
+                          color: item.status === '已完成' ? '#16a34a' : item.status === '异常' ? '#dc2626' : item.status === '筛查中' ? '#2563eb' : '#64748b',
+                        }}>{item.status}</span>
+                      </td>
+                      <td style={s.td}>
+                        {item.result && item.result !== '-'
+                          ? <span style={{ ...s.tag, background: item.result === '阳性' ? '#fef2f2' : '#f0fdf4', color: item.result === '阳性' ? '#dc2626' : '#16a34a' }}>{item.result}</span>
+                          : <span style={{ color: '#94a3b8' }}>-</span>}
+                      </td>
+                      <td style={s.td}>{item.rads && item.rads !== '-' ? <RadsBadge rads={item.rads} /> : <span style={{ color: '#94a3b8' }}>-</span>}</td>
+                      <td style={{ ...s.td, fontSize: 11 }}>{item.institution || '-'}</td>
+                      <td style={s.td}>
+                        <div style={{ display: 'flex', gap: 4 }}>
+                          <button style={{ ...s.tag, background: '#eff6ff', color: '#2563eb', cursor: 'pointer', border: 'none' }} onClick={() => void handleMarkScreening(item)}>
+                            <Flag size={11} style={{ verticalAlign: 'middle', marginRight: 2 }} />标记
+                          </button>
+                          {item.status !== '已完成' && (
+                            <button style={{ ...s.tag, background: '#f0fdf4', color: '#16a34a', cursor: 'pointer', border: 'none' }} onClick={() => void handleQueueStatus(item, '已完成')}>
+                              <CheckCircle size={11} style={{ verticalAlign: 'middle', marginRight: 2 }} />完成
+                            </button>
+                          )}
+                          {item.status !== '异常' && item.status !== '已完成' && (
+                            <button style={{ ...s.tag, background: '#fef2f2', color: '#dc2626', cursor: 'pointer', border: 'none' }} onClick={() => void handleQueueStatus(item, '异常')}>
+                              异常
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {queue.length === 0 && (
+                    <tr><td colSpan={10} style={{ ...s.td, textAlign: 'center', color: '#94a3b8', padding: 32 }}>暂无筛查队列数据</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 

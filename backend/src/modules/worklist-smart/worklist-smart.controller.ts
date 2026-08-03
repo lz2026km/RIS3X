@@ -46,6 +46,11 @@ export class WorklistSmartController {
     return this.service.getWeights()
   }
 
+  @Get('priorities')
+  priorities() {
+    return this.service.getPriorities()
+  }
+
   @Put('weights')
   @Roles('ADMIN')
   setWeights(@Body(new ZodValidationPipe(WeightSchema)) body: Partial<SmartWeightConfig>): SmartWeightConfig {

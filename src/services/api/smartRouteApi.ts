@@ -19,6 +19,21 @@ export interface SmartRouteAssignment {
   assignedTo: string
   ruleName: string
   assignedAt: string
+  stage?: 'qualification' | 'load-balance' | 'priority' | 'fallback'
+  qualification?: string
+  reason?: string
+}
+
+export interface DoctorQualification {
+  doctorId: string
+  name: string
+  subspecialty: string
+  modality: string[]
+  bodyParts: string[]
+  qualifications: string[]
+  currentLoad: number
+  maxLoad: number
+  priority: number
 }
 
 export interface SmartRouteStats {
@@ -44,6 +59,9 @@ export const smartRouteApi = {
 
   updateRules: (rules: SmartRouteRule[]) =>
     api.put<SmartRouteRule[]>('/smart-route/rules', { rules }),
+
+  getQualifications: () =>
+    api.get<DoctorQualification[]>('/smart-route/qualifications'),
 
   getHistory: () =>
     api.get<SmartRouteAssignment[]>('/smart-route/history'),

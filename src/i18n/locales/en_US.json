@@ -954,7 +954,8 @@
     "criticalValue5Step": "Critical Value 5-Step",
     "wadoRs": "WADO-RS Retrieval",
     "stowRs": "STOW-RS Storage",
-    "srReport": "SR Structured Report"
+    "srReport": "SR Structured Report",
+    "hangingProtocols": "Hanging Protocol Manager"
   },
   "orchestrator": {
     "title": "Task Orchestration Engine",

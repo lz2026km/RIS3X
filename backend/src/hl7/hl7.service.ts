@@ -624,6 +624,36 @@ export class Hl7Service implements OnModuleInit {
     return this.pushOruOnExamCompletion(exam, report)
   }
 
+  /**
+   * v3.0.6.11-60: 组装 ORU^R01 消息并推送(供 DICOM SR 回传链路复用)。
+   * - push 未启用时: 仅归档消息,返回 pushed=false,不抛错
+   * - push 启用时: MLLP 发送,失败按 sendMllpMessage 重试后抛错
+   */
+  async buildAndPushOru(r: ReportForHL7): Promise<{ message: string; controlId: string; pushed: boolean; ackStatus: string }> {
+    const message = this.buildORU(r)
+    const controlId = message.split('\r')[0]?.split('|')[9] ?? `G005-${r.reportId}-${Date.now()}`
+    if (!this.pushConfig.enabled || !this.pushConfig.host) {
+      await this.prisma.hl7MessageArchive.create({
+        data: {
+          tenantId: 'default',
+          messageType: 'ORU^R01',
+          controlId,
+          rawMessage: message,
+          parsed: { note: 'ORU push disabled by config, message archived only', reportId: r.reportId },
+          direction: 'OUTBOUND',
+          ackStatus: 'SKIPPED',
+          retryCount: 0,
+        },
+      }).catch((err) => this.logger.warn(`Failed to archive HL7 message: ${(err as Error).message}`))
+      this.logger.log(`ORU^R01 built (push disabled) for report ${r.reportId}, controlId=${controlId}`)
+      return { message, controlId, pushed: false, ackStatus: 'SKIPPED' }
+    }
+    const ack = await this.sendMllpMessage(this.pushConfig.host, this.pushConfig.port, message)
+    const ackCode = ack.split('\r').find((s) => s.startsWith('MSA'))?.split('|')[1] ?? 'AA'
+    this.logger.log(`ORU^R01 pushed for report ${r.reportId}, controlId=${controlId}, ack=${ackCode}`)
+    return { message, controlId, pushed: true, ackStatus: ackCode }
+  }
+
   async pushOruOnExamCompletion(exam: any, report: any): Promise<void> {
     if (!this.pushConfig.enabled || !this.pushConfig.host) {
       this.logger.debug('ORU push disabled, skipping')

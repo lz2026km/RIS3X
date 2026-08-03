@@ -4,7 +4,8 @@
 // ============================================================
 import { useTranslation } from "react-i18next";
 import { useState, useMemo, useEffect } from "react";
-import { datareportApi, type InsuranceAuditApiDto } from "../services/api/datareportApi";
+import { datareportApi, type InsuranceAuditDto as DataReportAuditDto } from "../services/api/datareportApi";
+import { insuranceApi } from "../services/api/insuranceApi";
 import { PermissionGate } from "../components/common/PermissionGate";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { VOUCHER_DATA, ElectronicVoucherRecord } from "../data/initialData";
@@ -3388,6 +3389,68 @@ export default function InsuranceAuditPage() {
   const [showRequestInfoModal, setShowRequestInfoModal] = useState(false);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [pendingAudits, setPendingAudits] = useState(pendingAuditData);
+  const [auditLoading, setAuditLoading] = useState(false);
+  const [rejectReasonText, setRejectReasonText] = useState("");
+
+  // [Phase 2] 从真实 API 加载待审核数据
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setAuditLoading(true);
+      const [listRes, insuranceRes] = await Promise.all([
+        datareportApi.listInsuranceAudits(),
+        insuranceApi.list(),
+      ]);
+      if (cancelled) return;
+      const mapped: PendingAudit[] = [];
+      if (listRes.success && Array.isArray(listRes.data)) {
+        (listRes.data as DataReportAuditDto[]).forEach((d) => {
+          if (d.status === "pending" || d.status === "PENDING") {
+            mapped.push({
+              id: d.id,
+              patientName: d.patientName,
+              patientId: d.patientId,
+              examType: d.examType || "CT",
+              examItem: d.examType || "影像检查",
+              drugName: d.drugName || d.drugCategory || "对比剂",
+              drugCategory: d.drugCategory || "对比剂",
+              drugSpec: "常规规格",
+              restriction: "医保限制用药目录",
+              reason: d.reason || "待审核",
+              submitTime: d.submitTime || "",
+              submitDept: "放射科",
+              urgency: "中",
+            });
+          }
+        });
+      }
+      if (insuranceRes.success && Array.isArray(insuranceRes.data)) {
+        (insuranceRes.data as any[]).forEach((d) => {
+          if (d.status === "pending") {
+            mapped.push({
+              id: d.id,
+              patientName: d.patientName,
+              patientId: d.patientId,
+              examType: d.examItem || "CT",
+              examItem: d.examItem || "影像检查",
+              drugName: d.contrastAgent || d.anticoagulant || "对比剂",
+              drugCategory: d.contrastAgent ? "对比剂" : "抗凝药物",
+              drugSpec: "常规规格",
+              restriction: "医保限制用药目录",
+              reason: d.reason || "待审核",
+              submitTime: "",
+              submitDept: "放射科",
+              urgency: "中",
+            });
+          }
+        });
+      }
+      if (mapped.length > 0) setPendingAudits(mapped);
+      setAuditLoading(false);
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [voucherSearch, setVoucherSearch] = useState("");
   const [voucherFilterStatus, setVoucherFilterStatus] = useState("全部");
   const [ruleToDelete, setRuleToDelete] = useState<IndicationRule | null>(null);
@@ -3754,8 +3817,17 @@ export default function InsuranceAuditPage() {
     setSelectedAudit(id);
     setToastType("success");
     setToastMessage(t("approvedMsg") + `: ${id}`);
-    // 模拟状态更新：从待审核列表移除
-    setPendingAudits((prev) => prev.filter((a) => a.id !== id));
+    // 调用真实 API 并通过
+    void insuranceApi.approve(id).then((res) => {
+      if (!res.success) {
+        setToastType("error");
+        setToastMessage(res.error?.message || t("approveFailed", "通过失败"));
+        return;
+      }
+      setToastType("success");
+      setToastMessage(t("approvedMsg") + `: ${id}`);
+      setPendingAudits((prev) => prev.filter((a) => a.id !== id));
+    });
   };
 
   const handleReject = (id: string) => {
@@ -3770,11 +3842,21 @@ export default function InsuranceAuditPage() {
 
   const confirmReject = () => {
     if (pendingId) {
+      const reason = rejectReasonText.trim() || t("rejectDefaultReason", "不符合医保限制用药条件");
       setToastType("error");
       setToastMessage(t("rejectedMsg") + `: ${pendingId}`);
-      setPendingAudits((prev) => prev.filter((a) => a.id !== pendingId));
       setShowRejectModal(false);
       setPendingId(null);
+      setRejectReasonText("");
+      // 调用真实 API 拒绝
+      void insuranceApi.reject(pendingId, reason).then((res) => {
+        if (res.success) {
+          setPendingAudits((prev) => prev.filter((a) => a.id !== pendingId));
+        } else {
+          setToastType("error");
+          setToastMessage(res.error?.message || t("rejectFailed", "拒绝失败"));
+        }
+      });
     }
   };
 
@@ -4267,12 +4349,46 @@ export default function InsuranceAuditPage() {
               onClick={() => {
                 setToastType("success");
                 setToastMessage(t("refreshed"));
+                // [Phase 2] 刷新时重新拉取医保平台数据
+                setAuditLoading(true);
+                void datareportApi.listInsuranceAudits().then((res) => {
+                  setAuditLoading(false);
+                  if (res.success && Array.isArray(res.data)) {
+                    const list = res.data as DataReportAuditDto[];
+                    const mapped: PendingAudit[] = [];
+                    list.forEach((d) => {
+                      if (d.status === "pending" || d.status === "PENDING") {
+                        mapped.push({
+                          id: d.id,
+                          patientName: d.patientName,
+                          patientId: d.patientId,
+                          examType: d.examType || "CT",
+                          examItem: d.examType || "影像检查",
+                          drugName: d.drugName || d.drugCategory || "对比剂",
+                          drugCategory: d.drugCategory || "对比剂",
+                          drugSpec: "常规规格",
+                          restriction: "医保限制用药目录",
+                          reason: d.reason || "待审核",
+                          submitTime: d.submitTime || "",
+                          submitDept: "放射科",
+                          urgency: "中",
+                        });
+                      }
+                    });
+                    if (mapped.length > 0) setPendingAudits(mapped);
+                  }
+                });
               }}
               style={{ ...styles.btn, ...styles.btnOutline }}
             >
               <RefreshCw size={16} />
               {t("refresh")}
             </button>
+            {auditLoading && (
+              <span style={{ fontSize: 12, color: "#1e40af", display: "flex", alignItems: "center", gap: 6 }}>
+                <Loader2 size={14} className="spin" /> 正在同步医保平台数据...
+              </span>
+            )}
           </div>
 
           {filteredPending.length === 0 ? (
@@ -6442,6 +6558,16 @@ export default function InsuranceAuditPage() {
           <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div style={styles.modalTitle}>{t("confirmRejectTitle")}</div>
             <div style={styles.modalText}>{t("confirmRejectText")}</div>
+            <textarea
+              value={rejectReasonText}
+              onChange={(e) => setRejectReasonText(e.target.value)}
+              placeholder="请输入拒绝原因（必填，将同步至医保平台）"
+              rows={3}
+              style={{
+                width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid #e2e8f0",
+                fontSize: 13, fontFamily: "inherit", boxSizing: "border-box", marginBottom: 12, resize: "vertical",
+              }}
+            />
             <div style={styles.modalActions}>
               <button
                 style={{ ...styles.btn, ...styles.btnOutline }}

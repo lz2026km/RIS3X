@@ -1,20 +1,29 @@
-import { useState, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Card, Descriptions, Tag, Timeline, Table, Collapse, Button, Badge } from 'antd'
+import { Card, Descriptions, Tag, Timeline, Table, Collapse, Button, Badge, Spin, Alert, Empty } from 'antd'
 import {
   User, Phone, Calendar, Activity, Image, AlertTriangle,
   Clock, ShieldAlert, Eye,
 } from 'lucide-react'
-import { initialPatients, initialRadiologyExams } from '../../data/initialData'
-import type { RadiologyExam } from '../../types'
-import { getPatientExams, getPatientStats } from './utils'
+import { patientApi } from '../../services/api/patientApi'
+import { examApi } from '../../services/api/examApi'
+import { reportApi } from '../../services/api/reportApi'
+import type { PatientDto } from '../../types/dto'
+import type { ExamDto } from '../../types/dto'
 
-const severityTagColor: Record<string, string> = {
-  '危及生命': '#dc2626',
-  '危急': '#ef4444',
-  '高危': '#f97316',
-  '紧急': '#eab308',
-  '警告': '#3b82f6',
+interface ExamView {
+  id: string
+  examDate: string
+  examItemName: string
+  modality: string
+  bodyPart?: string
+  deviceName?: string
+  status: string
+  criticalFinding: boolean
+  findings?: string
+  diagnosis?: string
+  radiologistName?: string
+  reportId?: string
 }
 
 const examStatusColor: Record<string, string> = {
@@ -24,27 +33,99 @@ const examStatusColor: Record<string, string> = {
   '检查中': '#8b5cf6',
 }
 
+const STATUS_MAP: Record<string, string> = {
+  draft: '草稿',
+  submitted: '待出报告',
+  reviewed: '审核中',
+  cosigned: '已双签',
+  published: '报告已发',
+  completed: '已完成',
+  in_progress: '检查中',
+  pending: '待出报告',
+}
+
+function normalizeStatus(status: string): string {
+  if (!status) return '未知'
+  if (/[\u4e00-\u9fa5]/.test(status)) return status
+  return STATUS_MAP[status.toLowerCase()] || status
+}
+
+function toExamView(exam: ExamDto, report?: { findings?: string; diagnosis?: string; impression?: string; doctorId?: string; id?: string }): ExamView {
+  return {
+    id: exam.id || exam.examId,
+    examDate: exam.scheduledAt || '',
+    examItemName: exam.examItem || '影像检查',
+    modality: exam.modality,
+    bodyPart: exam.bodyPart,
+    deviceName: exam.deviceName || exam.deviceModel,
+    status: normalizeStatus(exam.status),
+    criticalFinding: exam.hasCriticalValue === true,
+    findings: report?.findings,
+    diagnosis: report?.diagnosis || report?.impression,
+    radiologistName: report?.doctorId,
+    reportId: report?.id || report?.reportId,
+  }
+}
+
 export default function Patient360Page() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
 
-  const patient = useMemo(
-    () => initialPatients.find((p) => p.id === id) || null,
-    [id],
-  )
+  const [patient, setPatient] = useState<PatientDto | null>(null)
+  const [exams, setExams] = useState<ExamView[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const exams = useMemo(
-    () => (patient ? getPatientExams(patient.id, initialRadiologyExams as unknown as RadiologyExam[]) : []),
-    [patient],
-  )
+  useEffect(() => {
+    if (!id) return
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const [patientRes, examRes, reportRes] = await Promise.all([
+          patientApi.getById(id),
+          patientApi.getExams(id),
+          patientApi.getReports(id),
+        ])
+        if (cancelled) return
+        if (patientRes.success && patientRes.data) {
+          setPatient(patientRes.data as PatientDto)
+        } else {
+          setPatient(null)
+        }
+        const rawExams = examRes.success && Array.isArray(examRes.data) ? examRes.data as ExamDto[] : []
+        const rawReports = reportRes.success && Array.isArray(reportRes.data) ? reportRes.data as any[] : []
+        const reportByExam = new Map<string, any>()
+        for (const r of rawReports) {
+          if (r.examId) reportByExam.set(r.examId, r)
+          if (r.id) reportByExam.set(r.id, r)
+        }
+        const views = rawExams.map(e => toExamView(e, reportByExam.get(e.id) || reportByExam.get(e.examId)))
+        setExams(views)
+        if (!patientRes.success && !examRes.success && !reportRes.success) {
+          setError('患者数据加载失败，请稍后重试')
+        }
+      } catch {
+        if (!cancelled) setError('患者数据加载失败，请稍后重试')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [id])
 
-  const stats = useMemo(
-    () => (patient ? getPatientStats(patient.id, initialRadiologyExams as unknown as RadiologyExam[]) : null),
-    [patient],
-  )
+  const stats = useMemo(() => {
+    if (!exams.length) return null
+    return {
+      totalExams: exams.length,
+      positiveCount: exams.filter(ex => ex.criticalFinding || (ex.findings && /异常|占位|肿瘤|癌|结节|梗死|骨折|夹层/.test(ex.findings))).length,
+      negativeCount: exams.filter(ex => !ex.criticalFinding && (!ex.findings || !/异常|占位|肿瘤|癌|结节|梗死|骨折|夹层/.test(ex.findings))).length,
+      firstExamDate: exams.length ? exams.map(e => e.examDate).filter(Boolean).sort()[0]?.slice(0, 10) || '-' : '-',
+    }
+  }, [exams])
 
   const timelineEvents = useMemo(() => {
-    if (!exams.length) return []
     return [...exams]
       .sort((a, b) => new Date(b.examDate).getTime() - new Date(a.examDate).getTime())
       .map((ex) => ({
@@ -57,75 +138,31 @@ export default function Patient360Page() {
       }))
   }, [exams])
 
-  const criticalExams = useMemo(
-    () => exams.filter((ex) => ex.criticalFinding),
-    [exams],
-  )
+  const criticalExams = useMemo(() => exams.filter((ex) => ex.criticalFinding), [exams])
 
-  const columns = [
-    {
-      title: '检查日期',
-      dataIndex: 'examDate',
-      key: 'examDate',
-      width: 120,
-    },
-    {
-      title: '检查项目',
-      dataIndex: 'examItemName',
-      key: 'examItemName',
-      render: (_: string, record: RadiologyExam) => (
-        <span style={{ fontWeight: 600, color: '#1e3a5f' }}>
-          {record.examItemName}
-          {record.criticalFinding && (
-            <Tag color="red" style={{ marginLeft: 8 }}>
-              <AlertTriangle size={10} style={{ marginRight: 4 }} />
-              危急值
-            </Tag>
-          )}
-        </span>
-      ),
-    },
-    {
-      title: '设备',
-      dataIndex: 'deviceName',
-      key: 'deviceName',
-      width: 120,
-    },
-    {
-      title: '状态',
-      dataIndex: 'status',
-      key: 'status',
-      width: 100,
-      render: (status: string) => (
-        <Tag color={examStatusColor[status] || '#64748b'}>{status}</Tag>
-      ),
-    },
-    {
-      title: '操作',
-      key: 'action',
-      width: 120,
-      render: (_: string, record: RadiologyExam) => (
-        <Button
-          type="link"
-          size="small"
-          icon={<Eye size={14} />}
-          onClick={() => {
-            if (record.reportId) {
-              navigate(`/reports?reportId=${record.reportId}`)
-            }
-          }}
-        >
-          查看报告
-        </Button>
-      ),
-    },
-  ]
+  if (loading) {
+    return (
+      <div style={{ padding: 80, textAlign: 'center' }}>
+        <Spin size="large" tip="正在加载患者全景数据...">
+          <div style={{ height: 60 }} />
+        </Spin>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div style={{ padding: 24 }}>
+        <Alert type="error" showIcon message={error} action={<Button size="small" onClick={() => navigate('/patients')}>返回患者列表</Button>} />
+      </div>
+    )
+  }
 
   if (!patient) {
     return (
       <div style={{ padding: 48, textAlign: 'center', color: '#94a3b8' }}>
         <User size={48} style={{ marginBottom: 16, color: '#cbd5e1' }} />
-        <div style={{ fontSize: 16, fontWeight: 600 }}>患者不存在</div>
+        <div style={{ fontSize: 16, fontWeight: 600 }}>患者不存在或暂无数据</div>
         <Button type="primary" style={{ marginTop: 16 }} onClick={() => navigate('/patients')}>
           返回患者列表
         </Button>
@@ -150,14 +187,13 @@ export default function Patient360Page() {
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 20, fontWeight: 700, color: '#1e3a5f' }}>
               {patient.name}
-              <Tag color="blue" style={{ marginLeft: 12, fontSize: 12 }}>
-                {patient.patientType}
-              </Tag>
+              {patient.patientType && <Tag color="blue" style={{ marginLeft: 12, fontSize: 12 }}>{patient.patientType}</Tag>}
             </div>
-            <div style={{ display: 'flex', gap: 24, marginTop: 8, fontSize: 13, color: '#64748b' }}>
+            <div style={{ display: 'flex', gap: 24, marginTop: 8, fontSize: 13, color: '#64748b', flexWrap: 'wrap' }}>
               <span><User size={13} style={{ marginRight: 4 }} />{patient.gender} · {patient.age}岁</span>
-              <span><Phone size={13} style={{ marginRight: 4 }} />{patient.phone}</span>
+              {patient.phone && <span><Phone size={13} style={{ marginRight: 4 }} />{patient.phone}</span>}
               <span><Calendar size={13} style={{ marginRight: 4 }} />ID: {patient.id}</span>
+              {patient.birthDate && <span>出生：{patient.birthDate.slice(0, 10)}</span>}
             </div>
           </div>
           <Button
@@ -192,7 +228,7 @@ export default function Patient360Page() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <Card title="历次检查时间线" style={{ borderRadius: 12 }}>
           {timelineEvents.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 32, color: '#94a3b8' }}>暂无检查记录</div>
+            <Empty description="暂无检查记录" style={{ padding: 24 }} />
           ) : (
             <Timeline
               items={timelineEvents.map((evt) => ({
@@ -221,7 +257,7 @@ export default function Patient360Page() {
 
         <Card title="历次报告摘要" style={{ borderRadius: 12 }}>
           {exams.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: 32, color: '#94a3b8' }}>暂无报告记录</div>
+            <Empty description="暂无报告记录" style={{ padding: 24 }} />
           ) : (
             <Collapse
               ghost
@@ -240,14 +276,13 @@ export default function Patient360Page() {
                 children: (
                   <div>
                     <Descriptions size="small" column={1} style={{ fontSize: 13 }}>
-                      <Descriptions.Item label="检查日期">{ex.examDate}</Descriptions.Item>
-                      <Descriptions.Item label="检查类型">{ex.modality}</Descriptions.Item>
+                      <Descriptions.Item label="检查日期">{ex.examDate || '-'}</Descriptions.Item>
+                      <Descriptions.Item label="检查类型">{ex.modality || '-'}</Descriptions.Item>
                       <Descriptions.Item label="检查部位">{ex.bodyPart || '-'}</Descriptions.Item>
                       <Descriptions.Item label="设备">{ex.deviceName || '-'}</Descriptions.Item>
                       <Descriptions.Item label="状态">{ex.status}</Descriptions.Item>
                       <Descriptions.Item label="影像所见">{ex.findings || '未见明显异常'}</Descriptions.Item>
                       <Descriptions.Item label="诊断意见">{ex.diagnosis || '-'}</Descriptions.Item>
-                      <Descriptions.Item label="报告医生">{ex.radiologistName || ex.technologistName || '-'}</Descriptions.Item>
                     </Descriptions>
                     <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
                       <Button size="small" icon={<Eye size={12} />} onClick={() => navigate(`/dicom-viewer?examId=${ex.id}`)}>
@@ -269,7 +304,7 @@ export default function Patient360Page() {
 
       <Card title="危急值标记" style={{ marginTop: 16, borderRadius: 12 }}>
         {criticalExams.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 24, color: '#94a3b8' }}>该患者暂无危急值记录</div>
+          <Empty description="该患者暂无危急值记录" style={{ padding: 16 }} />
         ) : (
           <Table
             dataSource={criticalExams}
@@ -282,8 +317,8 @@ export default function Patient360Page() {
               { title: '设备', dataIndex: 'deviceName', key: 'deviceName', width: 120 },
               { title: '部位', dataIndex: 'bodyPart', key: 'bodyPart', width: 100 },
               {
-                title: '危急值详情', dataIndex: 'criticalFindingDetails', key: 'criticalFindingDetails',
-                render: (v: string) => v || '有危急发现',
+                title: '危急值详情', key: 'criticalFindingDetails',
+                render: (_, r) => r.findings || '有危急发现',
               },
               {
                 title: '操作', key: 'action', width: 120,

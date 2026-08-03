@@ -34,12 +34,13 @@ export interface PatientQueryParams {
 }
 
 export interface ReportQueryParams {
-  status?: string
-  modality?: string
-  priority?: string
-  text?: string
-  page?: number
-  pageSize?: number
-  sortBy?: string
-  sortDir?: 'asc' | 'desc'
-}
+    status?: string
+    modality?: string
+    priority?: string
+    text?: string
+    q?: string
+    page?: number
+    pageSize?: number
+    sortBy?: string
+    sortDir?: 'asc' | 'desc'
+  }

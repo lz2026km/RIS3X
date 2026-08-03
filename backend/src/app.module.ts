@@ -46,7 +46,6 @@ import { CosignModule } from "./cosign/cosign.module";
 import { CdsModule } from "./cds/cds.module";
 import { CriticalExtModule } from "./criticalext/criticalext.module";
 import { QcExtModule } from "./qcext/qcext.module";
-import { ReportQualityModule } from "./reportquality/reportquality.module";
 import { FhirModule } from "./fhir/fhir.module";
 import { DicomDimseModule } from "./dicom-dimse/dicom-dimse.module";
 import { CaModule } from "./ca/ca.module";
@@ -83,6 +82,9 @@ import { SnomedModule } from "./modules/snomed/snomed.module";
 import { AiDraftModule } from "./modules/ai-draft/ai-draft.module";
 import { RdsrModule } from "./modules/rdsr/rdsr.module";
 import { DicomSrModule } from "./modules/dicom-sr/dicom-sr.module";
+import { HangingModule } from "./modules/hanging/hanging.module";
+import { BiModule } from "./modules/bi/bi.module";
+import { VnaModule } from "./modules/vna/vna.module";
 import { MobileModule } from "./mobile/mobile.module";
 import { JwtAuthGuard } from "./common/guards/jwt-auth.guard";
 import { RolesGuard } from "./common/guards/roles.guard";
@@ -169,7 +171,6 @@ import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
     RdsrModule,
     CriticalExtModule,
     QcExtModule,
-    ReportQualityModule,
     CaModule,
     FhirModule,
     DeviceMgmtModule,
@@ -202,6 +203,8 @@ import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
     WorklistSmartModule,
     WorklistModule,
     DicomSrModule,
+    HangingModule,
+    VnaModule,
   ],
   controllers: [HealthController],
   providers: [

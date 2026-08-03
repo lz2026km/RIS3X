@@ -76,7 +76,7 @@ import {
   Server,
 } from "lucide-react";
 import type { ReactNode } from "react";
-import { GitCompare, FileDown, Globe, FileSignature, Scan, Microscope, Mic, Code, Siren, Heart, Bone, Brain, Plug } from "lucide-react";
+import { GitCompare, FileDown, Globe, FileSignature, Scan, Microscope, Mic, Code, Siren, Heart, Bone, Brain, Plug, LayoutGrid } from "lucide-react";
 
 export type Role = "医生" | "技师" | "护士" | "管理员" | "主任";
 
@@ -602,6 +602,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/dicom/dbt",
         icon: <Layers size={18} />,
         labelKey: "nav.dbt",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      // [v3.0.6.11-60] Auto-hanging 自动布局协议管理
+      {
+        path: "/dicom/hanging-protocols",
+        icon: <LayoutGrid size={18} />,
+        labelKey: "nav.hangingProtocols",
         roles: ["医生", "技师", "主任", "管理员"],
       },
       {

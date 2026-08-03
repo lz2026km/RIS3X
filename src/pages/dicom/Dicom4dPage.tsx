@@ -128,11 +128,31 @@ export default function Dicom4dPage() {
   const [cardiacPhase, setCardiacPhase] = useState(0)
   const [respiratoryPhase, setRespiratoryPhase] = useState(0)
   const [loading, setLoading] = useState(false)
+  const [seriesLoadError, setSeriesLoadError] = useState<string | null>(null)
+  const [frameImages, setFrameImages] = useState<Record<number, HTMLImageElement>>({})
+
+  const currentFrameDataUrl = phaseState?.frames[currentFrame]?.dataUrl || ''
 
   useEffect(() => {
+    if (!currentFrameDataUrl || frameImages[currentFrame]) return
+    const img = new Image()
+    img.onload = () => setFrameImages(prev => ({ ...prev, [currentFrame]: img }))
+    img.src = currentFrameDataUrl
+  }, [currentFrameDataUrl, currentFrame, frameImages])
+
+  useEffect(() => {
+    let cancelled = false
     dicom4dApi.list().then(res => {
-      if (res.success) setSeriesList(res.data)
+      if (cancelled) return
+      if (res.success && Array.isArray(res.data)) {
+        setSeriesList(res.data)
+        if (res.data.length > 0) setSelectedUid(res.data[0].seriesUid)
+        setSeriesLoadError(null)
+      } else {
+        setSeriesLoadError('4D 序列列表加载失败')
+      }
     })
+    return () => { cancelled = true }
   }, [])
 
   const loadSeries = useCallback(async (uid: string) => {
@@ -144,12 +164,13 @@ export default function Dicom4dPage() {
         dicom4dApi.phase(uid),
       ])
       if (framesRes.success && phaseRes.success) {
+        const frames = framesRes.data || []
+        const t0 = frames[0]?.timestamp ? new Date(frames[0].timestamp).getTime() : 0
+        const t1 = frames[1]?.timestamp ? new Date(frames[1].timestamp).getTime() : 0
+        const interval = t0 > 0 && t1 > t0 ? t1 - t0 : 100
         setPhaseState({
-          frames: framesRes.data,
-          frameRate: framesRes.data.length > 0
-            ? Math.round(1000 / ((new Date(framesRes.data[1]?.timestamp || framesRes.data[0].timestamp).getTime()
-              - new Date(framesRes.data[0].timestamp).getTime()) || 100))
-            : 10,
+          frames,
+          frameRate: frames.length > 0 ? Math.round(1000 / interval) : 10,
           cardiacPhase: phaseRes.data.cardiacPhase,
           respiratoryPhase: phaseRes.data.respiratoryPhase,
         })
@@ -217,13 +238,21 @@ export default function Dicom4dPage() {
     ctx.clearRect(0, 0, w, h)
 
     if (frameCount > 0) {
-      const imgData = generateFallbackPixel(currentFrame, frameCount, 256)
-      ctx.putImageData(imgData, Math.round((w - 256) / 2), Math.round((h - 256) / 2))
+      const realFrame = frameImages[currentFrame]
+      if (realFrame) {
+        const scale = Math.min(w / realFrame.width, h / realFrame.height)
+        const dw = realFrame.width * scale
+        const dh = realFrame.height * scale
+        ctx.drawImage(realFrame, Math.round((w - dw) / 2), Math.round((h - dh) / 2), Math.round(dw), Math.round(dh))
+      } else {
+        const imgData = generateFallbackPixel(currentFrame, frameCount, 256)
+        ctx.putImageData(imgData, Math.round((w - 256) / 2), Math.round((h - 256) / 2))
+      }
     }
 
     if (showCardiac) drawBeatingHeart(ctx, cardiacPhase / 100, w, h)
     if (showRespiratory) drawLungMotion(ctx, respiratoryPhase / 100, w, h)
-  }, [currentFrame, cardiacPhase, respiratoryPhase, frameCount, showCardiac, showRespiratory])
+  }, [currentFrame, cardiacPhase, respiratoryPhase, frameCount, showCardiac, showRespiratory, frameImages])
 
   return (
     <div style={{ minHeight: '100vh', background: '#020617', color: '#cbd5e1', padding: 12 }}>
@@ -254,6 +283,9 @@ export default function Dicom4dPage() {
             <span style={{ fontSize: 11, color: '#64748b' }}>
               {selectedSeries.patientName} | {selectedSeries.modality} | {selectedSeries.frameCount}f
             </span>
+          )}
+          {seriesLoadError && (
+            <span style={{ fontSize: 11, color: '#f87171' }}>⚠ {seriesLoadError}</span>
           )}
         </div>
       </Card>

@@ -1,4 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+/**
+ * G005 RIS v3.0.6.11-60 - DICOM SR 结构化报告服务
+ * 全链路: 报告 → SR 文档(Prisma 持久化) → 查看 → HL7 ORU^R01 回传
+ * 对标: TID 1500 Imaging Measurement Report / TID 2000 CAD Document SR (DICOM PS 3.3)
+ */
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { PrismaService } from '../../prisma/prisma.service'
+import { Hl7Service, type ReportForHL7 } from '../../hl7/hl7.service'
 
 export interface TemplateInfo {
   id: string
@@ -15,144 +22,487 @@ export interface GenerateSrDto {
   impression?: string
 }
 
-export interface SrDocument {
+export type SrStatus = 'draft' | 'finalized' | 'pushed'
+
+export interface SrConceptName {
+  code: string
+  scheme: string
+  meaning: string
+}
+
+export interface SrContentItem {
+  relationshipType: string
+  conceptName: SrConceptName
+  valueType: 'TEXT' | 'CODE' | 'NUM' | 'DATE' | 'UIDREF'
+  value?: string
+  code?: SrConceptName
+  children?: SrContentItem[]
+}
+
+export interface SrSection {
+  conceptName: SrConceptName
+  title: string
+  items: SrContentItem[]
+}
+
+export interface SrContentTree {
+  templateId: string
+  templateLabel: string
+  context: {
+    patient: { name: string; id: string; birthDate: string; sex: string }
+    study: { uid: string; date: string; time: string; description: string; accessionNumber: string; modality: string }
+    report: { id: string; authorId: string; authorName: string; findings: string; impression: string; conclusion: string; recommendations: string; reportDate: string }
+  }
+  sections: SrSection[]
+  codedEntries: SrConceptName[]
+}
+
+export interface SrDocumentDto {
   id: string
   reportId: string
   templateId: string
   tid: string
-  content: string
+  status: SrStatus
+  sopInstanceUid: string
+  studyInstanceUid: string
+  seriesInstanceUid: string
+  sopClassUid: string
+  patientName: string
+  patientId: string
+  modality: string
+  title: string
+  content: SrContentTree
+  rawContent: string
+  hl7ControlId?: string | null
+  hl7Message?: string | null
+  pushedAt?: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+interface SrRow {
+  id: string
+  reportId: string
+  templateId: string
+  tid: string
+  content: unknown
+  rawContent: string
   status: string
-  generatedAt: string
-  sopInstanceUID: string
+  sopInstanceUid: string
+  studyInstanceUid: string
+  seriesInstanceUid: string
+  sopClassUid: string
+  hl7ControlId: string | null
+  hl7Message: string | null
+  pushedAt: Date | null
+  createdAt: Date
+  updatedAt: Date
+}
+
+const SR_SOP_CLASS = {
+  tid1500: '1.2.840.10008.5.1.4.1.1.88.33', // Enhanced SR - Comprehensive
+  tid2000: '1.2.840.10008.5.1.4.1.1.88.22', // Enhanced SR - CAD
+} as const
+
+const SR_UID_ROOT = '1.2.840.10008.5.1.4.1.1.88.11.1'
+
+// SNOMED CT 编码映射(常见放射所见,匹配不到回退 Clinical finding)
+const SNOMED_MAP: { keyword: string; code: string; meaning: string }[] = [
+  { keyword: '未见明显异常', code: '17621005', meaning: 'Normal (finding)' },
+  { keyword: '未见异常', code: '17621005', meaning: 'Normal (finding)' },
+  { keyword: '气胸', code: '36118008', meaning: 'Pneumothorax (disorder)' },
+  { keyword: '骨折', code: '125605004', meaning: 'Fracture of bone (disorder)' },
+  { keyword: '水肿', code: '79654002', meaning: 'Edema (finding)' },
+  { keyword: '积液', code: '79654002', meaning: 'Edema (finding)' },
+  { keyword: '钙化', code: '44039008', meaning: 'Calcification (morphologic abnormality)' },
+  { keyword: '结节', code: '269256004', meaning: 'Nodule (morphologic abnormality)' },
+  { keyword: '肿块', code: '4147007', meaning: 'Mass (morphologic abnormality)' },
+  { keyword: '占位', code: '4147007', meaning: 'Mass (morphologic abnormality)' },
+  { keyword: '动脉瘤', code: '12250007', meaning: 'Aneurysm (morphologic abnormality)' },
+  { keyword: '狭窄', code: '72089006', meaning: 'Stenosis (morphologic abnormality)' },
+]
+
+const DCM_CONCEPT = (code: string, meaning: string): SrConceptName => ({ code, scheme: 'DCM', meaning })
+
+const CONTENT_TITLES: Record<string, { title: string; conceptName: SrConceptName }> = {
+  history: { title: '检查所见 / Findings', conceptName: DCM_CONCEPT('121071', 'Finding') },
+  impression: { title: '结论 / Impression', conceptName: DCM_CONCEPT('121073', 'Impression') },
+  recommendation: { title: '建议 / Recommendation', conceptName: DCM_CONCEPT('121074', 'Recommendation') },
+  measurement: { title: '测量组 / Measurement Group', conceptName: DCM_CONCEPT('125007', 'Measurement Group') },
+  cadSummary: { title: 'CAD 总结 / CAD Processing and Findings Summary', conceptName: DCM_CONCEPT('121120', 'CAD Processing and Findings Summary') },
+}
+
+function toSnomed(text: string): SrConceptName[] {
+  const found: SrConceptName[] = []
+  for (const entry of SNOMED_MAP) {
+    if (text.includes(entry.keyword)) {
+      found.push({ code: entry.code, scheme: 'SCT', meaning: entry.meaning })
+    }
+  }
+  if (found.length === 0) {
+    found.push({ code: '404684003', scheme: 'SCT', meaning: 'Clinical finding (finding)' })
+  }
+  return found
+}
+
+function fmtDate(d: Date | string | null | undefined): string {
+  if (!d) return ''
+  return new Date(d).toISOString().slice(0, 10).replace(/-/g, '')
+}
+
+function fmtTime(d: Date | string | null | undefined): string {
+  if (!d) return ''
+  return new Date(d).toISOString().slice(11, 19).replace(/:/g, '')
 }
 
 @Injectable()
 export class DicomSrService {
+  private readonly logger = new Logger(DicomSrService.name)
+
   private templates: TemplateInfo[] = [
     { id: 'tid1500', label: 'TID 1500 - 测量报告', labelEn: 'TID 1500 - Measurement Report', description: 'Imaging Measurement Report (DICOM PS 3.3 TID 1500)', tid: '1500' },
     { id: 'tid2000', label: 'TID 2000 - CAD SR', labelEn: 'TID 2000 - CAD Document SR', description: 'Computer-Aided Detection/Diagnosis SR (DICOM PS 3.3 TID 2000)', tid: '2000' },
   ]
-  private documents: SrDocument[] = []
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly hl7: Hl7Service,
+  ) {}
 
   getTemplates(): TemplateInfo[] {
     return this.templates
   }
 
-  generate(dto: GenerateSrDto): SrDocument {
-    const template = this.templates.find(t => t.id === dto.templateId)
+  async list(): Promise<SrDocumentDto[]> {
+    const rows = await this.prisma.srDocument.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 200,
+    })
+    return rows.map((r) => this.toDto(r))
+  }
+
+  async findById(id: string): Promise<SrDocumentDto | null> {
+    const row = await this.prisma.srDocument.findUnique({ where: { id } })
+    return row ? this.toDto(row) : null
+  }
+
+  async findByReportId(reportId: string): Promise<SrDocumentDto | null> {
+    const row = await this.prisma.srDocument.findFirst({
+      where: { reportId },
+      orderBy: { updatedAt: 'desc' },
+    })
+    return row ? this.toDto(row) : null
+  }
+
+  /**
+   * 从报告生成 DICOM SR 文档(真实 TID 1500/2000 内容树 + SNOMED 编码条目)
+   * 同一报告同一模板重复生成时更新原文档(避免堆积)
+   */
+  async generate(dto: GenerateSrDto): Promise<SrDocumentDto> {
+    const template = this.templates.find((t) => t.id === dto.templateId)
     if (!template) throw new NotFoundException(`Template ${dto.templateId} not found`)
 
+    const report = await this.prisma.report.findUnique({
+      where: { id: dto.reportId },
+      include: {
+        patient: true,
+        exam: true,
+        radiologist: { select: { id: true, fullName: true } },
+        DicomInstance: { orderBy: { createdAt: 'desc' }, take: 1 },
+      },
+    })
+    if (!report) throw new NotFoundException(`Report ${dto.reportId} not found`)
+
     const ts = Date.now()
-    const sopInstanceUID = `1.2.840.10008.5.1.4.1.1.88.11.1.${ts}`
+    const existing = await this.prisma.srDocument.findFirst({
+      where: { reportId: dto.reportId, templateId: dto.templateId },
+    })
 
-    let content: string
-    if (dto.templateId === 'tid1500') {
-      content = this.buildTid1500(dto, sopInstanceUID)
-    } else {
-      content = this.buildTid2000(dto, sopInstanceUID)
-    }
+    const prevInstance = report.DicomInstance[0]
+    const studyUID = prevInstance?.studyInstanceUid ?? `1.2.840.10008.5.1.4.1.1.2.1.${ts}`
+    const seriesUID = prevInstance?.seriesInstanceUid ?? `${studyUID}.SR.1`
+    const sopUID = existing?.sopInstanceUid ?? `${SR_UID_ROOT}.${ts}`
 
-    const doc: SrDocument = {
-      id: `sr-${ts}`,
+    const findings = dto.findings ?? report.findings ?? ''
+    const impression = dto.impression ?? (report.impression || report.conclusion) ?? ''
+
+    const content = this.buildContentTree(report, dto.templateId, template.labelEn, findings, impression, {
+      studyUID,
+      seriesUID,
+      sopUID,
+    })
+    const rawContent = this.buildDicomSrText(content, sopUID)
+
+    const data = {
+      tenantId: 'default',
       reportId: dto.reportId,
       templateId: dto.templateId,
       tid: template.tid,
-      content,
-      status: 'GENERATED',
-      generatedAt: new Date().toISOString(),
-      sopInstanceUID,
+      content: content as object,
+      rawContent,
+      status: 'draft' as const,
+      sopInstanceUid: sopUID,
+      studyInstanceUid: studyUID,
+      seriesInstanceUid: seriesUID,
+      sopClassUid: SR_SOP_CLASS[dto.templateId],
+      hl7ControlId: null,
+      hl7Message: null,
+      pushedAt: null,
     }
-    this.documents.push(doc)
-    return doc
+
+    const row = existing
+      ? await this.prisma.srDocument.update({ where: { id: existing.id }, data })
+      : await this.prisma.srDocument.create({ data })
+
+    this.logger.log(`SR document ${row.id} generated for report ${dto.reportId} (${dto.templateId})`)
+    return this.toDto(row)
   }
 
-  findById(id: string): SrDocument | null {
-    return this.documents.find(d => d.id === id) ?? null
-  }
-
-  private buildTid1500(dto: GenerateSrDto, sopUID: string): string {
-    return this.buildDicomSr({
-      templateId: 'TID 1500',
-      templateLabel: 'Imaging Measurement Report',
-      contentItems: [
-        { name: '121060', label: 'History / 历史发现', value: dto.findings ?? '' },
-        { name: '121073', label: 'Impression / 印象', value: dto.impression ?? '' },
-        { name: '125007', label: 'Measurement Group / 测量组', value: '' },
-        { name: '112040', label: 'Tracking Identifier / 追踪标识', value: dto.reportId },
-      ],
-      sopInstanceUID: sopUID,
+  async finalize(id: string): Promise<SrDocumentDto> {
+    const row = await this.prisma.srDocument.findUnique({ where: { id } })
+    if (!row) throw new NotFoundException(`SR document ${id} not found`)
+    if (row.status === 'pushed') {
+      throw new BadRequestException('SR document already pushed to HIS, cannot finalize after push')
+    }
+    const updated = await this.prisma.srDocument.update({
+      where: { id },
+      data: { status: 'finalized' },
     })
+    return this.toDto(updated)
   }
 
-  private buildTid2000(dto: GenerateSrDto, sopUID: string): string {
-    return this.buildDicomSr({
-      templateId: 'TID 2000',
-      templateLabel: 'CAD Document SR',
-      contentItems: [
-        { name: '121071', label: 'CAD Finding / CAD 发现', value: dto.findings ?? '' },
-        { name: '121073', label: 'Impressions / 印象', value: dto.impression ?? '' },
-        { name: '121074', label: 'Recommendation / 建议', value: '' },
-        { name: '121120', label: 'CAD Processing and Findings Summary / CAD 处理总结', value: '' },
-      ],
-      sopInstanceUID: sopUID,
+  /** SR 内容组装 HL7 ORU^R01(内容转 OBX 段)并推送,标记 PUSHED */
+  async pushOru(id: string): Promise<{ document: SrDocumentDto; oru: { message: string; controlId: string; pushed: boolean; ackStatus: string } }> {
+    const row = await this.prisma.srDocument.findUnique({ where: { id } })
+    if (!row) throw new NotFoundException(`SR document ${id} not found`)
+
+    const tree = row.content as unknown as SrContentTree
+    const findings = tree.sections.find((s) => s.conceptName.code === '121071')?.items.map((i) => i.value ?? '').filter(Boolean).join('\n')
+      ?? tree.context.report.findings
+    const conclusion = tree.context.report.conclusion || tree.context.report.impression
+
+    const oruInput: ReportForHL7 = {
+      accessionNumber: tree.context.study.accessionNumber,
+      patientName: tree.context.patient.name,
+      patientId: tree.context.patient.id,
+      patientSex: (tree.context.patient.sex === 'M' || tree.context.patient.sex === 'F' || tree.context.patient.sex === 'O') ? tree.context.patient.sex : 'O',
+      patientBirthDate: tree.context.patient.birthDate || undefined,
+      modality: tree.context.study.modality,
+      studyDate: tree.context.study.date || '',
+      studyTime: tree.context.study.time || '',
+      findings: findings ?? '',
+      conclusion: conclusion ?? '',
+      authorName: tree.context.report.authorName,
+      authorId: tree.context.report.authorId,
+      reportId: row.reportId,
+    }
+
+    const result = await this.hl7.buildAndPushOru(oruInput)
+
+    const updated = await this.prisma.srDocument.update({
+      where: { id },
+      data: {
+        status: 'pushed',
+        hl7ControlId: result.controlId,
+        hl7Message: result.message,
+        pushedAt: new Date(),
+      },
     })
+    this.logger.log(`SR document ${id} pushed ORU^R01 controlId=${result.controlId} pushed=${result.pushed}`)
+    return { document: this.toDto(updated), oru: result }
   }
 
-  private buildDicomSr(opts: {
-    templateId: string
-    templateLabel: string
-    contentItems: { name: string; label: string; value: string }[]
-    sopInstanceUID: string
-  }): string {
-    const now = new Date()
-    const studyDate = now.toISOString().slice(0, 10).replace(/-/g, '')
-    const studyTime = now.toISOString().slice(11, 19).replace(/:/g, '')
-    const studyUID = `1.2.840.10008.5.1.4.1.1.2.1.${Date.now()}`
-    const seriesUID = `${opts.sopInstanceUID}.99`
+  // ─────────────────────── 内容树构建 ───────────────────────
 
-    const items = opts.contentItems
-      .map((item, i) => {
-        const relType = item.value ? 'CONTAINS' : 'CONTAINS'
-        const val = item.value || '(empty)'
-        const codeValue = item.name
-        return `  (0040A010) SQ (Content Item)
-    (0040A040) CS = ${relType}
-    (0040A043) SQ (Concept Name Code Sequence)
-      (00080100) SH = ${codeValue}
-      (00080102) SH = DCM
-      (00080104) LO = ${item.label}
-    (0040A160) UT = ${val}`
+  private buildContentTree(
+    report: {
+      id: string
+      findings: string
+      impression: string
+      conclusion: string
+      recommendations: string
+      createdAt: Date
+      patient?: { name: string; idCard?: string | null; birthDate?: Date | null; gender?: string } | null
+      exam?: { accessionNumber?: string; modality?: string; bodyPart?: string; startedAt?: Date | null } | null
+      radiologist?: { id?: string; fullName?: string } | null
+    },
+    templateId: GenerateSrDto['templateId'],
+    templateLabel: string,
+    findings: string,
+    impression: string,
+    uids: { studyUID: string; seriesUID: string; sopUID: string },
+  ): SrContentTree {
+    const patient = report.patient
+    const exam = report.exam
+    const genderMap: Record<string, string> = { MALE: 'M', FEMALE: 'F', OTHER: 'O' }
+
+    const textItem = (code: string, meaning: string, value: string, rel = 'CONTAINS'): SrContentItem => ({
+      relationshipType: rel,
+      conceptName: DCM_CONCEPT(code, meaning),
+      valueType: 'TEXT',
+      value: value || '(empty)',
+    })
+    const codedItem = (c: SrConceptName, value: string): SrContentItem => ({
+      relationshipType: 'CONTAINS',
+      conceptName: DCM_CONCEPT('121071', 'Finding'),
+      valueType: 'CODE',
+      value,
+      code: c,
+    })
+
+    const sections: SrSection[] = []
+    if (findings) {
+      const snomed = toSnomed(findings)
+      const findingItems: SrContentItem[] = [textItem('121071', 'Finding', findings)]
+      if (snomed.length > 0) {
+        findingItems.push(...snomed.map((c) => codedItem(c, c.meaning)))
+      }
+      sections.push({ ...CONTENT_TITLES.history, items: findingItems })
+    }
+    if (impression) {
+      const snomed = toSnomed(impression)
+      const impressionItems: SrContentItem[] = [textItem('121073', 'Impression', impression)]
+      if (snomed.length > 0) {
+        impressionItems.push(...snomed.map((c) => codedItem(c, c.meaning)))
+      }
+      sections.push({ ...CONTENT_TITLES.impression, items: impressionItems })
+    }
+    if (report.recommendations) {
+      sections.push({
+        ...CONTENT_TITLES.recommendation,
+        items: [textItem('121074', 'Recommendation', report.recommendations)],
       })
-      .join('\n')
+    }
 
-    const sopClassUid = opts.templateId === 'TID 1500' ? '1.2.840.10008.5.1.4.1.1.88.33' : '1.2.840.10008.5.1.4.1.1.88.22'
+    const codedEntries = toSnomed(`${findings}\n${impression}`)
 
-    return `# DICOM Structured Report
-# DICOM Standard: PS 3.3-2024
-# SOP Class: ${opts.templateLabel} (${opts.templateId})
-# SOP Instance UID: ${opts.sopInstanceUID}
-# Study Instance UID: ${studyUID}
-# Series Instance UID: ${seriesUID}
-# Study Date: ${studyDate}
-# Study Time: ${studyTime}
-# Report ID: ${this.documents.length + 1}
-# Generated: ${now.toISOString()}
-#
-(00080005) CS = ISO_IR 100
-(00080016) UI = ${sopClassUid}
-(00080018) UI = ${opts.sopInstanceUID}
-(00080020) DA = ${studyDate}
-(00080030) TM = ${studyTime}
-(00080060) CS = SR
-(0020000D) UI = ${studyUID}
-(0020000E) UI = ${seriesUID}
-(0040A040) CS = VERIFIED
-(0040A491) CS = COMPLETE
-(0040A504) SQ (Template Identifier)
-  (0040DB00) CS = ${opts.templateId}
-  (0040DB01) LO = ${opts.templateLabel}
-(0040A730) SQ (Content Sequence)
-${items}
-# ===== End of SR =====`
+    return {
+      templateId: templateId === 'tid1500' ? 'TID 1500' : 'TID 2000',
+      templateLabel,
+      context: {
+        patient: {
+          name: patient?.name ?? '',
+          id: patient?.idCard ?? '',
+          birthDate: patient?.birthDate ? fmtDate(patient.birthDate) : '',
+          sex: patient?.gender ? (genderMap[patient.gender] ?? 'O') : 'O',
+        },
+        study: {
+          uid: uids.studyUID,
+          date: exam?.startedAt ? fmtDate(exam.startedAt) : fmtDate(new Date()),
+          time: exam?.startedAt ? fmtTime(exam.startedAt) : fmtTime(new Date()),
+          description: exam?.bodyPart ?? '',
+          accessionNumber: exam?.accessionNumber ?? '',
+          modality: exam?.modality ?? 'SR',
+        },
+        report: {
+          id: report.id,
+          authorId: report.radiologist?.id ?? '',
+          authorName: report.radiologist?.fullName ?? '',
+          findings: report.findings ?? '',
+          impression: report.impression ?? '',
+          conclusion: report.conclusion ?? '',
+          recommendations: report.recommendations ?? '',
+          reportDate: fmtDate(report.createdAt),
+        },
+      },
+      sections,
+      codedEntries,
+    }
+  }
+
+  /** 生成 DICOM SR 文本文件(DCMTK 可解析的 Part10 风格 dataset) */
+  private buildDicomSrText(content: SrContentTree, sopUID: string): string {
+    const now = new Date()
+    const studyDate = content.context.study.date || fmtDate(now)
+    const studyTime = content.context.study.time || fmtTime(now)
+    const sopClassUid = content.templateId === 'TID 1500' ? SR_SOP_CLASS.tid1500 : SR_SOP_CLASS.tid2000
+
+    const lines: string[] = [
+      '# DICOM Structured Report',
+      `# DICOM Standard: PS 3.3-2024 (TID ${content.templateId === 'TID 1500' ? '1500' : '2000'})`,
+      `# SOP Class: ${content.templateLabel} (${content.templateId})`,
+      `# SOP Instance UID: ${sopUID}`,
+      `# Study Instance UID: ${content.context.study.uid}`,
+      `# Series Instance UID: ${content.context.study.uid}.SR.1`,
+      `# Study Date: ${studyDate}`,
+      `# Study Time: ${studyTime}`,
+      `# Patient: ${content.context.patient.name} (${content.context.patient.id})`,
+      `# Accession: ${content.context.study.accessionNumber}`,
+      `# Report ID: ${content.context.report.id}`,
+      `# Generated: ${now.toISOString()}`,
+      '#',
+      '(00080005) CS = ISO_IR 100',
+      `(00080016) UI = ${sopClassUid}`,
+      `(00080018) UI = ${sopUID}`,
+      `(00080020) DA = ${studyDate}`,
+      `(00080030) TM = ${studyTime}`,
+      `(00080050) SH = ${content.context.study.accessionNumber}`,
+      `(0008103E) LO = ${content.context.study.description || 'Structured Report'}`,
+      '(00080060) CS = SR',
+      `(00100010) PN = ${content.context.patient.name}`,
+      `(00100020) LO = ${content.context.patient.id}`,
+      content.context.patient.birthDate ? `(00100030) DA = ${content.context.patient.birthDate}` : '',
+      `(00100040) CS = ${content.context.patient.sex}`,
+      `(0020000D) UI = ${content.context.study.uid}`,
+      `(0020000E) UI = ${content.context.study.uid}.SR.1`,
+      '(0040A040) CS = VERIFIED',
+      '(0040A491) CS = COMPLETE',
+      `(0040A504) SQ (Template Identifier)`,
+      `  (0040DB00) CS = ${content.templateId}`,
+      `  (0040DB01) LO = ${content.templateLabel}`,
+      '(0040A730) SQ (Content Sequence)',
+    ]
+
+    for (const section of content.sections) {
+      lines.push(`  (0040A010) SQ (Content Item)`, `    (0040A040) CS = CONTAINS`, `    (0040A043) SQ (Concept Name Code Sequence)`)
+      lines.push(`      (00080100) SH = ${section.conceptName.code}`)
+      lines.push(`      (00080102) SH = ${section.conceptName.scheme}`)
+      lines.push(`      (00080104) LO = ${section.conceptName.meaning}`)
+      lines.push(`    (0040A730) SQ (Content Sequence)`)
+      for (const item of section.items) {
+        lines.push(`      (0040A010) SQ (Content Item)`, `        (0040A040) CS = ${item.relationshipType}`, `        (0040A043) SQ (Concept Name Code Sequence)`)
+        lines.push(`          (00080100) SH = ${item.conceptName.code}`)
+        lines.push(`          (00080102) SH = ${item.conceptName.scheme}`)
+        lines.push(`          (00080104) LO = ${item.conceptName.meaning}`)
+        if (item.valueType === 'CODE' && item.code) {
+          lines.push(`        (0040A168) SQ (Concept Code Sequence)`)
+          lines.push(`          (00080100) SH = ${item.code.code}`)
+          lines.push(`          (00080102) SH = ${item.code.scheme}`)
+          lines.push(`          (00080104) LO = ${item.code.meaning}`)
+          lines.push(`        (0040A160) UT = ${item.value ?? ''}`)
+        } else {
+          lines.push(`        (0040A160) UT = ${item.value ?? ''}`)
+        }
+      }
+    }
+
+    lines.push('# ===== End of SR =====')
+    return lines.filter((l, i) => !(i > 0 && l === '')).join('\n')
+  }
+
+  private toDto(row: SrRow): SrDocumentDto {
+    const tree = row.content as unknown as SrContentTree
+    return {
+      id: row.id,
+      reportId: row.reportId,
+      templateId: row.templateId,
+      tid: row.tid,
+      status: (row.status as SrStatus) ?? 'draft',
+      sopInstanceUid: row.sopInstanceUid,
+      studyInstanceUid: row.studyInstanceUid,
+      seriesInstanceUid: row.seriesInstanceUid,
+      sopClassUid: row.sopClassUid,
+      patientName: tree?.context?.patient?.name ?? '',
+      patientId: tree?.context?.patient?.id ?? '',
+      modality: tree?.context?.study?.modality ?? '',
+      title: `${tree?.templateLabel ?? row.templateId} / ${tree?.context?.report?.impression?.slice(0, 24) ?? ''}`,
+      content: tree,
+      rawContent: row.rawContent,
+      hl7ControlId: row.hl7ControlId,
+      hl7Message: row.hl7Message,
+      pushedAt: row.pushedAt ? row.pushedAt.toISOString() : null,
+      createdAt: row.createdAt.toISOString(),
+      updatedAt: row.updatedAt.toISOString(),
+    }
   }
 }

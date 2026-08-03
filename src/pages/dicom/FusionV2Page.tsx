@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Layers, Maximize2, Minus, Monitor, Move, Plus, RotateCw, Sun, ZoomIn, ZoomOut, Crosshair, Square, Circle, Pen, Grid3X3 } from 'lucide-react'
+import { Layers, Maximize2, Minus, Monitor, Move, Plus, RotateCw, Sun, ZoomIn, ZoomOut, Crosshair, Square, Circle, Pen, Grid3X3, Database, Loader2 } from 'lucide-react'
+import { message } from 'antd'
 import { t } from '../../i18n/appI18n'
 import { FUSION_CT_WW, FUSION_CT_WL, FUSION_PET_WW, FUSION_PET_WL } from '../../utils/modalityPresets'
+import { fusionApi, type FusionStudyDto, type FusionRegistrationResult, type FusionRenderResult } from '../../services/api/fusionApi'
 
 type ViewPlane = 'axial' | 'coronal' | 'sagittal'
 type FusionMode = 'pet-ct' | 'mr-dwi' | 'mr-mr'
@@ -372,6 +374,66 @@ export default function FusionV2Page() {
   const [roiAnnotations, setRoiAnnotations] = useState<RoiAnnotation[]>([])
   const [showRoiStats, setShowRoiStats] = useState(false)
 
+  // [Phase 2] 真实数据接入
+  const [patientId, setPatientId] = useState('P000001')
+  const [patientInput, setPatientInput] = useState('P000001')
+  const [studies, setStudies] = useState<FusionStudyDto[]>([])
+  const [studyLoading, setStudyLoading] = useState(false)
+  const [selectedStudy, setSelectedStudy] = useState<FusionStudyDto | null>(null)
+  const [registration, setRegistration] = useState<FusionRegistrationResult | null>(null)
+  const [renderedFrame, setRenderedFrame] = useState<FusionRenderResult | null>(null)
+  const [renderLoading, setRenderLoading] = useState(false)
+  const [panelOpen, setPanelOpen] = useState(true)
+
+  const loadStudies = useCallback(async (pid: string) => {
+    if (!pid.trim()) return
+    setStudyLoading(true)
+    try {
+      const res = await fusionApi.list({ patientId: pid.trim() })
+      if (res.success && Array.isArray(res.data)) {
+        setStudies(res.data)
+        setSelectedStudy(res.data[0] || null)
+        if (res.data.length > 0) {
+          message.success(`已载入患者 ${pid} 的 ${res.data.length} 组融合检查`)
+        } else {
+          message.warning('该患者暂无可用融合检查')
+        }
+      } else {
+        message.error('融合检查列表加载失败')
+      }
+    } catch {
+      message.error('融合服务暂不可用')
+    } finally {
+      setStudyLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    void loadStudies(patientId)
+  }, [patientId, loadStudies])
+
+  const runRender = useCallback(async () => {
+    if (!registration) return
+    setRenderLoading(true)
+    try {
+      const res = await fusionApi.render({
+        registrationId: registration.registrationId,
+        plane,
+        sliceIndex,
+        alpha: fusionAlpha,
+        windowWidth: wwl.ww,
+        windowLevel: wwl.wl,
+      })
+      if (res.success && res.data) {
+        setRenderedFrame(res.data)
+      }
+    } catch {
+      message.error('融合渲染失败')
+    } finally {
+      setRenderLoading(false)
+    }
+  }, [registration, plane, sliceIndex, fusionAlpha, wwl])
+
   const planes: ViewPlane[] = ['axial', 'coronal', 'sagittal']
 
   const primaryModality = fusionMode === 'pet-ct' ? 'ct' : fusionMode === 'mr-dwi' ? 'mr' : 'mr'
@@ -416,15 +478,36 @@ export default function FusionV2Page() {
     setFusionWWL({ ww: FUSION_PET_WW, wl: FUSION_PET_WL })
   }, [])
 
-  const handleRegister = useCallback(() => {
+  const handleRegister = useCallback(async () => {
+    if (!selectedStudy) {
+      message.warning('请先选择融合检查')
+      return
+    }
     setRegistering(true)
     setRegisterDone(false)
-    setTimeout(() => {
+    try {
+      const res = await fusionApi.register({
+        fixedSeriesUid: selectedStudy.studyUid,
+        movingSeriesUid: selectedStudy.studyUid,
+        fixedModality: selectedStudy.fixedModality,
+        movingModality: selectedStudy.movingModality,
+        transformType,
+      })
+      if (res.success && res.data) {
+        setRegistration(res.data)
+        setRegisterDone(true)
+        message.success(`配准完成（${transformType}）：Dice ${res.data.metrics.dice} · HD95 ${res.data.metrics.hd95}mm`)
+        setTimeout(() => setRegisterDone(false), 2000)
+        void runRender()
+      } else {
+        message.error(res.error?.message || '配准失败')
+      }
+    } catch {
+      message.error('配准服务暂不可用')
+    } finally {
       setRegistering(false)
-      setRegisterDone(true)
-      setTimeout(() => setRegisterDone(false), 2000)
-    }, 1500)
-  }, [])
+    }
+  }, [selectedStudy, transformType, runRender])
 
   const handleRoiDraw = useCallback((ann: RoiAnnotation) => {
     setRoiAnnotations(prev => [...prev, ann])
@@ -562,6 +645,108 @@ export default function FusionV2Page() {
 
       {/* Viewport area */}
       <div style={{ display: 'flex', gap: 8, height: 'calc(100vh - 180px)', minHeight: 400 }}>
+        {/* [Phase 2] 检查选择 + 融合结果面板 */}
+        <div style={{ width: 280, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8, overflowY: 'auto' }}>
+          <div style={{ background: PANEL_BG, borderRadius: 6, padding: 10, border: '1px solid #334155' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+              <Database size={13} color={BLUE} />
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#e2e8f0' }}>检查选择</span>
+              <button style={{ marginLeft: 'auto', ...btnStyle, padding: '2px 6px' }} onClick={() => setPanelOpen(v => !v)}>
+                {panelOpen ? '收起' : '展开'}
+              </button>
+            </div>
+            {panelOpen && (
+              <>
+                <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+                  <input
+                    value={patientInput}
+                    onChange={e => setPatientInput(e.target.value)}
+                    placeholder="患者ID (如 P000001)"
+                    style={{ flex: 1, padding: '6px 8px', background: '#0f172a', border: '1px solid #334155', borderRadius: 4, fontSize: 12, color: '#f8fafc', outline: 'none' }}
+                  />
+                  <button
+                    style={{ ...btnStyle, color: studyLoading ? '#64748b' : BLUE, borderColor: BLUE, whiteSpace: 'nowrap' }}
+                    disabled={studyLoading}
+                    onClick={() => setPatientId(patientInput.trim() || 'P000001')}
+                  >
+                    {studyLoading ? <Loader2 size={12} className="spin" /> : '载入'}
+                  </button>
+                </div>
+                {studies.length === 0 ? (
+                  <div style={{ fontSize: 11, color: '#64748b', padding: '8px 0', textAlign: 'center' }}>暂无检查，请输入患者ID载入</div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    {studies.map(s => (
+                      <button
+                        key={s.id}
+                        onClick={() => setSelectedStudy(s)}
+                        style={{
+                          ...btnStyle, width: '100%', justifyContent: 'flex-start', textAlign: 'left',
+                          background: selectedStudy?.id === s.id ? BLUE : 'transparent',
+                          borderColor: selectedStudy?.id === s.id ? BLUE : '#334155',
+                          color: selectedStudy?.id === s.id ? '#fff' : '#cbd5e1',
+                        }}
+                      >
+                        <span style={{ fontSize: 11 }}>{s.patientName}</span>
+                        <span style={{ fontSize: 10, opacity: 0.8, marginLeft: 'auto' }}>{s.fixedModality}+{s.movingModality}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {selectedStudy && (
+                  <div style={{ marginTop: 8, fontSize: 10, color: '#64748b', lineHeight: 1.7 }}>
+                    Study: {selectedStudy.studyUid}<br />
+                    序列: {selectedStudy.fixedModality} + {selectedStudy.movingModality}<br />
+                    日期: {selectedStudy.studyDate}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* 配准结果 */}
+          <div style={{ background: PANEL_BG, borderRadius: 6, padding: 10, border: '1px solid #334155' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#e2e8f0', marginBottom: 8 }}>
+              {t('fusion.registerResult', '配准结果')}
+            </div>
+            {!registration ? (
+              <div style={{ fontSize: 11, color: '#64748b' }}>尚未配准，点击工具栏"配准"按钮执行融合配准</div>
+            ) : (
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, marginBottom: 8 }}>
+                  {[
+                    { label: 'Dice', value: registration.metrics.dice, color: '#22c55e' },
+                    { label: 'HD95(mm)', value: registration.metrics.hd95, color: '#3b82f6' },
+                    { label: 'RMSE', value: registration.metrics.rmse, color: '#facc15' },
+                  ].map(m => (
+                    <div key={m.label} style={{ background: '#0f172a', borderRadius: 4, padding: '6px 4px', textAlign: 'center' }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: m.color }}>{m.value}</div>
+                      <div style={{ fontSize: 10, color: '#64748b' }}>{m.label}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ fontSize: 10, color: '#64748b', marginBottom: 6 }}>
+                  变换类型: {transformType} · 耗时 {registration.processingTimeMs || '-'}ms
+                </div>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  <button style={{ ...btnStyle, flex: 1, color: BLUE, borderColor: BLUE }} disabled={renderLoading} onClick={() => void runRender()}>
+                    {renderLoading ? <Loader2 size={11} className="spin" /> : <Layers size={11} />} 渲染融合帧
+                  </button>
+                </div>
+                {renderedFrame && renderedFrame.pixelDataBase64 && (
+                  <div style={{ marginTop: 8, background: '#0f172a', borderRadius: 4, overflow: 'hidden' }}>
+                    <img
+                      src={`data:image/png;base64,${renderedFrame.pixelDataBase64}`}
+                      alt="fusion frame"
+                      style={{ width: '100%', display: 'block' }}
+                    />
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4, overflow: 'hidden' }}>
           <LayoutGrid layout={layout} planes={planes} renderViewport={renderViewport} />
 

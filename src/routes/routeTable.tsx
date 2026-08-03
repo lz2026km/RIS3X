@@ -599,6 +599,10 @@ const PostProcessingPage = lazy(
   () => import("../pages/dicom/PostProcessingPage"),
 );
 const DbtPage = lazy(() => import("../pages/dicom/DbtPage"));
+// [v3.0.6.11-60] Auto-hanging 自动布局协议管理
+const HangingProtocolPage = lazy(
+  () => import("../pages/dicom/HangingProtocolPage"),
+);
 const DlDenoisePage = lazy(() => import("../pages/ai/DlDenoisePage"));
 
 // [Sprint 4] F17 Smart Route
@@ -763,6 +767,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/dicom/vr": ["医生", "技师", "主任", "管理员"], // [v3.0.6.11-41] VR
   "/dicom/post-processing": ["医生", "技师", "主任", "管理员"], // [v3.0.6.11-41] Post-Processing
   "/dicom/dbt": ["医生", "技师", "主任", "管理员"], // [v3.0.6.11-41] DBT
+  "/dicom/hanging-protocols": ["医生", "技师", "主任", "管理员"], // [v3.0.6.11-60] Auto-hanging 自动布局
   "/terminology-server": ["医生", "主任", "技师", "管理员", "护士"], // [v3.0.6.8-73]
   "/report-templates": ["医生", "主任", "技师", "管理员", "护士"], // [v3.0.6.8-74]
   "/ihe-integration": ["主任", "管理员", "技师"], // [v3.0.6.8-75]
@@ -1173,6 +1178,8 @@ export const routes: RouteObject[] = [
   wrapped("/dicom/vr", React.createElement(VrPage)),
   wrapped("/dicom/post-processing", React.createElement(PostProcessingPage)),
   wrapped("/dicom/dbt", React.createElement(DbtPage)),
+  // [v3.0.6.11-60] Auto-hanging 自动布局协议管理
+  wrapped("/dicom/hanging-protocols", React.createElement(HangingProtocolPage)),
   wrapped("/ai-fusion-workspace", React.createElement(AiFusionWorkspacePage)), // [v3.0.6.8-76]
   wrapped("/ai-cad", React.createElement(AiCadPage)),
   wrapped("/ai-draft", React.createElement(AiDraftPage)),

@@ -1,94 +1,357 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { Card, Table, Button, Tag, Space, Input, Select, Row, Col, Statistic, Slider, Form, Modal, message, Progress } from 'antd'
-import { Search, Star, ArrowUpDown, Settings, RefreshCw, Clock, AlertTriangle, User, FileText } from 'lucide-react'
-import { smartMwlApi, type SmartMwlItem, type SmartScoreFactors } from '../../services/api/smartMwlApi'
+﻿import React, { useState, useEffect, useCallback } from 'react'
+import { Card, Table, Button, Tag, Space, Input, Row, Col, Statistic, Slider, Form, Modal, message, Alert, Progress, Tooltip } from 'antd'
+import { Search, ArrowUpDown, Settings, RefreshCw, Clock, AlertTriangle, FileText, BarChart3, Eye } from 'lucide-react'
+import { smartMwlApi, toSmartScoreInput, type SmartMwlItem } from '../../services/api/smartMwlApi'
+import {
+  worklistSmartApi,
+  type SmartScoreResult,
+  type SmartFactorDetail,
+  type SmartPriorityCounts,
+  type SmartWeightConfig,
+  type SmartScoreInput,
+} from '../../services/api/worklistSmartApi'
 
-const levelColor: Record<string, string> = { critical: 'red', urgent: 'orange', 'semi-urgent': 'gold', routine: 'green' }
-const levelLabel: Record<string, string> = { critical: '危急', urgent: '紧急', 'semi-urgent': '半紧急', routine: '常规' }
+const levelMeta: Record<string, { label: string; color: string }> = {
+  critical: { label: '危急', color: 'red' },
+  urgent: { label: '紧急', color: 'orange' },
+  normal: { label: '常规', color: 'blue' },
+  low: { label: '低', color: 'green' },
+}
+const groupMeta: Record<keyof SmartPriorityCounts, { label: string; color: string }> = {
+  critical: { label: '危急', color: '#cf1322' },
+  high: { label: '高优先级', color: '#fa8c16' },
+  medium: { label: '中优先级', color: '#d4b106' },
+  low: { label: '低优先级', color: '#52c41a' },
+}
+
+interface SmartRow {
+  item: SmartMwlItem
+  input: SmartScoreInput
+  result: SmartScoreResult | null
+  rank: number
+}
+
+const factorCell = (f: SmartFactorDetail | undefined, raw: React.ReactNode) => (
+  <span>
+    <span style={{ fontWeight: 500 }}>{raw ?? '—'}</span>
+    {f && (
+      <div style={{ fontSize: 12, color: '#8c8c8c', marginTop: 2 }}>
+        {(f.score * 100).toFixed(0)}分 × {(f.weight * 100).toFixed(0)}%权重
+      </div>
+    )}
+  </span>
+)
 
 const SmartMwlPage: React.FC = () => {
-  const [items, setItems] = useState<SmartMwlItem[]>([])
+  const [rows, setRows] = useState<SmartRow[]>([])
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
-  const [selectedItem, setSelectedItem] = useState<SmartMwlItem | null>(null)
-  const [scoreResult, setScoreResult] = useState<SmartScoreFactors | null>(null)
-  const [showWeights, setShowWeights] = useState(false)
-  const [weights, setWeights] = useState({ urgencyWeight: 0.3, waitTimeWeight: 0.25, ageWeight: 0.15, patientTypeWeight: 0.15, bodyPartWeight: 0.1, clinicalInfoWeight: 0.05 })
+  const [priorities, setPriorities] = useState<SmartPriorityCounts>({ critical: 0, high: 0, medium: 0, low: 0 })
+  const [weights, setWeights] = useState<SmartWeightConfig | null>(null)
+  const [weightsOpen, setWeightsOpen] = useState(false)
+  const [savingWeights, setSavingWeights] = useState(false)
+  const [detail, setDetail] = useState<SmartRow | null>(null)
 
-  const fetchWorklist = useCallback(async () => {
+  const fetchAll = useCallback(async () => {
     setLoading(true)
+    setError(null)
     try {
-      const res = await smartMwlApi.getWorklist()
-      if (res.success) setItems(res.data)
-    } catch { message.error('加载失败') } finally { setLoading(false) }
+      const wl = await smartMwlApi.getWorklist()
+      if (!wl.success) throw new Error((wl.error as { message?: string })?.message || '工作列表加载失败')
+      const inputs = wl.data.map(toSmartScoreInput)
+      const scored = await Promise.all(inputs.map((input) => worklistSmartApi.score(input)))
+      const merged = wl.data
+        .map((item, i) => {
+          const input = inputs[i]
+          const s = scored[i]
+          if (!input || !s) return null
+          return { item, input, result: s.success ? s.data : null, rank: 0 }
+        })
+        .filter((r): r is SmartRow & { result: SmartScoreResult } => r !== null && r.result !== null)
+        .sort((a, b) => b.result.score - a.result.score)
+      setRows(merged)
+      const [wRes, pRes] = await Promise.all([worklistSmartApi.getWeights(), worklistSmartApi.getPriorities()])
+      if (wRes.success) setWeights(wRes.data)
+      if (pRes.success) setPriorities(pRes.data)
+    } catch (e) {
+      setError((e as Error)?.message || '加载失败')
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
-  useEffect(() => { fetchWorklist() }, [fetchWorklist])
-
-  const handleScore = async (item: SmartMwlItem) => {
-    setSelectedItem(item)
-    try { const res = await smartMwlApi.score(item); if (res.success) setScoreResult(res.data) } catch { message.error('评分失败') }
-  }
+  useEffect(() => { fetchAll() }, [fetchAll])
 
   const handleReorder = async () => {
     setLoading(true)
     try {
-      const res = await smartMwlApi.reorder(items)
-      if (res.success) { setItems(res.data.sort((a, b) => a.rank - b.rank)); message.success('智能排序完成') }
-    } catch { message.error('排序失败') } finally { setLoading(false) }
+      const res = await worklistSmartApi.reorder(rows.map((r) => r.input))
+      if (!res.success) throw new Error('排序失败')
+      const rankMap = new Map(res.data.map((r) => [r.id, r.rank]))
+      setRows((prev) =>
+        [...prev].sort((a, b) => (rankMap.get(a.item.id) ?? 0) - (rankMap.get(b.item.id) ?? 0)).map((r) => ({ ...r, rank: rankMap.get(r.item.id) ?? 0 })),
+      )
+      message.success('智能排序完成')
+    } catch {
+      message.error('排序失败')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const filteredItems = items.filter(item => !search || item.patientName.toLowerCase().includes(search.toLowerCase()) || item.id.toLowerCase().includes(search.toLowerCase()))
+  const openWeights = async () => {
+    setWeightsOpen(true)
+    const res = await worklistSmartApi.getWeights()
+    if (res.success) setWeights(res.data)
+  }
+
+  const saveWeights = async () => {
+    if (!weights) return
+    setSavingWeights(true)
+    try {
+      const res = await worklistSmartApi.setWeights(weights)
+      if (!res.success) throw new Error('保存失败')
+      setWeights(res.data)
+      message.success('权重已保存,重新计算评分')
+      setWeightsOpen(false)
+      await fetchAll()
+    } catch {
+      message.error('保存失败')
+    } finally {
+      setSavingWeights(false)
+    }
+  }
+
+  const weightSum = weights ? weights.urgencyWeight + weights.waitWeight + weights.ageWeight + weights.examTypeWeight : 0
+  const total = rows.length
+
+  const filteredRows = rows.filter(
+    (r) =>
+      !search ||
+      r.item.patientName.toLowerCase().includes(search.toLowerCase()) ||
+      r.item.examItem.toLowerCase().includes(search.toLowerCase()) ||
+      r.item.id.toLowerCase().includes(search.toLowerCase()),
+  )
 
   const columns = [
-    { title: '优先级', dataIndex: 'priority', key: 'priority', width: 80, render: (p: string) => <Tag color={p === '危重' ? 'red' : p === '紧急' ? 'orange' : 'blue'}>{p}</Tag> },
-    { title: '患者', dataIndex: 'patientName', key: 'patientName', render: (name: string, r: SmartMwlItem) => <Space><User size={14} /><span>{name}</span><span style={{ color: '#666', fontSize: 12 }}>{r.gender} / {r.age}岁</span></Space> },
-    { title: '检查项目', dataIndex: 'examItem', key: 'examItem', render: (item: string, r: SmartMwlItem) => <Space orientation="vertical" size={0}><span>{item}</span><span style={{ color: '#666', fontSize: 12 }}>{r.modality} · {r.bodyPart}</span></Space> },
-    { title: '患者类型', dataIndex: 'patientType', key: 'patientType', width: 100, render: (type: string) => <Tag>{type}</Tag> },
-    { title: '状态', dataIndex: 'status', key: 'status', width: 100, render: (s: string) => <Tag color={s === '待检查' ? 'blue' : 'green'}>{s}</Tag> },
-    { title: '等待时间', dataIndex: 'createdTime', key: 'waitTime', width: 100, render: (t: string) => { const h = Math.floor((Date.now() - new Date(t).getTime()) / 3600000); return <span style={{ color: h > 2 ? '#ff4d4f' : '#666' }}>{h}h</span> } },
-    { title: '操作', key: 'actions', width: 100, render: (_: unknown, r: SmartMwlItem) => <Button size="small" icon={<Star size={14} />} onClick={() => handleScore(r)}>评分</Button> },
+    {
+      title: '排名',
+      key: 'rank',
+      width: 70,
+      render: (_: unknown, r: SmartRow) =>
+        r.rank > 0 ? <Tag color={r.rank <= 3 ? 'red' : 'default'}>{r.rank}</Tag> : <span style={{ color: '#bbb' }}>-</span>,
+    },
+    {
+      title: '优先级',
+      key: 'level',
+      width: 80,
+      render: (_: unknown, r: SmartRow) => {
+        const m = levelMeta[r.result?.level ?? 'low'] ?? { label: '低', color: 'green' }
+        return <Tag color={m.color}>{m.label}</Tag>
+      },
+    },
+    {
+      title: '患者',
+      key: 'patient',
+      render: (_: unknown, r: SmartRow) => (
+        <Space orientation="vertical" size={0}>
+          <span style={{ fontWeight: 500 }}>{r.item.patientName}</span>
+          <span style={{ color: '#8c8c8c', fontSize: 12 }}>
+            {r.item.gender ?? '-'} / {r.item.age ?? '-'}岁
+          </span>
+        </Space>
+      ),
+    },
+    {
+      title: '检查项目',
+      key: 'exam',
+      render: (_: unknown, r: SmartRow) => (
+        <Space orientation="vertical" size={0}>
+          <span>{r.item.examItem || r.item.modality}</span>
+          <span style={{ color: '#8c8c8c', fontSize: 12 }}>
+            {r.item.modality} · {r.item.bodyPart}
+          </span>
+        </Space>
+      ),
+    },
+    { title: '患者类型', dataIndex: 'item.patientType', key: 'patientType', width: 90, render: (v: string) => <Tag>{v}</Tag> },
+    {
+      title: '状态',
+      key: 'status',
+      width: 90,
+      render: (_: unknown, r: SmartRow) => <Tag color={r.item.status === '待检查' ? 'blue' : 'default'}>{r.item.status}</Tag>,
+    },
+    {
+      title: '等待时长',
+      key: 'wait',
+      width: 130,
+      render: (_: unknown, r: SmartRow) => {
+        const f = r.result?.factors.find((x) => x.key === 'wait')
+        const minutes = r.input.waitingMinutes
+        return factorCell(f, <span style={{ color: minutes > 120 ? '#ff4d4f' : undefined }}>{minutes}min</span>)
+      },
+    },
+    {
+      title: '紧急度',
+      key: 'urgency',
+      width: 130,
+      render: (_: unknown, r: SmartRow) => {
+        const f = r.result?.factors.find((x) => x.key === 'urgency')
+        return factorCell(f, `${r.input.urgency >= 0 ? '+' : ''}${r.input.urgency}`)
+      },
+    },
+    {
+      title: 'AI 分检',
+      key: 'aiTriage',
+      width: 130,
+      render: (_: unknown, r: SmartRow) => {
+        const f = r.result?.factors.find((x) => x.key === 'aiTriage')
+        const isHigh = (f?.score ?? 0) >= 0.5
+        return factorCell(f, <Tag color={isHigh ? 'red' : 'default'}>{r.item.priority || '普通'}</Tag>)
+      },
+    },
+    {
+      title: '综合评分',
+      key: 'score',
+      width: 140,
+      render: (_: unknown, r: SmartRow) => {
+        const score = r.result?.score ?? 0
+        return (
+          <Space size={8}>
+            <strong style={{ color: score >= 70 ? '#cf1322' : score >= 45 ? '#fa8c16' : '#1677ff' }}>{score}</strong>
+            <Progress percent={Math.min(100, score)} size="small" style={{ width: 70 }} showInfo={false} strokeColor={score >= 70 ? '#cf1322' : score >= 45 ? '#fa8c16' : '#1677ff'} />
+          </Space>
+        )
+      },
+    },
+    {
+      title: '操作',
+      key: 'actions',
+      width: 90,
+      render: (_: unknown, r: SmartRow) => (
+        <Button size="small" icon={<Eye size={14} />} onClick={() => setDetail(r)}>
+          明细
+        </Button>
+      ),
+    },
   ]
 
   return (
     <div style={{ padding: 24 }}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <Search size={20} color="#1677ff" />
+        <BarChart3 size={20} color="#1677ff" />
         <h1 style={{ fontSize: 20, margin: 0 }}>Smart MWL 智能排序</h1>
         <Tag color="blue">多因子评分</Tag>
+        <Tag color="purple">权重可配置</Tag>
       </div>
+
+      {error && <Alert type="error" showIcon message="加载失败" description={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={fetchAll}>重试</Button>} />}
+
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title="总检查数" value={items.length} prefix={<FileText size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="平均等待" value={0} suffix="min" prefix={<Clock size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="危急" value={0} styles={{ content: {  color: '#cf1322'  } }} prefix={<AlertTriangle size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="紧急" value={0} styles={{ content: {  color: '#fa8c16'  } }} prefix={<Clock size={16} />} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="总检查数" value={total} prefix={<FileText size={16} />} /></Card></Col>
+        {(Object.keys(groupMeta) as Array<keyof SmartPriorityCounts>).map((k) => (
+          <Col span={5} key={k}>
+            <Card size="small">
+              <Statistic
+                title={groupMeta[k].label}
+                value={priorities[k]}
+                styles={{ content: { color: groupMeta[k].color } }}
+                prefix={k === 'critical' ? <AlertTriangle size={16} /> : k === 'high' ? <Clock size={16} /> : undefined}
+              />
+            </Card>
+          </Col>
+        ))}
       </Row>
-      <Card title="检查列表" extra={<Space>
-        <Input placeholder="搜索" prefix={<Search size={14} />} value={search} onChange={e => setSearch(e.target.value)} style={{ width: 200 }} />
-        <Button type="primary" icon={<ArrowUpDown size={14} />} onClick={handleReorder}>智能排序</Button>
-        <Button icon={<Settings size={14} />} onClick={() => setShowWeights(true)}>权重配置</Button>
-        <Button icon={<RefreshCw size={14} />} onClick={fetchWorklist}>刷新</Button>
-      </Space>}>
-        <Table dataSource={filteredItems} columns={columns} rowKey="id" loading={loading} pagination={{ pageSize: 10 }} size="small" />
+
+      <Card
+        title="检查列表"
+        extra={
+          <Space>
+            <Input placeholder="搜索患者/检查/ID" prefix={<Search size={14} />} value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: 220 }} allowClear />
+            <Button icon={<ArrowUpDown size={14} />} onClick={handleReorder} disabled={rows.length === 0}>
+              智能排序
+            </Button>
+            <Button icon={<Settings size={14} />} onClick={openWeights}>
+              权重配置
+            </Button>
+            <Button icon={<RefreshCw size={14} />} onClick={fetchAll} loading={loading}>
+              刷新
+            </Button>
+          </Space>
+        }
+      >
+        <Table dataSource={filteredRows} columns={columns} rowKey={(r) => r.item.id} loading={loading} pagination={{ pageSize: 10 }} size="small" />
       </Card>
-      {selectedItem && scoreResult && (
-        <Modal title={`AI评分 - ${selectedItem.patientName}`} open={!!selectedItem} onCancel={() => { setSelectedItem(null); setScoreResult(null) }} footer={null} width={600}>
-          <Card size="small" style={{ marginBottom: 16 }}>
-            <Row gutter={16}>
-              <Col span={8}><Statistic title="综合评分" value={scoreResult.totalScore} styles={{ content: {  color: levelColor[scoreResult.level] === 'red' ? '#cf1322' : '#1677ff'  } }} /></Col>
-              <Col span={8}><Statistic title="优先级" value={levelLabel[scoreResult.level]} styles={{ content: {  color: levelColor[scoreResult.level]  } }} /></Col>
-            </Row>
-          </Card>
-          <div style={{ marginBottom: 16 }}><h4>评分因子</h4>{scoreResult.factors.map((f, i) => <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}><span style={{ width: 120 }}>{f.name}</span><Slider style={{ flex: 1 }} value={f.contribution * 100} disabled /><span style={{ width: 60, textAlign: 'right' }}>{(f.contribution * 100).toFixed(1)}%</span></div>)}</div>
-          <div><h4>评估理由</h4><ul style={{ paddingLeft: 20 }}>{scoreResult.reasons.map((r, i) => <li key={i}>{r}</li>)}</ul></div>
-        </Modal>
-      )}
-      <Modal title="智能排序权重配置" open={showWeights} onOk={() => { message.success('权重已保存'); setShowWeights(false) }} onCancel={() => setShowWeights(false)}>
+
+      <Modal
+        title={`因子明细 - ${detail?.item.patientName ?? ''}`}
+        open={!!detail}
+        onCancel={() => setDetail(null)}
+        footer={null}
+        width={640}
+      >
+        {detail?.result && (
+          <>
+            <Card size="small" style={{ marginBottom: 16 }}>
+              <Row gutter={16}>
+                <Col span={8}>
+                  <Statistic title="综合评分" value={detail.result.score} styles={{ content: { color: detail.result.score >= 70 ? '#cf1322' : '#1677ff' } }} />
+                </Col>
+                <Col span={8}>
+                  <Statistic title="优先级" value={levelMeta[detail.result.level]?.label ?? '-'} styles={{ content: { color: levelMeta[detail.result.level]?.color ?? '#1677ff' } }} />
+                </Col>
+                <Col span={8}>
+                  <Statistic title="等待时长" value={detail.input.waitingMinutes} suffix="min" />
+                </Col>
+              </Row>
+            </Card>
+            <div style={{ marginBottom: 16 }}>
+              <h4 style={{ margin: '0 0 12px' }}>评分因子(得分 × 权重 = 贡献)</h4>
+              {detail.result.factors.map((f) => (
+                <div key={f.key} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+                  <Tooltip title={f.label}>
+                    <span style={{ width: 80 }}>{f.label}</span>
+                  </Tooltip>
+                  <Slider style={{ flex: 1 }} value={f.score * 100} disabled tooltip={{ formatter: () => `${f.label}得分 ${(f.score * 100).toFixed(0)}分` }} />
+                  <span style={{ width: 190, fontSize: 12, color: '#8c8c8c', textAlign: 'right' }}>
+                    {(f.score * 100).toFixed(0)}分 × {(f.weight * 100).toFixed(0)}% = {(f.contribution * 100).toFixed(1)}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div>
+              <h4 style={{ margin: '0 0 8px' }}>评估理由</h4>
+              <Space wrap>{detail.result.reasons.map((r, i) => <Tag key={i}>{r}</Tag>)}</Space>
+            </div>
+          </>
+        )}
+      </Modal>
+
+      <Modal
+        title="权重配置"
+        open={weightsOpen}
+        onOk={saveWeights}
+        onCancel={() => setWeightsOpen(false)}
+        confirmLoading={savingWeights}
+        okText="保存并重算"
+      >
         <Form layout="vertical">
-          <Form.Item label="紧急度权重"><Slider value={weights.urgencyWeight * 100} onChange={v => setWeights(prev => ({ ...prev, urgencyWeight: v / 100 }))} /></Form.Item>
-          <Form.Item label="等待时间权重"><Slider value={weights.waitTimeWeight * 100} onChange={v => setWeights(prev => ({ ...prev, waitTimeWeight: v / 100 }))} /></Form.Item>
-          <Form.Item label="年龄权重"><Slider value={weights.ageWeight * 100} onChange={v => setWeights(prev => ({ ...prev, ageWeight: v / 100 }))} /></Form.Item>
-          <Form.Item label="患者类型权重"><Slider value={weights.patientTypeWeight * 100} onChange={v => setWeights(prev => ({ ...prev, patientTypeWeight: v / 100 }))} /></Form.Item>
+          <Form.Item label={`紧急度权重 (${(weights?.urgencyWeight ?? 0) * 100}%)`}>
+            <Slider min={0} max={1} step={0.05} value={weights?.urgencyWeight ?? 0} onChange={(v) => setWeights((p) => ({ ...p!, urgencyWeight: v }))} />
+          </Form.Item>
+          <Form.Item label={`等待时长权重 (${(weights?.waitWeight ?? 0) * 100}%)`}>
+            <Slider min={0} max={1} step={0.05} value={weights?.waitWeight ?? 0} onChange={(v) => setWeights((p) => ({ ...p!, waitWeight: v }))} />
+          </Form.Item>
+          <Form.Item label={`年龄权重 (${(weights?.ageWeight ?? 0) * 100}%)`}>
+            <Slider min={0} max={1} step={0.05} value={weights?.ageWeight ?? 0} onChange={(v) => setWeights((p) => ({ ...p!, ageWeight: v }))} />
+          </Form.Item>
+          <Form.Item label={`检查类型权重 (${(weights?.examTypeWeight ?? 0) * 100}%)`}>
+            <Slider min={0} max={1} step={0.05} value={weights?.examTypeWeight ?? 0} onChange={(v) => setWeights((p) => ({ ...p!, examTypeWeight: v }))} />
+          </Form.Item>
+          <div style={{ color: weightSum > 1.05 || weightSum < 0.95 ? '#ff4d4f' : '#8c8c8c', fontSize: 12 }}>
+            权重合计: {(weightSum * 100).toFixed(0)}% {weightSum !== 1 ? '(建议合计 100%)' : ''}
+          </div>
         </Form>
       </Modal>
     </div>

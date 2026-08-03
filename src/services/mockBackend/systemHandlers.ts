@@ -11,6 +11,8 @@ const API_BASE = (() => {
 const AUDIT_LOGS = Array.from({ length: 30 }, (_, i) => ({
   id: 'AUD-' + String(i + 1).padStart(4, '0'),
   userId: ['admin', 'dr.wang', 'nurse.li', 'tech.zhao', 'ext.api'][i % 5],
+  username: ['系统管理员', '王医生', '李护士', '赵技师', '外部API'][i % 5],
+  userRole: ['admin', 'doctor', 'nurse', 'technician', 'api'][i % 5],
   action: ['CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'EXPORT', 'VIEW'][i % 7],
   resource: [
     '/api/v1/reports/RPT-2026-' + String(1000 + i).padStart(4, '0'),
@@ -19,8 +21,10 @@ const AUDIT_LOGS = Array.from({ length: 30 }, (_, i) => ({
     '/api/v1/users',
     '/api/v1/system/backup',
   ][i % 5],
+  resourceId: 'RPT-2026-' + String(1000 + i).padStart(4, '0'),
   details: ['操作详情 #' + (i + 1) + ' - 自动生成测试数据'],
   ip: '192.168.1.' + (10 + i),
+  status: (['SUCCESS', 'SUCCESS', 'DENIED', 'SUCCESS', 'FAILURE'] as const)[i % 5],
   createdAt: new Date(Date.now() - i * 3600_000).toISOString(),
 }));
 
@@ -111,6 +115,30 @@ export const systemHandlers = [
       },
     });
   }),
+  http.get(`${API_BASE}/audit/aggregation`, () => {
+    const byAction: Record<string, number> = {};
+    const byResource: Record<string, number> = {};
+    const byUser: Array<{ userId: string; count: number }> = [];
+    const userMap = new Map<string, number>();
+    for (const l of AUDIT_LOGS) {
+      byAction[l.action] = (byAction[l.action] ?? 0) + 1;
+      byResource[l.resource] = (byResource[l.resource] ?? 0) + 1;
+      userMap.set(l.userId, (userMap.get(l.userId) ?? 0) + 1);
+    }
+    for (const [userId, count] of userMap) byUser.push({ userId, count });
+    byUser.sort((a, b) => b.count - a.count);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        total: AUDIT_LOGS.length,
+        last24h: AUDIT_LOGS.length,
+        denied: AUDIT_LOGS.filter((l) => l.status === 'DENIED').length,
+        byAction,
+        byResource,
+        byUser,
+      },
+    });
+  }),
 
   // ─────────── Backup ───────────
   http.get(`${API_BASE}/backup`, () => {
@@ -150,7 +178,5 @@ export const systemHandlers = [
   }),
 
   // ─────────── Tenant ───────────
-  http.get(`${API_BASE}/tenant/compliance`, () => {
-    return HttpResponse.json({ success: true, data: TENANT_COMPLIANCE });
-  }),
+  
 ];

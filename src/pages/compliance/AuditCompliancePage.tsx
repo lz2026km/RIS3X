@@ -1,52 +1,190 @@
-// [v3.0.6.8-71] 审计合规中心
-import React, { useState } from 'react';
-import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Badge, Modal, Form, Select, Input, DatePicker, message, Timeline, Alert, Progress } from 'antd';
-import { Shield, FileSearch, UserCheck, Clock, AlertTriangle, CheckCircle2, Download, Filter, Eye, Search } from 'lucide-react';
+// [v3.0.6.11-54] Phase 2: 审计合规中心 (真实审计事件 + 筛选 + 详情抽屉)
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+  Card, Space, Tag, Table, Button, Row, Col, Statistic, Badge, Drawer,
+  Form, Select, Input, message, Descriptions, Alert, Spin, Typography,
+} from 'antd';
+import {
+  Shield, FileSearch, UserCheck, AlertTriangle, Download, Filter,
+} from 'lucide-react';
+import { auditApi, type AuditEventDto, type AuditAggregationDto } from '../../services/api/auditApi';
+
+const ACTION_COLOR: Record<string, string> = {
+  CREATE: 'green', UPDATE: 'blue', DELETE: 'red', LOGIN: 'cyan', LOGOUT: 'cyan',
+  EXPORT: 'orange', VIEW: 'default',
+};
+
+const STATUS_COLOR: Record<string, string> = {
+  SUCCESS: 'success', FAILURE: 'error', DENIED: 'warning',
+};
 
 export const AuditCompliancePage: React.FC = () => {
-  const [detailModal, setDetailModal] = useState<any>(null);
-  const [auditLogs] = useState([
-    { id:'AUD-001', user:'Dr. Wang', action:'VIEW_STUDY', target:'CBCT-20260628-01', ip:'192.168.1.101', timestamp:'2026-06-28 09:15:23', result:'allowed', reason:'Clinical care' },
-    { id:'AUD-002', user:'Nurse Li', action:'EXPORT_IMAGE', target:'CT-20260627-03', ip:'192.168.1.102', timestamp:'2026-06-28 09:32:17', result:'denied', reason:'No export permission' },
-    { id:'AUD-003', user:'Dr. Zhang', action:'MODIFY_REPORT', target:'RPT-20260626-05', ip:'192.168.1.103', timestamp:'2026-06-28 10:05:44', result:'allowed', reason:'Report revision' },
-    { id:'AUD-004', user:'Admin Liu', action:'USER_ROLE_CHANGE', target:'user: nurse_zhao', ip:'192.168.1.200', timestamp:'2026-06-28 11:20:00', result:'allowed', reason:'Role upgrade' },
-    { id:'AUD-005', user:'Ext-API', action:'API_ACCESS', target:'/api/patients/search', ip:'10.0.0.55', timestamp:'2026-06-28 12:00:12', result:'denied', reason:'Rate limit exceeded' },
-  ]);
+  const [events, setEvents] = useState<AuditEventDto[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [agg, setAgg] = useState<AuditAggregationDto | null>(null);
+  const [detail, setDetail] = useState<AuditEventDto | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [filters, setFilters] = useState<{ user?: string; action?: string; status?: string; search?: string }>({});
+  const [form] = Form.useForm();
+
+  const load = useCallback(async (p = 1, ps = pageSize, f = filters) => {
+    setLoading(true);
+    setError('');
+    try {
+      const [listRes, aggRes] = await Promise.allSettled([
+        auditApi.list({ page: p, pageSize: ps, userId: f.user, action: f.action, status: f.status, search: f.search }),
+        auditApi.getAggregation(),
+      ]);
+      if (listRes.status === 'fulfilled' && listRes.value.success) {
+        const data = listRes.value.data as { items: AuditEventDto[]; total: number };
+        setEvents(data.items ?? []);
+        setTotal(data.total ?? 0);
+      } else {
+        setEvents([]);
+        if (listRes.status === 'fulfilled') setError(listRes.value.error?.message ?? '');
+      }
+      if (aggRes.status === 'fulfilled' && aggRes.value.success) setAgg(aggRes.value.data);
+    } catch (e) {
+      setError((e as Error)?.message ?? '加载失败');
+    } finally {
+      setLoading(false);
+    }
+  }, [pageSize, filters]);
+
+  useEffect(() => {
+    void load(page);
+  }, [load, page]);
+
+  const onSearch = () => {
+    const v = form.getFieldsValue();
+    setFilters({
+      user: v.user,
+      action: v.action,
+      status: v.status,
+      search: v.search,
+    });
+    setPage(1);
+  };
+
+  const onReset = () => {
+    form.resetFields();
+    setFilters({});
+    setPage(1);
+  };
+
+  const topActions = Object.entries(agg?.byAction ?? {}).slice(0, 3);
+  const topUsers = (agg?.byUser ?? []).slice(0, 3);
+
+  const columns = [
+    { title: '编号', dataIndex: 'id', width: 110 },
+    { title: '用户', key: 'user', width: 130, render: (_: unknown, r: AuditEventDto) =>
+      <Space size={4}><UserCheck size={11} color="#1677ff" />{r.username ?? r.userId}</Space> },
+    { title: '操作', dataIndex: 'action', width: 120, render: (a: string) =>
+      <Tag color={ACTION_COLOR[a] ?? 'default'}>{a}</Tag> },
+    { title: '资源', key: 'resource', render: (_: unknown, r: AuditEventDto) =>
+      <span style={{ fontSize: 12 }}>{r.resource}{r.resourceId ? ` (${r.resourceId})` : ''}</span> },
+    { title: 'IP 地址', dataIndex: 'ip', width: 130 },
+    { title: '时间', dataIndex: 'createdAt', width: 170, render: (v: string) =>
+      v ? new Date(v).toLocaleString() : '-' },
+    { title: '结果', dataIndex: 'status', width: 110, render: (s: string) =>
+      <Badge status={(STATUS_COLOR[s] ?? 'default') as any} text={s ?? '-'} /> },
+    { title: '操作', key: 'action2', width: 80, render: (_: unknown, r: AuditEventDto) =>
+      <Button size="small" onClick={() => setDetail(r)}>详情</Button> },
+  ];
+
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Shield size={20} color="#1677ff" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>Audit & Compliance Center</span>
-        <Tag color="cyan">v3.0.6.8-71</Tag>
-        <Tag color="red" icon={<AlertTriangle size={10}/>}>HIPAA</Tag>
+        <Tag color="red" icon={<AlertTriangle size={10} />}>HIPAA</Tag>
         <Tag color="orange">Grade 3 Class A</Tag>
       </Space>
+
+      {error && (
+        <Alert type="error" showIcon style={{ marginBottom: 16 }} message={error}
+          action={<Button size="small" onClick={() => void load(page)}>重试</Button>} />
+      )}
+
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title="今日事件" value={auditLogs.length} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="已拒绝" value={auditLogs.filter(l=>l.result==='denied').length} styles={{ content: { color:'#ff4d4f' } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="数据导出" value="7" /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="违规评分" value="98" suffix="/100" /><Progress percent={98} size="small" strokeColor="#52c41a" /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="事件总数" value={agg?.total ?? total} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="近 24 小时" value={agg?.last24h ?? '-'} styles={{ content: { color: '#1677ff' } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="已拒绝" value={agg?.byAction?.['DENIED'] ?? (events.filter(e => e.status === 'DENIED').length)} styles={{ content: { color: '#ff4d4f' } }} /></Card></Col>
+        <Col span={6}><Card size="small" title="高频操作">
+          {topActions.length === 0 ? <span style={{ fontSize: 12, color: '#999' }}>暂无</span> :
+            <Space wrap>{topActions.map(([k, v]) => <Tag key={k}>{k} {v}</Tag>)}</Space>}
+        </Card></Col>
+        <Col span={6}><Card size="small" title="活跃用户">
+          {topUsers.length === 0 ? <span style={{ fontSize: 12, color: '#999' }}>暂无</span> :
+            <Space wrap>{topUsers.map(u => <Tag key={u.userId} color="blue">{u.userId} ({u.count})</Tag>)}</Space>}
+        </Card></Col>
       </Row>
-      <Card size="small" title={<Space><FileSearch size={14}/>审计轨迹</Space>} extra={<Space><Button icon={<Filter size={12}/>} disabled>筛选</Button><Button icon={<Download size={12}/>} disabled>导出</Button></Space>}>
-        <Table dataSource={auditLogs} rowKey="id" pagination={false}
-          columns={[
-            {title:'编号',dataIndex:'id'},{title:'用户',dataIndex:'user'},
-            {title:'操作',dataIndex:'action',render:(a:string)=><Tag color={a.startsWith('VIEW')?'blue':a.startsWith('EXPORT')?'orange':a.startsWith('MODIFY')?'purple':a.startsWith('USER')?'cyan':'default'}>{a}</Tag>},
-            {title:'目标',dataIndex:'target'},{title:'IP 地址',dataIndex:'ip'},
-            {title:'时间',dataIndex:'timestamp'},
-            {title:'结果',dataIndex:'result',render:(r:string)=><Badge status={r==='allowed'?'success':'error'} text={r} />},
-            {title:'操作',render:(_,r:any)=><Button size="small" onClick={()=>setDetailModal(r)}><Eye size={10}/></Button>},
-          ]} />
+
+      <Card
+        size="small"
+        title={<Space><FileSearch size={14} />审计轨迹</Space>}
+        extra={<Button icon={<Download size={12} />} onClick={() => { message.info('导出功能: 请使用后端 /audit/export 接口'); }}>导出</Button>}
+      >
+        <Form form={form} layout="inline" size="small" style={{ marginBottom: 12 }}>
+          <Form.Item name="user" label="用户"><Input placeholder="用户 ID" allowClear /></Form.Item>
+          <Form.Item name="action" label="操作">
+            <Select allowClear placeholder="全部" style={{ width: 120 }}
+              options={['CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'EXPORT', 'VIEW'].map(a => ({ value: a, label: a }))} />
+          </Form.Item>
+          <Form.Item name="status" label="结果">
+            <Select allowClear placeholder="全部" style={{ width: 110 }}
+              options={['SUCCESS', 'FAILURE', 'DENIED'].map(s => ({ value: s, label: s }))} />
+          </Form.Item>
+          <Form.Item name="search" label="关键词"><Input placeholder="资源/详情搜索" allowClear /></Form.Item>
+          <Form.Item><Button type="primary" icon={<Filter size={12} />} onClick={onSearch}>筛选</Button></Form.Item>
+          <Form.Item><Button onClick={onReset}>重置</Button></Form.Item>
+        </Form>
+        <Spin spinning={loading}>
+          <Table
+            rowKey="id"
+            size="small"
+            dataSource={events}
+            columns={columns}
+            pagination={{
+              current: page,
+              pageSize,
+              total,
+              showSizeChanger: true,
+              onChange: (p, ps) => { setPage(p); setPageSize(ps); },
+            }}
+          />
+        </Spin>
       </Card>
-      <Modal title="审计详情" open={!!detailModal} onCancel={()=>setDetailModal(null)} footer={null} width={500}>
-        {detailModal && <div><Timeline items={[
-          {key:'evt-id', content:<><b>事件编号</b><br/>{detailModal.id}</>},
-          {key:'evt-user', content:<><b>用户</b><br/>{detailModal.user} @ {detailModal.ip}</>},
-          {key:'evt-action', content:<><b>操作</b><br/>{detailModal.action} on {detailModal.target}</>},
-          {key:'evt-time', content:<><b>时间戳</b><br/>{detailModal.timestamp}</>},
-          {key:'evt-result', content:<><b>结果: </b><Tag color={detailModal.result==='allowed'?'green':'red'}>{detailModal.result}</Tag><br/><i>{detailModal.reason}</i></>},
-        ]} /></div>}
-      </Modal>
+
+      <Drawer
+        title={<Space><Shield size={14} />审计事件详情</Space>}
+        open={detail != null}
+        onClose={() => setDetail(null)}
+        size={520}
+      >
+        {detail && (
+          <Descriptions column={1} bordered size="small">
+            <Descriptions.Item label="事件编号">{detail.id}</Descriptions.Item>
+            <Descriptions.Item label="用户">{detail.username ?? detail.userId} ({detail.userRole ?? '未知角色'})</Descriptions.Item>
+            <Descriptions.Item label="操作">
+              <Tag color={ACTION_COLOR[detail.action] ?? 'default'}>{detail.action}</Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="资源">
+              <Typography.Text style={{ fontSize: 12, wordBreak: 'break-all' }}>{detail.resource}</Typography.Text>
+            </Descriptions.Item>
+            {detail.resourceId && <Descriptions.Item label="资源 ID">{detail.resourceId}</Descriptions.Item>}
+            <Descriptions.Item label="结果"><Badge status={(STATUS_COLOR[detail.status] ?? 'default') as any} text={detail.status} /></Descriptions.Item>
+            <Descriptions.Item label="IP / User-Agent">
+              {detail.ip ?? '-'}<br /><span style={{ fontSize: 11, color: '#999' }}>{detail.userAgent ?? ''}</span>
+            </Descriptions.Item>
+            <Descriptions.Item label="时间">{new Date(detail.createdAt).toLocaleString()}</Descriptions.Item>
+            {detail.details && <Descriptions.Item label="详情">{detail.details}</Descriptions.Item>}
+          </Descriptions>
+        )}
+      </Drawer>
     </div>
   );
 };

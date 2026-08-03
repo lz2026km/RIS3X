@@ -156,6 +156,9 @@ async function main(): Promise<void> {
   // 内置示例 DICOM (Phase 1.2+1.3): 从 dicom-samples/manifest.json 注册到 dicomInstance 表
   await seedDicomSamples(prisma)
 
+  // v3.0.6.11-60: Auto-hanging 默认悬挂协议
+  await seedHangingProtocols()
+
   console.log('[seed] done ✓')
 }
 
@@ -230,6 +233,26 @@ async function seedDicomSamples(prisma: PrismaClient): Promise<void> {
     }
   }
   console.log(`[seed] ${count}/${manifest.instanceCount} built-in DICOM instances registered (tenant=default)`)
+}
+
+// v3.0.6.11-60: Auto-hanging 默认悬挂协议 seed (对标 GE/Siemens/Fujifilm)
+async function seedHangingProtocols(): Promise<void> {
+  const seeds = [
+    { name: 'CT 头颅 轴位标准', modality: 'CT', bodyPart: 'HEAD', layout: { rows: 1, cols: 1, seriesOrder: ['轴位'] }, priority: 100, description: 'CT 头颅常规: 单视野轴位' },
+    { name: 'CT 胸部 肺窗+纵隔窗', modality: 'CT', bodyPart: 'CHEST', layout: { rows: 2, cols: 2, seriesOrder: ['轴位-肺窗', '轴位-纵隔窗', '冠状位', '矢状位'] }, priority: 100, description: 'CT 胸部常规: 肺窗/纵隔窗双窗 2×2' },
+    { name: 'MR 头颅 多序列', modality: 'MR', bodyPart: 'HEAD', layout: { rows: 2, cols: 3, seriesOrder: ['T1', 'T2', 'FLAIR', 'DWI', 'T1增强', 'SWI'] }, priority: 100, description: 'MR 头颅: T1/T2/FLAIR/DWI 六序列 2×3' },
+    { name: 'DR 胸部 正侧位', modality: 'DR', bodyPart: 'CHEST', layout: { rows: 1, cols: 2, seriesOrder: ['正位', '侧位'] }, priority: 95, description: 'DR 胸部: 正位+侧位 1×2' },
+    { name: 'CT 腹部 平扫+增强', modality: 'CT', bodyPart: 'ABDOMEN', layout: { rows: 2, cols: 2, seriesOrder: ['平扫', '动脉期', '门脉期', '延迟期'] }, priority: 90, description: 'CT 腹部: 四期对比 2×2' },
+    { name: 'MR 脊柱 矢冠轴', modality: 'MR', bodyPart: 'SPINE', layout: { rows: 1, cols: 3, seriesOrder: ['矢状位', '冠状位', '轴位'] }, priority: 90, description: 'MR 脊柱: 矢状+冠状+轴位 1×3' },
+    { name: 'CT 颈椎 骨窗+软窗', modality: 'CT', bodyPart: 'NECK', layout: { rows: 1, cols: 2, seriesOrder: ['骨窗', '软组织窗'] }, priority: 85, description: 'CT 颈椎: 双窗对比 1×2' },
+    { name: 'MR 膝关节 多序列', modality: 'MR', bodyPart: 'KNEE', layout: { rows: 2, cols: 2, seriesOrder: ['矢状位 PD', '矢状位 T1', '冠状位 PD', '轴位 PD'] }, priority: 80, description: 'MR 膝关节: 矢冠轴四序列 2×2' },
+  ]
+  for (const s of seeds) {
+    const existing = await prisma.hangingProtocol.findFirst({ where: { name: s.name } })
+    if (existing) continue
+    await prisma.hangingProtocol.create({ data: { ...s, tenantId: 'default' } })
+  }
+  console.log(`[seed] ${seeds.length} hanging protocols upserted`)
 }
 
 main()

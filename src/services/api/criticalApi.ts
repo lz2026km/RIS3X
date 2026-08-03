@@ -125,6 +125,10 @@ export const criticalApi = {
   listHistory: (criticalId: string) =>
     api.get<unknown[]>(`/criticals/${criticalId}/history`),
 
+  // [v3.0.6.11-60] Batch 3: 随访记录 (供 CriticalValuePage 详情/随访使用)
+  listFollowUpRecords: () =>
+    api.get<unknown[]>('/criticals/follow-up-records'),
+
   runEscalationChain: (eventId: string) =>
     api.post<{ chain: unknown; nodesTriggered: Array<{ level: number; role: string; doctor: string; smsResults: number; voiceResults: number }> }>(`/criticals/${eventId}/escalation-chain`),
 

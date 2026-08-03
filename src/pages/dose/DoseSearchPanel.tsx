@@ -27,6 +27,7 @@ export default function DoseSearchPanel({
   // [v3.0.6.8-31] t() 来自 appI18n (内联 dict 含 doseTrack.* 翻译)
   const tabs = [
     { key: "overview", label: t("doseTrack.tabs.overview") },
+    { key: "live", label: "实时监测" },
     { key: "patient", label: t("doseTrack.tabs.patient") },
     { key: "device", label: t("doseTrack.tabs.device") },
     { key: "alert", label: t("doseTrack.tabs.alert") },

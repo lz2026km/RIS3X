@@ -326,6 +326,13 @@ const COLLECTIONS = [
   'review_reviewers',
   'review_reject_templates',
   'review_assignments',
+  // [v3.0.6.11-60] Batch 3 壳页面真实化集合
+  'pacs_servers',
+  'pacs_storage',
+  'term_mappings',
+  'consents',
+  'dental_ai_findings',
+  'value5step',
 ] as const;
 type Collection = typeof COLLECTIONS[number];
 

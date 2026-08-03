@@ -188,7 +188,7 @@ export default function ReportPage() {
         </div>
       </div>
 
-      {detailReport && <ReportDetailDrawer report={detailReport} onClose={() => setDetailReport(null)} onReview={r => { setDetailReport(null); setReviewReport(r); }} onPrint={r => { setDetailReport(null); setTimeout(() => window.print(), 100); }} onExportPDF={r => { setExportModal({ show: true, title: "导出PDF", message: `正在导出报告 ${r.reportId}...`, complete: false }); setTimeout(() => { setExportModal(m => ({ ...m, complete: true, message: `报告 ${r.reportId} 已导出` })); setTimeout(() => setExportModal(m => ({ ...m, show: false })), 2000); }, 1000); }} />}
+      {detailReport && <ReportDetailDrawer report={detailReport} onClose={() => setDetailReport(null)} onReview={r => { setDetailReport(null); setReviewReport(r); }} onPrint={r => { setDetailReport(null); setTimeout(() => window.print(), 100); }} onExportPDF={r => { setExportModal({ show: true, title: "导出PDF", message: `正在导出报告 ${r.reportId}...`, complete: false }); setTimeout(() => { setExportModal(m => ({ ...m, complete: true, message: `报告 ${r.reportId} 已导出` })); setTimeout(() => setExportModal(m => ({ ...m, show: false })), 2000); }, 1000); }} onGenerateSr={r => navigate(`/dicom/sr-report?reportId=${r.id}`)} />}
 
       {reviewReport && <ReportReviewModal report={reviewReport} onClose={() => setReviewReport(null)} onSubmit={handleReviewSubmit} />}
 

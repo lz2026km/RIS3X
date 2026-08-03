@@ -6,6 +6,7 @@ export interface EducationMaterial {
   modality?: string
   bodyPart?: string
   contentType: 'text' | 'video' | 'pdf' | 'image'
+  duration?: number
   content: string
   summary: string
   tags: string[]

@@ -33,4 +33,7 @@ export const aiFusionWorkspaceApi = {
   getStudies: () => api.get<FusionStudy[]>('/ai/fusion-workspace/studies'),
 
   getInsights: () => api.get<AiInsight[]>('/ai/fusion-workspace/insights'),
+
+  runFusion: (studyId?: string) =>
+    api.post<FusionStudy>('/ai/fusion-workspace/run', { studyId }),
 }

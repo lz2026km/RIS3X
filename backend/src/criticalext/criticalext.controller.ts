@@ -1,10 +1,9 @@
-﻿// [DEPRECATED] 此模块已合并到 criticalext，请勿新增引用
-import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common'
+﻿import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { CriticalExtService } from './criticalext.service'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
-import { AutoDetectCriticalSchema, CloseCriticalLoopSchema, CreateCriticalRuleSchema, UpdateCriticalRuleSchema } from '../criticals/criticalext.schema'
+import { AutoDetectCriticalSchema, CloseCriticalLoopSchema, CreateCriticalRuleSchema, UpdateCriticalRuleSchema } from './criticalext.schema'
 import { z } from 'zod'
 
 type CreateCriticalRuleDto = z.infer<typeof CreateCriticalRuleSchema>

@@ -41,7 +41,7 @@ export const smartRoutingApi = {
   routeStudy: (studyId: string) =>
     api.post<RoutingAssignment>('/smart-routing/route', { studyId }),
 
-  getAssignments: (params?: { modality?: string; status?: string }) =>
+  getAssignments: (_params?: { modality?: string; status?: string }) =>
     api.get<RoutingAssignment[]>('/smart-routing/assignments'),
 
   getStats: () =>

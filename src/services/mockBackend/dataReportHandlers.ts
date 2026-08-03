@@ -56,11 +56,25 @@ export const dataReportHandlers = [
   http.get(`${API}/enterprise-search`, async ({ request }) => {
     await delay(delayMs());
     const url = new URL(request.url);
-    const opts = parseQuery(url);
-    let items: any[] = [];
-    try { items = list<any>('null'); } catch {}
-    if (!items.length) items = {"results":[],"total":0};
-    const result = applyQuery(items, opts);
-    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
+    const q = (url.searchParams.get('q') || '').trim().toLowerCase();
+    if (!q) return HttpResponse.json({ success: true, data: [], meta: { total: 0 } });
+    let patients: any[] = [];
+    let exams: any[] = [];
+    try { patients = list<any>('patients') || []; } catch {}
+    try { exams = list<any>('exams') || []; } catch {}
+    const out: any[] = [];
+    for (const p of patients.slice(0, 150)) {
+      const hay = `${p.id} ${p.name} ${p.phone || ''}`.toLowerCase();
+      if (!hay.includes(q)) continue;
+      out.push({ id: `P-${p.id}`, title: `患者 ${p.name}`, description: `${p.gender || '-'} ${p.age ?? '-'}岁 · ${p.id} · 登记 ${p.registeredAt || '-'}`, type: '患者', score: 96 });
+    }
+    for (const e of exams.slice(0, 400)) {
+      const hay = `${e.patientName || ''} ${e.examItem || ''} ${e.modality || ''} ${e.bodyPart || ''} ${e.reportId || ''} ${e.findings || ''} ${e.impression || ''}`.toLowerCase();
+      if (!hay.includes(q)) continue;
+      out.push({ id: `E-${e.id || e.reportId}`, title: `检查 ${e.examItem || '影像检查'}`, description: `${e.patientName || '-'} · ${e.modality || '-'} · ${e.examAt || '-'}`, type: '检查', score: 90 });
+      out.push({ id: `R-${e.reportId || e.id}`, title: `报告 ${e.reportId || e.id}`, description: `所见：${(e.findings || '—').slice(0, 80)}`, type: '报告', score: 84 });
+    }
+    out.sort((a, b) => b.score - a.score);
+    return HttpResponse.json({ success: true, data: out.slice(0, 100), meta: { total: out.length } });
   }),
 ];

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Spin, Alert, message } from 'antd'
 import { patientPortalApi, type PortalPatientDto, type ExamHistoryItemDto, type ImagePreviewDto } from '../../services/api'
 
 // ===== Types =====
@@ -32,7 +33,10 @@ const styles = {
 
 // ===== Component =====
 export default function SelfServicePortal() {
-  const [loggedIn, setLoggedIn] = useState(true)
+  const [loggedIn, setLoggedIn] = useState(false)
+  const [loginId, setLoginId] = useState('')
+  const [loginLoading, setLoginLoading] = useState(false)
+  const [loginError, setLoginError] = useState<string | null>(null)
   const [selectedExam, setSelectedExam] = useState<ExamHistoryItemDto | null>(null)
   const [expandedReport, setExpandedReport] = useState<string | null>(null)
   const [images, setImages] = useState<ImagePreviewDto[]>([])
@@ -40,21 +44,53 @@ export default function SelfServicePortal() {
   const [user, setUser] = useState<PortalPatientDto | null>(null)
   const [exams, setExams] = useState<ExamHistoryItemDto[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  const handleLogin = async () => {
+    const keyword = loginId.trim()
+    if (!keyword) {
+      message.warning('请输入手机号或证件号')
+      return
+    }
+    setLoginLoading(true)
+    setLoginError(null)
+    try {
+      const res = await patientPortalApi.listPatients()
+      const list = res.success && Array.isArray(res.data) ? res.data : []
+      const match = list.find(p =>
+        (p.phone && p.phone.includes(keyword)) ||
+        (p.idNumber && p.idNumber.includes(keyword)) ||
+        (p.id && p.id.includes(keyword)),
+      )
+      if (match) {
+        setUser(match)
+        setLoggedIn(true)
+      } else {
+        setLoginError('未查询到匹配的患者信息，请确认输入是否正确')
+      }
+    } catch {
+      setLoginError('查询服务暂不可用，请稍后重试')
+    } finally {
+      setLoginLoading(false)
+    }
+  }
 
   useEffect(() => {
     if (!loggedIn) return
     let cancelled = false
     void (async () => {
       setLoading(true)
+      setLoadError(null)
       try {
         const [userRes, examsRes] = await Promise.all([
-          patientPortalApi.getPortalUser('current'),
-          patientPortalApi.listExamHistory('current'),
+          patientPortalApi.getPortalUser(user?.id || 'current'),
+          patientPortalApi.listExamHistory(user?.id || 'current'),
         ])
         if (cancelled) return
         if (userRes.success && userRes.data) setUser(userRes.data)
         if (examsRes.success && Array.isArray(examsRes.data)) setExams(examsRes.data)
-      } catch { /* API may not be available in mock mode */ }
+        if (!userRes.success && !examsRes.success) setLoadError('数据加载失败，请稍后重试')
+      } catch { setLoadError('数据加载失败，请稍后重试') }
       if (!cancelled) setLoading(false)
     })()
     return () => { cancelled = true }
@@ -109,8 +145,30 @@ export default function SelfServicePortal() {
         <div style={{ ...styles.card, maxWidth: 400, margin: '80px auto', textAlign: 'center' }}>
           <h2 style={{ fontSize: 22, marginBottom: 8 }}>患者自助服务</h2>
           <p style={{ fontSize: 13, color: '#64748b', marginBottom: 24 }}>输入手机号或证件号查询</p>
-          <input placeholder="手机号 / 身份证号" style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, marginBottom: 16, boxSizing: 'border-box' as const }} />
-          <button style={{ ...styles.btn, width: '100%', padding: '12px', fontSize: 15 }} onClick={() => setLoggedIn(true)}>查询</button>
+          <input
+            placeholder="手机号 / 身份证号"
+            value={loginId}
+            onChange={e => setLoginId(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && !loginLoading && void handleLogin()}
+            style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, marginBottom: 16, boxSizing: 'border-box' as const }}
+          />
+          <button style={{ ...styles.btn, width: '100%', padding: '12px', fontSize: 15 }} onClick={() => void handleLogin()} disabled={loginLoading}>
+            {loginLoading ? '查询中...' : '查询'}
+          </button>
+          {loginError && <Alert type="error" showIcon message={loginError} style={{ marginTop: 16, textAlign: 'left' }} />}
+          <div style={{ marginTop: 16, fontSize: 12, color: '#94a3b8' }}>演示账号：输入 13800138000 或 P001</div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loading) {
+    return (
+      <div style={styles.container}>
+        <div style={{ padding: 80, textAlign: 'center' }}>
+          <Spin size="large" tip="正在加载患者服务数据...">
+            <div style={{ height: 60 }} />
+          </Spin>
         </div>
       </div>
     )
@@ -118,11 +176,12 @@ export default function SelfServicePortal() {
 
   return (
     <div style={styles.container}>
+      {loadError && <Alert type="error" showIcon message={loadError} style={{ marginBottom: 16 }} />}
       {/* Patient Header */}
       <div style={styles.card}>
         <div style={styles.header}>
           <h2 style={styles.title}>患者信息</h2>
-          <button style={{ ...styles.btn, background: '#64748b' }} onClick={() => setLoggedIn(false)}>退出</button>
+          <button style={{ ...styles.btn, background: '#64748b' }} onClick={() => { setLoggedIn(false); setUser(null); setExams([]); setVoucherCode(null); setSelectedExam(null) }}>退出</button>
         </div>
         <div style={styles.grid2}>
           <div><div style={styles.label}>姓名</div><div style={styles.value}>{user?.name ?? '-'}</div></div>

@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { useTranslation } from "react-i18next";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Card,
   Select,
@@ -16,13 +15,20 @@ import {
   Spin,
   Tag,
   Empty,
+  Slider,
+  message,
 } from "antd";
 import {
   CompressOutlined,
   ExpandOutlined,
   BarChartOutlined,
   FileOutlined,
+  UploadOutlined,
+  ReloadOutlined,
+  ExperimentOutlined,
+  ThunderboltOutlined,
 } from "@ant-design/icons";
+import type { CompressInstance } from "../../services/api/dicomCompressApi";
 
 const { Title, Text } = Typography;
 
@@ -40,114 +46,212 @@ interface CompressTask {
   progress: number;
   originalSize: number;
   compressedSize: number | null;
+  ratio?: number;
+  modality?: string;
+  algorithmName?: string;
+  lossless?: boolean;
+  simulated?: boolean;
+  elapsedMs?: number;
+  quality?: number;
   error?: string;
   createdAt: string;
   updatedAt: string;
 }
 
-interface CompressRatio {
-  instanceId: string;
-  sopClass: string;
-  sopClassName: string;
+interface RatioAgg {
+  algorithm: string;
+  algorithmName: string;
+  modality: string;
+  count: number;
+  avgRatio: number;
+  avgOriginalSize: number;
+  avgCompressedSize: number;
+  savedBytes: number;
+}
+
+interface CompareRow {
+  key: string;
+  algorithm: string;
+  algorithmName: string;
+  lossless: boolean;
   originalSize: number;
-  compressedSize: number;
-  ratio: number;
-  transferSyntax: string;
+  compressedSize: number | null;
+  ratio: number | null;
+  savedPercent: number | null;
+  elapsedMs?: number;
 }
 
 const API_BASE = "/api/v1/dicom/compress";
 
-function formatBytes(bytes: number): string {
-  if (bytes >= 1024 * 1024 * 1024)
-    return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
-  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+function formatBytes(bytes: number | null | undefined): string {
+  if (bytes === null || bytes === undefined) return "-";
+  if (bytes >= 1024 * 1024 * 1024) return `${(bytes / 1024 / 1024 / 1024).toFixed(2)} GB`;
+  if (bytes >= 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
   if (bytes >= 1024) return `${(bytes / 1024).toFixed(2)} KB`;
   return `${bytes} B`;
 }
 
-export default function DicomCompressPage() {
-  const { t } = useTranslation("dicomCompress");
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const buf = new Uint8Array(reader.result as ArrayBuffer);
+      let binary = "";
+      const chunk = 0x8000;
+      for (let i = 0; i < buf.length; i += chunk) {
+        binary += String.fromCharCode(...buf.subarray(i, i + chunk));
+      }
+      resolve(btoa(binary));
+    };
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
 
+const statusColor: Record<string, string> = {
+  pending: "default",
+  processing: "processing",
+  done: "success",
+  failed: "error",
+};
+
+export default function DicomCompressPage() {
   const [syntaxes, setSyntaxes] = useState<TransferSyntax[]>([]);
-  const [selectedSyntax, setSelectedSyntax] = useState<string>("");
-  const [fileId, setFileId] = useState("sample-dicom-001");
-  const [task, setTask] = useState<CompressTask | null>(null);
+  const [instances, setInstances] = useState<CompressInstance[]>([]);
+  const [selectedFileId, setSelectedFileId] = useState<string>("CT_CHEST/CT_CHEST_001.dcm");
+  const [uploadedBase64, setUploadedBase64] = useState<string | undefined>(undefined);
+  const [uploadName, setUploadName] = useState<string>("");
+  const [selectedSyntax, setSelectedSyntax] = useState<string>("1.2.840.10008.1.2.4.90");
+  const [quality, setQuality] = useState<number>(85);
+  const [currentTask, setCurrentTask] = useState<CompressTask | null>(null);
+  const [tasks, setTasks] = useState<CompressTask[]>([]);
+  const [ratios, setRatios] = useState<{ byAlgorithm: RatioAgg[]; byModality: RatioAgg[]; totalSavedBytes: number; avgRatio: number }>({
+    byAlgorithm: [],
+    byModality: [],
+    totalSavedBytes: 0,
+    avgRatio: 0,
+  });
+  const [compareRows, setCompareRows] = useState<CompareRow[]>([]);
   const [loading, setLoading] = useState(false);
-  const [ratioData, setRatioData] = useState<CompressRatio[]>([]);
+  const [comparing, setComparing] = useState(false);
   const [polling, setPolling] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const selectedLossy = syntaxes.find(s => s.uid === selectedSyntax)?.lossy ?? false;
+
+  const loadInstances = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE}/instances`);
+      const data = (await res.json()) as CompressInstance[];
+      setInstances(data);
+      if (data.length > 0 && !data.some(i => i.fileId === selectedFileId)) {
+        setSelectedFileId(data[0]!.fileId);
+      }
+    } catch (err) {
+      console.warn("[DicomCompress] load instances failed", err);
+    }
+  }, [selectedFileId]);
+
+  const loadTasks = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE}/tasks`);
+      setTasks((await res.json()) as CompressTask[]);
+    } catch (err) {
+      console.warn("[DicomCompress] load tasks failed", err);
+    }
+  }, []);
+
+  const loadRatios = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE}/ratios`);
+      const data = await res.json();
+      setRatios({
+        byAlgorithm: data.byAlgorithm ?? [],
+        byModality: data.byModality ?? [],
+        totalSavedBytes: data.totalSavedBytes ?? 0,
+        avgRatio: data.avgRatio ?? 0,
+      });
+    } catch (err) {
+      console.warn("[DicomCompress] load ratios failed", err);
+    }
+  }, []);
 
   useEffect(() => {
     fetch(`${API_BASE}/syntaxes`)
-      .then((r) => r.json())
-      .then((data) => {
+      .then(r => r.json())
+      .then((data: TransferSyntax[]) => {
         setSyntaxes(data);
-        if (data.length > 0) setSelectedSyntax(data[0].uid);
+        if (data.length > 0) setSelectedSyntax(data[0]!.uid);
       })
-      .catch((err) => {
-        console.error("[F04]", err);
-      });
-    fetchRatioData();
-  }, []);
+      .catch(err => console.warn("[DicomCompress] load syntaxes failed", err));
+    loadInstances();
+    loadTasks();
+    loadRatios();
+  }, [loadInstances, loadTasks, loadRatios]);
 
-  const fetchRatioData = useCallback(() => {
-    const ids = ["inst-001", "inst-002", "inst-003", "inst-004", "inst-005"];
-    Promise.all(
-      ids.map((id) =>
-        fetch(`${API_BASE}/ratio/${id}`).then(
-          (r) => r.json() as Promise<CompressRatio>,
-        ),
-      ),
-    )
-      .then(setRatioData)
-      .catch((err) => {
-        console.error("[F04]", err);
-      });
+  const stopPolling = useCallback(() => {
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+    setPolling(false);
   }, []);
 
   const startPolling = useCallback(
     (taskId: string) => {
+      stopPolling();
       setPolling(true);
       pollRef.current = setInterval(async () => {
         try {
           const res = await fetch(`${API_BASE}/status/${taskId}`);
           const data: CompressTask = await res.json();
-          setTask(data);
+          setCurrentTask(data);
           if (data.status === "done" || data.status === "failed") {
-            if (pollRef.current) clearInterval(pollRef.current);
-            setPolling(false);
-            fetchRatioData();
+            stopPolling();
+            loadTasks();
+            loadRatios();
           }
         } catch (err) {
           console.warn("[DicomCompress] status polling failed", err);
-          if (pollRef.current) clearInterval(pollRef.current);
-          setPolling(false);
+          stopPolling();
         }
-      }, 800);
+      }, 500);
     },
-    [fetchRatioData],
+    [loadTasks, loadRatios, stopPolling],
   );
 
   useEffect(() => {
-    return () => {
-      if (pollRef.current) clearInterval(pollRef.current);
-    };
-  }, []);
+    return () => stopPolling();
+  }, [stopPolling]);
+
+  const refreshAll = useCallback(() => {
+    loadInstances();
+    loadTasks();
+    loadRatios();
+  }, [loadInstances, loadTasks, loadRatios]);
 
   const handleCompress = async () => {
     setLoading(true);
-    setTask(null);
+    setCurrentTask(null);
     try {
       const res = await fetch(API_BASE, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fileId, transferSyntax: selectedSyntax }),
+        body: JSON.stringify({
+          fileId: selectedFileId,
+          transferSyntax: selectedSyntax,
+          quality: selectedLossy ? quality : undefined,
+          dataBase64: uploadedBase64,
+        }),
       });
       const data: CompressTask = await res.json();
-      setTask(data);
+      setCurrentTask(data);
       startPolling(data.id);
     } catch (err) {
       console.warn("[DicomCompress] handleCompress failed", err);
+      messageApi.error("压缩请求失败 / Compress request failed");
     } finally {
       setLoading(false);
     }
@@ -155,224 +259,582 @@ export default function DicomCompressPage() {
 
   const handleDecompress = async () => {
     setLoading(true);
-    setTask(null);
+    setCurrentTask(null);
     try {
       const res = await fetch(`${API_BASE}/decompress`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fileId }),
+        body: JSON.stringify({ fileId: currentTask?.id ?? selectedFileId }),
       });
       const data: CompressTask = await res.json();
-      setTask(data);
+      setCurrentTask(data);
+      messageApi.success(
+        data.error ? "解压失败 / Decompress failed" : "解压完成 / Decompress done",
+      );
+      loadTasks();
     } catch (err) {
       console.warn("[DicomCompress] handleDecompress failed", err);
+      messageApi.error("解压请求失败 / Decompress request failed");
     } finally {
       setLoading(false);
     }
   };
 
-  const columns = [
+  const handleCompareAll = async () => {
+    setComparing(true);
+    setCompareRows([]);
+    const rows: CompareRow[] = [];
+    try {
+      for (const syntax of syntaxes) {
+        const res = await fetch(API_BASE, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fileId: selectedFileId,
+            transferSyntax: syntax.uid,
+            quality: syntax.lossy ? quality : undefined,
+            dataBase64: uploadedBase64,
+          }),
+        });
+        const created: CompressTask = await res.json();
+        const task = await pollTaskUntilDone(created.id);
+        rows.push({
+          key: syntax.uid,
+          algorithm: syntax.uid,
+          algorithmName: task.algorithmName ?? syntax.name,
+          lossless: !syntax.lossy,
+          originalSize: task.originalSize,
+          compressedSize: task.compressedSize,
+          ratio: task.ratio ?? null,
+          savedPercent:
+            task.compressedSize !== null
+              ? Math.round((1 - task.compressedSize / task.originalSize) * 100)
+              : null,
+          elapsedMs: task.elapsedMs,
+        });
+        setCompareRows([...rows]);
+      }
+      messageApi.success("全算法对比完成 / All algorithms compared");
+      loadTasks();
+      loadRatios();
+    } catch (err) {
+      console.warn("[DicomCompress] handleCompareAll failed", err);
+      messageApi.error("对比失败 / Compare failed");
+    } finally {
+      setComparing(false);
+    }
+  };
+
+  const pollTaskUntilDone = async (taskId: string): Promise<CompressTask> => {
+    for (let i = 0; i < 20; i++) {
+      try {
+        const res = await fetch(`${API_BASE}/status/${taskId}`);
+        const data: CompressTask = await res.json();
+        if (data.status === "done" || data.status === "failed") return data;
+      } catch {
+        /* retry */
+      }
+      await new Promise(r => setTimeout(r, 350));
+    }
+    try {
+      const res = await fetch(`${API_BASE}/status/${taskId}`);
+      return (await res.json()) as CompressTask;
+    } catch (err) {
+      throw err instanceof Error ? err : new Error("status timeout");
+    }
+  };
+
+  const handleFilePick = async (file: File) => {
+    try {
+      const b64 = await fileToBase64(file);
+      setUploadedBase64(b64);
+      setUploadName(file.name);
+      setSelectedFileId(file.name);
+      messageApi.success(`已上传 ${file.name} (${formatBytes(file.size)})`);
+    } catch (err) {
+      console.warn("[DicomCompress] file read failed", err);
+      messageApi.error("文件读取失败 / File read failed");
+    }
+  };
+
+  const instanceOptions = [
+    ...instances.map(i => ({
+      value: i.fileId,
+      label: `${i.fileName}  [${i.modality}] ${formatBytes(i.sizeBytes)} (${i.rows}x${i.columns})`,
+    })),
+    ...(uploadedBase64 && uploadName
+      ? [{ value: uploadName, label: `${uploadName}  [UPLOAD]` }]
+      : []),
+  ];
+
+  const taskColumns = [
+    { title: "任务 ID / Task", dataIndex: "id", key: "id", width: 130 },
+    { title: "文件 / File", dataIndex: "fileId", key: "fileId", ellipsis: true },
+    { title: "算法 / Algorithm", dataIndex: "algorithmName", key: "algorithmName", width: 220 },
     {
-      title: t("table.instanceId"),
-      dataIndex: "instanceId",
-      key: "instanceId",
-    },
-    {
-      title: t("table.sopClass"),
-      dataIndex: "sopClassName",
-      key: "sopClass",
-    },
-    {
-      title: t("table.originalSize"),
-      dataIndex: "originalSize",
-      key: "originalSize",
-      render: (v: number) => formatBytes(v),
-    },
-    {
-      title: t("table.compressedSize"),
-      dataIndex: "compressedSize",
-      key: "compressedSize",
-      render: (v: number) => formatBytes(v),
-    },
-    {
-      title: t("table.ratio"),
-      dataIndex: "ratio",
-      key: "ratio",
-      render: (v: number) => (
-        <Tag color={v < 30 ? "green" : v < 50 ? "orange" : "red"}>{v}%</Tag>
+      title: "状态 / Status",
+      dataIndex: "status",
+      key: "status",
+      width: 110,
+      render: (v: string) => (
+        <Tag color={statusColor[v] ?? "default"}>
+          {v === "done" ? "完成" : v === "processing" ? "处理中" : v === "failed" ? "失败" : "排队"}
+        </Tag>
       ),
     },
+    {
+      title: "进度 / Progress",
+      dataIndex: "progress",
+      key: "progress",
+      width: 140,
+      render: (v: number, row: CompressTask) =>
+        row.status === "done" ? (
+          <Text type="success">{v}%</Text>
+        ) : (
+          <Progress percent={v} size="small" />
+        ),
+    },
+    {
+      title: "原始 / Original",
+      dataIndex: "originalSize",
+      key: "originalSize",
+      width: 110,
+      render: (v: number) => formatBytes(v),
+    },
+    {
+      title: "压缩后 / Compressed",
+      dataIndex: "compressedSize",
+      key: "compressedSize",
+      width: 110,
+      render: (v: number | null) => formatBytes(v),
+    },
+    {
+      title: "压缩比 / Ratio",
+      dataIndex: "ratio",
+      key: "ratio",
+      width: 100,
+      render: (v: number | undefined, row: CompressTask) =>
+        v !== undefined ? (
+          <Tag color={v > 3 ? "green" : v > 1.5 ? "blue" : "orange"}>{v.toFixed(2)}×</Tag>
+        ) : row.status === "done" && row.compressedSize ? (
+          <Tag color="orange">{(row.originalSize / row.compressedSize).toFixed(2)}×</Tag>
+        ) : (
+          "-"
+        ),
+    },
+    {
+      title: "真实 / Real",
+      dataIndex: "simulated",
+      key: "simulated",
+      width: 90,
+      render: (v: boolean | undefined) =>
+        v ? <Tag color="gold">估算</Tag> : <Tag color="green">真实</Tag>,
+    },
+    { title: "耗时 / Time", dataIndex: "elapsedMs", key: "elapsedMs", width: 90, render: (v?: number) => (v !== undefined ? `${v} ms` : "-") },
   ];
+
+  const compareColumns = [
+    { title: "算法 / Algorithm", dataIndex: "algorithmName", key: "algorithmName" },
+    {
+      title: "类型 / Type",
+      dataIndex: "lossless",
+      key: "lossless",
+      width: 100,
+      render: (v: boolean) => <Tag color={v ? "green" : "red"}>{v ? "无损" : "有损"}</Tag>,
+    },
+    { title: "原始 / Original", dataIndex: "originalSize", key: "originalSize", width: 110, render: (v: number) => formatBytes(v) },
+    { title: "压缩后 / Compressed", dataIndex: "compressedSize", key: "compressedSize", width: 110, render: (v: number | null) => formatBytes(v) },
+    {
+      title: "压缩比 / Ratio",
+      dataIndex: "ratio",
+      key: "ratio",
+      width: 110,
+      render: (v: number | null) => (v ? <Tag color={v > 3 ? "green" : "blue"}>{v.toFixed(2)}×</Tag> : "-"),
+    },
+    {
+      title: "节省 / Saved",
+      dataIndex: "savedPercent",
+      key: "savedPercent",
+      width: 110,
+      render: (v: number | null) => (v !== null ? `${v}%` : "-"),
+    },
+    { title: "耗时 / Time", dataIndex: "elapsedMs", key: "elapsedMs", width: 100, render: (v?: number) => (v !== undefined ? `${v} ms` : "-") },
+  ];
+
+  const ratioColumns = [
+    { title: "算法 / Algorithm", dataIndex: "algorithmName", key: "algorithmName" },
+    { title: "模态 / Modality", dataIndex: "modality", key: "modality", width: 100 },
+    { title: "次数 / Count", dataIndex: "count", key: "count", width: 90 },
+    { title: "平均压缩比 / Avg Ratio", dataIndex: "avgRatio", key: "avgRatio", width: 130, render: (v: number) => <Tag color="blue">{v.toFixed(2)}×</Tag> },
+    { title: "平均节省 / Avg Saved", dataIndex: "savedBytes", key: "savedBytes", width: 120, render: (v: number) => formatBytes(v) },
+    { title: "平均原始 / Avg Original", dataIndex: "avgOriginalSize", key: "avgOriginalSize", width: 120, render: (v: number) => formatBytes(v) },
+  ];
+
+  const ratioModalityColumns = [
+    { title: "模态 / Modality", dataIndex: "modality", key: "modality" },
+    { title: "算法 / Algorithm", dataIndex: "algorithmName", key: "algorithmName" },
+    { title: "次数 / Count", dataIndex: "count", key: "count", width: 90 },
+    { title: "平均压缩比 / Avg Ratio", dataIndex: "avgRatio", key: "avgRatio", width: 130, render: (v: number) => <Tag color="blue">{v.toFixed(2)}×</Tag> },
+    { title: "累计节省 / Saved", dataIndex: "savedBytes", key: "savedBytes", width: 120, render: (v: number) => formatBytes(v) },
+  ];
+
+  const savedPercent =
+    currentTask?.compressedSize !== null && currentTask?.compressedSize !== undefined
+      ? Math.round((1 - currentTask.compressedSize / currentTask.originalSize) * 100)
+      : null;
 
   return (
     <div style={{ padding: 24 }}>
+      {contextHolder}
       <Title level={3}>
         <CompressOutlined style={{ marginRight: 8 }} />
-        {t("title")}
+        DICOM 压缩工作台 / DICOM Compression Workbench
+        <Text type="secondary" style={{ fontSize: 13, marginLeft: 12 }}>
+          真实 JPEG2000/HTJ2K 对标: RLE 游程 + LOCO-I 预测 + Golomb-Rice 熵编码
+        </Text>
       </Title>
 
       <Row gutter={[16, 16]}>
         <Col xs={24} lg={8}>
-          <Card title={t("card.compress.title")} variant="outlined">
-            <Space orientation="vertical" style={{ width: "100%" }}>
-              <div>
-                <Text strong>{t("card.compress.fileId")}</Text>
-                <Select
-                  style={{ width: "100%", marginTop: 4 }}
-                  value={fileId}
-                  onChange={setFileId}
-                  options={[
-                    {
-                      value: "sample-dicom-001",
-                      label: "sample-dicom-001.dcm",
-                    },
-                    {
-                      value: "sample-dicom-002",
-                      label: "sample-dicom-002.dcm",
-                    },
-                    {
-                      value: "sample-dicom-003",
-                      label: "sample-dicom-003.dcm",
-                    },
-                  ]}
-                />
-              </div>
-              <div>
-                <Text strong>{t("card.compress.syntax")}</Text>
-                <Select
-                  style={{ width: "100%", marginTop: 4 }}
-                  value={selectedSyntax}
-                  onChange={setSelectedSyntax}
-                  options={syntaxes.map((s) => ({
-                    value: s.uid,
-                    label: `${s.name} (${s.lossy ? t("card.compress.lossy") : t("card.compress.lossless")})`,
-                  }))}
-                />
-              </div>
+          <Card
+            title={
               <Space>
-                <Button
-                  type="primary"
-                  icon={<CompressOutlined />}
-                  loading={loading}
-                  onClick={handleCompress}
-                >
-                  {t("card.compress.compressBtn")}
-                </Button>
-                <Button
-                  icon={<ExpandOutlined />}
-                  loading={loading}
-                  onClick={handleDecompress}
-                >
-                  {t("card.compress.decompressBtn")}
-                </Button>
+                <FileOutlined />
+                源文件 / Source
               </Space>
+            }
+            variant="outlined"
+          >
+            <Space orientation="vertical" style={{ width: "100%" }}>
+              <Text strong>DICOM 实例 / Instance</Text>
+              <Select
+                style={{ width: "100%" }}
+                value={selectedFileId}
+                onChange={v => {
+                  setSelectedFileId(v);
+                  setUploadedBase64(undefined);
+                  setUploadName("");
+                }}
+                options={instanceOptions}
+                showSearch
+                optionFilterProp="label"
+                placeholder="选择 DICOM 实例"
+              />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".dcm"
+                style={{ display: "none" }}
+                onChange={e => {
+                  const file = e.target.files?.[0];
+                  if (file) void handleFilePick(file);
+                  e.target.value = "";
+                }}
+              />
+              <Button
+                icon={<UploadOutlined />}
+                onClick={() => fileInputRef.current?.click()}
+                block
+              >
+                上传 .dcm 文件 / Upload DICOM file
+              </Button>
+              {uploadName && (
+                <Alert
+                  type="info"
+                  showIcon
+                  message={`已上传: ${uploadName}`}
+                  description="将使用真实字节流执行 RLE / Predictive 压缩"
+                />
+              )}
             </Space>
           </Card>
         </Col>
 
-        <Col xs={24} lg={16}>
-          <Card title={t("card.progress.title")} variant="outlined">
-            {task ? (
+        <Col xs={24} lg={8}>
+          <Card
+            title={
+              <Space>
+                <ExperimentOutlined />
+                压缩参数 / Parameters
+              </Space>
+            }
+            variant="outlined"
+          >
+            <Space orientation="vertical" style={{ width: "100%" }}>
               <div>
-                <Row gutter={16}>
-                  <Col span={8}>
-                    <Statistic
-                      title={t("card.progress.taskId")}
-                      value={task.id}
-                      styles={{ content: {  fontSize: 14  } }}
-                    />
-                  </Col>
-                  <Col span={8}>
-                    <Statistic
-                      title={t("card.progress.status")}
-                      value={task.status}
-                    />
-                  </Col>
-                  <Col span={8}>
-                    <Statistic
-                      title={t("card.progress.originalSize")}
-                      value={formatBytes(task.originalSize)}
-                    />
-                  </Col>
-                </Row>
-                {task.status === "processing" || task.status === "pending" ? (
-                  <div style={{ marginTop: 16 }}>
-                    <Text>{t("card.progress.compressing")}</Text>
-                    <Progress percent={task.progress} />
-                  </div>
-                ) : task.status === "done" ? (
-                  <div style={{ marginTop: 16 }}>
-                    <Alert
-                      type="success"
-                      title={t("card.progress.doneMsg")}
-                      showIcon
-                    />
-                    <Row gutter={16} style={{ marginTop: 12 }}>
-                      <Col span={8}>
-                        <Statistic
-                          title={t("card.progress.originalSize")}
-                          value={formatBytes(task.originalSize)}
-                          prefix={<FileOutlined />}
-                        />
-                      </Col>
-                      {task.compressedSize !== null && (
-                        <Col span={8}>
-                          <Statistic
-                            title={t("card.progress.compressedSize")}
-                            value={formatBytes(task.compressedSize)}
-                            prefix={<FileOutlined />}
-                          />
-                        </Col>
-                      )}
-                      {task.compressedSize !== null && (
-                        <Col span={8}>
-                          <Statistic
-                            title={t("card.progress.ratio")}
-                            value={`${Math.round((1 - task.compressedSize / task.originalSize) * 100)}%`}
-                            prefix={<BarChartOutlined />}
-                          />
-                        </Col>
-                      )}
-                    </Row>
-                  </div>
-                ) : task.status === "failed" ? (
-                  <Alert
-                    type="error"
-                    title={task.error ?? t("card.progress.failedMsg")}
-                    showIcon
-                  />
-                ) : null}
+                <Text strong>传输语法 / Transfer Syntax</Text>
+                <Select
+                  style={{ width: "100%", marginTop: 4 }}
+                  value={selectedSyntax}
+                  onChange={setSelectedSyntax}
+                  options={syntaxes.map(s => ({
+                    value: s.uid,
+                    label: `${s.name} (${s.lossy ? "有损 Lossy" : "无损 Lossless"})`,
+                  }))}
+                />
               </div>
-            ) : (
-              <Empty description={t("card.progress.noTask")} />
-            )}
+              {selectedLossy && (
+                <div>
+                  <Text strong>
+                    质量 / Quality: <Tag color="blue">{quality}</Tag>
+                  </Text>
+                  <Slider min={1} max={100} value={quality} onChange={setQuality} />
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    质量越低压缩比越高 / Lower quality = higher ratio
+                  </Text>
+                </div>
+              )}
+            </Space>
+          </Card>
+        </Col>
+
+        <Col xs={24} lg={8}>
+          <Card
+            title={
+              <Space>
+                <ThunderboltOutlined />
+                执行 / Actions
+              </Space>
+            }
+            variant="outlined"
+          >
+            <Space orientation="vertical" style={{ width: "100%" }}>
+              <Button
+                type="primary"
+                icon={<CompressOutlined />}
+                loading={loading}
+                onClick={handleCompress}
+                block
+              >
+                开始压缩 / Compress
+              </Button>
+              <Button
+                icon={<ExpandOutlined />}
+                loading={loading}
+                onClick={handleDecompress}
+                block
+              >
+                解压 / Decompress
+              </Button>
+              <Button
+                icon={<BarChartOutlined />}
+                loading={comparing}
+                onClick={handleCompareAll}
+                block
+              >
+                全部算法对比 / Compare All Algorithms
+              </Button>
+              <Button icon={<ReloadOutlined />} onClick={refreshAll} block>
+                刷新任务与统计 / Refresh
+              </Button>
+            </Space>
           </Card>
         </Col>
       </Row>
+
+      <Card
+        title={
+          <Space>
+            <BarChartOutlined />
+            压缩结果 / Result
+            {currentTask?.simulated === true && (
+              <Tag color="gold">估算 (文件不可达时查表回退)</Tag>
+            )}
+            {currentTask?.simulated === false && <Tag color="green">真实压缩 / Real</Tag>}
+          </Space>
+        }
+        variant="outlined"
+        style={{ marginTop: 16 }}
+      >
+        {currentTask ? (
+          <div>
+            <Row gutter={16}>
+              <Col span={6}>
+                <Statistic title="任务 ID / Task" value={currentTask.id} styles={{ content: { fontSize: 14 } }} />
+              </Col>
+              <Col span={6}>
+                <Statistic
+                  title="状态 / Status"
+                  value={currentTask.status === "done" ? "完成" : currentTask.status === "processing" ? "处理中" : currentTask.status}
+                  valueStyle={{ color: currentTask.status === "done" ? "#52c41a" : undefined }}
+                />
+              </Col>
+              <Col span={6}>
+                <Statistic title="算法 / Algorithm" value={currentTask.algorithmName ?? currentTask.transferSyntax} styles={{ content: { fontSize: 13 } }} />
+              </Col>
+              <Col span={6}>
+                <Statistic
+                  title="模态 / Modality"
+                  value={currentTask.modality ?? "-"}
+                />
+              </Col>
+            </Row>
+            {(currentTask.status === "pending" || currentTask.status === "processing") && (
+              <div style={{ marginTop: 16 }}>
+                <Text>真实压缩进行中 / Compressing real pixel data...</Text>
+                <Progress percent={currentTask.progress} />
+              </div>
+            )}
+            {currentTask.status === "done" && currentTask.compressedSize !== null && (
+              <div>
+                <Row gutter={16} style={{ marginTop: 12 }}>
+                  <Col span={4}>
+                    <Statistic
+                      title="原始大小 / Original"
+                      value={formatBytes(currentTask.originalSize)}
+                      prefix={<FileOutlined />}
+                    />
+                  </Col>
+                  <Col span={4}>
+                    <Statistic
+                      title="压缩后 / Compressed"
+                      value={formatBytes(currentTask.compressedSize)}
+                      prefix={<FileOutlined />}
+                    />
+                  </Col>
+                  <Col span={4}>
+                    <Statistic
+                      title="真实压缩比 / Real Ratio"
+                      value={currentTask.ratio ? `${currentTask.ratio.toFixed(2)}×` : "-"}
+                      valueStyle={{ color: "#1677ff", fontWeight: 600 }}
+                    />
+                  </Col>
+                  <Col span={4}>
+                    <Statistic
+                      title="节省 / Saved"
+                      value={savedPercent !== null ? `${savedPercent}%` : "-"}
+                      valueStyle={{ color: savedPercent !== null && savedPercent > 0 ? "#52c41a" : undefined }}
+                    />
+                  </Col>
+                  <Col span={4}>
+                    <Statistic
+                      title="耗时 / Elapsed"
+                      value={currentTask.elapsedMs !== undefined ? `${currentTask.elapsedMs} ms` : "-"}
+                    />
+                  </Col>
+                  <Col span={4}>
+                    <Statistic
+                      title="类型 / Type"
+                      value={currentTask.lossless ? "无损" : "有损"}
+                      valueStyle={{ color: currentTask.lossless ? "#52c41a" : "#fa541c" }}
+                    />
+                  </Col>
+                </Row>
+                <Alert
+                  type={currentTask.lossless ? "success" : "warning"}
+                  showIcon
+                  style={{ marginTop: 12 }}
+                  message={
+                    currentTask.lossless
+                      ? "无损压缩: 解压后可 100% 还原原始像素 / Lossless: pixel-exact round-trip"
+                      : `有损压缩: 重建误差受量化步长限制 (quality=${currentTask.quality ?? "-"})`
+                  }
+                />
+              </div>
+            )}
+            {currentTask.status === "done" && currentTask.compressedSize === null && (
+              <Alert type="success" showIcon title="已完成 / Done" style={{ marginTop: 12 }} />
+            )}
+            {currentTask.status === "failed" && (
+              <Alert type="error" showIcon title={currentTask.error ?? "失败 / Failed"} style={{ marginTop: 12 }} />
+            )}
+            {currentTask.status === "done" && (
+              <Button
+                icon={<ExpandOutlined />}
+                style={{ marginTop: 12 }}
+                onClick={handleDecompress}
+              >
+                解压验证 / Decompress to verify
+              </Button>
+            )}
+          </div>
+        ) : (
+          <Empty description={polling ? "压缩中... / Compressing..." : "尚未压缩 / No task yet"} />
+        )}
+      </Card>
 
       <Divider />
 
       <Card
         title={
           <Space>
-            <BarChartOutlined />
-            {t("card.ratio.title")}
+            <FileOutlined />
+            任务列表 / Task Queue
+            {polling && <Tag color="processing">轮询中 / Polling</Tag>}
           </Space>
         }
         variant="outlined"
-        style={{ marginTop: 16 }}
       >
-        {ratioData.length > 0 ? (
+        {tasks.length > 0 ? (
           <Table
-            dataSource={ratioData}
-            columns={columns}
-            rowKey="instanceId"
-            pagination={false}
+            dataSource={tasks}
+            columns={taskColumns}
+            rowKey="id"
+            size="small"
+            pagination={{ pageSize: 8, showSizeChanger: false }}
           />
         ) : (
-          <Spin />
+          <Empty description="暂无任务 / No tasks" />
         )}
       </Card>
+
+      <Divider />
+
+      <Row gutter={[16, 16]}>
+        <Col xs={24} lg={12}>
+          <Card
+            title={
+              <Space>
+                <BarChartOutlined />
+                算法对比 / Algorithm Comparison
+                <Text type="secondary" style={{ fontSize: 12 }}>
+                  {compareRows.length > 0 ? `${formatBytes(compareRows[0]?.originalSize)} 像素数据` : ""}
+                </Text>
+              </Space>
+            }
+            variant="outlined"
+          >
+            {comparing ? (
+              <Spin tip="对比中 / Comparing..." style={{ display: "block", padding: 32 }}>
+                <div style={{ height: 60 }} />
+              </Spin>
+            ) : compareRows.length > 0 ? (
+              <Table dataSource={compareRows} columns={compareColumns} rowKey="key" pagination={false} size="small" />
+            ) : (
+              <Empty description='点击 "全部算法对比" 查看各算法真实压缩比' />
+            )}
+          </Card>
+        </Col>
+        <Col xs={24} lg={12}>
+          <Card
+            title={
+              <Space>
+                <BarChartOutlined />
+                压缩比统计 / Ratio Statistics
+                <Text type="secondary" style={{ fontSize: 12 }}>
+                  共 {ratios.byAlgorithm.reduce((s, a) => s + a.count, 0)} 次任务, 节省 {formatBytes(ratios.totalSavedBytes)}, 平均 {ratios.avgRatio.toFixed(2)}×
+                </Text>
+              </Space>
+            }
+            variant="outlined"
+          >
+            {ratios.byAlgorithm.length > 0 ? (
+              <>
+                <Text strong style={{ display: "block", marginBottom: 8 }}>
+                  按算法 / By Algorithm
+                </Text>
+                <Table dataSource={ratios.byAlgorithm} columns={ratioColumns} rowKey={r => r.algorithm} pagination={false} size="small" />
+                <Text strong style={{ display: "block", margin: "16px 0 8px" }}>
+                  按模态 / By Modality
+                </Text>
+                <Table dataSource={ratios.byModality} columns={ratioModalityColumns} rowKey={r => `${r.modality}:${r.algorithm}`} pagination={false} size="small" />
+              </>
+            ) : (
+              <Empty description="暂无统计数据, 先执行一次压缩 / No stats yet" />
+            )}
+          </Card>
+        </Col>
+      </Row>
     </div>
   );
 }

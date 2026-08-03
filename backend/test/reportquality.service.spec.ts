@@ -1,4 +1,4 @@
-import { ReportQualityService } from '../src/reportquality/reportquality.service'
+import { ReportQualityService } from '../src/reports-quality/reportquality.service'
 
 describe('ReportQualityService', () => {
   let svc: ReportQualityService

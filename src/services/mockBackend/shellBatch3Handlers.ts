@@ -1,0 +1,430 @@
+// [v3.0.6.11-60] Batch 3: 壳页面真实化 - MSW handlers
+// 覆盖: /ai/fusion-workspace, /pacs-admin, /snomed, /terminology,
+//       /clinical-pathways, /consent-education, /dental/ai-findings, /critical/value5step
+import { http, HttpResponse, delay } from 'msw';
+import { list, create, update, remove } from './store';
+
+const API_BASE = typeof process !== 'undefined' && process.env.VITEST
+  ? 'http://localhost:5173/api/v1'
+  : (typeof window !== 'undefined' && window.location?.origin
+    ? window.location.origin + '/api/v1'
+    : 'http://localhost:5173/api/v1');
+
+const delayMs = (min = 50, max = 180) => Math.floor(Math.random() * (max - min) + min);
+
+const ok = (data: unknown, meta?: Record<string, unknown>) =>
+  meta ? { success: true, data, meta } : { success: true, data };
+
+// ── 数据池 ──────────────────────────────────────────────────────────────────
+const FUSION_STUDIES = [
+  { id: 'FS-001', patient: '张伟', modalities: 'CBCT + OPG', fusionScore: 0.93, findings: 12, aiAlerts: 2, status: 'complete', date: '2026-07-18' },
+  { id: 'FS-002', patient: '李娜', modalities: 'CBCT + 口扫', fusionScore: 0.88, findings: 8, aiAlerts: 1, status: 'complete', date: '2026-07-19' },
+  { id: 'FS-003', patient: '王强', modalities: 'MR + CT', fusionScore: 0.81, findings: 5, aiAlerts: 0, status: 'pending', date: '2026-07-21' },
+  { id: 'FS-004', patient: '赵敏', modalities: 'CBCT + 全景', fusionScore: 0.95, findings: 15, aiAlerts: 3, status: 'complete', date: '2026-07-23' },
+  { id: 'FS-005', patient: '陈静', modalities: 'OPG + 口扫', fusionScore: 0.76, findings: 6, aiAlerts: 0, status: 'pending', date: '2026-07-25' },
+];
+
+const AI_INSIGHTS = [
+  { id: 'AI-001', type: 'lesion', finding: '右下颌埋伏第三磨牙近中倾斜', confidence: 0.92, modality: 'CBCT', source: 'CariesNet-v3', actionable: true },
+  { id: 'AI-002', type: 'measurement', finding: '36 牙位根尖周透亮影 4.2mm', confidence: 0.85, modality: 'CBCT', source: 'PeriapicalAI-v2', actionable: true },
+  { id: 'AI-003', type: 'vessel', finding: '下牙槽神经管距根尖 2.8mm', confidence: 0.88, modality: 'CBCT', source: 'NerveTrace-v1', actionable: true },
+  { id: 'AI-004', type: 'classification', finding: '牙周骨丧失 15% (轻度)', confidence: 0.79, modality: 'OPG', source: 'BoneLoss-v2', actionable: false },
+  { id: 'AI-005', type: 'lesion', finding: '左上中切牙邻面早期龋', confidence: 0.68, modality: 'OPG', source: 'CariesNet-v3', actionable: false },
+];
+
+const PACS_SERVERS = [
+  { id: 'PS-001', name: 'Primary PACS', hostname: 'pacs01.hospital.local', port: 11112, aeTitle: 'RIS_PRIMARY', status: 'online', lastHeartbeat: '2026-08-03T08:30:00', storageBytes: 512 * 1024 ** 3, studyCount: 125000, seriesCount: 310000 },
+  { id: 'PS-002', name: 'Backup PACS', hostname: 'pacs02.hospital.local', port: 11112, aeTitle: 'RIS_BACKUP', status: 'online', lastHeartbeat: '2026-08-03T08:29:00', storageBytes: 480 * 1024 ** 3, studyCount: 121000, seriesCount: 302000 },
+  { id: 'PS-003', name: 'Archive PACS', hostname: 'pacs03.hospital.local', port: 11112, aeTitle: 'RIS_ARCHIVE', status: 'offline', lastHeartbeat: '2026-07-30T22:00:00', storageBytes: 2048 * 1024 ** 3, studyCount: 500000, seriesCount: 1400000 },
+];
+
+const PACS_STORAGE = [
+  { id: 'SG-001', name: 'Hot Storage', path: '/data/hot', totalBytes: 2 * 1024 ** 4, usedBytes: 1.5 * 1024 ** 4, studyCount: 260000, status: 'active' },
+  { id: 'SG-002', name: 'Warm Storage', path: '/data/warm', totalBytes: 5 * 1024 ** 4, usedBytes: 3.2 * 1024 ** 4, studyCount: 510000, status: 'active' },
+  { id: 'SG-003', name: 'Cold Archive', path: '/data/cold', totalBytes: 20 * 1024 ** 4, usedBytes: 12 * 1024 ** 4, studyCount: 1800000, status: 'active' },
+];
+
+const PACS_ASSOCIATIONS = [
+  { id: 'PA-001', localAe: 'RIS_PRIMARY', remoteAe: 'CT_SCANNER_01', remoteHost: '192.168.10.21', remotePort: 104, status: 'connected', lastActivity: '2026-08-03T08:31:00', requestCount: 48210, errorCount: 12 },
+  { id: 'PA-002', localAe: 'RIS_PRIMARY', remoteAe: 'MR_SCANNER_02', remoteHost: '192.168.10.32', remotePort: 104, status: 'connected', lastActivity: '2026-08-03T08:25:00', requestCount: 31055, errorCount: 3 },
+  { id: 'PA-003', localAe: 'RIS_BACKUP', remoteAe: 'WORKSTATION_5', remoteHost: '192.168.20.15', remotePort: 104, status: 'disconnected', lastActivity: '2026-08-02T18:40:00', requestCount: 9870, errorCount: 41 },
+];
+
+const SNOMED_CONCEPTS = [
+  { conceptId: '122750008', fsn: 'Periapical radiolucency (finding)', pt: 'Periapical radiolucency', semanticTag: 'finding', matchType: 'exact', confidence: 1.0 },
+  { conceptId: '267890001', fsn: 'Disorder of tooth development (disorder)', pt: 'Disorder of tooth development', semanticTag: 'diagnosis', matchType: 'partial', confidence: 0.87 },
+  { conceptId: '704307004', fsn: 'Carious lesion of tooth (disorder)', pt: 'Carious lesion of tooth', semanticTag: 'diagnosis', matchType: 'exact', confidence: 0.96 },
+  { conceptId: '10837007', fsn: 'Impacted tooth (disorder)', pt: 'Impacted tooth', semanticTag: 'diagnosis', matchType: 'suggested', confidence: 0.62 },
+];
+
+const TERM_MAPPINGS = [
+  { id: 'TM-001', source: 'SNOMED:122750008', sourceSystem: 'SNOMED-CT', target: 'ICD-11:K08.8', targetSystem: 'ICD-11', mapType: 'equivalent', status: 'active', updatedAt: '2026-07-01' },
+  { id: 'TM-002', source: 'LOINC:245-6', sourceSystem: 'LOINC', target: 'RIDICOM:RID110', targetSystem: 'RIDICOM', mapType: 'broader', status: 'active', updatedAt: '2026-07-03' },
+  { id: 'TM-003', source: 'SNOMED:10837007', sourceSystem: 'SNOMED-CT', target: 'ICD-11:K01.1', targetSystem: 'ICD-11', mapType: 'equivalent', status: 'active', updatedAt: '2026-07-05' },
+  { id: 'TM-004', source: 'SNOMED:704307004', sourceSystem: 'SNOMED-CT', target: 'ICD-11:K02.9', targetSystem: 'ICD-11', mapType: 'equivalent', status: 'draft', updatedAt: '2026-07-08' },
+];
+
+const TERM_SYSTEMS = [
+  { system: 'SNOMED-CT', version: '2026-07-31 SNOMED Intl', concepts: 355000, status: 'online', lastSync: '2026-08-03T02:00:00' },
+  { system: 'ICD-11', version: '2024-01', concepts: 17000, status: 'online', lastSync: '2026-08-03T02:10:00' },
+  { system: 'LOINC', version: '2.77', concepts: 98000, status: 'online', lastSync: '2026-08-03T02:05:00' },
+  { system: 'RIDICOM', version: '2026-A', concepts: 4200, status: 'degraded', lastSync: '2026-07-28T12:00:00' },
+];
+
+const PATHWAYS = [
+  { id: 'PW-01', name: '白内障手术临床路径', dept: '眼科', phase: '术前评估', progress: 60, status: 'active', patients: 12, version: 'v3.2', updatedAt: '2026-07-20' },
+  { id: 'PW-02', name: 'CBCT 引导种植路径', dept: '口腔外科', phase: '种植体植入', progress: 85, status: 'active', patients: 8, version: 'v2.1', updatedAt: '2026-07-22' },
+  { id: 'PW-03', name: '卒中影像快速通道', dept: '放射科', phase: '图像采集', progress: 40, status: 'active', patients: 5, version: 'v4.0', updatedAt: '2026-07-18' },
+  { id: 'PW-04', name: '正畸治疗计划路径', dept: '正畸科', phase: '诊断资料采集', progress: 25, status: 'paused', patients: 15, version: 'v1.8', updatedAt: '2026-06-30' },
+];
+
+const PATHWAY_PATIENTS = [
+  { id: 'PP-001', patient: '张伟', pathway: '白内障手术 - OD', step: 3, totalSteps: 8, status: 'on-track', enteredAt: '2026-06-20', variance: null, steps: ['门诊评估', '术前检查', '眼科会诊', '术前宣教', '手术治疗', '术后观察', '出院随访', '复查'] },
+  { id: 'PP-002', patient: '李娜', pathway: 'CBCT 引导种植 #36', step: 5, totalSteps: 7, status: 'on-track', enteredAt: '2026-06-18', variance: null, steps: ['初诊评估', 'CBCT 采集', '种植规划', '导板设计', '手术植入', '术后复查', '修复取模'] },
+  { id: 'PP-003', patient: '王芳', pathway: '白内障手术 - OS', step: 2, totalSteps: 8, status: 'delayed', enteredAt: '2026-06-22', variance: '检验报告延迟 >24h', steps: ['门诊评估', '术前检查', '眼科会诊', '术前宣教', '手术治疗', '术后观察', '出院随访', '复查'] },
+  { id: 'PP-004', patient: '刘强', pathway: '卒中影像快速通道', step: 2, totalSteps: 4, status: 'on-track', enteredAt: '2026-06-28', variance: null, steps: ['急诊分诊', '影像采集', 'AI 辅助诊断', '溶栓治疗'] },
+];
+
+const CONSENTS = [
+  { id: 'C-001', patient: '张伟', type: 'CT 增强', procedure: '胸部 CT 增强扫描', signedAt: '2026-08-02 09:15', status: 'signed', witness: '李护士', createdAt: '2026-08-02' },
+  { id: 'C-002', patient: '李娜', type: '手术', procedure: '右眼白内障手术', signedAt: null, status: 'pending', witness: null, createdAt: '2026-08-03' },
+  { id: 'C-003', patient: '王芳', type: '麻醉', procedure: '全身麻醉', signedAt: '2026-08-01 14:00', status: 'signed', witness: '张医生', createdAt: '2026-08-01' },
+  { id: 'C-004', patient: '刘强', type: '输血', procedure: '红细胞悬液 2U', signedAt: null, status: 'refused', witness: '王医生', createdAt: '2026-07-31' },
+];
+
+const EDUCATION_MATERIALS = [
+  { id: 'M-001', title: 'CT 扫描须知', lang: 'zh-CN', category: 'Imaging', pages: 4, views: 142, format: 'PDF', content: 'CT 检查前需去除金属物品，检查前 4 小时禁食；如有造影剂过敏史请提前告知医生。', summary: 'CT 检查前准备', createdAt: '2026-05-01' },
+  { id: 'M-002', title: '白内障手术准备', lang: 'zh-CN', category: 'Surgery', pages: 6, views: 89, format: 'PDF + Video', content: '手术前需完成全身检查评估，停用抗凝药物，术前 8 小时禁食。', summary: '白内障手术术前指导', createdAt: '2026-04-12' },
+  { id: 'M-003', title: '造影剂安全', lang: 'zh-CN', category: 'Imaging', pages: 3, views: 234, format: 'PDF', content: '碘造影剂可能引起过敏反应；检查后 24 小时内饮水 ≥2000ml 促进排出。', summary: '造影剂使用与风险', createdAt: '2026-03-20' },
+  { id: 'M-004', title: '种植牙术后护理', lang: 'en-US', category: 'Dental', pages: 5, views: 67, format: 'PDF', content: '术后 24 小时内冷敷，避免咀嚼硬物，保持口腔清洁。', summary: '种植术后护理要点', createdAt: '2026-02-15' },
+  { id: 'M-005', title: '放疗定位宣教', lang: 'zh-CN', category: 'Treatment', pages: 8, views: 103, format: 'PDF + Video', content: '放疗定位需保持体位一致，定位标记线不可擦除。', summary: '放疗定位流程说明', createdAt: '2026-06-10' },
+];
+
+const AI_FINDINGS = [
+  { id: 'AF-001', patientName: '张伟', type: 'caries', toothNo: '16', finding: '16 牙合面中龋', confidence: 0.88, status: 'confirmed', createdAt: '2026-07-30T10:20:00' },
+  { id: 'AF-002', patientName: '李娜', type: 'periapical', toothNo: '36', finding: '36 根尖周炎 (PI 2.5)', confidence: 0.82, status: 'pending', createdAt: '2026-07-31T14:05:00' },
+  { id: 'AF-003', patientName: '王强', type: 'boneloss', toothNo: '37', finding: '下颌后牙区骨丧失 22%', confidence: 0.78, status: 'confirmed', createdAt: '2026-08-01T09:40:00' },
+  { id: 'AF-004', patientName: '赵敏', type: 'rootcanal', toothNo: '46', finding: '46 根管 2 根已充填', confidence: 0.91, status: 'pending', createdAt: '2026-08-02T16:30:00' },
+  { id: 'AF-005', patientName: '陈静', type: 'oral', toothNo: '-', finding: '左侧颊黏膜白斑待查', confidence: 0.72, status: 'confirmed', createdAt: '2026-08-03T08:15:00' },
+];
+
+const VALUE5STEP = [
+  {
+    id: 'CV5-001', patientName: '张明远', finding: '颅内出血', severity: '危急', currentStep: 1,
+    steps: { discovered: { done: true, time: '2026-08-03 07:45', user: '自动检测' }, voiceCall: { done: false }, acknowledged: { done: false }, receipted: { done: false }, closed: { done: false } },
+  },
+  {
+    id: 'CV5-002', patientName: '李静', finding: '主动脉夹层', severity: '危及生命', currentStep: 2,
+    steps: { discovered: { done: true, time: '2026-08-03 08:02', user: '自动检测' }, voiceCall: { done: true, time: '2026-08-03 08:08', user: '值班医生', phone: '13800000001' }, acknowledged: { done: false }, receipted: { done: false }, closed: { done: false } },
+  },
+  {
+    id: 'CV5-003', patientName: '王强', finding: '急性心肌梗死', severity: '危及生命', currentStep: 3,
+    steps: { discovered: { done: true, time: '2026-08-03 07:20', user: '自动检测' }, voiceCall: { done: true, time: '2026-08-03 07:25', user: '值班医生', phone: '13800000002' }, acknowledged: { done: true, time: '2026-08-03 07:30', user: '心内科陈医生' }, receipted: { done: false }, closed: { done: false } },
+  },
+  {
+    id: 'CV5-004', patientName: '赵敏', finding: '蛛网膜下腔出血', severity: '危急', currentStep: 5,
+    steps: { discovered: { done: true, time: '2026-08-02 21:10', user: '自动检测' }, voiceCall: { done: true, time: '2026-08-02 21:16', user: '值班医生', phone: '13800000003' }, acknowledged: { done: true, time: '2026-08-02 21:22', user: '神经外科刘医生' }, receipted: { done: true, time: '2026-08-02 21:35', user: '神经外科刘医生', comment: '已收治，急诊手术' }, closed: { done: true, time: '2026-08-03 06:00', user: '系统' } },
+  },
+];
+
+// ── Handlers ────────────────────────────────────────────────────────────────
+export const shellBatch3Handlers = [
+  // ========== AI Fusion Workspace ==========
+  http.get(`${API_BASE}/ai/fusion-workspace/studies`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json(ok(FUSION_STUDIES));
+  }),
+  http.get(`${API_BASE}/ai/fusion-workspace/insights`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json(ok(AI_INSIGHTS));
+  }),
+  http.post(`${API_BASE}/ai/fusion-workspace/run`, async ({ request }) => {
+    await delay(delayMs(200, 500));
+    const body = (await request.json()) as { studyId?: string };
+    const source = FUSION_STUDIES.find((s) => s.id === body?.studyId) ?? FUSION_STUDIES[0];
+    return HttpResponse.json(ok({
+      id: `FS-${Date.now()}`,
+      patient: source?.patient ?? '新病例',
+      modalities: 'CBCT + OPG',
+      fusionScore: Math.round((0.8 + Math.random() * 0.15) * 100) / 100,
+      findings: 5 + Math.floor(Math.random() * 10),
+      aiAlerts: Math.floor(Math.random() * 3),
+      status: 'complete',
+      date: new Date().toISOString().slice(0, 10),
+    }), { status: 201 });
+  }),
+
+  // ========== PACS Admin ==========
+  http.get(`${API_BASE}/pacs-admin/servers`, async () => {
+    await delay(delayMs());
+    let items: any[] = [];
+    try { items = list<any>('pacs_servers'); } catch {}
+    const combined = [...items, ...PACS_SERVERS.filter((s) => !items.some((i) => i.id === s.id))];
+    return HttpResponse.json(ok(combined));
+  }),
+  http.post(`${API_BASE}/pacs-admin/servers`, async ({ request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as any;
+    const item = { id: `PS-${Date.now()}`, status: 'online', lastHeartbeat: new Date().toISOString(), storageBytes: 0, studyCount: 0, seriesCount: 0, ...body };
+    try { create('pacs_servers', item); } catch {}
+    return HttpResponse.json(ok(item), { status: 201 });
+  }),
+  http.put(`${API_BASE}/pacs-admin/servers/:id`, async ({ params, request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as any;
+    const merged = { id: params.id, ...body };
+    try { update('pacs_servers', params.id as string, merged); } catch {}
+    return HttpResponse.json(ok(merged));
+  }),
+  http.delete(`${API_BASE}/pacs-admin/servers/:id`, async ({ params }) => {
+    await delay(delayMs());
+    try { remove('pacs_servers', params.id as string); } catch {}
+    return HttpResponse.json({ success: true, data: {} });
+  }),
+  http.post(`${API_BASE}/pacs-admin/servers/:id/test`, async ({ params }) => {
+    await delay(delayMs(300, 800));
+    return HttpResponse.json(ok({ success: true, latencyMs: 8 + Math.floor(Math.random() * 60), serverId: params.id }));
+  }),
+  http.get(`${API_BASE}/pacs-admin/storage-groups`, async () => {
+    await delay(delayMs());
+    let items: any[] = [];
+    try { items = list<any>('pacs_storage'); } catch {}
+    const combined = [...items, ...PACS_STORAGE.filter((s) => !items.some((i) => i.id === s.id))];
+    return HttpResponse.json(ok(combined));
+  }),
+  http.post(`${API_BASE}/pacs-admin/storage-groups`, async ({ request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as any;
+    const item = { id: `SG-${Date.now()}`, usedBytes: 0, studyCount: 0, status: 'active', ...body };
+    try { create('pacs_storage', item); } catch {}
+    return HttpResponse.json(ok(item), { status: 201 });
+  }),
+  http.delete(`${API_BASE}/pacs-admin/storage-groups/:id`, async ({ params }) => {
+    await delay(delayMs());
+    try { remove('pacs_storage', params.id as string); } catch {}
+    return HttpResponse.json({ success: true, data: {} });
+  }),
+  http.get(`${API_BASE}/pacs-admin/associations`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json(ok(PACS_ASSOCIATIONS));
+  }),
+  http.get(`${API_BASE}/pacs-admin/stats`, async () => {
+    await delay(delayMs());
+    const online = PACS_SERVERS.filter((s) => s.status === 'online').length;
+    const usedStorage = PACS_STORAGE.reduce((s, g) => s + g.usedBytes, 0);
+    const totalStorage = PACS_STORAGE.reduce((s, g) => s + g.totalBytes, 0);
+    return HttpResponse.json(ok({
+      totalServers: PACS_SERVERS.length,
+      onlineServers: online,
+      totalStorageBytes: totalStorage,
+      usedStorageBytes: usedStorage,
+      totalStudies: PACS_SERVERS.reduce((s, x) => s + x.studyCount, 0),
+      totalAssociations: PACS_ASSOCIATIONS.length,
+      activeAssociations: PACS_ASSOCIATIONS.filter((a) => a.status === 'connected').length,
+      dailyTransferBytes: 86 * 1024 ** 3,
+    }));
+  }),
+
+  // ========== SNOMED ==========
+  http.get(`${API_BASE}/snomed/search`, async ({ request }) => {
+    await delay(delayMs());
+    const url = new URL(request.url);
+    const q = (url.searchParams.get('q') ?? '').toLowerCase();
+    const results = q
+      ? SNOMED_CONCEPTS.filter((c) =>
+          c.pt.toLowerCase().includes(q) || c.fsn.toLowerCase().includes(q) || c.conceptId.includes(q))
+      : [];
+    return HttpResponse.json(ok(results));
+  }),
+  http.post(`${API_BASE}/snomed/encode`, async ({ request }) => {
+    await delay(delayMs(150, 350));
+    const body = (await request.json()) as { text?: string };
+    const text = body?.text ?? '';
+    const codes = SNOMED_CONCEPTS.filter((c) =>
+      text ? c.pt.toLowerCase().includes(text.toLowerCase()) || text.toLowerCase().includes(c.pt.slice(0, 6).toLowerCase()) : false,
+    ).slice(0, 3);
+    return HttpResponse.json(ok({ text, codes }));
+  }),
+
+  // ========== Terminology ==========
+  http.get(`${API_BASE}/terminology/mappings`, async () => {
+    await delay(delayMs());
+    let items: any[] = [];
+    try { items = list<any>('term_mappings'); } catch {}
+    const combined = [...items, ...TERM_MAPPINGS.filter((m) => !items.some((i) => i.id === m.id))];
+    return HttpResponse.json(ok(combined));
+  }),
+  http.post(`${API_BASE}/terminology/mappings`, async ({ request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as any;
+    const item = { id: `TM-${Date.now()}`, status: 'draft', updatedAt: new Date().toISOString().slice(0, 10), ...body };
+    try { create('term_mappings', item); } catch {}
+    return HttpResponse.json(ok(item), { status: 201 });
+  }),
+  http.delete(`${API_BASE}/terminology/mappings/:id`, async ({ params }) => {
+    await delay(delayMs());
+    try { remove('term_mappings', params.id as string); } catch {}
+    return HttpResponse.json({ success: true, data: {} });
+  }),
+  http.get(`${API_BASE}/terminology/systems`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json(ok(TERM_SYSTEMS));
+  }),
+  http.get(`${API_BASE}/terminology/stats`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json(ok({
+      totalConcepts: TERM_SYSTEMS.reduce((s, x) => s + x.concepts, 0),
+      totalMappings: TERM_MAPPINGS.length,
+      systems: TERM_SYSTEMS.length,
+      activeMappings: TERM_MAPPINGS.filter((m) => m.status === 'active').length,
+      onlineSystems: TERM_SYSTEMS.filter((s) => s.status === 'online').length,
+    }));
+  }),
+
+  // ========== Clinical Pathways ==========
+  http.get(`${API_BASE}/clinical-pathways`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json(ok(PATHWAYS));
+  }),
+  http.get(`${API_BASE}/clinical-pathways/stats`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json(ok({
+      active: PATHWAYS.filter((p) => p.status === 'active').length,
+      paused: PATHWAYS.filter((p) => p.status === 'paused').length,
+      totalPatients: PATHWAY_PATIENTS.length,
+      onTrack: PATHWAY_PATIENTS.filter((p) => p.status === 'on-track').length,
+      delayed: PATHWAY_PATIENTS.filter((p) => p.status === 'delayed').length,
+    }));
+  }),
+  http.get(`${API_BASE}/clinical-pathways/patients`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json(ok(PATHWAY_PATIENTS));
+  }),
+  http.get(`${API_BASE}/clinical-pathways/:id/steps`, async ({ params }) => {
+    await delay(delayMs());
+    const p = PATHWAY_PATIENTS.find((x) => x.id === params.id) ?? PATHWAY_PATIENTS[0];
+    return HttpResponse.json(ok(p?.steps ?? []));
+  }),
+  http.post(`${API_BASE}/clinical-pathways/:id/toggle`, async ({ params, request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as { status?: string };
+    const target = PATHWAYS.find((p) => p.id === params.id);
+    const status = body?.status ?? (target?.status === 'active' ? 'paused' : 'active');
+    return HttpResponse.json(ok({ id: params.id, status }));
+  }),
+  http.post(`${API_BASE}/clinical-pathways/enroll`, async ({ request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as any;
+    const item = {
+      id: `PP-${Date.now()}`,
+      patient: body?.patientName ?? '新患者',
+      pathway: body?.pathwayName ?? '未指定路径',
+      step: 1,
+      totalSteps: 8,
+      status: 'on-track',
+      enteredAt: new Date().toISOString().slice(0, 10),
+      variance: null,
+      steps: ['门诊评估', '术前检查', '会诊', '宣教', '治疗', '观察', '随访', '复查'],
+    };
+    return HttpResponse.json(ok(item), { status: 201 });
+  }),
+
+  // ========== Consent Education ==========
+  http.get(`${API_BASE}/consent-education/consents`, async () => {
+    await delay(delayMs());
+    let items: any[] = [];
+    try { items = list<any>('consents'); } catch {}
+    const combined = [...items, ...CONSENTS.filter((c) => !items.some((i) => i.id === c.id))];
+    return HttpResponse.json(ok(combined));
+  }),
+  http.post(`${API_BASE}/consent-education/consents`, async ({ request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as any;
+    const item = {
+      id: `C-${Date.now()}`,
+      patient: body?.patient ?? '新患者',
+      type: body?.type ?? 'General',
+      procedure: body?.procedure ?? '标准诊疗流程',
+      signedAt: null,
+      status: 'pending',
+      witness: null,
+      createdAt: new Date().toISOString().slice(0, 10),
+    };
+    try { create('consents', item); } catch {}
+    return HttpResponse.json(ok(item), { status: 201 });
+  }),
+  http.patch(`${API_BASE}/consent-education/consents/:id`, async ({ params, request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as any;
+    let items: any[] = [];
+    try { items = list<any>('consents'); } catch {}
+    const existing = items.find((i) => i.id === params.id) ?? CONSENTS.find((i) => i.id === params.id) ?? { id: params.id };
+    const updated = { ...existing, ...body };
+    try { update('consents', params.id as string, updated); } catch {}
+    return HttpResponse.json(ok(updated));
+  }),
+  http.get(`${API_BASE}/consent-education/materials`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json(ok(EDUCATION_MATERIALS));
+  }),
+  http.post(`${API_BASE}/consent-education/materials`, async ({ request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as any;
+    const item = {
+      id: `M-${Date.now()}`,
+      lang: body?.lang ?? 'zh-CN',
+      category: body?.category ?? 'General',
+      pages: body?.pages ?? 1,
+      views: 0,
+      format: body?.format ?? 'PDF',
+      createdAt: new Date().toISOString().slice(0, 10),
+      ...body,
+    };
+    return HttpResponse.json(ok(item), { status: 201 });
+  }),
+
+  // ========== Dental AI findings ==========
+  http.get(`${API_BASE}/dental/ai-findings`, async () => {
+    await delay(delayMs());
+    let items: any[] = [];
+    try { items = list<any>('dental_ai_findings'); } catch {}
+    const combined = [...items, ...AI_FINDINGS.filter((f) => !items.some((i) => i.id === f.id))];
+    return HttpResponse.json(ok(combined));
+  }),
+  http.post(`${API_BASE}/dental/ai-findings`, async ({ request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as any;
+    const item = { id: `AF-${Date.now()}`, status: 'pending', createdAt: new Date().toISOString(), ...body };
+    try { create('dental_ai_findings', item); } catch {}
+    return HttpResponse.json(ok(item), { status: 201 });
+  }),
+
+  // ========== Critical value 5-step workflow ==========
+  // [v3.0.6.11-60] 危急值随访记录 (须在 /criticals/:id 通配之前注册)
+  http.get(`${API_BASE}/criticals/follow-up-records`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json(ok([
+      { id: 'FU-001', time: '2026-08-02 10:30', type: '电话回访', result: '已回复', operator: '王护士', content: '患者自述症状缓解，嘱按计划复查。', relatedCVId: 'CV5-004' },
+      { id: 'FU-002', time: '2026-08-02 15:10', type: '短信确认', result: '转接成功', operator: '李护士', content: '短信随访确认，患者状态稳定。', relatedCVId: 'CV5-003' },
+      { id: 'FU-003', time: '2026-08-03 09:05', type: '现场走访', result: '已回复', operator: '张医生', content: '术后复查恢复良好，建议 1 月后复查影像。', relatedCVId: 'CV5-001' },
+    ]));
+  }),
+
+  http.get(`${API_BASE}/critical/value5step/list`, async () => {
+    await delay(delayMs());
+    let items: any[] = [];
+    try { items = list<any>('value5step'); } catch {}
+    const combined = [...items, ...VALUE5STEP.filter((v) => !items.some((i) => i.id === v.id))];
+    return HttpResponse.json(ok(combined));
+  }),
+  http.patch(`${API_BASE}/critical/value5step/:id`, async ({ params, request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as any;
+    let items: any[] = [];
+    try { items = list<any>('value5step'); } catch {}
+    const existing = items.find((i) => i.id === params.id) ?? VALUE5STEP.find((i) => i.id === params.id) ?? { id: params.id, steps: {} };
+    const updated = { ...existing, ...body };
+    try { update('value5step', params.id as string, updated); } catch {}
+    return HttpResponse.json(ok(updated));
+  }),
+];

@@ -1,60 +1,231 @@
 // [v3.0.6.8-73] 术语服务器/数据字典
-import React, { useState } from 'react';
-import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Input, Tree, Tabs, Badge } from 'antd';
-import { BookOpen, Search, Globe, Code, Hash, Layers, BookMarked } from 'lucide-react';
+// [v3.0.6.11-60] Batch 3: snomedApi 概念检索 + terminologyApi 映射/系统状态
+import React, { useCallback, useEffect, useState } from 'react';
+import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Input, Badge, Alert, Spin, Popconfirm, Modal, Form, message, Empty } from 'antd';
+import { BookOpen, Search, Globe, Code, Layers, BookMarked, RefreshCw, Plus, Trash2 } from 'lucide-react';
+import { snomedApi, type SnomedCode } from '../../services/api/snomedApi';
+import { terminologyApi, type TerminologyMapping, type TerminologySystemStatus, type TerminologyStats } from '../../services/api/terminologyApi';
 
 export const TerminologyServerPage: React.FC = () => {
   const [query, setQuery] = useState('');
-  const [results] = useState([
-    { code:'D0140', system:'SNOMED-CT', display:'Periapical radiolucency', conceptId:'122750008', semanticTag:'finding', active:true },
-    { code:'K08.8', system:'ICD-11', display:'Disorder of tooth development', conceptId:'', semanticTag:'diagnosis', active:true },
-    { code:'245-6', system:'LOINC', display:'CT Abdomen WO contrast', conceptId:'', semanticTag:'procedure', active:true },
-    { code:'RID110', system:'RIDICOM', display:'CBCT Mandible 3D', conceptId:'', semanticTag:'imaging', active:true },
-    { code:'F44B0', system:'ICD-11', display:'Cataract unspecified', conceptId:'', semanticTag:'diagnosis', active:true },
-  ]);
-  const mappings = [
-    { source:'SNOMED:122750008', target:'ICD-11:D0140', mapType:'equivalent', status:'active' },
-    { source:'LOINC:245-6', target:'RIDICOM:RID110', mapType:'broader', status:'active' },
-    { source:'ICD-11:K08.8', target:'SNOMED:267890001', mapType:'equivalent', status:'active' },
-  ];
+  const [searching, setSearching] = useState(false);
+  const [results, setResults] = useState<SnomedCode[]>([]);
+  const [mappings, setMappings] = useState<TerminologyMapping[]>([]);
+  const [systems, setSystems] = useState<TerminologySystemStatus[]>([]);
+  const [stats, setStats] = useState<TerminologyStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [mappingModal, setMappingModal] = useState(false);
+  const [mappingForm] = Form.useForm();
+
+  const loadMeta = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const [mapRes, sysRes, statsRes] = await Promise.all([
+        terminologyApi.listMappings(),
+        terminologyApi.listSystems(),
+        terminologyApi.getStats(),
+      ]);
+      if (mapRes.success && Array.isArray(mapRes.data)) setMappings(mapRes.data);
+      else setError(mapRes.error?.message ?? '映射加载失败');
+      if (sysRes.success && Array.isArray(sysRes.data)) setSystems(sysRes.data);
+      if (statsRes.success && statsRes.data) setStats(statsRes.data as TerminologyStats);
+    } catch {
+      setError('术语服务器数据加载失败');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadMeta();
+  }, [loadMeta]);
+
+  const doSearch = useCallback(async (q: string) => {
+    if (!q.trim()) { setResults([]); return }
+    setSearching(true);
+    try {
+      const res = await snomedApi.search(q.trim());
+      if (res.success && Array.isArray(res.data)) setResults(res.data as SnomedCode[]);
+      else message.warning(res.error?.message ?? '检索失败');
+    } catch {
+      message.error('检索服务不可用');
+    } finally {
+      setSearching(false);
+    }
+  }, []);
+
+  const doEncode = useCallback(async () => {
+    if (!query.trim()) { message.warning('请输入待编码文本'); return }
+    setSearching(true);
+    try {
+      const res = await snomedApi.encode(query.trim(), 'CBCT');
+      if (res.success && Array.isArray(res.data?.codes)) setResults(res.data.codes as SnomedCode[]);
+      else message.warning('未匹配到概念');
+    } catch {
+      message.error('编码服务不可用');
+    } finally {
+      setSearching(false);
+    }
+  }, [query]);
+
+  const handleCreateMapping = async () => {
+    const values = await mappingForm.validateFields();
+    const res = await terminologyApi.createMapping({
+      source: `${values.sourceSystem}:${values.sourceCode}`,
+      sourceSystem: values.sourceSystem,
+      target: `${values.targetSystem}:${values.targetCode}`,
+      targetSystem: values.targetSystem,
+      mapType: values.mapType ?? 'equivalent',
+      status: 'active',
+    });
+    if (res.success) {
+      message.success('映射已创建');
+      setMappingModal(false);
+      mappingForm.resetFields();
+      void loadMeta();
+    } else {
+      message.error(res.error?.message ?? '创建失败');
+    }
+  };
+
+  const handleDeleteMapping = async (id: string) => {
+    const res = await terminologyApi.deleteMapping(id);
+    if (res.success) { message.success('映射已删除'); void loadMeta(); }
+    else message.error(res.error?.message ?? '删除失败');
+  };
 
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 16 }} wrap>
         <BookOpen size={20} color="#1677ff" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>Terminology Server</span>
-        <Tag color="cyan">v3.0.6.8-73</Tag>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>术语服务器</span>
+        <Tag color="cyan">v3.0.6.11-60</Tag>
         <Tag color="blue">SNOMED-CT</Tag>
         <Tag color="volcano">ICD-11</Tag>
         <Tag color="green">LOINC</Tag>
         <Tag color="purple">RIDICOM</Tag>
+        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadMeta()} loading={loading}>刷新</Button>
       </Space>
-      <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title="概念总数" value="24,582" prefix={<Code size={14}/>} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="映射数" value={mappings.length} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="系统数" value="4" /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Active Mappings" value={mappings.filter(m=>m.status==='active').length} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
+
+      {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void loadMeta()}>重试</Button>} />}
+
+      <Spin spinning={loading}>
+        <Row gutter={16} style={{ marginBottom: 16 }}>
+          <Col xs={12} md={4}><Card size="small"><Statistic title="概念总数" value={stats?.totalConcepts?.toLocaleString() ?? '-'} prefix={<Code size={14} />} /></Card></Col>
+          <Col xs={12} md={4}><Card size="small"><Statistic title="映射数" value={stats?.totalMappings ?? mappings.length} prefix={<Layers size={14} />} /></Card></Col>
+          <Col xs={12} md={4}><Card size="small"><Statistic title="系统数" value={stats?.systems ?? systems.length} prefix={<Globe size={14} />} /></Card></Col>
+          <Col xs={12} md={4}><Card size="small"><Statistic title="活跃映射" value={stats?.activeMappings ?? 0} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
+          <Col xs={12} md={4}><Card size="small"><Statistic title="在线系统" value={stats?.onlineSystems ?? 0} styles={{ content: { color: '#1677ff' } }} /></Card></Col>
+          <Col xs={12} md={4}><Card size="small"><Statistic title="检索结果" value={results.length} prefix={<Search size={14} />} /></Card></Col>
+        </Row>
+      </Spin>
+
+      <Card size="small" title={<Space><Search size={14} />概念检索 / 编码</Space>} style={{ marginBottom: 16 }}>
+        <Space.Compact style={{ width: '100%', maxWidth: 640, marginBottom: 12 }}>
+          <Input.Search
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onSearch={() => void doSearch(query)}
+            placeholder="输入代码、术语或概念 ID 搜索..."
+            loading={searching}
+            enterButton="搜索"
+          />
+        </Space.Compact>
+        <Space style={{ marginBottom: 12 }}>
+          <Button size="small" icon={<BookMarked size={12} />} loading={searching} onClick={() => void doEncode()}>编码 (SNOMED)</Button>
+          <Button size="small" onClick={() => { setResults([]); setQuery('') }}>清空</Button>
+        </Space>
+        <Table
+          dataSource={results}
+          rowKey="conceptId"
+          pagination={false}
+          size="small"
+          locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="输入关键词检索 SNOMED-CT 概念" /> }}
+          columns={[
+            { title: '概念 ID', dataIndex: 'conceptId', render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span> },
+            { title: '首选术语 (PT)', dataIndex: 'pt', width: 220 },
+            { title: '全称 (FSN)', dataIndex: 'fsn', width: 260, ellipsis: true },
+            { title: '语义标签', dataIndex: 'semanticTag', render: (t: string) => <Tag>{t}</Tag> },
+            { title: '匹配方式', dataIndex: 'matchType', render: (m: string) => <Tag color={m === 'exact' ? 'green' : m === 'partial' ? 'orange' : 'default'}>{m}</Tag> },
+            { title: '置信度', dataIndex: 'confidence', render: (c: number) => `${Math.round((c ?? 0) * 100)}%` },
+          ]}
+        />
+      </Card>
+
+      <Row gutter={16}>
+        <Col xs={24} md={14}>
+          <Card
+            size="small"
+            title={<Space><Layers size={14} />跨系统映射</Space>}
+            extra={<Button size="small" type="primary" icon={<Plus size={12} />} onClick={() => setMappingModal(true)}>新建映射</Button>}
+          >
+            <Table
+              dataSource={mappings}
+              rowKey="id"
+              pagination={false}
+              size="small"
+              columns={[
+                { title: '来源', dataIndex: 'source', render: (s: string, r: TerminologyMapping) => <Tag color="blue">{s} <span style={{ opacity: 0.6 }}>({r.sourceSystem})</span></Tag> },
+                { title: '目标', dataIndex: 'target', render: (t: string, r: TerminologyMapping) => <Tag color="volcano">{t} <span style={{ opacity: 0.6 }}>({r.targetSystem})</span></Tag> },
+                { title: '映射类型', dataIndex: 'mapType', render: (m: string) => <Tag color={m === 'equivalent' ? 'green' : m === 'broader' ? 'orange' : 'default'}>{m}</Tag> },
+                { title: '状态', dataIndex: 'status', render: (s: string) => <Badge status={s === 'active' ? 'success' : s === 'draft' ? 'processing' : 'default'} text={s} /> },
+                {
+                  title: '操作', width: 60,
+                  render: (_: unknown, r: TerminologyMapping) => (
+                    <Popconfirm title="确认删除该映射？" onConfirm={() => void handleDeleteMapping(r.id)}>
+                      <Button size="small" danger icon={<Trash2 size={12} />} />
+                    </Popconfirm>
+                  ),
+                },
+              ]}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} md={10}>
+          <Card size="small" title={<Space><Globe size={14} />系统状态</Space>}>
+            <Table
+              dataSource={systems}
+              rowKey="system"
+              pagination={false}
+              size="small"
+              columns={[
+                { title: '系统', dataIndex: 'system', render: (s: string) => <Tag color={s === 'SNOMED-CT' ? 'blue' : s === 'ICD-11' ? 'volcano' : s === 'LOINC' ? 'green' : 'purple'}>{s}</Tag> },
+                { title: '版本', dataIndex: 'version', ellipsis: true },
+                { title: '概念数', dataIndex: 'concepts', render: (c: number) => c?.toLocaleString() },
+                {
+                  title: '状态', dataIndex: 'status',
+                  render: (s: string) => <Badge status={s === 'online' ? 'success' : s === 'degraded' ? 'warning' : 'error'} text={s === 'online' ? '在线' : s === 'degraded' ? '降级' : '离线'} />,
+                },
+              ]}
+            />
+            <div style={{ marginTop: 12 }}>
+              <Alert type="warning" showIcon message="RIDICOM 同步延迟" description="最近同步：2026-07-28，建议检查数据源连接。" />
+            </div>
+          </Card>
+        </Col>
       </Row>
-      <Card size="small" title={<Space><Search size={14}/>概念检索</Space>}>
-        <Input.Search value={query} onChange={e=>setQuery(e.target.value)} placeholder="按代码、术语或概念 ID 搜索..." style={{maxWidth:500,marginBottom:16}} />
-        <Table dataSource={results} rowKey="code" pagination={false}
-          columns={[
-            {title:'代码',dataIndex:'code'},{title:'System',dataIndex:'system',render:(s:string)=><Tag color={s==='SNOMED-CT'?'blue':s==='ICD-11'?'volcano':s==='LOINC'?'green':'purple'}>{s}</Tag>},
-            {title:'显示名',dataIndex:'display',width:240},
-            {title:'概念 ID',dataIndex:'conceptId'},
-            {title:'语义标签',dataIndex:'semanticTag',render:(t:string)=><Tag>{t}</Tag>},
-            {title:'状态',dataIndex:'active',render:(a:boolean)=><Badge status={a?'success':'default'} text={a?'Active':'Inactive'} />},
-          ]} />
-      </Card>
-      <Card size="small" title={<Space><Layers size={14}/>Cross-System Mappings</Space>} style={{marginTop:16}}>
-        <Table dataSource={mappings} rowKey={(r:any)=>r.source+r.target} pagination={false}
-          columns={[
-            {title:'来源',dataIndex:'source',render:(s:string)=><Tag color="blue">{s}</Tag>},
-            {title:'目标',dataIndex:'target',render:(t:string)=><Tag color="volcano">{t}</Tag>},
-            {title:'映射类型',dataIndex:'mapType',render:(m:string)=><Tag color={m==='equivalent'?'green':'orange'}>{m}</Tag>},
-            {title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='active'?'success':'default'} text={s} />},
-          ]} />
-      </Card>
+
+      <Modal title="新建跨系统映射" open={mappingModal} onOk={() => void handleCreateMapping()} onCancel={() => setMappingModal(false)} okText="创建">
+        <Form form={mappingForm} layout="vertical">
+          <Form.Item name="sourceSystem" label="来源系统" rules={[{ required: true }]}>
+            <Input placeholder="SNOMED-CT / LOINC" />
+          </Form.Item>
+          <Form.Item name="sourceCode" label="来源代码" rules={[{ required: true }]}>
+            <Input placeholder="如 122750008" />
+          </Form.Item>
+          <Form.Item name="targetSystem" label="目标系统" rules={[{ required: true }]}>
+            <Input placeholder="ICD-11 / RIDICOM" />
+          </Form.Item>
+          <Form.Item name="targetCode" label="目标代码" rules={[{ required: true }]}>
+            <Input placeholder="如 K08.8" />
+          </Form.Item>
+          <Form.Item name="mapType" label="映射类型" initialValue="equivalent">
+            <Input placeholder="equivalent / broader / narrower / related" />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

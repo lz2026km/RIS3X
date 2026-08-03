@@ -13,5 +13,6 @@ import { Hl7Service } from './hl7.service'
   imports: [PrismaModule],
   controllers: [Hl7Controller],
   providers: [Hl7Service],
+  exports: [Hl7Service],
 })
 export class Hl7Module {}

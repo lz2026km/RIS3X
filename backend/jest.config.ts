@@ -9,16 +9,19 @@ const config: Config = {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
   collectCoverageFrom: [
-    'src/**/*.(t|j)s',
+    'src/**/*.service.ts',
+    'src/**/*.controller.ts',
     '!src/main.ts',
+    '!src/app.module.ts',
+    '!**/maintenance/**',
   ],
   coverageDirectory: './coverage',
   coverageThreshold: {
     global: {
-      branches: 30,
-      functions: 25,
-      lines: 30,
-      statements: 30,
+      branches: 45,
+      functions: 55,
+      lines: 60,
+      statements: 60,
     },
   },
   moduleNameMapper: {

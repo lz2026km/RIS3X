@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { Spin, Alert, Empty, message } from 'antd'
 import { getEducationService, type EducationMaterial, type PatientEducationRecord, type CommunicationTemplate } from '../../services/education/EducationService'
+import { patientPortalApi } from '../../services/api'
 
 // ===== Styles =====
 const s = {
@@ -23,6 +25,18 @@ const CATEGORY_LABELS: Record<string, string> = {
   pre_exam: '检查前准备', post_exam: '检查后指导', condition: '疾病知识', medication: '药物指导', general: '一般宣教',
 }
 
+const CONTENT_TYPE_LABELS: Record<string, string> = {
+  text: '图文', video: '视频', audio: '音频', pdf: 'PDF', image: '图片',
+}
+
+const CONTENT_TYPE_COLORS: Record<string, { bg: string; text: string }> = {
+  text: { bg: '#f1f5f9', text: '#475569' },
+  video: { bg: '#fee2e2', text: '#b91c1c' },
+  audio: { bg: '#fef3c7', text: '#b45309' },
+  pdf: { bg: '#ede9fe', text: '#7c3aed' },
+  image: { bg: '#dbeafe', text: '#1d4ed8' },
+}
+
 // ===== Component =====
 export default function PatientEducationPage() {
   const [activeTab, setActiveTab] = useState<'materials' | 'records' | 'communication'>('materials')
@@ -31,26 +45,94 @@ export default function PatientEducationPage() {
   const [templates, setTemplates] = useState<CommunicationTemplate[]>([])
   const [selectedMaterial, setSelectedMaterial] = useState<EducationMaterial | null>(null)
   const [categoryFilter, setCategoryFilter] = useState<string>('')
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [playing, setPlaying] = useState(false)
+  const [playerProgress, setPlayerProgress] = useState(0)
 
   const svc = getEducationService()
 
   useEffect(() => {
-    svc.getMaterials().then(setMaterials)
-    svc.getPatientRecords('P001').then(setRecords)
-    svc.getTemplates().then(setTemplates)
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      setLoadError(null)
+      try {
+        const eduRes = await patientPortalApi.listEducation()
+        const apiMaterials = eduRes.success && Array.isArray(eduRes.data) ? eduRes.data : []
+        if (cancelled) return
+        if (apiMaterials.length > 0) {
+          setMaterials(apiMaterials as unknown as EducationMaterial[])
+        } else {
+          const local = await svc.getMaterials()
+          if (!cancelled) setMaterials(local)
+        }
+        const [r, t] = await Promise.all([svc.getPatientRecords('P001'), svc.getTemplates()])
+        if (!cancelled) { setRecords(r); setTemplates(t) }
+      } catch {
+        if (!cancelled) {
+          setLoadError('宣教资料加载失败，请稍后重试')
+          const [r, t] = await Promise.all([svc.getPatientRecords('P001'), svc.getTemplates()])
+          setRecords(r); setTemplates(t)
+        }
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
   }, [])
 
   const filtered = categoryFilter ? materials.filter(m => m.category === categoryFilter) : materials
 
+  const handlePlay = (m: EducationMaterial) => {
+    setSelectedMaterial(m)
+    setPlayerProgress(0)
+    setPlaying(m.contentType === 'video' || m.contentType === 'audio')
+  }
+
+  useEffect(() => {
+    if (!playing || !selectedMaterial) return
+    const duration = selectedMaterial.duration || 120
+    const timer = setInterval(() => {
+      setPlayerProgress(p => {
+        if (p >= 100) { setPlaying(false); return 100 }
+        return Math.min(100, p + 100 / duration)
+      })
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [playing, selectedMaterial])
+
+  const markComplete = async (m: EducationMaterial) => {
+    message.success(`已完成《${m.title}》学习`)
+    const res = await patientPortalApi.listExamHistory('current').catch(() => null)
+    void res
+    try {
+      await svc.assignMaterial('P001', m.id)
+      const r = await svc.getPatientRecords('P001')
+      setRecords(r)
+    } catch { /* noop */ }
+  }
+
+  if (loading) {
+    return (
+      <div style={{ ...s.container, textAlign: 'center', padding: 80 }}>
+        <Spin size="large" tip="正在加载宣教资料...">
+          <div style={{ height: 60 }} />
+        </Spin>
+      </div>
+    )
+  }
+
   return (
     <div style={s.container}>
       <h2 style={s.title}>患者教育与沟通</h2>
+      {loadError && <Alert type="warning" showIcon message={loadError} style={{ marginBottom: 16 }} />}
 
       {/* Tabs */}
       <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: '#f1f5f9', padding: 4, borderRadius: 10 }}>
         {(['materials', 'records', 'communication'] as const).map(tab => (
           <button key={tab} style={s.tab(activeTab === tab)} onClick={() => setActiveTab(tab)}>
-            {tab === 'materials' ? '教育资料' : tab === 'records' ? '学习记录' : '沟通模板'}
+            {tab === 'materials' ? `教育资料 (${materials.length})` : tab === 'records' ? '学习记录' : '沟通模板'}
           </button>
         ))}
       </div>
@@ -60,7 +142,7 @@ export default function PatientEducationPage() {
         <div style={s.card}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <h3 style={{ ...s.title, margin: 0, fontSize: 16 }}>健康教育资料库</h3>
-            <select style={s.select} value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
+            <select style={{ ...s.select, width: 180 }} value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
               <option value="">全部分类</option>
               {Object.entries(CATEGORY_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
             </select>
@@ -72,6 +154,37 @@ export default function PatientEducationPage() {
               <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b', marginBottom: 4 }}>{selectedMaterial.title}</div>
               <span style={s.badge('#fff', '#1e40af')}>{CATEGORY_LABELS[selectedMaterial.category] || selectedMaterial.category}</span>
               {selectedMaterial.modality && <span style={{ ...s.badge('#0369a1', '#e0f2fe'), marginLeft: 8 }}>{selectedMaterial.modality}</span>}
+              <span style={{ ...s.badge(CONTENT_TYPE_COLORS[selectedMaterial.contentType]?.text || '#475569', CONTENT_TYPE_COLORS[selectedMaterial.contentType]?.bg || '#f1f5f9'), marginLeft: 8 }}>
+                {CONTENT_TYPE_LABELS[selectedMaterial.contentType] || selectedMaterial.contentType}
+              </span>
+              {selectedMaterial.duration && (
+                <span style={{ marginLeft: 8, fontSize: 12, color: '#94a3b8' }}>
+                  {Math.floor((selectedMaterial.duration || 0) / 60)}分{(selectedMaterial.duration || 0) % 60}秒
+                </span>
+              )}
+
+              {/* 播放器 */}
+              {(selectedMaterial.contentType === 'video' || selectedMaterial.contentType === 'audio') && (
+                <div style={{ marginTop: 16, background: '#0f172a', borderRadius: 8, padding: 16, textAlign: 'center' }}>
+                  <div style={{ fontSize: 40, marginBottom: 8 }}>{selectedMaterial.contentType === 'video' ? '🎬' : '🎧'}</div>
+                  <div style={{ fontSize: 13, color: '#e2e8f0', marginBottom: 12 }}>{selectedMaterial.title}</div>
+                  <div style={{ background: '#1e293b', borderRadius: 4, height: 8, overflow: 'hidden', marginBottom: 12 }}>
+                    <div style={{ width: `${playerProgress}%`, height: '100%', background: '#3b82f6', transition: 'width 0.3s' }} />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: 8 }}>
+                    <button style={{ padding: '6px 16px', borderRadius: 6, border: 'none', background: '#3b82f6', color: '#fff', fontSize: 13, cursor: 'pointer' }}
+                      onClick={() => setPlaying(v => !v)}>
+                      {playing ? '⏸ 暂停' : playerProgress >= 100 ? '🔁 重新播放' : '▶ 播放'}
+                    </button>
+                    <button style={{ padding: '6px 16px', borderRadius: 6, border: '1px solid #334155', background: 'transparent', color: '#cbd5e1', fontSize: 13, cursor: 'pointer' }}
+                      onClick={() => void markComplete(selectedMaterial)}>
+                      ✅ 标记完成
+                    </button>
+                  </div>
+                  <div style={{ marginTop: 8, fontSize: 11, color: '#64748b' }}>{Math.round(playerProgress)}% · 演示播放器</div>
+                </div>
+              )}
+
               <div style={{ marginTop: 16, padding: 16, background: '#f8fafc', borderRadius: 8, fontSize: 14, color: '#334155', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
                 {selectedMaterial.content}
               </div>
@@ -79,15 +192,21 @@ export default function PatientEducationPage() {
                 {selectedMaterial.tags.map(t => <span key={t} style={s.badge('#64748b', '#f1f5f9')}>{t}</span>)}
               </div>
             </div>
+          ) : materials.length === 0 ? (
+            <Empty description="暂无宣教资料" />
           ) : (
             <div style={s.grid2}>
               {filtered.map(m => (
                 <div key={m.id} style={{ padding: 16, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0', cursor: 'pointer' }}
-                  onClick={() => setSelectedMaterial(m)}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b', marginBottom: 4 }}>{m.title}</div>
+                  onClick={() => handlePlay(m)}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <span style={{ fontSize: 20 }}>{m.contentType === 'video' ? '🎬' : m.contentType === 'audio' ? '🎧' : m.contentType === 'pdf' ? '📄' : '📖'}</span>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{m.title}</div>
+                  </div>
                   <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>{m.summary}</div>
-                  <span style={s.badge('#fff', '#1e40af')}>{CATEGORY_LABELS[m.category]}</span>
-                  <span style={{ fontSize: 12, color: '#94a3b8', marginLeft: 8 }}>{m.contentType}</span>
+                  <span style={s.badge('#fff', '#1e40af')}>{CATEGORY_LABELS[m.category] || m.category}</span>
+                  <span style={{ fontSize: 12, color: '#94a3b8', marginLeft: 8 }}>{CONTENT_TYPE_LABELS[m.contentType] || m.contentType}</span>
+                  {m.duration && <span style={{ fontSize: 12, color: '#94a3b8', marginLeft: 8 }}>{Math.floor(m.duration / 60)}分{m.duration % 60}秒</span>}
                 </div>
               ))}
             </div>

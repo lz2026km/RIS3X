@@ -1,4 +1,11 @@
-import { api } from './client'
+import { worklistApi } from './worklistApi'
+import {
+  worklistSmartApi,
+  type SmartScoreInput,
+  type SmartScoreResult,
+  type SmartWeightConfig,
+  type SmartPriorityCounts,
+} from './worklistSmartApi'
 
 export interface SmartMwlItem {
   id: string
@@ -18,6 +25,7 @@ export interface SmartMwlItem {
   age?: number
   gender?: string
   clinicalInfo?: string
+  hasCriticalValue?: boolean
 }
 
 export interface SmartScoreFactors {
@@ -32,31 +40,96 @@ export interface SmartScoreFactors {
   reasons: string[]
 }
 
-export interface SmartWeightConfig {
-  urgencyWeight: number
-  waitTimeWeight: number
-  ageWeight: number
-  patientTypeWeight: number
-  bodyPartWeight: number
-  clinicalInfoWeight: number
+const PRIORITY_URGENCY: Record<string, number> = { 急诊: 3, 加急: 2, 危重: 3, 紧急: 3, 普通: 0, 体检: -1 }
+
+/** 将工作列表项转换为评分输入 */
+export function toSmartScoreInput(item: SmartMwlItem): SmartScoreInput {
+  const created = new Date(item.createdTime).getTime()
+  const waitingMinutes = Number.isFinite(created) ? Math.max(0, Math.floor((Date.now() - created) / 60000)) : 0
+  return {
+    id: item.id,
+    urgency: PRIORITY_URGENCY[item.priority] ?? 0,
+    waitingMinutes,
+    age: item.age,
+    modality: item.modality,
+    bodyPart: item.bodyPart,
+    patientType: item.patientType,
+    priority: item.priority,
+    criticalFinding: item.hasCriticalValue,
+  }
+}
+
+interface WorklistRow {
+  id?: string
+  reportId?: string
+  patientName?: string
+  patientId?: string
+  modality?: string
+  bodyPart?: string
+  examItem?: string
+  examName?: string
+  examDescription?: string
+  priority?: string
+  patientType?: string
+  status?: string
+  examAt?: string
+  createdAt?: string
+  scheduledAt?: string
+  age?: number
+  gender?: string
+  patientSex?: string
+  patientGender?: string
+  clinicalDiagnosis?: string
+  deviceId?: string
+  hasCriticalValue?: boolean
+}
+
+function toMwlItem(r: WorklistRow): SmartMwlItem {
+  return {
+    id: r.id ?? r.reportId ?? '',
+    patientName: r.patientName ?? '',
+    patientId: r.patientId ?? '',
+    modality: r.modality ?? '',
+    bodyPart: r.bodyPart ?? '',
+    examItem: r.examItem ?? r.examName ?? r.examDescription ?? '',
+    priority: r.priority ?? '普通',
+    patientType: r.patientType ?? '门诊',
+    status: r.status ?? '',
+    createdTime: r.examAt ?? r.createdAt ?? r.scheduledAt ?? new Date().toISOString(),
+    scheduledTime: r.scheduledAt,
+    age: typeof r.age === 'number' ? r.age : undefined,
+    gender: r.gender ?? r.patientSex ?? r.patientGender,
+    clinicalInfo: r.clinicalDiagnosis,
+    deviceId: r.deviceId,
+    hasCriticalValue: r.hasCriticalValue,
+  }
 }
 
 export const smartMwlApi = {
-  getWorklist: (params?: { modality?: string; status?: string; priority?: string }) =>
-    api.get<SmartMwlItem[]>('/smart-mwl/worklist'),
+  getWorklist: async (params?: { modality?: string; status?: string; priority?: string }) => {
+    const res = await worklistApi.list({ pageSize: 60, ...params })
+    const raw = res.data as unknown
+    const arr: WorklistRow[] = Array.isArray(raw) ? raw : (raw as { items?: WorklistRow[] })?.items ?? []
+    return { success: res.success, data: arr.map(toMwlItem), error: res.error }
+  },
 
   score: (item: SmartMwlItem) =>
-    api.post<SmartScoreFactors>('/smart-mwl/score', item),
+    worklistSmartApi.score(toSmartScoreInput(item)),
+
+  scoreInput: (input: SmartScoreInput) =>
+    worklistSmartApi.score(input),
 
   reorder: (items: SmartMwlItem[]) =>
-    api.post<Array<SmartMwlItem & { score: number; level: string; rank: number }>>('/smart-mwl/reorder', { items }),
+    worklistSmartApi.reorder(items.map(toSmartScoreInput)),
 
-  getWeights: () =>
-    api.get<SmartWeightConfig>('/smart-mwl/weights'),
+  getWeights: (): Promise<{ success: boolean; data: SmartWeightConfig; error?: unknown }> =>
+    worklistSmartApi.getWeights() as Promise<{ success: boolean; data: SmartWeightConfig; error?: unknown }>,
 
   setWeights: (weights: Partial<SmartWeightConfig>) =>
-    api.put<SmartWeightConfig>('/smart-mwl/weights', weights),
+    worklistSmartApi.setWeights(weights),
 
-  getStats: () =>
-    api.get<{ total: number; byLevel: Record<string, number>; avgWaitTime: number }>('/smart-mwl/stats'),
+  getPriorities: (): Promise<{ success: boolean; data: SmartPriorityCounts; error?: unknown }> =>
+    worklistSmartApi.getPriorities() as Promise<{ success: boolean; data: SmartPriorityCounts; error?: unknown }>,
 }
+
+export type { SmartScoreInput, SmartScoreResult, SmartWeightConfig, SmartPriorityCounts }

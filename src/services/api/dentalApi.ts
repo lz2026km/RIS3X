@@ -173,4 +173,33 @@ export const dentalApi = {
   listInventory: () => api.get<any[]>(`${DENTAL_API}/inventory`),
   addInventoryItem: (data: any) => api.post<any>(`${DENTAL_API}/inventory`, data),
   updateInventoryItem: (id: string, data: any) => api.put<any>(`${DENTAL_API}/inventory/${id}`, data),
+
+  // [v3.0.6.11-54] Phase 2: 治疗计划 (dentalHandlers 已有端点)
+  listTreatments: (params?: { status?: string; patientId?: string; pageSize?: number }) =>
+    api.get<any[]>(`${DENTAL_API}/treatments?${new URLSearchParams(params as Record<string, string> ?? {}).toString()}`),
+  getTreatment: (id: string) => api.get<any>(`${DENTAL_API}/treatments/${id}`),
+  createTreatment: (data: any) => api.post<any>(`${DENTAL_API}/treatments`, data),
+  updateTreatment: (id: string, data: any) => api.put<any>(`${DENTAL_API}/treatments/${id}`, data),
+  startTreatment: (id: string) => api.post<any>(`${DENTAL_API}/treatments/${id}/start`, {}),
+  completeTreatment: (id: string) => api.post<any>(`${DENTAL_API}/treatments/${id}/complete`, {}),
+  listTreatmentTypes: () => api.get<any[]>(`${DENTAL_API}/treatments/types`),
+
+  // [v3.0.6.11-54] Phase 2: 工作台统计
+  getStats: () => api.get<any>(`${DENTAL_API}/stats`),
+  getTodayAppointments: () => api.get<any[]>(`${DENTAL_API}/appointments?date=today`),
+
+  // [v3.0.6.11-60] Batch 3: 口腔 AI 检测 (dentalHandlers 已支持端点)
+  detectCaries: (data: { imageBase64?: string; modality?: string }) =>
+    api.post<{
+      detections: Array<{ toothNo: string; surface: string; confidence: number; severity: string; bbox: number[] }>;
+      model: string; method: string;
+    }>(`${DENTAL_API}/ai/caries-detection`, data),
+  gradePeriapical: (data: { imageBase64?: string }) =>
+    api.post<{ periapicalIndex: number; rcpScore: number; lesions: any[]; confidence: number }>(`${DENTAL_API}/ai/periapical-grading`, data),
+  measureBoneLoss: (data: { imageBase64?: string }) =>
+    api.post<{ boneLoss: { maxilla: number; mandible: number; unit: string }; furcationInvolvements: string[]; confidence: number }>(`${DENTAL_API}/ai/bone-loss`, data),
+  detectRootCanal: (data: { imageBase64?: string }) =>
+    api.post<{ canals: Array<{ toothNo: string; canalCount: number; filled: number; missed: string | null; difficulty: string }> }>(`${DENTAL_API}/ai/root-canal-detection`, data),
+  screenOralCavity: (data: { imageBase64?: string }) =>
+    api.post<{ findings: Array<{ location: string; type: string; probability: number; risk: string }> }>(`${DENTAL_API}/ai/oral-cavity-screening`, data),
 };

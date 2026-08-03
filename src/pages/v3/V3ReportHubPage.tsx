@@ -1,31 +1,30 @@
 // [v3.0.6.8-50] PR6: v3 报告全栈综合页面
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, message,
-  Tabs, List, Empty, Statistic, Alert, InputNumber, Modal, Timeline,
-  Table, Drawer, Descriptions, Switch, Tooltip, Avatar, Steps, Progress, Badge,
+  Card, Space, Tag, Button, Input, Row, Col, message,
+  Tabs, List, Empty, Statistic, Table,
 } from 'antd';
 import {
-  Edit3, Send, BarChart3, FileText, Share2, RefreshCw, Plus, Save, X, Activity,
-  History, Sparkles, Globe, Cpu, MessageSquare, ClipboardList, Layers,
-  Database, Zap, ListChecks, FileCheck, Network,
+  Edit3, Send, BarChart3, RefreshCw, Sparkles, ClipboardList, Layers,
+  Database, Network,
 } from 'lucide-react';
 import {
   v3WritingApi, v3DistApi, v3IntegrationApi, v3AiAssistApi,
   v3QualityReportApi, v3PacsApi, v3AnalyticsApi,
 } from '@/services/api/v3Api';
-
-const { TextArea } = Input;
+import { reportApi } from '@/services/api/reportApi';
+import type { ReportDto } from '@/types/dto';
 
 export const V3ReportHubPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
   // 概览
   const [dash, setDash] = useState<any>(null);
+  const [reports, setReports] = useState<ReportDto[]>([]);
+  const [reportsLoading, setReportsLoading] = useState(false);
 
   // 写作
   const [templates, setTemplates] = useState<any[]>([]);
   const [drafts, setDrafts] = useState<any[]>([]);
-  const [phrases, setPhrases] = useState<any[]>([]);
 
   // 分发
   const [tasks, setTasks] = useState<any[]>([]);
@@ -48,13 +47,10 @@ export const V3ReportHubPage: React.FC = () => {
   const loadAll = useCallback(async () => {
     try {
       const d = await v3AnalyticsApi.getDashboard({ period: 'month' });
-      if (d.success) setDash(d.data);
-      const t = await v3WritingApi.listTemplates();
+      if (d.success) setDash(d.data);      const t = await v3WritingApi.listTemplates();
       if (t.success) setTemplates((t.data || []).slice(0, 20));
       const dr = await v3WritingApi.listDrafts();
       if (dr.success) setDrafts((dr.data || []).slice(0, 20));
-      const ph = await v3WritingApi.listPhrases();
-      if (ph.success) setPhrases((ph.data || []).slice(0, 30));
       const t2 = await v3DistApi.listTasks();
       if (t2.success) setTasks((t2.data || []).slice(0, 20));
       const ch = await v3DistApi.listChannels();
@@ -72,6 +68,20 @@ export const V3ReportHubPage: React.FC = () => {
     } catch (e: any) { message.error(e.message); }
   }, []);
   useEffect(() => { void loadAll(); }, [loadAll]);
+
+  // [v3.0.6.11-54] Phase 2: 接入 reportApi 真实报告列表
+  const loadReports = useCallback(async () => {
+    setReportsLoading(true);
+    try {
+      const res = await reportApi.list({ page: 1, pageSize: 10 });
+      if (res.success) setReports((res.data ?? []).slice(0, 10));
+    } catch {
+      setReports([]);
+    } finally {
+      setReportsLoading(false);
+    }
+  }, []);
+  useEffect(() => { void loadReports(); }, [loadReports]);
 
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
@@ -92,182 +102,232 @@ export const V3ReportHubPage: React.FC = () => {
         <Col span={4}><Card size="small"><Statistic title="质控报告" value={qcReports.length} /></Card></Col>
       </Row>
 
-      <Tabs activeKey={activeTab} onChange={setActiveTab} type="card">
-        <Tabs.TabPane tab={<span><BarChart3 size={14} /> 概览</span>} key="overview">
-          <Card title="v3 Analytics 仪表盘" size="small">
-            {dash ? (
-              <Row gutter={[16, 16]}>
-                <Col span={8}><Statistic title="总报告" value={dash.totalReports || 0} /></Col>
-                <Col span={8}><Statistic title="已审" value={dash.reviewed || 0} styles={{ content: {  color: '#52c41a'  } }} /></Col>
-                <Col span={8}><Statistic title="平均 TAT" value={dash.avgTAT || 0} suffix="h" /></Col>
-                <Col span={8}><Statistic title="签名率" value={dash.signedRate || 0} suffix="%" /></Col>
-                <Col span={8}><Statistic title="AI 采纳" value={dash.aiAdoption || 0} suffix="%" styles={{ content: {  color: '#722ed1'  } }} /></Col>
-                <Col span={8}><Statistic title="分发成功率" value={dash.distSuccess || 0} suffix="%" /></Col>
-              </Row>
-            ) : <Empty description="加载中" />}
-          </Card>
-        </Tabs.TabPane>
-
-        <Tabs.TabPane tab={<span><Edit3 size={14} /> 写作</span>} key="writing">
-          <Card
-            title="v3 写作 (40 端点)"
-            size="small"
-            extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>刷新</Button>}
-          >
-            <Row gutter={16}>
-              <Col span={12}>
-                <Card size="small" title="报告模板">
-                  <List size="small" dataSource={templates} renderItem={t => (
-                    <List.Item>
-                      <List.Item.Meta
-                        title={<span>{t.name || t.id}</span>}
-                        description={<span style={{ fontSize: 11, color: '#999' }}>{t.modality || ''} · {t.bodyPart || ''}</span>}
-                      />
-                    </List.Item>
-                  )} />
+      <Tabs
+        activeKey={activeTab}
+        onChange={setActiveTab}
+        type="card"
+        items={[
+          {
+            key: 'overview',
+            label: <span><BarChart3 size={14} /> 概览</span>,
+            children: (
+              <>
+                <Card title="v3 Analytics 仪表盘" size="small">
+                  {dash ? (
+                    <Row gutter={[16, 16]}>
+                      <Col span={8}><Statistic title="总报告" value={dash.totalReports || 0} /></Col>
+                      <Col span={8}><Statistic title="已审" value={dash.reviewed || 0} styles={{ content: {  color: '#52c41a'  } }} /></Col>
+                      <Col span={8}><Statistic title="平均 TAT" value={dash.avgTAT || 0} suffix="h" /></Col>
+                      <Col span={8}><Statistic title="签名率" value={dash.signedRate || 0} suffix="%" /></Col>
+                      <Col span={8}><Statistic title="AI 采纳" value={dash.aiAdoption || 0} suffix="%" styles={{ content: {  color: '#722ed1'  } }} /></Col>
+                      <Col span={8}><Statistic title="分发成功率" value={dash.distSuccess || 0} suffix="%" /></Col>
+                    </Row>
+                  ) : <Empty description="加载中" />}
                 </Card>
-              </Col>
-              <Col span={12}>
-                <Card size="small" title="草稿">
-                  <List size="small" dataSource={drafts} renderItem={d => (
-                    <List.Item>
-                      <List.Item.Meta
-                        title={<span>{d.id || d.reportId}</span>}
-                        description={<span style={{ fontSize: 11, color: '#999' }}>{d.status || ''} · {d.patientName || ''}</span>}
-                      />
-                    </List.Item>
-                  )} />
+                <Card
+                  size="small"
+                  title="最近报告 (reportApi)"
+                  style={{ marginTop: 16 }}
+                  extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadReports()}>刷新</Button>}
+                >
+                  <Table
+                    rowKey={(r) => r.id ?? r.reportId ?? ''}
+                    size="small"
+                    loading={reportsLoading}
+                    dataSource={reports}
+                    pagination={false}
+                    columns={[
+                      { title: '报告号', key: 'no', render: (_: unknown, r: any) => r.reportId ?? r.id },
+                      { title: '患者', key: 'patient', render: (_: unknown, r: any) => r.patientName ?? '-' },
+                      { title: '项目', key: 'item', render: (_: unknown, r: any) => r.examItem ?? r.modality ?? '-' },
+                      { title: '状态', key: 'status', render: (_: unknown, r: any) => <Tag color={String(r.status ?? '').startsWith('signed') ? 'green' : 'blue'}>{r.status ?? '-'}</Tag> },
+                      { title: '时间', key: 'at', render: (_: unknown, r: any) => r.reportAt ? new Date(r.reportAt).toLocaleDateString() : '-' },
+                    ]}
+                  />
                 </Card>
-              </Col>
-            </Row>
-          </Card>
-        </Tabs.TabPane>
-
-        <Tabs.TabPane tab={<span><Send size={14} /> 分发 (30 端点)</span>} key="dist">
-          <Card
-            title="v3 分发"
-            size="small"
-            extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>刷新</Button>}
-          >
-            <Row gutter={16}>
-              <Col span={12}>
-                <Card size="small" title="分发任务">
-                  <List size="small" dataSource={tasks} renderItem={t => (
-                    <List.Item>
-                      <List.Item.Meta
-                        avatar={<Tag color="blue">{t.channel || '-'}</Tag>}
-                        title={<span>{t.id || t.reportId}</span>}
-                        description={<span style={{ fontSize: 11, color: '#999' }}>{t.status || ''} · {t.recipient || ''}</span>}
-                      />
-                    </List.Item>
-                  )} />
-                </Card>
-              </Col>
-              <Col span={12}>
-                <Card size="small" title="分发渠道">
-                  <List size="small" dataSource={channels} renderItem={c => (
-                    <List.Item>
-                      <List.Item.Meta
-                        avatar={<Tag color="green">{c.type || '-'}</Tag>}
-                        title={<span>{c.name}</span>}
-                        description={<span style={{ fontSize: 11, color: '#999' }}>{c.status || ''}</span>}
-                      />
-                    </List.Item>
-                  )} />
-                </Card>
-              </Col>
-            </Row>
-          </Card>
-        </Tabs.TabPane>
-
-        <Tabs.TabPane tab={<span><Network size={14} /> 集成 (44 端点)</span>} key="integration">
-          <Card
-            title="v3 集成 (HL7/FHIR/IHE XDS/HIS/Webhook)"
-            size="small"
-            extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>刷新</Button>}
-          >
-            <Row gutter={16}>
-              <Col span={12}>
-                <Card size="small" title="FHIR 资源">
-                  <List size="small" dataSource={fhirList} renderItem={f => (
-                    <List.Item>
-                      <List.Item.Meta
-                        avatar={<Tag color="purple">{f.resourceType || '-'}</Tag>}
-                        title={<span>{f.id || f.resourceId}</span>}
-                        description={<span style={{ fontSize: 11, color: '#999' }}>{f.status || ''}</span>}
-                      />
-                    </List.Item>
-                  )} />
-                </Card>
-              </Col>
-              <Col span={12}>
-                <Card size="small" title="Webhooks">
-                  <List size="small" dataSource={webhooks} renderItem={w => (
-                    <List.Item>
-                      <List.Item.Meta
-                        avatar={<Tag color="cyan">{w.event || '-'}</Tag>}
-                        title={<span>{w.url || w.endpoint}</span>}
-                        description={<span style={{ fontSize: 11, color: '#999' }}>{w.status || ''}</span>}
-                      />
-                    </List.Item>
-                  )} />
-                </Card>
-              </Col>
-            </Row>
-          </Card>
-        </Tabs.TabPane>
-
-        <Tabs.TabPane tab={<span><Sparkles size={14} /> AI 协助 (15 端点)</span>} key="ai">
-          <Card
-            title="v3 AI 协助 (预审/风险/DDX/同意)"
-            size="small"
-            extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>刷新</Button>}
-          >
-            <List size="small" dataSource={aiDrafts} renderItem={a => (
-              <List.Item>
-                <List.Item.Meta
-                  title={<Space><Tag color="purple">{a.riskLevel || 'low'}</Tag><span>{a.id || a.reportId}</span></Space>}
-                  description={<span style={{ fontSize: 11, color: '#999' }}>DDx: {a.differential?.slice(0, 3)?.join(', ') || '-'}</span>}
-                />
-              </List.Item>
-            )} />
-          </Card>
-        </Tabs.TabPane>
-
-        <Tabs.TabPane tab={<span><ClipboardList size={14} /> 质控 (15 端点)</span>} key="quality">
-          <Card
-            title="v3 质控报告 (月/季/年)"
-            size="small"
-            extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>刷新</Button>}
-          >
-            <List size="small" dataSource={qcReports} renderItem={q => (
-              <List.Item>
-                <List.Item.Meta
-                  title={<Space><Tag color="orange">{q.period || 'month'}</Tag><span>{q.id}</span></Space>}
-                  description={<span style={{ fontSize: 11, color: '#999' }}>总分: {q.score || '-'} · 发布: {q.publishedAt?.slice(0, 10) || '-'}</span>}
-                />
-              </List.Item>
-            )} />
-          </Card>
-        </Tabs.TabPane>
-
-        <Tabs.TabPane tab={<span><Database size={14} /> PACS (6 端点)</span>} key="pacs">
-          <Card
-            title="v3 PACS 研究 (studies/uid/verify/wado/qido/stow)"
-            size="small"
-            extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>刷新</Button>}
-          >
-            <List size="small" dataSource={studies} renderItem={s => (
-              <List.Item>
-                <List.Item.Meta
-                  title={<span>{s.studyInstanceUID || s.uid}</span>}
-                  description={<span style={{ fontSize: 11, color: '#999' }}>{s.modality || ''} · {s.patientID || ''}</span>}
-                />
-              </List.Item>
-            )} />
-          </Card>
-        </Tabs.TabPane>
-      </Tabs>
+              </>
+            ),
+          },
+          {
+            key: 'writing',
+            label: <span><Edit3 size={14} /> 写作</span>,
+            children: (
+              <Card
+                title="v3 写作 (40 端点)"
+                size="small"
+                extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>刷新</Button>}
+              >
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Card size="small" title="报告模板">
+                      <List size="small" dataSource={templates} renderItem={t => (
+                        <List.Item>
+                          <List.Item.Meta
+                            title={<span>{t.name || t.id}</span>}
+                            description={<span style={{ fontSize: 11, color: '#999' }}>{t.modality || ''} · {t.bodyPart || ''}</span>}
+                          />
+                        </List.Item>
+                      )} />
+                    </Card>
+                  </Col>
+                  <Col span={12}>
+                    <Card size="small" title="草稿">
+                      <List size="small" dataSource={drafts} renderItem={d => (
+                        <List.Item>
+                          <List.Item.Meta
+                            title={<span>{d.id || d.reportId}</span>}
+                            description={<span style={{ fontSize: 11, color: '#999' }}>{d.status || ''} · {d.patientName || ''}</span>}
+                          />
+                        </List.Item>
+                      )} />
+                    </Card>
+                  </Col>
+                </Row>
+              </Card>
+            ),
+          },
+          {
+            key: 'dist',
+            label: <span><Send size={14} /> 分发 (30 端点)</span>,
+            children: (
+              <Card
+                title="v3 分发"
+                size="small"
+                extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>刷新</Button>}
+              >
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Card size="small" title="分发任务">
+                      <List size="small" dataSource={tasks} renderItem={t => (
+                        <List.Item>
+                          <List.Item.Meta
+                            avatar={<Tag color="blue">{t.channel || '-'}</Tag>}
+                            title={<span>{t.id || t.reportId}</span>}
+                            description={<span style={{ fontSize: 11, color: '#999' }}>{t.status || ''} · {t.recipient || ''}</span>}
+                          />
+                        </List.Item>
+                      )} />
+                    </Card>
+                  </Col>
+                  <Col span={12}>
+                    <Card size="small" title="分发渠道">
+                      <List size="small" dataSource={channels} renderItem={c => (
+                        <List.Item>
+                          <List.Item.Meta
+                            avatar={<Tag color="green">{c.type || '-'}</Tag>}
+                            title={<span>{c.name}</span>}
+                            description={<span style={{ fontSize: 11, color: '#999' }}>{c.status || ''}</span>}
+                          />
+                        </List.Item>
+                      )} />
+                    </Card>
+                  </Col>
+                </Row>
+              </Card>
+            ),
+          },
+          {
+            key: 'integration',
+            label: <span><Network size={14} /> 集成 (44 端点)</span>,
+            children: (
+              <Card
+                title="v3 集成 (HL7/FHIR/IHE XDS/HIS/Webhook)"
+                size="small"
+                extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>刷新</Button>}
+              >
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Card size="small" title="FHIR 资源">
+                      <List size="small" dataSource={fhirList} renderItem={f => (
+                        <List.Item>
+                          <List.Item.Meta
+                            avatar={<Tag color="purple">{f.resourceType || '-'}</Tag>}
+                            title={<span>{f.id || f.resourceId}</span>}
+                            description={<span style={{ fontSize: 11, color: '#999' }}>{f.status || ''}</span>}
+                          />
+                        </List.Item>
+                      )} />
+                    </Card>
+                  </Col>
+                  <Col span={12}>
+                    <Card size="small" title="Webhooks">
+                      <List size="small" dataSource={webhooks} renderItem={w => (
+                        <List.Item>
+                          <List.Item.Meta
+                            avatar={<Tag color="cyan">{w.event || '-'}</Tag>}
+                            title={<span>{w.url || w.endpoint}</span>}
+                            description={<span style={{ fontSize: 11, color: '#999' }}>{w.status || ''}</span>}
+                          />
+                        </List.Item>
+                      )} />
+                    </Card>
+                  </Col>
+                </Row>
+              </Card>
+            ),
+          },
+          {
+            key: 'ai',
+            label: <span><Sparkles size={14} /> AI 协助 (15 端点)</span>,
+            children: (
+              <Card
+                title="v3 AI 协助 (预审/风险/DDX/同意)"
+                size="small"
+                extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>刷新</Button>}
+              >
+                <List size="small" dataSource={aiDrafts} renderItem={a => (
+                  <List.Item>
+                    <List.Item.Meta
+                      title={<Space><Tag color="purple">{a.riskLevel || 'low'}</Tag><span>{a.id || a.reportId}</span></Space>}
+                      description={<span style={{ fontSize: 11, color: '#999' }}>DDx: {a.differential?.slice(0, 3)?.join(', ') || '-'}</span>}
+                    />
+                  </List.Item>
+                )} />
+              </Card>
+            ),
+          },
+          {
+            key: 'quality',
+            label: <span><ClipboardList size={14} /> 质控 (15 端点)</span>,
+            children: (
+              <Card
+                title="v3 质控报告 (月/季/年)"
+                size="small"
+                extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>刷新</Button>}
+              >
+                <List size="small" dataSource={qcReports} renderItem={q => (
+                  <List.Item>
+                    <List.Item.Meta
+                      title={<Space><Tag color="orange">{q.period || 'month'}</Tag><span>{q.id}</span></Space>}
+                      description={<span style={{ fontSize: 11, color: '#999' }}>总分: {q.score || '-'} · 发布: {q.publishedAt?.slice(0, 10) || '-'}</span>}
+                    />
+                  </List.Item>
+                )} />
+              </Card>
+            ),
+          },
+          {
+            key: 'pacs',
+            label: <span><Database size={14} /> PACS (6 端点)</span>,
+            children: (
+              <Card
+                title="v3 PACS 研究 (studies/uid/verify/wado/qido/stow)"
+                size="small"
+                extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadAll()}>刷新</Button>}
+              >
+                <List size="small" dataSource={studies} renderItem={s => (
+                  <List.Item>
+                    <List.Item.Meta
+                      title={<span>{s.studyInstanceUID || s.uid}</span>}
+                      description={<span style={{ fontSize: 11, color: '#999' }}>{s.modality || ''} · {s.patientID || ''}</span>}
+                    />
+                  </List.Item>
+                )} />
+              </Card>
+            ),
+          },
+        ]}
+      />
     </div>
   );
 };

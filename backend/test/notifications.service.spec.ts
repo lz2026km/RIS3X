@@ -62,4 +62,69 @@ describe('NotificationsService', () => {
     expect(result.success).toBe(true)
     expect(result.userId).toBe('u1')
   })
+
+  it('savePushSubscription replaces same endpoint and keeps others', async () => {
+    await svc.savePushSubscription('push-user', { endpoint: 'e1', keys: { p256dh: 'a', auth: 'b' } })
+    await svc.savePushSubscription('push-user', { endpoint: 'e2', keys: { p256dh: 'c', auth: 'd' } })
+    await svc.savePushSubscription('push-user', { endpoint: 'e1', keys: { p256dh: 'a2', auth: 'b2' }, topics: ['critical'] })
+    const subs = svc.getSubscriptions('push-user')
+    expect(subs).toHaveLength(2)
+    expect(subs.find((s) => s.endpoint === 'e1')?.keys.p256dh).toBe('a2')
+    expect(subs.find((s) => s.endpoint === 'e1')?.topics).toEqual(['critical'])
+  })
+
+  it('removePushSubscription removes endpoint and deletes user when last', async () => {
+    await svc.savePushSubscription('u2', { endpoint: 'e3', keys: { p256dh: 'x', auth: 'y' } })
+    const result = await svc.removePushSubscription('e3')
+    expect(result).toMatchObject({ success: true, userId: 'u2', total: 0 })
+    expect(svc.getSubscriptions('u2')).toEqual([])
+  })
+
+  it('removePushSubscription returns not-found for unknown endpoint', async () => {
+    const result = await svc.removePushSubscription('nope')
+    expect(result).toMatchObject({ success: false, reason: 'not-found' })
+  })
+
+  it('getVapidPublicKey prefers env var over demo key', () => {
+    const prev = process.env.VAPID_PUBLIC_KEY
+    process.env.VAPID_PUBLIC_KEY = 'custom-public-key'
+    expect(svc.getVapidPublicKey()).toBe('custom-public-key')
+    delete process.env.VAPID_PUBLIC_KEY
+    expect(svc.getVapidPublicKey().length).toBeGreaterThan(20)
+    if (prev === undefined) delete process.env.VAPID_PUBLIC_KEY
+    else process.env.VAPID_PUBLIC_KEY = prev
+  })
+
+  it('getUnreadCount returns 0 when prisma model missing', async () => {
+    const bare = new NotificationsService({} as any)
+    await expect(bare.getUnreadCount('u1')).resolves.toEqual({ userId: 'u1', unread: 0 })
+  })
+
+  it('getHistory returns [] when prisma model missing', async () => {
+    const bare = new NotificationsService({} as any)
+    await expect(bare.getHistory('u1')).resolves.toEqual([])
+  })
+
+  it('markRead returns null when prisma model missing', async () => {
+    const bare = new NotificationsService({} as any)
+    await expect(bare.markRead('n1')).resolves.toBeNull()
+  })
+
+  it('create returns in-memory notification when model missing', async () => {
+    const bare = new NotificationsService({} as any)
+    const r = await bare.create({ userId: 'u1', type: 'SYSTEM', severity: 'WARN', title: 't', content: 'c', link: 'l', targetId: 'tg' })
+    expect(r.id).toMatch(/^mock-\d+/)
+    expect(r).toMatchObject({ userId: 'u1', type: 'SYSTEM', severity: 'WARN', read: false })
+  })
+
+  it('sendPush returns no-subscription when user has none', async () => {
+    const result = await svc.sendPush('ghost', { title: 't', content: 'c' })
+    expect(result).toMatchObject({ success: false, reason: 'no-subscription' })
+  })
+
+  it('sendPush returns web-push-not-installed when web-push module absent', async () => {
+    await svc.savePushSubscription('push-send-user', { endpoint: 'https://push.example.com/x', keys: { p256dh: 'a', auth: 'b' } })
+    const result = await svc.sendPush('push-send-user', { title: 't', content: 'c' })
+    expect(result).toMatchObject({ success: false, reason: 'web-push-not-installed' })
+  })
 })

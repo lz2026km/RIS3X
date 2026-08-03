@@ -1,11 +1,11 @@
 // [v3.0.6.11-7] /api/v1/report-quality MSW handlers
-// [v3.0.6.11-50] 新增 /api/v1/report-quality-ext 前缀 (前端已统一到 /report-quality-ext),保留旧前缀兼容
+// [v3.0.6.11-50] 新增 /api/v1/report-quality-ext 前缀 (前端已统一到 /report-quality-ext)
+// [Phase 2 MSW 降级] 旧前缀 /api/v1/report-quality 无前端调用,已移除
 import { http, HttpResponse, delay } from "msw";
 import { list, get, create, update, remove } from "./store";
 import { parseQuery, applyQuery } from "./queryBuilder";
 import { v4 as uuidv4 } from "uuid";
 
-const API_LEGACY = "/api/v1/report-quality";
 const API_EXT = "/api/v1/report-quality-ext";
 
 const delayMs = (min = 50, max = 150) =>
@@ -132,6 +132,6 @@ const makeHandlers = (api: string) => [
 ];
 
 export const reportQualityHandlers = [
-  ...makeHandlers(API_LEGACY),
+  // [Phase 2 MSW 降级] 旧前缀 /api/v1/report-quality 无前端调用,已移除;仅保留 /report-quality-ext
   ...makeHandlers(API_EXT),
 ];

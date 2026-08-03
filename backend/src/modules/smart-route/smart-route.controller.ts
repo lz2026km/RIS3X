@@ -43,6 +43,11 @@ export class SmartRouteController {
     return this.service.getRules()
   }
 
+  @Get('qualifications')
+  getQualifications() {
+    return this.service.getQualifications()
+  }
+
   @Put('rules')
   updateRules(@Body(new ZodValidationPipe(UpdateRulesSchema)) body: { rules: RoutingRule[] }) {
     return this.service.updateRules(body.rules)

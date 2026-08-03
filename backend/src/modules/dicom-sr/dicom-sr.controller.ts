@@ -25,24 +25,46 @@ export class DicomSrController {
     return this.service.getTemplates()
   }
 
+  @Get()
+  list() {
+    return this.service.list()
+  }
+
   @Post('generate')
-  generate(@Body(new ZodValidationPipe(GenerateSrSchema)) body: GenerateSrDto) {
+  async generate(@Body(new ZodValidationPipe(GenerateSrSchema)) body: GenerateSrDto) {
     return this.service.generate(body)
   }
 
+  @Get('by-report/:reportId')
+  async findByReport(@Param('reportId') reportId: string) {
+    const doc = await this.service.findByReportId(reportId)
+    if (!doc) throw new NotFoundException(`SR document for report ${reportId} not found`)
+    return doc
+  }
+
   @Get(':id')
-  findById(@Param('id') id: string) {
-    const doc = this.service.findById(id)
+  async findById(@Param('id') id: string) {
+    const doc = await this.service.findById(id)
     if (!doc) throw new NotFoundException(`SR document ${id} not found`)
     return doc
   }
 
+  @Post(':id/finalize')
+  finalize(@Param('id') id: string) {
+    return this.service.finalize(id)
+  }
+
+  @Post(':id/push-oru')
+  pushOru(@Param('id') id: string) {
+    return this.service.pushOru(id)
+  }
+
   @Get(':id/download')
-  @Header('Content-Type', 'application/dicom+json')
-  download(@Param('id') id: string, @Res() res: Response) {
-    const doc = this.service.findById(id)
+  @Header('Content-Type', 'application/dicom')
+  async download(@Param('id') id: string, @Res() res: Response) {
+    const doc = await this.service.findById(id)
     if (!doc) throw new NotFoundException(`SR document ${id} not found`)
-    res.setHeader('Content-Disposition', `attachment; filename="${doc.id}.sr"`)
-    res.send(doc.content)
+    res.setHeader('Content-Disposition', `attachment; filename="${doc.sopInstanceUid}.sr"`)
+    res.send(doc.rawContent)
   }
 }

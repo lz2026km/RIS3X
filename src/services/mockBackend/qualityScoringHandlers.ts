@@ -96,20 +96,10 @@ export const qualityScoringHandlers = [
   }),
 
   // 1.3 维度启用/禁用
-  http.put(`${API_BASE}/quality/scoring/dimensions/:key/toggle`, async ({ params }) => {
-    await delay(100);
-    return success({ key: params.key, enabled: true });
-  }),
+  
 
   // 1.4 单维度重新评分
-  http.post(`${API_BASE}/quality/scoring/dimensions/:key/rescore`, async ({ params }) => {
-    await delay(200);
-    return success({
-      dimension: params.key,
-      score: 88 + Math.random() * 10,
-      rescoredAt: isoNow(),
-    });
-  }),
+  
 
   // 1.5 触发评分 (核心)   [v3.0.6.12-B3] 写入 store quality_scores
   http.post(`${API_BASE}/quality/scoring/evaluate`, async ({ request }) => {
@@ -155,16 +145,7 @@ export const qualityScoringHandlers = [
   }),
 
   // 1.6 批量评分
-  http.post(`${API_BASE}/quality/scoring/batch-evaluate`, async () => {
-    await delay(1500);
-    return success({
-      batchId: 'batch-' + uuidv4().slice(0, 8),
-      evaluated: 12,
-      failed: 0,
-      avgScore: 88.6,
-      evaluatedAt: isoNow(),
-    });
-  }),
+  
 
   // 1.7 评分结果详情   [v3.0.6.12-B3] 读 store quality_scores
   http.get(`${API_BASE}/quality/scoring/scores/:id`, async ({ params }) => {
@@ -215,111 +196,24 @@ export const qualityScoringHandlers = [
   }),
 
   // ========== 3. 评分历史 (4 点) ==========
-  http.get(`${API_BASE}/quality/scoring/history`, async ({ request }) => {
-    await delay(150);
-    const url = new URL(request.url);
-    const page = parseInt(url.searchParams.get('page') ?? '1');
-    const pageSize = parseInt(url.searchParams.get('pageSize') ?? '10');
-    const items = Array.from({ length: pageSize }, (_, i) => ({
-      id: 'sh-' + uuidv4().slice(0, 6),
-      scoreId: 'qs-' + uuidv4().slice(0, 6),
-      reportId: 'rpt-' + (page * 100 + i),
-      patientName: '患者' + (page * 100 + i),
-      modality: ['CT', 'MR', 'CR'][i % 3],
-      doctorId: 'D00' + ((i % 5) + 1),
-      doctorName: '医生' + (i + 1),
-      categoryScores: { completeness: 90 + (i % 8), accuracy: 92 + (i % 6), timeliness: 88 + (i % 5) },
-      totalScore: 85 + (i % 12),
-      grade: ['A', 'B', 'C'][i % 3],
-      evaluatedBy: 'AI',
-      evaluatedAt: isoOffset(-i),
-      trigger: ['submit', 'review', 'sign', 'manual'][i % 4],
-    }));
-    return success({ items, total: 1248, page, pageSize, totalPages: Math.ceil(1248 / pageSize) });
-  }),
+  
 
   // ========== 4. 报告生成 (4 点) ==========
-  http.post(`${API_BASE}/quality/scoring/reports`, async ({ request }) => {
-    await delay(800);
-    const body = (await request.json()) as Record<string, unknown>;
-    return success({
-      id: 'rep-' + uuidv4().slice(0, 8),
-      scoreId: String(body.scoreId ?? ''),
-      format: body.format ?? 'pdf',
-      generatedAt: isoNow(),
-      downloadUrl: `/api/v1/quality/scoring/reports/${body.scoreId ?? 'unknown'}/download.${body.format ?? 'pdf'}`,
-    });
-  }),
+  
 
-  http.get(`${API_BASE}/quality/scoring/reports/:id/download.:format`, async ({ params }) => {
-    await delay(400);
-    return new HttpResponse(`Mock report content for ${params.id}.${params.format}`, {
-      status: 200,
-      headers: { 'Content-Type': 'text/plain' },
-    });
-  }),
+  
 
   // ========== 5. 奖励联动 (4 点) ==========
-  http.get(`${API_BASE}/quality/scoring/bonus-linkages`, async () => {
-    await delay(120);
-    return success([
-      { id: 'bl-001', type: 'priority-distribution', name: '优先分发', thresholdScore: 90, enabled: true, beneficiariesCount: 12, triggeredCount: 248 },
-      { id: 'bl-002', type: 'template-promotion', name: '模板晋升', thresholdScore: 92, enabled: true, beneficiariesCount: 4, triggeredCount: 18 },
-      { id: 'bl-003', type: 'kpi-bonus', name: 'KPI 加分', thresholdScore: 85, enabled: true, beneficiariesCount: 8, triggeredCount: 96 },
-      { id: 'bl-004', type: 'peer-review-shortcut', name: '同行评议加速', thresholdScore: 90, enabled: false, beneficiariesCount: 0, triggeredCount: 32 },
-      { id: 'bl-005', type: 'publish-fast-track', name: '发布快通道', thresholdScore: 92, enabled: true, beneficiariesCount: 10, triggeredCount: 156 },
-    ]);
-  }),
+  
 
-  http.put(`${API_BASE}/quality/scoring/bonus-linkages/:id`, async ({ params, request }) => {
-    await delay(150);
-    const body = (await request.json()) as Record<string, unknown>;
-    return success({ id: params.id, ...body, updatedAt: isoNow() });
-  }),
+  
 
-  http.post(`${API_BASE}/quality/scoring/bonus-linkages/:id/trigger`, async ({ params }) => {
-    await delay(300);
-    return success({ id: params.id, triggered: true, triggeredAt: isoNow() });
-  }),
+  
 
   // ========== 6. 模板评分 (4 点) ==========
-  http.get(`${API_BASE}/quality/scoring/templates`, async () => {
-    await delay(120);
-    return success([
-      { templateId: 'tpl-ct-chest-001', templateName: '胸部 CT 标准模板', modality: 'CT', bodyPart: '胸部', baseScore: 85, passingScore: 75, published: true },
-      { templateId: 'tpl-mr-brain-002', templateName: '头颅 MR 标准模板', modality: 'MR', bodyPart: '头颅', baseScore: 88, passingScore: 78, published: true },
-      { templateId: 'tpl-ct-abdomen-003', templateName: '腹部 CT 标准模板', modality: 'CT', bodyPart: '腹部', baseScore: 86, passingScore: 76, published: true },
-      { templateId: 'tpl-mr-spine-004', templateName: '脊柱 MR 标准模板', modality: 'MR', bodyPart: '脊柱', baseScore: 84, passingScore: 74, published: false },
-      { templateId: 'tpl-ct-head-005', templateName: '头颅 CT 标准模板', modality: 'CT', bodyPart: '头颅', baseScore: 87, passingScore: 77, published: true },
-    ]);
-  }),
+  
 
-  http.post(`${API_BASE}/quality/scoring/templates/:id/score`, async ({ params }) => {
-    await delay(400);
-    return success({
-      templateId: params.id,
-      templateName: '标准模板',
-      baseScore: 85,
-      bonusApplied: 5,
-      penaltyApplied: 0,
-      finalScore: 90,
-      passingScore: 75,
-      passed: true,
-      details: [
-        { dimension: 'completeness_findings', base: 92, bonus: 5, penalty: 0, final: 97 },
-        { dimension: 'accuracy_diagnosis_match', base: 88, bonus: 0, penalty: 0, final: 88 },
-      ],
-    });
-  }),
+  
 
-  http.post(`${API_BASE}/quality/scoring/templates/:id/batch-score`, async ({ params }) => {
-    await delay(1000);
-    return success({
-      templateId: params.id,
-      evaluated: 25,
-      passed: 22,
-      failed: 3,
-      avgFinalScore: 88.4,
-    });
-  }),
+  
 ];
