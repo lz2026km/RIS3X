@@ -1,5 +1,45 @@
 ﻿# CHANGELOG
 
+## v3.0.6.11-62 (2026-08-03) — 移动App Capacitor+DBT断层+3D分割定量+影像级相似检索
+
+> **目标**: 对标前十大 PACS 剩余功能（移动原生/乳腺断层/3D 分割/影像检索），对标完成度向 70%+ 推进
+> **范围**: 4 大功能（100 suites/1029 tests）
+
+### G1: 移动原生 App（对标 Sectra/Infinitt 移动端）
+
+- `mobile/` 子应用集成 Capacitor（@capacitor/core/cli/android 6.2 + capacitor.config.ts appId com.g005.ris + 打包流程 README）
+- mobile PWA 完整化：manifest.webmanifest + 离线 sw.js + 图标
+- 后端 mobile 模块扩展 6 端点：today-summary/worklist/critical-values(+ack)/reports-latest/device-token
+- mobile 子应用独立构建成功（2.9s）
+
+### G2: DBT 乳腺断层阅片（对标 Hologic/GE/Infinitt）
+
+- 后端 dbt 模块：studies/slices(±15° 投照角)/reconstruct(MIP+Mean 投影)/compare
+- 新增 30 个真实 DBT 样本（DBT_LEFT/RIGHT 各 15 层，微钙化亮点簇 + 角度视差，样本总数 76 个 41.8MB）
+- 前端 DbtPage 重写：检查列表→断层逐层浏览(Slider/播放/WW·WL/缩放平移)→微钙化自动检出+手动标记→MIP 重建→双图对比同步滚动
+- 浏览器 17/17 通过
+
+### G3: 3D 分割与定量（对标 Siemens Lesion Quantification）
+
+- segmentation.service：骨(HU>300)/肺(<-500)/肝(40-160)/结节(种子区域生长+膨胀) 真实 3D 分割 + 体积/表面积/密度/bbox/直方图定量
+- 4 端点：segment/quantify/segmentations/approve；RadiomicsFeature 落库
+- 前端 SegmentationPage：参数面板→统计卡→三平面掩码叠加→HU 直方图→历史确认
+- 浏览器实测：颅骨 116.14 cm³/828.4 HU/929k vox 真实统计
+
+### G4: 影像级相似检索（对标 Siemens 影像检索）
+
+- image-features.ts：44 维特征向量（32-bin HU 直方图+12 统计+纹理+形态），模态门控余弦相似
+- image-search/hybrid-search（0.5 文本+0.5 影像）/listImageSeries 端点
+- 前端 SimilarCasePage 3 Tab（文本/影像/融合）+ 报告页融合检索（修复 Tab 遮挡布局缺陷）
+- 浏览器实测：CT 胸 vs CT 胸 100% 相似，跨模态正确区分；18 条 spec
+
+### 验证结果
+
+- 后端: tsc 0 错误、**jest 100 suites / 1029 tests 全部通过**
+- 前端: 主应用 vite build 成功（54s）+ mobile 子应用构建成功
+- Playwright 回归 **15/15**（登录/回归/工作列表）
+- 浏览器实测: 3 个新页面全部真实渲染（DBT/分割/影像相似）、0 JS 错误
+
 ## v3.0.6.11-61 (2026-08-03) — Phase4前沿：环境式AI报告+云存储S3/MinIO+患者门户+相似病例+多租户SaaS
 
 > **目标**: 四阶段对标计划 Phase 4（2025-2026 行业前沿趋势）实施
@@ -82,7 +122,7 @@
 
 ### Phase 0: 10×80 对标文档
 
-- 新增 `docs/PACS_BENCHMARK_V3.0.6.11-61.md`：10 厂商 × 80 项功能矩阵（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/Change Healthcare/Infinitt）
+- 新增 `docs/PACS_BENCHMARK_V3.0.6.11-62.md`：10 厂商 × 80 项功能矩阵（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/Change Healthcare/Infinitt）
 - G005 完成度 38.8%（31✅/30🟡/19❌），对标 Sectra 87.5%/GE 85.0%
 - 四阶段路线图：Phase1 修复断裂点（本次）→ Phase2 mock 降级/覆盖率 → Phase3 AI Orchestrator/BI/剂量 → Phase4 云部署/环境式报告
 
@@ -191,16 +231,16 @@
 
 ### F18: 版本号全量统一 + 文档
 
-- package.json → 3.0.6.11-61（含 package-lock.json）
-- backend/package.json → 3.0.6.11-61
-- index.html title + window.__appVersion → v3.0.6.11-61
-- src/main.tsx APP_VERSION → v3.0.6.11-61
-- backend/src/main.ts + app.module.ts → v3.0.6.11-61
-- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-61
-- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-61
-- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-61
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-61
-- CHANGELOG.md 新增 v3.0.6.11-61 条目
+- package.json → 3.0.6.11-62（含 package-lock.json）
+- backend/package.json → 3.0.6.11-62
+- index.html title + window.__appVersion → v3.0.6.11-62
+- src/main.tsx APP_VERSION → v3.0.6.11-62
+- backend/src/main.ts + app.module.ts → v3.0.6.11-62
+- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-62
+- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-62
+- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-62
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-62
+- CHANGELOG.md 新增 v3.0.6.11-62 条目
 
 ### 验证结果
 
@@ -211,10 +251,10 @@
 
 ---
 
-## v3.0.6.11-61 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
+## v3.0.6.11-62 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
 
 > **目标**: 后端深度修复 + 安全加固 + 类型修复 + 测试验证 + 性能检查 + 版本号全量统一
-> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-61
+> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-62
 
 ### A13: 后端安全加固
 
@@ -245,19 +285,19 @@
 
 ### A19: 版本号全量统一
 
-- backend/package.json → 3.0.6.11-61
-- backend/src/main.ts → Swagger version + log message → v3.0.6.11-61
-- backend/src/app.module.ts → v3.0.6.11-61
-- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-61
-- index.html title + window.__appVersion → v3.0.6.11-61
-- src/i18n/appI18n.ts → v3.0.6.11-61
-- src/main.tsx APP_VERSION → v3.0.6.11-61
-- src/routes/routeTable.tsx → v3.0.6.11-61
-- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-61
-- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-61
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-61
-- CONTRIBUTING.md → v3.0.6.11-61
-- CHANGELOG.md 新增 v3.0.6.11-61 条目
+- backend/package.json → 3.0.6.11-62
+- backend/src/main.ts → Swagger version + log message → v3.0.6.11-62
+- backend/src/app.module.ts → v3.0.6.11-62
+- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-62
+- index.html title + window.__appVersion → v3.0.6.11-62
+- src/i18n/appI18n.ts → v3.0.6.11-62
+- src/main.tsx APP_VERSION → v3.0.6.11-62
+- src/routes/routeTable.tsx → v3.0.6.11-62
+- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-62
+- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-62
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-62
+- CONTRIBUTING.md → v3.0.6.11-62
+- CHANGELOG.md 新增 v3.0.6.11-62 条目
 
 ### 验证结果
 

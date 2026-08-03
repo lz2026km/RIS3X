@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react'
-import { Search, CheckCircle, AlertCircle, Bell, UserCheck, ChevronRight, Clock, X, Check, FileText } from 'lucide-react'
+import { Search, CheckCircle, AlertCircle, UserCheck, Clock, X, Check } from 'lucide-react'
 import OfflineIndicator from '../components/OfflineIndicator'
-import { useMobileStore } from '../store/mobileStore'
 import { useNavigate } from 'react-router-dom'
 
 interface CriticalValue {
@@ -53,7 +52,6 @@ export default function MobileNurseWorkstation() {
   const [signModal, setSignModal] = useState<CriticalValue | null>(null)
   const [signature, setSignature] = useState('')
   const [confirmModal, setConfirmModal] = useState<ConfirmItem | null>(null)
-  const unread = useMobileStore(s => s.unreadNotifications)
 
   const unreadCount = MOCK_CRITICAL.filter(c => c.status === 'unread').length
 

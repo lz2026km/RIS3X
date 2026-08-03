@@ -588,6 +588,13 @@ export type {
   SimilarCaseSearchDto,
   SimilarCaseResult,
   SimilarCaseFeedbackDto,
+  // v3.0.6.11-62 影像级相似检索
+  ImageSearchDto,
+  ImageSearchResult,
+  ImageFeatureSummary,
+  ImageSeriesItem,
+  HybridSearchDto,
+  HybridSearchResult,
 } from "./similarCaseApi";
 
 export { dicom4dApi } from "./dicom4dApi";

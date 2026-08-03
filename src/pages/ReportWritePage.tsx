@@ -20,7 +20,7 @@ import {
 import { detectConflicts } from '@services/keywordConflictDetector';
 import { computeDiff, type DiffChunk } from '@services/reportDiffEngine';
 import { aiDraftApi, type AiReportDraft, type ReportDraftStyle } from '@services/api/aiDraftApi';
-import { similarCaseApi, type SimilarCaseResult } from '@services/api';
+import { type SimilarCaseResult } from '@services/api';
 import { StructuredFieldForm } from '@components/report/v3/R3.WRITING/StructuredFieldForm';
 import { ReportRichEditor } from '@components/report/v3/R3.WRITING/ReportRichEditor';
 import { AIDraftPanel } from '@components/report/v3/R3.WRITING/AIDraftPanel';
@@ -73,19 +73,38 @@ function HistoryTab({ priorReports, currentText, onCompare }: { priorReports: an
   );
 }
 
+type CaseRow = SimilarCaseResult & Partial<import('@services/api').HybridSearchResult>;
+
 function SimilarTab({ reportText, modality, bodyPart }: { reportText: string; modality: string; bodyPart: string }) {
-  const [cases, setCases] = useState<SimilarCaseResult[]>([]);
+  const [cases, setCases] = useState<CaseRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [detail, setDetail] = useState<SimilarCaseResult | null>(null);
+  const [detail, setDetail] = useState<CaseRow | null>(null);
+  const [seriesList, setSeriesList] = useState<import('@services/api').ImageSeriesItem[]>([]);
+  const [selectedSeries, setSelectedSeries] = useState<string | undefined>();
 
-  const run = useCallback(async (text: string) => {
+  useEffect(() => {
+    import('@services/api').then(({ similarCaseApi }) => {
+      similarCaseApi.listImageSeries().then((res) => {
+        if (res.success && Array.isArray(res.data)) setSeriesList(res.data);
+      }).catch(() => { /* 忽略 */ });
+    });
+  }, []);
+
+  const run = useCallback(async (text: string, seriesUid?: string) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await similarCaseApi.search({ reportText: text.trim(), modality, bodyPart, limit: 5 });
-      if (res.success && Array.isArray(res.data)) setCases(res.data);
-      else setError('检索服务返回异常');
+      const { similarCaseApi } = await import('@services/api');
+      if (seriesUid) {
+        const res = await similarCaseApi.hybridSearch({ reportText: text.trim(), seriesUID: seriesUid, limit: 5 });
+        if (res.success && Array.isArray(res.data)) setCases(res.data as CaseRow[]);
+        else setError('融合检索服务返回异常');
+      } else {
+        const res = await similarCaseApi.search({ reportText: text.trim(), modality, bodyPart, limit: 5 });
+        if (res.success && Array.isArray(res.data)) setCases(res.data);
+        else setError('检索服务返回异常');
+      }
     } catch {
       setError('相似病例检索失败');
     } finally {
@@ -94,18 +113,29 @@ function SimilarTab({ reportText, modality, bodyPart }: { reportText: string; mo
   }, [modality, bodyPart]);
 
   useEffect(() => {
-    if (reportText.trim()) void run(reportText);
-  }, [reportText, run]);
+    if (reportText.trim()) void run(reportText, selectedSeries);
+  }, [reportText, run, selectedSeries]);
 
   if (error) return <Alert type="error" showIcon message={error} />;
-  if (loading) return <div style={{ textAlign: 'center', padding: 16 }}><Spin size="small" /> 检索中…</div>;
-  if (cases.length === 0) return <Empty description="输入报告文本后自动检索相似病例" />;
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-xs text-slate-500">基于当前草稿文本 · Top {cases.length}</span>
-        <Button size="small" icon={<RefreshCw className="w-3 h-3" />} onClick={() => run(reportText)}>刷新</Button>
+        <span className="text-xs text-slate-500">{cases.length > 0 ? `基于当前草稿文本 · Top ${cases.length}` : '输入报告文本后自动检索;可选关联检查启用影像特征融合'}</span>
+        <Space size={4}>
+          <Select
+            size="small" allowClear showSearch placeholder="关联检查(影像特征)"
+            style={{ width: 180 }} value={selectedSeries} onChange={setSelectedSeries}
+            options={seriesList.map((s) => ({ label: `${s.modality}·${s.bodyPart}`, value: s.seriesUid }))}
+          />
+          <Button size="small" icon={<RefreshCw className="w-3 h-3" />} onClick={() => run(reportText, selectedSeries)}>刷新</Button>
+        </Space>
       </div>
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: 16 }}><Spin size="small" /> 检索中…</div>
+      ) : cases.length === 0 ? (
+        <Empty description="输入报告文本后自动检索相似病例" />
+      ) : (
+        <>
       {cases.map((c) => (
         <div key={c.id} className="p-2 border border-slate-200 rounded text-xs cursor-pointer hover:bg-slate-50" onClick={() => setDetail(c)}>
           <div className="flex items-center justify-between">
@@ -113,14 +143,23 @@ function SimilarTab({ reportText, modality, bodyPart }: { reportText: string; mo
               <Tag color="purple">{c.reportId}</Tag>
               <Tag color="cyan">{c.modality}</Tag>
               <Tag>{c.bodyPart}</Tag>
-              <span className="text-slate-400">{c.gender}{c.age}岁</span>
+              {c.gender && <span className="text-slate-400">{c.gender}{c.age}岁</span>}
             </Space>
             <Tag color="blue">{c.similarity}%</Tag>
           </div>
           <div className="text-slate-700 mt-1 line-clamp-2">{c.impression}</div>
+          {typeof c.imageScore === 'number' && typeof c.textScore === 'number' && (
+            <div className="flex items-center gap-2 text-[10px] text-slate-400 mt-1">
+              <span>文本 <b className="text-slate-600">{Math.round(c.textScore * 100)}%</b></span>
+              <span>影像 <b className="text-slate-600">{Math.round(c.imageScore * 100)}%</b></span>
+              {c.featureSummary != null && <span>平均 {c.featureSummary.mean}</span>}
+            </div>
+          )}
           <Progress percent={c.similarity} size="small" strokeColor={c.similarity >= 70 ? '#16a34a' : '#f59e0b'} showInfo={false} style={{ marginTop: 4 }} />
         </div>
       ))}
+      </>
+      )}
       <Modal
         open={!!detail}
         title={detail ? `相似病例 ${detail.reportId} (相似度 ${detail.similarity}%)` : ''}
@@ -128,21 +167,48 @@ function SimilarTab({ reportText, modality, bodyPart }: { reportText: string; mo
         width={560}
         onCancel={() => setDetail(null)}
       >
-        {detail && (
-          <div className="space-y-2 text-xs">
-            <div>
-              <span className="text-slate-500">模态:</span> <Tag color="cyan">{detail.modality}</Tag>
-              <span className="text-slate-500 ml-2">部位:</span> <Tag>{detail.bodyPart}</Tag>
-              <span className="text-slate-500 ml-2">性别/年龄:</span> {detail.gender} / {detail.age}岁
+        {detail && (() => {
+          const summary = detail.featureSummary ?? null;
+          const imageScore = typeof detail.imageScore === 'number' ? detail.imageScore : null;
+          const textScore = typeof detail.textScore === 'number' ? detail.textScore : null;
+          return (
+            <div className="space-y-2 text-xs">
+              <div>
+                <span className="text-slate-500">模态:</span> <Tag color="cyan">{detail.modality}</Tag>
+                <span className="text-slate-500 ml-2">部位:</span> <Tag>{detail.bodyPart}</Tag>
+                {detail.gender ? (
+                  <span className="text-slate-500 ml-2">性别/年龄: {detail.gender} / {detail.age}岁</span>
+                ) : null}
+                {imageScore !== null && textScore !== null && (
+                  <span className="text-slate-500 ml-2">文本 {Math.round(textScore * 100)}% · 影像 {Math.round(imageScore * 100)}%</span>
+                )}
+              </div>
+              <div className="font-semibold text-slate-700">影像所见</div>
+              <div className="text-slate-700 leading-relaxed">{detail.findings}</div>
+              <div className="font-semibold text-slate-700">诊断意见</div>
+              <div className="text-slate-700 leading-relaxed">{detail.impression}</div>
+              {detail.conclusion && <div><Tag color="purple">{detail.conclusion}</Tag></div>}
+              {summary && (
+                <div>
+                  <div className="font-semibold text-slate-700 mt-2">影像特征 (强度直方图)</div>
+                  <div className="flex items-end gap-px h-14 mt-1">
+                    {summary.histogram.map((v: number, i: number) => {
+                      const max = Math.max(...summary.histogram, 1);
+                      return <div key={i} className="flex-1 rounded-sm bg-indigo-400" style={{ height: `${Math.max(3, (v / max) * 100)}%` }} />;
+                    })}
+                  </div>
+                  <div className="flex gap-4 text-[10px] text-slate-400 mt-1">
+                    <span>平均 {summary.mean}</span>
+                    <span>p50 {summary.percentiles[2]}</span>
+                    <span>高密度 {(summary.highDensityRatio * 100).toFixed(1)}%</span>
+                    <span>低密度 {(summary.lowDensityRatio * 100).toFixed(1)}%</span>
+                  </div>
+                </div>
+              )}
+              <div className="text-slate-400">报告已匿名化</div>
             </div>
-            <div className="font-semibold text-slate-700">影像所见</div>
-            <div className="text-slate-700 leading-relaxed">{detail.findings}</div>
-            <div className="font-semibold text-slate-700">诊断意见</div>
-            <div className="text-slate-700 leading-relaxed">{detail.impression}</div>
-            {detail.conclusion && <div><Tag color="purple">{detail.conclusion}</Tag></div>}
-            <div className="text-slate-400">报告已匿名化</div>
-          </div>
-        )}
+          );
+        })()}
       </Modal>
     </div>
   );
@@ -267,6 +333,7 @@ const V3_STYLES = `
 .v3-clinical-full { grid-column: 1 / -1; font-size: 12px; line-height: 1.6; background: #f8fafc; padding: 6px 8px; border-radius: 4px; }
 .v3-sider { overflow-y: auto; max-height: calc(100vh - 53px); border-left: 1px solid #e2e8f0; }
 .v3-sider .ant-tabs-nav { margin-bottom: 0 !important; padding-top: 4px; }
+.v3-sider .ant-tabs-extra-content, .v3-sider .ant-tabs-extra-content .ant-badge { pointer-events: none; }
 .v3-sider-body { padding: 8px; }
 .v3-sider-body .ant-card { border: 1px solid #e2e8f0; box-shadow: none; border-radius: 6px; }
 @media (max-width: 1024px) { .v3-topbar-hide-mobile { display: none; } .v3-sider { width: 300px !important; max-width: 300px !important; } }

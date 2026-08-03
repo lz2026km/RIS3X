@@ -231,6 +231,7 @@
   "dicomNetwork": "DICOM Network",
   "workflowV3": "Workflow V3",
   "radiomics": "Radiomics",
+  "segmentation": "3D Segmentation",
   "fhirPatient": "FHIR Patient",
   "fhirObservation": "FHIR Observation",
   "fhirDiagnosticReport": "FHIR Diagnostic Report",

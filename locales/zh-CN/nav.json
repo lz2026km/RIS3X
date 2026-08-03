@@ -230,6 +230,7 @@
   "dicomNetwork": "DICOM 网络",
   "workflowV3": "工作流 V3",
   "radiomics": "影像组学分析",
+  "segmentation": "3D 分割与定量",
   "dicom4d": "4D 动态影像",
   "fhirPatient": "FHIR 患者",
   "fhirObservation": "FHIR 观察",

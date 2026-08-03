@@ -425,6 +425,7 @@ const RadiomicsPage = lazy(() => import("../pages/dicom/RadiomicsPage"));
 const FusionPage = lazy(() => import("../pages/dicom/FusionPage"));
 const FusionV2Page = lazy(() => import("../pages/dicom/FusionV2Page"));
 const VolumeViewerPage = lazy(() => import("../pages/dicom/VolumeViewerPage"));
+const SegmentationPage = lazy(() => import("../pages/dicom/SegmentationPage")); // [v3.0.6.11-62] 3D 分割与定量
 const TerminologyServerPage = lazy(
   () => import("../pages/clinical/TerminologyServerPage"),
 );
@@ -764,6 +765,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/dicom/fusion": ["医生", "主任", "技师", "管理员"], // [v3.0.6.11-18] PET-CT/MR fusion
   "/dicom/fusion-v2": ["医生", "主任", "技师", "管理员"], // [v3.0.6.11-22] Multi-modal fusion V2
   "/dicom/volume-viewer": ["医生", "主任", "技师", "管理员"], // [v3.0.6.11-18] 3D Volume Rendering
+  "/dicom/segmentation": ["医生", "主任", "技师", "管理员"], // [v3.0.6.11-62] 3D 分割与定量
   "/dicom/mpr": ["医生", "技师", "主任", "管理员"], // [v3.0.6.11-41] MPR
   "/dicom/mip": ["医生", "技师", "主任", "管理员"], // [v3.0.6.11-41] MIP
   "/dicom/vr": ["医生", "技师", "主任", "管理员"], // [v3.0.6.11-41] VR
@@ -1175,6 +1177,7 @@ export const routes: RouteObject[] = [
   wrapped("/dicom/fusion", React.createElement(FusionPage)), // [v3.0.6.11-18] PET-CT/MR fusion
   wrapped("/dicom/fusion-v2", React.createElement(FusionV2Page)), // [v3.0.6.11-22] Multi-modal fusion V2
   wrapped("/dicom/volume-viewer", React.createElement(VolumeViewerPage)), // [v3.0.6.11-18] 3D Volume Rendering
+  wrapped("/dicom/segmentation", React.createElement(SegmentationPage)), // [v3.0.6.11-62] 3D 分割与定量 (结节/骨/肝/肺)
   // [v3.0.6.11-41] A12 影像处理补齐路由
   wrapped("/dicom/mpr", React.createElement(MprPage)),
   wrapped("/dicom/mip", React.createElement(MipPage)),

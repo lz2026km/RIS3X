@@ -27,7 +27,7 @@ class MobileApiClient {
     return headers
   }
 
-  private async request<T>(endpoint: string, config: RequestConfig = {}): Promise<T> {
+  async request<T>(endpoint: string, config: RequestConfig = {}): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`
     const headers = { ...this.getAuthHeaders(), ...config.headers }
     const response = await fetch(url, {

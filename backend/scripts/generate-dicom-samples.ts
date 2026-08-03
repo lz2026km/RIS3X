@@ -6,6 +6,7 @@
  *   - CT 胸 (512x512x15): 肺 -800~-600 HU / 软组织 40 HU / 骨
  *   - MR 脑 (256x256x10): T1 样信号 (灰质/白质对比)
  *   - DR 胸片 (2048x2048x1): 肺部/纵隔/肋骨
+ *   - DBT 乳腺断层 (512x512x15 x2): 左/右乳腺, 纤维腺体密度 + 微钙化亮点, ±15° 角度
  *
  * 运行: cd backend && npx ts-node scripts/generate-dicom-samples.ts
  * 输出: backend/dicom-samples/<SERIES>/<FILE>.dcm + manifest.json
@@ -21,6 +22,7 @@ const UID_ROOT = '1.2.826.0.1.3680043.10.155.3.0.6.11'
 const SOP_CT = '1.2.840.10008.5.1.4.1.1.2' // CT Image Storage
 const SOP_MR = '1.2.840.10008.5.1.4.1.1.4' // MR Image Storage
 const SOP_DX = '1.2.840.10008.5.1.4.1.1.1.1' // Digital X-Ray Image Storage
+const SOP_DBT = '1.2.840.10008.5.1.4.1.1.13.1.3' // Digital Breast Tomosynthesis Image Storage
 const TS_EXPLICIT_LE = '1.2.840.10008.1.2.1'
 const IMPLEMENTATION_CLASS = '1.2.840.10008.5.1.4.1.2.1.1'
 const IMPLEMENTATION_VERSION = 'G005-RIS-SAMPLES-3.0.6.11'
@@ -103,9 +105,17 @@ export interface SampleSeriesSpec {
   rescaleIntercept: number
   rescaleSlope: number
   sliceCount: number
-  /** 生成第 z 层原始存储值(z 从 0 开始;层间线性插值用 layer 0..1) */
+  /** 输出子目录 (默认 spec.key); DBT 左右乳腺可共用 dicom-samples/DBT/ */
+  dir?: string
+  /** DBT 投照角度序列 (每帧一个角度, 度); 缺省按 instanceNumber 排序 */
+  tomoAngles?: number[]
+  bodyPartExamined?: string
+  viewPosition?: string
+  kvp?: number
+  imageType?: string
   generateSlice: (px: number, py: number, layer: number) => number
 }
+
 
 export interface SampleInstanceMeta {
   file: string
@@ -113,6 +123,8 @@ export interface SampleInstanceMeta {
   instanceNumber: number
   sliceLocation: number
   imagePositionPatient: [number, number, number]
+  /** DBT 该帧投照角度 (度) */
+  tomoAngle?: number
 }
 
 export interface SampleSeriesManifest {
@@ -128,6 +140,8 @@ export interface SampleSeriesManifest {
   studyDate: string
   studyDescription: string
   seriesDescription: string
+  bodyPartExamined?: string
+  viewPosition?: string
   seriesNumber: number
   rows: number
   columns: number
@@ -308,6 +322,54 @@ function makeDrChest(): SampleSeriesSpec['generateSlice'] {
   }
 }
 
+/**
+ * DBT 断层 (乳腺断层合成): 空气背景 / 乳腺主体轮廓 / 纤维腺体密度 /
+ * 脂肪小叶间隙 / 皮肤线 / 微钙化亮点簇 / 角度视差 (层间水平位移)。
+ * 存储值 = 原始信号 (RescaleIntercept=0), 范围 ~320..4095。
+ */
+function makeDbtSlice(side: 'L' | 'R', seed: number): SampleSeriesSpec['generateSlice'] {
+  const CLUSTERS: Array<[number, number, number]> = [
+    [-150, -40, 1.0], [90, 20, 0.85], [-60, 140, 1.2], [30, -180, 0.9],
+    [170, -120, 1.1], [-200, 60, 1.0], [-10, -60, 1.3], [140, 180, 0.95],
+  ]
+  return (px, py, layer) => {
+    const n = noise2(px * 0.04, py * 0.04, seed)
+    const n2 = noise2(px * 0.14, py * 0.14, seed + 17)
+    const n3 = noise2(px * 0.5, py * 0.5, seed + 41)
+    const lob = noise2(px * 0.06, py * 0.06, seed + 7)
+    let sig = 320 + n * 40
+    const dir = side === 'R' ? 1 : -1
+    const cx = 256 + dir * 120
+    const cy = 300
+    const bx = (px - cx) * dir
+    const by = py - cy
+    const e = (bx / (256 * 1.45)) ** 2 + (by / (256 * 1.75)) ** 2
+    if (e < 1) {
+      const t = 1 - Math.sqrt(e)
+      sig = 620 + 260 * t + n * 90
+      const bxs = bx - (layer - 0.5) * 26 * dir
+      const bxe = (bxs / (256 * 1.45)) ** 2 + (by / (256 * 1.75)) ** 2
+      const te = Math.max(0, 1 - Math.sqrt(bxe))
+      sig += 420 * Math.pow(te, 1.6) * (0.55 + 0.45 * n2)
+      sig += 90 * Math.abs(Math.sin(bxs * 0.02 + by * 0.015 + 0.6 * Math.log(te + 1))) * (0.5 + 0.5 * n3)
+      if (lob > 0.35) sig -= 220 * (lob - 0.35) / 0.65
+      if (t < 0.045) sig += 380
+      for (const [ox, oy, r] of CLUSTERS) {
+        const ddx = bx - ox
+        const ddy = by - oy
+        const d = Math.sqrt(ddx * ddx + ddy * ddy)
+        const size = 6 * r
+        if (d < size) {
+          const k = 1 - d / size
+          sig += 3000 * k * k
+        }
+      }
+    }
+    sig += 60 * Math.sin(layer * Math.PI * 2 + (px + py) * 0.01)
+    return Math.round(Math.max(0, Math.min(4095, sig)))
+  }
+}
+
 // ────────────────────────────────────────────────────────────────────────────
 // Part 10 文件构建
 // ────────────────────────────────────────────────────────────────────────────
@@ -319,6 +381,7 @@ function buildPart10(opts: {
   sliceLocation: number
   imagePositionPatient: [number, number, number]
   pixelData: Buffer
+  tomoAngle?: number
 }): Buffer {
   const { spec, sopInstanceUid, instanceNumber, sliceLocation, imagePositionPatient, pixelData } = opts
   const studyUid = `${UID_ROOT}.${spec.studyDate.replace(/-/g, '')}.${spec.accessionNumber}`
@@ -346,7 +409,7 @@ function buildPart10(opts: {
   }
   // Patient
   ed(0x0008, 0x0005, 'CS', cs('ISO_IR 6')) // Specific Character Set (ASCII)
-  ed(0x0008, 0x0008, 'CS', val(`ORIGINAL\\PRIMARY\\AXIAL`))
+  ed(0x0008, 0x0008, 'CS', val(series.imageType ?? `ORIGINAL\\PRIMARY\\AXIAL`))
   ed(0x0008, 0x0016, 'UI', ui(series.sopClassUid))
   ed(0x0008, 0x0018, 'UI', ui(sopInstanceUid))
   ed(0x0008, 0x0020, 'DA', da(series.studyDate))
@@ -386,6 +449,10 @@ function buildPart10(opts: {
   ed(0x0028, 0x1051, 'DS', ds(series.windowWidth))
   ed(0x0028, 0x1052, 'DS', ds(series.rescaleIntercept))
   ed(0x0028, 0x1053, 'DS', ds(series.rescaleSlope))
+  if (series.bodyPartExamined) ed(0x0018, 0x0015, 'CS', cs(series.bodyPartExamined))
+  if (series.viewPosition) ed(0x0018, 0x5101, 'CS', cs(series.viewPosition))
+  if (series.kvp) ed(0x0018, 0x0060, 'DS', ds(series.kvp))
+  if (opts.tomoAngle !== undefined) ed(0x0018, 0x1120, 'DS', ds(opts.tomoAngle))
   ed(0x7FE0, 0x0010, 'OW', pixelData)
 
   const preamble = Buffer.alloc(128, 0)
@@ -406,7 +473,7 @@ interface SeriesOutput {
 function generateSeries(spec: SampleSeriesSpec): SeriesOutput {
   const studyUid = `${UID_ROOT}.${spec.studyDate.replace(/-/g, '')}.${spec.accessionNumber}`
   const seriesUid = `${UID_ROOT}.${spec.modality}.S.${spec.seriesNumber}`
-  const dir = path.join(OUT_DIR, spec.key)
+  const dir = path.join(OUT_DIR, spec.dir ?? spec.key)
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
 
   const instances: SampleInstanceMeta[] = []
@@ -425,6 +492,7 @@ function generateSeries(spec: SampleSeriesSpec): SeriesOutput {
     }
     const instanceNumber = i + 1
     const sliceLocation = Number((z0 + i * spec.sliceThickness).toFixed(2))
+    const tomoAngle = spec.tomoAngles && spec.tomoAngles.length === spec.sliceCount ? spec.tomoAngles[i] : undefined
     const sopInstanceUid = `${UID_ROOT}.${spec.modality}.I.${spec.seriesNumber}.${String(instanceNumber).padStart(4, '0')}`
     const file = path.join(dir, `${spec.key}_${String(instanceNumber).padStart(3, '0')}.dcm`)
     const dicom = buildPart10({
@@ -434,6 +502,7 @@ function generateSeries(spec: SampleSeriesSpec): SeriesOutput {
       sliceLocation,
       imagePositionPatient: [0, 0, sliceLocation],
       pixelData: buf,
+      tomoAngle,
     })
     fs.writeFileSync(file, dicom)
     files.push(file)
@@ -443,6 +512,7 @@ function generateSeries(spec: SampleSeriesSpec): SeriesOutput {
       instanceNumber,
       sliceLocation,
       imagePositionPatient: [0, 0, sliceLocation],
+      tomoAngle,
     })
   }
 
@@ -460,6 +530,8 @@ function generateSeries(spec: SampleSeriesSpec): SeriesOutput {
     studyDescription: spec.studyDescription,
     seriesDescription: spec.seriesDescription,
     seriesNumber: spec.seriesNumber,
+    bodyPartExamined: spec.bodyPartExamined,
+    viewPosition: spec.viewPosition,
     rows: spec.rows,
     columns: spec.columns,
     pixelSpacing: spec.pixelSpacing.map((p) => p.toFixed(6)).join('\\'),
@@ -634,6 +706,68 @@ function main(): void {
       rescaleSlope: 1,
       sliceCount: 1,
       generateSlice: makeDrChest(),
+    },
+    {
+      key: 'DBT_LEFT',
+      modality: 'DBT',
+      sopClassUid: SOP_DBT,
+      patientName: 'CHEN^DBT01',
+      patientId: 'P0000005',
+      patientSex: 'F',
+      patientBirthDate: '19780819',
+      studyDate: '20260310',
+      studyTime: '093020',
+      accessionNumber: 'ACC-SAMPLE-0005',
+      studyDescription: 'BREAST TOMOSYNTHESIS',
+      seriesDescription: 'L-CC DBT TOMOSYNTHESIS',
+      dir: 'DBT',
+      seriesNumber: 5,
+      rows: 512,
+      columns: 512,
+      pixelSpacing: [0.1, 0.1],
+      sliceThickness: 1,
+      windowCenter: 1600,
+      windowWidth: 2400,
+      rescaleIntercept: 0,
+      rescaleSlope: 1,
+      sliceCount: 15,
+      tomoAngles: [-15,-12.86,-10.71,-8.57,-6.43,-4.29,-2.14,0,2.14,4.29,6.43,8.57,10.71,12.86,15],
+      bodyPartExamined: 'BREAST',
+      viewPosition: 'LCC',
+      kvp: 30,
+      imageType: 'ORIGINAL\\PRIMARY\\TOMOSYNTHESIS',
+      generateSlice: makeDbtSlice('L', 91),
+    },
+    {
+      key: 'DBT_RIGHT',
+      modality: 'DBT',
+      sopClassUid: SOP_DBT,
+      patientName: 'CHEN^DBT01',
+      patientId: 'P0000005',
+      patientSex: 'F',
+      patientBirthDate: '19780819',
+      studyDate: '20260310',
+      studyTime: '093530',
+      accessionNumber: 'ACC-SAMPLE-0005',
+      studyDescription: 'BREAST TOMOSYNTHESIS',
+      seriesDescription: 'R-CC DBT TOMOSYNTHESIS',
+      dir: 'DBT',
+      seriesNumber: 6,
+      rows: 512,
+      columns: 512,
+      pixelSpacing: [0.1, 0.1],
+      sliceThickness: 1,
+      windowCenter: 1600,
+      windowWidth: 2400,
+      rescaleIntercept: 0,
+      rescaleSlope: 1,
+      sliceCount: 15,
+      tomoAngles: [-15,-12.86,-10.71,-8.57,-6.43,-4.29,-2.14,0,2.14,4.29,6.43,8.57,10.71,12.86,15],
+      bodyPartExamined: 'BREAST',
+      viewPosition: 'RCC',
+      kvp: 30,
+      imageType: 'ORIGINAL\\PRIMARY\\TOMOSYNTHESIS',
+      generateSlice: makeDbtSlice('R', 92),
     },
   ]
 

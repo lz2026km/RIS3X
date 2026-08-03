@@ -61,6 +61,7 @@ import { BenchmarkModule } from "./modules/benchmark/benchmark.module";
 import { AiDiagnosisModule } from "./modules/ai-diagnosis/ai-diagnosis.module";
 import { DicomCompressModule } from "./modules/dicom-compress/dicom-compress.module";
 import { Dicom4dModule } from "./modules/dicom-4d/dicom-4d.module";
+import { DbtModule } from "./modules/dbt/dbt.module";
 import { AiMarketplaceModule } from "./modules/ai-marketplace/ai-marketplace.module";
 import { CrossModalModule } from "./modules/cross-modal/cross-modal.module";
 import { SimilarCaseModule } from "./modules/similar-case/similar-case.module";
@@ -198,6 +199,7 @@ import { SystemStorageModule } from "./system-storage/system-storage.module";
     TriageModule,
     DicomCompressModule,
     Dicom4dModule,
+    DbtModule,
     AiMarketplaceModule,
     CrossModalModule,
     SimilarCaseModule,

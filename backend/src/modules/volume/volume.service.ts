@@ -15,7 +15,7 @@ export interface VolumeDims {
   z: number
 }
 
-interface RealVolume {
+export interface RealVolume {
   width: number
   height: number
   depth: number
@@ -158,6 +158,37 @@ export class VolumeService {
       volume: job.volume,
       slices: job.real ? job.real.depth : undefined,
       modality: job.real?.modality,
+    }
+  }
+
+  /**
+   * 分割专用: 直接读取 series 真实体数据 (复用 reconstruct 的 DICOM 解析),
+   * 无真实数据或解析失败时返回 null (调用方回退合成体数据)。
+   */
+  async loadRealVolume(seriesUID: string): Promise<{ real: RealVolume; jobId: string } | null> {
+    const model = (this.prisma as any).dicomInstance
+    if (!model?.findMany) return null
+    try {
+      const instances = await model.findMany({ where: { seriesInstanceUid: seriesUID } })
+      if (instances.length === 0) return null
+      const real = this.buildRealVolume(instances)
+      if (!real) return null
+      const jobId = `vol-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+      this.jobs.set(jobId, {
+        jobId,
+        seriesUID,
+        status: 'completed',
+        progress: 100,
+        source: 'real',
+        volume: { x: real.width, y: real.height, z: real.depth },
+        real,
+        createdAt: new Date(),
+      })
+      this.logger.log(`loadRealVolume ${seriesUID}: ${real.width}x${real.height}x${real.depth} (${instances.length} slices)`)
+      return { real, jobId }
+    } catch (e) {
+      this.logger.warn(`loadRealVolume ${seriesUID}: ${(e as Error).message}`)
+      return null
     }
   }
 

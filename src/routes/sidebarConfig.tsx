@@ -573,6 +573,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.dicomVolume",
         roles: ["医生", "技师", "主任", "管理员",],
       },
+      // [v3.0.6.11-62] G005 3D 分割与定量 (对标 Siemens Lesion Quantification)
+      {
+        path: "/dicom/segmentation",
+        icon: <Scan size={18} />,
+        labelKey: "nav.segmentation",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
       // [v3.0.6.11-41] A12 影像处理补齐: MPR / MIP / VR / 后处理 / DBT
       {
         path: "/dicom/mpr",

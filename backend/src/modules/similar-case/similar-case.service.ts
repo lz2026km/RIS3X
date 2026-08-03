@@ -1,6 +1,15 @@
 import { Injectable } from '@nestjs/common'
+import * as fs from 'node:fs'
 import { PrismaService } from '../../prisma/prisma.service'
 import { getCurrentTenantId } from '../../common/interceptors/tenant-context.interceptor'
+import {
+  type ImageFeatures,
+  parseDicomPart10,
+  extractFeatures,
+  buildDemoFeatures,
+  imageSimilarity,
+  inferBodyPart,
+} from './image-features'
 
 export interface SimilarCaseCandidate {
   id: string
@@ -36,6 +45,74 @@ export interface SimilarCaseFeedbackInput {
   targetReportId: string
   useful: boolean
   comment?: string
+}
+
+export interface ImageSearchInput {
+  seriesUID?: string
+  studyUid?: string
+  limit?: number
+}
+
+export interface ImageFeatureSummary {
+  mean: number
+  std: number
+  skew: number
+  kurtosis: number
+  min: number
+  max: number
+  percentiles: number[]
+  textureEnergy: number
+  highDensityRatio: number
+  lowDensityRatio: number
+  histogram: number[]
+}
+
+export interface ImageSearchResult {
+  seriesUid: string
+  studyUid: string
+  modality: string
+  bodyPart: string
+  instanceCount: number
+  similarity: number
+  featureScore: number
+  matchScore: number
+  featureSummary: ImageFeatureSummary
+  source: 'real' | 'demo'
+}
+
+export interface ImageSeriesItem {
+  seriesUid: string
+  studyUid: string
+  modality: string
+  bodyPart: string
+  instanceCount: number
+  description: string
+  source: 'real' | 'demo'
+}
+
+export interface HybridSearchInput {
+  reportId?: string
+  reportText?: string
+  seriesUID?: string
+  studyUid?: string
+  limit?: number
+}
+
+export interface HybridSearchResult {
+  id: string
+  reportId: string
+  seriesUid?: string
+  studyUid: string
+  modality: string
+  bodyPart: string
+  similarity: number
+  textScore: number | null
+  imageScore: number | null
+  featureSummary: ImageFeatureSummary | null
+  source: 'db' | 'demo' | 'real'
+  impression?: string
+  findings?: string
+  keywords?: string[]
 }
 
 /**
@@ -308,6 +385,12 @@ export class SimilarCaseService {
   /** 内存反馈存储 (DB 不可用时回退) */
   private readonly memoryFeedback: SimilarCaseFeedbackInput[] = []
 
+  /** 影像特征缓存 (seriesUID → features; 内存 Map, 无 DB 回退) */
+  private readonly imageFeatureCache = new Map<string, ImageFeatures>()
+
+  /** demo 影像特征库 (确定性生成, source: 'demo') */
+  private demoImageFeatures: ImageFeatures[] | null = null
+
   constructor(private readonly prisma: PrismaService | null = null) {}
 
   /* ---------------- 关键词提取 ---------------- */
@@ -518,5 +601,355 @@ export class SimilarCaseService {
   feedbackStats(): { total: number; useful: number; useless: number } {
     const useful = this.memoryFeedback.filter((f) => f.useful).length
     return { total: this.memoryFeedback.length, useful, useless: this.memoryFeedback.length - useful }
+  }
+
+  /* ════════════════════════════════════════════════════════════════════════
+   * 影像级相似检索 (v3.0.6.11-62)
+   * 特征: 强度直方图(32-bin) / 统计(mean·std·skew·kurt·percentiles) /
+   *       纹理(相邻差分均值) / 形态(高/低密度占比)
+   * 相似度 = 0.6×特征余弦 + 0.4×模态/部位匹配 (跨模态家族特征余弦记 0)
+   * ════════════════════════════════════════════════════════════════════════
+   */
+
+  /** demo 影像特征库: 由 24 例演示病例确定性生成 (表空/DB 不可用时回退) */
+  private demoFeatures(): ImageFeatures[] {
+    if (this.demoImageFeatures) return this.demoImageFeatures
+    this.demoImageFeatures = this.demoCases.map((c) =>
+      buildDemoFeatures({
+        seriesUid: `demo-series-${c.reportId}`,
+        studyUid: `demo-study-${c.reportId}`,
+        modality: c.modality,
+        bodyPart: c.bodyPart,
+      }),
+    )
+    return this.demoImageFeatures
+  }
+
+  private featureSummaryOf(f: ImageFeatures): ImageFeatureSummary {
+    return {
+      mean: f.mean,
+      std: f.std,
+      skew: f.skew,
+      kurtosis: f.kurtosis,
+      min: f.min,
+      max: f.max,
+      percentiles: [...f.percentiles],
+      textureEnergy: f.textureEnergy,
+      highDensityRatio: f.highDensityRatio,
+      lowDensityRatio: f.lowDensityRatio,
+      histogram: [...f.histogram],
+    }
+  }
+
+  /** 从真实 DICOM 文件构建 series 特征 (解析 PixelData, 确定性下采样, 缓存) */
+  private async buildRealFeature(seriesUid: string, instances: Array<{ storagePath: string | null; modality: string; studyInstanceUid: string; sopInstanceUid: string }>): Promise<ImageFeatures | null> {
+    const cached = this.imageFeatureCache.get(seriesUid)
+    if (cached) return cached
+    const files = instances.filter((i) => i.storagePath && fs.existsSync(i.storagePath)).map((i) => i.storagePath!)
+    if (files.length === 0) return null
+    try {
+      const slices = files.slice(0, 16).map((f) => parseDicomPart10(fs.readFileSync(f)))
+      const first = slices[0]!
+      const modality = instances[0]?.modality ?? 'OT'
+      const bodyPart = inferBodyPart(modality, `${first.seriesDescription} ${first.studyDescription}`, `${seriesUid} ${instances[0]?.studyInstanceUid ?? ''}`)
+      const feature = extractFeatures({
+        seriesUid,
+        studyUid: instances[0]?.studyInstanceUid ?? `study-${seriesUid}`,
+        modality,
+        bodyPart,
+        slices,
+        instanceCount: instances.length,
+        source: 'real',
+      })
+      this.imageFeatureCache.set(seriesUid, feature)
+      return feature
+    } catch {
+      return null
+    }
+  }
+
+  /** 从 dicomInstance 表加载真实 series 特征 (DB 不可用返回空) */
+  private async loadRealFeatures(): Promise<ImageFeatures[]> {
+    const model = (this.prisma as any)?.dicomInstance
+    if (!model?.findMany) return []
+    try {
+      const instances = await model.findMany({ take: 500, orderBy: { createdAt: 'asc' } })
+      const bySeries = new Map<string, any[]>()
+      for (const inst of instances) {
+        const list = bySeries.get(inst.seriesInstanceUid) ?? []
+        list.push(inst)
+        bySeries.set(inst.seriesInstanceUid, list)
+      }
+      const out: ImageFeatures[] = []
+      for (const [uid, list] of bySeries) {
+        const f = await this.buildRealFeature(uid, list)
+        if (f) out.push(f)
+      }
+      return out
+    } catch {
+      return []
+    }
+  }
+
+  /** 全部可用影像特征: 真实样本 + demo 特征库 */
+  private async allFeatures(): Promise<ImageFeatures[]> {
+    return [...(await this.loadRealFeatures()), ...this.demoFeatures()]
+  }
+
+  /** 序列列表 (影像检索前端选择器) */
+  async listImageSeries(): Promise<ImageSeriesItem[]> {
+    const items: ImageSeriesItem[] = []
+    for (const f of await this.allFeatures()) {
+      items.push({
+        seriesUid: f.seriesUid,
+        studyUid: f.studyUid,
+        modality: f.modality,
+        bodyPart: f.bodyPart,
+        instanceCount: f.instanceCount,
+        description: f.source === 'real' ? `${f.modality} ${f.bodyPart} 影像 (真实样本)` : `${f.modality} ${f.bodyPart} (演示特征库)`,
+        source: f.source,
+      })
+    }
+    return items
+  }
+
+  /**
+   * 影像级相似检索: 输入 seriesUID 或 studyUid → 提取特征 → 检索 Top N
+   * 返回匿名结果 (无患者名/身份信息)
+   */
+  async imageSearch(input: ImageSearchInput): Promise<ImageSearchResult[]> {
+    const limit = Math.min(20, Math.max(1, input.limit ?? 10))
+    const features = await this.allFeatures()
+    let query = input.seriesUID ? features.find((f) => f.seriesUid === input.seriesUID) : undefined
+    if (!query && input.studyUid) query = features.find((f) => f.studyUid === input.studyUid)
+    if (!query) {
+      const resolved = await this.resolveExternalQuery(input)
+      if (resolved) query = resolved
+    }
+    if (!query) return []
+
+    const results: ImageSearchResult[] = []
+    for (const f of features) {
+      if (f.seriesUid === query.seriesUid) continue
+      const { cos, match, score } = imageSimilarity(query, f)
+      results.push({
+        seriesUid: f.seriesUid,
+        studyUid: f.studyUid,
+        modality: f.modality,
+        bodyPart: f.bodyPart,
+        instanceCount: f.instanceCount,
+        similarity: Math.round(score * 100),
+        featureScore: Math.round(cos * 10000) / 100,
+        matchScore: Math.round(match * 10000) / 100,
+        featureSummary: this.featureSummaryOf(f),
+        source: f.source,
+      })
+    }
+    return results.sort((a, b) => b.similarity - a.similarity || b.featureScore - a.featureScore).slice(0, limit)
+  }
+
+  /** query 不在特征库时, 尝试直接从 dicomInstance 提取 (seriesUID / studyUid) */
+  private async resolveExternalQuery(input: ImageSearchInput): Promise<ImageFeatures | null> {
+    const model = (this.prisma as any)?.dicomInstance
+    if (!model?.findMany) return null
+    try {
+      const where: any = {}
+      if (input.seriesUID) where.seriesInstanceUid = input.seriesUID
+      else if (input.studyUid) where.studyInstanceUid = input.studyUid
+      else return null
+      const instances = await model.findMany({ where, take: 200 })
+      if (instances.length === 0) return null
+      if (input.seriesUID) return this.buildRealFeature(input.seriesUID, instances)
+      const bySeries = new Map<string, any[]>()
+      for (const inst of instances) {
+        const list = bySeries.get(inst.seriesInstanceUid) ?? []
+        list.push(inst)
+        bySeries.set(inst.seriesInstanceUid, list)
+      }
+      const first = [...bySeries.entries()][0]
+      return first ? this.buildRealFeature(first[0], first[1]) : null
+    } catch {
+      return null
+    }
+  }
+
+  /**
+   * 融合检索: 文本相似 (Jaccard+特征+SNOMED) + 影像特征 (余弦+模态/部位)
+   * 综合评分 = 0.5×文本分 + 0.5×影像分 (仅有其一则用可用分量)
+   */
+  async hybridSearch(input: HybridSearchInput): Promise<HybridSearchResult[]> {
+    const limit = Math.min(20, Math.max(1, input.limit ?? 10))
+
+    // 文本查询
+    let text = input.reportText ?? ''
+    let modality: string | undefined
+    let bodyPart: string | undefined
+    let age: number | undefined
+    let gender: string | undefined
+    let snomedCodes: string[] = []
+    if (input.reportId && !text) {
+      const demo = this.demoCases.find((d) => d.reportId === input.reportId)
+      if (demo) {
+        text = `${demo.findings} ${demo.impression}`
+        modality = demo.modality
+        bodyPart = demo.bodyPart
+        age = demo.age
+        gender = demo.gender
+        snomedCodes = demo.snomedCodes
+      } else if (this.prisma) {
+        try {
+          const report = await this.prisma.report.findUnique({
+            where: { id: input.reportId },
+            include: { patient: true, exam: true },
+          })
+          if (report) {
+            text = `${report.findings} ${report.impression} ${report.conclusion}`
+            modality = report.exam?.modality
+            bodyPart = report.exam?.bodyPart
+            if (report.patient.birthDate) {
+              age = Math.max(0, Math.floor((Date.now() - new Date(report.patient.birthDate).getTime()) / (365.25 * 24 * 3600 * 1000)))
+            }
+          }
+        } catch {
+          /* DB 不可用 */
+        }
+      }
+    }
+    const keywords = this.extractKeywords(text)
+
+    // 影像查询特征
+    const features = await this.allFeatures()
+    let imageQuery: ImageFeatures | undefined
+    if (input.seriesUID) imageQuery = features.find((f) => f.seriesUid === input.seriesUID)
+    if (!imageQuery && input.studyUid) imageQuery = features.find((f) => f.studyUid === input.studyUid)
+    if (!imageQuery) imageQuery = (await this.resolveExternalQuery(input)) ?? undefined
+    const hasImageQuery = !!imageQuery
+    const imageModality = imageQuery?.modality
+    const imageBodyPart = imageQuery?.bodyPart
+
+    // 候选集: demo 病例 (文本+影像) + 真实 series (影像; reportId 关联时含文本)
+    interface Candidate {
+      id: string
+      reportId: string
+      seriesUid?: string
+      studyUid: string
+      modality: string
+      bodyPart: string
+      gender: string
+      age: number
+      findings: string
+      impression: string
+      conclusion: string
+      keywords: string[]
+      snomedCodes: string[]
+      feature?: ImageFeatures
+      source: 'db' | 'demo' | 'real'
+    }
+    const candidates: Candidate[] = []
+    for (const d of this.demoCases) {
+      candidates.push({
+        id: d.id,
+        reportId: d.reportId,
+        studyUid: `demo-study-${d.reportId}`,
+        modality: d.modality,
+        bodyPart: d.bodyPart,
+        gender: d.gender,
+        age: d.age,
+        findings: d.findings,
+        impression: d.impression,
+        conclusion: d.conclusion,
+        keywords: d.keywords,
+        snomedCodes: d.snomedCodes,
+        feature: this.demoFeatures().find((f) => f.seriesUid === `demo-series-${d.reportId}`),
+        source: 'demo',
+      })
+    }
+    for (const f of features) {
+      if (f.source !== 'real') continue
+      let reportId = `series-${f.seriesUid.slice(-8)}`
+      let findings = ''
+      let impression = ''
+      let conclusion = ''
+      let kws: string[] = []
+      let snomed: string[] = []
+      if (this.prisma) {
+        try {
+          const inst = await (this.prisma as any).dicomInstance.findFirst({ where: { seriesInstanceUid: f.seriesUid }, select: { reportId: true } })
+          if (inst?.reportId) {
+            const report = await this.prisma.report.findUnique({ where: { id: inst.reportId } })
+            if (report) {
+              reportId = report.id
+              findings = report.findings
+              impression = report.impression
+              conclusion = report.conclusion || report.impression
+              kws = this.extractKeywords(`${findings} ${impression} ${conclusion}`)
+            }
+          }
+        } catch {
+          /* DB 不可用 */
+        }
+      }
+      candidates.push({
+        id: `img-${f.seriesUid}`,
+        reportId,
+        seriesUid: f.seriesUid,
+        studyUid: f.studyUid,
+        modality: f.modality,
+        bodyPart: f.bodyPart,
+        gender: '',
+        age: 0,
+        findings,
+        impression,
+        conclusion,
+        keywords: kws,
+        snomedCodes: snomed,
+        feature: f,
+        source: 'real',
+      })
+    }
+
+    const results: HybridSearchResult[] = []
+    for (const c of candidates) {
+      const hasText = keywords.length > 0
+      const textScore = hasText ? this.jaccard(keywords, c.keywords) : null
+      const featScore = hasText ? this.featureScore({ modality, bodyPart, age, gender }, c) : 0
+      const snomed = hasText ? this.snomedScore(snomedCodes, c.snomedCodes) : 0
+      const textComponent = hasText ? 0.5 * (textScore ?? 0) + 0.3 * featScore + 0.2 * snomed : null
+
+      let imageComponent: number | null = null
+      if (hasImageQuery && c.feature) {
+        const { cos, match, score } = imageSimilarity(
+          { modality: imageModality!, bodyPart: imageBodyPart!, vector: imageQuery!.vector },
+          c.feature,
+        )
+        const total = 0.6 * cos + 0.4 * match
+        imageComponent = Math.round(total * 100) / 100
+      }
+
+      let similarity: number
+      if (textComponent !== null && imageComponent !== null) similarity = Math.round(100 * (0.5 * textComponent + 0.5 * imageComponent))
+      else if (textComponent !== null) similarity = Math.round(100 * textComponent)
+      else if (imageComponent !== null) similarity = Math.round(imageComponent * 100)
+      else similarity = 0
+
+      if (similarity <= 0 && !hasImageQuery && !hasText) continue
+      results.push({
+        id: c.id,
+        reportId: c.reportId,
+        seriesUid: c.seriesUid,
+        studyUid: c.studyUid,
+        modality: c.modality,
+        bodyPart: c.bodyPart,
+        similarity,
+        textScore: textComponent !== null ? Math.round(textComponent * 100) / 100 : null,
+        imageScore: imageComponent,
+        featureSummary: c.feature ? this.featureSummaryOf(c.feature) : null,
+        source: c.source,
+        impression: c.impression || undefined,
+        findings: c.findings || undefined,
+        keywords: c.keywords,
+      })
+    }
+    return results.sort((a, b) => b.similarity - a.similarity || (b.imageScore ?? 0) - (a.imageScore ?? 0)).slice(0, limit)
   }
 }

@@ -55,7 +55,8 @@ function Viewport({ image, preset, onPresetChange }: ViewportProps) {
       const dy = e.touches[0].clientY - e.touches[1].clientY
       touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, dist: Math.sqrt(dx * dx + dy * dy) }
     } else {
-      touchStart.current = { x: e.clientX, y: e.clientY }
+      const touch = e.touches[0]
+      touchStart.current = touch ? { x: touch.clientX, y: touch.clientY } : null
     }
   }, [])
 

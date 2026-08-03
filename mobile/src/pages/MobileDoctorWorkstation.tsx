@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, ChevronRight, AlertTriangle, Clock, FileText, Home, ListChecks, MessageSquare, User, Filter, Activity } from 'lucide-react'
-import type { MobileExam } from '../types'
+import { Search, ChevronRight, AlertTriangle, Home, ListChecks, MessageSquare, User, Filter, Activity } from 'lucide-react'
 import { useMobileStore } from '../store/mobileStore'
 import OfflineIndicator from '../components/OfflineIndicator'
 

@@ -1,6 +1,5 @@
-import { useState } from 'react'
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Stethoscope, Monitor, Activity, User, Smartphone } from 'lucide-react'
+import { LayoutDashboard, Stethoscope, Monitor, Activity, Smartphone } from 'lucide-react'
 import MobileDoctorWorkstation from '../pages/MobileDoctorWorkstation'
 import MobileNurseWorkstation from '../pages/MobileNurseWorkstation'
 import MobileTechWorkstation from '../pages/MobileTechWorkstation'
@@ -10,7 +9,7 @@ import OfflineIndicator from '../components/OfflineIndicator'
 export interface NavTab {
   key: string
   path: string
-  icon: React.ComponentType<{ size?: number }>
+  icon: React.ComponentType<{ size?: number | string; style?: React.CSSProperties }>
   label: string
   badge?: number
 }

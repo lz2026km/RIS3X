@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react'
-import { Home, FileText, Bell, User, ChevronRight, Calendar, Clock, X, Phone, Shield, Eye, CheckCircle, AlertCircle, LogIn } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { Home, FileText, Bell, User, ChevronRight, Calendar, Clock, X, Phone, Shield, Eye, CheckCircle, LogIn } from 'lucide-react'
 import OfflineIndicator from '../components/OfflineIndicator'
 
 interface PatientReport {
@@ -24,15 +23,6 @@ interface Appointment {
   status: 'scheduled' | 'completed' | 'cancelled'
 }
 
-interface Notification {
-  id: string
-  title: string
-  body: string
-  type: 'report' | 'appointment' | 'system'
-  read: boolean
-  time: string
-}
-
 const MOCK_REPORTS: PatientReport[] = [
   { id: 'R1', examType: '胸部CT平扫', examDate: '2026-06-01', hospital: '市人民医院', doctor: '李明', status: 'ready', hasImages: true, findings: '双肺野清晰，肺纹理走行自然。纵隔未见明显肿大淋巴结。', conclusion: '未见明显异常。' },
   { id: 'R2', examType: '颅脑MRI平扫', examDate: '2026-04-15', hospital: '市人民医院', doctor: '王芳', status: 'ready', hasImages: true, findings: '颅内未见明显异常信号影。脑室系统无扩张。', conclusion: '颅脑MRI平扫未见明显异常。' },
@@ -45,12 +35,6 @@ const MOCK_APPOINTMENTS: Appointment[] = [
   { id: 'A3', examType: '膝关节DR', hospital: '市人民医院', date: '2026-05-10', time: '14:00', status: 'cancelled' },
 ]
 
-const MOCK_NOTIFICATIONS: Notification[] = [
-  { id: 'N1', title: '报告已出具', body: '您的胸部CT平扫报告已出具，点击查看', type: 'report', read: false, time: '2026-06-01 14:30' },
-  { id: 'N2', title: '预约提醒', body: '您将于7月15日进行腰椎MR平扫，请提前15分钟到达', type: 'appointment', read: false, time: '2026-07-14 09:00' },
-  { id: 'N3', title: '系统维护通知', body: '系统将于凌晨2:00-4:00进行维护', type: 'system', read: true, time: '2026-04-25 10:00' },
-]
-
 const btnBase: React.CSSProperties = {
   minHeight: 44, minWidth: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
   border: 'none', borderRadius: 8, fontWeight: 600, cursor: 'pointer', fontSize: 13,
@@ -58,7 +42,6 @@ const btnBase: React.CSSProperties = {
 }
 
 export default function MobilePatientApp() {
-  const navigate = useNavigate()
   const [loggedIn, setLoggedIn] = useState(false)
   const [phone, setPhone] = useState('138****5678')
   const [code, setCode] = useState('')

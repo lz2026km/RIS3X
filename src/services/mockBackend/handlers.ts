@@ -50,6 +50,7 @@ import { kioskHandlers } from './kioskHandlers';
 import { fusionHandlers } from './fusionHandlers';
 import { dicom4dHandlers } from './dicom4dHandlers';
 import { dicomCompressHandlers } from './dicomCompressHandlers'; // [v3.0.6.11-60] DICOM 压缩真实化
+import { dbtHandlers } from './dbtHandlers'; // [v3.0.6.11-62] DBT 乳腺断层合成 (studies/slices/reconstruct/compare)
 import { screeningHandlers } from './screeningHandlers';
 import { searchHandlers } from './searchHandlers';
 // [v3.0.6.11-60] 相似病例检索 (POST /similar-case/search, GET /similar-case/:reportId, POST /similar-case/feedback)
@@ -77,6 +78,8 @@ import { aiDiagnosisHandlers } from './aiDiagnosisHandlers';
 // [v3.0.6.11-61] 环境式 AI 报告草稿 (生成式草稿 + 医生确认: /ai/report-draft/*)
 import { reportDraftHandlers } from './reportDraftHandlers';
 import { volumeHandlers } from './volumeHandlers';
+// [v3.0.6.11-62] 3D 分割与定量 (segment/quantify/segmentations/approve)
+import { segmentationHandlers } from './segmentationHandlers';
 import { dentalHandlers } from './dentalHandlers';
 import { olapHandlers } from './olapHandlers';
 // [v3.0.6.11-54] Phase 2 壳页面真实化 (dicom-web / critical-alert / sr-report / nuclear-stats)
@@ -2716,6 +2719,9 @@ export const handlers = [
   ...aiPlatformHandlers,
   ...aiDiagnosisHandlers, // [v3.0.6.11-53] AI CAD 端点 (lung/breast/fracture/cardiac + stats/accuracy)
   ...reportDraftHandlers, // [v3.0.6.11-61] 环境式 AI 报告草稿 (/ai/report-draft/*)
+  // [v3.0.6.11-62] 3D 分割与定量必须在 volumeHandlers 之前注册:
+  //   volumeHandlers 的 GET /volume/:studyUid 会吞掉 GET /volume/segmentations/:seriesUID
+  ...segmentationHandlers,
   ...volumeHandlers, // [v3.0.6.11-53] 3D 体数据端点 (series/reconstruct/mpr/mip/vr)
   ...asrHandlers, // [Phase 1.4] ASR 语音识别端点
   ...olapHandlers,
@@ -2726,6 +2732,7 @@ export const handlers = [
   ...kioskHandlers,  // 自助签到机
   ...fusionHandlers, // 多模态融合
   ...dicom4dHandlers, // 4D 动态影像
+  ...dbtHandlers, // [v3.0.6.11-62] DBT 乳腺断层合成
   ...dicomCompressHandlers, // [v3.0.6.11-60] DICOM 压缩真实化 (RLE/predictive 估算, 确定性)
   ...screeningHandlers, // 早癌筛查
   ...shellUpgradeHandlers, // [v3.0.6.11-54] Phase 2 壳页面真实化 (dicom-web/critical-alert/sr-report/nuclear-stats)

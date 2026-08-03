@@ -366,6 +366,298 @@ function runByReport(reportId: string, limit: number): ReturnType<typeof score>[
     .slice(0, Math.min(50, Math.max(1, limit)));
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+// [v3.0.6.11-62] 影像级相似检索 (对标 Siemens 影像检索 / Infinitt 影像维度)
+// 确定性特征: 32-bin 强度直方图 + 统计(mean/std/skew/kurt/percentiles)
+//             + 纹理(相邻差分均值) + 形态(高/低密度占比)
+// 相似度 = 0.6×特征余弦 + 0.4×模态/部位匹配 (跨模态家族特征余弦记 0)
+// ══════════════════════════════════════════════════════════════════════════
+const HIST_BINS = 32;
+const CT_MIN = -1024;
+const CT_MAX = 1024;
+const SIGNAL_MAX = 2048;
+
+interface MockImageFeature {
+  seriesUid: string;
+  studyUid: string;
+  modality: string;
+  bodyPart: string;
+  instanceCount: number;
+  histogram: number[];
+  vector: number[];
+  source: 'real' | 'demo';
+  summary: {
+    mean: number; std: number; skew: number; kurtosis: number; min: number; max: number;
+    percentiles: number[]; textureEnergy: number; highDensityRatio: number; lowDensityRatio: number;
+  };
+}
+
+const isCtFamily = (m: string) => /^(CT|PET-CT|NM)$/i.test(m ?? '');
+
+function hashString(s: string): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+  return h >>> 0;
+}
+
+const IMG_TEMPLATES: Record<string, { mean: number; std: number; texture: number; high: number; low: number }> = {
+  'CT|颅脑': { mean: 30, std: 150, texture: 60, high: 0.04, low: 0.02 },
+  'CT|胸部': { mean: -700, std: 170, texture: 40, high: 0.005, low: 0.06 },
+  'CT|腹部': { mean: 40, std: 120, texture: 45, high: 0.02, low: 0.02 },
+  'CT|脊柱': { mean: 120, std: 170, texture: 55, high: 0.09, low: 0.01 },
+  'CT|default': { mean: 0, std: 150, texture: 50, high: 0.03, low: 0.03 },
+  'MR|颅脑': { mean: 850, std: 400, texture: 250, high: 0.01, low: 0.03 },
+  'MR|膝关节': { mean: 700, std: 450, texture: 300, high: 0.005, low: 0.02 },
+  'MR|盆腔': { mean: 650, std: 420, texture: 220, high: 0.005, low: 0.01 },
+  'MR|default': { mean: 800, std: 420, texture: 250, high: 0.008, low: 0.02 },
+  'DX|胸部': { mean: 500, std: 350, texture: 180, high: 0.002, low: 0.02 },
+  'DX|腹部': { mean: 480, std: 360, texture: 190, high: 0.002, low: 0.015 },
+  'DX|脊柱': { mean: 560, std: 380, texture: 200, high: 0.01, low: 0.015 },
+  'DX|上肢': { mean: 520, std: 360, texture: 190, high: 0.005, low: 0.02 },
+  'DX|default': { mean: 520, std: 360, texture: 190, high: 0.005, low: 0.02 },
+  'MG|乳腺': { mean: 600, std: 400, texture: 230, high: 0.01, low: 0.01 },
+  'MG|default': { mean: 600, std: 400, texture: 230, high: 0.01, low: 0.01 },
+  'US|腹部': { mean: 700, std: 450, texture: 280, high: 0.002, low: 0.002 },
+  'US|甲状腺': { mean: 720, std: 440, texture: 270, high: 0.001, low: 0.001 },
+  'US|default': { mean: 710, std: 450, texture: 275, high: 0.002, low: 0.002 },
+};
+
+function gaussianHistogram(mean: number, std: number, min: number, span: number, seed: number): number[] {
+  const width = span / HIST_BINS;
+  const hist: number[] = [];
+  for (let i = 0; i < HIST_BINS; i++) {
+    const c = min + width * i + width / 2;
+    const d = (c - mean) / Math.max(1e-6, std);
+    const g = Math.exp(-0.5 * d * d);
+    const jitter = 0.85 + ((hashString(`bin${i}:${seed}`) % 300) / 1000);
+    hist.push(Math.round(1000 * g * jitter + 4));
+  }
+  return hist;
+}
+
+function statsFromHistogram(hist: number[], total: number, min: number, span: number) {
+  const width = span / HIST_BINS;
+  const center = (i: number) => min + width * i + width / 2;
+  let mean = 0;
+  for (let i = 0; i < HIST_BINS; i++) mean += (hist[i] ?? 0) * center(i);
+  mean /= total;
+  let m2 = 0, m3 = 0, m4 = 0;
+  for (let i = 0; i < HIST_BINS; i++) {
+    const d = center(i) - mean;
+    const c = (hist[i] ?? 0) / total;
+    m2 += c * d * d; m3 += c * d * d * d; m4 += c * d * d * d * d;
+  }
+  const std = Math.sqrt(m2);
+  const skew = std > 1e-9 ? m3 / (std ** 3) : 0;
+  const kurtosis = m2 > 1e-12 ? m4 / (m2 * m2) : 3;
+  let minV = min + span, maxV = min, first = -1;
+  for (let i = 0; i < HIST_BINS; i++) {
+    if ((hist[i] ?? 0) > 0) {
+      if (first < 0) first = i;
+      minV = min + width * i;
+      maxV = min + width * i + width;
+    }
+  }
+  const percentile = (p: number) => {
+    const target = total * p;
+    let cum = 0;
+    for (let i = 0; i < HIST_BINS; i++) { cum += hist[i] ?? 0; if (cum >= target) return center(i); }
+    return min + span;
+  };
+  return { mean, std, skew, kurtosis, minV: first >= 0 ? minV : min, maxV: first >= 0 ? maxV : min + span, percentiles: [percentile(0.05), percentile(0.25), percentile(0.5), percentile(0.75), percentile(0.95)] };
+}
+
+function buildVector(hist: number[], total: number, min: number, span: number, s: ReturnType<typeof statsFromHistogram>, tex: number, high: number, low: number): number[] {
+  const norm = (v: number, lo: number, hi: number) => Math.max(-1, Math.min(1, (v - lo) / (hi - lo)));
+  const v: number[] = [];
+  for (let i = 0; i < HIST_BINS; i++) v.push((hist[i] ?? 0) / total);
+  v.push(norm(s.mean, min, min + span));
+  v.push(s.std / span);
+  v.push(Math.max(-1, Math.min(1, s.skew / 5)));
+  v.push(Math.max(-1, Math.min(1, (s.kurtosis - 3) / 10)));
+  for (const p of s.percentiles) v.push(norm(p, min, min + span));
+  v.push(tex / span);
+  v.push(high);
+  v.push(low);
+  let len = 0;
+  for (const x of v) len += x * x;
+  len = Math.sqrt(len) || 1;
+  for (let i = 0; i < v.length; i++) v[i] = (v[i] ?? 0) / len;
+  return v;
+}
+
+function buildMockFeature(seriesUid: string, studyUid: string, modality: string, bodyPart: string, source: 'real' | 'demo'): MockImageFeature {
+  const template = IMG_TEMPLATES[`${modality}|${bodyPart}`] ?? IMG_TEMPLATES[`${modality}|default`] ?? { mean: 0, std: 200, texture: 100, high: 0.02, low: 0.02 };
+  const h = hashString(seriesUid);
+  const jitter = (v: number, amp: number) => v + (((h % 251) / 250) - 0.5) * 2 * amp;
+  const mean = jitter(template.mean, Math.min(30, Math.max(18, template.std * 0.18)));
+  const std = Math.max(20, jitter(template.std, template.std * 0.1));
+  const texture = Math.max(5, jitter(template.texture, template.texture * 0.1));
+  const high = Math.max(0, Math.min(0.3, jitter(template.high, 0.003)));
+  const low = Math.max(0, Math.min(0.3, jitter(template.low, 0.003)));
+  const ct = isCtFamily(modality);
+  const min = ct ? CT_MIN : 0;
+  const span = ct ? CT_MAX - CT_MIN : SIGNAL_MAX;
+  const hist = gaussianHistogram(mean, std, min, span, h);
+  const total = hist.reduce((a, b) => a + b, 0);
+  const s = statsFromHistogram(hist, total, min, span);
+  return {
+    seriesUid, studyUid, modality, bodyPart, instanceCount: 1, histogram: hist,
+    vector: buildVector(hist, total, min, span, s, texture, high, low), source,
+    summary: {
+      mean: Math.round(s.mean * 10) / 10, std: Math.round(s.std * 10) / 10,
+      skew: Math.round(s.skew * 100) / 100, kurtosis: Math.round(s.kurtosis * 100) / 100,
+      min: Math.round(s.minV), max: Math.round(s.maxV),
+      percentiles: s.percentiles.map((p) => Math.round(p)),
+      textureEnergy: Math.round(texture * 10) / 10,
+      highDensityRatio: Math.round(high * 10000) / 10000,
+      lowDensityRatio: Math.round(low * 10000) / 10000,
+    },
+  };
+}
+
+function cosine(a: number[], b: number[]): number {
+  const n = Math.min(a.length, b.length);
+  let dot = 0;
+  for (let i = 0; i < n; i++) dot += (a[i] ?? 0) * (b[i] ?? 0);
+  return Math.max(-1, Math.min(1, dot));
+}
+
+function imageSimilarityScore(q: MockImageFeature, c: MockImageFeature): { cos: number; match: number; score: number } {
+  const cos = isCtFamily(q.modality) === isCtFamily(c.modality) ? cosine(q.vector, c.vector) : 0;
+  let match = 0;
+  if (q.modality && q.modality === c.modality) match += 0.55;
+  if (q.bodyPart && q.bodyPart === c.bodyPart) match += 0.45;
+  return { cos, match, score: 0.6 * cos + 0.4 * match };
+}
+
+function toSummary(f: MockImageFeature) {
+  return { ...f.summary, histogram: f.histogram };
+}
+
+// 内置真实样本系列 (与 backend dicom-samples manifest 对齐) + demo 特征库
+const REAL_SERIES: Array<{ seriesUid: string; studyUid: string; modality: string; bodyPart: string }> = [
+  { seriesUid: '1.2.826.0.1.3680043.10.155.3.0.6.11.CT.S.1', studyUid: '1.2.826.0.1.3680043.10.155.3.0.6.11.20260115.ACC-SAMPLE-0001', modality: 'CT', bodyPart: '颅脑' },
+  { seriesUid: '1.2.826.0.1.3680043.10.155.3.0.6.11.CT.S.2', studyUid: '1.2.826.0.1.3680043.10.155.3.0.6.11.20260115.ACC-SAMPLE-0002', modality: 'CT', bodyPart: '胸部' },
+  { seriesUid: '1.2.826.0.1.3680043.10.155.3.0.6.11.MR.S.3', studyUid: '1.2.826.0.1.3680043.10.155.3.0.6.11.20260116.ACC-SAMPLE-0003', modality: 'MR', bodyPart: '颅脑' },
+  { seriesUid: '1.2.826.0.1.3680043.10.155.3.0.6.11.DR.S.4', studyUid: '1.2.826.0.1.3680043.10.155.3.0.6.11.20260116.ACC-SAMPLE-0004', modality: 'DR', bodyPart: '胸部' },
+];
+
+let mockImageFeatures: MockImageFeature[] | null = null;
+
+function imageFeatureLibrary(): MockImageFeature[] {
+  if (mockImageFeatures) return mockImageFeatures;
+  const list: MockImageFeature[] = [];
+  for (const s of REAL_SERIES) list.push(buildMockFeature(s.seriesUid, s.studyUid, s.modality, s.bodyPart, 'real'));
+  for (const c of SEED_CASES) list.push(buildMockFeature(`demo-series-${c.reportId}`, `demo-study-${c.reportId}`, c.modality, c.bodyPart, 'demo'));
+  mockImageFeatures = list;
+  return list;
+}
+
+function imageSeriesList() {
+  return imageFeatureLibrary().map((f) => ({
+    seriesUid: f.seriesUid,
+    studyUid: f.studyUid,
+    modality: f.modality,
+    bodyPart: f.bodyPart,
+    instanceCount: f.instanceCount,
+    description: f.source === 'real' ? `${f.modality} ${f.bodyPart} 影像 (真实样本)` : `${f.modality} ${f.bodyPart} (演示特征库)`,
+    source: f.source,
+  }));
+}
+
+function runImageSearch(body: { seriesUID?: string; studyUid?: string; limit?: number }) {
+  const lib = imageFeatureLibrary();
+  const query = (body.seriesUID && lib.find((f) => f.seriesUid === body.seriesUID))
+    ?? (body.studyUid && lib.find((f) => f.studyUid === body.studyUid));
+  if (!query) return [];
+  const limit = Math.min(20, Math.max(1, body.limit ?? 10));
+  return lib
+    .filter((f) => f.seriesUid !== query.seriesUid)
+    .map((f) => {
+      const { cos, match, score } = imageSimilarityScore(query, f);
+      return {
+        seriesUid: f.seriesUid,
+        studyUid: f.studyUid,
+        modality: f.modality,
+        bodyPart: f.bodyPart,
+        instanceCount: f.instanceCount,
+        similarity: Math.round(score * 100),
+        featureScore: Math.round(cos * 10000) / 100,
+        matchScore: Math.round(match * 10000) / 100,
+        featureSummary: toSummary(f),
+        source: f.source,
+      };
+    })
+    .sort((a, b) => b.similarity - a.similarity || b.featureScore - a.featureScore)
+    .slice(0, limit);
+}
+
+function runHybridSearch(body: { reportId?: string; reportText?: string; seriesUID?: string; studyUid?: string; limit?: number }) {
+  const lib = imageFeatureLibrary();
+  const sourceCase = body.reportId ? SEED_CASES.find((c) => c.reportId === body.reportId) : undefined;
+  const text = body.reportText ?? (sourceCase ? `${sourceCase.findings} ${sourceCase.impression}` : '');
+  const keywords = extractKeywords(text);
+  const textQuery = {
+    keywords,
+    modality: sourceCase?.modality,
+    bodyPart: sourceCase?.bodyPart,
+    age: sourceCase?.age,
+    gender: sourceCase?.gender,
+    snomedCodes: sourceCase?.snomedCodes ?? [],
+  };
+  const imageQuery = (body.seriesUID && lib.find((f) => f.seriesUid === body.seriesUID))
+    ?? (body.studyUid && lib.find((f) => f.studyUid === body.studyUid))
+    ?? (sourceCase && lib.find((f) => f.seriesUid === `demo-series-${sourceCase.reportId}`));
+  const limit = Math.min(20, Math.max(1, body.limit ?? 10));
+
+  const results: any[] = [];
+  for (const f of lib) {
+    const seed = SEED_CASES.find((s) => `demo-series-${s.reportId}` === f.seriesUid);
+    const hasText = keywords.length > 0;
+    let textScore: number | null = null;
+    let imageScore: number | null = null;
+    if (hasText) {
+      const kws = seed ? extractKeywords(`${seed.findings} ${seed.impression} ${seed.conclusion}`) : [];
+      const jac = jaccard(keywords, kws);
+      let feat = 0;
+      if (seed && ((textQuery.modality && textQuery.modality === seed.modality) || (textQuery.bodyPart && textQuery.bodyPart === seed.bodyPart))) {
+        if (textQuery.modality && textQuery.modality === seed.modality) feat += 0.4;
+        if (textQuery.bodyPart && textQuery.bodyPart === seed.bodyPart) feat += 0.3;
+        if (textQuery.age !== undefined && seed.age !== undefined && ageBand(textQuery.age) === ageBand(seed.age)) feat += 0.15;
+        if (textQuery.gender && textQuery.gender === seed.gender) feat += 0.15;
+      }
+      const snomed = snomedScore(textQuery.snomedCodes, seed?.snomedCodes ?? []);
+      textScore = Math.round(100 * (0.5 * jac + 0.3 * feat + 0.2 * snomed)) / 100;
+    }
+    if (imageQuery && imageQuery.seriesUid !== f.seriesUid) {
+      const { score } = imageSimilarityScore(imageQuery, f);
+      imageScore = Math.round(score * 100) / 100;
+    }
+    const similarity = textScore !== null && imageScore !== null
+      ? Math.round(100 * (0.5 * textScore + 0.5 * imageScore))
+      : textScore !== null ? Math.round(textScore * 100) : imageScore !== null ? Math.round(imageScore * 100) : 0;
+    if (similarity <= 0 && textScore === null && imageScore === null) continue;
+    results.push({
+      id: seed ? seed.id : `img-${f.seriesUid}`,
+      reportId: seed ? seed.reportId : `series-${f.seriesUid.slice(-8)}`,
+      seriesUid: f.seriesUid,
+      studyUid: f.studyUid,
+      modality: f.modality,
+      bodyPart: f.bodyPart,
+      similarity,
+      textScore,
+      imageScore,
+      featureSummary: imageQuery ? toSummary(f) : null,
+      source: f.source,
+      impression: seed?.impression,
+      findings: seed?.findings,
+      keywords: seed ? extractKeywords(`${seed.findings} ${seed.impression} ${seed.conclusion}`) : [],
+    });
+  }
+  return results.sort((a, b) => b.similarity - a.similarity || (b.imageScore ?? 0) - (a.imageScore ?? 0)).slice(0, limit);
+}
+
 export const similarCaseHandlers = [
   http.post(`${API}/search`, async ({ request }) => {
     await delay(120);
@@ -378,6 +670,45 @@ export const similarCaseHandlers = [
       limit: typeof limit === 'number' ? limit : 10,
     });
     return HttpResponse.json({ success: true, data: results, total: results.length });
+  }),
+
+  // [v3.0.6.11-62] 影像级相似检索
+  http.post(`${API}/image-search`, async ({ request }) => {
+    await delay(150);
+    const body = await request.json().catch(() => ({}));
+    const { seriesUID, studyUid, limit } = (body ?? {}) as Record<string, unknown>;
+    if (!seriesUID && !studyUid) {
+      return HttpResponse.json({ success: false, error: 'seriesUID or studyUid required' }, { status: 400 });
+    }
+    const results = runImageSearch({
+      seriesUID: typeof seriesUID === 'string' ? seriesUID : undefined,
+      studyUid: typeof studyUid === 'string' ? studyUid : undefined,
+      limit: typeof limit === 'number' ? limit : 10,
+    });
+    return HttpResponse.json({ success: true, data: results, total: results.length });
+  }),
+
+  http.post(`${API}/hybrid-search`, async ({ request }) => {
+    await delay(150);
+    const body = await request.json().catch(() => ({}));
+    const { reportId, reportText, seriesUID, studyUid, limit } = (body ?? {}) as Record<string, unknown>;
+    if (!reportId && !reportText && !seriesUID && !studyUid) {
+      return HttpResponse.json({ success: false, error: 'at least one of reportId/reportText/seriesUID/studyUid required' }, { status: 400 });
+    }
+    const results = runHybridSearch({
+      reportId: typeof reportId === 'string' ? reportId : undefined,
+      reportText: typeof reportText === 'string' ? reportText : undefined,
+      seriesUID: typeof seriesUID === 'string' ? seriesUID : undefined,
+      studyUid: typeof studyUid === 'string' ? studyUid : undefined,
+      limit: typeof limit === 'number' ? limit : 10,
+    });
+    return HttpResponse.json({ success: true, data: results, total: results.length });
+  }),
+
+  http.get(`${API}/series`, async () => {
+    await delay(80);
+    const data = imageSeriesList();
+    return HttpResponse.json({ success: true, data, total: data.length });
   }),
 
   http.get(`${API}/:reportId`, async ({ params }) => {

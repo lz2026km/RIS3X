@@ -1,8 +1,7 @@
 import { useState, useCallback } from 'react'
-import { Search, Monitor, CheckCircle, Clock, Play, Camera, ChevronRight, Wifi, WifiOff, AlertCircle, ListChecks, BarChart3 } from 'lucide-react'
+import { Search, Monitor, CheckCircle, Clock, Play, Camera, ListChecks, BarChart3 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import OfflineIndicator from '../components/OfflineIndicator'
-import { useMobileStore } from '../store/mobileStore'
 
 interface TechExamItem {
   id: string
@@ -51,7 +50,6 @@ export default function MobileTechWorkstation() {
   const [tab, setTab] = useState<'list' | 'stats'>('list')
   const [search, setSearch] = useState('')
   const [deviceFilter, setDeviceFilter] = useState<string>('all')
-  const unread = useMobileStore(s => s.unreadNotifications)
 
   const devices = [...new Set(MOCK_EXAMS.map(e => e.deviceName))]
 
