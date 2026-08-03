@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common'
+import { PrismaService } from '../../prisma/prisma.service'
 
 export interface CompressTask {
   id: string
@@ -58,77 +59,124 @@ function rand(min: number, max: number): number {
 @Injectable()
 export class DicomCompressService {
   private readonly logger = new Logger(DicomCompressService.name)
-  private tasks = new Map<string, CompressTask>()
+  private memTasks = new Map<string, CompressTask>()
   private taskCounter = 0
+
+  constructor(private readonly prisma: PrismaService) {}
 
   getSupportedSyntaxes(): TransferSyntax[] {
     return SUPPORTED_SYNTAXES
   }
 
+  private toDto(row: { id: string; instanceUid: string; algorithm: string; status: string; progress: number; originalSize: number; compressedSize: number | null; error: string | null; createdAt: Date; updatedAt: Date }): CompressTask {
+    return {
+      id: row.id,
+      fileId: row.instanceUid,
+      transferSyntax: row.algorithm,
+      status: (['pending', 'processing', 'done', 'failed'].includes(row.status) ? row.status : 'pending') as CompressTask['status'],
+      progress: row.progress,
+      originalSize: row.originalSize,
+      compressedSize: row.compressedSize,
+      error: row.error ?? undefined,
+      createdAt: row.createdAt.toISOString(),
+      updatedAt: row.updatedAt.toISOString(),
+    }
+  }
+
   async compress(fileId: string, transferSyntax: string): Promise<CompressTask> {
     const id = `task-${++this.taskCounter}`
     const originalSize = Math.round(Math.random() * 50 + 5) * 1024 * 1024
-    const task: CompressTask = {
-      id, fileId, transferSyntax,
-      status: 'pending', progress: 0,
-      originalSize, compressedSize: null,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+    try {
+      await this.prisma.compressTask.create({
+        data: { id, instanceUid: fileId, algorithm: transferSyntax, originalSize, status: 'pending', progress: 0 },
+      })
+      this.simulateProgress(id, originalSize)
+      const row = await this.prisma.compressTask.findUniqueOrThrow({ where: { id } })
+      return this.toDto(row)
+    } catch {
+      const task: CompressTask = {
+        id, fileId, transferSyntax,
+        status: 'pending', progress: 0,
+        originalSize, compressedSize: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+      this.memTasks.set(id, task)
+      this.simulateProgress(id, originalSize)
+      return task
     }
-    this.tasks.set(id, task)
-    this.simulateProgress(id, originalSize)
-    return task
   }
 
   private async simulateProgress(id: string, originalSize: number): Promise<void> {
-    const task = this.tasks.get(id)
-    if (!task) return
-    task.status = 'processing'
-    task.progress = 10
-    task.updatedAt = new Date().toISOString()
-
     const ratio = rand(0.15, 0.55)
+    const compressedSize = Math.round(originalSize * ratio)
     await sleep(800)
-    task.progress = 40
-    task.updatedAt = new Date().toISOString()
-
+    await this.updateTask(id, 'processing', 40)
     await sleep(1200)
-    task.progress = 80
-    task.updatedAt = new Date().toISOString()
-
+    await this.updateTask(id, 'processing', 80)
     await sleep(1000)
-    task.status = 'done'
-    task.progress = 100
-    task.compressedSize = Math.round(originalSize * ratio)
-    task.updatedAt = new Date().toISOString()
+    await this.updateTask(id, 'done', 100, compressedSize)
   }
 
-  getStatus(id: string): CompressTask | null {
-    return this.tasks.get(id) ?? null
+  private async updateTask(id: string, status: CompressTask['status'], progress: number, compressedSize?: number): Promise<void> {
+    const mem = this.memTasks.get(id)
+    if (mem) {
+      mem.status = status
+      mem.progress = progress
+      mem.compressedSize = compressedSize ?? mem.compressedSize
+      mem.updatedAt = new Date().toISOString()
+    }
+    try {
+      await this.prisma.compressTask.update({
+        where: { id },
+        data: { status, progress, compressedSize: compressedSize ?? undefined, error: null },
+      })
+    } catch {
+      // DB unavailable -> in-memory progress keeps working
+    }
+  }
+
+  async getStatus(id: string): Promise<CompressTask | null> {
+    try {
+      const row = await this.prisma.compressTask.findUnique({ where: { id } })
+      if (!row) return null
+      return this.toDto(row)
+    } catch {
+      return this.memTasks.get(id) ?? null
+    }
   }
 
   async decompress(fileId: string): Promise<CompressTask> {
     const id = `decomp-${++this.taskCounter}`
-    const task: CompressTask = {
-      id, fileId, transferSyntax: '1.2.840.10008.1.2',
-      status: 'done', progress: 100,
-      originalSize: Math.round(Math.random() * 20 + 1) * 1024 * 1024,
-      compressedSize: null,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+    const originalSize = Math.round(Math.random() * 20 + 1) * 1024 * 1024
+    const now = new Date().toISOString()
+    try {
+      await this.prisma.compressTask.create({
+        data: { id, instanceUid: fileId, algorithm: '1.2.840.10008.1.2', originalSize, compressedSize: originalSize, ratio: 1, status: 'done', progress: 100 },
+      })
+      const row = await this.prisma.compressTask.findUniqueOrThrow({ where: { id } })
+      return this.toDto(row)
+    } catch {
+      const task: CompressTask = {
+        id, fileId, transferSyntax: '1.2.840.10008.1.2',
+        status: 'done', progress: 100,
+        originalSize, compressedSize: null,
+        createdAt: now,
+        updatedAt: now,
+      }
+      this.memTasks.set(id, task)
+      return task
     }
-    this.tasks.set(id, task)
-    return task
   }
 
-  getRatio(instanceId: string): CompressRatio {
+  async getRatio(instanceId: string): Promise<CompressRatio> {
     const sopKeys = Object.keys(SOP_CLASS_RATIO)
     const sopClass = sopKeys[Math.floor(Math.random() * sopKeys.length)]!
     const info = SOP_CLASS_RATIO[sopClass]!
     const originalSize = Math.round(Math.random() * 100 + 10) * 1024 * 1024
     const ratio = rand(info.ratio - 0.1, info.ratio + 0.05)
     const compressedSize = Math.round(originalSize * ratio)
-    return {
+    const result: CompressRatio = {
       instanceId,
       sopClass,
       sopClassName: info.name,
@@ -137,6 +185,22 @@ export class DicomCompressService {
       ratio: Math.round(ratio * 100),
       transferSyntax: '1.2.840.10008.1.2.4.90',
     }
+    try {
+      await this.prisma.compressTask.create({
+        data: {
+          instanceUid: instanceId,
+          algorithm: '1.2.840.10008.1.2.4.90',
+          originalSize,
+          compressedSize,
+          ratio: Math.round(ratio * 100) / 100,
+          status: 'done',
+          progress: 100,
+        },
+      })
+    } catch {
+      // DB unavailable -> keep ratio lookup result
+    }
+    return result
   }
 }
 

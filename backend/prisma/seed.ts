@@ -1,9 +1,12 @@
 /**
  * G005 放射RIS系统 v3.0.1 - Prisma Seed
  * 5 角色用户 + 3 设备 + 3 患者 + 5 检查 + 5 报告 + 5 危急值 + 5 预约
+ * v3.0.6.11-53: 内置示例 DICOM (dicom-samples/manifest.json) 写入 dicomInstance 表
  */
 import { PrismaClient, UserRole, Gender, DeviceState, ReportState, CriticalState, CriticalSeverity, NotificationMethod, PatientType, AppointmentState, RadsCategory } from '@prisma/client'
 import { hash } from 'bcrypt'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 
 const prisma = new PrismaClient()
 
@@ -150,7 +153,83 @@ async function main(): Promise<void> {
   }
   console.log('[seed] 5 RADS templates')
 
+  // 内置示例 DICOM (Phase 1.2+1.3): 从 dicom-samples/manifest.json 注册到 dicomInstance 表
+  await seedDicomSamples(prisma)
+
   console.log('[seed] done ✓')
+}
+
+interface SampleSeriesManifest {
+  key: string
+  modality: string
+  sopClassUid: string
+  studyInstanceUid: string
+  seriesInstanceUid: string
+  patientName: string
+  patientId: string
+  rows: number
+  columns: number
+  windowCenter: string
+  windowWidth: string
+  rescaleIntercept: string
+  rescaleSlope: string
+  transferSyntax: string
+  instances: Array<{
+    file: string
+    sopInstanceUid: string
+    instanceNumber: number
+    sliceLocation: number
+  }>
+}
+
+async function seedDicomSamples(prisma: PrismaClient): Promise<void> {
+  const manifestPath = path.resolve(__dirname, '..', 'dicom-samples', 'manifest.json')
+  if (!fs.existsSync(manifestPath)) {
+    console.log('[seed] dicom-samples/manifest.json not found, skip DICOM sample seeding (run: npx ts-node scripts/generate-dicom-samples.ts)')
+    return
+  }
+  const manifest: { baseDir: string; instanceCount: number; series: SampleSeriesManifest[] } = JSON.parse(
+    fs.readFileSync(manifestPath, 'utf-8'),
+  )
+  const baseDir = path.resolve(path.dirname(manifestPath))
+  const model = (prisma as any).dicomInstance
+  if (!model?.upsert) {
+    console.log('[seed] dicomInstance model not available, skip DICOM sample seeding')
+    return
+  }
+  let count = 0
+  for (const series of manifest.series) {
+    for (const inst of series.instances) {
+      const storagePath = path.join(baseDir, inst.file)
+      const sizeBytes = fs.statSync(storagePath).size
+      try {
+        await model.upsert({
+          where: { sopInstanceUid: inst.sopInstanceUid },
+          update: {
+            storagePath,
+            sizeBytes,
+            modality: series.modality,
+            sopClassUid: series.sopClassUid,
+          },
+          create: {
+            tenantId: 'default',
+            studyInstanceUid: series.studyInstanceUid,
+            seriesInstanceUid: series.seriesInstanceUid,
+            sopInstanceUid: inst.sopInstanceUid,
+            sopClassUid: series.sopClassUid,
+            modality: series.modality,
+            storagePath,
+            sizeBytes,
+            transferSyntax: series.transferSyntax,
+          },
+        })
+        count++
+      } catch (e) {
+        console.error(`[seed] failed to upsert DICOM instance ${inst.sopInstanceUid}: ${(e as Error).message}`)
+      }
+    }
+  }
+  console.log(`[seed] ${count}/${manifest.instanceCount} built-in DICOM instances registered (tenant=default)`)
 }
 
 main()

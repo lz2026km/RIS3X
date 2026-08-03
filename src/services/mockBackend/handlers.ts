@@ -36,7 +36,8 @@ import { initialRadiologyExams, initialUsers } from '@data/initialData';
 import { TERM_CATEGORIES, FEATURED_TERMS } from '@data/knowledgeStatsMock';
 import type { RadiologyReport } from '@/types';
 import { writingHandlers, distributionHandlers, integrationHandlers, otherHandlers, cosignHandlers, qualityReportHandlers, aiAssistHandlers } from './v3ReportHandlers';
-import { qualityScoringHandlers } from './qualityScoringHandlers';
+// [Phase 1.4] ASR 语音识别端点 (transcribe / transcribe/audio / feedback)
+import { asrHandlers } from './asrHandlers';import { qualityScoringHandlers } from './qualityScoringHandlers';
 import { reviewAssistHandlers } from './v3ReviewHandlers';
 // [v3.0.6.8-83] 眼科专科 252 端点 (20 模块, 含 PR1-PR11)
 import { eyeHandlers } from './eyeHandlers';
@@ -55,6 +56,8 @@ import { reportQualityHandlers } from './reportQualityHandlers';
 import { caHandlers } from './caHandlers';
 import { deviceMgmtHandlers } from './deviceMgmtHandlers';
 import { aiPlatformHandlers } from './aiPlatformHandlers';
+import { aiDiagnosisHandlers } from './aiDiagnosisHandlers';
+import { volumeHandlers } from './volumeHandlers';
 import { dentalHandlers } from './dentalHandlers';
 import { olapHandlers } from './olapHandlers';
 // [P0-12 v3.0.7] 微信小程序 API
@@ -5054,6 +5057,9 @@ export const handlers = [
   ...caHandlers,
   ...deviceMgmtHandlers,
   ...aiPlatformHandlers,
+  ...aiDiagnosisHandlers, // [v3.0.6.11-53] AI CAD 端点 (lung/breast/fracture/cardiac + stats/accuracy)
+  ...volumeHandlers, // [v3.0.6.11-53] 3D 体数据端点 (series/reconstruct/mpr/mip/vr)
+  ...asrHandlers, // [Phase 1.4] ASR 语音识别端点
   ...olapHandlers,
 ];
 

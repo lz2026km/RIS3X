@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
+import { PrismaService } from '../../prisma/prisma.service'
 
 export interface TriageExamInput {
   examId: string
@@ -103,7 +104,9 @@ export class TriageService {
   private pendingStore: TriagePendingItem[] = []
   private idCounter = 0
 
-  async score(input: TriageExamInput): Promise<TriageScoreResult> {
+  constructor(private readonly prisma: PrismaService) {}
+
+  private computeScore(input: TriageExamInput): TriageScoreResult {
     const factors: TriageFactor[] = []
     let totalScore = 0
 
@@ -138,14 +141,57 @@ export class TriageService {
     }
   }
 
+  private toItem(row: { id: string; examId: string; patientId: string; patientName: string | null; examType: string | null; score: number; status: string; assignedTo: string | null; createdAt: Date }): TriagePendingItem {
+    return {
+      id: row.id,
+      examId: row.examId,
+      patientId: row.patientId,
+      patientName: row.patientName ?? '',
+      examType: row.examType ?? '',
+      score: row.score,
+      level: scoreToLevel(row.score),
+      status: (['PENDING', 'ASSIGNED', 'COMPLETED'].includes(row.status) ? row.status : 'PENDING') as TriagePendingItem['status'],
+      assignedDoctor: row.assignedTo ?? undefined,
+      createdAt: row.createdAt,
+    }
+  }
+
+  private async persistScore(input: TriageExamInput, scored: TriageScoreResult, status: 'PENDING' | 'ASSIGNED', assignedTo?: string): Promise<void> {
+    const existing = await this.prisma.triageRecord.findFirst({ where: { examId: input.examId }, orderBy: { createdAt: 'desc' } })
+    const data = {
+      patientId: input.patientId,
+      patientName: input.patientName,
+      examType: input.examType,
+      urgency: scored.score,
+      score: scored.score,
+      rules: scored.factors as unknown as object,
+      status,
+      assignedTo: assignedTo ?? null,
+    }
+    if (existing) {
+      await this.prisma.triageRecord.update({ where: { id: existing.id }, data: { ...data, assignedTo: assignedTo ?? existing.assignedTo } })
+    } else {
+      await this.prisma.triageRecord.create({ data: { ...data, id: `triage-${++this.idCounter}`, examId: input.examId } })
+    }
+  }
+
+  async score(input: TriageExamInput): Promise<TriageScoreResult> {
+    const scored = this.computeScore(input)
+    try {
+      await this.persistScore(input, scored, 'PENDING')
+    } catch {
+      // DB unavailable -> keep pure scoring result
+    }
+    return scored
+  }
+
   async assign(input: TriageExamInput): Promise<TriageScoreResult & { assignedDoctor: string }> {
-    const scored = await this.score(input)
+    const scored = this.computeScore(input)
     const idx = Math.floor(Math.random() * DOCTOR_POOL.length)
     const doctor = DOCTOR_POOL[idx]
 
-    this.idCounter++
-    this.pendingStore.push({
-      id: `triage-${this.idCounter}`,
+    const item: TriagePendingItem = {
+      id: `triage-${++this.idCounter}`,
       examId: input.examId,
       patientId: input.patientId,
       patientName: input.patientName,
@@ -155,21 +201,45 @@ export class TriageService {
       status: 'ASSIGNED',
       assignedDoctor: doctor,
       createdAt: new Date(),
-    })
+    }
+    try {
+      await this.persistScore(input, scored, 'ASSIGNED', doctor)
+    } catch {
+      this.pendingStore.push(item)
+    }
 
     return { ...scored, assignedDoctor: doctor }
   }
 
   async getPending(): Promise<TriagePendingItem[]> {
-    return [...this.pendingStore]
-      .sort((a, b) => b.score - a.score)
+    try {
+      const rows = await this.prisma.triageRecord.findMany({ orderBy: { score: 'desc' } })
+      return rows.map(r => this.toItem(r))
+    } catch {
+      return [...this.pendingStore]
+        .sort((a, b) => b.score - a.score)
+    }
   }
 
   async update(id: string, data: Partial<Pick<TriagePendingItem, 'assignedDoctor' | 'status'>>): Promise<TriagePendingItem> {
-    const item = this.pendingStore.find(i => i.id === id)
-    if (!item) throw new NotFoundException(`Triage item ${id} not found`)
-    if (data.assignedDoctor !== undefined) item.assignedDoctor = data.assignedDoctor
-    if (data.status !== undefined) item.status = data.status
-    return item
+    try {
+      const existing = await this.prisma.triageRecord.findUnique({ where: { id } })
+      if (!existing) throw new NotFoundException(`Triage item ${id} not found`)
+      const updated = await this.prisma.triageRecord.update({
+        where: { id },
+        data: {
+          assignedTo: data.assignedDoctor !== undefined ? data.assignedDoctor : existing.assignedTo,
+          status: data.status ?? existing.status,
+        },
+      })
+      return this.toItem(updated)
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error
+      const item = this.pendingStore.find(i => i.id === id)
+      if (!item) throw new NotFoundException(`Triage item ${id} not found`)
+      if (data.assignedDoctor !== undefined) item.assignedDoctor = data.assignedDoctor
+      if (data.status !== undefined) item.status = data.status
+      return item
+    }
   }
 }

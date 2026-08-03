@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
+import { PrismaService } from '../../prisma/prisma.service'
 
 export interface RoiDefinition {
   instanceId: string
@@ -53,26 +54,70 @@ const MOCK_FEATURES: RadiomicsFeature[] = [
 
 const STORED_FEATURES = new Map<string, RadiomicsFeature[]>()
 
+function roiIdOf(roi?: RoiDefinition): string {
+  if (!roi) return 'default'
+  return `${roi.type}:${roi.coordinates.slice(0, 6).join('_')}`
+}
+
 @Injectable()
 export class RadiomicsService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  private generateFeatures(): RadiomicsFeature[] {
+    return MOCK_FEATURES.map(f => ({ ...f, value: +(f.value * (0.9 + Math.random() * 0.2)).toFixed(2) }))
+  }
+
+  private toDto(row: { instanceUid: string; category: string | null; featureName: string; value: number; unit: string | null }): RadiomicsFeature {
+    return { category: row.category ?? '', name: row.featureName, value: row.value, unit: row.unit ?? '' }
+  }
+
+  private async persist(instanceId: string, roiId: string, features: RadiomicsFeature[]): Promise<void> {
+    await this.prisma.radiomicsFeature.createMany({
+      data: features.map(f => ({
+        instanceUid: instanceId,
+        roiId,
+        category: f.category,
+        featureName: f.name,
+        value: f.value,
+        unit: f.unit,
+      })),
+    })
+  }
+
   async extract(dto: ExtractRequest): Promise<RadiomicsResult> {
-    const features = MOCK_FEATURES.map(f => ({ ...f, value: +(f.value * (0.9 + Math.random() * 0.2)).toFixed(2) }))
-    STORED_FEATURES.set(dto.instanceId, features)
+    const features = this.generateFeatures()
+    const roiId = roiIdOf(dto.roi)
+    try {
+      await this.persist(dto.instanceId, roiId, features)
+    } catch {
+      STORED_FEATURES.set(dto.instanceId, features)
+    }
     return { instanceId: dto.instanceId, features }
   }
 
   async getFeatures(instanceId: string): Promise<RadiomicsResult> {
-    const features = STORED_FEATURES.get(instanceId)
-    if (!features) throw new NotFoundException(`No features found for instance ${instanceId}`)
-    return { instanceId, features }
+    try {
+      const rows = await this.prisma.radiomicsFeature.findMany({ where: { instanceUid: instanceId } })
+      if (rows.length === 0) throw new NotFoundException(`No features found for instance ${instanceId}`)
+      return { instanceId, features: rows.map(r => this.toDto(r)) }
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error
+      const features = STORED_FEATURES.get(instanceId)
+      if (!features) throw new NotFoundException(`No features found for instance ${instanceId}`)
+      return { instanceId, features }
+    }
   }
 
   async compare(dto: CompareRequest): Promise<RadiomicsResult[]> {
-    return dto.instanceIds.map((id, i) => {
+    return Promise.all(dto.instanceIds.map(async (id, i) => {
       const roi = dto.rois[i]
       const features = MOCK_FEATURES.map(f => ({ ...f, value: +(f.value * (0.85 + Math.random() * 0.3)).toFixed(2) }))
-      STORED_FEATURES.set(id, features)
+      try {
+        await this.persist(id, roiIdOf(roi), features)
+      } catch {
+        STORED_FEATURES.set(id, features)
+      }
       return { instanceId: id, features }
-    })
+    }))
   }
 }

@@ -45,6 +45,39 @@ export default function MobilePushPage() {
   useEffect(() => {
     setPushPermission(pushService.permission)
     setPushEnabled(pushService.permission === 'granted')
+    // Phase 1.5: 注册 PWA SW(推送事件监听), build 模式生效
+    void pushService.init().then((ok) => {
+      if (ok && pushService.permission === 'granted') {
+        void pushService.getSubscription().then((sub) => {
+          if (!sub) {
+            void pushService.subscribe('', 'demo-user', 'web', ['critical', 'report', 'appointment', 'system'])
+          }
+        })
+      }
+    })
+  }, [])
+
+  useEffect(() => {
+    // 监听 SW 推送消息 → 同步到应用内列表
+    const unsub = pushService.on({
+      onNotification: (payload) => {
+        setNotifications((prev) => {
+          const item: PushNotificationItem = {
+            id: `PN-${payload.tag || Date.now()}`,
+            title: payload.title,
+            body: payload.body,
+            tag: payload.tag || '',
+            topic: payload.topic || 'critical',
+            severity: (payload.severity as PushNotificationItem['severity']) || 'info',
+            read: false,
+            receivedAt: new Date().toISOString().replace('T', ' ').substring(0, 16),
+            data: payload.data as Record<string, unknown> | undefined,
+          }
+          return [item, ...prev]
+        })
+      },
+    })
+    return unsub
   }, [])
 
   useEffect(() => {
@@ -83,7 +116,13 @@ export default function MobilePushPage() {
     setPushPermission(perm)
     setPushEnabled(perm === 'granted')
     if (perm === 'granted') {
-      message.success('推送通知已开启')
+      // Phase 1.5: 真实 Web Push 订阅 (VAPID + 后端同步)
+      const sub = await pushService.subscribe('', 'demo-user', 'web', ['critical', 'report', 'appointment', 'system'])
+      if (sub) {
+        message.success('推送通知已开启 (Web Push)')
+      } else {
+        message.warning('订阅失败: 浏览器或后端推送通道不可用')
+      }
     } else if (perm === 'denied') {
       message.warning('推送通知被拒绝，请在系统设置中允许通知')
     } else {

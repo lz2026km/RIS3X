@@ -1271,3 +1271,147 @@ model SlaConfig {
   @@index([tenantId])
   @@map("sla_configs")
 }
+
+// v3.0.6.11-53: Phase 1.6 - 首批 9 个模块 Prisma 持久化
+// OEE / AI市场 / DICOM压缩 / 影像组学 / 融合 / 4D / 急诊分诊 / 智能路由 / 智能工作清单
+// MLLP 消息已由 Hl7MessageArchive 持久化，无需新增 MllpMessage
+
+model OeeRecord {
+  id           String   @id @default(cuid())
+  deviceId     String
+  date         String
+  modality     String
+  availability Float
+  performance  Float
+  quality      Float
+  oee          Float
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([deviceId, date])
+  @@index([deviceId])
+  @@map("oee_records")
+}
+
+model AiModel {
+  id         String    @id @default(cuid())
+  name       String
+  version    String
+  vendor     String?
+  category   String?
+  status     String    @default("running")
+  deployedAt DateTime?
+  config     Json?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([status])
+  @@map("ai_models")
+}
+
+model CompressTask {
+  id             String    @id @default(cuid())
+  instanceUid    String
+  originalSize   Int
+  compressedSize Int?
+  algorithm      String
+  ratio          Float?
+  status         String    @default("pending")
+  progress       Int       @default(0)
+  error          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([instanceUid])
+  @@index([status])
+  @@map("compress_tasks")
+}
+
+model RadiomicsFeature {
+  id          String  @id @default(cuid())
+  instanceUid String
+  roiId       String
+  category    String?
+  featureName String
+  value       Float
+  unit        String?
+  createdAt   DateTime @default(now())
+
+  @@index([instanceUid])
+  @@index([roiId])
+  @@map("radiomics_features")
+}
+
+model FusionJob {
+  id              String   @id @default(cuid())
+  primarySeries   String
+  secondarySeries String
+  type            String
+  status          String   @default("completed")
+  resultPath      String?
+  params          Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([primarySeries, secondarySeries])
+  @@map("fusion_jobs")
+}
+
+model Dicom4dJob {
+  id         String   @id @default(cuid())
+  seriesUid  String   @unique
+  frameCount Int
+  status     String   @default("completed")
+  resultPath String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("dicom_4d_jobs")
+}
+
+model TriageRecord {
+  id           String   @id @default(cuid())
+  examId       String
+  patientId    String
+  patientName  String?
+  examType     String?
+  urgency      Int      @default(0)
+  score        Int
+  rules        Json?
+  status       String   @default("PENDING")
+  assignedTo   String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([examId])
+  @@index([status, score])
+  @@map("triage_records")
+}
+
+model SmartRouteRule {
+  id        String   @id @default(cuid())
+  name      String
+  priority  Int      @default(0)
+  condition Json?
+  action    Json?
+  enabled   Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([enabled, order])
+  @@map("smart_route_rules")
+}
+
+model WorklistSmartScore {
+  id        String   @id @default(cuid())
+  examId    String
+  score     Float
+  weights   Json?
+  scoredAt  DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@index([examId, scoredAt])
+  @@map("worklist_smart_scores")
+}

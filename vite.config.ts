@@ -42,31 +42,29 @@ export default defineConfig({
   plugins: [
     react(),
 
-    // PWA (v3.0.6.8-14: 完全禁用, 用我们自己的 simple SW)
-    // 使用 generateSW: false + 自定义 public/sw.js (no-op SW, 不影响 MSW)
+    // PWA (v3.0.6.11-53: 恢复 PWA + 危急值 Web Push)
+    // Phase 1.5: injectManifest 自定义 src/sw.ts (precache + 离线缓存 + push 监听)
+    //  - MSW 仅在 dev 模式启用 (VITE_USE_MSW / VITE_API_MODE), build 产物不含 MSW
+    //  - devOptions.enabled=false: dev 模式不注册 SW,避免与 MSW mockServiceWorker 冲突
+    //  - injectRegister=false: 由 src/main.tsx 手动 registerSW (virtual:pwa-register,
+    //    dev 下该虚拟模块为 no-op, 仅 build 生效)
     VitePWA({
-      registerType: 'autoUpdate',  // P0-11 v3.0.7: 启用 PWA,自动更新 SW
-      strategies: 'generateSW',
-      injectRegister: 'auto',
-      disable: false,  // P0-11 v3.0.7: 启用 PWA 生成
-      devOptions: { enabled: false },  // dev 模式不启用 (避免和 MSW sw.js 冲突)
-      workbox: {
-        // 缓存策略: app shell + 静态资源, MSW 路径不缓存
-        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB (默认2MB, 我们的worker较大)
+      registerType: 'autoUpdate',
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
+      injectRegister: false,
+      disable: false,
+      devOptions: { enabled: false },
+      injectManifest: {
+        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB (默认2MB, DICOM worker 较大)
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest,woff,woff2}'],
-        navigateFallback: '/g005-radiology-ris/index.html',
-        navigateFallbackDenylist: [/^\/api\//, /^\/g005-radiology-ris\/api\//, /^\/mockServiceWorker\.js/, /^\/sw\.js/],
-        runtimeCaching: [
-          {
-            urlPattern: ({ request }) => request.destination === 'document',
-            handler: 'NetworkFirst',
-            options: { cacheName: 'html-cache', networkTimeoutSeconds: 3 },
-          },
-          {
-            urlPattern: ({ request }) => ['style','script','worker'].includes(request.destination),
-            handler: 'StaleWhileRevalidate',
-            options: { cacheName: 'asset-cache' },
-          },
+        // 排除 MSW / mock 数据,避免污染 precache
+        globIgnores: [
+          '**/mockServiceWorker.js',
+          '**/mock/**',
+          '**/mock-images/**',
+          '**/data/**',
         ],
       },
       manifest: {
@@ -76,12 +74,10 @@ export default defineConfig({
         theme_color: '#1e3a5f',
         background_color: '#ffffff',
         display: 'standalone',
-        scope: '/g005-radiology-ris/',
-        start_url: '/g005-radiology-ris/',
         lang: 'zh-CN',
         icons: [
-          { src: '/g005-radiology-ris/icons/icon-192x192.svg', sizes: '192x192', type: 'image/svg+xml' },
-          { src: '/g005-radiology-ris/icons/icon-512x512.svg', sizes: '512x512', type: 'image/svg+xml' },
+          { src: 'icons/icon-192x192.svg', sizes: '192x192', type: 'image/svg+xml' },
+          { src: 'icons/icon-512x512.svg', sizes: '512x512', type: 'image/svg+xml' },
         ],
       },
     }),
@@ -117,11 +113,12 @@ export default defineConfig({
     },
 
     // PWA / MSW Service Worker 复制到 dist(避免被 vite 当 worker 编译)
+    // 注意: 不再复制 public/sw.js (no-op), 否则会覆盖 vite-plugin-pwa 生成的 dist/sw.js
     {
       name: 'copy-service-workers',
       apply: 'build',
       closeBundle() {
-        const files = ['public/mockServiceWorker.js', 'public/sw.js']
+        const files = ['public/mockServiceWorker.js']
         for (const f of files) {
           if (fs.existsSync(f)) {
             const dest = 'dist/' + f.split('/').pop()

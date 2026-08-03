@@ -15,17 +15,21 @@ export default function AsrPage() {
   const [submitted, setSubmitted] = useState(false)
   const mediaRecorder = useRef<MediaRecorder | null>(null)
   const chunks = useRef<Blob[]>([])
+  const startTimeRef = useRef<number>(0)
 
   const startRecording = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       mediaRecorder.current = new MediaRecorder(stream)
       chunks.current = []
+      startTimeRef.current = Date.now()
       mediaRecorder.current.ondataavailable = (e) => { if (e.data.size > 0) chunks.current.push(e.data) }
       mediaRecorder.current.onstop = async () => {
         setLoading(true)
         try {
-          const res = await asrApi.transcribe()
+          const blob = new Blob(chunks.current, { type: mediaRecorder.current?.mimeType || "audio/webm" })
+          const durationSec = Math.max(1, Math.round((Date.now() - startTimeRef.current) / 1000))
+          const res = await asrApi.transcribe(blob, durationSec)
           setTranscribed(res.text)
           setEditing(res.text)
           setConfidence(res.confidence)

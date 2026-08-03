@@ -1,6 +1,6 @@
 {
   "name": "g005-backend",
-  "version": "3.0.6.11-52",
+  "version": "3.0.6.11-53",
   "private": true,
   "description": "G005 RIS Backend (NestJS 11 + Prisma 5 + PostgreSQL)",
   "scripts": {
@@ -20,6 +20,7 @@
     "prisma:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
     "prisma:seed": "ts-node prisma/seed.ts",
+    "samples:generate": "ts-node scripts/generate-dicom-samples.ts",
     "openapi:generate": "node -e \"process.env.GENERATE_OPENAPI='true';require('./dist/backend/src/main.js')\"",
     "postman:generate": "node scripts/convert-to-postman.cjs"
   },

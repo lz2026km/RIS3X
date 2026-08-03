@@ -1,5 +1,16 @@
 import { api, invalidateApiCache } from './client'
 
+function toQuery(params: Record<string, string | number | undefined> | undefined): string {
+  const query = new URLSearchParams()
+  if (params) {
+    for (const [key, value] of Object.entries(params)) {
+      if (value != null) query.set(key, String(value))
+    }
+  }
+  const qs = query.toString()
+  return qs ? `?${qs}` : ''
+}
+
 // Lung CAD (肺结节 AI 检测) API
 // Backend: /ai-diagnosis/lung-cad/*
 
@@ -51,7 +62,7 @@ export interface LungCadStats {
 
 export const lungCadApi = {
   listResults: (params?: { studyId?: string; status?: string; page?: number; pageSize?: number }) =>
-    api.get<LungCadResult[]>(`/ai-diagnosis/lung-cad/results?${new URLSearchParams(params ?? {}).toString()}`),
+    api.get<LungCadResult[]>(`/ai-diagnosis/lung-cad/results${toQuery(params)}`),
 
   getResult: (id: string) =>
     api.get<LungCadResult>(`/ai-diagnosis/lung-cad/results/${id}`),

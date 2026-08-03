@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { PrismaService } from '../../prisma/prisma.service'
 
 interface RegisterDto {
   fixedSeriesUid: string
@@ -20,29 +21,45 @@ interface RenderDto {
 
 @Injectable()
 export class FusionService {
+  constructor(private readonly prisma: PrismaService) {}
+
   async register(dto: RegisterDto) {
+    const metrics = { dice: 0.89, hd95: 2.34, rmse: 12.7 }
+    const matrix = [
+      [1, 0, 0, 0],
+      [0, 1, 0, 0],
+      [0, 0, 1, 0],
+      [0, 0, 0, 1],
+    ]
+    let registrationId = `reg-${Date.now()}`
+    try {
+      const job = await this.prisma.fusionJob.create({
+        data: {
+          primarySeries: dto.fixedSeriesUid,
+          secondarySeries: dto.movingSeriesUid,
+          type: dto.transformType,
+          status: 'completed',
+          resultPath: `/fusion/register/${dto.fixedSeriesUid}/${dto.movingSeriesUid}`,
+          params: { metrics, matrix },
+        },
+      })
+      registrationId = job.id
+    } catch {
+      // DB unavailable -> keep in-memory registration result
+    }
     return {
-      registrationId: `reg-${Date.now()}`,
+      registrationId,
       fixedSeriesUid: dto.fixedSeriesUid,
       movingSeriesUid: dto.movingSeriesUid,
       transformType: dto.transformType,
       status: 'completed',
-      metrics: {
-        dice: 0.89,
-        hd95: 2.34,
-        rmse: 12.7,
-      },
-      matrix: [
-        [1, 0, 0, 0],
-        [0, 1, 0, 0],
-        [0, 0, 1, 0],
-        [0, 0, 0, 1],
-      ],
+      metrics,
+      matrix,
     }
   }
 
   async render(dto: RenderDto) {
-    return {
+    const frame = {
       frameId: `frame-${Date.now()}`,
       width: 512,
       height: 512,
@@ -55,6 +72,21 @@ export class FusionService {
       fusionWindowWidth: dto.fusionWindowWidth,
       fusionWindowLevel: dto.fusionWindowLevel,
     }
+    try {
+      await this.prisma.fusionJob.create({
+        data: {
+          primarySeries: dto.fixedSeriesUid,
+          secondarySeries: dto.movingSeriesUid,
+          type: `render-${dto.plane}`,
+          status: 'completed',
+          resultPath: `/fusion/frame/${dto.fixedSeriesUid}/${dto.movingSeriesUid}/${dto.plane}/${dto.sliceIndex}`,
+          params: { alpha: dto.alpha, windowWidth: dto.windowWidth, windowLevel: dto.windowLevel, fusionWindowWidth: dto.fusionWindowWidth, fusionWindowLevel: dto.fusionWindowLevel, width: 512, height: 512 },
+        },
+      })
+    } catch {
+      // DB unavailable -> keep in-memory render result
+    }
+    return frame
   }
 
   async getSeries(patientId: string) {

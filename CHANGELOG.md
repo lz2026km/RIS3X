@@ -1,5 +1,56 @@
 ﻿# CHANGELOG
 
+## v3.0.6.11-53 (2026-08-03) — 十大PACS对标+AI CAD对接+DICOM真实3D+语音链路+PWA恢复+模块落库
+
+> **目标**: 全面代码功能审查对标前十大 PACS 厂商，四阶段升级计划 Phase 1 实施
+> **范围**: 修复四大断裂点（AI CAD/3D/语音/PWA）+ 后端模块 Prisma 落库 + 10×80 对标文档
+
+### Phase 0: 10×80 对标文档
+
+- 新增 `docs/PACS_BENCHMARK_V3.0.6.11-53.md`：10 厂商 × 80 项功能矩阵（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/Change Healthcare/Infinitt）
+- G005 完成度 38.8%（31✅/30🟡/19❌），对标 Sectra 87.5%/GE 85.0%
+- 四阶段路线图：Phase1 修复断裂点（本次）→ Phase2 mock 降级/覆盖率 → Phase3 AI Orchestrator/BI/剂量 → Phase4 云部署/环境式报告
+
+### Phase 1.1: AI CAD 端点对接（P0 断裂点修复）
+
+- 后端 `ai-diagnosis` 模块修正路径（`/api/v1/ai-diagnosis` 双前缀 bug 修复）+ 4 组端点（lung/breast/fracture/cardiac 的 list/detail/stats/analyze/review）
+- 前端 4 页（LungCadPage 等）真实数据渲染，修复 4 处存量 TS2345
+- MSW aiDiagnosisHandlers 对齐（20+ 端点）；浏览器实测：肺结节 4 病例/10 结节/风险分级真实显示
+
+### Phase 1.2+1.3: 内置示例 DICOM + 3D 后处理真实化（P0 断裂点修复）
+
+- `backend/dicom-samples/`：46 个真实 DICOM Part10 文件（CT 头 20 层/CT 胸 15 层/MR 10 层/DR 1 张，26.8MB）+ 生成脚本 + manifest
+- `backend/scripts/generate-dicom-samples.ts`：真实 Part10 构造（Explicit VR LE，解剖合理 HU 值）
+- volume 模块重写：reconstruct/mpr/mip/vr 从 dicomInstance 读真实 PixelData（HU rescale）+ 合成回退
+- 前端 MprPage/MipPage/VrPage/VolumeViewerPage：`?source=real|synthetic` 切换，真实 DICOM 模式
+- MSW volumeHandlers 新增（series/reconstruct/mpr/mip/vr）
+
+### Phase 1.4: 语音识别链路打通（P0 断裂点修复）
+
+- 后端：`POST /asr/transcribe/audio` multipart 上传 + Whisper 兼容（WHISPER_API_URL）+ WAV 时长解析 + 确定性模拟回退
+- 前端：asrApi 真实 blob 上传、VoiceDictation MediaRecorder→转写→编辑器全链路、ReportRichEditor externalInsert
+- 浏览器实测：录音→转写（"肝脏形态大小正常…"）→插入编辑器 2983 字符
+
+### Phase 1.5: PWA 恢复（P0 断裂点修复）
+
+- vite-plugin-pwa 改 injectManifest + 自定义 `src/sw.ts`（precache 452 entries + push 监听 + 离线兜底 + 图片字体 CacheFirst）
+- 根 sw.js 标记 deprecated、public/sw.js 删除（不再覆盖 dist/sw.js）
+- Web Push 真实化：PushService VAPID 订阅 + 后端 notifications push-subscribe/unsubscribe/vapid-public-key/push-send
+- MSW 隔离确认：mock 仅 dev、build 产物不含 MSW
+
+### Phase 1.6: 后端 9 模块 Prisma 落库（P2）
+
+- schema.prisma 新增 9 模型：OeeRecord/AiModel/CompressTask/RadiomicsFeature/FusionJob/Dicom4dJob/TriageRecord/SmartRouteRule/WorklistSmartScore
+- 9 模块 service 改造（oee/ai-marketplace/dicom-compress/radiomics/fusion/dicom-4d/triage/smart-route/worklist-smart）：结果持久化 + catch 回退内存 mock
+- `npx prisma generate` 成功，真实类型
+
+### 验证结果
+
+- 后端 tsc 0 错误；jest 47 suites/445 tests 通过（新增 ASR/volume 用例）
+- 前端 vite build 成功（71s，452 precache entries，sw.js 54KB 非 no-op）
+- Playwright 回归 35/35 通过
+- 浏览器实测：AI Lung CAD 真实数据、volume/series 200、MPR 页面正常渲染
+
 ## v3.0.6.11-52 (2026-08-02) — 全量翻译修复：侧边栏95key+页面英文中文化+状态值映射+乱码修复
 
 > **目标**: 排查并修复整个软件的翻译 Bug 与遗漏（导航栏/页面/组件），侧边栏英文清零
@@ -65,16 +116,16 @@
 
 ### F18: 版本号全量统一 + 文档
 
-- package.json → 3.0.6.11-52（含 package-lock.json）
-- backend/package.json → 3.0.6.11-52
-- index.html title + window.__appVersion → v3.0.6.11-52
-- src/main.tsx APP_VERSION → v3.0.6.11-52
-- backend/src/main.ts + app.module.ts → v3.0.6.11-52
-- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-52
-- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-52
-- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-52
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-52
-- CHANGELOG.md 新增 v3.0.6.11-52 条目
+- package.json → 3.0.6.11-53（含 package-lock.json）
+- backend/package.json → 3.0.6.11-53
+- index.html title + window.__appVersion → v3.0.6.11-53
+- src/main.tsx APP_VERSION → v3.0.6.11-53
+- backend/src/main.ts + app.module.ts → v3.0.6.11-53
+- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-53
+- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-53
+- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-53
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-53
+- CHANGELOG.md 新增 v3.0.6.11-53 条目
 
 ### 验证结果
 
@@ -85,10 +136,10 @@
 
 ---
 
-## v3.0.6.11-52 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
+## v3.0.6.11-53 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
 
 > **目标**: 后端深度修复 + 安全加固 + 类型修复 + 测试验证 + 性能检查 + 版本号全量统一
-> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-52
+> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-53
 
 ### A13: 后端安全加固
 
@@ -119,19 +170,19 @@
 
 ### A19: 版本号全量统一
 
-- backend/package.json → 3.0.6.11-52
-- backend/src/main.ts → Swagger version + log message → v3.0.6.11-52
-- backend/src/app.module.ts → v3.0.6.11-52
-- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-52
-- index.html title + window.__appVersion → v3.0.6.11-52
-- src/i18n/appI18n.ts → v3.0.6.11-52
-- src/main.tsx APP_VERSION → v3.0.6.11-52
-- src/routes/routeTable.tsx → v3.0.6.11-52
-- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-52
-- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-52
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-52
-- CONTRIBUTING.md → v3.0.6.11-52
-- CHANGELOG.md 新增 v3.0.6.11-52 条目
+- backend/package.json → 3.0.6.11-53
+- backend/src/main.ts → Swagger version + log message → v3.0.6.11-53
+- backend/src/app.module.ts → v3.0.6.11-53
+- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-53
+- index.html title + window.__appVersion → v3.0.6.11-53
+- src/i18n/appI18n.ts → v3.0.6.11-53
+- src/main.tsx APP_VERSION → v3.0.6.11-53
+- src/routes/routeTable.tsx → v3.0.6.11-53
+- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-53
+- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-53
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-53
+- CONTRIBUTING.md → v3.0.6.11-53
+- CHANGELOG.md 新增 v3.0.6.11-53 条目
 
 ### 验证结果
 

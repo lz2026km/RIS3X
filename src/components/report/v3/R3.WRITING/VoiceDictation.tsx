@@ -16,6 +16,7 @@ import {
   startVoiceDictation, pauseVoiceDictation, resumeVoiceDictation, stopVoiceDictation,
   getVoiceDictationHistory,
 } from '@services/writing/writingService';
+import { asrApi } from '@services/api/asrApi';
 import type { VoiceDictationSession, VoiceDictationState, VoiceDictationLang } from '@types/R3/R3.WRITING';
 
 interface Props {
@@ -135,14 +136,25 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
   const [showVocab, setShowVocab] = useState(false);
   const recognitionRef = useRef<any>(null);
   const startTimeRef = useRef<number>(0);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const mediaChunksRef = useRef<Blob[]>([]);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const sessionRef = useRef<VoiceDictationSession | null>(null);
 
   // 检查浏览器支持
   const isSupported = typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+  const isMediaRecorderSupported = typeof window !== 'undefined' && typeof window.MediaRecorder !== 'undefined';
 
   useEffect(() => {
     return () => {
       if (recognitionRef.current) {
         try { recognitionRef.current.stop(); } catch { /* noop */ }
+      }
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        try { mediaRecorderRef.current.stop(); } catch { /* noop */ }
+      }
+      if (mediaStreamRef.current) {
+        mediaStreamRef.current.getTracks().forEach((t) => t.stop());
       }
     };
   }, []);
@@ -152,15 +164,92 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
     setSpeakerHistory((prev) => [...prev, { speaker: SPEAKERS.find((s) => s.value === value)?.label ?? value, time: new Date() }]);
   }, []);
 
+  // 停止录音后把真实 audio blob 交给后端转写(Phase 1.4 真实链路)
+  const handleTranscribe = useCallback(async () => {
+    const blob = new Blob(mediaChunksRef.current, { type: mediaRecorderRef.current?.mimeType || 'audio/webm' });
+    const durationSec = Math.max(1, Math.round((Date.now() - startTimeRef.current) / 1000));
+    mediaStreamRef.current?.getTracks().forEach((t) => t.stop());
+    mediaStreamRef.current = null;
+    mediaRecorderRef.current = null;
+    mediaChunksRef.current = [];
+
+    const current = sessionRef.current;
+    if (!current) return;
+    if (blob.size === 0) {
+      const nextIdle = { ...current, state: 'idle' as const };
+      sessionRef.current = nextIdle;
+      setSession(nextIdle);
+      return;
+    }
+
+    const nextProcessing = { ...current, state: 'processing' as const, interimText: '正在转写音频...' };
+    sessionRef.current = nextProcessing;
+    setSession(nextProcessing);
+    setInterimDisplay('正在转写音频...');
+    try {
+      const res = await asrApi.transcribe(blob, durationSec, lang);
+      const nextDone = {
+        ...current,
+        finalText: res.text,
+        interimText: '',
+        state: 'idle' as const,
+        endedAt: new Date().toISOString(),
+        totalDurationSec: res.duration,
+        totalWords: res.text.replace(/\s/g, '').length,
+        segments: res.segments.map((seg) => ({
+          start: seg.start * 1000,
+          end: seg.end * 1000,
+          text: seg.text,
+          confidence: seg.confidence,
+        })),
+      };
+      sessionRef.current = nextDone;
+      setSession(nextDone);
+      setInterimDisplay('');
+      onTextChange?.(res.text);
+      message.success(`转写完成(${res.engine}引擎,置信度 ${(res.confidence * 100).toFixed(0)}%)`);
+    } catch (e) {
+      console.error('transcribe failed:', e);
+      const nextError = { ...current, state: 'error' as const, interimText: '' };
+      sessionRef.current = nextError;
+      setSession(nextError);
+      setInterimDisplay('');
+      message.error('语音转写失败,请重试');
+    }
+  }, [lang, onTextChange]);
+
   const start = useCallback(async () => {
     if (disabled) return;
-    if (!isSupported) {
-      message.warning('当前浏览器不支持 Web Speech API,已使用 mock 模式');
+    if (!isSupported && !isMediaRecorderSupported) {
+      message.warning('当前浏览器不支持语音识别,已使用 mock 模式');
     }
     const newSession = await startVoiceDictation(reportId, lang);
+    sessionRef.current = newSession;
     setSession(newSession);
     setInterimDisplay('');
     startTimeRef.current = Date.now();
+
+    // 优先真实链路:MediaRecorder 录音 → blob 上传 → 后端转写
+    if (isMediaRecorderSupported) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaStreamRef.current = stream;
+        const recorder = new MediaRecorder(stream);
+        mediaRecorderRef.current = recorder;
+        mediaChunksRef.current = [];
+        recorder.ondataavailable = (e: BlobEvent) => {
+          if (e.data.size > 0) mediaChunksRef.current.push(e.data);
+        };
+        recorder.onstop = () => { void handleTranscribe(); };
+        recorder.start();
+        const nextListening = { ...newSession, state: 'listening' as const };
+        sessionRef.current = nextListening;
+        setSession(nextListening);
+        return;
+      } catch (e) {
+        console.warn('MediaRecorder 启动失败,回退 Web Speech / mock:', e);
+      }
+    }
 
     // 真实 Web Speech API
     if (isSupported) {
@@ -198,7 +287,7 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
       // Mock 模式 - 模拟识别
       mockRecognitionLoop(newSession);
     }
-  }, [reportId, lang, autoPunct, isSupported, disabled, session?.state, onTextChange]);
+  }, [reportId, lang, autoPunct, isSupported, isMediaRecorderSupported, disabled, session?.state, onTextChange, handleTranscribe]);
 
   const mockRecognitionLoop = (initialSession: VoiceDictationSession) => {
     const MOCK_PHRASES = [
@@ -225,29 +314,46 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
 
   const pause = useCallback(async () => {
     if (!session) return;
-    if (recognitionRef.current) {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      try { mediaRecorderRef.current.pause(); } catch { /* noop */ }
+    } else if (recognitionRef.current) {
       try { recognitionRef.current.stop(); } catch { /* noop */ }
     }
     const r = await pauseVoiceDictation(session.id);
-    setSession((s) => s ? { ...s, state: r.state } : s);
+    const nextPaused = { ...session, state: r.state };
+    sessionRef.current = nextPaused;
+    setSession(nextPaused);
   }, [session]);
 
   const resume = useCallback(async () => {
     if (!session) return;
     const r = await resumeVoiceDictation(session.id);
-    setSession((s) => s ? { ...s, state: r.state } : s);
-    if (recognitionRef.current && isSupported) {
+    const nextResumed = { ...session, state: r.state };
+    sessionRef.current = nextResumed;
+    setSession(nextResumed);
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'paused') {
+      try { mediaRecorderRef.current.resume(); } catch { /* noop */ }
+    } else if (recognitionRef.current && isSupported) {
       try { recognitionRef.current.start(); } catch { /* noop */ }
     }
   }, [session, isSupported]);
 
   const stop = useCallback(async () => {
     if (!session) return;
+    // MediaRecorder 路径:stop() 触发 onstop → handleTranscribe 上传真实音频
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      try {
+        mediaRecorderRef.current.stop();
+        return;
+      } catch { /* noop */ }
+    }
     if (recognitionRef.current) {
       try { recognitionRef.current.stop(); } catch { /* noop */ }
     }
     const r = await stopVoiceDictation(session.id);
-    setSession((s) => s ? { ...s, state: r.state, endedAt: new Date().toISOString(), totalDurationSec: r.durationSec, totalWords: r.totalWords } : s);
+    const nextStopped = { ...session, state: r.state, endedAt: new Date().toISOString(), totalDurationSec: r.durationSec, totalWords: r.totalWords };
+    sessionRef.current = nextStopped;
+    setSession(nextStopped);
     message.success(`已停止,共识别 ${r.totalWords} 词,耗时 ${r.durationSec} 秒`);
   }, [session]);
 

@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { Slider, Tag } from 'antd'
+import { Slider, Tag, Spin } from 'antd'
 import { Box, RotateCcw } from 'lucide-react'
+import { volumeApi } from '../../services/api/volumeApi'
+import { setupRealVolume, decodeRgbaBase64, drawImageDataCentered } from './volumeReal'
 
 const BLUE = '#3b82f6'
 const CARD_BG = '#0f172a'
@@ -46,14 +48,69 @@ function generateVolumeSlice(z: number, size: number, preset: PresetType): Image
 
 const VrPage: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [mode, setMode] = useState<'loading' | 'real' | 'synthetic'>('loading')
+  const [jobId, setJobId] = useState<string | null>(null)
+  const [seriesInfo, setSeriesInfo] = useState('')
   const [rotation, setRotation] = useState({ x: 0, y: 0, z: 0 })
   const [opacity, setOpacity] = useState(0.8)
   const [preset, setPreset] = useState<PresetType>('default')
   const [sliceZ, setSliceZ] = useState(64)
   const [dragging, setDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+  const [realError, setRealError] = useState(false)
+  const renderTickRef = useRef(0)
+  const pendingRef = useRef<number | null>(null)
 
   useEffect(() => {
+    let cancelled = false
+    setupRealVolume({ modality: 'CT' }).then((setup) => {
+      if (cancelled) return
+      setMode(setup.mode)
+      setJobId(setup.jobId)
+      if (setup.series) {
+        setSeriesInfo(`${setup.series.modality} #${setup.series.instanceCount} 层 ${setup.series.rows}x${setup.series.columns}`)
+      }
+    })
+    return () => { cancelled = true }
+  }, [])
+
+  // 真实模式: 后端 VR 光线投射 (防抖)
+  useEffect(() => {
+    if (mode !== 'real' || !jobId) return
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    const rect = canvas.getBoundingClientRect()
+    const w = rect.width, h = rect.height
+    canvas.width = w * devicePixelRatio; canvas.height = h * devicePixelRatio
+    ctx.scale(devicePixelRatio, devicePixelRatio)
+    ctx.clearRect(0, 0, w, h)
+    ctx.font = '13px ui-monospace, monospace'
+    ctx.fillStyle = 'rgba(148,163,184,0.9)'
+    ctx.fillText('渲染 VR...', 8, 18)
+
+    const myId = ++renderTickRef.current
+    if (pendingRef.current !== null) window.clearTimeout(pendingRef.current)
+    pendingRef.current = window.setTimeout(() => {
+      volumeApi.vrImage(jobId, { preset, opacity, rotation }).then((res) => {
+        if (myId !== renderTickRef.current) return
+        if (!res.success) { setRealError(true); return }
+        setRealError(false)
+        const p = res.data.pixelData
+        const rgba = decodeRgbaBase64(p.dataBase64)
+        const imgData = new ImageData(new Uint8ClampedArray(rgba), res.data.width, res.data.height)
+        drawImageDataCentered(ctx, imgData, w, h)
+      })
+    }, 120)
+    return () => {
+      if (pendingRef.current !== null) window.clearTimeout(pendingRef.current)
+    }
+  }, [mode, jobId, preset, opacity, rotation])
+
+  // 合成回退: 客户端逐层合成
+  useEffect(() => {
+    if (mode !== 'synthetic') return
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
@@ -87,7 +144,7 @@ const VrPage: React.FC = () => {
     ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(4, 4, 200, 20)
     ctx.fillStyle = '#facc15'
     ctx.fillText(`VR | ${PRESETS[preset].label} | Opacity:${Math.round(opacity * 100)}%`, 8, 18)
-  })
+  }, [mode, preset, opacity, rotation, sliceZ])
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     setDragging(true)
@@ -125,6 +182,10 @@ const VrPage: React.FC = () => {
         <Box size={18} color={BLUE} />
         <span style={{ fontSize: 15, fontWeight: 700 }}>VR 体绘制</span>
         <Tag color="cyan">Volume Rendering</Tag>
+        {mode === 'real' && <Tag color="green">REAL DICOM</Tag>}
+        {mode === 'synthetic' && <Tag>SYNTHETIC</Tag>}
+        {realError && <Tag color="red">后端 VR 失败,已回退</Tag>}
+        {seriesInfo && <span style={{ fontSize: 11, color: '#64748b' }}>{seriesInfo}</span>}
       </div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'center', flexWrap: 'wrap' }}>
         <span style={{ fontSize: 12, color: '#94a3b8' }}>预设:</span>
@@ -146,13 +207,13 @@ const VrPage: React.FC = () => {
         </button>
       </div>
       <div
-        style={{ background: CARD_BG, borderRadius: 6, border: '1px solid #1e293b', overflow: 'hidden', height: 'calc(100vh - 140px)', cursor: 'grab' }}
+        style={{ background: CARD_BG, borderRadius: 6, border: '1px solid #1e293b', overflow: 'hidden', height: 'calc(100vh - 140px)', cursor: 'grab', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       >
-        <canvas ref={canvasRef} style={{ width: '100%', height: '100%', imageRendering: 'pixelated' }} />
+        {mode === 'loading' ? <Spin size="large" /> : <canvas ref={canvasRef} style={{ width: '100%', height: '100%', imageRendering: 'pixelated' }} />}
       </div>
     </div>
   )

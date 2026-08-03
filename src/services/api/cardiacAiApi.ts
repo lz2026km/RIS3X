@@ -1,5 +1,16 @@
 import { api, invalidateApiCache } from './client'
 
+function toQuery(params: Record<string, string | number | undefined> | undefined): string {
+  const query = new URLSearchParams()
+  if (params) {
+    for (const [key, value] of Object.entries(params)) {
+      if (value != null) query.set(key, String(value))
+    }
+  }
+  const qs = query.toString()
+  return qs ? `?${qs}` : ''
+}
+
 // Cardiac AI (心脏 AI 分析) API
 // Backend: /ai-diagnosis/cardiac-ai/*
 
@@ -54,7 +65,7 @@ export interface CardiacAiStats {
 
 export const cardiacAiApi = {
   listResults: (params?: { studyId?: string; status?: string; page?: number; pageSize?: number }) =>
-    api.get<CardiacAiResult[]>(`/ai-diagnosis/cardiac-ai/results?${new URLSearchParams(params ?? {}).toString()}`),
+    api.get<CardiacAiResult[]>(`/ai-diagnosis/cardiac-ai/results${toQuery(params)}`),
 
   getResult: (id: string) =>
     api.get<CardiacAiResult>(`/ai-diagnosis/cardiac-ai/results/${id}`),

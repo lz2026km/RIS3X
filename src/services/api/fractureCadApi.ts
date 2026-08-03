@@ -1,5 +1,16 @@
 import { api, invalidateApiCache } from './client'
 
+function toQuery(params: Record<string, string | number | undefined> | undefined): string {
+  const query = new URLSearchParams()
+  if (params) {
+    for (const [key, value] of Object.entries(params)) {
+      if (value != null) query.set(key, String(value))
+    }
+  }
+  const qs = query.toString()
+  return qs ? `?${qs}` : ''
+}
+
 // Fracture CAD (骨折 AI 检测) API
 // Backend: /ai-diagnosis/fracture-cad/*
 
@@ -47,7 +58,7 @@ export interface FractureCadStats {
 
 export const fractureCadApi = {
   listResults: (params?: { studyId?: string; bodyPart?: string; status?: string; page?: number; pageSize?: number }) =>
-    api.get<FractureCadResult[]>(`/ai-diagnosis/fracture-cad/results?${new URLSearchParams(params ?? {}).toString()}`),
+    api.get<FractureCadResult[]>(`/ai-diagnosis/fracture-cad/results${toQuery(params)}`),
 
   getResult: (id: string) =>
     api.get<FractureCadResult>(`/ai-diagnosis/fracture-cad/results/${id}`),

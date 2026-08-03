@@ -264,8 +264,10 @@ async function request<T>(
     if (cached) return cached as ApiResponse<T>;
   }
 
+  const isFormData =
+    typeof FormData !== "undefined" && options.body instanceof FormData;
   const baseHeaders: Record<string, string> = {
-    "Content-Type": "application/json",
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
     ...(options.headers as Record<string, string>),
   };
   if (API_MODE === "real") {
@@ -379,7 +381,12 @@ export const api = {
   post: <T>(path: string, body?: unknown) =>
     request<T>(path, {
       method: "POST",
-      body: body ? JSON.stringify(body) : undefined,
+      body:
+        body === undefined
+          ? undefined
+          : body instanceof FormData
+            ? body
+            : JSON.stringify(body),
     }),
   put: <T>(path: string, body?: unknown) =>
     request<T>(path, {

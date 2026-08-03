@@ -40,8 +40,8 @@ function AITab({ reportId, modality, bodyPart }: { reportId: string; modality: s
   );
 }
 
-function VoiceTab({ reportId }: { reportId: string }) {
-  return <VoiceDictation reportId={reportId} />;
+function VoiceTab({ reportId, onInsert, onTextChange }: { reportId: string; onInsert: (text: string) => void; onTextChange: (text: string) => void }) {
+  return <VoiceDictation reportId={reportId} onInsert={onInsert} onTextChange={onTextChange} />;
 }
 
 function HistoryTab({ priorReports, currentText, onCompare }: { priorReports: any[]; currentText: string; onCompare: (oldText: string, label: string) => void }) {
@@ -222,6 +222,7 @@ export default function ReportWritePage() {
   const [autoSaveTip, setAutoSaveTip] = useState('已保存');
   const [conflicts, setConflicts] = useState<any[]>([]);
   const [diffTarget, setDiffTarget] = useState<{ oldText: string; label: string } | null>(null);
+  const [voiceInsert, setVoiceInsert] = useState<{ text: string; ts: number } | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -263,7 +264,7 @@ export default function ReportWritePage() {
   const renderActiveTab = () => {
     switch (activeToolsTab) {
       case 'ai': return <AITab reportId={reportId} modality={context.modality} bodyPart={context.bodyPart} />;
-      case 'voice': return <VoiceTab reportId={reportId} />;
+      case 'voice': return <VoiceTab reportId={reportId} onInsert={(text) => setVoiceInsert({ text, ts: Date.now() })} onTextChange={() => { /* 实时文本由编辑器插入按钮统一处理 */ }} />;
       case 'history': return <HistoryTab priorReports={context.priorReports} currentText={context.document.plainText} onCompare={(oldText, label) => setDiffTarget({ oldText, label })} />;
       case 'similar': return <SimilarTab similarCases={context.similarCases} />;
       case 'score': return <ScoreTab preScore={preScore} />;
@@ -343,6 +344,8 @@ export default function ReportWritePage() {
               initialHtml={context.document.html}
               initialPlainText={context.document.plainText}
               onChange={(doc) => setContext((c) => ({ ...c, document: doc }))}
+              externalInsert={voiceInsert}
+              onExternalInsertConsumed={() => setVoiceInsert(null)}
             />
           </Card>
 

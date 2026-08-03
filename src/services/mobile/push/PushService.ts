@@ -1,9 +1,16 @@
 /**
  * G005 放射RIS系统 v3.0.6.6 - 移动端推送服务 (Web Push + APNs + FCM)
  * 30 升级点:渠道抽象 / 权限请求 / 订阅管理 / 本地通知 / 静默推送 / 去重 / 话题过滤
+ *
+ * v3.0.6.11-53 (Phase 1.5): 对接真实 Web Push
+ *   - SW 注册 URL 改为 import.meta.env.BASE_URL + sw.js (vite-plugin-pwa 产物)
+ *   - VAPID 公钥从后端 GET /notifications/vapid-public-key 获取(失败回退内置演示密钥)
+ *   - 订阅成功后同步到后端 POST /notifications/push-subscribe
+ *   - SW 监听 push 事件(src/sw.ts)展示系统通知
  */
 
 import type { PushPayload, PushChannel, PushSubscription } from '../../types/mobile';
+import { API_BASE } from '../../api/client';
 
 type PushPermission = 'granted' | 'denied' | 'default' | 'unsupported';
 
@@ -17,6 +24,9 @@ interface PushEventHandler {
 
 const STORAGE_KEY = 'g005-push-subscription';
 const FCM_SENDER_ID = 'g005-ris-fcm';
+// 演示 VAPID 密钥对 (后端未配置时回退; 生产从 GET /notifications/vapid-public-key 获取)
+const DEMO_VAPID_PUBLIC_KEY =
+  'BK-yELa-ndXqb0Qr5gdFEnEtYjaPWadKr25P1ApwdgNcbgtPIAaWdTwdwyy1eyP8ntlQSWM-XH5GK2Lk6S1hb88';
 
 class PushService {
   private handlers: Set<PushEventHandler> = new Set();
@@ -43,7 +53,7 @@ class PushService {
     }
   }
 
-  async init(swUrl = '/service-worker.js'): Promise<boolean> {
+  async init(swUrl = `${import.meta.env.BASE_URL}sw.js`): Promise<boolean> {
     if (!this.supported) { this.cachedPermission = 'unsupported'; return false; }
     try {
       this.swRegistration = await navigator.serviceWorker.register(swUrl);
@@ -55,6 +65,30 @@ class PushService {
       });
       return true;
     } catch { return false; }
+  }
+
+  /**
+   * 获取 VAPID 公钥: 后端优先, 失败回退内置演示密钥
+   */
+  private async getVapidPublicKey(): Promise<string> {
+    try {
+      const res = await fetch(`${API_BASE}/notifications/vapid-public-key`, { method: 'GET' });
+      if (!res.ok) throw new Error(`vapid-key ${res.status}`);
+      const data = (await res.json()) as { publicKey?: string };
+      if (data.publicKey) return data.publicKey;
+    } catch { /* fallback below */ }
+    return DEMO_VAPID_PUBLIC_KEY;
+  }
+
+  private currentUserId(): string {
+    try {
+      const raw = localStorage.getItem('ris_current_user');
+      if (raw) {
+        const u = JSON.parse(raw) as { id?: string };
+        if (u.id) return u.id;
+      }
+    } catch { /* ignore */ }
+    return 'demo-user';
   }
 
   async requestPermission(): Promise<PushPermission> {
@@ -72,9 +106,10 @@ class PushService {
   async subscribe(vapidPublicKey: string, userId: string, deviceId: string, topics: string[] = []): Promise<PushSubscription | null> {
     if (!this.supported || !this.swRegistration) return null;
     try {
+      const key = vapidPublicKey || await this.getVapidPublicKey();
       const sub = await this.swRegistration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: this.urlBase64ToUint8Array(vapidPublicKey),
+        applicationServerKey: this.urlBase64ToUint8Array(key),
       });
       const subInfo: PushSubscription = {
         endpoint: sub.endpoint,
@@ -88,6 +123,17 @@ class PushService {
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(subInfo));
       this.emit('onSubscribe', subInfo);
+      // 同步到后端 (异步, 失败不阻断)
+      void fetch(`${API_BASE}/notifications/push-subscribe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: userId || this.currentUserId(),
+          endpoint: subInfo.endpoint,
+          keys: subInfo.keys,
+          topics,
+        }),
+      }).catch(() => undefined);
       return subInfo;
     } catch { return null; }
   }
@@ -99,6 +145,11 @@ class PushService {
       if (sub) {
         const endpoint = sub.endpoint;
         await sub.unsubscribe();
+        void fetch(`${API_BASE}/notifications/push-unsubscribe`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ endpoint }),
+        }).catch(() => undefined);
         this.emit('onUnsubscribe', endpoint);
       }
       localStorage.removeItem(STORAGE_KEY);

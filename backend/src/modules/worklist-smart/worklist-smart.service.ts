@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { PrismaService } from '../../prisma/prisma.service'
 
 export interface SmartScoreInput {
   id: string
@@ -43,6 +44,8 @@ const HIGH_PRIORITY_EXAM_KEYWORDS = ['CT头', 'CTA', 'CTP', '头颈CTA', '冠状
 export class WorklistSmartService {
   private weights: SmartWeightConfig = { ...DEFAULT_WEIGHTS }
 
+  constructor(private readonly prisma: PrismaService) {}
+
   getWeights(): SmartWeightConfig {
     return { ...this.weights }
   }
@@ -78,7 +81,7 @@ export class WorklistSmartService {
     return 0
   }
 
-  score(input: SmartScoreInput): SmartScoreResult {
+  private computeScore(input: SmartScoreInput): SmartScoreResult {
     const urgencyScore = this.normalizeUrgency(input.urgency)
     const waitScore = this.calcWaitScore(input.waitingMinutes)
     const ageScore = this.calcAgeScore(input.age)
@@ -114,11 +117,32 @@ export class WorklistSmartService {
     }
   }
 
+  private async persistScore(input: SmartScoreInput, result: SmartScoreResult): Promise<void> {
+    await this.prisma.worklistSmartScore.create({
+      data: {
+        examId: input.id,
+        score: result.score,
+        weights: { ...this.weights },
+        scoredAt: new Date(),
+      },
+    })
+  }
+
+  async score(input: SmartScoreInput): Promise<SmartScoreResult> {
+    const result = this.computeScore(input)
+    try {
+      await this.persistScore(input, result)
+    } catch {
+      // DB unavailable -> keep pure scoring result
+    }
+    return result
+  }
+
   reorder(
     inputs: SmartScoreInput[],
   ): Array<SmartScoreInput & { score: number; reasons: string[]; level: string; rank: number; beforeRank: number }> {
     const scored = inputs.map((input, idx) => {
-      const result = this.score(input)
+      const result = this.computeScore(input)
       return { ...input, ...result, beforeRank: idx + 1, rank: 0 }
     })
     scored.sort((a, b) => b.score - a.score)

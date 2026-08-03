@@ -1,4 +1,6 @@
-﻿// v3.0.6.11-52: 核心 Bug 修复版
+﻿// v3.0.6.11-53: 核心 Bug 修复版
+// v3.0.6.11-53: PWA 恢复 — build 模式注册 Service Worker (dev 为 no-op, 不干扰 MSW)
+/// <reference types="vite-plugin-pwa/client" />
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
@@ -8,13 +10,14 @@ import { reportWebVitals } from "./observability/webVitals";
 import { initSentry } from "./observability/sentry";
 
 import { currentApiMode } from "./services/api/client";
+import { registerSW } from "virtual:pwa-register";
 
 import "./styles/animations.css";
 import "./styles/transitions.css";
 import "./styles/responsive.css";
 import "./styles/z-index.css";
 
-const APP_VERSION = "3.0.6.11-52";
+const APP_VERSION = "3.0.6.11-53";
 console.info(`[v${APP_VERSION}] === BOOT START ===`);
 console.info(`[v${APP_VERSION}] Location:`, window.location.href);
 
@@ -112,6 +115,20 @@ async function bootstrap(): Promise<void> {
 
   // Phase 3: Init Sentry
   initSentry();
+
+  // Phase 3.5: PWA Service Worker (build 模式, dev 下 virtual:pwa-register 为 no-op)
+  // MSW 仅 mock 模式启用; real 模式下注册 SW → 离线缓存 + 危急值推送
+  if (!mockMode) {
+    registerSW({
+      immediate: true,
+      onRegisteredSW: (swUrl) => {
+        console.info(`[v${APP_VERSION}] SW registered: ${swUrl}`);
+      },
+      onRegisterError: (err) => {
+        console.warn(`[v${APP_VERSION}] SW register error:`, err);
+      },
+    });
+  }
 
   // Phase 4: 渲染 React
   console.info(`[v${APP_VERSION}] Phase 4: React render`);

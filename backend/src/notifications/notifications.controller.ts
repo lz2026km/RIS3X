@@ -32,6 +32,20 @@ const PushSubscriptionSchema = z.object({
   userId: z.string().min(1),
   endpoint: z.string().url(),
   keys: z.object({ p256dh: z.string().min(1), auth: z.string().min(1) }),
+  topics: z.array(z.string()).optional(),
+})
+
+const PushUnsubscribeSchema = z.object({
+  endpoint: z.string().url(),
+})
+
+const PushSendSchema = z.object({
+  userId: z.string().min(1),
+  title: z.string().min(1),
+  content: z.string().min(1),
+  url: z.string().optional(),
+  tag: z.string().optional(),
+  requireInteraction: z.boolean().optional(),
 })
 
 @ApiTags('notifications')
@@ -70,7 +84,24 @@ export class NotificationsController {
 
   @Post('push-subscribe')
   @HttpCode(HttpStatus.CREATED)
-  pushSubscribe(@Body(new ZodValidationPipe(PushSubscriptionSchema)) body: { userId: string; endpoint: string; keys: { p256dh: string; auth: string } }) {
+  pushSubscribe(@Body(new ZodValidationPipe(PushSubscriptionSchema)) body: { userId: string; endpoint: string; keys: { p256dh: string; auth: string }; topics?: string[] }) {
     return this.service.savePushSubscription(body.userId, body)
+  }
+
+  @Post('push-unsubscribe')
+  @HttpCode(HttpStatus.OK)
+  pushUnsubscribe(@Body(new ZodValidationPipe(PushUnsubscribeSchema)) body: { endpoint: string }) {
+    return this.service.removePushSubscription(body.endpoint)
+  }
+
+  @Get('vapid-public-key')
+  vapidPublicKey() {
+    return { publicKey: this.service.getVapidPublicKey() }
+  }
+
+  @Post('push-send')
+  @HttpCode(HttpStatus.OK)
+  pushSend(@Body(new ZodValidationPipe(PushSendSchema)) body: { userId: string; title: string; content: string; url?: string; tag?: string; requireInteraction?: boolean }) {
+    return this.service.sendPush(body.userId, body)
   }
 }

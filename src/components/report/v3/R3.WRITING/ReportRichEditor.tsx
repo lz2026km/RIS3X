@@ -33,6 +33,9 @@ interface Props {
   wsUrl?: string;
   userName?: string;
   userId?: string;
+  /** 外部文本插入请求(语音听写等),插入后通过 onExternalInsertConsumed 通知消费 */
+  externalInsert?: { text: string; ts: number } | null;
+  onExternalInsertConsumed?: () => void;
 }
 
 const FONT_FAMILIES = [
@@ -52,6 +55,7 @@ const RAD_SPECIALS = ['±', '≤', '≥', '≠', '≈', '°', 'μ', 'α', 'β', 
 export const ReportRichEditor: React.FC<Props> = ({
   reportId, initialHtml, initialPlainText, onChange, onSave, readOnly = false,
   enableCollaboration = false, wsUrl, userName = '匿名用户', userId,
+  externalInsert = null, onExternalInsertConsumed,
 }) => {
   const [doc, setDoc] = useState<RichEditorDocument>({
     ...RICH_DOCUMENT_MOCK,
@@ -150,6 +154,28 @@ export const ReportRichEditor: React.FC<Props> = ({
       return next;
     });
   }, [reportId, onChange]);
+
+  // 外部文本插入(语音听写结果) → 现有 insert 逻辑
+  useEffect(() => {
+    if (!externalInsert || !externalInsert.text) return;
+    const el = editorRef.current;
+    if (el) {
+      el.focus();
+      try {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        range.collapse(false);
+        const sel = window.getSelection();
+        if (sel) {
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+      } catch { /* noop */ }
+    }
+    applyFormat('insertText', externalInsert.text);
+    void handleContentChange();
+    onExternalInsertConsumed?.();
+  }, [externalInsert, applyFormat, handleContentChange, onExternalInsertConsumed]);
 
   const toggleVoice = useCallback(() => {
     if (voiceListening) {
