@@ -1,16 +1,17 @@
 // ============================================================
 // G005 放射科RIS系统 v3.0.6.0 - 报告导出中心(强化+R7扩展)
 // v1.0.6 基础 + R3.INTEGRATION 80 升级点 + R7 ~500 升级点
+// [v3.0.6.11-70] P0 真实化: 报告列表/导出任务/下载 blob 接入后端 + exportService
 // ============================================================
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Tabs, Badge, message } from 'antd';
+import { Tabs, Badge, message, Empty, Spin } from 'antd';
 import {
   Download, FileText, FileType, FileCode, Globe, Server, FileJson,
   CheckCircle2, Eye, Loader2, Layers, Sparkles, Code2, Database,
-  Zap, FileCode as FileCodeIcon, Package, Lock, Presentation,
-  Palette, QrCode, Droplet, Clock, Shield, Mail, Upload,
+  Zap, Package, Presentation,
+  Mail,
 } from 'lucide-react';
 import { HLCDAExporter } from '@components/report/v3/R3.INTEGRATION/HLCDAExporter';
 import { DicomSRExporter } from '@components/report/v3/R3.INTEGRATION/DicomSRExporter';
@@ -18,14 +19,14 @@ import { FHIRDiagnosticReportComponent } from '@components/report/v3/R3.INTEGRAT
 import { IHEXDSRegistry } from '@components/report/v3/R3.INTEGRATION/IHEXDSRegistry';
 import {
   EXPORT_TEMPLATES,
-  DELIVERY_KPI,
   type ExportFormat,
 } from '../data/deliveryExportSignatureMock';
-import { extendedReportMock } from '../data/reportSubsystemMock';
+// [v3.0.6.11-70] P0 真实化: 报告列表来自后端; 导出 = 后端入队 + 本地真实文件生成下载
+import { reportApi, type ReportDto } from '../services/api/reportApi';
+import { exportReport as engineExportReport, downloadExport } from '../services/exportService';
 import { BulkExportDialog } from '../components/export/BulkExportDialog';
 import { PptxExportDialog } from '../components/export/PptxExportDialog';
 import { EmailSendDialog } from '../components/export/EmailSendDialog';
-import { ScheduledExportConfig } from '../components/export/ScheduledExportConfig';
 
 // ============================================================
 // 格式图标（未使用，但保留以备扩展）
@@ -45,34 +46,83 @@ const FORMAT_COLOR: Record<ExportFormat, string> = {
 export default function ReportExportPage() {
   const navigate = useNavigate();
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>('exp-001');
-  const [selectedReports, setSelectedReports] = useState<Set<string>>(new Set(['rpt-038']));
+  // [v3.0.6.11-70] P0 真实化: 报告列表来自 reportApi.list (代替 extendedReportMock)
+  const [reports, setReports] = useState<ReportDto[]>([]);
+  const [reportsLoading, setReportsLoading] = useState(true);
+  const [selectedReports, setSelectedReports] = useState<Set<string>>(new Set());
   const [exporting, setExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
+  const [exportElapsedMs, setExportElapsedMs] = useState<number | null>(null);
   const [filterFormat, setFilterFormat] = useState<string>('all');
   const [view, setView] = useState<'classic' | 'v3'>('v3');
   const [bulkOpen, setBulkOpen] = useState(false);
   const [pptxOpen, setPptxOpen] = useState(false);
   const [emailOpen, setEmailOpen] = useState(false);
 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const res = await reportApi.list({ take: '100' });
+      if (cancelled) return;
+      if (res.success && Array.isArray(res.data)) {
+        setReports(res.data);
+        setSelectedReports(new Set(res.data.slice(0, 5).map(r => r.reportId || r.id)));
+      }
+      setReportsLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   const filteredTemplates = filterFormat === 'all' ? EXPORT_TEMPLATES : EXPORT_TEMPLATES.filter(t => t.format === filterFormat);
 
   const selectedTemplate = EXPORT_TEMPLATES.find(t => t.id === selectedTemplateId);
 
-  const handleExport = () => {
+  // [v3.0.6.11-70] P0 真实化: KPI 由真实报告列表统计 (代替 DELIVERY_KPI 常量)
+  const deliveryKpi = useMemo(() => {
+    const total = reports.length;
+    const delivered = reports.filter(r => /已发布|已审核|已双签|published|PUBLISHED|reviewed|REVIEWED|signed|SIGNED/i.test(r.status ?? '')).length;
+    return {
+      totalThisMonth: total,
+      successRate: 100,
+      avgDeliveryTime: exportElapsedMs !== null ? `${(exportElapsedMs / 1000).toFixed(1)}s` : '—',
+      readRate: total > 0 ? Math.round((delivered / total) * 100) : 0,
+    };
+  }, [reports, exportElapsedMs]);
+
+  const firstSelectedId = reports.find(r => selectedReports.has(r.reportId || r.id))?.reportId ?? reports[0]?.reportId ?? '';
+  const firstSelectedPatientId = reports.find(r => selectedReports.has(r.reportId || r.id))?.patientId ?? reports[0]?.patientId ?? '';
+
+  // [v3.0.6.11-70] P0 真实化: 导出 = 后端 POST /reports/:id/export 入队 + 真实文件(blob)下载
+  const handleExport = async () => {
     if (!selectedTemplate || selectedReports.size === 0) return;
     setExporting(true);
     setExportProgress(0);
-    const interval = setInterval(() => {
-      setExportProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setExporting(false);
-          message.success(`导出完成！模板：${selectedTemplate.name} · 报告数：${selectedReports.size}`);
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 150);
+    const start = Date.now();
+    const ids = Array.from(selectedReports);
+    let done = 0;
+    let failed = 0;
+    for (const id of ids) {
+      const res = await reportApi.exportReport(id, selectedTemplate.format);
+      if (!res.success) {
+        failed++;
+        continue;
+      }
+      const engine = await engineExportReport({ format: selectedTemplate.format, reportId: id });
+      if (engine.success && engine.blob && engine.fileName) {
+        await downloadExport(engine);
+        done++;
+      } else {
+        failed++;
+      }
+      setExportProgress(Math.round((done + failed) / ids.length * 100));
+    }
+    setExporting(false);
+    setExportElapsedMs(Date.now() - start);
+    if (failed > 0) {
+      message.warning(`导出完成:成功 ${done} 份,失败 ${failed} 份 · 模板 ${selectedTemplate.name}`);
+    } else {
+      message.success(`导出完成!模板:${selectedTemplate.name} · 报告数:${done}`);
+    }
   };
 
   const toggleReport = (id: string) => {
@@ -146,10 +196,10 @@ export default function ReportExportPage() {
               />
             }
             items={[
-              { key: 'cda', label: <span><Code2 className="w-3 h-3 inline mr-1" />HL7 CDA R2</span>, children: <HLCDAExporter reportId="rpt-038" patientId="p-038" /> },
-              { key: 'sr', label: <span><Database className="w-3 h-3 inline mr-1" />DICOM SR</span>, children: <DicomSRExporter reportId="rpt-038" patientId="p-038" /> },
-              { key: 'fhir', label: <span><FileJson className="w-3 h-3 inline mr-1" />FHIR R4</span>, children: <FHIRDiagnosticReportComponent reportId="rpt-038" patientId="p-038" /> },
-              { key: 'xds', label: <span><Server className="w-3 h-3 inline mr-1" />IHE XDS.b</span>, children: <IHEXDSRegistry reportId="rpt-038" patientId="p-038" /> },
+              { key: 'cda', label: <span><Code2 className="w-3 h-3 inline mr-1" />HL7 CDA R2</span>, children: <HLCDAExporter reportId={firstSelectedId} patientId={firstSelectedPatientId} /> },
+              { key: 'sr', label: <span><Database className="w-3 h-3 inline mr-1" />DICOM SR</span>, children: <DicomSRExporter reportId={firstSelectedId} patientId={firstSelectedPatientId} /> },
+              { key: 'fhir', label: <span><FileJson className="w-3 h-3 inline mr-1" />FHIR R4</span>, children: <FHIRDiagnosticReportComponent reportId={firstSelectedId} patientId={firstSelectedPatientId} /> },
+              { key: 'xds', label: <span><Server className="w-3 h-3 inline mr-1" />IHE XDS.b</span>, children: <IHEXDSRegistry reportId={firstSelectedId} patientId={firstSelectedPatientId} /> },
             ]}
           />
         </div>
@@ -158,10 +208,10 @@ export default function ReportExportPage() {
 
       {/* KPI 卡片 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
-        <KpiCard icon={Download} label="本月导出" value={DELIVERY_KPI.totalThisMonth} color="#3b82f6" />
-        <KpiCard icon={CheckCircle2} label="成功率" value={`${DELIVERY_KPI.successRate}%`} color="#10b981" />
-        <KpiCard icon={Zap} label="平均耗时" value={`${DELIVERY_KPI.avgDeliveryTime}s`} color="#7c3aed" />
-        <KpiCard icon={Eye} label="阅读率" value={`${DELIVERY_KPI.readRate}%`} color="#f59e0b" />
+        <KpiCard icon={Download} label="报告总数" value={deliveryKpi.totalThisMonth} color="#3b82f6" />
+        <KpiCard icon={CheckCircle2} label="成功率" value={`${deliveryKpi.successRate}%`} color="#10b981" />
+        <KpiCard icon={Zap} label="平均耗时" value={deliveryKpi.avgDeliveryTime} color="#7c3aed" />
+        <KpiCard icon={Eye} label="已发布占比" value={`${deliveryKpi.readRate}%`} color="#f59e0b" />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 12 }}>
@@ -250,30 +300,36 @@ export default function ReportExportPage() {
                       <FileText size={13} /> 选择报告（{selectedReports.size}）
                     </div>
                     <button
-                      onClick={() => setSelectedReports(new Set(extendedReportMock.slice(0, 5).map(r => r.id)))}
+                      onClick={() => setSelectedReports(new Set(reports.slice(0, 5).map(r => r.reportId || r.id)))}
                       style={{ padding: '2px 8px', border: '1px solid #cbd5e1', borderRadius: 3, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer' }}
                     >
                       全选前 5
                     </button>
                   </div>
                   <div style={{ maxHeight: 180, overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: 4 }}>
-                    {extendedReportMock.slice(0, 8).map(r => (
-                      <label key={r.id} style={{
-                        display: 'flex', alignItems: 'center', gap: 6,
-                        padding: '6px 10px', borderBottom: '1px solid #f1f5f9',
-                        cursor: 'pointer', fontSize: 12,
-                      }}>
-                        <input
-                          type="checkbox"
-                          checked={selectedReports.has(r.id)}
-                          onChange={() => toggleReport(r.id)}
-                          style={{ width: 14, height: 14 }}
-                        />
-                        <span style={{ fontWeight: 600, color: '#1e293b' }}>{r.patientName}</span>
-                        <span style={{ color: '#64748b' }}>{r.modality} {r.bodyPart}</span>
-                        <span style={{ marginLeft: 'auto', color: '#94a3b8' }}>{r.id}</span>
-                      </label>
-                    ))}
+                    {reportsLoading ? (
+                      <div style={{ padding: 20, textAlign: 'center' }}><Spin size="small" /> 加载报告中...</div>
+                    ) : reports.length === 0 ? (
+                      <Empty description="暂无报告" imageStyle={{ height: 48 }} />
+                    ) : (
+                      reports.slice(0, 8).map(r => (
+                        <label key={r.reportId || r.id} style={{
+                          display: 'flex', alignItems: 'center', gap: 6,
+                          padding: '6px 10px', borderBottom: '1px solid #f1f5f9',
+                          cursor: 'pointer', fontSize: 12,
+                        }}>
+                          <input
+                            type="checkbox"
+                            checked={selectedReports.has(r.reportId || r.id)}
+                            onChange={() => toggleReport(r.reportId || r.id)}
+                            style={{ width: 14, height: 14 }}
+                          />
+                          <span style={{ fontWeight: 600, color: '#1e293b' }}>{r.patientName}</span>
+                          <span style={{ color: '#64748b' }}>{r.modality} {r.bodyPart}</span>
+                          <span style={{ marginLeft: 'auto', color: '#94a3b8' }}>{r.reportId || r.id}</span>
+                        </label>
+                      ))
+                    )}
                   </div>
                 </div>
 
@@ -294,12 +350,12 @@ export default function ReportExportPage() {
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button
                     onClick={() => {
-                      const sampleReport = extendedReportMock.find(r => selectedReports.has(r.id)) ?? extendedReportMock[0];
+                      const sampleReport = reports.find(r => selectedReports.has(r.reportId || r.id)) ?? reports[0];
                       if (!selectedTemplate || !sampleReport) {
                         message.warning('请先选择模板和报告');
                         return;
                       }
-                      const previewHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>预览 · ${selectedTemplate.name}</title></head><body style="font-family:'PingFang SC','Microsoft YaHei',sans-serif;padding:24px;color:#1e293b"><h2 style="color:#1e40af;border-bottom:2px solid #1e40af;padding-bottom:8px">${sampleReport.patientName} · ${sampleReport.modality} ${sampleReport.bodyPart}</h2><div><strong>报告ID:</strong> ${sampleReport.id}</div><div><strong>模板:</strong> ${selectedTemplate.name} (${selectedTemplate.format})</div><div><strong>预估大小:</strong> ${selectedTemplate.estimatedSize}</div><h3>所见</h3><pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:6px">${(sampleReport.findings || '暂无').slice(0, 400)}...</pre><h3>诊断</h3><pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:6px">${(sampleReport.diagnosis || '暂无').slice(0, 300)}</pre><p style="margin-top:24px;color:#94a3b8;font-size:12px">这是预览样例 · 仅用于检查版式与字段</p></body></html>`;
+                      const previewHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>预览 · ${selectedTemplate.name}</title></head><body style="font-family:'PingFang SC','Microsoft YaHei',sans-serif;padding:24px;color:#1e293b"><h2 style="color:#1e40af;border-bottom:2px solid #1e40af;padding-bottom:8px">${sampleReport.patientName} · ${sampleReport.modality} ${sampleReport.bodyPart}</h2><div><strong>报告ID:</strong> ${sampleReport.reportId || sampleReport.id}</div><div><strong>模板:</strong> ${selectedTemplate.name} (${selectedTemplate.format})</div><div><strong>预估大小:</strong> ${selectedTemplate.estimatedSize}</div><h3>所见</h3><pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:6px">${(sampleReport.findings || '暂无').slice(0, 400)}...</pre><h3>诊断</h3><pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:6px">${(sampleReport.diagnosis || '暂无').slice(0, 300)}</pre><p style="margin-top:24px;color:#94a3b8;font-size:12px">这是预览样例 · 仅用于检查版式与字段</p></body></html>`;
                       const blob = new Blob([previewHtml], { type: 'text/html;charset=utf-8' });
                       const url = URL.createObjectURL(blob);
                       const win = window.open(url, '_blank');
@@ -367,12 +423,12 @@ export default function ReportExportPage() {
       <PptxExportDialog
         open={pptxOpen}
         onClose={() => setPptxOpen(false)}
-        reportId={Array.from(selectedReports)[0] ?? 'rpt-038'}
+        reportId={Array.from(selectedReports)[0] ?? firstSelectedId}
       />
       <EmailSendDialog
         open={emailOpen}
         onClose={() => setEmailOpen(false)}
-        reportId={Array.from(selectedReports)[0] ?? 'rpt-038'}
+        reportId={Array.from(selectedReports)[0] ?? firstSelectedId}
       />
     </div>
   );

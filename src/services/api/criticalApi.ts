@@ -49,8 +49,10 @@ export interface CriticalStatsDto {
   pending: number
   notified: number
   acknowledged: number
+  receipted: number
   resolved: number
   escalated: number
+  todayCount: number
 }
 
 export interface CriticalSummaryDto {
@@ -116,8 +118,8 @@ export const criticalApi = {
   resolve: (id: string) =>
     api.patch<CriticalValueDto>(`/criticals/${id}`, { state: 'RESOLVED' }),
 
-  notify: (id: string, method?: NotificationMethod) =>
-    api.post<{ id: string }>('/criticals/notify', { criticalId: id, channels: method ? [method] : ['SYSTEM'] }),
+  notify: (id: string, method?: NotificationMethod, extra?: { patientName?: string; patientId?: string; category?: string; finding?: string; recipientName?: string; recipientDept?: string; recipientPhone?: string }) =>
+    api.post<{ id: string; status?: string; count?: number }>('/criticals/notify', { criticalId: id, channels: method ? [method] : ['SYSTEM'], ...extra }),
 
   escalate: (id: string, to: string, reason: string) =>
     api.post<{ id: string }>('/criticals/escalate', { criticalId: id, reason, newRecipients: [{ name: to, dept: '', phone: '' }] }),
@@ -128,6 +130,10 @@ export const criticalApi = {
   // [v3.0.6.11-60] Batch 3: 随访记录 (供 CriticalValuePage 详情/随访使用)
   listFollowUpRecords: () =>
     api.get<unknown[]>('/criticals/follow-up-records'),
+
+  // [G005-P0] 5 步工作流记录 (criticalValue + 通知记录聚合, 后端 /criticals/value5step/list)
+  getValue5StepList: () =>
+    api.get<{ items: unknown[]; total: number }>('/criticals/value5step/list'),
 
   runEscalationChain: (eventId: string) =>
     api.post<{ chain: unknown; nodesTriggered: Array<{ level: number; role: string; doctor: string; smsResults: number; voiceResults: number }> }>(`/criticals/${eventId}/escalation-chain`),

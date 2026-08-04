@@ -1,5 +1,6 @@
 import { t } from '../../i18n/appI18n'
 import { examApi } from '../../services/api'
+import { useNavigate } from 'react-router-dom'
 import { User, Image as ImageIcon, Ruler as RulerIcon, FileSearch, History, GitCompare, FileText, AlertCircle, Activity, Info, Layers3, Box, RefreshCw, Calendar, CheckCircle, Clock, PenTool, Eye, X, Upload, Camera, Download, Ruler, Triangle, CircleIcon, RectIcon, Circle, Trash2, EyeIcon, EyeOff, AlertTriangle, ScrollText, ArrowLeftRight, ArrowUpRight } from 'lucide-react'
 import MeasurementPanel from './MeasurementPanel'
 import type { Series, DicomImage, MeasureSubMenu, Measurement } from './DicomViewerTypes'
@@ -164,6 +165,16 @@ export default function SidebarPanel(props: Props) {
     isExternalCompareMode, setIsExternalCompareMode, archiveRequestStatus, externalCompareLayout, setExternalCompareLayout,
     activeMprIdx, setActiveMprIdx, EXTERNAL_INSTITUTIONS } = props
 
+  const navigate = useNavigate()
+
+  // 跳转报告书写页（携带 examId）
+  const goWriteReport = (mode?: string) => {
+    const params = new URLSearchParams()
+    if (exam.id) params.set('examId', exam.id)
+    if (mode) params.set('mode', mode)
+    navigate(`/write-report?${params.toString()}`)
+  }
+
   return (
     <div style={s.rightPanel}>
       <div style={s.rightTabs}>
@@ -319,11 +330,11 @@ export default function SidebarPanel(props: Props) {
                   <button style={{ ...s.reportBtn, background: '#059669', color: '#fff' }} onClick={async () => { await examApi.complete(exam.id); showToast('影像采集完成') }}><CheckCircle size={14} />{t('dcm.completeAcquisition')}</button>
                 )}
                 {reportStatus === '已报告' ? (
-                  <><button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }} onClick={() => showToast('查看报告')}><Eye size={14} />{t('dcm.viewReport')}</button>
-                  <button style={{ ...s.reportBtn, background: '#f0f4f8', color: PRIMARY }} onClick={() => showToast('修改报告模式')}><PenTool size={14} />{t('dcm.modifyReport')}</button></>
+                  <><button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }} onClick={() => goWriteReport()}><Eye size={14} />{t('dcm.viewReport')}</button>
+                  <button style={{ ...s.reportBtn, background: '#f0f4f8', color: PRIMARY }} onClick={() => goWriteReport('edit')}><PenTool size={14} />{t('dcm.modifyReport')}</button></>
                 ) : reportStatus === '待书写' ? (
-                  <><button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }} onClick={() => showToast('书写报告模式')}><PenTool size={14} />{t('dcm.writeReport')}</button>
-                  <button style={{ ...s.reportBtn, background: '#f0f4f8', color: '#475569' }} onClick={() => showToast('引用模板功能待实现')}><FileText size={14} />{t('dcm.useTemplate')}</button>
+                  <><button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }} onClick={() => goWriteReport()}><PenTool size={14} />{t('dcm.writeReport')}</button>
+                  <button style={{ ...s.reportBtn, background: '#f0f4f8', color: '#475569' }} onClick={() => goWriteReport('template')}><FileText size={14} />{t('dcm.useTemplate')}</button>
                   <button style={{ ...s.reportBtn, background: '#fef3c7', color: '#d97706' }} onClick={() => showToast('危急值通知已发送')}><AlertCircle size={14} />{t('dcm.sendCritical')}</button></>
                 ) : (
                   <button style={{ ...s.reportBtn, background: '#f1f5f9', color: '#94a3b8', cursor: 'not-allowed' }} disabled><Clock size={14} />{t('dcm.waitForExam')}</button>

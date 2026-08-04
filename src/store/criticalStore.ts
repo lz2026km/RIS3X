@@ -263,7 +263,17 @@ export const useCriticalStore = create<CriticalState>((set, get) => ({
     try {
       const finalMethod = toMachineMethod(method)
       const apiMethod = method ?? 'SYSTEM'
-      const res = await criticalApi.notify(id, apiMethod)
+      const target = get().values.find((v) => v.id === id)
+      const categoryMap: Record<string, string> = {
+        '危及生命': 'LIFE_THREATENING', critical: 'LIFE_THREATENING',
+        危急: 'URGENT', urgent: 'URGENT',
+      }
+      const res = await criticalApi.notify(id, apiMethod, {
+        patientName: target?.patientName,
+        patientId: target?.patientId,
+        finding: target?.finding,
+        category: target?.severity ? (categoryMap[String(target.severity)] ?? 'IMPORTANT') : undefined,
+      })
       if (res.success) {
         const actor = get().actors.get(id)
         if (actor) actor.send({ type: 'NOTIFY', to: '', method: finalMethod, by: '' })

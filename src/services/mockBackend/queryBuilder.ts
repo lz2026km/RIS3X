@@ -36,7 +36,8 @@ export function parseQuery(url: URL | string): QueryOptions {
   if (search) opts.search = search;
   opts.filters = {};
   for (const [key, value] of u.searchParams.entries()) {
-    if (['page', 'pageSize', 'sortBy', 'sortDir', 'search', 'q'].includes(key)) continue;
+    // [v3.0.6.11-70] take/skip/state 由 handlers 消费, 不作为数据过滤条件
+    if (['page', 'pageSize', 'sortBy', 'sortDir', 'search', 'q', 'take', 'skip', 'state'].includes(key)) continue;
     if (value) opts.filters[key] = value;
   }
   return opts;

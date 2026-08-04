@@ -30,14 +30,15 @@ export const reportApi = {
   getById: (id: string) =>
     api.get<ReportDto>(`/reports/${id}`),
 
-  create: async (data: Partial<ReportDto>) => {
+  // [v3.0.6.11-70] P0: 允许 conclusion/radiologistId 等后端字段 (backend CreateReportSchema/UpdateReportSchema)
+  create: async (data: Partial<ReportDto> & { conclusion?: string; radiologistId?: string; state?: string }) => {
     const res = await api.post<ReportDto>('/reports', data)
     await invalidateApiCache('/reports')
     await invalidateApiCacheByPrefix('/reports')
     return res
   },
 
-  update: async (id: string, data: Partial<ReportDto>) => {
+  update: async (id: string, data: Partial<ReportDto> & { conclusion?: string; radiologistId?: string; state?: string }) => {
     const res = await api.patch<ReportDto>(`/reports/${id}`, data)
     await invalidateApiCache(`/reports/${id}`)
     return res
@@ -71,4 +72,8 @@ export const reportApi = {
     api.get<{
       events: Array<{ id: string; timestamp: string; actor: string; action: string; fromState: string; toState: string; reason?: string }>;
     }>(`/reports/${id}/audit-trail`),
+
+  // [v3.0.6.11-70] P0 报告导出真实化: POST /reports/:id/export (后端入队, 返回下载地址)
+  exportReport: (id: string, format: string = 'pdf') =>
+    api.post<{ queued: boolean; downloadUrl?: string; format?: string }>(`/reports/${id}/export`, { format }),
 }

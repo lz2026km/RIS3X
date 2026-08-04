@@ -3,7 +3,8 @@
 // Phase R7：6 分类短语 + 占位符替换 + 评分 + 复制
 // ============================================================
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
+import { message, Modal, Form, Input, Select } from 'antd';
 import {
   BookOpen, Search, Copy, Star, Plus, Edit2, Trash2,
   Hash, CheckCircle2, AlertOctagon, Lightbulb, MessageSquare,
@@ -19,11 +20,14 @@ import {
 // 主组件
 // ============================================================
 export default function ReportPhraseBankPage() {
-  const [phrases] = useState<ReportPhrase[]>(REPORT_PHRASES);
+  const [phrases, setPhrases] = useState<ReportPhrase[]>(REPORT_PHRASES);
   const [search, setSearch] = useState('');
   const [filterCategory, setFilterCategory] = useState<PhraseCategory | 'all'>('all');
   const [selectedPhraseId, setSelectedPhraseId] = useState<string | null>('p-001');
   const [editedContent, setEditedContent] = useState('');
+  const [createOpen, setCreateOpen] = useState(false);
+  const [newPhrase, setNewPhrase] = useState<{ title: string; category: PhraseCategory; content: string }>({ title: '', category: 'normal', content: '' });
+  const editorRef = useRef<HTMLTextAreaElement | null>(null);
 
   // 过滤
   const filtered = useMemo(() => {
@@ -87,6 +91,58 @@ export default function ReportPhraseBankPage() {
     message.success('已复制到剪贴板！');
   };
 
+  // 新建短语：本地添加（无后端短语 API 时持久化到内存）
+  const handleCreate = () => {
+    if (!newPhrase.title.trim()) { message.warning('请输入短语标题'); return; }
+    if (!newPhrase.content.trim()) { message.warning('请输入短语内容'); return; }
+    const placeholders = Array.from(newPhrase.content.matchAll(/\{\{(\w+)\}\}/g)).map(m => m[1]!);
+    const phrase: ReportPhrase = {
+      id: `p-${Date.now()}`,
+      title: newPhrase.title.trim(),
+      content: newPhrase.content.trim(),
+      category: newPhrase.category,
+      bodyPart: [],
+      modality: [],
+      scene: '自定义短语',
+      placeholders,
+      usageCount: 0,
+      rating: 5,
+      tags: [],
+      author: '当前用户',
+      createdAt: new Date().toISOString().slice(0, 10),
+    };
+    setPhrases(prev => [phrase, ...prev]);
+    setCreateOpen(false);
+    setNewPhrase({ title: '', category: 'normal', content: '' });
+    setSelectedPhraseId(phrase.id);
+    message.success('短语已创建');
+  };
+
+  // 编辑：聚焦内容编辑区
+  const handleEditFocus = () => {
+    if (!selected) return;
+    setEditedContent(selected.content);
+    setTimeout(() => editorRef.current?.focus(), 0);
+    message.info('已进入编辑模式，修改后内容实时预览');
+  };
+
+  // 评分：本地 +1（最高 5 星）
+  const handleRateUp = () => {
+    if (!selected) return;
+    const next = Math.min(5, selected.rating + 1);
+    setPhrases(prev => prev.map(p => p.id === selected.id ? { ...p, rating: next } : p));
+    message.success(`已评分 ${next} 星`);
+  };
+
+  // 删除：本地删除
+  const handleDelete = () => {
+    if (!selected) return;
+    setPhrases(prev => prev.filter(p => p.id !== selected.id));
+    setSelectedPhraseId(phrases.filter(p => p.id !== selected.id)[0]?.id ?? null);
+    setEditedContent('');
+    message.success('短语已删除');
+  };
+
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
       {/* 顶部 */}
@@ -101,6 +157,7 @@ export default function ReportPhraseBankPage() {
           </p>
         </div>
         <button
+          onClick={() => setCreateOpen(true)}
           style={{
             padding: '6px 12px', border: 'none', borderRadius: 6,
             background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer',
@@ -228,6 +285,7 @@ export default function ReportPhraseBankPage() {
                   <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>📝 原始（含占位符）</span>
                 </div>
                 <textarea
+                  ref={editorRef}
                   value={editedContent}
                   onChange={e => setEditedContent(e.target.value)}
                   rows={5}
@@ -252,16 +310,16 @@ export default function ReportPhraseBankPage() {
 
               {/* 操作按钮 */}
               <div style={{ display: 'flex', gap: 8, paddingTop: 8, borderTop: '1px solid #e2e8f0' }}>
-                <button style={{ padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: 4, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+                <button onClick={handleEditFocus} style={{ padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: 4, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
                   <Edit2 size={11} /> 编辑
                 </button>
-                <button style={{ padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: 4, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+                <button onClick={handleRateUp} style={{ padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: 4, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
                   <Star size={11} /> 评分
                 </button>
-                <button style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3, marginLeft: 'auto' }}>
+                <button onClick={() => handleCopy(filledContent)} style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3, marginLeft: 'auto' }}>
                   <Copy size={11} /> 一键复制
                 </button>
-                <button style={{ padding: '5px 10px', border: '1px solid #dc2626', borderRadius: 4, background: '#fff', color: '#dc2626', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+                <button onClick={handleDelete} style={{ padding: '5px 10px', border: '1px solid #dc2626', borderRadius: 4, background: '#fff', color: '#dc2626', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
                   <Trash2 size={11} /> 删除
                 </button>
               </div>
@@ -288,6 +346,41 @@ export default function ReportPhraseBankPage() {
           </div>
         )}
       </div>
+      {/* 新建短语 Modal */}
+      <Modal
+        title="新建短语"
+        open={createOpen}
+        onCancel={() => setCreateOpen(false)}
+        onOk={handleCreate}
+        okText="创建"
+        cancelText="取消"
+        width={520}
+      >
+        <Form layout="vertical" size="small" style={{ marginTop: 12 }}>
+          <Form.Item label="短语标题" required>
+            <Input
+              value={newPhrase.title}
+              onChange={e => setNewPhrase(p => ({ ...p, title: e.target.value }))}
+              placeholder="如：胸部 CT 增强随访建议"
+            />
+          </Form.Item>
+          <Form.Item label="分类">
+            <Select
+              value={newPhrase.category}
+              onChange={v => setNewPhrase(p => ({ ...p, category: v }))}
+              options={PHRASE_CATEGORIES.map(c => ({ value: c.key, label: `${c.label}（${c.description}）` }))}
+            />
+          </Form.Item>
+          <Form.Item label="短语内容（支持 {{占位符}}）" required>
+            <Input.TextArea
+              rows={5}
+              value={newPhrase.content}
+              onChange={e => setNewPhrase(p => ({ ...p, content: e.target.value }))}
+              placeholder="如：建议 {{timeframe}} 后复查，必要时穿刺活检明确病理。"
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 }

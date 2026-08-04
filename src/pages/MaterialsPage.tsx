@@ -477,6 +477,9 @@ export default function MaterialsPage() {
   const [detailType, setDetailType] = useState('')
   const [detailData, setDetailData] = useState<any>(null)
 
+  // 库存明细弹窗
+  const [materialDetail, setMaterialDetail] = useState<any>(null)
+
   // Phase 4a 新状态
   const [scanInput, setScanInput] = useState('')
   const [scanResult, setScanResult] = useState<typeof INITIAL_MATERIALS[0] | null>(null)
@@ -727,7 +730,7 @@ export default function MaterialsPage() {
                     </span>
                   </td>
                   <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                    <button style={{ padding: '4px 10px', border: `1px solid ${C.border}`, borderRadius: 4, background: C.white, cursor: 'pointer', fontSize: 12, color: C.textMid, marginRight: 4 }}>
+                    <button onClick={() => setMaterialDetail(m)} style={{ padding: '4px 10px', border: `1px solid ${C.border}`, borderRadius: 4, background: C.white, cursor: 'pointer', fontSize: 12, color: C.textMid, marginRight: 4 }}>
                       <Filter size={12} style={{ display: 'inline', verticalAlign: 'middle' }} /> 明细
                     </button>
                   </td>
@@ -1801,6 +1804,78 @@ export default function MaterialsPage() {
     )
   }
 
+  // 库存明细弹窗
+  const renderMaterialDetailModal = () => {
+    if (!materialDetail) return null
+    const m = materialDetail
+    const relatedIn = INITIAL_IN_RECORDS.filter(r => r.materialId === m.id || r.materialName === m.name)
+    const relatedOut = INITIAL_OUT_RECORDS.filter(r => r.materialId === m.id || r.materialName === m.name)
+    const stockStatus = getStockStatus(m.stock, m.minStock, m.category)
+    const rows: [string, string][] = [
+      ['物资ID', m.id],
+      ['物资名称', m.name],
+      ['分类', m.category],
+      ['规格', m.spec],
+      ['单位', m.unit],
+      ['当前库存', `${m.stock} ${m.unit}`],
+      ['最小库存', `${m.minStock} ${m.unit}`],
+      ['库存状态', stockStatus.label],
+      ['单价', `¥${m.price}`],
+      ['供应商', m.supplier],
+      ['最近入库', m.lastIn || '-'],
+      ['最近出库', m.lastOut || '-'],
+    ]
+    return (
+      <div style={{
+        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+      }} onClick={() => setMaterialDetail(null)}>
+        <div style={{ background: C.white, borderRadius: 12, padding: 24, width: 560, maxHeight: '85vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Package size={18} color={C.primary} /> 库存明细: {m.name}
+            </div>
+            <button onClick={() => setMaterialDetail(null)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: C.textMid }}>
+              <X size={20} />
+            </button>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
+            {rows.map(([k, v]) => (
+              <div key={k} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 4px', borderBottom: `1px solid ${C.border}`, fontSize: 13 }}>
+                <span style={{ color: C.textMid }}>{k}</span>
+                <span style={{ color: C.textDark, fontWeight: 500 }}>{v}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 16 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark, marginBottom: 8 }}>入库记录 ({relatedIn.length})</div>
+            {relatedIn.length === 0 ? <div style={{ fontSize: 12, color: C.textLight }}>暂无入库记录</div> : relatedIn.map(r => (
+              <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: `1px solid ${C.border}`, fontSize: 12 }}>
+                <span style={{ color: C.textMid }}>{r.date} · {r.operator} · {r.supplier}</span>
+                <span style={{ color: C.success, fontWeight: 600 }}>+{r.quantity} {m.unit}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 12 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark, marginBottom: 8 }}>出库记录 ({relatedOut.length})</div>
+            {relatedOut.length === 0 ? <div style={{ fontSize: 12, color: C.textLight }}>暂无出库记录</div> : relatedOut.map(r => (
+              <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: `1px solid ${C.border}`, fontSize: 12 }}>
+                <span style={{ color: C.textMid }}>{r.date} · {r.department} · {r.useFor}</span>
+                <span style={{ color: C.danger, fontWeight: 600 }}>-{r.quantity} {m.unit}</span>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => setMaterialDetail(null)}
+            style={{ width: '100%', marginTop: 16, padding: '10px 16px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, fontSize: 14, cursor: 'pointer', fontWeight: 500 }}
+          >
+            关闭
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   // ============================================================
   // 主渲染
   // ============================================================
@@ -2016,6 +2091,7 @@ export default function MaterialsPage() {
       {renderPurchaseModal()}
       {renderApproveModal()}
       {renderDetailModal()}
+      {renderMaterialDetailModal()}
     </div>
   )
 }

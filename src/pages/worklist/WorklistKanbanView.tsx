@@ -6,6 +6,11 @@ import { smartWorklistEngine } from '../../services/worklist/SmartWorklistEngine
 import type { PriorityScore as AIPriorityScore } from '../../types/workflow'
 
 const STATUS_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
+  'SCHEDULED': { bg: '#dbeafe', color: '#2563eb', label: '已登记' },
+  'ARRIVED': { bg: '#ede9fe', color: '#7c3aed', label: '已报到' },
+  'IN_PROGRESS': { bg: '#fce7f3', color: '#db2777', label: '检查中' },
+  'COMPLETED': { bg: '#d1fae5', color: '#059669', label: '已完成' },
+  'CANCELLED': { bg: '#fee2e2', color: '#ef4444', label: '已取消' },
   '已登记': { bg: '#dbeafe', color: '#2563eb', label: '已登记' },
   '待检查': { bg: '#ede9fe', color: '#7c3aed', label: '待检查' },
   '检查中': { bg: '#fce7f3', color: '#db2777', label: '检查中' },
@@ -23,7 +28,7 @@ const PRIORITY_CONFIG: Record<string, { bg: string; color: string; label: string
   '会诊': { bg: '#ede9fe', color: '#7c3aed', label: '会诊' },
 }
 
-const KANBAN_COLUMNS = ['已登记', '待检查', '检查中', '待报告', '已报告', '已发布']
+const KANBAN_COLUMNS = ['SCHEDULED', 'ARRIVED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']
 
 const getDeviceById = (deviceId: string) => initialModalityDevices.find(d => d.id === deviceId)
 
@@ -268,7 +273,7 @@ export function KanbanView({ exams, onRowClick }: KanbanViewProps) {
     }}>
       {KANBAN_COLUMNS.map(status => {
         const columnExams = getColumnExams(status)
-        const sc = STATUS_CONFIG[status] || { bg: '#f1f5f9', color: '#64748b' }
+        const sc = STATUS_CONFIG[status] || { bg: '#f1f5f9', color: '#64748b', label: status }
         const isOver = dragOverColumn === status
 
         return (

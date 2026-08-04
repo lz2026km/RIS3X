@@ -6,6 +6,7 @@ import {
 import type { CriticalValue } from './types'
 import { toStoreStatus, PRIMARY_COLOR, PRIMARY_LIGHT } from './types'
 import { criticalStatsApi, type MissedReportStats, type NotificationCompletionStats } from '../../services/api/criticalStatsApi'
+import { criticalApi, type CriticalStatsDto } from '../../services/api/criticalApi'
 
 interface ChartData {
   label: string; value: number; color: string
@@ -305,18 +306,21 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
 export const CriticalValueStatsSection = ({ data }: { data: CriticalValue[] }) => {
   const [missedStats, setMissedStats] = useState<MissedReportStats | null>(null)
   const [notificationStats, setNotificationStats] = useState<NotificationCompletionStats | null>(null)
+  const [apiStats, setApiStats] = useState<CriticalStatsDto | null>(null)
 
   useEffect(() => {
     let cancelled = false
     void (async () => {
       try {
-        const [missedRes, notifRes] = await Promise.all([
+        const [missedRes, notifRes, statsRes] = await Promise.all([
           criticalStatsApi.getMissedStats(),
           criticalStatsApi.getNotificationStats(),
+          criticalApi.getStats(),
         ])
         if (cancelled) return
         if (missedRes.success && missedRes.data) setMissedStats(missedRes.data)
         if (notifRes.success && notifRes.data) setNotificationStats(notifRes.data)
+        if (statsRes.success && statsRes.data) setApiStats(statsRes.data)
       } catch {
         // stats APIs may not be available yet; keep defaults
       }
@@ -324,11 +328,12 @@ export const CriticalValueStatsSection = ({ data }: { data: CriticalValue[] }) =
     return () => { cancelled = true }
   }, [])
 
-  const pending = data.filter((c) => toStoreStatus(String(c.status)) === 'pending').length
-  const processing = data.filter((c) => toStoreStatus(String(c.status)) === 'resolving').length
-  const resolved = data.filter((c) => toStoreStatus(String(c.status)) === 'resolved').length
-  const overdue = data.filter((c) => toStoreStatus(String(c.status)) === 'overdue').length
-  const thisMonth = data.filter((c) => {
+  // 优先使用后端 /criticals/stats 聚合值,失败时回退到列表数据统计
+  const pending = apiStats?.pending ?? data.filter((c) => toStoreStatus(String(c.status)) === 'pending').length
+  const processing = apiStats ? apiStats.acknowledged + apiStats.receipted : data.filter((c) => toStoreStatus(String(c.status)) === 'resolving').length
+  const resolved = apiStats?.resolved ?? data.filter((c) => toStoreStatus(String(c.status)) === 'resolved').length
+  const overdue = apiStats?.escalated ?? data.filter((c) => toStoreStatus(String(c.status)) === 'overdue').length
+  const thisMonth = apiStats?.todayCount ?? data.filter((c) => {
     const d = new Date(c.createdAt)
     const now = new Date()
     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
@@ -346,7 +351,7 @@ export const CriticalValueStatsSection = ({ data }: { data: CriticalValue[] }) =
         <StatCard label="超时未处理" value={overdue} icon={AlertTriangle} color="#991b1b" bgColor="#fecaca" trend={overdue > 0 ? '+' + overdue : undefined} />
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 16 }}>
-        <StatCard label="本月新增危急值" value={thisMonth} icon={TrendingUp} color="#1e40af" bgColor="#dbeafe" />
+        <StatCard label={apiStats ? '今日新增危急值' : '本月新增危急值'} value={thisMonth} icon={TrendingUp} color="#1e40af" bgColor="#dbeafe" />
         <StatCard label="及时处理率" value={timelyRate} icon={Target} color="#059669" bgColor="#d1fae5" suffix="%" />
         <StatCard label="已转随访数" value={transferred} icon={ArrowUpRight} color="#7c3aed" bgColor="#f5f3ff" />
         <StatCard label="处理中超期数" value={overdueProcessing} icon={Timer} color={overdueProcessing > 0 ? '#dc2626' : '#059669'} bgColor={overdueProcessing > 0 ? '#fef2f2' : '#d1fae5'} />

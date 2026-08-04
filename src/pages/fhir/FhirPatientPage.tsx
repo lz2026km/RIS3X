@@ -5,11 +5,14 @@ import { fhirApi, type FhirPatient } from '../../services/api/fhirApi'
 
 const { RangePicker } = DatePicker
 
+const PAGE_SIZE = 10
+
 export const FhirPatientPage: React.FC = () => {
   const [patients, setPatients] = useState<FhirPatient[]>([])
   const [loading, setLoading] = useState(false)
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
+  const [search, setSearch] = useState<{ name?: string; identifier?: string }>({})
   const [modalOpen, setModalOpen] = useState(false)
   const [editingPatient, setEditingPatient] = useState<FhirPatient | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
@@ -18,10 +21,10 @@ export const FhirPatientPage: React.FC = () => {
   const [searchForm] = Form.useForm()
   const [saving, setSaving] = useState(false)
 
-  const fetchPatients = useCallback(async (params?: { name?: string; identifier?: string; birthdate?: string; _count?: string }) => {
+  const fetchPatients = useCallback(async (p: number = 1, params: { name?: string; identifier?: string } = {}) => {
     setLoading(true)
     try {
-      const res = await fhirApi.searchPatient({ _count: '20', ...params })
+      const res = await fhirApi.searchPatient({ _count: '200', ...params, page: String(p) })
       if (res.success && res.data) {
         const entries = res.data.entry || []
         setPatients(entries.map((e) => e.resource as FhirPatient))
@@ -38,11 +41,12 @@ export const FhirPatientPage: React.FC = () => {
     setLoading(false)
   }, [])
 
-  useEffect(() => { fetchPatients() }, [fetchPatients])
+  useEffect(() => { fetchPatients(page, search) }, [fetchPatients, page, search])
 
   const handleSearch = async () => {
     const values = searchForm.getFieldsValue()
-    fetchPatients({ name: values.name, identifier: values.identifier })
+    setSearch({ name: values.name, identifier: values.identifier })
+    setPage(1)
   }
 
   const handleCreate = () => {
@@ -84,7 +88,7 @@ export const FhirPatientPage: React.FC = () => {
         message.success('Patient 已创建')
       }
       setModalOpen(false)
-      fetchPatients()
+      fetchPatients(page, search)
     } catch (err: any) {
       if (err?.errorFields) return
       message.error('操作失败')
@@ -97,7 +101,7 @@ export const FhirPatientPage: React.FC = () => {
     const res = await fhirApi.deletePatient(id)
     if (res.success) {
       message.success('Patient 已删除')
-      fetchPatients()
+      fetchPatients(page, search)
     } else {
       message.error('删除失败')
     }
@@ -173,7 +177,7 @@ export const FhirPatientPage: React.FC = () => {
           <Form.Item>
             <Space>
               <Button type="primary" icon={<Search size={14} />} htmlType="submit" loading={loading}>搜索</Button>
-              <Button icon={<RefreshCw size={14} />} onClick={() => { searchForm.resetFields(); fetchPatients() }}>刷新</Button>
+              <Button icon={<RefreshCw size={14} />} onClick={() => { searchForm.resetFields(); setSearch({}); setPage(1) }}>刷新</Button>
             </Space>
           </Form.Item>
         </Form>
@@ -185,11 +189,11 @@ export const FhirPatientPage: React.FC = () => {
         extra={<Button type="primary" icon={<Plus size={14} />} onClick={handleCreate}>新建 Patient</Button>}
       >
         <Table
-          dataSource={patients}
+          dataSource={patients.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)}
           columns={columns}
           rowKey="id"
           loading={loading}
-          pagination={{ current: page, total, pageSize: 10, onChange: setPage }}
+          pagination={{ current: page, total, pageSize: PAGE_SIZE, onChange: setPage, showSizeChanger: false }}
           size="small"
         />
       </Card>

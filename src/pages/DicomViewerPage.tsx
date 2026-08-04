@@ -16,6 +16,8 @@ import {
 } from 'lucide-react'
 import { initialRadiologyExams } from '../data/initialData'
 import { examApi } from '../services/api'
+import { similarCaseApi } from '../services/api/similarCaseApi'
+import type { SimilarCaseResult } from '../services/api/similarCaseApi'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import {
   loadDicomFile, getPatientInfo, getWindowCenterWidth, getModality, getBodyPart,
@@ -204,6 +206,11 @@ export default function DicomViewerPage() {
   const [toastVisible, setToastVisible] = useState(false)
   const [toastMsg, setToastMsg] = useState('')
 
+  // 相似病例检索
+  const [similarOpen, setSimilarOpen] = useState(false)
+  const [similarLoading, setSimilarLoading] = useState(false)
+  const [similarResults, setSimilarResults] = useState<SimilarCaseResult[]>([])
+
   const EXTERNAL_INSTITUTIONS = [
     { id: 'hubei-provincial', name: '汉东省人民医院', address: '武汉市武昌区解放路238号', phone: '027-88871234', pacsType: 'GE Centricity PACS', status: 'online' },
     { id: 'wuhan-center', name: '武汉市中心医院', address: '武汉市江岸区中山路1260号', phone: '027-82218999', pacsType: '锐柯PACS/RIS', status: 'online' },
@@ -354,7 +361,29 @@ export default function DicomViewerPage() {
   const handleDragLeave = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(false) }
   const handleDrop = async (e: React.DragEvent) => { e.preventDefault(); setIsDragging(false); if (e.dataTransfer.files.length > 0) await handleDicomFile(e.dataTransfer.files[0]) }
 
-  const lookSimilarExams = () => { showToast('相似病例检索功能待实现') }
+  const lookSimilarExams = async () => {
+    setSimilarLoading(true)
+    setSimilarOpen(true)
+    try {
+      const res = await similarCaseApi.search({
+        modality: exam.modality,
+        bodyPart: exam.bodyPart,
+        limit: 6,
+      })
+      if (res.success && Array.isArray(res.data)) {
+        setSimilarResults(res.data)
+        if (res.data.length === 0) showToast('未找到相似病例')
+      } else {
+        setSimilarResults([])
+        showToast(res.error?.message || '相似病例检索失败')
+      }
+    } catch {
+      setSimilarResults([])
+      showToast('相似病例检索失败')
+    } finally {
+      setSimilarLoading(false)
+    }
+  }
 
   const mockHistoryExams: HistoryExam[] = []
   const filteredHistoryExams = mockHistoryExams.filter(e => historySearchText ? e.examItemName.includes(historySearchText) || e.modality.includes(historySearchText) : true)
@@ -513,6 +542,54 @@ export default function DicomViewerPage() {
               <span>{exam.examItemName} | {exam.deviceName?.split('（')[0]}</span>
             </div>
           </div>
+        </AppModal>
+
+        {/* 相似病例检索 Modal */}
+        <AppModal
+          open={similarOpen}
+          onClose={() => setSimilarOpen(false)}
+          title="相似病例检索"
+          icon={<Activity size={18} color="#fff" />}
+          iconBg={PRIMARY}
+          width={720}
+          footer={
+            <>
+              <button style={{ ...s.reportBtn, background: '#f0f4f8', color: PRIMARY }} onClick={() => setSimilarOpen(false)}>关闭</button>
+              <button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }} onClick={() => void lookSimilarExams()}><RefreshCw size={14} />重新检索</button>
+            </>
+          }
+        >
+          <div style={{ fontSize: 12, color: '#64748b', marginBottom: 12 }}>
+            基于当前检查检索: {exam.patientName} · {exam.modality} · {exam.bodyPart}
+          </div>
+          {similarLoading ? (
+            <div style={{ textAlign: 'center', padding: 32 }}><Spin size="large" /><div style={{ marginTop: 12, color: '#64748b', fontSize: 12 }}>正在检索相似病例...</div></div>
+          ) : similarResults.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: 32, color: '#94a3b8', fontSize: 13 }}>未找到相似病例，可尝试重新检索</div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 420, overflow: 'auto' }}>
+              {similarResults.map((r) => (
+                <div key={r.id} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: 12 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#1e293b' }}>
+                      {r.modality} · {r.bodyPart}
+                      <span style={{ marginLeft: 8, fontSize: 12, color: '#94a3b8' }}>{r.gender} {r.age}岁 · {r.studyDate}</span>
+                    </span>
+                    <span style={{ fontSize: 12, fontWeight: 700, padding: '2px 8px', borderRadius: 10, background: r.similarity >= 70 ? '#dcfce7' : r.similarity >= 40 ? '#fef3c7' : '#f1f5f9', color: r.similarity >= 70 ? '#16a34a' : r.similarity >= 40 ? '#d97706' : '#64748b' }}>
+                      相似度 {r.similarity}%
+                    </span>
+                  </div>
+                  {r.findings && <div style={{ fontSize: 12, color: '#475569', lineHeight: 1.5, marginBottom: 4 }}>所见: {r.findings}</div>}
+                  {r.impression && <div style={{ fontSize: 12, color: '#059669', lineHeight: 1.5 }}>结论: {r.impression}</div>}
+                  {r.keywords?.length > 0 && (
+                    <div style={{ marginTop: 6, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                      {r.keywords.slice(0, 5).map((k) => <span key={k} style={{ fontSize: 11, padding: '1px 6px', borderRadius: 8, background: '#dbeafe', color: '#1e40af' }}>{k}</span>)}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </AppModal>
 
         {/* Toast 提示 */}

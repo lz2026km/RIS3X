@@ -122,7 +122,7 @@ import {
   buildSummary as buildFinalCheckSummary,
 } from '@data/reportFinalCheckMock';
 import { REVIEW_TASKS } from '@data/reportReviewMock';
-import { APPOINTMENT_RECORDS } from '@data/initialData';
+import { APPOINTMENT_RECORDS, initialModalityDevices } from '@data/initialData';
 
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
 
@@ -166,13 +166,23 @@ export const authHandlers = [
 // ============= Reports(24) - v3.0.6.8-32 接入 EXAM_REPORT_PRE + QUALITY_SCORE_PRE =============
 export const reportHandlers = [
   // 列表 (EXAM_REPORT_PRE 600 + QUALITY_SCORE_PRE 250 合并)
+  // [v3.0.6.11-70] 支持 take/skip/state (与后端 reports list 对齐)
   http.get(`${API_BASE}/reports`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
     const opts = parseQuery(url);
+    const takeParam = url.searchParams.get('take');
+    const stateParam = url.searchParams.get('state');
     const all = list<any>('exams');
+    let source = all;
+    if (stateParam) {
+      source = all.filter((r: any) => String(r.state ?? '').toUpperCase() === stateParam.toUpperCase());
+    }
     const qMap = new Map(list<any>('qualityScores').map((q: any) => [q.reportId, q]));
-    const result = applyQuery(all, opts, ['patientName', 'reportId', 'examItem', 'bodyPart']);
+    const result = applyQuery(source, {
+      ...opts,
+      pageSize: takeParam ? Math.min(Math.max(Number(takeParam) || 20, 1), 1000) : opts.pageSize,
+    }, ['patientName', 'reportId', 'examItem', 'bodyPart']);
     return HttpResponse.json({
       success: true,
       data: result.data.map((r: any) => toReportDto(r, qMap.get(r.reportId))),
@@ -320,6 +330,66 @@ export const reportHandlers = [
   // 修订
   
 
+  // [v3.0.6.11-70] P0 状态机: 通用状态流转 (SUBMITTED/INITIAL_REVIEW/FINAL_REVIEW/REVIEWED/REJECTED/SIGNED/PUBLISHED...)
+  //   与 reportApi.transition 对应: POST /reports/:id/transition  { to, actorId, reason? }
+  http.post(`${API_BASE}/reports/:id/transition`, async ({ params, request }) => {
+    await delay(120);
+    const id = params.id as string;
+    const body = (await request.json()) as { to?: string; actorId?: string; reason?: string };
+    const before = get<any>('exams', id);
+    if (!before) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } }, { status: 404 });
+    const target = (body.to ?? 'SUBMITTED').toUpperCase() as string;
+    // 后端大写状态 → MSW 存储小写状态
+    const STATE_TO_STATUS: Record<string, string> = {
+      PENDING_ASSIGNMENT: 'draft', ASSIGNED: 'draft', WRITING: 'draft', SUBMITTED: 'submitted',
+      INITIAL_REVIEW: 'inReview', FINAL_REVIEW: 'inReview', CO_SIGN_REVIEW: 'inReview',
+      REVIEWED: 'reviewed', SIGNING: 'reviewed', SIGNED: 'signed', PUBLISHED: 'published',
+      AMENDING: 'amended', AMENDED: 'amended', WITHDRAWN: 'withdrawn', REJECTED: 'rejected',
+      ESCALATED: 'inReview', ARCHIVED: 'published', RECTIFYING: 'amended', SUPPLEMENTING: 'amended',
+      SUPPLEMENTED: 'amended', REDISTRIBUTING: 'published',
+    };
+    const nextStatus = STATE_TO_STATUS[target] ?? 'submitted';
+    const updated = update<any>('exams', id, {
+      status: nextStatus,
+      state: target,
+      rejectReason: target === 'REJECTED' ? (body.reason ?? '') : undefined,
+      reportAt: new Date().toISOString(),
+    });
+    if (updated) {
+      auditStatusChange('reports', updated, before.status, nextStatus);
+      recordWorkflowEvent({
+        actorId: body.actorId ?? 'system',
+        actorName: '系统',
+        action: 'transition',
+        entityType: 'reports',
+        entityId: id,
+        fromState: before.status,
+        toState: target,
+        metadata: { reason: body.reason },
+      });
+    }
+    return HttpResponse.json({ success: true, data: updated ? toReportDto(updated) : null });
+  }),
+
+  // [v3.0.6.11-70] P0 导出真实化: 入队 + 返回可下载地址
+  http.post(`${API_BASE}/reports/:id/export`, async ({ params, request }) => {
+    await delay(200);
+    const id = params.id as string;
+    const before = get<any>('exams', id);
+    if (!before) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } }, { status: 404 });
+    const body = (await request.json().catch(() => ({}))) as { format?: string };
+    const format = (body.format ?? 'pdf').toLowerCase();
+    recordWorkflowEvent({
+      actorId: 'system', actorName: '系统', action: 'export', entityType: 'reports', entityId: id,
+      fromState: before.status, toState: before.status,
+      metadata: { format },
+    });
+    return HttpResponse.json({
+      success: true,
+      data: { queued: true, format, downloadUrl: `${API_BASE}/reports/${id}/export.${format}` },
+    });
+  }),
+
   // 审核历史
   http.get(`${API_BASE}/reports/:id/audit-trail`, async ({ params }) => {
     await delay(80);
@@ -357,34 +427,272 @@ function mapReportStatus(s: string): 'draft' | 'submitted' | 'inReview' | 'revie
   return REPORT_STATUS_MAP[s] ?? 'draft';
 }
 
-// ============= Appointments(5) - v3.0.6.8-13 =============
+// ============= Appointments - v3.0.6.11-70 P0 预约→检查联动 =============
+// 可变记录集: 新建预约后列表立即可见
+let appointmentRecords: Record<string, unknown>[] = clone(APPOINTMENT_RECORDS);
+
+const APP_PRIORITY_MAP: Record<string, string> = {
+  ROUTINE: 'ROUTINE', URGENT: 'URGENT', STAT: 'STAT',
+  normal: 'ROUTINE', urgent: 'URGENT', critical: 'STAT',
+};
+const APP_PRIORITY_LOCAL: Record<string, 'normal' | 'urgent' | 'critical'> = {
+  ROUTINE: 'normal', URGENT: 'urgent', STAT: 'critical',
+};
+const APP_STATE_LOCAL: Record<string, string> = {
+  SCHEDULED: 'pending', CONFIRMED: 'confirmed', REGISTERED: 'pending',
+  CHECKED_IN: 'checked-in', IN_PROGRESS: 'checked-in', COMPLETED: 'completed',
+  CANCELLED: 'cancelled', NO_SHOW: 'no-show',
+};
+
+// 提醒 / 改期 / 取消 记录 seed (与后端内存 seed 保持一致)
+const SEED_REMINDERS = [
+  { id: 'RM-001', patientName: '张三', phone: '13800138001', examType: '胸部CT平扫', examDate: '2026-08-05', examTime: '09:00', reminderTime: '2026-08-04 20:00', channel: '短信', status: '已确认', responseTime: '0.5h' },
+  { id: 'RM-002', patientName: '李四', phone: '13800138002', examType: '头颅MR平扫', examDate: '2026-08-05', examTime: '10:30', reminderTime: '2026-08-05 07:00', channel: '微信', status: '已发送', responseTime: '未响应' },
+  { id: 'RM-003', patientName: '王五', phone: '13800138003', examType: '腹部CT平扫+增强', examDate: '2026-08-06', examTime: '14:00', reminderTime: '2026-08-05 20:00', channel: 'APP推送', status: '已改期', responseTime: '2h' },
+  { id: 'RM-004', patientName: '张三', phone: '13800138001', examType: '腰椎MR平扫', examDate: '2026-08-07', examTime: '08:30', reminderTime: '2026-08-06 20:00', channel: '短信', status: '已取消', responseTime: '未响应' },
+  { id: 'RM-005', patientName: '李四', phone: '13800138002', examType: '胸部DR正侧位', examDate: '2026-08-08', examTime: '11:00', reminderTime: '2026-08-07 20:00', channel: '微信', status: '已发送', responseTime: '未响应' },
+];
+const SEED_RESCHEDULES = [
+  { id: 'RS-001', patientName: '张三', phone: '13800138001', examType: '腹部CT平扫+增强', originalDate: '2026-08-03', originalTime: '09:00', newDate: '2026-08-05', newTime: '14:00', reason: 'patient', operateTime: '2026-08-02 16:20' },
+  { id: 'RS-002', patientName: '李四', phone: '13800138002', examType: '头颅MR平扫', originalDate: '2026-08-04', originalTime: '10:30', newDate: '2026-08-06', newTime: '10:00', reason: 'doctor', operateTime: '2026-08-03 09:15' },
+  { id: 'RS-003', patientName: '王五', phone: '13800138003', examType: '胸部CT平扫', originalDate: '2026-08-05', originalTime: '08:00', newDate: '2026-08-07', newTime: '09:30', reason: 'device', operateTime: '2026-08-04 11:40' },
+];
+const SEED_CANCELLATIONS = [
+  { id: 'CX-001', patientName: '张三', phone: '13800138001', examType: '腰椎MR平扫', cancelTime: '2026-08-02 10:00', reason: '患者主动取消', rebooked: '是' },
+  { id: 'CX-002', patientName: '李四', phone: '13800138002', examType: '胸部DR正侧位', cancelTime: '2026-08-01 15:30', reason: '设备故障', rebooked: '待确认' },
+  { id: 'CX-003', patientName: '王五', phone: '13800138003', examType: '冠脉CTA', cancelTime: '2026-07-31 09:20', reason: '医生调整时间', rebooked: '否' },
+];
+
 export const appointmentHandlers = [
   http.get(`${API_BASE}/appointments`, async () => {
     await delay(120);
-    return HttpResponse.json({ success: true, data: clone(APPOINTMENT_RECORDS) });
+    return HttpResponse.json({ success: true, data: clone(appointmentRecords) });
   }),
+
+  // ===== 静态子路由 (必须先于 :id, 避免被 :id 吞掉) =====
+  // 预约规则: 由设备主数据派生
+  http.get(`${API_BASE}/appointments/rules`, async () => {
+    await delay(80);
+    const rules = initialModalityDevices
+      .filter((d: any) => d.status !== '维护中')
+      .map((d: any) => ({
+        deviceId: d.id,
+        deviceName: d.name,
+        maxDailyAppointments: d.modality === 'MR' ? 40 : d.modality === 'CT' ? 60 : 80,
+        maxPerTimeSlot: d.modality === 'MR' ? 3 : 4,
+        minAdvanceDays: 0,
+        maxAdvanceDays: 30,
+        noShowPenalty: 3,
+        enabled: true,
+      }));
+    return HttpResponse.json({ success: true, data: rules });
+  }),
+
+  // 等候名单: 待确认 (pending) 预约
+  http.get(`${API_BASE}/appointments/waitlist`, async () => {
+    await delay(80);
+    const data = (appointmentRecords as Array<Record<string, any>>)
+      .filter((a) => a.status === 'pending')
+      .slice(0, 50)
+      .map((a) => ({
+        id: a.id,
+        patientName: a.patientName,
+        phone: a.phone || '',
+        examItemName: a.examItemName || a.bodyPart || a.modality,
+        modality: a.modality,
+        preferredDate: a.examDate,
+        preferredTime: a.examTime,
+        priority: a.priority === 'critical' ? 'critical' : a.priority === 'urgent' ? 'urgent' : 'normal',
+        addedAt: a.createdAt || '',
+        notified: false,
+      }));
+    return HttpResponse.json({ success: true, data });
+  }),
+
+  // 提醒记录
+  http.get(`${API_BASE}/appointments/reminders`, async () => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: clone(SEED_REMINDERS) });
+  }),
+
+  // 改期记录
+  http.get(`${API_BASE}/appointments/reschedules`, async () => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: clone(SEED_RESCHEDULES) });
+  }),
+
+  // 取消记录
+  http.get(`${API_BASE}/appointments/cancellations`, async () => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: clone(SEED_CANCELLATIONS) });
+  }),
+
   http.get(`${API_BASE}/appointments/:id`, async ({ params }) => {
     await delay(80);
-    const apt = (APPOINTMENT_RECORDS as Array<Record<string, unknown>>).find((a) => a.id === params.id);
+    const apt = appointmentRecords.find((a) => a.id === params.id);
     return apt
       ? HttpResponse.json({ success: true, data: apt })
       : HttpResponse.json({ success: false, message: 'Not found' }, { status: 404 });
   }),
+
+  // 创建预约 (P0): 与后端 schema 对齐 + 联动创建 Exam → 工作列表可见
   http.post(`${API_BASE}/appointments`, async ({ request }) => {
     await delay(200);
-    const body = await request.json();
-    const newApt = { id: `APT-${Date.now()}`, ...body, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-    return HttpResponse.json({ success: true, data: newApt }, { status: 201 });
+    const body = (await request.json()) as Record<string, any>;
+    const id = `APT-${Date.now()}`;
+    const startAt = body.startAt ? new Date(body.startAt) : new Date();
+    const endAt = body.endAt ? new Date(body.endAt) : new Date(startAt.getTime() + 30 * 60 * 1000);
+    const device = initialModalityDevices.find((d: any) => d.id === body.deviceId);
+    const record = {
+      id,
+      patientId: body.patientId || `RAD-P${Date.now()}`,
+      patientName: body.patientName || '',
+      patientInitials: (body.patientName || '').slice(0, 2),
+      gender: body.gender === 'FEMALE' ? '女' : body.gender === 'MALE' ? '男' : '男',
+      age: 0,
+      idCard: '',
+      phone: body.phone || '',
+      examItemId: '',
+      examItemName: body.bodyPart ? `${body.modality} ${body.bodyPart}` : body.modality,
+      modality: body.modality,
+      bodyPart: body.bodyPart || '',
+      examDate: `${startAt.getFullYear()}-${String(startAt.getMonth() + 1).padStart(2, '0')}-${String(startAt.getDate()).padStart(2, '0')}`,
+      examTime: `${String(startAt.getHours()).padStart(2, '0')}:${String(startAt.getMinutes()).padStart(2, '0')}`,
+      deviceId: body.deviceId,
+      deviceName: body.deviceName || device?.name || '',
+      roomId: device?.id?.replace('DEV', 'ROOM') || '',
+      roomName: device?.location || '',
+      referringDoctorId: '',
+      referringDoctorName: body.referringDoctor || '',
+      clinicalDiagnosis: body.note || '',
+      notes: body.note || '',
+      status: 'pending',
+      priority: APP_PRIORITY_LOCAL[APP_PRIORITY_MAP[body.priority] || 'ROUTINE'] || 'normal',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    appointmentRecords = [record, ...appointmentRecords];
+
+    // 联动创建 Exam → 工作列表 (/worklist) 可见
+    const examRecord = {
+      reportId: `RPT-APPT-${Date.now()}`,
+      patientId: record.patientId,
+      patientName: record.patientName,
+      patientAge: 0,
+      patientGender: record.gender,
+      modality: body.modality,
+      examItem: record.examItemName,
+      examItemCode: '',
+      bodyPart: record.bodyPart,
+      deviceId: body.deviceId,
+      deviceModel: record.deviceName,
+      doctorId: 'TECH-001',
+      reportDoctorId: 'DR-001',
+      reviewDoctorId: null,
+      cosignDoctorId: null,
+      icd10: '',
+      clinicalDiagnosis: body.note || '',
+      findings: '',
+      impression: '',
+      examAt: startAt.toISOString(),
+      reportAt: '',
+      reviewedAt: null,
+      signedAt: null,
+      status: 'submitted',
+      priority: body.priority === 'STAT' ? '急诊' : body.priority === 'URGENT' ? '加急' : '普通',
+      defectCount: 0,
+      qcScore: 0,
+      hasCriticalValue: false,
+      criticalValueType: null,
+    };
+    try { create('exams', examRecord); } catch { /* store 未初始化时忽略 */ }
+    auditCreate('appointments', record);
+
+    // 返回后端 DTO 形状 (id/startAt/endAt/state/priority 枚举)
+    return HttpResponse.json({
+      success: true,
+      data: {
+        id,
+        patientName: record.patientName,
+        patientId: record.patientId,
+        modality: body.modality,
+        bodyPart: record.bodyPart || undefined,
+        startAt: startAt.toISOString(),
+        endAt: endAt.toISOString(),
+        deviceId: body.deviceId,
+        deviceName: record.deviceName,
+        room: device?.location || undefined,
+        priority: APP_PRIORITY_MAP[body.priority] || 'ROUTINE',
+        note: body.note || undefined,
+        referringDoctor: body.referringDoctor || undefined,
+        state: 'SCHEDULED',
+        createdById: body.createdById || 'system',
+        createdAt: record.createdAt,
+        updatedAt: record.updatedAt,
+      },
+    }, { status: 201 });
   }),
-  
+
   http.put(`${API_BASE}/appointments/:id`, async ({ params, request }) => {
     await delay(150);
     const body = await request.json();
+    const idx = appointmentRecords.findIndex((a) => a.id === params.id);
+    if (idx >= 0) {
+      const updated = { ...appointmentRecords[idx], ...body, updatedAt: new Date().toISOString() };
+      appointmentRecords = appointmentRecords.map((a) => (a.id === params.id ? updated : a));
+      return HttpResponse.json({ success: true, data: updated });
+    }
     return HttpResponse.json({ success: true, data: { id: params.id, ...body } });
   }),
 ];
 
 // ============= Worklist(20) - v3.0.6.8-32 接入 EXAM_REPORT_PRE =============
+// G005 P0: mock 提供与真实后端一致的 /exams 主数据源 (待检优先排序),
+// 使 dev(mock) 与 real(后端 /exams) 行为一致; /worklist 仅保留状态流转端点语义。
+export const examListHandlers = [
+  http.get(`${API_BASE}/exams`, async () => {
+    await delay(80);
+    const all = list<any>('exams') || [];
+    const priority = (s: string) => ['待登记', '待检查', '已登记', '已报到', '检查中'].includes(s) ? 0 : 1;
+    const sorted = [...all].sort((a, b) => priority(String(a.status)) - priority(String(b.status)));
+    // [G005 P0] 待检/检查中记录: 副本日期对齐到最近 7 天窗口,
+    // 使 Worklist 默认日期筛选可见 (不改动共享 store 原始记录)
+    const today = new Date();
+    const PENDING_STATUSES = ['待登记', '待检查', '已登记', '已报到', '检查中', 'SCHEDULED', 'ARRIVED', 'IN_PROGRESS'];
+    const shifted = sorted.map((r, i) => {
+      const status = String(r.status);
+      if (!PENDING_STATUSES.includes(status)) return r;
+      const copy = { ...r };
+      const d = new Date(today.getTime() - ((i % 6) * 86400000));
+      const iso = d.toISOString();
+      copy.examDate = iso.split('T')[0] ?? copy.examDate;
+      copy.createdTime = iso.replace('T', ' ').slice(0, 16);
+      if (copy.updatedTime) copy.updatedTime = copy.createdTime;
+      return copy;
+    });
+    return HttpResponse.json({ items: shifted, total: shifted.length });
+  }),
+
+  // [v3.0.6.11-70] 详情 (报告书写上下文需要患者性别/年龄)
+  http.get(`${API_BASE}/exams/:id`, async ({ params }) => {
+    await delay(50);
+    const id = params.id as string;
+    const exam = get<any>('exams', id);
+    if (!exam) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Exam not found' } }, { status: 404 });
+    return HttpResponse.json({ success: true, data: toExamDto(exam) });
+  }),
+
+  http.patch(`${API_BASE}/exams/:id`, async ({ params, request }) => {
+    await delay(80);
+    const id = params.id as string;
+    const body = (await request.json()) as Record<string, unknown>;
+    const before = get<any>('exams', id);
+    const updated = update<any>('exams', id, body);
+    if (updated && before) auditUpdate('exams', before, updated);
+    return HttpResponse.json(updated ?? null);
+  }),
+];
+
 export const worklistHandlers = [
   // 列表 (EXAM_REPORT_PRE 600 + 分页/排序/过滤)
   http.get(`${API_BASE}/worklist`, async ({ request }) => {
@@ -451,17 +759,18 @@ export const worklistHandlers = [
   
 
   // [v3.0.6.8-91] 修复: 使用 worklist 状态机 (checkedIn/inProgress/completed/cancelled)
+  // [P0] 统一为后端规范状态: SCHEDULED → ARRIVED → IN_PROGRESS → COMPLETED
   http.post(`${API_BASE}/worklist/:id/checkin`, async ({ params }) => {
     await delay(80);
     const id = params.id as string;
     const before = get<any>('exams', id);
-    if (before && !canTransitionWorklist(before.status, 'checkedIn')) {
+    if (before && !canTransitionWorklist(before.status, 'ARRIVED')) {
       return HttpResponse.json({ success: false, message: `Cannot checkin from ${before.status}` }, { status: 400 });
     }
-    const updated = update<any>('exams', id, { status: 'checkedIn', checkinAt: new Date().toISOString() });
+    const updated = update<any>('exams', id, { status: 'ARRIVED', checkinAt: new Date().toISOString() });
     if (updated) {
-      auditStatusChange('worklist', updated, before?.status || '', 'checkedIn');
-      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'checkin', entityType: 'worklist', entityId: id, fromState: before?.status, toState: 'checkedIn' });
+      auditStatusChange('worklist', updated, before?.status || '', 'ARRIVED');
+      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'checkin', entityType: 'worklist', entityId: id, fromState: before?.status, toState: 'ARRIVED' });
     }
     return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
   }),
@@ -470,11 +779,11 @@ export const worklistHandlers = [
     await delay(80);
     const id = params.id as string;
     const before = get<any>('exams', id);
-    if (before && !canTransitionWorklist(before.status, 'inProgress')) {
+    if (before && !canTransitionWorklist(before.status, 'IN_PROGRESS')) {
       return HttpResponse.json({ success: false, message: `Cannot start from ${before.status}` }, { status: 400 });
     }
-    const updated = update<any>('exams', id, { status: 'inProgress', startAt: new Date().toISOString() });
-    if (updated) auditStatusChange('worklist', updated, before?.status || '', 'inProgress');
+    const updated = update<any>('exams', id, { status: 'IN_PROGRESS', startAt: new Date().toISOString() });
+    if (updated) auditStatusChange('worklist', updated, before?.status || '', 'IN_PROGRESS');
     return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
   }),
 
@@ -482,13 +791,13 @@ export const worklistHandlers = [
     await delay(80);
     const id = params.id as string;
     const before = get<any>('exams', id);
-    if (before && !canTransitionWorklist(before.status, 'completed')) {
+    if (before && !canTransitionWorklist(before.status, 'COMPLETED')) {
       return HttpResponse.json({ success: false, message: `Cannot complete from ${before.status}` }, { status: 400 });
     }
-    const updated = update<any>('exams', id, { status: 'completed', completeAt: new Date().toISOString() });
+    const updated = update<any>('exams', id, { status: 'COMPLETED', completeAt: new Date().toISOString() });
     if (updated) {
-      auditStatusChange('worklist', updated, before?.status || '', 'completed');
-      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'complete', entityType: 'worklist', entityId: id, fromState: before?.status, toState: 'completed' });
+      auditStatusChange('worklist', updated, before?.status || '', 'COMPLETED');
+      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'complete', entityType: 'worklist', entityId: id, fromState: before?.status, toState: 'COMPLETED' });
     }
     return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
   }),
@@ -498,11 +807,11 @@ export const worklistHandlers = [
     const id = params.id as string;
     const body = (await request.json()) as { reason: string };
     const before = get<any>('exams', id);
-    if (before && !canTransitionWorklist(before.status, 'cancelled')) {
+    if (before && !canTransitionWorklist(before.status, 'CANCELLED')) {
       return HttpResponse.json({ success: false, message: `Cannot cancel from ${before.status}` }, { status: 400 });
     }
-    const updated = update<any>('exams', id, { status: 'cancelled', cancelReason: body.reason, cancelledAt: new Date().toISOString() });
-    if (updated) auditStatusChange('worklist', updated, before?.status || '', 'cancelled');
+    const updated = update<any>('exams', id, { status: 'CANCELLED', cancelReason: body.reason, cancelledAt: new Date().toISOString() });
+    if (updated) auditStatusChange('worklist', updated, before?.status || '', 'CANCELLED');
     return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
   }),
 
@@ -2649,6 +2958,7 @@ export const handlers = [
   ...advancedHandlers, // [v3.0.6.8-32] 高级端点优先注册,避免 /critical/:id 拦截 /critical/sla-status
   ...authHandlers,
   ...reportHandlers,
+  ...examListHandlers, // [G005 P0] mock /exams 主数据源 (与真实后端一致)
   ...worklistHandlers,
   ...appointmentHandlers,
   ...patientHandlers,

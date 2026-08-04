@@ -307,6 +307,10 @@ export function toReportDto(r: ExamReportRecord, q?: QualityScoreRecord): Report
     clinicalDiagnosis: r.clinicalDiagnosis,
     priority: r.priority,
     hasCriticalValue: r.hasCriticalValue,
+    // [v3.0.6.11-70] P0: 驳回原因透出 (transition → REJECTED 写入)
+    rejectReason: (r as any).rejectReason,
+    // [v3.0.6.11-70] P0: 报告正文透出 (所见/诊断/建议)
+    recommendations: (r as any).recommendations ?? '',
   };
 }
 

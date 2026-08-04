@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
 import { getCurrentTenantId } from '../../common/interceptors/tenant-context.interceptor'
 import type { Exam } from '@prisma/client'
@@ -82,7 +82,14 @@ export class ExamService {
   async delete(id: string): Promise<{ ok: true }> {
     const existing = await this.prisma.exam.findUnique({ where: { id } })
     if (!existing) throw new NotFoundException(`Exam ${id} not found`)
-    await this.prisma.exam.delete({ where: { id } })
+    try {
+      await this.prisma.exam.delete({ where: { id } })
+    } catch (e: any) {
+      if (e?.code === 'P2003') {
+        throw new BadRequestException('检查存在关联检查/报告数据，请先处理关联数据')
+      }
+      throw e
+    }
     return { ok: true }
   }
 }

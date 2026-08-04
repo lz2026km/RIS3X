@@ -30,6 +30,11 @@ describe('CriticalsController', () => {
             voiceCall: jest.fn(),
             clinicalReceipt: jest.fn(),
             listHistory: jest.fn(),
+            getStats: jest.fn(),
+            getMissedStats: jest.fn(),
+            getNotificationStats: jest.fn(),
+            getValue5StepList: jest.fn(),
+            runEscalationChain: jest.fn(),
           },
         },
       ],
@@ -80,7 +85,7 @@ describe('CriticalsController', () => {
   })
 
   it('notify delegates to service', async () => {
-    svc.notify.mockResolvedValue({ count: 2 })
+    svc.notify.mockResolvedValue({ count: 2, status: 'NOTIFIED' })
     const dto = {
       criticalId: 'c1', patientName: '张三', patientId: 'p1',
       category: 'URGENT' as const, finding: '危急值', channels: ['SMS' as const, 'PHONE' as const],

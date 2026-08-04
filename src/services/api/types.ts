@@ -43,4 +43,8 @@ export interface ReportQueryParams {
     pageSize?: number
     sortBy?: string
     sortDir?: 'asc' | 'desc'
+    // [v3.0.6.11-70] P0: 后端 reports list 支持 skip/take/state
+    take?: string
+    skip?: string
+    state?: string
   }

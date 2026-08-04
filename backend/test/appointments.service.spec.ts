@@ -18,7 +18,7 @@ describe('AppointmentsService', () => {
     createdAt: new Date(),
   }
 
-  function createTxMock() {
+  function createTxMock(): any {
     return {
       appointment: {
         findMany: jest.fn(),
@@ -27,6 +27,19 @@ describe('AppointmentsService', () => {
         count: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
+      },
+      patient: {
+        findUnique: jest.fn(),
+        findFirst: jest.fn(),
+        create: jest.fn(),
+      },
+      device: {
+        findUnique: jest.fn(),
+        findFirst: jest.fn(),
+        create: jest.fn(),
+      },
+      exam: {
+        create: jest.fn(),
       },
     }
   }
@@ -118,18 +131,45 @@ describe('AppointmentsService', () => {
 
     it('creates appointment when no overlap', async () => {
       const tx = createTxMock()
+      tx.patient.findUnique.mockResolvedValue({ id: 'p1', name: '张三' })
+      tx.device.findUnique.mockResolvedValue({ id: 'd1' })
       tx.appointment.findFirst.mockResolvedValue(null)
       tx.appointment.create.mockResolvedValue(mockAppointment)
+      tx.exam.create.mockResolvedValue({ id: 'e1' })
       mockPrismaService.$transaction.mockImplementation((cb: any) => cb(tx))
       const result = await svc.create(dto)
       expect(result.id).toBe('a1')
+      // P0: 联动创建 Exam (SCHEDULED), 工作列表可见
+      expect(tx.exam.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ state: 'SCHEDULED', patientId: 'p1' }),
+        }),
+      )
+    })
+
+    it('creates patient automatically when patientId unknown', async () => {
+      const tx = createTxMock()
+      tx.patient.findUnique.mockResolvedValue(null)
+      tx.patient.findFirst.mockResolvedValue(null)
+      tx.patient.create.mockResolvedValue({ id: 'p-new', name: dto.patientName })
+      tx.device.findUnique.mockResolvedValue({ id: 'd1' })
+      tx.appointment.findFirst.mockResolvedValue(null)
+      tx.appointment.create.mockResolvedValue(mockAppointment)
+      tx.exam.create.mockResolvedValue({ id: 'e1' })
+      mockPrismaService.$transaction.mockImplementation((cb: any) => cb(tx))
+      const result = await svc.create(dto)
+      expect(result.id).toBe('a1')
+      expect(tx.patient.create).toHaveBeenCalled()
     })
 
     it('throws ConflictException on overlap', async () => {
       const tx = createTxMock()
+      tx.patient.findUnique.mockResolvedValue({ id: 'p1', name: '张三' })
+      tx.device.findUnique.mockResolvedValue({ id: 'd1' })
       tx.appointment.findFirst.mockResolvedValue(mockAppointment)
       mockPrismaService.$transaction.mockImplementation((cb: any) => cb(tx))
       await expect(svc.create(dto)).rejects.toThrow(ConflictException)
+      expect(tx.exam.create).not.toHaveBeenCalled()
     })
   })
 

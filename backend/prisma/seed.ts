@@ -126,6 +126,7 @@ async function main(): Promise<void> {
     await prisma.appointment.create({
       data: {
         patientId: pt.id,
+        patientName: pt.name,
         deviceId: ctDevice.id,
         modality: 'CT',
         scheduledAt: new Date(Date.now() + i * 3600000),

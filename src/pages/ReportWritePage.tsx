@@ -2,21 +2,24 @@
  * G005 放射RIS系统 v3.0.6.8-19 — 报告书写 V3（优化版）
  * 优化: 懒加载 sider tab / 精简工具条 / 自动保存模拟 / 响应式
  */
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import {
   Layout, Card, Space, Button, Tag, Tooltip, Tabs, Divider,
   Alert, message, Modal, Progress, Empty, Badge, Input, Select, Spin,
 } from 'antd';
 import {
   Save, Send, FileText, Mic, Image as ImageIcon, Type,
-  Brain, History, Eye, ChevronLeft, ChevronRight, Sparkles,
+  Brain, History, Eye, ChevronLeft, Sparkles,
   Tag as TagIcon, BarChart3, StickyNote, RefreshCw, AlertCircle,
   ListChecks, FileCheck, CheckCircle2, PanelRightClose, PanelRightOpen, Edit3,
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  REPORT_WRITING_CONTEXT_MOCK, REPORT_DRAFTS_MOCK, KEYWORD_HIGHLIGHTS_MOCK, PRE_SUBMIT_SCORE_MOCK,
+  REPORT_WRITING_CONTEXT_MOCK, KEYWORD_HIGHLIGHTS_MOCK, PRE_SUBMIT_SCORE_MOCK,
 } from '@data/reportWritingMock';
+import { reportApi } from '@services/api/reportApi';
+import { examApi } from '@services/api/examApi';
+import { getCurrentUser } from '@utils/auth';
 import { detectConflicts } from '@services/keywordConflictDetector';
 import { computeDiff, type DiffChunk } from '@services/reportDiffEngine';
 import { aiDraftApi, type AiReportDraft, type ReportDraftStyle } from '@services/api/aiDraftApi';
@@ -342,18 +345,26 @@ const V3_STYLES = `
 
 export default function ReportWritePage() {
   const navigate = useNavigate();
-  const [reportId] = useState('rpt-038');
-  const [context, setContext] = useState(REPORT_WRITING_CONTEXT_MOCK);
+  const [searchParams] = useSearchParams();
+  // [v3.0.6.11-70] P0 真实化: reportId 从路由参数 / 报告列表选择获取, 不再写死 'rpt-038'
+  const [reportId, setReportId] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [context, setContext] = useState<any>(REPORT_WRITING_CONTEXT_MOCK);
   const [preScore] = useState(PRE_SUBMIT_SCORE_MOCK);
-  const [drafts] = useState(REPORT_DRAFTS_MOCK);
+  // [v3.0.6.11-70] P0 真实化: 草稿列表来自 reportApi.list
+  const [drafts, setDrafts] = useState<any[]>([]);
   const [showSubmit, setShowSubmit] = useState(false);
   const [siderVisible, setSiderVisible] = useState(true);
   const [activeToolsTab, setActiveToolsTab] = useState('ai');
   const [submitting, setSubmitting] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [autoSaveTip, setAutoSaveTip] = useState('已保存');
   const [conflicts, setConflicts] = useState<any[]>([]);
   const [diffTarget, setDiffTarget] = useState<{ oldText: string; label: string } | null>(null);
   const [voiceInsert, setVoiceInsert] = useState<{ text: string; ts: number } | null>(null);
+  // [v3.0.6.11-70] 自动保存节流: 正在保存 / 无变更时跳过
+  const savingRef = useRef(false);
+  const lastSavedRef = useRef('');
   // [v3.0.6.11-61] 环境式 AI 报告草稿 (生成式草稿 + 医生确认)
   const [aiUi, setAiUi] = useState<{ open: boolean; clinical: string; findings: string; style: ReportDraftStyle; loading: boolean; error: string | null }>({
     open: false, clinical: '女性 58 岁,体检发现右肺上叶结节 1 周,无明显症状。', findings: '', style: 'standard', loading: false, error: null,
@@ -365,21 +376,128 @@ export default function ReportWritePage() {
   const [aiActionLoading, setAiActionLoading] = useState(false);
   const [editorSet, setEditorSet] = useState<{ plainText: string; ts: number } | null>(null);
 
+  // [v3.0.6.11-70] 挂载: 解析 reportId → 加载上下文(患者/检查/临床信息) → 草稿列表
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const queryId = searchParams.get('reportId');
+      let target: string | null = queryId;
+      if (!target) {
+        const listRes = await reportApi.list({ take: '20' });
+        if (listRes.success && Array.isArray(listRes.data) && listRes.data.length > 0) {
+          const prefer = listRes.data.find((r) => !/(已发布|已审核|已双签|published|reviewed|signed|REVIEWED|PUBLISHED|SIGNED)/i.test(r.status ?? '')) ?? listRes.data[0];
+          if (prefer) target = prefer.reportId || prefer.id;
+        }
+      }
+      if (!target) {
+        const user = getCurrentUser();
+        const createRes = await reportApi.create({
+          patientId: REPORT_WRITING_CONTEXT_MOCK.patientId,
+          radiologistId: user?.id,
+          findings: REPORT_WRITING_CONTEXT_MOCK.document.plainText,
+          conclusion: REPORT_WRITING_CONTEXT_MOCK.document.plainText,
+        });
+        if (createRes.success && createRes.data) target = createRes.data.reportId || createRes.data.id;
+      }
+      if (cancelled || !target) return;
+      setReportId(target);
+      lastSavedRef.current = '';
+      const ctxRes = await reportApi.getById(target);
+      if (ctxRes.success && ctxRes.data) {
+        const d = ctxRes.data;
+        const plainText = [d.findings, d.impression, d.recommendations].filter(Boolean).join('\n\n');
+        setContext((c: any) => ({
+          ...c,
+          reportId: d.reportId || d.id,
+          patientId: d.patientId || c.patientId,
+          modality: d.modality || c.modality,
+          bodyPart: d.bodyPart || c.bodyPart,
+          patientName: d.patientName || '',
+          clinicalDiagnosis: d.clinicalDiagnosis || '',
+          status: d.status || '',
+          document: {
+            ...c.document,
+            reportId: d.reportId || d.id,
+            html: `<h2>影像所见</h2><p>${d.findings ?? ''}</p><h2>诊断意见</h2><p>${d.impression ?? ''}</p>`,
+            plainText,
+            wordCount: plainText.length || c.document.wordCount,
+            lastEditedAt: d.updatedTime,
+          },
+        }));
+        if (d.examId) {
+          const examRes = await examApi.getById(d.examId);
+          if (examRes.success && examRes.data) {
+            setContext((c: any) => ({ ...c, gender: examRes.data!.gender, age: examRes.data!.age }));
+          }
+        }
+      }
+      const draftsRes = await reportApi.list({ take: '20' });
+      if (draftsRes.success && Array.isArray(draftsRes.data)) {
+        setDrafts(draftsRes.data.map((r, i) => ({
+          id: `${r.reportId || r.id}-${i}`,
+          reportId: r.reportId || r.id,
+          versionLabel: `v${i + 1}`,
+          updatedAt: r.updatedTime,
+          wordCount: (r.findings ?? '').length,
+          autoSaved: i > 0,
+        })));
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [searchParams]);
+
+  // [v3.0.6.11-70] P0 真实化: 保存当前编辑器内容 → POST /reports 或 PATCH /reports/:id
+  const doSave = useCallback(async (silent: boolean): Promise<boolean> => {
+    if (!reportId || savingRef.current) return false;
+    savingRef.current = true;
+    if (!silent) setSaving(true);
+    try {
+      const plainText = context.document.plainText ?? '';
+      const conclusion = context.document.plainText ?? '';
+      const existing = await reportApi.getById(reportId);
+      const res = existing.success && existing.data
+        ? await reportApi.update(reportId, { findings: plainText, conclusion })
+        : await reportApi.create({ patientId: context.patientId || reportId, examId: reportId, findings: plainText, conclusion });
+      if (res.success) {
+        if (res.data?.reportId && res.data.reportId !== reportId) setReportId(res.data.reportId);
+        lastSavedRef.current = `${plainText}|${context.document.html ?? ''}`;
+        if (!silent) message.success('报告已保存');
+        return true;
+      }
+      if (!silent) message.error(res.error?.message ?? '保存失败,请稍后重试');
+      return false;
+    } catch {
+      if (!silent) message.error('保存失败,请检查网络后重试');
+      return false;
+    } finally {
+      savingRef.current = false;
+      if (!silent) setSaving(false);
+    }
+  }, [reportId, context]);
+
+  // [v3.0.6.11-70] 自动保存: 30 秒定时真实保存(节流: 保存中/无变更跳过)
   useEffect(() => {
     const timer = setInterval(() => {
-      const now = new Date().toLocaleTimeString();
-      setAutoSaveTip(`已保存 ${now}`);
+      if (savingRef.current || !reportId) return;
+      const snapshot = `${context.document.plainText ?? ''}|${context.document.html ?? ''}`;
+      if (snapshot === lastSavedRef.current) return;
+      setAutoSaveTip('自动保存中…');
+      void doSave(true).then((ok) => {
+        setAutoSaveTip(ok ? `已自动保存 ${new Date().toLocaleTimeString()}` : '自动保存失败');
+      });
     }, 30000);
     return () => clearInterval(timer);
-  }, []);
+  }, [reportId, context.document.plainText, context.document.html, doSave]);
 
   const handleSubmit = useCallback(async () => {
     setSubmitting(true);
     const r = await import('@services/writing/writingService').then((m) =>
-      m.submitReport(reportId, {
+      m.submitReport(reportId ?? '', {
         finalScore: preScore.score,
         structured: context.fields,
-        html: context.document.html,
+        html: context.document.html ?? '',
+        plainText: context.document.plainText ?? '',
+        conclusion: context.document.plainText ?? '',
       })
     );
     setSubmitting(false);
@@ -387,6 +505,8 @@ export default function ReportWritePage() {
       message.success('报告已提交审核');
       setShowSubmit(false);
       setTimeout(() => navigate('/report-review'), 1500);
+    } else {
+      message.error('提交失败:报告状态不可提交或网络异常,请先保存后重试');
     }
   }, [reportId, preScore, context, navigate]);
 
@@ -462,8 +582,8 @@ export default function ReportWritePage() {
 
   const renderActiveTab = () => {
     switch (activeToolsTab) {
-      case 'ai': return <AITab reportId={reportId} modality={context.modality} bodyPart={context.bodyPart} onApplyToEditor={applyAiTextToEditor} />;
-      case 'voice': return <VoiceTab reportId={reportId} onInsert={(text) => setVoiceInsert({ text, ts: Date.now() })} onTextChange={() => { /* 实时文本由编辑器插入按钮统一处理 */ }} />;
+      case 'ai': return <AITab reportId={reportId ?? ''} modality={context.modality} bodyPart={context.bodyPart} onApplyToEditor={applyAiTextToEditor} />;
+      case 'voice': return <VoiceTab reportId={reportId ?? ''} onInsert={(text) => setVoiceInsert({ text, ts: Date.now() })} onTextChange={() => { /* 实时文本由编辑器插入按钮统一处理 */ }} />;
       case 'history': return <HistoryTab priorReports={context.priorReports} currentText={context.document.plainText} onCompare={(oldText, label) => setDiffTarget({ oldText, label })} />;
       case 'similar': return <SimilarTab reportText={context.document.plainText} modality={context.modality} bodyPart={context.bodyPart} />;
       case 'score': return <ScoreTab preScore={preScore} />;
@@ -496,7 +616,9 @@ export default function ReportWritePage() {
           <Tooltip title="环境式 AI 生成报告草稿 (所见+结论+建议)">
             <Button icon={<Sparkles className="w-4 h-4" />} onClick={() => setAiUi((u) => ({ ...u, open: true }))}>AI 草稿</Button>
           </Tooltip>
-          <Tooltip title="保存草稿"><Button icon={<Save className="w-4 h-4" />}>保存</Button></Tooltip>
+          <Tooltip title="保存草稿">
+            <Button icon={<Save className="w-4 h-4" />} loading={saving} onClick={() => void doSave(false)}>保存</Button>
+          </Tooltip>
           <span className="v3-topbar-stats v3-topbar-hide-mobile">
             {context.document.wordCount} 字 / {Math.round(context.document.writingDurationSec / 60)} 分
           </span>
@@ -519,11 +641,16 @@ export default function ReportWritePage() {
         <Content className="v3-content">
           <Card size="small" className="v3-card" title={<Space><StickyNote className="w-4 h-4" /><span>临床信息</span></Space>}>
             <div className="v3-clinical-grid">
-              <div className="v3-clinical-item"><div className="v3-clinical-label">患者</div><div className="font-semibold">张三</div></div>
-              <div className="v3-clinical-item"><div className="v3-clinical-label">性别 / 年龄</div><div>男 / 58 岁</div></div>
+              <div className="v3-clinical-item"><div className="v3-clinical-label">患者</div><div className="font-semibold">{context.patientName || '张三'}</div></div>
+              <div className="v3-clinical-item"><div className="v3-clinical-label">性别 / 年龄</div><div>{(context.gender || '男')} / {(context.age || 58)} 岁</div></div>
               <div className="v3-clinical-item"><div className="v3-clinical-label">检查号</div><div className="v3-clinical-code">{context.patientId}</div></div>
-              <div className="v3-clinical-item"><div className="v3-clinical-label">临床诊断</div><div>右肺占位性病变</div></div>
+              <div className="v3-clinical-item"><div className="v3-clinical-label">临床诊断</div><div>{context.clinicalDiagnosis || '右肺占位性病变'}</div></div>
               <div className="v3-clinical-full">
+                <b>报告状态:</b>{' '}
+                {(() => {
+                  const s = String(context.status ?? '');
+                  return s ? s : '草稿';
+                })()}<br />
                 <b>主诉:</b>体检发现右肺结节 1 周<br />
                 <b>现病史:</b>患者 1 周前体检发现右肺上叶结节<br />
                 <b>既往史:</b>无肿瘤病史
@@ -533,19 +660,19 @@ export default function ReportWritePage() {
 
           <Card size="small" className="v3-card" title={<Space><FileText className="w-4 h-4 text-blue-500" /><span>结构化字段</span><Tag color="blue">RECIST 1.1</Tag></Space>}>
             <StructuredFieldForm
-              reportId={reportId}
+              reportId={reportId ?? ''}
               initialTemplateId="recist"
               initialValues={context.fields}
-              onChange={(values) => setContext((c) => ({ ...c, fields: values }))}
+              onChange={(values) => setContext((c: any) => ({ ...c, fields: values }))}
             />
           </Card>
 
           <Card size="small" className="v3-card" title={<Space><Type className="w-4 h-4 text-cyan-500" /><span>所见 / 诊断 / 建议</span></Space>}>
             <ReportRichEditor
-              reportId={reportId}
+              reportId={reportId ?? ''}
               initialHtml={context.document.html}
               initialPlainText={context.document.plainText}
-              onChange={(doc) => setContext((c) => ({ ...c, document: doc }))}
+              onChange={(doc) => setContext((c: any) => ({ ...c, document: doc }))}
               externalInsert={voiceInsert}
               onExternalInsertConsumed={() => setVoiceInsert(null)}
               externalSet={editorSet}
@@ -554,7 +681,7 @@ export default function ReportWritePage() {
           </Card>
 
           <Card size="small" className="v3-card" title={<Space><ImageIcon className="w-4 h-4 text-purple-500" /><span>关键图像与影像锚定</span><Tag color="purple">{context.anchors.length}</Tag></Space>}>
-            <ImageAnchorComponent reportId={reportId} />
+            <ImageAnchorComponent reportId={reportId ?? ''} />
           </Card>
         </Content>
 

@@ -178,6 +178,8 @@ describe('CriticalsService', () => {
 
   describe('notify', () => {
     it('creates notification records for each channel', async () => {
+      mockPrisma.criticalValue.findUnique.mockResolvedValue(mockCritical)
+      mockPrisma.criticalValue.update.mockResolvedValue(mockCritical)
       mockPrisma.criticalValueNotification.createMany.mockResolvedValue({ count: 3 })
       const result = await svc.notify({
         criticalId: 'c1', patientName: '张三', patientId: 'p1',
@@ -185,6 +187,10 @@ describe('CriticalsService', () => {
         recipientName: '李四', recipientDept: '急诊科', recipientPhone: '13800138000',
       })
       expect(result.count).toBe(3)
+      expect(result.status).toBe('NOTIFIED')
+      expect(mockPrisma.criticalValue.update).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ state: 'NOTIFIED' }) })
+      )
     })
   })
 

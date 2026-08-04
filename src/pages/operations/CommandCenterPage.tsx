@@ -23,11 +23,14 @@ export const CommandCenterPage: React.FC = () => {
   const [dash, setDash] = useState<any>(null);
   const [daily, setDaily] = useState<any>(null);
   const [notifications, setNotifications] = useState<NotificationDto[]>([]);
+  const [notifPage, setNotifPage] = useState(1);
+  const [notifTotal, setNotifTotal] = useState(0);
+  const NOTIF_PAGE_SIZE = 12;
   const [deviceStats, setDeviceStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (page: number = notifPage) => {
     setLoading(true);
     setError('');
     try {
@@ -35,14 +38,19 @@ export const CommandCenterPage: React.FC = () => {
       const [dashRes, trendRes, notifRes, devRes] = await Promise.allSettled([
         statsApi.getDashboard(),
         statsApi.getTrend(days),
-        notificationsApi.list({ page: 1, pageSize: 20 }),
+        notificationsApi.list({ page, pageSize: NOTIF_PAGE_SIZE }),
         deviceApi.getTodayStats(),
       ]);
       if (dashRes.status === 'fulfilled' && dashRes.value.success) setDash(dashRes.value.data);
       if (trendRes.status === 'fulfilled' && trendRes.value.success) setDaily(trendRes.value.data);
       if (notifRes.status === 'fulfilled' && notifRes.value.success) {
-        const data = notifRes.value.data as { items: NotificationDto[] };
-        setNotifications(data.items ?? []);
+        const payload = notifRes.value.data as unknown;
+        const items = Array.isArray(payload)
+          ? payload as NotificationDto[]
+          : ((payload as { items?: NotificationDto[] })?.items ?? []);
+        setNotifications(items);
+        const meta = (payload as { meta?: { total?: number }; total?: number });
+        setNotifTotal(meta?.total ?? meta?.meta?.total ?? items.length);
       }
       if (devRes.status === 'fulfilled' && devRes.value.success) setDeviceStats(devRes.value.data);
       if (dashRes.status === 'fulfilled' && !dashRes.value.success) {
@@ -53,11 +61,11 @@ export const CommandCenterPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [timeRange]);
+  }, [timeRange, notifPage]);
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    void load(notifPage);
+  }, [load, notifPage]);
 
   const trend = useMemo(() => {
     const data = Array.isArray(daily) ? daily : [];
@@ -87,16 +95,16 @@ export const CommandCenterPage: React.FC = () => {
         <Tag color="cyan">实时</Tag>
         <Space>
           {['today', 'week', 'month'].map((t) =>
-            <Button key={t} type={timeRange === t ? 'primary' : 'default'} size="small" onClick={() => setTimeRange(t)}>
+            <Button key={t} type={timeRange === t ? 'primary' : 'default'} size="small" onClick={() => { setNotifPage(1); setTimeRange(t); }}>
               {t === 'today' ? '今日' : t === 'week' ? '近 7 日' : '近 30 日'}
             </Button>)}
-          <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>刷新</Button>
+          <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load(notifPage)} loading={loading}>刷新</Button>
         </Space>
       </Space>
 
       {error && (
         <Alert type="error" showIcon style={{ marginBottom: 16 }} message={error}
-          action={<Button size="small" onClick={() => void load()}>重试</Button>} />
+          action={<Button size="small" onClick={() => void load(notifPage)}>重试</Button>} />
       )}
 
       <Spin spinning={loading && !dash}>
@@ -129,7 +137,7 @@ export const CommandCenterPage: React.FC = () => {
             ) : (
               <List
                 size="small"
-                dataSource={notifications.slice(0, 12)}
+                dataSource={notifications}
                 renderItem={(n) => (
                   <List.Item>
                     <Space>
@@ -140,6 +148,7 @@ export const CommandCenterPage: React.FC = () => {
                     </Space>
                   </List.Item>
                 )}
+                pagination={{ current: notifPage, pageSize: NOTIF_PAGE_SIZE, total: notifTotal, onChange: setNotifPage, showSizeChanger: false }}
               />
             )}
           </Card></Col>

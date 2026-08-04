@@ -13,6 +13,7 @@ interface TimelineEvent {
 }
 
 interface NextAppointment {
+  id?: string;
   date: string;
   dept: string;
   doctor: string;
@@ -59,6 +60,7 @@ export const PatientPortalPage: React.FC = () => {
           const data = apptRes.value.data as AppointmentDto[];
           if (Array.isArray(data)) {
             setNextAppts(data.slice(0, 5).map((a) => ({
+              id: a.id,
               date: a.startAt || '',
               dept: a.deviceName || '-',
               doctor: a.referringDoctor || '-',
@@ -116,7 +118,7 @@ export const PatientPortalPage: React.FC = () => {
           <Row gutter={16}>
             <Col span={12}>
               <Card size="small" title={<Space><Calendar size={14}/>近期预约</Space>}>
-                <Table dataSource={nextAppts} rowKey="date" pagination={false}
+                <Table dataSource={nextAppts} rowKey={(r) => r.id || `${r.date}-${r.type}`} pagination={false}
                   columns={[{title:'时间',dataIndex:'date'},{title:'科室',dataIndex:'dept'},{title:'医生',dataIndex:'doctor'},{title:'类型',dataIndex:'type'}]} />
               </Card>
             </Col>

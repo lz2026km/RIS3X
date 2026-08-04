@@ -20,7 +20,14 @@ const PRIORITY_CONFIG: Record<string, { bg: string; color: string; label: string
 const MODALITY_LIST = ['CT', 'MR', 'DR', 'DSA', 'MG', 'GI']
 const PATIENT_TYPE_LIST = ['门诊', '住院', '急诊', '体检']
 const PRIORITY_LIST = ['普通', '紧急', '危重', '会诊']
-const STATUS_LIST = ['已登记', '待检查', '检查中', '待报告', '已报告', '已发布', '已取消', '已暂停', '质控退回']
+// 状态筛选: 显示中文, 过滤用英文规范值 (EXAM_STATUS_MAP)
+const STATUS_OPTIONS: Array<{ label: string; value: string }> = [
+  { label: '已登记', value: 'SCHEDULED' },
+  { label: '已报到', value: 'ARRIVED' },
+  { label: '检查中', value: 'IN_PROGRESS' },
+  { label: '已完成', value: 'COMPLETED' },
+  { label: '已取消', value: 'CANCELLED' },
+]
 
 const getDoctorById = (doctorId: string) => initialUsers.find(u => u.id === doctorId)
 
@@ -277,8 +284,8 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
               状态
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-              {STATUS_LIST.map(s => (
-                <FilterChip key={s} label={s} active={filters.statuses.includes(s)} onClick={() => toggleArrayFilter('statuses', s)} />
+              {STATUS_OPTIONS.map(s => (
+                <FilterChip key={s.value} label={s.label} active={filters.statuses.includes(s.value)} onClick={() => toggleArrayFilter('statuses', s.value)} />
               ))}
             </div>
           </div>
@@ -672,11 +679,11 @@ interface QuickFilterProps {
 export function QuickFilters({ currentFilters, onApply }: QuickFilterProps) {
   const quickViews = [
     { label: '全部', icon: <ListChecks size={12} />, filter: {} },
-    { label: '待检查', icon: <Clock size={12} />, filter: { statuses: ['已登记', '待检查'] } },
-    { label: '检查中', icon: <Activity size={12} />, filter: { statuses: ['检查中'] } },
-    { label: '待报告', icon: <FileText size={12} />, filter: { statuses: ['待报告'] } },
+    { label: '待检查', icon: <Clock size={12} />, filter: { statuses: ['SCHEDULED', 'ARRIVED'] } },
+    { label: '检查中', icon: <Activity size={12} />, filter: { statuses: ['IN_PROGRESS'] } },
+    { label: '已完成', icon: <FileText size={12} />, filter: { statuses: ['COMPLETED'] } },
     { label: '急诊优先', icon: <AlertTriangle size={12} />, filter: { priorities: ['危重', '紧急'] } },
-    { label: '今日', icon: <Calendar size={12} />, filter: { dateStart: new Date().toISOString().split('T')[0], dateEnd: new Date().toISOString().split('T')[0] } },
+    { label: '今日', icon: <Calendar size={12} />, filter: { dateStart: new Date().toISOString().split('T')[0] ?? '', dateEnd: new Date().toISOString().split('T')[0] ?? '' } },
   ]
 
   return (

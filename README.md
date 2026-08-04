@@ -1,4 +1,4 @@
-﻿# G005 放射科 RIS 系统 v3.0.6.11-62
+﻿# G005 放射科 RIS 系统 v3.0.6.11-70
 
 > **企业级放射信息系统 · 对标前 10 大 PACS/RIS 厂商** · 17 模块 / 9,000+ R3 点完整实施
 
@@ -14,7 +14,7 @@
 
 G005 是面向**三级甲等综合医院**的企业级放射信息系统(RIS)，对标全球前 10 大 PACS/RIS 厂商（GE、Siemens、Philips、Fujifilm、Carestream、Agfa、Canon、Hologic、Intelerad、Mach7），涵盖从 AI 辅助到患者门户的完整放射科工作流。
 
-**版本迭代**: v3.0.0 → v3.0.6.11-62（17 模块，9,000+ 升级点，**后端 251 端点 + IndexedDB 持久化**）
+**版本迭代**: v3.0.0 → v3.0.6.11-70（17 模块，9,000+ 升级点，**后端 251 端点 + IndexedDB 持久化**）
 
 ### v3.0.6.8-40 眼科深化 (7 PR 并行, 对标 Topcon Synergy 8.0)
 
@@ -264,7 +264,7 @@ g005-radiology-ris/
 | v3.0.5.1          | 修复 MSW 路径 + 最终发布                                                     |   ✅ 完成   |
 | v3.0.6.1          | 4 PACS 厂商 MVP (GE/Siemens/Philips/Canon)                                   |   ✅ 完成   |
 | v3.0.6.8-xx       | 17 模块 9,000+ 升级点 + 眼科深化                                             |   ✅ 完成   |
-| **v3.0.6.11-62**  | **严格审查+21文件编码修复+安全P0修复+TOTP改造+14端点对接+Mock清理+窗位完善** | ✅ **当前** |
+| **v3.0.6.11-70**  | **严格审查+21文件编码修复+安全P0修复+TOTP改造+14端点对接+Mock清理+窗位完善** | ✅ **当前** |
 | v3.0.6.11-33      | 251 端点 + 12 Store + 40 报表 + 按钮-Tab 真实可达性审计 + 200 路由回归       |   ✅ 完成   |
 | v3.0.6.2          | 修复 9 项导航点击报错                                                        |   ✅ 完成   |
 | v3.0.6.3          | 全面审查修复 25 项问题（20 agent）                                           |   ✅ 完成   |
@@ -304,7 +304,7 @@ G005 v3.0.6.11-40 由 **DeepSeek-v4-Flash** 多 Agent 协作完成，共 17 个 
 
 ---
 
-**v3.0.6.11-62** — 17 模块 · 9,000+ 点 · 10 大厂商对标 · 17 agent 并行  
+**v3.0.6.11-70** — 17 模块 · 9,000+ 点 · 10 大厂商对标 · 17 agent 并行  
 **站点**: [https://lz2026km.github.io/g005-radiology-ris](https://lz2026km.github.io/g005-radiology-ris)  
 **仓库**: [github.com/lz2026km/g005-radiology-ris](https://github.com/lz2026km/g005-radiology-ris)  
 **平台**: React 18 + TypeScript + Vite + Antd + XState 5 + Recharts

@@ -13,6 +13,7 @@ import {
   Button,
   Alert,
   Empty,
+  message,
 } from "antd";
 import {
   Clock,
@@ -205,6 +206,31 @@ export default function TatDashboardPage() {
 
   const maxCount = Math.max(...modalityRows.map((d) => d.examCount), 1);
 
+  // 导出当前筛选表格数据 (CSV blob)
+  const handleExport = () => {
+    const esc = (v: unknown) => {
+      const s = String(v ?? "");
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const lines: string[] = ["设备,检查数,报告数,平均TAT(min),按时完成率(%)"];
+    for (const r of filteredModalityRows) {
+      lines.push([r.modality, r.examCount, r.reportCount, r.avgTatMinutes, r.timelyRate].map(esc).join(","));
+    }
+    lines.push("");
+    lines.push("医生,检查数,平均TAT(min),按时完成率(%)");
+    for (const r of filteredDoctorRows) {
+      lines.push([r.doctor, r.count, r.avgTatMinutes, r.timelyRate].map(esc).join(","));
+    }
+    const blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `TAT报表_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    message.success(`已导出 ${filteredModalityRows.length} 设备 + ${filteredDoctorRows.length} 医生 TAT 数据`);
+  };
+
   const columns: ColumnsType<ModalityTatRow> = [
     {
       title: "设备",
@@ -326,7 +352,7 @@ export default function TatDashboardPage() {
             >
               刷新
             </Button>
-            <Button icon={<Download size={14} />}>导出</Button>
+            <Button icon={<Download size={14} />} onClick={handleExport}>导出</Button>
           </Space>
         </div>
       </div>

@@ -250,6 +250,42 @@ export const integrationHandlers = [
   
   http.post(`${API_BASE}/integration/cda/:id/parse`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { sections: [] } }); }),
   http.get(`${API_BASE}/integration/cda/:id/download`, async () => { await delay(150); return HttpResponse.json({ success: true, data: { content: '<?xml...', mime: 'application/cda+xml' } }); }),
+
+  // 3.1b HL7 SIU^S12 (排班消息生成 + 解析)
+  http.post(`${API_BASE}/hl7/siu`, async ({ request }) => {
+    await delay(200);
+    const body = (await request.json()) as any;
+    const now = new Date();
+    const controlId = `SIU-G005-${body.patientId}-${now.getTime()}`;
+    const fmt = (dt: string) => new Date(dt).toISOString().replace(/[-:T.Z]/g, '').slice(0, 14);
+    const msh = `MSH|^~\\&|G005_RIS|G005|HIS|HOSPITAL|${fmt(now.toISOString())}||SIU^S12|${controlId}|P|2.5.1`;
+    const pid = `PID|1||${body.patientId}^^^G005^MR||${body.patientName}^${body.patientName}||${body.patientSex || 'M'}||||||`;
+    const sch = `SCH|1||${body.doctorId}^^^G005^DR||${body.doctorName}|${body.department}|||${fmt(body.startDateTime)}|${fmt(body.endDateTime)}`;
+    const message = [msh, pid, sch, body.note ? `NTE|1|${body.note}` : ''].filter(Boolean).join('\r');
+    return HttpResponse.json({
+      success: true,
+      data: { controlId, messageType: 'SIU^S12', message, generatedAt: now.toISOString(), bytes: message.length },
+    });
+  }),
+  http.post(`${API_BASE}/hl7/siu/parse`, async ({ request }) => {
+    await delay(80);
+    const body = (await request.json()) as any;
+    const result: Record<string, string> = {};
+    for (const line of String(body.raw ?? '').split('\r')) {
+      const s = line.split('|');
+      if (line.startsWith('MSH')) {
+        result['sendingApp'] = s[2] || ''; result['sendingFacility'] = s[3] || '';
+        result['receivingApp'] = s[4] || ''; result['receivingFacility'] = s[5] || '';
+        result['messageType'] = s[8] || ''; result['controlId'] = s[9] || '';
+      } else if (line.startsWith('PID')) {
+        result['patientId'] = s[3]?.split('^')[0] || ''; result['patientName'] = s[5]?.split('^')[0] || ''; result['patientSex'] = s[8] || '';
+      } else if (line.startsWith('SCH')) {
+        result['doctorId'] = s[3]?.split('^')[0] || ''; result['doctorName'] = s[5] || ''; result['department'] = s[6] || '';
+        result['startDateTime'] = s[9] || ''; result['endDateTime'] = s[10] || '';
+      }
+    }
+    return HttpResponse.json({ success: true, data: result });
+  }),
   
   
 

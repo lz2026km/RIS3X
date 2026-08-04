@@ -3,18 +3,22 @@ import { Card, Table, Button, Space, Tag, Form, Input, Select, message, Empty, M
 import { Layers, Search, RefreshCw, Eye } from 'lucide-react'
 import { fhirApi, type FhirImagingStudy } from '../../services/api/fhirApi'
 
+const PAGE_SIZE = 10
+
 export const FhirImagingStudyPage: React.FC = () => {
   const [studies, setStudies] = useState<FhirImagingStudy[]>([])
   const [loading, setLoading] = useState(false)
   const [total, setTotal] = useState(0)
+  const [page, setPage] = useState(1)
+  const [search, setSearch] = useState<{ patient?: string; modality?: string }>({})
   const [searchForm] = Form.useForm()
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedStudy, setSelectedStudy] = useState<FhirImagingStudy | null>(null)
 
-  const fetchStudies = useCallback(async (params?: { patient?: string; modality?: string; _count?: string }) => {
+  const fetchStudies = useCallback(async (p: number = 1, params: { patient?: string; modality?: string } = {}) => {
     setLoading(true)
     try {
-      const res = await fhirApi.searchImagingStudy({ _count: '20', ...params })
+      const res = await fhirApi.searchImagingStudy({ _count: '200', ...params, page: String(p) })
       if (res.success && res.data) {
         const entries = res.data.entry || []
         setStudies(entries.map((e) => e.resource as FhirImagingStudy))
@@ -31,11 +35,12 @@ export const FhirImagingStudyPage: React.FC = () => {
     setLoading(false)
   }, [])
 
-  useEffect(() => { fetchStudies() }, [fetchStudies])
+  useEffect(() => { fetchStudies(page, search) }, [fetchStudies, page, search])
 
   const handleSearch = async () => {
     const values = searchForm.getFieldsValue()
-    fetchStudies({ patient: values.patient, modality: values.modality })
+    setSearch({ patient: values.patient, modality: values.modality })
+    setPage(1)
   }
 
   const columns = [
@@ -120,7 +125,7 @@ export const FhirImagingStudyPage: React.FC = () => {
           <Form.Item>
             <Space>
               <Button type="primary" icon={<Search size={14} />} htmlType="submit" loading={loading}>搜索</Button>
-              <Button icon={<RefreshCw size={14} />} onClick={() => { searchForm.resetFields(); fetchStudies() }}>刷新</Button>
+              <Button icon={<RefreshCw size={14} />} onClick={() => { searchForm.resetFields(); setSearch({}); setPage(1) }}>刷新</Button>
             </Space>
           </Form.Item>
         </Form>
@@ -128,11 +133,11 @@ export const FhirImagingStudyPage: React.FC = () => {
 
       <Card size="small" title={`ImagingStudy 列表 (${total})`}>
         <Table
-          dataSource={studies}
+          dataSource={studies.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)}
           columns={columns}
           rowKey="id"
           loading={loading}
-          pagination={{ total, pageSize: 10 }}
+          pagination={{ current: page, total, pageSize: PAGE_SIZE, onChange: setPage, showSizeChanger: false }}
           size="small"
         />
       </Card>

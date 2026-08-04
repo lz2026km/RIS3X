@@ -1,5 +1,41 @@
 ﻿# CHANGELOG
 
+## v3.0.6.11-70 (2026-08-03) — 全代码审查修复：报告主流程/Worklist/预约联动/危急值/状态机/空按钮/分页
+
+> **目标**: 全代码审查（前端/中台/后端参数、页码、控件、表格、按键、逻辑、业务关系、业务输出）全方位修复
+> **范围**: 11 agents 四波实施——前端真实化 5 + 分页表格 2 + 后端真实化 4（106 suites/1093 tests）
+
+### Phase A: P0 前端真实化（5 agents）
+
+- **A1 报告书写主流程**：ReportWritePage 保存/提交接真实 API（PATCH/POST /reports + transition SUBMITTED）、reportId 从路由/列表获取、自动保存真实化；ReportReviewPage 审核接 transition（REVIEWED/REJECTED+原因）、当前用户 useAuth；ReportExportPage 接 POST /reports/:id/export 真实下载 + KPI 真实统计；writingService 关键方法真实化
+- **A2 Worklist 真实化**：新建 src/utils/statusMaps.ts（Exam/Report 22 态中英映射+别名归一化）；签到/批量/修改患者/分配设备接真实 API；统计卡真实；WorklistToolbar/ListView/CardView/KanbanView/DetailDrawer 状态统一
+- **A3 预约→检查联动**：Appointment 表补 patientName/bodyPart/endAt/priority/createdById + 事务内联动创建 Exam（工作列表立即可见）；补 5 子路由（rules/waitlist/reminders/reschedules/cancellations 注册于 :id 前）；前端创建改服务端返回为准 + 4 Tab 接真端点
+- **A4 危急值链路**：补 GET /criticals/stats 聚合端点 + value5step/list + notify schema 放宽（前端补字段）
+- **A5 空按钮批量修复 19 项**：ReportPhraseBank 新建/编辑/评分、Materials 明细 Modal、EmrTemplates 编辑/复制/添加诊断、RadsCalculator 导入导出、TatDashboard CSV 导出、AutoCollection 新建规则、PromptLibrary 新建模板、ChatRoom 4 功能键、DicomShare 下载/共享、AiDraft 全部接受提交、Orchestrator 部署、Hl7Siu 预览/发送、SidebarPanel 报告跳转、AuditPage 导出（后端补 /audit/export CSV）、DicomViewer 相似病例检索、Dental 导出 STL/导板
+
+### Phase B: 分页/表格/表单（2 agents）
+
+- **B1 分页 12 处**：Fhir 4 页补 current/onChange 触发请求；V3ReportHub/CommandCenter 解硬编码 page；AIQCPage 手写分页补 onClick；ReviewCheck/SignAmend/NotificationTemplateDict/5 Dental 页去 pageSize 硬编码改真实分页
+- **B2 表格表单 9 项**：3 处 rowKey 修复；DentalSchedulePage DatePicker 受控 + PSR 保存 loading；SlaPolicyPage 删除接 DELETE API；DentalInventoryPage 接 addInventoryItem；NotificationTemplateDict Form.Item 补 name；HsmConfig localStorage 持久化；BackupPage 选择不自动触发
+
+### Phase C: P0 后端真实化（4 agents）
+
+- **C1 报告状态机**：21 态转移矩阵（WRITING→PUBLISHED 等非法跳转 400）+ 副作用落库（SIGNED 写 signedAt、REVIEWED 写 reviewerId、REJECTED 必填原因、AMENDED 计数、PUBLISHED 写 publishedAt）+ PATCH 旁路封堵（UpdateReportSchema 去 state、update 只取内容字段）
+- **C2 外键+删除级联**：CriticalValue.examId 加 FK(SetNull) + patientId 字段；Patient 软删除（deletedAt + 查询过滤）；Exam 删除友好错误；criticals 创建带出 patientId
+- **C3 tenant 校验 + oee 真实化**：tenant 4 写端点补 zod（profile/features/create/status 枚举）；oee 确定性 PRNG（FNV-1a+mulberry32）+ Exam 真实统计（availability/performance/quality/OEE 公式）+ 停止随机值写库
+- **C4 空 service 落库 6 模块**：cad 确定性病灶+真实实例；cross-modal 查 Exam/Report 真实检索；dual-read 新 DualReadAssignment 模型落库+确定性指派（修移位 bug）；dicom-4d 真实 series 聚合；radiomics 确定性抖动+落库；ai-draft 确定性置信度+落库
+
+### 附带修复
+
+- UserManagementPage "批量保存" onSave 未定义引用 + ROLE_META 中文角色兼容（浏览器实测修复）
+- 全库 tsc 错误清理（Appointment schema 漂移、过期 spec 删除等）
+
+### 验证结果
+
+- 后端: tsc 0 错误、**jest 106 suites / 1093 tests 全部通过**
+- 前端: vite build 成功（44s）、Playwright 回归 **35/35**（v30607 20/20）
+- 浏览器实测: 报告保存/审核/导出真实链路、Worklist 签到持久化、预约→工作列表联动、用户管理页修复
+
 ## v3.0.6.11-62 (2026-08-03) — 移动App Capacitor+DBT断层+3D分割定量+影像级相似检索
 
 > **目标**: 对标前十大 PACS 剩余功能（移动原生/乳腺断层/3D 分割/影像检索），对标完成度向 70%+ 推进
@@ -122,7 +158,7 @@
 
 ### Phase 0: 10×80 对标文档
 
-- 新增 `docs/PACS_BENCHMARK_V3.0.6.11-62.md`：10 厂商 × 80 项功能矩阵（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/Change Healthcare/Infinitt）
+- 新增 `docs/PACS_BENCHMARK_V3.0.6.11-70.md`：10 厂商 × 80 项功能矩阵（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/Change Healthcare/Infinitt）
 - G005 完成度 38.8%（31✅/30🟡/19❌），对标 Sectra 87.5%/GE 85.0%
 - 四阶段路线图：Phase1 修复断裂点（本次）→ Phase2 mock 降级/覆盖率 → Phase3 AI Orchestrator/BI/剂量 → Phase4 云部署/环境式报告
 
@@ -231,16 +267,16 @@
 
 ### F18: 版本号全量统一 + 文档
 
-- package.json → 3.0.6.11-62（含 package-lock.json）
-- backend/package.json → 3.0.6.11-62
-- index.html title + window.__appVersion → v3.0.6.11-62
-- src/main.tsx APP_VERSION → v3.0.6.11-62
-- backend/src/main.ts + app.module.ts → v3.0.6.11-62
-- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-62
-- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-62
-- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-62
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-62
-- CHANGELOG.md 新增 v3.0.6.11-62 条目
+- package.json → 3.0.6.11-70（含 package-lock.json）
+- backend/package.json → 3.0.6.11-70
+- index.html title + window.__appVersion → v3.0.6.11-70
+- src/main.tsx APP_VERSION → v3.0.6.11-70
+- backend/src/main.ts + app.module.ts → v3.0.6.11-70
+- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-70
+- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-70
+- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-70
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-70
+- CHANGELOG.md 新增 v3.0.6.11-70 条目
 
 ### 验证结果
 
@@ -251,10 +287,10 @@
 
 ---
 
-## v3.0.6.11-62 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
+## v3.0.6.11-70 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
 
 > **目标**: 后端深度修复 + 安全加固 + 类型修复 + 测试验证 + 性能检查 + 版本号全量统一
-> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-62
+> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-70
 
 ### A13: 后端安全加固
 
@@ -285,19 +321,19 @@
 
 ### A19: 版本号全量统一
 
-- backend/package.json → 3.0.6.11-62
-- backend/src/main.ts → Swagger version + log message → v3.0.6.11-62
-- backend/src/app.module.ts → v3.0.6.11-62
-- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-62
-- index.html title + window.__appVersion → v3.0.6.11-62
-- src/i18n/appI18n.ts → v3.0.6.11-62
-- src/main.tsx APP_VERSION → v3.0.6.11-62
-- src/routes/routeTable.tsx → v3.0.6.11-62
-- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-62
-- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-62
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-62
-- CONTRIBUTING.md → v3.0.6.11-62
-- CHANGELOG.md 新增 v3.0.6.11-62 条目
+- backend/package.json → 3.0.6.11-70
+- backend/src/main.ts → Swagger version + log message → v3.0.6.11-70
+- backend/src/app.module.ts → v3.0.6.11-70
+- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-70
+- index.html title + window.__appVersion → v3.0.6.11-70
+- src/i18n/appI18n.ts → v3.0.6.11-70
+- src/main.tsx APP_VERSION → v3.0.6.11-70
+- src/routes/routeTable.tsx → v3.0.6.11-70
+- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-70
+- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-70
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-70
+- CONTRIBUTING.md → v3.0.6.11-70
+- CHANGELOG.md 新增 v3.0.6.11-70 条目
 
 ### 验证结果
 

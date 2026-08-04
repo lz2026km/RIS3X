@@ -22,10 +22,9 @@ const CreateReportSchema = z.object({
   conclusion: z.string().default(''),
 })
 
-const UpdateReportSchema = z.object({
+export const UpdateReportSchema = z.object({
   findings: z.string().optional(),
   conclusion: z.string().optional(),
-  state: ReportStateEnum.optional(),
 })
 
 @ApiTags('reports')
@@ -75,10 +74,22 @@ export class ReportsController {
   @Post(':id/transition')
   transition(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(z.object({ to: ReportStateEnum, actorId: z.string().min(1), reason: z.string().optional() })))
-    body: { to: z.infer<typeof ReportStateEnum>; actorId: string; reason?: string }
+    @Body(new ZodValidationPipe(z.object({ to: ReportStateEnum, actorId: z.string().min(1).optional(), reason: z.string().optional() })))
+    body: { to: z.infer<typeof ReportStateEnum>; actorId?: string; reason?: string },
+    @Req() req: Request,
   ) {
-    return this.reports.transition(id, body.to as any, body.actorId, body.reason)
+    const actorId = (req.user as { id?: string } | undefined)?.id ?? body.actorId ?? 'unknown'
+    return this.reports.transition(id, body.to as any, actorId, body.reason)
+  }
+
+  @Post(':id/export')
+  exportReport(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(z.object({ format: z.string().default('pdf') }))) body: { format: string },
+    @Req() req: Request,
+  ) {
+    const actorId = (req.user as { id?: string } | undefined)?.id ?? 'unknown'
+    return this.reports.exportReport(id, body.format, actorId)
   }
 
   @Get(':id/diff')

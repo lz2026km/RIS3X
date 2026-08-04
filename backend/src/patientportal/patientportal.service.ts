@@ -191,6 +191,7 @@ export class PatientPortalService {
       data: {
         tenantId: getCurrentTenantId(),
         patientId: dto.patientId,
+        patientName: patient.name,
         modality: dto.modality,
         deviceId: dto.deviceId,
         scheduledAt,

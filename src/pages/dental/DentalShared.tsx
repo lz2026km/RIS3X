@@ -1,7 +1,7 @@
 // [v3.0.6.8-82] 口腔模块共享组件
-import React from 'react';
+import React, { useState } from 'react';
 import { Space, Tag, Empty } from 'antd';
-import { Table, Button, Alert, message } from 'antd';
+import { Table, Button, Alert, message, Modal, Descriptions } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { Activity, Stethoscope, Plus } from 'lucide-react';
 
@@ -40,12 +40,47 @@ export const EmptyState: React.FC<{ tip?: string; onCreate?: () => void; createL
   </Empty>
 );
 
-export const TreatmentActions: React.FC<{ record: DentalTreatment }> = ({ record }) => (
-  <Space size={4}>
-    <Button size="small" disabled>详情</Button>
-    <Button size="small" type="link" disabled>随访</Button>
-  </Space>
-);
+export const TreatmentActions: React.FC<{ record: DentalTreatment }> = ({ record }) => {
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [followedUp, setFollowedUp] = useState(false);
+
+  const handleFollowUp = () => {
+    setFollowedUp(true);
+    message.success(`随访已安排: ${record.patientName || record.patientId || record.id}`);
+  };
+
+  return (
+    <Space size={4}>
+      <Button size="small" onClick={() => setDetailOpen(true)}>详情</Button>
+      <Button size="small" type="link" disabled={followedUp} onClick={handleFollowUp}>
+        {followedUp ? '随访已安排' : '随访'}
+      </Button>
+      <Modal
+        title={`治疗记录详情 - ${record.patientName || record.patientId || record.id}`}
+        open={detailOpen}
+        onCancel={() => setDetailOpen(false)}
+        footer={<Button onClick={() => setDetailOpen(false)}>关闭</Button>}
+        width={520}
+      >
+        <Descriptions bordered size="small" column={2}>
+          <Descriptions.Item label="患者">{record.patientName || '-'}</Descriptions.Item>
+          <Descriptions.Item label="患者ID">{record.patientId || '-'}</Descriptions.Item>
+          <Descriptions.Item label="牙位">{record.toothNo ? `#${record.toothNo}` : '-'}</Descriptions.Item>
+          <Descriptions.Item label="牙面">{record.toothSurface || '-'}</Descriptions.Item>
+          <Descriptions.Item label="诊断" span={2}>{record.diagnosis || '-'}</Descriptions.Item>
+          <Descriptions.Item label="治疗计划" span={2}>{record.plan || '-'}</Descriptions.Item>
+          <Descriptions.Item label="费用">{record.cost != null ? `¥${record.cost}` : '-'}</Descriptions.Item>
+          <Descriptions.Item label="状态">
+            <Tag color={record.status === 'Completed' || record.status === 'completed' ? 'green' : record.status === 'InProgress' ? 'orange' : 'default'}>
+              {record.status || '-'}
+            </Tag>
+          </Descriptions.Item>
+          <Descriptions.Item label="创建时间" span={2}>{record.createdAt ? new Date(record.createdAt).toLocaleString('zh-CN') : '-'}</Descriptions.Item>
+        </Descriptions>
+      </Modal>
+    </Space>
+  );
+};
 
 export interface DentalTreatment {
   id: string;

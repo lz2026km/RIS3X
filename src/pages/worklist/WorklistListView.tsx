@@ -15,12 +15,18 @@ import {
   initialUsers,
 } from "../../data/initialData";
 import type { RadiologyExam } from "../../types";
+import { displayExamStatus } from "../../utils/statusMaps";
 import { ProTable, type ProColumn } from "../../components/data/ProTable";
 
 const STATUS_CONFIG: Record<
   string,
   { bg: string; color: string; label: string; order: number }
 > = {
+  SCHEDULED: { bg: "#dbeafe", color: "#2563eb", label: "已登记", order: 0 },
+  ARRIVED: { bg: "#ede9fe", color: "#7c3aed", label: "已报到", order: 1 },
+  IN_PROGRESS: { bg: "#fce7f3", color: "#db2777", label: "检查中", order: 2 },
+  COMPLETED: { bg: "#d1fae5", color: "#059669", label: "已完成", order: 3 },
+  CANCELLED: { bg: "#fee2e2", color: "#ef4444", label: "已取消", order: 8 },
   已登记: { bg: "#dbeafe", color: "#2563eb", label: "已登记", order: 0 },
   待检查: { bg: "#ede9fe", color: "#7c3aed", label: "待检查", order: 1 },
   检查中: { bg: "#fce7f3", color: "#db2777", label: "检查中", order: 2 },
@@ -206,10 +212,10 @@ export function ListView({
       sorter: (a, b) =>
         (STATUS_CONFIG[a.status]?.order ?? 99) -
         (STATUS_CONFIG[b.status]?.order ?? 99),
-      filters: [...new Set(exams.map((exam) => exam.status))].map((value) => ({ text: value, value })),
+      filters: [...new Set(exams.map((exam) => exam.status))].map((value) => ({ text: displayExamStatus(value), value })),
       onFilter: (value, record) => record.status === value,
       render: (value) => {
-        const status = STATUS_CONFIG[String(value)] ?? { bg: "#f1f5f9", color: "#64748b", label: String(value) };
+        const status = STATUS_CONFIG[String(value)] ?? { bg: "#f1f5f9", color: "#64748b", label: displayExamStatus(String(value)) };
         return <span style={{ background: status.bg, color: status.color, padding: "3px 10px", borderRadius: 12, fontWeight: 600 }}>{status.label}</span>;
       },
     },

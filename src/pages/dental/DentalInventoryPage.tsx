@@ -10,6 +10,7 @@ export const DentalInventoryPage: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [form] = Form.useForm();
   const [detail, setDetail] = useState<any | null>(null);
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -27,14 +28,39 @@ export const DentalInventoryPage: React.FC = () => {
   }, []);
   const lowCount = items.filter(i => i.stock < i.minStock).length;
   const unitLabels: Record<string, string> = { pcs: '件', tube: '支', set: '套', box: '盒', ml: '毫升', g: '克' };
-  const onCreate = () => {
-    form.validateFields().then((v) => {
-      const newItem = { id: `INV-${String(items.length + 1).padStart(3, '0')}`, ...v, stock: 0 };
-      setItems((prev) => [...prev, newItem]);
-      setModalOpen(false);
-      form.resetFields();
-      message.success(`已新增库存项 ${newItem.id}`);
-    }).catch((err) => { console.error('[F04]', err); });
+  const loadInventory = async () => {
+    try {
+      const res = await dentalApi.listInventory();
+      if (res.success && Array.isArray(res.data)) {
+        setItems(res.data);
+      }
+    } catch (err) { console.error('[F04]', err); }
+  };
+  const onCreate = async () => {
+    let values: any;
+    try {
+      values = await form.validateFields();
+    } catch (err) {
+      console.error('[F04]', err);
+      return;
+    }
+    setCreating(true);
+    try {
+      const res = await dentalApi.addInventoryItem({ ...values, stock: 0 });
+      if (res.success) {
+        setModalOpen(false);
+        form.resetFields();
+        message.success('已新增库存项');
+        await loadInventory();
+      } else {
+        message.error('创建失败: ' + (res.error?.message || '未知错误'));
+      }
+    } catch (err) {
+      console.error('[F04]', err);
+      message.error('创建失败，请重试');
+    } finally {
+      setCreating(false);
+    }
   };
   const onAdjust = (delta: number) => {
     if (!detail) return;
@@ -61,7 +87,7 @@ export const DentalInventoryPage: React.FC = () => {
           { title: '操作', width: 100, render: (_, r: any) => (<Button size="small" onClick={() => setDetail(r)}>详情</Button>) },
         ]} />
       )}
-      <Modal title="新增库存项" open={modalOpen} onCancel={() => setModalOpen(false)} onOk={onCreate} okText="创建">
+      <Modal title="新增库存项" open={modalOpen} onCancel={() => setModalOpen(false)} onOk={onCreate} confirmLoading={creating} okText="创建">
         <Form form={form} layout="vertical">
           <Form.Item label="名称" name="name" rules={[{ required: true }]}><Input /></Form.Item>
           <Form.Item label="类别" name="category">

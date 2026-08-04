@@ -7,21 +7,27 @@ import type { DentalTreatment } from "./DentalShared";
 export const DentalPediatricPage: React.FC = () => {
   const [treats, setT] = useState<DentalTreatment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const PAGE_SIZE = 10;
   const [modalOpen, setModalOpen] = useState(false);
   const [form] = Form.useForm();
   const load = () => {
     setLoading(true);
-    fetch("/api/v1/dental/treatments?type=Pediatric&pageSize=20")
+    fetch(`/api/v1/dental/treatments?type=Pediatric&page=${page}&pageSize=${PAGE_SIZE}`)
       .then((r) => r.json())
       .then((d) => {
-        if (d.success) setT(d.data);
+        if (d.success) {
+          setT(d.data);
+          setTotal(d.meta?.total ?? d.data?.length ?? 0);
+        }
         setLoading(false);
       })
       .catch(() => setLoading(false));
   };
   useEffect(() => {
     load();
-  }, []);
+  }, [page]);
   const onCreate = async () => {
     try {
       const v = await form.validateFields();
@@ -74,7 +80,7 @@ export const DentalPediatricPage: React.FC = () => {
         <Table
           rowKey="id"
           size="small"
-          pagination={{ pageSize: 10 }}
+          pagination={{ current: page, pageSize: PAGE_SIZE, total, onChange: setPage, showSizeChanger: false }}
           dataSource={treats}
           columns={[
             { title: "患者", dataIndex: "patientName", width: 100 },

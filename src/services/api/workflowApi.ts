@@ -115,6 +115,13 @@ export const workflowApi = {
     return res
   },
 
+  deleteSlaPolicy: async (id: string) => {
+    const res = await api.delete<void>(`/workflow/sla-policies/${id}`)
+    await invalidateApiCache(`/workflow/sla-policies/${id}`)
+    await invalidateApiCache('/workflow/sla-policies')
+    return res
+  },
+
   listRoutingRules: () =>
     api.get<RoutingRuleDto[]>('/workflow/routing-rules'),
 

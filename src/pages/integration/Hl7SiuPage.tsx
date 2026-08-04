@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { Card, Form, Input, Select, Button, Space, Typography, DatePicker, message, Tabs } from 'antd'
+import { Card, Form, Input, Select, Button, Space, Typography, DatePicker, message, Tabs, Drawer, Descriptions } from 'antd'
 import { CalendarClock, Send, Eye, Code } from 'lucide-react'
+import { hl7Api } from '../../services/api/hl7Api'
 
 const { Text, Title } = Typography
 const { TextArea } = Input
@@ -18,6 +19,9 @@ const Hl7SiuPage: React.FC = () => {
   const [siuResult, setSiuResult] = useState<SiuResult | null>(null)
   const [parseRaw, setParseRaw] = useState('')
   const [parsedResult, setParsedResult] = useState<Record<string, string> | null>(null)
+  const [previewOpen, setPreviewOpen] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [lastValues, setLastValues] = useState<any>(null)
 
   const handleGenerate = () => {
     form.validateFields().then(values => {
@@ -33,8 +37,38 @@ const Hl7SiuPage: React.FC = () => {
         message: msg,
         bytes: Buffer.byteLength ? Buffer.byteLength(msg, 'utf8') : msg.length,
       })
+      setLastValues(values)
       message.success('SIU^S12 消息已生成')
     })
+  }
+
+  // 发送：调用后端 POST /hl7/siu 生成并投递 SIU 消息
+  const handleSend = async () => {
+    if (!siuResult || !lastValues) { message.warning('请先生成消息'); return }
+    const [start, end] = lastValues.timeRange || []
+    setSending(true)
+    try {
+      const res = await hl7Api.siu({
+        patientId: lastValues.patientId,
+        patientName: lastValues.patientName,
+        patientSex: lastValues.sex || 'M',
+        doctorId: lastValues.doctorId,
+        doctorName: lastValues.doctorName,
+        department: lastValues.department,
+        startDateTime: start ? start.format('YYYY-MM-DDTHH:mm:ss') : '',
+        endDateTime: end ? end.format('YYYY-MM-DDTHH:mm:ss') : '',
+        note: 'SIU^S12 appointment scheduling',
+      })
+      if (res.success) {
+        message.success(`SIU^S12 已发送 (控制ID: ${siuResult.controlId})`)
+      } else {
+        message.error(res.error?.message || '发送失败')
+      }
+    } catch (e) {
+      message.error('发送请求失败')
+    } finally {
+      setSending(false)
+    }
   }
 
   const handleParse = () => {
@@ -93,8 +127,8 @@ const Hl7SiuPage: React.FC = () => {
                 <Text strong>消息内容:</Text>
                 <TextArea rows={8} value={siuResult.message} readOnly style={{ marginTop: 8, fontFamily: 'monospace' }} />
                 <Space style={{ marginTop: 16 }}>
-                  <Button icon={<Eye size={14} />} disabled>预览</Button>
-                  <Button type="primary" icon={<Send size={14} />} disabled>发送</Button>
+                  <Button icon={<Eye size={14} />} onClick={() => setPreviewOpen(true)}>预览</Button>
+                  <Button type="primary" icon={<Send size={14} />} loading={sending} onClick={() => void handleSend()}>发送</Button>
                 </Space>
               </div>
             )}
@@ -113,6 +147,36 @@ const Hl7SiuPage: React.FC = () => {
           </Card>
         )},
       ]} />
+
+      <Drawer
+        title={`SIU^S12 消息预览 - ${siuResult?.controlId ?? ''}`}
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        width={560}
+      >
+        {siuResult && (
+          <>
+            <Descriptions bordered size="small" column={1} style={{ marginBottom: 16 }}>
+              <Descriptions.Item label="控制ID">{siuResult.controlId}</Descriptions.Item>
+              <Descriptions.Item label="消息类型">{siuResult.messageType}</Descriptions.Item>
+              <Descriptions.Item label="字节数">{siuResult.bytes}</Descriptions.Item>
+              {lastValues && (
+                <>
+                  <Descriptions.Item label="患者">{lastValues.patientName} ({lastValues.patientId})</Descriptions.Item>
+                  <Descriptions.Item label="医生">{lastValues.doctorName} ({lastValues.doctorId})</Descriptions.Item>
+                  <Descriptions.Item label="科室">{lastValues.department}</Descriptions.Item>
+                  {lastValues.timeRange?.[0] && <Descriptions.Item label="开始时间">{lastValues.timeRange[0].format('YYYY-MM-DD HH:mm:ss')}</Descriptions.Item>}
+                  {lastValues.timeRange?.[1] && <Descriptions.Item label="结束时间">{lastValues.timeRange[1].format('YYYY-MM-DD HH:mm:ss')}</Descriptions.Item>}
+                </>
+              )}
+            </Descriptions>
+            <Text strong>完整消息:</Text>
+            <pre style={{ background: '#f6f8fa', padding: 12, borderRadius: 6, fontSize: 12, overflow: 'auto', marginTop: 8 }}>
+              {siuResult.message}
+            </pre>
+          </>
+        )}
+      </Drawer>
     </div>
   )
 }

@@ -5,19 +5,21 @@ import { z } from 'zod'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
 import { CriticalsService, NotifyDto, EscalateDto, VoiceCallDto, ClinicalReceiptDto } from './criticals.service'
 
-const ChannelEnum = z.enum(['SMS', 'WECHAT', 'PHONE', 'DINGTALK', 'APP'])
+const ChannelEnum = z.enum(['SMS', 'WECHAT', 'PHONE', 'DINGTALK', 'APP', 'SYSTEM', 'EMAIL'])
 const CategoryEnum = z.enum(['LIFE_THREATENING', 'URGENT', 'IMPORTANT'])
 
+// 非必填字段由服务端从 criticalValue 记录带出(description→finding, severity→category),
+// 前端仍建议补全 patientName/patientId/finding 等关键字段以提升通知质量。
 const NotifySchema = z.object({
   criticalId: z.string().min(1),
-  patientName: z.string().min(1),
-  patientId: z.string().min(1),
-  category: CategoryEnum,
-  finding: z.string().min(1),
+  patientName: z.string().optional().default('未知患者'),
+  patientId: z.string().optional().default(''),
+  category: CategoryEnum.optional().default('URGENT'),
+  finding: z.string().optional().default('危急值'),
   channels: z.array(ChannelEnum).min(1),
-  recipientName: z.string().min(1),
-  recipientDept: z.string().min(1),
-  recipientPhone: z.string().min(1),
+  recipientName: z.string().optional().default('临床医生'),
+  recipientDept: z.string().optional().default('临床科室'),
+  recipientPhone: z.string().optional().default(''),
 })
 
 const EscalateSchema = z.object({
@@ -78,6 +80,11 @@ export class CriticalsController {
     })
   }
 
+  @Get('stats')
+  getStats() {
+    return this.service.getStats()
+  }
+
   @Get('stats/missed')
   getMissedStats() {
     return this.service.getMissedStats()
@@ -86,6 +93,11 @@ export class CriticalsController {
   @Get('stats/notification')
   getNotificationStats() {
     return this.service.getNotificationStats()
+  }
+
+  @Get('value5step/list')
+  getValue5StepList() {
+    return this.service.getValue5StepList()
   }
 
   @Get(':id')

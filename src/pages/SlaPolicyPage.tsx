@@ -20,6 +20,7 @@ export default function SlaPolicyPage() {
   const [editing, setEditing] = useState<SLAPolicyDto | null>(null);
   const [form] = Form.useForm();
   const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     loadPolicies();
@@ -107,9 +108,21 @@ export default function SlaPolicyPage() {
     }
   };
 
-  const handleDelete = (id: string) => {
-    setPolicies(prev => prev.filter(p => p.id !== id));
-    message.success('策略已删除（本地）');
+  const handleDelete = async (id: string) => {
+    setDeletingId(id);
+    try {
+      const res = await workflowApi.deleteSlaPolicy(id);
+      if (res.success) {
+        setPolicies(prev => prev.filter(p => p.id !== id));
+        message.success('策略已删除');
+      } else {
+        message.error(res.error?.message ?? '删除失败');
+      }
+    } catch {
+      message.error('删除失败');
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const columns: ColumnsType<SLAPolicyDto> = [
@@ -139,7 +152,7 @@ export default function SlaPolicyPage() {
           <Button size="small" icon={<Edit3 size={12} />} onClick={() => openEdit(record)}>编辑</Button>
           <Button size="small" icon={record.active ? <ToggleLeft size={12} /> : <ToggleRight size={12} />} onClick={() => toggleActive(record.id)}>{record.active ? '停用' : '启用'}</Button>
           <Popconfirm title="确定删除该策略?" onConfirm={() => handleDelete(record.id)} okText="确定" cancelText="取消">
-            <Button size="small" danger icon={<Trash2 size={12} />}>删除</Button>
+            <Button size="small" danger icon={<Trash2 size={12} />} loading={deletingId === record.id}>删除</Button>
           </Popconfirm>
         </Space>
       ),

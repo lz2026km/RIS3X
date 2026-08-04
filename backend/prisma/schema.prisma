@@ -106,6 +106,12 @@ enum AppointmentState {
   NO_SHOW
 }
 
+enum AppointmentPriority {
+  ROUTINE
+  URGENT
+  STAT
+}
+
 enum RadsCategory {
   BI_RADS
   LI_RADS
@@ -181,22 +187,24 @@ model User {
 }
 
 model Patient {
-  id        String      @id @default(cuid())
-  tenantId  String      @map("tenant_id")
-  name      String
-  gender    Gender
-  birthDate DateTime?   @map("birth_date")
-  idCard    String?     @unique @map("id_card")
-  phone     String?
-  type      PatientType @default(OUTPATIENT)
-  state     String      @default("registered")
-  reports   Report[]
-  exams     Exam[]
-  appointments Appointment[]
-  studies   EyeStudy[]
-  version   Int         @default(0)
-  createdAt DateTime    @default(now()) @map("created_at")
-  updatedAt DateTime    @updatedAt @map("updated_at")
+  id            String        @id @default(cuid())
+  tenantId      String        @map("tenant_id")
+  name          String
+  gender        Gender
+  birthDate     DateTime?     @map("birth_date")
+  idCard        String?       @unique @map("id_card")
+  phone         String?
+  type          PatientType   @default(OUTPATIENT)
+  state         String        @default("registered")
+  deletedAt     DateTime?     @map("deleted_at")
+  reports       Report[]
+  exams         Exam[]
+  appointments  Appointment[]
+  studies       EyeStudy[]
+  criticalValues CriticalValue[]
+  version       Int           @default(0)
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
 
   @@index([name, phone])
   @@index([tenantId])
@@ -219,6 +227,7 @@ model Exam {
   patient         Patient   @relation(fields: [patientId], references: [id], onDelete: Restrict)
   device          Device?   @relation(fields: [deviceId], references: [id])
   reports         Report[]
+  criticalValues  CriticalValue[]
   createdAt       DateTime  @default(now()) @map("created_at")
 
   @@index([patientId, modality])
@@ -240,7 +249,10 @@ model Report {
   recommendations    String               @default("")
   conclusion         String               @default("")
   signedAt           DateTime?            @map("signed_at")
+  signedById         String?              @map("signed_by_id")
   rejectReason       String?              @map("reject_reason")
+  reviewedAt         DateTime?            @map("reviewed_at")
+  publishedAt        DateTime?            @map("published_at")
   reviewerId         String?              @map("reviewer_id")
   coSignerId         String?              @map("co_signer_id")
   coSignedAt         DateTime?            @map("co_signed_at")
@@ -310,6 +322,7 @@ model CriticalValue {
   id                        String                      @id @default(cuid())
   tenantId                  String                      @map("tenant_id")
   examId                    String?                     @map("exam_id")
+  patientId                 String?                     @map("patient_id")
   description               String
   severity                  CriticalSeverity            @default(HIGH)
   state                     CriticalState               @default(FOUND)
@@ -327,25 +340,33 @@ model CriticalValue {
   resolvedAt                DateTime?                   @map("resolved_at")
   createdAt                 DateTime                    @default(now()) @map("created_at")
   updatedAt                 DateTime                    @updatedAt @map("updated_at")
+  exam                      Exam?                       @relation(fields: [examId], references: [id], onDelete: SetNull)
+  patient                   Patient?                    @relation(fields: [patientId], references: [id], onDelete: SetNull)
   CriticalValueNotification CriticalValueNotification[]
 
   @@index([state, severity])
   @@index([tenantId])
+  @@index([patientId])
   @@map("critical_values")
 }
 
 model Appointment {
-  id          String           @id @default(cuid())
-  tenantId    String           @map("tenant_id")
-  patientId   String           @map("patient_id")
-  deviceId    String?          @map("device_id")
+  id          String              @id @default(cuid())
+  tenantId    String              @map("tenant_id")
+  patientId   String              @map("patient_id")
+  deviceId    String?             @map("device_id")
   modality    String
-  scheduledAt DateTime         @map("scheduled_at")
-  state       AppointmentState @default(SCHEDULED)
-  version     Int              @default(0)
-  patient     Patient          @relation(fields: [patientId], references: [id], onDelete: Restrict)
-  device      Device?          @relation(fields: [deviceId], references: [id])
-  createdAt   DateTime         @default(now()) @map("created_at")
+  patientName String              @default("") @map("patient_name")
+  bodyPart    String?             @map("body_part")
+  scheduledAt DateTime            @map("scheduled_at")
+  endAt       DateTime?           @map("end_at")
+  priority    AppointmentPriority @default(ROUTINE)
+  createdById String?             @map("created_by_id")
+  state       AppointmentState    @default(SCHEDULED)
+  version     Int                 @default(0)
+  patient     Patient             @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  device      Device?             @relation(fields: [deviceId], references: [id])
+  createdAt   DateTime            @default(now()) @map("created_at")
 
   @@index([patientId])
   @@index([scheduledAt, state])
@@ -1608,4 +1629,34 @@ model SimilarCaseFeedback {
   @@index([tenantId])
   @@index([useful])
   @@map("similar_case_feedbacks")
+}
+
+// v3.0.6.11-70: 双人阅片分配 (dual-read) 持久化
+// reportId: 关联待分配报告 (assign 从 Report 表检索); reader1Id/reader2Id: 确定性指派的两名阅片医生
+// status: pending | reader1_done | reader2_done | both_done | arbitrated
+model DualReadAssignment {
+  id                String    @id @default(cuid())
+  reportId          String?   @map("report_id")
+  studyId           String?   @map("study_id")
+  patientId         String    @map("patient_id")
+  patientName       String    @map("patient_name")
+  modality          String
+  reader1Id         String    @map("reader1_id")
+  reader1Name       String    @map("reader1_name")
+  reader2Id         String    @map("reader2_id")
+  reader2Name       String    @map("reader2_name")
+  report1           String?
+  report2           String?
+  status            String    @default("pending")
+  discrepancyScore  Float?    @map("discrepancy_score")
+  arbitrationReport String?   @map("arbitration_report")
+  arbitratorId      String?   @map("arbitrator_id")
+  arbitratorName    String?   @map("arbitrator_name")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  @@index([reportId])
+  @@index([patientId])
+  @@index([status])
+  @@map("dual_read_assignments")
 }

@@ -47,16 +47,54 @@ export const REPORT_STATUS_LABELS: Record<ReportStatus, string> = {
 // ==================== 工作列表状态机 ====================
 export type WorklistStatus = 'pending' | 'checkedIn' | 'inProgress' | 'completed' | 'cancelled';
 
-const WORKLIST_TRANSITIONS: Record<WorklistStatus, WorklistStatus[]> = {
-  pending: ['checkedIn', 'cancelled'],
-  checkedIn: ['inProgress', 'cancelled'],
-  inProgress: ['completed', 'cancelled'],
-  completed: [],
-  cancelled: [],
+// G005 P0: 统一为后端规范英文状态 (SCHEDULED/ARRIVED/IN_PROGRESS/COMPLETED/CANCELLED)
+// 同时兼容旧 mock 状态机与历史中文状态。
+export const WORKLIST_STATUS_ALIASES: Record<string, string> = {
+  // 历史中文
+  待登记: 'SCHEDULED',
+  已登记: 'SCHEDULED',
+  待检查: 'SCHEDULED',
+  已报到: 'ARRIVED',
+  检查中: 'IN_PROGRESS',
+  已暂停: 'IN_PROGRESS',
+  待报告: 'COMPLETED',
+  已报告: 'COMPLETED',
+  已发布: 'COMPLETED',
+  已归档: 'COMPLETED',
+  已取消: 'CANCELLED',
+  质控退回: 'COMPLETED',
+  检查异常: 'COMPLETED',
+  // 旧 mock 状态机
+  pending: 'SCHEDULED',
+  checkedIn: 'ARRIVED',
+  inProgress: 'IN_PROGRESS',
+  completed: 'COMPLETED',
+  cancelled: 'CANCELLED',
+  // EXAM_REPORT_PRE 报告态
+  draft: 'SCHEDULED',
+  submitted: 'COMPLETED',
+  reviewed: 'COMPLETED',
+  cosigned: 'COMPLETED',
+  published: 'COMPLETED',
 };
 
-export function canTransitionWorklist(from: WorklistStatus, to: WorklistStatus): boolean {
-  return WORKLIST_TRANSITIONS[from]?.includes(to) || false;
+export function normalizeWorklistStatus(s: string | undefined | null): string {
+  if (!s) return 'SCHEDULED';
+  return WORKLIST_STATUS_ALIASES[s] ?? s;
+}
+
+const WORKLIST_TRANSITIONS: Record<string, string[]> = {
+  SCHEDULED: ['ARRIVED', 'CANCELLED'],
+  ARRIVED: ['IN_PROGRESS', 'CANCELLED'],
+  IN_PROGRESS: ['COMPLETED', 'CANCELLED'],
+  COMPLETED: [],
+  CANCELLED: [],
+};
+
+export function canTransitionWorklist(from: string, to: string): boolean {
+  const fromNorm = normalizeWorklistStatus(from);
+  const toNorm = normalizeWorklistStatus(to);
+  return WORKLIST_TRANSITIONS[fromNorm]?.includes(toNorm) ?? false;
 }
 
 // ==================== 危急值 SLA 升级链 ====================

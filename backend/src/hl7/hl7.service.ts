@@ -458,6 +458,7 @@ export class Hl7Service implements OnModuleInit {
       data: {
         tenantId: 'default',
         patientId: patient.id,
+        patientName: patient.name,
         modality: modality || 'UNKNOWN',
         scheduledAt,
         state: 'SCHEDULED',

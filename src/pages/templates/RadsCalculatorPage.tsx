@@ -2,7 +2,7 @@
  * G005 RIS v3.0.6.5 - RADS 计算器页面
  * 20 升级点 - 路由 / 标签页 / 上下文 / 模式切换
  */
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Card, Tabs, Space, Select, Tag, Button, Tooltip, message, Empty, Badge } from 'antd';
 import { Calculator, Copy, FileText, Settings2, Download, Upload, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -30,10 +30,46 @@ export const RadsCalculatorPage: React.FC = () => {
   const navigate = useNavigate();
   const [system, setSystem] = useState<RadsSystem>('Lung-RADS');
   const [history, setHistory] = useState<RadsCalculatorResult[]>([]);
+  const fileRef = useRef<HTMLInputElement | null>(null);
 
   const handleCommit = (result: RadsCalculatorResult) => {
     setHistory((prev) => [result, ...prev].slice(0, 10));
     message.success(`${result.radsType} ${result.category} 已应用`);
+  };
+
+  // 导入 JSON 模板（解析后写入历史）
+  const handleImportFile = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(String(reader.result));
+        const items: RadsCalculatorResult[] = Array.isArray(parsed) ? parsed : [parsed];
+        if (items.length === 0) { message.warning('JSON 中没有计算结果'); return; }
+        const valid = items.filter((it): it is RadsCalculatorResult =>
+          it && typeof it.radsType === 'string' && typeof it.explanation === 'string' && it.computedAt != null
+        );
+        if (valid.length === 0) { message.error('JSON 格式不正确：缺少 radsType/explanation/computedAt 字段'); return; }
+        setHistory((prev) => [...valid, ...prev].slice(0, 10));
+        message.success(`已导入 ${valid.length} 条计算记录`);
+      } catch {
+        message.error('JSON 解析失败，请检查文件内容');
+      }
+    };
+    reader.onerror = () => message.error('文件读取失败');
+    reader.readAsText(file);
+  };
+
+  // 导出计算历史（JSON blob 下载）
+  const handleExportHistory = () => {
+    if (history.length === 0) return;
+    const blob = new Blob([JSON.stringify(history, null, 2)], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `rads-calculator-history-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    message.success(`已导出 ${history.length} 条计算历史`);
   };
 
   return (
@@ -53,11 +89,22 @@ export const RadsCalculatorPage: React.FC = () => {
               options={Object.entries(RADS_SCHEMAS).map(([k, v]) => ({ value: k, label: v.label }))}
             />
             <Tooltip title="导入 JSON 模板">
-              <Button icon={<Upload className="w-4 h-4" />} />
+              <Button icon={<Upload className="w-4 h-4" />} onClick={() => fileRef.current?.click()} />
             </Tooltip>
             <Tooltip title="导出计算历史">
-              <Button icon={<Download className="w-4 h-4" />} disabled={history.length === 0} />
+              <Button icon={<Download className="w-4 h-4" />} disabled={history.length === 0} onClick={handleExportHistory} />
             </Tooltip>
+            <input
+              ref={fileRef}
+              type="file"
+              accept=".json,application/json"
+              style={{ display: 'none' }}
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) handleImportFile(f);
+                e.target.value = '';
+              }}
+            />
             <Button icon={<ChevronLeft className="w-4 h-4" />} onClick={() => navigate(-1)}>返回</Button>
           </>
         }

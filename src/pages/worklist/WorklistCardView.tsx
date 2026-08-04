@@ -5,8 +5,14 @@ import {
 } from 'lucide-react'
 import { initialModalityDevices, initialExamRooms } from '../../data/initialData'
 import type { RadiologyExam } from '../../types'
+import { displayExamStatus } from '../../utils/statusMaps'
 
 const STATUS_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
+  'SCHEDULED': { bg: '#dbeafe', color: '#2563eb', label: '已登记' },
+  'ARRIVED': { bg: '#ede9fe', color: '#7c3aed', label: '已报到' },
+  'IN_PROGRESS': { bg: '#fce7f3', color: '#db2777', label: '检查中' },
+  'COMPLETED': { bg: '#d1fae5', color: '#059669', label: '已完成' },
+  'CANCELLED': { bg: '#fee2e2', color: '#ef4444', label: '已取消' },
   '已登记': { bg: '#dbeafe', color: '#2563eb', label: '已登记' },
   '待检查': { bg: '#ede9fe', color: '#7c3aed', label: '待检查' },
   '检查中': { bg: '#fce7f3', color: '#db2777', label: '检查中' },
@@ -100,7 +106,7 @@ export const CardView = React.memo(function CardView({ exams, selectedIds, onSel
       {exams.map(exam => {
         const device = getDeviceById(exam.deviceId ?? '')
         const room = getRoomById(exam.roomId ?? '')
-        const sc = STATUS_CONFIG[exam.status] || { bg: '#f1f5f9', color: '#64748b', label: exam.status }
+        const sc = STATUS_CONFIG[exam.status] || { bg: '#f1f5f9', color: '#64748b', label: displayExamStatus(exam.status) }
         const pc = PRIORITY_CONFIG[exam.priority] || PRIORITY_CONFIG['普通']!
         const isSelected = selectedIds.has(exam.id)
 

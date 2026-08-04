@@ -1,7 +1,7 @@
 // @ts-nocheck
 // G005 放射科RIS系统 - AI智能质控 v1.0.0
 // v1.0.4 (R4) 集成：跳转至 AIReportDraftPage 一键自动初稿
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ShieldCheck, AlertTriangle, CheckCircle, Search, Filter, Star,
@@ -118,6 +118,8 @@ export default function AIQCPage() {
   const [selectedRecord, setSelectedRecord] = useState<typeof AI_QC_DATA[0] | null>(null)
   const [showDetail, setShowDetail] = useState(false)
   const [autoRefresh, setAutoRefresh] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const PAGE_SIZE = 15
 
   // 筛选数据
   const filteredData = AI_QC_DATA.filter(item => {
@@ -128,6 +130,17 @@ export default function AIQCPage() {
     const matchDate = item.date >= dateRange.start && item.date <= dateRange.end
     return matchSearch && matchDevice && matchResult && matchTechnician && matchDate
   })
+
+  const totalPages = Math.max(1, Math.ceil(filteredData.length / PAGE_SIZE))
+  const pagedData = filteredData.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+
+  // 筛选条件变化时回到第 1 页
+  useEffect(() => { setCurrentPage(1) }, [search, deviceFilter, resultFilter, technicianFilter, dateRange])
+
+  // 数据变少时页码越界自动收敛
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages)
+  }, [currentPage, totalPages])
 
   // 统计卡片
   const statCards = [
@@ -649,7 +662,7 @@ export default function AIQCPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredData.slice(0, 15).map((row, idx) => (
+              {pagedData.map((row, idx) => (
                 <tr
                   key={row.id}
                   style={{
@@ -721,25 +734,41 @@ export default function AIQCPage() {
           justifyContent: 'space-between',
         }}>
           <span style={{ fontSize: 13, color: GRAY }}>
-            显示 1-{Math.min(15, filteredData.length)} / {filteredData.length} 条
+            显示 {filteredData.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}-{Math.min(currentPage * PAGE_SIZE, filteredData.length)} / {filteredData.length} 条
           </span>
           <div style={{ display: 'flex', gap: 6 }}>
-            {['上一页', '下一页'].map((label, i) => (
-              <button
-                key={i}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: 6,
-                  border: `1px solid ${DARK_BORDER}`,
-                  background: 'transparent',
-                  color: GRAY,
-                  fontSize: 13,
-                  cursor: 'pointer',
-                }}
-              >
-                {label}
-              </button>
-            ))}
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage <= 1}
+              style={{
+                padding: '8px 16px',
+                borderRadius: 6,
+                border: `1px solid ${DARK_BORDER}`,
+                background: 'transparent',
+                color: currentPage <= 1 ? '#475569' : GRAY,
+                fontSize: 13,
+                cursor: currentPage <= 1 ? 'not-allowed' : 'pointer',
+                opacity: currentPage <= 1 ? 0.5 : 1,
+              }}
+            >
+              上一页
+            </button>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage >= totalPages}
+              style={{
+                padding: '8px 16px',
+                borderRadius: 6,
+                border: `1px solid ${DARK_BORDER}`,
+                background: 'transparent',
+                color: currentPage >= totalPages ? '#475569' : GRAY,
+                fontSize: 13,
+                cursor: currentPage >= totalPages ? 'not-allowed' : 'pointer',
+                opacity: currentPage >= totalPages ? 0.5 : 1,
+              }}
+            >
+              下一页
+            </button>
           </div>
         </div>
       </div>

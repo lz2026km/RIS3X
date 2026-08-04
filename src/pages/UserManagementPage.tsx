@@ -9,6 +9,7 @@ export default function UserManagementPage() {
   const [users, setUsers] = useState<UserAccount[]>([])
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     setLoading(true)
@@ -85,6 +86,27 @@ export default function UserManagementPage() {
     setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, failedLogins: 0 } : u)))
   }
 
+  const onSave = async () => {
+    setSaving(true)
+    try {
+      await Promise.all(
+        users.map((u) =>
+          userApi.update(u.id, {
+            fullName: u.name,
+            role: u.role as any,
+            department: u.department,
+            active: u.active,
+          }),
+        ),
+      )
+      message.success('全部用户已保存')
+    } catch (e) {
+      message.error('保存失败: ' + (e instanceof Error ? e.message : '未知错误'))
+    } finally {
+      setSaving(false)
+    }
+  }
+
   return (
     <div style={{ padding: 24, background: '#f8fafc', minHeight: '100vh' }} data-testid="user-management-page">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -92,10 +114,11 @@ export default function UserManagementPage() {
         <button
           type="button"
           onClick={onSave}
+          disabled={saving}
           data-testid="user-save-all"
-          style={{ padding: '6px 14px', background: '#1677ff', color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, cursor: 'pointer' }}
+          style={{ padding: '6px 14px', background: '#1677ff', color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, cursor: saving ? 'wait' : 'pointer' }}
         >
-          批量保存
+          {saving ? '保存中...' : '批量保存'}
         </button>
       </div>
       <PermissionGate

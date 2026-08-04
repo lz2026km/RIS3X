@@ -41,6 +41,7 @@ import {
   initialUsers,
 } from "../data/initialData";
 import { appointmentApi, type AppointmentDto } from "../services/api";
+import { invalidateApiCacheByPrefix } from "../services/api/client";
 import { LoadingBanner, ErrorBanner } from "../components/feedback";
 import {
   replayOrderEvent,
@@ -1222,26 +1223,35 @@ export default function AppointmentPage() {
   }, []);
   const [rules, setRules] = useState<AppointmentRules[]>([]);
 
-  // 加载辅助数据 (等候名单/提醒/改期/取消)
+  // 加载辅助数据 (等候名单/提醒/改期/取消) - P0: 接真实端点, 失败显式提示
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      try {
-        const [wlRes, remRes, rsRes, cxRes] = await Promise.all([
-          appointmentApi.getWaitlist().catch(() => ({ success: false, data: [] })),
-          appointmentApi.getReminderRecords().catch(() => ({ success: false, data: [] })),
-          appointmentApi.getRescheduleRecords().catch(() => ({ success: false, data: [] })),
-          appointmentApi.getCancellationRecords().catch(() => ({ success: false, data: [] })),
-        ]);
-        if (cancelled) return;
-        if (wlRes.success && Array.isArray(wlRes.data)) setWaitlist(wlRes.data as unknown as WaitlistPatient[]);
-        if (remRes.success && Array.isArray(remRes.data)) setReminderRecords(remRes.data as unknown as ReminderRecord[]);
-        if (rsRes.success && Array.isArray(rsRes.data)) setRescheduleRecords(rsRes.data as unknown as RescheduleRecord[]);
-        if (cxRes.success && Array.isArray(cxRes.data)) setCancellationRecords(cxRes.data as unknown as CancellationRecord[]);
-      } catch {
-        // secondary data APIs may not be available
+      const [wlRes, remRes, rsRes, cxRes] = await Promise.all([
+        appointmentApi.getWaitlist(),
+        appointmentApi.getReminderRecords(),
+        appointmentApi.getRescheduleRecords(),
+        appointmentApi.getCancellationRecords(),
+      ]);
+      if (cancelled) return;
+      if (wlRes.success && Array.isArray(wlRes.data)) setWaitlist(wlRes.data as unknown as WaitlistPatient[]);
+      if (remRes.success && Array.isArray(remRes.data)) setReminderRecords(remRes.data as unknown as ReminderRecord[]);
+      if (rsRes.success && Array.isArray(rsRes.data)) setRescheduleRecords(rsRes.data as unknown as RescheduleRecord[]);
+      if (cxRes.success && Array.isArray(cxRes.data)) setCancellationRecords(cxRes.data as unknown as CancellationRecord[]);
+      const failures = [wlRes, remRes, rsRes, cxRes].filter((r) => !r.success);
+      if (failures.length > 0) {
+        setTabError(
+          `辅助数据加载失败: ${failures
+            .map((f) => f.error?.message || "未知错误")
+            .join("；")}`,
+        );
       }
-    })();
+    })().catch((e: unknown) => {
+      if (!cancelled)
+        setTabError(
+          `辅助数据加载失败: ${(e as Error)?.message || String(e)}`,
+        );
+    });
     return () => { cancelled = true; };
   }, []);
 
@@ -1288,6 +1298,10 @@ export default function AppointmentPage() {
   const [reminderRecords, setReminderRecords] = useState<ReminderRecord[]>([]);
   const [rescheduleRecords, setRescheduleRecords] = useState<RescheduleRecord[]>([]);
   const [cancellationRecords, setCancellationRecords] = useState<CancellationRecord[]>([]);
+  const [tabError, setTabError] = useState<string | null>(null);
+  const [reminderTab, setReminderTab] = useState<
+    "reminders" | "reschedules" | "cancellations"
+  >("reminders");
   const [reminderFilterStatus, setReminderFilterStatus] =
     useState<string>("all");
   const [reminderFilterChannel, setReminderFilterChannel] =
@@ -1524,75 +1538,83 @@ export default function AppointmentPage() {
     return { total, occupancy };
   };
 
-  // 新建预约提交
-  const handleCreateAppointment = async () => {
-    const errs: Record<string, string> = {};
-    if (!formData.patientName.trim()) errs.patientName = "请输入患者姓名";
-    if (
-      formData.idCard &&
-      formData.idCard.length > 0 &&
-      formData.idCard.length !== 18
-    ) {
-      errs.idCard = "身份证号需 18 位";
-    }
-    if (formData.phone && !/^1[3-9]\d{9}$/.test(formData.phone)) {
-      errs.phone = "手机号格式不正确 (11位, 1[3-9] 开头)";
-    }
-    if (!formData.examItemId) errs.examItemId = "请选择检查项目";
-    if (!formData.deviceId) errs.deviceId = "请选择检查设备";
-    setFormErrors(errs);
-    if (Object.keys(errs).length > 0) {
-      setValidationError("请检查必填字段 (红色边框)");
-      return;
-    }
-    setValidationError("");
-    const conflict = findConflicts(
-      formData.examDate,
-      formData.examTime,
-      formData.deviceId,
-      formData.roomId,
-      appointments,
-    );
-    if (conflict.hasConflict) {
-      setConflictModal({ show: true, result: conflict });
-      setPreventSubmitOnConflict(true);
-      return;
-    }
-    const device = initialModalityDevices.find(
-      (d) => d.id === formData.deviceId,
-    );
-    const newApt: Appointment = {
-      id: `APT-${String(appointments.length + 1).padStart(3, "0")}`,
-      patientId: `RAD-P${String(appointments.length + 1).padStart(3, "0")}`,
+  // 新建预约提交 (P0): 参数与后端 schema 对齐, 以服务端返回对象更新列表
+  const buildCreatePayload = (): AppointmentDto | null => {
+    const device = initialModalityDevices.find((d) => d.id === formData.deviceId);
+    const startAt = new Date(`${formData.examDate}T${formData.examTime || "08:00"}:00`);
+    if (Number.isNaN(startAt.getTime())) return null;
+    const endAt = new Date(startAt.getTime() + 30 * 60 * 1000);
+    const priority: AppointmentDto["priority"] =
+      formData.priority === "urgent"
+        ? "URGENT"
+        : formData.priority === "critical"
+          ? "STAT"
+          : "ROUTINE";
+    return {
       patientName: formData.patientName,
-      patientInitials: getNameInitials(formData.patientName),
+      patientId: `RAD-P${Date.now()}`,
+      modality: formData.examType,
+      bodyPart: formData.bodyPart || undefined,
+      startAt: startAt.toISOString(),
+      endAt: endAt.toISOString(),
+      deviceId: formData.deviceId,
+      deviceName: formData.deviceName || device?.name || "",
+      room: device?.location || undefined,
+      priority,
+      note: formData.notes || undefined,
+      referringDoctor: formData.referringDoctorName || undefined,
+      createdById: "current-user",
+    };
+  };
+
+  // 服务端返回对象 → 本地 Appointment (列表/日历展示)
+  const toLocalAppointment = (dto: AppointmentDto): Appointment => {
+    const start = new Date(dto.startAt);
+    const date = `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, "0")}-${String(start.getDate()).padStart(2, "0")}`;
+    const time = `${String(start.getHours()).padStart(2, "0")}:${String(start.getMinutes()).padStart(2, "0")}`;
+    const statusMap: Record<string, Appointment["status"]> = {
+      SCHEDULED: "pending",
+      CONFIRMED: "confirmed",
+      REGISTERED: "pending",
+      CHECKED_IN: "checked-in",
+      IN_PROGRESS: "checked-in",
+      COMPLETED: "completed",
+      CANCELLED: "cancelled",
+      NO_SHOW: "no-show",
+    };
+    const priority: Appointment["priority"] =
+      dto.priority === "STAT" ? "critical" : dto.priority === "URGENT" ? "urgent" : "normal";
+    return {
+      id: dto.id,
+      patientId: dto.patientId,
+      patientName: dto.patientName,
+      patientInitials: getNameInitials(dto.patientName),
       gender: formData.gender,
       age: parseInt(formData.age) || 0,
       idCard: formData.idCard,
       phone: formData.phone,
-      examItemId: formData.examItemId,
-      examItemName: formData.examItemName,
-      modality: formData.examType,
-      bodyPart: formData.bodyPart,
-      examDate: formData.examDate,
-      examTime: formData.examTime,
-      deviceId: formData.deviceId,
-      deviceName: formData.deviceName || device?.name || "",
-      roomId: device?.id.replace("DEV", "ROOM").replace("-01", "-01") || "",
-      roomName: device?.location || "",
-      referringDoctorId: formData.referringDoctorId,
-      referringDoctorName: formData.referringDoctorName,
-      clinicalDiagnosis: formData.clinicalDiagnosis,
-      notes: formData.notes,
-      status: "pending",
-      priority: formData.priority as "normal" | "urgent" | "critical",
-      createdAt: new Date().toLocaleString("zh-CN"),
-      updatedAt: new Date().toLocaleString("zh-CN"),
+      examItemId: "",
+      examItemName: dto.bodyPart ? `${dto.modality} ${dto.bodyPart}` : dto.modality,
+      modality: dto.modality,
+      bodyPart: dto.bodyPart || "",
+      examDate: date,
+      examTime: time,
+      deviceId: dto.deviceId,
+      deviceName: dto.deviceName,
+      roomId: "",
+      roomName: dto.room || "",
+      referringDoctorId: "",
+      referringDoctorName: dto.referringDoctor || "",
+      clinicalDiagnosis: dto.note || "",
+      notes: dto.note || "",
+      status: statusMap[dto.state] ?? "pending",
+      priority,
+      createdAt: dto.createdAt || new Date().toLocaleString("zh-CN"),
+      updatedAt: dto.updatedAt || new Date().toLocaleString("zh-CN"),
     };
-    await appointmentApi.create(newApt);
-    setAppointments((prev) => [...prev, newApt]);
-    setShowForm(false);
-    setFormErrors({});
+  };
+
+  const resetAppointmentForm = () => {
     setFormData({
       patientName: "",
       gender: "男",
@@ -1616,6 +1638,61 @@ export default function AppointmentPage() {
       priority: "normal",
     });
   };
+
+  const submitAppointment = async (force: boolean) => {
+    const errs: Record<string, string> = {};
+    if (!formData.patientName.trim()) errs.patientName = "请输入患者姓名";
+    if (
+      formData.idCard &&
+      formData.idCard.length > 0 &&
+      formData.idCard.length !== 18
+    ) {
+      errs.idCard = "身份证号需 18 位";
+    }
+    if (formData.phone && !/^1[3-9]\d{9}$/.test(formData.phone)) {
+      errs.phone = "手机号格式不正确 (11位, 1[3-9] 开头)";
+    }
+    if (!formData.examItemId) errs.examItemId = "请选择检查项目";
+    if (!formData.deviceId) errs.deviceId = "请选择检查设备";
+    setFormErrors(errs);
+    if (Object.keys(errs).length > 0) {
+      setValidationError("请检查必填字段 (红色边框)");
+      return;
+    }
+    setValidationError("");
+    if (!force) {
+      const conflict = findConflicts(
+        formData.examDate,
+        formData.examTime,
+        formData.deviceId,
+        formData.roomId,
+        appointments,
+      );
+      if (conflict.hasConflict) {
+        setConflictModal({ show: true, result: conflict });
+        setPreventSubmitOnConflict(true);
+        return;
+      }
+    }
+    const payload = buildCreatePayload();
+    if (!payload) {
+      setValidationError("预约时间无效");
+      return;
+    }
+    const res = await appointmentApi.create(payload);
+    if (!res.success) {
+      setValidationError(res.error?.message || "创建预约失败，请重试");
+      return;
+    }
+    // 以服务端返回为准: 联动 Exam 已创建, 失效工作列表缓存
+    setAppointments((prev) => [...prev, toLocalAppointment(res.data)]);
+    await invalidateApiCacheByPrefix("/worklist");
+    setShowForm(false);
+    setFormErrors({});
+    resetAppointmentForm();
+  };
+
+  const handleCreateAppointment = () => void submitAppointment(false);
 
   // 取消预约
   const handleCancelAppointment = async () => {
@@ -1651,50 +1728,10 @@ export default function AppointmentPage() {
     setSelectedAppointment(null);
   };
 
-  // 修改预约
-  const handleModifyAppointment = (
-    apt: Appointment,
-    newDate: string,
-    newTime: string,
-    newDeviceId: string,
-  ) => {
-    const device = initialModalityDevices.find((d) => d.id === newDeviceId);
-    setAppointments((prev) =>
-      prev.map((a) =>
-        a.id === apt.id
-          ? {
-              ...a,
-              examDate: newDate,
-              examTime: newTime,
-              deviceId: newDeviceId,
-              deviceName: device?.name || a.deviceName,
-              roomId: device?.id.replace("DEV", "ROOM") || a.roomId,
-              roomName: device?.location || a.roomName,
-              updatedAt: new Date().toLocaleString("zh-CN"),
-            }
-          : a,
-      ),
-    );
-    setShowDetailModal(false);
-    setSelectedAppointment(null);
-  };
-
   // 打开详情
   const openDetail = (apt: Appointment) => {
     setSelectedAppointment(apt);
     setShowDetailModal(true);
-  };
-
-  // 设备切换时更新设备名
-  const handleDeviceChange = (deviceId: string) => {
-    const device = initialModalityDevices.find((d) => d.id === deviceId);
-    setFormData((prev) => ({
-      ...prev,
-      deviceId,
-      deviceName: device?.name || "",
-      roomId: device?.id.replace("DEV", "ROOM") || "",
-      roomName: device?.location || "",
-    }));
   };
 
   // 设备ID → 模拟时段占用
@@ -1734,6 +1771,7 @@ export default function AppointmentPage() {
     >
       {loading && <LoadingBanner message="正在从 API 加载预约数据..." />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
+      {tabError && <ErrorBanner message={tabError} />}
 
       {/* ====== 顶部标题栏 ====== */}
       <div
@@ -1973,8 +2011,154 @@ export default function AppointmentPage() {
                 { label: "今日已约", value: appointments.filter(a => a.examDate === formatDate(new Date()) && a.status !== "cancelled").length, color: "#7c3aed", bg: "#ede9fe" },
               ]}
             />
-          </div>{/* ====== 右侧面板 (40%) ====== */}
-          <div
+            {viewMode === "reminders" && (
+              <div
+                style={{
+                  background: whiteBg,
+                  borderRadius: 10,
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+                  border: `1px solid ${borderGray}`,
+                  overflow: "hidden",
+                  marginTop: 12,
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 4,
+                    padding: "10px 12px",
+                    borderBottom: `1px solid ${borderGray}`,
+                    background: "#f8fafc",
+                    flexWrap: "wrap",
+                  }}
+                >
+                  {(
+                    [
+                      ["reminders", "提醒记录"],
+                      ["reschedules", "改期记录"],
+                      ["cancellations", "取消记录"],
+                    ] as const
+                  ).map(([key, label]) => (
+                    <button
+                      key={key}
+                      onClick={() => setReminderTab(key)}
+                      style={{
+                        padding: "6px 14px",
+                        borderRadius: 6,
+                        border: "none",
+                        cursor: "pointer",
+                        fontSize: 12,
+                        fontWeight: 700,
+                        background: reminderTab === key ? primaryBlue : lightBlue,
+                        color: reminderTab === key ? "#fff" : primaryBlue,
+                      }}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                {reminderTab === "reminders" && (
+                  <div style={{ overflowX: "auto" }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minWidth: 820 }}>
+                      <thead>
+                        <tr style={{ background: "#f8fafc", borderBottom: `2px solid ${borderGray}` }}>
+                          {["患者", "电话", "检查项目", "检查时间", "提醒时间", "渠道", "状态", "响应时间"].map((h) => (
+                            <th key={h} style={{ padding: "8px 10px", textAlign: "left", fontWeight: 700, color: textGray, whiteSpace: "nowrap" }}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredReminderRecords.map((r) => (
+                          <tr key={r.id} style={{ borderBottom: `1px solid ${borderGray}` }}>
+                            <td style={{ padding: "8px 10px", fontWeight: 700, color: primaryBlue }}>{r.patientName}</td>
+                            <td style={{ padding: "8px 10px", color: textGray }}>{r.phone}</td>
+                            <td style={{ padding: "8px 10px", color: textGray }}>{r.examType}</td>
+                            <td style={{ padding: "8px 10px", color: textGray }}>{r.examDate} {r.examTime}</td>
+                            <td style={{ padding: "8px 10px", color: textGray }}>{r.reminderTime}</td>
+                            <td style={{ padding: "8px 10px", color: textGray }}>{r.channel}</td>
+                            <td style={{ padding: "8px 10px" }}>
+                              <span style={{ padding: "2px 8px", borderRadius: 10, fontSize: 12, fontWeight: 700, ...getReminderStatusConfig(r.status) }}>{r.status}</span>
+                            </td>
+                            <td style={{ padding: "8px 10px", color: textGray }}>{r.responseTime}</td>
+                          </tr>
+                        ))}
+                        {filteredReminderRecords.length === 0 && (
+                          <tr>
+                            <td colSpan={8} style={{ padding: 24, textAlign: "center", color: textGray }}>暂无提醒记录</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+                {reminderTab === "reschedules" && (
+                  <div style={{ overflowX: "auto" }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minWidth: 820 }}>
+                      <thead>
+                        <tr style={{ background: "#f8fafc", borderBottom: `2px solid ${borderGray}` }}>
+                          {["患者", "电话", "检查项目", "原时间", "新时间", "原因", "操作时间"].map((h) => (
+                            <th key={h} style={{ padding: "8px 10px", textAlign: "left", fontWeight: 700, color: textGray, whiteSpace: "nowrap" }}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rescheduleRecords.map((r) => (
+                          <tr key={r.id} style={{ borderBottom: `1px solid ${borderGray}` }}>
+                            <td style={{ padding: "8px 10px", fontWeight: 700, color: primaryBlue }}>{r.patientName}</td>
+                            <td style={{ padding: "8px 10px", color: textGray }}>{r.phone}</td>
+                            <td style={{ padding: "8px 10px", color: textGray }}>{r.examType}</td>
+                            <td style={{ padding: "8px 10px", color: textGray }}>{r.originalDate} {r.originalTime}</td>
+                            <td style={{ padding: "8px 10px", fontWeight: 600, color: primaryBlue }}>{r.newDate} {r.newTime}</td>
+                            <td style={{ padding: "8px 10px" }}>
+                              <span style={{ padding: "2px 8px", borderRadius: 10, fontSize: 12, fontWeight: 700, ...getRescheduleReasonConfig(r.reason) }}>{getRescheduleReasonConfig(r.reason).label}</span>
+                            </td>
+                            <td style={{ padding: "8px 10px", color: textGray }}>{r.operateTime}</td>
+                          </tr>
+                        ))}
+                        {rescheduleRecords.length === 0 && (
+                          <tr>
+                            <td colSpan={7} style={{ padding: 24, textAlign: "center", color: textGray }}>暂无改期记录</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+                {reminderTab === "cancellations" && (
+                  <div style={{ overflowX: "auto" }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minWidth: 820 }}>
+                      <thead>
+                        <tr style={{ background: "#f8fafc", borderBottom: `2px solid ${borderGray}` }}>
+                          {["患者", "电话", "检查项目", "取消时间", "原因", "是否改约"].map((h) => (
+                            <th key={h} style={{ padding: "8px 10px", textAlign: "left", fontWeight: 700, color: textGray, whiteSpace: "nowrap" }}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {cancellationRecords.map((r) => (
+                          <tr key={r.id} style={{ borderBottom: `1px solid ${borderGray}` }}>
+                            <td style={{ padding: "8px 10px", fontWeight: 700, color: primaryBlue }}>{r.patientName}</td>
+                            <td style={{ padding: "8px 10px", color: textGray }}>{r.phone}</td>
+                            <td style={{ padding: "8px 10px", color: textGray }}>{r.examType}</td>
+                            <td style={{ padding: "8px 10px", color: textGray }}>{r.cancelTime}</td>
+                            <td style={{ padding: "8px 10px", color: textGray }}>{r.reason}</td>
+                            <td style={{ padding: "8px 10px" }}>
+                              <span style={{ padding: "2px 8px", borderRadius: 10, fontSize: 12, fontWeight: 700, background: r.rebooked === "是" ? "#d1fae5" : r.rebooked === "否" ? "#f1f5f9" : "#fef3c7", color: r.rebooked === "是" ? "#059669" : r.rebooked === "否" ? "#64748b" : "#d97706" }}>{r.rebooked}</span>
+                            </td>
+                          </tr>
+                        ))}
+                        {cancellationRecords.length === 0 && (
+                          <tr>
+                            <td colSpan={6} style={{ padding: 24, textAlign: "center", color: textGray }}>暂无取消记录</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>{/* ====== 右侧面板 (40%) ====== */}          <div
             style={{
               flex: "0 0 40%",
               display: "flex",
@@ -3700,71 +3884,9 @@ export default function AppointmentPage() {
                 </button>
                 <button
                   onClick={() => {
-                    if (preventSubmitOnConflict) {
-                      const device = initialModalityDevices.find(
-                        (d) => d.id === formData.deviceId,
-                      );
-                      const newApt: Appointment = {
-                        id: `APT-${String(appointments.length + 1).padStart(3, "0")}`,
-                        patientId: `RAD-P${String(appointments.length + 1).padStart(3, "0")}`,
-                        patientName: formData.patientName,
-                        patientInitials: getNameInitials(formData.patientName),
-                        gender: formData.gender,
-                        age: parseInt(formData.age) || 0,
-                        idCard: formData.idCard,
-                        phone: formData.phone,
-                        examItemId: formData.examItemId,
-                        examItemName: formData.examItemName,
-                        modality: formData.examType,
-                        bodyPart: formData.bodyPart,
-                        examDate: formData.examDate,
-                        examTime: formData.examTime,
-                        deviceId: formData.deviceId,
-                        deviceName: formData.deviceName || device?.name || "",
-                        roomId:
-                          device?.id
-                            .replace("DEV", "ROOM")
-                            .replace("-01", "-01") || "",
-                        roomName: device?.location || "",
-                        referringDoctorId: formData.referringDoctorId,
-                        referringDoctorName: formData.referringDoctorName,
-                        clinicalDiagnosis: formData.clinicalDiagnosis,
-                        notes: formData.notes,
-                        status: "pending",
-                        priority: formData.priority as
-                          | "normal"
-                          | "urgent"
-                          | "critical",
-                        createdAt: new Date().toLocaleString("zh-CN"),
-                        updatedAt: new Date().toLocaleString("zh-CN"),
-                      };
-                      setAppointments((prev) => [...prev, newApt]);
-                      setShowForm(false);
-                      setFormData({
-                        patientName: "",
-                        gender: "男",
-                        age: "",
-                        idCard: "",
-                        phone: "",
-                        examType: "CT",
-                        examItemId: "",
-                        examItemName: "",
-                        bodyPart: "",
-                        examDate: formatDate(new Date()),
-                        examTime: "08:00",
-                        deviceId: "",
-                        deviceName: "",
-                        roomId: "",
-                        roomName: "",
-                        referringDoctorId: "",
-                        referringDoctorName: "",
-                        clinicalDiagnosis: "",
-                        notes: "",
-                        priority: "normal",
-                      });
-                    }
                     setConflictModal({ show: false, result: null });
                     setPreventSubmitOnConflict(false);
+                    void submitAppointment(true);
                   }}
                   style={{
                     flex: 1,

@@ -26,7 +26,7 @@ export class PatientService {
   constructor(private readonly prisma: PrismaService) {}
 
   async list(params: { skip?: number; take?: number; name?: string; phone?: string }) {
-    const where: any = {}
+    const where: any = { deletedAt: null }
     if (params.name) where.name = { contains: params.name }
     if (params.phone) where.phone = { contains: params.phone }
     const [items, total] = await Promise.all([
@@ -42,8 +42,8 @@ export class PatientService {
   }
 
   async get(id: string): Promise<Patient> {
-    const p = await this.prisma.patient.findUnique({
-      where: { id },
+    const p = await this.prisma.patient.findFirst({
+      where: { id, deletedAt: null },
       include: { reports: true, exams: true },
     })
     if (!p) throw new NotFoundException(`Patient ${id} not found`)
@@ -65,7 +65,7 @@ export class PatientService {
   }
 
   async update(id: string, dto: UpdatePatientDto): Promise<Patient> {
-    const existing = await this.prisma.patient.findUnique({ where: { id } })
+    const existing = await this.prisma.patient.findFirst({ where: { id, deletedAt: null } })
     if (!existing) throw new NotFoundException(`Patient ${id} not found`)
     const data: any = { ...dto }
     if (dto.birthDate) data.birthDate = new Date(dto.birthDate)
@@ -73,14 +73,14 @@ export class PatientService {
   }
 
   async delete(id: string): Promise<{ ok: true }> {
-    const existing = await this.prisma.patient.findUnique({ where: { id } })
+    const existing = await this.prisma.patient.findFirst({ where: { id, deletedAt: null } })
     if (!existing) throw new NotFoundException(`Patient ${id} not found`)
-    await this.prisma.patient.delete({ where: { id } })
+    await this.prisma.patient.update({ where: { id }, data: { deletedAt: new Date() } })
     return { ok: true }
   }
 
   async getReports(patientId: string) {
-    const patient = await this.prisma.patient.findUnique({ where: { id: patientId } })
+    const patient = await this.prisma.patient.findFirst({ where: { id: patientId, deletedAt: null } })
     if (!patient) throw new NotFoundException(`Patient ${patientId} not found`)
     return this.prisma.report.findMany({
       where: { patientId },
@@ -90,7 +90,7 @@ export class PatientService {
   }
 
   async getExams(patientId: string) {
-    const patient = await this.prisma.patient.findUnique({ where: { id: patientId } })
+    const patient = await this.prisma.patient.findFirst({ where: { id: patientId, deletedAt: null } })
     if (!patient) throw new NotFoundException(`Patient ${patientId} not found`)
     return this.prisma.exam.findMany({
       where: { patientId },
@@ -100,7 +100,7 @@ export class PatientService {
   }
 
   async getTimeline(patientId: string) {
-    const patient = await this.prisma.patient.findUnique({ where: { id: patientId } })
+    const patient = await this.prisma.patient.findFirst({ where: { id: patientId, deletedAt: null } })
     if (!patient) throw new NotFoundException(`Patient ${patientId} not found`)
     const [exams, reports] = await Promise.all([
       this.prisma.exam.findMany({

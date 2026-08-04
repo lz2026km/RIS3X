@@ -21,6 +21,16 @@ export const PromptLibraryView: React.FC = () => {
   const [selected, setSelected] = useState<AIPromptTemplate | null>(null);
   const [renderVars, setRenderVars] = useState<Record<string, string>>({});
   const [testModal, setTestModal] = useState(false);
+  const [createModal, setCreateModal] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [newTpl, setNewTpl] = useState({
+    name: '',
+    category: '',
+    description: '',
+    systemPrompt: '',
+    userPrompt: '',
+    tags: '',
+  });
   const streaming = useStreamingAI();
 
   useEffect(() => {
@@ -45,6 +55,41 @@ export const PromptLibraryView: React.FC = () => {
     void promptLibrary.recordUsage(selected.id);
   };
 
+  // 新建模板：保存到 Prompt 库（内存库，可复用 render/测试）
+  const handleCreate = async () => {
+    if (!newTpl.name.trim()) { message.warning('请输入模板名称'); return; }
+    if (!newTpl.category.trim()) { message.warning('请选择分类'); return; }
+    if (!newTpl.systemPrompt.trim() && !newTpl.userPrompt.trim()) { message.warning('请输入至少一段提示词'); return; }
+    setSaving(true);
+    try {
+      const variables = Array.from(new Set([
+        ...Array.from(newTpl.systemPrompt.matchAll(/\{(\w+)\}/g), (m) => m[1]!),
+        ...Array.from(newTpl.userPrompt.matchAll(/\{(\w+)\}/g), (m) => m[1]!),
+      ])).map((name) => ({ name, description: name, required: false }));
+      const tpl = await promptLibrary.save({
+        name: newTpl.name.trim(),
+        category: newTpl.category.trim(),
+        version: '1.0.0',
+        description: newTpl.description.trim() || '自定义模板',
+        systemPrompt: newTpl.systemPrompt.trim(),
+        userPrompt: newTpl.userPrompt.trim(),
+        variables,
+        tags: newTpl.tags.split(/[,，]/).map((s) => s.trim()).filter(Boolean),
+        authorId: 'current-user',
+        authorName: '当前用户',
+      });
+      setCreateModal(false);
+      setNewTpl({ name: '', category: '', description: '', systemPrompt: '', userPrompt: '', tags: '' });
+      await load();
+      setSelected(tpl);
+      message.success(`模板已创建: ${tpl.name}`);
+    } catch {
+      message.error('模板保存失败');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div data-testid="prompt-library" style={{ padding: 16, background: '#0f172a', minHeight: '100vh', color: '#e2e8f0' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
@@ -53,7 +98,7 @@ export const PromptLibraryView: React.FC = () => {
         <Tag>{templates.length} 个模板</Tag>
         <Tag color="green">{categories.length} 分类</Tag>
         <div style={{ flex: 1 }} />
-        <Button type="primary" icon={<Plus size={14} />}>新建模板</Button>
+        <Button type="primary" icon={<Plus size={14} />} onClick={() => setCreateModal(true)}>新建模板</Button>
       </div>
 
       <Row gutter={12}>
@@ -196,6 +241,44 @@ export const PromptLibraryView: React.FC = () => {
             <Input value={renderVars[v.name] ?? ''} onChange={(e) => setRenderVars({ ...renderVars, [v.name]: e.target.value })} />
           </div>
         ))}
+      </Modal>
+
+      <Modal
+        title="新建 Prompt 模板"
+        open={createModal}
+        onCancel={() => setCreateModal(false)}
+        onOk={handleCreate}
+        okText="创建"
+        cancelText="取消"
+        confirmLoading={saving}
+        width={680}
+      >
+        <div style={{ marginTop: 8 }}>
+          <div style={{ marginBottom: 8 }}>
+            <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>模板名称 *</div>
+            <Input value={newTpl.name} onChange={(e) => setNewTpl({ ...newTpl, name: e.target.value })} placeholder="如：胸部CT报告助手" />
+          </div>
+          <div style={{ marginBottom: 8 }}>
+            <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>分类 *</div>
+            <Input value={newTpl.category} onChange={(e) => setNewTpl({ ...newTpl, category: e.target.value })} placeholder="如：report / triage / qc" />
+          </div>
+          <div style={{ marginBottom: 8 }}>
+            <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>描述</div>
+            <Input value={newTpl.description} onChange={(e) => setNewTpl({ ...newTpl, description: e.target.value })} placeholder="模板用途说明" />
+          </div>
+          <div style={{ marginBottom: 8 }}>
+            <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>系统提示</div>
+            <TextArea rows={4} value={newTpl.systemPrompt} onChange={(e) => setNewTpl({ ...newTpl, systemPrompt: e.target.value })} placeholder="系统角色设定，支持 {变量}" style={{ background: '#020617', color: '#e2e8f0' }} />
+          </div>
+          <div style={{ marginBottom: 8 }}>
+            <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>用户提示</div>
+            <TextArea rows={4} value={newTpl.userPrompt} onChange={(e) => setNewTpl({ ...newTpl, userPrompt: e.target.value })} placeholder="用户提示词，支持 {变量}" style={{ background: '#020617', color: '#e2e8f0' }} />
+          </div>
+          <div>
+            <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>标签（逗号分隔）</div>
+            <Input value={newTpl.tags} onChange={(e) => setNewTpl({ ...newTpl, tags: e.target.value })} placeholder="如：CT,报告,结构化" />
+          </div>
+        </div>
       </Modal>
     </div>
   );

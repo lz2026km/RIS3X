@@ -1,6 +1,9 @@
 import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { z } from 'zod'
 import { Roles } from '../../common/decorators/roles.decorator'
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
+import { CreateTenantSchema, UpdateTenantFeaturesSchema, UpdateTenantProfileSchema, UpdateTenantStatusSchema } from './tenant.schema'
 import { TenantService, type TenantFeatures } from './tenant.service'
 
 @ApiTags('tenant')
@@ -23,7 +26,7 @@ export class TenantController {
 
   @Put('profile')
   @ApiOperation({ summary: '更新当前租户信息' })
-  updateProfile(@Body() body: { name?: string; license?: string; maxUsers?: number; maxStorageGb?: number; config?: Record<string, unknown> }) {
+  updateProfile(@Body(new ZodValidationPipe(UpdateTenantProfileSchema)) body: z.infer<typeof UpdateTenantProfileSchema>) {
     return this.tenant.updateProfile(body)
   }
 
@@ -35,7 +38,7 @@ export class TenantController {
 
   @Put('features')
   @ApiOperation({ summary: '更新当前租户功能开关' })
-  updateFeatures(@Body() body: Partial<TenantFeatures>) {
+  updateFeatures(@Body(new ZodValidationPipe(UpdateTenantFeaturesSchema)) body: Partial<TenantFeatures>) {
     return this.tenant.updateFeatures(body)
   }
 
@@ -51,14 +54,14 @@ export class TenantController {
   @Post()
   @Roles('ADMIN')
   @ApiOperation({ summary: '创建租户' })
-  create(@Body() body: { code: string; name: string; license?: string; maxUsers?: number; maxStorageGb?: number; features?: Partial<TenantFeatures> }) {
+  create(@Body(new ZodValidationPipe(CreateTenantSchema)) body: z.infer<typeof CreateTenantSchema>) {
     return this.tenant.create(body)
   }
 
   @Put(':id/status')
   @Roles('ADMIN')
   @ApiOperation({ summary: '启用/停用租户' })
-  setStatus(@Param('id') id: string, @Body() body: { status: 'ACTIVE' | 'DISABLED' }) {
+  setStatus(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateTenantStatusSchema)) body: z.infer<typeof UpdateTenantStatusSchema>) {
     return this.tenant.setStatus(id, body.status)
   }
 }

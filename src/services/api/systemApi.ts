@@ -1,4 +1,5 @@
-import { api } from './client'
+import { api, API_BASE } from './client'
+import { getToken } from '../../utils/auth'
 
 export interface AuditLogDto {
   id: string
@@ -64,6 +65,24 @@ export const auditApi = {
 
   stats: () =>
     api.get<AuditStatsDto>('/audit/stats'),
+
+  // 导出 CSV（后端 GET /audit/export 返回 text/csv，需按 blob 下载）
+  async exportCsv(params?: AuditListParams): Promise<Blob> {
+    const query = new URLSearchParams()
+    if (params?.userId) query.set('userId', params.userId)
+    if (params?.action) query.set('action', params.action)
+    if (params?.resource) query.set('resource', params.resource)
+    if (params?.startDate) query.set('startDate', params.startDate)
+    if (params?.endDate) query.set('endDate', params.endDate)
+    const url = `${API_BASE}/audit/export${query.toString() ? '?' + query.toString() : ''}`
+    const token = getToken()
+    const res = await fetch(url, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      credentials: 'include',
+    })
+    if (!res.ok) throw new Error(`导出失败 (${res.status})`)
+    return res.blob()
+  },
 }
 
 export const backupApi = {

@@ -65,12 +65,14 @@ describe('OeeService', () => {
   })
 
   describe('getTrend', () => {
-    it('returns 12-day trend and persists via upsert', async () => {
+    it('returns 12-day deterministic history without writing to DB', async () => {
       const trend = await svc.getTrend('CT-01')
       expect(trend).toHaveLength(12)
-      expect(trend[0].date).toBe('2025-1/1')
+      expect(trend[0].date).toMatch(/^\d{4}-\d{2}-\d{2}$/)
       expect(trend[0].oee).toBeGreaterThan(0)
-      expect(mockPrisma.oeeRecord.upsert).toHaveBeenCalledTimes(12)
+      expect(mockPrisma.oeeRecord.upsert).not.toHaveBeenCalled()
+      const again = await svc.getTrend('CT-01')
+      expect(again).toEqual(trend)
     })
 
     it('still returns trend when DB throws', async () => {

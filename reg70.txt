@@ -1,0 +1,152 @@
+﻿
+Running 35 tests using 1 worker
+
+Select: 1 Input: 2 Button: 1
+  ok  1 [chromium] 鈥?e2e\login.spec.ts:6:7 鈥?鐧诲綍鍔熻兘 鈥?鐧诲綍椤甸潰娓叉煋妫€鏌?(6.6s)
+Accessed: /
+Accessed: /worklist
+Accessed: /reports
+Accessed: /dicom-viewer
+Accessed: /critical-value
+  ok  2 [chromium] 鈥?e2e\login.spec.ts:27:7 鈥?鐧诲綍鍔熻兘 鈥?鐢ㄦ埛鐧诲綍鍜岄〉闈㈣闂?(22.5s)
+  ok  3 [chromium] 鈥?e2e\login.spec.ts:50:7 鈥?鐧诲綍鍔熻兘 鈥?姝ｅ父鐧诲綍 localStorage auth (958ms)
+  ok  4 [chromium] 鈥?e2e\login.spec.ts:59:7 鈥?鐧诲綍鍔熻兘 鈥?鍝嶅簲寮?- 绉诲姩绔?(1.7s)
+  ok  5 [chromium] 鈥?e2e\login.spec.ts:65:7 鈥?鐧诲綍鍔熻兘 鈥?a11y - 閿洏瀵艰埅 (808ms)
+  ok  6 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:47:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?1. 鐧诲綍椤垫樉绀鸿鑹查€夋嫨鍣?鐢ㄦ埛鍚?瀵嗙爜/鎻愪氦鎸夐挳 (5.9s)
+[2] 绠＄悊鍛樹晶杈规爮鍏冪礌: 331
+[2] admin sidebar items: 331
+  ok  7 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:57:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?2. 鐧诲綍涓虹鐞嗗憳鈫掗噸瀹氬悜鍒?, sidebar鏄剧ず鎵€鏈夎彍鍗?(6.1s)
+[3] 鍖荤敓渚ц竟鏍忓厓绱? 199
+[3] doctor sidebar items: 199
+  ok  8 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:68:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?3. 鐧诲綍涓哄尰鐢熲啋鑿滃崟浠呭惈鍖荤敓鍙闂」 (6.0s)
+[4] 渚ц竟鏍忚彍鍗曢」: 331 (鐩爣187)
+[4] total nav items: 331
+  ok  9 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:79:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?4. 绠＄悊鍛樹晶杈规爮鑿滃崟椤圭粺璁?搴斾负187) (8.1s)
+  ok 10 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:95:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?5. 鐐瑰嚮Dashboard瀵艰埅鍒伴椤?(9.2s)
+[6] 鏁版嵁鎶ヨ〃涓績: 鍚垎绫?true, 闀垮害=3335
+[6] has category: true
+  ok 11 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:106:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?6. 鏁版嵁鎶ヨ〃涓績椤甸潰鍔犺浇鍒嗙被 (10.1s)
+[7] 鍥捐〃鍙: true
+  ok 12 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:117:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?7. 閫夋嫨鎶ヨ〃鍒嗙被鈫掑浘琛ㄦ覆鏌?(10.1s)
+[8] 鍗辨€ュ€艰〃锟? true, 闀垮害=5730
+  ok 13 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:134:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?8. 鍗辨€ュ€奸〉闈㈡覆鏌撹〃鏍?(11.2s)
+[9] 鍗辨€ュ€艰繃婊? 椤甸潰闀垮害=5730
+  ok 14 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:146:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?9. 鎸変弗閲嶇▼搴﹁繃婊ゅ嵄鎬ュ€?(10.1s)
+[10] 鎵归噺鎿嶄綔瀹屾垚
+  ok 15 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:160:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?10. 鎵归噺纭鍗辨€ュ€?(10.2s)
+[11] 宸ヤ綔鍒楄〃: true, 闀垮害=3447
+  ok 16 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:180:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?11. 宸ヤ綔鍒楄〃椤甸潰娓叉煋鏉＄洰 (11.1s)
+[12] 鎵归噺鎿嶄綔鏍忓彲瑙? false
+  ok 17 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:191:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?12. 妫€鏌ラ〉闈㈠嬀閫夊悗鏄剧ず鎵归噺鎿嶄綔鏍?(10.7s)
+[13] 妫€鏌ユ悳绱? 椤甸潰闀垮害=3320
+  ok 18 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:206:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?13. 妫€鏌ユ悳绱㈢瓫閫夊姛鑳?(11.2s)
+[14] 鐢ㄦ埛绠＄悊椤甸潰: 鍔犺浇=true, 闀垮害=100
+[14] page loaded: true
+鐪熷疄JS閿欒:
+  - [console] [v3.0.6.11-6] window.error: {msg: onSave is not defined, fn: http://localhost:5191/src/pages/UserManagementPage.tsx, ln: 128, stack: ReferenceError: onSave is not defined
+    at UserM鈥?vite/
+  - [JS] onSave is not defined
+  - [console] [v3.0.6.11-6] window.error: {msg: onSave is not defined, fn: http://localhost:5191/src/pages/UserManagementPage.tsx, ln: 128, stack: ReferenceError: onSave is not defined
+    at UserM鈥?vite/
+  - [JS] onSave is not defined
+  - [console] The above error occurred in the <UserManagementPage> component:
+
+    at UserManagementPage (http://localhost:5191/src/pages/UserManagementPage.tsx:27:29)
+    at RequireAuth (http://localhost
+  x  19 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:221:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?14. 绠＄悊鍛樺彲璁块棶绯荤粺绠＄悊椤甸潰 (10.2s)
+[15] 鐢ㄦ埛绠＄悊琛ㄦ牸鍙: false
+鐪熷疄JS閿欒:
+  - [console] [v3.0.6.11-6] window.error: {msg: onSave is not defined, fn: http://localhost:5191/src/pages/UserManagementPage.tsx, ln: 128, stack: ReferenceError: onSave is not defined
+    at UserM鈥?vite/
+  - [JS] onSave is not defined
+  - [console] [v3.0.6.11-6] window.error: {msg: onSave is not defined, fn: http://localhost:5191/src/pages/UserManagementPage.tsx, ln: 128, stack: ReferenceError: onSave is not defined
+    at UserM鈥?vite/
+  - [JS] onSave is not defined
+  - [console] The above error occurred in the <UserManagementPage> component:
+
+    at UserManagementPage (http://localhost:5191/src/pages/UserManagementPage.tsx:27:29)
+    at RequireAuth (http://localhost
+  x  20 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:232:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?15. 鐢ㄦ埛绠＄悊椤甸潰娓叉煋 (10.3s)
+[16] 鎶ュ憡椤甸潰: true, 闀垮害=3942
+  ok 21 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:242:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?16. 鎶ュ憡椤甸潰鍔犺浇鍒楄〃 (11.3s)
+[17] 鍐欐姤鍛婂鑸? true, URL=http://localhost:5191/write-report
+  ok 22 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:253:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?17. 鐐瑰嚮涔﹀啓鎶ュ憡鈫掑鑸埌鍐欐姤鍛婇〉 (13.0s)
+[18] 蹇嵎閿甮+r: false, URL=http://localhost:5191/
+[18] 蹇嵎閿彲鑳芥湭娉ㄥ唽
+  ok 23 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:269:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?18. 鎸塯+r瀵艰埅鍒?reports (11.7s)
+[19] 瀹¤鏃ュ織椤甸潰(/operation-log): 鍔犺浇鎴愬姛, 闀垮害=2522
+[15] page loaded: true
+  ok 24 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:283:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?19. 瀹¤鏃ュ織椤甸潰娓叉煋鏉＄洰 (9.2s)
+[20] 404澶勭悊: true, URL=http://localhost:5191/forbidden
+  ok 25 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:303:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?20. 璁块棶涓嶅瓨鍦ㄩ〉闈⑩啋閲嶅畾鍚戝埌棣栭〉鎴栨樉绀?04 (9.2s)
+  ok 26 [chromium] 鈥?e2e\v30611-21-regression.spec.ts:23:7 鈥?v3.0.6.11-21 Regression 鈥?antd6 compat - page renders without antd errors (12.4s)
+  ok 27 [chromium] 鈥?e2e\v30611-21-regression.spec.ts:32:7 鈥?v3.0.6.11-21 Regression 鈥?button click - verify clickable elements (12.4s)
+  ok 28 [chromium] 鈥?e2e\v30611-21-regression.spec.ts:40:7 鈥?v3.0.6.11-21 Regression 鈥?form submit - login then verify (6.0s)
+  ok 29 [chromium] 鈥?e2e\v30611-21-regression.spec.ts:46:7 鈥?v3.0.6.11-21 Regression 鈥?keyboard nav - tab navigation works (12.6s)
+  ok 30 [chromium] 鈥?e2e\v30611-21-regression.spec.ts:55:7 鈥?v3.0.6.11-21 Regression 鈥?modal lifecycle - open and close (12.4s)
+[msw] MSW active: false (may be disabled in real API mode)
+  ok 31 [chromium] 鈥?e2e\v30611-21-regression.spec.ts:61:7 鈥?v3.0.6.11-21 Regression 鈥?msw mode - MSW interceptors active (2.1s)
+  ok 32 [chromium] 鈥?e2e\v30611-21-regression.spec.ts:67:7 鈥?v3.0.6.11-21 Regression 鈥?route reachability - all routes accessible (14.6s)
+  ok 33 [chromium] 鈥?e2e\worklist.spec.ts:25:7 鈥?Worklist V3 (E2E) 鈥?璁块棶 /worklist 娓叉煋涓昏〃 + 鍙岃鍥惧垏鎹?(8.6s)
+  ok 34 [chromium] 鈥?e2e\worklist.spec.ts:35:7 鈥?Worklist V3 (E2E) 鈥?鐐瑰嚮楂樼骇绛涢€夋墦寮€鎶藉眽 (8.8s)
+  ok 35 [chromium] 鈥?e2e\worklist.spec.ts:43:7 鈥?Worklist V3 (E2E) 鈥?鎵归噺鎿嶄綔绌烘€佹樉绀?鏈€変腑" (8.2s)
+
+
+  1) [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:221:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?14. 绠＄悊鍛樺彲璁块棶绯荤粺绠＄悊椤甸潰 鈹€鈹€鈹€鈹€鈹€
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 5
+
+      41 |       realErrors.forEach(e => console.log(`  - ${e.slice(0, 200)}`))
+      42 |     }
+    > 43 |     expect(realErrors.length).toBe(0)
+         |                               ^
+      44 |   }
+      45 |
+      46 |   // ========== Group 1: Login & Authentication ==========
+        at checkErrors (E:\opencode work\FS 3X\G005-RISv-3.0.0\e2e\v30607-comprehensive.spec.ts:43:31)
+        at E:\opencode work\FS 3X\G005-RISv-3.0.0\e2e\v30607-comprehensive.spec.ts:229:5
+
+    attachment #1: screenshot (image/png) 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+    test-results\v30607-comprehensive-v3-0-6-11-7-缁煎悎楠岃瘉-14-绠＄悊鍛樺彲璁块棶绯荤粺绠＄悊椤甸潰-chromium\test-failed-1.png
+    鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    attachment #2: video (video/webm) 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+    test-results\v30607-comprehensive-v3-0-6-11-7-缁煎悎楠岃瘉-14-绠＄悊鍛樺彲璁块棶绯荤粺绠＄悊椤甸潰-chromium\video.webm
+    鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    Error Context: test-results\v30607-comprehensive-v3-0-6-11-7-缁煎悎楠岃瘉-14-绠＄悊鍛樺彲璁块棶绯荤粺绠＄悊椤甸潰-chromium\error-context.md
+
+  2) [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:232:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?15. 鐢ㄦ埛绠＄悊椤甸潰娓叉煋 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 5
+
+      41 |       realErrors.forEach(e => console.log(`  - ${e.slice(0, 200)}`))
+      42 |     }
+    > 43 |     expect(realErrors.length).toBe(0)
+         |                               ^
+      44 |   }
+      45 |
+      46 |   // ========== Group 1: Login & Authentication ==========
+        at checkErrors (E:\opencode work\FS 3X\G005-RISv-3.0.0\e2e\v30607-comprehensive.spec.ts:43:31)
+        at E:\opencode work\FS 3X\G005-RISv-3.0.0\e2e\v30607-comprehensive.spec.ts:238:5
+
+    attachment #1: screenshot (image/png) 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+    test-results\v30607-comprehensive-v3-0-6-11-7-缁煎悎楠岃瘉-15-鐢ㄦ埛绠＄悊椤甸潰娓叉煋-chromium\test-failed-1.png
+    鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    attachment #2: video (video/webm) 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+    test-results\v30607-comprehensive-v3-0-6-11-7-缁煎悎楠岃瘉-15-鐢ㄦ埛绠＄悊椤甸潰娓叉煋-chromium\video.webm
+    鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    Error Context: test-results\v30607-comprehensive-v3-0-6-11-7-缁煎悎楠岃瘉-15-鐢ㄦ埛绠＄悊椤甸潰娓叉煋-chromium\error-context.md
+
+  2 failed
+    [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:221:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?14. 绠＄悊鍛樺彲璁块棶绯荤粺绠＄悊椤甸潰 鈹€鈹€鈹€鈹€鈹€鈹€
+    [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:232:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?15. 鐢ㄦ埛绠＄悊椤甸潰娓叉煋 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+  33 passed (5.5m)

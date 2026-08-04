@@ -69,6 +69,11 @@ export const workflowHandlers = [
     try { create('policy', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
+  http.delete(`${API}/sla-policies/:id`, async ({ params }) => {
+    await delay(delayMs());
+    try { remove('policy' as any, params.id as string); } catch {}
+    return HttpResponse.json({ success: true, data: {} });
+  }),
   http.get(`${API}/routing-rules`, async ({ request }) => {
     await delay(delayMs());
     const url = new URL(request.url);

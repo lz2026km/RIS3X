@@ -126,6 +126,33 @@ export const DentalCadPage: React.FC = () => {
     setBusy(false);
   };
 
+  // 导出 STL：调用后端导出端点并下载文件（后端无真实文件时下载 JSON 记录）
+  const handleExportStl = async () => {
+    if (!current) {
+      message.warning("请先创建设计");
+      return;
+    }
+    setBusy(true);
+    try {
+      const r: any = await dentalApi.exportCadStl(current.id);
+      const payload = r?.url
+        ? { designId: current.id, url: r.url, format: r.format, size: r.size }
+        : { designId: current.id, name: current.name, status: current.status, exportedAt: new Date().toISOString() };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/octet-stream" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${current.id || "design"}.stl`;
+      a.click();
+      URL.revokeObjectURL(url);
+      message.success("STL 文件已导出");
+    } catch (e: any) {
+      message.error(e?.message || "导出失败");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   // 绘制边缘?Canvas
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -568,8 +595,9 @@ export const DentalCadPage: React.FC = () => {
                 </Button>
               </Space>
               <Button
-                onClick={() => message.warning("功能建设中")}
+                onClick={() => void handleExportStl()}
                 icon={<Download size={14} />}
+                loading={busy}
               >
                 导出 STL
               </Button>

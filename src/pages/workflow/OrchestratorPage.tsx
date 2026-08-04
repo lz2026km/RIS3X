@@ -335,6 +335,21 @@ export default function OrchestratorPage() {
     }
   };
 
+  const handleRerunFlow = async (execution: FlowExecution) => {
+    if (!execution.flowId) return;
+    try {
+      await orchestratorApi.triggerFlow(execution.flowId, {
+        rerunOf: execution.id,
+        reason: `rerun after ${execution.status}`,
+      });
+      message.success("已重新执行流程");
+      loadExecutions(execPage);
+      loadSlaStats();
+    } catch {
+      message.error("重新执行失败");
+    }
+  };
+
   const handleSaveSla = async () => {
     try {
       await orchestratorApi.upsertSla(slaForm);
@@ -423,7 +438,7 @@ export default function OrchestratorPage() {
     {
       title: "操作",
       key: "action",
-      width: 100,
+      width: 130,
       render: (_, r) => {
         if (r.status === "RUNNING")
           return (
@@ -431,9 +446,10 @@ export default function OrchestratorPage() {
               {t("orchestrator.triggerNext")}
             </Button>
           );
+        // 已完成/失败/超时:重新触发执行(等价于重新部署激活流程)
         return (
-          <Button size="small" disabled>
-            {t("orchestrator.triggerNext")}
+          <Button size="small" onClick={() => handleRerunFlow(r)}>
+            重新执行
           </Button>
         );
       },

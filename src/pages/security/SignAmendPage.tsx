@@ -36,17 +36,22 @@ export const SignAmendPage: React.FC = () => {
   const [amendModal, setAmendModal] = useState<{ type: 'start' | 'complete' | 'approve' | 'reject' | 'history' | null; data: any }>({ type: null, data: {} });
   const [amendHistory, setAmendHistory] = useState<any>(null);
 
+  // 分页
+  const PAGE_SIZE = 10;
+  const [certPage, setCertPage] = useState(1);
+  const [amendPage, setAmendPage] = useState(1);
+
   // 加载
   const loadCerts = async () => {
     try {
-      const r = await signApi.listCertificates({ pageSize: 30 });
+      const r = await signApi.listCertificates();
       if (r.success) setCerts(r.data);
     } catch (e: any) { message.error(e.message); }
   };
 
   const loadAmends = async () => {
     try {
-      const r = await amendApi.listAmendments({ pageSize: 30 });
+      const r = await amendApi.listAmendments();
       if (r.success) setAmends(r.data);
     } catch (e: any) { message.error(e.message); }
   };
@@ -183,7 +188,7 @@ export const SignAmendPage: React.FC = () => {
               size="small"
               dataSource={filteredCerts}
               rowKey="id"
-              pagination={{ pageSize: 10 }}
+              pagination={{ current: certPage, pageSize: PAGE_SIZE, total: filteredCerts.length, onChange: setCertPage, showSizeChanger: false }}
               columns={[
                 { title: '序列号', dataIndex: 'serialNumber' },
                 { title: '持卡人', render: (_, c) => c.subject.commonName },
@@ -252,7 +257,7 @@ export const SignAmendPage: React.FC = () => {
               size="small"
               dataSource={filteredAmends}
               rowKey="id"
-              pagination={{ pageSize: 10 }}
+              pagination={{ current: amendPage, pageSize: PAGE_SIZE, total: filteredAmends.length, onChange: setAmendPage, showSizeChanger: false }}
               columns={[
                 { title: '编号', dataIndex: 'id' },
                 { title: '报告', dataIndex: 'reportId' },

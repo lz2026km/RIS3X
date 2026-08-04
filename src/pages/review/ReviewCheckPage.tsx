@@ -36,10 +36,16 @@ export const ReviewCheckPage: React.FC = () => {
   const [workload, setWorkload] = useState<any>(null);
   const [sla, setSla] = useState<any>(null);
 
+  // 分页
+  const PAGE_SIZE = 10;
+  const [initialPage, setInitialPage] = useState(1);
+  const [finalPage, setFinalPage] = useState(1);
+  const [reviewPage, setReviewPage] = useState(1);
+
   // 加载
   const loadInitial = async () => {
     try {
-      const r = await initialCheckApi.list({ pageSize: 30 });
+      const r = await initialCheckApi.list();
       if (r.success) setInitialItems(r.data);
       const s = await initialCheckApi.summary();
       if (s.success) setInitialSummary(s.data);
@@ -48,7 +54,7 @@ export const ReviewCheckPage: React.FC = () => {
 
   const loadFinal = async () => {
     try {
-      const r = await finalCheckApi.list({ pageSize: 30 });
+      const r = await finalCheckApi.list();
       if (r.success) setFinalItems(r.data);
       const s = await finalCheckApi.summary();
       if (s.success) setFinalSummary(s.data);
@@ -57,7 +63,7 @@ export const ReviewCheckPage: React.FC = () => {
 
   const loadReviews = async () => {
     try {
-      const r = await reviewApi.list({ pageSize: 30 });
+      const r = await reviewApi.list();
       if (r.success) setReviews(r.data);
       const w = await reviewApi.workload();
       if (w.success) setWorkload(w.data);
@@ -162,7 +168,7 @@ export const ReviewCheckPage: React.FC = () => {
               size="small"
               dataSource={filteredInitial}
               rowKey="id"
-              pagination={{ pageSize: 10 }}
+              pagination={{ current: initialPage, pageSize: PAGE_SIZE, total: filteredInitial.length, onChange: setInitialPage, showSizeChanger: false }}
               columns={[
                 { title: '报告 ID', dataIndex: 'reportId' },
                 { title: '患者', dataIndex: 'patientName' },
@@ -203,7 +209,7 @@ export const ReviewCheckPage: React.FC = () => {
               size="small"
               dataSource={finalItems}
               rowKey="id"
-              pagination={{ pageSize: 10 }}
+              pagination={{ current: finalPage, pageSize: PAGE_SIZE, total: finalItems.length, onChange: setFinalPage, showSizeChanger: false }}
               columns={[
                 { title: '报告 ID', dataIndex: 'reportId' },
                 { title: '模板', dataIndex: 'templateName' },
@@ -244,7 +250,7 @@ export const ReviewCheckPage: React.FC = () => {
               size="small"
               dataSource={reviews}
               rowKey="id"
-              pagination={{ pageSize: 10 }}
+              pagination={{ current: reviewPage, pageSize: PAGE_SIZE, total: reviews.length, onChange: setReviewPage, showSizeChanger: false }}
               columns={[
                 { title: '编号', dataIndex: 'id' },
                 { title: '类型', dataIndex: 'type', render: (t) => <Tag color="blue">{t}</Tag> },

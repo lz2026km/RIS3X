@@ -1,12 +1,12 @@
 // ============================================================
 // G005 放射科RIS系统 v1.0.3 - 报告审核工作台
 // Phase R3：双审流程（初+终）+ 审核时效 KPI + 驳回 + 审核历史
+// [v3.0.6.11-70] P0 真实化: 任务列表/通过/驳回 接入后端 reports 模块
 // ============================================================
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createActor } from 'xstate';
-import { reportMachine } from '../machines/reportMachine';
+import { message } from 'antd';
 import {
   ClipboardCheck, Clock, XCircle,
   FileText, Search, BarChart3, TrendingUp,
@@ -16,12 +16,52 @@ import {
   ListChecks,
 } from 'lucide-react';
 import {
-  REVIEW_TASKS,
-  REVIEW_KPI,
   type ReviewTask,
   type ReviewStage,
   type ReviewStatus,
 } from '../data/reviewRevisionCollabMock';
+import { reportApi, type ReportDto } from '../services/api/reportApi';
+import { useAuth } from '../hooks/useAuth';
+
+// [v3.0.6.11-70] P0 真实化: 后端 ReportDto → 审核任务 (状态过滤/阶段映射)
+function reportToReviewTask(r: ReportDto): ReviewTask | null {
+  const key = `${r.status ?? ''}`;
+  const is = (re: RegExp) => re.test(key);
+  if (is(/草稿|DRAFT|draft|PENDING_ASSIGNMENT|ASSIGNED|WRITING|AMENDING|AMENDED|WITHDRAWN|ARCHIVED|RECTIFYING|SUPPLEMENTING|SUPPLEMENTED|REDISTRIBUTING|PUBLISHED|published|已发布/i)) return null;
+  let stage: ReviewStage = 'initial';
+  let status: ReviewStatus = 'pending';
+  if (is(/REJECTED|rejected|驳回/i)) { stage = 'initial'; status = 'rejected'; }
+  else if (is(/REVIEWED|reviewed|已审核/i)) status = 'completed';
+  else if (is(/CO_SIGN|SIGNING|SIGNED|cosigned|已双签/i)) stage = 'sign';
+  else if (is(/FINAL_REVIEW|finalreview/i)) stage = 'final';
+  else if (is(/INITIAL_REVIEW|initialreview|SUBMITTED|submitted|已提交/i)) stage = 'initial';
+  else return null;
+  const submittedAt = r.reviewedAt ?? r.reportAt ?? r.updatedTime ?? r.createdTime ?? new Date().toISOString();
+  const deadline = new Date(new Date(submittedAt).getTime() + 12 * 3600 * 1000).toISOString();
+  const isOverdue = new Date(deadline).getTime() < Date.now();
+  const hoursToDeadline = Math.round((new Date(deadline).getTime() - Date.now()) / 3600000);
+  return {
+    id: `rv-${r.reportId || r.id}`,
+    reportId: r.reportId || r.id,
+    patientName: r.patientName || '未知患者',
+    modality: r.modality || 'CT',
+    bodyPart: r.bodyPart || '胸部',
+    reportDoctorId: r.doctorId || '',
+    reportDoctorName: r.doctorId || '报告医师',
+    reportDoctorTitle: '医师',
+    stage,
+    status,
+    submittedAt,
+    deadline,
+    qualityScore: r.qualityScore,
+    criticalFinding: Boolean(r.hasCriticalValue),
+    isOverdue,
+    hoursToDeadline,
+    findingsText: r.findings || undefined,
+    impressionText: r.impression || r.diagnosis || undefined,
+    recommendationsText: r.recommendations || undefined,
+  } as ReviewTask;
+}
 
 // ============================================================
 // 阶段配置
@@ -65,43 +105,106 @@ function deadlineInfo(_deadline: string, isOverdue: boolean, hoursToDeadline: nu
 // ============================================================
 export default function ReportReviewPage() {
   const navigate = useNavigate();
-  const [loading] = useState(false);
-  const [error] = useState<string | null>(null);
+  const { user } = useAuth();
+  // [v3.0.6.11-70] P0 真实化: 任务列表来自 reportApi.list (过滤待审核状态)
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [tasks, setTasks] = useState<ReviewTask[]>([]);
   const [stage, setStage] = useState<ReviewStage | 'all'>('all');
   const [status, setStatus] = useState<ReviewStatus | 'all'>('all');
   const [search, setSearch] = useState('');
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>('rv-001');
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [auditSuggestion, setAuditSuggestion] = useState('');
   const [auditScore, setAuditScore] = useState(90);
   const [auditDecision, setAuditDecision] = useState<'approve' | 'reject' | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   // 避免 TypeScript 警告
   void navigate;
 
+  // [v3.0.6.11-70] P0 真实化: 当前用户来自 useAuth (代替硬编码 'D005 刘文博')
+  const currentUser = {
+    id: user?.id ?? 'D005',
+    name: user?.name ?? '刘文博',
+    title: user?.title ?? '副主任医师',
+  };
+
+  const loadTasks = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    const res = await reportApi.list({ take: '200' });
+    if (!res.success || !Array.isArray(res.data)) {
+      setError(res.error?.message ?? '审核任务加载失败');
+      setTasks([]);
+      setLoading(false);
+      return;
+    }
+    const mapped = res.data
+      .map(reportToReviewTask)
+      .filter((t): t is ReviewTask => t !== null);
+    setTasks(mapped);
+    setSelectedTaskId((prev) => {
+      if (prev && mapped.some((t) => t.id === prev)) return prev;
+      return mapped[0]?.id ?? null;
+    });
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { void loadTasks(); }, [loadTasks]);
+
   // 过滤
   const filteredTasks = useMemo(() => {
-    return REVIEW_TASKS.filter(t => {
+    return tasks.filter(t => {
       if (stage !== 'all' && t.stage !== stage) return false;
       if (status !== 'all' && t.status !== status) return false;
       if (search && !t.patientName.includes(search) && !t.reportId.includes(search)) return false;
       return true;
     });
-  }, [stage, status, search]);
+  }, [tasks, stage, status, search]);
 
   // 选中任务
-  const selectedTask = REVIEW_TASKS.find(t => t.id === selectedTaskId);
+  const selectedTask = tasks.find(t => t.id === selectedTaskId) ?? null;
 
-  // 当前用户（模拟）
-  const currentUser = {
-    id: 'D005', name: '刘文博', title: '副主任医师',
-  };
+  // [v3.0.6.11-70] KPI 从真实任务列表统计 (代替 REVIEW_KPI 常量)
+  const reviewKpi = useMemo(() => {
+    const pendingInitial = tasks.filter(t => t.stage === 'initial' && (t.status === 'pending' || t.status === 'in-progress')).length;
+    const pendingFinal = tasks.filter(t => t.stage === 'final' && (t.status === 'pending' || t.status === 'in-progress')).length;
+    const pendingSign = tasks.filter(t => t.stage === 'sign' && (t.status === 'pending' || t.status === 'in-progress')).length;
+    const overdue = tasks.filter(t => t.isOverdue && t.status !== 'completed').length;
+    const rejected = tasks.filter(t => t.status === 'rejected').length;
+    const totalToday = tasks.length;
+    const onTimeRate = totalToday > 0 ? Math.round(((totalToday - overdue) / totalToday) * 100) : 100;
+    return { totalToday, pendingInitial, pendingFinal, pendingSign, overdue, rejected, onTimeRate };
+  }, [tasks]);
+
+  // [v3.0.6.11-70] P0 真实化: 通过/驳回 → 调后端 transition (REVIEWED / REJECTED + 驳回原因)
+  const handleAuditSubmit = useCallback(async (decision: 'approve' | 'reject') => {
+    if (!selectedTask) return;
+    if (decision === 'reject' && !auditSuggestion.trim()) {
+      message.warning('驳回必须填写审核意见');
+      return;
+    }
+    setSubmitting(true);
+    const res = decision === 'approve'
+      ? await reportApi.review(selectedTask.reportId)
+      : await reportApi.reject(selectedTask.reportId, auditSuggestion.trim());
+    if (res.success) {
+      message.success(decision === 'approve' ? `已通过 (${STAGE_CONFIG[selectedTask.stage].label})` : '已驳回并退回报告医师');
+      setAuditDecision(null);
+      setAuditSuggestion('');
+      await loadTasks();
+    } else {
+      message.error(res.error?.message ?? '审核操作失败,请重试');
+    }
+    setSubmitting(false);
+  }, [selectedTask, auditSuggestion, loadTasks]);
 
   if (loading) return <div role="status" data-testid="review-loading" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
   if (error) return <div role="alert" data-testid="review-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
-  if (REVIEW_TASKS.length === 0) {
+  if (tasks.length === 0) {
     return (
       <div data-testid="review-empty" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>
         <div style={{ fontSize: 14, marginBottom: 12 }}>暂无审核任务</div>
-        <div style={{ fontSize: 12, color: '#64748b' }}>所有报告均已审核完毕,辛苦了 ☕</div>
+        <div style={{ fontSize: 12, color: '#64748b' }}>当前没有待审核的报告,可从报告书写页提交报告后查看</div>
       </div>
     );
   }
@@ -125,7 +228,7 @@ export default function ReportReviewPage() {
               }}>R3</span>
             </div>
             <div style={{ fontSize: 12, opacity: 0.9, marginTop: 2 }}>
-              双审流程（初+终）+ 审核时效 KPI + 驳回闭环
+              双审流程（初+终）+ 审核时效 KPI + 驳回闭环 · 已接入真实报告流转
             </div>
           </div>
           <div style={{ fontSize: 12, opacity: 0.9 }}>
@@ -134,13 +237,13 @@ export default function ReportReviewPage() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 8 }}>
-          <KpiMini icon={ListChecks} label="今日审核" value={REVIEW_KPI.totalToday} color="#bfdbfe" />
-          <KpiMini icon={Clock} label="待初审" value={REVIEW_KPI.pendingInitial} color="#fde68a" />
-          <KpiMini icon={ShieldCheck} label="待终审" value={REVIEW_KPI.pendingFinal} color="#fed7aa" />
-          <KpiMini icon={Award} label="待签发" value={REVIEW_KPI.pendingSign} color="#fbcfe8" />
-          <KpiMini icon={AlertTriangle} label="已超时" value={REVIEW_KPI.overdue} color="#fca5a5" alert />
-          <KpiMini icon={XCircle} label="已驳回" value={REVIEW_KPI.rejected} color="#fca5a5" />
-          <KpiMini icon={TrendingUp} label="按时率" value={`${REVIEW_KPI.onTimeRate}%`} color="#bbf7d0" good />
+          <KpiMini icon={ListChecks} label="今日审核" value={reviewKpi.totalToday} color="#bfdbfe" />
+          <KpiMini icon={Clock} label="待初审" value={reviewKpi.pendingInitial} color="#fde68a" />
+          <KpiMini icon={ShieldCheck} label="待终审" value={reviewKpi.pendingFinal} color="#fed7aa" />
+          <KpiMini icon={Award} label="待签发" value={reviewKpi.pendingSign} color="#fbcfe8" />
+          <KpiMini icon={AlertTriangle} label="已超时" value={reviewKpi.overdue} color="#fca5a5" alert />
+          <KpiMini icon={XCircle} label="已驳回" value={reviewKpi.rejected} color="#fca5a5" />
+          <KpiMini icon={TrendingUp} label="按时率" value={`${reviewKpi.onTimeRate}%`} color="#bbf7d0" good />
         </div>
       </div>
 
@@ -214,7 +317,7 @@ export default function ReportReviewPage() {
             fontSize: 12, color: '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           }}>
             <span><strong style={{ color: '#1e40af' }}>{filteredTasks.length}</strong> 个任务</span>
-            <span>共 {REVIEW_TASKS.length} 条记录</span>
+            <span>共 {tasks.length} 条记录</span>
           </div>
           {filteredTasks.map(task => {
             const stageConf = STAGE_CONFIG[task.stage];
@@ -311,6 +414,8 @@ export default function ReportReviewPage() {
               setAuditScore={setAuditScore}
               auditDecision={auditDecision}
               setAuditDecision={setAuditDecision}
+              submitting={submitting}
+              onAuditSubmit={handleAuditSubmit}
             />
           ) : (
             <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>请从左侧选择审核任务</div>
@@ -353,17 +458,17 @@ const ReviewTaskDetail: React.FC<{
   setAuditScore: (v: number) => void;
   auditDecision: 'approve' | 'reject' | null;
   setAuditDecision: (v: any) => void;
-}> = ({ task, currentUser, auditSuggestion, setAuditSuggestion, auditScore, setAuditScore, auditDecision, setAuditDecision }) => {
+  submitting: boolean;
+  onAuditSubmit: (decision: 'approve' | 'reject') => void;
+}> = ({ task, currentUser, auditSuggestion, setAuditSuggestion, auditScore, setAuditScore, auditDecision, setAuditDecision, submitting, onAuditSubmit }) => {
   const stageConf = STAGE_CONFIG[task.stage];
   const statusConf = STATUS_CONFIG[task.status];
   const StageIcon = stageConf.icon;
   const deadline = deadlineInfo(task.deadline, task.isOverdue, task.hoursToDeadline);
 
-  const actor = useMemo(() => createActor(reportMachine, {
-    input: { reportId: task.reportId, patientId: '', radiologistId: currentUser.id }
-  }), [task.reportId, currentUser.id]);
-
-  useEffect(() => { actor.start(); return () => { actor.stop(); }; }, [actor]);
+  // [v3.0.6.11-70] 报告正文: 优先展示真实所见/诊断
+  const findingsText = (task as any).findingsText || `${task.modality}平扫+增强示${task.bodyPart}区正常结构存在。${task.criticalFinding ? ' 病灶内见异常信号/密度影。' : ''}`;
+  const impressionText = (task as any).impressionText || (task.criticalFinding ? '考虑恶性可能，建议进一步检查。' : '考虑良性可能，建议随访。');
 
   return (
     <div>
@@ -463,20 +568,19 @@ const ReviewTaskDetail: React.FC<{
           <div style={{ marginBottom: 8 }}>
             <strong style={{ color: '#1e40af' }}>【检查所见】</strong>
             <div style={{ marginTop: 4, padding: 8, background: '#f8fafc', borderRadius: 4 }}>
-              {task.modality}平扫+增强示{task.bodyPart}区正常结构存在。
-              {task.criticalFinding && <span style={{ color: '#dc2626', fontWeight: 600 }}> 病灶内见异常信号/密度影。</span>}
+              {findingsText}
             </div>
           </div>
           <div style={{ marginBottom: 8 }}>
             <strong style={{ color: '#1e40af' }}>【诊断意见】</strong>
             <div style={{ marginTop: 4, padding: 8, background: '#f8fafc', borderRadius: 4 }}>
-              {task.criticalFinding ? '考虑恶性可能，建议进一步检查。' : '考虑良性可能，建议随访。'}
+              {impressionText}
             </div>
           </div>
           <div>
             <strong style={{ color: '#1e40af' }}>【建议】</strong>
             <div style={{ marginTop: 4, padding: 8, background: '#f8fafc', borderRadius: 4 }}>
-              3 个月后复查。
+              {(task as any).recommendationsText || '3 个月后复查。'}
             </div>
           </div>
         </div>
@@ -624,32 +728,17 @@ const ReviewTaskDetail: React.FC<{
           </div>
 
           <button
-            onClick={() => {
-              if (auditDecision === 'approve') {
-                switch (task.stage) {
-                  case 'initial': actor.send({ type: 'APPROVE_INITIAL' }); break;
-                  case 'final': actor.send({ type: 'APPROVE_FINAL' }); break;
-                  case 'sign': {
-                    actor.send({ type: 'START_SIGN' });
-                    actor.send({ type: 'COMPLETE_SIGN' });
-                    actor.send({ type: 'PUBLISH', qualityScore: auditScore });
-                    break;
-                  }
-                }
-              } else if (auditDecision === 'reject') {
-                actor.send({ type: 'REJECT', reason: auditSuggestion });
-              }
-            }}
-            disabled={!auditDecision || (auditDecision === 'reject' && !auditSuggestion)}
+            onClick={() => onAuditSubmit(auditDecision ?? 'approve')}
+            disabled={!auditDecision || (auditDecision === 'reject' && !auditSuggestion) || submitting}
             style={{
               width: '100%', marginTop: 8, padding: 12, border: 'none', borderRadius: 6,
               background: (!auditDecision || (auditDecision === 'reject' && !auditSuggestion)) ? '#cbd5e1' : '#1e40af',
               color: '#fff', fontSize: 13, fontWeight: 700,
-              cursor: (!auditDecision || (auditDecision === 'reject' && !auditSuggestion)) ? 'not-allowed' : 'pointer',
+              cursor: (!auditDecision || (auditDecision === 'reject' && !auditSuggestion) || submitting) ? 'not-allowed' : 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
             }}
           >
-            <Send size={14} /> 提交{stageConf.label}（{currentUser.name}）
+            <Send size={14} /> {submitting ? '提交中...' : `提交${stageConf.label}（${currentUser.name}）`}
           </button>
         </div>
       )}

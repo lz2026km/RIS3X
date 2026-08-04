@@ -46,8 +46,22 @@ export default function AuditPage() {
     { title: '详情', dataIndex: 'details', key: 'details', ellipsis: true, render: (value) => String(value ?? '-') },
   ]
 
-  const handleExport = () => {
-    message.info('审计日志导出功能开发中')
+  const handleExport = async () => {
+    setLoading(true)
+    try {
+      const blob = await auditApi.exportCsv({ ...params, startDate: undefined, endDate: undefined })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `audit-log-${new Date().toISOString().slice(0, 10)}.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+      message.success(`审计日志已导出 (${logs.length}+ 条)`)
+    } catch (e) {
+      message.error((e as Error)?.message || '导出失败')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

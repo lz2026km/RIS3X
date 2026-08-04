@@ -1,3 +1,47 @@
+﻿// G005 R3.WRITING 类型存根
+// 说明: R3.WRITING 完整类型定义已散落于组件/数据层, 此处以宽松类型存根保持模块可解析。
+
 export const R3_WRITING = {};
+
+export type StructuredTemplate = any;
+export type StructuredFieldDefinition = any;
+export type StructuredFieldGroup = any;
+export type RecistTargetLesion = any;
+export type RecistResponse = any;
+export type BiradsAssessment = any;
+export type BiradsFinding = any;
+export type BiradsCategory = any;
+export type PiradsAssessment = any;
+export type PiradsScore = any;
+export type RichEditorDocument = any;
+export type RichEditorImage = any;
+export type RichEditorStyle = any;
+export type AiDraftRequest = any;
+export type AiDraftResult = any;
+export type AiDraftStage = any;
+export type VoiceDictationSession = any;
+export type VoiceDictationState = any;
+export type VoiceDictationLang = any;
+export type ImageAnchor = any;
+export type Phrase = any;
+export type RadLexTerm = any;
+export type PriorReport = any;
+export type SimilarCase = any;
+export type ReportDraft = any;
+export type DraftVersionStrategy = any;
+export type ReportTemplate = any;
+export type TemplateCategory = any;
+export type WritingMetrics = any;
+export type PreSubmitScore = any;
+export type MultiModalityPanel = any;
+export type KeywordHighlight = any;
+export type ReportWritingContext = any;
+export type ComplianceCheckResult = any;
+export type ChargeItem = any;
+export type SignatureRecord = any;
+export type CriticalPattern = any;
+export type VoiceCommand = any;
+export type VoiceProfile = any;
+export type Collaborator = any;
 export type StructuredReport = any;
 export type WritingTemplate = any;

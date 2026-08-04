@@ -3,7 +3,7 @@
 // Phase R5：10 分钟通报率 + 按病种/科室/医生分桶 + 闭环可视化
 // ============================================================
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   AlertOctagon, CheckCircle2, Activity, Bell,
@@ -17,6 +17,8 @@ import {
   CRITICAL_VALUE_KPI,
   type CriticalStatus,
 } from '../data/criticalValueAssessmentMock';
+import { criticalApi, type CriticalStatsDto } from '../services/api/criticalApi';
+import { criticalStatsApi, type NotificationCompletionStats } from '../services/api/criticalStatsApi';
 
 // ============================================================
 // 状态配置
@@ -36,6 +38,35 @@ export default function CriticalValueStatsPage() {
   const navigate = useNavigate();
   const kpi = CRITICAL_VALUE_KPI;
   const events = CRITICAL_EVENTS;
+
+  // [G005-P0] 顶部 KPI 接后端 /criticals/stats + /criticals/stats/notification (代替恒 0)
+  const [liveStats, setLiveStats] = useState<CriticalStatsDto | null>(null);
+  const [liveNotif, setLiveNotif] = useState<NotificationCompletionStats | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const [statsRes, notifRes] = await Promise.all([
+          criticalApi.getStats(),
+          criticalStatsApi.getNotificationStats(),
+        ]);
+        if (cancelled) return;
+        if (statsRes.success && statsRes.data) setLiveStats(statsRes.data);
+        if (notifRes.success && notifRes.data) setLiveNotif(notifRes.data);
+      } catch {
+        // 后端不可用时回退 mock
+      }
+    })();
+    return () => { cancelled = true };
+  }, []);
+
+  const totalThisMonth = liveStats?.total ?? kpi.totalThisMonth;
+  const resolvedCount = liveStats?.resolved ?? kpi.resolvedCount;
+  const onTimeRate = liveNotif ? Number(liveNotif.completionRate ?? 0) : kpi.onTimeNotificationRate;
+  const avgResponseTimeMinutes = liveNotif ? Number(liveNotif.avgNotificationTime ?? 0) : kpi.avgResponseTimeMinutes;
+  const overdueCount = liveStats ? liveStats.escalated : events.filter(e => !e.onTimeNotification && e.status === 'resolved').length;
+  const onTimeCount = liveStats ? Math.max(0, liveStats.total - liveStats.escalated) : events.filter(e => e.onTimeNotification).length;
 
   // 按病种分桶
   const byCategory = useMemo(() => {
@@ -59,11 +90,6 @@ export default function CriticalValueStatsPage() {
 
   // 按医生排行
   const byDoctor = kpi.byDoctor;
-
-  // 10 分钟通报率
-  const onTimeRate = kpi.onTimeNotificationRate;
-  const overdueCount = events.filter(e => !e.onTimeNotification && e.status === 'resolved').length;
-  const onTimeCount = events.filter(e => e.onTimeNotification).length;
 
   // 最近事件
   const recentEvents = [...events].sort((a, b) => b.reportedAt.localeCompare(a.reportedAt));
@@ -105,10 +131,10 @@ export default function CriticalValueStatsPage() {
 
       {/* 大字 KPI */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, marginBottom: 16 }}>
-        <BigKpi icon={AlertOctagon} label="本月危急值" value={kpi.totalThisMonth} color="#dc2626" />
+        <BigKpi icon={AlertOctagon} label={liveStats ? '危急值总数' : '本月危急值'} value={totalThisMonth} color="#dc2626" />
         <BigKpi icon={Zap} label="10分钟通报率" value={`${onTimeRate}%`} color={onTimeRate >= 90 ? '#10b981' : '#f59e0b'} trend={onTimeRate >= 90 ? 'up' : 'down'} trendValue="3.2%" />
-        <BigKpi icon={Activity} label="平均响应时间" value={`${kpi.avgResponseTimeMinutes}m`} color="#7c3aed" trend="down" trendValue="1.5m" />
-        <BigKpi icon={CheckCircle2} label="已闭环" value={kpi.resolvedCount} color="#10b981" trend="up" trendValue="12%" />
+        <BigKpi icon={Activity} label="平均响应时间" value={`${avgResponseTimeMinutes}m`} color="#7c3aed" trend="down" trendValue="1.5m" />
+        <BigKpi icon={CheckCircle2} label="已闭环" value={resolvedCount} color="#10b981" trend="up" trendValue="12%" />
         <BigKpi icon={AlertCircle} label="未超时/超时" value={`${onTimeCount}/${overdueCount}`} color="#f59e0b" />
       </div>
 
@@ -172,7 +198,7 @@ export default function CriticalValueStatsPage() {
             <ListOrdered size={13} /> Top 5 危急值规则（本月）
           </div>
           {kpi.topRules.map((r, i) => {
-            const maxCount = kpi.topRules[0].count;
+            const maxCount = kpi.topRules[0]?.count ?? 0;
             return (
               <div key={r.ruleCode} style={{ marginBottom: 8 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

@@ -64,4 +64,38 @@ export class AuditService {
     ])
     return { total, last24h }
   }
+
+  // 导出 CSV（从 AuditLog 表查询，最多 10000 条，按时间倒序）
+  async exportCsv(query: {
+    userId?: string
+    action?: string
+    resource?: string
+    startDate?: string
+    endDate?: string
+  }): Promise<string> {
+    const where: any = { tenantId: getCurrentTenantId() }
+    if (query.userId) where.userId = query.userId
+    if (query.action) where.action = query.action
+    if (query.resource) where.resource = query.resource
+    if (query.startDate || query.endDate) {
+      where.createdAt = {}
+      if (query.startDate) where.createdAt.gte = new Date(query.startDate)
+      if (query.endDate) where.createdAt.lte = new Date(query.endDate)
+    }
+    const rows = await this.prisma.auditLog.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      take: 10000,
+    })
+    const esc = (v: unknown) => {
+      const s = String(v ?? '')
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+    }
+    const header = ['id', 'userId', 'action', 'resource', 'details', 'ip', 'createdAt']
+    const lines = [header.map(esc).join(',')]
+    for (const r of rows) {
+      lines.push([r.id, r.userId, r.action, r.resource, r.detail, r.ip, r.createdAt?.toISOString()].map(esc).join(','))
+    }
+    return '\uFEFF' + lines.join('\r\n')
+  }
 }

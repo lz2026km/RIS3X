@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing'
-import { ReportsController } from '../src/reports/reports.controller'
+import { ReportsController, UpdateReportSchema } from '../src/reports/reports.controller'
 import { ReportsService } from '../src/reports/reports.service'
 
 const mockReport = (overrides: Record<string, any> = {}) => ({
@@ -81,9 +81,23 @@ describe('ReportsController', () => {
     expect(svc.delete).toHaveBeenCalledWith('r1', 'mistake', 'u1')
   })
 
-  it('transition delegates to service', async () => {
-    svc.transition.mockResolvedValue(mockReport({ state: 'SUBMITTED', version: 2 }) as any)
-    const r = await ctrl.transition('r1', { to: 'SUBMITTED' as any, actorId: 'd1', reason: 'review' })
-    expect(svc.transition).toHaveBeenCalledWith('r1', 'SUBMITTED', 'd1', 'review')
+  it('transition delegates to service with user from request', async () => {
+    svc.transition.mockResolvedValue(mockReport({ state: 'WRITING', version: 2 }) as any)
+    const r = await ctrl.transition('r1', { to: 'WRITING' as any, reason: 'start' }, { user: { id: 'd1' } } as any)
+    expect(svc.transition).toHaveBeenCalledWith('r1', 'WRITING', 'd1', 'start')
+  })
+
+  it('transition falls back to body actorId when request has no user', async () => {
+    svc.transition.mockResolvedValue(mockReport({ state: 'WRITING', version: 2 }) as any)
+    await ctrl.transition('r1', { to: 'WRITING' as any, actorId: 'd2' }, {} as any)
+    expect(svc.transition).toHaveBeenCalledWith('r1', 'WRITING', 'd2', undefined)
+  })
+
+  it('PATCH body with state is stripped by schema (cannot bypass transition)', async () => {
+    svc.update.mockResolvedValue(mockReport() as any)
+    const parsed = UpdateReportSchema.parse({ findings: 'new', conclusion: 'c', state: 'PUBLISHED' })
+    expect(parsed).not.toHaveProperty('state')
+    await ctrl.update('r1', parsed)
+    expect(svc.update).toHaveBeenCalledWith('r1', { findings: 'new', conclusion: 'c' })
   })
 })

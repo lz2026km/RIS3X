@@ -48,6 +48,21 @@ const ROLE_META: Record<Role, { color: string; label: string; description: strin
   AUDITOR: { color: 'purple', label: '审计员', description: '审计/只读' },
 }
 
+/** 中文角色名 → 英文枚举（后端可能返回中文角色） */
+const ROLE_ALIAS: Record<string, Role> = {
+  管理员: 'ADMIN', 系统管理员: 'ADMIN',
+  主任: 'DIRECTOR', 科主任: 'DIRECTOR',
+  医生: 'DOCTOR', 诊断医师: 'DOCTOR',
+  技师: 'TECHNICIAN',
+  护士: 'NURSE',
+  登记员: 'REGISTRAR',
+  审计员: 'AUDITOR',
+}
+
+function resolveRoleMeta(r: string): { color: string; label: string; description: string } {
+  return ROLE_META[r as Role] ?? ROLE_META[ROLE_ALIAS[r] ?? 'DOCTOR']
+}
+
 export interface UserManagementProps {
   users: UserAccount[]
   onCreate?: (u: Omit<UserAccount, 'id' | 'createdAt' | 'failedLogins'>) => void
@@ -134,7 +149,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({ users, onCreate,
           {
             title: '角色', dataIndex: 'role', width: 120,
             render: (r: Role) => {
-              const m = ROLE_META[r]
+              const m = resolveRoleMeta(String(r))
               return <Tag color={m.color} data-testid={`user-role-${r}`}>{m.label}</Tag>
             },
           },

@@ -70,18 +70,25 @@ export const V3ReportHubPage: React.FC = () => {
   useEffect(() => { void loadAll(); }, [loadAll]);
 
   // [v3.0.6.11-54] Phase 2: 接入 reportApi 真实报告列表
-  const loadReports = useCallback(async () => {
+  const [reportPage, setReportPage] = useState(1);
+  const [reportTotal, setReportTotal] = useState(0);
+  const REPORT_PAGE_SIZE = 10;
+  const loadReports = useCallback(async (p: number = reportPage) => {
     setReportsLoading(true);
     try {
-      const res = await reportApi.list({ page: 1, pageSize: 10 });
-      if (res.success) setReports((res.data ?? []).slice(0, 10));
+      const res = await reportApi.list({ page: p, pageSize: REPORT_PAGE_SIZE });
+      if (res.success) {
+        setReports(res.data ?? []);
+        setReportTotal(res.meta?.total ?? res.data?.length ?? 0);
+      }
     } catch {
       setReports([]);
+      setReportTotal(0);
     } finally {
       setReportsLoading(false);
     }
-  }, []);
-  useEffect(() => { void loadReports(); }, [loadReports]);
+  }, [reportPage]);
+  useEffect(() => { void loadReports(reportPage); }, [loadReports, reportPage]);
 
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
@@ -128,14 +135,14 @@ export const V3ReportHubPage: React.FC = () => {
                   size="small"
                   title="最近报告 (reportApi)"
                   style={{ marginTop: 16 }}
-                  extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadReports()}>刷新</Button>}
+                  extra={<Button icon={<RefreshCw size={12} />} onClick={() => void loadReports(reportPage)}>刷新</Button>}
                 >
                   <Table
                     rowKey={(r) => r.id ?? r.reportId ?? ''}
                     size="small"
                     loading={reportsLoading}
                     dataSource={reports}
-                    pagination={false}
+                    pagination={{ current: reportPage, pageSize: REPORT_PAGE_SIZE, total: reportTotal, onChange: setReportPage, showSizeChanger: false }}
                     columns={[
                       { title: '报告号', key: 'no', render: (_: unknown, r: any) => r.reportId ?? r.id },
                       { title: '患者', key: 'patient', render: (_: unknown, r: any) => r.patientName ?? '-' },

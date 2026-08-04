@@ -115,6 +115,31 @@ export const systemHandlers = [
       },
     });
   }),
+  http.get(`${API_BASE}/audit/export`, ({ request }) => {
+    const url = new URL(request.url);
+    const action = url.searchParams.get('action');
+    const userId = url.searchParams.get('userId');
+    const resource = url.searchParams.get('resource');
+    const filtered = AUDIT_LOGS.filter((l) =>
+      (!action || l.action === action) &&
+      (!userId || l.userId === userId) &&
+      (!resource || String(l.resource ?? '').includes(resource))
+    );
+    const esc = (v: unknown) => {
+      const s = String(v ?? '');
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const lines = ['id', 'userId', 'username', 'action', 'resource', 'resourceId', 'details', 'ip', 'status', 'createdAt'];
+    const out = [lines.join(',')];
+    for (const l of filtered) {
+      out.push([
+        l.id, l.userId, l.username, l.action, l.resource, l.resourceId, l.details, l.ip, l.status, l.createdAt,
+      ].map(esc).join(','));
+    }
+    return new HttpResponse('\uFEFF' + out.join('\r\n'), {
+      headers: { 'Content-Type': 'text/csv; charset=utf-8' },
+    });
+  }),
   http.get(`${API_BASE}/audit/aggregation`, () => {
     const byAction: Record<string, number> = {};
     const byResource: Record<string, number> = {};

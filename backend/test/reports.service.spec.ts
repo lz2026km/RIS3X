@@ -108,6 +108,16 @@ describe('ReportsService', () => {
       expect(result.findings).toBe('updated')
     })
 
+    it('strips state from dto (PATCH cannot bypass transition)', async () => {
+      txMock.report.findUnique.mockResolvedValue(mockReport)
+      txMock.report.update.mockResolvedValue({ ...mockReport, findings: 'f' })
+      await svc.update('r1', { findings: 'f', state: 'PUBLISHED' } as any)
+      const updateCall = txMock.report.update.mock.calls[0][0]
+      expect(updateCall.data).not.toHaveProperty('state')
+      expect(updateCall.data).toHaveProperty('findings', 'f')
+      expect(updateCall.data).toHaveProperty('version')
+    })
+
     it('throws ConflictException on version conflict', async () => {
       txMock.report.findUnique.mockResolvedValue(mockReport)
       txMock.report.update.mockRejectedValue({ code: 'P2025' })
@@ -149,9 +159,88 @@ describe('ReportsService', () => {
   describe('transition', () => {
     it('transitions report state and creates revision', async () => {
       mockPrisma.report.findUnique.mockResolvedValue(mockReport)
-      txMock.report.update.mockResolvedValue({ ...mockReport, state: 'SUBMITTED' })
-      const result = await svc.transition('r1', 'SUBMITTED' as any, 'd1')
-      expect(result.state).toBe('SUBMITTED')
+      txMock.report.update.mockResolvedValue({ ...mockReport, state: 'WRITING' })
+      const result = await svc.transition('r1', 'WRITING' as any, 'd1')
+      expect(result.state).toBe('WRITING')
+      expect(txMock.reportRevision.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({ reportId: 'r1', actorId: 'd1', fromState: 'PENDING_ASSIGNMENT', toState: 'WRITING' }),
+      })
+    })
+
+    it('SIGNED writes signedAt and signedById', async () => {
+      mockPrisma.report.findUnique.mockResolvedValue({ ...mockReport, state: 'REVIEWED' })
+      txMock.report.update.mockResolvedValue({ ...mockReport, state: 'SIGNED', signedAt: new Date(), signedById: 'd1' })
+      const result = await svc.transition('r1', 'SIGNED' as any, 'd1')
+      expect(txMock.report.update).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ signedAt: expect.any(Date), signedById: 'd1' }) }),
+      )
+      expect(result.signedAt).not.toBeNull()
+      expect(result.signedById).toBe('d1')
+    })
+
+    it('REVIEWED writes reviewedAt and reviewerId', async () => {
+      mockPrisma.report.findUnique.mockResolvedValue({ ...mockReport, state: 'SUBMITTED' })
+      txMock.report.update.mockResolvedValue({ ...mockReport, state: 'REVIEWED', reviewedAt: new Date(), reviewerId: 'r1' })
+      const result = await svc.transition('r1', 'REVIEWED' as any, 'r1')
+      expect(txMock.report.update).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ reviewedAt: expect.any(Date), reviewerId: 'r1' }) }),
+      )
+      expect(result.reviewerId).toBe('r1')
+    })
+
+    it('PUBLISHED writes publishedAt', async () => {
+      mockPrisma.report.findUnique.mockResolvedValue({ ...mockReport, state: 'SIGNED' })
+      txMock.report.update.mockResolvedValue({ ...mockReport, state: 'PUBLISHED', publishedAt: new Date() })
+      const result = await svc.transition('r1', 'PUBLISHED' as any, 'd1')
+      expect(txMock.report.update).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ publishedAt: expect.any(Date) }) }),
+      )
+      expect(result.publishedAt).not.toBeNull()
+    })
+
+    it('AMENDED increments rectificationCount and stores amendmentReason', async () => {
+      mockPrisma.report.findUnique.mockResolvedValue({ ...mockReport, state: 'SIGNED' })
+      txMock.report.update.mockResolvedValue({ ...mockReport, state: 'AMENDED' })
+      await svc.transition('r1', 'AMENDED' as any, 'd1', '补充影像细节')
+      expect(txMock.report.update).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ rectificationCount: { increment: 1 }, amendmentReason: '补充影像细节' }) }),
+      )
+    })
+
+    it('SUPPLEMENTING increments supplementCount', async () => {
+      mockPrisma.report.findUnique.mockResolvedValue({ ...mockReport, state: 'SIGNED' })
+      txMock.report.update.mockResolvedValue({ ...mockReport, state: 'SUPPLEMENTING' })
+      await svc.transition('r1', 'SUPPLEMENTING' as any, 'd1')
+      expect(txMock.report.update).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ supplementCount: { increment: 1 } }) }),
+      )
+    })
+
+    it('REJECTED persists rejectReason', async () => {
+      mockPrisma.report.findUnique.mockResolvedValue({ ...mockReport, state: 'WRITING' })
+      txMock.report.update.mockResolvedValue({ ...mockReport, state: 'REJECTED', rejectReason: '影像不清晰' })
+      const result = await svc.transition('r1', 'REJECTED' as any, 'r1', '影像不清晰')
+      expect(txMock.report.update).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ rejectReason: '影像不清晰' }) }),
+      )
+      expect(result.rejectReason).toBe('影像不清晰')
+    })
+
+    it('REJECTED without reason throws BadRequestException', async () => {
+      mockPrisma.report.findUnique.mockResolvedValue({ ...mockReport, state: 'WRITING' })
+      await expect(svc.transition('r1', 'REJECTED' as any, 'r1')).rejects.toThrow(BadRequestException)
+    })
+
+    it('rejects illegal transition WRITING → PUBLISHED with 400', async () => {
+      mockPrisma.report.findUnique.mockResolvedValue({ ...mockReport, state: 'WRITING' })
+      await expect(svc.transition('r1', 'PUBLISHED' as any, 'd1')).rejects.toThrow(BadRequestException)
+      expect(txMock.report.update).not.toHaveBeenCalled()
+    })
+
+    it('rejects illegal transition PENDING_ASSIGNMENT → SUBMITTED with 400', async () => {
+      mockPrisma.report.findUnique.mockResolvedValue(mockReport)
+      await expect(svc.transition('r1', 'SUBMITTED' as any, 'd1')).rejects.toThrow(BadRequestException)
+      expect(txMock.reportRevision.create).not.toHaveBeenCalled()
     })
 
     it('throws when report not found', async () => {

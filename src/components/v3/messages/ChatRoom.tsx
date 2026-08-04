@@ -3,7 +3,7 @@
  * 对标飞利浦 / 联影协同 — 文本/图片/文件/语音 4 类消息
  */
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
-import { List, Input, Button, Space, Avatar, Tag, Tooltip, Empty } from 'antd'
+import { List, Input, Button, Space, Avatar, Tag, Tooltip, Empty, message } from 'antd'
 import { Send, Paperclip, Image as ImageIcon, Mic, Smile } from 'lucide-react'
 import { MentionPicker, type MentionUser, SAMPLE_USERS } from '../messages/MentionPicker'
 
@@ -55,7 +55,12 @@ export const ChatRoom: React.FC<ChatRoomProps> = ({
 }) => {
   const [draft, setDraft] = useState('')
   const [mentionOpen, setMentionOpen] = useState(false)
+  const [emojiOpen, setEmojiOpen] = useState(false)
   const listRef = useRef<HTMLDivElement | null>(null)
+  const fileRef = useRef<HTMLInputElement | null>(null)
+  const imageRef = useRef<HTMLInputElement | null>(null)
+
+  const EMOJIS = ['😀', '😄', '😂', '😊', '😍', '🤔', '👍', '👏', '🙏', '💯', '✅', '⚠️', '❤️', '🎉', '📋', '🏥', '🧑‍⚕️', '🩻']
 
   useEffect(() => {
     if (listRef.current) {
@@ -78,6 +83,40 @@ export const ChatRoom: React.FC<ChatRoomProps> = ({
     onSend?.(msg)
     setDraft('')
   }, [draft, currentUser, onSend])
+
+  // 附件：选择本地文件并发送 file 消息
+  const handleFilePick = useCallback((file: File) => {
+    const msg: ChatMessage = {
+      id: `m_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      type: 'file',
+      author: currentUser,
+      content: file.name,
+      mentions: [],
+      timestamp: Date.now(),
+    }
+    onSend?.(msg)
+    message.success(`已发送附件: ${file.name}`)
+  }, [currentUser, onSend])
+
+  // 图片：本地预览 + 发送 image 消息
+  const handleImagePick = useCallback((file: File) => {
+    const url = URL.createObjectURL(file)
+    const msg: ChatMessage = {
+      id: `m_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      type: 'image',
+      author: currentUser,
+      content: url,
+      mentions: [],
+      timestamp: Date.now(),
+    }
+    onSend?.(msg)
+    message.success(`已发送图片: ${file.name}`)
+  }, [currentUser, onSend])
+
+  // 表情：插入输入框
+  const handleEmojiPick = useCallback((emoji: string) => {
+    setDraft((prev) => prev + emoji)
+  }, [])
 
   const handleKey = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -126,7 +165,28 @@ export const ChatRoom: React.FC<ChatRoomProps> = ({
                       <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 2 }}>
                         {m.author.name} · {formatTime(m.timestamp)}
                       </div>
-                      <div style={{ whiteSpace: 'pre-wrap' }}>{m.content}</div>
+                      {m.type === 'image' ? (
+                        <img
+                          src={m.content}
+                          alt="chat-image"
+                          style={{ maxWidth: 260, maxHeight: 200, borderRadius: 6, display: 'block' }}
+                          onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = '0.4' }}
+                        />
+                      ) : m.type === 'file' ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <span>📎</span>
+                          <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>{m.content}</span>
+                          <Tag color="blue" style={{ fontSize: 11, cursor: 'pointer' }} onClick={() => { navigator.clipboard?.writeText(m.content); message.success('附件名已复制') }}>复制</Tag>
+                        </div>
+                      ) : m.type === 'voice' ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <span>🎤</span>
+                          <span>{m.content}</span>
+                          <Tag style={{ fontSize: 11 }}>语音</Tag>
+                        </div>
+                      ) : (
+                        <div style={{ whiteSpace: 'pre-wrap' }}>{m.content}</div>
+                      )}
                       {m.mentions && m.mentions.length > 0 && (
                         <div style={{ marginTop: 4 }}>
                           {m.mentions.map((u) => (
@@ -147,18 +207,66 @@ export const ChatRoom: React.FC<ChatRoomProps> = ({
       <div style={{ padding: 8, borderTop: '1px solid #e2e8f0' }}>
         <Space.Compact style={{ width: '100%' }}>
           <Tooltip title="附件">
-            <Button icon={<Paperclip size={14} />} />
+            <Button icon={<Paperclip size={14} />} onClick={() => fileRef.current?.click()} data-testid="chat-attach" />
           </Tooltip>
           <Tooltip title="图片">
-            <Button icon={<ImageIcon size={14} />} />
+            <Button icon={<ImageIcon size={14} />} onClick={() => imageRef.current?.click()} data-testid="chat-image" />
           </Tooltip>
           <Tooltip title="语音">
-            <Button icon={<Mic size={14} />} />
+            <Button icon={<Mic size={14} />} onClick={() => message.warning('语音消息需连接音频设备')} data-testid="chat-voice" />
           </Tooltip>
           <Tooltip title="表情">
-            <Button icon={<Smile size={14} />} />
+            <Button icon={<Smile size={14} />} onClick={() => setEmojiOpen(o => !o)} data-testid="chat-emoji" />
           </Tooltip>
         </Space.Compact>
+        <input
+          ref={fileRef}
+          type="file"
+          style={{ display: 'none' }}
+          onChange={(e) => {
+            const f = e.target.files?.[0]
+            if (f) handleFilePick(f)
+            e.target.value = ''
+          }}
+        />
+        <input
+          ref={imageRef}
+          type="file"
+          accept="image/*"
+          style={{ display: 'none' }}
+          onChange={(e) => {
+            const f = e.target.files?.[0]
+            if (f) handleImagePick(f)
+            e.target.value = ''
+          }}
+        />
+        {emojiOpen && (
+          <div
+            data-testid="chat-emoji-panel"
+            style={{
+              marginTop: 8,
+              padding: 8,
+              border: '1px solid #e2e8f0',
+              borderRadius: 6,
+              background: '#fff',
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 4,
+              maxWidth: 280,
+            }}
+          >
+            {EMOJIS.map((e) => (
+              <button
+                key={e}
+                type="button"
+                onClick={() => handleEmojiPick(e)}
+                style={{ border: 'none', background: 'transparent', fontSize: 18, cursor: 'pointer', padding: 2 }}
+              >
+                {e}
+              </button>
+            ))}
+          </div>
+        )}
         <Input.TextArea
           data-testid="chat-input"
           value={draft}

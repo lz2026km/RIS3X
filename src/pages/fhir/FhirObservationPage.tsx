@@ -3,18 +3,22 @@ import { Card, Table, Button, Space, Tag, Form, Input, Select, message, Empty, M
 import { Activity, Search, RefreshCw, Eye } from 'lucide-react'
 import { fhirApi, type FhirObservation } from '../../services/api/fhirApi'
 
+const PAGE_SIZE = 10
+
 export const FhirObservationPage: React.FC = () => {
   const [observations, setObservations] = useState<FhirObservation[]>([])
   const [loading, setLoading] = useState(false)
   const [total, setTotal] = useState(0)
+  const [page, setPage] = useState(1)
+  const [search, setSearch] = useState<{ patient?: string }>({})
   const [searchForm] = Form.useForm()
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedObs, setSelectedObs] = useState<FhirObservation | null>(null)
 
-  const fetchObservations = useCallback(async (params?: { patient?: string; _count?: string }) => {
+  const fetchObservations = useCallback(async (p: number = 1, params: { patient?: string } = {}) => {
     setLoading(true)
     try {
-      const res = await fhirApi.searchObservation({ _count: '20', ...params })
+      const res = await fhirApi.searchObservation({ _count: '200', ...params, page: String(p) })
       if (res.success && res.data) {
         const entries = res.data.entry || []
         setObservations(entries.map((e) => e.resource as FhirObservation))
@@ -31,11 +35,12 @@ export const FhirObservationPage: React.FC = () => {
     setLoading(false)
   }, [])
 
-  useEffect(() => { fetchObservations() }, [fetchObservations])
+  useEffect(() => { fetchObservations(page, search) }, [fetchObservations, page, search])
 
   const handleSearch = async () => {
     const values = searchForm.getFieldsValue()
-    fetchObservations({ patient: values.patient })
+    setSearch({ patient: values.patient })
+    setPage(1)
   }
 
   const columns = [
@@ -101,7 +106,7 @@ export const FhirObservationPage: React.FC = () => {
           <Form.Item>
             <Space>
               <Button type="primary" icon={<Search size={14} />} htmlType="submit" loading={loading}>搜索</Button>
-              <Button icon={<RefreshCw size={14} />} onClick={() => { searchForm.resetFields(); fetchObservations() }}>刷新</Button>
+              <Button icon={<RefreshCw size={14} />} onClick={() => { searchForm.resetFields(); setSearch({}); setPage(1) }}>刷新</Button>
             </Space>
           </Form.Item>
         </Form>
@@ -109,11 +114,11 @@ export const FhirObservationPage: React.FC = () => {
 
       <Card size="small" title={`Observation 列表 (${total})`}>
         <Table
-          dataSource={observations}
+          dataSource={observations.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)}
           columns={columns}
           rowKey="id"
           loading={loading}
-          pagination={{ total, pageSize: 10 }}
+          pagination={{ current: page, total, pageSize: PAGE_SIZE, onChange: setPage, showSizeChanger: false }}
           size="small"
         />
       </Card>

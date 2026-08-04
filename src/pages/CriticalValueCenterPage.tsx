@@ -4,18 +4,38 @@
 // 聚合 CriticalValuePage / CriticalValueRulePage / CriticalValueStatsPage
 // ============================================================
 
-import React, { useMemo } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AlertOctagon, Bell, BarChart3, Settings, Activity, TrendingUp, ShieldAlert } from 'lucide-react'
-import { CRITICAL_RULES, CRITICAL_KPI } from '../data/criticalValueMock'
+import { CRITICAL_RULES } from '../data/criticalValueMock'
+import { criticalApi, type CriticalStatsDto } from '../services/api/criticalApi'
 
 const CriticalValueCenterPage: React.FC = () => {
-  const stats = useMemo(() => {
-    return {
-      rules: CRITICAL_RULES.length,
-      kpi: CRITICAL_KPI,
-    }
+  const [stats, setStats] = useState<CriticalStatsDto | null>(null)
+  const [rulesCount, setRulesCount] = useState(CRITICAL_RULES.length)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const [statsRes, rulesRes] = await Promise.all([
+          criticalApi.getStats(),
+          criticalApi.listCriticalExtRules(),
+        ])
+        if (cancelled) return
+        if (statsRes.success && statsRes.data) setStats(statsRes.data)
+        if (rulesRes.success && Array.isArray(rulesRes.data)) setRulesCount(rulesRes.data.length)
+      } catch {
+        // 保持 mock 常量兜底
+      }
+    })()
+    return () => { cancelled = true }
   }, [])
+
+  const pending = stats?.pending ?? 0
+  const notified = stats?.notified ?? 0
+  const resolved = stats?.resolved ?? 0
+  const escalated = stats?.escalated ?? 0
 
   return (
     <div className="p-6 space-y-4" data-testid="critical-value-center-page">
@@ -29,25 +49,25 @@ const CriticalValueCenterPage: React.FC = () => {
         <Link to="/critical-value" className="rounded-lg border bg-white p-4 hover:shadow-md transition">
           <AlertOctagon className="text-red-600 mb-2" size={24} />
           <div className="text-sm text-gray-500">待处理</div>
-          <div className="text-2xl font-bold mt-1 text-red-600">{stats.kpi.pendingCount}</div>
+          <div className="text-2xl font-bold mt-1 text-red-600">{pending}</div>
           <div className="text-xs text-gray-400 mt-1">→ 危急值管理</div>
         </Link>
         <Link to="/critical-value" className="rounded-lg border bg-white p-4 hover:shadow-md transition">
           <Bell className="text-amber-600 mb-2" size={24} />
           <div className="text-sm text-gray-500">已通知</div>
-          <div className="text-2xl font-bold mt-1 text-amber-600">{stats.kpi.notifiedCount}</div>
+          <div className="text-2xl font-bold mt-1 text-amber-600">{notified}</div>
           <div className="text-xs text-gray-400 mt-1">→ 通知状态</div>
         </Link>
         <Link to="/critical-value" className="rounded-lg border bg-white p-4 hover:shadow-md transition">
           <Activity className="text-blue-600 mb-2" size={24} />
           <div className="text-sm text-gray-500">已闭环</div>
-          <div className="text-2xl font-bold mt-1 text-green-600">{stats.kpi.resolvedCount}</div>
+          <div className="text-2xl font-bold mt-1 text-green-600">{resolved}</div>
           <div className="text-xs text-gray-400 mt-1">→ 闭环趋势</div>
         </Link>
         <Link to="/critical-value" className="rounded-lg border bg-white p-4 hover:shadow-md transition">
           <TrendingUp className="text-orange-600 mb-2" size={24} />
           <div className="text-sm text-gray-500">超时</div>
-          <div className="text-2xl font-bold mt-1 text-orange-600">{stats.kpi.overdueCount}</div>
+          <div className="text-2xl font-bold mt-1 text-orange-600">{escalated}</div>
           <div className="text-xs text-gray-400 mt-1">→ 升级处理</div>
         </Link>
       </div>
@@ -77,7 +97,7 @@ const CriticalValueCenterPage: React.FC = () => {
       </div>
 
       <div className="rounded-lg border bg-white p-4">
-        <h2 className="font-semibold mb-3">危急值规则库 ({stats.rules} 条)</h2>
+        <h2 className="font-semibold mb-3">危急值规则库 ({rulesCount} 条)</h2>
         <div className="grid grid-cols-2 gap-2 text-sm">
           {CRITICAL_RULES.slice(0, 10).map((r) => (
             <div key={r.id} className="flex items-center gap-2 p-2 bg-red-50 rounded">

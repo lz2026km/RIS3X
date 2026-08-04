@@ -114,7 +114,7 @@ export const fhirApi = {
   // ════════════════════════════════════════ Patient ════════════════════════
   readPatient: (id: string) => api.get<FhirPatient>(`/fhir/r4/Patient/${id}`),
 
-  searchPatient: (params?: { name?: string; identifier?: string; birthdate?: string; _count?: string }) => {
+  searchPatient: (params?: { name?: string; identifier?: string; birthdate?: string; _count?: string; page?: string }) => {
     const qs = new URLSearchParams()
     if (params) { Object.entries(params).forEach(([k, v]) => { if (v !== undefined) qs.set(k, v) }) }
     return api.get<FhirSearchResult>(`/fhir/r4/Patient?${qs.toString()}`)
@@ -135,7 +135,7 @@ export const fhirApi = {
   // ════════════════════════════════════ Observation ════════════════════════
   readObservation: (id: string) => api.get<FhirObservation>(`/fhir/r4/Observation/${id}`),
 
-  searchObservation: (params?: { patient?: string; _count?: string }) => {
+  searchObservation: (params?: { patient?: string; _count?: string; page?: string }) => {
     const qs = new URLSearchParams()
     if (params) { Object.entries(params).forEach(([k, v]) => { if (v !== undefined) qs.set(k, v) }) }
     return api.get<FhirSearchResult>(`/fhir/r4/Observation?${qs.toString()}`)
@@ -145,7 +145,7 @@ export const fhirApi = {
   readDiagnosticReport: (id: string) =>
     api.get<FhirDiagnosticReport>(`/fhir/r4/DiagnosticReport/${id}`),
 
-  searchDiagnosticReport: (params?: { patient?: string; status?: string; _count?: string }) => {
+  searchDiagnosticReport: (params?: { patient?: string; status?: string; _count?: string; page?: string }) => {
     const qs = new URLSearchParams()
     if (params) { Object.entries(params).forEach(([k, v]) => { if (v !== undefined) qs.set(k, v) }) }
     return api.get<FhirSearchResult>(`/fhir/r4/DiagnosticReport?${qs.toString()}`)
@@ -155,7 +155,7 @@ export const fhirApi = {
   readImagingStudy: (id: string) =>
     api.get<FhirImagingStudy>(`/fhir/r4/ImagingStudy/${id}`),
 
-  searchImagingStudy: (params?: { patient?: string; modality?: string; _count?: string }) => {
+  searchImagingStudy: (params?: { patient?: string; modality?: string; _count?: string; page?: string }) => {
     const qs = new URLSearchParams()
     if (params) { Object.entries(params).forEach(([k, v]) => { if (v !== undefined) qs.set(k, v) }) }
     return api.get<FhirSearchResult>(`/fhir/r4/ImagingStudy?${qs.toString()}`)

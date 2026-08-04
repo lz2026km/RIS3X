@@ -44,11 +44,10 @@ export default function CriticalValue5StepPage() {
   useEffect(() => {
     let cancelled = false
     setLoading(true)
-    fetch('/api/v1/critical/value5step/list')
-      .then(r => r.json())
+    criticalApi.getValue5StepList()
       .then(res => {
-        if (!cancelled && res.success && Array.isArray(res.data)) {
-          setData(res.data)
+        if (!cancelled && res.success && res.data && Array.isArray(res.data.items)) {
+          setData(res.data.items as CriticalValue5Step[])
         }
       })
       .catch((err) => { console.error('[F04]', err); })
@@ -215,8 +214,8 @@ export default function CriticalValue5StepPage() {
       {/* 列表 */}
       <Card title="危急值工作流列表" extra={<Button icon={<RefreshCw size={14} />} onClick={() => {
         setLoading(true)
-        fetch('/api/v1/critical/value5step/list').then(r => r.json()).then(res => {
-          if (res.success && Array.isArray(res.data)) setData(res.data)
+        criticalApi.getValue5StepList().then(res => {
+          if (res.success && res.data && Array.isArray(res.data.items)) setData(res.data.items as CriticalValue5Step[])
         }).catch((err) => { console.error('[F04]', err); }).finally(() => setLoading(false))
       }}>刷新</Button>}>
         {loading ? (

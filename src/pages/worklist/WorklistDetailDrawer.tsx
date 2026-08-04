@@ -22,12 +22,18 @@ import {
   initialExamRooms,
 } from "../../data/initialData";
 import type { RadiologyExam } from "../../types";
+import { normalizeExamStatus } from "../../utils/statusMaps";
 import { AppDrawer } from "../../components/common/AppDrawer";
 
 const STATUS_CONFIG: Record<
   string,
   { bg: string; color: string; label: string }
 > = {
+  SCHEDULED: { bg: "#dbeafe", color: "#2563eb", label: "已登记" },
+  ARRIVED: { bg: "#ede9fe", color: "#7c3aed", label: "已报到" },
+  IN_PROGRESS: { bg: "#fce7f3", color: "#db2777", label: "检查中" },
+  COMPLETED: { bg: "#d1fae5", color: "#059669", label: "已完成" },
+  CANCELLED: { bg: "#fee2e2", color: "#ef4444", label: "已取消" },
   已登记: { bg: "#dbeafe", color: "#2563eb", label: "已登记" },
   待检查: { bg: "#ede9fe", color: "#7c3aed", label: "待检查" },
   检查中: { bg: "#fce7f3", color: "#db2777", label: "检查中" },
@@ -222,9 +228,7 @@ export function DetailDrawer({
           status: "采集",
         }
       : null,
-    exam.status === "待报告" ||
-    exam.status === "已报告" ||
-    exam.status === "已发布"
+    normalizeExamStatus(exam.status) === "COMPLETED"
       ? {
           time:
             exam.examDate +
@@ -864,13 +868,13 @@ export function DetailDrawer({
           onClick={() => onWriteReport?.(exam)}
           style={{
             padding: "10px 16px",
-            background: exam.status === "待报告" ? "#1e3a5f" : "#e2e8f0",
+            background: normalizeExamStatus(exam.status) === "COMPLETED" ? "#1e3a5f" : "#e2e8f0",
             border: "none",
             borderRadius: 8,
             fontSize: 12,
             fontWeight: 600,
-            color: exam.status === "待报告" ? "#fff" : "#94a3b8",
-            cursor: exam.status === "待报告" ? "pointer" : "not-allowed",
+            color: normalizeExamStatus(exam.status) === "COMPLETED" ? "#fff" : "#94a3b8",
+            cursor: normalizeExamStatus(exam.status) === "COMPLETED" ? "pointer" : "not-allowed",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -878,7 +882,7 @@ export function DetailDrawer({
           }}
         >
           <FileText size={12} />
-          {exam.status === "待报告" ? "书写报告" : "查看报告"}
+          {normalizeExamStatus(exam.status) === "COMPLETED" ? "书写报告" : "查看报告"}
         </button>
         <button
           onClick={() => onStartExam?.(exam)}

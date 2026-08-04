@@ -31,10 +31,19 @@ export const NotificationTemplateDictPage: React.FC = () => {
   const [dictModal, setDictModal] = useState<{ type: 'create' | 'update' | null; data: any }>({ type: null, data: {} });
   const [dictFilter, setDictFilter] = useState({ category: '', keyword: '' });
 
+  const [tplForm] = Form.useForm();
+  const [dictForm] = Form.useForm();
+
+  // 分页
+  const PAGE_SIZE = 10;
+  const [notifPage, setNotifPage] = useState(1);
+  const [tplPage, setTplPage] = useState(1);
+  const [dictPage, setDictPage] = useState(1);
+
   // 加载
   const loadNotifs = async () => {
     try {
-      const r = await notificationApi.list({ pageSize: 50 });
+      const r = await notificationApi.list();
       if (r.success) setNotifs(r.data);
       const u = await notificationApi.unread();
       if (u.success) setUnreadCount(u.data.unread);
@@ -43,14 +52,14 @@ export const NotificationTemplateDictPage: React.FC = () => {
 
   const loadTemplates = async () => {
     try {
-      const r = await templateApi.list({ pageSize: 50 });
+      const r = await templateApi.list();
       if (r.success) setTemplates(r.data);
     } catch (e: any) { message.error(e.message); }
   };
 
   const loadDict = async () => {
     try {
-      const r = await dictionaryApi.list({ pageSize: 100 });
+      const r = await dictionaryApi.list();
       if (r.success) setDictItems(r.data);
     } catch (e: any) { message.error(e.message); }
   };
@@ -72,23 +81,65 @@ export const NotificationTemplateDictPage: React.FC = () => {
     } catch (e: any) { message.error(e.message); }
   };
 
+  const openTplModal = (type: 'create' | 'update', data: any) => {
+    tplForm.setFieldsValue({
+      name: data.name,
+      modality: data.modality,
+      category: data.category,
+      isDefault: !!data.isDefault,
+      description: data.description,
+    });
+    setTplModal({ type, data: { ...data, isDefault: !!data.isDefault } });
+  };
+
   const handleTplSave = async () => {
-    if (!tplModal.data.name) return message.warning('请填写名称');
+    let values: any;
+    try {
+      values = await tplForm.validateFields();
+    } catch (e: any) {
+      if (e?.errorFields?.length) return;
+      message.error(e.message);
+      return;
+    }
+    const payload = { ...tplModal.data, ...values, isDefault: !!values.isDefault };
     try {
       let r;
-      if (tplModal.type === 'create') r = await templateApi.create(tplModal.data);
-      else r = await templateApi.update(tplModal.data.id, tplModal.data);
-      if (r.success) { message.success('保存成功'); setTplModal({ type: null, data: {} }); loadTemplates(); }
+      if (tplModal.type === 'create') r = await templateApi.create(payload);
+      else r = await templateApi.update(payload.id, payload);
+      if (r.success) { message.success('保存成功'); setTplModal({ type: null, data: {} }); tplForm.resetFields(); loadTemplates(); }
+      else message.error(r.error?.message ?? '保存失败');
     } catch (e: any) { message.error(e.message); }
   };
 
+  const openDictModal = (type: 'create' | 'update', data: any) => {
+    dictForm.setFieldsValue({
+      category: data.category,
+      code: data.code,
+      name: data.name,
+      enName: data.enName,
+      description: data.description,
+      sortOrder: data.sortOrder || 0,
+      isActive: data.isActive !== false,
+    });
+    setDictModal({ type, data: { ...data } });
+  };
+
   const handleDictSave = async () => {
-    if (!dictModal.data.code || !dictModal.data.name) return message.warning('请填写编码和名称');
+    let values: any;
+    try {
+      values = await dictForm.validateFields();
+    } catch (e: any) {
+      if (e?.errorFields?.length) return;
+      message.error(e.message);
+      return;
+    }
+    const payload = { ...dictModal.data, ...values, isActive: !!values.isActive };
     try {
       let r;
-      if (dictModal.type === 'create') r = await dictionaryApi.create(dictModal.data);
-      else r = await dictionaryApi.update(dictModal.data.id, dictModal.data);
-      if (r.success) { message.success('保存成功'); setDictModal({ type: null, data: {} }); loadDict(); }
+      if (dictModal.type === 'create') r = await dictionaryApi.create(payload);
+      else r = await dictionaryApi.update(payload.id, payload);
+      if (r.success) { message.success('保存成功'); setDictModal({ type: null, data: {} }); dictForm.resetFields(); loadDict(); }
+      else message.error(r.error?.message ?? '保存失败');
     } catch (e: any) { message.error(e.message); }
   };
 
@@ -188,7 +239,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
                   />
                 </List.Item>
               )}
-              pagination={{ pageSize: 10 }}
+              pagination={{ current: notifPage, pageSize: PAGE_SIZE, total: filteredNotifs.length, onChange: setNotifPage, showSizeChanger: false }}
             />
           </Card>
         </Tabs.TabPane>
@@ -202,7 +253,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
               <Space>
                 <Select size="small" value={tplFilter.modality || undefined} onChange={v => setTplFilter({ ...tplFilter, modality: v })} allowClear placeholder="模态" style={{ width: 100 }} options={['CT','MR','DR','US','MG'].map(m=>({value:m,label:m}))} />
                 <Select size="small" value={tplFilter.category || undefined} onChange={v => setTplFilter({ ...tplFilter, category: v })} allowClear placeholder="类别" style={{ width: 100 }} options={['CT','MR','DR','US','MG','通用'].map(c=>({value:c,label:c}))} />
-                <Button type="primary" icon={<Plus size={14} />} onClick={() => setTplModal({ type: 'create', data: { sections: [], isDefault: false } })}>新增</Button>
+                <Button type="primary" icon={<Plus size={14} />} onClick={() => openTplModal('create', { sections: [], isDefault: false })}>新增</Button>
               </Space>
             }
           >
@@ -210,7 +261,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
               size="small"
               dataSource={filteredTemplates}
               rowKey="id"
-              pagination={{ pageSize: 10 }}
+              pagination={{ current: tplPage, pageSize: PAGE_SIZE, total: filteredTemplates.length, onChange: setTplPage, showSizeChanger: false }}
               columns={[
                 { title: '名称', dataIndex: 'name' },
                 { title: '模态', dataIndex: 'modality', render: (m) => <Tag color="blue">{m}</Tag> },
@@ -219,7 +270,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
                 { title: '使用', dataIndex: 'usageCount' },
                 { title: '默认', dataIndex: 'isDefault', render: (d) => d ? <Tag color="green">是</Tag> : '-' },
                 { title: '更新', dataIndex: 'updatedAt', render: (d) => new Date(d).toLocaleDateString('zh-CN') },
-                { title: '操作', render: (_, t) => <Button type="link" size="small" icon={<Edit3 size={12} />} onClick={() => setTplModal({ type: 'update', data: { ...t } })}>编辑</Button> },
+                { title: '操作', render: (_, t) => <Button type="link" size="small" icon={<Edit3 size={12} />} onClick={() => openTplModal('update', { ...t })}>编辑</Button> },
               ]}
             />
           </Card>
@@ -234,7 +285,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
               <Space>
                 <Select size="small" value={dictFilter.category || undefined} onChange={v => setDictFilter({ ...dictFilter, category: v })} allowClear placeholder="分类" style={{ width: 150 }} options={['检查项目','诊断','药品','设备','科室','检查部位','报告模板','其他'].map(c=>({value:c,label:c}))} />
                 <Input.Search size="small" placeholder="编码/名称" value={dictFilter.keyword} onChange={e => setDictFilter({ ...dictFilter, keyword: e.target.value })} style={{ width: 180 }} />
-                <Button type="primary" icon={<Plus size={14} />} onClick={() => setDictModal({ type: 'create', data: {} })}>新增</Button>
+                <Button type="primary" icon={<Plus size={14} />} onClick={() => openDictModal('create', {})}>新增</Button>
               </Space>
             }
           >
@@ -242,7 +293,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
               size="small"
               dataSource={filteredDict}
               rowKey="id"
-              pagination={{ pageSize: 10 }}
+              pagination={{ current: dictPage, pageSize: PAGE_SIZE, total: filteredDict.length, onChange: setDictPage, showSizeChanger: false }}
               columns={[
                 { title: '分类', dataIndex: 'category', render: (c) => <Tag color="blue">{c}</Tag> },
                 { title: '编码', dataIndex: 'code' },
@@ -251,7 +302,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
                 { title: '说明', dataIndex: 'description' },
                 { title: '排序', dataIndex: 'sortOrder' },
                 { title: '状态', dataIndex: 'isActive', render: (a) => a ? <Tag color="green">启用</Tag> : <Tag>禁用</Tag> },
-                { title: '操作', render: (_, d) => <Button type="link" size="small" icon={<Edit3 size={12} />} onClick={() => setDictModal({ type: 'update', data: { ...d } })}>编辑</Button> },
+                { title: '操作', render: (_, d) => <Button type="link" size="small" icon={<Edit3 size={12} />} onClick={() => openDictModal('update', { ...d })}>编辑</Button> },
               ]}
             />
           </Card>
@@ -262,17 +313,17 @@ export const NotificationTemplateDictPage: React.FC = () => {
       <Modal
         title={tplModal.type === 'create' ? '新增模板' : '编辑模板'}
         open={!!tplModal.type}
-        onCancel={() => setTplModal({ type: null, data: {} })}
+        onCancel={() => { setTplModal({ type: null, data: {} }); tplForm.resetFields(); }}
         onOk={handleTplSave}
         width={600}
       >
-        <Form layout="vertical" size="small">
+        <Form form={tplForm} layout="vertical" size="small" initialValues={{ isDefault: false }}>
           <Row gutter={8}>
-            <Col span={16}><Form.Item label="模板名称"><Input value={tplModal.data.name} onChange={e => setTplModal({ ...tplModal, data: { ...tplModal.data, name: e.target.value } })} /></Form.Item></Col>
-            <Col span={8}><Form.Item label="模态"><Select value={tplModal.data.modality} onChange={v => setTplModal({ ...tplModal, data: { ...tplModal.data, modality: v } })} options={['CT','MR','DR','US','MG'].map(m=>({value:m,label:m}))} /></Form.Item></Col>
-            <Col span={12}><Form.Item label="类别"><Select value={tplModal.data.category} onChange={v => setTplModal({ ...tplModal, data: { ...tplModal.data, category: v } })} options={['CT','MR','DR','US','MG','通用'].map(c=>({value:c,label:c}))} /></Form.Item></Col>
-            <Col span={12}><Form.Item label="设为默认"><Switch checked={tplModal.data.isDefault} onChange={v => setTplModal({ ...tplModal, data: { ...tplModal.data, isDefault: v } })} /></Form.Item></Col>
-            <Col span={24}><Form.Item label="说明"><TextArea rows={2} value={tplModal.data.description} onChange={e => setTplModal({ ...tplModal, data: { ...tplModal.data, description: e.target.value } })} /></Form.Item></Col>
+            <Col span={16}><Form.Item name="name" label="模板名称" rules={[{ required: true, message: '请输入模板名称' }]}><Input /></Form.Item></Col>
+            <Col span={8}><Form.Item name="modality" label="模态"><Select options={['CT','MR','DR','US','MG'].map(m=>({value:m,label:m}))} /></Form.Item></Col>
+            <Col span={12}><Form.Item name="category" label="类别"><Select options={['CT','MR','DR','US','MG','通用'].map(c=>({value:c,label:c}))} /></Form.Item></Col>
+            <Col span={12}><Form.Item name="isDefault" label="设为默认" valuePropName="checked"><Switch /></Form.Item></Col>
+            <Col span={24}><Form.Item name="description" label="说明"><TextArea rows={2} /></Form.Item></Col>
           </Row>
         </Form>
       </Modal>
@@ -281,19 +332,19 @@ export const NotificationTemplateDictPage: React.FC = () => {
       <Modal
         title={dictModal.type === 'create' ? '新增词典项' : '编辑词典项'}
         open={!!dictModal.type}
-        onCancel={() => setDictModal({ type: null, data: {} })}
+        onCancel={() => { setDictModal({ type: null, data: {} }); dictForm.resetFields(); }}
         onOk={handleDictSave}
         width={500}
       >
-        <Form layout="vertical" size="small">
+        <Form form={dictForm} layout="vertical" size="small" initialValues={{ sortOrder: 0, isActive: true }}>
           <Row gutter={8}>
-            <Col span={12}><Form.Item label="分类"><Input value={dictModal.data.category} onChange={e => setDictModal({ ...dictModal, data: { ...dictModal.data, category: e.target.value } })} /></Form.Item></Col>
-            <Col span={12}><Form.Item label="编码"><Input value={dictModal.data.code} onChange={e => setDictModal({ ...dictModal, data: { ...dictModal.data, code: e.target.value } })} /></Form.Item></Col>
-            <Col span={24}><Form.Item label="名称"><Input value={dictModal.data.name} onChange={e => setDictModal({ ...dictModal, data: { ...dictModal.data, name: e.target.value } })} /></Form.Item></Col>
-            <Col span={24}><Form.Item label="英文"><Input value={dictModal.data.enName} onChange={e => setDictModal({ ...dictModal, data: { ...dictModal.data, enName: e.target.value } })} /></Form.Item></Col>
-            <Col span={24}><Form.Item label="说明"><TextArea rows={2} value={dictModal.data.description} onChange={e => setDictModal({ ...dictModal, data: { ...dictModal.data, description: e.target.value } })} /></Form.Item></Col>
-            <Col span={12}><Form.Item label="排序"><InputNumber value={dictModal.data.sortOrder || 0} onChange={v => setDictModal({ ...dictModal, data: { ...dictModal.data, sortOrder: v } })} style={{ width: '100%' }} /></Form.Item></Col>
-            <Col span={12}><Form.Item label="启用"><Switch checked={dictModal.data.isActive !== false} onChange={v => setDictModal({ ...dictModal, data: { ...dictModal.data, isActive: v } })} /></Form.Item></Col>
+            <Col span={12}><Form.Item name="category" label="分类"><Input /></Form.Item></Col>
+            <Col span={12}><Form.Item name="code" label="编码" rules={[{ required: true, message: '请输入编码' }]}><Input /></Form.Item></Col>
+            <Col span={24}><Form.Item name="name" label="名称" rules={[{ required: true, message: '请输入名称' }]}><Input /></Form.Item></Col>
+            <Col span={24}><Form.Item name="enName" label="英文"><Input /></Form.Item></Col>
+            <Col span={24}><Form.Item name="description" label="说明"><TextArea rows={2} /></Form.Item></Col>
+            <Col span={12}><Form.Item name="sortOrder" label="排序"><InputNumber style={{ width: '100%' }} /></Form.Item></Col>
+            <Col span={12}><Form.Item name="isActive" label="启用" valuePropName="checked"><Switch /></Form.Item></Col>
           </Row>
         </Form>
       </Modal>

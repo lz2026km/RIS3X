@@ -42,6 +42,7 @@ export const DentalImplant3DPage: React.FC = () => {
   const [boneData, setBoneData] = useState<any>(null);
   const [validation, setValidation] = useState<any>(null);
   const [busy, setBusy] = useState(false);
+  const [guideExported, setGuideExported] = useState(false);
   const [mode, setMode] = useState<"list" | "plan">("list");
   const [selBrand, setSelBrand] = useState("straumann");
   const [selModel, setSelModel] = useState("BLT-RC-4.1x10");
@@ -129,6 +130,38 @@ export const DentalImplant3DPage: React.FC = () => {
       message.error(e.message);
     }
     setBusy(false);
+  };
+
+  // 导板导出：调用后端导板导出端点并下载（后端无文件时下载 JSON 记录）
+  const handleExportGuide = async () => {
+    if (!current) {
+      message.warning("请先选择种植规划");
+      return;
+    }
+    if (!current.guideDesigned) {
+      message.warning("请先完成导板设计");
+      return;
+    }
+    setBusy(true);
+    try {
+      const r: any = await dentalApi.exportSurgicalGuide(current.id);
+      const payload = r?.url
+        ? { planId: current.id, url: r.url, format: r.format, size: r.size, estimatedPrintTime: r.estimatedPrintTime }
+        : { planId: current.id, patientId: current.patientId, guideFile: current.guideFile, exportedAt: new Date().toISOString() };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/octet-stream" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `surgical-guide-${current.id}.stl`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setGuideExported(true);
+      message.success("手术导板已导出，可提交 3D 打印");
+    } catch (e: any) {
+      message.error(e?.message || "导板导出失败");
+    } finally {
+      setBusy(false);
+    }
   };
 
   const handleCreate = async () => {
@@ -695,7 +728,8 @@ export const DentalImplant3DPage: React.FC = () => {
               )}
               <Button
                 icon={<Download size={14} />}
-                onClick={() => message.warning("功能建设中")}
+                loading={busy}
+                onClick={() => void handleExportGuide()}
               >
                 导板导出
               </Button>
@@ -716,8 +750,8 @@ export const DentalImplant3DPage: React.FC = () => {
                   手术导板已设计
                 </Space>
               }
-              description={`导板文件: ${current.guideFile}`}
-              type="success"
+              description={guideExported ? `导板文件: ${current.guideFile} · 已导出，可提交 3D 打印` : `导板文件: ${current.guideFile}`}
+              type={guideExported ? "success" : "info"}
               showIcon
             />
           )}

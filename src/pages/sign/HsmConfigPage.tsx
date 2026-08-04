@@ -55,6 +55,19 @@ const MOCK_KEYS: HsmKey[] = [
   { id: "KEY-005", label: "数据加密密钥", algorithm: "SM4-128", keyClass: "secret", usage: ["encrypt", "decrypt", "wrap", "unwrap"], sensitive: false, createdAt: "2026-04-10T08:00:00.000Z" },
 ];
 
+const KEYS_STORAGE_KEY = "ris.hsm.keys.v1";
+
+function loadKeys(): HsmKey[] {
+  try {
+    const raw = localStorage.getItem(KEYS_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed as HsmKey[];
+    }
+  } catch { /* fallback to mock */ }
+  return MOCK_KEYS;
+}
+
 export default function HsmConfigPage() {
   const [config, setConfig] = useState<HsmConfig>({
     provider: "local",
@@ -71,13 +84,19 @@ export default function HsmConfigPage() {
   const [testing, setTesting] = useState(false);
   const [configModal, setConfigModal] = useState(false);
   const [showAddKey, setShowAddKey] = useState(false);
-  const [keys, setKeys] = useState<HsmKey[]>(MOCK_KEYS);
+  const [keys, setKeys] = useState<HsmKey[]>(() => loadKeys());
   const [statusLog, setStatusLog] = useState<string>("");
   const [form] = Form.useForm();
   const [keyForm] = Form.useForm();
 
   const slotCount = useMemo(() => (config.provider === "local" ? 3 : config.provider === "cloud" ? 1 : 2), [config.provider]);
   const activeSessions = useMemo(() => (connected ? 2 : 0), [connected]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(KEYS_STORAGE_KEY, JSON.stringify(keys));
+    } catch { /* storage unavailable */ }
+  }, [keys]);
 
   useEffect(() => {
     if (connected && statusLog) {
@@ -143,7 +162,7 @@ export default function HsmConfigPage() {
       setKeys([...keys, newKey]);
       setShowAddKey(false);
       keyForm.resetFields();
-      message.success("密钥已生成");
+      message.success("密钥已生成（本地持久化，未接入后端 HSM）");
     } catch {
       // validation failed
     }
@@ -151,7 +170,7 @@ export default function HsmConfigPage() {
 
   const handleDeleteKey = (keyId: string) => {
     setKeys(keys.filter((k) => k.id !== keyId));
-    message.success("密钥已删除");
+    message.success("密钥已删除（本地持久化，未接入后端 HSM）");
   };
 
   const keyColumns = [
@@ -199,6 +218,13 @@ export default function HsmConfigPage() {
           onClose={() => setStatusLog("")}
         />
       )}
+
+      <Alert
+        type="warning"
+        showIcon
+        message="密钥变更仅保存在浏览器本地（localStorage），后端 HSM API 未接入，重启或换设备后数据不会同步。"
+        style={{ marginBottom: 16 }}
+      />
 
       <Card
         style={{ borderRadius: 8, marginBottom: 16 }}

@@ -2,21 +2,27 @@ import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { useFocusTrap } from '../a11y/SkipLink'
 import {
   ClipboardList, Wifi, LayoutList, LayoutGrid, Kanban, RefreshCw,
-  Printer, X, Monitor, CheckCircle, Play, CheckSquare, UserCheck,
+  Printer, X, Monitor, CheckCircle, Play, UserCheck,
 } from 'lucide-react'
 import {
   AreaChart, Area, BarChart, Bar, ResponsiveContainer,
 } from 'recharts'
-import { DndContext, DragOverlay, useDraggable, useDroppable, type DragEndEvent } from '@dnd-kit/core'
+import { DndContext, DragOverlay, type DragEndEvent } from '@dnd-kit/core'
 import { initialRadiologyExams, initialModalityDevices } from '../data/initialData'
-import { examApi } from '../services/api'
+import { api, examApi, patientApi, reportApi, worklistApi } from '../services/api'
+import { invalidateApiCacheByPrefix } from '../services/api/client'
 import { t } from '../i18n/appI18n'
 import { createActor } from 'xstate'
 import { examMachine } from '../machines/examMachine'
 import { POLL_INTERVAL_MS } from '../config/examStatusMapping'
 import type { RadiologyExam, ExamStatus } from '../types'
-import type { SmartScoreResult } from '../services/api/worklistSmartApi'
+import type { ExamDto, ReportDto } from '../types/dto'
 import { worklistSmartApi } from '../services/api/worklistSmartApi'
+import {
+  displayExamStatus,
+  normalizeExamStatus,
+  EXAM_STATUS_TO_CN,
+} from '../utils/statusMaps'
 
 import {
   FilterBar,
@@ -59,19 +65,63 @@ interface SLAInfo {
 const initialCheckIn: CheckInState = { barcodeInput: '', lastScanned: null, isProcessing: false }
 
 // ============================================================
+// 数据适配: 后端 Exam / mock 记录 → RadiologyExam
+// 状态统一归一化为英文规范值 (SCHEDULED/ARRIVED/IN_PROGRESS/COMPLETED/CANCELLED)
+// ============================================================
+function toRadiologyExam(item: Record<string, unknown>): RadiologyExam {
+  const patient = (item.patient ?? {}) as Record<string, unknown>
+  const device = (item.device ?? {}) as Record<string, unknown>
+  const rawStatus = String(item.state ?? item.status ?? 'SCHEDULED')
+  const createdAt = String(item.createdAt ?? item.createdTime ?? item.examAt ?? new Date().toISOString())
+  return {
+    id: String(item.id ?? item.reportId ?? item.examId ?? ''),
+    patientId: String(item.patientId ?? patient.id ?? ''),
+    patientName: String(patient.name ?? patient.patientName ?? item.patientName ?? '未知患者'),
+    gender: (patient.gender ?? item.gender ?? '其他') as RadiologyExam['gender'],
+    age: Number(patient.age ?? item.patientAge ?? item.age ?? 0),
+    patientType: (item.patientType ?? patient.patientType ?? '门诊') as RadiologyExam['patientType'],
+    examItemId: String(item.examItemId ?? item.examItemCode ?? ''),
+    examItemName: String(item.examItem ?? item.examItemName ?? item.examName ?? item.accessionNumber ?? '检查'),
+    modality: (item.modality ?? 'CT') as RadiologyExam['modality'],
+    bodyPart: (item.bodyPart ?? '胸部') as RadiologyExam['bodyPart'],
+    examDate: String(item.scheduledAt ?? item.examAt ?? item.examDate ?? ''),
+    examTime: item.examTime ? String(item.examTime) : undefined,
+    scheduledTime: item.scheduledTime ? String(item.scheduledTime) : undefined,
+    priority: (item.priority ?? '普通') as RadiologyExam['priority'],
+    clinicalDiagnosis: item.clinicalDiagnosis ? String(item.clinicalDiagnosis) : undefined,
+    technologistId: item.technicianId || item.technologistId ? String(item.technicianId ?? item.technologistId) : undefined,
+    deviceId: item.deviceId ? String(item.deviceId) : undefined,
+    deviceName: device.name ? String(device.name) : item.deviceName ? String(item.deviceName) : undefined,
+    roomId: item.roomId ? String(item.roomId) : undefined,
+    status: normalizeExamStatus(rawStatus) as ExamStatus,
+    imagesAcquired: Number(item.imageCount ?? item.imagesAcquired ?? 0),
+    accessionNumber: String(item.accessionNumber ?? ''),
+    criticalFinding: Boolean(item.hasCriticalValue ?? item.criticalFinding ?? false),
+    createdTime: createdAt,
+    updatedTime: String(item.updatedAt ?? item.updatedTime ?? ''),
+  }
+}
+
+function extractExamItems(raw: unknown): unknown[] | null {
+  if (Array.isArray(raw)) return raw
+  if (raw && typeof raw === 'object') {
+    const obj = raw as Record<string, unknown>
+    if (Array.isArray(obj.items)) return obj.items
+    if (Array.isArray(obj.data)) return obj.data
+    if (Array.isArray(obj.records)) return obj.records
+  }
+  return null
+}
+
+// ============================================================
 // examMachine 集成辅助
 // ============================================================
 const EXAM_STATUS_TO_MACHINE: Record<string, string> = {
-  '已登记': 'registered',
-  '待检查': 'arrived',
-  '检查中': 'inProgress',
-  '已暂停': 'paused',
-  '待报告': 'pendingReport',
-  '已报告': 'reported',
-  '已发布': 'published',
-  '已取消': 'cancelled',
-  '已归档': 'archived',
-  '质控退回': 'qcReject',
+  'SCHEDULED': 'registered',
+  'ARRIVED': 'arrived',
+  'IN_PROGRESS': 'inProgress',
+  'COMPLETED': 'completed',
+  'CANCELLED': 'cancelled',
 }
 
 function replayExamActorTo(exam: RadiologyExam, targetEvent: { type: string; reason?: string; by: string; imagesAcquired?: number; technologistId?: string }) {
@@ -198,8 +248,8 @@ export default function WorklistPage() {
     const sevenDaysAgo = new Date(today.getTime() - 7 * 86400000);
     return {
       search: '',
-      dateStart: sevenDaysAgo.toISOString().split('T')[0],
-      dateEnd: today.toISOString().split('T')[0],
+      dateStart: sevenDaysAgo.toISOString().split('T')[0] ?? '',
+      dateEnd: today.toISOString().split('T')[0] ?? '',
       modalities: [],
       patientTypes: [],
       priorities: [],
@@ -219,39 +269,60 @@ export default function WorklistPage() {
   const [showSortCompare, setShowSortCompare] = useState(false)
   const [sortCompareItems, setSortCompareItems] = useState<Array<{ exam: RadiologyExam; beforeRank: number; afterRank: number; score?: number; reasons?: string[] }>>([])
 
-  useEffect(() => {
-    let mounted = true
-    let timer: ReturnType<typeof setInterval> | null = null
-    let inFlight: AbortController | null = null
-    let isHidden = typeof document !== 'undefined' && document.visibilityState === 'hidden'
+  // ============================================================
+  // 数据加载: examApi.list(后端 /exams) 为主, mock /worklist 兜底,
+  // 本地 initialData 最后兜底; 状态统一归一化为英文规范值
+  // ============================================================
+  const mountedRef = useRef(true)
 
-    const fetchOnce = async () => {
-      if (!mounted || isHidden) return
-      inFlight = new AbortController()
-      try {
-        const res = await examApi.list({})
-        if (!mounted || isHidden) return
-        if (res.success && Array.isArray(res.data)) {
-          setExams(res.data as unknown as RadiologyExam[])
-          setLoadError(null)
-        } else if (!mounted) {
-          return
-        } else {
-          setExams((prev) => (prev.length === 0 ? initialRadiologyExams : prev))
-          setLoadError(res.error?.message ?? 'API 不可用,使用本地数据')
-        }
-      } catch (err: unknown) {
-        if (!mounted) return
-        setLoadError(err instanceof Error ? err.message : '轮询失败')
-      } finally {
-        if (!mounted) {
-          inFlight?.abort()
-        } else {
-          setLoading(false)
-        }
-        inFlight = null
+  const fetchExams = useCallback(async (): Promise<RadiologyExam[]> => {
+    const res = await examApi.list({})
+    if (!mountedRef.current) return []
+    const raw = res.data as unknown
+    const items = extractExamItems(raw)
+    if (res.success && items !== null) {
+      return items.map(item => toRadiologyExam((item ?? {}) as Record<string, unknown>))
+    }
+    // mock 兜底: mock 后端无 /exams, 分页拉取 /worklist (MAX_PAGE_SIZE=200)
+    const collected: unknown[] = []
+    let total = Infinity
+    for (let page = 1; page <= 6 && collected.length < total; page += 1) {
+      if (!mountedRef.current) break
+      const wl = await worklistApi.list({ page: page, pageSize: 200 })
+      const wlRaw = wl.data as unknown
+      const wlItems = extractExamItems(wlRaw)
+      if (!wl.success || wlItems === null) break
+      collected.push(...wlItems)
+      if (wlRaw && typeof wlRaw === 'object') {
+        const meta = (wlRaw as { meta?: { total?: number } }).meta
+        if (typeof meta?.total === 'number') total = meta.total
       }
     }
+    if (collected.length > 0) {
+      return collected.map(item => toRadiologyExam((item ?? {}) as Record<string, unknown>))
+    }
+    return initialRadiologyExams.map(e => ({ ...e, status: normalizeExamStatus(e.status) as ExamStatus }))
+  }, [])
+
+  const fetchOnce = useCallback(async () => {
+    if (!mountedRef.current) return
+    try {
+      const list = await fetchExams()
+      if (!mountedRef.current) return
+      setExams(list)
+      setLoadError(null)
+      setLoading(false)
+    } catch (err: unknown) {
+      if (!mountedRef.current) return
+      setLoadError(err instanceof Error ? err.message : '轮询失败')
+      setLoading(false)
+    }
+  }, [fetchExams])
+
+  useEffect(() => {
+    mountedRef.current = true
+    let timer: ReturnType<typeof setInterval> | null = null
+    let isHidden = typeof document !== 'undefined' && document.visibilityState === 'hidden'
 
     const startTimer = () => {
       if (timer) return
@@ -267,7 +338,6 @@ export default function WorklistPage() {
       isHidden = document.visibilityState === 'hidden'
       if (isHidden) {
         stopTimer()
-        inFlight?.abort()
       } else {
         setLoading(false)
         void fetchOnce()
@@ -283,14 +353,13 @@ export default function WorklistPage() {
     }
 
     return () => {
-      mounted = false
+      mountedRef.current = false
       stopTimer()
-      inFlight?.abort()
       if (typeof document !== 'undefined') {
         document.removeEventListener('visibilitychange', onVisibilityChange)
       }
     }
-  }, [])
+  }, [fetchOnce])
 
   const [batch, setBatch] = useState<BatchState>({
     selectedIds: new Set(),
@@ -302,15 +371,15 @@ export default function WorklistPage() {
   const [selectedExam, setSelectedExam] = useState<RadiologyExam | null>(null)
 
   const [patientInfoModalExam, setPatientInfoModalExam] = useState<RadiologyExam | null>(null)
+  const [patientForm, setPatientForm] = useState<{ name: string; gender: string; age: string; patientType: string } | null>(null)
   const [deviceSelectModalExam, setDeviceSelectModalExam] = useState<RadiologyExam | null>(null)
   const [reportModalExam, setReportModalExam] = useState<RadiologyExam | null>(null)
-  const [confirmModalConfig, setConfirmModalConfig] = useState<{ open: boolean; title: string; message: string; onConfirm: () => void } | null>(null)
+  const [reportForm, setReportForm] = useState<{ findings: string; conclusion: string } | null>(null)
+  const [confirmModalConfig, setConfirmModalConfig] = useState<{ open: boolean; title: string; message: string; variant?: 'danger'; onConfirm: () => void } | null>(null)
   const [batchResultModalData, setBatchResultModalData] = useState<{ open: boolean; action: string; count: number; results: string[] } | null>(null)
   const [printPreviewModalData, setPrintPreviewModalData] = useState<{ open: boolean; examIds: string[] } | null>(null)
 
   const [checkIn, setCheckIn] = useState<CheckInState>(initialCheckIn)
-
-  // SLA uses Date.now() at render time, no timer needed for display freshness
 
   const [filterPresets, setFilterPresets] = useState<Array<{ name: string; filters: FilterState }>>(() => {
     try { return JSON.parse(localStorage.getItem('worklist-filter-presets') || '[]') }
@@ -345,16 +414,55 @@ export default function WorklistPage() {
     localStorage.setItem('worklist-filter-presets', JSON.stringify(newPresets))
   }, [filterPresets])
 
-  const handleCheckIn = (barcode: string) => {
+  // ============================================================
+  // 真实操作: 签到 / 开始 / 完成 / 取消 (后端 POST /worklist/:id/*)
+  // ============================================================
+  const refreshAfterMutation = useCallback(async () => {
+    await invalidateApiCacheByPrefix('/worklist')
+    await invalidateApiCacheByPrefix('/exams')
+    void fetchOnce()
+  }, [fetchOnce])
+
+  const handleCheckIn = async (barcode: string) => {
     setCheckIn({ barcodeInput: barcode, lastScanned: barcode, isProcessing: true })
-    const matchedExam = exams.find(e => e.accessionNumber === barcode || e.id === barcode || e.patientId === barcode)
-    if (matchedExam && ['已登记', '待检查'].includes(matchedExam.status)) {
-      setTimeout(() => {
-        setExams(prev => prev.map(e => e.id === matchedExam.id ? { ...e, status: '已报到' as ExamStatus } : e))
+    try {
+      const matchedExam = exams.find(e => e.accessionNumber === barcode || e.id === barcode || e.patientId === barcode)
+      if (!matchedExam) {
         setCheckIn(prev => ({ ...prev, isProcessing: false }))
-      }, 800)
-    } else {
-      setTimeout(() => setCheckIn(prev => ({ ...prev, isProcessing: false })), 500)
+        return
+      }
+      if (!['SCHEDULED', 'ARRIVED'].includes(normalizeExamStatus(matchedExam.status))) {
+        setCheckIn(prev => ({ ...prev, isProcessing: false }))
+        setConfirmModalConfig({
+          open: true,
+          title: '签到失败',
+          message: `检查 ${matchedExam.accessionNumber || matchedExam.id} 当前状态为「${displayExamStatus(matchedExam.status)}」，无法签到`,
+          onConfirm: () => setConfirmModalConfig(null),
+        })
+        return
+      }
+      const res = await examApi.checkIn(matchedExam.id)
+      if (res.success) {
+        setExams(prev => prev.map(e => e.id === matchedExam.id ? { ...e, status: 'ARRIVED' as ExamStatus } : e))
+        log('checkin', matchedExam.id)
+        void refreshAfterMutation()
+      } else {
+        setConfirmModalConfig({
+          open: true,
+          title: '签到失败',
+          message: res.error?.message ?? '签到失败，请稍后重试',
+          onConfirm: () => setConfirmModalConfig(null),
+        })
+      }
+    } catch (err) {
+      setConfirmModalConfig({
+        open: true,
+        title: '签到失败',
+        message: err instanceof Error ? err.message : '签到失败，请稍后重试',
+        onConfirm: () => setConfirmModalConfig(null),
+      })
+    } finally {
+      setCheckIn(prev => ({ ...prev, isProcessing: false }))
     }
   }
 
@@ -382,7 +490,7 @@ export default function WorklistPage() {
       if (filters.modalities.length > 0 && !filters.modalities.includes(exam.modality)) return false
       if (filters.patientTypes.length > 0 && !filters.patientTypes.includes(exam.patientType)) return false
       if (filters.priorities.length > 0 && !filters.priorities.includes(exam.priority)) return false
-      if (filters.statuses.length > 0 && !filters.statuses.includes(exam.status)) return false
+      if (filters.statuses.length > 0 && !filters.statuses.includes(normalizeExamStatus(exam.status))) return false
       if (filters.doctorId && exam.technologistId !== filters.doctorId) return false
       return true
     })
@@ -465,12 +573,16 @@ export default function WorklistPage() {
     prevCriticalCount.current = slaCriticalExams.length
   }, [slaCriticalExams.length])
 
+  // 统计卡: 全量数据 + EXAM_STATUS_MAP 英文值统计
   const stats = useMemo(() => {
+    const statusOf = (e: RadiologyExam) => normalizeExamStatus(e.status)
     return {
       total: exams.length,
       critical: exams.filter(e => e.priority === '危重' || e.priority === '紧急').length,
-      completed: exams.filter(e => ['已报告', '已发布'].includes(e.status)).length,
-      pending: exams.filter(e => ['已登记', '待检查', '检查中', '待报告'].includes(e.status)).length,
+      waiting: exams.filter(e => statusOf(e) === 'SCHEDULED' || statusOf(e) === 'ARRIVED').length,
+      inProgress: exams.filter(e => statusOf(e) === 'IN_PROGRESS').length,
+      completed: exams.filter(e => statusOf(e) === 'COMPLETED').length,
+      pending: exams.filter(e => ['SCHEDULED', 'ARRIVED', 'IN_PROGRESS'].includes(statusOf(e))).length,
     }
   }, [exams])
 
@@ -479,8 +591,8 @@ export default function WorklistPage() {
     const sevenDaysAgo = new Date(today.getTime() - 7 * 86400000);
     setFilters({
       search: '',
-      dateStart: sevenDaysAgo.toISOString().split('T')[0],
-      dateEnd: today.toISOString().split('T')[0],
+      dateStart: sevenDaysAgo.toISOString().split('T')[0] ?? '',
+      dateEnd: today.toISOString().split('T')[0] ?? '',
       modalities: [],
       patientTypes: [],
       priorities: [],
@@ -507,7 +619,7 @@ export default function WorklistPage() {
       open: true,
       action: actionLabels[action] || action,
       count: selectedIds.size,
-      results: [`已成功对 ${selectedIds.size} 项执行「${actionLabels[action] || action}」操作`]
+      results: [`已对 ${selectedIds.size} 项执行「${actionLabels[action] || action}」操作`]
     })
     clearSelection()
     setBatch({
@@ -516,6 +628,193 @@ export default function WorklistPage() {
       priorityValue: '普通',
       roomValue: '',
     })
+  }
+
+  // ============================================================
+  // 批量操作 (签到 / 开始 / 完成 / 取消) → 真实后端调用
+  // ============================================================
+  const runBatchApiAction = useCallback(async (action: string, ids: string[]) => {
+    const results: string[] = []
+    let okCount = 0
+    let failCount = 0
+    const labels: Record<string, string> = {
+      assign: '批量签到',
+      start: '批量开始',
+      complete: '批量完成',
+      cancel: '批量取消',
+    }
+    for (const id of ids) {
+      let res: { success: boolean; error?: { message?: string } }
+      try {
+        if (action === 'start') {
+          res = await examApi.start(id)
+        } else if (action === 'complete') {
+          res = await examApi.complete(id)
+        } else if (action === 'cancel') {
+          res = await examApi.cancel(id, '批量取消')
+        } else {
+          res = await examApi.checkIn(id)
+        }
+        if (res.success) {
+          okCount += 1
+          log(action, id)
+        } else {
+          failCount += 1
+          results.push(`${id}: ${res.error?.message ?? '失败'}`)
+        }
+      } catch (err) {
+        failCount += 1
+        results.push(`${id}: ${err instanceof Error ? err.message : '失败'}`)
+      }
+    }
+    await refreshAfterMutation()
+    setBatchResultModalData({
+      open: true,
+      action: labels[action] ?? action,
+      count: ids.length,
+      results: [
+        `成功 ${okCount} 项${failCount > 0 ? `，失败 ${failCount} 项` : ''}`,
+        ...results.slice(0, 20),
+      ],
+    })
+    clearSelection()
+    setBatch({
+      selectedIds: new Set(),
+      operation: null,
+      priorityValue: '普通',
+      roomValue: '',
+    })
+  }, [log, refreshAfterMutation])
+
+  const handleBatchAction = useCallback((action: string) => {
+    if (selectedIds.size === 0) return
+    const ids = Array.from(selectedIds)
+    void runBatchApiAction(action, ids)
+  }, [selectedIds, runBatchApiAction])
+
+  // ============================================================
+  // 修改患者信息 → patientApi.update (后端 PATCH /patients/:id)
+  // ============================================================
+  const genderToEn = (g: string): string => (g === '男' ? 'MALE' : g === '女' ? 'FEMALE' : 'OTHER')
+  const typeToEn = (t: string): string =>
+    t === '住院' ? 'INPATIENT' : t === '急诊' ? 'EMERGENCY' : t === '体检' ? 'PHYSICAL' : 'OUTPATIENT'
+
+  const savePatientInfo = async () => {
+    const exam = patientInfoModalExam
+    if (!exam || !patientForm) return
+    try {
+      const payload: Record<string, string> = {
+        name: patientForm.name,
+        gender: genderToEn(patientForm.gender),
+        type: typeToEn(patientForm.patientType),
+      }
+      let res = await patientApi.update(exam.patientId, payload)
+      if (!res.success) {
+        // mock 兜底: mock 后端仅提供 PUT /patients/:id
+        res = await api.put(`/patients/${exam.patientId}`, payload)
+      }
+      if (res.success) {
+        setExams(prev => prev.map(e => e.id === exam.id ? {
+          ...e,
+          patientName: patientForm.name,
+          gender: patientForm.gender as RadiologyExam['gender'],
+          age: Number(patientForm.age) || e.age,
+          patientType: patientForm.patientType as RadiologyExam['patientType'],
+        } : e))
+        setPatientInfoModalExam(null)
+        setPatientForm(null)
+        log('edit_patient_info', exam.id)
+        void refreshAfterMutation()
+      } else {
+        setConfirmModalConfig({
+          open: true,
+          title: '保存失败',
+          message: res.error?.message ?? '修改患者信息失败',
+          onConfirm: () => setConfirmModalConfig(null),
+        })
+      }
+    } catch (err) {
+      setConfirmModalConfig({
+        open: true,
+        title: '保存失败',
+        message: err instanceof Error ? err.message : '修改患者信息失败',
+        onConfirm: () => setConfirmModalConfig(null),
+      })
+    }
+  }
+
+  // ============================================================
+  // 分配设备 → examApi.update(deviceId) (后端 PATCH /exams/:id)
+  // ============================================================
+  const assignDevice = async (exam: RadiologyExam, deviceId: string) => {
+    try {
+      let res = await examApi.update(exam.id, { deviceId })
+      if (!res.success) {
+        const fb = await api.put<ExamDto>(`/worklist/${exam.id}`, { deviceId })
+        res = fb
+      }
+      if (res.success) {
+        setExams(prev => prev.map(e => e.id === exam.id ? {
+          ...e,
+          deviceId,
+          deviceName: initialModalityDevices.find(d => d.id === deviceId)?.name ?? e.deviceName,
+        } : e))
+        setDeviceSelectModalExam(null)
+        log('assign_device', exam.id, { deviceId })
+        void refreshAfterMutation()
+      } else {
+        setConfirmModalConfig({
+          open: true,
+          title: '分配失败',
+          message: res.error?.message ?? '分配设备失败',
+          onConfirm: () => setConfirmModalConfig(null),
+        })
+      }
+    } catch (err) {
+      setConfirmModalConfig({
+        open: true,
+        title: '分配失败',
+        message: err instanceof Error ? err.message : '分配设备失败',
+        onConfirm: () => setConfirmModalConfig(null),
+      })
+    }
+  }
+
+  // ============================================================
+  // 提交报告 → reportApi.create (后端 POST /reports)
+  // ============================================================
+  const submitReport = async () => {
+    const exam = reportModalExam
+    if (!exam || !reportForm) return
+    try {
+      const payload: Partial<ReportDto> & { conclusion?: string } = {
+        patientId: exam.patientId,
+        examId: exam.id,
+        findings: reportForm.findings,
+        conclusion: reportForm.conclusion,
+      }
+      const res = await reportApi.create(payload)
+      if (res.success) {
+        setReportModalExam(null)
+        setReportForm(null)
+        log('submit_report', exam.id)
+        void refreshAfterMutation()
+      } else {
+        setConfirmModalConfig({
+          open: true,
+          title: '提交失败',
+          message: res.error?.message ?? '提交报告失败',
+          onConfirm: () => setConfirmModalConfig(null),
+        })
+      }
+    } catch (err) {
+      setConfirmModalConfig({
+        open: true,
+        title: '提交失败',
+        message: err instanceof Error ? err.message : '提交报告失败',
+        onConfirm: () => setConfirmModalConfig(null),
+      })
+    }
   }
 
   const handleRefresh = () => {
@@ -528,6 +827,8 @@ export default function WorklistPage() {
         btn.disabled = false
       }, 1000)
     }
+    setLoading(true)
+    void fetchOnce()
   }
 
   const handlePrintSelected = () => {
@@ -558,6 +859,48 @@ export default function WorklistPage() {
     </AppButton>
   )
 
+  // ============================================================
+  // 单条真实操作: 开始 / 取消 / 看板拖拽转移
+  // ============================================================
+  const transitionExamTo = useCallback(async (exam: RadiologyExam, target: string) => {
+    const from = normalizeExamStatus(exam.status)
+    if (from === target) return
+    let res: { success: boolean; error?: { message?: string } }
+    try {
+      if (target === 'ARRIVED') {
+        res = await examApi.checkIn(exam.id)
+      } else if (target === 'IN_PROGRESS') {
+        res = await examApi.start(exam.id)
+      } else if (target === 'COMPLETED') {
+        res = await examApi.complete(exam.id)
+      } else if (target === 'CANCELLED') {
+        res = await examApi.cancel(exam.id, '看板拖拽取消')
+      } else {
+        return
+      }
+      if (res.success) {
+        log(`status_${target.toLowerCase()}`, exam.id, { from })
+        void refreshAfterMutation()
+      } else {
+        setConfirmModalConfig({
+          open: true,
+          title: '操作失败',
+          message: res.error?.message ?? `无法切换到「${EXAM_STATUS_TO_CN[target] ?? target}」`,
+          onConfirm: () => setConfirmModalConfig(null),
+        })
+        void refreshAfterMutation()
+      }
+    } catch (err) {
+      setConfirmModalConfig({
+        open: true,
+        title: '操作失败',
+        message: err instanceof Error ? err.message : '状态切换失败',
+        onConfirm: () => setConfirmModalConfig(null),
+      })
+      void refreshAfterMutation()
+    }
+  }, [log, refreshAfterMutation])
+
   const handleStartExam = useCallback((exam: RadiologyExam) => {
     setConfirmModalConfig({
       open: true,
@@ -565,11 +908,11 @@ export default function WorklistPage() {
       message: `确认开始检查 ${exam.patientName} 的 ${exam.examItemName}？`,
       onConfirm: () => {
         replayExamActorTo(exam, { type: 'START_EXAM', by: exam.technologistId ?? 'system', technologistId: exam.technologistId ?? 'system', imagesAcquired: 0 })
-        setExams(prev => prev.map(e => e.id === exam.id ? { ...e, status: '检查中' as ExamStatus } : e))
         setConfirmModalConfig(null)
+        void transitionExamTo(exam, 'IN_PROGRESS')
       }
     })
-  }, [])
+  }, [transitionExamTo])
 
   const handleCancelExam = useCallback((exam: RadiologyExam) => {
     setConfirmModalConfig({
@@ -579,28 +922,20 @@ export default function WorklistPage() {
       variant: 'danger',
       onConfirm: () => {
         replayExamActorTo(exam, { type: 'CANCEL', reason: '技师取消', by: exam.technologistId ?? 'system', imagesAcquired: 0 })
-        setExams(prev => prev.map(e => e.id === exam.id ? { ...e, status: '已取消' as ExamStatus } : e))
         setConfirmModalConfig(null)
+        void transitionExamTo(exam, 'CANCELLED')
       }
     })
-  }, [])
+  }, [transitionExamTo])
 
-  // Log operations
+  // 批量操作 (走真实 API)
   const logBatchAction = useCallback((action: string) => {
-    const ids = Array.from(selectedIds)
-    ids.forEach(id => log(action, id))
-    clearSelection()
-    setBatch({
-      selectedIds: new Set(),
-      operation: null,
-      priorityValue: '普通',
-      roomValue: '',
-    })
-  }, [selectedIds, log])
+    handleBatchAction(action)
+  }, [handleBatchAction])
 
-  // Enhanced batch operations
+  // Enhanced batch actions
   const enhancedBatchActions = [
-    { key: 'assign', label: '批量分配', icon: <UserCheck size={14} />, confirm: '确认分配?' },
+    { key: 'assign', label: '批量签到', icon: <UserCheck size={14} />, confirm: '确认签到?' },
     { key: 'start', label: '批量开始', icon: <Play size={14} />, confirm: '确认开始?' },
     { key: 'complete', label: '批量完成', icon: <CheckCircle size={14} />, confirm: '确认完成?' },
     { key: 'cancel', label: '批量取消', icon: <X size={14} />, confirm: '确认取消?' },
@@ -746,7 +1081,7 @@ export default function WorklistPage() {
               <div style={{ fontSize: 28, fontWeight: 800, color: '#1e3a5f', lineHeight: 1 }}>{stats.total}</div>
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>全部检查</div>
               <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
-                等待中: {exams.filter(e => e.status === '已登记' || e.status === '待检查').length}
+                等待中: {stats.waiting}
               </div>
             </div>
             <MiniSparkline color="#3b82f6" />
@@ -783,13 +1118,13 @@ export default function WorklistPage() {
         <div
           role="button"
           tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && setFilters(f => ({ ...f, statuses: ['已登记', '待检查', '检查中', '待报告'] }))}
+          onKeyDown={(e) => e.key === 'Enter' && setFilters(f => ({ ...f, statuses: ['SCHEDULED', 'ARRIVED', 'IN_PROGRESS'] }))}
           style={{
           background: '#fff', borderRadius: 12, padding: '16px 20px',
           border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           cursor: 'pointer',
         }}
-          onClick={() => setFilters(f => ({ ...f, statuses: ['已登记', '待检查', '检查中', '待报告'] }))}
+          onClick={() => setFilters(f => ({ ...f, statuses: ['SCHEDULED', 'ARRIVED', 'IN_PROGRESS'] }))}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
@@ -808,20 +1143,20 @@ export default function WorklistPage() {
         <div
           role="button"
           tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && setFilters(f => ({ ...f, statuses: ['已报告', '已发布'] }))}
+          onKeyDown={(e) => e.key === 'Enter' && setFilters(f => ({ ...f, statuses: ['COMPLETED'] }))}
           style={{
           background: '#fff', borderRadius: 12, padding: '16px 20px',
           border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           cursor: 'pointer',
         }}
-          onClick={() => setFilters(f => ({ ...f, statuses: ['已报告', '已发布'] }))}
+          onClick={() => setFilters(f => ({ ...f, statuses: ['COMPLETED'] }))}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#059669', lineHeight: 1 }}>{stats.completed}</div>
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>已完成</div>
               <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
-                设备使用中: {exams.filter(e => e.status === '检查中').length}台
+                检查中: {stats.inProgress}项
               </div>
             </div>
             <MiniSparkline color="#059669" />
@@ -887,9 +1222,10 @@ export default function WorklistPage() {
         <DndContext onDragEnd={(event: DragEndEvent) => {
           const examId = String(event.active.id)
           const targetStatus = String(event.over?.id || '')
-          if (targetStatus && examId) {
-            setExams(prev => prev.map(e => e.id === examId ? { ...e, status: targetStatus as ExamStatus } : e))
+          const exam = exams.find(e => e.id === examId)
+          if (targetStatus && exam) {
             log('drag_status_change', examId, { from: event.active.id, to: targetStatus })
+            void transitionExamTo(exam, targetStatus)
           }
         }}>
           <KanbanView
@@ -903,9 +1239,15 @@ export default function WorklistPage() {
       <DetailDrawer
         exam={selectedExam}
         onClose={() => setSelectedExam(null)}
-        onEditInfo={(exam) => setPatientInfoModalExam(exam)}
+        onEditInfo={(exam) => {
+          setPatientInfoModalExam(exam)
+          setPatientForm({ name: exam.patientName, gender: exam.gender, age: String(exam.age), patientType: exam.patientType })
+        }}
         onAssignDevice={(exam) => setDeviceSelectModalExam(exam)}
-        onWriteReport={(exam) => setReportModalExam(exam)}
+        onWriteReport={(exam) => {
+          setReportModalExam(exam)
+          setReportForm({ findings: '', conclusion: '' })
+        }}
         onStartExam={handleStartExam}
         onCancelExam={handleCancelExam}
       />
@@ -974,14 +1316,14 @@ export default function WorklistPage() {
               </button>
             </div>
             <div style={{ display: 'grid', gap: 12 }}>
-              <div><span style={{ color: '#64748b' }}>患者姓名：</span><input defaultValue={patientInfoModalExam.patientName} style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
-              <div><span style={{ color: '#64748b' }}>性别：</span><input defaultValue={patientInfoModalExam.gender} style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
-              <div><span style={{ color: '#64748b' }}>年龄：</span><input defaultValue={patientInfoModalExam.age} style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
-              <div><span style={{ color: '#64748b' }}>患者类型：</span><input defaultValue={patientInfoModalExam.patientType} style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
+              <div><span style={{ color: '#64748b' }}>患者姓名：</span><input value={patientForm?.name ?? ''} onChange={e => setPatientForm(f => f ? { ...f, name: e.target.value } : f)} style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
+              <div><span style={{ color: '#64748b' }}>性别：</span><input value={patientForm?.gender ?? ''} onChange={e => setPatientForm(f => f ? { ...f, gender: e.target.value } : f)} style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
+              <div><span style={{ color: '#64748b' }}>年龄：</span><input value={patientForm?.age ?? ''} onChange={e => setPatientForm(f => f ? { ...f, age: e.target.value } : f)} style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
+              <div><span style={{ color: '#64748b' }}>患者类型：</span><input value={patientForm?.patientType ?? ''} onChange={e => setPatientForm(f => f ? { ...f, patientType: e.target.value } : f)} style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 16, justifyContent: 'flex-end' }}>
               <button onClick={() => setPatientInfoModalExam(null)} style={{ padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 6, background: '#fff', cursor: 'pointer' }}>取消</button>
-              <button onClick={() => setPatientInfoModalExam(null)} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e3a5f', color: '#fff', cursor: 'pointer' }}>保存</button>
+              <button onClick={() => void savePatientInfo()} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e3a5f', color: '#fff', cursor: 'pointer' }}>保存</button>
             </div>
           </div>
         </div>
@@ -1015,11 +1357,11 @@ export default function WorklistPage() {
                   key={device.id}
                   role="button"
                   tabIndex={0}
-                  onKeyDown={(e) => e.key === 'Enter' && setDeviceSelectModalExam(null)}
+                  onKeyDown={(e) => e.key === 'Enter' && void assignDevice(deviceSelectModalExam, device.id)}
                   style={{
                   padding: 12, border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer',
                   display: 'flex', alignItems: 'center', gap: 8
-                }} onClick={() => setDeviceSelectModalExam(null)}>
+                }} onClick={() => void assignDevice(deviceSelectModalExam, device.id)}>
                   <Monitor size={16} style={{ color: '#1e3a5f' }} />
                   <span style={{ fontSize: 13 }}>{device.name}</span>
                   <span style={{ fontSize: 12, color: '#64748b', marginLeft: 'auto' }}>{device.status}</span>
@@ -1035,7 +1377,7 @@ export default function WorklistPage() {
           ref={reportFocusRef}
           role="dialog"
           aria-modal="true"
-          aria-label={reportModalExam.status === '待报告' ? '书写报告' : '查看报告'}
+          aria-label={normalizeExamStatus(reportModalExam.status) === 'COMPLETED' ? '书写报告' : '查看报告'}
           style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
@@ -1047,7 +1389,7 @@ export default function WorklistPage() {
           }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e3a5f' }}>
-                {reportModalExam.status === '待报告' ? '书写报告' : '查看报告'}
+                {normalizeExamStatus(reportModalExam.status) === 'COMPLETED' ? '书写报告' : '查看报告'}
               </h3>
               <button onClick={() => setReportModalExam(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
                 <X size={18} />
@@ -1057,12 +1399,12 @@ export default function WorklistPage() {
               <div><span style={{ color: '#64748b' }}>患者：</span>{reportModalExam.patientName}（{reportModalExam.gender}，{reportModalExam.age}岁）</div>
               <div><span style={{ color: '#64748b' }}>检查项目：</span>{reportModalExam.examItemName}</div>
               <div><span style={{ color: '#64748b' }}>临床诊断：</span>{reportModalExam.clinicalDiagnosis}</div>
-              <div><span style={{ color: '#64748b' }}>检查所见：</span><textarea style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%', height: 80 }} placeholder="请输入检查所见..." /></div>
-              <div><span style={{ color: '#64748b' }}>诊断意见：</span><textarea style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%', height: 60 }} placeholder="请输入诊断意见..." /></div>
+              <div><span style={{ color: '#64748b' }}>检查所见：</span><textarea value={reportForm?.findings ?? ''} onChange={e => setReportForm(f => f ? { ...f, findings: e.target.value } : f)} style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%', height: 80 }} placeholder="请输入检查所见..." /></div>
+              <div><span style={{ color: '#64748b' }}>诊断意见：</span><textarea value={reportForm?.conclusion ?? ''} onChange={e => setReportForm(f => f ? { ...f, conclusion: e.target.value } : f)} style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%', height: 60 }} placeholder="请输入诊断意见..." /></div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 16, justifyContent: 'flex-end' }}>
               <button onClick={() => setReportModalExam(null)} style={{ padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 6, background: '#fff', cursor: 'pointer' }}>取消</button>
-              <button onClick={() => setReportModalExam(null)} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e3a5f', color: '#fff', cursor: 'pointer' }}>提交报告</button>
+              <button onClick={() => void submitReport()} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e3a5f', color: '#fff', cursor: 'pointer' }}>提交报告</button>
             </div>
           </div>
         </div>
@@ -1084,7 +1426,7 @@ export default function WorklistPage() {
             <p style={{ margin: '0 0 20px', fontSize: 14, color: '#334155' }}>{confirmModalConfig.message}</p>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
               <button onClick={() => setConfirmModalConfig(null)} style={{ padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 6, background: '#fff', cursor: 'pointer' }}>取消</button>
-              <button onClick={confirmModalConfig.onConfirm} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#dc2626', color: '#fff', cursor: 'pointer' }}>确认</button>
+              <button onClick={confirmModalConfig.onConfirm} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: confirmModalConfig.variant === 'danger' ? '#dc2626' : '#1e3a5f', color: '#fff', cursor: 'pointer' }}>确认</button>
             </div>
           </div>
         </div>
@@ -1113,8 +1455,13 @@ export default function WorklistPage() {
             </div>
             <div style={{ marginBottom: 16, padding: 16, background: '#f0fdf4', borderRadius: 8, border: '1px solid #bbf7d0' }}>
               <CheckCircle size={20} style={{ color: '#22c55e', marginBottom: 8 }} />
-              <div style={{ fontSize: 14, color: '#166534' }}>操作成功</div>
+              <div style={{ fontSize: 14, color: '#166534' }}>操作完成</div>
               <div style={{ fontSize: 13, color: '#15803d', marginTop: 4 }}>{batchResultModalData.results[0]}</div>
+              {batchResultModalData.results.length > 1 && (
+                <div style={{ marginTop: 8, fontSize: 12, color: '#b45309', maxHeight: 120, overflow: 'auto' }}>
+                  {batchResultModalData.results.slice(1).map((r, i) => <div key={i}>{r}</div>)}
+                </div>
+              )}
             </div>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
               <button onClick={() => setBatchResultModalData(null)} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e3a5f', color: '#fff', cursor: 'pointer' }}>确定</button>

@@ -1,6 +1,7 @@
 // [v3.0.6.8-103] Phase 4: 牙椅预约排班 + PSR 牙周记录 (修复: 新建预约实际提交)
 // 对标: 领健·牙医管家
 import React, { useState, useEffect } from 'react';
+import dayjs from 'dayjs';
 import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, Table, Modal, Form, Input, InputNumber, DatePicker, Badge, Empty, Segmented } from 'antd';
 import { Activity, Calendar, Clock, User, Armchair, Plus, CheckCircle2, BarChart3 } from 'lucide-react';
 import { dentalApi } from '@/services/api/dentalApi';
@@ -30,6 +31,7 @@ export const DentalSchedulePage: React.FC = () => {
   const [createModal, setCreateModal] = useState(false);
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
+  const [psrSaving, setPsrSaving] = useState(false);
   const [psrRec, setPsrRec] = useState({ patientId: 'P100001', quadrant: 1, probingDepths: [2,2,2,2,2,2], bleeding: [false,false,false,false,false,false], mobility: 0, psrCode: 1, note: '' });
 
   const fetchData = async () => {
@@ -115,7 +117,7 @@ export const DentalSchedulePage: React.FC = () => {
         <Col span={3}><Card size="small"><Statistic title="爽约" value={stats?.noShow || 0} styles={{ content: { color:'#ff4d4f' } }} /></Card></Col>
         <Col span={3}><Card size="small"><Statistic title="椅位利用率" value={Math.round((stats?.chairUtilization||0)*100)} suffix="%" /></Card></Col>
         <Col span={3}><Card size="small"><Statistic title="平均等待" value={stats?.avgWaitTime || 0} suffix="min" /></Card></Col>
-        <Col span={6}><DatePicker value={null} defaultValue={null} placeholder={selectedDate} onChange={d => d && setSelectedDate(d.format('YYYY-MM-DD'))} style={{width:'100%'}} /></Col>
+        <Col span={6}><DatePicker value={dayjs(selectedDate)} placeholder="选择日期" onChange={d => d && setSelectedDate(d.format('YYYY-MM-DD'))} style={{width:'100%'}} /></Col>
       </Row>
       <Row gutter={12} style={{ marginBottom: 12 }}>
         {chairs.map((c: any) => (
@@ -176,9 +178,22 @@ export const DentalSchedulePage: React.FC = () => {
                   <Form.Item label="松动度" style={{marginTop:8}}><Select value={psrRec.mobility} onChange={v=>setPsrRec({...psrRec,mobility:v})} options={[{value:0,label:'0 deg normal'},{value:1,label:'I deg less than 1mm'},{value:2,label:'II deg 1-2mm'},{value:3,label:'III deg more than 2mm'}]} /></Form.Item>
                   <Form.Item label="PSR 编码"><Select value={psrRec.psrCode} onChange={v=>setPsrRec({...psrRec,psrCode:v})} options={[{value:0,label:'0: Healthy'},{value:1,label:'1: Bleeding'},{value:2,label:'2: Calculus'},{value:3,label:'3: 4-5mm'},{value:4,label:'4: over 6mm'}]} /></Form.Item>
                   <Form.Item label="备注"><Input.TextArea value={psrRec.note} onChange={e=>setPsrRec({...psrRec,note:e.target.value})} rows={2} /></Form.Item>
-                  <Button type="primary" block onClick={async()=>{
-                    await fetch(`/api/v1/dental/chart/${psrRec.patientId}/psr`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(psrRec)});
-                    message.success('牙周记录已保存');
+                  <Button type="primary" block loading={psrSaving} onClick={async()=>{
+                    setPsrSaving(true);
+                    try {
+                      const res = await fetch(`/api/v1/dental/chart/${psrRec.patientId}/psr`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(psrRec)});
+                      const data = await res.json();
+                      if (data.success) {
+                        message.success('牙周记录已保存');
+                      } else {
+                        message.error('保存失败: ' + (data.error?.message || '未知错误'));
+                      }
+                    } catch (e) {
+                      console.error('[F04]', e);
+                      message.error('保存失败，请重试');
+                    } finally {
+                      setPsrSaving(false);
+                    }
                   }}>保存 PSR 记录</Button>
                 </Form>
               </Card>

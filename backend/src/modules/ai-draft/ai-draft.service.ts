@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common'
+import { PrismaService } from '../../prisma/prisma.service'
+import { floatInRange, hashString } from '../../common/utils/deterministic-hash'
 
 export interface AiDraftParagraphInput {
   heading: string
@@ -27,6 +29,8 @@ export interface AiDraftResult {
   overallConfidence: number
   modelVersion: string
   generatedAt: Date
+  /** true = 未落库 (DB 不可用或找不到关联报告) */
+  simulated?: boolean
 }
 
 export interface AiDraftRewriteRequest {
@@ -64,30 +68,67 @@ const MODALITY_TEMPLATES: Record<string, { heading: string; template: string }[]
   ],
 }
 
-let idCounter = 0
+/** 确定性置信度: 同内容恒定 0.85-0.94 */
+function confidenceOf(content: string): number {
+  return floatInRange(content, 0.85, 0.94, 1, 2)
+}
+
+/** 确定性段落 id: 以 (seed, index) 派生, 同输入恒定 */
+function draftIdOf(seed: string, idx: number): string {
+  return `draft-${hashString(`${seed}:${idx}`).toString(16).slice(0, 10)}`
+}
 
 @Injectable()
 export class AiDraftService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  private async persistDraft(request: AiDraftRequest, draftText: string): Promise<boolean> {
+    try {
+      const report = await this.prisma.report.findFirst({
+        where: {
+          OR: [
+            { examId: request.examId },
+            { patientId: request.patientId },
+          ],
+        },
+        orderBy: { updatedAt: 'desc' },
+        select: { id: true },
+      })
+      if (!report) return false
+      await this.prisma.aiReportDraft.create({
+        data: {
+          reportId: report.id,
+          draftText,
+          style: 'standard',
+          status: 'PENDING',
+          createdBy: request.patientId,
+        },
+      })
+      return true
+    } catch {
+      return false
+    }
+  }
+
   async generateDraft(request: AiDraftRequest): Promise<AiDraftResult> {
     const templates = MODALITY_TEMPLATES[request.modality] ?? MODALITY_TEMPLATES['CT']
+    const seed = `${request.patientId}:${request.examId}:${request.modality}:${request.bodyPart}`
     const paragraphs: AiDraftParagraph[] = templates.map((tpl, idx) => {
       const content = tpl.template
         .replace('{modality}', request.modality)
         .replace('{bodyPart}', request.bodyPart)
-
-      const confidence = 0.85 + Math.random() * 0.1
       return {
-        id: `draft-${++idCounter}`,
+        id: draftIdOf(seed, idx),
         heading: tpl.heading,
         content,
-        confidence: Math.round(confidence * 100) / 100,
+        confidence: confidenceOf(content),
         editable: true,
       }
     })
 
     if (request.clinicalHistory) {
       paragraphs.splice(1, 0, {
-        id: `draft-${++idCounter}`,
+        id: draftIdOf(seed, 90),
         heading: '临床病史',
         content: request.clinicalHistory,
         confidence: 0.95,
@@ -97,7 +138,7 @@ export class AiDraftService {
 
     if (request.keywords?.length) {
       paragraphs.push({
-        id: `draft-${++idCounter}`,
+        id: draftIdOf(seed, 91),
         heading: '关键词标注',
         content: request.keywords.join('、'),
         confidence: 0.90,
@@ -106,30 +147,32 @@ export class AiDraftService {
     }
 
     const overallConfidence = paragraphs.reduce((s, p) => s + p.confidence, 0) / paragraphs.length
-
-    return {
+    const result: AiDraftResult = {
       paragraphs,
       overallConfidence: Math.round(overallConfidence * 100) / 100,
       modelVersion: 'deepseek-v3.0',
       generatedAt: new Date(),
     }
+    const persisted = await this.persistDraft(request, paragraphs.map((p) => `【${p.heading}】${p.content}`).join('\n'))
+    if (!persisted) result.simulated = true
+    return result
   }
 
   async rewriteParagraph(request: AiDraftRewriteRequest): Promise<{ content: string; confidence: number }> {
-    const confidence = 0.78 + Math.random() * 0.12
+    const content = `【AI改写 - ${request.instruction}】${request.content}`
     return {
-      content: `【AI改写 - ${request.instruction}】${request.content}`,
-      confidence: Math.round(confidence * 100) / 100,
+      content,
+      confidence: confidenceOf(`rewrite:${content}`),
     }
   }
 
   async continueDraft(request: AiDraftContinueRequest): Promise<AiDraftParagraph> {
-    const confidence = 0.75 + Math.random() * 0.15
+    const content = `根据"${request.prompt}"：与既往相比，病灶无明显变化`
     return {
-      id: `draft-${++idCounter}`,
+      id: draftIdOf(`continue:${request.prompt}`, 0),
       heading: '补充描述',
-      content: `根据"${request.prompt}"：与既往相比，病灶无明显变化`,
-      confidence: Math.round(confidence * 100) / 100,
+      content,
+      confidence: confidenceOf(`continue:${content}`),
       editable: true,
     }
   }

@@ -60,7 +60,7 @@ const VisionExamPage: React.FC = () => {
       </Row>
 
       <Card size="small" title="4 记法换算对照" style={{ marginTop: 12 }}>
-        <Table dataSource={data} columns={columns} pagination={false} size="small" bordered />
+        <Table rowKey="key" dataSource={data} columns={columns} pagination={false} size="small" bordered />
       </Card>
     </div>
   );

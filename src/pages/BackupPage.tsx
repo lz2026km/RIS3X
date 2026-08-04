@@ -9,6 +9,7 @@ export default function BackupPage() {
   const [creating, setCreating] = useState(false)
   const [autoBackup, setAutoBackup] = useState(true)
   const [schedule, setSchedule] = useState('0 2 * * *')
+  const [backupType, setBackupType] = useState<string | undefined>(undefined)
 
   const fetchList = async () => {
     setLoading(true)
@@ -73,13 +74,14 @@ export default function BackupPage() {
               <Select
                 placeholder="备份类型"
                 style={{ width: 140 }}
-                onSelect={(v: string) => handleCreate(v)}
-                loading={creating}
+                value={backupType}
+                onChange={(v: string) => setBackupType(v)}
                 options={[
                   { value: 'FULL', label: '全量备份' },
                   { value: 'INCREMENTAL', label: '增量备份' },
                 ]}
               />
+              <Button type="primary" icon={<CloudUploadOutlined />} loading={creating} disabled={!backupType} onClick={() => { if (backupType) handleCreate(backupType); }}>开始备份</Button>
               <Button icon={<ReloadOutlined />} onClick={fetchList}>刷新</Button>
             </Space>
           </Row>

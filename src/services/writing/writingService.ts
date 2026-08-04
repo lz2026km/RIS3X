@@ -4,7 +4,7 @@
  */
 
 import type {
-  StructuredTemplate, StructuredFieldDefinition, RecistResponse, RecistTargetLesion,
+  StructuredTemplate, RecistResponse, RecistTargetLesion,
   BiradsAssessment, BiradsFinding, PiradsAssessment, PiradsScore,
   RichEditorDocument, AiDraftRequest, AiDraftResult, AiDraftStage,
   VoiceDictationSession, VoiceDictationState,
@@ -20,7 +20,6 @@ import type {
   ComplianceCheckResult,
   ChargeItem,
   SignatureRecord,
-  CriticalPattern,
 } from '@types/R3/R3.WRITING';
 import {
   RECIST_TEMPLATE, BIRADS_TEMPLATE, PIRADS_TEMPLATE, getStructuredTemplates,
@@ -32,8 +31,21 @@ import {
   WRITING_METRICS_MOCK, PRE_SUBMIT_SCORE_MOCK, MULTI_MODALITY_MOCK, KEYWORD_HIGHLIGHTS_MOCK,
   REPORT_WRITING_CONTEXT_MOCK,
 } from '@data/reportWritingMock';
+// [v3.0.6.11-70] P0 报告主流程真实化: 关键方法接入后端 reports 模块
+import { reportApi } from '../api/reportApi';
 
 const SIM_LATENCY_MS = 100;
+
+// ============================================================
+// 0. 内容持久化 (报告创建/更新 — POST /reports | PATCH /reports/:id)
+// ============================================================
+async function persistReportContent(reportId: string, plainText: string, conclusion?: string) {
+  const existing = await reportApi.getById(reportId);
+  if (existing.success && existing.data) {
+    return reportApi.update(reportId, { findings: plainText, conclusion: conclusion ?? (existing.data as any).conclusion ?? '' });
+  }
+  return reportApi.create({ patientId: reportId, examId: reportId, findings: plainText, conclusion: conclusion ?? '' });
+}
 
 // ============================================================
 // 1. 模板加载
@@ -137,18 +149,31 @@ export function calcPiradsOverall(lesions: PiradsAssessment['findings']): Pirads
 // 5. 富文本编辑器
 // ============================================================
 export async function getRichDocument(reportId: string): Promise<RichEditorDocument> {
-  await new Promise((r) => setTimeout(r, SIM_LATENCY_MS));
+  const res = await reportApi.getById(reportId);
+  if (res.success && res.data) {
+    const d = res.data;
+    const plainText = [d.findings, d.impression, d.recommendations].filter(Boolean).join('\n\n');
+    return {
+      ...RICH_DOCUMENT_MOCK,
+      reportId,
+      html: `<h2>影像所见</h2><p>${d.findings ?? ''}</p><h2>诊断意见</h2><p>${d.impression ?? ''}</p>`,
+      plainText,
+      wordCount: plainText.length,
+      lastEditedAt: d.updatedTime,
+    };
+  }
   return { ...RICH_DOCUMENT_MOCK, reportId };
 }
 
 export async function saveRichDocument(doc: RichEditorDocument): Promise<RichEditorDocument> {
-  await new Promise((r) => setTimeout(r, SIM_LATENCY_MS));
+  await persistReportContent(doc.reportId, doc.plainText ?? '', doc.conclusion ?? '');
   return { ...doc, lastEditedAt: new Date().toISOString(), autoSaveAt: new Date().toISOString() };
 }
 
 export async function autoSaveDocument(reportId: string, html: string, plainText: string): Promise<{ success: boolean; savedAt: string; version: number }> {
-  await new Promise((r) => setTimeout(r, 30));
-  return { success: true, savedAt: new Date().toISOString(), version: Math.floor(Math.random() * 100) };
+  if (!reportId) return { success: true, savedAt: new Date().toISOString(), version: 0 };
+  const res = await persistReportContent(reportId, plainText);
+  return { success: res.success, savedAt: res.data?.updatedTime ?? new Date().toISOString(), version: 1 };
 }
 
 export function countWords(text: string): number {
@@ -299,19 +324,38 @@ export async function compareReports(reportIdA: string, reportIdB: string): Prom
 // 11. 草稿
 // ============================================================
 export async function listDrafts(reportId: string): Promise<ReportDraft[]> {
-  await new Promise((r) => setTimeout(r, SIM_LATENCY_MS));
-  return REPORT_DRAFTS_MOCK.filter((d) => d.reportId === reportId);
+  const res = await reportApi.list({ take: '20' });
+  if (!res.success || !Array.isArray(res.data) || res.data.length === 0) {
+    return REPORT_DRAFTS_MOCK.filter((d) => d.reportId === reportId);
+  }
+  return res.data.map((r, i) => ({
+    id: `draft-${r.reportId}-${i}`,
+    reportId: r.reportId || r.id,
+    authorId: r.doctorId ?? '',
+    authorName: r.patientName ?? '',
+    content: r.findings ?? '',
+    html: `<p>${r.findings ?? ''}</p>`,
+    structured: {},
+    wordCount: (r.findings ?? '').length,
+    version: i + 1,
+    versionLabel: `v${i + 1}`,
+    createdAt: r.createdTime,
+    updatedAt: r.updatedTime,
+    autoSaved: i > 0,
+    conflict: false,
+    tags: [r.status ?? ''],
+  }));
 }
 
 export async function saveDraft(draft: Omit<ReportDraft, 'id' | 'createdAt' | 'updatedAt' | 'version'>): Promise<ReportDraft> {
-  await new Promise((r) => setTimeout(r, 200));
+  const res = await persistReportContent(draft.reportId, draft.content ?? '');
   return {
     ...draft,
     id: `draft-${Date.now()}`,
-    version: (REPORT_DRAFTS_MOCK.find((d) => d.reportId === draft.reportId)?.version ?? 0) + 1,
-    versionLabel: `v${(REPORT_DRAFTS_MOCK.find((d) => d.reportId === draft.reportId)?.version ?? 0) + 1}`,
+    version: 1,
+    versionLabel: 'v1',
     createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    updatedAt: res.data?.updatedTime ?? new Date().toISOString(),
   };
 }
 
@@ -355,13 +399,39 @@ export async function getKeywords(): Promise<KeywordHighlight[]> {
 // 14. 主聚合
 // ============================================================
 export async function getWritingContext(reportId: string): Promise<ReportWritingContext> {
-  await new Promise((r) => setTimeout(r, SIM_LATENCY_MS));
-  return { ...REPORT_WRITING_CONTEXT_MOCK, reportId };
+  const base: ReportWritingContext = { ...REPORT_WRITING_CONTEXT_MOCK, reportId };
+  const res = await reportApi.getById(reportId);
+  if (!res.success || !res.data) return base;
+  const d = res.data;
+  const plainText = [d.findings, d.impression, d.recommendations].filter(Boolean).join('\n\n');
+  return {
+    ...base,
+    reportId: d.reportId || d.id,
+    patientId: d.patientId || base.patientId,
+    modality: d.modality || base.modality,
+    bodyPart: d.bodyPart || base.bodyPart,
+    patientName: d.patientName || '',
+    clinicalDiagnosis: d.clinicalDiagnosis || '',
+    document: {
+      ...base.document,
+      reportId: d.reportId || d.id,
+      html: `<h2>影像所见</h2><p>${d.findings ?? ''}</p><h2>诊断意见</h2><p>${d.impression ?? ''}</p>`,
+      plainText,
+      wordCount: plainText.length,
+      lastEditedAt: d.updatedTime,
+      updatedAt: d.updatedTime,
+    },
+  };
 }
 
-export async function submitReport(reportId: string, payload: { finalScore: number; structured: Record<string, unknown>; html: string }): Promise<{ success: boolean; submittedAt: string; nextState: string }> {
-  await new Promise((r) => setTimeout(r, 500));
-  return { success: true, submittedAt: new Date().toISOString(), nextState: 'submitted' };
+export async function submitReport(reportId: string, payload: { finalScore: number; structured: Record<string, unknown>; html: string; plainText?: string; conclusion?: string }): Promise<{ success: boolean; submittedAt: string; nextState: string }> {
+  // [v3.0.6.11-70] P0 真实化: 1) 内容先落库(POST/PATCH /reports) 2) 状态流转 POST /reports/:id/transition → SUBMITTED
+  await persistReportContent(reportId, payload.plainText ?? '', payload.conclusion ?? '');
+  const res = await reportApi.submit(reportId);
+  if (!res.success) {
+    return { success: false, submittedAt: '', nextState: res.error?.code ?? 'ERROR' };
+  }
+  return { success: true, submittedAt: res.data?.updatedTime ?? new Date().toISOString(), nextState: res.data?.status ?? 'SUBMITTED' };
 }
 
 // ============================================================
@@ -622,8 +692,9 @@ export async function validateGenderProcedure(reportText: string, patientGender:
  * @param options 导出选项
  */
 export async function exportToPDF(reportId: string, options: { watermark?: string; signature?: boolean; embedImages?: boolean } = {}): Promise<{ url: string; filename: string }> {
-  await new Promise((r) => setTimeout(r, 500));
-  return { url: `/exports/${reportId}/report.pdf`, filename: `report-${reportId}.pdf` };
+  // [v3.0.6.11-70] P0 真实化: POST /reports/:id/export (后端入队生成)
+  const res = await reportApi.exportReport(reportId, 'pdf');
+  return { url: res.data?.downloadUrl ?? `/reports/${reportId}/export.pdf`, filename: `report-${reportId}.pdf` };
 }
 
 /**
@@ -632,8 +703,9 @@ export async function exportToPDF(reportId: string, options: { watermark?: strin
  * @param preserveTrackChanges 保留修订
  */
 export async function exportToWord(reportId: string, preserveTrackChanges?: boolean): Promise<{ url: string; filename: string }> {
-  await new Promise((r) => setTimeout(r, 400));
-  return { url: `/exports/${reportId}/report.docx`, filename: `report-${reportId}.docx` };
+  // [v3.0.6.11-70] P0 真实化: POST /reports/:id/export (后端入队生成)
+  const res = await reportApi.exportReport(reportId, 'word');
+  return { url: res.data?.downloadUrl ?? `/reports/${reportId}/export.docx`, filename: `report-${reportId}.docx` };
 }
 
 /**

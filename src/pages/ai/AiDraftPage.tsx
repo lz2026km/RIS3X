@@ -3,6 +3,7 @@ import { Card, Select, Button, Space, Tag, Typography, Input, message, Spin, Too
 import { Brain, Check, X, Edit3, FileText, RefreshCw, Plus, User, Activity, Layout } from 'lucide-react'
 import { v3AiDraftApi, type AiDraftMeta, type AiDraftParagraph, type AiDraftResult, type DraftTemplate } from '../../services/api/v3Api'
 import { patientExamApi, type PatientInfo, type ExamInfo } from '../../services/api/patientExamApi'
+import { reportApi } from '../../services/api/reportApi'
 
 const { Text, Title } = Typography
 const { TextArea } = Input
@@ -23,6 +24,8 @@ const AiDraftPage: React.FC = () => {
   const [exams, setExams] = useState<ExamInfo[]>([])
   const [patientsLoading, setPatientsLoading] = useState(false)
   const [examsLoading, setExamsLoading] = useState(false)
+  const [acceptedIds, setAcceptedIds] = useState<string[]>([])
+  const [submitting, setSubmitting] = useState(false)
 
   const currentExam = exams.find(e => e.id === selectedExam)
   const currentPatient = patients.find(p => p.id === selectedPatient)
@@ -127,12 +130,14 @@ const AiDraftPage: React.FC = () => {
   }, [rewriteTarget, rewriteInstruction, draftResult, buildMeta])
 
   const handleAccept = (id: string) => {
+    setAcceptedIds(prev => prev.includes(id) ? prev : [...prev, id])
     message.success(`已接受段落`)
   }
 
   const handleReject = (id: string) => {
     if (draftResult) {
       setDraftResult({ ...draftResult, paragraphs: draftResult.paragraphs.filter(p => p.id !== id) })
+      setAcceptedIds(prev => prev.filter(x => x !== id))
       message.info('已拒绝段落')
     }
   }
@@ -152,6 +157,41 @@ const AiDraftPage: React.FC = () => {
       message.success('已保存修改')
     }
   }
+
+  // 全部接受并提交：接受所有段落 → 生成报告文本 → 写入报告（POST /reports）→ 提交过渡
+  const handleAcceptAll = useCallback(async () => {
+    if (!draftResult || draftResult.paragraphs.length === 0) return
+    if (!selectedExam) { message.warning('请选择检查'); return }
+    const paragraphs = draftResult.paragraphs
+    setAcceptedIds(paragraphs.map(p => p.id))
+    const reportText = paragraphs.map(p => `## ${p.heading}\n${p.content}`).join('\n\n')
+    setSubmitting(true)
+    try {
+      const res = await reportApi.create({
+        reportId: `RPT-AI-${Date.now()}`,
+        patientId: selectedPatient ?? '',
+        patientName: currentPatient?.name,
+        examId: selectedExam,
+        modality: currentExam?.modality,
+        bodyPart: currentExam?.bodyPart,
+        findings: reportText,
+        impression: paragraphs.find(p => p.heading.includes('结论') || p.heading.includes('印象'))?.content ?? '',
+        doctorName: 'AI 辅助',
+      })
+      if (res.success) {
+        message.success(`报告已提交 (${reportText.length} 字符)`)
+        setDraftResult(null)
+        setAcceptedIds([])
+      } else {
+        message.error(res.error?.message || '提交失败')
+      }
+    } catch (err) {
+      console.error('[AiDraft] submit failed:', err)
+      message.error('提交请求失败')
+    } finally {
+      setSubmitting(false)
+    }
+  }, [draftResult, selectedExam, selectedPatient, currentExam])
 
   return (
     <div style={{ padding: 24, minHeight: '100vh', background: '#f5f5f5' }}>
@@ -248,7 +288,7 @@ const AiDraftPage: React.FC = () => {
                   <Tag color="purple" style={{ fontSize: 11 }}>{(p.confidence * 100).toFixed(0)}%</Tag>
                 </Space>
                 <Space>
-                  <Tooltip title="接受"><Button size="small" type="text" icon={<Check size={14} color="#52c41a" />} onClick={() => handleAccept(p.id)} /></Tooltip>
+                  <Tooltip title="接受"><Button size="small" type={acceptedIds.includes(p.id) ? 'primary' : 'text'} icon={<Check size={14} color={acceptedIds.includes(p.id) ? '#fff' : '#52c41a'} />} onClick={() => handleAccept(p.id)} /></Tooltip>
                   <Tooltip title="修改"><Button size="small" type="text" icon={<Edit3 size={14} color="#1677ff" />} onClick={() => handleEdit(p)} /></Tooltip>
                   <Tooltip title="拒绝"><Button size="small" type="text" icon={<X size={14} color="#ff4d4f" />} onClick={() => handleReject(p.id)} /></Tooltip>
                 </Space>
@@ -291,10 +331,10 @@ const AiDraftPage: React.FC = () => {
 
       {draftResult && !generating && (
         <div style={{ marginTop: 16, display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-          <Button icon={<Check size={14} />} type="primary" disabled>
+          <Button icon={<Check size={14} />} type="primary" onClick={() => void handleAcceptAll()} loading={submitting}>
             全部接受并提交
           </Button>
-          <Button icon={<X size={14} />} onClick={() => { setDraftResult(null); message.info('已清空') }}>
+          <Button icon={<X size={14} />} onClick={() => { setDraftResult(null); setAcceptedIds([]); message.info('已清空') }}>
             全部拒绝
           </Button>
         </div>

@@ -2,7 +2,31 @@ import { BadRequestException, ConflictException, Injectable, NotFoundException }
 import { PrismaService } from '../prisma/prisma.service'
 import { QueueService } from '../queue/queue.service'
 import { getCurrentTenantId } from '../common/interceptors/tenant-context.interceptor'
-import type { ReportState, Report } from '@prisma/client'
+import type { Prisma, ReportState, Report } from '@prisma/client'
+
+export const REPORT_TRANSITIONS: Record<ReportState, ReportState[]> = {
+  PENDING_ASSIGNMENT: ['ASSIGNED', 'WRITING'],
+  ASSIGNED: ['WRITING', 'REDISTRIBUTING'],
+  WRITING: ['SUBMITTED', 'INITIAL_REVIEW', 'REJECTED'],
+  SUBMITTED: ['INITIAL_REVIEW', 'REVIEWED', 'REJECTED'],
+  INITIAL_REVIEW: ['FINAL_REVIEW', 'REVIEWED', 'REJECTED'],
+  FINAL_REVIEW: ['CO_SIGN_REVIEW', 'REVIEWED', 'REJECTED'],
+  CO_SIGN_REVIEW: ['REVIEWED', 'REJECTED'],
+  REVIEWED: ['SIGNING', 'SIGNED', 'REJECTED'],
+  SIGNING: ['SIGNED', 'REJECTED'],
+  SIGNED: ['PUBLISHED', 'AMENDING', 'AMENDED', 'RECTIFYING', 'SUPPLEMENTING'],
+  PUBLISHED: ['AMENDING', 'AMENDED', 'SUPPLEMENTING', 'ARCHIVED'],
+  AMENDING: ['AMENDED', 'REJECTED'],
+  AMENDED: ['SIGNED', 'REJECTED'],
+  REJECTED: ['WRITING'],
+  WITHDRAWN: [],
+  ESCALATED: ['REVIEWED', 'REJECTED'],
+  ARCHIVED: [],
+  RECTIFYING: ['REVIEWED', 'REJECTED'],
+  SUPPLEMENTING: ['SUPPLEMENTED', 'REJECTED'],
+  SUPPLEMENTED: ['PUBLISHED', 'REJECTED'],
+  REDISTRIBUTING: ['ASSIGNED'],
+}
 
 function toReportDto(r: Report & { patient?: { id: string; name: string; gender: string } | null; radiologist?: { id: string; fullName: string; role: string } | null }) {
   return {
@@ -30,6 +54,9 @@ function toReportDto(r: Report & { patient?: { id: string; name: string; gender:
     reviewerId: r.reviewerId,
     coSignerId: r.coSignerId,
     signedAt: r.signedAt?.toISOString() ?? null,
+    signedById: r.signedById ?? null,
+    reviewedAt: r.reviewedAt?.toISOString() ?? null,
+    publishedAt: r.publishedAt?.toISOString() ?? null,
     rejectReason: r.rejectReason,
   }
 }
@@ -84,14 +111,19 @@ export class ReportsService {
     return toReportDto(r)
   }
 
-  async update(id: string, dto: { findings?: string; conclusion?: string; state?: ReportState }) {
+  async update(id: string, dto: { findings?: string; conclusion?: string }) {
+    const { findings, conclusion } = dto
     return this.prisma.$transaction(async (tx) => {
       const current = await tx.report.findUnique({ where: { id } })
       if (!current) throw new NotFoundException(`Report ${id} not found`)
       try {
         const r = await tx.report.update({
           where: { id, version: current.version },
-          data: { ...dto, version: { increment: 1 } },
+          data: {
+            ...(findings !== undefined ? { findings } : {}),
+            ...(conclusion !== undefined ? { conclusion } : {}),
+            version: { increment: 1 },
+          },
           include: { patient: { select: { id: true, name: true, gender: true } } },
         })
         return toReportDto(r)
@@ -141,10 +173,42 @@ export class ReportsService {
   async transition(id: string, to: ReportState, actorId: string, reason?: string) {
     const report = await this.prisma.report.findUnique({ where: { id } })
     if (!report) throw new NotFoundException(`Report ${id} not found`)
+    const allowed = REPORT_TRANSITIONS[report.state] ?? []
+    if (!allowed.includes(to)) {
+      throw new BadRequestException(`INVALID_TRANSITION: ${report.state} → ${to} 不允许`)
+    }
+    if (to === 'REJECTED' && !reason?.trim()) {
+      throw new BadRequestException('INVALID_TRANSITION: REJECTED 必须提供 reason')
+    }
+    const now = new Date()
+    const data: Prisma.ReportUncheckedUpdateInput = { state: to }
+    switch (to) {
+      case 'SIGNED':
+        data.signedAt = now
+        data.signedById = actorId
+        break
+      case 'REVIEWED':
+        data.reviewedAt = now
+        data.reviewerId = actorId
+        break
+      case 'REJECTED':
+        data.rejectReason = reason
+        break
+      case 'AMENDED':
+        data.rectificationCount = { increment: 1 }
+        if (reason?.trim()) data.amendmentReason = reason
+        break
+      case 'SUPPLEMENTING':
+        data.supplementCount = { increment: 1 }
+        break
+      case 'PUBLISHED':
+        data.publishedAt = now
+        break
+    }
     return this.prisma.$transaction(async (tx) => {
       const r = await tx.report.update({
         where: { id },
-        data: { state: to },
+        data,
         include: { patient: { select: { id: true, name: true, gender: true } } },
       })
       await tx.reportRevision.create({
