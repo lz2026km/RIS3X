@@ -175,8 +175,8 @@ export const DentalSchedulePage: React.FC = () => {
                     ))}
                   </Row>
                   <div style={{fontSize:11,color:"#999",marginTop:4}}>6-point: DB (Distal-Buccal), B (Buccal), MB (Mesial-Buccal), ML (Mesial-Lingual), L (Lingual), DL (Distal-Lingual)</div>
-                  <Form.Item label="松动度" style={{marginTop:8}}><Select value={psrRec.mobility} onChange={v=>setPsrRec({...psrRec,mobility:v})} options={[{value:0,label:'0 deg normal'},{value:1,label:'I deg less than 1mm'},{value:2,label:'II deg 1-2mm'},{value:3,label:'III deg more than 2mm'}]} /></Form.Item>
-                  <Form.Item label="PSR 编码"><Select value={psrRec.psrCode} onChange={v=>setPsrRec({...psrRec,psrCode:v})} options={[{value:0,label:'0: Healthy'},{value:1,label:'1: Bleeding'},{value:2,label:'2: Calculus'},{value:3,label:'3: 4-5mm'},{value:4,label:'4: over 6mm'}]} /></Form.Item>
+                  <Form.Item label="松动度" style={{marginTop:8}}><Select value={psrRec.mobility} onChange={v=>setPsrRec({...psrRec,mobility:v})} options={[{value:0,label:'0度正常'},{value:1,label:'I度小于1mm'},{value:2,label:'II度1-2mm'},{value:3,label:'III度大于2mm'}]} /></Form.Item>
+                  <Form.Item label="PSR 编码"><Select value={psrRec.psrCode} onChange={v=>setPsrRec({...psrRec,psrCode:v})} options={[{value:0,label:'0:健康'},{value:1,label:'1:出血'},{value:2,label:'2:牙结石'},{value:3,label:'3:4-5mm'},{value:4,label:'4:大于6mm'}]} /></Form.Item>
                   <Form.Item label="备注"><Input.TextArea value={psrRec.note} onChange={e=>setPsrRec({...psrRec,note:e.target.value})} rows={2} /></Form.Item>
                   <Button type="primary" block loading={psrSaving} onClick={async()=>{
                     setPsrSaving(true);

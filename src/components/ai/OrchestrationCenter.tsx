@@ -249,7 +249,7 @@ export const OrchestrationCenter: React.FC<OrchestrationCenterProps> = ({ onSele
                 <Card title="Study 参数" size="small">
                   <Space orientation="vertical" style={{ width: '100%' }}>
                     <div>
-                      <div style={{ fontSize: 12, color: '#94a3b8' }}>Study ID</div>
+                      <div style={{ fontSize: 12, color: '#94a3b8' }}>检查 ID</div>
                       <Input value={routeStudyId} onChange={(e) => setRouteStudyId(e.target.value)} />
                     </div>
                     <div>

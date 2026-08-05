@@ -405,7 +405,7 @@ export default function OrchestratorPage() {
         r.slaBreached ? (
           <Tag color="red">Breached</Tag>
         ) : r.slaDeadline ? (
-          <Tag color="green">On Track</Tag>
+          <Tag color="green">正常进行</Tag>
         ) : (
           "-"
         ),
@@ -688,7 +688,7 @@ export default function OrchestratorPage() {
             onChange={(e) =>
               setStepForm((p) => ({ ...p, assigneeRole: e.target.value }))
             }
-            placeholder="e.g. DOCTOR, TECHNICIAN"
+            placeholder="例如：医生,技师"
           />
         </div>
         <Row gutter={12}>
@@ -798,7 +798,7 @@ export default function OrchestratorPage() {
             onChange={(e) =>
               setSlaForm((p) => ({ ...p, escalateRole: e.target.value }))
             }
-            placeholder="e.g. DIRECTOR"
+            placeholder="例如：主任"
           />
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>

@@ -120,7 +120,7 @@ export const VolumeRenderer: React.FC<VolumeRendererProps> = ({
           />
         </label>
         <div style={{ flex: 1 }} />
-        {rendering && <span style={{ color: "#fbbf24" }}>Rendering...</span>}
+        {rendering && <span style={{ color: "#fbbf24" }}>渲染中...</span>}
       </div>
       <canvas
         ref={canvasRef}

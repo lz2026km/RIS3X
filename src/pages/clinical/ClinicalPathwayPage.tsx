@@ -71,7 +71,7 @@ export const ClinicalPathwayPage: React.FC = () => {
         <Route size={20} color="#1677ff" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>临床路径管理</span>
         <Tag color="cyan">v3.0.6.11-60</Tag>
-        <Tag color="green" icon={<Activity size={10} />}>CP-based care</Tag>
+        <Tag color="green" icon={<Activity size={10} />}>基于临床路径的护理</Tag>
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>刷新</Button>
       </Space>
 

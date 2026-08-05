@@ -225,7 +225,7 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
                         <Timer size={10} /> 响应时效
                       </div>
                       <div style={{ fontSize: 16, fontWeight: 600, color: l.color }}>
-                        {l.responseDeadline} <span style={{ fontSize: 12 }}>min</span>
+                        {l.responseDeadline} <span style={{ fontSize: 12 }}>分钟</span>
                       </div>
                       <Progress
                         percent={Math.round(((maxDeadline - l.responseDeadline + 1) / (maxDeadline + 1)) * 100)}

@@ -417,7 +417,7 @@ const SummaryCard: React.FC<{ templateId: StructuredTemplate['id']; values: Reco
           <Col span={6}>
             <div className="text-center">
               <div className="text-5xl font-bold" style={{ color: overall >= 4 ? '#dc2626' : overall >= 3 ? '#f59e0b' : '#10b981' }}>{overall}</div>
-              <div className="text-xs text-slate-500">Overall Score</div>
+              <div className="text-xs text-slate-500">综合评分</div>
             </div>
           </Col>
           <Col span={6}><Statistic title="PSA" value={Number(values['psa'] ?? 0)} suffix="ng/mL" /></Col>

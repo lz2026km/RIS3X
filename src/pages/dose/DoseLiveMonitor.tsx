@@ -285,6 +285,9 @@ export default function DoseLiveMonitor() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ fontSize: 16, fontWeight: 700, color: "#1e3a5f", display: "flex", alignItems: "center", gap: 8 }}>
+        <Activity size={18} /> 剂量实时监测
+      </div>
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
         <button style={btn} onClick={handleRefresh}>
           <RefreshCw size={13} /> 刷新

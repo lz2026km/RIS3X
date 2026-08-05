@@ -132,7 +132,7 @@ export const DentalGuidePage: React.FC = () => {
           手术导板设计 · 种植上部系统
         </span>
         <Tag color="cyan">v3.0.6.8-89</Tag>
-        <Tag color="purple">Guide Module</Tag>
+        <Tag color="purple">导板模块</Tag>
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}>

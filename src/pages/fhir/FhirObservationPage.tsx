@@ -100,8 +100,8 @@ export const FhirObservationPage: React.FC = () => {
 
       <Card size="small" style={{ marginBottom: 16 }}>
         <Form form={searchForm} layout="inline" onFinish={handleSearch}>
-          <Form.Item name="patient" label="Patient ID">
-            <Input placeholder="Patient ID / Reference" allowClear style={{ width: 240 }} />
+          <Form.Item name="patient" label="患者 ID">
+            <Input placeholder="患者 ID / 参考" allowClear style={{ width: 240 }} />
           </Form.Item>
           <Form.Item>
             <Space>

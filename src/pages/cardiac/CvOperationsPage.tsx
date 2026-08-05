@@ -29,25 +29,25 @@ type Protocol = {
 }
 
 const KPI_CARDS: KpiCard[] = [
-  { label: 'CV Cases Today', value: '18', change: '+12% vs last week', changeType: 'up', icon: <Activity size={20} /> },
-  { label: 'Avg Turnaround Time', value: '4.2 hrs', change: '-8% vs target', changeType: 'up', icon: <Clock size={20} /> },
-  { label: 'Active Cardiologists', value: '6', change: '2 on-call', changeType: 'neutral', icon: <Users size={20} /> },
-  { label: 'CV Revenue MTD', value: '¥1,245,000', change: '+15% vs budget', changeType: 'up', icon: <DollarSign size={20} /> },
-  { label: 'Contrast Used Today', value: '320 mL', change: 'Below threshold', changeType: 'up', icon: <FlaskConical size={20} /> },
-  { label: 'Pending Reports', value: '12', change: 'Overdue: 3', changeType: 'down', icon: <TrendingUp size={20} /> },
+  { label: '今日心血管病例', value: '18', change: '较上周 +12%', changeType: 'up', icon: <Activity size={20} /> },
+  { label: '平均周转时间', value: '4.2 hrs', change: '较目标 -8%', changeType: 'up', icon: <Clock size={20} /> },
+  { label: '在线心血管医生', value: '6', change: '2 人备勤', changeType: 'neutral', icon: <Users size={20} /> },
+  { label: '本月心血管收入', value: '¥1,245,000', change: '较预算 +15%', changeType: 'up', icon: <DollarSign size={20} /> },
+  { label: '今日对比剂用量', value: '320 mL', change: '低于阈值', changeType: 'up', icon: <FlaskConical size={20} /> },
+  { label: '待报告', value: '12', change: '逾期: 3', changeType: 'down', icon: <TrendingUp size={20} /> },
 ]
 
 const PROTOCOLS: Protocol[] = [
-  { id: 'P1', name: 'Coronary CTA - CAD', modality: 'CCTA', indication: 'stable chest pain, CAD suspect', activeCases: 4, lastUsed: '2026-06-16' },
-  { id: 'P2', name: 'Coronary CTA - Triple Rule Out', modality: 'CCTA', indication: 'chest pain, ACS rule-out', activeCases: 1, lastUsed: '2026-06-15' },
-  { id: 'P3', name: 'CMR - Cardiomyopathy', modality: 'CMR', indication: 'dilated/HCM/ARVC workup', activeCases: 3, lastUsed: '2026-06-16' },
-  { id: 'P4', name: 'CMR - Viability', modality: 'CMR', indication: 'known CAD, prior MI', activeCases: 2, lastUsed: '2026-06-14' },
-  { id: 'P5', name: 'CMR - Myocarditis', modality: 'CMR', indication: 'suspected myocarditis, elevated troponin', activeCases: 1, lastUsed: '2026-06-13' },
-  { id: 'P6', name: 'Cath - Stable CAD', modality: 'Cath Lab', indication: 'known CAD, staged PCI', activeCases: 3, lastUsed: '2026-06-16' },
-  { id: 'P7', name: 'Cath - Primary PCI STEMI', modality: 'Cath Lab', indication: 'STEMI activation', activeCases: 0, lastUsed: '2026-06-15' },
-  { id: 'P8', name: 'TAVR Pre-procedural', modality: 'CCTA', indication: 'severe AS, TAVR planning', activeCases: 2, lastUsed: '2026-06-14' },
-  { id: 'P9', name: 'Stress Echo - CAD', modality: 'Echo', indication: 'chest pain, intermediate pre-test prob', activeCases: 2, lastUsed: '2026-06-16' },
-  { id: 'P10', name: 'Carotid Duplex', modality: 'Vascular', indication: 'TIA/CVA, bruit', activeCases: 1, lastUsed: '2026-06-14' },
+  { id: 'P1', name: 'Coronary CTA - CAD', modality: 'CCTA', indication: '稳定性胸痛，疑似冠心病', activeCases: 4, lastUsed: '2026-06-16' },
+  { id: 'P2', name: 'Coronary CTA - Triple Rule Out', modality: 'CCTA', indication: '胸痛，排除 ACS', activeCases: 1, lastUsed: '2026-06-15' },
+  { id: 'P3', name: 'CMR - Cardiomyopathy', modality: 'CMR', indication: '扩张型/HCM/ARVC 检查', activeCases: 3, lastUsed: '2026-06-16' },
+  { id: 'P4', name: 'CMR - Viability', modality: 'CMR', indication: '已知 CAD，既往心梗', activeCases: 2, lastUsed: '2026-06-14' },
+  { id: 'P5', name: 'CMR - Myocarditis', modality: 'CMR', indication: '疑似心肌炎，肌钙蛋白升高', activeCases: 1, lastUsed: '2026-06-13' },
+  { id: 'P6', name: 'Cath - Stable CAD', modality: 'Cath Lab', indication: '已知 CAD，分期 PCI', activeCases: 3, lastUsed: '2026-06-16' },
+  { id: 'P7', name: 'Cath - Primary PCI STEMI', modality: 'Cath Lab', indication: 'STEMI 激活', activeCases: 0, lastUsed: '2026-06-15' },
+  { id: 'P8', name: 'TAVR Pre-procedural', modality: 'CCTA', indication: '重度 AS，TAVR 规划', activeCases: 2, lastUsed: '2026-06-14' },
+  { id: 'P9', name: 'Stress Echo - CAD', modality: 'Echo', indication: '胸痛，中等验前概率', activeCases: 2, lastUsed: '2026-06-16' },
+  { id: 'P10', name: 'Carotid Duplex', modality: 'Vascular', indication: 'TIA/CVA，血管杂音', activeCases: 1, lastUsed: '2026-06-14' },
 ]
 
 export default function CvOperationsPage() {
@@ -67,7 +67,7 @@ export default function CvOperationsPage() {
   return (
     <div style={{ padding: 24 }}>
       <h1 style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '0 0 16px' }}>
-        <Activity size={24} /> Cardiovascular Operations Center
+        <Activity size={24} /> 心血管运营中心
       </h1>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
@@ -114,8 +114,8 @@ export default function CvOperationsPage() {
                 <th style={{ padding: '10px 16px', textAlign: 'left' }}>协议</th>
                 <th style={{ padding: '10px 16px', textAlign: 'left' }}>Modality</th>
                 <th style={{ padding: '10px 16px', textAlign: 'left' }}>适应证</th>
-                <th style={{ padding: '10px 16px', textAlign: 'center' }}>Active Cases</th>
-                <th style={{ padding: '10px 16px', textAlign: 'left' }}>Last Used</th>
+                <th style={{ padding: '10px 16px', textAlign: 'center' }}>进行中病例</th>
+                <th style={{ padding: '10px 16px', textAlign: 'left' }}>最近使用</th>
               </tr>
             </thead>
             <tbody>
@@ -137,11 +137,11 @@ export default function CvOperationsPage() {
 
       {selectedTab === 'workload' && (
         <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 16, background: '#fff' }}>
-          <h3 style={{ margin: '0 0 16px', fontSize: 16 }}>Cardiologist Workload — Today</h3>
+          <h3 style={{ margin: '0 0 16px', fontSize: 16 }}>心血管医生工作量 — 今日</h3>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
             <thead>
               <tr style={{ borderBottom: '2px solid #e2e8f0' }}>
-                <th style={{ padding: '8px 12px', textAlign: 'left' }}>Cardiologist</th>
+                <th style={{ padding: '8px 12px', textAlign: 'left' }}>心血管医生</th>
                 <th style={{ padding: '8px 12px', textAlign: 'center' }}>CCTA</th>
                 <th style={{ padding: '8px 12px', textAlign: 'center' }}>CMR</th>
                 <th style={{ padding: '8px 12px', textAlign: 'center' }}>Echo</th>
@@ -172,7 +172,7 @@ export default function CvOperationsPage() {
                       background: r.status === 'on-duty' ? '#dcfce7' : r.status === 'on-call' ? '#fef3c7' : '#f1f5f9',
                       color: r.status === 'on-duty' ? '#16a34a' : r.status === 'on-call' ? '#d97706' : '#94a3b8',
                     }}>
-                      {r.status}
+                      {r.status === 'on-duty' ? '在岗' : r.status === 'on-call' ? '备勤' : r.status === 'cath-lab' ? '导管室' : r.status === 'echo-lab' ? '超声室' : '休班'}
                     </span>
                   </td>
                 </tr>
@@ -186,10 +186,10 @@ export default function CvOperationsPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 16, background: '#fff' }}>
             <h3 style={{ margin: '0 0 12px', fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <FlaskConical size={16} /> Contrast Media Stock
+              <FlaskConical size={16} /> 对比剂库存
             </h3>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-              <thead><tr style={{ borderBottom: '1px solid #e2e8f0' }}><th style={{ padding: '8px', textAlign: 'left' }}>Agent</th><th style={{ padding: '8px', textAlign: 'center' }}>Stock</th><th style={{ padding: '8px', textAlign: 'center' }}>Reorder</th></tr></thead>
+              <thead><tr style={{ borderBottom: '1px solid #e2e8f0' }}><th style={{ padding: '8px', textAlign: 'left' }}>操作人</th><th style={{ padding: '8px', textAlign: 'center' }}>库存</th><th style={{ padding: '8px', textAlign: 'center' }}>补货点</th></tr></thead>
               <tbody>
                 {[
                   { agent: 'Iopamidol 370 (100mL)', stock: 24, reorder: 30 },
@@ -208,10 +208,10 @@ export default function CvOperationsPage() {
           </div>
           <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 16, background: '#fff' }}>
             <h3 style={{ margin: '0 0 12px', fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Package size={16} /> Stress Agent Inventory
+              <Package size={16} /> 负荷药物库存
             </h3>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-              <thead><tr style={{ borderBottom: '1px solid #e2e8f0' }}><th style={{ padding: '8px', textAlign: 'left' }}>Agent</th><th style={{ padding: '8px', textAlign: 'center' }}>Doses</th><th style={{ padding: '8px', textAlign: 'center' }}>Expiry</th></tr></thead>
+              <thead><tr style={{ borderBottom: '1px solid #e2e8f0' }}><th style={{ padding: '8px', textAlign: 'left' }}>操作人</th><th style={{ padding: '8px', textAlign: 'center' }}>剂量</th><th style={{ padding: '8px', textAlign: 'center' }}>有效期</th></tr></thead>
               <tbody>
                 {[
                   { agent: 'Dobutamine (250mg/20mL)', doses: 5, expiry: '2026-08' },

@@ -418,7 +418,7 @@ export const RemoteViewer: React.FC<RemoteViewerProps> = ({
               style={{ color: "#94a3b8" }}
             />
           </Tooltip>
-          <Tooltip title="Copy Invite Link">
+          <Tooltip title="复制邀请链接">
             <Button
               size="small"
               type="text"
@@ -617,7 +617,7 @@ export const RemoteViewer: React.FC<RemoteViewerProps> = ({
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 onPressEnter={sendChatMessage}
-                placeholder="Type a message..."
+                placeholder="输入消息..."
                 style={{
                   flex: 1,
                   border: "none",

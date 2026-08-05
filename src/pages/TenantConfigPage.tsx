@@ -204,7 +204,7 @@ export default function TenantConfigPage() {
                       {tenant ? (
                         <Descriptions column={2} size="small" bordered>
                           <Descriptions.Item label="租户ID">{tenant.id}</Descriptions.Item>
-                          <Descriptions.Item label="Code">{tenant.code}</Descriptions.Item>
+                          <Descriptions.Item label="编码">{tenant.code}</Descriptions.Item>
                           <Descriptions.Item label="名称">{tenant.name}</Descriptions.Item>
                           <Descriptions.Item label="状态">
                             <Badge status={tenant.status === 'ACTIVE' ? 'success' : 'error'} text={tenant.status === 'ACTIVE' ? '启用' : '停用'} />
@@ -335,8 +335,8 @@ export default function TenantConfigPage() {
         destroyOnClose
       >
         <Form form={createForm} layout="vertical">
-          <Form.Item name="code" label="租户 Code" rules={[
-            { required: true, message: '请输入租户 Code' },
+          <Form.Item name="code" label="租户编码" rules={[
+            { required: true, message: '请输入租户编码' },
             { pattern: /^[A-Za-z0-9][A-Za-z0-9._:-]{0,63}$/, message: '仅支持字母/数字/._:-，以字母或数字开头' },
           ]}>
             <Input maxLength={64} placeholder="如 zhongshan" />
@@ -345,7 +345,7 @@ export default function TenantConfigPage() {
             <Input maxLength={64} />
           </Form.Item>
           <Form.Item name="license" label="许可证类型">
-            <Input maxLength={32} placeholder="Enterprise" />
+            <Input maxLength={32} placeholder="企业版" />
           </Form.Item>
           <Form.Item name="maxUsers" label="用户配额" initialValue={100}>
             <InputNumber min={1} max={100000} style={{ width: '100%' }} />

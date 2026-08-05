@@ -121,7 +121,7 @@ export const CMR42: React.FC<CMR42Props> = ({ patients = MOCK }) => {
           <Space>
             <Heart size={14} color="#dc2626" />
             <span>Philips CMR42 - 心脏 MR 后处理</span>
-            <Tag color="blue">Mapping</Tag>
+            <Tag color="blue">映射</Tag>
             <Tag color="purple">LGE</Tag>
           </Space>
         }

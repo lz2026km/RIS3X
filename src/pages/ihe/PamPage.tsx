@@ -84,14 +84,14 @@ export const PamPage: React.FC = () => {
                       <Form.Item label="患者 ID" required>
                         <Input value={patientId} onChange={e => setPatientId(e.target.value)} placeholder="P0001" />
                       </Form.Item>
-                      <Form.Item label="Visit Number" required>
+                      <Form.Item label="就诊号" required>
                         <Input value={visitNumber} onChange={e => setVisitNumber(e.target.value)} placeholder="V20260001" />
                       </Form.Item>
                       <Form.Item label="Class Code">
                         <Select value={classCode} onChange={setClassCode}
                           options={[{ value: 'AMB', label: 'AMB' }, { value: 'IMP', label: 'IMP' }, { value: 'EMR', label: 'EMR' }, { value: 'OBS', label: 'OBS' }]} />
                       </Form.Item>
-                      <Form.Item label="Assigned Location">
+                      <Form.Item label="分配位置">
                         <Input value={assignedLocation} onChange={e => setAssignedLocation(e.target.value)} placeholder="RAD-A01" />
                       </Form.Item>
                       <Button type="primary" icon={<Send size={14} />} onClick={handleSend} loading={loading} block>
@@ -140,7 +140,7 @@ export const PamPage: React.FC = () => {
                     </Descriptions.Item>
                     <Descriptions.Item label="端口">{listenerStatus.port ?? 2575}</Descriptions.Item>
                     <Descriptions.Item label="Uptime">{listenerStatus.uptime ?? '-'}</Descriptions.Item>
-                    <Descriptions.Item label="Connections">{listenerStatus.connections ?? 0}</Descriptions.Item>
+                    <Descriptions.Item label="连接">{listenerStatus.connections ?? 0}</Descriptions.Item>
                   </Descriptions>
                 ) : (
                   <Alert title="正在加载 MLLP 状态..." type="info" showIcon />

@@ -128,7 +128,7 @@ export default function EnterpriseSearchPage() {
           onSearch={() => void handleSearch()}
           onPressEnter={() => void handleSearch()}
           placeholder={'keyword-placeholder'}
-          enterButton={<Button type="primary" icon={<Search />}>search</Button>}
+          enterButton={<Button type="primary" icon={<Search />}>搜索</Button>}
           loading={loading}
         />
         {suggestions.length > 0 && !loading && (
@@ -175,7 +175,7 @@ export default function EnterpriseSearchPage() {
 
       {searched && loading && (
         <div style={{ padding: 60, textAlign: 'center' }}>
-          <Spin size="large" tip="searching">
+          <Spin size="large" tip="搜索中">
             <div style={{ height: 80 }} />
           </Spin>
         </div>
@@ -184,7 +184,7 @@ export default function EnterpriseSearchPage() {
       {searched && !loading && (
         <>
           <div style={{ padding: '8px 12px', background: '#eff6ff', borderRadius: 6, marginBottom: 4, fontSize: 13, color: '#1e40af' }}>
-            {'hit'} <strong>{total}</strong> {'results'}{legacyCount > 0 ? ` (${apiResults.length})` : ''} · {tookMs}ms
+            找到 <strong>{total}</strong> 条结果{legacyCount > 0 ? ` (${apiResults.length})` : ''} · {tookMs}ms
           </div>
 
           {Object.keys(grouped).length > 0 && (
@@ -193,7 +193,7 @@ export default function EnterpriseSearchPage() {
               activeKey={activeType}
               onChange={setActiveType}
               items={[
-                { key: 'all', label: `all ${total}` },
+                { key: 'all', label: `全部 ${total}` },
                 ...GROUP_ORDER
                   .filter(g => (grouped[g] || []).length > 0)
                   .map(g => ({ key: g, label: `${TYPE_META[g].label} ${grouped[g].length}` })),
@@ -203,7 +203,7 @@ export default function EnterpriseSearchPage() {
           )}
 
           {total === 0 && legacyCount === 0 ? (
-            <Empty description="no-results" style={{ padding: 40 }} />
+            <Empty description="无结果" style={{ padding: 40 }} />
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {visibleGroups.map(group => (

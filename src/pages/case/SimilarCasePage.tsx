@@ -94,7 +94,7 @@ function ImageSearchTab() {
 
   const handleSearch = useCallback(async () => {
     if (!selected) {
-      message.warning('请选择检查 (series)')
+      message.warning('请选择检查')
       return
     }
     setLoading(true)
@@ -117,7 +117,7 @@ function ImageSearchTab() {
       <Card style={{ marginBottom: 16 }} size="small">
         <Space wrap>
           <Select
-            placeholder="选择检查 (series)" showSearch allowClear style={{ width: 380 }}
+            placeholder="选择检查" showSearch allowClear style={{ width: 380 }}
             value={selected}
             onChange={setSelected}
             options={seriesList.map((s) => ({
@@ -201,7 +201,7 @@ function ImageSearchTab() {
               <Descriptions.Item label="相似度"><Tag color="blue">{detail.similarity}%</Tag></Descriptions.Item>
               <Descriptions.Item label="特征余弦"><Text strong>{detail.featureScore.toFixed(1)}%</Text></Descriptions.Item>
               <Descriptions.Item label="模态/部位匹配"><Text strong>{detail.matchScore.toFixed(1)}%</Text></Descriptions.Item>
-              <Descriptions.Item label="series" span={3}><Text copyable style={{ fontSize: 11 }}>{detail.seriesUid}</Text></Descriptions.Item>
+              <Descriptions.Item label="序列" span={3}><Text copyable style={{ fontSize: 11 }}>{detail.seriesUid}</Text></Descriptions.Item>
             </Descriptions>
             <Divider>影像特征摘要 (强度直方图)</Divider>
             <FeatureSummaryBlock summary={detail.featureSummary} />

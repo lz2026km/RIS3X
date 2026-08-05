@@ -42,7 +42,7 @@ export const PatientSafetyDashboardPage: React.FC = () => {
       </Row>
       <Row gutter={16} style={{marginBottom:16}}>
         <Col span={16}>
-          <Card size="small" title={<Space><Activity size={14}/>Quality Indicators</Space>}>
+          <Card size="small" title={<Space><Activity size={14}/>质量指标</Space>}>
             <Row gutter={[12,12]}>
               {indicators.map(i=>(
                 <Col span={8} key={i.id}>
@@ -61,7 +61,7 @@ export const PatientSafetyDashboardPage: React.FC = () => {
           </Card>
         </Col>
         <Col span={8}>
-          <Card size="small" title={<Space><AlertTriangle size={14}/>Live Alerts</Space>}>
+          <Card size="small" title={<Space><AlertTriangle size={14}/>实时告警</Space>}>
             <List dataSource={alerts} renderItem={(a:any)=><List.Item style={{padding:'8px 0'}}>
               <Space>
                 <Badge status={a.level==='critical'?'error':a.level==='warning'?'warning':'processing'} />
@@ -72,7 +72,7 @@ export const PatientSafetyDashboardPage: React.FC = () => {
           </Card>
         </Col>
       </Row>
-      <Card size="small" title={<Space><Heart size={14}/>Recent Safety Incidents</Space>}>
+      <Card size="small" title={<Space><Heart size={14}/>近期安全事件</Space>}>
         <Table dataSource={incidents} rowKey="id" pagination={false}
           columns={[
             {title:'时间',dataIndex:'time',width:80},

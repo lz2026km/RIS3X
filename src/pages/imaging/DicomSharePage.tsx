@@ -57,7 +57,7 @@ export const DicomSharePage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Share2 size={20} color="#1677ff" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>DICOM across-dept share</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>DICOM 跨科室共享</span>
         <Tag color="cyan">v3.0.6.8-68</Tag>
         <Tag color="purple">DICOM TLS</Tag>
       </Space>
@@ -67,7 +67,7 @@ export const DicomSharePage: React.FC = () => {
         <Col span={4}><Card size="small"><Statistic title="已完成" value={numReceived} styles={{ content: { color:'#52c41a' } }} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="总量" value="1.2" suffix="GB" /></Card></Col>
       </Row>
-      <Card extra={<Button type="primary" icon={<Send size={12}/>} onClick={()=>setShareModal(true)}>分享</Button>} size="small" title="Transfer Records">
+      <Card extra={<Button type="primary" icon={<Send size={12}/>} onClick={()=>setShareModal(true)}>分享</Button>} size="small" title="传输记录">
         <Table dataSource={shares} rowKey="id" pagination={false}
           columns={[
             {title:'编号',dataIndex:'id'},{title:'Study',dataIndex:'studyId'},{title:'患者',dataIndex:'patient'},
@@ -79,7 +79,7 @@ export const DicomSharePage: React.FC = () => {
             {title:'操作',render:(_:any, row:any)=><Space><Button size="small" icon={<Download size={12}/>} onClick={()=>handleDownload(row)}>下载</Button></Space>},
           ]} />
       </Card>
-      <Modal title="Share DICOM Study" open={shareModal} onCancel={()=>setShareModal(false)} onOk={handleShareOk} okText="发送共享请求" width={460}>
+      <Modal title="共享 DICOM 检查" open={shareModal} onCancel={()=>setShareModal(false)} onOk={handleShareOk} okText="发送共享请求" width={460}>
         <Form form={shareForm} layout="vertical" size="small" style={{ marginTop: 12 }}>
           <Form.Item name="study" label="Study" rules={[{ required: true, message: '请选择检查' }]}><Select options={[{value:'CBCT-001',label:'ZW-36 CBCT'},{value:'CT-002',label:'LN-Head CT'},{value:'OCT-003',label:'WF-OCT'}]} /></Form.Item>
           <Form.Item name="departments" label="目标科室" rules={[{ required: true, message: '请选择目标科室' }]}><Select mode="multiple" options={['Oral','Oral Surgery','Ortho','Eye','ENT'].map(d=>({value:d,label:d}))} /></Form.Item>

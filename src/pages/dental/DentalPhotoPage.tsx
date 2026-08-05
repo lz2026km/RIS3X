@@ -15,11 +15,11 @@ interface Photo {
 }
 
 const CAT_LABEL: Record<string, string> = {
-  intraoral: 'Intraoral',
-  extraoral: 'Extraoral',
-  radiograph: 'X-Ray',
-  model: 'Model',
-  other: 'Other',
+  intraoral: '口内',
+  extraoral: '口外',
+  radiograph: 'X光',
+  model: '模型',
+  other: '其他',
 };
 
 const CAT_COLORS: Record<string, string> = {
@@ -38,26 +38,26 @@ const PLACEHOLDER_SVG = (label: string) =>
 
 const SAMPLE_PHOTOS: Record<string, Photo[]> = {
   P100001: [
-    { id: 'PH-001', type: 'frontal', label: 'Frontal smile', url: PLACEHOLDER_SVG('Frontal smile'), takenAt: '2026-06-15T10:00:00Z', category: 'extraoral' },
-    { id: 'PH-002', type: 'occlusal-upper', label: 'Upper occlusal', url: PLACEHOLDER_SVG('Upper occlusal'), takenAt: '2026-06-15T10:05:00Z', category: 'intraoral' },
-    { id: 'PH-003', type: 'occlusal-lower', label: 'Lower occlusal', url: PLACEHOLDER_SVG('Lower occlusal'), takenAt: '2026-06-15T10:08:00Z', category: 'intraoral' },
-    { id: 'PH-004', type: 'buccal-right', label: 'Right buccal', url: PLACEHOLDER_SVG('Right buccal'), takenAt: '2026-06-15T10:12:00Z', category: 'intraoral' },
+    { id: 'PH-001', type: 'frontal', label: '正面微笑', url: PLACEHOLDER_SVG('正面微笑'), takenAt: '2026-06-15T10:00:00Z', category: 'extraoral' },
+    { id: 'PH-002', type: 'occlusal-upper', label: '上颌咬合面', url: PLACEHOLDER_SVG('上颌咬合面'), takenAt: '2026-06-15T10:05:00Z', category: 'intraoral' },
+    { id: 'PH-003', type: 'occlusal-lower', label: '下颌咬合面', url: PLACEHOLDER_SVG('下颌咬合面'), takenAt: '2026-06-15T10:08:00Z', category: 'intraoral' },
+    { id: 'PH-004', type: 'buccal-right', label: '右侧颊面', url: PLACEHOLDER_SVG('右侧颊面'), takenAt: '2026-06-15T10:12:00Z', category: 'intraoral' },
   ],
   P100002: [
-    { id: 'PH-101', type: 'frontal', label: 'Frontal rest', url: PLACEHOLDER_SVG('Frontal rest'), takenAt: '2026-06-10T09:00:00Z', category: 'extraoral' },
-    { id: 'PH-102', type: 'lateral', label: 'Lateral right', url: PLACEHOLDER_SVG('Lateral right'), takenAt: '2026-06-10T09:05:00Z', category: 'extraoral' },
+    { id: 'PH-101', type: 'frontal', label: '正面休息位', url: PLACEHOLDER_SVG('正面休息位'), takenAt: '2026-06-10T09:00:00Z', category: 'extraoral' },
+    { id: 'PH-102', type: 'lateral', label: '右侧面', url: PLACEHOLDER_SVG('右侧面'), takenAt: '2026-06-10T09:05:00Z', category: 'extraoral' },
   ],
   P100003: [
-    { id: 'PH-201', type: 'frontal', label: 'Frontal', url: PLACEHOLDER_SVG('Frontal'), takenAt: '2026-05-20T14:00:00Z', category: 'extraoral' },
-    { id: 'PH-202', type: 'panoramic', label: 'Panoramic X', url: PLACEHOLDER_SVG('Panoramic X'), takenAt: '2026-05-20T14:30:00Z', category: 'radiograph' },
+    { id: 'PH-201', type: 'frontal', label: '正面', url: PLACEHOLDER_SVG('正面'), takenAt: '2026-05-20T14:00:00Z', category: 'extraoral' },
+    { id: 'PH-202', type: 'panoramic', label: '全景X光', url: PLACEHOLDER_SVG('全景X光'), takenAt: '2026-05-20T14:30:00Z', category: 'radiograph' },
   ],
 };
 
 const PHOTO_CATEGORIES = [
-  { value: 'intraoral', label: 'Intraoral' },
-  { value: 'extraoral', label: 'Extraoral' },
-  { value: 'radiograph', label: 'X-Ray' },
-  { value: 'model', label: 'Model' },
+  { value: 'intraoral', label: '口内' },
+  { value: 'extraoral', label: '口外' },
+  { value: 'radiograph', label: 'X光' },
+  { value: 'model', label: '模型' },
 ];
 
 export const DentalPhotoPage: React.FC = () => {
@@ -137,7 +137,7 @@ export const DentalPhotoPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
         <Camera size={20} color="#1677ff" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>Patient Photos & Communication</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>患者照片与沟通</span>
         <Tag color="cyan">v3.0.6.8-102</Tag>
         <Tag color="purple">3Shape Unite</Tag>
         <Select value={selected} onChange={v => setSelected(v)} style={{ width: 180 }}
@@ -163,22 +163,22 @@ export const DentalPhotoPage: React.FC = () => {
         </Col>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="Intraoral" value={intraoral} />
+            <Statistic title="口内" value={intraoral} />
           </Card>
         </Col>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="Extraoral" value={extraoral} />
+            <Statistic title="口外" value={extraoral} />
           </Card>
         </Col>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="X-Ray" value={radiograph} />
+            <Statistic title="X光" value={radiograph} />
           </Card>
         </Col>
         <Col span={4}>
           <Card size="small">
-            <Statistic title="Categories" value={new Set(photos.map(p => p.category)).size} />
+            <Statistic title="分类" value={new Set(photos.map(p => p.category)).size} />
           </Card>
         </Col>
       </Row>
@@ -222,7 +222,7 @@ export const DentalPhotoPage: React.FC = () => {
         items={[
           {
             key: 'before-after',
-            label: 'Before / After',
+            label: '治疗前 / 治疗后',
             children: (
               <Row gutter={16}>
                 <Col span={12}>
@@ -230,7 +230,7 @@ export const DentalPhotoPage: React.FC = () => {
                     {photos.length > 1 ? (
                       <img
                         src={photos[photos.length - 1].url}
-                        alt="Before"
+                        alt="治疗前"
                         style={{ width: '100%', height: 300, objectFit: 'cover', borderRadius: 8 }}
                       />
                     ) : (
@@ -239,11 +239,11 @@ export const DentalPhotoPage: React.FC = () => {
                   </Card>
                 </Col>
                 <Col span={12}>
-                  <Card size="small" title="After Treatment (Latest)">
+                  <Card size="small" title="治疗后(最新)">
                     {photos.length > 0 ? (
                       <img
                         src={photos[0].url}
-                        alt="After"
+                        alt="治疗后"
                         style={{ width: '100%', height: 300, objectFit: 'cover', borderRadius: 8 }}
                       />
                     ) : (
@@ -256,7 +256,7 @@ export const DentalPhotoPage: React.FC = () => {
                     <Button icon={<ZoomIn size={14} />} onClick={() => setZoom(Math.min(2, zoom + 0.2))}>放大</Button>
                     <Button icon={<ZoomOut size={14} />} onClick={() => setZoom(Math.max(0.5, zoom - 0.2))}>缩小</Button>
                     <Slider min={0.5} max={2} step={0.1} value={zoom} onChange={setZoom} style={{ width: 200 }} />
-                    <span>Zoom: {(zoom * 100).toFixed(0)}%</span>
+                    <span>缩放: {(zoom * 100).toFixed(0)}%</span>
                   </Space>
                 </Col>
               </Row>
@@ -264,20 +264,20 @@ export const DentalPhotoPage: React.FC = () => {
           },
           {
             key: 'share',
-            label: 'Cloud Share',
+            label: '云共享',
             children: (
-              <Card size="small" title="Share Case with Patient">
+              <Card size="small" title="与患者分享病例">
                 {shareLink ? (
                   <Alert
-                    title="Share link generated"
+                    title="分享链接已生成"
                     description={
                       <Space orientation="vertical" style={{ width: '100%' }}>
                         <code style={{ background: '#f5f5f5', padding: 4, borderRadius: 4, display: 'block' }}>
                           {shareLink}
                         </code>
                         <Space>
-                          <Tag color="green">7 day expiry</Tag>
-                          <Tag color="orange">Password: 8888</Tag>
+                          <Tag color="green">7 天有效期</Tag>
+                          <Tag color="orange">密码: 8888</Tag>
                           <Button size="small" icon={<Download size={10} />} onClick={() => {
                             navigator.clipboard?.writeText(shareLink);
                             message.success('已复制');
@@ -289,7 +289,7 @@ export const DentalPhotoPage: React.FC = () => {
                     showIcon
                   />
                 ) : (
-                  <Empty description="点击 Generate Share Link 按钮生成分享链接" />
+                  <Empty description="点击「生成分享链接」按钮生成分享链接" />
                 )}
               </Card>
             ),

@@ -258,7 +258,7 @@ export default function SidebarPanel(props: Props) {
                 <div style={s.infoItem}><span style={s.infoLabel}>{t('dcm.imageNumber')}</span><span style={s.infoValue}>{currentImage?.imageNumber || 1}</span></div>
                 <div style={{ ...s.infoItem, gridColumn: '1 / -1' }}><span style={s.infoLabel}>{t('dcm.seriesDesc')}</span><span style={{ ...s.infoValue, gridColumn: '1 / -1' }}>{activeSeries.seriesDescription}</span></div>
                 <div style={s.infoItem}><span style={s.infoLabel}>{t('dcm.imageCount')}</span><span style={s.infoValue}>{activeSeries.imageCount}</span></div>
-                <div style={s.infoItem}><span style={s.infoLabel}>modality</span><span style={s.infoValue}>{activeSeries.modality}</span></div>
+                <div style={s.infoItem}><span style={s.infoLabel}>设备</span><span style={s.infoValue}>{activeSeries.modality}</span></div>
               </div>
             </div>
             <div style={s.infoSection}>

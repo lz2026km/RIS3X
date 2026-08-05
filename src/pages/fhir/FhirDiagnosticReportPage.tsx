@@ -102,8 +102,8 @@ export const FhirDiagnosticReportPage: React.FC = () => {
 
       <Card size="small" style={{ marginBottom: 16 }}>
         <Form form={searchForm} layout="inline" onFinish={handleSearch}>
-          <Form.Item name="patient" label="Patient ID">
-            <Input placeholder="Patient ID / Reference" allowClear style={{ width: 200 }} />
+          <Form.Item name="patient" label="患者 ID">
+            <Input placeholder="患者 ID / 参考" allowClear style={{ width: 200 }} />
           </Form.Item>
           <Form.Item name="status" label="状态">
             <Select allowClear placeholder="全部" style={{ width: 140 }}>

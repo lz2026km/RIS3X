@@ -310,7 +310,7 @@ export default function Dicom4dPage() {
               style={currentFrame === 0 ? { ...btnStyle, opacity: 0.4 } : btnStyle}
               disabled={currentFrame === 0}
               onClick={() => { setCurrentFrame(0); setPlaying(false) }}
-              aria-label="First frame"
+              aria-label="第一帧"
             >
               <SkipBack size={14} />
             </button>
@@ -318,7 +318,7 @@ export default function Dicom4dPage() {
               style={playing ? activeBtnStyle : btnStyle}
               onClick={() => setPlaying(v => !v)}
               disabled={frameCount === 0}
-              aria-label={playing ? 'Pause' : 'Play'}
+              aria-label={playing ? '暂停' : '播放'}
             >
               {playing ? <Pause size={14} /> : <Play size={14} />}
             </button>
@@ -326,7 +326,7 @@ export default function Dicom4dPage() {
               style={currentFrame >= frameCount - 1 ? { ...btnStyle, opacity: 0.4 } : btnStyle}
               disabled={currentFrame >= frameCount - 1}
               onClick={() => { setCurrentFrame(f => Math.min(frameCount - 1, f + 1)); setPlaying(false) }}
-              aria-label="Next frame"
+              aria-label="下一帧"
             >
               <SkipForward size={14} />
             </button>

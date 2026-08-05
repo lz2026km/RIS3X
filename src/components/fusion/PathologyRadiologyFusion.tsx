@@ -117,7 +117,7 @@ export const PathologyRadiologyFusion: React.FC<PathologyRadiologyFusionProps> =
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
           <Metric label="TRE" value={`${result.tre.toFixed(2)} mm`} color={result.tre < 2 ? '#10b981' : '#fbbf24'} />
           <Metric label="Dice" value={result.dice.toFixed(3)} color={result.dice > 0.85 ? '#10b981' : '#fbbf24'} />
-          <Metric label="Confidence" value={`${(result.confidence * 100).toFixed(0)}%`} color="#3b82f6" />
+          <Metric label="置信度" value={`${(result.confidence * 100).toFixed(0)}%`} color="#3b82f6" />
           <Metric label="ROI" value={`${result.roi.w}×${result.roi.h}`} color="#a78bfa" />
         </div>
       )}

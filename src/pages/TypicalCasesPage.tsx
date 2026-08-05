@@ -1434,7 +1434,7 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
                       <ImageIcon size={20} style={{ color: 'rgba(255,255,255,0.5)' }} />
                     </div>
                     <div style={{ fontSize: 12, color: COLORS.text, textAlign: 'center' }}>{img.description}</div>
-                    <div style={{ fontSize: 12, color: COLORS.textMuted, textAlign: 'center' }}>Series {idx + 1}</div>
+                    <div style={{ fontSize: 12, color: COLORS.textMuted, textAlign: 'center' }}>序列 {idx + 1}</div>
                   </div>
                 ))}
               </div>

@@ -121,7 +121,7 @@ export const SlaMatrixEditor: React.FC<SlaMatrixEditorProps> = ({ policies, onCh
                                 onChange={(e) => updateCell(modality, priority, { [field]: Number(e.target.value) } as Partial<SLAPolicyConfig>)}
                                 style={inputStyle}
                               />
-                              <span style={{ color: '#94a3b8' }}>min</span>
+                              <span style={{ color: '#94a3b8' }}>分钟</span>
                             </label>
                           ))}
                           <button onClick={() => removeCell(modality, priority)} style={{ alignSelf: 'flex-end', background: 'none', border: 'none', cursor: 'pointer' }}>

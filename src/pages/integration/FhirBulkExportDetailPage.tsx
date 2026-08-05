@@ -109,7 +109,7 @@ export const FhirBulkExportDetailPage: React.FC = () => {
       <Card size="small" title={<Space><Activity size={14} />任务状态</Space>}
         extra={<Space>{status.status === 'running' && <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> 轮询中...</>}</Space>}>
         <Descriptions column={2} size="small">
-          <Descriptions.Item label="Job ID"><Typography.Text copyable>{status.jobId}</Typography.Text></Descriptions.Item>
+          <Descriptions.Item label="任务 ID"><Typography.Text copyable>{status.jobId}</Typography.Text></Descriptions.Item>
           <Descriptions.Item label="状态">
             <Tag color={status.status === 'completed' ? 'green' : status.status === 'failed' ? 'red' : 'blue'}>{status.status}</Tag>
           </Descriptions.Item>

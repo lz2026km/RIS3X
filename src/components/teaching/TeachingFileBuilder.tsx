@@ -94,7 +94,7 @@ export const TeachingFileBuilder: React.FC<TeachingFileBuilderProps> = ({
 
   return (
     <div style={{ background: '#1a1a1a', borderRadius: 8, padding: 12, color: '#cbd5e1', fontSize: 12 }}>
-      <h3 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 600, color: '#fbbf24' }}>Teaching File Builder</h3>
+      <h3 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 600, color: '#fbbf24' }}>教学病例构建器</h3>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
         <div>
@@ -106,11 +106,11 @@ export const TeachingFileBuilder: React.FC<TeachingFileBuilderProps> = ({
           <input value={modality} onChange={e => setModality(e.target.value)} style={{ width: '100%', background: '#0a0a0a', border: '1px solid #333', borderRadius: 4, padding: '4px 8px', color: '#cbd5e1' }} />
         </div>
         <div>
-          <label style={{ display: 'block', marginBottom: 4, color: '#94a3b8' }}>Body Part</label>
+          <label style={{ display: 'block', marginBottom: 4, color: '#94a3b8' }}>检查部位</label>
           <input value={bodyPart} onChange={e => setBodyPart(e.target.value)} style={{ width: '100%', background: '#0a0a0a', border: '1px solid #333', borderRadius: 4, padding: '4px 8px', color: '#cbd5e1' }} />
         </div>
         <div>
-          <label style={{ display: 'block', marginBottom: 4, color: '#94a3b8' }}>Diagnosis</label>
+          <label style={{ display: 'block', marginBottom: 4, color: '#94a3b8' }}>诊断</label>
           <input value={diagnosis} onChange={e => setDiagnosis(e.target.value)} style={{ width: '100%', background: '#0a0a0a', border: '1px solid #333', borderRadius: 4, padding: '4px 8px', color: '#cbd5e1' }} />
         </div>
       </div>
@@ -136,7 +136,7 @@ export const TeachingFileBuilder: React.FC<TeachingFileBuilderProps> = ({
       <div style={{ marginTop: 8 }}>
         <label style={{ display: 'block', marginBottom: 4, color: '#94a3b8' }}>References</label>
         <div style={{ display: 'flex', gap: 4 }}>
-          <input value={refInput} onChange={e => setRefInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && addReference()} placeholder="Add reference..." style={{ flex: 1, background: '#0a0a0a', border: '1px solid #333', borderRadius: 4, padding: '4px 8px', color: '#cbd5e1' }} />
+          <input value={refInput} onChange={e => setRefInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && addReference()} placeholder="添加参考..." style={{ flex: 1, background: '#0a0a0a', border: '1px solid #333', borderRadius: 4, padding: '4px 8px', color: '#cbd5e1' }} />
           <button onClick={addReference} style={{ background: '#1e40af', border: 'none', borderRadius: 4, padding: '4px 12px', color: '#fff', fontSize: 12, cursor: 'pointer' }}>添加</button>
         </div>
         {references.map((r, i) => (

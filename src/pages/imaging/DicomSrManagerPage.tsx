@@ -40,7 +40,7 @@ export const DicomSrManagerPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <FileText size={20} color="#1677ff" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>DICOM SR and AI Findings Manager</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>DICOM SR 与 AI 所见管理</span>
         <Tag color="cyan">v3.0.6.8-72</Tag>
         <Tag color="purple">TID 1500</Tag>
       </Space>
@@ -52,8 +52,8 @@ export const DicomSrManagerPage: React.FC = () => {
       </Row>
       <Card size="small">
         <Tabs items={[
-          {key:'sr', label:'SR Documents', children:<Table dataSource={srList} rowKey="id" pagination={false} columns={srCols} />},
-          {key:'ai', label:'AI Findings', children:<Table dataSource={aiFindings} rowKey="id" pagination={false} columns={aiCols} />},
+          {key:'sr', label:'SR 文档', children:<Table dataSource={srList} rowKey="id" pagination={false} columns={srCols} />},
+          {key:'ai', label:'AI 所见', children:<Table dataSource={aiFindings} rowKey="id" pagination={false} columns={aiCols} />},
         ]} />
       </Card>
     </div>

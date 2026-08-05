@@ -183,7 +183,7 @@ export const DicomSrPage: React.FC = () => {
               <Descriptions.Item label="Status">
                 <Tag color="green">{srDoc.status}</Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="Generated">{new Date(srDoc.generatedAt).toLocaleString()}</Descriptions.Item>
+              <Descriptions.Item label="已生成">{new Date(srDoc.generatedAt).toLocaleString()}</Descriptions.Item>
             </Descriptions>
             <pre style={{
               background: '#1e1e1e',

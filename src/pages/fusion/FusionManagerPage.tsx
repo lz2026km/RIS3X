@@ -23,7 +23,7 @@ export const FusionManagerPage: React.FC = () => {
 
   const fetchSeries = async () => {
     if (!patientId.trim()) {
-      message.warning('请输入 Patient ID')
+      message.warning('请输入患者 ID')
       return
     }
     setLoading(true)
@@ -103,13 +103,13 @@ export const FusionManagerPage: React.FC = () => {
         <Layers size={20} color="#1677ff" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>融合管理</span>
         <Tag color="blue">PET-CT / MR</Tag>
-        <Tag color="purple">Multi-modal Fusion</Tag>
+        <Tag color="purple">多模态融合</Tag>
       </Space>
 
       <Card size="small" style={{ marginBottom: 16 }}>
         <Space>
           <Input
-            placeholder="输入 Patient ID"
+            placeholder="输入患者 ID"
             value={patientId}
             onChange={e => setPatientId(e.target.value)}
             style={{ width: 200 }}
@@ -191,7 +191,7 @@ export const FusionManagerPage: React.FC = () => {
           {registrationResult && (
             <Card size="small" title="配准结果" style={{ marginTop: 16 }}>
               <Descriptions column={3} size="small" bordered>
-                <Descriptions.Item label="Registration ID">{registrationResult.registrationId}</Descriptions.Item>
+                <Descriptions.Item label="配准 ID">{registrationResult.registrationId}</Descriptions.Item>
                 <Descriptions.Item label="配准类型"><Tag color="blue">{registrationResult.transformType}</Tag></Descriptions.Item>
                 <Descriptions.Item label="状态"><Tag color={registrationResult.status === 'completed' ? 'green' : 'blue'}>{({ completed: '已完成', running: '进行中', pending: '待处理', failed: '失败' } as Record<string, string>)[registrationResult.status] ?? registrationResult.status}</Tag></Descriptions.Item>
                 <Descriptions.Item label="Dice 系数">
@@ -207,7 +207,7 @@ export const FusionManagerPage: React.FC = () => {
 
       {series.length === 0 && !loading && (
         <Card>
-          <Empty description="请输入 Patient ID 并加载序列" />
+          <Empty description="请输入患者 ID 并加载序列" />
         </Card>
       )}
     </div>

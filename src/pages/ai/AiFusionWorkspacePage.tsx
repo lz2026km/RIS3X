@@ -76,7 +76,7 @@ export const AiFusionWorkspacePage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
         <Brain size={20} color="#1677ff" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>Multi-modal AI Fusion Workspace</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>多模态 AI 融合工作台</span>
         <Tag color="cyan">v3.0.6.11-60</Tag>
         <Tag color="purple">Late Fusion</Tag>
         <Tag color="volcano">Cross-Attention</Tag>
@@ -102,7 +102,7 @@ export const AiFusionWorkspacePage: React.FC = () => {
         onChange={setModality as never}
         options={[
           { value: 'cbct', label: ' CBCT' }, { value: 'oct', label: ' OCT' }, { value: 'fundus', label: ' Fundus' },
-          { value: 'fusion', label: ' Fusion Overlay' },
+          { value: 'fusion', label: ' 融合叠加' },
         ]}
         style={{ marginBottom: 16 }}
       />
@@ -117,12 +117,12 @@ export const AiFusionWorkspacePage: React.FC = () => {
             styles={{ body: { width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 8 } }}
           >
             <Activity size={36} color="#1677ff" />
-            <span style={{ opacity: 0.8, fontSize: 13 }}>[ Multi-modal Fusion Canvas Area · {modality.toUpperCase()} ]</span>
+            <span style={{ opacity: 0.8, fontSize: 13 }}>[ 多模态融合画布区域 · {modality.toUpperCase()} ]</span>
             <span style={{ opacity: 0.5, fontSize: 12 }}>CBCT + OPG + 口扫 多模态融合渲染</span>
           </Card>
         </Col>
         <Col span={8}>
-          <Card size="small" title={<Space><BarChart3 size={14} />AI Insights</Space>} extra={<Tag color="purple">{aiInsights.length} 条</Tag>} style={{ height: 320 }} styles={{ body: { height: 'calc(100% - 38px)', overflow: 'auto' } }}>
+          <Card size="small" title={<Space><BarChart3 size={14} />AI 洞察</Space>} extra={<Tag color="purple">{aiInsights.length} 条</Tag>} style={{ height: 320 }} styles={{ body: { height: 'calc(100% - 38px)', overflow: 'auto' } }}>
             {aiInsights.length === 0 ? (
               <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无 AI 洞察" />
             ) : (
@@ -150,8 +150,8 @@ export const AiFusionWorkspacePage: React.FC = () => {
 
       <Card
         size="small"
-        title={<Space><FileText size={14} />Fusion Studies</Space>}
-        extra={<Space><Button size="small" icon={<Share2 size={12} />} onClick={() => message.success('融合报告导出任务已创建')}>Export Fusion Report</Button></Space>}
+        title={<Space><FileText size={14} />融合研究</Space>}
+        extra={<Space><Button size="small" icon={<Share2 size={12} />} onClick={() => message.success('融合报告导出任务已创建')}>导出融合报告</Button></Space>}
       >
         <Table
           dataSource={studies}

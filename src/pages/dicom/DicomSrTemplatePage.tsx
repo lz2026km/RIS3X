@@ -85,7 +85,7 @@ export const DicomSrTemplatePage: React.FC = () => {
       render: (id: string) => <code style={{ fontSize: 12 }}>{id}</code>,
     },
     { title: '名称 (中文)', dataIndex: 'label', key: 'label' },
-    { title: '名称 (English)', dataIndex: 'labelEn', key: 'labelEn' },
+    { title: '英文名称', dataIndex: 'labelEn', key: 'labelEn' },
     {
       title: 'TID',
       dataIndex: 'tid',
@@ -149,7 +149,7 @@ export const DicomSrTemplatePage: React.FC = () => {
           <Form.Item name="label" label="名称 (中文)" rules={[{ required: true }]}>
             <Input placeholder="结构化测量报告" />
           </Form.Item>
-          <Form.Item name="labelEn" label="Name (English)" rules={[{ required: true }]}>
+          <Form.Item name="labelEn" label="英文名称" rules={[{ required: true }]}>
             <Input placeholder="Measurement Report" />
           </Form.Item>
           <Form.Item name="tid" label="TID 模板标识" rules={[{ required: true }]}>
@@ -172,7 +172,7 @@ export const DicomSrTemplatePage: React.FC = () => {
           <Descriptions column={1} size="small" bordered>
             <Descriptions.Item label="编号">{selectedTemplate.id}</Descriptions.Item>
             <Descriptions.Item label="中文名称">{selectedTemplate.label}</Descriptions.Item>
-            <Descriptions.Item label="English Name">{selectedTemplate.labelEn}</Descriptions.Item>
+            <Descriptions.Item label="英文名称">{selectedTemplate.labelEn}</Descriptions.Item>
             <Descriptions.Item label="TID">{selectedTemplate.tid}</Descriptions.Item>
             <Descriptions.Item label="描述">{selectedTemplate.description}</Descriptions.Item>
           </Descriptions>

@@ -615,7 +615,7 @@ export default function CostAnalysisPage() {
             <CostCard title="年度预算" value={`¥${BUDGET_DATA.ytd.budget.toLocaleString()}`} subtitle="YTD预算" icon={ClipboardList} color="#3b82f6" />
             <CostCard title="实际支出" value={`¥${BUDGET_DATA.ytd.actual.toLocaleString()}`} subtitle="YTD实际" icon={DollarSign} color={BUDGET_DATA.ytd.variance > 0 ? '#ef4444' : '#22c55e'} />
             <CostCard title="结余/超支" value={`¥${Math.abs(BUDGET_DATA.ytd.variance).toLocaleString()}`} subtitle={BUDGET_DATA.ytd.variance > 0 ? '超支' : '结余'} icon={TrendingUp} color={BUDGET_DATA.ytd.variance > 0 ? '#ef4444' : '#22c55e'} />
-            <CostCard title="偏差率" value={formatPercent(BUDGET_DATA.ytd.varianceRate)} subtitle="Variance %" icon={Percent} color={BUDGET_DATA.ytd.varianceRate > 5 ? '#ef4444' : BUDGET_DATA.ytd.varianceRate > 2 ? '#f59e0b' : '#22c55e'} />
+            <CostCard title="偏差率" value={formatPercent(BUDGET_DATA.ytd.varianceRate)} subtitle="差异%" icon={Percent} color={BUDGET_DATA.ytd.varianceRate > 5 ? '#ef4444' : BUDGET_DATA.ytd.varianceRate > 2 ? '#f59e0b' : '#22c55e'} />
           </div>
 
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>

@@ -129,7 +129,7 @@ export const KeywordHighlight: React.FC<KeywordHighlightProps> = ({
     // RadLex
     html = html.replace(RADLEX_PATTERN, (m) => `<mark data-kw="radlex" style="background:#dcfce7;color:#166534;padding:0 2px;border-radius:2px" title="RadLex">${m}</mark>`)
     // RADS
-    html = html.replace(RADS_PATTERN, (m) => `<mark data-kw="rads" style="background:#fef3c7;color:#92400e;padding:0 2px;border-radius:2px" title="RADS Category">${m}</mark>`)
+    html = html.replace(RADS_PATTERN, (m) => `<mark data-kw="rads" style="background:#fef3c7;color:#92400e;padding:0 2px;border-radius:2px" title="RADS 分级">${m}</mark>`)
     // 数值
     html = html.replace(MEASURE_PATTERN, (m) => `<mark data-kw="measure" style="background:#f3e8ff;color:#6b21a8;padding:0 2px;border-radius:2px">${m}</mark>`)
     // 解剖

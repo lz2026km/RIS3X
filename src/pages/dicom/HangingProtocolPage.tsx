@@ -227,7 +227,7 @@ const HangingProtocolPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} align="center">
         <LayoutGrid size={20} color="#1677ff" />
-        <Title level={4} style={{ margin: 0 }}>Auto-hanging 自动布局协议管理</Title>
+        <Title level={4} style={{ margin: 0 }}>自动布局协议管理</Title>
         <Tag color="geekblue">对标 GE / Siemens / Fujifilm</Tag>
       </Space>
 

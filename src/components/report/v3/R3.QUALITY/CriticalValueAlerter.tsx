@@ -278,7 +278,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
             <AlertOctagon size={18} />
             <strong style={{ fontSize: 16 }}>危急值告警中心</strong>
             <Tag color="purple">R3.QUALITY.211-217</Tag>
-            <Tag color="cyan">auto-detect</Tag>
+            <Tag color="cyan">自动检测</Tag>
           </Space>
           <Space>
             <Tooltip title="刷新">

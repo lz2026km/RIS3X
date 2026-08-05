@@ -93,7 +93,7 @@ export const AutoDetectPanel: React.FC<AutoDetectPanelProps> = ({ studies = MOCK
           <Cpu size={16} color="#7c3aed" />
           <strong>PACS 自动危急值检测</strong>
           <Tag color="purple">SR TID 1500</Tag>
-          <Tag color="cyan">real-time</Tag>
+          <Tag color="cyan">实时</Tag>
         </Space>
       }
       extra={

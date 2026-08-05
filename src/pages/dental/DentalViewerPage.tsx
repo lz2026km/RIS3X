@@ -28,7 +28,7 @@ export const DentalViewerPage: React.FC = () => {
   }, [studyId]);
 
   if (loading) return <div style={{ textAlign: 'center', padding: 100 }}><Spin size="large" /></div>;
-  if (!study) return <div style={{ padding: 24 }}><Card><Empty description="Study not found" /></Card></div>;
+  if (!study) return <div style={{ padding: 24 }}><Card><Empty description="未找到检查" /></Card></div>;
 
   const modality = study.modality || modParam;
   const isCBCT = modality === 'CBCT';

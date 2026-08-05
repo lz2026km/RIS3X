@@ -148,7 +148,7 @@ export const TerminologyServerPage: React.FC = () => {
             { title: '首选术语 (PT)', dataIndex: 'pt', width: 220 },
             { title: '全称 (FSN)', dataIndex: 'fsn', width: 260, ellipsis: true },
             { title: '语义标签', dataIndex: 'semanticTag', render: (t: string) => <Tag>{t}</Tag> },
-            { title: '匹配方式', dataIndex: 'matchType', render: (m: string) => <Tag color={m === 'exact' ? 'green' : m === 'partial' ? 'orange' : 'default'}>{m}</Tag> },
+            { title: '匹配方式', dataIndex: 'matchType', render: (m: string) => <Tag color={m === 'exact' ? 'green' : m === 'partial' ? 'orange' : 'default'}>{m === 'exact' ? '精确' : m === 'partial' ? '部分' : m}</Tag> },
             { title: '置信度', dataIndex: 'confidence', render: (c: number) => `${Math.round((c ?? 0) * 100)}%` },
           ]}
         />
@@ -169,8 +169,8 @@ export const TerminologyServerPage: React.FC = () => {
               columns={[
                 { title: '来源', dataIndex: 'source', render: (s: string, r: TerminologyMapping) => <Tag color="blue">{s} <span style={{ opacity: 0.6 }}>({r.sourceSystem})</span></Tag> },
                 { title: '目标', dataIndex: 'target', render: (t: string, r: TerminologyMapping) => <Tag color="volcano">{t} <span style={{ opacity: 0.6 }}>({r.targetSystem})</span></Tag> },
-                { title: '映射类型', dataIndex: 'mapType', render: (m: string) => <Tag color={m === 'equivalent' ? 'green' : m === 'broader' ? 'orange' : 'default'}>{m}</Tag> },
-                { title: '状态', dataIndex: 'status', render: (s: string) => <Badge status={s === 'active' ? 'success' : s === 'draft' ? 'processing' : 'default'} text={s} /> },
+                { title: '映射类型', dataIndex: 'mapType', render: (m: string) => <Tag color={m === 'equivalent' ? 'green' : m === 'broader' ? 'orange' : 'default'}>{m === 'equivalent' ? '等价' : m === 'broader' ? '更宽' : m === 'narrower' ? '更窄' : m === 'related' ? '相关' : m}</Tag> },
+                { title: '状态', dataIndex: 'status', render: (s: string) => <Badge status={s === 'active' ? 'success' : s === 'draft' ? 'processing' : 'default'} text={s === 'active' ? '启用' : s === 'draft' ? '草稿' : s} /> },
                 {
                   title: '操作', width: 60,
                   render: (_: unknown, r: TerminologyMapping) => (
@@ -222,7 +222,7 @@ export const TerminologyServerPage: React.FC = () => {
             <Input placeholder="如 K08.8" />
           </Form.Item>
           <Form.Item name="mapType" label="映射类型" initialValue="equivalent">
-            <Input placeholder="equivalent / broader / narrower / related" />
+            <Input placeholder="等价 / 更宽 / 更窄 / 相关" />
           </Form.Item>
         </Form>
       </Modal>

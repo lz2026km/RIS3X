@@ -38,7 +38,7 @@ export default function Cine4DPlayer({ result, height = 320, onPhaseCommit }: Ci
     <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 8, height, color: '#cbd5e1', fontSize: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
         <span style={{ fontWeight: 700, color: '#fbbf24' }}>4D Cine Phase Player</span>
-        <span style={{ color: '#94a3b8' }}>phase <span style={{ color: '#fbbf24' }}>{phaseIdx + 1}</span> / {result.phases.length}</span>
+        <span style={{ color: '#94a3b8' }}>时相 <span style={{ color: '#fbbf24' }}>{phaseIdx + 1}</span> / {result.phases.length}</span>
         <div style={{ flex: 1 }} />
         <button onClick={() => setLoop(l => !l)} style={btnStyle(loop ? '#1e40af' : '#1a1a1a')}>{loop ? '🔁 循环' : '➡ 单次'}</button>
         <button onClick={() => setReverse(r => !r)} style={btnStyle(reverse ? '#1e40af' : '#1a1a1a')}>{reverse ? '↩ 反向' : '↪ 正向'}</button>

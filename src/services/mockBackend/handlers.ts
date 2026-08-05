@@ -78,6 +78,7 @@ import { aiDiagnosisHandlers } from './aiDiagnosisHandlers';
 // [v3.0.6.11-61] 环境式 AI 报告草稿 (生成式草稿 + 医生确认: /ai/report-draft/*)
 import { reportDraftHandlers } from './reportDraftHandlers';
 import { volumeHandlers } from './volumeHandlers';
+import { cardiacHandlers } from './cardiacHandlers';
 // [v3.0.6.11-62] 3D 分割与定量 (segment/quantify/segmentations/approve)
 import { segmentationHandlers } from './segmentationHandlers';
 import { dentalHandlers } from './dentalHandlers';
@@ -3033,6 +3034,7 @@ export const handlers = [
   //   volumeHandlers 的 GET /volume/:studyUid 会吞掉 GET /volume/segmentations/:seriesUID
   ...segmentationHandlers,
   ...volumeHandlers, // [v3.0.6.11-53] 3D 体数据端点 (series/reconstruct/mpr/mip/vr)
+  ...cardiacHandlers, // [v3.0.6.11-71] 心脏专科分析 (analyses CRUD)
   ...asrHandlers, // [Phase 1.4] ASR 语音识别端点
   ...olapHandlers,
   ...biHandlers, // [v3.0.6.11-60] BI 仪表板 (kpi/timeliness/rvu/oee/sla/trend)

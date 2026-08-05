@@ -395,7 +395,7 @@ export const ReportAuditChain: React.FC<ReportAuditChainProps> = ({ events, onEx
                 </div>
               </Space>
             </Card>
-            <Card size="small" title="Prev Hash" data-testid="audit-prev-hash">
+            <Card size="small" title="前序哈希" data-testid="audit-prev-hash">
               <pre style={{ fontSize: 12, fontFamily: 'monospace', wordBreak: 'break-all', background: '#f1f5f9', padding: 6, borderRadius: 4 }}>
                 {selected.prevHash}
               </pre>

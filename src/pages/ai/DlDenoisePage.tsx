@@ -95,7 +95,7 @@ const DlDenoisePage: React.FC = () => {
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <Sparkles size={18} color={BLUE} />
         <span style={{ fontSize: 15, fontWeight: 700 }}>深度学习降噪</span>
-        <Tag color="cyan">Deep Learning Denoise</Tag>
+        <Tag color="cyan">深度学习降噪</Tag>
       </div>
       <Row gutter={16} style={{ marginBottom: 12 }}>
         <Col span={6}><Card><Statistic title="PSNR (dB)" value={currentModel.psnr} prefix={<Zap size={16} />} /></Card></Col>

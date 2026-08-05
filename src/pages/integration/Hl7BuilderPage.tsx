@@ -125,7 +125,7 @@ export const Hl7BuilderPage: React.FC = () => {
                     <Form.Item label="Accession Number" name="accessionNumber">
                       <Input placeholder="ACC20260001" />
                     </Form.Item>
-                    <Form.Item label="Procedure Code" name="procedureCode">
+                    <Form.Item label="操作代码" name="procedureCode">
                       <Input placeholder="CTCHEST" />
                     </Form.Item>
                   </div>

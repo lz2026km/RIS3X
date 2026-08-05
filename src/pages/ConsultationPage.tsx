@@ -412,7 +412,7 @@ export default function ConsultationPage() {
             <Radio size={18} color='#fff' />
           </div>
           远程会诊管理
-          <span style={{ fontSize: 12, fontWeight: 400, color: GRAY, marginLeft: 8 }}>Remote Consultation Management</span>
+          <span style={{ fontSize: 12, fontWeight: 400, color: GRAY, marginLeft: 8 }}>远程会诊管理</span>
         </h1>
         <p style={{ fontSize: 13, color: GRAY, margin: 0 }}>疑难病例讨论 · MDT多学科会诊 · 远程影像会诊 · 二次意见 · 录音录像会诊</p>
       </div>

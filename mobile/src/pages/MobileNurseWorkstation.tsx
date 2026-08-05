@@ -148,7 +148,7 @@ export default function MobileNurseWorkstation() {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{item.patientName}</span>
-                    {item.status === 'unread' && <span style={{ background: '#dc2626', color: '#fff', fontSize: 10, padding: '1px 5px', borderRadius: 8, fontWeight: 700 }}>NEW</span>}
+                    {item.status === 'unread' && <span style={{ background: '#dc2626', color: '#fff', fontSize: 10, padding: '1px 5px', borderRadius: 8, fontWeight: 700 }}>新</span>}
                   </div>
                   <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{item.examItem}</div>
                   <div style={{ fontSize: 12, color: '#dc2626', marginTop: 2, fontWeight: 600 }}>{item.value}</div>

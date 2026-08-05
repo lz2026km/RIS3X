@@ -289,17 +289,17 @@ const SegmentationPage: React.FC = () => {
             />
             <div style={{ marginBottom: 8, fontWeight: 500 }}>HU 阈值</div>
             <Space>
-              <InputNumber size="small" placeholder="min" value={thMin} onChange={(v) => setThMin(v ?? null)} style={{ width: 90 }} />
+              <InputNumber size="small" placeholder="最小" value={thMin} onChange={(v) => setThMin(v ?? null)} style={{ width: 90 }} />
               <span>~</span>
-              <InputNumber size="small" placeholder="max" value={thMax} onChange={(v) => setThMax(v ?? null)} style={{ width: 90 }} />
+              <InputNumber size="small" placeholder="最大" value={thMax} onChange={(v) => setThMax(v ?? null)} style={{ width: 90 }} />
             </Space>
             {target === 'nodule' && (
               <>
                 <div style={{ margin: '10px 0 8px', fontWeight: 500 }}>种子点 (区域生长, 可选)</div>
                 <Space>
-                  <InputNumber size="small" placeholder="x" value={seed.x} onChange={(v) => setSeed((s) => ({ ...s, x: v ?? null }))} style={{ width: 70 }} />
-                  <InputNumber size="small" placeholder="y" value={seed.y} onChange={(v) => setSeed((s) => ({ ...s, y: v ?? null }))} style={{ width: 70 }} />
-                  <InputNumber size="small" placeholder="z" value={seed.z} onChange={(v) => setSeed((s) => ({ ...s, z: v ?? null }))} style={{ width: 70 }} />
+                  <InputNumber size="small" placeholder="X" value={seed.x} onChange={(v) => setSeed((s) => ({ ...s, x: v ?? null }))} style={{ width: 70 }} />
+                  <InputNumber size="small" placeholder="Y" value={seed.y} onChange={(v) => setSeed((s) => ({ ...s, y: v ?? null }))} style={{ width: 70 }} />
+                  <InputNumber size="small" placeholder="Z" value={seed.z} onChange={(v) => setSeed((s) => ({ ...s, z: v ?? null }))} style={{ width: 70 }} />
                 </Space>
               </>
             )}

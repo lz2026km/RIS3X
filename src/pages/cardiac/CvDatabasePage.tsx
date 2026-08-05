@@ -142,7 +142,7 @@ export default function CvDatabasePage() {
         <h1
           style={{ display: "flex", alignItems: "center", gap: 8, margin: 0 }}
         >
-          <Database size={24} /> CV Imaging Database
+          <Database size={24} /> CV 影像数据库
         </h1>
         <div style={{ display: "flex", gap: 8 }}>
           <Button
@@ -167,7 +167,7 @@ export default function CvDatabasePage() {
               gap: 6,
             }}
           >
-            <Download size={16} /> Export
+            <Download size={16} /> 导出
           </button>
         </div>
       </div>
@@ -271,31 +271,31 @@ export default function CvDatabasePage() {
                 }}
               >
                 <th style={{ padding: "10px 12px", textAlign: "left" }}>
-                  Case ID
+                  病例 ID
                 </th>
                 <th style={{ padding: "10px 12px", textAlign: "left" }}>
-                  Patient
+                  患者
                 </th>
                 <th style={{ padding: "10px 12px", textAlign: "left" }}>
-                  Modality
+                  设备
                 </th>
                 <th style={{ padding: "10px 12px", textAlign: "left" }}>
-                  Anatomy
+                  部位
                 </th>
                 <th style={{ padding: "10px 12px", textAlign: "left" }}>
-                  Date
+                  日期
                 </th>
                 <th style={{ padding: "10px 12px", textAlign: "left" }}>
-                  Diagnosis
+                  诊断
                 </th>
                 <th style={{ padding: "10px 12px", textAlign: "center" }}>
-                  Lesions
+                  病变数
                 </th>
                 <th style={{ padding: "10px 12px", textAlign: "center" }}>
                   SR
                 </th>
                 <th style={{ padding: "10px 12px", textAlign: "center" }}>
-                  Actions
+                  操作
                 </th>
               </tr>
             </thead>
@@ -310,7 +310,7 @@ export default function CvDatabasePage() {
                     <br />
                     <span style={{ fontSize: 12, color: "#94a3b8" }}>
                       {c.patientId}
-                      {c.age ? ` | ${c.age}y ${c.gender ?? ""}` : ""}
+                      {c.age ? ` | ${c.age}岁 ${c.gender ?? ""}` : ""}
                     </span>
                   </td>
                   <td style={{ padding: "10px 12px" }}>
@@ -375,7 +375,7 @@ export default function CvDatabasePage() {
                         gap: 4,
                       }}
                     >
-                      <Eye size={14} /> View
+                      <Eye size={14} /> 查看
                     </button>
                   </td>
                 </tr>
@@ -390,7 +390,7 @@ export default function CvDatabasePage() {
                       color: "#94a3b8",
                     }}
                   >
-                    No cases found.
+                    未找到病例。
                   </td>
                 </tr>
               )}
@@ -435,15 +435,15 @@ export default function CvDatabasePage() {
                 fontSize: 14,
               }}
             >
-              <dt style={{ color: "#64748b", fontWeight: 500 }}>Patient ID</dt>
+              <dt style={{ color: "#64748b", fontWeight: 500 }}>患者 ID</dt>
               <dd>{selectedCase.patientId}</dd>
-              <dt style={{ color: "#64748b", fontWeight: 500 }}>Modality</dt>
+              <dt style={{ color: "#64748b", fontWeight: 500 }}>设备</dt>
               <dd>{selectedCase.modality}</dd>
-              <dt style={{ color: "#64748b", fontWeight: 500 }}>Anatomy</dt>
+              <dt style={{ color: "#64748b", fontWeight: 500 }}>部位</dt>
               <dd>{selectedCase.anatomy}</dd>
               <dt style={{ color: "#64748b", fontWeight: 500 }}>检查日期</dt>
               <dd>{selectedCase.studyDate}</dd>
-              <dt style={{ color: "#64748b", fontWeight: 500 }}>Diagnosis</dt>
+              <dt style={{ color: "#64748b", fontWeight: 500 }}>诊断</dt>
               <dd>{selectedCase.diagnosis}</dd>
               {selectedCase.cadRads && (
                 <>
@@ -460,7 +460,7 @@ export default function CvDatabasePage() {
                 </>
               )}
               <dt style={{ color: "#64748b", fontWeight: 500 }}>
-                Key Findings
+                关键所见
               </dt>
               <dd>{selectedCase.keyFindings}</dd>
             </dl>
@@ -483,7 +483,7 @@ export default function CvDatabasePage() {
                   gap: 6,
                 }}
               >
-                <Eye size={16} /> Open Visualizer
+                <Eye size={16} /> 打开可视化器
               </button>
               <button
                 style={{
@@ -496,7 +496,7 @@ export default function CvDatabasePage() {
                 }}
                 onClick={() => setSelectedCase(null)}
               >
-                Close
+                关闭
               </button>
             </div>
           </div>

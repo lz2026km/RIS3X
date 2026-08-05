@@ -50,7 +50,7 @@ export const FusionViewer: React.FC<FusionViewerProps> = ({
   return (
     <div style={{ background: '#0a0a0a', borderRadius: 8, overflow: 'hidden' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', background: '#1a1a1a', borderBottom: '1px solid #333', fontSize: 12, color: '#cbd5e1' }}>
-        <span style={{ fontWeight: 600 }}>Multi-Modality Fusion</span>
+        <span style={{ fontWeight: 600 }}>多模态融合</span>
         <div style={{ width: 1, height: 16, background: '#333' }} />
         {(['side-by-side', 'overlay', 'checkerboard', 'split-window'] as FusionMode[]).map(m => (
           <button

@@ -83,7 +83,7 @@ export const VisitPage: React.FC = () => {
       <Card size="small" style={{ marginBottom: 16 }}>
         <Space.Compact style={{ width: 400 }}>
           <Input value={patientId} onChange={e => setPatientId(e.target.value)}
-            placeholder="输入 Patient ID 搜索" onPressEnter={handleSearch} />
+            placeholder="输入患者 ID 搜索" onPressEnter={handleSearch} />
           <Button type="primary" icon={<Search size={14} />} onClick={handleSearch} loading={loading}>搜索</Button>
         </Space.Compact>
       </Card>
@@ -92,13 +92,13 @@ export const VisitPage: React.FC = () => {
         <Space orientation="vertical" style={{ width: '100%' }} size={16}>
           <Card size="small" title={<Space><User size={14} />就诊信息</Space>}>
             <Descriptions column={2} size="small" bordered>
-              <Descriptions.Item label="Patient ID">{visit.patientId}</Descriptions.Item>
-              <Descriptions.Item label="Visit Number"><Tag color="blue">{visit.visitNumber}</Tag></Descriptions.Item>
+              <Descriptions.Item label="患者 ID">{visit.patientId}</Descriptions.Item>
+              <Descriptions.Item label="就诊号"><Tag color="blue">{visit.visitNumber}</Tag></Descriptions.Item>
               <Descriptions.Item label="状态">
                 <Badge status={STATE_TAGS[currentState]?.color as any} text={STATE_TAGS[currentState]?.label ?? currentState} />
               </Descriptions.Item>
-              <Descriptions.Item label="Class Code">{visit.classCode}</Descriptions.Item>
-              <Descriptions.Item label="Location">{visit.assignedLocation}</Descriptions.Item>
+              <Descriptions.Item label="类别代码">{visit.classCode}</Descriptions.Item>
+              <Descriptions.Item label="位置">{visit.assignedLocation}</Descriptions.Item>
             </Descriptions>
 
             <Divider orientation="left" style={{ fontSize: 13 }}>5 态徽章</Divider>

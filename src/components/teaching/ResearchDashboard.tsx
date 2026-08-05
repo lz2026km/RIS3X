@@ -67,8 +67,8 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
         <h3 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 600, color: '#fbbf24' }}>队列筛选</h3>
 
         <div style={{ marginBottom: 8 }}>
-          <label style={{ display: 'block', marginBottom: 4, color: '#94a3b8' }}>Query Name</label>
-          <input value={queryName} onChange={e => setQueryName(e.target.value)} placeholder="e.g., Lung cancer screening" style={{ width: '100%', background: '#0a0a0a', border: '1px solid #333', borderRadius: 4, padding: '4px 8px', color: '#cbd5e1' }} />
+          <label style={{ display: 'block', marginBottom: 4, color: '#94a3b8' }}>查询名称</label>
+          <input value={queryName} onChange={e => setQueryName(e.target.value)} placeholder="例如：肺癌筛查" style={{ width: '100%', background: '#0a0a0a', border: '1px solid #333', borderRadius: 4, padding: '4px 8px', color: '#cbd5e1' }} />
         </div>
 
         <div style={{ marginBottom: 8 }}>
@@ -87,7 +87,7 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
         </div>
 
         <div style={{ marginBottom: 8 }}>
-          <label style={{ display: 'block', marginBottom: 4, color: '#94a3b8' }}>Body Part</label>
+          <label style={{ display: 'block', marginBottom: 4, color: '#94a3b8' }}>检查部位</label>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
             {BODY_PARTS.map(bp => (
               <label key={bp} style={{ display: 'flex', alignItems: 'center', gap: 2, cursor: 'pointer', fontSize: 12 }}>
@@ -102,7 +102,7 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
         </div>
 
         <div style={{ marginBottom: 8 }}>
-          <label style={{ display: 'block', marginBottom: 4, color: '#94a3b8' }}>Date Range</label>
+          <label style={{ display: 'block', marginBottom: 4, color: '#94a3b8' }}>日期范围</label>
           <div style={{ display: 'flex', gap: 4 }}>
             <input type="date" value={filter.dateRange?.start ?? ''} onChange={e => updateFilter('dateRange', { start: e.target.value, end: filter.dateRange?.end ?? '' })} style={{ flex: 1, background: '#0a0a0a', border: '1px solid #333', borderRadius: 4, padding: '4px', color: '#cbd5e1', fontSize: 12 }} />
             <input type="date" value={filter.dateRange?.end ?? ''} onChange={e => updateFilter('dateRange', { start: filter.dateRange?.start ?? '', end: e.target.value })} style={{ flex: 1, background: '#0a0a0a', border: '1px solid #333', borderRadius: 4, padding: '4px', color: '#cbd5e1', fontSize: 12 }} />
@@ -175,7 +175,7 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
         {results.length === 0 ? (
           <div style={{ textAlign: 'center', padding: 40, color: '#64748b' }}>
             <div style={{ fontSize: 24, marginBottom: 8 }}>🔍</div>
-            <div>Configure filters and run a query to get started</div>
+            <div>配置筛选条件并运行查询开始使用</div>
           </div>
         ) : (
           results.map(q => (

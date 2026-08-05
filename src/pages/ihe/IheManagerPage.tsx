@@ -57,7 +57,7 @@ export const IheManagerPage: React.FC = () => {
           <Col span={6}><Card><Statistic title="PIX 记录数" value={status.metrics.pixRecords} /></Card></Col>
           <Col span={6}><Card><Statistic title="PDQ 缓存" value={status.metrics.pdqCache} /></Card></Col>
           <Col span={6}><Card><Statistic title="PAM 日志" value={status.metrics.pamLogSize} /></Card></Col>
-          <Col span={6}><Card><Statistic title="Transactions" value={status.transactions.length} suffix="种" /></Card></Col>
+          <Col span={6}><Card><Statistic title="交易" value={status.transactions.length} suffix="种" /></Card></Col>
           <Col span={24} style={{ marginTop: 16 }}>
             <Card size="small" title="支持的 IHE 事务">
               <Space wrap>
@@ -66,7 +66,7 @@ export const IheManagerPage: React.FC = () => {
             </Card>
           </Col>
           <Col span={24} style={{ marginTop: 16 }}>
-            <Card size="small" title="Profile">
+            <Card size="small" title="配置">
               <Tag color="cyan" style={{ fontSize: 14 }}>{status.profile}</Tag>
             </Card>
           </Col>

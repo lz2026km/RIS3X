@@ -178,7 +178,7 @@ const NeuroSpecialtyPage = () => {
                   <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: TUMOR_COLORS[r.tumorType ?? 'other'], color: '#fff' }}>
                     {r.tumorType === 'glioma' ? '胶质瘤' : '脑膜瘤'}
                   </span>
-                  <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>Grade {r.grade} · {r.sizeMm}mm</div>
+                  <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>分级 {r.grade} · {r.sizeMm}mm</div>
                 </div>
               </div>
             ))}
@@ -190,7 +190,7 @@ const NeuroSpecialtyPage = () => {
               const colors = ['#16a34a', '#ca8a04', '#ea580c', '#dc2626'];
               return (
                 <div key={g} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                  <span style={{ width: 50, fontSize: 12, fontWeight: 600 }}>Grade {g}</span>
+                  <span style={{ width: 50, fontSize: 12, fontWeight: 600 }}>分级 {g}</span>
                   <div style={{ flex: 1, height: 8, background: '#f1f5f9', borderRadius: 4 }}>
                     <div style={{ height: '100%', width: `${count * 10}%`, background: colors[(['I', 'II', 'III', 'IV'].indexOf(g))], borderRadius: 4 }} />
                   </div>

@@ -730,8 +730,8 @@ const DicomPrintPage: React.FC = () => {
                   cursor: 'pointer',
                 }}
               >
-                <option value="Blue Film">Blue Film</option>
-                <option value="Clear Film">Clear Film</option>
+                <option value="Blue Film">蓝膜</option>
+                <option value="Clear Film">透明膜</option>
               </select>
             </div>
 

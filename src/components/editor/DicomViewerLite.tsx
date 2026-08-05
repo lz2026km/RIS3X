@@ -304,34 +304,34 @@ export default function DicomViewerLite({
       {/* Toolbar */}
       {showTools && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 8px', background: '#1a1a1a', borderBottom: '1px solid #333' }}>
-          <ToolButton icon={Move} active={tool === 'pan'} onClick={() => setTool('pan')} title="Pan (P)" />
-          <ToolButton icon={ZoomIn} active={tool === 'zoom'} onClick={() => setTool('zoom')} title="Zoom (Z)" />
-          <ToolButton icon={Sun} active={tool === 'ww'} onClick={() => setTool('ww')} title="WW/WL (W)" />
+          <ToolButton icon={Move} active={tool === 'pan'} onClick={() => setTool('pan')} title="平移(P)" />
+          <ToolButton icon={ZoomIn} active={tool === 'zoom'} onClick={() => setTool('zoom')} title="缩放(Z)" />
+          <ToolButton icon={Sun} active={tool === 'ww'} onClick={() => setTool('ww')} title="窗宽窗位(W)" />
           <div style={{ width: 1, height: 20, background: '#333', margin: '0 4px' }} />
-          <ToolButton icon={Ruler} active={tool === 'measure-length'} onClick={() => setTool('measure-length')} title="Length (L)" />
-          <ToolButton icon={Activity} active={tool === 'measure-angle'} onClick={() => setTool('measure-angle')} title="Angle (A)" />
+          <ToolButton icon={Ruler} active={tool === 'measure-length'} onClick={() => setTool('measure-length')} title="长度(L)" />
+          <ToolButton icon={Activity} active={tool === 'measure-angle'} onClick={() => setTool('measure-angle')} title="角度(A)" />
           <ToolButton icon={Square} active={tool === 'measure-roi'} onClick={() => setTool('measure-roi')} title="ROI" />
           <ToolButton icon={ArrowRight} active={tool === 'arrow'} onClick={() => setTool('arrow')} title="Arrow" />
           <ToolButton icon={Type} active={tool === 'text'} onClick={() => setTool('text')} title="Text" />
           <div style={{ width: 1, height: 20, background: '#333', margin: '0 4px' }} />
-          <ToolButton icon={Eye} active={showAnnotations} onClick={() => setShowAnnotations(!showAnnotations)} title="Toggle Annotations" />
-          <ToolButton icon={Crosshair} active={showCrosshair} onClick={() => setShowCrosshair(!showCrosshair)} title="Crosshair" />
+          <ToolButton icon={Eye} active={showAnnotations} onClick={() => setShowAnnotations(!showAnnotations)} title="切换标注" />
+          <ToolButton icon={Crosshair} active={showCrosshair} onClick={() => setShowCrosshair(!showCrosshair)} title="十字线" />
           <ToolButton icon={Grid3X3} active={showGrid} onClick={() => setShowGrid(!showGrid)} title="Grid" />
-          <ToolButton icon={Search} active={tool === 'magnifier'} onClick={() => setTool(t => t === 'magnifier' ? 'pan' : 'magnifier')} title="Magnifier (M)" />
+          <ToolButton icon={Search} active={tool === 'magnifier'} onClick={() => setTool(t => t === 'magnifier' ? 'pan' : 'magnifier')} title="放大镜(M)" />
           <div style={{ width: 1, height: 20, background: '#333', margin: '0 4px' }} />
-          <ToolButton icon={Info} active={showInfoHud} onClick={() => setShowInfoHud(!showInfoHud)} title="Toggle Info HUD" />
+          <ToolButton icon={Info} active={showInfoHud} onClick={() => setShowInfoHud(!showInfoHud)} title="切换信息" />
           <ToolButton
             icon={Sun}
             active={showWwPanel}
             onClick={() => setShowWwPanel(!showWwPanel)}
-            title="Window Presets"
+            title="窗位预设"
           />
           <div style={{ flex: 1 }} />
           {/* CINE controls */}
           <button
             onClick={() => setCinePlaying(p => !p)}
             style={{ ...iconBtnStyle, background: cinePlaying ? '#1e40af' : 'transparent' }}
-            title="Play/Pause CINE (Space)"
+            title="播放/暂停动态(空格)"
           >
             {cinePlaying ? <Pause size={14} color="#fff" /> : <Play size={14} color="#94a3b8" />}
           </button>
@@ -339,12 +339,12 @@ export default function DicomViewerLite({
             value={cineFps}
             onChange={e => setCineFps(Number(e.target.value))}
             style={{ ...selectStyle, width: 48 }}
-            title="Frames per second"
+            title="帧率"
           >
             {fpsOptions.map(fps => <option key={fps} value={fps}>{fps} FPS</option>)}
           </select>
-          <button onClick={resetView} style={iconBtnStyle} title="Reset (R)"><RotateCcw size={14} color="#94a3b8" /></button>
-          <button onClick={toggleFullscreen} style={iconBtnStyle} title="Fullscreen (F)">
+          <button onClick={resetView} style={iconBtnStyle} title="重置(R)"><RotateCcw size={14} color="#94a3b8" /></button>
+          <button onClick={toggleFullscreen} style={iconBtnStyle} title="全屏(F)">
             {isFullscreen ? <Minimize2 size={14} color="#94a3b8" /> : <Maximize2 size={14} color="#94a3b8" />}
           </button>
         </div>

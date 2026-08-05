@@ -1254,7 +1254,7 @@ export default function NotificationCenter() {
             </div>
             <div>
               <div style={{ fontSize: 16, fontWeight: 700, color: PRIMARY }}>通知中心</div>
-              <div style={{ fontSize: 12, color: GRAY }}>Notification Center</div>
+              <div style={{ fontSize: 12, color: GRAY }}>通知中心</div>
             </div>
           </div>
 
