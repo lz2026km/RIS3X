@@ -4,7 +4,7 @@
 // ============================================================
 
 import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Tabs, Badge, message } from 'antd';
 import { Layers, FileText, Receipt, Smartphone } from 'lucide-react';
 import { Send, MessageSquare, Mail, Database, Printer, Cloud, Film, CheckCircle2, RefreshCw, Loader2, Bell, Eye, Filter } from 'lucide-react';
@@ -44,6 +44,8 @@ const STATUS_CONFIG = {
 // ============================================================
 export default function ReportDeliveryPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams(); // [W2-3] 支持 /report-delivery?reportId= 直达
+  const fromReportId = searchParams.get('reportId') ?? '';
   const [records] = useState<DeliveryRecord[]>(DELIVERY_RECORDS);
   const [filterChannel, setFilterChannel] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -89,6 +91,23 @@ export default function ReportDeliveryPage() {
 
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
+      {fromReportId && (
+        <div style={{
+          marginBottom: 12, padding: '10px 14px', background: '#f0fdf4', border: '1px solid #bbf7d0',
+          borderRadius: 8, fontSize: 13, color: '#166534', display: 'flex', alignItems: 'center', gap: 8,
+        }}>
+          <Send size={14} />
+          <span>
+            来自报告列表: <strong>{fromReportId}</strong> — 可直接选择下方推送渠道对该报告进行分发 / 推送管理
+            <button
+              onClick={() => navigate('/reports')}
+              style={{ marginLeft: 10, padding: '2px 8px', border: '1px solid #bbf7d0', borderRadius: 4, background: '#fff', color: '#047857', fontSize: 12, cursor: 'pointer' }}
+            >
+              返回报告列表
+            </button>
+          </span>
+        </div>
+      )}
       {/* 顶部 v3 升级标识 */}
       <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>

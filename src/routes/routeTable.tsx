@@ -95,6 +95,7 @@ const SpecialAssessmentPages = lazy(
   () => import("../pages/SpecialAssessmentPages"),
 );
 const ReportExportPage = lazy(() => import("../pages/ReportExportPage"));
+const ExportApprovalPage = lazy(() => import("../pages/export/ExportApprovalPage")); // [W1-5] 导出审批中心
 const ReportDeliveryPage = lazy(() => import("../pages/ReportDeliveryPage"));
 const PublishPage = lazy(() => import("../pages/PublishPage"));
 const PatientReportPortalPage = lazy(
@@ -139,6 +140,9 @@ const Hl7BuilderPage = lazy(
 );
 const MllpConfigPage = lazy(
   () => import("../pages/integration/MllpConfigPage"),
+);
+const SmartAuthPage = lazy(
+  () => import("../pages/integration/SmartAuthPage"),
 );
 const DimsePage = lazy(() => import("../pages/integration/DimsePage"));
 const DimseUploadPage = lazy(
@@ -745,6 +749,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/dental/volume-viewer": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-93] Phase 3: 体渲染
   "/dental/patient-view": ["医生", "主任", "技师", "管理员", "护士"], // [v3.0.6.8-94] Phase 4: 360° 患者视图
   "/dental/billing": ["医生", "主任", "管理员", "护士"], // [v3.0.6.8-95] Phase 4: 收费/划价/医保
+  "/export/approval": ["医生", "主任", "管理员"], // [W1-5] 导出审批中心
   "/dental/schedule": ["医生", "主任", "技师", "管理员", "护士"], // [v3.0.6.8-96] Phase 4: 排班+PSR
   "/dental/photo": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-98] Phase 5: 口内照片
   "/emr-templates": ["医生", "主任", "管理员"], // [v3.0.6.8-63]
@@ -803,6 +808,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/integration/hl7-archive": ["技师", "管理员"],
   "/integration/hl7-builder": ["技师", "管理员"],
   "/integration/mllp-config": ["管理员"],
+  "/integration/smart-auth": ["管理员", "主任"], // [G005 W2] FHIR SMART 授权流程
   "/integration/dimse": ["技师", "管理员", "医生", "主任"],
   "/integration/dimse/upload": ["技师", "管理员"],
   // [v3.0.6.11-21] 新页面路由角色映射
@@ -964,6 +970,7 @@ export const routes: RouteObject[] = [
   wrapped("/critical-value-stats", React.createElement(CriticalValueStatsPage)),
   wrapped("/special-assessment", React.createElement(SpecialAssessmentPages)),
   wrapped("/report-export", React.createElement(ReportExportPage)),
+  wrapped("/export/approval", React.createElement(ExportApprovalPage)), // [W1-5] 导出审批中心
   wrapped("/report-delivery", React.createElement(ReportDeliveryPage)),
   wrapped("/publish", React.createElement(PublishPage)),
   wrapped(
@@ -1085,6 +1092,7 @@ export const routes: RouteObject[] = [
   wrapped("/integration/hl7-archive", React.createElement(Hl7ArchivePage)),
   wrapped("/integration/hl7-builder", React.createElement(Hl7BuilderPage)),
   wrapped("/integration/mllp-config", React.createElement(MllpConfigPage)),
+  wrapped("/integration/smart-auth", React.createElement(SmartAuthPage)),
   wrapped("/integration/dimse", React.createElement(DimsePage)),
   wrapped("/integration/dimse/upload", React.createElement(DimseUploadPage)),
   wrapped("/kiosk/check-in", React.createElement(KioskCheckIn)),

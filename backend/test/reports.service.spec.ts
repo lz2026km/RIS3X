@@ -3,6 +3,7 @@ import { NotFoundException, BadRequestException, ConflictException } from '@nest
 import { ReportsService } from '../src/reports/reports.service'
 import { PrismaService } from '../src/prisma/prisma.service'
 import { QueueService } from '../src/queue/queue.service'
+import { createNoopGateway, NotificationsGateway } from '../src/notifications/notifications.gateway'
 
 describe('ReportsService', () => {
   let svc: ReportsService
@@ -51,6 +52,7 @@ describe('ReportsService', () => {
         ReportsService,
         { provide: PrismaService, useValue: mockPrisma },
         { provide: QueueService, useValue: mockQueue },
+        { provide: NotificationsGateway, useValue: createNoopGateway() },
       ],
     }).compile()
     svc = module.get(ReportsService)

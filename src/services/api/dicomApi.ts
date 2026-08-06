@@ -186,6 +186,12 @@ export interface UploadS3Request {
   accessKey?: string
   secretKey?: string
   region?: string
+  // [W3-2] 文件元数据 (DimseUploadPage 真实上传)
+  fileName?: string
+  fileSize?: number
+  mimeType?: string
+  payloadBase64?: string
+  destination?: string
 }
 
 export interface DimseResponse {

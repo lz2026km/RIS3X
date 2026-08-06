@@ -18,6 +18,19 @@ export interface CreatePortalFeedbackDto {
   comment?: string
 }
 
+export interface CreatePortalEducationDto {
+  title: string
+  category: 'pre_exam' | 'post_exam' | 'condition' | 'medication' | 'general'
+  contentType: 'text' | 'video' | 'audio' | 'pdf' | 'image'
+  content: string
+  summary?: string
+  modality?: string
+  bodyPart?: string
+  duration?: number
+  tags?: string[]
+  language?: 'zh-CN' | 'en'
+}
+
 // ===== 无数据 seed 演示 (数据库为空时返回, 保证患者门户可演示) =====
 const SEED_APPOINTMENTS = [
   { id: 'AP-P001-001', patientId: 'P001', patientName: '张三', modality: 'CT', bodyPart: '胸部', scheduledAt: '2026-08-04T09:00:00+08:00', state: 'CONFIRMED' },
@@ -140,6 +153,41 @@ export class PatientPortalService {
   async getEducation(id: string) {
     const data = await this.prisma.systemConfig.findUnique({ where: { key: id } })
     return { data: data ? [data] : [] }
+  }
+
+  // [W5] 宣教资料写入: 落库 education_<key> SystemConfig 行 (与 listEducation 前缀读取对齐)
+  async createEducation(dto: CreatePortalEducationDto) {
+    const key = `education_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+    const now = new Date().toISOString()
+    const record = {
+      id: key,
+      title: dto.title,
+      category: dto.category,
+      contentType: dto.contentType,
+      content: dto.content,
+      summary: dto.summary ?? '',
+      modality: dto.modality,
+      bodyPart: dto.bodyPart,
+      duration: dto.duration,
+      tags: dto.tags ?? [],
+      language: dto.language ?? 'zh-CN',
+      createdAt: now,
+      updatedAt: now,
+    }
+    await this.prisma.systemConfig.create({
+      data: { key, value: record as any },
+    })
+    return { data: { key, ...record } }
+  }
+
+  async deleteEducation(key: string) {
+    if (!key?.startsWith('education_')) {
+      throw new NotFoundException(`Invalid education key: ${key}`)
+    }
+    const existing = await this.prisma.systemConfig.findUnique({ where: { key } })
+    if (!existing) throw new NotFoundException(`Education ${key} not found`)
+    await this.prisma.systemConfig.delete({ where: { key } })
+    return { data: { deleted: true, key } }
   }
 
   async getPatientMobile() {

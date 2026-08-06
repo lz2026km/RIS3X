@@ -1,66 +1,47 @@
 import { api } from './client'
 
 // Occupancy (房间占用) API
-// Backend: /occupancy/*
+// Backend: GET /occupancy/rooms, /occupancy/queue/:roomId, /occupancy/trends, POST /occupancy/room/:roomId/status
+
+export type RoomStatusValue = 'idle' | 'occupied' | 'disinfecting' | 'fault'
 
 export interface OccupancyRoom {
   id: string
-  roomId: string
-  roomName: string
-  department: string
-  status: 'available' | 'occupied' | 'maintenance' | 'reserved'
+  roomNo: string
+  status: RoomStatusValue
   currentPatient?: string
-  currentStudy?: string
-  currentModality?: string
-  scheduledUntil?: string
-  utilization: number
+  examItem?: string
+  startTime?: string
+  expectedEnd?: string
+  overdue: boolean
 }
 
-export interface OccupancyTimelineEntry {
-  id: string
+export interface OccupancyQueueEntry {
+  position: number
+  patientName: string
+  examItem: string
+  estimatedWaitMin: number
+}
+
+export interface OccupancyQueue {
   roomId: string
-  roomName: string
-  patientName?: string
-  studyId?: string
-  modality?: string
-  startTime: string
-  endTime?: string
-  status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled'
+  queue: OccupancyQueueEntry[]
 }
 
-export interface OccupancyStats {
-  totalRooms: number
-  availableRooms: number
-  occupiedRooms: number
-  avgUtilization: number
-  peakHour: string
-  roomDistribution: { roomName: string; utilization: number }[]
-}
-
-export interface OccupancyQueryParams {
-  department?: string
-  status?: string
-  date?: string
-  page?: number
-  pageSize?: number
+export interface OccupancyTrendPoint {
+  time: string
+  occupied: number
+  total: number
+  rate: number
 }
 
 export const occupancyApi = {
-  listRooms: (params?: OccupancyQueryParams) =>
-    api.get<OccupancyRoom[]>(`/occupancy/rooms?${new URLSearchParams(params ?? {}).toString()}`),
+  getRooms: () => api.get<OccupancyRoom[]>('/occupancy/rooms'),
 
-  getRoom: (id: string) =>
-    api.get<OccupancyRoom>(`/occupancy/rooms/${id}`),
+  getQueue: (roomId: string) => api.get<OccupancyQueue>(`/occupancy/queue/${roomId}`),
 
-  getTimeline: (params?: { roomId?: string; date?: string }) =>
-    api.get<OccupancyTimelineEntry[]>(`/occupancy/timeline?${new URLSearchParams(params ?? {}).toString()}`),
+  getTrends: () => api.get<OccupancyTrendPoint[]>('/occupancy/trends'),
 
-  updateRoomStatus: (id: string, status: string) =>
-    api.put<OccupancyRoom>(`/occupancy/rooms/${id}/status`, { status }),
-
-  getStats: (params?: { startDate?: string; endDate?: string }) =>
-    api.get<OccupancyStats>(`/occupancy/stats?${new URLSearchParams(params ?? {}).toString()}`),
-
-  getDepartmentStats: () =>
-    api.get<{ department: string; avgUtilization: number; roomCount: number }[]>('/occupancy/department-stats'),
+  updateRoomStatus: (roomId: string, status: RoomStatusValue) =>
+    api.post<OccupancyRoom>(`/occupancy/room/${roomId}/status`, { status }),
 }

@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { message } from 'antd'
-import { Search, Calendar, Bell, UserCheck, Syringe, Clock, CheckCircle, XCircle } from 'lucide-react'
-import { appointmentApi, type AppointmentDto } from '../../../services/api'
+import { Search, Calendar, Bell, UserCheck, Syringe, Clock, CheckCircle, XCircle, AlertTriangle } from 'lucide-react'
+import { appointmentApi, type AppointmentDto, mobileApi, type TodaySummary, type CriticalValueItem } from '../../../services/api'
 
 export interface NurseAppointment {
   id: string
@@ -45,39 +45,81 @@ const s = {
 }
 
 export default function NurseMobileWorkstation() {
-  const [tab, setTab] = useState<'queue' | 'meds'>('queue')
+  const [tab, setTab] = useState<'queue' | 'meds' | 'critical'>('queue')
   const [filter, setFilter] = useState<'all' | 'waiting' | 'in-progress'>('all')
   const [search, setSearch] = useState('')
   const [appointments, setAppointments] = useState<NurseAppointment[]>([])
+  const [summary, setSummary] = useState<TodaySummary>({ examsToday: 0, pendingExams: 0, inProgressExams: 0, criticalValues: 0, reportsToday: 0, signedReportsToday: 0, date: '' })
+  const [criticals, setCriticals] = useState<CriticalValueItem[]>([])
+  const [ackingId, setAckingId] = useState<string | null>(null)
+  const [usingMock, setUsingMock] = useState(false)
 
   useEffect(() => {
     let cancelled = false
     void (async () => {
-      try {
-        const res = await appointmentApi.list({ state: 'SCHEDULED' })
-        if (!cancelled && res.success && Array.isArray(res.data)) {
-          const stateMap: Record<string, NurseAppointment['status']> = {
-            SCHEDULED: 'waiting', CONFIRMED: 'waiting', CHECKED_IN: 'in-progress',
-            IN_PROGRESS: 'in-progress', COMPLETED: 'completed', CANCELLED: 'cancelled', NO_SHOW: 'cancelled',
-          }
-          setAppointments(res.data.map((a: AppointmentDto) => ({
-            id: a.id,
-            patientName: a.patientName || '未知患者',
-            gender: '未知',
-            age: 0,
-            examItem: a.room || '',
-            modality: a.modality,
-            status: stateMap[a.state] || 'waiting',
-            appointmentTime: a.startAt ? new Date(a.startAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) : '',
-            contrastRequired: false,
-            medications: [],
-            notes: a.note,
-          })))
+      const [aptRes, sumRes, cvRes] = await Promise.allSettled([
+        appointmentApi.list({ state: 'SCHEDULED' }),
+        mobileApi.getTodaySummary(),
+        mobileApi.getCriticalValues(),
+      ])
+      if (!cancelled && aptRes.status === 'fulfilled' && aptRes.value.success && Array.isArray(aptRes.value.data)) {
+        const stateMap: Record<string, NurseAppointment['status']> = {
+          SCHEDULED: 'waiting', CONFIRMED: 'waiting', CHECKED_IN: 'in-progress',
+          IN_PROGRESS: 'in-progress', COMPLETED: 'completed', CANCELLED: 'cancelled', NO_SHOW: 'cancelled',
         }
-      } catch { /* keep empty */ }
+        setAppointments(aptRes.value.data.map((a: AppointmentDto) => ({
+          id: a.id,
+          patientName: a.patientName || '未知患者',
+          gender: '未知',
+          age: 0,
+          examItem: a.room || '',
+          modality: a.modality,
+          status: stateMap[a.state] || 'waiting',
+          appointmentTime: a.startAt ? new Date(a.startAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) : '',
+          contrastRequired: false,
+          medications: [],
+          notes: a.note,
+        })))
+      } else if (!cancelled) {
+        // [离线兜底] 预约接口失败, 保持空队列
+      }
+      if (!cancelled && sumRes.status === 'fulfilled' && sumRes.value.success && sumRes.value.data) {
+        setSummary(sumRes.value.data)
+      } else if (!cancelled) {
+        // [离线兜底] 与后端 mobile.service seed 对齐
+        setSummary({ examsToday: 42, pendingExams: 12, inProgressExams: 5, criticalValues: 3, reportsToday: 28, signedReportsToday: 21, date: new Date().toISOString().slice(0, 10) })
+      }
+      if (cvRes.status === 'fulfilled' && cvRes.value.success && Array.isArray(cvRes.value.data)) {
+        if (!cancelled) setCriticals(cvRes.value.data)
+      } else if (!cancelled) {
+        // [离线兜底] 危急值演示数据 (护士确认列表)
+        setCriticals([
+          { id: 'CV1', patientName: '王建军', gender: 'MALE', age: 45, description: '腹部CT示肝右叶占位，考虑恶性可能', severity: 'CRITICAL', state: 'FOUND', method: 'SYSTEM', notifiedTo: '急诊科 张医生', accessionNumber: 'ACC003', modality: 'CT', createdAt: new Date().toISOString(), ackedAt: null },
+          { id: 'CV2', patientName: '陈国强', gender: 'MALE', age: 71, description: '冠脉CTA示左前降支重度狭窄', severity: 'URGENT', state: 'NOTIFIED', method: 'PHONE', notifiedTo: '心内科 李主任', accessionNumber: 'ACC005', modality: 'CT', createdAt: new Date(Date.now() - 3600_000).toISOString(), ackedAt: null },
+        ])
+        setUsingMock(true)
+      }
     })()
     return () => { cancelled = true }
   }, [])
+
+  const handleAck = useCallback(async (id: string) => {
+    setAckingId(id)
+    try {
+      const res = await mobileApi.ackCriticalValue(id, 'nurse-mobile')
+      if (res.success) {
+        setCriticals(prev => prev.map(c => c.id === id ? { ...c, state: 'ACKNOWLEDGED', ackedAt: new Date().toISOString() } : c))
+        message.success('危急值已确认')
+      } else {
+        message.error(`确认失败: ${res.error?.message ?? '未知错误'}`)
+      }
+    } catch {
+      message.error('确认失败: 网络错误')
+    }
+    setAckingId(null)
+  }, [])
+
+  const isAcked = (c: CriticalValueItem) => c.state === 'ACKNOWLEDGED' || !!c.ackedAt
 
   const filtered = appointments.filter(item => {
     if (filter !== 'all' && item.status !== filter) return false
@@ -98,11 +140,12 @@ export default function NurseMobileWorkstation() {
       <div style={s.header}>
         <div style={s.headerTitle}>护士移动工作站</div>
         <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>放射科 · 护理工作台</div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginTop: 12 }}>
           {[
             { value: appointments.filter(a => a.status === 'waiting').length, label: '等候', bg: '#fef3c7', color: '#d97706' },
             { value: appointments.filter(a => a.status === 'in-progress').length, label: '检查中', bg: '#dbeafe', color: '#2563eb' },
-            { value: appointments.filter(a => a.contrastRequired).length, label: '需造影', bg: '#fee2e2', color: '#dc2626' },
+            { value: summary.criticalValues, label: '危急值', bg: '#fee2e2', color: '#dc2626' },
+            { value: summary.examsToday, label: '今日检查', bg: '#ede9fe', color: '#7c3aed' },
           ].map(stat => (
             <div key={stat.label} style={{ background: stat.bg, borderRadius: 8, padding: '8px', textAlign: 'center' }}>
               <div style={{ fontSize: 18, fontWeight: 800, color: stat.color }}>{stat.value}</div>
@@ -112,6 +155,12 @@ export default function NurseMobileWorkstation() {
         </div>
       </div>
 
+      {usingMock && (
+        <div style={{ background: '#fef3c7', color: '#92400e', fontSize: 12, padding: '6px 16px', textAlign: 'center' }}>
+          ⚠ 危急值接口不可用，当前展示离线演示数据
+        </div>
+      )}
+
       <div style={s.searchBar}>
         <Search size={16} color="#94a3b8" />
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="搜索患者..." style={{ border: 'none', outline: 'none', fontSize: 13, color: '#334155', width: '100%', background: 'transparent' }} />
@@ -119,7 +168,7 @@ export default function NurseMobileWorkstation() {
       </div>
 
       <div style={s.tabRow}>
-        {[{ key: 'queue' as const, icon: Calendar, label: '患者队列' }, { key: 'meds' as const, icon: Syringe, label: '用药记录' }].map(t => (
+        {[{ key: 'queue' as const, icon: Calendar, label: '患者队列' }, { key: 'meds' as const, icon: Syringe, label: '用药记录' }, { key: 'critical' as const, icon: AlertTriangle, label: '危急值' }].map(t => (
           <div key={t.key} style={s.tab(tab === t.key)} onClick={() => setTab(t.key)}>
             <t.icon size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
             {t.label}
@@ -140,7 +189,7 @@ export default function NurseMobileWorkstation() {
 
           <div style={{ marginTop: 4 }}>
             {filtered.map(item => {
-              const sc = STATUS_CONFIG[item.status]
+              const sc = STATUS_CONFIG[item.status] ?? { bg: '#f1f5f9', color: '#94a3b8', label: '未知' }
               return (
                 <div key={item.id} style={s.listItem}>
                   <div style={{ width: 36, height: 36, borderRadius: '50%', background: sc.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -176,6 +225,38 @@ export default function NurseMobileWorkstation() {
             })}
           </div>
         </>
+      ) : tab === 'critical' ? (
+        <div style={{ padding: 16 }}>
+          {criticals.map(c => (
+            <div key={c.id} style={{ background: '#fff', borderRadius: 12, padding: 14, marginBottom: 10, border: `1px solid ${c.severity === 'CRITICAL' ? '#fca5a5' : '#fcd34d'}`, borderLeft: `4px solid ${c.severity === 'CRITICAL' ? '#dc2626' : '#d97706'}` }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#1e293b' }}>{c.patientName}</span>
+                <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: c.severity === 'CRITICAL' ? '#fee2e2' : '#fef3c7', color: c.severity === 'CRITICAL' ? '#dc2626' : '#d97706' }}>
+                  {c.severity === 'CRITICAL' ? '危急' : c.severity === 'URGENT' ? '紧急' : c.severity}
+                </span>
+                <span style={{ fontSize: 12, color: '#94a3b8' }}>{c.modality ?? ''} {c.accessionNumber ?? ''}</span>
+              </div>
+              <div style={{ fontSize: 13, color: '#334155', marginTop: 6, lineHeight: 1.5 }}>{c.description}</div>
+              <div style={{ fontSize: 12, color: '#64748b', marginTop: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>{c.createdAt ? new Date(c.createdAt).toLocaleString('zh-CN', { hour: '2-digit', minute: '2-digit' }) : ''} · {c.notifiedTo ?? '未通知'}</span>
+                {isAcked(c) ? (
+                  <span style={{ color: '#059669', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <CheckCircle size={14} /> 已确认
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => handleAck(c.id)}
+                    disabled={ackingId === c.id}
+                    style={{ padding: '4px 14px', borderRadius: 6, border: 'none', background: '#7c3aed', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: ackingId === c.id ? 0.6 : 1 }}
+                  >
+                    {ackingId === c.id ? '确认中...' : '确认接收'}
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+          {criticals.length === 0 && <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8', fontSize: 13 }}>暂无危急值</div>}
+        </div>
       ) : (
         <div style={{ padding: 16 }}>
           <div style={{ background: '#fff', borderRadius: 12, padding: 16, border: '1px solid #e2e8f0' }}>
@@ -208,7 +289,7 @@ export default function NurseMobileWorkstation() {
           { key: 'check', icon: UserCheck, label: '签到' },
         ].map(nav => (
           <div key={nav.key} style={{ flex: 1, textAlign: 'center', padding: '4px 0', fontSize: 12, color: tab === nav.key ? '#7c3aed' : '#94a3b8', cursor: 'pointer', fontWeight: tab === nav.key ? 700 : 400 }}
-            onClick={() => ['queue', 'meds'].includes(nav.key) && setTab(nav.key as 'queue' | 'meds')}>
+            onClick={() => ['queue', 'meds', 'critical'].includes(nav.key) && setTab(nav.key as 'queue' | 'meds' | 'critical')}>
             <nav.icon size={18} style={{ display: 'block', margin: '0 auto 2px' }} />
             {nav.label}
           </div>

@@ -47,4 +47,6 @@ export interface ReportQueryParams {
     take?: string
     skip?: string
     state?: string
+    // [W2-4] 按患者过滤 (患者详情报告列表)
+    patientId?: string
   }

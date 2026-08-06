@@ -32,7 +32,13 @@ export const financeHandlers = [
     const opts = parseQuery(url);
     let items: any[] = [];
     try { items = list<any>('invoices'); } catch {}
-    if (!items.length) items = [{"id":"INV001","patientId":"P001","invoiceNumber":"INV-001","totalAmount":1200,"status":"UNPAID"}];
+    if (!items.length) items = [
+      { id: 'INV001', invoiceNo: 'INV-001', patientId: 'P000001', patientName: '张明远', examItem: '头颅CT平扫', examDate: '2026-06-02', totalAmount: 300, paidAmount: 300, balance: 0, status: 'PAID', insuranceCovered: 210, selfPayAmount: 90, createdAt: '2026-06-02 16:00' },
+      { id: 'INV002', invoiceNo: 'INV-002', patientId: 'P000002', patientName: '李静', examItem: '胸部CT增强', examDate: '2026-06-05', totalAmount: 850, paidAmount: 500, balance: 350, status: 'PARTIAL', insuranceCovered: 595, selfPayAmount: 255, createdAt: '2026-06-05 10:30' },
+      { id: 'INV003', invoiceNo: 'INV-003', patientId: 'P000003', patientName: '王强', examItem: '腰椎MR平扫', examDate: '2026-06-08', totalAmount: 780, paidAmount: 0, balance: 780, status: 'UNPAID', insuranceCovered: 546, selfPayAmount: 234, createdAt: '2026-06-08 09:15' },
+      { id: 'INV004', invoiceNo: 'INV-004', patientId: 'P043853', patientName: '叶琳', examItem: '腹部CT平扫+增强', examDate: '2026-06-11', totalAmount: 1200, paidAmount: 1200, balance: 0, status: 'PAID', insuranceCovered: 840, selfPayAmount: 360, createdAt: '2026-06-11 14:20' },
+      { id: 'INV005', invoiceNo: 'INV-005', patientId: 'P001193', patientName: '何俊', examItem: '头颅MR增强', examDate: '2026-06-12', totalAmount: 1080, paidAmount: 0, balance: 1080, status: 'UNPAID', insuranceCovered: 756, selfPayAmount: 324, createdAt: '2026-06-12 08:45' },
+    ];
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
@@ -63,9 +69,15 @@ export const financeHandlers = [
     const opts = parseQuery(url);
     let items: any[] = [];
     try { items = list<any>('invoices'); } catch {}
-    if (!items.length) items = {"daily":[{"date":"2026-07-01","amount":45000}],"monthly":[{"month":"2026-07","amount":980000}]};
+    if (!Array.isArray(items) || !items.length) {
+      return HttpResponse.json({ success: true, data: { daily: [{ date: '2026-07-01', amount: 45000 }], monthly: [{ month: '2026-07', amount: 980000 }] }, meta: { total: 2 } });
+    }
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
+  }),
+  http.get(`${API}/cost-accounting`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json({ success: true, data: { byDept: [{ dept: '放射科', cost: 320000, revenue: 480000 }], byModality: [{ modality: 'CT', cost: 120000, revenue: 180000 }], totalCost: 620000, totalRevenue: 980000 }, meta: { total: 2 } });
   }),
   http.get(`${API}/financial-reports`, async ({ request }) => {
     await delay(delayMs());
@@ -73,7 +85,9 @@ export const financeHandlers = [
     const opts = parseQuery(url);
     let items: any[] = [];
     try { items = list<any>('invoices'); } catch {}
-    if (!items.length) items = {"reports":[{"id":"FR001","type":"月度","period":"2026-07","totalRevenue":980000}]};
+    if (!Array.isArray(items) || !items.length) {
+      return HttpResponse.json({ success: true, data: { reports: [{ id: 'FR001', type: '月度', period: '2026-07', totalRevenue: 980000 }] }, meta: { total: 1 } });
+    }
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),

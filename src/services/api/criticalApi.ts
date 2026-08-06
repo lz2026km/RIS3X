@@ -45,7 +45,7 @@ export interface CriticalStatsDto {
 }
 
 export const criticalApi = {
-  list: (params?: { skip?: number; take?: number; state?: string; severity?: string; dateFrom?: string; dateTo?: string }) => {
+  list: (params?: { skip?: number; take?: number; state?: string; severity?: string; dateFrom?: string; dateTo?: string; patientId?: string }) => {
     const searchParams = new URLSearchParams()
     if (params) {
       if (params.skip !== undefined) searchParams.set('skip', String(params.skip))
@@ -54,6 +54,7 @@ export const criticalApi = {
       if (params.severity) searchParams.set('severity', params.severity)
       if (params.dateFrom) searchParams.set('dateFrom', params.dateFrom)
       if (params.dateTo) searchParams.set('dateTo', params.dateTo)
+      if (params.patientId) searchParams.set('patientId', params.patientId)
     }
     const qs = searchParams.toString()
     return api.get<CriticalValueDto[]>(`/criticals${qs ? `?${qs}` : ''}`)

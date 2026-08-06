@@ -1,18 +1,34 @@
 import { api } from './client'
 
-export interface CadModelDto { id: string; name: string; modality: string; bodyPart: string; version: string; status: string; accuracy?: number; createdAt: string }
-export interface CadAnalysisDto { id: string; examId: string; modelId: string; findings: CadFindingDto[]; status: string; processingTime?: number; analyzedAt: string }
-export interface CadFindingDto { id: string; type: string; location: string; size?: number; probability: number; description?: string; coordinates?: { x: number; y: number; z: number } }
+// [v3.0.6.11-75] 对齐 backend/src/modules/cad/cad.controller.ts (POST /ai/cad/detect, GET /ai/cad/result/:instanceId)
+
+export interface CadDetection {
+  type: 'nodule' | 'calcification'
+  x: number
+  y: number
+  width: number
+  height: number
+  confidence: number
+  size: number
+}
+
+export interface CadResult {
+  instanceId: string
+  findings: CadDetection[]
+  heatmapUrl: string | null
+  detectedAt: string
+  /** true = 内存回退 (结果未落库, 由确定性算法生成) */
+  simulated: boolean
+}
 
 export const cadApi = {
-  listModels: () => api.get<CadModelDto[]>('/cad/models'),
-  getModel: (id: string) => api.get<CadModelDto>(`/cad/models/${id}`),
-  analyze: (data: { examId: string; modelId: string; seriesUid?: string }) => api.post<CadAnalysisDto>('/cad/analyze', data),
-  getAnalysis: (id: string) => api.get<CadAnalysisDto>(`/cad/analysis/${id}`),
-  listAnalyses: (params?: { examId?: string; status?: string }) => {
-    const sp = new URLSearchParams()
-    if (params) { Object.entries(params).forEach(([k, v]) => { if (v !== undefined) sp.set(k, String(v)) }) }
-    return api.get<CadAnalysisDto[]>(`/cad/analysis?${sp.toString()}`)
-  },
-  review: (id: string, data: { confirmed: boolean; notes?: string }) => api.post(`/cad/analysis/${id}/review`, data),
+  /** 触发 AI CAD 检测 (后端按 instanceId 确定性生成病灶) */
+  detect: (instanceId: string) =>
+    api.post<CadResult>('/ai/cad/detect', { instanceId }),
+
+  /** 查询指定 DICOM 实例的检测结果 */
+  getResult: (instanceId: string) =>
+    api.get<CadResult>(
+      `/ai/cad/result/${encodeURIComponent(instanceId)}`,
+    ),
 }

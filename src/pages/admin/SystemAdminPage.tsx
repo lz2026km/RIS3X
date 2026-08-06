@@ -9,31 +9,73 @@ export const SystemAdminPage: React.FC = () => {
   const [users, setUsers] = useState<SystemUserDto[]>([]);
   const [roles, setRoles] = useState<SystemRoleDto[]>([]);
   const [configs, setConfigs] = useState<SystemConfigDto[]>([]);
+  const [configValues, setConfigValues] = useState<Record<string, string>>({});
+  const [savingConfig, setSavingConfig] = useState(false);
   const [loading, setLoading] = useState(true);
   const [userModal, setUserModal] = useState(false);
   const [newUserName, setNewUserName] = useState('');
   const [newUserRole, setNewUserRole] = useState('技师');
   const [_configEditKey, _setConfigEditKey] = useState<string | null>(null);
 
+  const loadConfigs = async () => {
+    const res = await systemAdminApi.getConfigs();
+    if (res.success && Array.isArray(res.data)) {
+      setConfigs(res.data);
+      const next: Record<string, string> = {};
+      for (const c of res.data) next[c.key] = c.value;
+      setConfigValues(next);
+    }
+  };
+
   useEffect(() => {
     let cancelled = false;
     void (async () => {
       setLoading(true);
+      // 用户/角色统计为装饰性数据, fire-and-forget 不阻塞配置加载 (W5)
+      void systemAdminApi.getUsers().then(res => {
+        if (!cancelled && res.success && Array.isArray(res.data)) setUsers(res.data);
+      }).catch(() => { /* noop */ });
+      void systemAdminApi.getRoles().then(res => {
+        if (!cancelled && res.success && Array.isArray(res.data)) setRoles(res.data);
+      }).catch(() => { /* noop */ });
       try {
-        const [usersRes, rolesRes, configsRes] = await Promise.all([
-          systemAdminApi.getUsers(),
-          systemAdminApi.getRoles(),
-          systemAdminApi.getConfigs(),
-        ]);
-        if (cancelled) return;
-        if (usersRes.success && Array.isArray(usersRes.data)) setUsers(usersRes.data);
-        if (rolesRes.success && Array.isArray(rolesRes.data)) setRoles(rolesRes.data);
-        if (configsRes.success && Array.isArray(configsRes.data)) setConfigs(configsRes.data);
-      } catch (err) { console.error('[SystemAdmin] load failed:', err); if (!cancelled) message.error('加载系统管理数据失败'); }
+        await loadConfigs();
+      } catch (err) { console.error('[SystemAdmin] load configs failed:', err); if (!cancelled) message.error('加载系统配置失败'); }
       if (!cancelled) setLoading(false);
     })();
     return () => { cancelled = true; };
   }, []);
+
+  // [W5] 单项配置保存
+  const handleSaveConfig = async (c: SystemConfigDto) => {
+    const value = configValues[c.key] ?? c.value;
+    try {
+      const res = await systemAdminApi.updateConfig(c.key, value);
+      if (res.success) {
+        message.success(`已保存: ${c.key}`);
+        void loadConfigs();
+      } else {
+        message.error(res.error?.message || `保存失败: ${c.key}`);
+      }
+    } catch (err) { console.error('[SystemAdmin] saveConfig failed:', err); message.error('保存配置失败'); }
+  };
+
+  // [W5] 批量保存所有配置
+  const handleSaveAllConfigs = async () => {
+    setSavingConfig(true);
+    try {
+      const res = await systemAdminApi.saveConfigs(
+        configs.map(c => ({ key: c.key, value: configValues[c.key] ?? c.value })),
+      );
+      if (res.success) {
+        message.success('所有配置已保存');
+        void loadConfigs();
+      } else {
+        message.error(res.error?.message || '保存失败');
+      }
+    } catch (err) { console.error('[SystemAdmin] saveConfigs failed:', err); message.error('保存所有配置失败'); }
+    setSavingConfig(false);
+  };
 
   const handleCreateUser = async () => {
     try {
@@ -105,10 +147,15 @@ export const SystemAdminPage: React.FC = () => {
               </Card>
             },
             { key:'config', label:'系统配置', children:
-              <Card size="small" title="配置项">
+              <Card size="small" title={`配置项 (${configs.length})`}>
                 <List dataSource={configs} renderItem={(c:any)=>(
-                  <List.Item actions={[<Button size="small" icon={<Edit3 size={10}/>} disabled title="功能开发中，请通过后台系统操作">编辑</Button>]}>
-                    <List.Item.Meta title={<Space><Tag color="blue">{c.key}</Tag><Input defaultValue={c.value} size="small" style={{width:200}} /></Space>}
+                  <List.Item actions={[
+                    <Button key="edit" size="small" type="primary" icon={<Edit3 size={10}/>} onClick={() => handleSaveConfig(c)}>保存</Button>,
+                  ]}>
+                    <List.Item.Meta title={<Space wrap>
+                      <Tag color="blue" style={{ minWidth: 200 }}>{c.key}</Tag>
+                      <Input value={configValues[c.key] ?? c.value} onChange={e => setConfigValues(prev => ({ ...prev, [c.key]: e.target.value }))} size="small" style={{ width: 320 }} />
+                    </Space>}
                       description={<span style={{fontSize:12,color:'#999'}}>{c.desc}</span>} />
                   </List.Item>
                 )} />
@@ -117,7 +164,7 @@ export const SystemAdminPage: React.FC = () => {
           ]}
         />
       )}
-      <Button type="primary" icon={<Save size={14}/>} style={{marginTop:16}} disabled>保存所有配置</Button>
+      <Button type="primary" icon={<Save size={14}/>} style={{marginTop:16}} loading={savingConfig} onClick={handleSaveAllConfigs}>保存所有配置</Button>
       <Modal title="新增用户" open={userModal} onOk={handleCreateUser} onCancel={() => setUserModal(false)}>
         <Form layout="vertical">
           <Form.Item label="姓名"><Input value={newUserName} onChange={e => setNewUserName(e.target.value)} placeholder="请输入姓名" /></Form.Item>

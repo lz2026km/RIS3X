@@ -1,5 +1,5 @@
 import { PatientService } from './patient.service'
-import { NotFoundException } from '@nestjs/common'
+import { BadRequestException, NotFoundException } from '@nestjs/common'
 
 const makePrisma = (overrides: Record<string, unknown> = {}) => {
   const prisma: Record<string, unknown> = {
@@ -91,6 +91,70 @@ describe('PatientService', () => {
       expect(findFirst).toHaveBeenCalledWith(expect.objectContaining({
         where: expect.objectContaining({ id: 'P1', deletedAt: null }),
       }))
+    })
+  })
+
+  describe('merge [W2-4]', () => {
+    const tx = {
+      exam: { updateMany: jest.fn().mockResolvedValue({ count: 2 }) },
+      report: { updateMany: jest.fn().mockResolvedValue({ count: 3 }) },
+      appointment: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
+      criticalValue: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
+      patient: { update: jest.fn().mockResolvedValue({ id: 'P1', deletedAt: new Date() }) },
+    }
+
+    const makeMergePrisma = (patientFind: jest.Mock) => {
+      const patient = { findFirst: patientFind, update: jest.fn() }
+      const prisma: Record<string, unknown> = {
+        patient,
+        $transaction: jest.fn((cb: (t: unknown) => unknown) => cb(tx)),
+        ...{ exam: {}, report: {}, appointment: {}, criticalValue: {} },
+      }
+      return prisma as never
+    }
+
+    it('moves related records to target and soft-deletes source', async () => {
+      const findFirst = jest.fn()
+        .mockResolvedValueOnce({ id: 'P1', name: '源患者' })
+        .mockResolvedValueOnce({ id: 'P2', name: '目标患者' })
+      const service = new PatientService(makeMergePrisma(findFirst))
+      const res = await service.merge('P1', 'P2')
+      expect(res.ok).toBe(true)
+      expect(res.merged).toEqual({
+        sourceId: 'P1', targetId: 'P2',
+        movedExams: 2, movedReports: 3, movedAppointments: 1, movedCriticalValues: 1,
+      })
+      expect(tx.exam.updateMany).toHaveBeenCalledWith(expect.objectContaining({
+        where: expect.objectContaining({ patientId: 'P1' }),
+        data: { patientId: 'P2' },
+      }))
+      expect(tx.report.updateMany).toHaveBeenCalledWith(expect.objectContaining({
+        where: expect.objectContaining({ patientId: 'P1' }),
+        data: { patientId: 'P2' },
+      }))
+      expect(tx.appointment.updateMany).toHaveBeenCalledWith(expect.objectContaining({
+        where: expect.objectContaining({ patientId: 'P1' }),
+        data: { patientId: 'P2' },
+      }))
+      expect(tx.criticalValue.updateMany).toHaveBeenCalledWith(expect.objectContaining({
+        where: expect.objectContaining({ patientId: 'P1' }),
+        data: { patientId: 'P2' },
+      }))
+      expect(tx.patient.update).toHaveBeenCalledWith(expect.objectContaining({
+        where: { id: 'P1' },
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      }))
+    })
+
+    it('throws 404 when source or target missing', async () => {
+      const findFirst = jest.fn().mockResolvedValue(null)
+      const service = new PatientService(makeMergePrisma(findFirst))
+      await expect(service.merge('P1', 'P2')).rejects.toBeInstanceOf(NotFoundException)
+    })
+
+    it('throws 400 when merging a patient with itself', async () => {
+      const service = new PatientService(makeMergePrisma(jest.fn()))
+      await expect(service.merge('P1', 'P1')).rejects.toBeInstanceOf(BadRequestException)
     })
   })
 })

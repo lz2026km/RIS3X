@@ -3,7 +3,7 @@
  * GET/PUT /system/storage-config  读取/保存存储配置 (SystemConfig 表)
  * POST /system/storage-config/test 连通性测试 (可用请求体里的配置或已保存配置)
  */
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as path from 'node:path'
 import { PrismaService } from '../prisma/prisma.service'
@@ -24,6 +24,32 @@ export interface StorageStatsDto {
   usedBytes?: number
   truncated?: boolean
   latencyMs?: number
+}
+
+export interface AdminConfigItem {
+  key: string
+  value: string
+  desc: string
+}
+
+// [W5] 系统管理后台可编辑配置项 (SystemConfig 表, 与前端 SystemAdminPage 表单对齐)
+const ADMIN_CONFIG_DEFS: Array<{ key: string; desc: string; default: string | number }> = [
+  { key: 'hospital_name', desc: '医院名称', default: 'G005 放射科信息管理系统' },
+  { key: 'report_footer', desc: '报告页脚', default: '本报告仅供临床参考，请结合临床实际情况。' },
+  { key: 'critical_sla_minutes', desc: '危急值 SLA 阈值（分钟）', default: 10 },
+  { key: 'critical_timeout_minutes', desc: '危急值超时升级（分钟）', default: 60 },
+  { key: 'default_page_size', desc: '默认分页大小', default: 20 },
+  { key: 'pdf_watermark_text', desc: 'PDF 水印文本', default: 'G005 RIS 内部资料' },
+]
+
+const ADMIN_NUMERIC_KEYS = new Set(['critical_sla_minutes', 'critical_timeout_minutes', 'default_page_size'])
+
+function coerceConfigValue(key: string, value: unknown): unknown {
+  if (typeof value === 'string' && ADMIN_NUMERIC_KEYS.has(key)) {
+    const trimmed = value.trim()
+    if (/^-?\d+$/.test(trimmed)) return Number(trimmed)
+  }
+  return value
 }
 
 const STATS_MAX_KEYS = 5000
@@ -68,8 +94,51 @@ export class SystemStorageService {
     return { config, applied }
   }
 
-  async testConnection(cfg?: StorageConfigDto): Promise<StorageStatsDto> {
-    let target: StorageConfigDto = cfg && cfg.driver ? cfg : (await this.resolveEffective() ?? { driver: 'local' })
+  // [W5] GET /system/admin/configs: 合并已保存值与默认值, 返回 { key, value, desc } 列表
+  async listAdminConfigs(): Promise<AdminConfigItem[]> {
+    const rows = await this.prisma.systemConfig.findMany()
+    const byKey = new Map(rows.map((r) => [r.key, r.value]))
+    return ADMIN_CONFIG_DEFS.map(({ key, desc, default: def }) => {
+      const stored = byKey.get(key)
+      let value: unknown = def
+      if (stored !== undefined) {
+        value = typeof stored === 'object' && stored !== null ? JSON.stringify(stored) : stored
+      }
+      return { key, value: String(value), desc }
+    })
+  }
+
+  // [W5] PUT /system/admin/configs: 批量保存 (白名单 key), 返回更新后列表
+  async saveAdminConfigs(items: Array<{ key: string; value: unknown }>): Promise<AdminConfigItem[]> {
+    const allowed = new Set(ADMIN_CONFIG_DEFS.map((d) => d.key))
+    for (const item of items) {
+      const key = item.key?.trim()
+      if (!key || !allowed.has(key)) continue
+      await this.prisma.systemConfig.upsert({
+        where: { key },
+        update: { value: coerceConfigValue(key, item.value) as object },
+        create: { key, value: coerceConfigValue(key, item.value) as object },
+      })
+    }
+    return this.listAdminConfigs()
+  }
+
+  // [W5] PATCH /system/admin/configs/:key: 保存单项配置
+  async updateAdminConfig(key: string, value: unknown): Promise<AdminConfigItem> {
+    if (!ADMIN_CONFIG_DEFS.some((d) => d.key === key)) {
+      throw new NotFoundException(`Unknown config key: ${key}`)
+    }
+    await this.prisma.systemConfig.upsert({
+      where: { key },
+      update: { value: coerceConfigValue(key, value) as object },
+      create: { key, value: coerceConfigValue(key, value) as object },
+    })
+    const item = (await this.listAdminConfigs()).find((c) => c.key === key)
+    if (!item) throw new NotFoundException(`Config ${key} not found`)
+    return item
+  }
+
+  async testConnection(cfg?: StorageConfigDto): Promise<StorageStatsDto> {    let target: StorageConfigDto = cfg && cfg.driver ? cfg : (await this.resolveEffective() ?? { driver: 'local' })
     if (target.driver === 's3' && target.secretKey && isMaskedSecret(target.secretKey)) {
       // 前端回传掩码: 用已保存的真实 secretKey 测试
       const saved = await this.configService.getSaved().catch(() => null)

@@ -129,8 +129,9 @@ export const ReportRichEditor: React.FC<Props> = ({
     if (!editorRef.current) return;
     const html = editorRef.current.innerHTML;
     const plainText = editorRef.current.innerText;
+    const words = plainText.replace(/\s/g, '').length;
     setWordCount({
-      words: plainText.replace(/\s/g, '').length,
+      words,
       chars: plainText.length,
       paragraphs: plainText.split(/\n+/).filter(Boolean).length,
     });
@@ -142,24 +143,48 @@ export const ReportRichEditor: React.FC<Props> = ({
       setAutoSaving(false);
     }, 800);
 
-    setDoc((d) => {
-      const next = { ...d, html, plainText, lastEditedAt: new Date().toISOString(), wordCount: plainText.replace(/\s/g, '').length, charCount: plainText.length, paragraphCount: plainText.split(/\n+/).filter(Boolean).length };
-      onChange?.(next);
-      return next;
-    });
-  }, [reportId, onChange]);
+    // [W2-2] 修复: 不再在 setDoc 的 updater 内调用 onChange (setState 副作用会触发
+    // "Maximum update depth exceeded") — 改为在外部构建 next 后再通知父组件
+    const next: RichEditorDocument = {
+      ...doc,
+      html,
+      plainText,
+      lastEditedAt: new Date().toISOString(),
+      wordCount: words,
+      charCount: plainText.length,
+      paragraphCount: plainText.split(/\n+/).filter(Boolean).length,
+    };
+    setDoc(next);
+    onChange?.(next);
+  }, [reportId, doc, onChange]);
+
+  // [W2-2] 修复: externalInsert/externalSet 效果仅依赖对应触发对象,
+  // 防止不稳定内联回调 (onChange 每次父渲染新建) 引发效果反复执行死循环
+  const handleContentChangeRef = useRef(handleContentChange);
+  handleContentChangeRef.current = handleContentChange;
+  const onExternalInsertConsumedRef = useRef(onExternalInsertConsumed);
+  onExternalInsertConsumedRef.current = onExternalInsertConsumed;
+  const onExternalSetConsumedRef = useRef(onExternalSetConsumed);
+  onExternalSetConsumedRef.current = onExternalSetConsumed;
 
   // 外部文本插入(语音听写结果) → 现有 insert 逻辑
+  // [W2-2] 优先插入当前光标处;无有效选区时回退到文末
   useEffect(() => {
     if (!externalInsert || !externalInsert.text) return;
     const el = editorRef.current;
     if (el) {
       el.focus();
       try {
-        const range = document.createRange();
-        range.selectNodeContents(el);
-        range.collapse(false);
         const sel = window.getSelection();
+        const range = document.createRange();
+        const atCursor = sel && sel.rangeCount > 0 && sel.anchorNode && el.contains(sel.anchorNode);
+        if (atCursor) {
+          range.setStart(sel.anchorNode as Node, sel.anchorOffset);
+          range.collapse(true);
+        } else {
+          range.selectNodeContents(el);
+          range.collapse(false);
+        }
         if (sel) {
           sel.removeAllRanges();
           sel.addRange(range);
@@ -167,11 +192,12 @@ export const ReportRichEditor: React.FC<Props> = ({
       } catch { /* noop */ }
     }
     applyFormat('insertText', externalInsert.text);
-    void handleContentChange();
-    onExternalInsertConsumed?.();
-  }, [externalInsert, applyFormat, handleContentChange, onExternalInsertConsumed]);
+    void handleContentChangeRef.current();
+    onExternalInsertConsumedRef.current?.();
+  }, [externalInsert]);
 
   // v3.0.6.11-61: 外部整篇替换 (AI 草稿接受) → 清空现有内容后写入新文本
+  // [W2-2] 修复: 仅依赖 externalSet, 防止不稳定回调导致效果死循环
   useEffect(() => {
     if (!externalSet || !externalSet.plainText) return;
     const el = editorRef.current;
@@ -184,9 +210,9 @@ export const ReportRichEditor: React.FC<Props> = ({
         el.textContent = externalSet.plainText;
       }
     }
-    void handleContentChange();
-    onExternalSetConsumed?.();
-  }, [externalSet, handleContentChange, onExternalSetConsumed]);
+    void handleContentChangeRef.current();
+    onExternalSetConsumedRef.current?.();
+  }, [externalSet]);
 
   const toggleVoice = useCallback(() => {
     if (voiceListening) {

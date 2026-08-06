@@ -6,6 +6,8 @@ export interface TemplateDto {
   category: string
   bodyPart: string
   body: string
+  modality?: string
+  shared?: boolean
   parentId?: string
   radsCategory?: string
   tags?: string[]
@@ -40,4 +42,14 @@ export const templatesApi = {
 
   clone: (id: string) =>
     api.post<TemplateDto>(`/templates/${id}/clone`),
+
+  // [W3-2] 智能片段 (ReportTemplateManagerPage)
+  listSnippets: (params?: { category?: string }) =>
+    api.get<any[]>('/templates/snippets' + (params?.category ? `?category=${encodeURIComponent(params.category)}` : '')),
+
+  createSnippet: (data: { name: string; content: string; category: string; shortcuts?: string }) =>
+    api.post<any>('/templates/snippets', data),
+
+  deleteSnippet: (id: string) =>
+    api.delete<void>(`/templates/snippets/${id}`),
 }

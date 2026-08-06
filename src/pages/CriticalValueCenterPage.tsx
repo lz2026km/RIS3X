@@ -6,14 +6,18 @@
 
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AlertOctagon, Bell, BarChart3, Settings, Activity, TrendingUp, ShieldAlert } from 'lucide-react'
+import { AlertOctagon, Bell, BarChart3, Settings, Activity, TrendingUp, ShieldAlert, Save } from 'lucide-react'
+import { message, Switch } from 'antd'
 import { CRITICAL_RULES } from '../data/criticalValueMock'
 import { criticalApi, type CriticalStatsDto } from '../services/api/criticalApi'
-import { criticalExtApi } from '../services/api'
+import { criticalExtApi, type CriticalChannelDto } from '../services/api'
 
 const CriticalValueCenterPage: React.FC = () => {
   const [stats, setStats] = useState<CriticalStatsDto | null>(null)
   const [rulesCount, setRulesCount] = useState(CRITICAL_RULES.length)
+  // [W5] 通知通道开关配置
+  const [channels, setChannels] = useState<CriticalChannelDto[]>([])
+  const [savingChannels, setSavingChannels] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -32,8 +36,38 @@ const CriticalValueCenterPage: React.FC = () => {
         // 保持 mock 常量兜底
       }
     })()
+    void (async () => {
+      try {
+        const res = await criticalExtApi.getChannels()
+        if (cancelled || !res.success) return
+        const items = Array.isArray(res.data) ? res.data : (res.data?.items ?? [])
+        setChannels(items)
+      } catch { /* 通道配置加载失败时保持空态 */ }
+    })()
     return () => { cancelled = true }
   }, [])
+
+  // [W5] 保存通知通道开关 → PUT /critical-ext/channels (落库 critical_channel_*)
+  const handleSaveChannels = async () => {
+    setSavingChannels(true)
+    try {
+      const res = await criticalExtApi.saveChannels(channels)
+      if (res.success) {
+        const items = Array.isArray(res.data) ? res.data : (res.data?.items ?? [])
+        setChannels(items)
+        message.success('通知通道配置已保存')
+      } else {
+        message.error(res.error?.message || '保存通道配置失败')
+      }
+    } catch {
+      message.error('保存通道配置失败')
+    }
+    setSavingChannels(false)
+  }
+
+  const toggleChannel = (channel: string, enabled: boolean) => {
+    setChannels(prev => prev.map(c => (c.channel === channel ? { ...c, enabled } : c)))
+  }
 
   const pending = stats?.pending ?? 0
   const notified = stats?.notified ?? 0
@@ -110,6 +144,37 @@ const CriticalValueCenterPage: React.FC = () => {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* [W5] 通知通道开关配置: 落库 critical_channel_<CHANNEL>, 后端据此判定投递结果 */}
+      <div className="rounded-lg border bg-white p-4" data-testid="critical-channel-config">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-semibold">通知通道配置</h2>
+          <button
+            onClick={() => void handleSaveChannels()}
+            disabled={savingChannels}
+            className="inline-flex items-center gap-1 rounded bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+          >
+            <Save size={12} /> {savingChannels ? '保存中...' : '保存'}
+          </button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
+          {channels.map((c) => (
+            <div key={c.channel} className="flex items-center justify-between rounded border p-3 bg-slate-50">
+              <div>
+                <div className="text-sm font-semibold">{c.label}</div>
+                <div className="text-xs text-gray-400 font-mono">{c.channel}</div>
+              </div>
+              <Switch size="small" checked={c.enabled} onChange={(v) => toggleChannel(c.channel, v)} />
+            </div>
+          ))}
+          {channels.length === 0 && (
+            <div className="text-xs text-gray-400 col-span-full py-2">通道配置加载中或不可用...</div>
+          )}
+        </div>
+        <p className="text-xs text-gray-400 mt-2">
+          关闭的通道将不再投递危急值通知（投递状态判定为 FAILED），配置保存至系统配置表 critical_channel_* 键。
+        </p>
       </div>
     </div>
   )

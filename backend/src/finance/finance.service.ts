@@ -20,6 +20,11 @@ export class FinanceService {
     return { data: [data] }
   }
 
+  async deleteChargeItem(id: string) {
+    const data = await this.prisma.chargeItem.delete({ where: { id } })
+    return { data: [data] }
+  }
+
   async listInvoices() {
     const data = await this.prisma.invoice.findMany({ orderBy: { createdAt: 'desc' } })
     return { data }

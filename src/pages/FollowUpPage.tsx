@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface FollowUpPatient {
   id: string;
@@ -20,8 +20,7 @@ export default function FollowUpPage() {
   const [selectedPatient, setSelectedPatient] = useState<FollowUpPatient | null>(null);
   const [showModal, setShowModal] = useState(false);
 
-  const [followUpList, setFollowUpList] = useState<FollowUpPatient[]>([
-    { id: 'FU001', patientId: 'P202400001', patientName: '李四', examType: 'MRI增强', examDate: '2026-01-15', followUpType: '肿瘤复查', nextFollowUpDate: '2026-07-06', status: '进行中', reaction: '轻度', notes: '肺癌术后3个月复查，影像学评估' },
+  const [followUpList, setFollowUpList] = useState<FollowUpPatient[]>([    { id: 'FU001', patientId: 'P202400001', patientName: '李四', examType: 'MRI增强', examDate: '2026-01-15', followUpType: '肿瘤复查', nextFollowUpDate: '2026-07-06', status: '进行中', reaction: '轻度', notes: '肺癌术后3个月复查，影像学评估' },
     { id: 'FU002', patientId: 'P202400002', patientName: '王五', examType: 'CT平扫', examDate: '2026-04-23', followUpType: '早期肺癌跟踪', nextFollowUpDate: '2026-06-24', status: '已完成', reaction: '中度', notes: '肺结节6个月随访，大小稳定' },
     { id: 'FU003', patientId: 'P202400003', patientName: '赵六', examType: 'MRI平扫', examDate: '2026-03-21', followUpType: '治疗评估', nextFollowUpDate: '2026-07-23', status: '逾期', reaction: '重度', notes: '肝癌介入治疗后影像学评估' },
     { id: 'FU004', patientId: 'P202400004', patientName: '钱七', examType: 'PET-CT', examDate: '2026-05-15', followUpType: '术后复查', nextFollowUpDate: '2026-08-27', status: '待随访', reaction: '无反应', notes: 'CT引导下活检后观察' },
@@ -132,6 +131,12 @@ export default function FollowUpPage() {
       (activeTab === 'overdue' && item.status === '逾期');
     return keywordMatch && tabMatch;
   });
+
+  // [W2-4] 患者详情"随访"入口: /follow-up?patientId=xxx 自动定位该患者
+  useEffect(() => {
+    const pid = new URLSearchParams(window.location.search).get('patientId');
+    if (pid) setSearchKeyword(pid);
+  }, []);
 
   const stats = {
     total: followUpList.length,

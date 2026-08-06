@@ -8,11 +8,12 @@ import {
   MessageSquare, Check, CheckCheck, Trash2, Search, X,
   Clock, RefreshCw, Eye,
   AlertCircle, Zap,
-  Mail, Smartphone, BarChart3
+  Mail, Smartphone, BarChart3, Send
 } from 'lucide-react'
-import { initialUsers } from '../data/initialData'
-import { userApi, notificationApi } from '../services/api'
-import type { NotificationDto } from '../services/api'
+import { notificationsApi } from '../services/api'
+import type { NotificationDto } from '../services/api/notificationsApi'
+import { realtime, type RealtimePayload } from '../services/realtime'
+import { getCurrentUser } from '../utils/auth'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import { formatTime } from '../utils/date';
 
@@ -128,9 +129,9 @@ function formatDateTime(dt: string): string {
 
 
 function getRelativeTime(dt: string): string {
-  const now = new Date('2026-05-01T18:00:00')
+  const now = Date.now()
   const d = new Date(dt)
-  const diff = now.getTime() - d.getTime()
+  const diff = now - d.getTime()
   const minutes = Math.floor(diff / 60000)
   const hours = Math.floor(diff / 3600000)
   const days = Math.floor(diff / 86400000)
@@ -139,75 +140,6 @@ function getRelativeTime(dt: string): string {
   if (hours < 24) return `${hours}小时前`
   if (days < 7) return `${days}天前`
   return formatTime(dt)
-}
-
-// ============================================================
-// 生成模拟通知数据（200条）
-// ============================================================
-function generateMockNotifications(): SystemNotification[] {
-  const users = initialUsers.filter(u => u.role === 'radiologist' || u.role === 'technologist')
-  
-  const templates = {
-    report_completed: [
-      { title: '报告已完成', content: '患者张志刚的冠脉CTA报告已完成，正在等待审核。' },
-      { title: '报告已发布', content: '患者李秀英的头颅MR平扫报告已审核通过并发布。' },
-      { title: '报告已归档', content: '患者王建国的胸部DR正侧位报告已完成归档。' },
-    ],
-    critical_value: [
-      { title: '危急值通知', content: '患者赵晓敏的头颅CT平扫发现左侧额颞顶部硬膜下血肿，中线右偏约8mm，请立即处理！' },
-      { title: '危急值已接收', content: '患者周玉芬的腹部CT增强发现肝右叶占位，疑似恶性肿瘤，临床已接收危急值通知。' },
-      { title: '危急值已确认', content: '患者孙伟的腰椎MR平扫发现L4/5椎间盘向左后方突出，神经根受压，已电话通知临床。' },
-    ],
-    system: [
-      { title: '系统更新提示', content: 'RIS系统将于今晚22:00-23:00进行例行维护，届时部分功能可能暂时无法使用。' },
-      { title: '数据备份完成', content: '系统已完成今日数据备份，备份文件已同步至灾备中心。' },
-      { title: '权限变更通知', content: '您的报告审核权限已更新，现在可以审核CT类报告。' },
-    ],
-    appointment: [
-      { title: '预约提醒', content: '患者吴婷的乳腺钼靶检查将于明日上午10:00开始，请提前做好准备。' },
-      { title: '预约变更', content: '患者郑丽的胸部CT平扫预约时间已从14:00调整至15:00。' },
-      { title: '新预约申请', content: '心内科申请了患者钱伟明的冠脉CTA检查，预约时间为明日上午。' },
-    ],
-    consultation: [
-      { title: '会诊请求', content: '神经内科提交了一例疑难病例会诊请求，请尽快查看并回复。' },
-      { title: '会诊已回复', content: '您申请的MDT会诊已有心内科回复，建议行CAG+PCI治疗。' },
-      { title: '远程会诊待处理', content: '有一例远程会诊申请需要您处理，请登录查看详情。' },
-    ],
-  }
-
-  const types: SystemNotification['type'][] = ['report_completed', 'critical_value', 'system', 'appointment', 'consultation']
-  const priorities: SystemNotification['priority'][] = ['high', 'normal', 'low']
-
-  const notifications: SystemNotification[] = []
-  const baseTime = new Date('2026-05-01T08:00:00')
-
-  for (let i = 0; i < 200; i++) {
-    const type = types[Math.floor(Math.random() * types.length)]!
-    const typeTemplates = templates[type]
-    const template = typeTemplates[Math.floor(Math.random() * typeTemplates.length)]!
-    const user = users[Math.floor(Math.random() * users.length)]!
-    const hoursOffset = Math.floor(i / 2) + Math.random() * 0.3
-    const sentAt = new Date(baseTime.getTime() - hoursOffset * 3600000).toISOString()
-    const isRead = Math.random() > 0.3
-    const priority = type === 'critical_value' ? 'high' : priorities[Math.floor(Math.random() * priorities.length)]!
-
-    notifications.push({
-      id: `NOTIF${String(i + 1).padStart(5, '0')}`,
-      type,
-      title: template.title,
-      content: template.content,
-      recipientId: user.id,
-      recipientName: user.name,
-      status: isRead ? 'read' : 'unread',
-      priority,
-      sentAt,
-      readAt: isRead ? new Date(new Date(sentAt).getTime() + Math.random() * 3600000).toISOString() : undefined,
-      relatedId: `REL-${String(Math.floor(Math.random() * 1000)).padStart(4, '0')}`,
-      relatedType: type === 'report_completed' ? 'report' : type === 'critical_value' ? 'exam' : type === 'appointment' ? 'exam' : type === 'consultation' ? 'consultation' : 'system',
-    })
-  }
-
-  return notifications.sort((a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime())
 }
 
 // ============================================================
@@ -221,7 +153,7 @@ function generateDeliveryStatuses(notifications: SystemNotification[]): Delivery
     delivered: true,
     read: n.status === 'read',
     sentAt: n.sentAt,
-    deliveredAt: new Date(new Date(n.sentAt).getTime() + Math.random() * 60000).toISOString(),
+    deliveredAt: new Date(new Date(n.sentAt).getTime() + 60000).toISOString(),
     readAt: n.readAt || null,
     retryCount: 0,
     channel: n.priority === 'high' ? 'sms' : 'in-app',
@@ -709,20 +641,29 @@ function SettingsPanel({ settings, onUpdate }: SettingsPanelProps) {
 // ============================================================
 interface StatsPanelProps {
   notifications: SystemNotification[]
+  apiStats?: { total: number; unread: number; today: number; critical: number } | null
 }
 
-function StatsPanel({ notifications }: StatsPanelProps) {
-  // 今日统计
+function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
+  // 统计卡 (优先后端 stats 端点: 未读/今日/总数)
   const todayStats = useMemo(() => {
-    const today = '2026-05-01'
+    if (apiStats) {
+      return {
+        total: apiStats.total,
+        today: apiStats.today,
+        unread: apiStats.unread,
+        critical: apiStats.critical,
+      }
+    }
+    const today = new Date().toISOString().slice(0, 10)
     const todayNotifs = notifications.filter(n => n.sentAt.startsWith(today))
     return {
-      total: todayNotifs.length,
-      read: todayNotifs.filter(n => n.status === 'read').length,
-      unread: todayNotifs.filter(n => n.status === 'unread').length,
-      critical: todayNotifs.filter(n => n.type === 'critical_value' && n.status === 'unread').length,
+      total: notifications.length,
+      today: todayNotifs.length,
+      unread: notifications.filter(n => n.status === 'unread').length,
+      critical: notifications.filter(n => n.type === 'critical_value' && n.status === 'unread').length,
     }
-  }, [notifications])
+  }, [notifications, apiStats])
 
   // 本周趋势（模拟）
   const weekTrend = [
@@ -763,7 +704,7 @@ function StatsPanel({ notifications }: StatsPanelProps) {
             <div style={{ fontSize: 12, color: GRAY }}>今日总数</div>
           </div>
           <div style={{ background: '#f8fafc', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid #e2e8f0' }}>
-            <div style={{ fontSize: 22, fontWeight: 700, color: SUCCESS }}>{todayStats.read}</div>
+            <div style={{ fontSize: 22, fontWeight: 700, color: SUCCESS }}>{todayStats.total - todayStats.unread}</div>
             <div style={{ fontSize: 12, color: GRAY }}>已读</div>
           </div>
           <div style={{ background: '#f8fafc', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid #e2e8f0' }}>
@@ -1035,73 +976,120 @@ function mapSeverityToPriority(severity?: string): 'high' | 'normal' | 'low' {
   }
 }
 
+// Web Push: base64url → Uint8Array (applicationServerKey)
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
+  const rawData = atob(base64)
+  const outputArray = new Uint8Array(rawData.length)
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i)
+  }
+  return outputArray
+}
+
 // ============================================================
 // 主页面组件
 // ============================================================
 export default function NotificationCenter() {
-  const mockNotifications = useMemo(() => generateMockNotifications(), [])
+  const currentUser = useMemo(() => getCurrentUser(), [])
+  const userId = currentUser?.id ?? 'current'
+  const isAdmin = useMemo(() => {
+    const inMemRole = currentUser?.role
+    if (inMemRole === 'ADMIN' || inMemRole === '管理员') return true
+    try {
+      const stored = JSON.parse(localStorage.getItem('ris_current_user') ?? 'null') as { role?: string } | null
+      return stored?.role === 'ADMIN' || stored?.role === '管理员'
+    } catch {
+      return false
+    }
+  }, [currentUser])
 
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [notifications, setNotifications] = useState<SystemNotification[]>([])
+  const [apiStats, setApiStats] = useState<{ total: number; unread: number; today: number; critical: number } | null>(null)
 
-  useEffect(() => {
-    let cancelled = false
-    void (async () => {
-      setLoading(true)
-      const res = await userApi.list()
-      if (cancelled) return
-      if (!res.success) {
-        setLoadError('API 不可用，使用本地数据')
-      }
+  const mapDto = useCallback((n: NotificationDto): SystemNotification => ({
+    id: n.id,
+    type: mapNotificationType(n.type),
+    title: n.title,
+    content: n.content,
+    recipientId: n.userId,
+    recipientName: n.userId,
+    status: n.read ? 'read' : 'unread',
+    priority: mapSeverityToPriority(n.severity),
+    sentAt: n.createdAt,
+    readAt: n.readAt,
+    relatedId: n.targetId,
+    relatedType: n.type.toLowerCase(),
+  }), [])
+
+  const loadData = useCallback(async () => {
+    setLoading(true)
+    setLoadError(null)
+    const [historyRes, statsRes] = await Promise.all([
+      notificationsApi.getHistory(userId, 200),
+      notificationsApi.getStats(userId),
+    ])
+    if (!historyRes.success) {
+      setLoadError(historyRes.error?.message ?? 'API 不可用，通知数据加载失败')
       setLoading(false)
-    })()
-    return () => { cancelled = true }
-  }, [])
-
-  const [apiNotifications, setApiNotifications] = useState<SystemNotification[]>([])
+      return
+    }
+    const items = (historyRes.data ?? []).map(mapDto)
+    setNotifications(items)
+    if (statsRes.success && statsRes.data) {
+      setApiStats({
+        total: statsRes.data.total,
+        unread: statsRes.data.unread,
+        today: statsRes.data.today,
+        critical: statsRes.data.critical,
+      })
+    }
+    setLoading(false)
+  }, [userId, mapDto])
 
   useEffect(() => {
-    let cancelled = false
-    void (async () => {
-      const res = await notificationApi.getHistory('current', 200)
-      if (cancelled) return
-      if (res.success && res.data) {
-        setApiNotifications(res.data.map((n: NotificationDto) => ({
-          id: n.id,
-          type: mapNotificationType(n.type),
-          title: n.title,
-          content: n.content,
-          recipientId: n.userId,
-          recipientName: n.userId,
-          status: n.isRead ? 'read' : 'unread',
-          priority: mapSeverityToPriority(n.severity),
-          sentAt: n.createdAt,
-          readAt: undefined,
-          relatedId: n.targetId,
-          relatedType: n.type.toLowerCase(),
-        })))
-      }
-    })()
-    return () => { cancelled = true }
-  }, [])
+    void loadData()
+  }, [loadData])
 
-  const allNotifications = useMemo(
-    () => apiNotifications.length > 0 ? apiNotifications : mockNotifications,
-    [apiNotifications, mockNotifications],
-  )
+  // [W4-2] 实时推送: 收到 notify 事件立即刷新列表 (替代 30s 轮询)
+  // 后端不可达时自动降级为轮询兜底
+  const [realtimeConnected, setRealtimeConnected] = useState(false)
+  useEffect(() => {
+    realtime.connect()
+    const offConnect = realtime.subscribe('connect', () => setRealtimeConnected(true))
+    const offDisconnect = realtime.subscribe('disconnect', () => setRealtimeConnected(false))
+    const offNotify = realtime.subscribe('notify', (payload: RealtimePayload) => {
+      if (payload?.type === 'notification' || payload?.type === 'CRITICAL' || payload?.type === 'REPORT') {
+        void loadData()
+      }
+    })
+    return () => {
+      offConnect()
+      offDisconnect()
+      offNotify()
+    }
+  }, [loadData])
+
+  // 实时轮询刷新 (30s) - 仅作为实时推送不可用时的兜底
+  useEffect(() => {
+    if (realtimeConnected) return
+    const iv = setInterval(() => {
+      void (async () => {
+        const res = await notificationsApi.getHistory(userId, 200)
+        if (res.success) setNotifications(res.data?.map(mapDto) ?? [])
+      })()
+    }, 30000)
+    return () => clearInterval(iv)
+  }, [userId, mapDto, realtimeConnected])
 
   const [activeTab, setActiveTab] = useState('all')
   const [searchText, setSearchText] = useState('')
   const [selectedNotification, setSelectedNotification] = useState<SystemNotification | null>(null)
   const [showSettings, setShowSettings] = useState(false)
   const [showDetailModal, setShowDetailModal] = useState(false)
-  const [notifications, setNotifications] = useState<SystemNotification[]>([])
-
-  useEffect(() => {
-    if (allNotifications.length > 0 && notifications.length === 0) {
-      setNotifications(allNotifications)
-    }
-  }, [allNotifications])
 
   const [settings, setSettings] = useState<NotificationSettings>({
     reportCompleted: true,
@@ -1115,8 +1103,12 @@ export default function NotificationCenter() {
   })
 
   // Phase 4b - 配送追踪
-  const [deliveryStatuses, setDeliveryStatuses] = useState<DeliveryStatus[]>(() => generateDeliveryStatuses(allNotifications))
+  const [deliveryStatuses, setDeliveryStatuses] = useState<DeliveryStatus[]>([])
   const [showDeliveryTracking, setShowDeliveryTracking] = useState(false)
+
+  useEffect(() => {
+    setDeliveryStatuses(generateDeliveryStatuses(notifications))
+  }, [notifications])
 
   // Phase 4b - 规则引擎
   const [rules, setRules] = useState<NotificationRule[]>(DEFAULT_RULES)
@@ -1125,34 +1117,16 @@ export default function NotificationCenter() {
   const [userPreferences, setUserPreferences] = useState<UserNotifyPreferences>(DEFAULT_USER_PREFERENCES)
   const [showPreferences, setShowPreferences] = useState(false)
 
-  // Phase 4b - WebSocket 模拟
-  const [wsConnected, setWsConnected] = useState(false)
-  const [, setPollingInterval] = useState<ReturnType<typeof setInterval> | null>(null)
+  // Web Push 管理
+  const [vapidPublicKey, setVapidPublicKey] = useState<string | null>(null)
+  const [pushSubscribed, setPushSubscribed] = useState(false)
+  const [pushBusy, setPushBusy] = useState(false)
 
   useEffect(() => {
-    setWsConnected(true)
-    const interval = setInterval(() => {
-      const newNotif = generateMockNotifications()[0]!
-      setNotifications(prev => {
-        if (prev.some(n => n.id === newNotif.id)) return prev
-        const updated = [newNotif, ...prev]
-        try {
-          const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)()
-          const osc = audioCtx.createOscillator()
-          const gain = audioCtx.createGain()
-          osc.connect(gain)
-          gain.connect(audioCtx.destination)
-          osc.frequency.value = 880
-          gain.gain.setValueAtTime(0.3, audioCtx.currentTime)
-          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3)
-          osc.start(audioCtx.currentTime)
-          osc.stop(audioCtx.currentTime + 0.3)
-        } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
-        return updated
-      })
-    }, 15000)
-    setPollingInterval(interval)
-    return () => { clearInterval(interval); setWsConnected(false) }
+    void (async () => {
+      const res = await notificationsApi.getVapidPublicKey()
+      if (res.success && res.data?.publicKey) setVapidPublicKey(res.data.publicKey)
+    })()
   }, [])
 
   // 筛选后的通知
@@ -1173,23 +1147,28 @@ export default function NotificationCenter() {
     })
   }, [notifications, activeTab, searchText])
 
-  // 统计
+  // 统计 (优先 API stats: 未读/今日/总数)
   const stats = useMemo(() => {
-    const unread = notifications.filter(n => n.status === 'unread').length
+    const unread = apiStats?.unread ?? notifications.filter(n => n.status === 'unread').length
+    const total = apiStats?.total ?? notifications.length
     const byType = NOTIFICATION_TYPES.reduce((acc, type) => {
       if (type.key === 'all') return acc
       acc[type.key] = notifications.filter(n => n.type === type.key && n.status === 'unread').length
       return acc
     }, {} as Record<string, number>)
-    return { unread, byType, total: notifications.length }
-  }, [notifications])
+    return { unread, byType, total }
+  }, [notifications, apiStats])
 
   // 标记已读
   const handleMarkRead = useCallback((id: string) => {
     setNotifications(prev => prev.map(n =>
       n.id === id ? { ...n, status: 'read' as const, readAt: new Date().toISOString() } : n
     ))
-    void notificationApi.markRead(id)
+    void notificationsApi.markRead(id).then(res => {
+      if (res.success) {
+        setApiStats(prev => prev ? { ...prev, unread: Math.max(0, prev.unread - 1) } : prev)
+      }
+    })
   }, [])
 
   // 一键已读
@@ -1199,7 +1178,12 @@ export default function NotificationCenter() {
       status: 'read' as const,
       readAt: n.readAt || new Date().toISOString(),
     })))
-  }, [])
+    void notificationsApi.markAllRead(userId).then(res => {
+      if (res.success) {
+        setApiStats(prev => prev ? { ...prev, unread: 0 } : prev)
+      }
+    })
+  }, [userId])
 
   // 删除通知
   const handleDelete = useCallback((id: string) => {
@@ -1207,12 +1191,103 @@ export default function NotificationCenter() {
     if (selectedNotification?.id === id) {
       setSelectedNotification(null)
     }
+    void notificationsApi.delete(id)
   }, [selectedNotification])
 
   // 批量删除已读
   const handleClearRead = useCallback(() => {
+    const readIds = notifications.filter(n => n.status === 'read').map(n => n.id)
     setNotifications(prev => prev.filter(n => n.status === 'unread'))
+    for (const id of readIds) {
+      void notificationsApi.delete(id)
+    }
+  }, [notifications])
+
+  // Web Push: 订阅
+  const handlePushSubscribe = useCallback(async () => {
+    if (!vapidPublicKey) {
+      setLoadError('VAPID 公钥不可用（后端未配置）')
+      return
+    }
+    setPushBusy(true)
+    try {
+      if (!('Notification' in window)) {
+        setLoadError('当前浏览器不支持 Web Notification')
+        return
+      }
+      let permission = Notification.permission
+      if (permission === 'default') {
+        permission = await Notification.requestPermission()
+      }
+      if (permission !== 'granted') {
+        setLoadError('通知权限被拒绝，无法订阅 Web Push')
+        return
+      }
+      const reg = await navigator.serviceWorker?.register('/sw.js')
+      const sub = await reg?.pushManager?.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+      })
+      if (!sub) {
+        setLoadError('PushManager 订阅失败（浏览器或协议不支持）')
+        return
+      }
+      const res = await notificationsApi.pushSubscribe({
+        userId,
+        endpoint: sub.endpoint,
+        keys: {
+          p256dh: btoa(String.fromCharCode(...new Uint8Array(sub.getKey('p256dh')!))),
+          auth: btoa(String.fromCharCode(...new Uint8Array(sub.getKey('auth')!))),
+        },
+      })
+      if (res.success) {
+        setPushSubscribed(true)
+        setLoadError(null)
+      } else {
+        setLoadError(res.error?.message ?? '订阅保存失败')
+      }
+    } catch (e) {
+      setLoadError('Web Push 订阅失败: ' + ((e as Error)?.message ?? '未知错误'))
+    } finally {
+      setPushBusy(false)
+    }
+  }, [vapidPublicKey, userId])
+
+  // Web Push: 退订
+  const handlePushUnsubscribe = useCallback(async () => {
+    setPushBusy(true)
+    try {
+      const reg = await navigator.serviceWorker?.getRegistration('/sw.js')
+      const sub = await reg?.pushManager?.getSubscription()
+      if (sub) {
+        const endpoint = sub.endpoint
+        await sub.unsubscribe()
+        await notificationsApi.pushUnsubscribe(endpoint)
+      }
+      setPushSubscribed(false)
+    } catch (e) {
+      setLoadError('退订失败: ' + ((e as Error)?.message ?? '未知错误'))
+    } finally {
+      setPushBusy(false)
+    }
   }, [])
+
+  // Web Push: 发送测试 (仅 ADMIN)
+  const handlePushSend = useCallback(async () => {
+    setPushBusy(true)
+    const res = await notificationsApi.sendPush({
+      userId,
+      title: 'Web Push 测试',
+      content: '这是一条来自通知中心的测试推送 ' + new Date().toLocaleTimeString(),
+      tag: 'g005-test',
+    })
+    setPushBusy(false)
+    if (res.success && res.data?.success) {
+      setLoadError(null)
+    } else {
+      setLoadError(`发送失败: ${res.data?.reason ?? res.error?.message ?? '未知原因'}`)
+    }
+  }, [userId])
 
   // 设置更新
   const handleSettingUpdate = useCallback((key: keyof NotificationSettings, value: boolean) => {
@@ -1318,17 +1393,51 @@ export default function NotificationCenter() {
 
         {/* 底部设置入口 */}
         <div style={{ marginTop: 'auto', padding: 12, borderTop: '1px solid #e2e8f0' }}>
-          {/* WebSocket状态 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', marginBottom: 8, borderRadius: 6, background: wsConnected ? '#d1fae5' : '#fee2e2' }}>
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: wsConnected ? '#059669' : '#dc2626' }} />
-            <span style={{ fontSize: 12, color: wsConnected ? '#059669' : '#dc2626', fontWeight: 500 }}>
-              {wsConnected ? '实时连接中' : '已断开'}
+          {/* 实时推送状态 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', marginBottom: 8, borderRadius: 6, background: realtimeConnected ? '#d1fae5' : '#fef3c7' }}>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: realtimeConnected ? '#059669' : '#d97706' }} />
+            <span style={{ fontSize: 12, color: realtimeConnected ? '#059669' : '#b45309', fontWeight: 500 }}>
+              {realtimeConnected ? '实时推送已连接' : '轮询兜底中 (30s)'}
             </span>
+            <button onClick={() => void loadData()} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', padding: 2 }} title="刷新">
+              <RefreshCw size={12} color={GRAY} />
+            </button>
             {!showDeliveryTracking && (
-              <button onClick={() => setShowDeliveryTracking(true)} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}>
+              <button onClick={() => setShowDeliveryTracking(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}>
                 <Eye size={12} color={GRAY} />
               </button>
             )}
+          </div>
+
+          {/* Web Push 管理 */}
+          <div style={{ padding: '8px 12px', marginBottom: 8, borderRadius: 6, background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: PRIMARY, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <BellRing size={14} />
+              Web Push 管理
+            </div>
+            <div style={{ fontSize: 11, color: GRAY, marginBottom: 8, wordBreak: 'break-all' }}>
+              {vapidPublicKey ? `VAPID: ${vapidPublicKey.slice(0, 24)}…` : 'VAPID 公钥获取中…'}
+            </div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              {pushSubscribed ? (
+                <button onClick={() => void handlePushUnsubscribe()} disabled={pushBusy}
+                  style={{ flex: 1, padding: '5px 8px', borderRadius: 4, border: '1px solid #fecaca', background: WHITE, color: DANGER, fontSize: 12, cursor: 'pointer' }}>
+                  退订推送
+                </button>
+              ) : (
+                <button onClick={() => void handlePushSubscribe()} disabled={pushBusy || !vapidPublicKey}
+                  style={{ flex: 1, padding: '5px 8px', borderRadius: 4, border: 'none', background: ACCENT, color: WHITE, fontSize: 12, cursor: 'pointer' }}>
+                  订阅推送
+                </button>
+              )}
+              {isAdmin && (
+                <button onClick={() => void handlePushSend()} disabled={pushBusy}
+                  style={{ flex: 1, padding: '5px 8px', borderRadius: 4, border: '1px solid #e2e8f0', background: WHITE, color: PRIMARY, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                  <Send size={12} />
+                  测试发送
+                </button>
+              )}
+            </div>
           </div>
 
           <button
@@ -1430,7 +1539,7 @@ export default function NotificationCenter() {
               规则引擎
             </button>
             <button
-              onClick={() => setNotifications(allNotifications)}
+              onClick={() => void loadData()}
               style={{
                 padding: '6px 12px', borderRadius: 6, border: '1px solid #e2e8f0',
                 background: WHITE, color: GRAY, fontSize: 12, cursor: 'pointer',
@@ -1438,7 +1547,7 @@ export default function NotificationCenter() {
               }}
             >
               <RefreshCw size={14} />
-              重置
+              刷新
             </button>
           </div>
         </div>
@@ -1448,7 +1557,7 @@ export default function NotificationCenter() {
           {/* 通知列表 */}
           <div style={{ flex: 1, padding: 16, overflowY: 'auto' }}>
             {/* 统计面板 */}
-            <StatsPanel notifications={notifications} />
+            <StatsPanel notifications={notifications} apiStats={apiStats} />
             
             {/* 历史动态 */}
             {!showSettings && <HistoryPanel notifications={notifications} onViewNotification={(n) => { setSelectedNotification(n); setShowDetailModal(true) }} />}

@@ -23,6 +23,9 @@ export interface AiTriageFactor {
 
 export interface AiTriageResult {
   examId: string
+  patientId?: string
+  patientName?: string
+  examType?: string
   score: number
   level: 'CRITICAL' | 'URGENT' | 'SEMI_URGENT' | 'ROUTINE'
   factors: AiTriageFactor[]
@@ -30,6 +33,8 @@ export interface AiTriageResult {
   assignedDoctor?: string
   aiConfidence: number
   reasoning: string
+  // [W3-2] 任务流转状态 (MSW 提供, 后端可缺省)
+  status?: 'PENDING' | 'ASSIGNED' | 'COMPLETED'
 }
 
 export const aiTriageApi = {

@@ -464,6 +464,14 @@ export function AppLayout() {
 
   const sectionTitle = getSectionForPath(location.pathname);
 
+  // [W5] 侧边栏版本号: VITE_APP_VERSION > index.html __appVersion > i18n app.version
+  const appVersion =
+    import.meta.env.VITE_APP_VERSION ||
+    (typeof window !== "undefined"
+      ? (window as { __appVersion?: string }).__appVersion
+      : undefined) ||
+    t("app.version");
+
   return (
     <div style={{ ...s.root, direction }}>
       <SkipLink />
@@ -491,7 +499,7 @@ export function AppLayout() {
                 <div
                   style={{ fontSize: 12, color: "var(--text-muted, #94a3b8)" }}
                 >
-                  {t("app.version")}
+                  {appVersion}
                 </div>
               </div>
             )}

@@ -52,9 +52,16 @@ export interface ReportDetailDrawerProps {
   onPrint: (r: RadiologyReport) => void
   onExportPDF: (r: RadiologyReport) => void
   onGenerateSr?: (r: RadiologyReport) => void
+  // [W2-3] 增强操作
+  onRevise?: (r: RadiologyReport) => void
+  onRepublish?: (r: RadiologyReport) => void
+  onRequestApproval?: (r: RadiologyReport) => void
+  onDeliver?: (r: RadiologyReport) => void
+  onCritical?: (r: RadiologyReport) => void
+  onCompare?: (r: RadiologyReport) => void
 }
 
-export default function ReportDetailDrawer({ report, onClose, onReview, onPrint, onExportPDF, onGenerateSr }: ReportDetailDrawerProps) {
+export default function ReportDetailDrawer({ report, onClose, onReview, onPrint, onExportPDF, onGenerateSr, onRevise, onRepublish, onRequestApproval, onDeliver, onCritical, onCompare }: ReportDetailDrawerProps) {
   const [tab, setTab] = useState<'content' | 'history' | 'print' | 'timeline'>('content')
   const [_showHistory, setShowHistory] = useState(false)
   const [showMfa, setShowMfa] = useState(false)
@@ -270,6 +277,36 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
           {onGenerateSr && (
             <button onClick={() => onGenerateSr(report)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid #0891b2', background: '#ecfeff', color: '#155e75', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
               <FileCheck2 size={14} /> 生成SR
+            </button>
+          )}
+          {onCompare && (
+            <button onClick={() => onCompare(report)} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #f59e0b', background: '#fffbeb', color: '#92400e', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <History size={13} /> 版本对比
+            </button>
+          )}
+          {onRevise && (
+            <button onClick={() => onRevise(report)} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #f59e0b', background: '#fffbeb', color: '#b45309', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <History size={13} /> 修订
+            </button>
+          )}
+          {onRepublish && (
+            <button onClick={() => onRepublish(report)} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #10b981', background: '#f0fdf4', color: '#047857', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <CheckCircle size={13} /> 补发
+            </button>
+          )}
+          {onRequestApproval && (
+            <button onClick={() => onRequestApproval(report)} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #7c3aed', background: '#f5f3ff', color: '#6d28d9', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <ShieldCheck size={13} /> 审批导出
+            </button>
+          )}
+          {onDeliver && (
+            <button onClick={() => onDeliver(report)} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #07c160', background: '#e6f9ed', color: '#047857', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <FileCheck2 size={13} /> 分发
+            </button>
+          )}
+          {onCritical && (
+            <button onClick={() => onCritical(report)} style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #dc2626', background: '#fff5f5', color: '#dc2626', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <Zap size={13} /> 转危急值
             </button>
           )}
           <button onClick={() => onPrint(report)} style={{ padding: '8px 20px', borderRadius: 8, border: '1px solid #e2e8f0', background: WHITE, color: GRAY, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>

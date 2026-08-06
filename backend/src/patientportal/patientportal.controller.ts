@@ -1,4 +1,4 @@
-﻿import { Controller, Get, Post, Param, Body, Query } from '@nestjs/common'
+﻿import { Controller, Get, Post, Delete, Param, Body, Query } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
@@ -19,6 +19,20 @@ const CreateFeedbackSchema = z.object({
   rating: z.number().int().min(1).max(5),
   category: z.string().optional(),
   comment: z.string().max(2000).optional(),
+})
+
+// [W5] 宣教资料写入: POST /patient-portal/education 创建, DELETE /patient-portal/education/:key 删除
+const CreateEducationSchema = z.object({
+  title: z.string().min(1),
+  category: z.enum(['pre_exam', 'post_exam', 'condition', 'medication', 'general']).default('general'),
+  contentType: z.enum(['text', 'video', 'audio', 'pdf', 'image']).default('text'),
+  content: z.string().min(1),
+  summary: z.string().max(500).optional(),
+  modality: z.string().optional(),
+  bodyPart: z.string().optional(),
+  duration: z.number().int().positive().optional(),
+  tags: z.array(z.string().min(1)).max(20).optional(),
+  language: z.enum(['zh-CN', 'en']).default('zh-CN'),
 })
 
 @ApiTags('patient-portal')
@@ -45,6 +59,16 @@ export class PatientPortalController {
 
   @Get('education/:id')
   getEducation(@Param('id') id: string) { return this.svc.getEducation(id) }
+
+  @Post('education')
+  createEducation(@Body(new ZodValidationPipe(CreateEducationSchema)) body: z.infer<typeof CreateEducationSchema>) {
+    return this.svc.createEducation(body)
+  }
+
+  @Delete('education/:key')
+  deleteEducation(@Param('key') key: string) {
+    return this.svc.deleteEducation(key)
+  }
 
   @Get('appointments')
   listAppointments(@Query('patientId') patientId?: string) {

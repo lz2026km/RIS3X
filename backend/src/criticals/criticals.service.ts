@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import { createNoopGateway, NotificationsGateway } from '../notifications/notifications.gateway'
 import { currentTenantId } from '../common/tenant/tenant-utils'
 
 export interface NotifyDto {
@@ -49,12 +50,20 @@ const SEVERITY_LABEL: Record<string, string> = {
 
 @Injectable()
 export class CriticalsService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly gateway: NotificationsGateway
 
-  async list(params: { skip?: number; take?: number; state?: string; severity?: string; dateFrom?: string; dateTo?: string }) {
+  constructor(
+    private readonly prisma: PrismaService,
+    gateway?: NotificationsGateway,
+  ) {
+    this.gateway = gateway ?? createNoopGateway()
+  }
+
+  async list(params: { skip?: number; take?: number; state?: string; severity?: string; dateFrom?: string; dateTo?: string; patientId?: string }) {
     const where: any = { tenantId: currentTenantId() }
     if (params.state) where.state = params.state
     if (params.severity) where.severity = params.severity
+    if (params.patientId) where.patientId = params.patientId
     if (params.dateFrom || params.dateTo) {
       where.createdAt = {}
       if (params.dateFrom) where.createdAt.gte = new Date(params.dateFrom)
@@ -92,6 +101,19 @@ export class CriticalsService {
         state: 'FOUND',
         tenantId: currentTenantId(),
       },
+    }).then((created) => {
+      // W4-2: 实时推送 - 危急值创建即时提示 + 工作列表刷新
+      this.gateway.push('*', {
+        event: 'notify',
+        type: 'CRITICAL',
+        action: 'created',
+        title: '新危急值',
+        content: dto.description,
+        notification: created,
+        timestamp: Date.now(),
+      })
+      this.gateway.emitWorklistRefresh()
+      return created
     })
   }
 
@@ -108,7 +130,19 @@ export class CriticalsService {
       if (!data.resolvedAt) data.resolvedAt = data.closedAt
       if (!data.resolvedBy) data.resolvedBy = data.closedBy
     }
-    return this.prisma.criticalValue.update({ where: { id }, data })
+    const result = this.prisma.criticalValue.update({ where: { id }, data })
+    // W4-2: 危急值状态变化实时推送 (危急值页面即时刷新)
+    this.gateway.push('*', {
+      event: 'notify',
+      type: 'CRITICAL',
+      action: 'updated',
+      title: '危急值状态更新',
+      content: `危急值 ${id} 状态变更为 ${dto.state ?? '更新'}`,
+      notification: { id, ...dto },
+      timestamp: Date.now(),
+    })
+    this.gateway.emitWorklistRefresh()
+    return result
   }
 
   async voiceCall(id: string, dto: VoiceCallDto) {
@@ -123,7 +157,7 @@ export class CriticalsService {
   async clinicalReceipt(id: string, dto: ClinicalReceiptDto) {
     const existing = await this.prisma.criticalValue.findUnique({ where: { id } })
     if (!existing) throw new NotFoundException(`CriticalValue ${id} not found`)
-    return this.prisma.criticalValue.update({
+    const result = this.prisma.criticalValue.update({
       where: { id },
       data: {
         state: 'RECEIPTED',
@@ -133,6 +167,16 @@ export class CriticalsService {
         confirmedComment: dto.comment,
       },
     })
+    this.gateway.push('*', {
+      event: 'notify',
+      type: 'CRITICAL',
+      action: 'receipted',
+      title: '临床回执已确认',
+      content: `危急值 ${id} 临床回执确认 (${dto.confirmedBy})`,
+      notification: { criticalId: id, confirmedBy: dto.confirmedBy },
+      timestamp: Date.now(),
+    })
+    return result
   }
 
   async delete(id: string) {
@@ -168,6 +212,16 @@ export class CriticalsService {
       where: { id: dto.criticalId },
       data: { state: 'NOTIFIED', notifiedTo: dto.recipientName || null },
     })
+    // W4-2: 危急值通知发送后即时推送 (通知中心 / 危急值页面)
+    this.gateway.push('*', {
+      event: 'notify',
+      type: 'CRITICAL',
+      action: 'notified',
+      title: '危急值通知已发送',
+      content: `${patientName} 危急值已通知 (${dto.channels.join('/')})`,
+      notification: { criticalId: dto.criticalId, patientName, category, finding },
+      timestamp: Date.now(),
+    })
     return { count: records.length, status: 'NOTIFIED' }
   }
 
@@ -189,7 +243,17 @@ export class CriticalsService {
       tenantId: currentTenantId(),
       }))
     )
-    return this.prisma.criticalValueNotification.createMany({ data: records })
+    const result = this.prisma.criticalValueNotification.createMany({ data: records })
+    this.gateway.push('*', {
+      event: 'notify',
+      type: 'CRITICAL',
+      action: 'escalated',
+      title: '危急值升级',
+      content: `危急值 ${dto.criticalId} 已升级: ${dto.reason}`,
+      notification: { criticalId: dto.criticalId, reason: dto.reason },
+      timestamp: Date.now(),
+    })
+    return result
   }
 
   async listHistory(criticalId: string) {

@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing'
 import { NotFoundException } from '@nestjs/common'
 import { CriticalsService } from '../src/criticals/criticals.service'
 import { PrismaService } from '../src/prisma/prisma.service'
+import { createNoopGateway, NotificationsGateway } from '../src/notifications/notifications.gateway'
 
 describe('CriticalsService', () => {
   let svc: CriticalsService
@@ -34,6 +35,7 @@ describe('CriticalsService', () => {
       providers: [
         CriticalsService,
         { provide: PrismaService, useValue: mockPrisma },
+        { provide: NotificationsGateway, useValue: createNoopGateway() },
       ],
     }).compile()
     svc = module.get(CriticalsService)

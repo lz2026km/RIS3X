@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NestInterceptor, ExecutionContext, CallHandler, ForbiddenException } from '@nestjs/common'
 import { Observable } from 'rxjs'
 import { AsyncLocalStorage } from 'async_hooks'
+import { DEFAULT_TENANT_ID } from '../tenant/tenant-utils'
 
 interface TenantContext {
   tenantId: string
@@ -10,7 +11,7 @@ interface TenantContext {
 export const tenantStorage = new AsyncLocalStorage<TenantContext>()
 
 export function getCurrentTenantId(): string {
-  return tenantStorage.getStore()?.tenantId ?? 'default'
+  return tenantStorage.getStore()?.tenantId ?? DEFAULT_TENANT_ID
 }
 
 export function getEnforcedTenantId(): string | undefined {
@@ -34,7 +35,7 @@ export class TenantContextInterceptor implements NestInterceptor {
       throw new BadRequestException('Invalid x-tenant-id header')
     }
 
-    let tenantId = 'default'
+    let tenantId = DEFAULT_TENANT_ID
     let enforce = false
     if (request.user) {
       const jwtTenant = request.user.tenantId?.trim()

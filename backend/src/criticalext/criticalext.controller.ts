@@ -3,13 +3,14 @@ import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { CriticalExtService } from './criticalext.service'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
-import { AutoDetectCriticalSchema, CloseCriticalLoopSchema, CreateCriticalRuleSchema, UpdateCriticalRuleSchema } from './criticalext.schema'
+import { AutoDetectCriticalSchema, CloseCriticalLoopSchema, CreateCriticalRuleSchema, UpdateCriticalRuleSchema, CriticalChannelsSchema } from './criticalext.schema'
 import { z } from 'zod'
 
 type CreateCriticalRuleDto = z.infer<typeof CreateCriticalRuleSchema>
 type UpdateCriticalRuleDto = z.infer<typeof UpdateCriticalRuleSchema>
 type AutoDetectCriticalDto = z.infer<typeof AutoDetectCriticalSchema>
 type CloseCriticalLoopDto = z.infer<typeof CloseCriticalLoopSchema>
+type CriticalChannelsDto = z.infer<typeof CriticalChannelsSchema>
 
 @ApiTags('critical-ext')
 @ApiBearerAuth()
@@ -56,4 +57,12 @@ export class CriticalExtController {
 
   @Get('follow-up-records')
   getFollowUpRecords() { return this.svc.getFollowUpRecords() }
+
+  @Get('channels')
+  getChannels() { return this.svc.getChannels() }
+
+  @Put('channels')
+  saveChannels(@Body(new ZodValidationPipe(CriticalChannelsSchema)) body: CriticalChannelsDto) {
+    return this.svc.saveChannels(body.channels)
+  }
 }

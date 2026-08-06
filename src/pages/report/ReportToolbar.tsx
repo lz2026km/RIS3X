@@ -1,5 +1,5 @@
 
-import { List, LayoutGrid, Mic, Sparkles, BarChart3, AlertOctagon, Printer, Download, CheckCircle, XCircle } from 'lucide-react';
+import { List, LayoutGrid, Mic, Sparkles, BarChart3, AlertOctagon, Printer, Download, CheckCircle, XCircle, ShieldCheck, PenLine } from 'lucide-react';
 import type { RadiologyReport } from "../../types";
 import { PRIMARY, GRAY, ACCENT, DANGER, SUCCESS, WHITE } from "./reportUtils";
 import { useNavigate } from "react-router-dom";
@@ -34,6 +34,8 @@ export interface ReportToolbarProps {
   }) => void;
   showToast: (msg: string, type: "success" | "error" | "info") => void;
   setStatusFilter: (v: string) => void;
+  // [W2-3] 批量导出真实化
+  onBulkExport?: (list: RadiologyReport[]) => void;
 }
 
 export default function ReportToolbar({
@@ -52,6 +54,7 @@ export default function ReportToolbar({
   setDetailReport,
   setExportModal,
   setBulkActionModal,
+  onBulkExport,
 }: ReportToolbarProps) {useNavigate();
 
   return (
@@ -390,23 +393,27 @@ export default function ReportToolbar({
             </button>
             <button
               onClick={() => {
-                setExportModal({
-                  show: true,
-                  title: "批量导出",
-                  message: `正在导出 ${selectedIds.size} 份报告 PDF...`,
-                  complete: false,
-                });
-                setTimeout(() => {
-                  setExportModal((m) => ({
-                    ...m,
-                    complete: true,
-                    message: `已导出 ${selectedIds.size} 份报告 PDF`,
-                  }));
-                  setTimeout(
-                    () => setExportModal((m) => ({ ...m, show: false })),
-                    2000,
-                  );
-                }, 1500);
+                const list = allReports.filter((r) => selectedIds.has(r.id));
+                if (onBulkExport) onBulkExport(list);
+                else {
+                  setExportModal({
+                    show: true,
+                    title: "批量导出",
+                    message: `正在导出 ${selectedIds.size} 份报告 PDF...`,
+                    complete: false,
+                  });
+                  setTimeout(() => {
+                    setExportModal((m) => ({
+                      ...m,
+                      complete: true,
+                      message: `已导出 ${selectedIds.size} 份报告 PDF`,
+                    }));
+                    setTimeout(
+                      () => setExportModal((m) => ({ ...m, show: false })),
+                      2000,
+                    );
+                  }, 1500);
+                }
               }}
               style={{
                 padding: "5px 12px",
@@ -423,6 +430,56 @@ export default function ReportToolbar({
               }}
             >
               <Download size={12} /> 批量导出
+            </button>
+            <button
+              onClick={() =>
+                setBulkActionModal({
+                  show: true,
+                  action: "review",
+                  count: selectedIds.size,
+                  loading: false,
+                })
+              }
+              style={{
+                padding: "5px 12px",
+                borderRadius: 6,
+                border: "1px solid #e2e8f0",
+                background: WHITE,
+                color: "#6d28d9",
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              <ShieldCheck size={12} /> 批量审核
+            </button>
+            <button
+              onClick={() =>
+                setBulkActionModal({
+                  show: true,
+                  action: "sign",
+                  count: selectedIds.size,
+                  loading: false,
+                })
+              }
+              style={{
+                padding: "5px 12px",
+                borderRadius: 6,
+                border: "1px solid #e2e8f0",
+                background: WHITE,
+                color: "#0284c7",
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              <PenLine size={12} /> 批量签署
             </button>
             <button
               onClick={() =>

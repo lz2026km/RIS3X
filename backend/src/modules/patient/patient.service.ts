@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
 import { currentTenantId } from '../../common/tenant/tenant-utils'
 import type { Patient } from '@prisma/client'
@@ -77,6 +77,40 @@ export class PatientService {
     if (!existing) throw new NotFoundException(`Patient ${id} not found`)
     await this.prisma.patient.update({ where: { id }, data: { deletedAt: new Date() } })
     return { ok: true }
+  }
+
+  // [W2-4] 患者合并: 事务内将源患者关联 (exam/report/appointment/criticalValue) 迁移至目标患者, 再软删源患者
+  async merge(sourceId: string, targetId: string) {
+    if (sourceId === targetId) {
+      throw new BadRequestException('Cannot merge a patient with itself')
+    }
+    const [source, target] = await Promise.all([
+      this.prisma.patient.findFirst({ where: { id: sourceId, deletedAt: null } }),
+      this.prisma.patient.findFirst({ where: { id: targetId, deletedAt: null } }),
+    ])
+    if (!source) throw new NotFoundException(`Source patient ${sourceId} not found`)
+    if (!target) throw new NotFoundException(`Target patient ${targetId} not found`)
+    const tenantId = currentTenantId()
+    return this.prisma.$transaction(async (tx) => {
+      const [movedExams, movedReports, movedAppointments, movedCriticalValues] = await Promise.all([
+        tx.exam.updateMany({ where: { patientId: sourceId, tenantId }, data: { patientId: targetId } }),
+        tx.report.updateMany({ where: { patientId: sourceId, tenantId }, data: { patientId: targetId } }),
+        tx.appointment.updateMany({ where: { patientId: sourceId, tenantId }, data: { patientId: targetId } }),
+        tx.criticalValue.updateMany({ where: { patientId: sourceId, tenantId }, data: { patientId: targetId } }),
+      ])
+      await tx.patient.update({ where: { id: sourceId }, data: { deletedAt: new Date() } })
+      return {
+        ok: true,
+        merged: {
+          sourceId,
+          targetId,
+          movedExams: movedExams.count,
+          movedReports: movedReports.count,
+          movedAppointments: movedAppointments.count,
+          movedCriticalValues: movedCriticalValues.count,
+        },
+      }
+    })
   }
 
   async getReports(patientId: string) {

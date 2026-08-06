@@ -82,4 +82,8 @@ export const reportApi = {
   // [v3.0.6.11-70] P0 报告导出真实化: POST /reports/:id/export (后端入队, 返回下载地址)
   exportReport: (id: string, format: string = 'pdf') =>
     api.post<{ queued: boolean; downloadUrl?: string; format?: string }>(`/reports/${id}/export`, { format }),
+
+  // [W2-3] 导出真实化: 轮询导出任务状态
+  exportStatus: (id: string) =>
+    api.get<{ status: string; format?: string; downloadUrl?: string; queuedAt?: string }>(`/reports/${id}/export-status`),
 }

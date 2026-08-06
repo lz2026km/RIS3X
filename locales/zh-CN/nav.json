@@ -376,5 +376,6 @@
   "v3ReportHub": "V3 报告中心",
   "vr": "VR 容积重建",
   "workflowDesigner": "工作流设计器",
-  "workloadHeatmap": "工作量热力图"
+  "workloadHeatmap": "工作量热力图",
+  "exportApproval": "导出审批"
 }

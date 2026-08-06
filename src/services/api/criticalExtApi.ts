@@ -9,6 +9,13 @@ export interface CriticalExtSummaryDto { todayCount: number; weeklyCount: number
 export interface CriticalExtTimelineDto { date: string; count: number; resolved: number; escalated: number }
 export interface CriticalExtCenterDto { id: string; patientName: string; finding: string; severity: string; status: string; triggeredAt: string; department: string }
 
+// [W5] 危急值通知通道开关配置
+export interface CriticalChannelDto {
+  channel: 'SYSTEM' | 'SMS' | 'PHONE' | 'WECHAT' | 'EMAIL'
+  label: string
+  enabled: boolean
+}
+
 // [G005-P0] 危急值扩展前缀统一: 与 backend criticalext.controller.ts (@Controller('critical-ext')) 一一对应
 // [G005-P1] 列表双形状: MSW 裸数组 { data: T[] } / 后端 { data: { items, total } }
 export type ListPayload<T> = T[] | { items: T[]; total: number }
@@ -28,4 +35,8 @@ export const criticalExtApi = {
   getReceiverPortal: () => api.get<unknown>('/critical-ext/receiver'),
   // [G005-P0] 随访记录 (后端 critical-ext/follow-up-records)
   listFollowUpRecords: () => api.get<unknown[]>('/critical-ext/follow-up-records'),
+  // [W5] 通知通道开关配置 (GET/PUT /critical-ext/channels)
+  getChannels: () => api.get<ListPayload<CriticalChannelDto>>('/critical-ext/channels'),
+  saveChannels: (channels: CriticalChannelDto[]) =>
+    api.put<ListPayload<CriticalChannelDto>>('/critical-ext/channels', { channels }),
 }

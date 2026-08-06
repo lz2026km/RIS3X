@@ -163,6 +163,22 @@ export const eyeApi = {
     api.get(`${EYE_API}/ris/schedules${buildQuery(params)}`),
   getWorkflowStatus: () => api.get(`${EYE_API}/ris/workflow-status`),
 
+  // ===== RIS 检查记录 (视力 / 眼压) =====
+  // [W3-2] VisionExamPage / IntraocularPressurePage 真实化
+  listVisionRecords: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/ris/vision-records${buildQuery(params)}`),
+  createVisionRecord: (data: any) =>
+    api.post(`${EYE_API}/ris/vision-records`, data),
+  listIopRecords: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/ris/iop-records${buildQuery(params)}`),
+  createIopRecord: (data: any) =>
+    api.post(`${EYE_API}/ris/iop-records`, data),
+  deleteIopRecord: (id: string) =>
+    api.delete(`${EYE_API}/ris/iop-records/${id}`),
+  // 兼容旧页面调用的别名
+  getIopRecords: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/ris/iop-records${buildQuery(params)}`),
+
   // ===== EMR =====
   getEmr: (params?: Record<string, any>) =>
     api.get(`${EYE_API}/emr/records${buildQuery(params)}`),
@@ -299,6 +315,13 @@ export const eyeApi = {
     api.post(`${EYE_API}/contact-lens/fitting`, data),
   lowVisionPrescription: (data: any) =>
     api.post(`${EYE_API}/low-vision/prescription`, data),
+
+  // ===== KPI 看板 (EyeKpiDashboardPage, /eye/kpi/*) =====
+  getKpiSummary: () => api.get(`${EYE_API}/kpi/summary`),
+  getQualityMetrics: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/kpi/quality-metrics${buildQuery(params)}`),
+  getPatientSatisfaction: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/kpi/satisfaction${buildQuery(params)}`),
 };
 
 export default eyeApi;

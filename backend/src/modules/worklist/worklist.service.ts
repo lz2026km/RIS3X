@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
+import { createNoopGateway, NotificationsGateway } from '../../notifications/notifications.gateway'
 import { currentTenantId } from '../../common/tenant/tenant-utils'
 
 export const WORKLIST_STATES = ['SCHEDULED', 'ARRIVED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'] as const
@@ -23,7 +24,28 @@ export interface AssignDto {
 
 @Injectable()
 export class WorklistService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly gateway: NotificationsGateway
+
+  constructor(
+    private readonly prisma: PrismaService,
+    gateway?: NotificationsGateway,
+  ) {
+    this.gateway = gateway ?? createNoopGateway()
+  }
+
+  /** W4-2: 工作列表变化 → 全局实时刷新推送 */
+  private notifyWorklistChanged(action: string, examId: string): void {
+    this.gateway.emitWorklistRefresh()
+    this.gateway.push('*', {
+      event: 'notify',
+      type: 'WORKLIST',
+      action,
+      title: '工作列表更新',
+      content: `检查 ${examId} 已更新 (${action})`,
+      notification: { examId, action },
+      timestamp: Date.now(),
+    })
+  }
 
   private async getExam(id: string) {
     const exam = await this.prisma.exam.findUnique({ where: { id }, include: { patient: true } })
@@ -123,7 +145,9 @@ export class WorklistService {
     if (dto.bodyPart !== undefined) data.bodyPart = dto.bodyPart
     if (dto.modality !== undefined) data.modality = dto.modality
     if (dto.scheduledAt !== undefined) data.scheduledAt = dto.scheduledAt ? new Date(dto.scheduledAt) : null
-    return this.prisma.exam.update({ where: { id }, data, include: { patient: true, device: true } })
+    const result = this.prisma.exam.update({ where: { id }, data, include: { patient: true, device: true } })
+    if (dto.state !== undefined) this.notifyWorklistChanged(`state=${dto.state}`, id)
+    return result
   }
 
   async getStats() {
@@ -149,7 +173,9 @@ export class WorklistService {
       await this.assertDoctor(dto.doctorId)
       await this.assignDoctorToExam(exam, dto.doctorId)
     }
-    return this.prisma.exam.update({ where: { id }, data, include: { patient: true, device: true } })
+    const result = this.prisma.exam.update({ where: { id }, data, include: { patient: true, device: true } })
+    this.notifyWorklistChanged('assign', id)
+    return result
   }
 
   async batchAssign(ids: string[], dto: AssignDto) {
@@ -164,37 +190,44 @@ export class WorklistService {
       const exams = await this.prisma.exam.findMany({ where, select: { id: true, patientId: true, tenantId: true } })
       await Promise.all(exams.map((e) => this.assignDoctorToExam(e, dto.doctorId!)))
     }
+    this.gateway.emitWorklistRefresh()
     return { ok: true, updated: ids.length }
   }
 
   async checkIn(id: string) {
     const exam = await this.getExam(id)
     if (exam.state !== 'SCHEDULED') throw new BadRequestException(`Exam ${id} is not in SCHEDULED state`)
-    return this.prisma.exam.update({
+    const result = this.prisma.exam.update({
       where: { id },
       data: { state: 'ARRIVED', startedAt: new Date() },
       include: { patient: true },
     })
+    this.notifyWorklistChanged('checkin', id)
+    return result
   }
 
   async start(id: string) {
     const exam = await this.getExam(id)
     if (exam.state !== 'ARRIVED') throw new BadRequestException(`Exam ${id} is not in ARRIVED state`)
-    return this.prisma.exam.update({
+    const result = this.prisma.exam.update({
       where: { id },
       data: { state: 'IN_PROGRESS' },
       include: { patient: true },
     })
+    this.notifyWorklistChanged('start', id)
+    return result
   }
 
   async complete(id: string) {
     const exam = await this.getExam(id)
     if (exam.state !== 'IN_PROGRESS') throw new BadRequestException(`Exam ${id} is not in IN_PROGRESS state`)
-    return this.prisma.exam.update({
+    const result = this.prisma.exam.update({
       where: { id },
       data: { state: 'COMPLETED', completedAt: new Date() },
       include: { patient: true },
     })
+    this.notifyWorklistChanged('complete', id)
+    return result
   }
 
   async cancel(id: string, reason?: string) {
@@ -202,10 +235,12 @@ export class WorklistService {
     if (!['SCHEDULED', 'ARRIVED', 'IN_PROGRESS'].includes(exam.state)) {
       throw new BadRequestException(`Exam ${id} cannot be cancelled in ${exam.state} state`)
     }
-    return this.prisma.exam.update({
+    const result = this.prisma.exam.update({
       where: { id },
       data: { state: 'CANCELLED' },
       include: { patient: true },
     })
+    this.notifyWorklistChanged('cancel', id)
+    return result
   }
 }

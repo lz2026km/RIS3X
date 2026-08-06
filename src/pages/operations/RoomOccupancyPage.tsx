@@ -1,15 +1,10 @@
 // [v3.0.6.11-17] 检查室占用率 + 排队预测仪表盘
+// [G005 W1-1] 接入后端 /occupancy/rooms|queue|trends|room/:id/status (30s 轮询)
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Space, Tag, Button, Row, Col, Statistic, Table, Tooltip, message, Select, Alert } from 'antd';
-import { LayoutDashboard, Users, Clock, TrendingUp, AlertTriangle, Circle } from 'lucide-react';
-
-interface Room {
-  id: string; roomNo: string; status: 'idle' | 'occupied' | 'disinfecting' | 'fault';
-  currentPatient?: string; examItem?: string; startTime?: string; expectedEnd?: string; overdue: boolean;
-}
-
-interface QueueItem { position: number; patientName: string; examItem: string; estimatedWaitMin: number; }
-interface TrendPoint { time: string; occupied: number; total: number; rate: number; }
+import { Card, Space, Tag, Button, Row, Col, Statistic, Table, Tooltip, message, Select, Alert, Spin } from 'antd';
+import { LayoutDashboard, Users, Clock, TrendingUp, AlertTriangle, Circle, RefreshCw } from 'lucide-react';
+import { occupancyApi } from '../../services/api';
+import type { OccupancyRoom, OccupancyQueueEntry, OccupancyTrendPoint, RoomStatusValue } from '../../services/api';
 
 const STATUS_META: Record<string, { color: string; label: string }> = {
   idle: { color: '#52c41a', label: '空闲' },
@@ -19,119 +14,169 @@ const STATUS_META: Record<string, { color: string; label: string }> = {
 };
 
 export const RoomOccupancyPage: React.FC = () => {
-  const [rooms, setRooms] = useState<Room[]>([]);
+  const [rooms, setRooms] = useState<OccupancyRoom[]>([]);
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
-  const [queue, setQueue] = useState<QueueItem[]>([]);
-  const [trends, setTrends] = useState<TrendPoint[]>([]);
+  const [queue, setQueue] = useState<OccupancyQueueEntry[]>([]);
+  const [trends, setTrends] = useState<OccupancyTrendPoint[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [updating, setUpdating] = useState(false);
 
   const fetchRooms = useCallback(async () => {
-    try {
-      const res = await fetch('/api/occupancy/rooms');
-      if (res.ok) setRooms(await res.json());
-    } catch { /* empty state */ }
+    const res = await occupancyApi.getRooms();
+    if (res.success) {
+      setRooms(res.data ?? []);
+      setError(null);
+    } else {
+      setError(res.error?.message ?? '检查室数据加载失败');
+    }
+    return res.success;
   }, []);
 
   const fetchTrends = useCallback(async () => {
-    try {
-      const res = await fetch('/api/occupancy/trends');
-      if (res.ok) setTrends(await res.json());
-    } catch { /* fallback */ }
+    const res = await occupancyApi.getTrends();
+    if (res.success) setTrends(res.data ?? []);
   }, []);
 
-  useEffect(() => {
-    fetchRooms();
-    fetchTrends();
-    const iv = setInterval(fetchRooms, 15000);
-    return () => clearInterval(iv);
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    const [okRooms] = await Promise.all([fetchRooms(), fetchTrends()]);
+    setLoading(false);
+    if (!okRooms) setError('检查室数据加载失败');
   }, [fetchRooms, fetchTrends]);
 
   useEffect(() => {
+    void refresh();
+    const iv = setInterval(() => { void fetchRooms(); void fetchTrends(); }, 30000);
+    return () => clearInterval(iv);
+  }, [refresh, fetchRooms, fetchTrends]);
+
+  useEffect(() => {
     if (!selectedRoom) { setQueue([]); return; }
-    (async () => {
-      try {
-        const res = await fetch(`/api/occupancy/queue/${selectedRoom}`);
-        if (res.ok) { const d = await res.json(); setQueue(d.queue ?? []); }
-      } catch { /* fallback */ }
+    let cancelled = false;
+    void (async () => {
+      const res = await occupancyApi.getQueue(selectedRoom);
+      if (cancelled) return;
+      if (res.success) setQueue(res.data?.queue ?? []);
+      else setQueue([]);
     })();
+    return () => { cancelled = true };
   }, [selectedRoom]);
+
+  const handleStatusUpdate = async (roomId: string, status: RoomStatusValue) => {
+    setUpdating(true);
+    const res = await occupancyApi.updateRoomStatus(roomId, status);
+    setUpdating(false);
+    if (res.success) {
+      message.success('状态已更新');
+      void fetchRooms();
+    } else {
+      message.error(res.error?.message ?? '更新失败');
+    }
+  };
 
   const occupied = rooms.filter(r => r.status === 'occupied').length;
   const idle = rooms.filter(r => r.status === 'idle').length;
   const fault = rooms.filter(r => r.status === 'fault').length;
-  const total = rooms.length;total ? Math.round((occupied / total) * 100) : 0;
+  const total = rooms.length;
+  const rate = total ? Math.round((occupied / total) * 100) : 0;
+
+  if (loading && rooms.length === 0) {
+    return (
+      <div style={{ padding: 24, background: '#f0f2f5', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Spin size="large" description="加载中..." />
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: 24, background: '#f0f2f5', minHeight: '100vh' }}>
-      <Space style={{ marginBottom: 16 }}>
-        <LayoutDashboard size={20} color="#1677ff" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>检查室占用率 & 排队预测</span>
-        <Tag color="cyan">v3.0.6.11-17</Tag>
-        <Button size="small" onClick={() => { fetchRooms(); fetchTrends(); }}>刷新</Button>
+      <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }} wrap>
+        <Space>
+          <LayoutDashboard size={20} color="#1677ff" />
+          <span style={{ fontSize: 18, fontWeight: 600 }}>检查室占用率 & 排队预测</span>
+          <Tag color="cyan">实时</Tag>
+          <Tag color="default">每 30s 自动刷新</Tag>
+        </Space>
+        <Button size="small" icon={<RefreshCw size={14} />} loading={loading} onClick={() => void refresh()}>刷新</Button>
       </Space>
 
+      {error && (
+        <Alert type="error" showIcon style={{ marginBottom: 16 }} message="加载失败"
+          description={error} action={<Button size="small" onClick={() => void refresh()}>重试</Button>} />
+      )}
+
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title="总检查室" value={total} suffix={`间`} prefix={<LayoutDashboard size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="当前占用" value={occupied} styles={{ content: {  color: '#1677ff'  } }} prefix={<Users size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="空闲" value={idle} styles={{ content: {  color: '#52c41a'  } }} prefix={<Circle size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="故障" value={fault} styles={{ content: {  color: fault ? '#ff4d4f' : undefined  } }} prefix={<AlertTriangle size={16} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="总检查室" value={total} suffix={`间 · 占用率 ${rate}%`} prefix={<LayoutDashboard size={16} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="当前占用" value={occupied} styles={{ content: { color: '#1677ff' } }} prefix={<Users size={16} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="空闲" value={idle} styles={{ content: { color: '#52c41a' } }} prefix={<Circle size={16} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="故障" value={fault} styles={{ content: { color: fault ? '#ff4d4f' : undefined } }} prefix={<AlertTriangle size={16} />} /></Card></Col>
       </Row>
 
       <Row gutter={[16, 16]}>
         <Col span={16}>
           <Card size="small" title={<Space><LayoutDashboard size={14} />检查室平面布局</Space>}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-              {rooms.map(r => {
-                const meta = STATUS_META[r.status] || STATUS_META.idle;
-                const isOverdue = r.overdue;
-                return (
-                  <Tooltip key={r.id} title={
-                    <div>
-                      <div>{r.roomNo} - {meta.label}</div>
-                      {r.currentPatient && <div>患者: {r.currentPatient}</div>}
-                      {r.examItem && <div>项目: {r.examItem}</div>}
-                      {r.expectedEnd && <div>预计结束: {new Date(r.expectedEnd).toLocaleTimeString()}</div>}
-                      {isOverdue && <div style={{ color: '#ff4d4f' }}>超时 &gt;15min</div>}
-                    </div>
-                  }>
-                    <div
-                      role="button"
-                      tabIndex={0}
-                      aria-label={`选择检查室 ${r.roomNo} - ${meta.label}${isOverdue ? ' (超时)' : ''}`}
-                      aria-pressed={selectedRoom === r.id}
-                      onClick={() => setSelectedRoom(r.id)}
-                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedRoom(r.id) } }}
-                      style={{
-                        width: 140, height: 90, borderRadius: 8, cursor: 'pointer',
-                        background: isOverdue ? '#ff4d4f' : meta.color,
-                        opacity: isOverdue ? undefined : 0.85,
-                        color: '#fff', padding: 10, display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-                        animation: isOverdue ? 'blink 1s infinite' : undefined,
-                        border: selectedRoom === r.id ? '3px solid #000' : '3px solid transparent',
-                      }}
-                    >
-                      <div style={{ fontWeight: 600, fontSize: 13 }}>{r.roomNo}</div>
-                      <div style={{ fontSize: 11 }}>{meta.label}{isOverdue && ' ⚠'}</div>
-                    </div>
-                  </Tooltip>
-                );
-              })}
-            </div>
+            {rooms.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: 40, color: '#999' }}>暂无检查室数据</div>
+            ) : (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+                {rooms.map(r => {
+                  const meta = STATUS_META[r.status] ?? { color: '#94a3b8', label: r.status };
+                  const isOverdue = r.overdue;
+                  return (
+                    <Tooltip key={r.id} title={
+                      <div>
+                        <div>{r.roomNo} - {meta.label}</div>
+                        {r.currentPatient && <div>患者: {r.currentPatient}</div>}
+                        {r.examItem && <div>项目: {r.examItem}</div>}
+                        {r.expectedEnd && <div>预计结束: {new Date(r.expectedEnd).toLocaleTimeString()}</div>}
+                        {isOverdue && <div style={{ color: '#ff4d4f' }}>超时 &gt;15min</div>}
+                      </div>
+                    }>
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`选择检查室 ${r.roomNo} - ${meta.label}${isOverdue ? ' (超时)' : ''}`}
+                        aria-pressed={selectedRoom === r.id}
+                        onClick={() => setSelectedRoom(r.id)}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedRoom(r.id) } }}
+                        style={{
+                          width: 140, height: 90, borderRadius: 8, cursor: 'pointer',
+                          background: isOverdue ? '#ff4d4f' : meta.color,
+                          opacity: isOverdue ? undefined : 0.85,
+                          color: '#fff', padding: 10, display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+                          animation: isOverdue ? 'blink 1s infinite' : undefined,
+                          border: selectedRoom === r.id ? '3px solid #000' : '3px solid transparent',
+                        }}
+                      >
+                        <div style={{ fontWeight: 600, fontSize: 13 }}>{r.roomNo}</div>
+                        <div style={{ fontSize: 11 }}>{meta.label}{isOverdue && ' ⚠'}</div>
+                      </div>
+                    </Tooltip>
+                  );
+                })}
+              </div>
+            )}
           </Card>
 
           <Card size="small" title={<Space><TrendingUp size={14} />占用率趋势（过去 24h）</Space>} style={{ marginTop: 16 }}>
-            <div style={{ height: 200, display: 'flex', alignItems: 'flex-end', gap: 2, padding: '0 4px' }}>
-              {trends.map((p, i) => (
-                <Tooltip key={i} title={`${p.time} 占用 ${p.occupied}/${p.total} (${p.rate}%)`}>
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <div style={{
-                      width: '100%', height: `${p.rate}%`, background: p.rate > 80 ? '#ff4d4f' : p.rate > 50 ? '#faad14' : '#52c41a',
-                      borderRadius: '4px 4px 0 0', minHeight: 4, transition: 'height 0.3s',
-                    }} />
-                    <div style={{ fontSize: 9, color: '#999', marginTop: 2, transform: 'rotate(-45deg)', whiteSpace: 'nowrap' }}>{p.time}</div>
-                  </div>
-                </Tooltip>
-              ))}
-            </div>
+            {trends.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: 40, color: '#999' }}>暂无趋势数据</div>
+            ) : (
+              <div style={{ height: 200, display: 'flex', alignItems: 'flex-end', gap: 2, padding: '0 4px' }}>
+                {trends.map((p, i) => (
+                  <Tooltip key={i} title={`${p.time} 占用 ${p.occupied}/${p.total} (${p.rate}%)`}>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <div style={{
+                        width: '100%', height: `${p.rate}%`, background: p.rate > 80 ? '#ff4d4f' : p.rate > 50 ? '#faad14' : '#52c41a',
+                        borderRadius: '4px 4px 0 0', minHeight: 4, transition: 'height 0.3s',
+                      }} />
+                      <div style={{ fontSize: 9, color: '#999', marginTop: 2, transform: 'rotate(-45deg)', whiteSpace: 'nowrap' }}>{p.time}</div>
+                    </div>
+                  </Tooltip>
+                ))}
+              </div>
+            )}
           </Card>
         </Col>
 
@@ -174,23 +219,16 @@ export const RoomOccupancyPage: React.FC = () => {
                 options={rooms.map(r => ({ value: r.id, label: r.roomNo }))}
                 onChange={v => setSelectedRoom(v)}
               />
-              <Select placeholder="目标状态" style={{ width: '100%' }}
+              <Select placeholder="目标状态" style={{ width: '100%' }} disabled={updating}
                 options={[
                   { value: 'idle', label: '空闲' },
                   { value: 'occupied', label: '占用中' },
                   { value: 'disinfecting', label: '消毒中' },
                   { value: 'fault', label: '故障' },
                 ]}
-                onChange={async (v) => {document.querySelector<HTMLSelectElement>('.ant-select')?.dataset?.roomId;
+                onChange={async (v) => {
                   if (!selectedRoom) { message.warning('请先选择房间'); return; }
-                  try {
-                    const res = await fetch(`/api/occupancy/room/${selectedRoom}/status`, {
-                      method: 'POST', headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ status: v }),
-                    });
-                    if (res.ok) { message.success('状态已更新'); fetchRooms(); }
-                    else message.error('更新失败');
-                  } catch { message.error('请求失败'); }
+                  await handleStatusUpdate(selectedRoom, v as RoomStatusValue);
                 }}
               />
             </Space>

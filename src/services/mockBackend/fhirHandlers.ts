@@ -325,4 +325,29 @@ export const fhirHandlers = [
       },
     });
   }),
+
+  // [G005 W2] SMART 授权流程: introspect 校验 / revoke 吊销
+  http.post(`${API}/auth/introspect`, async ({ request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as any;
+    const token = String(body?.token ?? "");
+    if (!token) {
+      return HttpResponse.json({ success: true, data: { active: false } });
+    }
+    return HttpResponse.json({
+      success: true,
+      data: {
+        active: true,
+        scope: "openid fhirUser patient/*.read",
+        sub: token.startsWith("mock-") ? "anonymous" : "anonymous",
+        exp: Math.floor(Date.now() / 1000) + 3600,
+        token_type: "Bearer",
+      },
+    });
+  }),
+
+  http.post(`${API}/auth/revoke`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json({ success: true, data: { success: true } });
+  }),
 ];

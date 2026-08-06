@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { message } from 'antd'
 import { Search, ListChecks, Camera, Monitor, Play, CheckCircle, Clock, AlertCircle, Wifi, WifiOff } from 'lucide-react'
 import {  } from '../../../utils/deviceStateAdapter'
-import { appointmentApi, type AppointmentDto, deviceApi, type DeviceDto } from '../../../services/api'
+import { appointmentApi, type AppointmentDto, deviceApi, type DeviceDto, mobileApi, type TodaySummary, type WorklistItem } from '../../../services/api'
 
 export interface TechExamItem {
   id: string
@@ -51,20 +51,45 @@ export default function TechMobileWorkstation() {
   const [search, setSearch] = useState('')
   const [exams, setExams] = useState<TechExamItem[]>([])
   const [devices, setDevices] = useState<DeviceStatus[]>([])
+  const [summary, setSummary] = useState<TodaySummary>({ examsToday: 0, pendingExams: 0, inProgressExams: 0, criticalValues: 0, reportsToday: 0, signedReportsToday: 0, date: '' })
+  const [usingMock, setUsingMock] = useState(false)
+
+  // 后端 /mobile/worklist 项目 → 技师视角列表项 (离线兜底)
+  const mapWorklistItem = useCallback((w: WorklistItem): TechExamItem => ({
+    id: w.id,
+    patientName: w.patientName,
+    gender: w.gender ?? '未知',
+    age: w.age ?? 0,
+    modality: w.modality,
+    examItem: w.bodyPart,
+    bodyPart: w.bodyPart,
+    roomName: '',
+    deviceName: '',
+    status: w.status === 'pending' ? 'scheduled' : w.status === 'reading' ? 'in-progress' : 'completed',
+    priority: w.urgency === 'critical' || w.urgency === 'urgent' ? 'urgent' as const : 'routine' as const,
+    scheduledTime: w.scheduledAt ? new Date(w.scheduledAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) : '',
+  }), [])
 
   useEffect(() => {
     let cancelled = false
     void (async () => {
-      try {
-        const [examRes, devRes] = await Promise.allSettled([
-          appointmentApi.list(),
-          deviceApi.listDevices(),
-        ])
-        if (!cancelled && examRes.status === 'fulfilled' && examRes.value.success && Array.isArray(examRes.value.data)) {
-          const stateMap: Record<string, TechExamItem['status']> = {
-            SCHEDULED: 'scheduled', CONFIRMED: 'scheduled', CHECKED_IN: 'in-progress',
-            IN_PROGRESS: 'in-progress', COMPLETED: 'completed', CANCELLED: 'completed', NO_SHOW: 'completed',
-          }
+      const [examRes, devRes, summaryRes] = await Promise.allSettled([
+        appointmentApi.list(),
+        deviceApi.list(),
+        mobileApi.getTodaySummary(),
+      ])
+      if (!cancelled && summaryRes.status === 'fulfilled' && summaryRes.value.success && summaryRes.value.data) {
+        setSummary(summaryRes.value.data)
+      } else if (!cancelled) {
+        // [离线兜底] 与后端 mobile.service seed 对齐
+        setSummary({ examsToday: 42, pendingExams: 12, inProgressExams: 5, criticalValues: 3, reportsToday: 28, signedReportsToday: 21, date: new Date().toISOString().slice(0, 10) })
+      }
+      if (examRes.status === 'fulfilled' && examRes.value.success && Array.isArray(examRes.value.data)) {
+        const stateMap: Record<string, TechExamItem['status']> = {
+          SCHEDULED: 'scheduled', CONFIRMED: 'scheduled', CHECKED_IN: 'in-progress',
+          IN_PROGRESS: 'in-progress', COMPLETED: 'completed', CANCELLED: 'completed', NO_SHOW: 'completed',
+        }
+        if (!cancelled) {
           setExams(examRes.value.data.map((a: AppointmentDto) => ({
             id: a.id,
             patientName: a.patientName || '未知患者',
@@ -80,19 +105,28 @@ export default function TechMobileWorkstation() {
             scheduledTime: a.startAt ? new Date(a.startAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) : '',
           })))
         }
-        if (!cancelled && devRes.status === 'fulfilled' && devRes.value.success && Array.isArray(devRes.value.data)) {
-          setDevices(devRes.value.data.map((d: DeviceDto) => ({
-            id: d.id,
-            name: d.name || d.deviceName || '',
-            modality: d.modality || '',
-            status: (d.status || 'offline') as 'online' | 'offline' | 'maintenance',
-            currentPatient: undefined,
-          })))
+      } else if (!cancelled) {
+        // [离线兜底] 预约接口失败 → 使用 /mobile/worklist (技师视角检查队列)
+        const wl = await mobileApi.getWorklist()
+        if (!cancelled) {
+          if (wl.success && Array.isArray(wl.data)) {
+            setExams(wl.data.map(mapWorklistItem))
+            setUsingMock(true)
+          }
         }
-      } catch { /* keep empty */ }
+      }
+      if (!cancelled && devRes.status === 'fulfilled' && devRes.value.success && Array.isArray(devRes.value.data)) {
+        setDevices(devRes.value.data.map((d: DeviceDto) => ({
+          id: d.id,
+          name: d.name || d.deviceId || '',
+          modality: d.modality || '',
+          status: (d.status || 'offline') as 'online' | 'offline' | 'maintenance',
+          currentPatient: undefined,
+        })))
+      }
     })()
     return () => { cancelled = true }
-  }, [])
+  }, [mapWorklistItem])
 
   const filteredExams = exams.filter(item => {
     if (filter !== 'all' && item.status !== filter) return false
@@ -116,8 +150,27 @@ export default function TechMobileWorkstation() {
     <div style={s.container}>
       <div style={s.header}>
         <div style={s.headerTitle}>技师移动工作站</div>
-        <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>放射科 · 检查操作台</div>
+        <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>放射科 · 检查操作台{summary.date ? ` · ${summary.date}` : ''}</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginTop: 12 }}>
+          {[
+            { value: summary.examsToday, label: '今日检查', bg: 'rgba(255,255,255,0.15)' },
+            { value: summary.pendingExams, label: '待检查', bg: 'rgba(255,255,255,0.15)' },
+            { value: summary.inProgressExams, label: '检查中', bg: 'rgba(255,255,255,0.15)' },
+            { value: summary.criticalValues, label: '危急值', bg: 'rgba(239,68,68,0.3)' },
+          ].map(stat => (
+            <div key={stat.label} style={{ background: stat.bg, borderRadius: 8, padding: '8px 4px', textAlign: 'center' }}>
+              <div style={{ fontSize: 18, fontWeight: 800 }}>{stat.value}</div>
+              <div style={{ fontSize: 11, opacity: 0.8 }}>{stat.label}</div>
+            </div>
+          ))}
+        </div>
       </div>
+
+      {usingMock && (
+        <div style={{ background: '#fef3c7', color: '#92400e', fontSize: 12, padding: '6px 16px', textAlign: 'center' }}>
+          ⚠ 预约接口不可用，检查队列已切换为 /mobile/worklist 演示数据
+        </div>
+      )}
 
       <div style={s.searchBar}>
         <Search size={16} color="#94a3b8" />

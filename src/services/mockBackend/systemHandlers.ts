@@ -71,6 +71,19 @@ const COMPLIANCE_DOCS = [
   { id: 'd-005', title: '历史 SOP (旧版)', category: '管理制度', status: 'ARCHIVED', version: '1.5', updatedAt: new Date(Date.now() - 180 * 86400_000).toISOString() },
 ];
 
+// [W5] /system/admin/configs: 系统管理配置项 (后端 system-storage.controller 对应端点)
+const ADMIN_CONFIG_DEFAULTS: Record<string, { value: string; desc: string }> = {
+  hospital_name: { value: 'G005 放射科信息管理系统', desc: '医院名称' },
+  report_footer: { value: '本报告仅供临床参考，请结合临床实际情况。', desc: '报告页脚' },
+  critical_sla_minutes: { value: '10', desc: '危急值 SLA 阈值（分钟）' },
+  critical_timeout_minutes: { value: '60', desc: '危急值超时升级（分钟）' },
+  default_page_size: { value: '20', desc: '默认分页大小' },
+  pdf_watermark_text: { value: 'G005 RIS 内部资料', desc: 'PDF 水印文本' },
+};
+let adminConfigs: Record<string, string> = Object.fromEntries(
+  Object.entries(ADMIN_CONFIG_DEFAULTS).map(([k, v]) => [k, v.value]),
+);
+
 export const systemHandlers = [
   // ─────────── Audit ───────────
   http.get(`${API_BASE}/audit`, ({ request }) => {
@@ -185,6 +198,58 @@ export const systemHandlers = [
   }),
   http.get(`${API_BASE}/compliance-docs`, () => {
     return HttpResponse.json({ success: true, data: COMPLIANCE_DOCS });
+  }),
+
+  // ─────────── Admin Configs [W5] ───────────
+  http.get(`${API_BASE}/system/admin/configs`, () => {
+    return HttpResponse.json({
+      success: true,
+      data: Object.entries(adminConfigs).map(([key, value]) => ({
+        key,
+        value,
+        desc: ADMIN_CONFIG_DEFAULTS[key]?.desc ?? '',
+      })),
+    });
+  }),
+  http.put(`${API_BASE}/system/admin/configs`, async ({ request }) => {
+    await delay(120);
+    const body = (await request.json().catch(() => null)) as any;
+    const items = Array.isArray(body) ? body : body?.configs;
+    if (!Array.isArray(items) || items.length === 0) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'VALIDATION_ERROR', message: 'configs 数组不能为空' } },
+        { status: 400 },
+      );
+    }
+    for (const item of items) {
+      if (item && typeof item.key === 'string' && item.key in ADMIN_CONFIG_DEFAULTS) {
+        adminConfigs[item.key] = String(item.value ?? '');
+      }
+    }
+    return HttpResponse.json({
+      success: true,
+      data: Object.entries(adminConfigs).map(([key, value]) => ({
+        key,
+        value,
+        desc: ADMIN_CONFIG_DEFAULTS[key]?.desc ?? '',
+      })),
+    });
+  }),
+  http.patch(`${API_BASE}/system/admin/configs/:key`, async ({ params, request }) => {
+    await delay(100);
+    const key = params.key as string;
+    const body = (await request.json().catch(() => null)) as any;
+    if (!(key in ADMIN_CONFIG_DEFAULTS)) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'NOT_FOUND', message: `未知配置项: ${key}` } },
+        { status: 404 },
+      );
+    }
+    adminConfigs[key] = String(body?.value ?? '');
+    return HttpResponse.json({
+      success: true,
+      data: { key, value: adminConfigs[key], desc: ADMIN_CONFIG_DEFAULTS[key]!.desc },
+    });
   }),
 
   // ─────────── Tenant ───────────

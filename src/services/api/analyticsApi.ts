@@ -1,4 +1,4 @@
-import { api } from './client'
+import { api, invalidateApiCacheByPrefix } from './client'
 
 export interface ExportApprovalDto {
   id: string
@@ -7,6 +7,7 @@ export interface ExportApprovalDto {
   reason: string
   status: 'PENDING' | 'APPROVED' | 'REJECTED'
   requesterId: string
+  requesterName?: string
   approverId?: string
   rejectReason?: string
   createdAt: string
@@ -46,17 +47,33 @@ export interface StatsDashboardDto {
 }
 
 export const exportApprovalApi = {
-  request: (data: { resource: string; resourceId?: string; reason: string }) =>
-    api.post<ExportApprovalDto>('/export-approval', data),
+  request: async (data: { resource: string; resourceId?: string; reason: string }) => {
+    const res = await api.post<ExportApprovalDto>('/export-approval', data)
+    await invalidateApiCacheByPrefix('/export-approval')
+    return res
+  },
 
-  approve: (id: string) =>
-    api.post<ExportApprovalDto>(`/export-approval/${id}/approve`, {}),
+  approve: async (id: string) => {
+    const res = await api.post<ExportApprovalDto>(`/export-approval/${id}/approve`, {})
+    await invalidateApiCacheByPrefix('/export-approval')
+    return res
+  },
 
-  reject: (id: string, reason: string) =>
-    api.post<ExportApprovalDto>(`/export-approval/${id}/reject`, { reason }),
+  reject: async (id: string, reason: string) => {
+    const res = await api.post<ExportApprovalDto>(`/export-approval/${id}/reject`, { reason })
+    await invalidateApiCacheByPrefix('/export-approval')
+    return res
+  },
 
-  list: (params?: ExportApprovalListParams) =>
-    api.get<ExportApprovalDto[]>(`/export-approval?${new URLSearchParams(params as Record<string, string> ?? {}).toString()}`),
+  list: (params?: ExportApprovalListParams) => {
+    const q = new URLSearchParams()
+    if (params) {
+      for (const [k, v] of Object.entries(params)) {
+        if (v !== undefined && v !== null && v !== '') q.set(k, String(v))
+      }
+    }
+    return api.get<ExportApprovalDto[]>(`/export-approval?${q.toString()}`)
+  },
 }
 
 // v3.0.6.11-21 P0: 移除冗余 `/api/v1` 前缀(由 client.ts API_BASE 在 mock 模式提供)

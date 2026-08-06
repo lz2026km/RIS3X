@@ -1,0 +1,27 @@
+PASS|患者列表行数 > 0|rows=20
+PASS|详情页展示目标患者|retried=false
+PASS|预约检查按钮|
+PASS|随访按钮|
+PASS|合并按钮 (管理员)|
+PASS|危急值历史区块|
+PASS|检查报告区块|
+PASS|费用账单区块|
+PASS|360°时间线区块|
+PASS|影像历史区块|
+PASS|危急值表格有行(已闭环/处理中)|closed=1 pending=0
+PASS|时间线含危急值事件(🚨)|
+PASS|时间线含检查事件(📷)|
+PASS|时间线含报告事件(📄)|
+PASS|时间线多源混合(含2类以上)|
+PASS|跳转 /appointments?patientId=|http://127.0.0.1:5191/appointments?patientId=P043853
+PASS|预约横幅(患者详情进入)可见|
+PASS|预约表单已打开|
+PASS|随访页加载|
+PASS|随访搜索框预填 patientId|search=P043853
+PASS|危急值页加载|
+PASS|影像卡片可点击(打开 →)|cardsChecked
+PASS|跳转 /dicom-viewer?studyUid=|http://127.0.0.1:5191/dicom-viewer?studyUid=RPT-000001
+PASS|账单表格有行|billRows=1
+PASS|账单金额/状态显示|
+PASS|合并 Modal 打开|
+PASS|合并成功提示(迁移计数)|

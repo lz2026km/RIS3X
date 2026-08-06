@@ -2,21 +2,22 @@ import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { useFocusTrap } from '../a11y/SkipLink'
 import {
   ClipboardList, Wifi, LayoutList, LayoutGrid, Kanban, RefreshCw,
-  Printer, X, Monitor, CheckCircle, Play, UserCheck,
+  Printer, X, Monitor, CheckCircle, Play, UserCheck, Stethoscope,
 } from 'lucide-react'
 import {
   AreaChart, Area, BarChart, Bar, ResponsiveContainer,
 } from 'recharts'
 import { DndContext, DragOverlay, type DragEndEvent } from '@dnd-kit/core'
-import { initialRadiologyExams, initialModalityDevices } from '../data/initialData'
-import { api, examApi, patientApi, reportApi, worklistApi } from '../services/api'
+import { initialRadiologyExams, initialModalityDevices, initialExamRooms, initialUsers } from '../data/initialData'
+import { api, examApi, patientApi, reportApi, worklistApi, userApi } from '../services/api'
 import { invalidateApiCacheByPrefix } from '../services/api/client'
+import { realtime } from '../services/realtime'
 import { t } from '../i18n/appI18n'
 import { createActor } from 'xstate'
 import { examMachine } from '../machines/examMachine'
 import { POLL_INTERVAL_MS } from '../config/examStatusMapping'
 import type { RadiologyExam, ExamStatus } from '../types'
-import type { ExamDto, ReportDto } from '../types/dto'
+import type { ExamDto, ReportDto, UserDto } from '../types/dto'
 import { worklistSmartApi } from '../services/api/worklistSmartApi'
 import {
   displayExamStatus,
@@ -33,6 +34,7 @@ import {
   CardView,
   KanbanView,
   DetailDrawer,
+  RequisitionDrawer,
 } from './worklist'
 import type { FilterState, BatchState } from './worklist'
 import { PageContainer } from '../components/common/PageContainer'
@@ -90,6 +92,12 @@ function toRadiologyExam(item: Record<string, unknown>): RadiologyExam {
     priority: (item.priority ?? '普通') as RadiologyExam['priority'],
     clinicalDiagnosis: item.clinicalDiagnosis ? String(item.clinicalDiagnosis) : undefined,
     technologistId: item.technicianId || item.technologistId ? String(item.technicianId ?? item.technologistId) : undefined,
+    radiologistId: item.reportDoctorId || item.radiologistId ? String(item.reportDoctorId ?? item.radiologistId) : undefined,
+    radiologistName: item.reportDoctorName || item.radiologistName ? String(item.reportDoctorName ?? item.radiologistName) : undefined,
+    referringDoctorId: item.referringDoctorId ? String(item.referringDoctorId) : undefined,
+    referringDoctorName: item.referringDoctorName ?? item.referringPhysician ? String(item.referringDoctorName ?? item.referringPhysician) : undefined,
+    referringDoctorDept: item.referringDoctorDept ? String(item.referringDoctorDept) : undefined,
+    thumbnailUrl: item.thumbnailUrl ?? item.thumbnail ?? item.thumbUrl ? String(item.thumbnailUrl ?? item.thumbnail ?? item.thumbUrl) : undefined,
     deviceId: item.deviceId ? String(item.deviceId) : undefined,
     deviceName: device.name ? String(device.name) : item.deviceName ? String(item.deviceName) : undefined,
     roomId: item.roomId ? String(item.roomId) : undefined,
@@ -368,11 +376,51 @@ export default function WorklistPage() {
     roomValue: '',
   })
 
+  // [W2-1] 报告医生/技师候选列表: 优先 userApi.list(后端 /users), 失败回退本地 initialUsers
+  useEffect(() => {
+    let cancelled = false
+    setDoctorOptionsLoading(true)
+    const fallback = () => {
+      if (cancelled) return
+      setDoctorOptions(
+        initialUsers
+          .filter(u => u.role === 'radiologist' || u.role === '医生')
+          .map(u => ({ id: u.id, name: u.name, title: u.title ?? '' }))
+      )
+    }
+    userApi.list(0, 100).then(res => {
+      if (cancelled) return
+      const raw = res.data as unknown
+      const items = Array.isArray(raw)
+        ? raw
+        : ((raw as { items?: unknown[] } | null)?.items ?? [])
+      if (res.success && items.length > 0) {
+        setDoctorOptions(
+          (items as UserDto[]).map(u => ({
+            id: u.id,
+            name: u.fullName ?? u.id,
+            title: String(u.role ?? ''),
+          }))
+        )
+      } else {
+        fallback()
+      }
+    }).catch(fallback).finally(() => {
+      if (!cancelled) setDoctorOptionsLoading(false)
+    })
+    return () => { cancelled = true }
+  }, [])
+
   const [selectedExam, setSelectedExam] = useState<RadiologyExam | null>(null)
+  const [historyDrawerTab, setHistoryDrawerTab] = useState<'info' | 'images' | 'history' | 'log'>('info')
 
   const [patientInfoModalExam, setPatientInfoModalExam] = useState<RadiologyExam | null>(null)
   const [patientForm, setPatientForm] = useState<{ name: string; gender: string; age: string; patientType: string } | null>(null)
   const [deviceSelectModalExam, setDeviceSelectModalExam] = useState<RadiologyExam | null>(null)
+  const [doctorSelectModalExam, setDoctorSelectModalExam] = useState<RadiologyExam | null>(null)
+  const [doctorOptions, setDoctorOptions] = useState<Array<{ id: string; name: string; title: string }>>([])
+  const [doctorOptionsLoading, setDoctorOptionsLoading] = useState(false)
+  const [requisitionExam, setRequisitionExam] = useState<RadiologyExam | null>(null)
   const [reportModalExam, setReportModalExam] = useState<RadiologyExam | null>(null)
   const [reportForm, setReportForm] = useState<{ findings: string; conclusion: string } | null>(null)
   const [confirmModalConfig, setConfirmModalConfig] = useState<{ open: boolean; title: string; message: string; variant?: 'danger'; onConfirm: () => void } | null>(null)
@@ -390,6 +438,7 @@ export default function WorklistPage() {
 
   const patientInfoFocusRef = useFocusTrap(!!patientInfoModalExam);
   const deviceSelectFocusRef = useFocusTrap(!!deviceSelectModalExam);
+  const doctorSelectFocusRef = useFocusTrap(!!doctorSelectModalExam);
   const reportFocusRef = useFocusTrap(!!reportModalExam);
   const confirmFocusRef = useFocusTrap(!!confirmModalConfig?.open);
   const batchResultFocusRef = useFocusTrap(!!batchResultModalData?.open);
@@ -422,6 +471,17 @@ export default function WorklistPage() {
     await invalidateApiCacheByPrefix('/exams')
     void fetchOnce()
   }, [fetchOnce])
+
+  // [W4-2] 实时推送: 其他端 (签到/开始/完成/危急值/报告状态) 变化时自动刷新; 轮询保留兜底
+  useEffect(() => {
+    realtime.connect()
+    const offRefresh = realtime.subscribe('worklist-refresh', () => {
+      void refreshAfterMutation()
+    })
+    return () => {
+      offRefresh()
+    }
+  }, [refreshAfterMutation])
 
   const handleCheckIn = async (barcode: string) => {
     setCheckIn({ barcodeInput: barcode, lastScanned: barcode, isProcessing: true })
@@ -606,21 +666,7 @@ export default function WorklistPage() {
     setSelectedIds(new Set())
   }
 
-  const executeBatchOperation = () => {
-    if (selectedIds.size === 0) return
-    const action = batch.operation || 'print'
-    const actionLabels: Record<string, string> = {
-      priority: `修改优先级为：${batch.priorityValue}`,
-      room: `分配检查室：${initialModalityDevices.find(r => r.id === batch.roomValue)?.name || '-'}`,
-      print: '打印条码',
-      export: '导出Excel',
-    }
-    setBatchResultModalData({
-      open: true,
-      action: actionLabels[action] || action,
-      count: selectedIds.size,
-      results: [`已对 ${selectedIds.size} 项执行「${actionLabels[action] || action}」操作`]
-    })
+  const resetBatchSelection = () => {
     clearSelection()
     setBatch({
       selectedIds: new Set(),
@@ -628,6 +674,89 @@ export default function WorklistPage() {
       priorityValue: '普通',
       roomValue: '',
     })
+  }
+
+  // ============================================================
+  // 批量操作 (改优先级/分配检查室) → 真实后端调用 + 列表刷新
+  //   - priority: 逐条 PATCH /worklist/:id { priority }
+  //   - room:     POST /worklist/batch-assign { ids, roomId }
+  //   - print/export: 保留原前端行为 (打印预览 / 模拟导出)
+  // ============================================================
+  const executeBatchOperation = async () => {
+    if (selectedIds.size === 0) return
+    const action = batch.operation || 'print'
+    const ids = Array.from(selectedIds)
+    const actionLabels: Record<string, string> = {
+      priority: `修改优先级为：${batch.priorityValue}`,
+      room: `分配检查室：${initialExamRooms.find(r => r.id === batch.roomValue)?.name || '-'}`,
+      print: '打印条码',
+      export: '导出Excel',
+    }
+
+    if (action === 'print') {
+      setPrintPreviewModalData({ open: true, examIds: ids })
+      resetBatchSelection()
+      return
+    }
+    if (action === 'export') {
+      setBatchResultModalData({
+        open: true,
+        action: actionLabels[action] || action,
+        count: ids.length,
+        results: [`已对 ${ids.length} 项执行「${actionLabels[action] || action}」操作`],
+      })
+      resetBatchSelection()
+      return
+    }
+
+    // 真实批量操作 (priority / room)
+    const results: string[] = []
+    let okCount = 0
+    let failCount = 0
+    try {
+      if (action === 'room') {
+        const res = await worklistApi.batchAssign(ids, { roomId: batch.roomValue })
+        if (res.success) {
+          okCount = Number((res.data as { updated?: number } | null)?.updated ?? ids.length)
+          results.push(`检查室已批量分配`)
+          ids.forEach(id => log('batch_assign_room', id, { roomId: batch.roomValue }))
+        } else {
+          failCount = ids.length
+          results.push(res.error?.message ?? '批量分配检查室失败')
+        }
+      } else {
+        for (const id of ids) {
+          try {
+            const res = await worklistApi.updatePriority(id, batch.priorityValue)
+            if (res.success) {
+              okCount += 1
+              log('batch_update_priority', id, { priority: batch.priorityValue })
+            } else {
+              failCount += 1
+              results.push(`${id}: ${res.error?.message ?? '失败'}`)
+            }
+          } catch (err) {
+            failCount += 1
+            results.push(`${id}: ${err instanceof Error ? err.message : '失败'}`)
+          }
+        }
+      }
+    } catch (err) {
+      failCount = ids.length
+      results.push(err instanceof Error ? err.message : '批量操作失败')
+    }
+
+    await refreshAfterMutation()
+    setBatchResultModalData({
+      open: true,
+      action: actionLabels[action] || action,
+      count: ids.length,
+      results: [
+        `成功 ${okCount} 项${failCount > 0 ? `，失败 ${failCount} 项` : ''}，已刷新列表`,
+        ...results.slice(0, 20),
+      ],
+    })
+    resetBatchSelection()
   }
 
   // ============================================================
@@ -779,6 +908,51 @@ export default function WorklistPage() {
       })
     }
   }
+
+  // ============================================================
+  // 分配报告医生/技师 → worklistApi.assign (后端 POST /worklist/:id/assign)
+  // ============================================================
+  const assignDoctor = async (exam: RadiologyExam, doctorId: string) => {
+    try {
+      const res = await worklistApi.assign(exam.id, { doctorId })
+      if (res.success) {
+        const doctor = doctorOptions.find(d => d.id === doctorId)
+        setExams(prev => prev.map(e => e.id === exam.id ? {
+          ...e,
+          radiologistId: doctorId,
+          radiologistName: doctor?.name ?? e.radiologistName,
+        } : e))
+        setDoctorSelectModalExam(null)
+        log('assign_doctor', exam.id, { doctorId })
+        void refreshAfterMutation()
+      } else {
+        setConfirmModalConfig({
+          open: true,
+          title: '分配失败',
+          message: res.error?.message ?? '分配报告医生失败',
+          onConfirm: () => setConfirmModalConfig(null),
+        })
+      }
+    } catch (err) {
+      setConfirmModalConfig({
+        open: true,
+        title: '分配失败',
+        message: err instanceof Error ? err.message : '分配报告医生失败',
+        onConfirm: () => setConfirmModalConfig(null),
+      })
+    }
+  }
+
+  // 危急值跳转 → /critical-value?search=患者名&patientId=&examId=
+  const handleCriticalValueClick = useCallback((exam: RadiologyExam) => {
+    const params = new URLSearchParams()
+    if (exam.patientName) params.set('search', exam.patientName)
+    if (exam.patientId) params.set('patientId', exam.patientId)
+    if (exam.id) params.set('examId', exam.id)
+    if (exam.accessionNumber) params.set('accessionNumber', exam.accessionNumber)
+    log('critical_value_jump', exam.id)
+    window.location.href = `/critical-value?${params.toString()}`
+  }, [log])
 
   // ============================================================
   // 提交报告 → reportApi.create (后端 POST /reports)
@@ -955,6 +1129,8 @@ export default function WorklistPage() {
       setBatchResultModalData(null)
       setPrintPreviewModalData(null)
       setSelectedExam(null)
+      setDoctorSelectModalExam(null)
+      setRequisitionExam(null)
     }),
   ])
   useNavigationShortcuts([
@@ -1204,8 +1380,12 @@ export default function WorklistPage() {
           exams={smartOrderedExams}
           selectedIds={selectedIds}
           onSelect={setSelectedIds}
-          onRowClick={setSelectedExam}
+          onRowClick={(exam) => { setHistoryDrawerTab('info'); setSelectedExam(exam) }}
           loading={loading}
+          onAssignDoctor={setDoctorSelectModalExam}
+          onViewRequisition={setRequisitionExam}
+          onViewHistory={(exam) => { setHistoryDrawerTab('history'); setSelectedExam(exam) }}
+          onCriticalValueClick={handleCriticalValueClick}
         />
       )}
 
@@ -1214,7 +1394,7 @@ export default function WorklistPage() {
           exams={smartOrderedExams}
           selectedIds={selectedIds}
           onSelect={setSelectedIds}
-          onRowClick={setSelectedExam}
+          onRowClick={(exam) => { setHistoryDrawerTab('info'); setSelectedExam(exam) }}
         />
       )}
 
@@ -1239,17 +1419,25 @@ export default function WorklistPage() {
       <DetailDrawer
         exam={selectedExam}
         onClose={() => setSelectedExam(null)}
+        initialTab={historyDrawerTab}
         onEditInfo={(exam) => {
           setPatientInfoModalExam(exam)
           setPatientForm({ name: exam.patientName, gender: exam.gender, age: String(exam.age), patientType: exam.patientType })
         }}
         onAssignDevice={(exam) => setDeviceSelectModalExam(exam)}
+        onAssignDoctor={(exam) => setDoctorSelectModalExam(exam)}
+        onViewRequisition={(exam) => setRequisitionExam(exam)}
         onWriteReport={(exam) => {
           setReportModalExam(exam)
           setReportForm({ findings: '', conclusion: '' })
         }}
         onStartExam={handleStartExam}
         onCancelExam={handleCancelExam}
+      />
+
+      <RequisitionDrawer
+        exam={requisitionExam}
+        onClose={() => setRequisitionExam(null)}
       />
 
       <div style={{
@@ -1367,6 +1555,69 @@ export default function WorklistPage() {
                   <span style={{ fontSize: 12, color: '#64748b', marginLeft: 'auto' }}>{device.status}</span>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {doctorSelectModalExam && (
+        <div
+          ref={doctorSelectFocusRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="分配报告医生"
+          style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+        }}
+          onKeyDown={(e) => { if (e.key === 'Escape') setDoctorSelectModalExam(null); }}
+          onClick={() => setDoctorSelectModalExam(null)}>
+          <div style={{
+            background: '#fff', borderRadius: 12, padding: 24, width: 420, maxHeight: '80vh', overflow: 'auto'
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e3a5f' }}>分配报告医生</h3>
+              <button onClick={() => setDoctorSelectModalExam(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
+                <X size={18} />
+              </button>
+            </div>
+            <div style={{ marginBottom: 16, color: '#64748b', fontSize: 13 }}>
+              当前检查：{doctorSelectModalExam.examItemName}（{doctorSelectModalExam.patientName}）
+              <span style={{ marginLeft: 8, color: '#94a3b8', fontSize: 12 }}>
+                当前报告医生：{doctorSelectModalExam.radiologistName || (doctorSelectModalExam.radiologistId ? doctorSelectModalExam.radiologistId : '未分配')}
+              </span>
+            </div>
+            {doctorOptionsLoading && (
+              <div style={{ padding: 12, fontSize: 12, color: '#94a3b8', textAlign: 'center' }}>正在加载医生列表...</div>
+            )}
+            {!doctorOptionsLoading && doctorOptions.length === 0 && (
+              <div style={{ padding: 12, fontSize: 12, color: '#b45309', textAlign: 'center' }}>
+                未获取到医生列表，请检查后端 /users 接口
+              </div>
+            )}
+            <div style={{ display: 'grid', gap: 8 }}>
+              {doctorOptions.map(doctor => {
+                const isAssigned = doctorSelectModalExam.radiologistId === doctor.id
+                return (
+                  <div
+                    key={doctor.id}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === 'Enter' && void assignDoctor(doctorSelectModalExam, doctor.id)}
+                    style={{
+                      padding: 12, border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', gap: 8,
+                      background: isAssigned ? '#f0f7ff' : '#fff',
+                    }} onClick={() => void assignDoctor(doctorSelectModalExam, doctor.id)}>
+                    <Stethoscope size={16} style={{ color: '#1e3a5f' }} />
+                    <span style={{ fontSize: 13, fontWeight: 600 }}>{doctor.name}</span>
+                    <span style={{ fontSize: 12, color: '#64748b', marginLeft: 'auto' }}>
+                      {doctor.title || '放射科医生'}
+                      {isAssigned ? ' · 已分配' : ''}
+                    </span>
+                  </div>
+                )
+              })}
             </div>
           </div>
         </div>

@@ -79,4 +79,40 @@ export const smartAuthApi = {
       "/fhir/r4/auth/introspect",
       { token },
     ),
+  // [G005 W2] SMART on FHIR 授权流程 (fhir/smart-auth.controller)
+  getSmartConfiguration: () =>
+    api.get<{
+      authorization_endpoint: string;
+      token_endpoint: string;
+      capabilities: string[];
+      scopes_supported?: string[];
+    }>("/fhir/r4/.well-known/smart-configuration"),
+  authorize: (params: {
+    client_id: string;
+    redirect_uri: string;
+    scope: string;
+    state?: string;
+    patient?: string;
+    encounter?: string;
+    user_id?: string;
+  }) => {
+    const sp = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== "") sp.set(k, String(v));
+    });
+    return api.get<{ redirectUrl: string }>(
+      `/fhir/r4/auth/authorize?${sp.toString()}`,
+    );
+  },
+  getToken: (code: string, clientId: string) =>
+    api.post<{
+      access_token: string;
+      token_type: string;
+      expires_in: number;
+      scope: string;
+      patient?: string;
+      need_patient_banner?: boolean;
+    }>("/fhir/r4/auth/token", { code, client_id: clientId }),
+  revokeToken: (token: string) =>
+    api.post<{ success: boolean }>("/fhir/r4/auth/revoke", { token }),
 };

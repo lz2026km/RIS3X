@@ -40,4 +40,21 @@ export const patientApi = {
 
   getTimeline: (id: string) =>
     api.get<any[]>(`/patients/${id}/timeline`),
+
+  // [W2-4] 患者合并: 源患者关联 (exam/report/appointment/critical) 全部迁至目标患者后软删源患者
+  merge: async (sourceId: string, targetId: string) => {
+    const res = await api.post<{
+      ok: boolean
+      merged: {
+        sourceId: string
+        targetId: string
+        movedExams: number
+        movedReports: number
+        movedAppointments: number
+        movedCriticalValues: number
+      }
+    }>('/patients/merge', { sourceId, targetId })
+    await invalidateApiCacheByPrefix('/patients')
+    return res
+  },
 }

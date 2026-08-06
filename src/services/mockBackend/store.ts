@@ -335,6 +335,10 @@ const COLLECTIONS = [
   'value5step',
   // [v3.0.6.11-61] 环境式 AI 报告草稿
   'ai_report_drafts',
+  // [W1-5] 导出审批申请 (exportApprovalHandlers 使用)
+  'exportApprovals',
+  // [W1-5] 收费项目 (financeHandlers 使用)
+  'chargeItems',
 ] as const;
 type Collection = typeof COLLECTIONS[number];
 
@@ -365,6 +369,54 @@ async function loadGeneratedExamDataAsync(_getCol: (n: string) => Map<string, un
   } catch (e) {
     console.info('[RIS Seed] 演示检查/报告数据懒加载跳过（不影响运行）:', (e as Error).message);
   }
+}
+
+// [W2-4] 危急值患者联动检查: 患者详情(检查历史/影像/时间线/报告)与危急值数据自洽
+//   对每个无对应 Exam 的危急值, 派生一条 Exam (patientId/modality/bodyPart/状态), 挂入 exams 集合
+function seedCriticalExamLinks(): void {
+  const examsCol = getCollection('exams');
+  const existing = new Set<string>();
+  Array.from(examsCol.values()).forEach((e: any) => existing.add(String(e.patientId ?? '')));
+  const criticals = Array.from(getCollection('criticalEvents').values()) as any[];
+  let added = 0;
+  criticals.forEach((c: any, i: number) => {
+    const pid = String(c.patientId ?? '');
+    if (!pid || existing.has(pid)) return;
+    existing.add(pid);
+    const examId = c.examId || `RAD-EX-CRIT-${String(i + 1).padStart(6, '0')}`;
+    const reportId = c.reportId || `RPT-CRIT-${String(i + 1).padStart(6, '0')}`;
+    // 以 reportId 为 key (与 EXAM_REPORT_PRE 一致), 保证 /reports/:id 与 /reports 列表可命中
+    if (examsCol.has(reportId)) return;
+    examsCol.set(reportId, {
+      id: reportId,
+      reportId,
+      examId,
+      patientId: pid,
+      patientName: c.patientName ?? '未知患者',
+      patientAge: c.age,
+      patientGender: c.gender,
+      modality: c.modality ?? 'CT',
+      bodyPart: c.bodyPart ?? '未知',
+      examItem: `${c.modality ?? 'CT'} ${c.bodyPart ?? '检查'}`,
+      examItemName: `${c.modality ?? 'CT'} ${c.bodyPart ?? '检查'}`,
+      status: '已签发',
+      priority: '加急',
+      examAt: c.reportedAt ?? c.reportedTime ?? new Date().toISOString(),
+      hasCriticalValue: true,
+      deviceId: '',
+      deviceModel: '',
+      doctorId: c.reportedById,
+      reportDoctorId: c.reportedById,
+      clinicalDiagnosis: c.detail ?? c.ruleName ?? '',
+      findings: c.detail ?? c.finding ?? '',
+      impression: c.detail ?? c.finding ?? '',
+      imagesAcquired: 0,
+      createdAt: c.reportedAt ?? new Date().toISOString(),
+      updatedAt: c.reportedAt ?? new Date().toISOString(),
+    });
+    added++;
+  });
+  if (added > 0) console.info(`[RIS Seed] [W2-4] 危急值患者联动派生 ${added} 条检查记录`);
 }
 
 let initialized = false;
@@ -504,6 +556,8 @@ export async function initStore(): Promise<void> {
       });
       inv && inv.forEach((invItem: any) => getCollection('invoices').set(invItem.invoiceId, invItem));
       sc && sc.forEach((s: any) => getCollection('sites').set(s.siteId, s));
+      // [W2-4] 危急值患者联动检查: 无检查记录的危急值患者, 从危急值派生一条 Exam
+      seedCriticalExamLinks();
       console.info(`[RIS Seed] 加载了 ${cv.length} 条危急值, ${Object.keys(kpiH||{}).length} 个KPI, ${(inv||[]).length} 张发票, ${(sc||[]).length} 个院区`);
     } catch (e) {
       console.warn('[RIS Seed] 部分演示数据加载失败（不影响运行）:', (e as Error).message);
@@ -614,7 +668,12 @@ function loadHeavyDataAsync(): void {
       });
       inv && inv.forEach((invItem: any) => getCollection('invoices').set(invItem.invoiceId, invItem));
       sc && sc.forEach((s: any) => getCollection('sites').set(s.siteId, s));
-    } catch (e) { console.warn('[RIS Seed] 重数据同步加载跳过:', (e as Error).message); }
+      // [W2-4] 危急值患者联动检查: 无检查记录的危急值患者, 从危急值派生一条 Exam,
+      //   保证患者详情(检查历史/影像卡片/360时间线/报告)与危急值数据自洽
+      seedCriticalExamLinks();
+    } catch (e) {
+      console.warn('[RIS Seed] 部分演示数据加载失败（不影响运行）:', (e as Error).message);
+    }
   })();
 }
 

@@ -47,6 +47,31 @@ export interface AiPlatformStats {
   dailyUsage: { date: string; count: number }[];
 }
 
+// [v3.0.6.11-75] 对齐 backend aiplatform.service.listAiQcResults (auditLog resource=ai-qc)
+export interface AiPlatformQcResult {
+  id: string;
+  action?: string;
+  resource?: string;
+  detail?: Record<string, unknown>;
+  tenantId?: string;
+  createdAt?: string;
+}
+
+// [v3.0.6.11-75] 对齐 backend prisma Device 模型 (listAiMedicalDevices)
+export interface AiPlatformMedicalDevice {
+  id: string;
+  code: string;
+  name: string;
+  modality: string;
+  manufacturer?: string | null;
+  location?: string | null;
+  state: string;
+  todayExams: number;
+  todayUsageMin: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export const aiPlatformApi = {
   listModels: () => api.get<AiPlatformModel[]>("/ai-platform/models"),
 
@@ -83,7 +108,14 @@ export const aiPlatformApi = {
 
   // [v3.0.6.11-50] 对接后端 GET /ai-platform/medical-devices (aiplatform.controller)
   listMedicalDevices: () =>
-    api.get<{ data: Array<Record<string, unknown>> }>(
+    api.get<{ data: AiPlatformMedicalDevice[] }>(
       "/ai-platform/medical-devices",
     ),
+
+  // [v3.0.6.11-75] AI QC 记录 (后端: auditLog resource=ai-qc)
+  listQcResults: () =>
+    api.get<{ data: AiPlatformQcResult[] }>("/ai-platform/qc"),
+
+  getQcResult: (id: string) =>
+    api.get<{ data: AiPlatformQcResult[] }>(`/ai-platform/qc/${id}`),
 };

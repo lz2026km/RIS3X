@@ -2,7 +2,7 @@
  * G005 RIS v3.0.6.11-60 - System Storage Config Controller
  * GET/PUT /system/storage-config, POST /system/storage-config/test
  */
-import { Body, Controller, Get, Post, Put } from '@nestjs/common'
+import { Body, Controller, Get, Param, Patch, Post, Put } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { Roles } from '../common/decorators/roles.decorator'
@@ -38,6 +38,17 @@ const StorageTestSchema = z
   })
   .optional()
 
+// [W5] 系统管理配置项: 数组 [ { key, value } ] 或 { configs: [...] } 两种形状均可
+const AdminConfigItemSchema = z.object({ key: z.string().min(1), value: z.unknown() })
+const AdminConfigsSaveSchema = z
+  .union([
+    z.array(AdminConfigItemSchema).min(1),
+    z.object({ configs: z.array(AdminConfigItemSchema).min(1) }),
+  ])
+  .transform((v) => (Array.isArray(v) ? v : v.configs))
+
+const AdminConfigValueSchema = z.object({ value: z.unknown() })
+
 @ApiTags('system')
 @ApiBearerAuth()
 @Roles('ADMIN')
@@ -58,5 +69,23 @@ export class SystemStorageController {
   @Post('storage-config/test')
   test(@Body(new ZodValidationPipe(StorageTestSchema)) body?: z.infer<typeof StorageTestSchema>) {
     return this.service.testConnection(body)
+  }
+
+  @Get('admin/configs')
+  listAdminConfigs() {
+    return this.service.listAdminConfigs()
+  }
+
+  @Put('admin/configs')
+  saveAdminConfigs(@Body(new ZodValidationPipe(AdminConfigsSaveSchema)) items: Array<{ key: string; value: unknown }>) {
+    return this.service.saveAdminConfigs(items)
+  }
+
+  @Patch('admin/configs/:key')
+  updateAdminConfig(
+    @Param('key') key: string,
+    @Body(new ZodValidationPipe(AdminConfigValueSchema)) body: { value: unknown },
+  ) {
+    return this.service.updateAdminConfig(key, body.value)
   }
 }

@@ -23,6 +23,12 @@ const UpdatePatientSchema = z.object({
   type: z.enum(['OUTPATIENT', 'INPATIENT', 'EMERGENCY', 'PHYSICAL']).optional(),
 })
 
+// [W2-4] 患者合并: sourceId 关联数据迁至 targetId 后软删 sourceId
+const MergePatientSchema = z.object({
+  sourceId: z.string().min(1),
+  targetId: z.string().min(1),
+})
+
 @ApiTags('patients')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR')
@@ -63,6 +69,13 @@ export class PatientController {
   @Delete(':id')
   delete(@Param('id') id: string) {
     return this.service.delete(id)
+  }
+
+  // [W2-4] 患者合并 (sourceId → targetId): 事务迁移 exam/report/appointment/critical 关联后软删源患者
+  //   ⚠️ 必须注册在 @Post() 之前由 Nest 精确匹配 /patients/merge, 与 @Post() 根路径互不冲突
+  @Post('merge')
+  merge(@Body(new ZodValidationPipe(MergePatientSchema)) body: { sourceId: string; targetId: string }) {
+    return this.service.merge(body.sourceId, body.targetId)
   }
 
   @Get(':id/reports')

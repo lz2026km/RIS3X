@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { message } from 'antd'
 import { Bell, BellOff, Send, Trash2, Clock, CheckCircle, AlertTriangle, Filter } from 'lucide-react'
 import { pushService } from '../../services/mobile/push/PushService'
-import type { PushPayload } from '../../types/mobile'
+import { mobileApi } from '../../services/api'
+import type { PushPayload, PushSubscription } from '../../types/mobile'
 
 interface PushNotificationItem {
   id: string
@@ -16,17 +17,37 @@ interface PushNotificationItem {
   data?: Record<string, unknown>
 }
 
-const SEVERITY_CONFIG: Record<string, { bg: string; color: string; borderColor: string; icon: React.ComponentType }> = {
+const SEVERITY_CONFIG: Record<string, { bg: string; color: string; borderColor: string; icon: React.ComponentType<{ size?: number | string; style?: React.CSSProperties }> }> = {
   info: { bg: '#dbeafe', color: '#2563eb', borderColor: '#93c5fd', icon: Bell },
   warning: { bg: '#fef3c7', color: '#d97706', borderColor: '#fcd34d', icon: AlertTriangle },
   critical: { bg: '#fee2e2', color: '#dc2626', borderColor: '#fca5a5', icon: AlertTriangle },
 }
+
+const DEFAULT_SEVERITY = { bg: '#dbeafe', color: '#2563eb', borderColor: '#93c5fd', icon: Bell }
 
 const TOPIC_LABELS: Record<string, string> = {
   critical: '危急值',
   report: '报告',
   appointment: '预约',
   system: '系统',
+}
+
+/**
+ * v3.0.6.11-75: Web Push 订阅成功后同步注册设备 token 到后端 /mobile/device-token
+ * (PushService 已同步 /notifications/push-subscribe; 此处补 mobile 设备注册通道)
+ */
+async function registerDeviceToken(sub: PushSubscription): Promise<void> {
+  try {
+    const res = await mobileApi.registerDeviceToken({
+      token: sub.endpoint,
+      platform: sub.channel === 'fcm' ? 'android' : sub.channel === 'apns' ? 'ios' : 'web',
+      deviceId: sub.deviceId || 'web-push',
+      userId: sub.userId || 'demo-user',
+    })
+    if (!res.success) console.warn('[push] device-token registration failed', res.error)
+  } catch (e) {
+    console.warn('[push] device-token registration error', (e as Error)?.message)
+  }
 }
 
 export default function MobilePushPage() {
@@ -48,6 +69,7 @@ export default function MobilePushPage() {
         void pushService.getSubscription().then((sub) => {
           if (!sub) {
             void pushService.subscribe('', 'demo-user', 'web', ['critical', 'report', 'appointment', 'system'])
+              .then((newSub) => { if (newSub) void registerDeviceToken(newSub) })
           }
         })
       }
@@ -116,6 +138,7 @@ export default function MobilePushPage() {
       // Phase 1.5: 真实 Web Push 订阅 (VAPID + 后端同步)
       const sub = await pushService.subscribe('', 'demo-user', 'web', ['critical', 'report', 'appointment', 'system'])
       if (sub) {
+        void registerDeviceToken(sub)
         message.success('推送通知已开启 (Web Push)')
       } else {
         message.warning('订阅失败: 浏览器或后端推送通道不可用')
@@ -310,7 +333,7 @@ export default function MobilePushPage() {
       </div>
 
       {filtered.map((n) => {
-        const cfg = SEVERITY_CONFIG[n.severity]
+        const cfg = SEVERITY_CONFIG[n.severity] ?? DEFAULT_SEVERITY
         const SeverityIcon = cfg.icon
         return (
           <div

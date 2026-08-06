@@ -67,7 +67,7 @@ describe('NotificationsService', () => {
     await svc.savePushSubscription('push-user', { endpoint: 'e1', keys: { p256dh: 'a', auth: 'b' } })
     await svc.savePushSubscription('push-user', { endpoint: 'e2', keys: { p256dh: 'c', auth: 'd' } })
     await svc.savePushSubscription('push-user', { endpoint: 'e1', keys: { p256dh: 'a2', auth: 'b2' }, topics: ['critical'] })
-    const subs = svc.getSubscriptions('push-user')
+    const subs = await svc.getSubscriptions('push-user')
     expect(subs).toHaveLength(2)
     expect(subs.find((s) => s.endpoint === 'e1')?.keys.p256dh).toBe('a2')
     expect(subs.find((s) => s.endpoint === 'e1')?.topics).toEqual(['critical'])
@@ -77,7 +77,7 @@ describe('NotificationsService', () => {
     await svc.savePushSubscription('u2', { endpoint: 'e3', keys: { p256dh: 'x', auth: 'y' } })
     const result = await svc.removePushSubscription('e3')
     expect(result).toMatchObject({ success: true, userId: 'u2', total: 0 })
-    expect(svc.getSubscriptions('u2')).toEqual([])
+    expect(await svc.getSubscriptions('u2')).toEqual([])
   })
 
   it('removePushSubscription returns not-found for unknown endpoint', async () => {
@@ -170,5 +170,52 @@ describe('NotificationsService', () => {
     if (prevPriv === undefined) delete process.env.VAPID_PRIVATE_KEY
     else process.env.VAPID_PRIVATE_KEY = prevPriv
     process.env.NODE_ENV = prevNodeEnv ?? 'test'
+  })
+
+  it('markAllRead updates all unread for user', async () => {
+    mockPrisma.notification.updateMany = jest.fn().mockResolvedValue({ count: 4 })
+    const result = await svc.markAllRead('u1')
+    expect(result).toEqual({ userId: 'u1', count: 4 })
+    expect(mockPrisma.notification.updateMany).toHaveBeenCalledWith({
+      where: { userId: 'u1', read: false },
+      data: { read: true, readAt: expect.any(Date) },
+    })
+  })
+
+  it('markAllRead returns 0 when prisma model missing', async () => {
+    const bare = new NotificationsService({} as any)
+    await expect(bare.markAllRead('u1')).resolves.toEqual({ userId: 'u1', count: 0 })
+  })
+
+  it('remove deletes a notification', async () => {
+    mockPrisma.notification.delete = jest.fn().mockResolvedValue({ id: 'n1' })
+    const result = await svc.remove('n1')
+    expect(result).toEqual({ id: 'n1', deleted: true })
+    expect(mockPrisma.notification.delete).toHaveBeenCalledWith({ where: { id: 'n1' } })
+  })
+
+  it('remove returns deleted false when prisma model missing', async () => {
+    const bare = new NotificationsService({} as any)
+    await expect(bare.remove('n1')).resolves.toEqual({ id: 'n1', deleted: false })
+  })
+
+  it('getStats aggregates total/unread/today/critical', async () => {
+    mockPrisma.notification.count = jest
+      .fn()
+      .mockResolvedValueOnce(20)
+      .mockResolvedValueOnce(3)
+      .mockResolvedValueOnce(5)
+      .mockResolvedValueOnce(1)
+    const result = await svc.getStats('u1')
+    expect(result).toEqual({ userId: 'u1', total: 20, unread: 3, today: 5, critical: 1 })
+    expect(mockPrisma.notification.count).toHaveBeenCalledWith({ where: { userId: 'u1' } })
+    expect(mockPrisma.notification.count).toHaveBeenCalledWith({ where: { userId: 'u1', read: false } })
+    expect(mockPrisma.notification.count).toHaveBeenCalledWith({ where: { userId: 'u1', createdAt: { gte: expect.any(Date) } } })
+    expect(mockPrisma.notification.count).toHaveBeenCalledWith({ where: { userId: 'u1', severity: 'CRITICAL', read: false } })
+  })
+
+  it('getStats returns zeros when prisma model missing', async () => {
+    const bare = new NotificationsService({} as any)
+    await expect(bare.getStats('u1')).resolves.toEqual({ userId: 'u1', total: 0, unread: 0, today: 0, critical: 0 })
   })
 })

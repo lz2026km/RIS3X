@@ -1,14 +1,20 @@
 // [v3.0.6.11-54] Phase 2: AI CAD 聚合页 (肺结节/乳腺/骨折/心脏 + 统计卡片)
+// [v3.0.6.11-75] W1-2: 接入真实 cadApi (POST /ai/cad/detect, GET /ai/cad/result/:instanceId)
 import React, { useCallback, useEffect, useState } from 'react'
 import {
   Card, Space, Tag, Row, Col, Statistic, Tabs, Spin, Alert, Button, Progress,
+  Input, Table, Empty,
 } from 'antd'
-import { Cpu, RefreshCw, Activity, Target, CheckCircle2, TrendingUp } from 'lucide-react'
+import { Cpu, RefreshCw, Activity, Target, CheckCircle2, TrendingUp, ScanSearch, Crosshair } from 'lucide-react'
 import LungCadPage from './LungCadPage'
 import BreastCadPage from './BreastCadPage'
 import FractureCadPage from './FractureCadPage'
 import CardiacAiPage from './CardiacAiPage'
 import { aiDiagnosisApi } from '../../services/api/aiDiagnosisApi'
+import { cadApi } from '../../services/api/cadApi'
+import type { CadResult } from '../../services/api/cadApi'
+
+const SAMPLE_INSTANCES = ['inst-2000', 'inst-2001', 'inst-2002', 'inst-2003']
 
 interface CadModuleStats {
   total: number
@@ -140,12 +146,161 @@ const AiCadPage: React.FC = () => {
           onChange={setActiveTab}
           type="card"
           items={[
+            { key: 'detect', label: '实时检测', children: <CadDetectPanel /> },
             { key: 'lung', label: '肺结节检测', children: <LungCadPage /> },
             { key: 'breast', label: '乳腺 CAD', children: <BreastCadPage /> },
             { key: 'fracture', label: '骨折检测', children: <FractureCadPage /> },
             { key: 'cardiac', label: '心脏 AI', children: <CardiacAiPage /> },
           ]}
         />
+      </Card>
+    </div>
+  )
+}
+
+// [v3.0.6.11-75] 真实 CAD 检测: 选 DICOM 实例 -> cadApi.detect -> 病灶坐标/置信度
+const CadDetectPanel: React.FC = () => {
+  const [instanceId, setInstanceId] = useState('')
+  const [detecting, setDetecting] = useState(false)
+  const [loadingDetail, setLoadingDetail] = useState(false)
+  const [error, setError] = useState('')
+  const [current, setCurrent] = useState<CadResult | null>(null)
+  const [history, setHistory] = useState<CadResult[]>([])
+  const [detail, setDetail] = useState<CadResult | null>(null)
+
+  const runDetect = useCallback(async (id: string) => {
+    const target = id.trim()
+    if (!target) {
+      setError('请先选择或输入 DICOM 实例 ID')
+      return
+    }
+    setDetecting(true)
+    setError('')
+    try {
+      const res = await cadApi.detect(target)
+      if (!res.success) {
+        setError(res.error?.message ?? '检测失败')
+        return
+      }
+      setCurrent(res.data)
+      setHistory((prev) => {
+        const next = [res.data, ...prev.filter((h) => h.instanceId !== res.data.instanceId)]
+        return next.slice(0, 10)
+      })
+    } catch (e) {
+      setError((e as Error)?.message ?? '检测失败')
+    } finally {
+      setDetecting(false)
+    }
+  }, [])
+
+  const viewDetail = useCallback(async (id: string) => {
+    setLoadingDetail(true)
+    setError('')
+    try {
+      const res = await cadApi.getResult(id)
+      if (!res.success) {
+        setError(res.error?.message ?? '结果查询失败')
+        return
+      }
+      setDetail(res.data)
+    } catch (e) {
+      setError((e as Error)?.message ?? '结果查询失败')
+    } finally {
+      setLoadingDetail(false)
+    }
+  }, [])
+
+  const findingColumns = [
+    { title: '类型', dataIndex: 'type', key: 'type', render: (v: string) => <Tag color={v === 'nodule' ? 'blue' : 'orange'}>{v === 'nodule' ? '结节' : '钙化'}</Tag> },
+    { title: '坐标 (x, y)', key: 'pos', render: (_: unknown, f: { x: number; y: number }) => `(${f.x}, ${f.y})` },
+    { title: '宽 x 高', key: 'wh', render: (_: unknown, f: { width: number; height: number }) => `${f.width} x ${f.height}` },
+    { title: '直径 (mm)', dataIndex: 'size', key: 'size' },
+    { title: '置信度', dataIndex: 'confidence', key: 'confidence', render: (v: number) => <span style={{ color: v >= 0.85 ? '#52c41a' : v >= 0.7 ? '#faad14' : '#ff4d4f', fontWeight: 600 }}>{(v * 100).toFixed(1)}%</span> },
+  ]
+
+  return (
+    <div style={{ padding: 16 }}>
+      <Card size="small" title={<Space><ScanSearch size={16} color="#1677ff" />CAD 实时检测</Space>}>
+        <Space wrap style={{ marginBottom: 12 }}>
+          <Input
+            placeholder="输入 DICOM 实例 ID (SOP Instance UID)"
+            value={instanceId}
+            onChange={(e) => setInstanceId(e.target.value)}
+            onPressEnter={() => void runDetect(instanceId)}
+            style={{ width: 360 }}
+            allowClear
+          />
+          <Button type="primary" icon={<Crosshair size={14} />} loading={detecting} onClick={() => void runDetect(instanceId)}>
+            开始检测
+          </Button>
+          <span style={{ color: '#94a3b8', fontSize: 12 }}>示例:</span>
+          {SAMPLE_INSTANCES.map((s) => (
+            <Button key={s} size="small" onClick={() => { setInstanceId(s); void runDetect(s) }}>{s}</Button>
+          ))}
+        </Space>
+        {error && (
+          <Alert type="error" showIcon style={{ marginBottom: 12 }} message={error} action={<Button size="small" onClick={() => setError('')}>关闭</Button>} />
+        )}
+
+        {current && (
+          <Card size="small" type="inner" title={`检测结果 - ${current.instanceId}`} style={{ marginBottom: 16 }}
+            extra={<Space>{current.simulated && <Tag color="gold">模拟回退</Tag>}<Tag color="green">{current.findings.length} 个病灶</Tag></Space>}>
+            <Row gutter={16} style={{ marginBottom: 12 }}>
+              <Col span={8}><Statistic title="检出病灶" value={current.findings.length} suffix="个" /></Col>
+              <Col span={8}><Statistic title="最高置信度" value={current.findings.length ? Math.max(...current.findings.map(f => f.confidence)) * 100 : 0} precision={1} suffix="%" /></Col>
+              <Col span={8}><Statistic title="检测时间" value={current.detectedAt.slice(0, 19).replace('T', ' ')} /></Col>
+            </Row>
+            <Table rowKey={(f) => `${f.x}-${f.y}`} size="small" dataSource={current.findings} columns={findingColumns} pagination={false} />
+            {current.heatmapUrl && (
+              <div style={{ marginTop: 8, fontSize: 12, color: '#64748b' }}>
+                热力图: <code>{current.heatmapUrl}</code>
+              </div>
+            )}
+          </Card>
+        )}
+
+        <h4 style={{ margin: '8px 0 12px', fontSize: 14, fontWeight: 600 }}>本会话检测记录</h4>
+        {history.length === 0 && !detecting ? (
+          <Empty description="尚未执行检测" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        ) : (
+          <Table
+            rowKey="instanceId"
+            size="small"
+            loading={detecting && history.length === 0}
+            dataSource={history}
+            pagination={false}
+            columns={[
+              { title: '实例 ID', dataIndex: 'instanceId', key: 'instanceId' },
+              { title: '病灶数', dataIndex: 'findings', key: 'findingsCount', render: (f: CadResult['findings']) => f.length },
+              { title: '检测时间', dataIndex: 'detectedAt', key: 'detectedAt', render: (v: string) => v.slice(0, 19).replace('T', ' ') },
+              {
+                title: '操作',
+                key: 'action',
+                render: (_: unknown, r: CadResult) => (
+                  <Button size="small" type="link" loading={loadingDetail} onClick={() => void viewDetail(r.instanceId)}>查看详情 (getResult)</Button>
+                ),
+              },
+            ]}
+          />
+        )}
+      </Card>
+
+      <Card size="small" title="详情 (GET /ai/cad/result/:instanceId)" style={{ marginTop: 16 }}>
+        <Spin spinning={loadingDetail}>
+          {detail ? (
+            <>
+              <Space style={{ marginBottom: 12 }}>
+                <Tag color="blue">{detail.instanceId}</Tag>
+                <span style={{ fontSize: 12, color: '#64748b' }}>检测于 {detail.detectedAt.slice(0, 19).replace('T', ' ')}</span>
+                {detail.simulated && <Tag color="gold">模拟回退</Tag>}
+              </Space>
+              <Table rowKey={(f) => `${f.x}-${f.y}`} size="small" dataSource={detail.findings} columns={findingColumns} pagination={false} />
+            </>
+          ) : (
+            <Empty description="点击上方记录的“查看详情”加载真实结果" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+          )}
+        </Spin>
       </Card>
     </div>
   )

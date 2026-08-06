@@ -3,6 +3,7 @@
 // G005 放射科RIS系统 - 患者管理 v1.0.0
 // ============================================================
 import { useState, useMemo, useEffect, useCallback } from "react";
+import { useParams } from "react-router-dom";
 import { PageContainer } from "../components/common/PageContainer";
 import { LoadingBanner, ErrorBanner } from "../components/feedback";
 import { Search, User, Phone, AlertCircle, X, Eye, Download, Users, UserCheck, Clock, Activity, Heart, AlertTriangle, CheckCircle, TrendingUp, PieChart, Stethoscope, Shield, CreditCard, History, PlusCircle, UserPlus, Link, Target, Gauge, Percent, FileSearch, Layers3 } from 'lucide-react';
@@ -327,6 +328,8 @@ function BarChartSimple({ data, title, xLabel }: BarChartSimpleProps) {
 export default function PatientPage() {
   const { checkAccess } = useRBAC();
   const { user } = useAuth();
+  // [W2-4] 深链支持: /patients/:id 自动打开患者详情 (供 360°/报告/预约等模块回链)
+  const { id: routePatientId } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState<TabKey>("list");
   const [toast, setToast] = useState<ToastInfo>({
     show: false,
@@ -497,6 +500,41 @@ export default function PatientPage() {
       cancelled = true;
     };
   }, [checkAccess, user?.department]);
+
+  // [W2-4] 深链: /patients/:id → 自动选中并打开详情
+  useEffect(() => {
+    if (!routePatientId) return;
+    let cancelled = false;
+    void (async () => {
+      const res = await patientApi.getById(routePatientId);
+      if (cancelled || !res.success || !res.data) return;
+      const d = res.data as Record<string, unknown>;
+      const pType = String(d.patientType ?? d.type ?? "门诊");
+      setSelectedPatient({
+        id: String(d.id ?? d.patientId ?? routePatientId),
+        name: String(d.name ?? d.patientName ?? ""),
+        gender: (String(d.gender ?? "男").includes("女") ? "女" : "男") as Patient["gender"],
+        age: Number(d.age ?? 0),
+        idCard: String(d.idCard ?? ""),
+        phone: String(d.phone ?? ""),
+        address: String(d.address ?? ""),
+        emergencyContact: String(d.emergencyContact ?? ""),
+        emergencyPhone: String(d.emergencyPhone ?? ""),
+        patientType: (["门诊", "住院", "体检", "急诊"].includes(pType) ? pType : "门诊") as Patient["patientType"],
+        allergyHistory: String(d.allergyHistory ?? "无"),
+        medicalHistory: String(d.medicalHistory ?? ""),
+        registrationDate: String((d.registeredAt ?? d.registrationDate ?? "").toString()).slice(0, 10),
+        totalExamCount: Number(d.totalExamCount ?? 0),
+        insuranceType: String(d.insuranceType ?? ""),
+        bedNumber: String(d.bedNumber ?? ""),
+        attendingDoctor: String(d.attendingDoctor ?? ""),
+      });
+      setActiveTab("detail");
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [routePatientId]);
 
   const resetAdvancedFilters = () => {
     setAdvancedFilters({

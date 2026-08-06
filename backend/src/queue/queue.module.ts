@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common'
 import { BullModule } from '@nestjs/bull'
 import { QueueService } from './queue.service'
 import { ReportExportConsumer, Hl7SendConsumer, AiInferenceConsumer } from './queue.consumer'
+import { Hl7Module } from '../hl7/hl7.module'
+import { AiDiagnosisModule } from '../modules/ai-diagnosis/ai-diagnosis.module'
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { ReportExportConsumer, Hl7SendConsumer, AiInferenceConsumer } from './qu
       { name: 'hl7Send' },
       { name: 'aiInference' },
     ),
+    Hl7Module,
+    AiDiagnosisModule,
   ],
   providers: [QueueService, ReportExportConsumer, Hl7SendConsumer, AiInferenceConsumer],
   exports: [QueueService],

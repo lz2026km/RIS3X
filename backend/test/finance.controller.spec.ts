@@ -16,6 +16,7 @@ describe('FinanceController', () => {
             listChargeItems: jest.fn(),
             createChargeItem: jest.fn(),
             updateChargeItem: jest.fn(),
+            deleteChargeItem: jest.fn(),
             listInvoices: jest.fn(),
             createInvoice: jest.fn(),
             getInvoice: jest.fn(),
@@ -51,6 +52,12 @@ describe('FinanceController', () => {
     const body = { amount: 600 }
     const r = await ctrl.updateChargeItem('c1', body)
     expect(svc.updateChargeItem).toHaveBeenCalledWith('c1', body)
+  })
+
+  it('deleteChargeItem delegates to service', async () => {
+    svc.deleteChargeItem.mockResolvedValue({ data: [{ id: 'c1' }] } as any)
+    const r = await ctrl.deleteChargeItem('c1')
+    expect(svc.deleteChargeItem).toHaveBeenCalledWith('c1')
   })
 
   it('listInvoices delegates to service', async () => {

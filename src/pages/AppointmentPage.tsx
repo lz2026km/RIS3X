@@ -22,6 +22,7 @@ import {
   Check,
   AlertTriangle,
   BarChart3,
+  CalendarPlus,
 } from "lucide-react";
 import {
   initialModalityDevices,
@@ -138,6 +139,11 @@ const getWeekDates = (baseDate: Date): Date[] => {
 const formatDateCht = (d: Date): string => {
   const weekdays = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
   return `${d.getMonth() + 1}月${d.getDate()}日${weekdays[d.getDay()]}`;
+};
+
+// [W2-4] 修复: 日历视图引用 formatDate 但未定义 → 运行时 ReferenceError 导致页面崩溃
+const formatDate = (d: Date): string => {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 };
 
 const getNameInitials = (name: string): string => {
@@ -393,6 +399,54 @@ export default function AppointmentPage() {
   }, []);
   const [rules, setRules] = useState<AppointmentRules[]>([]);
 
+  // [W2-4] 一键预约: 支持 /appointments?patientId=xxx 从患者详情直达预约表单
+  const [patientPreset, setPatientPreset] = useState<{
+    patientId: string;
+    patientName: string;
+    gender: string;
+    age: string;
+    phone: string;
+    idCard: string;
+  } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const pid = new URLSearchParams(window.location.search).get("patientId");
+    if (!pid) return;
+    void (async () => {
+      try {
+        const res = await (await import("../services/api")).patientApi.getById(pid);
+        if (cancelled || !res.success || !res.data) return;
+        const p = res.data as unknown as Record<string, unknown>;
+        const name = String(p.name ?? p.patientName ?? "");
+        const gender = String(p.gender ?? "男");
+        setPatientPreset({
+          patientId: pid,
+          patientName: name,
+          gender: gender.includes("女") ? "女" : gender.includes("男") ? "男" : "男",
+          age: String(p.age ?? ""),
+          phone: String(p.phone ?? ""),
+          idCard: String(p.idCard ?? ""),
+        });
+        setFormData((prev) => ({
+          ...prev,
+          patientName: name,
+          gender: gender.includes("女") ? "女" : "男",
+          age: String(p.age ?? ""),
+          phone: String(p.phone ?? ""),
+          idCard: String(p.idCard ?? ""),
+        }));
+        setShowForm(true);
+        setSearchKeyword(pid);
+      } catch {
+        setPatientPreset({ patientId: pid, patientName: "", gender: "男", age: "", phone: "", idCard: "" });
+        setSearchKeyword(pid);
+        setShowForm(true);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   // 加载辅助数据 (等候名单/提醒/改期/取消) - P0: 接真实端点, 失败显式提示
   useEffect(() => {
     let cancelled = false;
@@ -624,7 +678,8 @@ export default function AppointmentPage() {
           : "ROUTINE";
     return {
       patientName: formData.patientName,
-      patientId: `RAD-P${Date.now()}`,
+      // [W2-4] 一键预约: 优先使用患者详情传入的 patientId, 保证预约与患者关联
+      patientId: patientPreset?.patientId || `RAD-P${Date.now()}`,
       modality: formData.examType,
       bodyPart: formData.bodyPart || undefined,
       startAt: startAt.toISOString(),
@@ -828,6 +883,17 @@ export default function AppointmentPage() {
       {loading && <LoadingBanner message="正在从 API 加载预约数据..." />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {tabError && <ErrorBanner message={tabError} />}
+
+      {/* [W2-4] 一键预约横幅: 从患者详情跳转时展示 */}
+      {patientPreset && (
+        <div style={{ background: '#eff6ff', borderBottom: '1px solid #bfdbfe', padding: '10px 24px', display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#1e40af' }}>
+          <CalendarPlus size={16} />
+          <span>已从患者详情进入: <b>{patientPreset.patientName || patientPreset.patientId}</b>（{patientPreset.patientId}），预约表单已自动填充，直接选择检查项目即可提交。</span>
+          <button onClick={() => setPatientPreset(null)} style={{ marginLeft: 'auto', border: 'none', background: 'transparent', color: '#1e40af', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+            关闭
+          </button>
+        </div>
+      )}
 
       {/* ====== 顶部标题栏 ====== */}
       <div

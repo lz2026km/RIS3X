@@ -21,6 +21,9 @@ export class FinanceController {
   @Put('charge-items/:id')
   updateChargeItem(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateChargeItemSchema)) body: Record<string, unknown>) { return this.svc.updateChargeItem(id, body) }
 
+  @Delete('charge-items/:id')
+  deleteChargeItem(@Param('id') id: string) { return this.svc.deleteChargeItem(id) }
+
   @Get('invoices')
   listInvoices() { return this.svc.listInvoices() }
 

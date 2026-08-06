@@ -4,7 +4,7 @@
 // ============================================================
 
 import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   History, GitCompare, ChevronRight, Plus, Edit2, Eye, X,
   FileText, Bell, ArrowLeftRight, RotateCcw, Search, Layers, GitBranch,
@@ -70,6 +70,7 @@ function diffText(before: string, after: string): { type: 'same' | 'removed' | '
 // ============================================================
 export default function ReportRevisionsPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams(); // [W2-3] 支持 /report-revisions?reportId= 直达
 
   // 加载所有修订报告
   const allRevisions = useMemo(() => {
@@ -93,8 +94,12 @@ export default function ReportRevisionsPage() {
   // 报告 ID 列表
   const reportIds = Object.keys(revisionsByReport);
 
-  // 选中报告
-  const [selectedReportId, setSelectedReportId] = useState<string>(reportIds[0] || 'rpt-043');
+  // 选中报告 ([W2-3] 支持从报告列表带 ?reportId= 直达)
+  const [selectedReportId, setSelectedReportId] = useState<string>(() => {
+    const fromUrl = searchParams.get('reportId');
+    if (fromUrl && revisionsByReport[fromUrl]) return fromUrl;
+    return reportIds[0] || 'rpt-043';
+  });
   const [leftVersion, setLeftVersion] = useState<number>(1);
   const [rightVersion, setRightVersion] = useState<number>(2);
   const [diffField, setDiffField] = useState<'findings' | 'diagnosis' | 'impression'>('impression');

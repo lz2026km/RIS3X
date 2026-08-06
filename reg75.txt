@@ -1,0 +1,72 @@
+﻿
+Running 35 tests using 1 worker
+
+Select: 1 Input: 2 Button: 1
+  ok  1 [chromium] 鈥?e2e\login.spec.ts:6:7 鈥?鐧诲綍鍔熻兘 鈥?鐧诲綍椤甸潰娓叉煋妫€鏌?(6.5s)
+Accessed: /
+Accessed: /worklist
+Accessed: /reports
+Accessed: /dicom-viewer
+Accessed: /critical-value
+  ok  2 [chromium] 鈥?e2e\login.spec.ts:27:7 鈥?鐧诲綍鍔熻兘 鈥?鐢ㄦ埛鐧诲綍鍜岄〉闈㈣闂?(24.5s)
+  ok  3 [chromium] 鈥?e2e\login.spec.ts:50:7 鈥?鐧诲綍鍔熻兘 鈥?姝ｅ父鐧诲綍 localStorage auth (1.1s)
+  ok  4 [chromium] 鈥?e2e\login.spec.ts:59:7 鈥?鐧诲綍鍔熻兘 鈥?鍝嶅簲寮?- 绉诲姩绔?(2.3s)
+  ok  5 [chromium] 鈥?e2e\login.spec.ts:65:7 鈥?鐧诲綍鍔熻兘 鈥?a11y - 閿洏瀵艰埅 (884ms)
+  ok  6 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:47:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?1. 鐧诲綍椤垫樉绀鸿鑹查€夋嫨鍣?鐢ㄦ埛鍚?瀵嗙爜/鎻愪氦鎸夐挳 (5.9s)
+[2] 绠＄悊鍛樹晶杈规爮鍏冪礌: 333
+[2] admin sidebar items: 333
+  ok  7 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:57:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?2. 鐧诲綍涓虹鐞嗗憳鈫掗噸瀹氬悜鍒?, sidebar鏄剧ず鎵€鏈夎彍鍗?(6.3s)
+[3] 鍖荤敓渚ц竟鏍忓厓绱? 200
+[3] doctor sidebar items: 200
+  ok  8 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:68:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?3. 鐧诲綍涓哄尰鐢熲啋鑿滃崟浠呭惈鍖荤敓鍙闂」 (6.8s)
+[4] 渚ц竟鏍忚彍鍗曢」: 333 (鐩爣187)
+[4] total nav items: 333
+  ok  9 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:79:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?4. 绠＄悊鍛樹晶杈规爮鑿滃崟椤圭粺璁?搴斾负187) (8.0s)
+  ok 10 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:95:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?5. 鐐瑰嚮Dashboard瀵艰埅鍒伴椤?(10.8s)
+[6] 鏁版嵁鎶ヨ〃涓績: 鍚垎绫?true, 闀垮害=3277
+[6] has category: true
+  ok 11 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:106:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?6. 鏁版嵁鎶ヨ〃涓績椤甸潰鍔犺浇鍒嗙被 (10.1s)
+[7] 鍥捐〃鍙: true
+  ok 12 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:117:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?7. 閫夋嫨鎶ヨ〃鍒嗙被鈫掑浘琛ㄦ覆鏌?(10.2s)
+[8] 鍗辨€ュ€艰〃锟? true, 闀垮害=2465
+  ok 13 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:134:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?8. 鍗辨€ュ€奸〉闈㈡覆鏌撹〃鏍?(11.8s)
+[9] 鍗辨€ュ€艰繃婊? 椤甸潰闀垮害=2465
+  ok 14 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:146:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?9. 鎸変弗閲嶇▼搴﹁繃婊ゅ嵄鎬ュ€?(11.2s)
+[10] 鎵归噺鎿嶄綔瀹屾垚
+  ok 15 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:160:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?10. 鎵归噺纭鍗辨€ュ€?(11.1s)
+[11] 宸ヤ綔鍒楄〃: true, 闀垮害=2726
+  ok 16 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:180:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?11. 宸ヤ綔鍒楄〃椤甸潰娓叉煋鏉＄洰 (11.3s)
+[12] 鎵归噺鎿嶄綔鏍忓彲瑙? false
+  ok 17 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:191:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?12. 妫€鏌ラ〉闈㈠嬀閫夊悗鏄剧ず鎵归噺鎿嶄綔鏍?(10.7s)
+[13] 妫€鏌ユ悳绱? 椤甸潰闀垮害=3254
+  ok 18 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:206:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?13. 妫€鏌ユ悳绱㈢瓫閫夊姛鑳?(11.4s)
+[14] 鐢ㄦ埛绠＄悊椤甸潰: 鍔犺浇=false, 闀垮害=2749
+[14] page loaded: false
+  ok 19 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:221:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?14. 绠＄悊鍛樺彲璁块棶绯荤粺绠＄悊椤甸潰 (10.2s)
+[15] 鐢ㄦ埛绠＄悊琛ㄦ牸鍙: true
+  ok 20 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:232:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?15. 鐢ㄦ埛绠＄悊椤甸潰娓叉煋 (10.1s)
+[16] 鎶ュ憡椤甸潰: true, 闀垮害=2464
+  ok 21 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:242:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?16. 鎶ュ憡椤甸潰鍔犺浇鍒楄〃 (11.5s)
+[17] 鍐欐姤鍛婂鑸? true, URL=http://localhost:5191/write-report
+  ok 22 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:253:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?17. 鐐瑰嚮涔﹀啓鎶ュ憡鈫掑鑸埌鍐欐姤鍛婇〉 (15.7s)
+[18] 蹇嵎閿甮+r: false, URL=http://localhost:5191/
+[18] 蹇嵎閿彲鑳芥湭娉ㄥ唽
+  ok 23 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:269:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?18. 鎸塯+r瀵艰埅鍒?reports (11.6s)
+[19] 瀹¤鏃ュ織椤甸潰(/operation-log): 鍔犺浇鎴愬姛, 闀垮害=2464
+[15] page loaded: true
+  ok 24 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:283:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?19. 瀹¤鏃ュ織椤甸潰娓叉煋鏉＄洰 (9.6s)
+[20] 404澶勭悊: true, URL=http://localhost:5191/forbidden
+  ok 25 [chromium] 鈥?e2e\v30607-comprehensive.spec.ts:303:7 鈥?v3.0.6.11-7 缁煎悎楠岃瘉 鈥?20. 璁块棶涓嶅瓨鍦ㄩ〉闈⑩啋閲嶅畾鍚戝埌棣栭〉鎴栨樉绀?04 (9.2s)
+  ok 26 [chromium] 鈥?e2e\v30611-21-regression.spec.ts:23:7 鈥?v3.0.6.11-21 Regression 鈥?antd6 compat - page renders without antd errors (14.7s)
+  ok 27 [chromium] 鈥?e2e\v30611-21-regression.spec.ts:32:7 鈥?v3.0.6.11-21 Regression 鈥?button click - verify clickable elements (14.5s)
+  ok 28 [chromium] 鈥?e2e\v30611-21-regression.spec.ts:40:7 鈥?v3.0.6.11-21 Regression 鈥?form submit - login then verify (6.4s)
+  ok 29 [chromium] 鈥?e2e\v30611-21-regression.spec.ts:46:7 鈥?v3.0.6.11-21 Regression 鈥?keyboard nav - tab navigation works (14.7s)
+  ok 30 [chromium] 鈥?e2e\v30611-21-regression.spec.ts:55:7 鈥?v3.0.6.11-21 Regression 鈥?modal lifecycle - open and close (14.6s)
+[msw] MSW active: false (may be disabled in real API mode)
+  ok 31 [chromium] 鈥?e2e\v30611-21-regression.spec.ts:61:7 鈥?v3.0.6.11-21 Regression 鈥?msw mode - MSW interceptors active (2.1s)
+  ok 32 [chromium] 鈥?e2e\v30611-21-regression.spec.ts:67:7 鈥?v3.0.6.11-21 Regression 鈥?route reachability - all routes accessible (13.3s)
+  ok 33 [chromium] 鈥?e2e\worklist.spec.ts:25:7 鈥?Worklist V3 (E2E) 鈥?璁块棶 /worklist 娓叉煋涓昏〃 + 鍙岃鍥惧垏鎹?(10.4s)
+  ok 34 [chromium] 鈥?e2e\worklist.spec.ts:35:7 鈥?Worklist V3 (E2E) 鈥?鐐瑰嚮楂樼骇绛涢€夋墦寮€鎶藉眽 (11.1s)
+  ok 35 [chromium] 鈥?e2e\worklist.spec.ts:43:7 鈥?Worklist V3 (E2E) 鈥?鎵归噺鎿嶄綔绌烘€佹樉绀?鏈€変腑" (10.0s)
+
+  35 passed (5.9m)

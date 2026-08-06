@@ -73,11 +73,12 @@ export class CriticalsController {
     @Query('severity') severity?: string,
     @Query('dateFrom') dateFrom?: string,
     @Query('dateTo') dateTo?: string,
+    @Query('patientId') patientId?: string,
   ) {
     return this.service.list({
       skip: Number(skip ?? 0),
       take: Number(take ?? 50),
-      state, severity, dateFrom, dateTo,
+      state, severity, dateFrom, dateTo, patientId,
     })
   }
 

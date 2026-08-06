@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { Button, Empty } from "antd";
+import { useMemo, useState } from "react";
+import { Button, Empty, Tag } from "antd";
 import {
   User,
   Scan,
@@ -8,6 +8,12 @@ import {
   Stethoscope,
   AlertTriangle,
   Eye,
+  Image as ImageIcon,
+  ImagePlus,
+  FileText,
+  History,
+  UserCheck,
+  AlertOctagon,
 } from "lucide-react";
 import {
   initialModalityDevices,
@@ -93,6 +99,90 @@ interface ListViewProps {
   onSelect: (ids: Set<string>) => void;
   onRowClick: (exam: RadiologyExam) => void;
   loading?: boolean;
+  onAssignDoctor?: (exam: RadiologyExam) => void;
+  onViewRequisition?: (exam: RadiologyExam) => void;
+  onViewHistory?: (exam: RadiologyExam) => void;
+  onCriticalValueClick?: (exam: RadiologyExam) => void;
+}
+
+// 影像缩略图预览: 有 thumbnail 用图, 无则显示模态图标 + 帧数
+function ImagePreviewCell({ exam }: { exam: RadiologyExam }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <div
+      style={{ position: "relative" }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      <span
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 4,
+          fontSize: 12,
+          color: exam.imagesAcquired > 0 ? "#1e3a5f" : "#94a3b8",
+          cursor: "default",
+        }}
+      >
+        {exam.thumbnailUrl ? (
+          <img
+            src={exam.thumbnailUrl}
+            alt="缩略图"
+            style={{ width: 34, height: 26, objectFit: "cover", borderRadius: 4, border: "1px solid #e2e8f0" }}
+          />
+        ) : (
+          <ImageIcon size={12} color="#94a3b8" />
+        )}
+        {exam.imagesAcquired > 0 ? `${exam.imagesAcquired}幅` : "-"}
+      </span>
+      {hover && (
+        <div
+          style={{
+            position: "absolute",
+            top: "calc(100% + 6px)",
+            left: 0,
+            zIndex: 60,
+            width: 160,
+            padding: 10,
+            background: "#fff",
+            borderRadius: 10,
+            border: "1px solid #e2e8f0",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+          }}
+        >
+          {exam.thumbnailUrl ? (
+            <img
+              src={exam.thumbnailUrl}
+              alt={`${exam.patientName} 影像缩略图`}
+              style={{ width: "100%", height: 96, objectFit: "cover", borderRadius: 6 }}
+            />
+          ) : (
+            <div
+              style={{
+                width: "100%",
+                height: 96,
+                borderRadius: 6,
+                background: "linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%)",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#fff",
+                gap: 4,
+              }}
+            >
+              <ImagePlus size={22} style={{ opacity: 0.8 }} />
+              <span style={{ fontSize: 11, opacity: 0.9 }}>{exam.modality} 影像</span>
+              <span style={{ fontSize: 10, opacity: 0.7 }}>{exam.imagesAcquired || 0} 帧</span>
+            </div>
+          )}
+          <div style={{ marginTop: 8, fontSize: 11, color: "#64748b", textAlign: "center" }}>
+            {exam.examItemName}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function ListView({
@@ -101,6 +191,10 @@ export function ListView({
   onSelect,
   onRowClick,
   loading = false,
+  onAssignDoctor,
+  onViewRequisition,
+  onViewHistory,
+  onCriticalValueClick,
 }: ListViewProps) {
   const columns = useMemo<ProColumn<RadiologyExam>[]>(() => [
     {
@@ -191,6 +285,13 @@ export function ListView({
       ),
     },
     {
+      title: "影像",
+      dataIndex: "imagesAcquired",
+      key: "images",
+      width: 80,
+      render: (_value, exam) => <ImagePreviewCell exam={exam} />,
+    },
+    {
       title: "患者类型",
       dataIndex: "patientType",
       key: "patientType",
@@ -220,6 +321,33 @@ export function ListView({
       },
     },
     {
+      title: "危急值",
+      dataIndex: "criticalFinding",
+      key: "criticalFinding",
+      width: 90,
+      filters: [
+        { text: "有危急值", value: "true" },
+        { text: "无危急值", value: "false" },
+      ],
+      onFilter: (value, record) => record.criticalFinding === (value === "true"),
+      render: (_value, exam) =>
+        exam.criticalFinding ? (
+          <Tag
+            color="error"
+            style={{ cursor: "pointer", marginInlineEnd: 0, fontWeight: 600 }}
+            icon={<AlertOctagon size={12} />}
+            onClick={(e) => {
+              e.stopPropagation();
+              onCriticalValueClick?.(exam);
+            }}
+          >
+            危急值
+          </Tag>
+        ) : (
+          <span style={{ fontSize: 12, color: "#cbd5e1" }}>-</span>
+        ),
+    },
+    {
       title: "申请医生",
       dataIndex: "technologistName",
       key: "technologistName",
@@ -229,6 +357,21 @@ export function ListView({
         <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
           <Stethoscope size={11} color="#94a3b8" />
           {String(value || getDoctorById(exam.technologistId || "")?.name || "-")}
+        </span>
+      ),
+    },
+    {
+      title: "报告医生",
+      dataIndex: "radiologistId",
+      key: "radiologistId",
+      width: 110,
+      searchable: true,
+      render: (value, exam) => (
+        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <UserCheck size={11} color="#94a3b8" />
+          <span style={{ color: exam.radiologistId ? "#1e3a5f" : "#94a3b8" }}>
+            {exam.radiologistName || getDoctorById(String(value ?? ""))?.name || "未分配"}
+          </span>
         </span>
       ),
     },
@@ -263,23 +406,58 @@ export function ListView({
       title: "操作",
       dataIndex: "id",
       key: "actions",
-      width: 90,
+      width: 300,
       fixed: "right",
       render: (_value, exam) => (
-        <Button
-          type="link"
-          size="small"
-          icon={<Eye size={12} />}
-          onClick={(event) => {
-            event.stopPropagation();
-            onRowClick(exam);
-          }}
-        >
-          查看
-        </Button>
+        <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <Button
+            type="link"
+            size="small"
+            icon={<Eye size={12} />}
+            onClick={(event) => {
+              event.stopPropagation();
+              onRowClick(exam);
+            }}
+          >
+            查看
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            icon={<UserCheck size={12} />}
+            onClick={(event) => {
+              event.stopPropagation();
+              onAssignDoctor?.(exam);
+            }}
+          >
+            分配医生
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            icon={<FileText size={12} />}
+            onClick={(event) => {
+              event.stopPropagation();
+              onViewRequisition?.(exam);
+            }}
+          >
+            申请单
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            icon={<History size={12} />}
+            onClick={(event) => {
+              event.stopPropagation();
+              onViewHistory?.(exam);
+            }}
+          >
+            历史
+          </Button>
+        </div>
       ),
     },
-  ], [exams, onRowClick]);
+  ], [exams, onRowClick, onAssignDoctor, onViewRequisition, onViewHistory, onCriticalValueClick]);
 
   return (
     <ProTable<RadiologyExam>
@@ -291,7 +469,7 @@ export function ListView({
       size="small"
       sticky
       pagination={{ pageSize: 10 }}
-      scroll={{ x: 1400, y: "calc(100vh - 400px)" }}
+      scroll={{ x: 1800, y: "calc(100vh - 400px)" }}
       rowSelection={{
         preserveSelectedRowKeys: true,
         selectedRowKeys: [...selectedIds],

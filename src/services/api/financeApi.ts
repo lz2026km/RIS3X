@@ -71,6 +71,12 @@ export const financeApi = {
     return res
   },
 
+  deleteChargeItem: async (id: string) => {
+    const res = await api.delete<{ id: string }>(`/finance/charge-items/${id}`)
+    await invalidateApiCacheByPrefix('/finance/charge-items')
+    return res
+  },
+
   // Invoices
   listInvoices: () =>
     api.get<InvoiceDto[]>('/finance/invoices'),

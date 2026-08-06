@@ -36,6 +36,19 @@ export const aiPlatformHandlers = [
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
+  http.get(`${API}/qc/:id`, async ({ params }) => {
+    await delay(delayMs());
+    const id = String(params.id ?? '');
+    const fallback = [{ "id": "AIQC001", "patientName": "张三", "aiScore": 95, "humanScore": 93 }];
+    const item = fallback.find((r) => r.id === id) ?? { id, patientName: '未知患者', aiScore: 0, humanScore: 0, notFound: true };
+    return HttpResponse.json({ success: true, data: item });
+  }),
+  http.get(`${API}/medical-devices`, async () => {
+    await delay(delayMs());
+    let items: any[] = [];
+    try { items = list<any>('devices'); } catch {}
+    return HttpResponse.json({ success: true, data: items });
+  }),
   http.get(`${API}/structured-reports`, async ({ request }) => {
     await delay(delayMs());
     const url = new URL(request.url);

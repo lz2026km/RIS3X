@@ -202,4 +202,20 @@ export const dentalApi = {
     api.post<{ canals: Array<{ toothNo: string; canalCount: number; filled: number; missed: string | null; difficulty: string }> }>(`${DENTAL_API}/ai/root-canal-detection`, data),
   screenOralCavity: (data: { imageBase64?: string }) =>
     api.post<{ findings: Array<{ location: string; type: string; probability: number; risk: string }> }>(`${DENTAL_API}/ai/oral-cavity-screening`, data),
+
+  // [W3-2] 跨科室转诊 (DentalRadFusionPages / CrossSpecialtyReferralPage)
+  listReferrals: () =>
+    api.get<any[]>(`${DENTAL_API}/referrals`),
+  createReferral: (data: any) =>
+    api.post<any>(`${DENTAL_API}/referrals`, data),
+  acceptReferral: (id: string) =>
+    api.post<any>(`${DENTAL_API}/referrals/${id}/accept`, {}),
+
+  // [W3-2] 远程口腔会诊 (DentalTelePage)
+  listTeleSessions: () =>
+    api.get<any[]>(`${DENTAL_API}/tele/sessions`),
+  createTeleSession: (data: any) =>
+    api.post<any>(`${DENTAL_API}/tele/sessions`, data),
+  endTeleSession: (id: string) =>
+    api.delete<any>(`${DENTAL_API}/tele/sessions/${id}`),
 };

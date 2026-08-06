@@ -1,25 +1,87 @@
 import { api } from './client'
 
+// Notifications API
+// Backend: /notifications/*
+//   GET    /unread/:userId, /history/:userId, /stats/:userId, /vapid-public-key
+//   POST   /read/:id, /read-all/:userId, /, /broadcast, /push-subscribe, /push-unsubscribe, /push-send
+//   DELETE /:id
+
+export type NotificationType = 'CRITICAL' | 'REPORT' | 'TASK' | 'SYSTEM' | 'APPOINTMENT'
+export type NotificationSeverity = 'INFO' | 'WARN' | 'ERROR' | 'CRITICAL'
+
 export interface NotificationDto {
-  id: string; userId: string; title: string; body: string; type: 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL';
-  category: string; read: boolean; createdAt: string; readAt?: string; actionLink?: string; senderId?: string
+  id: string
+  userId: string
+  type: NotificationType
+  severity?: NotificationSeverity
+  title: string
+  content: string
+  link?: string
+  read: boolean
+  readAt?: string
+  targetId?: string
+  createdAt: string
 }
-export interface NotificationQueryParams { page?: number; pageSize?: number; type?: string; read?: boolean; category?: string }
-export interface NotificationStatsDto { total: number; unread: number; critical: number; byCategory: Record<string, number> }
-export interface PushSubscriptionDto { endpoint: string; keys: { p256dh: string; auth: string }; deviceType: string }
+
+export interface NotificationStatsDto {
+  userId: string
+  total: number
+  unread: number
+  today: number
+  critical: number
+}
+
+export interface PushSubscriptionDto {
+  userId: string
+  endpoint: string
+  keys: { p256dh: string; auth: string }
+  topics?: string[]
+}
+
+export interface CreateNotificationData {
+  userId: string
+  type: NotificationType
+  severity?: NotificationSeverity
+  title: string
+  content: string
+  link?: string
+  targetId?: string
+}
 
 export const notificationsApi = {
-  list: (params?: NotificationQueryParams) => {
-    const sp = new URLSearchParams()
-    if (params) { Object.entries(params).forEach(([k, v]) => { if (v !== undefined) sp.set(k, String(v)) }) }
-    return api.get<{ items: NotificationDto[]; total: number }>(`/notifications?${sp.toString()}`)
-  },
-  markRead: (id: string) => api.patch(`/notifications/${id}`, { read: true }),
-  markAllRead: () => api.post('/notifications/mark-all-read', {}),
-  delete: (id: string) => api.delete(`/notifications/${id}`),
-  getStats: () => api.get<NotificationStatsDto>('/notifications/stats'),
-  subscribe: (dto: PushSubscriptionDto) => api.post('/notifications/subscribe', dto),
-  unsubscribe: (endpoint: string) => api.delete(`/notifications/subscribe?endpoint=${encodeURIComponent(endpoint)}`),
-  send: (data: { title: string; body: string; type?: string; userIds?: string[] }) => api.post('/notifications/send', data),
-  broadcast: (data: { title: string; body: string; type?: string }) => api.post('/notifications/broadcast', data),
+  getUnread: (userId: string) =>
+    api.get<{ userId: string; unread: number }>(`/notifications/unread/${userId}`),
+
+  getHistory: (userId: string, limit?: number) =>
+    api.get<NotificationDto[]>(`/notifications/history/${userId}${limit ? `?limit=${limit}` : ''}`),
+
+  getStats: (userId: string) =>
+    api.get<NotificationStatsDto>(`/notifications/stats/${userId}`),
+
+  markRead: (id: string) =>
+    api.post<NotificationDto>(`/notifications/read/${id}`),
+
+  markAllRead: (userId: string) =>
+    api.post<{ userId: string; count: number }>(`/notifications/read-all/${userId}`),
+
+  delete: (id: string) =>
+    api.delete<{ id: string; deleted: boolean }>(`/notifications/${id}`),
+
+  create: (data: CreateNotificationData) =>
+    api.post<NotificationDto>('/notifications', data),
+
+  broadcast: (data: { userIds: string[] } & Omit<CreateNotificationData, 'userId'>) =>
+    api.post<{ count: number; items: NotificationDto[] }>('/notifications/broadcast', data),
+
+  pushSubscribe: (dto: PushSubscriptionDto) =>
+    api.post<{ success: boolean; userId: string; endpoint: string; total: number }>('/notifications/push-subscribe', dto),
+
+  pushUnsubscribe: (endpoint: string) =>
+    api.post<{ success: boolean; userId?: string; endpoint: string; total?: number; reason?: string }>('/notifications/push-unsubscribe', { endpoint }),
+
+  getVapidPublicKey: () =>
+    api.get<{ publicKey: string | null }>('/notifications/vapid-public-key'),
+
+  sendPush: (data: { userId: string; title: string; content: string; url?: string; tag?: string; requireInteraction?: boolean }) =>
+    api.post<{ success: boolean; userId: string; delivered: number; total?: number; reason?: string }>('/notifications/push-send', data),
 }

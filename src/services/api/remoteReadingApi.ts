@@ -49,7 +49,7 @@ export interface RemoteReadingStats {
 
 export const remoteReadingApi = {
   listSessions: (params?: RemoteReadingQueryParams) =>
-    api.get<RemoteReadingSession[]>(`/remote-reading/sessions?${new URLSearchParams(params ?? {}).toString()}`),
+    api.get<RemoteReadingSession[]>(`/remote-reading/sessions?${new URLSearchParams((params ?? {}) as Record<string, string>).toString()}`),
 
   getSession: (id: string) =>
     api.get<RemoteReadingSession>(`/remote-reading/sessions/${id}`),

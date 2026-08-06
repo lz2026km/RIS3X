@@ -315,6 +315,12 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         roles: ["医生", "主任", "管理员",],
       },
       {
+        path: "/export/approval",
+        icon: <ClipboardCheck size={18} />,
+        labelKey: "nav.exportApproval",
+        roles: ["医生", "主任", "管理员",],
+      },
+      {
         path: "/publish",
         icon: <FileStack size={18} />,
         labelKey: "nav.publish",
@@ -1037,6 +1043,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: <Hammer size={18} />,
         labelKey: "nav.hl7Builder",
         roles: ["管理员"],
+      },
+      // [G005 W2] FHIR SMART 授权
+      {
+        path: "/integration/smart-auth",
+        icon: <ShieldCheck size={18} />,
+        labelKey: "nav.smartAuth",
+        roles: ["管理员", "主任"],
       },
       // [Sprint 4] F18 HL7 SIU
       {

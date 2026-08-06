@@ -1,13 +1,12 @@
 /**
  * G005 放射RIS系统 v3.0.2.2 - 通知服务
  * v3.0.6.11-53 (Phase 1.5): Web Push 订阅存储(内存) + 推送发送
- *   - GET  /notifications/vapid-public-key  → VAPID 公钥
- *   - POST /notifications/push-subscribe    → 保存订阅
- *   - POST /notifications/push-unsubscribe  → 删除订阅
- *   - POST /notifications/push-send         → 发送 Web Push(需安装 web-push + VAPID 密钥)
+ * v3.0.6.11-75 (W4-2): 订阅持久化至 DB (NotificationSubscription 表, 无表时回退内存);
+ *   create/broadcast 后通过 socket.io gateway 实时推送 (notify 事件)
  */
 import { Injectable, Logger } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import { createNoopGateway, NotificationsGateway } from './notifications.gateway'
 
 export interface CreateNotificationDto {
   userId: string
@@ -45,11 +44,17 @@ interface WebPushModule {
 @Injectable()
 export class NotificationsService {
   private readonly logger = new Logger(NotificationsService.name)
-  /** Web Push 订阅内存存储: userId -> subscriptions (生产建议持久化为 DB) */
+  /** Web Push 订阅内存回退存储 (DB 不可用/未迁移时使用; 生产建议迁移后以 DB 为准) */
   private readonly pushSubscriptions = new Map<string, PushSubscriptionEntry[]>()
   private demoVapidWarned = false
+  private readonly gateway: NotificationsGateway
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    gateway?: NotificationsGateway,
+  ) {
+    this.gateway = gateway ?? createNoopGateway()
+  }
 
   /**
    * GET /notifications/unread/:userId — 获取未读数
@@ -87,7 +92,48 @@ export class NotificationsService {
   }
 
   /**
+   * POST /notifications/read-all/:userId — 一键全部已读
+   */
+  async markAllRead(userId: string): Promise<{ userId: string; count: number }> {
+    const model = (this.prisma as any).notification
+    if (!model?.updateMany) return { userId, count: 0 }
+    const result = await model.updateMany({
+      where: { userId, read: false },
+      data: { read: true, readAt: new Date() },
+    })
+    return { userId, count: result?.count ?? 0 }
+  }
+
+  /**
+   * DELETE /notifications/:id — 删除单条通知
+   */
+  async remove(id: string): Promise<{ id: string; deleted: boolean }> {
+    const model = (this.prisma as any).notification
+    if (!model?.delete) return { id, deleted: false }
+    await model.delete({ where: { id } })
+    return { id, deleted: true }
+  }
+
+  /**
+   * GET /notifications/stats/:userId — 未读/今日/总数统计
+   */
+  async getStats(userId: string): Promise<{ userId: string; total: number; unread: number; today: number; critical: number }> {
+    const model = (this.prisma as any).notification
+    if (!model?.count) return { userId, total: 0, unread: 0, today: 0, critical: 0 }
+    const dayStart = new Date()
+    dayStart.setHours(0, 0, 0, 0)
+    const [total, unread, today, critical] = await Promise.all([
+      model.count({ where: { userId } }),
+      model.count({ where: { userId, read: false } }),
+      model.count({ where: { userId, createdAt: { gte: dayStart } } }),
+      model.count({ where: { userId, severity: 'CRITICAL', read: false } }),
+    ])
+    return { userId, total, unread, today, critical }
+  }
+
+  /**
    * POST /notifications/broadcast — 创建(广播)
+   * 创建后经 socket.io 网关实时推送 notify 事件到目标用户房间
    */
   async create(dto: CreateNotificationDto) {
     const model = (this.prisma as any).notification
@@ -100,11 +146,24 @@ export class NotificationsService {
       link: dto.link,
       targetId: dto.targetId,
     }
+    let created: any
     if (!model?.create) {
       // 返回内存对象(测试用)
-      return { id: 'mock-' + Date.now(), ...data, read: false, createdAt: new Date().toISOString() }
+      created = { id: 'mock-' + Date.now(), ...data, read: false, createdAt: new Date().toISOString() }
+    } else {
+      created = await model.create({ data })
     }
-    return model.create({ data })
+    try {
+      this.gateway.push(dto.userId, {
+        event: 'notify',
+        type: 'notification',
+        notification: created,
+        timestamp: Date.now(),
+      })
+    } catch (e) {
+      this.logger.warn('realtime push failed', (e as Error)?.message)
+    }
+    return created
   }
 
   /**
@@ -151,10 +210,11 @@ export class NotificationsService {
   }
 
   /**
-   * POST /notifications/push-subscribe — 保存/更新订阅 (内存存储)
+   * POST /notifications/push-subscribe — 保存/更新订阅
+   * v3.0.6.11-75 (W4-2): 优先持久化到 NotificationSubscription 表 (endpoint 唯一),
+   * DB 不可用(未迁移/断连)时回退内存存储
    */
   async savePushSubscription(userId: string, sub: { endpoint: string; keys: { p256dh: string; auth: string }; topics?: string[] }) {
-    const existing = this.pushSubscriptions.get(userId) ?? []
     const entry: PushSubscriptionEntry = {
       endpoint: sub.endpoint,
       keys: sub.keys,
@@ -162,21 +222,60 @@ export class NotificationsService {
       topics: sub.topics,
       createdAt: new Date().toISOString(),
     }
+    const dbModel = (this.prisma as any).notificationSubscription
+    let total = 0
+    if (dbModel?.upsert && dbModel?.count) {
+      try {
+        await dbModel.upsert({
+          where: { endpoint: sub.endpoint },
+          create: {
+            userId,
+            endpoint: sub.endpoint,
+            keysJson: JSON.stringify(sub.keys),
+            topics: sub.topics ?? null,
+          },
+          update: {
+            userId,
+            keysJson: JSON.stringify(sub.keys),
+            topics: sub.topics ?? null,
+          },
+        })
+        total = await dbModel.count({ where: { userId } })
+        this.logger.log(`push-subscribe (DB) userId=${userId} endpoints=${total}`)
+        return { success: true, userId, endpoint: sub.endpoint, total, store: 'db' }
+      } catch (e) {
+        this.logger.warn(`push-subscribe DB failed, fallback memory: ${(e as Error)?.message}`)
+      }
+    }
+    const existing = this.pushSubscriptions.get(userId) ?? []
     const updated = [...existing.filter((e) => e.endpoint !== sub.endpoint), entry]
     this.pushSubscriptions.set(userId, updated)
-    this.logger.log(`push-subscribe userId=${userId} endpoints=${updated.length}`)
+    this.logger.log(`push-subscribe (memory) userId=${userId} endpoints=${updated.length}`)
     return {
       success: true,
       userId,
       endpoint: sub.endpoint,
       total: updated.length,
+      store: 'memory',
     }
   }
 
   /**
-   * POST /notifications/push-unsubscribe — 删除订阅
+   * POST /notifications/push-unsubscribe — 删除订阅 (DB 优先, 回退内存)
    */
   async removePushSubscription(endpoint: string) {
+    const dbModel = (this.prisma as any).notificationSubscription
+    if (dbModel?.deleteMany && dbModel?.count) {
+      try {
+        const deleted = await dbModel.deleteMany({ where: { endpoint } })
+        if (deleted?.count && deleted.count > 0) {
+          this.logger.log(`push-unsubscribe (DB) endpoint=${endpoint}`)
+          return { success: true, endpoint, total: 0, store: 'db' }
+        }
+      } catch (e) {
+        this.logger.warn(`push-unsubscribe DB failed, fallback memory: ${(e as Error)?.message}`)
+      }
+    }
     for (const [userId, subs] of this.pushSubscriptions.entries()) {
       if (subs.some((s) => s.endpoint === endpoint)) {
         const updated = subs.filter((s) => s.endpoint !== endpoint)
@@ -185,17 +284,34 @@ export class NotificationsService {
         } else {
           this.pushSubscriptions.delete(userId)
         }
-        this.logger.log(`push-unsubscribe userId=${userId}`)
-        return { success: true, userId, endpoint, total: updated.length }
+        this.logger.log(`push-unsubscribe (memory) userId=${userId}`)
+        return { success: true, userId, endpoint, total: updated.length, store: 'memory' }
       }
     }
     return { success: false, endpoint, reason: 'not-found' }
   }
 
   /**
-   * 列出用户订阅
+   * 列出用户订阅 (DB 优先, 回退内存)
    */
-  getSubscriptions(userId: string): PushSubscriptionEntry[] {
+  async getSubscriptions(userId: string): Promise<PushSubscriptionEntry[]> {
+    const dbModel = (this.prisma as any).notificationSubscription
+    if (dbModel?.findMany) {
+      try {
+        const rows = await dbModel.findMany({ where: { userId } })
+        if (rows && rows.length > 0) {
+          return rows.map((r: any) => ({
+            endpoint: r.endpoint,
+            keys: JSON.parse(r.keysJson ?? '{}'),
+            userId: r.userId,
+            topics: Array.isArray(r.topics) ? r.topics : undefined,
+            createdAt: r.createdAt?.toISOString?.() ?? String(r.createdAt ?? ''),
+          }))
+        }
+      } catch (e) {
+        this.logger.warn(`getSubscriptions DB failed, fallback memory: ${(e as Error)?.message}`)
+      }
+    }
     return this.pushSubscriptions.get(userId) ?? []
   }
 
@@ -219,7 +335,7 @@ export class NotificationsService {
    * 未安装 web-push 时返回 501 语义结果, 前端仍可走 Notification API 本地通知
    */
   async sendPush(userId: string, payload: { title: string; content: string; url?: string; tag?: string; requireInteraction?: boolean }) {
-    const subs = this.getSubscriptions(userId)
+    const subs = await this.getSubscriptions(userId)
     if (subs.length === 0) {
       return { success: false, userId, delivered: 0, reason: 'no-subscription' }
     }

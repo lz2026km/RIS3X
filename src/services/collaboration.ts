@@ -6,11 +6,16 @@
 import * as Y from 'yjs';
 import { WebrtcProvider } from 'y-webrtc';
 
-// 公共信令服务器（演示用，生产环境应自托管）
-const DEFAULT_SIGNALING = [
-  'wss://signaling.yjs.dev',
-  'wss://y-webrtc-signaling-eu.herokuapp.com',
-];
+// [W5] 信令服务器: 优先 VITE_SIGNALING_URLS (逗号分隔), 无则回退公共信令 (演示用, 生产应自托管)
+const DEFAULT_SIGNALING: string[] = (() => {
+  const raw = (import.meta.env as Record<string, unknown>)['VITE_SIGNALING_URLS'];
+  const fromEnv = typeof raw === 'string'
+    ? raw.split(',').map(s => s.trim()).filter(Boolean)
+    : [];
+  return fromEnv.length > 0
+    ? fromEnv
+    : ['wss://signaling.yjs.dev', 'wss://y-webrtc-signaling-eu.herokuapp.com'];
+})();
 
 const ROOM_PREFIX = 'g005-radiology-ris:';
 

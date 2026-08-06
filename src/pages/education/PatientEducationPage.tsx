@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Spin, Alert, Empty, message } from 'antd'
+import { Spin, Alert, Empty, message, Modal, Input, Select, InputNumber } from 'antd'
 import { getEducationService, type EducationMaterial, type PatientEducationRecord, type CommunicationTemplate } from '../../services/education/EducationService'
-import { patientPortalApi } from '../../services/api'
+import { patientPortalApi, type CreateEducationInput } from '../../services/api'
 
 // ===== Styles =====
 const s = {
@@ -49,8 +49,31 @@ export default function PatientEducationPage() {
   const [loadError, setLoadError] = useState<string | null>(null)
   const [playing, setPlaying] = useState(false)
   const [playerProgress, setPlayerProgress] = useState(0)
+  // [W5] 新建宣教资料
+  const [createOpen, setCreateOpen] = useState(false)
+  const [creating, setCreating] = useState(false)
+  const [createForm, setCreateForm] = useState<{
+    title: string
+    category: string
+    contentType: string
+    summary: string
+    content: string
+    duration?: number
+    tags: string
+  }>({ title: '', category: 'general', contentType: 'text', summary: '', content: '', tags: '' })
 
   const svc = getEducationService()
+
+  const loadMaterials = async () => {
+    const eduRes = await patientPortalApi.listEducation()
+    const apiMaterials = eduRes.success && Array.isArray(eduRes.data) ? eduRes.data : []
+    if (apiMaterials.length > 0) {
+      setMaterials(apiMaterials as unknown as EducationMaterial[])
+    } else {
+      const local = await svc.getMaterials()
+      setMaterials(local)
+    }
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -58,15 +81,8 @@ export default function PatientEducationPage() {
       setLoading(true)
       setLoadError(null)
       try {
-        const eduRes = await patientPortalApi.listEducation()
-        const apiMaterials = eduRes.success && Array.isArray(eduRes.data) ? eduRes.data : []
+        await loadMaterials()
         if (cancelled) return
-        if (apiMaterials.length > 0) {
-          setMaterials(apiMaterials as unknown as EducationMaterial[])
-        } else {
-          const local = await svc.getMaterials()
-          if (!cancelled) setMaterials(local)
-        }
         const [r, t] = await Promise.all([svc.getPatientRecords('P001'), svc.getTemplates()])
         if (!cancelled) { setRecords(r); setTemplates(t) }
       } catch {
@@ -81,6 +97,54 @@ export default function PatientEducationPage() {
     })()
     return () => { cancelled = true }
   }, [])
+
+  // [W5] 新建宣教资料 → POST /patient-portal/education
+  const handleCreateMaterial = async () => {
+    if (!createForm.title.trim() || !createForm.content.trim()) {
+      message.warning('标题与内容为必填项')
+      return
+    }
+    setCreating(true)
+    try {
+      const input: CreateEducationInput = {
+        title: createForm.title.trim(),
+        category: (createForm.category || 'general') as CreateEducationInput['category'],
+        contentType: (createForm.contentType || 'text') as CreateEducationInput['contentType'],
+        content: createForm.content.trim(),
+        summary: createForm.summary.trim() || undefined,
+        duration: createForm.duration,
+        tags: createForm.tags.split(/[,，]/).map(t => t.trim()).filter(Boolean),
+      }
+      const res = await patientPortalApi.createEducation(input)
+      if (res.success) {
+        message.success(`已新建宣教资料: ${createForm.title}`)
+        setCreateOpen(false)
+        setCreateForm({ title: '', category: 'general', contentType: 'text', summary: '', content: '', tags: '' })
+        await loadMaterials()
+      } else {
+        message.error(res.error?.message || '新建宣教资料失败')
+      }
+    } catch {
+      message.error('新建宣教资料失败')
+    }
+    setCreating(false)
+  }
+
+  // [W5] 删除宣教资料 → DELETE /patient-portal/education/:key
+  const handleDeleteMaterial = async (m: EducationMaterial) => {
+    const key = (m as unknown as { key?: string }).key ?? m.id
+    try {
+      const res = await patientPortalApi.deleteEducation(key)
+      if (res.success) {
+        message.success(`已删除: ${m.title}`)
+        await loadMaterials()
+      } else {
+        message.error(res.error?.message || '删除失败')
+      }
+    } catch {
+      message.error('删除宣教资料失败')
+    }
+  }
 
   const filtered = categoryFilter ? materials.filter(m => m.category === categoryFilter) : materials
 
@@ -142,10 +206,13 @@ export default function PatientEducationPage() {
         <div style={s.card}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <h3 style={{ ...s.title, margin: 0, fontSize: 16 }}>健康教育资料库</h3>
-            <select style={{ ...s.select, width: 180 }} value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
-              <option value="">全部分类</option>
-              {Object.entries(CATEGORY_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-            </select>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button style={{ ...s.btn, background: '#1e40af' }} onClick={() => setCreateOpen(true)}>＋ 新建宣教资料</button>
+              <select style={{ ...s.select, width: 180 }} value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
+                <option value="">全部分类</option>
+                {Object.entries(CATEGORY_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+              </select>
+            </div>
           </div>
 
           {selectedMaterial ? (
@@ -197,8 +264,13 @@ export default function PatientEducationPage() {
           ) : (
             <div style={s.grid2}>
               {filtered.map(m => (
-                <div key={m.id} style={{ padding: 16, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0', cursor: 'pointer' }}
+                <div key={m.id} style={{ padding: 16, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0', cursor: 'pointer', position: 'relative' }}
                   onClick={() => handlePlay(m)}>
+                  <button
+                    title="删除该宣教资料"
+                    style={{ position: 'absolute', top: 8, right: 8, border: 'none', background: 'transparent', color: '#94a3b8', fontSize: 14, cursor: 'pointer', lineHeight: 1 }}
+                    onClick={e => { e.stopPropagation(); void handleDeleteMaterial(m) }}
+                  >×</button>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                     <span style={{ fontSize: 20 }}>{m.contentType === 'video' ? '🎬' : m.contentType === 'audio' ? '🎧' : m.contentType === 'pdf' ? '📄' : '📖'}</span>
                     <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{m.title}</div>
@@ -252,6 +324,54 @@ export default function PatientEducationPage() {
           ))}
         </div>
       )}
+
+      {/* [W5] 新建宣教资料 */}
+      <Modal
+        title="新建宣教资料"
+        open={createOpen}
+        onCancel={() => setCreateOpen(false)}
+        onOk={() => void handleCreateMaterial()}
+        confirmLoading={creating}
+        okText="创建"
+        cancelText="取消"
+      >
+        <div style={{ display: 'grid', gap: 12, paddingTop: 8 }}>
+          <div>
+            <label style={s.label}>标题 *</label>
+            <Input value={createForm.title} onChange={e => setCreateForm(f => ({ ...f, title: e.target.value }))} placeholder="请输入宣教资料标题" />
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div>
+              <label style={s.label}>分类</label>
+              <Select value={createForm.category} style={{ width: '100%' }} onChange={v => setCreateForm(f => ({ ...f, category: v }))}
+                options={Object.entries(CATEGORY_LABELS).map(([value, label]) => ({ value, label }))} />
+            </div>
+            <div>
+              <label style={s.label}>内容类型</label>
+              <Select value={createForm.contentType} style={{ width: '100%' }} onChange={v => setCreateForm(f => ({ ...f, contentType: v }))}
+                options={Object.entries(CONTENT_TYPE_LABELS).map(([value, label]) => ({ value, label }))} />
+            </div>
+          </div>
+          <div>
+            <label style={s.label}>简介</label>
+            <Input value={createForm.summary} onChange={e => setCreateForm(f => ({ ...f, summary: e.target.value }))} placeholder="一句话简介（选填）" />
+          </div>
+          <div>
+            <label style={s.label}>内容 *</label>
+            <Input.TextArea rows={4} value={createForm.content} onChange={e => setCreateForm(f => ({ ...f, content: e.target.value }))} placeholder="请输入宣教正文内容" />
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div>
+              <label style={s.label}>时长（秒）</label>
+              <InputNumber min={1} value={createForm.duration} style={{ width: '100%' }} onChange={v => setCreateForm(f => ({ ...f, duration: v ?? undefined }))} placeholder="视频/音频时长（选填）" />
+            </div>
+            <div>
+              <label style={s.label}>标签（逗号分隔）</label>
+              <Input value={createForm.tags} onChange={e => setCreateForm(f => ({ ...f, tags: e.target.value }))} placeholder="如: CT,检查准备" />
+            </div>
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }

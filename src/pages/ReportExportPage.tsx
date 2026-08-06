@@ -10,7 +10,7 @@ import { Tabs, Badge, message, Empty, Spin } from 'antd';
 import {
   Download, FileText, FileType, FileCode, Globe, Server, FileJson,
   CheckCircle2, Eye, Loader2, Layers, Sparkles, Code2, Database,
-  Zap, Package, Presentation,
+  Zap, Package, Presentation, ShieldCheck,
   Mail,
 } from 'lucide-react';
 import { HLCDAExporter } from '@components/report/v3/R3.INTEGRATION/HLCDAExporter';
@@ -23,6 +23,7 @@ import {
 } from '../data/deliveryExportSignatureMock';
 // [v3.0.6.11-70] P0 真实化: 报告列表来自后端; 导出 = 后端入队 + 本地真实文件生成下载
 import { reportApi, type ReportDto } from '../services/api/reportApi';
+import { exportApprovalApi } from '../services/api/analyticsApi'; // [W1-5] 导出审批中心集成
 import { exportReport as engineExportReport, downloadExport } from '../services/exportService';
 import { BulkExportDialog } from '../components/export/BulkExportDialog';
 import { PptxExportDialog } from '../components/export/PptxExportDialog';
@@ -120,6 +121,18 @@ export default function ReportExportPage() {
     }
     setExporting(false);
     setExportElapsedMs(Date.now() - start);
+    // [W1-5] 导出审批中心集成: 导出操作自动生成审批申请
+    if (done > 0) {
+      const firstId = ids[0] ?? '';
+      const res = await exportApprovalApi.request({
+        resource: 'REPORT',
+        resourceId: ids.length === 1 ? firstId : `${firstId} 等${ids.length}份`,
+        reason: `报告导出:模板 ${selectedTemplate.name} · ${ids.length} 份 (成功 ${done} 份)`,
+      }).catch(() => null);
+      if (res?.success) {
+        message.success(`导出完成并已生成审批申请,可到导出审批中心查看`);
+      }
+    }
     if (failed > 0) {
       message.warning(`导出完成:成功 ${done} 份,失败 ${failed} 份 · 模板 ${selectedTemplate.name}`);
     } else {
@@ -173,6 +186,9 @@ export default function ReportExportPage() {
             style={{ padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: 6, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer' }}
           >
             推送中心
+          </button>
+          <button onClick={() => navigate('/export/approval')} style={btnOutlinePrimary}>
+            <ShieldCheck size={12} /> 导出审批
           </button>
           <button onClick={handleBulkExport} style={btnOutlinePrimary}>
             <Package size={12} /> 批量导出

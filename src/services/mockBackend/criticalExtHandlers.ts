@@ -38,6 +38,18 @@ const FOLLOW_UP_FALLBACK = [
   { id: 'FU-003', time: '2026-08-03 09:05', type: '现场走访', result: '已回复', operator: '张医生', content: '术后复查恢复良好，建议 1 月后复查影像。', relatedCVId: 'CV5-001' },
 ];
 
+// [W5] 通知通道开关配置 (后端 criticalext.controller GET/PUT /channels → critical_channel_<CHANNEL>)
+const CHANNEL_DEFAULTS = [
+  { channel: 'SYSTEM', label: '站内通知', enabled: true },
+  { channel: 'SMS', label: '短信', enabled: true },
+  { channel: 'PHONE', label: '电话', enabled: true },
+  { channel: 'WECHAT', label: '微信', enabled: true },
+  { channel: 'EMAIL', label: '邮件', enabled: true },
+];
+let channelSettings: Record<string, boolean> = {};
+const channelList = () =>
+  CHANNEL_DEFAULTS.map(c => ({ ...c, enabled: channelSettings[c.channel] ?? c.enabled }));
+
 export const criticalExtHandlers = [
   // ==================== /critical-ext (criticalext.controller.ts) ====================
   http.get(`${EXT_API}/rules`, async ({ request }) => {
@@ -165,6 +177,29 @@ export const criticalExtHandlers = [
   http.get(`${EXT_API}/follow-up-records`, async () => {
     await delay(delayMs());
     return HttpResponse.json({ success: true, data: FOLLOW_UP_FALLBACK });
+  }),
+
+  // [W5] 通知通道开关: GET / PUT (落库 critical_channel_<CHANNEL>)
+  http.get(`${EXT_API}/channels`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json({ success: true, data: channelList() });
+  }),
+  http.put(`${EXT_API}/channels`, async ({ request }) => {
+    await delay(delayMs());
+    const body = (await request.json().catch(() => null)) as any;
+    const items = Array.isArray(body) ? body : body?.channels;
+    if (!Array.isArray(items)) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'VALIDATION_ERROR', message: 'channels 数组不能为空' } },
+        { status: 400 },
+      );
+    }
+    for (const item of items) {
+      if (item && typeof item.channel === 'string' && typeof item.enabled === 'boolean') {
+        channelSettings[item.channel] = item.enabled;
+      }
+    }
+    return HttpResponse.json({ success: true, data: channelList() });
   }),
 
   // ==================== /criticals (criticals.controller.ts) ====================

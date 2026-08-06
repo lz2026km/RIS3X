@@ -1,11 +1,12 @@
 // v3.0.6: Shell component - orchestrates sub-components
 import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import {
   ShieldAlert, CheckCircle, CheckSquare,
 } from "lucide-react"
 import { message } from "antd"
 import { useCriticalStore } from "../../store"
+import { realtime, type RealtimePayload } from "../../services/realtime"
 import { LoadingBanner, ErrorBanner } from "../../components/feedback"
 import { toStoreStatus } from "./types"
 import type { CriticalValue, FollowUpRecord } from "./types"
@@ -23,6 +24,7 @@ import { criticalExtApi } from "../../services/api"
 
 export default function CriticalValuePage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { log } = useOperationLog("critical_value")
   const [statusFilter, setStatusFilter] = useState<string>("全部")
   const [modalityFilter, setModalityFilter] = useState<string>("全部")
@@ -59,6 +61,13 @@ export default function CriticalValuePage() {
   const [receiptDoctor, setReceiptDoctor] = useState("")
   const [receiptComment, setReceiptComment] = useState("")
 
+  // [W2-1] 支持从工作列表跳转携带筛选: ?search=<患者姓名/检查号>&patientId=&examId=
+  useEffect(() => {
+    const q = searchParams.get("search") ?? searchParams.get("q")
+    if (q) setSearch(q)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   useEffect(() => {
     let cancelled = false
     void (async () => {
@@ -73,6 +82,12 @@ export default function CriticalValuePage() {
         setLoadError(error ?? "暂无数据")
       }
       setLoading(false)
+      // [W2-4] 患者详情"危急值"跳转: /critical-value?cvId=xxx 自动打开该危急值详情
+      const cvId = new URLSearchParams(window.location.search).get("cvId")
+      if (cvId) {
+        const target = (values as unknown as CriticalValue[]).find((c) => c.id === cvId)
+        if (target) setSelectedCV(target)
+      }
     })()
     return () => {
       cancelled = true
@@ -98,6 +113,25 @@ export default function CriticalValuePage() {
       }
     })()
     return () => { cancelled = true }
+  }, [])
+
+  // [W4-2] 实时推送: 危急值新事件 (创建/通知/升级/回执/状态更新) 即时提示 + 自动刷新
+  useEffect(() => {
+    realtime.connect()
+    const offNotify = realtime.subscribe("notify", (payload: RealtimePayload) => {
+      if (payload?.type !== "CRITICAL") return
+      const title = typeof payload.title === "string" ? payload.title : "危急值事件"
+      const content = typeof payload.content === "string" ? payload.content : ""
+      message.warning({ content: `${title}${content ? "：" + content : ""}`, duration: 6 })
+      void useCriticalStore.getState().load()
+    })
+    const offWorklist = realtime.subscribe("worklist-refresh", () => {
+      void useCriticalStore.getState().load()
+    })
+    return () => {
+      offNotify()
+      offWorklist()
+    }
   }, [])
 
   const filtered = criticalValues.filter((cv) => {

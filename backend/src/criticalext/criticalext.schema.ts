@@ -29,3 +29,15 @@ export const CloseCriticalLoopSchema = z.object({
   resolvedBy: z.string().min(1),
   resolvedAt: z.string().datetime().optional(),
 })
+
+// [W5] 危急值通知通道开关配置 (落库 critical_channel_<CHANNEL>)
+export const CriticalChannelsSchema = z.object({
+  channels: z
+    .array(
+      z.object({
+        channel: z.enum(['SYSTEM', 'SMS', 'PHONE', 'WECHAT', 'EMAIL']),
+        enabled: z.boolean(),
+      }),
+    )
+    .min(1),
+})

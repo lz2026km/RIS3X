@@ -14,6 +14,7 @@ describe('FinanceService', () => {
       findMany: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      delete: jest.fn(),
     },
     invoice: {
       findMany: jest.fn(),
@@ -61,6 +62,15 @@ describe('FinanceService', () => {
       const result = await svc.updateChargeItem('c1', { unitPrice: 600 })
       expect(mockPrisma.chargeItem.update).toHaveBeenCalledWith({ where: { id: 'c1' }, data: { unitPrice: 600 } })
       expect(result.data[0].unitPrice).toBe(600)
+    })
+  })
+
+  describe('deleteChargeItem', () => {
+    it('deletes charge item', async () => {
+      mockPrisma.chargeItem.delete.mockResolvedValue(mockChargeItem)
+      const result = await svc.deleteChargeItem('c1')
+      expect(mockPrisma.chargeItem.delete).toHaveBeenCalledWith({ where: { id: 'c1' } })
+      expect(result.data).toHaveLength(1)
     })
   })
 

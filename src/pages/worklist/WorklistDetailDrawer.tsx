@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   User,
   AlertTriangle,
@@ -20,10 +20,41 @@ import {
 import {
   initialModalityDevices,
   initialExamRooms,
+  initialUsers,
 } from "../../data/initialData";
 import type { RadiologyExam } from "../../types";
 import { normalizeExamStatus } from "../../utils/statusMaps";
 import { AppDrawer } from "../../components/common/AppDrawer";
+import { examApi } from "../../services/api/examApi";
+import type { ExamDto } from "../../types/dto";
+
+const getDoctorById = (doctorId: string) => initialUsers.find(u => u.id === doctorId)
+
+const toHistoryExam = (dto: ExamDto & Record<string, unknown>): RadiologyExam => {
+  const patient = (dto.patient ?? {}) as Record<string, unknown> | undefined
+  return {
+    id: String(dto.id ?? dto.examId ?? ''),
+    patientId: String(dto.patientId ?? ''),
+    patientName: String(patient?.name ?? dto.patientName ?? '未知患者'),
+    gender: String(patient?.gender ?? dto.gender ?? '其他') as RadiologyExam['gender'],
+    age: Number(patient?.age ?? dto.age ?? 0),
+    patientType: String(patient?.patientType ?? dto.patientType ?? '门诊') as RadiologyExam['patientType'],
+    examItemId: String(dto.examItemCode ?? ''),
+    examItemName: String(dto.examItemName ?? dto.examItem ?? '检查'),
+    modality: String(dto.modality ?? 'CT') as RadiologyExam['modality'],
+    bodyPart: String(dto.bodyPart ?? '') as RadiologyExam['bodyPart'],
+    examDate: String(dto.scheduledAt ?? dto.examDate ?? '').slice(0, 10),
+    priority: String(dto.priority ?? '普通') as RadiologyExam['priority'],
+    clinicalDiagnosis: dto.clinicalDiagnosis ? String(dto.clinicalDiagnosis) : undefined,
+    deviceId: dto.deviceId ? String(dto.deviceId) : undefined,
+    roomId: dto.roomId ? String(dto.roomId) : undefined,
+    status: normalizeExamStatus(String(dto.status ?? 'SCHEDULED')) as RadiologyExam['status'],
+    imagesAcquired: Number(dto.imageCount ?? 0),
+    accessionNumber: String(dto.accessionNumber ?? ''),
+    createdTime: String(dto.scheduledAt ?? ''),
+    updatedTime: String(dto.updatedAt ?? ''),
+  }
+}
 
 const STATUS_CONFIG: Record<
   string,
@@ -59,103 +90,6 @@ const getDeviceById = (deviceId: string) =>
 const getRoomById = (roomId: string) =>
   initialExamRooms.find((r) => r.id === roomId);
 
-const generateHistoryExams = (patientId: string): RadiologyExam[] => {
-  const patientHistory: Record<string, RadiologyExam[]> = {
-    "RAD-P001": [
-      {
-        id: "HIST001",
-        patientId: "RAD-P001",
-        patientName: "张志刚",
-        gender: "男",
-        age: 62,
-        patientType: "住院",
-        examItemId: "EI-CT-002",
-        examItemName: "胸部CT平扫",
-        modality: "CT",
-        bodyPart: "胸部",
-        examDate: "2026-04-15",
-        examTime: "10:00",
-        priority: "普通",
-        clinicalDiagnosis: "肺炎复查",
-        clinicalHistory: "咳嗽咳痰1周",
-        examIndications: "评估炎症吸收情况",
-        technologistId: "R005",
-        technologistName: "刘建国",
-        deviceId: "DEV-CT-01",
-        deviceName: "CT-1",
-        roomId: "ROOM-CT1",
-        roomName: "CT室1",
-        status: "已发布",
-        accessionNumber: "20260415001",
-        imagesAcquired: 128,
-        createdTime: "2026-04-15 09:00",
-        updatedTime: "2026-04-15 10:00",
-      } as RadiologyExam,
-      {
-        id: "HIST002",
-        patientId: "RAD-P001",
-        patientName: "张志刚",
-        gender: "男",
-        age: 62,
-        patientType: "住院",
-        examItemId: "EI-CT-006",
-        examItemName: "冠脉CTA",
-        modality: "CT",
-        bodyPart: "心脏",
-        examDate: "2026-03-20",
-        examTime: "14:00",
-        priority: "紧急",
-        clinicalDiagnosis: "冠心病筛查",
-        clinicalHistory: "胸闷不适",
-        examIndications: "评估冠脉情况",
-        technologistId: "R005",
-        technologistName: "刘建国",
-        deviceId: "DEV-CT-01",
-        deviceName: "CT-1",
-        roomId: "ROOM-CT1",
-        roomName: "CT室1",
-        status: "已发布",
-        accessionNumber: "20260320001",
-        imagesAcquired: 256,
-        createdTime: "2026-03-20 13:00",
-        updatedTime: "2026-03-20 14:00",
-      } as RadiologyExam,
-    ],
-    "RAD-P002": [
-      {
-        id: "HIST003",
-        patientId: "RAD-P002",
-        patientName: "李秀英",
-        gender: "女",
-        age: 55,
-        patientType: "门诊",
-        examItemId: "EI-MR-001",
-        examItemName: "头颅MR平扫",
-        modality: "MR",
-        bodyPart: "头颅",
-        examDate: "2026-02-10",
-        examTime: "09:00",
-        priority: "普通",
-        clinicalDiagnosis: "头痛复查",
-        clinicalHistory: "头痛缓解",
-        examIndications: "评估治疗效果",
-        technologistId: "R005",
-        technologistName: "刘建国",
-        deviceId: "DEV-MR-01",
-        deviceName: "MR-1",
-        roomId: "ROOM-MR1",
-        roomName: "MR室1",
-        status: "已发布",
-        accessionNumber: "20260210001",
-        imagesAcquired: 1200,
-        createdTime: "2026-02-10 08:00",
-        updatedTime: "2026-02-10 09:00",
-      } as RadiologyExam,
-    ],
-  };
-  return patientHistory[patientId] || [];
-};
-
 // ============================================================
 // DetailDrawer
 // ============================================================
@@ -164,9 +98,12 @@ export interface DetailDrawerProps {
   onClose: () => void;
   onEditInfo?: (exam: RadiologyExam) => void;
   onAssignDevice?: (exam: RadiologyExam) => void;
+  onAssignDoctor?: (exam: RadiologyExam) => void;
+  onViewRequisition?: (exam: RadiologyExam) => void;
   onWriteReport?: (exam: RadiologyExam) => void;
   onStartExam?: (exam: RadiologyExam) => void;
   onCancelExam?: (exam: RadiologyExam) => void;
+  initialTab?: "info" | "images" | "history" | "log";
 }
 
 export function DetailDrawer({
@@ -174,19 +111,61 @@ export function DetailDrawer({
   onClose,
   onEditInfo,
   onAssignDevice,
+  onAssignDoctor,
+  onViewRequisition,
   onWriteReport,
   onStartExam,
   onCancelExam,
+  initialTab = "info",
 }: DetailDrawerProps) {
   const [activeTab, setActiveTab] = useState<
     "info" | "images" | "history" | "log"
-  >("info");
+  >(initialTab);
+  const [historyExams, setHistoryExams] = useState<RadiologyExam[]>([])
+  const [historyLoading, setHistoryLoading] = useState(false)
+  const [historyError, setHistoryError] = useState<string | null>(null)
+  const lastExamIdRef = useRef<string | null>(null)
+
+  // 每次切换检查对象时, 回到 initialTab (行内"历史"按钮 → history 页签)
+  useEffect(() => {
+    if (exam && exam.id !== lastExamIdRef.current) {
+      lastExamIdRef.current = exam.id
+      setActiveTab(initialTab)
+    }
+  }, [exam, initialTab])
+
+  // 历史检查: examApi.list 按 patientId 过滤
+  useEffect(() => {
+    if (!exam) return
+    if (activeTab !== "history") return
+    let cancelled = false
+    setHistoryLoading(true)
+    setHistoryError(null)
+    examApi.list({ patientId: exam.patientId, pageSize: 20 } as never)
+      .then(res => {
+        if (cancelled) return
+        const raw = res.data as unknown
+        const items = Array.isArray(raw)
+          ? raw
+          : ((raw as { items?: unknown[] } | null)?.items ?? [])
+        const list = (items as Array<ExamDto & Record<string, unknown>>)
+          .map(toHistoryExam)
+          .filter(h => h.id !== exam.id)
+        setHistoryExams(list)
+        setHistoryLoading(false)
+      })
+      .catch(() => {
+        if (cancelled) return
+        setHistoryError("历史检查加载失败")
+        setHistoryLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [exam, activeTab])
 
   if (!exam) return null;
 
   const device = getDeviceById(exam.deviceId ?? "");
   const room = getRoomById(exam.roomId ?? "");
-  const historyExams = generateHistoryExams(exam.patientId);
 
   const sc = STATUS_CONFIG[exam.status] || {
     bg: "#f1f5f9",
@@ -522,7 +501,8 @@ export function DetailDrawer({
                   ["检查时间", exam.examTime || "-"],
                   ["设备类型", exam.modality],
                   ["检查部位", exam.bodyPart],
-                  ["申请医生", "李明辉 主任医师"],
+                  ["申请医生", exam.referringDoctorName || getDoctorById(exam.referringDoctorId ?? "")?.name || "-"],
+                  ["报告医生", exam.radiologistName || getDoctorById(exam.radiologistId ?? "")?.name || "未分配"],
                   ["临床诊断", exam.clinicalDiagnosis || "-"],
                   ["病史摘要", exam.clinicalHistory || "-"],
                   ["检查指征", exam.examIndications || "-"],
@@ -630,8 +610,21 @@ export function DetailDrawer({
             >
               <History size={14} />
               历史检查记录
+              {!historyLoading && !historyError && (
+                <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 400 }}>
+                  (该患者共 {historyExams.length} 次历史检查)
+                </span>
+              )}
             </div>
-            {historyExams.length > 0 ? (
+            {historyLoading ? (
+              <div style={{ background: "#f8fafc", borderRadius: 10, padding: 40, textAlign: "center", color: "#94a3b8", fontSize: 12 }}>
+                正在加载历史检查...
+              </div>
+            ) : historyError ? (
+              <div style={{ background: "#fef2f2", borderRadius: 10, padding: 40, textAlign: "center", color: "#dc2626", fontSize: 12 }}>
+                {historyError}
+              </div>
+            ) : historyExams.length > 0 ? (
               <div
                 style={{ display: "flex", flexDirection: "column", gap: 10 }}
               >
@@ -863,6 +856,46 @@ export function DetailDrawer({
         >
           <UserCheck size={12} />
           分配设备
+        </button>
+        <button
+          onClick={() => onAssignDoctor?.(exam)}
+          style={{
+            padding: "10px 16px",
+            background: "#fff",
+            border: "1px solid #e2e8f0",
+            borderRadius: 8,
+            fontSize: 12,
+            fontWeight: 600,
+            color: "#334155",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 6,
+          }}
+        >
+          <UserCheck size={12} />
+          分配医生
+        </button>
+        <button
+          onClick={() => onViewRequisition?.(exam)}
+          style={{
+            padding: "10px 16px",
+            background: "#fff",
+            border: "1px solid #e2e8f0",
+            borderRadius: 8,
+            fontSize: 12,
+            fontWeight: 600,
+            color: "#334155",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 6,
+          }}
+        >
+          <FileText size={12} />
+          申请单
         </button>
         <button
           onClick={() => onWriteReport?.(exam)}

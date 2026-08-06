@@ -1088,18 +1088,82 @@ const dentalManagementModule = [
     await delay(40);
     return HttpResponse.json({ success: true, data: { todayPatients: 12, thisWeek: 58, avgPerDay: 10, revenueToday: 18500, topTreatments: { Restorative: 25, Endodontic: 15, Extraction: 10, Implant: 5 } } });
   }),
-  http.post(`${DENTAL_API}/tele/sessions`, async ({ request }) => {
-    await delay(80);
-    const body = (await request.json()) as any;
-    return HttpResponse.json({ success: true, data: { sessionId: `TEL${Date.now()}`, ...body, createdAt: new Date().toISOString() } });
-  }),
+  // [W3-2] 远程口腔会诊 (DentalTelePage): 内存数据源 + 真实 CRUD
   http.get(`${DENTAL_API}/tele/sessions`, async () => {
-    await delay(30);
-    return HttpResponse.json({ success: true, data: [] });
+    await delay(40);
+    return HttpResponse.json({ success: true, data: teleSessions, meta: { total: teleSessions.length } });
   }),
-  
-  
-  
+  http.post(`${DENTAL_API}/tele/sessions`, async ({ request }) => {
+    await delay(120);
+    const body = (await request.json()) as any;
+    const now = new Date().toISOString();
+    const session = {
+      id: `TEL-${Date.now()}`,
+      title: body.title || '口腔远程会诊',
+      patientId: body.patientId || 'P100001',
+      patientName: body.patientName || '张伟',
+      expert: body.expert || '王专?(种植)',
+      reason: body.reason || '',
+      status: body.status || 'waiting',
+      hostDoctor: body.hostDoctor || '当前医生',
+      participants: body.participants || [],
+      createdAt: now,
+    };
+    teleSessions.unshift(session);
+    return HttpResponse.json({ success: true, data: session }, { status: 201 });
+  }),
+  http.delete(`${DENTAL_API}/tele/sessions/:id`, async ({ params }) => {
+    await delay(50);
+    const idx = teleSessions.findIndex((s: any) => s.id === params.id);
+    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    teleSessions.splice(idx, 1);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // [W3-2] 跨科室转诊 (DentalRadFusionPages): 内存数据源 + 真实 CRUD
+  http.get(`${DENTAL_API}/referrals`, async () => {
+    await delay(50);
+    return HttpResponse.json({ success: true, data: dentalReferrals, meta: { total: dentalReferrals.length } });
+  }),
+  http.post(`${DENTAL_API}/referrals`, async ({ request }) => {
+    await delay(100);
+    const body = (await request.json()) as any;
+    const item = {
+      id: `REF-${Date.now()}`,
+      patientId: body.patientId || 'P100001',
+      patient: body.patient || '张伟',
+      source: body.source || '口腔科',
+      target: body.target || '放射科',
+      reason: body.reason || '种植术前 CBCT 检查',
+      doctor: body.doctor || '当前医生',
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+    };
+    dentalReferrals.unshift(item);
+    return HttpResponse.json({ success: true, data: item }, { status: 201 });
+  }),
+  http.post(`${DENTAL_API}/referrals/:id/accept`, async ({ params }) => {
+    await delay(80);
+    const item = dentalReferrals.find((r: any) => r.id === params.id);
+    if (!item) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    item.status = 'accepted';
+    item.acceptedAt = new Date().toISOString();
+    return HttpResponse.json({ success: true, data: item });
+  }),
+];
+
+// [W3-2] 口腔模块内存数据源 (跨页面共享, 页面刷新前持久)
+export const dentalReferrals: any[] = [
+  { id: 'REF-001', patientId: 'P100001', patient: '张伟', source: '口腔科', target: '放射科', reason: '36 位种植术前 CBCT 三维评估', doctor: '王强', status: 'pending', createdAt: '2026-07-02T09:20:00.000Z' },
+  { id: 'REF-002', patientId: 'P100002', patient: '李娜', source: '口腔科', target: '放射科', reason: '16 位根管治疗后 CBCT 复查', doctor: '王强', status: 'accepted', createdAt: '2026-07-01T14:10:00.000Z', acceptedAt: '2026-07-01T15:00:00.000Z' },
+  { id: 'REF-003', patientId: 'P100003', patient: '王芳', source: '正畸科', target: '放射科', reason: '正畸-正颌联合治疗头影测量', doctor: '刘敏', status: 'accepted', createdAt: '2026-06-28T10:00:00.000Z', acceptedAt: '2026-06-28T10:40:00.000Z' },
+  { id: 'REF-004', patientId: 'P100004', patient: '陈丽', source: '口腔科', target: '口腔外科', reason: '38 阻生智齿拔除术前评估', doctor: '王强', status: 'completed', createdAt: '2026-06-20T08:30:00.000Z', acceptedAt: '2026-06-20T09:00:00.000Z' },
+];
+
+export const teleSessions: any[] = [
+  { id: 'TEL-001', title: '种植复杂病例会诊', patientId: 'P100001', patientName: '张伟', expert: '王专?(种植)', reason: '36 位骨量不足,需评估骨增量方案', status: 'in_progress', hostDoctor: '刘敏', createdAt: '2026-07-02T10:00:00.000Z' },
+  { id: 'TEL-002', title: '正畸边界病例讨论', patientId: 'P100003', patientName: '王芳', expert: '李专?(正畸)', reason: '下颌前突手术指征评估', status: 'waiting', hostDoctor: '刘敏', createdAt: '2026-07-01T16:30:00.000Z' },
+  { id: 'TEL-003', title: '牙周-修复联合会诊', patientId: 'P100005', patientName: '赵敏', expert: '王专?(种植)', reason: '重度牙周炎修复方案', status: 'completed', hostDoctor: '王强', createdAt: '2026-06-25T09:00:00.000Z' },
 ];
 
 // 合并所有模块

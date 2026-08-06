@@ -68,11 +68,15 @@ export interface DuplicateMatch {
 
 export interface TimelineEvent {
   date: string
-  type: 'exam' | 'report' | 'appointment' | 'diagnosis'
+  type: 'exam' | 'report' | 'appointment' | 'diagnosis' | 'critical'
   title: string
   description: string
   status?: string
   icon?: React.ReactNode
+  // [W2-4] 360° 多源时间线: 点击事件跳转对应模块
+  link?: string
+  key?: string
+  extra?: string
 }
 
 export interface ToastInfo {

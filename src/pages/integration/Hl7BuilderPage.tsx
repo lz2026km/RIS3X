@@ -1,10 +1,13 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
-  Card, Space, Tag, Button, Tabs, Form, Input, message,
+  Card, Space, Tag, Button, Tabs, Form, Input, Select, DatePicker, Table, Alert, message,
 } from "antd";
-import { Code, Eye, Send, Hammer, FileText } from "lucide-react";
+import { Code, Eye, Send, Hammer, FileText, History, RefreshCw } from "lucide-react";
 import { hl7Api } from "../../services/api/integrationApi";
-import type { Hl7Report } from "../../services/api/integrationApi";
+import { hl7Api as rawHl7Api } from "../../services/api/hl7Api";
+import type { Hl7Report, Hl7ArchiveRecord } from "../../services/api/integrationApi";
+
+const { RangePicker } = DatePicker;
 
 interface BuilderForm {
   patientId: string;
@@ -14,6 +17,13 @@ interface BuilderForm {
   accessionNumber: string;
   procedureCode: string;
   patientName: string;
+  patientSex: string;
+  modality: string;
+  doctorId: string;
+  doctorName: string;
+  department: string;
+  scheduleRange: [unknown, unknown] | null;
+  note: string;
 }
 
 const defaultForm: BuilderForm = {
@@ -24,68 +34,211 @@ const defaultForm: BuilderForm = {
   accessionNumber: "",
   procedureCode: "",
   patientName: "",
+  patientSex: "M",
+  modality: "CT",
+  doctorId: "",
+  doctorName: "",
+  department: "",
+  scheduleRange: null,
+  note: "",
 };
 
 const messageTypes = [
   { key: "ORU^R01", label: "ORU^R01" },
   { key: "ORM^O01", label: "ORM^O01" },
   { key: "DFT^P03", label: "DFT^P03" },
-  { key: "ACK", label: "ACK" },
+  { key: "SIU^S12", label: "SIU^S12" },
 ];
 
 export const Hl7BuilderPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("ORU^R01");
   const [form] = Form.useForm<BuilderForm>();
   const [preview, setPreview] = useState<string | null>(null);
+  const [previewMeta, setPreviewMeta] = useState<{ controlId: string; messageType: string; bytes: number } | null>(null);
   const [loading, setLoading] = useState({ preview: false, send: false });
+  const [error, setError] = useState<string | null>(null);
+  const [history, setHistory] = useState<Hl7ArchiveRecord[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   const getValues = useCallback((): BuilderForm => {
     const v = form.getFieldsValue();
     return { ...defaultForm, ...v };
   }, [form]);
 
-  const handlePreview = async () => {
-    setLoading((p) => ({ ...p, preview: true }));
-    setPreview(null);
-    const values = getValues();
-    const payload: Hl7Report = {
+  const fetchHistory = useCallback(async () => {
+    setHistoryLoading(true);
+    try {
+      const res = await hl7Api.getArchive({ direction: "OUTBOUND" });
+      if (res.success) {
+        setHistory(Array.isArray(res.data) ? res.data : []);
+      } else {
+        setError(res.error?.message ?? "发送历史加载失败");
+      }
+    } catch {
+      setError("发送历史加载失败");
+    }
+    setHistoryLoading(false);
+  }, []);
+
+  useEffect(() => { fetchHistory(); }, [fetchHistory]);
+
+  const buildPayload = (values: BuilderForm) => {
+    const base: Hl7Report = {
       accessionNumber: values.accessionNumber,
       patientName: values.patientName,
       patientId: values.patientId,
-      patientSex: '',
-      modality: '',
-      studyDate: '',
-      studyTime: '',
+      patientSex: (values.patientSex as Hl7Report["patientSex"]) ?? "O",
+      modality: values.modality || "CT",
+      studyDate: "",
+      studyTime: "",
       findings: values.reportFinding,
       conclusion: values.reportImpression,
-      authorName: '',
-      authorId: '',
+      authorName: values.doctorName,
+      authorId: values.doctorId,
       reportId: values.examId,
     };
-    const res = activeTab === 'ORM^O01'
-      ? await hl7Api.buildOrm({ ...payload, bodyPart: '', orderNumber: '', orderingDoctor: '' })
-      : activeTab === 'DFT^P03'
-        ? await hl7Api.buildDft({ ...payload, invoiceNumber: '', totalAmount: '', chargeCode: '', chargeName: '' })
-        : await hl7Api.buildOru(payload);
-    if (res.success) {
-      setPreview(res.data.message);
-    } else {
-      message.error("生成预览失败");
+    return base;
+  };
+
+  const handlePreview = async () => {
+    setLoading((p) => ({ ...p, preview: true }));
+    setPreview(null);
+    setPreviewMeta(null);
+    setError(null);
+    try {
+      const values = getValues();
+      let res;
+      if (activeTab === "ORM^O01") {
+        res = await hl7Api.buildOrm({
+          ...buildPayload(values),
+          patientId: values.patientId,
+          patientName: values.patientName,
+          patientSex: (values.patientSex as Hl7Report["patientSex"]) ?? "O",
+          accessionNumber: values.accessionNumber,
+          modality: values.modality || "CT",
+          bodyPart: values.procedureCode,
+          orderNumber: values.examId,
+          orderingDoctor: values.doctorName,
+        });
+      } else if (activeTab === "DFT^P03") {
+        res = await hl7Api.buildDft({
+          patientId: values.patientId,
+          patientName: values.patientName,
+          patientSex: (values.patientSex as Hl7Report["patientSex"]) ?? "O",
+          invoiceNumber: values.accessionNumber,
+          totalAmount: "0",
+          chargeCode: values.procedureCode,
+          chargeName: values.reportFinding,
+        });
+      } else if (activeTab === "SIU^S12") {
+        res = await rawHl7Api.siu({
+          patientId: values.patientId,
+          patientName: values.patientName,
+          patientSex: values.patientSex || "M",
+          doctorId: values.doctorId,
+          doctorName: values.doctorName,
+          department: values.department,
+          startDateTime: (values.scheduleRange as any)?.[0]?.format("YYYY-MM-DDTHH:mm:ss") ?? "",
+          endDateTime: (values.scheduleRange as any)?.[1]?.format("YYYY-MM-DDTHH:mm:ss") ?? "",
+          note: values.note,
+        });
+      } else {
+        res = await hl7Api.buildOru(buildPayload(values));
+      }
+      if (res.success && res.data) {
+        const d = res.data as { message?: string; controlId?: string; messageType?: string; bytes?: number };
+        if (d.message) {
+          setPreview(d.message);
+          setPreviewMeta({ controlId: d.controlId ?? "", messageType: d.messageType ?? activeTab, bytes: d.bytes ?? d.message.length });
+        } else {
+          setError("响应中缺少 message 字段");
+        }
+      } else {
+        setError(res.error?.message ?? "生成预览失败");
+      }
+    } catch {
+      setError("生成预览请求失败");
     }
     setLoading((p) => ({ ...p, preview: false }));
   };
 
   const handleSend = async () => {
     setLoading((p) => ({ ...p, send: true }));
-    const values = getValues();
-    const res = await hl7Api.pushOru(values.examId, values.examId);
-    if (res.success) {
-      message.success("消息已发送到远端");
-    } else {
-      message.error("发送失败");
+    setError(null);
+    try {
+      const values = getValues();
+      let res;
+      if (activeTab === "SIU^S12") {
+        res = await rawHl7Api.siu({
+          patientId: values.patientId,
+          patientName: values.patientName,
+          patientSex: values.patientSex || "M",
+          doctorId: values.doctorId,
+          doctorName: values.doctorName,
+          department: values.department,
+          startDateTime: (values.scheduleRange as any)?.[0]?.format("YYYY-MM-DDTHH:mm:ss") ?? "",
+          endDateTime: (values.scheduleRange as any)?.[1]?.format("YYYY-MM-DDTHH:mm:ss") ?? "",
+          note: values.note,
+        });
+      } else {
+        const base = buildPayload(values);
+        if (activeTab === "ORM^O01") {
+          res = await hl7Api.buildOrm({
+            patientId: base.patientId,
+            patientName: base.patientName,
+            patientSex: base.patientSex,
+            accessionNumber: base.accessionNumber,
+            modality: base.modality,
+            bodyPart: values.procedureCode,
+            orderNumber: values.examId,
+            orderingDoctor: values.doctorName,
+          });
+        } else if (activeTab === "DFT^P03") {
+          res = await hl7Api.buildDft({
+            patientId: base.patientId,
+            patientName: base.patientName,
+            patientSex: base.patientSex,
+            invoiceNumber: base.accessionNumber,
+            totalAmount: "0",
+            chargeCode: values.procedureCode,
+            chargeName: values.reportFinding,
+          });
+        } else {
+          res = await hl7Api.buildOru(base);
+        }
+      }
+      if (res.success) {
+        const d = res.data as { message?: string; controlId?: string } | undefined;
+        if (d?.message) setPreview(d.message);
+        message.success(`消息已发送 (控制ID: ${d?.controlId ?? "-"})`);
+        fetchHistory();
+      } else {
+        setError(res.error?.message ?? "发送失败");
+      }
+    } catch {
+      setError("发送请求失败");
     }
     setLoading((p) => ({ ...p, send: false }));
   };
+
+  const historyColumns = [
+    { title: "类型", dataIndex: "messageType", key: "messageType", width: 110, render: (v: string) => <Tag color="purple">{v}</Tag> },
+    { title: "控制 ID", dataIndex: "controlId", key: "controlId", ellipsis: true },
+    {
+      title: "ACK",
+      dataIndex: "ackStatus",
+      key: "ackStatus",
+      width: 100,
+      render: (v: string) => {
+        const map: Record<string, string> = { SUCCESS: "green", FAILED: "red", PENDING: "orange" };
+        return <Tag color={map[v] || "default"}>{v}</Tag>;
+      },
+    },
+    { title: "重试", dataIndex: "retryCount", key: "retryCount", width: 60 },
+    { title: "时间", dataIndex: "createdAt", key: "createdAt", width: 180, render: (v: string) => new Date(v).toLocaleString() },
+  ];
+
+  const isSiu = activeTab === "SIU^S12";
 
   return (
     <div className="p-4 space-y-3">
@@ -95,12 +248,16 @@ export const Hl7BuilderPage: React.FC = () => {
             <Hammer className="w-5 h-5 text-amber-600" />
             <div>
               <div className="text-base font-semibold">HL7 消息构造器</div>
-              <div className="text-xs text-slate-500">ORU^R01 / ORM^O01 / DFT^P03 / ACK 消息构建</div>
+              <div className="text-xs text-slate-500">ORU^R01 / ORM^O01 / DFT^P03 / SIU^S12 消息构建与发送</div>
             </div>
           </Space>
           <Tag color="amber">构造器</Tag>
         </div>
       </Card>
+
+      {error && (
+        <Alert type="error" showIcon message={error} closable onClose={() => setError(null)} />
+      )}
 
       <Tabs
         activeKey={activeTab}
@@ -119,22 +276,53 @@ export const Hl7BuilderPage: React.FC = () => {
                     <Form.Item label="患者姓名" name="patientName">
                       <Input placeholder="张三" />
                     </Form.Item>
+                    <Form.Item label="性别" name="patientSex">
+                      <Select options={[{ value: "M", label: "M" }, { value: "F", label: "F" }, { value: "O", label: "O" }]} />
+                    </Form.Item>
                     <Form.Item label="检查 ID" name="examId">
                       <Input placeholder="E2026001" />
                     </Form.Item>
                     <Form.Item label="Accession Number" name="accessionNumber">
                       <Input placeholder="ACC20260001" />
                     </Form.Item>
-                    <Form.Item label="操作代码" name="procedureCode">
-                      <Input placeholder="CTCHEST" />
+                    <Form.Item label="检查/收费代码" name="procedureCode">
+                      <Input placeholder={isSiu ? "CTCHEST" : "CTCHEST"} />
                     </Form.Item>
+                    {!isSiu && (
+                      <Form.Item label="Modality" name="modality">
+                        <Select options={[{ value: "CT", label: "CT" }, { value: "MR", label: "MR" }, { value: "US", label: "US" }, { value: "XA", label: "XA" }, { value: "DX", label: "DX" }]} />
+                      </Form.Item>
+                    )}
+                    <Form.Item label="医生 ID" name="doctorId">
+                      <Input placeholder="D001" />
+                    </Form.Item>
+                    <Form.Item label="医生姓名" name="doctorName">
+                      <Input placeholder="李医生" />
+                    </Form.Item>
+                    {isSiu && (
+                      <>
+                        <Form.Item label="科室" name="department">
+                          <Input placeholder="放射科" />
+                        </Form.Item>
+                        <Form.Item label="排班时间" name="scheduleRange">
+                          <RangePicker showTime style={{ width: "100%" }} />
+                        </Form.Item>
+                        <Form.Item label="备注 (NTE)" name="note">
+                          <Input placeholder="可选备注" />
+                        </Form.Item>
+                      </>
+                    )}
                   </div>
-                  <Form.Item label="报告所见 (Finding)" name="reportFinding">
-                    <Input.TextArea rows={3} placeholder="双肺纹理清晰，未见实变..." />
-                  </Form.Item>
-                  <Form.Item label="报告结论 (Impression)" name="reportImpression">
-                    <Input.TextArea rows={2} placeholder="未见明显异常" />
-                  </Form.Item>
+                  {!isSiu && (
+                    <>
+                      <Form.Item label="报告所见 (Finding)" name="reportFinding">
+                        <Input.TextArea rows={3} placeholder="双肺纹理清晰，未见实变..." />
+                      </Form.Item>
+                      <Form.Item label="报告结论 (Impression)" name="reportImpression">
+                        <Input.TextArea rows={2} placeholder="未见明显异常" />
+                      </Form.Item>
+                    </>
+                  )}
                 </Form>
               </Card>
 
@@ -160,7 +348,7 @@ export const Hl7BuilderPage: React.FC = () => {
                 <Card
                   size="small"
                   className="shadow-sm"
-                  title={<Space><Code className="w-4 h-4" /><span>HL7 原始消息</span></Space>}
+                  title={<Space><Code className="w-4 h-4" /><span>HL7 原始消息</span><Tag>{previewMeta?.messageType}</Tag><span className="text-xs text-slate-400">{previewMeta?.controlId} · {previewMeta?.bytes} bytes</span></Space>}
                 >
                   <pre className="bg-slate-900 text-slate-100 p-3 rounded text-xs font-mono overflow-auto max-h-80 whitespace-pre-wrap">
                     {preview}
@@ -171,6 +359,27 @@ export const Hl7BuilderPage: React.FC = () => {
           ),
         }))}
       />
+
+      <Card
+        size="small"
+        className="shadow-sm"
+        title={<Space><History className="w-4 h-4" /><span>发送历史</span></Space>}
+        extra={<Button size="small" icon={<RefreshCw className="w-3 h-3" />} onClick={fetchHistory}>刷新</Button>}
+      >
+        <Table
+          rowKey="id"
+          size="small"
+          loading={historyLoading}
+          dataSource={history}
+          columns={historyColumns}
+          pagination={{ pageSize: 8 }}
+          expandable={{
+            expandedRowRender: (r: Hl7ArchiveRecord) => (
+              <pre className="bg-slate-50 p-2 rounded text-xs font-mono overflow-auto whitespace-pre-wrap">{r.rawMessage}</pre>
+            ),
+          }}
+        />
+      </Card>
     </div>
   );
 };

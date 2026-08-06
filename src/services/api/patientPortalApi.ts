@@ -131,6 +131,33 @@ export interface CreatePortalFeedbackInput {
   comment?: string
 }
 
+// [W5] 宣教资料写入
+export interface CreateEducationInput {
+  title: string
+  category?: 'pre_exam' | 'post_exam' | 'condition' | 'medication' | 'general'
+  contentType?: 'text' | 'video' | 'audio' | 'pdf' | 'image'
+  content: string
+  summary?: string
+  modality?: string
+  bodyPart?: string
+  duration?: number
+  tags?: string[]
+  language?: 'zh-CN' | 'en'
+}
+
+export interface PortalEducationItemDto {
+  key: string
+  id: string
+  title: string
+  category?: string
+  contentType?: string
+  content: string
+  summary?: string
+  tags?: string[]
+  createdAt?: string
+  updatedAt?: string
+}
+
 export const patientPortalApi = {
   listPatients: () =>
     api.get<{ data: PortalPatientDto[] }>('/patient-portal/patients'),
@@ -149,6 +176,13 @@ export const patientPortalApi = {
 
   getEducation: (id: string) =>
     api.get<{ data: PortalEducationDto[] }>(`/patient-portal/education/${id}`),
+
+  // [W5] 宣教资料写入端点 (ADMIN/医护角色)
+  createEducation: (input: CreateEducationInput) =>
+    api.post<PortalEducationItemDto>('/patient-portal/education', input),
+
+  deleteEducation: (key: string) =>
+    api.delete<{ deleted: boolean }>(`/patient-portal/education/${encodeURIComponent(key)}`),
 
   getPatientMobile: () =>
     api.get<{ data: PortalPatientDto[] }>('/patient-portal/mobile/patients'),

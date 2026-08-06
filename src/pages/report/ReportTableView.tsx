@@ -1,6 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react'
-import { Button, Empty, Tag } from 'antd'
-import { Eye, Printer, Download, User, Zap, ShieldCheck, ChevronDown, ChevronRight, Search } from 'lucide-react'
+import { Button, Empty, Tag, Dropdown } from 'antd'
+import { Eye, Printer, Download, User, Zap, ShieldCheck, ChevronDown, ChevronRight, Search, MoreHorizontal, Edit3, Send, GitCompare, RotateCcw, FileCheck2 } from 'lucide-react'
 import type { RadiologyReport } from '../../types'
 import { StatusBadge, StatusTimeline, REPORT_STATUS_META } from '../../components/report'
 import { ProTable, type ProColumn } from '../../components/data/ProTable'
@@ -67,6 +67,13 @@ export interface ReportTableViewProps {
   onPrint: (report: RadiologyReport) => void
   onReject: (report: RadiologyReport) => void
   onExportPDF: (report: RadiologyReport) => void
+  // [W2-3] 增强行操作
+  onRevise?: (report: RadiologyReport) => void
+  onRepublish?: (report: RadiologyReport) => void
+  onRequestApproval?: (report: RadiologyReport) => void
+  onDeliver?: (report: RadiologyReport) => void
+  onCritical?: (report: RadiologyReport) => void
+  onCompare?: (report: RadiologyReport) => void
   loading?: boolean
 }
 
@@ -82,6 +89,12 @@ export default function ReportTableView({
   onReview,
   onPrint,
   onExportPDF,
+  onRevise,
+  onRepublish,
+  onRequestApproval,
+  onDeliver,
+  onCritical,
+  onCompare,
   loading = false,
 }: ReportTableViewProps) {
   const columns = useMemo<ProColumn<RadiologyReport>[]>(() => [
@@ -130,18 +143,48 @@ export default function ReportTableView({
       dataIndex: 'id',
       key: 'actions',
       fixed: 'right',
-      width: 220,
-      render: (_value, report) => (
-        <span style={{ display: 'flex', gap: 4 }}>
-          <Button size="small" icon={<Eye size={12} />} onClick={(event) => { event.stopPropagation(); onView(report) }} title="查看" />
-          <Button size="small" icon={<Printer size={12} />} onClick={(event) => { event.stopPropagation(); onPrint(report) }} title="打印" />
-          <Button size="small" icon={<Download size={12} />} onClick={(event) => { event.stopPropagation(); onExportPDF(report) }} title="导出PDF" />
-          {report.status === '待审核' && <Button size="small" type="primary" icon={<ShieldCheck size={12} />} onClick={(event) => { event.stopPropagation(); onReview(report) }}>审核</Button>}
-          <Button size="small" icon={expandedId === report.id ? <ChevronDown size={12} /> : <ChevronRight size={12} />} onClick={(event) => { event.stopPropagation(); onToggleExpand(report.id) }} title="更多" />
-        </span>
-      ),
+      width: 320,
+      render: (_value, report) => {
+        const isPending = report.status === '待审核'
+        const menuItems = [
+          ...(onRevise ? [{ key: 'revise', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Edit3 size={12} /> 修订</span> }] : []),
+          ...(onRepublish ? [{ key: 'republish', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><RotateCcw size={12} /> 补发（重新发布）</span> }] : []),
+          ...(onRequestApproval ? [{ key: 'approval', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><FileCheck2 size={12} /> 申请审批导出</span> }] : []),
+          ...(onDeliver ? [{ key: 'deliver', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Send size={12} /> 分发 / 推送</span> }] : []),
+          ...(onCritical ? [{ key: 'critical', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Zap size={12} /> 转危急值</span> }] : []),
+          ...(onCompare ? [{ key: 'compare', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><GitCompare size={12} /> 版本对比</span> }] : []),
+        ]
+        return (
+          <span style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+            <Button size="small" icon={<Eye size={12} />} onClick={(event) => { event.stopPropagation(); onView(report) }} title="查看" />
+            <Button size="small" icon={<Printer size={12} />} onClick={(event) => { event.stopPropagation(); onPrint(report) }} title="打印" />
+            <Button size="small" icon={<Download size={12} />} onClick={(event) => { event.stopPropagation(); onExportPDF(report) }} title="导出PDF" />
+            {isPending && <Button size="small" type="primary" icon={<ShieldCheck size={12} />} onClick={(event) => { event.stopPropagation(); onReview(report) }}>审核</Button>}
+            {menuItems.length > 0 && (
+              <Dropdown
+                menu={{
+                  items: menuItems,
+                  onClick: ({ key, domEvent }) => {
+                    domEvent.stopPropagation()
+                    if (key === 'revise') onRevise?.(report)
+                    else if (key === 'republish') onRepublish?.(report)
+                    else if (key === 'approval') onRequestApproval?.(report)
+                    else if (key === 'deliver') onDeliver?.(report)
+                    else if (key === 'critical') onCritical?.(report)
+                    else if (key === 'compare') onCompare?.(report)
+                  },
+                }}
+                trigger={['click']}
+              >
+                <Button size="small" icon={<MoreHorizontal size={12} />} title="更多操作" onClick={(e) => e.stopPropagation()} />
+              </Dropdown>
+            )}
+            <Button size="small" icon={expandedId === report.id ? <ChevronDown size={12} /> : <ChevronRight size={12} />} onClick={(event) => { event.stopPropagation(); onToggleExpand(report.id) }} title="更多" />
+          </span>
+        )
+      },
     },
-  ], [expandedId, onExportPDF, onPrint, onReview, onToggleExpand, onView]);
+  ], [expandedId, onExportPDF, onPrint, onReview, onRevise, onRepublish, onRequestApproval, onDeliver, onCritical, onCompare, onToggleExpand, onView]);
 
   return (
     <ProTable<RadiologyReport>

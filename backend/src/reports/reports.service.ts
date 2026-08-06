@@ -1,6 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { QueueService } from '../queue/queue.service'
+import { createNoopGateway, NotificationsGateway } from '../notifications/notifications.gateway'
 import { currentTenantId } from '../common/tenant/tenant-utils'
 import type { Prisma, ReportState, Report } from '@prisma/client'
 
@@ -63,10 +64,15 @@ function toReportDto(r: Report & { patient?: { id: string; name: string; gender:
 
 @Injectable()
 export class ReportsService {
+  private readonly gateway: NotificationsGateway
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly queue: QueueService,
-  ) {}
+    gateway?: NotificationsGateway,
+  ) {
+    this.gateway = gateway ?? createNoopGateway()
+  }
 
   async list(params: { skip?: number; take?: number; state?: ReportState }) {
     const { skip = 0, take = 20, state } = params
@@ -217,6 +223,21 @@ export class ReportsService {
         data: { reportId: id, actorId, fromState: report.state, toState: to, reason: reason ?? null, tenantId: currentTenantId() },
       })
       return toReportDto(r)
+    }).then((dto) => {
+      // W4-2: 报告状态变化 → 工作列表实时刷新; 签署/发布额外推送 notify
+      this.gateway.emitWorklistRefresh()
+      if (to === 'SIGNED' || to === 'PUBLISHED') {
+        this.gateway.push('*', {
+          event: 'notify',
+          type: 'REPORT',
+          action: to === 'SIGNED' ? 'signed' : 'published',
+          title: to === 'SIGNED' ? '报告已签署' : '报告已发布',
+          content: `报告 ${id} 状态: ${report.state} → ${to}`,
+          notification: { reportId: id, fromState: report.state, toState: to },
+          timestamp: Date.now(),
+        })
+      }
+      return dto
     })
   }
 

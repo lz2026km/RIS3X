@@ -1,75 +1,50 @@
 import { api } from './client'
 
 // OEE (设备综合效率) API
-// Backend: /oee/*
+// Backend: GET /oee/list, /oee/detail/:deviceId, /oee/trend/:deviceId, /oee/stats
 
-export interface OeeRecord {
+export interface OeeDeviceMetric {
   id: string
-  deviceId: string
-  deviceName: string
-  department: string
-  date: string
+  name: string
+  model: string
+  modality: string
+  oee: number
   availability: number
   performance: number
   quality: number
-  oee: number
-  uptimeMinutes: number
-  downtimeMinutes: number
-  totalScans: number
-  goodScans: number
+  trend: 'up' | 'down' | 'stable'
+  source: 'actual' | 'derived'
 }
 
-export interface OeeSummary {
-  period: string
-  avgOee: number
-  avgAvailability: number
-  avgPerformance: number
-  avgQuality: number
-  totalUptime: number
-  totalDowntime: number
-  deviceCount: number
-}
-
-export interface OeeQueryParams {
-  deviceId?: string
-  department?: string
-  startDate?: string
-  endDate?: string
-  page?: number
-  pageSize?: number
-}
-
-export interface OeeTrend {
+export interface OeePoint {
   date: string
   oee: number
   availability: number
   performance: number
   quality: number
+  source: 'actual' | 'derived'
 }
 
-export interface OeeDowntimeReason {
-  reason: string
-  count: number
-  totalMinutes: number
-  percentage: number
+export interface OeeDeviceDetail extends OeeDeviceMetric {
+  breakdownLoss: number
+  setupLoss: number
+  speedLoss: number
+  defectLoss: number
+}
+
+export interface OeeStats {
+  highest: number
+  lowest: number
+  average: number
+  totalDevices: number
 }
 
 export const oeeApi = {
-  listRecords: (params?: OeeQueryParams) =>
-    api.get<OeeRecord[]>(`/oee/records?${new URLSearchParams(params ?? {}).toString()}`),
+  list: () => api.get<OeeDeviceMetric[]>('/oee/list'),
 
-  getRecord: (id: string) =>
-    api.get<OeeRecord>(`/oee/records/${id}`),
+  getDetail: (deviceId: string) => api.get<OeeDeviceDetail>(`/oee/detail/${deviceId}`),
 
-  getSummary: (params?: { startDate?: string; endDate?: string }) =>
-    api.get<OeeSummary>(`/oee/summary?${new URLSearchParams(params ?? {}).toString()}`),
+  getTrend: (deviceId: string) => api.get<OeePoint[]>(`/oee/trend/${deviceId}`),
 
-  getTrend: (params?: { deviceId?: string; days?: number }) =>
-    api.get<OeeTrend[]>(`/oee/trend?${new URLSearchParams(params ?? {}).toString()}`),
-
-  getDowntimeReasons: (params?: { deviceId?: string; startDate?: string; endDate?: string }) =>
-    api.get<OeeDowntimeReason[]>(`/oee/downtime-reasons?${new URLSearchParams(params ?? {}).toString()}`),
-
-  getDeviceRanking: (params?: { startDate?: string; endDate?: string }) =>
-    api.get<OeeRecord[]>(`/oee/ranking?${new URLSearchParams(params ?? {}).toString()}`),
+  getStats: () => api.get<OeeStats>('/oee/stats'),
 }

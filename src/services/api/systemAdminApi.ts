@@ -37,6 +37,10 @@ export const systemAdminApi = {
   getConfigs: () =>
     api.get<SystemConfigDto[]>('/system/admin/configs'),
 
+  // [W5] 批量保存系统配置 (PUT /system/admin/configs)
+  saveConfigs: (configs: Array<{ key: string; value: unknown }>) =>
+    api.put<SystemConfigDto[]>('/system/admin/configs', configs),
+
   updateConfig: (key: string, value: string) =>
     api.patch<SystemConfigDto>(`/system/admin/configs/${key}`, { value }),
 }

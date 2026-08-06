@@ -27,6 +27,8 @@ export interface AppointmentListParams {
   deviceId?: string
   dateFrom?: string
   dateTo?: string
+  // [W2-4] 按患者过滤 (患者详情 360 时间线)
+  patientId?: string
 }
 
 export interface WaitlistPatientDto {
@@ -98,6 +100,7 @@ export const appointmentApi = {
     if (params?.deviceId) query.set('deviceId', params.deviceId)
     if (params?.dateFrom) query.set('dateFrom', params.dateFrom)
     if (params?.dateTo) query.set('dateTo', params.dateTo)
+    if (params?.patientId) query.set('patientId', params.patientId)
     const qs = query.toString()
     return api.get<AppointmentDto[]>(`/appointments${qs ? '?' + qs : ''}`)
   },

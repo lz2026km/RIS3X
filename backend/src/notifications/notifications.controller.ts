@@ -1,7 +1,7 @@
 ﻿/**
  * G005 RIS v3.0.6.11-33 - Notifications Controller
  */
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query, ServiceUnavailableException } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Query, ServiceUnavailableException } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
@@ -65,9 +65,24 @@ export class NotificationsController {
     return this.service.getHistory(userId, Number(limit ?? 50))
   }
 
+  @Get('stats/:userId')
+  stats(@Param('userId') userId: string) {
+    return this.service.getStats(userId)
+  }
+
   @Post('read/:id')
   read(@Param('id') id: string) {
     return this.service.markRead(id)
+  }
+
+  @Post('read-all/:userId')
+  readAll(@Param('userId') userId: string) {
+    return this.service.markAllRead(userId)
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.service.remove(id)
   }
 
   @Post()
@@ -108,6 +123,7 @@ export class NotificationsController {
 
   @Post('push-send')
   @HttpCode(HttpStatus.OK)
+  @Roles('ADMIN')
   pushSend(@Body(new ZodValidationPipe(PushSendSchema)) body: { userId: string; title: string; content: string; url?: string; tag?: string; requireInteraction?: boolean }) {
     return this.service.sendPush(body.userId, body)
   }

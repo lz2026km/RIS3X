@@ -1,5 +1,7 @@
 // [v3.0.6.11-54] Phase 2: DICOM Viewer Pro 独立页面 (真实 QIDO 检查/序列选择)
+// [W2-2] 支持 URL 参数 ?studyUid=&examId= 直达指定检查 (报告书写页影像入口)
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
   Select, Space, Tag, Button, Spin, Alert, Empty, Row, Col, Typography, Segmented,
 } from 'antd'
@@ -20,6 +22,9 @@ const MODALITY_OPTIONS = [
 ]
 
 const DicomViewerProPage: React.FC = () => {
+  const [searchParams] = useSearchParams()
+  const presetStudyUid = searchParams.get('studyUid') ?? undefined
+  const presetExamId = searchParams.get('examId') ?? undefined
   const [studies, setStudies] = useState<DicomWebStudy[]>([])
   const [seriesList, setSeriesList] = useState<DicomWebSeries[]>([])
   const [studyUid, setStudyUid] = useState<string>()
@@ -38,13 +43,20 @@ const DicomViewerProPage: React.FC = () => {
         mod === 'ALL' ? { limit: 50 } : { Modality: mod, limit: 50 },
       )
       if (res.success) {
-        setStudies(res.data ?? [])
-        const first = (res.data ?? [])[0]
+        const list = res.data ?? []
+        setStudies(list)
+        const matched =
+          presetStudyUid
+            ? list.find((s) => s.studyInstanceUID === presetStudyUid)
+            : presetExamId
+              ? list.find((s) => s.patientID === presetExamId || s.studyInstanceUID === presetExamId)
+              : undefined
+        const first = matched ?? list[0]
         if (first) {
           setStudyUid(first.studyInstanceUID)
         } else {
-          setStudyUid(undefined)
-          setSeriesList([])
+          setStudyUid(presetStudyUid ?? undefined)
+          if (!presetStudyUid) setSeriesList([])
         }
       } else {
         setError(res.error?.message ?? '检查列表加载失败')
@@ -54,7 +66,7 @@ const DicomViewerProPage: React.FC = () => {
     } finally {
       setLoading(false)
     }
-  }, [modality])
+  }, [modality, presetStudyUid, presetExamId])
 
   useEffect(() => {
     void loadStudies()

@@ -263,6 +263,10 @@ export interface RadiologyExam {
   deviceName?: string;
   roomId?: string;
   roomName?: string;
+  referringDoctorId?: string;
+  referringDoctorName?: string;
+  referringDoctorDept?: string;
+  thumbnailUrl?: string;
   status: ExamStatus;
   findings?: string;
   diagnosis?: string;

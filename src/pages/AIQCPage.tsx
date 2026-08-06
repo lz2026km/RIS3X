@@ -1,8 +1,10 @@
 // @ts-nocheck
 // G005 放射科RIS系统 - AI智能质控 v1.0.0
 // v1.0.4 (R4) 集成：跳转至 AIReportDraftPage 一键自动初稿
+// [v3.0.6.11-75] W1-2: 接入 aiPlatformApi.listQcResults (GET /ai-platform/qc, 后端 auditLog resource=ai-qc)
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { aiPlatformApi } from '../services/api/aiPlatformApi'
 import {
   ShieldCheck, AlertTriangle, CheckCircle, Search, Filter, Star,
   TrendingUp, TrendingDown, BarChart3, Clock, Camera, Image, X, Check,
@@ -76,6 +78,28 @@ const generateAIQCData = () => {
 
 const AI_QC_DATA = generateAIQCData()
 
+// [v3.0.6.11-75] 归一化后端 /ai-platform/qc 记录 (auditLog: detail 为 JSON 负载)
+const normalizeQcRow = (item) => {
+  const d = item?.detail && typeof item.detail === 'object' ? item.detail : {}
+  const createdAt = item?.createdAt ? String(item.createdAt) : ''
+  const aiScore = Number(d.aiScore ?? d.score ?? 90)
+  const result = d.result ?? (aiScore >= 85 ? '合格' : aiScore >= 70 ? '警告' : '不合格')
+  return {
+    id: item?.id ?? `AIQC-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    deviceType: d.deviceType ?? d.device ?? d.modality ?? 'AI 平台',
+    bodyPart: d.bodyPart ?? d.bodyPartName ?? '—',
+    patientName: d.patientName ?? d.patient ?? '—',
+    aiScore,
+    result,
+    technician: d.technician ?? d.operatorName ?? '—',
+    date: createdAt.slice(0, 10) || d.date || '2026-05-03',
+    time: createdAt.slice(11, 16) || d.time || '00:00',
+    confirmed: Boolean(d.confirmed),
+    confirmedTime: d.confirmedTime ?? null,
+    issues: d.issues ?? null,
+  }
+}
+
 // 统计卡片数据
 const getStats = () => {
   const today = '2026-05-03'
@@ -121,8 +145,48 @@ export default function AIQCPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const PAGE_SIZE = 15
 
+  // [v3.0.6.11-75] 真实数据: GET /ai-platform/qc (后端 auditLog resource=ai-qc) + 本地生成兜底
+  const [mergedData, setMergedData] = useState<typeof AI_QC_DATA>(() => AI_QC_DATA.slice())
+  const [apiLoading, setApiLoading] = useState(true)
+  const [apiError, setApiError] = useState('')
+
+  const loadApiQc = async (silent = false) => {
+    if (!silent) setApiLoading(true)
+    try {
+      const res = await aiPlatformApi.listQcResults()
+      if (!res.success) {
+        setApiError(res.error?.message ?? 'AI QC 数据加载失败')
+        return
+      }
+      const raw = Array.isArray(res.data) ? res.data : (res.data?.data ?? [])
+      const rows = raw.map(normalizeQcRow).filter(Boolean)
+      if (rows.length > 0) {
+        setMergedData([...rows, ...AI_QC_DATA])
+        setApiError('')
+      } else if (!silent) {
+        setApiError('接口返回空数据，展示演示数据')
+      }
+    } catch (e) {
+      setApiError((e as Error)?.message ?? 'AI QC 数据加载失败')
+    } finally {
+      setApiLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    void loadApiQc()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    if (!autoRefresh) return
+    const timer = setInterval(() => void loadApiQc(true), 30000)
+    return () => clearInterval(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoRefresh])
+
   // 筛选数据
-  const filteredData = AI_QC_DATA.filter(item => {
+  const filteredData = mergedData.filter(item => {
     const matchSearch = !search || item.patientName.includes(search) || item.id.includes(search) || item.deviceType.includes(search)
     const matchDevice = deviceFilter === '全部' || item.deviceType === deviceFilter
     const matchResult = resultFilter === '全部' || item.result === resultFilter
@@ -142,11 +206,19 @@ export default function AIQCPage() {
     if (currentPage > totalPages) setCurrentPage(totalPages)
   }, [currentPage, totalPages])
 
+  // [v3.0.6.11-75] 统计基于真实+演示合并数据实时计算
+  const liveStats = {
+    todayComplete: mergedData.filter(d => d.date === dateRange.end || d.date === '2026-05-03').length || STATS.todayComplete,
+    qualifiedRate: Math.round((mergedData.filter(d => d.result === '合格').length / Math.max(1, mergedData.length)) * 100),
+    issuesFound: mergedData.filter(d => d.result !== '合格').length,
+    feedbackRate: Math.round((mergedData.filter(d => d.confirmed).length / Math.max(1, mergedData.length)) * 100),
+  }
+
   // 统计卡片
   const statCards = [
     {
       label: '今日完成',
-      value: STATS.todayComplete,
+      value: liveStats.todayComplete,
       unit: '例',
       icon: <CheckCircle size={22} />,
       bg: '#1e3a5f',
@@ -156,7 +228,7 @@ export default function AIQCPage() {
     },
     {
       label: '合格率',
-      value: STATS.qualifiedRate,
+      value: liveStats.qualifiedRate,
       unit: '%',
       icon: <ShieldCheck size={22} />,
       bg: '#1a3d2e',
@@ -166,7 +238,7 @@ export default function AIQCPage() {
     },
     {
       label: '问题发现',
-      value: STATS.issuesFound,
+      value: liveStats.issuesFound,
       unit: '例',
       icon: <AlertTriangle size={22} />,
       bg: '#3d2a1a',
@@ -176,7 +248,7 @@ export default function AIQCPage() {
     },
     {
       label: '技师反馈率',
-      value: STATS.feedbackRate,
+      value: liveStats.feedbackRate,
       unit: '%',
       icon: <MessageSquare size={22} />,
       bg: '#2e1a3d',
@@ -319,11 +391,29 @@ export default function AIQCPage() {
                 AI智能质控
               </h1>
               <p style={{ fontSize: 12, color: GRAY, margin: 0 }}>
-                基于深度学习的影像质量智能分析与质控
+                基于深度学习的影像质量智能分析与质控 {apiLoading ? '(同步中…)' : ''}
               </p>
             </div>
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
+            <button
+              onClick={() => void loadApiQc()}
+              style={{
+                padding: '8px 16px',
+                borderRadius: 8,
+                border: `1px solid ${PRIMARY}`,
+                background: `${PRIMARY}22`,
+                color: PRIMARY,
+                fontSize: 13,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
+            >
+              <RefreshCw size={14} className={apiLoading ? 'spin-icon' : ''} />
+              同步 AI 平台数据
+            </button>
             <button
               onClick={() => setAutoRefresh(!autoRefresh)}
               style={{
@@ -343,7 +433,7 @@ export default function AIQCPage() {
               自动刷新
             </button>
             <button
-              onClick={() => { const csv = 'AI质控报表\n记录数,合格率,需重审数,采纳率\n' + AI_QC_DATA.length + ',95.5%,23,87.3%'; const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'AI质控报表.csv'; a.click(); URL.revokeObjectURL(url); }}
+              onClick={() => { const csv = 'AI质控报表\n记录数,合格率,需重审数,采纳率\n' + mergedData.length + ',' + liveStats.qualifiedRate + '%,' + liveStats.issuesFound + ',' + liveStats.feedbackRate + '%'; const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'AI质控报表.csv'; a.click(); URL.revokeObjectURL(url); }}
               style={{
                 padding: '8px 16px',
                 borderRadius: 8,
@@ -363,6 +453,23 @@ export default function AIQCPage() {
             </button>
           </div>
         </div>
+        {apiError && (
+          <div style={{
+            marginTop: 12,
+            padding: '10px 14px',
+            borderRadius: 8,
+            border: `1px solid ${WARNING}66`,
+            background: `${WARNING}14`,
+            color: '#fbbf24',
+            fontSize: 12,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}>
+            <span>{apiError}（继续展示演示数据）</span>
+            <button onClick={() => { setApiError(''); void loadApiQc() }} style={{ background: 'transparent', border: 'none', color: '#fbbf24', cursor: 'pointer', fontSize: 12 }}>重试</button>
+          </div>
+        )}
       </div>
 
       {/* 统计卡片 - v3.0.6.8-23c (A8-P0-4): auto-fit 响应式 */}
@@ -933,6 +1040,9 @@ export default function AIQCPage() {
         @keyframes spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
+        }
+        .spin-icon {
+          animation: spin 1s linear infinite;
         }
         input[type="date"]::-webkit-calendar-picker-indicator {
           filter: invert(0.7);

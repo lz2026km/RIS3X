@@ -376,5 +376,6 @@
   "v3ReportHub": "V3 Report Hub",
   "vr": "VR Volume Rendering",
   "workflowDesigner": "Workflow Designer",
-  "workloadHeatmap": "Workload Heatmap"
+  "workloadHeatmap": "Workload Heatmap",
+  "exportApproval": "Export Approval"
 }

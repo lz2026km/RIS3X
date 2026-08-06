@@ -991,19 +991,63 @@ const eyeReportModule = [
 ];
 
 // ============= EyeKpiModule (16 端点) =============
+// [v3.0.6.11-75 W3-1] 真实化 EyeKpiDashboardPage 所需 3 端点
+const EYE_KPI_METRICS = [
+  { id: 'kpi-001', category: 'productivity', name: '日均检查量', value: 148, target: 160, unit: '人次', trend: 'up', period: '日' },
+  { id: 'kpi-002', category: 'productivity', name: 'AI 辅助采纳率', value: 87, target: 90, unit: '%', trend: 'up', period: '月' },
+  { id: 'kpi-003', category: 'productivity', name: '报告按时完成率', value: 93, target: 95, unit: '%', trend: 'up', period: '月' },
+  { id: 'kpi-004', category: 'clinical', name: '眼底病筛查阳性率', value: 18.6, target: 20, unit: '%', trend: 'flat', period: '季' },
+  { id: 'kpi-005', category: 'clinical', name: '青光眼早期诊断率', value: 76, target: 80, unit: '%', trend: 'up', period: '季' },
+  { id: 'kpi-006', category: 'clinical', name: '白内障术前 IOL 测量率', value: 98, target: 100, unit: '%', trend: 'up', period: '月' },
+  { id: 'kpi-007', category: 'operational', name: '设备开机率', value: 91, target: 95, unit: '%', trend: 'down', period: '月' },
+  { id: 'kpi-008', category: 'operational', name: '复诊预约率', value: 64, target: 70, unit: '%', trend: 'up', period: '月' },
+  { id: 'kpi-009', category: 'financial', name: '检查收入(万元)', value: 86, target: 100, unit: '万', trend: 'up', period: '月' },
+  { id: 'kpi-010', category: 'financial', name: '耗材成本占比', value: 24, target: 22, unit: '%', trend: 'down', period: '月' },
+  { id: 'kpi-011', category: 'satisfaction', name: '患者满意度', value: 92, target: 95, unit: '分', trend: 'up', period: '月' },
+  { id: 'kpi-012', category: 'satisfaction', name: '投诉处理及时率', value: 89, target: 95, unit: '%', trend: 'up', period: '月' },
+];
+
+const EYE_KPI_SATISFACTION = [
+  { id: 'sat-001', patientName: '张敏', communicationScore: 95, waitTimeScore: 88, facilityScore: 92, recommendationScore: 94, overallScore: 92, surveyAt: '2026-07-28' },
+  { id: 'sat-002', patientName: '李强', communicationScore: 90, waitTimeScore: 75, facilityScore: 85, recommendationScore: 88, overallScore: 85, surveyAt: '2026-07-29' },
+  { id: 'sat-003', patientName: '王丽', communicationScore: 96, waitTimeScore: 92, facilityScore: 95, recommendationScore: 97, overallScore: 95, surveyAt: '2026-07-30' },
+  { id: 'sat-004', patientName: '赵鹏', communicationScore: 88, waitTimeScore: 80, facilityScore: 86, recommendationScore: 84, overallScore: 85, surveyAt: '2026-07-31' },
+];
+
 const eyeKpiModule: any[] = [
   // 1) 6 维 KPI 概览
-  
-  // 2) KPI 详情
-  
-  // 3) 按类别
-  
+  http.get(`${API_BASE}/kpi/summary`, async () => {
+    await delay(80);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        dailyExams: 148,
+        aiAdoption: 87,
+        avgWait: 12,
+        avgCost: 286,
+        criticalResponse: 9,
+        surgeryCount: 16,
+        examCount: 148,
+        revenue: 86,
+      },
+    });
+  }),
+  // 2) KPI 列表 (质量指标)
+  http.get(`${API_BASE}/kpi/quality-metrics`, async () => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: EYE_KPI_METRICS });
+  }),
+  // 3) 患者满意度
+  http.get(`${API_BASE}/kpi/satisfaction`, async () => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: EYE_KPI_SATISFACTION });
+  }),
   // 4) 创建 KPI
-  
+
   // 5) 更新 KPI
-  
+
   // 6) 删除 KPI
-  
+
 
   // 7) 趋势 (按时间)
   
@@ -2797,6 +2841,103 @@ const eyeMaterialsModule = [
   }),
 ];
 
+// [W3-2] 视力检查 / 眼压测量 记录端点 (VisionExamPage / IntraocularPressurePage)
+// 内存数据源: 首次访问从 MOCK 数据播种, 之后可 CRUD
+let visionRecordSeed: any[] | null = null;
+let iopRecordSeed: any[] | null = null;
+
+function getVisionSeed(): any[] {
+  if (!visionRecordSeed) {
+    visionRecordSeed = [
+      { id: 'VR-001', patientId: 'p-1001', patientName: '李明', odUcva: 0.6, odBcva: 1.0, odPhva: 0.8, osUcva: 0.5, osBcva: 0.8, osPhva: 0.7, notation: 'decimal', distance: 'far', examiner: '张明远', createdAt: new Date(Date.now() - 86400000 * 3).toISOString() },
+      { id: 'VR-002', patientId: 'p-1001', patientName: '李明', odUcva: 0.8, odBcva: 1.0, odPhva: 1.0, osUcva: 0.6, osBcva: 0.9, osPhva: 0.8, notation: 'decimal', distance: 'far', examiner: '张明远', createdAt: new Date(Date.now() - 86400000 * 30).toISOString() },
+      { id: 'VR-003', patientId: 'p-1003', patientName: '赵刚', odUcva: 0.3, odBcva: 0.7, odPhva: 0.7, osUcva: 0.4, osBcva: 0.8, osPhva: 0.8, notation: 'decimal', distance: 'far', examiner: '赵静', createdAt: new Date(Date.now() - 86400000 * 7).toISOString() },
+    ];
+  }
+  return visionRecordSeed;
+}
+
+function getIopSeed(): any[] {
+  if (!iopRecordSeed) {
+    iopRecordSeed = [
+      { id: 'IOP-001', patientId: 'p-1001', patientName: '李明', od: 18, os: 19, device: 'nct', timestamp: new Date(Date.now() - 86400000).toISOString() },
+      { id: 'IOP-002', patientId: 'p-1001', patientName: '李明', od: 17, os: 20, device: 'goldmann', timestamp: new Date(Date.now() - 86400000 * 30).toISOString() },
+      { id: 'IOP-003', patientId: 'p-1002', patientName: '王芳', od: 22, os: 24, device: 'nct', timestamp: new Date(Date.now() - 86400000 * 7).toISOString() },
+      { id: 'IOP-004', patientId: 'p-1002', patientName: '王芳', od: 21, os: 22, device: 'goldmann', timestamp: new Date(Date.now() - 86400000 * 7 + 3600000 * 10).toISOString() },
+      { id: 'IOP-005', patientId: 'p-1002', patientName: '王芳', od: 24, os: 26, device: 'goldmann', timestamp: new Date(Date.now() - 86400000 * 7 + 3600000 * 14).toISOString() },
+      { id: 'IOP-006', patientId: 'p-1002', patientName: '王芳', od: 16, os: 17, device: 'nct', timestamp: new Date(Date.now() - 86400000 * 7 + 3600000 * 18).toISOString() },
+    ];
+  }
+  return iopRecordSeed;
+}
+
+const eyeW3RisModule = [
+  // 视力检查记录
+  http.get(`${API_BASE}/ris/vision-records`, async ({ request }) => {
+    await delay(60);
+    const url = new URL(request.url);
+    const patientId = url.searchParams.get('patientId');
+    let data = [...getVisionSeed()];
+    if (patientId) data = data.filter((v: any) => v.patientId === patientId);
+    data.sort((a: any, b: any) => String(b.createdAt).localeCompare(String(a.createdAt)));
+    return HttpResponse.json({ success: true, data, meta: { total: data.length } });
+  }),
+  http.post(`${API_BASE}/ris/vision-records`, async ({ request }) => {
+    await delay(120);
+    const body = (await request.json()) as any;
+    const item = {
+      id: body.id || `VR-${Date.now()}`,
+      patientId: body.patientId || 'p-1001',
+      patientName: body.patientName || '李明',
+      odUcva: body.odUcva ?? 0,
+      odBcva: body.odBcva ?? 0,
+      odPhva: body.odPhva ?? 0,
+      osUcva: body.osUcva ?? 0,
+      osBcva: body.osBcva ?? 0,
+      osPhva: body.osPhva ?? 0,
+      notation: body.notation || 'decimal',
+      distance: body.distance || 'far',
+      examiner: body.examiner || '当前医生',
+      createdAt: new Date().toISOString(),
+    };
+    getVisionSeed().unshift(item);
+    return HttpResponse.json({ success: true, data: item }, { status: 201 });
+  }),
+
+  // 眼压测量记录
+  http.get(`${API_BASE}/ris/iop-records`, async ({ request }) => {
+    await delay(60);
+    const url = new URL(request.url);
+    const patientId = url.searchParams.get('patientId');
+    let data = [...getIopSeed()];
+    if (patientId) data = data.filter((r: any) => r.patientId === patientId);
+    data.sort((a: any, b: any) => String(b.timestamp).localeCompare(String(a.timestamp)));
+    return HttpResponse.json({ success: true, data, meta: { total: data.length } });
+  }),
+  http.post(`${API_BASE}/ris/iop-records`, async ({ request }) => {
+    await delay(100);
+    const body = (await request.json()) as any;
+    const item = {
+      id: body.id || `IOP-${Date.now()}`,
+      patientId: body.patientId || 'p-1001',
+      patientName: body.patientName || '李明',
+      od: Number(body.od) || 0,
+      os: Number(body.os) || 0,
+      device: body.device || 'nct',
+      timestamp: new Date().toISOString(),
+    };
+    getIopSeed().unshift(item);
+    return HttpResponse.json({ success: true, data: item }, { status: 201 });
+  }),
+  http.delete(`${API_BASE}/ris/iop-records/:id`, async ({ params }) => {
+    await delay(50);
+    const idx = getIopSeed().findIndex((r: any) => r.id === params.id);
+    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    getIopSeed().splice(idx, 1);
+    return new HttpResponse(null, { status: 204 });
+  }),
+];
+
 // 汇总所有端点
 export const eyeHandlers = [
   ...eyeRisModule,
@@ -2820,4 +2961,5 @@ export const eyeHandlers = [
   ...eyePixelRenderModule, // [v3.0.6.8-43] PR 10
   ...eyeOptometryClosedLoopModule, // [v3.0.6.8-44] PR 11
   ...eyeMaterialsModule, // [G005-P1] 眼料在用孤儿 (IOL 库存 + 接触镜 CRUD + OK 镜设计)
+  ...eyeW3RisModule, // [W3-2] 视力/眼压记录 (VisionExamPage / IntraocularPressurePage)
 ];

@@ -181,6 +181,7 @@ model User {
   opsLog              WorklistOp[]
   loginLogs           LoginLog[]
   Notification        Notification[]
+  NotificationSubscription NotificationSubscription[]
 
   @@index([tenantId])
   @@map("users")
@@ -584,6 +585,21 @@ model Notification {
   @@index([userId, read, createdAt])
   @@index([tenantId])
   @@map("notifications")
+}
+
+model NotificationSubscription {
+  id        String   @id @default(cuid())
+  tenantId  String   @map("tenant_id")
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  keysJson  String   @map("keys_json")
+  topics    Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([tenantId])
+  @@map("notification_subscriptions")
 }
 
 model AuditLog {

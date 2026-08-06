@@ -183,6 +183,8 @@ const PORTAL_IMAGE_PREVIEWS_SEED = [
 // 内存态: 会话内创建/提交的数据
 let portalAppointments: any[] = [...PORTAL_APPOINTMENTS_SEED];
 let portalFeedback: any[] = [];
+// [W5] 宣教资料库可变副本 (POST/DELETE /education 会话内生效)
+let portalEducation: any[] = [...EDUCATION_MATERIALS];
 
 const lookupPatientName = (patientId: string): string | undefined => {
   try {
@@ -228,10 +230,56 @@ export const patientPortalHandlers = [
     await delay(delayMs());
     const url = new URL(request.url);
     const opts = parseQuery(url);
-    let items: any[] = [];
-    if (!items.length) items = EDUCATION_MATERIALS.map(m => ({ ...m, key: m.id }));
+    const items = portalEducation.map(m => ({ ...m, key: m.key ?? m.id }));
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
+  }),
+
+  // [W5] 宣教资料创建 (后端 POST /patient-portal/education → education_<key> SystemConfig)
+  http.post(`${API}/education`, async ({ request }) => {
+    await delay(delayMs());
+    const body = (await request.json().catch(() => null)) as any;
+    if (!body || typeof body.title !== 'string' || !body.title.trim() || typeof body.content !== 'string' || !body.content.trim()) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'VALIDATION_ERROR', message: 'title / content 为必填字段' } },
+        { status: 400 },
+      );
+    }
+    const now = new Date().toISOString();
+    const key = `education_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const record: any = {
+      id: key,
+      key,
+      title: body.title,
+      category: body.category ?? 'general',
+      contentType: body.contentType ?? 'text',
+      content: body.content,
+      summary: body.summary ?? '',
+      modality: body.modality,
+      bodyPart: body.bodyPart,
+      duration: body.duration,
+      tags: body.tags ?? [],
+      language: body.language ?? 'zh-CN',
+      createdAt: now,
+      updatedAt: now,
+    };
+    portalEducation = [record, ...portalEducation];
+    return HttpResponse.json({ success: true, data: record }, { status: 201 });
+  }),
+
+  // [W5] 宣教资料删除
+  http.delete(`${API}/education/:key`, async ({ params }) => {
+    await delay(delayMs());
+    const key = params.key as string;
+    const before = portalEducation.length;
+    portalEducation = portalEducation.filter(m => (m.key ?? m.id) !== key);
+    if (portalEducation.length === before) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'NOT_FOUND', message: `宣教资料不存在: ${key}` } },
+        { status: 404 },
+      );
+    }
+    return HttpResponse.json({ success: true, data: { deleted: true, key } });
   }),
 
   // ===== [v3.1] 患者预约列表 =====

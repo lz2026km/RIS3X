@@ -258,6 +258,7 @@ export type {
   PortalImageStudyDto,
   PortalFeedbackDto,
   CreatePortalFeedbackInput,
+  CreateEducationInput,
 } from "./patientPortalApi";
 
 export { complianceApi } from "./complianceApi";
@@ -290,10 +291,17 @@ export { snomedApi } from "./snomedApi";
 export type { SnomedCode } from "./snomedApi";
 
 export { mobileApi } from "./mobileApi";
-export type { DoctorWorklistItem, DoctorStats } from "./mobileApi";
-
-export { crossModalSearchApi } from "./dicomApi";
-export type { CrossModalSearchResult } from "./dicomApi";
+export type {
+  WorklistItem,
+  TodaySummary,
+  CriticalValueItem,
+  AckResult,
+  LatestReportItem,
+  DeviceTokenPayload,
+  DeviceTokenResult,
+  DoctorWorklistItem,
+  DoctorStats,
+} from "./mobileApi";
 
 export { systemAdminApi } from "./systemAdminApi";
 export type {
@@ -377,6 +385,8 @@ export type {
   AiPlatformTask,
   AiPlatformInferenceDto,
   AiPlatformStats,
+  AiPlatformQcResult,
+  AiPlatformMedicalDevice,
 } from "./aiPlatformApi";
 
 export { aiDiagnosisApi } from "./aiDiagnosisApi";
@@ -407,18 +417,18 @@ export type {
 export { occupancyApi } from "./occupancyApi";
 export type {
   OccupancyRoom,
-  OccupancyTimelineEntry,
-  OccupancyStats,
-  OccupancyQueryParams,
+  OccupancyQueue,
+  OccupancyQueueEntry,
+  OccupancyTrendPoint,
+  RoomStatusValue,
 } from "./occupancyApi";
 
 export { oeeApi } from "./oeeApi";
 export type {
-  OeeRecord,
-  OeeSummary,
-  OeeQueryParams,
-  OeeTrend,
-  OeeDowntimeReason,
+  OeeDeviceMetric,
+  OeeDeviceDetail,
+  OeePoint,
+  OeeStats,
 } from "./oeeApi";
 
 export { teleApi } from "./teleApi";
@@ -565,23 +575,31 @@ export type {
   CriticalExtSummaryDto,
   CriticalExtTimelineDto,
   CriticalExtCenterDto,
+  CriticalChannelDto,
 } from "./criticalExtApi";
 
 export { cadApi } from "./cadApi";
-export type { CadModelDto, CadAnalysisDto, CadFindingDto } from "./cadApi";
+export type { CadDetection, CadResult } from "./cadApi";
 
 export { complianceDocsApi } from "./complianceDocsApi";
 export type {
-  ComplianceDocDto,
   ComplianceDocListParams,
 } from "./complianceDocsApi";
 
 export { crossModalApi } from "./crossModalApi";
 export type {
   CrossModalSearchDto,
-  CrossModalSearchResult,
   CrossModalIndexStatus,
 } from "./crossModalApi";
+export type { CrossModalSearchResult as CrossModalHit } from "./dicomApi";
+export { crossModalSearchApi } from "./dicomApi";
+export { shareApi } from "./shareApi";
+export type {
+  ShareRecord,
+  CreateShareDto,
+  ShareStats,
+  ShareLinkResult,
+} from "./shareApi";
 
 export { similarCaseApi } from "./similarCaseApi";
 export type {
@@ -625,8 +643,8 @@ export type {
 
 export { notificationsApi } from "./notificationsApi";
 export type {
-  NotificationDto,
-  NotificationQueryParams,
+  NotificationType,
+  NotificationSeverity,
   NotificationStatsDto,
   PushSubscriptionDto,
 } from "./notificationsApi";

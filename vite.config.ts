@@ -335,6 +335,12 @@ export default defineConfig({
         target: 'http://localhost:3001',
         changeOrigin: true,
       },
+      // [W4-2] 实时推送: socket.io 握手/升级代理到后端网关 (含 WebSocket upgrade)
+      '/socket.io': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        ws: true,
+      },
     },
   },
 

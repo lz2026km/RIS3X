@@ -103,6 +103,10 @@ export const dicomDimseHandlers = [
       data: {
         status: "success",
         url: `https://s3.mock.local/dicom/${body?.sopInstanceUid ?? uuidv4()}.dcm`,
+        fileName: body?.fileName,
+        fileSize: body?.fileSize,
+        destination: body?.destination ?? "s3",
+        storedAt: new Date().toISOString(),
       },
     });
   }),

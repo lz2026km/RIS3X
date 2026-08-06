@@ -1,8 +1,48 @@
 ﻿# CHANGELOG
 
+## v3.0.6.11-75 (2026-08-03) — 大规模升级：后端功能前端化+核心页增强+24壳页补齐+实时推送+队列真实化
+
+> **目标**: 12000 升级点——参数/功能/前端/后端全维度扩充，重点"后端已有、前端未展现"功能补齐
+> **范围**: 16 agents 六波实施（121 suites/1278 tests）
+
+### Wave 1: 后端功能前端化（5 agents）
+
+- **W1-1 运营分析**：OEEDashboardPage 接 oeeApi（4 KPI+趋势+损失饼图）；RoomOccupancyPage 接 occupancyApi（房间/队列/趋势/状态+30s 轮询）；NotificationCenter 全交互（已读/删除/统计/Web Push 管理）+ 后端补 stats/read-all/delete 端点
+- **W1-2 AI 平台**：AiCadPage 真实 CAD 检测（detect+result）；QcImageAiPage 接 score-v2/stats-v2；AIQCPage 接 /ai-platform/qc；AIMedicalDevicePage 设备列表（20 台+5 状态徽章）
+- **W1-3 移动端**：mobileApi 对齐后端 7 端点（/mobile/worklist+today-summary+critical-values+ack+reports-latest+device-token）；Doctor/Tech/Nurse 工作站接真 API + 下拉刷新 + 离线兜底；MobilePushPage 设备 token 注册
+- **W1-4 集成工具**：HL7 消息构造器（4 消息类型+预览+发送+历史）；FHIR SMART 授权页（config/authorize/token/introspect/revoke 全流程）；IHE affinity domain 配置
+- **W1-5 财务+审批**：导出审批中心（申请/审批/驳回/筛选 + ReportExportPage 集成）；ChargeItemPage 接 financeApi CRUD（后端补 DELETE）；发票管理 Tab（详情/支付）；财务报告 Tab（KPI+趋势图）
+
+### Wave 2: 核心页功能增强（4 agents）
+
+- **W2-1 Worklist**：分配报告医生（真实 API）、批量操作真实化（改优先级/分配检查室）、申请单 Drawer+打印、危急值跳转、影像缩略图、患者历史检查
+- **W2-2 报告书写**：打印/PDF 导出、模板选择器、内嵌影像视口、签署/发布入口（状态机驱动）、上下例导航、短语库插入、并发冲突检测（修复 React 死循环 bug）
+- **W2-3 报告列表**：批量审核/签署、修订/补发入口、发布审批流集成、分发管理、转危急值、多版本并排对比（diff 高亮）、导出真实化（入队→轮询→下载）
+- **W2-4 患者 360°**：一键预约/随访联动、危急值历史（后端补 patientId 过滤）、影像卡片跳转、多源时间线（检查+报告+预约+危急值）、账单、**患者合并（后端补 /patients/merge 事务）**
+
+### Wave 3: 24 个 D 级页面补齐（2 agents）
+
+- AIAssistPage（0 行空壳→291 行 AI 助手）、RemoteReadingPage、IheIntegrationPage、MllpMonitorPage、CrossModalSearchPage、DicomWebPage、DicomSharePage、PatientSafetyDashboardPage、WorkloadHeatmapPage、ImageQualityControlPage、EyeKpiDashboardPage、ContrastInventoryPage
+- AiTriagePage、VisionExamPage、IntraocularPressurePage、OctViewerPage、TreatmentPlanCenterPage、DimseUploadPage、Scan3DViewerPage、DentalRadFusionPages、ReportTemplateManagerPage、DentalImplantPlanPage、DentalTelePage
+
+### Wave 4: 基础设施扩充（2 agents）
+
+- **W4-1 队列+cron 真实化**：reportExport consumer 真实 HTML 报告生成；hl7Send 真实 MLLP 发送（3 次重试）；aiInference 真实推理写 AiJob；8 个 cron 真实化（危急值 30min 升级/SLA 超时/每日备份/设备心跳/冷存储迁移）
+- **W4-2 实时推送**：**真实 socket.io 网关**（JWT 鉴权+个人房间+Yjs 协同转发+9 集成测试）；危急值/报告/工作列表事件实时推送；push 订阅持久化（NotificationSubscription 模型）；前端 realtime.ts 客户端（指数退避重连）；3 页面实时刷新
+
+### Wave 5: 参数配置（1 agent）
+
+- 后端补 /system/admin/configs（6 配置项）+ SystemAdminPage 解锁编辑；危急值通知通道开关（critical-ext/channels）+ UI；education 写端点+宣教新建；VITE_* 未用清理；DEFAULT_TENANT_ID 环境变量；侧边栏版本号动态
+
+### 验证
+
+- 后端: tsc 0 错误、jest **121 suites / 1278 tests 全部通过**
+- 前端: tsc 981（累计从 5,494 降 82%）、vite build 成功、Playwright 回归 35/35
+- 浏览器实测: 10 新页面全 OK 0 错误（AI 助手/导出审批/HL7 构造器/SMART 授权/热力图/移动端/模板管理/财务）；修复 mobileHandlers 未注册 + finance 对象 handler 500
+
 ## v3.0.6.11-73 (2026-08-03) — 全方位审查：角色修复+状态机对齐+worklist端点+在用孤儿补齐+stats真实化+tsc-60%
 
-> **目标**: v3.0.6.11-73 全方位审查（-72 验证通过 + 业务规则/三层残留/数据真实性/清理）全部落地
+> **目标**: v3.0.6.11-75 全方位审查（-72 验证通过 + 业务规则/三层残留/数据真实性/清理）全部落地
 > **范围**: 7 agents 三波实施（116 suites/1234 tests，tsc 2,554→1,032）
 
 ### P0 业务规则（RULE1/RULE2）
@@ -39,7 +79,7 @@
 
 ## v3.0.6.11-72 (2026-08-03) — 全方位审查：安全6项+三层一致7项+性能5项+死代码951文件+tsc-53%
 
-> **目标**: v3.0.6.11-73 全方位审查（安全/三层一致/性能/死代码/tsc）全部修复落地
+> **目标**: v3.0.6.11-75 全方位审查（安全/三层一致/性能/死代码/tsc）全部修复落地
 > **范围**: 12 agents 四波实施（112 suites/1163 tests，tsc 5,494→2,590）
 
 ### 安全修复（6 项，SEC1-3）
@@ -270,7 +310,7 @@
 
 ### Phase 0: 10×80 对标文档
 
-- 新增 `docs/PACS_BENCHMARK_V3.0.6.11-73.md`：10 厂商 × 80 项功能矩阵（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/Change Healthcare/Infinitt）
+- 新增 `docs/PACS_BENCHMARK_V3.0.6.11-75.md`：10 厂商 × 80 项功能矩阵（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/Change Healthcare/Infinitt）
 - G005 完成度 38.8%（31✅/30🟡/19❌），对标 Sectra 87.5%/GE 85.0%
 - 四阶段路线图：Phase1 修复断裂点（本次）→ Phase2 mock 降级/覆盖率 → Phase3 AI Orchestrator/BI/剂量 → Phase4 云部署/环境式报告
 
@@ -379,16 +419,16 @@
 
 ### F18: 版本号全量统一 + 文档
 
-- package.json → 3.0.6.11-73（含 package-lock.json）
-- backend/package.json → 3.0.6.11-73
-- index.html title + window.__appVersion → v3.0.6.11-73
-- src/main.tsx APP_VERSION → v3.0.6.11-73
-- backend/src/main.ts + app.module.ts → v3.0.6.11-73
-- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-73
-- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-73
-- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-73
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-73
-- CHANGELOG.md 新增 v3.0.6.11-73 条目
+- package.json → 3.0.6.11-75（含 package-lock.json）
+- backend/package.json → 3.0.6.11-75
+- index.html title + window.__appVersion → v3.0.6.11-75
+- src/main.tsx APP_VERSION → v3.0.6.11-75
+- backend/src/main.ts + app.module.ts → v3.0.6.11-75
+- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-75
+- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-75
+- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-75
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-75
+- CHANGELOG.md 新增 v3.0.6.11-75 条目
 
 ### 验证结果
 
@@ -399,10 +439,10 @@
 
 ---
 
-## v3.0.6.11-73 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
+## v3.0.6.11-75 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
 
 > **目标**: 后端深度修复 + 安全加固 + 类型修复 + 测试验证 + 性能检查 + 版本号全量统一
-> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-73
+> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-75
 
 ### A13: 后端安全加固
 
@@ -433,19 +473,19 @@
 
 ### A19: 版本号全量统一
 
-- backend/package.json → 3.0.6.11-73
-- backend/src/main.ts → Swagger version + log message → v3.0.6.11-73
-- backend/src/app.module.ts → v3.0.6.11-73
-- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-73
-- index.html title + window.__appVersion → v3.0.6.11-73
-- src/i18n/appI18n.ts → v3.0.6.11-73
-- src/main.tsx APP_VERSION → v3.0.6.11-73
-- src/routes/routeTable.tsx → v3.0.6.11-73
-- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-73
-- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-73
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-73
-- CONTRIBUTING.md → v3.0.6.11-73
-- CHANGELOG.md 新增 v3.0.6.11-73 条目
+- backend/package.json → 3.0.6.11-75
+- backend/src/main.ts → Swagger version + log message → v3.0.6.11-75
+- backend/src/app.module.ts → v3.0.6.11-75
+- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-75
+- index.html title + window.__appVersion → v3.0.6.11-75
+- src/i18n/appI18n.ts → v3.0.6.11-75
+- src/main.tsx APP_VERSION → v3.0.6.11-75
+- src/routes/routeTable.tsx → v3.0.6.11-75
+- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-75
+- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-75
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-75
+- CONTRIBUTING.md → v3.0.6.11-75
+- CHANGELOG.md 新增 v3.0.6.11-75 条目
 
 ### 验证结果
 
