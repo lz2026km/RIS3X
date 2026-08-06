@@ -1,6 +1,0 @@
-export { default as OpsDashboardPage } from './OpsDashboardPage'
-export { default as DeviceOpsPage } from './DeviceOpsPage'
-export { default as HrOperationsPage } from './HrOperationsPage'
-export type {} from './OpsDashboardPage'
-export type {} from './DeviceOpsPage'
-export type {} from './HrOperationsPage'

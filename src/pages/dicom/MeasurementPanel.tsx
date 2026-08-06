@@ -1,15 +1,15 @@
 import { Ruler, Triangle, Circle as CircleIcon, Square, Circle, Activity, Trash2, EyeIcon, EyeOff, FileText } from 'lucide-react'
 const RectIcon = Square
-import type { MeasureSubMenu, Measurement } from './DicomViewerTypes'
+import type { Dispatch, SetStateAction } from 'react'
+import type { MeasureSubMenu, Measurement, RightTab, Tool } from './DicomViewerTypes'
 
 const PRIMARY = '#1e3a5f'
 
 interface Props {
-  rightTab: string
-  setRightTab: (tab: string) => void
+  rightTab: RightTab
   measureSubMenu: MeasureSubMenu
   setMeasureSubMenu: (m: MeasureSubMenu) => void
-  setActiveTool: (tool: string) => void
+  setActiveTool: Dispatch<SetStateAction<Tool>>
   interactiveMeasures: Measurement[]
   showMeasurementsOverlay: boolean
   setShowMeasurementsOverlay: (v: boolean) => void
@@ -35,7 +35,7 @@ const s = {
 }
 
 export default function MeasurementPanel(props: Props) {
-  const { rightTab, setRightTab, measureSubMenu, setMeasureSubMenu, setActiveTool, interactiveMeasures, showMeasurementsOverlay, setShowMeasurementsOverlay, deleteMeasure, clearAllMeasures, getMeasureTypeLabel, measurements, showToast } = props
+  const { rightTab, measureSubMenu, setMeasureSubMenu, setActiveTool, interactiveMeasures, showMeasurementsOverlay, setShowMeasurementsOverlay, deleteMeasure, clearAllMeasures, getMeasureTypeLabel, measurements, showToast } = props
 
   if (rightTab !== 'measure') return null
 
@@ -44,13 +44,13 @@ export default function MeasurementPanel(props: Props) {
       <div style={s.infoSection}>
         <div style={s.infoSectionTitle}>ROI测量工具</div>
         <div style={{ display: 'flex', gap: 4, marginBottom: 8, flexWrap: 'wrap' }}>
-          {(['line', 'angle', 'ellipse', 'rectangle', 'circle', 'ctvalue'] as MeasureSubMenu[]).map(type => (
+          {(['length', 'angle', 'ellipse', 'rectangle', 'circle', 'ctvalue'] as MeasureSubMenu[]).map(type => (
             <button key={type} style={{
               flex: 1, minWidth: 60, padding: '6px 4px', borderRadius: 6, border: `1px solid ${measureSubMenu === type ? PRIMARY : '#e2e8f0'}`,
               background: measureSubMenu === type ? PRIMARY : '#fff', color: measureSubMenu === type ? '#fff' : '#475569', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 2
             }} onClick={() => { setMeasureSubMenu(type); setActiveTool('measure') }}>
-              {type === 'line' && <Ruler size={14} />}{type === 'angle' && <Triangle size={14} />}{type === 'ellipse' && <CircleIcon size={14} />}{type === 'rectangle' && <RectIcon size={14} />}{type === 'circle' && <Circle size={14} />}{type === 'ctvalue' && <Activity size={14} />}
-              {type === 'line' ? '长度' : type === 'angle' ? '角度' : type === 'ellipse' ? '椭圆' : type === 'rectangle' ? '矩形' : type === 'circle' ? '圆形' : 'CT值'}
+              {type === 'length' && <Ruler size={14} />}{type === 'angle' && <Triangle size={14} />}{type === 'ellipse' && <CircleIcon size={14} />}{type === 'rectangle' && <RectIcon size={14} />}{type === 'circle' && <Circle size={14} />}{type === 'ctvalue' && <Activity size={14} />}
+              {type === 'length' ? '长度' : type === 'angle' ? '角度' : type === 'ellipse' ? '椭圆' : type === 'rectangle' ? '矩形' : type === 'circle' ? '圆形' : 'CT值'}
             </button>
           ))}
         </div>

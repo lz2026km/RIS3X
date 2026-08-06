@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { isPublicUrl } from './fhir-ssrf'
 
 export const CreatePatientSchema = z.object({
   resourceType: z.literal('Patient'),
@@ -22,7 +23,13 @@ export const UpdatePatientSchema = z.object({
 export const CreateSubscriptionSchema = z.object({
   resourceType: z.literal('Subscription'),
   status: z.enum(['requested', 'active', 'error', 'off']),
-  channel: z.object({ type: z.enum(['rest-hook', 'websocket', 'email']), endpoint: z.string().url() }),
+  channel: z.object({
+    type: z.enum(['rest-hook', 'websocket', 'email']),
+    endpoint: z
+      .string()
+      .url()
+      .refine(isPublicUrl, { message: 'SUBSCRIPTION_ENDPOINT_BLOCKED' }),
+  }),
   criteria: z.string().min(1),
   reason: z.string().min(1),
 })

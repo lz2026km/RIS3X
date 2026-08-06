@@ -23,12 +23,11 @@ import type {
 
 const isoMinutesAgo = (m: number) => new Date(Date.now() - m * 60000).toISOString();
 const isoHoursAgo = (h: number) => new Date(Date.now() - h * 3600000).toISOString();
-const isoDaysAgo = (d: number) => new Date(Date.now() - d * 86400000).toISOString();
 
 const COLORS = [
   '#dc2626', '#7c3aed', '#0891b2', '#10b981', '#f59e0b', '#a855f7',
   '#3b82f6', '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16',
-];
+] as const;
 
 // ============================================================
 // 30+ 协同用户
@@ -44,7 +43,7 @@ export const COLLAB_USERS: CollabUser[] = [
   { id: 'D007', name: '钱永康', role: 'attending', title: '副主任医师', department: '放射科', licenseNumber: 'L-RAD-007', color: COLORS[6], status: 'viewing', lastSeenAt: isoMinutesAgo(0), currentReportId: 'RP20260619013' },
   { id: 'D008', name: '孙立人', role: 'doctor', title: '主治医师', department: '放射科', licenseNumber: 'L-RAD-008', color: COLORS[7], status: 'editing', lastSeenAt: isoMinutesAgo(0), currentReportId: 'RP20260619018', cursorIndex: 95 },
   { id: 'D009', name: '吴芳', role: 'chief', title: '主任医师', department: '放射科', licenseNumber: 'L-RAD-009', color: COLORS[8], status: 'away', lastSeenAt: isoMinutesAgo(8), currentReportId: 'RP20260619013' },
-  { id: 'D010', name: '郑文', role: 'associateChief', title: '副主任医师', department: '放射科', licenseNumber: 'L-RAD-010', color: COLORS[9], status: 'offline', lastSeenAt: isoHoursAgo(4) },
+  { id: 'D010', name: '郑文', role: 'attending', title: '副主任医师', department: '放射科', licenseNumber: 'L-RAD-010', color: COLORS[9], status: 'offline', lastSeenAt: isoHoursAgo(4) },
   { id: 'D011', name: '周婷', role: 'resident', title: '住院医师', department: '放射科', licenseNumber: 'L-RAD-011', color: COLORS[10], status: 'editing', lastSeenAt: isoMinutesAgo(0), currentReportId: 'RP20260619018', cursorIndex: 60 },
   { id: 'D012', name: '吴俊杰', role: 'doctor', title: '主治医师', department: '放射科', licenseNumber: 'L-RAD-012', color: COLORS[11], status: 'viewing', lastSeenAt: isoMinutesAgo(1), currentReportId: 'RP20260619009' },
   { id: 'D013', name: '徐丽华', role: 'tech', title: '技师', department: 'CT室', licenseNumber: 'L-TEC-001', color: '#0ea5e9', status: 'viewing', lastSeenAt: isoMinutesAgo(2), currentReportId: 'RP20260619013' },
@@ -97,7 +96,7 @@ export const COLLAB_COMMENTS: CollabComment[] = [
   {
     id: 'cmt-103', threadId: 'th-101', reportId: 'RP20260619013',
     parentId: 'cmt-101',
-    authorId: 'D018', authorName: '高志远', authorColor: COLORS[15],
+    authorId: 'D018', authorName: '高志远', authorColor: COLORS[3],
     content: '同意李医生的补充,这个强化模式符合恶性病灶特点。建议在诊断中点明。',
     mentions: [], fieldRef: 'findings',
     status: 'open',
@@ -117,7 +116,7 @@ export const COLLAB_COMMENTS: CollabComment[] = [
   {
     id: 'cmt-202', threadId: 'th-201', reportId: 'RP20260619013',
     parentId: 'cmt-201',
-    authorId: 'D020', authorName: '邓丽娟', authorColor: COLORS[17],
+    authorId: 'D020', authorName: '邓丽娟', authorColor: COLORS[5],
     content: '从图像看位于 4R/4L 区,建议改为"主动脉旁及隆突下多发肿大淋巴结,短径 10-14mm"。',
     mentions: ['D002'], fieldRef: 'findings',
     status: 'open',
@@ -159,7 +158,7 @@ export const COLLAB_COMMENTS: CollabComment[] = [
   {
     id: 'cmt-402', threadId: 'th-401', reportId: 'RP20260619018',
     parentId: 'cmt-401',
-    authorId: 'D016', authorName: '韩雪梅', authorColor: COLORS[12],
+    authorId: 'D016', authorName: '韩雪梅', authorColor: COLORS[0],
     content: '已补充:右乳外上象限多形性钙化 18 处,伴肿块影(约 1.8cm),边缘呈毛刺状。',
     mentions: ['D005'],
     status: 'open',
@@ -169,8 +168,8 @@ export const COLLAB_COMMENTS: CollabComment[] = [
   // Thread 5: 报告用语规范性
   {
     id: 'cmt-501', threadId: 'th-501', reportId: 'RP20260619013',
-    authorId: 'D025', name: undefined as never,
-    authorName: '魏娜', authorColor: COLORS[20],
+    authorId: 'D025',
+    authorName: '魏娜', authorColor: COLORS[8],
     content: '报告用语整体规范,但"考虑..."句式过多,建议结论性语句更明确。',
     mentions: ['D002'], fieldRef: 'impression',
     position: { x: 240, y: 500 }, status: 'open',
@@ -227,7 +226,7 @@ export const COLLAB_STICKY_NOTES: CollabStickyNote[] = [
   },
   {
     id: 'sn-003', reportId: 'RP20260619013',
-    authorId: 'D018', authorName: '高志远', authorColor: COLORS[15],
+    authorId: 'D018', authorName: '高志远', authorColor: COLORS[3],
     content: '同意 D001 的分期意见,建议结合 PET-CT 综合评估。',
     color: 'green', frameIndex: 42,
     position: { x: 520, y: 80 }, width: 180, height: 80, zIndex: 8, pinned: false,
@@ -287,7 +286,7 @@ export const COLLAB_CHAT_MESSAGES: ChatMessage[] = [
   { id: 'msg-002', roomId: 'cr-013', authorId: 'D002', authorName: '李慧敏', authorColor: COLORS[1],
     type: 'text', content: '好的,我马上补充 CT 值测量。', mentions: [], replyToId: 'msg-001',
     reactions: [{ emoji: '👍', userIds: ['D001'] }], createdAt: isoMinutesAgo(14), recalled: false },
-  { id: 'msg-003', roomId: 'cr-013', authorId: 'D018', authorName: '高志远', authorColor: COLORS[15],
+  { id: 'msg-003', roomId: 'cr-013', authorId: 'D018', authorName: '高志远', authorColor: COLORS[3],
     type: 'text', content: '我看了图像,同意 D001 的意见,需要明确分期。', mentions: [],
     reactions: [], createdAt: isoMinutesAgo(10), recalled: false },
   { id: 'msg-004', roomId: 'cr-013', authorId: 'D006', authorName: '赵雪琴', authorColor: COLORS[5],
@@ -296,7 +295,7 @@ export const COLLAB_CHAT_MESSAGES: ChatMessage[] = [
   { id: 'msg-005', roomId: 'cr-013', authorId: 'D002', authorName: '李慧敏', authorColor: COLORS[1],
     type: 'text', content: '强化数据已补充:动脉期 78HU,静脉期 95HU,延迟期 82HU。', mentions: [],
     reactions: [{ emoji: '✅', userIds: ['D001'] }], createdAt: isoMinutesAgo(5), recalled: false },
-  { id: 'msg-006', roomId: 'cr-013', authorId: 'D017', authorName: '宋建军', authorColor: COLORS[13],
+  { id: 'msg-006', roomId: 'cr-013', authorId: 'D017', authorName: '宋建军', authorColor: COLORS[1],
     type: 'text', content: '我把分期建议写在便签里了,请 D002 看一下。', mentions: ['D002'],
     reactions: [], createdAt: isoMinutesAgo(3), recalled: false },
   { id: 'msg-007', roomId: 'cr-013', authorId: 'D002', authorName: '李慧敏', authorColor: COLORS[1],
@@ -305,13 +304,13 @@ export const COLLAB_CHAT_MESSAGES: ChatMessage[] = [
   { id: 'msg-008', roomId: 'cr-013', authorId: 'D001', authorName: '张明远', authorColor: COLORS[0],
     type: 'system', content: '已开始屏幕共享', mentions: [],
     reactions: [], createdAt: isoMinutesAgo(5), recalled: false },
-  { id: 'msg-009', roomId: 'cr-013', authorId: 'D025', authorName: '魏娜', authorColor: COLORS[20],
+  { id: 'msg-009', roomId: 'cr-013', authorId: 'D025', authorName: '魏娜', authorColor: COLORS[8],
     type: 'text', content: '报告用语整体规范,稍后我会出一份质控评分。', mentions: [],
     reactions: [], createdAt: isoMinutesAgo(0), recalled: false },
   { id: 'msg-010', roomId: 'cr-018', authorId: 'D005', authorName: '刘文博', authorColor: COLORS[4],
     type: 'mention', content: '@韩雪梅 BI-RADS 5 类请补充具体征象', mentions: ['D016'],
     reactions: [], createdAt: isoMinutesAgo(30), recalled: false },
-  { id: 'msg-011', roomId: 'cr-018', authorId: 'D016', authorName: '韩雪梅', authorColor: COLORS[12],
+  { id: 'msg-011', roomId: 'cr-018', authorId: 'D016', authorName: '韩雪梅', authorColor: COLORS[0],
     type: 'text', content: '好的,马上补充钙化点数量。', mentions: [], replyToId: 'msg-010',
     reactions: [], createdAt: isoMinutesAgo(28), recalled: false },
   { id: 'msg-012', roomId: 'cr-018', authorId: 'D011', authorName: '周婷', authorColor: COLORS[10],
@@ -332,10 +331,10 @@ export const COLLAB_ACTIVITIES: CollabActivity[] = [
     type: 'comment', detail: '添加评论:强化特征需补充', refId: 'cmt-101', timestamp: isoMinutesAgo(15) },
   { id: 'act-004', reportId: 'RP20260619013', userId: 'D002', userName: '李慧敏', userColor: COLORS[1],
     type: 'edit', detail: '补充 CT 值测量数据', timestamp: isoMinutesAgo(12) },
-  { id: 'act-005', reportId: 'RP20260619013', userId: 'D006', userName: '赵雪琴', authorColor: COLORS[5],
+  { id: 'act-005', reportId: 'RP20260619013', userId: 'D006', userName: '赵雪琴',
     type: 'comment', detail: '建议补充淋巴结分区', refId: 'cmt-201', timestamp: isoMinutesAgo(25),
     userColor: COLORS[5] },
-  { id: 'act-006', reportId: 'RP20260619013', userId: 'D018', userName: '高志远', userColor: COLORS[15],
+  { id: 'act-006', reportId: 'RP20260619013', userId: 'D018', userName: '高志远', userColor: COLORS[3],
     type: 'comment', detail: '同意分期建议', refId: 'cmt-103', timestamp: isoMinutesAgo(8) },
   { id: 'act-007', reportId: 'RP20260619013', userId: 'D001', userName: '张明远', userColor: COLORS[0],
     type: 'share', detail: '开始屏幕共享', timestamp: isoMinutesAgo(5) },
@@ -343,17 +342,17 @@ export const COLLAB_ACTIVITIES: CollabActivity[] = [
     type: 'mention', detail: '@张明远 已补充强化数据', timestamp: isoMinutesAgo(5) },
   { id: 'act-009', reportId: 'RP20260619013', userId: 'D002', userName: '李慧敏', userColor: COLORS[1],
     type: 'save', detail: '保存草稿', timestamp: isoMinutesAgo(2) },
-  { id: 'act-010', reportId: 'RP20260619013', userId: 'D017', userName: '宋建军', userColor: COLORS[13],
+  { id: 'act-010', reportId: 'RP20260619013', userId: 'D017', userName: '宋建军', userColor: COLORS[1],
     type: 'note-add', detail: '添加便签:分期建议', refId: 'sn-002', timestamp: isoMinutesAgo(3) },
   { id: 'act-011', reportId: 'RP20260619013', userId: 'D001', userName: '张明远', userColor: COLORS[0],
     type: 'snapshot', detail: '创建快照 v3', refId: 'ver-003', timestamp: isoMinutesAgo(20) },
   { id: 'act-012', reportId: 'RP20260619018', userId: 'D005', userName: '刘文博', userColor: COLORS[4],
     type: 'join', detail: '加入协同编辑', timestamp: isoMinutesAgo(40) },
-  { id: 'act-013', reportId: 'RP20260619018', userId: 'D016', userName: '韩雪梅', userColor: COLORS[12],
+  { id: 'act-013', reportId: 'RP20260619018', userId: 'D016', userName: '韩雪梅', userColor: COLORS[0],
     type: 'edit', detail: '补充钙化点数量', timestamp: isoMinutesAgo(28) },
   { id: 'act-014', reportId: 'RP20260619009', userId: 'D004', userName: '陈晓燕', userColor: COLORS[3],
     type: 'edit', detail: '编辑"诊断意见"段', timestamp: isoMinutesAgo(45) },
-  { id: 'act-015', reportId: 'RP20260619009', userId: 'D018', userName: '高志远', userColor: COLORS[15],
+  { id: 'act-015', reportId: 'RP20260619009', userId: 'D018', userName: '高志远', userColor: COLORS[3],
     type: 'comment-resolve', detail: '解决了 1 条评论', refId: 'cmt-301', timestamp: isoHoursAgo(1) },
 ];
 

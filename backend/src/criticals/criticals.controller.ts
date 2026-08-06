@@ -51,10 +51,11 @@ const CreateCriticalSchema = z.object({
 const UpdateCriticalSchema = z.object({
   description: z.string().optional(),
   severity: z.enum(['LOW', 'HIGH', 'URGENT', 'CRITICAL']).optional(),
-  state: z.enum(['FOUND', 'NOTIFIED', 'VOICE_CALLED', 'ACKNOWLEDGED', 'RECEIPTED', 'RESOLVING', 'RESOLVED']).optional(),
+  state: z.enum(['FOUND', 'NOTIFIED', 'VOICE_CALLED', 'ACKNOWLEDGED', 'RECEIPTED', 'RESOLVING', 'RESOLVED', 'CLOSED_LOOP']).optional(),
   notifiedTo: z.string().optional(),
   ackedBy: z.string().optional(),
   resolvedBy: z.string().optional(),
+  closedBy: z.string().optional(),
 })
 
 @ApiTags('criticals')

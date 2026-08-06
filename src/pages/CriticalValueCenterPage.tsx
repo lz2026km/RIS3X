@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom'
 import { AlertOctagon, Bell, BarChart3, Settings, Activity, TrendingUp, ShieldAlert } from 'lucide-react'
 import { CRITICAL_RULES } from '../data/criticalValueMock'
 import { criticalApi, type CriticalStatsDto } from '../services/api/criticalApi'
+import { criticalExtApi } from '../services/api'
 
 const CriticalValueCenterPage: React.FC = () => {
   const [stats, setStats] = useState<CriticalStatsDto | null>(null)
@@ -20,7 +21,7 @@ const CriticalValueCenterPage: React.FC = () => {
       try {
         const [statsRes, rulesRes] = await Promise.all([
           criticalApi.getStats(),
-          criticalApi.listCriticalExtRules(),
+          criticalExtApi.listRules(),
         ])
         if (cancelled) return
         if (statsRes.success && statsRes.data) setStats(statsRes.data)

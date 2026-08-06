@@ -1,5 +1,6 @@
 import { Controller, Get, HttpCode, HttpStatus, Post, Query, Body } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { Roles } from '../common/decorators/roles.decorator'
 import { SmartAuthService } from './smart-auth.service'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
@@ -20,6 +21,7 @@ export class SmartAuthController {
   }
 
   @Get('auth/authorize')
+  @Roles('DOCTOR', 'DIRECTOR', 'ADMIN')
   authorize(
     @Query('client_id') clientId: string,
     @Query('redirect_uri') redirectUri: string,

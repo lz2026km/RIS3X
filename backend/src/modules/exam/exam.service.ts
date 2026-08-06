@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
-import { getCurrentTenantId } from '../../common/interceptors/tenant-context.interceptor'
+import { currentTenantId } from '../../common/tenant/tenant-utils'
 import type { Exam } from '@prisma/client'
 
 export interface CreateExamDto {
@@ -24,7 +24,7 @@ export class ExamService {
   constructor(private readonly prisma: PrismaService) {}
 
   async list(params: { skip?: number; take?: number; patientId?: string; modality?: string; state?: string; dateFrom?: string; dateTo?: string }) {
-    const where: any = {}
+    const where: any = { tenantId: currentTenantId() }
     if (params.patientId) where.patientId = params.patientId
     if (params.modality) where.modality = params.modality
     if (params.state) where.state = params.state
@@ -47,8 +47,8 @@ export class ExamService {
   }
 
   async get(id: string): Promise<Exam> {
-    const e = await this.prisma.exam.findUnique({
-      where: { id },
+    const e = await this.prisma.exam.findFirst({
+      where: { id, tenantId: currentTenantId() },
       include: { patient: true, device: true, reports: true },
     })
     if (!e) throw new NotFoundException(`Exam ${id} not found`)
@@ -65,7 +65,7 @@ export class ExamService {
         scheduledAt: dto.scheduledAt ? new Date(dto.scheduledAt) : null,
         deviceId: dto.deviceId,
         state: 'SCHEDULED',
-        tenantId: getCurrentTenantId(),
+        tenantId: currentTenantId(),
       },
     })
   }

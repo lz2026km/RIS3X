@@ -5,6 +5,7 @@ import { NotificationsGateway } from '../notifications/notifications.gateway'
 import { randomUUID, createHmac } from 'crypto'
 import { setTimeout } from 'timers/promises'
 import { CreatePatientSchema, CreateSubscriptionSchema, UpdatePatientSchema } from './fhir.schema'
+import { isPublicUrl } from './fhir-ssrf'
 import { z } from 'zod'
 
 type CreatePatientDto = z.infer<typeof CreatePatientSchema>
@@ -219,6 +220,8 @@ export class FhirService implements OnModuleInit {
       errors.push('Subscription.channel is required')
     } else if (!body.channel.type) {
       errors.push('Subscription.channel.type is required')
+    } else if (!isPublicUrl(body.channel.endpoint ?? '')) {
+      errors.push('SUBSCRIPTION_ENDPOINT_BLOCKED')
     }
     if (body.status && !['requested', 'active', 'error', 'off'].includes(body.status)) {
       errors.push('Subscription.status must be one of: requested, active, error, off')
@@ -302,16 +305,22 @@ export class FhirService implements OnModuleInit {
         let deliveryOk = false
         try {
           if (channelType === 'rest-hook' && sub.endpoint) {
-            const res = await fetch(sub.endpoint, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/fhir+json',
-                'X-Subscription-Signature': signature,
-              },
-              body: payload,
-            })
-            deliveryOk = res.ok
-            if (!deliveryOk) throw new Error(`HTTP ${res.status}`)
+            if (isPublicUrl(sub.endpoint)) {
+              const res = await fetch(sub.endpoint, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/fhir+json',
+                  'X-Subscription-Signature': signature,
+                },
+                body: payload,
+                signal: AbortSignal.timeout(10_000),
+              })
+              deliveryOk = res.ok
+              if (!deliveryOk) throw new Error(`HTTP ${res.status}`)
+            } else {
+              // SSRF 防护: 内网/回环 endpoint 不发回调、不排队重试
+              this.logger.warn(`[FHIR] Subscription ${id} endpoint blocked by SSRF policy, skipping delivery`)
+            }
           } else if (channelType === 'email' && sub.endpoint) {
             await this.queue.addHl7Send({ reportId: id, destination: sub.endpoint, payload }).catch((err) => this.logger.warn(`FHIR email delivery fallback: ${(err as Error).message}`))
             deliveryOk = true

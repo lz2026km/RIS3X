@@ -192,7 +192,7 @@ export const DICOM_SAMPLES: DicomSample[] = [
     studyId: `ST-${String(i + 61).padStart(3, '0')}`,
     seriesId: `SR-${String(i + 61).padStart(3, '0')}`,
     modality: 'MR' as const,
-    bodyPart: ['膝关节', '肩关节', '髋关节', '踝关节', '肘关节'][i],
+    bodyPart: ['膝关节', '肩关节', '髋关节', '踝关节', '肘关节'][i]!,
     studyDescription: `${['膝', '肩', '髋', '踝', '肘'][i]}关节 MR`,
     seriesDescription: 'T1W + T2W + PD-FS',
     sliceCount: 30 + i * 3,
@@ -280,13 +280,13 @@ export const DICOM_SAMPLES: DicomSample[] = [
   ...Array.from({ length: 10 }).map((_, i) => {
     const modalities: ('CT' | 'MR' | 'DR' | 'US' | 'MG' | 'PT')[] = ['CT', 'MR', 'DR', 'US', 'MG', 'PT', 'CT', 'MR', 'DR', 'US'];
     const parts = ['胸部', '腹部', '头颅', '盆腔', '乳腺', '全身', '脊柱', '四肢', '颈部', '心脏'];
-    const m = modalities[i];
+    const m = modalities[i]!;
     return {
       id: `extra-${String(i + 1).padStart(3, '0')}`,
       studyId: `ST-${String(i + 91).padStart(3, '0')}`,
       seriesId: `SR-${String(i + 91).padStart(3, '0')}`,
       modality: m,
-      bodyPart: parts[i],
+      bodyPart: parts[i]!,
       studyDescription: `补充数据集 ${m} ${parts[i]} ${i + 1}`,
       seriesDescription: m === 'CT' ? 'Axial 1.0mm' : m === 'MR' ? 'T2W' : m === 'DR' ? 'PA' : m === 'US' ? 'B-mode' : m === 'MG' ? 'CC' : 'PET',
       sliceCount: m === 'DR' ? 2 : m === 'MG' ? 4 : m === 'US' ? 30 : 60 + i * 5,
@@ -303,7 +303,7 @@ export const DICOM_SAMPLES: DicomSample[] = [
 export const DICOM_SAMPLES_TOTAL = DICOM_SAMPLES.length;
 export const DICOM_SAMPLES_BY_MODALITY: Record<string, DicomSample[]> = DICOM_SAMPLES.reduce((acc, s) => {
   if (!acc[s.modality]) acc[s.modality] = [];
-  acc[s.modality].push(s);
+  acc[s.modality]!.push(s);
   return acc;
 }, {} as Record<string, DicomSample[]>);
 

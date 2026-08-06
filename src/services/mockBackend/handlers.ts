@@ -15,29 +15,26 @@ import { tenantHandlers } from './tenantHandlers';
 import { storageHandlers } from './storageHandlers'; // [v3.0.6.11-60] cloud-storage 配置
 // [v3.0.6.8-32] 主数据池 + 业务逻辑
 import {
-  list, get, create, update, remove, findMany, findOne, stats, isUsingIndexedDB, listAudit,
+  list, get, create, update, remove, findOne,
 } from './store';
 import {
-  parseQuery, applyQuery, groupBy, sumBy, avgBy, filterByDateRange,
+  parseQuery, applyQuery, groupBy, sumBy, avgBy,
 } from './queryBuilder';
 import {
   toPatientDto, toDeviceDto, toUserDto, toExamDto, toReportDto,
-  toExamItemDto, toDoctorPerformanceDto, toDailyKpiDto, toCriticalEventDto, toCosignTaskDto,
+  toDailyKpiDto,
 } from './adapters';
 import { auditCreate, auditUpdate, auditDelete, auditStatusChange } from './audit';
 import {
-  canTransitionReport, transitionReport, canTransitionWorklist,
-  getSlaMinutes, getEscalationTargets, checkSlaBreach,
+  canTransitionReport, canTransitionWorklist,
+  getSlaMinutes,
   shouldEscalate,
-  determineCosignTrigger, getCosignSlaMinutes, getReviewSlaMinutes,
-  getNextMaintenanceDate, isMaintenanceOverdue, daysUntilMaintenance,
-  recordWorkflowEvent, calculateImageGrade, listWorkflowEvents,
+  determineCosignTrigger,
+  recordWorkflowEvent, listWorkflowEvents,
+  type ReportStatus,
 } from './businessLogic';
 import { v4 as uuidv4 } from 'uuid';
-import { reportSubsystemMock } from '@data/reportSubsystemMock';
-import { initialRadiologyExams, initialUsers } from '@data/initialData';
 import { TERM_CATEGORIES, FEATURED_TERMS } from '@data/knowledgeStatsMock';
-import type { RadiologyReport } from '@/types';
 import { writingHandlers, distributionHandlers, integrationHandlers, otherHandlers, cosignHandlers, qualityReportHandlers, aiAssistHandlers } from './v3ReportHandlers';
 // [Phase 1.4] ASR 语音识别端点 (transcribe / transcribe/audio / feedback)
 import { asrHandlers } from './asrHandlers';import { qualityScoringHandlers } from './qualityScoringHandlers';
@@ -67,6 +64,8 @@ import { patientPortalHandlers } from './patientPortalHandlers';
 import { cosignNewHandlers } from './cosignNewHandlers';
 import { cdsHandlers } from './cdsHandlers';
 import { criticalExtHandlers } from './criticalExtHandlers';
+// [G005-P0] 对标分析 (GET /api/v1/benchmark/list|stats, POST /api/v1/benchmark/compare|cross-site)
+import { benchmarkHandlers } from './benchmarkHandlers';
 import { qcExtHandlers } from './qcExtHandlers';
 import { reportQualityHandlers } from './reportQualityHandlers';
 import { caHandlers } from './caHandlers';
@@ -99,30 +98,8 @@ import { vnaHandlers } from './vnaHandlers';
 // [v3.0.6.11-60] Smart MWL 深度化 (worklist-smart / smart-route)
 import { smartWorklistHandlers } from './smartWorklistHandlers';
 import {
-  CHECK_ITEM_TEMPLATES,
-  INITIAL_CHECK_LISTS,
-  INITIAL_CHECK_AUDIT,
-  INITIAL_CHECK_SLA_CONFIG,
-  INITIAL_CHECK_CUSTOM_ITEMS,
-  INITIAL_CHECK_WORKLOAD,
   INITIAL_CHECK_SUMMARY,
 } from '@data/reportInitialCheckMock';
-import {
-  FINAL_CHECK_TEMPLATES,
-  FINAL_CHECK_LISTS,
-  CLINICAL_CONSISTENCY_RESULTS,
-  FINAL_SCORING_RUBRICS,
-  FINAL_SCORING_RESULTS,
-  FINAL_REVIEW_NOTES,
-  FINAL_CHECK_WORKLOAD,
-  PRIOR_REPORT_COMPARISONS,
-  FINAL_MULTI_SIGNATURE_REQUESTS,
-  EMERGENCY_REVIEW_REQUESTS,
-  FINAL_CHECK_WORKFLOW_CONFIGS,
-  FINAL_CHECK_EVENTS,
-  buildSummary as buildFinalCheckSummary,
-} from '@data/reportFinalCheckMock';
-import { REVIEW_TASKS } from '@data/reportReviewMock';
 import { APPOINTMENT_RECORDS, initialModalityDevices } from '@data/initialData';
 
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
@@ -424,13 +401,13 @@ const REPORT_STATUS_MAP: Record<string, 'draft' | 'submitted' | 'inReview' | 're
   redistributing: 'published',
 };
 
-function mapReportStatus(s: string): 'draft' | 'submitted' | 'inReview' | 'reviewed' | 'signed' | 'published' | 'rejected' | 'amended' | 'withdrawn' {
-  return REPORT_STATUS_MAP[s] ?? 'draft';
+function mapReportStatus(s: string): ReportStatus {
+  return (REPORT_STATUS_MAP[s] ?? 'draft') as ReportStatus;
 }
 
 // ============= Appointments - v3.0.6.11-70 P0 预约→检查联动 =============
 // 可变记录集: 新建预约后列表立即可见
-let appointmentRecords: Record<string, unknown>[] = clone(APPOINTMENT_RECORDS);
+let appointmentRecords: any[] = clone(APPOINTMENT_RECORDS);
 
 const APP_PRIORITY_MAP: Record<string, string> = {
   ROUTINE: 'ROUTINE', URGENT: 'URGENT', STAT: 'STAT',
@@ -438,11 +415,6 @@ const APP_PRIORITY_MAP: Record<string, string> = {
 };
 const APP_PRIORITY_LOCAL: Record<string, 'normal' | 'urgent' | 'critical'> = {
   ROUTINE: 'normal', URGENT: 'urgent', STAT: 'critical',
-};
-const APP_STATE_LOCAL: Record<string, string> = {
-  SCHEDULED: 'pending', CONFIRMED: 'confirmed', REGISTERED: 'pending',
-  CHECKED_IN: 'checked-in', IN_PROGRESS: 'checked-in', COMPLETED: 'completed',
-  CANCELLED: 'cancelled', NO_SHOW: 'no-show',
 };
 
 // 提醒 / 改期 / 取消 记录 seed (与后端内存 seed 保持一致)
@@ -606,7 +578,7 @@ export const appointmentHandlers = [
       hasCriticalValue: false,
       criticalValueType: null,
     };
-    try { create('exams', examRecord); } catch { /* store 未初始化时忽略 */ }
+    try { create('exams', examRecord as any); } catch { /* store 未初始化时忽略 */ }
     auditCreate('appointments', record);
 
     // 返回后端 DTO 形状 (id/startAt/endAt/state/priority 枚举)
@@ -636,10 +608,10 @@ export const appointmentHandlers = [
 
   http.put(`${API_BASE}/appointments/:id`, async ({ params, request }) => {
     await delay(150);
-    const body = await request.json();
+    const body = (await request.json()) as any;
     const idx = appointmentRecords.findIndex((a) => a.id === params.id);
     if (idx >= 0) {
-      const updated = { ...appointmentRecords[idx], ...body, updatedAt: new Date().toISOString() };
+      const updated = { ...appointmentRecords[idx]!, ...body, updatedAt: new Date().toISOString() };
       appointmentRecords = appointmentRecords.map((a) => (a.id === params.id ? updated : a));
       return HttpResponse.json({ success: true, data: updated });
     }
@@ -1199,7 +1171,7 @@ export const printHandlers = [
 
   http.post(`${API_BASE}/print/jobs`, async ({ request }) => {
     await delay(200);
-    const body = await request.json();
+    const body = (await request.json()) as any;
     return HttpResponse.json({ success: true, data: { id: 'job-' + Date.now(), ...body } }, { status: 201 });
   }),
 
@@ -1239,9 +1211,8 @@ export const statsHandlers = [
   }),
 
   // 周 KPI (DAILY_KPI_PRE 7 天聚合)
-  http.get(`${API_BASE}/stats/weekly`, async ({ request }) => {
+  http.get(`${API_BASE}/stats/weekly`, async () => {
     await delay(80);
-    const url = new URL(request.url);
     const all = list<any>('dailyKpi');
     const weekly = all.slice(-7);
     const totalExams = sumBy(weekly, (k: any) => k.examCount);
@@ -1537,7 +1508,7 @@ export const consultationHandlers = [
   http.get(`${API_BASE}/consultations/pending`, async () => {
     await delay(50);
     const all = list<any>('exams').filter((e: any) => e.hasCriticalValue).slice(0, 20);
-    const pending = all.map((e: any, idx: number) => ({
+    const pending = all.map((e: any) => ({
       id: `C-${e.reportId}`, examId: e.reportId, patientName: e.patientName,
       status: 'scheduled', priority: e.priority,
     }));
@@ -1579,7 +1550,7 @@ export const consultationHandlers = [
   // 更新
   http.put(`${API_BASE}/consultations/:id`, async ({ params, request }) => {
     await delay(120);
-    return HttpResponse.json({ success: true, data: { id: params.id, ...(await request.json()) } });
+    return HttpResponse.json({ success: true, data: { id: params.id, ...(await request.json()) as any } });
   }),
 
   // 取消
@@ -2063,10 +2034,8 @@ export const safetyHandlers = [
 ];
 
 // ============= R3.REVIEW 审核流 (80) =============
-import { REVIEW_TASKS, REVIEWERS, COSIGN_SCHEDULES, SLA_METRICS, WORKLOAD_STATS, REVIEW_KPI, REJECT_TEMPLATES, REVIEW_COMMENTS, AI_PRE_REVIEW_RESULTS, REVIEWER_ASSIGNMENTS } from '../../data/reportReviewMock';
-import { COSIGN_CERTIFICATES, COSIGN_INBOX, COSIGN_REJECT_TEMPLATES, COSIGN_CALENDAR, COSIGN_AUDIT_LOG, COSIGN_KPI } from '../../data/cosignMock';
-import { QUALITY_DIMENSIONS, QUALITY_GRADES, QUALITY_WEIGHTS, QUALITY_SCORING_CONFIG, QUALITY_SCORES, QUALITY_KPI, QUALITY_DEFECTS, QUALITY_RULE_VERSIONS, QUALITY_DASHBOARD, MONTHLY_QUALITY_REPORT, DEFECT_REMEDIATIONS } from '../../data/reportQualityMock';
-import { DEFECT_CATEGORIES, DEFECT_DETAILS, DEFECT_TREE, DEFECT_ANALYTICS, DEFECT_IMPORT_RECORDS } from '../../data/defectLibraryMock';
+import { SLA_METRICS, WORKLOAD_STATS, AI_PRE_REVIEW_RESULTS } from '../../data/reportReviewMock';
+import { DEFECT_DETAILS } from '../../data/defectLibraryMock';
 
 export const reviewHandlers = [
   // Tasks
@@ -2196,8 +2165,7 @@ export const reviewHandlers = [
     return HttpResponse.json({ success: true, data: { id: params.id, assignee: body.assignee, status: 'in_progress' } });
   }),
 
-  http.post(`${API_BASE}/reviews/:id/approve`, async ({ params, request }) => {
-    const body = (await request.json().catch(() => ({}))) as any;
+  http.post(`${API_BASE}/reviews/:id/approve`, async ({ params }) => {
     return HttpResponse.json({ success: true, data: { id: params.id, status: 'approved', completedAt: new Date().toISOString() } });
   }),
 
@@ -2342,42 +2310,10 @@ export const qualityHandlers = [
   
   
 ];
-
-// ============= R3.CRITICAL 危急值 (30) =============
-// [v3.0.6.12-A4] 所有 criticalHandlers 路由改读 store.critical* collection,
-//   criticalValueMock 仅保留常量 (规则/级别/升级/KPI) 作为 store 种子, 不直接被本 handler 引用.
-export const criticalHandlers = [
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-];
+// ============= R3.CRITICAL 危急值 =============
+// [G005-P0] 危急值全部端点由 criticalExtHandlers 提供
+//   /api/v1/criticals    → criticals.controller.ts (核心 CRUD/通知/统计)
+//   /api/v1/critical-ext → criticalext.controller.ts (规则/中心/统计/自动检测/闭环/接收端/随访)
 
 // ============= R3.DEFECT 缺陷 (20) =============
 export const defectHandlers = [
@@ -2434,7 +2370,7 @@ export const signHandlers = [
     const body = (await request.json()) as Record<string, unknown>;
     return HttpResponse.json({ success: true, data: { id: 'cert-' + Date.now(), serialNumber: 'NEW-' + Date.now(), status: 'active', usageCount: 0, createdAt: new Date().toISOString(), ...body } }, { status: 201 });
   }),
-  http.delete(`${API_BASE}/sign/certs/:id`, async ({ params }) => {
+  http.delete(`${API_BASE}/sign/certs/:id`, async () => {
     await delay(100);
     return new HttpResponse(null, { status: 204 });
   }),
@@ -2468,7 +2404,7 @@ export const signHandlers = [
   
   
   
-  http.get(`${API_BASE}/sign/blockchain/proofs`, async ({ request }) => {
+  http.get(`${API_BASE}/sign/blockchain/proofs`, async () => {
     await delay(120);
     return HttpResponse.json({ success: true, data: [
       { id: 'bc-001', reportId: 'RP20260601001', txHash: '0xa3f5b7c9d1e2f4a6b8c0d2e4f6a8b0c2d4e6f8a0b2c4d6e8f0a2b4c6d8e0f2a4', blockNumber: 18429501, network: 'hospital-chain', confirmations: 12840 },
@@ -2517,7 +2453,7 @@ export const signHandlers = [
 
 // ============= R3.AMEND 修订 (40) =============
 export const amendHandlers = [
-  http.get(`${API_BASE}/amend`, async ({ request }) => {
+  http.get(`${API_BASE}/amend`, async () => {
     await delay(120);
     return HttpResponse.json({ success: true, data: [
       { id: 'rev-ent-001', reportId: 'RP20260601001', version: 1, action: 'start', reason: '原报告遗漏右肺下叶磨玻璃结节', authorName: '张明远', createdAt: '2026-06-05T08:30:00Z' },
@@ -2753,7 +2689,7 @@ export const aiReportHandlers = [
     });
   }),
   // RADS
-  http.post(`${API_BASE}/ai/rads`, async ({ request }) => {
+  http.post(`${API_BASE}/ai/rads`, async () => {
     await delay(500);
     return HttpResponse.json({
       success: true,
@@ -2799,20 +2735,6 @@ export const aiReportHandlers = [
 
 // ============= R3.REVIEW INITIAL CHECK 初核清单 (20) =============
 // [v3.0.6.8-91] 修复: 使用 mutableInMemoryCheckLists 避免直接修改导入常量
-const mutableInMemoryCheckLists: any[] = [];
-
-function getInitialCheckList(id: string) {
-  if (mutableInMemoryCheckLists.length === 0) {
-    mutableInMemoryCheckLists.push(...clone(INITIAL_CHECK_LISTS));
-  }
-  return mutableInMemoryCheckLists.find((l) => l.id === id);
-}
-function getInitialCheckLists() {
-  if (mutableInMemoryCheckLists.length === 0) {
-    mutableInMemoryCheckLists.push(...clone(INITIAL_CHECK_LISTS));
-  }
-  return mutableInMemoryCheckLists;
-}
 
 export const initialCheckHandlers = [
   
@@ -2841,23 +2763,6 @@ export const initialCheckHandlers = [
 ];
 
 // ============= R3.REVIEW FINAL CHECK 终核清单 (20) =============
-const finalCheckInMemory = {
-  lists: clone(FINAL_CHECK_LISTS),
-  notes: clone(FINAL_REVIEW_NOTES),
-  multiSigs: clone(FINAL_MULTI_SIGNATURE_REQUESTS),
-  emergencies: clone(EMERGENCY_REVIEW_REQUESTS),
-  configs: clone(FINAL_CHECK_WORKFLOW_CONFIGS),
-  events: clone(FINAL_CHECK_EVENTS),
-  scoring: clone(FINAL_SCORING_RESULTS),
-};
-
-const finalCheckLogEvent = (taskId: string, reportId: string, type: string, actorId: string, actorName: string, payload: Record<string, unknown>) => {
-  finalCheckInMemory.events.unshift({
-    id: 'fce-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
-    taskId, reportId, type, actorId, actorName, payload, timestamp: new Date().toISOString(),
-  });
-};
-
 export const finalCheckHandlers = [
   // 1. 模板 (15+ 检查项)
   
@@ -2926,7 +2831,7 @@ export const finalCheckHandlers = [
 // ============= v3.0.6.8-32 Phase 3+5: 高级特性端点 =============
 
 // 工作流事件全局查询 (全院审计)
-const advancedHandlers = [
+const advancedHandlers: any[] = [
   
 
   // 审计日志查询 (按时间/用户/资源类型过滤)
@@ -2987,7 +2892,6 @@ export const handlers = [
   ...aiReportHandlers,
   ...reviewHandlers,
   ...qualityHandlers,
-  ...criticalHandlers,
   ...defectHandlers,
   ...initialCheckHandlers,
   ...qualityScoringHandlers,
@@ -3020,6 +2924,7 @@ export const handlers = [
   ...cosignNewHandlers,
   ...cdsHandlers,
   ...criticalExtHandlers,
+  ...benchmarkHandlers,
   ...qcExtHandlers,
   ...reportQualityHandlers,
   ...caHandlers,

@@ -10,6 +10,7 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as crypto from 'node:crypto'
 import { PrismaService } from '../../prisma/prisma.service'
+import { currentTenantId } from '../../common/tenant/tenant-utils'
 import { STORAGE_DRIVER } from '../../common/storage/storage.module'
 import { LocalStorageDriver } from '../../common/storage/local-storage.driver'
 import type { StorageDriver } from '../../common/storage/storage.interface'
@@ -105,6 +106,7 @@ interface VnaObjectRow {
 interface VnaRepo {
   vnaObject: {
     findMany(args: { where?: Record<string, unknown>; orderBy?: Record<string, string>; take?: number }): Promise<VnaObjectRow[]>
+    findFirst(args: { where?: Record<string, unknown> }): Promise<VnaObjectRow | null>
     findUnique(args: { where: { id: string } }): Promise<VnaObjectRow | null>
     create(args: { data: Record<string, unknown> }): Promise<VnaObjectRow>
     update(args: { where: { id: string }; data: Record<string, unknown> }): Promise<VnaObjectRow>
@@ -189,7 +191,8 @@ export class VnaService {
   // ─────────────────────── 归档对象列表 ───────────────────────
 
   async listObjects(query: { type?: string; patientId?: string; search?: string } = {}): Promise<VnaObjectDto[]> {
-    const where: Record<string, unknown> = {}
+    const tenantId = currentTenantId()
+    const where: Record<string, unknown> = { tenantId }
     if (query.type === 'document' || query.type === 'image') where.objectType = query.type
     if (query.patientId) where.patientId = query.patientId
     try {
@@ -208,7 +211,7 @@ export class VnaService {
       return filtered.map((r) => this.toDto(r, 'database'))
     } catch (err) {
       this.logger.warn(`[VNA] listObjects DB failed, fallback to memory: ${(err as Error).message}`)
-      let rows = this.memoryList()
+      let rows = this.memoryList().filter((r) => r.tenantId === tenantId)
       if (query.type === 'document' || query.type === 'image') rows = rows.filter((r) => r.objectType === query.type)
       if (query.patientId) rows = rows.filter((r) => r.patientId === query.patientId)
       if (query.search) {
@@ -233,7 +236,7 @@ export class VnaService {
 
     const id = `vna-${crypto.randomBytes(8).toString('hex')}`
     const now = new Date()
-    const tenantId = 'default'
+    const tenantId = currentTenantId()
     const size = input.size ?? input.buffer?.length ?? 0
 
     let storagePath: string | null = null
@@ -287,14 +290,15 @@ export class VnaService {
   // ─────────────────────── 对象详情 / 内容 ───────────────────────
 
   async getObject(id: string): Promise<VnaObjectDto> {
+    const tenantId = currentTenantId()
     try {
-      const row = await this.repo.vnaObject.findUnique({ where: { id } })
+      const row = await this.repo.vnaObject.findFirst({ where: { id, tenantId } })
       if (row) return this.toDto(row, 'database')
     } catch (err) {
       this.logger.warn(`[VNA] getObject DB failed, fallback to memory: ${(err as Error).message}`)
     }
     const mem = this.memoryGet(id)
-    if (mem) return this.toDto(mem, 'memory')
+    if (mem && mem.tenantId === tenantId) return this.toDto(mem, 'memory')
     throw new NotFoundException(`VNA object ${id} not found`)
   }
 
@@ -357,11 +361,12 @@ export class VnaService {
   // ─────────────────────── 患者归档视图 ───────────────────────
 
   async getPatientArchive(patientId: string): Promise<PatientArchiveDto> {
+    const tenantId = currentTenantId()
     const objects = await this.listObjects({ patientId })
     let studies: VnaStudyDto[] = []
     try {
       const rows = await this.repo.vnaObject.findMany({
-        where: { patientId },
+        where: { patientId, tenantId },
         orderBy: { createdAt: 'desc' },
         take: 200,
       })
@@ -384,7 +389,7 @@ export class VnaService {
       }))
     } catch (err) {
       this.logger.warn(`[VNA] patient studies DB failed: ${(err as Error).message}`)
-      const mem = this.memoryList().filter((r) => r.patientId === patientId && r.studyUid)
+      const mem = this.memoryList().filter((r) => r.patientId === patientId && r.tenantId === tenantId && r.studyUid)
       const byStudy = new Map<string, MemoryObject[]>()
       for (const r of mem) {
         const list = byStudy.get(r.studyUid!) ?? []
@@ -415,6 +420,7 @@ export class VnaService {
   async listStudies(): Promise<VnaStudyDto[]> {
     try {
       const rows = await this.prisma.dicomInstance.findMany({
+        where: { tenantId: currentTenantId() },
         select: {
           studyInstanceUid: true,
           seriesInstanceUid: true,
@@ -450,7 +456,7 @@ export class VnaService {
         .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
     } catch (err) {
       this.logger.warn(`[VNA] listStudies DB failed, fallback to memory: ${(err as Error).message}`)
-      const mem = this.memoryList().filter((r) => r.studyUid)
+      const mem = this.memoryList().filter((r) => r.studyUid && r.tenantId === currentTenantId())
       const byStudy = new Map<string, MemoryObject[]>()
       for (const r of mem) {
         const list = byStudy.get(r.studyUid!) ?? []
@@ -475,14 +481,15 @@ export class VnaService {
   // ─────────────────────── 归档统计 ───────────────────────
 
   async getStats(): Promise<VnaStatsDto> {
+    const tenantId = currentTenantId()
     try {
       const [totalObjects, wormLockedCount, dicomCount, agg] = await Promise.all([
-        this.repo.vnaObject.count(),
-        this.repo.vnaObject.count({ where: { wormLocked: true } }),
-        this.repo.vnaObject.count({ where: { objectType: 'document' } }),
-        this.repo.vnaObject.aggregate({ _sum: { size: true } }),
+        this.repo.vnaObject.count({ where: { tenantId } }),
+        this.repo.vnaObject.count({ where: { tenantId, wormLocked: true } }),
+        this.repo.vnaObject.count({ where: { tenantId, objectType: 'document' } }),
+        this.repo.vnaObject.aggregate({ _sum: { size: true }, where: { tenantId } }),
       ])
-      const instanceCount = await this.prisma.dicomInstance.count().catch(() => 0)
+      const instanceCount = await this.prisma.dicomInstance.count({ where: { tenantId } }).catch(() => 0)
       return {
         totalObjects,
         totalSizeBytes: agg._sum.size ?? 0,
@@ -494,7 +501,7 @@ export class VnaService {
       }
     } catch (err) {
       this.logger.warn(`[VNA] getStats DB failed, fallback to memory: ${(err as Error).message}`)
-      const all = this.memoryList()
+      const all = this.memoryList().filter((r) => r.tenantId === tenantId)
       return {
         totalObjects: all.length,
         totalSizeBytes: all.reduce((s, o) => s + o.size, 0),

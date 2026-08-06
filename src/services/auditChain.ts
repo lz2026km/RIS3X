@@ -152,8 +152,8 @@ export function queryStructuredAudit(filters: Parameters<typeof auditLogger.quer
 }
 
 /** v3.0.6 新增: 审计日志完整性校验 */
-export function verifyIntegrity(entries?: AuditEntry[]): Promise<ReturnType<typeof integrityChecker.verifyChain>> {
-  return integrityChecker.verifyChain(entries ?? loadLog());
+export function verifyIntegrity(entries?: AuditEntry[]): ReturnType<typeof integrityChecker.verifyChain> {
+  return integrityChecker.verifyChain((entries ?? loadLog()) as unknown as NewAuditEntry[]);
 }
 
 export { verifyCertificate } from './caService';
@@ -197,7 +197,7 @@ export async function buildMerkleTree(leaves: string[]): Promise<MerkleTree> {
   }
   const layers: string[][] = [leaves.slice()];
   if (leaves.length === 1) {
-    const root = await syncHash(leaves[0] + leaves[0]);
+    const root = await syncHash(leaves[0]! + leaves[0]!);
     return { leaves, layers: [leaves, [root]], root };
   }
   while (layers[layers.length - 1]!.length > 1) {
@@ -230,32 +230,32 @@ function sha256Fallback(data: string): string {
   const m = enc.encode(data);
   const bitLen = m.length * 8;
   const padded: number[] = [];
-  for (let i = 0; i < m.length; i++) padded.push(m[i]);
+  for (let i = 0; i < m.length; i++) padded.push(m[i]!);
   padded.push(0x80);
   while ((padded.length * 8) % 512 !== 448) padded.push(0);
   for (let i = 7; i >= 0; i--) padded.push((bitLen >>> (i * 8)) & 0xff);
   const H = new Uint32Array([0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19]);
   for (let i = 0; i < padded.length; i += 64) {
     const W = new Uint32Array(64);
-    for (let t = 0; t < 16; t++) W[t] = (padded[i + t*4] << 24) | (padded[i + t*4 + 1] << 16) | (padded[i + t*4 + 2] << 8) | padded[i + t*4 + 3];
+    for (let t = 0; t < 16; t++) W[t] = (padded[i + t * 4]! << 24) | (padded[i + t * 4 + 1]! << 16) | (padded[i + t * 4 + 2]! << 8) | padded[i + t * 4 + 3]!;
     for (let t = 16; t < 64; t++) {
-      const s0 = rrot(W[t-15], 7) ^ rrot(W[t-15], 18) ^ (W[t-15] >>> 3);
-      const s1 = rrot(W[t-2], 17) ^ rrot(W[t-2], 19) ^ (W[t-2] >>> 10);
-      W[t] = (W[t-16] + s0 + W[t-7] + s1) >>> 0;
+      const s0 = rrot(W[t - 15]!, 7) ^ rrot(W[t - 15]!, 18) ^ (W[t - 15]! >>> 3);
+      const s1 = rrot(W[t - 2]!, 17) ^ rrot(W[t - 2]!, 19) ^ (W[t - 2]! >>> 10);
+      W[t] = (W[t - 16]! + s0 + W[t - 7]! + s1) >>> 0;
     }
-    let a = H[0], b = H[1], c = H[2], d = H[3], e = H[4], f = H[5], g = H[6], h = H[7];
+    let a = H[0]!, b = H[1]!, c = H[2]!, d = H[3]!, e = H[4]!, f = H[5]!, g = H[6]!, h = H[7]!;
     for (let t = 0; t < 64; t++) {
       const S1 = rrot(e, 6) ^ rrot(e, 11) ^ rrot(e, 25);
       const ch = (e & f) ^ ((~e >>> 0) & g);
-      const temp1 = (h + S1 + ch + K[t] + W[t]) >>> 0;
+      const temp1 = (h + S1 + ch + K[t]! + W[t]!) >>> 0;
       const S0 = rrot(a, 2) ^ rrot(a, 13) ^ rrot(a, 22);
       const maj = (a & b) ^ (a & c) ^ (b & c);
       const temp2 = (S0 + maj) >>> 0;
       h = g; g = f; f = e; e = (d + temp1) >>> 0;
       d = c; c = b; b = a; a = (temp1 + temp2) >>> 0;
     }
-    H[0] = (H[0] + a) >>> 0; H[1] = (H[1] + b) >>> 0; H[2] = (H[2] + c) >>> 0; H[3] = (H[3] + d) >>> 0;
-    H[4] = (H[4] + e) >>> 0; H[5] = (H[5] + f) >>> 0; H[6] = (H[6] + g) >>> 0; H[7] = (H[7] + h) >>> 0;
+    H[0] = (H[0]! + a) >>> 0; H[1] = (H[1]! + b) >>> 0; H[2] = (H[2]! + c) >>> 0; H[3] = (H[3]! + d) >>> 0;
+    H[4] = (H[4]! + e) >>> 0; H[5] = (H[5]! + f) >>> 0; H[6] = (H[6]! + g) >>> 0; H[7] = (H[7]! + h) >>> 0;
   }
   let hex = '';
   for (let i = 0; i < 8; i++) hex += H[i]!.toString(16).padStart(8, '0');

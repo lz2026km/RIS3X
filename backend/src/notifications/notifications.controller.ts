@@ -1,7 +1,7 @@
 ﻿/**
  * G005 RIS v3.0.6.11-33 - Notifications Controller
  */
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query } from '@nestjs/common'
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query, ServiceUnavailableException } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
@@ -96,7 +96,14 @@ export class NotificationsController {
 
   @Get('vapid-public-key')
   vapidPublicKey() {
-    return { publicKey: this.service.getVapidPublicKey() }
+    const publicKey = this.service.getVapidPublicKey()
+    if (!publicKey) {
+      throw new ServiceUnavailableException({
+        publicKey: null,
+        error: 'VAPID 未配置: 请设置 VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY 环境变量后重启服务',
+      })
+    }
+    return { publicKey }
   }
 
   @Post('push-send')

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
-import { getCurrentTenantId } from '../../common/interceptors/tenant-context.interceptor'
+import { currentTenantId } from '../../common/tenant/tenant-utils'
 import type { Patient } from '@prisma/client'
 
 export interface CreatePatientDto {
@@ -26,7 +26,7 @@ export class PatientService {
   constructor(private readonly prisma: PrismaService) {}
 
   async list(params: { skip?: number; take?: number; name?: string; phone?: string }) {
-    const where: any = { deletedAt: null }
+    const where: any = { deletedAt: null, tenantId: currentTenantId() }
     if (params.name) where.name = { contains: params.name }
     if (params.phone) where.phone = { contains: params.phone }
     const [items, total] = await Promise.all([
@@ -43,7 +43,7 @@ export class PatientService {
 
   async get(id: string): Promise<Patient> {
     const p = await this.prisma.patient.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null, tenantId: currentTenantId() },
       include: { reports: true, exams: true },
     })
     if (!p) throw new NotFoundException(`Patient ${id} not found`)
@@ -59,7 +59,7 @@ export class PatientService {
         idCard: dto.idCard,
         phone: dto.phone,
         type: dto.type ?? 'OUTPATIENT',
-        tenantId: getCurrentTenantId(),
+        tenantId: currentTenantId(),
       },
     })
   }
@@ -80,36 +80,36 @@ export class PatientService {
   }
 
   async getReports(patientId: string) {
-    const patient = await this.prisma.patient.findFirst({ where: { id: patientId, deletedAt: null } })
+    const patient = await this.prisma.patient.findFirst({ where: { id: patientId, deletedAt: null, tenantId: currentTenantId() } })
     if (!patient) throw new NotFoundException(`Patient ${patientId} not found`)
     return this.prisma.report.findMany({
-      where: { patientId },
+      where: { patientId, tenantId: currentTenantId() },
       orderBy: { createdAt: 'desc' },
       include: { exam: true },
     })
   }
 
   async getExams(patientId: string) {
-    const patient = await this.prisma.patient.findFirst({ where: { id: patientId, deletedAt: null } })
+    const patient = await this.prisma.patient.findFirst({ where: { id: patientId, deletedAt: null, tenantId: currentTenantId() } })
     if (!patient) throw new NotFoundException(`Patient ${patientId} not found`)
     return this.prisma.exam.findMany({
-      where: { patientId },
+      where: { patientId, tenantId: currentTenantId() },
       orderBy: { createdAt: 'desc' },
       include: { device: true, reports: true },
     })
   }
 
   async getTimeline(patientId: string) {
-    const patient = await this.prisma.patient.findFirst({ where: { id: patientId, deletedAt: null } })
+    const patient = await this.prisma.patient.findFirst({ where: { id: patientId, deletedAt: null, tenantId: currentTenantId() } })
     if (!patient) throw new NotFoundException(`Patient ${patientId} not found`)
     const [exams, reports] = await Promise.all([
       this.prisma.exam.findMany({
-        where: { patientId },
+        where: { patientId, tenantId: currentTenantId() },
         orderBy: { createdAt: 'desc' },
         select: { id: true, modality: true, bodyPart: true, state: true, createdAt: true, scheduledAt: true },
       }),
       this.prisma.report.findMany({
-        where: { patientId },
+        where: { patientId, tenantId: currentTenantId() },
         orderBy: { createdAt: 'desc' },
         select: { id: true, state: true, findings: true, createdAt: true },
       }),

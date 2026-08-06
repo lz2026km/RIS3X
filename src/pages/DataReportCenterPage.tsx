@@ -1,21 +1,16 @@
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import {
-  Layout, Typography, Tree, Input, Select, DatePicker, Button, Card,
-  Tag, message, Tabs, Tooltip, Space, Checkbox, Badge, Switch, Dropdown,
-  Menu, Collapse, Empty, Spin, Radio,
+  Layout, Typography, Input, Select, DatePicker, Button, Card,
+  Tag, message, Tooltip, Space, Switch,
+  Menu, Collapse, Empty, Spin,
 } from 'antd'
-import type { TreeProps } from 'antd'
 import dayjs from 'dayjs'
 import {
-  BarChart3, PieChart as PieChartIcon, TrendingUp, TrendingDown,
-  FileText, AlertTriangle, Clock, ShieldCheck, Monitor, Scan,
-  Gauge, Percent, Video, MessageSquare, Users, Calendar, Search,
-  Filter, RefreshCw, ChevronRight, Plus, Eye, Settings,
-  X, Check, ArrowRight, Table2, LayoutDashboard, Send, Repeat,
-  Sigma, MousePointer, Copy, Save, Trash2, Maximize2, Minimize2,
-  Download, Bookmark, BookmarkCheck, Lightbulb, FileSpreadsheet,
-  FolderTree, Sliders, BarChart4, Star, StarOff, PanelRight,
-  Activity, Award, Zap, Database, Network, Server, Globe,
+  BarChart3, TrendingUp,
+  FileText, AlertTriangle, ShieldCheck, Monitor, Users, Award,
+  Search,
+  RefreshCw, Table2, Maximize2, Minimize2,
+  Download, FileSpreadsheet, Lightbulb, Star, StarOff, Database,
 } from 'lucide-react'
 import { Chart } from '../components/chart/Chart'
 import { ProTable } from '../components/data/ProTable'
@@ -28,7 +23,6 @@ import { generateReportInsight } from '../services/reportAiInsight'
 const { Header, Sider, Content } = Layout
 const { Title, Text } = Typography
 const { RangePicker } = DatePicker
-const { Panel } = Collapse
 
 const categoryIcons: Record<string, React.ReactNode> = {
   '日常统计': <BarChart3 size={16} />,
@@ -68,7 +62,7 @@ function buildTreeData(defs: ReportDefinition[]) {
 const PAGE_SIZE = 20
 
 export default function DataReportCenterPage() {
-  const [selectedReportId, setSelectedReportId] = useState<string>(reportDefinitions[0].id)
+  const [selectedReportId, setSelectedReportId] = useState<string>(reportDefinitions[0]!.id)
   const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs]>([
     dayjs().subtract(30, 'day'),
     dayjs(),
@@ -76,7 +70,7 @@ export default function DataReportCenterPage() {
   const [granularity, setGranularity] = useState('monthly')
   const [searchText, setSearchText] = useState('')
   const [expandedKeys, setExpandedKeys] = useState<string[]>([])
-  const [activeCategory, setActiveCategory] = useState<string | null>(null)
+  const [activeCategory] = useState<string | null>(null)
   const [favorites, setFavorites] = useState<Set<string>>(new Set(['exam-volume-monthly', 'device-utilization', 'qc-score-distribution']))
   const [showInsight, setShowInsight] = useState(true)
   const [fullscreen, setFullscreen] = useState(false)
@@ -148,7 +142,7 @@ export default function DataReportCenterPage() {
 
   const tableColumns: ProColumn<Record<string, unknown>>[] = useMemo(() => {
     if (!chartData.length) return []
-    const keys = Object.keys(chartData[0])
+    const keys = Object.keys(chartData[0]!)
     return keys.map((key) => ({
       key,
       dataIndex: key,
@@ -186,16 +180,9 @@ export default function DataReportCenterPage() {
     [favorites],
   )
 
-  const handleTreeSelect: TreeProps['onSelect'] = useCallback((keys) => {
-    if (keys.length && keys[0] && !treeData.some((t) => t.key === keys[0])) {
-      setSelectedReportId(keys[0] as string)
-      setTablePage(1)
-    }
-  }, [treeData])
-
   const handleExportCsv = useCallback(() => {
     if (!chartData.length) return
-    const keys = Object.keys(chartData[0])
+    const keys = Object.keys(chartData[0]!)
     const header = keys.join(',')
     const rows = chartData.map((row) => keys.map((k) => String(row[k] ?? '')).join(','))
     const bom = '\uFEFF'

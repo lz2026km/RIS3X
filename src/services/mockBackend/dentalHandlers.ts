@@ -6,17 +6,16 @@ import { http, HttpResponse, delay } from 'msw';
 import { list, get, create, update, remove } from './store';
 import { parseQuery, applyQuery } from './queryBuilder';
 import { getDentalChart } from '../../data/dental/dentalChartMock';
-import { MOCK_DENTAL_STUDIES, getDentalStudiesByModality, getDentalStudiesByPatient, getDentalStudyById } from '../../data/dental/dentalImagingMock';
+import { MOCK_DENTAL_STUDIES, getDentalStudiesByModality } from '../../data/dental/dentalImagingMock';
 import { MOCK_CAD_DESIGNS, MOCK_CAD_MATERIALS, MOCK_VITA_SHADES, MOCK_MILLING_UNITS } from '../../data/dental/dentalCadMock';
 import { MOCK_IMPLANT_BRANDS, MOCK_IMPLANT_PLANS_3D, MOCK_NERVE_3D, MOCK_BONE_DENSITY_MAP, MOCK_NERVE_DISTANCES } from '../../data/dental/dentalImplant3dMock';
-import { MOCK_SURGICAL_GUIDES, MOCK_GUIDE_SLEEVES, MOCK_ABUTMENT_OPTIONS, MOCK_GUIDE_MATERIALS } from '../../data/dental/dentalGuideMock';
+import { MOCK_SURGICAL_GUIDES, MOCK_GUIDE_MATERIALS } from '../../data/dental/dentalGuideMock';
 import { MOCK_CEPH_STUDIES, MOCK_LANDMARKS, MOCK_ANALYSIS_TYPES, MOCK_STEINER_ANALYSIS, MOCK_ARCH_ANALYSIS } from '../../data/dental/dentalCephMock';
-import { MOCK_ALIGNER_PLANS, generateMockStages, MOCK_ALIGNER_PROGRESS, MOCK_ARCH_3D } from '../../data/dental/dentalAlignerMock';
-import { MOCK_VOLUME_STUDIES, MOCK_VOLUME_RENDER_PRESETS, generateMockVolumeSlices, MOCK_ARCH_SPLINE, MOCK_3D_MESH_META } from '../../data/dental/dentalVolumeMock';
+import { MOCK_ALIGNER_PLANS, generateMockStages, MOCK_ALIGNER_PROGRESS } from '../../data/dental/dentalAlignerMock';
+import { MOCK_VOLUME_STUDIES, MOCK_VOLUME_RENDER_PRESETS } from '../../data/dental/dentalVolumeMock';
 import { MOCK_DENTAL_PATIENTS, MOCK_PATIENT_TREATMENT_HISTORY, MOCK_PATIENT_APPOINTMENTS, MOCK_PATIENT_RECALLS, MOCK_PATIENT_CONSENTS, MOCK_PATIENT_PRESCRIPTIONS, MOCK_PATIENT_BILLING } from '../../data/dental/dentalEmrMock';
-import { MOCK_FEE_CATALOG, MOCK_INVOICES, MOCK_PAYMENT_METHODS, MOCK_PATIENT_INSURANCE } from '../../data/dental/dentalBillingMock';
-import { MOCK_DENTAL_CHAIRS, MOCK_DENTISTS, generateMockAppointments, MOCK_PSR_RECORDS, MOCK_SCHEDULE_STATS } from '../../data/dental/dentalSchedMock';
-import { MOCK_AIRWAY_ANALYSIS, MOCK_BONE_AGE, MOCK_IMPACTED_RISK, MOCK_SEGMENTATION_RESULT, MOCK_CYST_DETECTION, MOCK_AI_REPORT_TEMPLATES } from '../../data/dental/dentalAiEnhanceMock';
+import { MOCK_FEE_CATALOG, MOCK_INVOICES, MOCK_PAYMENT_METHODS } from '../../data/dental/dentalBillingMock';
+import { generateMockAppointments, MOCK_PSR_RECORDS } from '../../data/dental/dentalSchedMock';
 
 const DENTAL_API = '/api/v1/dental';
 
@@ -98,7 +97,7 @@ const dentalImagingModule = [
     return HttpResponse.json({ success: true, data: newSeg }, { status: 201 });
   }),
   // MPR
-  http.get(`${DENTAL_API}/studies/:id/mpr`, async ({ params }) => {
+  http.get(`${DENTAL_API}/studies/:id/mpr`, async () => {
     await delay(150);
     return HttpResponse.json({
       success: true,
@@ -129,7 +128,7 @@ const dentalImagingModule = [
     await delay(50);
     return HttpResponse.json({ success: true, data: getDentalStudiesByModality('CBCT').slice(0, 50) });
   }),
-  http.get(`${DENTAL_API}/cbct/:id/nerve-canal`, async ({ params }) => {
+  http.get(`${DENTAL_API}/cbct/:id/nerve-canal`, async () => {
     await delay(150);
     return HttpResponse.json({
       success: true,
@@ -139,7 +138,7 @@ const dentalImagingModule = [
       },
     });
   }),
-  http.get(`${DENTAL_API}/cbct/:id/bone-density`, async ({ params }) => {
+  http.get(`${DENTAL_API}/cbct/:id/bone-density`, async () => {
     await delay(100);
     return HttpResponse.json({
       success: true,
@@ -154,7 +153,7 @@ const dentalImagingModule = [
       },
     });
   }),
-  http.get(`${DENTAL_API}/cbct/:id/measure`, async ({ params }) => {
+  http.get(`${DENTAL_API}/cbct/:id/measure`, async () => {
     await delay(100);
     return HttpResponse.json({
       success: true,
@@ -194,14 +193,14 @@ const dentalImagingModule = [
     await delay(100);
     return HttpResponse.json({ success: true, data: { modelUrl: `/api/v1/dental/scan/${params.id}/model.stl`, format: 'STL' } });
   }),
-  http.get(`${DENTAL_API}/scan/:id/compare`, async ({ params }) => {
+  http.get(`${DENTAL_API}/scan/:id/compare`, async () => {
     await delay(150);
     return HttpResponse.json({
       success: true,
       data: { differences: { volume: 0.12, surfaceArea: 0.05, toothMovement: [] } },
     });
   }),
-  http.post(`${DENTAL_API}/scan/:id/align`, async ({ params, request }) => {
+  http.post(`${DENTAL_API}/scan/:id/align`, async ({ request }) => {
     await delay(200);
     const body = (await request.json()) as { targetScanId: string };
     return HttpResponse.json({ success: true, data: { aligned: true, targetScanId: body.targetScanId } });
@@ -228,7 +227,7 @@ const dentalImagingModule = [
 ];
 
 
-const FDI_TEETH = [11,12,13,14,15,16,17,18,21,22,23,24,25,26,27,28,31,32,33,34,35,36,37,38,41,42,43,44,45,46,47,48];
+
 
 const dentalChartAiModule = [
   // 获取患者牙位图
@@ -276,9 +275,9 @@ const dentalChartAiModule = [
   
 
   // 龋齿检测 AI
-  http.post(`${DENTAL_API}/ai/caries-detection`, async ({ request }) => {
+  http.post(`${DENTAL_API}/ai/caries-detection`, async () => {
     await delay(500);
-    const body = (await request.json()) as { imageBase64?: string; modality?: string };
+
     return HttpResponse.json({
       success: true,
       data: {
@@ -295,9 +294,9 @@ const dentalChartAiModule = [
   }),
 
   // 根尖周炎分级 AI
-  http.post(`${DENTAL_API}/ai/periapical-grading`, async ({ request }) => {
+  http.post(`${DENTAL_API}/ai/periapical-grading`, async () => {
     await delay(400);
-    const body = (await request.json()) as { imageBase64?: string };
+
     return HttpResponse.json({
       success: true,
       data: {
@@ -312,9 +311,9 @@ const dentalChartAiModule = [
   }),
 
   // 牙周骨丧失测量 AI
-  http.post(`${DENTAL_API}/ai/bone-loss`, async ({ request }) => {
+  http.post(`${DENTAL_API}/ai/bone-loss`, async () => {
     await delay(350);
-    const body = (await request.json()) as { imageBase64?: string };
+
     return HttpResponse.json({
       success: true,
       data: {
@@ -326,9 +325,9 @@ const dentalChartAiModule = [
   }),
 
   // 根管检测 AI
-  http.post(`${DENTAL_API}/ai/root-canal-detection`, async ({ request }) => {
+  http.post(`${DENTAL_API}/ai/root-canal-detection`, async () => {
     await delay(400);
-    const body = (await request.json()) as { imageBase64?: string };
+
     return HttpResponse.json({
       success: true,
       data: {
@@ -341,9 +340,9 @@ const dentalChartAiModule = [
   }),
 
   // 口腔黏膜筛查 AI
-  http.post(`${DENTAL_API}/ai/oral-cavity-screening`, async ({ request }) => {
+  http.post(`${DENTAL_API}/ai/oral-cavity-screening`, async () => {
     await delay(400);
-    const body = (await request.json()) as { imageBase64?: string };
+
     return HttpResponse.json({
       success: true,
       data: {
@@ -416,7 +415,7 @@ const dentalTreatmentModule = [
   
   
   
-  http.get(`${DENTAL_API}/ortho/plans`, async ({ request }) => {
+  http.get(`${DENTAL_API}/ortho/plans`, async () => {
     await delay(50);
     // [v3.0.6.11-60] 合并 store 新建病例
     let storeItems: any[] = [];
@@ -579,9 +578,9 @@ const dentalImplant3dModule = [
   }),
   http.get(`${DENTAL_API}/implant/plan-3d`, async () => {
     await delay(50);
-    let list: any[] = [];
-    try { list = list<any>('implant_plans_3d'); } catch {}
-    return HttpResponse.json({ success: true, data: [...list, ...MOCK_IMPLANT_PLANS_3D] });
+    let items: any[] = [];
+    try { items = list<any>('implant_plans_3d'); } catch {}
+    return HttpResponse.json({ success: true, data: [...items, ...MOCK_IMPLANT_PLANS_3D] });
   }),
   http.put(`${DENTAL_API}/implant/plan-3d/:id/placement`, async ({ params, request }) => {
     await delay(60);
@@ -622,7 +621,7 @@ const dentalImplant3dModule = [
     const body = (await request.json()) as any;
     return HttpResponse.json({ success: true, data: { planId: params.id, markedPoints: body.points } });
   }),
-  http.post(`${DENTAL_API}/implant/plan-3d/:id/validate`, async ({ params }) => {
+  http.post(`${DENTAL_API}/implant/plan-3d/:id/validate`, async () => {
     await delay(150);
     return HttpResponse.json({
       success: true,
@@ -725,7 +724,7 @@ const dentalCephModule = [
   
   
   // 牙弓分析
-  http.post(`${DENTAL_API}/ortho/arch-analysis`, async ({ request }) => {
+  http.post(`${DENTAL_API}/ortho/arch-analysis`, async () => {
     await delay(80);
     return HttpResponse.json({ success: true, data: MOCK_ARCH_ANALYSIS });
   }),
@@ -823,27 +822,27 @@ const dentalEmrModule = [
       data: { ...p, summary: { treatments: MOCK_PATIENT_TREATMENT_HISTORY.length, appointments: MOCK_PATIENT_APPOINTMENTS.filter(a => a.status !== 'completed').length, unpaid: MOCK_PATIENT_BILLING.filter(b => b.status !== 'paid').reduce((s:number,b:any)=>s+b.selfPay,0) } },
     });
   }),
-  http.get(`${DENTAL_API}/patients/:id/overview/treatments`, async ({ params }) => {
+  http.get(`${DENTAL_API}/patients/:id/overview/treatments`, async () => {
     await delay(40);
     return HttpResponse.json({ success: true, data: MOCK_PATIENT_TREATMENT_HISTORY });
   }),
-  http.get(`${DENTAL_API}/patients/:id/overview/appointments`, async ({ params }) => {
+  http.get(`${DENTAL_API}/patients/:id/overview/appointments`, async () => {
     await delay(30);
     return HttpResponse.json({ success: true, data: MOCK_PATIENT_APPOINTMENTS });
   }),
-  http.get(`${DENTAL_API}/patients/:id/overview/billing`, async ({ params }) => {
+  http.get(`${DENTAL_API}/patients/:id/overview/billing`, async () => {
     await delay(40);
     return HttpResponse.json({ success: true, data: MOCK_PATIENT_BILLING });
   }),
-  http.get(`${DENTAL_API}/patients/:id/overview/prescriptions`, async ({ params }) => {
+  http.get(`${DENTAL_API}/patients/:id/overview/prescriptions`, async () => {
     await delay(30);
     return HttpResponse.json({ success: true, data: MOCK_PATIENT_PRESCRIPTIONS });
   }),
-  http.get(`${DENTAL_API}/patients/:id/overview/consents`, async ({ params }) => {
+  http.get(`${DENTAL_API}/patients/:id/overview/consents`, async () => {
     await delay(30);
     return HttpResponse.json({ success: true, data: MOCK_PATIENT_CONSENTS });
   }),
-  http.get(`${DENTAL_API}/patients/:id/overview/recalls`, async ({ params }) => {
+  http.get(`${DENTAL_API}/patients/:id/overview/recalls`, async () => {
     await delay(30);
     return HttpResponse.json({ success: true, data: MOCK_PATIENT_RECALLS });
   }),
@@ -933,7 +932,7 @@ const dentalSchedModule = [
     const body = (await request.json()) as any;
     return HttpResponse.json({ success: true, data: { id: params.id, ...body, updatedAt: new Date().toISOString() } });
   }),
-  http.delete(`${DENTAL_API}/schedule/appointments/:id`, async ({ params }) => {
+  http.delete(`${DENTAL_API}/schedule/appointments/:id`, async () => {
     await delay(40);
     return new HttpResponse(null, { status: 204 });
   }),
@@ -970,7 +969,7 @@ const dentalAiEnhanceModule = [
   
   
   // 口内照片管理
-  http.get(`${DENTAL_API}/patient/:pid/photos`, async ({ params }) => {
+  http.get(`${DENTAL_API}/patient/:pid/photos`, async () => {
     await delay(40);
     return HttpResponse.json({ success: true, data: [
       { id: 'PHOTO-001', type: 'frontal', label: '正面微笑像', url: 'data:image/png;base64,PHOTO_FRONTAL', takenAt: '2026-06-20T10:00:00Z', category: 'extraoral' },
@@ -987,7 +986,7 @@ const dentalManagementModule = [
   http.get(`${DENTAL_API}/patients`, async ({ request }) => {
     await delay(50);
     const url = new URL(request.url);
-    const opts = parseQuery(url);
+    void url;
     return HttpResponse.json({ success: true, data: MOCK_DENTAL_TREATMENTS.slice(0, 50).map(t => ({ id: t.patientId, name: t.patientName })), meta: { total: 200 } });
   }),
   http.get(`${DENTAL_API}/patients/:id`, async ({ params }) => {

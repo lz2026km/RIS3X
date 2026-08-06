@@ -204,6 +204,54 @@ describe('FhirService', () => {
     })
   })
 
+  describe('Subscription SSRF protection', () => {
+    const subscription = (endpoint: string) => ({
+      resourceType: 'Subscription' as const,
+      status: 'active' as const,
+      criteria: 'Patient',
+      channel: { type: 'rest-hook' as const, endpoint },
+      reason: 'test',
+    })
+
+    const expectBlocked = async (endpoint: string) => {
+      await expect(svc.createSubscription(subscription(endpoint))).rejects.toMatchObject({
+        response: expect.objectContaining({
+          resourceType: 'OperationOutcome',
+          issue: expect.arrayContaining([
+            expect.objectContaining({ details: expect.objectContaining({ text: 'SUBSCRIPTION_ENDPOINT_BLOCKED' }) }),
+          ]),
+        }),
+      })
+    }
+
+    it('accepts public https endpoint', async () => {
+      mockPrisma.fhirResource.upsert.mockResolvedValue({})
+      mockPrisma.fhirResource.findMany.mockResolvedValue([])
+      const result = await svc.createSubscription(subscription('https://hooks.example.com/fhir'))
+      expect(result.resourceType).toBe('Subscription')
+    })
+
+    it('rejects http://localhost endpoint', () => expectBlocked('http://localhost:8080/hook'))
+
+    it('rejects loopback 127.0.0.1 endpoint', () => expectBlocked('http://127.0.0.1:3000/hook'))
+
+    it('rejects private 10.x endpoint', () => expectBlocked('https://10.0.0.8/internal'))
+
+    it('rejects private 172.16-31.x endpoints', () => {
+      expectBlocked('https://172.16.5.1/hook')
+      expectBlocked('https://172.31.255.255/hook')
+    })
+
+    it('rejects private 192.168.x endpoint', () => expectBlocked('http://192.168.1.100/hook'))
+
+    it('rejects link-local 169.254.x and 0.0.0.0 endpoints', () => {
+      expectBlocked('http://169.254.169.254/latest/meta-data')
+      expectBlocked('http://0.0.0.0/hook')
+    })
+
+    it('rejects non-http protocol endpoints', () => expectBlocked('file:///etc/passwd'))
+  })
+
   describe('readFhirResource', () => {
     it('returns resource content', async () => {
       mockPrisma.fhirResource.findUnique.mockResolvedValue({ id: 'r1', resourceType: 'Patient', content: { resourceType: 'Patient', id: 'r1' } })

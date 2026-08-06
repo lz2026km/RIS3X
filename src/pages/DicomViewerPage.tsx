@@ -1,34 +1,20 @@
-import { t } from '../i18n/appI18n'
 import ViewerSelector from '../components/common/ViewerSelector'
 import AppModal from '../components/common/AppModal'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import {
-  ZoomIn, ZoomOut, Move, Sun, RotateCw, RotateCcw, FlipHorizontal, FlipVertical,
-  RefreshCw, Ruler, Calendar, MessageSquare, Play, Pause, Printer, Grid3x3, Maximize2,
-  Minimize2, Download, Layers, Film, ChevronDown, ChevronUp, ChevronLeft, ChevronRight,
-  SplitSquareHorizontal, Square, Eye, MousePointer, Circle, PenTool, Minus, Plus,
-  AlertCircle, CheckCircle, Clock, FileText, Activity, X, Info, Triangle, Maximize,
-  Camera, Layers3, Crosshair, Box, User, Image as ImageIcon, Ruler as RulerIcon,
-  FileSearch, History, GitCompare, ArrowLeftRight, CheckSquare, Square as SquareIcon,
-  AlertTriangle, Diff, ScrollText, EyeOff, Focus, Type, ArrowUpRight, Square as RectIcon,
-  Circle as CircleIcon, Palette, Trash2, Edit3, Lock, Unlock, Eye as EyeIcon, Volume2,
-  Flame, Droplets, Wind, Thermometer, Upload, File,
+  ZoomIn, Move, Sun, RotateCw, FlipHorizontal, FlipVertical,
+  RefreshCw, Ruler, Play, Pause, Printer, PenTool,
+  EyeOff, CheckCircle, Activity, Type, ArrowUpRight, Square as RectIcon,
+  Circle as CircleIcon, Flame, Droplets, Wind,
 } from 'lucide-react'
 import { initialRadiologyExams } from '../data/initialData'
 import { examApi } from '../services/api'
 import { similarCaseApi } from '../services/api/similarCaseApi'
 import type { SimilarCaseResult } from '../services/api/similarCaseApi'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
-import {
-  loadDicomFile, getPatientInfo, getWindowCenterWidth, getModality, getBodyPart,
-  DicomDataset, PatientInfo,
-} from '../utils/DicomManager'
-import { getRecommendedPresets, WindowPreset as DicomWindowPreset } from '../utils/WindowPresets'
-import type { Series, DicomImage, ExamItem, HistoryExam, Measurement, Annotation, MeasureType, Tool, MeasureSubMenu, LayoutMode, RightTab, AnnotationType, PseudoColorMode, CompareLayout, ViewMode, MipDirection, VrAxis, WindowPreset, InteractiveMeasure } from './dicom/DicomViewerTypes'
-import { SERIES_COLORS, PSEUDO_COLOR_PRESETS, ANNOTATION_COLORS, ANNOTATION_COLOR_NAMES, PRIMARY, PRIMARY_LIGHT, CARD_BG, PANEL_BG } from './dicom/DicomViewerTypes'
-import { useWindowingState } from '../utils/windowingStorage'
+import type { Series, DicomImage, HistoryExam, Measurement, Annotation, Tool, MeasureSubMenu, LayoutMode, RightTab, AnnotationType, PseudoColorMode, CompareLayout, ViewMode, MipDirection, WindowPreset } from './dicom/DicomViewerTypes'
+import { ANNOTATION_COLORS, PRIMARY } from './dicom/DicomViewerTypes'
 import { getPresetsForModality, CT_DEFAULT_WW, CT_DEFAULT_WL } from '../utils/modalityPresets'
-import { DicomCanvas, MIPCanvas, VRCanvas } from './dicom/DicomViewerSubComponents'
 import ToolbarSection from './dicom/ToolbarSection'
 import ViewportArea from './dicom/ViewportArea'
 import SidebarPanel from './dicom/SidebarPanel'
@@ -74,7 +60,7 @@ export default function DicomViewerPage() {
     return [{ id: 's1', seriesNumber: 1, seriesDescription: '序列1', modality: exam.modality, imageCount: 1, thumbnail: '#4a90d9' }]
   })
   const [activeSeriesIdx, setActiveSeriesIdx] = useState(0)
-  const activeSeries = seriesList[activeSeriesIdx]
+  const activeSeries = seriesList[activeSeriesIdx]!
 
   const [images] = useState<DicomImage[]>(() => {
     const imgs: DicomImage[] = []
@@ -156,23 +142,16 @@ export default function DicomViewerPage() {
   const [vrRotZ, setVrRotZ] = useState(0)
   const [vrOpacity, setVrOpacity] = useState(0.8)
 
-  const [loadedDicomDataset, setLoadedDicomDataset] = useState<DicomDataset | null>(null)
-  const [loadedPatientInfo, setLoadedPatientInfo] = useState<PatientInfo | null>(null)
-  const [dicomFileName, setDicomFileName] = useState('')
-  const [dicomError, setDicomError] = useState('')
-  const [dicomPresets, setDicomPresets] = useState<WindowPreset[]>([])
-  const [isDragging, setIsDragging] = useState(false)
-
   const [layout, setLayout] = useState<LayoutMode>('1x1')
   const [rightTab, setRightTab] = useState<RightTab>('patient')
   const [pseudoColorMode, setPseudoColorMode] = useState<PseudoColorMode>('none')
   const [showPseudoColorPanel, setShowPseudoColorPanel] = useState(false)
 
   const [activeAnnotationType, setActiveAnnotationType] = useState<AnnotationType>('text')
-  const [activeAnnotationColor, setActiveAnnotationColor] = useState(ANNOTATION_COLORS[0])
+  const [activeAnnotationColor, setActiveAnnotationColor] = useState<string>(ANNOTATION_COLORS[0] ?? '#ff0000')
   const [activeAnnotationFontSize, setActiveAnnotationFontSize] = useState(16)
   const [annotations, setAnnotations] = useState<Annotation[]>([])
-  const [showAnnotationsOverlay, setShowAnnotationsOverlay] = useState(true)
+  const [showAnnotationsOverlay] = useState(true)
   const [selectedAnnotationId, setSelectedAnnotationId] = useState<string | null>(null)
   const [showAnnotationPanel, setShowAnnotationPanel] = useState(false)
 
@@ -187,7 +166,7 @@ export default function DicomViewerPage() {
 
   const [selectedHistoryExams, setSelectedHistoryExams] = useState<string[]>([])
   const [historySearchText, setHistorySearchText] = useState('')
-  const [compareImageIndex, setCompareImageIndex] = useState(0)
+  const [compareImageIndex] = useState(0)
   const [isCompareMode, setIsCompareMode] = useState(false)
   const [compareExam, setCompareExam] = useState<any>(null)
   const [syncScroll, setSyncScroll] = useState(true)
@@ -238,13 +217,6 @@ export default function DicomViewerPage() {
   const clearAllMeasures = () => { setInteractiveMeasures([]); setDrawingPoints([]); setIsDrawingMeasure(false) }
   const deleteMeasure = (id: string) => { setInteractiveMeasures(prev => prev.filter(m => m.id !== id)) }
 
-  const randomChoice = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)]
-
-  const currentAnnotations: Annotation[] = []
-  const activeAnnotation = activeAnnotationType
-  const annotationColor = activeAnnotationColor
-  const annotationFontSize = activeAnnotationFontSize
-
   // ---- 伪彩工具按钮 ----
   const pseudoColorTools = [
     { mode: 'none' as PseudoColorMode, icon: <EyeOff size={16} />, label: '原始' },
@@ -278,7 +250,7 @@ export default function DicomViewerPage() {
   ]
 
   const gridConfig = { '1x1': { cols: 1, rows: 1 }, '2x2': { cols: 2, rows: 2 }, '1x2': { cols: 1, rows: 2 }, '2x1': { cols: 2, rows: 1 } }[layout]
-  const currentImage = images[imageIndex] || images[0]
+  const currentImage = (images[imageIndex] || images[0])!
 
   const handleToolClick = (tool: Tool) => {
     if (tool === 'measure') { setActiveTool('measure'); setMeasureSubMenu(measureSubMenu === null ? 'length' : null); setShowWlPopup(false) }
@@ -294,13 +266,7 @@ export default function DicomViewerPage() {
     else { setActiveTool(tool); setShowWlPopup(false); setMeasureSubMenu(null) }
   }
 
-  const handlePresetClick = (preset: WindowPreset, idx: number) => { setWw(preset.ww); setWl(preset.wl); setActivePresetIdx(activePresetIdx === idx ? null : idx) }
-
-  const handleImageWheel = (deltaY: number, deltaX: number) => {
-    if (Math.abs(deltaY) > Math.abs(deltaX)) { setWw(prev => Math.max(50, Math.min(4000, prev - deltaY * 0.5))) }
-    if (Math.abs(deltaX) > Math.abs(deltaY)) { setWl(prev => Math.max(-1000, Math.min(1000, prev + deltaX * 0.5))) }
-    if (deltaY !== 0 || deltaX !== 0) setActivePresetIdx(null)
-  }
+  const handlePresetClick = (preset: WindowPreset, idx: number) => { setWw(preset.ww); setWl(preset.wc); setActivePresetIdx(activePresetIdx === idx ? null : idx) }
 
   const getCurrentPresets = () => getPresetsForModality(exam.modality)
 
@@ -351,15 +317,10 @@ export default function DicomViewerPage() {
     ]
   }
 
-  const exportMeasurements = (format: string) => {
+  const exportMeasurements = (_format: string) => {
     const report = interactiveMeasures.map(m => `${m.label || m.type}: ${m.value}${m.unit}`).join('\n')
     navigator.clipboard.writeText(report || '暂无测量数据'); showToast('测量报告已复制到剪贴板')
   }
-
-  const handleDicomFile = async (file: File) => { setDicomError(''); setDicomFileName(file.name) }
-  const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(true) }
-  const handleDragLeave = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(false) }
-  const handleDrop = async (e: React.DragEvent) => { e.preventDefault(); setIsDragging(false); if (e.dataTransfer.files.length > 0) await handleDicomFile(e.dataTransfer.files[0]) }
 
   const lookSimilarExams = async () => {
     setSimilarLoading(true)
@@ -415,16 +376,16 @@ export default function DicomViewerPage() {
             handleToolClick={handleToolClick}
             zoom={zoom} setZoom={setZoom}
             rotation={rotation} setRotation={setRotation}
-            pseudoColorMode={pseudoColorMode} setPseudoColorMode={setPseudoColorMode}
+            pseudoColorMode={pseudoColorMode}
             showPseudoColorPanel={showPseudoColorPanel} setShowPseudoColorPanel={setShowPseudoColorPanel}
             invert={invert} setInvert={setInvert}
             showAnnotationPanel={showAnnotationPanel} setShowAnnotationPanel={setShowAnnotationPanel}
           />
           <ViewportArea
-            exam={exam} loading={loading} loadError={loadError}
+            exam={exam}
             seriesList={seriesList} activeSeriesIdx={activeSeriesIdx} activeSeries={activeSeries}
             images={images} imageIndex={imageIndex} currentImage={currentImage}
-            showGrid={showGrid} isFullscreen={isFullscreen} isPlaying={isPlaying}
+            showGrid={showGrid} isFullscreen={isFullscreen}
             zoom={zoom} panX={panX} panY={panY} rotation={rotation} flipH={flipH} flipV={flipV}
             brightness={brightness} contrast={contrast} invert={invert} ww={ww} wl={wl}
             activePresetIdx={activePresetIdx} viewMode={viewMode}
@@ -435,7 +396,6 @@ export default function DicomViewerPage() {
             showDiffHighlight={showDiffHighlight} diffRegions={diffRegions}
             selectedHistoryExams={selectedHistoryExams} activeTool={activeTool}
             showWlPopup={showWlPopup} showPseudoColorPanel={showPseudoColorPanel}
-            showAnnotationPanel={showAnnotationPanel}
             showMeasurementsOverlay={showMeasurementsOverlay} measureSubMenu={measureSubMenu}
             isDrawingMeasure={isDrawingMeasure} interactiveMeasures={interactiveMeasures}
             drawingPoints={drawingPoints} annotations={annotations}
@@ -446,29 +406,24 @@ export default function DicomViewerPage() {
             activeAnnotationFontSize={activeAnnotationFontSize}
             pseudoColorMode={pseudoColorMode} pseudoColorTools={pseudoColorTools}
             annotationTypes={annotationTypes} gridConfig={gridConfig}
-            setActiveSeriesIdx={setActiveSeriesIdx} setImageIndex={setImageIndex}
-            setZoom={setZoom} setPanX={setPanX} setPanY={setPanY}
-            setRotation={setRotation} setFlipH={setFlipH} setFlipV={setFlipV}
-            setBrightness={setBrightness} setContrast={setContrast} setInvert={setInvert}
+            setImageIndex={setImageIndex}
             setWw={setWw} setWl={setWl} setActivePresetIdx={setActivePresetIdx}
-            setViewMode={setViewMode} setMipDirection={setMipDirection} setMipFrame={setMipFrame}
-            setVrRotX={setVrRotX} setVrRotY={setVrRotY} setVrRotZ={setVrRotZ} setVrOpacity={setVrOpacity}
-            setShowGrid={setShowGrid} setIsFullscreen={setIsFullscreen} setIsPlaying={setIsPlaying}
+            setViewMode={setViewMode}
+            setShowGrid={setShowGrid}
             setActiveTool={setActiveTool} setShowWlPopup={setShowWlPopup}
             setShowPseudoColorPanel={setShowPseudoColorPanel} setShowAnnotationPanel={setShowAnnotationPanel}
-            setShowMeasurementsOverlay={setShowMeasurementsOverlay} setMeasureSubMenu={setMeasureSubMenu}
-            setIsDrawingMeasure={setIsDrawingMeasure} setDrawingPoints={setDrawingPoints}
+            setMeasureSubMenu={setMeasureSubMenu}
             setSelectedAnnotationId={setSelectedAnnotationId} setActiveAnnotationType={setActiveAnnotationType}
             setActiveAnnotationColor={setActiveAnnotationColor} setActiveAnnotationFontSize={setActiveAnnotationFontSize}
-            setPseudoColorMode={setPseudoColorMode} setRightTab={setRightTab}
-            handleToolClick={handleToolClick} handlePresetClick={handlePresetClick}
-            handleImageWheel={handleImageWheel} handleLayoutChange={handleLayoutChange}
+            setPseudoColorMode={setPseudoColorMode}
+            handlePresetClick={handlePresetClick}
+            handleLayoutChange={handleLayoutChange}
             handleSeriesSelect={handleSeriesSelect} handleExamChange={handleExamChange}
             toggleFullscreen={toggleFullscreen} clearAllMeasures={clearAllMeasures}
-            clearAllAnnotations={clearAllAnnotations} deleteMeasure={deleteMeasure}
+            clearAllAnnotations={clearAllAnnotations}
             deleteAnnotation={deleteAnnotation} toggleAnnotationVisibility={toggleAnnotationVisibility}
             toggleAnnotationLock={toggleAnnotationLock} enterCompareMode={enterCompareMode}
-            exitCompareMode={exitCompareMode} exportMeasurements={exportMeasurements}
+            exportMeasurements={exportMeasurements}
             getCurrentPresets={getCurrentPresets}
           />
           <SidebarPanel
@@ -563,7 +518,7 @@ export default function DicomViewerPage() {
             基于当前检查检索: {exam.patientName} · {exam.modality} · {exam.bodyPart}
           </div>
           {similarLoading ? (
-            <div style={{ textAlign: 'center', padding: 32 }}><Spin size="large" /><div style={{ marginTop: 12, color: '#64748b', fontSize: 12 }}>正在检索相似病例...</div></div>
+            <div style={{ textAlign: 'center', padding: 32 }}><div style={{ display: 'inline-block', width: 28, height: 28, border: '3px solid #334155', borderTopColor: '#3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }} /><div style={{ marginTop: 12, color: '#64748b', fontSize: 12 }}>正在检索相似病例...</div></div>
           ) : similarResults.length === 0 ? (
             <div style={{ textAlign: 'center', padding: 32, color: '#94a3b8', fontSize: 13 }}>未找到相似病例，可尝试重新检索</div>
           ) : (

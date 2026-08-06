@@ -1,11 +1,12 @@
 /**
  * G005 RIS v3.0.6 - 危急值5步工作流页面
  * 5节点闭环: 发现 → 电话通知 → 临床确认 → 临床回执 → 闭环完成
+ * [G005-P0] 各步骤动作接真 API,闭环统一走 PATCH /criticals/:id state=CLOSED_LOOP
  */
 import React, { useState, useEffect, useCallback } from 'react'
-import { Card, Steps, Button, Tag, Space, Row, Col, Statistic, Timeline, Alert, Descriptions, Modal, Input, message, Table, Spin, Empty } from 'antd'
-import { ShieldAlert, Phone, CheckCircle, FileCheck, Archive, Clock, AlertTriangle, User, RefreshCw, Bell, Activity, Inbox } from 'lucide-react'
-import { criticalApi, type CriticalValueDto } from '../../services/api/criticalApi'
+import { Card, Steps, Button, Tag, Row, Col, Statistic, Alert, Descriptions, Modal, Input, message, Table, Spin, Empty } from 'antd'
+import { ShieldAlert, Phone, CheckCircle, FileCheck, Archive, AlertTriangle, RefreshCw, Inbox } from 'lucide-react'
+import { criticalApi } from '../../services/api/criticalApi'
 
 const { TextArea } = Input
 
@@ -40,6 +41,19 @@ export default function CriticalValue5StepPage() {
   const [actionType, setActionType] = useState<string>('')
   const [actionNote, setActionNote] = useState('')
   const [actionPhone, setActionPhone] = useState('')
+  const [actionLoading, setActionLoading] = useState(false)
+
+  const loadData = useCallback(() => {
+    setLoading(true)
+    return criticalApi.getValue5StepList()
+      .then(res => {
+        if (res.success && res.data && Array.isArray(res.data.items)) {
+          setData(res.data.items as CriticalValue5Step[])
+        }
+      })
+      .catch((err: Error) => { console.error('[F04]', err); })
+      .finally(() => setLoading(false))
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -50,7 +64,7 @@ export default function CriticalValue5StepPage() {
           setData(res.data.items as CriticalValue5Step[])
         }
       })
-      .catch((err) => { console.error('[F04]', err); })
+      .catch((err: Error) => { console.error('[F04]', err); })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, [])
@@ -72,29 +86,34 @@ export default function CriticalValue5StepPage() {
     setShowActionModal(true)
   }
 
-  const confirmAction = () => {
+  // [G005-P0] 各步骤动作接真 API (PATCH /criticals/:id 等),闭环统一走 CLOSED_LOOP
+  const confirmAction = async () => {
     if (!selected) return
-    const now = new Date().toLocaleString('zh-CN')
-    setData(prev => prev.map(d => {
-      if (d.id !== selected.id) return d
-      const updated = { ...d }
+    setActionLoading(true)
+    try {
+      let res
       if (actionType === 'voiceCall') {
-        updated.steps = { ...updated.steps, voiceCall: { done: true, time: now, user: '当前用户', phone: actionPhone } }
-        updated.currentStep = 2
+        res = await criticalApi.voiceCall(selected.id, { calledBy: '当前用户', phoneNumber: actionPhone })
       } else if (actionType === 'acknowledge') {
-        updated.steps = { ...updated.steps, acknowledged: { done: true, time: now, user: actionNote || '临床医生' } }
-        updated.currentStep = 3
+        res = await criticalApi.acknowledge(selected.id)
       } else if (actionType === 'receipt') {
-        updated.steps = { ...updated.steps, receipted: { done: true, time: now, user: '临床医生', comment: actionNote } }
-        updated.currentStep = 4
+        res = await criticalApi.clinicalReceipt(selected.id, { confirmedBy: actionNote || '临床医生' })
       } else if (actionType === 'close') {
-        updated.steps = { ...updated.steps, closed: { done: true, time: now, user: '系统' } }
-        updated.currentStep = 5
+        // 闭环: PATCH /criticals/:id state=CLOSED_LOOP
+        res = await criticalApi.update(selected.id, { state: 'CLOSED_LOOP', closedBy: '系统' })
       }
-      return updated
-    }))
-    setShowActionModal(false)
-    message.success('操作成功')
+      if (res?.success) {
+        message.success('操作成功')
+        setShowActionModal(false)
+        await loadData()
+      } else {
+        message.error(res?.error?.message ?? '操作失败')
+      }
+    } catch (err) {
+      message.error((err as Error)?.message ?? '操作失败')
+    } finally {
+      setActionLoading(false)
+    }
   }
 
   const columns = [
@@ -212,12 +231,7 @@ export default function CriticalValue5StepPage() {
       </Row>
 
       {/* 列表 */}
-      <Card title="危急值工作流列表" extra={<Button icon={<RefreshCw size={14} />} onClick={() => {
-        setLoading(true)
-        criticalApi.getValue5StepList().then(res => {
-          if (res.success && res.data && Array.isArray(res.data.items)) setData(res.data.items as CriticalValue5Step[])
-        }).catch((err) => { console.error('[F04]', err); }).finally(() => setLoading(false))
-      }}>刷新</Button>}>
+      <Card title="危急值工作流列表" extra={<Button icon={<RefreshCw size={14} />} onClick={loadData} loading={loading}>刷新</Button>}>
         {loading ? (
           <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
         ) : data.length === 0 ? (
@@ -285,8 +299,9 @@ export default function CriticalValue5StepPage() {
       <Modal
         title={actionType === 'voiceCall' ? '电话通知' : actionType === 'acknowledge' ? '临床确认' : actionType === 'receipt' ? '临床回执' : '闭环完成'}
         open={showActionModal}
-        onOk={confirmAction}
+        onOk={() => void confirmAction()}
         onCancel={() => setShowActionModal(false)}
+        confirmLoading={actionLoading}
       >
         {actionType === 'voiceCall' && (
           <div>
@@ -314,7 +329,7 @@ export default function CriticalValue5StepPage() {
           </div>
         )}
         {actionType === 'close' && (
-          <Alert title="确认闭环后，该危急值将标记为已完成" type="warning" showIcon />
+          <Alert title="确认闭环后，该危急值将标记为已完成 (CLOSED_LOOP)" type="warning" showIcon />
         )}
       </Modal>
     </div>

@@ -12,7 +12,7 @@ import {
 import { initialRadiologyExams } from '../../data/initialData';
 // [v3.0.6.12-A4] 危急值种子数据 (规则/级别/升级/KPI) 由 criticalValueMock 提供,
 //   加载进 store 的 criticalRules / criticalLevels / criticalEscalationRules / criticalKpi
-//   集合, 让 criticalHandlers 路由统一从 store 读取.
+//   集合, 让 criticalExtHandlers 路由统一从 store 读取.
 import {
   CRITICAL_LEVELS,
   CRITICAL_RULES,
@@ -292,6 +292,8 @@ const COLLECTIONS = [
   // [v3.0.6.8-53] 口腔专科集合
   'dental_studies', 'dental_charts', 'dental_treatments',
   'dental_invoices', 'dental_appointments',
+  'cad_designs', 'implant_plans_3d', 'surgical_guides',
+  'ceph_studies', 'aligner_plans',
   // [v3.0.6.11-10] 生成的演示数据
   'kpiHistory',
   'invoices',

@@ -5,6 +5,7 @@ const makePrisma = (overrides: Record<string, unknown> = {}) => {
   const base = {
     vnaObject: {
       findMany: jest.fn().mockRejectedValue(new Error('no db')),
+      findFirst: jest.fn().mockRejectedValue(new Error('no db')),
       findUnique: jest.fn().mockRejectedValue(new Error('no db')),
       create: jest.fn().mockRejectedValue(new Error('no db')),
       update: jest.fn().mockRejectedValue(new Error('no db')),
@@ -132,6 +133,7 @@ describe('VnaService', () => {
       const prisma = makePrisma({
         vnaObject: {
           findMany: jest.fn().mockResolvedValue([dbRow]),
+          findFirst: jest.fn().mockImplementation(async () => ({ ...dbRow })),
           findUnique: jest.fn().mockImplementation(async () => ({ ...dbRow })),
           create: jest.fn().mockResolvedValue({ ...row, id: 'vna-db-2' }),
           update: jest.fn().mockImplementation(async (args: { data: Record<string, unknown> }) => {

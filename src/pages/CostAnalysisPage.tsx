@@ -1,11 +1,11 @@
 import { useState, useMemo } from 'react'
 import {
   TrendingUp, TrendingDown, DollarSign, Monitor, Users, Film,
-  Calendar, BarChart3, PieChart as PieChartIcon, Activity,
+  BarChart3, PieChart as PieChartIcon, Activity,
   Server, Clock, Scissors, HeartPulse,
   Package, Percent, Award, Wallet, FileText, ClipboardList, AlertTriangle,
-  CheckCircle, XCircle, Ban, Send, RefreshCw, Landmark, BadgePercent,
-  Hash, List, FileSpreadsheet, Gavel, ShieldBan, MessageSquare, ArrowRight
+  CheckCircle, XCircle, Ban, Send, RefreshCw, Landmark,
+  Hash, List, ShieldBan, MessageSquare, ArrowRight
 } from 'lucide-react'
 import {
   BarChart as ChartBar, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
@@ -24,7 +24,7 @@ import {
   DEPRECIATION_DATA, EXAM_PROFIT_MARGIN_DATA, DEPT_REVENUE_DATA,
   DRG_DATA, BREAK_EVEN_DATA, INSURANCE_ALLOCATION,
   BUDGET_DATA, PL_DATA, CLAIMS_DATA,
-  formatCurrency, formatPercent, PRIMARY, calculateUnitCost,
+  formatCurrency, formatPercent, calculateUnitCost,
 } from './cost'
 
 export default function CostAnalysisPage() {

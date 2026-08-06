@@ -34,6 +34,8 @@ interface CriticalState {
   escalate: (id: string, to: string) => Promise<void>
   startEscalationWatcher: () => void
   stopEscalationWatcher: () => void
+  /** [G005 PERF1] 页面卸载时调用: 停止全部 actor + 清除升级定时器 + 清空数据 */
+  dispose: () => void
 }
 
 /** Map criticalMachine state value → store status string */
@@ -111,8 +113,12 @@ export const useCriticalStore = create<CriticalState>((set, get) => ({
     set({ loading: true, error: null })
     try {
       const res = await criticalApi.list()
-      if (res.success && Array.isArray(res.data)) {
-        const values = res.data as CriticalValueDto[]
+      // [G005 P0] 列表形状兼容: MSW 裸数组 / Nest {items,total}
+      const items = Array.isArray(res.data)
+        ? (res.data as CriticalValueDto[])
+        : ((res.data as { items?: CriticalValueDto[] } | null)?.items ?? [])
+      if (res.success) {
+        const values = items
         // 清理不再出现的 actor
         const currentIds = new Set(values.map(v => v.id))
         actorsMap.forEach((actor, id) => {
@@ -163,6 +169,13 @@ export const useCriticalStore = create<CriticalState>((set, get) => ({
       clearInterval(_escalationTimer)
       _escalationTimer = null
     }
+  },
+
+  dispose: () => {
+    get().stopEscalationWatcher()
+    actorsMap.forEach((actor) => actor.stop())
+    actorsMap.clear()
+    set({ values: [], loading: false, error: null })
   },
 
   voiceCall: async (id, phoneNumber) => {

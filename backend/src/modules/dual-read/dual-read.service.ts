@@ -190,6 +190,37 @@ export class DualReadService {
     }
   }
 
+  /** 提交单方阅片结果:reader1/reader2 → report1/report2,双方完成后置 both_done 并确定性计算分差 */
+  async submitReader(id: string, readerNumber: 1 | 2, report: string): Promise<DualReadAssignment> {
+    const field = readerNumber === 1 ? 'report1' : 'report2'
+    try {
+      const current = await this.prisma.dualReadAssignment.findUnique({ where: { id } })
+      if (!current) throw new NotFoundException('Assignment not found')
+      const otherReport = readerNumber === 1 ? current.report2 : current.report1
+      const nextStatus: string = otherReport ? 'both_done' : `${readerNumber === 1 ? 'reader1' : 'reader2'}_done`
+      const data: Record<string, unknown> = { [field]: report, status: nextStatus }
+      if (nextStatus === 'both_done') {
+        data.discrepancyScore = discrepancyOf(id, `${current.report1 ?? report}:${current.report2 ?? report}`)
+      }
+      const updated = await this.prisma.dualReadAssignment.update({ where: { id }, data })
+      return toDto(updated, false)
+    } catch (err) {
+      if (err instanceof NotFoundException) throw err
+      const a = memoryAssignments.find((x) => x.id === id)
+      if (!a) throw new NotFoundException('Assignment not found')
+      const other = readerNumber === 1 ? a.report2 : a.report1
+      if (readerNumber === 1) a.report1 = report
+      else a.report2 = report
+      if (other) {
+        a.status = 'both_done'
+        a.discrepancyScore = discrepancyOf(id, `${a.report1 ?? report}:${a.report2 ?? report}`)
+      } else {
+        a.status = readerNumber === 1 ? 'reader1_done' : 'reader2_done'
+      }
+      return { ...a }
+    }
+  }
+
   async discrepancyStats(): Promise<{ total: number; arbitrated: number; avgDiscrepancy: number }> {
     try {
       const [total, arbitrated] = await Promise.all([

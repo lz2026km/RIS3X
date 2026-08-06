@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { ChevronLeft, ChevronRight, AlertTriangle, CheckCircle, Clock, XCircle, X, Filter, Search, CalendarDays, List, Bell } from 'lucide-react'
+import type { Dispatch, SetStateAction } from 'react'
+import { ChevronLeft, ChevronRight, Filter, Search, CalendarDays, List, Bell } from 'lucide-react'
 import { initialModalityDevices } from '../data/initialData'
 
 const primaryBlue = '#1e3a5f'
@@ -19,7 +19,7 @@ interface Appointment {
 
 interface Props {
   viewMode: string
-  setViewMode: (v: string) => void
+  setViewMode: Dispatch<SetStateAction<"calendar" | "list" | "reminders">>
   calendarSubView: string
   setCalendarSubView: (v: 'day' | 'week' | 'month') => void
   weekDates: Date[]
@@ -34,7 +34,7 @@ interface Props {
   formatDate: (d: Date) => string
   formatDateCht: (d: Date) => string
   timeSlots: string[]
-  openDetail: (apt: Appointment) => void
+  openDetail: (apt: any) => void
   showWaitlist: boolean
   setShowWaitlist: (v: boolean) => void
   filteredAppointments: Appointment[]
@@ -43,7 +43,7 @@ interface Props {
 }
 
 export default function AppointmentCalendar(props: Props) {
-  const { viewMode, setViewMode, calendarSubView, setCalendarSubView, weekDates, setCurrentWeekStart, currentWeekStart, selectedDevice, setSelectedDevice, searchKeyword, setSearchKeyword, appointments, getStatusConfig, formatDate, formatDateCht, timeSlots, openDetail, showWaitlist, setShowWaitlist, filteredAppointments, filteredListAppointments, statsData } = props
+  const { viewMode, setViewMode, calendarSubView, setCalendarSubView, weekDates, setCurrentWeekStart, currentWeekStart, selectedDevice, setSelectedDevice, searchKeyword, setSearchKeyword, appointments, getStatusConfig, formatDate, formatDateCht, timeSlots, openDetail, showWaitlist, setShowWaitlist, filteredListAppointments, statsData } = props
 
   return (
     <>
@@ -96,7 +96,7 @@ export default function AppointmentCalendar(props: Props) {
         <div style={{ background: whiteBg, borderRadius: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: `1px solid ${borderGray}`, overflow: 'hidden' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 16px', background: lightBlue }}>
             <button onClick={() => { const d = new Date(currentWeekStart); d.setDate(d.getDate() - 7); setCurrentWeekStart(d) }} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: primaryBlue }}><ChevronLeft size={16} /></button>
-            <span style={{ fontSize: 13, fontWeight: 700, color: primaryBlue }}>{formatDateCht(weekDates[0])} - {formatDateCht(weekDates[6])}</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: primaryBlue }}>{formatDateCht(weekDates[0]!)} - {formatDateCht(weekDates[6]!)}</span>
             <button onClick={() => { const d = new Date(currentWeekStart); d.setDate(d.getDate() + 7); setCurrentWeekStart(d) }} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: primaryBlue }}><ChevronRight size={16} /></button>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', background: lightBlue, borderBottom: `1px solid ${borderGray}` }}>

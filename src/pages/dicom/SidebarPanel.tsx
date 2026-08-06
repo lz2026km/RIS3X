@@ -1,9 +1,10 @@
 import { t } from '../../i18n/appI18n'
 import { examApi } from '../../services/api'
 import { useNavigate } from 'react-router-dom'
-import { User, Image as ImageIcon, Ruler as RulerIcon, FileSearch, History, GitCompare, FileText, AlertCircle, Activity, Info, Layers3, Box, RefreshCw, Calendar, CheckCircle, Clock, PenTool, Eye, X, Upload, Camera, Download, Ruler, Triangle, CircleIcon, RectIcon, Circle, Trash2, EyeIcon, EyeOff, AlertTriangle, ScrollText, ArrowLeftRight, ArrowUpRight } from 'lucide-react'
+import type { Dispatch, SetStateAction } from 'react'
+import { User, Image as ImageIcon, Ruler as RulerIcon, FileSearch, History, GitCompare, FileText, AlertCircle, Activity, Info, Layers3, Box, RefreshCw, Calendar, CheckCircle, Clock, PenTool, Eye, X, Upload, Camera, Download, AlertTriangle, ScrollText, ArrowLeftRight } from 'lucide-react'
 import MeasurementPanel from './MeasurementPanel'
-import type { Series, DicomImage, MeasureSubMenu, Measurement } from './DicomViewerTypes'
+import type { Series, DicomImage, MeasureSubMenu, Measurement, RightTab, Tool, CompareLayout } from './DicomViewerTypes'
 import { PRIMARY } from './DicomViewerTypes'
 
 const s = {
@@ -78,8 +79,8 @@ const s = {
 
 interface Props {
   exam: any
-  rightTab: string
-  setRightTab: (t: string) => void
+  rightTab: RightTab
+  setRightTab: Dispatch<SetStateAction<RightTab>>
   activeSeries: Series
   currentImage: DicomImage
   ww: number
@@ -108,7 +109,7 @@ interface Props {
   showToast: (msg: string) => void
   measureSubMenu: MeasureSubMenu
   setMeasureSubMenu: (m: MeasureSubMenu) => void
-  setActiveTool: (t: string) => void
+  setActiveTool: Dispatch<SetStateAction<Tool>>
   interactiveMeasures: Measurement[]
   showMeasurementsOverlay: boolean
   setShowMeasurementsOverlay: (v: boolean) => void
@@ -134,8 +135,8 @@ interface Props {
   getCompareDiffInfo: () => any[] | null
   externalInstitution: string
   setExternalInstitution: (v: string) => void
-  externalSearchType: string
-  setExternalSearchType: (v: string) => void
+  externalSearchType: 'patientId' | 'patientName'
+  setExternalSearchType: Dispatch<SetStateAction<'patientId' | 'patientName'>>
   externalSearchText: string
   setExternalSearchText: (v: string) => void
   externalSearchResults: any[]
@@ -146,16 +147,16 @@ interface Props {
   isExternalCompareMode: boolean
   setIsExternalCompareMode: (v: boolean) => void
   archiveRequestStatus: string | null
-  externalCompareLayout: string
-  setExternalCompareLayout: (v: string) => void
+  externalCompareLayout: CompareLayout
+  setExternalCompareLayout: Dispatch<SetStateAction<CompareLayout>>
   activeMprIdx: number
   setActiveMprIdx: (v: number) => void
   EXTERNAL_INSTITUTIONS: any[]
 }
 
 export default function SidebarPanel(props: Props) {
-  const { exam, rightTab, setRightTab, activeSeries, currentImage, ww, wl, zoom, rotation, flipH, flipV, brightness, contrast, invert,
-    viewMode, mipDirection, setMipDirection, mipFrame, setMipFrame, images, vrRotX, setVrRotX, vrRotY, setVrRotY, vrRotZ, setVrRotZ,
+  const { exam, rightTab, setRightTab, activeSeries, currentImage, ww, wl,
+    mipDirection, setMipDirection, mipFrame, setMipFrame, images, vrRotX, setVrRotX, vrRotY, setVrRotY, vrRotZ, setVrRotZ,
     vrOpacity, setVrOpacity, showToast, measureSubMenu, setMeasureSubMenu, setActiveTool, interactiveMeasures, showMeasurementsOverlay,
     setShowMeasurementsOverlay, deleteMeasure, clearAllMeasures, getMeasureTypeLabel, measurements, reportStatus, selectedHistoryExams,
     setSelectedHistoryExams, filteredHistoryExams, historySearchText, setHistorySearchText, toggleHistoryExam, enterCompareMode,
@@ -291,7 +292,7 @@ export default function SidebarPanel(props: Props) {
 
         {rightTab === 'measure' && (
           <MeasurementPanel
-            rightTab={rightTab} setRightTab={setRightTab}
+            rightTab={rightTab}
             measureSubMenu={measureSubMenu} setMeasureSubMenu={setMeasureSubMenu}
             setActiveTool={setActiveTool}
             interactiveMeasures={interactiveMeasures}
@@ -394,9 +395,9 @@ export default function SidebarPanel(props: Props) {
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}><GitCompare size={12} />{t('dcm.compareMode')}</div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}><span style={{ fontSize: 12, color: '#475569', fontWeight: 600 }}>{t('dcm.syncScroll')}</span>
-                    <button style={{ ...s.syncScrollBadge, ...(syncScroll ? s.syncScrollBadgeOn : s.syncScrollBadgeOff) }} onClick={() => setSyncScroll(s => !s)}>{syncScroll ? <CheckCircle size={10} /> : <X size={10} />}{syncScroll ? '开' : '关'}</button></div>
+                    <button style={{ ...s.syncScrollBadge, ...(syncScroll ? s.syncScrollBadgeOn : s.syncScrollBadgeOff) }} onClick={() => setSyncScroll(!syncScroll)}>{syncScroll ? <CheckCircle size={10} /> : <X size={10} />}{syncScroll ? '开' : '关'}</button></div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}><span style={{ fontSize: 12, color: '#475569', fontWeight: 600 }}>{t('dcm.diffHighlight')}</span>
-                    <button style={{ ...s.syncScrollBadge, ...(showDiffHighlight ? s.syncScrollBadgeOn : s.syncScrollBadgeOff) }} onClick={() => setShowDiffHighlight(s => !s)}>{showDiffHighlight ? <CheckCircle size={10} /> : <X size={10} />}{showDiffHighlight ? '开' : '关'}</button></div>
+                    <button style={{ ...s.syncScrollBadge, ...(showDiffHighlight ? s.syncScrollBadgeOn : s.syncScrollBadgeOff) }} onClick={() => setShowDiffHighlight(!showDiffHighlight)}>{showDiffHighlight ? <CheckCircle size={10} /> : <X size={10} />}{showDiffHighlight ? '开' : '关'}</button></div>
                   <button style={{ ...s.reportBtn, background: '#ef4444', color: '#fff' }} onClick={exitCompareMode}><X size={14} />{t('dcm.exitCompareMode')}</button>
                 </div>
                 <div style={s.compareInfoCard}>

@@ -87,12 +87,39 @@ describe('NotificationsService', () => {
 
   it('getVapidPublicKey prefers env var over demo key', () => {
     const prev = process.env.VAPID_PUBLIC_KEY
+    const prevNodeEnv = process.env.NODE_ENV
     process.env.VAPID_PUBLIC_KEY = 'custom-public-key'
     expect(svc.getVapidPublicKey()).toBe('custom-public-key')
     delete process.env.VAPID_PUBLIC_KEY
-    expect(svc.getVapidPublicKey().length).toBeGreaterThan(20)
+    process.env.NODE_ENV = 'development'
+    const devKey = svc.getVapidPublicKey()
+    expect(devKey).toBeTruthy()
+    expect(devKey!.length).toBeGreaterThan(20)
     if (prev === undefined) delete process.env.VAPID_PUBLIC_KEY
     else process.env.VAPID_PUBLIC_KEY = prev
+    process.env.NODE_ENV = prevNodeEnv ?? 'test'
+  })
+
+  it('getVapidPublicKey returns null in production without env key', () => {
+    const prev = process.env.VAPID_PUBLIC_KEY
+    const prevNodeEnv = process.env.NODE_ENV
+    delete process.env.VAPID_PUBLIC_KEY
+    process.env.NODE_ENV = 'production'
+    expect(svc.getVapidPublicKey()).toBeNull()
+    if (prev === undefined) delete process.env.VAPID_PUBLIC_KEY
+    else process.env.VAPID_PUBLIC_KEY = prev
+    process.env.NODE_ENV = prevNodeEnv ?? 'test'
+  })
+
+  it('getVapidPublicKey returns env key in production', () => {
+    const prev = process.env.VAPID_PUBLIC_KEY
+    const prevNodeEnv = process.env.NODE_ENV
+    process.env.VAPID_PUBLIC_KEY = 'prod-public-key'
+    process.env.NODE_ENV = 'production'
+    expect(svc.getVapidPublicKey()).toBe('prod-public-key')
+    if (prev === undefined) delete process.env.VAPID_PUBLIC_KEY
+    else process.env.VAPID_PUBLIC_KEY = prev
+    process.env.NODE_ENV = prevNodeEnv ?? 'test'
   })
 
   it('getUnreadCount returns 0 when prisma model missing', async () => {
@@ -126,5 +153,22 @@ describe('NotificationsService', () => {
     await svc.savePushSubscription('push-send-user', { endpoint: 'https://push.example.com/x', keys: { p256dh: 'a', auth: 'b' } })
     const result = await svc.sendPush('push-send-user', { title: 't', content: 'c' })
     expect(result).toMatchObject({ success: false, reason: 'web-push-not-installed' })
+  })
+
+  it('sendPush refuses demo VAPID keys in production', async () => {
+    const prevNodeEnv = process.env.NODE_ENV
+    const prevPub = process.env.VAPID_PUBLIC_KEY
+    const prevPriv = process.env.VAPID_PRIVATE_KEY
+    delete process.env.VAPID_PUBLIC_KEY
+    delete process.env.VAPID_PRIVATE_KEY
+    process.env.NODE_ENV = 'production'
+    await svc.savePushSubscription('prod-push-user', { endpoint: 'https://push.example.com/y', keys: { p256dh: 'a', auth: 'b' } })
+    const result = await svc.sendPush('prod-push-user', { title: 't', content: 'c' })
+    expect(result).toMatchObject({ success: false, reason: 'vapid-not-configured' })
+    if (prevPub === undefined) delete process.env.VAPID_PUBLIC_KEY
+    else process.env.VAPID_PUBLIC_KEY = prevPub
+    if (prevPriv === undefined) delete process.env.VAPID_PRIVATE_KEY
+    else process.env.VAPID_PRIVATE_KEY = prevPriv
+    process.env.NODE_ENV = prevNodeEnv ?? 'test'
   })
 })

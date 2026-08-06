@@ -1,6 +1,7 @@
-﻿import { Controller, Get, Post, Put, Delete, Param, Body, Query } from '@nestjs/common'
+﻿import { Controller, Get, Post, Put, Delete, Param, Body, Query, Req } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import type { Request } from 'express'
 import { CosignService } from './cosign.service'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
 import { ApproveCosignSchema, CreateCosignRuleSchema, RejectCosignSchema } from './cosign.schema'
@@ -19,10 +20,24 @@ export class CosignController {
   getPendingCosign(@Param('id') id: string) { return this.svc.getPendingCosign(id) }
 
   @Post('pending/:id/approve')
-  approveCosign(@Body(new ZodValidationPipe(ApproveCosignSchema)) body: Record<string, unknown>) { return this.svc.approveCosign(body) }
+  approveCosign(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(ApproveCosignSchema)) body: { comment?: string },
+    @Req() req: Request,
+  ) {
+    const actorId = (req.user as { id?: string } | undefined)?.id ?? 'system'
+    return this.svc.approveCosign(id, actorId, body)
+  }
 
   @Post('pending/:id/reject')
-  rejectCosign(@Body(new ZodValidationPipe(RejectCosignSchema)) body: Record<string, unknown>) { return this.svc.rejectCosign(body) }
+  rejectCosign(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(RejectCosignSchema)) body: { reason: string },
+    @Req() req: Request,
+  ) {
+    const actorId = (req.user as { id?: string } | undefined)?.id ?? 'system'
+    return this.svc.rejectCosign(id, actorId, body)
+  }
 
   @Get('history')
   listCosignHistory() { return this.svc.listCosignHistory() }

@@ -72,6 +72,7 @@ export interface CriticalValue {
   confirmedSignature?: string
   confirmedComment?: string
   status: CriticalValueStatus | string
+  state?: CriticalValueStatus | string
   processingDoctor?: string
   processingDoctorName?: string
   processingTime?: string

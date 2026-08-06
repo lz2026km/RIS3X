@@ -74,6 +74,59 @@ describe('DualReadService', () => {
     })
   })
 
+  describe('reader 提交 / 仲裁 / 统计 / 列表', () => {
+    it('submitReader 单方提交后置 reader1_done', async () => {
+      const update = jest.fn().mockImplementation(async (args: { data: Record<string, unknown> }) =>
+        assignmentRow({ id: 'da-db-4', status: 'reader1_done', ...(args.data as object) }),
+      )
+      const prisma = makePrisma({
+        report: { findFirst: jest.fn().mockRejectedValue(new Error('no db')) },
+        dualReadAssignment: {
+          create: jest.fn().mockRejectedValue(new Error('no db')),
+          update,
+          count: jest.fn().mockRejectedValue(new Error('no db')),
+          findMany: jest.fn().mockRejectedValue(new Error('no db')),
+          findUnique: jest.fn().mockResolvedValue(assignmentRow({ status: 'pending' })),
+        },
+      })
+      const service = new DualReadService(prisma)
+      const a = await service.submitReader('da-db-4', 1, '右肺上叶磨玻璃结节')
+      expect(update).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({ report1: '右肺上叶磨玻璃结节', status: 'reader1_done' }),
+      }))
+      expect(a.status).toBe('reader1_done')
+    })
+
+    it('submitReader 双方完成后置 both_done 且分差确定性(同一输入两次一致,无 Math.random)', async () => {
+      const update = jest.fn().mockImplementation(async (args: { data: Record<string, unknown> }) =>
+        assignmentRow({ id: 'da-db-5', status: 'both_done', ...(args.data as object) }),
+      )
+      const prisma = makePrisma({
+        report: { findFirst: jest.fn().mockRejectedValue(new Error('no db')) },
+        dualReadAssignment: {
+          create: jest.fn().mockRejectedValue(new Error('no db')),
+          update,
+          count: jest.fn().mockRejectedValue(new Error('no db')),
+          findMany: jest.fn().mockRejectedValue(new Error('no db')),
+          findUnique: jest.fn().mockResolvedValue(assignmentRow({ status: 'reader1_done', report1: '结节 1.2cm' })),
+        },
+      })
+      const service = new DualReadService(prisma)
+      const a = await service.submitReader('da-db-5', 2, '磨玻璃影')
+      expect(update).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({ report2: '磨玻璃影', status: 'both_done', discrepancyScore: expect.any(Number) }),
+      }))
+      const b = await service.submitReader('da-db-5', 2, '磨玻璃影')
+      expect(a.discrepancyScore).toBe(b.discrepancyScore)
+      expect(a.status).toBe('both_done')
+    })
+
+    it('submitReader 未知 id 抛 NotFound', async () => {
+      const service = new DualReadService(makePrisma())
+      await expect(service.submitReader('no-such-id', 1, '报告')).rejects.toBeInstanceOf(NotFoundException)
+    })
+  })
+
   describe('仲裁 / 统计 / 列表', () => {
     it('arbitrate 落库更新且 discrepancyScore 对同一报告恒定', async () => {
       const update = jest.fn().mockImplementation(async (args: { data: Record<string, unknown> }) =>

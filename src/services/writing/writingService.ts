@@ -20,11 +20,11 @@ import type {
   ComplianceCheckResult,
   ChargeItem,
   SignatureRecord,
-} from '@types/R3/R3.WRITING';
+} from '@/types/R3/R3.WRITING';
 import {
-  RECIST_TEMPLATE, BIRADS_TEMPLATE, PIRADS_TEMPLATE, getStructuredTemplates,
+  getStructuredTemplates,
   RECIST_LESIONS, RECIST_RESPONSE, BIRADS_CATEGORY_MAP, BIRADS_FINDINGS, PIRADS_ASSESSMENT,
-  RICH_DOCUMENT_MOCK, AI_DRAFT_REQUEST, AI_DRAFT_RESULT, VOICE_DICTATION_MOCK,
+  RICH_DOCUMENT_MOCK, AI_DRAFT_RESULT, VOICE_DICTATION_MOCK,
   IMAGE_ANCHORS_MOCK, PHRASES_MOCK, RADLEX_TERMS_MOCK,
   PRIOR_REPORTS_MOCK, SIMILAR_CASES_MOCK,
   REPORT_DRAFTS_MOCK, REPORT_TEMPLATES_MOCK, TEMPLATE_CATEGORIES_MOCK,
@@ -82,7 +82,7 @@ export async function cloneTemplate(id: string, newName: string): Promise<Report
   return { ...src, id: `tpl-clone-${Date.now()}`, name: newName, version: '0.1.0', useCount: 0, rating: 0, approved: false };
 }
 
-export async function diffTemplates(idA: string, idB: string): Promise<{ red: string; green: string } | null> {
+export async function diffTemplates(_idA: string, _idB: string): Promise<{ red: string; green: string } | null> {
   await new Promise((r) => setTimeout(r, SIM_LATENCY_MS));
   return {
     red: '<p>右肺下叶基底段见一斑片状高密度影,边界模糊。</p>',
@@ -93,12 +93,12 @@ export async function diffTemplates(idA: string, idB: string): Promise<{ red: st
 // ============================================================
 // 2. RECIST 1.1
 // ============================================================
-export async function getRecistLesions(reportId: string): Promise<RecistTargetLesion[]> {
+export async function getRecistLesions(_reportId: string): Promise<RecistTargetLesion[]> {
   await new Promise((r) => setTimeout(r, SIM_LATENCY_MS));
   return RECIST_LESIONS;
 }
 
-export async function getRecistResponse(reportId: string): Promise<RecistResponse> {
+export async function getRecistResponse(_reportId: string): Promise<RecistResponse> {
   await new Promise((r) => setTimeout(r, SIM_LATENCY_MS));
   return RECIST_RESPONSE;
 }
@@ -113,8 +113,8 @@ export function calcRecistResponse(lesions: RecistTargetLesion[]): RecistRespons
   if (percentChange >= 20) category = 'PD';
   return {
     category,
-    categoryLabel: ({ CR: '完全缓解', PR: '部分缓解', SD: '疾病稳定', PD: '疾病进展', NE: '无法评估' } as const)[category],
-    categoryLabelEn: ({ CR: 'Complete Response', PR: 'Partial Response', SD: 'Stable Disease', PD: 'Progressive Disease', NE: 'Not Evaluable' } as const)[category],
+    categoryLabel: ({ CR: '完全缓解', PR: '部分缓解', SD: '疾病稳定', PD: '疾病进展', NE: '无法评估' } as Record<string, string>)[category],
+    categoryLabelEn: ({ CR: 'Complete Response', PR: 'Partial Response', SD: 'Stable Disease', PD: 'Progressive Disease', NE: 'Not Evaluable' } as Record<string, string>)[category],
     sumOfDiameters, baselineSum, percentChange,
     confirmedAt: new Date().toISOString(), confirmedBy: '陈医师', notes: '',
   };
@@ -123,7 +123,7 @@ export function calcRecistResponse(lesions: RecistTargetLesion[]): RecistRespons
 // ============================================================
 // 3. BI-RADS
 // ============================================================
-export async function getBiradsAssessment(reportId: string): Promise<{ assessment: BiradsAssessment; findings: BiradsFinding[] }> {
+export async function getBiradsAssessment(_reportId: string): Promise<{ assessment: BiradsAssessment; findings: BiradsFinding[] }> {
   await new Promise((r) => setTimeout(r, SIM_LATENCY_MS));
   return { assessment: BIRADS_CATEGORY_MAP['4B'], findings: BIRADS_FINDINGS };
 }
@@ -135,14 +135,14 @@ export function getBiradsByCategory(c: BiradsAssessment['category']): BiradsAsse
 // ============================================================
 // 4. PI-RADS
 // ============================================================
-export async function getPiradsAssessment(reportId: string): Promise<PiradsAssessment> {
+export async function getPiradsAssessment(_reportId: string): Promise<PiradsAssessment> {
   await new Promise((r) => setTimeout(r, SIM_LATENCY_MS));
   return PIRADS_ASSESSMENT;
 }
 
 export function calcPiradsOverall(lesions: PiradsAssessment['findings']): PiradsScore {
   if (lesions.length === 0) return 1 as PiradsScore;
-  return lesions.reduce((max, l) => Math.max(max, l.t2w, l.dwi), 1) as PiradsScore;
+  return lesions.reduce((max: number, l: any) => Math.max(max, l.t2w, l.dwi), 1) as PiradsScore;
 }
 
 // ============================================================
@@ -170,9 +170,9 @@ export async function saveRichDocument(doc: RichEditorDocument): Promise<RichEdi
   return { ...doc, lastEditedAt: new Date().toISOString(), autoSaveAt: new Date().toISOString() };
 }
 
-export async function autoSaveDocument(reportId: string, html: string, plainText: string): Promise<{ success: boolean; savedAt: string; version: number }> {
-  if (!reportId) return { success: true, savedAt: new Date().toISOString(), version: 0 };
-  const res = await persistReportContent(reportId, plainText);
+export async function autoSaveDocument(_reportId: string, _html: string, plainText: string): Promise<{ success: boolean; savedAt: string; version: number }> {
+  if (!_reportId) return { success: true, savedAt: new Date().toISOString(), version: 0 };
+  const res = await persistReportContent(_reportId, plainText);
   return { success: res.success, savedAt: res.data?.updatedTime ?? new Date().toISOString(), version: 1 };
 }
 
@@ -201,7 +201,7 @@ export async function generateAiDraft(req: AiDraftRequest): Promise<AiDraftResul
   };
 }
 
-export async function getAiDraftStatus(reportId: string): Promise<{ stage: AiDraftStage; progress: number }> {
+export async function getAiDraftStatus(_reportId: string): Promise<{ stage: AiDraftStage; progress: number }> {
   await new Promise((r) => setTimeout(r, SIM_LATENCY_MS));
   return { stage: 'ready', progress: 100 };
 }
@@ -214,22 +214,22 @@ export async function startVoiceDictation(reportId: string, lang: 'zh-CN' | 'en-
   return { ...VOICE_DICTATION_MOCK, reportId, lang, state: 'listening', startedAt: new Date().toISOString() };
 }
 
-export async function pauseVoiceDictation(id: string): Promise<{ state: VoiceDictationState }> {
+export async function pauseVoiceDictation(_id: string): Promise<{ state: VoiceDictationState }> {
   await new Promise((r) => setTimeout(r, 50));
   return { state: 'paused' };
 }
 
-export async function resumeVoiceDictation(id: string): Promise<{ state: VoiceDictationState }> {
+export async function resumeVoiceDictation(_id: string): Promise<{ state: VoiceDictationState }> {
   await new Promise((r) => setTimeout(r, 50));
   return { state: 'listening' };
 }
 
-export async function stopVoiceDictation(id: string): Promise<{ state: VoiceDictationState; durationSec: number; totalWords: number }> {
+export async function stopVoiceDictation(_id: string): Promise<{ state: VoiceDictationState; durationSec: number; totalWords: number }> {
   await new Promise((r) => setTimeout(r, 100));
   return { state: 'idle', durationSec: 120, totalWords: 78 };
 }
 
-export async function getVoiceDictationHistory(reportId: string): Promise<VoiceDictationSession['history']> {
+export async function getVoiceDictationHistory(_reportId: string): Promise<VoiceDictationSession['history']> {
   await new Promise((r) => setTimeout(r, SIM_LATENCY_MS));
   return VOICE_DICTATION_MOCK.history;
 }
@@ -292,7 +292,7 @@ export async function searchRadLex(query: string): Promise<RadLexTerm[]> {
   return RADLEX_TERMS_MOCK.filter((t) =>
     t.preferredName.toLowerCase().includes(q) ||
     t.preferredNameEn.toLowerCase().includes(q) ||
-    t.synonyms.some((s) => s.toLowerCase().includes(q))
+    t.synonyms.some((s: string) => s.toLowerCase().includes(q))
   );
 }
 
@@ -304,12 +304,12 @@ export async function getPriorReports(patientId: string): Promise<PriorReport[]>
   return PRIOR_REPORTS_MOCK.filter((r) => r.patientId === patientId);
 }
 
-export async function getSimilarCases(reportId: string, topK = 5): Promise<SimilarCase[]> {
+export async function getSimilarCases(_reportId: string, topK = 5): Promise<SimilarCase[]> {
   await new Promise((r) => setTimeout(r, SIM_LATENCY_MS));
   return SIMILAR_CASES_MOCK.slice(0, topK);
 }
 
-export async function compareReports(reportIdA: string, reportIdB: string): Promise<{ added: string[]; removed: string[]; changed: { line: string; type: 'added' | 'removed' | 'modified' }[] }> {
+export async function compareReports(_reportIdA: string, _reportIdB: string): Promise<{ added: string[]; removed: string[]; changed: { line: string; type: 'added' | 'removed' | 'modified' }[] }> {
   await new Promise((r) => setTimeout(r, 100));
   return {
     added: ['建议 3-6 个月后复查', 'PET-CT 检查'],
@@ -359,12 +359,12 @@ export async function saveDraft(draft: Omit<ReportDraft, 'id' | 'createdAt' | 'u
   };
 }
 
-export async function deleteDraft(id: string): Promise<{ success: boolean }> {
+export async function deleteDraft(_id: string): Promise<{ success: boolean }> {
   await new Promise((r) => setTimeout(r, 100));
   return { success: true };
 }
 
-export async function resolveConflict(localDraftId: string, remoteDraftId: string, strategy: DraftVersionStrategy): Promise<{ success: boolean; mergedId?: string }> {
+export async function resolveConflict(localDraftId: string, _remoteDraftId: string, _strategy: DraftVersionStrategy): Promise<{ success: boolean; mergedId?: string }> {
   await new Promise((r) => setTimeout(r, 200));
   return { success: true, mergedId: localDraftId };
 }
@@ -385,7 +385,7 @@ export async function getPreSubmitScore(reportId: string): Promise<PreSubmitScor
 // ============================================================
 // 13. 多模态 / 关键字高亮
 // ============================================================
-export async function getMultiModality(reportId: string): Promise<MultiModalityPanel | null> {
+export async function getMultiModality(_reportId: string): Promise<MultiModalityPanel | null> {
   await new Promise((r) => setTimeout(r, SIM_LATENCY_MS));
   return MULTI_MODALITY_MOCK;
 }
@@ -454,10 +454,10 @@ export async function spellCheck(text: string, lang: 'zh-CN' | 'en-US'): Promise
 // ============================================================
 // 16. 字段自动完成(RadLex 联想)
 // ============================================================
-export async function suggestFieldValues(fieldKey: string, query: string): Promise<string[]> {
+export async function suggestFieldValues(_fieldKey: string, query: string): Promise<string[]> {
   await new Promise((r) => setTimeout(r, 50));
   return RADLEX_TERMS_MOCK
-    .filter((t) => t.preferredName.toLowerCase().includes(query.toLowerCase()) || t.synonyms.some((s) => s.toLowerCase().includes(query.toLowerCase())))
+    .filter((t) => t.preferredName.toLowerCase().includes(query.toLowerCase()) || t.synonyms.some((s: string) => s.toLowerCase().includes(query.toLowerCase())))
     .map((t) => t.preferredName)
     .slice(0, 10);
 }
@@ -474,7 +474,8 @@ export function evaluateFormula(formula: string, values: Record<string, number>)
     return 0; // simplified mock
   }
   if (formula.includes('/')) {
-    const [a, b] = formula.split('/').map((s) => s.trim());
+    const parts = formula.split('/').map((s) => s.trim());
+    const a = parts[0]!; const b = parts[1]!;
     if (values[b] === 0) return 0;
     return (values[a] ?? 0) / (values[b] ?? 1);
   }
@@ -541,7 +542,7 @@ export async function signReport(reportId: string, signatureType: 'ca' | 'pin' |
  * 验证报告签名
  * @param reportId 报告 ID
  */
-export async function verifySignature(reportId: string): Promise<{ valid: boolean; signer: string; timestamp: string }> {
+export async function verifySignature(_reportId: string): Promise<{ valid: boolean; signer: string; timestamp: string }> {
   await new Promise((r) => setTimeout(r, 250));
   return { valid: true, signer: '张医师', timestamp: new Date().toISOString() };
 }
@@ -551,7 +552,7 @@ export async function verifySignature(reportId: string): Promise<{ valid: boolea
  * @param reportId 报告 ID
  * @param reason 撤销原因
  */
-export async function revokeSignature(reportId: string, reason: string): Promise<{ success: boolean }> {
+export async function revokeSignature(_reportId: string, _reason: string): Promise<{ success: boolean }> {
   await new Promise((r) => setTimeout(r, 200));
   return { success: true };
 }
@@ -579,7 +580,7 @@ export async function cosignReport(reportId: string, cosignerId: string, role: '
  * 获取签名状态
  * @param reportId 报告 ID
  */
-export async function getSignatureStatus(reportId: string): Promise<{ status: 'unsigned' | 'partially' | 'fully'; chain: Array<{ signer: string; role: string; time: string }> }> {
+export async function getSignatureStatus(_reportId: string): Promise<{ status: 'unsigned' | 'partially' | 'fully'; chain: Array<{ signer: string; role: string; time: string }> }> {
   await new Promise((r) => setTimeout(r, 200));
   return {
     status: 'fully',
@@ -599,7 +600,7 @@ export async function getSignatureStatus(reportId: string): Promise<{ status: 'u
  * @param modality 模态
  * @param impressionKeywords 印象关键词
  */
-export async function getChargeItems(modality: string, impressionKeywords: string[]): Promise<ChargeItem[]> {
+export async function getChargeItems(_modality: string, impressionKeywords: string[]): Promise<ChargeItem[]> {
   await new Promise((r) => setTimeout(r, 300));
   const items: ChargeItem[] = [
     { id: 'ci-1', code: '71250', system: 'cpt', description: 'CT 胸部平扫', relativeValue: 850, modality: 'CT', active: true },
@@ -615,7 +616,7 @@ export async function getChargeItems(modality: string, impressionKeywords: strin
  * @param code 编码
  * @param system 系统(cpt/icd10)
  */
-export async function addChargeCode(reportId: string, code: string, system: 'cpt' | 'icd10'): Promise<{ success: boolean; code: string; system: string }> {
+export async function addChargeCode(_reportId: string, code: string, system: 'cpt' | 'icd10'): Promise<{ success: boolean; code: string; system: string }> {
   await new Promise((r) => setTimeout(r, 200));
   return { success: true, code, system };
 }
@@ -624,7 +625,7 @@ export async function addChargeCode(reportId: string, code: string, system: 'cpt
  * 获取报告收费汇总
  * @param reportId 报告 ID
  */
-export async function getChargeSummary(reportId: string): Promise<{ cptCodes: string[]; icd10Codes: string[]; totalEstimate: number }> {
+export async function getChargeSummary(_reportId: string): Promise<{ cptCodes: string[]; icd10Codes: string[]; totalEstimate: number }> {
   await new Promise((r) => setTimeout(r, 250));
   return { cptCodes: ['71250', '71260'], icd10Codes: ['C50.911', 'J18.9'], totalEstimate: 2050 };
 }
@@ -638,9 +639,8 @@ export async function getChargeSummary(reportId: string): Promise<{ cptCodes: st
  * @param reportId 报告 ID
  * @param reportText 报告文本
  */
-export async function checkCompliance(reportId: string, reportText: string): Promise<ComplianceCheckResult> {
+export async function checkCompliance(_reportId: string, reportText: string): Promise<ComplianceCheckResult> {
   await new Promise((r) => setTimeout(r, 400));
-  const required = ['检查技术', '影像所见', '诊断意见', '患者信息', '签名'];
   const missing: string[] = [];
   if (!reportText.includes('技术')) missing.push('检查技术');
   if (!reportText.includes('所见')) missing.push('影像所见');
@@ -652,7 +652,7 @@ export async function checkCompliance(reportId: string, reportText: string): Pro
  * 获取模板必填字段
  * @param templateId 模板 ID
  */
-export async function getRequiredFields(templateId: string): Promise<string[]> {
+export async function getRequiredFields(_templateId: string): Promise<string[]> {
   await new Promise((r) => setTimeout(r, 200));
   return ['findings', 'impression', 'technique', 'comparison'];
 }
@@ -674,7 +674,7 @@ export async function validateLaterality(reportText: string): Promise<{ passed: 
  * @param patientGender 患者性别
  * @param procedureType 检查类型
  */
-export async function validateGenderProcedure(reportText: string, patientGender: string, procedureType: string): Promise<{ passed: boolean; warnings: string[] }> {
+export async function validateGenderProcedure(reportText: string, patientGender: string, _procedureType: string): Promise<{ passed: boolean; warnings: string[] }> {
   await new Promise((r) => setTimeout(r, 250));
   const warnings: string[] = [];
   if (patientGender === 'male' && /乳腺|子宫/.test(reportText)) warnings.push('男性患者包含乳腺/子宫相关描述');
@@ -691,7 +691,7 @@ export async function validateGenderProcedure(reportText: string, patientGender:
  * @param reportId 报告 ID
  * @param options 导出选项
  */
-export async function exportToPDF(reportId: string, options: { watermark?: string; signature?: boolean; embedImages?: boolean } = {}): Promise<{ url: string; filename: string }> {
+export async function exportToPDF(reportId: string, _options: { watermark?: string; signature?: boolean; embedImages?: boolean } = {}): Promise<{ url: string; filename: string }> {
   // [v3.0.6.11-70] P0 真实化: POST /reports/:id/export (后端入队生成)
   const res = await reportApi.exportReport(reportId, 'pdf');
   return { url: res.data?.downloadUrl ?? `/reports/${reportId}/export.pdf`, filename: `report-${reportId}.pdf` };
@@ -702,7 +702,7 @@ export async function exportToPDF(reportId: string, options: { watermark?: strin
  * @param reportId 报告 ID
  * @param preserveTrackChanges 保留修订
  */
-export async function exportToWord(reportId: string, preserveTrackChanges?: boolean): Promise<{ url: string; filename: string }> {
+export async function exportToWord(reportId: string, _preserveTrackChanges?: boolean): Promise<{ url: string; filename: string }> {
   // [v3.0.6.11-70] P0 真实化: POST /reports/:id/export (后端入队生成)
   const res = await reportApi.exportReport(reportId, 'word');
   return { url: res.data?.downloadUrl ?? `/reports/${reportId}/export.docx`, filename: `report-${reportId}.docx` };
@@ -712,7 +712,7 @@ export async function exportToWord(reportId: string, preserveTrackChanges?: bool
  * 导出为 DICOM SR
  * @param reportId 报告 ID
  */
-export async function exportToDicomSR(reportId: string): Promise<{ srUid: string; templateId: string }> {
+export async function exportToDicomSR(_reportId: string): Promise<{ srUid: string; templateId: string }> {
   await new Promise((r) => setTimeout(r, 350));
   return { srUid: `1.2.840.10008.5.1.4.1.1.88.${Date.now()}`, templateId: 'IDC-2003' };
 }
@@ -743,7 +743,7 @@ export async function exportToFHIR(reportId: string): Promise<{ diagnosticReport
  * @param reportId 报告 ID
  * @param destination 目标地址
  */
-export async function exportToHL7(reportId: string, destination: string): Promise<{ ackCode: string; messageId: string }> {
+export async function exportToHL7(reportId: string, _destination: string): Promise<{ ackCode: string; messageId: string }> {
   await new Promise((r) => setTimeout(r, 300));
   return { ackCode: 'AA', messageId: `hl7-${reportId}-${Date.now()}` };
 }
@@ -757,7 +757,7 @@ export async function exportToHL7(reportId: string, destination: string): Promis
  * @param reportId 报告 ID
  * @param userId 用户 ID
  */
-export async function lockReport(reportId: string, userId: string): Promise<{ locked: boolean; lockedBy: string; lockedAt: string }> {
+export async function lockReport(_reportId: string, userId: string): Promise<{ locked: boolean; lockedBy: string; lockedAt: string }> {
   await new Promise((r) => setTimeout(r, 200));
   return { locked: true, lockedBy: userId, lockedAt: new Date().toISOString() };
 }
@@ -767,7 +767,7 @@ export async function lockReport(reportId: string, userId: string): Promise<{ lo
  * @param reportId 报告 ID
  * @param userId 用户 ID
  */
-export async function unlockReport(reportId: string, userId: string): Promise<{ unlocked: boolean }> {
+export async function unlockReport(_reportId: string, _userId: string): Promise<{ unlocked: boolean }> {
   await new Promise((r) => setTimeout(r, 200));
   return { unlocked: true };
 }
@@ -776,7 +776,7 @@ export async function unlockReport(reportId: string, userId: string): Promise<{ 
  * 获取当前活跃编辑者
  * @param reportId 报告 ID
  */
-export async function getActiveEditors(reportId: string): Promise<Array<{ userId: string; name: string; role: string; entered: string }>> {
+export async function getActiveEditors(_reportId: string): Promise<Array<{ userId: string; name: string; role: string; entered: string }>> {
   await new Promise((r) => setTimeout(r, 250));
   return [
     { userId: 'u-001', name: '陈医师', role: 'resident', entered: new Date(Date.now() - 600000).toISOString() },
@@ -793,7 +793,7 @@ export async function getActiveEditors(reportId: string): Promise<Array<{ userId
  * @param text 报告文本
  * @param modality 模态
  */
-export async function inlineCheckCritical(text: string, modality: string): Promise<{ critical: boolean; findings: string[]; riskLevel: 'low' | 'medium' | 'high' }> {
+export async function inlineCheckCritical(text: string, _modality: string): Promise<{ critical: boolean; findings: string[]; riskLevel: 'low' | 'medium' | 'high' }> {
   await new Promise((r) => setTimeout(r, 350));
   const findings: string[] = [];
   const patterns: { regex: RegExp; label: string; risk: 'low' | 'medium' | 'high' }[] = [
@@ -819,7 +819,7 @@ export async function inlineCheckCritical(text: string, modality: string): Promi
  * @param finding 危急发现
  * @param severity 严重程度
  */
-export async function flagReportCritical(reportId: string, finding: string, severity: 'warning' | 'critical'): Promise<{ success: boolean; flaggedAt: string }> {
+export async function flagReportCritical(_reportId: string, _finding: string, _severity: 'warning' | 'critical'): Promise<{ success: boolean; flaggedAt: string }> {
   await new Promise((r) => setTimeout(r, 200));
   return { success: true, flaggedAt: new Date().toISOString() };
 }
@@ -828,7 +828,7 @@ export async function flagReportCritical(reportId: string, finding: string, seve
  * 取消危急值标记
  * @param reportId 报告 ID
  */
-export async function unflagReportCritical(reportId: string): Promise<{ unflag: boolean }> {
+export async function unflagReportCritical(_reportId: string): Promise<{ unflag: boolean }> {
   await new Promise((r) => setTimeout(r, 200));
   return { unflag: true };
 }
@@ -868,7 +868,7 @@ export async function preparePrint(reportId: string, layoutId: string): Promise<
  * @param reportId 报告 ID
  * @param contextText 上下文文本
  */
-export async function getAiDraftSuggestions(reportId: string, contextText: string): Promise<Array<{ text: string; confidence: number; source: string }>> {
+export async function getAiDraftSuggestions(_reportId: string, _contextText: string): Promise<Array<{ text: string; confidence: number; source: string }>> {
   await new Promise((r) => setTimeout(r, 500));
   return [
     { text: '双肺纹理清晰,未见实变或渗出', confidence: 0.92, source: 'AI-base-v2' },
@@ -883,7 +883,7 @@ export async function getAiDraftSuggestions(reportId: string, contextText: strin
  * @param patientId 患者 ID
  * @param modality 模态
  */
-export async function searchPriorSimilar(reportId: string, patientId: string, modality: string): Promise<Array<{ reportId: string; date: string; findings: string; similarity: number }>> {
+export async function searchPriorSimilar(_reportId: string, _patientId: string, _modality: string): Promise<Array<{ reportId: string; date: string; findings: string; similarity: number }>> {
   await new Promise((r) => setTimeout(r, 350));
   return [
     { reportId: `prior-${Date.now()}-1`, date: '2025-12-10', findings: '右肺上叶磨玻璃结节', similarity: 0.87 },
@@ -895,7 +895,7 @@ export async function searchPriorSimilar(reportId: string, patientId: string, mo
  * 获取阅读度量
  * @param reportId 报告 ID
  */
-export async function getReadingMetrics(reportId: string): Promise<{ readingTimeSec: number; wordCount: number; signatureTime?: string }> {
+export async function getReadingMetrics(_reportId: string): Promise<{ readingTimeSec: number; wordCount: number; signatureTime?: string }> {
   await new Promise((r) => setTimeout(r, 200));
   return { readingTimeSec: 180, wordCount: 650, signatureTime: new Date().toISOString() };
 }
@@ -910,7 +910,7 @@ export async function getReadingMetrics(reportId: string): Promise<{ readingTime
  * @param versionA 版本 A
  * @param versionB 版本 B
  */
-export async function diffReportVersions(reportId: string, versionA: number, versionB: number): Promise<{ additions: string[]; deletions: string[]; unchanged: string[] }> {
+export async function diffReportVersions(_reportId: string, _versionA: number, _versionB: number): Promise<{ additions: string[]; deletions: string[]; unchanged: string[] }> {
   await new Promise((r) => setTimeout(r, 300));
   return {
     additions: ['右肺下叶见一结节影,大小约 8mm×6mm', '建议短期复查'],
@@ -924,7 +924,7 @@ export async function diffReportVersions(reportId: string, versionA: number, ver
  * @param reportId 报告 ID
  * @param targetVersion 目标版本号
  */
-export async function rollbackToVersion(reportId: string, targetVersion: number): Promise<{ success: boolean; newVersion: number }> {
+export async function rollbackToVersion(_reportId: string, targetVersion: number): Promise<{ success: boolean; newVersion: number }> {
   await new Promise((r) => setTimeout(r, 350));
   return { success: true, newVersion: targetVersion + 1 };
 }

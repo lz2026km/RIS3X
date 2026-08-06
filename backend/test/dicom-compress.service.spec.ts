@@ -1,4 +1,5 @@
 import * as path from 'node:path'
+import { BadRequestException } from '@nestjs/common'
 import { DicomCompressService } from '../src/modules/dicom-compress/dicom-compress.service'
 
 const SAMPLE = path.resolve(__dirname, '../dicom-samples/CT_CHEST/CT_CHEST_001.dcm')
@@ -19,7 +20,7 @@ describe('DicomCompressService (real codec)', () => {
         delete: jest.fn().mockResolvedValue({}),
       },
     }
-    svc = new DicomCompressService(mockPrisma)
+    svc = new DicomCompressService(mockPrisma, { get: (_key: string, fallback?: string) => fallback ?? 'dicom' } as any)
     jest.useFakeTimers()
   })
 
@@ -149,6 +150,19 @@ describe('DicomCompressService (real codec)', () => {
     const stats = await svc.getStats()
     expect(typeof stats.totalTasks).toBe('number')
     expect(Array.isArray(stats.algorithmDistribution)).toBe(true)
+  })
+
+  it('deleteTask rejects traversal ids with 400 INVALID_ID', async () => {
+    for (const bad of ['../../etc/passwd', '..\\..\\secret', 'a/b', '..']) {
+      await expect(svc.deleteTask(bad)).rejects.toThrow(BadRequestException)
+    }
+    expect(mockPrisma.compressTask.delete).not.toHaveBeenCalled()
+  })
+
+  it('deleteTask accepts plain ids and removes blob + DB row', async () => {
+    const result = await svc.deleteTask('task-42')
+    expect(result).toEqual({ success: true })
+    expect(mockPrisma.compressTask.delete).toHaveBeenCalledWith({ where: { id: 'task-42' } })
   })
 })
 

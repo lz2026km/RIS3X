@@ -8,12 +8,12 @@ import {
   FlaskConical, Plus, X, Search, Edit2, Trash2, Download, Tag, Folder, FileText, Calendar, User, Clock,
   Eye, EyeOff, AlertCircle,
   Database, Shield, ShieldCheck, FileJson, FileSpreadsheet,
-  Filter, Users, CheckSquare, Square, ChevronRight, RefreshCw, Upload, Save, BarChart3,
-  Activity, CheckCircle as CheckCircleIcon, AlertTriangle, TrendingUp, TrendingDown,
-  GripVertical, Layers, BookOpen, FileSignature, UserCheck, ClipboardList,
-  PieChart as PieChartIcon, Target, Sigma
+  Filter, Users, Save,
+  Activity, CheckCircle as CheckCircleIcon,
+  Layers, FileSignature, ClipboardList,
+  Target, Sigma
 } from 'lucide-react'
-import { researchApi, type ResearchProjectDto, type ExamRecordDto, type ResearchLabelDto, type ExportRecordDto, type IRBSubmissionDto, type CohortDefinitionDto, type ExportAuditDto, type DataQualityScoreDto } from '../services/api/researchApi'
+import { researchApi, type ResearchProjectDto, type ResearchLabelDto, type CohortDefinitionDto as CohortDefinition, type IRBSubmissionDto as IRBSubmission, type ExportAuditDto as ExportAudit, type DataQualityScoreDto as DataQualityScore } from '../services/api/researchApi'
 
 // ==================== 类型定义 ====================
 type TabKey = 'projects' | 'extract' | 'labels' | 'export' | 'deid' | 'cohort' | 'irb' | 'exportPipeline' | 'dataQuality'
@@ -209,9 +209,8 @@ function Modal({ open, onClose, title, children, width = 600 }: ModalProps) {
 // ==================== 课题管理Tab ====================
 function ProjectsTab() {
   const [projects, setProjects] = useState<Project[]>([])
-  const [loading, setLoading] = useState(true)
+  const [, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
-  const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [showDetailModal, setShowDetailModal] = useState(false)
   const [detailProject, setDetailProject] = useState<Project | null>(null)
   const [newProject, setNewProject] = useState<Partial<Project>>({ code: '', name: '', leader: '', startDate: '', description: '', members: [] })
@@ -311,9 +310,9 @@ function ProjectsTab() {
 
 // ==================== 数据抽取Tab ====================
 function ExtractTab() {
-  const { showToast, ToastContainer } = useToast()
+  const { showToast } = useToast()
   const [examRecords, setExamRecords] = useState<ExamRecord[]>([])
-  const [loading, setLoading] = useState(true)
+  const [, setLoading] = useState(true)
   const [filter, setFilter] = useState<ExtractFilter>({ examTypes: [], startDate: '', endDate: '', minAge: 0, maxAge: 100, keyword: '', result: '' })
   const [showDesensitization, setShowDesensitization] = useState(true)
   const [selectedExamTypes, setSelectedExamTypes] = useState<ExamType[]>([])
@@ -397,7 +396,7 @@ function ExtractTab() {
 // ==================== 数据标签化管理Tab ====================
 function LabelsTab() {
   const [labels, setLabels] = useState<Label[]>([])
-  const [loading, setLoading] = useState(true)
+  const [, setLoading] = useState(true)
   const [showAddModal, setShowAddModal] = useState(false)
   const [newLabel, setNewLabel] = useState<Partial<Label>>({ name: '', type: '诊断', color: '#3b82f6' })
   const [searchKeyword, setSearchKeyword] = useState('')
@@ -465,9 +464,9 @@ function LabelsTab() {
 
 // ==================== 导出管理Tab ====================
 function ExportTab() {
-  const { showToast, ToastContainer } = useToast()
+  const { showToast } = useToast()
   const [exports, setExports] = useState<ExportRecord[]>([])
-  const [loading, setLoading] = useState(true)
+  const [, setLoading] = useState(true)
   const [showPermissionModal, setShowPermissionModal] = useState(false)
 
   useEffect(() => {
@@ -517,7 +516,7 @@ function ExportTab() {
 
 // ==================== 新增: DICOM脱敏引擎 ====================
 function DeidEngineTab() {
-  const { showToast, ToastContainer } = useToast()
+  const { showToast } = useToast()
   const [deidProfile, setDeidProfile] = useState('hipaa')
   const [showPreview, setShowPreview] = useState(false)
   const [phiTags] = useState([
@@ -587,7 +586,6 @@ function DeidEngineTab() {
 
 // ==================== 新增: 队列构建器 ====================
 function CohortBuilderTab() {
-  const { showToast, ToastContainer } = useToast()
   const [criteria, setCriteria] = useState([{ field: 'age', operator: '>=', value: '50', logic: 'AND' }])
   const [cohortName, setCohortName] = useState('')
   const [estimatedSize, setEstimatedSize] = useState(0)
@@ -605,11 +603,11 @@ function CohortBuilderTab() {
 
   const addCriterion = () => { setCriteria([...criteria, { field: 'age', operator: '>=', value: '', logic: 'AND' }]) }
   const removeCriterion = (idx: any) => { setCriteria(criteria.filter((_: any, i: any) => i !== idx)) }
-  const updateCriterion = (idx: any, key: any, val: any) => { const c = [...criteria]; c[idx][key] = val; setCriteria(c) }
+  const updateCriterion = (idx: number, key: 'field' | 'operator' | 'value' | 'logic', val: string) => { const c = [...criteria]; const target = c[idx]; if (target) target[key] = val; setCriteria(c) }
   const estimateSize = () => { setEstimatedSize(Math.floor(Math.random() * 2000) + 100) }
   const saveCohort = () => {
     if (!cohortName.trim()) return
-    setSavedCohorts([...savedCohorts, { id: `C${Date.now()}`, name: cohortName, criteria: criteria.map(c => `${c.field} ${c.operator} ${c.value}`).join(' AND '), estimatedSize, createdBy: '当前用户', createdDate: new Date().toISOString().split('T')[0], lastRun: '-' }])
+    setSavedCohorts([...savedCohorts, { id: `C${Date.now()}`, name: cohortName, criteria: criteria.map(c => `${c.field} ${c.operator} ${c.value}`).join(' AND '), estimatedSize, createdBy: '当前用户', createdDate: new Date().toISOString().split('T')[0]!, lastRun: '-' }])
     setShowSaveDialog(false); setCohortName('')
   }
 
@@ -673,9 +671,9 @@ function CohortBuilderTab() {
 
 // ==================== 新增: IRB工作流 ====================
 function IRBWorkflowTab() {
-  const { showToast, ToastContainer } = useToast()
+  const { showToast } = useToast()
   const [submissions, setSubmissions] = useState<IRBSubmission[]>([])
-  const [loading, setLoading] = useState(true)
+  const [, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
 
   useEffect(() => {
@@ -689,11 +687,11 @@ function IRBWorkflowTab() {
   }, [])
   const [form, setForm] = useState({ projectName: '', pi: '', consentForm: '' })
   const submitIRB = () => {
-    setSubmissions([...submissions, { id: `IRB${Date.now()}`, projectName: form.projectName, pi: form.pi, submittedDate: new Date().toISOString().split('T')[0], status: 'draft', approvedDate: '', expiryDate: '', consentForm: form.consentForm }])
+    setSubmissions([...submissions, { id: `IRB${Date.now()}`, projectName: form.projectName, pi: form.pi, submittedDate: new Date().toISOString().split('T')[0]!, status: 'draft', approvedDate: '', expiryDate: '', consentForm: form.consentForm }])
     setShowForm(false); setForm({ projectName: '', pi: '', consentForm: '' }); showToast('IRB申请已提交', 'success')
   }
-  const statusColors = { draft: COLORS.textMuted, submitted: COLORS.warning, approved: COLORS.success, rejected: COLORS.danger }
-  const statusLabels = { draft: '草稿', submitted: '已提交', approved: '已批准', rejected: '已拒绝' }
+  const statusColors: Record<string, string> = { draft: COLORS.textSecondary, submitted: COLORS.warning, approved: COLORS.success, rejected: COLORS.danger }
+  const statusLabels: Record<string, string> = { draft: '草稿', submitted: '已提交', approved: '已批准', rejected: '已拒绝' }
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -744,12 +742,12 @@ function IRBWorkflowTab() {
 
 // ==================== 新增: 数据导出管线 ====================
 function ExportPipelineTab() {
-  const { showToast, ToastContainer } = useToast()
+  const { showToast } = useToast()
   const [exportFormat, setExportFormat] = useState('CSV')
   const [deidentify, setDeidentify] = useState(true)
   const [includeDict, setIncludeDict] = useState(true)
   const [auditLog, setAuditLog] = useState<ExportAudit[]>([])
-  const [loading, setLoading] = useState(true)
+  const [, setLoading] = useState(true)
   const [showProgress, setShowProgress] = useState(false)
   const [progress, setProgress] = useState(0)
   const exportIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -804,7 +802,7 @@ function ExportPipelineTab() {
         <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><ClipboardList size={16} /> 导出审计日志</div>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead><tr style={{ background: COLORS.bgGray }}><th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>导出ID</th><th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>申请人</th><th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>审批人</th><th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>导出时间</th><th style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>记录数</th><th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>目的</th><th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, fontWeight: 700, color: COLORS.textSecondary }}>状态</th></tr></thead>
-          <tbody>{auditLog.map((a, idx) => (
+          <tbody>{auditLog.map((a) => (
             <tr key={a.id} style={{ borderTop: '1px solid ' + COLORS.border }}>
               <td style={{ padding: '10px 12px', fontSize: 12, fontFamily: 'monospace' }}>{a.exportId}</td>
               <td style={{ padding: '10px 12px', fontSize: 13 }}>{a.requester}</td>
@@ -824,7 +822,7 @@ function ExportPipelineTab() {
 // ==================== 新增: 数据质量看板 ====================
 function DataQualityTab() {
   const [scores, setScores] = useState<DataQualityScore[]>([])
-  const [loading, setLoading] = useState(true)
+  const [, setLoading] = useState(true)
 
   useEffect(() => {
     (async () => {
@@ -897,8 +895,8 @@ function DataQualityTab() {
 
 // ==================== 主组件 ====================
 export default function ResearchPage() {
+  const { ToastContainer } = useToast()
   const [activeTab, setActiveTab] = useState<TabKey>('projects')
-  const { showToast, ToastContainer } = useToast()
 
   const tabs: { key: TabKey; label: string; icon: React.ReactNode }[] = [
     { key: 'projects', label: '课题管理', icon: <Folder size={16} /> },

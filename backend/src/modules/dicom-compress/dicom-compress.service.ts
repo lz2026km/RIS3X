@@ -1,7 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { BadRequestException, Injectable, Logger } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { PrismaService } from '../../prisma/prisma.service'
+import { assertSafeBasename, resolveWithinRoot } from '../../common/utils/safe-path'
 import {
   parseDicomPart10,
   compressPixelData,
@@ -164,8 +166,15 @@ export class DicomCompressService {
   private blobs = new Map<string, StoredBlob>()
   private sampleRoot: string | null = null
   private manifest: { series: Array<{ key: string; modality: string; seriesDescription: string; patientName: string; rows: number; columns: number; instances: Array<{ file: string; sopInstanceUid: string }> }> } | null = null
+  private readonly storageRoot: string
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly config: ConfigService,
+  ) {
+    const root = this.config.get<string>('DICOM_STORAGE_DIR', 'dicom') || 'dicom'
+    this.storageRoot = path.resolve(root)
+  }
 
   getSupportedSyntaxes(): TransferSyntax[] {
     return SUPPORTED_SYNTAXES
@@ -284,9 +293,16 @@ export class DicomCompressService {
     }
     try {
       const row = await this.prisma.dicomInstance?.findFirst?.({ where: { sopInstanceUid: fileId } })
-      if (row?.storagePath && fs.existsSync(row.storagePath)) {
-        const buffer = fs.readFileSync(row.storagePath)
-        return { buffer, filePath: row.storagePath, modality: row.modality ?? undefined, source: 'db' }
+      if (row?.storagePath) {
+        try {
+          const p = resolveWithinRoot(this.storageRoot, row.storagePath)
+          if (fs.existsSync(p)) {
+            const buffer = fs.readFileSync(p)
+            return { buffer, filePath: p, modality: row.modality ?? undefined, source: 'db' }
+          }
+        } catch (e) {
+          this.logger.warn(`[db-source] unsafe storagePath skipped: ${(e as Error).message}`)
+        }
       }
     } catch {
       /* DB unavailable */
@@ -639,16 +655,22 @@ export class DicomCompressService {
   }
 
   async deleteTask(id: string): Promise<{ success: boolean }> {
-    this.memTasks.delete(id)
-    this.blobs.delete(id)
+    let safeId: string
     try {
-      fs.rmSync(this.blobPath(id), { force: true })
-      fs.rmSync(this.blobMetaPath(id), { force: true })
+      safeId = assertSafeBasename(id)
+    } catch {
+      throw new BadRequestException('INVALID_ID')
+    }
+    this.memTasks.delete(safeId)
+    this.blobs.delete(safeId)
+    try {
+      fs.rmSync(this.blobPath(safeId), { force: true })
+      fs.rmSync(this.blobMetaPath(safeId), { force: true })
     } catch {
       /* ignore */
     }
     try {
-      await this.prisma.compressTask.delete({ where: { id } })
+      await this.prisma.compressTask.delete({ where: { id: safeId } })
     } catch {
       /* DB unavailable */
     }
@@ -820,11 +842,11 @@ export class DicomCompressService {
   }
 
   private blobPath(id: string): string {
-    return path.join(this.blobDir, `${id}.bin`)
+    return path.join(this.blobDir, `${assertSafeBasename(id)}.bin`)
   }
 
   private blobMetaPath(id: string): string {
-    return path.join(this.blobDir, `${id}.json`)
+    return path.join(this.blobDir, `${assertSafeBasename(id)}.json`)
   }
 
   private persistBlob(id: string, packed: Buffer, meta: CodecMeta, algorithm: string, fileId: string): void {

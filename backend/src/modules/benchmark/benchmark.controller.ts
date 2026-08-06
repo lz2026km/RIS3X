@@ -17,7 +17,7 @@ const CrossSiteSchema = z.object({ metricCodes: z.array(z.string().min(1)).min(1
 
 @ApiTags('benchmark')
 @Roles('ADMIN', 'DIRECTOR')
-@Controller('api/v1/benchmark')
+@Controller('benchmark')
 export class BenchmarkController {
   private readonly logger = new Logger(BenchmarkController.name)
   constructor(private readonly service: BenchmarkService) {}

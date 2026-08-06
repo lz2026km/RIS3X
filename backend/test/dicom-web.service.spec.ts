@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing'
-import { NotFoundException } from '@nestjs/common'
+import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { DicomWebService } from '../src/dicom-web/dicom-web.service'
 import { PrismaService } from '../src/prisma/prisma.service'
@@ -124,10 +124,29 @@ describe('DicomWebService', () => {
   })
 
   describe('storeInstance', () => {
-    it('creates dicom instance record', async () => {
+    it('creates dicom instance record with safe relative storagePath', async () => {
       mockDicomInstance.create.mockResolvedValue(mockInstance)
-      const result = await svc.storeInstance('1.2.3', '1.2.3.4', '1.2.3.4.5', 'CT', '1.2.3', 1024, '/path', 'P001')
+      const result = await svc.storeInstance('1.2.3', '1.2.3.4', '1.2.3.4.5', 'CT', '1.2.3', 1024, 'study/1.2.3/series/1.2.3.4/sop.dcm', 'P001')
       expect(result.id).toBe('i1')
+      const data = mockDicomInstance.create.mock.calls[0]![0]!.data
+      expect(data.storagePath).toBe('study/1.2.3/series/1.2.3.4/sop.dcm')
+    })
+
+    it('rejects traversal storagePath with 400', async () => {
+      mockDicomInstance.create.mockResolvedValue(mockInstance)
+      for (const bad of ['../../etc/passwd', '../escape.dcm', 'a/../../../b.dcm']) {
+        await expect(
+          svc.storeInstance('1.2.3', '1.2.3.4', '1.2.3.4.5', 'CT', '1.2.3', 1024, bad, 'P001'),
+        ).rejects.toThrow(BadRequestException)
+      }
+      expect(mockDicomInstance.create).not.toHaveBeenCalled()
+    })
+
+    it('rejects absolute storagePath with 400', async () => {
+      mockDicomInstance.create.mockResolvedValue(mockInstance)
+      await expect(
+        svc.storeInstance('1.2.3', '1.2.3.4', '1.2.3.4.5', 'CT', '1.2.3', 1024, 'C:\\windows\\evil.dcm', 'P001'),
+      ).rejects.toThrow(BadRequestException)
     })
   })
 })

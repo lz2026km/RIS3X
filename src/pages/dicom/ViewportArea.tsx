@@ -1,10 +1,10 @@
 import { useCallback, useMemo } from 'react'
 import { t } from '../../i18n/appI18n'
-import { ChevronLeft, ChevronRight, Grid3x3, History, GitCompare, Minimize2, Maximize2, Sun, ArrowLeftRight, Layers, RotateCw, RotateCcw, Ruler, Triangle, CircleIcon, RectIcon, Circle, Activity, Trash2, Palette, CheckCircle, PenTool, X, EyeIcon, EyeOff, Lock, Unlock, ZoomIn, ZoomOut, Move, FlipHorizontal, FlipVertical, RefreshCw, Play, Pause, Printer } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Grid3x3, History, Minimize2, Maximize2, Sun, ArrowLeftRight, Layers, Palette, CheckCircle } from 'lucide-react'
 import { initialRadiologyExams } from '../../data/initialData'
 import { DicomCanvas, MIPCanvas, VRCanvas } from './DicomViewerSubComponents'
 import AnnotationOverlay from './AnnotationOverlay'
-import type { Tool, PseudoColorMode, MeasureSubMenu, LayoutMode, ViewMode, MipDirection, AnnotationType, Series, DicomImage, Measurement, Annotation, VrAxis } from './DicomViewerTypes'
+import type { Tool, PseudoColorMode, MeasureSubMenu, LayoutMode, ViewMode, MipDirection, AnnotationType, Series, DicomImage, Measurement, Annotation } from './DicomViewerTypes'
 import { ANNOTATION_COLORS, ANNOTATION_COLOR_NAMES, PRIMARY, CARD_BG } from './DicomViewerTypes'
 import { useFocusTrap } from '../../a11y/SkipLink'
 import { useEscape } from '../../hooks/useEscape'
@@ -91,8 +91,6 @@ const s = {
 
 interface Props {
   exam: any
-  loading: boolean
-  loadError: string | null
   seriesList: Series[]
   activeSeriesIdx: number
   activeSeries: Series
@@ -101,7 +99,6 @@ interface Props {
   currentImage: any
   showGrid: boolean
   isFullscreen: boolean
-  isPlaying: boolean
   zoom: number
   panX: number
   panY: number
@@ -132,7 +129,6 @@ interface Props {
   activeTool: Tool
   showWlPopup: boolean
   showPseudoColorPanel: boolean
-  showAnnotationPanel: boolean
   showMeasurementsOverlay: boolean
   measureSubMenu: MeasureSubMenu
   isDrawingMeasure: boolean
@@ -148,81 +144,53 @@ interface Props {
   pseudoColorTools: { mode: PseudoColorMode; icon: React.ReactNode; label: string }[]
   annotationTypes: { type: AnnotationType; icon: React.ReactNode; label: string }[]
   gridConfig: { cols: number; rows: number }
-  setActiveSeriesIdx: (i: number) => void
   setImageIndex: (fn: (prev: number) => number) => void
-  setZoom: (fn: (prev: number) => number) => void
-  setPanX: (fn: (prev: number) => number) => void
-  setPanY: (fn: (prev: number) => number) => void
-  setRotation: (fn: (prev: number) => number) => void
-  setFlipH: (fn: (prev: boolean) => boolean) => void
-  setFlipV: (fn: (prev: boolean) => boolean) => void
-  setBrightness: (fn: (prev: number) => number) => void
-  setContrast: (fn: (prev: number) => number) => void
-  setInvert: (fn: (prev: boolean) => boolean) => void
   setWw: (v: number | ((prev: number) => number)) => void
   setWl: (v: number | ((prev: number) => number)) => void
   setActivePresetIdx: (i: number | null) => void
   setViewMode: (v: ViewMode) => void
-  setMipDirection: (v: MipDirection) => void
-  setMipFrame: (v: number) => void
-  setVrRotX: (v: number) => void
-  setVrRotY: (v: number) => void
-  setVrRotZ: (v: number) => void
-  setVrOpacity: (v: number) => void
   setShowGrid: (fn: (prev: boolean) => boolean) => void
-  setIsFullscreen: (v: boolean) => void
-  setIsPlaying: (v: boolean) => void
   setActiveTool: (t: Tool) => void
   setShowWlPopup: (v: boolean) => void
   setShowPseudoColorPanel: (v: boolean) => void
   setShowAnnotationPanel: (v: boolean) => void
-  setShowMeasurementsOverlay: (v: boolean) => void
   setMeasureSubMenu: (m: MeasureSubMenu) => void
-  setIsDrawingMeasure: (v: boolean) => void
-  setDrawingPoints: (v: { x: number; y: number }[]) => void
   setSelectedAnnotationId: (id: string | null) => void
   setActiveAnnotationType: (t: AnnotationType) => void
   setActiveAnnotationColor: (c: string) => void
   setActiveAnnotationFontSize: (s: number) => void
   setPseudoColorMode: (m: PseudoColorMode) => void
-  setRightTab: (t: string) => void
-  handleToolClick: (t: Tool) => void
   handlePresetClick: (p: any, idx: number) => void
-  handleImageWheel: (deltaY: number, deltaX: number) => void
   handleLayoutChange: (l: LayoutMode) => void
   handleSeriesSelect: (idx: number) => void
   handleExamChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
   toggleFullscreen: () => void
   clearAllMeasures: () => void
   clearAllAnnotations: () => void
-  deleteMeasure: (id: string) => void
   deleteAnnotation: (id: string) => void
   toggleAnnotationVisibility: (id: string) => void
   toggleAnnotationLock: (id: string) => void
   enterCompareMode: () => void
-  exitCompareMode: () => void
   exportMeasurements: (format: string) => void
   getCurrentPresets: () => { name: string; ww: number; wl: number }[]
 }
 
 export default function ViewportArea(props: Props) {
-  const { exam, loading, loadError, seriesList, activeSeriesIdx, activeSeries, images, imageIndex, currentImage,
-    showGrid, isFullscreen, isPlaying, zoom, panX, panY, rotation, flipH, flipV, brightness, contrast, invert,
+  const { exam, seriesList, activeSeriesIdx, activeSeries, images, imageIndex, currentImage,
+    showGrid, isFullscreen, zoom, panX, panY, rotation, flipH, flipV, brightness, contrast, invert,
     ww, wl, activePresetIdx, viewMode, mipDirection, mipFrame, vrRotX, vrRotY, vrRotZ, vrOpacity,
     layout, isCompareMode, compareExam, compareImageIndex, syncScroll, showDiffHighlight, diffRegions,
-    selectedHistoryExams, activeTool, showWlPopup, showPseudoColorPanel, showAnnotationPanel,
+    selectedHistoryExams, activeTool, showWlPopup, showPseudoColorPanel,
     showMeasurementsOverlay, measureSubMenu, isDrawingMeasure, interactiveMeasures, drawingPoints,
     annotations, showAnnotationsOverlay, selectedAnnotationId, activeAnnotationType, activeAnnotationColor,
     activeAnnotationFontSize, pseudoColorMode, pseudoColorTools, annotationTypes, gridConfig,
-    setActiveSeriesIdx, setImageIndex, setZoom, setPanX, setPanY, setRotation, setFlipH, setFlipV,
-    setBrightness, setContrast, setInvert, setWw, setWl, setActivePresetIdx, setViewMode, setMipDirection,
-    setMipFrame, setVrRotX, setVrRotY, setVrRotZ, setVrOpacity, setShowGrid, setIsFullscreen, setIsPlaying,
-    setActiveTool, setShowWlPopup, setShowPseudoColorPanel, setShowAnnotationPanel, setShowMeasurementsOverlay,
-    setMeasureSubMenu, setIsDrawingMeasure, setDrawingPoints, setSelectedAnnotationId, setActiveAnnotationType,
-    setActiveAnnotationColor, setActiveAnnotationFontSize, setPseudoColorMode, setRightTab,
-    handleToolClick, handlePresetClick, handleImageWheel, handleLayoutChange, handleSeriesSelect,
-    handleExamChange, toggleFullscreen, clearAllMeasures, clearAllAnnotations, deleteMeasure,
-    deleteAnnotation, toggleAnnotationVisibility, toggleAnnotationLock, enterCompareMode, exitCompareMode,
+    setImageIndex, setWw, setWl, setActivePresetIdx, setViewMode, setShowGrid,
+    setActiveTool, setShowWlPopup, setShowPseudoColorPanel,
+    setMeasureSubMenu, setSelectedAnnotationId, setActiveAnnotationType,
+    setActiveAnnotationColor, setActiveAnnotationFontSize, setPseudoColorMode, setShowAnnotationPanel,
+    handlePresetClick, handleLayoutChange, handleSeriesSelect,
+    handleExamChange, toggleFullscreen, clearAllMeasures, clearAllAnnotations,
+    deleteAnnotation, toggleAnnotationVisibility, toggleAnnotationLock, enterCompareMode,
     exportMeasurements, getCurrentPresets } = props
 
   const wlPopupRef = useFocusTrap(showWlPopup)
@@ -251,16 +219,14 @@ export default function ViewportArea(props: Props) {
     return fromProp && fromProp.length > 0 ? fromProp : modalityPresets
   }, [getCurrentPresets, modalityPresets])
 
-  const activePresetName = activePresetIdx != null ? currentPresets[activePresetIdx]?.name ?? '' : ''
-
   return (
     <div style={s.centerArea}>
       <div style={s.roiToolbar}>
         <span style={s.roiLabel}>ROI工具:</span>
-        {(['line', 'angle', 'ellipse', 'rectangle', 'circle', 'ctvalue'] as const).map(type => (
+        {(['length', 'angle', 'ellipse', 'rectangle', 'circle', 'ctvalue'] as const).map(type => (
           <button key={type} style={{ ...s.roiToolBtn, ...(measureSubMenu === type ? s.roiToolBtnActive : {}) }}
             onClick={() => { setMeasureSubMenu(type); setActiveTool('measure') }} title={type}>
-            {type === 'line' ? '长度' : type === 'angle' ? '角度' : type === 'ellipse' ? '椭圆' : type === 'rectangle' ? '矩形' : type === 'circle' ? '圆形' : 'CT值'}
+            {type === 'length' ? '长度' : type === 'angle' ? '角度' : type === 'ellipse' ? '椭圆' : type === 'rectangle' ? '矩形' : type === 'circle' ? '圆形' : 'CT值'}
           </button>
         ))}
         <div style={s.roiToolDivider} />
@@ -315,8 +281,8 @@ export default function ViewportArea(props: Props) {
               <span style={s.compareLabel}>当前: {exam.examDate}</span>
               <div style={{ ...s.imageWrapper, width: '100%', height: '100%' }}>
                 <DicomCanvas zoom={zoom} rotation={rotation} flipH={flipH} flipV={flipV} ww={ww} wl={wl} brightness={brightness} contrast={contrast} invert={invert}
-                  activeTool={activeTool} panX={panX} panY={panY} windowPreset={activePresetName}
-                  measureType={measureSubMenu} activeSeries={activeSeries} imageIndex={imageIndex} images={images} pseudoColorMode={pseudoColorMode} />
+                  activeTool={activeTool} panX={panX} panY={panY}
+                  activeSeries={activeSeries} pseudoColorMode={pseudoColorMode} />
                 {showDiffHighlight && diffRegions.map(region => (
                   <div key={region.id} style={{ ...s.diffRegion, ...(region.type === 'increase' ? {} : region.type === 'new' ? s.diffRegionNew : s.diffRegionImproved), left: region.x, top: region.y, width: region.w, height: region.h }} />
                 ))}
@@ -329,8 +295,8 @@ export default function ViewportArea(props: Props) {
               <span style={{ ...s.compareLabel, ...s.compareLabelRight }}>历史: {compareExam?.examDate}</span>
               <div style={{ ...s.imageWrapper, width: '100%', height: '100%' }}>
                 <DicomCanvas zoom={zoom} rotation={rotation} flipH={flipH} flipV={flipV} ww={ww} wl={wl} brightness={brightness} contrast={contrast} invert={invert}
-                  activeTool={activeTool} panX={panX} panY={panY} windowPreset={currentPresets[activePresetIdx || 0]?.name || ''}
-                  measureType={measureSubMenu} activeSeries={activeSeries} imageIndex={syncScroll ? imageIndex : compareImageIndex} images={images} pseudoColorMode={pseudoColorMode} />
+                  activeTool={activeTool} panX={panX} panY={panY}
+                  activeSeries={activeSeries} pseudoColorMode={pseudoColorMode} />
                 {showDiffHighlight && diffRegions.map(region => (
                   <div key={`r-${region.id}`} style={{ ...s.diffRegion, ...(region.type === 'increase' ? {} : region.type === 'new' ? s.diffRegionNew : s.diffRegionImproved), left: region.x, top: region.y, width: region.w, height: region.h }} />
                 ))}
@@ -342,9 +308,9 @@ export default function ViewportArea(props: Props) {
         ) : (
           <div style={{ ...s.imageWrapper, width: gridConfig.cols === 2 ? 'calc(50% - 4px)' : '100%', height: gridConfig.rows === 2 ? 'calc(50% - 4px)' : '100%' }}>
             {viewMode === 'MPR' && <DicomCanvas zoom={zoom} rotation={rotation} flipH={flipH} flipV={flipV} ww={ww} wl={wl} brightness={brightness} contrast={contrast} invert={invert}
-              activeTool={activeTool} panX={panX} panY={panY} windowPreset={currentPresets[activePresetIdx || 0]?.name || ''}
-              measureType={measureSubMenu} activeSeries={activeSeries} imageIndex={imageIndex} images={images} pseudoColorMode={pseudoColorMode} onWheel={handleImageWheel} />}
-            {viewMode === 'MIP' && <div style={s.mipCanvasContainer}><MIPCanvas mipDirection={mipDirection} mipFrame={mipFrame} totalFrames={images.length} ww={ww} wl={wl} /></div>}
+              activeTool={activeTool} panX={panX} panY={panY}
+              activeSeries={activeSeries} pseudoColorMode={pseudoColorMode} />}
+            {viewMode === 'MIP' && <div style={s.mipCanvasContainer}><MIPCanvas mipDirection={mipDirection} mipFrame={mipFrame} ww={ww} wl={wl} /></div>}
             {viewMode === 'VR' && <div style={s.vrCanvasContainer}><VRCanvas rotX={vrRotX} rotY={vrRotY} rotZ={vrRotZ} opacity={vrOpacity} /></div>}
 
             <div style={s.overlayTL}>
@@ -384,7 +350,7 @@ export default function ViewportArea(props: Props) {
               </div>
               <span style={{ color: '#f87171' }}>Zoom:{zoom}% Rot:{rotation}°</span>
               <span style={{ color: '#a5f3fc' }}>{flipH ? 'FH ' : ''}{flipV ? 'FV ' : ''}{invert ? 'Invert ' : ''}Bright:{brightness}% Contrast:{contrast}%</span>
-              {measureSubMenu && <span style={{ color: '#fbbf24' }}>测量模式:{measureSubMenu === 'line' ? '长度' : measureSubMenu === 'angle' ? '角度' : 'CT值'}</span>}
+              {measureSubMenu && <span style={{ color: '#fbbf24' }}>测量模式:{measureSubMenu === 'length' ? '长度' : measureSubMenu === 'angle' ? '角度' : 'CT值'}</span>}
               {pseudoColorMode !== 'none' && <span style={{ color: '#f97316' }}>伪彩:{pseudoColorMode === 'hotIron' ? '热铁' : pseudoColorMode === 'coolBlue' ? '冷蓝' : pseudoColorMode === 'pet' ? 'PET' : '软组织'}</span>}
             </div>
 
@@ -394,27 +360,27 @@ export default function ViewportArea(props: Props) {
                   if (measure.points.length < 1) return null
                   const points = measure.points; const color = (measure as any).color || '#22c55e'
                   if (measure.type === 'line' && points.length >= 2) {
-                    const [p1, p2] = points; const midX = (p1.x + p2.x) / 2; const midY = (p1.y + p2.y) / 2
+                    const p1 = points[0]!, p2 = points[1]!; const midX = (p1.x + p2.x) / 2; const midY = (p1.y + p2.y) / 2
                     return <g key={measure.id}><line x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke={color} strokeWidth={2} /><circle cx={p1.x} cy={p1.y} r={4} fill={color} /><circle cx={p2.x} cy={p2.y} r={4} fill={color} /><text x={midX} y={midY - 8} fill={color} fontSize={12} fontFamily="monospace" textAnchor="middle">{measure.value}{measure.unit}</text></g>
                   }
                   if (measure.type === 'angle' && points.length >= 3) {
-                    const [p1, vertex, p2] = points
+                    const p1 = points[0]!, vertex = points[1]!, p2 = points[2]!
                     return <g key={measure.id}><line x1={vertex.x} y1={vertex.y} x2={p1.x} y2={p1.y} stroke={color} strokeWidth={2} /><line x1={vertex.x} y1={vertex.y} x2={p2.x} y2={p2.y} stroke={color} strokeWidth={2} /><circle cx={p1.x} cy={p1.y} r={4} fill={color} /><circle cx={vertex.x} cy={vertex.y} r={4} fill={color} /><circle cx={p2.x} cy={p2.y} r={4} fill={color} /><text x={vertex.x + 20} y={vertex.y - 10} fill={color} fontSize={12} fontFamily="monospace">{measure.value}{measure.unit}</text></g>
                   }
                   if (measure.type === 'ellipse' && points.length >= 2) {
-                    const [p1, p2] = points; const cx = (p1.x + p2.x) / 2; const cy = (p1.y + p2.y) / 2; const rx = Math.abs(p2.x - p1.x) / 2; const ry = Math.abs(p2.y - p1.y) / 2
+                    const p1 = points[0]!, p2 = points[1]!; const cx = (p1.x + p2.x) / 2; const cy = (p1.y + p2.y) / 2; const rx = Math.abs(p2.x - p1.x) / 2; const ry = Math.abs(p2.y - p1.y) / 2
                     return <g key={measure.id}><ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill={color} fillOpacity={0.15} stroke={color} strokeWidth={2} /><circle cx={p1.x} cy={p1.y} r={4} fill={color} /><circle cx={p2.x} cy={p2.y} r={4} fill={color} /><text x={cx} y={cy - ry - 8} fill={color} fontSize={12} fontFamily="monospace" textAnchor="middle">{measure.label}</text></g>
                   }
                   if (measure.type === 'rectangle' && points.length >= 2) {
-                    const [p1, p2] = points; const x = Math.min(p1.x, p2.x); const y = Math.min(p1.y, p2.y); const w = Math.abs(p2.x - p1.x); const h = Math.abs(p2.y - p1.y)
+                    const p1 = points[0]!, p2 = points[1]!; const x = Math.min(p1.x, p2.x); const y = Math.min(p1.y, p2.y); const w = Math.abs(p2.x - p1.x); const h = Math.abs(p2.y - p1.y)
                     return <g key={measure.id}><rect x={x} y={y} width={w} height={h} fill={color} fillOpacity={0.15} stroke={color} strokeWidth={2} /><circle cx={p1.x} cy={p1.y} r={4} fill={color} /><circle cx={p2.x} cy={p2.y} r={4} fill={color} /><text x={x + w / 2} y={y - 8} fill={color} fontSize={12} fontFamily="monospace" textAnchor="middle">{measure.label}</text></g>
                   }
                   if (measure.type === 'circle' && points.length >= 2) {
-                    const [center, edge] = points; const r = Math.sqrt(Math.pow(edge.x - center.x, 2) + Math.pow(edge.y - center.y, 2))
+                    const center = points[0]!, edge = points[1]!; const r = Math.sqrt(Math.pow(edge.x - center.x, 2) + Math.pow(edge.y - center.y, 2))
                     return <g key={measure.id}><circle cx={center.x} cy={center.y} r={r} fill={color} fillOpacity={0.15} stroke={color} strokeWidth={2} /><circle cx={center.x} cy={center.y} r={4} fill={color} /><circle cx={edge.x} cy={edge.y} r={4} fill={color} /><text x={center.x} y={center.y - r - 8} fill={color} fontSize={12} fontFamily="monospace" textAnchor="middle">{measure.label}</text></g>
                   }
                   if (measure.type === 'ctvalue' && points.length >= 1) {
-                    const p = points[0]
+                    const p = points[0]!
                     return <g key={measure.id}><circle cx={p.x} cy={p.y} r={10} fill={color} fillOpacity={0.3} stroke={color} strokeWidth={2} /><text x={p.x + 15} y={p.y + 5} fill={color} fontSize={12} fontFamily="monospace">{measure.value}{measure.unit}</text></g>
                   }
                   return null
@@ -472,9 +438,9 @@ export default function ViewportArea(props: Props) {
 
         {activeTool === 'measure' && measureSubMenu !== null && (
           <div ref={measureMenuRef} role="dialog" aria-modal="true" aria-label="测量工具" style={s.measureMenu} onClick={e => e.stopPropagation()}>
-            {(['line', 'angle', 'ellipse', 'rectangle', 'circle', 'ctvalue'] as MeasureSubMenu[]).map(type => (
+            {(['length', 'angle', 'ellipse', 'rectangle', 'circle', 'ctvalue'] as MeasureSubMenu[]).map(type => (
               <button key={type} style={{ ...s.measureMenuItem, ...(measureSubMenu === type ? { background: `${PRIMARY}15`, color: PRIMARY } : {}) }} onClick={() => setMeasureSubMenu(type)}>
-                {type === 'line' ? '长度测量' : type === 'angle' ? '角度测量' : type === 'ellipse' ? '椭圆ROI' : type === 'rectangle' ? '矩形ROI' : type === 'circle' ? '圆ROI' : 'CT值(HU)'}
+                {type === 'length' ? '长度测量' : type === 'angle' ? '角度测量' : type === 'ellipse' ? '椭圆ROI' : type === 'rectangle' ? '矩形ROI' : type === 'circle' ? '圆ROI' : 'CT值(HU)'}
               </button>
             ))}
             <div style={{ borderTop: '1px solid #e2e8f0', marginTop: 4, paddingTop: 4 }}>

@@ -1,8 +1,9 @@
 import { api } from "./client";
 
 // Benchmark (对标分析) API
-// [v3.0.6.11-50] 路径统一: 前端 /benchmark/* → 后端 /api/v1/benchmark/* (modules/benchmark.controller)
+// [G005-P0] 前缀修复: 前端 /benchmark/* → 后端 /api/benchmark/* (modules/benchmark.controller)
 //   后端实际端点: list / compare / cross-site / stats
+//   MSW: /api/v1/benchmark/* (mock 基地址 /api/v1 + 前端路径)
 
 export interface BenchmarkRecord {
   id: string;
@@ -78,13 +79,13 @@ export interface BenchmarkCrossSiteDto {
 }
 
 export const benchmarkApi = {
-  listMetrics: () => api.get<unknown[]>("/api/v1/benchmark/list"),
+  listMetrics: () => api.get<unknown[]>("/benchmark/list"),
 
   compare: (dto: BenchmarkCompareDto) =>
-    api.post<unknown>("/api/v1/benchmark/compare", dto),
+    api.post<unknown>("/benchmark/compare", dto),
 
   crossSite: (dto: BenchmarkCrossSiteDto) =>
-    api.post<unknown>("/api/v1/benchmark/cross-site", dto),
+    api.post<unknown>("/benchmark/cross-site", dto),
 
-  stats: () => api.get<unknown>("/api/v1/benchmark/stats"),
+  stats: () => api.get<unknown>("/benchmark/stats"),
 };

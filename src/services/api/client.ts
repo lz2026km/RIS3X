@@ -328,7 +328,30 @@ async function request<T>(
             ? flags.ok
             : undefined;
       if (okFlag === true) {
-        normalized = body as ApiResponse<T>;
+        // [G005 P0] 登录/刷新响应归一化:
+        //   - 后端 /auth/login: { accessToken, user, success, data:{token,...} }
+        //   - MSW /auth/login:  { success, data:{token,...} }
+        //   - 后端 /auth/refresh: { success, data:{token,...} }
+        // 统一映射为 response.data.token 可用 (token ?? accessToken 兼容),
+        // 前后端协议均不改动, 仅前端归一化层吸收差异。
+        const raw = body as Record<string, unknown>;
+        const nested =
+          raw?.data && typeof raw.data === "object"
+            ? (raw.data as Record<string, unknown>)
+            : undefined;
+        const accessToken =
+          typeof raw?.accessToken === "string" ? raw.accessToken : undefined;
+        const nestedToken =
+          nested && typeof nested.token === "string" ? nested.token : undefined;
+        if (raw && (accessToken !== undefined || nestedToken !== undefined)) {
+          const merged: Record<string, unknown> = { ...raw };
+          if (typeof merged.token !== "string") {
+            merged.token = accessToken ?? nestedToken;
+          }
+          normalized = { ...(body as ApiResponse<T>), data: merged as T };
+        } else {
+          normalized = body as ApiResponse<T>;
+        }
       } else if (okFlag === false) {
         normalized = {
           success: false,
@@ -399,7 +422,53 @@ export const api = {
       body: body ? JSON.stringify(body) : undefined,
     }),
   delete: <T>(path: string) => request<T>(path, { method: "DELETE" }),
+  // [G005 P0] 列表响应归一化: 兼容两种后端形状
+  //   - MSW 旧 handler: data 为裸数组 { success, data: [...] }
+  //   - Nest CRUD:      data 为 { items: [], total: number }
+  getList: <T>(path: string) => requestList<T>(path),
 };
+
+// ────────────────────────────────────────────────────────────────────────────
+// [G005 P0] 列表形状归一化 (方案 B: client 层统一收敛)
+// 返回统一 { data: T[], total } 形状, 页面无需再判断 Array.isArray / items。
+// ────────────────────────────────────────────────────────────────────────────
+export interface ListData<T> {
+  data: T[];
+  total: number;
+}
+
+async function requestList<T>(path: string): Promise<ApiResponse<ListData<T>>> {
+  const res = await request<unknown>(path, { method: "GET" });
+  if (!res.success) {
+    return {
+      success: false,
+      data: { data: [], total: 0 },
+      error: res.error,
+    };
+  }
+  const d = res.data;
+  if (Array.isArray(d)) {
+    return { success: true, data: { data: d as T[], total: d.length } };
+  }
+  if (d && typeof d === "object") {
+    const obj = d as Record<string, unknown>;
+    if (Array.isArray(obj.items)) {
+      const items = obj.items as T[];
+      return {
+        success: true,
+        data: {
+          data: items,
+          total: typeof obj.total === "number" ? obj.total : items.length,
+        },
+      };
+    }
+  }
+  return {
+    success: false,
+    data: { data: [], total: 0 },
+    error: { code: "INVALID_LIST", message: "列表响应格式无效" },
+  };
+}
 
 // ────────────────────────────────────────────────────────────────────────────
 // RBAC 资源级访问控制包装

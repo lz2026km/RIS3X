@@ -68,6 +68,54 @@ describe('CriticalsService', () => {
     })
   })
 
+  describe('update / CLOSED_LOOP 终态', () => {
+    it('writes closedAt/closedBy when state becomes CLOSED_LOOP', async () => {
+      const update = jest.fn().mockResolvedValue({ id: 'cv-1', state: 'CLOSED_LOOP' })
+      const prisma = makePrisma({
+        criticalValue: {
+          findUnique: jest.fn().mockResolvedValue({ id: 'cv-1', description: 'x', severity: 'HIGH' }),
+          update,
+        },
+      })
+      const service = new CriticalsService(prisma)
+      const res = await service.update('cv-1', { state: 'CLOSED_LOOP', closedBy: '医务处' })
+      expect(res.state).toBe('CLOSED_LOOP')
+      const data = update.mock.calls[0][0].data
+      expect(data.state).toBe('CLOSED_LOOP')
+      expect(data.closedBy).toBe('医务处')
+      expect(data.closedAt).toBeInstanceOf(Date)
+      expect(data.resolvedAt).toBeInstanceOf(Date)
+      expect(data.resolvedBy).toBe('医务处')
+    })
+
+    it('does not write closedAt unless state is CLOSED_LOOP', async () => {
+      const update = jest.fn().mockResolvedValue({})
+      const prisma = makePrisma({
+        criticalValue: {
+          findUnique: jest.fn().mockResolvedValue({ id: 'cv-1', description: 'x', severity: 'HIGH' }),
+          update,
+        },
+      })
+      const service = new CriticalsService(prisma)
+      await service.update('cv-1', { state: 'RESOLVED', resolvedBy: '放射科' })
+      const data = update.mock.calls[0][0].data
+      expect(data.closedAt).toBeUndefined()
+      expect(data.closedBy).toBeUndefined()
+      expect(data.resolvedAt).toBeInstanceOf(Date)
+    })
+
+    it('throws 404 when critical value does not exist', async () => {
+      const prisma = makePrisma({
+        criticalValue: {
+          findUnique: jest.fn().mockResolvedValue(null),
+          update: jest.fn(),
+        },
+      })
+      const service = new CriticalsService(prisma)
+      await expect(service.update('nope', { state: 'CLOSED_LOOP' })).rejects.toBeInstanceOf(NotFoundException)
+    })
+  })
+
   describe('getStats', () => {
     it('aggregates CriticalValue states into dashboard shape', async () => {
       const prisma = makePrisma({

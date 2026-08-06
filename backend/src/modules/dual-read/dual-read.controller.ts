@@ -18,6 +18,12 @@ const ArbitrateSchema = z.object({
   report: z.string().min(1),
 })
 
+const ReaderSchema = z.object({
+  readerId: z.string().optional(),
+  readerNumber: z.union([z.literal(1), z.literal(2)]),
+  report: z.string().min(1),
+})
+
 @ApiTags('dual-read')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
@@ -49,6 +55,14 @@ export class DualReadController {
   @Get('discrepancy')
   discrepancy() {
     return this.service.discrepancyStats()
+  }
+
+  @Post(':id/reader')
+  submitReader(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(ReaderSchema)) body: z.infer<typeof ReaderSchema>,
+  ) {
+    return this.service.submitReader(id, body.readerNumber, body.report)
   }
 
   @Get('list')

@@ -1,5 +1,43 @@
 ﻿# CHANGELOG
 
+## v3.0.6.11-72 (2026-08-03) — 全方位审查：安全6项+三层一致7项+性能5项+死代码951文件+tsc-53%
+
+> **目标**: v3.0.6.11-72 全方位审查（安全/三层一致/性能/死代码/tsc）全部修复落地
+> **范围**: 12 agents 四波实施（112 suites/1163 tests，tsc 5,494→2,590）
+
+### 安全修复（6 项，SEC1-3）
+
+- **mobile 鉴权**：类级 @Public 移除（PHI 泄露修复），jscode2session 保留方法级，敏感端点加 @Roles
+- **路径穿越**：新增 safe-path.ts（assertSafeRelativePath/assertSafeBasename），dicom-web storagePath + dicom-compress tasks/:id 全修复
+- **跨租户 IDOR**：tenant-utils.ts currentTenantId() 注入 7 个 service（exam/patient/reports/criticals/appointments/vna/audit），vna 去硬编码
+- **FHIR SSRF**：fhir-ssrf.ts isPublicUrl 双重校验（schema+service），内网 IP 拦截
+- **S3 凭据**：AES-256-GCM 加密存储 + 掩码回显
+- **VAPID**：生产强制环境变量；tenant profile/features + smart-auth 补 @Roles
+
+### 三层一致性（7 项，CONS1-3）
+
+- **登录归一化**：client.ts token??accessToken 兼容后端/MSW
+- **列表形状**：getList + AppointmentPage/CriticalValuePage 双形状兼容
+- **危急值前缀**：criticalApi 删 22 孤儿方法、criticalExtApi 对齐 13 端点、MSW 双前缀注册、删 criticalHandlers 空壳
+- **双前缀族**：datareport/eye/benchmark/olap/dicom-compress 5 controller 前缀统一（三方一致）
+- **CLOSED_LOOP**：schema 补 closedBy/closedAt + controller 枚举 + 5 步流程页闭环接真 API
+- **CoSign**：pending 查 Report 表（CO_SIGN_REVIEW）、approve/reject 驱动状态机
+- **DualReadPage**：接 dualReadApi（list/arbitrate/submitReader），删 Math.random
+
+### 性能与清理（PERF1/DEAD1/TS1）
+
+- criticalStore dispose()（定时器/actor 全清理）+ 页面卸载调用
+- financeMock 去重（9.35MB→4.46MB）
+- 5 个缺失索引迁移（Report/Exam/DicomInstance）
+- **死代码删除 951 文件/152,458 行**（pacs/v3.0.6.1 整树 85 文件、6 根级重复页、hooks/utils 零引用）
+- tsc 清理：unifiedCriticalValues 500 条清零（补 state 字段）+ Top 20 文件全清零 + TS6133 批量
+
+### 验证
+
+- 后端: tsc 0 错误、jest 112 suites / 1163 tests 全通过
+- 前端: tsc 5,494 → 2,590（-52.9%）、vite build 成功
+- 浏览器: 工作列表/报告/患者/危急值/会诊页面 200
+
 ## v3.0.6.11-71 (2026-08-03) — 全量翻译修复：侧边栏349key全覆盖+215处页面英文中文化+38处组件
 
 > **目标**: 检查整个软件翻译 Bug——导航栏+页面内未翻译的常规英文全部中文化（学术英文保留）
@@ -195,7 +233,7 @@
 
 ### Phase 0: 10×80 对标文档
 
-- 新增 `docs/PACS_BENCHMARK_V3.0.6.11-71.md`：10 厂商 × 80 项功能矩阵（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/Change Healthcare/Infinitt）
+- 新增 `docs/PACS_BENCHMARK_V3.0.6.11-72.md`：10 厂商 × 80 项功能矩阵（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/Change Healthcare/Infinitt）
 - G005 完成度 38.8%（31✅/30🟡/19❌），对标 Sectra 87.5%/GE 85.0%
 - 四阶段路线图：Phase1 修复断裂点（本次）→ Phase2 mock 降级/覆盖率 → Phase3 AI Orchestrator/BI/剂量 → Phase4 云部署/环境式报告
 
@@ -304,16 +342,16 @@
 
 ### F18: 版本号全量统一 + 文档
 
-- package.json → 3.0.6.11-71（含 package-lock.json）
-- backend/package.json → 3.0.6.11-71
-- index.html title + window.__appVersion → v3.0.6.11-71
-- src/main.tsx APP_VERSION → v3.0.6.11-71
-- backend/src/main.ts + app.module.ts → v3.0.6.11-71
-- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-71
-- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-71
-- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-71
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-71
-- CHANGELOG.md 新增 v3.0.6.11-71 条目
+- package.json → 3.0.6.11-72（含 package-lock.json）
+- backend/package.json → 3.0.6.11-72
+- index.html title + window.__appVersion → v3.0.6.11-72
+- src/main.tsx APP_VERSION → v3.0.6.11-72
+- backend/src/main.ts + app.module.ts → v3.0.6.11-72
+- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-72
+- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-72
+- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-72
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-72
+- CHANGELOG.md 新增 v3.0.6.11-72 条目
 
 ### 验证结果
 
@@ -324,10 +362,10 @@
 
 ---
 
-## v3.0.6.11-71 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
+## v3.0.6.11-72 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
 
 > **目标**: 后端深度修复 + 安全加固 + 类型修复 + 测试验证 + 性能检查 + 版本号全量统一
-> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-71
+> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-72
 
 ### A13: 后端安全加固
 
@@ -358,19 +396,19 @@
 
 ### A19: 版本号全量统一
 
-- backend/package.json → 3.0.6.11-71
-- backend/src/main.ts → Swagger version + log message → v3.0.6.11-71
-- backend/src/app.module.ts → v3.0.6.11-71
-- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-71
-- index.html title + window.__appVersion → v3.0.6.11-71
-- src/i18n/appI18n.ts → v3.0.6.11-71
-- src/main.tsx APP_VERSION → v3.0.6.11-71
-- src/routes/routeTable.tsx → v3.0.6.11-71
-- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-71
-- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-71
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-71
-- CONTRIBUTING.md → v3.0.6.11-71
-- CHANGELOG.md 新增 v3.0.6.11-71 条目
+- backend/package.json → 3.0.6.11-72
+- backend/src/main.ts → Swagger version + log message → v3.0.6.11-72
+- backend/src/app.module.ts → v3.0.6.11-72
+- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-72
+- index.html title + window.__appVersion → v3.0.6.11-72
+- src/i18n/appI18n.ts → v3.0.6.11-72
+- src/main.tsx APP_VERSION → v3.0.6.11-72
+- src/routes/routeTable.tsx → v3.0.6.11-72
+- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-72
+- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-72
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-72
+- CONTRIBUTING.md → v3.0.6.11-72
+- CHANGELOG.md 新增 v3.0.6.11-72 条目
 
 ### 验证结果
 

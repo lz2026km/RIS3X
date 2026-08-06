@@ -1,22 +1,15 @@
 import React, { useState, useEffect } from 'react'
-import { message } from 'antd'
 import {
-  Video, FileText, Clock, CheckCircle, Send, Search, Filter, RefreshCw, ChevronRight, Plus, Eye,
-  ShieldCheck, BadgeCheck, XCircle, ClipboardList, ShieldAlert, BarChart3, Activity,
-  Building2, Building, Download, Settings, X, Check, ArrowRight, Circle, ArrowUp, ArrowDown, Monitor, PenTool,
-  FileSignature, Lock, Share2, UserX, UserCheck, TrendingUp, TrendingDown,
-  Users, Globe, Target, Timer, Award
+  FileText, Send, Search, Filter, RefreshCw, Plus, Eye,
+  ClipboardList, ShieldAlert, BarChart3,
+  Building2, Building, Download, X, Circle, Monitor, PenTool,
+  FileSignature, Share2, UserX, TrendingUp, TrendingDown
 } from 'lucide-react'
 import {
   styles, COLORS,
   getStatusColor, getSeverityColor,
-  consultationService, criticalValueService, remoteSyncService, exportService, statsService
 } from './RegionalReportServiceWire'
-import {
-  regionalApi, type RegionalInstitutionDto, type RegionalConsultationDto as ApiConsultation,
-  type RegionalReportDto as ApiReport, type CriticalValueReportDto as ApiCriticalValue,
-  type RemoteDiagnosisDto as ApiRemoteDiagnosis, type CoSignRecordDto as ApiCoSignRecord,
-} from '../../services/api'
+import { regionalApi } from '../../services/api'
 import type { Institution, Consultation, Report, CriticalValueReport, RemoteDiagnosis, CoSignRecord, ShareRecord, SLARecord } from './RegionalReportServiceWire'
 
 interface InstitutionListProps {
@@ -95,6 +88,24 @@ export const ConsultationList: React.FC<ConsultationListProps> = ({
   consultations, selectedConsultation, consultationTab, onSelect, onAccept, onApply, onTabChange,
   searchKeyword, onSearchChange
 }) => {
+  const [institutions, setInstitutions] = useState<Institution[]>([])
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = await regionalApi.listRegionalInstitutions()
+        if (!cancelled && res.success && Array.isArray(res.data)) {
+          setInstitutions(res.data.map(i => ({
+            id: i.id, name: i.institutionName, level: '三级' as const, type: '综合医院' as const,
+            reportCount: i.examCount, pendingCount: 0, icon: 'hospital',
+          })))
+        }
+      } catch { /* keep empty */ }
+    })()
+    return () => { cancelled = true }
+  }, [])
+
   return (
     <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
       <div style={styles.panelHeader}>
@@ -341,6 +352,23 @@ export const ReportSharingSection: React.FC = () => {
   const [shares, setShares] = useState<ShareRecord[]>([])
   const [showShareModal, setShowShareModal] = useState(false)
   const [shareForm, setShareForm] = useState({ reportId: '', targetInstitution: '', consent: true })
+  const [institutions, setInstitutions] = useState<Institution[]>([])
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = await regionalApi.listRegionalInstitutions()
+        if (!cancelled && res.success && Array.isArray(res.data)) {
+          setInstitutions(res.data.map(i => ({
+            id: i.id, name: i.institutionName, level: '三级' as const, type: '综合医院' as const,
+            reportCount: i.examCount, pendingCount: 0, icon: 'hospital',
+          })))
+        }
+      } catch { /* keep empty */ }
+    })()
+    return () => { cancelled = true }
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -355,7 +383,7 @@ export const ReportSharingSection: React.FC = () => {
 
   const handleRevoke = (id: string) => { setShares(shares.map(s => s.id === id ? { ...s, status: 'revoked' as const } : s)) }
   const handleShare = () => {
-    setShares([...shares, { id: `SH${Date.now()}`, reportId: shareForm.reportId, patientName: '新建患者', institution: '本院', targetInstitution: shareForm.targetInstitution, sharedDate: new Date().toISOString().split('T')[0], sharedBy: '当前用户', status: 'active', consent: shareForm.consent, accessCount: 0 }])
+    setShares([...shares, { id: `SH${Date.now()}`, reportId: shareForm.reportId, patientName: '新建患者', institution: '本院', targetInstitution: shareForm.targetInstitution, sharedDate: new Date().toISOString().split('T')[0]!, sharedBy: '当前用户', status: 'active', consent: shareForm.consent, accessCount: 0 }])
     setShowShareModal(false); setShareForm({ reportId: '', targetInstitution: '', consent: true })
   }
 

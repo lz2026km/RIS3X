@@ -5,7 +5,7 @@
  */
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
-import { getCurrentTenantId } from '../common/interceptors/tenant-context.interceptor'
+import { currentTenantId } from '../common/tenant/tenant-utils'
 import type { Appointment, AppointmentPriority, AppointmentState, Gender } from '@prisma/client'
 
 export interface CreateAppointmentDto {
@@ -183,7 +183,7 @@ export class AppointmentsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async list(params: { skip?: number; take?: number; state?: AppointmentState; deviceId?: string; dateFrom?: string; dateTo?: string }) {
-    const where: any = {}
+    const where: any = { tenantId: currentTenantId() }
     if (params.state) where.state = params.state
     if (params.deviceId) where.deviceId = params.deviceId
     if (params.dateFrom || params.dateTo) {
@@ -205,7 +205,7 @@ export class AppointmentsService {
   }
 
   async get(id: string): Promise<Appointment> {
-    const a = await this.prisma.appointment.findUnique({ where: { id } })
+    const a = await this.prisma.appointment.findFirst({ where: { id, tenantId: currentTenantId() } })
     if (!a) throw new NotFoundException(`Appointment ${id} not found`)
     return a
   }
@@ -218,7 +218,7 @@ export class AppointmentsService {
    * 4. 同事务创建 Exam (SCHEDULED) → 工作列表立即可见
    */
   async create(dto: CreateAppointmentDto): Promise<Appointment> {
-    const tenantId = getCurrentTenantId()
+    const tenantId = currentTenantId()
     return this.prisma.$transaction(async (tx) => {
       // 1) 患者解析
       let patient = dto.patientId
@@ -360,7 +360,7 @@ export class AppointmentsService {
   /** 预约规则: 设备维度规则列表 (容量/提前期/违约罚分), 无规则设备给默认值 */
   async rules() {
     const devices = await this.prisma.device.findMany({
-      where: { tenantId: getCurrentTenantId() },
+      where: { tenantId: currentTenantId() },
       orderBy: { name: 'asc' },
     })
     if (devices.length === 0) {
@@ -412,7 +412,7 @@ export class AppointmentsService {
   /** 等候名单: 待确认预约 (SCHEDULED) 按时间升序 */
   async waitlist() {
     const items = await this.prisma.appointment.findMany({
-      where: { tenantId: getCurrentTenantId(), state: 'SCHEDULED' },
+      where: { tenantId: currentTenantId(), state: 'SCHEDULED' },
       orderBy: { scheduledAt: 'asc' },
       take: 50,
       include: { patient: true },

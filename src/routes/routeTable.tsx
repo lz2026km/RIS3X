@@ -115,7 +115,7 @@ const EquipmentEfficiencyPage = lazy(
   () => import("../pages/EquipmentEfficiencyPage"),
 );
 const UserManagementPage = lazy(() => import("../pages/UserManagementPage"));
-const PatientPortalPage = lazy(() => import("../pages/PatientPortalPage"));
+const PatientPortalPage = lazy(() => import("../pages/patient/PatientPortalPage"));
 const DirectorDashboardPage = lazy(
   () => import("../pages/DirectorDashboardPage"),
 );
@@ -278,7 +278,7 @@ const CriticalValueCenterPage = lazy(
 const DefectManagementPage = lazy(
   () => import("../pages/DefectManagementPage"),
 );
-const CoSignPage = lazy(() => import("../pages/CoSignPage"));
+const CoSignPage = lazy(() => import("../pages/review/CoSignPage"));
 const WorkflowDesignerPage = lazy(
   () => import("../pages/WorkflowDesignerPage"),
 );

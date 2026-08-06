@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
-import { getCurrentTenantId } from '../common/interceptors/tenant-context.interceptor'
+import { currentTenantId } from '../common/tenant/tenant-utils'
 
 export interface NotifyDto {
   criticalId: string
@@ -52,7 +52,7 @@ export class CriticalsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async list(params: { skip?: number; take?: number; state?: string; severity?: string; dateFrom?: string; dateTo?: string }) {
-    const where: any = {}
+    const where: any = { tenantId: currentTenantId() }
     if (params.state) where.state = params.state
     if (params.severity) where.severity = params.severity
     if (params.dateFrom || params.dateTo) {
@@ -70,7 +70,7 @@ export class CriticalsService {
   }
 
   async get(id: string) {
-    const c = await this.prisma.criticalValue.findUnique({ where: { id } })
+    const c = await this.prisma.criticalValue.findFirst({ where: { id, tenantId: currentTenantId() } })
     if (!c) throw new NotFoundException(`CriticalValue ${id} not found`)
     return c
   }
@@ -90,17 +90,24 @@ export class CriticalsService {
         severity: dto.severity as any,
         method: dto.method as any,
         state: 'FOUND',
-        tenantId: getCurrentTenantId(),
+        tenantId: currentTenantId(),
       },
     })
   }
 
-  async update(id: string, dto: { description?: string; severity?: string; state?: string; notifiedTo?: string; ackedBy?: string; resolvedBy?: string }) {
+  async update(id: string, dto: { description?: string; severity?: string; state?: string; notifiedTo?: string; ackedBy?: string; resolvedBy?: string; closedBy?: string }) {
     const existing = await this.prisma.criticalValue.findUnique({ where: { id } })
     if (!existing) throw new NotFoundException(`CriticalValue ${id} not found`)
     const data: any = { ...dto }
     if (dto.ackedBy) data.ackedAt = new Date()
     if (dto.resolvedBy) data.resolvedAt = new Date()
+    // CLOSED_LOOP 终态:写 closedAt/closedBy,保证 5 步闭环时间可溯源
+    if (dto.state === 'CLOSED_LOOP') {
+      data.closedAt = new Date()
+      if (dto.closedBy || dto.resolvedBy) data.closedBy = dto.closedBy ?? dto.resolvedBy
+      if (!data.resolvedAt) data.resolvedAt = data.closedAt
+      if (!data.resolvedBy) data.resolvedBy = data.closedBy
+    }
     return this.prisma.criticalValue.update({ where: { id }, data })
   }
 
@@ -154,7 +161,7 @@ export class CriticalsService {
       recipientPhone: dto.recipientPhone ?? '',
       status: statuses[channel],
       triggeredAt: new Date(),
-      tenantId: getCurrentTenantId() ?? 'default',
+      tenantId: currentTenantId() ?? 'default',
     }))
     await this.prisma.criticalValueNotification.createMany({ data: records })
     await this.prisma.criticalValue.update({
@@ -179,7 +186,7 @@ export class CriticalsService {
         status: this.resolveDeliveryStatusSync(channel),
         escalated: true,
         triggeredAt: new Date(),
-        tenantId: getCurrentTenantId() ?? 'default',
+      tenantId: currentTenantId(),
       }))
     )
     return this.prisma.criticalValueNotification.createMany({ data: records })
@@ -307,7 +314,7 @@ export class CriticalsService {
         voiceCall: { done: currentStep >= 2, time: fmt(v.voiceCalledAt), user: v.voiceCalledBy ?? undefined, phone: deliveryNotif?.recipientPhone ?? undefined },
         acknowledged: { done: currentStep >= 3, time: fmt(v.ackedAt), user: v.ackedBy ?? undefined },
         receipted: { done: currentStep >= 4, time: fmt(v.confirmedAt), user: v.confirmedBy ?? undefined, comment: v.confirmedComment ?? undefined },
-        closed: { done: currentStep >= 5, time: fmt(v.resolvedAt), user: v.resolvedBy ?? undefined },
+        closed: { done: currentStep >= 5, time: fmt(v.closedAt ?? v.resolvedAt), user: v.closedBy ?? v.resolvedBy ?? undefined },
       },
     }
   }

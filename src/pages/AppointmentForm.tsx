@@ -1,11 +1,10 @@
-import { Plus, X, Monitor, Search, User, Stethoscope, Scan } from 'lucide-react'
+import { Plus, X, Monitor, User, Stethoscope, Scan } from 'lucide-react'
 import { initialModalityDevices, initialExamItems, initialUsers } from '../data/initialData'
 
 const primaryBlue = '#1e3a5f'
 const textGray = '#64748b'
 const borderGray = '#cbd5e1'
 const whiteBg = '#ffffff'
-const lightBlue = '#e8f0f8'
 
 interface AppointmentFormProps {
   showForm: boolean
@@ -17,14 +16,11 @@ interface AppointmentFormProps {
   setFormErrors: (v: Record<string, string>) => void
   setValidationError: (v: string) => void
   handleSubmit: () => void
-  findConflicts: (date: string, time: string, deviceId: string, roomId: string, appointments: any[], excludeId?: string) => any
-  appointments: any[]
   timeSlots: string[]
-  formatDate: (d: Date) => string
 }
 
 export default function AppointmentForm(props: AppointmentFormProps) {
-  const { showForm, setShowForm, formData, setFormData, validationError, formErrors, setFormErrors, setValidationError, handleSubmit, findConflicts, appointments, timeSlots, formatDate } = props
+  const { showForm, setShowForm, formData, setFormData, validationError, formErrors, setFormErrors, setValidationError, handleSubmit, timeSlots } = props
   if (!showForm) return null
 
   const fieldError = (key: string) => formErrors[key]

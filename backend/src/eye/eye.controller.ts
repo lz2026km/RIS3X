@@ -23,7 +23,7 @@ const GenerateReportSchema = z.object({ studyId: z.string().min(1), template: z.
 @ApiTags('eye')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR')
-@Controller('api/eye')
+@Controller('eye')
 export class EyeController {
   constructor(private readonly eye: EyeService) {}
 

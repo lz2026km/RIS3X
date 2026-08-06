@@ -12,6 +12,7 @@ describe('ExamService (modules)', () => {
   const mockPrisma = {
     exam: {
       findMany: jest.fn(),
+      findFirst: jest.fn(),
       findUnique: jest.fn(),
       count: jest.fn(),
       create: jest.fn(),
@@ -43,19 +44,24 @@ describe('ExamService (modules)', () => {
       mockPrisma.exam.findMany.mockResolvedValue([])
       mockPrisma.exam.count.mockResolvedValue(0)
       await svc.list({ patientId: 'p1', modality: 'CT' })
-      expect(mockPrisma.exam.findMany).toHaveBeenCalled()
+      expect(mockPrisma.exam.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expect.objectContaining({ patientId: 'p1', modality: 'CT', tenantId: 'default' }) })
+      )
     })
   })
 
   describe('get', () => {
     it('returns exam', async () => {
-      mockPrisma.exam.findUnique.mockResolvedValue(mockExam)
+      mockPrisma.exam.findFirst.mockResolvedValue(mockExam)
       const result = await svc.get('e1')
       expect(result.accessionNumber).toBe('ACC001')
+      expect(mockPrisma.exam.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { id: 'e1', tenantId: 'default' } })
+      )
     })
 
     it('throws on missing', async () => {
-      mockPrisma.exam.findUnique.mockResolvedValue(null)
+      mockPrisma.exam.findFirst.mockResolvedValue(null)
       await expect(svc.get('x')).rejects.toThrow(NotFoundException)
     })
   })

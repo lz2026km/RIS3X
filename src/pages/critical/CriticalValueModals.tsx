@@ -7,7 +7,7 @@ import {
 import type { CriticalValue } from './types'
 import { PRIMARY_COLOR, PRIMARY_LIGHT } from './types'
 import type { NotificationMethod } from '../../services/api/criticalApi'
-import { criticalApi } from '../../services/api/criticalApi'
+import { criticalExtApi } from '../../services/api'
 import { TransferToFollowUpModal } from './CriticalValueFollowUp'
 
 // ---------- shared modal parts ----------
@@ -309,13 +309,13 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
     let cancelled = false
     void (async () => {
       try {
-        const res = await criticalApi.listCriticalExtRules()
+        const res = await criticalExtApi.listRules()
         if (!cancelled && res.success && Array.isArray(res.data)) {
           setRules(res.data as unknown as CriticalValueRule[])
         }
       } catch { /* API not available */ }
       try {
-        const res = await criticalApi.listRules()
+        const res = await criticalExtApi.listRules()
         if (!cancelled && res.success && Array.isArray(res.data)) {
           const mapped = (res.data as unknown[]).map((r: any, i: number) => ({
             id: r.id || `ES${String(i + 1).padStart(3, '0')}`,

@@ -26,7 +26,7 @@
 
 import { http, HttpResponse, delay } from 'msw';
 import {
-  list, get, create, update, remove, findMany,
+  list, get, create, update, remove,
 } from './store';
 
 // [v3.0.6.8-85] 确定性伪随机: 基于 seed 字符串返回 0-1 之间的稳定数
@@ -42,7 +42,7 @@ function seedRand(seed: string | number): number {
   return ((h >>> 0) % 10000) / 10000;
 }
 import {
-  parseQuery, applyQuery, groupBy, sumBy, avgBy, filterByDateRange,
+  parseQuery, applyQuery,
 } from './queryBuilder';
 import { auditCreate, auditUpdate, auditDelete } from './audit';
 import { recordWorkflowEvent, checkRateLimit } from './businessLogic';
@@ -107,8 +107,9 @@ const eyeRisModule = [
     await delay(80);
     const id = params.id as string;
     const body = (await request.json()) as any;
+    const before = get<any>('eye_appointments', id);
     const updated = update<any>('eye_appointments', id, body);
-    if (updated) auditUpdate('eye_appointments', updated);
+    if (updated) auditUpdate('eye_appointments', before, updated);
     return HttpResponse.json({ success: true, data: updated });
   }),
   // 6) 取消预约
@@ -125,32 +126,36 @@ const eyeRisModule = [
   http.post(`${API_BASE}/ris/appointments/:id/checkin`, async ({ params }) => {
     await delay(50);
     const id = params.id as string;
+    const before = get<any>('eye_appointments', id);
     const updated = update<any>('eye_appointments', id, { status: 'checked_in', checkedInAt: new Date().toISOString() });
-    if (updated) auditUpdate('eye_appointments', updated);
+    if (updated) auditUpdate('eye_appointments', before, updated);
     return HttpResponse.json({ success: true, data: updated });
   }),
   // 8) 状态机: 开始检查
   http.post(`${API_BASE}/ris/appointments/:id/start`, async ({ params }) => {
     await delay(50);
     const id = params.id as string;
+    const before = get<any>('eye_appointments', id);
     const updated = update<any>('eye_appointments', id, { status: 'in_progress', startedAt: new Date().toISOString() });
-    if (updated) auditUpdate('eye_appointments', updated);
+    if (updated) auditUpdate('eye_appointments', before, updated);
     return HttpResponse.json({ success: true, data: updated });
   }),
   // 9) 状态机: 完成
   http.post(`${API_BASE}/ris/appointments/:id/complete`, async ({ params }) => {
     await delay(50);
     const id = params.id as string;
+    const before = get<any>('eye_appointments', id);
     const updated = update<any>('eye_appointments', id, { status: 'completed', completedAt: new Date().toISOString() });
-    if (updated) auditUpdate('eye_appointments', updated);
+    if (updated) auditUpdate('eye_appointments', before, updated);
     return HttpResponse.json({ success: true, data: updated });
   }),
   // 10) 状态机: 取消
   http.post(`${API_BASE}/ris/appointments/:id/cancel`, async ({ params }) => {
     await delay(50);
     const id = params.id as string;
+    const before = get<any>('eye_appointments', id);
     const updated = update<any>('eye_appointments', id, { status: 'cancelled', cancelledAt: new Date().toISOString() });
-    if (updated) auditUpdate('eye_appointments', updated);
+    if (updated) auditUpdate('eye_appointments', before, updated);
     return HttpResponse.json({ success: true, data: updated });
   }),
 
@@ -327,7 +332,6 @@ const eyePacsModule = [
   http.delete(`${API_BASE}/pacs/studies/:id`, async ({ params }) => {
     await delay(50);
     const id = params.id as string;
-    const before = get<any>('eye_studies', id);
     const ok = remove('eye_studies', id);
     return new HttpResponse(null, { status: ok ? 204 : 404 });
   }),
@@ -537,8 +541,9 @@ const eyeEmrModule = [
     await delay(60);
     const id = params.id as string;
     const body = (await request.json()) as any;
+    const before = get<any>('eye_emrs', id);
     const updated = update<any>('eye_emrs', id, { ...body, updatedAt: new Date().toISOString() });
-    if (updated) auditUpdate('eye_emrs', updated);
+    if (updated) auditUpdate('eye_emrs', before, updated);
     return HttpResponse.json({ success: true, data: updated });
   }),
   // 6) 删除病历
@@ -851,8 +856,9 @@ const eyeReportModule = [
     await delay(60);
     const id = params.id as string;
     const body = (await request.json()) as any;
+    const before = get<any>('eye_reports', id);
     const updated = update<any>('eye_reports', id, { ...body, updatedAt: new Date().toISOString() });
-    if (updated) auditUpdate('eye_reports', updated);
+    if (updated) auditUpdate('eye_reports', before, updated);
     return HttpResponse.json({ success: true, data: updated });
   }),
   // 5) 提交报告
@@ -864,10 +870,9 @@ const eyeReportModule = [
     return HttpResponse.json({ success: true, data: updated });
   }),
   // 6) 签名报告
-  http.post(`${API_BASE}/report/reports/:id/sign`, async ({ params, request }) => {
+  http.post(`${API_BASE}/report/reports/:id/sign`, async ({ params }) => {
     await delay(80);
     const id = params.id as string;
-    const body = (await request.json()) as { certificateId?: string };
     const updated = update<any>('eye_reports', id, { status: 'signed', signedAt: new Date().toISOString(), signatureHash: 'mock-' + Math.random().toString(36).substring(7) });
     recordWorkflowEvent({ actorId: 'doctor', actorName: '医生', action: 'sign', entityType: 'eye_reports', entityId: id, fromState: 'submitted', toState: 'signed' });
     return HttpResponse.json({ success: true, data: updated });
@@ -986,7 +991,7 @@ const eyeReportModule = [
 ];
 
 // ============= EyeKpiModule (16 端点) =============
-const eyeKpiModule = [
+const eyeKpiModule: any[] = [
   // 1) 6 维 KPI 概览
   
   // 2) KPI 详情
@@ -1036,7 +1041,7 @@ const SUBSPECIALTY_TYPES = [
   { key: 'low-vision', label: '低视力' },
 ];
 
-const eyeSubspecialtyModule = SUBSPECIALTY_TYPES.flatMap((sub) => [
+const eyeSubspecialtyModule = SUBSPECIALTY_TYPES.flatMap((_sub) => [
   // 1) 列表
   
   // 2) 详情
@@ -1046,7 +1051,7 @@ const eyeSubspecialtyModule = SUBSPECIALTY_TYPES.flatMap((sub) => [
 ]);
 
 // ============= EyePatientJourneyModule (18 端点) =============
-const eyePatientJourneyModule = [
+const eyePatientJourneyModule: any[] = [
   // 1) 患者旅程时间线
   
   // 2) 患者旅程总览
@@ -1091,7 +1096,7 @@ const eyePatientJourneyModule = [
 ];
 
 // ============= RBAC 资源点查询端点 (35 端点外) =============
-const eyeRbacModule = [
+const eyeRbacModule: any[] = [
   // 列出所有 RBAC 资源点
   
   // 角色-资源点映射
@@ -1102,44 +1107,6 @@ const eyeRbacModule = [
 // 对标: ZEISS FORUM DICOM Viewer / Heidelberg HEYEX 2
 
 // 8 模态窗宽窗位预设
-const PR1_WINDOWING_PRESETS: Record<string, any[]> = {
-  'fundus': [
-    { name: '默认', ww: 256, wc: 128, invert: false },
-    { name: '视盘', ww: 100, wc: 50, invert: false },
-    { name: '黄斑', ww: 200, wc: 100, invert: false },
-  ],
-  'oct': [
-    { name: '默认', ww: 500, wc: 250, invert: false },
-    { name: '软组织', ww: 400, wc: 200, invert: false },
-    { name: '高对比', ww: 200, wc: 100, invert: false },
-  ],
-  'octa': [
-    { name: '默认', ww: 255, wc: 128, invert: false },
-    { name: '浅层', ww: 200, wc: 100, invert: false },
-    { name: '深层', ww: 300, wc: 150, invert: false },
-  ],
-  'ffa': [
-    { name: '动脉期', ww: 300, wc: 150, invert: false },
-    { name: '静脉期', ww: 350, wc: 180, invert: false },
-    { name: '晚期', ww: 400, wc: 200, invert: false },
-  ],
-  'visualfield': [
-    { name: '灰度', ww: 255, wc: 128, invert: true },
-    { name: 'TD 模式', ww: 200, wc: 100, invert: false },
-  ],
-  'topography': [
-    { name: '轴向', ww: 80, wc: 40, invert: false },
-    { name: '切向', ww: 60, wc: 30, invert: false },
-  ],
-  'slitlamp': [
-    { name: '弥散光', ww: 255, wc: 128, invert: false },
-    { name: '裂隙', ww: 180, wc: 90, invert: false },
-  ],
-  'autofluorescence': [
-    { name: '默认', ww: 200, wc: 100, invert: false },
-    { name: '高亮', ww: 150, wc: 75, invert: false },
-  ],
-};
 
 const eyePacsRenderModule = [
   // 1) Viewport 初始化
@@ -1396,7 +1363,7 @@ const eyeReportAiModule = [
   // 3) NLP 结构化提取
   http.post(`${API_BASE}/report/nlp/extract`, async ({ request }) => {
     await delay(200);
-    const body = (await request.json()) as { text: string; condition?: string };
+    const body = (await request.json()) as { text: string; condition?: string; studyId?: string };
     const text = body.text || '';
     // 模拟 NLP 提取: 诊断 + 部位 + 侧别 + 分级
     const lateralityMatch = text.match(/(右眼|左眼|双眼|OD|OS|OU)/);
@@ -1442,7 +1409,7 @@ const eyeReportAiModule = [
     await delay(800); // 模拟 LLM 推理
     const body = (await request.json()) as { patientName: string; findings: string; modality: string; condition?: string; maxWords?: number };
     const condition = body.condition || 'default';
-    const template = PR2_PROMPT_TEMPLATES[condition] || PR2_PROMPT_TEMPLATES['default'];
+    const template = PR2_PROMPT_TEMPLATES[condition] || PR2_PROMPT_TEMPLATES['default']!;
     const reportText = `[检查所见]\n${body.findings || '右眼视盘边界清,色淡红,杯盘比约 0.3。视网膜平伏,黄斑中心凹反光未见。'}${body.modality ? `\n${body.modality} 影像示: 后极部视网膜结构清晰。` : ''}\n\n[诊断]\n1. 双眼屈光不正\n2. 右眼轻度玻璃体混浊\n\n[建议]\n1. 定期复查眼底 (3-6 个月)\n2. 必要时行 OCT 或 FFA 检查\n3. 避免剧烈运动,注意用眼卫生`;
     return HttpResponse.json({
       success: true,
@@ -1510,7 +1477,7 @@ const eyeReportAiModule = [
   http.get(`${API_BASE}/report/prompts/:condition`, async ({ params }) => {
     await delay(20);
     const c = params.condition as string;
-    const template = PR2_PROMPT_TEMPLATES[c] || PR2_PROMPT_TEMPLATES['default'];
+    const template = PR2_PROMPT_TEMPLATES[c] || PR2_PROMPT_TEMPLATES['default']!;
     return HttpResponse.json({
       success: true,
       data: {
@@ -1603,7 +1570,7 @@ function pr3CalculateIOL(formula: string, params: {
   AL: number; K1: number; K2: number; ACD: number; LT: number; CCT: number;
   aConst: number; sf?: number; pACD?: number;
 }): { power: number; method: string } {
-  const { AL, K1, K2, ACD, LT, CCT, aConst, sf, pACD } = params;
+  const { AL, K1, K2, ACD, aConst, sf } = params;
   const Km = (K1 + K2) / 2;
   let power = 0;
   if (formula === 'SRK-T') {
@@ -1613,7 +1580,6 @@ function pr3CalculateIOL(formula: string, params: {
     else power = aConst - 0.9 * Km - 0.1 * (AL - 23.5);
   } else if (formula === 'Barrett-true-K') {
     // Barrett Universal II 简化
-    const L = LT > 0 ? LT : 4.5;
     const offset = sf ? Math.log(sf) * 2.5 : 0;
     power = aConst - 0.9 * Km + offset - 0.05 * (ACD - 4.0) - 0.1 * (AL - 23.5);
   } else if (formula === 'Hoffer-Q') {
@@ -1964,7 +1930,7 @@ const eyeSubspecialtyDepthModule = [
 // 对标: Airdoc / VoxelCloud 12+ 模型
 // DR 5 级 / 青光眼视野 / PCV / AMD-GA / CNV 量化 / GAN 进展预测
 
-const eyeAiExtendedModule = [
+const eyeAiExtendedModule: any[] = [
   // 1) DR 5 级精细分级模型 (特殊端点, 不被 /ai/models/:id 拦截)
   
 
@@ -1994,7 +1960,7 @@ const eyeAiExtendedModule = [
 // 对标: Heidelberg ART 自动重扫
 // 像素直方图 + SNR/CNR + 伪影 AI 检测 + 不合格拦截 + 自动重扫
 
-const eyeQcAiModule = [
+const eyeQcAiModule: any[] = [
   // 1) AI QC 自动评分
   
 
@@ -2018,7 +1984,7 @@ const eyeQcAiModule = [
 // 对标: Zeiss Retina Workplace 4 路 Late Fusion
 // OCT + 彩照 + OCTA + FFA 4 路融合 + Cross-Modal Attention + SHAP 解释 + 报告联动
 
-const eyeFusionModule = [
+const eyeFusionModule: any[] = [
   // 1) Late Fusion
   
 

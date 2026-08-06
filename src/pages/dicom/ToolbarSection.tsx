@@ -1,5 +1,5 @@
 import { Tooltip } from './DicomViewerSubComponents'
-import { ZoomIn, Move, Sun, RotateCw, RotateCcw, FlipHorizontal, FlipVertical, RefreshCw, Ruler, PenTool, Play, Pause, Printer, Plus, Minus, EyeOff, Eye, Flame, Droplets, Activity, Wind } from 'lucide-react'
+import { RotateCw, RotateCcw, PenTool, Plus, Minus, EyeOff, Eye, Flame, Droplets, Activity, Wind } from 'lucide-react'
 import type { Tool, PseudoColorMode } from './DicomViewerTypes'
 
 const PRIMARY = '#1e3a5f'
@@ -20,7 +20,6 @@ interface Props {
   rotation: number
   setRotation: (r: number | ((prev: number) => number)) => void
   pseudoColorMode: PseudoColorMode
-  setPseudoColorMode: (mode: PseudoColorMode) => void
   showPseudoColorPanel: boolean
   setShowPseudoColorPanel: (v: boolean) => void
   invert: boolean
@@ -30,7 +29,7 @@ interface Props {
 }
 
 export default function ToolbarSection(props: Props) {
-  const { tools, activeTool, handleToolClick, zoom, setZoom, rotation, setRotation, pseudoColorMode, setPseudoColorMode, showPseudoColorPanel, setShowPseudoColorPanel, invert, setInvert, showAnnotationPanel, setShowAnnotationPanel } = props
+  const { tools, activeTool, handleToolClick, zoom, setZoom, rotation, setRotation, pseudoColorMode, showPseudoColorPanel, setShowPseudoColorPanel, invert, setInvert, showAnnotationPanel, setShowAnnotationPanel } = props
 
   return (
     <div style={s.leftToolbar}>
@@ -70,7 +69,7 @@ export default function ToolbarSection(props: Props) {
       </div>
       <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
         <Tooltip title={invert ? '取消反色' : '反色显示'}>
-          <button style={{ ...s.toolBtn, width: 36, height: 28, padding: 0, ...(invert ? { background: 'rgba(255,255,255,0.25)', color: '#fff' } : {}) }} onClick={() => setInvert(v => !v)}>
+          <button style={{ ...s.toolBtn, width: 36, height: 28, padding: 0, ...(invert ? { background: 'rgba(255,255,255,0.25)', color: '#fff' } : {}) }} onClick={() => setInvert(!invert)}>
             {invert ? <EyeOff size={14} /> : <Eye size={14} />}
           </button>
         </Tooltip>

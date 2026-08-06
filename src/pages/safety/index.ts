@@ -1,6 +1,0 @@
-export { default as AdverseEventPage } from './AdverseEventPage'
-export { default as RadiationSafetyPage } from './RadiationSafetyPage'
-export { default as PatientSafetyGoalsPage } from './PatientSafetyGoalsPage'
-export { default as RCAAnalysisPage } from './RCAAnalysisPage'
-export { default as RiskManagementPage } from './RiskManagementPage'
-export { default as CQIPage } from './CQIPage'

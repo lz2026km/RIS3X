@@ -64,14 +64,31 @@ export class CriticalExtService {
     return { data: [data] }
   }
 
+  // [G005-P0] 闭环统一终态: CLOSED_LOOP + closedAt/closedBy (与 PATCH /criticals/:id 一致)
   async closeCriticalLoop(body: CloseCriticalLoopDto) {
-    const { criticalId, ...rest } = body
-    const data = await this.prisma.criticalValue.update({ where: { id: criticalId }, data: { state: 'RESOLVED', ...rest } as any })
+    const { criticalId, resolvedBy, resolvedAt } = body
+    const now = resolvedAt ? new Date(resolvedAt) : new Date()
+    const data = await this.prisma.criticalValue.update({
+      where: { id: criticalId },
+      data: {
+        state: 'CLOSED_LOOP',
+        closedBy: resolvedBy,
+        closedAt: now,
+        resolvedBy,
+        resolvedAt: now,
+      } as any,
+    })
     return { data: [data] }
   }
 
   async getReceiverPortal() {
     const data = await this.prisma.criticalValueNotification.findMany({ where: { status: 'PENDING' }, orderBy: { triggeredAt: 'desc' } })
+    return { data }
+  }
+
+  // [G005-P0] 危急值随访记录 (与 MSW criticalExtHandlers /follow-up-records 对齐)
+  async getFollowUpRecords() {
+    const data = await this.prisma.criticalValueNotification.findMany({ orderBy: { triggeredAt: 'desc' }, take: 100 })
     return { data }
   }
 }

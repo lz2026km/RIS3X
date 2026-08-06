@@ -3,20 +3,13 @@
 import { useState, useMemo, useEffect } from "react";
 import {
   CalendarClock,
-  ChevronLeft,
-  ChevronRight,
-  CalendarDays,
-  List,
-  Filter,
   Plus,
-  Search,
   X,
   CheckCircle,
   Clock,
   AlertCircle,
   XCircle,
   User,
-  Stethoscope,
   Scan,
   Bell,
   Edit2,
@@ -28,17 +21,10 @@ import {
   Monitor,
   Check,
   AlertTriangle,
-  ArrowRightLeft,
-  MessageSquare,
-  BellRing,
-  CalendarCheck,
-  TrendingUp,
   BarChart3,
 } from "lucide-react";
 import {
   initialModalityDevices,
-  initialExamItems,
-  initialUsers,
 } from "../data/initialData";
 import { appointmentApi, type AppointmentDto } from "../services/api";
 import { invalidateApiCacheByPrefix } from "../services/api/client";
@@ -92,13 +78,6 @@ interface AppointmentRules {
   enabled: boolean;
 }
 
-interface TimeSlot {
-  time: string;
-  available: boolean;
-  booked: number;
-  max: number;
-}
-
 // 提醒记录类型
 type ReminderStatus = "已发送" | "已确认" | "已改期" | "已取消";
 type ReminderChannel = "短信" | "微信" | "APP推送";
@@ -141,24 +120,6 @@ interface CancellationRecord {
   rebooked: "是" | "否" | "待确认";
 }
 
-// 提醒配置类型
-interface ReminderConfig {
-  before24hEnabled: boolean;
-  before24hTime: string;
-  before2hEnabled: boolean;
-  before2hTime: string;
-  before30minEnabled: boolean;
-  before30minTime: string;
-  recheck1dayEnabled: boolean;
-  smsEnabled: boolean;
-  wechatEnabled: boolean;
-  appEnabled: boolean;
-  template24h: string;
-  template2h: string;
-  template30min: string;
-  templatRecheck: string;
-}
-
 // ==================== 工具函数 ====================
 const getWeekDates = (baseDate: Date): Date[] => {
   const day = baseDate.getDay();
@@ -183,7 +144,7 @@ const formatDateCht = (d: Date): string => {
 const getNameInitials = (name: string): string => {
   if (!name) return "";
   const parts = name.split(/[\s·]/);
-  if (parts.length >= 2) return parts[0][0] + parts[1][0];
+  if (parts.length >= 2) return parts[0]!.charAt(0) + parts[1]!.charAt(0);
   return name.slice(0, 2);
 };
 
@@ -274,7 +235,7 @@ const STATUS_CONFIG: Record<
   },
 };
 const getStatusConfig = (status: string) =>
-  STATUS_CONFIG[status] || STATUS_CONFIG.default;
+  STATUS_CONFIG[status] || STATUS_CONFIG.default!;
 
 const PRIORITY_CONFIG: Record<
   string,
@@ -286,7 +247,7 @@ const PRIORITY_CONFIG: Record<
   default: { label: "普通", bg: "#f1f5f9", color: "#64748b" },
 };
 const getPriorityConfig = (priority: string) =>
-  PRIORITY_CONFIG[priority] || PRIORITY_CONFIG.default;
+  PRIORITY_CONFIG[priority] || PRIORITY_CONFIG.default!;
 
 const CANCEL_REASONS = [
   { value: "patient", label: "患者主动取消" },
@@ -307,7 +268,7 @@ const REMINDER_STATUS_CONFIG: Record<
   default: { label: "未知", bg: "#f1f5f9", color: "#64748b" },
 };
 const getReminderStatusConfig = (status: string) =>
-  REMINDER_STATUS_CONFIG[status] || REMINDER_STATUS_CONFIG.default;
+  REMINDER_STATUS_CONFIG[status] || REMINDER_STATUS_CONFIG.default!;
 
 const RESCHEDULE_REASON_CONFIG: Record<
   string,
@@ -319,7 +280,7 @@ const RESCHEDULE_REASON_CONFIG: Record<
   default: { label: "其他", bg: "#f1f5f9", color: "#64748b" },
 };
 const getRescheduleReasonConfig = (reason: string) =>
-  RESCHEDULE_REASON_CONFIG[reason] || RESCHEDULE_REASON_CONFIG.default;
+  RESCHEDULE_REASON_CONFIG[reason] || RESCHEDULE_REASON_CONFIG.default!;
 
 // ==================== 冲突检测函数 ====================
 interface ConflictResult {
@@ -369,808 +330,16 @@ interface WaitlistPatient {
   notified: boolean;
 }
 
-const generateMockWaitlist = (): WaitlistPatient[] => [
-  {
-    id: "WL-001",
-    patientName: "钱伟明",
-    phone: "13800138090",
-    examItemName: "头颅CT平扫",
-    modality: "CT",
-    preferredDate: "2026-05-01",
-    preferredTime: "08:00",
-    priority: "urgent",
-    addedAt: "2026-04-30 09:00",
-    notified: false,
-  },
-  {
-    id: "WL-002",
-    patientName: "陈丽娟",
-    phone: "13800138091",
-    examItemName: "腰椎MR平扫",
-    modality: "MR",
-    preferredDate: "2026-05-01",
-    preferredTime: "10:00",
-    priority: "normal",
-    addedAt: "2026-04-30 10:00",
-    notified: false,
-  },
-  {
-    id: "WL-003",
-    patientName: "林志鹏",
-    phone: "13800138092",
-    examItemName: "胸部DR正侧位",
-    modality: "DR",
-    preferredDate: "2026-05-02",
-    preferredTime: "09:00",
-    priority: "normal",
-    addedAt: "2026-04-30 11:00",
-    notified: false,
-  },
-  {
-    id: "WL-004",
-    patientName: "黄晓东",
-    phone: "13800138093",
-    examItemName: "冠脉CTA",
-    modality: "CT",
-    preferredDate: "2026-05-02",
-    preferredTime: "14:00",
-    priority: "critical",
-    addedAt: "2026-04-30 12:00",
-    notified: false,
-  },
-  {
-    id: "WL-005",
-    patientName: "徐秀兰",
-    phone: "13800138094",
-    examItemName: "乳腺钼靶",
-    modality: "乳腺钼靶",
-    preferredDate: "2026-05-03",
-    preferredTime: "10:00",
-    priority: "normal",
-    addedAt: "2026-04-30 14:00",
-    notified: false,
-  },
-];
 
 // ==================== 模拟预约数据 ====================
-const generateMockAppointments = (): Appointment[] => {
-  const today = new Date();
-  const base = formatDate(today);
-  return [
-    {
-      id: "APT-001",
-      patientId: "RAD-P001",
-      patientName: "张志刚",
-      patientInitials: "张志",
-      gender: "男",
-      age: 62,
-      idCard: "3101011964021XXXXX",
-      phone: "13800138001",
-      examItemId: "EI-CT-006",
-      examItemName: "冠脉CTA",
-      modality: "CT",
-      bodyPart: "心脏",
-      examDate: base,
-      examTime: "09:00",
-      deviceId: "DEV-CT-01",
-      deviceName: "CT-1（GE Revolution CT）",
-      roomId: "ROOM-CT1",
-      roomName: "CT室1",
-      referringDoctorId: "R001",
-      referringDoctorName: "李明辉",
-      clinicalDiagnosis: "冠心病待查",
-      notes: "需控制心率",
-      status: "confirmed",
-      priority: "urgent",
-      createdAt: "2026-04-28 10:00",
-      updatedAt: "2026-04-28 10:00",
-    },
-    {
-      id: "APT-002",
-      patientId: "RAD-P002",
-      patientName: "李秀英",
-      patientInitials: "李秀",
-      gender: "女",
-      age: 55,
-      idCard: "3101021970021XXXXX",
-      phone: "13800138002",
-      examItemId: "EI-MR-001",
-      examItemName: "头颅MR平扫",
-      modality: "MR",
-      bodyPart: "头颅",
-      examDate: base,
-      examTime: "10:00",
-      deviceId: "DEV-MR-01",
-      deviceName: "MR-1（西门子MAGNETOM Vida）",
-      roomId: "ROOM-MR1",
-      roomName: "MR室1",
-      referringDoctorId: "R002",
-      referringDoctorName: "王秀峰",
-      clinicalDiagnosis: "头痛待查",
-      notes: "",
-      status: "pending",
-      priority: "normal",
-      createdAt: "2026-04-29 08:00",
-      updatedAt: "2026-04-29 08:00",
-    },
-    {
-      id: "APT-003",
-      patientId: "RAD-P003",
-      patientName: "王建国",
-      patientInitials: "王建",
-      gender: "男",
-      age: 58,
-      idCard: "3101031968011XXXXX",
-      phone: "13800138003",
-      examItemId: "EI-DR-001",
-      examItemName: "胸部DR正侧位",
-      modality: "DR",
-      bodyPart: "胸部",
-      examDate: base,
-      examTime: "09:30",
-      deviceId: "DEV-DR-01",
-      deviceName: "DR-1（飞利浦DigitalDiagnost）",
-      roomId: "ROOM-DR1",
-      roomName: "DR室1",
-      referringDoctorId: "R003",
-      referringDoctorName: "张海涛",
-      clinicalDiagnosis: "健康体检",
-      notes: "",
-      status: "checked-in",
-      priority: "normal",
-      createdAt: "2026-04-27 14:00",
-      updatedAt: "2026-04-30 07:30",
-    },
-    {
-      id: "APT-004",
-      patientId: "RAD-P004",
-      patientName: "赵晓敏",
-      patientInitials: "赵晓",
-      gender: "女",
-      age: 45,
-      idCard: "3101041978011XXXXX",
-      phone: "13800138004",
-      examItemId: "EI-CT-001",
-      examItemName: "头颅CT平扫",
-      modality: "CT",
-      bodyPart: "头颅",
-      examDate: base,
-      examTime: "11:00",
-      deviceId: "DEV-CT-01",
-      deviceName: "CT-1（GE Revolution CT）",
-      roomId: "ROOM-CT1",
-      roomName: "CT室1",
-      referringDoctorId: "R004",
-      referringDoctorName: "刘芳",
-      clinicalDiagnosis: "外伤后头晕",
-      notes: "急诊绿色通道",
-      status: "confirmed",
-      priority: "critical",
-      createdAt: "2026-05-01 06:00",
-      updatedAt: "2026-05-01 06:00",
-    },
-    {
-      id: "APT-005",
-      patientId: "RAD-P005",
-      patientName: "周玉芬",
-      patientInitials: "周玉",
-      gender: "女",
-      age: 52,
-      idCard: "3101051973021XXXXX",
-      phone: "13800138005",
-      examItemId: "EI-CT-003",
-      examItemName: "腹部CT平扫+增强",
-      modality: "CT",
-      bodyPart: "腹部",
-      examDate: base,
-      examTime: "14:00",
-      deviceId: "DEV-CT-02",
-      deviceName: "CT-2（西门子SOMATOM Force）",
-      roomId: "ROOM-CT2",
-      roomName: "CT室2",
-      referringDoctorId: "R001",
-      referringDoctorName: "李明辉",
-      clinicalDiagnosis: "肝占位待查",
-      notes: "空腹4h，增强需留置针",
-      status: "pending",
-      priority: "urgent",
-      createdAt: "2026-04-30 09:00",
-      updatedAt: "2026-04-30 09:00",
-    },
-    {
-      id: "APT-006",
-      patientId: "RAD-P006",
-      patientName: "孙伟",
-      patientInitials: "孙伟",
-      gender: "男",
-      age: 35,
-      idCard: "3101061990011XXXXX",
-      phone: "13800138006",
-      examItemId: "EI-MR-003",
-      examItemName: "腰椎MR平扫",
-      modality: "MR",
-      bodyPart: "脊柱",
-      examDate: base,
-      examTime: "15:00",
-      deviceId: "DEV-MR-01",
-      deviceName: "MR-1（西门子MAGNETOM Vida）",
-      roomId: "ROOM-MR1",
-      roomName: "MR室1",
-      referringDoctorId: "R003",
-      referringDoctorName: "张海涛",
-      clinicalDiagnosis: "腰痛待查",
-      notes: "",
-      status: "confirmed",
-      priority: "normal",
-      createdAt: "2026-04-30 11:00",
-      updatedAt: "2026-04-30 11:00",
-    },
-    {
-      id: "APT-007",
-      patientId: "RAD-P007",
-      patientName: "吴婷",
-      patientInitials: "吴婷",
-      gender: "女",
-      age: 42,
-      idCard: "3101071978021XXXXX",
-      phone: "13800138007",
-      examItemId: "EI-MG-001",
-      examItemName: "乳腺钼靶",
-      modality: "乳腺钼靶",
-      bodyPart: "胸部",
-      examDate: base,
-      examTime: "10:00",
-      deviceId: "DEV-MG-01",
-      deviceName: "乳腺钼靶（GE Senographe）",
-      roomId: "ROOM-MG1",
-      roomName: "钼靶室1",
-      referringDoctorId: "R004",
-      referringDoctorName: "刘芳",
-      clinicalDiagnosis: "乳腺结节随访",
-      notes: "月经结束后7-10天最佳",
-      status: "confirmed",
-      priority: "normal",
-      createdAt: "2026-04-29 15:00",
-      updatedAt: "2026-04-29 15:00",
-    },
-    {
-      id: "APT-008",
-      patientId: "RAD-P008",
-      patientName: "郑丽",
-      patientInitials: "郑丽",
-      gender: "女",
-      age: 38,
-      idCard: "3101081982021XXXXX",
-      phone: "13800138008",
-      examItemId: "EI-DR-002",
-      examItemName: "腹部立卧位平片",
-      modality: "DR",
-      bodyPart: "腹部",
-      examDate: base,
-      examTime: "08:00",
-      deviceId: "DEV-DR-02",
-      deviceName: "DR-2（GE Optima）",
-      roomId: "ROOM-DR2",
-      roomName: "DR室2",
-      referringDoctorId: "R002",
-      referringDoctorName: "王秀峰",
-      clinicalDiagnosis: "肠梗阻待查",
-      notes: "急查",
-      status: "no-show",
-      priority: "urgent",
-      createdAt: "2026-05-01 07:00",
-      updatedAt: "2026-05-01 08:30",
-    },
-    {
-      id: "APT-009",
-      patientId: "RAD-P001",
-      patientName: "张志刚",
-      patientInitials: "张志",
-      gender: "男",
-      age: 62,
-      idCard: "3101011964021XXXXX",
-      phone: "13800138001",
-      examItemId: "EI-DSA-001",
-      examItemName: "冠脉造影",
-      modality: "DSA",
-      bodyPart: "心脏",
-      examDate: formatDate(new Date(today.getTime() + 86400000)),
-      examTime: "08:30",
-      deviceId: "DEV-DSA-01",
-      deviceName: "DSA-1（飞利浦Azurion 7）",
-      roomId: "ROOM-DSA1",
-      roomName: "DSA室1",
-      referringDoctorId: "R001",
-      referringDoctorName: "李明辉",
-      clinicalDiagnosis: "冠心病三支病变",
-      notes: "支架治疗前评估",
-      status: "confirmed",
-      priority: "urgent",
-      createdAt: "2026-04-28 10:00",
-      updatedAt: "2026-04-28 10:00",
-    },
-    {
-      id: "APT-010",
-      patientId: "RAD-P002",
-      patientName: "李秀英",
-      patientInitials: "李秀",
-      gender: "女",
-      age: 55,
-      idCard: "3101021970021XXXXX",
-      phone: "13800138002",
-      examItemId: "EI-CT-002",
-      examItemName: "胸部CT平扫",
-      modality: "CT",
-      bodyPart: "胸部",
-      examDate: formatDate(new Date(today.getTime() + 86400000)),
-      examTime: "09:30",
-      deviceId: "DEV-CT-01",
-      deviceName: "CT-1（GE Revolution CT）",
-      roomId: "ROOM-CT1",
-      roomName: "CT室1",
-      referringDoctorId: "R002",
-      referringDoctorName: "王秀峰",
-      clinicalDiagnosis: "肺炎复查",
-      notes: "",
-      status: "pending",
-      priority: "normal",
-      createdAt: "2026-04-30 16:00",
-      updatedAt: "2026-04-30 16:00",
-    },
-    {
-      id: "APT-011",
-      patientId: "RAD-P003",
-      patientName: "王建国",
-      patientInitials: "王建",
-      gender: "男",
-      age: 58,
-      idCard: "3101031968011XXXXX",
-      phone: "13800138003",
-      examItemId: "EI-CT-005",
-      examItemName: "脊柱CT",
-      modality: "CT",
-      bodyPart: "脊柱",
-      examDate: formatDate(new Date(today.getTime() + 86400000)),
-      examTime: "14:00",
-      deviceId: "DEV-CT-02",
-      deviceName: "CT-2（西门子SOMATOM Force）",
-      roomId: "ROOM-CT2",
-      roomName: "CT室2",
-      referringDoctorId: "R003",
-      referringDoctorName: "张海涛",
-      clinicalDiagnosis: "腰椎间盘突出",
-      notes: "",
-      status: "confirmed",
-      priority: "normal",
-      createdAt: "2026-04-30 14:00",
-      updatedAt: "2026-04-30 14:00",
-    },
-    {
-      id: "APT-012",
-      patientId: "RAD-P004",
-      patientName: "赵晓敏",
-      patientInitials: "赵晓",
-      gender: "女",
-      age: 45,
-      idCard: "3101041978011XXXXX",
-      phone: "13800138004",
-      examItemId: "EI-MR-002",
-      examItemName: "腹部MR平扫+增强",
-      modality: "MR",
-      bodyPart: "腹部",
-      examDate: formatDate(new Date(today.getTime() + 86400000 * 2)),
-      examTime: "10:00",
-      deviceId: "DEV-MR-01",
-      deviceName: "MR-1（西门子MAGNETOM Vida）",
-      roomId: "ROOM-MR1",
-      roomName: "MR室1",
-      referringDoctorId: "R004",
-      referringDoctorName: "刘芳",
-      clinicalDiagnosis: "肝占位增强",
-      notes: "空腹6h",
-      status: "pending",
-      priority: "urgent",
-      createdAt: "2026-05-01 08:00",
-      updatedAt: "2026-05-01 08:00",
-    },
-    {
-      id: "APT-013",
-      patientId: "RAD-P005",
-      patientName: "周玉芬",
-      patientInitials: "周玉",
-      gender: "女",
-      age: 52,
-      idCard: "3101051973021XXXXX",
-      phone: "13800138005",
-      examItemId: "EI-RF-001",
-      examItemName: "上消化道造影",
-      modality: "胃肠造影",
-      bodyPart: "腹部",
-      examDate: formatDate(new Date(today.getTime() + 86400000)),
-      examTime: "15:00",
-      deviceId: "DEV-RF-01",
-      deviceName: "胃肠造影（岛津Flexavision）",
-      roomId: "ROOM-RF1",
-      roomName: "造影室1",
-      referringDoctorId: "R001",
-      referringDoctorName: "李明辉",
-      clinicalDiagnosis: "消化不良待查",
-      notes: "",
-      status: "cancelled",
-      priority: "normal",
-      cancelReason: "reschedule",
-      createdAt: "2026-04-29 10:00",
-      updatedAt: "2026-05-01 09:00",
-    },
-  ];
-};
 
 // ==================== 模拟设备规则 ====================
-const generateDefaultRules = (): AppointmentRules[] => {
-  return [
-    {
-      deviceId: "DEV-CT-01",
-      deviceName: "CT-1（GE Revolution CT）",
-      maxDailyAppointments: 60,
-      maxPerTimeSlot: 4,
-      minAdvanceDays: 0,
-      maxAdvanceDays: 30,
-      noShowPenalty: 50,
-      enabled: true,
-    },
-    {
-      deviceId: "DEV-CT-02",
-      deviceName: "CT-2（西门子SOMATOM Force）",
-      maxDailyAppointments: 50,
-      maxPerTimeSlot: 4,
-      minAdvanceDays: 0,
-      maxAdvanceDays: 30,
-      noShowPenalty: 50,
-      enabled: true,
-    },
-    {
-      deviceId: "DEV-MR-01",
-      deviceName: "MR-1（西门子MAGNETOM Vida）",
-      maxDailyAppointments: 35,
-      maxPerTimeSlot: 2,
-      minAdvanceDays: 0,
-      maxAdvanceDays: 30,
-      noShowPenalty: 80,
-      enabled: true,
-    },
-    {
-      deviceId: "DEV-MR-02",
-      deviceName: "MR-2（飞利浦Ingenia）",
-      maxDailyAppointments: 35,
-      maxPerTimeSlot: 2,
-      minAdvanceDays: 0,
-      maxAdvanceDays: 30,
-      noShowPenalty: 80,
-      enabled: false,
-    },
-    {
-      deviceId: "DEV-DR-01",
-      deviceName: "DR-1（飞利浦DigitalDiagnost）",
-      maxDailyAppointments: 120,
-      maxPerTimeSlot: 8,
-      minAdvanceDays: 0,
-      maxAdvanceDays: 30,
-      noShowPenalty: 20,
-      enabled: true,
-    },
-    {
-      deviceId: "DEV-DR-02",
-      deviceName: "DR-2（GE Optima）",
-      maxDailyAppointments: 100,
-      maxPerTimeSlot: 8,
-      minAdvanceDays: 0,
-      maxAdvanceDays: 30,
-      noShowPenalty: 20,
-      enabled: true,
-    },
-    {
-      deviceId: "DEV-DSA-01",
-      deviceName: "DSA-1（飞利浦Azurion 7）",
-      maxDailyAppointments: 10,
-      maxPerTimeSlot: 1,
-      minAdvanceDays: 1,
-      maxAdvanceDays: 14,
-      noShowPenalty: 200,
-      enabled: true,
-    },
-    {
-      deviceId: "DEV-MG-01",
-      deviceName: "乳腺钼靶（GE Senographe）",
-      maxDailyAppointments: 25,
-      maxPerTimeSlot: 2,
-      minAdvanceDays: 0,
-      maxAdvanceDays: 30,
-      noShowPenalty: 30,
-      enabled: true,
-    },
-    {
-      deviceId: "DEV-RF-01",
-      deviceName: "胃肠造影（岛津Flexavision）",
-      maxDailyAppointments: 20,
-      maxPerTimeSlot: 2,
-      minAdvanceDays: 0,
-      maxAdvanceDays: 14,
-      noShowPenalty: 30,
-      enabled: true,
-    },
-  ];
-};
 
 // ==================== 虚构提醒记录数据（30条）====================
-const generateMockReminderRecords = (): ReminderRecord[] => {
-  const today = new Date();
-  const base = formatDate(today);
-  const names = [
-    "张志刚",
-    "李秀英",
-    "王建国",
-    "赵晓敏",
-    "周玉芬",
-    "孙伟",
-    "吴婷",
-    "郑丽",
-    "钱伟明",
-    "陈丽娟",
-    "林志鹏",
-    "黄晓东",
-    "徐秀兰",
-    "高峰",
-    "曹建国",
-    "丁娜",
-    "唐志远",
-    "彭海军",
-    "冯玉英",
-    "韩志明",
-    "杨丽华",
-    "朱志鹏",
-    "秦晓峰",
-    "许秀英",
-    "何建国",
-    "罗玉芬",
-    "蒋志刚",
-    "韦秀英",
-    "宋志明",
-    "杜丽娟",
-  ];
-  const phones = [
-    "13800138001",
-    "13800138002",
-    "13800138003",
-    "13800138004",
-    "13800138005",
-    "13800138006",
-    "13800138007",
-    "13800138008",
-    "13800138009",
-    "13800138010",
-    "13800138011",
-    "13800138012",
-    "13800138013",
-    "13800138014",
-    "13800138015",
-    "13800138016",
-    "13800138017",
-    "13800138018",
-    "13800138019",
-    "13800138020",
-    "13800138021",
-    "13800138022",
-    "13800138023",
-    "13800138024",
-    "13800138025",
-    "13800138026",
-    "13800138027",
-    "13800138028",
-    "13800138029",
-    "13800138030",
-  ];
-  const examTypes = [
-    "冠脉CTA",
-    "头颅CT平扫",
-    "胸部CT平扫",
-    "头颅MR平扫",
-    "腰椎MR平扫",
-    "乳腺钼靶",
-    "腹部CT平扫+增强",
-    "冠脉造影",
-    "胸部DR正侧位",
-    "上消化道造影",
-  ];
-  const channels: ReminderChannel[] = ["短信", "微信", "APP推送"];
-  const statuses: ReminderStatus[] = ["已发送", "已确认", "已改期", "已取消"];
-  const responseHours = [
-    "0.5h",
-    "1h",
-    "2h",
-    "3h",
-    "5h",
-    "8h",
-    "12h",
-    "24h",
-    "未响应",
-  ];
-
-  return Array.from({ length: 30 }, (_, i) => {
-    const examDate = formatDate(new Date(today.getTime() - (i % 7) * 86400000));
-    const examTime = ["08:00", "09:00", "10:00", "14:00", "15:00"][i % 5];
-    const reminderDate = formatDate(
-      new Date(new Date(examDate).getTime() - 86400000),
-    );
-    const channel = channels[i % 3];
-    const status = statuses[Math.floor(Math.random() * 10)] as ReminderStatus;
-    const responseIdx =
-      status === "已确认"
-        ? Math.floor(Math.random() * 7)
-        : status === "已发送"
-          ? 8
-          : status === "已改期"
-            ? Math.floor(Math.random() * 6)
-            : 8;
-
-    return {
-      id: `REM-${String(i + 1).padStart(3, "0")}`,
-      patientName: names[i],
-      phone: phones[i],
-      examType: examTypes[i % examTypes.length],
-      examDate,
-      examTime,
-      reminderTime: `${reminderDate} ${["08:00", "09:00", "10:00", "14:00"][i % 4]}`,
-      channel,
-      status,
-      responseTime: responseHours[responseIdx],
-    };
-  });
-};
 
 // ==================== 虚构改期记录数据 ====================
-const generateMockRescheduleRecords = (): RescheduleRecord[] => {
-  const today = new Date();
-  const base = formatDate(today);
-  const names = [
-    "张志刚",
-    "李秀英",
-    "王建国",
-    "赵晓敏",
-    "周玉芬",
-    "孙伟",
-    "吴婷",
-    "郑丽",
-    "钱伟明",
-    "陈丽娟",
-  ];
-  const phones = [
-    "13800138001",
-    "13800138002",
-    "13800138003",
-    "13800138004",
-    "13800138005",
-    "13800138006",
-    "13800138007",
-    "13800138008",
-    "13800138009",
-    "13800138010",
-  ];
-  const examTypes = [
-    "冠脉CTA",
-    "头颅CT平扫",
-    "胸部CT平扫",
-    "头颅MR平扫",
-    "腰椎MR平扫",
-    "乳腺钼靶",
-    "腹部CT平扫+增强",
-    "冠脉造影",
-    "胸部DR正侧位",
-    "上消化道造影",
-  ];
-  const reasons: ("patient" | "doctor" | "device")[] = [
-    "patient",
-    "doctor",
-    "device",
-  ];
-
-  return Array.from({ length: 15 }, (_, i) => {
-    const originalDate = formatDate(
-      new Date(today.getTime() - (i + 1) * 86400000),
-    );
-    const newDate = formatDate(new Date(today.getTime() - i * 86400000));
-    return {
-      id: `RS-${String(i + 1).padStart(3, "0")}`,
-      patientName: names[i % names.length],
-      phone: phones[i % phones.length],
-      examType: examTypes[i % examTypes.length],
-      originalDate,
-      originalTime: ["08:00", "09:00", "10:00", "14:00", "15:00"][i % 5],
-      newDate,
-      newTime: ["08:30", "09:30", "10:30", "14:30", "15:30"][i % 5],
-      reason: reasons[i % 3],
-      operateTime: `${formatDate(new Date(today.getTime() - i * 43200000))} ${["10:00", "11:00", "14:00", "15:00", "16:00"][i % 5]}`,
-    };
-  });
-};
 
 // ==================== 虚构取消记录数据 ====================
-const generateMockCancellationRecords = (): CancellationRecord[] => {
-  const today = new Date();
-  const names = [
-    "张志刚",
-    "李秀英",
-    "王建国",
-    "赵晓敏",
-    "周玉芬",
-    "孙伟",
-    "吴婷",
-    "郑丽",
-    "钱伟明",
-    "陈丽娟",
-    "林志鹏",
-    "黄晓东",
-  ];
-  const phones = [
-    "13800138001",
-    "13800138002",
-    "13800138003",
-    "13800138004",
-    "13800138005",
-    "13800138006",
-    "13800138007",
-    "13800138008",
-    "13800138009",
-    "13800138010",
-    "13800138011",
-    "13800138012",
-  ];
-  const examTypes = [
-    "冠脉CTA",
-    "头颅CT平扫",
-    "胸部CT平扫",
-    "头颅MR平扫",
-    "腰椎MR平扫",
-    "乳腺钼靶",
-    "腹部CT平扫+增强",
-    "冠脉造影",
-    "胸部DR正侧位",
-    "上消化道造影",
-    "脊柱CT",
-    "腹部立卧位平片",
-  ];
-  const cancelReasons = [
-    "患者主动取消",
-    "患者主动取消",
-    "患者临时有事",
-    "设备故障",
-    "医生调整时间",
-    "患者主动取消",
-    "患者需复查后决定",
-    "患者主动取消",
-    "设备维护",
-    "医生调整时间",
-    "患者主动取消",
-    "患者转院",
-  ];
-
-  return Array.from({ length: 12 }, (_, i) => {
-    const cancelDate = formatDate(
-      new Date(today.getTime() - (i + 1) * 86400000),
-    );
-    return {
-      id: `CXL-${String(i + 1).padStart(3, "0")}`,
-      patientName: names[i],
-      phone: phones[i],
-      examType: examTypes[i % examTypes.length],
-      cancelTime: `${cancelDate} ${["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"][i % 6]}`,
-      reason: cancelReasons[i],
-      rebooked: (i % 3 === 0 ? "是" : i % 3 === 1 ? "否" : "待确认") as
-        | "是"
-        | "否"
-        | "待确认",
-    };
-  });
-};
 
 // ==================== 主组件 ====================
 export default function AppointmentPage() {
@@ -1185,8 +354,8 @@ export default function AppointmentPage() {
     "calendar",
   );
   const [selectedDevice, setSelectedDevice] = useState<string>("all");
-  const [listFilterDate, setListFilterDate] = useState<string>("");
-  const [listFilterStatus, setListFilterStatus] = useState<string>("all");
+  const [listFilterDate] = useState<string>("");
+  const [listFilterStatus] = useState<string>("all");
   const [searchKeyword, setSearchKeyword] = useState("");
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1202,8 +371,10 @@ export default function AppointmentPage() {
           appointmentApi.getRules(),
         ]);
         if (cancelled) return;
-        if (aptRes.success && Array.isArray(aptRes.data)) {
-          setAppointments(aptRes.data as unknown as Appointment[]);
+        // [G005 P0] 列表形状兼容: MSW 裸数组 / Nest {items,total}
+        const aptItems = (aptRes.data as { items?: unknown[] } | null)?.items ?? aptRes.data;
+        if (aptRes.success && Array.isArray(aptItems)) {
+          setAppointments(aptItems as unknown as Appointment[]);
           setLoadError(null);
         } else {
           setAppointments([]);
@@ -1270,15 +441,10 @@ export default function AppointmentPage() {
   const [cancelReasonError, setCancelReasonError] = useState("");
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  const fieldError = (key: string) => formErrors[key];
-  const borderColor = (key: string) =>
-    formErrors[key] ? "#dc2626" : borderGray;
-
   // 日历子视图: day/week/month
   const [calendarSubView, setCalendarSubView] = useState<
     "day" | "week" | "month"
   >("week");
-  const [selectedDay, setSelectedDay] = useState<Date>(new Date());
 
   // 等候名单
   const [waitlist, setWaitlist] = useState<WaitlistPatient[]>([]);
@@ -1302,33 +468,10 @@ export default function AppointmentPage() {
   const [reminderTab, setReminderTab] = useState<
     "reminders" | "reschedules" | "cancellations"
   >("reminders");
-  const [reminderFilterStatus, setReminderFilterStatus] =
+  const [reminderFilterStatus] =
     useState<string>("all");
-  const [reminderFilterChannel, setReminderFilterChannel] =
+  const [reminderFilterChannel] =
     useState<string>("all");
-  const [rescheduleFilterReason, setRescheduleFilterReason] =
-    useState<string>("all");
-  const [cancelFilterRebooked, setCancelFilterRebooked] =
-    useState<string>("all");
-
-  // 提醒配置
-  const [reminderConfig, setReminderConfig] = useState<ReminderConfig>({
-    before24hEnabled: true,
-    before24hTime: "20:00",
-    before2hEnabled: true,
-    before2hTime: "07:00",
-    before30minEnabled: false,
-    before30minTime: "07:30",
-    recheck1dayEnabled: true,
-    smsEnabled: true,
-    wechatEnabled: true,
-    appEnabled: false,
-    template24h:
-      "尊敬的{患者姓名}您好，您预约的{检查项目}将于明天{预约时间}进行，请准时到达。",
-    template2h: "提醒：您的{检查项目}将于{预约时间}开始，请提前到检。",
-    template30min: "紧急提醒：您的{检查项目}将于30分钟后开始，请立即到检。",
-    templatRecheck: "您的复查项目{检查项目}已可预约，请点击链接选择时间。",
-  });
 
   // 新建预约表单状态
   const [formData, setFormData] = useState({
@@ -1444,57 +587,6 @@ export default function AppointmentPage() {
     return appointments.filter(a => a.examDate === today);
   }, [appointments]);
 
-  // 提醒统计
-  const reminderStats = useMemo(() => {
-    const total = reminderRecords.length;
-    const confirmed = reminderRecords.filter(
-      (r) => r.status === "已确认",
-    ).length;
-    const noShow = reminderRecords.filter((r) => r.status === "已取消").length;
-    const rescheduled = reminderRecords.filter(
-      (r) => r.status === "已改期",
-    ).length;
-    const confirmedRate = total > 0 ? Math.round((confirmed / total) * 100) : 0;
-    const noShowRate = total > 0 ? Math.round((noShow / total) * 100) : 0;
-    // 平均响应时间
-    const respondedRecords = reminderRecords.filter(
-      (r) => r.responseTime !== "未响应",
-    );
-    const responseSum = respondedRecords.reduce((acc, r) => {
-      const hours = parseFloat(r.responseTime.replace("h", ""));
-      return acc + hours;
-    }, 0);
-    const avgResponseTime =
-      respondedRecords.length > 0
-        ? (responseSum / respondedRecords.length).toFixed(1)
-        : "0";
-    return {
-      total,
-      confirmed,
-      noShow,
-      rescheduled,
-      confirmedRate,
-      noShowRate,
-      avgResponseTime,
-    };
-  }, [reminderRecords]);
-
-  // 渠道效果对比
-  const channelStats = useMemo(() => {
-    const channels: ReminderChannel[] = ["短信", "微信", "APP推送"];
-    return channels.map((ch) => {
-      const records = reminderRecords.filter((r) => r.channel === ch);
-      const total = records.length;
-      const confirmed = records.filter((r) => r.status === "已确认").length;
-      return {
-        channel: ch,
-        total,
-        confirmed,
-        rate: total > 0 ? Math.round((confirmed / total) * 100) : 0,
-      };
-    });
-  }, [reminderRecords]);
-
   // 过滤后的提醒记录
   const filteredReminderRecords = useMemo(() => {
     let list = [...reminderRecords];
@@ -1506,25 +598,6 @@ export default function AppointmentPage() {
     }
     return list;
   }, [reminderRecords, reminderFilterStatus, reminderFilterChannel]);
-
-  // 导航函数
-  const goToPrevWeek = () => {
-    const prev = new Date(currentWeekStart);
-    prev.setDate(prev.getDate() - 7);
-    setCurrentWeekStart(prev);
-  };
-  const goToNextWeek = () => {
-    const next = new Date(currentWeekStart);
-    next.setDate(next.getDate() + 7);
-    setCurrentWeekStart(next);
-  };
-  const goToToday = () => {
-    const today = new Date();
-    const day = today.getDay();
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - (day === 0 ? 6 : day - 1));
-    setCurrentWeekStart(monday);
-  };
 
   // 统计某日某设备的预约数
   const getDeviceDayStats = (date: Date, deviceId: string) => {
@@ -1539,7 +612,7 @@ export default function AppointmentPage() {
   };
 
   // 新建预约提交 (P0): 参数与后端 schema 对齐, 以服务端返回对象更新列表
-  const buildCreatePayload = (): AppointmentDto | null => {
+  const buildCreatePayload = (): Omit<AppointmentDto, "id" | "state" | "createdAt" | "updatedAt"> | null => {
     const device = initialModalityDevices.find((d) => d.id === formData.deviceId);
     const startAt = new Date(`${formData.examDate}T${formData.examTime || "08:00"}:00`);
     if (Number.isNaN(startAt.getTime())) return null;
@@ -1572,7 +645,7 @@ export default function AppointmentPage() {
     const start = new Date(dto.startAt);
     const date = `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, "0")}-${String(start.getDate()).padStart(2, "0")}`;
     const time = `${String(start.getHours()).padStart(2, "0")}:${String(start.getMinutes()).padStart(2, "0")}`;
-    const statusMap: Record<string, Appointment["status"]> = {
+    const statusMap: Record<string, string> = {
       SCHEDULED: "pending",
       CONFIRMED: "confirmed",
       REGISTERED: "pending",
@@ -1607,7 +680,7 @@ export default function AppointmentPage() {
       referringDoctorName: dto.referringDoctor || "",
       clinicalDiagnosis: dto.note || "",
       notes: dto.note || "",
-      status: statusMap[dto.state] ?? "pending",
+      status: (statusMap[dto.state] ?? "pending") as Appointment["status"],
       priority,
       createdAt: dto.createdAt || new Date().toLocaleString("zh-CN"),
       updatedAt: dto.updatedAt || new Date().toLocaleString("zh-CN"),
@@ -1732,22 +805,6 @@ export default function AppointmentPage() {
   const openDetail = (apt: Appointment) => {
     setSelectedAppointment(apt);
     setShowDetailModal(true);
-  };
-
-  // 设备ID → 模拟时段占用
-  const getSlotStatus = (
-    deviceId: string,
-    date: string,
-    time: string,
-  ): { available: boolean; booked: number; max: number } => {
-    const rule = rules.find((r) => r.deviceId === deviceId);
-    const max = rule?.maxPerTimeSlot || 4;
-    const key = `${date}::${deviceId}`;
-    const dayApts = appointmentsByDateDevice[key] || [];
-    const booked = dayApts.filter(
-      (a) => a.examTime === time && a.status !== "cancelled",
-    ).length;
-    return { available: booked < max, booked, max };
   };
 
   // 颜色定义
@@ -2176,10 +1233,7 @@ export default function AppointmentPage() {
               setFormErrors={setFormErrors}
               setValidationError={setValidationError}
               handleSubmit={handleCreateAppointment}
-              findConflicts={findConflicts}
-              appointments={appointments}
               timeSlots={timeSlots}
-              formatDate={formatDate}
             />{/* ====== 预约规则设置 ====== */}
             {showRules && (
               <div

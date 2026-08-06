@@ -53,4 +53,7 @@ export class CriticalExtController {
 
   @Get('receiver')
   getReceiverPortal() { return this.svc.getReceiverPortal() }
+
+  @Get('follow-up-records')
+  getFollowUpRecords() { return this.svc.getFollowUpRecords() }
 }

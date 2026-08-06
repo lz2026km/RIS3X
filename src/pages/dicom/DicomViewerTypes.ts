@@ -3,7 +3,7 @@ import React from 'react'
 export type WindowPreset = { name: string; ww: number; wc: number; icon?: string }
 export type MeasureType = 'length' | 'angle' | 'area' | 'ct'
 export type LayoutMode = '1x1' | '2x2' | '1x2' | '2x1'
-export type Tool = 'zoom' | 'pan' | 'wl' | 'rotate' | 'flipH' | 'flipV' | 'measure' | 'annotate' | 'play' | 'print'
+export type Tool = 'zoom' | 'pan' | 'wl' | 'rotate' | 'flipH' | 'flipV' | 'measure' | 'annotate' | 'play' | 'print' | 'reset'
 export type MeasureSubMenu = 'length' | 'angle' | 'area' | 'ct' | 'ellipse' | 'rectangle' | 'circle' | 'ctvalue' | null
 export type RightTab = 'patient' | 'image' | 'measure' | 'report' | 'history' | 'external'
 export type AnnotationType = 'text' | 'arrow' | 'rect' | 'ellipse'

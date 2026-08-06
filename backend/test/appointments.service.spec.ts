@@ -22,8 +22,8 @@ describe('AppointmentsService', () => {
     return {
       appointment: {
         findMany: jest.fn(),
-        findUnique: jest.fn(),
         findFirst: jest.fn(),
+        findUnique: jest.fn(),
         count: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
@@ -82,7 +82,7 @@ describe('AppointmentsService', () => {
       await svc.list({ state: 'SCHEDULED', deviceId: 'd1' })
       expect(mockPrismaService.appointment.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { state: 'SCHEDULED', deviceId: 'd1' },
+          where: expect.objectContaining({ state: 'SCHEDULED', deviceId: 'd1', tenantId: 'default' }),
         }),
       )
     })
@@ -104,15 +104,18 @@ describe('AppointmentsService', () => {
     it('returns appointment when found', async () => {
       const tx = createTxMock()
       mockPrismaService.appointment = tx.appointment
-      mockPrismaService.appointment.findUnique.mockResolvedValue(mockAppointment)
+      mockPrismaService.appointment.findFirst.mockResolvedValue(mockAppointment)
       const result = await svc.get('a1')
       expect(result.id).toBe('a1')
+      expect(mockPrismaService.appointment.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { id: 'a1', tenantId: 'default' } })
+      )
     })
 
     it('throws when not found', async () => {
       const tx = createTxMock()
       mockPrismaService.appointment = tx.appointment
-      mockPrismaService.appointment.findUnique.mockResolvedValue(null)
+      mockPrismaService.appointment.findFirst.mockResolvedValue(null)
       await expect(svc.get('x')).rejects.toThrow(NotFoundException)
     })
   })

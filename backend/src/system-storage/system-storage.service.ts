@@ -14,6 +14,7 @@ import {
   type StorageConfigDto,
   buildS3DriverOptions,
 } from '../common/storage/storage.module'
+import { isMaskedSecret, maskSecret } from '../common/storage/storage-crypto'
 
 export interface StorageStatsDto {
   driver: string
@@ -43,7 +44,10 @@ export class SystemStorageService {
   }> {
     const saved = await this.configService.getSaved().catch(() => null)
     const envDriver = (this.config.get<string>('STORAGE_DRIVER') ?? '').trim().toLowerCase() || null
-    const config: StorageConfigDto = saved ?? { driver: 'local' }
+    let config: StorageConfigDto = saved ?? { driver: 'local' }
+    if (config.driver === 's3' && config.secretKey) {
+      config = { ...config, secretKey: maskSecret(config.secretKey) }
+    }
     const active = await this.getStats()
     return {
       config,
@@ -57,11 +61,20 @@ export class SystemStorageService {
     const saved = await this.configService.save(cfg)
     const envDriver = (this.config.get<string>('STORAGE_DRIVER') ?? '').trim().toLowerCase()
     const applied = envDriver !== 's3' && envDriver !== 'local'
-    return { config: saved, applied }
+    let config = saved
+    if (config.driver === 's3' && config.secretKey) {
+      config = { ...config, secretKey: maskSecret(config.secretKey) }
+    }
+    return { config, applied }
   }
 
   async testConnection(cfg?: StorageConfigDto): Promise<StorageStatsDto> {
-    const target: StorageConfigDto = cfg && cfg.driver ? cfg : (await this.resolveEffective() ?? { driver: 'local' })
+    let target: StorageConfigDto = cfg && cfg.driver ? cfg : (await this.resolveEffective() ?? { driver: 'local' })
+    if (target.driver === 's3' && target.secretKey && isMaskedSecret(target.secretKey)) {
+      // 前端回传掩码: 用已保存的真实 secretKey 测试
+      const saved = await this.configService.getSaved().catch(() => null)
+      target = { ...target, secretKey: saved?.secretKey ?? '' }
+    }
     if (target.driver === 's3') {
       const driver = new S3StorageDriver(buildS3DriverOptions(target, 10_000))
       const result = await driver.testConnection()

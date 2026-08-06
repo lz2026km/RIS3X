@@ -400,16 +400,6 @@ export const shellBatch3Handlers = [
   }),
 
   // ========== Critical value 5-step workflow ==========
-  // [v3.0.6.11-60] 危急值随访记录 (须在 /criticals/:id 通配之前注册)
-  http.get(`${API_BASE}/criticals/follow-up-records`, async () => {
-    await delay(delayMs());
-    return HttpResponse.json(ok([
-      { id: 'FU-001', time: '2026-08-02 10:30', type: '电话回访', result: '已回复', operator: '王护士', content: '患者自述症状缓解，嘱按计划复查。', relatedCVId: 'CV5-004' },
-      { id: 'FU-002', time: '2026-08-02 15:10', type: '短信确认', result: '转接成功', operator: '李护士', content: '短信随访确认，患者状态稳定。', relatedCVId: 'CV5-003' },
-      { id: 'FU-003', time: '2026-08-03 09:05', type: '现场走访', result: '已回复', operator: '张医生', content: '术后复查恢复良好，建议 1 月后复查影像。', relatedCVId: 'CV5-001' },
-    ]));
-  }),
-
   http.get(`${API_BASE}/critical/value5step/list`, async () => {
     await delay(delayMs());
     let items: any[] = [];

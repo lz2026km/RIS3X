@@ -25,6 +25,7 @@ export class TenantController {
   }
 
   @Put('profile')
+  @Roles('ADMIN')
   @ApiOperation({ summary: '更新当前租户信息' })
   updateProfile(@Body(new ZodValidationPipe(UpdateTenantProfileSchema)) body: z.infer<typeof UpdateTenantProfileSchema>) {
     return this.tenant.updateProfile(body)
@@ -37,6 +38,7 @@ export class TenantController {
   }
 
   @Put('features')
+  @Roles('ADMIN')
   @ApiOperation({ summary: '更新当前租户功能开关' })
   updateFeatures(@Body(new ZodValidationPipe(UpdateTenantFeaturesSchema)) body: Partial<TenantFeatures>) {
     return this.tenant.updateFeatures(body)

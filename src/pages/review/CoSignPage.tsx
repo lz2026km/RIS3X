@@ -84,6 +84,7 @@ const CoSignPage: React.FC = () => {
         message.success("双签通过");
         setItems((prev) => prev.filter((i) => i.id !== item.id));
         setShowDetail(false);
+        fetchPending();
         fetchStats();
       }
     } catch {
@@ -109,6 +110,7 @@ const CoSignPage: React.FC = () => {
         setShowDetail(false);
         setShowRejectModal(false);
         setRejectReason("");
+        fetchPending();
         fetchStats();
       }
     } catch {

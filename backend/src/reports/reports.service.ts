@@ -1,7 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { QueueService } from '../queue/queue.service'
-import { getCurrentTenantId } from '../common/interceptors/tenant-context.interceptor'
+import { currentTenantId } from '../common/tenant/tenant-utils'
 import type { Prisma, ReportState, Report } from '@prisma/client'
 
 export const REPORT_TRANSITIONS: Record<ReportState, ReportState[]> = {
@@ -70,21 +70,23 @@ export class ReportsService {
 
   async list(params: { skip?: number; take?: number; state?: ReportState }) {
     const { skip = 0, take = 20, state } = params
+    const where: any = { tenantId: currentTenantId() }
+    if (state) where.state = state
     const [items, total] = await Promise.all([
       this.prisma.report.findMany({
         skip, take,
-        where: state ? { state } : undefined,
+        where,
         include: { patient: { select: { id: true, name: true, gender: true } } },
         orderBy: { updatedAt: 'desc' },
       }),
-      this.prisma.report.count({ where: state ? { state } : undefined }),
+      this.prisma.report.count({ where }),
     ])
     return { items: items.map(toReportDto), total, skip, take }
   }
 
   async get(id: string) {
-    const r = await this.prisma.report.findUnique({
-      where: { id },
+    const r = await this.prisma.report.findFirst({
+      where: { id, tenantId: currentTenantId() },
       include: {
         patient: true,
         radiologist: { select: { id: true, fullName: true, role: true } },
@@ -104,7 +106,7 @@ export class ReportsService {
         findings: dto.findings,
         conclusion: dto.conclusion,
         state: 'PENDING_ASSIGNMENT',
-        tenantId: getCurrentTenantId(),
+        tenantId: currentTenantId(),
       },
       include: { patient: { select: { id: true, name: true, gender: true } } },
     })
@@ -156,7 +158,7 @@ export class ReportsService {
           fromState: existing.state,
           toState: 'WITHDRAWN',
           reason,
-          tenantId: getCurrentTenantId(),
+          tenantId: currentTenantId(),
         },
       })
       return toReportDto(r)
@@ -212,7 +214,7 @@ export class ReportsService {
         include: { patient: { select: { id: true, name: true, gender: true } } },
       })
       await tx.reportRevision.create({
-        data: { reportId: id, actorId, fromState: report.state, toState: to, reason: reason ?? null, tenantId: getCurrentTenantId() },
+        data: { reportId: id, actorId, fromState: report.state, toState: to, reason: reason ?? null, tenantId: currentTenantId() },
       })
       return toReportDto(r)
     })

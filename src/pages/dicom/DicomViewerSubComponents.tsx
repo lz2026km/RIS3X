@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import type { Tool, PseudoColorMode, MeasureSubMenu, Series, DicomImage, MipDirection } from './DicomViewerTypes'
+import type { Tool, PseudoColorMode, Series, MipDirection } from './DicomViewerTypes'
 
 export function Tooltip({ children, title }: { children: React.ReactNode; title: string }) {
   const [show, setShow] = useState(false)
@@ -33,9 +33,9 @@ export function Tooltip({ children, title }: { children: React.ReactNode; title:
 }
 
 export function MIPCanvas({
-  mipDirection, mipFrame, totalFrames, ww, wl,
+  mipDirection, mipFrame, ww, wl,
 }: {
-  mipDirection: MipDirection; mipFrame: number; totalFrames: number; ww: number; wl: number
+  mipDirection: MipDirection; mipFrame: number; ww: number; wl: number
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -132,7 +132,7 @@ export function VRCanvas({
 
   useEffect(() => {
     if (!sceneRef.current) return
-    const THREE = require('three')
+    require('three')
     sceneRef.current.rotation.set((rotX * Math.PI) / 180, (rotY * Math.PI) / 180, (rotZ * Math.PI) / 180)
   }, [rotX, rotY, rotZ])
 
@@ -148,20 +148,16 @@ export function VRCanvas({
 
 export function DicomCanvas({
   zoom, rotation, flipH, flipV, ww, wl, brightness, contrast, invert,
-  activeTool, panX, panY, windowPreset, measureType, activeSeries,
-  imageIndex, images, pseudoColorMode, onWheel
+  activeTool, panX, panY, activeSeries, pseudoColorMode
 }: {
   zoom: number; rotation: number; flipH: boolean; flipV: boolean;
   ww: number; wl: number; brightness: number; contrast: number; invert?: boolean;
   activeTool: Tool; panX: number; panY: number;
-  windowPreset: string; measureType: MeasureSubMenu;
-  activeSeries: Series; imageIndex: number; images: DicomImage[];
+  activeSeries: Series;
   pseudoColorMode?: PseudoColorMode;
-  onWheel?: (deltaY: number, deltaX: number) => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  const img = images[imageIndex] || images[0]
   const w = 512; const h = 512
 
   const applyPseudoColor = (gray: number, mode: PseudoColorMode) => {
@@ -266,13 +262,13 @@ export function DicomCanvas({
         const idx = y * w + x; const pixelIdx = idx * 4
         let r: number, g: number, b: number, gray: number
         if (activeSeries.modality === 'MR') {
-          r = rawData[idx * 3]; g = rawData[idx * 3 + 1]; b = rawData[idx * 3 + 2]
+          r = rawData[idx * 3]!; g = rawData[idx * 3 + 1]!; b = rawData[idx * 3 + 2]!
           const wwFactor = ww / 400; const wlFactor = (wl - 40) / 100
           r = Math.max(0, Math.min(255, r * wwFactor + wlFactor * 50))
           g = Math.max(0, Math.min(255, g * wwFactor + wlFactor * 50))
           b = Math.max(0, Math.min(255, b * wwFactor + wlFactor * 50))
         } else {
-          gray = rawData[idx]
+          gray = rawData[idx]!
           const windowedGray = windowLevel(gray * (ww / 400) + (wl - 40), 128, 256) * 255
           const finalGray = Math.max(0, Math.min(255, windowedGray))
           if (pseudoColorMode && pseudoColorMode !== 'none') {

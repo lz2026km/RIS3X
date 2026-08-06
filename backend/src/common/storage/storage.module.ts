@@ -10,6 +10,7 @@ import { Global, Injectable, Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { PrismaService } from '../../prisma/prisma.service'
 import { S3StorageDriver, type S3StorageDriverOptions } from './s3-storage.driver'
+import { decryptSecret, encryptSecret, isMaskedSecret } from './storage-crypto'
 import type { StorageDriver } from './storage.interface'
 
 export const STORAGE_DRIVER = Symbol('STORAGE_DRIVER')
@@ -90,19 +91,33 @@ export class StorageConfigService {
   async getSaved(): Promise<StorageConfigDto | null> {
     const row = await this.prisma.systemConfig.findUnique({ where: { key: STORAGE_CONFIG_KEY } })
     if (!row?.value) return null
-    const value = row.value as unknown as StorageConfigDto
+    let value = row.value as unknown as StorageConfigDto
     if (value?.driver !== 's3' && value?.driver !== 'local') return null
+    // 解密存储的 secretKey (旧版明文值原样返回)
+    if (value.driver === 's3' && value.secretKey) {
+      value = { ...value, secretKey: decryptSecret(value.secretKey) }
+    }
     return value
   }
 
   async save(cfg: StorageConfigDto): Promise<StorageConfigDto> {
+    const existing = await this.getSaved().catch(() => null)
+    let secretKey = cfg.driver === 's3' ? cfg.secretKey?.trim() : undefined
+    if (cfg.driver === 's3' && secretKey) {
+      if (isMaskedSecret(secretKey)) {
+        // 前端回传掩码值: 保留已存 secretKey 不覆盖
+        secretKey = existing?.secretKey ? encryptSecret(existing.secretKey) : undefined
+      } else {
+        secretKey = encryptSecret(secretKey)
+      }
+    }
     const value: StorageConfigDto = {
       driver: cfg.driver === 's3' ? 's3' : 'local',
       endpoint: cfg.driver === 's3' ? cfg.endpoint?.trim() : undefined,
       bucket: cfg.driver === 's3' ? cfg.bucket?.trim() : undefined,
       region: cfg.driver === 's3' ? (cfg.region?.trim() || S3_ENV_DEFAULTS.region) : undefined,
       accessKey: cfg.driver === 's3' ? cfg.accessKey?.trim() : undefined,
-      secretKey: cfg.driver === 's3' ? cfg.secretKey?.trim() : undefined,
+      secretKey,
     }
     if (value.driver === 's3') {
       if (!value.endpoint || !value.bucket || !value.accessKey || !value.secretKey) {
@@ -124,8 +139,8 @@ export class StorageConfigService {
   providers: [
     {
       provide: STORAGE_DRIVER,
-      inject: [ConfigService, PrismaService],
-      useFactory: async (config: ConfigService, prisma: PrismaService): Promise<StorageDriver | undefined> => {
+      inject: [ConfigService, StorageConfigService],
+      useFactory: async (config: ConfigService, configService: StorageConfigService): Promise<StorageDriver | undefined> => {
         const envDriver = (config.get<string>('STORAGE_DRIVER') ?? '').trim().toLowerCase()
         if (envDriver === 's3') {
           const cfg = s3ConfigFromEnv(config)
@@ -133,8 +148,7 @@ export class StorageConfigService {
         }
         if (envDriver === 'local') return undefined
         try {
-          const row = await prisma.systemConfig.findUnique({ where: { key: STORAGE_CONFIG_KEY } })
-          const saved = row?.value as StorageConfigDto | undefined
+          const saved = await configService.getSaved()
           if (saved?.driver === 's3' && saved.endpoint && saved.bucket && saved.accessKey && saved.secretKey) {
             return new S3StorageDriver(buildS3DriverOptions(saved))
           }

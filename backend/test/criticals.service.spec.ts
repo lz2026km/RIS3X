@@ -16,6 +16,7 @@ describe('CriticalsService', () => {
   const mockPrisma = {
     criticalValue: {
       findMany: jest.fn(),
+      findFirst: jest.fn(),
       findUnique: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
@@ -55,14 +56,14 @@ describe('CriticalsService', () => {
       mockPrisma.criticalValue.count.mockResolvedValue(0)
       await svc.list({ state: 'NOTIFIED' })
       expect(mockPrisma.criticalValue.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { state: 'NOTIFIED' } })
+        expect.objectContaining({ where: expect.objectContaining({ state: 'NOTIFIED', tenantId: 'default' }) })
       )
     })
 
     it('filters by severity', async () => {
       await svc.list({ severity: 'URGENT' })
       expect(mockPrisma.criticalValue.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { severity: 'URGENT' } })
+        expect.objectContaining({ where: expect.objectContaining({ severity: 'URGENT' }) })
       )
     })
 
@@ -83,13 +84,16 @@ describe('CriticalsService', () => {
 
   describe('get', () => {
     it('returns critical value when found', async () => {
-      mockPrisma.criticalValue.findUnique.mockResolvedValue(mockCritical)
+      mockPrisma.criticalValue.findFirst.mockResolvedValue(mockCritical)
       const result = await svc.get('c1')
       expect(result.id).toBe('c1')
+      expect(mockPrisma.criticalValue.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { id: 'c1', tenantId: 'default' } })
+      )
     })
 
     it('throws NotFoundException when missing', async () => {
-      mockPrisma.criticalValue.findUnique.mockResolvedValue(null)
+      mockPrisma.criticalValue.findFirst.mockResolvedValue(null)
       await expect(svc.get('x')).rejects.toThrow(NotFoundException)
     })
   })

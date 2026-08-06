@@ -61,5 +61,8 @@ export const dualReadApi = {
   arbitrate: (id: string, data: ArbitrateDto) =>
     api.post<DualReadAssignment>(`/dual-read/arbitrate/${id}`, data),
 
+  submitReader: (id: string, data: SubmitDualReadDto) =>
+    api.post<DualReadAssignment>(`/dual-read/${id}/reader`, data),
+
   getDiscrepancyStats: () => api.get<DualReadStats>("/dual-read/discrepancy"),
 };

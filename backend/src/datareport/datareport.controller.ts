@@ -8,7 +8,7 @@ import { CreateDataReportSchema, CreateNationalReportSchema } from './datareport
 @ApiTags('data-report')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR')
-@Controller('api/data-report')
+@Controller('data-report')
 export class DataReportController {
   constructor(private readonly svc: DataReportService) {}
   @Get('national-reports')

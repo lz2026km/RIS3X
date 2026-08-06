@@ -44,7 +44,9 @@ describe('PatientService (modules)', () => {
       mockPrisma.patient.findMany.mockResolvedValue([])
       mockPrisma.patient.count.mockResolvedValue(0)
       await svc.list({ name: '张三', phone: '138' })
-      expect(mockPrisma.patient.findMany).toHaveBeenCalled()
+      expect(mockPrisma.patient.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expect.objectContaining({ name: { contains: '张三' }, phone: { contains: '138' }, tenantId: 'default' }) })
+      )
     })
   })
 
@@ -53,6 +55,9 @@ describe('PatientService (modules)', () => {
       mockPrisma.patient.findFirst.mockResolvedValue(mockPatient)
       const result = await svc.get('p1')
       expect(result.name).toBe('张三')
+      expect(mockPrisma.patient.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expect.objectContaining({ id: 'p1', tenantId: 'default' }) })
+      )
     })
 
     it('throws on missing', async () => {

@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { Public } from '../common/decorators/public.decorator'
+import { Roles } from '../common/decorators/roles.decorator'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
 import { MobileService, DeviceTokenDto } from './mobile.service'
 
@@ -17,11 +18,11 @@ const AckSchema = z.object({
 })
 
 @ApiTags('mobile')
-@Public()
 @Controller('mobile')
 export class MobileController {
   constructor(private readonly mobile: MobileService) {}
 
+  @Public()
   @Get('jscode2session')
   jscode2session(@Query('code') code: string) {
     return this.mobile.jscode2session(code)
@@ -37,16 +38,19 @@ export class MobileController {
     return this.mobile.worklist(status)
   }
 
+  @Roles('DOCTOR', 'DIRECTOR', 'ADMIN', 'TECHNICIAN', 'NURSE')
   @Get('critical-values')
   criticalValues() {
     return this.mobile.criticalValues()
   }
 
+  @Roles('DOCTOR', 'DIRECTOR', 'ADMIN', 'TECHNICIAN', 'NURSE')
   @Post('critical-values/:id/ack')
   ackCriticalValue(@Param('id') id: string, @Body(new ZodValidationPipe(AckSchema)) body: { ackedBy?: string }) {
     return this.mobile.ackCriticalValue(id, body)
   }
 
+  @Roles('DOCTOR', 'DIRECTOR', 'ADMIN', 'TECHNICIAN', 'NURSE')
   @Get('reports/latest')
   latestReports(@Query('limit') limit?: string) {
     return this.mobile.latestReports(limit ? Number(limit) : 10)

@@ -21,7 +21,7 @@ const DecompressSchema = z.object({ fileId: z.string().min(1) })
 @ApiTags('dicom-compress')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
-@Controller('api/v1/dicom/compress')
+@Controller('dicom/compress')
 export class DicomCompressController {
   private readonly logger = new Logger(DicomCompressController.name)
   constructor(private readonly service: DicomCompressService) {}

@@ -6,9 +6,9 @@ import { useState, useMemo, useCallback, useEffect } from 'react'
 import {
   Bell, BellRing, FileText, AlertTriangle, Settings, Calendar,
   MessageSquare, Check, CheckCheck, Trash2, Search, X,
-  Clock, User, ChevronRight, Filter, RefreshCw, Eye,
-  AlertCircle, Info, Zap, FilterX, Volume2, VolumeX,
-  Mail, Smartphone, Monitor,   EyeOff, BarChart3
+  Clock, RefreshCw, Eye,
+  AlertCircle, Zap,
+  Mail, Smartphone, BarChart3
 } from 'lucide-react'
 import { initialUsers } from '../data/initialData'
 import { userApi, notificationApi } from '../services/api'
@@ -19,7 +19,6 @@ import { LoadingBanner, ErrorBanner } from '../components/feedback'
 // 常量定义
 // ============================================================
 const PRIMARY = '#1e3a5f'
-const PRIMARY_LIGHT = '#2c5282'
 const ACCENT = '#3182ce'
 const SUCCESS = '#059669'
 const WARNING = '#d97706'
@@ -186,14 +185,14 @@ function generateMockNotifications(): SystemNotification[] {
   const baseTime = new Date('2026-05-01T08:00:00')
 
   for (let i = 0; i < 200; i++) {
-    const type = types[Math.floor(Math.random() * types.length)]
+    const type = types[Math.floor(Math.random() * types.length)]!
     const typeTemplates = templates[type]
-    const template = typeTemplates[Math.floor(Math.random() * typeTemplates.length)]
-    const user = users[Math.floor(Math.random() * users.length)]
+    const template = typeTemplates[Math.floor(Math.random() * typeTemplates.length)]!
+    const user = users[Math.floor(Math.random() * users.length)]!
     const hoursOffset = Math.floor(i / 2) + Math.random() * 0.3
     const sentAt = new Date(baseTime.getTime() - hoursOffset * 3600000).toISOString()
     const isRead = Math.random() > 0.3
-    const priority = type === 'critical_value' ? 'high' : priorities[Math.floor(Math.random() * priorities.length)]
+    const priority = type === 'critical_value' ? 'high' : priorities[Math.floor(Math.random() * priorities.length)]!
 
     notifications.push({
       id: `NOTIF${String(i + 1).padStart(5, '0')}`,
@@ -277,9 +276,9 @@ interface NotificationDetailModalProps {
 function NotificationDetailModal({ notification, onClose, onMarkRead }: NotificationDetailModalProps) {
   if (!notification) return null
 
-  const typeConfig = NOTIFICATION_TYPES.find(t => t.key === notification.type) || NOTIFICATION_TYPES[0]
+  const typeConfig = NOTIFICATION_TYPES.find(t => t.key === notification.type) || NOTIFICATION_TYPES[0]!
   const priorityConfig = PRIORITY_CONFIG[notification.priority]
-  const [showJumpModal, setShowJumpModal] = useState(false)
+    const [showJumpModal, setShowJumpModal] = useState(false)
 
   const handleRelatedAction = () => {
     if (notification.status === 'unread') {
@@ -472,9 +471,8 @@ interface NotificationCardProps {
 }
 
 function NotificationCard({ notification, onView, onMarkRead, onDelete, isSelected }: NotificationCardProps) {
-  const typeConfig = NOTIFICATION_TYPES.find(t => t.key === notification.type) || NOTIFICATION_TYPES[0]
-  const priorityConfig = PRIORITY_CONFIG[notification.priority]
-  const isUnread = notification.status === 'unread'
+  const typeConfig = NOTIFICATION_TYPES.find(t => t.key === notification.type) || NOTIFICATION_TYPES[0]!
+    const isUnread = notification.status === 'unread'
 
   return (
     <div
@@ -714,10 +712,9 @@ function SettingsPanel({ settings, onUpdate }: SettingsPanelProps) {
 // ============================================================
 interface StatsPanelProps {
   notifications: SystemNotification[]
-  stats: { unread: number; total: number; byType: Record<string, number> }
 }
 
-function StatsPanel({ notifications, stats }: StatsPanelProps) {
+function StatsPanel({ notifications }: StatsPanelProps) {
   // 今日统计
   const todayStats = useMemo(() => {
     const today = '2026-05-01'
@@ -870,7 +867,7 @@ function HistoryPanel({ notifications, onViewNotification }: HistoryPanelProps) 
             {hour} ({hourNotifs.length}条)
           </div>
           {hourNotifs.slice(0, 3).map(n => {
-            const typeConfig = NOTIFICATION_TYPES.find(t => t.key === n.type) || NOTIFICATION_TYPES[0]
+            const typeConfig = NOTIFICATION_TYPES.find(t => t.key === n.type) || NOTIFICATION_TYPES[0]!
             return (
               <div
                 key={n.id}
@@ -1133,12 +1130,12 @@ export default function NotificationCenter() {
 
   // Phase 4b - WebSocket 模拟
   const [wsConnected, setWsConnected] = useState(false)
-  const [pollingInterval, setPollingInterval] = useState<ReturnType<typeof setInterval> | null>(null)
+  const [, setPollingInterval] = useState<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
     setWsConnected(true)
     const interval = setInterval(() => {
-      const newNotif = generateMockNotifications()[0]
+      const newNotif = generateMockNotifications()[0]!
       setNotifications(prev => {
         if (prev.some(n => n.id === newNotif.id)) return prev
         const updated = [newNotif, ...prev]
@@ -1224,15 +1221,6 @@ export default function NotificationCenter() {
   const handleSettingUpdate = useCallback((key: keyof NotificationSettings, value: boolean) => {
     setSettings(prev => ({ ...prev, [key]: value }))
   }, [])
-
-  // 样式
-  const tabBtnStyle = (key: string) => ({
-    padding: '8px 14px', borderRadius: 8, border: 'none',
-    background: activeTab === key ? PRIMARY : 'transparent',
-    color: activeTab === key ? WHITE : GRAY,
-    fontSize: 13, fontWeight: 600, cursor: 'pointer',
-    display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.15s',
-  })
 
   return (
     <div data-testid="notification-center-page" style={{ minHeight: '100vh', background: BG, display: 'flex' }}>
@@ -1463,7 +1451,7 @@ export default function NotificationCenter() {
           {/* 通知列表 */}
           <div style={{ flex: 1, padding: 16, overflowY: 'auto' }}>
             {/* 统计面板 */}
-            <StatsPanel notifications={notifications} stats={stats} />
+            <StatsPanel notifications={notifications} />
             
             {/* 历史动态 */}
             {!showSettings && <HistoryPanel notifications={notifications} onViewNotification={(n) => { setSelectedNotification(n); setShowDetailModal(true) }} />}

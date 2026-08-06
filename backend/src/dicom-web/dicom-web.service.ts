@@ -3,16 +3,19 @@
  * 实现 PS 3.18 QIDO-RS / WADO-RS / STOW-RS 简化版
  * v3.0.6.11-60: DICOM 文件读写统一走 StorageDriver (本地 / S3 双驱动)
  */
-import { Injectable, NotFoundException, Optional, Inject } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException, Optional, Inject } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import * as path from 'node:path'
 import { PrismaService } from '../prisma/prisma.service'
 import { STORAGE_DRIVER } from '../common/storage/storage.module'
 import { LocalStorageDriver } from '../common/storage/local-storage.driver'
+import { assertSafeRelativePath, UnsafePathError } from '../common/utils/safe-path'
 import type { StorageDriver } from '../common/storage/storage.interface'
 
 @Injectable()
 export class DicomWebService {
   private readonly storage: StorageDriver
+  private readonly storageRoot: string
 
   constructor(
     private readonly prisma: PrismaService,
@@ -20,6 +23,7 @@ export class DicomWebService {
     @Optional() @Inject(STORAGE_DRIVER) storageDriver?: StorageDriver,
   ) {
     const root = this.config.get<string>('DICOM_STORAGE_DIR', 'dicom') || 'dicom'
+    this.storageRoot = path.resolve(root)
     this.storage = storageDriver ?? new LocalStorageDriver({ root })
   }
 
@@ -206,6 +210,15 @@ export class DicomWebService {
     if (!model?.create) {
       throw new NotFoundException('DICOM Web persistence not available')
     }
+    let safePath: string
+    try {
+      safePath = assertSafeRelativePath(this.storageRoot, storagePath)
+    } catch (e) {
+      if (e instanceof UnsafePathError) {
+        throw new BadRequestException(`Invalid storagePath: ${e.message}`)
+      }
+      throw e
+    }
     return model.create({
       data: {
         studyInstanceUid,
@@ -215,7 +228,7 @@ export class DicomWebService {
         modality,
         patientId,
         sizeBytes,
-        storagePath,
+        storagePath: safePath,
         transferSyntax,
       },
     })

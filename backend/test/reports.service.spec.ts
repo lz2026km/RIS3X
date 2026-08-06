@@ -33,6 +33,7 @@ describe('ReportsService', () => {
   const mockPrisma = {
     report: {
       findMany: jest.fn(),
+      findFirst: jest.fn(),
       findUnique: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
@@ -72,20 +73,23 @@ describe('ReportsService', () => {
       mockPrisma.report.count.mockResolvedValue(0)
       await svc.list({ state: 'PUBLISHED' as any })
       expect(mockPrisma.report.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { state: 'PUBLISHED' } })
+        expect.objectContaining({ where: expect.objectContaining({ state: 'PUBLISHED', tenantId: 'default' }) })
       )
     })
   })
 
   describe('get', () => {
     it('returns report with relations', async () => {
-      mockPrisma.report.findUnique.mockResolvedValue({ ...mockReport, patient: {}, radiologist: {}, revisions: [] })
+      mockPrisma.report.findFirst.mockResolvedValue({ ...mockReport, patient: {}, radiologist: {}, revisions: [] })
       const result = await svc.get('r1')
       expect(result.id).toBe('r1')
+      expect(mockPrisma.report.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { id: 'r1', tenantId: 'default' } })
+      )
     })
 
     it('throws NotFoundException', async () => {
-      mockPrisma.report.findUnique.mockResolvedValue(null)
+      mockPrisma.report.findFirst.mockResolvedValue(null)
       await expect(svc.get('x')).rejects.toThrow(NotFoundException)
     })
   })

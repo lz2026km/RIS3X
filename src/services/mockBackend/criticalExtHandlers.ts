@@ -1,10 +1,13 @@
-// [v3.0.6.11-7] /api/v1/criticals MSW handlers
+// [G005-P0] 危急值前缀统一:
+//   API     = /api/v1/criticals     → backend criticals.controller.ts (@Controller('criticals'))
+//   EXT_API = /api/v1/critical-ext  → backend criticalext.controller.ts (@Controller('critical-ext'))
 import { http, HttpResponse, delay } from 'msw';
-import { list, get, create, update, remove } from './store';
+import { list, create, update, remove } from './store';
 import { parseQuery, applyQuery } from './queryBuilder';
 import { v4 as uuidv4 } from 'uuid';
 
 const API = '/api/v1/criticals';
+const EXT_API = '/api/v1/critical-ext';
 
 const delayMs = (min = 50, max = 150) => Math.floor(Math.random() * (max - min) + min);
 
@@ -29,8 +32,15 @@ const VALUE5STEP_FALLBACK = [
   },
 ];
 
+const FOLLOW_UP_FALLBACK = [
+  { id: 'FU-001', time: '2026-08-02 10:30', type: '电话回访', result: '已回复', operator: '王护士', content: '患者自述症状缓解，嘱按计划复查。', relatedCVId: 'CV5-004' },
+  { id: 'FU-002', time: '2026-08-02 15:10', type: '短信确认', result: '转接成功', operator: '李护士', content: '短信随访确认，患者状态稳定。', relatedCVId: 'CV5-003' },
+  { id: 'FU-003', time: '2026-08-03 09:05', type: '现场走访', result: '已回复', operator: '张医生', content: '术后复查恢复良好，建议 1 月后复查影像。', relatedCVId: 'CV5-001' },
+];
+
 export const criticalExtHandlers = [
-  http.get(`${API}/rules`, async ({ request }) => {
+  // ==================== /critical-ext (criticalext.controller.ts) ====================
+  http.get(`${EXT_API}/rules`, async ({ request }) => {
     await delay(delayMs());
     const url = new URL(request.url);
     const opts = parseQuery(url);
@@ -40,17 +50,41 @@ export const criticalExtHandlers = [
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
-  http.post(`${API}/rules`, async ({ request }) => {
+  http.post(`${EXT_API}/rules`, async ({ request }) => {
     await delay(delayMs());
     const body = (await request.json()) as any;
     const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
     try { create('criticalRules', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
-  http.delete(`${API}/rules/:id`, async ({ params }) => {
+  http.put(`${EXT_API}/rules/:id`, async ({ params, request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as any;
+    try { update('criticalRules', params.id as string, { id: params.id, ...body }); } catch {}
+    return HttpResponse.json({ success: true, data: { id: params.id, ...body } });
+  }),
+  http.delete(`${EXT_API}/rules/:id`, async ({ params }) => {
     await delay(delayMs());
     try { remove('criticalRules', params.id as string); } catch {}
     return HttpResponse.json({ success: true, data: {} });
+  }),
+  // 统计: 后端 criticals.controller 与 criticalext.controller 均有 GET stats
+  http.get(`${EXT_API}/stats`, async () => {
+    await delay(delayMs());
+    let items: any[] = [];
+    try { items = list<any>('criticalEvents'); } catch {}
+    const countByStatus = (st: string) => items.filter((i) => i.status === st).length;
+    const today = new Date().toISOString().slice(0, 10);
+    return HttpResponse.json({ success: true, data: {
+      pending: countByStatus('pending'),
+      notified: countByStatus('notified'),
+      acknowledged: countByStatus('acknowledged'),
+      receipted: countByStatus('receipted'),
+      resolved: countByStatus('resolved') + countByStatus('closed_loop'),
+      escalated: countByStatus('escalated'),
+      total: items.length,
+      todayCount: items.filter((i) => String(i.reportedTime ?? i.triggeredAt ?? '').startsWith(today)).length,
+    } });
   }),
   http.get(`${API}/stats`, async () => {
     await delay(delayMs());
@@ -69,27 +103,27 @@ export const criticalExtHandlers = [
       todayCount: items.filter((i) => String(i.reportedTime ?? i.triggeredAt ?? '').startsWith(today)).length,
     } });
   }),
-  http.get(`${API}/stats/summary`, async ({ request }) => {
+  http.get(`${EXT_API}/stats/summary`, async ({ request }) => {
     await delay(delayMs());
     const url = new URL(request.url);
     const opts = parseQuery(url);
-    let items: any[] = [];
+    let items: any = [];
     try { items = list<any>('criticalRules'); } catch {}
     if (!items.length) items = {"bySeverity":{"URGENT":5,"HIGH":30,"LOW":10},"byDepartment":{}};
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
-  http.get(`${API}/stats/timeline`, async ({ request }) => {
+  http.get(`${EXT_API}/stats/timeline`, async ({ request }) => {
     await delay(delayMs());
     const url = new URL(request.url);
     const opts = parseQuery(url);
-    let items: any[] = [];
+    let items: any = [];
     try { items = list<any>('criticalRules'); } catch {}
     if (!items.length) items = {"timeline":[{"date":"2026-07-01","count":3}]};
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
-  http.get(`${API}/center`, async ({ request }) => {
+  http.get(`${EXT_API}/center`, async ({ request }) => {
     await delay(delayMs());
     const url = new URL(request.url);
     const opts = parseQuery(url);
@@ -99,21 +133,41 @@ export const criticalExtHandlers = [
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
-  http.post(`${API}/auto-detect`, async ({ request }) => {
+  http.get(`${EXT_API}/center/:id`, async ({ params }) => {
+    await delay(delayMs());
+    let items: any[] = [];
+    try { items = list<any>('criticalEvents'); } catch {}
+    const found = items.find((i) => i.id === params.id);
+    return HttpResponse.json({ success: true, data: found ?? { id: params.id, patientName: '未知', finding: '未知', status: 'PENDING' } });
+  }),
+  http.post(`${EXT_API}/auto-detect`, async ({ request }) => {
     await delay(delayMs());
     const body = (await request.json()) as any;
     const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
     try { create('criticalRules', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
-  http.post(`${API}/close-loop`, async ({ request }) => {
+  http.post(`${EXT_API}/close-loop`, async ({ request }) => {
     await delay(delayMs());
     const body = (await request.json()) as any;
     const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
     try { create('criticalRules', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
+  }),
+  http.get(`${EXT_API}/receiver`, async () => {
+    await delay(delayMs());
+    let items: any[] = [];
+    try { items = list<any>('criticalEvents'); } catch {}
+    if (!items.length) items = [{"id":"CV5-004","patientName":"赵敏","finding":"蛛网膜下腔出血","status":"receipted"}];
+    return HttpResponse.json({ success: true, data: items });
+  }),
+  // [G005-P0] 随访记录 (前端 /critical-ext/follow-up-records)
+  http.get(`${EXT_API}/follow-up-records`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json({ success: true, data: FOLLOW_UP_FALLBACK });
   }),
 
+  // ==================== /criticals (criticals.controller.ts) ====================
   // voice-call bridge
   http.post(`${API}/:criticalId/voice-call`, async ({ params, request }) => {
     await delay(delayMs());
@@ -236,7 +290,7 @@ export const criticalExtHandlers = [
     try { items = list<any>('criticalEvents'); } catch {}
     const existing = items.find((i) => i.id === params.id) ?? { id: params.id };
     const updated = { ...existing, ...body };
-    try { update('criticalEvents', updated); } catch {}
+    try { update('criticalEvents', params.id as string, updated); } catch {}
     return HttpResponse.json({ success: true, data: updated });
   }),
   http.delete(`${API}/:id`, async ({ params }) => {

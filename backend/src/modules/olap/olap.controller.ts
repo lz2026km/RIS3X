@@ -18,7 +18,7 @@ import type { DimensionDef, MetricDef } from './olap.service'
 
 @ApiTags('olap')
 @Roles('ADMIN', 'DIRECTOR')
-@Controller('api/v1/olap')
+@Controller('olap')
 export class OlapController {
   private readonly logger = new Logger(OlapController.name)
   constructor(private readonly olapService: OlapService) {}

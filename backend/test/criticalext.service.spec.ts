@@ -70,6 +70,13 @@ describe('CriticalExtService', () => {
     expect(mockPrisma.criticalValueNotification.findMany).toHaveBeenLastCalledWith(expect.objectContaining({ where: { status: 'PENDING' } }))
   })
 
+  it('getFollowUpRecords lists recent notifications', async () => {
+    mockPrisma.criticalValueNotification.findMany.mockResolvedValue([{ id: 'n1' }, { id: 'n2' }])
+    const r = await svc.getFollowUpRecords()
+    expect(r.data).toHaveLength(2)
+    expect(mockPrisma.criticalValueNotification.findMany).toHaveBeenCalledWith(expect.objectContaining({ orderBy: { triggeredAt: 'desc' }, take: 100 }))
+  })
+
   it('getCriticalCenterItem wraps value or empty', async () => {
     mockPrisma.criticalValue.findUnique.mockResolvedValue({ id: 'v1' })
     await expect(svc.getCriticalCenterItem('v1')).resolves.toMatchObject({ data: [{ id: 'v1' }] })
@@ -83,10 +90,12 @@ describe('CriticalExtService', () => {
     expect(r.data).toHaveLength(1)
   })
 
-  it('closeCriticalLoop updates to RESOLVED', async () => {
+  it('closeCriticalLoop drives CLOSED_LOOP 终态 (closedAt/closedBy)', async () => {
     mockPrisma.criticalValue.update.mockResolvedValue({ id: 'v1' })
     const r = await svc.closeCriticalLoop({ criticalId: 'v1', resolution: '已处理', resolvedBy: 'dr-1' })
-    expect(mockPrisma.criticalValue.update).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ state: 'RESOLVED' }) }))
+    expect(mockPrisma.criticalValue.update).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ state: 'CLOSED_LOOP', closedBy: 'dr-1', closedAt: expect.any(Date) }),
+    }))
     expect(r.data).toHaveLength(1)
   })
 })

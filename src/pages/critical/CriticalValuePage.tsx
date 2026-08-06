@@ -17,8 +17,9 @@ import BatchActionBar from "../../components/batch/BatchActionBar"
 import { useOperationLog } from "../../hooks/useOperationLog"
 import { useKeyboardShortcuts, useNavigationShortcuts, SHORTCUTS } from "../../hooks/useKeyboardShortcuts"
 import { canApprove } from "../../services/auth/rbacService"
-import { ClosedLoopTracker5Nodes, DetailPanel } from "."
-import { criticalApi } from "../../services/api"
+import { ClosedLoopTracker5Nodes } from "./CriticalValueTimeline"
+import { DetailPanel } from "./CriticalValueDetail"
+import { criticalExtApi } from "../../services/api"
 
 export default function CriticalValuePage() {
   const navigate = useNavigate()
@@ -73,16 +74,24 @@ export default function CriticalValuePage() {
       }
       setLoading(false)
     })()
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+      // [G005 PERF1] 卸载时释放: 停止 actor + 清除 60s 升级定时器, 防止内存泄漏
+      useCriticalStore.getState().dispose?.()
+    }
   }, [])
 
   useEffect(() => {
     let cancelled = false
     void (async () => {
       try {
-        const res = await criticalApi.listFollowUpRecords()
-        if (!cancelled && res.success && Array.isArray(res.data)) {
-          setFollowUpRecords(res.data as FollowUpRecord[])
+        const res = await criticalExtApi.listFollowUpRecords()
+        // [G005 P0] 列表形状兼容: MSW 裸数组 / Nest {items,total}
+        const followUpItems = Array.isArray(res.data)
+          ? (res.data as unknown[])
+          : ((res.data as { items?: unknown[] } | null)?.items ?? [])
+        if (!cancelled && res.success) {
+          setFollowUpRecords(followUpItems as FollowUpRecord[])
         }
       } catch {
         // API may not be available

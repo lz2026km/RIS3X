@@ -42,7 +42,7 @@ export interface ReportContext {
   history: ReportStateEvent[];
 }
 
-export interface ReportStateEvent { state: ReportStateName; timestamp: string; actorId: string; note?: string; }
+export interface ReportStateEvent { state: string; timestamp: string; actorId: string; note?: string; }
 
 export type ReportEvent =
   | { type: 'ASSIGN'; radiologistId: string }

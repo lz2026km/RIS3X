@@ -6,7 +6,7 @@ export function CostCard({ title, value, subtitle, icon: Icon, trend, trendValue
   title: string
   value: string
   subtitle?: string
-  icon: React.ComponentType<{ size?: number; color?: string }>
+  icon: React.ComponentType<any>
   trend?: 'up' | 'down'
   trendValue?: string
   color?: string
