@@ -1,7 +1,7 @@
 // [v3.0.6.8-65] 跨科室治疗计划中心
 import React, { useState } from 'react';
-import { Card, Space, Tag, Button, Table, Select, Input, Row, Col, Statistic, message, Tabs, Empty, Modal, Form, List, Alert, Badge, Steps, Timeline, Descriptions, Tooltip, Rate } from 'antd';
-import { Activity, Plus, Send, FileText, Calendar, User, CheckCircle2, Clock, AlertTriangle, ClipboardList } from 'lucide-react';
+import { Card, Space, Tag, Button, Table, Select, Input, Row, Col, Statistic, message, Tabs, Modal, Form, Badge, Steps } from 'antd';
+import { Plus, ClipboardList } from 'lucide-react';
 
 const { TextArea } = Input;
 

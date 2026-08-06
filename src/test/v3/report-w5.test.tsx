@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { describe, it, expect } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
 import CriticalStatsDashboard from '../../components/v3/critical/CriticalStatsDashboard'
 import PatientProfile360 from '../../components/v3/patient/PatientProfile360'
 import PatientMergeTool from '../../components/v3/patient/PatientMergeTool'

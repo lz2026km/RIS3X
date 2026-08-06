@@ -1,14 +1,8 @@
 // [v3.0.6.8-36] PR 3: Toric 散光晶体规划 + 真实 Barrett II/Kane/Hill-RBF
 // 对标: ZEISS IOLMaster 700 + Alcon/J&J Toric Calculator
 import React, { useState, useCallback, useEffect } from 'react';
-import {
-  Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, message,
-  Tabs, List, Empty, Statistic, Alert, InputNumber, Radio, Tooltip, Progress, Modal,
-} from 'antd';
-import {
-  Calculator, Compass, TrendingUp, Box, CheckCircle2, AlertCircle, Save, History,
-  Activity, ChevronRight, RotateCcw, Download, RefreshCw, Layers, Sparkles,
-} from 'lucide-react';
+import { Card, Space, Tag, Button, Select, Form, Row, Col, Divider, message, Tabs, List, Empty, Statistic, Alert, InputNumber, Radio } from 'antd';
+import { Calculator, Compass, TrendingUp } from 'lucide-react';
 
 interface IOLResult {
   formula: string;
@@ -61,7 +55,7 @@ export const ToricPlannerPage: React.FC = () => {
   const [CCT, setCCT] = useState(0.55);
   const [iolModel, setIolModel] = useState('SA60AT');
   const [formula, setFormula] = useState('Barrett-true-K');
-  const [aConstant, setAConstant] = useState<number | null>(null); // [v3.0.6.8-84] 自动加载
+  const [_aConstant, setAConstant] = useState<number | null>(null); // [v3.0.6.8-84] 自动加载
   const [results, setResults] = useState<IOLResult[]>([]);
   const [busy, setBusy] = useState(false);
 

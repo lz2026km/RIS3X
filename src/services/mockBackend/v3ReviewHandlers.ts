@@ -4,7 +4,7 @@
  */
 import { http, HttpResponse, delay } from 'msw';
 import { v4 as uuidv4 } from 'uuid';
-import { list, get, create, update } from './store';
+import { list, get, create } from './store';
 
 const API_BASE = (() => {
   try { return window.location.origin + '/api/v1'; } catch { return 'http://localhost:5173/api/v1'; }

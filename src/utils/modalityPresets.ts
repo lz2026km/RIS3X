@@ -1,4 +1,4 @@
-import { WINDOW_PRESETS_LIST, WINDOW_PRESETS_DETAILED } from '../services/dicomWeb';
+import { WINDOW_PRESETS_LIST } from '../services/dicomWeb';
 
 export interface SimpleWindowPreset {
   name: string;

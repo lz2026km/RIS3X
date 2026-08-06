@@ -36,8 +36,7 @@ import { useOperationLog } from "../hooks/useOperationLog";
 import { useKeyboardShortcuts, useNavigationShortcuts, SHORTCUTS } from "../hooks/useKeyboardShortcuts";
 
 // ==================== 常量配置 ====================
-const PRIMARY = "#1e40af"; // 深蓝主色
-const PRIMARY_LIGHT = "#3b82f6"; // 浅蓝
+const PRIMARY = "#1e40af"; // 浅蓝
 const PRIMARY_BG = "#eff6ff"; // 深蓝背景
 
 // 优先级配置
@@ -166,8 +165,7 @@ const getStatusStyle = (status: string) => {
 };
 
 // 获取检查闭环状态时间轴
-const getExamStatusTimeline = (exam: RadiologyExam): ExamStatusNode[] => {
-  const now = new Date();
+const getExamStatusTimeline = (exam: RadiologyExam): ExamStatusNode[] => {new Date();
   const examDate = new Date(exam.examDate);
 
   const nodes: ExamStatusNode[] = [
@@ -198,17 +196,6 @@ const getExamStatusTimeline = (exam: RadiologyExam): ExamStatusNode[] => {
       bgColor: "#dcfce7",
     },
     { key: "published", label: "已发布", color: "#22c55e", bgColor: "#dcfce7" },
-  ];
-
-  // 根据状态设置完成状态和时间戳
-  const statusOrder = [
-    "已预约",
-    "已登记",
-    "检查中",
-    "图像采集",
-    "报告书写",
-    "报告审核",
-    "已发布",
   ];
   const statusMap: Record<string, number> = {
     已预约: 0,
@@ -323,12 +310,14 @@ export default function ExamPage() {
       }
       const res = await examApi.list({});
       if (cancelled) return;
-      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-        setAllExams(res.data as unknown as typeof initialRadiologyExams);
+      // [G005 P1] 列表双形状兼容: MSW 裸数组 / 后端 { items, total }
+      const list = Array.isArray(res.data) ? res.data : (res.data?.items ?? []);
+      if (res.success && Array.isArray(list) && list.length > 0) {
+        setAllExams(list as unknown as typeof initialRadiologyExams);
         setLoadError(null);
       } else {
         setAllExams(initialRadiologyExams);
-        setLoadError("API 不可用,使用本地数据");
+        setLoadError("API 不可用，使用本地数据");
       }
       setLoading(false);
     })();
@@ -843,7 +832,7 @@ export default function ExamPage() {
               "状态",
               "检查时间",
               "操作",
-            ].map((h, i) => (
+            ].map((h, _i) => (
               <th
                 key={h}
                 style={{

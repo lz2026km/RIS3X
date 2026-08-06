@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from "react"
+import { useMemo, useState } from 'react'
 import { useTranslation } from "react-i18next"
-import { Camera, Activity, TrendingUp, BarChart3, Calendar, AlertTriangle, CheckCircle, Zap, Target, Eye } from "lucide-react"
+import { Camera, Activity, TrendingUp, BarChart3, Calendar, AlertTriangle, Zap, Target, Eye } from 'lucide-react'
 import { PageContainer } from "../../components/common/PageContainer"
 import { PageHeader } from "../../components/common/PageHeader"
 import { StatCard, StatCardGrid } from "../../components/common/StatCard"

@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import { message } from 'antd'
-import { Search, Calendar, Bell, UserCheck, Syringe, Clock, ChevronRight, AlertCircle, CheckCircle, XCircle } from 'lucide-react'
+import { Search, Calendar, Bell, UserCheck, Syringe, Clock, CheckCircle, XCircle } from 'lucide-react'
 import { appointmentApi, type AppointmentDto } from '../../../services/api'
 
 export interface NurseAppointment {

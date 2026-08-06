@@ -1,8 +1,45 @@
 ﻿# CHANGELOG
 
+## v3.0.6.11-73 (2026-08-03) — 全方位审查：角色修复+状态机对齐+worklist端点+在用孤儿补齐+stats真实化+tsc-60%
+
+> **目标**: v3.0.6.11-73 全方位审查（-72 验证通过 + 业务规则/三层残留/数据真实性/清理）全部落地
+> **范围**: 7 agents 三波实施（116 suites/1234 tests，tsc 2,554→1,032）
+
+### P0 业务规则（RULE1/RULE2）
+
+- **角色修复**：bi/vna 的 RADIOLOGIST→DOCTOR、rdsr 的 TECHNOLOGIST→TECHNICIAN（3 个 controller 生产 403 修复）
+- **状态机对齐**：reportMachine 与后端 21 态矩阵 5 处分歧统一（RECTIFYING/REJECTED/AMENDED/INITIAL_REVIEW/SUPPLEMENTED 以后端为权威）+ reportMachine 测试 28/28
+- **ReportWorkflowPage**：21 态状态映射（statusMaps）+ 按钮按合法转移显示（WRITING→提交审核、INITIAL/FINAL_REVIEW→通过/驳回、FINAL_REVIEW→双签、REVIEWED→签署、SIGNED→发布），移除非法双签/修订按钮
+- **8 个 TS2307 修复**（eye 2 路由页白屏风险 + export/mobile 6 服务）
+- **worklistApi 6 端点补齐**：GET /worklist（过滤/搜索/分页）、GET /worklist/:id、GET /worklist/stats（分组计数）、PATCH /worklist/:id、POST /worklist/:id/assign、POST /worklist/batch-assign + MSW 3 缺口
+
+### P1 三层残留（CONS4/CONS5）
+
+- **响应形状统一**：workflow/criticalext/reportquality/devicemgmt 后端去 `{data:[...]}` 双包裹改 `{items,total}`；15 页面双形状防御（PublishPage/ReportExportPage/ExamPage/DicomViewerPage/PatientPage 等）；reportQuality res.data.data 残留修复
+- **MSW 补齐**：fhirHandlers(21)/iheHandlers(17)/dicomDimseHandlers(5)/radiomicsHandlers(3)/reportQualityHandlers 重写 + deviceMgmt 补缺
+- **在用孤儿族后端补齐**：regional 18 端点、sign+amend 15 端点、materials(IOL+接触镜) 15 端点、eye 核心 5+8 端点、dental 核心 8 端点
+
+### P1 数据真实性（DATA1）
+
+- **stats 7 端点真实化**：daily/weekly/workload/quality/by-modality/trend/dashboard 全部 Prisma 聚合（移除 Math.random），空库确定性 seed + source 标注
+- **角色统一**：英文枚举为规范 + roleUtils 归一化层（中文/英文兼容），MSW 登录返回英文角色，useAuth/useRBAC/RequireAuth 全归一化
+
+### P2 清理（CLEAN1）
+
+- **tsc 2,554→1,032（-59.6%）**：TS6133 1,399 条全清零 + TS6196 42 + TS2304 30 + XState assign 40（3 机器文件）+ dose/mockData 14
+- **5 个死文件删除**（DicomManager/voucher/windowingStorage/WindowPresets/dentalAiEnhanceMock）
+- **重复逻辑收敛**：新建 utils/date.ts（收敛 10 处 formatDate）、statusColors.ts（收敛 2 处）
+- 附带修复：DicomDimsePage Upload 重复导入、ReportDefectLibrary useMemo 依赖、stats 枚举错误等 10+ 处
+
+### 验证
+
+- 后端: tsc 0 错误、jest **116 suites / 1234 tests 全部通过**
+- 前端: tsc 1,032（-60%）、vite build 成功（42s）、Playwright 回归 15/15
+- 浏览器实测: 6 页面全 OK 0 错误（首页统计真实数字 835 检查/42 危急值、report-workflow 21 态、regional/sign-amend/workflow-designer/dicom-dimse）；角色统一（管理员菜单可见、医生隐藏）
+
 ## v3.0.6.11-72 (2026-08-03) — 全方位审查：安全6项+三层一致7项+性能5项+死代码951文件+tsc-53%
 
-> **目标**: v3.0.6.11-72 全方位审查（安全/三层一致/性能/死代码/tsc）全部修复落地
+> **目标**: v3.0.6.11-73 全方位审查（安全/三层一致/性能/死代码/tsc）全部修复落地
 > **范围**: 12 agents 四波实施（112 suites/1163 tests，tsc 5,494→2,590）
 
 ### 安全修复（6 项，SEC1-3）
@@ -233,7 +270,7 @@
 
 ### Phase 0: 10×80 对标文档
 
-- 新增 `docs/PACS_BENCHMARK_V3.0.6.11-72.md`：10 厂商 × 80 项功能矩阵（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/Change Healthcare/Infinitt）
+- 新增 `docs/PACS_BENCHMARK_V3.0.6.11-73.md`：10 厂商 × 80 项功能矩阵（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/Change Healthcare/Infinitt）
 - G005 完成度 38.8%（31✅/30🟡/19❌），对标 Sectra 87.5%/GE 85.0%
 - 四阶段路线图：Phase1 修复断裂点（本次）→ Phase2 mock 降级/覆盖率 → Phase3 AI Orchestrator/BI/剂量 → Phase4 云部署/环境式报告
 
@@ -342,16 +379,16 @@
 
 ### F18: 版本号全量统一 + 文档
 
-- package.json → 3.0.6.11-72（含 package-lock.json）
-- backend/package.json → 3.0.6.11-72
-- index.html title + window.__appVersion → v3.0.6.11-72
-- src/main.tsx APP_VERSION → v3.0.6.11-72
-- backend/src/main.ts + app.module.ts → v3.0.6.11-72
-- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-72
-- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-72
-- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-72
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-72
-- CHANGELOG.md 新增 v3.0.6.11-72 条目
+- package.json → 3.0.6.11-73（含 package-lock.json）
+- backend/package.json → 3.0.6.11-73
+- index.html title + window.__appVersion → v3.0.6.11-73
+- src/main.tsx APP_VERSION → v3.0.6.11-73
+- backend/src/main.ts + app.module.ts → v3.0.6.11-73
+- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-73
+- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-73
+- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-73
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-73
+- CHANGELOG.md 新增 v3.0.6.11-73 条目
 
 ### 验证结果
 
@@ -362,10 +399,10 @@
 
 ---
 
-## v3.0.6.11-72 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
+## v3.0.6.11-73 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
 
 > **目标**: 后端深度修复 + 安全加固 + 类型修复 + 测试验证 + 性能检查 + 版本号全量统一
-> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-72
+> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-73
 
 ### A13: 后端安全加固
 
@@ -396,19 +433,19 @@
 
 ### A19: 版本号全量统一
 
-- backend/package.json → 3.0.6.11-72
-- backend/src/main.ts → Swagger version + log message → v3.0.6.11-72
-- backend/src/app.module.ts → v3.0.6.11-72
-- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-72
-- index.html title + window.__appVersion → v3.0.6.11-72
-- src/i18n/appI18n.ts → v3.0.6.11-72
-- src/main.tsx APP_VERSION → v3.0.6.11-72
-- src/routes/routeTable.tsx → v3.0.6.11-72
-- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-72
-- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-72
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-72
-- CONTRIBUTING.md → v3.0.6.11-72
-- CHANGELOG.md 新增 v3.0.6.11-72 条目
+- backend/package.json → 3.0.6.11-73
+- backend/src/main.ts → Swagger version + log message → v3.0.6.11-73
+- backend/src/app.module.ts → v3.0.6.11-73
+- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-73
+- index.html title + window.__appVersion → v3.0.6.11-73
+- src/i18n/appI18n.ts → v3.0.6.11-73
+- src/main.tsx APP_VERSION → v3.0.6.11-73
+- src/routes/routeTable.tsx → v3.0.6.11-73
+- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-73
+- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-73
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-73
+- CONTRIBUTING.md → v3.0.6.11-73
+- CHANGELOG.md 新增 v3.0.6.11-73 条目
 
 ### 验证结果
 

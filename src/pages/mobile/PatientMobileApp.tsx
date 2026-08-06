@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { ChevronRight, Bell, BellOff, Phone, Lock, MessageSquare, Smartphone, CreditCard } from 'lucide-react'
 import { pushService } from '../../services/mobile/push/PushService'
 import { wechatPay } from '../../services/wechatPay'

@@ -60,7 +60,7 @@ export function calculateAngle(p1: { x: number; y: number }, p2: { x: number; y:
   return Math.acos(cos) * (180 / Math.PI);
 }
 
-export function calculateEllipseArea(center: { x: number; y: number }, radii: { rx: number; ry: number }, pixelSpacing: [number, number]): { area: number; mean: number; min: number; max: number } {
+export function calculateEllipseArea(_center: { x: number; y: number }, radii: { rx: number; ry: number }, pixelSpacing: [number, number]): { area: number; mean: number; min: number; max: number } {
   const rxMm = radii.rx * pixelSpacing[0];
   const ryMm = radii.ry * pixelSpacing[1];
   const area = Math.PI * rxMm * ryMm;

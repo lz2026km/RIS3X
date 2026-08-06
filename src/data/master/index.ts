@@ -4,18 +4,10 @@ export * from "./patientMasterMock";
 export * from "./deviceMasterMock";
 export * from "./examItemMasterMock";
 
-import {
-  DOCTOR_MASTER, DOCTOR_BY_ID, DOCTORS_BY_TITLE, DOCTOR_STATS, pickDoctors,
-} from "./doctorMasterMock";
-import {
-  PATIENT_MASTER, PATIENT_BY_ID, PATIENTS_BY_MODALITY, PATIENTS_BY_STATUS, PATIENTS_BY_PRIORITY, PATIENT_STATS, pickPatients, pickByModality,
-} from "./patientMasterMock";
-import {
-  DEVICE_MASTER, DEVICE_BY_ID, DEVICES_BY_MODALITY, DEVICES_BY_STATUS, DEVICE_STATS,
-} from "./deviceMasterMock";
-import {
-  EXAM_ITEM_MASTER, EXAM_BY_CODE, EXAMS_BY_MODALITY, EXAMS_BY_CATEGORY, EXAM_ITEM_STATS,
-} from "./examItemMasterMock";
+import { DOCTOR_MASTER, DOCTOR_BY_ID, DOCTOR_STATS, pickDoctors } from './doctorMasterMock';
+import { PATIENT_MASTER, PATIENT_BY_ID, PATIENT_STATS, pickPatients, pickByModality } from './patientMasterMock';
+import { DEVICE_MASTER, DEVICE_BY_ID, DEVICE_STATS } from './deviceMasterMock';
+import { EXAM_ITEM_MASTER, EXAM_BY_CODE, EXAM_ITEM_STATS } from './examItemMasterMock';
 
 // 全局统计
 export const MASTER_STATS = {

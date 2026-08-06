@@ -20,21 +20,7 @@ import {
 } from 'lucide-react';
 import { qualityService } from '../../../../services/quality/qualityService';
 import type { QualityDashboard, QualityGrade } from '../../../../types/R3/R3.QUALITY';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip as RTooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-  Cell,
-  LineChart,
-  Line,
-  Legend,
-  RadialBarChart,
-  RadialBar,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, CartesianGrid, Cell, LineChart, Line, Legend, RadialBarChart, RadialBar } from 'recharts';
 import { ChartContainer } from '../../../charts';
 
 const GRADE_COLOR: Record<QualityGrade, string> = {

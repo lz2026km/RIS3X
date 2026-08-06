@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Tag, Button, Row, Col, Statistic, List, Spin } from 'antd';
+import { Card, Tag, Button, Row, Col, Statistic, List } from 'antd';
 import { Plus } from 'lucide-react';
 import { DentalPageLayout } from './DentalShared';
 import { dentalApi } from '@/services/api/dentalApi';
 
 export const DentalImplantPlanPage: React.FC = () => {
   const [plans, setPlans] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
 
   const load = async () => {
     setLoading(true);

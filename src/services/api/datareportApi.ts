@@ -1,7 +1,7 @@
 // v3.0.6.11-21 P0: 移除冗余 `/api` 前缀(由 client.ts API_BASE 在 mock 模式自动提供 `/api/v1`)
 //   修复前: client BASE=/api/v1 + path=/api/data-report/... => /api/v1/api/data-report/... 不匹配 MSW
 //   修复后: client BASE=/api/v1 + path=/data-report/...    => /api/v1/data-report/... 匹配 MSW (dataReportHandlers.ts)
-import { api, invalidateApiCache, invalidateApiCacheByPrefix } from './client'
+import { api, invalidateApiCache } from './client'
 
 export interface NationalReportDto {
   id: string

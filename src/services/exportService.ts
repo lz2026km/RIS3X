@@ -3,16 +3,7 @@ import { getPptxExporter } from './export/pptx/PptxExporter';
 import { getBrandingEngine } from './export/branding/BrandingEngine';
 import { getQrGenerator } from './export/qr/QrGenerator';
 import { getWatermarkEngine } from './export/watermark/WatermarkEngine';
-import type {
-  EncryptedPdfOptions,
-  PptxExportOptions,
-  BrandingConfig,
-  QrStampOptions,
-  WatermarkOptions,
-  BulkExportOptions,
-  BulkExportResult,
-  ExportFormatV2,
-} from '../types/export';
+import type { BrandingConfig, QrStampOptions, WatermarkOptions } from '../types/export';
 
 export type ExportFormat = 'pdf' | 'word' | 'html' | 'txt' | 'hl7' | 'dicom-sr' | 'csv';
 

@@ -91,7 +91,8 @@ describe('MSW Handlers - 56 端点', () => {
       });
       const data = await res.json();
       expect(data.success).toBe(true);
-      expect(['已报到', 'checkedIn', 'checked_in']).toContain(data.data.status);
+      // v3.0.6.8-91 起 checkin 统一为后端规范状态 ARRIVED (SCHEDULED → ARRIVED → IN_PROGRESS → COMPLETED)
+      expect(['ARRIVED', '已报到', 'checkedIn', 'checked_in']).toContain(data.data.status);
     });
   });
 

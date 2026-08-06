@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, Tag, Statistic, Table, Progress, Tabs, Select, Space, Badge, Spin } from 'antd';
+import { Card, Row, Col, Tag, Statistic, Table, Progress, Tabs, Badge } from 'antd';
 import { BarChart3, TrendingUp, TrendingDown, Activity, Users, DollarSign, Smile, AlertTriangle } from 'lucide-react';
 import { eyeApi } from '@/services/api/eyeApi';
 import { PageContainer, PageHeader } from '@/components/common';
@@ -14,7 +14,7 @@ const EyeKpiDashboardPage: React.FC = () => {
   const [qualityMetrics, setQualityMetrics] = useState<any[]>([]);
   const [patientSatisfaction, setPatientSatisfaction] = useState<any[]>([]);
   const [kpiData, setKpiData] = useState({ dailyExams: 0, aiAdoption: 0, avgWait: 0, avgCost: 0, criticalResponse: 0 });
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;

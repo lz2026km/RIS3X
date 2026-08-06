@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Syringe, Play, Square, Monitor, Settings, Search, CheckCircle, AlertTriangle, Clock, List } from 'lucide-react'
+import { Syringe, Play, Monitor, Settings, List } from 'lucide-react'
 import { message } from 'antd'
 import { getInjectionWorkstationService } from '../../services/contrast'
 import type { InjectionProtocol, InjectionRecord, InjectorDeviceStatus } from '../../services/contrast'

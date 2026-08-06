@@ -4,10 +4,7 @@
 // ============================================================
 
 import { describe, it, expect } from 'vitest';
-import {
-  TOOLS, calculateLength, calculateAngle, calculateEllipseArea, calculateCobbAngle,
-  createMeasurement, type DicomMeasurement,
-} from '../tools';
+import { TOOLS, calculateLength, calculateAngle, calculateEllipseArea, calculateCobbAngle, createMeasurement } from '../tools';
 import { WINDOW_PRESETS_DETAILED, WINDOW_PRESETS_LIST } from '../../../services/dicomWeb';
 import { DICOM_SAMPLES, DICOM_SAMPLES_TOTAL } from '../../../data/dicomSamples';
 
@@ -119,7 +116,7 @@ describe('DICOM Window Presets', () => {
   });
 
   it('window width/center are positive numbers', () => {
-    Object.entries(WINDOW_PRESETS_DETAILED).forEach(([key, preset]) => {
+    Object.entries(WINDOW_PRESETS_DETAILED).forEach(([_key, preset]) => {
       expect(preset.ww).toBeGreaterThan(0);
       expect(Number.isFinite(preset.wc)).toBe(true);
     });

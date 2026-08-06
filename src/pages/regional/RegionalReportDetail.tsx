@@ -1,14 +1,6 @@
-import React, { useState } from 'react'
-import {
-  Video, FileText, Clock, CheckCircle, ChevronRight, ShieldCheck, BadgeCheck, XCircle,
-  Monitor, PenTool, Lock, FileSignature, ArrowRight, X, Check, Activity, Settings, Share2,
-  Building, Building2, Search, RefreshCw, Plus, Eye, BarChart3, ShieldAlert, Timer, TrendingUp, TrendingDown, Download, UserX, UserCheck, Globe, Target, Award, Circle, ArrowUp, ArrowDown
-} from 'lucide-react'
-import {
-  styles, COLORS, Consultation, Report, RemoteDiagnosis, CoSignRecord, CriticalValueReport,
-  Institution,
-  getStatusColor, getSeverityColor, consultationService, reportService
-} from './RegionalReportServiceWire'
+
+import { Video, FileText, Clock, CheckCircle, ChevronRight, ShieldCheck, BadgeCheck, XCircle, Monitor, PenTool, Lock, FileSignature, ArrowRight, X, Check, RefreshCw, ShieldAlert, ArrowUp, ArrowDown } from 'lucide-react'
+import { styles, COLORS, Consultation, Report, RemoteDiagnosis, CoSignRecord, Institution, getStatusColor } from './RegionalReportServiceWire'
 
 interface DetailProps {
   selectedConsultation: Consultation | null
@@ -87,7 +79,7 @@ export const ConsultationDetail: React.FC<DetailProps> = ({
 }
 
 export const ReportDetail: React.FC<DetailProps> = ({
-  selectedReport, reviewText, onReviewTextChange, onBack, onOpenModal
+  selectedReport, onBack, onOpenModal
 }) => {
   if (!selectedReport) {
     return (

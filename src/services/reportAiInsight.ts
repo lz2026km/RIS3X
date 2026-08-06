@@ -16,9 +16,7 @@ function trend(current: number, previous: number): { direction: string; pct: str
   return { direction: diff > 0 ? '增长' : '下降', pct: diff.toFixed(1) };
 }
 
-function formatPercent(v: number): string {
-  return `${v.toFixed(1)}%`;
-}
+
 
 function findMax(arr: { name: string; value: number }[]): { name: string; value: number } {
   return arr.reduce((a, b) => (a.value > b.value ? a : b));
@@ -50,7 +48,7 @@ export function generateReportInsight(report: ReportDefinition, data: Record<str
 
     case 'exam-volume-monthly': {
       const total = sum(data.map((d) => t(d.value)));
-      const avgMonthly = Math.round(total / data.length);
+      Math.round(total / data.length);
       const lastMonth = data[data.length - 1];
       const firstMonth = data[0];
       const tr = trend(t(lastMonth.value), t(firstMonth.value));
@@ -60,7 +58,7 @@ export function generateReportInsight(report: ReportDefinition, data: Record<str
     }
 
     case 'exam-volume-yearly': {
-      const total = sum(data.map((d) => t(d.value)));
+      sum(data.map((d) => t(d.value)));
       const last = data[data.length - 1];
       const first = data[0];
       const tr = trend(t(last.value), t(first.value));
@@ -336,7 +334,7 @@ export function generateReportInsight(report: ReportDefinition, data: Record<str
 
     case 'image-storage-trend': {
       const last = data[data.length - 1];
-      const first = data[0];
+      
       const monthlyGrowth = t(last.growth) || 0.6;
       return `当前存储总量${t(last.value)}TB，月均增长约${monthlyGrowth}TB。按当前增速预计未来12个月增长${(monthlyGrowth * 12).toFixed(1)}TB，建议提前规划存储扩容。`;
     }

@@ -14,49 +14,51 @@ type CreateAiReportDraftDto = z.infer<typeof CreateAiReportDraftSchema>
 export class ReportQualityService {
   constructor(private readonly prisma: PrismaService) {}
 
+  // [G005 P1] 响应形状统一: 列表端点返回 { items, total }, 单实体端点返回实体,
+  // getReportQualityStats 返回直接对象 { total, avgScore, passRate }。
   async listScoreRules() {
-    const data = await this.prisma.systemConfig.findMany({ where: { key: { startsWith: 'score_rule_' } } })
-    return { data }
+    const items = await this.prisma.systemConfig.findMany({ where: { key: { startsWith: 'score_rule_' } } })
+    return { items, total: items.length }
   }
 
   async createScoreRule(body: CreateScoreRuleDto) {
-    const data = await this.prisma.systemConfig.create({ data: { key: `score_rule_${Date.now()}`, value: body as any } })
-    return { data: [data] }
+    return this.prisma.systemConfig.create({ data: { key: `score_rule_${Date.now()}`, value: body as any } })
   }
 
   async updateScoreRule(id: string, body: UpdateScoreRuleDto) {
-    const data = await this.prisma.systemConfig.update({ where: { key: id }, data: { value: body as any } })
-    return { data: [data] }
+    return this.prisma.systemConfig.update({ where: { key: id }, data: { value: body as any } })
   }
 
   async listDefectLibrary() {
-    const data = await this.prisma.auditLog.findMany({ where: { resource: 'defect-library' }, orderBy: { createdAt: 'desc' } })
-    return { data }
+    const items = await this.prisma.auditLog.findMany({ where: { resource: 'defect-library' }, orderBy: { createdAt: 'desc' } })
+    return { items, total: items.length }
   }
 
   async createDefectEntry(body: CreateDefectEntryDto) {
-    const data = await this.prisma.auditLog.create({ data: { action: 'CREATE', resource: 'defect-library', detail: body as any, tenantId: getCurrentTenantId() } })
-    return { data: [data] }
+    return this.prisma.auditLog.create({ data: { action: 'CREATE', resource: 'defect-library', detail: body as any, tenantId: getCurrentTenantId() } })
   }
 
   async updateDefectEntry(id: string, body: UpdateDefectEntryDto) {
-    const data = await this.prisma.auditLog.update({ where: { id }, data: { detail: body as any } })
-    return { data: [data] }
+    return this.prisma.auditLog.update({ where: { id }, data: { detail: body as any } })
   }
 
   async listAiReportDrafts() {
-    const data = await this.prisma.report.findMany({ where: { state: 'WRITING' }, orderBy: { createdAt: 'desc' } })
-    return { data }
+    const items = await this.prisma.report.findMany({ where: { state: 'WRITING' }, orderBy: { createdAt: 'desc' } })
+    return { items, total: items.length }
   }
 
   async createAiReportDraft(body: CreateAiReportDraftDto) {
-    const data = await this.prisma.report.create({ data: body as any })
-    return { data: [data] }
+    return this.prisma.report.create({ data: body as any })
   }
 
   async getReportQualityStats() {
     const total = await this.prisma.reportQualityScore.count()
     const avgScore = await this.prisma.reportQualityScore.aggregate({ _avg: { totalScore: true } })
-    return { data: { total, avgScore: avgScore._avg.totalScore ?? 0 } }
+    const passed = await this.prisma.reportQualityScore.count({ where: { totalScore: { gte: 60 } } })
+    return {
+      total,
+      avgScore: avgScore._avg.totalScore ?? 0,
+      passRate: total > 0 ? Number(((passed / total) * 100).toFixed(1)) : 0,
+    }
   }
 }

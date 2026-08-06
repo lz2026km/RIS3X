@@ -44,7 +44,7 @@ export interface PatientMergeToolProps {
   threshold?: number
 }
 
-const calcNameScore = (a: string, b: string): number => {
+(a: string, b: string): number => {
   if (a === b) return 100
   if (a.length === 0 || b.length === 0) return 0
   // Levenshtein 简化
@@ -62,26 +62,13 @@ const calcNameScore = (a: string, b: string): number => {
   }
   const dist = dp[a.length][b.length]
   return Math.max(0, 100 - Math.floor((dist / Math.max(a.length, b.length)) * 100))
-}
+};
 
-const calcDateScore = (a: string, b: string): number => (a === b ? 100 : 0)
-const calcGenderScore = (a: string, b: string): number => (a === b ? 100 : 0)
-const calcIdCardScore = (a?: string, b?: string): number => {
-  if (!a || !b) return 0
-  return a === b ? 100 : 0
-}
-const calcPhoneScore = (a?: string, b?: string): number => {
-  if (!a || !b) return 0
-  // 取后 8 位比对
-  const ax = a.slice(-8)
-  const bx = b.slice(-8)
-  return ax === bx ? 100 : 0
-}
-const calcAddressScore = (a?: string, b?: string): number => {
-  if (!a || !b) return 0
-  // 比对前 6 字符
-  return a.slice(0, 6) === b.slice(0, 6) ? 80 : 0
-}
+
+
+
+
+
 
 export const PatientMergeTool: React.FC<PatientMergeToolProps> = ({
   duplicates,

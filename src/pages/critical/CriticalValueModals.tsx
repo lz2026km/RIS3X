@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { message } from 'antd'
+
 import {
   AlertTriangle, X, Phone, MessageSquare, Bell, Mail, Smartphone, MessageCircle,
   CheckCircle, Timer, ArrowUp, Settings, Plus, Edit3,
@@ -310,14 +310,16 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
     void (async () => {
       try {
         const res = await criticalExtApi.listRules()
-        if (!cancelled && res.success && Array.isArray(res.data)) {
-          setRules(res.data as unknown as CriticalValueRule[])
+        const ruleList = Array.isArray(res.data) ? res.data : (res.data?.items ?? [])
+        if (!cancelled && res.success) {
+          setRules(ruleList as unknown as CriticalValueRule[])
         }
       } catch { /* API not available */ }
       try {
         const res = await criticalExtApi.listRules()
-        if (!cancelled && res.success && Array.isArray(res.data)) {
-          const mapped = (res.data as unknown[]).map((r: any, i: number) => ({
+        const ruleList = Array.isArray(res.data) ? res.data : (res.data?.items ?? [])
+        if (!cancelled && res.success) {
+          const mapped = (ruleList as unknown[]).map((r: any, i: number) => ({
             id: r.id || `ES${String(i + 1).padStart(3, '0')}`,
             level: r.level || i + 1,
             triggerCondition: r.triggerCondition || r.trigger || '',
@@ -360,7 +362,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
             return (
               <button key={sec.key} role="tab" aria-selected={active} tabIndex={active ? 0 : -1}
                 onClick={() => setActiveSection(sec.key as typeof activeSection)}
-                style={{ flex: 1, padding: '12px 16px', textAlign: 'center', cursor: 'pointer', borderBottom: active ? '2px solid #1e3a5f' : '2px solid transparent', background: active ? '#fff' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', borderBottom: active ? '2px solid #1e3a5f' : '2px solid transparent' }}>
+                style={{ flex: 1, padding: '12px 16px', textAlign: 'center', cursor: 'pointer', background: active ? '#fff' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', borderBottom: active ? '2px solid #1e3a5f' : '2px solid transparent' }}>
                 <Icon size={16} style={{ color: active ? '#1e3a5f' : '#94a3b8' }} />
                 <span style={{ fontSize: 13, fontWeight: active ? 700 : 500, color: active ? '#1e3a5f' : '#94a3b8' }}>{sec.label}</span>
               </button>

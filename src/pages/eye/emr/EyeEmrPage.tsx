@@ -1,32 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-  Card,
-  Row,
-  Col,
-  Tag,
-  Table,
-  Tabs,
-  Select,
-  Input,
-  Button,
-  Descriptions,
-  Divider,
-  Timeline,
-  Alert,
-  Space,
-  Badge,
-  Spin,
-} from "antd";
-import {
-  BookOpen,
-  FileText,
-  Eye,
-  Activity,
-  Clock,
-  User,
-  Stethoscope,
-  Prescription,
-} from "lucide-react";
+import { Card, Row, Col, Tag, Table, Tabs, Input, Descriptions, Alert, Space, Badge, Spin } from 'antd';
+import { BookOpen, User } from 'lucide-react';
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import { eyeApi } from "@/services/api/eyeApi";
 import { PageContainer, PageHeader } from "@/components/common";

@@ -24,8 +24,10 @@ export default function PublishPage() {
       setError(null)
       try {
         const res = await reportApi.list({ status: '已签发' })
-        if (res.success && Array.isArray(res.data)) {
-          setReports(res.data as ReportDto[])
+        // [G005 P1] 列表双形状兼容: MSW 裸数组 / 后端 { items, total }
+        const list = Array.isArray(res.data) ? res.data : (res.data?.items ?? [])
+        if (res.success && Array.isArray(list)) {
+          setReports(list as ReportDto[])
         } else {
           setError(res.error?.message ?? '加载已签发报告失败')
         }

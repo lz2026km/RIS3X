@@ -3,10 +3,17 @@
  * G005 Radiology RIS System v3.0.3.31
  *
  * v3.0.3.31: 修复硬编码管理员 — 从 localStorage 读取已登录用户,无登录态返回 null
+ * v3.0.6.11-73: 角色判断支持英文枚举 (DOCTOR/ADMIN 等, 与后端一致), 中文兼容
  */
 import { useMemo } from 'react';
 import type { User, UserRole } from '../types';
 import { safeGetItem } from '../utils/safeStorage';
+import {
+  rolesMatch,
+  isCanonicalAdmin,
+  isCanonicalDoctor,
+  isCanonicalTechnician,
+} from '../services/auth/roleUtils';
 
 interface UseAuthReturn {
   user: User | null;
@@ -17,14 +24,6 @@ interface UseAuthReturn {
   hasRole: (roles: UserRole[]) => boolean;
   canAccess: (path: string) => boolean;
 }
-
-const ROLE_HIERARCHY: Record<UserRole, number> = {
-  '管理员': 100,
-  '主任': 90,
-  '医生': 70,
-  '技师': 50,
-  '护士': 40,
-};
 
 const AUTH_STORAGE_KEY = 'ris_current_user';
 
@@ -42,13 +41,13 @@ export function useAuth(): UseAuthReturn {
   const user = loadCurrentUser();
 
   const isAuthenticated = user !== null;
-  const isAdmin = useMemo(() => user?.role === '管理员', [user?.role]);
-  const isDoctor = useMemo(() => user?.role === '医生' || user?.role === '主任', [user?.role]);
-  const isTechnician = useMemo(() => user?.role === '技师', [user?.role]);
+  const isAdmin = useMemo(() => isCanonicalAdmin(user?.role), [user?.role]);
+  const isDoctor = useMemo(() => isCanonicalDoctor(user?.role), [user?.role]);
+  const isTechnician = useMemo(() => isCanonicalTechnician(user?.role), [user?.role]);
 
   const hasRole = (roles: UserRole[]): boolean => {
     if (!user) return false;
-    return roles.includes(user.role);
+    return rolesMatch(user.role, roles);
   };
 
   // 路径权限映射

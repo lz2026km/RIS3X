@@ -1,6 +1,6 @@
 // [v3.0.6.11-7] /api/v1/ai-platform MSW handlers
 import { http, HttpResponse, delay } from 'msw';
-import { list, get, create, update, remove } from './store';
+import { list, get, create } from './store';
 import { parseQuery, applyQuery } from './queryBuilder';
 import { v4 as uuidv4 } from 'uuid';
 

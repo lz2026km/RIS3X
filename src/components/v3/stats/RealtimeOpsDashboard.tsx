@@ -1,11 +1,10 @@
 /**
- * G005 放射RIS系统 v3.0.2 - 实时运营仪表盘
- * 对标:指挥中心大屏 / 实时监控
+ * G005 放射RIS系统 v3.0.2 - 实时运营看板 (大屏/综合看板)
  */
 import React, { useState, useMemo, useEffect } from 'react'
 import { Card, Row, Col, Statistic, Tag, Space, List, Progress, Badge, Empty, Avatar } from 'antd'
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip as RTooltip, PieChart, Pie, Cell, Legend } from 'recharts'
-import { Activity, AlertOctagon, CheckCircle, Clock, Users, Cpu, Wifi, Stethoscope, TrendingUp, Server, Zap } from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, PieChart, Pie, Cell, Legend } from 'recharts'
+import { Activity, AlertOctagon, Clock, Users, Cpu, Wifi, Stethoscope, TrendingUp, Server, Zap } from 'lucide-react'
 import { CHART_COLORS } from '../../../utils/chartColors'
 import { ChartContainer } from '../../charts'
 
@@ -52,7 +51,6 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
   devices,
   onlineUsers,
   refreshInterval = 5,
-  onRefresh,
 }) => {
   const [tick, setTick] = useState(0)
 

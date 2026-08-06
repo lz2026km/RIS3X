@@ -1,11 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import type {
-  ShareLink,
-  ShareLinkStatus,
-  ShareLinkScope,
-  ShareLinkEncryption,
-  ShareLinkAuditEvent,
-} from '../../types/portal';
+import type { ShareLink, ShareLinkStatus, ShareLinkScope, ShareLinkEncryption } from '../../types/portal';
 
 const LINK_STORE = new Map<string, ShareLink>();
 

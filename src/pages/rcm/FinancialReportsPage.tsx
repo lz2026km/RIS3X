@@ -1,9 +1,5 @@
 import { useState } from 'react'
-import {
-  FileSpreadsheet, Download, Printer, BarChart3, DollarSign,
-  TrendingUp, TrendingDown, PieChart, Activity, Percent,
-  Calendar, RefreshCw, CheckCircle, XCircle, ArrowUpRight, ArrowDownRight,
-} from 'lucide-react'
+import { FileSpreadsheet, Download, Printer, BarChart3, Activity, ArrowUpRight, ArrowDownRight } from 'lucide-react'
 
 interface PLRow { item: string; amount: number; type: 'revenue' | 'cost' | 'expense' }
 

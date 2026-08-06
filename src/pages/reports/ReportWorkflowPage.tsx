@@ -32,42 +32,40 @@ import {
   FileCheck,
   Shield,
   Send,
-  RotateCcw,
   RefreshCw,
   FileText,
   Activity,
 } from "lucide-react";
 import { reportApi } from "@/services/api/reportApi";
+import { REPORT_STATUS_MAP } from "@/utils/statusMaps";
 
 const { TextArea } = Input;
 
-// 报告状态机
-const REPORT_STATES = [
-  "draft",
-  "submitted",
-  "reviewed",
-  "signed",
-  "published",
-  "rejected",
-  "revised",
-];
-const STATE_LABELS: Record<string, string> = {
-  draft: "草稿",
-  submitted: "已提交",
-  reviewed: "已审核",
-  signed: "已签名",
-  published: "已发布",
-  rejected: "已驳回",
-  revised: "已修订",
-};
+// [v3.0.6.11-73] P0 21 态对齐: 后端真实枚举 (backend/prisma enum ReportState)
+const REPORT_STATES = Object.keys(REPORT_STATUS_MAP);
+const STATE_LABELS: Record<string, string> = REPORT_STATUS_MAP;
 const STATE_COLORS: Record<string, string> = {
-  draft: "default",
-  submitted: "processing",
-  reviewed: "cyan",
-  signed: "blue",
-  published: "green",
-  rejected: "red",
-  revised: "orange",
+  PENDING_ASSIGNMENT: "default",
+  ASSIGNED: "default",
+  WRITING: "orange",
+  SUBMITTED: "processing",
+  INITIAL_REVIEW: "processing",
+  FINAL_REVIEW: "processing",
+  CO_SIGN_REVIEW: "cyan",
+  REVIEWED: "cyan",
+  SIGNING: "blue",
+  SIGNED: "blue",
+  PUBLISHED: "green",
+  AMENDING: "orange",
+  AMENDED: "orange",
+  WITHDRAWN: "default",
+  REJECTED: "red",
+  ESCALATED: "purple",
+  ARCHIVED: "default",
+  RECTIFYING: "orange",
+  SUPPLEMENTING: "orange",
+  SUPPLEMENTED: "green",
+  REDISTRIBUTING: "purple",
 };
 
 export const ReportWorkflowPage: React.FC = () => {
@@ -130,16 +128,16 @@ export const ReportWorkflowPage: React.FC = () => {
     setLoading(true);
     try {
       let r;
-      if (type === "submit") r = await reportApi.submit(report.id);
+      if (type === "submitReview")
+        r = await reportApi.submitForReview(report.id);
       else if (type === "review") r = await reportApi.review(report.id);
+      else if (type === "cosign")
+        r = await reportApi.cosign(report.id, cosignerId);
       else if (type === "sign") r = await reportApi.sign(report.id);
       else if (type === "reject")
         r = await reportApi.reject(report.id, actionReason);
-      else if (type === "revise") r = await reportApi.revise(report.id);
       else if (type === "publish")
         r = await reportApi.publish(report.id, actionQuality);
-      else if (type === "cosign")
-        r = await reportApi.cosign(report.id, cosignerId);
       if (r?.success) {
         message.success(`${type} 成功`);
         setActionModal(null);
@@ -306,22 +304,24 @@ export const ReportWorkflowPage: React.FC = () => {
                     size="small"
                     extra={
                       <Space wrap>
-                        {selectedReport.status === "draft" && (
+                        {(selectedReport.status === "WRITING" ||
+                          selectedReport.status === "SUBMITTED") && (
                           <Button
                             type="primary"
                             size="small"
                             icon={<Send size={12} />}
                             onClick={() =>
                               setActionModal({
-                                type: "submit",
+                                type: "submitReview",
                                 report: selectedReport,
                               })
                             }
                           >
-                            提交
+                            提交审核
                           </Button>
                         )}
-                        {selectedReport.status === "submitted" && (
+                        {(selectedReport.status === "INITIAL_REVIEW" ||
+                          selectedReport.status === "FINAL_REVIEW") && (
                           <>
                             <Button
                               type="primary"
@@ -334,8 +334,22 @@ export const ReportWorkflowPage: React.FC = () => {
                                 })
                               }
                             >
-                              审核
+                              通过审核
                             </Button>
+                            {selectedReport.status === "FINAL_REVIEW" && (
+                              <Button
+                                size="small"
+                                icon={<Edit3 size={12} />}
+                                onClick={() =>
+                                  setActionModal({
+                                    type: "cosign",
+                                    report: selectedReport,
+                                  })
+                                }
+                              >
+                                双签
+                              </Button>
+                            )}
                             <Button
                               danger
                               size="small"
@@ -351,36 +365,22 @@ export const ReportWorkflowPage: React.FC = () => {
                             </Button>
                           </>
                         )}
-                        {selectedReport.status === "reviewed" && (
-                          <>
-                            <Button
-                              type="primary"
-                              size="small"
-                              icon={<Shield size={12} />}
-                              onClick={() =>
-                                setActionModal({
-                                  type: "sign",
-                                  report: selectedReport,
-                                })
-                              }
-                            >
-                              签名
-                            </Button>
-                            <Button
-                              size="small"
-                              icon={<Edit3 size={12} />}
-                              onClick={() =>
-                                setActionModal({
-                                  type: "cosign",
-                                  report: selectedReport,
-                                })
-                              }
-                            >
-                              双签
-                            </Button>
-                          </>
+                        {selectedReport.status === "REVIEWED" && (
+                          <Button
+                            type="primary"
+                            size="small"
+                            icon={<Shield size={12} />}
+                            onClick={() =>
+                              setActionModal({
+                                type: "sign",
+                                report: selectedReport,
+                              })
+                            }
+                          >
+                            签署
+                          </Button>
                         )}
-                        {selectedReport.status === "signed" && (
+                        {selectedReport.status === "SIGNED" && (
                           <Button
                             type="primary"
                             size="small"
@@ -393,21 +393,6 @@ export const ReportWorkflowPage: React.FC = () => {
                             }
                           >
                             发布
-                          </Button>
-                        )}
-                        {(selectedReport.status === "published" ||
-                          selectedReport.status === "reviewed") && (
-                          <Button
-                            size="small"
-                            icon={<RotateCcw size={12} />}
-                            onClick={() =>
-                              setActionModal({
-                                type: "revise",
-                                report: selectedReport,
-                              })
-                            }
-                          >
-                            修订
                           </Button>
                         )}
                       </Space>
@@ -542,22 +527,37 @@ export const ReportWorkflowPage: React.FC = () => {
           <Card>
             <Steps
               orientation="vertical"
-              current={REPORT_STATES.indexOf("published")}
+              current={REPORT_STATES.indexOf("PUBLISHED")}
               items={REPORT_STATES.map((s) => ({
                 title: (
                   <Space>
                     <Tag color={STATE_COLORS[s]}>{STATE_LABELS[s]}</Tag>
+                    <span style={{ fontSize: 11, color: "#999" }}>{s}</span>
                   </Space>
                 ),
                 description: (
                   <span style={{ fontSize: 12, color: "#666" }}>
-                    {s === "draft" && "医生编辑报告草稿"}
-                    {s === "submitted" && "提交给上级审核"}
-                    {s === "reviewed" && "上级医生审核通过"}
-                    {s === "signed" && "使用 CA 证书电子签名"}
-                    {s === "published" && "正式发布, 患者可见"}
-                    {s === "rejected" && "驳回, 需修改后重新提交"}
-                    {s === "revised" && "已修订, 流程重新开始"}
+                    {s === "PENDING_ASSIGNMENT" && "报告创建待分配"}
+                    {s === "ASSIGNED" && "已指派医生书写"}
+                    {s === "WRITING" && "医生编辑报告内容"}
+                    {s === "SUBMITTED" && "提交审核"}
+                    {s === "INITIAL_REVIEW" && "初审 (通过/驳回)"}
+                    {s === "FINAL_REVIEW" && "终审 (通过/双签/驳回)"}
+                    {s === "CO_SIGN_REVIEW" && "双签专家复核"}
+                    {s === "REVIEWED" && "审核通过"}
+                    {s === "SIGNING" && "签发中"}
+                    {s === "SIGNED" && "已签发"}
+                    {s === "PUBLISHED" && "正式发布, 患者可见"}
+                    {s === "AMENDING" && "修订中"}
+                    {s === "AMENDED" && "已修订, 重新签署"}
+                    {s === "REJECTED" && "驳回, 返工书写后重提"}
+                    {s === "RECTIFYING" && "整改, 完成后直接审核"}
+                    {s === "SUPPLEMENTING" && "补充中"}
+                    {s === "SUPPLEMENTED" && "已补充, 可发布"}
+                    {s === "WITHDRAWN" && "已撤回 (终态)"}
+                    {s === "ARCHIVED" && "已归档 (终态)"}
+                    {s === "ESCALATED" && "已升级"}
+                    {s === "REDISTRIBUTING" && "跨院区重分配"}
                   </span>
                 ),
                 status:
@@ -632,7 +632,7 @@ export const ReportWorkflowPage: React.FC = () => {
             />
           </>
         )}
-        {["submit", "review", "sign", "revise"].includes(
+        {["submitReview", "review", "sign"].includes(
           actionModal?.type || "",
         ) && (
           <Alert

@@ -97,7 +97,7 @@ function deriveLevel(score: number): PriorityScoreLevel {
   return 'low';
 }
 
-function buildReasons(study: ScoringStudyInput, features: PriorityFeatureVector): string[] {
+function buildReasons(study: ScoringStudyInput, _features: PriorityFeatureVector): string[] {
   const reasons: string[] = [];
   if (study.criticalFinding) reasons.push('标记危急值');
   if ((study.priority ?? '').toLowerCase() === 'critical') reasons.push('优先级: 危重');

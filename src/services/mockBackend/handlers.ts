@@ -95,6 +95,14 @@ import { hangingHandlers } from './hangingHandlers';
 import { radsHandlers } from './radsHandlers';
 // [v3.0.6.11-60] VNA 厂商中立归档 (objects/worm-lock/patients/stats/studies)
 import { vnaHandlers } from './vnaHandlers';
+// [G005 P1] FHIR R4 21 端点 (fhirApi: /fhir/r4/*)
+import { fhirHandlers } from './fhirHandlers';
+// [G005 P1] IHE 引擎 (iheApi: /ihe/*)
+import { iheHandlers } from './iheHandlers';
+// [G005 P1] DICOM DIMSE (dicomDimseApi: /dicom-dimse/*)
+import { dicomDimseHandlers } from './dicomDimseHandlers';
+// [G005 P1] 影像组学 (radiomicsApi: /radiomics/*)
+import { radiomicsHandlers } from './radiomicsHandlers';
 // [v3.0.6.11-60] Smart MWL 深度化 (worklist-smart / smart-route)
 import { smartWorklistHandlers } from './smartWorklistHandlers';
 import {
@@ -114,9 +122,26 @@ const API_BASE = typeof process !== 'undefined' && process.env.VITEST
     : 'http://localhost:5173/api/v1');
 
 // ============= Auth (3) =============
+// v3.0.6.11-73: MSW login 返回英文角色枚举 (与后端 Prisma UserRole 一致),
+// 按用户名映射 (admin→ADMIN, director→DIRECTOR ...), 未知名默认 DOCTOR
+const MOCK_ROLE_BY_USERNAME: Record<string, string> = {
+  admin: 'ADMIN',
+  director: 'DIRECTOR',
+  doctor: 'DOCTOR',
+  technician: 'TECHNICIAN',
+  nurse: 'NURSE',
+};
+
 export const authHandlers = [
-  http.post(`${API_BASE}/auth/login`, async () => {
+  http.post(`${API_BASE}/auth/login`, async ({ request }) => {
     await delay(150);
+    let username = '';
+    try {
+      username = String(((await request.json()) as { username?: string })?.username ?? '').toLowerCase();
+    } catch {
+      username = '';
+    }
+    const role = MOCK_ROLE_BY_USERNAME[username] ?? 'DOCTOR';
     return HttpResponse.json({
       success: true,
       data: {
@@ -124,8 +149,8 @@ export const authHandlers = [
         refreshToken: uuidv4().replace(/-/g, '') + uuidv4().replace(/-/g, ''),
         expiresAt: Date.now() + 15 * 60 * 1000,
         userId: 'u-' + uuidv4().slice(0, 8),
-        userName: 'demo',
-        role: '医生',
+        userName: username || 'demo',
+        role,
       },
     });
   }),
@@ -724,6 +749,53 @@ export const worklistHandlers = [
     const body = (await request.json()) as any;
     const before = get<any>('exams', id);
     const updated = update<any>('exams', id, body);
+    if (updated) auditUpdate('worklist', before, updated);
+    return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
+  }),
+
+  // 部分更新 (状态/设备/备注等普通字段; 与状态机端点区分)
+  http.patch(`${API_BASE}/worklist/:id`, async ({ params, request }) => {
+    await delay(80);
+    const id = params.id as string;
+    const body = (await request.json()) as any;
+    const before = get<any>('exams', id);
+    if (!before) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Exam not found' } }, { status: 404 });
+    const updated = update<any>('exams', id, { ...before, ...body });
+    if (updated) auditUpdate('worklist', before, updated);
+    return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
+  }),
+
+  // 批量分配 (医生/设备) - 必须在 /worklist/:id/assign 之前注册
+  http.post(`${API_BASE}/worklist/batch-assign`, async ({ request }) => {
+    await delay(120);
+    const body = (await request.json()) as { ids?: string[]; doctorId?: string; deviceId?: string };
+    const ids = Array.isArray(body?.ids) ? body.ids : [];
+    if (ids.length === 0) return HttpResponse.json({ success: false, message: 'ids is required' }, { status: 400 });
+    let updatedCount = 0;
+    for (const id of ids) {
+      const before = get<any>('exams', id);
+      if (!before) continue;
+      const patch: Record<string, unknown> = {};
+      if (body.doctorId) { patch.doctorId = body.doctorId; patch.reportDoctorId = body.doctorId; }
+      if (body.deviceId) patch.deviceId = body.deviceId;
+      const updated = update<any>('exams', id, patch);
+      if (updated) { auditUpdate('worklist', before, updated); updatedCount += 1; }
+    }
+    return HttpResponse.json({ success: true, data: { ok: true, updated: updatedCount } });
+  }),
+
+  // 分配医生/设备
+  http.post(`${API_BASE}/worklist/:id/assign`, async ({ params, request }) => {
+    await delay(80);
+    const id = params.id as string;
+    const body = (await request.json()) as { doctorId?: string; deviceId?: string };
+    const before = get<any>('exams', id);
+    if (!before) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Exam not found' } }, { status: 404 });
+    if (!body?.doctorId && !body?.deviceId) return HttpResponse.json({ success: false, message: 'doctorId or deviceId is required' }, { status: 400 });
+    const patch: Record<string, unknown> = {};
+    if (body.doctorId) { patch.doctorId = body.doctorId; patch.reportDoctorId = body.doctorId; }
+    if (body.deviceId) patch.deviceId = body.deviceId;
+    const updated = update<any>('exams', id, patch);
     if (updated) auditUpdate('worklist', before, updated);
     return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
   }),
@@ -2375,9 +2447,27 @@ export const signHandlers = [
     return new HttpResponse(null, { status: 204 });
   }),
   
-  
-  
-  
+  // [G005-P1] 在用孤儿补齐: 吊销证书 (前端 revokeCertificate 调用 POST)
+  http.post(`${API_BASE}/sign/certs/:id/revoke`, async ({ params, request }) => {
+    await delay(100);
+    const body = (await request.json()) as { reason?: string };
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'revoked', reason: body.reason ?? '', revokedAt: new Date().toISOString() } });
+  }),
+  // [G005-P1] 在用孤儿补齐: 证书签名报告 (前端 signReport 调用)
+  http.post(`${API_BASE}/sign/reports/:reportId/sign`, async ({ params, request }) => {
+    await delay(200);
+    const body = (await request.json()) as { certificateId?: string; reportHash?: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        reportId: params.reportId,
+        certificateId: body.certificateId,
+        signatureHash: `SIG-${params.reportId}-${Date.now().toString(16).toUpperCase()}`,
+        signedAt: new Date().toISOString(),
+        signedBy: '张明远',
+      },
+    });
+  }),
   
   
   // 签章流程
@@ -2460,6 +2550,25 @@ export const amendHandlers = [
       { id: 'rev-ent-004', reportId: 'RP20260602008', version: 1, action: 'start', reason: '病理回报：腺癌，需修订原报告', authorName: '李慧敏', createdAt: '2026-06-03T15:30:00Z' },
       { id: 'rev-ent-006', reportId: 'RP20260603003', version: 1, action: 'start', reason: '左右位置描述错误', authorName: '王建华', createdAt: '2026-06-04T14:00:00Z' },
     ] });
+  }),
+  
+  // [G005-P1] 在用孤儿补齐: 修订单详情 (前端 getAmendment 调用)
+  http.get(`${API_BASE}/amend/:id`, async ({ params }) => {
+    await delay(80);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        id: params.id,
+        reportId: 'RP20260601001',
+        version: 1,
+        status: 'in_progress',
+        reason: '原报告遗漏右肺下叶磨玻璃结节',
+        changes: '补充右肺下叶 5mm 磨玻璃结节描述',
+        authorId: 'D001',
+        authorName: '张明远',
+        startTime: '2026-06-05T08:30:00Z',
+      },
+    });
   }),
   
   http.post(`${API_BASE}/amend/start`, async ({ request }) => {
@@ -2957,6 +3066,11 @@ export const handlers = [
   ...radsHandlers, // [v3.0.6.11-60] 多 RADS 评分 (pi-rads/li-rads/ti-rads)
   ...srHandlers, // [v3.0.6.11-60] DICOM SR 全链路 (generate/by-report/push-oru/download)
   ...vnaHandlers, // [v3.0.6.11-60] VNA 厂商中立归档 (objects/worm-lock/patients/stats/studies)
+  // [G005 P1] MSW 缺口补齐: fhir / ihe / dicom-dimse (页面在用, 后端已实现)
+  ...fhirHandlers,
+  ...iheHandlers,
+  ...dicomDimseHandlers,
+  ...radiomicsHandlers,
 ];
 
 // 总计: 56 + 6 + 5 + 5 + 6 + 5 = 83 端点

@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react'
 import { Card, Table, Button, Tag, Space, Modal, Input, Typography, message } from 'antd'
 import { FileSignature, CheckCircle, XCircle, Pen, Eye } from 'lucide-react'
 
-const { Text, Title } = Typography
+const { Text } = Typography
 const { TextArea } = Input
 
 interface SignSession {

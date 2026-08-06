@@ -2,7 +2,7 @@
  * G005 放射RIS系统 v3.0.2 - 系统配置 / 设备管理
  */
 import React, { useState, useMemo } from 'react'
-import { Card, Table, Tag, Space, Button, Modal, Form, Input, Select, Statistic, Row, Col, message, Empty, Switch, Tooltip } from 'antd'
+import { Card, Table, Tag, Space, Button, Modal, Form, Input, Select, Statistic, Row, Col, message, Empty, Switch } from 'antd'
 import { Cpu, Wifi, WifiOff, Settings, Plus, Edit, Trash2, Power, Activity, MapPin } from 'lucide-react'
 
 export type DeviceModality = 'CT' | 'MR' | 'DR' | 'US' | 'MG' | 'DSA' | 'PETCT'

@@ -30,7 +30,7 @@ const KpiCard: React.FC<{ label: string; value: number; unit: string; color: str
 export default function WorkloadHeatmapPage() {
   const balancer = useMemo(() => new WorkloadBalancer(), []);
   const builder = useMemo(() => new HeatmapBuilder(), []);
-  const [siteData, setSiteData] = useState(FALLBACK_SITES);
+  const [siteData, _setSiteData] = useState(FALLBACK_SITES);
   const [workflowMeta, setWorkflowMeta] = useState<{ definitions: number; slaPolicies: number; routingRules: number }>({ definitions: 0, slaPolicies: 0, routingRules: 0 });
   const [loading, setLoading] = useState(true);
 
@@ -47,9 +47,9 @@ export default function WorkloadHeatmapPage() {
         workflowApi.listRoutingRules(),
       ]);
       setWorkflowMeta({
-        definitions: (defRes.data as any[])?.length ?? 0,
-        slaPolicies: (slaRes.data as any[])?.length ?? 0,
-        routingRules: (ruleRes.data as any[])?.length ?? 0,
+        definitions: (Array.isArray(defRes.data) ? defRes.data : (defRes.data?.items ?? []))?.length ?? 0,
+        slaPolicies: (Array.isArray(slaRes.data) ? slaRes.data : (slaRes.data?.items ?? []))?.length ?? 0,
+        routingRules: (Array.isArray(ruleRes.data) ? ruleRes.data : (ruleRes.data?.items ?? []))?.length ?? 0,
       });
     } catch { /* use fallback */ } finally {
       setLoading(false);

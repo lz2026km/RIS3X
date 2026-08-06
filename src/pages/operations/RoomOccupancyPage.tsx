@@ -1,6 +1,6 @@
 // [v3.0.6.11-17] 检查室占用率 + 排队预测仪表盘
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Space, Tag, Button, Row, Col, Statistic, Table, Tooltip, message, Badge, Select, Alert } from 'antd';
+import { Card, Space, Tag, Button, Row, Col, Statistic, Table, Tooltip, message, Select, Alert } from 'antd';
 import { LayoutDashboard, Users, Clock, TrendingUp, AlertTriangle, Circle } from 'lucide-react';
 
 interface Room {
@@ -58,8 +58,7 @@ export const RoomOccupancyPage: React.FC = () => {
   const occupied = rooms.filter(r => r.status === 'occupied').length;
   const idle = rooms.filter(r => r.status === 'idle').length;
   const fault = rooms.filter(r => r.status === 'fault').length;
-  const total = rooms.length;
-  const utilRate = total ? Math.round((occupied / total) * 100) : 0;
+  const total = rooms.length;total ? Math.round((occupied / total) * 100) : 0;
 
   return (
     <div style={{ padding: 24, background: '#f0f2f5', minHeight: '100vh' }}>
@@ -182,8 +181,7 @@ export const RoomOccupancyPage: React.FC = () => {
                   { value: 'disinfecting', label: '消毒中' },
                   { value: 'fault', label: '故障' },
                 ]}
-                onChange={async (v) => {
-                  const sel = document.querySelector<HTMLSelectElement>('.ant-select')?.dataset?.roomId;
+                onChange={async (v) => {document.querySelector<HTMLSelectElement>('.ant-select')?.dataset?.roomId;
                   if (!selectedRoom) { message.warning('请先选择房间'); return; }
                   try {
                     const res = await fetch(`/api/occupancy/room/${selectedRoom}/status`, {

@@ -12,7 +12,7 @@
  */
 import React, { useState, useMemo } from 'react'
 import { Card, Row, Col, Statistic, Space, Empty, Progress, Segmented } from 'antd'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip as RTooltip, LineChart, Line, PieChart, Pie, Cell, Legend, AreaChart, Area } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, LineChart, Line, PieChart, Pie, Cell, Legend, AreaChart, Area } from 'recharts'
 import { Activity, TrendingUp, CheckCircle, AlertOctagon, Clock, FileCheck, Cpu, Users } from 'lucide-react'
 import { CHART_COLORS, CHART_PALETTE } from '../../../utils/chartColors'
 import { ChartContainer } from '../../charts'

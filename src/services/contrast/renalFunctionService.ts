@@ -26,7 +26,7 @@ function computeEgfrCKDEPI(creatinineUmoll: number, age: number, gender: 'male' 
   return Math.round(eGFR)
 }
 
-function computeEgfrCockcroft(creatinineUmoll: number, age: number, gender: 'male' | 'female', race?: string, weightKg?: number): number {
+function computeEgfrCockcroft(creatinineUmoll: number, age: number, gender: 'male' | 'female', _race?: string, weightKg?: number): number {
   const scr = creatinineUmoll / 88.4
   const weight = weightKg ?? 70
   let crcl = ((140 - age) * weight) / (72 * scr)

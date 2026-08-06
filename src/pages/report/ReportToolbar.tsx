@@ -1,22 +1,6 @@
-import React from "react";
-import {
-  List,
-  LayoutGrid,
-  Mic,
-  Sparkles,
-  BarChart3,
-  AlertOctagon,
-  Printer,
-  Download,
-  CheckCircle,
-  XCircle,
-  Search,
-  Filter,
-  X,
-  FileText,
-} from "lucide-react";
+
+import { List, LayoutGrid, Mic, Sparkles, BarChart3, AlertOctagon, Printer, Download, CheckCircle, XCircle } from 'lucide-react';
 import type { RadiologyReport } from "../../types";
-import { StatusBadge } from "../../components/report";
 import { PRIMARY, GRAY, ACCENT, DANGER, SUCCESS, WHITE } from "./reportUtils";
 import { useNavigate } from "react-router-dom";
 
@@ -66,14 +50,9 @@ export default function ReportToolbar({
   filteredReports,
   allReports,
   setDetailReport,
-  setReviewReport,
   setExportModal,
-  setPrintModal,
   setBulkActionModal,
-  showToast,
-  setStatusFilter,
-}: ReportToolbarProps) {
-  const navigate = useNavigate();
+}: ReportToolbarProps) {useNavigate();
 
   return (
     <div

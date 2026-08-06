@@ -75,7 +75,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
     date, count: deviceStatsData.deviceUsageMap[device.id][i]
   }))
 
-  const qrCodeContent = `DEVICE:${device.id}|${device.name}|${device.modality}|${extInfo.serialNumber || device.id}`
+  `DEVICE:${device.id}|${device.name}|${device.modality}|${extInfo.serialNumber || device.id}`;
 
   return (
     <div style={{

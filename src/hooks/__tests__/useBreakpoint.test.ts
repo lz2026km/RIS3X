@@ -3,7 +3,7 @@
  * Phase T1-W2: 响应式 hooks 测试
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 vi.mock('../useBreakpoint', async () => {
   const actual = await vi.importActual<typeof import('../useBreakpoint')>('../useBreakpoint');

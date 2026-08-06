@@ -4,18 +4,10 @@
  * 20 升级点:完整 DataSet / TID2000/2010 / C-STORE 发送
  */
 import React, { useState, useCallback, useMemo } from 'react';
-import {
-  Card, Space, Button, Tag, Tooltip, message, Modal, Form, Input, Select, Tabs,
-  Table, Empty, Statistic, Row, Col, Divider, Alert, Tree, Tag as AntTag,
-} from 'antd';
-import {
-  Database, Download, Eye, Shield, CheckCircle2, XCircle, Hash, FileText,
-  Copy, Send, Activity, Layers, Code2, FileCheck, Server, RefreshCw, AlertCircle, Braces, Cpu, Plus,
-} from 'lucide-react';
+import { Card, Space, Button, Tag, message, Modal, Form, Input, Tabs, Table, Empty, Statistic, Row, Col, Divider, Tag as AntTag } from 'antd';
+import { Database, Download, CheckCircle2, Copy, Send, Layers, Server, Braces, Plus } from 'lucide-react';
 import { DICOM_SR_DOCUMENTS_MOCK, DICOM_SR_MOCK } from '@data/reportIntegrationMock';
-import {
-  listDicomSr, getDicomSr, generateDicomSr, downloadDicomSr, sendDicomSr, dumpDicomSr, validateDicomSr,
-} from '@services/integration/dicomSrService';
+import { generateDicomSr, downloadDicomSr, sendDicomSr, dumpDicomSr, validateDicomSr } from '@services/integration/dicomSrService';
 import type { DicomSrDocument } from '@types/R3/R3.INTEGRATION';
 
 interface Props {

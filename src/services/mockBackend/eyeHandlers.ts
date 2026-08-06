@@ -2632,6 +2632,171 @@ const eyeOptometryClosedLoopModule = [
   
 ];
 
+// ============= [G005-P1] 眼料在用孤儿 (IOL 库存 CRUD + 接触镜 CRUD + OK 镜设计) =============
+// 补齐 materialsApi 前端调用但 handler 缺失的端点 (iolApi 8 + contactLensApi 7 + okLensDesign)
+
+const MOCK_IOL_ITEMS = [
+  { id: 'iol-001', barcode: 'ALC-20240001', model: 'SA60AT', type: 'monofocal', power: 22.0, batchNumber: 'B-2024-01', expiryDate: '2028-12-31', stockLocation: 'A-01', status: 'in_stock', supplier: 'Alcon', unitPrice: 980, createdAt: '2026-01-10T08:00:00.000Z', quantity: 12 },
+  { id: 'iol-002', barcode: 'ALC-20240002', model: 'SA60AT', type: 'monofocal', power: 22.5, batchNumber: 'B-2024-01', expiryDate: '2028-12-31', stockLocation: 'A-01', status: 'in_stock', supplier: 'Alcon', unitPrice: 980, createdAt: '2026-01-10T08:00:00.000Z', quantity: 8 },
+  { id: 'iol-003', barcode: 'ALC-20240003', model: 'PanOptix TFNT00', type: 'multifocal', power: 23.5, batchNumber: 'B-2025-02', expiryDate: '2028-09-30', stockLocation: 'A-03', status: 'in_stock', supplier: 'Alcon', unitPrice: 2680, createdAt: '2026-02-14T09:00:00.000Z', quantity: 3 },
+  { id: 'iol-004', barcode: 'ZE-20240004', model: 'CT ASPHINA 509M', type: 'monofocal', power: 21.5, batchNumber: 'B-2024-03', expiryDate: '2029-06-30', stockLocation: 'B-02', status: 'reserved', supplier: 'Zeiss', unitPrice: 1350, createdAt: '2026-03-01T10:00:00.000Z', quantity: 1 },
+  { id: 'iol-005', barcode: 'ALC-20240005', model: 'AcrySof IQ Toric SN6AT6', type: 'toric', power: 20.0, cylinder: 1.5, batchNumber: 'B-2024-04', expiryDate: '2028-06-30', stockLocation: 'A-02', status: 'in_stock', supplier: 'Alcon', unitPrice: 3200, createdAt: '2026-03-20T11:00:00.000Z', quantity: 5 },
+  { id: 'iol-006', barcode: 'JNJ-20240006', model: 'TECNIS Symfony ZXR00', type: 'edof', power: 24.0, batchNumber: 'B-2023-05', expiryDate: '2026-08-15', stockLocation: 'C-01', status: 'in_stock', supplier: 'Johnson', unitPrice: 2980, createdAt: '2026-04-01T09:30:00.000Z', quantity: 2 },
+  { id: 'iol-007', barcode: 'BOL-20240007', model: 'enVista MX60', type: 'monofocal', power: 19.5, batchNumber: 'B-2022-06', expiryDate: '2026-07-20', stockLocation: 'C-02', status: 'in_stock', supplier: 'Bausch', unitPrice: 890, createdAt: '2026-04-10T14:00:00.000Z', quantity: 6 },
+  { id: 'iol-008', barcode: 'HH-20240010', model: 'Akreos AO60', type: 'monofocal', power: 22.5, batchNumber: 'B-2024-07', expiryDate: '2028-03-31', stockLocation: 'B-01', status: 'expired', supplier: 'Haohai', unitPrice: 760, createdAt: '2025-06-01T08:00:00.000Z', quantity: 4 },
+];
+
+const MOCK_CONTACT_LENSES = [
+  { id: 'cl-001', brand: 'Bausch + Lomb', type: 'RGP', series: 'Boston XO', bc: 7.8, dia: 9.6, power: -3.0, stock: 10, trialLens: true, unitPrice: 680, supplier: 'Bausch' },
+  { id: 'cl-002', brand: 'Johnson & Johnson', type: 'Soft', series: 'Acuvue Oasys', bc: 8.4, dia: 14.2, power: -2.5, cylinder: -0.75, axis: 180, stock: 24, trialLens: false, unitPrice: 120, supplier: 'Johnson' },
+  { id: 'cl-003', brand: 'Alcon', type: 'OK', series: 'CRT', bc: 8.0, dia: 10.6, power: -3.5, stock: 8, trialLens: true, unitPrice: 3200, supplier: 'Alcon' },
+  { id: 'cl-004', brand: 'Alcon', type: 'Scleral', series: 'PROSE', bc: 7.5, dia: 17.0, power: -1.0, stock: 3, trialLens: true, unitPrice: 5800, supplier: 'Alcon' },
+  { id: 'cl-005', brand: 'Bausch + Lomb', type: 'Hybrid', series: 'UltraHealth', bc: 8.2, dia: 14.6, power: -4.0, stock: 6, trialLens: false, unitPrice: 450, supplier: 'Bausch' },
+];
+
+const eyeMaterialsModule = [
+  // IOL 库存: 低库存 / 即将过期 (静态路径必须在 /:id 之前)
+  http.get(`${API_BASE}/iol/inventory/low-stock`, async ({ request }) => {
+    await delay(40);
+    const url = new URL(request.url);
+    const threshold = Number(url.searchParams.get('threshold') ?? 5);
+    const data = MOCK_IOL_ITEMS.filter((i: any) => i.quantity < threshold);
+    return HttpResponse.json({ success: true, data, meta: { total: data.length } });
+  }),
+  http.get(`${API_BASE}/iol/inventory/expiring`, async ({ request }) => {
+    await delay(40);
+    const url = new URL(request.url);
+    const days = Number(url.searchParams.get('days') ?? 90);
+    const limit = Date.now() + days * 86400000;
+    const data = MOCK_IOL_ITEMS.filter((i: any) => {
+      const t = new Date(i.expiryDate).getTime();
+      return t <= limit && t >= Date.now();
+    });
+    return HttpResponse.json({ success: true, data, meta: { total: data.length } });
+  }),
+  // IOL 库存: 列表 / 单条 / 入库
+  http.get(`${API_BASE}/iol/inventory`, async ({ request }) => {
+    await delay(40);
+    const url = new URL(request.url);
+    const type = url.searchParams.get('type');
+    const status = url.searchParams.get('status');
+    const supplier = url.searchParams.get('supplier');
+    let data = MOCK_IOL_ITEMS;
+    if (type) data = data.filter((i: any) => i.type === type);
+    if (status) data = data.filter((i: any) => i.status === status);
+    if (supplier) data = data.filter((i: any) => i.supplier === supplier);
+    return HttpResponse.json({ success: true, data, meta: { total: data.length } });
+  }),
+  http.get(`${API_BASE}/iol/inventory/:id`, async ({ params }) => {
+    await delay(40);
+    const item = MOCK_IOL_ITEMS.find((i: any) => i.id === params.id);
+    if (!item) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    return HttpResponse.json({ success: true, data: item });
+  }),
+  http.post(`${API_BASE}/iol/inventory`, async ({ request }) => {
+    await delay(80);
+    const body = (await request.json()) as any;
+    const item = { id: `iol-${Date.now()}`, status: 'in_stock', quantity: 1, createdAt: new Date().toISOString(), ...body };
+    MOCK_IOL_ITEMS.unshift(item);
+    return HttpResponse.json({ success: true, data: item }, { status: 201 });
+  }),
+  // IOL 库存: 出库 / 调拨 / 调整
+  http.post(`${API_BASE}/iol/inventory/:id/out`, async ({ params, request }) => {
+    await delay(60);
+    const item = MOCK_IOL_ITEMS.find((i: any) => i.id === params.id);
+    if (!item) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    const body = (await request.json()) as any;
+    item.status = 'implanted';
+    item.quantity = Math.max(0, item.quantity - 1);
+    return HttpResponse.json({ success: true, data: { ...item, outReason: body.reason ?? '', outAt: new Date().toISOString() } });
+  }),
+  http.post(`${API_BASE}/iol/inventory/:id/transfer`, async ({ params, request }) => {
+    await delay(60);
+    const item = MOCK_IOL_ITEMS.find((i: any) => i.id === params.id);
+    if (!item) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    const body = (await request.json()) as any;
+    item.stockLocation = body.toLocation ?? item.stockLocation;
+    return HttpResponse.json({ success: true, data: item });
+  }),
+  http.post(`${API_BASE}/iol/inventory/:id/adjust`, async ({ params, request }) => {
+    await delay(60);
+    const item = MOCK_IOL_ITEMS.find((i: any) => i.id === params.id);
+    if (!item) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    const body = (await request.json()) as any;
+    item.quantity = Math.max(0, item.quantity + (Number(body.deltaQty) || 0));
+    return HttpResponse.json({ success: true, data: item });
+  }),
+
+  // 接触镜库: 列表 / 单条 / 新增 / 更新 / 删除
+  http.get(`${API_BASE}/contact-lens/inventory`, async ({ request }) => {
+    await delay(40);
+    const url = new URL(request.url);
+    const type = url.searchParams.get('type');
+    const brand = url.searchParams.get('brand');
+    let data = MOCK_CONTACT_LENSES;
+    if (type) data = data.filter((l: any) => l.type === type);
+    if (brand) data = data.filter((l: any) => l.brand.toLowerCase().includes(brand.toLowerCase()));
+    return HttpResponse.json({ success: true, data, meta: { total: data.length } });
+  }),
+  http.get(`${API_BASE}/contact-lens/inventory/:id`, async ({ params }) => {
+    await delay(40);
+    const item = MOCK_CONTACT_LENSES.find((l: any) => l.id === params.id);
+    if (!item) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    return HttpResponse.json({ success: true, data: item });
+  }),
+  http.post(`${API_BASE}/contact-lens/inventory`, async ({ request }) => {
+    await delay(80);
+    const body = (await request.json()) as any;
+    const item = { id: `cl-${Date.now()}`, trialLens: false, ...body };
+    MOCK_CONTACT_LENSES.unshift(item);
+    return HttpResponse.json({ success: true, data: item }, { status: 201 });
+  }),
+  http.put(`${API_BASE}/contact-lens/inventory/:id`, async ({ params, request }) => {
+    await delay(60);
+    const item = MOCK_CONTACT_LENSES.find((l: any) => l.id === params.id);
+    if (!item) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    const body = (await request.json()) as any;
+    Object.assign(item, body);
+    return HttpResponse.json({ success: true, data: item });
+  }),
+  http.delete(`${API_BASE}/contact-lens/inventory/:id`, async ({ params }) => {
+    await delay(50);
+    const idx = MOCK_CONTACT_LENSES.findIndex((l: any) => l.id === params.id);
+    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    MOCK_CONTACT_LENSES.splice(idx, 1);
+    return new HttpResponse(null, { status: 204 });
+  }),
+  // 接触镜: 试戴记录
+  http.post(`${API_BASE}/contact-lens/fitting`, async ({ request }) => {
+    await delay(80);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({
+      success: true,
+      data: { fittingId: `FIT${Date.now()}`, patientId: body.patientId, result: 'fitting_recorded', trial: body.fittingData?.trial ?? true },
+    });
+  }),
+
+  // OK 镜/角膜塑形镜: 设计 (前端调用 /optometry/ok-lens/design)
+  http.post(`${API_BASE}/optometry/ok-lens/design`, async ({ request }) => {
+    await delay(120);
+    const body = (await request.json()) as { patientId: string; k1: number; k2: number; kAxis: number; targetReduction: number; brand?: string };
+    const flatK = (Number(body.k1) + Number(body.k2)) / 2;
+    const baseCurve = Math.round((flatK - 0.5) * 100) / 100;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        designId: `OK${Date.now()}`,
+        baseCurve,
+        returnZone: Math.round((baseCurve - 1.6) * 100) / 100,
+        diameter: 10.6,
+        brand: body.brand ?? 'CRT',
+        targetReduction: body.targetReduction,
+        patientId: body.patientId,
+      },
+    });
+  }),
+];
+
 // 汇总所有端点
 export const eyeHandlers = [
   ...eyeRisModule,
@@ -2654,4 +2819,5 @@ export const eyeHandlers = [
   ...eyeCaseLibraryModule, // [v3.0.6.8-42] PR 9
   ...eyePixelRenderModule, // [v3.0.6.8-43] PR 10
   ...eyeOptometryClosedLoopModule, // [v3.0.6.8-44] PR 11
+  ...eyeMaterialsModule, // [G005-P1] 眼料在用孤儿 (IOL 库存 + 接触镜 CRUD + OK 镜设计)
 ];

@@ -1,9 +1,6 @@
 // [v3.0.6.8-50] PR6: v3 报告全栈综合页面
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-  Card, Space, Tag, Button, Input, Row, Col, message,
-  Tabs, List, Empty, Statistic, Table,
-} from 'antd';
+import { Card, Space, Tag, Button, Row, Col, message, Tabs, List, Empty, Statistic, Table } from 'antd';
 import {
   Edit3, Send, BarChart3, RefreshCw, Sparkles, ClipboardList, Layers,
   Database, Network,

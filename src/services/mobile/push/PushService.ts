@@ -9,7 +9,7 @@
  *   - SW 监听 push 事件(src/sw.ts)展示系统通知
  */
 
-import type { PushPayload, PushChannel, PushSubscription } from '../../types/mobile';
+import type { PushPayload, PushChannel, PushSubscription } from '../../../types/mobile';
 import { API_BASE } from '../../api/client';
 
 type PushPermission = 'granted' | 'denied' | 'default' | 'unsupported';
@@ -23,7 +23,6 @@ interface PushEventHandler {
 }
 
 const STORAGE_KEY = 'g005-push-subscription';
-const FCM_SENDER_ID = 'g005-ris-fcm';
 // 演示 VAPID 密钥对 (后端未配置时回退; 生产从 GET /notifications/vapid-public-key 获取)
 const DEMO_VAPID_PUBLIC_KEY =
   'BK-yELa-ndXqb0Qr5gdFEnEtYjaPWadKr25P1ApwdgNcbgtPIAaWdTwdwyy1eyP8ntlQSWM-XH5GK2Lk6S1hb88';

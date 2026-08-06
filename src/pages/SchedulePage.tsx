@@ -15,6 +15,7 @@ import {
 import { initialUsers } from '../data/initialData'
 import { deviceApi, userApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
+import { formatDateObj } from '../utils/date';
 
 // ============================================================
 // 样式常量 (WIN10风格)
@@ -290,9 +291,7 @@ const getWeekStart = (date: Date): Date => {
 }
 
 // 格式化日期为 YYYY-MM-DD
-const formatDate = (d: Date): string => {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
+
 
 // 获取日期的中文表示
 const formatDateCht = (d: Date): string => {
@@ -349,7 +348,7 @@ const generateWeekSchedule = (weekDates: Date[]): ScheduleRecord[] => {
   
   // 为每个员工每天分配一个班次
   weekDates.forEach((date, dayIndex) => {
-    const dateStr = formatDate(date)
+    const dateStr = formatDateObj(date)
     const isWeekendDay = isWeekend(date)
     const isHoliday = isLegalHoliday(dateStr, HOLIDAY_CONFIG)
     const isAdjustment = isAdjustmentWorkday(dateStr, HOLIDAY_CONFIG)
@@ -789,7 +788,7 @@ export default function SchedulePage() {
       targetShift: swapForm.targetShift,
       reason: swapForm.reason,
       status: 'pending',
-      requestDate: formatDate(new Date()),
+      requestDate: formatDateObj(new Date()),
     }
     
     setSwapRequests([...swapRequests, newRequest])
@@ -812,7 +811,7 @@ export default function SchedulePage() {
         return {
           ...r,
           status: approved ? 'approved' : 'rejected',
-          approveDate: formatDate(new Date()),
+          approveDate: formatDateObj(new Date()),
           approverId: 'R001',
           approverName: '李明辉',
         }
@@ -848,7 +847,7 @@ export default function SchedulePage() {
   
   // 获取某天的日期类型
   const getDateType = (date: Date): { isWeekend: boolean; isHoliday: boolean; isAdjustment: boolean; holidayName?: string } => {
-    const dateStr = formatDate(date)
+    const dateStr = formatDateObj(date)
     const isWeekendDay = isWeekend(date)
     const holiday = holidays.find(h => h.date === dateStr)
     
@@ -869,7 +868,7 @@ export default function SchedulePage() {
     setTimeout(() => {
       const weekDts = weekDates
       const result: AutoScheduleCandidate[][] = weekDts.map((date) => {
-        const dateStr = formatDate(date)
+        const dateStr = formatDateObj(date)
         const dayOfWeek = date.getDay()
         const isWeekendDay = dayOfWeek === 0 || dayOfWeek === 6
         const holiday = holidays.find(h => h.date === dateStr)
@@ -904,7 +903,7 @@ export default function SchedulePage() {
       name: templateForm.name,
       description: templateForm.description,
       pattern: templateForm.shifts.length > 0 ? templateForm.shifts : STAFF_LIST.slice(0, 6).map(s => ({ staffId: s.id, shift: 'morning' as ShiftType, modality: 'CT' })),
-      createdAt: formatDate(new Date()),
+      createdAt: formatDateObj(new Date()),
     }
     setTemplates([...templates, newTpl])
     setShowTemplateModal(false)
@@ -919,7 +918,7 @@ export default function SchedulePage() {
     const newSchedules = [...allSchedules]
     tpl.pattern.forEach(p => {
       weekDates.forEach(d => {
-        const ds = formatDate(d)
+        const ds = formatDateObj(d)
         const existing = newSchedules.findIndex(s => s.staffId === p.staffId && s.date === ds)
         if (existing >= 0) {
           const prev = newSchedules[existing]!
@@ -955,7 +954,7 @@ export default function SchedulePage() {
       startDate: leaveForm.startDate, endDate: leaveForm.endDate,
       days, reason: leaveForm.reason,
       status: 'pending', balance: available,
-      applyDate: formatDate(new Date()),
+      applyDate: formatDateObj(new Date()),
     }
     setLeaveRequests([...leaveRequests, newLeave])
     setShowLeaveModal(false)
@@ -970,12 +969,12 @@ export default function SchedulePage() {
         const usedKey = r.type === 'annual' ? 'annualUsed' : r.type === 'sick' ? 'sickUsed' : 'personalUsed'
         setLeaveBalances(prev => prev.map(b => b.staffId === r.staffId ? { ...b, [usedKey]: b[usedKey] + r.days } : b))
       }
-      return { ...r, status: 'approved' as const, approveDate: formatDate(new Date()), approverName: '李明辉' }
+      return { ...r, status: 'approved' as const, approveDate: formatDateObj(new Date()), approverName: '李明辉' }
     }))
   }
 
   const handleLeaveReject = (id: string) => {
-    setLeaveRequests(reqs => reqs.map(r => r.id === id ? { ...r, status: 'rejected' as const, approveDate: formatDate(new Date()), approverName: '李明辉' } : r))
+    setLeaveRequests(reqs => reqs.map(r => r.id === id ? { ...r, status: 'rejected' as const, approveDate: formatDateObj(new Date()), approverName: '李明辉' } : r))
   }
 
   // ============================================================
@@ -990,7 +989,7 @@ export default function SchedulePage() {
     STAFF_LIST.forEach(s => {
       let consecutive = 0
       weekDates.forEach(d => {
-        const ds = formatDate(d)
+        const ds = formatDateObj(d)
         const sch = allSchedules.find(sc => sc.staffId === s.id && sc.date === ds)
         if (sch && sch.shift !== 'off') {
           consecutive++
@@ -1008,7 +1007,7 @@ export default function SchedulePage() {
     })
 
     weekDates.forEach(d => {
-      const ds = formatDate(d)
+      const ds = formatDateObj(d)
       const daySch = allSchedules.filter(s => s.date === ds && s.shift !== 'off')
       if (daySch.length > 0) {
         if (daySch.length > STAFF_LIST.length * 0.5) {
@@ -1294,7 +1293,7 @@ export default function SchedulePage() {
                         <div style={{ fontSize: 12, color: C.textMid }}>{staff.title}</div>
                       </td>
                       {weekDates.map((date, dayIdx) => {
-                        const dateStr = formatDate(date)
+                        const dateStr = formatDateObj(date)
                         const schedule = filteredSchedules.find(
                           s => s.staffId === staff.id && s.date === dateStr
                         )

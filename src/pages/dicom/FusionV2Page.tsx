@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Layers, Maximize2, Minus, Monitor, Move, Plus, RotateCw, Sun, ZoomIn, ZoomOut, Crosshair, Square, Circle, Pen, Grid3X3, Database, Loader2 } from 'lucide-react'
+import { Layers, Minus, Move, Plus, RotateCw, Sun, ZoomIn, ZoomOut, Crosshair, Square, Circle, Pen, Grid3X3, Database, Loader2 } from 'lucide-react'
 import { message } from 'antd'
 import { t } from '../../i18n/appI18n'
 import { FUSION_CT_WW, FUSION_CT_WL, FUSION_PET_WW, FUSION_PET_WL } from '../../utils/modalityPresets'
@@ -23,7 +23,7 @@ const PANEL_BG = '#1e293b'
 
 const ROI_COLORS = ['#facc15', '#ef4444', '#22c55e', '#3b82f6', '#a855f7']
 
-function generateFallbackSlice(plane: ViewPlane, slice: number, modality: 'ct' | 'pet' | 'mr' | 'dwi'): number[][] {
+function generateFallbackSlice(_plane: ViewPlane, slice: number, modality: 'ct' | 'pet' | 'mr' | 'dwi'): number[][] {
   const size = 256
   const data: number[][] = []
   for (let y = 0; y < size; y++) {
@@ -357,7 +357,7 @@ const LayoutGrid: React.FC<{
 export default function FusionV2Page() {
   const [fusionMode, setFusionMode] = useState<FusionMode>('pet-ct')
   const [fusionAlpha, setFusionAlpha] = useState(0.5)
-  const [plane, setPlane] = useState<ViewPlane>('axial')
+  const [plane, _setPlane] = useState<ViewPlane>('axial')
   const [sliceIndex, setSliceIndex] = useState(64)
   const [showCrosshair, setShowCrosshair] = useState(true)
   const [linkedScroll, setLinkedScroll] = useState(true)
@@ -528,7 +528,7 @@ export default function FusionV2Page() {
   const activeBtnStyle: React.CSSProperties = { ...btnStyle, background: BLUE, borderColor: BLUE, color: '#fff' }
   const greenBtnStyle: React.CSSProperties = { ...btnStyle, background: GREEN, borderColor: GREEN, color: '#fff' }
 
-  const renderViewport = (p: ViewPlane, idx: number) => (
+  const renderViewport = (p: ViewPlane, _idx: number) => (
     <div key={p} style={{ flex: 1, background: CARD_BG, borderRadius: 6, border: '1px solid #1e293b', overflow: 'hidden', position: 'relative' }}>
       <ViewportCanvas
         plane={p}

@@ -98,7 +98,7 @@ export class KpiEngine {
     };
   }
 
-  private generateSparkline(def: KpiDefinition, range: TimeRange): number[] {
+  private generateSparkline(def: KpiDefinition, _range: TimeRange): number[] {
     const points = 24;
     const base = this.hashCode(def.id) % 100;
     return Array.from({ length: points }, (_, i) =>

@@ -366,7 +366,6 @@ function renderMarkdown(s: any): string {
   lines.push('|---|------|:----:|:----:|:----:|:---:|:----:|:----:|:---------:|');
   for (const r of s.routes as PageResult[]) {
     const v32r = s.v32Lookup[r.route];
-    const v32Pass = v32r ? (v32r.pass ? '✅' : '❌') : '-';
     const alertMark = r.alerted ? '⚠️' : '';
     let delta = '';
     if (v32r) {

@@ -1,8 +1,8 @@
 // [v3.0.6.8-95] Phase 4: 收费/划价/医保系统
 // 对标: 领健·牙医管家
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, Table, InputNumber, Modal, Form, List, Alert, Badge, Progress, Divider, Descriptions, Tooltip } from 'antd';
-import { Activity, DollarSign, FileText, CheckCircle2, XCircle, Printer, Search, Calculator, Shield, TrendingUp, BarChart3 } from 'lucide-react';
+import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, Table, InputNumber, Modal, List, Badge, Progress, Divider } from 'antd';
+import { DollarSign, FileText, XCircle, Printer, Calculator } from 'lucide-react';
 import { wechatPay } from '../../services/wechatPay';
 
 const WECHAT_METHOD_ID = 'wechat';
@@ -13,7 +13,7 @@ export const DentalBillingPage: React.FC = () => {
   const [catalog, setCatalog] = useState<any[]>([]);
   const [invoices, setInvoices] = useState<any[]>([]);
   const [payMethods, setPayMethods] = useState<any[]>([]);
-  const [busy, setBusy] = useState(false);
+  const [_busy, setBusy] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState('P100001');
   const [newInvoice, setNewInvoice] = useState<any>({ patientId: 'P100001', items: [] });
   const [payModal, setPayModal] = useState(false);

@@ -1,9 +1,6 @@
 import { useMemo } from 'react'
-import { DollarSign, Calendar, TrendingUp, Users, PieChart as PieChartIcon, Activity, Monitor, BarChart3 } from 'lucide-react'
-import {
-  EQUIPMENT_DATA, CONSUMABLE_DATA, LABOR_DATA, BENEFIT_DATA,
-  formatCurrency, formatPercent, calculateUnitCost,
-} from './index'
+import { DollarSign, Calendar, TrendingUp, Users, PieChart as PieChartIcon, Activity, Monitor } from 'lucide-react'
+import { EQUIPMENT_DATA, CONSUMABLE_DATA, LABOR_DATA, BENEFIT_DATA, formatCurrency, calculateUnitCost } from './index'
 import { CostCard, SimplePieChart, SimpleBarChart } from './CostChart'
 import { EquipmentRow } from './CostTable'
 

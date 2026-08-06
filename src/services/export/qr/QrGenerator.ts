@@ -3,7 +3,7 @@
  * Phase R7:报告封面/页脚/正文二维码
  */
 import QRCode from 'qrcode';
-import type { QrStampOptions } from '../../types/export';
+import type { QrStampOptions } from '../../../types/export';
 
 export interface QrGenerationResult {
   dataUrl: string;

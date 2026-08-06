@@ -99,7 +99,7 @@ export const financialComplianceService = {
     return filtered
   },
 
-  exportAuditTrail: async (from: string, to: string): Promise<Blob> => {
+  exportAuditTrail: async (_from: string, _to: string): Promise<Blob> => {
     const csv = 'id,eventType,userId,userName,timestamp,description\n' +
       'aud-001,price_change,U001,管理员,2026-04-28T10:30:00Z,CT平扫(头颅)价格调整\n'
     return new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' })

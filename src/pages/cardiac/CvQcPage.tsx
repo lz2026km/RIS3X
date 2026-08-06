@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { message } from 'antd'
+
 import { Shield, CheckCircle2, AlertTriangle, XCircle, BarChart3, ClipboardCheck } from 'lucide-react'
 
 type QcMetric = {

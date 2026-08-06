@@ -1,28 +1,10 @@
 /**
  * G005 RIS v3.0.5.1 - R3.DEFECT 缺陷库服务 (Mock)
  */
-import {
-  DEFECT_CATEGORIES,
-  DEFECT_DETAILS,
-  DEFECT_TREE,
-  DEFECT_ANALYTICS,
-  DEFECT_IMPORT_RECORDS,
-  DEFECT_REMEDIATION_RECORDS,
-} from '../../data/defectLibraryMock';
-import { QUALITY_DEFECTS, DEFECT_REMEDIATIONS } from '../../data/reportQualityMock';
-import type {
-  DefectCategory,
-  DefectDetail,
-  DefectAnalytics,
-  DefectImportRecord,
-  DefectTreeNode,
-  DefectRemediation,
-  DefectCategoryCode,
-  DefectSeverityLevel,
-  DefectFilter,
-  DefectStatus,
-} from '../../types/R3/R3.DEFECT';
-import type { QualityDefect } from '../../types/R3/R3.QUALITY';
+import { DEFECT_CATEGORIES, DEFECT_DETAILS, DEFECT_TREE, DEFECT_ANALYTICS, DEFECT_IMPORT_RECORDS } from '../../data/defectLibraryMock';
+import { DEFECT_REMEDIATIONS } from '../../data/reportQualityMock';
+import type { DefectCategory, DefectDetail, DefectAnalytics, DefectImportRecord, DefectTreeNode, DefectRemediation, DefectCategoryCode, DefectFilter, DefectStatus } from '../../types/R3/R3.DEFECT';
+
 
 const LATENCY_MIN = 200;
 const LATENCY_MAX = 1500;

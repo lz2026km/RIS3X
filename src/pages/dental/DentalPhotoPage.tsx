@@ -1,7 +1,7 @@
 // [v3.0.6.8-102] 口内照片管理 (修复: 真实图片展示+上传+对比)
 import React, { useState, useEffect } from 'react';
 import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, Modal, Alert, Upload, Empty, Slider } from 'antd';
-import type { UploadFile, UploadProps } from 'antd';
+import type { UploadProps } from 'antd';
 import { Camera, Share2, Download, ZoomIn, ZoomOut, X } from 'lucide-react';
 
 interface Photo {
@@ -69,7 +69,7 @@ export const DentalPhotoPage: React.FC = () => {
   const [uploadLabel, setUploadLabel] = useState('');
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [shareLink, setShareLink] = useState<string>('');
-  const [shareOpen, setShareOpen] = useState(false);
+  const [_shareOpen, setShareOpen] = useState(false);
   const [zoom, setZoom] = useState(1);
 
   // 加载照片

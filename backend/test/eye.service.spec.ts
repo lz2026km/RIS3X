@@ -177,4 +177,91 @@ describe('EyeService', () => {
       await expect(svc.deleteStudy('x')).rejects.toThrow(NotFoundException)
     })
   })
+
+  // ── [G005-P1] 在用孤儿补齐: PACS/AI/EMR/Report (seed 回退) ──
+
+  describe('listPacsStudies', () => {
+    it('returns seed data when DB is empty', async () => {
+      mockPrisma.eyeStudy.findMany.mockResolvedValue([])
+      const r = await svc.listPacsStudies({})
+      expect(r.success).toBe(true)
+      expect(r.data.length).toBeGreaterThan(0)
+      expect(r.data[0]).toHaveProperty('patientName')
+    })
+
+    it('filters by modality', async () => {
+      mockPrisma.eyeStudy.findMany.mockResolvedValue([])
+      const r = await svc.listPacsStudies({ modality: 'OCT' })
+      expect(r.data.length).toBeGreaterThan(0)
+      expect(r.data.every((s: any) => s.modality.toLowerCase().includes('oct'))).toBe(true)
+    })
+
+    it('maps prisma rows to frontend shape', async () => {
+      mockPrisma.eyeStudy.findMany.mockResolvedValue([{ id: 'es1', patientId: 'p1', patient: { name: '张三' }, modality: 'OCT', bodyPart: '右眼', studyDate: new Date('2026-07-01'), status: 'COMPLETED', createdAt: new Date('2026-07-01') }])
+      const r = await svc.listPacsStudies({})
+      expect(r.data[0]).toMatchObject({ id: 'es1', patientName: '张三', modality: 'OCT' })
+    })
+  })
+
+  describe('AI inferences', () => {
+    it('listAiInferences falls back to seed', async () => {
+      mockPrisma.eyeAiInference.findMany.mockResolvedValue([])
+      const r = await svc.listAiInferences({})
+      expect(r.success).toBe(true)
+      expect(r.data.length).toBeGreaterThan(0)
+      expect(r.data[0]).toHaveProperty('modelName')
+    })
+
+    it('getAiInference returns seeded inference by id', async () => {
+      mockPrisma.eyeAiInference.findMany.mockResolvedValue([])
+      const r = await svc.getAiInference('INF-3001')
+      expect(r.data?.id).toBe('INF-3001')
+    })
+  })
+
+  describe('IOL inventory', () => {
+    it('lists inventory items', async () => {
+      const r = await svc.listIolInventory({})
+      expect(r.success).toBe(true)
+      expect(r.data.length).toBeGreaterThan(0)
+      expect(r.data[0]).toHaveProperty('barcode')
+    })
+
+    it('low-stock returns items below threshold', async () => {
+      const r = await svc.listIolLowStock(5)
+      expect(r.success).toBe(true)
+      expect(r.data.every((i: any) => i.quantity < 5)).toBe(true)
+    })
+
+    it('in-stock + out-stock flow updates status', async () => {
+      const created = await svc.createIolInventoryItem({ barcode: 'T-1', model: 'SA60AT', type: 'monofocal', power: 20, batchNumber: 'B1', expiryDate: '2028-01-01', stockLocation: 'A-1', supplier: 'Alcon', unitPrice: 100 })
+      expect(created.data.status).toBe('in_stock')
+      const out = await svc.iolOutStock(created.data.id, { reason: 'implant' })
+      expect(out.data?.status).toBe('implanted')
+    })
+  })
+
+  describe('Contact lens library', () => {
+    it('lists lenses and filters by type', async () => {
+      const r = await svc.listContactLensInventory({ type: 'RGP' })
+      expect(r.success).toBe(true)
+      expect(r.data.every((l: any) => l.type === 'RGP')).toBe(true)
+    })
+
+    it('create/update/delete flow', async () => {
+      const created = await svc.createContactLens({ brand: 'Alcon', type: 'Soft', series: 'Dailies', bc: 8.6, dia: 14.2, power: -2.0, stock: 5, unitPrice: 100, supplier: 'Alcon' })
+      expect(created.data.id).toBeTruthy()
+      const updated = await svc.updateContactLens(created.data.id, { stock: 9 })
+      expect(updated.data?.stock).toBe(9)
+      const deleted = await svc.deleteContactLens(created.data.id)
+      expect(deleted.data.deleted).toBe(true)
+    })
+
+    it('okLensDesign computes base curve', async () => {
+      const r = await svc.okLensDesign({ patientId: 'p1', k1: 43, k2: 44, kAxis: 90, targetReduction: 3.0 })
+      expect(r.success).toBe(true)
+      expect(r.data.baseCurve).toBeLessThan(43.5)
+      expect(r.data.designId).toBeTruthy()
+    })
+  })
 })

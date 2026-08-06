@@ -109,8 +109,9 @@ export default function RadiomicsPage() {
         return radiomicsApi.extract(roi.instanceId, { type: roi.type, coordinates })
       })
       const responses = await Promise.all(promises)
-      const extracted = responses.map(r => r.data.data)
-      setResults(extracted)
+      // [G005 P1] 双形状兼容: 后端直接返回 RadiomicsResult / 旧 { data } 包裹
+      const extracted = responses.map(r => (r.data as { data?: unknown })?.data ?? r.data)
+      setResults(extracted as RadiomicsResult[])
       message.success(t('radiomics:extractSuccess'))
     } catch {
       message.error(t('radiomics:extractError'))

@@ -13,7 +13,7 @@ const BLUE = '#3b82f6'
 const CARD_BG = '#0f172a'
 const PANEL_BG = '#1e293b'
 
-function generateFallbackSlice(plane: ViewPlane, slice: number, modality: 'ct' | 'pet' | 'mr' | 'dwi'): number[][] {
+function generateFallbackSlice(_plane: ViewPlane, slice: number, modality: 'ct' | 'pet' | 'mr' | 'dwi'): number[][] {
   const size = 256
   const data: number[][] = []
   for (let y = 0; y < size; y++) {
@@ -55,7 +55,7 @@ function decodeBase64PixelData(b64: string, width: number, height: number): Imag
     const canvas = document.createElement('canvas')
     canvas.width = width
     canvas.height = height
-    const ctx = canvas.getContext('2d')!
+    canvas.getContext('2d')!;
     const img = new ImageData(new Uint8ClampedArray(bytes.buffer), width, height)
     return img
   } catch {
@@ -207,7 +207,7 @@ const ViewportCanvas: React.FC<ViewportCanvasProps> = ({
   apiFrame,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const size = 256
+  
 
   useEffect(() => {
     const canvas = canvasRef.current

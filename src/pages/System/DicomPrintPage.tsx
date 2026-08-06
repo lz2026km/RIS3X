@@ -1,7 +1,7 @@
 // G005 DICOM Print SCP 胶片打印管理子系统 v1.0.0
 import React, { useState, useEffect } from 'react'
 import { Printer, Film, Clock, CheckCircle, XCircle, Loader2, Plus, RefreshCw } from 'lucide-react'
-import { printQueueManager, PrintJob, printHistory as initialHistory } from '../../data/printQueue'
+import { printQueueManager, PrintJob } from '../../data/printQueue'
 import { PageContainer, PageHeader } from '../../components/common'
 
 // 深蓝色主题

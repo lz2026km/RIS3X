@@ -3,7 +3,7 @@
  * 对标:RBAC / NIST 800-53 AC
  */
 import React, { useState, useMemo } from 'react'
-import { Card, Table, Tag, Space, Button, Modal, Form, Select, Input, Switch, Empty, Statistic, Row, Col, message, Tooltip, Alert } from 'antd'
+import { Card, Table, Tag, Space, Button, Modal, Form, Select, Input, Switch, Empty, Statistic, Row, Col, message, Alert } from 'antd'
 import { Shield, User, Lock, Edit, Trash2, Plus, CheckCircle, XCircle, KeyRound } from 'lucide-react'
 
 export type Role = 'ADMIN' | 'DIRECTOR' | 'DOCTOR' | 'TECHNICIAN' | 'NURSE' | 'REGISTRAR' | 'AUDITOR'

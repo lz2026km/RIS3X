@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react'
-import { Zap, CheckCircle2, User } from 'lucide-react'
+import { Zap, CheckCircle2 } from 'lucide-react'
 import type { RadiologyReport } from '../../types'
-import { REPORT_STATUS_META } from '../../components/report'
+import { formatDateTime } from '../../utils/date';
+
 
 const PRIMARY = '#1e3a5f'
 const WHITE = '#ffffff'
@@ -28,10 +29,7 @@ function highlightAnomalies(text: string | undefined): React.ReactNode {
   return parts.length > 0 ? parts : text
 }
 
-function formatDate(dt: string) {
-  if (!dt) return '-'
-  return dt.length >= 16 ? dt.slice(0, 16) : dt
-}
+
 
 const KANBAN_COLUMNS = [
   {
@@ -87,7 +85,7 @@ export default function ReportKanbanView({ reports, onView, onReview }: ReportKa
     setDragOverCol(colKey)
   }
   const handleDragLeave = () => setDragOverCol(null)
-  const handleDrop = (e: React.DragEvent, colKey: string) => {
+  const handleDrop = (e: React.DragEvent, _colKey: string) => {
     e.preventDefault()
     setDragOverCol(null)
     setDraggedId(null)
@@ -141,7 +139,7 @@ export default function ReportKanbanView({ reports, onView, onReview }: ReportKa
                     <div style={{ fontSize: 12, color: '#64748b' }}>报告: <span style={{ color: '#334155', fontWeight: 500 }}>{r.reportDoctorName || '-'}</span></div>
                     {r.auditorName && <div style={{ fontSize: 12, color: '#64748b' }}>审核: <span style={{ color: '#334155', fontWeight: 500 }}>{r.auditorName}</span></div>}
                   </div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'right' }}>{formatDate(r.createdTime)}</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'right' }}>{formatDateTime(r.createdTime)}</div>
                 </div>
                 <div style={{ marginTop: 7, padding: '5px 8px', borderRadius: 4, background: '#f8fafc', fontSize: 12, color: '#475569', whiteSpace: 'pre-wrap', lineHeight: 1.5, maxHeight: 48, overflow: 'hidden' }}>
                   {r.diagnosis ? highlightAnomalies(r.diagnosis.slice(0, 50)) : '(无诊断)'}

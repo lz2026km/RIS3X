@@ -593,8 +593,8 @@ export default function DevicePage() {
   const [filterType, setFilterType] = useState('全部')
   const [filterStatus, setFilterStatus] = useState('全部')
   const [filterMfg, setFilterMfg] = useState('全部')
-  const [sortKey, setSortKey] = useState('id')
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
+  const [sortKey, _setSortKey] = useState('id')
+  const [sortDir, _setSortDir] = useState<'asc' | 'desc'>('asc')
 
   // 维保管理 state
   const [showMaintForm, setShowMaintForm] = useState(false)
@@ -606,8 +606,8 @@ export default function DevicePage() {
   const [, setDeviceStats] = useState<{ totalDevices: number; inUse: number; idle: number; maintenance: number } | null>(null)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
-  const [deviceFaults, setDeviceFaults] = useState<any[]>([])
-  const [equipmentLifecycle, setEquipmentLifecycle] = useState<any[]>([])
+  const [_deviceFaults, setDeviceFaults] = useState<any[]>([])
+  const [_equipmentLifecycle, setEquipmentLifecycle] = useState<any[]>([])
 
   useEffect(() => {
     let cancelled = false

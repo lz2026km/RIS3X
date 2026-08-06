@@ -6,8 +6,8 @@ import {
   Clock, ShieldAlert, Eye,
 } from 'lucide-react'
 import { patientApi } from '../../services/api/patientApi'
-import { examApi } from '../../services/api/examApi'
-import { reportApi } from '../../services/api/reportApi'
+
+
 import type { PatientDto } from '../../types/dto'
 import type { ExamDto } from '../../types/dto'
 

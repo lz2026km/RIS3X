@@ -3,13 +3,7 @@
  * 80 升级点 mock:HL7 CDA / DICOM SR / FHIR R4 / IHE XDS.b
  */
 
-import type {
-  CdaDocument, CdaSection, CdaSectionCode, CdaActor, CdaEntry,
-  DicomSrDocument, DicomContentSequence, DicomContentItem, DicomDataElement,
-  FhirDiagnosticReport, FhirAttachment, FhirIdentifier, FhirReference, FhirAnnotation, FhirCodeableConcept, FhirCoding, FhirPeriod,
-  XdsRegistry, XdsDocumentEntry, XdsFolder, XdsSubmissionSet, XdsAssociation,
-  IntegrationExportEnvelope,
-} from '../types/R3/R3.INTEGRATION';
+import type { CdaDocument, CdaSection, CdaActor, DicomSrDocument, DicomContentItem, DicomDataElement, FhirDiagnosticReport, FhirAttachment, FhirIdentifier, FhirReference, FhirAnnotation, XdsRegistry, XdsDocumentEntry, XdsFolder, XdsSubmissionSet, XdsAssociation, IntegrationExportEnvelope } from '../types/R3/R3.INTEGRATION';
 
 // ============================================================
 // 1. HL7 CDA R2 Mock(完整 XML)
@@ -208,7 +202,7 @@ function buildDicomSrDataSet(sr: DicomSrDocument): string {
   return `${head}\n# === DATA ELEMENTS ===\n${body}\n\n# === CONTENT SEQUENCE ===\n${content}\n`;
 }
 
-const dicomContentItems = (findings: string, impression: string): DicomContentItem[] => [
+const dicomContentItems = (_findings: string, impression: string): DicomContentItem[] => [
   { relationshipType: 'CONTAINS', conceptCode: { code: '121060', codeSchemeDesignator: 'DCM', codeMeaning: '历史发现', codeMeaningEn: 'History' }, valueType: 'TEXT', textValue: '右肺结节 1 周余,无明显症状' },
   { relationshipType: 'CONTAINS', conceptCode: { code: '121071', codeSchemeDesignator: 'DCM', codeMeaning: '发现', codeMeaningEn: 'Finding' }, valueType: 'CONTAINER', children: [
     { relationshipType: 'CONTAINS', conceptCode: { code: 'RID4948', codeSchemeDesignator: 'RID', codeMeaning: '右肺上叶', codeMeaningEn: 'RUL' }, valueType: 'TEXT', textValue: '右肺上叶尖段' },
@@ -220,7 +214,7 @@ const dicomContentItems = (findings: string, impression: string): DicomContentIt
   { relationshipType: 'CONTAINS', conceptCode: { code: '121073', codeSchemeDesignator: 'DCM', codeMeaning: '印象', codeMeaningEn: 'Impression' }, valueType: 'TEXT', textValue: impression },
 ];
 
-const buildDicomSrBase = (id: string, studyUID: string, seriesUID: string, sopInstanceUID: string, findings: string, impression: string): DicomSrDocument => {
+const buildDicomSrBase = (_id: string, studyUID: string, seriesUID: string, sopInstanceUID: string, findings: string, impression: string): DicomSrDocument => {
   const dataElements: DicomDataElement[] = [
     { tag: '00080005', vr: 'CS', name: 'SpecificCharacterSet', nameEn: 'Specific Character Set', value: 'ISO_IR 100', length: 10 },
     { tag: '00080016', vr: 'UI', name: 'SOPClassUID', nameEn: 'SOP Class UID', value: '1.2.840.10008.5.1.4.1.1.88.11', length: 26 },

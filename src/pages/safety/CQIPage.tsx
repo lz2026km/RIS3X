@@ -1,8 +1,5 @@
 import { useState, useEffect } from 'react'
-import {
-  BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, Legend,
-} from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { TrendingUp, CheckCircle, Target, Plus, BarChart3, Activity } from 'lucide-react'
 import {
   getCqiDashboard, createCqiProject, closeCqiProject,

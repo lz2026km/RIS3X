@@ -574,8 +574,6 @@ export function extractPatient(msg: Hl7ParsedMessage): ParsedPatient | null {
   const name = nameField ? nameField.raw : '';
   const [family, given] = name.split('^');
   const idVal = idField ? idField.components[0] ?? '' : '';
-  const idAA = idField ? idField.components[3] ?? '' : '';
-  const idType = idField ? idField.components[4] ?? 'MR' : 'MR';
   return {
     id: idVal,
     name,

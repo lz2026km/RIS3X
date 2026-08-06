@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { setToken } from '@/utils/auth';
 import { api, currentApiMode } from '@/services/api/client';
+import { normalizeRole } from '@/services/auth/roleUtils';
 import type { UserRole } from '@/types';
 
 const DEMO_USERS: { label: string; role: UserRole; name: string }[] = [
@@ -21,7 +22,7 @@ export default function LoginPage() {
   const [username, setUsername] = useState('admin');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
+  const [_submitting, setSubmitting] = useState(false);
 
   const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? '/';
 
@@ -55,10 +56,15 @@ export default function LoginPage() {
           userName: response.data.userName ?? username.trim(),
           role: response.data.role ?? selectedRole,
         });
+        // v3.0.6.11-73: real 模式下以服务端返回角色为准 (英文枚举, 已归一化);
+        // mock 演示模式保留角色选择器 (中文), useAuth/useRBAC 均兼容两种格式
+        const role = currentApiMode() === 'real' && response.data.role
+          ? normalizeRole(response.data.role)
+          : selectedRole;
         const payload = {
           id: response.data.userId || `demo-${selectedRole}`,
           name: response.data.userName || DEMO_USERS.find(d => d.role === selectedRole)?.name || selectedRole,
-          role: selectedRole,
+          role,
           department: '放射科',
           phone: '',
           username: username.trim(),

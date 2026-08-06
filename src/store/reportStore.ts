@@ -215,10 +215,6 @@ function buildReportActor(report: ReportDto, initial?: ReportStateName) {
   return actor
 }
 
-function statusLabelToMachine(status: string): ReportStateName {
-  return REPORT_STATUS_TO_STATE[status] ?? 'pendingAssignment'
-}
-
 function machineStateToLabel(state: ReportStateName): string {
   return REPORT_STATE_LABEL[state]
 }

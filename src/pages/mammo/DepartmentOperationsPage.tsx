@@ -1,11 +1,6 @@
 // 6.8 Department Operations (20 pts)
 import { useState, useMemo } from 'react'
-import {
-  Building2, Users, Calendar, Clock, Activity, TrendingUp,
-  RefreshCw, Download, Plus, Search, Filter, ChevronRight,
-  Bed, UserCheck, Stethoscope, Syringe, FileText, BarChart3,
-  AlertTriangle, CheckCircle,
-} from 'lucide-react'
+import { Users, Calendar, Clock, Activity, TrendingUp, RefreshCw, Download, Plus, Bed, UserCheck, FileText } from 'lucide-react'
 
 const statsData = [
   { label: '今日检查量', value: '28', unit: '例', icon: Activity, color: '#2563eb', bg: '#eff6ff' },
@@ -55,8 +50,8 @@ const StatusBadge = ({ status }: { status: string }) => {
 
 const DepartmentOperationsPage = () => {
   const [search, setSearch] = useState('')
-  const [tab] = useState(1)
-  const now = new Date()
+  const [_tab] = useState(1)
+  new Date();
 
   const staff = [
     { name: '张敏', role: '主任医师', shift: '上午', status: '在岗', focus: '诊断' },

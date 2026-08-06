@@ -4,7 +4,7 @@
 // 安全加固版：移除password字段，引入RBAC权限控制
 // ============================================================
 
-import { z } from 'zod';
+
 import { UserSchema, PatientSchema, ExamSchema, ReportSchema } from '../utils/validation';
 
 // ---------- 基础枚举 ----------

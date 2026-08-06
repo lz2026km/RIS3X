@@ -23,8 +23,7 @@ export function generateMockVolumeSlices(count: number): number[][] {
     for (let y = 0; y < size; y++) {
       for (let x = 0; x < size; x++) {
         const cx = size / 2, cy = size / 2;
-        const dist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
-        const angle = Math.atan2(y - cy, x - cx);
+        const dist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);Math.atan2(y - cy, x - cx);
         // Simulated mandible shape
         const bone = 1 - Math.abs(dist - 18) / 8;
         const nerve = dist > 10 && dist < 14 ? 1 - Math.abs(dist - 12) / 2 : 0;

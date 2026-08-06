@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { message } from 'antd'
-import { Search, Filter, ChevronRight, Monitor, Activity, FileText, Bell, User, AlertTriangle, LayoutDashboard, ListChecks, Image, Mic, BarChart3 } from 'lucide-react'
+import { Search, Filter, ChevronRight, Bell, AlertTriangle, ListChecks, Image, Mic, BarChart3 } from 'lucide-react'
 import { mobileApi, type DoctorWorklistItem, type DoctorStats } from '../../../services/api'
 
 export { type DoctorWorklistItem, type DoctorStats } from '../../../services/api'
@@ -39,7 +39,7 @@ export default function DoctorMobileWorkstation() {
   const [search, setSearch] = useState('')
   const [worklist, setWorklist] = useState<DoctorWorklistItem[]>([])
   const [stats, setStats] = useState<DoctorStats>({ totalPending: 0, totalReading: 0, completedToday: 0, criticalFindings: 0, avgReportTime: 0 })
-  const [loading, setLoading] = useState(true)
+  const [_loading, setLoading] = useState(true)
 
   useEffect(() => {
     let cancelled = false
@@ -65,7 +65,7 @@ export default function DoctorMobileWorkstation() {
     return true
   })
 
-  const handleItemClick = useCallback((item: DoctorWorklistItem) => {
+  const handleItemClick = useCallback((_item: DoctorWorklistItem) => {
     message.info('该功能暂不可用')
   }, [])
 

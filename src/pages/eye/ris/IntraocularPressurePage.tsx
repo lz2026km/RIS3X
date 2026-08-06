@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, InputNumber, Select, Tag, Button, Spin } from 'antd';
-import { Eye, Droplets } from 'lucide-react';
+import { Card, Row, Col, InputNumber, Select, Tag, Button } from 'antd';
+import { Droplets } from 'lucide-react';
 import EyeLateralityBadge from '@/components/eye/EyeLateralityBadge';
 import IopCurveChart from '@/components/eye/IopCurveChart';
 import { eyeApi } from '@/services/api/eyeApi';
@@ -15,7 +15,7 @@ const IntraocularPressurePage: React.FC = () => {
   const [iop, setIop] = useState({ od: 18, os: 19 });
   const [device, setDevice] = useState('nct');
   const [iopRecords, setIopRecords] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;

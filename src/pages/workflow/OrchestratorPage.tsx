@@ -5,59 +5,11 @@ import {
   useDroppable,
   DragEndEvent,
 } from "@dnd-kit/core";
-import {
-  Layers,
-  Save,
-  Play,
-  List,
-  History,
-  GripVertical,
-  Plus,
-  CheckCircle2,
-  X,
-  Clock,
-  AlertTriangle,
-  BarChart3,
-  GitBranch,
-  Zap,
-  Settings,
-  Trash2,
-  ChevronRight,
-} from "lucide-react";
-import {
-  Table,
-  Button,
-  Tag,
-  message,
-  Modal,
-  Input,
-  Select,
-  Spin,
-  Card,
-  Statistic,
-  Row,
-  Col,
-  Tabs,
-  Tooltip,
-  Badge,
-  Popconfirm,
-  Space,
-  Divider,
-  Progress,
-  Switch,
-  InputNumber,
-} from "antd";
+import { Layers, Save, Play, List, History, GripVertical, Plus, CheckCircle2, X, Clock, GitBranch, Zap, Settings, Trash2 } from 'lucide-react';
+import { Table, Button, Tag, message, Modal, Input, Select, Card, Statistic, Row, Col, Tabs, Tooltip, Badge, Popconfirm, Space, Switch, InputNumber } from 'antd';
 import type { ColumnsType } from "antd/es/table";
 import { useTranslation } from "react-i18next";
-import {
-  orchestratorApi,
-  type OrchestratorFlow,
-  type FlowExecution,
-  type FlowStepDefinition,
-  type FlowStepExecution,
-  type SlaConfigDto,
-  type SlaStats,
-} from "../../services/api/orchestratorApi";
+import { orchestratorApi, type OrchestratorFlow, type FlowExecution, type FlowStepDefinition, type SlaConfigDto, type SlaStats } from '../../services/api/orchestratorApi';
 
 type StepTypeColor = { key: string; color: string };
 
@@ -79,7 +31,7 @@ const STATUS_COLORS: Record<string, string> = {
   SKIPPED: "#8b5cf6",
 };
 
-function PaletteItem({ type, label }: { type: string; label: string }) {
+function PaletteItem({ type }: { type: string; label: string }) {
   const t = useTranslation().t;
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({

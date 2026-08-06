@@ -1,6 +1,6 @@
-import React from 'react'
+
 import { Filter } from 'lucide-react'
-import { PRIMARY, GRAY, WHITE } from './reportUtils'
+import { GRAY, WHITE } from './reportUtils'
 
 export interface ReportAdvancedFilterProps {
   showAdvancedFilter: boolean

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { BarChart3, CheckCircle, XCircle, AlertTriangle, TrendingUp, TrendingDown, Download, FileText, Activity, Shield } from 'lucide-react'
+import { BarChart3, CheckCircle, XCircle, AlertTriangle, TrendingUp, TrendingDown, Download, FileText, Shield } from 'lucide-react'
 import { getQualityComplianceService } from '../../services/contrast'
 import type { QualityMetric, RegulatoryCheck } from '../../services/contrast'
 

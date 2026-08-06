@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import {
-  Card, Table, Tag, Space, Typography, Button, message, Row, Col,
-  Statistic, Spin, Empty, Badge, Tooltip, Switch,
-} from 'antd'
-import { Cpu, RefreshCw, CheckCircle, XCircle, AlertTriangle, Settings } from 'lucide-react'
+import { Card, Table, Tag, Space, Typography, Button, message, Row, Col, Statistic, Empty, Badge } from 'antd'
+import { Cpu, RefreshCw, Settings } from 'lucide-react'
 import { v3AiPlatformApi } from '../../services/api/v3Api'
 
 const { Text, Title } = Typography
@@ -30,7 +27,7 @@ const AiProvidersPage: React.FC = () => {
       if (res.success && res.data) {
         setProviders(res.data)
         setProviderDetails(
-          res.data.providers.map((p, idx) => ({
+          res.data.providers.map((p, _idx) => ({
             id: p,
             name: `Provider ${p}`,
             type: '生产',

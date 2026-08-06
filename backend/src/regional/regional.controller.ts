@@ -3,7 +3,7 @@ import { Roles } from '../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { RegionalService } from './regional.service'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
-import { UpdateScheduleSchema } from './regional.schema'
+import { UpdateScheduleSchema, CreateAccessApplicationSchema, CreateConsultationRequestSchema } from './regional.schema'
 
 @ApiTags('regional')
 @ApiBearerAuth()
@@ -11,6 +11,68 @@ import { UpdateScheduleSchema } from './regional.schema'
 @Controller('regional')
 export class RegionalController {
   constructor(private readonly svc: RegionalService) {}
+
+  // ── 医联体影像页 (静态子路由必须声明在 imaging/:id 之前) ──
+
+  @Get('imaging/applications')
+  listApplications() { return this.svc.listAccessApplications() }
+
+  @Post('imaging/applications')
+  createApplication(@Body(new ZodValidationPipe(CreateAccessApplicationSchema)) body: Record<string, unknown>) { return this.svc.createAccessApplication(body) }
+
+  @Post('imaging/applications/:id/approve')
+  approveApplication(@Param('id') id: string) { return this.svc.approveAccessApplication(id) }
+
+  @Post('imaging/applications/:id/reject')
+  rejectApplication(@Param('id') id: string) { return this.svc.rejectAccessApplication(id) }
+
+  @Get('imaging/consultations')
+  listConsultationRequests() { return this.svc.listConsultationRequests() }
+
+  @Post('imaging/consultations')
+  createConsultationRequest(@Body(new ZodValidationPipe(CreateConsultationRequestSchema)) body: Record<string, unknown>) { return this.svc.createConsultationRequest(body) }
+
+  @Get('imaging/access-records')
+  listAccessRecords() { return this.svc.listAccessRecords() }
+
+  @Get('imaging/institutions')
+  listInstitutions() { return this.svc.listInstitutions() }
+
+  @Get('imaging/cross-query')
+  crossInstitutionQuery(@Query('institutionId') institutionId?: string, @Query('queryType') queryType?: string, @Query('queryValue') queryValue?: string) {
+    return this.svc.crossInstitutionQuery({ institutionId, queryType, queryValue })
+  }
+
+  @Get('imaging/document-registry')
+  listDocumentRegistry() { return this.svc.listDocumentRegistry() }
+
+  @Get('imaging/pix')
+  pixQuery(@Query('patientId') patientId: string) { return this.svc.pixQuery(patientId) }
+
+  @Get('imaging/audit-trail')
+  listAuditTrail() { return this.svc.listAuditTrail() }
+
+  // ── 医联体报告页在用孤儿 ──
+
+  @Get('institutions')
+  listRegionalInstitutions() { return this.svc.listRegionalInstitutions() }
+
+  @Get('consultations')
+  listConsultations() { return this.svc.listConsultations() }
+
+  @Get('report-records')
+  listReportRecords() { return this.svc.listReportRecords() }
+
+  @Get('critical-values')
+  listCriticalValues() { return this.svc.listCriticalValues() }
+
+  @Get('remote-diagnoses')
+  listRemoteDiagnoses() { return this.svc.listRemoteDiagnoses() }
+
+  @Get('co-sign-records')
+  listCoSignRecords() { return this.svc.listCoSignRecords() }
+
+  // ── 原有用例 ──
 
   @Get('imaging')
   listRegionalImaging() { return this.svc.listRegionalImaging() }

@@ -1,13 +1,6 @@
-import { useState, useMemo } from 'react'
-import {
-  TrendingUp, TrendingDown, DollarSign, BarChart3, PieChart,
-  Calendar, ArrowUpRight, ArrowDownRight, Monitor, Users,
-  Building2, Download, RefreshCw, Activity,
-} from 'lucide-react'
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  LineChart, Line, AreaChart, Area, PieChart as RePie, Pie, Cell, Legend,
-} from 'recharts'
+import { useState } from 'react'
+import { TrendingUp, DollarSign, BarChart3, ArrowUpRight, ArrowDownRight, Monitor, Users, Building2, Download, Activity } from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RePie, Pie, Cell, Legend } from 'recharts'
 
 const MONTHLY_DATA = [
   { month: '2025-07', revenue: 680, cost: 420, profit: 260, exams: 4200 },

@@ -42,7 +42,7 @@ function toDto(rule: RoutingRule): Partial<RoutingRuleDto> {
 
 export default function RoutingRulePage() {
   const [rules, setRules] = useState<RoutingRule[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [_loading, setLoading] = useState(false);
   const engine = useMemo(() => {
     const e = new RoutingEngine();
     rules.forEach((r) => e.addRule(r));

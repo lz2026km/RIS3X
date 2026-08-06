@@ -9,6 +9,7 @@ import {
   CalendarDays, User, Phone, CreditCard, Scan, MapPin, Bell,
   AlertCircle, Check, ArrowRightLeft, BarChart3, CalendarCheck
 } from 'lucide-react'
+import { formatDateObj } from '../utils/date';
 
 // ==================== 类型定义 ====================
 interface Appointment {
@@ -60,9 +61,7 @@ interface Statistics {
 }
 
 // ==================== 工具函数 ====================
-const formatDate = (date: Date): string => {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-}
+
 
 const formatDateCht = (dateStr: string): string => {
   const d = new Date(dateStr)
@@ -116,7 +115,7 @@ const MODALITY_OPTIONS = ['全部', 'CT', 'MR', 'DR', 'DSA', 'MG', 'GI', '超声
 // ==================== 模拟预约数据 ====================
 const generateMockAppointments = (): Appointment[] => {
   const today = new Date()
-  const base = formatDate(today)
+  const base = formatDateObj(today)
   return [
     { id: 'IMG-001', patientId: 'P001', patientName: '张志刚', patientInitials: '张志', gender: '男', age: 62, idCard: '3101011964021XXXXX', phone: '13800138001', examItemId: 'EI-001', examItemName: '冠脉CTA', modality: 'CT', bodyPart: '心脏', examDate: base, examTime: '09:00', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution）', roomId: 'ROOM-CT1', roomName: 'CT室1', referringDoctorId: 'R001', referringDoctorName: '李明辉', clinicalDiagnosis: '冠心病待查', notes: '需控制心率', status: 'confirmed', priority: 'urgent', createdAt: '2026-04-28 10:00', updatedAt: '2026-04-28 10:00' },
     { id: 'IMG-002', patientId: 'P002', patientName: '李秀英', patientInitials: '李秀', gender: '女', age: 55, idCard: '3101021970021XXXXX', phone: '13800138002', examItemId: 'EI-002', examItemName: '头颅MR平扫', modality: 'MR', bodyPart: '头颅', examDate: base, examTime: '10:00', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子Vida）', roomId: 'ROOM-MR1', roomName: 'MR室1', referringDoctorId: 'R002', referringDoctorName: '王秀峰', clinicalDiagnosis: '头痛待查', notes: '', status: 'pending', priority: 'normal', createdAt: '2026-04-29 08:00', updatedAt: '2026-04-29 08:00' },
@@ -126,12 +125,12 @@ const generateMockAppointments = (): Appointment[] => {
     { id: 'IMG-006', patientId: 'P006', patientName: '孙伟', patientInitials: '孙伟', gender: '男', age: 35, idCard: '3101061990011XXXXX', phone: '13800138006', examItemId: 'EI-006', examItemName: '腰椎MR平扫', modality: 'MR', bodyPart: '脊柱', examDate: base, examTime: '15:00', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子Vida）', roomId: 'ROOM-MR1', roomName: 'MR室1', referringDoctorId: 'R003', referringDoctorName: '张海涛', clinicalDiagnosis: '腰痛待查', notes: '', status: 'confirmed', priority: 'normal', createdAt: '2026-04-30 11:00', updatedAt: '2026-04-30 11:00' },
     { id: 'IMG-007', patientId: 'P007', patientName: '吴婷', patientInitials: '吴婷', gender: '女', age: 42, idCard: '3101071978021XXXXX', phone: '13800138007', examItemId: 'EI-007', examItemName: 'MG', modality: 'MG', bodyPart: '胸部', examDate: base, examTime: '10:00', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE）', roomId: 'ROOM-MG1', roomName: '钼靶室1', referringDoctorId: 'R004', referringDoctorName: '刘芳', clinicalDiagnosis: '乳腺结节随访', notes: '月经结束后7-10天最佳', status: 'confirmed', priority: 'normal', createdAt: '2026-04-29 15:00', updatedAt: '2026-04-29 15:00' },
     { id: 'IMG-008', patientId: 'P008', patientName: '郑丽', patientInitials: '郑丽', gender: '女', age: 38, idCard: '3101081982021XXXXX', phone: '13800138008', examItemId: 'EI-008', examItemName: '腹部立卧位平片', modality: 'DR', bodyPart: '腹部', examDate: base, examTime: '08:00', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE）', roomId: 'ROOM-DR2', roomName: 'DR室2', referringDoctorId: 'R002', referringDoctorName: '王秀峰', clinicalDiagnosis: '肠梗阻待查', notes: '急查', status: 'completed', priority: 'urgent', createdAt: '2026-05-01 07:00', updatedAt: '2026-05-01 08:30' },
-    { id: 'IMG-009', patientId: 'P001', patientName: '张志刚', patientInitials: '张志', gender: '男', age: 62, idCard: '3101011964021XXXXX', phone: '13800138001', examItemId: 'EI-009', examItemName: '冠脉造影', modality: 'DSA', bodyPart: '心脏', examDate: formatDate(new Date(today.getTime() + 86400000)), examTime: '08:30', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦）', roomId: 'ROOM-DSA1', roomName: 'DSA室1', referringDoctorId: 'R001', referringDoctorName: '李明辉', clinicalDiagnosis: '冠心病三支病变', notes: '支架治疗前评估', status: 'confirmed', priority: 'urgent', createdAt: '2026-04-28 10:00', updatedAt: '2026-04-28 10:00' },
-    { id: 'IMG-010', patientId: 'P002', patientName: '李秀英', patientInitials: '李秀', gender: '女', age: 55, idCard: '3101021970021XXXXX', phone: '13800138002', examItemId: 'EI-010', examItemName: '胸部CT平扫', modality: 'CT', bodyPart: '胸部', examDate: formatDate(new Date(today.getTime() + 86400000)), examTime: '09:30', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution）', roomId: 'ROOM-CT1', roomName: 'CT室1', referringDoctorId: 'R002', referringDoctorName: '王秀峰', clinicalDiagnosis: '肺炎复查', notes: '', status: 'pending', priority: 'normal', createdAt: '2026-04-30 16:00', updatedAt: '2026-04-30 16:00' },
-    { id: 'IMG-011', patientId: 'P003', patientName: '王建国', patientInitials: '王建', gender: '男', age: 58, idCard: '3101031968011XXXXX', phone: '13800138003', examItemId: 'EI-011', examItemName: '脊柱CT', modality: 'CT', bodyPart: '脊柱', examDate: formatDate(new Date(today.getTime() + 86400000)), examTime: '14:00', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', referringDoctorId: 'R003', referringDoctorName: '张海涛', clinicalDiagnosis: '腰椎间盘突出', notes: '', status: 'confirmed', priority: 'normal', createdAt: '2026-04-30 14:00', updatedAt: '2026-04-30 14:00' },
-    { id: 'IMG-012', patientId: 'P004', patientName: '赵晓敏', patientInitials: '赵晓', gender: '女', age: 45, idCard: '3101041978011XXXXX', phone: '13800138004', examItemId: 'EI-012', examItemName: '腹部MR平扫+增强', modality: 'MR', bodyPart: '腹部', examDate: formatDate(new Date(today.getTime() + 86400000 * 2)), examTime: '10:00', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子Vida）', roomId: 'ROOM-MR1', roomName: 'MR室1', referringDoctorId: 'R004', referringDoctorName: '刘芳', clinicalDiagnosis: '肝占位增强', notes: '空腹6h', status: 'pending', priority: 'urgent', createdAt: '2026-05-01 08:00', updatedAt: '2026-05-01 08:00' },
-    { id: 'IMG-013', patientId: 'P005', patientName: '周玉芬', patientInitials: '周玉', gender: '女', age: 52, idCard: '3101051973021XXXXX', phone: '13800138005', examItemId: 'EI-013', examItemName: '上消化道造影', modality: 'GI', bodyPart: '腹部', examDate: formatDate(new Date(today.getTime() + 86400000)), examTime: '15:00', deviceId: 'DEV-RF-01', deviceName: '胃肠造影（岛津）', roomId: 'ROOM-RF1', roomName: '造影室1', referringDoctorId: 'R001', referringDoctorName: '李明辉', clinicalDiagnosis: '消化不良待查', notes: '', status: 'cancelled', priority: 'normal', cancelReason: 'patient', createdAt: '2026-04-29 10:00', updatedAt: '2026-05-01 09:00' },
-    { id: 'IMG-014', patientId: 'P009', patientName: '钱伟明', patientInitials: '钱伟', gender: '男', age: 68, idCard: '3101091956011XXXXX', phone: '13800138009', examItemId: 'EI-014', examItemName: '胸部CT平扫', modality: 'CT', bodyPart: '胸部', examDate: formatDate(new Date(today.getTime() + 86400000)), examTime: '09:30', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution）', roomId: 'ROOM-CT1', roomName: 'CT室1', referringDoctorId: 'R002', referringDoctorName: '王秀峰', clinicalDiagnosis: '肺结节复查', notes: '高危结节', status: 'confirmed', priority: 'urgent', createdAt: '2026-05-02 09:00', updatedAt: '2026-05-02 09:00' },
+    { id: 'IMG-009', patientId: 'P001', patientName: '张志刚', patientInitials: '张志', gender: '男', age: 62, idCard: '3101011964021XXXXX', phone: '13800138001', examItemId: 'EI-009', examItemName: '冠脉造影', modality: 'DSA', bodyPart: '心脏', examDate: formatDateObj(new Date(today.getTime() + 86400000)), examTime: '08:30', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦）', roomId: 'ROOM-DSA1', roomName: 'DSA室1', referringDoctorId: 'R001', referringDoctorName: '李明辉', clinicalDiagnosis: '冠心病三支病变', notes: '支架治疗前评估', status: 'confirmed', priority: 'urgent', createdAt: '2026-04-28 10:00', updatedAt: '2026-04-28 10:00' },
+    { id: 'IMG-010', patientId: 'P002', patientName: '李秀英', patientInitials: '李秀', gender: '女', age: 55, idCard: '3101021970021XXXXX', phone: '13800138002', examItemId: 'EI-010', examItemName: '胸部CT平扫', modality: 'CT', bodyPart: '胸部', examDate: formatDateObj(new Date(today.getTime() + 86400000)), examTime: '09:30', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution）', roomId: 'ROOM-CT1', roomName: 'CT室1', referringDoctorId: 'R002', referringDoctorName: '王秀峰', clinicalDiagnosis: '肺炎复查', notes: '', status: 'pending', priority: 'normal', createdAt: '2026-04-30 16:00', updatedAt: '2026-04-30 16:00' },
+    { id: 'IMG-011', patientId: 'P003', patientName: '王建国', patientInitials: '王建', gender: '男', age: 58, idCard: '3101031968011XXXXX', phone: '13800138003', examItemId: 'EI-011', examItemName: '脊柱CT', modality: 'CT', bodyPart: '脊柱', examDate: formatDateObj(new Date(today.getTime() + 86400000)), examTime: '14:00', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', referringDoctorId: 'R003', referringDoctorName: '张海涛', clinicalDiagnosis: '腰椎间盘突出', notes: '', status: 'confirmed', priority: 'normal', createdAt: '2026-04-30 14:00', updatedAt: '2026-04-30 14:00' },
+    { id: 'IMG-012', patientId: 'P004', patientName: '赵晓敏', patientInitials: '赵晓', gender: '女', age: 45, idCard: '3101041978011XXXXX', phone: '13800138004', examItemId: 'EI-012', examItemName: '腹部MR平扫+增强', modality: 'MR', bodyPart: '腹部', examDate: formatDateObj(new Date(today.getTime() + 86400000 * 2)), examTime: '10:00', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子Vida）', roomId: 'ROOM-MR1', roomName: 'MR室1', referringDoctorId: 'R004', referringDoctorName: '刘芳', clinicalDiagnosis: '肝占位增强', notes: '空腹6h', status: 'pending', priority: 'urgent', createdAt: '2026-05-01 08:00', updatedAt: '2026-05-01 08:00' },
+    { id: 'IMG-013', patientId: 'P005', patientName: '周玉芬', patientInitials: '周玉', gender: '女', age: 52, idCard: '3101051973021XXXXX', phone: '13800138005', examItemId: 'EI-013', examItemName: '上消化道造影', modality: 'GI', bodyPart: '腹部', examDate: formatDateObj(new Date(today.getTime() + 86400000)), examTime: '15:00', deviceId: 'DEV-RF-01', deviceName: '胃肠造影（岛津）', roomId: 'ROOM-RF1', roomName: '造影室1', referringDoctorId: 'R001', referringDoctorName: '李明辉', clinicalDiagnosis: '消化不良待查', notes: '', status: 'cancelled', priority: 'normal', cancelReason: 'patient', createdAt: '2026-04-29 10:00', updatedAt: '2026-05-01 09:00' },
+    { id: 'IMG-014', patientId: 'P009', patientName: '钱伟明', patientInitials: '钱伟', gender: '男', age: 68, idCard: '3101091956011XXXXX', phone: '13800138009', examItemId: 'EI-014', examItemName: '胸部CT平扫', modality: 'CT', bodyPart: '胸部', examDate: formatDateObj(new Date(today.getTime() + 86400000)), examTime: '09:30', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution）', roomId: 'ROOM-CT1', roomName: 'CT室1', referringDoctorId: 'R002', referringDoctorName: '王秀峰', clinicalDiagnosis: '肺结节复查', notes: '高危结节', status: 'confirmed', priority: 'urgent', createdAt: '2026-05-02 09:00', updatedAt: '2026-05-02 09:00' },
     { id: 'IMG-015', patientId: 'P010', patientName: '陈丽华', patientInitials: '陈丽', gender: '女', age: 33, idCard: '3101101992011XXXXX', phone: '13800138010', examItemId: 'EI-015', examItemName: '甲状腺超声', modality: '超声', bodyPart: '颈部', examDate: base, examTime: '11:30', deviceId: 'DEV-US-01', deviceName: '超声-1（GE）', roomId: 'ROOM-US1', roomName: '超声室1', referringDoctorId: 'R004', referringDoctorName: '刘芳', clinicalDiagnosis: '甲状腺结节随访', notes: '', status: 'pending', priority: 'normal', createdAt: '2026-05-02 10:00', updatedAt: '2026-05-02 10:00' },
   ]
 }
@@ -164,13 +163,13 @@ export default function AppointmentManagementPage() {
 
   // 统计信息
   const statistics: Statistics = useMemo(() => {
-    const today = formatDate(new Date())
+    const today = formatDateObj(new Date())
     const weekEnd = new Date(currentWeekStart)
     weekEnd.setDate(currentWeekStart.getDate() + 6)
-    const weekEndStr = formatDate(weekEnd)
+    const weekEndStr = formatDateObj(weekEnd)
 
     const todayAppts = appointments.filter(a => a.examDate === today)
-    const weekAppts = appointments.filter(a => a.examDate >= formatDate(currentWeekStart) && a.examDate <= weekEndStr)
+    const weekAppts = appointments.filter(a => a.examDate >= formatDateObj(currentWeekStart) && a.examDate <= weekEndStr)
 
     // 检测冲突（同一患者同一时段多个预约）
     const conflicts: Set<string> = new Set()
@@ -900,9 +899,9 @@ export default function AppointmentManagementPage() {
                 <div key={day} style={styles.calendarDayHeader}>{day}</div>
               ))}
               {weekDates.map((date, idx) => {
-                const dateStr = formatDate(date)
+                const dateStr = formatDateObj(date)
                 const dayAppts = appointments.filter(a => a.examDate === dateStr)
-                const isToday = dateStr === formatDate(new Date())
+                const isToday = dateStr === formatDateObj(new Date())
 
                 return (
                   <div

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Activity, Clock, Users, DollarSign, Calendar, FlaskConical, TrendingUp, Package } from 'lucide-react'
+import { Activity, Clock, Users, DollarSign, FlaskConical, TrendingUp, Package } from 'lucide-react'
 
 type KpiCard = {
   label: string

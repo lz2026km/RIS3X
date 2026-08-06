@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import dayjs, { type Dayjs } from 'dayjs'
-import { Card, Row, Col, Statistic, DatePicker, Spin, Select, Space } from 'antd'
-import { Cpu, TrendingUp, Activity, Target } from 'lucide-react'
+import { Card, Row, Col, Statistic, DatePicker, Spin, Space } from 'antd'
+import { Cpu, TrendingUp } from 'lucide-react'
 
 const { RangePicker } = DatePicker
 
@@ -86,7 +86,7 @@ export default function BenchmarkAiDiagnosisPage() {
   const iw = w - pad.left - pad.right
   const ih = h - pad.top - pad.bottom
 
-  const trendPath = (key: 'sensitivity' | 'specificity' | 'accuracy', color: string) => {
+  const trendPath = (key: 'sensitivity' | 'specificity' | 'accuracy', _color: string) => {
     if (trend.length < 2) return ''
     const xStep = iw / (trend.length - 1)
     return trend.map((t, i) => `${i === 0 ? 'M' : 'L'}${pad.left + i * xStep},${pad.top + ih - ((t[key] - trendMin) / range) * ih}`).join(' ')

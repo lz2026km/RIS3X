@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Card, Row, Col, Tag, Space, Select, Slider, Button } from "antd";
-import { Layout as LayoutIcon, Image, Download, Move } from "lucide-react";
+import { Layout as LayoutIcon, Image, Download } from 'lucide-react';
 
 const MontagePage: React.FC = () => {
   const [type, setType] = useState<"panoramic" | "mosaic" | "widefield">(

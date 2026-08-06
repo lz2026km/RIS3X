@@ -1,8 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
-import {
-  BarChart3, TrendingUp, TrendingDown, Download, Calendar,
-  AlertTriangle, CheckCircle, Activity, RefreshCw, ArrowUp, ArrowDown,
-} from 'lucide-react'
+import { BarChart3, TrendingUp, Download, AlertTriangle, CheckCircle, Activity, ArrowUp, ArrowDown } from 'lucide-react'
 import type { CdsStatsOverview } from '../../services/cds'
 import { cdsApi } from '../../services/api/cdsApi'
 

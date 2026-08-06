@@ -4,6 +4,7 @@ import { Eye, Printer, Download, User, Zap, ShieldCheck, ChevronDown, ChevronRig
 import type { RadiologyReport } from '../../types'
 import { StatusBadge, StatusTimeline, REPORT_STATUS_META } from '../../components/report'
 import { ProTable, type ProColumn } from '../../components/data/ProTable'
+import { formatDateTime } from '../../utils/date';
 
 const PRIMARY = '#1e3a5f'
 const DANGER = '#dc2626'
@@ -37,10 +38,7 @@ function highlightAnomalies(text: string | undefined): ReactNode {
   return parts.length > 0 ? parts : text
 }
 
-function formatDate(value: string) {
-  if (!value) return '-'
-  return value.length >= 16 ? value.slice(0, 16) : value
-}
+
 
 function QualityBadge({ score }: { score?: number }) {
   const [showTooltip, setShowTooltip] = useState(false)
@@ -125,7 +123,7 @@ export default function ReportTableView({
     },
     { title: '报告医生', dataIndex: 'reportDoctorName', key: 'reportDoctorName', width: 110, searchable: true, render: (value) => String(value || '-') },
     { title: '审核医生', dataIndex: 'auditorName', key: 'auditorName', width: 110, searchable: true, render: (value) => String(value || '-') },
-    { title: '创建时间', dataIndex: 'createdTime', key: 'createdTime', width: 150, sorter: (a, b) => String(a.createdTime).localeCompare(String(b.createdTime)), defaultSortOrder: 'descend', render: (value) => formatDate(String(value)) },
+    { title: '创建时间', dataIndex: 'createdTime', key: 'createdTime', width: 150, sorter: (a, b) => String(a.createdTime).localeCompare(String(b.createdTime)), defaultSortOrder: 'descend', render: (value) => formatDateTime(String(value)) },
     { title: '质量', dataIndex: 'qualityScore', key: 'qualityScore', width: 80, sorter: (a, b) => (a.qualityScore ?? 0) - (b.qualityScore ?? 0), render: (value) => <QualityBadge score={typeof value === 'number' ? value : undefined} /> },
     {
       title: '操作',

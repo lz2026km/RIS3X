@@ -3,7 +3,7 @@ import { Card, Table, Button, Space, Tag, Modal, Form, Input, Select, DatePicker
 import { Users, Plus, Edit, Trash, Search, RefreshCw, Eye } from 'lucide-react'
 import { fhirApi, type FhirPatient } from '../../services/api/fhirApi'
 
-const { RangePicker } = DatePicker
+const {  } = DatePicker
 
 const PAGE_SIZE = 10
 

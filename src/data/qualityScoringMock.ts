@@ -23,7 +23,6 @@ import type {
 
 const isoNow = () => new Date().toISOString();
 const isoOffset = (h: number) => new Date(Date.now() + h * 3600 * 1000).toISOString();
-const isoDaysAgo = (d: number) => new Date(Date.now() - d * 86400000).toISOString();
 
 // ============== 15 维度定义 ==============
 export const SCORING_DIMENSIONS: ScoringDimension[] = [
@@ -384,7 +383,7 @@ const round = (v: number) => Math.round(v * 10) / 10;
 const computeDimensionFromRules = (
   dim: ScoringDimension,
   submission: ScoringSubmission,
-  threshold: ThresholdConfig,
+  _threshold: ThresholdConfig,
 ): { score: number; evidence: ScoringEvaluationResult['evidence']; issues: string[] } => {
   const evidence: ScoringEvaluationResult['evidence'] = [];
   const issues: string[] = [];

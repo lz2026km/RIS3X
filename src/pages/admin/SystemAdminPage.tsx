@@ -1,7 +1,7 @@
 // [v3.0.6.8-64] 系统管理后台 (用户+角色+配置)
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Button, Table, Row, Col, Statistic, message, Tabs, Form, Input, Select, Switch, Modal, List, Alert, Badge, Descriptions, Popconfirm, Spin } from 'antd';
-import { Activity, Plus, Edit3, Trash2, Shield, User, Settings, Key, Save } from 'lucide-react';
+import { Card, Space, Tag, Button, Table, Row, Col, Statistic, message, Tabs, Form, Input, Select, Modal, List, Badge, Spin } from 'antd';
+import { Plus, Edit3, Trash2, Settings, Save } from 'lucide-react';
 import { systemAdminApi, type SystemUserDto, type SystemRoleDto, type SystemConfigDto } from '../../services/api/systemAdminApi';
 
 export const SystemAdminPage: React.FC = () => {
@@ -13,7 +13,7 @@ export const SystemAdminPage: React.FC = () => {
   const [userModal, setUserModal] = useState(false);
   const [newUserName, setNewUserName] = useState('');
   const [newUserRole, setNewUserRole] = useState('技师');
-  const [configEditKey, setConfigEditKey] = useState<string | null>(null);
+  const [_configEditKey, _setConfigEditKey] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -100,7 +100,7 @@ export const SystemAdminPage: React.FC = () => {
                     {title:'角色',dataIndex:'name',render:(r)=><Tag color="purple">{r}</Tag>},
                     {title:'权限',dataIndex:'permissions',render:(p)=><>{p.map((x:string)=><Tag key={x} style={{margin:2}}>{x}</Tag>)}</>},
                     {title:'用户数',dataIndex:'userCount'},
-                    {title:'操作',render:(_,record)=><Button size="small" icon={<Edit3 size={10}/>} disabled title="功能开发中，请通过后台系统操作">编辑</Button>},
+                    {title:'操作',render:(_,_record)=><Button size="small" icon={<Edit3 size={10}/>} disabled title="功能开发中，请通过后台系统操作">编辑</Button>},
                   ]} />
               </Card>
             },

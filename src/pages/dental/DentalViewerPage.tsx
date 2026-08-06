@@ -2,8 +2,8 @@
 // [v3.0.6.8-81] 修复: 复用 shared constants
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Card, Space, Tag, Button, Row, Col, Descriptions, message, Spin, Tabs, Empty, Divider, InputNumber, Slider, Tooltip, Alert } from 'antd';
-import { Eye, Maximize2, ZoomIn, ZoomOut, RotateCcw, Activity, Layers, Monitor, Camera, Scan, ChevronLeft, ChevronRight, Download, Ruler } from 'lucide-react';
+import { Card, Space, Tag, Button, Row, Col, Descriptions, message, Spin, Tabs, Empty, Divider, InputNumber, Slider, Tooltip } from 'antd';
+import { ZoomIn, ZoomOut, RotateCcw, Activity, Layers, Camera, ChevronLeft, ChevronRight } from 'lucide-react';
 import { MODALITY_LABELS } from '../../data/dental/constants';
 
 export const DentalViewerPage: React.FC = () => {

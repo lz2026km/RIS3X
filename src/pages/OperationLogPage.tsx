@@ -1,21 +1,6 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
-import {
-  Search, X, Clock, User, Monitor,
-  FileText, Edit3, CheckCircle, LogIn, LogOut, Download,
-  Settings, Eye, RefreshCw,
-  BarChart3, Activity,
-  AlertCircle, History, List,
-  MonitorSmartphone, Globe, Server,
-  TrendingUp, TrendingDown, Loader2, FileSpreadsheet,
-  CheckSquare, Printer, Upload, Wrench, Zap, Timer,
-  Flame, Users, ChevronRight, Shield, FileCheck,
-  AlertTriangle, Pause, Play, Radio, GitBranch,
-  Fingerprint, FileJson, FileBarChart, Calendar
-} from 'lucide-react'
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, Area, AreaChart
-} from 'recharts'
+import { X, Clock, User, FileText, CheckCircle, Download, BarChart3, Activity, AlertCircle, History, List, Globe, Loader2, FileSpreadsheet, Users, Shield, AlertTriangle, Pause, Play, Radio, GitBranch, Fingerprint, FileJson, FileBarChart } from 'lucide-react'
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts'
 import { userApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import {
@@ -24,13 +9,8 @@ import {
   HipaaExportPanel, DurationAnalysisView, UserActivityHeatmap, StatisticsCharts,
 } from './operation-log'
 import type { OperationLog, ViewTab, QuickTimeValue, HipaaStats } from './operation-log'
-import {
-  PRIMARY, ACCENT, SUCCESS, WARNING, DANGER, GRAY, WHITE, BG,
-  ACTION_COLORS, ACTION_ICONS, SOURCE_COLORS, SOURCE_ICONS,
-  HIPAA_ACTION_TYPES, HIPAA_ACTION_CATEGORIES, PAGE_SIZES,
-  QUICK_TIME_FILTERS
-} from './operation-log'
-import { generateMockOperationLogs, formatDateTime, formatDate, formatTime } from './operation-log'
+import { PRIMARY, ACCENT, SUCCESS, WARNING, DANGER, GRAY, WHITE, BG, ACTION_COLORS, HIPAA_ACTION_TYPES, HIPAA_ACTION_CATEGORIES, PAGE_SIZES, QUICK_TIME_FILTERS } from './operation-log'
+import { generateMockOperationLogs, formatDateTime, formatTime } from './operation-log'
 
 export default function OperationLogPage() {
   const allLogs = useMemo(() => generateMockOperationLogs(), [])

@@ -1,7 +1,7 @@
 // [v3.0.6.8-80] 患者安全与质量指标看板
 import React, { useState } from 'react';
-import { Card, Space, Tag, Row, Col, Statistic, Progress, Table, Badge, List, Timeline, Alert, Segmented, Gauge } from 'antd';
-import { Shield, AlertTriangle, Activity, TrendingUp, TrendingDown, Heart, CheckCircle2, Clock, Users, Stethoscope } from 'lucide-react';
+import { Card, Space, Tag, Row, Col, Statistic, Progress, Table, Badge, List, Segmented } from 'antd';
+import { Shield, AlertTriangle, Activity, TrendingUp, TrendingDown, Heart } from 'lucide-react';
 
 export const PatientSafetyDashboardPage: React.FC = () => {
   const [range, setRange] = useState('today');

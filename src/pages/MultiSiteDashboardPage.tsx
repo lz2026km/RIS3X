@@ -7,7 +7,7 @@ import { Card, Col, Row, Table, Tag, Statistic, Tabs, Progress, Badge, Space, Ty
 import { Building2, MapPin, Activity, Database, Globe, Network, CheckCircle, AlertTriangle, XCircle, RefreshCw, Shield } from "lucide-react";
 import { SITES, SYNC_EVENTS, ROUTING_RULES, getActiveSiteCount, getOfflineSiteCount, getTotalStudies } from "../services/site";
 
-const { Title, Text } = Typography;
+const {  Text } = Typography;
 
 const STATUS_MAP: Record<string, { color: string; label: string; icon: any }> = {
   active: { color: "green", label: "在线", icon: <CheckCircle size={14} /> },

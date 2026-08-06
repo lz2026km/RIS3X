@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { Sliders, Save, AlertTriangle, Info, AlertCircle, ArrowUpDown, BrainCircuit, FlaskConical, Route, Pill } from "lucide-react"
+import { Sliders, AlertTriangle, Info, AlertCircle, ArrowUpDown, BrainCircuit, FlaskConical, Route, Pill } from 'lucide-react'
 import { PageContainer } from "../../components/common/PageContainer"
 import { PageHeader } from "../../components/common/PageHeader"
 import { cdsApi, type RuleEvaluateRequest, type RuleEvaluateResult } from "../../services/api/cdsApi"
@@ -103,7 +103,7 @@ export default function RuleConfigPanel() {
             {results.length > 0 && (
               <div style={{ marginTop: 16 }}>
                 <h4 style={{ fontSize: 13, fontWeight: 700, color: "#1e293b", margin: "0 0 8px" }}>{t("evalResults")}</h4>
-                {results.map((r, i) => (
+                {results.map((r, _i) => (
                   <div key={r.ruleId} style={{ padding: "10px 12px", marginBottom: 8, background: r.triggered ? "#fefce8" : "#f8fafc", borderRadius: 6, border: "1px solid " + (r.triggered ? "#fef3c7" : "#e2e8f0") }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
                       {severityIcon(r.severity)}
@@ -126,7 +126,7 @@ export default function RuleConfigPanel() {
             <h3 style={{ fontSize: 14, fontWeight: 700, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
               <ArrowUpDown size={16} color="#8b5cf6" />{t("rulePriority")}
             </h3>
-            {sortedRules.map((r, i) => {
+            {sortedRules.map((r, _i) => {
               const Icon = TYPE_ICONS[r.type] ?? BrainCircuit
               return (
                 <div key={r.ruleId} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: "1px solid #f1f5f9" }}>

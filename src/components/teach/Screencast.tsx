@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Monitor, Mic, MousePointer, Play, Pause, Square, Maximize2, Minimize2 } from 'lucide-react'
+import { Monitor, Mic, MousePointer, Maximize2, Minimize2 } from 'lucide-react'
 
 export type RecorderState = 'idle' | 'recording' | 'paused' | 'playing'
 export type ScreencastHandle = {
@@ -175,7 +175,7 @@ export default function Screencast({ handleRef, onStateChange }: {
     mouseEventsRef.current = []
   }
 
-  const playRecording = useCallback(() => {
+  useCallback(() => {
     const blob = recordedBlobRef.current
     const video = videoRef.current
     if (!blob || !video) return
@@ -217,7 +217,7 @@ export default function Screencast({ handleRef, onStateChange }: {
       cancelAnimationFrame(animFrameRef.current)
       notifyState('idle')
     }
-  }, [notifyState])
+  }, [notifyState]);
 
   const formatTime = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
 

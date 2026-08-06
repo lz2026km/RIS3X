@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import { useState } from 'react'
 import { Card, Table, Button, Space, Tag, Form, Input, Select, message, Descriptions, Slider, Empty, Progress } from 'antd'
-import { Layers, Play, Search, RefreshCw, Eye } from 'lucide-react'
+import { Layers, Play, Search } from 'lucide-react'
 import {
   fusionV2Api,
   type FusionV2SeriesItem,

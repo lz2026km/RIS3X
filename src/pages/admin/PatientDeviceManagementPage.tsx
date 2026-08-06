@@ -1,15 +1,7 @@
 // [v3.0.6.8-46] PR2: 患者 + 设备 CRUD 综合管理页面
 import React, { useState, useEffect } from 'react';
-import {
-  Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, message,
-  Tabs, List, Empty, Statistic, Alert, InputNumber, Modal, Timeline,
-  Table, Drawer, Descriptions, Switch, Tooltip, Avatar,
-} from 'antd';
-import {
-  User, Box, Activity, Search, Plus, Edit3, Trash2, Wrench, QrCode,
-  Calendar, MapPin, Phone, Mail, Heart, Stethoscope, FileText,
-  ChevronRight, Clock, AlertCircle, RefreshCw, Save, X, History, BarChart3,
-} from 'lucide-react';
+import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, message, Tabs, List, Empty, Statistic, Alert, InputNumber, Modal, Timeline, Table, Descriptions, Avatar } from 'antd';
+import { User, Box, Plus, Edit3, Wrench, Stethoscope, FileText, History } from 'lucide-react';
 import { patientApi } from '@/services/api/patientApi';
 import { deviceApi } from '@/services/api/deviceApi';
 
@@ -20,7 +12,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
   // 患者
   const [patients, setPatients] = useState<any[]>([]);
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
-  const [patientDetail, setPatientDetail] = useState<any>(null);
+  const [_patientDetail, _setPatientDetail] = useState<any>(null);
   const [patientExams, setPatientExams] = useState<any[]>([]);
   const [patientReports, setPatientReports] = useState<any[]>([]);
   const [patientTimeline, setPatientTimeline] = useState<any[]>([]);

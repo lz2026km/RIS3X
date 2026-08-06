@@ -1,4 +1,4 @@
-import type { InjectionProtocol, InjectionRecord, InjectionPhase, InjectorDeviceStatus } from './types'
+import type { InjectionProtocol, InjectionRecord, InjectorDeviceStatus } from './types'
 
 export interface IInjectionWorkstationService {
   getProtocols(modality?: string): Promise<InjectionProtocol[]>

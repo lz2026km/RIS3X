@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Space, Tag, Button, Table, Tabs, Form, Select, Input, message, Alert, Badge, Descriptions, Row, Col } from 'antd';
 import { Send, Activity, History, Wifi, Server } from 'lucide-react';
 import { iheApi } from '../../services/api/integrationApi';
-import type { PamMessagesResponse, PamAckResponse } from '../../services/api/integrationApi';
+import type { PamMessagesResponse } from '../../services/api/integrationApi';
 
 const MSG_TYPES = ['A01', 'A03', 'A04', 'A05', 'A08', 'A11', 'A13'];
 

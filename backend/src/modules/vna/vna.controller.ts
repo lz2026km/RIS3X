@@ -30,7 +30,7 @@ interface UploadedFileShape {
 
 @ApiTags('vna')
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR', 'RADIOLOGIST', 'TECHNICIAN')
+@Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
 @Controller('vna')
 export class VnaController {
   constructor(private readonly service: VnaService) {}

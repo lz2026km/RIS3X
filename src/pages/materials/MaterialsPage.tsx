@@ -1,19 +1,11 @@
 // [v3.0.6.8-51] PR7: 眼料 (IOL 库存 + 接触镜库) 综合页面
 import React, { useState, useEffect } from 'react';
-import {
-  Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, message,
-  Tabs, List, Empty, Statistic, Alert, InputNumber, Modal, Timeline,
-  Table, Drawer, Descriptions, Switch, Tooltip, Avatar, Progress, Badge, DatePicker,
-} from 'antd';
-import {
-  Box, Eye, Package, ShoppingCart, Truck, AlertTriangle, Calendar, Save, X,
-  RefreshCw, Plus, Edit3, Trash2, Search, Filter, Activity, BarChart3, Hash,
-  Tag as TagIcon, DollarSign, MapPin, ChevronRight, BookOpen,
-} from 'lucide-react';
+import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, message, Tabs, Statistic, Alert, InputNumber, Modal, Table, Switch } from 'antd';
+import { Box, Eye, AlertTriangle, Calendar, Plus, Edit3, Trash2 } from 'lucide-react';
 import { iolApi, contactLensApi } from '@/services/api/materialsApi';
-import dayjs from 'dayjs';
 
-const { TextArea } = Input;
+
+const {  } = Input;
 
 export const MaterialsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('iol');

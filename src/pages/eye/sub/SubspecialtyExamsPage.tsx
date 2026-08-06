@@ -2,16 +2,10 @@
 // 对标: Medisoft mediSIGHT 8 亚专科模块
 // 5 专科量表 + 接触镜 + 低视力
 import React, { useState } from 'react';
-import {
-  Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, message,
-  Tabs, List, Empty, Statistic, Alert, InputNumber, Radio, Tooltip, Modal,
-} from 'antd';
-import {
-  Eye, Activity, Compass, Layers, Zap, Box, Glasses, Accessibility, Save, History,
-  ChevronRight, RefreshCw, Sparkles,
-} from 'lucide-react';
+import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, message, Empty, Statistic, Alert, InputNumber, Radio } from 'antd';
+import { Eye, Activity, Compass, Layers, Zap, Glasses, Accessibility, Save } from 'lucide-react';
 
-const { TextArea } = Input;
+const {  } = Input;
 
 // 5 专科 + 接触镜 + 低视力 = 7 页面 (PR 4 新增)
 

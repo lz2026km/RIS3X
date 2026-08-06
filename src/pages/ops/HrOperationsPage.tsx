@@ -1,12 +1,6 @@
 import { useState } from 'react'
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  LineChart, Line, Legend,
-} from 'recharts'
-import {
-  Users, Search, Filter, Calendar, TrendingUp, Award,
-  Clock, CheckCircle, XCircle, ChevronDown, ChevronRight,
-} from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts'
+import { Users, Search, TrendingUp, Award, Clock, CheckCircle, XCircle, ChevronDown, ChevronRight } from 'lucide-react'
 
 interface Staff {
   id: string; name: string; role: string; department: string; status: 'active' | 'leave' | 'training'

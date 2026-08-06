@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { getFinanceService, type PatientBill, type PaymentRecord, type InsuranceClaim } from '../../services/finance/FinanceService'
 import { financeApi, type InvoiceDto } from '../../services/api/financeApi'
 
@@ -45,14 +45,14 @@ const CLAIM_STATUS: Record<string, string> = {
 export default function PatientFinancePage() {
   const [activeTab, setActiveTab] = useState<'bills' | 'payments' | 'claims'>('bills')
   const [bills, setBills] = useState<PatientBill[]>([])
-  const [payments, setPayments] = useState<PaymentRecord[]>([])
+  const [_payments, _setPayments] = useState<PaymentRecord[]>([])
   const [claims, setClaims] = useState<InsuranceClaim[]>([])
   const [selectedBill, setSelectedBill] = useState<PatientBill | null>(null)
   const [billPayments, setBillPayments] = useState<PaymentRecord[]>([])
   const [payMethod, setPayMethod] = useState<PaymentRecord['method']>('wechat')
 
   const svc = getFinanceService()
-  const [invoices, setInvoices] = useState<InvoiceDto[]>([])
+  const [_invoices, setInvoices] = useState<InvoiceDto[]>([])
 
   useEffect(() => {
     svc.getBills('P001').then(setBills)

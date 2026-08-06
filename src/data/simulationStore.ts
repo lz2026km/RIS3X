@@ -78,6 +78,7 @@ export const generateId = (prefix: string = "ID"): string => {
 };
 
 // ==================== 日期工具 ====================
+
 export const formatDate = (date: Date = new Date()): string => {
   return date.toISOString().slice(0, 10);
 };

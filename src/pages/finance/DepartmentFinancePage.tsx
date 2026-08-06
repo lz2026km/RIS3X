@@ -5,10 +5,7 @@ import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend, PieChart, Pie, Cell,
 } from 'recharts'
-import {
-  DollarSign, TrendingUp, TrendingDown, PieChart as PieIcon,
-  BarChart3, Download, Calendar, ArrowUp, ArrowDown,
-} from 'lucide-react'
+import { DollarSign, TrendingUp, TrendingDown, PieChart as PieIcon, BarChart3, Download } from 'lucide-react'
 
 type Period = 'monthly' | 'quarterly' | 'yearly'
 
@@ -47,8 +44,8 @@ const INSURANCE_MIX = [
 
 export default function DepartmentFinancePage() {
   const [period, setPeriod] = useState<Period>('monthly')
-  const [revenueData, setRevenueData] = useState<RevenueAnalysisDto | null>(null)
-  const [costData, setCostData] = useState<CostAccountingDto | null>(null)
+  const [_revenueData, setRevenueData] = useState<RevenueAnalysisDto | null>(null)
+  const [_costData, setCostData] = useState<CostAccountingDto | null>(null)
   useEffect(() => {
     financeApi.getRevenueAnalysis().then(res => { if (res.success) setRevenueData(res.data); }).catch((err) => { console.error('[F04]', err); })
     financeApi.getCostAccounting().then(res => { if (res.success) setCostData(res.data); }).catch((err) => { console.error('[F04]', err); })
@@ -144,7 +141,7 @@ export default function DepartmentFinancePage() {
               <ResponsiveContainer width={180} height={180}>
                 <PieChart>
                   <Pie data={COST_BREAKDOWN} cx="50%" cy="50%" outerRadius={80} dataKey="amount" nameKey="category" label={({ percent }) => `${(percent).toFixed(0)}%`}>
-                    {COST_BREAKDOWN.map((e, i) => {
+                    {COST_BREAKDOWN.map((_e, i) => {
                       const colors = ['#ef4444', '#f59e0b', '#3b82f6', '#22c55e', '#8b5cf6']
                       return <Cell key={i} fill={colors[i]} />
                     })}

@@ -44,6 +44,7 @@ import {
 import { routes } from "../routes/routeTable";
 import { useNetworkStatus } from "../hooks/useNetworkStatus";
 import { useAuth } from "../hooks/useAuth";
+import { normalizeRole } from "../services/auth/roleUtils";
 import { useBreakpoint } from "../hooks/useBreakpoint";
 import { NetworkOfflineBanner } from "../components/feedback/NetworkOfflineBanner";
 import { SkipLink } from "../a11y/SkipLink";
@@ -91,7 +92,10 @@ function useSidebarItems(role: Role): SidebarSection[] {
     () =>
       SIDEBAR_ITEMS.map((section) => ({
         ...section,
-        items: section.items.filter((item) => item.roles.includes(role)),
+        // v3.0.6.11-73: 角色比较统一归一化 (中文 '管理员' 与英文 'ADMIN' 均匹配)
+        items: section.items.filter((item) =>
+          item.roles.some((r) => normalizeRole(r) === normalizeRole(role)),
+        ),
       })).filter((section) => section.items.length > 0),
     [role],
   );

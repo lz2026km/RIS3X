@@ -482,8 +482,8 @@ export default {
 };
 
 // [v3.0.6.8-27] 扩充评分历史 6→150+ 条, 缺陷库 19→60+
-import { DOCTOR_MASTER } from './master/doctorMasterMock';
-import { PATIENT_MASTER } from './master/patientMasterMock';
+
+
 import { QUALITY_SCORE_PRE } from './_generators';
 
 // 扩充 QUALITY_SCORE_HISTORY 6→150+ (用预生成数据)

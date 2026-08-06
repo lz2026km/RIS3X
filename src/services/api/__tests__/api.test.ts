@@ -93,8 +93,7 @@ describe('api client - error handling', () => {
     expect(res.error?.code).toBe('NETWORK_ERROR');
   });
 
-  it('handles 204 no content', async () => {
-    const mock = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+  it('handles 204 no content', async () => {vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
       ok: true,
       status: 204,
       json: vi.fn().mockRejectedValue(new Error('No body')),

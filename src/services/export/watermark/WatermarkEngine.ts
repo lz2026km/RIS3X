@@ -2,7 +2,7 @@
  * G005 放射RIS系统 v3.0.6.0 - 水印引擎
  * Phase R7:文字/图片水印,位置/透明度/旋转
  */
-import type { WatermarkOptions } from '../../types/export';
+import type { WatermarkOptions } from '../../../types/export';
 
 const DEFAULTS: WatermarkOptions = {
   type: 'text',

@@ -20,23 +20,12 @@ export interface Term {
   description?: string;
 }
 
-// ============================================================
-// 模板词条 (用 mulberry32 种子生成以保证可重现)
-// ============================================================
-
-function mulberry32(seed: number) {
-  return function () {
-    let t = (seed += 0x6D2B79F5);
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
 const ANATOMY_REGIONS = [
   { term: 'head', cn: '头部' }, { term: 'neck', cn: '颈部' }, { term: 'chest', cn: '胸部' },
   { term: 'abdomen', cn: '腹部' }, { term: 'pelvis', cn: '盆腔' }, { term: 'spine', cn: '脊柱' },
+  { term: 'thorax', cn: '胸腔' }, { term: 'mediastinum', cn: '纵隔' },
   { term: 'upper-extremity', cn: '上肢' }, { term: 'lower-extremity', cn: '下肢' },
+  { term: 'retroperitoneum', cn: '腹膜后' }, { term: 'craniofacial', cn: '颅面' },
 ];
 
 const ORGANS = [

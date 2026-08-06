@@ -1,8 +1,8 @@
 // [v3.0.6.8-94] Phase 4: 口腔 360° 患者视图
 // 对标: 领健·牙医管家 患者档案
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, Table, List, Timeline, Badge, Progress, Alert, Descriptions, Tooltip, Divider, Empty, Avatar } from 'antd';
-import { Activity, Phone, MapPin, Calendar, Clock, DollarSign, FileText, Pill, CheckCircle2, AlertTriangle, Star, History, Eye, Edit3 } from 'lucide-react';
+import { Card, Space, Tag, Select, Row, Col, Statistic, message, Tabs, Table, List, Timeline, Badge, Descriptions, Avatar } from 'antd';
+import { Activity, Phone, Calendar, Clock, DollarSign, FileText, Pill, AlertTriangle, History, Eye } from 'lucide-react';
 
 export const DentalEmrPage: React.FC = () => {
   const [patients] = useState([
@@ -17,7 +17,7 @@ export const DentalEmrPage: React.FC = () => {
   const [consents, setConsents] = useState<any[]>([]);
   const [recalls, setRecalls] = useState<any[]>([]);
   const [tab, setTab] = useState('overview');
-  const [busy, setBusy] = useState(false);
+  const [_busy, setBusy] = useState(false);
 
   const loadPatient = async (pid: string) => {
     setBusy(true);

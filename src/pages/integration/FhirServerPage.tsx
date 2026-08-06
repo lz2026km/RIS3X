@@ -1,7 +1,7 @@
 // [v3.0.6.8-61] FHIR Server 集成管理
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Button, Table, Tabs, Row, Col, Statistic, message, Input, List, Alert, Badge, Descriptions, Tooltip, Modal, Form, Select } from 'antd';
-import { Activity, Globe, Send, Database, Search, RefreshCw, Plus, CheckCircle2, FileText } from 'lucide-react';
+import { Card, Space, Tag, Button, Table, Tabs, Row, Col, Statistic, message, Input, Descriptions, Modal, Form, Select } from 'antd';
+import { Globe, Send, Search, RefreshCw, Plus } from 'lucide-react';
 
 const { TextArea } = Input;
 

@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { message } from 'antd'
-import { Search, ListChecks, Camera, Monitor, Play, CheckCircle, Clock, ChevronRight, AlertCircle, Wifi, WifiOff, XCircle } from 'lucide-react'
-import { replayDeviceEvent } from '../../../utils/deviceStateAdapter'
+import { Search, ListChecks, Camera, Monitor, Play, CheckCircle, Clock, AlertCircle, Wifi, WifiOff } from 'lucide-react'
+import {  } from '../../../utils/deviceStateAdapter'
 import { appointmentApi, type AppointmentDto, deviceApi, type DeviceDto } from '../../../services/api'
 
 export interface TechExamItem {
@@ -33,11 +33,7 @@ const STATUS_COLORS: Record<string, string> = {
   completed: '#d1fae5',
 }
 
-const STATUS_TEXT: Record<string, string> = {
-  scheduled: '待检查',
-  'in-progress': '检查中',
-  completed: '已完成',
-}
+
 
 const s = {
   container: { maxWidth: 420, margin: '0 auto', background: '#f8fafc', minHeight: '100vh', fontFamily: '-apple-system, sans-serif' },
@@ -108,7 +104,7 @@ export default function TechMobileWorkstation() {
     message.success(`开始检查: ${id}`)
   }, [])
 
-  const handleCompleteExam = useCallback((id: string) => {
+  const handleCompleteExam = useCallback((_id: string) => {
     message.info('完成检查功能暂不可用')
   }, [])
 

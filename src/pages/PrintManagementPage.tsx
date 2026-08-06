@@ -1,17 +1,7 @@
 // G005 放射科RIS系统 - 胶片打印管理页面 v2.0.0
 import React, { useState } from 'react'
 import { api } from '../services/api'
-import {
-  Printer, Settings, FileText, Film, CheckCircle, XCircle,
-  Search, Plus, X, Eye, Edit2, RefreshCw, Download,
-  BarChart, PieChart, TrendingUp, AlertCircle, Info,
-  Copy, Layers, Box, DollarSign,
-  Monitor, Network, HardDrive, Cog, FileBarChart,
-  ScrollText, Database, Zap, Timer, BarChart2, Activity,
-  Server, Wifi, WifiOff, FileSpreadsheet, Building2, Receipt,
-  CreditCard, BadgePercent, LayoutGrid, SlidersHorizontal, Gauge, AlertTriangle,
-  ChevronRight, ClipboardList, Users, ShieldAlert
-} from 'lucide-react'
+import { Printer, Settings, FileText, Film, CheckCircle, XCircle, Search, Plus, X, Eye, Edit2, RefreshCw, Download, BarChart, PieChart, TrendingUp, AlertCircle, Info, Copy, Layers, Box, DollarSign, Monitor, Network, HardDrive, Cog, FileBarChart, ScrollText, Database, Zap, Timer, BarChart2, Activity, Server, Wifi, WifiOff, FileSpreadsheet, Building2, Receipt, CreditCard, LayoutGrid, SlidersHorizontal, AlertTriangle, ClipboardList, ShieldAlert } from 'lucide-react'
 import {
   BarChart as ReBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LineChart, Line, PieChart as RePieChart, Pie, Cell, AreaChart, Area
@@ -476,9 +466,9 @@ export default function PrintManagementPage() {
 
   // 统计相关状态
   const [filmUsageStats] = useState(FILM_USAGE_STATS)
-  const [devicePrintStats] = useState(DEVICE_PRINT_STATS)
-  const [consumableCosts] = useState(CONSUMABLE_COSTS)
-  const [efficiencyStats] = useState(EFFICIENCY_STATS)
+  const [_devicePrintStats] = useState(DEVICE_PRINT_STATS)
+  const [_consumableCosts] = useState(CONSUMABLE_COSTS)
+  const [_efficiencyStats] = useState(EFFICIENCY_STATS)
 
   // 配置默认值
   const [defaultCopies, setDefaultCopies] = useState<number>(1)
@@ -489,7 +479,7 @@ export default function PrintManagementPage() {
   const [selectedQueueItems, setSelectedQueueItems] = useState<string[]>([])
 
   // 模板预览/编辑状态
-  const [previewTemplate, setPreviewTemplate] = useState<any>(null)
+  const [_previewTemplate, setPreviewTemplate] = useState<any>(null)
 
   // 刷新/暂停队列状态
   const [queuePaused, setQueuePaused] = useState<boolean>(false)
@@ -1744,7 +1734,7 @@ export default function PrintManagementPage() {
               </tr>
             </thead>
             <tbody>
-              {PRINTER_COST_DATA.map((p, i) => (
+              {PRINTER_COST_DATA.map((p, _i) => (
                 <tr key={p.printer} style={{ borderBottom: `1px solid ${C.border}` }}>
                   <td style={{ padding: '8px 10px', fontWeight: 600, color: C.textDark }}>{p.printer}</td>
                   <td style={{ padding: '8px 10px', textAlign: 'center', color: C.textMid }}>{p.films}</td>
@@ -2169,7 +2159,7 @@ export default function PrintManagementPage() {
                   label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                   labelLine={{ stroke: C.textLight, strokeWidth: 1 }}
                 >
-                  {filmDistData.map((entry, index) => (
+                  {filmDistData.map((entry, _index) => (
                     <Cell key={entry.name} fill={entry.color} />
                   ))}
                 </Pie>
@@ -2232,7 +2222,7 @@ export default function PrintManagementPage() {
                 label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                 labelLine={{ stroke: C.textLight, strokeWidth: 1 }}
               >
-                {deviceDistData.map((entry, index) => (
+                {deviceDistData.map((entry, _index) => (
                   <Cell key={entry.name} fill={entry.color} />
                 ))}
               </Pie>

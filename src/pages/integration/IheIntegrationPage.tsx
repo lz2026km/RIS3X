@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Badge, message } from 'antd';
-import { Server, Globe, Activity, RefreshCw, ArrowLeftRight } from 'lucide-react';
+import { Card, Space, Tag, Table, Button, Row, Col, Statistic, message } from 'antd';
+import { Globe, Activity, RefreshCw, ArrowLeftRight } from 'lucide-react';
 import { iheApi } from '../../services/api/integrationApi';
 import type { IheStatus } from '../../services/api/integrationApi';
 

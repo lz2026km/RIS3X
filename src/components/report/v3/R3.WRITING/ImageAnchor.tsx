@@ -4,14 +4,10 @@
  * 10 升级点:标记 / 测量 / 引用 / 缩略图 / 关键标识
  */
 import React, { useState, useCallback, useMemo } from 'react';
-import { Card, Space, Button, Tag, Tooltip, message, Modal, Empty, Switch, Statistic, Row, Col, Select } from 'antd';
-import {
-  Image as ImageIcon, Star, ArrowUpRight, Circle as CircleIcon, Type, Ruler,
-  Eye, Pin, Trash2, Copy, Move, ZoomIn, ZoomOut, Maximize2, Hash, Layers,
-  Square, ArrowDown, Pen, Box, Activity, Info, Play, Cog,
-} from 'lucide-react';
+import { Card, Space, Button, Tag, Tooltip, message, Empty, Switch, Select } from 'antd';
+import { Image as ImageIcon, Star, ArrowUpRight, Circle as CircleIcon, Type, Ruler, Pin, Copy, Move, ZoomIn, ZoomOut, Maximize2, Layers, Square, ArrowDown, Pen, Box, Activity, Info, Play, Cog } from 'lucide-react';
 import { IMAGE_ANCHORS_MOCK } from '@data/reportWritingMock';
-import { getImageAnchors, pinImageAnchor, uploadImageToReport } from '@services/writing/writingService';
+import { pinImageAnchor, uploadImageToReport } from '@services/writing/writingService';
 import type { ImageAnchor } from '@types/R3/R3.WRITING';
 
 interface Props {
@@ -50,15 +46,6 @@ const ANNOTATION_ICONS: Record<string, React.ComponentType<{ className?: string 
   area: Square,
 };
 
-const ANNOTATION_COLORS: Record<string, string> = {
-  arrow: '#dc2626',
-  circle: '#10b981',
-  rect: '#3b82f6',
-  text: '#f59e0b',
-  point: '#7c3aed',
-  line: '#0891b2',
-};
-
 const TOOLS_PANEL = [
   { key: 'Arrow', icon: ArrowUpRight, label: '箭头' },
   { key: 'Rectangle', icon: Square, label: '矩形' },
@@ -79,8 +66,7 @@ function guessCategory(index: number): AnnotationCategory {
   return MOCK_CATEGORIES[index % MOCK_CATEGORIES.length];
 }
 
-function guessVersion(createdAt: string, index: number): string {
-  const d = new Date(createdAt);
+function guessVersion(createdAt: string, index: number): string {new Date(createdAt);
   const major = Math.floor(index / 3) + 1;
   const minor = index % 3;
   return `v${major}.${minor}`;
@@ -99,7 +85,7 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
   const [activeTool, setActiveTool] = useState<'select' | 'arrow' | 'circle' | 'line' | 'text'>('select');
   const [zoom, setZoom] = useState(1);
   const [frameMode, setFrameMode] = useState<'single' | 'cine'>('single');
-  const [cineFrame, setCineFrame] = useState(1);
+  const [cineFrame, _setCineFrame] = useState(1);
 
   const filtered = useMemo(() => {
     if (!showOnlyKey) return anchors;
@@ -130,8 +116,7 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
       if (!file) return;
       const reader = new FileReader();
       reader.onload = async (ev) => {
-        const data = ev.target?.result as string;
-        const res = await uploadImageToReport(reportId, { name: file.name, size: file.size, data });
+        const data = ev.target?.result as string;await uploadImageToReport(reportId, { name: file.name, size: file.size, data });
         const newAnchor: ImageAnchor = {
           id: `ia-${Date.now()}`, reportId,
           studyInstanceUID: studyInstanceUID ?? '1.2.840.10008.5.1.4.1.1.2.1.1',

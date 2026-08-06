@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Row, Col, Tag, InputNumber, Select, Table } from 'antd';
+import { Card, Row, Col, Tag, Table } from 'antd';
 import { Eye } from 'lucide-react';
 import EyeLateralityBadge from '@/components/eye/EyeLateralityBadge';
 import VisionAcuityInput from '@/components/eye/VisionAcuityInput';

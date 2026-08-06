@@ -1,10 +1,7 @@
 import { useMemo } from 'react'
-import {
-  Search, X, Calendar, Settings, Filter, CheckCircle, Send, Edit3, Eye, Phone,
-  CheckSquare, Square, Bell, Clock, AlertTriangle, ArrowUpRight, ShieldAlert,
-} from 'lucide-react'
+import { Search, X, Calendar, Settings, Filter, CheckCircle, Send, Edit3, Eye, Phone, CheckSquare, Square, Bell, ArrowUpRight, ShieldAlert } from 'lucide-react'
 import type { CriticalValue } from './types'
-import { STATUS_CONFIG, SEVERITY_CONFIG, PRIMARY_COLOR, CN_STATUS_TO_STORE } from './types'
+import { STATUS_CONFIG, SEVERITY_CONFIG, CN_STATUS_TO_STORE } from './types'
 // v3.0.6.11: 导入 criticalStore 导出的 MACHINE_STATE_TO_STORE,
 // 把状态机 state value (found/notified/acknowledged/...) 映射到 store status,
 // 让 critical map 在 UI 层真正被消费。

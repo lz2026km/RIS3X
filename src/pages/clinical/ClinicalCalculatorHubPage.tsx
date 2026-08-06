@@ -1,7 +1,7 @@
 // [v3.0.6.8-78] 临床计算器中心
 import React, { useState } from 'react';
-import { Card, Space, Tag, Row, Col, Form, Input, Select, Button, Statistic, Table, Modal, Result, Tabs, Badge, Tooltip, message } from 'antd';
-import { Calculator, Beaker, Activity, Stethoscope, Brain, Heart, Eye, Layers, ArrowRight, Download } from 'lucide-react';
+import { Card, Space, Tag, Row, Col, Form, Input, Select, Button, Table, Result, message } from 'antd';
+import { Calculator, Beaker, Activity, Heart, ArrowRight, Download } from 'lucide-react';
 
 type Calc = { id:string; name:string; category:string; icon:string; description:string; inputs:string[]; calculate:(vals:any)=>any };
 

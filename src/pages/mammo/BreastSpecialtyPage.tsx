@@ -1,7 +1,7 @@
 // Breast Specialty Page — BI-RADS · 乳腺工作流 · 筛查管理
 import { useState, useMemo } from 'react';
-import { Heart, Activity, AlertTriangle, CheckCircle, Clock, Search, ChevronRight, TrendingUp, Stethoscope, Microscope, FileText, BarChart3 } from 'lucide-react';
-import type { BiRadsCategory, BreastDensity, ScreeningOutcome } from '@/services/api/breastSpecialtyApi';
+import { Heart, Activity, AlertTriangle, CheckCircle, Clock, Search, TrendingUp, Stethoscope, Microscope, FileText, BarChart3 } from 'lucide-react';
+import type { BreastDensity, ScreeningOutcome } from '@/services/api/breastSpecialtyApi';
 
 const BIRADS_COLORS: Record<string, string> = { 0: '#94a3b8', 1: '#16a34a', 2: '#16a34a', 3: '#ca8a04', '4A': '#ea580c', '4B': '#dc2626', 4: '#dc2626', 5: '#dc2626', 6: '#7c3aed' };
 const DENSITY_LABELS: Record<string, string> = { a: '脂肪型', b: '散在纤维腺体', c: '不均匀致密', d: '极度致密' };

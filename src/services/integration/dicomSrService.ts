@@ -179,7 +179,7 @@ export async function downloadDicomSr(id: string): Promise<{ filename: string; c
   return { filename: `${id}.dcm`, content: dumpDicomSr(doc), mime: 'application/dicom' };
 }
 
-export async function sendDicomSr(id: string, destination: { aeTitle: string; host: string; port: number }): Promise<{ success: boolean; status: 'Success' | 'Failure'; statusCode: number; durationMs: number }> {
+export async function sendDicomSr(_id: string, _destination: { aeTitle: string; host: string; port: number }): Promise<{ success: boolean; status: 'Success' | 'Failure'; statusCode: number; durationMs: number }> {
   await new Promise((r) => setTimeout(r, 1000));
   return { success: true, status: 'Success', statusCode: 0x0000, durationMs: 850 };
 }

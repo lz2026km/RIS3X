@@ -3,7 +3,7 @@
  * Phase R7:填写收件人/主题/正文 + 附件报告
  */
 import React, { useState } from 'react';
-import { Send, X, Paperclip, Plus, Mail } from 'lucide-react';
+import { Send, X, Paperclip, Mail } from 'lucide-react';
 import { getEmailService } from '../../services/export/email/EmailService';
 import type { EmailAttachment, ExportResult } from '../../types/export';
 

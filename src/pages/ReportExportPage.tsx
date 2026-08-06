@@ -64,9 +64,11 @@ export default function ReportExportPage() {
     (async () => {
       const res = await reportApi.list({ take: '100' });
       if (cancelled) return;
-      if (res.success && Array.isArray(res.data)) {
-        setReports(res.data);
-        setSelectedReports(new Set(res.data.slice(0, 5).map(r => r.reportId || r.id)));
+      // [G005 P1] 列表双形状兼容: MSW 裸数组 / 后端 { items, total }
+      const list = Array.isArray(res.data) ? res.data : (res.data?.items ?? []);
+      if (res.success && Array.isArray(list)) {
+        setReports(list);
+        setSelectedReports(new Set(list.slice(0, 5).map(r => r.reportId || r.id)));
       }
       setReportsLoading(false);
     })();

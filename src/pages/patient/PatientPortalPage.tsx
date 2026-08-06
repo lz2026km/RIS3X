@@ -1,6 +1,6 @@
 // [v3.0.6.11-35] 患者统一门户 - API接入版
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Button, Row, Col, Statistic, Tabs, Timeline, Table, Spin, message } from 'antd';
+import { Card, Space, Tag, Row, Col, Statistic, Tabs, Timeline, Table, Spin, message } from 'antd';
 import { User, Calendar, Clock } from 'lucide-react';
 import { patientPortalApi, type PortalPatientDto, type PortalClinicalDataDto } from '../../services/api/patientPortalApi';
 import { appointmentApi, type AppointmentDto } from '../../services/api/appointmentApi';

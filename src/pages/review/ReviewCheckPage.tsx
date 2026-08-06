@@ -1,15 +1,7 @@
 // [v3.0.6.8-48] PR4: 初核 + 终核 + 复审综合页面
 import React, { useState, useEffect } from 'react';
-import {
-  Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, message,
-  Tabs, List, Empty, Statistic, Alert, InputNumber, Modal, Badge, Timeline,
-  Table, Drawer, Descriptions, Switch, Tooltip, Avatar, Steps, Progress,
-} from 'antd';
-import {
-  CheckCircle2, XCircle, FileSearch, Eye, Shield, Users, Activity,
-  Clock, AlertTriangle, ChevronRight, Save, X, RefreshCw, Plus,
-  Filter, ClipboardCheck, FileCheck, AlertCircle, BarChart3, History, Send,
-} from 'lucide-react';
+import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, message, Tabs, Statistic, Alert, InputNumber, Modal, Table } from 'antd';
+import { CheckCircle2, XCircle, FileSearch, Shield, AlertTriangle, RefreshCw, ClipboardCheck, FileCheck } from 'lucide-react';
 import { initialCheckApi, finalCheckApi, reviewApi } from '@/services/api/reviewApi';
 
 const { TextArea } = Input;
@@ -20,14 +12,14 @@ export const ReviewCheckPage: React.FC = () => {
   const [initialItems, setInitialItems] = useState<any[]>([]);
   const [initialSummary, setInitialSummary] = useState<any>(null);
   const [initialFilter, setInitialFilter] = useState({ status: '' });
-  const [initialDetail, setInitialDetail] = useState<any>(null);
+  const [_initialDetail, _setInitialDetail] = useState<any>(null);
   const [initialActionModal, setInitialActionModal] = useState<{ type: string; item: any } | null>(null);
   const [actionReason, setActionReason] = useState('');
 
   // 终核
   const [finalItems, setFinalItems] = useState<any[]>([]);
   const [finalSummary, setFinalSummary] = useState<any>(null);
-  const [finalDetail, setFinalDetail] = useState<any>(null);
+  const [_finalDetail, _setFinalDetail] = useState<any>(null);
   const [finalActionModal, setFinalActionModal] = useState<{ type: string; item: any } | null>(null);
   const [scoreValue, setScoreValue] = useState(85);
 

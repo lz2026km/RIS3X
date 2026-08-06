@@ -37,7 +37,7 @@ function calcHolladay1(input: IolInput): number {
  * P = A - 0.9 * K - 0.9 * L + 0.4 * (ACD - 4.0) + 0.1 * (L - 23.0)
  */
 function calcHofferQ(input: IolInput): number {
-  const { al, km, aConstant, acd } = input;
+  const { al, km, aConstant } = input;
   const pAcd = input.pAcd ?? 4.0;
   let power = aConstant - 0.9 * km - 0.9 * al + 0.4 * (pAcd - 4.0) + 0.1 * (al - 23.0);
   return Math.round(power * 10) / 10;

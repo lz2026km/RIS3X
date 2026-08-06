@@ -1,12 +1,9 @@
 import React, { useState, useCallback } from 'react'
-import {
-  Card, Input, Button, Table, Tag, Space, Typography, Tooltip, message,
-  Row, Col, Statistic, Divider, Empty,
-} from 'antd'
+import { Card, Input, Button, Table, Tag, Space, Typography, Tooltip, message, Row, Col, Statistic, Empty } from 'antd'
 import { Code, Search, CheckCircle, AlertTriangle, FileText, BookOpen, ThumbsUp, Clipboard } from 'lucide-react'
 import { snomedApi, type SnomedCode } from '../../services/api/snomedApi'
 
-const { Text, Title, TextArea: AntTextArea } = Typography
+const { Text, Title, TextArea: _AntTextArea } = Typography
 
 const SnomedEncoderPage: React.FC = () => {
   const [text, setText] = useState('')
@@ -90,7 +87,7 @@ const SnomedEncoderPage: React.FC = () => {
       title: '首选术语 (PT)',
       dataIndex: 'pt',
       key: 'pt',
-      render: (pt: string, record: SnomedCode) => (
+      render: (pt: string, _record: SnomedCode) => (
         <Space>
           <Text strong>{pt}</Text>
           <Tooltip title="复制">

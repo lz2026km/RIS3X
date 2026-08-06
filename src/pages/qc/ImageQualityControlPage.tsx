@@ -2,9 +2,9 @@
  * G005 RIS v3.0.6.8-27 - 影像质控专项页面
  * ACR 模体测试 / SNR / CNR / 重拍率 / 剂量合规
  */
-import React, { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect } from 'react';
 import { message } from 'antd';
-import { Camera, Activity, AlertTriangle, CheckCircle, Calendar, BarChart3 } from "lucide-react";
+import { Camera, Activity, AlertTriangle, CheckCircle } from 'lucide-react';
 import { PageContainer } from "../../components/common/PageContainer";
 import { PageHeader } from "../../components/common/PageHeader";
 import { StickyActionBar } from "../../components/common/StickyActionBar";
@@ -14,7 +14,7 @@ import { qcextApi, type QcImageDto } from '../../services/api/qcextApi';
 
 export default function ImageQualityControlPage() {
   const [modality, setModality] = useState<string>("all");
-  const [qcImages, setQcImages] = useState<QcImageDto[]>([]);
+  const [_qcImages, setQcImages] = useState<QcImageDto[]>([]);
   useEffect(() => {
     qcextApi.listQcImages().then(res => { if (res.success) setQcImages(res.data); }).catch((err) => { console.error('[F04]', err); });
   }, []);

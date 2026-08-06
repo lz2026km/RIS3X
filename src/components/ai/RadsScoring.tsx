@@ -19,7 +19,7 @@ interface RadsScoringProps {
   loading?: boolean
 }
 
-const RadsScoring: React.FC<RadsScoringProps> = ({ result, history, loading }) => {
+const RadsScoring: React.FC<RadsScoringProps> = ({ result, history }) => {
   const { t } = useTranslation('rads')
   const canvasRef = useRef<HTMLCanvasElement>(null)
 

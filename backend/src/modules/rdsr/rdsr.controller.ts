@@ -17,7 +17,7 @@ const DrlUpsertSchema = z.object({
 
 @ApiTags('rdsr')
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR', 'TECHNOLOGIST')
+@Roles('ADMIN', 'DIRECTOR', 'TECHNICIAN')
 @Controller('rdsr')
 export class RdsrController {
   constructor(private readonly svc: RdsrService) {}

@@ -27,16 +27,14 @@ import { examApi, consultationApi, userApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 // [v3.0.6.8-28] 主数据池 + 生成器
 import {
-  DOCTOR_MASTER, DOCTORS_BY_TITLE, PATIENT_MASTER, DEVICE_MASTER,
-  EXAM_ITEM_MASTER,
+  DOCTOR_MASTER, DOCTORS_BY_TITLE, DEVICE_MASTER,
 } from '../data/master'
 import {
   DOCTOR_PERFORMANCE_PRE, EXAM_REPORT_PRE, QUALITY_SCORE_PRE,
-  CRITICAL_EVENTS_PRE, COSIGN_TASKS_PRE, DAILY_KPI_PRE,
 } from '../data/_generators'
 
 const PRIMARY = '#1e40af'
-const PRIMARY_LIGHT = '#2563eb'
+
 const ACCENT = '#3b82f6'
 const SUCCESS = '#059669'
 const WARNING = '#d97706'
@@ -126,34 +124,7 @@ const reportDefectData = [
 ]
 
 // 报告书写正确率指标（国家卫健委2024年版）
-const reportWritingAccuracyData = {
-  overallAccuracy: 94.2, // 报告书写正确率
-  detailAccuracy: {
-    anatomy: 96.5,    // 解剖部位描述正确率
-    pathology: 93.8,  // 病变描述正确率
-    diagnosis: 94.7,  // 诊断结论正确率
-    terminology: 92.1, // 术语规范正确率
-    completeness: 95.3, // 完整性正确率
-  },
-  monthlyTrend: [
-    { month: '2025-07', accuracy: 91.2 },
-    { month: '2025-08', accuracy: 92.1 },
-    { month: '2025-09', accuracy: 92.8 },
-    { month: '2025-10', accuracy: 93.1 },
-    { month: '2025-11', accuracy: 93.5 },
-    { month: '2025-12', accuracy: 93.8 },
-    { month: '2026-01', accuracy: 94.0 },
-    { month: '2026-02', accuracy: 93.7 },
-    { month: '2026-03', accuracy: 94.1 },
-    { month: '2026-04', accuracy: 94.2 },
-  ],
-  writingErrors: [
-    { errorType: '错别字/笔误', count: 45, rate: '2.8%' },
-    { errorType: '单位/数值错误', count: 28, rate: '1.7%' },
-    { errorType: '时间/日期错误', count: 15, rate: '0.9%' },
-    { errorType: '患者信息错误', count: 8, rate: '0.5%' },
-  ],
-}
+
 
 // [v3.0.6.8-28] 人工抽检记录数据 - 来源: EXAM_REPORT_PRE 前 7 报告
 const inspectionRecordsData = (() => {
@@ -230,11 +201,7 @@ const timeoutData = [
 // ==================== 医生报告质量评分数据 ====================
 
 // 评分维度权重
-const SCORE_WEIGHTS = {
-  format: 0.3,    // 格式规范 30%
-  accuracy: 0.5, // 诊断准确 50%
-  timeliness: 0.2, // 时效性 20%
-}
+
 
 // 评分矩阵说明
 const SCORE_MATRIX = [
@@ -395,13 +362,13 @@ const regionalOverallScores = [
 ]
 
 // 机构详细评分
-const institutionDetailScores = regionalInstitutions.map(inst => ({
+regionalInstitutions.map(inst => ({
   ...inst,
   imageQualityScore: 75 + Math.random() * 20,
   reportQualityScore: 75 + Math.random() * 20,
   timelinessScore: 75 + Math.random() * 20,
   criticalValueScore: 80 + Math.random() * 18,
-}))
+}));
 
 // 问题追踪数据
 const issueTrackingData = [
@@ -495,11 +462,7 @@ const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
 const PIE_COLORS = ['#3b82f6', '#22c55e', '#eab308', '#ef4444', '#8b5cf6', '#64748b']
 
 // 区域排名颜色映射
-const RANK_COLORS: Record<number, string> = {
-  1: '#fbbf24', // 金色
-  2: '#94a3b8', // 银色
-  3: '#cd7f32', // 铜色
-}
+
 
 export default function QCPage() {
   const navigate = useNavigate()
@@ -538,12 +501,12 @@ export default function QCPage() {
   // 区域质控相关状态
   const [regionalReportType, setRegionalReportType] = useState<'monthly' | 'quarterly' | 'yearly'>('monthly')
   const [regionalTab, setRegionalTab] = useState<'overview' | 'ranking' | 'standards' | 'reports' | 'tracking'>('overview')
-  const [selectedInstitution, setSelectedInstitution] = useState<string | null>(null)
+  useState<string | null>(null)
   const [expandedInstitution, setExpandedInstitution] = useState<string | null>(null)
 
   // Peer Review 状态
   const [peerReviewTab, setPeerReviewTab] = useState<'assignment' | 'scoring' | 'reliability'>('assignment')
-  const peerReviewers = ['王秀峰', '李明辉', '张海涛', '刘芳', '陈志强']
+  
   const peerReviewAssignments = [
     { id: 'PR001', caseId: 'RAD-RPT011', patientName: '张伟', originalAuthor: '李明辉', reviewer: '王秀峰', blindedId: 'B-001', status: '待评分', accuracy: 0, completeness: 0, timeliness: 0, submittedAt: '2026-05-01' },
     { id: 'PR002', caseId: 'RAD-RPT012', patientName: '李娜', originalAuthor: '王秀峰', reviewer: '张海涛', blindedId: 'B-002', status: '已评分', accuracy: 92, completeness: 88, timeliness: 90, submittedAt: '2026-05-01' },
@@ -583,7 +546,7 @@ export default function QCPage() {
   // [v3.0.6.8-28] 趋势 - 来源: QUALITY_SCORE_PRE (90天按月聚合, 模拟 rad-path 一致率)
   const radPathTrend = (() => {
     const months: { [k: string]: { total: number; concordant: number } } = {};
-    QUALITY_SCORE_PRE.forEach((q, idx) => {
+    QUALITY_SCORE_PRE.forEach((q, _idx) => {
       const m = q.reviewedAt?.slice(0, 7);
       if (!m) return;
       if (!months[m]) months[m] = { total: 0, concordant: 0 };
@@ -689,9 +652,7 @@ export default function QCPage() {
     showToast('质控规则已保存', 'success')
   }
 
-  const handleResetRules = () => {
-    setTempRules({ ...qcRulesDefault })
-  }
+  
 
   const handleExportPDF = (type: string) => {
     setProgressModal({ show: true, title: '报表生成', message: `正在生成${type}报表，请稍候...`, complete: false })
@@ -717,13 +678,7 @@ export default function QCPage() {
     { label: '平均评分', value: '87.2', icon: <Star size={18} color={'#f59e0b'} />, bg: '#fef3c7', color: '#f59e0b' },
   ]
 
-  const renderStars = (score: number, size: number = 14) => (
-    <div style={{ display: 'flex', gap: 2 }}>
-      {[1, 2, 3, 4, 5].map(s => (
-        <Star key={s} size={size} fill={s <= score ? '#f59e0b' : 'none'} color={s <= score ? '#f59e0b' : '#d1d5db'} />
-      ))}
-    </div>
-  )
+  
 
   const renderScoreBar = (value: number, max: number = 100) => {
     const pct = (value / max) * 100
@@ -1208,7 +1163,7 @@ export default function QCPage() {
               <ResponsiveContainer width='100%' height={220}>
                 <RechartsPie>
                   <Pie data={dashboardData.issueDistribution} cx='50%' cy='50%' innerRadius={55} outerRadius={90} paddingAngle={3} dataKey='value' label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
-                    {dashboardData.issueDistribution.map((entry, idx) => (
+                    {dashboardData.issueDistribution.map((entry, _idx) => (
                       <Cell key={entry.name} fill={entry.color} />
                     ))}
                   </Pie>
@@ -1612,7 +1567,7 @@ export default function QCPage() {
                   <YAxis dataKey='name' type='category' tick={{ fontSize: 12, color: GRAY }} width={80} />
                   <Tooltip formatter={(v) => `${v}例`} />
                   <Bar dataKey='value' radius={[0, 4, 4, 0]}>
-                    {dashboardData.issueDistribution.map((entry, idx) => (
+                    {dashboardData.issueDistribution.map((entry, _idx) => (
                       <Cell key={entry.name} fill={entry.color} />
                     ))}
                   </Bar>
@@ -1648,7 +1603,7 @@ export default function QCPage() {
               <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <AlertTriangle size={16} color={WARNING} />{t('qc.weakLinks')}</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {dashboardData.weakLinks.map((link, idx) => (
+                {dashboardData.weakLinks.map((link, _idx) => (
                   <div key={link} style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#fef3c7', borderRadius: 8, padding: '10px 14px' }}>
                     <AlertTriangle size={16} color={WARNING} />
                     <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: '#92400e' }}>{link}</span>
@@ -2973,7 +2928,7 @@ export default function QCPage() {
                 { label: '质量评分预警', enabled: true, desc: '当评分低于阈值时向主管发送预警' },
                 { label: '废片自动登记', enabled: false, desc: '影像质量评分低于70分时自动登记废片' },
                 { label: '同行评审分配', enabled: true, desc: '按设定比例自动分配同行评审任务' },
-              ].map((rule, idx) => (
+              ].map((rule, _idx) => (
                 <div key={rule.label} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: LIGHT_BG, borderRadius: 8 }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{rule.label}</div>

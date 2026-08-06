@@ -27,7 +27,7 @@ export default function ReportScoreRulePage() {
   const [dimensions, setDimensions] = useState<ScoreDimension[]>(SCORE_DIMENSIONS);
   const [selectedDim, setSelectedDim] = useState<string>('dim-completeness');
   const [grades] = useState<ScoreGradeConfig[]>(SCORE_GRADES);
-  const [saveMessage, setSaveMessage] = useState<string>('');
+  const [_saveMessage, setSaveMessage] = useState<string>('');
   const [kpi, setKpi] = useState(QUALITY_KPI);
 
   // 当前选中维度
@@ -58,8 +58,8 @@ export default function ReportScoreRulePage() {
       }
     })
     reportQualityApi.getStats().then(res => {
-      if (res.success) {
-        const stats = res.data.data
+      if (res.success && res.data) {
+        const stats = res.data
         setKpi(prev => ({ ...prev, totalEvaluated: stats.total, avgScore: stats.avgScore }))
       }
     })

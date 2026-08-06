@@ -1,8 +1,5 @@
 import { useState, useEffect } from 'react'
-import {
-  BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, Legend,
-} from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { Activity, CheckCircle, AlertTriangle, Shield, BarChart3, Download, Zap } from 'lucide-react'
 import {
   getDoseRecords, checkAlaraCompliance, getProtocolOptimizationSuggestions,

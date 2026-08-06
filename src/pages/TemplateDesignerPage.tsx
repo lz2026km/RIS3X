@@ -7,39 +7,7 @@
 import React, { useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { message } from "antd";
-import {
-  ChevronLeft,
-  Save,
-  Eye,
-  Plus,
-  Trash2,
-  GripVertical,
-  Type,
-  Hash,
-  Calendar,
-  ToggleLeft,
-  ListChecks,
-  Sliders,
-  Calculator,
-  FileText,
-  ChevronDown,
-  Copy,
-  Settings,
-  Image as ImageIcon,
-  Tag,
-  ListOrdered,
-  FileSpreadsheet,
-  Code,
-  Info,
-  Check,
-  X,
-  Sparkles,
-  Maximize2,
-  Minimize2,
-  GitMerge,
-  Shield,
-  Activity,
-} from "lucide-react";
+import { ChevronLeft, Save, Eye, Plus, Trash2, GripVertical, Type, Hash, Calendar, ToggleLeft, ListChecks, Sliders, Calculator, FileText, ChevronDown, Copy, Settings, Image as ImageIcon, Tag, ListOrdered, FileSpreadsheet, Code, Info, Check, X, Sparkles, Maximize2, Minimize2, GitMerge, Activity } from 'lucide-react';
 import type { LucideIcon } from "lucide-react";
 import {
   STRUCTURED_FIELD_TEMPLATES,

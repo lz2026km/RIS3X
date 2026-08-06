@@ -3,8 +3,8 @@
  * 20 升级点:页面包装 / 头部描述 / 操作指南 / 端口配置
  */
 import React from 'react';
-import { Card, Space, Tag, Button, Alert, Row, Col } from 'antd';
-import { Activity, Server, BookOpen, ExternalLink, Wifi, Cpu, Network } from 'lucide-react';
+import { Card, Space, Tag, Button, Row, Col } from 'antd';
+import { Activity, Server, BookOpen, Cpu, Network } from 'lucide-react';
 import { MllpMonitor } from '@components/integration/MllpMonitor';
 import { useNavigate } from 'react-router-dom';
 

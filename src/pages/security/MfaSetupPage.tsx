@@ -17,21 +17,7 @@ import {
   Statistic,
   Modal,
 } from "antd";
-import {
-  Shield,
-  Smartphone,
-  Key,
-  QrCode,
-  CheckCircle,
-  Copy,
-  RefreshCw,
-  Mail,
-  MessageSquare,
-  Eye,
-  EyeOff,
-  Clock,
-  AlertTriangle,
-} from "lucide-react";
+import { Shield, Smartphone, Key, QrCode, CheckCircle, Copy, Mail, MessageSquare, Eye, EyeOff, Clock, AlertTriangle } from 'lucide-react';
 import { mfaApi } from "../../services/api/mfaApi";
 import { message as antdMessage } from "antd";
 

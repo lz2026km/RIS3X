@@ -9,14 +9,6 @@ export const MOCK_CEPH_STUDIES = [
 ];
 
 // 标准 18 个解剖标志点
-type LandmarkName = 'N'|'S'|'A'|'B'|'Pog'|'Me'|'Go'|'Ar'|'PNS'|'ANS'|'Or'|'Po'|'Ba'|'Na'|'Pt'|'Cd'|'Gn'|'Xi';
-const LANDMARK_LABELS: Record<LandmarkName, string> = {
-  N: '鼻根点 N', S: '蝶鞍点 S', A: '上齿槽座点 A', B: '下齿槽座点 B', Pog: '颏前点 Pog',
-  Me: '颏下点 Me', Go: '下颌角点 Go', Ar: '关节点 Ar', PNS: '后鼻棘 PNS', ANS: '前鼻棘 ANS',
-  Or: '眶点 Or', Po: '耳点 Po', Ba: '颅底点 Ba', Na: '鼻根点 Na', Pt: '翼点 Pt',
-  Cd: '髁顶点 Cd', Gn: '颏顶点 Gn', Xi: '翼上颌裂点 Xi',
-};
-
 export const MOCK_LANDMARKS: Record<string, { x: number; y: number }> = {
   N: { x: 250, y: 80 }, S: { x: 220, y: 150 }, A: { x: 240, y: 200 },
   B: { x: 230, y: 260 }, Pog: { x: 225, y: 300 }, Me: { x: 225, y: 320 },

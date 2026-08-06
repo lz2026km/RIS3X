@@ -2,7 +2,7 @@
  * G005 放射RIS系统 v3.0.6.0 - 邮件发送服务
  * Phase R7:SMTP 模拟 / Mailto 后备 / 附件内联
  */
-import type { EmailMessage, EmailAttachment, ExportResult } from '../../types/export';
+import type { EmailMessage, EmailAttachment, ExportResult } from '../../../types/export';
 
 export type EmailSendStatus = 'queued' | 'sent' | 'failed';
 

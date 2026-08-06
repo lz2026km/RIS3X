@@ -5,9 +5,123 @@ import type { CreateEyeStudyDto } from './dto/create-eye.dto'
 import type { UpdateEyeStudyDto } from './dto/update-eye.dto'
 import { getIolAConstantsByModel } from '../../../src/data/eyeAConstants'
 
+// ── [G005-P1] 在用孤儿补齐: 眼科演示级端点 seed 数据 ──
+// 说明: 以下 DTO 无对应 Prisma 模型, 采用内存 seed(风格与 eyeHandlers.ts 一致)。
+//       pacs/studies, ai/inferences, emr/records, report/reports 优先查
+//       EyeStudy / EyeAiInference 表, 表为空或异常时回退 seed。
+
+export interface EyeStudySeed {
+  id: string; patientId: string; patientName: string; modality: string; eye: string
+  acquisitionDate: string; deviceModel: string; status: string; indications?: string
+}
+
+const SEED_EYE_STUDIES: EyeStudySeed[] = [
+  { id: 'ES-1001', patientId: 'PEYE-001', patientName: '李慧敏', modality: 'OCT', eye: 'OD', acquisitionDate: '2026-07-02T09:30:00.000Z', deviceModel: 'Topcon Maestro2', status: 'reported', indications: '糖尿病史 8 年,双眼视物模糊' },
+  { id: 'ES-1002', patientId: 'PEYE-002', patientName: '王建国', modality: 'Fundus', eye: 'OU', acquisitionDate: '2026-07-01T10:15:00.000Z', deviceModel: 'Canon CR-2', status: 'reviewed', indications: '高血压,常规眼底体检' },
+  { id: 'ES-1003', patientId: 'PEYE-003', patientName: '张伟', modality: 'FA', eye: 'OS', acquisitionDate: '2026-06-30T14:40:00.000Z', deviceModel: 'Zeiss FF 450', status: 'reported', indications: '左眼黄斑水肿,行荧光造影' },
+  { id: 'ES-1004', patientId: 'PEYE-004', patientName: '刘敏', modality: 'VisualField', eye: 'OU', acquisitionDate: '2026-06-29T08:50:00.000Z', deviceModel: 'Humphrey HFA3', status: 'acquired', indications: '疑似青光眼,视野检查' },
+  { id: 'ES-1005', patientId: 'PEYE-005', patientName: '陈杰', modality: 'Biometry', eye: 'OD', acquisitionDate: '2026-06-28T11:20:00.000Z', deviceModel: 'IOLMaster 700', status: 'reported', indications: '白内障术前 IOL 测算' },
+  { id: 'ES-1006', patientId: 'PEYE-001', patientName: '李慧敏', modality: 'Fundus', eye: 'OD', acquisitionDate: '2026-07-03T09:05:00.000Z', deviceModel: 'Canon CR-2', status: 'reported', indications: 'DR 随访复查' },
+]
+
+const SEED_EYE_MEASUREMENTS = [
+  { id: 'M-2001', studyId: 'ES-1001', patientName: '李慧敏', measurementType: 'RNFL 厚度', value: 82.4, unit: 'μm', coordinates: [], createdAt: '2026-07-02T09:45:00.000Z' },
+  { id: 'M-2002', studyId: 'ES-1001', patientName: '李慧敏', measurementType: '黄斑中心凹厚度', value: 268, unit: 'μm', coordinates: [], createdAt: '2026-07-02T09:46:00.000Z' },
+  { id: 'M-2003', studyId: 'ES-1003', patientName: '张伟', measurementType: '黄斑水肿面积', value: 3.2, unit: 'mm²', coordinates: [], createdAt: '2026-06-30T15:10:00.000Z' },
+  { id: 'M-2004', studyId: 'ES-1005', patientName: '陈杰', measurementType: '眼轴长度 (AL)', value: 24.05, unit: 'mm', coordinates: [], createdAt: '2026-06-28T11:35:00.000Z' },
+]
+
+const SEED_AI_INFERENCES = [
+  { id: 'INF-3001', studyId: 'ES-1001', modelName: 'DR 五级精细分级', diagnosis: '中度 NPDR (R2)', confidence: 0.92, severity: 'moderate', timestamp: '2026-07-02T10:00:00.000Z', confirmed: true },
+  { id: 'INF-3002', studyId: 'ES-1002', modelName: '青光眼视盘分析', diagnosis: '正常视盘', confidence: 0.87, severity: 'mild', timestamp: '2026-07-01T10:40:00.000Z', confirmed: false },
+  { id: 'INF-3003', studyId: 'ES-1003', modelName: '黄斑水肿检测', diagnosis: '黄斑囊样水肿', confidence: 0.95, severity: 'severe', timestamp: '2026-06-30T15:30:00.000Z', confirmed: true },
+  { id: 'INF-3004', studyId: 'ES-1006', modelName: 'DR 五级精细分级', diagnosis: '轻度 NPDR (R1)', confidence: 0.84, severity: 'mild', timestamp: '2026-07-03T09:20:00.000Z', confirmed: false },
+]
+
+const SEED_EMR_RECORDS = [
+  { id: 'EMR-4001', patientId: 'PEYE-001', patientName: '李慧敏', visitDate: '2026-07-02T09:00:00.000Z', chiefComplaint: '双眼视物模糊 3 月', diagnosis: '双眼糖尿病视网膜病变 (中度 NPDR)', status: 'completed' },
+  { id: 'EMR-4002', patientId: 'PEYE-003', patientName: '张伟', visitDate: '2026-06-30T14:00:00.000Z', chiefComplaint: '左眼视物变形 2 周', diagnosis: '左眼黄斑水肿', status: 'completed' },
+  { id: 'EMR-4003', patientId: 'PEYE-005', patientName: '陈杰', visitDate: '2026-06-28T11:00:00.000Z', chiefComplaint: '右眼渐进性视力下降', diagnosis: '右眼年龄相关性白内障', status: 'completed' },
+]
+
+const SEED_EYE_REPORTS = [
+  { id: 'ERPT-5001', patientId: 'PEYE-001', patientName: '李慧敏', reportType: 'OCT', status: 'signed', content: '右眼黄斑中心凹厚度 268μm,RNFL 厚度 82.4μm,中度 NPDR 表现。', signedAt: '2026-07-02T11:00:00.000Z', createdAt: '2026-07-02T10:20:00.000Z' },
+  { id: 'ERPT-5002', patientId: 'PEYE-003', patientName: '张伟', reportType: 'FA', status: 'signed', content: '左眼黄斑区荧光渗漏,考虑黄斑囊样水肿。', signedAt: '2026-06-30T16:00:00.000Z', createdAt: '2026-06-30T15:30:00.000Z' },
+  { id: 'ERPT-5003', patientId: 'PEYE-005', patientName: '陈杰', reportType: 'Biometry', status: 'draft', content: '右眼 AL 24.05mm,建议 IOL 度数 +21.5D。', createdAt: '2026-06-28T12:00:00.000Z' },
+]
+
+const SEED_EYE_TEMPLATES = [
+  { id: 'TPL-6001', templateName: '糖尿病视网膜病变报告', specialty: '眼底病', content: '【OCT】黄斑中心凹厚度:__,RNFL:__。【诊断】__。', createdAt: '2026-01-05T08:00:00.000Z' },
+  { id: 'TPL-6002', templateName: '青光眼视野报告', specialty: '青光眼', content: '【视野】MD:__dB,PSD:__dB。【诊断】__。', createdAt: '2026-01-05T08:00:00.000Z' },
+  { id: 'TPL-6003', templateName: '白内障术前 IOL 测算', specialty: '白内障', content: '【生物测量】AL:__mm,K1:__D,K2:__D。【建议】IOL:__D。', createdAt: '2026-01-06T08:00:00.000Z' },
+]
+
+const SEED_EYE_APPOINTMENTS = [
+  { id: 'APT-7001', patientId: 'PEYE-001', patientName: '李慧敏', patientPhone: '13800000001', modality: 'OCT', eyeSide: 'OD', scheduledDate: new Date().toISOString().slice(0, 10), scheduledTime: '09:00', doctorId: 'D001', doctorName: '张明远', department: '眼科', room: 'OCT 检查室 2', status: 'in_progress', isFollowUp: true, createdAt: '2026-06-25T08:00:00.000Z', priority: 'urgent', insuranceType: '医保', fastingRequired: false, specialPrep: '', reminderSent: true, reminderMethod: 'sms' },
+  { id: 'APT-7002', patientId: 'PEYE-003', patientName: '张伟', patientPhone: '13800000003', modality: 'FFA', eyeSide: 'OU', scheduledDate: new Date().toISOString().slice(0, 10), scheduledTime: '14:00', doctorId: 'D002', doctorName: '李慧敏', department: '眼科', room: '造影室 1', status: 'scheduled', isFollowUp: false, createdAt: '2026-06-26T09:00:00.000Z', priority: 'routine', insuranceType: '自费', fastingRequired: false, specialPrep: '需皮试', reminderSent: true, reminderMethod: 'wechat' },
+  { id: 'APT-7003', patientId: 'PEYE-006', patientName: '赵雪琴', patientPhone: '13800000006', modality: 'VisualField', eyeSide: 'OU', scheduledDate: new Date().toISOString().slice(0, 10), scheduledTime: '10:30', doctorId: 'D003', doctorName: '王建华', department: '眼科', room: '视野检查室', status: 'completed', isFollowUp: false, createdAt: '2026-06-24T10:00:00.000Z', priority: 'routine', insuranceType: '医保', fastingRequired: false, specialPrep: '', reminderSent: false, reminderMethod: 'app' },
+]
+
+const SEED_EYE_FOLLOW_UPS = [
+  { id: 'FU-8001', patientId: 'PEYE-001', patientName: '李慧敏', condition: '糖尿病视网膜病变', recommendedInterval: 90, nextVisitDate: '2026-10-02', lastVisitDate: '2026-07-02', overdue: false, daysOverdue: 0, status: 'active', priority: 'high', notes: '血糖控制欠佳,需随访', notificationSent: true },
+  { id: 'FU-8002', patientId: 'PEYE-003', patientName: '张伟', condition: '黄斑水肿', recommendedInterval: 30, nextVisitDate: '2026-08-01', lastVisitDate: '2026-06-30', overdue: true, daysOverdue: 5, status: 'active', priority: 'medium', notes: '抗 VEGF 治疗后复查', notificationSent: false },
+]
+
+const SEED_EYE_SURGERIES = [
+  { id: 'SURG-9001', patientId: 'PEYE-005', patientName: '陈杰', procedure: '白内障超声乳化 + IOL 植入', eyeSide: 'OD', surgeonId: 'D001', surgeonName: '张明远', scheduledDate: '2026-07-15T09:00:00.000Z', orRoom: '手术室 3', status: 'scheduled', preOpDiagnosis: '右眼年龄相关性白内障', implantInfo: 'PanOptix TFNT00 +21.5D', anesthesiaType: 'topical', estimatedDuration: 45 },
+  { id: 'SURG-9002', patientId: 'PEYE-003', patientName: '张伟', procedure: '玻璃体腔药物注射 (抗VEGF)', eyeSide: 'OS', surgeonId: 'D002', surgeonName: '李慧敏', scheduledDate: '2026-07-12T15:00:00.000Z', orRoom: '治疗室 2', status: 'scheduled', preOpDiagnosis: '左眼黄斑囊样水肿', anesthesiaType: 'topical', estimatedDuration: 20 },
+]
+
+const SEED_EYE_REFERRALS = [
+  { id: 'REF-10001', patientId: 'PEYE-001', patientName: '李慧敏', referringDoctor: '王建华', referringDept: '内分泌科', referredTo: '眼科眼底病组', referredDept: '眼科', reason: '糖尿病眼底病变筛查', diagnosis: '糖尿病视网膜病变待评估', urgency: 'urgent', status: 'pending', createdAt: '2026-07-01T09:00:00.000Z' },
+  { id: 'REF-10002', patientId: 'PEYE-007', patientName: '孙浩', referringDoctor: '张明远', referringDept: '眼科', referredTo: '神经内科', referredDept: '神经内科', reason: '视野缺损待排查', diagnosis: '视野缺损待排查', urgency: 'emergent', status: 'accepted', createdAt: '2026-06-29T14:00:00.000Z', completedAt: '2026-06-30T10:00:00.000Z', response: '已安排头颅 MRI' },
+]
+
+// ── [G005-P1] 眼料 (IOL 库存 + 接触镜库) seed ──
+
+export interface IolInventoryItem {
+  id: string; barcode: string; model: string; type: string; power: number
+  cylinder?: number; batchNumber: string; expiryDate: string; stockLocation: string
+  status: string; supplier: string; unitPrice: number; createdAt: string; quantity: number
+}
+
+const SEED_IOL_INVENTORY: IolInventoryItem[] = [
+  { id: 'iol-001', barcode: 'ALC-20240001', model: 'SA60AT', type: 'monofocal', power: 22.0, batchNumber: 'B-2024-01', expiryDate: '2028-12-31', stockLocation: 'A-01', status: 'in_stock', supplier: 'Alcon', unitPrice: 980, createdAt: '2026-01-10T08:00:00.000Z', quantity: 12 },
+  { id: 'iol-002', barcode: 'ALC-20240002', model: 'SA60AT', type: 'monofocal', power: 22.5, batchNumber: 'B-2024-01', expiryDate: '2028-12-31', stockLocation: 'A-01', status: 'in_stock', supplier: 'Alcon', unitPrice: 980, createdAt: '2026-01-10T08:00:00.000Z', quantity: 8 },
+  { id: 'iol-003', barcode: 'ALC-20240003', model: 'PanOptix TFNT00', type: 'multifocal', power: 23.5, batchNumber: 'B-2025-02', expiryDate: '2028-09-30', stockLocation: 'A-03', status: 'in_stock', supplier: 'Alcon', unitPrice: 2680, createdAt: '2026-02-14T09:00:00.000Z', quantity: 3 },
+  { id: 'iol-004', barcode: 'ZE-20240004', model: 'CT ASPHINA 509M', type: 'monofocal', power: 21.5, batchNumber: 'B-2024-03', expiryDate: '2029-06-30', stockLocation: 'B-02', status: 'reserved', supplier: 'Zeiss', unitPrice: 1350, createdAt: '2026-03-01T10:00:00.000Z', quantity: 1 },
+  { id: 'iol-005', barcode: 'ALC-20240005', model: 'AcrySof IQ Toric SN6AT6', type: 'toric', power: 20.0, cylinder: 1.5, batchNumber: 'B-2024-04', expiryDate: '2028-06-30', stockLocation: 'A-02', status: 'in_stock', supplier: 'Alcon', unitPrice: 3200, createdAt: '2026-03-20T11:00:00.000Z', quantity: 5 },
+  { id: 'iol-006', barcode: 'JNJ-20240006', model: 'TECNIS Symfony ZXR00', type: 'edof', power: 24.0, batchNumber: 'B-2023-05', expiryDate: '2026-08-15', stockLocation: 'C-01', status: 'in_stock', supplier: 'Johnson', unitPrice: 2980, createdAt: '2026-04-01T09:30:00.000Z', quantity: 2 },
+  { id: 'iol-007', barcode: 'BOL-20240007', model: 'enVista MX60', type: 'monofocal', power: 19.5, batchNumber: 'B-2022-06', expiryDate: '2026-07-20', stockLocation: 'C-02', status: 'in_stock', supplier: 'Bausch', unitPrice: 890, createdAt: '2026-04-10T14:00:00.000Z', quantity: 6 },
+  { id: 'iol-008', barcode: 'HH-20240010', model: 'Akreos AO60', type: 'monofocal', power: 22.5, batchNumber: 'B-2024-07', expiryDate: '2028-03-31', stockLocation: 'B-01', status: 'expired', supplier: 'Haohai', unitPrice: 760, createdAt: '2025-06-01T08:00:00.000Z', quantity: 4 },
+]
+
+export interface ContactLens {
+  id: string; brand: string; type: string; series: string; bc: number; dia: number
+  power: number; cylinder?: number; axis?: number; stock: number; trialLens: boolean
+  unitPrice: number; supplier: string
+}
+
+const SEED_CONTACT_LENSES: ContactLens[] = [
+  { id: 'cl-001', brand: 'Bausch + Lomb', type: 'RGP', series: 'Boston XO', bc: 7.8, dia: 9.6, power: -3.0, stock: 10, trialLens: true, unitPrice: 680, supplier: 'Bausch' },
+  { id: 'cl-002', brand: 'Johnson & Johnson', type: 'Soft', series: 'Acuvue Oasys', bc: 8.4, dia: 14.2, power: -2.5, cylinder: -0.75, axis: 180, stock: 24, trialLens: false, unitPrice: 120, supplier: 'Johnson' },
+  { id: 'cl-003', brand: 'Alcon', type: 'OK', series: 'CRT', bc: 8.0, dia: 10.6, power: -3.5, stock: 8, trialLens: true, unitPrice: 3200, supplier: 'Alcon' },
+  { id: 'cl-004', brand: 'Alcon', type: 'Scleral', series: 'PROSE', bc: 7.5, dia: 17.0, power: -1.0, stock: 3, trialLens: true, unitPrice: 5800, supplier: 'Alcon' },
+  { id: 'cl-005', brand: 'Bausch + Lomb', type: 'Hybrid', series: 'UltraHealth', bc: 8.2, dia: 14.6, power: -4.0, stock: 6, trialLens: false, unitPrice: 450, supplier: 'Bausch' },
+]
+
 @Injectable()
 export class EyeService {
   constructor(private readonly prisma: PrismaService) {}
+
+  private async withSeed<T>(loader: () => Promise<unknown[]>, seed: T[]): Promise<T[]> {
+    try {
+      const rows = await loader()
+      return rows.length > 0 ? (rows as T[]) : seed
+    } catch {
+      return seed
+    }
+  }
 
   listStudies(skip = 0, take = 20) {
     return this.prisma.eyeStudy.findMany({
@@ -128,5 +242,266 @@ export class EyeService {
 
   generateReport(data: { studyId: string; template?: string }) {
     return { message: 'Report generated', data }
+  }
+
+  // ── [G005-P1] 核心 5 个在用孤儿 (PACS/AI/EMR/Report) ──
+
+  async listPacsStudies(params: { modality?: string; skip?: number; take?: number }) {
+    const rows = await this.withSeed(
+      () => this.prisma.eyeStudy.findMany({ orderBy: { createdAt: 'desc' }, take: 100, include: { patient: true } }),
+      SEED_EYE_STUDIES,
+    )
+    let data = rows.map((s: any) => ({
+      id: s.id ?? s.studyId,
+      patientId: s.patientId,
+      patientName: s.patientName ?? s.patient?.name ?? '',
+      modality: s.modality ?? '',
+      eye: s.eye ?? s.eyeSide ?? s.bodyPart ?? 'OU',
+      acquisitionDate: s.acquisitionDate ?? s.studyDate ?? s.createdAt,
+      deviceModel: s.deviceModel ?? '',
+      status: s.status ?? 'acquired',
+      indications: s.indications,
+    }))
+    if (params.modality) {
+      const m = params.modality.toLowerCase()
+      data = data.filter((s: any) => s.modality.toLowerCase().includes(m))
+    }
+    const skip = params.skip ?? 0
+    const take = params.take ?? 50
+    data = data.slice(skip, skip + take)
+    return { success: true, data }
+  }
+
+  async listPacsMeasurements(params: { studyId?: string }) {
+    let data = SEED_EYE_MEASUREMENTS
+    if (params.studyId) data = data.filter((m: any) => m.studyId === params.studyId)
+    return { success: true, data }
+  }
+
+  async listAiInferences(params: { studyId?: string; modelId?: string }) {
+    const rows = await this.withSeed(
+      () => this.prisma.eyeAiInference.findMany({ orderBy: { createdAt: 'desc' }, take: 100 }),
+      SEED_AI_INFERENCES,
+    )
+    let data = rows.map((i: any) => ({
+      id: i.id ?? i.inferenceId,
+      studyId: i.studyId,
+      modelName: i.modelName ?? i.modelId,
+      diagnosis: i.diagnosis ?? '',
+      confidence: i.confidence ?? 0,
+      severity: i.severity ?? 'mild',
+      timestamp: i.timestamp ?? i.createdAt ?? i.inferredAt,
+      confirmed: i.confirmed ?? (i.doctorOverride ? true : false),
+    }))
+    if (params.studyId) data = data.filter((i: any) => i.studyId === params.studyId)
+    if (params.modelId) data = data.filter((i: any) => i.modelName === params.modelId || i.modelId === params.modelId)
+    return { success: true, data }
+  }
+
+  async getAiInference(id: string) {
+    const item = await this.withSeed(
+      () => this.prisma.eyeAiInference.findMany({ where: { id }, take: 1 }),
+      [],
+    )
+    if (item.length > 0) {
+      const i: any = item[0]
+      return { success: true, data: { id: i.id, studyId: i.studyId, modelName: i.modelId, diagnosis: i.diagnosis, confidence: i.confidence, severity: 'mild', timestamp: i.createdAt, confirmed: false } }
+    }
+    const seeded = SEED_AI_INFERENCES.find((i: any) => i.id === id)
+    return { success: true, data: seeded ?? null }
+  }
+
+  async listEmrRecords(params: { patientId?: string }) {
+    let data = SEED_EMR_RECORDS
+    if (params.patientId) data = data.filter((e: any) => e.patientId === params.patientId)
+    return { success: true, data }
+  }
+
+  async listReportReports(params: { patientId?: string }) {
+    let data = SEED_EYE_REPORTS
+    if (params.patientId) data = data.filter((r: any) => r.patientId === params.patientId)
+    return { success: true, data }
+  }
+
+  async listReportDrafts() {
+    const data = SEED_EYE_REPORTS.filter((r: any) => r.status === 'draft')
+    return { success: true, data }
+  }
+
+  async listReportTemplates(params: { specialty?: string }) {
+    let data = SEED_EYE_TEMPLATES
+    if (params.specialty) data = data.filter((t: any) => t.specialty === params.specialty)
+    return { success: true, data }
+  }
+
+  // ── [G005-P1] RIS 在用孤儿 (seed) ──
+
+  async listRisAppointments(params: { date?: string }) {
+    let data = SEED_EYE_APPOINTMENTS
+    if (params.date) data = data.filter((a: any) => a.scheduledDate === params.date)
+    return { success: true, data }
+  }
+
+  async listTodayAppointments() {
+    const today = new Date().toISOString().slice(0, 10)
+    const data = SEED_EYE_APPOINTMENTS.filter((a: any) => a.scheduledDate === today)
+    return { success: true, data }
+  }
+
+  async listRisFollowups() {
+    return { success: true, data: SEED_EYE_FOLLOW_UPS }
+  }
+
+  async listRisSurgeries() {
+    return { success: true, data: SEED_EYE_SURGERIES }
+  }
+
+  async listRisReferrals() {
+    return { success: true, data: SEED_EYE_REFERRALS }
+  }
+
+  // ── [G005-P1] 眼料: IOL 库存 ──
+
+  async listIolInventory(params: { type?: string; status?: string; supplier?: string }) {
+    let data = SEED_IOL_INVENTORY
+    if (params.type) data = data.filter(i => i.type === params.type)
+    if (params.status) data = data.filter(i => i.status === params.status)
+    if (params.supplier) data = data.filter(i => i.supplier === params.supplier)
+    return { success: true, data }
+  }
+
+  async getIolInventoryItem(id: string) {
+    const item = SEED_IOL_INVENTORY.find(i => i.id === id)
+    return { success: true, data: item ?? null }
+  }
+
+  async createIolInventoryItem(body: Record<string, unknown>) {
+    const item: IolInventoryItem = {
+      id: `iol-${Date.now()}`,
+      barcode: body.barcode as string,
+      model: body.model as string,
+      type: body.type as string,
+      power: body.power as number,
+      cylinder: body.cylinder as number | undefined,
+      batchNumber: body.batchNumber as string,
+      expiryDate: body.expiryDate as string,
+      stockLocation: body.stockLocation as string,
+      status: (body.status as string) ?? 'in_stock',
+      supplier: body.supplier as string,
+      unitPrice: body.unitPrice as number,
+      createdAt: new Date().toISOString(),
+      quantity: 1,
+    }
+    SEED_IOL_INVENTORY.unshift(item)
+    return { success: true, data: item }
+  }
+
+  async iolOutStock(id: string, body: { reason: string; patientId?: string; surgeon?: string }) {
+    const item = SEED_IOL_INVENTORY.find(i => i.id === id)
+    if (!item) return { success: true, data: null }
+    item.status = 'implanted'
+    item.quantity = Math.max(0, item.quantity - 1)
+    return { success: true, data: { ...item, outReason: body.reason, outPatientId: body.patientId ?? null, outSurgeon: body.surgeon ?? null, outAt: new Date().toISOString() } }
+  }
+
+  async iolTransfer(id: string, body: { fromLocation: string; toLocation: string }) {
+    const item = SEED_IOL_INVENTORY.find(i => i.id === id)
+    if (!item) return { success: true, data: null }
+    item.stockLocation = body.toLocation
+    return { success: true, data: item }
+  }
+
+  async iolAdjust(id: string, body: { deltaQty: number; reason: string }) {
+    const item = SEED_IOL_INVENTORY.find(i => i.id === id)
+    if (!item) return { success: true, data: null }
+    item.quantity = Math.max(0, item.quantity + body.deltaQty)
+    return { success: true, data: { ...item, adjustReason: body.reason } }
+  }
+
+  async listIolLowStock(threshold = 5) {
+    const data = SEED_IOL_INVENTORY.filter(i => i.quantity < threshold)
+    return { success: true, data }
+  }
+
+  async listIolExpiring(days = 90) {
+    const limit = Date.now() + days * 86400000
+    const data = SEED_IOL_INVENTORY.filter(i => {
+      const t = new Date(i.expiryDate).getTime()
+      return t <= limit && t >= Date.now()
+    })
+    return { success: true, data }
+  }
+
+  // ── [G005-P1] 眼料: 接触镜库 ──
+
+  async listContactLensInventory(params: { type?: string; brand?: string }) {
+    let data = SEED_CONTACT_LENSES
+    if (params.type) data = data.filter(l => l.type === params.type)
+    if (params.brand) data = data.filter(l => l.brand.includes(params.brand as string))
+    return { success: true, data }
+  }
+
+  async getContactLens(id: string) {
+    const item = SEED_CONTACT_LENSES.find(l => l.id === id)
+    return { success: true, data: item ?? null }
+  }
+
+  async createContactLens(body: Record<string, unknown>) {
+    const item: ContactLens = {
+      id: `cl-${Date.now()}`,
+      brand: body.brand as string,
+      type: body.type as string,
+      series: body.series as string,
+      bc: body.bc as number,
+      dia: body.dia as number,
+      power: body.power as number,
+      cylinder: body.cylinder as number | undefined,
+      axis: body.axis as number | undefined,
+      stock: body.stock as number,
+      trialLens: body.trialLens as boolean ?? false,
+      unitPrice: body.unitPrice as number,
+      supplier: body.supplier as string,
+    }
+    SEED_CONTACT_LENSES.unshift(item)
+    return { success: true, data: item }
+  }
+
+  async updateContactLens(id: string, body: Record<string, unknown>) {
+    const item = SEED_CONTACT_LENSES.find(l => l.id === id)
+    if (!item) return { success: true, data: null }
+    Object.assign(item, body)
+    return { success: true, data: item }
+  }
+
+  async deleteContactLens(id: string) {
+    const idx = SEED_CONTACT_LENSES.findIndex(l => l.id === id)
+    if (idx >= 0) SEED_CONTACT_LENSES.splice(idx, 1)
+    return { success: true, data: { id, deleted: idx >= 0 } }
+  }
+
+  async contactLensFitting(body: { patientId: string; fittingData?: Record<string, unknown> }) {
+    return {
+      success: true,
+      data: { fittingId: `FIT-${Date.now()}`, result: 'fitting_recorded', patientId: body.patientId },
+    }
+  }
+
+  async okLensDesign(body: { patientId: string; k1: number; k2: number; kAxis: number; targetReduction: number; brand?: string }) {
+    const flatK = (body.k1 + body.k2) / 2
+    const baseCurve = Math.round((flatK - 0.5) * 100) / 100
+    const returnZone = Math.round(baseCurve - 1.6)
+    const diameter = 10.6
+    return {
+      success: true,
+      data: {
+        designId: `OK-${Date.now()}`,
+        baseCurve,
+        returnZone,
+        diameter,
+        brand: body.brand ?? 'CRT',
+        targetReduction: body.targetReduction,
+        patientId: body.patientId,
+      },
+    }
   }
 }

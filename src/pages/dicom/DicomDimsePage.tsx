@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Card, Tabs, Table, Button, Form, Input, Select, Upload, message, Tag, Space, Alert, InputNumber, Modal } from 'antd'
-import { Send, Search, Upload, ArrowRight, CheckCircle, XCircle, Radio, RefreshCw, Plus } from 'lucide-react'
+import { Send, Search, Upload as UploadIcon, ArrowRight, CheckCircle, XCircle, Radio, RefreshCw, Plus } from 'lucide-react'
 import { dicomDimseApi } from '../../services/api/dicomApi'
 
 const DIMSE_STATUS_LABEL: Record<string, string> = { SUCCESS: '成功' };
@@ -74,7 +74,9 @@ export const DicomDimsePage: React.FC = () => {
     const res = await dicomDimseApi.cEcho({ calledAeTitle: device.aeTitle })
     const elapsed = Math.round(performance.now() - start)
     if (res.success) {
-      setDevices(prev => prev.map(d => d.aeTitle === device.aeTitle ? { ...d, pingMs: res.data!.data ? (res.data.data as any).pingMs ?? elapsed : elapsed, status: 'SUCCESS', _echoing: false } : d))
+      // [G005 P1] 响应形状统一: 后端直接返回 C-ECHO 对象 (无 data 双包裹)
+      const payload = (res.data as { data?: unknown })?.data ?? res.data
+      setDevices(prev => prev.map(d => d.aeTitle === device.aeTitle ? { ...d, pingMs: (payload as any)?.pingMs ?? elapsed, status: 'SUCCESS', _echoing: false } : d))
     } else {
       setDevices(prev => prev.map(d => d.aeTitle === device.aeTitle ? { ...d, pingMs: elapsed, status: 'FAIL', _echoing: false } : d))
     }
@@ -88,8 +90,10 @@ export const DicomDimsePage: React.FC = () => {
       accessionNumber: values.accessionNumber,
       modality: values.modality,
     })
-    if (res.success && res.data?.data) {
-      setMwlResults(Array.isArray(res.data.data) ? res.data.data : [])
+    // [G005 P1] 双形状兼容: 后端 { matches, items } / MSW { data: [...] }
+    const items = (res.data as { items?: unknown[] })?.items ?? (res.data as { data?: unknown })?.data ?? res.data
+    if (res.success && items !== undefined && items !== null) {
+      setMwlResults(Array.isArray(items) ? items : [])
     } else {
       message.error(res.error?.message || 'MWL 查询失败')
     }
@@ -120,7 +124,9 @@ export const DicomDimsePage: React.FC = () => {
       destinationPort: values.destPort,
     })
     if (res.success) {
-      setMoveResults(prev => [...prev, { studyUid: values.studyUid, destAe: values.destAe, transferredCount: (res.data?.data as any)?.transferredCount || 0, status: 'SUCCESS' }])
+      // [G005 P1] 双形状兼容: 后端 numberOfCompletedSubOperations / MSW transferredCount
+      const payload = (res.data as { data?: unknown })?.data ?? res.data
+      setMoveResults(prev => [...prev, { studyUid: values.studyUid, destAe: values.destAe, transferredCount: (payload as any)?.numberOfCompletedSubOperations ?? (payload as any)?.transferredCount ?? 0, status: 'SUCCESS' }])
       message.success('C-MOVE 转发完成')
     } else {
       setMoveResults(prev => [...prev, { studyUid: values.studyUid, destAe: values.destAe, transferredCount: 0, status: 'FAIL' }])
@@ -197,7 +203,7 @@ export const DicomDimsePage: React.FC = () => {
     },
     {
       key: 'cstore',
-      label: <Space><Upload />C-STORE</Space>,
+      label: <Space><UploadIcon />C-STORE</Space>,
       children: (
         <Card size="small" title="DICOM 文件上传">
           <Upload

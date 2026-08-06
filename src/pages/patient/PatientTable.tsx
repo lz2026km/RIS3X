@@ -1,30 +1,5 @@
-import { useMemo } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-  CheckSquare,
-  Square,
-  Search,
-  Eye,
-  Edit2,
-  PlusCircle,
-  FileText,
-  Download,
-  Printer,
-  X,
-  GitFork,
-  User,
-  Phone,
-  CreditCard,
-  Calendar,
-  MapPin,
-  Contact,
-  Shield,
-  Activity,
-  AlertTriangle,
-  AlertCircle,
-  CheckCircle,
-} from "lucide-react";
+
+import { ChevronLeft, ChevronRight, CheckSquare, Square, Search, Eye, Edit2, PlusCircle, FileText, Download, Printer, X, GitFork, User, Phone, CreditCard, Calendar, MapPin, Contact, Shield, Activity, AlertTriangle } from 'lucide-react';
 import type { Patient } from "../../types";
 import type { RadiologyExam } from "../../types";
 import type { DuplicateMatch, ToastInfo } from "./types";
@@ -564,8 +539,7 @@ export function PatientTable({
               </tr>
             </thead>
             <tbody>
-              {paginatedPatients.map((p, idx) => {
-                const pExams = getPatientExams(p.id, exams);
+              {paginatedPatients.map((p, idx) => {getPatientExams(p.id, exams);
                 const isSelected = selectedPatientIds.has(p.id);
                 return (
                   <tr

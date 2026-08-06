@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Card, Row, Col, Tag, Space, Select, Table, Statistic, Spin } from "antd";
+import { Card, Row, Col, Tag, Space, Select, Table } from 'antd';
 import { ArrowLeftRight, Eye, TrendingUp, TrendingDown } from "lucide-react";
-import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
+
 import { eyeApi } from "@/services/api/eyeApi";
 
 const ImageComparePage: React.FC = () => {
   const [pairIdx, setPairIdx] = useState(0);
   const [pairs, setPairs] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;

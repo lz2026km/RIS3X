@@ -101,7 +101,7 @@ class MockOpsAnalyticsService implements IOpsAnalyticsService {
     }
   }
 
-  async getOperatorProductivity(period: string): Promise<OperatorProductivity[]> {
+  async getOperatorProductivity(_period: string): Promise<OperatorProductivity[]> {
     return [
       { operatorId: 'op1', operatorName: '张伟', examsCompleted: 48, avgExamTimeMin: 22, utilizationRate: 92, comparison: 5.2 },
       { operatorId: 'op2', operatorName: '李静', examsCompleted: 45, avgExamTimeMin: 24, utilizationRate: 88, comparison: 2.1 },

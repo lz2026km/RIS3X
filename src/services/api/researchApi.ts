@@ -1,4 +1,4 @@
-import { api, invalidateApiCache, invalidateApiCacheByPrefix } from './client'
+import { api, invalidateApiCacheByPrefix } from './client'
 
 export interface ResearchProjectDto {
   id: string; code: string; name: string; leader: string; startDate: string

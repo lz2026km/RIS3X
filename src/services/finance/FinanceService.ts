@@ -150,7 +150,7 @@ class MockFinanceService implements IFinanceService {
     return payment
   }
 
-  async requestRefund(billId: string, reason: string): Promise<boolean> {
+  async requestRefund(billId: string, _reason: string): Promise<boolean> {
     const bill = MOCK_BILLS.find(b => b.id === billId)
     if (bill) bill.status = 'refunded'
     return !!bill

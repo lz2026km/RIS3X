@@ -5,14 +5,10 @@
  * Expanded: confidence scoring, tabs (draft/ddx/risk/preread), model selector, multi-draft comparison
  */
 import React, { useState, useCallback } from 'react';
-import { Card, Space, Button, Tag, Statistic, Divider, Alert, Switch, Select, Tooltip, message, Progress, Row, Col, Spin, Tabs } from 'antd';
-import {
-  Sparkles, RefreshCw, Wand2, FileText, AlertCircle, History, BookOpen, Brain,
-  Loader2, CheckCircle2, ChevronRight, Copy, Edit3, Image as ImageIcon, Star,
-  Zap, Activity, Eye, Cpu, ListOrdered,
-} from 'lucide-react';
-import { AI_DRAFT_RESULT, SIMILAR_CASES_MOCK, PRIOR_REPORTS_MOCK } from '@data/reportWritingMock';
-import { generateAiDraft, getAiDraftStatus } from '@services/writing/writingService';
+import { Card, Space, Button, Tag, Statistic, Alert, Switch, Select, Tooltip, message, Progress, Row, Col, Tabs } from 'antd';
+import { Sparkles, RefreshCw, Wand2, FileText, AlertCircle, History, Brain, CheckCircle2, Copy, Edit3, Zap, Activity, Eye, Cpu, ListOrdered } from 'lucide-react';
+import { SIMILAR_CASES_MOCK, PRIOR_REPORTS_MOCK } from '@data/reportWritingMock';
+import { generateAiDraft } from '@services/writing/writingService';
 import type { AiDraftRequest, AiDraftResult, AiDraftStage } from '@types/R3/R3.WRITING';
 
 interface Props {
@@ -89,7 +85,7 @@ function generateDraftVersions(base: AiDraftResult): AiDraftResult[] {
 }
 
 export const AIDraftPanel: React.FC<Props> = ({
-  reportId, clinicalInfo, modality, bodyPart, onAccept, onRefine, disabled = false,
+  reportId, clinicalInfo, modality, bodyPart, onAccept, disabled = false,
 }) => {
   const [stage, setStage] = useState<AiDraftStage>('idle');
   const [progress, setProgress] = useState(0);
@@ -216,8 +212,6 @@ export const AIDraftPanel: React.FC<Props> = ({
     }
     message.success(`已切换到版本 ${index + 1}`);
   }, [draftVersions]);
-
-  const stageColor = ({ idle: '#94a3b8', analyzing: '#3b82f6', drafting: '#7c3aed', ready: '#10b981', merging: '#0891b2', error: '#dc2626' } as const)[stage];
   const stageLabel = ({ idle: '就绪', analyzing: '分析中', drafting: '撰写中', ready: '已完成', merging: '合并中', error: '失败' } as const)[stage];
 
   const renderConfidenceBar = (confidence: number) => (

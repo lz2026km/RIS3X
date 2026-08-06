@@ -1,12 +1,16 @@
 import { useState, useCallback, useEffect } from 'react';
 import { DndContext, useDraggable, useDroppable, DragEndEvent } from '@dnd-kit/core';
 import { Layers, Save, Play, Upload, List, History, GripVertical, Plus, CheckCircle2, X } from 'lucide-react';
-import { Table, Button, Tag, message, Modal, Input, Select, Spin } from 'antd';
+import { Table, Button, Tag, message, Modal, Input, Select } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { canApprove } from '../services/auth/rbacService';
 import { useAuth } from '../hooks/useAuth';
 import { workflowApi } from '../services/api/workflowApi';
-import type { WorkflowDefinitionDto, WorkflowStepDto } from '../services/api/workflowApi';
+import type { WorkflowDefinitionDto, WorkflowStepDto, ListPayload } from '../services/api/workflowApi';
+
+// [G005 P1] 列表双形状兼容: MSW 裸数组 / 后端 { items, total }
+const toList = <T,>(data: ListPayload<T> | null | undefined): T[] =>
+  Array.isArray(data) ? data : (data?.items ?? []);
 
 type StepType = { key: string; label: string; color: string };
 
@@ -15,23 +19,6 @@ const STEP_TYPES: StepType[] = [
   { key: 'write', label: '写报告', color: '#22c55e' },
   { key: 'cosign', label: '会签', color: '#f59e0b' },
   { key: 'qc', label: '质控', color: '#ef4444' },
-];
-
-interface CanvasNode { id: string; type: string; label: string; x: number; y: number }
-
-interface VersionEntry { version: number; date: string; author: string; status: string }
-
-const MOCK_VERSIONS: VersionEntry[] = [
-  { version: 1, date: '2026-06-15', author: '管理员', status: '已部署' },
-  { version: 2, date: '2026-06-10', author: '管理员', status: '草稿' },
-  { version: 3, date: '2026-06-01', author: '系统', status: '已部署' },
-];
-
-const MOCK_STEPS = [
-  { key: '1', name: '急诊CT报告流程', type: 'write', assignee: '李医生', sla: 30, status: 'active' },
-  { key: '2', name: 'MR审核步骤', type: 'review', assignee: '张主任', sla: 15, status: 'active' },
-  { key: '3', name: '双签确认', type: 'cosign', assignee: '王主任', sla: 10, status: 'inactive' },
-  { key: '4', name: '质控检查', type: 'qc', assignee: '赵质控', sla: 20, status: 'active' },
 ];
 
 function DraggableStep({ type }: { type: StepType }) {
@@ -78,6 +65,8 @@ function DropZone({ children }: { children: React.ReactNode }) {
   );
 }
 
+interface CanvasNode { id: string; type: string; label: string; x: number; y: number }
+
 function CanvasNodeItem({ node, onRemove }: { node: CanvasNode; onRemove: (id: string) => void }) {
   const step = STEP_TYPES.find(s => s.key === node.type);
   const { attributes, listeners, setNodeRef, transform } = useDraggable({ id: node.id, data: { type: node.type } });
@@ -109,7 +98,7 @@ export default function WorkflowDesignerPage() {
   const [stepList, setStepList] = useState<WorkflowStepDto[]>([]);
   const [definitions, setDefinitions] = useState<WorkflowDefinitionDto[]>([]);
   const [currentDefId, setCurrentDefId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [_loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [savedToast, setSavedToast] = useState<string | null>(null);
   const [showVersion, setShowVersion] = useState(false);
@@ -124,10 +113,11 @@ export default function WorkflowDesignerPage() {
     setLoading(true)
     try {
       const res = await workflowApi.listDefinitions()
-      if (res.success && Array.isArray(res.data)) {
-        setDefinitions(res.data as WorkflowDefinitionDto[])
-        if (res.data.length > 0) {
-          const def = res.data[0]!
+      const list = toList<WorkflowDefinitionDto>(res.data)
+      if (res.success) {
+        setDefinitions(list)
+        if (list.length > 0) {
+          const def = list[0]!
           setCurrentDefId(def.id)
           void loadCanvas(def)
         }
@@ -148,8 +138,8 @@ export default function WorkflowDesignerPage() {
       })))
     }
     const stepRes = await workflowApi.listSteps(def.id)
-    if (stepRes.success && Array.isArray(stepRes.data)) {
-      setStepList(stepRes.data as WorkflowStepDto[])
+    if (stepRes.success) {
+      setStepList(toList<WorkflowStepDto>(stepRes.data))
     }
   }
 

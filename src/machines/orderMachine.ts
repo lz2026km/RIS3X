@@ -36,23 +36,23 @@ export const orderMachine = createMachine({
   states: {
     submitted: {
       on: {
-        APPROVE: { target: 'approved', actions: assign({ approvedBy: ({ event }) => event.by, history: ({ context, event }) => [...context.history, { state: 'approved', timestamp: new Date().toISOString(), actorId: event.by }] }) },
-        REJECT: { target: 'rejected', actions: assign({ rejectionReason: ({ event }) => event.reason, history: ({ context, event }) => [...context.history, { state: 'rejected', timestamp: new Date().toISOString(), actorId: event.by, note: event.reason }] }) },
+        APPROVE: { target: 'approved', actions: assign({ approvedBy: ({ event }) => event.by, history: ({ context, event }): OrderStateEvent[] => [...context.history, { state: 'approved', timestamp: new Date().toISOString(), actorId: event.by }] }) },
+        REJECT: { target: 'rejected', actions: assign({ rejectionReason: ({ event }) => event.reason, history: ({ context, event }): OrderStateEvent[] => [...context.history, { state: 'rejected', timestamp: new Date().toISOString(), actorId: event.by, note: event.reason }] }) },
       },
     },
     approved: {
       on: {
-        SCHEDULE: { target: 'scheduled', actions: assign({ scheduledAt: ({ event }) => event.scheduledAt ?? new Date().toISOString(), history: ({ context, event }) => [...context.history, { state: 'scheduled', timestamp: new Date().toISOString(), actorId: event.by }] }) },
-        CANCEL: { target: 'cancelled', actions: assign({ rejectionReason: ({ event }) => event.reason, history: ({ context, event }) => [...context.history, { state: 'cancelled', timestamp: new Date().toISOString(), actorId: event.by, note: event.reason }] }) },
+        SCHEDULE: { target: 'scheduled', actions: assign({ scheduledAt: ({ event }) => event.scheduledAt ?? new Date().toISOString(), history: ({ context, event }): OrderStateEvent[] => [...context.history, { state: 'scheduled', timestamp: new Date().toISOString(), actorId: event.by }] }) },
+        CANCEL: { target: 'cancelled', actions: assign({ rejectionReason: ({ event }) => event.reason, history: ({ context, event }): OrderStateEvent[] => [...context.history, { state: 'cancelled', timestamp: new Date().toISOString(), actorId: 'system', note: event.reason }] }) },
       },
     },
     scheduled: {
       on: {
-        CONFIRM: { target: 'confirmed', actions: assign({ history: ({ context, event }) => [...context.history, { state: 'confirmed', timestamp: new Date().toISOString(), actorId: event.by }] }) },
-        CANCEL: { target: 'cancelled', actions: assign({ rejectionReason: ({ event }) => event.reason, history: ({ context, event }) => [...context.history, { state: 'cancelled', timestamp: new Date().toISOString(), actorId: event.by, note: event.reason }] }) },
+        CONFIRM: { target: 'confirmed', actions: assign({ history: ({ context, event }): OrderStateEvent[] => [...context.history, { state: 'confirmed', timestamp: new Date().toISOString(), actorId: event.by }] }) },
+        CANCEL: { target: 'cancelled', actions: assign({ rejectionReason: ({ event }) => event.reason, history: ({ context, event }): OrderStateEvent[] => [...context.history, { state: 'cancelled', timestamp: new Date().toISOString(), actorId: 'system', note: event.reason }] }) },
       },
     },
-    confirmed: { on: { CANCEL: { target: 'cancelled', actions: assign({ rejectionReason: ({ event }) => event.reason, history: ({ context, event }) => [...context.history, { state: 'cancelled', timestamp: new Date().toISOString(), actorId: event.by, note: event.reason }] }) } } },
+    confirmed: { on: { CANCEL: { target: 'cancelled', actions: assign({ rejectionReason: ({ event }) => event.reason, history: ({ context, event }): OrderStateEvent[] => [...context.history, { state: 'cancelled', timestamp: new Date().toISOString(), actorId: 'system', note: event.reason }] }) } } },
     cancelled: { type: 'final' },
     rejected: { type: 'final' },
   },

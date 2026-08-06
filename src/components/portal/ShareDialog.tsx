@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Share2, X, Link2, Shield, QrCode, Settings } from 'lucide-react';
+import { useState } from 'react';
+import { Share2, X, Link2, Shield } from 'lucide-react';
 import { shareLinkService } from '../../services/portal/ShareLinkService';
 
 interface ShareDialogProps {

@@ -14,6 +14,7 @@ import { initialUsers } from '../data/initialData'
 import { userApi, notificationApi } from '../services/api'
 import type { NotificationDto } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
+import { formatTime } from '../utils/date';
 
 // ============================================================
 // 常量定义
@@ -124,11 +125,7 @@ function formatDateTime(dt: string): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
 }
 
-function formatTime(dt: string): string {
-  if (!dt) return '-'
-  const d = new Date(dt)
-  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
-}
+
 
 function getRelativeTime(dt: string): string {
   const now = new Date('2026-05-01T18:00:00')

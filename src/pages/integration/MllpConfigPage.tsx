@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  Card, Space, Tag, Button, Table, Input, Switch, message, Statistic, Row, Col, Tooltip, Popconfirm,
-} from "antd";
+import { Card, Space, Tag, Button, Table, Switch, message, Statistic, Row, Col, Popconfirm } from 'antd';
 import {
   Server, Shield, Plus, Trash2, Activity, Wifi, Clock, Terminal,
 } from "lucide-react";

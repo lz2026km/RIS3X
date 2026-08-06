@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { Card, Table, Button, Tag, Space, Switch, InputNumber, Input, Modal, Form, Select, Row, Col, Statistic, message, Tabs } from 'antd'
-import { GitBranch, Plus, Edit3, BarChart3, History } from 'lucide-react'
+import { Card, Table, Button, Space, Switch, InputNumber, Input, Modal, Form, Select, Row, Col, Statistic, message, Tabs } from 'antd'
+import { GitBranch, Edit3, BarChart3, History } from 'lucide-react'
 
 interface RoutingRule {
   id: string
@@ -37,7 +37,7 @@ const initHistory: Assignment[] = [
 
 const SmartRoutePage: React.FC = () => {
   const [rules, setRules] = useState<RoutingRule[]>(initRules)
-  const [history, setHistory] = useState<Assignment[]>(initHistory)
+  const [history, _setHistory] = useState<Assignment[]>(initHistory)
   const [editOpen, setEditOpen] = useState(false)
   const [editingRule, setEditingRule] = useState<RoutingRule | null>(null)
   const [form] = Form.useForm()

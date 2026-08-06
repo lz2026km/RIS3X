@@ -5,18 +5,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Y from 'yjs';
-import {
-  getRoom,
-  getReportText,
-  getReportMeta,
-  getReportAnnotations,
-  getReportComments,
-  getReportHistory,
-  type CollaborationRoom,
-  type CollaborationUser,
-  createSnapshot,
-  encodeStateB64,
-} from '../services/collaboration';
+import { getRoom, getReportText, getReportMeta, getReportAnnotations, getReportComments, type CollaborationRoom, type CollaborationUser, createSnapshot, encodeStateB64 } from '../services/collaboration';
 
 export interface UseCollaborativeReportOptions {
   reportId: string;

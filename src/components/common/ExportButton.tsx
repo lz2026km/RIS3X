@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { jsPDF } from "jspdf";
 import ExcelJS from "exceljs";
-import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, WidthType, AlignmentType, BorderStyle } from "docx";
+import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, WidthType, AlignmentType } from 'docx';
 import { Download, FileSpreadsheet, FileText, FileCode } from "lucide-react";
 
 export type ExportFormat = "csv" | "json" | "xlsx" | "pdf" | "docx";

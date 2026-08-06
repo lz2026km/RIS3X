@@ -80,7 +80,7 @@ export class MockVoiceGateway implements IVoiceGateway {
     );
   }
 
-  async playIvr(ivrMenuId: string, phone: string, vars: Record<string, string>): Promise<SendResult> {
+  async playIvr(ivrMenuId: string, phone: string, _vars: Record<string, string>): Promise<SendResult> {
     const menu = IVR_MENUS.find((m) => m.id === ivrMenuId);
     if (!menu) {
       return {

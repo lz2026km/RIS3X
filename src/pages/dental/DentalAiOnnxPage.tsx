@@ -2,7 +2,7 @@
 // [v3.0.6.8-81] 重写: 消除 any, 用 instanceof 判断真实 ONNX session, 统一 offline/real schema
 import React, { useState, useRef } from 'react';
 import { Card, Space, Tag, Button, message, Spin, Row, Col, Alert, List } from 'antd';
-import { Brain, Scan, CheckCircle2 } from 'lucide-react';
+import { Brain, Scan } from 'lucide-react';
 import { Upload } from 'lucide-react';
 import { Upload as AntdUpload } from 'antd';
 import { loadImageToTensor, INPUT_SIZE } from '@/services/ai/onnxPreprocess';

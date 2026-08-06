@@ -11,7 +11,7 @@ const STATUSES = [
   '终审中', '已审核', '签发中', '已签发', '已发布', '修订中', '已修订',
   '已撤回', '已驳回', '已归档',
 ]
-const PRIORITIES = ['全部', '紧急', '危重', '普通']
+
 const DOCTORS: { id: string; name: string }[] = []
 
 export interface ReportHeaderProps {

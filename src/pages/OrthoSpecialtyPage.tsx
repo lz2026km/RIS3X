@@ -1,6 +1,6 @@
 // Ortho Specialty Page — 骨科影像分析 · 关节 · 脊柱 · 骨密度
 import { useState, useMemo } from 'react';
-import { Bone, Activity, AlertTriangle, CheckCircle, Clock, Search, ChevronRight, TrendingUp, Stethoscope, BarChart3, FileText, Scale } from 'lucide-react';
+import { Bone, Activity, AlertTriangle, Search, TrendingUp, Stethoscope, BarChart3, FileText, Scale } from 'lucide-react';
 import type { JointType, KellgrenLawrenceGrade } from '@/services/api/orthoSpecialtyApi';
 
 const JOINT_LABELS: Record<string, string> = { shoulder: '肩关节', elbow: '肘关节', wrist: '腕关节', hip: '髋关节', knee: '膝关节', ankle: '踝关节', cervical: '颈椎', lumbar: '腰椎' };

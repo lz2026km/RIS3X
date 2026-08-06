@@ -1,9 +1,9 @@
-import { useState } from 'react'
+
 import {
-  ShieldAlert, X, User, AlertTriangle, Bell, ClipboardList, PhoneOutgoing,
+  ShieldAlert, X, User, AlertTriangle, Bell, ClipboardList, PhoneOutgoing, PhoneIncoming,
   Clock, FileText, TrendingUp, Stethoscope, CheckCircle, Circle,
 } from 'lucide-react'
-import { message } from 'antd'
+
 import { FollowUpTab, DocumentsTab } from './CriticalValueFollowUp'
 import type { CriticalValue, FollowUpRecord } from './types'
 import { PRIMARY_COLOR, PRIMARY_LIGHT } from './types'

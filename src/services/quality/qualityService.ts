@@ -242,7 +242,7 @@ export const qualityService = {
     return clone(r);
   },
 
-  async verifyRemediation(remediationId: string, userId: string, userName: string, passed: boolean): Promise<DefectRemediation> {
+  async verifyRemediation(remediationId: string, _userId: string, userName: string, passed: boolean): Promise<DefectRemediation> {
     await wait();
     const r = inMemoryRemediations.find((x) => x.id === remediationId);
     if (!r) throw new Error('Remediation not found');

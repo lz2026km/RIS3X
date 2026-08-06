@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react'
-import { Settings, Star, Plus, Trash2, ChevronDown, ChevronUp, Layout, LayoutGrid, Grid3x3 } from 'lucide-react'
+import _React, { useState, useCallback } from 'react'
+import { Settings, Star, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
 import {
   HangingProtocolProvider,
   HangingProtocolSwitcher,
@@ -7,13 +7,7 @@ import {
   type HangingProtocol,
 } from '../v3/dicom/HangingProtocol'
 
-const LAYOUT_ICONS: Record<string, React.ReactNode> = {
-  '1x1': <Layout size={14} />,
-  '2x1': <LayoutGrid size={14} />,
-  '1x2': <LayoutGrid size={14} style={{ transform: 'rotate(90deg)' }} />,
-  '2x2': <Grid3x3 size={14} />,
-  '3x3': <Grid3x3 size={14} />,
-}
+
 
 interface HangingProtocolPanelProps {
   onApply?: (protocol: HangingProtocol) => void

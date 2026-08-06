@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react"
 import { useTranslation } from "react-i18next"
-import { Mic, Square, FileText, Send, CheckCircle, AlertCircle, RefreshCw, Volume2 } from "lucide-react"
+import { Mic, Square, FileText, Send, CheckCircle, RefreshCw, Volume2 } from 'lucide-react'
 import { PageContainer } from "../../components/common/PageContainer"
 import { PageHeader } from "../../components/common/PageHeader"
 import { asrApi } from "../../services/api/asrApi"

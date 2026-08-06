@@ -1,9 +1,6 @@
 import React, { useState, useCallback } from 'react'
-import {
-  Card, Input, Button, Space, Tag, Typography, message, Row, Col,
-  Statistic, Spin, Divider, Empty, Rate, Tooltip, Progress,
-} from 'antd'
-import { Shield, CheckCircle, AlertTriangle, FileText, Clipboard, Brain, RefreshCw, ThumbsUp, ThumbsDown } from 'lucide-react'
+import { Card, Input, Button, Space, Tag, Typography, message, Row, Col, Statistic, Spin, Divider, Empty, Progress } from 'antd'
+import { Shield, CheckCircle, AlertTriangle, FileText, Brain, ThumbsUp } from 'lucide-react'
 import { v3AiPlatformApi } from '../../services/api/v3Api'
 
 const { Text, Title } = Typography
@@ -25,8 +22,8 @@ interface ReviewResult {
 
 const AiReviewPage: React.FC = () => {
   const [reportText, setReportText] = useState('')
-  const [findings, setFindings] = useState('')
-  const [conclusion, setConclusion] = useState('')
+  const [_findings, _setFindings] = useState('')
+  const [_conclusion, _setConclusion] = useState('')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<ReviewResult | null>(null)
 

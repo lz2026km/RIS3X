@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import {
-  BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis,
+  BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts'
-import { Target, CheckCircle, XCircle, TrendingUp, BarChart3, AlertTriangle, Plus } from 'lucide-react'
+import { Target, CheckCircle, TrendingUp, BarChart3, AlertTriangle, Plus } from 'lucide-react'
 import { getPatientSafetyGoals, type PatientSafetyGoal } from '../../services/api/safetyApi'
 
 const CATEGORIES = ['身份识别', '手术安全', '用药安全', '危急值管理', '患者安全', '感染控制', '辐射安全', '服务品质']
@@ -30,11 +30,11 @@ export default function PatientSafetyGoalsPage() {
     progress: g.unit === '%' ? Math.round(g.current / g.target * 100) : g.target === 0 ? Math.max(0, 100 - g.current * 20) : Math.round((1 - g.current / g.target) * 100),
   }))
 
-  const statusData = Object.entries(STATUS_CONFIG).map(([k, v]) => ({
+  Object.entries(STATUS_CONFIG).map(([k, v]) => ({
     name: v.label,
     value: goals.filter(g => g.status === k).length,
     color: v.color,
-  }))
+  }));
 
   const categoryCompData = CATEGORIES.map(c => ({
     category: c,

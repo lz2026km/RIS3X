@@ -59,4 +59,68 @@ describe('DentalService', () => {
     expect(mockPrisma.dentalAppointment.findMany).toHaveBeenCalledWith({ orderBy: { scheduledAt: 'desc' } })
     expect(result.data).toHaveLength(1)
   })
+
+  // ── [G005-P1] 在用孤儿补齐: 核心 8 个 (seed 回退) ──
+
+  describe('modality lists', () => {
+    beforeEach(() => {
+      mockPrisma.dentalStudy.findMany.mockResolvedValue([])
+    })
+
+    it('listCbct returns seed CBCT studies when DB empty', async () => {
+      const r = await svc.listCbct()
+      expect(r.success).toBe(true)
+      expect(r.data.length).toBeGreaterThan(0)
+      expect(r.data.every((s: any) => s.modality === 'CBCT')).toBe(true)
+    })
+
+    it('listPanoramic / listPeriapical / listScan / listBitewing return seeded studies', async () => {
+      const panoramic = await svc.listPanoramic()
+      expect(panoramic.data.every((s: any) => s.modality === 'Panoramic')).toBe(true)
+      const periapical = await svc.listPeriapical()
+      expect(periapical.data[0].modality).toBe('Periapical')
+      const scan = await svc.listScan()
+      expect(scan.data[0].modality).toBe('Scan')
+      const bitewing = await svc.listBitewing()
+      expect(bitewing.data[0].modality).toBe('Bitewing')
+    })
+
+    it('listCbct reads from DentalStudy table when rows exist', async () => {
+      mockPrisma.dentalStudy.findMany.mockResolvedValue([{ id: 's1', modality: 'CBCT', patientName: '张三' }])
+      const r = await svc.listCbct()
+      expect(r.data).toHaveLength(1)
+      expect(mockPrisma.dentalStudy.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: { modality: 'CBCT' } }))
+    })
+  })
+
+  it('compareStudies returns difference summary', async () => {
+    const r = await svc.compareStudies('DT-1001', 'DT-1003')
+    expect(r.success).toBe(true)
+    expect(r.data.idA).toBe('DT-1001')
+    expect(typeof r.data.differenceScore).toBe('number')
+  })
+
+  it('getStats aggregates studies and appointments', async () => {
+    mockPrisma.dentalStudy.findMany.mockResolvedValue([])
+    mockPrisma.dentalAppointment.findMany.mockResolvedValue([])
+    const r = await svc.getStats()
+    expect(r.success).toBe(true)
+    expect(r.data.totalStudies).toBeGreaterThan(0)
+    expect(r.data.byModality).toHaveProperty('CBCT')
+    expect(typeof r.data.reportRate).toBe('number')
+  })
+
+  it('listTreatments filters by status and pageSize', async () => {
+    const r = await svc.listTreatments({ status: 'in_progress', pageSize: 1 })
+    expect(r.success).toBe(true)
+    expect(r.data.every((t: any) => t.status === 'in_progress')).toBe(true)
+    expect(r.data.length).toBeLessThanOrEqual(1)
+  })
+
+  it('listTreatmentTypes returns builtin types', async () => {
+    const r = await svc.listTreatmentTypes()
+    expect(r.success).toBe(true)
+    expect(r.data.length).toBeGreaterThanOrEqual(5)
+    expect(r.data[0]).toHaveProperty('category')
+  })
 })

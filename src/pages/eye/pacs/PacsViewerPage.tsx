@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Tag, Space, Button, Spin } from "antd";
+import { Tag, Button, Spin } from 'antd';
 import { Image, ArrowLeft, Download } from "lucide-react";
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import { eyeApi } from "@/services/api/eyeApi";

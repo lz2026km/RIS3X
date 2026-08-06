@@ -23,9 +23,12 @@ async function transition(id: string, to: ReportState, reason?: string) {
   return res
 }
 
+// [G005 P1] 列表双形状: MSW 裸数组 / 后端 { items, total }
+export type ListPayload<T> = T[] | { items: T[]; total: number }
+
 export const reportApi = {
   list: (params?: ReportQueryParams) =>
-    api.get<ReportDto[]>(`/reports?${new URLSearchParams(params as Record<string, string>).toString()}`),
+    api.get<ListPayload<ReportDto>>(`/reports?${new URLSearchParams(params as Record<string, string>).toString()}`),
 
   getById: (id: string) =>
     api.get<ReportDto>(`/reports/${id}`),
@@ -45,6 +48,9 @@ export const reportApi = {
   },
 
   submit: async (id: string) => transition(id, 'SUBMITTED'),
+
+  // [v3.0.6.11-73] P0 21 态对齐: 提交审核 (WRITING/SUBMITTED → INITIAL_REVIEW)
+  submitForReview: (id: string) => transition(id, 'INITIAL_REVIEW'),
 
   review: async (id: string, _data?: { type: 'initial' | 'final'; doctorId: string; doctorName: string; suggestion: string; score: number }) => {
     const res = await transition(id, 'REVIEWED')

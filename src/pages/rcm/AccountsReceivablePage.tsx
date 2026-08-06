@@ -1,9 +1,5 @@
 import { useState, useMemo } from 'react'
-import {
-  DollarSign, Clock, AlertTriangle, CheckCircle, XCircle,
-  Search, Filter, RefreshCw, Download, FileSpreadsheet,
-  Building2, Users, Wallet, TrendingUp, TrendingDown,
-} from 'lucide-react'
+import { Clock, AlertTriangle, CheckCircle, Search, Download, Wallet } from 'lucide-react'
 
 type AgingBucket = '0-30' | '31-60' | '61-90' | '90+'
 type PayerFilter = 'all' | '医保(城镇职工)' | '医保(城乡居民)' | '商业保险' | '自费'

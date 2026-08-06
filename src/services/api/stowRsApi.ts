@@ -1,4 +1,4 @@
-import { api, invalidateApiCache } from './client'
+import { api } from './client'
 
 // STOW-RS (Store Over the Web - RESTful) API
 // Backend: /api/v1/dicom/stow-rs/*

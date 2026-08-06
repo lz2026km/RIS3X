@@ -101,7 +101,7 @@ export interface ProvideAndRegisterResult {
   errors?: { codeContext: string; errorCode: string; severity: 'error' | 'warning' }[];
 }
 
-export async function provideAndRegister(submission: IheXdsSubmission, domain: IheAffinityDomain = DEFAULT_AFFINITY_DOMAIN): Promise<ProvideAndRegisterResult> {
+export async function provideAndRegister(submission: IheXdsSubmission, _domain: IheAffinityDomain = DEFAULT_AFFINITY_DOMAIN): Promise<ProvideAndRegisterResult> {
   await delay(400);
   if (!submission.patientId) {
     return { success: false, submissionSetId: '', documentEntries: [], rs: 'Failure', timestamp: new Date().toISOString(), errors: [{ codeContext: 'ProvideAndRegister', errorCode: 'XDSRegistryMetadataError', severity: 'error' }] };
@@ -171,7 +171,7 @@ export function buildFindDocumentsQueryXml(patientId: string, status = 'approved
 // ============================================================
 export interface PixFeedResult { success: boolean; ack: 'AA' | 'AE' | 'AR'; messageId: string; errors?: string[]; }
 
-export async function pixFeed(feed: IhePixFeed, domain: IheAffinityDomain = DEFAULT_AFFINITY_DOMAIN): Promise<PixFeedResult> {
+export async function pixFeed(feed: IhePixFeed, _domain: IheAffinityDomain = DEFAULT_AFFINITY_DOMAIN): Promise<PixFeedResult> {
   await delay(150);
   if (!feed.patientId) return { success: false, ack: 'AE', messageId: '', errors: ['缺少 patientId'] };
   if (!feed.name.family) return { success: false, ack: 'AE', messageId: '', errors: ['缺少 familyName'] };
@@ -196,7 +196,7 @@ export async function pixQuery(patientId: string, sourceDomain: string, targetDo
 // ============================================================
 // 5. PDQ Supplier
 // ============================================================
-export async function pdqQuery(query: IhePdqQuery, domain: IheAffinityDomain = DEFAULT_AFFINITY_DOMAIN): Promise<IhePdqResult[]> {
+export async function pdqQuery(query: IhePdqQuery, _domain: IheAffinityDomain = DEFAULT_AFFINITY_DOMAIN): Promise<IhePdqResult[]> {
   await delay(200);
   const all = Array.from(pixStore.values());
   let results = all;
@@ -224,7 +224,7 @@ export async function pdqQuery(query: IhePdqQuery, domain: IheAffinityDomain = D
 // ============================================================
 export interface PamResult { success: boolean; ack: 'AA' | 'AE' | 'AR'; visitNumber?: string; message: string; timestamp: string; }
 
-export async function sendPamMessage(msg: IhePamMessage, domain: IheAffinityDomain = DEFAULT_AFFINITY_DOMAIN): Promise<PamResult> {
+export async function sendPamMessage(msg: IhePamMessage, _domain: IheAffinityDomain = DEFAULT_AFFINITY_DOMAIN): Promise<PamResult> {
   await delay(200);
   if (!msg.patientId) {
     const r: PamResult = { success: false, ack: 'AE', message: '缺少 patientId', timestamp: new Date().toISOString() };

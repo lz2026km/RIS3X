@@ -1,4 +1,5 @@
 // [v3.0.6.11-53] /api/v1/volume MSW handlers — 与后端 volume.controller 对齐
+// [G005 P1] 补齐 GET /volume/status/:jobId; reconstruct 对齐后端 { jobId, volume:{x,y,z}, source } 形状
 import { http, HttpResponse, delay } from 'msw';
 import { parseQuery } from './queryBuilder';
 
@@ -34,9 +35,14 @@ export const volumeHandlers = [
     await delay(delayMs(80, 200));
     const body = (await request.json()) as any;
     const series = SERIES.find((s) => s.seriesUid === body?.seriesUID) ?? SERIES[0];
+    const jobId = `vol-${Date.now()}`;
     return HttpResponse.json({
       success: true,
       data: {
+        jobId,
+        volume: { x: series.columns, y: series.rows, z: series.sliceCount },
+        source: 'real',
+        instanceCount: series.sliceCount,
         seriesUID: series.seriesUid,
         rows: series.rows,
         columns: series.columns,
@@ -45,7 +51,25 @@ export const volumeHandlers = [
         windowWidth: series.windowWidth,
         rescaleIntercept: -1024,
         status: 'completed',
-        jobId: `vol-${Date.now()}`,
+      },
+    });
+  }),
+
+  // [G005 P1] 后端 volume.service.getStatus: { status, progress, source, volume }
+  http.get(`${API}/status/:jobId`, async ({ params }) => {
+    await delay(delayMs(40, 120));
+    const jobId = params.jobId as string;
+    const series = SERIES[0];
+    return HttpResponse.json({
+      success: true,
+      data: {
+        status: 'completed',
+        progress: 100,
+        source: 'real',
+        volume: { x: series.columns, y: series.rows, z: series.sliceCount },
+        slices: series.sliceCount,
+        modality: series.modality,
+        jobId,
       },
     });
   }),
@@ -68,12 +92,12 @@ export const volumeHandlers = [
     });
   }),
 
-  http.post(`${API}/mip`, async ({ request }) => {
+  http.post(`${API}/mip`, async () => {
     await delay(delayMs(60, 150));
     return HttpResponse.json({ success: true, data: { width: 512, height: 512, pixelDataBase64: '', windowCenter: 40, windowWidth: 400, source: 'real-dicom-samples' } });
   }),
 
-  http.post(`${API}/vr`, async ({ request }) => {
+  http.post(`${API}/vr`, async () => {
     await delay(delayMs(80, 200));
     return HttpResponse.json({ success: true, data: { width: 512, height: 512, pixelDataBase64: '', windowCenter: 40, windowWidth: 400, source: 'real-dicom-samples' } });
   }),

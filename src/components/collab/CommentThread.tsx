@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Input, List, Space, Tag, Tooltip, message } from 'antd';
+import { Button, Input, Space, Tag, Tooltip, message } from 'antd';
 import {
   MessageSquare,
   Send,

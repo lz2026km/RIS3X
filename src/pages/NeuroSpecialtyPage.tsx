@@ -1,10 +1,6 @@
 // Neuro Specialty Page — 神经影像分析 · 脑卒中 · 脑肿瘤 · 癫痫
 import { useState, useMemo } from 'react';
-import {
-  Brain, Activity, AlertTriangle, CheckCircle, Clock,
-  Search, ChevronRight, TrendingUp, Stethoscope,
-  Zap, BarChart3, FileText, Eye,
-} from 'lucide-react';
+import { Brain, Activity, AlertTriangle, Search, ChevronRight, TrendingUp, Zap, BarChart3, FileText, Eye } from 'lucide-react';
 
 // ─── Constants ───
 const STROKE_COLORS: Record<string, string> = {
@@ -52,7 +48,7 @@ const s: Record<string, React.CSSProperties> = {
 
 const NeuroSpecialtyPage = () => {
   const [search, setSearch] = useState('');
-  const [typeFilter, setTypeFilter] = useState('');
+  const [typeFilter, _setTypeFilter] = useState('');
   const [tab, setTab] = useState<'stroke' | 'tumor' | 'epilepsy' | 'stats'>('stroke');
 
   const filtered = useMemo(() => {
@@ -287,7 +283,7 @@ const NeuroSpecialtyPage = () => {
               <div key={t.window} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
                 <span style={{ width: 120, fontSize: 12, color: '#64748b' }}>{t.window}</span>
                 <div style={{ flex: 1, height: 6, background: '#f1f5f9', borderRadius: 3 }}>
-                  <div style={{ height: '100%', width: `${count => (t.count / 5) * 100}%`, background: t.color, borderRadius: 3 }} />
+                  <div style={{ height: '100%', width: `${_count => (t.count / 5) * 100}%`, background: t.color, borderRadius: 3 }} />
                 </div>
                 <span style={{ fontSize: 12, fontWeight: 600, width: 30, textAlign: 'right' }}>{t.count}</span>
               </div>

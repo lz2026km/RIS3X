@@ -20,7 +20,8 @@ describe('ReportQualityService', () => {
     mockPrisma.systemConfig.findMany.mockResolvedValue([{ key: 'score_rule_1', value: { maxScore: 100 } }])
     const result = await svc.listScoreRules()
     expect(mockPrisma.systemConfig.findMany).toHaveBeenCalledWith({ where: { key: { startsWith: 'score_rule_' } } })
-    expect(result.data).toHaveLength(1)
+    expect(result.items).toHaveLength(1)
+    expect(result.total).toBe(1)
   })
 
   it('createScoreRule creates systemConfig with timestamp key', async () => {
@@ -30,28 +31,29 @@ describe('ReportQualityService', () => {
     mockPrisma.systemConfig.create.mockResolvedValue({ key: `score_rule_${now}`, value: body })
     const result = await svc.createScoreRule(body)
     expect(mockPrisma.systemConfig.create).toHaveBeenCalledWith({ data: { key: `score_rule_${now}`, value: body } })
-    expect(result.data[0].key).toBe(`score_rule_${now}`)
+    expect(result.key).toBe(`score_rule_${now}`)
   })
 
   it('getReportQualityStats returns total and avg score', async () => {
     mockPrisma.reportQualityScore.count.mockResolvedValue(10)
     mockPrisma.reportQualityScore.aggregate.mockResolvedValue({ _avg: { totalScore: 85.5 } })
     const result = await svc.getReportQualityStats()
-    expect(result.data.total).toBe(10)
-    expect(result.data.avgScore).toBe(85.5)
+    expect(result.total).toBe(10)
+    expect(result.avgScore).toBe(85.5)
+    expect(result.passRate).toBe(100)
   })
 
   it('listDefectLibrary queries auditLog with defect-library resource', async () => {
     mockPrisma.auditLog.findMany.mockResolvedValue([{ id: 'd1', resource: 'defect-library' }])
     const result = await svc.listDefectLibrary()
     expect(mockPrisma.auditLog.findMany).toHaveBeenCalledWith({ where: { resource: 'defect-library' }, orderBy: { createdAt: 'desc' } })
-    expect(result.data).toHaveLength(1)
+    expect(result.items).toHaveLength(1)
   })
 
   it('listAiReportDrafts queries report with WRITING state', async () => {
     mockPrisma.report.findMany.mockResolvedValue([{ id: 'r1', state: 'WRITING' }])
     const result = await svc.listAiReportDrafts()
     expect(mockPrisma.report.findMany).toHaveBeenCalledWith({ where: { state: 'WRITING' }, orderBy: { createdAt: 'desc' } })
-    expect(result.data).toHaveLength(1)
+    expect(result.items).toHaveLength(1)
   })
 })

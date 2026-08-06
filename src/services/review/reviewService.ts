@@ -14,23 +14,7 @@ import {
   REVIEWER_ASSIGNMENTS,
   AUDIT_CHAINS,
 } from '../../data/reportReviewMock';
-import type {
-  ReviewTask,
-  Reviewer,
-  CosignSchedule,
-  SLAMetrics,
-  WorkloadStat,
-  ReviewKPI,
-  RejectTemplate,
-  ReviewComment,
-  AIPreReviewResult,
-  ReviewerAssignment,
-  ReviewStage,
-  ReviewDecision,
-  RejectCategory,
-  AuditChainStep,
-  ReviewFilter,
-} from '../../types/R3/R3.REVIEW';
+import type { ReviewTask, Reviewer, CosignSchedule, SLAMetrics, WorkloadStat, ReviewKPI, RejectTemplate, ReviewComment, AIPreReviewResult, ReviewerAssignment, ReviewDecision, RejectCategory, AuditChainStep, ReviewFilter } from '../../types/R3/R3.REVIEW';
 
 const LATENCY_MIN = 200;
 const LATENCY_MAX = 1500;
@@ -144,7 +128,7 @@ export const reviewService = {
     return clone(t);
   },
 
-  async escalate(taskId: string, reviewerId: string, reviewerName: string, reason: string, escalatedToId: string, escalatedToName: string): Promise<ReviewTask> {
+  async escalate(taskId: string, reviewerId: string, reviewerName: string, reason: string, _escalatedToId: string, _escalatedToName: string): Promise<ReviewTask> {
     await wait();
     if (!reason || reason.trim().length < 10) throw new Error('升级原因不能少于 10 字符');
     const t = inMemoryTasks.find((x) => x.id === taskId);
@@ -204,7 +188,7 @@ export const reviewService = {
     return clone(c);
   },
 
-  async resolveComment(commentId: string, resolverId: string, resolverName: string): Promise<ReviewComment> {
+  async resolveComment(commentId: string, _resolverId: string, resolverName: string): Promise<ReviewComment> {
     await wait();
     const c = inMemoryComments.find((x) => x.id === commentId);
     if (!c) throw new Error('Comment not found');

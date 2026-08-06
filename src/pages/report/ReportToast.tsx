@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { CheckCircle, AlertTriangle, Bell } from 'lucide-react'
 import { PRIMARY, SUCCESS, DANGER, WHITE } from './reportUtils'
 

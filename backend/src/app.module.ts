@@ -41,6 +41,8 @@ import { WorkflowModule } from "./workflow/workflow.module";
 import { FinanceModule } from "./finance/finance.module";
 import { DataReportModule } from "./datareport/datareport.module";
 import { RegionalModule } from "./regional/regional.module";
+import { SignModule } from "./sign/sign.module";
+import { AmendModule } from "./amend/amend.module";
 import { PatientPortalModule } from "./patientportal/patientportal.module";
 import { CosignModule } from "./cosign/cosign.module";
 import { CdsModule } from "./cds/cds.module";
@@ -168,6 +170,8 @@ import { SystemStorageModule } from "./system-storage/system-storage.module";
     FinanceModule,
     DataReportModule,
     RegionalModule,
+    SignModule,
+    AmendModule,
     PatientPortalModule,
     CosignModule,
     CdsModule,

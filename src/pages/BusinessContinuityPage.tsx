@@ -3,12 +3,12 @@
  * 阶段 1.5 修复: 之前是 3 KPI + "DB Primary: failed" + 占位文字
  */
 import { useEffect, useState } from "react";
-import { Card, Col, Row, Table, Tag, Statistic, Tabs, Space, Typography, Alert, Progress, Timeline, Badge, Button } from "antd";
-import { Shield, Database, Activity, RefreshCw, Globe, CheckCircle, AlertTriangle, XCircle, Cloud, Server, Clock, Zap } from "lucide-react";
+import { Card, Col, Row, Table, Tag, Statistic, Space, Typography, Timeline, Badge } from 'antd';
+import { Shield, Database, Activity, RefreshCw, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
 import { syncEngine, type SyncQueueItem, type ConflictResolution } from "../services/offline";
 import { REPLICAS } from "../services/failover";
 
-const { Title, Text } = Typography;
+const {  Text } = Typography;
 
 const TYPE_MAP: Record<string, { color: string; label: string }> = {
   study: { color: "blue", label: "检查" },

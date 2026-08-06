@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Card, Row, Col, Tag, Table, Space, Button, Spin } from "antd";
-import {
-  Image,
-  Download,
-  ZoomIn,
-  Maximize,
-  Target,
-  Activity,
-} from "lucide-react";
+import { Image, Download, ZoomIn, Maximize, Target } from 'lucide-react';
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import MeasurementPanel from "@/components/eye/MeasurementPanel";
 import AiDiagnosisCard from "@/components/eye/AiDiagnosisCard";

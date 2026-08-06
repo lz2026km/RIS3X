@@ -7,11 +7,7 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, Badge, message } from 'antd';
 import { Layers, FileText, Receipt, Smartphone } from 'lucide-react';
-import {
-  Send, MessageSquare, Smartphone as SmartphoneIcon, Mail, Database, Printer, Cloud, Film,
-  CheckCircle2, RefreshCw, Loader2,
-  Bell, Eye, Filter,
-} from 'lucide-react';
+import { Send, MessageSquare, Mail, Database, Printer, Cloud, Film, CheckCircle2, RefreshCw, Loader2, Bell, Eye, Filter } from 'lucide-react';
 import MultiChannelSender from '@components/report/v3/R3.DIST/MultiChannelSender';
 import DeliveryReceiptComponent from '@components/report/v3/R3.DIST/DeliveryReceipt';
 import PatientReportPortal from '@components/report/v3/R3.DIST/PatientReportPortal';

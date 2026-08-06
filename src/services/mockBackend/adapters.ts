@@ -1,13 +1,8 @@
 // [v3.0.6.8-32] 主数据池 → API DTO 适配函数
 // 把 v27 master pool (1720 实体) + v27 generators (1910 预生成)
 // 映射到前端 API client 期望的 DTO 结构
-import {
-  PATIENT_MASTER, DEVICE_MASTER, DOCTOR_MASTER, EXAM_ITEM_MASTER,
-} from '../../data/master';
-import {
-  EXAM_REPORT_PRE, DOCTOR_PERFORMANCE_PRE, DAILY_KPI_PRE,
-  CRITICAL_EVENTS_PRE, COSIGN_TASKS_PRE, QUALITY_SCORE_PRE,
-} from '../../data/_generators';
+import { PATIENT_MASTER, DEVICE_MASTER, DOCTOR_MASTER } from '../../data/master';
+import { EXAM_REPORT_PRE, QUALITY_SCORE_PRE } from '../../data/_generators';
 import type { PatientMaster, DeviceMaster, DoctorMaster, ExamItemMaster } from '../../data/master';
 import type { ExamReportRecord, DoctorPerformanceRecord, CriticalValueEvent, CosignTask, RadiologyKPIDaily, QualityScoreRecord } from '../../data/_generators/medicalDataGen';
 
@@ -294,7 +289,6 @@ export function toReportDto(r: ExamReportRecord, q?: QualityScoreRecord): Report
     findings: r.findings,
     diagnosis: r.impression,
     impression: r.impression,
-    recommendations: '',
     createdTime: r.examAt,
     updatedTime: r.signedAt || r.reviewedAt || r.reportAt,
     doctorId: r.reportDoctorId,

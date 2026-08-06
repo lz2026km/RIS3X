@@ -1,6 +1,6 @@
 // [v3.0.6.8-68] DICOM 影像跨科室共享
 import React, { useState } from 'react';
-import { Card, Space, Tag, Button, Table, Select, Input, Row, Col, Statistic, message, Modal, Form } from 'antd';
+import { Card, Space, Tag, Button, Table, Select, Row, Col, Statistic, message, Modal, Form } from 'antd';
 import { Share2, Send, Download } from 'lucide-react';
 
 export const DicomSharePage: React.FC = () => {

@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Tag, Table, Progress } from "antd";
+import { Card, Tag, Table } from 'antd';
 import type { EyeMeasurement } from "../../types/eye";
 
 const MeasurementPanel: React.FC<{

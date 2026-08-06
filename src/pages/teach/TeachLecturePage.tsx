@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Plus, Play, Trash2, FileVideo, Search, Loader2 } from 'lucide-react'
+import { Play, Trash2, FileVideo, Search, Loader2, Square } from 'lucide-react'
 import Screencast, { type ScreencastHandle, type RecorderState } from '../../components/teach/Screencast'
 
 type Lecture = {

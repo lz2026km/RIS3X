@@ -2,7 +2,7 @@
  * G005 放射RIS系统 v3.0.5.1 - FHIR R4 DiagnosticReport Service
  */
 
-import type { FhirDiagnosticReport, FhirAttachment, FhirAnnotation, FhirReference, FhirIdentifier, FhirCodeableConcept, FhirCoding } from '../../types/R3/R3.INTEGRATION';
+import type { FhirDiagnosticReport, FhirAttachment, FhirAnnotation, FhirReference, FhirIdentifier, FhirCodeableConcept } from '../../types/R3/R3.INTEGRATION';
 import { FHIR_DR_MOCK, FHIR_DR_DOCUMENTS_MOCK } from '../../data/reportIntegrationMock';
 
 const SIM_LATENCY_MS = 100;
@@ -134,7 +134,7 @@ export async function downloadFhirDr(id: string): Promise<{ filename: string; co
   return { filename: `${id}.json`, content: dr.json, mime: 'application/fhir+json' };
 }
 
-export async function sendFhirDr(id: string, fhirServerUrl: string): Promise<{ success: boolean; statusCode: number; response: string; durationMs: number }> {
+export async function sendFhirDr(_id: string, _fhirServerUrl: string): Promise<{ success: boolean; statusCode: number; response: string; durationMs: number }> {
   await new Promise((r) => setTimeout(r, 800));
   return { success: true, statusCode: 201, response: 'Created', durationMs: 620 };
 }

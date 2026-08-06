@@ -56,9 +56,7 @@ import {
 import {
   MOCK_IOL_INVENTORY,
 } from '../../data/eyeIolMock';
-import {
-  MOCK_PATIENT_PROFILES,
-} from '../../data/eyePatientDataMock';
+
 import {
   MOCK_QUALITY_METRICS,
 } from '../../data/eyeQualityMock';
@@ -350,7 +348,7 @@ function getCollection(name: Collection): Map<string, unknown> {
 }
 
 // [v3.0.6.11-10] 异步加载大规模检查/报告数据
-async function loadGeneratedExamDataAsync(getCol: (n: string) => Map<string, unknown>, examsCol: Map<string, unknown>, reportsCol: Map<string, unknown>): Promise<void> {
+async function loadGeneratedExamDataAsync(_getCol: (n: string) => Map<string, unknown>, examsCol: Map<string, unknown>, reportsCol: Map<string, unknown>): Promise<void> {
   try {
     const [examsData, reportsData] = await Promise.all([
       fetch('/data/unified-exams.json').then(r => r.json()).catch(() => null),

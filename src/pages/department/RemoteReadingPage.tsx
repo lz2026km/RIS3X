@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
-import { Card, Table, Button, Tag, Space, Typography, Row, Col, Statistic, message } from 'antd'
+import { Card, Table, Tag, Space, Typography, Row, Col, Statistic } from 'antd'
 import { Globe, Send, CheckCircle, Clock } from 'lucide-react'
 
-const { Text } = Typography
+const {  } = Typography
 
 interface RemoteReadingItem {
   id: string

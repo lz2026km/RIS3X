@@ -14,24 +14,14 @@
  *  - 质控看板 - 实时聚合
  *  - CQI 持续改进 - PDCA 项目
  */
-import React, { useState, useMemo, useEffect, useCallback } from "react";
-import {
-  ShieldCheck, Activity, AlertOctagon, FileText, Users, Monitor,
-  Camera, BarChart3, TrendingUp, TrendingDown, Calendar,
-  CheckCircle, AlertTriangle, Clock, Award, Target, Layers,
-  Eye, Sparkles, GitBranch, Zap, BookOpen, Stethoscope,
-  Search, Download, RefreshCw, ChevronRight,
-} from "lucide-react";
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { ShieldCheck, Activity, AlertOctagon, FileText, Users, Monitor, Camera, BarChart3, TrendingUp, CheckCircle, Clock, Award, Target, Layers, Sparkles, GitBranch } from 'lucide-react';
 import { PageContainer } from "../../components/common/PageContainer";
 import { PageHeader } from "../../components/common/PageHeader";
 import { StatCard, StatCardGrid } from "../../components/common/StatCard";
 import { StickyActionBar } from "../../components/common/StickyActionBar";
 import { ExportButton } from "../../components/common/ExportButton";
-import {
-  DOCTOR_MASTER, DOCTORS_BY_TITLE,
-  PATIENT_MASTER,
-  DEVICE_MASTER, DEVICES_BY_MODALITY, DEVICES_BY_STATUS,
-} from "../../data/master";
+import { DOCTOR_MASTER, DOCTORS_BY_TITLE, DEVICE_MASTER, DEVICES_BY_STATUS } from '../../data/master';
 import { DOCTOR_PERFORMANCE_PRE, DAILY_KPI_PRE } from "../../data/_generators";
 import { qcextApi, type QcDashboardDto, type QcStatsDto } from '../../services/api/qcextApi';
 
@@ -41,8 +31,8 @@ export default function RadiologyQCDashboardPage() {
   const [activeTab, setActiveTab] = useState<QCTab>("overview");
   const [refreshKey, setRefreshKey] = useState(0);
   const [dateRange, setDateRange] = useState("本月");
-  const [dashboardData, setDashboardData] = useState<QcDashboardDto | null>(null);
-  const [qcStats, setQcStats] = useState<QcStatsDto | null>(null);
+  const [_dashboardData, setDashboardData] = useState<QcDashboardDto | null>(null);
+  const [_qcStats, setQcStats] = useState<QcStatsDto | null>(null);
   const fetchData = useCallback(() => {
     qcextApi.getQcDashboard().then(res => { if (res.success) setDashboardData(res.data); }).catch((err) => { console.error('[F04]', err); });
     qcextApi.getQcStats().then(res => { if (res.success) setQcStats(res.data); }).catch((err) => { console.error('[F04]', err); });

@@ -120,8 +120,10 @@ export default function ReportDefectLibraryPage() {
 
   useEffect(() => {
     reportQualityApi.getDefectLibrary().then(res => {
-      if (res.success && res.data?.data?.length) {
-        const mapped: DefectItem[] = res.data.data.map((entry, i) => {
+      // [G005 P1] 列表双形状兼容: MSW 裸数组 / 后端 { items, total }
+      const entries = Array.isArray(res.data) ? res.data : (res.data?.items ?? [])
+      if (res.success && Array.isArray(entries) && entries.length) {
+        const mapped: DefectItem[] = entries.map((entry, i) => {
           const detail = (entry.detail || {}) as Record<string, unknown>
           return {
             id: entry.id,
@@ -139,8 +141,8 @@ export default function ReportDefectLibraryPage() {
       }
     })
     reportQualityApi.getStats().then(res => {
-      if (res.success) {
-        const stats = res.data.data
+      if (res.success && res.data) {
+        const stats = res.data
         setApiKpi(prev => ({ ...prev, totalEvaluated: stats.total, avgScore: stats.avgScore }))
       }
     })
@@ -249,7 +251,7 @@ export default function ReportDefectLibraryPage() {
     setToast({ show: true, type: "success", message: `已删除：${name}` });
   };
 
-  // 过滤
+  // [G005 P1] 修复: filteredDefects 依赖 defectList (API 数据源), 否则 useMemo 不随 API 更新重算
   const filteredDefects = useMemo(() => {
     return defectList.filter((d) => {
       if (filterCategory !== "all" && d.category !== filterCategory)
@@ -267,18 +269,18 @@ export default function ReportDefectLibraryPage() {
       }
       return true;
     });
-  }, [defects, search, filterCategory, filterSeverity]);
+  }, [defectList, search, filterCategory, filterSeverity]);
 
   // 分类统计
   const categoryStats = useMemo(() => {
     const stats: Record<string, { count: number; totalCount: number }> = {};
-    for (const d of defects) {
+    for (const d of defectList) {
       if (!stats[d.category]) stats[d.category] = { count: 0, totalCount: 0 };
       stats[d.category].count += 1;
       stats[d.category].totalCount += d.count;
     }
     return stats;
-  }, [defects]);
+  }, [defectList]);
 
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: "0 auto" }}>
@@ -568,8 +570,9 @@ export default function ReportDefectLibraryPage() {
           </div>
           <div style={{ maxHeight: 540, overflowY: "auto" }}>
             {filteredDefects.map((d) => {
-              const cConf = CATEGORY_CONFIG[d.category];
-              const sConf = SEVERITY_CONFIG[d.severity];
+              // [G005 P1] 防御: API 数据 category/severity 非法时兜底, 避免 .bg 崩溃
+              const cConf = CATEGORY_CONFIG[d.category] ?? CATEGORY_CONFIG.description;
+              const sConf = SEVERITY_CONFIG[d.severity] ?? SEVERITY_CONFIG.minor;
               const isSelected = selectedDefect?.id === d.id;
               return (
                 <div

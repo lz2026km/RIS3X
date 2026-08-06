@@ -32,9 +32,7 @@ const FDI_TEETH = [
   11,12,13,14,15,16,17,18,  21,22,23,24,25,26,27,28,  31,32,33,34,35,36,37,38,  41,42,43,44,45,46,47,48,
 ];
 const SURFACES = ['O', 'M', 'D', 'B', 'L'];
-const STATUSES: ToothState['status'][] = ['Healthy', 'Caries', 'Restored', 'Missing', 'Crown', 'RootCanal', 'Implant'];
 const CARIES_GRADES = ['ICDAS-0', 'ICDAS-1', 'ICDAS-2', 'ICDAS-3', 'ICDAS-4', 'ICDAS-5', 'ICDAS-6'];
-const SURFACE_STATES = ['Healthy', 'Caries-Mild', 'Caries-Moderate', 'Caries-Severe', 'Restored', 'Filling'];
 
 function generateTooth(toothNo: number): ToothState {
   const r = Math.random();
@@ -55,8 +53,7 @@ function generateTooth(toothNo: number): ToothState {
 }
 
 export const MOCK_DENTAL_CHARTS: DentalChart[] = Array.from({ length: 200 }, (_, i) => {
-  const teeth: Record<number, ToothState> = {};
-  const missingTeeth = Math.floor(Math.random() * 8) + 2;
+  const teeth: Record<number, ToothState> = {};Math.floor(Math.random() * 8) + 2;
   for (const t of FDI_TEETH) {
     if (Math.random() < 0.1) continue; // missing tooth
     teeth[t] = generateTooth(t);

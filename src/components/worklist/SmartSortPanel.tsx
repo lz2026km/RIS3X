@@ -1,21 +1,6 @@
 import { useState, useMemo } from "react";
-import {
-  Zap,
-  ArrowUpDown,
-  Brain,
-  Info,
-  Settings,
-  Sliders,
-  X,
-  ChevronDown,
-  ChevronUp,
-  Check,
-} from "lucide-react";
-import {
-  worklistSmartApi,
-  type SmartWeightConfig,
-  type SmartScoreResult,
-} from "../../services/api/worklistSmartApi";
+import { Zap, ArrowUpDown, Brain, Info, Settings, Sliders, ChevronDown, ChevronUp, Check } from 'lucide-react';
+import { worklistSmartApi, type SmartWeightConfig } from '../../services/api/worklistSmartApi';
 
 interface SmartSortPanelProps {
   enabled: boolean;

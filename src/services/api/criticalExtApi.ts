@@ -10,8 +10,11 @@ export interface CriticalExtTimelineDto { date: string; count: number; resolved:
 export interface CriticalExtCenterDto { id: string; patientName: string; finding: string; severity: string; status: string; triggeredAt: string; department: string }
 
 // [G005-P0] 危急值扩展前缀统一: 与 backend criticalext.controller.ts (@Controller('critical-ext')) 一一对应
+// [G005-P1] 列表双形状: MSW 裸数组 { data: T[] } / 后端 { data: { items, total } }
+export type ListPayload<T> = T[] | { items: T[]; total: number }
+
 export const criticalExtApi = {
-  listRules: () => api.get<CriticalExtRuleDto[]>('/critical-ext/rules'),
+  listRules: () => api.get<ListPayload<CriticalExtRuleDto>>('/critical-ext/rules'),
   createRule: (data: Partial<CriticalExtRuleDto>) => api.post<CriticalExtRuleDto>('/critical-ext/rules', data),
   updateRule: (id: string, data: Partial<CriticalExtRuleDto>) => api.put<CriticalExtRuleDto>(`/critical-ext/rules/${id}`, data),
   deleteRule: (id: string) => api.delete(`/critical-ext/rules/${id}`),

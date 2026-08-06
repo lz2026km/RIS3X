@@ -35,6 +35,7 @@ import {
 } from "../utils/orderStateAdapter";
 import AppointmentCalendar from "./AppointmentCalendar";
 import AppointmentForm from "./AppointmentForm";
+import { formatDateObj } from '../utils/date';
 
 // ==================== 类型定义 ====================
 interface Appointment {
@@ -132,9 +133,7 @@ const getWeekDates = (baseDate: Date): Date[] => {
   });
 };
 
-const formatDate = (d: Date): string => {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-};
+
 
 const formatDateCht = (d: Date): string => {
   const weekdays = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
@@ -484,7 +483,7 @@ export default function AppointmentPage() {
     examItemId: "",
     examItemName: "",
     bodyPart: "",
-    examDate: formatDate(new Date()),
+    examDate: formatDateObj(new Date()),
     examTime: "08:00",
     deviceId: "",
     deviceName: "",
@@ -524,7 +523,7 @@ export default function AppointmentPage() {
 
   // 今日统计
   const todayStats = useMemo(() => {
-    const today = formatDate(new Date());
+    const today = formatDateObj(new Date());
     const todayApts = appointments.filter((a) => a.examDate === today);
     const checkedIn = todayApts.filter((a) => a.status === "checked-in");
     const totalCapacity = rules.reduce(
@@ -583,7 +582,7 @@ export default function AppointmentPage() {
 
   // 日历视图使用今日预约
   const filteredAppointments = useMemo(() => {
-    const today = formatDate(new Date());
+    const today = formatDateObj(new Date());
     return appointments.filter(a => a.examDate === today);
   }, [appointments]);
 
@@ -601,7 +600,7 @@ export default function AppointmentPage() {
 
   // 统计某日某设备的预约数
   const getDeviceDayStats = (date: Date, deviceId: string) => {
-    const dateStr = formatDate(date);
+    const dateStr = formatDateObj(date);
     const key = `${dateStr}::${deviceId}`;
     const dayApts = appointmentsByDateDevice[key] || [];
     const total = dayApts.length;
@@ -698,7 +697,7 @@ export default function AppointmentPage() {
       examItemId: "",
       examItemName: "",
       bodyPart: "",
-      examDate: formatDate(new Date()),
+      examDate: formatDateObj(new Date()),
       examTime: "08:00",
       deviceId: "",
       deviceName: "",
@@ -1061,11 +1060,11 @@ export default function AppointmentPage() {
               filteredAppointments={filteredAppointments}
               filteredListAppointments={filteredListAppointments}
               statsData={[
-                { label: "今日预约", value: appointments.filter(a => a.examDate === formatDate(new Date())).length, color: primaryBlue, bg: lightBlue },
-                { label: "已到检", value: appointments.filter(a => a.examDate === formatDate(new Date()) && a.status === "checked-in").length, color: "#059669", bg: "#d1fae5" },
+                { label: "今日预约", value: appointments.filter(a => a.examDate === formatDateObj(new Date())).length, color: primaryBlue, bg: lightBlue },
+                { label: "已到检", value: appointments.filter(a => a.examDate === formatDateObj(new Date()) && a.status === "checked-in").length, color: "#059669", bg: "#d1fae5" },
                 { label: "待确认", value: appointments.filter(a => a.status === "pending").length, color: "#d97706", bg: "#fef3c7" },
                 { label: "违约", value: appointments.filter(a => a.status === "no-show").length, color: "#dc2626", bg: "#fee2e2" },
-                { label: "今日已约", value: appointments.filter(a => a.examDate === formatDate(new Date()) && a.status !== "cancelled").length, color: "#7c3aed", bg: "#ede9fe" },
+                { label: "今日已约", value: appointments.filter(a => a.examDate === formatDateObj(new Date()) && a.status !== "cancelled").length, color: "#7c3aed", bg: "#ede9fe" },
               ]}
             />
             {viewMode === "reminders" && (

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Card, Table, Button, Tag, Space, Modal, Form, Input, Select, message, Badge, Row, Col, Statistic, Spin, Empty } from 'antd'
+import { Card, Table, Button, Tag, Space, Modal, Form, Input, Select, message, Row, Col, Statistic } from 'antd'
 import { Cpu, Rocket, StopCircle, Trash2, RefreshCw, Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { aiMarketplaceApi, type AiModel } from '../../services/api/aiMarketplaceApi'
@@ -10,7 +10,7 @@ const statusColors: Record<string, string> = { running: 'green', stopped: 'orang
 const statusLabels: Record<string, string> = { running: '运行中', stopped: '已停止', error: '异常' }
 
 const AiMarketplacePage: React.FC = () => {
-  const { t } = useTranslation('ai')
+  const {  } = useTranslation('ai')
   const [models, setModels] = useState<AiModel[]>([])
   const [loading, setLoading] = useState(false)
   const [deployOpen, setDeployOpen] = useState(false)

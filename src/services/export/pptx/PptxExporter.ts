@@ -7,10 +7,9 @@
  * - 本模块自带极简的 ZIP 写入器(避免依赖第三方)
  * - 每个幻灯片为独立的 .xml 文件,通过 [Content_Types].xml 与 _rels 注册
  */
-import type { PptxExportOptions, PptxSlide, ExportResult } from '../../types/export';
+import type { PptxExportOptions, PptxSlide, ExportResult } from '../../../types/export';
 
 const MIME_PNG = 'image/png';
-const MIME_JPEG = 'image/jpeg';
 
 interface PptxEntry {
   name: string;
@@ -108,7 +107,7 @@ ${overrides.join('\n')}
 </Relationships>`;
   }
 
-  private presentationXml(opts: PptxExportOptions, slideCount: number): string {
+  private presentationXml(_opts: PptxExportOptions, slideCount: number): string {
     const slideList = Array.from({ length: slideCount }, (_, i) =>
       `<p:sldId id="${256 + i}" r:id="rId${i + 1}" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" />`,
     ).join('');

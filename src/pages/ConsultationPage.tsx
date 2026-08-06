@@ -12,7 +12,6 @@ import { consultationApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 
 const PRIMARY = '#1e40af'
-const PRIMARY_LIGHT = '#2d5a8e'
 const ACCENT = '#3b82f6'
 const SUCCESS = '#059669'
 const WARNING = '#d97706'
@@ -28,11 +27,6 @@ const STATUS_CONFIG: Record<string, { bg: string; color: string; label: string }
   '已拒绝': { bg: '#f1f5f9', color: '#94a3b8', label: '已拒绝' },
   '进行中': { bg: '#dbeafe', color: '#2563eb', label: '进行中' },
   '已完成': { bg: '#d1fae5', color: '#059669', label: '已完成' },
-}
-
-const URGENCY_CONFIG: Record<string, { bg: string; color: string }> = {
-  '紧急': { bg: '#fee2e2', color: '#dc2626' },
-  '普通': { bg: '#f1f5f9', color: '#64748b' },
 }
 
 const TYPE_CONFIG: Record<string, { bg: string; color: string }> = {
@@ -165,7 +159,7 @@ export default function ConsultationPage() {
 
   // Upload Modal state
   const [showUploadModal, setShowUploadModal] = useState(false)
-  const [uploadFiles, setUploadFiles] = useState<File[]>([])
+  useState<File[]>([])
 
   // Conclusion Modal state
   const [showConclusionModal, setShowConclusionModal] = useState(false)
@@ -179,7 +173,7 @@ export default function ConsultationPage() {
   const [recordingSeconds, setRecordingSeconds] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
   const [videoProgress, setVideoProgress] = useState(0)
-  const [volume, setVolume] = useState(80)
+  useState(80)
   const [isMuted, setIsMuted] = useState(false)
   const [selectedArchive, setSelectedArchive] = useState<RecordingArchive | null>(null)
   const [videoModalOpen, setVideoModalOpen] = useState(false)

@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Code, Search, CheckCircle, AlertTriangle, FileText, BookOpen, ThumbsUp } from "lucide-react"
+import { Code, Search, CheckCircle, FileText, BookOpen, ThumbsUp } from 'lucide-react'
 import { PageContainer } from "../../components/common/PageContainer"
 import { PageHeader } from "../../components/common/PageHeader"
 import { snomedApi, type SnomedCode } from "../../services/api/snomedApi"
@@ -74,7 +74,7 @@ export default function SnomedPage() {
                     <ThumbsUp size={12} />{t("confirmAll")}
                   </button>
                 </div>
-                {codes.map((c, i) => (
+                {codes.map((c, _i) => (
                   <div key={c.conceptId} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: "1px solid #f1f5f9" }}>
                     <input type="checkbox" checked={confirmed.has(c.conceptId)} onChange={() => toggleConfirm(c.conceptId)} style={{ cursor: "pointer" }} />
                     <div style={{ flex: 1 }}>
@@ -113,7 +113,7 @@ export default function SnomedPage() {
               </button>
             </div>
             <div style={{ marginTop: 12 }}>
-              {searchResults.map((c, i) => (
+              {searchResults.map((c, _i) => (
                 <div key={c.conceptId} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: "1px solid #f1f5f9" }}>
                   <BookOpen size={14} color="#8b5cf6" />
                   <div style={{ flex: 1 }}>

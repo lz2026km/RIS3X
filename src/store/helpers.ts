@@ -47,7 +47,7 @@ export function createCrudStore<Dto>(config: CrudStoreConfig<Dto>) {
   const deleteName = `delete${itemCap}`
   const loadError = config.loadErrorMsg ?? `加载${config.label}失败`
 
-  return (set: SetFn<any>, get: GetFn<any>) => {
+  return (set: SetFn<any>, _get: GetFn<any>) => {
     const load = async () => {
       set({ loading: true, error: null })
       try {

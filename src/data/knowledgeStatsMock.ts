@@ -436,7 +436,7 @@ export default {
 };
 
 // [v3.0.6.8-27] 扩充 DOCTOR_WORKLOADS 6→40, DIAGNOSIS_ACCURACY_DATA 加 6 个时期
-import { DOCTOR_MASTER, DOCTORS_BY_TITLE } from './master/doctorMasterMock';
+import { DOCTOR_MASTER } from './master/doctorMasterMock';
 
 export const DOCTOR_WORKLOADS_FULL: typeof DOCTOR_WORKLOADS = [
   ...DOCTOR_WORKLOADS,

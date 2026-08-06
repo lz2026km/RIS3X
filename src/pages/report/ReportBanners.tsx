@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { useNavigate } from 'react-router-dom'
 import { ClipboardCheck, History, Users } from 'lucide-react'
 import { StatusBadge, REPORT_STATUS_ORDER } from '../../components/report'

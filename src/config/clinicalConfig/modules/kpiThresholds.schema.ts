@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { idSchema, percentSchema } from "../primitives";
+import { idSchema } from '../primitives';
 
 export const kpiCategorySchema = z.enum([
   "productivity",

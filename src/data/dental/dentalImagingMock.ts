@@ -40,8 +40,8 @@ export interface DentalStudyDto {
     label: string;
     volume: number; // mm³
     color: string;
-  
-  toothNumbers?: number[];}>;
+    toothNumbers?: number[];
+  }>;
   measurements?: Array<{
     id: string;
     type: 'distance' | 'angle' | 'area' | 'volume';
@@ -62,17 +62,8 @@ export interface DentalStudyDto {
   updatedAt: string;
 }
 
-function genDate(daysAgo: number): string {
-  const d = new Date(Date.now() - daysAgo * 24 * 3600 * 1000);
-  return d.toISOString().slice(0, 10);
-}
-
-function genDevice(model: string): string {
-  return model;
-}
-
-const CBCT_DEVICES = ['3Shape X1', 'Sirona Orthophos SL 3D', 'Planmeca ProMax 3D', 'Vatech PaX-i3D', 'Carestream CS 9300', 'DEXcowin i-CAT'];
 const PANORAMIC_DEVICES = ['Sirona Orthophos XG 3D', 'Planmeca ProMax 2D', 'Carestream CS 8100', 'Vatech PaX-i', 'Gendex GXDP-700'];
+const CBCT_DEVICES = ['Planmeca ProMax 3D Classic', 'NewTom VGi evo', 'Sirona Orthophos SL 3D', 'Carestream CS 9300', 'Vatech PaX-i3D'];
 const PERIAPICAL_DEVICES = ['DEXcowin MyRay', 'Carestream CS 2200', 'Gendex GXS-700', 'Sirona Xios AE', '3Shape Trios 5'];
 const SCAN_DEVICES = ['3Shape TRIOS 5', 'iTero Element 5D Plus', 'Medit i700', 'Shining 3D Aoralscan Elite', 'Align iTero Lumina'];
 const BITEWING_DEVICES = ['Carestream CS 2200', 'DEXcowin MyRay', 'Gendex GXS-700'];
@@ -81,7 +72,6 @@ const REGIONS: DentalRegion[] = ['Maxilla-Anterior', 'Maxilla-Premolar', 'Maxill
 const SCAN_TYPES: ScanType[] = ['Upper', 'Lower', 'Bite', 'Pre-Ortho', 'Implant'];
 const QUALITIES: ImageQuality[] = ['Diagnostic', 'Diagnostic', 'Acceptable', 'Suboptimal', 'Reject'];
 const STATUSES = ['acquired', 'reviewed', 'reported', 'archived'];
-const COLORS = ['#1677ff', '#52c41a', '#faad14', '#f5222d', '#722ed1', '#13c2c2', '#eb2f96'];
 
 const FIRST_NAMES = ['张', '王', '李', '刘', '陈', '杨', '黄', '赵', '吴', '周', '徐', '孙', '马', '朱', '胡', '林', '何', '高', '罗', '郑'];
 const GIVEN_NAMES = ['伟', '芳', '娜', '敏', '静', '丽', '强', '磊', '军', '洋', '勇', '艳', '杰', '娟', '涛', '明', '超', '秀英', '建国', '海燕'];
@@ -92,9 +82,7 @@ const INDICATIONS = [
   '颞下颌关节疼痛', '正畸后保持期随访', '上颌窦提升术前评估', '口腔修复前评估', '龋齿筛查',
 ];
 
-function pickRandom<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
+
 
 function randomDate(daysBack: number): string {
   const d = new Date(Date.now() - Math.random() * daysBack * 24 * 3600 * 1000);
@@ -124,8 +112,7 @@ export const MOCK_DENTAL_STUDIES: DentalStudyDto[] = (() => {
     const status = pick(STATUSES);
     const firstName = pick(FIRST_NAMES);
     const givenName = pick(GIVEN_NAMES);
-    const patientName = firstName + givenName;
-    const age = randInt(8, 82);
+    const patientName = firstName + givenName;randInt(8, 82);
     const patientId = 'P' + String(100000 + i);
 
     const acquisitionDate = randomDate(180);

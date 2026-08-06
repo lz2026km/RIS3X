@@ -88,4 +88,35 @@ export class DentalController {
 
   @Put('inventory/:id')
   updateInventoryItem(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateInventoryItemSchema)) body: UpdateInventoryItemDto) { return this.svc.updateInventoryItem(id, body) }
+
+  // ── [G005-P1] 在用孤儿补齐: 核心 8 个 (DentalStudy/DentalAppointment 表查 + seed) ──
+
+  @Get('cbct/list')
+  listCbct() { return this.svc.listCbct() }
+
+  @Get('panoramic/list')
+  listPanoramic() { return this.svc.listPanoramic() }
+
+  @Get('periapical/list')
+  listPeriapical() { return this.svc.listPeriapical() }
+
+  @Get('scan/list')
+  listScan() { return this.svc.listScan() }
+
+  @Get('bitewing/list')
+  listBitewing() { return this.svc.listBitewing() }
+
+  @Get('compare/:idA/:idB')
+  compareStudies(@Param('idA') idA: string, @Param('idB') idB: string) { return this.svc.compareStudies(idA, idB) }
+
+  @Get('stats')
+  getStats() { return this.svc.getStats() }
+
+  @Get('treatments/types')
+  listTreatmentTypes() { return this.svc.listTreatmentTypes() }
+
+  @Get('treatments')
+  listTreatments(@Query('status') status?: string, @Query('patientId') patientId?: string, @Query('pageSize') pageSize?: string) {
+    return this.svc.listTreatments({ status, patientId, pageSize: pageSize ? Number(pageSize) : undefined })
+  }
 }

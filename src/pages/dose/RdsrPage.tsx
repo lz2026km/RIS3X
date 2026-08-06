@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"
+import { useState } from 'react'
 import { useTranslation } from "react-i18next"
 import { Upload, Activity, AlertTriangle, AlertCircle, TrendingUp, BarChart3, Calculator, Zap, Radio } from "lucide-react"
 import { PageContainer } from "../../components/common/PageContainer"

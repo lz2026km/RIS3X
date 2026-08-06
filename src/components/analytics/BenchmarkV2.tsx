@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import {  useMemo } from 'react'
 import { Card, Segmented, Select, Space, Row, Col, Statistic } from 'antd'
 import { TrendingUp, TrendingDown, BarChart3, LineChart, Activity } from 'lucide-react'
 
@@ -42,11 +42,7 @@ const METRICS_OPTIONS = [
   { label: '危急值闭环率', value: 'critical_closed_rate' },
 ]
 
-const CHART_ICONS: Record<ChartType, React.ReactNode> = {
-  bar: <BarChart3 size={14} />,
-  line: <LineChart size={14} />,
-  radar: <Activity size={14} />,
-}
+
 
 function DualBarChart({ items }: { items: CompareItem[] }) {
   const maxVal = Math.max(...items.flatMap((i) => [i.current, i.previous]), 1)
@@ -81,11 +77,6 @@ function TrendLine({ items }: { items: CompareItem[] }) {
   const maxV = Math.max(...allVals) + 5
   const range = maxV - minV || 1
   const xStep = items.length > 1 ? iw / (items.length - 1) : iw
-
-  const linePath = (values: number[], color: string) =>
-    items
-      .map((item, i) => `${i === 0 ? 'M' : 'L'}${pad.left + i * xStep},${pad.top + ih - ((item.current - minV) / range) * ih}`.replace('item.current', String(values[i])))
-      .join(' ')
 
   const currPath = items.map((item, i) => `${i === 0 ? 'M' : 'L'}${pad.left + i * xStep},${pad.top + ih - ((item.current - minV) / range) * ih}`).join(' ')
   const prevPath = items.map((item, i) => `${i === 0 ? 'M' : 'L'}${pad.left + i * xStep},${pad.top + ih - ((item.previous - minV) / range) * ih}`).join(' ')

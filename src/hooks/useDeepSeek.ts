@@ -4,7 +4,7 @@
 // ============================================================
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { DeepSeekClient, createDeepSeekFromEnv, type Message, type StreamChunk, type CompletionResponse } from '../services/deepseek';
+import { DeepSeekClient, createDeepSeekFromEnv, type Message, type CompletionResponse } from '../services/deepseek';
 import { buildReportGenerationPrompt, type RadiologyContext, buildReportSummaryPrompt, buildReportTranslationPrompt, buildQualityCheckPrompt, buildRadsAssessmentPrompt, buildPhraseExpansionPrompt, buildVisionAnalysisPrompt, buildDifferentialPrompt } from '../services/deepseekPrompts';
 
 export type LLMTask = 'generate' | 'summarize' | 'translate' | 'quality' | 'rads' | 'expand' | 'vision' | 'differential' | 'custom';

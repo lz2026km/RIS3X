@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { message } from 'antd'
-import {
-  Bell, BellOff, Send, Trash2, Clock, CheckCircle, AlertTriangle,
-  Smartphone, Filter, ChevronDown, RefreshCw,
-} from 'lucide-react'
+import { Bell, BellOff, Send, Trash2, Clock, CheckCircle, AlertTriangle, Filter } from 'lucide-react'
 import { pushService } from '../../services/mobile/push/PushService'
 import type { PushPayload } from '../../types/mobile'
 
@@ -35,7 +32,7 @@ const TOPIC_LABELS: Record<string, string> = {
 export default function MobilePushPage() {
   const [notifications, setNotifications] = useState<PushNotificationItem[]>([])
   const [filterTopic, setFilterTopic] = useState<string>('all')
-  const [filterSeverity, setFilterSeverity] = useState<string>('all')
+  const [filterSeverity, _setFilterSeverity] = useState<string>('all')
   const [pushEnabled, setPushEnabled] = useState(false)
   const [pushPermission, setPushPermission] = useState(pushService.permission)
   const [showTestPanel, setShowTestPanel] = useState(false)

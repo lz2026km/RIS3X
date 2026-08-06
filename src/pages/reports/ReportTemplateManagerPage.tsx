@@ -1,7 +1,7 @@
 // [v3.0.6.8-74] 报告模板管理 + 智能片段系统
 import React, { useState } from 'react';
-import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Input, Tabs, Badge, Modal, Form, Select, message, Tooltip, Typography } from 'antd';
-import { FileText, Copy, Plus, Edit3, Star, Clock, Layout, Code, Layers } from 'lucide-react';
+import { Card, Space, Tag, Table, Button, Row, Col, Statistic, Badge, Typography } from 'antd';
+import { FileText, Copy, Plus, Edit3, Layout, Layers } from 'lucide-react';
 
 interface Template {
   id: string; name: string; category: string; modality: string; bodyPart: string; version: number; usage: number; status: string; shared: boolean;
@@ -22,7 +22,7 @@ export const ReportTemplateManagerPage: React.FC = () => {
     { id:'SNP-002', name:'植入体 #36 描述', content:'植入体 #36 牙冠，骨结合良好。', category:'牙科', shortcuts:'imp-36', usage:98 },
     { id:'SNP-003', name:'对比剂反应记录', content:'轻度荨麻疹，抗组胺治疗后缓解。', category:'安全', shortcuts:'ctr-rxn', usage:67 },
   ]);
-  const [editModal, setEditModal] = useState(false);
+  const [_editModal, _setEditModal] = useState(false);
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>

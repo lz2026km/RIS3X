@@ -2,10 +2,8 @@
 // 标注工具: 长度/角度/面积/矩形/椭圆/箭头/文字
 // 测量结果保存到后端, 导出 DICOM-SR (TID 1500)
 import React, { useState } from 'react';
-import { Button, Space, Tag, Tooltip, Select, InputNumber, message, Statistic, Divider, Empty } from 'antd';
-import {
-  Ruler, Triangle, Square, Circle, ArrowRight, Type, Save, Download, Trash2,
-} from 'lucide-react';
+import { Button, Space, Tag, Tooltip, Select, message, Divider, Empty } from 'antd';
+import { Ruler, Triangle, Square, Circle, ArrowRight, Type, Download, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { AnnotationTool } from '@/hooks/useCornerstone';
 
@@ -44,13 +42,10 @@ export const RealMeasurementPanel: React.FC<MeasurementPanelProps> = ({
   measurements,
   activeTool,
   onToolChange,
-  onSave,
   onDelete,
   onExportSR,
-  studyId,
-  currentUser,
 }) => {
-  const { t } = useTranslation();
+  const {  } = useTranslation();
   const [busy, setBusy] = useState(false);
   const [filter, setFilter] = useState<AnnotationTool | 'all'>('all');
 

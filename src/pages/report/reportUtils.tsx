@@ -1,6 +1,6 @@
 import React from 'react'
-import type { RadiologyReport } from '../../types'
-import { REPORT_STATUS_META, REPORT_STATUS_ORDER } from '../../components/report'
+
+import { REPORT_STATUS_META } from '../../components/report'
 
 export const PRIMARY = '#1e3a5f'
 export const PRIMARY_LIGHT = '#2c5282'
@@ -40,10 +40,7 @@ export const PRIORITIES = ['全部', '紧急', '危重', '普通']
 
 export const ANOMALY_KEYWORDS = ['结节', '血肿', '占位', '狭窄', '肿块', '转移', '骨折', '渗出', '积水', '压迫', '突出', '钙化', '增粗', '模糊', '不张', '增厚']
 
-export function formatDate(dt: string) {
-  if (!dt) return '-'
-  return dt.length >= 16 ? dt.slice(0, 16) : dt
-}
+
 
 export function formatDateFull(dt: string) {
   if (!dt) return ''

@@ -3,23 +3,13 @@
  * R3.WRITING 组 B:所见即所得 + 样式 + 表格 + 图像 + 撤销重做 + 拼写检查 + 分屏 + 打印
  * 40 升级点
  */
-import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
-import {
-  Card, Space, Button, Tooltip, Modal, message, Input, Divider, Switch, Dropdown,
-  Select, ColorPicker, Slider, Tag, Collapse, InputNumber, Avatar, Badge, Popover,
-} from 'antd';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { Card, Space, Button, Tooltip, Modal, message, Input, Divider, Select, ColorPicker, Slider, Tag, Collapse, InputNumber, Avatar, Badge, Popover } from 'antd';
 import { sanitizeHtml } from '../../../../utils/sanitization';
-import {
-  Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify,
-  List, ListOrdered, Image as ImageIcon, Table as TableIcon, Link2, Undo, Redo, Save,
-  Type, FileText, Maximize2, Minimize2, Eye, Printer, SpellCheck2, Quote, Code, Heading1,
-  Heading2, Heading3, ChevronDown, Languages, Subscript, Superscript, Hash, BookOpen,
-  Upload, Highlighter, CheckCheck, Star, Minus, Layers, Sparkles, Mic, Square, MicOff,
-  Wifi, WifiOff,
-} from 'lucide-react';
+import { Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify, List, ListOrdered, Image as ImageIcon, Table as TableIcon, Link2, Undo, Redo, Save, Type, FileText, Maximize2, Minimize2, Eye, Printer, SpellCheck2, Quote, Heading1, Heading2, Heading3, Subscript, Superscript, Hash, BookOpen, CheckCheck, Star, Minus, Layers, Sparkles, Mic, MicOff, Wifi, WifiOff } from 'lucide-react';
 import { RICH_DOCUMENT_MOCK } from '@data/reportWritingMock';
-import { getRichDocument, saveRichDocument, autoSaveDocument, spellCheck } from '@services/writing/writingService';
-import type { RichEditorDocument, RichEditorImage, RichEditorStyle } from '@types/R3/R3.WRITING';
+import { saveRichDocument, autoSaveDocument, spellCheck } from '@services/writing/writingService';
+import type { RichEditorDocument } from '@types/R3/R3.WRITING';
 import { useCollaborativeYjs } from '@hooks/useCollaborativeYjs';
 
 interface Props {
@@ -68,7 +58,7 @@ export const ReportRichEditor: React.FC<Props> = ({
     plainText: initialPlainText ?? RICH_DOCUMENT_MOCK.plainText,
   });
   const [showSpecials, setShowSpecials] = useState(false);
-  const [showStylePanel, setShowStylePanel] = useState(true);
+  const [_showStylePanel, _setShowStylePanel] = useState(true);
   const [fullscreen, setFullscreen] = useState(false);
   const [splitPreview, setSplitPreview] = useState(false);
   const [wordCount, setWordCount] = useState({ words: doc.wordCount, chars: doc.charCount, paragraphs: doc.paragraphCount });

@@ -1,44 +1,23 @@
 import React, { useState, useEffect } from 'react'
 import {
   FileText, X, User, Stethoscope, Calendar, Activity, Printer, History,
-  ShieldCheck, Zap, CheckCircle, AlertTriangle, Edit3, Download,
-  ChevronDown, ChevronRight, Clock, FileCheck2,
+  ShieldCheck, Zap, CheckCircle, Download, FileCheck2,
 } from 'lucide-react'
-import { message } from 'antd'
 import type { RadiologyReport } from '../../types'
-import { StatusBadge, StatusTimeline, REPORT_STATUS_META, REPORT_STATUS_ORDER } from '../../components/report'
+import { StatusBadge, StatusTimeline } from '../../components/report'
 import MfaVerifyModal from '../../components/security/MfaVerifyModal'
 import { useReportStore } from '../../store'
 
 const PRIMARY = '#1e3a5f'
 const WHITE = '#ffffff'
 const GRAY = '#64748b'
-const BG = '#f8fafc'
+
 const DANGER = '#dc2626'
 const SUCCESS = '#059669'
-const WARNING = '#d97706'
-const ACCENT = '#3182ce'
 
-const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string; border: string }> = {
-  待审核: { label: '待审核', bg: '#ede9fe', color: '#6d28d9', border: '#c4b5fd' },
-  已审核: { label: '已审核', bg: '#dbeafe', color: '#2563eb', border: '#93c5fd' },
-  已发布: { label: '已发布', bg: '#d1fae5', color: '#047857', border: '#6ee7b7' },
-  已修改: { label: '已修改', bg: '#fef3c7', color: '#b45309', border: '#fcd34d' },
-  已退回: { label: '已退回', bg: '#fee2e2', color: '#b91c1c', border: '#fca5a5' },
-  待分配: REPORT_STATUS_META['待分配'],
-  已分配: REPORT_STATUS_META['已分配'],
-  书写中: REPORT_STATUS_META['书写中'],
-  已提交: REPORT_STATUS_META['已提交'],
-  初审中: REPORT_STATUS_META['初审中'],
-  初审通过: REPORT_STATUS_META['初审通过'],
-  终审中: REPORT_STATUS_META['终审中'],
-  签发中: REPORT_STATUS_META['签发中'],
-  已签发: REPORT_STATUS_META['已签发'],
-  修订中: REPORT_STATUS_META['修订中'],
-  已修订: REPORT_STATUS_META['已修订'],
-  已撤回: REPORT_STATUS_META['已撤回'],
-  已归档: REPORT_STATUS_META['已归档'],
-}
+
+
+
 
 const ANOMALY_KEYWORDS = [
   '结节', '血肿', '占位', '狭窄', '肿块', '转移', '骨折', '渗出',
@@ -77,7 +56,7 @@ export interface ReportDetailDrawerProps {
 
 export default function ReportDetailDrawer({ report, onClose, onReview, onPrint, onExportPDF, onGenerateSr }: ReportDetailDrawerProps) {
   const [tab, setTab] = useState<'content' | 'history' | 'print' | 'timeline'>('content')
-  const [showHistory, setShowHistory] = useState(false)
+  const [_showHistory, setShowHistory] = useState(false)
   const [showMfa, setShowMfa] = useState(false)
   const [pendingReviewReport, setPendingReviewReport] = useState<RadiologyReport | null>(null)
 
@@ -88,7 +67,7 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
   const reportStatus = (report?.status as string) || '待分配'
   if (!report) return null
 
-  const cfg = STATUS_CONFIG[report.status] || { bg: '#f1f5f9', color: '#64748b', border: '#e2e8f0' }
+  
 
   const historyVersions = [
     { version: 'V2.1', time: '2026-05-01 14:30', doctor: '张海涛', changes: '修改诊断意见，补充建议。', content: '右肺中叶见约1.5cm结节影，边缘毛糙。' },

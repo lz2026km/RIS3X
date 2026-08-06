@@ -2,7 +2,7 @@
  * G005 RIS v3.0.5.1 - R3.REVIEW.020 R3.REVIEW.021 R3.REVIEW.022 ReviewerAssignment 审核员指派
  */
 import React, { useEffect, useState } from 'react';
-import { Card, Tag, Space, Button, Select, Row, Col, Statistic, Avatar, Progress, message, List } from 'antd';
+import { Card, Tag, Space, Button, Row, Col, Statistic, Avatar, Progress, message, List } from 'antd';
 import {
   UserCheck,
   Users,

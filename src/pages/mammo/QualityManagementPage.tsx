@@ -1,10 +1,6 @@
 // 6.7 Quality Management (20 pts)
 import { useState, useMemo } from 'react'
-import {
-  Shield, CheckCircle, XCircle, AlertTriangle, TrendingUp,
-  Download, RefreshCw, Search, Filter, Clock, Target,
-  BarChart3, Activity, Users, FileText, Settings,
-} from 'lucide-react'
+import { Shield, CheckCircle, XCircle, Download, RefreshCw, Filter, Target, BarChart3, Activity, Users, FileText } from 'lucide-react'
 
 const statsData = [
   { label: '整体质量评分', value: '92.4', unit: '分', icon: Shield, color: '#2563eb', bg: '#eff6ff' },
@@ -51,7 +47,7 @@ const StatusBadge = ({ status }: { status: string }) => {
 }
 
 const QualityManagementPage = () => {
-  const [tab] = useState(1)
+  const [_tab] = useState(1)
   const [search, setSearch] = useState('')
 
   const qaRecords = useMemo(() => Array.from({ length: 50 }, (_, i) => {

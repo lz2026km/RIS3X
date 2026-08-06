@@ -2,15 +2,9 @@
 // 放射科专用术语词库，支持快速录入、分类管理、快捷复制、批量导入
 // 支持 WS/T 500-2016 国家标准对照
 import { useState, useEffect, useRef } from 'react'
-import {
-  BookOpen, Search, Plus, Edit2, Trash2, X, Copy, Upload,
-  Download, BarChart2,
-  Tag, FolderOpen, TrendingUp, CheckCircle2, FileSpreadsheet, RefreshCw, EyeOff, Check,
-  LayoutGrid, Zap, FileCheck, DownloadCloud, Globe, Share2, Network,
-  Lightbulb, Languages, FileSearch, Move, Target
-} from 'lucide-react'
+import { BookOpen, Search, Plus, Edit2, Trash2, X, Copy, Upload, Download, BarChart2, Tag, FolderOpen, TrendingUp, CheckCircle2, FileSpreadsheet, RefreshCw, EyeOff, Check, LayoutGrid, Zap, FileCheck, DownloadCloud, Network, Lightbulb, Languages, FileSearch, Move } from 'lucide-react'
 import { initialTermLibrary } from '../data/initialData'
-import { termApi, type TermSuggestionDto, type SynonymRelationDto, type TranslationDto, type ExtractedTermDto, type CategoryTreeNodeDto } from '../services/api'
+import { termApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 
 // ============ 类型定义 ============
@@ -191,7 +185,7 @@ export default function TermLibraryPage() {
     })()
     return () => { cancelled = true }
   }, [])
-  const [categories, setCategories] = useState<TermCategory[]>(INIT_CATEGORIES)
+  const [categories, _setCategories] = useState<TermCategory[]>(INIT_CATEGORIES)
   const [leftSearch, setLeftSearch] = useState('')
   const [activeCategoryId, setActiveCategoryId] = useState<string>('ALL')
   const [activeTab, setActiveTab] = useState<'all' | 'active' | 'inactive'>('all')
@@ -207,7 +201,7 @@ export default function TermLibraryPage() {
   const [importLoading, setImportLoading] = useState(false)
   const [copySuccess, setCopySuccess] = useState<string | null>(null)
   const [importFile, setImportFile] = useState<File | null>(null)
-  const [importSuccess, setImportSuccess] = useState<string>('')
+  const [_importSuccess, setImportSuccess] = useState<string>('')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [mainTab, setMainTab] = useState<'dict' | 'standard'>('dict')
   const [wsSearch, setWsSearch] = useState('')
@@ -223,7 +217,7 @@ export default function TermLibraryPage() {
   // Phase 7 state
   const [featureTab, setFeatureTab] = useState<'main' | 'suggestion' | 'synonym' | 'extraction' | 'language' | 'category'>('main')
   const [suggestionSearch, setSuggestionSearch] = useState('')
-  const [showSynonymGraph, setShowSynonymGraph] = useState(false)
+  const [_showSynonymGraph, _setShowSynonymGraph] = useState(false)
   const [selectedNode, setSelectedNode] = useState<string | null>(null)
   const [synonymZoom, setSynonymZoom] = useState(1)
   const [synonymPan, setSynonymPan] = useState({ x: 0, y: 0 })
@@ -560,7 +554,7 @@ export default function TermLibraryPage() {
               onMouseDown={e => { if (e.button === 0) { const startX = e.clientX - synonymPan.x; const startY = e.clientY - synonymPan.y; const onMove = (ev: MouseEvent) => { setSynonymPan({ x: ev.clientX - startX, y: ev.clientY - startY }); }; const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }; document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp); }}}
             >
               <svg width="100%" height="350" viewBox={`0 0 600 350`} style={{ transform: `scale(${synonymZoom}) translate(${synonymPan.x / synonymZoom}px, ${synonymPan.y / synonymZoom}px)`, transformOrigin: 'center center' }}>
-                {selectedRelations.map((r, i) => {
+                {selectedRelations.map((r, _i) => {
                   const fromIdx = allNodes.indexOf(r.from)
                   const toIdx = allNodes.indexOf(r.to)
                   const angle1 = (fromIdx / allNodes.length) * Math.PI * 2
@@ -978,7 +972,7 @@ export default function TermLibraryPage() {
                     <tbody>
                       {filteredWsStandards.length === 0 ? (
                         <tr><td colSpan={7} style={{ padding: '40px 0', textAlign: 'center' }}><div style={{ color: '#94a3b8', fontSize: 13 }}><Search size={24} style={{ marginBottom: 8, opacity: 0.5 }} /><div>无匹配的标准条目</div></div></td></tr>
-                      ) : filteredWsStandards.map((ws, idx) => {
+                      ) : filteredWsStandards.map((ws, _idx) => {
                         const isMapped = mappedWsCodes.has(ws.code)
                         return (
                           <tr key={ws.code} style={{ borderBottom: '1px solid #f8fafc', background: '#fff', transition: 'background 0.1s' }}
@@ -1129,7 +1123,7 @@ export default function TermLibraryPage() {
                     <tbody>
                       {filteredTerms.length === 0 ? (
                         <tr><td colSpan={8} style={{ padding: '40px 0', textAlign: 'center' }}><div style={{ color: '#94a3b8', fontSize: 13 }}><Search size={24} style={{ marginBottom: 8, opacity: 0.5 }} /><div>暂无匹配的词条</div></div></td></tr>
-                      ) : filteredTerms.map((term, idx) => (
+                      ) : filteredTerms.map((term, _idx) => (
                         <tr key={term.id} style={{ borderBottom: '1px solid #f8fafc', background: term.isActive === false ? '#fef9f9' : '#fff', transition: 'background 0.1s' }}
                           onMouseEnter={e => { if (term.isActive !== false) (e.currentTarget as HTMLTableRowElement).style.background = '#fafbff' }}
                           onMouseLeave={e => { if (term.isActive !== false) (e.currentTarget as HTMLTableRowElement).style.background = '#fff'; else (e.currentTarget as HTMLTableRowElement).style.background = '#fef9f9' }}

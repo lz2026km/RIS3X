@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { AlertTriangle, Plus, Search, Filter, Activity, PieChart, ChevronDown, ChevronRight, FileText, Clock, CheckCircle, XCircle } from 'lucide-react'
+import { AlertTriangle, Plus, Search, PieChart, ChevronDown, ChevronRight } from 'lucide-react'
 import { message } from 'antd'
 import { getAdverseReactionService } from '../../services/contrast'
 import type { AdverseReaction, ReactionType, ReactionSeverity } from '../../services/contrast'
@@ -101,7 +101,7 @@ export default function AdverseReactionPage() {
                     {r.followUpNotes && <div style={{ marginTop: 8, padding: 8, background: '#161b22', borderRadius: 4, fontSize: 12, color: '#8b949e' }}>随访: {r.followUpNotes}</div>}
                     <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
                       <button style={{ padding: '6px 12px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', fontSize: 12 }}>编辑</button>
-                      {!r.isReported && <button onClick={() => { message.success('不良事件上报已提交'); setAdverseReactions(prev => prev.map(a => a.id === r.id ? {...a, isReported: true} : a)); }} style={{ padding: '6px 12px', borderRadius: 4, border: '1px solid #22c55e', background: '#22c55e20', color: '#22c55e', cursor: 'pointer', fontSize: 12 }}>上报</button>}
+                      {!r.isReported && <button onClick={() => { message.success('不良事件上报已提交'); setReactions(prev => prev.map(a => a.id === r.id ? {...a, isReported: true} : a)); }} style={{ padding: '6px 12px', borderRadius: 4, border: '1px solid #22c55e', background: '#22c55e20', color: '#22c55e', cursor: 'pointer', fontSize: 12 }}>上报</button>}
                     </div>
                   </div>
                 )}

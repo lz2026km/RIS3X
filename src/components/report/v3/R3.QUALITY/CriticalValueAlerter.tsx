@@ -26,39 +26,11 @@ import {
   Timeline,
   Divider,
 } from 'antd';
-import {
-  AlertOctagon,
-  Bell,
-  Phone,
-  MessageSquare,
-  Smartphone,
-  CheckCircle2,
-  Clock,
-  AlertTriangle,
-  PhoneCall,
-  Send,
-  Mail,
-  Search,
-  RefreshCw,
-  Activity,
-  Users,
-  TrendingUp,
-  Zap,
-  Eye,
-  X,
-  Stethoscope,
-} from 'lucide-react';
+import { AlertOctagon, Bell, Phone, MessageSquare, Smartphone, CheckCircle2, Clock, PhoneCall, Send, Mail, Search, RefreshCw, Activity, TrendingUp, Zap, X, Stethoscope } from 'lucide-react';
 import { criticalValueService } from '../../../../services/quality/criticalValueService';
 import { SmsSender } from '../../../critical/SmsSender';
 import { VoiceCallButton } from '../../../critical/VoiceCallButton';
-import type {
-  CriticalEvent,
-  CriticalStatus,
-  CriticalLevel,
-  NotificationChannel,
-  CriticalRule,
-  CriticalKPI,
-} from '../../../../types/R3/R3.CRITICAL';
+import type { CriticalEvent, CriticalStatus, CriticalLevel, NotificationChannel, CriticalKPI } from '../../../../types/R3/R3.CRITICAL';
 
 const STATUS_META: Record<CriticalStatus, { color: string; label: string; bg: string; icon: React.ReactNode }> = {
   pending: { color: '#dc2626', label: '待通报', bg: '#fee2e2', icon: <PhoneCall size={12} /> },

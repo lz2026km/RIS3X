@@ -1,8 +1,8 @@
 // [v3.0.6.8-93] Phase 3: CBCT 体绘制 + Curve MPR
 // 对标: Planmeca Romexis + Sirona Galileos 3D
 import React, { useState, useEffect, useRef } from 'react';
-import { Card, Space, Tag, Button, Select, Row, Col, Statistic, Form, message, Slider, Spin, Tabs, Badge, Progress, Tooltip, InputNumber } from 'antd';
-import { Activity, Eye, Maximize2, Minimize2, RotateCcw, Layers, BarChart3, Crosshair, Download, Box } from 'lucide-react';
+import { Card, Space, Tag, Button, Select, Row, Col, Statistic, Form, Slider, Tabs, Badge, Progress, InputNumber } from 'antd';
+import { Eye, RotateCcw, Layers, Crosshair, Download, Box } from 'lucide-react';
 
 export const DentalVolumeViewerPage: React.FC = () => {
   const [studies, setStudies] = useState<any[]>([]);
@@ -40,8 +40,7 @@ export const DentalVolumeViewerPage: React.FC = () => {
       for (let x = 0; x < w; x++) {
         const dx = x - cx, dy = y - cy;
         const dist = Math.sqrt(dx * dx + dy * dy) / radius;
-        if (dist > 1) continue;
-        const angle = Math.atan2(dy, dx);
+        if (dist > 1) continue;Math.atan2(dy, dx);
         const bone = Math.max(0, 1 - Math.abs(dist - 0.65) / 0.35);
         const nerve = dist > 0.6 && dist < 0.75 ? Math.max(0, 1 - Math.abs(dist - 0.68) / 0.08) : 0;
         const noise = (Math.sin(x * 0.05 + sliceIdx * 0.1) + Math.cos(y * 0.05 + sliceIdx * 0.08)) * 0.05;

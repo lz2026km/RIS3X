@@ -15,10 +15,10 @@ interface PptxExportDialogProps {
 
 const emptySlide = (): PptxSlide => ({ title: '', body: '', layout: 'content' });
 
-export const PptxExportDialog: React.FC<PptxExportDialogProps> = ({ open, onClose, reportId }) => {
+export const PptxExportDialog: React.FC<PptxExportDialogProps> = ({ open, onClose }) => {
   const [title, setTitle] = useState('放射诊断报告');
   const [author, setAuthor] = useState('');
-  const [themeColor, setThemeColor] = useState('#1e40af');
+  const [themeColor, _setThemeColor] = useState('#1e40af');
   const [slides, setSlides] = useState<PptxSlide[]>([{ title: '影像所见', body: '', layout: 'content' }, { title: '诊断意见', body: '', layout: 'content' }]);
   const [exporting, setExporting] = useState(false);
 

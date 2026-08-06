@@ -1,7 +1,7 @@
 /**
  * G005 RIS v3.0.5.1 - R3.DEFECT 缺陷库类型定义
  */
-import type { DefectCategoryCode, QualityDefectHit, DefectRemediation } from './R3.QUALITY';
+import type { DefectCategoryCode, DefectRemediation } from './R3.QUALITY';
 
 export type DefectSeverityLevel = 'minor' | 'major' | 'critical';
 export type DefectStatus = 'active' | 'deprecated' | 'draft' | 'reviewing';

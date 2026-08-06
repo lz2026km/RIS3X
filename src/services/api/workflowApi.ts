@@ -1,5 +1,5 @@
 import { api, invalidateApiCache } from './client'
-import type { WorkflowGraph, RoutingRule, SLAPolicyConfig } from '../../types/workflow'
+import type { WorkflowGraph } from '../../types/workflow'
 
 export interface WorkflowDefinitionDto {
   id: string
@@ -51,9 +51,12 @@ export interface RoutingRuleDto {
   updatedAt?: string
 }
 
+// [G005 P1] 列表双形状: MSW 裸数组 { data: T[] } / 后端 { data: { items, total } }
+export type ListPayload<T> = T[] | { items: T[]; total: number }
+
 export const workflowApi = {
   listDefinitions: () =>
-    api.get<WorkflowDefinitionDto[]>('/workflow/definitions'),
+    api.get<ListPayload<WorkflowDefinitionDto>>('/workflow/definitions'),
 
   createDefinition: async (data: Partial<WorkflowDefinitionDto>) => {
     const res = await api.post<WorkflowDefinitionDto>('/workflow/definitions', data)
@@ -88,7 +91,7 @@ export const workflowApi = {
   },
 
   listSteps: (definitionId: string) =>
-    api.get<WorkflowStepDto[]>(`/workflow/definitions/${definitionId}/steps`),
+    api.get<ListPayload<WorkflowStepDto>>(`/workflow/definitions/${definitionId}/steps`),
 
   addStep: async (definitionId: string, data: Partial<WorkflowStepDto>) => {
     const res = await api.post<WorkflowStepDto>(
@@ -100,7 +103,7 @@ export const workflowApi = {
   },
 
   listSlaPolicies: () =>
-    api.get<SLAPolicyDto[]>('/workflow/sla-policies'),
+    api.get<ListPayload<SLAPolicyDto>>('/workflow/sla-policies'),
 
   createSlaPolicy: async (data: Partial<SLAPolicyDto>) => {
     const res = await api.post<SLAPolicyDto>('/workflow/sla-policies', data)
@@ -123,7 +126,7 @@ export const workflowApi = {
   },
 
   listRoutingRules: () =>
-    api.get<RoutingRuleDto[]>('/workflow/routing-rules'),
+    api.get<ListPayload<RoutingRuleDto>>('/workflow/routing-rules'),
 
   createRoutingRule: async (data: Partial<RoutingRuleDto>) => {
     const res = await api.post<RoutingRuleDto>('/workflow/routing-rules', data)

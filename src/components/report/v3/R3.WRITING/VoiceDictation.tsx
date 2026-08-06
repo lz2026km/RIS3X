@@ -5,13 +5,10 @@
  * Expanded: 段落选择 / 多说话人 / 医学术语管理 / 命令面板
  */
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Card, Space, Button, Tag, Statistic, Select, Switch, Tooltip, message, Progress, Row, Col, Alert, Empty, List, Modal, Input, Collapse, Table } from 'antd';
+import { Card, Space, Button, Tag, Statistic, Select, Switch, message, Row, Col, Alert, Empty, List, Modal, Collapse, Table } from 'antd';
 import type { TableProps } from 'antd';
-import {
-  Mic, MicOff, Square, Volume2, Languages, Command, History, Play, Pause, Trash2,
-  Activity, FileText, Clock, AlertCircle, Settings, ChevronRight, Type, BookOpen, User,
-} from 'lucide-react';
-import { VOICE_DICTATION_MOCK } from '@data/reportWritingMock';
+import { Mic, MicOff, Square, Volume2, Command, History, Trash2, Activity, FileText, Clock, ChevronRight, Type, BookOpen, User } from 'lucide-react';
+
 import {
   startVoiceDictation, pauseVoiceDictation, resumeVoiceDictation, stopVoiceDictation,
   getVoiceDictationHistory,

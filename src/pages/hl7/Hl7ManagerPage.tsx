@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Card, Tabs, Table, Button, Space, Tag, Form, Input, Select, message, Descriptions, Empty, Alert, Row, Col, Statistic, InputNumber } from 'antd'
-import { Archive, Send, Plus, RefreshCw, Play, Download } from 'lucide-react'
+import { Card, Tabs, Table, Button, Space, Tag, Form, Input, Select, message, Alert, Row, Col, InputNumber } from 'antd'
+import { Archive, Send, RefreshCw, Play, Download } from 'lucide-react'
 import { hl7Api, type Hl7Report, type Hl7OrmOrder, type Hl7DftTransaction, type Hl7ArchiveRecord } from '../../services/api/integrationApi'
 
 export const Hl7ManagerPage: React.FC = () => {

@@ -1,8 +1,8 @@
 // [v3.0.6.8-56] CBCT MPR 多平面重建 (三平面联动)
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Card, Space, Tag, Button, Row, Col, Slider, InputNumber, Tooltip, message, Spin, Tabs, Alert } from 'antd';
-import { RotateCcw, Maximize2, Activity, ChevronLeft, ChevronRight, Download, Ruler } from 'lucide-react';
+import { Space, Tag, Button, InputNumber, Spin } from 'antd';
+import { RotateCcw, Maximize2, Activity, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const MODALITY_LABELS: Record<string, string> = { Axial: '轴向', Sagittal: '矢状', Coronal: '冠状' };
 
@@ -19,8 +19,7 @@ export const MprViewerPage: React.FC = () => {
 
   const axialRef = useRef<HTMLCanvasElement>(null);
   const sagittalRef = useRef<HTMLCanvasElement>(null);
-  const coronalRef = useRef<HTMLCanvasElement>(null);
-  const overlayRef = useRef<HTMLCanvasElement>(null);
+  const coronalRef = useRef<HTMLCanvasElement>(null);useRef<HTMLCanvasElement>(null);
 
   // Load study
   useEffect(() => {

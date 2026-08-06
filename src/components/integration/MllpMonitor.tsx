@@ -4,22 +4,15 @@
  */
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import {
-  Card, Space, Button, Tag, Tooltip, message, Modal, Form, Input, Select, Tabs,
-  Table, Empty, Statistic, Row, Col, Divider, Alert, InputNumber, Switch,
-} from 'antd';
-import {
-  Activity, Play, Square, RefreshCw, Server, Wifi, WifiOff, Send, Trash2,
-  CheckCircle2, AlertCircle, FileText, Code, Database, Clock, Hash,
-  ChevronRight, ChevronDown, Eye, Copy, Zap,
-} from 'lucide-react';
+import { Card, Space, Button, Tag, message, Modal, Form, Input, Select, Tabs, Empty, Statistic, Row, Col, Alert, InputNumber, Switch } from 'antd';
+import { Activity, Play, Square, RefreshCw, Server, Wifi, WifiOff, Send, Trash2, CheckCircle2, AlertCircle, FileText, Database, Zap } from 'lucide-react';
 import { getDefaultMllpServer, Hl7MllpServer } from '@services/integration/hl7/Hl7MllpServer';
 import { parse, validate, type Hl7ParsedMessage } from '@services/integration/hl7V2/Hl7V2Parser';
 import { HL7V2_SAMPLES } from '../../data/hl7v2Messages';
 import type { MllpServerStats, MllpConnection, MllpEvent } from '../../types/integration';
 
 export const MllpMonitor: React.FC = () => {
-  const [server, setServer] = useState<Hl7MllpServer>(() => getDefaultMllpServer());
+  const [server, _setServer] = useState<Hl7MllpServer>(() => getDefaultMllpServer());
   const [stats, setStats] = useState<MllpServerStats>(() => server.stats());
   const [events, setEvents] = useState<MllpEvent[]>([]);
   const [autoRefresh, setAutoRefresh] = useState(true);

@@ -3,21 +3,7 @@
  * 15 升级点:测试执行 / 报告导出 / Profile 列表 / 通过率
  */
 import React, { useState, useCallback, useMemo } from "react";
-import {
-  Card,
-  Space,
-  Tag,
-  Button,
-  Table,
-  Empty,
-  Statistic,
-  Row,
-  Col,
-  Progress,
-  Alert,
-  Select,
-  Input,
-} from "antd";
+import { Card, Space, Tag, Button, Table, Empty, Statistic, Row, Col, Progress, Select, Input } from 'antd';
 import {
   Activity,
   Trophy,
@@ -31,19 +17,7 @@ import {
   Clock,
   FileText,
 } from "lucide-react";
-import {
-  startSession,
-  runTestCase,
-  createTestCase,
-  addStep,
-  endSession,
-  exportReport,
-  presetXdsTestCases,
-  presetPixTestCases,
-  presetPdqvTestCases,
-  presetAtnaTestCases,
-  presetPamTestCases,
-} from "@services/integration/connectathon/IheTesting";
+import { startSession, runTestCase, addStep, endSession, exportReport, presetXdsTestCases, presetPixTestCases, presetPdqvTestCases, presetAtnaTestCases, presetPamTestCases } from '@services/integration/connectathon/IheTesting';
 import { IHE_PROFILES } from "@services/integration/ihe/IheProfiles";
 import type {
   IheTestCase,
@@ -119,7 +93,7 @@ export const IheConnectathonPage: React.FC = () => {
     if (!session) return;
     const updated: IheConnectathonSession = { ...session };
     for (const tc of updated.testCases) {
-      const runner = async (step: { id: string; description: string }) => {
+      const runner = async (_step: { id: string; description: string }) => {
         await new Promise((r) => setTimeout(r, 60));
         const passed = Math.random() > 0.1;
         return {

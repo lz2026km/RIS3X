@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Tag, Button, Space, Input, Table, Badge, Spin } from "antd";
+import { Tag, Button, Space, Input, Table, Badge } from 'antd';
 import { Image, Search, Eye } from "lucide-react";
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import { eyeApi } from "@/services/api/eyeApi";

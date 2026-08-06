@@ -1,16 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Modal,
-  Tabs,
-  Slider,
-  Select,
-  Switch,
-  Radio,
-  Button,
-  Badge,
-  Divider,
-} from "antd";
+import { Modal, Tabs, Slider, Select, Switch, Radio, Button, Divider } from 'antd';
 import { SettingOutlined } from "@ant-design/icons";
 import {
   SHORTCUT_LIST,

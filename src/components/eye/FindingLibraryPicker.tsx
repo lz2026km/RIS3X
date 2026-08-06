@@ -1,5 +1,5 @@
 import React from "react";
-import { Input, Tag, Space, Checkbox, Card } from "antd";
+import { Input, Tag, Checkbox } from 'antd';
 import { Search } from "lucide-react";
 import { MOCK_FINDINGS_LIBRARY } from "../../data/eyeFindingsLibraryMock";
 

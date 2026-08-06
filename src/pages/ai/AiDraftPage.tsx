@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react'
-import { Card, Select, Button, Space, Tag, Typography, Input, message, Spin, Tooltip, Empty } from 'antd'
+import { Card, Select, Button, Space, Tag, Typography, Input, message, Spin, Tooltip } from 'antd'
 import { Brain, Check, X, Edit3, FileText, RefreshCw, Plus, User, Activity, Layout } from 'lucide-react'
 import { v3AiDraftApi, type AiDraftMeta, type AiDraftParagraph, type AiDraftResult, type DraftTemplate } from '../../services/api/v3Api'
 import { patientExamApi, type PatientInfo, type ExamInfo } from '../../services/api/patientExamApi'

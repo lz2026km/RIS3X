@@ -1,11 +1,5 @@
 /** G005 眼科 EMR Mock 数据 v3.0.6.8-21 — 深化版 (15 份病历) */
-import type {
-  OphthalmologyEmr,
-  PreOpAssessment,
-  PostOpNote,
-  SurgicalRecord,
-  InformedConsent,
-} from "../types/eye";
+import type { OphthalmologyEmr, PreOpAssessment, PostOpNote, SurgicalRecord } from '../types/eye';
 
 const NOW = Date.now();
 

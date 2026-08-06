@@ -1,15 +1,7 @@
 // [v3.0.6.8-47] PR3: 通知 + 模板 + 词典综合管理
 import React, { useState, useEffect } from 'react';
-import {
-  Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, message,
-  Tabs, List, Empty, Statistic, Alert, InputNumber, Modal, Badge,
-  Table, Tree, Switch, Tooltip, Avatar, Descriptions,
-} from 'antd';
-import {
-  Bell, FileText, BookOpen, Plus, Edit3, Trash2, Send, CheckCircle2,
-  Search, Filter, Mail, MessageSquare, Volume2, Smartphone, Hash,
-  AlertCircle, Activity, Clock, Save, X, ChevronRight, RefreshCw,
-} from 'lucide-react';
+import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, message, Tabs, List, Statistic, InputNumber, Modal, Badge, Table, Switch, Avatar } from 'antd';
+import { Bell, FileText, BookOpen, Plus, Edit3, CheckCircle2, RefreshCw } from 'lucide-react';
 import { notificationApi, templateApi, dictionaryApi } from '@/services/api/notificationTemplateDictApi';
 
 const { TextArea } = Input;

@@ -8,79 +8,9 @@ import { datareportApi, type InsuranceAuditDto as DataReportAuditDto } from "../
 import { insuranceApi } from "../services/api/insuranceApi";
 import { PermissionGate } from "../components/common/PermissionGate";
 import { ConfirmDialog } from "../components/ConfirmDialog";
-import { VOUCHER_DATA, ElectronicVoucherRecord } from "../data/initialData";
-import {
-  ShieldCheck,
-  Clock,
-  CheckCircle,
-  XCircle,
-  AlertTriangle,
-  Search,
-  Filter,
-  RefreshCw,
-  ChevronLeft,
-  ChevronRight,
-  FileText,
-  Pill,
-  Stethoscope,
-  User,
-  Calendar,
-  MessageSquare,
-  Check,
-  X,
-  Send,
-  BookOpen,
-  ClipboardList,
-  Activity,
-  Scan,
-  Syringe,
-  Heart,
-  AlertOctagon,
-  BarChart3,
-  Settings,
-  TrendingUp,
-  CheckSquare,
-  XSquare,
-  Clock3,
-  DollarSign,
-  PieChart as PieChartIcon,
-  AlertCircle,
-  TrendingDown,
-  Percent,
-  Upload,
-  Download,
-  Printer,
-  FileSpreadsheet,
-  Loader2,
-  GitBranch,
-  Fingerprint,
-  Shield,
-  Zap,
-  Eye,
-  Edit3,
-  Flag,
-  Plus,
-  ExternalLink,
-  Users,
-  ClipboardCheck,
-  Target,
-  Trash2,
-} from "lucide-react";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  BarChart,
-  Bar,
-  Legend,
-} from "recharts";
+import { VOUCHER_DATA } from '../data/initialData';
+import { ShieldCheck, Clock, CheckCircle, XCircle, AlertTriangle, Search, Filter, RefreshCw, ChevronLeft, ChevronRight, FileText, Pill, Stethoscope, Calendar, MessageSquare, Check, X, Send, BookOpen, ClipboardList, Activity, AlertOctagon, BarChart3, Settings, TrendingUp, Clock3, DollarSign, PieChart as PieChartIcon, AlertCircle, Percent, Upload, Loader2, Plus, ClipboardCheck, Target, Trash2 } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 
 // ---------- 类型定义 ----------
 interface PendingAudit {
@@ -3380,7 +3310,7 @@ export default function InsuranceAuditPage() {
   const [filterResult, setFilterResult] = useState("全部");
   const [historyPage, setHistoryPage] = useState(1);
   const [pendingPage, setPendingPage] = useState(1);
-  const [selectedAudit, setSelectedAudit] = useState<string | null>(null);
+  const [_selectedAudit, setSelectedAudit] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [toastType, setToastType] = useState<"success" | "error" | "info">(
     "success",

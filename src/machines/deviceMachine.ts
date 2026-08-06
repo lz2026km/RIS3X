@@ -89,26 +89,26 @@ export const deviceMachine = createMachine({
             currentPatientId: ({ event }) => event.patientId,
             currentExamId: ({ event }) => event.examId,
             startedAt: () => new Date().toISOString(),
-            history: ({ context, event }) => [...context.history, { state: 'inUse', timestamp: new Date().toISOString(), actorId: event.by }],
+            history: ({ context, event }): DeviceStateEvent[] => [...context.history, { state: 'inUse', timestamp: new Date().toISOString(), actorId: event.by }],
           }),
         },
         START_MAINTENANCE: {
           target: 'maintenance',
           actions: assign({
-            history: ({ context, event }) => [...context.history, { state: 'maintenance', timestamp: new Date().toISOString(), actorId: event.by, reason: event.notes }],
+            history: ({ context, event }): DeviceStateEvent[] => [...context.history, { state: 'maintenance', timestamp: new Date().toISOString(), actorId: event.by, reason: event.notes }],
           }),
         },
         REPORT_FAULT: {
           target: 'broken',
           actions: assign({
             faultReason: ({ event }) => event.reason,
-            history: ({ context, event }) => [...context.history, { state: 'broken', timestamp: new Date().toISOString(), actorId: event.by, reason: event.reason }],
+            history: ({ context, event }): DeviceStateEvent[] => [...context.history, { state: 'broken', timestamp: new Date().toISOString(), actorId: event.by, reason: event.reason }],
           }),
         },
         GO_OFFLINE: {
           target: 'offline',
           actions: assign({
-            history: ({ context, event }) => [...context.history, { state: 'offline', timestamp: new Date().toISOString(), actorId: event.by, reason: event.reason }],
+            history: ({ context, event }): DeviceStateEvent[] => [...context.history, { state: 'offline', timestamp: new Date().toISOString(), actorId: event.by, reason: event.reason }],
           }),
         },
       },
@@ -123,20 +123,20 @@ export const deviceMachine = createMachine({
             currentExamId: null,
             startedAt: null,
             todayExamCount: ({ context }) => context.todayExamCount + 1,
-            history: ({ context, event }) => [...context.history, { state: 'idle', timestamp: new Date().toISOString(), actorId: event.by }],
+            history: ({ context, event }): DeviceStateEvent[] => [...context.history, { state: 'idle', timestamp: new Date().toISOString(), actorId: event.by }],
           }),
         },
         REPORT_FAULT: {
           target: 'broken',
           actions: assign({
             faultReason: ({ event }) => event.reason,
-            history: ({ context, event }) => [...context.history, { state: 'broken', timestamp: new Date().toISOString(), actorId: event.by, reason: event.reason }],
+            history: ({ context, event }): DeviceStateEvent[] => [...context.history, { state: 'broken', timestamp: new Date().toISOString(), actorId: event.by, reason: event.reason }],
           }),
         },
         GO_OFFLINE: {
           target: 'offline',
           actions: assign({
-            history: ({ context, event }) => [...context.history, { state: 'offline', timestamp: new Date().toISOString(), actorId: event.by, reason: event.reason }],
+            history: ({ context, event }): DeviceStateEvent[] => [...context.history, { state: 'offline', timestamp: new Date().toISOString(), actorId: event.by, reason: event.reason }],
           }),
         },
       },
@@ -148,14 +148,14 @@ export const deviceMachine = createMachine({
           target: 'idle',
           actions: assign({
             lastMaintenanceAt: () => new Date().toISOString(),
-            history: ({ context, event }) => [...context.history, { state: 'idle', timestamp: new Date().toISOString(), actorId: event.by }],
+            history: ({ context, event }): DeviceStateEvent[] => [...context.history, { state: 'idle', timestamp: new Date().toISOString(), actorId: event.by }],
           }),
         },
         REPORT_FAULT: {
           target: 'broken',
           actions: assign({
             faultReason: ({ event }) => event.reason,
-            history: ({ context, event }) => [...context.history, { state: 'broken', timestamp: new Date().toISOString(), actorId: event.by, reason: event.reason }],
+            history: ({ context, event }): DeviceStateEvent[] => [...context.history, { state: 'broken', timestamp: new Date().toISOString(), actorId: event.by, reason: event.reason }],
           }),
         },
       },
@@ -167,19 +167,19 @@ export const deviceMachine = createMachine({
           target: 'idle',
           actions: assign({
             faultReason: null,
-            history: ({ context, event }) => [...context.history, { state: 'idle', timestamp: new Date().toISOString(), actorId: event.by }],
+            history: ({ context, event }): DeviceStateEvent[] => [...context.history, { state: 'idle', timestamp: new Date().toISOString(), actorId: event.by }],
           }),
         },
         START_MAINTENANCE: {
           target: 'maintenance',
           actions: assign({
-            history: ({ context, event }) => [...context.history, { state: 'maintenance', timestamp: new Date().toISOString(), actorId: event.by, reason: event.notes }],
+            history: ({ context, event }): DeviceStateEvent[] => [...context.history, { state: 'maintenance', timestamp: new Date().toISOString(), actorId: event.by, reason: event.notes }],
           }),
         },
         GO_OFFLINE: {
           target: 'offline',
           actions: assign({
-            history: ({ context, event }) => [...context.history, { state: 'offline', timestamp: new Date().toISOString(), actorId: event.by, reason: event.reason }],
+            history: ({ context, event }): DeviceStateEvent[] => [...context.history, { state: 'offline', timestamp: new Date().toISOString(), actorId: event.by, reason: event.reason }],
           }),
         },
       },
@@ -190,7 +190,7 @@ export const deviceMachine = createMachine({
         GO_ONLINE: {
           target: 'idle',
           actions: assign({
-            history: ({ context, event }) => [...context.history, { state: 'idle', timestamp: new Date().toISOString(), actorId: event.by }],
+            history: ({ context, event }): DeviceStateEvent[] => [...context.history, { state: 'idle', timestamp: new Date().toISOString(), actorId: event.by }],
           }),
         },
       },

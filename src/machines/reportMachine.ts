@@ -1,5 +1,5 @@
 /**
- * G005 放射RIS系统 v3.0.2.10 - 报告 17 态状态机
+ * G005 放射RIS系统 v3.0.2.10 - 报告 21 态状态机 (对齐 backend REPORT_TRANSITIONS v3.0.6.11-73)
  * 双阶段审核: 初审(主治) → 终审(主任) → CoSign(双签)
  * 守卫: PUBLISH 前置 qualityScore >= 60, REJECT 必须填写原因
  */
@@ -51,6 +51,7 @@ export type ReportEvent =
   | { type: 'SUBMIT' }
   | { type: 'START_INITIAL_REVIEW'; reviewerId: string }
   | { type: 'APPROVE_INITIAL' }
+  | { type: 'APPROVE_REVIEWED' }
   | { type: 'START_FINAL_REVIEW'; reviewerId: string }
   | { type: 'APPROVE_FINAL' }
   | { type: 'COMPLETE_CO_SIGN'; coSignerId: string }
@@ -123,10 +124,8 @@ export const reportMachine = createMachine({
     initialReview: {
       on: {
         APPROVE_INITIAL: { target: 'finalReview', actions: assign({ history: ({ context }) => [...context.history, { state: 'finalReview', timestamp: new Date().toISOString(), actorId: context.reviewerId ?? '' }] }) },
+        APPROVE_REVIEWED: { target: 'reviewed', actions: assign({ history: ({ context }) => [...context.history, { state: 'reviewed', timestamp: new Date().toISOString(), actorId: context.reviewerId ?? '' }] }) },
         REJECT: { target: 'rejected', guard: 'rejectReasonRequired', actions: assign({ rejectReason: ({ event }) => event.reason, history: ({ context, event }) => [...context.history, { state: 'rejected', timestamp: new Date().toISOString(), actorId: context.reviewerId ?? '', note: event.reason }] }) },
-        ESCALATE: { target: 'escalated', actions: assign({ rejectReason: ({ event }) => event.reason, history: ({ context, event }) => [...context.history, { state: 'escalated', timestamp: new Date().toISOString(), actorId: context.reviewerId ?? '', note: event.reason }] }) },
-        WITHDRAW: { target: 'withdrawn', actions: assign({ history: ({ context }) => [...context.history, { state: 'withdrawn', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
-        ARCHIVE: { target: 'archived', actions: assign({ history: ({ context }) => [...context.history, { state: 'archived', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
       },
     },
     finalReview: {
@@ -187,14 +186,14 @@ export const reportMachine = createMachine({
     },
     amended: {
       on: {
-        PUBLISH: { target: 'published', guard: 'qualityScoreSufficient', actions: assign({ qualityScore: ({ context, event }) => event.qualityScore ?? context.qualityScore, history: ({ context }) => [...context.history, { state: 'published', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
-        ARCHIVE: { target: 'archived' },
+        PUBLISH: { target: 'signed', actions: assign({ signedAt: () => new Date().toISOString(), history: ({ context }) => [...context.history, { state: 'signed', timestamp: new Date().toISOString(), actorId: context.radiologistId, note: '修订后重新签署' }] }) },
+        REJECT: { target: 'rejected', guard: 'rejectReasonRequired', actions: assign({ rejectReason: ({ event }) => event.reason, history: ({ context, event }) => [...context.history, { state: 'rejected', timestamp: new Date().toISOString(), actorId: context.radiologistId, note: event.reason }] }) },
       },
     },
     withdrawn: { type: 'final' },
     rectifying: {
       on: {
-        COMPLETE_RECTIFY: { target: 'writing', actions: assign({ rectifyingReason: null, history: ({ context }) => [...context.history, { state: 'writing', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
+        COMPLETE_RECTIFY: { target: 'reviewed', actions: assign({ rectifyingReason: null, history: ({ context }) => [...context.history, { state: 'reviewed', timestamp: new Date().toISOString(), actorId: context.radiologistId, note: '整改完成' }] }) },
         ABORT_RECTIFY: { target: 'rejected', actions: assign({ history: ({ context }) => [...context.history, { state: 'rejected', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
       },
     },
@@ -213,24 +212,21 @@ export const reportMachine = createMachine({
     supplemented: {
       on: {
         PUBLISH: { target: 'published', guard: 'qualityScoreSufficient', actions: assign({ qualityScore: ({ context, event }) => event.qualityScore ?? context.qualityScore, history: ({ context }) => [...context.history, { state: 'published', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
-        ARCHIVE: { target: 'archived', actions: assign({ history: ({ context }) => [...context.history, { state: 'archived', timestamp: new Date().toISOString(), actorId: context.radiologistId, note: '补充后归档' }] }) },
-        WITHDRAW: { target: 'withdrawn', actions: assign({ history: ({ context }) => [...context.history, { state: 'withdrawn', timestamp: new Date().toISOString(), actorId: context.radiologistId, note: '补充后撤回' }] }) },
-        START_AMEND: { target: 'amending', actions: assign({ amendmentReason: ({ event }) => event.reason, history: ({ context, event }) => [...context.history, { state: 'amending', timestamp: new Date().toISOString(), actorId: context.radiologistId, note: event.reason }] }) },
+        REJECT: { target: 'rejected', guard: 'rejectReasonRequired', actions: assign({ rejectReason: ({ event }) => event.reason, history: ({ context, event }) => [...context.history, { state: 'rejected', timestamp: new Date().toISOString(), actorId: context.radiologistId, note: event.reason }] }) },
       },
     },
     rejected: {
       on: {
         RESTART: {
-          target: 'rectifying',
+          target: 'writing',
           guard: 'rectifyAttemptsBelowMax',
           actions: assign({
             rejectReason: null,
             rectifyingReason: null,
             rectificationCount: ({ context }) => (context.rectificationCount ?? 0) + 1,
-            history: ({ context }) => [...context.history, { state: 'rectifying', timestamp: new Date().toISOString(), actorId: context.radiologistId }],
+            history: ({ context }) => [...context.history, { state: 'writing', timestamp: new Date().toISOString(), actorId: context.radiologistId, note: '驳回后返工书写' }],
           }),
         },
-        ARCHIVE: { target: 'archived' },
       },
     },
     escalated: {

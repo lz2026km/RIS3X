@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Card, Tabs, Table, Button, Space, Tag, Form, Input, Select, message, Descriptions, Empty, Row, Col, Statistic } from 'antd'
-import { Network, Send, Search, Activity, Users, Fingerprint, Globe, RefreshCw } from 'lucide-react'
+import { Card, Tabs, Button, Space, Tag, message, Descriptions, Empty, Row, Col, Statistic } from 'antd'
+import { Network, Activity, Users, Fingerprint, Globe } from 'lucide-react'
 import { iheApi, type IheStatus, type AffinityDomain } from '../../services/api/integrationApi'
 
 export const IheManagerPage: React.FC = () => {
   const [tab, setTab] = useState('status')
   const [status, setStatus] = useState<IheStatus | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [_loading, setLoading] = useState(false)
   const [domain, setDomain] = useState<AffinityDomain | null>(null)
 
   const fetchStatus = useCallback(async () => {

@@ -1,5 +1,5 @@
 import { api } from './client'
-import type { ApiResponse } from './types'
+
 
 // HL7 API
 // Auto-generated from NestJS @Controller('hl7')

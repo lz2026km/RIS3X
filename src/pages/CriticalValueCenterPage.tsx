@@ -25,7 +25,9 @@ const CriticalValueCenterPage: React.FC = () => {
         ])
         if (cancelled) return
         if (statsRes.success && statsRes.data) setStats(statsRes.data)
-        if (rulesRes.success && Array.isArray(rulesRes.data)) setRulesCount(rulesRes.data.length)
+        // [G005 P1] 列表双形状兼容: MSW 裸数组 / 后端 { items, total }
+        const rules = Array.isArray(rulesRes.data) ? rulesRes.data : (rulesRes.data?.items ?? [])
+        if (rulesRes.success) setRulesCount(rules.length)
       } catch {
         // 保持 mock 常量兜底
       }

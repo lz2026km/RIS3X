@@ -2,7 +2,7 @@
  * G005 Radiology RIS - ChartError
  * Error placeholder for failed chart loads. Provides retry hook.
  */
-import React from 'react'
+
 import { AlertTriangle } from 'lucide-react'
 
 export interface ChartErrorProps {

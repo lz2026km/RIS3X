@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import dayjs, { type Dayjs } from 'dayjs'
 import { Card, Row, Col, Select, DatePicker, Table, Button, Space, Statistic, Tag, message, Spin } from 'antd'
-import { BarChart3, Download, Target, TrendingUp, Activity } from 'lucide-react'
+import { BarChart3, Download, Activity } from 'lucide-react'
 import BenchmarkV2, { type CompareMode, type MetricCode, type Dimension, type ChartType, type BenchmarkCompareData } from '../../components/analytics/BenchmarkV2'
 import type { ColumnsType } from 'antd/es/table'
 
@@ -129,11 +129,11 @@ export default function BenchmarkPageV2() {
   useEffect(() => { fetchCrossSite() }, [fetchCrossSite])
   useEffect(() => { fetchStats() }, [fetchStats])
 
-  const allValues = useMemo(() => {
+  useMemo(() => {
     return crossSiteData.flatMap((row) =>
       allMetricCodes.map((code) => Number(row[code]) || 0),
     )
-  }, [crossSiteData])
+  }, [crossSiteData]);
 
   const bestPerMetric = useMemo(() => {
     const map: Record<string, number> = {}
@@ -163,7 +163,7 @@ export default function BenchmarkPageV2() {
       key: code,
       width: 120,
       sorter: (a: SiteRow, b: SiteRow) => (Number(a[code]) || 0) - (Number(b[code]) || 0),
-      render: (val: number, record: SiteRow) => {
+      render: (val: number, _record: SiteRow) => {
         const isBest = val === bestPerMetric[code]
         const isWorst = val === worstPerMetric[code]
         return (

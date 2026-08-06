@@ -2,10 +2,7 @@ import { useState } from 'react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
-import {
-  Wrench, Monitor, AlertTriangle, CheckCircle, XCircle, Search,
-  Filter, Clock, Settings, Activity, ChevronDown, ChevronRight,
-} from 'lucide-react'
+import { Monitor, AlertTriangle, CheckCircle, XCircle, Search, Clock, Settings, ChevronDown, ChevronRight } from 'lucide-react'
 import { replayDeviceEvent } from '../../utils/deviceStateAdapter'
 
 interface Device {

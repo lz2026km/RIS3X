@@ -1,8 +1,8 @@
 // [v3.0.6.8-54] 口腔影像列表页
 // [v3.0.6.8-81] 修复: 复用 shared constants
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, List, Empty, Input, Badge, Tooltip, Avatar } from 'antd';
-import { Activity, Eye, Filter, RefreshCw, Calendar, Monitor, Camera, Scan } from 'lucide-react';
+import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, List, Input, Badge } from 'antd';
+import { Activity, Eye, RefreshCw } from 'lucide-react';
 import { MODALITY_LABELS, MODALITY_COLORS } from '../../data/dental/constants';
 
 export const DentalStudiesPage: React.FC = () => {

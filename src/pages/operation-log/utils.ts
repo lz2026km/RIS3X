@@ -1,5 +1,6 @@
 import type { OperationLog, ComplianceLevel, ComplianceAlert } from './types'
 import { initialUsers } from '../../data/initialData'
+export { formatDate } from '../../utils/date'
 
 export function formatDateTime(dt: string): string {
   if (!dt) return '-'
@@ -7,10 +8,7 @@ export function formatDateTime(dt: string): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`
 }
 
-export function formatDate(dt: string): string {
-  if (!dt) return '-'
-  return dt.slice(0, 10)
-}
+
 
 export function formatTime(dt: string): string {
   if (!dt) return '-'
@@ -239,7 +237,7 @@ export function generateMockOperationLogs(): OperationLog[] {
     const patientId = patientIds[Math.floor(Math.random() * patientIds.length)]
     const reportId = reportIds[Math.floor(Math.random() * reportIds.length)]
 
-    let hoursOffset = Math.random()
+    Math.random();
     let timestamp: Date
     if (i % 8 === 0) {
       timestamp = new Date(baseTime.getTime() + (Math.floor(i / 8) * 3600000) + (22 + Math.random() * 4) * 3600000)

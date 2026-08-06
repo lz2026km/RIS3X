@@ -4,9 +4,12 @@ import type { ExamDto, CreateExamDto, UpdateExamDto } from '../../types/dto'
 
 export type { ExamDto, CreateExamDto, UpdateExamDto }
 
+// [G005 P1] 列表双形状: MSW 裸数组 / 后端 { items, total }
+export type ListPayload<T> = T[] | { items: T[]; total: number }
+
 export const examApi = {
   list: (params?: ExamQueryParams) =>
-    api.get<ExamDto[]>(`/exams?${new URLSearchParams(params as Record<string, string>).toString()}`),
+    api.get<ListPayload<ExamDto>>(`/exams?${new URLSearchParams(params as Record<string, string>).toString()}`),
 
   getById: (id: string) =>
     api.get<ExamDto>(`/exams/${id}`),

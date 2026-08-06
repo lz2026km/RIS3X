@@ -42,9 +42,9 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
 }) => {
   const [activeChart, setActiveChart] = useState<'trend' | 'modality' | 'time' | 'missed' | 'notification'>('trend')
 
-  const pendingCount = data.filter((c) => toStoreStatus(String(c.status)) === 'pending').length
-  const processingCount = data.filter((c) => toStoreStatus(String(c.status)) === 'resolving').length
-  const resolvedCount = data.filter((c) => toStoreStatus(String(c.status)) === 'resolved').length
+  data.filter((c) => toStoreStatus(String(c.status)) === 'pending').length;
+  data.filter((c) => toStoreStatus(String(c.status)) === 'resolving').length;
+  data.filter((c) => toStoreStatus(String(c.status)) === 'resolved').length;
   const overdueCount = data.filter((c) => toStoreStatus(String(c.status)) === 'overdue').length
   const transferredCount = data.filter((c) => c.transferredToFollowUp).length
   const overdueProcessingCount = data.filter((c) => toStoreStatus(String(c.status)) === 'resolving' && c.processingDuration && parseInt(String(c.processingDuration || 0)) > 60).length

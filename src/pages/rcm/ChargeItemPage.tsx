@@ -1,10 +1,6 @@
 import { useState, useMemo } from 'react'
 import { Modal, Input } from 'antd'
-import {
-  Search, Plus, Edit3, ToggleLeft, ToggleRight, DollarSign,
-  Filter, RefreshCw, X, Check, Tag, Hash, List, Monitor,
-  Radio, Cpu, Printer, Scan, Download, FileSpreadsheet,
-} from 'lucide-react'
+import { Search, Plus, Edit3, ToggleLeft, ToggleRight, DollarSign, X, Check, List, Monitor, Radio, Cpu, Printer, Scan } from 'lucide-react'
 import type { ChargeItemDto } from '../../services/rcm'
 
 type ModalityType = 'all' | 'CT' | 'MRI' | 'DSA' | 'DR' | 'MG'

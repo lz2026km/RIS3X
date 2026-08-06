@@ -55,8 +55,7 @@ export default function App() {
  * - 未登录用户: 仅显示 LoginPage 和 ForbiddenPage
  * - 已登录用户: 显示完整的 AppLayout (含 sidebar + Routes)
  */
-function AuthGate() {
-  const location = useLocation();
+function AuthGate() {useLocation();
   const { isAuthenticated } = useAuth();
 
   // 未登录: 直接渲染 LoginPage (不在 AppLayout 内,避免循环)

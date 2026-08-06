@@ -1,12 +1,7 @@
 // [v3.0.6.8-27] 程序化生成器
 // 6 个核心函数用于批量生成放射科质控数据
 
-import {
-  DOCTOR_MASTER, DOCTORS_BY_TITLE,
-  PATIENT_MASTER, PATIENTS_BY_MODALITY,
-  DEVICE_MASTER, DEVICES_BY_MODALITY,
-  EXAM_ITEM_MASTER, EXAMS_BY_MODALITY,
-} from "../master";
+import { DOCTOR_MASTER, DOCTORS_BY_TITLE, PATIENT_MASTER, PATIENTS_BY_MODALITY, DEVICE_MASTER, DEVICES_BY_MODALITY, EXAMS_BY_MODALITY } from '../master';
 
 // ============================================================
 // 随机数工具
@@ -595,8 +590,7 @@ export interface CosignTask {
 }
 
 export function generateCosignTasks(records: number, daysAgo: number = 7): CosignTask[] {
-  const out: CosignTask[] = [];
-  const juniors = DOCTORS_BY_TITLE["住院医师"].concat(DOCTORS_BY_TITLE["主治医师"]);
+  const out: CosignTask[] = [];DOCTORS_BY_TITLE["住院医师"].concat(DOCTORS_BY_TITLE["主治医师"]);
   const seniors = DOCTORS_BY_TITLE["副主任医师"].concat(DOCTORS_BY_TITLE["主任医师"]);
   const now = Date.now();
   const reportDoctors = DOCTORS_BY_TITLE["住院医师"].concat(DOCTORS_BY_TITLE["主治医师"]);

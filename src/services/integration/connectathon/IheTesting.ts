@@ -10,8 +10,6 @@ let session: IheConnectathonSession | null = null;
 
 function genId(prefix: string): string { return `${prefix}-${Math.random().toString(36).slice(2, 8)}-${Date.now()}`; }
 
-function delay(ms: number): Promise<void> { return new Promise((r) => setTimeout(r, ms)); }
-
 function makeStep(id: string, description: string, status: IheTestStatus = 'pending', durationMs = 0): IheTestStep {
   return { id, description, status, durationMs };
 }

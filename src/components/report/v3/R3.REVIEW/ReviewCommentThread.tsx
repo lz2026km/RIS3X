@@ -3,14 +3,7 @@
  */
 import React, { useEffect, useState } from 'react';
 import { Input, Button, List, Space, Tag, Avatar, message } from 'antd';
-import {
-  MessageSquare,
-  Send,
-  AtSign,
-  CheckCircle2,
-  Reply,
-  MessageCircle,
-} from 'lucide-react';
+import { Send, AtSign, CheckCircle2, Reply, MessageCircle } from 'lucide-react';
 import { reviewService } from '../../../../services/review/reviewService';
 import type { ReviewComment } from '../../../types/R3/R3.REVIEW';
 

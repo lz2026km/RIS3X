@@ -1,6 +1,6 @@
 import { X, ArrowUp, ArrowDown, Minus } from 'lucide-react'
 import type { RadiologyExam } from '../../types'
-import type { SmartScoreResult } from '../../services/api/worklistSmartApi'
+
 
 interface SortCompareItem {
   exam: RadiologyExam

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Tag, Button, Modal, Form, Input, InputNumber, Select, Descriptions, Space, message, Spin } from 'antd';
+import { Table, Tag, Button, Modal, Form, Input, InputNumber, Select, Descriptions, Space, message } from 'antd';
 import { Plus } from 'lucide-react';
 import { DentalPageLayout, EmptyState } from './DentalShared';
 import { dentalApi } from '@/services/api/dentalApi';
 
 export const DentalInventoryPage: React.FC = () => {
   const [items, setItems] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [form] = Form.useForm();
   const [detail, setDetail] = useState<any | null>(null);

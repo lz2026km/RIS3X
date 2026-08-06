@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Card, Row, Col, Tag, Space, Statistic, Spin } from "antd";
-import { Eye, Activity, Target, Brain } from "lucide-react";
+import { Activity, Target } from 'lucide-react';
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import { eyeApi } from "@/services/api/eyeApi";
 

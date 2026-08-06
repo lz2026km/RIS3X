@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Space, Tag, Empty } from 'antd';
 import { Table, Button, Alert, message, Modal, Descriptions } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { Activity, Stethoscope, Plus } from 'lucide-react';
+import { Activity, Plus } from 'lucide-react';
 
 export interface DentalHeaderProps {
   title: string;

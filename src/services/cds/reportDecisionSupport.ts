@@ -1,4 +1,4 @@
-import type { ReportSuggestion, CompletenessCheckResult, TerminologyValidationResult, SuggestionType, SuggestionSeverity } from './types'
+import type { ReportSuggestion, CompletenessCheckResult, TerminologyValidationResult } from './types'
 
 export interface IReportDecisionSupportService {
   getSuggestions(reportDraft: { findings?: string; diagnosis?: string; impression?: string; modality?: string; bodyPart?: string }): Promise<ReportSuggestion[]>

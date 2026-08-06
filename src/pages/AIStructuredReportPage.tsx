@@ -750,9 +750,7 @@ const AIStructuredReportPage: React.FC = () => {
         diagnoses: prev.impression.diagnoses.filter((_, i) => i !== index),
       },
     }));
-  }, []);
-
-  const handleHistorySelect = useCallback((report: HistoryReport) => {
+  }, []);useCallback((report: HistoryReport) => {
     setFormData((prev) => ({
       ...prev,
       patientName: report.patientName,

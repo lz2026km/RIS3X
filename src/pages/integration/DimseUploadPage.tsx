@@ -17,8 +17,7 @@ export const DimseUploadPage: React.FC = () => {
   const handleUpload = async (file: File) => {
     setUploading(true);
     try {
-      const reader = new FileReader();
-      const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();await new Promise<string>((resolve, reject) => {
         reader.onload = () => resolve(reader.result as string);
         reader.onerror = reject;
         reader.readAsDataURL(file);

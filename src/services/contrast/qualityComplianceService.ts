@@ -1,4 +1,4 @@
-import type { QualityMetric, ContrastUsageReport, ComplianceReport, RegulatoryCheck, ContrastAgentType } from './types'
+import type { QualityMetric, ContrastUsageReport, ComplianceReport, RegulatoryCheck } from './types'
 
 export interface IQualityComplianceService {
   getQualityMetrics(startDate: string, endDate: string): Promise<QualityMetric[]>
@@ -41,7 +41,7 @@ class MockQualityComplianceService implements IQualityComplianceService {
     }
   }
 
-  async getAdverseEventRate(startDate: string, endDate: string): Promise<{ totalExams: number; adverseEvents: number; rate: number }> {
+  async getAdverseEventRate(_startDate: string, _endDate: string): Promise<{ totalExams: number; adverseEvents: number; rate: number }> {
     return { totalExams: 90, adverseEvents: 2, rate: 2.2 }
   }
 

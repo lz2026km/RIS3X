@@ -49,7 +49,7 @@ export default function DepartmentQualityPage() {
 
   useEffect(() => {
     reportQualityApi.getStats().then(res => {
-      if (res.success) setApiStats(res.data.data)
+      if (res.success && res.data) setApiStats(res.data)
     })
   }, [])
 

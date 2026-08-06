@@ -244,7 +244,6 @@ export function AppStatistic({
   suffix,
   trend,
   color,
-  help,
   loading = false,
 }: AppStatisticProps) {
   return (

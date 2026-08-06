@@ -4,33 +4,8 @@
  * 功能:4 级分类展示与选择 / 渠道映射 / 响应时效
  */
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  Card,
-  Tag,
-  Space,
-  Row,
-  Col,
-  Statistic,
-  Tooltip,
-  message,
-  Alert,
-  Radio,
-  Progress,
-  Badge,
-  Segmented,
-} from 'antd';
-import {
-  AlertTriangle,
-  Layers,
-  Clock,
-  Zap,
-  Bell,
-  Activity,
-  ChevronRight,
-  Target,
-  Timer,
-  Gauge,
-} from 'lucide-react';
+import { Card, Tag, Space, Row, Col, Statistic, message, Alert, Progress, Badge, Segmented } from 'antd';
+import { AlertTriangle, Layers, Clock, Zap, Bell, ChevronRight, Target, Timer, Gauge } from 'lucide-react';
 import { criticalValueService } from '../../../../services/quality/criticalValueService';
 import type { CriticalLevel, CriticalLevelConfig, NotificationChannel, CriticalKPI } from '../../../../types/R3/R3.CRITICAL';
 

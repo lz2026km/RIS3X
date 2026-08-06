@@ -118,18 +118,18 @@ export const formatDateTime = (dateTimeStr: string): string => dateTimeStr
 // Service Integration Stubs → Real API
 // ==============================
 
-import { regionalApi, type RegionalReportDto } from '../../services/api/regionalApi'
+import { regionalApi } from '../../services/api/regionalApi'
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 export const consultationService = {
   create: async (data: any) => { try { await delay(500); message.success('会诊申请已提交'); return { id: `C${Date.now()}`, ...data } } catch (e) { message.error('会诊申请提交失败'); throw e } },
   accept: async (id: string) => { try { await delay(300); message.success(`已接受会诊 ${id}`) } catch (e) { message.error('接受会诊失败'); throw e } },
-  submitOpinion: async (id: string, opinion: string) => { try { await delay(300); message.success('会诊意见见已提交') } catch (e) { message.error('提交会诊意见见失败'); throw e } },
+  submitOpinion: async (_id: string, _opinion: string) => { try { await delay(300); message.success('会诊意见见已提交') } catch (e) { message.error('提交会诊意见见失败'); throw e } },
 }
 
 export const reportService = {
-  review: async (reportId: string, result: '通过' | '驳回', opinion: string) => {
+  review: async (reportId: string, result: '通过' | '驳回', _opinion: string) => {
     try {
       await delay(300)
       await regionalApi.getRegionalReport(reportId)
@@ -144,7 +144,7 @@ export const criticalValueService = {
 }
 
 export const teleradiologyService = {
-  submit: async (data: any) => { try { await delay(500); message.success('报告提交成功') } catch (e) { message.error('提交远程报告失败'); throw e } },
+  submit: async (_data: any) => { try { await delay(500); message.success('报告提交成功') } catch (e) { message.error('提交远程报告失败'); throw e } },
 }
 
 export const remoteSyncService = {

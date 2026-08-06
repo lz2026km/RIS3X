@@ -4,18 +4,10 @@
  * 10 升级点
  */
 import React, { useState, useMemo, useCallback } from 'react';
-import {
-  Card, Space, Button, Tag, Tooltip, message, Modal, Form, Input, Select, Switch,
-  Table, Empty, Statistic, Row, Col, Divider, Alert, Tabs, QRCode, DatePicker, Tag as AntTag,
-} from 'antd';
-import {
-  Smartphone, Globe, Eye, Download, Lock, Clock, Users, ChevronRight, Plus,
-  RefreshCw, AlertCircle, Shield, QrCode, Link2, Send, Copy, CheckCircle2, XCircle, Activity, ExternalLink,
-} from 'lucide-react';
-import { PATIENT_PORTAL_LINKS_MOCK, PATIENT_REPORT_VIEWS_MOCK } from '@data/reportDistributionMock';
-import {
-  listPatientLinks, createPatientLink, revokePatientLink, listPatientViews,
-} from '@services/distribution/distributionService';
+import { Card, Space, Button, Tag, message, Modal, Form, Input, Select, Switch, Table, Empty, Statistic, Row, Col, Divider } from 'antd';
+import { Globe, Eye, Plus, Link2, Copy, CheckCircle2, XCircle, ExternalLink } from 'lucide-react';
+import { PATIENT_PORTAL_LINKS_MOCK } from '@data/reportDistributionMock';
+import { createPatientLink, revokePatientLink, listPatientViews } from '@services/distribution/distributionService';
 import type { PatientPortalLink, PatientPortalStatus, PatientReportView, PatientPortalLang } from '@types/R3/R3.DIST';
 
 interface Props {

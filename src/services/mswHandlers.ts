@@ -244,7 +244,7 @@ export const handlers = [
   }),
 
   // getPatientReports
-  http.get(`${API}/v1/mobile/wechat/patients/:patientId/reports`, ({ params, request }) => {
+  http.get(`${API}/v1/mobile/wechat/patients/:patientId/reports`, ({  request }) => {
     const url = new URL(request.url);
     const page = parseInt(url.searchParams.get('page') || '1', 10);
     const pageSize = parseInt(url.searchParams.get('pageSize') || '20', 10);
@@ -268,8 +268,7 @@ export const handlers = [
   }),
 
   // sendNotification
-  http.post(`${API}/v1/mobile/wechat/notifications`, async ({ request }) => {
-    const payload = await request.json();
+  http.post(`${API}/v1/mobile/wechat/notifications`, async ({ request }) => {await request.json();
     return ok({
       ok: true,
       messageId: 'msg_' + Date.now(),
@@ -301,19 +300,17 @@ export const handlers = [
   }),
 
   // rescheduleAppointment
-  http.post(`${API}/v1/mobile/wechat/appointments/:appointmentId/reschedule`, async ({ params, request }) => {
-    const body = await request.json();
+  http.post(`${API}/v1/mobile/wechat/appointments/:appointmentId/reschedule`, async ({  request }) => {await request.json();
     return ok({ ok: true, newAppointmentId: 'APT-' + Date.now() });
   }),
 
   // cancelAppointment
-  http.post(`${API}/v1/mobile/wechat/appointments/:appointmentId/cancel`, async ({ params, request }) => {
-    const body = await request.json();
+  http.post(`${API}/v1/mobile/wechat/appointments/:appointmentId/cancel`, async ({  request }) => {await request.json();
     return ok({ ok: true, refunded: false });
   }),
 
   // acknowledgeCritical
-  http.post(`${API}/v1/mobile/wechat/notifications/:notificationId/ack`, ({ params }) => {
+  http.post(`${API}/v1/mobile/wechat/notifications/:notificationId/ack`, ({  }) => {
     return ok({ ok: true, acknowledgedAt: new Date().toISOString() });
   }),
 

@@ -3,7 +3,7 @@
  * - 阶段 1: 232 路由访问性
  * - 阶段 2: 83 关键页面点击交互
  */
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import * as fs from 'fs';
 
 const AUTH = JSON.stringify({
@@ -117,7 +117,7 @@ test.describe.serial('全面页面健康度检查 v100', () => {
         }
       });
 
-      let status = 0, len = 0, hasAnt = false, html = '', hasRender = false;
+      let status = 0, len = 0, hasAnt = false, hasRender = false;
       try {
         const resp = await page.goto(`http://localhost:5191${route}`, {
           timeout: 25000, waitUntil: 'domcontentloaded'

@@ -39,22 +39,7 @@ const BACKUPS = Array.from({ length: 6 }, (_, i) => ({
 }));
 
 // 租户/合规 mock
-const TENANT_COMPLIANCE = {
-  status: 'ok',
-  compliant: true,
-  score: 96,
-  checks: [
-    { id: 'chk-001', name: 'HTTPS 加密传输', passed: true, detail: '全站启用 TLS 1.3' },
-    { id: 'chk-002', name: '敏感字段加密', passed: true, detail: '身份证/手机号 AES-256 加密' },
-    { id: 'chk-003', name: '审计日志完整性', passed: true, detail: '最近 30 天 0 缺失' },
-    { id: 'chk-004', name: '密码策略', passed: true, detail: '12 位 + 大小写 + 数字 + 符号' },
-    { id: 'chk-005', name: 'MFA 多因素', passed: true, detail: '管理员账号 100% 启用' },
-    { id: 'chk-006', name: '会话超时', passed: false, detail: '3 个账号未设置超时 (建议 30 分钟)' },
-    { id: 'chk-007', name: '数据备份', passed: true, detail: '每日全量 + 6 小时增量' },
-    { id: 'chk-008', name: '等保测评', passed: true, detail: '三级等保, 2026 年测评通过' },
-  ],
-  generatedAt: new Date().toISOString(),
-};
+
 
 // 合规报告 mock
 const COMPLIANCE_REPORT = {

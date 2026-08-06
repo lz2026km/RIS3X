@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react'
 import { backupApi, type BackupDto } from '../services/api/systemApi'
-import { Card, Table, Tag, Button, Space, message, Modal, Select, Row, Col, Statistic, Tabs, Descriptions, Progress, Tooltip } from 'antd'
-import { CloudUploadOutlined, DownloadOutlined, UndoOutlined, ReloadOutlined, SafetyOutlined, ClockCircleOutlined, CheckCircleOutlined, SyncOutlined, DatabaseOutlined } from '@ant-design/icons'
+import { Card, Table, Tag, Button, Space, message, Modal, Select, Row, Col, Statistic, Tabs, Descriptions, Tooltip } from 'antd'
+import { CloudUploadOutlined, DownloadOutlined, UndoOutlined, ReloadOutlined, SafetyOutlined, ClockCircleOutlined, SyncOutlined, DatabaseOutlined } from '@ant-design/icons'
 
 export default function BackupPage() {
   const [list, setList] = useState<BackupDto[]>([])
   const [loading, setLoading] = useState(false)
   const [creating, setCreating] = useState(false)
-  const [autoBackup, setAutoBackup] = useState(true)
-  const [schedule, setSchedule] = useState('0 2 * * *')
+  const [autoBackup, _setAutoBackup] = useState(true)
+  const [schedule, _setSchedule] = useState('0 2 * * *')
   const [backupType, setBackupType] = useState<string | undefined>(undefined)
 
   const fetchList = async () => {

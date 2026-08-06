@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import i18n, { changeLanguage, getCurrentLanguage, SUPPORTED_LANGUAGES, LANGUAGE_META } from '../index';
+import { changeLanguage, getCurrentLanguage, SUPPORTED_LANGUAGES, LANGUAGE_META } from '../index';
 import i18nLib from 'i18next';
 import zhCN from '../locales/zh_CN.json';
 import enUS from '../locales/en_US.json';

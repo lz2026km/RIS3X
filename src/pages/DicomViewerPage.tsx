@@ -40,12 +40,14 @@ export default function DicomViewerPage() {
       setLoading(true)
       const res = await examApi.list({})
       if (cancelled) return
-      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-        setExams(res.data as unknown as typeof initialRadiologyExams)
+      // [G005 P1] 列表双形状兼容: MSW 裸数组 / 后端 { items, total }
+      const list = Array.isArray(res.data) ? res.data : (res.data?.items ?? [])
+      if (res.success && Array.isArray(list) && list.length > 0) {
+        setExams(list as unknown as typeof initialRadiologyExams)
         setLoadError(null)
       } else {
         setExams(initialRadiologyExams)
-        setLoadError('API 不可用,使用本地数据')
+        setLoadError('API 不可用，使用本地数据')
       }
       setLoading(false)
     })()

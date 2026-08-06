@@ -1,8 +1,8 @@
 // [v3.0.6.8-55] 全景片标注工具 (Canvas)
 import React, { useState, useRef, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Card, Space, Tag, Button, message, Tooltip, Row, Col, Select, Input } from 'antd';
-import { Ruler, Square, Circle, Type, Save, Trash2, RefreshCw } from 'lucide-react';
+import { Card, Space, Tag, Button, Row, Col, Select } from 'antd';
+import { Ruler, Square, Circle, Type, Trash2 } from 'lucide-react';
 
 type Tool = 'ruler' | 'rect' | 'circle' | 'text';
 interface Annotation { id: string; tool: Tool; x: number; y: number; w: number; h: number; text?: string; color: string; label?: string; value?: string; }
@@ -17,7 +17,7 @@ export const PanoramicAnnotatorPage: React.FC = () => {
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
-  const [colorIdx, setColorIdx] = useState(0);
+  const [colorIdx, _setColorIdx] = useState(0);
   const [label, setLabel] = useState('');
 
   // Draw canvas with annotations

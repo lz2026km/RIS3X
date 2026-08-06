@@ -1,16 +1,5 @@
 /** G005 眼科 PACS Mock 数据 v3.0.6.8-21 — 深化版 */
-import type {
-  EyeStudy,
-  EyeImageSeries,
-  EyeImageInstance,
-  KeyImage,
-  EyeMeasurement,
-  OctThicknessMap,
-  VisualFieldAnalysis,
-  EyeModality,
-  EyeSide,
-  StudyStatus,
-} from "../types/eye";
+import type { EyeStudy, EyeImageSeries, KeyImage, EyeMeasurement, OctThicknessMap, VisualFieldAnalysis } from '../types/eye';
 
 const NOW = Date.now();
 

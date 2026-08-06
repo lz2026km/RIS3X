@@ -5,7 +5,7 @@ import { BiService } from './bi.service'
 
 @ApiTags('bi')
 @ApiBearerAuth()
-@Roles('ADMIN', 'DIRECTOR', 'RADIOLOGIST', 'TECHNICIAN')
+@Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
 @Controller('bi')
 export class BiController {
   constructor(private readonly service: BiService) {}

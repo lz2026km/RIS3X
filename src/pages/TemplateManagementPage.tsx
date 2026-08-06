@@ -3,14 +3,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { templatesApi } from '../services/api/templatesApi'
 import { useNavigate } from 'react-router-dom'
-import {
-  ClipboardList, ListOrdered, FileEdit, Tag, Plus, X, Search, Eye,
-  Edit2, Trash2, Save, ChevronDown, Check, Copy, FileText,
-  Activity, Scan, Image as ImageIcon, Stethoscope, Filter,
-  Sparkles, GitBranch, FolderTree, Wand2, TrendingUp, BarChart2,
-  Users, Share2, Shield, History, RotateCcw, Star, DownloadCloud,
-  UserCheck, Lock, Globe, AlertTriangle, ArrowUpDown,
-} from 'lucide-react'
+import { ClipboardList, ListOrdered, FileEdit, Tag, Plus, X, Search, Eye, Edit2, Trash2, Save, Check, Copy, FileText, Activity, Scan, Image as ImageIcon, Stethoscope, Filter, GitBranch, FolderTree, Wand2, TrendingUp, BarChart2, Users, Share2, Shield, History, RotateCcw, Star, Globe } from 'lucide-react'
 
 const C = {
   primary: '#1e40af', primaryLight: '#3b82f6', primaryLighter: '#dbeafe',
@@ -105,7 +98,7 @@ const formatDate = (date: Date) => {
 }
 
 const usageTrend = [120, 135, 142, 138, 150, 155, 160, 175, 180, 185, 190, 200]
-const modalities = ['CT', 'MRI', 'MRI', 'X线', 'CT', 'X线']
+
 
 export default function TemplateManagementPage() {
   const navigate = useNavigate()

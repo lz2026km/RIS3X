@@ -1,16 +1,8 @@
 import { useMemo } from 'react'
 import type { OperationLog, HipaaStats } from './types'
-import {
-  PRIMARY, PRIMARY_LIGHT, ACCENT, SUCCESS, WARNING, DANGER, PURPLE, GRAY, WHITE,
-  ACTION_COLORS, ACTION_ICONS, HIPAA_ACTION_TYPES, HIPAA_ACTION_CATEGORIES
-} from './constants'
+import { PRIMARY, PRIMARY_LIGHT, ACCENT, SUCCESS, WARNING, DANGER, GRAY, WHITE, ACTION_COLORS, ACTION_ICONS, HIPAA_ACTION_TYPES } from './constants'
 import { formatDate, formatTime } from './utils'
-import {
-  Activity, TrendingUp, TrendingDown, Flame, Users, Clock, User, Shield,
-  AlertTriangle, AlertCircle, CheckCircle, Download, FileText, FileCheck,
-  FileSpreadsheet, Eye, Timer, BarChart3, PieChart as PieChartIcon,
-  MonitorSmartphone, Server, Zap, Wrench, FileBarChart, FileJson,
-} from 'lucide-react'
+import { Activity, TrendingUp, TrendingDown, Flame, Users, Clock, User, Shield, AlertTriangle, AlertCircle, CheckCircle, Download, FileText, FileCheck, FileSpreadsheet, Eye, Timer, BarChart3, PieChart as PieChartIcon } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, Area, AreaChart
@@ -341,7 +333,7 @@ function HipaaAlertSummary({ logs }: { logs: OperationLog[] }) {
 // HipaaExportPanel
 // ============================================================
 function HipaaExportPanel({
-  hipaaLogs, onExportCSV, onExportPDF, onGenerateReport,
+   onExportCSV, onExportPDF, onGenerateReport,
   dateFrom, setDateFrom, dateTo, setDateTo,
   actionFilter, setActionFilter, userFilter, setUserFilter, allUserNames,
 }: {
@@ -581,7 +573,7 @@ function DurationAnalysisView({ logs }: { logs: OperationLog[] }) {
 // ============================================================
 // UserActivityHeatmap
 // ============================================================
-function UserActivityHeatmap({ logs }: { logs: OperationLog[] }) {
+function UserActivityHeatmap({  }: { logs: OperationLog[] }) {
   const heatmapData = useMemo(() => {
     const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
     const data: { day: string; hour: number; value: number }[] = []
@@ -618,7 +610,7 @@ function UserActivityHeatmap({ logs }: { logs: OperationLog[] }) {
             </div>
           ))}
         </div>
-        {['周一', '周二', '周三', '周四', '周五', '周六', '周日'].map((day, dayIndex) => (
+        {['周一', '周二', '周三', '周四', '周五', '周六', '周日'].map((day, _dayIndex) => (
           <div key={day} style={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
             <div style={{ width: 45, fontSize: 12, color: GRAY }}>{day}</div>
             <div style={{ display: 'flex', gap: 1 }}>

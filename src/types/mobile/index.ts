@@ -1,7 +1,17 @@
 export type BiometricCredential = { id: string; type: string; };
 export type GesturePattern = { points: { x: number; y: number; t: number; }[]; };
 export type OfflineCache = { key: string; data: unknown; timestamp: number; };
-export type PushSubscription = { endpoint: string; keys: { p256dh: string; auth: string; }; };
+export type PushChannel = 'web-push' | 'apns' | 'fcm';
+export type PushSubscription = {
+  endpoint: string;
+  keys: { p256dh: string; auth: string; };
+  userId?: string;
+  deviceId?: string;
+  channel?: PushChannel;
+  createdAt?: string;
+  topics?: string[];
+  silent?: boolean;
+};
 export type MobileSyncStatus = { lastSync: string; pending: number; };
 
 export type BiometricType = any;

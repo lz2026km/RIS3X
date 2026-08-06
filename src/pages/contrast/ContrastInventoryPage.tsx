@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Package, Plus, Search, AlertTriangle, Clock, RefreshCw, ChevronDown, ChevronRight, Filter, Download, Archive } from 'lucide-react'
+import { Package, Plus, Search, AlertTriangle, ChevronDown, ChevronRight, Archive } from 'lucide-react'
 import { getContrastInventoryService } from '../../services/contrast'
 import type { ContrastInventoryItem, ContrastAgentType } from '../../services/contrast'
 
@@ -8,9 +8,7 @@ const svc = getContrastInventoryService()
 const AGENT_COLORS: Record<ContrastAgentType, string> = {
   iodinated: '#3b82f6', gadolinium: '#22c55e', ultrasound: '#f59e0b', barium: '#a855f7', other: '#6e7681',
 }
-const AGENT_LABELS: Record<ContrastAgentType, string> = {
-  iodinated: '碘类', gadolinium: '钆类', ultrasound: '超声', barium: '钡剂', other: '其他',
-}
+
 
 export default function ContrastInventoryPage() {
   const [inventory, setInventory] = useState<ContrastInventoryItem[]>([])
@@ -18,7 +16,7 @@ export default function ContrastInventoryPage() {
   const [searchText, setSearchText] = useState('')
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [showLog, setShowLog] = useState(false)
-  const [showReceive, setShowReceive] = useState(false)
+  const [_showReceive, setShowReceive] = useState(false)
 
   useEffect(() => {
     const run = async () => {

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, Table, Modal, Form, Input, InputNumber, DatePicker, Badge, Empty, Segmented } from 'antd';
-import { Activity, Calendar, Clock, User, Armchair, Plus, CheckCircle2, BarChart3 } from 'lucide-react';
+import { Calendar, User, Armchair, Plus, CheckCircle2 } from 'lucide-react';
 import { dentalApi } from '@/services/api/dentalApi';
 
 const TIME_SLOTS = ['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00'];

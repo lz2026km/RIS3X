@@ -24,7 +24,7 @@ type DocumentEntry = DocumentRegistryEntryDto;
 const ApplicationList: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [apps, setApps] = useState<AccessApplication[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const [newApp, setNewApp] = useState({
     patientName: "",
     patientId: "",
@@ -190,7 +190,7 @@ const ApplicationList: React.FC = () => {
 
 const ReceiveList: React.FC = () => {
   const [apps, setApps] = useState<AccessApplication[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -279,7 +279,7 @@ const ConsultationRequests: React.FC = () => {
     priority: "normal",
   });
   const [consultations, setConsultations] = useState<ConsultationRequest[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -511,7 +511,7 @@ const DicomViewer: React.FC = () => {
 
 const AccessRecords: React.FC = () => {
   const [records, setRecords] = useState<AccessRecord[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -570,7 +570,7 @@ const CrossInstitutionQuery: React.FC = () => {
   const [retrieveProgress, setRetrieveProgress] = useState(0);
   const [retrieving, setRetrieving] = useState(false);
   const [queried, setQueried] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -599,7 +599,7 @@ const CrossInstitutionQuery: React.FC = () => {
     } catch { message.error('跨院查询失败'); }
   };
 
-  const handleRetrieve = (study: (typeof mockQueryResults)[0]) => {
+  const handleRetrieve = (_study: any) => {
     setRetrieving(true);
     setRetrieveProgress(0);
     const interval = setInterval(() => {
@@ -847,7 +847,7 @@ const XDSIntegration: React.FC = () => {
     remote: string;
   } | null>(null);
   const [auditTrail, setAuditTrail] = useState<AuditTrailEntryDto[]>([]);
-  const [loadingAudit, setLoadingAudit] = useState(true);
+  const [_loadingAudit, setLoadingAudit] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -878,7 +878,7 @@ const XDSIntegration: React.FC = () => {
     } catch { message.error('PIX查询失败'); }
   };
 
-  const handleRetrieveDoc = (doc: DocumentEntry) => {
+  const handleRetrieveDoc = (_doc: DocumentEntry) => {
     // Wire to xdsService.retrieve(doc.id) in v3.0.6
   };
 

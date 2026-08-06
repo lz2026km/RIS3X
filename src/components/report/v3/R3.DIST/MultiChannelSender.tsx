@@ -4,20 +4,12 @@
  * 25 升级点
  */
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import {
-  Card, Space, Button, Tag, Tooltip, message, Modal, Form, Input, Select, Switch,
-  Table, Empty, Statistic, Row, Col, Divider, Checkbox, Alert, Tabs, List, Progress,
-} from 'antd';
-import {
-  Send, MessageSquare, Smartphone, Mail, Bell, Database, Printer, Cloud, Film,
-  CheckCircle2, XCircle, Loader2, RefreshCw, Settings, Eye, Filter, Layers,
-  Inbox, Activity, Zap, Users, Clock, AlertCircle, ChevronRight, Star,
-} from 'lucide-react';
+import { Card, Space, Button, Tag, Tooltip, message, Modal, Form, Select, Switch, Table, Empty, Statistic, Row, Col, Divider, Alert, List, Progress } from 'antd';
+import { Send, MessageSquare, Smartphone, Mail, Bell, Database, Printer, Cloud, Film, CheckCircle2, XCircle, Loader2, RefreshCw, Settings, Eye, Filter, Layers, Inbox, Activity, Clock } from 'lucide-react';
 import { DELIVERY_CHANNELS_CONFIG, DELIVERY_TASKS_MOCK, DELIVERY_QUEUE_MOCK } from '@data/reportDistributionMock';
-import {
-  listDeliveryTasks, sendMultiChannel, retryDeliveryTask, cancelDeliveryTask, listChannels,
-} from '@services/distribution/distributionService';
+import { sendMultiChannel, retryDeliveryTask, cancelDeliveryTask } from '@services/distribution/distributionService';
 import type { DeliveryChannel, DeliveryChannelConfig, DeliveryTask, DeliveryStatus } from '@types/R3/R3.DIST';
+import { DELIVERY_STATUS_COLORS as STATUS_COLORS } from '@utils/statusColors';
 
 interface Props {
   reportId?: string;
@@ -30,10 +22,7 @@ const CHANNEL_ICON_MAP: Record<DeliveryChannel, React.ComponentType<{ className?
   inApp: Inbox, dicom: Database, paper: Printer, cloud: Cloud, film: Film,
 };
 
-const STATUS_COLORS: Record<DeliveryStatus, string> = {
-  pending: 'default', queued: 'blue', sending: 'processing', sent: 'cyan',
-  delivered: 'green', read: 'success', failed: 'error', cancelled: 'default', expired: 'warning',
-};
+
 
 const STATUS_LABELS: Record<DeliveryStatus, string> = {
   pending: '待发送', queued: '队列中', sending: '发送中', sent: '已发送',
@@ -43,7 +32,7 @@ const STATUS_LABELS: Record<DeliveryStatus, string> = {
 export const MultiChannelSender: React.FC<Props> = ({ reportId, patientId, onSend }) => {
   const [channels, setChannels] = useState<DeliveryChannelConfig[]>(DELIVERY_CHANNELS_CONFIG);
   const [selectedChannels, setSelectedChannels] = useState<DeliveryChannel[]>(['wechat', 'inApp']);
-  const [recipients, setRecipients] = useState<{ [key in DeliveryChannel]?: string }>({
+  const [recipients, _setRecipients] = useState<{ [key in DeliveryChannel]?: string }>({
     wechat: 'wx_doctor_li',
     sms: '13800138001',
     dingtalk: 'ding_li',

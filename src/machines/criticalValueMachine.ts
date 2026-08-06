@@ -153,7 +153,7 @@ export const criticalValueMachine = createMachine({
             notifiedAt: () => new Date().toISOString(),
             notificationMethod: ({ event }) => event.method,
             notificationAttempts: ({ context }) => context.notificationAttempts + 1,
-            history: ({ context, event }) => [...context.history, { state: 'notified', timestamp: new Date().toISOString(), actorId: event.by }],
+            history: ({ context, event }): CriticalStateEvent[] => [...context.history, { state: 'notified', timestamp: new Date().toISOString(), actorId: event.by }],
           }),
         },
         NOTIFY_FAILED: {
@@ -166,13 +166,13 @@ export const criticalValueMachine = createMachine({
           actions: assign({
             escalatedTo: ({ event }) => event.to,
             escalatedAt: () => new Date().toISOString(),
-            history: ({ context, event }) => [...context.history, { state: 'escalated', timestamp: new Date().toISOString(), actorId: event.to, note: event.reason }],
+            history: ({ context, event }): CriticalStateEvent[] => [...context.history, { state: 'escalated', timestamp: new Date().toISOString(), actorId: event.to, note: event.reason }],
           }),
         },
         CANCEL: {
           target: 'cancelled',
           actions: assign({
-            history: ({ context, event }) => [...context.history, { state: 'cancelled', timestamp: new Date().toISOString(), actorId: event.by, note: event.reason }],
+            history: ({ context, event }): CriticalStateEvent[] => [...context.history, { state: 'cancelled', timestamp: new Date().toISOString(), actorId: 'system', note: event.reason }],
           }),
         },
       },
@@ -185,7 +185,7 @@ export const criticalValueMachine = createMachine({
           actions: assign({
             voiceCalledBy: ({ event }) => event.by,
             voiceCalledAt: () => new Date().toISOString(),
-            history: ({ context, event }) => [...context.history, { state: 'voice_called', timestamp: new Date().toISOString(), actorId: event.by, note: event.phoneNumber }],
+            history: ({ context, event }): CriticalStateEvent[] => [...context.history, { state: 'voice_called', timestamp: new Date().toISOString(), actorId: event.by, note: event.phoneNumber }],
           }),
         },
         ACKNOWLEDGE: {
@@ -193,7 +193,7 @@ export const criticalValueMachine = createMachine({
           actions: assign({
             acknowledgedBy: ({ event }) => event.by,
             acknowledgedAt: () => new Date().toISOString(),
-            history: ({ context, event }) => [...context.history, { state: 'acknowledged', timestamp: new Date().toISOString(), actorId: event.by }],
+            history: ({ context, event }): CriticalStateEvent[] => [...context.history, { state: 'acknowledged', timestamp: new Date().toISOString(), actorId: event.by }],
           }),
         },
         NOTIFY_FAILED: {
@@ -206,13 +206,13 @@ export const criticalValueMachine = createMachine({
           actions: assign({
             escalatedTo: ({ event }) => event.to,
             escalatedAt: () => new Date().toISOString(),
-            history: ({ context, event }) => [...context.history, { state: 'escalated', timestamp: new Date().toISOString(), actorId: event.to, note: event.reason }],
+            history: ({ context, event }): CriticalStateEvent[] => [...context.history, { state: 'escalated', timestamp: new Date().toISOString(), actorId: event.to, note: event.reason }],
           }),
         },
         CANCEL: {
           target: 'cancelled',
           actions: assign({
-            history: ({ context, event }) => [...context.history, { state: 'cancelled', timestamp: new Date().toISOString(), actorId: event.by, note: event.reason }],
+            history: ({ context, event }): CriticalStateEvent[] => [...context.history, { state: 'cancelled', timestamp: new Date().toISOString(), actorId: 'system', note: event.reason }],
           }),
         },
       },
@@ -225,7 +225,7 @@ export const criticalValueMachine = createMachine({
           actions: assign({
             acknowledgedBy: ({ event }) => event.by,
             acknowledgedAt: () => new Date().toISOString(),
-            history: ({ context, event }) => [...context.history, { state: 'acknowledged', timestamp: new Date().toISOString(), actorId: event.by }],
+            history: ({ context, event }): CriticalStateEvent[] => [...context.history, { state: 'acknowledged', timestamp: new Date().toISOString(), actorId: event.by }],
           }),
         },
         ESCALATE: {
@@ -233,13 +233,13 @@ export const criticalValueMachine = createMachine({
           actions: assign({
             escalatedTo: ({ event }) => event.to,
             escalatedAt: () => new Date().toISOString(),
-            history: ({ context, event }) => [...context.history, { state: 'escalated', timestamp: new Date().toISOString(), actorId: event.to, note: event.reason }],
+            history: ({ context, event }): CriticalStateEvent[] => [...context.history, { state: 'escalated', timestamp: new Date().toISOString(), actorId: event.to, note: event.reason }],
           }),
         },
         CANCEL: {
           target: 'cancelled',
           actions: assign({
-            history: ({ context, event }) => [...context.history, { state: 'cancelled', timestamp: new Date().toISOString(), actorId: event.by, note: event.reason }],
+            history: ({ context, event }): CriticalStateEvent[] => [...context.history, { state: 'cancelled', timestamp: new Date().toISOString(), actorId: 'system', note: event.reason }],
           }),
         },
       },
@@ -254,7 +254,7 @@ export const criticalValueMachine = createMachine({
             confirmedAt: () => new Date().toISOString(),
             confirmedSignature: ({ event }) => event.signature ?? null,
             confirmedComment: ({ event }) => event.comment ?? null,
-            history: ({ context, event }) => [...context.history, { state: 'receipted', timestamp: new Date().toISOString(), actorId: event.by, note: event.comment }],
+            history: ({ context, event }): CriticalStateEvent[] => [...context.history, { state: 'receipted', timestamp: new Date().toISOString(), actorId: event.by, note: event.comment }],
           }),
         },
         START_PROCESSING: {
@@ -263,7 +263,7 @@ export const criticalValueMachine = createMachine({
             processingDoctor: ({ event }) => event.doctorId,
             processingAt: () => new Date().toISOString(),
             processingNote: ({ event }) => event.note ?? null,
-            history: ({ context, event }) => [...context.history, { state: 'resolving', timestamp: new Date().toISOString(), actorId: event.doctorId }],
+            history: ({ context, event }): CriticalStateEvent[] => [...context.history, { state: 'resolving', timestamp: new Date().toISOString(), actorId: event.doctorId }],
           }),
         },
         ESCALATE: {
@@ -271,7 +271,7 @@ export const criticalValueMachine = createMachine({
           actions: assign({
             escalatedTo: ({ event }) => event.to,
             escalatedAt: () => new Date().toISOString(),
-            history: ({ context, event }) => [...context.history, { state: 'escalated', timestamp: new Date().toISOString(), actorId: event.to, note: event.reason }],
+            history: ({ context, event }): CriticalStateEvent[] => [...context.history, { state: 'escalated', timestamp: new Date().toISOString(), actorId: event.to, note: event.reason }],
           }),
         },
       },
@@ -285,7 +285,7 @@ export const criticalValueMachine = createMachine({
             processingDoctor: ({ event }) => event.doctorId,
             processingAt: () => new Date().toISOString(),
             processingNote: ({ event }) => event.note ?? null,
-            history: ({ context, event }) => [...context.history, { state: 'resolving', timestamp: new Date().toISOString(), actorId: event.doctorId }],
+            history: ({ context, event }): CriticalStateEvent[] => [...context.history, { state: 'resolving', timestamp: new Date().toISOString(), actorId: event.doctorId }],
           }),
         },
         ESCALATE: {
@@ -293,7 +293,7 @@ export const criticalValueMachine = createMachine({
           actions: assign({
             escalatedTo: ({ event }) => event.to,
             escalatedAt: () => new Date().toISOString(),
-            history: ({ context, event }) => [...context.history, { state: 'escalated', timestamp: new Date().toISOString(), actorId: event.to, note: event.reason }],
+            history: ({ context, event }): CriticalStateEvent[] => [...context.history, { state: 'escalated', timestamp: new Date().toISOString(), actorId: event.to, note: event.reason }],
           }),
         },
       },
@@ -306,7 +306,7 @@ export const criticalValueMachine = createMachine({
           actions: assign({
             resolvedAt: () => new Date().toISOString(),
             processingNote: ({ event }) => event.note,
-            history: ({ context, event }) => [...context.history, { state: 'resolved', timestamp: new Date().toISOString(), actorId: context.processingDoctor ?? 'unknown', note: event.note }],
+            history: ({ context, event }): CriticalStateEvent[] => [...context.history, { state: 'resolved', timestamp: new Date().toISOString(), actorId: context.processingDoctor ?? 'unknown', note: event.note }],
           }),
         },
         ESCALATE: {
@@ -314,7 +314,7 @@ export const criticalValueMachine = createMachine({
           actions: assign({
             escalatedTo: ({ event }) => event.to,
             escalatedAt: () => new Date().toISOString(),
-            history: ({ context, event }) => [...context.history, { state: 'escalated', timestamp: new Date().toISOString(), actorId: event.to, note: event.reason }],
+            history: ({ context, event }): CriticalStateEvent[] => [...context.history, { state: 'escalated', timestamp: new Date().toISOString(), actorId: event.to, note: event.reason }],
           }),
         },
       },
@@ -328,13 +328,13 @@ export const criticalValueMachine = createMachine({
             closedLoopConfirmedBy: ({ event }) => event.by,
             closedLoopConfirmedAt: () => new Date().toISOString(),
             closedLoopConclusion: ({ event }) => event.conclusion,
-            history: ({ context, event }) => [...context.history, { state: 'closed_loop', timestamp: new Date().toISOString(), actorId: event.by, note: event.conclusion }],
+            history: ({ context, event }): CriticalStateEvent[] => [...context.history, { state: 'closed_loop', timestamp: new Date().toISOString(), actorId: event.by, note: event.conclusion }],
           }),
         },
         CANCEL: {
           target: 'cancelled',
           actions: assign({
-            history: ({ context, event }) => [...context.history, { state: 'cancelled', timestamp: new Date().toISOString(), actorId: event.by, note: event.reason }],
+            history: ({ context, event }): CriticalStateEvent[] => [...context.history, { state: 'cancelled', timestamp: new Date().toISOString(), actorId: 'system', note: event.reason }],
           }),
         },
       },
@@ -352,7 +352,7 @@ export const criticalValueMachine = createMachine({
         CANCEL: {
           target: 'cancelled',
           actions: assign({
-            history: ({ context, event }) => [...context.history, { state: 'cancelled', timestamp: new Date().toISOString(), actorId: event.by, note: event.reason }],
+            history: ({ context, event }): CriticalStateEvent[] => [...context.history, { state: 'cancelled', timestamp: new Date().toISOString(), actorId: 'system', note: event.reason }],
           }),
         },
       },

@@ -1,12 +1,6 @@
 import React from "react";
-import { Card, Tag, Button, Space, Timeline, Badge } from "antd";
-import {
-  AlertTriangle,
-  Bell,
-  CheckCircle,
-  Clock,
-  UserCheck,
-} from "lucide-react";
+import { Card, Tag, Space, Timeline, Badge } from 'antd';
+import { AlertTriangle, UserCheck } from 'lucide-react';
 import type { CriticalValue } from "../../types/eye";
 
 const CriticalValueAlert: React.FC<{ items: CriticalValue[] }> = ({

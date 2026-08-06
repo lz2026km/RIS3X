@@ -1,4 +1,4 @@
-import { api, invalidateApiCache, invalidateApiCacheByPrefix } from "./client";
+import { api, invalidateApiCache } from './client';
 
 // === Types (matching backend responses) ===
 
@@ -39,7 +39,11 @@ export interface DefectEntry {
 export interface QualityStatsData {
   total: number;
   avgScore: number;
+  passRate?: number;
 }
+
+// [G005 P1] 列表双形状: MSW 裸数组 / 后端 { items, total }
+export type ListPayload<T> = T[] | { items: T[]; total: number };
 
 export interface EvaluateDto {
   reportId: string;
@@ -99,10 +103,10 @@ export const reportQualityApi = {
   // ── Score rules (report-quality-ext.controller) ──
 
   getScoreRules: () =>
-    api.get<{ data: ScoreRule[] }>("/report-quality-ext/score-rules"),
+    api.get<ListPayload<ScoreRule>>("/report-quality-ext/score-rules"),
 
   createScoreRule: async (data: unknown) => {
-    const res = await api.post<{ data: ScoreRule[] }>(
+    const res = await api.post<ScoreRule>(
       "/report-quality-ext/score-rules",
       data,
     );
@@ -111,7 +115,7 @@ export const reportQualityApi = {
   },
 
   updateScoreRule: async (id: string, data: unknown) => {
-    const res = await api.put<{ data: ScoreRule[] }>(
+    const res = await api.put<ScoreRule>(
       `/report-quality-ext/score-rules/${id}`,
       data,
     );
@@ -122,10 +126,10 @@ export const reportQualityApi = {
   // ── Defect library ──
 
   getDefectLibrary: () =>
-    api.get<{ data: DefectEntry[] }>("/report-quality-ext/defect-library"),
+    api.get<ListPayload<DefectEntry>>("/report-quality-ext/defect-library"),
 
   createDefectEntry: async (data: unknown) => {
-    const res = await api.post<{ data: DefectEntry[] }>(
+    const res = await api.post<DefectEntry>(
       "/report-quality-ext/defect-library",
       data,
     );
@@ -134,7 +138,7 @@ export const reportQualityApi = {
   },
 
   updateDefectEntry: async (id: string, data: unknown) => {
-    const res = await api.put<{ data: DefectEntry[] }>(
+    const res = await api.put<DefectEntry>(
       `/report-quality-ext/defect-library/${id}`,
       data,
     );
@@ -145,10 +149,10 @@ export const reportQualityApi = {
   // ── AI report drafts ──
 
   getAiReportDrafts: () =>
-    api.get<{ data: unknown[] }>("/report-quality-ext/ai-report-drafts"),
+    api.get<ListPayload<unknown>>("/report-quality-ext/ai-report-drafts"),
 
   createAiReportDraft: async (data: unknown) => {
-    const res = await api.post<{ data: unknown[] }>(
+    const res = await api.post<unknown>(
       "/report-quality-ext/ai-report-drafts",
       data,
     );
@@ -159,5 +163,5 @@ export const reportQualityApi = {
   // ── Stats ──
 
   getStats: () =>
-    api.get<{ data: QualityStatsData }>("/report-quality-ext/stats"),
+    api.get<QualityStatsData>("/report-quality-ext/stats"),
 };

@@ -1,11 +1,4 @@
-import type {
-  AppropriatenessRule,
-  AppropriatenessLevel,
-  ExamRecommendation,
-  GuidelineSource,
-  PatientCdsData,
-  AppropriateOverride,
-} from './types'
+import type { AppropriatenessRule, ExamRecommendation, GuidelineSource, PatientCdsData, AppropriateOverride } from './types'
 
 export interface IExamAppropriatenessService {
   getRecommendations(indication: string, patientData?: PatientCdsData): Promise<ExamRecommendation[]>

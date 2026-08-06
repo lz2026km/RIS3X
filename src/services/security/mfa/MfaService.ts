@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import type {
   MfaEnrollment, MfaChallenge, MfaMethod, MfaVerificationResult,
 } from '../../../types/security';
-import { generateTotp, verifyTotp, generateSecret, buildQrPayload, base32Encode } from './TotpService';
+import { verifyTotp, generateSecret, buildQrPayload, base32Encode } from './TotpService';
 
 const STORAGE_KEY = 'g005.security.mfa.v1';
 let enrollments: MfaEnrollment[] = [];

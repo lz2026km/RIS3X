@@ -3,11 +3,11 @@
  */
 import React, { useMemo } from 'react'
 import { Card, Tag, Statistic, Row, Col, Progress, Empty, Table } from 'antd'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, PieChart, Pie, Cell, LineChart, Line, Legend } from 'recharts'
 import { AlertOctagon, CheckCircle2, Clock, User } from 'lucide-react'
 import type { CriticalValueV2 } from './CriticalEscalationV2'
 import { CHART_COLORS, CHART_PALETTE } from '../../../utils/chartColors'
-import { ChartEmpty, ChartError, ChartContainer } from '../../charts'
+import { ChartContainer } from '../../charts'
 
 export interface CriticalStatsDashboardProps {
   values: CriticalValueV2[]

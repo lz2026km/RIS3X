@@ -5,28 +5,25 @@ import {
   Col,
   Tag,
   Table,
-  Tabs,
   Steps,
   Badge,
   Button,
   Timeline,
   Empty,
   Spin,
+  Space,
 } from "antd";
 import {
   Activity,
   Calendar,
   Clock,
-  AlertTriangle,
   UserCheck,
   ArrowRight,
-  Phone,
   Bell,
 } from "lucide-react";
 import CriticalValueAlert from "@/components/eye/CriticalValueAlert";
 import { eyeApi } from "../../../services/api/eyeApi";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
-import { AppEmpty } from "@/components/feedback";
 import { PageContainer, PageHeader } from "@/components/common";
 import type {
   EyeAppointment,
@@ -34,7 +31,7 @@ import type {
   FollowUpReminder,
   EyeReferral,
   CriticalValue,
-} from "../../types/eye";
+} from "../../../types/eye";
 
 
 const MODALITY_LABELS: Record<string, string> = { fundus_photo: '眼底彩照', oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: '视野', topography: '角膜地形图', pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: '裂隙灯', oct_a: 'OCTA', corneal_endothelium: '角膜内皮', tear_film: '泪膜', fundus_autofluorescence: '眼底自发荧光' };
@@ -62,7 +59,7 @@ const EyeRisPage: React.FC = () => {
   const [surgeryAppointments, setSurgeryAppointments] = useState<SurgeryAppointment[]>([]);
   const [followUps, setFollowUps] = useState<FollowUpReminder[]>([]);
   const [referrals, setReferrals] = useState<EyeReferral[]>([]);
-  const [criticalValues, setCriticalValues] = useState<CriticalValue[]>([]);
+  const [criticalValues, _setCriticalValues] = useState<CriticalValue[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -70,7 +67,7 @@ const EyeRisPage: React.FC = () => {
     void (async () => {
       setLoading(true);
       try {
-        const [aptRes, surgRes, fuRes, refRes, cvRes] = await Promise.all([
+        const [aptRes, surgRes, fuRes, refRes, _cvRes] = await Promise.all([
           eyeApi.getAppointments(),
           eyeApi.getSurgeries(),
           eyeApi.getFollowups(),
@@ -121,7 +118,7 @@ const EyeRisPage: React.FC = () => {
     return maxIdx;
   }, [todayApts]);
 
-  const statusFlow = FLOW_STEP_KEYS;
+  
   const statusLabels: Record<string, string> = {
     scheduled: "已预约",
     arrived: "已到检",

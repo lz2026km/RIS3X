@@ -1,5 +1,22 @@
 // ============ 模拟数据 ============
 
+import type {
+  AAPMReference,
+  MonthlyDoseTrend,
+  DeviceDoseData,
+  PatientDoseRecord,
+  DoseAlert,
+  CumulativeStats,
+  BreastDoseRecord,
+  PediatricDoseRecord,
+  DICOMSRRecord,
+  CumulativeDosePoint,
+  StaffDoseRecord,
+  DRLRecord,
+  ControlChartPoint,
+  PediatricProtocol,
+} from './types';
+
 // AAPM/欧盟CT剂量参考值
 export const AAPM_EU_REFERENCES: AAPMReference[] = [
   { examType: "头部CT", aapmRef: 56, euRef: 60, hospitalAvg: 52, exceedRate: 0 },

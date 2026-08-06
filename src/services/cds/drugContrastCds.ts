@@ -55,7 +55,7 @@ class MockDrugContrastCdsService implements IDrugContrastCdsService {
     return MOCK_DRUG_INTERACTIONS.filter(di => drugIds.some(id => di.drugA.includes(id) || di.drugB.includes(id)))
   }
 
-  async getContrastProtocol(contrastName: string, weightKg: number, eGFR: number): Promise<ContrastProtocol> {
+  async getContrastProtocol(contrastName: string, _weightKg: number, eGFR: number): Promise<ContrastProtocol> {
     const proto = MOCK_PROTOCOLS.find(p => p.contrastName.includes(contrastName)) ?? MOCK_PROTOCOLS[0]
     const adjustedDose = eGFR < 30 ? `0.5 mL/kg (eGFR调整)` : proto.dose
     return { ...proto, dose: adjustedDose }

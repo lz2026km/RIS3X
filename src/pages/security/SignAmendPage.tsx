@@ -1,15 +1,7 @@
 // [v3.0.6.8-49] PR5: CA 签名 + 修订综合页面
 import React, { useState, useEffect } from 'react';
-import {
-  Card, Space, Tag, Button, Select, Input, Form, Row, Col, Divider, message,
-  Tabs, List, Empty, Statistic, Alert, InputNumber, Modal, Timeline,
-  Table, Drawer, Descriptions, Switch, Tooltip, Avatar, Steps, Progress, Badge,
-} from 'antd';
-import {
-  Shield, FileSignature, Key, Link2, Edit3, History, CheckCircle2, XCircle,
-  ChevronRight, Save, X, RefreshCw, Plus, Send, ShieldCheck, Award, Clock,
-  AlertTriangle, Hash, Activity, Lock, QrCode, Stamp, FileCheck, Search,
-} from 'lucide-react';
+import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, message, Tabs, Statistic, Alert, Modal, Timeline, Table } from 'antd';
+import { Shield, FileSignature, Link2, Edit3, History, Plus, Lock, Stamp } from 'lucide-react';
 import { signApi, amendApi } from '@/services/api/signAmendApi';
 
 const { TextArea } = Input;

@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { Plus, CheckCircle2 } from 'lucide-react'
 import { PermissionGate } from '../../components/common/PermissionGate'
 import { PRIMARY, WHITE } from './reportUtils'

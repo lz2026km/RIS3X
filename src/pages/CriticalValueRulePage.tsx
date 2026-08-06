@@ -5,25 +5,7 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  AlertOctagon,
-  Settings,
-  Edit2,
-  Trash2,
-  Save,
-  Search,
-  Phone,
-  MessageSquare,
-  Bell,
-  Smartphone,
-  Clock,
-  Activity,
-  BarChart3,
-  Zap,
-  CheckCircle2,
-  X,
-  CheckCircle,
-} from "lucide-react";
+import { AlertOctagon, Settings, Edit2, Trash2, Save, Search, Phone, MessageSquare, Bell, Smartphone, Clock, Activity, BarChart3, Zap, CheckCircle2, CheckCircle } from 'lucide-react';
 import {
   CRITICAL_VALUE_RULES,
   CRITICAL_VALUE_KPI,

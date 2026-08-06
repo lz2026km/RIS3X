@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { X, ShieldCheck, AlertTriangle, FileText, User, Stethoscope, Calendar, Activity } from 'lucide-react'
+import { useState } from 'react'
+import { X, ShieldCheck, AlertTriangle, FileText, User, Stethoscope } from 'lucide-react'
 import type { RadiologyReport } from '../../types'
 import { StatusBadge } from '../../components/report'
 import { PRIMARY, GRAY, DANGER, SUCCESS, WHITE } from './reportUtils'

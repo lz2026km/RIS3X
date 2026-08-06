@@ -4,20 +4,11 @@
  * 20 升级点:ebXML 提交 / Stored Query / 文档条目 / 关联
  */
 import React, { useState, useCallback, useMemo } from 'react';
-import {
-  Card, Space, Button, Tag, Tooltip, message, Modal, Form, Input, Select, Tabs,
-  Table, Empty, Statistic, Row, Col, Divider, Alert, Tree, Tag as AntTag,
-} from 'antd';
-import {
-  Server, Download, Send, Copy, Eye, Shield, CheckCircle2, XCircle, Hash, FileText,
-  RefreshCw, AlertCircle, Activity, Layers, Database, FileCode, Braces, Globe, FolderTree, Link2, Plus, Search,
-} from 'lucide-react';
+import { Card, Space, Button, Tag, message, Modal, Form, Input, Tabs, Table, Empty, Statistic, Row, Col, Divider } from 'antd';
+import { Server, Download, Copy, Eye, CheckCircle2, FileText, Braces, Globe, FolderTree, Link2, Plus, Search } from 'lucide-react';
 import { XDS_REGISTRY_MOCK, XDS_REGISTRIES_MOCK } from '@data/reportIntegrationMock';
-import {
-  listXdsRegistries, getXdsRegistry, registerToXds, queryXdsRegistry, buildXdsSubmitTransactionRequest,
-  buildFindDocumentsQuery, validateXds,
-} from '@services/integration/iheXdsService';
-import type { XdsRegistry, XdsDocumentEntry, XdsFolder, XdsSubmissionSet } from '@types/R3/R3.INTEGRATION';
+import { registerToXds, queryXdsRegistry, buildXdsSubmitTransactionRequest, buildFindDocumentsQuery, validateXds } from '@services/integration/iheXdsService';
+import type { XdsRegistry, XdsDocumentEntry } from '@types/R3/R3.INTEGRATION';
 
 interface Props {
   reportId?: string;

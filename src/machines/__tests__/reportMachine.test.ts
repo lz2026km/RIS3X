@@ -198,7 +198,7 @@ describe('reportMachine - 报告 17 态状态机', () => {
       expect(actor.getSnapshot().context.rejectReason).toBe('描述不完整');
     });
 
-    it('rejected → rectifying (RESTART) 进入整改', () => {
+    it('rejected → writing (RESTART) 驳回后返工书写', () => {
       const actor = startActor();
       actor.send({ type: 'ASSIGN', radiologistId: 'D002' });
       actor.send({ type: 'START_WRITING' });
@@ -206,7 +206,49 @@ describe('reportMachine - 报告 17 态状态机', () => {
       actor.send({ type: 'START_INITIAL_REVIEW', reviewerId: 'D003' });
       actor.send({ type: 'REJECT', reason: '需补充' });
       actor.send({ type: 'RESTART' });
-      expect(actor.getSnapshot().value).toBe('rectifying');
+      expect(actor.getSnapshot().value).toBe('writing');
+    });
+
+    it('initialReview → reviewed (APPROVE_REVIEWED) 直接通过审核', () => {
+      const actor = startActor();
+      actor.send({ type: 'ASSIGN', radiologistId: 'D002' });
+      actor.send({ type: 'START_WRITING' });
+      actor.send({ type: 'SUBMIT' });
+      actor.send({ type: 'START_INITIAL_REVIEW', reviewerId: 'D003' });
+      actor.send({ type: 'APPROVE_REVIEWED' });
+      expect(actor.getSnapshot().value).toBe('reviewed');
+    });
+
+    it('amended → signed (PUBLISH) 修订后重新签署', () => {
+      const actor = startActor();
+      actor.send({ type: 'ASSIGN', radiologistId: 'D002' });
+      actor.send({ type: 'START_WRITING' });
+      actor.send({ type: 'SUBMIT' });
+      actor.send({ type: 'START_INITIAL_REVIEW', reviewerId: 'D003' });
+      actor.send({ type: 'APPROVE_REVIEWED' });
+      actor.send({ type: 'START_SIGN' });
+      actor.send({ type: 'COMPLETE_SIGN', signedAt: '2026-06-06T10:00:00.000Z' });
+      actor.send({ type: 'PUBLISH', qualityScore: 85 });
+      actor.send({ type: 'START_AMEND', reason: '新增征象' });
+      actor.send({ type: 'COMPLETE_AMEND' });
+      actor.send({ type: 'PUBLISH' });
+      expect(actor.getSnapshot().value).toBe('signed');
+    });
+
+    it('supplemented → rejected (REJECT) 补充后驳回', () => {
+      const actor = startActor();
+      actor.send({ type: 'ASSIGN', radiologistId: 'D002' });
+      actor.send({ type: 'START_WRITING' });
+      actor.send({ type: 'SUBMIT' });
+      actor.send({ type: 'START_INITIAL_REVIEW', reviewerId: 'D003' });
+      actor.send({ type: 'APPROVE_REVIEWED' });
+      actor.send({ type: 'START_SIGN' });
+      actor.send({ type: 'COMPLETE_SIGN', signedAt: '2026-06-06T10:00:00.000Z' });
+      actor.send({ type: 'PUBLISH', qualityScore: 85 });
+      actor.send({ type: 'START_SUPPLEMENT' });
+      actor.send({ type: 'COMPLETE_SUPPLEMENT' });
+      actor.send({ type: 'REJECT', reason: '补充内容不符' });
+      expect(actor.getSnapshot().value).toBe('rejected');
     });
 
     it('任意态 → archived (ARCHIVE)', () => {

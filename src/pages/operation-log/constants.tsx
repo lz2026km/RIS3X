@@ -1,9 +1,5 @@
 import type { ReactNode } from 'react'
-import {
-  Edit3, CheckCircle, AlertCircle, LogIn, LogOut, Download,
-  Settings, Eye, MonitorSmartphone, Monitor, Server, Zap, Wrench,
-  CheckSquare, Printer, Upload,
-} from 'lucide-react'
+import { Edit3, CheckCircle, AlertCircle, LogIn, LogOut, Download, Settings, MonitorSmartphone, Monitor, Server, Zap, Wrench, CheckSquare, Printer, Upload } from 'lucide-react'
 
 export const PRIMARY = '#1e40af'
 export const PRIMARY_LIGHT = '#2c5282'

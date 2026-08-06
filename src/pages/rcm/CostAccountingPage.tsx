@@ -1,22 +1,19 @@
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import {
-  DollarSign, BarChart3, PieChart, TrendingUp, TrendingDown,
-  Monitor, Users, Package, Building2, Calendar, Download,
-  ArrowUpRight, ArrowDownRight, Cpu, Radio, Scan, Printer,
+  DollarSign, BarChart3, PieChart,
+  Monitor, Download,
+  ArrowUpRight, ArrowDownRight,
 } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart as RePie, Pie, Cell, Legend, LineChart, Line,
+  PieChart as RePie, Pie, Cell, Legend,
 } from 'recharts'
 
 interface CostCategory { name: string; budget: number; actual: number; color: string }
 interface ModalityCost { name: string; costPerExam: number; revenuePerExam: number; profitPerExam: number; color: string }
 interface BudgetRow { month: string; budget: number; actual: number }
 
-const CATEGORY_COLORS: Record<string, string> = {
-  '人力成本': '#3b82f6', '耗材成本': '#22c55e', '设备折旧': '#f59e0b',
-  '管理费用': '#8b5cf6', '其他费用': '#6b7280',
-}
+
 
 const CATEGORY_DATA: CostCategory[] = [
   { name: '人力成本', budget: 152000, actual: 158000, color: '#3b82f6' },

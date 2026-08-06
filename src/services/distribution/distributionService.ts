@@ -67,12 +67,12 @@ export async function getDeliveryTask(id: string): Promise<DeliveryTask | null> 
   return DELIVERY_TASKS_MOCK.find((t) => t.id === id) ?? null;
 }
 
-export async function retryDeliveryTask(id: string): Promise<{ success: boolean; newStatus: DeliveryStatus; retriedAt: string }> {
+export async function retryDeliveryTask(_id: string): Promise<{ success: boolean; newStatus: DeliveryStatus; retriedAt: string }> {
   await new Promise((r) => setTimeout(r, 500));
   return { success: true, newStatus: 'queued', retriedAt: new Date().toISOString() };
 }
 
-export async function cancelDeliveryTask(id: string, reason: string): Promise<{ success: boolean; cancelledAt: string }> {
+export async function cancelDeliveryTask(_id: string, _reason: string): Promise<{ success: boolean; cancelledAt: string }> {
   await new Promise((r) => setTimeout(r, 200));
   return { success: true, cancelledAt: new Date().toISOString() };
 }
@@ -114,7 +114,7 @@ export async function addDeliveryEvent(taskId: string, event: Omit<DeliveryEvent
   return { ...event, id: `e-${Date.now()}`, taskId };
 }
 
-export async function verifyReceiptSignature(taskId: string): Promise<{ verified: boolean; details: string }> {
+export async function verifyReceiptSignature(_taskId: string): Promise<{ verified: boolean; details: string }> {
   await new Promise((r) => setTimeout(r, 200));
   return { verified: true, details: 'SHA-256 签名验证通过' };
 }
@@ -151,7 +151,7 @@ export async function createPatientLink(input: { reportId: string; patientId: st
   };
 }
 
-export async function revokePatientLink(id: string): Promise<{ success: boolean }> {
+export async function revokePatientLink(_id: string): Promise<{ success: boolean }> {
   await new Promise((r) => setTimeout(r, 200));
   return { success: true };
 }
@@ -211,7 +211,7 @@ export async function buildHL7ORU(reportId: string): Promise<string> {
   ].join('\r');
 }
 
-export async function sendViaMLLP(message: string, host: string, port: number): Promise<{ ack: 'AA' | 'AE' | 'AR'; ackMessage: string; durationMs: number }> {
+export async function sendViaMLLP(_message: string, _host: string, _port: number): Promise<{ ack: 'AA' | 'AE' | 'AR'; ackMessage: string; durationMs: number }> {
   await new Promise((r) => setTimeout(r, 500));
   return { ack: 'AA', ackMessage: 'Message accepted', durationMs: 450 };
 }

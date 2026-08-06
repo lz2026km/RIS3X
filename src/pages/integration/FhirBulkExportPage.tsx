@@ -19,7 +19,7 @@ const JOB_STATUS_LABEL: Record<string, string> = {
 export const FhirBulkExportPage: React.FC = () => {
   const [since, setSince] = useState<string>('');
   const [types, setTypes] = useState<string[]>([]);
-  const [job, setJob] = useState<ExportJob | null>(null);
+  const [job, setJob] = useState<BulkExportJob | null>(null);
   const [exporting, setExporting] = useState(false);
   const [polling, setPolling] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);

@@ -54,15 +54,7 @@ import {
   Line,
 } from 'recharts';
 import { scoringService } from '../../../../services/quality/scoringService';
-import type {
-  ScoringDimension,
-  ScoringEvaluationResult,
-  ScoringThresholdConfig,
-  ScoringDimensionKey,
-  ScoringDimensionCategory,
-  ScoringSubmission,
-  QualityScoreReport,
-} from '../../../../types/R3/R3.QUALITY.SCORING';
+import type { ScoringDimension, ScoringEvaluationResult, ScoringThresholdConfig, ScoringDimensionCategory, QualityScoreReport } from '../../../../types/R3/R3.QUALITY.SCORING';
 
 const CATEGORY_META: Record<
   ScoringDimensionCategory,

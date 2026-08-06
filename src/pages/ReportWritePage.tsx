@@ -2,17 +2,12 @@
  * G005 放射RIS系统 v3.0.6.8-19 — 报告书写 V3（优化版）
  * 优化: 懒加载 sider tab / 精简工具条 / 自动保存模拟 / 响应式
  */
-import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import {
   Layout, Card, Space, Button, Tag, Tooltip, Tabs, Divider,
   Alert, message, Modal, Progress, Empty, Badge, Input, Select, Spin,
 } from 'antd';
-import {
-  Save, Send, FileText, Mic, Image as ImageIcon, Type,
-  Brain, History, Eye, ChevronLeft, Sparkles,
-  Tag as TagIcon, BarChart3, StickyNote, RefreshCw, AlertCircle,
-  ListChecks, FileCheck, CheckCircle2, PanelRightClose, PanelRightOpen, Edit3,
-} from 'lucide-react';
+import { Save, Send, FileText, Mic, Image as ImageIcon, Type, Brain, History, Eye, ChevronLeft, Sparkles, Tag as TagIcon, BarChart3, StickyNote, RefreshCw, AlertCircle, ListChecks, CheckCircle2, PanelRightClose, PanelRightOpen, Edit3 } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   REPORT_WRITING_CONTEXT_MOCK, KEYWORD_HIGHLIGHTS_MOCK, PRE_SUBMIT_SCORE_MOCK,
@@ -53,7 +48,7 @@ function VoiceTab({ reportId, onInsert, onTextChange }: { reportId: string; onIn
   return <VoiceDictation reportId={reportId} onInsert={onInsert} onTextChange={onTextChange} />;
 }
 
-function HistoryTab({ priorReports, currentText, onCompare }: { priorReports: any[]; currentText: string; onCompare: (oldText: string, label: string) => void }) {
+function HistoryTab({ priorReports, onCompare }: { priorReports: any[]; currentText: string; onCompare: (oldText: string, label: string) => void }) {
   if (priorReports.length === 0) return <Empty description="无历史报告" />;
   return (
     <div className="space-y-2">

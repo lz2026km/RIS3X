@@ -1,13 +1,13 @@
 // [v3.0.6.8-59] Phase C: 口腔-放射融合 (转诊 + 统一报告 + 融合查看器)
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Button, Table, Select, Input, Row, Col, Statistic, message, Tabs, Empty, Modal, Form, List, Alert, Badge, Timeline, Descriptions, Tooltip, Steps, Radio, Spin } from 'antd';
-import { Activity, Plus, Send, RefreshCw, Video, FileText, Calendar, User, Eye, Activity as ActivityIcon } from 'lucide-react';
+import { Card, Space, Tag, Button, Table, Row, Col, Statistic, Tabs, Timeline } from 'antd';
+import { Plus, Send, FileText, Activity as ActivityIcon } from 'lucide-react';
 import { dentalApi } from '@/services/api/dentalApi';
 
 // ===== CrossSpecialtyReferralPage (跨科室转诊) =====
 export const CrossSpecialtyReferralPage: React.FC = () => {
   const [referrals, setReferrals] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;

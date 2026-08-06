@@ -1,13 +1,8 @@
 import { useMemo } from 'react'
 import type { OperationLog } from './types'
-import {
-  ACCENT, GRAY, WHITE, PRIMARY, PRIMARY_LIGHT, ACTION_COLORS, ACTION_ICONS,
-  SOURCE_COLORS, SOURCE_ICONS, PAGE_SIZES, SUCCESS, DANGER, WARNING
-} from './constants'
+import { ACCENT, GRAY, WHITE, PRIMARY, ACTION_COLORS, ACTION_ICONS, SOURCE_COLORS, SOURCE_ICONS, PAGE_SIZES } from './constants'
 import { formatDate, formatTime } from './utils'
-import {
-  Eye, ChevronRight, User, Monitor, Clock, List
-} from 'lucide-react'
+import { Eye, ChevronRight, User, Monitor } from 'lucide-react'
 
 // ============================================================
 // TimelineView
@@ -25,7 +20,7 @@ function TimelineView({ logs, onViewDetail }: { logs: OperationLog[]; onViewDeta
 
   return (
     <div style={{ position: 'relative' }}>
-      {groupedLogs.map(([date, dayLogs], groupIndex) => (
+      {groupedLogs.map(([date, dayLogs], _groupIndex) => (
         <div key={date} style={{ marginBottom: 24 }}>
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16, marginLeft: 40 }}>
             <div style={{

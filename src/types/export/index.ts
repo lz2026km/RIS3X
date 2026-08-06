@@ -1,8 +1,31 @@
 export type ExportConfig = { format: string; quality?: number; };
 export type ExportJob = { id: string; status: string; progress: number; };
-export type BrandingConfig = { logo?: string; colors?: Record<string, string>; };
+export type BrandingConfig = {
+  siteName: string;
+  footerText: string;
+  primaryColor: string;
+  secondaryColor: string;
+  fontFamily: string;
+  showWatermark: boolean;
+  showQrCode: boolean;
+  showSignature: boolean;
+  logoDataUrl?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+};
 export type DicomDeIdConfig = { removeFields?: string[]; };
 export type EmailConfig = { host: string; port: number; };
+export type EmailMessage = {
+  to: string[];
+  cc?: string[];
+  bcc?: string[];
+  from?: string;
+  subject?: string;
+  body?: string;
+  html?: string;
+  isHtml?: boolean;
+  attachments?: EmailAttachment[];
+};
 export type FtpConfig = { host: string; username: string; password: string; };
 export type PptxTemplate = { id: string; name: string; };
 export type QrConfig = { size: number; correction: string; };

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, Activity, CheckCircle2, XCircle, Clock, TrendingUp, PieChart, FileText, Microscope, AlertTriangle } from 'lucide-react';
-import { radpathApi, type RadPathStats, type RadPathRecord } from '../../services/api/radpathApi';
+import { radpathApi, type RadPathRecord, type RadPathStats } from '../../services/api/radpathApi';
 
 const consistencyColor: Record<string, string> = {
   concordant: '#10b981', discordant: '#ef4444', pending: '#94a3b8',
@@ -21,7 +21,7 @@ function Badge({ consistency }: { consistency: string }) {
 export default function RadPathTrackerPage() {
   const [reportId, setReportId] = useState('');
   const [record, setRecord] = useState<RadPathRecord | null>(null);
-  const [stats, setStats] = useState<Stats | null>(null);
+  const [stats, setStats] = useState<RadPathStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 

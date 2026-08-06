@@ -17,7 +17,7 @@ interface WorkflowState {
   loadAll: () => Promise<void>
 }
 
-export const useWorkflowStore = create<WorkflowState>((set, get) => ({
+export const useWorkflowStore = create<WorkflowState>((set, _get) => ({
   definitions: [],
   steps: {},
   slaPolicies: [],
@@ -29,8 +29,9 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
     set({ loading: true, error: null })
     try {
       const res = await workflowApi.listDefinitions()
-      if (res.success && Array.isArray(res.data)) {
-        set({ definitions: res.data as WorkflowDefinitionDto[], loading: false, error: null })
+      const list = Array.isArray(res.data) ? res.data : (res.data?.items ?? [])
+      if (res.success) {
+        set({ definitions: list as WorkflowDefinitionDto[], loading: false, error: null })
       } else {
         set({ loading: false, error: res.error?.message ?? '加载失败' })
       }
@@ -43,9 +44,10 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
     set({ loading: true, error: null })
     try {
       const res = await workflowApi.listSteps(definitionId)
-      if (res.success && Array.isArray(res.data)) {
+      const list = Array.isArray(res.data) ? res.data : (res.data?.items ?? [])
+      if (res.success) {
         set((state) => ({
-          steps: { ...state.steps, [definitionId]: res.data as WorkflowStepDto[] },
+          steps: { ...state.steps, [definitionId]: list as WorkflowStepDto[] },
           loading: false,
           error: null,
         }))
@@ -61,8 +63,9 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
     set({ loading: true, error: null })
     try {
       const res = await workflowApi.listSlaPolicies()
-      if (res.success && Array.isArray(res.data)) {
-        set({ slaPolicies: res.data as SLAPolicyDto[], loading: false, error: null })
+      const list = Array.isArray(res.data) ? res.data : (res.data?.items ?? [])
+      if (res.success) {
+        set({ slaPolicies: list as SLAPolicyDto[], loading: false, error: null })
       } else {
         set({ loading: false, error: res.error?.message ?? '加载失败' })
       }
@@ -75,8 +78,9 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
     set({ loading: true, error: null })
     try {
       const res = await workflowApi.listRoutingRules()
-      if (res.success && Array.isArray(res.data)) {
-        set({ routingRules: res.data as RoutingRuleDto[], loading: false, error: null })
+      const list = Array.isArray(res.data) ? res.data : (res.data?.items ?? [])
+      if (res.success) {
+        set({ routingRules: list as RoutingRuleDto[], loading: false, error: null })
       } else {
         set({ loading: false, error: res.error?.message ?? '加载失败' })
       }
@@ -99,9 +103,9 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
         return
       }
       set({
-        definitions: Array.isArray(defRes.data) ? defRes.data as WorkflowDefinitionDto[] : [],
-        slaPolicies: Array.isArray(slaRes.data) ? slaRes.data as SLAPolicyDto[] : [],
-        routingRules: Array.isArray(ruleRes.data) ? ruleRes.data as RoutingRuleDto[] : [],
+        definitions: Array.isArray(defRes.data) ? defRes.data as WorkflowDefinitionDto[] : (defRes.data?.items ?? []) as WorkflowDefinitionDto[],
+        slaPolicies: Array.isArray(slaRes.data) ? slaRes.data as SLAPolicyDto[] : (slaRes.data?.items ?? []) as SLAPolicyDto[],
+        routingRules: Array.isArray(ruleRes.data) ? ruleRes.data as RoutingRuleDto[] : (ruleRes.data?.items ?? []) as RoutingRuleDto[],
         loading: false,
         error: null,
       })

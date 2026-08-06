@@ -4,12 +4,12 @@
  * 阶段 3+ 后续: 编辑表单 + diff preview + 保存
  */
 import React, { useState } from "react";
-import { Card, Tabs, Table, Tag, Space, Typography, Empty, Statistic, Row, Col, Alert } from "antd";
+import { Card, Tabs, Tag, Space, Typography, Empty, Statistic, Row, Col, Alert } from 'antd';
 import { Sliders, Database } from "lucide-react";
 import { listModules, getConfig, getBootError, type ModuleKey } from "@/config/clinicalConfig/bootstrap";
 import { PageContainer, PageHeader } from "@/components/common";
 
-const { Text, Paragraph } = Typography;
+const { Text } = Typography;
 
 /** 拿到一个模块的当前内容 (in-memory cache) */
 function readModule(key: ModuleKey): unknown {
@@ -23,7 +23,7 @@ function readModule(key: ModuleKey): unknown {
       case "reportTemplates": return cache.reportTemplates;
       case "findingsLexicon": return cache.findingsLexicon;
       case "iolFormulas": return cache.iolFormulas;
-      default: { const _: never = key; return undefined; }
+      default: { return undefined; }
     }
   } catch {
     return null;
@@ -69,7 +69,7 @@ function summarize(key: ModuleKey, data: any): { count: number; sample: any } {
       const bands = data.alBands ?? [];
       return { count: formulas.length + bands.length, sample: { formulas: formulas.length, alBands: bands.length, wangKochThreshold: data.wangKochThreshold } };
     }
-    default: { const _: never = key; return { count: 0, sample: null }; }
+    default: { return { count: 0, sample: null }; }
   }
 }
 

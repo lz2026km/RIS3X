@@ -18,7 +18,7 @@ const TYPE_META: Record<string, { label: string; color: string }> = {
 const HL_OPEN = '\u27EA';
 const HL_CLOSE = '\u27EB';
 
-function highlightText(text: string | undefined, query: string) {
+function highlightText(text: string | undefined, _query: string) {
   if (!text) return text || '';
   const parts = text.split(HL_OPEN);
   return parts.map((part, i) => {

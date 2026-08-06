@@ -735,7 +735,7 @@ const FailureStatsChart: React.FC = () => {
       >
         {/* 环形图 */}
         <svg width={160} height={160} viewBox="0 0 160 160">
-          {segments.reduce((acc, segment, i) => {
+          {segments.reduce((acc, segment, _i) => {
             const percentage = segment.value / total
             const dashArray = percentage * 2 * Math.PI * 60
             const dashOffset = acc.offset

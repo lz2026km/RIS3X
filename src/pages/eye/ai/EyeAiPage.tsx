@@ -1,17 +1,5 @@
-import React, { useState } from "react";
-import {
-  Card,
-  Row,
-  Col,
-  Tag,
-  Table,
-  Tabs,
-  Select,
-  Statistic,
-  Space,
-  Progress,
-  Badge,
-} from "antd";
+import React, { useState, useEffect } from "react";
+import { Card, Row, Col, Tag, Table, Tabs, Statistic, Space, Progress, Badge } from 'antd';
 import {
   LineChart,
   Line,
@@ -22,19 +10,12 @@ import {
   CartesianGrid,
   Legend,
 } from "recharts";
-import {
-  Brain,
-  Sparkles,
-  Activity,
-  Eye,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-} from "lucide-react";
+import { Brain, Activity, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
 import AiDiagnosisCard from "@/components/eye/AiDiagnosisCard";
 import { PageContainer, PageHeader } from "@/components/common";
 import { AppEmpty } from "@/components/feedback";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
+import { eyeApi } from "@/services/api/eyeApi";
 
 const ACCEPTANCE_TREND_DATA = [
   { day: '周一', rate: 65, target: 80 },
@@ -77,7 +58,7 @@ const EyeAiPage: React.FC = () => {
   const isNarrow = bp === "xs" || bp === "sm";
   const [aiModels, setAiModels] = useState<any[]>([]);
   const [aiDiagnoses, setAiDiagnoses] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;

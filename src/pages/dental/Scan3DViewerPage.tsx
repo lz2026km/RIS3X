@@ -1,16 +1,15 @@
 // [v3.0.6.8-55] 口扫 3D 查看器 (Three.js STL 渲染)
 import React, { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Card, Space, Tag, Button, message, Spin, Slider, Tooltip } from 'antd';
-import { RotateCcw, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
+import { Space, Tag, Button, message, Spin, Slider, Tooltip } from 'antd';
+import { RotateCcw, ZoomIn, ZoomOut } from 'lucide-react';
 
 export const Scan3DViewerPage: React.FC = () => {
   const [search] = useSearchParams();
   const studyId = search.get('studyId') || '';
   const containerRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
-  const [zoom, setZoom] = useState(1);
-  const rotation = useRef(0);
+  const [zoom, setZoom] = useState(1);useRef(0);
 
   useEffect(() => {
     if (!containerRef.current) return;

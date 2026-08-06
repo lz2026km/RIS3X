@@ -65,7 +65,7 @@ export class SmsGatewayRouter {
         continue;
       }
       // 模拟分发
-      for (const r of chunk) {
+      for (const _r of chunk) {
         results.push({
           success: true,
           providerMessageId: `${provider.id}-${Date.now()}-${Math.floor(Math.random() * 1e6)}`,

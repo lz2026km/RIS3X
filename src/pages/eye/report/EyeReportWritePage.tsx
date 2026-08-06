@@ -1,46 +1,13 @@
 import React, { useState, useEffect } from "react";
-import {
-  Card,
-  Row,
-  Col,
-  Tag,
-  Select,
-  Button,
-  Input,
-  Tabs,
-  Space,
-  Badge,
-  Collapse,
-  Timeline,
-  message,
-  Radio,
-  Divider,
-  Alert,
-  Tooltip,
-  Spin,
-} from "antd";
-import {
-  FileText,
-  Save,
-  Send,
-  Printer,
-  Mic,
-  Brain,
-  Stamp,
-  History,
-  AlarmClock,
-  AlertTriangle,
-  UserCheck,
-  Eye,
-  CheckCircle,
-} from "lucide-react";
+import { Card, Row, Col, Tag, Select, Button, Input, Space, Badge, Collapse, message, Radio, Alert, Spin } from 'antd';
+import { FileText, Save, Send, Printer, Mic, Brain, Stamp, AlertTriangle } from 'lucide-react';
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import ReportTemplateSelector from "@/components/eye/ReportTemplateSelector";
 import FindingLibraryPicker from "@/components/eye/FindingLibraryPicker";
 import GradingScalePicker from "@/components/eye/GradingScalePicker";
 import ReportDraftPanel from "@/components/eye/ReportDraftPanel";
 import { eyeApi } from "../../../services/api/eyeApi";
-import type { OphthalmologyReport, ReportTemplate, FindingLibraryItem, ReportAuditEntry, ReportPrintRecord } from "../../types/eye";
+import type { OphthalmologyReport, ReportTemplate, FindingLibraryItem, ReportAuditEntry } from '../../../types/eye';
 import { AppModal } from "@/components/common/AppModal";
 const MODALITY_LABELS: Record<string, string> = { fundus_photo: '眼底彩照', oct: 'OCT', ffa: 'FFA', icga: 'ICGA', visual_field: '视野', topography: '角膜地形图', pentacam: 'Pentacam', iol_master: 'IOL Master', ubm: 'UBM', slit_lamp: '裂隙灯', oct_a: 'OCTA', corneal_endothelium: '角膜内皮', tear_film: '泪膜', fundus_autofluorescence: '眼底自发荧光' };
 
@@ -110,8 +77,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
   const template = templates.find((t) => t.id === templateId);
   const findingsData = findingsLibrary.filter((f) =>
     findings.includes(f.id),
-  );
-  const audits = auditEntries.filter(
+  );auditEntries.filter(
     (a) => a.reportId === report.id,
   );
 
@@ -615,8 +581,8 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
 const EyeReportWritePage: React.FC = () => {
   const [reports, setReports] = useState<OphthalmologyReport[]>([]);
   const [templates, setTemplates] = useState<ReportTemplate[]>([]);
-  const [findingsLibrary, setFindingsLibrary] = useState<FindingLibraryItem[]>([]);
-  const [auditEntries, setAuditEntries] = useState<ReportAuditEntry[]>([]);
+  const [findingsLibrary, _setFindingsLibrary] = useState<FindingLibraryItem[]>([]);
+  const [auditEntries, _setAuditEntries] = useState<ReportAuditEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedReportId, setSelectedReportId] = useState<string>("");
 
@@ -625,7 +591,7 @@ const EyeReportWritePage: React.FC = () => {
     void (async () => {
       setLoading(true);
       try {
-        const [reportsRes, templatesRes, findingsRes] = await Promise.all([
+        const [reportsRes, templatesRes, _findingsRes] = await Promise.all([
           eyeApi.getReports(),
           eyeApi.getTemplates(),
           eyeApi.getReports().then(() => eyeApi.getReports()),

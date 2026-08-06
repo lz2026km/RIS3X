@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Card, Table, Button, Space, Tag, Form, Input, Select, message, Empty, Modal, Descriptions, Tooltip } from 'antd'
+import { Card, Table, Button, Space, Tag, Form, Input, message, Empty, Modal, Descriptions, Tooltip } from 'antd'
 import { Activity, Search, RefreshCw, Eye } from 'lucide-react'
 import { fhirApi, type FhirObservation } from '../../services/api/fhirApi'
 

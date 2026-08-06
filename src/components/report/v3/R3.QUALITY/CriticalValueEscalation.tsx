@@ -24,26 +24,7 @@ import {
   Alert,
   Segmented,
 } from 'antd';
-import {
-  TrendingUp,
-  AlertCircle,
-  Clock,
-  Bell,
-  Settings,
-  Edit,
-  ArrowUp,
-  Plus,
-  Trash2,
-  Save,
-  X,
-  MessageSquare,
-  Mail,
-  Phone,
-  Smartphone,
-  Send,
-  Zap,
-  Activity,
-} from 'lucide-react';
+import { TrendingUp, AlertCircle, Clock, Bell, Settings, Edit, ArrowUp, Plus, Trash2, Save, MessageSquare, Mail, Phone, Smartphone, Send, Zap, Activity } from 'lucide-react';
 import { criticalValueService } from '../../../../services/quality/criticalValueService';
 import type {
   CriticalEscalationRule,
@@ -192,7 +173,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
     enabled: rules.filter((r) => r.enabled).length,
     critical: rules.filter((r) => r.fromLevel === 'critical').length,
     urgent: rules.filter((r) => r.fromLevel === 'urgent').length,
-    autoTrigger: rules.filter((r) => r.enabled).reduce((sum, r) => sum + Math.floor(Math.random() * 5) + 1, 0),
+    autoTrigger: rules.filter((r) => r.enabled).reduce((sum, _r) => sum + Math.floor(Math.random() * 5) + 1, 0),
   };
 
   return (

@@ -1,27 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
-import {
-  FileCheck,
-  AlertTriangle,
-  Activity,
-  Sliders,
-  ToggleLeft,
-  ToggleRight,
-  Plus,
-  Edit3,
-  Search,
-  Filter,
-  RefreshCw,
-  Eye,
-  ChevronDown,
-  ChevronRight,
-  Shield,
-  Pill,
-  FlaskConical,
-  Route,
-  BrainCircuit,
-  X,
-  Save,
-} from "lucide-react";
+import { Sliders, ToggleLeft, ToggleRight, Plus, Edit3, Search, Eye, ChevronDown, ChevronRight, Shield, Pill, FlaskConical, Route, BrainCircuit, X, Save } from 'lucide-react';
 import type { CdsRuleSummary, CdsAuditEntry } from "../../services/cds";
 import { cdsApi } from "../../services/api/cdsApi";
 
@@ -53,7 +31,7 @@ const TYPE_LABELS: Record<CdsRuleSummary["type"], string> = {
 export default function CdsManagementPage() {
   const [rules, setRules] = useState<CdsRuleSummary[]>([]);
   const [audit, setAudit] = useState<CdsAuditEntry[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<RuleTab>("appropriateness");
   const [searchText, setSearchText] = useState("");
   const [showInactive, setShowInactive] = useState(false);

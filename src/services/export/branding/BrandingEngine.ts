@@ -2,7 +2,7 @@
  * G005 放射RIS系统 v3.0.6.0 - 站点品牌引擎
  * Phase R7:导出报告统一品牌(Logo/页脚/主色)
  */
-import type { BrandingConfig } from '../../types/export';
+import type { BrandingConfig } from '../../../types/export';
 
 const DEFAULT_BRANDING: BrandingConfig = {
   siteName: 'G005 放射RIS系统',

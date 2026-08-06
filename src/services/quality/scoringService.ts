@@ -16,23 +16,7 @@ import {
   computeTemplateScore,
   getScoreHistory,
 } from '../../data/qualityScoringMock';
-import type {
-  ScoringDimension,
-  ScoringThresholdConfig,
-  ThresholdConfig,
-  ScoreHistoryEntry,
-  ScoreHistoryQuery,
-  ScoreHistoryResponse,
-  BonusLinkage,
-  BonusLinkageType,
-  TemplateScoreRule,
-  ScoreTemplateResult,
-  QualityScoringKPI,
-  ScoringEvaluationResult,
-  ScoringSubmission,
-  QualityScoreReport,
-  ScoringDimensionKey,
-} from '../../types/R3/R3.QUALITY.SCORING';
+import type { ScoringDimension, ScoringThresholdConfig, ThresholdConfig, ScoreHistoryEntry, ScoreHistoryQuery, ScoreHistoryResponse, BonusLinkage, TemplateScoreRule, ScoreTemplateResult, QualityScoringKPI, ScoringEvaluationResult, ScoringSubmission, QualityScoreReport, ScoringDimensionKey } from '../../types/R3/R3.QUALITY.SCORING';
 
 const LATENCY_MIN = 120;
 const LATENCY_MAX = 800;

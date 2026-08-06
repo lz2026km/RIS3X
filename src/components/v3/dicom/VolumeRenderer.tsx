@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react'
-import { Card, Space, Button, Slider, Tag, Row, Col, Select, Tooltip, InputNumber, Segmented } from 'antd'
-import { RotateCcw, ZoomIn, ZoomOut, Maximize2, Crosshair, Sun, Layers, Eye } from 'lucide-react'
+import { Card, Space, Button, Slider, Tag, Row, Col, Tooltip, Segmented } from 'antd'
+import { RotateCcw, Crosshair, Sun, Layers, Eye } from 'lucide-react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 
@@ -53,7 +53,7 @@ function createVolumeTexture(data: Uint8Array, size: number): THREE.Data3DTextur
 
 const VOLUME_SIZE = 64
 
-const VolumeRenderer: React.FC<VolumeRendererProps> = ({ seriesUid, volumeData, onCoordinateChange }) => {
+const VolumeRenderer: React.FC<VolumeRendererProps> = ({ seriesUid }) => {
   const mountRef = useRef<HTMLDivElement>(null)
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
   const sceneRef = useRef<THREE.Scene | null>(null)
@@ -61,15 +61,15 @@ const VolumeRenderer: React.FC<VolumeRendererProps> = ({ seriesUid, volumeData, 
   const controlsRef = useRef<OrbitControls | null>(null)
   const volumeRef = useRef<THREE.Mesh | null>(null)
   const animRef = useRef<number>(0)
-  const slicePlanesRef = useRef<THREE.Mesh[]>([])
+  useRef<THREE.Mesh[]>([]);
 
   const [mode, setMode] = useState<RenderMode>('VR')
   const [ww, setWw] = useState(1500)
   const [wc, setWc] = useState(500)
   const [opacity, setOpacity] = useState(1.0)
   const [brightness, setBrightness] = useState(0)
-  const [zoom, setZoom] = useState(1)
-  const [coordInfo, setCoordInfo] = useState({ x: 0, y: 0, z: 0 })
+  const [_zoom, setZoom] = useState(1)
+  const [coordInfo, _setCoordInfo] = useState({ x: 0, y: 0, z: 0 })
   const [axialIdx, setAxialIdx] = useState(32)
   const [sagittalIdx, setSagittalIdx] = useState(32)
   const [coronalIdx, setCoronalIdx] = useState(32)
@@ -158,7 +158,7 @@ const VolumeRenderer: React.FC<VolumeRendererProps> = ({ seriesUid, volumeData, 
     })
 
     if (mode === 'MPR') {
-      const createSlice = (pos: number, color: number, normal: THREE.Vector3, label: string) => {
+      const createSlice = (pos: number, color: number, normal: THREE.Vector3, _label: string) => {
         const size = 2
         const geo = new THREE.PlaneGeometry(size, size)
         const mat = new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide, transparent: true, opacity: 0.5 * opacity, depthWrite: false })

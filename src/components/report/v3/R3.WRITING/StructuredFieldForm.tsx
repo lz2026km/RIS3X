@@ -5,29 +5,13 @@
  */
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import dayjs, { type Dayjs } from 'dayjs';
-import {
-  Card, Tabs, Input, InputNumber, Select, DatePicker, Switch, Slider, Button,
-  Space, Tag, Tooltip, Progress, Row, Col, Statistic, Divider, Empty, Modal, message,
-  Alert, Radio, Upload,
-} from 'antd';
-import {
-  CheckCircle2, AlertTriangle, Lock, Calculator, Hash, Calendar,
-  ChevronDown, ChevronUp, Image as ImageIcon, Edit3, Star, Info, Award,
-  Activity, Heart, Brain, ListTree, FileText,
-} from 'lucide-react';
-import {
-  RECIST_TEMPLATE, BIRADS_TEMPLATE, PIRADS_TEMPLATE, getStructuredTemplates,
-  BIRADS_CATEGORY_MAP, RECIST_RESPONSE, PIRADS_ASSESSMENT,
-} from '@data/reportWritingMock';
-import {
-  calcRecistResponse, calcPiradsOverall, getBiradsByCategory, evaluateFormula,
-} from '@services/writing/writingService';
-import type {
-  StructuredTemplate, StructuredFieldDefinition, StructuredFieldGroup,
-  BiradsAssessment, BiradsCategory, RecistResponse, PiradsScore,
-} from '@types/R3/R3.WRITING';
+import { Card, Tabs, Input, InputNumber, Select, DatePicker, Switch, Slider, Button, Space, Tag, Tooltip, Progress, Row, Col, Statistic, Empty, Upload } from 'antd';
+import { CheckCircle2, AlertTriangle, Lock, Calculator, Hash, ChevronDown, ChevronUp, Image as ImageIcon, Edit3, Info, Award, Activity, Heart, Brain, ListTree, FileText } from 'lucide-react';
+import { getStructuredTemplates, RECIST_RESPONSE, PIRADS_ASSESSMENT } from '@data/reportWritingMock';
+import { calcRecistResponse, getBiradsByCategory, evaluateFormula } from '@services/writing/writingService';
+import type { StructuredTemplate, StructuredFieldDefinition, BiradsCategory, RecistResponse, PiradsScore } from '@types/R3/R3.WRITING';
 
-const { TextArea } = Input;
+const {  } = Input;
 
 interface Props {
   reportId: string;
@@ -52,7 +36,7 @@ const TABS = [
 ] as const;
 
 export const StructuredFieldForm: React.FC<Props> = ({
-  reportId, initialTemplateId = 'recist', initialValues, onChange, onSubmit, readOnly = false,
+   initialTemplateId = 'recist', initialValues, onChange, onSubmit, readOnly = false,
 }) => {
   const [activeTab, setActiveTab] = useState<StructuredTemplate['id']>(initialTemplateId);
   const [values, setValues] = useState<Record<string, unknown>>(initialValues ?? {});

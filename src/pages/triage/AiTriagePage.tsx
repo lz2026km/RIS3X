@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Card, Table, Button, Tag, Space, Row, Col, Statistic, Modal, Progress, message, Tabs } from 'antd'
-import { Bot, User, AlertTriangle, CheckCircle, Clock, BarChart3, RefreshCw, FileText, Zap } from 'lucide-react'
+import { Card, Table, Button, Tag, Space, Row, Col, Statistic, Modal, Progress, message } from 'antd'
+import { Bot, AlertTriangle, CheckCircle, Clock, RefreshCw, FileText, Zap } from 'lucide-react'
 import { aiTriageApi, type AiTriageResult } from '../../services/api/aiTriageApi'
 
 const levelColor: Record<string, string> = { CRITICAL: 'red', URGENT: 'orange', SEMI_URGENT: 'gold', ROUTINE: 'green' }

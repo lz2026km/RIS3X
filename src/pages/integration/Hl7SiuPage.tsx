@@ -3,7 +3,7 @@ import { Card, Form, Input, Select, Button, Space, Typography, DatePicker, messa
 import { CalendarClock, Send, Eye, Code } from 'lucide-react'
 import { hl7Api } from '../../services/api/hl7Api'
 
-const { Text, Title } = Typography
+const { Text } = Typography
 const { TextArea } = Input
 const { RangePicker } = DatePicker
 

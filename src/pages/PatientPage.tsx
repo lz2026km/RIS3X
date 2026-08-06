@@ -5,49 +5,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { PageContainer } from "../components/common/PageContainer";
 import { LoadingBanner, ErrorBanner } from "../components/feedback";
-import {
-  Search,
-  User,
-  Phone,
-  AlertCircle,
-  Calendar,
-  X,
-  ChevronLeft,
-  ChevronRight,
-  Eye,
-  Edit2,
-  Download,
-  Users,
-  UserCheck,
-  Clock,
-  Activity,
-  Heart,
-  AlertTriangle,
-  CheckCircle,
-  TrendingUp,
-  PieChart,
-  ArrowLeft,
-  Stethoscope,
-  Shield,
-  MapPin,
-  Contact,
-  CreditCard,
-  History,
-  Image,
-  PlusCircle,
-  UserPlus,
-  Link,
-  Target,
-  Gauge,
-  Percent,
-  FileSearch,
-  Printer,
-  Bookmark,
-  BookmarkCheck,
-  Layers,
-  GitFork,
-  Layers3,
-} from "lucide-react";
+import { Search, User, Phone, AlertCircle, X, Eye, Download, Users, UserCheck, Clock, Activity, Heart, AlertTriangle, CheckCircle, TrendingUp, PieChart, Stethoscope, Shield, CreditCard, History, PlusCircle, UserPlus, Link, Target, Gauge, Percent, FileSearch, Layers3 } from 'lucide-react';
 import { initialPatients, initialRadiologyExams } from "../data/initialData";
 import { patientApi } from "../services/api";
 import type { Patient } from "../types";
@@ -71,13 +29,7 @@ import type {
   PMISearchResult,
   ToastInfo,
 } from "./patient";
-import {
-  getPatientExams,
-  getPatientStats,
-  findDuplicatePatients,
-  searchPMIPatients,
-  usePinyinSearch,
-} from "./patient";
+import { getPatientExams, findDuplicatePatients, searchPMIPatients, usePinyinSearch } from './patient';
 
 // ==================== 子组件：统计卡片 ====================
 interface StatCardProps {
@@ -208,7 +160,7 @@ function PieChartSimple({ data, title }: PieChartSimpleProps) {
           <svg viewBox="0 0 100 100" style={{ transform: "rotate(-90deg)" }}>
             {data
               .reduce(
-                (acc, d, i) => {
+                (acc, d, _i) => {
                   const percent = total > 0 ? (d.value / total) * 100 : 0;
                   const prevPercent = acc.reduce(
                     (s, item) => s + (total > 0 ? item.percent : 0),
@@ -412,7 +364,7 @@ export default function PatientPage() {
   const [pmiSearchResults, setPmiSearchResults] = useState<PMISearchResult[]>(
     [],
   );
-  const [pmiSearchFocused, setPmiSearchFocused] = useState(false);
+  const [_pmiSearchFocused, setPmiSearchFocused] = useState(false);
   const [pmiSelectedResult, setPmiSelectedResult] =
     useState<PMISearchResult | null>(null);
   const [showPMIPanel, setShowPMIPanel] = useState(false);
@@ -530,12 +482,14 @@ export default function PatientPage() {
       }
       const res = await patientApi.list({});
       if (cancelled) return;
-      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-        setPatients(res.data as Patient[]);
+      // [G005 P1] 列表双形状兼容: MSW 裸数组 / 后端 { items, total }
+      const list = Array.isArray(res.data) ? res.data : (res.data?.items ?? []);
+      if (res.success && Array.isArray(list) && list.length > 0) {
+        setPatients(list as Patient[]);
         setLoadError(null);
       } else {
         setPatients(initialPatients);
-        setLoadError("API 不可用,使用本地数据");
+        setLoadError("API 不可用，使用本地数据");
       }
       setLoading(false);
     })();

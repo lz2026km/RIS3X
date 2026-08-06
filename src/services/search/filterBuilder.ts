@@ -27,7 +27,7 @@ export function buildFilterString(group: FilterGroup): string {
   return parts.length > 1 ? `(${parts.join(joiner)})` : parts[0];
 }
 
-export function parseFilterString(filterStr: string): FilterGroup {
+export function parseFilterString(_filterStr: string): FilterGroup {
   return { logic: 'AND', conditions: [] };
 }
 

@@ -1,7 +1,5 @@
 /** G005 质控/KPI Mock v3.0.6.8-23a — 50 KPI + 决策规则 40 + 指南 20 */
-import type { QualityMetric, DecisionSupportRule, ClinicalGuideline } from '../types/eye';
-
-const NOW = Date.now();
+import type { QualityMetric, DecisionSupportRule, ClinicalGuideline } from '../types/eye';Date.now();
 
 export const MOCK_QUALITY_METRICS: QualityMetric[] = [
   { id: 'qm-001', category: 'productivity', name: '日均检查量', value: 42, target: 50, unit: '检查', trend: 'up', period: '本月', department: '眼科' },

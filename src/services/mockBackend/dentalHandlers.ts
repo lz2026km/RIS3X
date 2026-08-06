@@ -293,6 +293,24 @@ const dentalChartAiModule = [
     });
   }),
 
+  // [G005-P1] 在用孤儿补齐: 片内龋齿检测 (前端 detectCariesOnImage 调用 /ai/caries-onimage)
+  http.post(`${DENTAL_API}/ai/caries-onimage`, async ({ request }) => {
+    await delay(500);
+    const body = (await request.json()) as { imageBase64?: string; toothArea?: string };
+    const toothNo = body.toothArea ?? '36';
+    return HttpResponse.json({
+      success: true,
+      data: {
+        detections: [
+          { id: `CD-${Date.now()}`, toothNo, surface: 'O', bbox: [150, 120, 220, 180], confidence: 0.84, severity: 'moderate' },
+          { id: `CD-${Date.now() + 1}`, toothNo, surface: 'M', bbox: [230, 130, 280, 175], confidence: 0.61, severity: 'incipient' },
+        ],
+        modelVersion: 'dental-yolov8n-v1.3',
+        method: 'on-image-backend-mock',
+      },
+    });
+  }),
+
   // 根尖周炎分级 AI
   http.post(`${DENTAL_API}/ai/periapical-grading`, async () => {
     await delay(400);
@@ -473,7 +491,17 @@ const dentalCadModule = [
     return HttpResponse.json({ success: true, data: d });
   }),
   // 设计列表
-  
+  // [G005-P1] 在用孤儿补齐: 设计列表 (前端 listCadDesigns 调用 GET /cad/designs)
+  http.get(`${DENTAL_API}/cad/designs`, async ({ request }) => {
+    await delay(50);
+    const url = new URL(request.url);
+    const patientId = url.searchParams.get('patientId');
+    let items: any[] = [];
+    try { items = list<any>('cad_designs'); } catch {}
+    if (!items.length) items = MOCK_CAD_DESIGNS;
+    if (patientId) items = items.filter((d: any) => d.patientId === patientId);
+    return HttpResponse.json({ success: true, data: items, meta: { total: items.length } });
+  }),
   // 保存边缘线
   http.put(`${DENTAL_API}/cad/design/:id/margin-line`, async ({ params, request }) => {
     await delay(60);
@@ -551,7 +579,45 @@ const dentalImplant3dModule = [
     await delay(30);
     return HttpResponse.json({ success: true, data: MOCK_IMPLANT_BRANDS.map(b=>({id:b.id,name:b.name,country:b.country,modelCount:b.models.length})) });
   }),
-  
+  // [G005-P1] 在用孤儿补齐: 型号列表 (前端 getImplantModels 调用)
+  http.get(`${DENTAL_API}/implant/inventory/models`, async ({ request }) => {
+    await delay(30);
+    const url = new URL(request.url);
+    const brandId = url.searchParams.get('brandId');
+    const toothNo = url.searchParams.get('toothNo');
+    const models = brandId
+      ? (MOCK_IMPLANT_BRANDS.find((b: any) => b.id === brandId)?.models ?? [])
+      : MOCK_IMPLANT_BRANDS.flatMap((b: any) => b.models);
+    const data = models.map((m: any) => ({ ...m, brandId, toothNo: toothNo ? Number(toothNo) : undefined }));
+    return HttpResponse.json({ success: true, data });
+  }),
+  // [G005-P1] 在用孤儿补齐: 导环套筒 (前端 getGuideSleeves 调用)
+  http.get(`${DENTAL_API}/implant/inventory/sleeves`, async ({ request }) => {
+    await delay(30);
+    const url = new URL(request.url);
+    const brand = url.searchParams.get('brand');
+    const data = [
+      { id: 'slv-001', brand: 'Straumann', diameter: 4.8, height: 5.0, type: 'closed' },
+      { id: 'slv-002', brand: 'Straumann', diameter: 5.2, height: 6.0, type: 'open' },
+      { id: 'slv-003', brand: 'Nobel', diameter: 4.3, height: 5.0, type: 'closed' },
+      { id: 'slv-004', brand: 'Dentsply', diameter: 4.5, height: 4.5, type: 'open' },
+    ].filter(s => !brand || s.brand === brand);
+    return HttpResponse.json({ success: true, data });
+  }),
+  // [G005-P1] 在用孤儿补齐: 基台 (前端 getAbutments 调用)
+  http.get(`${DENTAL_API}/implant/abutments`, async ({ request }) => {
+    await delay(30);
+    const url = new URL(request.url);
+    const brand = url.searchParams.get('brand');
+    const data = [
+      { id: 'abt-001', brand: 'Straumann', type: 'titanium-straight', height: 4.0, angle: 0, price: 1280 },
+      { id: 'abt-002', brand: 'Straumann', type: 'zirconia', height: 5.0, angle: 15, price: 2350 },
+      { id: 'abt-003', brand: 'Nobel', type: 'titanium-angulated', height: 4.5, angle: 17, price: 1420 },
+      { id: 'abt-004', brand: 'Dentsply', type: 'titanium-straight', height: 3.5, angle: 0, price: 1150 },
+    ].filter(a => !brand || a.brand === brand);
+    return HttpResponse.json({ success: true, data });
+  }),
+
   // 3D 种植规划 CRUD
   http.post(`${DENTAL_API}/implant/plan-3d`, async ({ request }) => {
     await delay(100);

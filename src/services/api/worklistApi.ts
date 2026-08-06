@@ -6,7 +6,8 @@ export interface WorklistItemDto {
   referringPhysician?: string; scheduledAt: string; createdAt: string; isUrgent?: boolean
 }
 export interface WorklistQueryParams { page?: number; pageSize?: number; status?: string; modality?: string; patientId?: string; dateFrom?: string; dateTo?: string; search?: string }
-export interface WorklistStatsDto { total: number; pending: number; inProgress: number; completed: number; urgent: number }
+export interface WorklistStatsDto { total: number; byStatus: Record<string, number> }
+export interface AssignWorklistDto { doctorId?: string; deviceId?: string }
 
 export const worklistApi = {
   list: (params?: WorklistQueryParams) => {
@@ -16,7 +17,7 @@ export const worklistApi = {
   },
   getById: (id: string) => api.get<WorklistItemDto>(`/worklist/${id}`),
   updateStatus: (id: string, status: string) => api.patch(`/worklist/${id}`, { status }),
-  assign: (id: string, userId: string) => api.post(`/worklist/${id}/assign`, { userId }),
+  assign: (id: string, dto: AssignWorklistDto) => api.post(`/worklist/${id}/assign`, dto),
   getStats: () => api.get<WorklistStatsDto>('/worklist/stats'),
-  batchAssign: (ids: string[], userId: string) => api.post('/worklist/batch-assign', { ids, userId }),
+  batchAssign: (ids: string[], dto: AssignWorklistDto) => api.post('/worklist/batch-assign', { ids, ...dto }),
 }

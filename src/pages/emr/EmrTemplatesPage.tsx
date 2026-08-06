@@ -1,9 +1,9 @@
 // [v3.0.6.8-63] EMR 病历模板管理 + ICD-11 编码
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Button, Table, Select, Input, Row, Col, Statistic, message, Tabs, Empty, Modal, Form, List, Alert, Badge, Descriptions, Tooltip } from 'antd';
-import { Activity, Plus, Edit3, Copy, Search, BookOpen, Code, FileText, Save } from 'lucide-react';
+import { Card, Space, Tag, Button, Table, Select, Input, message, Tabs, Modal, Form, List } from 'antd';
+import { Plus, Edit3, Copy, FileText } from 'lucide-react';
 
-const { TextArea } = Input;
+const {  } = Input;
 
 // ICD-11 mock data
 const ICD11_DISEASES = [

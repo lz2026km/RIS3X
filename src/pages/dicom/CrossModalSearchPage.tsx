@@ -4,10 +4,10 @@ import { Search, ImageIcon, FileText } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { crossModalSearchApi, type CrossModalSearchResult } from '../../services/api'
 
-const { Text, Title } = Typography
+const { Text } = Typography
 
 const CrossModalSearchPage: React.FC = () => {
-  const { t } = useTranslation('dicom')
+  const {  } = useTranslation('dicom')
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<CrossModalSearchResult[]>([])
   const [loading, setLoading] = useState(true)

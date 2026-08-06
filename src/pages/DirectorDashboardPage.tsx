@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 // [v3.0.6.8-28] 主数据池 + 生成器
-import {
-  DOCTOR_MASTER, DOCTORS_BY_TITLE, DEVICE_MASTER, EXAM_ITEM_MASTER,
-} from '../data/master';
+import { DOCTOR_MASTER, DEVICE_MASTER } from '../data/master';
 import {
   DOCTOR_PERFORMANCE_PRE, EXAM_REPORT_PRE, QUALITY_SCORE_PRE, DAILY_KPI_PRE,
 } from '../data/_generators';

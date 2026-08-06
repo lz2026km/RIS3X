@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { Card, Table, Switch, Space, Typography, Row, Col, Statistic, Button, Tag, message, Modal, Form, Input, Select } from 'antd'
-import { Settings, Play, Pause, CheckCircle } from 'lucide-react'
+import { Settings, Play } from 'lucide-react'
 
-const { Text } = Typography
+const {  } = Typography
 
 interface AutoCollectionRuleItem {
   id: string

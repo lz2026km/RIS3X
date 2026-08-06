@@ -17,9 +17,7 @@ import type {
 
 const now = new Date();
 const isoOffset = (hours: number) => new Date(now.getTime() + hours * 3600 * 1000).toISOString();
-const fmt = (d: Date) => d.toISOString();
-
-const reviewStageStatus = (stage: string, status: string) => `${stage}.${status}`;
+const fmt = (d: Date) => d.toISOString();(stage: string, status: string) => `${stage}.${status}`;
 
 export const REVIEW_TASKS: ReviewTask[] = [
   {
@@ -608,7 +606,7 @@ export const REVIEW_TASKS_FULL = [...REVIEW_TASKS, ..._EXTRA_REVIEW_TASKS];
 // 扩充 REVIEWERS 10→40
 const _EXTRA_REVIEWERS = DOCTOR_MASTER
   .filter((d) => d.title === '副主任医师' || d.title === '主任医师')
-  .map((d, i) => ({
+  .map((d, _i) => ({
     id: d.id,
     name: d.name,
     title: d.title,

@@ -98,7 +98,7 @@ class MockEducationService implements IEducationService {
     return channel ? MOCK_TEMPLATES.filter(t => t.channel === channel) : MOCK_TEMPLATES
   }
 
-  async sendCommunication(patientId: string, templateId: string, variables: Record<string, string>): Promise<boolean> {
+  async sendCommunication(_patientId: string, _templateId: string, _variables: Record<string, string>): Promise<boolean> {
     return true
   }
 }
