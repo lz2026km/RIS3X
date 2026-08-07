@@ -166,8 +166,8 @@ export const FhirImagingStudyPage: React.FC = () => {
                   {selectedStudy.series.map((s, i) => (
                     <div key={i} style={{ padding: '4px 0', borderBottom: '1px solid #f0f0f0' }}>
                       <Tag color="blue">{s.modality?.coding?.[0]?.code || '—'}</Tag>
-                      <span style={{ fontSize: 12 }}>#{s.number || i + 1} - {s.description || 'No description'}</span>
-                      <span style={{ color: '#999', marginLeft: 8 }}>({s.numberOfInstances || 0} instances)</span>
+                      <span style={{ fontSize: 12 }}>#{s.number || i + 1} - {s.description || '无描述'}</span>
+                      <span style={{ color: '#999', marginLeft: 8 }}>({s.numberOfInstances || 0} 个实例)</span>
                     </div>
                   ))}
                 </div>

@@ -32,7 +32,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 function PaletteItem({ type }: { type: string; label: string }) {
-  const t = useTranslation().t;
+  const t = useTranslation("orchestrator").t;
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id: `palette-${type}`,
@@ -138,7 +138,7 @@ function CanvasStep({
 }
 
 export default function OrchestratorPage() {
-  const { t } = useTranslation();
+  const { t } = useTranslation("orchestrator");
   const [activeTab, setActiveTab] = useState("designer");
   const [flows, setFlows] = useState<OrchestratorFlow[]>([]);
   const [selectedFlow, setSelectedFlow] = useState<OrchestratorFlow | null>(
@@ -355,7 +355,7 @@ export default function OrchestratorPage() {
       width: 100,
       render: (_, r) =>
         r.slaBreached ? (
-          <Tag color="red">Breached</Tag>
+          <Tag color="red">已超时</Tag>
         ) : r.slaDeadline ? (
           <Tag color="green">正常进行</Tag>
         ) : (

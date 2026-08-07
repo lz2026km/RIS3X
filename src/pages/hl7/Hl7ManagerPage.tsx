@@ -163,7 +163,7 @@ export const Hl7ManagerPage: React.FC = () => {
               <Col span={8}><Form.Item name="patientId" label="患者 ID" rules={[{ required: true }]}><Input placeholder="患者ID" /></Form.Item></Col>
               <Col span={8}><Form.Item name="patientName" label="患者姓名" rules={[{ required: true }]}><Input placeholder="患者姓名" /></Form.Item></Col>
               <Col span={8}><Form.Item name="modality" label="Modality" rules={[{ required: true }]}><Select placeholder="选择"><Select.Option value="CT">CT</Select.Option><Select.Option value="MR">MR</Select.Option><Select.Option value="US">US</Select.Option><Select.Option value="XA">XA</Select.Option></Select></Form.Item></Col>
-              <Col span={8}><Form.Item name="patientSex" label="Sex"><Select placeholder="选择" allowClear><Select.Option value="M">M</Select.Option><Select.Option value="F">F</Select.Option><Select.Option value="O">O</Select.Option></Select></Form.Item></Col>
+              <Col span={8}><Form.Item name="patientSex" label="性别"><Select placeholder="选择" allowClear><Select.Option value="M">M</Select.Option><Select.Option value="F">F</Select.Option><Select.Option value="O">O</Select.Option></Select></Form.Item></Col>
               <Col span={8}><Form.Item name="studyDate" label="检查日期"><Input placeholder="YYYY-MM-DD" /></Form.Item></Col>
               <Col span={12}><Form.Item name="findings" label="所见" rules={[{ required: true }]}><Input.TextArea rows={3} placeholder="影像所见" /></Form.Item></Col>
               <Col span={12}><Form.Item name="conclusion" label="结论" rules={[{ required: true }]}><Input.TextArea rows={3} placeholder="诊断结论" /></Form.Item></Col>
@@ -192,7 +192,7 @@ export const Hl7ManagerPage: React.FC = () => {
               <Col span={8}><Form.Item name="bodyPart" label="检查部位" rules={[{ required: true }]}><Input placeholder="检查部位" /></Form.Item></Col>
               <Col span={8}><Form.Item name="orderNumber" label="Order#" rules={[{ required: true }]}><Input placeholder="医嘱号" /></Form.Item></Col>
               <Col span={8}><Form.Item name="orderingDoctor" label="开单医生" rules={[{ required: true }]}><Input placeholder="开单医生" /></Form.Item></Col>
-              <Col span={8}><Form.Item name="patientSex" label="Sex"><Select placeholder="选择" allowClear><Select.Option value="M">M</Select.Option><Select.Option value="F">F</Select.Option></Select></Form.Item></Col>
+              <Col span={8}><Form.Item name="patientSex" label="性别"><Select placeholder="选择" allowClear><Select.Option value="M">M</Select.Option><Select.Option value="F">F</Select.Option></Select></Form.Item></Col>
             </Row>
             <Form.Item>
               <Button type="primary" icon={<Send size={14} />} loading={sending} onClick={handleSendOrm}>发送 ORM</Button>

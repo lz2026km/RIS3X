@@ -81,7 +81,7 @@ function mapAnalysisToCase(a: CardiacAnalysis): CvCase {
         ? lesions.map((s) => `${s.segment} ${s.stenosisPercent}%`).join(", ")
         : a.valves && a.valves.length > 0
           ? a.valves.map((v) => `${v.valve} ${v.severity}`).join(", ")
-          : "No significant findings",
+          : "无明显异常",
     hasSrReport: false,
   };
 }

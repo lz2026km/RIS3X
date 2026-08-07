@@ -132,14 +132,14 @@ export const PamPage: React.FC = () => {
           {
             key: 'mllp', label: <span><Wifi size={14} style={{ marginRight: 4 }} />MLLP 连接状态</span>,
             children: (
-              <Card size="small" title={<Space><Server size={14} />MLLP Listener</Space>}>
+              <Card size="small" title={<Space><Server size={14} />MLLP 监听器</Space>}>
                 {listenerStatus ? (
                   <Descriptions column={2} size="small" bordered>
                     <Descriptions.Item label="状态">
-                      <Badge status={listenerStatus.running ? 'success' : 'error'} text={listenerStatus.running ? 'Running' : 'Stopped'} />
+                      <Badge status={listenerStatus.running ? 'success' : 'error'} text={listenerStatus.running ? '运行中' : '已停止'} />
                     </Descriptions.Item>
                     <Descriptions.Item label="端口">{listenerStatus.port ?? 2575}</Descriptions.Item>
-                    <Descriptions.Item label="Uptime">{listenerStatus.uptime ?? '-'}</Descriptions.Item>
+                    <Descriptions.Item label="运行时长">{listenerStatus.uptime ?? '-'}</Descriptions.Item>
                     <Descriptions.Item label="连接">{listenerStatus.connections ?? 0}</Descriptions.Item>
                   </Descriptions>
                 ) : (

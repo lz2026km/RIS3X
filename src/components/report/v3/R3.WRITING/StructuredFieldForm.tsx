@@ -507,7 +507,7 @@ const SummaryCard: React.FC<{ templateId: StructuredTemplate['id']; values: Reco
           <Col span={4}>
             <div className="text-center">
               <div className="text-3xl font-bold" style={{ color: stage.startsWith('IV') ? '#dc2626' : stage.startsWith('III') ? '#ea580c' : stage.startsWith('II') ? '#f59e0b' : '#10b981' }}>{stage || '-'}</div>
-              <div className="text-xs text-slate-500">Stage</div>
+              <div className="text-xs text-slate-500">分期</div>
             </div>
           </Col>
         </Row>

@@ -1,5 +1,5 @@
 /**
- * G005 放射RIS系统 v3.0.6.11-75 - 简单 i18n 翻译函数与 locale 切换
+ * G005 放射RIS系统 v3.0.6.11-76 - 简单 i18n 翻译函数与 locale 切换
  * R3 1100+ 功能点,i18n 命名空间合并
  * 对外导出:t(key, params) / getCurrentLocale() / onLocaleChange() / notifyLocaleChange()
  */
@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "G005放射信息系统",
     "app.version":
-      "v3.0.6.11-75 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
+      "v3.0.6.11-76 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -31,6 +31,7 @@ export const translations: Translations = {
     "nav.worklist": "检查工作列表",
     "nav.v3Worklist": "V3 工作列表",
     "nav.examRecords": "检查记录",
+    "nav.exportApproval": "导出审批中心",
     "nav.patientManagement": "患者管理",
     "nav.patientManage": "患者管理",
     "nav.v3Patients": "V3 患者管理",
@@ -139,22 +140,21 @@ export const translations: Translations = {
     "nav.eyeIop": "眼压测量",
     "nav.eyeReportWrite": "眼科报告书写",
     "nav.eyeKpi": "质控看板",
-    // [v3.0.6.11-7] PR1-PR11 补齐
-    "nav.eyePacsReal": "DICOM 渲染 (PR1)",
+    "nav.eyePacsReal": "DICOM 渲染",
     "nav.eyePacsViewer": "DICOM 查看器",
-    "nav.eyeAiReport": "AI 报告助手 (PR2)",
-    "nav.eyeToric": "Toric 散光 (PR3)",
-    "nav.eyeStrabismus": "斜视 (PR4)",
-    "nav.eyeNeuro": "神经眼科 (PR4)",
-    "nav.eyeOncology": "眼眶肿瘤 (PR4)",
-    "nav.eyeCornea": "角膜病 (PR4)",
-    "nav.eyeContactLens": "接触镜 (PR4)",
-    "nav.eyeLowVision": "低视力 (PR4)",
-    "nav.eyeCataract": "白内障 (PR4)",
-    "nav.eyeRefractive": "屈光手术 (PR4)",
-    "nav.eyeTele": "远程会诊 (PR8)",
-    "nav.eyeCaseLibrary": "教学病例库 (PR9)",
-    "nav.eyeOptometryLoop": "视光闭环 (PR11)",
+    "nav.eyeAiReport": "AI 报告助手",
+    "nav.eyeToric": "散光型晶体计算器",
+    "nav.eyeStrabismus": "斜视",
+    "nav.eyeNeuro": "神经眼科",
+    "nav.eyeOncology": "眼眶肿瘤",
+    "nav.eyeCornea": "角膜病",
+    "nav.eyeContactLens": "接触镜",
+    "nav.eyeLowVision": "低视力",
+    "nav.eyeCataract": "白内障",
+    "nav.eyeRefractive": "屈光手术",
+    "nav.eyeTele": "远程会诊",
+    "nav.eyeCaseLibrary": "教学病例库",
+    "nav.eyeOptometryLoop": "视光闭环",
 
     "nav.dentalSpecialty": "牙科专科",
     "nav.dentalWorkspace": "牙科工作台",
@@ -175,7 +175,7 @@ export const translations: Translations = {
     "nav.dentalVolume": "体绘制",
     "nav.dentalEmr": "患者 360°", // [v3.0.6.11-7]
     "nav.dentalBilling": "收费 · 医保", // [v3.0.6.11-7]
-    "nav.dentalSchedule": "排班 · PSR", // [v3.0.6.11-7]
+    "nav.dentalSchedule": "排班管理", // [v3.0.6.11-7]
     "nav.dentalPhoto": "口内照片", // [v3.0.6.11-7]
     "nav.systemManage": "系统管理",
     "nav.userManagement": "用户管理",
@@ -372,7 +372,7 @@ export const translations: Translations = {
     "nav.qcImageAi": "影像 AI 自动质控",
     "nav.qcRadiologistAnnual": "医生年度档案",
     "nav.cosign": "双签工作流",
-    "nav.radpathTracker": "Rad-Path 一致性追踪",
+    "nav.radpathTracker": "病理影像一致性追踪",
     "nav.orchestrator": "任务编排引擎",
     "nav.dicomSr": "DICOM 结构化报告",
     "nav.radiomics": "影像组学分析",
@@ -2004,7 +2004,7 @@ export const translations: Translations = {
     "nav.radiologyMaterials": "放射物资",
     "nav.radiomicsFeatures": "影像组学特征",
     "nav.radpath": "病理",
-    "nav.radpathLinkage": "Rad-Path 联动",
+    "nav.radpathLinkage": "病理影像联动",
     "nav.rcm": "运营",
     "nav.remoteReading": "远程阅片",
     "nav.reports": "报告",
@@ -2041,7 +2041,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "G005 Radiology Information System",
     "app.version":
-      "v3.0.6.11-75 · Strict Review + Params + Security + Features + Mock Cleanup + 200-page Verification",
+      "v3.0.6.11-76 · Strict Review + Params + Security + Features + Mock Cleanup + 200-page Verification",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
@@ -2054,6 +2054,7 @@ export const translations: Translations = {
     "nav.worklist": "Worklist",
     "nav.v3Worklist": "V3 Worklist",
     "nav.examRecords": "Exam Records",
+    "nav.exportApproval": "Export Approval Center",
     "nav.patientManagement": "Patient Management",
     "nav.patientManage": "Patient Management",
     "nav.v3Patients": "V3 Patient Management",
@@ -2162,21 +2163,21 @@ export const translations: Translations = {
     "nav.eyeIop": "IOP Measurement",
     "nav.eyeReportWrite": "Eye Report Writing",
     "nav.eyeKpi": "KPI Dashboard",
-    "nav.eyePacsReal": "DICOM Real Viewer (PR1)",
+    "nav.eyePacsReal": "DICOM Real Viewer",
     "nav.eyePacsViewer": "DICOM Viewer",
-    "nav.eyeAiReport": "AI Report (PR2)",
-    "nav.eyeToric": "Toric Planner (PR3)",
-    "nav.eyeStrabismus": "Strabismus (PR4)",
-    "nav.eyeNeuro": "Neuro-ophthalmology (PR4)",
-    "nav.eyeOncology": "Ocular Oncology (PR4)",
-    "nav.eyeCornea": "Cornea (PR4)",
-    "nav.eyeContactLens": "Contact Lens (PR4)",
-    "nav.eyeLowVision": "Low Vision (PR4)",
-    "nav.eyeCataract": "Cataract (PR4)",
-    "nav.eyeRefractive": "Refractive (PR4)",
-    "nav.eyeTele": "Tele-Consult (PR8)",
-    "nav.eyeCaseLibrary": "Case Library (PR9)",
-    "nav.eyeOptometryLoop": "Optometry Loop (PR11)",
+    "nav.eyeAiReport": "AI Report",
+    "nav.eyeToric": "Toric IOL Calculator",
+    "nav.eyeStrabismus": "Strabismus",
+    "nav.eyeNeuro": "Neuro-ophthalmology",
+    "nav.eyeOncology": "Ocular Oncology",
+    "nav.eyeCornea": "Cornea",
+    "nav.eyeContactLens": "Contact Lens",
+    "nav.eyeLowVision": "Low Vision",
+    "nav.eyeCataract": "Cataract",
+    "nav.eyeRefractive": "Refractive",
+    "nav.eyeTele": "Tele-Consult",
+    "nav.eyeCaseLibrary": "Case Library",
+    "nav.eyeOptometryLoop": "Optometry Loop",
 
     "nav.dentalSpecialty": "Dental",
     "nav.dentalWorkspace": "Workspace",
@@ -2197,7 +2198,7 @@ export const translations: Translations = {
     "nav.dentalVolume": "Volume Rendering", // [v3.0.6.11-7]
     "nav.dentalEmr": "Patient 360°", // [v3.0.6.11-7]
     "nav.dentalBilling": "Billing & Insurance", // [v3.0.6.11-7]
-    "nav.dentalSchedule": "Schedule & PSR", // [v3.0.6.11-7]
+    "nav.dentalSchedule": "Dental Schedule", // [v3.0.6.11-7]
     "nav.dentalPhoto": "Patient Photos", // [v3.0.6.11-7]
     "nav.systemManage": "System Management",
     "nav.userManagement": "User Management",
@@ -2369,7 +2370,7 @@ export const translations: Translations = {
     "nav.qcImageAi": "AI Image QC",
     "nav.qcRadiologistAnnual": "Radiologist Annual QC",
     "nav.cosign": "CoSign Workflow",
-    "nav.radpathTracker": "Rad-Path Consistency",
+    "nav.radpathTracker": "Pathology-Imaging Consistency Tracking",
     "radpath.title": "Rad-Path Consistency",
     "radpath.tracker": "Tracker",
     "radpath.detail": "Detail",
@@ -4018,7 +4019,7 @@ export const translations: Translations = {
     "nav.radiologyMaterials": "Radiology Materials",
     "nav.radiomicsFeatures": "Radiomics Features",
     "nav.radpath": "Pathology",
-    "nav.radpathLinkage": "Rad-Path Linkage",
+    "nav.radpathLinkage": "Pathology-Imaging Linkage",
     "nav.rcm": "RCM",
     "nav.remoteReading": "Remote Reading",
     "nav.reports": "Reports",

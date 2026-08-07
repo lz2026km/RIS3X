@@ -280,8 +280,8 @@ export const DicomSRExporter: React.FC<Props> = ({ reportId, patientId, onExport
           <>
             <Form layout="vertical">
               <Form.Item label="AE Title"><Input value={sendForm.aeTitle} onChange={(e) => setSendForm((f) => ({ ...f, aeTitle: e.target.value }))} /></Form.Item>
-              <Form.Item label="Host"><Input value={sendForm.host} onChange={(e) => setSendForm((f) => ({ ...f, host: e.target.value }))} /></Form.Item>
-              <Form.Item label="Port"><Input type="number" value={sendForm.port} onChange={(e) => setSendForm((f) => ({ ...f, port: Number(e.target.value) }))} /></Form.Item>
+              <Form.Item label="主机"><Input value={sendForm.host} onChange={(e) => setSendForm((f) => ({ ...f, host: e.target.value }))} /></Form.Item>
+              <Form.Item label="端口"><Input type="number" value={sendForm.port} onChange={(e) => setSendForm((f) => ({ ...f, port: Number(e.target.value) }))} /></Form.Item>
             </Form>
             <div className="flex justify-end gap-2">
               <Button onClick={() => setShowSend(false)}>取消</Button>

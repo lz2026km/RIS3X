@@ -1,5 +1,38 @@
 ﻿# CHANGELOG
 
+## v3.0.6.11-76 (2026-08-03) — 翻译优化：导航栏exportApproval补齐+双源同步121key+22处页面英文+命名空间修复
+
+> **目标**: 检查左侧导航栏未翻译英文 + 修复全软件缺失翻译
+> **范围**: 2 agents（导航栏 + 页面残留）+ 附带命名空间 Bug 修复
+
+### T1: 导航栏翻译
+
+- **补 nav.exportApproval**（四源+拆分文件）：appI18n zh-CN/en-US、zh_CN.json/en_US.json、zh-CN/nav.json/en-US/nav.json 共 6 源（v3.0.6.11-75 新增导出审批菜单后侧边栏显示原始 key）
+- **双源同步**：zh_CN.json/en_US.json 补 121 个缺失 nav key（triageDashboard/segmentation/mpr/mip/vr/similarCaseSearch/smartAuth/treatmentPlans 等，从 appI18n 同步）
+- **眼科 PR 标记清理**：清除 28 处 `(PR1)~(PR11)` 开发标记（zh 14 + en 14）+ eyeToric→散光型晶体计算器
+- **润色**：radpathTracker→病理影像一致性追踪、radpathLinkage→病理影像联动、dentalSchedule→排班管理（4 源同步）
+- **结果**：侧边栏 351/351 key 100% 覆盖、浏览器实测 nav. 残留 0、"导出审批"可见
+
+### T2: 页面英文残留修复（22 处 / 16 文件）
+
+- 用户直接可见 3 处：CvDatabasePage "No significant findings"→无明显异常、OperationsCenterPage "Peak"→峰值、OrchestratorPage "Breached"→已超时
+- IHE/HL7/DICOM 工具页 11 处：PamPage（MLLP 监听器/运行中/运行时长）、IheConnectathonPage（测试项/监控/配置文件）、IheIntegrationPage（PIX 增量更新通知）、DimsePage（查询/存储/移动失败）、DicomSrPage（SR 管理器/状态）、Hl7ManagerPage（性别）、FhirImagingStudyPage（无描述/个实例）
+- 接口错误兜底 5 处：ExportDialog（导出失败）、AiRadsPage（评分失败）、EnterpriseSearchPage（请输入关键词）
+- 组件内 3 处：StructuredFieldForm（分期）、DicomSRExporter（主机/端口）、DicomViewerPro（窗宽/窗位）
+- 保留：双语分支（ExportDialog/ServiceManagement）、学术词（Washout/Op/Br）
+
+### 附带: 命名空间 Bug 修复（P0）
+
+- **OrchestratorPage**：useTranslation() 未指定命名空间 → t("orchestrator.*") 显示原始 key → 改 useTranslation("orchestrator")（2 处）
+- **Toast.tsx**：useToast/useNotification 调 t("critical.title") 但默认 common 命名空间 → 改 useTranslation("critical")（2 处）
+- 全库扫描确认仅此 2 文件存在该问题
+
+### 验证
+
+- 侧边栏 351/351 key 100% 覆盖（脚本）+ 浏览器 nav. 残留 0
+- 浏览器实测：/orchestrator 显示"任务编排引擎"中文、/export/approval 面包屑"导出审批中心"、修复页面全部正常
+- 后端: jest 121 suites / 1278 tests 通过；前端: tsc 0 新增错误、vite build 成功、Playwright 回归 15/15
+
 ## v3.0.6.11-75 (2026-08-03) — 大规模升级：后端功能前端化+核心页增强+24壳页补齐+实时推送+队列真实化
 
 > **目标**: 12000 升级点——参数/功能/前端/后端全维度扩充，重点"后端已有、前端未展现"功能补齐
@@ -42,7 +75,7 @@
 
 ## v3.0.6.11-73 (2026-08-03) — 全方位审查：角色修复+状态机对齐+worklist端点+在用孤儿补齐+stats真实化+tsc-60%
 
-> **目标**: v3.0.6.11-75 全方位审查（-72 验证通过 + 业务规则/三层残留/数据真实性/清理）全部落地
+> **目标**: v3.0.6.11-76 全方位审查（-72 验证通过 + 业务规则/三层残留/数据真实性/清理）全部落地
 > **范围**: 7 agents 三波实施（116 suites/1234 tests，tsc 2,554→1,032）
 
 ### P0 业务规则（RULE1/RULE2）
@@ -79,7 +112,7 @@
 
 ## v3.0.6.11-72 (2026-08-03) — 全方位审查：安全6项+三层一致7项+性能5项+死代码951文件+tsc-53%
 
-> **目标**: v3.0.6.11-75 全方位审查（安全/三层一致/性能/死代码/tsc）全部修复落地
+> **目标**: v3.0.6.11-76 全方位审查（安全/三层一致/性能/死代码/tsc）全部修复落地
 > **范围**: 12 agents 四波实施（112 suites/1163 tests，tsc 5,494→2,590）
 
 ### 安全修复（6 项，SEC1-3）
@@ -310,7 +343,7 @@
 
 ### Phase 0: 10×80 对标文档
 
-- 新增 `docs/PACS_BENCHMARK_V3.0.6.11-75.md`：10 厂商 × 80 项功能矩阵（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/Change Healthcare/Infinitt）
+- 新增 `docs/PACS_BENCHMARK_V3.0.6.11-76.md`：10 厂商 × 80 项功能矩阵（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/Change Healthcare/Infinitt）
 - G005 完成度 38.8%（31✅/30🟡/19❌），对标 Sectra 87.5%/GE 85.0%
 - 四阶段路线图：Phase1 修复断裂点（本次）→ Phase2 mock 降级/覆盖率 → Phase3 AI Orchestrator/BI/剂量 → Phase4 云部署/环境式报告
 
@@ -419,16 +452,16 @@
 
 ### F18: 版本号全量统一 + 文档
 
-- package.json → 3.0.6.11-75（含 package-lock.json）
-- backend/package.json → 3.0.6.11-75
-- index.html title + window.__appVersion → v3.0.6.11-75
-- src/main.tsx APP_VERSION → v3.0.6.11-75
-- backend/src/main.ts + app.module.ts → v3.0.6.11-75
-- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-75
-- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-75
-- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-75
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-75
-- CHANGELOG.md 新增 v3.0.6.11-75 条目
+- package.json → 3.0.6.11-76（含 package-lock.json）
+- backend/package.json → 3.0.6.11-76
+- index.html title + window.__appVersion → v3.0.6.11-76
+- src/main.tsx APP_VERSION → v3.0.6.11-76
+- backend/src/main.ts + app.module.ts → v3.0.6.11-76
+- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-76
+- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-76
+- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-76
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-76
+- CHANGELOG.md 新增 v3.0.6.11-76 条目
 
 ### 验证结果
 
@@ -439,10 +472,10 @@
 
 ---
 
-## v3.0.6.11-75 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
+## v3.0.6.11-76 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
 
 > **目标**: 后端深度修复 + 安全加固 + 类型修复 + 测试验证 + 性能检查 + 版本号全量统一
-> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-75
+> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-76
 
 ### A13: 后端安全加固
 
@@ -473,19 +506,19 @@
 
 ### A19: 版本号全量统一
 
-- backend/package.json → 3.0.6.11-75
-- backend/src/main.ts → Swagger version + log message → v3.0.6.11-75
-- backend/src/app.module.ts → v3.0.6.11-75
-- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-75
-- index.html title + window.__appVersion → v3.0.6.11-75
-- src/i18n/appI18n.ts → v3.0.6.11-75
-- src/main.tsx APP_VERSION → v3.0.6.11-75
-- src/routes/routeTable.tsx → v3.0.6.11-75
-- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-75
-- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-75
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-75
-- CONTRIBUTING.md → v3.0.6.11-75
-- CHANGELOG.md 新增 v3.0.6.11-75 条目
+- backend/package.json → 3.0.6.11-76
+- backend/src/main.ts → Swagger version + log message → v3.0.6.11-76
+- backend/src/app.module.ts → v3.0.6.11-76
+- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-76
+- index.html title + window.__appVersion → v3.0.6.11-76
+- src/i18n/appI18n.ts → v3.0.6.11-76
+- src/main.tsx APP_VERSION → v3.0.6.11-76
+- src/routes/routeTable.tsx → v3.0.6.11-76
+- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-76
+- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-76
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-76
+- CONTRIBUTING.md → v3.0.6.11-76
+- CHANGELOG.md 新增 v3.0.6.11-76 条目
 
 ### 验证结果
 

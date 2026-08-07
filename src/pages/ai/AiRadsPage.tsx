@@ -96,7 +96,7 @@ const AiRadsPage: React.FC = () => {
       if (res.success) {
         setResult(res.data)
       } else {
-        message.error(res.error?.message || 'Scoring failed')
+        message.error(res.error?.message || '评分失败')
       }
     } finally {
       setLoading(false)

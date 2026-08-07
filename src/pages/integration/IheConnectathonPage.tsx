@@ -213,7 +213,7 @@ export const IheConnectathonPage: React.FC = () => {
               </div>
               <div>
                 <div className="text-xs text-slate-500">
-                  <span style={{ color: "red" }}>*</span> Track
+                  <span style={{ color: "red" }}>*</span> 测试项
                 </div>
                 <Input
                   required
@@ -226,7 +226,7 @@ export const IheConnectathonPage: React.FC = () => {
               </div>
               <div>
                 <div className="text-xs text-slate-500">
-                  <span style={{ color: "red" }}>*</span> Monitor
+                  <span style={{ color: "red" }}>*</span> 监控
                 </div>
                 <Input
                   required
@@ -238,7 +238,7 @@ export const IheConnectathonPage: React.FC = () => {
                 />
               </div>
               <div>
-                <div className="text-xs text-slate-500">Profiles</div>
+                <div className="text-xs text-slate-500">配置文件</div>
                 <Select
                   mode="multiple"
                   value={selectedProfiles}

@@ -321,8 +321,8 @@ export default function DicomViewerPro({
           </select>
         )}
         <span style={{ color: '#64748b' }}>W:{ww} L:{wc}</span>
-        <input type="range" min="1" max="3000" value={ww} onChange={e => setWw(Math.max(1, parseInt(e.target.value)))} style={{ width: 60 }} title="Width" />
-        <input type="range" min="-1000" max="1000" value={wc} onChange={e => setWc(parseInt(e.target.value))} style={{ width: 60 }} title="Level" />
+        <input type="range" min="1" max="3000" value={ww} onChange={e => setWw(Math.max(1, parseInt(e.target.value)))} style={{ width: 60 }} title="窗宽" />
+        <input type="range" min="-1000" max="1000" value={wc} onChange={e => setWc(parseInt(e.target.value))} style={{ width: 60 }} title="窗位" />
         <div style={{ width: 1, height: 16, background: '#333' }} />
         <select value={currentSample?.id || ''} onChange={e => setSelectedSampleId(e.target.value)} style={selectStyle}>
           {DICOM_SAMPLES.map(s => <option key={s.id} value={s.id}>{s.modality} {s.bodyPart} {s.studyDescription.slice(0, 20)}</option>)}

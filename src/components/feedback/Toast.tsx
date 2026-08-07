@@ -14,7 +14,7 @@ import { useEffect, type ReactNode } from 'react';
 // ============= Toast 业务封装 =============
 export function useToast() {
   const { message } = App.useApp();
-  const { t } = useTranslation();
+  const { t } = useTranslation("critical");
 
   return {
     success: (content: string, duration = 3) => {
@@ -40,7 +40,7 @@ export function useToast() {
 // ============= Notification 业务封装 =============
 export function useNotification() {
   const { notification } = App.useApp();
-  const { t } = useTranslation();
+  const { t } = useTranslation("critical");
 
   return {
     success: (title: string, description?: ReactNode) => {

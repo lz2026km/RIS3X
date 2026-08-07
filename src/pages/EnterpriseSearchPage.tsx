@@ -58,7 +58,7 @@ export default function EnterpriseSearchPage() {
   const handleSearch = useCallback(async (q?: string) => {
     const keyword = (q ?? inputValue).trim();
     if (!keyword) {
-      message.warning('please-enter-keyword');
+      message.warning('请输入关键词');
       return;
     }
     setQuery(keyword);

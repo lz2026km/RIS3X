@@ -583,7 +583,7 @@ function TrendChart({ data }: { data: typeof HOURLY_DATA }) {
         />
         {/* 峰值标注 */}
         <circle cx={peakX} cy={peakY} r="2" fill="#fbbf24" />
-        <text x={peakX} y={peakY - 3} fill="#fbbf24" fontSize="3" textAnchor="middle">Peak</text>
+        <text x={peakX} y={peakY - 3} fill="#fbbf24" fontSize="3" textAnchor="middle">峰值</text>
       </svg>
       {/* X轴标签 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#64748b', padding: '0 5px' }}>

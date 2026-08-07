@@ -82,7 +82,7 @@ export const DimsePage: React.FC = () => {
     if (res.success) {
       setMwlResults(res.data!);
     } else {
-      message.error(res.error?.message || 'Query failed');
+      message.error(res.error?.message || '查询失败');
     }
     setMwlLoading(false);
   };
@@ -97,7 +97,7 @@ export const DimsePage: React.FC = () => {
       message.success('存储成功');
     } else {
       setStoreResults(prev => [...prev, { fileName: file.name, status: 'FAIL', sopInstanceUid: '-', storagePath: '-', sizeBytes: file.size }]);
-      message.error(res.error?.message || 'Store failed');
+      message.error(res.error?.message || '存储失败');
     }
     setStoreLoading(false);
   };
@@ -115,7 +115,7 @@ export const DimsePage: React.FC = () => {
       message.success(`移动完成：${res.data!.transferredCount} 个实例已传输`);
     } else {
       setMoveResults(prev => [...prev, { studyUid: values.studyUid, destAe: values.destAe, transferredCount: 0, status: 'FAIL' }]);
-      message.error(res.error?.message || 'Move failed');
+      message.error(res.error?.message || '移动失败');
     }
     setMoveLoading(false);
   };

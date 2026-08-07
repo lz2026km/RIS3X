@@ -74,7 +74,7 @@ export const DicomSrPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <FileText size={20} color="#1677ff" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>DICOM SR Manager</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>DICOM SR 管理器</span>
         <Tag color="cyan">TID 1500 / 2000</Tag>
       </Space>
 
@@ -180,7 +180,7 @@ export const DicomSrPage: React.FC = () => {
               <Descriptions.Item label="SOP Instance UID">
                 <Text copyable style={{ fontSize: 12 }}>{srDoc.sopInstanceUID}</Text>
               </Descriptions.Item>
-              <Descriptions.Item label="Status">
+              <Descriptions.Item label="状态">
                 <Tag color="green">{srDoc.status}</Tag>
               </Descriptions.Item>
               <Descriptions.Item label="已生成">{new Date(srDoc.generatedAt).toLocaleString()}</Descriptions.Item>

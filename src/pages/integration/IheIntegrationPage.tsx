@@ -113,7 +113,7 @@ const IheIntegrationPage: React.FC = () => {
             <Space direction="vertical" size={8} style={{ width: '100%' }}>
               <Button block icon={<IdCard size={14} />} onClick={() => { setPixModal(true); setPixResult('') }}>PIX 患者索引查询</Button>
               <Button block icon={<FileSearch size={14} />} onClick={() => { setPdqModal(true); setPixResult('') }}>PDQ 患者人口学查询</Button>
-              <Button block icon={<ArrowLeftRight size={14} />} onClick={() => message.success('PIX 增量更新通知已发送(模拟)')}>PIX Update Notification</Button>
+              <Button block icon={<ArrowLeftRight size={14} />} onClick={() => message.success('PIX 增量更新通知已发送(模拟)')}>PIX 增量更新通知</Button>
               <Button block icon={<CalendarRange size={14} />} onClick={() => message.info('PAM 就诊状态消息由 HL7 ADT 驱动')}>PAM 就诊管理文档</Button>
             </Space>
           </Card>

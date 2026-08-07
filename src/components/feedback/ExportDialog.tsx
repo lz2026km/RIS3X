@@ -76,7 +76,7 @@ export function ExportDialog({ reportId, open, onCancel }: ExportDialogProps) {
         await downloadExport(res);
       }
     } catch (err: any) {
-      setResult({ success: false, error: err?.message || "Export failed" });
+      setResult({ success: false, error: err?.message || "导出失败" });
     } finally {
       setExporting(false);
     }
