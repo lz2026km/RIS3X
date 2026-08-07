@@ -74,6 +74,7 @@ import {
   Fingerprint,
   Video,
   Server,
+  FolderOpen, // [W1-A v3.0.6.11-79] 文件管理
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { GitCompare, FileDown, Globe, FileSignature, Scan, Mic, Code, Siren, Heart, Bone, Brain, Plug, LayoutGrid } from 'lucide-react';
@@ -463,6 +464,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/critical-alert",
         icon: <AlertOctagon size={18} />,
         labelKey: "nav.criticalAlert",
+        roles: ["医生", "主任", "管理员", "护士"],
+      },
+      // [v3.0.6.11-79] W2-A 危急值接收端门户
+      {
+        path: "/critical-value-receiver",
+        icon: <Bell size={18} />,
+        labelKey: "nav.criticalValueReceiver",
         roles: ["医生", "主任", "管理员", "护士"],
       },
     ],
@@ -1938,6 +1946,12 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         roles: ["主任", "管理员"],
       },
       {
+        path: "/compliance-docs",
+        icon: <ScrollText size={18} />,
+        labelKey: "nav.complianceDocs",
+        roles: ["主任", "管理员"],
+      }, // [v3.0.6.11-79 W1-C] 合规文档库
+      {
         path: "/terminology-server",
         icon: <Server size={18} />,
         labelKey: "nav.terminologyServer",
@@ -2146,6 +2160,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
   {
     section: "nav.systemManage",
     items: [
+      // [v3.0.6.11-79] W1-B 用户中心 (个人资料/改密/安全/退出)
+      {
+        path: "/user/center",
+        icon: <UserCircle size={18} />,
+        labelKey: "nav.userCenter",
+        roles: ["医生", "技师", "护士", "管理员", "主任"],
+      },
       {
         path: "/user-management",
         icon: <Shield size={18} />,
@@ -2242,6 +2263,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/system/compliance",
         icon: <ShieldCheck size={18} />,
         labelKey: "nav.systemCompliance",
+        roles: ["管理员", "主任"],
+      },
+      // [W1-A v3.0.6.11-79] 文件管理 (上传/下载/校验和确认)
+      {
+        path: "/system/files",
+        icon: <FolderOpen size={18} />,
+        labelKey: "nav.fileManagement",
         roles: ["管理员", "主任"],
       },
       {

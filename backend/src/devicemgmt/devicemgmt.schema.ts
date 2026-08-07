@@ -53,3 +53,17 @@ export const UpdateContrastInventorySchema = z.object({
   expiryDate: z.string().optional(),
   location: z.string().optional(),
 })
+
+// [W4-B] 设备保养计划
+export const CreateMaintenancePlanSchema = z.object({
+  deviceId: z.string().min(1),
+  deviceName: z.string().min(1).optional(),
+  maintenanceDate: z.string().min(1),
+  intervalDays: z.number().int().positive().default(90),
+  type: z.string().default('定期保养'),
+  content: z.string().default(''),
+  estimatedCost: z.number().nonnegative().optional(),
+  assignee: z.string().optional(),
+})
+
+export const UpdateMaintenancePlanSchema = CreateMaintenancePlanSchema.partial()

@@ -18,6 +18,7 @@ export interface CACertificateDto {
   fingerprint: string
   usageCount: number
   lastUsedAt?: string
+  fileName?: string
 }
 
 export interface SignDocumentRequest {
@@ -78,7 +79,7 @@ export const caApi = {
   listCertificates: () =>
     api.get<CACertificateDto[]>('/ca/certificates'),
 
-  uploadCertificate: (data: Partial<CACertificateDto>) =>
+  uploadCertificate: (data: Partial<CACertificateDto> & Record<string, unknown>) =>
     api.post<CACertificateDto>('/ca/certificates', data),
 
   revokeCertificate: (id: string) =>

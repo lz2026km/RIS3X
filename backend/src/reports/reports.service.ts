@@ -3,6 +3,8 @@ import { PrismaService } from '../prisma/prisma.service'
 import { QueueService } from '../queue/queue.service'
 import { createNoopGateway, NotificationsGateway } from '../notifications/notifications.gateway'
 import { currentTenantId } from '../common/tenant/tenant-utils'
+import { SystemConfigService } from '../system-storage/system-config.service'
+import { batchExportStore, createBatchExportTaskId } from '../queue/batch-export.store'
 import type { Prisma, ReportState, Report } from '@prisma/client'
 
 export const REPORT_TRANSITIONS: Record<ReportState, ReportState[]> = {
@@ -69,13 +71,16 @@ export class ReportsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly queue: QueueService,
+    private readonly systemConfig: SystemConfigService,
     gateway?: NotificationsGateway,
   ) {
     this.gateway = gateway ?? createNoopGateway()
   }
 
   async list(params: { skip?: number; take?: number; state?: ReportState }) {
-    const { skip = 0, take = 20, state } = params
+    const { skip = 0, state } = params
+    // [v3.0.6.11-79] 默认分页大小读取 admin config default_page_size, 未配置回退 20
+    const take = params.take ?? (await this.systemConfig.getNumber('default_page_size', 20))
     const where: any = { tenantId: currentTenantId() }
     if (state) where.state = state
     const [items, total] = await Promise.all([
@@ -176,6 +181,23 @@ export class ReportsService {
     if (!report) throw new NotFoundException('Report not found')
     await this.queue.addReportExport({ reportId: id, format, userId })
     return { queued: true }
+  }
+
+  /** [W4-B] 批量报告导出: 创建任务 + 入队, 返回 taskId (前端轮询状态) */
+  async createBatchExport(dto: { ids?: string[]; format?: string }, userId: string) {
+    const ids = (dto.ids ?? []).filter((x) => typeof x === 'string' && x.trim().length > 0)
+    if (ids.length === 0) throw new BadRequestException('ids is required')
+    const format = (dto.format ?? 'pdf').toLowerCase()
+    const taskId = createBatchExportTaskId()
+    const task = batchExportStore.create(taskId, ids.length, format)
+    await this.queue.addBatchExport({ taskId, ids, format, userId })
+    return { taskId, status: task.status, total: task.total, format }
+  }
+
+  async getBatchExport(taskId: string) {
+    const task = batchExportStore.get(taskId)
+    if (!task) throw new NotFoundException(`Batch export task ${taskId} not found`)
+    return task
   }
 
   async transition(id: string, to: ReportState, actorId: string, reason?: string) {

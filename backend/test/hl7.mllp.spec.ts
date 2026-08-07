@@ -17,7 +17,7 @@ describe('Hl7Service - MLLP / ACK', () => {
     process.env['HL7_MLLP_RETRY_MAX'] = '2'
     process.env['HL7_MLLP_RETRY_INTERVAL'] = '50'
     process.env['HL7_MLLP_TIMEOUT'] = '500'
-    svc = new Hl7Service(mockPrisma as PrismaService)
+    svc = new Hl7Service(mockPrisma as PrismaService, {} as never)
   })
 
   beforeEach(() => jest.clearAllMocks())
@@ -91,7 +91,7 @@ describe('Hl7Service - MLLP / ACK', () => {
     it('skips when push disabled', async () => {
       process.env['HL7_PUSH_ENABLED'] = 'false'
       // Recreate service with new config
-      const svc2 = new Hl7Service(mockPrisma as PrismaService)
+      const svc2 = new Hl7Service(mockPrisma as PrismaService, {} as never)
       await svc2.pushOruOnExamCompletion({}, {})
       // No error means skip
     })
@@ -100,7 +100,7 @@ describe('Hl7Service - MLLP / ACK', () => {
       process.env['HL7_PUSH_ENABLED'] = 'true'
       process.env['HL7_PUSH_HOST'] = '127.0.0.1'
       process.env['HL7_PUSH_PORT'] = '9999'
-      const svc2 = new Hl7Service(mockPrisma as PrismaService)
+      const svc2 = new Hl7Service(mockPrisma as PrismaService, {} as never)
       mockPrisma.hl7MessageArchive.create.mockResolvedValue({ id: 'a1' })
       await expect(
         svc2.pushOruOnExamCompletion(

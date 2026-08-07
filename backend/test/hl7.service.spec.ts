@@ -15,7 +15,13 @@ describe('Hl7Service - message builders', () => {
   beforeAll(() => {
     process.env['HL7_MLLP_RETRY_MAX'] = '1'
     process.env['HL7_MLLP_RETRY_INTERVAL'] = '100'
-    svc = new Hl7Service(mockPrisma as PrismaService)
+    // [v3.0.6.11-79] buildORU 读取 admin config hospital_name (SystemConfigService 桩: 未配置→回退 fallback)
+    svc = new Hl7Service(mockPrisma as PrismaService, {
+      getString: jest.fn(async (_key: string, fallback: string) => fallback),
+      getNumber: jest.fn().mockResolvedValue(30),
+      get: jest.fn(),
+      invalidate: jest.fn(),
+    } as never)
   })
 
   const baseReport: ReportForHL7 = {
@@ -34,28 +40,28 @@ describe('Hl7Service - message builders', () => {
   }
 
   describe('buildORU', () => {
-    it('returns valid HL7 ORU message', () => {
-      const msg = svc.buildORU(baseReport)
+    it('returns valid HL7 ORU message', async () => {
+      const msg = await svc.buildORU(baseReport)
       expect(msg).toContain('MSH|')
       expect(msg).toContain('PID|')
       expect(msg).toContain('OBR|')
       expect(msg).toContain('OBX|')
       expect(msg).toContain('ORU^R01')
-      expect(msg).toContain('G005_RIS')
+      expect(msg).toContain('G005 放射科信息管理系统')
     })
 
-    it('includes RADS category when provided', () => {
-      const msg = svc.buildORU({ ...baseReport, radsCategory: 'Lung-RADS 1' })
+    it('includes RADS category when provided', async () => {
+      const msg = await svc.buildORU({ ...baseReport, radsCategory: 'Lung-RADS 1' })
       expect(msg).toContain('RADS')
     })
 
-    it('handles female patient', () => {
-      const msg = svc.buildORU({ ...baseReport, patientSex: 'F' })
+    it('handles female patient', async () => {
+      const msg = await svc.buildORU({ ...baseReport, patientSex: 'F' })
       expect(msg).toContain('|||F')
     })
 
-    it('handles patientBirthDate', () => {
-      const msg = svc.buildORU({ ...baseReport, patientBirthDate: '19900101' })
+    it('handles patientBirthDate', async () => {
+      const msg = await svc.buildORU({ ...baseReport, patientBirthDate: '19900101' })
       expect(msg).toContain('19900101')
     })
   })

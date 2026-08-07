@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
 import { currentTenantId } from '../../common/tenant/tenant-utils'
 
@@ -63,6 +63,17 @@ export class AuditService {
       }),
     ])
     return { total, last24h }
+  }
+
+  // [W2-C] 审计记录详情 (AuditPage Drawer)
+  async getById(id: string) {
+    const row = await this.prisma.auditLog.findUnique({
+      where: { id },
+    })
+    if (!row || row.tenantId !== currentTenantId()) {
+      throw new NotFoundException(`审计记录 ${id} 不存在`)
+    }
+    return row
   }
 
   // 导出 CSV（从 AuditLog 表查询，最多 10000 条，按时间倒序）

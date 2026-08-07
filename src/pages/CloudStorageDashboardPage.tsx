@@ -279,29 +279,29 @@ function StorageConfigTab() {
                 <>
                   <Row gutter={12}>
                     <Col span={12}>
-                      <Form.Item name="endpoint" label="Endpoint" rules={[{ required: true, message: "endpoint 必填" }]}>
+                      <Form.Item name="endpoint" label="端点" rules={[{ required: true, message: "endpoint 必填" }]}>
                         <Input placeholder="http://localhost:9000" />
                       </Form.Item>
                     </Col>
                     <Col span={12}>
-                      <Form.Item name="bucket" label="Bucket" rules={[{ required: true, message: "bucket 必填" }]}>
+                      <Form.Item name="bucket" label="存储桶" rules={[{ required: true, message: "bucket 必填" }]}>
                         <Input placeholder="g005" />
                       </Form.Item>
                     </Col>
                   </Row>
                   <Row gutter={12}>
                     <Col span={8}>
-                      <Form.Item name="region" label="Region" rules={[{ required: true, message: "region 必填" }]}>
+                      <Form.Item name="region" label="区域" rules={[{ required: true, message: "region 必填" }]}>
                         <Input placeholder="us-east-1" />
                       </Form.Item>
                     </Col>
                     <Col span={8}>
-                      <Form.Item name="accessKey" label="Access Key" rules={[{ required: true, message: "accessKey 必填" }]}>
+                      <Form.Item name="accessKey" label="访问密钥" rules={[{ required: true, message: "accessKey 必填" }]}>
                         <Input placeholder="minioadmin" />
                       </Form.Item>
                     </Col>
                     <Col span={8}>
-                      <Form.Item name="secretKey" label="Secret Key" rules={[{ required: true, message: "secretKey 必填" }]}>
+                      <Form.Item name="secretKey" label="私有密钥" rules={[{ required: true, message: "secretKey 必填" }]}>
                         <Input.Password placeholder="••••••••" />
                       </Form.Item>
                     </Col>

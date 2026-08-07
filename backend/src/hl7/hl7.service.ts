@@ -6,6 +6,7 @@ import * as net from 'net'
 import * as tls from 'tls'
 import * as fs from 'fs'
 import { PrismaService } from '../prisma/prisma.service'
+import { SystemConfigService } from '../system-storage/system-config.service'
 import { Gender, PatientType } from '@prisma/client'
 
 export interface ReportForHL7 {
@@ -103,7 +104,10 @@ export class Hl7Service implements OnModuleInit {
     return value[0] + '*'.repeat(value.length - 2) + value[value.length - 1]
   }
 
-  constructor(private readonly prisma: PrismaService) {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly systemConfig: SystemConfigService,
+  ) {
     this.retryMax = Number(process.env['HL7_MLLP_RETRY_MAX'] ?? 3)
     this.retryInterval = Number(process.env['HL7_MLLP_RETRY_INTERVAL'] ?? 5000)
     const rawWhitelist = process.env['HL7_MLLP_WHITELIST'] ?? ''
@@ -631,7 +635,7 @@ export class Hl7Service implements OnModuleInit {
    * - push 启用时: MLLP 发送,失败按 sendMllpMessage 重试后抛错
    */
   async buildAndPushOru(r: ReportForHL7): Promise<{ message: string; controlId: string; pushed: boolean; ackStatus: string }> {
-    const message = this.buildORU(r)
+    const message = await this.buildORU(r)
     const controlId = message.split('\r')[0]?.split('|')[9] ?? `G005-${r.reportId}-${Date.now()}`
     if (!this.pushConfig.enabled || !this.pushConfig.host) {
       await this.prisma.hl7MessageArchive.create({
@@ -676,7 +680,7 @@ export class Hl7Service implements OnModuleInit {
         authorId: report.authorId ?? '',
         reportId: report.id,
       }
-      const message = this.buildORU(oru)
+      const message = await this.buildORU(oru)
       await this.sendMllpMessage(this.pushConfig.host, this.pushConfig.port, message)
       this.logger.log(`ORU^R01 pushed for exam ${exam.accessionNumber}, report ${report.id}`)
     } catch (err) {
@@ -705,15 +709,21 @@ export class Hl7Service implements OnModuleInit {
     }
   }
 
-  buildORU(r: ReportForHL7): string {
+  /**
+   * 组装 ORU^R01 MSH 段。 [v3.0.6.11-79] MSH.3/MSH.4 发送方读取 admin config hospital_name,
+   * 未配置时回退 G005_RIS / G005_HOSPITAL。异步: 经 SystemConfigService 缓存读取。
+   */
+  async buildORU(r: ReportForHL7): Promise<string> {
     const ts = nowHL7()
     const ctrlId = `G005-${r.reportId}-${ts}`
+    const hospitalName = await this.systemConfig.getString('hospital_name', 'G005 放射科信息管理系统')
+    const sendingApp = hospitalName.length > 15 ? hospitalName.slice(0, 15) : hospitalName
 
     const msh = [
       'MSH',
       `^~\\&`,
-      'G005_RIS',
-      'G005_HOSPITAL',
+      sendingApp,
+      hospitalName,
       'HIS_RECEIVER',
       'HIS',
       ts,

@@ -1,4 +1,4 @@
-﻿import { Controller, Get, Post, Query, Req, Res } from '@nestjs/common'
+﻿import { Controller, Get, Post, Param, Query, Req, Res } from '@nestjs/common'
 import { Roles } from '../../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { AuditService } from './audit.service'
@@ -47,5 +47,12 @@ export class AuditController {
     res.setHeader('Content-Type', 'text/csv; charset=utf-8')
     res.setHeader('Content-Disposition', `attachment; filename="audit-log-${new Date().toISOString().slice(0, 10)}.csv"`)
     res.send(csv)
+  }
+
+  // [W2-C] 详情 (静态路由 stats/export 已在上方声明, 不会被 :id 抢占)
+  @Get(':id')
+  @ApiOperation({ summary: '瀹¤鏃ュ織璇︽儏' })
+  getById(@Param('id') id: string) {
+    return this.audit.getById(id)
   }
 }

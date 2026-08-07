@@ -1177,7 +1177,7 @@ export default function WorklistPage() {
             alignItems: 'center',
             gap: 6,
           }}>
-            <span>DICOM Worklist</span>
+            <span>DICOM 工作列表</span>
             <span style={{ color: '#cbd5e1' }}>·</span>
             <span>融合HIS/PAACS预约数据</span>
             <span style={{ color: '#cbd5e1' }}>·</span>

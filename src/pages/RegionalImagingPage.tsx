@@ -9,6 +9,10 @@ import {
   type CrossInstitutionStudyDto,
   type DocumentRegistryEntryDto,
   type AuditTrailEntryDto,
+  type RegionalImagingDto,
+  type DepartmentScheduleDto,
+  type DepartmentDto,
+  type IntegrationStatusDto,
 } from "../services/api/regionalApi";
 
 // Types
@@ -578,7 +582,7 @@ const CrossInstitutionQuery: React.FC = () => {
         const res = await regionalApi.listInstitutions();
         if (res.success && Array.isArray(res.data)) {
           setInstitutions(res.data);
-          if (res.data.length > 0) setSelectedInstitution(res.data[0].id);
+          if (res.data.length > 0) setSelectedInstitution(res.data[0]!.id);
         }
       } catch { message.error('加载机构列表失败'); }
       finally { setLoading(false); }
@@ -1085,6 +1089,422 @@ const XDSIntegration: React.FC = () => {
   );
 };
 
+// ============ [W2-C] 响应归一化 (MSW { success, data: [...] } / Nest { data: [...] }) ============
+const listFrom = <T,>(res: { data: unknown }): T[] => {
+  const d = res?.data as T[] | { data?: T[] } | null | undefined;
+  if (Array.isArray(d)) return d as T[];
+  if (d && Array.isArray((d as { data?: unknown }).data)) return (d as { data: T[] }).data;
+  return [];
+};
+
+// ============ [W2-C] 区域影像共享 (浏览 + 详情/调阅) ============
+const RegionalSharing: React.FC = () => {
+  const [items, setItems] = useState<RegionalImagingDto[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [detail, setDetail] = useState<RegionalImagingDto | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await regionalApi.listRegionalImaging();
+        if (res.success) setItems(listFrom<RegionalImagingDto>(res));
+      } catch {
+        message.error("加载区域影像失败");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  const handleView = async (id: string) => {
+    setDetailLoading(true);
+    try {
+      const res = await regionalApi.getRegionalImaging(id);
+      if (res.success) {
+        const d = res.data as unknown;
+        const item = Array.isArray(d)
+          ? d[0]
+          : d && typeof d === "object" && Array.isArray((d as { data?: unknown }).data)
+            ? (d as { data: RegionalImagingDto[] }).data[0]
+            : (d as RegionalImagingDto | undefined);
+        setDetail(item ?? null);
+      } else {
+        message.error(res.error?.message ?? "加载详情失败");
+      }
+    } catch {
+      message.error("加载详情失败");
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
+  return (
+    <div style={styles.section}>
+      <div style={styles.sectionHeader}>
+        <h3 style={styles.sectionTitle}>区域影像共享</h3>
+        <span style={{ fontSize: 13, color: "#94a3b8" }}>
+          医联体成员机构影像工作量与质量统计{loading ? " (加载中...)" : ` (${items.length} 条)`}
+        </span>
+      </div>
+      {loading ? (
+        <div style={{ color: "#94a3b8", padding: "24px 0", textAlign: "center" }}>加载中...</div>
+      ) : (
+        <table style={styles.table}>
+          <thead>
+            <tr style={styles.tableHeaderRow}>
+              <th style={styles.th}>机构名称</th>
+              <th style={styles.th}>设备类型</th>
+              <th style={styles.th}>检查量</th>
+              <th style={styles.th}>阳性数</th>
+              <th style={styles.th}>阳性率</th>
+              <th style={styles.th}>平均报告时长(h)</th>
+              <th style={styles.th}>报告合格率</th>
+              <th style={styles.th}>统计周期</th>
+              <th style={styles.th}>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((it) => (
+              <tr key={it.id} style={styles.tableRow}>
+                <td style={styles.td}>{it.institutionName}</td>
+                <td style={styles.td}>{it.modality}</td>
+                <td style={styles.td}>{it.examCount.toLocaleString()}</td>
+                <td style={styles.td}>{it.positiveCount.toLocaleString()}</td>
+                <td style={styles.td}>{it.positiveRate.toFixed(1)}%</td>
+                <td style={styles.td}>{it.avgReportTime.toFixed(1)}</td>
+                <td style={styles.td}>
+                  <span
+                    style={{
+                      ...styles.badge,
+                      background: it.qualifiedRate >= 95 ? "#10b981" : it.qualifiedRate >= 90 ? "#f59e0b" : "#ef4444",
+                    }}
+                  >
+                    {it.qualifiedRate.toFixed(1)}%
+                  </span>
+                </td>
+                <td style={styles.td}>{it.period}</td>
+                <td style={styles.td}>
+                  <button style={styles.approveBtn} onClick={() => handleView(it.id)}>
+                    {detailLoading ? "加载中..." : "详情/调阅"}
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {items.length === 0 && (
+              <tr>
+                <td style={{ ...styles.td, textAlign: "center" }} colSpan={9}>
+                  暂无区域影像数据
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      )}
+      {detail && (
+        <div style={styles.modalOverlay} onClick={() => setDetail(null)}>
+          <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <h4 style={styles.modalTitle}>区域影像详情 — {detail.institutionName}</h4>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>机构ID</label>
+              <div style={styles.td}>{detail.institutionId}</div>
+            </div>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>设备类型</label>
+              <div style={styles.td}>{detail.modality}</div>
+            </div>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>检查量 / 阳性数</label>
+              <div style={styles.td}>
+                {detail.examCount.toLocaleString()} 例 / {detail.positiveCount.toLocaleString()} 例 (阳性率 {detail.positiveRate.toFixed(1)}%)
+              </div>
+            </div>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>平均报告时长</label>
+              <div style={styles.td}>{detail.avgReportTime.toFixed(1)} 小时</div>
+            </div>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>报告合格率</label>
+              <div style={styles.td}>{detail.qualifiedRate.toFixed(1)}%</div>
+            </div>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>统计周期</label>
+              <div style={styles.td}>{detail.period}</div>
+            </div>
+            <div style={styles.modalActions}>
+              <button style={styles.primaryBtn} onClick={() => setDetail(null)}>关闭</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ============ [W2-C] 科室排班 (排班表 + 编辑) ============
+const DepartmentSchedule: React.FC = () => {
+  const [schedule, setSchedule] = useState<DepartmentScheduleDto[]>([]);
+  const [departments, setDepartments] = useState<DepartmentDto[]>([]);
+  const [deptFilter, setDeptFilter] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState<DepartmentScheduleDto | null>(null);
+  const [editForm, setEditForm] = useState({ shift: "", doctorName: "", doctorId: "", status: "" });
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const [sRes, dRes] = await Promise.all([
+          regionalApi.getDepartmentSchedule(),
+          regionalApi.listDepartments(),
+        ]);
+        if (sRes.success) setSchedule(listFrom<DepartmentScheduleDto>(sRes));
+        if (dRes.success) setDepartments(listFrom<DepartmentDto>(dRes));
+      } catch {
+        message.error("加载排班失败");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  const openEdit = (row: DepartmentScheduleDto) => {
+    setEditing(row);
+    setEditForm({ shift: row.shift, doctorName: row.doctorName, doctorId: row.doctorId, status: row.status });
+  };
+
+  const handleSave = async () => {
+    if (!editing) return;
+    try {
+      const res = await regionalApi.updateSchedule(editing.id, editForm);
+      if (res.success) {
+        const updated = Array.isArray(res.data) ? res.data[0] : res.data;
+        setSchedule((prev) =>
+          prev.map((s) => (s.id === editing.id ? (updated ?? { ...editing, ...editForm }) : s)),
+        );
+        message.success("排班已更新");
+      } else {
+        message.error(res.error?.message ?? "更新排班失败");
+      }
+    } catch {
+      message.error("更新排班失败");
+    }
+    setEditing(null);
+  };
+
+  const visible = deptFilter === "all" ? schedule : schedule.filter((s) => s.departmentId === deptFilter);
+
+  return (
+    <div style={styles.section}>
+      <div style={styles.sectionHeader}>
+        <h3 style={styles.sectionTitle}>科室排班</h3>
+        <select
+          style={styles.select}
+          value={deptFilter}
+          onChange={(e) => setDeptFilter(e.target.value)}
+        >
+          <option value="all">全部科室 ({departments.length})</option>
+          {departments.map((d) => (
+            <option key={d.id} value={d.id}>
+              {d.name}
+            </option>
+          ))}
+        </select>
+      </div>
+      {loading ? (
+        <div style={{ color: "#94a3b8", padding: "24px 0", textAlign: "center" }}>加载中...</div>
+      ) : (
+        <table style={styles.table}>
+          <thead>
+            <tr style={styles.tableHeaderRow}>
+              <th style={styles.th}>日期</th>
+              <th style={styles.th}>科室</th>
+              <th style={styles.th}>班次</th>
+              <th style={styles.th}>医生</th>
+              <th style={styles.th}>状态</th>
+              <th style={styles.th}>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {visible.map((s) => (
+              <tr key={s.id} style={styles.tableRow}>
+                <td style={styles.td}>{s.date}</td>
+                <td style={styles.td}>{s.departmentName}</td>
+                <td style={styles.td}>{s.shift}</td>
+                <td style={styles.td}>{s.doctorName} ({s.doctorId})</td>
+                <td style={styles.td}>
+                  <span
+                    style={{
+                      ...styles.badge,
+                      background: s.status === "已排班" ? "#10b981" : s.status === "待确认" ? "#f59e0b" : "#ef4444",
+                    }}
+                  >
+                    {s.status}
+                  </span>
+                </td>
+                <td style={styles.td}>
+                  <button style={styles.approveBtn} onClick={() => openEdit(s)}>编辑</button>
+                </td>
+              </tr>
+            ))}
+            {visible.length === 0 && (
+              <tr>
+                <td style={{ ...styles.td, textAlign: "center" }} colSpan={6}>
+                  暂无排班数据
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      )}
+      {editing && (
+        <div style={styles.modalOverlay} onClick={() => setEditing(null)}>
+          <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <h4 style={styles.modalTitle}>编辑排班 — {editing.departmentName} {editing.date}</h4>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>班次</label>
+              <select
+                style={styles.select}
+                value={editForm.shift}
+                onChange={(e) => setEditForm({ ...editForm, shift: e.target.value })}
+              >
+                <option>白班</option>
+                <option>夜班</option>
+                <option>中班</option>
+                <option>值班</option>
+              </select>
+            </div>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>医生姓名</label>
+              <input
+                style={styles.input}
+                value={editForm.doctorName}
+                onChange={(e) => setEditForm({ ...editForm, doctorName: e.target.value })}
+              />
+            </div>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>医生ID</label>
+              <input
+                style={styles.input}
+                value={editForm.doctorId}
+                onChange={(e) => setEditForm({ ...editForm, doctorId: e.target.value })}
+              />
+            </div>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>状态</label>
+              <select
+                style={styles.select}
+                value={editForm.status}
+                onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+              >
+                <option>已排班</option>
+                <option>待确认</option>
+                <option>停诊</option>
+              </select>
+            </div>
+            <div style={styles.modalActions}>
+              <button style={styles.cancelBtn} onClick={() => setEditing(null)}>取消</button>
+              <button style={styles.primaryBtn} onClick={handleSave}>保存</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ============ [W2-C] 集成状态 (FHIR / IHE / MLLP) ============
+const IntegrationStatus: React.FC = () => {
+  const [statuses, setStatuses] = useState<Record<string, IntegrationStatusDto>>({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const [fhir, ihe, mllp] = await Promise.all([
+          regionalApi.getFhirStatus(),
+          regionalApi.getIheStatus(),
+          regionalApi.getMllpStatus(),
+        ]);
+        const next: Record<string, IntegrationStatusDto> = {};
+        if (fhir.success && fhir.data) next.fhir = fhir.data as IntegrationStatusDto;
+        if (ihe.success && ihe.data) next.ihe = ihe.data as IntegrationStatusDto;
+        if (mllp.success && mllp.data) next.mllp = mllp.data as IntegrationStatusDto;
+        setStatuses(next);
+      } catch {
+        message.error("加载集成状态失败");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  const defs = [
+    { key: "fhir", name: "FHIR 集成", desc: "HL7 FHIR R4 资源互操作" },
+    { key: "ihe", name: "IHE XDS-I", desc: "跨机构文档共享注册 (XDS-I)" },
+    { key: "mllp", name: "HL7 MLLP", desc: "HL7 v2 消息网关" },
+  ];
+
+  const statusColor = (st: string | undefined): string => {
+    const s = (st ?? "").toUpperCase();
+    if (s === "CONNECTED" || s === "ACTIVE" || s === "ONLINE") return "#10b981";
+    if (s === "DEGRADED" || s === "RETRY") return "#f59e0b";
+    return "#ef4444";
+  };
+  const statusLabel = (st: string | undefined): string => {
+    const s = (st ?? "").toUpperCase();
+    if (s === "CONNECTED" || s === "ACTIVE" || s === "ONLINE") return "正常";
+    if (s === "DEGRADED" || s === "RETRY") return "降级";
+    return st || "未知";
+  };
+
+  return (
+    <div style={styles.section}>
+      <div style={styles.sectionHeader}>
+        <h3 style={styles.sectionTitle}>区域集成状态</h3>
+        <span style={{ fontSize: 13, color: "#94a3b8" }}>
+          FHIR / IHE XDS-I / HL7 MLLP 通道健康检查{loading ? " (加载中...)" : ""}
+        </span>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+        {defs.map((d) => {
+          const st = statuses[d.key];
+          return (
+            <div
+              key={d.key}
+              style={{
+                background: "#0f172a",
+                border: `1px solid ${statusColor(st?.status)}`,
+                borderRadius: 10,
+                padding: 20,
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                <div>
+                  <div style={{ fontSize: 16, fontWeight: 600, color: "#f1f5f9" }}>{d.name}</div>
+                  <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>{d.desc}</div>
+                </div>
+                <span
+                  style={{
+                    ...styles.badge,
+                    background: statusColor(st?.status),
+                    color: "#0f172a",
+                  }}
+                >
+                  {statusLabel(st?.status)}
+                </span>
+              </div>
+              <div style={{ fontSize: 13, color: "#94a3b8" }}>
+                上次同步: {st?.lastSync ? new Date(st.lastSync).toLocaleString("zh-CN") : "—"}
+              </div>
+              {st?.error && <div style={{ fontSize: 12, color: "#ef4444", marginTop: 6 }}>{st.error}</div>}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 // Main Component
 const RegionalImagingPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("applications");
@@ -1097,6 +1517,9 @@ const RegionalImagingPage: React.FC = () => {
     { id: "records", label: "调阅记录" },
     { id: "crossQuery", label: "跨院查询" },
     { id: "xdsi", label: "XDS-I集成" },
+    { id: "sharing", label: "影像共享" },
+    { id: "schedule", label: "科室排班" },
+    { id: "integration", label: "集成状态" },
   ];
 
   const renderContent = () => {
@@ -1115,6 +1538,12 @@ const RegionalImagingPage: React.FC = () => {
         return <CrossInstitutionQuery />;
       case "xdsi":
         return <XDSIntegration />;
+      case "sharing":
+        return <RegionalSharing />;
+      case "schedule":
+        return <DepartmentSchedule />;
+      case "integration":
+        return <IntegrationStatus />;
       default:
         return <ApplicationList />;
     }

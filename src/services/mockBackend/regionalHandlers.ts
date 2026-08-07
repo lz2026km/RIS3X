@@ -3,7 +3,6 @@
 //           institutions/cross-query/document-registry/pix/audit-trail/report-records/
 //           critical-values/remote-diagnoses/co-sign-records/institutions)
 import { http, HttpResponse, delay } from 'msw';
-import { list } from './store';
 import { parseQuery, applyQuery } from './queryBuilder';
 
 const API = '/api/v1/regional';
@@ -107,66 +106,89 @@ const SEED_REGIONAL_INSTITUTIONS = [
   { id: 'RI-004', institutionId: 'INST-004', institutionName: '南港区第二医院', modality: 'US', examCount: 1021, positiveCount: 356, positiveRate: 34.9, avgReportTime: 1.5, qualifiedRate: 93.1, period: '2026-06' },
 ];
 
+// [W2-C] 区域影像共享 / 科室排班 / 集成状态 seed (与 backend regional.service DTO 对齐)
+const SEED_REGIONAL_IMAGING = [
+  { id: 'RI-001', institutionId: 'INST-001', institutionName: '东华区第一医院', modality: 'CT', examCount: 1284, positiveCount: 389, positiveRate: 30.3, avgReportTime: 1.8, qualifiedRate: 96.2, period: '2026-06' },
+  { id: 'RI-002', institutionId: 'INST-002', institutionName: '西城区人民医院', modality: 'MRI', examCount: 856, positiveCount: 302, positiveRate: 35.3, avgReportTime: 2.4, qualifiedRate: 94.8, period: '2026-06' },
+  { id: 'RI-003', institutionId: 'INST-003', institutionName: '高新区中心医院', modality: 'DR', examCount: 1932, positiveCount: 412, positiveRate: 21.3, avgReportTime: 1.2, qualifiedRate: 97.5, period: '2026-06' },
+  { id: 'RI-004', institutionId: 'INST-004', institutionName: '南港区第二医院', modality: 'US', examCount: 1021, positiveCount: 356, positiveRate: 34.9, avgReportTime: 1.5, qualifiedRate: 93.1, period: '2026-06' },
+];
+
+const SEED_SCHEDULE = [
+  { id: 'SCH-001', departmentId: 'DEPT-001', departmentName: '放射科', date: '2026-07-08', shift: '白班', doctorId: 'DOC-001', doctorName: '王建华', status: '已排班' },
+  { id: 'SCH-002', departmentId: 'DEPT-001', departmentName: '放射科', date: '2026-07-08', shift: '夜班', doctorId: 'DOC-002', doctorName: '李慧敏', status: '已排班' },
+  { id: 'SCH-003', departmentId: 'DEPT-002', departmentName: 'CT室', date: '2026-07-08', shift: '白班', doctorId: 'DOC-003', doctorName: '张明远', status: '已排班' },
+  { id: 'SCH-004', departmentId: 'DEPT-002', departmentName: 'CT室', date: '2026-07-09', shift: '白班', doctorId: 'DOC-004', doctorName: '刘敏', status: '待确认' },
+  { id: 'SCH-005', departmentId: 'DEPT-003', departmentName: '超声科', date: '2026-07-08', shift: '白班', doctorId: 'DOC-005', doctorName: '陈杰', status: '已排班' },
+];
+
+const SEED_DEPARTMENTS = [
+  { id: 'DEPT-001', name: '放射科', level: '一级科室', type: '影像', reportCount: 1284, pendingCount: 12 },
+  { id: 'DEPT-002', name: 'CT室', level: '二级科室', type: '影像', reportCount: 856, pendingCount: 8 },
+  { id: 'DEPT-003', name: '超声科', level: '一级科室', type: '功能', reportCount: 1021, pendingCount: 5 },
+];
+
+const SEED_INTEGRATION_STATUS: Record<string, Record<string, unknown>> = {
+  fhir: { status: 'CONNECTED', lastSync: '2026-07-08T10:00:00+08:00' },
+  ihe: { status: 'CONNECTED', lastSync: '2026-07-08T09:42:00+08:00' },
+  mllp: { status: 'ACTIVE', lastSync: '2026-07-08T10:05:00+08:00', messages24h: 1240 },
+};
+
 export const regionalHandlers = [
   http.get(`${API}/imaging`, async ({ request }) => {
     await delay(delayMs());
     const url = new URL(request.url);
     const opts = parseQuery(url);
-    let items: any[] = [];
-    try { items = list<any>('studies'); } catch {}
-    if (!items.length) items = [{"id":"RI001","patientName":"李四","modality":"CT","sourceDept":"分院1"}];
-    const result = applyQuery(items, opts);
+    const result = applyQuery(SEED_REGIONAL_IMAGING as any[], opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
+  }),
+  http.get(`${API}/imaging/:id`, async ({ params }) => {
+    await delay(delayMs());
+    const item = SEED_REGIONAL_IMAGING.find((s) => s.id === params.id);
+    if (!item) {
+      return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: `区域影像 ${params.id} 不存在` } }, { status: 404 });
+    }
+    return HttpResponse.json({ success: true, data: item });
   }),
   http.get(`${API}/schedule`, async ({ request }) => {
     await delay(delayMs());
     const url = new URL(request.url);
     const opts = parseQuery(url);
-    let items: any[] = [];
-    try { items = list<any>('schedule'); } catch {}
-    if (!items.length) items = [{"id":"SCH001","department":"放射科","date":"2026-07-08","total":120}];
-    const result = applyQuery(items, opts);
+    const result = applyQuery(SEED_SCHEDULE as any[], opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
+  }),
+  http.put(`${API}/schedule/:id`, async ({ params, request }) => {
+    await delay(delayMs(40, 120));
+    const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
+    const idx = SEED_SCHEDULE.findIndex((s) => s.id === params.id);
+    if (idx === -1) {
+      return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: `排班 ${params.id} 不存在` } }, { status: 404 });
+    }
+    const updated = { ...SEED_SCHEDULE[idx], ...(body ?? {}) } as { id: string; departmentId: string; departmentName: string; date: string; shift: string; doctorId: string; doctorName: string; status: string };
+    SEED_SCHEDULE[idx] = updated;
+    return HttpResponse.json({ success: true, data: updated });
   }),
   http.get(`${API}/departments`, async ({ request }) => {
     await delay(delayMs());
     const url = new URL(request.url);
     const opts = parseQuery(url);
-    let items: any[] = [];
-    try { items = list<any>('departments'); } catch {}
-    if (!items.length) items = [{"id":"DEPT001","name":"放射科","type":"医技","region":"本院"}];
-    const result = applyQuery(items, opts);
+    const result = applyQuery(SEED_DEPARTMENTS as any[], opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
   http.get(`${API}/medical-alliance`, async ({ request }) => {
     await delay(delayMs());
     const url = new URL(request.url);
     const opts = parseQuery(url);
-    let items: any[] = [];
-    try { items = list<any>('alliances'); } catch {}
-    if (!items.length) items = [{"id":"MA001","name":"医联体1","status":"ACTIVE"}];
-    const result = applyQuery(items, opts);
+    const result = applyQuery([{ id: 'MA001', name: '东华区医联体', level: '区域', type: '紧密型', memberCount: 4, status: 'ACTIVE' }] as any[], opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
-  http.get(`${API}/integration/fhir`, async ({ request }) => {
+  http.get(`${API}/integration/:name`, async ({ request, params }) => {
     await delay(delayMs());
     const url = new URL(request.url);
-    const opts = parseQuery(url);
-    let items: any[] = [];
-    try { items = list<any>('null'); } catch {}
-    if (!items.length) items = {"status":"CONNECTED","lastSync":"2026-07-08T10:00"};
-    const result = applyQuery(items, opts);
-    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
-  }),
-  http.get(`${API}/integration/mllp`, async ({ request }) => {
-    await delay(delayMs());
-    const url = new URL(request.url);
-    const opts = parseQuery(url);
-    let items: any[] = [];
-    try { items = list<any>('null'); } catch {}
-    if (!items.length) items = {"status":"ACTIVE","messages24h":1240};
-    const result = applyQuery(items, opts);
-    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
+    void url;
+    const name = String(params.name);
+    const data = SEED_INTEGRATION_STATUS[name] ?? { status: 'UNKNOWN', lastSync: '', error: `未配置 ${name}` };
+    return HttpResponse.json({ success: true, data });
   }),
 
   // ── [G005-P1] 医联体影像页在用孤儿 ──

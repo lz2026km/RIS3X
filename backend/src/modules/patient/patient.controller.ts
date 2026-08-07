@@ -29,6 +29,21 @@ const MergePatientSchema = z.object({
   targetId: z.string().min(1),
 })
 
+// [W4-A] 批量导入: 兼容裸数组与 { items: [] } 两种 body 形状
+const ImportPatientRowSchema = z.object({
+  name: z.string().min(1).max(64),
+  gender: z.enum(['MALE', 'FEMALE', 'OTHER', '男', '女']).optional(),
+  birthDate: z.string().datetime().optional(),
+  idCard: z.string().optional(),
+  phone: z.string().optional(),
+  type: z.enum(['OUTPATIENT', 'INPATIENT', 'EMERGENCY', 'PHYSICAL']).optional(),
+})
+
+const ImportPatientsSchema = z.union([
+  z.array(ImportPatientRowSchema).min(1),
+  z.object({ items: z.array(ImportPatientRowSchema).min(1) }),
+])
+
 @ApiTags('patients')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR')
@@ -49,6 +64,19 @@ export class PatientController {
       name,
       phone,
     })
+  }
+
+  // [W4-A] CSV 导出 (必须注册在 @Get(':id') 之前, 否则 'export' 被 :id 拦截)
+  @Get('export')
+  exportCsv(@Query('name') name?: string, @Query('phone') phone?: string) {
+    return this.service.exportCsv({ name, phone })
+  }
+
+  // [W4-A] 批量导入 (JSON 数组或 { items }, 逐条创建 + 冲突跳过)
+  @Post('import')
+  importMany(@Body(new ZodValidationPipe(ImportPatientsSchema)) body: unknown) {
+    const items = Array.isArray(body) ? body : (body as { items: unknown[] }).items
+    return this.service.importMany(items as never)
   }
 
   @Get(':id')

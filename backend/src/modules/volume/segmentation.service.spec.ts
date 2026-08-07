@@ -226,4 +226,42 @@ describe('SegmentationService (real DICOM samples)', () => {
       expect(history[0]!.features.map((f) => f.name)).toContain('volume')
     })
   })
+
+  describe('[W2-C] 手动标注 (create/list/delete)', () => {
+    it('创建 → 列表可读 (label/color/voxelCount/volume 估算)', async () => {
+      const ctx = makeService(HEAD_UID, headSamples)
+      const created = await ctx.service.createManualSegmentation(HEAD_UID, {
+        label: '左肺上叶结节',
+        color: '#ff4d4f',
+        voxelIndices: Array.from({ length: 1000 }, (_, i) => i),
+      })
+      expect(created.id).toMatch(/^man-/)
+      expect(created.seriesUid).toBe(HEAD_UID)
+      expect(created.label).toBe('左肺上叶结节')
+      expect(created.voxelCount).toBe(1000)
+      expect(created.volume).toBeGreaterThan(0)
+
+      const list = await ctx.service.listManualSegmentations(HEAD_UID)
+      expect(list).toHaveLength(1)
+      expect(list[0]!.id).toBe(created.id)
+
+      // 其他序列不串数据
+      const other = await ctx.service.listManualSegmentations(CHEST_UID)
+      expect(other).toHaveLength(0)
+    })
+
+    it('删除后列表为空, 未知 id 抛 NotFound', async () => {
+      const ctx = makeService(HEAD_UID, headSamples)
+      const created = await ctx.service.createManualSegmentation(HEAD_UID, {
+        label: '骨转移灶',
+        voxelIndices: [],
+      })
+      expect(created.volume).toBe(0)
+
+      const del = await ctx.service.deleteManualSegmentation(created.id)
+      expect(del.deleted).toBe(true)
+      expect(await ctx.service.listManualSegmentations(HEAD_UID)).toHaveLength(0)
+      await expect(ctx.service.deleteManualSegmentation(created.id)).rejects.toBeInstanceOf(NotFoundException)
+    })
+  })
 })

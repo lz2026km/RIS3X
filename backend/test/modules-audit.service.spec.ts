@@ -1,6 +1,7 @@
 import { Test } from '@nestjs/testing'
 import { AuditService } from '../src/modules/audit/audit.service'
 import { PrismaService } from '../src/prisma/prisma.service'
+import { NotFoundException } from '@nestjs/common'
 
 describe('AuditService', () => {
   let svc: AuditService
@@ -13,6 +14,7 @@ describe('AuditService', () => {
       create: jest.fn(),
       findMany: jest.fn(),
       count: jest.fn(),
+      findUnique: jest.fn(),
     },
   }
 
@@ -58,6 +60,25 @@ describe('AuditService', () => {
       const result = await svc.stats()
       expect(result.total).toBe(100)
       expect(result.last24h).toBe(10)
+    })
+  })
+
+  describe('[W2-C] getById', () => {
+    it('returns the audit record by id', async () => {
+      mockPrisma.auditLog.findUnique.mockResolvedValue({ ...mockLog, tenantId: 'default' })
+      const result = await svc.getById('al1')
+      expect(result.id).toBe('al1')
+      expect(mockPrisma.auditLog.findUnique).toHaveBeenCalledWith({ where: { id: 'al1' } })
+    })
+
+    it('throws NotFoundException for unknown record', async () => {
+      mockPrisma.auditLog.findUnique.mockResolvedValue(null)
+      await expect(svc.getById('missing')).rejects.toBeInstanceOf(NotFoundException)
+    })
+
+    it('throws NotFoundException for other tenant', async () => {
+      mockPrisma.auditLog.findUnique.mockResolvedValue({ ...mockLog, tenantId: 'other-tenant' })
+      await expect(svc.getById('al1')).rejects.toBeInstanceOf(NotFoundException)
     })
   })
 })

@@ -14,6 +14,10 @@ export class QueueService {
     await this.reportExportQueue.add('export', job, { attempts: 3, backoff: { type: 'exponential', delay: 5000 } })
   }
 
+  async addBatchExport(job: { taskId: string; ids: string[]; format: string; userId: string }): Promise<void> {
+    await this.reportExportQueue.add('batchExport', job, { attempts: 1, removeOnComplete: true })
+  }
+
   async addHl7Send(job: { reportId: string; destination: string; payload: string }): Promise<void> {
     await this.hl7SendQueue.add('send', job, { attempts: 3, backoff: { type: 'exponential', delay: 3000 } })
   }

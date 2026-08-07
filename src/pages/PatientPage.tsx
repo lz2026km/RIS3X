@@ -6,9 +6,10 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { PageContainer } from "../components/common/PageContainer";
 import { LoadingBanner, ErrorBanner } from "../components/feedback";
-import { Search, User, Phone, AlertCircle, X, Eye, Download, Users, UserCheck, Clock, Activity, Heart, AlertTriangle, CheckCircle, TrendingUp, PieChart, Stethoscope, Shield, CreditCard, History, PlusCircle, UserPlus, Link, Target, Gauge, Percent, FileSearch, Layers3 } from 'lucide-react';
+import { Search, User, Phone, AlertCircle, X, Eye, Download, Upload, Users, UserCheck, Clock, Activity, Heart, AlertTriangle, CheckCircle, TrendingUp, PieChart, Stethoscope, Shield, CreditCard, History, PlusCircle, UserPlus, Link, Target, Gauge, Percent, FileSearch, Layers3 } from 'lucide-react';
 import { initialPatients, initialRadiologyExams } from "../data/initialData";
 import { patientApi } from "../services/api";
+import type { PatientImportRow } from "../services/api";
 import type { Patient } from "../types";
 import { useRBAC } from "../hooks/useRBAC";
 import { useAuth } from "../hooks/useAuth";
@@ -371,6 +372,16 @@ export default function PatientPage() {
   const [pmiSelectedResult, setPmiSelectedResult] =
     useState<PMISearchResult | null>(null);
   const [showPMIPanel, setShowPMIPanel] = useState(false);
+
+  // [W4-A] 批量导入导出
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importText, setImportText] = useState("");
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState<{
+    imported: number;
+    skipped: number;
+    errors: { index: number; message: string }[];
+  } | null>(null);
 
   const [formData, setFormData] = useState<PatientFormData>({
     name: "",
@@ -807,43 +818,124 @@ export default function PatientPage() {
     setActiveTab("detail");
   };
 
-  const handleExport = () => {
-    const csvContent = [
-      [
-        "患者ID",
-        "姓名",
-        "性别",
-        "年龄",
-        "身份证",
-        "电话",
-        "患者类型",
-        "过敏史",
-        "建档日期",
-        "累计检查",
-      ].join(","),
-      ...filteredPatients.map((p) =>
+  const handleExport = async () => {
+    // [W4-A] 优先走后端 CSV 导出, 失败时回退本地导出
+    try {
+      const res = await patientApi.exportPatients({});
+      if (res.success && res.data?.content) {
+        const blob = new Blob([res.data.content], {
+          type: "text/csv;charset=utf-8",
+        });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = res.data.filename || `患者列表_${new Date().toISOString().split("T")[0]}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
+        setToast({ show: true, type: "success", message: `已导出 ${res.data.count} 条患者记录` });
+        return;
+      }
+      throw new Error(res.error?.message ?? "导出接口无数据");
+    } catch {
+      const csvContent = [
         [
-          p.id,
-          p.name,
-          p.gender,
-          p.age,
-          p.idCard,
-          p.phone,
-          p.patientType,
-          p.allergyHistory,
-          p.registrationDate,
-          p.totalExamCount,
+          "患者ID",
+          "姓名",
+          "性别",
+          "年龄",
+          "身份证",
+          "电话",
+          "患者类型",
+          "过敏史",
+          "建档日期",
+          "累计检查",
         ].join(","),
-      ),
-    ].join("\n");
-    const blob = new Blob(["\ufeff" + csvContent], {
-      type: "text/csv;charset=utf-8",
+        ...filteredPatients.map((p) =>
+          [
+            p.id,
+            p.name,
+            p.gender,
+            p.age,
+            p.idCard,
+            p.phone,
+            p.patientType,
+            p.allergyHistory,
+            p.registrationDate,
+            p.totalExamCount,
+          ].join(","),
+        ),
+      ].join("\n");
+      const blob = new Blob(["\ufeff" + csvContent], {
+        type: "text/csv;charset=utf-8",
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `患者列表_${new Date().toISOString().split("T")[0]}.csv`;
+      link.click();
+      setToast({ show: true, type: "success", message: `已导出 ${filteredPatients.length} 条患者记录 (本地)` });
+    }
+  };
+
+  // [W4-A] 导入文本解析: JSON 数组 或 CSV (表头: 姓名/性别/年龄/身份证/电话/类型)
+  const parseImportText = (text: string): PatientImportRow[] => {
+    const trimmed = text.trim();
+    if (!trimmed) return [];
+    if (trimmed.startsWith("[")) {
+      try {
+        const arr = JSON.parse(trimmed);
+        return Array.isArray(arr) ? (arr as PatientImportRow[]) : [];
+      } catch {
+        return [];
+      }
+    }
+    const lines = trimmed.split(/\r?\n/).filter((l) => l.trim());
+    if (lines.length < 2) return [];
+    const header = lines[0]!.split(",").map((h) => h.trim().replace(/^"|"$/g, ""));
+    return lines.slice(1).map((line) => {
+      const cells = line.split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
+      const row: Record<string, string> = {};
+      header.forEach((h, i) => {
+        row[h] = cells[i] ?? "";
+      });
+      return row as unknown as PatientImportRow;
     });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `患者列表_${new Date().toISOString().split("T")[0]}.csv`;
-    link.click();
+  };
+
+  const handleImportFile = (file: File) => {
+    void file.text().then((text) => setImportText(text));
+  };
+
+  const handleImportSubmit = async () => {
+    const rows = parseImportText(importText);
+    if (rows.length === 0) {
+      setToast({ show: true, type: "error", message: "未解析到患者数据, 请检查 JSON/CSV 格式" });
+      return;
+    }
+    setImporting(true);
+    setImportResult(null);
+    try {
+      const res = await patientApi.importPatients(rows);
+      if (res.success && res.data) {
+        setImportResult(res.data);
+        setToast({
+          show: true,
+          type: res.data.errors.length > 0 ? "info" : "success",
+          message: `导入完成: 成功 ${res.data.imported} / 跳过 ${res.data.skipped} / 失败 ${res.data.errors.length}`,
+        });
+      } else {
+        setToast({ show: true, type: "error", message: res.error?.message ?? "导入失败" });
+      }
+    } catch (e) {
+      setToast({ show: true, type: "error", message: "导入失败: " + ((e as Error)?.message ?? String(e)) });
+    } finally {
+      setImporting(false);
+      void (async () => {
+        const r = await patientApi.list({});
+        const list = Array.isArray(r.data) ? r.data : (r.data?.items ?? []);
+        if (r.success && Array.isArray(list) && list.length > 0) setPatients(list as Patient[]);
+      })();
+    }
   };
 
   // PMI 搜索处理
@@ -2062,7 +2154,26 @@ export default function PatientPage() {
             PMI搜索
           </button>
           <button
-            onClick={handleExport}
+            onClick={() => setShowImportModal(true)}
+            style={{
+              padding: "8px 16px",
+              background: "#fff",
+              color: "#059669",
+              border: "1px solid #059669",
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <Upload size={14} />
+            批量导入
+          </button>
+          <button
+            onClick={() => void handleExport()}
             style={{
               padding: "8px 16px",
               background: "#fff",
@@ -2354,6 +2465,203 @@ export default function PatientPage() {
       {pmiSelectedResult && !showPMIPanel && (
         <div style={{ marginTop: 16 }}>
           {renderPMIPatientCard(pmiSelectedResult)}
+        </div>
+      )}
+
+      {/* [W4-A] 批量导入 Modal */}
+      {showImportModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.45)",
+            zIndex: 1001,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 24,
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowImportModal(false);
+          }}
+        >
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: 14,
+              width: "100%",
+              maxWidth: 680,
+              maxHeight: "90vh",
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+            }}
+          >
+            <div
+              style={{
+                padding: "16px 20px",
+                borderBottom: "1px solid #e2e8f0",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                background: "#1e3a5f",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <Upload size={18} color="#fff" />
+                <span style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>
+                  批量导入患者
+                </span>
+              </div>
+              <button
+                onClick={() => setShowImportModal(false)}
+                style={{
+                  background: "rgba(255,255,255,0.15)",
+                  border: "none",
+                  borderRadius: 6,
+                  cursor: "pointer",
+                  color: "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                  padding: 5,
+                }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div style={{ padding: 20, overflowY: "auto", flex: 1 }}>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: "#64748b",
+                  marginBottom: 10,
+                  lineHeight: 1.8,
+                }}
+              >
+                支持 <strong>JSON 数组</strong> 或 <strong>CSV</strong>{" "}
+                (表头: 姓名/性别/年龄/身份证/电话/类型)。冲突判断: 身份证或
+                (姓名+电话) 相同则跳过。性别支持 男/女 或 MALE/FEMALE。
+              </div>
+              <textarea
+                value={importText}
+                onChange={(e) => setImportText(e.target.value)}
+                placeholder={'[\n  { "name": "张三", "gender": "男", "age": 45, "idCard": "110101199001011234", "phone": "13800138000", "type": "门诊" }\n]'}
+                rows={8}
+                style={{
+                  width: "100%",
+                  boxSizing: "border-box",
+                  padding: "10px 12px",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: 8,
+                  fontSize: 12,
+                  fontFamily: "monospace",
+                  resize: "vertical",
+                  outline: "none",
+                }}
+              />
+              <div style={{ marginTop: 10 }}>
+                <label
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "8px 14px",
+                    borderRadius: 8,
+                    border: "1px solid #e2e8f0",
+                    background: "#f8fafc",
+                    fontSize: 12,
+                    color: "#475569",
+                    cursor: "pointer",
+                  }}
+                >
+                  <Upload size={13} />
+                  上传 .csv / .json 文件
+                  <input
+                    type="file"
+                    accept=".csv,.json,text/csv,application/json"
+                    style={{ display: "none" }}
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) handleImportFile(f);
+                    }}
+                  />
+                </label>
+              </div>
+              {importResult && (
+                <div
+                  style={{
+                    marginTop: 12,
+                    borderRadius: 8,
+                    padding: "12px 14px",
+                    border: "1px solid",
+                    borderColor: importResult.errors.length > 0 ? "#fde68a" : "#bbf7d0",
+                    background: importResult.errors.length > 0 ? "#fffbeb" : "#f0fdf4",
+                  }}
+                >
+                  <div style={{ fontSize: 13, fontWeight: 700, color: importResult.errors.length > 0 ? "#92400e" : "#166534" }}>
+                    导入完成: 成功 {importResult.imported} / 跳过 {importResult.skipped} / 失败 {importResult.errors.length}
+                  </div>
+                  {importResult.errors.length > 0 && (
+                    <div style={{ marginTop: 6, maxHeight: 120, overflowY: "auto" }}>
+                      {importResult.errors.map((err, i) => (
+                        <div key={i} style={{ fontSize: 12, color: "#d97706" }}>
+                          • {err.message}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            <div
+              style={{
+                padding: "12px 20px",
+                borderTop: "1px solid #e2e8f0",
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 10,
+              }}
+            >
+              <button
+                onClick={() => setShowImportModal(false)}
+                style={{
+                  padding: "8px 18px",
+                  borderRadius: 8,
+                  border: "1px solid #e2e8f0",
+                  background: "#fff",
+                  fontSize: 13,
+                  color: "#475569",
+                  cursor: "pointer",
+                }}
+              >
+                关闭
+              </button>
+              <button
+                onClick={() => void handleImportSubmit()}
+                disabled={importing || !importText.trim()}
+                style={{
+                  padding: "8px 20px",
+                  borderRadius: 8,
+                  border: "none",
+                  background: importing || !importText.trim() ? "#94a3b8" : "#1e3a5f",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: "#fff",
+                  cursor: importing || !importText.trim() ? "not-allowed" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <Upload size={13} />
+                {importing ? "导入中..." : "开始导入"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </PageContainer>

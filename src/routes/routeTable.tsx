@@ -116,6 +116,8 @@ const EquipmentEfficiencyPage = lazy(
   () => import("../pages/EquipmentEfficiencyPage"),
 );
 const UserManagementPage = lazy(() => import("../pages/UserManagementPage"));
+// [v3.0.6.11-79] W1-B 用户中心
+const UserCenterPage = lazy(() => import("../pages/user/UserCenterPage"));
 const PatientPortalPage = lazy(() => import("../pages/patient/PatientPortalPage"));
 const DirectorDashboardPage = lazy(
   () => import("../pages/DirectorDashboardPage"),
@@ -123,6 +125,7 @@ const DirectorDashboardPage = lazy(
 const GreenITPage = lazy(() => import("../pages/GreenITPage"));
 const ResearchPage = lazy(() => import("../pages/ResearchPage"));
 const DicomPrintPage = lazy(() => import("../pages/System/DicomPrintPage"));
+const FileManagementPage = lazy(() => import("../pages/system/FileManagementPage")); // [W1-A v3.0.6.11-79] 文件管理
 const FhirServerPage = lazy(
   () => import("../pages/integration/FhirServerPage"),
 );
@@ -279,6 +282,10 @@ const RdsrPage = lazy(() => import("../pages/dose/RdsrPage"));
 const CriticalValueCenterPage = lazy(
   () => import("../pages/CriticalValueCenterPage"),
 );
+// [v3.0.6.11-79] W2-A 危急值接收端门户
+const ReceiverPortalPage = lazy(
+  () => import("../pages/critical/ReceiverPortalPage"),
+);
 const DefectManagementPage = lazy(
   () => import("../pages/DefectManagementPage"),
 );
@@ -423,6 +430,9 @@ const ClinicalPathwayPage = lazy(
 const AuditCompliancePage = lazy(
   () => import("../pages/compliance/AuditCompliancePage"),
 );
+const ComplianceDocsPage = lazy(
+  () => import("../pages/compliance/ComplianceDocsPage"),
+); // [v3.0.6.11-79 W1-C] 合规文档库
 const DicomSrPage = lazy(() => import("../pages/dicom/DicomSrPage"));
 const DicomWebPage = lazy(() => import("../pages/dicom/DicomWebPage"));
 const RadiomicsPage = lazy(() => import("../pages/dicom/RadiomicsPage"));
@@ -754,6 +764,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/dental/photo": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-98] Phase 5: 口内照片
   "/emr-templates": ["医生", "主任", "管理员"], // [v3.0.6.8-63]
   "/system-admin": ["管理员"], // [v3.0.6.8-64]
+  "/user/center": ALL_ROLES, // [v3.0.6.11-79] W1-B 用户中心
   "/treatment-plans": ["医生", "主任", "管理员"], // [v3.0.6.8-65]
   "/patient-unified": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-66]
   "/patients/:id/360": ["医生", "主任", "技师", "护士", "管理员"],
@@ -765,6 +776,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/operations/oee": ["主任", "管理员", "技师"],
   "/clinical-pathways": ["医生", "主任", "管理员", "护士"], // [v3.0.6.8-70]
   "/audit-compliance": ["主任", "管理员"], // [v3.0.6.8-71]
+  "/compliance-docs": ["主任", "管理员"], // [v3.0.6.11-79 W1-C] 合规文档库
   "/dicom-sr-manager": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-72]
   "/dicom/web": ["医生", "主任", "技师", "管理员"],
   "/dicom/fusion": ["医生", "主任", "技师", "管理员"], // [v3.0.6.11-18] PET-CT/MR fusion
@@ -817,6 +829,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/system/backup": ["管理员"],
   "/system/tenant-config": ["管理员"],
   "/system/compliance": ["管理员", "主任"],
+  "/system/files": ["管理员", "主任"], // [W1-A v3.0.6.11-79] 文件管理
   "/dicom/radiomics": ["医生", "主任", "管理员"],
   "/dicom/compress": ["医生", "技师", "主任", "管理员"],
   "/dicom/sr-manager": ["医生", "技师", "主任", "管理员"],
@@ -868,6 +881,8 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/dicom/stow-rs": ["技师", "管理员"],
   "/dicom/sr-report": ["医生", "技师", "主任", "管理员"],
   "/critical-alert": ["医生", "主任", "管理员", "护士"],
+  // [v3.0.6.11-79] W2-A 危急值接收端门户
+  "/critical-value-receiver": ["医生", "主任", "管理员", "护士"],
   "/auto-collection": ["管理员"],
   "/dept-dashboard": ["主任", "管理员"],
   "/remote-reading": ["医生", "主任", "管理员"],
@@ -993,6 +1008,8 @@ export const routes: RouteObject[] = [
     React.createElement(EquipmentEfficiencyPage),
   ),
   wrapped("/user-management", React.createElement(UserManagementPage)),
+  // [v3.0.6.11-79] W1-B 用户中心 (所有已登录角色)
+  wrapped("/user/center", React.createElement(UserCenterPage)),
   wrapped("/authority", React.createElement(UserManagementPage)), // [F16] 权限管理: 侧边栏 /authority 对齐
   wrapped("/admin/config", React.createElement(ClinicalConfigCenter)),
   wrapped("/patient-portal", React.createElement(PatientPortalPage)),
@@ -1001,6 +1018,7 @@ export const routes: RouteObject[] = [
   wrapped("/research", React.createElement(ResearchPage)),
   wrapped("/nuclear-stats", React.createElement(NuclearStatsPage)),
   wrapped("/system/dicom-print", React.createElement(DicomPrintPage)),
+  wrapped("/system/files", React.createElement(FileManagementPage)), // [W1-A v3.0.6.11-79] 文件管理
   wrapped("/term-synonym-graph", React.createElement(TermSynonymGraphPage)),
   wrapped("/report-phrase-bank", React.createElement(ReportPhraseBankPage)),
   wrapped("/report-kpi-dashboard", React.createElement(ReportKpiDashboardPage)),
@@ -1161,6 +1179,7 @@ export const routes: RouteObject[] = [
   wrapped("/operations/oee", React.createElement(OEEDashboardPage)),
   wrapped("/clinical-pathways", React.createElement(ClinicalPathwayPage)), // [v3.0.6.8-70]
   wrapped("/audit-compliance", React.createElement(AuditCompliancePage)), // [v3.0.6.8-71]
+  wrapped("/compliance-docs", React.createElement(ComplianceDocsPage)), // [v3.0.6.11-79 W1-C] 合规文档库
   wrapped("/dicom-sr-manager", React.createElement(DicomSrPage)), // [v3.0.6.8-72]
   wrapped("/dicom/sr-manager", React.createElement(DicomSrPage)), // DICOM SR 结构化报告
   wrapped("/dicom/web", React.createElement(DicomWebPage)),
@@ -1368,6 +1387,8 @@ export const routes: RouteObject[] = [
   wrapped("/dicom/stow-rs", React.createElement(StowRsPage)),
   wrapped("/dicom/sr-report", React.createElement(SrReportPage)),
   wrapped("/critical-alert", React.createElement(CriticalAlertPage)),
+  // [v3.0.6.11-79] W2-A 危急值接收端门户
+  wrapped("/critical-value-receiver", React.createElement(ReceiverPortalPage)),
   wrapped("/auto-collection", React.createElement(AutoCollectionPage)),
   wrapped("/dept-dashboard", React.createElement(DeptDashboardPageV2)),
   wrapped("/remote-reading", React.createElement(RemoteReadingPage)),

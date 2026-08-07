@@ -71,7 +71,13 @@ export function MaintenanceHistoryTable({ records }: { records: MaintRecord[] })
   )
 }
 
-export function MaintenancePlanTable({ plans, onAddPlan }: { plans: MaintPlan[]; onAddPlan?: () => void }) {
+export function MaintenancePlanTable({ plans, onAddPlan, onDeletePlan, onCompletePlan }: {
+  plans: MaintPlan[]
+  onAddPlan?: () => void
+  onDeletePlan?: (plan: MaintPlan) => void
+  onCompletePlan?: (plan: MaintPlan) => void
+}) {
+  const hasActions = Boolean(onDeletePlan || onCompletePlan)
   return (
     <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}`, marginBottom: 18 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
@@ -95,14 +101,14 @@ export function MaintenancePlanTable({ plans, onAddPlan }: { plans: MaintPlan[];
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
           <thead>
             <tr style={{ background: '#f8fafc', borderBottom: `2px solid ${C.border}` }}>
-              {['设备名称', '计划日期', '保养类型', '保养内容', '预计费用', '负责人'].map(h => (
+              {['设备名称', '计划日期', '保养类型', '保养内容', '预计费用', '负责人', ...(hasActions ? ['操作'] : [])].map(h => (
                 <th key={h} style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 12 }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {plans.map((plan, i) => {
-              const daysLeft = Math.floor((new Date(plan.planDate).getTime() - new Date('2026-05-02').getTime()) / 86400000)
+              const daysLeft = Math.floor((new Date(plan.planDate).getTime() - Date.now()) / 86400000)
               return (
                 <tr key={plan.id} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? C.white : '#fafbfc' }}>
                   <td style={{ padding: '9px 10px', fontWeight: 600, color: C.textDark }}>{plan.deviceName.split('（')[0]}</td>
@@ -117,6 +123,22 @@ export function MaintenancePlanTable({ plans, onAddPlan }: { plans: MaintPlan[];
                   <td style={{ padding: '9px 10px', color: C.textDark }}>{plan.content}</td>
                   <td style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.warning }}>¥{Number(plan.estimatedCost).toLocaleString()}</td>
                   <td style={{ padding: '9px 10px', textAlign: 'center', color: C.textMid }}>{plan.assignee}</td>
+                  {hasActions && (
+                    <td style={{ padding: '9px 10px', textAlign: 'center' }}>
+                      {onCompletePlan && (
+                        <button onClick={() => onCompletePlan(plan)} style={{
+                          padding: '3px 10px', borderRadius: 6, border: 'none', background: `${C.success}15`,
+                          color: C.success, fontSize: 12, fontWeight: 600, cursor: 'pointer', marginRight: 6
+                        }}>完成</button>
+                      )}
+                      {onDeletePlan && (
+                        <button onClick={() => onDeletePlan(plan)} style={{
+                          padding: '3px 10px', borderRadius: 6, border: 'none', background: `${C.danger}15`,
+                          color: C.danger, fontSize: 12, fontWeight: 600, cursor: 'pointer'
+                        }}>删除</button>
+                      )}
+                    </td>
+                  )}
                 </tr>
               )
             })}

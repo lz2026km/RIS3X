@@ -8,6 +8,10 @@ export type {
   ReportQueryParams,
 } from "./types";
 
+// [v3.0.6.11-79] W1-B 用户中心: auth 端点封装
+export { authApi } from "./authApi";
+export type { AuthLoginData, AuthMeDto, ChangePasswordResult } from "./authApi";
+
 export {
   v3AiPlatformApi,
   v3AiAssistApi,
@@ -22,9 +26,23 @@ export type { AiGenerateDto, AiReviewDto, AiScoreDto } from "./v3Api";
 
 export { examApi } from "./examApi";
 export type { ExamDto, CreateExamDto, UpdateExamDto } from "./examApi";
+export type {
+  ImportExamRow,
+  ImportResultDto as ExamImportResult,
+  ExportCsvDto as ExamExportCsv,
+} from "./examApi";
 
 export { patientApi } from "./patientApi";
 export type { PatientDto } from "./patientApi";
+export type { ImportPatientRow as PatientImportRow } from "./patientApi";
+
+// [W4-A v3.0.6.11-79] 数据字典: 分类列表 + 分类条目 CRUD
+export { dictionaryApi } from "./dictionaryApi";
+export type {
+  DictEntryDto,
+  DictCategoryDto,
+  DictEntryInput,
+} from "./dictionaryApi";
 
 export { reportApi } from "./reportApi";
 export type { ReportDto } from "./reportApi";
@@ -696,4 +714,14 @@ export type {
   ScreeningQueueItemDto,
   ScreeningTrendDto,
 } from "./screeningApi";
+
+// [W1-A v3.0.6.11-79] 文件管理 (upload-url / upload / upload-complete / download)
+export { filesApi } from "./filesApi";
+export type {
+  UploadUrlDto,
+  UploadResultDto,
+  UploadCompletePayload,
+  UploadedFileRecord,
+  DownloadResult,
+} from "./filesApi";
 

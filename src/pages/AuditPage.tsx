@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { auditApi, type AuditLogDto, type AuditStatsDto } from '../services/api/systemApi'
-import { Card, Tag, Statistic, Row, Col, Space, Select, Button, Tabs, Descriptions, Tooltip, message } from 'antd'
+import { Card, Tag, Statistic, Row, Col, Space, Select, Button, Tabs, Descriptions, Tooltip, message, Drawer, Spin } from 'antd'
 import { ProTable, type ProColumn } from '../components/data/ProTable'
-import { AuditOutlined, BarChartOutlined, ReloadOutlined, DownloadOutlined, FilterOutlined, UserOutlined } from '@ant-design/icons'
+import { AuditOutlined, BarChartOutlined, ReloadOutlined, DownloadOutlined, FilterOutlined, UserOutlined, EyeOutlined } from '@ant-design/icons'
 
 export default function AuditPage() {
   const [logs, setLogs] = useState<AuditLogDto[]>([])
@@ -11,6 +11,10 @@ export default function AuditPage() {
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
   const [params, setParams] = useState<{ action?: string; resource?: string; userId?: string }>({})
+  // [W2-C] 审计详情 Drawer
+  const [detail, setDetail] = useState<AuditLogDto | null>(null)
+  const [detailOpen, setDetailOpen] = useState(false)
+  const [detailLoading, setDetailLoading] = useState(false)
 
   const fetchLogs = async (requestedPage?: number) => {
     const targetPage = requestedPage ?? page
@@ -32,6 +36,27 @@ export default function AuditPage() {
     if (res.success) setStats(res.data)
   }
 
+  // [W2-C] 审计记录详情: 操作者/资源/请求/响应/时间
+  const handleViewDetail = async (id: string) => {
+    setDetailOpen(true)
+    setDetailLoading(true)
+    setDetail(null)
+    try {
+      const res = await auditApi.getById(id)
+      if (res.success && res.data) {
+        setDetail(res.data)
+      } else {
+        message.error(res.error?.message ?? '加载审计详情失败')
+        setDetailOpen(false)
+      }
+    } catch {
+      message.error('加载审计详情失败')
+      setDetailOpen(false)
+    } finally {
+      setDetailLoading(false)
+    }
+  }
+
   useEffect(() => { fetchLogs(1); fetchStats() }, [])
 
   const columns: ProColumn<AuditLogDto>[] = [
@@ -44,6 +69,9 @@ export default function AuditPage() {
     { title: '资源', dataIndex: 'resource', key: 'resource', width: 200, searchable: true, sorter: (a, b) => a.resource.localeCompare(b.resource) },
     { title: 'IP地址', dataIndex: 'ip', key: 'ip', width: 130, render: (v) => <Tooltip title={String(v ?? '-')}><span style={{ fontFamily: 'monospace', fontSize: 12 }}>{String(v ?? '-')}</span></Tooltip> },
     { title: '详情', dataIndex: 'details', key: 'details', ellipsis: true, render: (value) => String(value ?? '-') },
+    { title: '操作', key: 'actions', width: 90, render: (_value, record) => (
+      <Button size="small" type="link" icon={<EyeOutlined />} onClick={() => handleViewDetail(record.id)}>详情</Button>
+    ) },
   ]
 
   const handleExport = async () => {
@@ -127,6 +155,44 @@ export default function AuditPage() {
           ]} />
         </Space>
       </Card>
+      {/* [W2-C] 审计记录详情 Drawer */}
+      <Drawer
+        title={<Space><EyeOutlined /> 审计记录详情</Space>}
+        width={520}
+        open={detailOpen}
+        onClose={() => setDetailOpen(false)}
+        footer={detail && (
+          <Space>
+            <Tag color={detail.status === 'SUCCESS' ? 'success' : detail.status === 'FAILURE' ? 'error' : detail.status === 'DENIED' ? 'warning' : 'default'}>
+              {detail.status ?? 'SUCCESS'}
+            </Tag>
+            <Tag>{detail.action}</Tag>
+            <span style={{ color: '#999', fontSize: 12 }}>{new Date(detail.createdAt).toLocaleString('zh-CN')}</span>
+          </Space>
+        )}
+      >
+        {detailLoading ? (
+          <div style={{ textAlign: 'center', padding: 48 }}><Spin tip="加载中..." /></div>
+        ) : detail ? (
+          <Descriptions bordered column={1} size="small">
+            <Descriptions.Item label="记录 ID">{detail.id}</Descriptions.Item>
+            <Descriptions.Item label="操作者">{detail.username ?? detail.userId}{detail.username && detail.username !== detail.userId ? ` (${detail.userId})` : ''}</Descriptions.Item>
+            <Descriptions.Item label="角色">{detail.userRole ?? '-'}</Descriptions.Item>
+            <Descriptions.Item label="操作类型"><Tag>{detail.action}</Tag></Descriptions.Item>
+            <Descriptions.Item label="资源">{detail.resource}</Descriptions.Item>
+            <Descriptions.Item label="资源 ID">{detail.resourceId ?? '-'}</Descriptions.Item>
+            <Descriptions.Item label="请求详情">{Array.isArray(detail.details) ? (detail.details as string[]).join('；') : detail.details ?? '-'}</Descriptions.Item>
+            <Descriptions.Item label="响应状态">
+              <Tag color={detail.status === 'SUCCESS' ? 'success' : detail.status === 'FAILURE' ? 'error' : detail.status === 'DENIED' ? 'warning' : 'default'}>
+                {detail.status ?? '-'}
+              </Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="IP 地址"><span style={{ fontFamily: 'monospace' }}>{detail.ip ?? '-'}</span></Descriptions.Item>
+            <Descriptions.Item label="User-Agent"><span style={{ fontSize: 12, wordBreak: 'break-all' }}>{detail.userAgent ?? '-'}</span></Descriptions.Item>
+            <Descriptions.Item label="时间">{new Date(detail.createdAt).toLocaleString('zh-CN')}</Descriptions.Item>
+          </Descriptions>
+        ) : null}
+      </Drawer>
     </div>
   )
 }

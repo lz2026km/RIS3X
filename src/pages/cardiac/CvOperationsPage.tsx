@@ -112,7 +112,7 @@ export default function CvOperationsPage() {
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
                 <th style={{ padding: '10px 16px', textAlign: 'left' }}>协议</th>
-                <th style={{ padding: '10px 16px', textAlign: 'left' }}>Modality</th>
+                <th style={{ padding: '10px 16px', textAlign: 'left' }}>设备类型</th>
                 <th style={{ padding: '10px 16px', textAlign: 'left' }}>适应证</th>
                 <th style={{ padding: '10px 16px', textAlign: 'center' }}>进行中病例</th>
                 <th style={{ padding: '10px 16px', textAlign: 'left' }}>最近使用</th>
@@ -145,7 +145,7 @@ export default function CvOperationsPage() {
                 <th style={{ padding: '8px 12px', textAlign: 'center' }}>CCTA</th>
                 <th style={{ padding: '8px 12px', textAlign: 'center' }}>CMR</th>
                 <th style={{ padding: '8px 12px', textAlign: 'center' }}>Echo</th>
-                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Cath</th>
+                <th style={{ padding: '8px 12px', textAlign: 'center' }}>心导管</th>
                 <th style={{ padding: '8px 12px', textAlign: 'center' }}>合计</th>
                 <th style={{ padding: '8px 12px', textAlign: 'center' }}>状态</th>
               </tr>

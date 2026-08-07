@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { PrismaService } from '../../prisma/prisma.service'
 import { CacheService } from '../../cache/cache.service'
+import { SystemConfigService } from '../../system-storage/system-config.service'
 
 export type BiSource = 'database' | 'demo'
 
@@ -151,7 +152,7 @@ interface DemoWindow {
   demoTimeliness: (dateSeed: number) => { total: number; buckets: TimelinessBucket[]; medianMinutes: number; p90Minutes: number }
   demoRvu: (dateSeed: number) => { totalRvu: number; physicians: PhysicianRvuRow[] }
   demoOee: (dateSeed: number, days: number) => { devices: DeviceOeeRow[]; dailyTrend: OeeDay[] }
-  demoSla: (dateSeed: number) => { total: number; complianceRate: number; avgResponseMinutes: number; distribution: CriticalSlaBucket[]; overdue: CriticalOverdueRow[] }
+  demoSla: (dateSeed: number) => { total: number; slaMinutes: number; complianceRate: number; avgResponseMinutes: number; distribution: CriticalSlaBucket[]; overdue: CriticalOverdueRow[] }
   demoTrend: (dateSeed: number, days: number) => TrendPoint[]
 }
 
@@ -276,6 +277,7 @@ function buildDemo(): DemoWindow {
     }))
     return {
       total,
+      slaMinutes: 30,
       complianceRate: percentOf(within, total),
       avgResponseMinutes: round1(9 + rand() * 18),
       distribution: buckets,
@@ -313,6 +315,7 @@ export class BiService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cache: CacheService,
+    private readonly systemConfig: SystemConfigService,
   ) {}
 
   // 通用执行器: 缓存 → 真实 DB 聚合 → 失败/空数据回退演示数据(source: 'demo')
@@ -534,7 +537,8 @@ export class BiService {
         select: { id: true, severity: true, state: true, createdAt: true, ackedAt: true },
       })
       if (records.length === 0) return null
-      const SLA_MINUTES = 30
+      // [v3.0.6.11-79] SLA 阈值读取 admin config critical_sla_minutes, 未配置回退 30
+      const SLA_MINUTES = await this.systemConfig.getNumber('critical_sla_minutes', 30)
       const buckets: CriticalSlaBucket[] = [
         { bucket: '<5min', count: 0 },
         { bucket: '5-15min', count: 0 },

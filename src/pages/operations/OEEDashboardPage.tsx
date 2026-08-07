@@ -113,7 +113,7 @@ export const OEEDashboardPage: React.FC = () => {
           <Space>
             <Gauge size={20} color={COLORS.blue} />
             <span style={{ fontSize: 18, fontWeight: 600 }}>设备 OEE 看板</span>
-            <Tag color="blue">Overall Equipment Effectiveness</Tag>
+            <Tag color="blue">设备综合效率</Tag>
           </Space>
           <Button icon={<RefreshCw size={14} />} onClick={() => void load()}>重试</Button>
         </Space>
@@ -129,7 +129,7 @@ export const OEEDashboardPage: React.FC = () => {
           <Space>
             <Gauge size={20} color={COLORS.blue} />
             <span style={{ fontSize: 18, fontWeight: 600 }}>设备 OEE 看板</span>
-            <Tag color="blue">Overall Equipment Effectiveness</Tag>
+            <Tag color="blue">设备综合效率</Tag>
           </Space>
           <Button icon={<RefreshCw size={14} />} onClick={() => void load()}>刷新</Button>
         </Space>
@@ -146,7 +146,7 @@ export const OEEDashboardPage: React.FC = () => {
         <Space>
           <Gauge size={20} color={COLORS.blue} />
           <span style={{ fontSize: 18, fontWeight: 600 }}>设备 OEE 看板</span>
-          <Tag color="blue">Overall Equipment Effectiveness</Tag>
+          <Tag color="blue">设备综合效率</Tag>
           {stats && <Tag color="purple">设备数 {stats.totalDevices} · 最高 {stats.highest}% · 最低 {stats.lowest}%</Tag>}
         </Space>
         <Space>

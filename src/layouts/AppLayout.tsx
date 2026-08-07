@@ -43,6 +43,7 @@ import {
 } from "../i18n/appI18n";
 import { routes } from "../routes/routeTable";
 import { useNetworkStatus } from "../hooks/useNetworkStatus";
+import { buildMeta } from "../utils/appInfo";
 import { useAuth } from "../hooks/useAuth";
 import { normalizeRole } from "../services/auth/roleUtils";
 import { useBreakpoint } from "../hooks/useBreakpoint";
@@ -472,6 +473,12 @@ export function AppLayout() {
       : undefined) ||
     t("app.version");
 
+  // [W3-B] VITE_GIT_SHA / VITE_BUILD_TIME 接入: 版本行 tooltip 展示构建元信息
+  const versionTooltip = (() => {
+    const meta = buildMeta();
+    return meta ? `${appVersion} (${meta})` : appVersion;
+  })();
+
   return (
     <div style={{ ...s.root, direction }}>
       <SkipLink />
@@ -498,6 +505,7 @@ export function AppLayout() {
                 </div>
                 <div
                   style={{ fontSize: 12, color: "var(--text-muted, #94a3b8)" }}
+                  title={versionTooltip}
                 >
                   {appVersion}
                 </div>

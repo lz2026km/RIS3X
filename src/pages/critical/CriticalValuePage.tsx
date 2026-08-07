@@ -11,6 +11,7 @@ import { LoadingBanner, ErrorBanner } from "../../components/feedback"
 import { toStoreStatus } from "./types"
 import type { CriticalValue, FollowUpRecord } from "./types"
 import type { NotificationMethod } from "../../services/api/criticalApi"
+import { criticalApi } from "../../services/api/criticalApi"
 import { CriticalValueStatsSection } from "./CriticalValueStatsSection"
 import { CriticalValueListSection } from "./CriticalValueListSection"
 import { CriticalValueModals } from "./CriticalValueModals"
@@ -60,6 +61,14 @@ export default function CriticalValuePage() {
   const [receiptCV, setReceiptCV] = useState<CriticalValue | null>(null)
   const [receiptDoctor, setReceiptDoctor] = useState("")
   const [receiptComment, setReceiptComment] = useState("")
+  // [W2-A] 升级操作 (POST /criticals/escalate)
+  const [showEscalateModal, setShowEscalateModal] = useState(false)
+  const [escalateCV, setEscalateCV] = useState<CriticalValue | null>(null)
+  const [escalateTo, setEscalateTo] = useState("")
+  const [escalateDept, setEscalateDept] = useState("")
+  const [escalateReason, setEscalateReason] = useState("")
+  // [W2-A] 详情完整信息 + 操作历史 (GET /criticals/:id + /criticals/:id/history)
+  const [historyEvents, setHistoryEvents] = useState<{ time: string; event: string; user: string; detail?: string }[]>([])
 
   // [W2-1] 支持从工作列表跳转携带筛选: ?search=<患者姓名/检查号>&patientId=&examId=
   useEffect(() => {
@@ -158,7 +167,35 @@ export default function CriticalValuePage() {
   }
 
   const handleProcess = (cv: CriticalValue) => { setProcessCV(cv); setShowProcessModal(true) }
-  const handleViewDetail = (cv: CriticalValue) => { setSelectedCV(cv); setDetailTab(0) }
+  // [W2-A] 详情: 先本地列表即时展示, 再并行拉取完整信息 + 操作历史
+  const handleViewDetail = (cv: CriticalValue) => {
+    setSelectedCV(cv); setDetailTab(0); setHistoryEvents([])
+    void (async () => {
+      const [detailRes, historyRes] = await Promise.allSettled([
+        criticalApi.getById(cv.id),
+        criticalApi.listHistory(cv.id),
+      ])
+      const detail = detailRes.status === 'fulfilled' ? detailRes.value : null
+      if (detail?.success && detail.data) {
+        const dto = detail.data as unknown as Record<string, unknown>
+        const safe: Record<string, unknown> = {}
+        for (const k of ['description', 'finding', 'state', 'notifiedAt', 'voiceCalledAt', 'voiceCalledBy', 'acknowledgedAt', 'confirmedBy', 'confirmedAt', 'confirmedSignature', 'confirmedComment', 'resolvedAt', 'notifiedTo', 'ackedBy', 'resolvedBy']) {
+          const v = dto[k]
+          if (v !== undefined && v !== null && v !== '') safe[k] = v
+        }
+        setSelectedCV((prev) => (prev && prev.id === cv.id ? { ...prev, ...safe } : prev))
+      }
+      const history = historyRes.status === 'fulfilled' ? historyRes.value : null
+      if (history?.success && Array.isArray(history.data)) {
+        setHistoryEvents((history.data as Array<Record<string, unknown>>).map((h) => ({
+          time: String(h.at ?? h.time ?? h.createdAt ?? ''),
+          event: String(h.action ?? h.type ?? h.event ?? '操作'),
+          user: String(h.by ?? h.user ?? h.operator ?? ''),
+          detail: [h.note, h.message, h.detail].find((x) => typeof x === 'string' && x) as string | undefined,
+        })))
+      }
+    })()
+  }
 
   const showToast = (message: string, type: "success" | "error" = "success") => {
     setToast({ show: true, message, type })
@@ -208,6 +245,58 @@ export default function CriticalValuePage() {
       showToast("已发送通知")
     }
     setShowNotifyModal(false); setNotifyCV(null)
+  }
+
+  // [W2-A] 升级: 输入升级对象 + 原因 → POST /criticals/escalate
+  const handleEscalate = (cv: CriticalValue) => {
+    setEscalateCV(cv); setEscalateTo(""); setEscalateDept(""); setEscalateReason("通知超时未响应"); setShowEscalateModal(true)
+  }
+
+  const handleConfirmEscalate = async () => {
+    if (escalateCV) {
+      const res = await criticalApi.escalate(escalateCV.id, escalateTo, escalateReason || "人工升级")
+      log("escalate", escalateCV.id, { to: escalateTo, reason: escalateReason })
+      if (res.success) {
+        showToast("升级通知已发送")
+        setSelectedCV((prev) => (prev && prev.id === escalateCV.id ? { ...prev, status: "escalated", escalatedTo: escalateTo } : prev))
+        void useCriticalStore.getState().load()
+      } else {
+        showToast(res.error?.message ?? "升级失败", "error")
+      }
+    }
+    setShowEscalateModal(false); setEscalateCV(null); setEscalateTo(""); setEscalateDept(""); setEscalateReason("")
+  }
+
+  // [W2-A] 闭环: PATCH /criticals/:id state=CLOSED_LOOP (5 步页可直达, 列表亦可闭环)
+  const handleCloseLoop = async (cv: CriticalValue) => {
+    const res = await criticalApi.closeLoop(cv.id, "current-user")
+    log("close_loop", cv.id)
+    if (res.success) {
+      showToast("危急值已闭环")
+      setSelectedCV((prev) => (prev && prev.id === cv.id ? { ...prev, status: "closed_loop" } : prev))
+      void useCriticalStore.getState().load()
+    } else {
+      showToast(res.error?.message ?? "闭环失败", "error")
+    }
+  }
+
+  // [W2-A] 删除: DELETE /criticals/:id
+  const handleDelete = async (cv: CriticalValue) => {
+    const res = await criticalApi.delete(cv.id)
+    log("delete", cv.id)
+    if (res.success) {
+      showToast("危急值已删除")
+      setSelectedIds((prev) => { const n = new Set(prev); n.delete(cv.id); return n })
+      setSelectedCV((prev) => (prev && prev.id === cv.id ? null : prev))
+      void useCriticalStore.getState().load()
+    } else {
+      showToast(res.error?.message ?? "删除失败", "error")
+    }
+  }
+
+  // [W2-A] 直达 5 步闭环工作流
+  const handleGo5Step = (cv: CriticalValue) => {
+    navigate(`/critical-value-5step?cvId=${encodeURIComponent(cv.id)}`)
   }
 
   const handleConfirmProcess = async () => {
@@ -326,12 +415,13 @@ export default function CriticalValuePage() {
           onToggleSelect={toggleSelect} onToggleSelectAll={toggleSelectAll}
           onProcess={handleProcess} onViewDetail={handleViewDetail}
           onContactClinical={handleContactClinical} onVoiceCall={handleVoiceCall} onClinicalReceipt={handleClinicalReceipt} onAcknowledge={handleAcknowledge} onTransferToFollowUp={handleTransferToFollowUp}
+          onEscalate={handleEscalate} onCloseLoop={handleCloseLoop} onDelete={handleDelete} onGo5Step={handleGo5Step}
           criticalValues={criticalValues}
         />
         {selectedCV && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: 480 }}>
             <ClosedLoopTracker5Nodes cv={selectedCV} />
-            <DetailPanel cv={selectedCV} onClose={() => setSelectedCV(null)} activeTab={detailTab} setActiveTab={setDetailTab} followUpRecords={followUpRecords} />
+            <DetailPanel cv={selectedCV} onClose={() => setSelectedCV(null)} activeTab={detailTab} setActiveTab={setDetailTab} followUpRecords={followUpRecords} historyEvents={historyEvents} />
           </div>
         )}
       </div>
@@ -357,6 +447,10 @@ export default function CriticalValuePage() {
         showTransferModal={showTransferModal} transferCV={transferCV}
         onCloseTransfer={() => { setShowTransferModal(false); setTransferCV(null) }}
         onConfirmTransfer={handleConfirmTransfer}
+        showEscalateModal={showEscalateModal} escalateCV={escalateCV}
+        escalateTo={escalateTo} escalateDept={escalateDept} escalateReason={escalateReason}
+        onSetEscalateTo={setEscalateTo} onSetEscalateDept={setEscalateDept} onSetEscalateReason={setEscalateReason}
+        onConfirmEscalate={handleConfirmEscalate} onCancelEscalate={() => { setShowEscalateModal(false); setEscalateCV(null) }}
       />
     </div>
   )

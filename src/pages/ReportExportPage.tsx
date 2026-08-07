@@ -23,6 +23,7 @@ import {
 } from '../data/deliveryExportSignatureMock';
 // [v3.0.6.11-70] P0 真实化: 报告列表来自后端; 导出 = 后端入队 + 本地真实文件生成下载
 import { reportApi, type ReportDto } from '../services/api/reportApi';
+import { API_BASE } from '../services/api/client';
 import { exportApprovalApi } from '../services/api/analyticsApi'; // [W1-5] 导出审批中心集成
 import { exportReport as engineExportReport, downloadExport } from '../services/exportService';
 import { BulkExportDialog } from '../components/export/BulkExportDialog';
@@ -95,49 +96,107 @@ export default function ReportExportPage() {
   const firstSelectedId = reports.find(r => selectedReports.has(r.reportId || r.id))?.reportId ?? reports[0]?.reportId ?? '';
   const firstSelectedPatientId = reports.find(r => selectedReports.has(r.reportId || r.id))?.patientId ?? reports[0]?.patientId ?? '';
 
-  // [v3.0.6.11-70] P0 真实化: 导出 = 后端 POST /reports/:id/export 入队 + 真实文件(blob)下载
+  // [W4-B] 批量导出任务状态 (taskId / 进度 / 完成后下载列表)
+  const [batchTaskId, setBatchTaskId] = useState<string | null>(null);
+  const [batchDownloads, setBatchDownloads] = useState<Array<{ reportId: string; fileName: string; downloadUrl: string; sizeBytes: number }>>([]);
+  const [batchError, setBatchError] = useState<string | null>(null);
+
+  // [W4-B] 批量下载文件 (mock/real 均经 fetch → blob, MSW 与后端均返回字节)
+  const downloadBatchFile = async (d: { fileName: string; downloadUrl: string }) => {
+    const url = d.downloadUrl.startsWith('http') || d.downloadUrl.startsWith('/')
+      ? d.downloadUrl
+      : `${API_BASE}${d.downloadUrl}`;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
+      const objUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = objUrl;
+      a.download = d.fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(objUrl), 30_000);
+    } catch {
+      message.warning(`下载 ${d.fileName} 失败`);
+    }
+  };
+
+  // [W4-B] 批量导出真实化: POST /reports/batch-export → 轮询任务状态 → 完成后显示下载列表
   const handleExport = async () => {
     if (!selectedTemplate || selectedReports.size === 0) return;
     setExporting(true);
     setExportProgress(0);
+    setBatchDownloads([]);
+    setBatchError(null);
     const start = Date.now();
     const ids = Array.from(selectedReports);
-    let done = 0;
-    let failed = 0;
-    for (const id of ids) {
+
+    // 单份报告走原有真实化链路 (入队 + 引擎生成下载)
+    if (ids.length === 1) {
+      const id = ids[0]!;
       const res = await reportApi.exportReport(id, selectedTemplate.format);
       if (!res.success) {
-        failed++;
-        continue;
+        setBatchError(res.error?.message ?? '导出失败');
+        setExporting(false);
+        return;
       }
       const engine = await engineExportReport({ format: selectedTemplate.format, reportId: id });
       if (engine.success && engine.blob && engine.fileName) {
         await downloadExport(engine);
-        done++;
+        setExportProgress(100);
       } else {
-        failed++;
+        setBatchError('报告文件生成失败');
       }
-      setExportProgress(Math.round((done + failed) / ids.length * 100));
+      setExporting(false);
+      setExportElapsedMs(Date.now() - start);
+      return;
     }
-    setExporting(false);
-    setExportElapsedMs(Date.now() - start);
-    // [W1-5] 导出审批中心集成: 导出操作自动生成审批申请
-    if (done > 0) {
-      const firstId = ids[0] ?? '';
-      const res = await exportApprovalApi.request({
-        resource: 'REPORT',
-        resourceId: ids.length === 1 ? firstId : `${firstId} 等${ids.length}份`,
-        reason: `报告导出:模板 ${selectedTemplate.name} · ${ids.length} 份 (成功 ${done} 份)`,
-      }).catch(() => null);
-      if (res?.success) {
-        message.success(`导出完成并已生成审批申请,可到导出审批中心查看`);
+
+    // 多份报告 → 批量任务 + 轮询
+    const created = await reportApi.batchExport(ids, selectedTemplate.format);
+    if (!created.success || !created.data?.taskId) {
+      setBatchError(created.error?.message ?? '批量导出任务创建失败');
+      setExporting(false);
+      return;
+    }
+    const taskId = created.data.taskId;
+    setBatchTaskId(taskId);
+    let attempts = 0;
+    const poll = async () => {
+      attempts++;
+      const statusRes = await reportApi.batchExportStatus(taskId);
+      if (statusRes.success && statusRes.data) {
+        const task = statusRes.data;
+        setExportProgress(task.progress);
+        if (task.status === 'completed') {
+          setBatchDownloads(task.downloads);
+          setExporting(false);
+          setExportElapsedMs(Date.now() - start);
+          // [W1-5] 导出审批中心集成
+          const firstId = ids[0] ?? '';
+          await exportApprovalApi.request({
+            resource: 'REPORT',
+            resourceId: ids.length === 1 ? firstId : `${firstId} 等${ids.length}份`,
+            reason: `报告批量导出:模板 ${selectedTemplate.name} · ${ids.length} 份 (成功 ${task.done} 份)`,
+          }).catch(() => null);
+          if (task.failedCount > 0) {
+            message.warning(`批量导出完成:成功 ${task.done}/${task.total} 份,失败 ${task.failedCount} 份 · 模板 ${selectedTemplate.name}`);
+          } else {
+            message.success(`批量导出完成!模板:${selectedTemplate.name} · 报告数:${task.done}`);
+          }
+          return;
+        }
+        if (task.status === 'failed' || attempts > 60) {
+          setBatchError(task.error ?? '批量导出任务失败或超时');
+          setExporting(false);
+          return;
+        }
       }
-    }
-    if (failed > 0) {
-      message.warning(`导出完成:成功 ${done} 份,失败 ${failed} 份 · 模板 ${selectedTemplate.name}`);
-    } else {
-      message.success(`导出完成!模板:${selectedTemplate.name} · 报告数:${done}`);
-    }
+      setTimeout(() => void poll(), 1200);
+    };
+    void poll();
   };
 
   const toggleReport = (id: string) => {
@@ -243,7 +302,7 @@ export default function ReportExportPage() {
             <select value={filterFormat} onChange={e => setFilterFormat(e.target.value)} style={selectStyle}>
               <option value="all">全部格式</option>
               <option value="pdf">PDF</option>
-              <option value="word">Word</option>
+              <option value="word">Word 文档</option>
               <option value="html">HTML</option>
               <option value="dicom-sr">DICOM-SR</option>
             </select>
@@ -357,9 +416,47 @@ export default function ReportExportPage() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 12, color: '#1e40af' }}>
                       <Loader2 size={11} className="spin" />
                       正在生成 {selectedTemplate.name}... {exportProgress}%
+                      {batchTaskId && <span style={{ marginLeft: 'auto', color: '#94a3b8' }}>任务号 {batchTaskId}</span>}
                     </div>
                     <div style={{ height: 6, background: '#dbeafe', borderRadius: 3, overflow: 'hidden' }}>
                       <div style={{ width: `${exportProgress}%`, height: '100%', background: 'linear-gradient(90deg, #3b82f6, #dc2626)', transition: 'width 0.15s' }} />
+                    </div>
+                  </div>
+                )}
+
+                {/* [W4-B] 批量导出结果: 错误提示 + 完成后下载列表 */}
+                {batchError && !exporting && (
+                  <div style={{ marginBottom: 12, padding: 10, background: '#fef2f2', borderRadius: 6, fontSize: 12, color: '#b91c1c' }}>
+                    ⚠️ {batchError}
+                  </div>
+                )}
+                {batchDownloads.length > 0 && !exporting && (
+                  <div style={{ marginBottom: 12, padding: 12, background: '#f0fdf4', borderRadius: 6, border: '1px solid #bbf7d0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, fontSize: 13, fontWeight: 700, color: '#15803d' }}>
+                      <CheckCircle2 size={14} /> 批量导出完成 · 共 {batchDownloads.length} 个文件
+                      <button
+                        onClick={() => { batchDownloads.forEach(d => void downloadBatchFile(d)); }}
+                        style={{ marginLeft: 'auto', padding: '3px 10px', border: '1px solid #86efac', borderRadius: 4, background: '#fff', color: '#15803d', fontSize: 12, cursor: 'pointer' }}
+                      >
+                        全部下载
+                      </button>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 160, overflowY: 'auto' }}>
+                      {batchDownloads.map((d, i) => (
+                        <div key={`${d.reportId}-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#374151' }}>
+                          <FileText size={12} color="#15803d" />
+                          <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {d.fileName || d.reportId}
+                          </span>
+                          <span style={{ color: '#94a3b8' }}>{(d.sizeBytes / 1024).toFixed(0)} KB</span>
+                          <button
+                            onClick={() => void downloadBatchFile(d)}
+                            style={{ padding: '2px 8px', border: 'none', borderRadius: 4, background: '#16a34a', color: '#fff', fontSize: 11, cursor: 'pointer' }}
+                          >
+                            下载
+                          </button>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}

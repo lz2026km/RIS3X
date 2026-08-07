@@ -363,7 +363,7 @@ export default function Dicom4dPage() {
             display: 'flex', alignItems: 'center', gap: 8, marginTop: 4,
             background: PANEL_BG, borderRadius: 4, padding: '4px 12px',
           }}>
-            <span style={{ fontSize: 10, color: '#64748b', minWidth: 30 }}>Frame</span>
+            <span style={{ fontSize: 10, color: '#64748b', minWidth: 30 }}>帧</span>
             <Slider
               min={0}
               max={Math.max(0, frameCount - 1)}

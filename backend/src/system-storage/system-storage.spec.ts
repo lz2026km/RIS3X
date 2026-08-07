@@ -19,8 +19,11 @@ const makePrisma = (overrides: Record<string, unknown> = {}) => {
 
 const makeConfig = () => ({ get: jest.fn().mockReturnValue(undefined) })
 
+// [v3.0.6.11-79] SystemConfigService 桩: 保存侧 invalidate 缓存
+const makeSystemConfig = () => ({ invalidate: jest.fn(), get: jest.fn(), getString: jest.fn(), getNumber: jest.fn() })
+
 const makeService = (prisma: unknown) =>
-  new SystemStorageService(prisma as never, makeConfig() as never, {} as never)
+  new SystemStorageService(prisma as never, makeConfig() as never, {} as never, makeSystemConfig() as never)
 
 describe('SystemStorageService (W5 admin configs)', () => {
   describe('listAdminConfigs', () => {

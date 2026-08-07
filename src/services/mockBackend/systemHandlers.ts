@@ -24,6 +24,7 @@ const AUDIT_LOGS = Array.from({ length: 30 }, (_, i) => ({
   resourceId: 'RPT-2026-' + String(1000 + i).padStart(4, '0'),
   details: ['操作详情 #' + (i + 1) + ' - 自动生成测试数据'],
   ip: '192.168.1.' + (10 + i),
+  userAgent: ['Mozilla/5.0 (Windows NT 10.0; Win64; x64)', 'G005-RIS-API-Client/3.0.6', 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0)'][i % 3],
   status: (['SUCCESS', 'SUCCESS', 'DENIED', 'SUCCESS', 'FAILURE'] as const)[i % 5],
   createdAt: new Date(Date.now() - i * 3600_000).toISOString(),
 }));
@@ -62,15 +63,6 @@ const COMPLIANCE_REPORT = {
   generatedAt: new Date().toISOString(),
 };
 
-// 合规文档 mock
-const COMPLIANCE_DOCS = [
-  { id: 'd-001', title: '隐私政策', category: '法规文档', status: 'CURRENT', version: '3.2', updatedAt: new Date(Date.now() - 7 * 86400_000).toISOString() },
-  { id: 'd-002', title: '数据安全管理制度', category: '管理制度', status: 'CURRENT', version: '2.1', updatedAt: new Date(Date.now() - 14 * 86400_000).toISOString() },
-  { id: 'd-003', title: '等保测评报告 (2026)', category: '测评报告', status: 'CURRENT', version: '1.0', updatedAt: new Date(Date.now() - 30 * 86400_000).toISOString() },
-  { id: 'd-004', title: '应急响应预案', category: '应急预案', status: 'DRAFT', version: '0.9', updatedAt: new Date(Date.now() - 3 * 86400_000).toISOString() },
-  { id: 'd-005', title: '历史 SOP (旧版)', category: '管理制度', status: 'ARCHIVED', version: '1.5', updatedAt: new Date(Date.now() - 180 * 86400_000).toISOString() },
-];
-
 // [W5] /system/admin/configs: 系统管理配置项 (后端 system-storage.controller 对应端点)
 const ADMIN_CONFIG_DEFAULTS: Record<string, { value: string; desc: string }> = {
   hospital_name: { value: 'G005 放射科信息管理系统', desc: '医院名称' },
@@ -83,6 +75,19 @@ const ADMIN_CONFIG_DEFAULTS: Record<string, { value: string; desc: string }> = {
 let adminConfigs: Record<string, string> = Object.fromEntries(
   Object.entries(ADMIN_CONFIG_DEFAULTS).map(([k, v]) => [k, v.value]),
 );
+
+// [W3-B] /system/clinical-config: 临床配置持久化 (7 模块; 后端 SystemConfig key=clinical_config)
+const CLINICAL_MODULE_KEYS = [
+  'gradingScales',
+  'aiModels',
+  'imagingDevices',
+  'kpiThresholds',
+  'reportTemplates',
+  'findingsLexicon',
+  'iolFormulas',
+];
+let clinicalConfigModules: Record<string, unknown> | null = null;
+let clinicalConfigUpdatedAt: string | null = null;
 
 export const systemHandlers = [
   // ─────────── Audit ───────────
@@ -144,9 +149,9 @@ export const systemHandlers = [
     const byUser: Array<{ userId: string; count: number }> = [];
     const userMap = new Map<string, number>();
     for (const l of AUDIT_LOGS) {
-      byAction[l.action] = (byAction[l.action] ?? 0) + 1;
-      byResource[l.resource] = (byResource[l.resource] ?? 0) + 1;
-      userMap.set(l.userId, (userMap.get(l.userId) ?? 0) + 1);
+      byAction[l.action ?? ''] = (byAction[l.action ?? ''] ?? 0) + 1;
+      byResource[l.resource ?? ''] = (byResource[l.resource ?? ''] ?? 0) + 1;
+      userMap.set(l.userId ?? '', (userMap.get(l.userId ?? '') ?? 0) + 1);
     }
     for (const [userId, count] of userMap) byUser.push({ userId, count });
     byUser.sort((a, b) => b.count - a.count);
@@ -161,6 +166,17 @@ export const systemHandlers = [
         byUser,
       },
     });
+  }),
+  // [W2-C] 审计记录详情 (AuditPage Drawer; 静态路由已在上方注册, :id 不会抢占)
+  http.get(`${API_BASE}/audit/:id`, ({ params }) => {
+    const entry = AUDIT_LOGS.find((l) => l.id === params.id);
+    if (!entry) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'NOT_FOUND', message: `审计记录 ${params.id} 不存在` } },
+        { status: 404 },
+      );
+    }
+    return HttpResponse.json({ success: true, data: entry });
   }),
 
   // ─────────── Backup ───────────
@@ -196,9 +212,7 @@ export const systemHandlers = [
   http.get(`${API_BASE}/compliance/report`, () => {
     return HttpResponse.json({ success: true, data: COMPLIANCE_REPORT });
   }),
-  http.get(`${API_BASE}/compliance-docs`, () => {
-    return HttpResponse.json({ success: true, data: COMPLIANCE_DOCS });
-  }),
+  // [v3.0.6.11-79 W1-C] compliance-docs 7 端点已迁至 complianceDocsHandlers
 
   // ─────────── Admin Configs [W5] ───────────
   http.get(`${API_BASE}/system/admin/configs`, () => {
@@ -249,6 +263,64 @@ export const systemHandlers = [
     return HttpResponse.json({
       success: true,
       data: { key, value: adminConfigs[key], desc: ADMIN_CONFIG_DEFAULTS[key]!.desc },
+    });
+  }),
+
+  // ─────────── Clinical Config [W3-B] ───────────
+  // 静态路由在前, :module 参数路由在后, 避免抢占
+  http.get(`${API_BASE}/system/clinical-config`, () => {
+    return HttpResponse.json({
+      success: true,
+      data: { modules: clinicalConfigModules, updatedAt: clinicalConfigUpdatedAt },
+    });
+  }),
+  http.put(`${API_BASE}/system/clinical-config`, async ({ request }) => {
+    await delay(120);
+    const body = (await request.json().catch(() => null)) as any;
+    const modules = body?.modules ?? body;
+    if (!modules || typeof modules !== 'object' || Array.isArray(modules) || Object.keys(modules).length === 0) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'VALIDATION_ERROR', message: 'modules 对象不能为空' } },
+        { status: 400 },
+      );
+    }
+    for (const k of Object.keys(modules)) {
+      if (!CLINICAL_MODULE_KEYS.includes(k)) {
+        return HttpResponse.json(
+          { success: false, error: { code: 'VALIDATION_ERROR', message: `未知模块: ${k}` } },
+          { status: 400 },
+        );
+      }
+    }
+    clinicalConfigModules = modules;
+    clinicalConfigUpdatedAt = new Date().toISOString();
+    return HttpResponse.json({
+      success: true,
+      data: { modules: clinicalConfigModules, updatedAt: clinicalConfigUpdatedAt },
+    });
+  }),
+  http.put(`${API_BASE}/system/clinical-config/:module`, async ({ params, request }) => {
+    await delay(100);
+    const key = params.module as string;
+    if (!CLINICAL_MODULE_KEYS.includes(key)) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'NOT_FOUND', message: `未知模块: ${key}` } },
+        { status: 404 },
+      );
+    }
+    const body = (await request.json().catch(() => null)) as any;
+    const module = body?.module ?? body;
+    if (!module || typeof module !== 'object' || Array.isArray(module)) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'VALIDATION_ERROR', message: 'module 必须是对象' } },
+        { status: 400 },
+      );
+    }
+    clinicalConfigModules = { ...(clinicalConfigModules ?? {}), [key]: module };
+    clinicalConfigUpdatedAt = new Date().toISOString();
+    return HttpResponse.json({
+      success: true,
+      data: { module, updatedAt: clinicalConfigUpdatedAt },
     });
   }),
 

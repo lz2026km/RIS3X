@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { setToken } from '@/utils/auth';
-import { api, currentApiMode } from '@/services/api/client';
+import { currentApiMode } from '@/services/api/client';
+import { authApi } from '@/services/api/authApi';
 import { normalizeRole } from '@/services/auth/roleUtils';
 import type { UserRole } from '@/types';
 
@@ -39,14 +40,7 @@ export default function LoginPage() {
     setSubmitting(true);
     setError(null);
     try {
-      const response = await api.post<{
-        token: string;
-        expiresAt?: number;
-        userId?: string;
-        userName?: string;
-        role?: string;
-        title?: string;
-      }>('/auth/login', { username: username.trim(), password });
+      const response = await authApi.login(username.trim(), password);
       if (response.success && response.data?.token) {
         setToken({
           token: response.data.token,

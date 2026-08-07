@@ -1,4 +1,5 @@
-import { api } from './client'
+import { api, API_BASE } from './client'
+import { getToken } from '../../utils/auth'
 
 export interface AuditEventDto {
   id: string; userId: string; username?: string; userRole?: string; action: string; resource: string; resourceId?: string;
@@ -13,11 +14,19 @@ export const auditApi = {
     if (params) { Object.entries(params).forEach(([k, v]) => { if (v !== undefined) sp.set(k, String(v)) }) }
     return api.get<{ items: AuditEventDto[]; total: number; page: number; pageSize: number }>(`/audit${sp.toString() ? '?' + sp.toString() : ''}`)
   },
-  getById: (id: string) => api.get<AuditEventDto>(`/audit/${id}`),
+  getById: (id: string) => api.get<AuditEventDto>(`/audit/${encodeURIComponent(id)}`),
   getAggregation: () => api.get<AuditAggregationDto>('/audit/aggregation'),
-  export: (params?: AuditQueryParams) => {
+  // 导出 CSV: 后端 GET /audit/export 返回 text/csv, 以 blob 下载 (与 systemApi.auditApi.exportCsv 一致)
+  export: async (params?: AuditQueryParams): Promise<Blob> => {
     const sp = new URLSearchParams()
     if (params) { Object.entries(params).forEach(([k, v]) => { if (v !== undefined) sp.set(k, String(v)) }) }
-    return api.get<Blob>(`/audit/export?${sp.toString()}`, { responseType: 'blob' })
+    const url = `${API_BASE}/audit/export${sp.toString() ? '?' + sp.toString() : ''}`
+    const token = getToken()
+    const res = await fetch(url, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      credentials: 'include',
+    })
+    if (!res.ok) throw new Error(`导出失败 (${res.status})`)
+    return res.blob()
   },
 }

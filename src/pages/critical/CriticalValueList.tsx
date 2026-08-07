@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
-import { Search, X, Calendar, Settings, Filter, CheckCircle, Send, Edit3, Eye, Phone, CheckSquare, Square, Bell, ArrowUpRight, ShieldAlert } from 'lucide-react'
+import { Search, X, Calendar, Settings, Filter, CheckCircle, Send, Edit3, Eye, Phone, CheckSquare, Square, Bell, ArrowUpRight, ShieldAlert, ArrowUp, Archive, Trash2 } from 'lucide-react'
+import { Popconfirm } from 'antd'
 import type { CriticalValue } from './types'
 import { STATUS_CONFIG, SEVERITY_CONFIG, CN_STATUS_TO_STORE } from './types'
 // v3.0.6.11: 导入 criticalStore 导出的 MACHINE_STATE_TO_STORE,
@@ -127,9 +128,13 @@ interface CriticalValueRowProps {
   onClinicalReceipt: () => void
   onAcknowledge: () => void
   onTransferToFollowUp: () => void
+  onEscalate: () => void
+  onCloseLoop: () => void
+  onDelete: () => void
+  onGo5Step: () => void
 }
 
-const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, onContactClinical, onVoiceCall, onClinicalReceipt, onAcknowledge, onTransferToFollowUp }: CriticalValueRowProps) => {
+const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, onContactClinical, onVoiceCall, onClinicalReceipt, onAcknowledge, onTransferToFollowUp, onEscalate, onCloseLoop, onDelete, onGo5Step }: CriticalValueRowProps) => {
   const statusCfg = STATUS_CONFIG[cv.status] || STATUS_CONFIG['pending']
   const severityCfg = SEVERITY_CONFIG[cv.severity] || SEVERITY_CONFIG['高危']
   const StatusIcon = statusCfg.icon || Bell
@@ -200,6 +205,24 @@ const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, o
         <button onClick={onContactClinical} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #d97706', background: '#fff', color: '#d97706', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
           <Phone size={10} />联系
         </button>
+        {cv.status !== 'closed_loop' && cv.status !== 'resolved' && cv.status !== '已处理' && (
+          <button onClick={onCloseLoop} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #047857', background: '#ecfdf5', color: '#047857', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+            <Archive size={10} />闭环
+          </button>
+        )}
+        {cv.status !== 'escalated' && cv.status !== '已升级' && (
+          <button onClick={onEscalate} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #7c3aed', background: '#f5f3ff', color: '#7c3aed', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+            <ArrowUp size={10} />升级
+          </button>
+        )}
+        <button onClick={onGo5Step} title="5步闭环工作流" style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #2563eb', background: '#eff6ff', color: '#2563eb', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+          <CheckCircle size={10} />5步
+        </button>
+        <Popconfirm title="删除危急值" description="确定删除该危急值记录吗?此操作不可恢复。" onConfirm={onDelete} okText="删除" cancelText="取消" okButtonProps={{ danger: true }}>
+          <button style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #dc2626', background: '#fff', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+            <Trash2 size={10} />删除
+          </button>
+        </Popconfirm>
       </div>
       <div>
         {cv.transferredToFollowUp ? (
@@ -229,12 +252,16 @@ interface CriticalValueListProps {
   onClinicalReceipt: (cv: CriticalValue) => void
   onAcknowledge: (cv: CriticalValue) => void
   onTransferToFollowUp: (cv: CriticalValue) => void
+  onEscalate: (cv: CriticalValue) => void
+  onCloseLoop: (cv: CriticalValue) => void
+  onDelete: (cv: CriticalValue) => void
+  onGo5Step: (cv: CriticalValue) => void
   criticalValues: CriticalValue[]
 }
 
 export const CriticalValueList = ({
   filtered, selectedIds, onToggleSelect, onToggleSelectAll,
-  onProcess, onViewDetail, onContactClinical, onVoiceCall, onClinicalReceipt, onAcknowledge, onTransferToFollowUp, criticalValues,
+  onProcess, onViewDetail, onContactClinical, onVoiceCall, onClinicalReceipt, onAcknowledge, onTransferToFollowUp, onEscalate, onCloseLoop, onDelete, onGo5Step, criticalValues,
 }: CriticalValueListProps) => {
   const allSelected = filtered.length > 0 && selectedIds.size === filtered.length
 
@@ -288,6 +315,10 @@ export const CriticalValueList = ({
             onClinicalReceipt={() => onClinicalReceipt(cv)}
             onAcknowledge={() => onAcknowledge(cv)}
             onTransferToFollowUp={() => onTransferToFollowUp(cv)}
+            onEscalate={() => onEscalate(cv)}
+            onCloseLoop={() => onCloseLoop(cv)}
+            onDelete={() => onDelete(cv)}
+            onGo5Step={() => onGo5Step(cv)}
           />
         ))
       ) : (

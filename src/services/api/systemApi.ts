@@ -9,6 +9,12 @@ export interface AuditLogDto {
   details?: string
   ip?: string
   createdAt: string
+  // [W2-C] 详情 Drawer 补充字段 (后端 AuditLog / MSW 均有返回)
+  username?: string
+  userRole?: string
+  resourceId?: string
+  status?: 'SUCCESS' | 'FAILURE' | 'DENIED'
+  userAgent?: string
 }
 
 export interface AuditListParams {
@@ -49,6 +55,22 @@ export interface BackupListParams {
   type?: string
 }
 
+// [W3-B] 临床配置持久化 (7 模块: gradingScales/aiModels/imagingDevices/kpiThresholds/reportTemplates/findingsLexicon/iolFormulas)
+export interface ClinicalConfigDto {
+  modules: Record<string, unknown> | null
+  updatedAt: string | null
+}
+
+export const clinicalConfigApi = {
+  get: () => api.get<ClinicalConfigDto>('/system/clinical-config'),
+
+  saveAll: (modules: Record<string, unknown>) =>
+    api.put<ClinicalConfigDto>('/system/clinical-config', { modules }),
+
+  saveModule: (key: string, module: unknown) =>
+    api.put<{ module: unknown; updatedAt: string }>(`/system/clinical-config/${encodeURIComponent(key)}`, { module }),
+}
+
 export const auditApi = {
   list: (params?: AuditListParams) => {
     const query = new URLSearchParams()
@@ -65,6 +87,10 @@ export const auditApi = {
 
   stats: () =>
     api.get<AuditStatsDto>('/audit/stats'),
+
+  // [W2-C] 审计记录详情 (AuditPage Drawer)
+  getById: (id: string) =>
+    api.get<AuditLogDto>(`/audit/${encodeURIComponent(id)}`),
 
   // 导出 CSV（后端 GET /audit/export 返回 text/csv，需按 blob 下载）
   async exportCsv(params?: AuditListParams): Promise<Blob> {

@@ -1,126 +1,95 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
+import { followupApi, type FollowUpPlan } from '../services/api/followupApi';
 
 interface FollowUpPatient {
   id: string;
   patientId: string;
   patientName: string;
-  examType: 'CT增强' | 'MRI增强' | 'CT平扫' | 'MRI平扫';
+  examType?: string;
   examDate: string;
-  followUpType: '对比剂反应' | '肿瘤复查' | '早期肺癌跟踪' | '治疗评估';
+  followUpType?: string;
   nextFollowUpDate: string;
   status: '待随访' | '进行中' | '已完成' | '逾期';
   reaction?: '无反应' | '轻度' | '中度' | '重度';
   notes?: string;
+  reminderEnabled?: boolean;
+  intervalDays?: number;
 }
+
+// [W4-B] 后端状态枚举 → 页面中文状态
+const STATUS_MAP: Record<string, '待随访' | '进行中' | '已完成' | '逾期'> = {
+  PENDING: '待随访',
+  IN_PROGRESS: '进行中',
+  COMPLETED: '已完成',
+  OVERDUE: '逾期',
+};
+
+// [W4-B] 后端 FollowUpPlan → 页面行记录 (examType/followUpType 后端未持久化, 渲染 '—')
+const mapPlan = (p: FollowUpPlan): FollowUpPatient => ({
+  id: p.id,
+  patientId: p.patientId,
+  patientName: p.patientName,
+  examDate: (p.planDate ?? '').slice(0, 10),
+  nextFollowUpDate: (p.nextDate ?? '').slice(0, 10),
+  status: STATUS_MAP[p.status] ?? '待随访',
+  notes: p.note || undefined,
+  reminderEnabled: p.reminderEnabled,
+  intervalDays: p.intervalDays,
+});
 
 export default function FollowUpPage() {
   const [activeTab, setActiveTab] = useState<'all' | 'pending' | 'overdue'>('all');
   const [searchKeyword, setSearchKeyword] = useState('');
   const [selectedPatient, setSelectedPatient] = useState<FollowUpPatient | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
-  const [followUpList, setFollowUpList] = useState<FollowUpPatient[]>([    { id: 'FU001', patientId: 'P202400001', patientName: '李四', examType: 'MRI增强', examDate: '2026-01-15', followUpType: '肿瘤复查', nextFollowUpDate: '2026-07-06', status: '进行中', reaction: '轻度', notes: '肺癌术后3个月复查，影像学评估' },
-    { id: 'FU002', patientId: 'P202400002', patientName: '王五', examType: 'CT平扫', examDate: '2026-04-23', followUpType: '早期肺癌跟踪', nextFollowUpDate: '2026-06-24', status: '已完成', reaction: '中度', notes: '肺结节6个月随访，大小稳定' },
-    { id: 'FU003', patientId: 'P202400003', patientName: '赵六', examType: 'MRI平扫', examDate: '2026-03-21', followUpType: '治疗评估', nextFollowUpDate: '2026-07-23', status: '逾期', reaction: '重度', notes: '肝癌介入治疗后影像学评估' },
-    { id: 'FU004', patientId: 'P202400004', patientName: '钱七', examType: 'PET-CT', examDate: '2026-05-15', followUpType: '术后复查', nextFollowUpDate: '2026-08-27', status: '待随访', reaction: '无反应', notes: 'CT引导下活检后观察' },
-    { id: 'FU005', patientId: 'P202400005', patientName: '孙八', examType: 'SPECT-CT', examDate: '2026-05-02', followUpType: '介入治疗后评估', nextFollowUpDate: '2026-12-07', status: '进行中', reaction: '轻度', notes: '放疗后疗效评估' },
-    { id: 'FU006', patientId: 'P202400006', patientName: '周九', examType: 'CT增强', examDate: '2026-01-17', followUpType: '对比剂反应', nextFollowUpDate: '2026-12-01', status: '已完成', reaction: '中度', notes: '常规增强检查，无不适' },
-    { id: 'FU007', patientId: 'P202400007', patientName: '吴十', examType: 'MRI增强', examDate: '2026-04-16', followUpType: '肿瘤复查', nextFollowUpDate: '2026-06-22', status: '逾期', reaction: '重度', notes: '患者主诉头痛，需进一步评估' },
-    { id: 'FU008', patientId: 'P202400008', patientName: '郑一', examType: 'CT平扫', examDate: '2026-01-20', followUpType: '早期肺癌跟踪', nextFollowUpDate: '2026-06-22', status: '待随访', reaction: '无反应', notes: 'CT增强后皮疹，给予抗过敏处理' },
-    { id: 'FU009', patientId: 'P202400009', patientName: '冯二', examType: 'MRI平扫', examDate: '2026-03-16', followUpType: '治疗评估', nextFollowUpDate: '2026-10-20', status: '进行中', reaction: '轻度', notes: 'MRI增强后肝功能异常，复查中' },
-    { id: 'FU010', patientId: 'P202400010', patientName: '陈三', examType: 'PET-CT', examDate: '2026-01-18', followUpType: '术后复查', nextFollowUpDate: '2026-08-12', status: '已完成', reaction: '中度', notes: '注射碘对比剂后出现轻微恶心，休息后缓解' },
-    { id: 'FU011', patientId: 'P202400011', patientName: '楚四', examType: 'SPECT-CT', examDate: '2026-02-03', followUpType: '介入治疗后评估', nextFollowUpDate: '2026-06-16', status: '逾期', reaction: '重度', notes: '肺癌术后3个月复查，影像学评估' },
-    { id: 'FU012', patientId: 'P202400012', patientName: '卫五', examType: 'CT增强', examDate: '2026-01-25', followUpType: '对比剂反应', nextFollowUpDate: '2026-08-28', status: '待随访', reaction: '无反应', notes: '肺结节6个月随访，大小稳定' },
-    { id: 'FU013', patientId: 'P202400013', patientName: '蒋六', examType: 'MRI增强', examDate: '2026-01-27', followUpType: '肿瘤复查', nextFollowUpDate: '2026-12-18', status: '进行中', reaction: '轻度', notes: '肝癌介入治疗后影像学评估' },
-    { id: 'FU014', patientId: 'P202400014', patientName: '沈七', examType: 'CT平扫', examDate: '2026-04-07', followUpType: '早期肺癌跟踪', nextFollowUpDate: '2026-12-16', status: '已完成', reaction: '中度', notes: 'CT引导下活检后观察' },
-    { id: 'FU015', patientId: 'P202400015', patientName: '韩八', examType: 'MRI平扫', examDate: '2026-02-05', followUpType: '治疗评估', nextFollowUpDate: '2026-05-13', status: '逾期', reaction: '重度', notes: '放疗后疗效评估' },
-    { id: 'FU016', patientId: 'P202400016', patientName: '杨九', examType: 'PET-CT', examDate: '2026-03-28', followUpType: '术后复查', nextFollowUpDate: '2026-08-17', status: '待随访', reaction: '无反应', notes: '常规增强检查，无不适' },
-    { id: 'FU017', patientId: 'P202400017', patientName: '朱十', examType: 'SPECT-CT', examDate: '2026-05-28', followUpType: '介入治疗后评估', nextFollowUpDate: '2026-05-20', status: '进行中', reaction: '轻度', notes: '患者主诉头痛，需进一步评估' },
-    { id: 'FU018', patientId: 'P202400018', patientName: '秦十一', examType: 'CT增强', examDate: '2026-05-21', followUpType: '对比剂反应', nextFollowUpDate: '2026-07-21', status: '已完成', reaction: '中度', notes: 'CT增强后皮疹，给予抗过敏处理' },
-    { id: 'FU019', patientId: 'P202400019', patientName: '尤十二', examType: 'MRI增强', examDate: '2026-05-17', followUpType: '肿瘤复查', nextFollowUpDate: '2026-12-22', status: '逾期', reaction: '重度', notes: 'MRI增强后肝功能异常，复查中' },
-    { id: 'FU020', patientId: 'P202400020', patientName: '张三', examType: 'CT平扫', examDate: '2026-05-24', followUpType: '早期肺癌跟踪', nextFollowUpDate: '2026-05-16', status: '待随访', reaction: '无反应', notes: '注射碘对比剂后出现轻微恶心，休息后缓解' },
-    { id: 'FU021', patientId: 'P202400021', patientName: '李四', examType: 'MRI平扫', examDate: '2026-05-08', followUpType: '治疗评估', nextFollowUpDate: '2026-12-19', status: '进行中', reaction: '轻度', notes: '肺癌术后3个月复查，影像学评估' },
-    { id: 'FU022', patientId: 'P202400022', patientName: '王五', examType: 'PET-CT', examDate: '2026-03-19', followUpType: '术后复查', nextFollowUpDate: '2026-08-24', status: '已完成', reaction: '中度', notes: '肺结节6个月随访，大小稳定' },
-    { id: 'FU023', patientId: 'P202400023', patientName: '赵六', examType: 'SPECT-CT', examDate: '2026-02-23', followUpType: '介入治疗后评估', nextFollowUpDate: '2026-05-14', status: '逾期', reaction: '重度', notes: '肝癌介入治疗后影像学评估' },
-    { id: 'FU024', patientId: 'P202400024', patientName: '钱七', examType: 'CT增强', examDate: '2026-03-28', followUpType: '对比剂反应', nextFollowUpDate: '2026-09-23', status: '待随访', reaction: '无反应', notes: 'CT引导下活检后观察' },
-    { id: 'FU025', patientId: 'P202400025', patientName: '孙八', examType: 'MRI增强', examDate: '2026-01-05', followUpType: '肿瘤复查', nextFollowUpDate: '2026-05-02', status: '进行中', reaction: '轻度', notes: '放疗后疗效评估' },
-    { id: 'FU026', patientId: 'P202400026', patientName: '周九', examType: 'CT平扫', examDate: '2026-02-10', followUpType: '早期肺癌跟踪', nextFollowUpDate: '2026-05-05', status: '已完成', reaction: '中度', notes: '常规增强检查，无不适' },
-    { id: 'FU027', patientId: 'P202400027', patientName: '吴十', examType: 'MRI平扫', examDate: '2026-01-11', followUpType: '治疗评估', nextFollowUpDate: '2026-05-21', status: '逾期', reaction: '重度', notes: '患者主诉头痛，需进一步评估' },
-    { id: 'FU028', patientId: 'P202400028', patientName: '郑一', examType: 'PET-CT', examDate: '2026-03-15', followUpType: '术后复查', nextFollowUpDate: '2026-11-16', status: '待随访', reaction: '无反应', notes: 'CT增强后皮疹，给予抗过敏处理' },
-    { id: 'FU029', patientId: 'P202400029', patientName: '冯二', examType: 'SPECT-CT', examDate: '2026-01-18', followUpType: '介入治疗后评估', nextFollowUpDate: '2026-07-09', status: '进行中', reaction: '轻度', notes: 'MRI增强后肝功能异常，复查中' },
-    { id: 'FU030', patientId: 'P202400030', patientName: '陈三', examType: 'CT增强', examDate: '2026-01-27', followUpType: '对比剂反应', nextFollowUpDate: '2026-12-07', status: '已完成', reaction: '中度', notes: '注射碘对比剂后出现轻微恶心，休息后缓解' },
-    { id: 'FU031', patientId: 'P202400031', patientName: '楚四', examType: 'MRI增强', examDate: '2026-04-05', followUpType: '肿瘤复查', nextFollowUpDate: '2026-11-09', status: '逾期', reaction: '重度', notes: '肺癌术后3个月复查，影像学评估' },
-    { id: 'FU032', patientId: 'P202400032', patientName: '卫五', examType: 'CT平扫', examDate: '2026-02-23', followUpType: '早期肺癌跟踪', nextFollowUpDate: '2026-09-07', status: '待随访', reaction: '无反应', notes: '肺结节6个月随访，大小稳定' },
-    { id: 'FU033', patientId: 'P202400033', patientName: '蒋六', examType: 'MRI平扫', examDate: '2026-01-22', followUpType: '治疗评估', nextFollowUpDate: '2026-09-10', status: '进行中', reaction: '轻度', notes: '肝癌介入治疗后影像学评估' },
-    { id: 'FU034', patientId: 'P202400034', patientName: '沈七', examType: 'PET-CT', examDate: '2026-02-28', followUpType: '术后复查', nextFollowUpDate: '2026-10-02', status: '已完成', reaction: '中度', notes: 'CT引导下活检后观察' },
-    { id: 'FU035', patientId: 'P202400035', patientName: '韩八', examType: 'SPECT-CT', examDate: '2026-05-05', followUpType: '介入治疗后评估', nextFollowUpDate: '2026-07-03', status: '逾期', reaction: '重度', notes: '放疗后疗效评估' },
-    { id: 'FU036', patientId: 'P202400036', patientName: '杨九', examType: 'CT增强', examDate: '2026-03-13', followUpType: '对比剂反应', nextFollowUpDate: '2026-10-22', status: '待随访', reaction: '无反应', notes: '常规增强检查，无不适' },
-    { id: 'FU037', patientId: 'P202400037', patientName: '朱十', examType: 'MRI增强', examDate: '2026-02-09', followUpType: '肿瘤复查', nextFollowUpDate: '2026-08-28', status: '进行中', reaction: '轻度', notes: '患者主诉头痛，需进一步评估' },
-    { id: 'FU038', patientId: 'P202400038', patientName: '秦十一', examType: 'CT平扫', examDate: '2026-03-03', followUpType: '早期肺癌跟踪', nextFollowUpDate: '2026-07-28', status: '已完成', reaction: '中度', notes: 'CT增强后皮疹，给予抗过敏处理' },
-    { id: 'FU039', patientId: 'P202400039', patientName: '尤十二', examType: 'MRI平扫', examDate: '2026-02-02', followUpType: '治疗评估', nextFollowUpDate: '2026-06-22', status: '逾期', reaction: '重度', notes: 'MRI增强后肝功能异常，复查中' },
-    { id: 'FU040', patientId: 'P202400040', patientName: '张三', examType: 'PET-CT', examDate: '2026-04-12', followUpType: '术后复查', nextFollowUpDate: '2026-10-13', status: '待随访', reaction: '无反应', notes: '注射碘对比剂后出现轻微恶心，休息后缓解' },
-    { id: 'FU041', patientId: 'P202400041', patientName: '李四', examType: 'SPECT-CT', examDate: '2026-03-28', followUpType: '介入治疗后评估', nextFollowUpDate: '2026-11-23', status: '进行中', reaction: '轻度', notes: '肺癌术后3个月复查，影像学评估' },
-    { id: 'FU042', patientId: 'P202400042', patientName: '王五', examType: 'CT增强', examDate: '2026-01-10', followUpType: '对比剂反应', nextFollowUpDate: '2026-06-10', status: '已完成', reaction: '中度', notes: '肺结节6个月随访，大小稳定' },
-    { id: 'FU043', patientId: 'P202400043', patientName: '赵六', examType: 'MRI增强', examDate: '2026-04-25', followUpType: '肿瘤复查', nextFollowUpDate: '2026-11-11', status: '逾期', reaction: '重度', notes: '肝癌介入治疗后影像学评估' },
-    { id: 'FU044', patientId: 'P202400044', patientName: '钱七', examType: 'CT平扫', examDate: '2026-01-20', followUpType: '早期肺癌跟踪', nextFollowUpDate: '2026-09-13', status: '待随访', reaction: '无反应', notes: 'CT引导下活检后观察' },
-    { id: 'FU045', patientId: 'P202400045', patientName: '孙八', examType: 'MRI平扫', examDate: '2026-05-24', followUpType: '治疗评估', nextFollowUpDate: '2026-11-20', status: '进行中', reaction: '轻度', notes: '放疗后疗效评估' },
-    { id: 'FU046', patientId: 'P202400046', patientName: '周九', examType: 'PET-CT', examDate: '2026-05-05', followUpType: '术后复查', nextFollowUpDate: '2026-10-27', status: '已完成', reaction: '中度', notes: '常规增强检查，无不适' },
-    { id: 'FU047', patientId: 'P202400047', patientName: '吴十', examType: 'SPECT-CT', examDate: '2026-01-14', followUpType: '介入治疗后评估', nextFollowUpDate: '2026-08-24', status: '逾期', reaction: '重度', notes: '患者主诉头痛，需进一步评估' },
-    { id: 'FU048', patientId: 'P202400048', patientName: '郑一', examType: 'CT增强', examDate: '2026-02-04', followUpType: '对比剂反应', nextFollowUpDate: '2026-10-15', status: '待随访', reaction: '无反应', notes: 'CT增强后皮疹，给予抗过敏处理' },
-    { id: 'FU049', patientId: 'P202400049', patientName: '冯二', examType: 'MRI增强', examDate: '2026-03-25', followUpType: '肿瘤复查', nextFollowUpDate: '2026-07-08', status: '进行中', reaction: '轻度', notes: 'MRI增强后肝功能异常，复查中' },
-    { id: 'FU050', patientId: 'P202400050', patientName: '陈三', examType: 'CT平扫', examDate: '2026-02-04', followUpType: '早期肺癌跟踪', nextFollowUpDate: '2026-10-12', status: '已完成', reaction: '中度', notes: '注射碘对比剂后出现轻微恶心，休息后缓解' },
-    { id: 'FU051', patientId: 'P202400051', patientName: '楚四', examType: 'MRI平扫', examDate: '2026-05-28', followUpType: '治疗评估', nextFollowUpDate: '2026-11-08', status: '逾期', reaction: '重度', notes: '肺癌术后3个月复查，影像学评估' },
-    { id: 'FU052', patientId: 'P202400052', patientName: '卫五', examType: 'PET-CT', examDate: '2026-01-05', followUpType: '术后复查', nextFollowUpDate: '2026-08-11', status: '待随访', reaction: '无反应', notes: '肺结节6个月随访，大小稳定' },
-    { id: 'FU053', patientId: 'P202400053', patientName: '蒋六', examType: 'SPECT-CT', examDate: '2026-05-07', followUpType: '介入治疗后评估', nextFollowUpDate: '2026-12-12', status: '进行中', reaction: '轻度', notes: '肝癌介入治疗后影像学评估' },
-    { id: 'FU054', patientId: 'P202400054', patientName: '沈七', examType: 'CT增强', examDate: '2026-03-27', followUpType: '对比剂反应', nextFollowUpDate: '2026-09-22', status: '已完成', reaction: '中度', notes: 'CT引导下活检后观察' },
-    { id: 'FU055', patientId: 'P202400055', patientName: '韩八', examType: 'MRI增强', examDate: '2026-04-20', followUpType: '肿瘤复查', nextFollowUpDate: '2026-12-26', status: '逾期', reaction: '重度', notes: '放疗后疗效评估' },
-    { id: 'FU056', patientId: 'P202400056', patientName: '杨九', examType: 'CT平扫', examDate: '2026-05-20', followUpType: '早期肺癌跟踪', nextFollowUpDate: '2026-12-17', status: '待随访', reaction: '无反应', notes: '常规增强检查，无不适' },
-    { id: 'FU057', patientId: 'P202400057', patientName: '朱十', examType: 'MRI平扫', examDate: '2026-04-10', followUpType: '治疗评估', nextFollowUpDate: '2026-12-02', status: '进行中', reaction: '轻度', notes: '患者主诉头痛，需进一步评估' },
-    { id: 'FU058', patientId: 'P202400058', patientName: '秦十一', examType: 'PET-CT', examDate: '2026-01-17', followUpType: '术后复查', nextFollowUpDate: '2026-08-26', status: '已完成', reaction: '中度', notes: 'CT增强后皮疹，给予抗过敏处理' },
-    { id: 'FU059', patientId: 'P202400059', patientName: '尤十二', examType: 'SPECT-CT', examDate: '2026-03-08', followUpType: '介入治疗后评估', nextFollowUpDate: '2026-09-19', status: '逾期', reaction: '重度', notes: 'MRI增强后肝功能异常，复查中' },
-    { id: 'FU060', patientId: 'P202400060', patientName: '张三', examType: 'CT增强', examDate: '2026-05-25', followUpType: '对比剂反应', nextFollowUpDate: '2026-09-01', status: '待随访', reaction: '无反应', notes: '注射碘对比剂后出现轻微恶心，休息后缓解' },
-    { id: 'FU061', patientId: 'P202400061', patientName: '李四', examType: 'MRI增强', examDate: '2026-01-20', followUpType: '肿瘤复查', nextFollowUpDate: '2026-05-11', status: '进行中', reaction: '轻度', notes: '肺癌术后3个月复查，影像学评估' },
-    { id: 'FU062', patientId: 'P202400062', patientName: '王五', examType: 'CT平扫', examDate: '2026-05-13', followUpType: '早期肺癌跟踪', nextFollowUpDate: '2026-06-08', status: '已完成', reaction: '中度', notes: '肺结节6个月随访，大小稳定' },
-    { id: 'FU063', patientId: 'P202400063', patientName: '赵六', examType: 'MRI平扫', examDate: '2026-04-16', followUpType: '治疗评估', nextFollowUpDate: '2026-11-21', status: '逾期', reaction: '重度', notes: '肝癌介入治疗后影像学评估' },
-    { id: 'FU064', patientId: 'P202400064', patientName: '钱七', examType: 'PET-CT', examDate: '2026-02-03', followUpType: '术后复查', nextFollowUpDate: '2026-10-08', status: '待随访', reaction: '无反应', notes: 'CT引导下活检后观察' },
-    { id: 'FU065', patientId: 'P202400065', patientName: '孙八', examType: 'SPECT-CT', examDate: '2026-04-02', followUpType: '介入治疗后评估', nextFollowUpDate: '2026-06-24', status: '进行中', reaction: '轻度', notes: '放疗后疗效评估' },
-    { id: 'FU066', patientId: 'P202400066', patientName: '周九', examType: 'CT增强', examDate: '2026-04-18', followUpType: '对比剂反应', nextFollowUpDate: '2026-05-16', status: '已完成', reaction: '中度', notes: '常规增强检查，无不适' },
-    { id: 'FU067', patientId: 'P202400067', patientName: '吴十', examType: 'MRI增强', examDate: '2026-03-04', followUpType: '肿瘤复查', nextFollowUpDate: '2026-08-14', status: '逾期', reaction: '重度', notes: '患者主诉头痛，需进一步评估' },
-    { id: 'FU068', patientId: 'P202400068', patientName: '郑一', examType: 'CT平扫', examDate: '2026-03-24', followUpType: '早期肺癌跟踪', nextFollowUpDate: '2026-07-03', status: '待随访', reaction: '无反应', notes: 'CT增强后皮疹，给予抗过敏处理' },
-    { id: 'FU069', patientId: 'P202400069', patientName: '冯二', examType: 'MRI平扫', examDate: '2026-01-20', followUpType: '治疗评估', nextFollowUpDate: '2026-05-15', status: '进行中', reaction: '轻度', notes: 'MRI增强后肝功能异常，复查中' },
-    { id: 'FU070', patientId: 'P202400070', patientName: '陈三', examType: 'PET-CT', examDate: '2026-01-20', followUpType: '术后复查', nextFollowUpDate: '2026-07-22', status: '已完成', reaction: '中度', notes: '注射碘对比剂后出现轻微恶心，休息后缓解' },
-    { id: 'FU071', patientId: 'P202400071', patientName: '楚四', examType: 'SPECT-CT', examDate: '2026-01-25', followUpType: '介入治疗后评估', nextFollowUpDate: '2026-10-20', status: '逾期', reaction: '重度', notes: '肺癌术后3个月复查，影像学评估' },
-    { id: 'FU072', patientId: 'P202400072', patientName: '卫五', examType: 'CT增强', examDate: '2026-01-10', followUpType: '对比剂反应', nextFollowUpDate: '2026-10-25', status: '待随访', reaction: '无反应', notes: '肺结节6个月随访，大小稳定' },
-    { id: 'FU073', patientId: 'P202400073', patientName: '蒋六', examType: 'MRI增强', examDate: '2026-04-14', followUpType: '肿瘤复查', nextFollowUpDate: '2026-09-04', status: '进行中', reaction: '轻度', notes: '肝癌介入治疗后影像学评估' },
-    { id: 'FU074', patientId: 'P202400074', patientName: '沈七', examType: 'CT平扫', examDate: '2026-01-25', followUpType: '早期肺癌跟踪', nextFollowUpDate: '2026-05-27', status: '已完成', reaction: '中度', notes: 'CT引导下活检后观察' },
-    { id: 'FU075', patientId: 'P202400075', patientName: '韩八', examType: 'MRI平扫', examDate: '2026-02-19', followUpType: '治疗评估', nextFollowUpDate: '2026-12-13', status: '逾期', reaction: '重度', notes: '放疗后疗效评估' },
-    { id: 'FU076', patientId: 'P202400076', patientName: '杨九', examType: 'PET-CT', examDate: '2026-01-19', followUpType: '术后复查', nextFollowUpDate: '2026-11-27', status: '待随访', reaction: '无反应', notes: '常规增强检查，无不适' },
-    { id: 'FU077', patientId: 'P202400077', patientName: '朱十', examType: 'SPECT-CT', examDate: '2026-04-04', followUpType: '介入治疗后评估', nextFollowUpDate: '2026-05-16', status: '进行中', reaction: '轻度', notes: '患者主诉头痛，需进一步评估' },
-    { id: 'FU078', patientId: 'P202400078', patientName: '秦十一', examType: 'CT增强', examDate: '2026-03-25', followUpType: '对比剂反应', nextFollowUpDate: '2026-12-06', status: '已完成', reaction: '中度', notes: 'CT增强后皮疹，给予抗过敏处理' },
-    { id: 'FU079', patientId: 'P202400079', patientName: '尤十二', examType: 'MRI增强', examDate: '2026-02-16', followUpType: '肿瘤复查', nextFollowUpDate: '2026-11-21', status: '逾期', reaction: '重度', notes: 'MRI增强后肝功能异常，复查中' },
-    { id: 'FU080', patientId: 'P202400080', patientName: '张三', examType: 'CT平扫', examDate: '2026-02-11', followUpType: '早期肺癌跟踪', nextFollowUpDate: '2026-12-28', status: '待随访', reaction: '无反应', notes: '注射碘对比剂后出现轻微恶心，休息后缓解' },
-    { id: 'FU081', patientId: 'P202400081', patientName: '李四', examType: 'MRI平扫', examDate: '2026-03-03', followUpType: '治疗评估', nextFollowUpDate: '2026-07-26', status: '进行中', reaction: '轻度', notes: '肺癌术后3个月复查，影像学评估' },
-    { id: 'FU082', patientId: 'P202400082', patientName: '王五', examType: 'PET-CT', examDate: '2026-03-07', followUpType: '术后复查', nextFollowUpDate: '2026-09-12', status: '已完成', reaction: '中度', notes: '肺结节6个月随访，大小稳定' },
-    { id: 'FU083', patientId: 'P202400083', patientName: '赵六', examType: 'SPECT-CT', examDate: '2026-03-05', followUpType: '介入治疗后评估', nextFollowUpDate: '2026-12-11', status: '逾期', reaction: '重度', notes: '肝癌介入治疗后影像学评估' },
-    { id: 'FU084', patientId: 'P202400084', patientName: '钱七', examType: 'CT增强', examDate: '2026-02-19', followUpType: '对比剂反应', nextFollowUpDate: '2026-11-06', status: '待随访', reaction: '无反应', notes: 'CT引导下活检后观察' },
-    { id: 'FU085', patientId: 'P202400085', patientName: '孙八', examType: 'MRI增强', examDate: '2026-01-20', followUpType: '肿瘤复查', nextFollowUpDate: '2026-05-17', status: '进行中', reaction: '轻度', notes: '放疗后疗效评估' },
-    { id: 'FU086', patientId: 'P202400086', patientName: '周九', examType: 'CT平扫', examDate: '2026-04-13', followUpType: '早期肺癌跟踪', nextFollowUpDate: '2026-06-17', status: '已完成', reaction: '中度', notes: '常规增强检查，无不适' },
-    { id: 'FU087', patientId: 'P202400087', patientName: '吴十', examType: 'MRI平扫', examDate: '2026-03-16', followUpType: '治疗评估', nextFollowUpDate: '2026-09-18', status: '逾期', reaction: '重度', notes: '患者主诉头痛，需进一步评估' },
-    { id: 'FU088', patientId: 'P202400088', patientName: '郑一', examType: 'PET-CT', examDate: '2026-02-08', followUpType: '术后复查', nextFollowUpDate: '2026-06-27', status: '待随访', reaction: '无反应', notes: 'CT增强后皮疹，给予抗过敏处理' },
-    { id: 'FU089', patientId: 'P202400089', patientName: '冯二', examType: 'SPECT-CT', examDate: '2026-05-06', followUpType: '介入治疗后评估', nextFollowUpDate: '2026-12-01', status: '进行中', reaction: '轻度', notes: 'MRI增强后肝功能异常，复查中' },
-    { id: 'FU090', patientId: 'P202400090', patientName: '陈三', examType: 'CT增强', examDate: '2026-03-21', followUpType: '对比剂反应', nextFollowUpDate: '2026-09-07', status: '已完成', reaction: '中度', notes: '注射碘对比剂后出现轻微恶心，休息后缓解' },
-    { id: 'FU091', patientId: 'P202400091', patientName: '楚四', examType: 'MRI增强', examDate: '2026-03-21', followUpType: '肿瘤复查', nextFollowUpDate: '2026-12-18', status: '逾期', reaction: '重度', notes: '肺癌术后3个月复查，影像学评估' },
-    { id: 'FU092', patientId: 'P202400092', patientName: '卫五', examType: 'CT平扫', examDate: '2026-04-20', followUpType: '早期肺癌跟踪', nextFollowUpDate: '2026-08-23', status: '待随访', reaction: '无反应', notes: '肺结节6个月随访，大小稳定' },
-    { id: 'FU093', patientId: 'P202400093', patientName: '蒋六', examType: 'MRI平扫', examDate: '2026-01-25', followUpType: '治疗评估', nextFollowUpDate: '2026-11-22', status: '进行中', reaction: '轻度', notes: '肝癌介入治疗后影像学评估' },
-    { id: 'FU094', patientId: 'P202400094', patientName: '沈七', examType: 'PET-CT', examDate: '2026-03-27', followUpType: '术后复查', nextFollowUpDate: '2026-12-20', status: '已完成', reaction: '中度', notes: 'CT引导下活检后观察' },
-    { id: 'FU095', patientId: 'P202400095', patientName: '韩八', examType: 'SPECT-CT', examDate: '2026-05-10', followUpType: '介入治疗后评估', nextFollowUpDate: '2026-07-27', status: '逾期', reaction: '重度', notes: '放疗后疗效评估' },
-    { id: 'FU096', patientId: 'P202400096', patientName: '杨九', examType: 'CT增强', examDate: '2026-03-21', followUpType: '对比剂反应', nextFollowUpDate: '2026-09-22', status: '待随访', reaction: '无反应', notes: '常规增强检查，无不适' },
-    { id: 'FU097', patientId: 'P202400097', patientName: '朱十', examType: 'MRI增强', examDate: '2026-04-16', followUpType: '肿瘤复查', nextFollowUpDate: '2026-08-18', status: '进行中', reaction: '轻度', notes: '患者主诉头痛，需进一步评估' },
-    { id: 'FU098', patientId: 'P202400098', patientName: '秦十一', examType: 'CT平扫', examDate: '2026-02-08', followUpType: '早期肺癌跟踪', nextFollowUpDate: '2026-08-07', status: '已完成', reaction: '中度', notes: 'CT增强后皮疹，给予抗过敏处理' },
-    { id: 'FU099', patientId: 'P202400099', patientName: '尤十二', examType: 'MRI平扫', examDate: '2026-05-15', followUpType: '治疗评估', nextFollowUpDate: '2026-09-13', status: '逾期', reaction: '重度', notes: 'MRI增强后肝功能异常，复查中' },
-    { id: 'FU100', patientId: 'P202400100', patientName: '张三', examType: 'PET-CT', examDate: '2026-01-22', followUpType: '术后复查', nextFollowUpDate: '2026-07-27', status: '待随访', reaction: '无反应', notes: '注射碘对比剂后出现轻微恶心，休息后缓解' },
-  ]);
+  // [W4-B] 真实 API 数据 (列表/到期提醒/loading/error)
+  const [followUpList, setFollowUpList] = useState<FollowUpPatient[]>([]);
+  const [dueList, setDueList] = useState<FollowUpPlan[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const loadFollowUps = async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const res = await followupApi.list({ search: searchKeyword || undefined });
+      if (res.success) {
+        setFollowUpList(res.data.data.map(mapPlan));
+      } else {
+        setLoadError(res.error?.message ?? '加载失败');
+      }
+    } catch (err) {
+      setLoadError((err as Error)?.message ?? '网络错误');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadFollowUps();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const t = setTimeout(() => { void loadFollowUps(); }, 300);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchKeyword]);
+
+  useEffect(() => {
+    let cancelled = false;
+    followupApi.due(7).then(res => {
+      if (cancelled) return;
+      if (res.success) setDueList(res.data?.items ?? []);
+    }).catch(() => { /* 到期提醒失败不阻塞页面 */ });
+    return () => { cancelled = true; };
+  }, [followUpList.length]);
+
+  const [newPlan, setNewPlan] = useState({ patientId: '', patientName: '', planDate: '', intervalDays: 30, note: '', reminderEnabled: true });
 
   const filteredList = followUpList.filter(item => {
     const keywordMatch = searchKeyword === '' || 
@@ -145,12 +114,62 @@ export default function FollowUpPage() {
     completed: followUpList.filter(f => f.status === '已完成').length
   };
 
-  const handleComplete = (id: string) => {
-    setFollowUpList(list => list.map(item => 
-      item.id === id ? { ...item, status: '已完成' as const } : item
-    ));
+  // [W4-B] 完成随访 → POST /followups/:id/complete
+  const handleComplete = async (id: string) => {
+    try {
+      const res = await followupApi.complete(id);
+      if (res.success) {
+        setFollowUpList(list => list.map(item =>
+          item.id === id ? { ...item, status: '已完成' as const } : item
+        ));
+      }
+    } catch (err) {
+      setLoadError((err as Error)?.message ?? '操作失败');
+    }
     setShowModal(false);
     setSelectedPatient(null);
+  };
+
+  // [W4-B] 删除随访 → DELETE /followups/:id
+  const handleDelete = async (item: FollowUpPatient) => {
+    if (!window.confirm(`确认删除患者「${item.patientName}」的随访计划？`)) return;
+    try {
+      const res = await followupApi.remove(item.id);
+      if (res.success) {
+        setFollowUpList(list => list.filter(p => p.id !== item.id));
+      }
+    } catch (err) {
+      setLoadError((err as Error)?.message ?? '删除失败');
+    }
+  };
+
+  // [W4-B] 新建随访计划 → POST /followups
+  const handleCreate = async () => {
+    if (!newPlan.patientId || !newPlan.patientName || !newPlan.planDate) {
+      setLoadError('请填写患者ID、姓名与随访日期');
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await followupApi.create({
+        patientId: newPlan.patientId,
+        patientName: newPlan.patientName,
+        planDate: newPlan.planDate,
+        intervalDays: Number(newPlan.intervalDays) || 30,
+        note: newPlan.note,
+        reminderEnabled: newPlan.reminderEnabled,
+      });
+      if (res.success && res.data) {
+        setFollowUpList(list => [mapPlan(res.data as any), ...list]);
+        setShowCreateModal(false);
+        setNewPlan({ patientId: '', patientName: '', planDate: '', intervalDays: 30, note: '', reminderEnabled: true });
+        setLoadError(null);
+      }
+    } catch (err) {
+      setLoadError((err as Error)?.message ?? '创建失败');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const pageStyle: React.CSSProperties = {
@@ -393,20 +412,38 @@ export default function FollowUpPage() {
           onChange={e => setSearchKeyword(e.target.value)}
           style={inputStyle}
         />
-        <button style={buttonStyle} onClick={() => { setSearchKeyword(''); setStatusFilter('all') }}>🔄 重置</button>
-        <button style={{...buttonStyle, backgroundColor: '#52c41a'}} onClick={async (evt) => {
-          const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
-          const orig = btn.innerHTML;
-          btn.innerHTML = '⏳ 添加中...';
-          btn.disabled = true;
-          await new Promise(r => setTimeout(r, 1500));
-          const records = JSON.parse(localStorage.getItem('g005_followup_records') || '[]');
-          records.push({ id: `FU${Date.now()}`, patientId: 'NEW', patientName: '新患者', examType: 'CT增强', examDate: new Date().toISOString().slice(0,10), followUpType: '肿瘤复查', nextFollowUpDate: '', status: '待随访' });
-          localStorage.setItem('g005_followup_records', JSON.stringify(records));
-          btn.innerHTML = '✅ 已添加';
-          setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
-        }}>+ 新增随访</button>
+        <button style={buttonStyle} onClick={() => { setSearchKeyword(''); }}>🔄 重置</button>
+        <button style={{...buttonStyle, backgroundColor: '#52c41a'}} onClick={() => setShowCreateModal(true)}>+ 新增随访</button>
       </div>
+
+      {/* [W4-B] 到期提醒横幅 (GET /followups/due?days=7) */}
+      {dueList.length > 0 && (
+        <div style={{
+          marginBottom: '16px', padding: '12px 16px', borderRadius: '8px',
+          backgroundColor: '#fff7e6', border: '1px solid #ffd591',
+          fontSize: '13px', color: '#ad6800'
+        }}>
+          <strong>⏰ 即将到期 ({dueList.length})：</strong>
+          {dueList.slice(0, 5).map(p => `${p.patientName}(${p.nextDate.slice(0, 10)})`).join('、')}
+          {dueList.length > 5 && ` 等${dueList.length}项`}
+        </div>
+      )}
+
+      {/* [W4-B] loading / error */}
+      {loading && (
+        <div style={{ marginBottom: '16px', padding: '16px', textAlign: 'center', color: '#666', fontSize: '14px' }}>
+          ⏳ 加载随访计划中...
+        </div>
+      )}
+      {loadError && !loading && (
+        <div style={{
+          marginBottom: '16px', padding: '12px 16px', borderRadius: '8px',
+          backgroundColor: '#fff2f0', border: '1px solid #ffa39e',
+          fontSize: '13px', color: '#cf1322'
+        }}>
+          ⚠️ {loadError}
+        </div>
+      )}
 
       <div style={tabContainerStyle}>
         <button style={tabStyle(activeTab === 'all')} onClick={() => setActiveTab('all')}>
@@ -441,9 +478,9 @@ export default function FollowUpPage() {
                   <div style={{ fontSize: '12px', color: '#999' }}>{item.patientId}</div>
                 </td>
                 <td style={{ padding: '12px 16px' }}>
-                  <span style={getExamTypeStyle(item.examType)}>{item.examType}</span>
+                  <span style={getExamTypeStyle(item.examType)}>{item.examType || '—'}</span>
                 </td>
-                <td style={{ padding: '12px 16px', fontSize: '14px', color: '#333' }}>{item.followUpType}</td>
+                <td style={{ padding: '12px 16px', fontSize: '14px', color: '#333' }}>{item.followUpType || '—'}</td>
                 <td style={{ padding: '12px 16px', fontSize: '14px', color: '#666' }}>{item.examDate}</td>
                 <td style={{ padding: '12px 16px', fontSize: '14px', color: '#666' }}>{item.nextFollowUpDate}</td>
                 <td style={{ padding: '12px 16px' }}>
@@ -464,6 +501,12 @@ export default function FollowUpPage() {
                       完成
                     </button>
                   )}
+                  <button
+                    style={{...actionButtonStyle, marginLeft: '8px', backgroundColor: '#ff4d4f'}}
+                    onClick={() => handleDelete(item)}
+                  >
+                    删除
+                  </button>
                 </td>
               </tr>
             ))}
@@ -489,12 +532,12 @@ export default function FollowUpPage() {
             <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px'}}>
               <div style={formGroupStyle}>
                 <label style={labelStyle}>检查类型</label>
-                <span style={getExamTypeStyle(selectedPatient.examType)}>{selectedPatient.examType}</span>
+                <span style={getExamTypeStyle(selectedPatient.examType)}>{selectedPatient.examType || '—'}</span>
               </div>
               
               <div style={formGroupStyle}>
                 <label style={labelStyle}>随访类型</label>
-                <div style={{ fontSize: '14px', color: '#333' }}>{selectedPatient.followUpType}</div>
+                <div style={{ fontSize: '14px', color: '#333' }}>{selectedPatient.followUpType || '—'}</div>
               </div>
             </div>
 
@@ -560,6 +603,91 @@ export default function FollowUpPage() {
                 onClick={() => handleComplete(selectedPatient.id)}
               >
                 确认完成
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* [W4-B] 新建随访计划 (POST /followups) */}
+      {showCreateModal && (
+        <div style={modalOverlayStyle} onClick={() => setShowCreateModal(false)}>
+          <div style={modalStyle} onClick={e => e.stopPropagation()}>
+            <h2 style={modalTitleStyle}>📋 新建随访计划</h2>
+
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>患者ID *</label>
+              <input
+                type="text"
+                value={newPlan.patientId}
+                onChange={e => setNewPlan(f => ({ ...f, patientId: e.target.value }))}
+                placeholder="例如 P202400001"
+                style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>患者姓名 *</label>
+              <input
+                type="text"
+                value={newPlan.patientName}
+                onChange={e => setNewPlan(f => ({ ...f, patientName: e.target.value }))}
+                placeholder="患者姓名"
+                style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px'}}>
+              <div style={formGroupStyle}>
+                <label style={labelStyle}>随访日期 *</label>
+                <input
+                  type="date"
+                  value={newPlan.planDate}
+                  onChange={e => setNewPlan(f => ({ ...f, planDate: e.target.value }))}
+                  style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box' }}
+                />
+              </div>
+              <div style={formGroupStyle}>
+                <label style={labelStyle}>间隔天数</label>
+                <input
+                  type="number"
+                  min={1}
+                  value={newPlan.intervalDays}
+                  onChange={e => setNewPlan(f => ({ ...f, intervalDays: Number(e.target.value) }))}
+                  style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box' }}
+                />
+              </div>
+            </div>
+
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>随访备注</label>
+              <textarea
+                value={newPlan.note}
+                onChange={e => setNewPlan(f => ({ ...f, note: e.target.value }))}
+                placeholder="随访内容 / 注意事项"
+                style={{ ...inputStyle, flex: undefined, width: '100%', boxSizing: 'border-box', minHeight: '60px', fontFamily: 'inherit' }}
+              />
+            </div>
+
+            <div style={formGroupStyle}>
+              <label style={{ ...labelStyle, display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={newPlan.reminderEnabled}
+                  onChange={e => setNewPlan(f => ({ ...f, reminderEnabled: e.target.checked }))}
+                />
+                启用到期提醒
+              </label>
+            </div>
+
+            <div style={modalButtonContainer}>
+              <button style={cancelButtonStyle} onClick={() => setShowCreateModal(false)}>取消</button>
+              <button
+                style={{ ...buttonStyle, backgroundColor: '#52c41a' }}
+                onClick={() => void handleCreate()}
+                disabled={saving}
+              >
+                {saving ? '⏳ 保存中...' : '保存计划'}
               </button>
             </div>
           </div>

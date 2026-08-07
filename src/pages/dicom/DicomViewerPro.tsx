@@ -118,7 +118,7 @@ const DicomViewerProPage: React.FC = () => {
           <Col flex="auto">
             <Space size={12} wrap>
               <MonitorPlay size={18} color="#3b82f6" />
-              <Text strong style={{ color: '#e2e8f0', fontSize: 15 }}>DICOM Viewer Pro</Text>
+              <Text strong style={{ color: '#e2e8f0', fontSize: 15 }}>DICOM 专业版查看器</Text>
               <Segmented
                 size="small"
                 options={MODALITY_OPTIONS}

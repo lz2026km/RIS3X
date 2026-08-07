@@ -1,9 +1,23 @@
-import { BiService } from './bi.service'
+﻿import { BiService } from './bi.service'
 
 const makeCache = () => ({
   get: jest.fn().mockResolvedValue(undefined),
   set: jest.fn().mockResolvedValue(undefined),
 })
+
+// [v3.0.6.11-79] admin config 读取桩: 可注入 critical_sla_minutes 等键值
+const makeSystemConfig = (values: Record<string, unknown> = {}) => {
+  const fallbacks: Record<string, number> = { critical_sla_minutes: 30 }
+  return {
+    getNumber: jest.fn(async (key: string, fb: number) => {
+      const v = values[key] ?? fallbacks[key]
+      return typeof v === 'number' ? v : fb
+    }),
+    getString: jest.fn(async (key: string, fb: string) => (typeof values[key] === 'string' ? values[key] : fb)),
+    get: jest.fn(),
+    invalidate: jest.fn(),
+  } as never
+}
 
 const makePrisma = (overrides: Record<string, unknown> = {}) => {
   const prisma: Record<string, unknown> = {
@@ -27,7 +41,7 @@ describe('BiService', () => {
     let service: BiService
 
     beforeEach(() => {
-      service = new BiService(makePrisma(), makeCache() as never)
+      service = new BiService(makePrisma(), makeCache() as never, makeSystemConfig())
     })
 
     it('getKpi returns demo payload marked source=demo', async () => {
@@ -112,7 +126,7 @@ describe('BiService', () => {
         },
         device: { findMany: jest.fn().mockResolvedValue([{ id: 'CT-01', name: 'GE CT' }, { id: 'DR-01', name: 'Philips DR' }]) },
       })
-      service = new BiService(prisma, makeCache() as never)
+      service = new BiService(prisma, makeCache() as never, makeSystemConfig())
     })
 
     it('getKpi computes completion/avg/overtime from report rows', async () => {
@@ -137,7 +151,7 @@ describe('BiService', () => {
           ]),
         },
       })
-      const svc = new BiService(prisma, makeCache() as never)
+      const svc = new BiService(prisma, makeCache() as never, makeSystemConfig())
       const res = await svc.getKpi()
       expect(res.source).toBe('database')
       expect(res.data.examCount).toBe(10)
@@ -162,7 +176,7 @@ describe('BiService', () => {
           findMany: jest.fn().mockResolvedValue([mk(20), mk(40), mk(90), mk(180), mk(300), mk(10)]),
         },
       })
-      const svc = new BiService(prisma, makeCache() as never)
+      const svc = new BiService(prisma, makeCache() as never, makeSystemConfig())
       const res = await svc.getReportTimeliness()
       expect(res.source).toBe('database')
       expect(res.data.total).toBe(6)
@@ -181,7 +195,7 @@ describe('BiService', () => {
           ]),
         },
       })
-      const svc = new BiService(prisma, makeCache() as never)
+      const svc = new BiService(prisma, makeCache() as never, makeSystemConfig())
       const res = await svc.getPhysicianRvu()
       expect(res.source).toBe('database')
       expect(res.data.physicians).toHaveLength(2)
@@ -215,13 +229,34 @@ describe('BiService', () => {
           ]),
         },
       })
-      const svc = new BiService(prisma, makeCache() as never)
+      const svc = new BiService(prisma, makeCache() as never, makeSystemConfig())
       const res = await svc.getCriticalSla()
       expect(res.source).toBe('database')
       expect(res.data.total).toBe(3)
       expect(res.data.complianceRate).toBeCloseTo(33.3, 0)
       expect(res.data.overdue).toHaveLength(2)
       // 排序按响应时长降序: c3 未确认(2h) > c2 (50min)
+      expect(res.data.overdue[0]?.id).toBe('c3')
+    })
+
+    // [v3.0.6.11-79] 消费者: critical_sla_minutes admin config 影响 SLA 达标判断
+    it('getCriticalSla honors admin config critical_sla_minutes', async () => {
+      const prisma = makePrisma({
+        criticalValue: {
+          findMany: jest.fn().mockResolvedValue([
+            { id: 'c1', severity: 'HIGH', state: 'ACKNOWLEDGED', createdAt: hoursAgo(2), ackedAt: new Date(hoursAgo(2).getTime() + 10 * 60000) },
+            { id: 'c2', severity: 'URGENT', state: 'NOTIFIED', createdAt: hoursAgo(2), ackedAt: new Date(hoursAgo(2).getTime() + 50 * 60000) },
+            { id: 'c3', severity: 'CRITICAL', state: 'FOUND', createdAt: hoursAgo(2), ackedAt: null },
+          ]),
+        },
+      })
+      const svc = new BiService(prisma, makeCache() as never, makeSystemConfig({ critical_sla_minutes: 60 }))
+      const res = await svc.getCriticalSla()
+      expect(res.source).toBe('database')
+      // SLA=60min: c1(10min)/c2(50min) 达标, 仅 c3(未确认) 超时 → 66.7%
+      expect(res.data.slaMinutes).toBe(60)
+      expect(res.data.complianceRate).toBeCloseTo(66.7, 0)
+      expect(res.data.overdue).toHaveLength(1)
       expect(res.data.overdue[0]?.id).toBe('c3')
     })
 
@@ -236,7 +271,7 @@ describe('BiService', () => {
         },
         criticalValue: { findMany: jest.fn().mockResolvedValue([{ createdAt: hoursAgo(1) }]) },
       })
-      const svc = new BiService(prisma, makeCache() as never)
+      const svc = new BiService(prisma, makeCache() as never, makeSystemConfig())
       const res = await svc.getTrend(7)
       expect(res.source).toBe('database')
       expect(res.data).toHaveLength(7)
@@ -255,7 +290,7 @@ describe('BiService', () => {
         report: { count: jest.fn().mockResolvedValue(0), findMany: jest.fn().mockResolvedValue([]) },
         criticalValue: { findMany: jest.fn().mockResolvedValue([]) },
       })
-      const svc = new BiService(prisma, makeCache() as never)
+      const svc = new BiService(prisma, makeCache() as never, makeSystemConfig())
       const res = await svc.getKpi()
       expect(res.source).toBe('demo')
     })

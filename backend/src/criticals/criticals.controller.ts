@@ -77,7 +77,7 @@ export class CriticalsController {
   ) {
     return this.service.list({
       skip: Number(skip ?? 0),
-      take: Number(take ?? 50),
+      take: take === undefined || take === '' ? undefined : Number(take),
       state, severity, dateFrom, dateTo, patientId,
     })
   }

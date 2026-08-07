@@ -1,5 +1,49 @@
 ﻿# CHANGELOG
 
+## v3.0.6.11-79 (2026-08-03) — 大规模升级：文件管理+用户中心+合规文档+AI平台6Tab+危急值管理+批量导入导出+随访+翻译33处
+
+> **目标**: 10000 升级点——后端已有功能前端化补齐 + 参数真实化 + 功能扩充 + 翻译严查
+> **范围**: 13 agents 五波实施（132 suites/1361 tests）
+
+### Wave 1: P0 后端功能前端化（4 agents）
+
+- **文件管理**：filesApi 4 端点封装（upload-url/upload/complete/download）+ FileManagementPage（三段式上传/进度/下载）+ MSW
+- **用户中心**：authApi me/logout/change-password 封装 + UserCenterPage（资料/改密/登出）；LoginPage 直连改封装
+- **合规文档管理**：后端 ComplianceDocument 模型+7 端点 CRUD/publish/archive + ComplianceDocsPage（列表/新建/发布/归档/删除/详情）
+- **AI 平台 6 Tab**：AIOrchestrationPage 扩展（结构化报告/融合工作区/AI 辅助/编排流水线）+ aiPlatformApi 7 方法
+
+### Wave 2: P1 管理操作前端化（3 agents）
+
+- **危急值管理 19 方法**：详情 Drawer+listHistory 时间轴、删除、升级 Modal、闭环直达、规则完整 CRUD、统计（summary+timeline 图）、**新建 ReceiverPortalPage 接收端门户**（修复 ConfirmModal 永久遮罩 bug）
+- **证书+门户+上报 18 方法**：CA 上传/吊销/验签/签名历史/操作历史；患者门户临床数据 Tab+联系医护 Tab+报告下载；NationalReport 新建上报+详情、保险审计详情
+- **区域+审计+分割 19 方法**：RegionalImagingPage 3 Tab（影像共享/科室排班/集成状态）、AuditPage 详情 Drawer+CSV 导出（后端补 getById）、SegmentationPage 手动标注（后端补 segmentations CRUD）
+
+### Wave 3: 参数真实化（2 agents）
+
+- **admin config 补消费者（6 项只写不读修复）**：hospital_name（报告 HTML 页眉+HL7 MSH 发送方）、report_footer（导出页脚）、pdf_watermark_text（导出水印）、critical_sla_minutes（BI SLA）、critical_timeout_minutes（升级 cron）、default_page_size（reports/exams/criticals 分页）——新建 SystemConfigService（缓存+失效）
+- **临床配置持久化**：后端 /system/clinical-config 3 端点 + ClinicalConfigCenter 编辑保存；env 清理（死变量删除+缺失声明补充）；JWT_EXPIRES_IN/BACKUP_RETENTION_DAYS 新增
+
+### Wave 4: 功能扩充（2 agents）
+
+- **批量导入导出**：患者/检查 JSON/CSV 导入导出（冲突跳过/错误收集）+ PatientPage/ExamPage 导入 Modal
+- **数据字典**：DictEntry 模型+7 端点 CRUD + DictionaryPage 接真 API（20 条种子）
+- **随访计划**：FollowUpPlan 模型+6 端点（含 due 到期提醒）+ FollowUpPage 接真 API（替换 100 条 mock）
+- **设备保养计划**：MaintenancePlan 模型+5 端点 + DevicePage 接真 API
+- **批量报告导出**：POST /reports/batch-export + 任务状态 + ReportExportPage 批量选择/进度/下载
+
+### Wave 5: 翻译严查 + 命名空间 Bug 修复
+
+- **翻译 33 处**：RemoteViewer 连接状态（已连接/重连中/已断开）、OrchestratorPage confirmDelete 字面量、牙科状态/类型映射、OEE 设备综合效率、HL7/SMART/S3 表单 label、DICOM 页头/列、QR Code/e-Signature/Webhooks 等
+- **nav.json 重复键清理**（aiQC/aiQc、greenIT/greenIt）+ 面包屑 3 路由补 key
+- **重大 Bug：i18n 命名空间双重前缀**——OrchestratorPage useTranslation("orchestrator")+t("orchestrator.xxx") 双重前缀导致全部显示原始 key；修复去前缀 + Toast.tsx 同类问题；全库扫描确认清零
+- **MSW 补齐**：orchestratorHandlers 8 端点（原 500）+ orchestratorApi unwrap 修复 + sla/stats 结构对齐
+
+### 验证
+
+- 后端: tsc 0 错误、jest **132 suites / 1361 tests 全部通过**
+- 前端: tsc 0 新增错误、vite build 成功（60s）、Playwright 回归 15/15
+- 浏览器实测: /orchestrator 全中文（任务编排引擎/SLA 达标率 90%）、9 新页面全 OK 0 错误（文件管理/用户中心/合规文档/接收端/字典/随访/临床配置/报告导出批量）、侧边栏 nav. 残留 0
+
 ## v3.0.6.11-76 (2026-08-03) — 翻译优化：导航栏exportApproval补齐+双源同步121key+22处页面英文+命名空间修复
 
 > **目标**: 检查左侧导航栏未翻译英文 + 修复全软件缺失翻译
@@ -75,7 +119,7 @@
 
 ## v3.0.6.11-73 (2026-08-03) — 全方位审查：角色修复+状态机对齐+worklist端点+在用孤儿补齐+stats真实化+tsc-60%
 
-> **目标**: v3.0.6.11-76 全方位审查（-72 验证通过 + 业务规则/三层残留/数据真实性/清理）全部落地
+> **目标**: v3.0.6.11-79 全方位审查（-72 验证通过 + 业务规则/三层残留/数据真实性/清理）全部落地
 > **范围**: 7 agents 三波实施（116 suites/1234 tests，tsc 2,554→1,032）
 
 ### P0 业务规则（RULE1/RULE2）
@@ -112,7 +156,7 @@
 
 ## v3.0.6.11-72 (2026-08-03) — 全方位审查：安全6项+三层一致7项+性能5项+死代码951文件+tsc-53%
 
-> **目标**: v3.0.6.11-76 全方位审查（安全/三层一致/性能/死代码/tsc）全部修复落地
+> **目标**: v3.0.6.11-79 全方位审查（安全/三层一致/性能/死代码/tsc）全部修复落地
 > **范围**: 12 agents 四波实施（112 suites/1163 tests，tsc 5,494→2,590）
 
 ### 安全修复（6 项，SEC1-3）
@@ -343,7 +387,7 @@
 
 ### Phase 0: 10×80 对标文档
 
-- 新增 `docs/PACS_BENCHMARK_V3.0.6.11-76.md`：10 厂商 × 80 项功能矩阵（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/Change Healthcare/Infinitt）
+- 新增 `docs/PACS_BENCHMARK_V3.0.6.11-79.md`：10 厂商 × 80 项功能矩阵（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/Change Healthcare/Infinitt）
 - G005 完成度 38.8%（31✅/30🟡/19❌），对标 Sectra 87.5%/GE 85.0%
 - 四阶段路线图：Phase1 修复断裂点（本次）→ Phase2 mock 降级/覆盖率 → Phase3 AI Orchestrator/BI/剂量 → Phase4 云部署/环境式报告
 
@@ -452,16 +496,16 @@
 
 ### F18: 版本号全量统一 + 文档
 
-- package.json → 3.0.6.11-76（含 package-lock.json）
-- backend/package.json → 3.0.6.11-76
-- index.html title + window.__appVersion → v3.0.6.11-76
-- src/main.tsx APP_VERSION → v3.0.6.11-76
-- backend/src/main.ts + app.module.ts → v3.0.6.11-76
-- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-76
-- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-76
-- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-76
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-76
-- CHANGELOG.md 新增 v3.0.6.11-76 条目
+- package.json → 3.0.6.11-79（含 package-lock.json）
+- backend/package.json → 3.0.6.11-79
+- index.html title + window.__appVersion → v3.0.6.11-79
+- src/main.tsx APP_VERSION → v3.0.6.11-79
+- backend/src/main.ts + app.module.ts → v3.0.6.11-79
+- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-79
+- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-79
+- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-79
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-79
+- CHANGELOG.md 新增 v3.0.6.11-79 条目
 
 ### 验证结果
 
@@ -472,10 +516,10 @@
 
 ---
 
-## v3.0.6.11-76 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
+## v3.0.6.11-79 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
 
 > **目标**: 后端深度修复 + 安全加固 + 类型修复 + 测试验证 + 性能检查 + 版本号全量统一
-> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-76
+> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-79
 
 ### A13: 后端安全加固
 
@@ -506,19 +550,19 @@
 
 ### A19: 版本号全量统一
 
-- backend/package.json → 3.0.6.11-76
-- backend/src/main.ts → Swagger version + log message → v3.0.6.11-76
-- backend/src/app.module.ts → v3.0.6.11-76
-- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-76
-- index.html title + window.__appVersion → v3.0.6.11-76
-- src/i18n/appI18n.ts → v3.0.6.11-76
-- src/main.tsx APP_VERSION → v3.0.6.11-76
-- src/routes/routeTable.tsx → v3.0.6.11-76
-- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-76
-- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-76
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-76
-- CONTRIBUTING.md → v3.0.6.11-76
-- CHANGELOG.md 新增 v3.0.6.11-76 条目
+- backend/package.json → 3.0.6.11-79
+- backend/src/main.ts → Swagger version + log message → v3.0.6.11-79
+- backend/src/app.module.ts → v3.0.6.11-79
+- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-79
+- index.html title + window.__appVersion → v3.0.6.11-79
+- src/i18n/appI18n.ts → v3.0.6.11-79
+- src/main.tsx APP_VERSION → v3.0.6.11-79
+- src/routes/routeTable.tsx → v3.0.6.11-79
+- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-79
+- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-79
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-79
+- CONTRIBUTING.md → v3.0.6.11-79
+- CHANGELOG.md 新增 v3.0.6.11-79 条目
 
 ### 验证结果
 

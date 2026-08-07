@@ -52,7 +52,7 @@ export const SystemAdminPage: React.FC = () => {
     try {
       const res = await systemAdminApi.updateConfig(c.key, value);
       if (res.success) {
-        message.success(`已保存: ${c.key}`);
+        message.success(`已保存并生效: ${c.key}`);
         void loadConfigs();
       } else {
         message.error(res.error?.message || `保存失败: ${c.key}`);
@@ -68,7 +68,7 @@ export const SystemAdminPage: React.FC = () => {
         configs.map(c => ({ key: c.key, value: configValues[c.key] ?? c.value })),
       );
       if (res.success) {
-        message.success('所有配置已保存');
+        message.success('所有配置已保存并生效');
         void loadConfigs();
       } else {
         message.error(res.error?.message || '保存失败');

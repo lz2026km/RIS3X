@@ -157,4 +157,60 @@ describe('PatientService', () => {
       await expect(service.merge('P1', 'P1')).rejects.toBeInstanceOf(BadRequestException)
     })
   })
+
+  describe('importMany [W4-A]', () => {
+    it('creates valid rows, skips duplicates and collects errors', async () => {
+      const findFirst = jest.fn()
+        .mockResolvedValueOnce(null)   // row0: 无冲突
+        .mockResolvedValueOnce({ id: 'P-dup' }) // row1: idCard 冲突 → skip
+        .mockResolvedValueOnce({ id: 'P-dup2' }) // row2: name+phone 冲突 → skip
+      const create = jest.fn().mockResolvedValue({ id: 'P-new' })
+      const prisma = makePrisma({ patient: { findFirst, create } })
+      const service = new PatientService(prisma)
+      const res = await service.importMany([
+        { name: '张三', gender: 'MALE', idCard: '110101199001011234', phone: '13800138000' },
+        { name: '李四', gender: 'FEMALE', idCard: '110101199001011234' },
+        { name: '王五', gender: '男', phone: '13900139000' },
+        { name: '', gender: 'MALE' },
+      ] as never)
+      expect(res.imported).toBe(1)
+      expect(res.skipped).toBe(2)
+      expect(res.errors).toHaveLength(1)
+      expect(res.errors[0]!.message).toContain('姓名不能为空')
+      expect(create).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({ name: '张三', gender: 'MALE', tenantId: expect.any(String) }),
+      }))
+    })
+
+    it('normalizes Chinese gender values', async () => {
+      const findFirst = jest.fn().mockResolvedValue(null)
+      const create = jest.fn().mockResolvedValue({ id: 'P-new' })
+      const prisma = makePrisma({ patient: { findFirst, create } })
+      const service = new PatientService(prisma)
+      await service.importMany([{ name: '测试女', gender: '女' } as never])
+      expect(create).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({ gender: 'FEMALE' }),
+      }))
+    })
+  })
+
+  describe('exportCsv [W4-A]', () => {
+    it('builds BOM-prefixed CSV with header and rows', async () => {
+      const findMany = jest.fn().mockResolvedValue([
+        { id: 'P1', name: '张,三', gender: 'MALE', birthDate: null, idCard: '110101199001011234', phone: '13800138000', type: 'OUTPATIENT', state: 'registered', createdAt: new Date('2026-01-01') },
+      ])
+      const prisma = makePrisma({ patient: { findMany } })
+      const service = new PatientService(prisma)
+      const res = await service.exportCsv({})
+      expect(res.count).toBe(1)
+      expect(res.filename).toMatch(/^patients_\d{4}-\d{2}-\d{2}\.csv$/)
+      expect(res.content.startsWith('\ufeff')).toBe(true)
+      const lines = res.content.replace('\ufeff', '').split('\n')
+      expect(lines[0]).toBe('id,name,gender,birthDate,idCard,phone,type,state,createdAt')
+      expect(lines[1]).toContain('"张,三"')
+      expect(findMany).toHaveBeenCalledWith(expect.objectContaining({
+        where: expect.objectContaining({ deletedAt: null }),
+      }))
+    })
+  })
 })

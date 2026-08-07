@@ -1683,3 +1683,96 @@ model DualReadAssignment {
   @@index([status])
   @@map("dual_read_assignments")
 }
+
+// v3.0.6.11-79 W1-C: 合规文档库 (CRUD + 状态流转 DRAFT -> CURRENT -> ARCHIVED)
+model ComplianceDocument {
+  id            String    @id @default(cuid())
+  tenantId      String    @map("tenant_id")
+  title         String
+  category      String
+  type          String    @default("SOP")
+  version       String    @default("1.0")
+  content       String    @default("")
+  status        String    @default("DRAFT") // DRAFT | CURRENT | ARCHIVED
+  author        String?
+  approvedBy    String?
+  effectiveDate DateTime? @map("effective_date")
+  publishedAt   DateTime? @map("published_at")
+  archivedAt    DateTime? @map("archived_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  @@index([tenantId])
+  @@index([tenantId, category])
+  @@index([tenantId, status])
+  @@map("compliance_documents")
+}
+
+// v3.0.6.11-79 W4-B: 随访计划 (FollowUpPlan)
+// 状态流转: PENDING -> IN_PROGRESS -> COMPLETED; nextDate 早于今天自动标记 OVERDUE
+model FollowUpPlan {
+  id              String    @id @default(cuid())
+  tenantId        String    @map("tenant_id")
+  patientId       String    @map("patient_id")
+  patientName     String    @map("patient_name")
+  planDate        DateTime  @map("plan_date")
+  intervalDays    Int       @default(30) @map("interval_days")
+  nextDate        DateTime  @map("next_date")
+  status          String    @default("PENDING") // PENDING | IN_PROGRESS | COMPLETED | OVERDUE
+  note            String    @default("")
+  reminderEnabled Boolean   @default(true) @map("reminder_enabled")
+  completedAt     DateTime? @map("completed_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  @@index([tenantId])
+  @@index([patientId])
+  @@index([status])
+  @@index([nextDate])
+  @@map("follow_up_plans")
+}
+
+// v3.0.6.11-79 W4-B: 设备保养计划 (MaintenancePlan)
+// 由 planDate + intervalDays 推导 nextDate; status: PENDING | COMPLETED | CANCELLED
+model MaintenancePlan {
+  id              String    @id @default(cuid())
+  tenantId        String    @map("tenant_id")
+  deviceId        String    @map("device_id")
+  deviceName      String    @map("device_name")
+  maintenanceDate DateTime  @map("maintenance_date")
+  intervalDays    Int       @default(90) @map("interval_days")
+  type            String    @default("定期保养")
+  content         String    @default("")
+  estimatedCost   Decimal?  @map("estimated_cost")
+  assignee        String?   @default("")
+  status          String    @default("PENDING") // PENDING | COMPLETED | CANCELLED
+  nextDate        DateTime? @map("next_date")
+  completedAt     DateTime? @map("completed_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  @@index([tenantId])
+  @@index([deviceId])
+  @@index([status, maintenanceDate])
+  @@map("maintenance_plans")
+}
+
+// v3.0.6.11-79 W4-A: 数据字典 (分类 Tab + 条目 CRUD)
+// category/key/value 三级; extra Json 存 pinyin/modality/bodyPart/notes 等扩展字段
+model DictEntry {
+  id        String   @id @default(cuid())
+  tenantId  String   @map("tenant_id")
+  category  String
+  key       String
+  value     String
+  sort      Int      @default(0)
+  active    Boolean  @default(true)
+  extra     Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([tenantId, category, key])
+  @@index([tenantId])
+  @@index([tenantId, category, active])
+  @@map("dict_entries")
+}

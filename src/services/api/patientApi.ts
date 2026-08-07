@@ -7,6 +7,30 @@ export type { PatientDto }
 // [G005 P1] 列表双形状: MSW 裸数组 / 后端 { items, total }
 export type ListPayload<T> = T[] | { items: T[]; total: number }
 
+// [W4-A] 批量导入导出
+export interface ImportPatientRow {
+  name: string
+  gender?: string
+  age?: number | string
+  birthDate?: string
+  idCard?: string
+  phone?: string
+  type?: string
+  patientType?: string
+}
+
+export interface ImportResultDto {
+  imported: number
+  skipped: number
+  errors: { index: number; message: string }[]
+}
+
+export interface ExportCsvDto {
+  filename: string
+  content: string
+  count: number
+}
+
 export const patientApi = {
   list: (params?: PatientQueryParams) =>
     api.get<ListPayload<PatientDto>>(`/patients?${new URLSearchParams(params as Record<string, string>).toString()}`),
@@ -56,5 +80,20 @@ export const patientApi = {
     }>('/patients/merge', { sourceId, targetId })
     await invalidateApiCacheByPrefix('/patients')
     return res
+  },
+
+  // [W4-A] 批量导入 (JSON 数组或 { items }, 逐条创建 + 冲突跳过)
+  importPatients: async (items: ImportPatientRow[]) => {
+    const res = await api.post<ImportResultDto>('/patients/import', { items })
+    await invalidateApiCacheByPrefix('/patients')
+    return res
+  },
+
+  // [W4-A] CSV 导出 (全部或按 name/phone 筛选)
+  exportPatients: (params?: { name?: string; phone?: string }) => {
+    const q = params
+      ? `?${new URLSearchParams(params as Record<string, string>).toString()}`
+      : ''
+    return api.get<ExportCsvDto>(`/patients/export${q}`)
   },
 }

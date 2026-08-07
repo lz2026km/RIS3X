@@ -6,6 +6,7 @@ import {
 import {
   Cpu, Plus, Play, Square, FlaskConical, GitBranch, ListChecks, Boxes, Zap, Eye,
   Activity, CheckCircle, XCircle, Clock, Box, ScanSearch, Wifi, WifiOff,
+  FileText, Layers, Sparkles, Copy, Workflow,
 } from 'lucide-react';
 import type { TableProps } from 'antd';
 import {
@@ -16,6 +17,12 @@ import {
   type AiFinding,
   type AiTestResult,
 } from '../services/api/aiOrchestratorApi';
+import {
+  aiPlatformApi,
+  type AiPlatformRecord,
+  type GenerateStructuredReportDto,
+  type CreateAiOrchestrationDto,
+} from '../services/api/aiPlatformApi';
 
 const MODEL_STATUS_META: Record<string, { color: string; label: string }> = {
   REGISTERED: { color: 'default', label: '已注册' },
@@ -62,6 +69,23 @@ function formatDuration(ms: number | null | undefined): string {
   if (ms === null || ms === undefined) return '--';
   if (ms < 1000) return `${ms}ms`;
   return `${(ms / 1000).toFixed(1)}s`;
+}
+
+// [W1-D] 读取 AiPlatformRecord 字段: detail 优先, 兼容顶层字段
+function detailOf(r: AiPlatformRecord | null | undefined, key: string): unknown {
+  if (!r) return undefined;
+  const d = r.detail;
+  if (d && typeof d === 'object' && key in d) return d[key];
+  return (r as unknown as Record<string, unknown>)[key];
+}
+
+function fmtTime(v: unknown): string {
+  const s = typeof v === 'string' ? v : '';
+  return s ? s.replace('T', ' ').slice(0, 16) : '--';
+}
+
+function fmtList(v: unknown): string {
+  return Array.isArray(v) ? v.join('；') : String(v ?? '--');
 }
 
 // ==================== 二次检出查看器 (SVG 异常区域标记) ====================
@@ -143,11 +167,29 @@ export default function AIOrchestrationPage() {
   const [jobs, setJobs] = useState<AiJob[]>([]);
   const [jobsLoading, setJobsLoading] = useState(false);
 
+  // [W1-D] AI 平台补全: 结构化报告 / 编排 / 融合 / 辅助
+  const [srReports, setSrReports] = useState<AiPlatformRecord[]>([]);
+  const [srLoading, setSrLoading] = useState(false);
+  const [orchestrations, setOrchestrations] = useState<AiPlatformRecord[]>([]);
+  const [orchLoading, setOrchLoading] = useState(false);
+  const [fusionJobs, setFusionJobs] = useState<AiPlatformRecord[]>([]);
+  const [fusionLoading, setFusionLoading] = useState(false);
+  const [assistItems, setAssistItems] = useState<AiPlatformRecord[]>([]);
+  const [assistLoading, setAssistLoading] = useState(false);
+  const [srError, setSrError] = useState<string | null>(null);
+  const [fusionError, setFusionError] = useState<string | null>(null);
+  const [assistError, setAssistError] = useState<string | null>(null);
+  const [orchError, setOrchError] = useState<string | null>(null);
+
   const [activeTab, setActiveTab] = useState('market');
   const [registerOpen, setRegisterOpen] = useState(false);
   const [integrationOpen, setIntegrationOpen] = useState(false);
   const [triggerOpen, setTriggerOpen] = useState(false);
   const [eventOpen, setEventOpen] = useState(false);
+  const [srOpen, setSrOpen] = useState(false);
+  const [orchOpen, setOrchOpen] = useState(false);
+  const [srSubmitting, setSrSubmitting] = useState(false);
+  const [orchSubmitting, setOrchSubmitting] = useState(false);
 
   const [drawerJob, setDrawerJob] = useState<AiJob | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -158,6 +200,8 @@ export default function AIOrchestrationPage() {
   const [integrationForm] = Form.useForm();
   const [triggerForm] = Form.useForm();
   const [eventForm] = Form.useForm();
+  const [srForm] = Form.useForm();
+  const [orchForm] = Form.useForm();
 
   const drawerJobRef = useRef<AiJob | null>(null);
   drawerJobRef.current = drawerJob;
@@ -186,10 +230,63 @@ export default function AIOrchestrationPage() {
     setJobsLoading(false);
   }, []);
 
+  // ===== [W1-D] AI 平台补全数据加载 =====
+  const fetchStructuredReports = useCallback(async () => {
+    setSrLoading(true);
+    const res = await aiPlatformApi.listStructuredReports();
+    if (res.success) {
+      setSrReports(res.data);
+      setSrError(null);
+    } else {
+      setSrError(res.error?.message ?? '结构化报告列表加载失败');
+    }
+    setSrLoading(false);
+  }, []);
+
+  const fetchOrchestrations = useCallback(async () => {
+    setOrchLoading(true);
+    const res = await aiPlatformApi.listOrchestration();
+    if (res.success) {
+      setOrchestrations(res.data);
+      setOrchError(null);
+    } else {
+      setOrchError(res.error?.message ?? 'AI 编排列表加载失败');
+    }
+    setOrchLoading(false);
+  }, []);
+
+  const fetchFusion = useCallback(async () => {
+    setFusionLoading(true);
+    const res = await aiPlatformApi.listFusion();
+    if (res.success) {
+      setFusionJobs(res.data);
+      setFusionError(null);
+    } else {
+      setFusionError(res.error?.message ?? '融合工作区加载失败');
+    }
+    setFusionLoading(false);
+  }, []);
+
+  const fetchAssist = useCallback(async () => {
+    setAssistLoading(true);
+    const res = await aiPlatformApi.listAssist();
+    if (res.success) {
+      setAssistItems(res.data);
+      setAssistError(null);
+    } else {
+      setAssistError(res.error?.message ?? 'AI 辅助加载失败');
+    }
+    setAssistLoading(false);
+  }, []);
+
   useEffect(() => {
     void fetchModels();
     void fetchIntegrations();
-  }, [fetchModels, fetchIntegrations]);
+    void fetchStructuredReports();
+    void fetchOrchestrations();
+    void fetchFusion();
+    void fetchAssist();
+  }, [fetchModels, fetchIntegrations, fetchStructuredReports, fetchOrchestrations, fetchFusion, fetchAssist]);
 
   // 任务 Tab 轮询 (队列模拟推进)
   useEffect(() => {
@@ -358,6 +455,73 @@ export default function AIOrchestrationPage() {
     });
   };
 
+  // ===== [W1-D] 结构化报告 =====
+  const handleGenerateSr = async () => {
+    try {
+      const values = await srForm.validateFields();
+      setSrSubmitting(true);
+      const payload: GenerateStructuredReportDto = {
+        studyId: values.studyId,
+        templateId: values.templateId,
+        ...(Array.isArray(values.findings) && values.findings.length > 0 ? { findings: values.findings } : {}),
+        ...(values.additionalContext ? { additionalContext: { modality: values.modality, priority: values.priority } } : {}),
+      };
+      const res = await aiPlatformApi.createStructuredReport(payload);
+      if (res.success && res.data) {
+        message.success(`结构化报告已生成：${res.data.id}`);
+        setSrOpen(false);
+        srForm.resetFields();
+        void fetchStructuredReports();
+      } else {
+        message.error(res.error?.message ?? '生成失败');
+      }
+    } catch (err) {
+      if (err instanceof Error) message.error(err.message);
+    } finally {
+      setSrSubmitting(false);
+    }
+  };
+
+  const copyAssistText = (text: string) => {
+    void navigator.clipboard?.writeText(text).then(
+      () => message.success('建议已复制到剪贴板'),
+      () => message.warning('复制失败，请手动选择文本'),
+    );
+  };
+
+  // ===== [W1-D] AI 编排 =====
+  const handleCreateOrchestration = async () => {
+    try {
+      const values = await orchForm.validateFields();
+      setOrchSubmitting(true);
+      const steps: Array<{ order: number; action: string; params: Record<string, unknown> }> = (
+        values.steps as Array<{ action: string; target: string }>
+      ).map((s, i) => ({
+        order: i + 1,
+        action: s.action,
+        params: s.target ? { target: s.target } : {},
+      }));
+      const payload: CreateAiOrchestrationDto = {
+        workflowName: values.workflowName,
+        steps,
+        trigger: values.trigger ?? 'MANUAL',
+      };
+      const res = await aiPlatformApi.createOrchestration(payload);
+      if (res.success && res.data) {
+        message.success(`编排已创建：${res.data.id}`);
+        setOrchOpen(false);
+        orchForm.resetFields();
+        void fetchOrchestrations();
+      } else {
+        message.error(res.error?.message ?? '创建失败');
+      }
+    } catch (err) {
+      if (err instanceof Error) message.error(err.message);
+    } finally {
+      setOrchSubmitting(false);
+    }
+  };
+
   // ===== 表格列 =====
   const integrationColumns: TableProps<AiWorkflowIntegration>['columns'] = [
     {
@@ -470,6 +634,164 @@ export default function AIOrchestrationPage() {
           ) : null}
         </Space>
       ),
+    },
+  ];
+
+  // ===== [W1-D] 结构化报告表格列 =====
+  const srColumns: TableProps<AiPlatformRecord>['columns'] = [
+    {
+      title: '记录ID', dataIndex: 'id', key: 'id',
+      render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span>,
+    },
+    {
+      title: '检查', key: 'studyId',
+      render: (_v: unknown, r) => {
+        const sid = detailOf(r, 'studyId');
+        return sid ? <Tag color="default">{String(sid)}</Tag> : <span style={{ color: '#999' }}>--</span>;
+      },
+    },
+    {
+      title: '模板', key: 'templateId',
+      render: (_v: unknown, r) => {
+        const tid = detailOf(r, 'templateId');
+        return tid ? <Tag color="geekblue" style={{ fontFamily: 'monospace', fontSize: 11 }}>{String(tid)}</Tag> : <span style={{ color: '#999' }}>--</span>;
+      },
+    },
+    {
+      title: '发现条目', key: 'findings',
+      render: (_v: unknown, r) => {
+        const findings = detailOf(r, 'findings');
+        const count = Array.isArray(findings) ? findings.length : 0;
+        return count > 0 ? <Tag color="green">{count} 条</Tag> : <span style={{ color: '#999' }}>--</span>;
+      },
+    },
+    {
+      title: '动作', dataIndex: 'action', key: 'action',
+      render: (v: string) => <Tag color="purple" style={{ fontSize: 11 }}>{v ?? 'GENERATE'}</Tag>,
+    },
+    {
+      title: '创建时间', dataIndex: 'createdAt', key: 'createdAt',
+      render: (v: string) => <span style={{ color: '#94a3b8', fontSize: 12 }}>{fmtTime(v)}</span>,
+    },
+    {
+      title: '操作', key: 'actionView',
+      render: (_v: unknown, r) => (
+        <Button
+          type="link" size="small" icon={<Eye size={13} />}
+          onClick={() => {
+            const findings = detailOf(r, 'findings');
+            Modal.info({
+              title: `结构化报告 ${r.id}`,
+              width: 560,
+              content: (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <div>
+                    <span style={{ color: '#64748b', fontSize: 12 }}>检查号：</span>
+                    <span>{String(detailOf(r, 'studyId') ?? '--')}</span>
+                  </div>
+                  <div>
+                    <span style={{ color: '#64748b', fontSize: 12 }}>模板：</span>
+                    <span>{String(detailOf(r, 'templateId') ?? '--')}</span>
+                  </div>
+                  <div>
+                    <span style={{ color: '#64748b', fontSize: 12 }}>发现内容：</span>
+                    <div style={{ marginTop: 4, whiteSpace: 'pre-wrap', lineHeight: '22px' }}>
+                      {fmtList(findings)}
+                    </div>
+                  </div>
+                </div>
+              ),
+            });
+          }}
+        >
+          详情
+        </Button>
+      ),
+    },
+  ];
+
+  // ===== [W1-D] 融合工作区表格列 =====
+  const FUSION_STATUS_META: Record<string, { color: string; label: string }> = {
+    COMPLETED: { color: 'success', label: '已完成' },
+    RUNNING: { color: 'processing', label: '融合中' },
+    QUEUED: { color: 'default', label: '排队中' },
+    FAILED: { color: 'error', label: '失败' },
+  };
+
+  const fusionColumns: TableProps<AiPlatformRecord>['columns'] = [
+    {
+      title: '任务ID', dataIndex: 'id', key: 'id',
+      render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span>,
+    },
+    {
+      title: '主序列', key: 'primarySeries',
+      render: (_v: unknown, r) => <Tag color="cyan" style={{ fontFamily: 'monospace', fontSize: 11 }}>{String(detailOf(r, 'primarySeries') ?? '--')}</Tag>,
+    },
+    {
+      title: '副序列', key: 'secondarySeries',
+      render: (_v: unknown, r) => <Tag color="default" style={{ fontFamily: 'monospace', fontSize: 11 }}>{String(detailOf(r, 'secondarySeries') ?? '--')}</Tag>,
+    },
+    {
+      title: '融合类型', key: 'type',
+      render: (_v: unknown, r) => {
+        const t = detailOf(r, 'type');
+        return t ? <Tag color="geekblue">{String(t)}</Tag> : <span style={{ color: '#999' }}>--</span>;
+      },
+    },
+    {
+      title: '状态', key: 'status',
+      render: (_v: unknown, r) => {
+        const st = String(detailOf(r, 'status') ?? 'QUEUED');
+        const meta = FUSION_STATUS_META[st] ?? FUSION_STATUS_META.QUEUED!;
+        return <Tag color={meta.color}>{meta.label}</Tag>;
+      },
+    },
+    {
+      title: '结果路径', key: 'resultPath',
+      render: (_v: unknown, r) => {
+        const p = detailOf(r, 'resultPath');
+        return p ? <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#0ea5e9' }}>{String(p)}</span> : <span style={{ color: '#999' }}>--</span>;
+      },
+    },
+    {
+      title: '创建时间', dataIndex: 'createdAt', key: 'createdAt',
+      render: (v: string) => <span style={{ color: '#94a3b8', fontSize: 12 }}>{fmtTime(v)}</span>,
+    },
+  ];
+
+  // ===== [W1-D] AI 编排表格列 =====
+  const orchestrationColumns: TableProps<AiPlatformRecord>['columns'] = [
+    {
+      title: '编排ID', dataIndex: 'id', key: 'id',
+      render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span>,
+    },
+    {
+      title: '编排名称', key: 'workflowName',
+      render: (_v: unknown, r) => (
+        <Space>
+          <Workflow size={14} style={{ color: '#8b5cf6' }} />
+          <span style={{ fontWeight: 600 }}>{String(detailOf(r, 'workflowName') ?? '--')}</span>
+        </Space>
+      ),
+    },
+    {
+      title: '触发', key: 'trigger',
+      render: (_v: unknown, r) => {
+        const t = detailOf(r, 'trigger');
+        return t ? <Tag color="purple" style={{ fontSize: 11 }}>{String(t)}</Tag> : <span style={{ color: '#999' }}>--</span>;
+      },
+    },
+    {
+      title: '步骤数', key: 'steps',
+      render: (_v: unknown, r) => {
+        const steps = detailOf(r, 'steps');
+        const count = Array.isArray(steps) ? steps.length : 0;
+        return count > 0 ? <Tag color="blue">{count} 步</Tag> : <span style={{ color: '#999' }}>--</span>;
+      },
+    },
+    {
+      title: '创建时间', dataIndex: 'createdAt', key: 'createdAt',
+      render: (v: string) => <span style={{ color: '#94a3b8', fontSize: 12 }}>{fmtTime(v)}</span>,
     },
   ];
 
@@ -630,6 +952,27 @@ export default function AIOrchestrationPage() {
                     pagination={{ pageSize: 8, showTotal: (t) => `共 ${t} 条` }}
                     locale={{ emptyText: <Empty description="暂无集成，点击右上角新建" /> }}
                   />
+                  <div style={{ marginTop: 20 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                      <Space>
+                        <span style={{ fontWeight: 600 }}><Workflow size={14} style={{ marginRight: 6, color: '#8b5cf6' }} />AI 编排流水线</span>
+                        {orchLoading && <Spin size="small" />}
+                        {orchError && <span style={{ color: '#ef4444', fontSize: 12 }}>{orchError}</span>}
+                      </Space>
+                      <Button size="small" type="primary" icon={<Plus size={14} />} onClick={() => setOrchOpen(true)}>
+                        新建编排
+                      </Button>
+                    </div>
+                    <Table
+                      dataSource={orchestrations}
+                      columns={orchestrationColumns}
+                      rowKey="id"
+                      loading={orchLoading}
+                      pagination={false}
+                      size="small"
+                      locale={{ emptyText: <Empty description="暂无编排流水线" image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
+                    />
+                  </div>
                 </div>
               ),
             },
@@ -657,6 +1000,134 @@ export default function AIOrchestrationPage() {
                     pagination={{ pageSize: 10, showTotal: (t) => `共 ${t} 条` }}
                     locale={{ emptyText: <Empty description="暂无推理任务" /> }}
                   />
+                </div>
+              ),
+            },
+            {
+              key: 'sr',
+              label: <Space><FileText size={15} />结构化报告</Space>,
+              children: (
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                    <Space>
+                      <Badge count={srReports.length} color="#8b5cf6" style={{ boxShadow: 'none' }}>
+                        <span style={{ color: '#64748b' }}>结构化报告（由检查生成）</span>
+                      </Badge>
+                      {srLoading && <Spin size="small" />}
+                      {srError && <span style={{ color: '#ef4444', fontSize: 12 }}>{srError}</span>}
+                    </Space>
+                    <Button type="primary" icon={<Plus size={15} />} onClick={() => setSrOpen(true)}>
+                      生成结构化报告
+                    </Button>
+                  </div>
+                  <Table
+                    dataSource={srReports}
+                    columns={srColumns}
+                    rowKey="id"
+                    loading={srLoading}
+                    pagination={{ pageSize: 8, showTotal: (t) => `共 ${t} 条` }}
+                    locale={{ emptyText: <Empty description="暂无结构化报告，点击右上角生成" /> }}
+                  />
+                </div>
+              ),
+            },
+            {
+              key: 'fusion',
+              label: <Space><Layers size={15} />融合工作区</Space>,
+              children: (
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                    <Space>
+                      <Badge count={fusionJobs.length} color="#0ea5e9" style={{ boxShadow: 'none' }}>
+                        <span style={{ color: '#64748b' }}>多模态融合任务（FusionJob）</span>
+                      </Badge>
+                      {fusionLoading && <Spin size="small" />}
+                      {fusionError && <span style={{ color: '#ef4444', fontSize: 12 }}>{fusionError}</span>}
+                    </Space>
+                    <span style={{ color: '#94a3b8', fontSize: 12 }}>支持 PET/CT、MR/PET、CT/CTA 等序列融合</span>
+                  </div>
+                  <Table
+                    dataSource={fusionJobs}
+                    columns={fusionColumns}
+                    rowKey="id"
+                    loading={fusionLoading}
+                    pagination={{ pageSize: 8, showTotal: (t) => `共 ${t} 条` }}
+                    locale={{ emptyText: <Empty description="暂无融合任务" /> }}
+                  />
+                </div>
+              ),
+            },
+            {
+              key: 'assist',
+              label: <Space><Sparkles size={15} />AI 辅助</Space>,
+              children: (
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                    <Space>
+                      <Badge count={assistItems.length} color="#10b981" style={{ boxShadow: 'none' }}>
+                        <span style={{ color: '#64748b' }}>报告书写辅助建议模板</span>
+                      </Badge>
+                      {assistLoading && <Spin size="small" />}
+                      {assistError && <span style={{ color: '#ef4444', fontSize: 12 }}>{assistError}</span>}
+                    </Space>
+                    <Button icon={<Copy size={14} />} onClick={() => {
+                      const all = assistItems.map((a) => String(detailOf(a, 'suggestion') ?? '')).filter(Boolean).join('\n\n');
+                      if (all) copyAssistText(all);
+                    }}>
+                      复制全部建议
+                    </Button>
+                  </div>
+                  {assistItems.length === 0 && !assistLoading ? (
+                    <Empty description="暂无 AI 辅助建议" />
+                  ) : (
+                    <Row gutter={[16, 16]}>
+                      {assistItems.map((a) => {
+                        const title = String(detailOf(a, 'title') ?? a.id);
+                        const category = String(detailOf(a, 'category') ?? 'general');
+                        const level = String(detailOf(a, 'level') ?? 'INFO');
+                        const suggestion = String(detailOf(a, 'suggestion') ?? '');
+                        const applicable = String(detailOf(a, 'applicableTo') ?? '');
+                        const levelColor: Record<string, string> = { CRITICAL: 'red', WARN: 'orange', INFO: 'blue' };
+                        const categoryLabel: Record<string, string> = {
+                          quality: '报告质量', diagnosis: '鉴别诊断', followup: '随访建议', critical: '危急值', general: '通用',
+                        };
+                        return (
+                          <Col xs={24} md={12} xl={8} key={a.id}>
+                            <Card
+                              variant="borderless"
+                              style={{ borderRadius: 10, height: '100%' }}
+                              styles={{ body: { display: 'flex', flexDirection: 'column', gap: 10, height: '100%' } }}
+                            >
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                                <Space>
+                                  <Sparkles size={15} style={{ color: '#10b981' }} />
+                                  <span style={{ fontWeight: 600 }}>{title}</span>
+                                </Space>
+                                <Tag color={levelColor[level] ?? 'default'} style={{ fontSize: 11 }}>{level}</Tag>
+                              </div>
+                              <div>
+                                <Space size={4} wrap>
+                                  <Tag color="geekblue" style={{ fontSize: 11 }}>{categoryLabel[category] ?? category}</Tag>
+                                  {applicable && <Tag style={{ fontSize: 11 }}>{applicable}</Tag>}
+                                </Space>
+                              </div>
+                              <div style={{ color: '#475569', fontSize: 13, lineHeight: '22px', flex: 1 }}>
+                                {suggestion}
+                              </div>
+                              <Button
+                                size="small"
+                                icon={<Copy size={13} />}
+                                style={{ alignSelf: 'flex-end' }}
+                                onClick={() => copyAssistText(suggestion)}
+                              >
+                                复制建议
+                              </Button>
+                            </Card>
+                          </Col>
+                        );
+                      })}
+                    </Row>
+                  )}
                 </div>
               ),
             },
@@ -818,6 +1289,107 @@ export default function AIOrchestrationPage() {
           </Row>
           <div style={{ color: '#94a3b8', fontSize: 12 }}>
             系统将根据集成触发条件自动匹配并创建对应推理任务（队列模拟）
+          </div>
+        </Form>
+      </Modal>
+
+      {/* ===== [W1-D] 生成结构化报告 Modal ===== */}
+      <Modal
+        title={<Space><FileText size={16} /> 生成结构化报告</Space>}
+        open={srOpen}
+        onOk={() => void handleGenerateSr()}
+        onCancel={() => { setSrOpen(false); srForm.resetFields(); }}
+        okText="生成"
+        confirmLoading={srSubmitting}
+        cancelText="取消"
+        width={520}
+      >
+        <Form form={srForm} layout="vertical" style={{ marginTop: 12 }}>
+          <Form.Item name="studyId" label="检查号 (Study/Exam ID)" rules={[{ required: true, message: '请输入检查号' }]}>
+            <Input placeholder="如：EX-5001" />
+          </Form.Item>
+          <Form.Item name="templateId" label="报告模板" rules={[{ required: true, message: '请选择模板' }]}>
+            <Select
+              showSearch
+              placeholder="选择结构化报告模板"
+              options={[
+                { label: '胸部 CT 平扫结构化模板 (TPL-CHEST-CT)', value: 'TPL-CHEST-CT' },
+                { label: 'DR 骨折结构化模板 (TPL-DR-FRACTURE)', value: 'TPL-DR-FRACTURE' },
+                { label: '头颅 MR 结构化模板 (TPL-BRAIN-MR)', value: 'TPL-BRAIN-MR' },
+                { label: '钼靶筛查结构化模板 (TPL-MG-SCREEN)', value: 'TPL-MG-SCREEN' },
+              ]}
+            />
+          </Form.Item>
+          <Form.Item name="findings" label="发现条目（可多选，AI 将据此生成结构化内容）">
+            <Select
+              mode="tags"
+              open={false}
+              placeholder="输入发现内容后回车，如：右肺上叶磨玻璃结节"
+              tokenSeparators={[',', '；']}
+            />
+          </Form.Item>
+          <Row gutter={12}>
+            <Col span={12}>
+              <Form.Item name="modality" label="模态（附加上下文）">
+                <Select allowClear placeholder="可选" options={MODALITY_OPTIONS} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="priority" label="优先级（附加上下文）">
+                <Select allowClear placeholder="可选" options={[
+                  { label: '常规', value: 'NORMAL' },
+                  { label: '高优先级', value: 'HIGH' },
+                  { label: '危急', value: 'CRITICAL' },
+                ]} />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+      </Modal>
+
+      {/* ===== [W1-D] 新建 AI 编排 Modal ===== */}
+      <Modal
+        title={<Space><Workflow size={16} /> 新建 AI 编排流水线</Space>}
+        open={orchOpen}
+        onOk={() => void handleCreateOrchestration()}
+        onCancel={() => { setOrchOpen(false); orchForm.resetFields(); }}
+        okText="创建"
+        confirmLoading={orchSubmitting}
+        cancelText="取消"
+        width={560}
+      >
+        <Form form={orchForm} layout="vertical" style={{ marginTop: 12 }}>
+          <Form.Item name="workflowName" label="编排名称" rules={[{ required: true, message: '请输入编排名称' }]}>
+            <Input placeholder="如：胸部CT结节智能闭环" />
+          </Form.Item>
+          <Form.Item name="trigger" label="触发方式" initialValue="ON_STUDY_COMPLETE">
+            <Select options={TRIGGER_OPTIONS} />
+          </Form.Item>
+          <Form.Item label="执行步骤" required>
+            <Form.List name="steps" initialValue={[{ action: 'ai_detection', target: 'MOD-001' }, { action: 'report_draft', target: 'TPL-CHEST-CT' }]}>
+              {(fields, { add, remove }) => (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {fields.map(({ key, name, ...restField }) => (
+                    <Space key={key} align="baseline" style={{ display: 'flex' }}>
+                      <span style={{ width: 20, color: '#94a3b8', fontSize: 12 }}>{name + 1}</span>
+                      <Form.Item {...restField} name={[name, 'action']} rules={[{ required: true, message: '请输入动作' }]} style={{ marginBottom: 0, width: 180 }}>
+                        <Input placeholder="如：ai_detection" />
+                      </Form.Item>
+                      <Form.Item {...restField} name={[name, 'target']} style={{ marginBottom: 0, width: 200 }}>
+                        <Input placeholder="目标（模型/模板，可选）" />
+                      </Form.Item>
+                      <Button type="text" danger size="small" icon={<XCircle size={13} />} onClick={() => remove(name)} />
+                    </Space>
+                  ))}
+                  <Button type="dashed" size="small" icon={<Plus size={13} />} onClick={() => add({ action: '', target: '' })}>
+                    添加步骤
+                  </Button>
+                </div>
+              )}
+            </Form.List>
+          </Form.Item>
+          <div style={{ color: '#94a3b8', fontSize: 12 }}>
+            步骤动作示例：ai_detection（AI 检测）、report_draft（报告起草）、human_review（医生复核）、critical_escalation（危急值升级）
           </div>
         </Form>
       </Modal>

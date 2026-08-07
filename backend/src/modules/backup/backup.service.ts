@@ -8,9 +8,14 @@ import * as path from 'path'
 @Injectable()
 export class BackupService {
   private readonly backupDir: string
+  private readonly retentionDays: number
 
   constructor(private readonly prisma: PrismaService) {
     this.backupDir = process.env['BACKUP_DIR'] || '/data/backups'
+    // [W3-B] BACKUP_RETENTION_DAYS: 创建备份后清理超过保留期的旧备份 (默认 30 天)
+    const rawRetention = Number(process.env['BACKUP_RETENTION_DAYS'] ?? 30)
+    this.retentionDays =
+      Number.isFinite(rawRetention) && rawRetention >= 1 ? Math.floor(rawRetention) : 30
   }
 
   async createBackup(type: string, userId?: string) {
@@ -74,12 +79,52 @@ export class BackupService {
       },
     })
 
-    return { id: record.id, type, sizeBytes: Buffer.byteLength(json), checksum, filename, recordCount: Array.isArray(data) ? data.length : Object.keys(data).length }
+    // [W3-B] 清理超过 BACKUP_RETENTION_DAYS 的旧备份 (失败不影响本次备份)
+    let prunedOldCount = 0
+    try {
+      prunedOldCount = await this.pruneOldBackups()
+    } catch {
+      /* 清理失败仅记录日志, 不阻断备份创建 */
+    }
+
+    return {
+      id: record.id,
+      type,
+      sizeBytes: Buffer.byteLength(json),
+      checksum,
+      filename,
+      recordCount: Array.isArray(data) ? data.length : Object.keys(data).length,
+      prunedOldCount,
+    }
+  }
+
+  /** [W3-B] 删除超过保留期 (BACKUP_RETENTION_DAYS) 的旧备份文件与记录 */
+  private async pruneOldBackups(): Promise<number> {
+    if (this.retentionDays <= 0) return 0
+    const cutoff = new Date(Date.now() - this.retentionDays * 24 * 3600 * 1000)
+    const old = await this.prisma.backupRecord.findMany({
+      where: { createdAt: { lt: cutoff } },
+    })
+    let removed = 0
+    for (const record of old) {
+      if (record.filePath) {
+        try {
+          await fs.unlink(record.filePath)
+        } catch {
+          /* 文件已不存在则忽略 */
+        }
+      }
+      await this.prisma.backupRecord.delete({ where: { id: record.id } })
+      removed += 1
+    }
+    return removed
   }
 
   async listBackups(query: { page?: number; pageSize?: number; type?: string }) {
     const page = query.page || 1
-    const pageSize = query.pageSize || 20
+    // [W3-B] DEFAULT_PAGE_SIZE: 默认分页大小 env 可配置 (与系统配置 default_page_size 联动)
+    const rawPageSize = query.pageSize ?? Number(process.env['DEFAULT_PAGE_SIZE'] ?? 20)
+    const pageSize = Number.isFinite(rawPageSize) && rawPageSize > 0 ? Math.floor(rawPageSize) : 20
     const where: any = {}
     if (query.type) where.type = query.type
 

@@ -636,6 +636,50 @@ export default function DevicePage() {
     }).catch((err) => { console.error('[F04]', err); });
   }, [])
 
+  // [W4-B] 保养计划接真 API (GET /device-mgmt/maintenance-plans + maintenance-due)
+  interface MaintPlanRow {
+    id: string
+    deviceId: string
+    deviceName: string
+    planDate: string
+    type: string
+    content: string
+    estimatedCost: number | string
+    assignee: string
+  }
+  const [maintenancePlans, setMaintenancePlans] = useState<MaintPlanRow[]>(MAINTENANCE_PLANS)
+  const [duePlans, setDuePlans] = useState<MaintPlanRow[]>([])
+  const [maintPlansLoading, setMaintPlansLoading] = useState(false)
+
+  const mapMaintenancePlan = (p: any): MaintPlanRow => ({
+    id: p.id,
+    deviceId: p.deviceId,
+    deviceName: p.deviceName || p.deviceId,
+    planDate: (p.maintenanceDate ?? '').slice(0, 10),
+    type: p.type ?? '定期保养',
+    content: p.content ?? '',
+    estimatedCost: p.estimatedCost ?? 0,
+    assignee: p.assignee ?? '',
+  })
+
+  const loadMaintenancePlans = async () => {
+    setMaintPlansLoading(true)
+    try {
+      const [listRes, dueRes] = await Promise.all([
+        deviceMgmtApi.listMaintenancePlans(),
+        deviceMgmtApi.maintenanceDue(30),
+      ])
+      if (listRes.success) setMaintenancePlans(listRes.data.data.map(mapMaintenancePlan))
+      if (dueRes.success) setDuePlans((dueRes.data?.items ?? []).map(mapMaintenancePlan))
+    } catch (err) {
+      console.error('[W4-B] maintenance plans load failed:', err)
+    } finally {
+      setMaintPlansLoading(false)
+    }
+  }
+
+  useEffect(() => { void loadMaintenancePlans() }, [])
+
   const TABS = [
     { label: '设备状态总览', icon: <Monitor size={14} /> },
     { label: '设备列表', icon: <BarChart2 size={14} /> },
@@ -656,7 +700,7 @@ export default function DevicePage() {
     fault: DEVICE_EFFICIENCY.filter(d => d.status === '维修中').length,
     avgUtil: Math.round(DEVICE_EFFICIENCY.reduce((s, d) => s + d.utilization, 0) / DEVICE_EFFICIENCY.length),
     totalTodayExams: DEVICE_EFFICIENCY.reduce((s, d) => s + d.todayBookings, 0),
-    pendingMaint: MAINTENANCE_PLANS.length,
+    pendingMaint: maintenancePlans.length,
     alertDevices: DEVICE_EFFICIENCY.filter(d => d.age > 6).length,
   }
 
@@ -700,14 +744,55 @@ export default function DevicePage() {
     setMaintForm(f => ({ ...f, deviceId: device.id }))
   }
 
-  const handleMaintSubmit = () => {
+  // [W4-B] 创建保养计划 → POST /device-mgmt/maintenance-plans (替换原 mock)
+  const handleMaintSubmit = async () => {
     if (!maintForm.deviceId || !maintForm.planDate) {
       showFeedback('error', '请填写必填项'); return
     }
-    withFeedback(() => {
+    showFeedback('loading', '处理中...')
+    const device = DEVICE_EFFICIENCY.find(d => d.id === maintForm.deviceId)
+    const res = await deviceMgmtApi.createMaintenancePlan({
+      deviceId: maintForm.deviceId,
+      deviceName: device?.name ?? maintForm.deviceId,
+      maintenanceDate: maintForm.planDate,
+      intervalDays: maintForm.type === '年度保养' ? 365 : maintForm.type === '半年保养' ? 180 : maintForm.type === '季度保养' ? 90 : 90,
+      type: maintForm.type,
+      content: maintForm.content,
+      estimatedCost: maintForm.estimatedCost ? Number(maintForm.estimatedCost) : undefined,
+      assignee: maintForm.assignee,
+    }).catch(() => ({ success: false, error: { message: '创建失败' } }))
+    if (res.success) {
       setShowMaintForm(false)
       setMaintForm({ deviceId: '', planDate: '', type: '定期保养', content: '', estimatedCost: '', assignee: '' })
-    }, `维保计划已创建：${maintForm.deviceId}，计划日期 ${maintForm.planDate}`)
+      showFeedback('success', `维保计划已创建：${maintForm.deviceId}，计划日期 ${maintForm.planDate}`)
+      await loadMaintenancePlans()
+    } else {
+      showFeedback('error', res.error?.message ?? '✗ 创建失败')
+    }
+  }
+
+  // [W4-B] 删除保养计划 → DELETE /device-mgmt/maintenance-plans/:id
+  const handleMaintDelete = async (plan: MaintPlanRow) => {
+    if (!window.confirm(`确认删除「${plan.deviceName}」的保养计划？`)) return
+    const res = await deviceMgmtApi.deleteMaintenancePlan(plan.id).catch(() => ({ success: false }))
+    if (res.success) {
+      setMaintenancePlans(list => list.filter(p => p.id !== plan.id))
+      showFeedback('success', '保养计划已删除')
+    } else {
+      showFeedback('error', '✗ 删除失败')
+    }
+  }
+
+  // [W4-B] 完成保养计划 → PUT /device-mgmt/maintenance-plans/:id
+  const handleMaintComplete = async (plan: MaintPlanRow) => {
+    const res = await deviceMgmtApi.updateMaintenancePlan(plan.id, { status: 'COMPLETED' }).catch(() => ({ success: false }))
+    if (res.success) {
+      setMaintenancePlans(list => list.filter(p => p.id !== plan.id))
+      showFeedback('success', '保养计划已完成')
+      await loadMaintenancePlans()
+    } else {
+      showFeedback('error', '✗ 操作失败')
+    }
   }
 
   // ============================================================
@@ -984,7 +1069,7 @@ export default function DevicePage() {
               <Calendar size={20} color={C.warning} />
             </div>
             <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>{MAINTENANCE_PLANS.length}</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>{maintenancePlans.length}</div>
               <div style={{ fontSize: 12, color: C.textLight }}>待执行计划</div>
             </div>
           </div>
@@ -996,7 +1081,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>
-                {MAINTENANCE_PLANS.filter(p => { const d = new Date(p.planDate); const n = new Date('2026-05-02'); return Math.floor((d.getTime() - n.getTime()) / 86400000) <= 30 }).length}
+                {duePlans.length}
               </div>
               <div style={{ fontSize: 12, color: C.textLight }}>30天内到期</div>
             </div>
@@ -1038,13 +1123,12 @@ export default function DevicePage() {
             <Bell size={16} color={C.danger} />
             <span style={{ fontSize: 13, fontWeight: 700, color: C.danger }}>维保到期提醒</span>
           </div>
-          <span style={{ fontSize: 12, color: C.danger }}>共 {MAINTENANCE_PLANS.filter(p => { const d = new Date(p.planDate); const n = new Date('2026-05-02'); return Math.floor((d.getTime() - n.getTime()) / 86400000) <= 30 }).length} 项待执行</span>
+          <span style={{ fontSize: 12, color: C.danger }}>共 {duePlans.length} 项待执行</span>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 10 }}>
-          {MAINTENANCE_PLANS
-            .filter(p => { const d = new Date(p.planDate); const n = new Date('2026-05-02'); const days = Math.floor((d.getTime() - n.getTime()) / 86400000); return days >= 0 && days <= 30; })
+          {duePlans
             .map(plan => {
-              const daysLeft = Math.floor((new Date(plan.planDate).getTime() - new Date('2026-05-02').getTime()) / 86400000)
+              const daysLeft = Math.floor((new Date(plan.planDate).getTime() - Date.now()) / 86400000)
               return (
                 <div key={plan.id} style={{
                   background: C.white, borderRadius: 8, padding: '10px 12px',
@@ -1068,7 +1152,17 @@ export default function DevicePage() {
       </div>
 
       <MaintenanceHistoryTable records={MAINTENANCE_RECORDS} />
-      <MaintenancePlanTable plans={MAINTENANCE_PLANS} onAddPlan={() => setShowMaintForm(true)} />
+      {maintPlansLoading && (
+        <div style={{ padding: '8px 12px', marginBottom: 12, background: '#dbeafe', color: '#1e40af', borderRadius: 6, fontSize: 12 }}>
+          ⏳ 正在从 API 加载保养计划...
+        </div>
+      )}
+      <MaintenancePlanTable
+        plans={maintenancePlans}
+        onAddPlan={() => setShowMaintForm(true)}
+        onDeletePlan={handleMaintDelete}
+        onCompletePlan={handleMaintComplete}
+      />
 
       {/* 维保费用统计 */}
       <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
@@ -1664,7 +1758,7 @@ export default function DevicePage() {
             {i === 3 && <span style={{
               background: C.warning, color: '#fff', fontSize: 12, fontWeight: 800,
               padding: '1px 5px', borderRadius: 10, marginLeft: 2
-            }}>{MAINTENANCE_PLANS.length}</span>}
+            }}>{maintenancePlans.length}</span>}
           </button>
         ))}
       </div>

@@ -4,6 +4,14 @@ import { ReportsService } from '../src/reports/reports.service'
 import { PrismaService } from '../src/prisma/prisma.service'
 import { QueueService } from '../src/queue/queue.service'
 import { createNoopGateway, NotificationsGateway } from '../src/notifications/notifications.gateway'
+import { SystemConfigService } from '../src/system-storage/system-config.service'
+
+const mockSystemConfig = {
+  getNumber: jest.fn().mockResolvedValue(20),
+  getString: jest.fn().mockResolvedValue(undefined),
+  get: jest.fn(),
+  invalidate: jest.fn(),
+}
 
 describe('ReportsService', () => {
   let svc: ReportsService
@@ -53,6 +61,7 @@ describe('ReportsService', () => {
         { provide: PrismaService, useValue: mockPrisma },
         { provide: QueueService, useValue: mockQueue },
         { provide: NotificationsGateway, useValue: createNoopGateway() },
+        { provide: SystemConfigService, useValue: mockSystemConfig },
       ],
     }).compile()
     svc = module.get(ReportsService)

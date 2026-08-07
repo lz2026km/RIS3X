@@ -367,12 +367,12 @@ export const RemoteViewer: React.FC<RemoteViewerProps> = ({
   const statusBadge = (() => {
     switch (status) {
       case "connected":
-        return <Badge status="success" text="Connected" />;
+        return <Badge status="success" text="已连接" />;
       case "connecting":
       case "reconnecting":
-        return <Badge status="processing" text="Reconnecting..." />;
+        return <Badge status="processing" text="重连中..." />;
       default:
-        return <Badge status="error" text="Disconnected" />;
+        return <Badge status="error" text="已断开" />;
     }
   })();
 

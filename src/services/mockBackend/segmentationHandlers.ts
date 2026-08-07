@@ -81,6 +81,8 @@ function hash01(key: string): number {
 const STATS_CACHE: Record<string, Stats> = {}
 const HISTORY: Record<string, any[]> = {}
 const APPROVED = new Set<string>()
+// [W2-C] 手动标注管理 (SegmentationPage: 参数化创建 / 列表 / 删除)
+const MANUAL_SEGMENTATIONS: Record<string, any[]> = {}
 
 const delayMs = (min = 40, max = 120) => Math.floor(Math.random() * (max - min) + min)
 
@@ -199,5 +201,52 @@ export const segmentationHandlers = [
       if (item) item.approved = true
     }
     return HttpResponse.json({ success: true, data: { id, approved: true } })
+  }),
+
+  // ── [W2-C] 手动标注管理 (SegmentationPage: 参数化创建 / 列表 / 删除) ──
+
+  http.get(`${API}/:studyUid/segmentations`, async ({ params }) => {
+    await delay(delayMs())
+    const studyUid = String(params.studyUid)
+    return HttpResponse.json({ success: true, data: MANUAL_SEGMENTATIONS[studyUid] ?? [] })
+  }),
+
+  http.post(`${API}/:studyUid/segmentations`, async ({ params, request }) => {
+    await delay(delayMs(60, 160))
+    const studyUid = String(params.studyUid)
+    const body = (await request.json()) as { label?: string; color?: string; voxelIndices?: number[] }
+    const voxelCount = Math.max(0, body?.voxelIndices?.length ?? 0)
+    const item = {
+      id: `man-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+      seriesUid: studyUid,
+      label: body?.label ?? '手动标注',
+      color: body?.color ?? '#ff4d4f',
+      volume: +(voxelCount * 0.00245).toFixed(4),
+      voxelCount,
+      createdBy: 'current-user',
+      createdAt: new Date().toISOString(),
+    }
+    const list = MANUAL_SEGMENTATIONS[studyUid] ?? []
+    list.unshift(item)
+    MANUAL_SEGMENTATIONS[studyUid] = list
+    return HttpResponse.json({ success: true, data: item }, { status: 201 })
+  }),
+
+  http.delete(`${API}/segmentations/:id`, async ({ params }) => {
+    await delay(delayMs(30, 90))
+    const id = String(params.id)
+    let deleted = false
+    for (const key of Object.keys(MANUAL_SEGMENTATIONS)) {
+      const list = MANUAL_SEGMENTATIONS[key] ?? []
+      const idx = list.findIndex((it) => it.id === id)
+      if (idx !== -1) {
+        list.splice(idx, 1)
+        deleted = true
+      }
+    }
+    if (!deleted) {
+      return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: `手动标注 ${id} 不存在` } }, { status: 404 })
+    }
+    return HttpResponse.json({ success: true, data: { id, deleted: true } })
   }),
 ]

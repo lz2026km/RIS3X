@@ -1,34 +1,17 @@
 /**
- * [ClinicalConfig] 临床配置中心 - 阶段 3 admin UI
- * 范围: 只读 7 个模块的内容展示 (从 in-memory cache 读)
- * 阶段 3+ 后续: 编辑表单 + diff preview + 保存
+ * [ClinicalConfig] 临床配置中心 - 阶段 3 admin UI (W3-B 持久化)
+ * - 加载时 GET /system/clinical-config: 有则用, 无则本地默认并 seed 到后端
+ * - 每模块 JSON 编辑 + 保存 (PUT /system/clinical-config/:module)
+ * - 保留摘要 (summary) 只读展示
  */
-import React, { useState } from "react";
-import { Card, Tabs, Tag, Space, Typography, Empty, Statistic, Row, Col, Alert } from 'antd';
-import { Sliders, Database } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import { Card, Tabs, Tag, Space, Typography, Empty, Statistic, Row, Col, Alert, Button, Input, Spin, message } from 'antd';
+import { Sliders, Database, Save, RotateCcw, CloudDownload } from "lucide-react";
 import { listModules, getConfig, getBootError, type ModuleKey } from "@/config/clinicalConfig/bootstrap";
+import { clinicalConfigApi } from "@/services/api/systemApi";
 import { PageContainer, PageHeader } from "@/components/common";
 
 const { Text } = Typography;
-
-/** 拿到一个模块的当前内容 (in-memory cache) */
-function readModule(key: ModuleKey): unknown {
-  try {
-    const cache = getConfig();
-    switch (key) {
-      case "gradingScales": return cache.gradingScales;
-      case "aiModels": return cache.aiModels;
-      case "imagingDevices": return cache.imagingDevices;
-      case "kpiThresholds": return cache.kpiThresholds;
-      case "reportTemplates": return cache.reportTemplates;
-      case "findingsLexicon": return cache.findingsLexicon;
-      case "iolFormulas": return cache.iolFormulas;
-      default: { return undefined; }
-    }
-  } catch {
-    return null;
-  }
-}
 
 /** 模块概览：count + 几个示例 */
 function summarize(key: ModuleKey, data: any): { count: number; sample: any } {
@@ -77,8 +60,85 @@ const ClinicalConfigCenter: React.FC = () => {
   const modules = listModules();
   const [activeKey, setActiveKey] = useState<ModuleKey>(modules[0]?.id as ModuleKey);
   const bootError = getBootError();
+  // undefined = 加载中; null = 后端无配置且 seed 失败
+  const [serverConfig, setServerConfig] = useState<Record<string, unknown> | null | undefined>(undefined);
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [savingKey, setSavingKey] = useState<string | null>(null);
 
-  // 当配置尚未加载完成或加载失败时,渲染占位/错误,不抛出
+  // 本地 in-memory cache (启动 bootstrap 已加载)
+  const localCache = useMemo(() => {
+    try { return getConfig() as unknown as Record<string, unknown>; } catch { return null; }
+  }, []);
+
+  const merged = useMemo(() => ({ ...(localCache ?? {}), ...(serverConfig ?? {}) }), [localCache, serverConfig]);
+  const serverSynced = serverConfig !== undefined && serverConfig !== null;
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const res = await clinicalConfigApi.get();
+      if (cancelled) return;
+      if (res.success && res.data?.modules && typeof res.data.modules === "object") {
+        setServerConfig(res.data.modules);
+        return;
+      }
+      if (res.success && localCache) {
+        // [W3-B] 后端无配置: 前端先 POST 本地默认值 seed, 保证后续 GET 有值
+        const seed = await clinicalConfigApi.saveAll(localCache);
+        if (cancelled) return;
+        if (seed.success && seed.data?.modules && typeof seed.data.modules === "object") {
+          setServerConfig(seed.data.modules);
+        } else {
+          setServerConfig(localCache);
+          message.warning(seed.error?.message ?? "后端不可写, 当前展示本地默认值");
+        }
+        return;
+      }
+      setServerConfig(null);
+      if (!res.success) message.error(res.error?.message ?? "加载临床配置失败");
+    })();
+    return () => { cancelled = true; };
+  }, [localCache]);
+
+  // 切换 tab 时初始化 draft (仅一次)
+  useEffect(() => {
+    const data = merged[activeKey];
+    if (data === undefined) return;
+    setDrafts((prev) =>
+      prev[activeKey] === undefined ? { ...prev, [activeKey]: JSON.stringify(data, null, 2) } : prev,
+    );
+  }, [activeKey, merged]);
+
+  const handleSave = async (key: ModuleKey) => {
+    const draft = drafts[key];
+    if (draft === undefined) return;
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(draft);
+    } catch (e) {
+      message.error("JSON 格式错误, 无法保存: " + ((e as Error)?.message ?? String(e)));
+      return;
+    }
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      message.error("模块内容必须是 JSON 对象");
+      return;
+    }
+    setSavingKey(key);
+    const res = await clinicalConfigApi.saveModule(key, parsed);
+    setSavingKey(null);
+    if (res.success) {
+      setServerConfig((prev) => ({ ...(prev ?? {}), [key]: parsed }));
+      message.success(`模块 "${key}" 已保存到后端`);
+    } else {
+      message.error(res.error?.message ?? `保存失败 (${key})`);
+    }
+  };
+
+  const handleReset = (key: ModuleKey) => {
+    const data = merged[key];
+    setDrafts((prev) => ({ ...prev, [key]: JSON.stringify(data, null, 2) }));
+  };
+
   if (bootError) {
     return (
       <PageContainer background="slate" maxWidth="full" padding={16} testId="clinical-config-center">
@@ -98,8 +158,10 @@ const ClinicalConfigCenter: React.FC = () => {
   }
 
   const items = modules.map((m) => {
-    const data = readModule(m.id as ModuleKey);
+    const data = merged[m.id as ModuleKey];
     const { count, sample } = summarize(m.id as ModuleKey, data);
+    const draft = drafts[m.id as ModuleKey];
+    const saving = savingKey === m.id;
     return {
       key: m.id,
       label: (
@@ -132,21 +194,65 @@ const ClinicalConfigCenter: React.FC = () => {
               description={<Text code style={{ fontSize: 12 }}>{m.defaultPath}</Text>}
             />
 
-            {data === null ? (
-              <Empty description="此模块暂未加载,请等待启动加载完成" />
-            ) : sample !== null && sample !== undefined ? (
-              <Card size="small" title="摘要 (sample)">
-                <pre style={{ background: "#f5f5f5", padding: 12, borderRadius: 4, overflow: "auto", maxHeight: 240 }}>
-                  {JSON.stringify(sample, null, 2)}
-                </pre>
-              </Card>
-            ) : <Empty description="无数据" />}
+            {serverConfig === undefined ? (
+              <Spin tip="正在从后端加载配置…" style={{ display: "block", padding: 24 }}>
+                <Empty description="加载中" />
+              </Spin>
+            ) : (
+              <>
+                {data === null ? (
+                  <Empty description="此模块暂未加载,请等待启动加载完成" />
+                ) : sample !== null && sample !== undefined ? (
+                  <Card size="small" title="摘要 (sample)">
+                    <pre style={{ background: "#f5f5f5", padding: 12, borderRadius: 4, overflow: "auto", maxHeight: 240 }}>
+                      {JSON.stringify(sample, null, 2)}
+                    </pre>
+                  </Card>
+                ) : <Empty description="无数据" />}
 
-            <Card size="small" title="完整 JSON (只读)">
-              <pre style={{ background: "#fafafa", padding: 12, borderRadius: 4, overflow: "auto", maxHeight: 480, fontSize: 12 }}>
-                {JSON.stringify(data, null, 2)}
-              </pre>
-            </Card>
+                <Card
+                  size="small"
+                  title={
+                    <Space>
+                      <span>完整 JSON (可编辑)</span>
+                      {serverSynced ? (
+                        <Tag color="green" icon={<CloudDownload size={12} />}>已保存到后端</Tag>
+                      ) : (
+                        <Tag color="orange">本地默认 (后端未保存)</Tag>
+                      )}
+                    </Space>
+                  }
+                  extra={
+                    <Space>
+                      <Button
+                        size="small"
+                        icon={<RotateCcw size={12} />}
+                        onClick={() => handleReset(m.id as ModuleKey)}
+                      >
+                        重置
+                      </Button>
+                      <Button
+                        size="small"
+                        type="primary"
+                        icon={<Save size={12} />}
+                        loading={saving}
+                        onClick={() => handleSave(m.id as ModuleKey)}
+                      >
+                        保存
+                      </Button>
+                    </Space>
+                  }
+                >
+                  <Input.TextArea
+                    value={draft}
+                    onChange={(e) => setDrafts((prev) => ({ ...prev, [m.id]: e.target.value }))}
+                    rows={14}
+                    style={{ fontFamily: "monospace", fontSize: 12 }}
+                    aria-label={`${m.label} JSON 编辑`}
+                  />
+                </Card>
+              </>
+            )}
           </Space>
         </Card>
       ),
@@ -160,17 +266,23 @@ const ClinicalConfigCenter: React.FC = () => {
         icon={<Sliders size={24} color="#1677ff" />}
         variant="inline"
         actions={
-          <Tag color="blue">
-            <Database size={12} style={{ marginRight: 4 }} />
-            {modules.length} 个模块
-          </Tag>
+          <Space>
+            {serverConfig === undefined ? <Spin size="small" /> : null}
+            <Tag color={serverSynced ? "green" : "orange"}>
+              <Database size={12} style={{ marginRight: 4 }} />
+              {serverSynced ? "后端已持久化" : "本地默认"}
+            </Tag>
+            <Tag color="blue">
+              {modules.length} 个模块
+            </Tag>
+          </Space>
         }
       />
       <Alert
-        type="warning"
+        type="info"
         showIcon
-        title="阶段 3 admin UI - 只读"
-        description="当前只读视图显示 7 个临床配置模块的当前内容。后续阶段会加入编辑表单 + diff preview + 保存。修改任一 JSON 需重新启动 dev server (阶段 5 HMR)。"
+        title="阶段 3 admin UI - 后端持久化 (W3-B)"
+        description="编辑 JSON 后点击「保存」即写入后端 SystemConfig (key=clinical_config); 重启/刷新后仍保留。保存前请确认 JSON 结构符合模块 schema。"
         style={{ marginBottom: 12 }}
       />
       <Tabs activeKey={activeKey} onChange={(k) => setActiveKey(k as ModuleKey)} items={items} />

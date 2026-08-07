@@ -1,5 +1,5 @@
 /**
- * G005 放射RIS系统 v3.0.6.11-76 - 简单 i18n 翻译函数与 locale 切换
+ * G005 放射RIS系统 v3.0.6.11-79 - 简单 i18n 翻译函数与 locale 切换
  * R3 1100+ 功能点,i18n 命名空间合并
  * 对外导出:t(key, params) / getCurrentLocale() / onLocaleChange() / notifyLocaleChange()
  */
@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "G005放射信息系统",
     "app.version":
-      "v3.0.6.11-76 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
+      "v3.0.6.11-79 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -26,6 +26,10 @@ export const translations: Translations = {
     "app.expand": "展开",
     "app.searchPlaceholder": "搜索患者/检查号/报告...",
     "nav.workbench": "工作台",
+    "nav.aiOrchestration": "AI 编排平台",
+    "nav.dicomViewerClassic": "DICOM 经典查看器",
+    "nav.ai-orchestration": "AI 编排平台",
+    "nav.dicom-viewer-classic": "DICOM 经典查看器",
     "nav.homeOverview": "首页概览",
     "nav.v3Home": "V3 首页概览",
     "nav.worklist": "检查工作列表",
@@ -178,6 +182,7 @@ export const translations: Translations = {
     "nav.dentalSchedule": "排班管理", // [v3.0.6.11-7]
     "nav.dentalPhoto": "口内照片", // [v3.0.6.11-7]
     "nav.systemManage": "系统管理",
+    "nav.fileManagement": "文件管理", // [W1-A v3.0.6.11-79]
     "nav.userManagement": "用户管理",
     "nav.clinicalConfig": "临床配置",
     "nav.dataDictionary": "数据字典",
@@ -1925,6 +1930,7 @@ export const translations: Translations = {
     "nav.aiTriageWorkflow": "AI 分检工作流",
     "nav.audit": "审计",
     "nav.auditCompliance": "审计合规",
+    "nav.complianceDocs": "合规文档库",
     "nav.authority": "权限",
     "nav.autoCollection": "自动采集",
     "nav.breastCad": "乳腺 AI 检测",
@@ -1939,6 +1945,7 @@ export const translations: Translations = {
     "nav.consentEducation": "知情同意教育",
     "nav.cosignReview": "双签审核",
     "nav.criticalAlert": "危急值预警",
+    "nav.criticalValueReceiver": "危急值接收端",
     "nav.criticalValue5Step": "危急值 5 步流程",
     "nav.dbt": "DBT 断层合成",
     "nav.dental": "口腔",
@@ -1984,6 +1991,7 @@ export const translations: Translations = {
     "nav.mammoOperations": "乳腺运营",
     "nav.materials": "物资",
     "nav.mfaSetup": "多因素认证设置",
+    "nav.userCenter": "个人中心",
     "nav.mip": "MIP 最大密度投影",
     "nav.mllpConfig": "MLLP 配置",
     "nav.mobilePush": "移动推送",
@@ -2041,7 +2049,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "G005 Radiology Information System",
     "app.version":
-      "v3.0.6.11-76 · Strict Review + Params + Security + Features + Mock Cleanup + 200-page Verification",
+      "v3.0.6.11-79 · Strict Review + Params + Security + Features + Mock Cleanup + 200-page Verification",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
@@ -2049,6 +2057,10 @@ export const translations: Translations = {
     "app.expand": "Expand",
     "app.searchPlaceholder": "Search patient/exam/report...",
     "nav.workbench": "Workbench",
+    "nav.aiOrchestration": "AI Orchestration Platform",
+    "nav.dicomViewerClassic": "DICOM Classic Viewer",
+    "nav.ai-orchestration": "AI Orchestration Platform",
+    "nav.dicom-viewer-classic": "DICOM Classic Viewer",
     "nav.homeOverview": "Home Overview",
     "nav.v3Home": "V3 Home Overview",
     "nav.worklist": "Worklist",
@@ -2201,6 +2213,7 @@ export const translations: Translations = {
     "nav.dentalSchedule": "Dental Schedule", // [v3.0.6.11-7]
     "nav.dentalPhoto": "Patient Photos", // [v3.0.6.11-7]
     "nav.systemManage": "System Management",
+    "nav.fileManagement": "File Management", // [W1-A v3.0.6.11-79]
     "nav.userManagement": "User Management",
     "nav.clinicalConfig": "Clinical Config",
     "nav.dataDictionary": "Data Dictionary",
@@ -3940,6 +3953,7 @@ export const translations: Translations = {
     "nav.aiTriageWorkflow": "AI Triage Workflow",
     "nav.audit": "Audit",
     "nav.auditCompliance": "Audit Compliance",
+    "nav.complianceDocs": "Compliance Documents",
     "nav.authority": "Authority",
     "nav.autoCollection": "Auto Collection",
     "nav.breastCad": "Breast AI Detection",
@@ -3954,6 +3968,7 @@ export const translations: Translations = {
     "nav.consentEducation": "Consent Education",
     "nav.cosignReview": "Co-sign Review",
     "nav.criticalAlert": "Critical Alert",
+    "nav.criticalValueReceiver": "CV Receiver Portal",
     "nav.criticalValue5Step": "Critical Value 5-Step",
     "nav.dbt": "DBT Tomosynthesis",
     "nav.dental": "Dental",
@@ -3999,6 +4014,7 @@ export const translations: Translations = {
     "nav.mammoOperations": "Breast Operations",
     "nav.materials": "Materials",
     "nav.mfaSetup": "MFA Setup",
+    "nav.userCenter": "User Center",
     "nav.mip": "MIP Maximum Intensity Projection",
     "nav.mllpConfig": "MLLP Config",
     "nav.mobilePush": "Mobile Push",

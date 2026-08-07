@@ -251,6 +251,7 @@
   "stowRs": "STOW-RS 存储",
   "srReport": "SR 结构化报告",
   "criticalAlert": "危急值告警",
+  "criticalValueReceiver": "危急值接收端",
   "autoCollection": "自动采集管理",
   "remoteReading": "远程阅片",
   "pacsAdmin": "PACS 管理",

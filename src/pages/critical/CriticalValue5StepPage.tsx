@@ -99,8 +99,8 @@ export default function CriticalValue5StepPage() {
       } else if (actionType === 'receipt') {
         res = await criticalApi.clinicalReceipt(selected.id, { confirmedBy: actionNote || '临床医生' })
       } else if (actionType === 'close') {
-        // 闭环: PATCH /criticals/:id state=CLOSED_LOOP
-        res = await criticalApi.update(selected.id, { state: 'CLOSED_LOOP', closedBy: '系统' })
+        // 闭环: PATCH /criticals/:id state=CLOSED_LOOP (criticalApi.closeLoop)
+        res = await criticalApi.closeLoop(selected.id, '系统')
       }
       if (res?.success) {
         message.success('操作成功')

@@ -93,32 +93,50 @@ export interface SlaStats {
 }
 
 export const orchestratorApi = {
-  createFlow: (data: CreateFlowDto) =>
-    api.post<OrchestratorFlow>('/orchestrator/flow', data),
+  createFlow: async (data: CreateFlowDto) => {
+    const res = await api.post<OrchestratorFlow>('/orchestrator/flow', data);
+    return res.data;
+  },
 
-  getFlow: (id: string) =>
-    api.get<OrchestratorFlow>(`/orchestrator/flow/${id}`),
+  getFlow: async (id: string) => {
+    const res = await api.get<OrchestratorFlow>(`/orchestrator/flow/${id}`);
+    return res.data;
+  },
 
-  triggerFlow: (id: string, context?: Record<string, unknown>) =>
-    api.post<FlowExecution>(`/orchestrator/flow/${id}/trigger`, { context }),
+  triggerFlow: async (id: string, context?: Record<string, unknown>) => {
+    const res = await api.post<FlowExecution>(`/orchestrator/flow/${id}/trigger`, { context });
+    return res.data;
+  },
 
-  triggerNextStep: (id: string) =>
-    api.post<FlowExecution>(`/orchestrator/flow/${id}/next`, {}),
+  triggerNextStep: async (id: string) => {
+    const res = await api.post<FlowExecution>(`/orchestrator/flow/${id}/next`, {});
+    return res.data;
+  },
 
-  getFlows: () =>
-    api.get<OrchestratorFlow[]>('/orchestrator/flows'),
+  getFlows: async () => {
+    const res = await api.get<OrchestratorFlow[]>(`/orchestrator/flows`);
+    return res.data ?? [];
+  },
 
-  getExecutions: (page = 1, limit = 20, status?: string) =>
-    api.get<{ items: FlowExecution[]; total: number; page: number; limit: number }>(
+  getExecutions: async (page = 1, limit = 20, status?: string) => {
+    const res = await api.get<{ items: FlowExecution[]; total: number; page: number; limit: number }>(
       `/orchestrator/executions?page=${page}&limit=${limit}${status ? `&status=${status}` : ''}`,
-    ),
+    );
+    return res.data;
+  },
 
-  upsertSla: (data: SlaConfigDto) =>
-    api.put<SlaConfigDto>('/orchestrator/sla', data),
+  upsertSla: async (data: SlaConfigDto) => {
+    const res = await api.put<SlaConfigDto>('/orchestrator/sla', data);
+    return res.data;
+  },
 
-  getSlaConfigs: () =>
-    api.get<SlaConfigDto[]>('/orchestrator/sla'),
+  getSlaConfigs: async () => {
+    const res = await api.get<SlaConfigDto[]>('/orchestrator/sla');
+    return res.data ?? [];
+  },
 
-  getSlaStats: () =>
-    api.get<SlaStats>('/orchestrator/sla/stats'),
+  getSlaStats: async () => {
+    const res = await api.get<SlaStats>('/orchestrator/sla/stats');
+    return res.data;
+  },
 }

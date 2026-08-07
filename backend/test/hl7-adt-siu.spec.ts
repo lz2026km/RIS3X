@@ -15,7 +15,7 @@ describe('Hl7Service - ADT/SIU parsing', () => {
   beforeAll(() => {
     process.env['HL7_MLLP_RETRY_MAX'] = '1'
     process.env['HL7_MLLP_RETRY_INTERVAL'] = '100'
-    svc = new Hl7Service(mockPrisma as PrismaService)
+    svc = new Hl7Service(mockPrisma as PrismaService, {} as never)
   })
 
   beforeEach(() => jest.clearAllMocks())

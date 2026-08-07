@@ -190,7 +190,7 @@ export const DentalTreatmentPage: React.FC = () => {
             </Col>
             <Col span={12}>
               <Form.Item label="治疗类型" name="type" initialValue="Restorative">
-                <Select options={['Restorative', 'Endodontic', 'Orthodontic', 'Implant', 'Extraction', 'Prosthodontic'].map(t => ({ value: t, label: t }))} />
+                <Select options={[['Restorative', '修复性'], ['Endodontic', '根管'], ['Orthodontic', '正畸'], ['Implant', '种植'], ['Extraction', '拔除'], ['Prosthodontic', '修复冠桥']].map(([value, label]) => ({ value, label }))} />
               </Form.Item>
             </Col>
             <Col span={24}>

@@ -102,7 +102,7 @@ export const V3ReportHubPage: React.FC = () => {
         <Col span={4}><Card size="small"><Statistic title="分发任务" value={tasks.length} styles={{ content: {  color: '#52c41a'  } }} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="FHIR 资源" value={fhirList.length} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="AI 草稿" value={aiDrafts.length} styles={{ content: {  color: '#722ed1'  } }} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="Webhooks" value={webhooks.length} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="Webhook 回调" value={webhooks.length} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="质控报告" value={qcReports.length} /></Card></Col>
       </Row>
 
@@ -254,7 +254,7 @@ export const V3ReportHubPage: React.FC = () => {
                     </Card>
                   </Col>
                   <Col span={12}>
-                    <Card size="small" title="Webhooks">
+                    <Card size="small" title="Webhook 回调">
                       <List size="small" dataSource={webhooks} renderItem={w => (
                         <List.Item>
                           <List.Item.Meta

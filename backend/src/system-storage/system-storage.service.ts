@@ -15,6 +15,7 @@ import {
   buildS3DriverOptions,
 } from '../common/storage/storage.module'
 import { isMaskedSecret, maskSecret } from '../common/storage/storage-crypto'
+import { SystemConfigService } from './system-config.service'
 
 export interface StorageStatsDto {
   driver: string
@@ -60,6 +61,7 @@ export class SystemStorageService {
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly configService: StorageConfigService,
+    private readonly systemConfig: SystemConfigService,
   ) {}
 
   async getConfig(): Promise<{
@@ -109,6 +111,7 @@ export class SystemStorageService {
   }
 
   // [W5] PUT /system/admin/configs: 批量保存 (白名单 key), 返回更新后列表
+  // [v3.0.6.11-79] 保存后 invalidate 缓存 → 消费者(报告导出/HL7/SLA/分页)立即生效
   async saveAdminConfigs(items: Array<{ key: string; value: unknown }>): Promise<AdminConfigItem[]> {
     const allowed = new Set(ADMIN_CONFIG_DEFS.map((d) => d.key))
     for (const item of items) {
@@ -119,6 +122,7 @@ export class SystemStorageService {
         update: { value: coerceConfigValue(key, item.value) as object },
         create: { key, value: coerceConfigValue(key, item.value) as object },
       })
+      this.systemConfig.invalidate(key)
     }
     return this.listAdminConfigs()
   }
@@ -133,6 +137,7 @@ export class SystemStorageService {
       update: { value: coerceConfigValue(key, value) as object },
       create: { key, value: coerceConfigValue(key, value) as object },
     })
+    this.systemConfig.invalidate(key)
     const item = (await this.listAdminConfigs()).find((c) => c.key === key)
     if (!item) throw new NotFoundException(`Config ${key} not found`)
     return item

@@ -258,6 +258,58 @@ export const ClinicalReceiptModal = ({ cv, doctor, comment, onSetDoctor, onSetCo
   )
 }
 
+// -------------- EscalateModal [W2-A] 升级操作: POST /criticals/escalate --------------
+export const EscalateModal = ({ cv, to, dept, reason, onSetTo, onSetDept, onSetReason, onConfirm, onCancel }: {
+  cv: CriticalValue | null; to: string; dept: string; reason: string
+  onSetTo: (v: string) => void; onSetDept: (v: string) => void; onSetReason: (v: string) => void
+  onConfirm: () => void; onCancel: () => void
+}) => {
+  useEffect(() => {
+    if (!cv) return
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.stopPropagation(); onCancel() } }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [cv, onCancel])
+  if (!cv) return null
+  return (
+    <div onClick={onCancel} role="dialog" aria-modal="true" aria-label="升级危急值" style={overlayStyle}>
+      <div onClick={(e) => e.stopPropagation()} style={{ ...panelStyle, width: 440 }}>
+        <div style={{ padding: '20px 24px', borderBottom: '1px solid #e2e8f0', background: 'linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <ArrowUp size={20} style={{ color: '#fff' }} />
+            <div>
+              <div style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>升级危急值</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)' }}>{cv.id} · {cv.patientName} · 未及时响应时逐级升级通知</div>
+            </div>
+          </div>
+          <button onClick={onCancel} aria-label="关闭弹窗" style={headerBtnStyle}><X size={16} style={{ color: '#fff' }} /></button>
+        </div>
+        <div style={{ padding: 24 }}>
+          <div style={{ marginBottom: 16 }}>
+            <label htmlFor="cv-escalate-to" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6 }}>升级对象 *</label>
+            <input id="cv-escalate-to" type="text" value={to} onChange={(e) => onSetTo(e.target.value)} placeholder="如: 科主任 / 医务处值班" aria-label="升级对象" style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <label htmlFor="cv-escalate-dept" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6 }}>升级科室</label>
+            <input id="cv-escalate-dept" type="text" value={dept} onChange={(e) => onSetDept(e.target.value)} placeholder="如: 医务处" aria-label="升级科室" style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <label htmlFor="cv-escalate-reason" style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6 }}>升级原因</label>
+            <textarea id="cv-escalate-reason" value={reason} onChange={(e) => onSetReason(e.target.value)} placeholder="如: 电话通知后超时未确认" aria-label="升级原因" rows={3} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
+          </div>
+          <div style={{ background: '#fef2f2', borderRadius: 8, padding: '10px 14px', border: '1px solid #fecaca', marginBottom: 20 }}>
+            <div style={{ fontSize: 12, color: '#991b1b', lineHeight: 1.6 }}>升级后原接收人超时未响应的危急值将转交升级对象处理,并记录升级时间与操作人。</div>
+          </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button onClick={onCancel} style={footerBtn()}>取消</button>
+            <button onClick={onConfirm} disabled={!to} style={{ ...footerBtn(true), display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, opacity: to ? 1 : 0.5, cursor: to ? 'pointer' : 'not-allowed' }}><ArrowUp size={14} /> 确认升级</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // -------------- ConfirmModal --------------
 export const ConfirmModal = ({ message, onConfirm, onCancel }: {
   message: string; onConfirm: () => void; onCancel: () => void
@@ -537,6 +589,11 @@ export interface CriticalValueModalsProps {
   showSettings: boolean; onCloseSettings: () => void; showToastFn: (msg: string, type?: 'success' | 'error') => void
   showTransferModal: boolean; transferCV: CriticalValue | null
   onCloseTransfer: () => void; onConfirmTransfer: (date: string) => void
+  // [W2-A] 升级操作
+  showEscalateModal: boolean; escalateCV: CriticalValue | null
+  escalateTo: string; escalateDept: string; escalateReason: string
+  onSetEscalateTo: (v: string) => void; onSetEscalateDept: (v: string) => void; onSetEscalateReason: (v: string) => void
+  onConfirmEscalate: () => void; onCancelEscalate: () => void
 }
 
 export const CriticalValueModals = (p: CriticalValueModalsProps) => (
@@ -555,7 +612,12 @@ export const CriticalValueModals = (p: CriticalValueModalsProps) => (
         onSetDoctor={p.onSetReceiptDoctor} onSetComment={p.onSetReceiptComment}
         onConfirm={p.onConfirmReceipt} onCancel={p.onCancelReceipt} />
     )}
-    <ConfirmModal message={p.confirmMessage} onConfirm={p.onConfirm} onCancel={p.onCancelConfirm} />
+    {p.showConfirmModal && <ConfirmModal message={p.confirmMessage} onConfirm={p.onConfirm} onCancel={p.onCancelConfirm} />}
+    {p.showEscalateModal && p.escalateCV && (
+      <EscalateModal cv={p.escalateCV} to={p.escalateTo} dept={p.escalateDept} reason={p.escalateReason}
+        onSetTo={p.onSetEscalateTo} onSetDept={p.onSetEscalateDept} onSetReason={p.onSetEscalateReason}
+        onConfirm={p.onConfirmEscalate} onCancel={p.onCancelEscalate} />
+    )}
     {p.showSettings && <RulesSettingsModal onClose={p.onCloseSettings} showToast={p.showToastFn} />}
     {p.showTransferModal && p.transferCV && (
       <TransferToFollowUpModal cv={p.transferCV} onClose={p.onCloseTransfer} onConfirm={p.onConfirmTransfer} />

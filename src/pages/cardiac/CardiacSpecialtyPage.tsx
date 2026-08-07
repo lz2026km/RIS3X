@@ -419,7 +419,7 @@ const CardiacSpecialtyPage = () => {
                   <option value="CCTA">CCTA</option>
                   <option value="CMR">CMR</option>
                   <option value="Echo">Echo</option>
-                  <option value="Cath">Cath</option>
+                  <option value="Cath">心导管</option>
                 </select>
               </div>
             </div>

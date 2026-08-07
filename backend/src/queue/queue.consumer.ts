@@ -7,9 +7,18 @@ import * as path from 'node:path'
 import { PrismaService } from '../prisma/prisma.service'
 import { Hl7Service, type ReportForHL7 } from '../hl7/hl7.service'
 import { AiDiagnosisService } from '../modules/ai-diagnosis/ai-diagnosis.service'
+import { SystemConfigService } from '../system-storage/system-config.service'
+import { batchExportStore } from './batch-export.store'
 
 export interface ReportExportJobData {
   reportId: string
+  format: string
+  userId: string
+}
+
+export interface BatchExportJobData {
+  taskId: string
+  ids: string[]
   format: string
   userId: string
 }
@@ -61,19 +70,63 @@ function audit(
 /**
  * reportExport 真实化: 无 PDF 库 → 生成 A4 可打印 HTML 报告文件写入导出目录。
  * 浏览器打开后可直接打印为 PDF; 导出结果(路径/大小)写入 audit_log。
+ * [v3.0.6.11-79] 页眉医院名 / 页脚 / 水印 读取 admin config (hospital_name / report_footer / pdf_watermark_text)
  */
 @Processor('reportExport')
 export class ReportExportConsumer {
   private readonly logger = new Logger(ReportExportConsumer.name)
   private readonly exportDir: string
 
-  constructor(private readonly prisma: PrismaService) {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly systemConfig: SystemConfigService,
+  ) {
     this.exportDir = process.env['REPORT_EXPORT_DIR'] || path.resolve(process.cwd(), 'exports', 'reports')
   }
 
   @Process('export')
   async handleExport(job: Job<ReportExportJobData>): Promise<{ filePath: string; fileName: string; sizeBytes: number; format: string }> {
     const { reportId, format, userId } = job.data
+    return this.exportOne(reportId, format, userId)
+  }
+
+  /**
+   * [W4-B] 批量报告导出: 单份任务内循环复用 exportOne 逐份导出,
+   * 进度/结果写 batchExportStore, 前端 GET /reports/batch-export/:taskId 轮询。
+   */
+  @Process('batchExport')
+  async handleBatchExport(job: Job<BatchExportJobData>): Promise<{ taskId: string; total: number; done: number; failed: number }> {
+    const { taskId, ids, format, userId } = job.data
+    batchExportStore.update(taskId, { status: 'running', progress: 0 })
+    let failed = 0
+    for (let i = 0; i < ids.length; i++) {
+      const reportId = ids[i]!
+      try {
+        const result = await this.exportOne(reportId, format, userId)
+        batchExportStore.addDownload(taskId, {
+          reportId,
+          fileName: result.fileName,
+          filePath: result.filePath,
+          sizeBytes: result.sizeBytes,
+          format: result.format,
+          downloadUrl: `/reports/export-files/${encodeURIComponent(result.fileName)}`,
+        })
+      } catch (err) {
+        failed++
+        this.logger.warn(`batchExport ${taskId}: report ${reportId} failed: ${(err as Error).message}`)
+      }
+      batchExportStore.update(taskId, { progress: Math.round(((i + 1) / ids.length) * 100), failedCount: failed })
+    }
+    batchExportStore.update(taskId, { status: 'completed', progress: 100, failedCount: failed })
+    this.logger.log(`Batch export ${taskId} completed: ${ids.length - failed}/${ids.length} exported`)
+    return { taskId, total: ids.length, done: ids.length - failed, failed }
+  }
+
+  private async exportOne(
+    reportId: string,
+    format: string,
+    userId: string,
+  ): Promise<{ filePath: string; fileName: string; sizeBytes: number; format: string }> {
     const report = await this.prisma.report.findUnique({
       where: { id: reportId },
       include: { patient: true, exam: true, radiologist: { select: { id: true, fullName: true } } },
@@ -81,7 +134,12 @@ export class ReportExportConsumer {
     if (!report) throw new Error(`Export failed: report ${reportId} not found`)
 
     const normalized = (format ?? 'html').toLowerCase()
-    const html = this.buildReportHtml(report as any, normalized)
+    const [hospitalName, reportFooter, watermarkText] = await Promise.all([
+      this.systemConfig.getString('hospital_name', 'G005 放射科信息管理系统'),
+      this.systemConfig.getString('report_footer', '本报告仅供临床参考，请结合临床实际情况。'),
+      this.systemConfig.getString('pdf_watermark_text', 'G005 RIS 内部资料'),
+    ])
+    const html = this.buildReportHtml(report as any, normalized, { hospitalName, reportFooter, watermarkText })
     await fs.mkdir(this.exportDir, { recursive: true })
     const fileName = `report-${reportId}-${nowStamp()}.html`
     const filePath = path.join(this.exportDir, fileName)
@@ -119,11 +177,12 @@ export class ReportExportConsumer {
     patient?: { id: string; name: string; gender: string; birthDate?: Date | null } | null
     exam?: { id: string; accessionNumber: string; modality: string; bodyPart: string; startedAt?: Date | null } | null
     radiologist?: { id: string; fullName?: string } | null
-  }, format: string): string {
+  }, format: string, opts: { hospitalName: string; reportFooter: string; watermarkText: string }): string {
     const patient = r.patient ?? null
     const exam = r.exam ?? null
     const genderLabel: Record<string, string> = { MALE: '男', FEMALE: '女', OTHER: '其他' }
     const criticalBadge = r.isCritical ? '<span style="color:#b91c1c;font-weight:bold;">危急</span>' : '否'
+    const watermarkText = opts.watermarkText.trim()
     const sections: Array<[string, string]> = [
       ['影像所见', r.findings],
       ['诊断意见', r.diagnosis],
@@ -157,12 +216,15 @@ export class ReportExportConsumer {
   .content { white-space: pre-wrap; word-break: break-all; }
   .signature { margin-top: 28px; display: flex; justify-content: space-between; font-size: 12px; color: #374151; }
   .footer { margin-top: 30px; border-top: 1px dashed #9ca3af; padding-top: 8px; font-size: 10px; color: #9ca3af; text-align: center; }
+  ${watermarkText ? '.watermark { position: fixed; top: 38%; left: 0; width: 100%; text-align: center; font-size: 44px; color: rgba(148,163,184,0.16); transform: rotate(-28deg); pointer-events: none; z-index: 0; white-space: nowrap; letter-spacing: 6px; }\n  .report-body { position: relative; z-index: 1; }' : ''}
 </style>
 </head>
 <body>
+${watermarkText ? `<div class="watermark">${escapeHtml(watermarkText)}</div>` : ''}
+<div class="report-body">
 <header class="header">
   <div>
-    <h1>G005 RIS 影像诊断报告</h1>
+    <h1>${escapeHtml(opts.hospitalName)} 影像诊断报告</h1>
     <div class="meta">报告单号: ${escapeHtml(r.id)} &nbsp;|&nbsp; 报告状态: ${escapeHtml(r.state)} &nbsp;|&nbsp; 危急: ${criticalBadge}</div>
   </div>
   <div class="meta">生成时间: ${fmtDate(new Date())}<br/>导出格式: ${escapeHtml(format)}</div>
@@ -190,7 +252,8 @@ ${sectionHtml}
   <span>报告医师: ${escapeHtml(r.radiologist?.fullName ?? r.radiologist?.id ?? '—')}</span>
   <span>报告时间: ${escapeHtml(fmtDate(r.signedAt ?? r.publishedAt))}</span>
 </div>
-<div class="footer">本报告由 G005 RIS 自动导出(HTML), 共 ${sectionHtml ? sections.filter(([, t]) => t && t.trim()).length : 0} 个内容章节 · 生成于 ${fmtDate(new Date())}</div>
+<div class="footer">${escapeHtml(opts.reportFooter)}<br/>由 ${escapeHtml(opts.hospitalName)} 自动导出(HTML), 共 ${sectionHtml ? sections.filter(([, t]) => t && t.trim()).length : 0} 个内容章节 · 生成于 ${fmtDate(new Date())}</div>
+</div>
 </body>
 </html>
 `
@@ -245,7 +308,7 @@ export class Hl7SendConsumer {
         authorId: report.radiologistId ?? '',
         reportId: report.id,
       }
-      message = this.hl7.buildORU(oru)
+      message = await this.hl7.buildORU(oru)
     }
 
     const ack = await this.hl7.sendMllpMessage(host, port, message)

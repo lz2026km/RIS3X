@@ -1,6 +1,16 @@
 import { useState, useEffect } from 'react'
-import { Spin, Alert, message, Tabs, Tag, Rate, Select, Input, Empty, Descriptions, Statistic } from 'antd'
-import { patientPortalApi, type PortalPatientDto, type ExamHistoryItemDto, type ImagePreviewDto, type PortalAppointmentDto, type PortalReportDto, type PortalImageStudyDto } from '../../services/api'
+import { Spin, Alert, message, Tabs, Tag, Rate, Select, Input, Empty, Descriptions, Statistic, Drawer } from 'antd'
+import {
+  patientPortalApi,
+  type PortalPatientDto,
+  type PortalClinicalDataDto,
+  type PortalMobileUserDto,
+  type ExamHistoryItemDto,
+  type ImagePreviewDto,
+  type PortalAppointmentDto,
+  type PortalReportDto,
+  type PortalImageStudyDto,
+} from '../../services/api'
 
 // ===== Types =====
 export type { PortalPatientDto as PatientPortalUser, ExamHistoryItemDto as ExamHistoryItem, ImagePreviewDto as ImagePreview }
@@ -177,6 +187,124 @@ export default function SelfServicePortal() {
   // 宣教
   const [expandedEdu, setExpandedEdu] = useState<string | null>(null)
 
+  // [W2-B] 临床数据 (列表 + 详情 Drawer)
+  const [clinicalData, setClinicalData] = useState<PortalClinicalDataDto[]>([])
+  const [clinicalDetail, setClinicalDetail] = useState<PortalClinicalDataDto | null>(null)
+  const [clinicalDrawerOpen, setClinicalDrawerOpen] = useState(false)
+  const [clinicalDetailLoading, setClinicalDetailLoading] = useState(false)
+
+  // [W2-B] 医护联系方式
+  const [doctorContacts, setDoctorContacts] = useState<PortalMobileUserDto[]>([])
+  const [nurseContacts, setNurseContacts] = useState<PortalMobileUserDto[]>([])
+  const [techContacts, setTechContacts] = useState<PortalMobileUserDto[]>([])
+  const [contactsLoading, setContactsLoading] = useState(false)
+
+  const openClinicalDetail = async (id: string) => {
+    setClinicalDrawerOpen(true)
+    setClinicalDetailLoading(true)
+    try {
+      const res = await patientPortalApi.getClinicalData(id)
+      if (res.success) {
+        const item = Array.isArray(res.data) ? res.data[0] : res.data
+        setClinicalDetail(item ?? null)
+      } else {
+        message.error(res.error?.message ?? '临床数据加载失败')
+      }
+    } catch {
+      message.error('临床数据加载失败，请稍后重试')
+    } finally {
+      setClinicalDetailLoading(false)
+    }
+  }
+
+  const openContacts = async () => {
+    setContactsLoading(true)
+    try {
+      const [docRes, nurseRes, techRes] = await Promise.all([
+        patientPortalApi.getDoctorMobile(),
+        patientPortalApi.getNurseMobile(),
+        patientPortalApi.getTechMobile(),
+      ])
+      if (docRes.success && Array.isArray(docRes.data)) setDoctorContacts(docRes.data)
+      if (nurseRes.success && Array.isArray(nurseRes.data)) setNurseContacts(nurseRes.data)
+      if (techRes.success && Array.isArray(techRes.data)) setTechContacts(techRes.data)
+    } catch {
+      message.error('医护联系方式加载失败，请稍后重试')
+    } finally {
+      setContactsLoading(false)
+    }
+  }
+
+  const downloadReportText = (report: PortalReportDto) => {
+    const lines = [
+      '========== 影像检查报告 ==========',
+      `检查项目：${report.modality ?? '-'}（${report.bodyPart ?? '未指定部位'}）`,
+      `检查日期：${fmtDateTime(report.examDate)}`,
+      `报告状态：${REPORT_STATE_LABEL[report.state] ?? report.state}`,
+      `签发时间：${fmtDateTime(report.signedAt)}`,
+      '',
+      '【检查所见】',
+      report.findings || '-',
+      '',
+      '【诊断意见】',
+      report.diagnosis || '-',
+      '',
+      '【影像印象】',
+      report.impression || '-',
+      '',
+      '【结论】',
+      report.conclusion || '-',
+      '',
+      '【建议】',
+      report.recommendations || '-',
+      '',
+      '电子报告与纸质报告具有同等法律效力。',
+    ].join('\n')
+    const blob = new Blob(['\ufeff' + lines], { type: 'text/plain;charset=utf-8;' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = `报告_${report.id}.txt`
+    link.click()
+    URL.revokeObjectURL(link.href)
+    message.success('报告已下载')
+  }
+
+  const downloadExamReport = async (examId: string) => {
+    try {
+      const res = await patientPortalApi.getExamReport(examId)
+      if (res.success && res.data) {
+        const exam = res.data
+        const lines = [
+          '========== 历史检查报告 ==========',
+          `检查项目：${exam.examItem}`,
+          `检查日期：${exam.examDate} · 部位：${exam.bodyPart}`,
+          `设备：${exam.deviceName ?? '-'}`,
+          `状态：${exam.reportStatus}`,
+          '',
+          '【报告内容】',
+          exam.reportContent ?? '-',
+          '',
+          '【诊断意见】',
+          exam.diagnosis ?? '-',
+          '',
+          '【建议】',
+          exam.recommendations ?? '-',
+        ].join('\n')
+        const blob = new Blob(['\ufeff' + lines], { type: 'text/plain;charset=utf-8;' })
+        const link = document.createElement('a')
+        link.href = URL.createObjectURL(blob)
+        link.download = `检查报告_${exam.id}.txt`
+        link.click()
+        URL.revokeObjectURL(link.href)
+        message.success('报告已下载')
+      } else {
+        message.error(res.error?.message ?? '报告下载失败')
+      }
+    } catch {
+      message.error('报告下载失败，请稍后重试')
+    }
+  }
+
   const handleLogin = async () => {
     const keyword = loginId.trim()
     if (!keyword) {
@@ -221,6 +349,12 @@ export default function SelfServicePortal() {
     setBookingDone(null)
     setExpandedReport(null)
     setActiveTab('home')
+    setClinicalData([])
+    setClinicalDetail(null)
+    setClinicalDrawerOpen(false)
+    setDoctorContacts([])
+    setNurseContacts([])
+    setTechContacts([])
   }
 
   useEffect(() => {
@@ -230,12 +364,13 @@ export default function SelfServicePortal() {
       setLoading(true)
       setLoadError(null)
       try {
-        const [userRes, examsRes, apptRes, reportRes, eduRes] = await Promise.all([
+        const [userRes, examsRes, apptRes, reportRes, eduRes, clinicalRes] = await Promise.all([
           patientPortalApi.getPortalUser(user?.id || 'current'),
           patientPortalApi.listExamHistory(user?.id || 'current'),
           patientPortalApi.listAppointments(user?.id || 'current'),
           patientPortalApi.listReports(user?.id || 'current'),
           patientPortalApi.listEducation(),
+          patientPortalApi.listClinicalData(),
         ])
         if (cancelled) return
         if (userRes.success && userRes.data) setUser(userRes.data)
@@ -243,6 +378,7 @@ export default function SelfServicePortal() {
         if (apptRes.success && apptRes.data && Array.isArray(apptRes.data)) setAppointments(apptRes.data)
         if (reportRes.success && reportRes.data && Array.isArray(reportRes.data)) setReports(reportRes.data)
         if (eduRes.success && Array.isArray(eduRes.data)) setEducations(eduRes.data)
+        if (clinicalRes.success && Array.isArray(clinicalRes.data)) setClinicalData(clinicalRes.data)
         if (!userRes.success && !examsRes.success) setLoadError('数据加载失败，请稍后重试')
       } catch {
         setLoadError('数据加载失败，请稍后重试')
@@ -649,6 +785,14 @@ export default function SelfServicePortal() {
                   { key: 'conclusion', label: '结论', children: selectedReport.conclusion || '-' },
                 ]}
               />
+              <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+                <button style={{ ...styles.btn, background: '#059669' }} onClick={() => downloadReportText(selectedReport)}>
+                  下载报告
+                </button>
+                <button style={{ ...styles.btnGreen, background: '#1e40af' }} onClick={() => window.print()}>
+                  打印报告
+                </button>
+              </div>
               <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 16 }}>
                 电子报告与纸质报告具有同等法律效力；如有疑问请携带报告咨询临床医生。
               </p>
@@ -663,9 +807,14 @@ export default function SelfServicePortal() {
                     <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{exam.examItem}</div>
                     <div style={{ fontSize: 12, color: '#64748b' }}>{exam.examDate} · {exam.bodyPart}</div>
                   </div>
-                  <button style={{ ...styles.btnGreen }} onClick={() => setExpandedReport(expandedReport === exam.id ? null : exam.id)}>
-                    {expandedReport === exam.id ? '收起' : '查看'}
-                  </button>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button style={{ ...styles.btnGreen }} onClick={() => setExpandedReport(expandedReport === exam.id ? null : exam.id)}>
+                      {expandedReport === exam.id ? '收起' : '查看'}
+                    </button>
+                    <button style={{ ...styles.btnGreen, background: '#059669' }} onClick={() => void downloadExamReport(exam.id)}>
+                      下载
+                    </button>
+                  </div>
                 </div>
               ))}
               {expandedReport && (() => {
@@ -826,6 +975,89 @@ export default function SelfServicePortal() {
       ),
     },
     {
+      key: 'clinical',
+      label: '临床数据',
+      children: (
+        <div>
+          <div style={styles.card}>
+            <h3 style={styles.subTitle}>临床数据记录（{clinicalData.length}）</h3>
+            {clinicalData.length === 0 ? (
+              <Empty description="暂无临床数据" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+            ) : (
+              <table style={styles.table}>
+                <thead><tr>
+                  <th style={styles.th}>检查项目</th><th style={styles.th}>部位</th><th style={styles.th}>日期</th>
+                  <th style={styles.th}>状态</th><th style={styles.th}>操作</th>
+                </tr></thead>
+                <tbody>
+                  {clinicalData.map(d => (
+                    <tr key={d.id}>
+                      <td style={styles.td}>{d.examType ?? '-'}</td>
+                      <td style={styles.td}>{d.bodyPart ?? '-'}</td>
+                      <td style={styles.td}>{d.examDate ?? '-'}</td>
+                      <td style={styles.td}><span style={styles.badge(d.reportStatus ?? '')}>{d.reportStatus ?? '-'}</span></td>
+                      <td style={styles.td}>
+                        <button style={{ ...styles.btn, background: '#0d9488' }} onClick={() => void openClinicalDetail(d.id)}>
+                          查看详情
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'contacts',
+      label: '联系医护',
+      children: (
+        <div>
+          <div style={styles.card}>
+            <h3 style={{ ...styles.subTitle, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>医护联系方式</span>
+              <button style={{ ...styles.btn, background: '#475569' }} onClick={() => void openContacts()} disabled={contactsLoading}>
+                {contactsLoading ? '加载中...' : '刷新'}
+              </button>
+            </h3>
+            {contactsLoading ? (
+              <div style={{ textAlign: 'center', padding: 40 }}>
+                <Spin size="small" tip="加载联系方式..." />
+              </div>
+            ) : doctorContacts.length === 0 && nurseContacts.length === 0 && techContacts.length === 0 ? (
+              <Empty description="点击右上角「刷新」加载医护联系方式" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+                {[
+                  { title: '放射科医生', color: '#1e40af', users: doctorContacts },
+                  { title: '放射科护士', color: '#0d9488', users: nurseContacts },
+                  { title: '技师', color: '#7c3aed', users: techContacts },
+                ].map(group => (
+                  <div key={group.title} style={{ background: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0', padding: 14 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: group.color, marginBottom: 10 }}>{group.title}（{group.users.length}）</div>
+                    {group.users.length === 0 ? (
+                      <div style={{ fontSize: 12, color: '#94a3b8' }}>暂无</div>
+                    ) : (
+                      group.users.map(u => (
+                        <div key={u.id} style={{ padding: '8px 0', borderBottom: '1px solid #eef2f7' }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{u.name}</div>
+                          <div style={{ fontSize: 12, color: '#64748b' }}>{u.title ?? u.role} · {u.department ?? '-'}</div>
+                          <div style={{ fontSize: 12, color: '#0d9488', fontFamily: 'monospace' }}>{u.phone ?? '-'}</div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 12 }}>联系电话仅供就医咨询使用，工作时间 08:00-17:00。</p>
+          </div>
+        </div>
+      ),
+    },
+    {
       key: 'feedback',
       label: '满意度反馈',
       children: (
@@ -909,6 +1141,41 @@ export default function SelfServicePortal() {
         items={tabItems}
         tabBarStyle={{ marginBottom: 20 }}
       />
+
+      {/* [W2-B] 临床数据详情 Drawer */}
+      <Drawer
+        title={clinicalDetail ? `临床数据详情 — ${clinicalDetail.examType ?? clinicalDetail.id}` : '临床数据详情'}
+        open={clinicalDrawerOpen}
+        onClose={() => setClinicalDrawerOpen(false)}
+        width={520}
+        loading={clinicalDetailLoading}
+      >
+        {clinicalDetail && (
+          <div>
+            <Descriptions
+              column={1}
+              size="small"
+              bordered
+              items={[
+                { key: 'patient', label: '患者', children: `${clinicalDetail.patientName ?? '-'}（${clinicalDetail.patientId ?? '-'}）` },
+                { key: 'examType', label: '检查项目', children: clinicalDetail.examType ?? '-' },
+                { key: 'bodyPart', label: '部位', children: clinicalDetail.bodyPart ?? '-' },
+                { key: 'modality', label: '设备类型', children: clinicalDetail.modality ?? '-' },
+                { key: 'examDate', label: '检查日期', children: clinicalDetail.examDate ?? '-' },
+                { key: 'status', label: '报告状态', children: <Tag color={stateColor(clinicalDetail.reportStatus ?? '')}>{clinicalDetail.reportStatus ?? '-'}</Tag> },
+                { key: 'findings', label: '检查所见', children: clinicalDetail.findings || '-' },
+                { key: 'diagnosis', label: '诊断意见', children: clinicalDetail.diagnosis || '-' },
+              ]}
+            />
+            {(clinicalDetail as any).labValues && (
+              <div style={{ marginTop: 16, padding: 12, background: '#f0fdf4', borderRadius: 8, border: '1px solid #bbf7d0' }}>
+                <div style={styles.label}>检验/生命体征</div>
+                <div style={{ ...styles.value, fontSize: 13, lineHeight: 1.7 }}>{(clinicalDetail as any).labValues}</div>
+              </div>
+            )}
+          </div>
+        )}
+      </Drawer>
     </div>
   )
 }

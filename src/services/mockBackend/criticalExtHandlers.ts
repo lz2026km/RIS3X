@@ -56,6 +56,8 @@ export const criticalExtHandlers = [
     await delay(delayMs());
     const url = new URL(request.url);
     const opts = parseQuery(url);
+    // [W2-A] 规则库 CRUD 列表: 默认全量返回, 避免新建规则被 applyQuery 20 条分页截断
+    opts.pageSize = 200;
     let items: any[] = [];
     try { items = list<any>('criticalRules'); } catch {}
     if (!items.length) items = [{"id":"CR001","name":"危急值规则1","condition":"WBC>30","severity":"URGENT"}];
@@ -115,25 +117,52 @@ export const criticalExtHandlers = [
       todayCount: items.filter((i) => String(i.reportedTime ?? i.triggeredAt ?? '').startsWith(today)).length,
     } });
   }),
-  http.get(`${EXT_API}/stats/summary`, async ({ request }) => {
+  http.get(`${EXT_API}/stats/summary`, async () => {
     await delay(delayMs());
-    const url = new URL(request.url);
-    const opts = parseQuery(url);
-    let items: any = [];
-    try { items = list<any>('criticalRules'); } catch {}
-    if (!items.length) items = {"bySeverity":{"URGENT":5,"HIGH":30,"LOW":10},"byDepartment":{}};
-    const result = applyQuery(items, opts);
-    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
+    let items: any[] = [];
+    try { items = list<any>('criticalEvents'); } catch {}
+    const today = new Date().toISOString().slice(0, 10);
+    const now = new Date();
+    const startOfWeek = new Date(now); startOfWeek.setDate(now.getDate() - now.getDay());
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const ts = (v: unknown) => new Date(String(v ?? '')).getTime();
+    const todayCount = items.filter((i) => String(i.reportedTime ?? i.triggeredAt ?? '').startsWith(today)).length;
+    const weeklyCount = items.filter((i) => ts(i.reportedTime ?? i.triggeredAt ?? '') >= startOfWeek.getTime()).length;
+    const monthlyCount = items.filter((i) => ts(i.reportedTime ?? i.triggeredAt ?? '') >= startOfMonth.getTime()).length;
+    return HttpResponse.json({ success: true, data: {
+      todayCount: items.length ? todayCount : 3,
+      weeklyCount: items.length ? weeklyCount : 18,
+      monthlyCount: items.length ? monthlyCount : 62,
+      avgResponseTime: items.length ? 11 : 12,
+    } });
   }),
-  http.get(`${EXT_API}/stats/timeline`, async ({ request }) => {
+  http.get(`${EXT_API}/stats/timeline`, async () => {
     await delay(delayMs());
-    const url = new URL(request.url);
-    const opts = parseQuery(url);
-    let items: any = [];
-    try { items = list<any>('criticalRules'); } catch {}
-    if (!items.length) items = {"timeline":[{"date":"2026-07-01","count":3}]};
-    const result = applyQuery(items, opts);
-    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
+    let items: any[] = [];
+    try { items = list<any>('criticalEvents'); } catch {}
+    if (!items.length) {
+      const FALLBACK_TIMELINE = [
+        { date: '07-31', count: 14, resolved: 12, escalated: 1 },
+        { date: '08-01', count: 17, resolved: 15, escalated: 2 },
+        { date: '08-02', count: 15, resolved: 14, escalated: 1 },
+        { date: '08-03', count: 19, resolved: 17, escalated: 2 },
+        { date: '08-04', count: 13, resolved: 12, escalated: 0 },
+        { date: '08-05', count: 16, resolved: 15, escalated: 1 },
+        { date: '08-06', count: 18, resolved: 16, escalated: 1 },
+      ];
+      return HttpResponse.json({ success: true, data: FALLBACK_TIMELINE });
+    }
+    const byDate = new Map<string, { count: number; resolved: number; escalated: number }>();
+    for (const i of items) {
+      const d = String(i.reportedTime ?? i.triggeredAt ?? '').slice(5, 10) || '—';
+      const cur = byDate.get(d) ?? { count: 0, resolved: 0, escalated: 0 };
+      cur.count += 1;
+      if (['resolved', 'closed_loop', 'receipted'].includes(i.status)) cur.resolved += 1;
+      if (i.status === 'escalated') cur.escalated += 1;
+      byDate.set(d, cur);
+    }
+    const timeline = Array.from(byDate.entries()).map(([date, v]) => ({ date, ...v })).slice(-14);
+    return HttpResponse.json({ success: true, data: timeline });
   }),
   http.get(`${EXT_API}/center`, async ({ request }) => {
     await delay(delayMs());

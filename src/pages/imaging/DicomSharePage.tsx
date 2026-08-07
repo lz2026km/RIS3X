@@ -122,7 +122,7 @@ const DicomSharePage: React.FC = () => {
 
   const columns = [
     { title: '编号', dataIndex: 'id', key: 'id', width: 100, render: (v: string) => <Text code>{v}</Text> },
-    { title: 'Study', dataIndex: 'studyId', key: 'studyId', width: 150, ellipsis: true },
+    { title: '检查', dataIndex: 'studyId', key: 'studyId', width: 150, ellipsis: true },
     { title: '患者', dataIndex: 'patientName', key: 'patient', width: 90 },
     { title: '来源', dataIndex: 'fromDept', key: 'from', width: 90, render: (v: string) => <Tag color="blue">{v}</Tag> },
     { title: '去向', dataIndex: 'toDept', key: 'to', width: 110, render: (v: string) => <Tag color="purple">{v}</Tag> },

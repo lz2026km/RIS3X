@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Param, Body } from '@nestjs/common'
+import { Controller, Get, Post, Delete, Param, Body } from '@nestjs/common'
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger'
 import { Roles } from '../../common/decorators/roles.decorator'
 import { z } from 'zod'
@@ -23,6 +23,11 @@ const SegmentSchema = z.object({
   seed: z.object({ x: z.number(), y: z.number(), z: z.number() }).optional(),
   minVoxels: z.number().int().positive().optional(),
   maxVoxels: z.number().int().positive().optional(),
+})
+const CreateSegmentationSchema = z.object({
+  label: z.string().min(1),
+  color: z.string().min(1).default('#ff4d4f'),
+  voxelIndices: z.array(z.number().int().nonnegative()).max(200000).default([]),
 })
 
 @ApiTags('volume')
@@ -95,5 +100,27 @@ export class VolumeController {
   @Post('segmentations/:id/approve')
   approve(@Param('id') id: string) {
     return this.segmentation.approve(id)
+  }
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // [W2-C] 手动标注管理 (SegmentationPage: 参数化创建 / 列表 / 删除)
+  // ────────────────────────────────────────────────────────────────────────────
+
+  @Get(':studyUid/segmentations')
+  listManualSegmentations(@Param('studyUid') studyUid: string) {
+    return this.segmentation.listManualSegmentations(studyUid)
+  }
+
+  @Post(':studyUid/segmentations')
+  createSegmentation(
+    @Param('studyUid') studyUid: string,
+    @Body(new ZodValidationPipe(CreateSegmentationSchema)) body: { label: string; color?: string; voxelIndices?: number[] },
+  ) {
+    return this.segmentation.createManualSegmentation(studyUid, body)
+  }
+
+  @Delete('segmentations/:id')
+  deleteSegmentation(@Param('id') id: string) {
+    return this.segmentation.deleteManualSegmentation(id)
   }
 }

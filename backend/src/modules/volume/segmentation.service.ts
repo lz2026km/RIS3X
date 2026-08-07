@@ -104,6 +104,18 @@ export interface SegmentationHistoryItem {
   features: Array<{ category: string; name: string; value: number; unit: string }>
 }
 
+// [W2-C] 手动标注 (SegmentationPage 参数化创建)
+export interface ManualSegmentationDto {
+  id: string
+  seriesUid: string
+  label: string
+  color: string
+  volume: number
+  voxelCount: number
+  createdBy: string
+  createdAt: string
+}
+
 interface PersistedFeature {
   id: string
   instanceUid: string
@@ -248,6 +260,47 @@ export class SegmentationService {
   async approve(segId: string): Promise<{ id: string; approved: boolean }> {
     this.approvedIds.add(segId)
     return { id: segId, approved: true }
+  }
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // [W2-C] 手动标注管理 (SegmentationPage: 列表 / 参数化创建 / 删除)
+  // ────────────────────────────────────────────────────────────────────────────
+
+  /** 手动标注内存存储 (按 seriesUid) */
+  private readonly manualSegmentations = new Map<string, ManualSegmentationDto>()
+
+  async listManualSegmentations(seriesUid: string): Promise<ManualSegmentationDto[]> {
+    return [...this.manualSegmentations.values()]
+      .filter((s) => s.seriesUid === seriesUid)
+      .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
+  }
+
+  async createManualSegmentation(
+    seriesUid: string,
+    dto: { label: string; color?: string; voxelIndices?: number[] },
+  ): Promise<ManualSegmentationDto> {
+    const voxelCount = Math.max(0, dto.voxelIndices?.length ?? 0)
+    // ~0.7×0.7mm 像素间距 × 5mm 层厚 → 约 0.00245 cm³/体素 估算
+    const item: ManualSegmentationDto = {
+      id: `man-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+      seriesUid,
+      label: dto.label,
+      color: dto.color ?? '#ff4d4f',
+      volume: +(voxelCount * 0.00245).toFixed(4),
+      voxelCount,
+      createdBy: 'current-user',
+      createdAt: new Date().toISOString(),
+    }
+    this.manualSegmentations.set(item.id, item)
+    this.logger.log(`manual segmentation created: ${item.id} (${dto.label}, ${voxelCount} voxels)`)
+    return item
+  }
+
+  async deleteManualSegmentation(id: string): Promise<{ id: string; deleted: boolean }> {
+    const existed = this.manualSegmentations.delete(id)
+    if (!existed) throw new NotFoundException(`手动标注 ${id} 不存在`)
+    this.logger.log(`manual segmentation deleted: ${id}`)
+    return { id, deleted: true }
   }
 
   // ────────────────────────────────────────────────────────────────────────────

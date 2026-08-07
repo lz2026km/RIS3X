@@ -178,11 +178,15 @@ export interface CriticalValueListSectionProps {
   onClinicalReceipt: (cv: CriticalValue) => void
   onAcknowledge: (cv: CriticalValue) => void
   onTransferToFollowUp: (cv: CriticalValue) => void
+  onEscalate: (cv: CriticalValue) => void
+  onCloseLoop: (cv: CriticalValue) => void
+  onDelete: (cv: CriticalValue) => void
+  onGo5Step: (cv: CriticalValue) => void
   criticalValues: CriticalValue[]
 }
 
 export const CriticalValueListSection = (props: CriticalValueListSectionProps) => {
-  const { filtered, selectedIds, onToggleSelect, onToggleSelectAll, onProcess, onViewDetail, onContactClinical, onVoiceCall, onClinicalReceipt, onAcknowledge, onTransferToFollowUp, criticalValues, ...filterProps } = props
+  const { filtered, selectedIds, onToggleSelect, onToggleSelectAll, onProcess, onViewDetail, onContactClinical, onVoiceCall, onClinicalReceipt, onAcknowledge, onTransferToFollowUp, onEscalate, onCloseLoop, onDelete, onGo5Step, criticalValues, ...filterProps } = props
 
   return (
     <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
@@ -203,6 +207,10 @@ export const CriticalValueListSection = (props: CriticalValueListSectionProps) =
           onClinicalReceipt={onClinicalReceipt}
           onAcknowledge={onAcknowledge}
           onTransferToFollowUp={onTransferToFollowUp}
+          onEscalate={onEscalate}
+          onCloseLoop={onCloseLoop}
+          onDelete={onDelete}
+          onGo5Step={onGo5Step}
           criticalValues={criticalValues}
         />
       </div>

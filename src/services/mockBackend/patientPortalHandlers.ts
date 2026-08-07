@@ -1,5 +1,6 @@
 // [v3.0.6.11-7] /api/v1/patient-portal MSW handlers
 // [v3.1] 补全: appointments / reports / images / feedback 端点 (G005 患者门户成熟化)
+// [v3.0.6.11-79 W2-B] 补全: clinical-data/:id · mobile/doctors·nurses·techs (医护联系方式)
 import { http, HttpResponse, delay } from 'msw';
 import { list, get, findOne } from './store';
 import { parseQuery, applyQuery } from './queryBuilder';
@@ -7,6 +8,56 @@ import { parseQuery, applyQuery } from './queryBuilder';
 const API = '/api/v1/patient-portal';
 
 const delayMs = (min = 50, max = 150) => Math.floor(Math.random() * (max - min) + min);
+
+// ===== [W2-B] 临床数据种子 (getClinicalData / listClinicalData) =====
+const PORTAL_CLINICAL_DATA_SEED: any[] = [
+  {
+    id: 'CD001', patientId: 'P001', patientName: '张三', examType: '胸部CT平扫',
+    examDate: '2026-07-20', bodyPart: '胸部', modality: 'CT',
+    findings: '双肺纹理清晰，未见明显实变影。纵隔结构居中，未见明显肿大淋巴结。心影大小正常。',
+    diagnosis: '双肺未见明显异常',
+    reportStatus: '已出报告', labValues: 'WBC 6.8×10⁹/L, Hb 142g/L, PLT 210×10⁹/L',
+  },
+  {
+    id: 'CD002', patientId: 'P001', patientName: '张三', examType: '头颅MR平扫',
+    examDate: '2026-06-15', bodyPart: '颅脑', modality: 'MR',
+    findings: '脑实质内未见明显异常信号灶，脑室系统形态正常，中线结构居中。',
+    diagnosis: '头颅MR平扫未见明显异常',
+    reportStatus: '已出报告', labValues: '血压 118/76 mmHg, 心率 72 bpm',
+  },
+  {
+    id: 'CD003', patientId: 'P002', patientName: '李四', examType: '腰椎DR正侧位',
+    examDate: '2026-07-08', bodyPart: '腰椎', modality: 'DR',
+    findings: '腰椎生理曲度存在，各椎体形态规整，椎间隙未见明显变窄。',
+    diagnosis: '腰椎DR未见明显异常',
+    reportStatus: '已出报告', labValues: '血常规正常',
+  },
+  {
+    id: 'CD004', patientId: 'P001', patientName: '张三', examType: '空腹血糖',
+    examDate: '2026-07-21', bodyPart: '实验室', modality: 'LIS',
+    findings: '空腹血糖 5.2 mmol/L，血脂四项均在参考范围。',
+    diagnosis: '未见明显异常',
+    reportStatus: '已出报告', labValues: 'FPG 5.2 mmol/L, TC 4.3 mmol/L, TG 1.4 mmol/L',
+  },
+];
+
+// ===== [W2-B] 医护联系方式种子 (getDoctorMobile / getNurseMobile / getTechMobile) =====
+const PORTAL_DOCTORS_SEED: any[] = [
+  { id: 'D001', name: '张建国', role: 'DOCTOR', title: '放射科主任', department: '放射科', phone: '13801010001' },
+  { id: 'D002', name: '李晓梅', role: 'DOCTOR', title: '副主任医师', department: '放射科', phone: '13801010002' },
+  { id: 'D003', name: '王海峰', role: 'DOCTOR', title: '主治医师', department: '放射科', phone: '13801010003' },
+];
+
+const PORTAL_NURSES_SEED: any[] = [
+  { id: 'N001', name: '陈丽', role: 'NURSE', title: '主管护师', department: '放射科', phone: '13801020001' },
+  { id: 'N002', name: '杨雪', role: 'NURSE', title: '护师', department: '放射科', phone: '13801020002' },
+];
+
+const PORTAL_TECHS_SEED: any[] = [
+  { id: 'T001', name: '赵丽华', role: 'TECHNICIAN', title: '主管技师', department: 'CT组', phone: '13801030001' },
+  { id: 'T002', name: '刘涛', role: 'TECHNICIAN', title: '技师', department: 'MR组', phone: '13801030002' },
+  { id: 'T003', name: '周强', role: 'TECHNICIAN', title: '技师', department: 'DR组', phone: '13801030003' },
+];
 
 // [Phase 2] 患者宣教资料库（含视频/音频/图文）
 const EDUCATION_MATERIALS = [
@@ -221,10 +272,24 @@ export const patientPortalHandlers = [
     await delay(delayMs());
     const url = new URL(request.url);
     const opts = parseQuery(url);
-    let items: any[] = [];
-    if (!items.length) items = [{"id":"CD001","patientId":"P001","type":"化验","value":"正常"}];
+    let items: any[] = PORTAL_CLINICAL_DATA_SEED;
+    const patientId = url.searchParams.get('patientId');
+    if (patientId) items = items.filter(d => d.patientId === patientId);
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
+  }),
+
+  // ===== [W2-B] 临床数据详情 (患者门户 Drawer) =====
+  http.get(`${API}/clinical-data/:id`, async ({ params }) => {
+    await delay(delayMs());
+    const item = PORTAL_CLINICAL_DATA_SEED.find(d => d.id === params.id);
+    if (!item) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'NOT_FOUND', message: `临床数据不存在: ${params.id}` } },
+        { status: 404 },
+      );
+    }
+    return HttpResponse.json({ success: true, data: item });
   }),
   http.get(`${API}/education`, async ({ request }) => {
     await delay(delayMs());
@@ -407,10 +472,20 @@ export const patientPortalHandlers = [
 
   http.get(`${API}/mobile/patients`, async () => {
     await delay(delayMs());
-    return HttpResponse.json({ success: true, data: {"appVersion":"2.1.0","features":["预约","查询报告"]} });
+    return HttpResponse.json({ success: true, data: PORTAL_CLINICAL_DATA_SEED.map(() => ({ id: 'P001', name: '张三', phone: '13800138000' })) });
   }),
+
+  // ===== [W2-B] 医护联系方式 (医生/护士/技师) =====
   http.get(`${API}/mobile/doctors`, async () => {
     await delay(delayMs());
-    return HttpResponse.json({ success: true, data: {"appVersion":"2.1.0","features":["移动阅片","审批"]} });
+    return HttpResponse.json({ success: true, data: PORTAL_DOCTORS_SEED });
+  }),
+  http.get(`${API}/mobile/nurses`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json({ success: true, data: PORTAL_NURSES_SEED });
+  }),
+  http.get(`${API}/mobile/techs`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json({ success: true, data: PORTAL_TECHS_SEED });
   }),
 ];

@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing'
 import { NotFoundException } from '@nestjs/common'
 import { ExamService } from '../src/modules/exam/exam.service'
 import { PrismaService } from '../src/prisma/prisma.service'
+import { SystemConfigService } from '../src/system-storage/system-config.service'
 
 describe('ExamService (modules)', () => {
   let svc: ExamService
@@ -23,7 +24,11 @@ describe('ExamService (modules)', () => {
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
-      providers: [ExamService, { provide: PrismaService, useValue: mockPrisma }],
+      providers: [
+        ExamService,
+        { provide: PrismaService, useValue: mockPrisma },
+        { provide: SystemConfigService, useValue: { getNumber: jest.fn().mockResolvedValue(20), getString: jest.fn() } },
+      ],
     }).compile()
     svc = module.get(ExamService)
     prisma = module.get(PrismaService)

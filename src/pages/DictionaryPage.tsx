@@ -3,9 +3,10 @@
 // G005 放射科RIS系统 - 数据字典管理页面 v1.0.0
 // 放射科专用数据字典：CT/MRI/X线检查项目、设备类型、诊断术语等
 // ============================================================
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { message } from 'antd'
 import { termApi } from '../services/api/termApi'
+import { dictionaryApi } from '../services/api/dictionaryApi'
 import {
   Search, Plus, Edit2, Trash2, X, ChevronLeft, ChevronRight,
   BookOpen, Filter, RotateCcw, Stethoscope, Monitor, Camera,
@@ -408,7 +409,11 @@ const mockUsageStats: UsageStat[] = [
 ]
 
 export default function DictionaryPage() {
-  const [dictionaries, setDictionaries] = useState<DictionaryItem[]>(initialDictionaries)
+  // [W4-A] 数据字典接真 API: 初始为空, 挂载后从 GET /dictionary/categories + GET /dictionary/:category 加载
+  const [dictionaries, setDictionaries] = useState<DictionaryItem[]>([])
+  const [dictLoading, setDictLoading] = useState(false)
+  const [dictLoadError, setDictLoadError] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('')
   const [modalityFilter, setModalityFilter] = useState('')
@@ -418,6 +423,46 @@ export default function DictionaryPage() {
   const [editingDictionary, setEditingDictionary] = useState<Partial<DictionaryItem>>(emptyDictionary())
   const [formErrors, setFormErrors] = useState<string[]>([])
   const [activeTab, setActiveTab] = useState<'dictionary' | 'mapping' | 'fhir' | 'version' | 'import' | 'analytics'>('dictionary')
+
+  // [W4-A] 从 API 全量加载字典 (分类 Tab + 条目)
+  const loadDictionary = async () => {
+    setDictLoading(true)
+    setDictLoadError(null)
+    try {
+      const catRes = await dictionaryApi.listCategories()
+      const cats = catRes.success && Array.isArray(catRes.data?.categories) ? catRes.data!.categories : []
+      const items: DictionaryItem[] = []
+      for (const c of cats.slice(0, 50)) {
+        const res = await dictionaryApi.listEntries(c.category)
+        if (!res.success || !Array.isArray(res.data)) continue
+        for (const e of res.data) {
+          const ext = (e.extra ?? {}) as Record<string, unknown>
+          items.push({
+            id: e.id,
+            category: e.category,
+            code: e.key,
+            name: e.value,
+            pinyin: typeof ext.pinyin === 'string' ? ext.pinyin : '',
+            modality: Array.isArray(ext.modality) ? (ext.modality as string[]) : [],
+            bodyPart: typeof ext.bodyPart === 'string' ? ext.bodyPart : '',
+            sortOrder: e.sort ?? 0,
+            isActive: e.active !== false,
+            notes: typeof ext.notes === 'string' ? ext.notes : '',
+          })
+        }
+      }
+      setDictionaries(items)
+    } catch (e: any) {
+      setDictLoadError(e?.message ?? String(e))
+    } finally {
+      setDictLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    void loadDictionary()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const categories = useMemo(() => {
     const cats = [...new Set(dictionaries.map(d => (d.category ?? '')))]
@@ -490,21 +535,60 @@ export default function DictionaryPage() {
 
   const closeModal = () => setModalMode(null)
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (modalMode === 'delete') {
-      setDictionaries(prev => prev.filter(d => d.id !== editingDictionary.id))
-      closeModal()
+      setSaving(true)
+      try {
+        const res = await dictionaryApi.deleteEntry(editingDictionary.category ?? '', editingDictionary.code ?? '')
+        if (res.success) {
+          message.success(`字典项「${editingDictionary.name}」已删除`)
+          closeModal()
+          await loadDictionary()
+        } else {
+          message.error(res.error?.message ?? '删除失败')
+        }
+      } catch (e: any) {
+        message.error('删除失败: ' + (e?.message ?? String(e)))
+      } finally {
+        setSaving(false)
+      }
       return
     }
     const errs = validateDictionary(editingDictionary)
     if (errs.length > 0) { setFormErrors(errs); return }
-    if (modalMode === 'add') {
-      const id = 'DICT-' + String(Date.now()).slice(-6)
-      setDictionaries(prev => [{ ...editingDictionary, id } as DictionaryItem, ...prev])
-    } else if (modalMode === 'edit') {
-      setDictionaries(prev => prev.map(d => d.id === editingDictionary.id ? { ...editingDictionary } as DictionaryItem : d))
+    const extra = {
+      pinyin: editingDictionary.pinyin ?? '',
+      modality: editingDictionary.modality ?? [],
+      bodyPart: editingDictionary.bodyPart ?? '',
+      notes: editingDictionary.notes ?? '',
     }
-    closeModal()
+    const payload = {
+      key: (editingDictionary.code ?? '').trim(),
+      value: (editingDictionary.name ?? '').trim(),
+      sort: editingDictionary.sortOrder ?? 0,
+      active: editingDictionary.isActive ?? true,
+      extra,
+    }
+    setSaving(true)
+    try {
+      let res
+      if (modalMode === 'add') {
+        res = await dictionaryApi.createEntry(editingDictionary.category ?? '', payload)
+      } else {
+        res = await dictionaryApi.updateEntry(editingDictionary.category ?? '', editingDictionary.code ?? '', payload)
+      }
+      if (res.success) {
+        message.success(modalMode === 'add' ? '字典项已新增' : '字典项已保存')
+        closeModal()
+        await loadDictionary()
+      } else {
+        message.error(res.error?.message ?? '保存失败')
+      }
+    } catch (e: any) {
+      message.error('保存失败: ' + (e?.message ?? String(e)))
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handleField = (field: keyof Partial<DictionaryItem>, value: string | number | boolean | string[]) => {
@@ -578,6 +662,36 @@ export default function DictionaryPage() {
           <Plus size={15} /> 新增字典项
         </button>
       </div>
+
+      {/* [W4-A] 分类 Tab (来自 API 分类列表) */}
+      <div style={s.tabBar}>
+        <button
+          style={{ ...s.tab, ...(categoryFilter === '' ? s.tabActive : s.tabInactive), display: 'flex', alignItems: 'center', gap: 6 }}
+          onClick={() => { setCategoryFilter(''); setPage(1) }}
+        >
+          <Layers size={14} /> 全部
+        </button>
+        {categories.map(cat => (
+          <button
+            key={cat}
+            style={{ ...s.tab, ...(categoryFilter === cat ? s.tabActive : s.tabInactive) }}
+            onClick={() => { setCategoryFilter(cat); setPage(1) }}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      {dictLoading && (
+        <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 13, color: '#1e40af' }}>
+          正在从数据字典 API 加载...
+        </div>
+      )}
+      {dictLoadError && !dictLoading && (
+        <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 13, color: '#b91c1c' }}>
+          字典加载失败: {dictLoadError} (页面将显示空列表, 可尝试刷新)
+        </div>
+      )}
 
       {paged.length === 0 ? (
         <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
@@ -864,18 +978,17 @@ export default function DictionaryPage() {
                 style={s.btnPrimary}
                 onClick={async () => {
                   try {
-                    const res = await termApi.create({
-                      term: selectedConcept.display,
-                      pinyin: '',
-                      category: 'SNOMED-CT',
-                      synonyms: [],
-                      definition: `来源系统: ${selectedConcept.system}`,
-                      radsSystem: 'SNOMED-CT',
+                    const res = await dictionaryApi.createEntry('诊断术语', {
+                      key: selectedConcept.code,
+                      value: selectedConcept.display,
+                      sort: dictionaries.length + 1,
+                      active: true,
+                      extra: { pinyin: '', modality: [], bodyPart: '', notes: `从 FHIR ${selectedConcept.system} 导入` },
                     });
                     if (res.success) {
                       setDictionaries(prev => [{
-                        id: 'DICT-' + Date.now().toString().slice(-6),
-                        category: 'SNOMED-CT',
+                        id: res.data?.id ?? 'DICT-' + Date.now().toString().slice(-6),
+                        category: '诊断术语',
                         code: selectedConcept.code,
                         name: selectedConcept.display,
                         pinyin: '',
@@ -1022,11 +1135,60 @@ export default function DictionaryPage() {
   }
 
   const renderImportTab = () => {
-    const handleImport = () => {
+    const handleImport = async () => {
+      if (!importFile) return
       setImportStep('validate')
-      setTimeout(() => {
-        setImportResult({ success: 5, errors: 1, warnings: ['编码 CT-XXX-999 已存在', '名称不能为空 x1'] })
-      }, 1500)
+      let text = ''
+      try {
+        text = await importFile.text()
+      } catch (e: any) {
+        setImportResult({ success: 0, errors: 1, warnings: ['文件读取失败: ' + (e?.message ?? String(e))] })
+        return
+      }
+      const trimmed = text.trim()
+      const lines = trimmed.split(/\r?\n/).filter(l => l.trim())
+      const rows: Array<Record<string, string>> = []
+      if (trimmed.startsWith('[')) {
+        try {
+          const arr = JSON.parse(trimmed)
+          if (Array.isArray(arr)) rows.push(...arr.map((r: any) => ({
+            category: String(r.category ?? ''),
+            code: String(r.code ?? r.key ?? ''),
+            name: String(r.name ?? r.value ?? ''),
+          })))
+        } catch { rows.length = 0 }
+      } else if (lines.length >= 2) {
+        const header = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''))
+        for (const line of lines.slice(1)) {
+          const cells = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''))
+          const row: Record<string, string> = {}
+          header.forEach((h, i) => { row[h] = cells[i] ?? '' })
+          rows.push(row)
+        }
+      }
+      if (rows.length === 0) {
+        setImportResult({ success: 0, errors: 1, warnings: ['未解析到任何字典行 (支持 JSON 数组或 CSV: 分类,编码,名称)'] })
+        return
+      }
+      const warnings: string[] = []
+      let success = 0
+      let errors = 0
+      for (const row of rows) {
+        const category = String(row['分类'] ?? row.category ?? '').trim()
+        const code = String(row['编码'] ?? row.code ?? '').trim()
+        const name = String(row['名称'] ?? row.name ?? '').trim()
+        if (!category || !code || !name) { errors++; warnings.push(`跳过: 缺 分类/编码/名称 (${code || '-'})`); continue }
+        try {
+          const res = await dictionaryApi.createEntry(category, { key: code, value: name, sort: 0, active: true, extra: {} })
+          if (res.success) success++
+          else { errors++; warnings.push(`${code}: ${res.error?.message ?? '导入失败'}`) }
+        } catch (e: any) {
+          errors++
+          warnings.push(`${code}: ${e?.message ?? String(e)}`)
+        }
+      }
+      setImportResult({ success, errors, warnings })
+      if (success > 0) await loadDictionary()
     }
 
     const handleExport = (format: 'csv' | 'json') => {
@@ -1281,7 +1443,7 @@ export default function DictionaryPage() {
                 </div>
                 <div style={s.modalFooter}>
                   <button style={s.btnCancel} onClick={closeModal}>取消</button>
-                  <button style={s.btnDeleteConfirm} onClick={handleSubmit}>确认删除</button>
+                  <button style={s.btnDeleteConfirm} onClick={() => void handleSubmit()} disabled={saving}>{saving ? '删除中...' : '确认删除'}</button>
                 </div>
               </>
             ) : (
@@ -1302,7 +1464,7 @@ export default function DictionaryPage() {
                   <div style={s.formGrid}>
                     <div style={s.formGroup}>
                       <label style={s.label}>分类 <span style={s.required}>*</span></label>
-                      <select style={s.input} value={editingDictionary.category ?? ''} onChange={e => handleField('category', e.target.value)}>
+                      <select style={s.input} value={editingDictionary.category ?? ''} disabled={modalMode === 'edit'} onChange={e => handleField('category', e.target.value)}>
                         <option value="">请选择分类</option>
                         {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                       </select>
@@ -1365,7 +1527,7 @@ export default function DictionaryPage() {
                 </div>
                 <div style={s.modalFooter}>
                   <button style={s.btnCancel} onClick={closeModal}>取消</button>
-                  <button style={s.btnSubmit} onClick={handleSubmit}>{modalMode === 'add' ? '确认新增' : '保存修改'}</button>
+                  <button style={s.btnSubmit} onClick={() => void handleSubmit()} disabled={saving}>{saving ? '保存中...' : (modalMode === 'add' ? '确认新增' : '保存修改')}</button>
                 </div>
               </>
             )}

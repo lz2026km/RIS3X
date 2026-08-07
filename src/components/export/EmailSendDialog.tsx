@@ -67,11 +67,11 @@ export const EmailSendDialog: React.FC<EmailSendDialogProps> = ({ open, onClose,
         <div style={{ padding: 20 }}>
           <div style={{ marginBottom: 12 }}>
             <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>收件人 *</label>
-            <input value={to} onChange={e => setTo(e.target.value)} placeholder="email1@example.com, email2@example.com" style={inputStyle} />
+            <input value={to} onChange={e => setTo(e.target.value)} placeholder="请输入收件人邮箱，多个用逗号分隔" style={inputStyle} />
           </div>
           <div style={{ marginBottom: 12 }}>
             <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>抄送</label>
-            <input value={cc} onChange={e => setCc(e.target.value)} placeholder="cc@example.com" style={inputStyle} />
+            <input value={cc} onChange={e => setCc(e.target.value)} placeholder="请输入抄送邮箱（可选）" style={inputStyle} />
           </div>
           <div style={{ marginBottom: 12 }}>
             <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>主题</label>

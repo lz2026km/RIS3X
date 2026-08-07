@@ -9,7 +9,11 @@
 
 import { http, HttpResponse, delay } from 'msw';
 import { newPagesHandlers } from './newPagesHandlers';
+// [v3.0.6.11-79] W1-A 文件管理 (upload-url / upload / upload-complete / download)
+import { filesHandlers } from './filesHandlers';
 import { systemHandlers } from './systemHandlers'; // [v3.0.6.11-21] system/audit, system/backup, system/tenant-config
+// [v3.0.6.11-79 W1-C] 合规文档库 7 端点 (CRUD + publish/archive)
+import { complianceDocsHandlers } from './complianceDocsHandlers';
 // [v3.0.6.11-60] 多租户 SaaS 基础: /api/v1/tenant/*
 import { tenantHandlers } from './tenantHandlers';
 import { storageHandlers } from './storageHandlers'; // [v3.0.6.11-60] cloud-storage 配置
@@ -75,6 +79,7 @@ import { deviceMgmtHandlers } from './deviceMgmtHandlers';
 import { aiPlatformHandlers } from './aiPlatformHandlers';
 // [v3.0.6.11-60] AI Orchestrator 编排平台 (模型注册/部署/工作流集成/推理任务)
 import { aiOrchestratorHandlers } from './aiOrchestratorHandlers';
+import { orchestratorHandlers } from './orchestratorHandlers';
 import { aiDiagnosisHandlers } from './aiDiagnosisHandlers';
 // [v3.0.6.11-61] 环境式 AI 报告草稿 (生成式草稿 + 医生确认: /ai/report-draft/*)
 import { reportDraftHandlers } from './reportDraftHandlers';
@@ -115,7 +120,8 @@ import { aiTriageHandlers } from './aiTriageHandlers';
 import { treatmentPlanHandlers } from './treatmentPlanHandlers';
 // [v3.0.6.11-75 W3-1] 远程阅片 (remoteReadingApi: /remote-reading/*)
 import { remoteReadingHandlers } from './remoteReadingHandlers';
-// [v3.0.6.11-75 W3-1] 跨模态检索 (crossModalApi / crossModalSearchApi)
+// [W4-B] 随访计划 (followupApi: /followups/*)
+import { followupHandlers } from './followupHandlers';// [v3.0.6.11-75 W3-1] 跨模态检索 (crossModalApi / crossModalSearchApi)
 import { crossModalHandlers } from './crossModalHandlers';
 // [v3.0.6.11-75 W3-1] DICOM 跨科室共享 (shareApi: /dicom-share/*)
 import { dicomShareHandlers } from './dicomShareHandlers';
@@ -148,6 +154,9 @@ const MOCK_ROLE_BY_USERNAME: Record<string, string> = {
   nurse: 'NURSE',
 };
 
+// [v3.0.6.11-79] W1-B 用户中心: 最近一次 mock 登录会话 (GET /auth/me 依据)
+let mockSession: { userId: string; username: string; role: string } | null = null;
+
 export const authHandlers = [
   http.post(`${API_BASE}/auth/login`, async ({ request }) => {
     await delay(150);
@@ -158,13 +167,15 @@ export const authHandlers = [
       username = '';
     }
     const role = MOCK_ROLE_BY_USERNAME[username] ?? 'DOCTOR';
+    const userId = 'u-' + uuidv4().slice(0, 8);
+    mockSession = { userId, username: username || 'demo', role };
     return HttpResponse.json({
       success: true,
       data: {
         token: uuidv4().replace(/-/g, '') + uuidv4().replace(/-/g, ''),
         refreshToken: uuidv4().replace(/-/g, '') + uuidv4().replace(/-/g, ''),
         expiresAt: Date.now() + 15 * 60 * 1000,
-        userId: 'u-' + uuidv4().slice(0, 8),
+        userId,
         userName: username || 'demo',
         role,
       },
@@ -179,10 +190,71 @@ export const authHandlers = [
     });
   }),
 
+  // [v3.0.6.11-79] W1-B 用户中心: GET /auth/me
+  http.get(`${API_BASE}/auth/me`, async () => {
+    await delay(80);
+    const s = mockSession;
+    if (!s) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'UNAUTHORIZED', message: '未登录' } },
+        { status: 401 },
+      );
+    }
+    const role = s.role ?? 'DOCTOR';
+    return HttpResponse.json({
+      success: true,
+      data: {
+        id: s.userId,
+        username: s.username,
+        role,
+        fullName:
+          { ADMIN: '系统管理员', DIRECTOR: '张主任', DOCTOR: '李医生', TECHNICIAN: '王技师', NURSE: '赵护士' }[
+            role as string
+          ] ?? s.username,
+        totpEnabled: false,
+      },
+    });
+  }),
+
   http.post(`${API_BASE}/auth/logout`, async () => new HttpResponse(null, { status: 204 })),
+
+  // [v3.0.6.11-79] W1-B 用户中心: POST /auth/change-password
+  http.post(`${API_BASE}/auth/change-password`, async ({ request }) => {
+    await delay(100);
+    let body: { oldPassword?: unknown; newPassword?: unknown } = {};
+    try {
+      body = (await request.json()) as typeof body;
+    } catch {
+      body = {};
+    }
+    if (typeof body.oldPassword !== 'string' || body.oldPassword.length < 6) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'BAD_REQUEST', message: '原密码错误' } },
+        { status: 400 },
+      );
+    }
+    if (typeof body.newPassword !== 'string' || body.newPassword.length < 8) {
+      return HttpResponse.json(
+        { success: false, error: { code: 'BAD_REQUEST', message: '新密码长度至少 8 位' } },
+        { status: 400 },
+      );
+    }
+    return HttpResponse.json({ success: true, data: { ok: true } });
+  }),
 ];
 
 // ============= Reports(24) - v3.0.6.8-32 接入 EXAM_REPORT_PRE + QUALITY_SCORE_PRE =============
+// [W4-B] 批量报告导出任务 (内存态, 模拟 2s 内完成)
+const batchExportTasks = new Map<string, {
+  taskId: string
+  status: 'pending' | 'running' | 'completed'
+  progress: number
+  total: number
+  format: string
+  ids: string[]
+  createdAt: number
+}>();
+
 export const reportHandlers = [
   // 列表 (EXAM_REPORT_PRE 600 + QUALITY_SCORE_PRE 250 合并)
   // [v3.0.6.11-70] 支持 take/skip/state (与后端 reports list 对齐)
@@ -206,6 +278,41 @@ export const reportHandlers = [
       success: true,
       data: result.data.map((r: any) => toReportDto(r, qMap.get(r.reportId))),
       meta: { total: result.total, page: result.page, pageSize: result.pageSize, totalPages: result.totalPages },
+    });
+  }),
+
+  // [W4-B] 批量报告导出: 创建任务 + 轮询状态 (模拟 2s 内完成)
+  http.post(`${API_BASE}/reports/batch-export`, async ({ request }) => {
+    await delay(150);
+    const body = (await request.json()) as { ids?: string[]; format?: string };
+    const ids = Array.isArray(body?.ids) ? body.ids.filter(Boolean) : [];
+    if (ids.length === 0) return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: 'ids is required' } }, { status: 400 });
+    const taskId = `batch-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    batchExportTasks.set(taskId, { taskId, status: 'pending', progress: 0, total: ids.length, format: (body.format ?? 'pdf').toLowerCase(), ids, createdAt: Date.now() });
+    return HttpResponse.json({ success: true, data: { taskId, status: 'pending', total: ids.length, format: (body.format ?? 'pdf').toLowerCase() } }, { status: 201 });
+  }),
+
+  http.get(`${API_BASE}/reports/batch-export/:taskId`, async ({ params }) => {
+    await delay(80);
+    const task = batchExportTasks.get(params.taskId as string);
+    if (!task) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Batch export task not found' } }, { status: 404 });
+    const elapsed = Date.now() - task.createdAt;
+    const progress = Math.min(100, Math.round((elapsed / 1800) * 100));
+    const status = progress >= 100 ? 'completed' : progress > 0 ? 'running' : 'pending';
+    const done = Math.min(task.total, Math.ceil((progress / 100) * task.total));
+    const downloads = status === 'completed'
+      ? task.ids.map((id) => ({
+          reportId: id,
+          fileName: `${id}.${task.format}`,
+          filePath: `/exports/reports/${id}.${task.format}`,
+          sizeBytes: 256000,
+          format: task.format,
+          downloadUrl: `${API_BASE}/reports/${id}/export.${task.format}`,
+        }))
+      : [];
+    return HttpResponse.json({
+      success: true,
+      data: { taskId: task.taskId, status, progress, total: task.total, done, failedCount: 0, format: task.format, downloads, createdAt: new Date(task.createdAt).toISOString(), updatedAt: new Date().toISOString() },
     });
   }),
 
@@ -728,6 +835,78 @@ export const examListHandlers = [
     return HttpResponse.json({ items: shifted, total: shifted.length });
   }),
 
+  // [W4-A] CSV 导出 (必须在 /exams/:id 之前)
+  http.get(`${API_BASE}/exams/export`, async ({ request }) => {
+    await delay(150);
+    const url = new URL(request.url);
+    const modality = url.searchParams.get('modality') ?? '';
+    const state = url.searchParams.get('state') ?? '';
+    const all = list<any>('exams') || [];
+    const rows = all.filter((e: any) =>
+      (!modality || String(e.modality ?? '') === modality) &&
+      (!state || String(e.status ?? '') === state || String(e.state ?? '') === state),
+    );
+    const header = ['id', 'accessionNumber', 'patientId', 'patientName', 'modality', 'bodyPart', 'status', 'scheduledAt'];
+    const esc = (v: unknown) => {
+      const s = String(v ?? '');
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const lines = [header.join(',')];
+    for (const e of rows) {
+      const row = { id: e.id, accessionNumber: e.accessionNumber ?? e.reportId, patientId: e.patientId, patientName: e.patientName, modality: e.modality, bodyPart: e.bodyPart, status: e.status ?? e.state, scheduledAt: e.examDate ?? e.scheduledAt ?? '' };
+      lines.push(header.map((h) => esc((row as any)[h])).join(','));
+    }
+    return HttpResponse.json({
+      success: true,
+      data: { filename: `exams_${new Date().toISOString().slice(0, 10)}.csv`, content: '\ufeff' + lines.join('\n'), count: rows.length },
+    });
+  }),
+
+  // [W4-A] 批量导入 (JSON 数组或 { items }, 无患者则报错列出, accession 重复跳过)
+  http.post(`${API_BASE}/exams/import`, async ({ request }) => {
+    await delay(200);
+    const body = (await request.json()) as any;
+    const rows: any[] = Array.isArray(body) ? body : (body?.items ?? []);
+    const patients = list<any>('patients') as any[];
+    const exams = list<any>('exams') as any[];
+    const errors: { index: number; message: string }[] = [];
+    let imported = 0;
+    let skipped = 0;
+    rows.forEach((row: any, i: number) => {
+      if (!row || typeof row !== 'object' || !row.patientId || !String(row.accessionNumber ?? '').trim() || !String(row.modality ?? '').trim() || !String(row.bodyPart ?? '').trim()) {
+        errors.push({ index: i, message: `第 ${i + 1} 行: patientId/accessionNumber/modality/bodyPart 为必填` });
+        return;
+      }
+      const patient = patients.find((p: any) => p.id === row.patientId);
+      if (!patient) {
+        errors.push({ index: i, message: `第 ${i + 1} 行: 患者不存在 ${row.patientId}` });
+        return;
+      }
+      if (exams.some((e: any) => String(e.accessionNumber ?? e.reportId ?? '') === String(row.accessionNumber).trim())) {
+        skipped++;
+        return;
+      }
+      const newId = row.id || `EX-${String(Date.now()).slice(-6)}${i}`;
+      const rec = {
+        ...row,
+        id: newId,
+        reportId: newId,
+        accessionNumber: String(row.accessionNumber).trim(),
+        patientName: patient.name,
+        patientId: row.patientId,
+        status: row.state ?? '待检查',
+        state: row.state ?? '待检查',
+        examDate: row.scheduledAt ? String(row.scheduledAt).slice(0, 10) : new Date().toISOString().slice(0, 10),
+        scheduledAt: row.scheduledAt ?? '',
+        priority: row.priority ?? '普通',
+        createdAt: new Date().toISOString(),
+      };
+      create('exams', rec);
+      imported++;
+    });
+    return HttpResponse.json({ success: true, data: { imported, skipped, errors } });
+  }),
+
   // [v3.0.6.11-70] 详情 (报告书写上下文需要患者性别/年龄)
   http.get(`${API_BASE}/exams/:id`, async ({ params }) => {
     await delay(50);
@@ -949,11 +1128,66 @@ export const patientHandlers = [
   // 患者统计 (必须在 :id 之前)
   
 
-  // 批量导入
-  
+  // [W4-A] 批量导入 (JSON 数组或 { items }, 逐条创建 + idCard/name+phone 冲突跳过)
+  http.post(`${API_BASE}/patients/import`, async ({ request }) => {
+    await delay(200);
+    const body = (await request.json()) as any;
+    const rows: any[] = Array.isArray(body) ? body : (body?.items ?? []);
+    const all = list<any>('patients') as any[];
+    const errors: { index: number; message: string }[] = [];
+    let imported = 0;
+    let skipped = 0;
+    rows.forEach((row: any, i: number) => {
+      if (!row || typeof row !== 'object' || !String(row.name ?? '').trim()) {
+        errors.push({ index: i, message: `第 ${i + 1} 行: 姓名不能为空` });
+        return;
+      }
+      const dup = all.find((p: any) =>
+        (row.idCard && String(p.idCard ?? '') === String(row.idCard)) ||
+        (String(row.name ?? '').trim() === String(p.name ?? '') && (row.phone ?? '') !== '' && String(row.phone ?? '') === String(p.phone ?? '')),
+      );
+      if (dup) { skipped++; return; }
+      const newId = row.id || `P${String(Date.now()).slice(-6)}${i}`;
+      const rec = {
+        ...row,
+        id: newId,
+        gender: row.gender === '男' || row.gender === 'MALE' ? '男' : row.gender === '女' || row.gender === 'FEMALE' ? '女' : '其他',
+        age: Number(row.age ?? 0),
+        patientType: row.patientType ?? row.type ?? '门诊',
+        registeredAt: row.registeredAt ?? new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        isVIP: Boolean(row.isVIP),
+        tags: Array.isArray(row.tags) ? row.tags : [],
+      };
+      create('patients', rec);
+      imported++;
+    });
+    return HttpResponse.json({ success: true, data: { imported, skipped, errors } });
+  }),
 
-  // 批量导出
-  
+  // [W4-A] CSV 导出 (必须在 :id 之前)
+  http.get(`${API_BASE}/patients/export`, async ({ request }) => {
+    await delay(150);
+    const url = new URL(request.url);
+    const name = url.searchParams.get('name') ?? '';
+    const phone = url.searchParams.get('phone') ?? '';
+    const all = list<any>('patients') as any[];
+    const rows = all.filter((p: any) =>
+      (!name || String(p.name ?? '').includes(name)) &&
+      (!phone || String(p.phone ?? '').includes(phone)),
+    );
+    const header = ['id', 'name', 'gender', 'age', 'phone', 'idCard', 'patientType', 'registeredAt'];
+    const esc = (v: unknown) => {
+      const s = String(v ?? '');
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const lines = [header.join(',')];
+    for (const p of rows) lines.push(header.map((h) => esc((p as any)[h])).join(','));
+    return HttpResponse.json({
+      success: true,
+      data: { filename: `patients_${new Date().toISOString().slice(0, 10)}.csv`, content: '\ufeff' + lines.join('\n'), count: rows.length },
+    });
+  }),
 
   // 按模态分组 (必须在 :id 之前)
   
@@ -2140,36 +2374,215 @@ export const templateHandlers = [
 ];
 
 // ============= Dictionary (6) =============
+// ============= Dictionary (W4-A 数据字典: 分类列表 + 分类条目 CRUD) =============
+// 内存数据源, 种子对齐 DictionaryPage 原 mock 分类
+const dictSeed: Array<{ category: string; key: string; value: string; sort: number; active: boolean; extra: Record<string, unknown> }> = [
+  { category: 'CT检查项目', key: 'CT-BRAIN-NC', value: '颅脑CT平扫', sort: 1, active: true, extra: { pinyin: 'lwnctps', modality: ['CT'], bodyPart: '头部', notes: '常规颅脑平扫，层厚5mm' } },
+  { category: 'CT检查项目', key: 'CT-BRAIN-C', value: '颅脑CT增强', sort: 2, active: true, extra: { pinyin: 'lwnctzq', modality: ['CT'], bodyPart: '头部', notes: '需注射对比剂' } },
+  { category: 'CT检查项目', key: 'CT-CHEST-NC', value: '胸部CT平扫', sort: 3, active: true, extra: { pinyin: 'xbctps', modality: ['CT'], bodyPart: '胸部', notes: '肺窗+纵隔窗' } },
+  { category: 'CT检查项目', key: 'CT-ABD-C', value: '腹部CT增强', sort: 4, active: true, extra: { pinyin: 'fbctzq', modality: ['CT'], bodyPart: '腹部', notes: '三期增强扫描' } },
+  { category: 'MRI序列', key: 'MR-T1WI', value: 'T1WI成像', sort: 1, active: true, extra: { pinyin: 't1wi', modality: ['MR'], bodyPart: '全身', notes: 'SE序列' } },
+  { category: 'MRI序列', key: 'MR-T2WI', value: 'T2WI成像', sort: 2, active: true, extra: { pinyin: 't2wi', modality: ['MR'], bodyPart: '全身', notes: 'FSE序列' } },
+  { category: 'MRI序列', key: 'MR-DWI', value: 'DWI扩散成像', sort: 3, active: true, extra: { pinyin: 'dwkscx', modality: ['MR'], bodyPart: '全身', notes: 'b值800-1000' } },
+  { category: 'MRI序列', key: 'MR-FLAIR', value: 'FLAIR序列', sort: 4, active: true, extra: { pinyin: 'flair', modality: ['MR'], bodyPart: '颅脑', notes: '脑白质病变评估' } },
+  { category: 'X线检查', key: 'DR-CHEST-PA', value: '胸部正侧位片', sort: 1, active: true, extra: { pinyin: 'xbzcwp', modality: ['DR'], bodyPart: '胸部', notes: '立位PA+侧位' } },
+  { category: 'X线检查', key: 'DR-SPINE-L', value: '腰椎正侧位', sort: 2, active: true, extra: { pinyin: 'yzzcw', modality: ['DR'], bodyPart: '腰椎', notes: '腰骶部疼痛评估' } },
+  { category: 'X线检查', key: 'DR-PELVIS', value: '骨盆正位', sort: 3, active: true, extra: { pinyin: 'gpzw', modality: ['DR'], bodyPart: '骨盆', notes: '髋关节评估' } },
+  { category: '设备类型', key: 'EQ-CT-128', value: '128排CT', sort: 1, active: true, extra: { pinyin: '128pct', modality: ['CT'], bodyPart: '全身', notes: 'Siemens Definition AS+' } },
+  { category: '设备类型', key: 'EQ-MR-30T', value: '3.0T MRI', sort: 2, active: true, extra: { pinyin: '30tmri', modality: ['MR'], bodyPart: '全身', notes: 'Siemens TrioTim 3.0T' } },
+  { category: '设备类型', key: 'EQ-DR-FLAT', value: '数字化DR', sort: 3, active: true, extra: { pinyin: 'smhdr', modality: ['DR'], bodyPart: '全身', notes: '平板探测器' } },
+  { category: '诊断术语', key: 'DIAG-NORMAL', value: '未见明显异常', sort: 1, active: true, extra: { pinyin: 'wjmxyc', modality: ['CT', 'MR', 'DR'], bodyPart: '全身', notes: '正常报告模板' } },
+  { category: '诊断术语', key: 'DIAG-STROKE', value: '脑梗死', sort: 2, active: true, extra: { pinyin: 'ngs', modality: ['CT', 'MR'], bodyPart: '颅脑', notes: '急慢性分期' } },
+  { category: '诊断术语', key: 'DIAG-FRACTURE', value: '骨折', sort: 3, active: true, extra: { pinyin: 'gz', modality: ['DR', 'CT'], bodyPart: '四肢/脊柱', notes: '请注明部位及类型' } },
+  { category: '诊断术语', key: 'DIAG-NODULE', value: '肺结节', sort: 4, active: true, extra: { pinyin: 'fjie', modality: ['CT'], bodyPart: '肺部', notes: '请描述大小/形态' } },
+  { category: '检查部位', key: 'BP-HEAD', value: '头部', sort: 1, active: true, extra: { pinyin: 'tb', modality: ['CT', 'MR', 'DR'], bodyPart: '头部', notes: '颅脑/副鼻窦/颞骨' } },
+  { category: '检查部位', key: 'BP-CHEST', value: '胸部', sort: 2, active: true, extra: { pinyin: 'xb', modality: ['CT', 'DR', 'MR'], bodyPart: '胸部', notes: '肺/纵隔/胸壁' } },
+  { category: '检查部位', key: 'BP-ABD', value: '腹部', sort: 3, active: true, extra: { pinyin: 'fb', modality: ['CT', 'MR', 'DR'], bodyPart: '腹部', notes: '肝胆胰脾肾' } },
+  { category: '检查部位', key: 'BP-SPINE', value: '脊柱', sort: 4, active: true, extra: { pinyin: 'jz', modality: ['CT', 'MR', 'DR'], bodyPart: '脊柱', notes: '颈椎/胸椎/腰椎/骶椎' } },
+  { category: '造影剂', key: 'CM-IOHEXOL', value: '碘海醇', sort: 1, active: true, extra: { pinyin: 'dhc', modality: ['CT'], bodyPart: '全身', notes: '浓度300/350mgI/ml' } },
+  { category: '造影剂', key: 'CM-GD-DTPA', value: '钆喷酸葡胺', sort: 2, active: true, extra: { pinyin: 'gpspa', modality: ['MR'], bodyPart: '全身', notes: '马根维显/莫迪司' } },
+  { category: '体位技术', key: 'POS-AP', value: '前后位AP', sort: 1, active: true, extra: { pinyin: 'qhwap', modality: ['DR'], bodyPart: '全身', notes: 'X线束从前往后' } },
+  { category: '体位技术', key: 'POS-LAT', value: '侧位LAT', sort: 2, active: true, extra: { pinyin: 'cwlat', modality: ['DR'], bodyPart: '全身', notes: '左侧/右侧位' } },
+];
+
+let inMemoryDictEntries: Array<{ id: string; category: string; key: string; value: string; sort: number; active: boolean; extra: Record<string, unknown>; createdAt: string }> =
+  dictSeed.map((d, i) => ({ id: `dict-${i + 1}`, ...d, createdAt: new Date().toISOString() }));
+
 export const dictionaryHandlers = [
+  // 分类列表 (新版 DictionaryPage; 必须在 /:category 之前, 避免 'categories' 被当分类名)
+  http.get(`${API_BASE}/dictionary/categories`, async () => {
+    await delay(120);
+    const byCat = new Map<string, { count: number; activeCount: number }>();
+    for (const d of inMemoryDictEntries) {
+      const c = byCat.get(d.category) ?? { count: 0, activeCount: 0 };
+      c.count++;
+      if (d.active) c.activeCount++;
+      byCat.set(d.category, c);
+    }
+    const categories = Array.from(byCat.entries())
+      .map(([category, v]) => ({ category, count: v.count, activeCount: v.activeCount }))
+      .sort((a, b) => a.category.localeCompare(b.category, 'zh-CN'));
+    return HttpResponse.json({ success: true, data: { categories, total: categories.length } });
+  }),
+
+  // 旧协议 (NotificationTemplateDictPage): 词典条目列表, 兼容 category/keyword 过滤
   http.get(`${API_BASE}/dictionary`, async ({ request }) => {
-    await delay(150);
-    const url = new URL(request.url);
-    const type = url.searchParams.get('type');
-    let data = [
-      { id: 'dict-1', type: 'modality', code: 'CT', name: 'CT', description: '计算机断层扫描' },
-      { id: 'dict-2', type: 'modality', code: 'MR', name: 'MR', description: '磁共振成像' },
-      { id: 'dict-3', type: 'exam_status', code: 'pending', name: '待检查' },
-      { id: 'dict-4', type: 'exam_status', code: 'completed', name: '已完成' },
-    ];
-    if (type) data = data.filter((d) => d.type === type);
-    return HttpResponse.json({ success: true, data });
-  }),
-  http.get(`${API_BASE}/dictionary/:id`, async ({ params }) => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: { id: params.id, type: 'modality', code: 'CT', name: 'CT' } });
+    const url = new URL(request.url);
+    const category = url.searchParams.get('category') ?? '';
+    const keyword = url.searchParams.get('keyword') ?? '';
+    const items = inMemoryDictEntries
+      .filter((d) => (!category || d.category === category))
+      .filter((d) => !keyword || String(d.value).includes(keyword) || String(d.key).includes(keyword))
+      .sort((a, b) => a.sort - b.sort)
+      .map((d) => ({
+        id: d.id,
+        category: d.category,
+        code: d.key,
+        name: d.value,
+        description: String(d.extra?.notes ?? ''),
+        sortOrder: d.sort,
+        isActive: d.active,
+        createdAt: d.createdAt,
+      }));
+    return HttpResponse.json({ success: true, data: items });
   }),
+
+  // 分类条目列表 (新版)
+  http.get(`${API_BASE}/dictionary/:category`, async ({ params }) => {
+    await delay(100);
+    const category = decodeURIComponent(String(params.category ?? ''));
+    const items = inMemoryDictEntries
+      .filter((d) => d.category === category)
+      .sort((a, b) => a.sort - b.sort);
+    return HttpResponse.json({ success: true, data: items });
+  }),
+
+  // 旧协议: 新增条目 (code→key, name→value)
   http.post(`${API_BASE}/dictionary`, async ({ request }) => {
-    await delay(200);
-    const body = await request.json();
-    return HttpResponse.json({ success: true, data: { id: 'dict-' + Date.now(), ...(body as object) } }, { status: 201 });
-  }),
-  http.put(`${API_BASE}/dictionary/:id`, async ({ params, request }) => {
     await delay(150);
-    const body = await request.json();
-    return HttpResponse.json({ success: true, data: { id: params.id, ...(body as object) } });
+    const body = (await request.json()) as any;
+    const category = String(body?.category ?? '').trim();
+    const key = String(body?.code ?? body?.key ?? '').trim();
+    const value = String(body?.name ?? body?.value ?? '').trim();
+    if (!category || !key || !value) {
+      return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: 'category/code/name 为必填' } }, { status: 400 });
+    }
+    if (inMemoryDictEntries.some((d) => d.category === category && d.key === key)) {
+      return HttpResponse.json({ success: false, error: { code: 'CONFLICT', message: `字典项已存在: ${category}/${key}` } }, { status: 409 });
+    }
+    const entry = {
+      id: body.id || 'dict-' + Date.now(),
+      category,
+      key,
+      value,
+      sort: Number(body.sortOrder ?? body.sort ?? 0),
+      active: body.isActive !== false && body.active !== false,
+      extra: { notes: body.description ?? '', ...(body.extra ?? {}) },
+      createdAt: new Date().toISOString(),
+    };
+    inMemoryDictEntries.push(entry);
+    return HttpResponse.json({ success: true, data: entry }, { status: 201 });
   }),
-  http.delete(`${API_BASE}/dictionary/:id`, async () => new HttpResponse(null, { status: 204 })),
-  
+
+  // 新版: 分类新增条目
+  http.post(`${API_BASE}/dictionary/:category`, async ({ params, request }) => {
+    await delay(150);
+    const category = decodeURIComponent(String(params.category ?? ''));
+    const body = (await request.json()) as any;
+    if (!category.trim()) return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: '分类不能为空' } }, { status: 400 });
+    if (!String(body?.key ?? '').trim()) return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: '编码不能为空' } }, { status: 400 });
+    if (!String(body?.value ?? '').trim()) return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: '名称不能为空' } }, { status: 400 });
+    if (inMemoryDictEntries.some((d) => d.category === category && d.key === String(body.key).trim())) {
+      return HttpResponse.json({ success: false, error: { code: 'CONFLICT', message: `字典项已存在: ${category}/${body.key}` } }, { status: 409 });
+    }
+    const entry = {
+      id: 'dict-' + Date.now(),
+      category,
+      key: String(body.key).trim(),
+      value: String(body.value).trim(),
+      sort: Number(body.sort ?? 0),
+      active: body.active !== false,
+      extra: (body.extra ?? {}) as Record<string, unknown>,
+      createdAt: new Date().toISOString(),
+    };
+    inMemoryDictEntries.push(entry);
+    return HttpResponse.json({ success: true, data: entry }, { status: 201 });
+  }),
+
+  // 旧协议: 按 id 更新
+  http.put(`${API_BASE}/dictionary/:id`, async ({ params, request }) => {
+    await delay(120);
+    const id = String(params.id ?? '');
+    const body = (await request.json()) as any;
+    const idx = inMemoryDictEntries.findIndex((d) => d.id === id);
+    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: '字典项不存在' } }, { status: 404 });
+    const current = inMemoryDictEntries[idx]!;
+    const updated = {
+      ...current,
+      category: body.category !== undefined ? String(body.category).trim() : current.category,
+      key: body.code !== undefined ? String(body.code).trim() : (body.key !== undefined ? String(body.key).trim() : current.key),
+      value: body.name !== undefined ? String(body.name).trim() : (body.value !== undefined ? String(body.value).trim() : current.value),
+      sort: body.sortOrder !== undefined ? Number(body.sortOrder) : (body.sort !== undefined ? Number(body.sort) : current.sort),
+      active: body.isActive !== undefined ? Boolean(body.isActive) : (body.active !== undefined ? Boolean(body.active) : current.active),
+      extra: body.description !== undefined ? { ...current.extra, notes: String(body.description) } : current.extra,
+    };
+    inMemoryDictEntries[idx] = updated;
+    return HttpResponse.json({ success: true, data: updated });
+  }),
+
+  // 新版: 按 category/key 更新
+  http.put(`${API_BASE}/dictionary/:category/:key`, async ({ params, request }) => {
+    await delay(120);
+    const category = decodeURIComponent(String(params.category ?? ''));
+    const key = decodeURIComponent(String(params.key ?? ''));
+    const body = (await request.json()) as any;
+    const idx = inMemoryDictEntries.findIndex((d) => d.category === category && d.key === key);
+    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: `字典项不存在: ${category}/${key}` } }, { status: 404 });
+    const current = inMemoryDictEntries[idx]!;
+    const nextKey = body.key !== undefined ? String(body.key).trim() : current.key;
+    if (nextKey !== key && inMemoryDictEntries.some((d) => d.category === category && d.key === nextKey)) {
+      return HttpResponse.json({ success: false, error: { code: 'CONFLICT', message: `字典项已存在: ${category}/${nextKey}` } }, { status: 409 });
+    }
+    if (body.value !== undefined && !String(body.value).trim()) {
+      return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: '名称不能为空' } }, { status: 400 });
+    }
+    const updated = {
+      ...current,
+      key: nextKey,
+      value: body.value !== undefined ? String(body.value).trim() : current.value,
+      sort: body.sort !== undefined ? Number(body.sort) : current.sort,
+      active: body.active !== undefined ? Boolean(body.active) : current.active,
+      extra: body.extra !== undefined ? (body.extra as Record<string, unknown>) : current.extra,
+    };
+    inMemoryDictEntries[idx] = updated;
+    return HttpResponse.json({ success: true, data: updated });
+  }),
+
+  // 旧协议: 按 id 删除
+  http.delete(`${API_BASE}/dictionary/:id`, async ({ params }) => {
+    await delay(100);
+    const id = String(params.id ?? '');
+    const before = inMemoryDictEntries.length;
+    inMemoryDictEntries = inMemoryDictEntries.filter((d) => d.id !== id);
+    if (inMemoryDictEntries.length === before) {
+      return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: '字典项不存在' } }, { status: 404 });
+    }
+    return HttpResponse.json({ success: true, data: { success: true, deletedId: id } });
+  }),
+
+  // 新版: 按 category/key 删除
+  http.delete(`${API_BASE}/dictionary/:category/:key`, async ({ params }) => {
+    await delay(100);
+    const category = decodeURIComponent(String(params.category ?? ''));
+    const key = decodeURIComponent(String(params.key ?? ''));
+    const before = inMemoryDictEntries.length;
+    inMemoryDictEntries = inMemoryDictEntries.filter((d) => !(d.category === category && d.key === key));
+    if (inMemoryDictEntries.length === before) {
+      return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: `字典项不存在: ${category}/${key}` } }, { status: 404 });
+    }
+    return HttpResponse.json({ success: true, data: { success: true, deletedKey: key } });
+  }),
 ];
 
 // ============= Safety (15) =============
@@ -3222,6 +3635,7 @@ export const handlers = [
   ...dentalHandlers, // [v3.0.6.8-53] 口腔 24 端点 (Day 1 PACS)
   ...newPagesHandlers, // [v3.0.6.8-77] v67-v76 新页面后端
   ...systemHandlers,   // [v3.0.6.11-21] system/audit, system/backup, system/tenant-config, compliance
+  ...complianceDocsHandlers, // [v3.0.6.11-79 W1-C] 合规文档库 7 端点
   ...tenantHandlers,   // [v3.0.6.11-60] 多租户: current/usage/profile/features + admin list/create/status
   ...storageHandlers,  // [v3.0.6.11-60] cloud-storage 配置 /system/storage-config
   ...wechatHandlers, // [P0-12 v3.0.7] 微信小程序 8 端点
@@ -3243,6 +3657,7 @@ export const handlers = [
   // [v3.0.6.11-60] AI Orchestrator (模型/集成/任务) 需在 aiPlatformHandlers 之前注册,
   //   避免旧 GET /models /models/:id 通配先匹配
   ...aiOrchestratorHandlers,
+  ...orchestratorHandlers, // [v3.0.6.11-79] 流程编排 (/orchestrator/flows/executions/sla)
   ...aiPlatformHandlers,
   ...aiDiagnosisHandlers, // [v3.0.6.11-53] AI CAD 端点 (lung/breast/fracture/cardiac + stats/accuracy)
   ...reportDraftHandlers, // [v3.0.6.11-61] 环境式 AI 报告草稿 (/ai/report-draft/*)
@@ -3283,6 +3698,10 @@ export const handlers = [
   // [W3-2] AI 分检 / 跨科室治疗计划
   ...aiTriageHandlers,
   ...treatmentPlanHandlers,
+  // [v3.0.6.11-79] W1-A 文件管理
+  ...filesHandlers,
+  // [W4-B] 随访计划
+  ...followupHandlers,
 ];
 
 // 总计: 56 + 6 + 5 + 5 + 6 + 5 = 83 端点

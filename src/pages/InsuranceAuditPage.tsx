@@ -3170,8 +3170,9 @@ const PendingAuditCard: React.FC<{
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
   onRequestInfo: (id: string) => void;
+  onViewDetail: (id: string) => void;
   t: (key: string) => string;
-}> = ({ audit, onApprove, onReject, onRequestInfo, t }) => (
+}> = ({ audit, onApprove, onReject, onRequestInfo, onViewDetail, t }) => (
   <div style={styles.card}>
     <div style={styles.cardHeader}>
       <div>
@@ -3262,6 +3263,13 @@ const PendingAuditCard: React.FC<{
       >
         <MessageSquare size={16} /> {t("requestInfo")}
       </button>
+      <button
+        type="button"
+        style={{ ...styles.btn, ...styles.btnOutline, marginLeft: 4 }}
+        onClick={() => onViewDetail(audit.id)}
+      >
+        <FileText size={16} /> 详情
+      </button>
     </div>
   </div>
 );
@@ -3321,6 +3329,28 @@ export default function InsuranceAuditPage() {
   const [pendingAudits, setPendingAudits] = useState(pendingAuditData);
   const [auditLoading, setAuditLoading] = useState(false);
   const [rejectReasonText, setRejectReasonText] = useState("");
+
+  // [W2-B] 保险审计详情 (getInsuranceAudit)
+  const [showAuditDetail, setShowAuditDetail] = useState(false);
+  const [auditDetailLoading, setAuditDetailLoading] = useState(false);
+  const [auditDetail, setAuditDetail] = useState<DataReportAuditDto | null>(null);
+
+  const handleViewDetail = (id: string) => {
+    setAuditDetailLoading(true);
+    setShowAuditDetail(true);
+    setAuditDetail(null);
+    void datareportApi.getInsuranceAudit(id).then((res) => {
+      setAuditDetailLoading(false);
+      if (res.success) {
+        const raw = res.data as unknown;
+        const item = Array.isArray(raw) ? raw[0] : raw;
+        setAuditDetail((item as DataReportAuditDto) ?? null);
+      } else {
+        setToastType("error");
+        setToastMessage(res.error?.message || "详情加载失败");
+      }
+    });
+  };
 
   // [Phase 2] 从真实 API 加载待审核数据
   useEffect(() => {
@@ -4343,6 +4373,7 @@ export default function InsuranceAuditPage() {
                     onApprove={handleApprove}
                     onReject={handleReject}
                     onRequestInfo={handleRequestInfo}
+                    onViewDetail={handleViewDetail}
                     t={t}
                   />
                 ))}
@@ -6473,6 +6504,127 @@ export default function InsuranceAuditPage() {
           {toastType === "error" && <XCircle size={18} />}
           {toastType === "info" && <AlertTriangle size={18} />}
           {toastMessage}
+        </div>
+      )}
+
+      {/* [W2-B] 保险审计详情 Modal (getInsuranceAudit) */}
+      {showAuditDetail && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="保险审计详情"
+          style={styles.modalOverlay}
+          onClick={() => setShowAuditDetail(false)}
+        >
+          <div style={{ ...styles.modal, width: 560, maxWidth: "92vw" }} onClick={(e) => e.stopPropagation()}>
+            <div style={styles.modalTitle}>
+              <FileText size={16} style={{ marginRight: 6, verticalAlign: "middle" }} />
+              保险审计详情
+            </div>
+            {auditDetailLoading ? (
+              <div style={{ padding: "32px 0", textAlign: "center", color: "#94a3b8", fontSize: 13 }}>
+                详情加载中...
+              </div>
+            ) : auditDetail ? (
+              <div>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "10px 16px",
+                    fontSize: 13,
+                  }}
+                >
+                  <div>
+                    <span style={{ color: "#64748b" }}>审核编号：</span>
+                    <b>{auditDetail.id ?? "-"}</b>
+                  </div>
+                  <div>
+                    <span style={{ color: "#64748b" }}>患者：</span>
+                    <b>{auditDetail.patientName ?? "-"}</b>
+                  </div>
+                  <div>
+                    <span style={{ color: "#64748b" }}>患者编号：</span>
+                    <b>{auditDetail.patientId ?? "-"}</b>
+                  </div>
+                  <div>
+                    <span style={{ color: "#64748b" }}>检查类型：</span>
+                    <b>{auditDetail.examType ?? "-"}</b>
+                  </div>
+                  <div>
+                    <span style={{ color: "#64748b" }}>药品：</span>
+                    <b>{auditDetail.drugName ?? "-"}</b>
+                  </div>
+                  <div>
+                    <span style={{ color: "#64748b" }}>药品类别：</span>
+                    <b>{auditDetail.drugCategory ?? "-"}</b>
+                  </div>
+                  <div>
+                    <span style={{ color: "#64748b" }}>提交时间：</span>
+                    <b>{auditDetail.submitTime || "-"}</b>
+                  </div>
+                  <div>
+                    <span style={{ color: "#64748b" }}>状态：</span>
+                    <span
+                      style={{
+                        ...styles.badge,
+                        background: (auditDetail.status || "").startsWith("REJ") || (auditDetail.status || "").toLowerCase() === "rejected"
+                          ? "#fee2e2"
+                          : (auditDetail.status || "").startsWith("APP") || (auditDetail.status || "").toLowerCase() === "approved"
+                            ? "#dcfce7"
+                            : "#fef3c7",
+                        color: (auditDetail.status || "").startsWith("REJ") || (auditDetail.status || "").toLowerCase() === "rejected"
+                          ? "#b91c1c"
+                          : (auditDetail.status || "").startsWith("APP") || (auditDetail.status || "").toLowerCase() === "approved"
+                            ? "#166534"
+                            : "#854d0e",
+                      }}
+                    >
+                      {auditDetail.status ?? "-"}
+                    </span>
+                  </div>
+                  <div>
+                    <span style={{ color: "#64748b" }}>审核人：</span>
+                    <b>{auditDetail.auditor || "-"}</b>
+                  </div>
+                  <div>
+                    <span style={{ color: "#64748b" }}>审核时间：</span>
+                    <b>{auditDetail.auditTime || "-"}</b>
+                  </div>
+                </div>
+                {(auditDetail.reason || auditDetail.result) && (
+                  <div
+                    style={{
+                      marginTop: 14,
+                      padding: 12,
+                      background: "#f9fafb",
+                      borderRadius: 8,
+                      fontSize: 13,
+                    }}
+                  >
+                    <div style={{ fontWeight: 600, color: "#1e293b", marginBottom: 4 }}>
+                      审核结果：{auditDetail.result || "-"}
+                    </div>
+                    <div style={{ color: "#475569", lineHeight: 1.7 }}>
+                      原因说明：{auditDetail.reason || "-"}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div style={{ padding: "32px 0", textAlign: "center", color: "#94a3b8", fontSize: 13 }}>
+                未找到该审计记录
+              </div>
+            )}
+            <div style={styles.modalActions}>
+              <button
+                style={{ ...styles.btn, ...styles.btnPrimary }}
+                onClick={() => setShowAuditDetail(false)}
+              >
+                关闭
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

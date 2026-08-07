@@ -159,10 +159,10 @@ export const Hl7ManagerPage: React.FC = () => {
         <Card size="small" title="HL7 ORU^R01 - 结构化报告">
           <Form form={oruForm} layout="vertical" size="small">
             <Row gutter={16}>
-              <Col span={8}><Form.Item name="accessionNumber" label="Accession#" rules={[{ required: true }]}><Input placeholder="检查号" /></Form.Item></Col>
+              <Col span={8}><Form.Item name="accessionNumber" label="检查号" rules={[{ required: true }]}><Input placeholder="检查号" /></Form.Item></Col>
               <Col span={8}><Form.Item name="patientId" label="患者 ID" rules={[{ required: true }]}><Input placeholder="患者ID" /></Form.Item></Col>
               <Col span={8}><Form.Item name="patientName" label="患者姓名" rules={[{ required: true }]}><Input placeholder="患者姓名" /></Form.Item></Col>
-              <Col span={8}><Form.Item name="modality" label="Modality" rules={[{ required: true }]}><Select placeholder="选择"><Select.Option value="CT">CT</Select.Option><Select.Option value="MR">MR</Select.Option><Select.Option value="US">US</Select.Option><Select.Option value="XA">XA</Select.Option></Select></Form.Item></Col>
+              <Col span={8}><Form.Item name="modality" label="设备" rules={[{ required: true }]}><Select placeholder="选择"><Select.Option value="CT">CT</Select.Option><Select.Option value="MR">MR</Select.Option><Select.Option value="US">US</Select.Option><Select.Option value="XA">XA</Select.Option></Select></Form.Item></Col>
               <Col span={8}><Form.Item name="patientSex" label="性别"><Select placeholder="选择" allowClear><Select.Option value="M">M</Select.Option><Select.Option value="F">F</Select.Option><Select.Option value="O">O</Select.Option></Select></Form.Item></Col>
               <Col span={8}><Form.Item name="studyDate" label="检查日期"><Input placeholder="YYYY-MM-DD" /></Form.Item></Col>
               <Col span={12}><Form.Item name="findings" label="所见" rules={[{ required: true }]}><Input.TextArea rows={3} placeholder="影像所见" /></Form.Item></Col>
@@ -187,10 +187,10 @@ export const Hl7ManagerPage: React.FC = () => {
             <Row gutter={16}>
               <Col span={8}><Form.Item name="patientId" label="患者 ID" rules={[{ required: true }]}><Input placeholder="患者ID" /></Form.Item></Col>
               <Col span={8}><Form.Item name="patientName" label="患者姓名" rules={[{ required: true }]}><Input placeholder="患者姓名" /></Form.Item></Col>
-              <Col span={8}><Form.Item name="accessionNumber" label="Accession#" rules={[{ required: true }]}><Input placeholder="检查号" /></Form.Item></Col>
-              <Col span={8}><Form.Item name="modality" label="Modality" rules={[{ required: true }]}><Select placeholder="选择"><Select.Option value="CT">CT</Select.Option><Select.Option value="MR">MR</Select.Option><Select.Option value="US">US</Select.Option></Select></Form.Item></Col>
+              <Col span={8}><Form.Item name="accessionNumber" label="检查号" rules={[{ required: true }]}><Input placeholder="检查号" /></Form.Item></Col>
+              <Col span={8}><Form.Item name="modality" label="设备" rules={[{ required: true }]}><Select placeholder="选择"><Select.Option value="CT">CT</Select.Option><Select.Option value="MR">MR</Select.Option><Select.Option value="US">US</Select.Option></Select></Form.Item></Col>
               <Col span={8}><Form.Item name="bodyPart" label="检查部位" rules={[{ required: true }]}><Input placeholder="检查部位" /></Form.Item></Col>
-              <Col span={8}><Form.Item name="orderNumber" label="Order#" rules={[{ required: true }]}><Input placeholder="医嘱号" /></Form.Item></Col>
+              <Col span={8}><Form.Item name="orderNumber" label="申请单号" rules={[{ required: true }]}><Input placeholder="医嘱号" /></Form.Item></Col>
               <Col span={8}><Form.Item name="orderingDoctor" label="开单医生" rules={[{ required: true }]}><Input placeholder="开单医生" /></Form.Item></Col>
               <Col span={8}><Form.Item name="patientSex" label="性别"><Select placeholder="选择" allowClear><Select.Option value="M">M</Select.Option><Select.Option value="F">F</Select.Option></Select></Form.Item></Col>
             </Row>
@@ -210,7 +210,7 @@ export const Hl7ManagerPage: React.FC = () => {
             <Row gutter={16}>
               <Col span={8}><Form.Item name="patientId" label="患者 ID" rules={[{ required: true }]}><Input placeholder="患者ID" /></Form.Item></Col>
               <Col span={8}><Form.Item name="patientName" label="患者姓名" rules={[{ required: true }]}><Input placeholder="患者姓名" /></Form.Item></Col>
-              <Col span={8}><Form.Item name="invoiceNumber" label="Invoice#" rules={[{ required: true }]}><Input placeholder="发票号" /></Form.Item></Col>
+              <Col span={8}><Form.Item name="invoiceNumber" label="发票号" rules={[{ required: true }]}><Input placeholder="发票号" /></Form.Item></Col>
               <Col span={8}><Form.Item name="totalAmount" label="总金额" rules={[{ required: true }]}><InputNumber placeholder="金额" style={{ width: '100%' }} /></Form.Item></Col>
               <Col span={8}><Form.Item name="chargeCode" label="收费代码" rules={[{ required: true }]}><Input placeholder="收费编码" /></Form.Item></Col>
               <Col span={8}><Form.Item name="chargeName" label="收费名称" rules={[{ required: true }]}><Input placeholder="收费项目" /></Form.Item></Col>

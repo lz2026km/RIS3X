@@ -18,6 +18,7 @@ export interface PortalClinicalDataDto {
   examType?: string
   examDate?: string
   bodyPart?: string
+  modality?: string
   findings?: string
   diagnosis?: string
   reportStatus?: string

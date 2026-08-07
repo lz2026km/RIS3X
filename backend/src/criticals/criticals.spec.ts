@@ -1,6 +1,9 @@
 import { CriticalsService } from './criticals.service'
 import { BadRequestException, NotFoundException } from '@nestjs/common'
 
+const makeSystemConfig = () =>
+  ({ getNumber: jest.fn().mockResolvedValue(20), getString: jest.fn().mockResolvedValue(undefined) }) as never
+
 const makePrisma = (overrides: Record<string, unknown> = {}) => {
   const prisma: Record<string, unknown> = {
     criticalValue: {
@@ -34,7 +37,7 @@ describe('CriticalsService', () => {
         exam: { findUnique: jest.fn().mockResolvedValue({ id: 'EX-1', patientId: 'P1' }) },
         criticalValue: { create },
       })
-      const service = new CriticalsService(prisma)
+      const service = new CriticalsService(prisma, makeSystemConfig())
       const res = await service.create({ examId: 'EX-1', description: '低钠血症', severity: 'HIGH', method: 'SYSTEM' })
       expect(res.patientId).toBe('P1')
       expect(create).toHaveBeenCalledWith(expect.objectContaining({
@@ -49,7 +52,7 @@ describe('CriticalsService', () => {
         exam: { findMany: jest.fn().mockRejectedValue(new Error('no db')), findUnique },
         criticalValue: { create },
       })
-      const service = new CriticalsService(prisma)
+      const service = new CriticalsService(prisma, makeSystemConfig())
       await service.create({ description: '孤立危急值', severity: 'LOW', method: 'SYSTEM' })
       expect(create).toHaveBeenCalledWith(expect.objectContaining({
         data: expect.objectContaining({ examId: undefined, patientId: undefined }),
@@ -62,7 +65,7 @@ describe('CriticalsService', () => {
         exam: { findUnique: jest.fn().mockResolvedValue(null) },
         criticalValue: { create: jest.fn() },
       })
-      const service = new CriticalsService(prisma)
+      const service = new CriticalsService(prisma, makeSystemConfig())
       await expect(service.create({ examId: 'nope', description: 'x', severity: 'HIGH', method: 'SYSTEM' }))
         .rejects.toBeInstanceOf(BadRequestException)
     })
@@ -77,7 +80,7 @@ describe('CriticalsService', () => {
           update,
         },
       })
-      const service = new CriticalsService(prisma)
+      const service = new CriticalsService(prisma, makeSystemConfig())
       const res = await service.update('cv-1', { state: 'CLOSED_LOOP', closedBy: '医务处' })
       expect(res.state).toBe('CLOSED_LOOP')
       const data = update.mock.calls[0][0].data
@@ -96,7 +99,7 @@ describe('CriticalsService', () => {
           update,
         },
       })
-      const service = new CriticalsService(prisma)
+      const service = new CriticalsService(prisma, makeSystemConfig())
       await service.update('cv-1', { state: 'RESOLVED', resolvedBy: '放射科' })
       const data = update.mock.calls[0][0].data
       expect(data.closedAt).toBeUndefined()
@@ -111,7 +114,7 @@ describe('CriticalsService', () => {
           update: jest.fn(),
         },
       })
-      const service = new CriticalsService(prisma)
+      const service = new CriticalsService(prisma, makeSystemConfig())
       await expect(service.update('nope', { state: 'CLOSED_LOOP' })).rejects.toBeInstanceOf(NotFoundException)
     })
   })
@@ -132,7 +135,7 @@ describe('CriticalsService', () => {
           count: jest.fn().mockResolvedValueOnce(14).mockResolvedValueOnce(5),
         },
       })
-      const service = new CriticalsService(prisma)
+      const service = new CriticalsService(prisma, makeSystemConfig())
       const stats = await service.getStats()
       expect(stats).toEqual({
         pending: 3,
@@ -153,7 +156,7 @@ describe('CriticalsService', () => {
           count: jest.fn().mockResolvedValueOnce(0).mockResolvedValueOnce(0),
         },
       })
-      const service = new CriticalsService(prisma)
+      const service = new CriticalsService(prisma, makeSystemConfig())
       const stats = await service.getStats()
       expect(stats.total).toBe(0)
       expect(stats.pending).toBe(0)
@@ -172,7 +175,7 @@ describe('CriticalsService', () => {
         },
         criticalValueNotification: { createMany },
       })
-      const service = new CriticalsService(prisma)
+      const service = new CriticalsService(prisma, makeSystemConfig())
       const res = await service.notify({ criticalId: 'cv-1', channels: ['PHONE', 'SMS'] })
 
       expect(res.count).toBe(2)
@@ -204,7 +207,7 @@ describe('CriticalsService', () => {
         },
         criticalValueNotification: { createMany },
       })
-      const service = new CriticalsService(prisma)
+      const service = new CriticalsService(prisma, makeSystemConfig())
       await service.notify({
         criticalId: 'cv-2',
         patientName: '张明远',
@@ -240,7 +243,7 @@ describe('CriticalsService', () => {
           findUnique: jest.fn().mockResolvedValue({ key: 'critical_channel_PHONE', value: { enabled: false } }),
         },
       })
-      const service = new CriticalsService(prisma)
+      const service = new CriticalsService(prisma, makeSystemConfig())
       await service.notify({ criticalId: 'cv-3', channels: ['PHONE'] })
       const data = createMany.mock.calls[0][0].data as any[]
       expect(data[0].status).toBe('FAILED')
@@ -253,7 +256,7 @@ describe('CriticalsService', () => {
           update: jest.fn(),
         },
       })
-      const service = new CriticalsService(prisma)
+      const service = new CriticalsService(prisma, makeSystemConfig())
       await expect(service.notify({ criticalId: 'nope', channels: ['SMS'] })).rejects.toBeInstanceOf(NotFoundException)
     })
   })
@@ -307,7 +310,7 @@ describe('CriticalsService', () => {
         exam: { findMany: jest.fn().mockResolvedValue([{ id: 'EX-1', patientId: 'P1' }]) },
         patient: { findMany: jest.fn().mockResolvedValue([{ id: 'P1', name: '张明远' }]) },
       })
-      const service = new CriticalsService(prisma)
+      const service = new CriticalsService(prisma, makeSystemConfig())
       const { items, total } = await service.getValue5StepList()
 
       expect(total).toBe(2)
@@ -336,7 +339,7 @@ describe('CriticalsService', () => {
           count: jest.fn().mockResolvedValueOnce(2).mockResolvedValueOnce(30),
         },
       })
-      const service = new CriticalsService(prisma)
+      const service = new CriticalsService(prisma, makeSystemConfig())
       const stats = await service.getMissedStats()
       expect(stats).toEqual({
         missed: 2,
@@ -358,7 +361,7 @@ describe('CriticalsService', () => {
           count: jest.fn().mockResolvedValueOnce(10).mockResolvedValueOnce(3).mockResolvedValueOnce(2),
         },
       })
-      const service = new CriticalsService(prisma)
+      const service = new CriticalsService(prisma, makeSystemConfig())
       const stats = await service.getNotificationStats()
       expect(stats.total).toBe(10)
       expect(stats.totalCount).toBe(10)
@@ -367,6 +370,37 @@ describe('CriticalsService', () => {
       expect(stats.todayCount).toBe(3)
       expect(stats.todayCompleted).toBe(2)
       expect(stats.todayRate).toBe('67%')
+    })
+  })
+
+  // [v3.0.6.11-79] 消费者: default_page_size admin config 决定未传 take 时的分页大小
+  describe('list (default_page_size 消费者)', () => {
+    it('uses admin config default_page_size when take is not provided', async () => {
+      const findMany = jest.fn().mockResolvedValue([])
+      const count = jest.fn().mockResolvedValue(0)
+      const prisma = makePrisma({
+        criticalValue: { findMany, count },
+      })
+      const cfg = () =>
+        ({ getNumber: jest.fn().mockResolvedValue(40), getString: jest.fn().mockResolvedValue(undefined) }) as never
+      const service = new CriticalsService(prisma, cfg())
+
+      await service.list({})
+
+      expect(findMany).toHaveBeenCalledWith(expect.objectContaining({ take: 40 }))
+    })
+
+    it('honors explicit take param', async () => {
+      const findMany = jest.fn().mockResolvedValue([])
+      const count = jest.fn().mockResolvedValue(0)
+      const prisma = makePrisma({
+        criticalValue: { findMany, count },
+      })
+      const service = new CriticalsService(prisma, makeSystemConfig())
+
+      await service.list({ take: 5 })
+
+      expect(findMany).toHaveBeenCalledWith(expect.objectContaining({ take: 5 }))
     })
   })
 })

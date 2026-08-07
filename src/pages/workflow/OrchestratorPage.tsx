@@ -61,7 +61,7 @@ function PaletteItem({ type }: { type: string; label: string }) {
   return (
     <div ref={setNodeRef} style={style} {...listeners} {...attributes}>
       <GripVertical size={14} />
-      {t(`orchestrator.stepTypes.${type}`)}
+      {t(`stepTypes.${type}`)}
     </div>
   );
 }
@@ -129,7 +129,7 @@ function CanvasStep({
             onClick={onEdit}
           />
         </Tooltip>
-        <Popconfirm title="confirmDelete" onConfirm={onDelete}>
+        <Popconfirm title="确认删除该流程？" onConfirm={onDelete}>
           <Button type="text" size="small" danger icon={<Trash2 size={14} />} />
         </Popconfirm>
       </Space>
@@ -224,7 +224,7 @@ export default function OrchestratorPage() {
       const typeData = event.active.data.current;
       if (!typeData) return;
       const newStep: FlowStepDefinition = {
-        name: t(`orchestrator.stepTypes.${typeData.type as string}`),
+        name: t(`stepTypes.${typeData.type as string}`),
         stepType: typeData.type as string,
         autoDispatch: false,
       };
@@ -235,11 +235,11 @@ export default function OrchestratorPage() {
 
   const handleSaveFlow = async () => {
     if (!flowName.trim()) {
-      message.warning(t("orchestrator.flowName"));
+      message.warning(t("flowName"));
       return;
     }
     if (steps.length === 0) {
-      message.warning(t("orchestrator.addStep"));
+      message.warning(t("addStep"));
       return;
     }
     setSaving(true);
@@ -250,14 +250,14 @@ export default function OrchestratorPage() {
           description: flowDesc,
           steps,
         });
-        message.success(t("orchestrator.saveSuccess"));
+        message.success(t("saveSuccess"));
       } else {
         await orchestratorApi.createFlow({
           name: flowName,
           description: flowDesc,
           steps,
         });
-        message.success(t("orchestrator.saveSuccess"));
+        message.success(t("saveSuccess"));
       }
       loadFlows();
     } catch {
@@ -269,7 +269,7 @@ export default function OrchestratorPage() {
   const handleTriggerFlow = async (flowId: string) => {
     try {
       await orchestratorApi.triggerFlow(flowId);
-      message.success(t("orchestrator.triggerSuccess"));
+      message.success(t("triggerSuccess"));
       loadExecutions(1);
       loadSlaStats();
     } catch {
@@ -305,7 +305,7 @@ export default function OrchestratorPage() {
   const handleSaveSla = async () => {
     try {
       await orchestratorApi.upsertSla(slaForm);
-      message.success(t("orchestrator.slaSaved"));
+      message.success(t("slaSaved"));
       setSlaModalVisible(false);
       loadSlaConfigs();
     } catch {
@@ -323,7 +323,7 @@ export default function OrchestratorPage() {
 
   const executionColumns: ColumnsType<FlowExecution> = [
     {
-      title: t("orchestrator.executionId"),
+      title: t("executionId"),
       dataIndex: "id",
       key: "id",
       width: 120,
@@ -334,23 +334,23 @@ export default function OrchestratorPage() {
       ),
     },
     {
-      title: t("orchestrator.flowName"),
+      title: t("flowName"),
       key: "flow",
       render: (_, r) => r.flow?.name ?? "-",
     },
     {
-      title: t("orchestrator.executionStatus"),
+      title: t("executionStatus"),
       dataIndex: "status",
       key: "status",
       width: 100,
       render: (s: string) => (
         <Tag color={STATUS_COLORS[s]}>
-          {t(`orchestrator.flowStatus_${s.toLowerCase()}`)}
+          {t(`flowStatus_${s.toLowerCase()}`)}
         </Tag>
       ),
     },
     {
-      title: t("orchestrator.slaMinutes"),
+      title: t("slaMinutes"),
       key: "sla",
       width: 100,
       render: (_, r) =>
@@ -363,7 +363,7 @@ export default function OrchestratorPage() {
         ),
     },
     {
-      title: t("orchestrator.executionTime"),
+      title: t("executionTime"),
       dataIndex: "createdAt",
       key: "createdAt",
       width: 170,
@@ -395,7 +395,7 @@ export default function OrchestratorPage() {
         if (r.status === "RUNNING")
           return (
             <Button size="small" onClick={() => handleNextStep(r.id)}>
-              {t("orchestrator.triggerNext")}
+              {t("triggerNext")}
             </Button>
           );
         // 已完成/失败/超时:重新触发执行(等价于重新部署激活流程)
@@ -409,21 +409,21 @@ export default function OrchestratorPage() {
   ];
 
   const slaConfigColumns: ColumnsType<SlaConfigDto> = [
-    { title: t("orchestrator.slaName"), dataIndex: "name", key: "name" },
+    { title: t("slaName"), dataIndex: "name", key: "name" },
     {
-      title: t("orchestrator.slaTargetMinutes"),
+      title: t("slaTargetMinutes"),
       dataIndex: "targetMinutes",
       key: "targetMinutes",
       render: (v) => `${v}m`,
     },
     {
-      title: t("orchestrator.slaWarningMinutes"),
+      title: t("slaWarningMinutes"),
       dataIndex: "warningMinutes",
       key: "warningMinutes",
       render: (v) => `${v}m`,
     },
     {
-      title: t("orchestrator.slaAutoEscalate"),
+      title: t("slaAutoEscalate"),
       dataIndex: "autoEscalate",
       key: "autoEscalate",
       render: (v) =>
@@ -434,7 +434,7 @@ export default function OrchestratorPage() {
         ),
     },
     {
-      title: t("orchestrator.slaEscalateRole"),
+      title: t("slaEscalateRole"),
       dataIndex: "escalateRole",
       key: "escalateRole",
       render: (v) => v ?? "-",
@@ -446,14 +446,14 @@ export default function OrchestratorPage() {
       <div style={{ width: 200, flexShrink: 0 }}>
         <Card
           size="small"
-          title={t("orchestrator.steps")}
+          title={t("steps")}
           styles={{ body: { padding: 12 } }}
         >
           {STEP_TYPES.map((st) => (
             <PaletteItem
               key={st.key}
               type={st.key}
-              label={t(`orchestrator.stepTypes.${st.key}`)}
+              label={t(`stepTypes.${st.key}`)}
             />
           ))}
         </Card>
@@ -464,13 +464,13 @@ export default function OrchestratorPage() {
         <Card size="small" styles={{ body: { padding: 16 } }}>
           <Space orientation="vertical" style={{ width: "100%" }}>
             <Input
-              placeholder={t("orchestrator.flowName")}
+              placeholder={t("flowName")}
               value={flowName}
               onChange={(e) => setFlowName(e.target.value)}
               style={{ fontWeight: 600 }}
             />
             <Input
-              placeholder={t("orchestrator.flowDescription")}
+              placeholder={t("flowDescription")}
               value={flowDesc}
               onChange={(e) => setFlowDesc(e.target.value)}
             />
@@ -480,7 +480,7 @@ export default function OrchestratorPage() {
           size="small"
           title={
             <Space>
-              <Layers size={16} /> {t("orchestrator.designer")}{" "}
+              <Layers size={16} /> {t("designer")}{" "}
               <Badge
                 count={steps.length}
                 style={{ backgroundColor: "#3b82f6" }}
@@ -496,7 +496,7 @@ export default function OrchestratorPage() {
                 onClick={handleSaveFlow}
                 loading={saving}
               >
-                {t("orchestrator.saveFlow")}
+                {t("saveFlow")}
               </Button>
             </Space>
           }
@@ -505,7 +505,7 @@ export default function OrchestratorPage() {
             {steps.length === 0 ? (
               <div style={{ textAlign: "center", padding: 40, color: "#999" }}>
                 <Layers size={32} style={{ opacity: 0.3, marginBottom: 8 }} />
-                <div>{t("orchestrator.noFlows")}</div>
+                <div>{t("noFlows")}</div>
               </div>
             ) : (
               steps.map((step, idx) => (
@@ -530,7 +530,7 @@ export default function OrchestratorPage() {
       <div style={{ width: 260, flexShrink: 0 }}>
         <Card
           size="small"
-          title={t("orchestrator.slaConfig")}
+          title={t("slaConfig")}
           styles={{ body: { padding: 12 } }}
         >
           <Space orientation="vertical" style={{ width: "100%" }}>
@@ -558,19 +558,19 @@ export default function OrchestratorPage() {
                 setSlaModalVisible(true);
               }}
             >
-              {t("orchestrator.slaConfig")}
+              {t("slaConfig")}
             </Button>
           </Space>
         </Card>
         {slaStats && (
           <Card
             size="small"
-            title={t("orchestrator.slaStats")}
+            title={t("slaStats")}
             style={{ marginTop: 8 }}
             styles={{ body: { padding: 12 } }}
           >
             <Statistic
-              title={t("orchestrator.slaComplianceRate")}
+              title={t("slaComplianceRate")}
               value={slaStats.slaComplianceRate}
               suffix="%"
               styles={{ content: { 
@@ -578,7 +578,7 @@ export default function OrchestratorPage() {
                } }}
             />
             <Statistic
-              title={t("orchestrator.avgCompletionMin")}
+              title={t("avgCompletionMin")}
               value={slaStats.avgCompletionMin.toFixed(1)}
               suffix="min"
               style={{ marginTop: 8 }}
@@ -591,7 +591,7 @@ export default function OrchestratorPage() {
 
   const renderStepEditModal = () => (
     <Modal
-      title={t("orchestrator.editFlow")}
+      title={t("editFlow")}
       open={modalVisible}
       onCancel={() => setModalVisible(false)}
       onOk={() => {
@@ -608,7 +608,7 @@ export default function OrchestratorPage() {
       <Space orientation="vertical" style={{ width: "100%" }}>
         <div>
           <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 13 }}>
-            {t("orchestrator.stepName")}
+            {t("stepName")}
           </div>
           <Input
             value={stepForm.name}
@@ -619,7 +619,7 @@ export default function OrchestratorPage() {
         </div>
         <div>
           <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 13 }}>
-            {t("orchestrator.stepType")}
+            {t("stepType")}
           </div>
           <Select
             style={{ width: "100%" }}
@@ -627,13 +627,13 @@ export default function OrchestratorPage() {
             onChange={(v) => setStepForm((p) => ({ ...p, stepType: v }))}
             options={STEP_TYPES.map((st) => ({
               value: st.key,
-              label: t(`orchestrator.stepTypes.${st.key}`),
+              label: t(`stepTypes.${st.key}`),
             }))}
           />
         </div>
         <div>
           <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 13 }}>
-            {t("orchestrator.assigneeRole")}
+            {t("assigneeRole")}
           </div>
           <Input
             value={stepForm.assigneeRole ?? ""}
@@ -646,7 +646,7 @@ export default function OrchestratorPage() {
         <Row gutter={12}>
           <Col span={12}>
             <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 13 }}>
-              {t("orchestrator.timeoutMinutes")}
+              {t("timeoutMinutes")}
             </div>
             <InputNumber
               style={{ width: "100%" }}
@@ -659,7 +659,7 @@ export default function OrchestratorPage() {
           </Col>
           <Col span={12}>
             <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 13 }}>
-              {t("orchestrator.slaMinutes")}
+              {t("slaMinutes")}
             </div>
             <InputNumber
               style={{ width: "100%" }}
@@ -673,7 +673,7 @@ export default function OrchestratorPage() {
         </Row>
         <div>
           <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 13 }}>
-            {t("orchestrator.condition")}
+            {t("condition")}
           </div>
           <Input
             value={stepForm.condition ?? ""}
@@ -688,7 +688,7 @@ export default function OrchestratorPage() {
             checked={stepForm.autoDispatch}
             onChange={(v) => setStepForm((p) => ({ ...p, autoDispatch: v }))}
           />
-          <span style={{ fontSize: 13 }}>{t("orchestrator.autoDispatch")}</span>
+          <span style={{ fontSize: 13 }}>{t("autoDispatch")}</span>
         </div>
       </Space>
     </Modal>
@@ -696,7 +696,7 @@ export default function OrchestratorPage() {
 
   const renderSlaModal = () => (
     <Modal
-      title={t("orchestrator.slaConfig")}
+      title={t("slaConfig")}
       open={slaModalVisible}
       onCancel={() => setSlaModalVisible(false)}
       onOk={handleSaveSla}
@@ -704,7 +704,7 @@ export default function OrchestratorPage() {
       <Space orientation="vertical" style={{ width: "100%" }}>
         <div>
           <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 13 }}>
-            {t("orchestrator.slaName")}
+            {t("slaName")}
           </div>
           <Input
             value={slaForm.name}
@@ -716,7 +716,7 @@ export default function OrchestratorPage() {
         <Row gutter={12}>
           <Col span={12}>
             <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 13 }}>
-              {t("orchestrator.slaTargetMinutes")}
+              {t("slaTargetMinutes")}
             </div>
             <InputNumber
               style={{ width: "100%" }}
@@ -729,7 +729,7 @@ export default function OrchestratorPage() {
           </Col>
           <Col span={12}>
             <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 13 }}>
-              {t("orchestrator.slaWarningMinutes")}
+              {t("slaWarningMinutes")}
             </div>
             <InputNumber
               style={{ width: "100%" }}
@@ -743,7 +743,7 @@ export default function OrchestratorPage() {
         </Row>
         <div>
           <div style={{ marginBottom: 4, fontWeight: 500, fontSize: 13 }}>
-            {t("orchestrator.slaEscalateRole")}
+            {t("slaEscalateRole")}
           </div>
           <Input
             value={slaForm.escalateRole ?? ""}
@@ -759,7 +759,7 @@ export default function OrchestratorPage() {
             onChange={(v) => setSlaForm((p) => ({ ...p, autoEscalate: v }))}
           />
           <span style={{ fontSize: 13 }}>
-            {t("orchestrator.slaAutoEscalate")}
+            {t("slaAutoEscalate")}
           </span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -768,7 +768,7 @@ export default function OrchestratorPage() {
             onChange={(v) => setSlaForm((p) => ({ ...p, notifyOnBreach: v }))}
           />
           <span style={{ fontSize: 13 }}>
-            {t("orchestrator.slaNotifyOnBreach")}
+            {t("slaNotifyOnBreach")}
           </span>
         </div>
       </Space>
@@ -781,7 +781,7 @@ export default function OrchestratorPage() {
         <Col span={6}>
           <Card size="small">
             <Statistic
-              title={t("orchestrator.totalExecutions")}
+              title={t("totalExecutions")}
               value={slaStats?.totalExecutions ?? 0}
             />
           </Card>
@@ -789,7 +789,7 @@ export default function OrchestratorPage() {
         <Col span={6}>
           <Card size="small">
             <Statistic
-              title={t("orchestrator.slaComplianceRate")}
+              title={t("slaComplianceRate")}
               value={slaStats?.slaComplianceRate ?? 100}
               suffix="%"
               styles={{ content: { 
@@ -804,8 +804,8 @@ export default function OrchestratorPage() {
         <Col span={6}>
           <Card size="small">
             <Statistic
-              title={t("orchestrator.avgCompletionMin")}
-              value={slaStats?.avgCompletionMin.toFixed(1) ?? "-"}
+              title={t("avgCompletionMin")}
+              value={slaStats?.avgCompletionMin != null ? slaStats.avgCompletionMin.toFixed(1) : "-"}
               suffix="min"
             />
           </Card>
@@ -813,7 +813,7 @@ export default function OrchestratorPage() {
         <Col span={6}>
           <Card size="small">
             <Statistic
-              title={t("orchestrator.breachedExecutions")}
+              title={t("breachedExecutions")}
               value={slaStats?.breachedExecutions ?? 0}
               styles={{ content: { 
                 color:
@@ -827,7 +827,7 @@ export default function OrchestratorPage() {
       </Row>
       <Card
         size="small"
-        title={t("orchestrator.executions")}
+        title={t("executions")}
         styles={{ body: { padding: 0 } }}
       >
         <Table
@@ -849,7 +849,7 @@ export default function OrchestratorPage() {
       </Card>
       <Card
         size="small"
-        title={t("orchestrator.executionHistory")}
+        title={t("executionHistory")}
         style={{ marginTop: 16 }}
         styles={{ body: { padding: 0 } }}
       >
@@ -884,7 +884,7 @@ export default function OrchestratorPage() {
           }
           extra={<Badge count={flow._count?.executions ?? 0} showZero />}
           actions={[
-            <Tooltip title={t("orchestrator.triggerFlow")}>
+            <Tooltip title={t("triggerFlow")}>
               <Button
                 type="text"
                 icon={<Play size={14} />}
@@ -901,7 +901,7 @@ export default function OrchestratorPage() {
           ]}
         >
           <div style={{ fontSize: 12, color: "#666", marginBottom: 8 }}>
-            {flow.description || t("orchestrator.flowDescription")}
+            {flow.description || t("flowDescription")}
           </div>
           <Space size={4} wrap>
             {(flow.steps as FlowStepDefinition[]).map((s, i) => (
@@ -927,7 +927,7 @@ export default function OrchestratorPage() {
       key: "designer",
       label: (
         <Space>
-          <Layers size={14} /> {t("orchestrator.designer")}
+          <Layers size={14} /> {t("designer")}
         </Space>
       ),
       children: (
@@ -942,7 +942,7 @@ export default function OrchestratorPage() {
       key: "flows",
       label: (
         <Space>
-          <List size={14} /> {t("orchestrator.executions")}
+          <List size={14} /> {t("executions")}
         </Space>
       ),
       children: renderFlowsList(),
@@ -951,7 +951,7 @@ export default function OrchestratorPage() {
       key: "executions",
       label: (
         <Space>
-          <History size={14} /> {t("orchestrator.executionHistory")}
+          <History size={14} /> {t("executionHistory")}
         </Space>
       ),
       children: renderExecutions(),
@@ -978,7 +978,7 @@ export default function OrchestratorPage() {
             gap: 8,
           }}
         >
-          <GitBranch size={20} /> {t("orchestrator.title")}
+          <GitBranch size={20} /> {t("title")}
           <span
             style={{
               fontSize: 13,
@@ -987,7 +987,7 @@ export default function OrchestratorPage() {
               marginLeft: 8,
             }}
           >
-            {t("orchestrator.subtitle")}
+            {t("subtitle")}
           </span>
         </h2>
       </div>

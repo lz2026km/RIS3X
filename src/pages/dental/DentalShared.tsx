@@ -72,7 +72,7 @@ export const TreatmentActions: React.FC<{ record: DentalTreatment }> = ({ record
           <Descriptions.Item label="费用">{record.cost != null ? `¥${record.cost}` : '-'}</Descriptions.Item>
           <Descriptions.Item label="状态">
             <Tag color={record.status === 'Completed' || record.status === 'completed' ? 'green' : record.status === 'InProgress' ? 'orange' : 'default'}>
-              {record.status || '-'}
+              {record.status === 'Completed' || record.status === 'completed' ? '已完成' : record.status === 'InProgress' ? '进行中' : record.status || '-'}
             </Tag>
           </Descriptions.Item>
           <Descriptions.Item label="创建时间" span={2}>{record.createdAt ? new Date(record.createdAt).toLocaleString('zh-CN') : '-'}</Descriptions.Item>

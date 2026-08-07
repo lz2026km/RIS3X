@@ -6,7 +6,14 @@ import { list, create, update, remove } from './store';
 import { parseQuery, applyQuery } from './queryBuilder';
 import { v4 as uuidv4 } from 'uuid';
 
-const API = '/api/v1/device-mgmt';
+// 动态 API_BASE (与 handlers.ts 一致): vitest 用 localhost:5173, 浏览器用当前 origin
+const API_BASE = typeof process !== 'undefined' && process.env.VITEST
+  ? 'http://localhost:5173/api/v1'
+  : (typeof window !== 'undefined' && window.location?.origin
+    ? window.location.origin + '/api/v1'
+    : 'http://localhost:5191/api/v1');
+
+const API = `${API_BASE}/device-mgmt`;
 
 const delayMs = (min = 50, max = 150) => Math.floor(Math.random() * (max - min) + min);
 
@@ -201,6 +208,75 @@ export const deviceMgmtHandlers = [
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: { items: result.data, total: result.total } });
   }),
+  // [W4-B] 保养计划 CRUD + 到期提醒 (必须先于 :id 通配)
+  http.get(`${API}/maintenance-due`, async ({ request }) => {
+    await delay(delayMs());
+    const url = new URL(request.url);
+    const days = Math.max(1, Number(url.searchParams.get('days') ?? 30));
+    const horizon = new Date(Date.now() + days * 86400000).getTime();
+    const plans = getMaintenancePlans();
+    const items = plans
+      .filter((p: any) => p.status !== 'COMPLETED' && new Date(p.maintenanceDate).getTime() <= horizon)
+      .sort((a: any, b: any) => a.maintenanceDate.localeCompare(b.maintenanceDate));
+    return HttpResponse.json({ success: true, data: { items, total: items.length, days } });
+  }),
+  http.get(`${API}/maintenance-plans`, async ({ request }) => {
+    await delay(delayMs());
+    const url = new URL(request.url);
+    const deviceId = url.searchParams.get('deviceId');
+    const status = url.searchParams.get('status');
+    let items = getMaintenancePlans();
+    if (deviceId) items = items.filter((p: any) => p.deviceId === deviceId);
+    if (status) items = items.filter((p: any) => p.status === status);
+    items.sort((a: any, b: any) => a.maintenanceDate.localeCompare(b.maintenanceDate));
+    return HttpResponse.json({ success: true, data: { items, total: items.length } });
+  }),
+  http.post(`${API}/maintenance-plans`, async ({ request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as any;
+    const maintenanceDate = body.maintenanceDate ?? new Date().toISOString();
+    const intervalDays = Number(body.intervalDays ?? 90);
+    const nextDate = new Date(new Date(maintenanceDate).getTime() + intervalDays * 86400000).toISOString();
+    const plan = {
+      id: `MP-${Date.now()}`,
+      deviceId: body.deviceId ?? '',
+      deviceName: body.deviceName ?? '',
+      maintenanceDate,
+      intervalDays,
+      type: body.type ?? '定期保养',
+      content: body.content ?? '',
+      estimatedCost: body.estimatedCost ?? null,
+      assignee: body.assignee ?? '',
+      status: 'PENDING',
+      nextDate,
+      completedAt: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    try { create('maintenancePlans' as any, plan); } catch {}
+    return HttpResponse.json({ success: true, data: plan }, { status: 201 });
+  }),
+  http.put(`${API}/maintenance-plans/:id`, async ({ params, request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as any;
+    const plans = getMaintenancePlans();
+    const existing = plans.find((p: any) => p.id === params.id);
+    if (!existing) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'MaintenancePlan not found' } }, { status: 404 });
+    const merged = { ...existing, ...body, id: params.id, updatedAt: new Date().toISOString() };
+    if (body.maintenanceDate || body.intervalDays) {
+      merged.nextDate = new Date(new Date(merged.maintenanceDate).getTime() + merged.intervalDays * 86400000).toISOString();
+    }
+    if (body.status === 'COMPLETED' && !merged.completedAt) merged.completedAt = new Date().toISOString();
+    try { update('maintenancePlans' as any, params.id as string, merged); } catch {}
+    return HttpResponse.json({ success: true, data: merged });
+  }),
+  http.delete(`${API}/maintenance-plans/:id`, async ({ params }) => {
+    await delay(delayMs());
+    let existed = false;
+    try { existed = !!getMaintenancePlans().find((p: any) => p.id === params.id); } catch {}
+    try { remove('maintenancePlans' as any, params.id as string); } catch {}
+    return new HttpResponse(null, { status: existed ? 204 : 404 });
+  }),
   http.get(`${API}/:id`, async ({ params }) => {
     await delay(delayMs());
     let items: any[] = [];
@@ -244,3 +320,18 @@ export const deviceMgmtHandlers = [
     });
   }),
 ];
+
+const FALLBACK_MAINTENANCE_PLANS = [
+  { id: 'MP001', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', maintenanceDate: '2026-08-15T00:00:00.000Z', intervalDays: 90, type: '定期保养', content: '球管衰减检测，系统综合保养', estimatedCost: 3000, assignee: '张工', status: 'PENDING', nextDate: '2026-11-13T00:00:00.000Z', completedAt: null, createdAt: '2026-06-01T00:00:00.000Z', updatedAt: '2026-06-01T00:00:00.000Z' },
+  { id: 'MP002', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）', maintenanceDate: '2026-09-05T00:00:00.000Z', intervalDays: 180, type: '半年保养', content: '液氦补充，滑环清洁，梯度测试', estimatedCost: 2500, assignee: '李工', status: 'PENDING', nextDate: '2027-03-04T00:00:00.000Z', completedAt: null, createdAt: '2026-05-10T00:00:00.000Z', updatedAt: '2026-05-10T00:00:00.000Z' },
+  { id: 'MP003', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', maintenanceDate: '2026-08-02T00:00:00.000Z', intervalDays: 90, type: '定期保养', content: '探测器校准，X线管训练', estimatedCost: 1800, assignee: '王工', status: 'PENDING', nextDate: '2026-10-31T00:00:00.000Z', completedAt: null, createdAt: '2026-05-20T00:00:00.000Z', updatedAt: '2026-05-20T00:00:00.000Z' },
+  { id: 'MP004', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', maintenanceDate: '2026-07-01T00:00:00.000Z', intervalDays: 90, type: '定期保养', content: '压迫器校准，图像质量检测', estimatedCost: 1500, assignee: '陈工', status: 'COMPLETED', nextDate: '2026-09-29T00:00:00.000Z', completedAt: '2026-07-01T00:00:00.000Z', createdAt: '2026-04-01T00:00:00.000Z', updatedAt: '2026-07-01T00:00:00.000Z' },
+];
+
+function getMaintenancePlans(): any[] {
+  try {
+    const items = list<any>('maintenancePlans' as any);
+    if (items && items.length) return items;
+  } catch {}
+  return FALLBACK_MAINTENANCE_PLANS.map((p) => ({ ...p }));
+}

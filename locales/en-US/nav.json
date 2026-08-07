@@ -251,6 +251,7 @@
   "stowRs": "STOW-RS Storage",
   "srReport": "SR Structured Report",
   "criticalAlert": "Critical Alert",
+  "criticalValueReceiver": "CV Receiver Portal",
   "autoCollection": "Auto Collection",
   "remoteReading": "Remote Reading",
   "pacsAdmin": "PACS Administration",

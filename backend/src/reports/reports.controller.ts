@@ -1,8 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req } from '@nestjs/common'
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query, Req, Res } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { Roles } from '../common/decorators/roles.decorator'
-import type { Request } from 'express'
+import type { Request, Response } from 'express'
 import { z } from 'zod'
+import * as path from 'node:path'
+import { existsSync } from 'node:fs'
+import { createReadStream } from 'node:fs'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
 import { ReportsService } from './reports.service'
 
@@ -43,7 +46,36 @@ export class ReportsController {
     const parsedState = state && ReportStateEnum.safeParse(state).success
       ? (state as z.infer<typeof ReportStateEnum>)
       : undefined
-    return this.reports.list({ skip: Number(skip ?? 0), take: Number(take ?? 20), state: parsedState as any })
+    return this.reports.list({ skip: Number(skip ?? 0), take: take === undefined || take === '' ? undefined : Number(take), state: parsedState as any })
+  }
+
+  // [W4-B] 批量导出: 静态子路由必须先于 :id / :id/export 注册
+  @Post('batch-export')
+  batchExport(
+    @Body(new ZodValidationPipe(z.object({ ids: z.array(z.string().min(1)).min(1), format: z.string().default('pdf') }))) body: { ids: string[]; format: string },
+    @Req() req: Request,
+  ) {
+    const actorId = (req.user as { id?: string } | undefined)?.id ?? 'unknown'
+    return this.reports.createBatchExport(body, actorId)
+  }
+
+  @Get('batch-export/:taskId')
+  batchExportStatus(@Param('taskId') taskId: string) {
+    return this.reports.getBatchExport(taskId)
+  }
+
+  // [W4-B] 导出文件下载 (reportExport consumer 生成的 HTML/PDF 文件)
+  @Get('export-files/:fileName')
+  downloadExportFile(@Param('fileName') fileName: string, @Res() res: Response) {
+    const exportDir = process.env['REPORT_EXPORT_DIR'] || path.resolve(process.cwd(), 'exports', 'reports')
+    const safeName = path.basename(fileName)
+    const filePath = path.join(exportDir, safeName)
+    if (!filePath.startsWith(exportDir) || !existsSync(filePath)) {
+      throw new NotFoundException('Export file not found')
+    }
+    res.setHeader('Content-Type', 'text/html; charset=utf-8')
+    res.setHeader('Content-Disposition', `attachment; filename="${safeName}"`)
+    createReadStream(filePath).pipe(res)
   }
 
   @Get(':id')

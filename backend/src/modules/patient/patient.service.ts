@@ -154,4 +154,80 @@ export class PatientService {
     ].sort((a, b) => (a.date > b.date ? -1 : 1))
     return events
   }
+
+  // [W4-A] 批量导入: 逐条创建 + 冲突跳过 (idCard 或 name+phone 判重), 错误逐条收集
+  async importMany(rows: CreatePatientDto[]): Promise<{ imported: number; skipped: number; errors: { index: number; message: string }[] }> {
+    const tenantId = currentTenantId()
+    const result: { imported: number; skipped: number; errors: { index: number; message: string }[] } = { imported: 0, skipped: 0, errors: [] }
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i]
+      try {
+        if (!row || typeof row !== 'object') {
+          result.errors.push({ index: i, message: '第 ' + (i + 1) + ' 行数据为空' })
+          continue
+        }
+        const name = (row.name ?? '').trim()
+        if (!name) {
+          result.errors.push({ index: i, message: '第 ' + (i + 1) + ' 行: 姓名不能为空' })
+          continue
+        }
+        const gender = normalizeGender(row.gender)
+        const phone = row.phone?.trim() || undefined
+        const idCard = row.idCard?.trim() || undefined
+        const orClauses: any[] = []
+        if (idCard) orClauses.push({ idCard })
+        if (name && phone) orClauses.push({ name, phone })
+        if (orClauses.length > 0) {
+          const dup = await this.prisma.patient.findFirst({
+            where: { tenantId, deletedAt: null, OR: orClauses },
+            select: { id: true },
+          })
+          if (dup) {
+            result.skipped++
+            continue
+          }
+        }
+        await this.prisma.patient.create({
+          data: {
+            name,
+            gender,
+            birthDate: row.birthDate ? new Date(row.birthDate) : null,
+            idCard,
+            phone,
+            type: row.type ?? 'OUTPATIENT',
+            tenantId,
+          },
+        })
+        result.imported++
+      } catch (e: any) {
+        result.errors.push({ index: i, message: '第 ' + (i + 1) + ' 行: ' + (e?.message ?? String(e)) })
+      }
+    }
+    return result
+  }
+
+  // [W4-A] CSV 导出 (全部或按 name/phone 筛选)
+  async exportCsv(params: { name?: string; phone?: string } = {}): Promise<{ filename: string; content: string; count: number }> {
+    const where: any = { tenantId: currentTenantId(), deletedAt: null }
+    if (params.name) where.name = { contains: params.name }
+    if (params.phone) where.phone = { contains: params.phone }
+    const items = await this.prisma.patient.findMany({ where, orderBy: { createdAt: 'desc' } })
+    const header = ['id', 'name', 'gender', 'birthDate', 'idCard', 'phone', 'type', 'state', 'createdAt']
+    const esc = (v: unknown) => {
+      const s = String(v ?? '')
+      return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s
+    }
+    const lines = [header.join(',')]
+    for (const p of items) {
+      lines.push(header.map((h) => esc((p as any)[h])).join(','))
+    }
+    const date = new Date().toISOString().slice(0, 10)
+    return { filename: `patients_${date}.csv`, content: '\ufeff' + lines.join('\n'), count: items.length }
+  }
+}
+
+function normalizeGender(g: string | undefined): 'MALE' | 'FEMALE' | 'OTHER' {
+  if (g === 'MALE' || g === '男') return 'MALE'
+  if (g === 'FEMALE' || g === '女') return 'FEMALE'
+  return 'OTHER'
 }

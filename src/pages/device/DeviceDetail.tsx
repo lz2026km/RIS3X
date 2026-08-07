@@ -204,7 +204,7 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
                 }}>
                   <div style={{ textAlign: 'center' }}>
                     <QrCode size={48} style={{ color: C.primary }} />
-                    <div style={{ fontSize: 8, color: C.textLight, marginTop: 2 }}>QR Code</div>
+                    <div style={{ fontSize: 8, color: C.textLight, marginTop: 2 }}>二维码</div>
                   </div>
                 </div>
                 <div style={{

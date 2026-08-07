@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service'
 import { createNoopGateway, NotificationsGateway } from '../notifications/notifications.gateway'
 import { currentTenantId } from '../common/tenant/tenant-utils'
+import { SystemConfigService } from '../system-storage/system-config.service'
 
 export interface NotifyDto {
   criticalId: string
@@ -54,6 +55,7 @@ export class CriticalsService {
 
   constructor(
     private readonly prisma: PrismaService,
+    private readonly systemConfig: SystemConfigService,
     gateway?: NotificationsGateway,
   ) {
     this.gateway = gateway ?? createNoopGateway()
@@ -69,9 +71,11 @@ export class CriticalsService {
       if (params.dateFrom) where.createdAt.gte = new Date(params.dateFrom)
       if (params.dateTo) where.createdAt.lte = new Date(params.dateTo)
     }
+    // [v3.0.6.11-79] 默认分页大小读取 admin config default_page_size, 未配置回退 20
+    const take = params.take ?? (await this.systemConfig.getNumber('default_page_size', 20))
     const [items, total] = await Promise.all([
       this.prisma.criticalValue.findMany({
-        where, skip: params.skip ?? 0, take: params.take ?? 50, orderBy: { createdAt: 'desc' },
+        where, skip: params.skip ?? 0, take, orderBy: { createdAt: 'desc' },
       }),
       this.prisma.criticalValue.count({ where }),
     ])

@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import {
-  Card, Row, Col, Select, InputNumber, Button, Tag, Statistic, Spin, message, Table, Empty, Slider, Space, Divider, Alert,
+  Card, Row, Col, Select, InputNumber, Button, Tag, Statistic, Spin, message, Table, Empty, Slider, Space, Divider, Alert, Popconfirm, Modal,
 } from 'antd'
-import { Box, Activity, History, Scan } from 'lucide-react'
+import { Box, Activity, History, Scan, PenLine, Trash2 } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell,
 } from 'recharts'
-import { volumeApi, type VolumeSeriesDto } from '../../services/api/volumeApi'
+import { volumeApi, type VolumeSeriesDto, type VolumeSegmentationDto } from '../../services/api/volumeApi'
 import { segmentationApi, type SegmentationResultDto, type SegmentationTarget, type QuantifyResultDto, type SegmentationHistoryItemDto, type MaskSliceDto } from '../../services/api/segmentationApi'
 import { invalidateApiCache } from '../../services/api/client'
 import { decodeInt16Base64, applyWWL } from './volumeReal'
+
+const MANUAL_COLORS = ['#ff4d4f', '#fa8c16', '#52c41a', '#1677ff', '#722ed1']
 
 const TARGETS: Array<{ value: SegmentationTarget; label: string; color: string; preset: [number, number] }> = [
   { value: 'nodule', label: '结节 (区域生长/阈值)', color: '#ff4d4f', preset: [-100, 100] },
@@ -138,6 +140,15 @@ const SegmentationPage: React.FC = () => {
   const [quantify, setQuantify] = useState<QuantifyResultDto | null>(null)
   const [history, setHistory] = useState<SegmentationHistoryItemDto[]>([])
   const [historyLoading, setHistoryLoading] = useState(false)
+  // [W2-C] 手动标注管理 (create/list/delete)
+  const [manualList, setManualList] = useState<VolumeSegmentationDto[]>([])
+  const [manualLoading, setManualLoading] = useState(false)
+  const [createOpen, setCreateOpen] = useState(false)
+  const [createForm, setCreateForm] = useState<{ label: string; color: string; voxelCount: number }>({
+    label: '',
+    color: MANUAL_COLORS[0]!,
+    voxelCount: 1000,
+  })
   const [plane, setPlane] = useState<'axial' | 'sagittal' | 'coronal'>('axial')
   const [ww, setWw] = useState(400)
   const [wl, setWl] = useState(40)
@@ -156,6 +167,59 @@ const SegmentationPage: React.FC = () => {
       setHistoryLoading(false)
     }).catch(() => setHistoryLoading(false))
   }, [])
+
+  // [W2-C] 手动标注列表
+  const refreshManual = useCallback((seriesUID: string) => {
+    setManualLoading(true)
+    volumeApi.listSegmentations(seriesUID).then((res) => {
+      setManualList(res.success && Array.isArray(res.data) ? res.data : [])
+      setManualLoading(false)
+    }).catch(() => { setManualLoading(false); setManualList([]) })
+  }, [])
+
+  // [W2-C] 参数化创建手动标注 (体素数 → voxelIndices 采样)
+  const handleCreateManual = async () => {
+    if (!selectedUid) { message.warning('请先选择检查序列'); return }
+    const label = createForm.label.trim()
+    if (!label) { message.warning('请输入标注名称'); return }
+    const count = Math.max(0, Math.min(createForm.voxelCount, 200000))
+    try {
+      const res = await volumeApi.createSegmentation(selectedUid, {
+        label,
+        color: createForm.color,
+        voxelIndices: Array.from({ length: count }, (_, i) => i),
+      })
+      if (res.success) {
+        message.success(`手动标注已创建: ${label} (${count.toLocaleString()} 体素)`)
+        setCreateOpen(false)
+        setCreateForm({ label: '', color: MANUAL_COLORS[0]!, voxelCount: 1000 })
+        invalidateApiCache(`/volume/${encodeURIComponent(selectedUid)}/segmentations`)
+        refreshManual(selectedUid)
+      } else {
+        message.error(res.error?.message ?? '创建标注失败')
+      }
+    } catch {
+      message.error('创建标注请求异常')
+    }
+  }
+
+  // [W2-C] 删除手动标注 (二次确认)
+  const handleDeleteManual = async (id: string) => {
+    try {
+      const res = await volumeApi.deleteSegmentation(id)
+      if (res.success) {
+        message.success('标注已删除')
+        if (selectedUid) {
+          invalidateApiCache(`/volume/${encodeURIComponent(selectedUid)}/segmentations`)
+          refreshManual(selectedUid)
+        }
+      } else {
+        message.error(res.error?.message ?? '删除失败')
+      }
+    } catch {
+      message.error('删除标注请求异常')
+    }
+  }
 
   const handleTargetChange = (t: SegmentationTarget) => {
     setTarget(t)
@@ -265,7 +329,7 @@ const SegmentationPage: React.FC = () => {
               style={{ width: '100%', marginBottom: 8 }}
               placeholder="选择序列"
               value={selectedUid}
-              onChange={(v) => { setSelectedUid(v); refreshHistory(v) }}
+              onChange={(v) => { setSelectedUid(v); refreshHistory(v); refreshManual(v) }}
               options={series.map((s) => {
                 const slices = s.slices ?? (s as { sliceCount?: number }).sliceCount ?? 0
                 const instances = s.instanceCount ?? slices
@@ -331,6 +395,87 @@ const SegmentationPage: React.FC = () => {
               )}
             </Spin>
           </Card>
+
+          {/* [W2-C] 手动标注管理 (参数化创建 / 列表 / 删除) */}
+          <Card
+            size="small"
+            title={<Space><PenLine size={14} /><span>手动标注</span></Space>}
+            extra={<Button size="small" type="primary" onClick={() => { if (!selectedUid) { message.warning('请先选择检查序列'); return } setCreateOpen(true) }}>新建标注</Button>}
+            style={{ marginTop: 12 }}
+            styles={{ body: { padding: 8 } }}
+          >
+            <Spin spinning={manualLoading}>
+              {manualList.length === 0 ? (
+                <Empty description="暂无手动标注" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              ) : (
+                manualList.map((m) => (
+                  <div key={m.id} style={{ padding: '6px 4px', borderBottom: '1px solid #f0f0f0', fontSize: 12 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <Space size={6}>
+                        <span style={{ width: 10, height: 10, borderRadius: '50%', background: m.color, display: 'inline-block' }} />
+                        <span style={{ fontWeight: 500 }}>{m.label}</span>
+                      </Space>
+                      <Popconfirm
+                        title="删除该标注?"
+                        description={`将删除「${m.label}」(${m.voxelCount.toLocaleString()} 体素)`}
+                        okText="删除"
+                        cancelText="取消"
+                        okButtonProps={{ danger: true }}
+                        onConfirm={() => handleDeleteManual(m.id)}
+                      >
+                        <Button size="small" type="text" danger icon={<Trash2 size={12} />} />
+                      </Popconfirm>
+                    </div>
+                    <div style={{ color: '#666', marginTop: 2 }}>
+                      {m.voxelCount.toLocaleString()} vox · {m.volume.toFixed(4)} cm³
+                    </div>
+                    <div style={{ color: '#999', fontSize: 11 }}>{new Date(m.createdAt).toLocaleString()}</div>
+                  </div>
+                ))
+              )}
+            </Spin>
+          </Card>
+
+          {/* [W2-C] 新建手动标注 Modal */}
+          <Modal
+            title="新建手动标注"
+            open={createOpen}
+            onOk={handleCreateManual}
+            onCancel={() => setCreateOpen(false)}
+            okText="创建"
+            cancelText="取消"
+          >
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ marginBottom: 4, fontWeight: 500 }}>标注名称</div>
+              <Select
+                style={{ width: '100%' }}
+                placeholder="输入或选择标注名称"
+                value={createForm.label || undefined}
+                onChange={(v) => setCreateForm((f) => ({ ...f, label: v }))}
+                options={['左肺上叶结节', '右肺下叶结节', '肝脏占位', '骨转移灶', '乳腺肿块'].map((l) => ({ value: l, label: l }))}
+              />
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ marginBottom: 4, fontWeight: 500 }}>标注颜色</div>
+              <Space>
+                {MANUAL_COLORS.map((c) => (
+                  <span
+                    key={c}
+                    onClick={() => setCreateForm((f) => ({ ...f, color: c }))}
+                    style={{
+                      width: 22, height: 22, borderRadius: '50%', background: c, cursor: 'pointer', display: 'inline-block',
+                      boxShadow: createForm.color === c ? `0 0 0 2px #fff, 0 0 0 4px ${c}` : 'none',
+                    }}
+                  />
+                ))}
+              </Space>
+            </div>
+            <div>
+              <div style={{ marginBottom: 4, fontWeight: 500 }}>体素数 (估算)</div>
+              <InputNumber min={0} max={200000} style={{ width: '100%' }} value={createForm.voxelCount} onChange={(v) => setCreateForm((f) => ({ ...f, voxelCount: v ?? 0 }))} />
+              <div style={{ fontSize: 12, color: '#999', marginTop: 4 }}>约 {((createForm.voxelCount * 0.00245)).toFixed(2)} cm³ (0.7×0.7mm × 5mm 层厚估算)</div>
+            </div>
+          </Modal>
         </Col>
 
         <Col span={19}>

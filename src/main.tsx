@@ -1,5 +1,5 @@
-﻿// v3.0.6.11-76: 核心 Bug 修复版
-// v3.0.6.11-76: PWA 恢复 — build 模式注册 Service Worker (dev 为 no-op, 不干扰 MSW)
+﻿// v3.0.6.11-79: 核心 Bug 修复版
+// v3.0.6.11-79: PWA 恢复 — build 模式注册 Service Worker (dev 为 no-op, 不干扰 MSW)
 /// <reference types="vite-plugin-pwa/client" />
 import React from "react";
 import ReactDOM from "react-dom/client";
@@ -11,13 +11,18 @@ import { initSentry } from "./observability/sentry";
 
 import { currentApiMode } from "./services/api/client";
 import { registerSW } from "virtual:pwa-register";
+import { APP_NAME, APP_VERSION, GIT_SHA, BUILD_TIME } from "./utils/appInfo";
 
 import "./styles/animations.css";
 import "./styles/transitions.css";
 import "./styles/responsive.css";
 import "./styles/z-index.css";
 
-const APP_VERSION = "3.0.6.11-76";
+// [W3-B] index.html title 动态化: VITE_APP_NAME + VITE_APP_VERSION
+document.title = `${APP_NAME} v${APP_VERSION}`;
+console.info(
+  `[v${APP_VERSION}] BOOT INFO app=${APP_NAME} git=${GIT_SHA || "none"} build=${BUILD_TIME || "none"}`,
+);
 console.info(`[v${APP_VERSION}] === BOOT START ===`);
 console.info(`[v${APP_VERSION}] Location:`, window.location.href);
 

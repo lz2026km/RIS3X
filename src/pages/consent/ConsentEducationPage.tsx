@@ -118,7 +118,7 @@ export const ConsentEducationPage: React.FC = () => {
         <FileSignature size={20} color="#1677ff" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>知情同意与宣教中心</span>
         <Tag color="cyan">v3.0.6.11-60</Tag>
-        <Tag color="green">e-Signature</Tag>
+        <Tag color="green">电子签名</Tag>
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>刷新</Button>
       </Space>
 

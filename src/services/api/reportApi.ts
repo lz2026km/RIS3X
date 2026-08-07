@@ -86,4 +86,24 @@ export const reportApi = {
   // [W2-3] 导出真实化: 轮询导出任务状态
   exportStatus: (id: string) =>
     api.get<{ status: string; format?: string; downloadUrl?: string; queuedAt?: string }>(`/reports/${id}/export-status`),
+
+  // [W4-B] 批量报告导出: 创建任务 + 轮询状态
+  batchExport: (ids: string[], format: string = 'pdf') =>
+    api.post<{ taskId: string; status: string; total: number; format: string }>('/reports/batch-export', { ids, format }),
+
+  batchExportStatus: (taskId: string) =>
+    // [W4-B] 轮询端点: 追加时间戳绕过 client 内存缓存, 保证每次轮询拿到最新状态
+    api.get<{
+      taskId: string
+      status: 'pending' | 'running' | 'completed' | 'failed'
+      progress: number
+      total: number
+      done: number
+      failedCount: number
+      format: string
+      error?: string
+      downloads: Array<{ reportId: string; fileName: string; filePath: string; sizeBytes: number; format: string; downloadUrl: string }>
+      createdAt: string
+      updatedAt: string
+    }>(`/reports/batch-export/${taskId}?t=${Date.now()}`),
 }

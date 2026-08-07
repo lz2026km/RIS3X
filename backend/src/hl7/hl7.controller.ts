@@ -70,8 +70,8 @@ export class Hl7Controller {
 
   @Post('oru')
   @HttpCode(HttpStatus.CREATED)
-  oru(@Body(new ZodValidationPipe(ReportSchema)) body: ReportForHL7) {
-    const message = this.service.buildORU(body)
+  async oru(@Body(new ZodValidationPipe(ReportSchema)) body: ReportForHL7) {
+    const message = await this.service.buildORU(body)
     return {
       message,
       controlId: `G005-${body.reportId}-${Date.now()}`,
@@ -83,12 +83,13 @@ export class Hl7Controller {
 
   @Post('batch')
   @HttpCode(HttpStatus.CREATED)
-  batch(@Body(new ZodValidationPipe(BatchSchema)) body: { reports: ReportForHL7[] }) {
+  async batch(@Body(new ZodValidationPipe(BatchSchema)) body: { reports: ReportForHL7[] }) {
+    const messages = await Promise.all(body.reports.map((r) => this.service.buildORU(r)))
     return {
       count: body.reports.length,
-      messages: body.reports.map((r) => ({
-        reportId: r.reportId,
-        message: this.service.buildORU(r),
+      messages: messages.map((message, i) => ({
+        reportId: body.reports[i]!.reportId,
+        message,
       })),
     }
   }

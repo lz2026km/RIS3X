@@ -1,4 +1,15 @@
-import { ScheduleService } from './schedule.service'
+﻿import { ScheduleService } from './schedule.service'
+
+// [v3.0.6.11-79] admin config 读取桩: 可注入 critical_timeout_minutes 等键值
+const makeSystemConfig = (values: Record<string, unknown> = {}) => ({
+  getNumber: jest.fn(async (key: string, fb: number) => {
+    const v = values[key] ?? (key === 'critical_timeout_minutes' ? 30 : undefined)
+    return typeof v === 'number' ? v : fb
+  }),
+  getString: jest.fn(async (key: string, fb: string) => (typeof values[key] === 'string' ? values[key] : fb)),
+  get: jest.fn(),
+  invalidate: jest.fn(),
+}) as never
 
 const txClient = () => ({
   report: { update: jest.fn().mockResolvedValue({}) },
@@ -76,7 +87,7 @@ describe('ScheduleService', () => {
         auditLog: { create: auditCreate },
       })
       const criticals = makeCriticals()
-      const service = new ScheduleService(prisma, criticals, makeBackup())
+      const service = new ScheduleService(prisma, criticals, makeBackup(), makeSystemConfig())
 
       await service.checkCriticalTimeout()
 
@@ -95,7 +106,7 @@ describe('ScheduleService', () => {
       const prisma = makePrisma({
         criticalValue: { findMany, update: jest.fn() },
       })
-      const service = new ScheduleService(prisma, makeCriticals(), makeBackup())
+      const service = new ScheduleService(prisma, makeCriticals(), makeBackup(), makeSystemConfig())
 
       await service.checkCriticalTimeout()
 
@@ -121,9 +132,59 @@ describe('ScheduleService', () => {
         },
       })
       const criticals = makeCriticals({ escalate: jest.fn().mockRejectedValue(new Error('boom')) })
-      const service = new ScheduleService(prisma, criticals, makeBackup())
+      const service = new ScheduleService(prisma, criticals, makeBackup(), makeSystemConfig())
 
       await expect(service.checkCriticalTimeout()).resolves.toBeUndefined()
+    })
+
+    // [v3.0.6.11-79] 消费者: critical_timeout_minutes admin config 替代硬编码 30 分钟
+    it('uses admin config critical_timeout_minutes as the escalation cutoff', async () => {
+      const criticalValueUpdate = jest.fn().mockResolvedValue({})
+      const auditCreate = jest.fn().mockResolvedValue({})
+      const prisma = makePrisma({
+        criticalValue: {
+          findMany: jest.fn().mockResolvedValue([
+            { id: 'cv-cfg', tenantId: 'default', severity: 'URGENT', description: '低血压', createdAt: new Date(Date.now() - 20 * 60 * 1000) },
+          ]),
+          update: criticalValueUpdate,
+        },
+        systemConfig: {
+          findUnique: jest.fn().mockResolvedValue({
+            key: 'critical_escalation_recipients',
+            value: [{ name: '值班二线', dept: '急诊科', phone: '13800000000' }],
+          }),
+        },
+        auditLog: { create: auditCreate },
+      })
+      const criticals = makeCriticals()
+      // 20 分钟前的记录在默认 30min 阈值下不超时, 但配置 10min 后应被升级
+      const service = new ScheduleService(prisma, criticals, makeBackup(), makeSystemConfig({ critical_timeout_minutes: 10 }))
+
+      await service.checkCriticalTimeout()
+
+      expect(criticals.escalate).toHaveBeenCalledWith(
+        expect.objectContaining({ criticalId: 'cv-cfg', reason: expect.stringContaining('10 分钟') }),
+      )
+      expect(criticalValueUpdate).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ state: 'ESCALATED' }) }))
+      expect(auditCreate).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ action: 'CRITICAL_TIMEOUT_ESCALATED' }) }),
+      )
+      const detail = auditCreate.mock.calls[0]![0]!.data.detail
+      expect(detail.timeoutMinutes).toBe(10)
+    })
+
+    it('skips records younger than the configured timeout', async () => {
+      const findMany = jest.fn().mockResolvedValue([])
+      const prisma = makePrisma({
+        criticalValue: { findMany, update: jest.fn() },
+      })
+      const service = new ScheduleService(prisma, makeCriticals(), makeBackup(), makeSystemConfig({ critical_timeout_minutes: 120 }))
+
+      await service.checkCriticalTimeout()
+
+      const where = findMany.mock.calls[0]![0]!.where
+      const cutoff = where.createdAt.lt as Date
+      expect(Date.now() - cutoff.getTime()).toBeGreaterThanOrEqual(119 * 60 * 1000)
     })
   })
 
@@ -138,7 +199,7 @@ describe('ScheduleService', () => {
         },
       })
       ;(prisma as any).$transaction = jest.fn(async (fn: (t: unknown) => Promise<unknown>) => fn(tx))
-      const service = new ScheduleService(prisma, makeCriticals(), makeBackup())
+      const service = new ScheduleService(prisma, makeCriticals(), makeBackup(), makeSystemConfig())
 
       await service.checkReportSlaEscalation()
 
@@ -167,7 +228,7 @@ describe('ScheduleService', () => {
           ]),
         },
       })
-      const service = new ScheduleService(prisma, makeCriticals(), makeBackup())
+      const service = new ScheduleService(prisma, makeCriticals(), makeBackup(), makeSystemConfig())
 
       await service.checkReportTimeoutEscalation()
 
@@ -187,7 +248,7 @@ describe('ScheduleService', () => {
         filename: 'backup-config-2026-08-07.json',
         recordCount: 2,
       })
-      const service = new ScheduleService(makePrisma(), makeCriticals(), makeBackup({ createBackup }))
+      const service = new ScheduleService(makePrisma(), makeCriticals(), makeBackup({ createBackup }), makeSystemConfig())
 
       await service.dailyDatabaseBackup()
 
@@ -196,7 +257,7 @@ describe('ScheduleService', () => {
 
     it('logs failure and does not throw when backup fails', async () => {
       const createBackup = jest.fn().mockRejectedValue(new Error('disk full'))
-      const service = new ScheduleService(makePrisma(), makeCriticals(), makeBackup({ createBackup }))
+      const service = new ScheduleService(makePrisma(), makeCriticals(), makeBackup({ createBackup }), makeSystemConfig())
 
       await expect(service.dailyDatabaseBackup()).resolves.toBeUndefined()
     })
@@ -215,7 +276,7 @@ describe('ScheduleService', () => {
         },
         auditLog: { create: auditCreate },
       })
-      const service = new ScheduleService(prisma, makeCriticals(), makeBackup())
+      const service = new ScheduleService(prisma, makeCriticals(), makeBackup(), makeSystemConfig())
 
       await service.checkDeviceHeartbeat()
 
@@ -226,7 +287,7 @@ describe('ScheduleService', () => {
     it('skips MAINTENANCE/OFFLINE devices (only queries IDLE/IN_USE)', async () => {
       const findMany = jest.fn().mockResolvedValue([])
       const prisma = makePrisma({ device: { findMany, update: jest.fn() } })
-      const service = new ScheduleService(prisma, makeCriticals(), makeBackup())
+      const service = new ScheduleService(prisma, makeCriticals(), makeBackup(), makeSystemConfig())
 
       await service.checkDeviceHeartbeat()
 
@@ -247,7 +308,7 @@ describe('ScheduleService', () => {
           update: instanceUpdate,
         },
       })
-      const service = new ScheduleService(prisma, makeCriticals(), makeBackup())
+      const service = new ScheduleService(prisma, makeCriticals(), makeBackup(), makeSystemConfig())
 
       await service.migrateColdStorage()
 
@@ -261,7 +322,7 @@ describe('ScheduleService', () => {
     it('deletes audit logs older than 12 months', async () => {
       const deleteMany = jest.fn().mockResolvedValue({ count: 7 })
       const prisma = makePrisma({ auditLog: { create: jest.fn(), deleteMany } })
-      const service = new ScheduleService(prisma, makeCriticals(), makeBackup())
+      const service = new ScheduleService(prisma, makeCriticals(), makeBackup(), makeSystemConfig())
 
       await service.archiveAuditLogs()
 

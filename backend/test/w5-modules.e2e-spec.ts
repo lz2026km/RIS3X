@@ -14,6 +14,7 @@ import { FilesService } from '../src/files/files.service'
 import { Hl7Controller } from '../src/hl7/hl7.controller'
 import { Hl7Service } from '../src/hl7/hl7.service'
 import { PrismaService } from '../src/prisma/prisma.service'
+import { SystemConfigService } from '../src/system-storage/system-config.service'
 
 class MockPrisma {
   appointment = {
@@ -167,13 +168,17 @@ describe('Backend v3.0.2 new modules (10 endpoints)', () => {
     beforeAll(async () => {
       const m = await Test.createTestingModule({
         controllers: [Hl7Controller],
-        providers: [Hl7Service],
+        providers: [
+          Hl7Service,
+          // [v3.0.6.11-79] buildORU 读取 admin config hospital_name
+          { provide: SystemConfigService, useValue: { getString: jest.fn().mockResolvedValue(undefined), getNumber: jest.fn().mockResolvedValue(30), get: jest.fn(), invalidate: jest.fn() } },
+        ],
       }).compile()
       ctrl = m.get(Hl7Controller)
       svc = m.get(Hl7Service)
     })
-    it('oru returns message', () => {
-      const r = ctrl.oru({
+    it('oru returns message', async () => {
+      const r = await ctrl.oru({
         accessionNumber: 'A001', patientName: '张三', patientId: 'P001', patientSex: 'M',
         modality: 'CT', studyDate: '20240615', studyTime: '143000',
         findings: '正常', conclusion: '未见异常', authorName: '张医师', authorId: 'D1', reportId: 'R1',
@@ -184,8 +189,8 @@ describe('Backend v3.0.2 new modules (10 endpoints)', () => {
       expect(r.message).toContain('OBX|')
       expect(r.messageType).toBe('ORU^R01')
     })
-    it('batch processes multiple', () => {
-      const r = ctrl.batch({ reports: [{
+    it('batch processes multiple', async () => {
+      const r = await ctrl.batch({ reports: [{
         accessionNumber: 'A001', patientName: 'A', patientId: 'P1', patientSex: 'F',
         modality: 'MR', studyDate: '20240615', studyTime: '100000',
         findings: 'f', conclusion: 'c', authorName: 'd', authorId: 'D', reportId: 'R1',
@@ -197,9 +202,9 @@ describe('Backend v3.0.2 new modules (10 endpoints)', () => {
       expect(r.count).toBe(2)
       expect(r.messages.length).toBe(2)
     })
-    it('Hl7Service.escapeText handled', () => {
+    it('Hl7Service.escapeText handled', async () => {
       // 通过 oru 内部测试
-      const m = svc.buildORU({
+      const m = await svc.buildORU({
         accessionNumber: 'A1', patientName: 'A|B^C~D', patientId: 'P1', patientSex: 'M',
         modality: 'CT', studyDate: '20240615', studyTime: '100000',
         findings: 'F|with^special~chars', conclusion: 'c', authorName: 'd', authorId: 'D', reportId: 'R1',

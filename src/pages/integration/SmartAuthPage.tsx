@@ -210,7 +210,7 @@ export const SmartAuthPage: React.FC = () => {
             <Descriptions column={1} size="small" bordered>
               <Descriptions.Item label="授权端点">{config.authorization_endpoint || "-"}</Descriptions.Item>
               <Descriptions.Item label="Token 端点">{config.token_endpoint || "-"}</Descriptions.Item>
-              <Descriptions.Item label="Capabilities">
+              <Descriptions.Item label="能力">
                 <Space wrap size={4}>
                   {(config.capabilities ?? []).map((c) => <Tag key={c} color="cyan">{c}</Tag>)}
                 </Space>
@@ -250,7 +250,7 @@ export const SmartAuthPage: React.FC = () => {
                 <Input placeholder="CSRF state" />
               </Form.Item>
             </div>
-            <Form.Item label="Scopes" name="scopes" rules={[{ required: true, message: "请至少选择一个 scope" }]}>
+            <Form.Item label="作用域" name="scopes" rules={[{ required: true, message: "请至少选择一个 scope" }]}>
               <Checkbox.Group options={SCOPE_OPTIONS} />
             </Form.Item>
             <Button type="primary" icon={<ShieldCheck size={14} />} loading={authLoading} onClick={handleAuthorize}>
@@ -302,7 +302,7 @@ export const SmartAuthPage: React.FC = () => {
             <Descriptions.Item label="token_type">{tokenInfo.tokenType}</Descriptions.Item>
             <Descriptions.Item label="expires_in">{tokenInfo.expiresIn}s</Descriptions.Item>
             <Descriptions.Item label="scope">{tokenInfo.scope}</Descriptions.Item>
-            <Descriptions.Item label="patient context">{tokenInfo.patient || "-"}</Descriptions.Item>
+            <Descriptions.Item label="患者上下文">{tokenInfo.patient || "-"}</Descriptions.Item>
           </Descriptions>
         )}
 

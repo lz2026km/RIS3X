@@ -90,6 +90,8 @@ import { HangingModule } from "./modules/hanging/hanging.module";
 import { BiModule } from "./modules/bi/bi.module";
 import { VnaModule } from "./modules/vna/vna.module";
 import { TenantModule } from "./modules/tenant/tenant.module";
+import { FollowUpModule } from "./modules/followup/followup.module";
+import { DictionaryModule } from "./modules/dictionary/dictionary.module";
 import { MobileModule } from "./mobile/mobile.module";
 import { JwtAuthGuard } from "./common/guards/jwt-auth.guard";
 import { RolesGuard } from "./common/guards/roles.guard";
@@ -100,12 +102,14 @@ import { TenantContextInterceptor } from "./common/interceptors/tenant-context.i
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
 import { StorageModule } from "./common/storage/storage.module";
 import { SystemStorageModule } from "./system-storage/system-storage.module";
+import { ClinicalConfigModule } from "./clinical-config/clinical-config.module";
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     StorageModule,
     SystemStorageModule,
+    ClinicalConfigModule,
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -219,6 +223,7 @@ import { SystemStorageModule } from "./system-storage/system-storage.module";
     HangingModule,
     VnaModule,
     TenantModule,
+    DictionaryModule,
   ],
   controllers: [HealthController],
   providers: [

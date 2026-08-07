@@ -5,7 +5,7 @@ import {
 } from 'lucide-react'
 
 import { FollowUpTab, DocumentsTab } from './CriticalValueFollowUp'
-import type { CriticalValue, FollowUpRecord } from './types'
+import type { CriticalValue, FollowUpRecord, TimelineEvent } from './types'
 import { PRIMARY_COLOR, PRIMARY_LIGHT } from './types'
 
 interface DetailPanelProps {
@@ -14,12 +14,14 @@ interface DetailPanelProps {
   activeTab: number
   setActiveTab: (v: number) => void
   followUpRecords: FollowUpRecord[]
+  /** [W2-A] GET /criticals/:id/history 操作历史 */
+  historyEvents?: TimelineEvent[]
 }
 
 const labelStyle: React.CSSProperties = { fontSize: 12, color: '#94a3b8', marginBottom: 2 }
 const valueStyle: React.CSSProperties = { fontSize: 13, fontWeight: 600, color: '#1e3a5f' }
 
-export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpRecords }: DetailPanelProps) => {
+export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpRecords, historyEvents }: DetailPanelProps) => {
   const tabs = [
     { label: '基本信息', icon: User },
     { label: '危急值详情', icon: AlertTriangle },
@@ -238,7 +240,7 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
         {activeTab === 5 && (
           <div>
             <div style={{ background: '#f8fafc', borderRadius: 10, padding: 16, border: '1px solid #e2e8f0' }}>
-              {cv.timeline.map((event, idx) => (
+              {(cv.timeline ?? []).map((event, idx) => (
                 <div key={idx} style={{ display: 'flex', gap: 12, marginBottom: idx < cv.timeline.length - 1 ? 16 : 0 }}>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <div style={{ width: 32, height: 32, borderRadius: '50%', background: idx === cv.timeline.length - 1 ? '#1e3a5f' : '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -258,12 +260,37 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
                   </div>
                 </div>
               ))}
+              {historyEvents && historyEvents.length > 0 && (
+                <>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#1e3a5f', borderTop: '1px dashed #e2e8f0', paddingTop: 12, marginTop: 12 }}>操作历史 (listHistory)</div>
+                  {historyEvents.map((event, idx) => (
+                    <div key={`h-${idx}`} style={{ display: 'flex', gap: 12, marginTop: 12 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#e0e7ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <Clock size={13} style={{ color: '#4f46e5' }} />
+                        </div>
+                        <div style={{ width: 2, flex: 1, background: '#e2e8f0', marginTop: 4, minHeight: 20 }} />
+                      </div>
+                      <div style={{ flex: 1, paddingTop: 4 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#4338ca' }}>{event.event}</div>
+                        <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{event.time}</div>
+                        <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{event.user}</div>
+                        {event.detail && (
+                          <div style={{ fontSize: 12, color: '#64748b', marginTop: 4, background: '#fff', padding: '4px 8px', borderRadius: 4, border: '1px solid #f1f5f9' }}>
+                            {event.detail}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
             </div>
           </div>
         )}
 
         {activeTab === 6 && (
-          <DocumentsTab documents={cv.documents} cvId={cv.id} />
+          <DocumentsTab documents={cv.documents ?? []} cvId={cv.id} />
         )}
       </div>
     </div>

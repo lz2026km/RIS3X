@@ -160,6 +160,39 @@ export interface ContrastQuality {
   expiryDate: string
 }
 
+// [W4-B] 设备保养计划
+export interface MaintenancePlan {
+  id: string
+  deviceId: string
+  deviceName: string
+  maintenanceDate: string
+  intervalDays: number
+  type: string
+  content: string
+  estimatedCost: number | null
+  assignee: string
+  status: 'PENDING' | 'COMPLETED' | 'CANCELLED'
+  nextDate: string | null
+  completedAt: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateMaintenancePlanDto {
+  deviceId: string
+  deviceName?: string
+  maintenanceDate: string
+  intervalDays?: number
+  type?: string
+  content?: string
+  estimatedCost?: number
+  assignee?: string
+}
+
+export interface UpdateMaintenancePlanDto extends Partial<CreateMaintenancePlanDto> {
+  status?: 'PENDING' | 'COMPLETED' | 'CANCELLED'
+}
+
 //  API Client 
 export const deviceMgmtApi = {
   //  Equipment Lifecycle 
@@ -275,4 +308,33 @@ export const deviceMgmtApi = {
 
   getStats: (id: string) =>
     api.get<any>(`/device-mgmt/${id}/stats`),
+
+  //  [W4-B] 保养计划 CRUD + 到期提醒
+  listMaintenancePlans: (params?: { deviceId?: string; status?: string }) => {
+    const query = params ? '?' + new URLSearchParams(
+      Object.entries(params).filter(([, v]) => v !== undefined && v !== '') as [string, string][],
+    ).toString() : ''
+    return api.getList<MaintenancePlan>(`/device-mgmt/maintenance-plans${query}`)
+  },
+
+  createMaintenancePlan: async (dto: CreateMaintenancePlanDto) => {
+    const res = await api.post<MaintenancePlan>('/device-mgmt/maintenance-plans', dto)
+    await invalidateApiCacheByPrefix('/device-mgmt/maintenance-plans')
+    return res
+  },
+
+  updateMaintenancePlan: async (id: string, dto: UpdateMaintenancePlanDto) => {
+    const res = await api.put<MaintenancePlan>(`/device-mgmt/maintenance-plans/${id}`, dto)
+    await invalidateApiCacheByPrefix('/device-mgmt/maintenance-plans')
+    return res
+  },
+
+  deleteMaintenancePlan: async (id: string) => {
+    const res = await api.delete<{ ok: boolean; id: string }>(`/device-mgmt/maintenance-plans/${id}`)
+    await invalidateApiCacheByPrefix('/device-mgmt/maintenance-plans')
+    return res
+  },
+
+  maintenanceDue: (days: number = 30) =>
+    api.get<{ items: MaintenancePlan[]; total: number; days: number }>(`/device-mgmt/maintenance-due?days=${days}`),
 }

@@ -3,6 +3,14 @@ import { NotFoundException } from '@nestjs/common'
 import { CriticalsService } from '../src/criticals/criticals.service'
 import { PrismaService } from '../src/prisma/prisma.service'
 import { createNoopGateway, NotificationsGateway } from '../src/notifications/notifications.gateway'
+import { SystemConfigService } from '../src/system-storage/system-config.service'
+
+const mockSystemConfig = {
+  getNumber: jest.fn().mockResolvedValue(20),
+  getString: jest.fn().mockResolvedValue(undefined),
+  get: jest.fn(),
+  invalidate: jest.fn(),
+}
 
 describe('CriticalsService', () => {
   let svc: CriticalsService
@@ -36,6 +44,7 @@ describe('CriticalsService', () => {
         CriticalsService,
         { provide: PrismaService, useValue: mockPrisma },
         { provide: NotificationsGateway, useValue: createNoopGateway() },
+        { provide: SystemConfigService, useValue: mockSystemConfig },
       ],
     }).compile()
     svc = module.get(CriticalsService)

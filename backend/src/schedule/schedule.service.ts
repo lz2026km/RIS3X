@@ -4,6 +4,7 @@ import type { Prisma, ReportState } from '@prisma/client'
 import { PrismaService } from '../prisma/prisma.service'
 import { CriticalsService } from '../criticals/criticals.service'
 import { BackupService } from '../modules/backup/backup.service'
+import { SystemConfigService } from '../system-storage/system-config.service'
 
 const ESCALATION_ACTOR = 'system-scheduler'
 
@@ -23,6 +24,7 @@ export class ScheduleService {
     private readonly prisma: PrismaService,
     private readonly criticals: CriticalsService,
     private readonly backup: BackupService,
+    private readonly systemConfig: SystemConfigService,
   ) {}
 
   /**
@@ -51,13 +53,15 @@ export class ScheduleService {
   }
 
   /**
-   * 危急值 30 分钟未确认: 调 criticals.escalate 写升级通知记录 + 状态 → ESCALATED + 审计
+   * 危急值未确认升级 cron (每分钟): 超时阈值读取 admin config critical_timeout_minutes,
+   * 未配置回退 30 分钟。超时未确认: 调 criticals.escalate 写升级通知记录 + 状态 → ESCALATED + 审计
    */
   @Cron(CronExpression.EVERY_MINUTE)
   async checkCriticalTimeout(): Promise<void> {
     this.logger.log('Running critical value timeout check')
     try {
-      const cutoff = new Date(Date.now() - 30 * 60 * 1000)
+      const timeoutMinutes = await this.systemConfig.getNumber('critical_timeout_minutes', 30)
+      const cutoff = new Date(Date.now() - timeoutMinutes * 60 * 1000)
       const timedOut = await this.prisma.criticalValue.findMany({
         where: {
           ackedAt: null,
@@ -68,7 +72,7 @@ export class ScheduleService {
       })
       const recipients = await this.loadEscalationRecipients()
       for (const c of timedOut) {
-        const reason = `危急值(${c.severity})超过 30 分钟未确认，系统自动升级`
+        const reason = `危急值(${c.severity})超过 ${timeoutMinutes} 分钟未确认，系统自动升级`
         if (recipients.length > 0) {
           await this.criticals.escalate({ criticalId: c.id, reason, newRecipients: recipients })
         } else {
@@ -83,7 +87,7 @@ export class ScheduleService {
               resource: 'critical-value',
               resourceId: c.id,
               detail: {
-                timeoutMinutes: 30,
+                timeoutMinutes,
                 severity: c.severity,
                 createdAt: c.createdAt.toISOString(),
                 recipients: recipients.map((r) => r.name),
@@ -91,9 +95,9 @@ export class ScheduleService {
             },
           })
           .catch((err) => this.logger.warn(`audit log write failed: ${(err as Error).message}`))
-        this.logger.warn(`Critical value ${c.id} not acknowledged within 30min — ESCALATED`)
+        this.logger.warn(`Critical value ${c.id} not acknowledged within ${timeoutMinutes}min — ESCALATED`)
       }
-      if (timedOut.length > 0) this.logger.log(`Escalated ${timedOut.length} critical values over 30min`)
+      if (timedOut.length > 0) this.logger.log(`Escalated ${timedOut.length} critical values over ${timeoutMinutes}min`)
     } catch (err) {
       this.logger.error(`Critical value timeout check failed: ${(err as Error).message}`, (err as Error).stack)
     }

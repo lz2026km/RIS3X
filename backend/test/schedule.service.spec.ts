@@ -22,7 +22,7 @@ describe('ScheduleService', () => {
     }
     mockCriticals = { escalate: jest.fn().mockResolvedValue({ count: 1 }) }
     mockBackup = { createBackup: jest.fn().mockResolvedValue({ filename: 'x.json', sizeBytes: 1, checksum: 'c', recordCount: 1 }) }
-    svc = new ScheduleService(mockPrisma, mockCriticals, mockBackup)
+    svc = new ScheduleService(mockPrisma, mockCriticals, mockBackup, { getNumber: jest.fn().mockResolvedValue(20), getString: jest.fn().mockResolvedValue(undefined) } as never)
   })
 
   it('checkReportSlaEscalation scans overdue reports', async () => {

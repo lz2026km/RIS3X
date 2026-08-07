@@ -282,14 +282,14 @@ export const Hl7BuilderPage: React.FC = () => {
                     <Form.Item label="检查 ID" name="examId">
                       <Input placeholder="E2026001" />
                     </Form.Item>
-                    <Form.Item label="Accession Number" name="accessionNumber">
+                    <Form.Item label="检查号" name="accessionNumber">
                       <Input placeholder="ACC20260001" />
                     </Form.Item>
                     <Form.Item label="检查/收费代码" name="procedureCode">
                       <Input placeholder={isSiu ? "CTCHEST" : "CTCHEST"} />
                     </Form.Item>
                     {!isSiu && (
-                      <Form.Item label="Modality" name="modality">
+                      <Form.Item label="设备" name="modality">
                         <Select options={[{ value: "CT", label: "CT" }, { value: "MR", label: "MR" }, { value: "US", label: "US" }, { value: "XA", label: "XA" }, { value: "DX", label: "DX" }]} />
                       </Form.Item>
                     )}
