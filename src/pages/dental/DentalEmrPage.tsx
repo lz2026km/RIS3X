@@ -3,9 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Space, Tag, Select, Row, Col, Statistic, message, Tabs, Table, List, Timeline, Badge, Descriptions, Avatar } from 'antd';
 import { Activity, Phone, Calendar, Clock, DollarSign, FileText, Pill, AlertTriangle, History, Eye } from 'lucide-react';
+import { dentalApi } from '../../services/api/dentalApi';
 
 export const DentalEmrPage: React.FC = () => {
-  const [patients] = useState([
+  const [patients, setPatients] = useState([
     { id: 'P100001', name: '张伟' }, { id: 'P100002', name: '李娜' }, { id: 'P100003', name: '王芳' },
   ]);
   const [selectedId, setSelectedId] = useState('P100001');
@@ -18,6 +19,18 @@ export const DentalEmrPage: React.FC = () => {
   const [recalls, setRecalls] = useState<any[]>([]);
   const [tab, setTab] = useState('overview');
   const [_busy, setBusy] = useState(false);
+
+  // [W2-C] 接 dentalApi.listPatients 真实患者列表（失败时保留演示患者）
+  useEffect(() => {
+    let cancelled = false;
+    void dentalApi.listPatients().then((res: any) => {
+      if (cancelled) return;
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        setPatients(res.data.map((p: any) => ({ id: p.id ?? p.patientId, name: p.name ?? p.patientName })));
+      }
+    }).catch(() => { /* keep demo patients */ });
+    return () => { cancelled = true; };
+  }, []);
 
   const loadPatient = async (pid: string) => {
     setBusy(true);

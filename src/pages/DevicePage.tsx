@@ -650,6 +650,8 @@ export default function DevicePage() {
   const [maintenancePlans, setMaintenancePlans] = useState<MaintPlanRow[]>(MAINTENANCE_PLANS)
   const [duePlans, setDuePlans] = useState<MaintPlanRow[]>([])
   const [maintPlansLoading, setMaintPlansLoading] = useState(false)
+  // [W2-C] 维保历史记录: 由 API 已完成计划派生 + 静态记录兜底
+  const [maintHistory, setMaintHistory] = useState(MAINTENANCE_RECORDS)
 
   const mapMaintenancePlan = (p: any): MaintPlanRow => ({
     id: p.id,
@@ -669,7 +671,24 @@ export default function DevicePage() {
         deviceMgmtApi.listMaintenancePlans(),
         deviceMgmtApi.maintenanceDue(30),
       ])
-      if (listRes.success) setMaintenancePlans(listRes.data.data.map(mapMaintenancePlan))
+      if (listRes.success) {
+        setMaintenancePlans(listRes.data.data.map(mapMaintenancePlan))
+        const completed = (listRes.data.data as any[]).filter(p => p.status === 'COMPLETED' || p.completedAt)
+        if (completed.length > 0) {
+          setMaintHistory(completed.map(p => ({
+            id: p.id,
+            deviceId: p.deviceId,
+            deviceName: p.deviceName || p.deviceId,
+            date: (p.completedAt ?? p.maintenanceDate ?? '').slice(0, 10),
+            type: p.type ?? '定期保养',
+            engineer: p.assignee ?? p.performedBy ?? '系统记录',
+            cost: Number(p.actualCost ?? p.estimatedCost ?? 0) || 0,
+            content: p.content ?? p.summary ?? '',
+            result: p.result ?? '已完成',
+            nextDate: (p.nextMaintenanceDate ?? '').slice(0, 10) || '-',
+          })))
+        }
+      }
       if (dueRes.success) setDuePlans((dueRes.data?.items ?? []).map(mapMaintenancePlan))
     } catch (err) {
       console.error('[W4-B] maintenance plans load failed:', err)
@@ -1151,7 +1170,7 @@ export default function DevicePage() {
         </div>
       </div>
 
-      <MaintenanceHistoryTable records={MAINTENANCE_RECORDS} />
+      <MaintenanceHistoryTable records={maintHistory} />
       {maintPlansLoading && (
         <div style={{ padding: '8px 12px', marginBottom: 12, background: '#dbeafe', color: '#1e40af', borderRadius: 6, fontSize: 12 }}>
           ⏳ 正在从 API 加载保养计划...

@@ -5,6 +5,16 @@ import type { QualityMetric, RegulatoryCheck } from '../../services/contrast'
 
 const svc = getQualityComplianceService()
 
+function downloadFile(filename: string, content: string, type = 'text/csv;charset=utf-8') {
+  const blob = new Blob(['\uFEFF' + content], { type })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 const CATEGORY_LABELS: Record<string, string> = { usage: '使用情况', safety: '安全指标', adherence: '依从性', regulatory: '合规性' }
 const CATEGORY_COLORS: Record<string, string> = { usage: '#3b82f6', safety: '#ef4444', adherence: '#22c55e', regulatory: '#a855f7' }
 
@@ -30,6 +40,35 @@ export default function ContrastQualityCompliancePage() {
   const filtered = activeCategory ? metrics.filter(m => m.category === activeCategory) : metrics
   const categories = [...new Set(metrics.map(m => m.category))]
 
+  const handleExportReport = () => {
+    const header = '分类,指标,当前值,目标值,单位,趋势,详情'
+    const rows = metrics.map(m => [CATEGORY_LABELS[m.category] ?? m.category, m.name, m.currentValue, m.targetValue, m.unit, m.trend, m.details].join(','))
+    downloadFile('对比剂质量与合规-导出报告.csv', [header, ...rows].join('\n'))
+  }
+
+  const handleGenerateCompliance = () => {
+    const now = new Date().toLocaleString('zh-CN')
+    const passed = regulatoryChecks.filter(c => c.status === 'pass').length
+    const failed = regulatoryChecks.filter(c => c.status === 'fail').length
+    const pending = regulatoryChecks.length - passed - failed
+    const lines = [
+      '对比剂质量与合规报告',
+      `生成时间: ${now}`,
+      '',
+      '【合规检查汇总】',
+      `总计: ${regulatoryChecks.length} 项 | 通过: ${passed} 项 | 未通过: ${failed} 项 | 待检查/不适用: ${pending} 项`,
+      '',
+      '【检查明细】',
+      ...regulatoryChecks.map(c => `- [${c.status === 'pass' ? '通过' : c.status === 'fail' ? '未通过' : '待检查'}] ${c.name} (${c.regulation}) — ${c.details}`),
+      '',
+      '【质量指标】',
+      ...metrics.map(m => `- ${m.name}: ${m.currentValue}${m.unit} (目标 ${m.targetValue}${m.unit})`),
+      '',
+      '本报告由 G005 RIS v3.0.6.11 系统自动生成',
+    ]
+    downloadFile('对比剂合规报告.txt', lines.join('\n'), 'text/plain;charset=utf-8')
+  }
+
   if (loading) {
     return <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>加载中...</div>
   }
@@ -41,10 +80,10 @@ export default function ContrastQualityCompliancePage() {
           <BarChart3 size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>对比剂质量与合规</span>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+          <button onClick={handleExportReport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
             <Download size={14} />导出报告
           </button>
-          <button style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+          <button onClick={handleGenerateCompliance} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
             <FileText size={14} />生成合规报告
           </button>
         </div>

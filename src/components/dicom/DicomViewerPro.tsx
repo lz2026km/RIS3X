@@ -506,9 +506,9 @@ export default function DicomViewerPro({
             borderRadius: 4, fontFamily: 'monospace',
           }}>
             <div style={{ fontWeight: 600, color: '#fff' }}>{currentSample?.studyDescription || 'DICOM Viewer Pro'}</div>
-            <div>Modality: <span style={{ color: '#fbbf24' }}>{currentSample?.modality}</span> | Body: {currentSample?.bodyPart}</div>
-            <div>Acquired: {currentSample?.acquisitionDate} | ID: {currentSample?.studyId}</div>
-            <div style={{ color: '#64748b' }}>Engine: Cornerstone3D {cornerstoneReady ? '✓' : '✗'}</div>
+            <div>模态：<span style={{ color: '#fbbf24' }}>{currentSample?.modality}</span> | 部位：{currentSample?.bodyPart}</div>
+            <div>采集时间：{currentSample?.acquisitionDate} | ID: {currentSample?.studyId}</div>
+            <div style={{ color: '#64748b' }}>引擎：Cornerstone3D {cornerstoneReady ? '✓' : '✗'}</div>
           </div>
         </div>
 

@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts'
 import { Users, Search, TrendingUp, Award, Clock, CheckCircle, XCircle, ChevronDown, ChevronRight } from 'lucide-react'
+// [W2-A] 人员名册/工作量接 userApi 实时; 排班/满意度趋势无数据源 → 标注演示数据
+import { userApi } from '../../services/api/userApi'
 
 interface Staff {
   id: string; name: string; role: string; department: string; status: 'active' | 'leave' | 'training'
@@ -49,14 +51,67 @@ export default function HrOperationsPage() {
   const [roleFilter, setRoleFilter] = useState('all')
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [view, setView] = useState<'roster' | 'shift' | 'certs'>('roster')
+  // [W2-A] userApi 实时状态 (失败回退静态演示数据)
+  const [loading, setLoading] = useState(true)
+  const [dataSource, setDataSource] = useState<'api' | 'demo'>('demo')
+  const [apiError, setApiError] = useState('')
+  const [staff, setStaff] = useState<Staff[]>(MOCK_STAFF)
+  const [roles, setRoles] = useState<string[]>(ROLES)
+  const [certRows, setCertRows] = useState(CERTIFICATIONS)
 
-  const filtered = MOCK_STAFF.filter(s => {
+  const toNum = (v: unknown): number => {
+    const n = Number(v)
+    return Number.isFinite(n) ? n : 0
+  }
+
+  const loadStaff = useCallback(async () => {
+    setLoading(true)
+    setApiError('')
+    try {
+      const res = await userApi.list(0, 100)
+      const users = res.success && Array.isArray(res.data) ? res.data : []
+      if (users.length === 0) {
+        setDataSource('demo')
+        setApiError('userApi 暂不可用，当前展示内置演示数据')
+        return
+      }
+      setDataSource('api')
+      const mapped: Staff[] = users.map((u: any) => ({
+        id: u.id,
+        name: u.name || u.fullName || u.username || '—',
+        role: u.title || u.role || '医师',
+        department: u.subspecialty || u.department || '—',
+        status: u.isActive === false ? 'leave' : 'active',
+        shift: u.schedule || '白班',
+        examsThisWeek: toNum(u.monthlyExamCount ?? u.monthlyReportCount),
+        overtimeHrs: 0,
+        certification: Array.isArray(u.certifications) && u.certifications.length > 0 ? u.certifications[0] : '—',
+        satisfaction: toNum(u.annualQCScore) || 80,
+      }))
+      setStaff(mapped)
+      const uniqRoles = [...new Set(mapped.map(s => s.role).filter(Boolean))]
+      if (uniqRoles.length > 0) setRoles(uniqRoles)
+      const certs = mapped
+        .filter(s => s.certification && s.certification !== '—')
+        .map(s => ({ staff: s.name, cert: s.certification, expiry: '长期有效(演示)', status: 'valid' as const }))
+      if (certs.length > 0) setCertRows(certs)
+    } catch (e) {
+      setDataSource('demo')
+      setApiError(e instanceof Error ? e.message : '数据加载失败，已回退演示数据')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { void loadStaff() }, [loadStaff])
+
+  const filtered = staff.filter(s => {
     if (roleFilter !== 'all' && s.role !== roleFilter) return false
     if (search && !s.name.includes(search)) return false
     return true
   })
 
-  const prodData = MOCK_STAFF.filter(s => s.role !== '行政人员' && s.status === 'active').map(s => ({
+  const prodData = staff.filter(s => s.role !== '行政人员' && s.status === 'active').map(s => ({
     name: s.name, examsThisWeek: s.examsThisWeek,
   }))
 
@@ -65,11 +120,27 @@ export default function HrOperationsPage() {
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><Users size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>人力资源运营</span></div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>在岗 {MOCK_STAFF.filter(s => s.status === 'active').length}/{MOCK_STAFF.length}</span>
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>在岗 {staff.filter(s => s.status === 'active').length}/{staff.length} · {dataSource === 'api' ? 'userApi 实时' : '演示数据'}</span>
         </div>
       </div>
 
       <div style={{ padding: '20px 24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, fontSize: 12, flexWrap: 'wrap' }}>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999,
+            background: dataSource === 'api' ? '#22c55e20' : '#f59e0b20', color: dataSource === 'api' ? '#22c55e' : '#f59e0b', fontWeight: 600,
+          }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: dataSource === 'api' ? '#22c55e' : '#f59e0b' }} />
+            {loading ? '数据同步中...' : dataSource === 'api' ? '数据源: userApi 实时 (人员/工作量/资质)' : '数据源: 演示数据'}
+          </span>
+          {apiError && (
+            <span style={{ color: '#ef4444' }}>
+              {apiError}
+              <button onClick={() => void loadStaff()} style={{ marginLeft: 8, padding: '2px 10px', borderRadius: 4, border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>重试</button>
+            </span>
+          )}
+          <span style={{ color: '#8b949e' }}>排班表/满意度趋势为内置演示数据</span>
+        </div>
         <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: '#21262d', padding: 4, borderRadius: 8 }}>
           {(['roster', 'shift', 'certs'] as const).map(v => (
             <button key={v} onClick={() => setView(v)}
@@ -82,7 +153,7 @@ export default function HrOperationsPage() {
         {view === 'roster' && (
           <>
             <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
-              {['all', ...ROLES].map(r => (
+              {['all', ...roles].map(r => (
                 <button key={r} onClick={() => setRoleFilter(r)}
                   style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, background: roleFilter === r ? '#1e40af' : '#21262d', color: roleFilter === r ? '#fff' : '#8b949e' }}>
                   {r === 'all' ? '全部' : r}
@@ -98,7 +169,7 @@ export default function HrOperationsPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
               <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <TrendingUp size={16} color="#22c55e" />本周工作量对比 (在职)
+                  <TrendingUp size={16} color="#22c55e" />本周工作量对比 (在职) {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>(userApi 实时)</span>}
                 </div>
                 <ResponsiveContainer width="100%" height={220}>
                   <BarChart data={prodData}>
@@ -113,7 +184,7 @@ export default function HrOperationsPage() {
 
               <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <TrendingUp size={16} color="#8b5cf6" />员工满意度趋势
+                  <TrendingUp size={16} color="#8b5cf6" />员工满意度趋势 <span style={{ fontSize: 11, color: '#f59e0b' }}>(演示数据)</span>
                 </div>
                 <ResponsiveContainer width="100%" height={220}>
                   <LineChart data={SATISFACTION_TREND}>
@@ -166,7 +237,7 @@ export default function HrOperationsPage() {
 
         {view === 'shift' && (
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: '#f0f6fc' }}>本周排班表</div>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: '#f0f6fc' }}>本周排班表 <span style={{ fontSize: 11, color: '#f59e0b' }}>(演示数据)</span></div>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead>
                 <tr>
@@ -193,7 +264,7 @@ export default function HrOperationsPage() {
         {view === 'certs' && (
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Award size={16} color="#f59e0b" />资质证书到期提醒
+              <Award size={16} color="#f59e0b" />资质证书到期提醒 {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>(userApi 实时 · 到期日为演示)</span>}
             </div>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead>
@@ -205,7 +276,7 @@ export default function HrOperationsPage() {
                 </tr>
               </thead>
               <tbody>
-                {CERTIFICATIONS.map((c, i) => (
+                {certRows.map((c, i) => (
                   <tr key={i}>
                     <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>{c.staff}</td>
                     <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#8b949e' }}>{c.cert}</td>

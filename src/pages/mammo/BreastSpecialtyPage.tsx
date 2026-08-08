@@ -87,7 +87,7 @@ const BreastSpecialtyPage = () => {
     <div style={{ padding: 0 }}>
       <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1a3a5c', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Heart size={24} color="#be185d" /> 乳腺专科</h1>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1a3a5c', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Heart size={24} color="#be185d" /> 乳腺专科 <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fdf2f8', color: '#be185d', border: '1px solid #fbcfe8' }}>演示数据</span></h1>
           <p style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>乳腺影像专科 · BI-RADS 评分 · 筛查管理 · 乳腺工作流</p>
         </div>
         <button onClick={() => setShowNewModal(true)} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 500 }}>新建筛查</button>
@@ -218,7 +218,7 @@ const BreastSpecialtyPage = () => {
             <div style={{ fontSize: 15, fontWeight: 700, color: '#1a3a5c', marginBottom: 16 }}><BarChart3 size={16} color="#be185d" /> 月度筛查统计</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 8, textAlign: 'center' }}>
               {['1月', '2月', '3月', '4月', '5月', '6月'].map((m, i) => {
-                const val = [120, 98, 135, 110, 142, 128][i];
+                const val = [120, 98, 135, 110, 142, 128][i] ?? 0;
                 return (
                   <div key={m}>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: 120 }}>

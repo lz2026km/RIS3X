@@ -249,15 +249,21 @@ export default function TemplateManagementPage() {
 
   const renderVersionTab = () => {
     const [selectedTemplateId, setSelectedTemplateId] = useState('tpl-001')
-    const [versions] = useState<TemplateVersion[]>(mockVersions)
+    const [versions, setVersions] = useState<TemplateVersion[]>(mockVersions)
     const [diffView, setDiffView] = useState<string | null>(null)
 
     const templateVersions = versions.filter(v => v.templateId === selectedTemplateId)
     const draftVersion = templateVersions.find(v => v.status === 'draft')
     const publishedVersion = templateVersions.find(v => v.status === 'published')
 
+    const handleSubmitReview = () => {
+      if (!draftVersion) return
+      setVersions(prev => prev.map(v => v.id === draftVersion.id ? { ...v, status: 'review' as const, changeLog: '已提交审核：等待审核人确认' } : v))
+      showToast(`已提交审核版本 ${draftVersion.version}，等待审核人确认`)
+    }
+
     return (
-      <div style={{ background: '#fff', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+      <div style={{ display: activeTab === 'version' ? undefined : 'none', background: '#fff', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           <History size={20} color={C.primary} />
           <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>版本管理</span>
@@ -265,7 +271,7 @@ export default function TemplateManagementPage() {
             {templates.map(t => <option key={t.id} value={t.id}>{t.name} ({t.version})</option>)}
           </select>
           {draftVersion && (
-            <button style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 14px', background: C.success, color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+            <button onClick={handleSubmitReview} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 14px', background: C.success, color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
               <Shield size={14} /> 提交审核
             </button>
           )}
@@ -345,7 +351,7 @@ export default function TemplateManagementPage() {
     const totalUsage = templates.reduce((s, t) => s + t.usageCount, 0)
 
     return (
-      <div>
+      <div style={{ display: activeTab === 'analytics' ? undefined : 'none' }}>
         <div style={{ display: 'flex', gap: 16 }}>
           <div style={{ flex: 1 }}>
             <div style={{ background: '#fff', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: 16 }}>
@@ -428,13 +434,31 @@ export default function TemplateManagementPage() {
   }
 
   const renderShareTab = () => {
-    const [entries] = useState<ShareEntry[]>(mockShares)
+    const [entries, setEntries] = useState<ShareEntry[]>(mockShares)
     const [selectedTemplateId, setSelectedTemplateId] = useState('全部')
+    const [showShareModal, setShowShareModal] = useState(false)
+    const [shareForm, setShareForm] = useState({ templateId: 'tpl-001', sharedWith: '', permission: 'view' as ShareEntry['permission'], department: '放射科' })
 
     const filteredEntries = selectedTemplateId === '全部' ? entries : entries.filter(e => e.templateId === selectedTemplateId)
 
+    const handleCreateShare = () => {
+      if (!shareForm.templateId || !shareForm.sharedWith.trim()) return
+      const tpl = templates.find(t => t.id === shareForm.templateId)
+      setEntries(prev => [...prev, {
+        templateId: shareForm.templateId,
+        sharedWith: shareForm.sharedWith.trim(),
+        permission: shareForm.permission,
+        sharedBy: '当前用户',
+        sharedAt: new Date().toISOString().slice(0, 10),
+        department: shareForm.department,
+      }])
+      showToast(`已将「${tpl?.name ?? shareForm.templateId}」分享给 ${shareForm.sharedWith.trim()}`)
+      setShowShareModal(false)
+      setShareForm({ templateId: 'tpl-001', sharedWith: '', permission: 'view', department: '放射科' })
+    }
+
     return (
-      <div style={{ background: '#fff', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+      <div style={{ display: activeTab === 'share' ? undefined : 'none', background: '#fff', borderRadius: 8, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           <Share2 size={20} color={C.accent} />
           <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>分享与协作</span>
@@ -442,7 +466,7 @@ export default function TemplateManagementPage() {
             <option value="全部">全部模板</option>
             {templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
-          <button style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 14px', background: C.primary, color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}><Plus size={14} /> 新建分享</button>
+          <button onClick={() => setShowShareModal(true)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 14px', background: C.primary, color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}><Plus size={14} /> 新建分享</button>
         </div>
         <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
           <div style={{ flex: 1, background: C.primaryLighter, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
@@ -493,6 +517,40 @@ export default function TemplateManagementPage() {
           <Globe size={16} color={C.info} />
           <span style={{ fontSize: 12, color: C.textDark }}>支持跨部门共享 · 权限控制（查看/编辑/管理） · 共享请求流程</span>
         </div>
+        {showShareModal && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowShareModal(false)}>
+            <div style={{ background: '#fff', borderRadius: 12, width: 460, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: `1px solid ${C.borderLight}` }}>
+                <div style={{ fontSize: 15, fontWeight: 600, color: C.textDark, display: 'flex', alignItems: 'center', gap: 8 }}><Share2 size={16} color={C.primary} /> 新建分享</div>
+                <button onClick={() => setShowShareModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.textLight, fontSize: 18, padding: 4 }}>×</button>
+              </div>
+              <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 6 }}>模板</label>
+                  <select value={shareForm.templateId} onChange={e => setShareForm({ ...shareForm, templateId: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, color: C.textDark, background: C.white }}>
+                    {templates.map(t => <option key={t.id} value={t.id}>{t.name} ({t.version})</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 6 }}>共享给（科室/用户）</label>
+                  <input value={shareForm.sharedWith} onChange={e => setShareForm({ ...shareForm, sharedWith: e.target.value })} placeholder="如: 神经内科 / 王医生" style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: C.textMid, marginBottom: 6 }}>权限</label>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    {([['view', '查看'], ['edit', '编辑'], ['admin', '管理']] as const).map(([v, l]) => (
+                      <button key={v} onClick={() => setShareForm({ ...shareForm, permission: v })} style={{ flex: 1, padding: '8px 0', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: `1px solid ${shareForm.permission === v ? C.primary : C.border}`, background: shareForm.permission === v ? C.primaryLighter : '#fff', color: shareForm.permission === v ? C.primary : C.textMid }}>{l}</button>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
+                  <button onClick={() => setShowShareModal(false)} style={{ padding: '8px 20px', border: `1px solid ${C.border}`, borderRadius: 6, background: '#fff', color: C.textMid, fontSize: 13, cursor: 'pointer' }}>取消</button>
+                  <button onClick={handleCreateShare} disabled={!shareForm.sharedWith.trim()} style={{ padding: '8px 20px', border: 'none', borderRadius: 6, background: shareForm.sharedWith.trim() ? C.primary : '#94a3b8', color: '#fff', fontSize: 13, fontWeight: 600, cursor: shareForm.sharedWith.trim() ? 'pointer' : 'not-allowed' }}>确认分享</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     )
   }
@@ -605,9 +663,9 @@ export default function TemplateManagementPage() {
         </>
       )}
 
-      {activeTab === 'version' && renderVersionTab()}
-      {activeTab === 'analytics' && renderAnalyticsTab()}
-      {activeTab === 'share' && renderShareTab()}
+      {renderVersionTab()}
+      {renderAnalyticsTab()}
+      {renderShareTab()}
 
       {showModal && (
         <div style={styles.modalOverlay} onClick={() => setShowModal(false)}>

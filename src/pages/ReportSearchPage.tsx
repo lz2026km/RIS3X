@@ -102,6 +102,74 @@ export default function ReportSearchPage() {
     void fetchReports(query.trim());
   }, [query, modality, status, bodyPart, doctor, dateFrom, dateTo, fetchReports]);
 
+  // 本地存储: 保存查询 / 历史 / 收藏
+  const buildCriteria = () => ({
+    query: query.trim(),
+    modality, bodyPart, doctor, dateFrom, dateTo, status,
+    savedAt: new Date().toISOString(),
+  });
+
+  const handleSaveQuery = () => {
+    if (!query.trim() && modality === 'all') {
+      message.warning('请先输入检索条件再保存');
+      return;
+    }
+    try {
+      const key = 'report-search:saved';
+      const saved = JSON.parse(localStorage.getItem(key) || '[]');
+      const label = query.trim() || `${modality}${bodyPart !== 'all' ? '/' + bodyPart : ''}`;
+      saved.unshift({ ...buildCriteria(), label });
+      localStorage.setItem(key, JSON.stringify(saved.slice(0, 50)));
+      message.success(`查询「${label}」已保存`);
+    } catch {
+      message.error('保存失败，浏览器存储不可用');
+    }
+  };
+
+  const handleShowHistory = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('report-search:saved') || '[]');
+      if (saved.length === 0) {
+        message.info('暂无历史查询记录');
+        return;
+      }
+      const last = saved[0];
+      setQuery(last.query || '');
+      if (last.modality) setModality(last.modality);
+      if (last.bodyPart) setBodyPart(last.bodyPart);
+      if (last.doctor) setDoctor(last.doctor);
+      if (last.dateFrom) setDateFrom(last.dateFrom);
+      if (last.dateTo) setDateTo(last.dateTo);
+      if (last.status) setStatus(last.status);
+      void fetchReports(last.query || '');
+      message.success(`已载入最近查询（${new Date(last.savedAt).toLocaleString('zh-CN')}）`);
+    } catch {
+      message.error('读取历史失败');
+    }
+  };
+
+  const handleFavorite = () => {
+    if (!query.trim() && modality === 'all') {
+      message.warning('请先输入检索条件再收藏');
+      return;
+    }
+    try {
+      const key = 'report-search:favorites';
+      const saved = JSON.parse(localStorage.getItem(key) || '[]');
+      const label = query.trim() || `${modality}${bodyPart !== 'all' ? '/' + bodyPart : ''}`;
+      const exists = saved.some((s: any) => s.label === label);
+      if (exists) {
+        message.info(`「${label}」已在收藏中`);
+        return;
+      }
+      saved.unshift({ ...buildCriteria(), label });
+      localStorage.setItem(key, JSON.stringify(saved.slice(0, 50)));
+      message.success(`查询「${label}」已收藏`);
+    } catch {
+      message.error('收藏失败，浏览器存储不可用');
+    }
+  };
+
   useEffect(() => {
     void fetchReports(query.trim());
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -220,13 +288,13 @@ export default function ReportSearchPage() {
             <div style={{ gridColumn: 'span 2', display: 'flex', alignItems: 'flex-end', gap: 6 }}>
               <button onClick={handleSearch} style={{ padding: '6px 14px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}>应用筛选</button>
               <button onClick={() => { setModality('all'); setBodyPart('all'); setStatus('all'); setDoctor(''); setDateFrom(''); setDateTo('') }} style={{ padding: '6px 10px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}>重置</button>
-              <button style={{ padding: '6px 10px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button onClick={handleSaveQuery} style={{ padding: '6px 10px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                 <Save size={10} /> 保存查询
               </button>
-              <button style={{ padding: '6px 10px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button onClick={handleShowHistory} style={{ padding: '6px 10px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                 <History size={10} /> 历史
               </button>
-              <button style={{ padding: '6px 10px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button onClick={handleFavorite} style={{ padding: '6px 10px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                 <Star size={10} /> 收藏
               </button>
             </div>

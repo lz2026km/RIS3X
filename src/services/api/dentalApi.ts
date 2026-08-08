@@ -218,4 +218,12 @@ export const dentalApi = {
     api.post<any>(`${DENTAL_API}/tele/sessions`, data),
   endTeleSession: (id: string) =>
     api.delete<any>(`${DENTAL_API}/tele/sessions/${id}`),
+
+  // [G005 W1-A] 牙椅排班 / 患者 / 医生 (DentalSchedulePage 在用, 对齐 dentalHandlers)
+  getScheduleChairs: () => api.get<any[]>(`${DENTAL_API}/schedule/chairs`),
+  getScheduleAppointments: (date?: string) =>
+    api.get<any[]>(`${DENTAL_API}/schedule/appointments${date ? '?date=' + date : ''}`),
+  getScheduleStats: () => api.get<any>(`${DENTAL_API}/schedule/stats`),
+  listPatients: () => api.get<any[]>(`${DENTAL_API}/patients`),
+  listDentists: () => api.get<any[]>(`${DENTAL_API}/dentists`),
 };

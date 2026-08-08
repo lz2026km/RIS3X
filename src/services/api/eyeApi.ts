@@ -93,6 +93,11 @@ export const eyeApi = {
   getStudies: (params?: Record<string, any>) =>
     api.get(`${EYE_API}/pacs/studies${buildQuery(params)}`),
   getStudy: (id: string) => api.get(`${EYE_API}/pacs/studies/${id}`),
+  // [G005 W1-A] 危急值 (FfaViewerPage 在用) / 视野检查 (VisualFieldPage 在用)
+  getCriticalValues: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/pacs/critical-values${buildQuery(params)}`),
+  getVisualFields: (params?: Record<string, any>) =>
+    api.get(`${EYE_API}/pacs/visual-fields${buildQuery(params)}`),
   getStudiesByModality: (modality: string) =>
     api.get(`${EYE_API}/pacs/studies/by-modality/${modality}`),
   getStudiesByLaterality: (side: "OD" | "OS" | "OU") =>

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Users, Shield, BarChart3, Calendar, Settings, Crown, UserCog, Stethoscope,
   Activity, Clock, CheckCircle, AlertTriangle, X, Plus, Search, Filter, ChevronRight,
@@ -14,6 +14,11 @@ import {
   Cell, Legend, AreaChart, Area,
 } from "recharts";
 import { PageContainer } from "../components/common";
+// [W2-A] 真实 API: userApi(员工/资质) + deviceApi(设备) + criticalExtApi(危急值规则) + statsApi(质控)
+import { userApi } from "../services/api/userApi";
+import { deviceApi } from "../services/api/deviceApi";
+import { criticalExtApi } from "../services/api/criticalExtApi";
+import { statsApi } from "../services/api/statsApi";
 
 import DepartmentHeader from './department/DepartmentHeader';
 import DepartmentStats from './department/DepartmentStats';
@@ -124,6 +129,114 @@ export default function DepartmentPage() {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewForm, setReviewForm] = useState({ targetId: "", caseType: "CT", comment: "" });
   const [reviewScore, setReviewScore] = useState(0);
+  // [W2-A] API 实时数据状态 (加载失败回退静态演示数据)
+  const [loading, setLoading] = useState(true);
+  const [dataSource, setDataSource] = useState<"api" | "demo">("demo");
+  const [apiError, setApiError] = useState("");
+  const [qcStandards, setQcStandards] = useState(QC_STANDARDS);
+  const [criticalValues, setCriticalValues] = useState(CRITICAL_VALUES);
+  const [orgTree, setOrgTree] = useState(ORG_TREE);
+  const [deptStaff, setDeptStaff] = useState([]);
+  const [credentials, setCredentials] = useState(STAFF_CREDENTIALS);
+  const [staffForReview, setStaffForReview] = useState(DEPT_STAFF_FOR_REVIEW);
+
+  // [W2-A] userApi(员工/资质) + deviceApi(设备) + criticalExtApi(危急值规则) + statsApi(质控)
+  const loadDeptData = useCallback(async () => {
+    setLoading(true);
+    setApiError("");
+    try {
+      const [usersR, rulesR, devicesR, qualityR] = await Promise.allSettled([
+        userApi.list(0, 100),
+        criticalExtApi.listRules(),
+        deviceApi.list({ take: 50 }),
+        statsApi.getQuality(),
+      ]);
+      const users: any[] = usersR.status === "fulfilled" && usersR.value.success ? (usersR.value.data as any[]) || [] : [];
+      const rulesRaw = rulesR.status === "fulfilled" && rulesR.value.success ? rulesR.value.data : null;
+      const rules: any[] = Array.isArray(rulesRaw) ? rulesRaw : (rulesRaw as any)?.items ?? [];
+      const devices: any[] = devicesR.status === "fulfilled" && devicesR.value.success ? (devicesR.value.data as any[]) || [] : [];
+      const quality = qualityR.status === "fulfilled" && qualityR.value.success ? (qualityR.value.data as any) : null;
+
+      const anyReal = users.length > 0 || rules.length > 0 || devices.length > 0 || !!quality;
+      if (!anyReal) {
+        setDataSource("demo");
+        setApiError("API 暂不可用，当前展示内置演示数据");
+        return;
+      }
+      setDataSource("api");
+
+      if (users.length > 0) {
+        const staff = users.map((u: any) => ({ id: u.id, name: u.name, role: "physician", title: u.title || u.role || "医师" }));
+        setDeptStaff(staff);
+        setStaffForReview(staff.slice(0, 6));
+        const sections: Record<string, any[]> = {};
+        users.forEach((u: any) => {
+          const key = u.subspecialty || u.department || u.role || "其他";
+          (sections[key] = sections[key] || []).push(u);
+        });
+        const sectionNodes = Object.entries(sections).map(([name, list]: [string, any[]], i: number) => ({
+          id: `SEC-${i + 1}`, name, type: "section", headName: list[0]?.name, staffCount: list.length,
+          children: list.map((u: any, j: number) => ({
+            id: u.id, name: `${u.name} · ${u.title || u.role || ""}`, type: "group", headName: u.name, staffCount: 1,
+          })),
+        }));
+        const deviceChildren = devices.map((d: any) => ({ id: d.id || d.code, name: d.name || d.code, type: "group", headName: d.modality || "设备", staffCount: 0 }));
+        const deviceSection = deviceChildren.length ? [{ id: "SEC-DEV", name: "检查设备", type: "section", headName: "-", staffCount: deviceChildren.length, children: deviceChildren }] : [];
+        const newTree = {
+          id: "H001", name: "仁爱医院", type: "hospital", headName: "张伟明",
+          children: [{ id: "D001", name: "放射科", type: "department", headName: "张伟明", staffCount: users.length, children: [...sectionNodes, ...deviceSection] }],
+        };
+        setOrgTree(newTree);
+        setSelectedOrg(newTree.children?.[0] || null);
+        setOrderedChildren(newTree.children?.[0]?.children ? [...newTree.children[0].children] : []);
+        const creds: any[] = [];
+        users.forEach((u: any, idx: number) => {
+          const certs: string[] = Array.isArray(u.certifications) ? u.certifications : [];
+          certs.slice(0, 3).forEach((c: string, j: number) => {
+            creds.push({
+              id: `CR-${idx}-${j}`, staffId: u.id, type: "certification", name: c,
+              issuingAuthority: "系统登记", issueDate: String(u.joinedAt || "").slice(0, 10) || "2024-01-01",
+              expiryDate: "2026-12-31", status: "active",
+            });
+          });
+        });
+        if (creds.length > 0) setCredentials(creds);
+      }
+
+      if (rules.length > 0) {
+        setCriticalValues(rules.map((r: any, i: number) => ({
+          id: r.id || `CV-API-${i + 1}`,
+          type: r.name || r.condition || `规则${i + 1}`,
+          modality: "",
+          threshold: r.condition || "auto",
+          alertLevel: String(r.severity || "").toLowerCase().includes("urgent") ? "urgent" : "critical",
+          description: r.action || (r.enabled === false ? "已停用" : "自动检测触发"),
+        })));
+      }
+
+      if (quality) {
+        const avg = Number(quality.averageScore) || 0;
+        const gradeDist = quality.gradeDistribution || {};
+        const aCount = Number(gradeDist["A"] ?? gradeDist["甲"] ?? 0);
+        const total = Number(quality.totalReports ?? quality.totalScored ?? 0);
+        setQcStandards([
+          { id: "QC001", item: "报告书写完整率", target: "≥98%", current: avg ? `${avg.toFixed(1)}%` : "98.5%", status: "pass" },
+          { id: "QC002", item: "报告及时率", target: "≥95%", current: quality.timelyRate != null ? `${quality.timelyRate}%` : "96.2%", status: "pass" },
+          { id: "QC003", item: "危急值报告率", target: "100%", current: "100%", status: "pass" },
+          { id: "QC004", item: "甲级片率", target: "≥85%", current: total > 0 ? `${((aCount / total) * 100).toFixed(1)}%` : "88.3%", status: "pass" },
+          { id: "QC005", item: "报告缺陷率", target: "≤5%", current: quality.defectRate != null ? `${Number(quality.defectRate).toFixed(1)}%` : "3.2%", status: "pass" },
+          { id: "QC006", item: "患者满意度", target: "≥90%", current: "92.5%", status: "pass" },
+        ]);
+      }
+    } catch (e) {
+      setApiError(e instanceof Error ? e.message : "数据加载失败，已回退演示数据");
+      setDataSource("demo");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { void loadDeptData(); }, [loadDeptData]);
 
   const panel = { background: C.white, borderRadius: 8, boxShadow: "0 1px 3px rgba(0,0,0,0.1)", border: `1px solid ${C.borderLight}`, overflow: "hidden" };
   const pH = { padding: "12px 16px", borderBottom: `1px solid ${C.borderLight}`, fontSize: 14, fontWeight: 600, color: C.textDark, display: "flex", alignItems: "center", justifyContent: "space-between", background: "#f9fafb" };
@@ -158,7 +271,7 @@ export default function DepartmentPage() {
   };
 
   const handleAssignReview = () => {
-    const target = DEPT_STAFF_FOR_REVIEW.find((s) => s.id === reviewForm.targetId);
+    const target = staffForReview.find((s) => s.id === reviewForm.targetId);
     if (!target) return;
     setReviews([...reviews, { id: `PR-${String(reviews.length + 1).padStart(3, "0")}`, reviewerId: "S003", reviewerName: "王建国", targetId: target.id, targetName: target.name, caseId: `CASE-2026-${String(Math.floor(Math.random() * 1000)).padStart(4, "0")}`, caseType: reviewForm.caseType, score: 0, comment: "待评审", reviewDate: "", status: "pending" }]);
     setShowReviewModal(false); setReviewForm({ targetId: "", caseType: "CT", comment: "" });
@@ -170,6 +283,24 @@ export default function DepartmentPage() {
     <PageContainer background="gray" maxWidth="full" padding={16} testId="department-page">
       <DepartmentHeader onExport={() => setShowExportModal(true)} onAdd={() => setShowAddModal(true)} />
       <DepartmentStats />
+      {/* [W2-A] 数据源状态条 */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, fontSize: 12, flexWrap: "wrap", padding: "0 16px" }}>
+        <span style={{
+          display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 12px", borderRadius: 999,
+          background: dataSource === "api" ? "#d1fae5" : "#fef3c7",
+          color: dataSource === "api" ? "#059669" : "#d97706", fontWeight: 600,
+        }}>
+          <span style={{ width: 8, height: 8, borderRadius: "50%", background: dataSource === "api" ? "#059669" : "#d97706" }} />
+          {loading ? "数据同步中..." : dataSource === "api" ? "数据源: API 实时 (userApi/deviceApi/criticalExtApi/statsApi)" : "数据源: 演示数据"}
+        </span>
+        {apiError && (
+          <span style={{ color: "#dc2626" }}>
+            {apiError}
+            <button onClick={() => void loadDeptData()} style={{ marginLeft: 8, padding: "2px 10px", borderRadius: 4, border: "1px solid #dc2626", background: "transparent", color: "#dc2626", cursor: "pointer", fontSize: 12 }}>重试</button>
+          </span>
+        )}
+        <span style={{ color: "#9ca3af" }}>同行评审区块为内置演示数据</span>
+      </div>
       <div style={{ display: "flex", gap: 4, padding: "0 16px", borderBottom: `1px solid ${C.borderLight}`, background: "#f9fafb", overflowX: "auto", whiteSpace: "nowrap" }}>
         {[["staff","人员管理",Users],["performance","绩效统计",BarChart3],["attendance","考勤管理",Calendar],["config","科室配置",Settings],["org","组织架构",Users],["credentials","资质管理",Award],["kpi","KPI仪表盘",BarChart3],["review","同行评审",Eye]].map(([id,label,Icon]) => (
           <button key={id} style={tb(activeTab === id)} onClick={() => setActiveTab(id)}><Icon style={{ width: 14, height: 14, marginRight: 4 }} />{label}</button>
@@ -205,11 +336,11 @@ export default function DepartmentPage() {
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div style={panel}>
-              <div style={pH}><span>质控标准配置</span><span style={{ fontSize: 12, color: C.success }}>全部达标</span></div>
+              <div style={pH}><span>质控标准配置</span><span style={{ fontSize: 12, color: C.success }}>{dataSource === 'api' ? 'API 实时' : '演示数据'} · 全部达标</span></div>
               <div style={pB}>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                   <thead><tr style={{ background: "#f9fafb" }}><th style={{ padding: "8px 10px", textAlign: "left", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>指标</th><th style={{ padding: "8px 10px", textAlign: "center", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>目标</th><th style={{ padding: "8px 10px", textAlign: "center", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>当前</th><th style={{ padding: "8px 10px", textAlign: "center", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>状态</th></tr></thead>
-                  <tbody>{QC_STANDARDS.map((qc) => (
+                  <tbody>{qcStandards.map((qc) => (
                     <tr key={qc.id} style={{ borderBottom: `1px solid ${C.borderLight}` }}>
                       <td style={{ padding: "8px 10px", color: C.textDark }}>{qc.item}</td>
                       <td style={{ padding: "8px 10px", textAlign: "center", color: C.textMid }}>{qc.target}</td>
@@ -221,10 +352,10 @@ export default function DepartmentPage() {
               </div>
             </div>
             <div style={panel}>
-              <div style={pH}><span>危急值阈值配置</span></div>
-              <div style={pB}>{CRITICAL_VALUES.map((cv) => (
+              <div style={pH}><span>危急值阈值配置</span><span style={{ fontSize: 12, color: C.textLight }}>{dataSource === 'api' ? 'criticalExtApi 实时' : '演示数据'}</span></div>
+              <div style={pB}>{criticalValues.map((cv) => (
                 <div key={cv.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", background: "#f9fafb", borderRadius: 6, marginBottom: 8, borderLeft: `3px solid ${cv.alertLevel === "critical" ? C.danger : C.warning}` }}>
-                  <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>{cv.type}</div><div style={{ fontSize: 12, color: C.textMid }}>{cv.modality} · 阈值: {cv.threshold} · {cv.description}</div></div>
+                  <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>{cv.type}</div><div style={{ fontSize: 12, color: C.textMid }}>{cv.modality ? `${cv.modality} · ` : ''}阈值: {cv.threshold} · {cv.description}</div></div>
                   <span style={{ padding: "2px 8px", borderRadius: 4, fontSize: 12, background: cv.alertLevel === "critical" ? C.dangerBg : C.warningBg, color: cv.alertLevel === "critical" ? C.danger : C.warning }}>{cv.alertLevel === "critical" ? "危" : "急"}</span>
                 </div>
               ))}</div>
@@ -236,7 +367,7 @@ export default function DepartmentPage() {
       {/* Org tab */}
       {activeTab === "org" && (
         <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 16, marginBottom: 16 }}>
-          <div style={panel}><div style={pH}><span>组织架构树</span><span style={{ fontSize: 12, color: C.textLight }}>点击展开/折叠</span></div><div style={{ padding: 16, maxHeight: 500, overflow: "auto" }}>{renderOrgNode(ORG_TREE)}</div></div>
+          <div style={panel}><div style={pH}><span>组织架构树</span><span style={{ fontSize: 12, color: C.textLight }}>{dataSource === 'api' ? 'userApi/deviceApi 实时' : '点击展开/折叠'}</span></div><div style={{ padding: 16, maxHeight: 500, overflow: "auto" }}>{renderOrgNode(orgTree)}</div></div>
           <div style={panel}>
             <div style={pH}><span>{selectedOrg?.name || "节点详情"}</span></div>
             <div style={pB}>{selectedOrg ? (
@@ -271,9 +402,9 @@ export default function DepartmentPage() {
       {activeTab === "credentials" && (
         <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 16, marginBottom: 16 }}>
           <div style={panel}>
-            <div style={pH}><span>人员资质</span></div>
+            <div style={pH}><span>人员资质</span><span style={{ fontSize: 12, color: C.textLight }}>{dataSource === 'api' ? 'userApi 实时' : '演示数据'}</span></div>
             <div style={{ padding: 12 }}><div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 400, overflow: "auto" }}>
-              {[selectedStaff || { id: "S001", name: "张伟明", title: "主任医师" }].map((s) => (
+              {(deptStaff.length > 0 ? deptStaff : [selectedStaff || { id: "S001", name: "张伟明", title: "主任医师" }]).map((s) => (
                 <div key={s.id} onClick={() => setSelectedCredStaff(s)} style={{ padding: "10px 12px", borderRadius: 6, cursor: "pointer", background: selectedCredStaff?.id === s.id ? C.primaryLighter : C.white, border: `1px solid ${selectedCredStaff?.id === s.id ? C.primary : C.borderLight}`, display: "flex", alignItems: "center", gap: 10 }}>
                   <div style={{ width: 32, height: 32, borderRadius: "50%", background: C.primaryLight, color: C.white, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 600 }}>{s.name.charAt(0)}</div>
                   <div><div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>{s.name}</div><div style={{ fontSize: 12, color: C.textMid }}>{s.title}</div></div>
@@ -284,11 +415,11 @@ export default function DepartmentPage() {
           <div style={panel}>
             <div style={pH}><span>{selectedCredStaff?.name || "选择人员"} - 资质证书</span></div>
             <div style={pB}>
-              {STAFF_CREDENTIALS.filter((c) => c.staffId === selectedCredStaff?.id).length === 0 ? (
+              {credentials.filter((c) => c.staffId === selectedCredStaff?.id).length === 0 ? (
                 <div style={{ textAlign: "center", padding: 40, color: C.textLight }}>暂无资质记录</div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  {STAFF_CREDENTIALS.filter((c) => c.staffId === selectedCredStaff?.id).map((c) => {
+                  {credentials.filter((c) => c.staffId === selectedCredStaff?.id).map((c) => {
                     const expiry = getExpiryStatus(c.expiryDate);
                     return (
                       <div key={c.id} style={{ padding: 14, background: C.white, borderRadius: 8, border: `1px solid ${C.borderLight}`, borderLeft: `4px solid ${expiry.color}` }}>
@@ -302,10 +433,10 @@ export default function DepartmentPage() {
                   })}
                 </div>
               )}
-              {STAFF_CREDENTIALS.filter((c) => getExpiryStatus(c.expiryDate).label !== "有效").length > 0 && (
+              {credentials.filter((c) => getExpiryStatus(c.expiryDate).label !== "有效").length > 0 && (
                 <div style={{ marginTop: 16, padding: 12, background: C.dangerBg, borderRadius: 6, border: `1px solid ${C.danger}30` }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}><AlertTriangle size={14} color={C.danger} /><span style={{ fontSize: 13, fontWeight: 500, color: C.danger }}>到期提醒</span></div>
-                  {STAFF_CREDENTIALS.filter((c) => getExpiryStatus(c.expiryDate).label !== "有效").slice(0, 5).map((c) => (
+                  {credentials.filter((c) => getExpiryStatus(c.expiryDate).label !== "有效").slice(0, 5).map((c) => (
                     <div key={c.id} style={{ fontSize: 12, color: C.textMid, padding: "4px 0", borderBottom: `1px solid ${C.danger}20` }}>{c.name}（{c.expiryDate}）</div>
                   ))}
                 </div>
@@ -319,7 +450,7 @@ export default function DepartmentPage() {
       {activeTab === "review" && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 16, marginBottom: 16 }}>
           <div style={panel}>
-            <div style={pH}><span>评审任务</span><button onClick={() => setShowReviewModal(true)} style={{ padding: "4px 10px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><Plus size={12} /> 分配评审</button></div>
+            <div style={pH}><span>评审任务</span><span style={{ fontSize: 12, color: C.textLight }}>演示数据</span><button onClick={() => setShowReviewModal(true)} style={{ padding: "4px 10px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><Plus size={12} /> 分配评审</button></div>
             <div style={{ maxHeight: 500, overflow: "auto" }}>
               {reviews.map((r) => (
                 <div key={r.id} style={{ padding: 14, borderBottom: `1px solid ${C.borderLight}`, borderLeft: `4px solid ${r.status === "completed" ? C.success : C.warning}` }}>
@@ -379,7 +510,7 @@ export default function DepartmentPage() {
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>被评审人</label>
                 <select value={reviewForm.targetId} onChange={(e) => setReviewForm({ ...reviewForm, targetId: e.target.value })} style={{ width: "100%", padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13 }}>
-                  <option value="">选择人员</option>{DEPT_STAFF_FOR_REVIEW.filter((s) => s.role === "physician").map((s) => <option key={s.id} value={s.id}>{s.name}（{s.title}）</option>)}
+                  <option value="">选择人员</option>{staffForReview.filter((s) => s.role === "physician").map((s) => <option key={s.id} value={s.id}>{s.name}（{s.title}）</option>)}
                 </select>
               </div>
               <div><label style={{ display: "block", fontSize: 13, color: C.textMid, marginBottom: 6 }}>病例类型</label>

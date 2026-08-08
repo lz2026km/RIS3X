@@ -1,7 +1,9 @@
 // G005 DICOM Print SCP 胶片打印管理子系统 v1.0.0
+// [v3.0.6.11-81] W2-B: printQueueManager → printApi (/print/* MSW 演示数据, 失败回退本地模拟队列)
 import React, { useState, useEffect } from 'react'
 import { Printer, Film, Clock, CheckCircle, XCircle, Loader2, Plus, RefreshCw } from 'lucide-react'
 import { printQueueManager, PrintJob } from '../../data/printQueue'
+import { printApi, type PrintTaskDto } from '../../services/api/printApi'
 import { PageContainer, PageHeader } from '../../components/common'
 
 // 深蓝色主题
@@ -130,8 +132,11 @@ interface NewPrintForm {
 }
 
 const DicomPrintPage: React.FC = () => {
-  const [queue, setQueue] = useState<PrintJob[]>(printQueueManager.getQueue())
-  const [history, setHistory] = useState<PrintJob[]>(printQueueManager.getHistory())
+  const [queue, setQueue] = useState<PrintJob[]>([])
+  const [history, setHistory] = useState<PrintJob[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [source, setSource] = useState<'api' | 'local'>('api')
   const [historyPage, setHistoryPage] = useState(1)
   const HISTORY_PAGE_SIZE = 8
   const totalHistoryPages = Math.max(1, Math.ceil(history.length / HISTORY_PAGE_SIZE))
@@ -148,14 +153,91 @@ const DicomPrintPage: React.FC = () => {
   const [submitting, setSubmitting] = useState(false)
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
 
-  // 订阅队列变化
-  useEffect(() => {
+  // [W2-B] 真实化: /print/* API + loading/error; 失败回退本地 printQueueManager
+  const statusMap: Record<PrintTaskDto['status'], PrintJob['status']> = {
+    queued: 'Pending', printing: 'Printing', completed: 'Completed', failed: 'Failed',
+  }
+
+  const toPrintJob = (t: PrintTaskDto): PrintJob => ({
+    id: t.id,
+    filmId: t.filmId ?? t.id,
+    patientName: t.patientName,
+    patientId: t.patientId ?? '',
+    studyUid: '',
+    examType: t.modality ?? 'CT',
+    filmCount: t.copies ?? 1,
+    layout: '2×2',
+    medium: 'Blue Film',
+    copies: t.copies ?? 1,
+    printer: (t.printer as PrintJob['printer']) ?? '直连',
+    status: statusMap[t.status],
+    createTime: t.submitTime,
+    completeTime: t.completeTime ?? undefined,
+    progress: t.progress ?? 0,
+    errorMsg: t.errorMsg,
+  })
+
+  const loadFromApi = async (): Promise<boolean> => {
+    try {
+      const [queueRes, historyRes] = await Promise.all([
+        printApi.listQueue(),
+        printApi.listHistory(),
+      ])
+      if (queueRes.success && Array.isArray(queueRes.data)) {
+        setQueue(queueRes.data.map(toPrintJob))
+        setSource('api')
+        setError(null)
+      }
+      if (historyRes.success && Array.isArray(historyRes.data)) {
+        setHistory(historyRes.data.map(toPrintJob))
+        setSource('api')
+      }
+      return queueRes.success && historyRes.success
+    } catch {
+      return false
+    }
+  }
+
+  const fallbackToLocal = () => {
+    setSource('local')
+    setQueue([...printQueueManager.getQueue()])
+    setHistory([...printQueueManager.getHistory()])
     const unsubscribe = printQueueManager.subscribe((newQueue, newHistory) => {
       setQueue([...newQueue])
       setHistory([...newHistory])
       setHistoryPage(1)
     })
-    return () => unsubscribe()
+    return unsubscribe
+  }
+
+  // 订阅队列变化 (API 模式: 轮询; 本地模式: printQueueManager 订阅)
+  useEffect(() => {
+    let cancelled = false
+    let unsubscribeLocal: (() => void) | null = null
+    let timer: ReturnType<typeof setInterval> | null = null
+
+    void (async () => {
+      setLoading(true)
+      const ok = await loadFromApi()
+      if (cancelled) return
+      if (ok) {
+        // API 模式: 5s 轮询刷新 (绕过 client 内存缓存)
+        timer = setInterval(() => {
+          void loadFromApi()
+        }, 5000)
+      } else {
+        setError('打印 API 不可用，已回退本地模拟队列（演示数据）')
+        unsubscribeLocal = fallbackToLocal()
+      }
+      setLoading(false)
+    })()
+
+    return () => {
+      cancelled = true
+      if (timer) clearInterval(timer)
+      unsubscribeLocal?.()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // 显示消息
@@ -165,7 +247,7 @@ const DicomPrintPage: React.FC = () => {
   }
 
   // 提交新打印任务
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!form.patientName.trim()) {
       showMessage('请输入患者姓名', 'error')
       return
@@ -176,19 +258,20 @@ const DicomPrintPage: React.FC = () => {
     }
 
     setSubmitting(true)
-    setTimeout(() => {
-      printQueueManager.addJob({
+    try {
+      const res = await printApi.createJob({
         patientName: form.patientName,
         patientId: `P${Date.now()}`,
-        studyUid: form.studyUid,
-        examType: 'CT',
-        filmCount: form.filmCount,
-        layout: form.layout,
-        medium: form.medium,
-        copies: form.copies,
+        copies: form.filmCount,
+        filmSpec: form.layout,
         printer: form.printer,
       })
-      showMessage('打印任务已提交', 'success')
+      if (!res.success) {
+        showMessage(res.error?.message ?? '提交失败', 'error')
+      } else {
+        showMessage('打印任务已提交', 'success')
+        await loadFromApi()
+      }
       setForm({
         patientName: '',
         studyUid: '',
@@ -198,20 +281,33 @@ const DicomPrintPage: React.FC = () => {
         copies: 1,
         filmCount: 1,
       })
+    } catch {
+      showMessage('提交失败，请稍后重试', 'error')
+    } finally {
       setSubmitting(false)
-    }, 500)
+    }
   }
 
   // 取消任务
-  const handleCancel = (jobId: string) => {
-    printQueueManager.cancelJob(jobId)
-    showMessage('任务已取消', 'success')
+  const handleCancel = async (jobId: string) => {
+    const ok = await printApi.cancelJob(jobId)
+    if (ok.success) {
+      await loadFromApi()
+      showMessage('任务已取消', 'success')
+    } else {
+      showMessage('取消失败', 'error')
+    }
   }
 
   // 重试任务
-  const handleRetry = (jobId: string) => {
-    printQueueManager.retryJob(jobId)
-    showMessage('任务已重新提交', 'success')
+  const handleRetry = async (jobId: string) => {
+    const ok = await printApi.retryJob(jobId)
+    if (ok.success) {
+      await loadFromApi()
+      showMessage('任务已重新提交', 'success')
+    } else {
+      showMessage('重试失败', 'error')
+    }
   }
 
   // 队列列表列定义
@@ -463,6 +559,22 @@ const DicomPrintPage: React.FC = () => {
         }
         variant="banner"
         bannerBg={`linear-gradient(135deg, ${C.primary}, ${C.primaryLight})`}
+        actions={
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {loading && <Loader2 size={16} color="#ffffff" className="animate-spin" />}
+            <span style={{
+              padding: '3px 12px',
+              borderRadius: 12,
+              fontSize: 12,
+              fontWeight: 500,
+              background: source === 'api' ? 'rgba(56,161,105,0.25)' : 'rgba(214,158,46,0.25)',
+              color: source === 'api' ? '#c6f6d5' : '#fefcbf',
+            }}>
+              {source === 'api' ? '数据来源: /print/* API（演示数据）' : '数据来源: 本地模拟队列（回退）'}
+            </span>
+            {error && <span style={{ fontSize: 12, color: '#feb2b2' }}>{error}</span>}
+          </div>
+        }
       />
 
       {/* 统计卡片 */}
@@ -572,8 +684,12 @@ const DicomPrintPage: React.FC = () => {
             </div>
             <button
               onClick={() => {
-                setQueue([...printQueueManager.getQueue()])
-                setHistory([...printQueueManager.getHistory()])
+                if (source === 'api') {
+                  void loadFromApi()
+                } else {
+                  setQueue([...printQueueManager.getQueue()])
+                  setHistory([...printQueueManager.getHistory()])
+                }
                 setHistoryPage(1)
               }}
               style={{

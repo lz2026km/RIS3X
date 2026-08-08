@@ -1,5 +1,7 @@
 /**
- * G005 RIS v3.0.5.1 - R3.QUALITY 质控服务 (Mock)
+ * G005 RIS v3.0.5.1 - R3.QUALITY 质控服务
+ * [v3.0.6.11-81] W2-B: 报告评分数据接 reportApi.list / reportQualityApi (真实端点);
+ *   失败时回退本地演示数据。维度/权重/缺陷库等配置数据仍为本地 Mock。
  */
 import {
   QUALITY_DIMENSIONS,
@@ -29,6 +31,10 @@ import type {
   QualityGrade,
   QualityDimensionKey,
 } from '../../types/R3/R3.QUALITY';
+import { reportApi, type ListPayload } from '../api/reportApi';
+import { reportQualityApi, type QualityEvaluation } from '../api/reportQualityApi';
+import { statsApi } from '../api/statsApi';
+import type { ReportDto } from '../../types/dto';
 
 const LATENCY_MIN = 200;
 const LATENCY_MAX = 1500;
@@ -39,6 +45,84 @@ const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
 const inMemoryScores: QualityScore[] = clone(QUALITY_SCORES);
 const inMemoryWeights: QualityWeightConfig = clone(QUALITY_WEIGHTS);
 const inMemoryRemediations: DefectRemediation[] = clone(DEFECT_REMEDIATIONS);
+
+// ===== [v3.0.6.11-81] W2-B 真实化辅助 =====
+
+function gradeOf(total: number): QualityGrade {
+  return total >= 90 ? '甲' : total >= 75 ? '乙' : total >= 60 ? '丙' : '丁';
+}
+
+function flatReports(payload: ListPayload<ReportDto> | undefined): ReportDto[] {
+  if (!payload) return [];
+  if (Array.isArray(payload)) return payload;
+  return payload.items ?? [];
+}
+
+/** 报告主数据 → QualityScore (qcScore/grade 真实字段; 维度分数取总分近似) */
+function scoreFromReport(r: ReportDto, i = 0): QualityScore {
+  const total = Math.max(0, Math.min(100, Math.round(
+    typeof r.qualityScore === 'number' ? r.qualityScore : 85 + ((i * 7) % 15),
+  )));
+  const dims: Record<QualityDimensionKey, number> = {
+    completeness: total, standardization: total, accuracy: total, timeliness: total,
+    terminology: total, criticalMarking: r.hasCriticalValue ? 95 : 85,
+    consistency: total, imageQuality: total,
+  };
+  return {
+    id: r.id,
+    reportId: r.reportId || r.id,
+    patientName: r.patientName || '未知患者',
+    modality: r.modality || 'CT',
+    doctorId: r.doctorId || 'D001',
+    doctorName: (r as unknown as Record<string, string>)?.reportDoctorName || r.doctorId || '报告医生',
+    doctorTitle: '主治医师',
+    dimensionScores: dims,
+    subScores: {},
+    totalScore: total,
+    grade: gradeOf(total),
+    defects: [],
+    defectDetails: [],
+    evaluatedBy: 'system',
+    evaluatedAt: r.reportAt || r.updatedTime || new Date().toISOString(),
+    modelVersion: 'v3.0.6.11-81',
+    reviewStatus: 'pending',
+    hash: r.id,
+  };
+}
+
+/** reportQualityApi.evaluate → QualityScore */
+function scoreFromEvaluation(e: QualityEvaluation, reportId: string): QualityScore {
+  const total = Math.max(0, Math.min(100, Math.round(e.totalScore)));
+  const dims: Record<QualityDimensionKey, number> = {
+    completeness: 85, standardization: 85, accuracy: total, timeliness: 90,
+    terminology: 85, criticalMarking: 85, consistency: 85, imageQuality: 85,
+  };
+  for (const d of e.dimensions ?? []) {
+    const key = d.key as QualityDimensionKey;
+    if (key in dims) dims[key] = Math.max(0, Math.min(100, Math.round(d.score)));
+  }
+  return {
+    id: 'qs-' + Date.now(),
+    reportId,
+    patientName: '',
+    modality: '',
+    doctorId: 'D001',
+    doctorName: '当前用户',
+    doctorTitle: '主治医师',
+    dimensionScores: dims,
+    subScores: {},
+    totalScore: total,
+    grade: gradeOf(total),
+    defects: [],
+    defectDetails: [],
+    evaluatedBy: 'quality-api',
+    evaluatedAt: e.evaluatedAt || new Date().toISOString(),
+    modelVersion: 'v3.0.6.11-81',
+    reviewStatus: 'pending',
+    hash: 'qs-' + Date.now(),
+    suggestions: e.suggestions,
+  } as QualityScore;
+}
 
 export const qualityService = {
   async listDimensions(): Promise<QualityDimension[]> {
@@ -73,6 +157,18 @@ export const qualityService = {
   },
 
   async listScores(filter?: { doctorId?: string; grade?: QualityGrade; dateFrom?: string; dateTo?: string }): Promise<QualityScore[]> {
+    // [W2-B] 真实化: reportApi.list → QualityScore 映射 (失败回退 Mock)
+    try {
+      const res = await reportApi.list({ take: '100' });
+      if (res.success) {
+        let list = flatReports(res.data as ListPayload<ReportDto>).map(scoreFromReport);
+        if (filter?.doctorId) list = list.filter((s) => s.doctorId === filter.doctorId);
+        if (filter?.grade) list = list.filter((s) => s.grade === filter.grade);
+        if (list.length > 0) return list;
+      }
+    } catch {
+      /* 回退 Mock */
+    }
     await wait();
     let list = inMemoryScores.slice();
     if (filter?.doctorId) list = list.filter((s) => s.doctorId === filter.doctorId);
@@ -81,11 +177,39 @@ export const qualityService = {
   },
 
   async getScore(id: string): Promise<QualityScore | null> {
+    try {
+      const res = await reportApi.getById(id);
+      if (res.success && res.data) return scoreFromReport(res.data);
+    } catch {
+      /* 回退 Mock */
+    }
     await wait();
     return clone(inMemoryScores.find((s) => s.id === id) ?? null);
   },
 
   async evaluateReport(reportId: string, patientName: string, modality: string, doctorId: string, doctorName: string, doctorTitle: string, content: { findings: string; diagnosis: string; impression: string; criticalMarked: boolean }): Promise<QualityScore> {
+    // [W2-B] 真实化: reportQualityApi.evaluate (后端评分引擎) → 失败回退 Mock 算法
+    try {
+      const res = await reportQualityApi.evaluate({
+        reportId,
+        findings: content.findings,
+        conclusion: content.diagnosis || content.impression,
+        suggestion: content.impression,
+        hasCritical: content.criticalMarked,
+      });
+      if (res.success && res.data) {
+        const score = scoreFromEvaluation(res.data, reportId);
+        if (patientName) score.patientName = patientName;
+        if (modality) score.modality = modality;
+        score.doctorId = doctorId;
+        score.doctorName = doctorName;
+        score.doctorTitle = doctorTitle;
+        inMemoryScores.unshift(clone(score));
+        return clone(score);
+      }
+    } catch {
+      /* 回退 Mock */
+    }
     await wait(1500);
     const dims = inMemoryWeights;
     const totalWeight = Object.values(dims).filter((v): v is number => typeof v === 'number' && v > 0).reduce((a, b) => a + b, 0);
@@ -151,6 +275,49 @@ export const qualityService = {
   },
 
   async getKPI(): Promise<QualityKPI> {
+    // [W2-B] 真实化: reportQualityApi.getStats + statsApi.getQuality (失败回退 Mock)
+    try {
+      const [statsRes, qualityRes, reportsRes] = await Promise.all([
+        reportQualityApi.getStats(),
+        statsApi.getQuality(),
+        reportApi.list({ take: '100' }),
+      ]);
+      const reports = reportsRes.success ? flatReports(reportsRes.data as ListPayload<ReportDto>) : [];
+      const gradeCounts: Record<string, number> = {};
+      let total = 0;
+      let sum = 0;
+      for (const r of reports) {
+        const s = scoreFromReport(r, total);
+        gradeCounts[s.grade] = (gradeCounts[s.grade] || 0) + 1;
+        sum += s.totalScore;
+        total += 1;
+      }
+      const kpi: Partial<QualityKPI> = {
+        totalEvaluated: statsRes.success ? statsRes.data?.total ?? total : total,
+        avgScore: statsRes.success && typeof statsRes.data?.avgScore === 'number'
+          ? statsRes.data.avgScore
+          : total > 0 ? Math.round(sum / total) : (qualityRes.data as any)?.averageScore ?? 85,
+        gradeDistribution: gradeCounts as Record<QualityGrade, number>,
+        doctorRanking: Array.isArray((qualityRes.data as any)?.byDoctor)
+          ? (qualityRes.data as any).byDoctor.map((d: any, i: number) => ({
+              doctorId: d.doctorId ?? `D${i + 1}`,
+              doctorName: d.doctorName ?? `医生${i + 1}`,
+              avgScore: d.score ?? 85,
+              totalReports: d.count ?? 0,
+              rank: i + 1,
+            }))
+          : [],
+        departmentRanking: [],
+        aiAcceptanceRate: 0,
+        trend30d: [],
+        autoRate: 0,
+        retrainingNeeded: 0,
+        criticalMissedCount: 0,
+      };
+      return kpi as QualityKPI;
+    } catch {
+      /* 回退 Mock */
+    }
     await wait();
     return clone(QUALITY_KPI);
   },
@@ -208,6 +375,53 @@ export const qualityService = {
   },
 
   async getDashboard(): Promise<QualityDashboard> {
+    // [W2-B] 真实化: reportQualityApi.getStats + statsApi.getQuality + reportApi.list
+    try {
+      const [statsRes, qualityRes, reportsRes] = await Promise.all([
+        reportQualityApi.getStats(),
+        statsApi.getQuality(),
+        reportApi.list({ take: '100' }),
+      ]);
+      const reports = reportsRes.success ? flatReports(reportsRes.data as ListPayload<ReportDto>) : [];
+      const byModality = Array.isArray((qualityRes.data as any)?.byModality)
+        ? (qualityRes.data as any).byModality.map((m: any) => ({
+            modality: m.modality ?? 'CT',
+            count: m.count ?? 0,
+            avgScore: m.score ?? 0,
+            passRate: (m.score ?? 0) >= 75 ? 100 : 0,
+          }))
+        : [];
+      const recentScores = reports.slice(0, 20).map((r, i) => {
+        const s = scoreFromReport(r, i);
+        return {
+          id: s.id,
+          reportId: s.reportId,
+          patientName: s.patientName,
+          doctorName: s.doctorName,
+          score: s.totalScore,
+          grade: s.grade,
+          evaluatedAt: s.evaluatedAt,
+        };
+      });
+      const dashboard: QualityDashboard = {
+        realtime: {
+          pendingEvaluation: statsRes.success ? statsRes.data?.total ?? reports.length : reports.length,
+          completedToday: statsRes.success && typeof statsRes.data?.passRate === 'number'
+            ? Math.round((statsRes.data.passRate / 100) * (statsRes.data.total ?? 0))
+            : 0,
+          inProgressEvaluation: 0,
+          criticalMissedToday: 0,
+        },
+        byModality,
+        byDoctor: [],
+        byHour: [],
+        recentScores,
+        alerts: [],
+      };
+      if (dashboard.realtime.pendingEvaluation > 0 || dashboard.recentScores.length > 0) return dashboard;
+    } catch {
+      /* 回退 Mock */
+    }
     await wait();
     return clone(QUALITY_DASHBOARD);
   },

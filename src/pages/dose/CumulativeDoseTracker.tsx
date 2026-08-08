@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { AlertTriangle, CheckCircle } from "lucide-react";
 import {
   AreaChart,
@@ -9,13 +10,40 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from "recharts";
+import { rdsrApi, type CumulativeDose } from "../../services/api/rdsrApi";
 import { cumulativeDoseData } from "./mockData";
 import type { CumulativeDosePoint } from "./types";
 
-export default function CumulativeDoseTracker() {
-  const lastPoint = cumulativeDoseData[
-    cumulativeDoseData.length - 1
-  ] as CumulativeDosePoint;
+export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { patientId?: string }) {
+  const [data, setData] = useState<CumulativeDosePoint[]>(cumulativeDoseData);
+  const [patientInfo, setPatientInfo] = useState<{ name: string; id: string }>({ name: "张志刚", id: patientId });
+  const [source, setSource] = useState<"api" | "demo">("demo");
+
+  // [W2-C] 接 rdsrApi.getPatientCumulative 患者累计剂量, 失败时回退演示数据
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await rdsrApi.getPatientCumulative(patientId);
+        if (!cancelled && res.success && res.data) {
+          const d = res.data as CumulativeDose;
+          setPatientInfo({ name: d.patientName, id: d.patientId });
+          if (d.monthlyTrend && d.monthlyTrend.length > 0) {
+            let acc = 0;
+            const points = d.monthlyTrend.map(t => {
+              acc += t.totalDlp;
+              return { date: t.month, cumulativeDLP: acc, examCount: d.totalExams, threshold: d.annualLimit };
+            });
+            setData(points);
+            setSource("api");
+          }
+        }
+      } catch { /* 回退演示数据 */ }
+    })();
+    return () => { cancelled = true; };
+  }, [patientId]);
+
+  const lastPoint = data[data.length - 1] as CumulativeDosePoint;
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div
@@ -34,10 +62,13 @@ export default function CumulativeDoseTracker() {
             marginBottom: 16,
           }}
         >
-          患者累计剂量时间线 - 张志刚 (RAD-P001)
+          患者累计剂量时间线 - {patientInfo.name} ({patientInfo.id})
+          <span style={{ fontSize: 11, color: "#94a3b8", marginLeft: 8 }}>
+            {source === "api" ? "· 数据源: /rdsr/patients/cumulative" : "· 演示数据"}
+          </span>
         </div>
         <ResponsiveContainer width="100%" height={260}>
-          <AreaChart data={cumulativeDoseData}>
+          <AreaChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#94a3b8" }} />
             <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} />

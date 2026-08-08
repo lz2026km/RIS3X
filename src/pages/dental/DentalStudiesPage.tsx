@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, List, Input, Badge } from 'antd';
 import { Activity, Eye, RefreshCw } from 'lucide-react';
+import { dentalApi } from '../../services/api/dentalApi';
 import { MODALITY_LABELS, MODALITY_COLORS } from '../../data/dental/constants';
 
 export const DentalStudiesPage: React.FC = () => {
@@ -12,13 +13,11 @@ export const DentalStudiesPage: React.FC = () => {
   const load = async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (filter.modality) params.set('modality', filter.modality);
-      if (filter.patientName) params.set('patientName', filter.patientName);
-      params.set('pageSize', '50');
-      const r = await fetch(`/api/v1/dental/studies?${params}`);
-      const d = await r.json();
-      if (d.success) setStudies(d.data || []);
+      // [W2-C] 接 dentalApi.getStudies 真实列表 (MSW dentalHandlers 演示数据)
+      const params: any = { pageSize: '50' };
+      if (filter.modality) params.modality = filter.modality;
+      const r = await dentalApi.listStudies(params);
+      if (r.success) setStudies(r.data ?? []);
     } catch { message.error('加载失败'); }
     finally { setLoading(false); }
   };

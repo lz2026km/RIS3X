@@ -92,7 +92,7 @@ const CardiacSpecialtyPage = () => {
         const list = Array.isArray(res.data) ? res.data : [];
         setAnalyses(list);
         if (list.length > 0 && !list.some((a) => a.id === selectedId)) {
-          setSelectedId(list[0].id);
+          setSelectedId(list[0]!.id);
         }
       } else {
         setError(res.error?.message ?? "加载失败");
@@ -200,7 +200,7 @@ const CardiacSpecialtyPage = () => {
               gap: 8,
             }}
           >
-            <Heart size={24} color="#1e40af" /> 心脏专科
+            <Heart size={24} color="#1e40af" /> 心脏专科 <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#eff6ff', color: '#1e40af', border: '1px solid #bfdbfe' }}>演示数据</span>
           </h1>
           <p style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>
             Cardiac Imaging Specialty · 冠脉评估 · 心功能分析 · 血流动力学
@@ -938,7 +938,7 @@ const CardiacSpecialtyPage = () => {
                     { label: "LCX", score: selected.calciumScore.lcx },
                     { label: "RCA", score: selected.calciumScore.rca },
                   ].map((c) => {
-                    const total = selected.calciumScore.totalAgatston || 1;
+                    const total = selected?.calciumScore?.totalAgatston || 1;
                     const pct = Math.round((c.score / total) * 100);
                     return (
                       <div key={c.label} style={{ marginBottom: 14 }}>

@@ -1,7 +1,7 @@
 // Ortho Specialty API — 骨科影像分析 · 关节 · 脊柱 · 骨密度
-import { api } from './client';
-
-const ORTHO_API = '/ortho';
+// [v3.0.6.11-81] W1-B P1: 后端无 /ortho/* 端点 (仅 MSW mock), 页面为演示页 (0 调用方)。
+// 全部方法标注 MOCK_ONLY: 返回本地演示数据, 不发网络请求 (避免 404)。
+import type { ApiResponse } from './types';
 
 export type JointType = 'shoulder' | 'elbow' | 'wrist' | 'hip' | 'knee' | 'ankle' | 'cervical' | 'lumbar';
 export type KellgrenLawrenceGrade = '0' | 'I' | 'II' | 'III' | 'IV';
@@ -54,25 +54,37 @@ export interface OrthoStudy {
   status: 'scheduled' | 'acquired' | 'analyzing' | 'reviewed' | 'reported';
 }
 
-function buildQuery(params?: Record<string, string | number | boolean | undefined>): string {
-  if (!params) return '';
-  const filtered = Object.entries(params).filter(([_, v]) => v !== undefined && v !== '');
-  if (filtered.length === 0) return '';
-  return '?' + new URLSearchParams(filtered as [string, string][]).toString();
+function mockOk<T>(data: T): Promise<ApiResponse<T>> {
+  return Promise.resolve({ success: true, data });
 }
 
 export const orthoSpecialtyApi = {
-  getJointStudies: (params?: Record<string, any>) => api.get<OrthoStudy[]>(`${ORTHO_API}/joints${buildQuery(params)}`),
-  analyzeJoint: (studyId: string) => api.post<{ measurements: JointMeasurement; grade: OsteoarthritisGrade }>(`${ORTHO_API}/joints/${studyId}/analyze`, {}),
-  getFractures: (params?: Record<string, any>) => api.get<FractureAnalysis[]>(`${ORTHO_API}/fractures${buildQuery(params)}`),
-  detectFracture: (studyId: string) => api.post<{ fractures: FractureAnalysis[] }>(`${ORTHO_API}/fractures/${studyId}/detect`, {}),
-  getSpineStudies: (params?: Record<string, any>) => api.get<OrthoStudy[]>(`${ORTHO_API}/spine${buildQuery(params)}`),
-  analyzeSpine: (studyId: string) => api.post<{ levels: SpineAnalysis[] }>(`${ORTHO_API}/spine/${studyId}/analyze`, {}),
-  measureCobbAngle: (studyId: string) => api.get<{ angleDeg: number }>(`${ORTHO_API}/spine/${studyId}/cobb`),
-  getBmdStudies: (params?: Record<string, any>) => api.get<BmdResult[]>(`${ORTHO_API}/bmd${buildQuery(params)}`),
-  analyzeBmd: (studyId: string) => api.post<BmdResult>(`${ORTHO_API}/bmd/${studyId}/analyze`, {}),
-  computeFrax: (data: Record<string, any>) => api.post<{ hipFrax: number; spineFrax: number }>(`${ORTHO_API}/bmd/frax`, data),
-  getOrthoStats: (params?: Record<string, any>) => api.get<any>(`${ORTHO_API}/stats${buildQuery(params)}`),
+  // MOCK_ONLY: 本地演示数据
+  getJointStudies: (_params?: Record<string, any>) =>
+    mockOk<OrthoStudy[]>([
+      { id: 'OX001', patientId: 'P200001', patientName: '张伟', modality: 'XR', joint: 'knee', studyDate: '2026-07-15', klGrade: 'III', status: 'reviewed' },
+      { id: 'OX002', patientId: 'P200002', patientName: '李芳', modality: 'XR', joint: 'hip', studyDate: '2026-07-14', klGrade: 'II', status: 'reported' },
+    ]),
+  analyzeJoint: (_studyId: string) =>
+    mockOk<{ measurements: JointMeasurement; grade: OsteoarthritisGrade }>({ measurements: { jointSpaceWidthMm: 4.2, normalRange: [4, 7], alignmentAngleDeg: 178, jointEffusion: false, osteophytes: true }, grade: 2 }),
+  getFractures: (_params?: Record<string, any>) =>
+    mockOk<FractureAnalysis[]>([]),
+  detectFracture: (_studyId: string) =>
+    mockOk<{ fractures: FractureAnalysis[] }>({ fractures: [] }),
+  getSpineStudies: (_params?: Record<string, any>) =>
+    mockOk<OrthoStudy[]>([]),
+  analyzeSpine: (_studyId: string) =>
+    mockOk<{ levels: SpineAnalysis[] }>({ levels: [] }),
+  measureCobbAngle: (_studyId: string) =>
+    mockOk<{ angleDeg: number }>({ angleDeg: 12 }),
+  getBmdStudies: (_params?: Record<string, any>) =>
+    mockOk<BmdResult[]>([]),
+  analyzeBmd: (_studyId: string) =>
+    mockOk<BmdResult>({ id: _studyId, site: '腰椎 L1-L4', tScore: -1.2, zScore: -0.8, category: 'osteopenia' }),
+  computeFrax: (_data: Record<string, any>) =>
+    mockOk<{ hipFrax: number; spineFrax: number }>({ hipFrax: 4.5, spineFrax: 6.2 }),
+  getOrthoStats: (_params?: Record<string, any>) =>
+    mockOk<any>({ totalStudies: 22, fractureCount: 2, severeOA: 3 }),
 };
 
 export default orthoSpecialtyApi;

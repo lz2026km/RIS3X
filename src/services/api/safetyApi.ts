@@ -503,6 +503,16 @@ export async function getPatientSafetyGoals(): Promise<PatientSafetyGoal[]> {
   return [...MOCK_GOALS]
 }
 
+export async function createPatientSafetyGoal(goal: Omit<PatientSafetyGoal, 'id' | 'status'>): Promise<PatientSafetyGoal> {
+  const newGoal: PatientSafetyGoal = {
+    ...goal,
+    id: `GOAL-${Date.now().toString(36).toUpperCase()}`,
+    status: 'on-track',
+  }
+  MOCK_GOALS.unshift(newGoal)
+  return newGoal
+}
+
 export async function getCqiDashboard(): Promise<CqiProject[]> {
   return [...MOCK_CQI_PROJECTS]
 }

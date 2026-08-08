@@ -152,6 +152,15 @@ const PacsAdminPage: React.FC = () => {
 
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+      {/* [G005 W1-C] 演示数据（后端待实现）: 后端无 pacs-admin controller, 数据由 MSW 提供 */}
+      <Alert
+        type="warning"
+        showIcon
+        banner
+        message="演示数据（后端待实现）"
+        description="本页为 PACS 管理演示页面：后端暂无 /pacs-admin 接口，全部数据由 MSW 演示数据提供，待后端接入。"
+        style={{ marginBottom: 16 }}
+      />
       <Space style={{ marginBottom: 16 }} wrap>
         <Server size={20} color="#1677ff" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>PACS 管理</span>

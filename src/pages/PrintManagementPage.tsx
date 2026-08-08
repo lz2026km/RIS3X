@@ -1,7 +1,10 @@
-// G005 放射科RIS系统 - 胶片打印管理页面 v2.0.0
-import React, { useState } from 'react'
+﻿// G005 放射科RIS系统 - 胶片打印管理页面 v2.0.0
+// [v3.0.6.11-81] W2-B: 打印机=deviceApi / 队列·历史·统计=printApi(/print/*) / 失败回退演示数据
+import React, { useState, useEffect } from 'react'
 import { api } from '../services/api'
 import { templatesApi } from '../services/api/templatesApi'
+import { deviceApi } from '../services/api/deviceApi'
+import { printApi } from '../services/api/printApi'
 import { Printer, Settings, FileText, Film, CheckCircle, XCircle, Search, Plus, X, Eye, Edit2, RefreshCw, Download, BarChart, PieChart, TrendingUp, AlertCircle, Info, Copy, Layers, Box, DollarSign, Monitor, Network, HardDrive, Cog, FileBarChart, ScrollText, Database, Zap, Timer, BarChart2, Activity, Server, Wifi, WifiOff, FileSpreadsheet, Building2, Receipt, CreditCard, LayoutGrid, SlidersHorizontal, AlertTriangle, ClipboardList, ShieldAlert } from 'lucide-react'
 import {
   BarChart as ReBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -457,19 +460,26 @@ export default function PrintManagementPage() {
   const [showPreviewModal, setShowPreviewModal] = useState<boolean>(false)
   const [previewItem, setPreviewItem] = useState<any>(null)
 
-  // 打印配置相关状态
-  const [printers] = useState(PRINTERS)
+  // 打印配置相关状态 ([W2-B] 真实化: deviceApi/printApi, 失败回退静态演示数据)
+  const [printers, setPrinters] = useState(PRINTERS)
   const [filmSpecs] = useState(FILM_SPECS)
   const [dicomPresets] = useState(DICOM_PRESETS)
   const [reportTemplates] = useState(REPORT_TEMPLATES)
-  const [printQueue] = useState(PRINT_QUEUE)
-  const [printHistory] = useState(PRINT_HISTORY)
+  const [printQueue, setPrintQueue] = useState(PRINT_QUEUE)
+  const [printHistory, setPrintHistory] = useState(PRINT_HISTORY)
 
-  // 统计相关状态
-  const [filmUsageStats] = useState(FILM_USAGE_STATS)
-  const [_devicePrintStats] = useState(DEVICE_PRINT_STATS)
+  // 统计相关状态 ([W2-B] printApi.getStats → filmUsage/devicePrint/costReport)
+  const [filmUsageStats, setFilmUsageStats] = useState(FILM_USAGE_STATS)
+  const [devicePrintStats, setDevicePrintStats] = useState(DEVICE_PRINT_STATS)
+  const [costReport, setCostReport] = useState(COST_REPORT)
   const [_consumableCosts] = useState(CONSUMABLE_COSTS)
   const [_efficiencyStats] = useState(EFFICIENCY_STATS)
+
+  // [W2-B] DICOM 打印任务 (printApi 队列+历史合并)
+  const [dicomTasks, setDicomTasks] = useState(DICOM_PRINT_TASKS)
+  const [dataLoading, setDataLoading] = useState(true)
+  const [dataError, setDataError] = useState<string | null>(null)
+  const [dataSource, setDataSource] = useState<'api' | 'static'>('api')
 
   // 配置默认值
   const [defaultCopies, setDefaultCopies] = useState<number>(1)
@@ -557,6 +567,116 @@ export default function PrintManagementPage() {
   const todayCost = filmUsageStats.find(f => f.date === '05-02')?.cost || 0
   const activePrinters = printers.filter(p => p.status === 'online').length
 
+  // [W2-B] 真实化: 打印机=deviceApi, 队列/历史/统计=printApi; 失败回退静态演示数据
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setDataLoading(true)
+      setDataError(null)
+      try {
+        const [devicesRes, queueRes, historyRes, statsRes] = await Promise.all([
+          deviceApi.list({ take: 50 }),
+          printApi.listQueue(),
+          printApi.listHistory(),
+          printApi.getStats(),
+        ])
+        if (cancelled) return
+        let ok = false
+        if (devicesRes.success && Array.isArray(devicesRes.data) && devicesRes.data.length > 0) {
+          setPrinters(devicesRes.data.map((d: any) => ({
+            id: d.id,
+            name: d.name || (d.brand && d.model ? `${d.brand} ${d.model}` : '') || d.code || d.id || '打印机',
+            type: d.modality === 'DR' || d.modality === 'CR' ? 'local' : 'network',
+            status: (d.status === '维护中' || d.status === '故障' || d.status === 'MAINTENANCE' || d.status === 'BROKEN' || d.status === 'OFFLINE') ? 'offline' : 'online',
+            location: d.room ?? d.roomId ?? '',
+            filmSpec: '14x17',
+            defaultCopies: 1,
+            dpi: 300,
+          })))
+          ok = true
+        }
+        if (queueRes.success && Array.isArray(queueRes.data)) {
+          setPrintQueue(queueRes.data.map((t) => ({
+            id: t.id,
+            patientId: t.patientId ?? '',
+            patientName: t.patientName,
+            modality: t.modality ?? 'CT',
+            studyDesc: t.studyType ?? '胶片打印',
+            filmSpec: t.filmSpec ?? '14x17',
+            copies: t.copies ?? 1,
+            status: t.status === 'printing' ? 'printing' : t.status === 'failed' ? 'error' : t.status === 'completed' ? 'completed' : 'queued',
+            printer: t.printer ?? 'P001',
+            requestTime: t.submitTime,
+            progress: t.progress ?? 0,
+            errorMsg: t.errorMsg,
+          })))
+          ok = true
+        }
+        if (historyRes.success && Array.isArray(historyRes.data)) {
+          setPrintHistory(historyRes.data.map((t) => ({
+            id: t.id,
+            patientId: t.patientId ?? '',
+            patientName: t.patientName,
+            modality: t.modality ?? 'CT',
+            studyDesc: t.studyType ?? '胶片打印',
+            filmSpec: t.filmSpec ?? '14x17',
+            copies: t.copies ?? 1,
+            pages: t.copies ?? 1,
+            printer: t.printer ?? 'DICOM 打印机',
+            operator: '系统',
+            printTime: t.submitTime,
+            status: t.status === 'completed' ? 'success' : 'error',
+            cost: 0,
+          })))
+          ok = true
+        }
+        if (statsRes.success && statsRes.data) {
+          if (Array.isArray(statsRes.data.filmUsage) && statsRes.data.filmUsage.length > 0) setFilmUsageStats(statsRes.data.filmUsage)
+          if (Array.isArray(statsRes.data.devicePrint) && statsRes.data.devicePrint.length > 0) setDevicePrintStats(statsRes.data.devicePrint)
+          if (Array.isArray(statsRes.data.costReport) && statsRes.data.costReport.length > 0) setCostReport(statsRes.data.costReport)
+          ok = true
+        }
+        if (ok) { setDataSource('api'); setDataError(null) }
+        else setDataError('打印 API 不可用，当前展示演示数据')
+      } catch {
+        if (!cancelled) setDataError('打印数据加载失败，当前展示演示数据')
+      } finally {
+        if (!cancelled) setDataLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [])
+
+  // [W2-B] DICOM 打印任务: /print/queue + /print/history 合并
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      const [q, h] = await Promise.all([printApi.listQueue(), printApi.listHistory()])
+      if (cancelled) return
+      const all: typeof DICOM_PRINT_TASKS = []
+      const push = (t: any) => {
+        all.push({
+          id: t.id,
+          patientId: t.patientId ?? '',
+          patientName: t.patientName,
+          modality: t.modality ?? 'CT',
+          studyType: t.studyType ?? '胶片打印',
+          filmSpec: t.filmSpec ?? '14×17',
+          copies: t.copies ?? 1,
+          status: (t.status === 'queued' || t.status === 'printing' || t.status === 'completed' || t.status === 'failed') ? t.status : 'queued',
+          submitTime: t.submitTime,
+          completeTime: t.completeTime ?? null,
+          printer: t.printer ?? '',
+          mediumType: '蓝基胶片',
+        })
+      }
+      if (q.success && Array.isArray(q.data)) q.data.forEach((t: any) => push(t))
+      if (h.success && Array.isArray(h.data)) h.data.forEach((t: any) => push(t))
+      if (all.length > 0) setDicomTasks(all)
+    })()
+    return () => { cancelled = true }
+  }, [])
+
   // 打印量趋势数据
   const trendData = filmUsageStats.map(f => ({
     date: f.date,
@@ -572,24 +692,24 @@ export default function PrintManagementPage() {
   ]
 
   // 各设备打印占比
-  const deviceDistData = DEVICE_PRINT_STATS.map(d => ({
+  const deviceDistData = devicePrintStats.map(d => ({
     name: d.device,
     value: d.printCount,
-    color: ['#1e40af', '#0891b2', '#8b5cf6', '#d97706', '#dc2626'][DEVICE_PRINT_STATS.indexOf(d) % 5]
+    color: ['#1e40af', '#0891b2', '#8b5cf6', '#d97706', '#dc2626'][devicePrintStats.indexOf(d) % 5]
   }))
 
   // DICOM打印队列表格筛选
-  const filteredDicomTasks = DICOM_PRINT_TASKS.filter(task =>
+  const filteredDicomTasks = dicomTasks.filter(task =>
     task.patientName.includes(dicomQueueSearch) ||
     task.patientId.includes(dicomQueueSearch) ||
     task.studyType.includes(dicomQueueSearch)
   )
 
   // DICOM统计
-  const dicomQueuedCount = DICOM_PRINT_TASKS.filter(t => t.status === 'queued').length
-  const dicomPrintingCount = DICOM_PRINT_TASKS.filter(t => t.status === 'printing').length
-  const dicomCompletedCount = DICOM_PRINT_TASKS.filter(t => t.status === 'completed').length
-  const dicomFailedCount = DICOM_PRINT_TASKS.filter(t => t.status === 'failed').length
+  const dicomQueuedCount = dicomTasks.filter(t => t.status === 'queued').length
+  const dicomPrintingCount = dicomTasks.filter(t => t.status === 'printing').length
+  const dicomCompletedCount = dicomTasks.filter(t => t.status === 'completed').length
+  const dicomFailedCount = dicomTasks.filter(t => t.status === 'failed').length
 
   // ============================================================
   // 事件处理函数
@@ -678,7 +798,43 @@ export default function PrintManagementPage() {
 
   // 刷新队列
   const handleRefreshQueue = (): void => {
-    displayToast('打印队列已刷新', 'success')
+    displayToast(dataSource === 'api' ? '已从服务端刷新打印队列' : '打印队列已刷新（演示数据）', 'success')
+    void (async () => {
+      const [queueRes, historyRes] = await Promise.all([printApi.listQueue(), printApi.listHistory()])
+      if (queueRes.success && Array.isArray(queueRes.data)) {
+        setPrintQueue(queueRes.data.map((t: any) => ({
+          id: t.id,
+          patientId: t.patientId ?? '',
+          patientName: t.patientName,
+          modality: t.modality ?? 'CT',
+          studyDesc: t.studyType ?? '胶片打印',
+          filmSpec: t.filmSpec ?? '14x17',
+          copies: t.copies ?? 1,
+          status: t.status === 'printing' ? 'printing' : t.status === 'failed' ? 'error' : t.status === 'completed' ? 'completed' : 'queued',
+          printer: t.printer ?? 'P001',
+          requestTime: t.submitTime,
+          progress: t.progress ?? 0,
+          errorMsg: t.errorMsg,
+        })))
+      }
+      if (historyRes.success && Array.isArray(historyRes.data)) {
+        setPrintHistory(historyRes.data.map((t: any) => ({
+          id: t.id,
+          patientId: t.patientId ?? '',
+          patientName: t.patientName,
+          modality: t.modality ?? 'CT',
+          studyDesc: t.studyType ?? '胶片打印',
+          filmSpec: t.filmSpec ?? '14x17',
+          copies: t.copies ?? 1,
+          pages: t.copies ?? 1,
+          printer: t.printer ?? 'DICOM 打印机',
+          operator: '系统',
+          printTime: t.submitTime,
+          status: t.status === 'completed' ? 'success' : 'error',
+          cost: 0,
+        })))
+      }
+    })()
   }
 
   // 暂停/恢复队列
@@ -1436,7 +1592,7 @@ export default function PrintManagementPage() {
         </div>
         <div style={{ marginTop: 12, padding: 10, background: C.bg, borderRadius: 4 }}>
           <div style={{ fontSize: 12, color: C.textMid }}>
-            今日总任务: <span style={{ color: C.primary, fontWeight: 600 }}>{DICOM_PRINT_TASKS.length}</span> 项
+            今日总任务: <span style={{ color: C.primary, fontWeight: 600 }}>{dicomTasks.length}</span> 项
           </div>
         </div>
       </Card>
@@ -1613,7 +1769,7 @@ export default function PrintManagementPage() {
       <Card title="打印成本报表" icon={<FileBarChart size={16} />} style={{ gridColumn: 'span 2' }}>
         <div style={{ height: 200, marginBottom: 12 }}>
           <ResponsiveContainer width="100%" height="100%">
-            <ReBarChart data={COST_REPORT} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
+            <ReBarChart data={costReport} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke={C.textLight} />
               <YAxis tick={{ fontSize: 12 }} stroke={C.textLight} />
@@ -1672,7 +1828,7 @@ export default function PrintManagementPage() {
       {/* 打印任务队列（按优先级） */}
       <Card title="打印任务队列（按优先级）" icon={<ClipboardList size={16} />} style={{ gridColumn: 'span 2' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {DICOM_PRINT_TASKS.filter(t => t.status === 'printing' || t.status === 'queued').slice(0, 8).map((task, idx) => (
+          {dicomTasks.filter(t => t.status === 'printing' || t.status === 'queued').slice(0, 8).map((task, idx) => (
             <div key={task.id} style={{
               display: 'flex', alignItems: 'center', gap: 12,
               padding: '8px 12px', borderRadius: 6,
@@ -2159,7 +2315,7 @@ export default function PrintManagementPage() {
       <Card title="各设备打印量" icon={<Monitor size={16} />}>
         <div style={{ height: 200 }}>
           <ResponsiveContainer width="100%" height="100%">
-            <ReBarChart data={DEVICE_PRINT_STATS} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
+            <ReBarChart data={devicePrintStats} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="device" tick={{ fontSize: 12 }} stroke={C.textLight} />
               <YAxis tick={{ fontSize: 12 }} stroke={C.textLight} />
@@ -2712,6 +2868,34 @@ export default function PrintManagementPage() {
         <p style={{ fontSize: 13, color: C.textMid, margin: '4px 0 0 0' }}>
           管理打印设备、胶片规格、打印队列和统计分析
         </p>
+      </div>
+
+      {/* 数据来源标注 ([W2-B] 真实化) */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16,
+        padding: '8px 14px', borderRadius: 6,
+        background: dataError ? '#fef2f2' : '#f0fdf4',
+        border: `1px solid ${dataError ? '#fecaca' : '#bbf7d0'}`
+      }}>
+        {dataLoading
+          ? <span style={{ fontSize: 12, color: C.textMid }}>正在加载打印数据...</span>
+          : (
+            <>
+              <span style={{
+                fontSize: 12, fontWeight: 600,
+                padding: '2px 10px', borderRadius: 10,
+                background: dataSource === 'api' ? '#dcfce7' : '#fef9c3',
+                color: dataSource === 'api' ? '#15803d' : '#a16207'
+              }}>
+                {dataSource === 'api' ? '真实数据' : '演示数据'}
+              </span>
+              <span style={{ fontSize: 12, color: dataError ? '#dc2626' : '#4b5563' }}>
+                {dataError
+                  ? dataError
+                  : '打印机=deviceApi(/devices) · 队列/历史/统计=printApi(/print/*)；胶片用量/费用为估算值'}
+              </span>
+            </>
+          )}
       </div>
 
       {/* 统计卡片 */}

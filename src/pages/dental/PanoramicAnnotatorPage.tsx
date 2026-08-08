@@ -1,8 +1,8 @@
 // [v3.0.6.8-55] 全景片标注工具 (Canvas)
 import React, { useState, useRef, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Card, Space, Tag, Button, Row, Col, Select } from 'antd';
-import { Ruler, Square, Circle, Type, Trash2 } from 'lucide-react';
+import { Card, Space, Tag, Button, Row, Col, Select, message } from 'antd';
+import { Ruler, Square, Circle, Type, Trash2, Save } from 'lucide-react';
 
 type Tool = 'ruler' | 'rect' | 'circle' | 'text';
 interface Annotation { id: string; tool: Tool; x: number; y: number; w: number; h: number; text?: string; color: string; label?: string; value?: string; }
@@ -19,6 +19,25 @@ export const PanoramicAnnotatorPage: React.FC = () => {
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const [colorIdx, _setColorIdx] = useState(0);
   const [label, setLabel] = useState('');
+
+  // [W2-C] 标注保存到本地 (localStorage, 按 studyId 隔离)
+  const storageKey = `panoramic-annotations:${studyId || 'default'}`;
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (raw) setAnnotations(JSON.parse(raw));
+    } catch { /* ignore */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [studyId]);
+
+  const handleSaveAnnotations = () => {
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(annotations));
+      message.success(`已保存 ${annotations.length} 条标注到本地`);
+    } catch {
+      message.error('保存失败，浏览器存储不可用');
+    }
+  };
 
   // Draw canvas with annotations
   useEffect(() => {
@@ -111,6 +130,7 @@ export const PanoramicAnnotatorPage: React.FC = () => {
           } extra={
             <Space>
               <Select size="small" value={label || undefined} onChange={setLabel} allowClear style={{ width: 100 }} options={['龋齿','根尖病变','骨丧失','种植位','阻生'].map(t=>({value:t,label:t}))} />
+              <Button size="small" icon={<Save size={12} />} onClick={handleSaveAnnotations}>保存标注</Button>
               <Button size="small" icon={<Trash2 size={12} />} onClick={() => setAnnotations([])}>清除</Button>
             </Space>
           }>

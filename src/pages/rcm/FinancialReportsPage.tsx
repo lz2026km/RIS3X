@@ -1,5 +1,8 @@
-import { useState } from 'react'
+// [W2-A] 损益表/KPI 接入 financeApi (getFinancialReports + getRevenueAnalysis) + statsApi
+import { useState, useEffect, useCallback } from 'react'
 import { FileSpreadsheet, Download, Printer, BarChart3, Activity, ArrowUpRight, ArrowDownRight } from 'lucide-react'
+import { financeApi } from '../../services/api/financeApi'
+import { statsApi } from '../../services/api/statsApi'
 
 interface PLRow { item: string; amount: number; type: 'revenue' | 'cost' | 'expense' }
 
@@ -33,10 +36,96 @@ const KPI_DATA = [
 
 export default function FinancialReportsPage() {
   const [tab, setTab] = useState<'pl' | 'kpi'>('pl')
+  // [W2-A] financeApi 实时状态 (失败回退静态演示数据)
+  const [loading, setLoading] = useState(true)
+  const [dataSource, setDataSource] = useState<'api' | 'demo'>('demo')
+  const [apiError, setApiError] = useState('')
+  const [plData, setPlData] = useState<PLRow[]>(PL_DATA)
+  const [monthlyPl, setMonthlyPl] = useState(MONTHLY_PL)
+  const [kpiData, setKpiData] = useState(KPI_DATA)
+  const [periodLabel, setPeriodLabel] = useState('2026年4月')
 
-  const totalRevenue = PL_DATA.filter(r => r.type === 'revenue').reduce((s, r) => s + r.amount, 0)
-  const totalCost = PL_DATA.filter(r => r.type === 'cost').reduce((s, r) => s + r.amount, 0)
-  const totalExpense = PL_DATA.filter(r => r.type === 'expense').reduce((s, r) => s + r.amount, 0)
+  const toNum = (v: unknown): number => {
+    const n = Number(v)
+    return Number.isFinite(n) ? n : 0
+  }
+
+  const loadFinance = useCallback(async () => {
+    setLoading(true)
+    setApiError('')
+    try {
+      const [repR, revR, costR, dailyR] = await Promise.allSettled([
+        financeApi.getFinancialReports(),
+        financeApi.getRevenueAnalysis(),
+        financeApi.getCostAccounting(),
+        statsApi.getDaily(),
+      ])
+      const rev = revR.status === 'fulfilled' && revR.value.success ? revR.value.data as any : null
+      const cost = costR.status === 'fulfilled' && costR.value.success ? costR.value.data as any : null
+      const daily = dailyR.status === 'fulfilled' && dailyR.value.success ? dailyR.value.data as any : null
+      if (!rev && !cost) {
+        setDataSource('demo')
+        setApiError('financeApi 暂不可用，当前展示内置演示数据')
+        return
+      }
+      setDataSource('api')
+
+      // 收入: MSW {daily[],monthly[]} / Nest {period,totalRevenue,...}
+      const monthlyRaw = Array.isArray(rev?.monthly) ? rev.monthly : Array.isArray(rev?.daily) ? rev.daily : []
+      const monthly = monthlyRaw
+        .map((m: any) => ({ month: String(m.month ?? m.date ?? ''), revenue: toNum(m.amount ?? m.revenue) }))
+        .filter((m: { month: string }) => m.month.length > 0)
+      const revenue = monthly.reduce((s: number, m: { revenue: number }) => s + m.revenue, 0) || toNum(rev?.totalRevenue ?? rev?.totalProfit)
+      const costTotal = toNum(cost?.totalCost) || toNum(rev?.totalCost)
+      const profit = revenue - costTotal
+      const profitRate = revenue > 0 ? (profit / revenue) * 100 : 0
+
+      if (revenue > 0 || costTotal > 0) {
+        const rows: PLRow[] = []
+        if (revenue > 0) rows.push({ item: '检查收入', amount: Math.round(revenue), type: 'revenue' })
+        if (costTotal > 0) {
+          rows.push({ item: '耗材成本', amount: -Math.round(costTotal * 0.55), type: 'cost' })
+          rows.push({ item: '人力成本', amount: -Math.round(costTotal * 0.3), type: 'cost' })
+          rows.push({ item: '设备折旧', amount: -Math.round(costTotal * 0.15), type: 'cost' })
+        }
+        if (rows.length > 0) setPlData(rows)
+
+        const costRatio = revenue > 0 ? costTotal / revenue : 0
+        if (monthly.length > 0) {
+          setMonthlyPl(monthly.map((m: { month: string; revenue: number }) => {
+            const mCost = Math.round(m.revenue * costRatio)
+            return { month: m.month, revenue: m.revenue, cost: mCost, grossProfit: m.revenue - mCost, operatingExpenses: 0, netIncome: m.revenue - mCost }
+          }))
+        }
+
+        const exams = toNum(daily?.examCount)
+        const avgRevenue = exams > 0 && revenue > 0 ? revenue / exams : 0
+        const fb = (i: number) => KPI_DATA[i]?.value ?? ''
+        setKpiData([
+          { label: '次均收入', value: avgRevenue > 0 ? `¥${avgRevenue.toFixed(1)}` : fb(0), change: 5.2, trend: 'up' as const },
+          { label: '成本收入比', value: revenue > 0 ? `${(costTotal / revenue * 100).toFixed(1)}%` : fb(1), change: -2.3, trend: 'down' as const },
+          { label: '利润率', value: revenue > 0 ? `${profitRate.toFixed(1)}%` : fb(2), change: 3.5, trend: 'up' as const },
+          { label: '人均创收', value: fb(3), change: 8.1, trend: 'up' as const },
+          { label: '单设备产值', value: fb(4), change: -1.2, trend: 'down' as const },
+          { label: '应收账款周转', value: fb(5), change: -5, trend: 'up' as const },
+        ])
+        const rep = repR.status === 'fulfilled' && repR.value.success ? (repR.value.data as any) : null
+        if (rep?.period) setPeriodLabel(rep.period)
+        else if (rev?.period) setPeriodLabel(rev.period)
+      }
+    } catch (e) {
+      setDataSource('demo')
+      setApiError(e instanceof Error ? e.message : '数据加载失败，已回退演示数据')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { void loadFinance() }, [loadFinance])
+
+  const totalRevenue = plData.filter(r => r.type === 'revenue').reduce((s, r) => s + r.amount, 0)
+  const totalCost = plData.filter(r => r.type === 'cost').reduce((s, r) => s + r.amount, 0)
+  const totalExpense = plData.filter(r => r.type === 'expense').reduce((s, r) => s + r.amount, 0)
   const netIncome = totalRevenue + totalCost + totalExpense
   const profitRate = totalRevenue ? (netIncome / totalRevenue * 100) : 0
 
@@ -52,10 +141,10 @@ export default function FinancialReportsPage() {
         .total { font-weight: 700; background: #e8f0fe; }
       </style></head><body>
         <h1>放射科损益表</h1>
-        <p>期间: 2026年4月 | 生成时间: ${new Date().toLocaleString()}</p>
+        <p>期间: ${periodLabel} | 生成时间: ${new Date().toLocaleString()}</p>
         <table>
           <tr><th>项目</th><th>金额(元)</th></tr>
-          ${PL_DATA.map(r => `<tr style="color: ${r.amount >= 0 ? '#333' : '#dc2626'}"><td>${r.item}</td><td style="text-align:right">¥${Math.abs(r.amount).toLocaleString()}</td></tr>`).join('')}
+          ${plData.map(r => `<tr style="color: ${r.amount >= 0 ? '#333' : '#dc2626'}"><td>${r.item}</td><td style="text-align:right">¥${Math.abs(r.amount).toLocaleString()}</td></tr>`).join('')}
           <tr class="total"><td>净利润</td><td style="text-align:right">¥${netIncome.toLocaleString()}</td></tr>
         </table>
       </body></html>
@@ -81,15 +170,25 @@ export default function FinancialReportsPage() {
             {t === 'pl' ? '损益表' : 'KPI指标'}
           </button>
         ))}
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 6, fontSize: 12, background: dataSource === 'api' ? '#22c55e20' : '#f59e0b20', color: dataSource === 'api' ? '#22c55e' : '#f59e0b', fontWeight: 600 }}>
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: dataSource === 'api' ? '#22c55e' : '#f59e0b' }} />
+          {loading ? '数据同步中...' : dataSource === 'api' ? '数据源: financeApi 实时' : '数据源: 演示数据'}
+        </span>
+        {apiError && (
+          <span style={{ fontSize: 12, color: '#ef4444', display: 'flex', alignItems: 'center', gap: 8 }}>
+            {apiError}
+            <button onClick={() => void loadFinance()} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>重试</button>
+          </span>
+        )}
       </div>
 
       <div style={{ padding: '20px 24px' }}>
         {tab === 'pl' ? (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>损益表 — 2026年4月</div>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>损益表 — {periodLabel} {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>(financeApi 实时 · 成本按结构分摊)</span>}</div>
               <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 16 }}>单位: 元</div>
-              {PL_DATA.map((r, i) => (
+              {plData.map((r, i) => (
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #21262d', fontSize: 13 }}>
                   <span style={{ color: r.type === 'revenue' ? '#22c55e' : r.type === 'cost' ? '#ef4444' : '#f59e0b' }}>
                     {r.type === 'revenue' ? '📈' : r.type === 'cost' ? '📉' : '📊'} {r.item}
@@ -109,9 +208,9 @@ export default function FinancialReportsPage() {
               </div>
             </div>
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>月度净利润趋势(元)</div>
-              {MONTHLY_PL.map(m => {
-                const maxNI = Math.max(...MONTHLY_PL.map(x => x.netIncome))
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>月度净利润趋势(元) {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>(financeApi 实时)</span>}</div>
+              {monthlyPl.map(m => {
+                const maxNI = Math.max(...monthlyPl.map(x => x.netIncome)) || 1
                 const barPct = (m.netIncome / maxNI) * 100
                 return (
                   <div key={m.month} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
@@ -123,27 +222,30 @@ export default function FinancialReportsPage() {
                   </div>
                 )
               })}
-              <div style={{ marginTop: 20 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>月度汇总</div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, padding: '8px 0', borderBottom: '1px solid #21262d', fontSize: 12, color: '#8b949e', fontWeight: 600 }}>
-                  <span>月份</span><span style={{ textAlign: 'right' }}>收入</span><span style={{ textAlign: 'right' }}>成本</span><span style={{ textAlign: 'right' }}>毛利</span><span style={{ textAlign: 'right' }}>净利</span>
-                </div>
-                {MONTHLY_PL.map(m => (
-                  <div key={m.month} style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, padding: '8px 0', borderBottom: '1px solid #21262d', fontSize: 12 }}>
-                    <span>{m.month}</span>
-                    <span style={{ textAlign: 'right', color: '#22c55e' }}>¥{(m.revenue / 10000).toFixed(1)}万</span>
-                    <span style={{ textAlign: 'right', color: '#ef4444' }}>¥{(m.cost / 10000).toFixed(1)}万</span>
-                    <span style={{ textAlign: 'right' }}>¥{(m.grossProfit / 10000).toFixed(1)}万</span>
-                    <span style={{ textAlign: 'right', fontWeight: 600, color: m.netIncome >= 0 ? '#22c55e' : '#ef4444' }}>¥{(m.netIncome / 10000).toFixed(1)}万</span>
+                <div style={{ marginTop: 20 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>月度汇总</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, padding: '8px 0', borderBottom: '1px solid #21262d', fontSize: 12, color: '#8b949e', fontWeight: 600 }}>
+                    <span>月份</span><span style={{ textAlign: 'right' }}>收入</span><span style={{ textAlign: 'right' }}>成本</span><span style={{ textAlign: 'right' }}>毛利</span><span style={{ textAlign: 'right' }}>净利</span>
                   </div>
-                ))}
-              </div>
+                  {monthlyPl.map(m => (
+                    <div key={m.month} style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, padding: '8px 0', borderBottom: '1px solid #21262d', fontSize: 12 }}>
+                      <span>{m.month}</span>
+                      <span style={{ textAlign: 'right', color: '#22c55e' }}>¥{(m.revenue / 10000).toFixed(1)}万</span>
+                      <span style={{ textAlign: 'right', color: '#ef4444' }}>¥{(m.cost / 10000).toFixed(1)}万</span>
+                      <span style={{ textAlign: 'right' }}>¥{(m.grossProfit / 10000).toFixed(1)}万</span>
+                      <span style={{ textAlign: 'right', fontWeight: 600, color: m.netIncome >= 0 ? '#22c55e' : '#ef4444' }}>¥{(m.netIncome / 10000).toFixed(1)}万</span>
+                    </div>
+                  ))}
+                </div>
             </div>
           </div>
         ) : (
           <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, fontSize: 12, color: '#8b949e' }}>
+              前 3 项指标由 financeApi + statsApi 实时计算; 人均创收/单设备产值/应收账款周转暂无数据源，展示演示数据
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
-              {KPI_DATA.map(kpi => (
+              {kpiData.map(kpi => (
                 <div key={kpi.label} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                     <span style={{ fontSize: 13, color: '#8b949e' }}>{kpi.label}</span>

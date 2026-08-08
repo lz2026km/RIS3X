@@ -29,6 +29,8 @@ export default function ImageQualityControlPage() {
   const [scoreModality, setScoreModality] = useState('CT')
   const [operatorId, setOperatorId] = useState('')
   const [scoring, setScoring] = useState(false)
+  // [W2-C] 受控分页
+  const [resultPage, setResultPage] = useState(1)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -176,7 +178,7 @@ export default function ImageQualityControlPage() {
             ) : results.length === 0 ? (
               <Empty description="暂无评分记录" />
             ) : (
-              <Table rowKey="id" size="small" dataSource={results} columns={columns} pagination={{ pageSize: 8 }} scroll={{ x: 900 }} />
+              <Table rowKey="id" size="small" dataSource={results} columns={columns} pagination={{ current: resultPage, pageSize: 8, total: results.length, onChange: setResultPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }} scroll={{ x: 900 }} />
             )}
           </Card>
         </Col>

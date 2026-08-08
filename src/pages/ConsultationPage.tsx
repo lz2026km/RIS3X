@@ -397,6 +397,10 @@ export default function ConsultationPage() {
 
   return (
     <div data-testid="consultation-page" style={{ padding: 24, maxWidth: 1600, margin: '0 auto', background: '#f1f5f9', minHeight: '100vh' }}>
+      {/* [G005 W1-C] 演示数据（后端待实现）: 后端无 /consultations controller, 数据由 MSW 演示数据提供 */}
+      <div style={{ background: '#fef3c7', color: '#92400e', fontSize: 12, fontWeight: 600, padding: '6px 12px', borderRadius: 6, border: '1px solid #fcd34d', marginBottom: 12 }}>
+        演示数据（后端待实现）：本页会诊数据由 MSW 演示数据提供，后端暂无 /consultations 接口
+      </div>
       {loading && <LoadingBanner message="正在从 API 加载会诊数据..." />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* Header */}

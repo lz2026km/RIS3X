@@ -1,7 +1,9 @@
 // [v3.0.6.8-63] EMR 病历模板管理 + ICD-11 编码
-import React, { useState, useEffect } from 'react';
+// [W2-A] 模板接入 templatesApi 实时数据; ICD-11 无独立词典端点 → 标注演示数据
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Space, Tag, Button, Table, Select, Input, message, Tabs, Modal, Form, List } from 'antd';
 import { Plus, Edit3, Copy, FileText } from 'lucide-react';
+import { templatesApi } from '../../services/api/templatesApi';
 
 const {  } = Input;
 
@@ -35,6 +37,46 @@ export const EmrTemplatesPage: React.FC = () => {
   const [templateModal, setTemplateModal] = useState<{type:'create'|'edit', data:any}|null>(null);
   const [form] = Form.useForm();
   const [diagnoses, setDiagnoses] = useState<typeof ICD11_DISEASES>([]);
+  // [W2-A] templatesApi 实时加载 (失败回退静态演示数据)
+  const [loading, setLoading] = useState(true);
+  const [dataSource, setDataSource] = useState<'api' | 'demo'>('demo');
+  const [apiError, setApiError] = useState('');
+
+  const loadTemplates = useCallback(async () => {
+    setLoading(true);
+    setApiError('');
+    try {
+      const res = await templatesApi.list();
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        const mapped = res.data.map((t: any, i: number) => ({
+          id: t.id || `tpl-${i}`,
+          name: t.name || '未命名模板',
+          category: t.category || 'General',
+          sections: String(t.body || t.name || '')
+            .split(/\r?\n/)
+            .map((line: string) => line.trim())
+            .filter(Boolean)
+            .slice(0, 6)
+            .map((title: string) => ({ title, required: true })),
+          usageCount: Number(t.usage ?? 0),
+        }));
+        if (mapped.length > 0) {
+          setTemplates(mapped);
+          setDataSource('api');
+        }
+      } else {
+        setDataSource('demo');
+        setApiError('templatesApi 暂不可用，当前展示内置演示模板');
+      }
+    } catch (e) {
+      setDataSource('demo');
+      setApiError(e instanceof Error ? e.message : '模板加载失败，已回退演示数据');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { void loadTemplates(); }, [loadTemplates]);
 
   useEffect(() => {
     if (searchCode) {
@@ -106,6 +148,10 @@ export const EmrTemplatesPage: React.FC = () => {
         <FileText size={20} color="#1677ff" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>EMR 病历模板 + ICD-11 编码</span>
         <Tag color="cyan">v3.0.6.8-63</Tag>
+        <Tag color={dataSource === 'api' ? 'green' : 'orange'}>
+          {loading ? '加载中...' : dataSource === 'api' ? '模板: templatesApi 实时' : '模板: 演示数据'}
+        </Tag>
+        {apiError && <Tag color="red">{apiError}</Tag>}
       </Space>
 
       <Tabs activeKey={tab} onChange={setTab} type="card"
@@ -130,6 +176,7 @@ export const EmrTemplatesPage: React.FC = () => {
               <Space>
                 <Input.Search size="small" value={searchCode} onChange={e=>setSearchCode(e.target.value)} placeholder="搜索编码/名称" style={{width:250}} />
                 {diagnoses.length > 0 && <Tag color="green">已添加诊断 {diagnoses.length}</Tag>}
+                <Tag color="orange">演示数据 (无词典 API)</Tag>
               </Space>
             } title={`ICD-11 ${icdResults.length} 条`}>
               <Table dataSource={icdResults} rowKey="code" pagination={false}

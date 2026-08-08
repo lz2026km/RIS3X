@@ -66,7 +66,7 @@ const IheIntegrationPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f7fa', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
         <Globe size={20} color="#1677ff" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>IHE Integration Engine</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>IHE 集成引擎</span>
         <Tag color="cyan">v3.0.6.11-75</Tag>
         <Tag color="geekblue">{status?.profile ?? 'PIX · PDQ · PAM'}</Tag>
         {loading && <Spin size="small" />}

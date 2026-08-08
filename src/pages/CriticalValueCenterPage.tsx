@@ -7,7 +7,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { AlertOctagon, Bell, BarChart3, Settings, Activity, TrendingUp, ShieldAlert, Save, Plus, Edit3, Trash2, RefreshCw, ScanSearch, CheckCircle2 } from 'lucide-react'
+import { AlertOctagon, Bell, BarChart3, Settings, Activity, TrendingUp, ShieldAlert, Save, Plus, Edit3, Trash2, RefreshCw, ScanSearch, CheckCircle2, Eye } from 'lucide-react'
 import { message, Switch, Modal, Input, Select, Popconfirm } from 'antd'
 import { CRITICAL_RULES } from '../data/criticalValueMock'
 import { criticalApi, type CriticalStatsDto } from '../services/api/criticalApi'
@@ -62,6 +62,8 @@ const CriticalValueCenterPage: React.FC = () => {
   // [W2-A] 统计: getSummary / getTimeline
   const [summary, setSummary] = useState<{ todayCount?: number; weeklyCount?: number; monthlyCount?: number; avgResponseTime?: number } | null>(null)
   const [timeline, setTimeline] = useState<CriticalExtTimelineDto[]>([])
+  // [G005 W1-C] 统计卡: criticalExtApi.getStats() → { total, byState, bySeverity } (后端 critical-ext.controller)
+  const [extCards, setExtCards] = useState<{ pending: number; notified: number; resolved: number; escalated: number } | null>(null)
   // [W2-A] 中心列表 listCenter / 自动检测 autoDetect / 闭环 closeLoop
   const [center, setCenter] = useState<CriticalExtCenterDto[]>([])
   const [centerLoading, setCenterLoading] = useState(false)
@@ -72,6 +74,26 @@ const CriticalValueCenterPage: React.FC = () => {
   const [closeTarget, setCloseTarget] = useState<CriticalExtCenterDto | null>(null)
   const [closeForm, setCloseForm] = useState({ resolution: '', resolvedBy: '' })
   const [closing, setClosing] = useState(false)
+  // [G005 W1-C] 中心详情: getCenterItem (GET /critical-ext/center/:id)
+  const [detailTarget, setDetailTarget] = useState<CriticalExtCenterDto | null>(null)
+  const [detailOpen, setDetailOpen] = useState(false)
+  const [detailLoading, setDetailLoading] = useState(false)
+
+  // [G005 W1-C] 中心详情查看 (后端 getCriticalCenterItem)
+  const handleViewDetail = async (c: CriticalExtCenterDto) => {
+    setDetailTarget(c)
+    setDetailOpen(true)
+    setDetailLoading(true)
+    try {
+      const res = await criticalExtApi.getCenterItem(c.id)
+      if (res.success && res.data) setDetailTarget(res.data as CriticalExtCenterDto)
+      else if (res.success) setDetailTarget(c)
+    } catch {
+      setDetailTarget(c)
+    } finally {
+      setDetailLoading(false)
+    }
+  }
 
   // [W2-A] GET /critical-ext/center
   const loadCenter = useCallback(async () => {
@@ -156,10 +178,25 @@ const CriticalValueCenterPage: React.FC = () => {
 
   const loadStats = useCallback(async () => {
     try {
-      const [summaryRes, timelineRes] = await Promise.all([
+      const [summaryRes, timelineRes, statsRes] = await Promise.all([
         criticalExtApi.getSummary(),
         criticalExtApi.getTimeline(),
+        // [G005 W1-C] 统计卡补接: 后端返回 { total, byState: [{state,_count}], bySeverity }
+        criticalExtApi.getStats(),
       ])
+      if (statsRes.success && statsRes.data) {
+        const raw = statsRes.data as unknown as Record<string, unknown>
+        const byState = Array.isArray(raw.byState) ? (raw.byState as Array<{ state?: string; _count?: { id?: number } }>) : []
+        const countOf = (states: string[]) => byState
+          .filter((b) => b.state && states.includes(String(b.state).toUpperCase()))
+          .reduce((s, b) => s + Number(b._count?.id ?? 0), 0)
+        setExtCards({
+          pending: countOf(['PENDING', 'DISCOVERED']),
+          notified: countOf(['NOTIFIED', 'VOICE_CALLED']),
+          resolved: countOf(['RESOLVED', 'CLOSED_LOOP', 'CLOSED', 'ACKNOWLEDGED', 'RECEIPTED']),
+          escalated: countOf(['ESCALATED']),
+        })
+      }
       if (summaryRes.success && summaryRes.data && typeof summaryRes.data === 'object') {
         const s = summaryRes.data as unknown as Record<string, unknown>
         if (s.items) {
@@ -291,10 +328,10 @@ const CriticalValueCenterPage: React.FC = () => {
     setChannels(prev => prev.map(c => (c.channel === channel ? { ...c, enabled } : c)))
   }
 
-  const pending = stats?.pending ?? 0
-  const notified = stats?.notified ?? 0
-  const resolved = stats?.resolved ?? 0
-  const escalated = stats?.escalated ?? 0
+  const pending = extCards?.pending ?? stats?.pending ?? 0
+  const notified = extCards?.notified ?? stats?.notified ?? 0
+  const resolved = extCards?.resolved ?? stats?.resolved ?? 0
+  const escalated = extCards?.escalated ?? stats?.escalated ?? 0
 
   return (
     <div className="p-6 space-y-4" data-testid="critical-value-center-page">
@@ -406,14 +443,22 @@ const CriticalValueCenterPage: React.FC = () => {
                     </td>
                     <td className="py-2 pr-2 text-xs text-slate-600">{fmtDateTime(c.triggeredAt)}</td>
                     <td className="py-2 pr-2 text-xs text-slate-600">{c.department || '-'}</td>
-                    <td className="py-2">
-                      <button
-                        onClick={() => { setCloseTarget(c); setCloseForm({ resolution: '', resolvedBy: '' }) }}
-                        disabled={closed}
-                        className="inline-flex items-center gap-1 rounded border border-green-200 bg-green-50 px-2 py-1 text-xs text-green-700 hover:bg-green-100 disabled:opacity-40 disabled:cursor-not-allowed"
-                      >
-                        <CheckCircle2 size={11} /> {closed ? '已闭环' : '闭环'}
-                      </button>
+                    <td className="py-2 text-xs text-slate-600">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => void handleViewDetail(c)}
+                          className="inline-flex items-center gap-1 rounded border border-blue-200 bg-blue-50 px-2 py-1 text-xs text-blue-700 hover:bg-blue-100"
+                        >
+                          <Eye size={11} /> 详情
+                        </button>
+                        <button
+                          onClick={() => { setCloseTarget(c); setCloseForm({ resolution: '', resolvedBy: '' }) }}
+                          disabled={closed}
+                          className="inline-flex items-center gap-1 rounded border border-green-200 bg-green-50 px-2 py-1 text-xs text-green-700 hover:bg-green-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          <CheckCircle2 size={11} /> {closed ? '已闭环' : '闭环'}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 )
@@ -426,6 +471,47 @@ const CriticalValueCenterPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* [G005 W1-C] 中心详情 Modal: GET /critical-ext/center/:id (getCenterItem) */}
+      <Modal
+        title={`危急值详情 - ${detailTarget?.id ?? ''}`}
+        open={detailOpen}
+        onCancel={() => setDetailOpen(false)}
+        footer={null}
+        width={520}
+      >
+        {detailLoading && <div className="text-xs text-gray-400 py-3">详情加载中...</div>}
+        {!detailLoading && detailTarget && (
+          <div className="space-y-2 py-1 text-sm">
+            {[
+              ['事件 ID', detailTarget.id],
+              ['患者', detailTarget.patientName],
+              ['危急发现', detailTarget.finding],
+              ['严重度', detailTarget.severity],
+              ['状态', String((detailTarget as unknown as Record<string, unknown>).state ?? detailTarget.status ?? '')],
+              ['触发时间', fmtDateTime(detailTarget.triggeredAt)],
+              ['科室', detailTarget.department],
+            ].map(([k, v]) => (
+              <div key={k} className="flex gap-3">
+                <div className="w-20 flex-shrink-0 text-xs text-gray-500 pt-0.5">{k}</div>
+                <div className="text-slate-800 break-all">{v || '-'}</div>
+              </div>
+            ))}
+            {!!(detailTarget as unknown as Record<string, unknown>).closedBy && (
+              <div className="flex gap-3">
+                <div className="w-20 flex-shrink-0 text-xs text-gray-500 pt-0.5">闭环人</div>
+                <div className="text-slate-800">{String((detailTarget as unknown as Record<string, unknown>).closedBy)}</div>
+              </div>
+            )}
+            {!!(detailTarget as unknown as Record<string, unknown>).resolvedAt && (
+              <div className="flex gap-3">
+                <div className="w-20 flex-shrink-0 text-xs text-gray-500 pt-0.5">闭环时间</div>
+                <div className="text-slate-800">{fmtDateTime((detailTarget as unknown as Record<string, unknown>).resolvedAt)}</div>
+              </div>
+            )}
+          </div>
+        )}
+      </Modal>
 
       {/* [W2-A] 自动检测 Modal: POST /critical-ext/auto-detect */}
       <Modal

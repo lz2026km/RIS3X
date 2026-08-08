@@ -34,6 +34,8 @@ export default function DicomWebPage() {
   const [searchLoading, setSearchLoading] = useState(false)
   const [searchError, setSearchError] = useState('')
   const [previewStudy, setPreviewStudy] = useState<string | null>(null)
+  // [W2-C] 受控分页
+  const [studyPage, setStudyPage] = useState(1)
 
   useEffect(() => {
     dicomWebApi.capabilities().then((res) => {
@@ -77,6 +79,7 @@ export default function DicomWebPage() {
         list = list.filter((s) => `${s.patientName ?? ''} ${s.studyDescription ?? ''} ${s.patientID ?? ''}`.toLowerCase().includes(kw))
       }
       setStudies(list)
+      setStudyPage(1)
     } catch (e) {
       setSearchError(e instanceof Error ? e.message : 'QIDO-RS 检索失败')
       setStudies([])
@@ -159,7 +162,7 @@ export default function DicomWebPage() {
         ) : studies.length === 0 ? (
           <Empty description="无检索结果(输入条件自动检索或全部列出)" image={Empty.PRESENTED_IMAGE_SIMPLE} />
         ) : (
-          <Table rowKey="studyInstanceUID" size="small" dataSource={studies} columns={columns} pagination={{ pageSize: 10 }} scroll={{ x: 900 }} />
+          <Table rowKey="studyInstanceUID" size="small" dataSource={studies} columns={columns} pagination={{ current: studyPage, pageSize: 10, total: studies.length, onChange: setStudyPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }} scroll={{ x: 900 }} />
         )}
       </Card>
 

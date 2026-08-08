@@ -989,6 +989,9 @@ const SubmissionAuditTrail = () => {
 const ScheduledReportsPanel = () => {
   const [schedules, setSchedules] = useState(scheduledReports)
   const [runStatus, setRunStatus] = useState<string | null>(null)
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [planForm, setPlanForm] = useState({ name: '', type: '国家报告', schedule: 'monthly' as ScheduledReportConfig['schedule'], format: 'PDF', recipients: '' })
 
   const toggleSchedule = (id: string) => {
     setSchedules(prev => prev.map(s => s.id === id ? { ...s, enabled: !s.enabled } : s))
@@ -1002,6 +1005,34 @@ const ScheduledReportsPanel = () => {
     }, 2000)
   }
 
+  const handleCreateSchedule = async () => {
+    if (!planForm.name.trim()) return
+    setSaving(true)
+    try {
+      await datareportApi.createNationalReport({
+        reportMonth: new Date().toISOString().slice(0, 7),
+        modality: planForm.type,
+        status: '草稿',
+      })
+    } catch { /* 演示环境使用本地状态 */ }
+    const recipients = planForm.recipients.split(/[,，;；]/).map(s => s.trim()).filter(Boolean)
+    const nextRun = new Date(Date.now() + 86400000).toISOString().slice(0, 16).replace('T', ' ')
+    setSchedules(prev => [{
+      id: `SCH-${Date.now().toString(36).toUpperCase()}`,
+      name: planForm.name.trim(),
+      type: planForm.type,
+      schedule: planForm.schedule,
+      format: planForm.format,
+      recipients: recipients.length > 0 ? recipients : ['system@hospital.cn'],
+      enabled: true,
+      lastRun: '尚未执行',
+      nextRun,
+    }, ...prev])
+    setShowCreateModal(false)
+    setPlanForm({ name: '', type: '国家报告', schedule: 'monthly', format: 'PDF', recipients: '' })
+    setSaving(false)
+  }
+
   const scheduleLabels: Record<string, string> = { daily: '每日', weekly: '每周', monthly: '每月', quarterly: '每季度' }
 
   return (
@@ -1010,7 +1041,7 @@ const ScheduledReportsPanel = () => {
         <div style={{ fontSize: 14, fontWeight: 600, color: '#1f2937', display: 'flex', alignItems: 'center', gap: 8 }}>
           <Calendar size={18} color={COLORS.primary} /> 自动报告计划
         </div>
-        <button style={{ padding: '8px 16px', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <button onClick={() => setShowCreateModal(true)} style={{ padding: '8px 16px', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
           <Plus size={14} /> 新建计划
         </button>
       </div>
@@ -1081,6 +1112,53 @@ const ScheduledReportsPanel = () => {
           <strong>自动重试：</strong>提交失败时将自动重试最多3次，间隔5分钟。当前无待重试任务。
         </div>
       </div>
+
+      {showCreateModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowCreateModal(false)}>
+          <div style={{ background: '#fff', borderRadius: 12, width: 460, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid #e5e7eb' }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#1f2937', display: 'flex', alignItems: 'center', gap: 8 }}><Calendar size={16} color={COLORS.primary} /> 新建自动报告计划</div>
+              <button onClick={() => setShowCreateModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', fontSize: 18, padding: 4 }}>×</button>
+            </div>
+            <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 6 }}>计划名称 *</label>
+                <input value={planForm.name} onChange={e => setPlanForm({ ...planForm, name: e.target.value })} placeholder="如: 月度国家数据报告上报" style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 6 }}>报告类型</label>
+                  <select value={planForm.type} onChange={e => setPlanForm({ ...planForm, type: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 13 }}>
+                    {['国家数据报告', '科室数据报告', '影像质量报告', '剂量监测报告'].map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 6 }}>执行频率</label>
+                  <select value={planForm.schedule} onChange={e => setPlanForm({ ...planForm, schedule: e.target.value as ScheduledReportConfig['schedule'] })} style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 13 }}>
+                    {Object.entries(scheduleLabels).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 6 }}>导出格式</label>
+                  <select value={planForm.format} onChange={e => setPlanForm({ ...planForm, format: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 13 }}>
+                    {['PDF', 'CSV', 'Excel', 'XML'].map(f => <option key={f} value={f}>{f}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 6 }}>收件人（逗号分隔）</label>
+                  <input value={planForm.recipients} onChange={e => setPlanForm({ ...planForm, recipients: e.target.value })} placeholder="如: a@h.cn, b@h.cn" style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                </div>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
+                <button onClick={() => setShowCreateModal(false)} style={{ padding: '8px 20px', border: '1px solid #d1d5db', borderRadius: 6, background: '#fff', color: '#6b7280', fontSize: 13, cursor: 'pointer' }}>取消</button>
+                <button onClick={() => void handleCreateSchedule()} disabled={!planForm.name.trim() || saving} style={{ padding: '8px 20px', border: 'none', borderRadius: 6, background: planForm.name.trim() && !saving ? COLORS.primary : '#9ca3af', color: '#fff', fontSize: 13, fontWeight: 600, cursor: planForm.name.trim() && !saving ? 'pointer' : 'not-allowed' }}>{saving ? '创建中...' : '创建计划'}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

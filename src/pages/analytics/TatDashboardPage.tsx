@@ -639,6 +639,7 @@ export default function TatDashboardPage() {
             <Table
               columns={columns}
               dataSource={filteredModalityRows}
+              rowKey="modality"
               size="small"
               pagination={false}
               scroll={{ x: 700 }}

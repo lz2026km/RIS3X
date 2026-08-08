@@ -3,13 +3,20 @@
 // G005 放射科RIS系统 - 运营指挥中心大屏
 // 科室主任/院长驾驶舱 - 放射科实时数据监控
 // ============================================================
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   Activity, AlertTriangle, ArrowUp, ArrowDown, Bell,
   Clock, Package, TrendingUp, TrendingDown, AlertCircle,
   CheckCircle, XCircle, RefreshCw, Monitor, Users,
   Zap, Wrench, MessageSquare, Gauge, Minus, Scan, Film
 } from 'lucide-react'
+// [W2-A] 真实 API 接入: statsApi/occupancyApi/biApi/oeeApi/criticalExtApi/deviceMgmtApi
+import { statsApi } from '../services/api/statsApi'
+import { biApi } from '../services/api/biApi'
+import { occupancyApi } from '../services/api/occupancyApi'
+import { oeeApi } from '../services/api/oeeApi'
+import { criticalExtApi } from '../services/api/criticalExtApi'
+import { deviceMgmtApi } from '../services/api/deviceMgmtApi'
 
 // ==================== 模拟数据 ====================
 const KPI_DATA = [
@@ -107,6 +114,21 @@ const ALERT_MATERIALS = [
   { name: '钼靶胶片', stock: 12, threshold: 30 },
   { name: 'X线胶片', stock: 25, threshold: 50 },
 ]
+
+const PIE_COLORS = ['#3b82f6', '#4ade80', '#fbbf24', '#f97316', '#8b5cf6']
+
+// [W2-A] 检查室状态映射 (occupancyApi)
+const ROOM_STATUS_MAP: Record<string, { label: string; color: string }> = {
+  occupied: { label: '检查中', color: '#4ade80' },
+  idle: { label: '空闲', color: '#64748b' },
+  disinfecting: { label: '消毒中', color: '#fbbf24' },
+  fault: { label: '故障', color: '#ef4444' },
+}
+
+function toNum(v: unknown): number {
+  const n = Number(v)
+  return Number.isFinite(n) ? n : 0
+}
 
 // ==================== 样式 ====================
 const s: Record<string, React.CSSProperties> = {
@@ -508,7 +530,7 @@ function RoomCard({ room }: { room: typeof ROOMS[0] }) {
 
 // 队列柱状图
 function QueueChart({ data }: { data: typeof QUEUE_DATA }) {
-  const maxCount = Math.max(...data.map(d => d.count))
+  const maxCount = Math.max(1, ...data.map(d => d.count))
   
   return (
     <div style={s.barChart}>
@@ -548,8 +570,9 @@ function TrendChart({ data }: { data: typeof HOURLY_DATA }) {
   }).join(' ')
 
   const peakIndex = data.findIndex(d => d.peak)
-  const peakX = padding + (peakIndex / (data.length - 1)) * (width - padding * 2)
-  const peakY = height - padding - (data[peakIndex].today / maxValue) * (height - padding * 2)
+  const peak = peakIndex >= 0 ? data[peakIndex] : data.reduce((m, p) => (p.today > m.today ? p : m), data[0] || { hour: '-', today: 0 })
+  const peakX = padding + ((peakIndex >= 0 ? peakIndex : Math.max(0, data.findIndex(d => d === peak))) / (data.length - 1)) * (width - padding * 2)
+  const peakY = height - padding - (peak.today / maxValue) * (height - padding * 2)
 
   return (
     <div style={{ position: 'relative', width: '100%', height: 220 }}>
@@ -587,11 +610,11 @@ function TrendChart({ data }: { data: typeof HOURLY_DATA }) {
       </svg>
       {/* X轴标签 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#64748b', padding: '0 5px' }}>
-        <span>0时</span>
-        <span>6时</span>
-        <span>12时</span>
-        <span>18时</span>
-        <span>24时</span>
+        <span>{data[0]?.hour}</span>
+        <span>{data[Math.floor((data.length - 1) / 3)]?.hour}</span>
+        <span>{data[Math.floor((data.length - 1) / 2)]?.hour}</span>
+        <span>{data[Math.floor((2 * (data.length - 1)) / 3)]?.hour}</span>
+        <span>{data[data.length - 1]?.hour}</span>
       </div>
       {/* 图例 */}
       <div style={{ display: 'flex', gap: 24, justifyContent: 'center', marginTop: 12 }}>
@@ -696,6 +719,185 @@ function ProgressBar({ label, value, color }: { label: string, value: number, co
 // ==================== 主页面 ====================
 export default function OperationsCenterPage() {
   const [currentTime, setCurrentTime] = useState(() => new Date())
+  // [W2-A] 实时数据状态 (API 加载失败时回退静态演示数据)
+  const [loading, setLoading] = useState(true)
+  const [dataSource, setDataSource] = useState<'api' | 'demo'>('demo')
+  const [apiError, setApiError] = useState('')
+  const [kpiData, setKpiData] = useState(KPI_DATA)
+  const [rooms, setRooms] = useState(ROOMS)
+  const [queueData, setQueueData] = useState(QUEUE_DATA)
+  const [hourlyData, setHourlyData] = useState(HOURLY_DATA)
+  const [hourlyCaption, setHourlyCaption] = useState('每小时检查量统计（0-24时）')
+  const [doctorRanking, setDoctorRanking] = useState(DOCTOR_RANKING)
+  const [projectData, setProjectData] = useState(PROJECT_DATA)
+  const [qualityData, setQualityData] = useState(QUALITY_DATA)
+  const [efficiencyData, setEfficiencyData] = useState(EFFICIENCY_DATA)
+  const [alertMaterials, setAlertMaterials] = useState(ALERT_MATERIALS)
+  const [peakText, setPeakText] = useState('高峰时段: 15:00 (82例)')
+  const [todayTotal, setTodayTotal] = useState(326)
+  const [yesterdayTotal, setYesterdayTotal] = useState(298)
+  const [growthText, setGrowthText] = useState('+9.4%')
+  const [summaryOverview, setSummaryOverview] = useState({ adverse: 0, normal: 324, safety: 100 })
+
+  // [W2-A] 并发拉取 statsApi/occupancyApi/biApi/oeeApi/criticalExtApi/deviceMgmtApi,
+  // 任一成功即切换为 API 数据源; 全部失败保留静态演示数据并标注。
+  const loadDashboard = useCallback(async () => {
+    setLoading(true)
+    setApiError('')
+    try {
+      const results = await Promise.allSettled([
+        statsApi.getDaily(),
+        statsApi.getTrend(2),
+        biApi.getKpi(),
+        biApi.getReportTimeliness(),
+        occupancyApi.getRooms(),
+        occupancyApi.getTrends(),
+        oeeApi.getStats(),
+        statsApi.getWorkload(),
+        statsApi.getByModality(),
+        criticalExtApi.getStats(),
+        deviceMgmtApi.listDeviceFaults(),
+        deviceMgmtApi.listMaterials(),
+        statsApi.getTrend(7),
+      ])
+      const settled = <T,>(r: PromiseSettledResult<T>): T | null =>
+        r.status === 'fulfilled' && r.value && (r.value as any)?.success !== false ? (r.value as any)?.data ?? null : null
+
+      const daily = settled(results[0])
+      const trend2 = Array.isArray(settled(results[1])) ? settled(results[1]) : []
+      const bi = settled(results[2])?.data ?? null // BiEnvelope: { source, data }
+      const timing = settled(results[3])?.data ?? null
+      const occRooms = Array.isArray(settled(results[4])) ? settled(results[4]) : []
+      const occTrends = Array.isArray(settled(results[5])) ? settled(results[5]) : []
+      const oee = settled(results[6])
+      const workload = Array.isArray(settled(results[7])) ? settled(results[7]) : []
+      const byModality = settled(results[8])
+      const cvStats = settled(results[9])
+      const faults = Array.isArray(settled(results[10])) ? settled(results[10]) : []
+      const materials = Array.isArray(settled(results[11])) ? settled(results[11]) : []
+      const trend7 = Array.isArray(settled(results[12])) ? settled(results[12]) : []
+
+      const anyReal = Boolean(daily || bi || occRooms.length || occTrends.length || oee || workload.length)
+      if (!anyReal) {
+        setDataSource('demo')
+        setApiError('API 暂不可用，当前展示内置演示数据')
+        return
+      }
+      setDataSource('api')
+
+      // ---- KPI 指标条 ----
+      const todayExam = toNum(bi?.examCount ?? daily?.examCount)
+      const yestExam = trend2.length >= 2 ? toNum(trend2[trend2.length - 2]?.examCount) : undefined
+      const occupiedRooms = occRooms.filter((r: any) => r.status === 'occupied').length
+      const lastOcc = occTrends.length ? occTrends[occTrends.length - 1] : null
+      const waitingCount = lastOcc ? Math.max(0, toNum(lastOcc.total) - toNum(lastOcc.occupied)) : undefined
+      const avgTAT = toNum(daily?.avgTAT ?? timing?.medianMinutes)
+      setKpiData([
+        { label: '今日检查量', value: todayExam || KPI_DATA[0].value, unit: '例', yesterday: (yestExam ?? todayExam) || KPI_DATA[0].yesterday, trend: 'up' },
+        { label: '今日预约量', value: toNum(daily?.examCount) || KPI_DATA[1].value, unit: '例', yesterday: todayExam || KPI_DATA[1].yesterday, trend: 'up' },
+        { label: '在检人数', value: occupiedRooms, unit: '人', trend: 'neutral', yesterday: occupiedRooms },
+        { label: '等待人数', value: waitingCount ?? KPI_DATA[3].value, unit: '人', trend: 'neutral', yesterday: waitingCount ?? KPI_DATA[3].value },
+        { label: '设备利用率', value: toNum(oee?.average) || KPI_DATA[4].value, unit: '%', trend: 'neutral', yesterday: toNum(oee?.average) || KPI_DATA[4].value },
+        { label: '平均报告时间', value: avgTAT || KPI_DATA[5].value, unit: '分钟', trend: 'neutral', yesterday: avgTAT || KPI_DATA[5].value },
+      ])
+
+      // ---- 检查室状态 (occupancyApi) ----
+      if (occRooms.length > 0) {
+        setRooms(occRooms.slice(0, 6).map((r: any) => {
+          const st = ROOM_STATUS_MAP[String(r.status)] || { label: String(r.status), color: '#64748b' }
+          return { name: r.roomNo, status: st.label, patient: r.currentPatient || '-', color: st.color }
+        }))
+      }
+
+      // ---- 等待队列 (occupancyApi/trends) ----
+      if (occTrends.length > 0) {
+        setQueueData(occTrends.slice(-10).map((p: any) => ({
+          time: String(p.time ?? '').slice(0, 5),
+          count: Math.max(0, toNum(p.total) - toNum(p.occupied)),
+        })))
+      }
+
+      // ---- 7 日检查趋势 (statsApi/trend) ----
+      if (trend7.length > 0) {
+        const pts = trend7.map((d: any, i: number) => ({
+          hour: String(d.date ?? '').slice(5),
+          today: toNum(d.examCount),
+          yesterday: i > 0 ? toNum(trend7[i - 1]?.examCount) : 0,
+          peak: false,
+        }))
+        setHourlyData(pts)
+        setHourlyCaption('近7日每日检查量对比（API 实时）')
+        const peak = pts.reduce((m, p) => (p.today > m.today ? p : m), pts[0] || { hour: '-', today: 0 })
+        setPeakText(`高峰日: ${peak.hour} (${peak.today}例)`)
+      } else {
+        setHourlyCaption('每小时检查量统计（0-24时）· 演示数据')
+      }
+
+      // ---- 医生工作量排行 (statsApi/workload) ----
+      if (workload.length > 0) {
+        setDoctorRanking(workload.slice(0, 6).map((w: any, i: number) => ({
+          rank: i + 1,
+          name: w.doctorName || String(w.doctorId || '-'),
+          exams: toNum(w.totalReports ?? w.reportCount),
+          reports: toNum(w.totalCritical),
+          rate: Math.round(toNum(w.avgQCScore) * 10) / 10,
+        })))
+      }
+
+      // ---- 检查项目分布 (statsApi/by-modality) ----
+      const modalityEntries = Object.entries(byModality || {}).slice(0, 5)
+        .map(([name, v]: [string, any], i: number) => ({ name, value: Math.round(toNum(v?.total ?? v)), color: PIE_COLORS[i % PIE_COLORS.length] }))
+        .filter((d) => d.value > 0)
+      if (modalityEntries.length > 0) setProjectData(modalityEntries)
+
+      // ---- 质量与安全 (criticalExtApi + deviceMgmtApi) ----
+      setQualityData(QUALITY_DATA.map((item, i) => {
+        if (i === 0) return { ...item, value: toNum(cvStats?.total ?? daily?.criticalCount) }
+        if (i === 2) return { ...item, value: faults.length }
+        return { ...item }
+      }))
+
+      // ---- 资源与效率 (oeeApi + occupancyApi + biApi) ----
+      const occupancyRate = lastOcc ? toNum(lastOcc.rate) : 0
+      const timelyPct = Array.isArray(timing?.buckets)
+        ? Math.round((timing.buckets as any[])
+            .filter((b: any) => ['<30min', '30min-1h', '1h-2h'].includes(String(b.bucket)))
+            .reduce((s: number, b: any) => s + toNum(b.percent), 0) * 10) / 10
+        : 0
+      setEfficiencyData({
+        equipmentUsage: toNum(oee?.average) || EFFICIENCY_DATA.equipmentUsage,
+        roomOccupancy: occupancyRate || EFFICIENCY_DATA.roomOccupancy,
+        avgExamTime: EFFICIENCY_DATA.avgExamTime,
+        reportTimelyRate: timelyPct || EFFICIENCY_DATA.reportTimelyRate,
+      })
+
+      // ---- 耗材预警 (deviceMgmtApi/materials) ----
+      const mats = materials
+        .filter((m: any) => toNum(m.minStock) > 0)
+        .map((m: any) => ({ name: m.name, stock: toNum(m.quantity), threshold: toNum(m.minStock) }))
+        .slice(0, 4)
+      if (mats.length > 0) setAlertMaterials(mats)
+
+      // ---- 底部统计卡 ----
+      setTodayTotal(todayExam || 326)
+      setYesterdayTotal(yestExam ?? 298)
+      const growth = yestExam ? ((todayExam - yestExam) / yestExam) * 100 : 0
+      setGrowthText(`${growth >= 0 ? '+' : ''}${growth.toFixed(1)}%`)
+      const defectCount = toNum(daily?.defectCount)
+      setSummaryOverview({
+        adverse: defectCount,
+        normal: todayExam || 324,
+        safety: todayExam ? Math.round(((todayExam - defectCount) / todayExam) * 100) : 100,
+      })
+    } catch (e) {
+      setApiError(e instanceof Error ? e.message : '数据加载失败，已回退演示数据')
+      setDataSource('demo')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { void loadDashboard() }, [loadDashboard])
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -716,19 +918,43 @@ export default function OperationsCenterPage() {
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+          {loading && (
+            <span style={{ fontSize: 12, color: '#fbbf24' }}>
+              <RefreshCw size={14} style={{ marginRight: 6, verticalAlign: -2, animation: 'spin 1s linear infinite' }} />
+              数据同步中...
+            </span>
+          )}
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: 12, color: '#64748b' }}>当前时间</div>
             <div style={s.headerTime}>
               {currentTime.toLocaleTimeString('zh-CN', { hour12: false })}
             </div>
           </div>
-          <RefreshCw size={20} color="#64748b" style={{ cursor: 'pointer' }} />
+          <RefreshCw size={20} color="#64748b" style={{ cursor: 'pointer' }} onClick={() => void loadDashboard()} />
         </div>
+      </div>
+
+      {/* 数据源状态条 [W2-A] */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, fontSize: 12, flexWrap: 'wrap' }}>
+        <span style={{
+          display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999,
+          background: dataSource === 'api' ? 'rgba(34,197,94,0.15)' : 'rgba(245,158,11,0.15)',
+          color: dataSource === 'api' ? '#4ade80' : '#fbbf24', fontWeight: 600,
+        }}>
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: dataSource === 'api' ? '#4ade80' : '#fbbf24' }} />
+          数据源: {dataSource === 'api' ? 'API 实时 (statsApi/occupancyApi/biApi/oeeApi)' : '演示数据'}
+        </span>
+        {apiError && (
+          <span style={{ color: '#ef4444' }}>
+            {apiError}
+            <button onClick={() => void loadDashboard()} style={{ marginLeft: 8, padding: '2px 10px', borderRadius: 4, border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>重试</button>
+          </span>
+        )}
       </div>
 
       {/* KPI指标条 */}
       <div style={s.kpiBar}>
-        {KPI_DATA.map((item, idx) => (
+        {kpiData.map((item, idx) => (
           <KPICard key={idx} data={item} />
         ))}
       </div>
@@ -749,14 +975,14 @@ export default function OperationsCenterPage() {
           </div>
 
           <div style={s.roomGrid}>
-            {ROOMS.map((room, idx) => (
+            {rooms.map((room, idx) => (
               <RoomCard key={idx} room={room} />
             ))}
           </div>
 
           <div style={{ marginTop: 16 }}>
             <div style={{ fontSize: 14, color: '#94a3b8', marginBottom: 12 }}>等待队列变化（过去1小时）</div>
-            <QueueChart data={QUEUE_DATA} />
+            <QueueChart data={queueData} />
           </div>
         </div>
 
@@ -767,28 +993,28 @@ export default function OperationsCenterPage() {
             今日检查趋势
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <span style={{ fontSize: 14, color: '#94a3b8' }}>每小时检查量统计（0-24时）</span>
+            <span style={{ fontSize: 14, color: '#94a3b8' }}>{hourlyCaption}</span>
             <span style={{ fontSize: 12, color: '#fbbf24', display: 'flex', alignItems: 'center', gap: 4 }}>
-              <Zap size={14} /> 高峰时段: 15:00 (82例)
+              <Zap size={14} /> {peakText}
             </span>
           </div>
-          <TrendChart data={HOURLY_DATA} />
+          <TrendChart data={hourlyData} />
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginTop: 24 }}>
             <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#4ade80' }}>326</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#4ade80' }}>{todayTotal}</div>
               <div style={{ fontSize: 12, color: '#64748b' }}>今日总检查</div>
             </div>
             <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#3b82f6' }}>298</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#3b82f6' }}>{yesterdayTotal}</div>
               <div style={{ fontSize: 12, color: '#64748b' }}>昨日总检查</div>
             </div>
             <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#4ade80' }}>+9.4%</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#4ade80' }}>{growthText}</div>
               <div style={{ fontSize: 12, color: '#64748b' }}>环比增长</div>
             </div>
             <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#fbbf24' }}>15:00</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#fbbf24' }}>{peakText.split('(')[0].replace('高峰日: ', '').trim()}</div>
               <div style={{ fontSize: 12, color: '#64748b' }}>高峰时段</div>
             </div>
           </div>
@@ -806,13 +1032,13 @@ export default function OperationsCenterPage() {
               <tr>
                 <th style={{ ...s.th, width: 40 }}>#</th>
                 <th style={s.th}>医生</th>
-                <th style={s.th}>检查</th>
                 <th style={s.th}>报告</th>
-                <th style={s.th}>完成率</th>
+                <th style={s.th}>危急值</th>
+                <th style={s.th}>QC评分</th>
               </tr>
             </thead>
             <tbody>
-              {DOCTOR_RANKING.map((doc, idx) => (
+              {doctorRanking.map((doc, idx) => (
                 <tr key={idx}>
                   <td style={s.td}>
                     <span style={{
@@ -836,7 +1062,7 @@ export default function OperationsCenterPage() {
 
           <div style={{ marginTop: 24 }}>
             <div style={{ fontSize: 14, color: '#94a3b8', marginBottom: 12 }}>检查项目分布</div>
-            <PieChartComponent data={PROJECT_DATA} />
+            <PieChartComponent data={projectData} />
           </div>
         </div>
       </div>
@@ -850,7 +1076,7 @@ export default function OperationsCenterPage() {
             质量与安全指标
           </div>
           <div style={s.qualityGrid}>
-            {QUALITY_DATA.map((item, idx) => (
+            {qualityData.map((item, idx) => (
               <QualityCard key={idx} item={item} />
             ))}
           </div>
@@ -859,15 +1085,15 @@ export default function OperationsCenterPage() {
             <div style={{ fontSize: 14, color: '#94a3b8', marginBottom: 12 }}>今日概览</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 24, fontWeight: 800, color: '#4ade80' }}>0</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: '#4ade80' }}>{summaryOverview.adverse}</div>
                 <div style={{ fontSize: 12, color: '#64748b' }}>不良事件</div>
               </div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 24, fontWeight: 800, color: '#3b82f6' }}>324</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: '#3b82f6' }}>{summaryOverview.normal}</div>
                 <div style={{ fontSize: 12, color: '#64748b' }}>正常检查</div>
               </div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 24, fontWeight: 800, color: '#fbbf24' }}>100%</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: '#fbbf24' }}>{summaryOverview.safety}%</div>
                 <div style={{ fontSize: 12, color: '#64748b' }}>安全率</div>
               </div>
             </div>
@@ -881,19 +1107,19 @@ export default function OperationsCenterPage() {
             资源与效率
           </div>
           
-          <ProgressBar label="设备使用率" value={EFFICIENCY_DATA.equipmentUsage} color="#3b82f6" />
-          <ProgressBar label="诊室占用率" value={EFFICIENCY_DATA.roomOccupancy} color="#8b5cf6" />
-          <ProgressBar label="报告及时率" value={EFFICIENCY_DATA.reportTimelyRate} color="#4ade80" />
+          <ProgressBar label="设备使用率" value={efficiencyData.equipmentUsage} color="#3b82f6" />
+          <ProgressBar label="诊室占用率" value={efficiencyData.roomOccupancy} color="#8b5cf6" />
+          <ProgressBar label="报告及时率" value={efficiencyData.reportTimelyRate} color="#4ade80" />
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, marginTop: 8 }}>
             <div style={{ padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8, textAlign: 'center' }}>
               <Clock size={20} color="#fbbf24" style={{ marginBottom: 8 }} />
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#f1f5f9' }}>{EFFICIENCY_DATA.avgExamTime}</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#f1f5f9' }}>{efficiencyData.avgExamTime}</div>
               <div style={{ fontSize: 12, color: '#64748b' }}>平均检查时长(分钟)</div>
             </div>
             <div style={{ padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8, textAlign: 'center' }}>
               <CheckCircle size={20} color="#4ade80" style={{ marginBottom: 8 }} />
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#4ade80' }}>{EFFICIENCY_DATA.reportTimelyRate}%</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#4ade80' }}>{efficiencyData.reportTimelyRate}%</div>
               <div style={{ fontSize: 12, color: '#64748b' }}>报告及时率</div>
             </div>
           </div>
@@ -904,7 +1130,7 @@ export default function OperationsCenterPage() {
               耗材消耗预警
             </div>
             <div style={s.alertList}>
-              {ALERT_MATERIALS.map((item, idx) => (
+              {alertMaterials.map((item, idx) => (
                 <div key={idx} style={s.alertItem}>
                   <div style={s.alertName}>
                     <Film size={14} color="#ef4444" />
@@ -936,7 +1162,7 @@ export default function OperationsCenterPage() {
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80' }} />
             系统正常运行
           </span>
-          <span style={{ fontSize: 12, color: '#94a3b8' }}>数据更新: {new Date().toLocaleTimeString('zh-CN')}</span>
+          <span style={{ fontSize: 12, color: '#94a3b8' }}>数据更新: {new Date().toLocaleTimeString('zh-CN')} · 数据源: {dataSource === 'api' ? 'API 实时' : '演示数据'}</span>
         </div>
         <div style={{ fontSize: 12, color: '#64748b' }}>
           G005 放射科RIS系统 v0.7.0 | 运营指挥中心

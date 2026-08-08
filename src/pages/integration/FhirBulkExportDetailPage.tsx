@@ -105,6 +105,10 @@ export const FhirBulkExportDetailPage: React.FC = () => {
         <Tag color="cyan">v3.0.6.8</Tag>
         <Badge status={status.status === 'completed' ? 'success' : status.status === 'failed' ? 'error' : 'processing'} text={status.status} />
       </Space>
+      {/* [W2-C] 演示端点标注 */}
+      <Alert type="info" showIcon style={{ marginBottom: 12 }}
+        message="演示端点"
+        description="本页轮询 /fhir/r4/$export-status/demo-job 演示端点；轮询失败时回退本地演示数据（DEMO_NDJSON）。真实环境请配置 FHIR 服务器的 $export 异步任务端点。" />
 
       <Card size="small" title={<Space><Activity size={14} />任务状态</Space>}
         extra={<Space>{status.status === 'running' && <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> 轮询中...</>}</Space>}>

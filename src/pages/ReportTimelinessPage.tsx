@@ -3,7 +3,7 @@
 // Phase R7: 及时率 / 超时工单 / 优先级分布
 // ============================================================
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { message } from 'antd';
 import {
   Clock, AlertTriangle, CheckCircle2, TrendingUp,
@@ -11,6 +11,9 @@ import {
 } from 'lucide-react';
 import { TIMELINESS_DATA } from '../data/knowledgeStatsMock';
 import { notificationsApi } from '../services/api';
+// [W2-A] biApi 真实及时率: getReportTimeliness + getTrend + getCriticalSla; 失败回退 TIMELINESS_DATA
+import { biApi } from '../services/api/biApi';
+import { statsApi } from '../services/api/statsApi';
 
 // ============================================================
 // 主组件
@@ -21,6 +24,67 @@ export default function ReportTimelinessPage() {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [escalated, setEscalated] = useState<Record<string, boolean>>({});
   const [reminding, setReminding] = useState(false);
+  // [W2-A] biApi 实时状态
+  const [loading, setLoading] = useState(true);
+  const [dataSource, setDataSource] = useState<'api' | 'demo'>('demo');
+  const [apiError, setApiError] = useState('');
+  const [live, setLive] = useState<{ timing: any; trend: any[]; sla: any; daily: any } | null>(null);
+
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    setApiError('');
+    try {
+      const days = period === 'month' ? 30 : 7;
+      const [tR, trendR, slaR, dailyR] = await Promise.allSettled([
+        biApi.getReportTimeliness(),
+        biApi.getTrend(days),
+        biApi.getCriticalSla(),
+        statsApi.getDaily(),
+      ]);
+      const fulfilled = <T,>(r: PromiseSettledResult<T>): T | null => (r.status === 'fulfilled' ? r.value : null);
+      const tRes = fulfilled(tR);
+      const trendRes = fulfilled(trendR);
+      const slaRes = fulfilled(slaR);
+      const dailyRes = fulfilled(dailyR);
+      const timing = tRes?.success ? (tRes.data as any)?.data ?? null : null;
+      const trend = trendRes?.success ? (trendRes.data as any)?.data ?? [] : [];
+      const sla = slaRes?.success ? (slaRes.data as any)?.data ?? null : null;
+      const daily = dailyRes?.success ? (dailyRes.data as any) ?? null : null;
+      if (!timing && trend.length === 0 && !sla && !daily) {
+        setDataSource('demo');
+        setApiError('biApi 暂不可用，当前展示内置演示数据');
+        return;
+      }
+      setDataSource('api');
+      setLive({ timing, trend, sla, daily });
+    } catch (e) {
+      setDataSource('demo');
+      setApiError(e instanceof Error ? e.message : '数据加载失败，已回退演示数据');
+    } finally {
+      setLoading(false);
+    }
+  }, [period]);
+
+  useEffect(() => { void loadData(); }, [loadData]);
+
+  // [W2-A] 派生: 及时率 / 平均签发 / 超时数 / 优先级分布 / 7日趋势
+  const bucketCount = (b: string) => Number(live?.timing?.buckets?.find((x: any) => x.bucket === b)?.count ?? 0);
+  const bucketPercent = (b: string) => Number(live?.timing?.buckets?.find((x: any) => x.bucket === b)?.percent ?? 0);
+  const onTimeRate = live?.timing
+    ? Math.round((['<30min', '30min-1h', '1h-2h'].reduce((s, b) => s + bucketPercent(b), 0)) * 10) / 10
+    : t.overallOnTimeRate;
+  const avgSignTime = live?.timing ? Number(live.timing.medianMinutes) || t.avgSignTime : t.avgSignTime;
+  const overdueCount = live?.timing ? bucketCount('>4h') || 0 : t.overdue.length;
+  const priorityData = live?.timing
+    ? [
+        { priority: '急诊', onTime: bucketCount('<30min'), target: 5, rate: bucketPercent('<30min') },
+        { priority: '加急', onTime: bucketCount('30min-1h') + bucketCount('1h-2h'), target: 30, rate: Math.round((bucketPercent('30min-1h') + bucketPercent('1h-2h')) * 10) / 10 },
+        { priority: '普通', onTime: bucketCount('2h-4h') + bucketCount('>4h'), target: 1440, rate: Math.round((bucketPercent('2h-4h') + bucketPercent('>4h')) * 10) / 10 },
+      ]
+    : t.onTimeByPriority;
+  const trendData = live?.trend?.length
+    ? live.trend.map((p: any) => ({ date: String(p.date || '').slice(5), onTimeRate: Math.round(Number(p.completionRate ?? 0) * 10) / 10 }))
+    : t.trend;
 
   const currentUserId = (() => {
     try {
@@ -108,15 +172,34 @@ export default function ReportTimelinessPage() {
           >
             <Activity size={12} /> {autoRefresh ? '实时刷新中' : '已暂停'}
           </button>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 4,
+            fontSize: 12, fontWeight: 600,
+            background: loading ? '#f1f5f9' : dataSource === 'api' ? '#ecfdf5' : '#fffbeb',
+            color: loading ? '#64748b' : dataSource === 'api' ? '#059669' : '#d97706',
+            border: '1px solid ' + (dataSource === 'api' ? '#a7f3d0' : '#fde68a'),
+          }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: loading ? '#94a3b8' : dataSource === 'api' ? '#10b981' : '#f59e0b' }} />
+            {loading ? '数据同步中...' : dataSource === 'api' ? '数据源: biApi 实时' : '数据源: 演示数据'}
+          </span>
+          {apiError && (
+            <button
+              onClick={() => void loadData()}
+              title={apiError}
+              style={{ padding: '4px 10px', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: '#fff', color: '#dc2626', border: '1px solid #fecaca', display: 'flex', alignItems: 'center', gap: 4 }}
+            >
+              <AlertTriangle size={12} /> 重试
+            </button>
+          )}
         </div>
       </div>
 
       {/* 大数字 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 12 }}>
-        <BigStat icon={CheckCircle2} label="整体及时率" value={t.overallOnTimeRate} suffix="%" color="#10b981" trend="up" trendValue="2.3%" />
-        <BigStat icon={Timer} label="平均签发" value={t.avgSignTime} suffix="分钟" color="#7c3aed" trend="down" trendValue="3.1m" />
-        <BigStat icon={AlertTriangle} label="超时工单" value={t.overdue.length} suffix="单" color="#dc2626" alert />
-        <BigStat icon={Bell} label="预警通知" value={3} suffix="条" color="#f59e0b" />
+        <BigStat icon={CheckCircle2} label="整体及时率" value={onTimeRate} suffix="%" color="#10b981" trend="up" trendValue="2.3%" />
+        <BigStat icon={Timer} label="平均签发" value={avgSignTime} suffix="分钟" color="#7c3aed" trend="down" trendValue="3.1m" />
+        <BigStat icon={AlertTriangle} label="超时工单" value={overdueCount} suffix="单" color="#dc2626" alert />
+        <BigStat icon={Bell} label="预警通知" value={3} suffix="条(演示)" color="#f59e0b" />
       </div>
 
       {/* 优先级及时率 */}
@@ -124,9 +207,9 @@ export default function ReportTimelinessPage() {
         <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>按优先级 - 及时签发率</div>
-            <span style={{ fontSize: 12, color: '#94a3b8' }}>TAT 监控</span>
+            <span style={{ fontSize: 12, color: '#94a3b8' }}>{dataSource === 'api' ? 'biApi TAT 桶分布' : 'TAT 监控'}</span>
           </div>
-          {t.onTimeByPriority.map(p => (
+          {priorityData.map(p => (
             <div key={p.priority} style={{ marginBottom: 12 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -152,7 +235,7 @@ export default function ReportTimelinessPage() {
         <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>按设备 - 及时签发率</div>
-            <span style={{ fontSize: 12, color: '#94a3b8' }}>本月</span>
+            <span style={{ fontSize: 12, color: '#94a3b8' }}>演示数据</span>
           </div>
           {t.onTimeByModality.map(m => (
             <div key={m.modality} style={{ marginBottom: 10 }}>
@@ -180,13 +263,13 @@ export default function ReportTimelinessPage() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>近 7 日及时率趋势</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#10b981' }}>
-            <TrendingUp size={12} /> 整体上升 2.3%
+            <TrendingUp size={12} /> {dataSource === 'api' ? `biApi 实时 (${period === 'month' ? '近30日' : '近7日'})` : '整体上升 2.3%'}
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: 140, gap: 6, padding: '0 8px' }}>
-          {t.trend.map(p => {
+          {trendData.map(p => {
             const maxRate = 95;
-            const h = (p.onTimeRate / maxRate) * 100;
+            const h = Math.min(100, (p.onTimeRate / maxRate) * 100);
             return (
               <div key={p.date} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                 <div style={{ fontSize: 12, color: '#10b981', fontWeight: 600 }}>{p.onTimeRate}%</div>
@@ -209,6 +292,7 @@ export default function ReportTimelinessPage() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#dc2626', display: 'flex', alignItems: 'center', gap: 6 }}>
             <AlertTriangle size={13} /> 超时工单实时列表
+            <span style={{ fontSize: 11, fontWeight: 400, color: '#94a3b8', marginLeft: 6 }}>演示数据 (biApi 无超时工单明细端点)</span>
           </div>
           <button onClick={() => void handleUrgeAll()} disabled={reminding} style={{ padding: '4px 10px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: reminding ? 'wait' : 'pointer', opacity: reminding ? 0.7 : 1 }}>
             {reminding ? '催办中...' : '一键催办'}

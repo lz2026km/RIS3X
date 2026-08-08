@@ -166,7 +166,7 @@ export const DentalVolumeViewerPage: React.FC = () => {
                   ))}
                 </Row>
               </Card>
-              <Card size="small" title="3D Mesh" style={{marginTop:8}}>
+              <Card size="small" title="3D 网格" style={{marginTop:8}}>
                 <Space wrap>
                   <Tag>顶点: 185K</Tag>
                   <Tag>面: 92K</Tag>

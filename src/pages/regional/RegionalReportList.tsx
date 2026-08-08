@@ -464,20 +464,21 @@ export const ReportSharingSection: React.FC = () => {
 // ============ 远程阅读SLA监控 ============
 export const SLAAndTATSection: React.FC = () => {
   const [slaData, setSlaData] = useState<SLARecord[]>([])
+  const [refreshing, setRefreshing] = useState(false)
 
-  useEffect(() => {
-    let cancelled = false
-    void (async () => {
-      try {
-        const res = await fetch('/api/v1/regional/sla-data').then(r => r.json())
-        if (!cancelled && res.data) setSlaData(res.data)
-      } catch { /* keep empty */ }
-    })()
-    return () => { cancelled = true }
-  }, [])
+  const loadSla = async () => {
+    setRefreshing(true)
+    try {
+      const res = await fetch('/api/v1/regional/sla-data').then(r => r.json())
+      if (res.data) setSlaData(res.data)
+    } catch { /* keep empty */ }
+    setRefreshing(false)
+  }
+
+  useEffect(() => { void loadSla() }, [])
   return (
     <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
-      <div style={styles.panelHeader}><span>远程阅读SLA监控</span><button style={{ ...styles.button, ...styles.buttonOutline, padding: '4px 10px', fontSize: '12px' }}><RefreshCw size={12} /> 刷新</button></div>
+      <div style={styles.panelHeader}><span>远程阅读SLA监控</span><button onClick={() => void loadSla()} disabled={refreshing} style={{ ...styles.button, ...styles.buttonOutline, padding: '4px 10px', fontSize: '12px' }}><RefreshCw size={12} /> {refreshing ? '刷新中...' : '刷新'}</button></div>
       <div style={{ flex: 1, overflow: 'auto', padding: '12px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '16px' }}>
           <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '6px', textAlign: 'center' }}><div style={{ fontSize: '20px', fontWeight: 700, color: COLORS.primary }}>136</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>本月分配检查</div></div>

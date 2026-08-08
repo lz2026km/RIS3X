@@ -1,7 +1,7 @@
 // Breast Specialty API — BI-RADS 评分 · 乳腺工作流 · 筛查管理
-import { api } from './client';
-
-const BREAST_API = '/breast';
+// [v3.0.6.11-81] W1-B P1: 后端无 /breast/* 端点 (仅 MSW mock), 页面为演示页。
+// 全部方法标注 MOCK_ONLY: 返回本地演示数据, 不发网络请求 (避免 404)。
+import type { ApiResponse } from './types';
 
 export type BiRadsCategory = 0 | 1 | 2 | 3 | '4A' | '4B' | 4 | 5 | 6;
 export type BreastDensity = 'a' | 'b' | 'c' | 'd';
@@ -41,42 +41,64 @@ export interface ScreeningRecord {
   date: string;
 }
 
-function buildQuery(params?: Record<string, string | number | boolean | undefined>): string {
-  if (!params) return '';
-  const filtered = Object.entries(params).filter(([_, v]) => v !== undefined && v !== '');
-  if (filtered.length === 0) return '';
-  return '?' + new URLSearchParams(filtered as [string, string][]).toString();
+function mockOk<T>(data: T): Promise<ApiResponse<T>> {
+  return Promise.resolve({ success: true, data });
 }
 
 export const breastSpecialtyApi = {
-  calculateBiRads: (lesions: Partial<BreastLesion>[]) =>
-    api.post<{ biRads: BiRadsCategory; confidence: number }>(`${BREAST_API}/birads/calculate`, { lesions }),
-  getBiRadsDistribution: (params?: Record<string, any>) =>
-    api.get<Record<string, number>>(`${BREAST_API}/birads/distribution${buildQuery(params)}`),
-  getLesions: (params?: Record<string, any>) =>
-    api.get<BreastLesion[]>(`${BREAST_API}/lesions${buildQuery(params)}`),
-  analyzeLesion: (data: { imageUrl: string; modality: string }) =>
-    api.post<BreastLesion>(`${BREAST_API}/lesions/analyze`, data),
-  assessDensity: (data: { imageUrl: string }) =>
-    api.post<{ density: BreastDensity; confidence: number }>(`${BREAST_API}/density/assess`, data),
-  getScreeningList: (params?: Record<string, any>) =>
-    api.get<ScreeningRecord[]>(`${BREAST_API}/screening/list${buildQuery(params)}`),
+  // MOCK_ONLY: 本地演示数据
+  calculateBiRads: (_lesions: Partial<BreastLesion>[]) =>
+    mockOk<{ biRads: BiRadsCategory; confidence: number }>({ biRads: 3, confidence: 0.82 }),
+  getBiRadsDistribution: (_params?: Record<string, any>) =>
+    mockOk<Record<string, number>>({ '1': 42, '2': 31, '3': 15, '4A': 7, '4B': 3, '5': 2 }),
+  getLesions: (_params?: Record<string, any>) =>
+    mockOk<BreastLesion[]>([]),
+  analyzeLesion: (_data: { imageUrl: string; modality: string }) =>
+    mockOk<BreastLesion>({ id: `lesion-${Date.now()}`, quadrant: '右上外', shape: '不规则', margin: '毛刺', widthMm: 12, biRadsCategory: '4A', recommendation: '建议穿刺活检' }),
+  assessDensity: (_data: { imageUrl: string }) =>
+    mockOk<{ density: BreastDensity; confidence: number }>({ density: 'c', confidence: 0.85 }),
+  getScreeningList: (_params?: Record<string, any>) =>
+    mockOk<ScreeningRecord[]>([
+      { id: 'S001', patientId: 'P100001', patientName: '张秀兰', age: 52, riskLevel: 'average', biRadsLatest: 1, outcome: 'normal', date: '2026-07-15' },
+      { id: 'S002', patientId: 'P100002', patientName: '李芳', age: 45, riskLevel: 'intermediate', biRadsLatest: '4A', outcome: 'suspicious', date: '2026-07-14' },
+      { id: 'S003', patientId: 'P100003', patientName: '王丽华', age: 61, riskLevel: 'high', biRadsLatest: 5, outcome: 'highly-suspicious', date: '2026-07-13' },
+    ]),
   createScreening: (data: Partial<ScreeningRecord>) =>
-    api.post<ScreeningRecord>(`${BREAST_API}/screening`, data),
-  recallPatient: (id: string, reason: string) =>
-    api.post<any>(`${BREAST_API}/screening/${id}/recall`, { reason }),
+    mockOk<ScreeningRecord>({
+      id: `S-${Date.now().toString().slice(-6)}`,
+      patientId: data.patientId ?? '',
+      patientName: data.patientName ?? '',
+      age: data.age ?? 0,
+      riskLevel: data.riskLevel ?? 'average',
+      biRadsLatest: data.biRadsLatest ?? 1,
+      outcome: data.outcome ?? 'normal',
+      date: data.date ?? new Date().toISOString().split('T')[0] ?? '',
+    }),
+  recallPatient: (_id: string, reason: string) =>
+    mockOk<{ id: string; recalled: boolean; reason: string }>({ id: _id, recalled: true, reason }),
   assessRisk: (patientId: string) =>
-    api.post<any>(`${BREAST_API}/risk/assess`, { patientId }),
-  getExams: (params?: Record<string, any>) =>
-    api.get<BreastExam[]>(`${BREAST_API}/exams${buildQuery(params)}`),
+    mockOk<{ patientId: string; riskLevel: 'average' | 'intermediate' | 'high' }>({ patientId, riskLevel: 'intermediate' }),
+  getExams: (_params?: Record<string, any>) =>
+    mockOk<BreastExam[]>([]),
   createExam: (data: Partial<BreastExam>) =>
-    api.post<BreastExam>(`${BREAST_API}/exams`, data),
+    mockOk<BreastExam>({
+      id: `E-${Date.now().toString().slice(-6)}`,
+      patientId: data.patientId ?? '',
+      patientName: data.patientName ?? '',
+      examDate: data.examDate ?? new Date().toISOString().split('T')[0] ?? '',
+      modality: data.modality ?? 'MG',
+      laterality: data.laterality ?? 'L',
+      breastDensity: data.breastDensity ?? 'b',
+      biRadsCategory: data.biRadsCategory ?? 1,
+      lesions: data.lesions ?? [],
+      status: data.status ?? 'scheduled',
+    }),
   getWorkflowStatus: () =>
-    api.get<{ queue: any[]; stats: any }>(`${BREAST_API}/workflow/status`),
+    mockOk<{ queue: any[]; stats: any }>({ queue: [], stats: { total: 0, pending: 0 } }),
   advanceWorkflow: (examId: string, action: string) =>
-    api.post<any>(`${BREAST_API}/workflow/${examId}/advance`, { action }),
-  getDepartmentStats: (params?: Record<string, any>) =>
-    api.get<any>(`${BREAST_API}/stats/department${buildQuery(params)}`),
+    mockOk<{ examId: string; action: string; ok: boolean }>({ examId, action, ok: true }),
+  getDepartmentStats: (_params?: Record<string, any>) =>
+    mockOk<any>({ monthlyExams: [120, 98, 135, 110, 142, 128], recallRate: 8.2 }),
 };
 
 export default breastSpecialtyApi;

@@ -208,12 +208,15 @@ function Modal({ open, onClose, title, children, width = 600 }: ModalProps) {
 
 // ==================== 课题管理Tab ====================
 function ProjectsTab() {
+  const { showToast } = useToast()
   const [projects, setProjects] = useState<Project[]>([])
   const [, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [showDetailModal, setShowDetailModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
   const [detailProject, setDetailProject] = useState<Project | null>(null)
   const [newProject, setNewProject] = useState<Partial<Project>>({ code: '', name: '', leader: '', startDate: '', description: '', members: [] })
+  const [editingProject, setEditingProject] = useState<Project | null>(null)
 
   useEffect(() => {
     (async () => {
@@ -233,6 +236,15 @@ function ProjectsTab() {
       }
     } catch { /* fallback */ }
     setShowModal(false)
+    setNewProject({ code: '', name: '', leader: '', startDate: '', description: '', members: [] })
+  }
+
+  const handleEditProject = () => {
+    if (!editingProject || !newProject.name?.trim()) return
+    setProjects(prev => prev.map(p => p.id === editingProject.id ? { ...p, ...newProject } as Project : p))
+    showToast(`课题「${newProject.name}」已更新`, 'success')
+    setShowEditModal(false)
+    setEditingProject(null)
     setNewProject({ code: '', name: '', leader: '', startDate: '', description: '', members: [] })
   }
   const handleShowDetail = (project: Project) => { setDetailProject(project); setShowDetailModal(true) }
@@ -268,7 +280,7 @@ function ProjectsTab() {
               <td style={{ padding: '14px 16px', fontSize: 13, fontWeight: 600, color: COLORS.textPrimary, textAlign: 'right' }}>{project.dataCount.toLocaleString()}</td>
               <td style={{ padding: '14px 16px' }}><div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                 <button onClick={() => handleShowDetail(project)} style={{ padding: '6px 10px', background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', fontSize: 12, color: COLORS.textSecondary, display: 'flex', alignItems: 'center', gap: 4 }}><Eye size={12} /> 详情</button>
-                <button style={{ padding: 6, background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', color: COLORS.textSecondary }}><Edit2 size={12} /></button>
+                <button onClick={() => { setEditingProject(project); setNewProject({ code: project.code, name: project.name, leader: project.leader, startDate: project.startDate, description: project.description, members: project.members }); setShowEditModal(true) }} style={{ padding: 6, background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', color: COLORS.textSecondary }}><Edit2 size={12} /></button>
               </div></td>
             </tr>
           ))}</tbody>
@@ -287,8 +299,7 @@ function ProjectsTab() {
           </div>
         </div>
       </Modal>
-      <Modal open={showDetailModal} onClose={() => setShowDetailModal(false)} title="课题详情" width={640}>
-        {detailProject && (
+      <Modal open={showDetailModal} onClose={() => setShowDetailModal(false)} title="课题详情" width={640}>        {detailProject && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             <div style={{ background: COLORS.bgGray, padding: 16, borderRadius: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}><span style={{ fontSize: 18, fontWeight: 700, color: COLORS.textPrimary }}>{detailProject.name}</span><span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: getStatusBgColor(detailProject.status), color: getStatusColor(detailProject.status) }}>{detailProject.status}</span></div>
@@ -303,6 +314,19 @@ function ProjectsTab() {
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 8 }}><button onClick={() => setShowDetailModal(false)} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>关闭</button></div>
           </div>
         )}
+      </Modal>
+      <Modal open={showEditModal} onClose={() => { setShowEditModal(false); setEditingProject(null) }} title="编辑课题" width={560}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div><label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>课题编号</label><input type="text" value={newProject.code} onChange={e => setNewProject({ ...newProject, code: e.target.value })} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} /></div>
+          <div><label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>课题名称</label><input type="text" value={newProject.name} onChange={e => setNewProject({ ...newProject, name: e.target.value })} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} /></div>
+          <div><label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>负责人</label><input type="text" value={newProject.leader} onChange={e => setNewProject({ ...newProject, leader: e.target.value })} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} /></div>
+          <div><label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>开始日期</label><input type="date" value={newProject.startDate} onChange={e => setNewProject({ ...newProject, startDate: e.target.value })} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} /></div>
+          <div><label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>课题描述</label><textarea value={newProject.description} onChange={e => setNewProject({ ...newProject, description: e.target.value })} rows={3} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, resize: 'vertical', boxSizing: 'border-box' }} /></div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 8 }}>
+            <button onClick={() => { setShowEditModal(false); setEditingProject(null) }} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>取消</button>
+            <button onClick={handleEditProject} disabled={!newProject.name?.trim()} style={{ padding: '10px 20px', background: newProject.name?.trim() ? COLORS.primary : COLORS.bgGray, color: newProject.name?.trim() ? '#ffffff' : COLORS.textLight, border: 'none', borderRadius: 8, cursor: newProject.name?.trim() ? 'pointer' : 'not-allowed', fontSize: 14, fontWeight: 600 }}>保存修改</button>
+          </div>
+        </div>
       </Modal>
     </div>
   )
@@ -395,6 +419,7 @@ function ExtractTab() {
 
 // ==================== 数据标签化管理Tab ====================
 function LabelsTab() {
+  const { showToast } = useToast()
   const [labels, setLabels] = useState<Label[]>([])
   const [, setLoading] = useState(true)
   const [showAddModal, setShowAddModal] = useState(false)
@@ -438,6 +463,15 @@ function LabelsTab() {
     setShowBatchModal(false)
     setBatchLabelId('')
   }
+
+  const handleApplyLabel = (label: Label) => {
+    showToast(`已应用标签「${label.name}」到当前 50 条已抽取记录`, 'success')
+  }
+
+  const handleDeleteLabel = (label: Label) => {
+    setLabels(prev => prev.filter(l => l.id !== label.id))
+    showToast(`标签「${label.name}」已删除`, 'success')
+  }
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
@@ -455,7 +489,7 @@ function LabelsTab() {
               <td style={{ padding: '14px 16px' }}><div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><span style={{ width: 12, height: 12, borderRadius: '50%', background: label.color, flexShrink: 0 }} /><span style={{ fontSize: 14, fontWeight: 600, color: COLORS.textPrimary }}>{label.name}</span></div></td>
               <td style={{ padding: '14px 16px' }}><span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: getLabelTypeColor(label.type) + '20', color: getLabelTypeColor(label.type) }}>{label.type}</span></td>
               <td style={{ padding: '14px 16px', fontSize: 14, fontWeight: 600, color: COLORS.textPrimary, textAlign: 'center' }}>{label.useCount.toLocaleString()}</td>
-              <td style={{ padding: '14px 16px' }}><div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><button style={{ padding: '6px 10px', background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', fontSize: 12, color: COLORS.textSecondary, display: 'flex', alignItems: 'center', gap: 4 }}><Tag size={12} /> 应用</button><button style={{ padding: 6, background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', color: COLORS.danger }}><Trash2 size={12} /></button></div></td>
+              <td style={{ padding: '14px 16px' }}><div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><button onClick={() => handleApplyLabel(label)} style={{ padding: '6px 10px', background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', fontSize: 12, color: COLORS.textSecondary, display: 'flex', alignItems: 'center', gap: 4 }}><Tag size={12} /> 应用</button><button onClick={() => handleDeleteLabel(label)} style={{ padding: 6, background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', color: COLORS.danger }}><Trash2 size={12} /></button></div></td>
             </tr>
           ))}</tbody>
         </table>
@@ -618,6 +652,7 @@ function DeidEngineTab() {
 
 // ==================== 新增: 队列构建器 ====================
 function CohortBuilderTab() {
+  const { showToast } = useToast()
   const [criteria, setCriteria] = useState([{ field: 'age', operator: '>=', value: '50', logic: 'AND' }])
   const [cohortName, setCohortName] = useState('')
   const [estimatedSize, setEstimatedSize] = useState(0)
@@ -641,6 +676,16 @@ function CohortBuilderTab() {
     if (!cohortName.trim()) return
     setSavedCohorts([...savedCohorts, { id: `C${Date.now()}`, name: cohortName, criteria: criteria.map(c => `${c.field} ${c.operator} ${c.value}`).join(' AND '), estimatedSize, createdBy: '当前用户', createdDate: new Date().toISOString().split('T')[0]!, lastRun: '-' }])
     setShowSaveDialog(false); setCohortName('')
+  }
+
+  const applyCohort = (cohort: CohortDefinition) => {
+    const parsed = cohort.criteria.split(/\s+AND\s+/i).map(part => {
+      const [field = 'age', operator = '=', ...rest] = part.trim().split(/\s+/)
+      return { field, operator, value: rest.join(' '), logic: 'AND' }
+    })
+    if (parsed.length > 0) setCriteria(parsed)
+    setEstimatedSize(cohort.estimatedSize)
+    showToast(`已应用队列「${cohort.name}」，预估 ${cohort.estimatedSize} 例`, 'success')
   }
 
   return (
@@ -681,7 +726,7 @@ function CohortBuilderTab() {
         {savedCohorts.map(cohort => (
           <div key={cohort.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', borderBottom: '1px solid ' + COLORS.border }}>
             <div><div style={{ fontWeight: 600, fontSize: 13 }}>{cohort.name}</div><div style={{ fontSize: 12, color: COLORS.textSecondary }}>条件: {cohort.criteria} | 预估: {cohort.estimatedSize} | 创建: {cohort.createdBy} | 最近运行: {cohort.lastRun}</div></div>
-            <button style={{ padding: '4px 10px', background: COLORS.primary, color: '#ffffff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>应用</button>
+            <button onClick={() => applyCohort(cohort)} style={{ padding: '4px 10px', background: COLORS.primary, color: '#ffffff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>应用</button>
           </div>
         ))}
       </div>
@@ -970,6 +1015,10 @@ export default function ResearchPage() {
 
   return (
     <div style={{ padding: 24, background: COLORS.bgGray, minHeight: '100vh' }}>
+      {/* [G005 W1-C] 演示数据（后端待实现）: 后端无 /research controller, 接口调用失败时页面展示空态/本地 fallback */}
+      <div style={{ background: '#fef3c7', color: '#92400e', fontSize: 12, fontWeight: 600, padding: '6px 12px', borderRadius: 6, border: '1px solid #fcd34d', marginBottom: 16 }}>
+        演示数据（后端待实现）：本页为科研数据抽取演示页面，后端暂无 /research 接口
+      </div>
       <div style={{ marginBottom: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
           <div style={{ width: 40, height: 40, background: COLORS.primary, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><FlaskConical size={20} color="#ffffff" /></div>

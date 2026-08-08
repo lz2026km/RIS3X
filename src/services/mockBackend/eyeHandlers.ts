@@ -2936,6 +2936,39 @@ const eyeW3RisModule = [
     getIopSeed().splice(idx, 1);
     return new HttpResponse(null, { status: 204 });
   }),
+  // [G005 W1-A] 视力记录删除 (deleteVisionRecord 在用, 与 iop-records/:id 对齐)
+  http.delete(`${API_BASE}/ris/vision-records/:id`, async ({ params }) => {
+    await delay(50);
+    const idx = getVisionSeed().findIndex((v: any) => v.id === params.id);
+    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    getVisionSeed().splice(idx, 1);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // [G005 W1-A] 危急值 (FfaViewerPage / CriticalValueAlert 在用)
+  http.get(`${API_BASE}/pacs/critical-values`, async () => {
+    await delay(60);
+    return HttpResponse.json({
+      success: true,
+      data: [
+        { id: 'CV-001', studyId: 'es-004', patientName: '张伟', severity: 'emergent', category: 'FFA', finding: '黄斑区活动性 CNV 渗漏', status: 'open', createdAt: new Date(Date.now() - 3600000).toISOString() },
+        { id: 'CV-002', studyId: 'es-001', patientName: '李慧敏', severity: 'urgent', category: 'IOP', finding: '右眼眼压 28mmHg 高于正常', status: 'acknowledged', createdAt: new Date(Date.now() - 86400000).toISOString() },
+        { id: 'CV-003', studyId: 'es-003', patientName: '刘敏', severity: 'urgent', category: 'VisualField', finding: '视野 MD -14.2dB 重度缺损', status: 'open', createdAt: new Date().toISOString() },
+      ],
+    });
+  }),
+
+  // [G005 W1-A] 视野检查 (VisualFieldPage 在用)
+  http.get(`${API_BASE}/pacs/visual-fields`, async () => {
+    await delay(60);
+    return HttpResponse.json({
+      success: true,
+      data: [
+        { id: 'VF-001', studyId: 'es-003', md: -14.2, psd: 11.6, vfi: 62, fovealThreshold: 26, meanSensitivity: 12.4, fixationLosses: 8, falsePositives: 2, falseNegatives: 5, ght: 'out-of-normal-limits', reliability: 'good', defectDepth: 12.5 },
+        { id: 'VF-002', studyId: 'es-028', md: -3.1, psd: 2.4, vfi: 92, fovealThreshold: 33, meanSensitivity: 26.8, fixationLosses: 3, falsePositives: 1, falseNegatives: 2, ght: 'within-normal-limits', reliability: 'excellent', defectDepth: 0 },
+      ],
+    });
+  }),
 ];
 
 // 汇总所有端点

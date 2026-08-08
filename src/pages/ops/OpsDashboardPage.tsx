@@ -52,12 +52,14 @@ export default function OpsDashboardPage() {
   const [operators, setOperators] = useState<Array<{ operatorName: string; examsCompleted: number; avgExamTimeMin: number }>>([])
   const [peakData, setPeakData] = useState<Array<{ hour: number; examCount: number; label: string }>>([])
 
-  useEffect(() => {
+  const load = () => {
     svc.getWorkloadTrend(days).then(setWorkload)
     svc.getModalityUtilization().then(d => setModUtil(d))
     svc.getOperatorProductivity('today').then(setOperators)
     svc.getPeakHourAnalysis().then(d => setPeakData(d.hourlyData))
-  }, [days])
+  }
+
+  useEffect(() => { load() }, [days])
 
   const totalExams = workload.reduce((s, d) => s + d.exams, 0)
   const avgUtil = modUtil.length ? Math.round(modUtil.reduce((s, m) => s + m.utilizationPercent, 0) / modUtil.length) : 0
@@ -67,7 +69,7 @@ export default function OpsDashboardPage() {
       <div style={s.header}>
         <div style={s.headerTitle}><Activity size={24} /><span style={s.headerText}>运营指挥中心</span></div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <RefreshCw size={16} style={{ color: '#8b949e', cursor: 'pointer' }} />
+          <RefreshCw size={16} style={{ color: '#8b949e', cursor: 'pointer' }} onClick={load} title="刷新数据" />
           <span style={{ fontSize: 12, color: '#8b949e' }}>自动刷新 60s</span>
         </div>
       </div>

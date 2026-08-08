@@ -3748,6 +3748,35 @@ export default function InsuranceAuditPage() {
     pendingPage * pageSize,
   );
 
+  // [W2-C] 导出审核历史为 CSV
+  const handleExportHistory = () => {
+    const header = "患者,患者ID,检查类型,检查项目,药品,药品类别,审核结果,审核人,审核时间,原因";
+    const rows = filteredHistory.map((h) =>
+      [
+        h.patientName,
+        h.patientId,
+        h.examType,
+        h.examItem,
+        h.drugName,
+        h.drugCategory,
+        h.result,
+        h.auditor,
+        h.auditTime,
+        h.reason || "",
+      ].join(","),
+    );
+    const blob = new Blob(["\uFEFF" + [header, ...rows].join("\n")], {
+      type: "text/csv;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `保险审核历史-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setToastMessage(`已导出 ${filteredHistory.length} 条审核历史记录`);
+  };
+
   // 过滤后的电子凭证数据
   const filteredVouchers = useMemo(() => {
     return VOUCHER_DATA.filter((v) => {
@@ -4472,7 +4501,7 @@ export default function InsuranceAuditPage() {
               <option value="拒绝">{t("rejected")}</option>
               <option value="补充资料">{t("supplement")}</option>
             </select>
-            <button style={{ ...styles.btn, ...styles.btnOutline }}>
+            <button onClick={handleExportHistory} style={{ ...styles.btn, ...styles.btnOutline }}>
               <Filter size={16} />
               {t("export")}
             </button>

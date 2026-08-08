@@ -1,83 +1,218 @@
-// [v3.0.6.8-50] PR6: v3 报告全栈 (40 client 方法)
-import { api } from './client';
+// [v3.0.6.11-81] W1-B P0: v3 API 清理与映射
+//
+// 背景: /writing /dist /ai-assist /quality /analytics /integration/cda /pacs/studies
+//       后端全无 (仅存在于 MSW mock 层); 62 方法中仅 ~20 在用。
+// 处理:
+//   - 在用方法 → 改调真实后端 API (templatesApi / reportApi / aiDraftApi / fhirApi /
+//     analyticsStatsApi / aiPlatformApi / dicomWebApi), 复用现有方法而非新路径。
+//   - 无后端方法 → 标注 MOCK_ONLY: 返回本地演示数据, 不发网络请求 (避免 404)。
+//   - v3AiPlatformApi / v3AiDraftApi 对应真实后端 modules/ai (ai.controller.ts: /ai/*),
+//     v3.0.6.11-73 已对齐, 保留不动。
+import type { ApiResponse } from './types'
+import { api } from './client'
+import { templatesApi } from './templatesApi'
+import { reportApi } from './reportApi'
+import { aiDraftApi } from './aiDraftApi'
+import { fhirApi } from './fhirApi'
+import { analyticsStatsApi } from './analyticsApi'
+import { aiPlatformApi } from './aiPlatformApi'
+import { dicomWebApi } from './dicomApi'
+
+function mockOk<T>(data: T): Promise<ApiResponse<T>> {
+  return Promise.resolve({
+    success: true,
+    data,
+    meta: Array.isArray(data)
+      ? { total: data.length, page: 1, pageSize: data.length, totalPages: 1 }
+      : undefined,
+  })
+}
+
+function mockErr<T>(code: string, message: string): Promise<ApiResponse<T>> {
+  return Promise.resolve({ success: false, data: null as unknown as T, error: { code, message } })
+}
 
 // ============= v3 写作 (12 方法) =============
 export const v3WritingApi = {
-  listTemplates: () => api.get<any[]>('/writing/templates'),
-  getTemplate: (id: string) => api.get<any>(`/writing/templates/${id}`),
-  createTemplate: (data: any) => api.post<any>('/writing/templates', data),
-  updateTemplate: (id: string, data: any) => api.put<any>(`/writing/templates/${id}`, data),
-  deleteTemplate: (id: string) => api.delete(`/writing/templates/${id}`),
-  listDrafts: (params?: any) => api.get<any[]>(`/writing/drafts?${new URLSearchParams(params ?? {}).toString()}`),
-  getDraft: (id: string) => api.get<any>(`/writing/drafts/${id}`),
-  saveDraft: (id: string, data: any) => api.put<any>(`/writing/drafts/${id}`, data),
-  aiDraft: (data: { templateId: string; patientId: string; findings: string }) => api.post<any>('/writing/ai-draft', data),
-  listPhrases: (params?: any) => api.get<any[]>(`/writing/phrases?${new URLSearchParams(params ?? {}).toString()}`),
-  listRadLex: (params?: any) => api.get<any[]>(`/writing/radlex?${new URLSearchParams(params ?? {}).toString()}`),
-  preScore: (id: string) => api.post<any>(`/writing/drafts/${id}/pre-score`, {}),
-};
+  // ── REAL: 后端 /templates (templates.controller) ──
+  listTemplates: (params?: { category?: string; bodyPart?: string; keyword?: string }) =>
+    templatesApi.list(params),
+  getTemplate: (id: string) => templatesApi.getById(id),
+  createTemplate: (data: any) => templatesApi.create(data),
+  updateTemplate: (id: string, data: any) => templatesApi.update(id, data),
+  deleteTemplate: (id: string) => templatesApi.delete(id),
+
+  // ── REAL: 草稿 = WRITING 状态报告 (reports.controller: GET /reports?state=WRITING) ──
+  listDrafts: (params?: any) => reportApi.list({ state: 'WRITING', ...(params ?? {}) }),
+  getDraft: (id: string) => reportApi.getById(id),
+  saveDraft: (id: string, data: any) =>
+    reportApi.update(id, { findings: data?.findings, conclusion: data?.impression ?? data?.conclusion }),
+
+  // ── REAL: 环境式 AI 报告草稿 (report-draft.controller: POST /ai/report-draft) ──
+  aiDraft: async (data: {
+    templateId: string
+    patientId: string
+    findings: string
+    modality?: string
+    bodyPart?: string
+    clinicalHistory?: string
+  }) => {
+    const res = await aiDraftApi.generateReportDraft({
+      reportId: data.patientId,
+      modality: data.modality ?? 'CT',
+      bodyPart: data.bodyPart ?? '胸部',
+      findings: data.findings,
+      clinicalInfo: data.clinicalHistory ?? data.findings,
+    })
+    if (!res.success) return res as ApiResponse<any>
+    const d = res.data as any
+    const sections = Array.isArray(d?.sections) ? d.sections : []
+    const pick = (key: string) => sections.find((s: any) => (s?.heading ?? '').includes(key))?.content ?? ''
+    return {
+      ...res,
+      data: {
+        id: d?.id ?? `draft-${Date.now()}`,
+        findings: d?.draftText ?? pick('所见'),
+        diagnosis: pick('诊断'),
+        impression: pick('意见') || pick('建议'),
+        confidence: d?.confidence ?? 0.9,
+        sources: [d?.modelVersion ? `AI Model ${d.modelVersion}` : 'AI Model'],
+      },
+    }
+  },
+
+  // ── MOCK_ONLY: 后端无短语库 / RadLex / 预评分端点 ──
+  listPhrases: () =>
+    mockOk([
+      { id: 'p-1', text: '双肺透光度增加，肺纹理增多', category: 'finding' },
+      { id: 'p-2', text: '未见明显异常', category: 'conclusion' },
+      { id: 'p-3', text: '建议定期随访', category: 'recommendation' },
+    ]),
+  listRadLex: () =>
+    mockOk([
+      { code: 'RID1234', term: '肺结节', category: 'finding' },
+      { code: 'RID5678', term: '毛刺征', category: 'morphology' },
+    ]),
+  preScore: () => mockErr('NOT_SUPPORTED', '后端无 /writing 预评分端点 (W1-B 清理)'),
+}
 
 // ============= v3 分发 (8 方法) =============
 export const v3DistApi = {
-  listChannels: () => api.get<any[]>('/dist/channels'),
-  getChannel: (id: string) => api.get<any>(`/dist/channels/${id}`),
-  listTasks: (params?: any) => api.get<any[]>(`/dist/tasks?${new URLSearchParams(params ?? {}).toString()}`),
-  getTask: (id: string) => api.get<any>(`/dist/tasks/${id}`),
-  retryTask: (id: string) => api.post<any>(`/dist/tasks/${id}/retry`, {}),
-  listQueues: () => api.get<any[]>('/dist/queues'),
-  listHL7Messages: (params?: any) => api.get<any[]>(`/dist/hl7?${new URLSearchParams(params ?? {}).toString()}`),
-  listDeliveryReceipts: (params?: any) => api.get<any[]>(`/dist/receipts?${new URLSearchParams(params ?? {}).toString()}`),
-};
+  // MOCK_ONLY: 后端无 /dist/* 端点
+  listChannels: () =>
+    mockOk([
+      { id: 'ch-1', name: '院内打印', type: 'print', status: 'active' },
+      { id: 'ch-2', name: '短信推送', type: 'sms', status: 'active' },
+    ]),
+  getChannel: (id: string) => mockOk({ id, name: '渠道', type: 'print', status: 'active' }),
+  listTasks: () =>
+    mockOk([
+      { id: 't-1', reportId: 'RPT-DEMO-1', channel: 'print', status: 'delivered', recipient: '住院部' },
+      { id: 't-2', reportId: 'RPT-DEMO-2', channel: 'sms', status: 'queued', recipient: '门诊' },
+    ]),
+  getTask: (id: string) => mockOk({ id, reportId: 'RPT-DEMO-1', channel: 'print', status: 'queued', recipient: '-' }),
+  retryTask: (id: string) => mockOk({ id, status: 'queued' }),
+  listQueues: () => mockOk([{ id: 'q-1', name: '默认队列', depth: 0 }]),
+  listHL7Messages: () => mockOk([]),
+  listDeliveryReceipts: () => mockOk([]),
+}
 
 // ============= v3 集成 (10 方法) =============
 export const v3IntegrationApi = {
-  listCDA: (params?: any) => api.get<any[]>(`/integration/cda?${new URLSearchParams(params ?? {}).toString()}`),
-  parseCDA: (id: string) => api.post<any>(`/integration/cda/${id}/parse`, {}),
-  downloadCDA: (id: string) => api.get<any>(`/integration/cda/${id}/download`),
-  listFHIR: (params?: any) => api.get<any[]>(`/integration/fhir?${new URLSearchParams(params ?? {}).toString()}`),
-  listXDSRegistrries: () => api.get<any[]>('/integration/xds/registries'),
-  registerXDS: (data: any) => api.post<any>('/integration/xds/register', data),
-  listHISOrders: (params?: any) => api.get<any[]>(`/integration/his/orders?${new URLSearchParams(params ?? {}).toString()}`),
-  getFHIRDiagnosticReport: (id: string) => api.get<any>(`/integration/fhir/diagnostic-report/${id}`),
-  listWebhooks: () => api.get<any[]>('/integration/webhooks'),
-  createWebhook: (data: any) => api.post<any>('/integration/webhooks', data),
-};
+  // MOCK_ONLY: 后端无 /integration/cda
+  listCDA: () => mockOk([]),
+  parseCDA: () => mockErr('NOT_SUPPORTED', '后端无 /integration/cda (W1-B 清理)'),
+  downloadCDA: () => mockErr('NOT_SUPPORTED', '后端无 /integration/cda (W1-B 清理)'),
 
-// ============= v3 v3 报告 AI 协助 (6 方法) =============
+  // REAL: 后端 FHIR R4 (fhir.controller: GET /fhir/r4/Patient)
+  listFHIR: async () => {
+    const res = await fhirApi.searchPatient()
+    if (!res.success) return res as unknown as ApiResponse<any[]>
+    const bundle = res.data as any
+    const entries = Array.isArray(bundle?.entry) ? bundle.entry : []
+    return {
+      ...res,
+      data: entries.map((e: any) => ({
+        id: e?.resource?.id ?? e?.resource?.resourceType,
+        resourceType: e?.resource?.resourceType ?? 'Patient',
+        status: 'final',
+      })),
+    }
+  },
+
+  listXDSRegistrries: () => mockOk([]),
+  registerXDS: () => mockErr('NOT_SUPPORTED', '后端无 /integration/xds (W1-B 清理)'),
+  listHISOrders: () => mockOk([]),
+
+  // REAL: 后端 FHIR R4 DiagnosticReport (fhir.controller)
+  getFHIRDiagnosticReport: (id: string) => fhirApi.readDiagnosticReport(id),
+
+  // MOCK_ONLY: 后端无 webhook 端点
+  listWebhooks: () => mockOk([]),
+  createWebhook: (data: any) => mockOk({ id: `wh-${Date.now()}`, ...data, status: 'active' }),
+}
+
+// ============= v3 AI 协助 (6 方法) =============
 export const v3AiAssistApi = {
-  listDrafts: (params?: any) => api.get<any[]>(`/ai-assist/drafts?${new URLSearchParams(params ?? {}).toString()}`),
-  getDraft: (id: string) => api.get<any>(`/ai-assist/drafts/${id}`),
-  preReview: (id: string) => api.post<any>(`/ai-assist/drafts/${id}/pre-review`, {}),
-  riskScore: (id: string) => api.post<any>(`/ai-assist/drafts/${id}/risk-score`, {}),
-  getDifferential: (id: string) => api.get<any>(`/ai-assist/drafts/${id}/differential`),
-  getConsent: (patientId: string) => api.get<any>(`/ai-assist/consent/${patientId}`),
-};
+  // REAL: 后端 AI 辅助建议 (ai-platform.controller: GET /ai-platform/assist)
+  listDrafts: () => aiPlatformApi.listAssist(),
+  // MOCK_ONLY: 后端无预审/风险/DDX/同意端点
+  getDraft: () => mockErr('NOT_SUPPORTED', '后端无 /ai-assist 端点 (W1-B 清理)'),
+  preReview: () => mockErr('NOT_SUPPORTED', '后端无 /ai-assist 端点 (W1-B 清理)'),
+  riskScore: () => mockErr('NOT_SUPPORTED', '后端无 /ai-assist 端点 (W1-B 清理)'),
+  getDifferential: () => mockErr('NOT_SUPPORTED', '后端无 /ai-assist 端点 (W1-B 清理)'),
+  getConsent: () => mockErr('NOT_SUPPORTED', '后端无 /ai-assist 端点 (W1-B 清理)'),
+}
 
 // ============= v3 质控 (5 方法) =============
 export const v3QualityReportApi = {
-  listReports: (params?: any) => api.get<any[]>(`/quality/reports?${new URLSearchParams(params ?? {}).toString()}`),
-  getReport: (id: string) => api.get<any>(`/quality/reports/${id}`),
-  getReportSections: (id: string) => api.get<any[]>(`/quality/reports/${id}/sections`),
-  exportReport: (id: string, format: 'pdf' | 'xlsx' | 'docx') => api.get<{ url: string }>(`/quality/reports/${id}/export.${format}`),
-  getReportConfigs: () => api.get<any[]>('/quality/reports/configs'),
-};
+  // MOCK_ONLY: 后端无 /quality/reports 列表端点 (真实质控为 /reports/quality/evaluate)
+  listReports: () =>
+    mockOk([
+      { id: 'qc-1', period: 'month', score: 92, publishedAt: '2026-07-01' },
+      { id: 'qc-2', period: 'quarter', score: 88, publishedAt: '2026-07-15' },
+    ]),
+  getReport: (id: string) => mockOk({ id, period: 'month', score: 92 }),
+  getReportSections: () => mockOk([]),
+  exportReport: () => mockOk({ url: '' }),
+  getReportConfigs: () => mockOk([]),
+}
 
 // ============= v3 PACS (3 方法) =============
 export const v3PacsApi = {
-  listStudies: (params?: any) => api.get<any[]>(`/pacs/studies?${new URLSearchParams(params ?? {}).toString()}`),
-  getStudy: (uid: string) => api.get<any>(`/pacs/studies/${uid}`),
-  verifyWado: (studyUid: string) => api.get<{ ok: boolean; wadoUrl: string }>(`/pacs/studies/${studyUid}/verify`),
-};
+  // REAL: 后端 DICOMWeb (dicom-web.controller: GET /dicom-web/studies)
+  listStudies: (params?: any) => dicomWebApi.searchStudies(params),
+  // MOCK_ONLY: 后端无 /pacs/studies/:uid / verify
+  getStudy: () => mockErr('NOT_SUPPORTED', '后端无 /pacs/studies/:uid (W1-B 清理)'),
+  verifyWado: () => mockErr('NOT_SUPPORTED', '后端无 /pacs/studies/:uid/verify (W1-B 清理)'),
+}
 
 // ============= v3 Analytics (3 方法) =============
 export const v3AnalyticsApi = {
-  getDashboard: (params?: { period?: string }) =>
-    api.get<any>(`/analytics/dashboard?${new URLSearchParams(params ?? {}).toString()}`),
-  getABTestResults: (params?: any) => api.get<any[]>(`/analytics/ab-test?${new URLSearchParams(params ?? {}).toString()}`),
-  getErrorLog: (params?: any) => api.get<any[]>(`/analytics/error-log?${new URLSearchParams(params ?? {}).toString()}`),
-};
+  // REAL: 后端 /stats/dashboard (stats.controller)
+  getDashboard: async (_params?: { period?: string }) => {
+    const res = await analyticsStatsApi.getDashboard()
+    if (!res.success) return res as ApiResponse<any>
+    const d = res.data as any
+    return {
+      ...res,
+      data: {
+        totalReports: d.reportCount ?? 0,
+        reviewed: 0,
+        avgTAT: d.avgTAT ?? 0,
+        signedRate: 0,
+        aiAdoption: 0,
+        distSuccess: 0,
+      },
+    }
+  },
+  // MOCK_ONLY: 后端无 /analytics/* 端点
+  getABTestResults: () => mockOk([]),
+  getErrorLog: () => mockOk([]),
+}
 
 // ============= v3 AI Platform (4 方法) =============
+// REAL: 后端 modules/ai (ai.controller.ts: POST /ai/generate|review|score, GET /ai/providers)
 export interface AiGenerateDto {
   templateId: string
   patientId: string
@@ -86,8 +221,9 @@ export interface AiGenerateDto {
 }
 
 export interface AiReviewDto {
-  reportId: string
-  content: string
+  reportText: string
+  findings: string
+  conclusion: string
 }
 
 export interface AiScoreDto {
@@ -107,8 +243,10 @@ export const v3AiPlatformApi = {
 
   getProviders: () =>
     api.get<{ providers: string[]; active: string }>('/ai/providers'),
-};
+}
 
+// ============= v3 AI 草稿 (4 方法) =============
+// REAL: 后端 modules/ai (ai.controller.ts: POST /ai/draft|/ai/draft/continue|/ai/draft/rewrite, GET /ai/draft/templates)
 export interface AiDraftMeta {
   patientId: string
   patientName?: string
@@ -156,4 +294,4 @@ export const v3AiDraftApi = {
 
   getTemplates: (modality?: string) =>
     api.get<{ templates: DraftTemplate[] }>(`/ai/draft/templates${modality ? `?modality=${modality}` : ''}`),
-};
+}

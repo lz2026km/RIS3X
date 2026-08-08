@@ -986,6 +986,25 @@ const dentalSchedModule = [
     if (chairId) data = data.filter(a => a.chairId === chairId);
     return HttpResponse.json({ success: true, data, meta: { date, total: data.length } });
   }),
+  // [G005 W1-A] 牙椅列表 (DentalSchedulePage 在用)
+  http.get(`${DENTAL_API}/schedule/chairs`, async () => {
+    await delay(30);
+    return HttpResponse.json({ success: true, data: [
+      { id: 'chair-1', name: '1号椅', status: 'online' },
+      { id: 'chair-2', name: '2号椅', status: 'online' },
+      { id: 'chair-3', name: '3号椅', status: 'offline' },
+      { id: 'chair-4', name: '4号椅', status: 'maintenance' },
+      { id: 'chair-5', name: '5号椅', status: 'online' },
+    ] });
+  }),
+  // [G005 W1-A] 排班统计 (DentalSchedulePage 在用)
+  http.get(`${DENTAL_API}/schedule/stats`, async () => {
+    await delay(30);
+    return HttpResponse.json({ success: true, data: {
+      todayAppointments: 12, completed: 4, inProgress: 2, noShow: 1,
+      chairUtilization: 0.68, avgWaitTime: 15,
+    } });
+  }),
   http.post(`${DENTAL_API}/schedule/appointments`, async ({ request }) => {
     await delay(80);
     const body = (await request.json()) as any;
@@ -1054,6 +1073,16 @@ const dentalManagementModule = [
     const url = new URL(request.url);
     void url;
     return HttpResponse.json({ success: true, data: MOCK_DENTAL_TREATMENTS.slice(0, 50).map(t => ({ id: t.patientId, name: t.patientName })), meta: { total: 200 } });
+  }),
+  // [G005 W1-A] 医生列表 (DentalSchedulePage 在用)
+  http.get(`${DENTAL_API}/dentists`, async () => {
+    await delay(30);
+    return HttpResponse.json({ success: true, data: [
+      { id: 'doc-1', name: '周大夫', specialty: '种植' },
+      { id: 'doc-2', name: '李大夫', specialty: '正畸' },
+      { id: 'doc-3', name: '王大夫', specialty: '牙体牙髓' },
+      { id: 'doc-4', name: '赵大夫', specialty: '牙周' },
+    ] });
   }),
   http.get(`${DENTAL_API}/patients/:id`, async ({ params }) => {
     await delay(30);

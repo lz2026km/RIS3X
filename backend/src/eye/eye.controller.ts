@@ -20,6 +20,8 @@ const AiInferenceSchema = z.object({
 })
 const IolCalculationSchema = z.object({ lensId: z.string().min(1), axialLength: z.number().positive(), keratometry: z.number().positive() })
 const GenerateReportSchema = z.object({ studyId: z.string().min(1), template: z.string().optional() })
+const CompareStudiesSchema = z.object({ studyIds: z.array(z.string()).optional() })
+const LooseBodySchema = z.object({}).passthrough()
 
 type CreateIolItemDto = z.infer<typeof CreateIolItemSchema>
 type IolOutDto = z.infer<typeof IolOutSchema>
@@ -47,6 +49,104 @@ export class EyeController {
   @Get('pacs/measurements')
   listPacsMeasurements(@Query('studyId') studyId?: string) {
     return this.eye.listPacsMeasurements({ studyId })
+  }
+
+  // ── [G005 W1-A] 在用孤儿: PACS 详情 / 对比 / 危急值 / 视野 ──
+
+  @Get('pacs/studies/:id')
+  getPacsStudy(@Param('id') id: string) {
+    return this.eye.getPacsStudy(id)
+  }
+
+  @Post('pacs/compare')
+  comparePacsStudies(@Body(new ZodValidationPipe(CompareStudiesSchema)) body: { studyIds?: string[] }) {
+    return this.eye.comparePacsStudies(body.studyIds)
+  }
+
+  @Get('pacs/critical-values')
+  listCriticalValues() {
+    return this.eye.listCriticalValues()
+  }
+
+  @Get('pacs/visual-fields')
+  listVisualFields() {
+    return this.eye.listVisualFields()
+  }
+
+  // ── [G005 W1-A] 在用孤儿: 视力 / 眼压记录 ──
+
+  @Get('ris/vision-records')
+  listVisionRecords(@Query('patientId') patientId?: string) {
+    return this.eye.listVisionRecords({ patientId })
+  }
+
+  @Post('ris/vision-records')
+  @HttpCode(HttpStatus.CREATED)
+  createVisionRecord(@Body(new ZodValidationPipe(LooseBodySchema)) body: Record<string, unknown>) {
+    return this.eye.createVisionRecord(body)
+  }
+
+  @Delete('ris/vision-records/:id')
+  deleteVisionRecord(@Param('id') id: string) {
+    return this.eye.deleteVisionRecord(id)
+  }
+
+  @Get('ris/iop-records')
+  listIopRecords(@Query('patientId') patientId?: string) {
+    return this.eye.listIopRecords({ patientId })
+  }
+
+  @Post('ris/iop-records')
+  @HttpCode(HttpStatus.CREATED)
+  createIopRecord(@Body(new ZodValidationPipe(LooseBodySchema)) body: Record<string, unknown>) {
+    return this.eye.createIopRecord(body)
+  }
+
+  @Delete('ris/iop-records/:id')
+  deleteIopRecord(@Param('id') id: string) {
+    return this.eye.deleteIopRecord(id)
+  }
+
+  // ── [G005 W1-A] 在用孤儿: 预约到检 / 叫号 ──
+
+  @Post('ris/appointments/:id/checkin')
+  checkinAppointment(@Param('id') id: string) {
+    return this.eye.checkinAppointment(id)
+  }
+
+  @Post('ris/appointments/:id/start')
+  startAppointment(@Param('id') id: string) {
+    return this.eye.startAppointment(id)
+  }
+
+  // ── [G005 W1-A] 在用孤儿: 报告提交 / 草稿保存 ──
+
+  @Post('report/reports/:id/submit')
+  submitReport(@Param('id') id: string) {
+    return this.eye.submitReport(id)
+  }
+
+  @Post('report/drafts')
+  @HttpCode(HttpStatus.CREATED)
+  createReportDraft(@Body(new ZodValidationPipe(LooseBodySchema)) body: Record<string, unknown>) {
+    return this.eye.createReportDraft(body)
+  }
+
+  // ── [G005 W1-A] 在用孤儿: KPI 看板 ──
+
+  @Get('kpi/summary')
+  getKpiSummary() {
+    return this.eye.getKpiSummary()
+  }
+
+  @Get('kpi/quality-metrics')
+  getQualityMetrics() {
+    return this.eye.getQualityMetrics()
+  }
+
+  @Get('kpi/satisfaction')
+  getPatientSatisfaction() {
+    return this.eye.getPatientSatisfaction()
   }
 
   // ── [G005-P1] AI 在用孤儿 ──

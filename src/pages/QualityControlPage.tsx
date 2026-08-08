@@ -1,8 +1,9 @@
 /**
  * G005 RIS v3.0.5.1 - QualityControlPage 质控管理
+ * [v3.0.6.11-81] W2-B: 报告评分数据接 reportApi.list + reportQualityApi (真实端点, 失败回退演示数据)
  */
-import React, { useState } from 'react';
-import { Tabs, Card, Space, Tag, message, Badge } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Tabs, Card, Space, Tag, message, Badge, Spin, Alert } from 'antd';
 import { ShieldCheck, AlertOctagon, FileText, AlertTriangle, BarChart3, Activity, Layers } from 'lucide-react';
 import { QualityScorePanel } from '../components/report/v3/R3.QUALITY/QualityScorePanel';
 import { QualityDimensionCard } from '../components/report/v3/R3.QUALITY/QualityDimensionCard';
@@ -23,8 +24,43 @@ const QualityControlPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedScore, setSelectedScore] = useState<QualityScore | null>(QUALITY_SCORES[0] ?? null);
 
+  // [W2-B] 真实化: qualityService.listScores → reportApi.list (报告主数据) + loading/error
+  const [scores, setScores] = useState<QualityScore[]>(QUALITY_SCORES);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [dataSource, setDataSource] = useState<'api' | 'fallback'>('api');
+  const [, setRescoreBusy] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const list = await qualityService.listScores();
+        if (cancelled) return;
+        if (list.length > 0) {
+          setScores(list);
+          setSelectedScore(list[0] ?? null);
+          setDataSource('api');
+        } else {
+          setDataSource('fallback');
+        }
+      } catch {
+        if (!cancelled) {
+          setDataSource('fallback');
+          setError('评分列表加载失败，当前展示演示数据');
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   const handleRescore = async () => {
     if (!selectedScore) return;
+    setRescoreBusy(true);
     try {
       const result = await qualityService.evaluateReport(
         selectedScore.reportId,
@@ -41,9 +77,12 @@ const QualityControlPage: React.FC = () => {
         }
       );
       setSelectedScore(result);
-      message.success('重评完成');
+      setScores(prev => [result, ...prev.filter(s => s.id !== result.id)]);
+      message.success('重评完成（reportQualityApi 评分引擎）');
     } catch (e) {
       message.error('重评失败');
+    } finally {
+      setRescoreBusy(false);
     }
   };
 
@@ -54,6 +93,15 @@ const QualityControlPage: React.FC = () => {
         subtitle="评分/危急值/缺陷/月报/实时仪表盘"
         icon={<ShieldCheck size={20} color="#1e40af" />}
         variant="inline"
+        actions={
+          <Space size={8}>
+            {loading && <Spin size="small" />}
+            <Tag color={dataSource === 'api' ? 'green' : 'orange'}>
+              {dataSource === 'api' ? '评分数据: reportApi/reportQualityApi' : '评分数据: 演示数据(API失败回退)'}
+            </Tag>
+            {error && <Alert type="warning" showIcon message={error} style={{ maxWidth: 320 }} />}
+          </Space>
+        }
       />
 
       <Tabs
@@ -72,7 +120,7 @@ const QualityControlPage: React.FC = () => {
             <Space orientation="vertical" style={{ width: '100%' }} size={12}>
               <Card size="small" title="选择报告">
                 <Space wrap>
-                  {QUALITY_SCORES.map((s) => (
+                  {scores.map((s) => (
                     <Card
                       key={s.id}
                       size="small"

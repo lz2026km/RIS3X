@@ -106,12 +106,14 @@ export type {
 export { userApi } from "./userApi";
 export type { UserDto } from "./userApi";
 
+// [G005 W1-C] MOCK_ONLY: 后端无 controller, MSW 支撑
 export { consultationApi } from "./consultationApi";
 export type { ConsultationDto } from "./consultationApi";
 
 export { queueApi } from "./queueApi";
 export type { QueueCallDto, ExamRoomStatus } from "./queueApi";
 
+// [G005 W1-C] MOCK_ONLY: 后端无 controller, MSW 支撑
 export { termApi } from "./termApi";
 export type {
   TermDto,
@@ -551,6 +553,7 @@ export type {
   CriticalAlertStats,
 } from "./criticalAlertApi";
 
+// [G005 W1-C] MOCK_ONLY: 后端无 controller, MSW 支撑
 export { autoCollectionApi } from "./autoCollectionApi";
 export type {
   AutoCollectionRule,
@@ -576,6 +579,7 @@ export type {
   RemoteReadingStats,
 } from "./remoteReadingApi";
 
+// [G005 W1-C] MOCK_ONLY: 后端无 controller, MSW 支撑
 export { pacsAdminApi } from "./pacsAdminApi";
 export type {
   PacsServer,
@@ -608,6 +612,7 @@ export { crossModalApi } from "./crossModalApi";
 export type {
   CrossModalSearchDto,
   CrossModalIndexStatus,
+  CrossModalSimilarResult,
 } from "./crossModalApi";
 export type { CrossModalSearchResult as CrossModalHit } from "./dicomApi";
 export { crossModalSearchApi } from "./dicomApi";
@@ -642,11 +647,9 @@ export type {
 } from "./dicom4dApi";
 
 // [v3.0.6.11-42] F08 后端模块对接
+// [G005 W1-C] 移除已删旧方法类型 VolumeStudyDto / VolumeRenderDto
 export { volumeApi } from "./volumeApi";
 export type {
-  VolumeStudyDto,
-  VolumeRenderDto,
-  VolumeRenderResult,
   VolumeVrDto,
   VolumeMprDto,
   VolumeSegmentationDto,
@@ -691,14 +694,8 @@ export type {
   FusionRenderResult,
 } from "./fusionApi";
 
+// [G005 W1-C] smartAuthApi 移除 /smart-auth/* 孤儿段, 同步移除已删 DTO 类型导出
 export { smartAuthApi } from "./smartAuthApi";
-export type {
-  SmartAuthSessionDto,
-  SmartAuthPolicyDto,
-  SmartAuthRuleDto,
-  SmartAuthMfaDto,
-  SmartAuthVerifyDto,
-} from "./smartAuthApi";
 
 export { kioskApi } from "./kioskApi";
 export type {

@@ -196,6 +196,13 @@ export default function AIOrchestrationPage() {
   const [activeFinding, setActiveFinding] = useState<number | null>(null);
   const [testResult, setTestResult] = useState<AiTestResult | null>(null);
 
+  // [W2-C] 受控分页 (5 张表格)
+  const [integrationPage, setIntegrationPage] = useState(1);
+  const [jobPage, setJobPage] = useState(1);
+  const [srPage, setSrPage] = useState(1);
+  const [fusionPage, setFusionPage] = useState(1);
+  const [orchPage, setOrchPage] = useState(1);
+
   const [registerForm] = Form.useForm();
   const [integrationForm] = Form.useForm();
   const [triggerForm] = Form.useForm();
@@ -949,7 +956,7 @@ export default function AIOrchestrationPage() {
                     columns={integrationColumns}
                     rowKey="id"
                     loading={integrationsLoading}
-                    pagination={{ pageSize: 8, showTotal: (t) => `共 ${t} 条` }}
+                    pagination={{ current: integrationPage, pageSize: 8, total: integrations.length, onChange: setIntegrationPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
                     locale={{ emptyText: <Empty description="暂无集成，点击右上角新建" /> }}
                   />
                   <div style={{ marginTop: 20 }}>
@@ -968,7 +975,7 @@ export default function AIOrchestrationPage() {
                       columns={orchestrationColumns}
                       rowKey="id"
                       loading={orchLoading}
-                      pagination={false}
+                      pagination={{ current: orchPage, pageSize: 8, total: orchestrations.length, onChange: setOrchPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
                       size="small"
                       locale={{ emptyText: <Empty description="暂无编排流水线" image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
                     />
@@ -997,7 +1004,7 @@ export default function AIOrchestrationPage() {
                     columns={jobColumns}
                     rowKey="id"
                     loading={jobsLoading}
-                    pagination={{ pageSize: 10, showTotal: (t) => `共 ${t} 条` }}
+                    pagination={{ current: jobPage, pageSize: 10, total: jobs.length, onChange: setJobPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
                     locale={{ emptyText: <Empty description="暂无推理任务" /> }}
                   />
                 </div>
@@ -1025,7 +1032,7 @@ export default function AIOrchestrationPage() {
                     columns={srColumns}
                     rowKey="id"
                     loading={srLoading}
-                    pagination={{ pageSize: 8, showTotal: (t) => `共 ${t} 条` }}
+                    pagination={{ current: srPage, pageSize: 8, total: srReports.length, onChange: setSrPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
                     locale={{ emptyText: <Empty description="暂无结构化报告，点击右上角生成" /> }}
                   />
                 </div>
@@ -1051,7 +1058,7 @@ export default function AIOrchestrationPage() {
                     columns={fusionColumns}
                     rowKey="id"
                     loading={fusionLoading}
-                    pagination={{ pageSize: 8, showTotal: (t) => `共 ${t} 条` }}
+                    pagination={{ current: fusionPage, pageSize: 8, total: fusionJobs.length, onChange: setFusionPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
                     locale={{ emptyText: <Empty description="暂无融合任务" /> }}
                   />
                 </div>

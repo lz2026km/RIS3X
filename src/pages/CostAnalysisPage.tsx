@@ -116,6 +116,18 @@ export default function CostAnalysisPage() {
 
   useEffect(() => { void loadFinance() }, [loadFinance])
 
+  const handleExportClaims837 = () => {
+    const header = '单号,患者,类型,金额,状态'
+    const rows = CLAIMS_DATA.claims.map(c => [c.id, c.patientName, c.type, c.amount, c.status].join(','))
+    const blob = new Blob(['\uFEFF' + [header, ...rows].join('\n')], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = '837理赔导出.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   const summaryData = useMemo(() => {
     const totalEquipmentCost = EQUIPMENT_DATA.reduce((sum, eq) => {
       const annualDep = eq.purchasePrice / eq.depreciationYears
@@ -891,8 +903,8 @@ export default function CostAnalysisPage() {
                 </tbody>
               </table>
               <div style={{ padding: '12px 16px', borderTop: '1px solid #30363d', display: 'flex', gap: 8 }}>
-                <button style={{ padding: '6px 14px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Send size={14} /> 生成837理赔</button>
-                <button style={{ padding: '6px 14px', background: '#21262d', color: '#8b949e', border: '1px solid #30363d', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}><RefreshCw size={14} style={{ marginRight: 4 }} />刷新</button>
+                <button onClick={handleExportClaims837} style={{ padding: '6px 14px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Send size={14} /> 生成837理赔</button>
+                <button onClick={() => void loadFinance()} style={{ padding: '6px 14px', background: '#21262d', color: '#8b949e', border: '1px solid #30363d', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}><RefreshCw size={14} style={{ marginRight: 4 }} />刷新</button>
               </div>
             </div>
             <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>

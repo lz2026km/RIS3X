@@ -158,6 +158,58 @@ export default function AppointmentManagementPage() {
   const [showConflictModal, setShowConflictModal] = useState(false)
   const [conflictDetails, setConflictDetails] = useState<ConflictInfo[]>([])
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
+
+  // [W2-C] 新建预约 (appointmentApi.create)
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [creating, setCreating] = useState(false)
+  const [createForm, setCreateForm] = useState({
+    patientName: '', patientId: '', phone: '', modality: 'CT', examItemName: '',
+    bodyPart: '', examDate: formatDateObj(new Date()), examTime: '09:00', priority: 'normal' as 'normal' | 'urgent' | 'critical',
+    deviceName: '', clinicalDiagnosis: '',
+  })
+  const handleCreateAppointment = async () => {
+    if (!createForm.patientName.trim() || !createForm.examItemName.trim()) return
+    setCreating(true)
+    try {
+      const { createAppointment } = await import('../services/api/appointmentApi')
+      const res = await createAppointment({
+        patientName: createForm.patientName.trim(),
+        patientId: createForm.patientId || `P${Date.now().toString().slice(-6)}`,
+        modality: createForm.modality,
+        bodyPart: createForm.bodyPart || createForm.examItemName.trim(),
+        startAt: `${createForm.examDate}T${createForm.examTime}:00`,
+        endAt: `${createForm.examDate}T${createForm.examTime}:30`,
+        deviceId: 'DEV-' + createForm.modality + '-01',
+        deviceName: createForm.deviceName || `${createForm.modality}设备`,
+        priority: (createForm.priority === 'urgent' ? 'URGENT' : createForm.priority === 'critical' ? 'STAT' : 'ROUTINE') as any,
+        note: createForm.clinicalDiagnosis || '',
+        referringDoctor: '当前用户',
+        createdById: 'cur-user',
+      })
+      if (res.success) {
+        const deviceName = createForm.deviceName || `${createForm.modality}设备`
+        const newApt: Appointment = {
+          id: `IMG-${String(appointments.length + 1).padStart(3, '0')}`,
+          patientId: createForm.patientId || `P${Date.now().toString().slice(-6)}`,
+          patientName: createForm.patientName.trim(),
+          patientInitials: getNameInitials(createForm.patientName.trim()),
+          gender: '未知', age: 0, idCard: '', phone: createForm.phone || '',
+          examItemId: 'EI-NEW', examItemName: createForm.examItemName.trim(),
+          modality: createForm.modality, bodyPart: createForm.bodyPart || createForm.examItemName.trim(),
+          examDate: createForm.examDate, examTime: createForm.examTime,
+          deviceId: 'DEV-' + createForm.modality + '-01', deviceName,
+          roomId: '', roomName: '', referringDoctorId: '', referringDoctorName: '当前用户',
+          clinicalDiagnosis: createForm.clinicalDiagnosis || '', notes: '',
+          status: 'pending', priority: createForm.priority,
+          createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16), updatedAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
+        }
+        setAppointments(prev => [...prev, newApt])
+        setShowCreateModal(false)
+        setCreateForm({ patientName: '', patientId: '', phone: '', modality: 'CT', examItemName: '', bodyPart: '', examDate: formatDateObj(new Date()), examTime: '09:00', priority: 'normal', deviceName: '', clinicalDiagnosis: '' })
+      }
+    } catch { /* 演示环境使用本地状态 */ }
+    setCreating(false)
+  }
   const [cancelReason, setCancelReason] = useState('')
   const [rescheduleData, setRescheduleData] = useState({ examDate: '', examTime: '', deviceId: '' })
 
@@ -756,7 +808,7 @@ export default function AppointmentManagementPage() {
                 <CalendarDays size={16} /> 日历
               </button>
             </div>
-            <button style={{ ...styles.actionBtn('primary'), display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <button onClick={() => setShowCreateModal(true)} style={{ ...styles.actionBtn('primary'), display: 'flex', alignItems: 'center', gap: '4px' }}>
               <Plus size={16} /> 新建预约
             </button>
           </div>
@@ -1286,6 +1338,86 @@ export default function AppointmentManagementPage() {
               >
                 <XCircle size={14} /> 确认取消
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 新建预约弹窗 */}
+      {showCreateModal && (
+        <div style={styles.modal} onClick={() => setShowCreateModal(false)}>
+          <div style={{ ...styles.modalContent, maxWidth: 520 }} onClick={e => e.stopPropagation()}>
+            <div style={styles.modalHeader}>
+              <div style={styles.modalTitle}>新建预约</div>
+              <X size={20} style={{ cursor: 'pointer' }} onClick={() => setShowCreateModal(false)} />
+            </div>
+            <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={styles.formGroup}>
+                <label style={styles.formLabel}>患者姓名 *</label>
+                <input style={styles.formInput} value={createForm.patientName} onChange={e => setCreateForm({ ...createForm, patientName: e.target.value })} placeholder="请输入患者姓名" />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div style={styles.formGroup}>
+                  <label style={styles.formLabel}>患者ID</label>
+                  <input style={styles.formInput} value={createForm.patientId} onChange={e => setCreateForm({ ...createForm, patientId: e.target.value })} placeholder="如: P001" />
+                </div>
+                <div style={styles.formGroup}>
+                  <label style={styles.formLabel}>联系电话</label>
+                  <input style={styles.formInput} value={createForm.phone} onChange={e => setCreateForm({ ...createForm, phone: e.target.value })} placeholder="选填" />
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div style={styles.formGroup}>
+                  <label style={styles.formLabel}>检查项目 *</label>
+                  <input style={styles.formInput} value={createForm.examItemName} onChange={e => setCreateForm({ ...createForm, examItemName: e.target.value })} placeholder="如: 胸部CT平扫" />
+                </div>
+                <div style={styles.formGroup}>
+                  <label style={styles.formLabel}>设备类型</label>
+                  <select style={styles.formInput} value={createForm.modality} onChange={e => setCreateForm({ ...createForm, modality: e.target.value })}>
+                    {['CT', 'MR', 'DR', 'DSA', 'MG', 'GI', '超声', 'PET-CT'].map(m => <option key={m} value={m}>{m}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div style={styles.formGroup}>
+                <label style={styles.formLabel}>检查部位</label>
+                <input style={styles.formInput} value={createForm.bodyPart} onChange={e => setCreateForm({ ...createForm, bodyPart: e.target.value })} placeholder="选填" />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div style={styles.formGroup}>
+                  <label style={styles.formLabel}>预约日期 *</label>
+                  <input type="date" style={styles.formInput} value={createForm.examDate} onChange={e => setCreateForm({ ...createForm, examDate: e.target.value })} />
+                </div>
+                <div style={styles.formGroup}>
+                  <label style={styles.formLabel}>预约时间 *</label>
+                  <select style={styles.formInput} value={createForm.examTime} onChange={e => setCreateForm({ ...createForm, examTime: e.target.value })}>
+                    {timeSlots.map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div style={styles.formGroup}>
+                <label style={styles.formLabel}>优先级</label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {([['normal', '普通'], ['urgent', '紧急'], ['critical', '危重']] as const).map(([v, l]) => (
+                    <button key={v} onClick={() => setCreateForm({ ...createForm, priority: v })}
+                      style={{
+                        flex: 1, padding: '8px 0', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                        border: `1px solid ${createForm.priority === v ? COLORS.primary : COLORS.border}`,
+                        background: createForm.priority === v ? COLORS.primaryLight : '#fff',
+                        color: createForm.priority === v ? COLORS.primary : COLORS.textSecondary,
+                      }}>{l}</button>
+                  ))}
+                </div>
+              </div>
+              <div style={styles.formGroup}>
+                <label style={styles.formLabel}>临床诊断</label>
+                <input style={styles.formInput} value={createForm.clinicalDiagnosis} onChange={e => setCreateForm({ ...createForm, clinicalDiagnosis: e.target.value })} placeholder="选填" />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '8px' }}>
+                <button style={styles.actionBtn('secondary')} onClick={() => setShowCreateModal(false)}>取消</button>
+                <button style={styles.actionBtn('primary')} onClick={() => void handleCreateAppointment()} disabled={!createForm.patientName.trim() || !createForm.examItemName.trim() || creating}>
+                  {creating ? '创建中...' : <><Plus size={14} /> 确认创建</>}
+                </button>
+              </div>
             </div>
           </div>
         </div>

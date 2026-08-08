@@ -29,6 +29,8 @@ const CriticalAlertPage: React.FC = () => {
   const [selected, setSelected] = useState<CriticalAlert | null>(null)
   const [comment, setComment] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  // [W2-C] 受控分页
+  const [alertPage, setAlertPage] = useState(1)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -183,12 +185,12 @@ const CriticalAlertPage: React.FC = () => {
           <Space>
             <Select
               size="small" allowClear placeholder="级别筛选" style={{ width: 130 }}
-              value={severityFilter} onChange={(v) => setSeverityFilter(v)}
+              value={severityFilter} onChange={(v) => { setSeverityFilter(v); setAlertPage(1) }}
               options={['info', 'warning', 'critical', 'emergency'].map((s) => ({ value: s, label: s }))}
             />
             <Select
               size="small" allowClear placeholder="状态筛选" style={{ width: 130 }}
-              value={statusFilter} onChange={(v) => setStatusFilter(v)}
+              value={statusFilter} onChange={(v) => { setStatusFilter(v); setAlertPage(1) }}
               options={['active', 'acknowledged', 'resolved', 'escalated'].map((s) => ({ value: s, label: s }))}
             />
           </Space>
@@ -198,7 +200,7 @@ const CriticalAlertPage: React.FC = () => {
           {alerts.length === 0 && !loading ? (
             <Empty description="暂无告警" image={Empty.PRESENTED_IMAGE_SIMPLE} />
           ) : (
-            <Table rowKey="id" dataSource={alerts} columns={columns} pagination={{ pageSize: 10 }} size="small" />
+            <Table rowKey="id" dataSource={alerts} columns={columns} pagination={{ current: alertPage, pageSize: 10, total: alerts.length, onChange: setAlertPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }} size="small" />
           )}
         </Spin>
       </Card>

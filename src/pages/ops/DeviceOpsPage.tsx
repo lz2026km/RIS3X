@@ -1,9 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
 import { Monitor, AlertTriangle, CheckCircle, XCircle, Search, Clock, Settings, ChevronDown, ChevronRight } from 'lucide-react'
 import { replayDeviceEvent } from '../../utils/deviceStateAdapter'
+// [W2-A] 设备运营接 deviceMgmtApi (equipment-lifecycle/faults/maintenance-plans) + oeeApi (利用率)
+import { deviceMgmtApi } from '../../services/api/deviceMgmtApi'
+import { oeeApi } from '../../services/api/oeeApi'
 
 interface Device {
   id: string; name: string; type: string; location: string; status: 'online' | 'offline' | 'maintenance' | 'fault'
@@ -44,23 +47,149 @@ export default function DeviceOpsPage() {
   const [search, setSearch] = useState('')
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [filterType, setFilterType] = useState<string>('all')
+  // [W2-A] deviceMgmtApi/oeeApi 实时状态 (失败回退静态演示数据)
+  const [loading, setLoading] = useState(true)
+  const [dataSource, setDataSource] = useState<'api' | 'demo'>('demo')
+  const [apiError, setApiError] = useState('')
+  const [devices, setDevices] = useState<Device[]>(MOCK_DEVICES)
+  const [utilData, setUtilData] = useState(UTIL_DATA)
+  const [faults, setFaults] = useState(FAULTS)
+  const [maintLog, setMaintLog] = useState(MAINT_LOG)
 
-  const filtered = MOCK_DEVICES.filter(d => {
+  const toNum = (v: unknown): number => {
+    const n = Number(v)
+    return Number.isFinite(n) ? n : 0
+  }
+
+  const loadDevices = useCallback(async () => {
+    setLoading(true)
+    setApiError('')
+    try {
+      const [lifeR, oeeR, faultsR, plansR] = await Promise.allSettled([
+        deviceMgmtApi.listEquipmentLifecycle(),
+        oeeApi.list(),
+        deviceMgmtApi.listDeviceFaults(),
+        deviceMgmtApi.listMaintenancePlans(),
+      ])
+      const lifeRaw = lifeR.status === 'fulfilled' && lifeR.value.success ? lifeR.value.data : null
+      const life: any[] = Array.isArray(lifeRaw) ? lifeRaw : (lifeRaw as any)?.items ?? []
+      const oee = oeeR.status === 'fulfilled' && oeeR.value.success ? (oeeR.value.data as any[]) ?? [] : []
+      const faultsRaw = faultsR.status === 'fulfilled' && faultsR.value.success ? faultsR.value.data : null
+      const faultList: any[] = Array.isArray(faultsRaw) ? faultsRaw : (faultsRaw as any)?.items ?? []
+      const plans = plansR.status === 'fulfilled' && plansR.value.success ? (plansR.value.data?.data ?? []) : []
+
+      const anyReal = life.length > 0 || oee.length > 0 || faultList.length > 0 || plans.length > 0
+      if (!anyReal) {
+        setDataSource('demo')
+        setApiError('deviceMgmtApi 暂不可用，当前展示内置演示数据')
+        return
+      }
+      setDataSource('api')
+
+      const statusOf = (s: string): Device['status'] => {
+        if (s === 'MAINTENANCE') return 'maintenance'
+        if (s === 'RETIRED' || s === 'BROKEN' || s === 'OFFLINE') return 'offline'
+        return 'online'
+      }
+      const oeeById = new Map<string, any>()
+      oee.forEach((o: any) => oeeById.set(String(o.id), o))
+      const lifeById = new Map<string, any>()
+      life.forEach((l: any) => lifeById.set(String(l.id), l))
+
+      const merged: Device[] = []
+      const seen = new Set<string>()
+      life.forEach((l: any) => {
+        const o = oeeById.get(String(l.id)) || Array.from(oeeById.values()).find((x: any) => String(x.name).includes(String(l.name).slice(0, 3)))
+        merged.push({
+          id: l.id, name: `${l.name} (${l.model || '—'})`, type: l.modality || l.manufacturer || '设备',
+          location: l.location || '—',
+          status: statusOf(l.status),
+          utilization: toNum(o?.oee ?? l.oee),
+          lastMaintenance: String(l.lastMaintenanceDate || '').slice(0, 10) || '—',
+          nextMaintenance: String(l.nextMaintenanceDate || '').slice(0, 10) || '—',
+          firmware: '—', ip: '—',
+        })
+        seen.add(l.id)
+      })
+      oee.forEach((o: any) => {
+        if (seen.has(String(o.id))) return
+        merged.push({
+          id: o.id, name: `${o.name} (${o.model || ''})`.trim(), type: o.modality || '设备',
+          location: '—', status: 'online', utilization: toNum(o.oee),
+          lastMaintenance: '—', nextMaintenance: '—', firmware: '—', ip: '—',
+        })
+      })
+      if (merged.length > 0) setDevices(merged)
+
+      setUtilData(merged.filter(d => d.status === 'online').map(d => ({ name: (d.name.split('(')[0] ?? '').trim(), utilization: d.utilization })))
+
+      if (faultList.length > 0) {
+        const nameOf = (deviceId: string) => {
+          const l = lifeById.get(String(deviceId))
+          if (l?.name) return l.name
+          const m = merged.find(d => d.id === String(deviceId) || d.name.includes(deviceId))
+          return m?.name || deviceId
+        }
+        setFaults(faultList.map((f: any) => ({
+          device: nameOf(f.deviceId),
+          issue: f.description || f.name || '未知故障',
+          severity: ['CRITICAL', 'HIGH'].includes(String(f.severity)) ? 'critical' : 'warning',
+          reported: String(f.createdAt || '').replace('T', ' ').slice(0, 16) || '—',
+          eta: '—',
+        })))
+      }
+
+      if (plans.length > 0) {
+        setMaintLog(plans.map((p: any) => ({
+          device: p.deviceName || p.deviceId || '—',
+          action: [p.type, p.content].filter(Boolean).join(' · ') || '维护',
+          performedBy: p.assignee || '—',
+          date: String(p.maintenanceDate || '').slice(0, 10) || '—',
+          result: p.status === 'COMPLETED' ? '通过' : p.status === 'CANCELLED' ? '已取消' : '待执行',
+        })))
+      }
+    } catch (e) {
+      setDataSource('demo')
+      setApiError(e instanceof Error ? e.message : '数据加载失败，已回退演示数据')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { void loadDevices() }, [loadDevices])
+
+  const filtered = devices.filter(d => {
     if (filterType !== 'all' && d.type !== filterType) return false
     if (search && !d.name.toLowerCase().includes(search.toLowerCase())) return false
     return true
   })
 
-  const types = [...new Set(MOCK_DEVICES.map(d => d.type))]
+  const types = [...new Set(devices.map(d => d.type))]
 
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><Monitor size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>设备运营管理</span></div>
-        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>共 {MOCK_DEVICES.length} 台设备</span>
+        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>共 {devices.length} 台设备 · {dataSource === 'api' ? 'deviceMgmtApi 实时' : '演示数据'}</span>
       </div>
 
       <div style={{ padding: '20px 24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, fontSize: 12, flexWrap: 'wrap' }}>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999,
+            background: dataSource === 'api' ? '#22c55e20' : '#f59e0b20', color: dataSource === 'api' ? '#22c55e' : '#f59e0b', fontWeight: 600,
+          }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: dataSource === 'api' ? '#22c55e' : '#f59e0b' }} />
+            {loading ? '数据同步中...' : dataSource === 'api' ? '数据源: deviceMgmtApi/oeeApi 实时' : '数据源: 演示数据'}
+          </span>
+          {apiError && (
+            <span style={{ color: '#ef4444' }}>
+              {apiError}
+              <button onClick={() => void loadDevices()} style={{ marginLeft: 8, padding: '2px 10px', borderRadius: 4, border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>重试</button>
+            </span>
+          )}
+        </div>
+
         <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
           {['all', ...types].map(t => (
             <button key={t} onClick={() => setFilterType(t)}
@@ -81,7 +210,7 @@ export default function DeviceOpsPage() {
               <BarChart size={16} color="#3b82f6" />设备使用率
             </div>
             <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={UTIL_DATA}>
+              <BarChart data={utilData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                 <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
                 <YAxis domain={[0, 100]} tick={{ fontSize: 12, fill: '#8b949e' }} unit="%" />
@@ -95,8 +224,8 @@ export default function DeviceOpsPage() {
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#ef4444', display: 'flex', alignItems: 'center', gap: 8 }}>
               <AlertTriangle size={16} />设备故障/维护预警
             </div>
-            {FAULTS.map((f, i) => (
-              <div key={i} style={{ padding: '10px 0', borderBottom: i < FAULTS.length - 1 ? '1px solid #21262d' : 'none' }}>
+            {faults.map((f, i) => (
+              <div key={i} style={{ padding: '10px 0', borderBottom: i < faults.length - 1 ? '1px solid #21262d' : 'none' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ fontSize: 13, color: '#f0f6fc' }}>{f.device}</span>
                   <span style={{ fontSize: 12, padding: '2px 6px', borderRadius: 4, background: f.severity === 'critical' ? '#ef444420' : '#f59e0b20', color: f.severity === 'critical' ? '#ef4444' : '#f59e0b' }}>
@@ -148,7 +277,7 @@ export default function DeviceOpsPage() {
 
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
           <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Clock size={16} color="#8b5cf6" />维护记录
+            <Clock size={16} color="#8b5cf6" />维护记录 {dataSource === 'api' && <span style={{ fontSize: 11, color: '#22c55e' }}>(maintenance-plans 实时)</span>}
           </div>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
@@ -161,7 +290,7 @@ export default function DeviceOpsPage() {
               </tr>
             </thead>
             <tbody>
-              {MAINT_LOG.map((m, i) => (
+              {maintLog.map((m, i) => (
                 <tr key={i}>
                   <td style={{ padding: '8px', borderBottom: '1px solid #21262d', fontWeight: 500 }}>{m.device}</td>
                   <td style={{ padding: '8px', borderBottom: '1px solid #21262d', color: '#8b949e' }}>{m.action}</td>

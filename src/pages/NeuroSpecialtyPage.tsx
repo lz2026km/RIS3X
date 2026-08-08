@@ -1,6 +1,8 @@
 // Neuro Specialty Page — 神经影像分析 · 脑卒中 · 脑肿瘤 · 癫痫
-import { useState, useMemo } from 'react';
-import { Brain, Activity, AlertTriangle, Search, ChevronRight, TrendingUp, Zap, BarChart3, FileText, Eye } from 'lucide-react';
+// [v3.0.6.11-81] W2-B: mockStudies → neuroSpecialtyApi (MSW /neuro/* 演示数据)
+import { useState, useMemo, useEffect } from 'react';
+import { Brain, Activity, AlertTriangle, Search, ChevronRight, TrendingUp, Zap, BarChart3, FileText, Eye, Loader2, Download, X } from 'lucide-react';
+import { neuroSpecialtyApi, type NeuroStudy, type NeuroStats } from '../services/api/neuroSpecialtyApi';
 
 // ─── Constants ───
 const STROKE_COLORS: Record<string, string> = {
@@ -12,14 +14,12 @@ const TUMOR_COLORS: Record<string, string> = {
   pituitary: '#ea580c', craniopharyngioma: '#ca8a04', other: '#94a3b8',
 };
 
-const mockStudies = [
-  { id: 'NX001', name: '张伟', age: 68, gender: 'M', modality: 'MRI', indication: '急性左侧偏瘫', type: 'stroke', subtype: 'ischemic', vessel: 'MCA-L', aspectScore: 8, coreMl: 15, penumbraMl: 45, lvo: true, date: '2026-07-15', status: 'reported' },
-  { id: 'NX002', name: '李芳', age: 52, gender: 'F', modality: 'MRI', indication: '头痛、视力下降', type: 'tumor', tumorType: 'meningioma', grade: 'I', sizeMm: 28, volumeCm3: 5.2, location: 'frontal', date: '2026-07-14', status: 'reviewed' },
-  { id: 'NX003', name: '王明', age: 45, gender: 'M', modality: 'CT', indication: '突发剧烈头痛', type: 'stroke', subtype: 'subarachnoid', vessel: 'ACoA', aspectScore: 10, coreMl: 0, penumbraMl: 0, lvo: false, date: '2026-07-13', status: 'reported' },
-  { id: 'NX004', name: '赵丽', age: 34, gender: 'F', modality: 'MRI', indication: '难治性癫痫', type: 'epilepsy', focus: 'mesial-temporal', mts: true, hippocampalAsymmetry: 18, date: '2026-07-12', status: 'reported' },
-  { id: 'NX005', name: '陈浩', age: 62, gender: 'M', modality: 'MRI', indication: '头痛、恶心', type: 'tumor', tumorType: 'glioma', grade: 'IV', sizeMm: 42, volumeCm3: 28.5, location: 'frontal', date: '2026-07-11', status: 'reviewed' },
-  { id: 'NX006', name: '刘洁', age: 71, gender: 'F', modality: 'CTA', indication: '疑似动脉瘤', type: 'aneurysm', location: 'PCom', sizeMm: 5.2, neckMm: 3.1, ruptureRisk: 'moderate', date: '2026-07-10', status: 'reported' },
-];
+const TUMOR_LABELS: Record<string, string> = {
+  glioma: '胶质瘤', meningioma: '脑膜瘤', metastasis: '转移瘤', schwannoma: '听神经瘤',
+  pituitary: '垂体瘤', craniopharyngioma: '颅咽管瘤', other: '其他',
+};
+
+const TUMOR_GRADE_COLORS = ['#16a34a', '#ca8a04', '#ea580c', '#dc2626'];
 
 const s: Record<string, React.CSSProperties> = {
   root: { padding: 0 },
@@ -38,28 +38,112 @@ const s: Record<string, React.CSSProperties> = {
   table: { width: '100%', borderCollapse: 'collapse', fontSize: 13 },
   th: { textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 600 },
   td: { padding: '10px 8px', borderBottom: '1px solid #f8fafc', color: '#334155' },
-  badge: (bg: string, text: string): React.CSSProperties => ({
-    padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: bg, color: text, display: 'inline-block',
-  }),
   scrollBox: { maxHeight: 320, overflowY: 'auto' },
   grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 },
   grid3: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 },
 };
+
+const badge = (bg: string, text: string): React.CSSProperties => ({
+  padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: bg, color: text, display: 'inline-block',
+});
+
+const InfoRow = ({ label, value }: { label: string; value: string }) => (
+  <div style={{ padding: '10px 12px', background: '#f8fafc', borderRadius: 8 }}>
+    <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 2 }}>{label}</div>
+    <div style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>{value}</div>
+  </div>
+);
 
 const NeuroSpecialtyPage = () => {
   const [search, setSearch] = useState('');
   const [typeFilter, _setTypeFilter] = useState('');
   const [tab, setTab] = useState<'stroke' | 'tumor' | 'epilepsy' | 'stats'>('stroke');
 
+  // [W2-B] 真实化: /neuro/* API (MSW 演示数据) + loading/error
+  const [studies, setStudies] = useState<NeuroStudy[]>([]);
+  const [stats, setStats] = useState<NeuroStats | null>(null);
+  const [tumorGrades, setTumorGrades] = useState<{ grade: string; count: number }[]>([]);
+  const [tumorTypes, setTumorTypes] = useState<{ label: string; count: number; pct: number }[]>([]);
+  const [strokeWindows, setStrokeWindows] = useState<{ window: string; count: number; color: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [detailStudy, setDetailStudy] = useState<NeuroStudy | null>(null);
+
+  const handleExportCSV = () => {
+    const header = '编号,患者,类型,血管,ASPECTS,核心梗死(ml),缺血半暗带(ml),LVO,检查日期,模态';
+    const rows = filtered.map(r => [
+      r.id, r.patientName, r.type, r.vessel ?? '', r.aspectScore ?? '', r.coreMl ?? '', r.penumbraMl ?? '',
+      r.lvo ? '阳性' : '阴性', r.acquiredAt ?? '', r.modality ?? '',
+    ].join(','));
+    const blob = new Blob(['\uFEFF' + [header, ...rows].join('\n')], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `神经专科病例-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const load = (q?: string) => {
+    let cancelled = false;
+    void (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const [studiesRes, statsRes, gradesRes, windowsRes] = await Promise.all([
+          neuroSpecialtyApi.listStudies(q ? { search: q } : undefined),
+          neuroSpecialtyApi.getStats(),
+          neuroSpecialtyApi.getTumorGrades(),
+          neuroSpecialtyApi.getStrokeWindows(),
+        ]);
+        if (cancelled) return;
+        if (studiesRes.success && Array.isArray(studiesRes.data)) setStudies(studiesRes.data);
+        else setError('神经病例加载失败');
+        if (statsRes.success && statsRes.data) setStats(statsRes.data);
+        if (gradesRes.success && gradesRes.data) {
+          setTumorGrades(gradesRes.data.grades ?? []);
+          setTumorTypes(gradesRes.data.types ?? []);
+        }
+        if (windowsRes.success && Array.isArray(windowsRes.data)) setStrokeWindows(windowsRes.data);
+      } catch {
+        if (!cancelled) setError('神经专科数据加载失败，请稍后重试');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  };
+
+  useEffect(() => { return load(); }, []);
+
+  useEffect(() => {
+    const t = setTimeout(() => { void load(search || undefined); }, 300);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
+
   const filtered = useMemo(() => {
-    let list = [...mockStudies];
-    if (search) list = list.filter(r => r.name.includes(search) || r.id.includes(search));
+    let list = [...studies];
+    if (search) list = list.filter(r => r.patientName.includes(search) || r.id.includes(search));
     if (typeFilter) list = list.filter(r => r.type === typeFilter);
     return list;
-  }, [search, typeFilter]);
+  }, [studies, search, typeFilter]);
 
-  const strokeCount = mockStudies.filter(r => r.type === 'stroke').length;
-  const tumorCount = mockStudies.filter(r => r.type === 'tumor').length;
+  const strokeCount = stats?.strokeCount ?? studies.filter(r => r.type === 'stroke').length;
+  const tumorCount = stats?.tumorCount ?? studies.filter(r => r.type === 'tumor').length;
+
+  const handleAnalyze = async () => {
+    setAnalyzing(true);
+    try {
+      const res = await neuroSpecialtyApi.analyze();
+      if (!res.success) setError(res.error?.message ?? '急诊分析失败');
+    } catch {
+      setError('急诊分析失败，请稍后重试');
+    } finally {
+      setAnalyzing(false);
+    }
+  };
 
   return (
     <div style={s.root}>
@@ -67,21 +151,29 @@ const NeuroSpecialtyPage = () => {
         <div>
           <h1 style={s.title}><Brain size={24} color="#dc2626" /> 神经专科</h1>
           <p style={s.subtitle}>神经影像专科 · 脑卒中 · 脑肿瘤 · 癫痫 · 动脉瘤</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
+            <span style={{ padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: '#eff6ff', color: '#1e40af' }}>
+              数据来源: /neuro/* API（MSW 演示数据）
+            </span>
+            {error && <span style={{ padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: '#fef2f2', color: '#dc2626' }}>{error}</span>}
+          </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button style={s.btn}><FileText size={14} /> 导出</button>
-          <button style={s.btnPrimary}><Zap size={14} /> 急诊分析</button>
+          <button style={s.btn} onClick={handleExportCSV}><Download size={14} /> 导出</button>
+          <button style={s.btnPrimary} onClick={() => void handleAnalyze()} disabled={analyzing}>
+            {analyzing ? <Loader2 size={14} className="v4-spin" /> : <Zap size={14} />} {analyzing ? '分析中...' : '急诊分析'}
+          </button>
         </div>
       </div>
 
       {/* KPI Row */}
       <div style={s.statsRow}>
         {[
-          { label: '今日扫描', value: '15', unit: '例', icon: Activity, color: '#dc2626', bg: '#fef2f2' },
+          { label: '今日扫描', value: stats?.todayScans ?? '15', unit: '例', icon: Activity, color: '#dc2626', bg: '#fef2f2' },
           { label: '卒中检出', value: String(strokeCount), unit: '例', icon: Zap, color: '#1e40af', bg: '#eff6ff' },
           { label: '肿瘤病例', value: String(tumorCount), unit: '例', icon: AlertTriangle, color: '#7c3aed', bg: '#f5f3ff' },
-          { label: 'LVO 阳性', value: '1', unit: '例', icon: Eye, color: '#ea580c', bg: '#fff7ed' },
-          { label: '待报告', value: '3', unit: '份', icon: FileText, color: '#16a34a', bg: '#f0fdf4' },
+          { label: 'LVO 阳性', value: String(stats?.lvoPositive ?? 0), unit: '例', icon: Eye, color: '#ea580c', bg: '#fff7ed' },
+          { label: '待报告', value: String(stats?.pendingReports ?? 0), unit: '份', icon: FileText, color: '#16a34a', bg: '#f0fdf4' },
         ].map((k, i) => (
           <div key={i} style={s.statCard}>
             <div style={{ ...s.statIcon, background: k.bg }}><k.icon size={20} color={k.color} /></div>
@@ -106,7 +198,14 @@ const NeuroSpecialtyPage = () => {
         ))}
       </div>
 
-      {tab === 'stroke' && (
+      {loading && (
+        <div style={{ ...s.section, textAlign: 'center', padding: 48, color: '#64748b', fontSize: 13 }}>
+          <Loader2 size={22} className="v4-spin" style={{ verticalAlign: 'middle', marginRight: 8 }} />
+          正在加载神经专科数据...
+        </div>
+      )}
+
+      {!loading && tab === 'stroke' && (
         <div style={s.section}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <div style={s.sectionTitle}><Zap size={16} color="#dc2626" /> 脑卒中评估</div>
@@ -129,10 +228,10 @@ const NeuroSpecialtyPage = () => {
                 {filtered.filter(r => r.type === 'stroke').map(r => (
                   <tr key={r.id}>
                     <td style={s.td}>{r.id}</td>
-                    <td style={{ ...s.td, fontWeight: 600 }}>{r.name}<br /><span style={{ fontSize: 11, color: '#94a3b8' }}>{r.age}y {r.gender}</span></td>
+                    <td style={{ ...s.td, fontWeight: 600 }}>{r.patientName}<br /><span style={{ fontSize: 11, color: '#94a3b8' }}>{r.age}y {r.gender}</span></td>
                     <td style={s.td}>
                       <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: STROKE_COLORS[r.subtype ?? 'ischemic'], color: '#fff' }}>
-                        {r.subtype === 'ischemic' ? '缺血性' : r.subtype === 'hemorrhagic' ? '出血性' : 'TIA'}
+                        {r.subtype === 'ischemic' ? '缺血性' : r.subtype === 'hemorrhagic' ? '出血性' : r.subtype === 'subarachnoid' ? '蛛网膜下腔' : 'TIA'}
                       </span>
                     </td>
                     <td style={s.td}>{r.vessel}</td>
@@ -144,10 +243,10 @@ const NeuroSpecialtyPage = () => {
                     <td style={s.td}>{r.coreMl} ml</td>
                     <td style={s.td}>{r.penumbraMl} ml</td>
                     <td style={s.td}>
-                      <span style={s.badge(r.lvo ? '#fef2f2' : '#f0fdf4', r.lvo ? '阳性' : '阴性')}></span>
+                      <span style={badge(r.lvo ? '#fef2f2' : '#f0fdf4', r.lvo ? '阳性' : '阴性')}></span>
                     </td>
                     <td style={s.td}>
-                      <button style={{ padding: '4px 10px', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>
+                      <button onClick={() => setDetailStudy(r)} style={{ padding: '4px 10px', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>
                         详情 <ChevronRight size={12} />
                       </button>
                     </td>
@@ -159,20 +258,20 @@ const NeuroSpecialtyPage = () => {
         </div>
       )}
 
-      {tab === 'tumor' && (
+      {!loading && tab === 'tumor' && (
         <div style={s.grid2}>
           <div style={s.section}>
             <div style={s.sectionTitle}><Brain size={16} color="#7c3aed" /> 脑肿瘤列表</div>
             {filtered.filter(r => r.type === 'tumor').map(r => (
               <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid #f8fafc' }}>
-                <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#f5f3ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13, color: '#7c3aed' }}>{r.name[0]}</div>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#f5f3ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13, color: '#7c3aed' }}>{r.patientName[0]}</div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600 }}>{r.name}</div>
+                  <div style={{ fontSize: 13, fontWeight: 600 }}>{r.patientName}</div>
                   <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.id} · {r.modality}</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: TUMOR_COLORS[r.tumorType ?? 'other'], color: '#fff' }}>
-                    {r.tumorType === 'glioma' ? '胶质瘤' : '脑膜瘤'}
+                    {TUMOR_LABELS[r.tumorType ?? 'other'] ?? r.tumorType}
                   </span>
                   <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>分级 {r.grade} · {r.sizeMm}mm</div>
                 </div>
@@ -182,13 +281,13 @@ const NeuroSpecialtyPage = () => {
           <div style={s.section}>
             <div style={s.sectionTitle}><BarChart3 size={16} color="#7c3aed" /> 肿瘤分级分布</div>
             {['I', 'II', 'III', 'IV'].map(g => {
-              const count = [2, 3, 2, 1][(['I', 'II', 'III', 'IV'].indexOf(g))];
-              const colors = ['#16a34a', '#ca8a04', '#ea580c', '#dc2626'];
+              const count = tumorGrades.find(t => t.grade === g)?.count ?? 0;
+              const max = Math.max(1, ...tumorGrades.map(t => t.count));
               return (
                 <div key={g} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
                   <span style={{ width: 50, fontSize: 12, fontWeight: 600 }}>分级 {g}</span>
                   <div style={{ flex: 1, height: 8, background: '#f1f5f9', borderRadius: 4 }}>
-                    <div style={{ height: '100%', width: `${count * 10}%`, background: colors[(['I', 'II', 'III', 'IV'].indexOf(g))], borderRadius: 4 }} />
+                    <div style={{ height: '100%', width: `${(count / max) * 100}%`, background: TUMOR_GRADE_COLORS[['I', 'II', 'III', 'IV'].indexOf(g)], borderRadius: 4 }} />
                   </div>
                   <span style={{ fontSize: 12, color: '#64748b', width: 30, textAlign: 'right' }}>{count}</span>
                 </div>
@@ -196,15 +295,10 @@ const NeuroSpecialtyPage = () => {
             })}
             <div style={{ marginTop: 16 }}>
               <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>肿瘤类型分布</div>
-              {[
-                { label: '胶质瘤', count: 4, pct: 50, color: '#7c3aed' },
-                { label: '脑膜瘤', count: 2, pct: 25, color: '#0891b2' },
-                { label: '转移瘤', count: 1, pct: 12.5, color: '#dc2626' },
-                { label: '其他', count: 1, pct: 12.5, color: '#94a3b8' },
-              ].map(t => (
+              {tumorTypes.map(t => (
                 <div key={t.label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: 2, background: t.color }} />
-                  <span style={{ fontSize: 12, flex: 1 }}>{t.label}</span>
+                  <div style={{ width: 8, height: 8, borderRadius: 2, background: TUMOR_COLORS[t.label] ?? '#94a3b8' }} />
+                  <span style={{ fontSize: 12, flex: 1 }}>{TUMOR_LABELS[t.label] ?? t.label}</span>
                   <span style={{ fontSize: 12, fontWeight: 600 }}>{t.count} ({t.pct}%)</span>
                 </div>
               ))}
@@ -213,19 +307,19 @@ const NeuroSpecialtyPage = () => {
         </div>
       )}
 
-      {tab === 'epilepsy' && (
+      {!loading && tab === 'epilepsy' && (
         <div style={s.grid2}>
           <div style={s.section}>
             <div style={s.sectionTitle}><Eye size={16} color="#ca8a04" /> 癫痫评估</div>
             {filtered.filter(r => r.type === 'epilepsy').map(r => (
               <div key={r.id} style={{ padding: 14, background: '#fefce8', borderRadius: 10, marginBottom: 12, border: '1px solid #fef08a' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <span style={{ fontSize: 13, fontWeight: 600 }}>{r.name} ({r.id})</span>
+                  <span style={{ fontSize: 13, fontWeight: 600 }}>{r.patientName} ({r.id})</span>
                   <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: '#ca8a04', color: '#fff' }}>{r.modality}</span>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
-                  <div><span style={{ color: '#64748b' }}>病灶: </span><span style={{ fontWeight: 600 }}>颞叶内侧</span></div>
-                  <div><span style={{ color: '#64748b' }}>MTS: </span><span style={{ fontWeight: 600, color: '#dc2626' }}>阳性</span></div>
+                  <div><span style={{ color: '#64748b' }}>病灶: </span><span style={{ fontWeight: 600 }}>{r.focus === 'mesial-temporal' ? '颞叶内侧' : '额叶'}</span></div>
+                  <div><span style={{ color: '#64748b' }}>MTS: </span><span style={{ fontWeight: 600, color: r.mts ? '#dc2626' : '#16a34a' }}>{r.mts ? '阳性' : '阴性'}</span></div>
                   <div><span style={{ color: '#64748b' }}>不对称: </span><span style={{ fontWeight: 600 }}>{r.hippocampalAsymmetry}%</span></div>
                   <div><span style={{ color: '#64748b' }}>EEG: </span><span style={{ fontWeight: 600 }}>左侧颞区放电</span></div>
                 </div>
@@ -237,14 +331,14 @@ const NeuroSpecialtyPage = () => {
             {filtered.filter(r => r.type === 'aneurysm').map(r => (
               <div key={r.id} style={{ padding: 14, background: '#fef2f2', borderRadius: 10, marginBottom: 12, border: '1px solid #fecaca' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <span style={{ fontSize: 13, fontWeight: 600 }}>{r.name} ({r.id})</span>
+                  <span style={{ fontSize: 13, fontWeight: 600 }}>{r.patientName} ({r.id})</span>
                   <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: '#dc2626', color: '#fff' }}>{r.modality}</span>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
                   <div><span style={{ color: '#64748b' }}>位置: </span><span style={{ fontWeight: 600 }}>{r.location}</span></div>
                   <div><span style={{ color: '#64748b' }}>大小: </span><span style={{ fontWeight: 600 }}>{r.sizeMm}mm</span></div>
                   <div><span style={{ color: '#64748b' }}>瘤颈: </span><span style={{ fontWeight: 600 }}>{r.neckMm}mm</span></div>
-                  <div><span style={{ color: '#64748b' }}>风险: </span><span style={{ fontWeight: 600, color: '#ea580c' }}>{r.ruptureRisk === 'moderate' ? '中危' : r.ruptureRisk}</span></div>
+                  <div><span style={{ color: '#64748b' }}>风险: </span><span style={{ fontWeight: 600, color: r.ruptureRisk === 'moderate' ? '#ea580c' : r.ruptureRisk === 'low' ? '#16a34a' : '#dc2626' }}>{r.ruptureRisk === 'moderate' ? '中危' : r.ruptureRisk === 'low' ? '低危' : '高危'}</span></div>
                 </div>
               </div>
             ))}
@@ -252,21 +346,16 @@ const NeuroSpecialtyPage = () => {
         </div>
       )}
 
-      {tab === 'stats' && (
+      {!loading && tab === 'stats' && (
         <div style={s.grid2}>
           <div style={s.section}>
             <div style={s.sectionTitle}><BarChart3 size={16} color="#dc2626" /> 疾病分布</div>
-            {[
-              { label: '脑卒中', count: 2, pct: 33, color: '#dc2626' },
-              { label: '脑肿瘤', count: 2, pct: 33, color: '#7c3aed' },
-              { label: '癫痫', count: 1, pct: 17, color: '#ca8a04' },
-              { label: '动脉瘤', count: 1, pct: 17, color: '#0891b2' },
-            ].map(d => (
+            {(stats?.diseaseDistribution ?? []).map(d => (
               <div key={d.label} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-                <div style={{ width: 10, height: 10, borderRadius: 3, background: d.color }} />
+                <div style={{ width: 10, height: 10, borderRadius: 3, background: { 脑卒中: '#dc2626', 脑肿瘤: '#7c3aed', 癫痫: '#ca8a04', 动脉瘤: '#0891b2' }[d.label] ?? '#94a3b8' }} />
                 <span style={{ width: 80, fontSize: 13, fontWeight: 500 }}>{d.label}</span>
                 <div style={{ flex: 1, height: 8, background: '#f1f5f9', borderRadius: 4 }}>
-                  <div style={{ height: '100%', width: `${d.pct}%`, background: d.color, borderRadius: 4 }} />
+                  <div style={{ height: '100%', width: `${d.pct}%`, background: { 脑卒中: '#dc2626', 脑肿瘤: '#7c3aed', 癫痫: '#ca8a04', 动脉瘤: '#0891b2' }[d.label] ?? '#94a3b8', borderRadius: 4 }} />
                 </div>
                 <span style={{ fontSize: 12, fontWeight: 600, width: 50, textAlign: 'right' }}>{d.count} ({d.pct}%)</span>
               </div>
@@ -274,16 +363,11 @@ const NeuroSpecialtyPage = () => {
           </div>
           <div style={s.section}>
             <div style={s.sectionTitle}><TrendingUp size={16} color="#16a34a" /> 卒中治疗时间窗</div>
-            {[
-              { window: '0-3h (IV tPA)', count: 5, color: '#16a34a' },
-              { window: '3-6h (MT)', count: 3, color: '#ca8a04' },
-              { window: '6-24h (MT)', count: 2, color: '#ea580c' },
-              { window: '>24h (保守)', count: 1, color: '#dc2626' },
-            ].map(t => (
+            {strokeWindows.map(t => (
               <div key={t.window} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
                 <span style={{ width: 120, fontSize: 12, color: '#64748b' }}>{t.window}</span>
                 <div style={{ flex: 1, height: 6, background: '#f1f5f9', borderRadius: 3 }}>
-                  <div style={{ height: '100%', width: `${_count => (t.count / 5) * 100}%`, background: t.color, borderRadius: 3 }} />
+                  <div style={{ height: '100%', width: `${Math.min(100, (t.count / Math.max(1, strokeWindows[0]?.count ?? 5)) * 100)}%`, background: t.color, borderRadius: 3 }} />
                 </div>
                 <span style={{ fontSize: 12, fontWeight: 600, width: 30, textAlign: 'right' }}>{t.count}</span>
               </div>
@@ -292,7 +376,71 @@ const NeuroSpecialtyPage = () => {
         </div>
       )}
 
-      <style>{`.v4-icon { display: inline-block; vertical-align: middle; }`}</style>
+      <style>{`.v4-icon { display: inline-block; vertical-align: middle; }
+        @keyframes v4spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .v4-spin { animation: v4spin 1s linear infinite; }`}</style>
+
+      {detailStudy && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setDetailStudy(null)}>
+          <div style={{ background: '#fff', borderRadius: 12, width: 520, maxHeight: '82vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#1a3a5c', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Brain size={18} color="#dc2626" />病例详情
+              </div>
+              <button onClick={() => setDetailStudy(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: 4 }}><X size={18} /></button>
+            </div>
+            <div style={{ padding: 20 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
+                <div>
+                  <div style={{ fontSize: 17, fontWeight: 700, color: '#1a3a5c' }}>{detailStudy.patientName}</div>
+                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{detailStudy.id} · {detailStudy.age}y {detailStudy.gender} · {detailStudy.modality ?? '-'}</div>
+                </div>
+                <span style={{ alignSelf: 'flex-start', padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: detailStudy.type === 'stroke' ? '#fef2f2' : detailStudy.type === 'tumor' ? '#f5f3ff' : '#fefce8', color: detailStudy.type === 'stroke' ? '#dc2626' : detailStudy.type === 'tumor' ? '#7c3aed' : '#ca8a04' }}>
+                  {{ stroke: '脑卒中', tumor: '脑肿瘤', epilepsy: '癫痫', aneurysm: '动脉瘤' }[detailStudy.type] ?? detailStudy.type}
+                </span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <InfoRow label="检查日期" value={detailStudy.acquiredAt ?? '-'} />
+                <InfoRow label="技师/医师" value={detailStudy.technician ?? detailStudy.radiologist ?? '-'} />
+                <InfoRow label="设备" value={detailStudy.deviceId ?? detailStudy.modality ?? '-'} />
+                <InfoRow label="就诊号" value={detailStudy.accessionNumber ?? '-'} />
+                {detailStudy.type === 'stroke' && (
+                  <>
+                    <InfoRow label="血管" value={detailStudy.vessel ?? '-'} />
+                    <InfoRow label="ASPECTS" value={String(detailStudy.aspectScore ?? '-')} />
+                    <InfoRow label="核心梗死" value={`${detailStudy.coreMl ?? '-'} ml`} />
+                    <InfoRow label="缺血半暗带" value={`${detailStudy.penumbraMl ?? '-'} ml`} />
+                  </>
+                )}
+                {detailStudy.type === 'tumor' && (
+                  <>
+                    <InfoRow label="肿瘤类型" value={TUMOR_LABELS[detailStudy.tumorType ?? 'other'] ?? '-'} />
+                    <InfoRow label="分级" value={`${detailStudy.grade ?? '-'} 级`} />
+                    <InfoRow label="大小" value={`${detailStudy.sizeMm ?? '-'} mm`} />
+                  </>
+                )}
+                {detailStudy.type === 'epilepsy' && (
+                  <>
+                    <InfoRow label="病灶" value={detailStudy.focus === 'mesial-temporal' ? '颞叶内侧' : '额叶'} />
+                    <InfoRow label="MTS" value={detailStudy.mts ? '阳性' : '阴性'} />
+                    <InfoRow label="海马不对称" value={`${detailStudy.hippocampalAsymmetry ?? '-'}%`} />
+                  </>
+                )}
+                {detailStudy.type === 'aneurysm' && (
+                  <>
+                    <InfoRow label="位置" value={detailStudy.location ?? '-'} />
+                    <InfoRow label="大小" value={`${detailStudy.sizeMm ?? '-'} mm`} />
+                    <InfoRow label="瘤颈" value={`${detailStudy.neckMm ?? '-'} mm`} />
+                  </>
+                )}
+              </div>
+              <div style={{ marginTop: 16, padding: 12, background: '#f8fafc', borderRadius: 8, fontSize: 12, color: '#475569' }}>
+                {detailStudy.findings ?? '暂无检查所见'}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

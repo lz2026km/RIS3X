@@ -9,7 +9,7 @@ import {
 import { Search, ImageIcon, FileText, ScanSearch, ExternalLink, RefreshCw } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { crossModalApi } from '../../services/api'
-import type { CrossModalSearchResult } from '../../services/api/crossModalApi'
+import type { CrossModalSearchResult, CrossModalSimilarResult } from '../../services/api/crossModalApi'
 
 const { Text } = Typography
 
@@ -78,21 +78,46 @@ const CrossModalSearchPage: React.FC = () => {
     }
   }
 
+  const toResult = (r: CrossModalSimilarResult): CrossModalSearchResult => ({
+    id: r.id,
+    score: r.similarity,
+    modality: r.modality,
+    studyUid: r.id,
+    patientName: r.patientName,
+    patientId: r.patientId,
+    studyDescription: r.description,
+    studyDate: r.studyDate,
+    thumbnail: r.thumbnail,
+    matchedField: 'similar',
+  })
+
+  // [G005 W3] 相似检索: 调后端 POST /cross-modal/similar (imageId), 失败回退保持当前结果
   const handleSimilar = async (id: string) => {
     setLoading(true)
     setError('')
     try {
-      const res = await crossModalApi.search({ query: '', limit: 6 })
+      const res = await crossModalApi.similar(id)
       if (res.success && Array.isArray(res.data)) {
-        const seed = results.find((r) => r.id === id)
-        const sim = res.data.filter((r) => r.id !== id && (!seed || r.modality === seed.modality)).slice(0, 6)
-        setResults(sim.length > 0 ? sim : res.data.slice(0, 6))
+        setResults(res.data.map(toResult))
         setSearched(true)
         setActiveTab('all')
+      } else {
+        setError(res.error?.message ?? '相似检索失败')
       }
-    } catch { /* 保持当前结果 */ } finally {
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '相似检索失败')
+    } finally {
       setLoading(false)
     }
+  }
+
+  const handleSimilarButton = () => {
+    const seed = results[0]
+    if (!seed) {
+      message.warning('请先搜索后再进行相似检索')
+      return
+    }
+    void handleSimilar(seed.id)
   }
 
   const goDetail = (r: CrossModalSearchResult) => {
@@ -161,6 +186,7 @@ const CrossModalSearchPage: React.FC = () => {
           <Col xs={24} md={14}>
             <Space>
               <Button type="primary" icon={<Search size={14} />} onClick={handleSearch} loading={loading}>搜索</Button>
+              <Button icon={<ScanSearch size={14} />} onClick={handleSimilarButton} disabled={results.length === 0}>相似检索</Button>
               <Button icon={<RefreshCw size={14} />} onClick={() => void loadIndexStatus()}>索引状态</Button>
               <Text type="secondary" style={{ fontSize: 12 }}>支持文本 + 患者 + 模态混合检索</Text>
             </Space>

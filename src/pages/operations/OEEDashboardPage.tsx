@@ -26,6 +26,8 @@ export const OEEDashboardPage: React.FC = () => {
   const [causeData, setCauseData] = useState<{ name: string; value: number }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // [W2-C] 受控分页
+  const [devicePage, setDevicePage] = useState(1);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -210,7 +212,7 @@ export const OEEDashboardPage: React.FC = () => {
       </Row>
 
       <Card size="small" title={<Space><BarChart3 size={14} color={COLORS.blue} />设备 OEE 列表（按 OEE 降序）</Space>}>
-        <Table dataSource={sorted} columns={columns} rowKey="id" size="small" pagination={{ pageSize: 10 }}
+        <Table dataSource={sorted} columns={columns} rowKey="id" size="small" pagination={{ current: devicePage, pageSize: 10, total: sorted.length, onChange: setDevicePage, showSizeChanger: false, showTotal: (t) => `共 ${t} 台` }}
           rowClassName={(r: OeeDeviceMetric) => r.oee < 60 ? 'oee-row-red' : r.oee < 85 ? 'oee-row-yellow' : ''}
         />
       </Card>

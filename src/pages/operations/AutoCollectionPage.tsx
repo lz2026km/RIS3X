@@ -102,10 +102,18 @@ const AutoCollectionPage: React.FC = () => {
 
   return (
     <div style={{ padding: 24 }}>
+      {/* [G005 W1-C] 演示数据（后端待实现）: 后端无 auto-collection controller, 数据由 MSW 提供 */}
+      <Alert
+        type="warning"
+        showIcon
+        banner
+        message="演示数据（后端待实现）"
+        description={DEMO_SOURCE_NOTE}
+        style={{ marginBottom: 16 }}
+      />
       <Space style={{ marginBottom: 16 }}>
         <Settings size={20} color="#1677ff" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>自动采集管理</span>
-        <Tag color="orange">{DEMO_SOURCE_NOTE}</Tag>
       </Space>
       {error && <Alert type="warning" showIcon message="加载失败" description={error} action={<Button size="small" onClick={fetchRules}>重试</Button>} style={{ marginBottom: 16 }} />}
       <Row gutter={16} style={{ marginBottom: 16 }}>

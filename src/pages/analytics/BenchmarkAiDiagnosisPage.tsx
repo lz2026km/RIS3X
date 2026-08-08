@@ -5,6 +5,7 @@ import { Cpu, TrendingUp } from 'lucide-react'
 
 const { RangePicker } = DatePicker
 
+// [W1-B] 演示页: 准确率仪表盘使用本地演示数据, 不依赖后端 (后端 /ai/score 语义不符)
 interface AccuracyData {
   sensitivity: number
   specificity: number
@@ -29,8 +30,6 @@ interface TrendPoint {
 function rand(min: number, max: number): number {
   return Math.round((Math.random() * (max - min) + min) * 100) / 100
 }
-
-import { v3AiPlatformApi } from '../../services/api/v3Api'
 
 function AccuracyGauge({ label, value, color }: { label: string; value: number; color: string }) {
   const radius = 50
@@ -58,13 +57,9 @@ export default function BenchmarkAiDiagnosisPage() {
   const fetchData = useCallback(async () => {
     setLoading(true)
     try {
-      const scoreRes = await v3AiPlatformApi.score({ reportId: '', criteria: ['accuracy', 'sensitivity', 'specificity'] })
-      if (scoreRes.success && scoreRes.data) {
-        const d = scoreRes.data
-        setAccuracy({ sensitivity: d.sensitivity ?? rand(82, 97), specificity: d.specificity ?? rand(80, 95), ppv: d.ppv ?? rand(78, 94), npv: d.npv ?? rand(82, 96), accuracy: d.accuracy ?? rand(84, 96), totalCases: d.totalCases ?? Math.round(Math.random() * 2000 + 500) })
-      } else {
-        setAccuracy({ sensitivity: rand(82, 97), specificity: rand(80, 95), ppv: rand(78, 94), npv: rand(82, 96), accuracy: rand(84, 96), totalCases: Math.round(Math.random() * 2000 + 500) })
-      }
+      // [W1-B] 后端 /ai/score 仅接受 reportText/findings/conclusion (评分语义与准确率仪表盘不符),
+      //        本页为演示页, 使用本地演示数据, 不发网络请求 (避免 400/404)。
+      setAccuracy({ sensitivity: rand(82, 97), specificity: rand(80, 95), ppv: rand(78, 94), npv: rand(82, 96), accuracy: rand(84, 96), totalCases: Math.round(Math.random() * 2000 + 500) })
       setTrend(Array.from({ length: 30 }, (_, i) => {
         const d = new Date(dateRange[0])
         d.setDate(d.getDate() + i)

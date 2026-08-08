@@ -1,5 +1,5 @@
 // 6.8 Department Operations (20 pts)
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { Users, Calendar, Clock, Activity, TrendingUp, RefreshCw, Download, Plus, Bed, UserCheck, FileText } from 'lucide-react'
 
 const statsData = [
@@ -51,16 +51,25 @@ const StatusBadge = ({ status }: { status: string }) => {
 const DepartmentOperationsPage = () => {
   const [search, setSearch] = useState('')
   const [_tab] = useState(1)
-  new Date();
+  const [refreshTick, setRefreshTick] = useState(0)
+  const [showStatsModal, setShowStatsModal] = useState(false)
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [newPatient, setNewPatient] = useState({ name: '', exam: 'MG', room: '' })
+  const [extraPatients, setExtraPatients] = useState<Array<{ id: number; name: string; exam: string; room: string; scheduled: string; status: string }>>([])
 
-  const staff = [
+  const handleRefresh = useCallback(() => {
+    setRefreshTick(t => t + 1)
+  }, [])
+
+  const staff = useMemo(() => [
     { name: '张敏', role: '主任医师', shift: '上午', status: '在岗', focus: '诊断' },
     { name: '李芳', role: '主治医师', shift: '上午', status: '在岗', focus: '诊断' },
     { name: '王丽', role: '技师', shift: '上午', status: '检查中', focus: 'MG扫描' },
     { name: '赵静', role: '技师', shift: '下午', status: '在岗', focus: 'TOMO' },
     { name: '刘洁', role: '技师', shift: '上午', status: '检查中', focus: '超声' },
     { name: '陈艳', role: '护士', shift: '上午', status: '在岗', focus: '注射' },
-  ]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  ], [refreshTick])
 
   const rooms = useMemo(() => [
     { name: '钼靶室1', device: 'Hologic Selenia', modality: 'MG', status: '使用中', patient: '王秀兰', todayCount: 12 },
@@ -69,16 +78,35 @@ const DepartmentOperationsPage = () => {
     { name: '超声室1', device: 'GE Logiq E10', modality: 'US', status: '使用中', patient: '赵丽娟', todayCount: 10 },
     { name: '超声室2', device: 'Philips EPIQ', modality: 'US', status: '维护中', patient: '', todayCount: 0 },
     { name: 'MRI室', device: 'Siemens Skyra', modality: 'MRI', status: '空闲', patient: '', todayCount: 4 },
-  ], [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  ], [refreshTick])
 
-  const queue = useMemo(() => Array.from({ length: 15 }, (_, i) => ({
-    id: i + 1, name: `患者${String.fromCharCode(65 + (i % 26))}${i}`,
-    exam: ['MG', '乳腺断层', '乳腺超声', '乳腺MRI'][i % 4],
-    room: rooms[i % rooms.length].name, scheduled: `${8 + Math.floor(i / 2)}:${(i % 2) * 30 + 10}`,
-    status: ['等待中', '已签到', '检查中', '已完成'][Math.min(i % 4, 3)] as string,
-  })), [rooms])
+  const queue = useMemo(() => [
+    ...Array.from({ length: 15 }, (_, i) => ({
+      id: i + 1, name: `患者${String.fromCharCode(65 + (i % 26))}${i}`,
+      exam: ['MG', '乳腺断层', '乳腺超声', '乳腺MRI'][i % 4],
+      room: rooms[i % rooms.length].name, scheduled: `${8 + Math.floor(i / 2)}:${(i % 2) * 30 + 10}`,
+      status: ['等待中', '已签到', '检查中', '已完成'][Math.min(i % 4, 3)] as string,
+    })),
+    ...extraPatients,
+  ], [rooms, extraPatients])
 
   const filteredQueue = queue.filter(q => q.name.includes(search) || q.exam.includes(search))
+
+  const handleAddPatient = () => {
+    if (!newPatient.name.trim()) return
+    const roomsList = rooms.map(r => r.name)
+    setExtraPatients(prev => [...prev, {
+      id: Date.now(),
+      name: newPatient.name.trim(),
+      exam: newPatient.exam,
+      room: newPatient.room || roomsList[0],
+      scheduled: new Date().toTimeString().slice(0, 5),
+      status: '等待中',
+    }])
+    setShowAddModal(false)
+    setNewPatient({ name: '', exam: 'MG', room: '' })
+  }
 
   return (
     <div style={s.root}>
@@ -88,8 +116,8 @@ const DepartmentOperationsPage = () => {
           <p style={s.subtitle}>乳腺影像科室运营 · 排班 · 设备 · 工作流 · 统计</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button style={s.btn}><RefreshCw size={14} /></button>
-          <button style={s.btnPrimary}><Download size={14} /> 统计报表</button>
+          <button style={s.btn} onClick={handleRefresh} title="刷新"><RefreshCw size={14} /></button>
+          <button style={s.btnPrimary} onClick={() => setShowStatsModal(true)}><Download size={14} /> 统计报表</button>
         </div>
       </div>
 
@@ -141,7 +169,7 @@ const DepartmentOperationsPage = () => {
           <div style={s.sectionTitle}><Calendar size={16} color='#0891b2' />候诊队列</div>
           <div style={{ display: 'flex', gap: 8 }}>
             <input style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, outline: 'none', width: 200 }} placeholder='搜索患者或检查...' value={search} onChange={e => setSearch(e.target.value)} />
-            <button style={{ ...s.btn, padding: '6px 12px' }}><Plus size={12} /> 加号</button>
+            <button style={{ ...s.btn, padding: '6px 12px' }} onClick={() => setShowAddModal(true)}><Plus size={12} /> 加号</button>
           </div>
         </div>
         <div style={s.scrollBox}>
@@ -165,6 +193,78 @@ const DepartmentOperationsPage = () => {
           </table>
         </div>
       </div>
+
+      {showStatsModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowStatsModal(false)}>
+          <div style={{ background: '#fff', borderRadius: 12, width: 520, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid #f1f5f9' }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 8 }}><Download size={16} color="#2563eb" /> 科室统计报表</div>
+              <button onClick={() => setShowStatsModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: 4, fontSize: 16 }}>×</button>
+            </div>
+            <div style={{ padding: 20 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
+                {statsData.slice(0, 6).map(stat => (
+                  <div key={stat.label} style={{ background: stat.bg, borderRadius: 10, padding: '14px 12px', textAlign: 'center' }}>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: stat.color }}>{stat.value}<span style={{ fontSize: 12, fontWeight: 400, marginLeft: 2 }}>{stat.unit}</span></div>
+                    <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#1e293b', marginBottom: 10 }}>候诊队列统计</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {['等待中', '已签到', '检查中', '已完成'].map(st => {
+                  const count = queue.filter(q => q.status === st).length
+                  const max = Math.max(1, queue.length)
+                  return (
+                    <div key={st} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <span style={{ width: 60, fontSize: 12, color: '#64748b' }}>{st}</span>
+                      <div style={{ flex: 1, height: 8, background: '#f1f5f9', borderRadius: 4 }}>
+                        <div style={{ height: '100%', width: `${(count / max) * 100}%`, background: '#2563eb', borderRadius: 4 }} />
+                      </div>
+                      <span style={{ width: 28, fontSize: 12, fontWeight: 700, textAlign: 'right', color: '#1e293b' }}>{count}</span>
+                    </div>
+                  )
+                })}
+              </div>
+              <div style={{ marginTop: 16, fontSize: 12, color: '#94a3b8' }}>数据更新于 {new Date().toLocaleTimeString('zh-CN', { hour12: false })} · 共 {queue.length} 位候诊患者</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAddModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowAddModal(false)}>
+          <div style={{ background: '#fff', borderRadius: 12, width: 440, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid #f1f5f9' }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 8 }}><Plus size={16} color="#0891b2" /> 添加候诊患者</div>
+              <button onClick={() => setShowAddModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: 4, fontSize: 16 }}>×</button>
+            </div>
+            <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 6 }}>患者姓名</label>
+                <input value={newPatient.name} onChange={e => setNewPatient({ ...newPatient, name: e.target.value })} placeholder="请输入患者姓名" style={{ width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 6 }}>检查项目</label>
+                <select value={newPatient.exam} onChange={e => setNewPatient({ ...newPatient, exam: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13 }}>
+                  {['MG', '乳腺断层', '乳腺超声', '乳腺MRI'].map(m => <option key={m} value={m}>{m}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 6 }}>检查室</label>
+                <select value={newPatient.room} onChange={e => setNewPatient({ ...newPatient, room: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13 }}>
+                  <option value="">自动分配</option>
+                  {rooms.map(r => <option key={r.name} value={r.name}>{r.name}</option>)}
+                </select>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
+                <button onClick={() => setShowAddModal(false)} style={{ padding: '8px 20px', border: '1px solid #e2e8f0', borderRadius: 8, background: '#fff', color: '#64748b', fontSize: 13, cursor: 'pointer' }}>取消</button>
+                <button onClick={handleAddPatient} disabled={!newPatient.name.trim()} style={{ padding: '8px 20px', border: 'none', borderRadius: 8, background: newPatient.name.trim() ? '#2563eb' : '#94a3b8', color: '#fff', fontSize: 13, fontWeight: 600, cursor: newPatient.name.trim() ? 'pointer' : 'not-allowed' }}>加入队列</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -35,6 +35,8 @@ const DicomSharePage: React.FC = () => {
   const [shareModal, setShareModal] = useState(false)
   const [shareForm] = Form.useForm()
   const [creating, setCreating] = useState(false)
+  // [W2-C] 受控分页
+  const [sharePage, setSharePage] = useState(1)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -173,7 +175,7 @@ const DicomSharePage: React.FC = () => {
         ) : shares.length === 0 ? (
           <Empty description="暂无共享记录" />
         ) : (
-          <Table dataSource={shares} rowKey="id" columns={columns} pagination={{ pageSize: 10 }} size="small" scroll={{ x: 1200 }} />
+          <Table dataSource={shares} rowKey="id" columns={columns} pagination={{ current: sharePage, pageSize: 10, total: shares.length, onChange: setSharePage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }} size="small" scroll={{ x: 1200 }} />
         )}
       </Card>
 

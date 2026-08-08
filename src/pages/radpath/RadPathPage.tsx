@@ -52,6 +52,8 @@ const RadPathPage: React.FC = () => {
   const [showMatchModal, setShowMatchModal] = useState(false);
   const [matchReportId, setMatchReportId] = useState("");
   const [matchPathologyId, setMatchPathologyId] = useState("");
+  // [W2-C] 受控分页
+  const [recordPage, setRecordPage] = useState(1);
 
   const fetchRecords = useCallback(async () => {
     setLoading(true);
@@ -244,7 +246,7 @@ const RadPathPage: React.FC = () => {
           columns={columns}
           rowKey="id"
           loading={loading}
-          pagination={{ pageSize: 10 }}
+          pagination={{ current: recordPage, pageSize: 10, total: filteredRecords.length, onChange: setRecordPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
           size="small"
         />
       </Card>

@@ -116,10 +116,10 @@ export default function CQIPage() {
                     <span style={{ fontSize: 12, color: '#6e7681' }}>{pd.startDate} ~ {pd.endDate}</span>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
-                    <div><span style={{ color: '#3b82f6' }}>Plan:</span> {pd.plan}</div>
-                    <div><span style={{ color: '#22c55e' }}>Do:</span> {pd.do_}</div>
-                    <div><span style={{ color: '#f59e0b' }}>Study:</span> {pd.study}</div>
-                    <div><span style={{ color: '#8b5cf6' }}>Act:</span> {pd.act}</div>
+                    <div><span style={{ color: '#3b82f6' }}>计划：</span> {pd.plan}</div>
+                    <div><span style={{ color: '#22c55e' }}>执行：</span> {pd.do_}</div>
+                    <div><span style={{ color: '#f59e0b' }}>研究：</span> {pd.study}</div>
+                    <div><span style={{ color: '#8b5cf6' }}>处理：</span> {pd.act}</div>
                   </div>
                   <div style={{ marginTop: 6, fontSize: 12, color: pd.success ? '#22c55e' : '#ef4444' }}>
                     {pd.outcome} {pd.success ? '✅' : '❌'}

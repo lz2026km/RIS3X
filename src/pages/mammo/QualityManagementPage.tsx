@@ -65,6 +65,18 @@ const QualityManagementPage = () => {
 
   useEffect(() => { fetchAll() }, [fetchAll])
 
+  const handleExportReport = () => {
+    const header = '患者,模态,技师,日期,评分,结果,问题'
+    const rows = records.map(r => [r.patient, r.modality, r.technologist, r.date, r.score, r.status, r.issue].join(','))
+    const blob = new Blob(['\uFEFF' + [header, ...rows].join('\n')], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `乳腺影像质量报告-${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   const statsData = useMemo(() => [
     { label: '整体质量评分', value: overview?.overallScore?.toFixed(1) ?? '-', unit: '分', icon: Shield, color: '#2563eb', bg: '#eff6ff' },
     { label: '符合ACR标准', value: overview?.acrComplianceRate?.toFixed(1) ?? '-', unit: '%', icon: CheckCircle, color: '#16a34a', bg: '#f0fdf4' },
@@ -93,7 +105,7 @@ const QualityManagementPage = () => {
             {source === 'demo' ? '演示数据（MSW，后端待实现）' : '真实数据（数据库聚合）'}
           </span>
           <button style={s.btn} onClick={fetchAll}><RefreshCw size={14} /> 同步</button>
-          <button style={s.btnPrimary}><Download size={14} /> 导出报告</button>
+          <button style={s.btnPrimary} onClick={handleExportReport}><Download size={14} /> 导出报告</button>
         </div>
       </div>
 

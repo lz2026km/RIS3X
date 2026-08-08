@@ -142,7 +142,7 @@ export default function CvDatabasePage() {
         <h1
           style={{ display: "flex", alignItems: "center", gap: 8, margin: 0 }}
         >
-          <Database size={24} /> CV 影像数据库
+          <Database size={24} /> CV 影像数据库 <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#eff6ff', color: '#1e40af', border: '1px solid #bfdbfe', fontWeight: 400 }}>演示数据</span>
         </h1>
         <div style={{ display: "flex", gap: 8 }}>
           <Button

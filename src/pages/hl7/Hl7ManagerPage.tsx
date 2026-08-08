@@ -11,6 +11,8 @@ export const Hl7ManagerPage: React.FC = () => {
   const [ormForm] = Form.useForm()
   const [dftForm] = Form.useForm()
   const [sending, setSending] = useState(false)
+  // [W2-C] 受控分页
+  const [archivePage, setArchivePage] = useState(1)
 
   const fetchArchive = useCallback(async () => {
     setArchiveLoading(true)
@@ -232,7 +234,7 @@ export const Hl7ManagerPage: React.FC = () => {
             columns={archiveColumns}
             rowKey="id"
             loading={archiveLoading}
-            pagination={{ pageSize: 10 }}
+            pagination={{ current: archivePage, pageSize: 10, total: archive.length, onChange: setArchivePage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
             size="small"
           />
         </Card>

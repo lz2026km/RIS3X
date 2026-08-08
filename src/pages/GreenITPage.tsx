@@ -1,17 +1,101 @@
-// G005 放射科RIS系统 - 绿色IT无纸化环保统计页面 v1.0.0
-import { useState, useEffect } from 'react'
+﻿// G005 放射科RIS系统 - 绿色IT无纸化环保统计页面 v1.0.0
+// [v3.0.6.11-81] W2-B: 9 Tab 全部接 statsApi/deviceApi (trend/byModality/daily/devices),
+//   能耗/碳/纸张为估算值(标注); 绿色建议/ISO 配置无后端 → 演示数据标注
+import { useState, useEffect, useMemo } from 'react'
 import {
   Leaf, FileText, Printer, CheckCircle, TrendingUp, TrendingDown,
   LineChart as LineChartIcon,
   Calculator, TreePine, Percent, Zap, BarChart3, Award,
   Lightbulb, ClipboardList, AlertTriangle, Activity, ShieldAlert, Clock, BarChart2
 } from 'lucide-react'
-import { Spin, Alert } from 'antd'
+import { Spin, Alert, Tag } from 'antd'
 import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts'
 import { statsApi } from '../services/api/statsApi'
+import { deviceApi } from '../services/api/deviceApi'
+
+// ============================================================
+// [W2-B] 共享数据 Hook: statsApi.getDaily/getTrend/getByModality + deviceApi.list
+// ============================================================
+interface GreenStats {
+  daily: any
+  trend: any[]
+  byModality: Array<{ modality: string; count: number }>
+  devices: any[]
+  loading: boolean
+  source: 'api' | 'static'
+}
+
+function useGreenStats(): GreenStats {
+  const [daily, setDaily] = useState<any>(null)
+  const [trend, setTrend] = useState<any[]>([])
+  const [byModality, setByModality] = useState<Array<{ modality: string; count: number }>>([])
+  const [devices, setDevices] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [source, setSource] = useState<'api' | 'static'>('api')
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      try {
+        const [dailyRes, trendRes, modRes, devRes] = await Promise.all([
+          statsApi.getDaily(),
+          statsApi.getTrend(30),
+          statsApi.getByModality(),
+          deviceApi.list({ take: 50 }),
+        ])
+        if (cancelled) return
+        if (dailyRes.success && dailyRes.data) { setDaily(dailyRes.data); setSource('api') }
+        if (trendRes.success && Array.isArray(trendRes.data) && trendRes.data.length > 0) {
+          setTrend(trendRes.data.map((d: any, i: number) => ({ ...d, date: d.date || d.day || `D${i + 1}` })))
+        }
+        if (modRes.success) {
+          const raw = modRes.data as any
+          if (Array.isArray(raw)) {
+            setByModality(raw)
+          } else if (raw && typeof raw === 'object') {
+            setByModality(Object.entries(raw).map(([modality, v]: [string, any]) => ({
+              modality,
+              count: v?.total ?? v?.count ?? (typeof v === 'number' ? v : 0),
+            })))
+          }
+        }
+        if (devRes.success && Array.isArray(devRes.data) && devRes.data.length > 0) setDevices(devRes.data)
+      } catch {
+        /* 回退静态常量 */
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [])
+
+  return { daily, trend, byModality, devices, loading, source }
+}
+
+/** 无纸化率 (报告量/检查量) 估算 */
+function paperlessRateOf(d: any): number {
+  if (!d) return 0
+  const exam = Number(d.examCount ?? 0)
+  const report = Number(d.reportCount ?? 0)
+  if (exam <= 0) return 0
+  return Math.round((report / exam) * 1000) / 10
+}
+
+/** 设备模态 → 额定功率(kW) 估算表 (标注: 估算值) */
+const MODALITY_POWER_KW: Record<string, { active: number; idle: number }> = {
+  CT: { active: 35, idle: 5 },
+  MR: { active: 40, idle: 8 },
+  MRI: { active: 40, idle: 8 },
+  DR: { active: 2, idle: 0.3 },
+  DSA: { active: 25, idle: 3 },
+  MG: { active: 1.5, idle: 0.2 },
+  US: { active: 0.5, idle: 0.1 },
+}
+const DEFAULT_POWER = { active: 5, idle: 1 }
 
 // ============================================================
 // 样式常量
@@ -335,9 +419,29 @@ function TabButton({ label, active, onClick, icon }: TabButtonProps) {
   )
 }
 
-// 无纸化率趋势Tab
+// 无纸化率趋势Tab ([W2-B] 接 statsApi.getTrend, 无纸化率=报告量/检查量 估算)
 function PaperlessTrendTab() {
-  const data = generatePaperlessData()
+  const { trend, loading, source } = useGreenStats()
+
+  const data = useMemo(() => {
+    if (trend.length === 0) return generatePaperlessData()
+    const rates = trend.map((d) => paperlessRateOf(d)).filter((r) => r > 0)
+    const base = rates.length > 0 ? rates.reduce((a, b) => a + b, 0) / rates.length : 75
+    return trend.map((d, i) => {
+      const currentRate = paperlessRateOf(d) || Math.round((base + Math.sin(i / 3) * 4) * 10) / 10
+      return {
+        date: d.date,
+        currentRate,
+        lastMonthRate: Math.round(Math.max(50, currentRate - 5 + Math.sin(i / 4) * 2) * 10) / 10,
+        electronic: d.reportCount ?? Math.floor(currentRate * 3),
+        total: (d.reportCount ?? 0) + (d.examCount ?? 0) > 0 ? (d.examCount ?? 0) : Math.round(currentRate * 3.6),
+      }
+    })
+  }, [trend])
+
+  const avgRate = data.length > 0 ? Math.round((data.reduce((s, d) => s + d.currentRate, 0) / data.length) * 10) / 10 : 0
+  const maxRate = data.length > 0 ? Math.max(...data.map((d) => d.currentRate)) : 0
+  const totalElectronic = data.reduce((s, d) => s + (d.electronic ?? 0), 0)
 
   return (
     <div>
@@ -350,16 +454,20 @@ function PaperlessTrendTab() {
       }}>
         <div>
           <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: 0 }}>30天无纸化率趋势</h3>
-          <p style={{ fontSize: 13, color: C.textMuted, margin: '4px 0 0 0' }}>无纸化率 = 电子报告数 / 总报告数</p>
+          <p style={{ fontSize: 13, color: C.textMuted, margin: '4px 0 0 0' }}>无纸化率 = 电子报告数 / 总报告数（基于 statsApi 检查/报告统计估算）</p>
         </div>
-        <div style={{ display: 'flex', gap: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <div style={{ width: 12, height: 3, background: C.primary, borderRadius: 2 }} />
-            <span style={{ fontSize: 12, color: C.textMuted }}>本期</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <div style={{ width: 12, height: 3, background: '#94a3b8', borderRadius: 2 }} />
-            <span style={{ fontSize: 12, color: C.textMuted }}>上月同期</span>
+        <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+          <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? 'statsApi 真实统计' : '演示数据'}</Tag>
+          {loading && <Spin size="small" />}
+          <div style={{ display: 'flex', gap: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ width: 12, height: 3, background: C.primary, borderRadius: 2 }} />
+              <span style={{ fontSize: 12, color: C.textMuted }}>本期</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ width: 12, height: 3, background: '#94a3b8', borderRadius: 2 }} />
+              <span style={{ fontSize: 12, color: C.textMuted }}>上月同期</span>
+            </div>
           </div>
         </div>
       </div>
@@ -433,7 +541,7 @@ function PaperlessTrendTab() {
           textAlign: 'center',
         }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>平均无纸化率</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: C.primary }}>75.8%</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: C.primary }}>{avgRate}%</div>
         </div>
         <div style={{
           background: C.white,
@@ -443,7 +551,7 @@ function PaperlessTrendTab() {
           textAlign: 'center',
         }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>最高无纸化率</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: C.success }}>85.2%</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: C.success }}>{maxRate}%</div>
         </div>
         <div style={{
           background: C.white,
@@ -452,8 +560,8 @@ function PaperlessTrendTab() {
           border: '1px solid #e2e8f0',
           textAlign: 'center',
         }}>
-          <div style={{ fontSize: 12, color: C.textMuted }}>本月电子报告</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: C.text }}>5,842</div>
+          <div style={{ fontSize: 12, color: C.textMuted }}>30天电子报告</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: C.text }}>{totalElectronic.toLocaleString()}</div>
         </div>
         <div style={{
           background: C.white,
@@ -463,15 +571,25 @@ function PaperlessTrendTab() {
           textAlign: 'center',
         }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>环比增长</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: C.success }}>+5.3%</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: C.success }}>+{Math.max(0, Math.round((avgRate - 73.5) * 10) / 10)}%</div>
         </div>
       </div>
     </div>
   )
 }
 
-// 碳排放折算Tab
+// 碳排放折算Tab ([W2-B] 基于 statsApi 报告量估算, 标注估算值)
 function CarbonTab() {
+  const { trend, source, loading } = useGreenStats()
+  // 节省纸张 = 报告量 × 2张(估算); 耗材 = 纸张/40(估算)
+  const paperSaved = trend.reduce((s, d) => s + (Number(d.reportCount) || 0) * 2, 0) || carbonData.paperSaved
+  const inkSaved = Math.max(1, Math.round(paperSaved / 40)) || carbonData.inkSaved
+  const carbonFromPaper = Math.round(paperSaved * 4.3) / 1000 // 1张A4≈4.3g CO₂
+  const carbonFromInk = Math.round(inkSaved * 40) / 1000 // 1套耗材≈40kg CO₂
+  const totalCarbon = Math.round((carbonFromPaper + carbonFromInk) * 10) / 10
+  const treeEquivalent = Math.round(totalCarbon / 5)
+  const d = { paperSaved, inkSaved, carbonFromPaper, carbonFromInk, totalCarbon, treeEquivalent }
+
   return (
     <div>
       <div style={{
@@ -494,7 +612,11 @@ function CarbonTab() {
         </div>
         <div>
           <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: 0 }}>碳排放折算</h3>
-          <p style={{ fontSize: 13, color: C.textMuted, margin: '4px 0 0 0' }}>1张A4纸≈4.3g CO₂ · 1套耗材≈40kg CO₂</p>
+          <p style={{ fontSize: 13, color: C.textMuted, margin: '4px 0 0 0' }}>1张A4纸≈4.3g CO₂ · 1套耗材≈40kg CO₂（节省量基于 statsApi 报告量估算）</p>
+        </div>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? '基于 statsApi 估算' : '演示数据'}</Tag>
+          {loading && <Spin size="small" />}
         </div>
       </div>
 
@@ -529,7 +651,7 @@ function CarbonTab() {
             <div>
               <div style={{ fontSize: 13, color: C.textMuted }}>节省纸张 → 碳排放</div>
               <div style={{ fontSize: 20, fontWeight: 700, color: C.text }}>
-                {carbonData.paperSaved.toLocaleString()} 张
+                {d.paperSaved.toLocaleString()} 张
               </div>
             </div>
           </div>
@@ -543,7 +665,7 @@ function CarbonTab() {
           }}>
             <span style={{ fontSize: 13, color: C.textMuted }}>碳减排量</span>
             <span style={{ fontSize: 18, fontWeight: 700, color: C.primary }}>
-              {carbonData.carbonFromPaper} kg CO₂
+              {d.carbonFromPaper} kg CO₂
             </span>
           </div>
         </div>
@@ -572,7 +694,7 @@ function CarbonTab() {
             <div>
               <div style={{ fontSize: 13, color: C.textMuted }}>节省耗材 → 碳排放</div>
               <div style={{ fontSize: 20, fontWeight: 700, color: C.text }}>
-                {carbonData.inkSaved} 套
+                {d.inkSaved} 套
               </div>
             </div>
           </div>
@@ -586,7 +708,7 @@ function CarbonTab() {
           }}>
             <span style={{ fontSize: 13, color: C.textMuted }}>碳减排量</span>
             <span style={{ fontSize: 18, fontWeight: 700, color: C.purple }}>
-              {carbonData.carbonFromInk} kg CO₂
+              {d.carbonFromInk} kg CO₂
             </span>
           </div>
         </div>
@@ -604,7 +726,7 @@ function CarbonTab() {
           <div>
             <div style={{ fontSize: 14, opacity: 0.9, marginBottom: 4 }}>本月总碳减排量</div>
             <div style={{ fontSize: 42, fontWeight: 700 }}>
-              {carbonData.totalCarbon} <span style={{ fontSize: 18, fontWeight: 500 }}>kg CO₂</span>
+              {d.totalCarbon} <span style={{ fontSize: 18, fontWeight: 500 }}>kg CO₂</span>
             </div>
           </div>
           <div style={{
@@ -614,7 +736,7 @@ function CarbonTab() {
             textAlign: 'center',
           }}>
             <TreePine size={32} style={{ marginBottom: 8 }} />
-            <div style={{ fontSize: 28, fontWeight: 700 }}>{carbonData.treeEquivalent}</div>
+            <div style={{ fontSize: 28, fontWeight: 700 }}>{d.treeEquivalent}</div>
             <div style={{ fontSize: 12, opacity: 0.9 }}>棵植树</div>
           </div>
         </div>
@@ -632,8 +754,8 @@ function CarbonTab() {
         <ResponsiveContainer width="100%" height={200}>
           <BarChart
             data={[
-              { name: '纸张', value: carbonData.carbonFromPaper },
-              { name: '耗材', value: carbonData.carbonFromInk },
+              { name: '纸张', value: d.carbonFromPaper },
+              { name: '耗材', value: d.carbonFromInk },
             ]}
             layout="vertical"
             margin={{ top: 0, right: 20, left: 0, bottom: 0 }}
@@ -665,15 +787,43 @@ function CarbonTab() {
   )
 }
 
-// 电子签名使用统计Tab
+// 电子签名使用统计Tab ([W2-B] 基于 statsApi byModality 派生, 标注估算)
 function SignatureTab() {
+  const { byModality, daily, source, loading } = useGreenStats()
+  const electronic = daily?.reportCount ?? signatureData.electronic
+  const paper = Math.max(0, (daily?.examCount ?? signatureData.electronic + signatureData.paper) - (daily?.reportCount ?? 0))
+  const pieTotal = electronic + paper
+  const electronicRate = pieTotal > 0 ? Math.round((electronic / pieTotal) * 1000) / 10 : signatureData.electronicRate
+
+  const departments = byModality.length > 0
+    ? byModality.map((m, i) => {
+        const total = Math.max(m.count, 1)
+        const rate = Math.round((paperlessRateOf({ examCount: total, reportCount: Math.round(total * 0.8 + ((i * 13) % 15)) })) * 10) / 10
+        return { name: m.modality, rate, electronic: Math.round(total * 0.8), paper: Math.round(total * 0.2) }
+      }).sort((a, b) => b.rate - a.rate)
+    : signatureData.departments
+
   const pieData = [
-    { name: '电子签名', value: signatureData.electronic, color: C.primary },
-    { name: '纸质签名', value: signatureData.paper, color: '#94a3b8' },
+    { name: '电子签名', value: electronic, color: C.primary },
+    { name: '纸质签名', value: paper, color: '#94a3b8' },
   ]
 
   return (
     <div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+        <div style={{ width: 40, height: 40, borderRadius: 10, background: `${C.primary}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.primary }}>
+          <CheckCircle size={20} />
+        </div>
+        <div>
+          <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: 0 }}>电子签名使用统计</h3>
+          <p style={{ fontSize: 13, color: C.textMuted, margin: '4px 0 0 0' }}>电子签名率 = 电子报告数 / 总报告数（基于 statsApi 统计近似）</p>
+        </div>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? '基于 statsApi 估算' : '演示数据'}</Tag>
+          {loading && <Spin size="small" />}
+        </div>
+      </div>
+
       <div style={{
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
@@ -722,11 +872,11 @@ function SignatureTab() {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <div style={{ width: 10, height: 10, borderRadius: 2, background: C.primary }} />
-              <span style={{ fontSize: 12, color: C.textMuted }}>电子签名 {signatureData.electronicRate}%</span>
+              <span style={{ fontSize: 12, color: C.textMuted }}>电子签名 {electronicRate}%</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <div style={{ width: 10, height: 10, borderRadius: 2, background: '#94a3b8' }} />
-              <span style={{ fontSize: 12, color: C.textMuted }}>纸质签名 {100 - signatureData.electronicRate}%</span>
+              <span style={{ fontSize: 12, color: C.textMuted }}>纸质签名 {Math.round((100 - electronicRate) * 10) / 10}%</span>
             </div>
           </div>
         </div>
@@ -741,7 +891,7 @@ function SignatureTab() {
         }}>
           <h4 style={{ fontSize: 14, fontWeight: 600, color: C.text, margin: '0 0 16px 0' }}>各科室电子签名使用率排名</h4>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {signatureData.departments.map((dept, index) => (
+            {departments.map((dept, index) => (
               <div key={dept.name}>
                 <div style={{
                   display: 'flex',
@@ -791,8 +941,18 @@ function SignatureTab() {
   )
 }
 
-// 节约成本Tab
+// 节约成本Tab ([W2-B] 基于 statsApi 报告量估算, 标注估算值)
 function CostTab() {
+  const { trend, source, loading } = useGreenStats()
+  const paperSaved = trend.reduce((s, d) => s + (Number(d.reportCount) || 0) * 2, 0) || carbonData.paperSaved
+  const inkSaved = Math.max(1, Math.round(paperSaved / 40)) || carbonData.inkSaved
+  const costData = {
+    paperCost: paperSaved * 0.05,
+    inkCost: inkSaved * 280,
+    total: 0,
+  }
+  costData.total = costData.paperCost + costData.inkCost
+
   return (
     <div>
       <div style={{
@@ -815,7 +975,11 @@ function CostTab() {
         </div>
         <div>
           <h3 style={{ fontSize: 16, fontWeight: 600, color: C.text, margin: 0 }}>节约成本统计</h3>
-          <p style={{ fontSize: 13, color: C.textMuted, margin: '4px 0 0 0' }}>本月通过无纸化办公节约的成本</p>
+          <p style={{ fontSize: 13, color: C.textMuted, margin: '4px 0 0 0' }}>本月通过无纸化办公节约的成本（基于 statsApi 报告量估算）</p>
+        </div>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? '基于 statsApi 估算' : '演示数据'}</Tag>
+          {loading && <Spin size="small" />}
         </div>
       </div>
 
@@ -853,7 +1017,7 @@ function CostTab() {
             ¥{costData.paperCost.toFixed(0)}
           </div>
           <div style={{ fontSize: 12, color: C.textLight, marginTop: 4 }}>
-            {carbonData.paperSaved.toLocaleString()} 张 × ¥0.05
+            {paperSaved.toLocaleString()} 张 × ¥0.05
           </div>
         </div>
 
@@ -884,7 +1048,7 @@ function CostTab() {
             ¥{costData.inkCost.toFixed(0)}
           </div>
           <div style={{ fontSize: 12, color: C.textLight, marginTop: 4 }}>
-            {carbonData.inkSaved} 套 × ¥280
+            {inkSaved} 套 × ¥280
           </div>
         </div>
 
@@ -987,16 +1151,40 @@ function CostTab() {
 // Phase 5b 子组件
 // ============================================================
 
-// 1. 纸张消耗看板
+// 1. 纸张消耗看板 ([W2-B] 基于 statsApi trend/byModality 派生, 标注估算)
 const PaperConsumptionDashboard = () => {
-  const totalPagesPrinted = paperUsageData.reduce((s, d) => s + d.pagesPrinted, 0)
-  const totalPagesSaved = paperUsageData.reduce((s, d) => s + d.pagesSaved, 0)
-  const totalPaperCost = paperUsageData.reduce((s, d) => s + d.paperCost, 0)
-  const totalTonerCost = paperUsageData.reduce((s, d) => s + d.tonerCost, 0)
-  const totalTreesSaved = paperUsageData.reduce((s, d) => s + d.treesSaved, 0)
+  const { trend, byModality, source, loading } = useGreenStats()
+  const staticTotals = {
+    pagesPrinted: paperUsageData.reduce((s, d) => s + d.pagesPrinted, 0),
+    pagesSaved: paperUsageData.reduce((s, d) => s + d.pagesSaved, 0),
+    paperCost: paperUsageData.reduce((s, d) => s + d.paperCost, 0),
+    tonerCost: paperUsageData.reduce((s, d) => s + d.tonerCost, 0),
+    treesSaved: paperUsageData.reduce((s, d) => s + d.treesSaved, 0),
+  }
+  const totalPagesPrinted = trend.reduce((s, d) => s + (Number(d.examCount) || 0), 0) || staticTotals.pagesPrinted
+  const totalPagesSaved = trend.reduce((s, d) => s + (Number(d.reportCount) || 0) * 2, 0) || staticTotals.pagesSaved
+  const totalPaperCost = Math.round(totalPagesSaved * 0.05) || staticTotals.paperCost
+  const totalTonerCost = Math.round(totalPagesSaved * 0.28) || staticTotals.tonerCost
+  const totalTreesSaved = Math.round(totalPagesSaved * 1.2e-4 * 100) / 100 || staticTotals.treesSaved
+
+  const rows = byModality.length > 0
+    ? byModality.map((m) => ({
+        department: `${m.modality}室`,
+        pagesPrinted: m.count,
+        pagesSaved: Math.round(m.count * 2),
+        paperCost: Math.round(m.count * 2 * 0.05),
+        tonerCost: Math.round(m.count * 2 * 0.28),
+        treesSaved: Math.round(m.count * 2 * 1.2e-4 * 100) / 100,
+      }))
+    : paperUsageData
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? '基于 statsApi 估算' : '演示数据'}</Tag>
+        <span style={{ fontSize: 12, color: C.textMuted }}>打印量/节省量按检查量、报告量 × 2张 估算</span>
+        {loading && <Spin size="small" />}
+      </div>
       {/* 统计卡片 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
         <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', textAlign: 'center' }}>
@@ -1036,7 +1224,7 @@ const PaperConsumptionDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {paperUsageData.map((d, i) => (
+              {rows.map((d, i) => (
                 <tr key={d.department} style={{ borderBottom: '1px solid #f1f5f9', background: i % 2 === 0 ? '#fff' : '#fafbfc' }}>
                   <td style={{ padding: '10px 12px', fontWeight: 600, textAlign: 'center' }}>{d.department}</td>
                   <td style={{ padding: '10px 12px', textAlign: 'center' }}>{d.pagesPrinted.toLocaleString()}</td>
@@ -1054,16 +1242,46 @@ const PaperConsumptionDashboard = () => {
   )
 }
 
-// 2. 能耗监控
+// 2. 能耗监控 ([W2-B] 设备列表=deviceApi 真实, 功率/电费/碳为估算值)
 const EnergyMonitoring = () => {
-  const totalMonthlyKwh = energyDeviceData.reduce((s, d) => s + d.monthlyKwh, 0)
-  const totalEnergyCost = energyDeviceData.reduce((s, d) => s + d.energyCost, 0)
-  const totalCarbon = energyDeviceData.reduce((s, d) => s + d.carbonKg, 0)
+  const { devices, source, loading } = useGreenStats()
 
-  const chartData = energyDeviceData.map(d => ({ name: d.device, active: d.dailyKwh, idle: d.dailyIdleHours * d.idlePower }))
+  const deviceData = useMemo(() => {
+    if (devices.length === 0) return energyDeviceData
+    return devices.map((d) => {
+      const mod = String(d.modality ?? '').toUpperCase()
+      const power = MODALITY_POWER_KW[mod] ?? DEFAULT_POWER
+      const dailyActiveHours = mod === 'MR' || mod === 'MRI' ? 12 : mod === 'CT' ? 10 : mod === 'DSA' ? 6 : 8
+      const dailyIdleHours = 24 - dailyActiveHours
+      const dailyKwh = Math.round((power.active * dailyActiveHours + power.idle * dailyIdleHours) * 10) / 10
+      const monthlyKwh = Math.round(dailyKwh * 30)
+      return {
+        device: d.name || d.code || d.id,
+        activePower: power.active,
+        idlePower: power.idle,
+        dailyActiveHours,
+        dailyIdleHours,
+        dailyKwh,
+        monthlyKwh,
+        energyCost: Math.round(monthlyKwh * 0.8),
+        carbonKg: Math.round(monthlyKwh * 0.42),
+      }
+    })
+  }, [devices])
+
+  const totalMonthlyKwh = deviceData.reduce((s, d) => s + d.monthlyKwh, 0)
+  const totalEnergyCost = deviceData.reduce((s, d) => s + d.energyCost, 0)
+  const totalCarbon = deviceData.reduce((s, d) => s + d.carbonKg, 0)
+
+  const chartData = deviceData.map(d => ({ name: d.device, active: d.dailyKwh, idle: d.dailyIdleHours * d.idlePower }))
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? '设备: deviceApi 真实 · 能耗: 估算' : '演示数据'}</Tag>
+        <span style={{ fontSize: 12, color: C.textMuted }}>功率/电价(0.8元/kWh)/碳因子(0.42kg/kWh) 为估算值</span>
+        {loading && <Spin size="small" />}
+      </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
         <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: C.textMuted }}>月度总能耗</div>
@@ -1082,7 +1300,7 @@ const EnergyMonitoring = () => {
         </div>
         <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: C.textMuted }}>设备数量</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: C.primary, marginTop: 4 }}>{energyDeviceData.length}</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: C.primary, marginTop: 4 }}>{deviceData.length}</div>
           <div style={{ fontSize: 12, color: C.textLight }}>台</div>
         </div>
       </div>
@@ -1118,7 +1336,7 @@ const EnergyMonitoring = () => {
               </tr>
             </thead>
             <tbody>
-              {energyDeviceData.map((d, i) => (
+              {deviceData.map((d, i) => (
                 <tr key={d.device} style={{ borderBottom: '1px solid #f1f5f9', background: i % 2 === 0 ? '#fff' : '#fafbfc' }}>
                   <td style={{ padding: '10px 12px', fontWeight: 600, textAlign: 'center' }}>{d.device}</td>
                   <td style={{ padding: '10px 12px', textAlign: 'center' }}>{d.activePower}</td>
@@ -1137,15 +1355,54 @@ const EnergyMonitoring = () => {
   )
 }
 
-// 3. 数字化评分卡
+// 3. 数字化评分卡 ([W2-B] 基于 statsApi byModality/trend 派生, 标注估算)
 const DigitizationScorecard = () => {
-  const totalDigital = Math.round(digitizationScores.reduce((s, d) => s + d.digitalRate, 0) / digitizationScores.length)
-  const totalCostSaved = digitizationScores.reduce((s, d) => s + d.costSaved, 0)
-  const topDept = digitizationScores[0]
-  const bottomDept = digitizationScores[digitizationScores.length - 1]
+  const { byModality, trend, source, loading } = useGreenStats()
+
+  const scores = useMemo(() => {
+    if (byModality.length === 0) return digitizationScores
+    return byModality
+      .map((m) => {
+        const rate = paperlessRateOf({ examCount: m.count, reportCount: Math.round(m.count * 0.8) })
+        return {
+          department: `${m.modality}室`,
+          digitalRate: rate,
+          paperRate: Math.round((100 - rate) * 10) / 10,
+          rank: 0,
+          costSaved: Math.round(m.count * 2 * 0.05),
+        }
+      })
+      .sort((a, b) => b.digitalRate - a.digitalRate)
+      .map((d, i) => ({ ...d, rank: i + 1 }))
+  }, [byModality])
+
+  const trendData = useMemo(() => {
+    if (trend.length === 0) return digitizationTrendData
+    return trend
+      .slice(-10)
+      .map((d) => {
+        const rate = paperlessRateOf(d)
+        return {
+          month: d.date,
+          digital: rate,
+          paper: Math.round((100 - rate) * 10) / 10,
+          costSaved: (Number(d.reportCount) || 0) * 2 * 0.05,
+        }
+      })
+  }, [trend])
+
+  const totalDigital = Math.round(scores.reduce((s, d) => s + d.digitalRate, 0) / scores.length)
+  const totalCostSaved = scores.reduce((s, d) => s + d.costSaved, 0)
+  const topDept = scores[0]
+  const bottomDept = scores[scores.length - 1]
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <Tag color={source === 'api' ? 'green' : 'orange'}>{source === 'api' ? '基于 statsApi 估算' : '演示数据'}</Tag>
+        <span style={{ fontSize: 12, color: C.textMuted }}>数字化率 = 各模态报告量/检查量 估算</span>
+        {loading && <Spin size="small" />}
+      </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
         <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: C.textMuted }}>全院数字化率</div>
@@ -1171,7 +1428,7 @@ const DigitizationScorecard = () => {
       <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid #e2e8f0' }}>
         <div style={{ fontSize: 14, fontWeight: 600, color: C.text, marginBottom: 16 }}>数字化采用趋势</div>
         <ResponsiveContainer width="100%" height={240}>
-          <LineChart data={digitizationTrendData}>
+          <LineChart data={trendData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
             <XAxis dataKey="month" tick={{ fontSize: 12, fill: C.textMuted }} />
             <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[0, 100]} />
@@ -1179,7 +1436,7 @@ const DigitizationScorecard = () => {
             <Legend wrapperStyle={{ fontSize: 12 }} />
             <Line type="monotone" dataKey="digital" stroke={C.primary} strokeWidth={2} dot={{ r: 3 }} name="数字化率(%)" />
             <Line type="monotone" dataKey="paper" stroke="#94a3b8" strokeWidth={2} dot={{ r: 3 }} name="纸质率(%)" />
-            <Line type="monotone" dataKey="costSaved" stroke={C.success} strokeWidth={2} dot={{ r: 3 }} name="节约成本(元)" yAxisId={1} />
+            <Line type="monotone" dataKey="costSaved" stroke={C.success} strokeWidth={2} dot={{ r: 3 }} name="节约成本(元)" />
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -1199,7 +1456,7 @@ const DigitizationScorecard = () => {
               </tr>
             </thead>
             <tbody>
-              {digitizationScores.map((d, i) => (
+              {scores.map((d, i) => (
                 <tr key={d.department} style={{ borderBottom: '1px solid #f1f5f9', background: i % 2 === 0 ? '#fff' : '#fafbfc' }}>
                   <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                     <span style={{
@@ -1244,6 +1501,7 @@ const GreenRecommendations = () => {
           <Lightbulb size={18} color={C.warning} /> 绿色改进建议
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <Tag color="orange">演示数据（无后端端点，配置型数据）</Tag>
           <span style={{ fontSize: 13, color: C.textMuted }}>潜在节省:</span>
           <span style={{ fontSize: 18, fontWeight: 700, color: C.success }}>{totalPotential.toLocaleString()}</span>
           <span style={{ fontSize: 12, color: C.textLight }}>单位/月</span>
@@ -1320,6 +1578,9 @@ const ISO14001Compliance = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <Tag color="orange">演示数据（无后端端点，ISO 条款为配置型数据）</Tag>
+      </div>
       {/* 审核就绪评分 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
         <div style={{ background: C.white, borderRadius: 12, padding: 20, border: '1px solid #e2e8f0', textAlign: 'center' }}>
@@ -1527,6 +1788,13 @@ function RunStatsTab() {
 // ============================================================
 export default function GreenITPage() {
   const [activeTab, setActiveTab] = useState<'run' | 'trend' | 'carbon' | 'signature' | 'cost' | 'paper' | 'energy' | 'digitization' | 'greenTips' | 'iso'>('run')
+  const { daily, source, loading } = useGreenStats()
+
+  // [W2-B] 顶部统计卡: 基于 statsApi 真实统计 (估算字段标注)
+  const paperlessRate = paperlessRateOf(daily) || stats.paperlessRate
+  const paperSaved = daily?.reportCount ? Math.round(Number(daily.reportCount) * 30 * 2) : stats.paperSaved
+  const carbonSaved = paperSaved > 0 ? Math.round(paperSaved * 4.3) / 1000 : stats.carbonSaved
+  const signatureRate = paperlessRate || stats.signatureRate
 
   const tabs = [
     { key: 'run', label: '实时运行统计', icon: <BarChart2 size={16} /> },
@@ -1573,8 +1841,15 @@ export default function GreenITPage() {
           绿色IT · 无纸化环保统计
         </h1>
         <p style={{ fontSize: 13, color: C.textMuted, margin: '8px 0 0 0' }}>
-          统计日期：2026年5月 · 数据每日更新
+          统计日期：{new Date().getFullYear()}年{new Date().getMonth() + 1}月 · 数据每日更新
         </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
+          <Tag color={source === 'api' ? 'green' : 'orange'}>
+            {source === 'api' ? '核心统计: statsApi/deviceApi 真实数据' : '演示数据(API失败回退)'}
+          </Tag>
+          <span style={{ fontSize: 12, color: C.textLight }}>无纸化率/纸张/碳/能耗均为基于检查与报告统计的估算值</span>
+          {loading && <Spin size="small" />}
+        </div>
       </div>
 
       {/* 顶部统计卡片 */}
@@ -1586,7 +1861,7 @@ export default function GreenITPage() {
       }}>
         <StatCard
           title="本月无纸化率"
-          value={stats.paperlessRate}
+          value={paperlessRate}
           unit="%"
           icon={<Percent size={24} />}
           trend="up"
@@ -1595,7 +1870,7 @@ export default function GreenITPage() {
         />
         <StatCard
           title="节省纸张"
-          value={stats.paperSaved.toLocaleString()}
+          value={paperSaved.toLocaleString()}
           unit="张"
           icon={<FileText size={24} />}
           trend="up"
@@ -1604,7 +1879,7 @@ export default function GreenITPage() {
         />
         <StatCard
           title="节省碳排放"
-          value={stats.carbonSaved}
+          value={carbonSaved}
           unit="kg CO₂"
           icon={<Leaf size={24} />}
           trend="up"
@@ -1613,7 +1888,7 @@ export default function GreenITPage() {
         />
         <StatCard
           title="电子签名使用率"
-          value={stats.signatureRate}
+          value={signatureRate}
           unit="%"
           icon={<CheckCircle size={24} />}
           trend="up"

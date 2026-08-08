@@ -49,6 +49,8 @@ const CoSignPage: React.FC = () => {
   const [rejectReason, setRejectReason] = useState("");
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  // [W2-C] 受控分页
+  const [itemPage, setItemPage] = useState(1);
 
   const fetchPending = useCallback(async () => {
     setLoading(true);
@@ -267,7 +269,7 @@ const CoSignPage: React.FC = () => {
           columns={columns}
           rowKey="id"
           loading={loading}
-          pagination={{ pageSize: 10 }}
+          pagination={{ current: itemPage, pageSize: 10, total: items.length, onChange: setItemPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
           size="small"
         />
       </Card>

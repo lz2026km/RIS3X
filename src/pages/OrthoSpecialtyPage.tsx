@@ -1,7 +1,6 @@
 // Ortho Specialty Page — 骨科影像分析 · 关节 · 脊柱 · 骨密度
 import { useState, useMemo } from 'react';
 import { Bone, Activity, AlertTriangle, Search, TrendingUp, Stethoscope, BarChart3, FileText, Scale } from 'lucide-react';
-import type { JointType, KellgrenLawrenceGrade } from '@/services/api/orthoSpecialtyApi';
 
 const JOINT_LABELS: Record<string, string> = { shoulder: '肩关节', elbow: '肘关节', wrist: '腕关节', hip: '髋关节', knee: '膝关节', ankle: '踝关节', cervical: '颈椎', lumbar: '腰椎' };
 const KL_COLORS: Record<string, string> = { '0': '#16a34a', 'I': '#16a34a', 'II': '#ca8a04', 'III': '#ea580c', 'IV': '#dc2626' };
@@ -18,24 +17,82 @@ const OrthoSpecialtyPage = () => {
   const [search, setSearch] = useState('');
   const [jointFilter, setJointFilter] = useState('');
   const [tab, setTab] = useState<'joints' | 'spine' | 'bmd' | 'stats'>('joints');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newStudy, setNewStudy] = useState({ name: '', joint: 'knee' as keyof typeof JOINT_LABELS, modality: 'XR', klGrade: 'II' });
+  const [studies, setStudies] = useState(mockStudies);
   const filtered = useMemo(() => {
-    let list = [...mockStudies];
+    let list = [...studies];
     if (search) list = list.filter(r => r.name.includes(search) || r.id.includes(search));
     if (jointFilter) list = list.filter(r => r.joint === jointFilter);
     return list;
-  }, [search, jointFilter]);
-  const fractureCount = mockStudies.filter(r => r.fracture).length;
-  const severeOA = mockStudies.filter(r => ['III', 'IV'].includes(r.klGrade)).length;
+  }, [search, jointFilter, studies]);
+  const fractureCount = studies.filter(r => r.fracture).length;
+  const severeOA = studies.filter(r => ['III', 'IV'].includes(r.klGrade)).length;
+
+  const handleCreate = () => {
+    if (!newStudy.name.trim()) return
+    const kl = newStudy.klGrade as '0' | 'I' | 'II' | 'III' | 'IV'
+    setStudies(prev => [...prev, {
+      id: `OX${String(prev.length + 1).padStart(3, '0')}`,
+      name: newStudy.name.trim(),
+      age: 50, gender: 'M', joint: newStudy.joint, modality: newStudy.modality,
+      klGrade: kl, oaScore: { '0': 0, 'I': 2, 'II': 4.2, 'III': 7.5, 'IV': 9.1 }[kl],
+      fracture: false, date: new Date().toISOString().slice(0, 10),
+    }])
+    setShowCreateModal(false)
+    setNewStudy({ name: '', joint: 'knee', modality: 'XR', klGrade: 'II' })
+  };
 
   return (
     <div style={{ padding: 0 }}>
       <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1a3a5c', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Bone size={24} color="#9333ea" /> 骨科专科</h1>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1a3a5c', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Bone size={24} color="#9333ea" /> 骨科专科 <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f5f3ff', color: '#9333ea', border: '1px solid #e9d5ff' }}>演示数据</span></h1>
           <p style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>骨科影像专科 · 关节分析 · 脊柱评估 · 骨密度 · 创伤</p>
         </div>
-        <button style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#9333ea', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 500 }}><Bone size={14} /> 新建分析</button>
+        <button onClick={() => setShowCreateModal(true)} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#9333ea', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 500 }}><Bone size={14} /> 新建分析</button>
       </div>
+
+      {showCreateModal && (
+        <div onClick={() => setShowCreateModal(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 12, padding: 24, width: 440, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: '#1a3a5c', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>新建骨科分析</span>
+              <button onClick={() => setShowCreateModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#94a3b8' }}>×</button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 6 }}>患者姓名</label>
+                <input value={newStudy.name} onChange={e => setNewStudy({ ...newStudy, name: e.target.value })} placeholder="请输入患者姓名" style={{ width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 6 }}>关节</label>
+                <select value={newStudy.joint} onChange={e => setNewStudy({ ...newStudy, joint: e.target.value as any })} style={{ width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13 }}>
+                  {Object.entries(JOINT_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                </select>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 6 }}>模态</label>
+                  <select value={newStudy.modality} onChange={e => setNewStudy({ ...newStudy, modality: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13 }}>
+                    {['XR', 'MRI', 'CT'].map(m => <option key={m} value={m}>{m}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 6 }}>KL 分级</label>
+                  <select value={newStudy.klGrade} onChange={e => setNewStudy({ ...newStudy, klGrade: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13 }}>
+                    {['0', 'I', 'II', 'III', 'IV'].map(k => <option key={k} value={k}>KL {k}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 8 }}>
+                <button onClick={() => setShowCreateModal(false)} style={{ padding: '8px 20px', background: '#f1f5f9', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>取消</button>
+                <button onClick={handleCreate} style={{ padding: '8px 20px', background: '#9333ea', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>创建分析</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 20 }}>
         {[
@@ -208,8 +265,8 @@ const OrthoSpecialtyPage = () => {
               return (
                 <div key={m} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
                   <span style={{ width: 80, fontSize: 12, color: '#64748b' }}>{m}</span>
-                  <div style={{ flex: 1, height: 6, background: '#f1f5f9', borderRadius: 3 }}><div style={{ height: '100%', width: `${vals[i] * 5}%`, background: '#dc2626', borderRadius: 3 }} /></div>
-                  <span style={{ fontSize: 12, fontWeight: 600, width: 40 }}>{vals[i]}例</span>
+                  <div style={{ flex: 1, height: 6, background: '#f1f5f9', borderRadius: 3 }}><div style={{ height: '100%', width: `${(vals[i] ?? 0) * 5}%`, background: '#dc2626', borderRadius: 3 }} /></div>
+                  <span style={{ fontSize: 12, fontWeight: 600, width: 40 }}>{vals[i] ?? 0}例</span>
                 </div>
               );
             })}

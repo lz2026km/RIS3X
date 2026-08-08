@@ -45,9 +45,15 @@ export const V3ReportHubPage: React.FC = () => {
     try {
       const d = await v3AnalyticsApi.getDashboard({ period: 'month' });
       if (d.success) setDash(d.data);      const t = await v3WritingApi.listTemplates();
-      if (t.success) setTemplates((t.data || []).slice(0, 20));
+      if (t.success) {
+        const arr = Array.isArray(t.data) ? t.data : ((t.data as any)?.items ?? []);
+        setTemplates(arr.slice(0, 20));
+      }
       const dr = await v3WritingApi.listDrafts();
-      if (dr.success) setDrafts((dr.data || []).slice(0, 20));
+      if (dr.success) {
+        const arr = Array.isArray(dr.data) ? dr.data : ((dr.data as any)?.items ?? []);
+        setDrafts(arr.slice(0, 20));
+      }
       const t2 = await v3DistApi.listTasks();
       if (t2.success) setTasks((t2.data || []).slice(0, 20));
       const ch = await v3DistApi.listChannels();
@@ -75,8 +81,9 @@ export const V3ReportHubPage: React.FC = () => {
     try {
       const res = await reportApi.list({ page: p, pageSize: REPORT_PAGE_SIZE });
       if (res.success) {
-        setReports(res.data ?? []);
-        setReportTotal(res.meta?.total ?? res.data?.length ?? 0);
+        const list = Array.isArray(res.data) ? res.data : (res.data?.items ?? []);
+        setReports(list);
+        setReportTotal(res.meta?.total ?? list.length ?? 0);
       }
     } catch {
       setReports([]);

@@ -30,13 +30,25 @@ export default function RadiationSafetyPage() {
 
   const complianceRate = compliance.length > 0 ? Math.round(compliance.reduce((s, c) => s + c.complianceRate, 0) / compliance.length) : 0
 
+  const handleExportReport = () => {
+    const header = '患者,检查,模态,设备,日期,DLP(mGy·cm),CTDI(mGy)'
+    const rows = doseRecords.map(r => [r.patientName, r.procedureName ?? '', r.modality, r.deviceName ?? '', r.examDate ?? '', r.dlp ?? '', r.ctDoseIndex ?? ''].join(','))
+    const blob = new Blob(['\uFEFF' + [header, ...rows].join('\n')], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `辐射安全报告-${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#059669,#065f46)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <Shield size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>辐射安全与防护</span>
         </div>
-        <button style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+        <button onClick={handleExportReport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
           <Download size={14} />导出报告
         </button>
       </div>

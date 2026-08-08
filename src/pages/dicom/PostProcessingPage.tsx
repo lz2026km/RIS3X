@@ -46,6 +46,8 @@ const PostProcessingPage: React.FC = () => {
   const [intensity, setIntensity] = useState(50)
   const [appliedAt, setAppliedAt] = useState<string | null>(null)
   const [processing, setProcessing] = useState(false)
+  const [history, setHistory] = useState<string[]>([])
+  const [sliceStats, setSliceStats] = useState<{ mean: number; sigma: number } | null>(null)
 
   const renderFrame = (type: ProcessingType, intensityVal: number) => {
     const canvas = canvasRef.current
@@ -57,13 +59,18 @@ const PostProcessingPage: React.FC = () => {
     canvas.width = w * devicePixelRatio; canvas.height = h * devicePixelRatio
     ctx.scale(devicePixelRatio, devicePixelRatio)
     const imgData = generateProcessedSlice(type, 256)
+    // [W2-C] 数据标注: 统计当前帧像素均值/标准差
+    let sum = 0, sumSq = 0, n = 0
+    for (let i = 0; i < imgData.data.length; i += 4) { sum += imgData.data[i]; sumSq += imgData.data[i] * imgData.data[i]; n++ }
+    const mean = sum / n
+    setSliceStats({ mean: Math.round(mean * 10) / 10, sigma: Math.round(Math.sqrt(sumSq / n - mean * mean) * 10) / 10 })
     const tmp = document.createElement('canvas'); tmp.width = 256; tmp.height = 256
     tmp.getContext('2d')!.putImageData(imgData, 0, 0)
     const scale = Math.min(w / 256, h / 256)
     const ox = (w - 256 * scale) / 2, oy = (h - 256 * scale) / 2
     ctx.drawImage(tmp, ox, oy, 256 * scale, 256 * scale)
     ctx.font = '13px ui-monospace, monospace'
-    ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(4, 4, 260, 20)
+    ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(4, 4, 300, 20)
     ctx.fillStyle = '#facc15'
     ctx.fillText(`Post-Processing | ${PROCESSING_OPTIONS[type].label} | ${intensityVal}%${appliedAt ? ' | 已应用' : ''}`, 8, 18)
   }
@@ -75,7 +82,9 @@ const PostProcessingPage: React.FC = () => {
   const handleApply = () => {
     setProcessing(true)
     setTimeout(() => {
-      setAppliedAt(new Date().toLocaleTimeString('zh-CN', { hour12: false }))
+      const at = new Date().toLocaleTimeString('zh-CN', { hour12: false })
+      setAppliedAt(at)
+      setHistory(prev => [`${PROCESSING_OPTIONS[processingType].label} ${intensity}% @ ${at}`, ...prev].slice(0, 5))
       renderFrame(processingType, intensity)
       setProcessing(false)
     }, 600)
@@ -106,6 +115,10 @@ const PostProcessingPage: React.FC = () => {
         <Layers size={18} color={BLUE} />
         <span style={{ fontSize: 15, fontWeight: 700 }}>3D 后处理</span>
         <Tag color="cyan">Post-Processing</Tag>
+        <Tag color="gold">本地演示 · 合成数据</Tag>
+        <span style={{ marginLeft: 'auto', fontSize: 11, color: '#64748b' }}>
+          数据标注: 256×256 单帧 · 均值 {sliceStats?.mean ?? '-'} · 标准差 {sliceStats?.sigma ?? '-'} · 已应用 {history.length} 次
+        </span>
       </div>
       <Row gutter={12}>
         <Col span={18}>

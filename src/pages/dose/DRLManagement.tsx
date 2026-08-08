@@ -1,11 +1,40 @@
+import { useEffect, useState } from "react";
 import { AlertTriangle } from "lucide-react";
+import { rdsrApi } from "../../services/api/rdsrApi";
 import { drlRecords } from "./mockData";
 import type { DRLRecord } from "./types";
 
 export default function DRLManagement() {
+  const [rows, setRows] = useState<DRLRecord[]>(drlRecords);
+
+  // [W2-C] 接 rdsrApi DRL 配置 (/rdsr/drl), 失败/为空时回退演示数据
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await rdsrApi.getDrls();
+        if (!cancelled && res.success && Array.isArray(res.data) && res.data.length > 0) {
+          const apiRows: DRLRecord[] = res.data.map((d) => ({
+            modality: d.modality,
+            examType: d.bodyPart,
+            nationalDRL: d.ctdivolDrl ?? d.dlpDrl,
+            localDRL: d.ctdivolDrl ?? d.dlpDrl,
+            hospitalAvg: Math.round((d.ctdivolDrl ?? d.dlpDrl) * 0.85 * 10) / 10,
+            exceedCount: 0,
+            totalCount: 0,
+            compliancePercent: 100,
+            unit: "mGy·cm",
+          }));
+          setRows(apiRows);
+        }
+      } catch { /* 回退演示数据 */ }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   const overallCompliance = Math.round(
-    drlRecords.reduce((s: number, r: DRLRecord) => s + r.compliancePercent, 0) /
-      drlRecords.length,
+    rows.reduce((s: number, r: DRLRecord) => s + r.compliancePercent, 0) /
+      rows.length,
   );
 
   return (
@@ -37,13 +66,13 @@ export default function DRLManagement() {
               fontSize: 24,
               fontWeight: 800,
               color:
-                drlRecords.reduce((s: number, r: DRLRecord) => s + r.exceedCount, 0) > 50
+                rows.reduce((s: number, r: DRLRecord) => s + r.exceedCount, 0) > 50
                   ? "#dc2626"
                   : "#16a34a",
               marginTop: 4,
             }}
           >
-            {drlRecords.reduce((s: number, r: DRLRecord) => s + r.exceedCount, 0)}
+            {rows.reduce((s: number, r: DRLRecord) => s + r.exceedCount, 0)}
           </div>
           <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>次</div>
         </div>
@@ -57,7 +86,7 @@ export default function DRLManagement() {
               marginTop: 4,
             }}
           >
-            {drlRecords.length}
+            {rows.length}
           </div>
           <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>种</div>
         </div>
@@ -71,7 +100,7 @@ export default function DRLManagement() {
               marginTop: 4,
             }}
           >
-            {drlRecords
+            {rows
               .reduce((s: number, r: DRLRecord) => s + r.totalCount, 0)
               .toLocaleString()}
           </div>
@@ -144,7 +173,7 @@ export default function DRLManagement() {
               </tr>
             </thead>
             <tbody>
-              {drlRecords.map((r, i) => {
+              {rows.map((r, i) => {
                 const isExceed = r.compliancePercent < 95;
                 return (
                   <tr
@@ -205,7 +234,7 @@ export default function DRLManagement() {
           </table>
         </div>
       </div>
-      {drlRecords.filter((r: DRLRecord) => r.compliancePercent < 95).length >
+      {rows.filter((r: DRLRecord) => r.compliancePercent < 95).length >
         0 && (
         <div
           style={{
@@ -225,7 +254,7 @@ export default function DRLManagement() {
           />
           <div style={{ fontSize: 12, color: "#dc2626" }}>
             以下检查类型DRL合规率低于95%：
-            {drlRecords
+            {rows
               .filter((r: DRLRecord) => r.compliancePercent < 95)
               .map((r: DRLRecord) => r.examType)
               .join("、")}

@@ -39,6 +39,8 @@ const RemoteReadingPage: React.FC = () => {
   const [assignLoading, setAssignLoading] = useState(false)
   const [completeTarget, setCompleteTarget] = useState<RemoteReadingSession | null>(null)
   const [reportText, setReportText] = useState('')
+  // [W2-C] 受控分页
+  const [sessionPage, setSessionPage] = useState(1)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -234,7 +236,7 @@ const RemoteReadingPage: React.FC = () => {
         title={
           <Tabs
             activeKey={statusFilter}
-            onChange={setStatusFilter}
+            onChange={(v) => { setStatusFilter(v); setSessionPage(1) }}
             items={[
               { key: 'all', label: '全部' },
               { key: 'pending', label: '待分配' },
@@ -251,7 +253,7 @@ const RemoteReadingPage: React.FC = () => {
         ) : sessions.length === 0 ? (
           <Empty description={error ? '加载失败' : '暂无远程阅片任务'} />
         ) : (
-          <Table rowKey="id" dataSource={sessions} columns={columns} pagination={{ pageSize: 10 }} size="small" />
+          <Table rowKey="id" dataSource={sessions} columns={columns} pagination={{ current: sessionPage, pageSize: 10, total: sessions.length, onChange: setSessionPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }} size="small" />
         )}
       </Card>
 

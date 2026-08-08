@@ -3,7 +3,7 @@
 // 检查室状态面板 + 叫号队列列表 + 呼叫/重呼/完成按钮 + 统计面板
 // 深蓝主色 #1e40af
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { 
   Monitor, Clock, Users, Volume2, VolumeX, RefreshCw,
   Phone, Activity, Wifi, WifiOff, Pause, Play,
@@ -631,6 +631,50 @@ export default function QueueCallPage() {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
 
+  // [G005 W1-C] 检查室状态: 接入 queueApi.getRoomStatus (GET /queue/rooms, 后端 queue.controller)
+  const [examRooms, setExamRooms] = useState<ExamRoomStatus[]>([])
+  const [roomsFromApi, setRoomsFromApi] = useState(false)
+
+  // 模拟检查室数据 (API 不可用时回退)
+  const mockExamRooms: ExamRoomStatus[] = [
+    { id: 'ROOM-CT1', name: 'CT室1', roomNumber: 'CT-01', modality: ['CT'], status: '使用中', currentPatient: '王芳', currentQueueNum: 'Q002', completedToday: 12, waitCount: 5, doctorName: '李明辉' },
+    { id: 'ROOM-MR1', name: 'MR室1', roomNumber: 'MR-01', modality: ['MR'], status: '空闲', currentPatient: null, currentQueueNum: null, completedToday: 8, waitCount: 3, doctorName: '王秀峰' },
+    { id: 'ROOM-DR1', name: 'DR室1', roomNumber: 'DR-01', modality: ['DR'], status: '空闲', currentPatient: null, currentQueueNum: null, completedToday: 15, waitCount: 7, doctorName: '张海涛' },
+    { id: 'ROOM-DSA1', name: 'DSA室1', roomNumber: 'DSA-01', modality: ['DSA'], status: '使用中', currentPatient: '刘洋', currentQueueNum: 'Q004', completedToday: 3, waitCount: 2, doctorName: '刘芳' },
+    { id: 'ROOM-MG1', name: '钼靶室1', roomNumber: 'MG-01', modality: ['MG'], status: '空闲', currentPatient: null, currentQueueNum: null, completedToday: 6, waitCount: 4, doctorName: '赵晓敏' },
+    { id: 'ROOM-CT2', name: 'CT室2', roomNumber: 'CT-02', modality: ['CT'], status: '暂停', currentPatient: null, currentQueueNum: null, completedToday: 10, waitCount: 0, doctorName: '陈志强' },
+  ]
+
+  // [G005 W1-C] 加载房间状态 (后端 /queue/rooms, 失败回退本地演示数据)
+  const loadRooms = useCallback(async () => {
+    try {
+      const res = await queueApi.getRoomStatus()
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        const mapped = (res.data as unknown as Array<Record<string, unknown>>).map((r) => ({
+          id: String(r.id ?? ''),
+          name: String(r.name ?? r.roomNumber ?? '检查室'),
+          roomNumber: String(r.roomNumber ?? r.id ?? ''),
+          modality: Array.isArray(r.modality) ? r.modality as string[] : [String(r.modality ?? '')],
+          status: (['空闲', '使用中', '暂停', '维护中'].includes(String(r.status)) ? String(r.status) : String(r.status)) as ExamRoomStatus['status'],
+          currentPatient: (r.currentPatient as string | null) ?? null,
+          currentQueueNum: (r.currentQueueNum as string | null) ?? null,
+          completedToday: Number(r.completedToday ?? 0),
+          waitCount: Number(r.waitCount ?? r.queueCount ?? 0),
+          doctorName: '--',
+        })).filter((r) => r.id)
+        if (mapped.length > 0) {
+          setExamRooms(mapped)
+          setRoomsFromApi(true)
+          return
+        }
+      }
+    } catch { /* fallback 本地演示数据 */ }
+    if (examRooms.length === 0) {
+      setExamRooms(mockExamRooms)
+      setRoomsFromApi(false)
+    }
+  }, [examRooms.length])
+
   useEffect(() => {
     let cancelled = false
     void (async () => {
@@ -645,8 +689,9 @@ export default function QueueCallPage() {
       }
       setLoading(false)
     })()
+    void loadRooms()
     return () => { cancelled = true }
-  }, [])
+  }, [loadRooms])
 
   // 实时轮询更新队列
   useEffect(() => {
@@ -655,9 +700,10 @@ export default function QueueCallPage() {
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
         setQueueCalls(res.data as unknown as QueueCallItem[])
       }
+      void loadRooms()
     }, 15000)
     return () => clearInterval(interval)
-  }, [])
+  }, [loadRooms])
 
   // 定时更新时钟(后台标签暂停刷新,1 分钟粒度)
   useEffect(() => {
@@ -678,15 +724,8 @@ export default function QueueCallPage() {
     ),
   }
 
-  // 模拟检查室数据
-  const examRooms: ExamRoomStatus[] = [
-    { id: 'ROOM-CT1', name: 'CT室1', roomNumber: 'CT-01', modality: ['CT'], status: '使用中', currentPatient: '王芳', currentQueueNum: 'Q002', completedToday: 12, waitCount: 5, doctorName: '李明辉' },
-    { id: 'ROOM-MR1', name: 'MR室1', roomNumber: 'MR-01', modality: ['MR'], status: '空闲', currentPatient: null, currentQueueNum: null, completedToday: 8, waitCount: 3, doctorName: '王秀峰' },
-    { id: 'ROOM-DR1', name: 'DR室1', roomNumber: 'DR-01', modality: ['DR'], status: '空闲', currentPatient: null, currentQueueNum: null, completedToday: 15, waitCount: 7, doctorName: '张海涛' },
-    { id: 'ROOM-DSA1', name: 'DSA室1', roomNumber: 'DSA-01', modality: ['DSA'], status: '使用中', currentPatient: '刘洋', currentQueueNum: 'Q004', completedToday: 3, waitCount: 2, doctorName: '刘芳' },
-    { id: 'ROOM-MG1', name: '钼靶室1', roomNumber: 'MG-01', modality: ['MG'], status: '空闲', currentPatient: null, currentQueueNum: null, completedToday: 6, waitCount: 4, doctorName: '赵晓敏' },
-    { id: 'ROOM-CT2', name: 'CT室2', roomNumber: 'CT-02', modality: ['CT'], status: '暂停', currentPatient: null, currentQueueNum: null, completedToday: 10, waitCount: 0, doctorName: '陈志强' },
-  ]
+  // [G005 W1-C] 检查室数据来源: queueApi.getRoomStatus() 后端 /queue/rooms, 失败回退本地演示数据
+  // (examRooms 由 state + loadRooms 提供, 见上方)
 
   // 当前呼叫的患者（已呼叫状态中等待最久的）
   const currentCalled = queueCalls
@@ -919,7 +958,7 @@ export default function QueueCallPage() {
                 <Monitor size={18} />
                 检查室状态
               </div>
-              <span style={{ fontSize: 12, color: TEXT_MUTED }}>{examRooms.length} 个检查室</span>
+              <span style={{ fontSize: 12, color: TEXT_MUTED }}>{examRooms.length} 个检查室 {roomsFromApi ? '· 实时' : '· 演示数据'}</span>
             </div>
             <div style={{ ...styles.cardBody, padding: 12 }}>
               <div style={styles.roomGrid}>

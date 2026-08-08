@@ -680,7 +680,7 @@ export default function OrchestratorPage() {
             onChange={(e) =>
               setStepForm((p) => ({ ...p, condition: e.target.value }))
             }
-            placeholder="e.g. ${priority} == 'URGENT'"
+            placeholder="例如: ${priority} == 'URGENT'"
           />
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>

@@ -90,12 +90,28 @@ const DlDenoisePage: React.FC = () => {
 
   const currentModel = MODELS[model]
 
+  const handleSaveResult = () => {
+    if (!denoisedRef.current) return
+    const url = denoisedRef.current.toDataURL('image/png')
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `denoised_${model}_noise${noiseLevel}.png`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: '#020617', color: '#cbd5e1', padding: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <Sparkles size={18} color={BLUE} />
         <span style={{ fontSize: 15, fontWeight: 700 }}>深度学习降噪</span>
         <Tag color="cyan">深度学习降噪</Tag>
+        <Tag color="gold">本地演示 · 参数实时可调</Tag>
+        <span style={{ marginLeft: 'auto', fontSize: 11, color: '#64748b' }}>
+          数据标注: 单帧 256×256 合成切片 · 噪声 {noiseLevel}% · 模型 {currentModel.label} (PSNR {currentModel.psnr}dB / SSIM {currentModel.ssim})
+        </span>
+        <button onClick={handleSaveResult} style={btnStyle}><Save size={12} /> 保存结果</button>
       </div>
       <Row gutter={16} style={{ marginBottom: 12 }}>
         <Col span={6}><Card><Statistic title="PSNR (dB)" value={currentModel.psnr} prefix={<Zap size={16} />} /></Card></Col>

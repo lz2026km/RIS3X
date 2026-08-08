@@ -31,9 +31,20 @@ const AiReviewPage: React.FC = () => {
     if (!reportText.trim()) { message.warning('请输入报告文本'); return }
     setLoading(true)
     try {
-      const res = await v3AiPlatformApi.review({ reportId: 'manual', content: reportText })
+      const res = await v3AiPlatformApi.review({ reportText, findings: reportText, conclusion: reportText })
       if (res.success && res.data) {
-        setResult(res.data)
+        const d = res.data as any
+        setResult({
+          overallScore: d.overallScore ?? 0,
+          issues: (Array.isArray(d.issues) ? d.issues : []).map((i: any) => ({
+            category: i.severity === 'error' ? '错误' : i.severity === 'warning' ? '警告' : '提示',
+            severity: i.severity ?? 'info',
+            message: i.message ?? '',
+            suggestion: i.suggestion ?? '',
+          })),
+          suggestions: Array.isArray(d.suggestions) ? d.suggestions : [],
+          summary: d.summary ?? '',
+        })
         message.success('AI 审核完成')
       } else {
         message.error(res.error?.message || '审核失败')

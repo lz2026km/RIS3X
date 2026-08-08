@@ -199,6 +199,18 @@ export default function PatientReportPortalPage() {
 const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
   const [tab, setTab] = useState<'home' | 'report' | 'image' | 'me'>('home');
 
+  const handleDownloadPdf = () => {
+    const content = `患者报告\n患者: ${access.patientName}\n检查: 胸部 CT 平扫\n日期: 2026-06-04\n\n检查所见: 双肺纹理清晰...\n诊断意见: 胸部 CT 平扫未见明显异常。\n建议: 年度随访。\n\n本报告由 G005 RIS 患者端门户生成`;
+    const blob = new Blob([content], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${access.patientName}-报告.pdf`;
+    a.click();
+    URL.revokeObjectURL(url);
+    message.success('报告 PDF 已开始下载');
+  };
+
   return (
     <div style={{
       width: 280, height: 560, background: '#0f172a', borderRadius: 32,
@@ -223,7 +235,7 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
               <div style={{ background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', color: '#fff', padding: 12, borderRadius: 8, marginBottom: 8 }}>
                 <div style={{ fontSize: 12, fontWeight: 700 }}>您好，{access.patientName}</div>
                 <div style={{ fontSize: 12, opacity: 0.9, marginTop: 2 }}>您的影像报告已可查看</div>
-                <button style={{ marginTop: 8, padding: '4px 12px', background: '#fff', color: '#0ea5e9', border: 'none', borderRadius: 12, fontSize: 12, fontWeight: 600 }}>
+                <button onClick={() => setTab('report')} style={{ marginTop: 8, padding: '4px 12px', background: '#fff', color: '#0ea5e9', border: 'none', borderRadius: 12, fontSize: 12, fontWeight: 600 }}>
                   查看报告 →
                 </button>
               </div>
@@ -265,13 +277,13 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 4, marginTop: 8 }}>
-                  <button style={{ flex: 1, padding: '4px 8px', background: '#0ea5e9', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12 }}>
+                  <button onClick={handleDownloadPdf} style={{ flex: 1, padding: '4px 8px', background: '#0ea5e9', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12 }}>
                     📥 PDF
                   </button>
-                  <button style={{ flex: 1, padding: '4px 8px', background: '#10b981', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12 }}>
+                  <button onClick={() => setTab('image')} style={{ flex: 1, padding: '4px 8px', background: '#10b981', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12 }}>
                     🖼️ 影像
                   </button>
-                  <button style={{ flex: 1, padding: '4px 8px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12 }}>
+                  <button onClick={() => message.success(`分享链接已生成: https://r.hospital.cn/portal/${access.accessToken}`)} style={{ flex: 1, padding: '4px 8px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12 }}>
                     ↗ 分享
                   </button>
                 </div>

@@ -206,7 +206,7 @@ export const IheManagerPage: React.FC = () => {
       label: <Space><Fingerprint size={14} />PIX 管理</Space>,
       children: (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-          <Card size="small" title="PIX Patient Identity Cross-reference">
+          <Card size="small" title="PIX 患者身份交叉引用">
             <p style={{ fontSize: 12, color: '#666', marginBottom: 16 }}>
               跳转到 PIX 管理页面进行 Patient ID 跨域映射管理。
             </p>
@@ -247,7 +247,7 @@ export const IheManagerPage: React.FC = () => {
       key: 'pam',
       label: <Space><Users size={14} />PAM 管理</Space>,
       children: (
-        <Card size="small" title="Patient Administration Management">
+        <Card size="small" title="患者管理 (PAM)">
           <p style={{ fontSize: 12, color: '#666', marginBottom: 16 }}>
             跳转到 PAM 管理页面进行患者就诊信息管理。
           </p>

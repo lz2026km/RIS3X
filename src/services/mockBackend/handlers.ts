@@ -92,13 +92,15 @@ import { aiDiagnosisHandlers } from './aiDiagnosisHandlers';
 import { reportDraftHandlers } from './reportDraftHandlers';
 import { volumeHandlers } from './volumeHandlers';
 import { cardiacHandlers } from './cardiacHandlers';
+// [v3.0.6.11-81 W2-B] 神经专科分析 (studies/stats/tumor-grades/stroke-windows)
+import { neuroHandlers } from './neuroHandlers';
 import { mobileHandlers } from './mobileHandlers';
 // [v3.0.6.11-62] 3D 分割与定量 (segment/quantify/segmentations/approve)
 import { segmentationHandlers } from './segmentationHandlers';
 import { dentalHandlers } from './dentalHandlers';
 import { olapHandlers } from './olapHandlers';
 import { oeeHandlers } from './oeeHandlers';
-// [v3.0.6.11-54] Phase 2 壳页面真实化 (dicom-web / critical-alert / sr-report / nuclear-stats)
+import { occupancyHandlers } from './occupancyHandlers';// [v3.0.6.11-54] Phase 2 壳页面真实化 (dicom-web / critical-alert / sr-report / nuclear-stats)
 import { shellUpgradeHandlers } from './shellUpgradeHandlers';
 // [v3.0.6.11-60] DICOM SR 全链路 (generate/by-report/push-oru/download)
 import { srHandlers } from './srHandlers';
@@ -271,6 +273,7 @@ const batchExportTasks = new Map<string, {
 export const reportHandlers = [
   // 列表 (EXAM_REPORT_PRE 600 + QUALITY_SCORE_PRE 250 合并)
   // [v3.0.6.11-70] 支持 take/skip/state (与后端 reports list 对齐)
+  // [v3.0.6.11-81 W2-B] state 无直接匹配时按 status 派生虚拟 state, 保证审核/质控列表有数据
   http.get(`${API_BASE}/reports`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
@@ -280,7 +283,26 @@ export const reportHandlers = [
     const all = list<any>('exams');
     let source = all;
     if (stateParam) {
-      source = all.filter((r: any) => String(r.state ?? '').toUpperCase() === stateParam.toUpperCase());
+      const stateKey = stateParam.toUpperCase();
+      const direct = all.filter((r: any) => String(r.state ?? '').toUpperCase() === stateKey);
+      if (direct.length > 0) {
+        source = direct;
+      } else {
+        const STATUS_TO_STATE: Record<string, string[]> = {
+          INITIAL_REVIEW: ['submitted', 'draft', 'pending'],
+          FINAL_REVIEW: ['reviewed'],
+          CO_SIGN_REVIEW: ['cosigned'],
+          PUBLISHED: ['published', 'final'],
+          SIGNED: ['signed', 'reviewed'],
+          REVIEWED: ['reviewed'],
+          AMENDING: ['amended'],
+          WITHDRAWN: ['withdrawn', 'cancelled'],
+        };
+        const matching = all.filter((r: any) =>
+          (STATUS_TO_STATE[stateKey] ?? []).includes(String(r.status ?? r.state ?? '').toLowerCase()),
+        );
+        source = matching.slice(0, 30).map((r: any) => ({ ...r, state: stateKey }));
+      }
     }
     const qMap = new Map(list<any>('qualityScores').map((q: any) => [q.reportId, q]));
     const result = applyQuery(source, {
@@ -1621,21 +1643,47 @@ export const criticalValueHandlers = [
   }),
 ];
 
-// ============= Print(4) =============
+// ============= Print(8) - [v3.0.6.11-81 W2-B] DICOM 胶片打印子系统 =============
+// 后端无 print controller → MSW 演示数据 (页面标注"演示数据")
+interface PrintTask {
+  id: string
+  filmId: string
+  patientId: string
+  patientName: string
+  modality: string
+  studyType: string
+  filmSpec: string
+  copies: number
+  status: 'queued' | 'printing' | 'completed' | 'failed'
+  printer: string
+  submitTime: string
+  completeTime: string | null
+  progress: number
+  errorMsg?: string
+}
+
+let printQueueStore: PrintTask[] = [
+  { id: 'DPT001', filmId: 'FLM20260504001', patientId: 'P20260502001', patientName: '王建国', modality: 'CT', studyType: '胸部CT平扫', filmSpec: '14x17', copies: 1, status: 'printing', printer: '柯尼卡 #1', submitTime: '2026-08-08 08:30:00', completeTime: null, progress: 65 },
+  { id: 'DPT002', filmId: 'FLM20260504002', patientId: 'P20260502002', patientName: '刘淑芳', modality: 'MR', studyType: '头颅MR平扫', filmSpec: '14x17', copies: 1, status: 'queued', printer: '柯尼卡 #2', submitTime: '2026-08-08 08:25:00', completeTime: null, progress: 0 },
+  { id: 'DPT003', filmId: 'FLM20260504003', patientId: 'P20260502003', patientName: '陈志强', modality: 'DR', studyType: '胸部DR正侧位', filmSpec: '10x12', copies: 2, status: 'queued', printer: '富士', submitTime: '2026-08-08 08:20:00', completeTime: null, progress: 0 },
+  { id: 'DPT004', filmId: 'FLM20260504004', patientId: 'P20260502004', patientName: '赵秀英', modality: 'CT', studyType: '腹部CT增强', filmSpec: '14x17', copies: 1, status: 'completed', printer: '柯尼卡 #1', submitTime: '2026-08-08 08:00:00', completeTime: '2026-08-08 08:05:23', progress: 100 },
+  { id: 'DPT005', filmId: 'FLM20260504005', patientId: 'P20260502005', patientName: '孙伟东', modality: 'CT', studyType: '胸部CT平扫', filmSpec: '14x17', copies: 1, status: 'failed', printer: '柯尼卡 #1', submitTime: '2026-08-08 07:55:00', completeTime: '2026-08-08 08:00:10', progress: 30, errorMsg: '打印机缺纸' },
+  { id: 'DPT006', filmId: 'FLM20260504006', patientId: 'P20260502006', patientName: '周丽华', modality: 'MR', studyType: '腰椎MR平扫', filmSpec: '14x17', copies: 1, status: 'completed', printer: '柯尼卡 #2', submitTime: '2026-08-08 07:50:00', completeTime: '2026-08-08 07:56:45', progress: 100 },
+  { id: 'DPT007', filmId: 'FLM20260504007', patientId: 'P20260502007', patientName: '吴敏', modality: 'DR', studyType: '膝关节DR', filmSpec: '8x10', copies: 1, status: 'queued', printer: '富士', submitTime: '2026-08-08 07:45:00', completeTime: null, progress: 0 },
+  { id: 'DPT008', filmId: 'FLM20260504008', patientId: 'P20260502008', patientName: '郑海涛', modality: 'CT', studyType: '头颅CT平扫', filmSpec: '14x17', copies: 1, status: 'completed', printer: '柯尼卡 #1', submitTime: '2026-08-08 07:30:00', completeTime: '2026-08-08 07:35:18', progress: 100 },
+  { id: 'DPT009', filmId: 'FLM20260504009', patientId: 'P20260502009', patientName: '黄晓燕', modality: 'MR', studyType: '肩关节MR', filmSpec: '10x12', copies: 2, status: 'queued', printer: '柯尼卡 #2', submitTime: '2026-08-08 07:25:00', completeTime: null, progress: 0 },
+  { id: 'DPT010', filmId: 'FLM20260504010', patientId: 'P20260502010', patientName: '杨建军', modality: 'CT', studyType: '肺部CT低剂量', filmSpec: '14x17', copies: 1, status: 'printing', printer: '柯尼卡 #1', submitTime: '2026-08-08 07:20:00', completeTime: null, progress: 32 },
+];
+
 export const printHandlers = [
   http.get(`${API_BASE}/print/queue`, async () => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: [
-      { id: 'print-001', jobName: '报告打印-张三', status: 'pending', pages: 2, createdAt: '2026-07-04T10:00:00Z', printerName: 'HP LaserJet' },
-      { id: 'print-002', jobName: '报告打印-李四', status: 'printing', pages: 1, createdAt: '2026-07-04T09:55:00Z', printerName: 'Canon IR-ADV' },
-      { id: 'print-003', jobName: '报告打印-王五', status: 'completed', pages: 3, createdAt: '2026-07-04T09:30:00Z', printerName: 'HP LaserJet' },
-    ] });
+    return HttpResponse.json({ success: true, data: printQueueStore.filter((t) => t.status === 'queued' || t.status === 'printing') });
   }),
 
-  http.post(`${API_BASE}/print/jobs`, async ({ request }) => {
-    await delay(200);
-    const body = (await request.json()) as any;
-    return HttpResponse.json({ success: true, data: { id: 'job-' + Date.now(), ...body } }, { status: 201 });
+  http.get(`${API_BASE}/print/history`, async () => {
+    await delay(100);
+    return HttpResponse.json({ success: true, data: printQueueStore.filter((t) => t.status === 'completed' || t.status === 'failed') });
   }),
 
   http.get(`${API_BASE}/print/printers`, async () => {
@@ -1643,13 +1691,87 @@ export const printHandlers = [
     return HttpResponse.json({
       success: true,
       data: [
-        { id: 'p1', name: '胶片打印机 1', ip: '192.168.1.100', status: 'ready' },
-        { id: 'p2', name: '激光打印机 1', ip: '192.168.1.101', status: 'ready' },
+        { id: 'P001', name: '柯尼卡 DICOM 打印机 1', type: 'network', status: 'online', location: 'CT检查室1', filmSpec: '14x17', defaultCopies: 1, dpi: 300 },
+        { id: 'P002', name: '柯尼卡 DICOM 打印机 2', type: 'network', status: 'online', location: 'MR检查室', filmSpec: '14x17', defaultCopies: 1, dpi: 300 },
+        { id: 'P003', name: '富士 DICOM 打印机', type: 'network', status: 'online', location: 'DR检查室', filmSpec: '10x12', defaultCopies: 1, dpi: 600 },
+        { id: 'P004', name: '本地报告打印机', type: 'local', status: 'online', location: '登记台', filmSpec: 'A4', defaultCopies: 2, dpi: 600 },
+        { id: 'P005', name: '激光报告打印机', type: 'local', status: 'offline', location: '诊断室1', filmSpec: 'A4', defaultCopies: 1, dpi: 1200 },
       ],
     });
   }),
 
-  
+  // 胶片用量 / 设备打印量 / 成本报表
+  http.get(`${API_BASE}/print/stats`, async () => {
+    await delay(100);
+    const filmUsage = ['08-02', '08-03', '08-04', '08-05', '08-06', '08-07', '08-08'].map((date, i) => {
+      const films14x17 = 38 + i * 4 + Math.floor(Math.random() * 8);
+      const films10x12 = 18 + i * 3 + Math.floor(Math.random() * 6);
+      const films8x10 = 6 + i + Math.floor(Math.random() * 4);
+      const total = films14x17 + films10x12 + films8x10;
+      return { date, films14x17, films10x12, films8x10, total, cost: Math.round(total * 12.5 * 10) / 10 };
+    });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        filmUsage,
+        devicePrint: [
+          { device: 'CT-1', printCount: 156, totalFilms: 312, cost: 3900 },
+          { device: 'CT-2', printCount: 142, totalFilms: 284, cost: 3550 },
+          { device: 'MR-1', printCount: 98, totalFilms: 392, cost: 4900 },
+          { device: 'DR-1', printCount: 210, totalFilms: 210, cost: 2625 },
+          { device: 'DR-2', printCount: 185, totalFilms: 185, cost: 2312.5 },
+        ],
+        costReport: filmUsage.slice(-7).map((d) => ({
+          date: '2026-' + d.date.replace('-', '-'),
+          filmCost: d.cost,
+          paperCost: Math.round(d.total * 0.5),
+          inkCost: Math.round(d.total * 1.4),
+          total: Math.round(d.cost + d.total * 1.9),
+        })),
+      },
+    });
+  }),
+
+  http.post(`${API_BASE}/print/jobs`, async ({ request }) => {
+    await delay(200);
+    const body = (await request.json()) as any;
+    const task: PrintTask = {
+      id: 'DPT' + String(printQueueStore.length + 1).padStart(3, '0'),
+      filmId: 'FLM20260504' + String(printQueueStore.length + 1).padStart(3, '0'),
+      patientId: body.patientId || 'P' + Date.now(),
+      patientName: body.patientName || '未知患者',
+      modality: body.modality || body.examType || 'CT',
+      studyType: body.studyDesc || body.studyType || '胶片打印',
+      filmSpec: body.filmSpec || '14x17',
+      copies: body.copies || 1,
+      status: 'queued',
+      printer: body.printer || '柯尼卡 #1',
+      submitTime: new Date().toISOString().replace('T', ' ').slice(0, 19),
+      completeTime: null,
+      progress: 0,
+    };
+    printQueueStore = [task, ...printQueueStore];
+    return HttpResponse.json({ success: true, data: task }, { status: 201 });
+  }),
+
+  http.post(`${API_BASE}/print/jobs/:id/cancel`, async ({ params }) => {
+    await delay(100);
+    const idx = printQueueStore.findIndex((t) => t.id === params.id);
+    if (idx >= 0) printQueueStore.splice(idx, 1);
+    return HttpResponse.json({ success: true, data: { ok: true } });
+  }),
+
+  http.post(`${API_BASE}/print/jobs/:id/retry`, async ({ params }) => {
+    await delay(100);
+    const t = printQueueStore.find((x) => x.id === params.id);
+    if (t) {
+      t.status = 'queued';
+      t.progress = 0;
+      t.errorMsg = undefined;
+      t.submitTime = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    }
+    return HttpResponse.json({ success: true, data: { ok: true } });
+  }),
 ];
 
 // ============= Stats(18) - v3.0.6.8-32 接入 DAILY_KPI_PRE + DOCTOR_PERFORMANCE_PRE =============
@@ -3782,6 +3904,7 @@ export const handlers = [
   ...reportQualityHandlers,
   ...caHandlers,
   ...deviceMgmtHandlers,
+  ...occupancyHandlers, // [W2-A] 检查室占用 (rooms/queue/trends) — 此前未注册导致 /occupancy/* 500
   // [v3.0.6.11-60] AI Orchestrator (模型/集成/任务) 需在 aiPlatformHandlers 之前注册,
   //   避免旧 GET /models /models/:id 通配先匹配
   ...aiOrchestratorHandlers,
@@ -3796,6 +3919,7 @@ export const handlers = [
   ...segmentationHandlers,
   ...volumeHandlers, // [v3.0.6.11-53] 3D 体数据端点 (series/reconstruct/mpr/mip/vr)
   ...cardiacHandlers, // [v3.0.6.11-71] 心脏专科分析 (analyses CRUD)
+  ...neuroHandlers, // [v3.0.6.11-81 W2-B] 神经专科分析 (studies/stats/tumor-grades/stroke-windows)
   ...mobileHandlers, // [v3.0.6.11-75] 移动端 API (today-summary/worklist/critical-values/reports/device-token)
   ...asrHandlers, // [Phase 1.4] ASR 语音识别端点
   ...olapHandlers,

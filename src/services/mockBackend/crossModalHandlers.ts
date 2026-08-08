@@ -85,6 +85,28 @@ export const crossModalHandlers = [
     return HttpResponse.json({ success: true, data: list })
   }),
 
+  // crossModalApi.similar (crossModalApi.ts): POST /cross-modal/similar (对齐后端 cross-modal.controller)
+  http.post(`${API_BASE}/cross-modal/similar`, async ({ request }) => {
+    await delay(delayMs())
+    const body = (await request.json()) as { imageId?: string }
+    const base = SEED_STUDIES.find((s) => s.id === body.imageId)
+    const list = SEED_STUDIES
+      .filter((s) => s.id !== base?.id && (!base || s.modality === base.modality))
+      .slice(0, 6)
+      .map((s) => ({
+        id: s.id,
+        patientName: s.patientName,
+        patientId: s.patientId,
+        modality: s.modality,
+        studyDate: s.studyDate,
+        description: s.studyDescription,
+        similarity: seedScore(`sim:${s.id}`),
+        thumbnail: s.thumbnail,
+        simulated: false,
+      }))
+    return HttpResponse.json({ success: true, data: list })
+  }),
+
   http.get(`${API_BASE}/cross-modal/index-status`, async () => {
     await delay(delayMs(30, 80))
     const byModality: Record<string, number> = {}

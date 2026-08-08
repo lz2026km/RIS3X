@@ -61,13 +61,36 @@ export default function DepartmentQualityPage() {
 
   const barData = CHECK_RESULTS.map(c => ({ category: c.category, passed: c.passed, failed: c.failed }))
 
+  const handleExportQualityReport = () => {
+    const lines = [
+      '科室质量管理报告',
+      `生成时间: ${new Date().toLocaleString('zh-CN')}`,
+      `平均评分: ${avgScore} 分 | 通过率: ${overallPassRate}% | 未通过: ${totalFailed} 项 | 总检查: ${totalChecks} 项`,
+      '',
+      '【各检查项】',
+      ...CHECK_RESULTS.map(c => `${c.category},通过:${c.passed},未通过:${c.failed},合计:${c.total}`),
+      '',
+      '【最近检查】',
+      ...RECENT_CHECKS.map(c => `${c.id},${c.examId},${c.modality},${c.score}分,${c.passed ? '通过' : '未通过'},${c.checkedBy},${c.date}`),
+      '',
+      '本报告由 G005 RIS v3.0.6.11 系统自动生成',
+    ]
+    const blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `科室质量报告-${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <CheckCircle size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>科室质量管理</span>
         </div>
-        <button style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+        <button onClick={handleExportQualityReport} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
           <Download size={14} />导出质量报告
         </button>
       </div>

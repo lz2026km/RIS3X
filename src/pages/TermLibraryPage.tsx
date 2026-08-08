@@ -457,7 +457,7 @@ export default function TermLibraryPage() {
 
   const renderFeatureBar = () => (
     <div style={{
-      display: 'flex', gap: 4, marginBottom: 0,
+      display: mainTab === 'dict' ? 'flex' : 'none', gap: 4, marginBottom: 0,
       background: '#fff', padding: '8px 12px', borderBottom: '1px solid #e2e8f0',
       flexWrap: 'wrap',
     }}>
@@ -486,7 +486,7 @@ export default function TermLibraryPage() {
   )
 
   const renderSuggestionTab = () => (
-    <div style={{ padding: 16 }}>
+    <div style={{ padding: 16, display: mainTab === 'dict' && featureTab === 'suggestion' ? undefined : 'none' }}>
       <div style={{ background: '#fff', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
           <Lightbulb size={15} color="#f59e0b" />
@@ -538,7 +538,7 @@ export default function TermLibraryPage() {
       : synonymRelations.slice(0, 8)
 
     return (
-      <div style={{ padding: 16 }}>
+      <div style={{ padding: 16, display: mainTab === 'dict' && featureTab === 'synonym' ? undefined : 'none' }}>
         <div style={{ display: 'flex', gap: 16 }}>
           <div style={{ flex: 1, background: '#fff', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
@@ -615,7 +615,7 @@ export default function TermLibraryPage() {
   }
 
   const renderExtractionTab = () => (
-    <div style={{ padding: 16 }}>
+    <div style={{ padding: 16, display: mainTab === 'dict' && featureTab === 'extraction' ? undefined : 'none' }}>
       <div style={{ background: '#fff', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
           <FileSearch size={15} color="#059669" />
@@ -687,7 +687,7 @@ export default function TermLibraryPage() {
   )
 
   const renderLanguageTab = () => (
-    <div style={{ padding: 16 }}>
+    <div style={{ padding: 16, display: mainTab === 'dict' && featureTab === 'language' ? undefined : 'none' }}>
       <div style={{ background: '#fff', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
           <Languages size={15} color="#7c3aed" />
@@ -750,6 +750,46 @@ export default function TermLibraryPage() {
   const renderCategoryTab = () => {
     const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set(categoryTree.map(n => n.id)))
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+    const [showCategoryModal, setShowCategoryModal] = useState(false)
+    const [categoryForm, setCategoryForm] = useState<{ id?: string; name: string; parentId: string; color: string }>({ name: '', parentId: '', color: '#2563eb' })
+
+    const CATEGORY_COLORS = ['#2563eb', '#7c3aed', '#0891b2', '#16a34a', '#ca8a04', '#dc2626', '#db2777']
+
+    const addCategoryNode = (nodes: CategoryTreeNode[], parentId: string, node: CategoryTreeNode): CategoryTreeNode[] => {
+      if (!parentId) return [...nodes, node]
+      return nodes.map(n => n.id === parentId ? { ...n, children: [...n.children, node] } : { ...n, children: addCategoryNode(n.children, parentId, node) })
+    }
+
+    const updateCategoryNode = (nodes: CategoryTreeNode[], id: string, name: string): CategoryTreeNode[] =>
+      nodes.map(n => n.id === id ? { ...n, name } : { ...n, children: updateCategoryNode(n.children, id, name) })
+
+    const openAddCategory = () => {
+      setCategoryForm({ name: '', parentId: selectedCategory ?? '', color: '#2563eb' })
+      setShowCategoryModal(true)
+    }
+
+    const openEditCategory = () => {
+      const find = (nodes: CategoryTreeNode[], id: string): CategoryTreeNode | null => {
+        for (const n of nodes) { if (n.id === id) return n; const f = find(n.children, id); if (f) return f }
+        return null
+      }
+      const node = selectedCategory ? find(categoryTree, selectedCategory) : null
+      if (!node) return
+      setCategoryForm({ id: node.id, name: node.name, parentId: '', color: node.color })
+      setShowCategoryModal(true)
+    }
+
+    const handleSaveCategory = () => {
+      if (!categoryForm.name.trim()) return
+      if (categoryForm.id) {
+        setCategoryTree(prev => updateCategoryNode(prev, categoryForm.id, categoryForm.name.trim()))
+      } else {
+        const node: CategoryTreeNode = { id: `cat-${Date.now()}`, name: categoryForm.name.trim(), children: [], count: 0, color: categoryForm.color }
+        setCategoryTree(prev => addCategoryNode(prev, categoryForm.parentId, node))
+        setExpandedNodes(prev => new Set(prev).add(categoryForm.parentId))
+      }
+      setShowCategoryModal(false)
+    }
 
     const toggleExpand = (id: string) => {
       setExpandedNodes(prev => {
@@ -781,13 +821,13 @@ export default function TermLibraryPage() {
     ))
 
     return (
-      <div style={{ padding: 16 }}>
+      <div style={{ padding: 16, display: mainTab === 'dict' && featureTab === 'category' ? undefined : 'none' }}>
         <div style={{ display: 'flex', gap: 16 }}>
           <div style={{ flex: 1, background: '#fff', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
               <Move size={15} color="#0891b2" />
               <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>分类树浏览器</span>
-              <button style={{ marginLeft: 'auto', padding: '4px 10px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+              <button onClick={openAddCategory} style={{ marginLeft: 'auto', padding: '4px 10px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                 <Plus size={11} /> 新建分类
               </button>
             </div>
@@ -809,12 +849,51 @@ export default function TermLibraryPage() {
                   <div style={{ fontSize: 12, color: '#64748b' }}>使用次数</div>
                 </div>
               </div>
-              <button style={{ marginTop: 12, width: '100%', padding: '6px 12px', background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
+              <button onClick={openEditCategory} style={{ marginTop: 12, width: '100%', padding: '6px 12px', background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
                 编辑分类
               </button>
             </div>
           )}
         </div>
+        {showCategoryModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowCategoryModal(false)}>
+          <div style={{ background: '#fff', borderRadius: 12, width: 420, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid #e2e8f0' }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#1e3a5f', display: 'flex', alignItems: 'center', gap: 8 }}><Move size={16} color="#0891b2" /> {categoryForm.id ? '编辑分类' : '新建分类'}</div>
+              <button onClick={() => setShowCategoryModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', fontSize: 18, padding: 4 }}>×</button>
+            </div>
+            <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 6 }}>分类名称 *</label>
+                <input value={categoryForm.name} onChange={e => setCategoryForm({ ...categoryForm, name: e.target.value })} placeholder="如: 胸部疾病" style={{ width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+              </div>
+              {!categoryForm.id && (
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 6 }}>父级分类</label>
+                  <select value={categoryForm.parentId} onChange={e => setCategoryForm({ ...categoryForm, parentId: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 13 }}>
+                    <option value="">无（顶级分类）</option>
+                    {categoryTree.map(n => <option key={n.id} value={n.id}>{n.name}</option>)}
+                  </select>
+                </div>
+              )}
+              {!categoryForm.id && (
+                <div>
+                  <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 6 }}>颜色</label>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    {CATEGORY_COLORS.map(c => (
+                      <button key={c} onClick={() => setCategoryForm({ ...categoryForm, color: c })} style={{ width: 26, height: 26, borderRadius: '50%', background: c, border: categoryForm.color === c ? '3px solid #1e293b' : 'none', cursor: 'pointer' }} />
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
+                <button onClick={() => setShowCategoryModal(false)} style={{ padding: '8px 20px', border: '1px solid #e2e8f0', borderRadius: 6, background: '#fff', color: '#64748b', fontSize: 13, cursor: 'pointer' }}>取消</button>
+                <button onClick={handleSaveCategory} disabled={!categoryForm.name.trim()} style={{ padding: '8px 20px', border: 'none', borderRadius: 6, background: categoryForm.name.trim() ? '#1e40af' : '#94a3b8', color: '#fff', fontSize: 13, fontWeight: 600, cursor: categoryForm.name.trim() ? 'pointer' : 'not-allowed' }}>保存</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
     )
   }
@@ -822,6 +901,10 @@ export default function TermLibraryPage() {
   // ============ 渲染 ============
   return (
     <div data-testid="term-library-page" style={{ display: 'flex', minHeight: '100vh', background: '#f0f4f8', fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif' }}>
+      {/* [G005 W1-C] 演示数据（后端待实现）: 后端无 /terms controller, 数据由 MSW 演示数据提供 */}
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000, background: '#fef3c7', color: '#92400e', fontSize: 12, fontWeight: 600, padding: '4px 16px', textAlign: 'center', borderBottom: '1px solid #fcd34d' }}>
+        演示数据（后端待实现）：本页词库数据由 MSW 演示数据提供，后端暂无 /terms 接口
+      </div>
       {loading && <LoadingBanner message="正在从 API 加载术语库..." />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       <div style={{ width: 260, background: '#fff', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
@@ -918,7 +1001,7 @@ export default function TermLibraryPage() {
           </div>
         </div>
 
-        {mainTab === 'dict' && renderFeatureBar()}
+        {renderFeatureBar()}
 
         <div style={{ flex: 1, overflowY: 'auto' }}>
           {mainTab === 'standard' && (
@@ -1161,11 +1244,11 @@ export default function TermLibraryPage() {
             </>
           )}
 
-          {mainTab === 'dict' && featureTab === 'suggestion' && renderSuggestionTab()}
-          {mainTab === 'dict' && featureTab === 'synonym' && renderSynonymTab()}
-          {mainTab === 'dict' && featureTab === 'extraction' && renderExtractionTab()}
-          {mainTab === 'dict' && featureTab === 'language' && renderLanguageTab()}
-          {mainTab === 'dict' && featureTab === 'category' && renderCategoryTab()}
+          {renderSuggestionTab()}
+          {renderSynonymTab()}
+          {renderExtractionTab()}
+          {renderLanguageTab()}
+          {renderCategoryTab()}
         </div>
       </div>
 
