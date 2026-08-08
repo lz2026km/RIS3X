@@ -78,3 +78,6 @@ dist/
 
 # Windows reserved name
 NUL
+
+# VNA test storage
+backend/vna-storage/
