@@ -2,15 +2,16 @@
 // G005 放射科RIS系统 v3.0.5.0 - 危急值中心 R3
 // 路由 /critical-value-center - 危急值统一入口
 // 聚合 CriticalValuePage / CriticalValueRulePage / CriticalValueStatsPage
+// [W2-A] listCenter 中心列表 / autoDetect 自动检测 / closeLoop 闭环
 // ============================================================
 
 import React, { useEffect, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { AlertOctagon, Bell, BarChart3, Settings, Activity, TrendingUp, ShieldAlert, Save, Plus, Edit3, Trash2, RefreshCw } from 'lucide-react'
+import { AlertOctagon, Bell, BarChart3, Settings, Activity, TrendingUp, ShieldAlert, Save, Plus, Edit3, Trash2, RefreshCw, ScanSearch, CheckCircle2 } from 'lucide-react'
 import { message, Switch, Modal, Input, Select, Popconfirm } from 'antd'
 import { CRITICAL_RULES } from '../data/criticalValueMock'
 import { criticalApi, type CriticalStatsDto } from '../services/api/criticalApi'
-import { criticalExtApi, type CriticalChannelDto, type CriticalExtRuleDto, type CriticalExtTimelineDto } from '../services/api'
+import { criticalExtApi, type CriticalChannelDto, type CriticalExtRuleDto, type CriticalExtTimelineDto, type CriticalExtCenterDto } from '../services/api'
 import { invalidateApiCache } from '../services/api/client'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 
@@ -27,6 +28,25 @@ function asList<T>(data: unknown): T[] {
 
 const SEVERITY_OPTIONS = ['CRITICAL', 'URGENT', 'HIGH', 'MEDIUM', 'LOW']
 
+// [W2-A] 中心列表状态/严重度徽标
+function centerStatusBadge(status: string) {
+  const s = String(status ?? '').toUpperCase()
+  if (['CLOSED_LOOP', 'RESOLVED', 'CLOSED'].includes(s)) return 'bg-green-100 text-green-700'
+  if (['PENDING', 'DISCOVERED'].includes(s)) return 'bg-red-100 text-red-700'
+  if (['ACKNOWLEDGED', 'RECEIPTED'].includes(s)) return 'bg-blue-100 text-blue-700'
+  if (['NOTIFIED', 'VOICE_CALLED'].includes(s)) return 'bg-amber-100 text-amber-700'
+  return 'bg-slate-100 text-slate-600'
+}
+
+function severityBadge(severity: string) {
+  const s = String(severity ?? '').toUpperCase()
+  if (s.includes('CRITICAL') || severity === '危急' || severity === '危及生命') return 'bg-red-100 text-red-700'
+  if (s.includes('URGENT') || s.includes('HIGH')) return 'bg-orange-100 text-orange-700'
+  return 'bg-amber-100 text-amber-700'
+}
+
+const fmtDateTime = (v: unknown) => String(v ?? '').replace('T', ' ').slice(0, 19)
+
 const CriticalValueCenterPage: React.FC = () => {
   const [stats, setStats] = useState<CriticalStatsDto | null>(null)
   const [rulesCount, setRulesCount] = useState(CRITICAL_RULES.length)
@@ -42,6 +62,84 @@ const CriticalValueCenterPage: React.FC = () => {
   // [W2-A] 统计: getSummary / getTimeline
   const [summary, setSummary] = useState<{ todayCount?: number; weeklyCount?: number; monthlyCount?: number; avgResponseTime?: number } | null>(null)
   const [timeline, setTimeline] = useState<CriticalExtTimelineDto[]>([])
+  // [W2-A] 中心列表 listCenter / 自动检测 autoDetect / 闭环 closeLoop
+  const [center, setCenter] = useState<CriticalExtCenterDto[]>([])
+  const [centerLoading, setCenterLoading] = useState(false)
+  const [centerError, setCenterError] = useState('')
+  const [detectModalOpen, setDetectModalOpen] = useState(false)
+  const [detectForm, setDetectForm] = useState({ examId: '', reportContent: '' })
+  const [detecting, setDetecting] = useState(false)
+  const [closeTarget, setCloseTarget] = useState<CriticalExtCenterDto | null>(null)
+  const [closeForm, setCloseForm] = useState({ resolution: '', resolvedBy: '' })
+  const [closing, setClosing] = useState(false)
+
+  // [W2-A] GET /critical-ext/center
+  const loadCenter = useCallback(async () => {
+    setCenterLoading(true)
+    setCenterError('')
+    try {
+      const res = await criticalExtApi.listCenter()
+      if (res.success) setCenter(asList<CriticalExtCenterDto>(res.data))
+      else setCenterError(res.error?.message ?? '中心列表加载失败')
+    } catch (e) {
+      setCenterError((e as Error)?.message ?? '中心列表加载失败')
+    } finally {
+      setCenterLoading(false)
+    }
+  }, [])
+
+  // [W2-A] POST /critical-ext/auto-detect (对齐后端 AutoDetectCriticalSchema)
+  const handleAutoDetect = async () => {
+    if (!detectForm.examId.trim() || !detectForm.reportContent.trim()) {
+      message.warning('检查 ID 与报告内容不能为空')
+      return
+    }
+    setDetecting(true)
+    try {
+      const res = await criticalExtApi.autoDetect({ examId: detectForm.examId.trim(), reportContent: detectForm.reportContent.trim() })
+      if (res.success) {
+        message.success(`自动检测已触发 (${res.data?.id ?? detectForm.examId})`)
+        setDetectModalOpen(false)
+        setDetectForm({ examId: '', reportContent: '' })
+        await invalidateApiCache('/critical-ext/center')
+        await loadCenter()
+      } else {
+        message.error(res.error?.message ?? '自动检测失败')
+      }
+    } catch {
+      message.error('自动检测失败')
+    }
+    setDetecting(false)
+  }
+
+  // [W2-A] POST /critical-ext/close-loop (对齐后端 CloseCriticalLoopSchema)
+  const handleCloseLoop = async () => {
+    if (!closeTarget) return
+    if (!closeForm.resolution.trim()) {
+      message.warning('请填写闭环处置说明')
+      return
+    }
+    setClosing(true)
+    try {
+      const res = await criticalExtApi.closeLoop({
+        criticalId: closeTarget.id,
+        resolution: closeForm.resolution.trim(),
+        resolvedBy: closeForm.resolvedBy.trim() || 'current-user',
+      })
+      if (res.success) {
+        message.success(`危急值 ${closeTarget.id} 已闭环`)
+        setCloseTarget(null)
+        setCloseForm({ resolution: '', resolvedBy: '' })
+        await invalidateApiCache('/critical-ext/center')
+        await loadCenter()
+      } else {
+        message.error(res.error?.message ?? '闭环失败')
+      }
+    } catch {
+      message.error('闭环失败')
+    }
+    setClosing(false)
+  }
 
   const loadRules = useCallback(async () => {
     setRulesLoading(true)
@@ -124,8 +222,9 @@ const CriticalValueCenterPage: React.FC = () => {
       } catch { /* 通道配置加载失败时保持空态 */ }
     })()
     void loadStats()
+    void loadCenter()
     return () => { cancelled = true }
-  }, [loadStats])
+  }, [loadStats, loadCenter])
 
   // [W2-A] 规则保存: 新增 createRule / 编辑 updateRule
   const handleSaveRule = async () => {
@@ -251,6 +350,151 @@ const CriticalValueCenterPage: React.FC = () => {
           <div className="text-2xl font-bold mt-1 text-emerald-600">{summary?.avgResponseTime ?? '-'}</div>
         </div>
       </div>
+
+      {/* [W2-A] 危急值中心列表: listCenter + 自动检测 autoDetect + 闭环 closeLoop */}
+      <div className="rounded-lg border bg-white p-4" data-testid="critical-center-list">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-semibold flex items-center gap-2">
+            <AlertOctagon size={16} className="text-red-600" /> 危急值中心 ({center.length})
+          </h2>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setDetectModalOpen(true)}
+              className="inline-flex items-center gap-1 rounded bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700"
+            >
+              <ScanSearch size={12} /> 自动检测
+            </button>
+            <button
+              onClick={() => void loadCenter()}
+              disabled={centerLoading}
+              className="inline-flex items-center gap-1 rounded border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+            >
+              <RefreshCw size={12} /> {centerLoading ? '加载中...' : '刷新'}
+            </button>
+          </div>
+        </div>
+        {centerError && <div className="text-xs text-red-600 mb-2">{centerError}</div>}
+        {center.length > 0 ? (
+          <table className="w-full text-sm" style={{ borderCollapse: 'collapse' }}>
+            <thead>
+              <tr className="text-left text-xs text-gray-500 border-b border-slate-200">
+                <th className="py-2 pr-2 font-semibold">事件 ID</th>
+                <th className="py-2 pr-2 font-semibold">患者</th>
+                <th className="py-2 pr-2 font-semibold">危急发现</th>
+                <th className="py-2 pr-2 font-semibold">严重度</th>
+                <th className="py-2 pr-2 font-semibold">状态</th>
+                <th className="py-2 pr-2 font-semibold">触发时间</th>
+                <th className="py-2 pr-2 font-semibold">科室</th>
+                <th className="py-2 font-semibold">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {center.map((c) => {
+                const stateField = String((c as unknown as Record<string, unknown>).state ?? '')
+                const status = String(c.status ?? stateField ?? '').toUpperCase()
+                const closed = ['CLOSED_LOOP', 'RESOLVED', 'CLOSED'].includes(status)
+                return (
+                  <tr key={c.id} className="border-b border-slate-100">
+                    <td className="py-2 pr-2 font-mono text-xs text-slate-500">{c.id}</td>
+                    <td className="py-2 pr-2 font-medium text-slate-800">{c.patientName || '-'}</td>
+                    <td className="py-2 pr-2 text-xs text-slate-600">{c.finding || '-'}</td>
+                    <td className="py-2 pr-2">
+                      <span className={`rounded px-1.5 py-0.5 text-xs font-semibold ${severityBadge(c.severity)}`}>{c.severity || 'HIGH'}</span>
+                    </td>
+                    <td className="py-2 pr-2">
+                      <span className={`rounded px-1.5 py-0.5 text-xs font-semibold ${centerStatusBadge(status)}`}>{status || 'PENDING'}</span>
+                    </td>
+                    <td className="py-2 pr-2 text-xs text-slate-600">{fmtDateTime(c.triggeredAt)}</td>
+                    <td className="py-2 pr-2 text-xs text-slate-600">{c.department || '-'}</td>
+                    <td className="py-2">
+                      <button
+                        onClick={() => { setCloseTarget(c); setCloseForm({ resolution: '', resolvedBy: '' }) }}
+                        disabled={closed}
+                        className="inline-flex items-center gap-1 rounded border border-green-200 bg-green-50 px-2 py-1 text-xs text-green-700 hover:bg-green-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        <CheckCircle2 size={11} /> {closed ? '已闭环' : '闭环'}
+                      </button>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        ) : (
+          <div className="text-xs text-gray-400 py-3">
+            {centerLoading ? '中心列表加载中...' : '中心暂无危急值记录,点击"自动检测"触发一次检测'}
+          </div>
+        )}
+      </div>
+
+      {/* [W2-A] 自动检测 Modal: POST /critical-ext/auto-detect */}
+      <Modal
+        title="自动检测危急值"
+        open={detectModalOpen}
+        onOk={() => void handleAutoDetect()}
+        onCancel={() => setDetectModalOpen(false)}
+        confirmLoading={detecting}
+        okText="触发检测"
+        cancelText="取消"
+        width={480}
+      >
+        <div className="space-y-3 py-1">
+          <div>
+            <div className="mb-1 text-xs font-semibold text-slate-600">检查 ID (examId) *</div>
+            <Input
+              value={detectForm.examId}
+              onChange={(e) => setDetectForm((f) => ({ ...f, examId: e.target.value }))}
+              placeholder="如: EXAM-20260808-001"
+            />
+          </div>
+          <div>
+            <div className="mb-1 text-xs font-semibold text-slate-600">报告内容 (reportContent) *</div>
+            <Input.TextArea
+              rows={4}
+              value={detectForm.reportContent}
+              onChange={(e) => setDetectForm((f) => ({ ...f, reportContent: e.target.value }))}
+              placeholder="如: WBC 33.5 x10^9/L,提示严重感染可能"
+            />
+          </div>
+        </div>
+      </Modal>
+
+      {/* [W2-A] 闭环 Modal: POST /critical-ext/close-loop */}
+      <Modal
+        title={`闭环危急值 - ${closeTarget?.id ?? ''}`}
+        open={closeTarget !== null}
+        onOk={() => void handleCloseLoop()}
+        onCancel={() => setCloseTarget(null)}
+        confirmLoading={closing}
+        okText="提交闭环"
+        cancelText="取消"
+        width={480}
+      >
+        {closeTarget && (
+          <div className="space-y-3 py-1">
+            <div className="text-xs text-slate-500">
+              患者 <strong className="text-slate-800">{closeTarget.patientName || '-'}</strong> · 发现「{closeTarget.finding || '-'}」
+            </div>
+            <div>
+              <div className="mb-1 text-xs font-semibold text-slate-600">闭环处置说明 (resolution) *</div>
+              <Input.TextArea
+                rows={3}
+                value={closeForm.resolution}
+                onChange={(e) => setCloseForm((f) => ({ ...f, resolution: e.target.value }))}
+                placeholder="如: 已电话通知临床,患者收治并完成处置"
+              />
+            </div>
+            <div>
+              <div className="mb-1 text-xs font-semibold text-slate-600">处置人 (resolvedBy)</div>
+              <Input
+                value={closeForm.resolvedBy}
+                onChange={(e) => setCloseForm((f) => ({ ...f, resolvedBy: e.target.value }))}
+                placeholder="默认 current-user"
+              />
+            </div>
+          </div>
+        )}
+      </Modal>
 
       {/* [W2-A] 趋势图: getTimeline */}
       {timeline.length > 0 && (

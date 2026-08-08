@@ -25,7 +25,12 @@ export class QcExtController {
   getQcImage(@Param('id') id: string) { return this.svc.getQcImage(id) }
 
   @Post('image/:id/rate')
-  rateQcImage(@Body(new ZodValidationPipe(RateQcImageSchema)) body: Record<string, unknown>) { return this.svc.rateQcImage(body) }
+  rateQcImage(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(RateQcImageSchema)) body: Record<string, unknown>,
+  ) {
+    return this.svc.rateQcImage(id, body)
+  }
 
   @Get('radiologist-annual')
   listRadiologistAnnual() { return this.svc.listRadiologistAnnual() }

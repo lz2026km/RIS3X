@@ -146,7 +146,69 @@ export interface CoSignRecordDto {
   versions: Array<{ version: string; modifyTime: string; modifyInstitution: string; modifyReason: string; modifier: string }>
 }
 
+// ── Multi-Site Dashboard DTOs (多站点/多院区) ──
+// 后端暂未实现 → MSW regionalHandlers 支撑, 响应带 source 信封标注数据来源
+
+export interface RegionalSiteDto {
+  id: string
+  name: string
+  code: string
+  region: string
+  city: string
+  status: 'active' | 'offline' | 'syncing' | 'maintenance'
+  studies: number
+  patients: number
+  users: number
+  storage: number
+  bandwidth: number
+  lastSync: string
+  latencyMs: number
+  uptimePct: number
+  version: string
+  primary: boolean
+}
+
+export interface RegionalSiteSyncEventDto {
+  id: string
+  siteId: string
+  type: 'study_pushed' | 'study_pulled' | 'user_sync' | 'config_sync'
+  status: 'success' | 'failed' | 'pending'
+  count: number
+  bytes: number
+  duration: number
+  timestamp: string
+  message?: string
+}
+
+export interface RegionalSiteRoutingRuleDto {
+  id: string
+  name: string
+  sourceSite: string
+  destSite: string
+  modality: string
+  condition: string
+  active: boolean
+  matchedCount: number
+}
+
+export interface RegionalSitesEnvelope<T> {
+  source: 'database' | 'demo'
+  generatedAt: string
+  data: T
+}
+
 export const regionalApi = {
+  // ── Multi-Site Dashboard endpoints ──
+
+  listSites: () =>
+    api.get<RegionalSitesEnvelope<RegionalSiteDto[]>>('/regional/sites'),
+
+  listSiteSyncEvents: () =>
+    api.get<RegionalSitesEnvelope<RegionalSiteSyncEventDto[]>>('/regional/sites/sync-events'),
+
+  listSiteRoutingRules: () =>
+    api.get<RegionalSitesEnvelope<RegionalSiteRoutingRuleDto[]>>('/regional/sites/routing-rules'),
+
   // ── Original endpoints ──
 
   listRegionalImaging: () =>

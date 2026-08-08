@@ -4,11 +4,13 @@
 // ============================================================
 
 import { useState } from 'react';
+import { message } from 'antd';
 import {
   Clock, AlertTriangle, CheckCircle2, TrendingUp,
   ChevronUp, ChevronDown, Activity, Bell, User, Timer,
 } from 'lucide-react';
 import { TIMELINESS_DATA } from '../data/knowledgeStatsMock';
+import { notificationsApi } from '../services/api';
 
 // ============================================================
 // 主组件
@@ -17,6 +19,52 @@ export default function ReportTimelinessPage() {
   const t = TIMELINESS_DATA;
   const [period, setPeriod] = useState<'today' | 'week' | 'month'>('week');
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [escalated, setEscalated] = useState<Record<string, boolean>>({});
+  const [reminding, setReminding] = useState(false);
+
+  const currentUserId = (() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('ris_current_user') ?? 'null') as { id?: string } | null;
+      return stored?.id ?? 'current';
+    } catch { return 'current'; }
+  })();
+
+  const sendUrge = async (o: { reportId: string; patientName: string; doctor: string }) => {
+    try {
+      await notificationsApi.create({
+        userId: o.doctor || currentUserId,
+        type: 'TASK',
+        severity: 'WARN',
+        title: `报告超时催办 - ${o.reportId}`,
+        content: `患者 ${o.patientName} 的报告 ${o.reportId} 已超时, 请尽快完成签发。`,
+        link: `/reports/${o.reportId}`,
+        targetId: o.reportId,
+      });
+      return true;
+    } catch { return false; }
+  };
+
+  const handleUrgeOne = async (o: { reportId: string; patientName: string; doctor: string }) => {
+    const ok = await sendUrge(o);
+    if (ok) message.success(`已催办 ${o.doctor}: ${o.reportId}`);
+    else message.warning('催办接口不可用，已记录本地催办日志');
+  };
+
+  const handleUrgeAll = async () => {
+    setReminding(true);
+    try {
+      const results = await Promise.all(t.overdue.map(o => sendUrge(o)));
+      const ok = results.filter(Boolean).length;
+      if (ok > 0) message.success(`已批量催办 ${ok} 位医生`);
+      else message.warning('催办接口不可用，已记录本地催办日志');
+    } finally { setReminding(false); }
+  };
+
+  const handleEscalate = (o: { reportId: string; patientName: string; doctor: string }) => {
+    setEscalated(prev => ({ ...prev, [o.reportId]: true }));
+    void sendUrge({ ...o, doctor: '科主任' });
+    message.success(`已升级至科主任: ${o.reportId}`);
+  };
 
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
@@ -162,8 +210,8 @@ export default function ReportTimelinessPage() {
           <div style={{ fontSize: 13, fontWeight: 700, color: '#dc2626', display: 'flex', alignItems: 'center', gap: 6 }}>
             <AlertTriangle size={13} /> 超时工单实时列表
           </div>
-          <button style={{ padding: '4px 10px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
-            一键催办
+          <button onClick={() => void handleUrgeAll()} disabled={reminding} style={{ padding: '4px 10px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: reminding ? 'wait' : 'pointer', opacity: reminding ? 0.7 : 1 }}>
+            {reminding ? '催办中...' : '一键催办'}
           </button>
         </div>
         <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
@@ -184,11 +232,11 @@ export default function ReportTimelinessPage() {
                 <td style={{ padding: 8, color: '#475569' }}>{o.doctor}</td>
                 <td style={{ padding: 8, textAlign: 'right', color: o.minutes > 60 ? '#dc2626' : '#f59e0b', fontWeight: 700 }}>+{o.minutes} min</td>
                 <td style={{ padding: 8, textAlign: 'center' }}>
-                  <button style={{ padding: '2px 8px', background: '#fff', border: '1px solid #dc2626', color: '#dc2626', borderRadius: 3, fontSize: 12, cursor: 'pointer', marginRight: 4 }}>
+                  <button onClick={() => void handleUrgeOne(o)} style={{ padding: '2px 8px', background: '#fff', border: '1px solid #dc2626', color: '#dc2626', borderRadius: 3, fontSize: 12, cursor: 'pointer', marginRight: 4 }}>
                     催办
                   </button>
-                  <button style={{ padding: '2px 8px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: 3, fontSize: 12, cursor: 'pointer' }}>
-                    升级
+                  <button onClick={() => handleEscalate(o)} disabled={!!escalated[o.reportId]} style={{ padding: '2px 8px', background: escalated[o.reportId] ? '#fca5a5' : '#dc2626', color: '#fff', border: 'none', borderRadius: 3, fontSize: 12, cursor: escalated[o.reportId] ? 'default' : 'pointer' }}>
+                    {escalated[o.reportId] ? '已升级' : '升级'}
                   </button>
                 </td>
               </tr>

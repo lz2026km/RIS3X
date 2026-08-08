@@ -11,6 +11,24 @@ export const FhirSubscriptionPage: React.FC = () => {
   const [saving, setSaving] = useState(false)
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedSub, setSelectedSub] = useState<FhirSubscription | null>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
+
+  const openDetail = async (sub: FhirSubscription) => {
+    setDetailOpen(true)
+    setDetailLoading(true)
+    setSelectedSub(sub)
+    try {
+      const res = await fhirApi.getSubscription(sub.id!)
+      if (res.success && res.data) {
+        setSelectedSub(res.data)
+      } else {
+        message.warning(res.error?.message ?? 'Subscription 详情加载失败，展示列表数据')
+      }
+    } catch {
+      message.warning('Subscription 详情加载失败，展示列表数据')
+    }
+    setDetailLoading(false)
+  }
 
   const fetchSubscriptions = useCallback(async () => {
     setLoading(true)
@@ -120,7 +138,7 @@ export const FhirSubscriptionPage: React.FC = () => {
       width: 150,
       render: (_: any, r: FhirSubscription) => (
         <Space size="small">
-          <Button size="small" icon={<Eye size={12} />} onClick={() => { setSelectedSub(r); setDetailOpen(true) }}>详情</Button>
+          <Button size="small" icon={<Eye size={12} />} onClick={() => openDetail(r)}>详情</Button>
           <Popconfirm title="确认删除此 Subscription?" onConfirm={() => handleDelete(r.id!)}>
             <Button size="small" danger icon={<Trash size={12} />}>删除</Button>
           </Popconfirm>
@@ -203,7 +221,9 @@ export const FhirSubscriptionPage: React.FC = () => {
         footer={<Button onClick={() => setDetailOpen(false)}>关闭</Button>}
         width={600}
       >
-        {selectedSub ? (
+        {detailLoading ? (
+          <div style={{ textAlign: 'center', padding: '32px 0', color: '#999' }}>加载详情...</div>
+        ) : selectedSub ? (
           <div>
             <pre style={{ background: '#1e1e1e', color: '#d4d4d4', padding: 16, borderRadius: 6, fontSize: 12, overflow: 'auto', maxHeight: 400 }}>
               {JSON.stringify(selectedSub, null, 2)}

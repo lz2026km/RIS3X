@@ -85,7 +85,7 @@ const DepartmentOperationsPage = () => {
       <div style={s.header}>
         <div>
           <h1 style={s.title}>乳腺科室运营管理</h1>
-          <p style={s.subtitle}>Breast Imaging Department Operations · 排班 · 设备 · 工作流 · 统计</p>
+          <p style={s.subtitle}>乳腺影像科室运营 · 排班 · 设备 · 工作流 · 统计</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button style={s.btn}><RefreshCw size={14} /></button>

@@ -178,4 +178,31 @@ describe('AiDiagnosisService', () => {
       expect(inverted.length).toBe(1)
     })
   })
+
+  describe('batch confirm / retrain (W1-B)', () => {
+    it('batchConfirm updates matching ids across models', async () => {
+      const { data } = await svc.batchConfirm({ ids: ['LUNG-002', 'BREAST-002', 'MISSING-1'], status: 'confirmed' })
+      expect(data).toHaveLength(2)
+      expect(data.find((r) => r.id === 'LUNG-002')?.status).toBe('confirmed')
+      expect(data.find((r) => r.id === 'BREAST-002')?.status).toBe('confirmed')
+    })
+
+    it('batchConfirm rejects -> status reviewed', async () => {
+      const { data } = await svc.batchConfirm({ ids: ['FRACTURE-003'], status: 'rejected' })
+      expect(data[0].status).toBe('reviewed')
+    })
+
+    it('batchConfirm supports model-scoped filtering', async () => {
+      const { data } = await svc.batchConfirm({ ids: ['CARDIAC-002', 'LUNG-003'], status: 'confirmed', model: 'cardiac-ai' })
+      expect(data).toHaveLength(1)
+      expect(data[0].id).toBe('CARDIAC-002')
+    })
+
+    it('retrainModel returns simulated training state', async () => {
+      const { data } = await svc.retrainModel('lungcad-v4.0.0')
+      expect(data.modelVersion).toBe('lungcad-v4.0.0')
+      expect(data.status).toBe('TRAINING')
+      expect(data.startedAt).toBeDefined()
+    })
+  })
 })

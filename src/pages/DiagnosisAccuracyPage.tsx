@@ -1,20 +1,48 @@
 // ============================================================
 // G005 放射科RIS系统 v1.0.7 - 诊断符合率
 // Phase R7：病理 / 临床 / 影像随访 三种确认 · 灵敏度/特异度/PPV/NPV
+// 数据源: diagnosisAccuracyApi (/diagnosis-accuracy, MSW 演示数据, 后端待实现)
 // ============================================================
 
-import React from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   CheckCircle2, Target, Activity, Stethoscope, FlaskConical, Microscope,
-  TrendingUp, Database, Sparkles, FileText, Calendar,
+  TrendingUp, Database, Sparkles, FileText, Calendar, DatabaseZap,
 } from 'lucide-react';
+import { diagnosisAccuracyApi, type DiagnosisAccuracyDto } from '../services/api/diagnosisAccuracyApi';
 import { DIAGNOSIS_ACCURACY_DATA } from '../data/knowledgeStatsMock';
 
 // ============================================================
 // 主组件
 // ============================================================
 export default function DiagnosisAccuracyPage() {
-  const data = DIAGNOSIS_ACCURACY_DATA;
+  const [data, setData] = useState<DiagnosisAccuracyDto>(DIAGNOSIS_ACCURACY_DATA);
+  const [source, setSource] = useState<'database' | 'demo'>('demo');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [usingFallback, setUsingFallback] = useState(false);
+
+  const fetchAccuracy = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await diagnosisAccuracyApi.getAccuracy();
+      if (!res.success) throw new Error((res.error as { message?: string })?.message || '符合率数据加载失败');
+      const env = res.data;
+      setData(env?.data ?? DIAGNOSIS_ACCURACY_DATA);
+      setSource(env?.source ?? 'demo');
+      setUsingFallback(false);
+    } catch (e) {
+      setError((e as Error)?.message || '加载失败');
+      setData(DIAGNOSIS_ACCURACY_DATA);
+      setSource('demo');
+      setUsingFallback(true);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchAccuracy() }, [fetchAccuracy]);
 
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
@@ -29,10 +57,24 @@ export default function DiagnosisAccuracyPage() {
             病理 / 临床 / 影像随访 三种金标准 · 灵敏度 / 特异度 / PPV / NPV
           </p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12 }}>
-          <Calendar size={12} color="#64748b" /> 期间：<strong>{data.period}</strong>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: 12 }}>
+            <Calendar size={12} color="#64748b" /> 期间：<strong>{data.period}</strong>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: source === 'demo' ? '#fffbeb' : '#ecfdf5', border: `1px solid ${source === 'demo' ? '#f59e0b' : '#10b981'}`, borderRadius: 6, fontSize: 12, color: source === 'demo' ? '#b45309' : '#047857' }}>
+            <DatabaseZap size={12} />
+            {source === 'demo' ? (usingFallback ? '演示数据（接口失败回退）' : '演示数据（MSW，后端待实现）') : '真实数据（数据库聚合）'}
+          </div>
         </div>
       </div>
+
+      {loading && <div style={{ padding: '40px 0', textAlign: 'center', color: '#64748b', fontSize: 13 }}>数据加载中...</div>}
+      {error && (
+        <div style={{ marginBottom: 12, padding: '10px 14px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 6, fontSize: 13, color: '#b91c1c', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span>加载失败：{error}</span>
+          <button onClick={fetchAccuracy} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #fca5a5', background: '#fff', color: '#b91c1c', cursor: 'pointer', fontSize: 12 }}>重试</button>
+        </div>
+      )}
 
       {/* 核心 KPI */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10, marginBottom: 16 }}>
@@ -56,7 +98,7 @@ export default function DiagnosisAccuracyPage() {
             { name: '未证实', count: data.totalReports - data.totalConfirmed, color: '#94a3b8', icon: FileText },
           ].map(s => {
             const total = data.totalReports;
-            const pct = (s.count / total) * 100;
+            const pct = total > 0 ? (s.count / total) * 100 : 0;
             const Icon = s.icon;
             return (
               <div key={s.name} style={{ marginBottom: 10 }}>

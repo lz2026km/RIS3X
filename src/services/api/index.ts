@@ -468,7 +468,7 @@ export type {
   TeleSignDto,
   TeleSignRejectDto,
   TeleSignQueryParams,
-  TeleSignStats,
+  CreateTeleSignSessionInput,
 } from "./teleSignApi";
 
 export { lungCadApi } from "./lungCadApi";

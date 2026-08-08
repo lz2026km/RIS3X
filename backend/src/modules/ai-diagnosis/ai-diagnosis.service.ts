@@ -849,9 +849,38 @@ export class AiDiagnosisService {
     return Array.from(counts, ([status, count]) => ({ status, count }))
   }
 
+  // ── 批量确认 / 模型重训 (W1-B: 对齐前端 aiDiagnosisApi.batchConfirm / retrainModel) ──
+
+  async batchConfirm(dto: { ids: string[]; status: 'confirmed' | 'rejected'; model?: string }): Promise<ApiOk<Array<LungCadResult | BreastCadResult | FractureCadResult | CardiacAiResult>>> {
+    const pools: Array<Array<LungCadResult | BreastCadResult | FractureCadResult | CardiacAiResult>> = []
+    if (!dto.model || dto.model === 'lung-cad') pools.push(seededLung)
+    if (!dto.model || dto.model === 'breast-cad') pools.push(seededBreast)
+    if (!dto.model || dto.model === 'fracture-cad') pools.push(seededFracture)
+    if (!dto.model || dto.model === 'cardiac-ai') pools.push(seededCardiac)
+    const wanted = new Set(dto.ids)
+    const updated: Array<LungCadResult | BreastCadResult | FractureCadResult | CardiacAiResult> = []
+    for (const pool of pools) {
+      for (const r of pool) {
+        if (wanted.has(r.id)) {
+          r.status = dto.status === 'confirmed' ? 'confirmed' : 'reviewed'
+          updated.push(r)
+        }
+      }
+    }
+    return ok(updated)
+  }
+
+  async retrainModel(modelVersion: string): Promise<ApiOk<{ modelVersion: string; status: string; startedAt: string; message: string }>> {
+    return ok({
+      modelVersion,
+      status: 'TRAINING',
+      startedAt: new Date().toISOString(),
+      message: `模型 ${modelVersion} 已进入训练队列 (模拟),训练完成后将自动上线`,
+    })
+  }
+
   // ── 准确率 (保留原实现) ────────────────────────────────────────────────────
-  async accuracy(req: AccuracyRequest): Promise<AccuracyResult> {
-    const total = Math.round(Math.random() * 2000 + 500)
+  async accuracy(req: AccuracyRequest): Promise<AccuracyResult> {    const total = Math.round(Math.random() * 2000 + 500)
     const acc = rand(82, 96)
     const sens = rand(80, 97)
     const spec = rand(78, 95)

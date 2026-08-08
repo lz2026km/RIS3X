@@ -12,6 +12,7 @@ import {
   Empty,
   Spin,
   Space,
+  message,
 } from "antd";
 import {
   Activity,
@@ -61,6 +62,50 @@ const EyeRisPage: React.FC = () => {
   const [referrals, setReferrals] = useState<EyeReferral[]>([]);
   const [criticalValues, _setCriticalValues] = useState<CriticalValue[]>([]);
   const [loading, setLoading] = useState(true);
+  const [checkinLoadingId, setCheckinLoadingId] = useState<string | null>(null);
+  const [callLoadingId, setCallLoadingId] = useState<string | null>(null);
+
+  const updateAppointmentStatus = (id: string, status: string) => {
+    setAppointments(prev => prev.map(a => a.id === id ? { ...a, status: status as EyeAppointment["status"] } : a));
+  };
+
+  const handleCheckin = async (record: EyeAppointment) => {
+    setCheckinLoadingId(record.id);
+    try {
+      const res = await eyeApi.checkinAppointment(record.id);
+      if (res.success) {
+        updateAppointmentStatus(record.id, "arrived");
+        message.success(`${record.patientName} 已到检`);
+      } else {
+        message.warning(res.error?.message ?? "到检接口不可用，已本地更新状态");
+        updateAppointmentStatus(record.id, "arrived");
+      }
+    } catch {
+      updateAppointmentStatus(record.id, "arrived");
+      message.success(`${record.patientName} 已到检（本地）`);
+    } finally {
+      setCheckinLoadingId(null);
+    }
+  };
+
+  const handleCall = async (record: EyeAppointment) => {
+    setCallLoadingId(record.id);
+    try {
+      const res = await eyeApi.startAppointment(record.id);
+      if (res.success) {
+        updateAppointmentStatus(record.id, "in_progress");
+        message.success(`已叫号: ${record.patientName}（${MODALITY_LABELS[record.modality] || record.modality}）`);
+      } else {
+        message.warning(res.error?.message ?? "叫号接口不可用，已本地更新状态");
+        updateAppointmentStatus(record.id, "in_progress");
+      }
+    } catch {
+      updateAppointmentStatus(record.id, "in_progress");
+      message.success(`已叫号: ${record.patientName}（本地）`);
+    } finally {
+      setCallLoadingId(null);
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -258,10 +303,24 @@ const EyeRisPage: React.FC = () => {
                   title: "操作",
                   key: "action",
                   width: 120,
-                  render: () => (
+                  render: (_: unknown, record: EyeAppointment) => (
                     <Space.Compact size="small">
-                      <Button>到检</Button>
-                      <Button>叫号</Button>
+                      <Button
+                        size="small"
+                        disabled={record.status !== "scheduled"}
+                        loading={checkinLoadingId === record.id}
+                        onClick={() => void handleCheckin(record)}
+                      >
+                        到检
+                      </Button>
+                      <Button
+                        size="small"
+                        disabled={record.status === "completed" || record.status === "cancelled"}
+                        loading={callLoadingId === record.id}
+                        onClick={() => void handleCall(record)}
+                      >
+                        叫号
+                      </Button>
                     </Space.Compact>
                   ),
                 },

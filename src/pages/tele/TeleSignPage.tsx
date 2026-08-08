@@ -1,36 +1,37 @@
-import React, { useState, useRef } from 'react'
-import { Card, Table, Button, Tag, Space, Modal, Input, Typography, message } from 'antd'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { Card, Table, Button, Tag, Space, Modal, Input, Typography, message, Alert } from 'antd'
 import { FileSignature, CheckCircle, XCircle, Pen, Eye } from 'lucide-react'
+import { teleSignApi, type TeleSignSession } from '../../services/api/teleSignApi'
 
 const { Text } = Typography
 const { TextArea } = Input
 
-interface SignSession {
-  id: string
-  reportId: string
-  reportTitle: string
-  patientName: string
-  signerName: string
-  status: 'pending' | 'approved' | 'rejected'
-  signatureData?: string
-  comment?: string
-  createdAt: string
-}
-
-const initSessions: SignSession[] = [
-  { id: 'ts-001', reportId: 'RPT001', reportTitle: '胸部 CT 报告', patientName: '张三', signerName: '王医生', status: 'pending', createdAt: '2026-07-11T10:00:00Z' },
-  { id: 'ts-002', reportId: 'RPT002', reportTitle: '脑部 MRI 报告', patientName: '李四', signerName: '李医生', status: 'approved', signatureData: 'data:image/png;base64,sig', createdAt: '2026-07-10T14:00:00Z' },
-  { id: 'ts-003', reportId: 'RPT003', reportTitle: '胸部 X 光报告', patientName: '王五', signerName: '张医生', status: 'rejected', comment: '需要补充影像学描述', createdAt: '2026-07-09T09:00:00Z' },
-]
-
 const TeleSignPage: React.FC = () => {
-  const [sessions, setSessions] = useState<SignSession[]>(initSessions)
+  const [sessions, setSessions] = useState<TeleSignSession[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [signOpen, setSignOpen] = useState(false)
   const [previewOpen, setPreviewOpen] = useState(false)
-  const [selectedSession, setSelectedSession] = useState<SignSession | null>(null)
+  const [selectedSession, setSelectedSession] = useState<TeleSignSession | null>(null)
   const [comment, setComment] = useState('')
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [isDrawing, setIsDrawing] = useState(false)
+
+  const fetchSessions = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await teleSignApi.listSessions()
+      if (!res.success) throw new Error((res.error as { message?: string })?.message || '签署会话加载失败')
+      setSessions(res.data)
+    } catch (e) {
+      setError((e as Error)?.message || '加载失败')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { fetchSessions() }, [fetchSessions])
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current
@@ -58,19 +59,29 @@ const TeleSignPage: React.FC = () => {
 
   const stopDrawing = () => setIsDrawing(false)
 
-  const handleApprove = () => {
+  const handleApprove = async () => {
     if (!selectedSession) return
     const canvas = canvasRef.current
     const signatureData = canvas ? canvas.toDataURL() : ''
-    setSessions(prev => prev.map(s => s.id === selectedSession.id ? { ...s, status: 'approved', signatureData, comment } : s))
+    const res = await teleSignApi.approve(selectedSession.id, signatureData, comment || undefined)
+    if (!res.success) {
+      message.error((res.error as { message?: string })?.message || '远程批准失败')
+      return
+    }
+    setSessions(prev => prev.map(s => s.id === selectedSession.id ? { ...s, ...res.data } : s))
     setSignOpen(false)
     setComment('')
     message.success('远程批准成功')
   }
 
-  const handleReject = () => {
+  const handleReject = async () => {
     if (!selectedSession || !comment) { message.warning('请输入拒绝原因'); return }
-    setSessions(prev => prev.map(s => s.id === selectedSession.id ? { ...s, status: 'rejected', comment } : s))
+    const res = await teleSignApi.reject(selectedSession.id, comment)
+    if (!res.success) {
+      message.error((res.error as { message?: string })?.message || '拒绝失败')
+      return
+    }
+    setSessions(prev => prev.map(s => s.id === selectedSession.id ? { ...s, ...res.data } : s))
     setSignOpen(false)
     setComment('')
     message.success('已拒绝')
@@ -90,7 +101,8 @@ const TeleSignPage: React.FC = () => {
     { title: '患者', dataIndex: 'patientName', key: 'patientName' },
     { title: '签署人', dataIndex: 'signerName', key: 'signerName' },
     { title: '状态', dataIndex: 'status', key: 'status', render: (s: string) => <Tag color={s === 'approved' ? 'green' : s === 'rejected' ? 'red' : 'orange'}>{s === 'approved' ? '已批准' : s === 'rejected' ? '已拒绝' : '待签署'}</Tag> },
-    { title: '操作', key: 'action', render: (_: unknown, r: SignSession) => (
+    { title: '创建时间', dataIndex: 'createdAt', key: 'createdAt', render: (t: string) => new Date(t).toLocaleString('zh-CN') },
+    { title: '操作', key: 'action', render: (_: unknown, r: TeleSignSession) => (
       <Space>
         <Button size="small" icon={<Eye size={14} />} onClick={() => { setSelectedSession(r); setPreviewOpen(true) }}>预览</Button>
         {r.status === 'pending' && <Button size="small" type="primary" icon={<Pen size={14} />} onClick={() => { setSelectedSession(r); setSignOpen(true) }}>签署</Button>}
@@ -104,8 +116,9 @@ const TeleSignPage: React.FC = () => {
         <FileSignature size={20} color="#1677ff" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>远程双签</span>
       </Space>
+      {error && <Alert type="warning" showIcon message="加载失败" description={error} action={<Button size="small" onClick={fetchSessions}>重试</Button>} style={{ marginBottom: 16 }} />}
       <Card>
-        <Table rowKey="id" dataSource={sessions} columns={columns} pagination={false} size="small" />
+        <Table rowKey="id" dataSource={sessions} columns={columns} pagination={false} size="small" loading={loading} />
       </Card>
       <Modal title="签署报告" open={signOpen} onCancel={() => setSignOpen(false)} width={600} footer={
         <Space>

@@ -189,48 +189,6 @@ const PORTAL_STUDY_SEED = (studyUid: string) => ({
   wadoRs: { study: `/dicom-web/studies/${studyUid}` },
 });
 
-// ===== [v3.1] 检查记录 / 影像预览 / 凭证 种子 =====
-const PORTAL_USER_SEED = (id: string) => ({
-  id,
-  name: '张三',
-  gender: '男',
-  age: 45,
-  birthDate: '1981-03-12',
-  phone: '13800138000',
-  idNumber: '110101198103121234',
-  createdAt: '2025-09-01T10:00:00+08:00',
-});
-
-const PORTAL_EXAM_HISTORY_SEED = [
-  {
-    id: 'EX-P001-001', examItem: '胸部CT平扫', examDate: '2026-07-20', bodyPart: '胸部', modality: 'CT',
-    deviceName: 'CT-01 联影 uCT 780', reportStatus: '已出报告', hasImages: true,
-    reportContent: '胸部CT平扫：双肺纹理清晰，未见明显实变影。纵隔结构居中，未见明显肿大淋巴结。心影大小正常。',
-    diagnosis: '双肺未见明显异常',
-    recommendations: '建议保持健康生活方式，定期体检随访。',
-  },
-  {
-    id: 'EX-P001-002', examItem: '头颅MR平扫', examDate: '2026-06-15', bodyPart: '颅脑', modality: 'MR',
-    deviceName: 'MR-01 联影 uMR 790', reportStatus: '已出报告', hasImages: true,
-    reportContent: '头颅MR平扫：脑实质内未见明显异常信号灶，脑室系统形态正常，中线结构居中。',
-    diagnosis: '头颅MR平扫未见明显异常',
-    recommendations: '如症状持续建议神经内科门诊随访。',
-  },
-  {
-    id: 'EX-P001-003', examItem: '腰椎DR正侧位', examDate: '2026-07-08', bodyPart: '腰椎', modality: 'DR',
-    deviceName: 'DR-01 联影 uDR 780i', reportStatus: '已出报告', hasImages: false,
-    reportContent: '腰椎DR正侧位：腰椎生理曲度存在，各椎体形态规整，椎间隙未见明显变窄。',
-    diagnosis: '腰椎DR未见明显异常',
-    recommendations: '建议避免久坐，加强腰背肌锻炼。',
-  },
-];
-
-const PORTAL_IMAGE_PREVIEWS_SEED = [
-  { id: 'IMG-EX-P001-001-1', label: '定位像', windowWidth: 1200, windowCenter: 40, invert: false },
-  { id: 'IMG-EX-P001-001-2', label: '肺窗', windowWidth: 1600, windowCenter: -500, invert: false },
-  { id: 'IMG-EX-P001-001-3', label: '纵隔窗', windowWidth: 400, windowCenter: 40, invert: false },
-];
-
 // 内存态: 会话内创建/提交的数据
 let portalAppointments: any[] = [...PORTAL_APPOINTMENTS_SEED];
 let portalFeedback: any[] = [];
@@ -265,6 +223,12 @@ export const patientPortalHandlers = [
     await delay(delayMs());
     let item: any = null;
     try { item = get<any>('patients', params.id as string); } catch {}
+    if (!item && (params.id === 'P001' || params.id === 'current')) {
+      item = {
+        id: 'P001', name: '张三', gender: '男', age: 45, birthDate: '1981-03-12',
+        phone: '13800138000', idNumber: '110101198103121234', createdAt: '2025-09-01T10:00:00+08:00',
+      };
+    }
     if (!item) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
     return HttpResponse.json({ success: true, data: item });
   }),
@@ -432,44 +396,8 @@ export const patientPortalHandlers = [
   }),
 
   // ===== [v3.1] 患者档案(登录会话) =====
-  http.get(`${API}/user/:id`, async ({ params }) => {
-    await delay(delayMs());
-    return HttpResponse.json({ success: true, data: PORTAL_USER_SEED(params.id as string) });
-  }),
-
-  // ===== [Phase 2] 检查记录 / 报告 / 影像预览 / 下载凭证 =====
-  http.get(`${API}/exam-history`, async ({ request }) => {
-    await delay(delayMs());
-    const url = new URL(request.url);
-    const patientId = url.searchParams.get('patientId');
-    let items = PORTAL_EXAM_HISTORY_SEED;
-    if (patientId) items = items.filter(e => e.id.includes(patientId) || patientId.includes('P001'));
-    return HttpResponse.json({ success: true, data: items });
-  }),
-  http.get(`${API}/exam-history/:id/report`, async ({ params }) => {
-    await delay(delayMs());
-    const exam = PORTAL_EXAM_HISTORY_SEED.find(e => e.id === params.id);
-    if (!exam) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
-    return HttpResponse.json({ success: true, data: exam });
-  }),
-  http.get(`${API}/exam-history/:id/images`, async ({ params }) => {
-    await delay(delayMs());
-    const exam = PORTAL_EXAM_HISTORY_SEED.find(e => e.id === params.id);
-    if (!exam?.hasImages) {
-      return HttpResponse.json({ success: true, data: [] });
-    }
-    return HttpResponse.json({ success: true, data: PORTAL_IMAGE_PREVIEWS_SEED });
-  }),
-  http.post(`${API}/voucher`, async ({ request }) => {
-    await delay(delayMs());
-    const body = await request.json().catch(() => null) as any;
-    const expires = new Date(Date.now() + 24 * 3600 * 1000).toISOString();
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let code = '';
-    for (let i = 0; i < 16; i++) code += chars[Math.floor(Math.random() * chars.length)];
-    return HttpResponse.json({ success: true, data: { code, expiresAt: expires, patientId: body?.patientId } });
-  }),
-
+  // [G005 W1-C] /user/:id · /exam-history* · /voucher 后端无对应端点, 已移除对应 MSW handler
+  // 档案改用 GET /patients/:id, 检查记录改用 GET /clinical-data, 影像统一 GET /images/:studyUid
   http.get(`${API}/mobile/patients`, async () => {
     await delay(delayMs());
     return HttpResponse.json({ success: true, data: PORTAL_CLINICAL_DATA_SEED.map(() => ({ id: 'P001', name: '张三', phone: '13800138000' })) });

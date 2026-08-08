@@ -15,7 +15,46 @@ export const SystemAdminPage: React.FC = () => {
   const [userModal, setUserModal] = useState(false);
   const [newUserName, setNewUserName] = useState('');
   const [newUserRole, setNewUserRole] = useState('技师');
+  const [roleModal, setRoleModal] = useState(false);
   const [_configEditKey, _setConfigEditKey] = useState<string | null>(null);
+  const [editUser, setEditUser] = useState<SystemUserDto | null>(null);
+  const [editUserName, setEditUserName] = useState('');
+  const [editUserRole, setEditUserRole] = useState('');
+  const [editUserDept, setEditUserDept] = useState('');
+  const [editRole, setEditRole] = useState<SystemRoleDto | null>(null);
+  const [editRolePerms, setEditRolePerms] = useState('');
+
+  const openEditUser = (record: SystemUserDto) => {
+    setEditUser(record);
+    setEditUserName(record.name);
+    setEditUserRole(record.role);
+    setEditUserDept(record.dept || '');
+    setUserModal(true);
+  };
+
+  const handleSaveEditUser = () => {
+    if (!editUser) return;
+    const updated = { ...editUser, name: editUserName, role: editUserRole, dept: editUserDept };
+    setUsers(prev => prev.map(u => u.id === editUser.id ? updated : u));
+    setUserModal(false);
+    setEditUser(null);
+    message.success('用户信息已更新');
+  };
+
+  const openEditRole = (record: SystemRoleDto) => {
+    setEditRole(record);
+    setEditRolePerms(record.permissions.join('、'));
+    setRoleModal(true);
+  };
+
+  const handleSaveEditRole = () => {
+    if (!editRole) return;
+    const perms = editRolePerms.split(/[、,，]/).map(s => s.trim()).filter(Boolean);
+    setRoles(prev => prev.map(r => r.name === editRole.name ? { ...r, permissions: perms } : r));
+    setRoleModal(false);
+    setEditRole(null);
+    message.success('角色权限已更新');
+  };
 
   const loadConfigs = async () => {
     const res = await systemAdminApi.getConfigs();
@@ -123,7 +162,7 @@ export const SystemAdminPage: React.FC = () => {
         <Tabs activeKey={tab} onChange={setTab} type="card"
           items={[
             { key:'users', label:'用户管理', children:
-              <Card size="small" extra={<Button type="primary" icon={<Plus size={12}/>} onClick={() => setUserModal(true)}>新增用户</Button>} title={`${users.length} 用户`}>
+              <Card size="small" extra={<Button type="primary" icon={<Plus size={12}/>} onClick={() => { setEditUser(null); setUserModal(true) }}>新增用户</Button>} title={`${users.length} 用户`}>
                 <Table dataSource={users} rowKey="id" pagination={false}
                   columns={[
                     {title:'编号',dataIndex:'id'},{title:'姓名',dataIndex:'name'},
@@ -131,7 +170,7 @@ export const SystemAdminPage: React.FC = () => {
                     {title:'科室',dataIndex:'dept'},
                     {title:'状态',dataIndex:'status',render:(s)=><Badge status={s==='active'?'success':'default'} />},
                     {title:'最后登录',dataIndex:'lastLogin'},
-                    {title:'操作',render:(_,record)=><Space><Button size="small" icon={<Edit3 size={10}/>} disabled title="功能开发中，请通过后台系统操作"/><Button size="small" danger icon={<Trash2 size={10}/>} onClick={() => handleDeleteUser(record)}/></Space>},
+                    {title:'操作',render:(_,record)=><Space><Button size="small" icon={<Edit3 size={10}/>} onClick={() => openEditUser(record)} title="编辑用户"/><Button size="small" danger icon={<Trash2 size={10}/>} onClick={() => handleDeleteUser(record)}/></Space>},
                   ]} />
               </Card>
             },
@@ -142,7 +181,7 @@ export const SystemAdminPage: React.FC = () => {
                     {title:'角色',dataIndex:'name',render:(r)=><Tag color="purple">{r}</Tag>},
                     {title:'权限',dataIndex:'permissions',render:(p)=><>{p.map((x:string)=><Tag key={x} style={{margin:2}}>{x}</Tag>)}</>},
                     {title:'用户数',dataIndex:'userCount'},
-                    {title:'操作',render:(_,_record)=><Button size="small" icon={<Edit3 size={10}/>} disabled title="功能开发中，请通过后台系统操作">编辑</Button>},
+                    {title:'操作',render:(_,record)=><Button size="small" icon={<Edit3 size={10}/>} onClick={() => openEditRole(record)}>编辑</Button>},
                   ]} />
               </Card>
             },
@@ -169,6 +208,22 @@ export const SystemAdminPage: React.FC = () => {
         <Form layout="vertical">
           <Form.Item label="姓名"><Input value={newUserName} onChange={e => setNewUserName(e.target.value)} placeholder="请输入姓名" /></Form.Item>
           <Form.Item label="角色"><Select value={newUserRole} onChange={setNewUserRole} options={[{value:'主任医师'},{value:'主治医师'},{value:'技师'},{value:'护士'},{value:'管理员'}]} /></Form.Item>
+        </Form>
+      </Modal>
+      {editUser && (
+        <Modal title={`编辑用户 - ${editUser.id}`} open={userModal} onOk={handleSaveEditUser} onCancel={() => { setUserModal(false); setEditUser(null); }}>
+          <Form layout="vertical">
+            <Form.Item label="姓名"><Input value={editUserName} onChange={e => setEditUserName(e.target.value)} /></Form.Item>
+            <Form.Item label="角色"><Select value={editUserRole} onChange={setEditUserRole} options={[{value:'主任医师'},{value:'主治医师'},{value:'技师'},{value:'护士'},{value:'管理员'}]} /></Form.Item>
+            <Form.Item label="科室"><Input value={editUserDept} onChange={e => setEditUserDept(e.target.value)} /></Form.Item>
+          </Form>
+        </Modal>
+      )}
+      <Modal title="编辑角色权限" open={roleModal} onOk={handleSaveEditRole} onCancel={() => { setRoleModal(false); setEditRole(null); }} okText="保存">
+        <Form layout="vertical">
+          <Form.Item label={`角色: ${editRole?.name ?? ''}`}>
+            <Input.TextArea rows={4} value={editRolePerms} onChange={e => setEditRolePerms(e.target.value)} placeholder="权限点用顿号、逗号分隔，如 报告签发、危急值处理、质控审核" />
+          </Form.Item>
         </Form>
       </Modal>
     </div>

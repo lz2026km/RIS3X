@@ -1,72 +1,62 @@
-import { api, invalidateApiCache } from './client'
+import { api, invalidateApiCacheByPrefix } from './client'
 
-// Tele Sign (远程签署) API
-// Backend: /tele-sign/*
+// Tele-Sign (远程双签) API
+// Backend: /tele-sign/* (backend/src/modules/tele-sign), mock: /api/v1/tele-sign/* (MSW teleSignHandlers)
 
 export interface TeleSignSession {
   id: string
   reportId: string
   reportTitle: string
   patientName: string
-  patientId: string
   signerId: string
   signerName: string
   status: 'pending' | 'approved' | 'rejected'
   signatureData?: string
   comment?: string
   createdAt: string
-  signedAt?: string
-}
-
-export interface TeleSignDto {
-  signatureData: string
-  comment?: string
-}
-
-export interface TeleSignRejectDto {
-  reason: string
+  updatedAt?: string
 }
 
 export interface TeleSignQueryParams {
   status?: string
   signerId?: string
-  page?: number
-  pageSize?: number
 }
 
-export interface TeleSignStats {
-  totalSessions: number
-  pendingCount: number
-  approvedCount: number
-  rejectedCount: number
-  avgSignTimeMinutes: number
+export interface CreateTeleSignSessionInput {
+  reportId: string
+  reportTitle: string
+  patientName: string
+  signerId: string
+  signerName: string
+}
+
+export interface TeleSignDto {
+  id: string
+  signatureData: string
+  comment?: string
+}
+
+export interface TeleSignRejectDto {
+  id: string
+  comment: string
 }
 
 export const teleSignApi = {
   listSessions: (params?: TeleSignQueryParams) =>
-    api.get<TeleSignSession[]>(`/tele-sign/sessions?${new URLSearchParams(params ?? {}).toString()}`),
+    api.get<TeleSignSession[]>(`/tele-sign/sessions?${new URLSearchParams(params as Record<string, string> ?? {}).toString()}`),
 
-  getSession: (id: string) =>
-    api.get<TeleSignSession>(`/tele-sign/sessions/${id}`),
+  createSession: (data: CreateTeleSignSessionInput) =>
+    api.post<TeleSignSession>('/tele-sign/session', data),
 
-  approve: async (id: string, data: TeleSignDto) => {
-    const res = await api.post<TeleSignSession>(`/tele-sign/sessions/${id}/approve`, data)
-    await invalidateApiCache('/tele-sign/sessions')
+  approve: async (id: string, signatureData: string, comment?: string) => {
+    const res = await api.post<TeleSignSession>('/tele-sign/approve', { id, signatureData, comment })
+    await invalidateApiCacheByPrefix('/tele-sign/sessions')
     return res
   },
 
-  reject: async (id: string, data: TeleSignRejectDto) => {
-    const res = await api.post<TeleSignSession>(`/tele-sign/sessions/${id}/reject`, data)
-    await invalidateApiCache('/tele-sign/sessions')
+  reject: async (id: string, comment: string) => {
+    const res = await api.post<TeleSignSession>('/tele-sign/reject', { id, comment })
+    await invalidateApiCacheByPrefix('/tele-sign/sessions')
     return res
   },
-
-  requestSign: async (reportId: string, signerId: string) => {
-    const res = await api.post<TeleSignSession>('/tele-sign/request', { reportId, signerId })
-    await invalidateApiCache('/tele-sign/sessions')
-    return res
-  },
-
-  getStats: () =>
-    api.get<TeleSignStats>('/tele-sign/stats'),
 }

@@ -6,8 +6,12 @@ import { list, create, update, remove } from './store';
 import { parseQuery, applyQuery } from './queryBuilder';
 import { v4 as uuidv4 } from 'uuid';
 
-const API = '/api/v1/criticals';
-const EXT_API = '/api/v1/critical-ext';
+const API_BASE = (() => {
+  try { return window.location.origin + "/api/v1"; } catch { return "http://localhost/api/v1"; }
+})();
+
+const API = `${API_BASE}/criticals`;
+const EXT_API = `${API_BASE}/critical-ext`;
 
 const delayMs = (min = 50, max = 150) => Math.floor(Math.random() * (max - min) + min);
 
@@ -168,9 +172,15 @@ export const criticalExtHandlers = [
     await delay(delayMs());
     const url = new URL(request.url);
     const opts = parseQuery(url);
+    // [W2-A] 中心列表默认全量返回 + 按触发时间倒序 (对齐后端 orderBy createdAt desc),
+    //        避免新检测事件被 applyQuery 分页截断或沉底
+    opts.pageSize = 1000;
     let items: any[] = [];
     try { items = list<any>('criticalEvents'); } catch {}
     if (!items.length) items = [{"id":"CC001","patientName":"赵六","finding":"颅内出血","status":"ACKNOWLEDGED"}];
+    items = [...items].sort((a, b) =>
+      String(b.triggeredAt ?? b.createdAt ?? '').localeCompare(String(a.triggeredAt ?? a.createdAt ?? '')),
+    );
     const result = applyQuery(items, opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
@@ -181,19 +191,51 @@ export const criticalExtHandlers = [
     const found = items.find((i) => i.id === params.id);
     return HttpResponse.json({ success: true, data: found ?? { id: params.id, patientName: '未知', finding: '未知', status: 'PENDING' } });
   }),
+  // [W2-A] auto-detect: 对齐后端 autoDetectCritical (创建 criticalValue 事件, PENDING)
   http.post(`${EXT_API}/auto-detect`, async ({ request }) => {
     await delay(delayMs());
     const body = (await request.json()) as any;
-    const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
-    try { create('criticalRules', newItem); } catch {}
+    const newItem = {
+      id: body.id || uuidv4(),
+      examId: body.examId,
+      reportContent: body.reportContent,
+      patientName: '待确认',
+      finding: body.reportContent,
+      severity: 'HIGH',
+      state: 'PENDING',
+      status: 'pending',
+      triggeredAt: new Date().toISOString(),
+    };
+    try { create('criticalEvents', newItem); } catch {}
     return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
   }),
+  // [W2-A] close-loop: 对齐后端 closeCriticalLoop (更新 criticalValue 为 CLOSED_LOOP 终态)
   http.post(`${EXT_API}/close-loop`, async ({ request }) => {
     await delay(delayMs());
     const body = (await request.json()) as any;
-    const newItem = { id: body.id || uuidv4(), ...body, createdAt: new Date().toISOString() };
-    try { create('criticalRules', newItem); } catch {}
-    return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
+    const now = new Date().toISOString();
+    let updated: any = { id: body.criticalId || uuidv4(), resolution: body.resolution, resolvedBy: body.resolvedBy, closedAt: now };
+    try {
+      const items = list<any>('criticalEvents');
+      const existing = items.find((i) => i.id === body.criticalId);
+      if (existing) {
+        updated = {
+          ...existing,
+          state: 'CLOSED_LOOP',
+          status: 'closed_loop',
+          resolution: body.resolution,
+          resolvedBy: body.resolvedBy,
+          closedAt: now,
+        };
+        update('criticalEvents', existing.id, updated);
+      } else {
+        updated = { ...updated, state: 'CLOSED_LOOP', status: 'closed_loop' };
+        create('criticalEvents', updated);
+      }
+    } catch {
+      updated = { ...updated, state: 'CLOSED_LOOP', status: 'closed_loop' };
+    }
+    return HttpResponse.json({ success: true, data: updated }, { status: 201 });
   }),
   http.get(`${EXT_API}/receiver`, async () => {
     await delay(delayMs());

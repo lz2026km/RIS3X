@@ -381,6 +381,25 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.cdsManagement",
         roles: ["医生", "主任", "管理员",],
       },
+      // [G005 W2-B] CDS 6 方法页面: 指南库 / 告警中心 / 剂量监测
+      {
+        path: "/cds/guidelines",
+        icon: <BookOpen size={18} />,
+        labelKey: "nav.cdsGuidelines",
+        roles: ["医生", "主任", "管理员",],
+      },
+      {
+        path: "/cds/alerts",
+        icon: <Bell size={18} />,
+        labelKey: "nav.cdsAlertCenter",
+        roles: ["医生", "主任", "管理员",],
+      },
+      {
+        path: "/cds/dose-monitoring",
+        icon: <Gauge size={18} />,
+        labelKey: "nav.cdsDoseMonitoring",
+        roles: ["主任", "管理员", "技师",],
+      },
       {
         path: "/cds/statistics",
         icon: <BarChart3 size={18} />,

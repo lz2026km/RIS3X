@@ -81,6 +81,9 @@ export class AiPlatformController {
 
   // ==================== 既有端点 ====================
 
+  @Get('stats')
+  getAiPlatformStats() { return this.svc.getStats() }
+
   @Get('qc')
   listAiQcResults() { return this.svc.listAiQcResults() }
 

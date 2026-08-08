@@ -1,7 +1,10 @@
 import { api, invalidateApiCache } from "./client";
+import type { ApiResponse } from "./types";
 
 // AI Platform (AI 平台管理) API
 // Backend: /ai-platform/*
+// [W1-B] 对齐后端 aiplatform.controller: 无 PUT/DELETE /models/:id、无 /inference /tasks,
+//        模型生命周期用 POST /models/:id/{deploy|undeploy|test},推理任务用 POST/GET /jobs。
 
 export interface AiPlatformModel {
   id: string;
@@ -13,23 +16,37 @@ export interface AiPlatformModel {
   accuracy?: number;
   endpoint: string;
   description: string;
+  vendor?: string;
   createdAt: string;
   updatedAt: string;
 }
 
+// [W1-B] 对齐 backend prisma AiJob 字段 (listAiJobs / getAiJob / triggerAiJob)
 export interface AiPlatformTask {
   id: string;
   modelId: string;
-  modelName: string;
-  studyId: string;
-  patientId: string;
-  status: "queued" | "processing" | "completed" | "failed";
-  progress?: number;
-  result?: Record<string, unknown>;
-  error?: string;
-  startedAt?: string;
-  completedAt?: string;
+  examId?: string | null;
+  modelName?: string;
+  status: "QUEUED" | "RUNNING" | "COMPLETED" | "FAILED";
+  trigger?: string;
+  result?: {
+    summary?: string;
+    findings?: unknown[];
+    structured?: Record<string, unknown>;
+    heatmapUrl?: string | null;
+  } | null;
+  error?: string | null;
+  startedAt?: string | null;
+  completedAt?: string | null;
   createdAt: string;
+  model?: {
+    id: string;
+    name: string;
+    version: string;
+    vendor: string | null;
+    category: string | null;
+    endpoint: string | null;
+  };
 }
 
 export interface AiPlatformInferenceDto {
@@ -112,43 +129,99 @@ function unwrapList<T>(res: { success: boolean; data: unknown }): T[] {
   return Array.isArray(v) ? v : [];
 }
 
+// 后端模型/任务端点统一返回 { data: [item] } (数组包装),取第一项
+function unwrapOne<T>(res: { success: boolean; data: unknown }): T {
+  const v = unwrap<unknown>(res);
+  if (Array.isArray(v)) return (v[0] ?? null) as T;
+  return v as T;
+}
+
 export const aiPlatformApi = {
-  listModels: () => api.get<AiPlatformModel[]>("/ai-platform/models"),
+  listModels: async () => {
+    const res = await api.get<unknown>("/ai-platform/models");
+    return { ...res, data: unwrapList<AiPlatformModel>(res) };
+  },
 
-  getModel: (id: string) =>
-    api.get<AiPlatformModel>(`/ai-platform/models/${id}`),
+  getModel: async (id: string) => {
+    const res = await api.get<unknown>(`/ai-platform/models/${id}`);
+    return { ...res, data: unwrapOne<AiPlatformModel>(res) };
+  },
 
-  deployModel: (data: Partial<AiPlatformModel>) =>
-    api.post<AiPlatformModel>("/ai-platform/models", data),
+  // 后端 POST /ai-platform/models = 注册模型 (CreateAiModelSchema: name/version/vendor/endpoint)
+  deployModel: async (data: Partial<AiPlatformModel>) => {
+    const res = await api.post<unknown>("/ai-platform/models", {
+      name: data.name,
+      version: data.version ?? "1.0",
+      vendor: data.vendor ?? "第三方厂商",
+      category: data.type ?? undefined,
+      endpoint: data.endpoint,
+      description: data.description,
+    });
+    return { ...res, data: unwrapOne<AiPlatformModel>(res) };
+  },
 
-  updateModel: (id: string, data: Partial<AiPlatformModel>) =>
-    api.put<AiPlatformModel>(`/ai-platform/models/${id}`, data),
+  // [W1-B] 后端无 PUT /models/:id;按业务语义映射:
+  //   status=active            → POST /models/:id/deploy
+  //   status=inactive/deprecated → POST /models/:id/undeploy
+  updateModel: async (id: string, data: Partial<AiPlatformModel>) => {
+    if (data.status === "inactive" || data.status === "deprecated") {
+      const res = await api.post<unknown>(`/ai-platform/models/${id}/undeploy`, {});
+      return { ...res, data: unwrapOne<AiPlatformModel>(res) };
+    }
+    const res = await api.post<unknown>(`/ai-platform/models/${id}/deploy`, data);
+    return { ...res, data: unwrapOne<AiPlatformModel>(res) };
+  },
 
-  deleteModel: (id: string) => api.delete(`/ai-platform/models/${id}`),
+  // [W1-B] 后端无 DELETE /models/:id;映射为下线操作 (undeploy)
+  deleteModel: async (id: string) => {
+    const res = await api.post<unknown>(`/ai-platform/models/${id}/undeploy`, {});
+    return { ...res, data: unwrapOne<AiPlatformModel>(res) };
+  },
 
-  inference: (data: AiPlatformInferenceDto) =>
-    api.post<AiPlatformTask>("/ai-platform/inference", data),
+  // [W1-B] 后端无 /ai-platform/inference;推理 = POST /ai-platform/jobs (CreateAiJobSchema: modelId/examId/trigger)
+  inference: async (data: AiPlatformInferenceDto) => {
+    const res = await api.post<unknown>("/ai-platform/jobs", {
+      modelId: data.modelId,
+      examId: data.studyId,
+      trigger:
+        typeof data.parameters?.trigger === "string"
+          ? (data.parameters.trigger as string)
+          : "MANUAL",
+    });
+    return { ...res, data: unwrapOne<AiPlatformTask>(res) };
+  },
 
-  listTasks: (params?: {
-    modelId?: string;
-    status?: string;
-    page?: number;
-    pageSize?: number;
-  }) =>
-    api.get<AiPlatformTask[]>(
-      `/ai-platform/tasks?${new URLSearchParams(
-        Object.fromEntries(
-          Object.entries(params ?? {}).filter(([, v]) => v !== undefined).map(([k, v]) => [k, String(v)]),
-        ),
-      ).toString()}`,
-    ),
+  listTasks: async (params?: { modelId?: string; status?: string }) => {
+    const query = new URLSearchParams();
+    if (params?.modelId) query.set("modelId", params.modelId);
+    if (params?.status) query.set("status", params.status);
+    const qs = query.toString();
+    const res = await api.get<unknown>(`/ai-platform/jobs${qs ? `?${qs}` : ""}`);
+    return { ...res, data: unwrapList<AiPlatformTask>(res) };
+  },
 
-  getTask: (id: string) => api.get<AiPlatformTask>(`/ai-platform/tasks/${id}`),
+  getTask: async (id: string) => {
+    const res = await api.get<unknown>(`/ai-platform/jobs/${id}`);
+    return { ...res, data: unwrapOne<AiPlatformTask>(res) };
+  },
 
-  cancelTask: (id: string) =>
-    api.post<AiPlatformTask>(`/ai-platform/tasks/${id}/cancel`, {}),
+  // [W1-B] 后端无 POST /jobs/:id/cancel (队列为进程内模拟,无取消语义)。
+  // 标注: 保留方法签名,直接返回 NOT_SUPPORTED,避免调用方误判成功或发出 404 请求。
+  cancelTask: (_id: string): Promise<ApiResponse<AiPlatformTask>> =>
+    Promise.resolve({
+      success: false,
+      data: null as unknown as AiPlatformTask,
+      error: {
+        code: "NOT_SUPPORTED",
+        message: "后端 aiplatform 未实现任务取消(仅模拟队列)",
+      },
+    }),
 
-  getStats: () => api.get<AiPlatformStats>("/ai-platform/stats"),
+  // [W1-B] 后端新增 GET /ai-platform/stats (由 aiModel/aiJob/auditLog 聚合)
+  getStats: async () => {
+    const res = await api.get<unknown>("/ai-platform/stats");
+    return { ...res, data: unwrap<AiPlatformStats>(res) };
+  },
 
   // [v3.0.6.11-50] 对接后端 GET /ai-platform/medical-devices (aiplatform.controller)
   listMedicalDevices: () =>

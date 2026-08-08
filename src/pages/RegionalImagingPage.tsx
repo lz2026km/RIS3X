@@ -160,7 +160,7 @@ const ApplicationList: React.FC = () => {
               >
                 <option>CT</option>
                 <option>MRI</option>
-                <option>X-Ray</option>
+                <option>X线</option>
                 <option>超声</option>
               </select>
             </div>

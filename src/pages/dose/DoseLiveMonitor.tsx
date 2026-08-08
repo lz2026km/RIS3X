@@ -32,6 +32,7 @@ import type {
   DoseAlert,
   PatientDoseSummary,
   CumulativeDose,
+  RdsrStats,
 } from "../../services/api/rdsrApi";
 
 const fmt = (n: number | undefined | null, digits = 1): string =>
@@ -163,6 +164,12 @@ export default function DoseLiveMonitor() {
   const [selectedPatient, setSelectedPatient] = useState<PatientDoseSummary | null>(null);
   const [cumulative, setCumulative] = useState<CumulativeDose | null>(null);
   const [cumLoading, setCumLoading] = useState(false);
+  // [W2-A] getStats: 剂量统计 (getStats) + 趋势
+  const [stats, setStats] = useState<RdsrStats | null>(null);
+  const [statsLoading, setStatsLoading] = useState(false);
+  const [statsError, setStatsError] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   const reloadToday = useCallback(async () => {
     const res = await rdsrApi.getToday();
@@ -188,10 +195,28 @@ export default function DoseLiveMonitor() {
     if (res.success && res.data) setAlerts(res.data);
   }, []);
 
+  // [W2-A] GET /rdsr/stats: 按日期范围统计 + 每日平均 DLP/CTDIvol 趋势
+  const loadStats = useCallback(
+    async (from = dateFrom, to = dateTo) => {
+      setStatsLoading(true);
+      setStatsError("");
+      try {
+        const res = await rdsrApi.getStats(from || undefined, to || undefined);
+        if (res.success && res.data) setStats(res.data);
+        else setStatsError(res.error?.message ?? "剂量统计加载失败");
+      } catch (e) {
+        setStatsError((e as Error)?.message ?? "剂量统计加载失败");
+      } finally {
+        setStatsLoading(false);
+      }
+    },
+    [dateFrom, dateTo],
+  );
+
   useEffect(() => {
     let alive = true;
     (async () => {
-      const [t, d, a] = await Promise.all([rdsrApi.getToday(), rdsrApi.getDrls(), rdsrApi.getAlerts()]);
+      const [t, d, a, s] = await Promise.all([rdsrApi.getToday(), rdsrApi.getDrls(), rdsrApi.getAlerts(), rdsrApi.getStats()]);
       if (!alive) return;
       if (t.success && t.data) setToday(t.data);
       if (d.success && d.data) {
@@ -201,6 +226,7 @@ export default function DoseLiveMonitor() {
         setEditing(init);
       }
       if (a.success && a.data) setAlerts(a.data);
+      if (s.success && s.data) setStats(s.data);
       setLoading(false);
     })();
     return () => {
@@ -274,6 +300,9 @@ export default function DoseLiveMonitor() {
   }, [today, drls]);
 
   const trendData = useMemo(() => cumulative?.monthlyTrend ?? [], [cumulative]);
+
+  // [W2-A] getStats.trend: { date, avgCtdivol, avgDlp }
+  const statsTrendData = useMemo(() => stats?.trend ?? [], [stats]);
 
   if (loading) {
     return (
@@ -526,6 +555,66 @@ export default function DoseLiveMonitor() {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+      </div>
+
+      <div style={card}>
+        <div style={{ ...cardTitle, justifyContent: "space-between" }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <BarChart3 size={14} /> 剂量统计 (GET /rdsr/stats)
+          </span>
+          <span style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 400 }}>
+            <input
+              type="date"
+              style={{ ...input, width: 150 }}
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+            />
+            <span style={{ color: "#94a3b8" }}>至</span>
+            <input
+              type="date"
+              style={{ ...input, width: 150 }}
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+            />
+            <button style={btnPrimary} onClick={() => void loadStats()} disabled={statsLoading}>
+              <BarChart3 size={13} /> {statsLoading ? "统计中..." : "查询"}
+            </button>
+          </span>
+        </div>
+        {statsError && <div style={{ color: "#dc2626", fontSize: 12, marginBottom: 10 }}>{statsError}</div>}
+        {stats ? (
+          <>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8, marginBottom: 14 }}>
+              <MiniInfo label="总检查数" value={`${stats.totalExams} 次`} />
+              <MiniInfo label="平均 CTDIvol" value={`${fmt(stats.avgCtdivol)} mGy`} />
+              <MiniInfo label="平均 DLP" value={`${fmt(stats.avgDlp)} mGy·cm`} />
+              <MiniInfo label="最大 CTDIvol" value={`${fmt(stats.maxCtdivol)} mGy`} warn={stats.maxCtdivol > 40} />
+              <MiniInfo label="最大 DLP" value={`${fmt(stats.maxDlp)} mGy·cm`} warn={stats.maxDlp > 900} />
+              <MiniInfo label="告警" value={`${stats.warningCount} 警 / ${stats.criticalCount} 危`} warn={stats.criticalCount > 0} />
+            </div>
+            {statsTrendData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={200}>
+                <LineChart data={statsTrendData} margin={{ top: 4, right: 8, left: -12, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#94a3b8" }} />
+                  <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} />
+                  <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
+                  <Legend iconSize={10} />
+                  <Line type="monotone" dataKey="avgDlp" stroke="#3b82f6" strokeWidth={2} dot={{ r: 2 }} name="平均DLP" />
+                  <Line type="monotone" dataKey="avgCtdivol" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 2 }} name="平均CTDIvol" />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 20 }}>
+                {statsLoading ? "统计中..." : "所选范围内暂无检查记录"}
+              </div>
+            )}
+          </>
+        ) : (
+          <div style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", padding: 24 }}>
+            {statsLoading ? "统计中..." : "暂无统计数据"}
           </div>
         )}
       </div>

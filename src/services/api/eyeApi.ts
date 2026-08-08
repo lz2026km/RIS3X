@@ -169,6 +169,9 @@ export const eyeApi = {
     api.get(`${EYE_API}/ris/vision-records${buildQuery(params)}`),
   createVisionRecord: (data: any) =>
     api.post(`${EYE_API}/ris/vision-records`, data),
+  // [W3-C] 视力记录删除端点 (与 deleteIopRecord 对齐)
+  deleteVisionRecord: (id: string) =>
+    api.delete(`${EYE_API}/ris/vision-records/${id}`),
   listIopRecords: (params?: Record<string, any>) =>
     api.get(`${EYE_API}/ris/iop-records${buildQuery(params)}`),
   createIopRecord: (data: any) =>

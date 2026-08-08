@@ -209,6 +209,26 @@ export const aiPlatformHandlers = [
     return HttpResponse.json({ success: true, data: items });
   }),
 
+  // ----- [W1-B] 平台统计 (对齐后端 GET /ai-platform/stats) -----
+  http.get(`${API}/stats`, async () => {
+    await delay(delayMs());
+    const dailyUsage = Array.from({ length: 14 }, (_, i) => {
+      const d = new Date(Date.now() - (13 - i) * 86400000);
+      return { date: d.toISOString().slice(0, 10), count: 3 + ((i * 7) % 12) };
+    });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        totalModels: 6,
+        activeModels: 3,
+        totalInferences: 9,
+        avgLatencyMs: 1240,
+        successRate: 91.5,
+        dailyUsage,
+      },
+    });
+  }),
+
   // ----- [W1-D] 结构化报告 (对齐 backend auditLog resource=ai-structured-report) -----
   http.get(`${API}/structured-reports`, async ({ request }) => {
     await delay(delayMs());

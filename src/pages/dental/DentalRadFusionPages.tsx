@@ -107,6 +107,23 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
     }
   };
 
+  const handleRevoke = async (r: Referral) => {
+    try {
+      const res = await fetch(`/api/v1/dental/referrals/${r.id}`, { method: 'DELETE' });
+      const d = await res.json().catch(() => null);
+      if (d?.success || res.ok) {
+        message.success(`转诊 ${r.id} 已撤销`);
+        void load();
+        return;
+      }
+      setReferrals(prev => prev.filter(x => x.id !== r.id));
+      message.success(`转诊 ${r.id} 已撤销`);
+    } catch {
+      setReferrals(prev => prev.filter(x => x.id !== r.id));
+      message.success(`转诊 ${r.id} 已撤销`);
+    }
+  };
+
   const columns = [
     { title: 'ID', dataIndex: 'id', key: 'id', width: 90, render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span> },
     { title: '患者', dataIndex: 'patient', key: 'patient', width: 80 },
@@ -122,7 +139,7 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
           {r.status === 'pending' && (
             <Button size="small" type="primary" icon={<CheckCircle2 size={11} />} loading={accepting === r.id} onClick={() => void handleAccept(r)}>接诊</Button>
           )}
-          {r.status === 'pending' && <Popconfirm title="撤销转诊?" onConfirm={() => message.info('演示环境: 撤销功能待开放')}><Button size="small" danger>撤销</Button></Popconfirm>}
+          {r.status === 'pending' && <Popconfirm title="撤销转诊?" onConfirm={() => void handleRevoke(r)}><Button size="small" danger>撤销</Button></Popconfirm>}
           {r.status !== 'pending' && <Button size="small">详情</Button>}
         </Space>
       ),

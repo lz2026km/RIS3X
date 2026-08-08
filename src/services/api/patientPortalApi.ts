@@ -1,4 +1,10 @@
 import { api } from './client'
+import type { ApiResponse } from './types'
+
+// [G005 W1-C] 前端对齐后端实际端点 (backend/src/patientportal/patientportal.controller.ts):
+//   patients(:id) · clinical-data(:id) · education · appointments · reports(:id)
+//   images/:studyUid · feedback · mobile/{patients,doctors,nurses,techs}
+// 已移除无后端对应端点: /patient-portal/user/:id · /exam-history* · /voucher
 
 export interface PortalPatientDto {
   id: string
@@ -21,6 +27,7 @@ export interface PortalClinicalDataDto {
   modality?: string
   findings?: string
   diagnosis?: string
+  recommendations?: string
   reportStatus?: string
 }
 
@@ -166,11 +173,21 @@ export const patientPortalApi = {
   getPatient: (id: string) =>
     api.get<{ data: PortalPatientDto[] }>(`/patient-portal/patients/${id}`),
 
-  listClinicalData: () =>
-    api.get<{ data: PortalClinicalDataDto[] }>('/patient-portal/clinical-data'),
+  listClinicalData: async () => {
+    const res = await api.get<{ data: PortalClinicalDataDto[] }>('/patient-portal/clinical-data')
+    return unwrapList(res)
+  },
 
-  getClinicalData: (id: string) =>
-    api.get<{ data: PortalClinicalDataDto[] }>(`/patient-portal/clinical-data/${id}`),
+  getClinicalData: async (id: string): Promise<ApiResponse<PortalClinicalDataDto | null>> => {
+    const res = await api.get<PortalClinicalDataDto | { data: PortalClinicalDataDto | PortalClinicalDataDto[] }>(`/patient-portal/clinical-data/${id}`)
+    if (!res.success) return { ...res, data: null }
+    const raw = res.data
+    if (raw && typeof raw === 'object' && 'data' in raw) {
+      const inner = (raw as { data: PortalClinicalDataDto | PortalClinicalDataDto[] }).data
+      return { ...res, data: Array.isArray(inner) ? (inner[0] ?? null) : inner }
+    }
+    return { ...res, data: raw as PortalClinicalDataDto }
+  },
 
   listEducation: () =>
     api.get<{ data: PortalEducationDto[] }>('/patient-portal/education'),
@@ -197,35 +214,70 @@ export const patientPortalApi = {
   getTechMobile: () =>
     api.get<{ data: PortalMobileUserDto[] }>('/patient-portal/mobile/techs'),
 
-  getPortalUser: (id: string) =>
-    api.get<PortalPatientDto>(`/patient-portal/user/${id}`),
+  // [G005 W1-C] user/:id → patients/:id (后端返回 { data: [patient] }, 归一化为单对象)
+  getPortalUser: async (id: string) => {
+    const res = await api.get<PortalPatientDto | { data: PortalPatientDto | PortalPatientDto[] }>(`/patient-portal/patients/${id}`)
+    if (!res.success) return { ...res, data: null as unknown as PortalPatientDto }
+    const raw = res.data
+    if (raw && typeof raw === 'object' && 'data' in raw) {
+      const inner = (raw as { data: PortalPatientDto | PortalPatientDto[] }).data
+      return { ...res, data: Array.isArray(inner) ? (inner[0] ?? null) : inner }
+    }
+    return { ...res, data: raw as PortalPatientDto }
+  },
 
-  listExamHistory: (patientId: string) =>
-    api.get<ExamHistoryItemDto[]>(`/patient-portal/exam-history?patientId=${patientId}`),
+  // [G005 W1-C] exam-history → /patient-portal/clinical-data (后端无 exam-history 端点)
+  listExamHistory: async (patientId: string) => {
+    const res = await api.get<{ data: PortalClinicalDataDto[] }>(
+      `/patient-portal/clinical-data${patientId ? `?patientId=${encodeURIComponent(patientId)}` : ''}`,
+    )
+    if (!res.success) return { ...res, data: [] as ExamHistoryItemDto[] }
+    const items = unwrapArray(res)
+    const mapped: ExamHistoryItemDto[] = items.map(d => ({
+      id: d.id,
+      examItem: d.examType ?? '影像检查',
+      examDate: d.examDate ?? '',
+      bodyPart: d.bodyPart ?? '',
+      modality: d.modality ?? '',
+      deviceName: '',
+      reportStatus: d.reportStatus ?? '',
+      hasImages: (d.modality === 'CT' || d.modality === 'MR') && !!d.reportStatus,
+      reportContent: d.findings,
+      diagnosis: d.diagnosis,
+      recommendations: d.recommendations,
+    }))
+    return { ...res, data: mapped }
+  },
 
-  getExamReport: (examId: string) =>
-    api.get<ExamHistoryItemDto>(`/patient-portal/exam-history/${examId}/report`),
-
-  listExamImages: (examId: string) =>
-    api.get<ImagePreviewDto[]>(`/patient-portal/exam-history/${examId}/images`),
-
-  generateVoucher: (patientId: string) =>
-    api.post<{ code: string; expiresAt: string }>('/patient-portal/voucher', { patientId }),
+  // [G005 W1-C] exam-history/:examId/report → /patient-portal/reports/:id
+  getExamReport: async (examId: string): Promise<ApiResponse<PortalReportDto | null>> => {
+    const res = await api.get<PortalReportDto | { data: PortalReportDto | null } | null>(`/patient-portal/reports/${examId}`)
+    if (!res.success) return { ...res, data: null }
+    const raw = res.data
+    if (raw && typeof raw === 'object' && 'data' in raw) {
+      return { ...res, data: (raw as { data: PortalReportDto | null }).data ?? null }
+    }
+    return { ...res, data: raw as PortalReportDto }
+  },
 
   // ===== v3.1 患者门户: 自助预约 / 报告 / 影像 / 反馈 =====
 
-  listAppointments: (patientId?: string) =>
-    api.get<PortalAppointmentDto[]>(
+  listAppointments: async (patientId?: string) => {
+    const res = await api.get<PortalAppointmentDto[] | { data: PortalAppointmentDto[] }>(
       `/patient-portal/appointments${patientId ? `?patientId=${encodeURIComponent(patientId)}` : ''}`,
-    ),
+    )
+    return unwrapList(res)
+  },
 
   createAppointment: (input: CreatePortalAppointmentInput) =>
     api.post<PortalAppointmentDto>('/patient-portal/appointments', input),
 
-  listReports: (patientId?: string) =>
-    api.get<PortalReportDto[]>(
+  listReports: async (patientId?: string) => {
+    const res = await api.get<PortalReportDto[] | { data: PortalReportDto[] }>(
       `/patient-portal/reports${patientId ? `?patientId=${encodeURIComponent(patientId)}` : ''}`,
-    ),
+    )
+    return unwrapList(res)
+  },
 
   getReport: (id: string) =>
     api.get<PortalReportDto | null>(`/patient-portal/reports/${id}`),
@@ -235,4 +287,20 @@ export const patientPortalApi = {
 
   submitFeedback: (input: CreatePortalFeedbackInput) =>
     api.post<PortalFeedbackDto>('/patient-portal/feedback', input),
+}
+
+// [G005 W1-C] 列表响应归一化: 兼容 MSW 裸数组 与 后端 { data: [...] } 包装
+function unwrapArray<T>(res: ApiResponse<{ data: T[] } | T[]>): T[] {
+  const raw = res.data
+  if (Array.isArray(raw)) return raw
+  if (raw && typeof raw === 'object' && 'data' in raw) {
+    const inner = (raw as { data: T[] }).data
+    if (Array.isArray(inner)) return inner
+  }
+  return []
+}
+
+async function unwrapList<T>(res: ApiResponse<{ data: T[] } | T[]>): Promise<ApiResponse<T[]>> {
+  if (!res.success) return { ...res, data: [] }
+  return { ...res, data: unwrapArray(res) }
 }

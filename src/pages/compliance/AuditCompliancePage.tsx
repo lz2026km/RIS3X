@@ -99,9 +99,9 @@ export const AuditCompliancePage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Shield size={20} color="#1677ff" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>Audit & Compliance Center</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>审计与合规中心</span>
         <Tag color="red" icon={<AlertTriangle size={10} />}>HIPAA</Tag>
-        <Tag color="orange">Grade 3 Class A</Tag>
+        <Tag color="orange">三甲等级</Tag>
       </Space>
 
       {error && (

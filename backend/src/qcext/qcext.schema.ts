@@ -1,9 +1,9 @@
 import { z } from 'zod'
 
+// imageId 已移至路径参数 (/qc-ext/image/:id/rate), body 不再携带
 export const RateQcImageSchema = z.object({
-  imageId: z.string().min(1),
   score: z.number().int().min(0).max(100),
-  radiologistId: z.string().min(1),
+  radiologistId: z.string().optional(),
   comments: z.string().optional(),
 })
 

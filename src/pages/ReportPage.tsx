@@ -40,6 +40,7 @@ import ReportToast from './report/ReportToast';
 import ReportAdvancedFilter from './report/ReportAdvancedFilter';
 import { ReviewResultModal, BatchResultModal, PrintModal, BulkActionModal } from './report/ReportResultModals';
 import ReportDiffModal, { type ReportDiffData } from './report/ReportDiffModal'; // [W2-3] 多版本并排对比
+import ReportAuditTrailDrawer from './report/ReportAuditTrailDrawer'; // [W2-C] 审计轨迹 Drawer
 import ReportCriticalModal from './report/ReportCriticalModal'; // [W2-3] 危急值一键转入
 import { PRIMARY, PRIMARY_LIGHT, ACCENT, SUCCESS, WARNING, DANGER, PURPLE, GRAY, BG, WHITE, STATUS_CONFIG, isToday } from './report/reportUtils';
 
@@ -117,6 +118,9 @@ export default function ReportPage() {
   const [diffModal, setDiffModal] = useState<{ report: RadiologyReport | null; data: ReportDiffData | null; loading: boolean }>({ report: null, data: null, loading: false });
   const [criticalModal, setCriticalModal] = useState<{ report: RadiologyReport | null; submitting: boolean }>({ report: null, submitting: false });
   const [exporting, setExporting] = useState(false);
+  // [W2-C] 行删除 (WITHDRAWN) / 审计轨迹 Drawer
+  const [auditReport, setAuditReport] = useState<RadiologyReport | null>(null);
+  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
 
   const stats = useMemo(() => {
     const todayReports = allReports.filter(r => isToday(r.createdTime));
@@ -286,6 +290,32 @@ export default function ReportPage() {
   };
 
   const handlePrint = () => { window.print(); };
+
+  // [W2-C] 行删除: reportApi.remove (DELETE /reports/:id + reason → WITHDRAWN)
+  const handleDeleteReport = async (r: RadiologyReport) => {
+    if (deletingIds.has(r.id)) return;
+    setDeletingIds(prev => new Set(prev).add(r.id));
+    try {
+      const res = await reportApi.remove(r.id, `用户 ${user?.name ?? '当前用户'} 删除报告`);
+      if (res.success) {
+        setAllReports(prev => prev.filter(x => x.id !== r.id));
+        showToast(`报告 ${r.reportId} 已删除`, 'success');
+      } else {
+        showToast(`删除失败:${res.error?.message ?? '未知错误'}`, 'error');
+      }
+    } catch {
+      showToast('删除失败:网络错误', 'error');
+    } finally {
+      setDeletingIds(prev => {
+        const next = new Set(prev);
+        next.delete(r.id);
+        return next;
+      });
+    }
+  };
+
+  // [W2-C] 审计轨迹: reportApi.auditTrail → Drawer 展示修订历史
+  const handleAuditTrail = (r: RadiologyReport) => { setAuditReport(r); };
   const handleToggleSelect = useCallback((id: string) => { setSelectedIds(prev => { const next = new Set(prev); if (next.has(id)) next.delete(id); else next.add(id); return next; }); }, []);
   const handleSelectAll = useCallback(() => { setSelectedIds(new Set(filteredReports.map(r => r.id))); }, [filteredReports]);
   const handleDeselectAll = useCallback(() => { setSelectedIds(new Set()); }, []);
@@ -343,7 +373,7 @@ export default function ReportPage() {
 
         <div className="no-print">
           {viewMode === "list" ? (
-            <ReportTableView reports={filteredReports} loading={loading} expandedId={expandedId} onToggleExpand={id => setExpandedId(prev => (prev === id ? null : id))} selectedIds={selectedIds} onToggleSelect={handleToggleSelect} onSelectAll={handleSelectAll} onDeselectAll={handleDeselectAll} onView={r => setDetailReport(r)} onReview={r => setReviewReport(r)} onPrint={r => { setDetailReport(r); }} onReject={r => { setDetailReport(r); }} onExportPDF={r => { void runRealExport([r], "导出PDF"); }} onRevise={handleRevise} onRepublish={handleRepublish} onRequestApproval={handleRequestApproval} onDeliver={handleDeliver} onCritical={r => setCriticalModal({ report: r, submitting: false })} onCompare={handleCompare} />
+            <ReportTableView reports={filteredReports} loading={loading} expandedId={expandedId} onToggleExpand={id => setExpandedId(prev => (prev === id ? null : id))} selectedIds={selectedIds} onToggleSelect={handleToggleSelect} onSelectAll={handleSelectAll} onDeselectAll={handleDeselectAll} onView={r => setDetailReport(r)} onReview={r => setReviewReport(r)} onPrint={r => { setDetailReport(r); }} onReject={r => { setDetailReport(r); }} onExportPDF={r => { void runRealExport([r], "导出PDF"); }} onRevise={handleRevise} onRepublish={handleRepublish} onRequestApproval={handleRequestApproval} onDeliver={handleDeliver} onCritical={r => setCriticalModal({ report: r, submitting: false })} onCompare={handleCompare} onDelete={handleDeleteReport} onAudit={handleAuditTrail} deletingIds={deletingIds} />
           ) : (
             <ReportKanbanView reports={filteredReports} onView={r => setDetailReport(r)} onReview={r => setReviewReport(r)} />
           )}
@@ -366,6 +396,9 @@ export default function ReportPage() {
       {/* [W2-3] 多版本并排对比 */}
       <ReportDiffModal report={diffModal.report} data={diffModal.data} loading={diffModal.loading} onClose={() => setDiffModal({ report: null, data: null, loading: false })} />
 
+      {/* [W2-C] 审计轨迹 */}
+      <ReportAuditTrailDrawer report={auditReport} onClose={() => setAuditReport(null)} />
+
       {/* [W2-3] 危急值一键转入 */}
       <ReportCriticalModal report={criticalModal.report} submitting={criticalModal.submitting} onClose={() => setCriticalModal({ report: null, submitting: false })} onSubmit={(severity, description, method) => { if (criticalModal.report) void handleCriticalSubmit(criticalModal.report, severity, description, method); }} />
 
@@ -374,7 +407,19 @@ export default function ReportPage() {
       <ReviewResultModal show={reviewResultModal.show} reportId={reviewResultModal.reportId} result={reviewResultModal.result} suggestion={reviewResultModal.suggestion} onClose={() => setReviewResultModal(r => ({ ...r, show: false }))} />
       <BatchResultModal show={batchResultModal.show} title={batchResultModal.title} message={batchResultModal.message} type={batchResultModal.type} onClose={() => setBatchResultModal(b => ({ ...b, show: false }))} />
       <PrintModal show={printModal.show} title={printModal.title} message={printModal.message} onClose={() => setPrintModal(p => ({ ...p, show: false }))} onPrint={() => { setPrintModal(p => ({ ...p, show: false })); window.print(); }} />
-      <BulkActionModal show={bulkActionModal.show} action={bulkActionModal.action} count={bulkActionModal.count} loading={bulkActionModal.loading} onClose={() => setBulkActionModal(b => ({ ...b, show: false }))} onConfirm={async () => { const action = bulkActionModal.action; setBulkActionModal(b => ({ ...b, loading: true })); if (action === 'publish') { for (const id of selectedIds) { await useReportStore.getState().publish(id, 85); } setAllReports(prev => prev.map(r => selectedIds.has(r.id) && r.status === '待审核' ? { ...r, status: '已发布', publishedTime: new Date().toISOString(), publishedBy: '当前用户' } : r)); } else if (action === 'delete') { setAllReports(prev => prev.filter(r => !selectedIds.has(r.id))); } else if (action === 'review') { const ids = Array.from(selectedIds).filter(id => { const r = allReports.find(x => x.id === id); return r && ['待审核', '已提交', '草稿'].includes(r.status); }); for (const id of ids) { await reportApi.review(id, { type: 'initial', doctorId: user?.id ?? '', doctorName: user?.name ?? '', suggestion: '批量审核通过', score: 0 }); } setAllReports(prev => prev.map(r => ids.includes(r.id) ? { ...r, status: '已审核', auditorName: user?.name ?? r.auditorName, approvedTime: new Date().toISOString() } : r)); setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(`批量审核通过 ${ids.length} 份`, 'success'); return; } else if (action === 'sign') { const ids = Array.from(selectedIds).filter(id => { const r = allReports.find(x => x.id === id); return r && ['已审核', '已双签'].includes(r.status); }); for (const id of ids) { await reportApi.sign(id); } setAllReports(prev => prev.map(r => ids.includes(r.id) ? { ...r, status: '已签发', signedTime: new Date().toISOString() } : r)); setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(`批量签署 ${ids.length} 份`, 'success'); return; } setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(`${action === 'publish' ? '发布' : '删除'}成功`, 'success'); }} />
+      <BulkActionModal show={bulkActionModal.show} action={bulkActionModal.action} count={bulkActionModal.count} loading={bulkActionModal.loading} onClose={() => setBulkActionModal(b => ({ ...b, show: false }))} onConfirm={async () => { const action = bulkActionModal.action; setBulkActionModal(b => ({ ...b, loading: true })); if (action === 'publish') { for (const id of selectedIds) { await useReportStore.getState().publish(id, 85); } setAllReports(prev => prev.map(r => selectedIds.has(r.id) && r.status === '待审核' ? { ...r, status: '已发布', publishedTime: new Date().toISOString(), publishedBy: '当前用户' } : r)); } else if (action === 'delete') { // [W2-C] 批量删除接真实 API (DELETE /reports/:id + reason)
+        let done = 0; let failed = 0;
+        for (const id of selectedIds) {
+          try {
+            const res = await reportApi.remove(id, '批量删除');
+            if (res.success) done++; else failed++;
+          } catch { failed++; }
+        }
+        setAllReports(prev => prev.filter(r => !selectedIds.has(r.id)));
+        setSelectedIds(new Set());
+        setBulkActionModal(b => ({ ...b, show: false, loading: false }));
+        showToast(`批量删除完成:成功 ${done} 份${failed > 0 ? `,失败 ${failed} 份` : ''}`, failed > 0 ? 'error' : 'success');
+        return; } else if (action === 'review') { const ids = Array.from(selectedIds).filter(id => { const r = allReports.find(x => x.id === id); return r && ['待审核', '已提交', '草稿'].includes(r.status); }); for (const id of ids) { await reportApi.review(id, { type: 'initial', doctorId: user?.id ?? '', doctorName: user?.name ?? '', suggestion: '批量审核通过', score: 0 }); } setAllReports(prev => prev.map(r => ids.includes(r.id) ? { ...r, status: '已审核', auditorName: user?.name ?? r.auditorName, approvedTime: new Date().toISOString() } : r)); setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(`批量审核通过 ${ids.length} 份`, 'success'); return; } else if (action === 'sign') { const ids = Array.from(selectedIds).filter(id => { const r = allReports.find(x => x.id === id); return r && ['已审核', '已双签'].includes(r.status); }); for (const id of ids) { await reportApi.sign(id); } setAllReports(prev => prev.map(r => ids.includes(r.id) ? { ...r, status: '已签发', signedTime: new Date().toISOString() } : r)); setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(`批量签署 ${ids.length} 份`, 'success'); return; } setSelectedIds(new Set()); setBulkActionModal(b => ({ ...b, show: false, loading: false })); showToast(`${action === 'publish' ? '发布' : '删除'}成功`, 'success'); }} />
     </PageContainer>
   );
 }

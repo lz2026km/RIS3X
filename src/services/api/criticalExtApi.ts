@@ -30,8 +30,10 @@ export const criticalExtApi = {
   getTimeline: () => api.get<CriticalExtTimelineDto[]>('/critical-ext/stats/timeline'),
   listCenter: () => api.get<CriticalExtCenterDto[]>('/critical-ext/center'),
   getCenterItem: (id: string) => api.get<CriticalExtCenterDto>(`/critical-ext/center/${id}`),
-  autoDetect: (data: { examId: string; finding: string }) => api.post<{ id: string }>('/critical-ext/auto-detect', data),
-  closeLoop: (data: { criticalId: string; note: string }) => api.post<{ id: string }>('/critical-ext/close-loop', data),
+  // [W2-A] 对齐后端 AutoDetectCriticalSchema { examId, reportContent, radiologistId? }
+  autoDetect: (data: { examId: string; reportContent: string; radiologistId?: string }) => api.post<{ id: string }>('/critical-ext/auto-detect', data),
+  // [W2-A] 对齐后端 CloseCriticalLoopSchema { criticalId, resolution, resolvedBy, resolvedAt? }
+  closeLoop: (data: { criticalId: string; resolution: string; resolvedBy: string; resolvedAt?: string }) => api.post<{ id: string }>('/critical-ext/close-loop', data),
   getReceiverPortal: () => api.get<unknown>('/critical-ext/receiver'),
   // [G005-P0] 随访记录 (后端 critical-ext/follow-up-records)
   listFollowUpRecords: () => api.get<unknown[]>('/critical-ext/follow-up-records'),

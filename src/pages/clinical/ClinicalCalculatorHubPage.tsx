@@ -118,6 +118,21 @@ export const ClinicalCalculatorHubPage: React.FC = () => {
     setResult(r);
   };
 
+  const handleExport = () => {
+    if (history.length === 0) { message.info('暂无计算记录可导出'); return; }
+    const header = '时间,计算器,患者,结果';
+    const rows = history.map(h => `"${h.time}","${h.calc}","${h.patient}","${h.result}"`).join('\n');
+    const blob = new Blob([`\uFEFF${header}\n${rows}`], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `临床计算记录_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(a.href);
+    message.success(`已导出 ${history.length} 条计算记录 (CSV)`);
+  };
+
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
@@ -175,7 +190,7 @@ export const ClinicalCalculatorHubPage: React.FC = () => {
           )}
         </Col>
         <Col span={10}>
-          <Card size="small" title="最近计算" extra={<Button icon={<Download size={12}/>} onClick={() => message.success('计算记录已导出')}>导出</Button>}>
+          <Card size="small" title="最近计算" extra={<Button icon={<Download size={12}/>} onClick={handleExport}>导出</Button>}>
             <Table rowKey={(record, index) => `${record.time}-${index}`} dataSource={history} pagination={false} columns={[
               {title:'时间',dataIndex:'time'},{title:'计算器',dataIndex:'calc',render:(c:string)=><Tag color="blue">{c}</Tag>},
               {title:'患者',dataIndex:'patient'},{title:'结果',dataIndex:'result'},

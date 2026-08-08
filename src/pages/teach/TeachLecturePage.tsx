@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Play, Trash2, FileVideo, Search, Loader2, Square } from 'lucide-react'
 import Screencast, { type ScreencastHandle, type RecorderState } from '../../components/teach/Screencast'
+import { teachApi } from '../../services/api'
+import { API_BASE } from '../../services/api/client'
 
 type Lecture = {
   id: string
@@ -14,12 +16,11 @@ type Lecture = {
   blobs?: { filename: string }[]
 }
 
-const API_BASE = '/api/teach'
-
 export default function TeachLecturePage() {
   const { t } = useTranslation('v3teach')
   const [lectures, setLectures] = useState<Lecture[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [recording, setRecording] = useState(false)
   const [recorderState, setRecorderState] = useState<RecorderState>('idle')
   const [title, setTitle] = useState('')
@@ -32,18 +33,25 @@ export default function TeachLecturePage() {
 
   const fetchLectures = useCallback(async () => {
     setLoading(true)
+    setLoadError(null)
     try {
-      const params = new URLSearchParams()
-      if (search) params.set('search', search)
-      const res = await fetch(`${API_BASE}/lectures?${params}`)
-      const data = await res.json()
-      setLectures(data.items ?? [])
-    } catch {
+      const res = await teachApi.getLectures({ search: search || undefined })
+      if (res.success) {
+        const data = res.data as { items?: Lecture[] } | Lecture[] | null
+        const items = Array.isArray(data) ? data : (data?.items ?? [])
+        setLectures(items)
+      } else {
+        setLectures([])
+        setLoadError(res.error?.message ?? t('loadFailed', '加载示教录制失败'))
+      }
+    } catch (e) {
+      console.warn('[teach] fetchLectures failed:', e)
       setLectures([])
+      setLoadError(t('loadFailed', '加载示教录制失败'))
     } finally {
       setLoading(false)
     }
-  }, [search])
+  }, [search, t])
 
   useEffect(() => { fetchLectures() }, [fetchLectures])
 
@@ -69,19 +77,19 @@ export default function TeachLecturePage() {
   const handleSave = async () => {
     if (!title.trim() || chunksRef.current.length === 0) return
     try {
-      const res = await fetch(`${API_BASE}/lecture`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: title.trim() }),
-      })
-      const lecture = await res.json()
+      const res = await teachApi.createLecture({ title: title.trim() })
+      if (!res.success || !res.data) {
+        console.error('[teach] createLecture failed:', res.error)
+        return
+      }
+      const lecture = res.data
       for (let i = 0; i < chunksRef.current.length; i++) {
-        const fd = new FormData()
-        fd.append('blob', chunksRef.current[i], `chunk-${i}.webm`)
-        await fetch(`${API_BASE}/lecture/${lecture.id}/blob?sequence=${i}`, {
-          method: 'POST',
-          body: fd,
-        })
+        const chunk = chunksRef.current[i]
+        if (!chunk) continue
+        const upload = await teachApi.uploadBlob(lecture.id, chunk, i)
+        if (!upload.success) {
+          console.error(`[teach] uploadBlob(${i}) failed:`, upload.error)
+        }
       }
       setTitle('')
       chunksRef.current = []
@@ -94,10 +102,11 @@ export default function TeachLecturePage() {
 
   const handlePlay = async (lecture: Lecture) => {
     try {
-      const res = await fetch(`${API_BASE}/lecture/${lecture.id}`)
-      const data = await res.json()
-      if (data.blobs?.length) {
-        const blobUrl = `${API_BASE}/lecture/${lecture.id}/blob/${data.blobs[0].filename}`
+      const res = await teachApi.getLecture(lecture.id)
+      const data = res.data as { blobs?: { filename: string }[] } | null
+      const first = data?.blobs?.[0]
+      if (first?.filename) {
+        const blobUrl = `${API_BASE}/teach/lecture/${lecture.id}/blob/${first.filename}`
         setPlayingBlob(blobUrl)
         if (videoRef.current) {
           videoRef.current.src = blobUrl
@@ -108,10 +117,14 @@ export default function TeachLecturePage() {
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm(t('deleteConfirm'))) return
+    if (!confirm(t('deleteConfirm', '确定删除该示教录制吗？'))) return
     try {
-      await fetch(`${API_BASE}/lecture/${id}`, { method: 'DELETE' })
-      await fetchLectures()
+      const res = await teachApi.deleteLecture(id)
+      if (res.success) {
+        setLectures(prev => prev.filter(l => l.id !== id))
+      } else {
+        console.error('[teach] deleteLecture failed:', res.error)
+      }
     } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
   }
 
@@ -205,6 +218,13 @@ export default function TeachLecturePage() {
           />
         </div>
       </div>
+
+      {loadError && !loading && (
+        <div className="mb-4 px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 rounded-lg text-sm flex items-center justify-between">
+          <span>{loadError}</span>
+          <button onClick={fetchLectures} className="text-xs underline hover:no-underline">{t('retry', '重试')}</button>
+        </div>
+      )}
 
       {isFullscreen && playingBlob && (
         <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">

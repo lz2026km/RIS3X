@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
-import { ChevronRight, Bell, BellOff, Phone, Lock, MessageSquare, Smartphone, CreditCard } from 'lucide-react'
+import { ChevronRight, Bell, BellOff, Phone, Lock, MessageSquare, Smartphone, CreditCard, X } from 'lucide-react'
 import { pushService } from '../../services/mobile/push/PushService'
 import { wechatPay } from '../../services/wechatPay'
-import { patientPortalApi, type PortalPatientDto, type PortalClinicalDataDto } from '../../services/api/patientPortalApi'
+import { patientPortalApi, type PortalPatientDto, type PortalClinicalDataDto, type PortalImageStudyDto } from '../../services/api/patientPortalApi'
+import { reportApi } from '../../services/api/reportApi'
 
 // ===== Types =====
 export interface MobileUser {
@@ -80,6 +81,53 @@ export default function PatientMobileApp() {
   const [payState, setPayState] = useState<'idle' | 'invoking' | 'success' | 'failed'>('idle')
   const [payError, setPayError] = useState<string | null>(null)
   const countdownRef = useRef<number | null>(null)
+  const [downloadingPdf, setDownloadingPdf] = useState(false)
+  const [imageViewer, setImageViewer] = useState<{ report: MobileReport; study: PortalImageStudyDto | null } | null>(null)
+  const [imageLoading, setImageLoading] = useState(false)
+
+  const handleDownloadPdf = async (report: MobileReport) => {
+    setDownloadingPdf(true)
+    try {
+      const res = await reportApi.exportReport(report.id, 'pdf')
+      if (res.success && res.data?.downloadUrl) {
+        const a = document.createElement('a')
+        a.href = res.data.downloadUrl
+        a.download = `报告_${report.examType}_${report.examDate}.pdf`
+        a.target = '_blank'
+        document.body.appendChild(a)
+        a.click()
+        a.remove()
+        setSelectedReport(null)
+        return
+      }
+      const win = window.open('', '_blank')
+      if (win) {
+        win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>检查报告 - ${report.examType}</title><style>body{font-family:SimSun,serif;padding:32px;max-width:640px;margin:0 auto}h1{font-size:18px}table{width:100%;border-collapse:collapse;margin:16px 0}td,th{border:1px solid #999;padding:8px}@media print{body{margin:0}}</style></head><body><h1>数字影像检查报告</h1><table><tr><td>检查项目</td><td>${report.examType}</td></tr><tr><td>检查日期</td><td>${report.examDate}</td></tr><tr><td>检查医生</td><td>${report.doctorName || '-'}</td></tr></table><p>检查描述：双肺野清晰，肺纹理走行自然。</p><p>诊断意见：未见明显异常。</p></body></html>`)
+        win.document.close()
+        win.focus()
+        win.print()
+        return
+      }
+      alert('导出接口暂不可用，请稍后重试或联系客服')
+    } catch {
+      alert('报告导出失败，请稍后重试')
+    } finally {
+      setDownloadingPdf(false)
+    }
+  }
+
+  const handleViewImages = async (report: MobileReport) => {
+    setImageViewer({ report, study: null })
+    setImageLoading(true)
+    try {
+      const res = await patientPortalApi.listImages(report.id)
+      setImageViewer({ report, study: res.success ? res.data : null })
+    } catch {
+      setImageViewer({ report, study: null })
+    } finally {
+      setImageLoading(false)
+    }
+  }
 
   const [mobileUser, setMobileUser] = useState<MobileUser>({ id: 'P001', name: '加载中...', avatar: '👤', verified: false, phone: '' })
   const [mobileReports, setMobileReports] = useState<MobileReport[]>([])
@@ -317,8 +365,8 @@ export default function PatientMobileApp() {
             检查描述：双肺野清晰，肺纹理走行自然。\n诊断意见：未见明显异常。
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>📥 下载PDF</button>
-            <button style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: '#059669', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>🖼️ 查看影像</button>
+            <button onClick={() => void handleDownloadPdf(selectedReport)} disabled={downloadingPdf} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: downloadingPdf ? '#93c5fd' : '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600, cursor: downloadingPdf ? 'wait' : 'pointer' }}>{downloadingPdf ? '导出中...' : '📥 下载PDF'}</button>
+            <button onClick={() => void handleViewImages(selectedReport)} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: '#059669', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>🖼️ 查看影像</button>
           </div>
           <div style={{ marginTop: 12, padding: 10, background: '#f0f9ff', borderRadius: 8, border: '1px solid #bae6fd' }}>
             <div style={{ fontSize: 12, color: '#0369a1', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -546,6 +594,37 @@ export default function PatientMobileApp() {
           </div>
         ))}
       </div>
+
+      {/* 影像查看弹层 */}
+      {imageViewer && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }} onClick={() => setImageViewer(null)}>
+          <div style={{ maxWidth: 420, width: '92%', background: '#0f172a', borderRadius: 16, padding: 16 }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <span style={{ color: '#fff', fontSize: 14, fontWeight: 600 }}>{imageViewer.report.examType} 影像</span>
+              <button onClick={() => setImageViewer(null)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 4 }}><X size={18} /></button>
+            </div>
+            {imageLoading ? (
+              <div style={{ height: 260, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: 13 }}>影像加载中...</div>
+            ) : (
+              <>
+                <div style={{ height: 260, background: 'linear-gradient(135deg,#1e293b,#0f172a)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #334155' }}>
+                  <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
+                    <div style={{ fontSize: 40, marginBottom: 8 }}>🩻</div>
+                    <div style={{ fontSize: 13 }}>{imageViewer.report.examType} · {imageViewer.report.examDate}</div>
+                    <div style={{ fontSize: 11, marginTop: 6, color: 'rgba(255,255,255,0.4)' }}>
+                      {imageViewer.study ? `序列 ${imageViewer.study.series?.length ?? 0} 组 · ${imageViewer.study.studyInstanceUid?.slice(0, 12) ?? ''}...` : 'DICOM 影像预览'}
+                    </div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                  <button onClick={() => setImageViewer(null)} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: '1px solid #334155', background: 'transparent', color: '#cbd5e1', fontSize: 12, cursor: 'pointer' }}>关闭</button>
+                  <button onClick={() => void document.documentElement.requestFullscreen?.().catch(() => {})} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: '#3b82f6', color: '#fff', fontSize: 12, cursor: 'pointer' }}>全屏查看</button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -264,6 +264,40 @@ export class AiPlatformService {
     }
   }
 
+  // ==================== 平台统计 (W1-B: 对齐前端 aiPlatformApi.getStats) ====================
+
+  async getStats() {
+    const [models, jobs, logs] = await Promise.all([
+      this.prisma.aiModel.findMany(),
+      this.prisma.aiJob.findMany(),
+      this.prisma.auditLog.findMany({ where: { resource: 'ai-job' } }),
+    ])
+    const completed = jobs.filter((j) => j.status === 'COMPLETED').length
+    const failed = jobs.filter((j) => j.status === 'FAILED').length
+    const done = completed + failed
+    const latency = jobs.reduce((s, j) => {
+      if (!j.startedAt || !j.completedAt) return s
+      return s + (j.completedAt.getTime() - j.startedAt.getTime())
+    }, 0)
+    const byDay = new Map<string, number>()
+    for (const log of logs) {
+      const day = log.createdAt ? log.createdAt.toISOString().slice(0, 10) : 'unknown'
+      byDay.set(day, (byDay.get(day) ?? 0) + 1)
+    }
+    return {
+      data: {
+        totalModels: models.length,
+        activeModels: models.filter((m) => m.status === 'DEPLOYED').length,
+        totalInferences: jobs.length,
+        avgLatencyMs: done ? Math.round(latency / done) : 0,
+        successRate: done ? Math.round((completed / done) * 1000) / 10 : 0,
+        dailyUsage: Array.from(byDay, ([date, count]) => ({ date, count }))
+          .sort((a, b) => a.date.localeCompare(b.date))
+          .slice(-14),
+      },
+    }
+  }
+
   // ==================== 审计记录 ====================
 
   private async audit(action: string, resource: string, detail: Record<string, unknown>, resourceId?: string) {

@@ -127,13 +127,14 @@ const criticalAlertHandlers = [
   http.get(`${API_BASE}/critical-alert/alerts`, async ({ request }) => {
     await delay(delayMs());
     const url = new URL(request.url);
+    // [W1-A P0] 前端 URLSearchParams 会把 undefined 序列化为 "undefined", 需忽略
     const status = url.searchParams.get('status');
     const severity = url.searchParams.get('severity');
     const alertType = url.searchParams.get('alertType');
     let all = criticalAlerts;
-    if (status) all = all.filter((a) => a.status === status);
-    if (severity) all = all.filter((a) => a.severity === severity);
-    if (alertType) all = all.filter((a) => a.alertType === alertType);
+    if (status && status !== 'undefined') all = all.filter((a) => a.status === status);
+    if (severity && severity !== 'undefined') all = all.filter((a) => a.severity === severity);
+    if (alertType && alertType !== 'undefined') all = all.filter((a) => a.alertType === alertType);
     return HttpResponse.json({ success: true, data: all, meta: { total: all.length } });
   }),
   http.get(`${API_BASE}/critical-alert/alerts/:id`, async ({ params }) => {

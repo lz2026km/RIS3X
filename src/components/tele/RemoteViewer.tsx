@@ -10,6 +10,7 @@ import {
   Users,
   Send,
 } from "lucide-react";
+import { teleApi } from "../../services/api";
 
 const { Text } = Typography;
 
@@ -40,13 +41,10 @@ export interface RemoteViewerProps {
   onSessionStatusChange?: (status: SessionStatus) => void;
 }
 
-const API_BASE = "/api";
-
 export const RemoteViewer: React.FC<RemoteViewerProps> = ({
   sessionId,
   userId,
   userName,
-  apiUrl = API_BASE,
   onSessionStatusChange,
 }) => {
   const pcRef = useRef<RTCPeerConnection | null>(null);
@@ -56,6 +54,7 @@ export const RemoteViewer: React.FC<RemoteViewerProps> = ({
   const chatEndRef = useRef<HTMLDivElement>(null);
   const pollRef = useRef<number | null>(null);
   const lastChatTsRef = useRef("");
+  const pollingRef = useRef(false);
 
   const [status, setStatus] = useState<SessionStatus>("disconnected");
   const [cursors, setCursors] = useState<RemoteCursor[]>([]);
@@ -75,140 +74,139 @@ export const RemoteViewer: React.FC<RemoteViewerProps> = ({
     [onSessionStatusChange],
   );
 
-  const api = (path: string, options?: RequestInit) =>
-    fetch(`${apiUrl}${path}`, {
-      headers: { "Content-Type": "application/json" },
-      ...options,
-    });
-
-  // Poll for signals
+  // 信令轮询 (teleApi.getPendingSignals / sendSignal)
   const pollSignals = useCallback(async () => {
-    try {
-      const res = await api(`/tele/signal/${sessionId}?peer=${userId}`);
-      if (!res.ok) return;
-      const signals: Array<{
-        type: string;
-        from: string;
-        to: string;
-        payload: unknown;
-      }> = await res.json();
-      for (const sig of signals) {
-        const pc = pcRef.current;
-        if (!pc) continue;
-        try {
-          if (sig.type === "offer") {
-            await pc.setRemoteDescription(
-              new RTCSessionDescription(
-                sig.payload as RTCSessionDescriptionInit,
-              ),
-            );
-            const answer = await pc.createAnswer();
-            await pc.setLocalDescription(answer);
-            await api("/tele/signal", {
-              method: "POST",
-              body: JSON.stringify({
-                type: "answer",
-                from: userId,
-                to: sig.from,
-                sessionId,
-                payload: pc.localDescription,
-              }),
-            });
-          } else if (sig.type === "answer") {
-            await pc.setRemoteDescription(
-              new RTCSessionDescription(
-                sig.payload as RTCSessionDescriptionInit,
-              ),
-            );
-          } else if (sig.type === "ice-candidate") {
-            await pc.addIceCandidate(
-              new RTCIceCandidate(sig.payload as RTCIceCandidateInit),
-            );
-          }
-        } catch (err) {
-          console.warn("[RemoteViewer] signal handling failed", err);
+    const res = await teleApi.getPendingSignals(sessionId, userId);
+    if (!res.success || !Array.isArray(res.data)) return;
+    for (const sig of res.data) {
+      const pc = pcRef.current;
+      if (!pc) continue;
+      try {
+        if (sig.type === "offer") {
+          await pc.setRemoteDescription(
+            new RTCSessionDescription(sig.payload as RTCSessionDescriptionInit),
+          );
+          const answer = await pc.createAnswer();
+          await pc.setLocalDescription(answer);
+          await teleApi.sendSignal({
+            type: "answer",
+            from: userId,
+            to: sig.from,
+            sessionId,
+            payload: pc.localDescription,
+          });
+        } else if (sig.type === "answer") {
+          await pc.setRemoteDescription(
+            new RTCSessionDescription(sig.payload as RTCSessionDescriptionInit),
+          );
+        } else if (sig.type === "ice-candidate") {
+          await pc.addIceCandidate(
+            new RTCIceCandidate(sig.payload as RTCIceCandidateInit),
+          );
         }
+      } catch (err) {
+        console.warn("[RemoteViewer] signal handling failed", err);
       }
-    } catch (err) {
-      console.warn("[RemoteViewer] pollSignals failed", err);
     }
-  }, [sessionId, userId, apiUrl]);
+  }, [sessionId, userId]);
 
-  // Poll for chat messages
+  // 聊天轮询 (teleApi.listMessages / sendMessage)
   const pollChat = useCallback(async () => {
-    try {
-      const qs = lastChatTsRef.current
-        ? `?since=${encodeURIComponent(lastChatTsRef.current)}`
-        : "";
-      const res = await api(`/tele/chat/${sessionId}${qs}`);
-      if (!res.ok) return;
-      const msgs: ChatMessage[] = await res.json();
-      if (msgs.length > 0) {
-        const filtered = msgs.filter((m) => m.userId !== userId);
-        const lastMsg = filtered.at(-1);
-        if (lastMsg) {
-          setMessages((prev) => [...prev, ...filtered]);
-          lastChatTsRef.current = lastMsg.timestamp;
-        }
+    const res = await teleApi.listMessages(
+      sessionId,
+      lastChatTsRef.current || undefined,
+    );
+    if (!res.success || !Array.isArray(res.data)) return;
+    const msgs = res.data;
+    if (msgs.length > 0) {
+      // 兼容两种消息形状: teleApi {senderId/content/createdAt} / 后端 {userId/text/timestamp}
+      const mapped = msgs.map((m) => ({
+        id: m.id,
+        userId: (m as unknown as Record<string, string>).senderId ?? (m as unknown as Record<string, string>).userId ?? '',
+        userName: (m as unknown as Record<string, string>).senderName ?? (m as unknown as Record<string, string>).userName ?? '',
+        text: (m as unknown as Record<string, string>).content ?? (m as unknown as Record<string, string>).text ?? '',
+        timestamp: (m as unknown as Record<string, string>).createdAt ?? (m as unknown as Record<string, string>).timestamp ?? '',
+      }));
+      const filtered = mapped.filter((m) => m.userId !== userId);
+      const lastMsg = filtered.at(-1);
+      if (lastMsg) {
+        setMessages((prev) => [...prev, ...filtered]);
+        lastChatTsRef.current = lastMsg.timestamp;
       }
-    } catch (err) {
-      console.warn("[RemoteViewer] pollChat failed", err);
     }
-  }, [sessionId, userId, apiUrl]);
+  }, [sessionId, userId]);
 
-  // Poll for cursors
+  // 光标轮询 (teleApi.getCursors / updateCursor)
   const pollCursors = useCallback(async () => {
-    try {
-      const res = await api(`/tele/cursor/${sessionId}`);
-      if (!res.ok) return;
-      const data: RemoteCursor[] = await res.json();
-      setCursors(data.filter((c) => c.userId !== userId));
-    } catch (err) {
-      console.warn("[RemoteViewer] pollCursors failed", err);
-    }
-  }, [sessionId, userId, apiUrl]);
+    const res = await teleApi.getCursors(sessionId);
+    if (!res.success || !Array.isArray(res.data)) return;
+    const data = res.data;
+    setCursors(
+      data
+        .filter((c) => c.userId !== userId)
+        .map((c) => ({
+          userId: c.userId,
+          x: c.x,
+          y: c.y,
+          color: c.color ?? "#3b82f6",
+          name: c.userName,
+        })),
+    );
+  }, [sessionId, userId]);
 
-  // Send cursor position
+  const pollAll = useCallback(async () => {
+    if (pollingRef.current) return;
+    pollingRef.current = true;
+    try {
+      await Promise.allSettled([pollSignals(), pollChat(), pollCursors()]);
+    } finally {
+      pollingRef.current = false;
+    }
+  }, [pollSignals, pollChat, pollCursors]);
+
   const sendCursor = useCallback(
     (x: number, y: number) => {
-      api("/tele/cursor", {
-        method: "POST",
-        body: JSON.stringify({
+      teleApi
+        .updateCursor({
           sessionId,
           userId,
           userName,
           x,
           y,
           color: "#3b82f6",
-        }),
-      }).catch(() => {});
+        })
+        .catch(() => {});
     },
-    [sessionId, userId, userName, apiUrl],
+    [sessionId, userId, userName],
   );
 
   useEffect(() => {
     updateStatus("connecting");
 
     const init = async () => {
-      try {
-        await api(`/tele/session/${sessionId}`);
+      const res = await teleApi.getSession(sessionId);
+      if (
+        res.success &&
+        res.data &&
+        (res.data as { status?: string }).status !== "not_found"
+      ) {
         updateStatus("connected");
-      } catch {
+      } else {
         updateStatus("disconnected");
       }
     };
-    init();
+    void init();
 
     pollRef.current = window.setInterval(() => {
-      pollSignals();
-      pollChat();
-      pollCursors();
+      void pollAll();
     }, 1000);
 
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);
       pcRef.current?.close();
+      pcRef.current = null;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId, userId]);
 
   const startPeerConnection = async () => {
@@ -220,16 +218,15 @@ export const RemoteViewer: React.FC<RemoteViewerProps> = ({
 
     pc.onicecandidate = (e) => {
       if (e.candidate) {
-        api("/tele/signal", {
-          method: "POST",
-          body: JSON.stringify({
+        teleApi
+          .sendSignal({
             type: "ice-candidate",
             from: userId,
             to: "",
             sessionId,
             payload: e.candidate.toJSON(),
-          }),
-        }).catch(() => {});
+          })
+          .catch(() => {});
       }
     };
 
@@ -253,15 +250,12 @@ export const RemoteViewer: React.FC<RemoteViewerProps> = ({
     try {
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
-      await api("/tele/signal", {
-        method: "POST",
-        body: JSON.stringify({
-          type: "offer",
-          from: userId,
-          to: "",
-          sessionId,
-          payload: pc.localDescription,
-        }),
+      await teleApi.sendSignal({
+        type: "offer",
+        from: userId,
+        to: "",
+        sessionId,
+        payload: pc.localDescription,
       });
     } catch (err) {
       console.warn("[RemoteViewer] startPeerConnection failed", err);
@@ -270,8 +264,9 @@ export const RemoteViewer: React.FC<RemoteViewerProps> = ({
 
   useEffect(() => {
     if (status === "connected") {
-      startPeerConnection();
+      void startPeerConnection();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
   const toggleAudio = async () => {
@@ -328,26 +323,39 @@ export const RemoteViewer: React.FC<RemoteViewerProps> = ({
 
   const sendChatMessage = () => {
     if (!chatInput.trim()) return;
-    api("/tele/chat", {
-      method: "POST",
-      body: JSON.stringify({
+    teleApi
+      .sendMessage({
         sessionId,
         userId,
         userName,
         text: chatInput.trim(),
-      }),
-    })
-      .then(() => {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: "",
-            userId,
-            userName,
-            text: chatInput.trim(),
-            timestamp: new Date().toISOString(),
-          },
-        ]);
+      })
+      .then((res) => {
+        if (res.success && res.data) {
+          const raw = res.data as unknown as Record<string, string>;
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: raw.id ?? '',
+              userId: raw.senderId ?? raw.userId ?? '',
+              userName: raw.senderName ?? raw.userName ?? '',
+              text: raw.content ?? raw.text ?? chatInput.trim(),
+              timestamp: raw.createdAt ?? raw.timestamp ?? new Date().toISOString(),
+            },
+          ]);
+          lastChatTsRef.current = raw.createdAt ?? raw.timestamp ?? '';
+        } else {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: "",
+              userId,
+              userName,
+              text: chatInput.trim(),
+              timestamp: new Date().toISOString(),
+            },
+          ]);
+        }
         setChatInput("");
       })
       .catch(() => {});

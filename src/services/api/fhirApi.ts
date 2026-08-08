@@ -187,6 +187,9 @@ export const fhirApi = {
     api.get<BulkExportJob>(`/fhir/r4/$export-status/${jobId}`),
 
   // ═══════════════════════════════════ Smart Auth ══════════════════════════
+  // [G005 W2-B] 与 smartAuthApi.getSmartConfiguration/authorize/getToken 端点完全一致,
+  // 不冲突: SmartAuthPage (/integration/smart-auth) 已用 smartAuthApi 为主,
+  // 此处 smartConfiguration/authorize/token 保留用于 FHIR 资源 API 面一致性/向后兼容。
   smartConfiguration: () =>
     api.get<SmartConfiguration>('/fhir/r4/.well-known/smart-configuration'),
 

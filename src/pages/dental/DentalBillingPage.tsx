@@ -70,6 +70,23 @@ export const DentalBillingPage: React.FC = () => {
     setBusy(false);
   };
 
+  const handlePrint = (invoice: any) => {
+    const rows = (invoice.items || []).map((i: any) => `<tr><td>${i.name}</td><td style="text-align:right">${i.qty || 1}</td><td style="text-align:right">¥${i.unitPrice ?? 0}</td><td style="text-align:right">¥${((i.unitPrice ?? 0) * (i.qty || 1)).toFixed(2)}</td></tr>`).join('');
+    const win = window.open('', '_blank', 'width=640,height=480');
+    if (!win) { message.warning('浏览器拦截了打印窗口，请允许弹出窗口'); return; }
+    win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>发票打印 - ${invoice.id}</title>
+      <style>body{font-family:SimSun,serif;color:#000;padding:24px}h2{margin:0 0 16px}.meta{font-size:13px;line-height:1.8}table{width:100%;border-collapse:collapse;margin-top:12px}td,th{border:1px solid #333;padding:6px 8px;font-size:13px}th{background:#eee}@media print{body{margin:0}}</style></head>
+      <body><h2>口腔门诊收费单</h2>
+      <div class="meta">单号: ${invoice.id} &nbsp; 日期: ${invoice.date || ''}<br/>患者: ${invoice.patientId || ''} &nbsp; 状态: ${invoice.status === 'paid' ? '已支付' : '待支付'}</div>
+      <table><thead><tr><th>项目</th><th>数量</th><th>单价</th><th>小计</th></tr></thead><tbody>${rows || '<tr><td colspan="4">无明细</td></tr>'}</tbody></table>
+      <div style="margin-top:16px;font-size:14px">总金额: ¥${invoice.total ?? 0} &nbsp; 医保报销: ¥${invoice.insuranceCover ?? 0} &nbsp; 自付: ¥${invoice.selfPay ?? 0}</div>
+      </body></html>`);
+    win.document.close();
+    win.focus();
+    win.print();
+    message.success(`已发送打印任务: ${invoice.id}`);
+  };
+
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
@@ -143,7 +160,7 @@ export const DentalBillingPage: React.FC = () => {
               {title:'医保报销',dataIndex:'insuranceCover',render:(v:number)=>`¥${v}`,width:80},
               {title:'自付',dataIndex:'selfPay',render:(v:number)=>`¥${v}`},
               {title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='paid'?'success':s==='pending'?'warning':'default'} text={{ paid:'已支付', pending:'待支付' }[s] ?? s} />,width:80},
-              {title:'操作',render:(_,r:any)=><Space>{r.status==='pending'&&<Button size="small" type="primary" icon={<DollarSign size={10}/>} onClick={()=>{setCurrentInvoice(r);setPayModal(true);}}>收费</Button>}<Button size="small" icon={<Printer size={10}/>}>打印</Button></Space>},
+              {title:'操作',render:(_,r:any)=><Space>{r.status==='pending'&&<Button size="small" type="primary" icon={<DollarSign size={10}/>} onClick={()=>{setCurrentInvoice(r);setPayModal(true);}}>收费</Button>}<Button size="small" icon={<Printer size={10}/>} onClick={() => handlePrint(r)}>打印</Button></Space>},
             ]} />},
           {key:'reports', label:'经营报表', children:<Row gutter={12}>
             <Col span={8}><Card size="small" title="财务概览"><Statistic title="月营收" prefix="¥" value={invoices.reduce((s,i)=>s+i.total,0)} /><Statistic title="待收" prefix="¥" value={totalPending} style={{marginTop:12}} /><Statistic title="已收" prefix="¥" value={totalPaid} style={{marginTop:12}} /><Progress percent={totalPaid/(totalPaid+totalPending+1)*100} size="small" strokeColor="#52c41a" /></Card></Col>

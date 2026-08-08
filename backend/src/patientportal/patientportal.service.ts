@@ -121,6 +121,42 @@ function mapReport(r: any) {
   }
 }
 
+// [G005 W1-C] 临床数据映射: 前端 PortalClinicalDataDto 契约
+const REPORT_STATUS_LABEL: Record<string, string> = {
+  PUBLISHED: '已出报告',
+  AMENDED: '已出报告',
+  SIGNED: '已出报告',
+  REVIEWED: '审核中',
+  SUBMITTED: '审核中',
+  INITIAL_REVIEW: '审核中',
+  FINAL_REVIEW: '审核中',
+  CO_SIGN_REVIEW: '审核中',
+  WRITING: '书写中',
+  ASSIGNED: '待书写',
+  PENDING_ASSIGNMENT: '待分配',
+}
+
+function mapClinicalData(r: any) {
+  return {
+    id: r.id,
+    patientId: r.patientId,
+    patientName: r.patient?.name,
+    examType: r.exam ? `${r.exam.modality}${r.exam.bodyPart ? `-${r.exam.bodyPart}` : ''}` : '影像检查',
+    examDate: (r.exam?.completedAt ?? r.createdAt)?.toISOString?.()?.slice(0, 10) ?? null,
+    bodyPart: r.exam?.bodyPart ?? null,
+    modality: r.exam?.modality ?? null,
+    findings: r.findings,
+    diagnosis: r.diagnosis,
+    reportStatus: REPORT_STATUS_LABEL[r.state] ?? r.state,
+  }
+}
+
+const SEED_CLINICAL_DATA = [
+  { id: 'CD001', patientId: 'P001', patientName: '张三', examType: '胸部CT平扫', examDate: '2026-07-20', bodyPart: '胸部', modality: 'CT', findings: '双肺纹理清晰，未见明显实变影。纵隔结构居中，未见明显肿大淋巴结。心影大小正常。', diagnosis: '双肺未见明显异常', reportStatus: '已出报告' },
+  { id: 'CD002', patientId: 'P001', patientName: '张三', examType: '头颅MR平扫', examDate: '2026-06-15', bodyPart: '颅脑', modality: 'MR', findings: '脑实质内未见明显异常信号灶，脑室系统形态正常，中线结构居中。', diagnosis: '头颅MR平扫未见明显异常', reportStatus: '已出报告' },
+  { id: 'CD003', patientId: 'P002', patientName: '李四', examType: '腰椎DR正侧位', examDate: '2026-07-08', bodyPart: '腰椎', modality: 'DR', findings: '腰椎生理曲度存在，各椎体形态规整，椎间隙未见明显变窄。', diagnosis: '腰椎DR未见明显异常', reportStatus: '已出报告' },
+]
+
 @Injectable()
 export class PatientPortalService {
   constructor(private readonly prisma: PrismaService) {}
@@ -136,13 +172,25 @@ export class PatientPortalService {
   }
 
   async listClinicalData() {
-    const data = await this.prisma.report.findMany({ orderBy: { createdAt: 'desc' }, take: 50 })
-    return { data }
+    const data = await this.prisma.report.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+      include: { patient: true, exam: true },
+    })
+    if (data.length === 0) return { data: SEED_CLINICAL_DATA }
+    return { data: data.map(mapClinicalData) }
   }
 
   async getClinicalData(id: string) {
-    const data = await this.prisma.report.findUnique({ where: { id } })
-    return { data: data ? [data] : [] }
+    const data = await this.prisma.report.findUnique({
+      where: { id },
+      include: { patient: true, exam: true },
+    })
+    if (!data) {
+      const seed = SEED_CLINICAL_DATA.find(d => d.id === id)
+      return { data: seed ? [seed] : [] }
+    }
+    return { data: [mapClinicalData(data)] }
   }
 
   async listEducation() {

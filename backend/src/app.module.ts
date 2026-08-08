@@ -93,6 +93,8 @@ import { TenantModule } from "./modules/tenant/tenant.module";
 import { FollowUpModule } from "./modules/followup/followup.module";
 import { DictionaryModule } from "./modules/dictionary/dictionary.module";
 import { MobileModule } from "./mobile/mobile.module";
+import { CallQueueModule } from "./modules/queue/queue.module";
+import { CriticalAlertModule } from "./modules/critical-alert/critical-alert.module";
 import { JwtAuthGuard } from "./common/guards/jwt-auth.guard";
 import { RolesGuard } from "./common/guards/roles.guard";
 import { AuditInterceptor } from "./common/interceptors/audit.interceptor";
@@ -224,6 +226,8 @@ import { ClinicalConfigModule } from "./clinical-config/clinical-config.module";
     VnaModule,
     TenantModule,
     DictionaryModule,
+    CallQueueModule,
+    CriticalAlertModule,
   ],
   controllers: [HealthController],
   providers: [

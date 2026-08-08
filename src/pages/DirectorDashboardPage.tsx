@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+// [W3-B] 主任驾驶舱 — 接入 statsApi / biApi 真实数据 (loading/error + 演示数据回退)
+import { statsApi } from '../services/api/statsApi';
+import { biApi } from '../services/api/biApi';
 // [v3.0.6.8-28] 主数据池 + 生成器
 import { DOCTOR_MASTER, DEVICE_MASTER } from '../data/master';
 import {
@@ -8,7 +11,7 @@ import {
 // ============================================================
 // [v3.0.6.8-28] 医生数据 - 来源: DOCTOR_PERFORMANCE_PRE 当前月聚合 (top 10 by reportCount)
 // ============================================================
-const doctors = (() => {
+const staticDoctors = (() => {
   const currentMonth = DOCTOR_PERFORMANCE_PRE.filter((p) => p.month === '2026-06' && (p.title === '主任医师' || p.title === '副主任医师' || p.title === '主治医师' || p.title === '住院医师'));
   const byDoctor: Record<string, { id: string; name: string; title: string; reportCount: number; defectCount: number; criticalCount: number; cosignCount: number; avgTAT: number; qcScore: number; }> = {};
   currentMonth.forEach((p) => {
@@ -42,7 +45,7 @@ const doctors = (() => {
 // ============================================================
 // [v3.0.6.8-28] 设备数据 - 来源: DEVICE_MASTER 取前 8 台
 // ============================================================
-const devices = DEVICE_MASTER.slice(0, 8).map((d) => ({
+const staticDevices = DEVICE_MASTER.slice(0, 8).map((d) => ({
   id: d.id,
   name: d.model,
   type: d.modality === 'US' ? 'US' : d.modality,
@@ -54,7 +57,7 @@ const devices = DEVICE_MASTER.slice(0, 8).map((d) => ({
 // ============================================================
 // [v3.0.6.8-28] 技师数据 - 来源: DOCTOR_MASTER 中 title=技师/主管技师/副主任技师
 // ============================================================
-const technicians = DOCTOR_MASTER.filter((d) => d.title === '技师' || d.title === '主管技师' || d.title === '副主任技师' || d.title === '技士')
+const staticTechnicians = DOCTOR_MASTER.filter((d) => d.title === '技师' || d.title === '主管技师' || d.title === '副主任技师' || d.title === '技士')
   .slice(0, 6)
   .map((d) => ({
     id: d.id,
@@ -68,7 +71,7 @@ const technicians = DOCTOR_MASTER.filter((d) => d.title === '技师' || d.title 
 // ============================================================
 // [v3.0.6.8-28] 30天收入数据 - 来源: DAILY_KPI_PRE × 400 元/检查
 // ============================================================
-const dailyRevenue = DAILY_KPI_PRE.map((d, idx) => ({
+const staticDailyRevenue = DAILY_KPI_PRE.map((d, idx) => ({
   day: idx + 1,
   revenue: d.examCount * 400,
 }));
@@ -76,7 +79,7 @@ const dailyRevenue = DAILY_KPI_PRE.map((d, idx) => ({
 // ============================================================
 // [v3.0.6.8-28] 检查项目收入分布 - 来源: EXAM_REPORT_PRE 按 modality 聚合
 // ============================================================
-const examRevenue = (() => {
+const staticExamRevenue = (() => {
   const priceMap: Record<string, number> = { CT: 400, MR: 800, DR: 80, US: 120, MG: 200, DSA: 3500 };
   const counts: Record<string, number> = {};
   EXAM_REPORT_PRE.forEach((r) => { counts[r.modality] = (counts[r.modality] || 0) + 1; });
@@ -96,7 +99,7 @@ const examRevenue = (() => {
 // ============================================================
 // 卫材成本 - 保留 (运营成本, 无主数据来源)
 // ============================================================
-const materialCost = {
+const staticMaterialCost = {
   contrastAgent: 125600,
   film: 45600,
   syringe: 28300,
@@ -108,7 +111,7 @@ const materialCost = {
 // ============================================================
 // [v3.0.6.8-28] 质控问题统计 - 来源: QUALITY_SCORE_PRE.defects 聚合
 // ============================================================
-const qcIssues = (() => {
+const staticQcIssues = (() => {
   const issueTypeMap: Record<string, string> = {
     'DSC-001': '描述与结论不符',
     'DSC-002': '描述不完整',
@@ -145,6 +148,31 @@ interface StatCardData {
 }
 
 // ============================================================
+// [W3-B] 实时数据模型 + 演示数据回退
+// ============================================================
+interface LiveDirectorDoctor { id: string; name: string; title: string; exams: number; reports: number; positiveRate: number; modifyRate: number; formatScore: number; diagScore: number; timeScore: number }
+interface LiveDirectorDevice { id: string; name: string; type: string; utilization: number; fullRate: number; faultRate: number }
+interface LiveDirectorRevenue { day: number; revenue: number }
+interface LiveDirectorExamRevenue { name: string; amount: number; percent: number; count: number }
+interface LiveDirectorData {
+  doctors: LiveDirectorDoctor[];
+  devices: LiveDirectorDevice[];
+  dailyRevenue: LiveDirectorRevenue[];
+  examRevenue: LiveDirectorExamRevenue[];
+  todayStats: StatCardData[];
+}
+
+// 静态演示统计卡 (API 不可用时回退)
+const staticTodayStats: StatCardData[] = [
+  { label: '今日检查总量', value: '856', subValue: 'CT: 285 | MR: 198 | DXR: 373' },
+  { label: '报告书写量', value: '782', subValue: '今日: 142 | 本周: 856 | 本月: 3248' },
+  { label: '阳性检出率', value: '58.6%', subValue: '较上月 +2.3%', color: '#22c55e' },
+  { label: '危急值处理率', value: '98.2%', subValue: '待处理: 2例', color: '#1e40af' },
+  { label: '设备使用率', value: '77.8%', subValue: '运行中: 6/8台', color: '#f59e0b' },
+  { label: '当日收入', value: '¥142,850', subValue: '较昨日 +5.2%', color: '#22c55e' },
+];
+
+// ============================================================
 // Tab类型
 // ============================================================
 type TabType = 'workload' | 'equipment' | 'quality' | 'revenue';
@@ -154,8 +182,142 @@ type TabType = 'workload' | 'equipment' | 'quality' | 'revenue';
 // ============================================================
 const DirectorDashboardPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('workload');
-  const [loading] = useState(false);
-  const [error] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [live, setLive] = useState<LiveDirectorData | null>(null);
+  const [fallbackBlocks, setFallbackBlocks] = useState<string[]>([]);
+
+  // 实时优先, 演示数据回退
+  const doctors = live?.doctors?.length ? live.doctors : staticDoctors;
+  const devices = live?.devices?.length ? live.devices : staticDevices;
+  const technicians = staticTechnicians;
+  const dailyRevenue = live?.dailyRevenue?.length ? live.dailyRevenue : staticDailyRevenue;
+  const examRevenue = live?.examRevenue?.length ? live.examRevenue : staticExamRevenue;
+  const qcIssues = staticQcIssues;
+  const materialCost = staticMaterialCost;
+  const todayStats = live?.todayStats ?? staticTodayStats;
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [dailyR, trendR, workloadR, kpiR, slaR, oeeR, byModR] = await Promise.allSettled([
+        statsApi.getDaily(),
+        statsApi.getTrend(30),
+        statsApi.getWorkload(),
+        biApi.getKpi(),
+        biApi.getCriticalSla(),
+        biApi.getDeviceOee(14),
+        statsApi.getByModality(),
+      ]);
+      const ok = (r: PromiseSettledResult<any>): boolean => r.status === 'fulfilled' && r.value?.success === true && r.value.data != null;
+      const val = (r: PromiseSettledResult<any>): any => (r.status === 'fulfilled' ? r.value?.data : null);
+      const daily = ok(dailyR) ? val(dailyR) : null;
+      const trend = ok(trendR) && Array.isArray(val(trendR)) ? val(trendR) : [];
+      const workload = ok(workloadR) && Array.isArray(val(workloadR)) ? val(workloadR) : [];
+      const kpiEnv = ok(kpiR) ? val(kpiR) : null;
+      const slaEnv = ok(slaR) ? val(slaR) : null;
+      const oeeEnv = ok(oeeR) ? val(oeeR) : null;
+      const byMod = ok(byModR) && typeof val(byModR) === 'object' ? val(byModR) : null;
+      const kpi = kpiEnv?.data ?? null;
+      const sla = slaEnv?.data ?? null;
+      const oeeDevices = Array.isArray(oeeEnv?.data?.devices) ? oeeEnv.data.devices : [];
+
+      const hasAny = !!daily || trend.length > 0 || workload.length > 0 || oeeDevices.length > 0 || !!kpi || !!sla;
+      if (!hasAny) {
+        setLive(null);
+        setFallbackBlocks(['全部区块']);
+        return;
+      }
+
+      const fb: string[] = [];
+      if (!daily) fb.push('今日统计卡');
+      if (trend.length === 0) fb.push('每日收入趋势');
+      if (workload.length === 0) fb.push('医生工作量排名');
+      if (byMod == null) fb.push('检查项目收入分布');
+      fb.push('技师工作量排名', '质控问题统计', '卫材成本');
+
+      // 医生排名: stats.workload (score → 综合评分)
+      const liveDoctors: LiveDirectorDoctor[] = workload.slice(0, 10).map((w: any) => {
+        const reportCount = Number(w.reportCount ?? w.totalReports ?? 0);
+        const examCount = Number(w.examCount ?? reportCount);
+        const score = Math.min(100, Math.max(0, Number(w.score ?? w.avgQCScore ?? 0)));
+        return {
+          id: String(w.doctorId ?? ''),
+          name: String(w.doctorName ?? '未知'),
+          title: String(w.title ?? '医师'),
+          exams: examCount,
+          reports: reportCount,
+          positiveRate: 0,
+          modifyRate: 0,
+          formatScore: Math.round(score),
+          diagScore: Math.round(score),
+          timeScore: Math.round(score),
+        };
+      });
+
+      // 设备: biApi.device-oee (availability→使用率, performance→满员率)
+      const liveDevices: LiveDirectorDevice[] = oeeDevices.map((d: any) => ({
+        id: String(d.deviceId ?? ''),
+        name: String(d.deviceName ?? ''),
+        type: String(d.modality ?? ''),
+        utilization: Math.round(Number(d.avgAvailability ?? 0)),
+        fullRate: Math.round(Number(d.avgPerformance ?? 0)),
+        faultRate: 0,
+      }));
+
+      // 每日收入: stats.trend × 400元/例 (估算)
+      const liveDailyRevenue: LiveDirectorRevenue[] = trend.map((t: any, i: number) => ({
+        day: i + 1,
+        revenue: Number(t.examCount ?? 0) * 400,
+      }));
+
+      // 检查项目收入分布: stats.by-modality
+      const priceMap: Record<string, number> = { CT: 400, MR: 800, DR: 80, US: 120, MG: 200, DSA: 3500 };
+      const labelMap: Record<string, string> = { CT: 'CT检查', MR: 'MRI检查', DR: 'X线摄影', US: '超声检查', DSA: 'DSA造影', MG: '钼靶' };
+      const counts: Record<string, number> = {};
+      for (const [mod, v] of Object.entries(byMod ?? {})) {
+        const rec = v as Record<string, unknown>;
+        counts[mod] = Number(rec?.total ?? 0);
+      }
+      const total = Object.values(counts).reduce((s, v) => s + v, 0) || 1;
+      const liveExamRevenue: LiveDirectorExamRevenue[] = Object.entries(counts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 6)
+        .map(([mod, count]) => ({
+          name: labelMap[mod] || mod,
+          amount: Math.round(count * (priceMap[mod] || 200)),
+          percent: Math.round((count / total) * 100),
+          count,
+        }));
+
+      // 顶部统计卡: stats.daily / bi.kpi / bi.critical-sla / bi.device-oee
+      const byModality = (daily?.byModality ?? {}) as Record<string, number>;
+      const modSub = Object.entries(byModality).map(([m, c]) => `${m}: ${c}`).join(' | ');
+      const oeeAvg = oeeDevices.length > 0 ? Math.round(oeeDevices.reduce((s: number, d: any) => s + Number(d.avgOee ?? 0), 0) / oeeDevices.length) : 0;
+      const dailyExams = Number(daily?.examCount ?? 0);
+      const dailyReports = Number(daily?.reportCount ?? 0);
+      const liveTodayStats: StatCardData[] = [
+        { label: '今日检查总量', value: daily ? String(dailyExams) : '—', subValue: modSub || '—' },
+        { label: '报告书写量', value: daily ? String(dailyReports) : '—', subValue: daily ? `待写: ${Math.max(0, dailyExams - dailyReports)} 份` : '—' },
+        { label: '危急值处理率', value: sla ? `${sla.complianceRate}%` : '—', subValue: sla ? `待处理: ${(sla.overdue ?? []).length} 例` : '—', color: '#1e40af' },
+        { label: '报告完成率', value: kpi ? `${kpi.completionRate}%` : '—', subValue: kpi ? `平均 ${kpi.avgReportMinutes} min` : '—', color: '#22c55e' },
+        { label: '设备平均OEE', value: oeeAvg ? `${oeeAvg}%` : '—', subValue: oeeDevices.length ? `监控 ${oeeDevices.length} 台` : '—', color: '#f59e0b' },
+        { label: '当日收入(估算)', value: daily ? `¥${(dailyExams * 400).toLocaleString()}` : '—', subValue: '按 400元/例 估算', color: '#22c55e' },
+      ];
+
+      setLive({ doctors: liveDoctors, devices: liveDevices, dailyRevenue: liveDailyRevenue, examRevenue: liveExamRevenue, todayStats: liveTodayStats });
+      setFallbackBlocks(fb);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '数据加载失败，已展示演示数据');
+      setLive(null);
+      setFallbackBlocks(['全部区块']);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { void load(); }, [load]);
 
   const dataAvailable = doctors.length > 0;
 
@@ -356,16 +518,6 @@ const DirectorDashboardPage: React.FC = () => {
     return '#ef4444';
   };
 
-  // 计算统计数据
-  const todayStats: StatCardData[] = [
-    { label: '今日检查总量', value: '856', subValue: 'CT: 285 | MR: 198 | DXR: 373' },
-    { label: '报告书写量', value: '782', subValue: '今日: 142 | 本周: 856 | 本月: 3248' },
-    { label: '阳性检出率', value: '58.6%', subValue: '较上月 +2.3%', color: '#22c55e' },
-    { label: '危急值处理率', value: '98.2%', subValue: '待处理: 2例', color: '#1e40af' },
-    { label: '设备使用率', value: '77.8%', subValue: '运行中: 6/8台', color: '#f59e0b' },
-    { label: '当日收入', value: '¥142,850', subValue: '较昨日 +5.2%', color: '#22c55e' },
-  ];
-
   // 排名奖励
   const getRankBadge = (rank: number) => {
     if (rank === 1) return { emoji: '🥇', text: '金牌', bg: '#fef3c7', color: '#92400e' };
@@ -414,10 +566,10 @@ const DirectorDashboardPage: React.FC = () => {
                   <td style={styles.td}>{doc.exams}</td>
                   <td style={styles.td}>{doc.reports}</td>
                   <td style={{ ...styles.td, color: doc.positiveRate > 60 ? '#22c55e' : '#64748b' }}>
-                    {doc.positiveRate}%
+                    {doc.positiveRate > 0 ? `${doc.positiveRate}%` : '—'}
                   </td>
                   <td style={{ ...styles.td, color: doc.modifyRate > 5 ? '#ef4444' : '#64748b' }}>
-                    {doc.modifyRate}%
+                    {doc.modifyRate > 0 ? `${doc.modifyRate}%` : '—'}
                   </td>
                   <td style={styles.td}>
                     <span style={{
@@ -586,7 +738,7 @@ const DirectorDashboardPage: React.FC = () => {
                   <td style={styles.td}>{device.name}</td>
                   <td style={styles.td}>
                     <span style={{ fontWeight: '600', color: device.faultRate > 2 ? '#ef4444' : '#64748b' }}>
-                      {device.faultRate}%
+                      {device.faultRate > 0 ? `${device.faultRate}%` : '—'}
                     </span>
                   </td>
                   <td style={styles.td}>
@@ -728,7 +880,7 @@ const DirectorDashboardPage: React.FC = () => {
     return (
       <div>
         <div style={{ marginBottom: '24px' }}>
-          <div style={styles.sectionTitle}>📈 每日收入折线图（近30天）</div>
+          <div style={styles.sectionTitle}>📈 每日收入折线图（近30天 · 按 400元/例 估算）</div>
           <div style={styles.lineChart}>
             <svg width="100%" height="200" viewBox="0 0 900 200" preserveAspectRatio="xMidYMid meet">
               {/* 网格线 */}
@@ -836,7 +988,6 @@ const DirectorDashboardPage: React.FC = () => {
   };
 
   if (loading) return <div role="status" data-testid="director-loading" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
-  if (error) return <div role="alert" data-testid="director-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
   if (!dataAvailable) {
     return (
       <div data-testid="director-empty" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>
@@ -850,11 +1001,45 @@ const DirectorDashboardPage: React.FC = () => {
     <div style={styles.container}>
       {/* 头部 */}
       <div style={styles.header}>
-        <div style={styles.headerTitle}>主任综合管理驾驶舱</div>
-        <div style={styles.headerSubtitle}>
-          汉东省人民医院 · 放射科 | 数据更新时间: {new Date().toLocaleString('zh-CN')}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+          <div>
+            <div style={styles.headerTitle}>主任综合管理驾驶舱</div>
+            <div style={styles.headerSubtitle}>
+              汉东省人民医院 · 放射科 | 数据更新时间: {new Date().toLocaleString('zh-CN')}
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {live && (
+              <span style={{ padding: '5px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600, background: '#dcfce7', color: '#166534' }}>
+                statsApi / biApi 实时
+              </span>
+            )}
+            {!live && (
+              <span style={{ padding: '5px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600, background: '#fef3c7', color: '#92400e' }}>
+                演示数据
+              </span>
+            )}
+            <button
+              onClick={() => void load()}
+              style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#ffffff', color: '#1e40af', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+            >
+              🔄 刷新
+            </button>
+          </div>
         </div>
       </div>
+
+      {error && (
+        <div style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', borderRadius: 8, padding: '10px 16px', fontSize: 13, marginBottom: 16 }}>
+          {error}
+          <button onClick={() => void load()} style={{ marginLeft: 12, padding: '3px 10px', borderRadius: 4, border: '1px solid #b91c1c', background: 'transparent', color: '#b91c1c', cursor: 'pointer', fontSize: 12 }}>重试</button>
+        </div>
+      )}
+      {fallbackBlocks.length > 0 && (
+        <div style={{ background: '#fffbeb', border: '1px solid #fde68a', color: '#92400e', borderRadius: 8, padding: '10px 16px', fontSize: 12, marginBottom: 16 }}>
+          以下区块为演示数据: {fallbackBlocks.join(' / ')}
+        </div>
+      )}
 
       {/* 顶部统计卡片 */}
       <div style={styles.statsGrid}>

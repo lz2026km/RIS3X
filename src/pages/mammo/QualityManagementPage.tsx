@@ -1,15 +1,8 @@
 // 6.7 Quality Management (20 pts)
-import { useState, useMemo } from 'react'
+// 数据源: mammoQcApi (/mammo-qc/overview + /mammo-qc/records, MSW 演示数据, 后端待实现)
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import { Shield, CheckCircle, XCircle, Download, RefreshCw, Filter, Target, BarChart3, Activity, Users, FileText } from 'lucide-react'
-
-const statsData = [
-  { label: '整体质量评分', value: '92.4', unit: '分', icon: Shield, color: '#2563eb', bg: '#eff6ff' },
-  { label: '符合ACR标准', value: '98.2', unit: '%', icon: CheckCircle, color: '#16a34a', bg: '#f0fdf4' },
-  { label: '召回率', value: '8.6', unit: '%', sub: '目标<10%', icon: Target, color: '#ca8a04', bg: '#fefce8' },
-  { label: '平均剂量', value: '2.4', unit: 'mGy', icon: Activity, color: '#ea580c', bg: '#fff7ed' },
-  { label: '图像不合格率', value: '3.2', unit: '%', icon: XCircle, color: '#dc2626', bg: '#fef2f2' },
-  { label: '技师一致性', value: '88.5', unit: '%', icon: Users, color: '#7c3aed', bg: '#f5f3ff' },
-]
+import { mammoQcApi, type MammoQcOverview, type MammoQcRecord } from '../../services/api/mammoQcApi'
 
 const s: Record<string, React.CSSProperties> = {
   root: { padding: 0 },
@@ -24,7 +17,6 @@ const s: Record<string, React.CSSProperties> = {
   statSub: { fontSize: 12, color: '#94a3b8', marginTop: 2 },
   section: { background: '#fff', borderRadius: 12, padding: 20, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
   sectionTitle: { fontSize: 15, fontWeight: 700, color: '#1a3a5c', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 },
-  grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 },
   grid3: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 },
   btn: { padding: '8px 14px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
   btnPrimary: { padding: '8px 14px', borderRadius: 8, border: 'none', background: '#2563eb', color: '#fff', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
@@ -47,35 +39,70 @@ const StatusBadge = ({ status }: { status: string }) => {
 }
 
 const QualityManagementPage = () => {
-  const [_tab] = useState(1)
   const [search, setSearch] = useState('')
+  const [overview, setOverview] = useState<MammoQcOverview | null>(null)
+  const [records, setRecords] = useState<MammoQcRecord[]>([])
+  const [source, setSource] = useState<'database' | 'demo'>('demo')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const qaRecords = useMemo(() => Array.from({ length: 50 }, (_, i) => {
-    const score = 60 + Math.floor(Math.random() * 40)
-    const status = score >= 80 ? '合格' : score >= 60 ? '待复评' : '不合格'
-    return {
-      id: i + 1, date: `2026-${String(1 + (i % 5)).padStart(2, '0')}-${String(5 + i).padStart(2, '0')}`,
-      patient: `患者${String.fromCharCode(65 + (i % 26))}${i}`,
-      modality: ['MG', 'TOM', 'US', 'MRI'][i % 4],
-      score, status, technologist: ['王芳', '李艳', '张敏', '刘洁', '陈静'][i % 5],
-      issue: score < 70 ? '压缩不足' : score < 80 ? '定位偏移' : '',
+  const fetchAll = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const [ovRes, recRes] = await Promise.all([mammoQcApi.getOverview(), mammoQcApi.listRecords()])
+      if (!ovRes.success) throw new Error((ovRes.error as { message?: string })?.message || '质量概览加载失败')
+      if (!recRes.success) throw new Error((recRes.error as { message?: string })?.message || '审核记录加载失败')
+      setOverview(ovRes.data?.data ?? null)
+      setRecords(recRes.data?.data ?? [])
+      setSource(ovRes.data?.source ?? 'demo')
+    } catch (e) {
+      setError((e as Error)?.message || '加载失败')
+    } finally {
+      setLoading(false)
     }
-  }), [])
+  }, [])
 
-  const filtered = qaRecords.filter(r => r.patient.includes(search) || r.technologist.includes(search))
+  useEffect(() => { fetchAll() }, [fetchAll])
+
+  const statsData = useMemo(() => [
+    { label: '整体质量评分', value: overview?.overallScore?.toFixed(1) ?? '-', unit: '分', icon: Shield, color: '#2563eb', bg: '#eff6ff' },
+    { label: '符合ACR标准', value: overview?.acrComplianceRate?.toFixed(1) ?? '-', unit: '%', icon: CheckCircle, color: '#16a34a', bg: '#f0fdf4' },
+    { label: '召回率', value: overview?.recallRate?.toFixed(1) ?? '-', unit: '%', sub: '目标<10%', icon: Target, color: '#ca8a04', bg: '#fefce8' },
+    { label: '平均剂量', value: overview?.avgDoseMgy?.toFixed(1) ?? '-', unit: 'mGy', icon: Activity, color: '#ea580c', bg: '#fff7ed' },
+    { label: '图像不合格率', value: overview?.imageFailRate?.toFixed(1) ?? '-', unit: '%', icon: XCircle, color: '#dc2626', bg: '#fef2f2' },
+    { label: '技师一致性', value: overview?.technologistConsistency?.toFixed(1) ?? '-', unit: '%', icon: Users, color: '#7c3aed', bg: '#f5f3ff' },
+  ], [overview])
+
+  const acrChecks = overview?.acrChecks ?? []
+
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase()
+    return records.filter(r => r.patient.toLowerCase().includes(q) || r.technologist.toLowerCase().includes(q))
+  }, [records, search])
 
   return (
     <div style={s.root}>
       <div style={s.header}>
         <div>
           <h1 style={s.title}>乳腺影像质量管理</h1>
-          <p style={s.subtitle}>Mammography Quality Management · ACR/FDA合规 · 图像质量控制 · 技师考核</p>
+          <p style={s.subtitle}>乳腺摄影质量管理 · ACR/FDA合规 · 图像质量控制 · 技师考核</p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button style={s.btn}><RefreshCw size={14} /> 同步</button>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <span style={{ fontSize: 12, padding: '5px 10px', borderRadius: 6, background: source === 'demo' ? '#fffbeb' : '#ecfdf5', border: `1px solid ${source === 'demo' ? '#f59e0b' : '#10b981'}`, color: source === 'demo' ? '#b45309' : '#047857' }}>
+            {source === 'demo' ? '演示数据（MSW，后端待实现）' : '真实数据（数据库聚合）'}
+          </span>
+          <button style={s.btn} onClick={fetchAll}><RefreshCw size={14} /> 同步</button>
           <button style={s.btnPrimary}><Download size={14} /> 导出报告</button>
         </div>
       </div>
+
+      {error && (
+        <div style={{ marginBottom: 16, padding: '10px 14px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, fontSize: 13, color: '#b91c1c', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span>加载失败：{error}</span>
+          <button onClick={fetchAll} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #fca5a5', background: '#fff', color: '#b91c1c', cursor: 'pointer', fontSize: 12 }}>重试</button>
+        </div>
+      )}
 
       <div style={s.statsRow}>
         {statsData.map((stat, i) => (
@@ -91,14 +118,7 @@ const QualityManagementPage = () => {
       <div style={{ ...s.section }}>
         <div style={s.sectionTitle}><BarChart3 size={16} color='#2563eb' />ACR合规检查</div>
         <div style={s.grid3}>
-          {[
-            { name: '体位标准', score: 96, items: ['CC位胸大肌显示', 'MLO位乳房下角', '乳头轮廓'] },
-            { name: '曝光参数', score: 92, items: ['mAs范围', 'kVp准确度', 'AEC校准'] },
-            { name: '图像质量', score: 88, items: ['锐利度', '对比度', '噪声水平'] },
-            { name: '剂量水平', score: 95, items: ['AGD限值', '压迫厚度', '乳腺密度校正'] },
-            { name: '技师操作', score: 90, items: ['定位重复性', '压迫力控制', '患者标识'] },
-            { name: '设备性能', score: 93, items: ['MQSA合规', '日常质控记录', '校准状态'] },
-          ].map((item, i) => (
+          {acrChecks.map((item, i) => (
             <div key={i} style={{ padding: 14, background: '#f8fafc', borderRadius: 10 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                 <span style={{ fontWeight: 600, fontSize: 13 }}>{item.name}</span>
@@ -110,6 +130,7 @@ const QualityManagementPage = () => {
               </ul>
             </div>
           ))}
+          {!loading && acrChecks.length === 0 && <div style={{ fontSize: 13, color: '#94a3b8', padding: 12 }}>暂无 ACR 合规检查数据</div>}
         </div>
       </div>
 
@@ -117,7 +138,7 @@ const QualityManagementPage = () => {
         <div style={s.sectionTitle}><FileText size={16} color='#7c3aed' />质量审核记录</div>
         <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
           <input style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none' }} placeholder='搜索患者或技师...' value={search} onChange={e => setSearch(e.target.value)} />
-          <button style={s.btn}><Filter size={14} /> 筛选</button>
+          <button style={s.btn} onClick={fetchAll}><Filter size={14} /> 刷新</button>
         </div>
         <div style={s.scrollBox}>
           <table style={s.table}>
@@ -126,7 +147,8 @@ const QualityManagementPage = () => {
               <th style={s.th}>评分</th><th style={s.th}>状态</th><th style={s.th}>技师</th><th style={s.th}>问题</th>
             </tr></thead>
             <tbody>
-              {filtered.slice(0, 12).map(r => (
+              {loading && <tr><td colSpan={7} style={{ ...s.td, textAlign: 'center', color: '#94a3b8' }}>数据加载中...</td></tr>}
+              {!loading && filtered.slice(0, 12).map(r => (
                 <tr key={r.id}>
                   <td style={s.td}>{r.date}</td>
                   <td style={s.td}>{r.patient}</td>
@@ -137,6 +159,7 @@ const QualityManagementPage = () => {
                   <td style={{ ...s.td, color: '#64748b' }}>{r.issue || '-'}</td>
                 </tr>
               ))}
+              {!loading && filtered.length === 0 && <tr><td colSpan={7} style={{ ...s.td, textAlign: 'center', color: '#94a3b8' }}>暂无匹配记录</td></tr>}
             </tbody>
           </table>
         </div>

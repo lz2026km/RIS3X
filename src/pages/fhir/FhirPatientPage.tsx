@@ -17,9 +17,13 @@ export const FhirPatientPage: React.FC = () => {
   const [editingPatient, setEditingPatient] = useState<FhirPatient | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedPatient, setSelectedPatient] = useState<FhirPatient | null>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
   const [form] = Form.useForm()
   const [searchForm] = Form.useForm()
   const [saving, setSaving] = useState(false)
+  const [everythingOpen, setEverythingOpen] = useState(false)
+  const [everythingLoading, setEverythingLoading] = useState(false)
+  const [everythingEntries, setEverythingEntries] = useState<{ resourceType: string; id?: string; date?: string; summary?: string }[]>([])
 
   const fetchPatients = useCallback(async (p: number = 1, params: { name?: string; identifier?: string } = {}) => {
     setLoading(true)
@@ -107,9 +111,47 @@ export const FhirPatientPage: React.FC = () => {
     }
   }
 
-  const handleDetail = (patient: FhirPatient) => {
-    setSelectedPatient(patient)
+  const handleDetail = async (patient: FhirPatient) => {
     setDetailOpen(true)
+    setDetailLoading(true)
+    setSelectedPatient(patient)
+    try {
+      const res = await fhirApi.readPatient(patient.id!)
+      if (res.success && res.data) {
+        setSelectedPatient(res.data)
+      } else {
+        message.warning(res.error?.message ?? 'Patient 详情加载失败，展示列表数据')
+      }
+    } catch {
+      message.warning('Patient 详情加载失败，展示列表数据')
+    }
+    setDetailLoading(false)
+  }
+
+  const handleEverything = async (patient: FhirPatient) => {
+    setEverythingOpen(true)
+    setEverythingLoading(true)
+    setEverythingEntries([])
+    try {
+      const res = await fhirApi.patientEverything(patient.id!)
+      if (res.success && res.data) {
+        const entries = res.data.entry || []
+        setEverythingEntries(entries.map((e) => {
+          const r = e.resource as any
+          return {
+            resourceType: r.resourceType || '-',
+            id: r.id || '-',
+            date: r.effectiveDateTime || r.started || r.issued || r.birthDate || '-',
+            summary: r.code?.text || r.code?.coding?.[0]?.display || r.name?.[0] ? `${r.name?.[0]?.family || ''} ${(r.name?.[0]?.given || []).join(' ')}`.trim() : '-',
+          }
+        }))
+      } else {
+        message.warning(res.error?.message ?? '360 视图加载失败')
+      }
+    } catch {
+      message.warning('360 视图加载失败')
+    }
+    setEverythingLoading(false)
   }
 
   const columns = [
@@ -193,6 +235,7 @@ export const FhirPatientPage: React.FC = () => {
           columns={columns}
           rowKey="id"
           loading={loading}
+          onRow={(r) => ({ onClick: () => handleDetail(r), style: { cursor: 'pointer' } })}
           pagination={{ current: page, total, pageSize: PAGE_SIZE, onChange: setPage, showSizeChanger: false }}
           size="small"
         />
@@ -238,10 +281,24 @@ export const FhirPatientPage: React.FC = () => {
         title="Patient 详情"
         open={detailOpen}
         onCancel={() => setDetailOpen(false)}
-        footer={<Button onClick={() => setDetailOpen(false)}>关闭</Button>}
+        footer={
+          <Space>
+            <Button
+              type="primary"
+              icon={<Eye size={12} />}
+              loading={everythingLoading}
+              onClick={() => selectedPatient && handleEverything(selectedPatient)}
+            >
+              360 视图 ($everything)
+            </Button>
+            <Button onClick={() => setDetailOpen(false)}>关闭</Button>
+          </Space>
+        }
         width={600}
       >
-        {selectedPatient ? (
+        {detailLoading ? (
+          <div style={{ textAlign: 'center', padding: '32px 0', color: '#999' }}>加载详情...</div>
+        ) : selectedPatient ? (
           <Descriptions column={2} size="small" bordered>
             <Descriptions.Item label="ID">{selectedPatient.id}</Descriptions.Item>
             <Descriptions.Item label="资源类型">{selectedPatient.resourceType}</Descriptions.Item>
@@ -252,6 +309,33 @@ export const FhirPatientPage: React.FC = () => {
             <Descriptions.Item label="地址" span={2}>{selectedPatient.address?.[0]?.city || '-'}</Descriptions.Item>
           </Descriptions>
         ) : <Empty />}
+      </Modal>
+
+      <Modal
+        title="Patient 360 视图 ($everything)"
+        open={everythingOpen}
+        onCancel={() => setEverythingOpen(false)}
+        footer={<Button onClick={() => setEverythingOpen(false)}>关闭</Button>}
+        width={720}
+      >
+        {everythingLoading ? (
+          <div style={{ textAlign: 'center', padding: '32px 0', color: '#999' }}>加载患者全部资源...</div>
+        ) : everythingEntries.length === 0 ? (
+          <Empty description="暂无关联资源" />
+        ) : (
+          <Table
+            dataSource={everythingEntries}
+            rowKey={(r) => `${r.resourceType}-${r.id}`}
+            size="small"
+            pagination={false}
+            columns={[
+              { title: '资源类型', dataIndex: 'resourceType', render: (v: string) => <Tag color="blue">{v}</Tag> },
+              { title: 'ID', dataIndex: 'id', render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span> },
+              { title: '概要', dataIndex: 'summary' },
+              { title: '时间', dataIndex: 'date' },
+            ]}
+          />
+        )}
       </Modal>
     </div>
   )

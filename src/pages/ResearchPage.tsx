@@ -423,6 +423,21 @@ function LabelsTab() {
     setShowAddModal(false); setNewLabel({ name: '', type: '诊断', color: '#3b82f6' })
   }
   const filteredLabels = labels.filter(label => { const matchKeyword = label.name.toLowerCase().includes(searchKeyword.toLowerCase()); const matchType = !filterType || label.type === filterType; return matchKeyword && matchType })
+  const [showBatchModal, setShowBatchModal] = useState(false)
+  const [batchLabelId, setBatchLabelId] = useState<string>('')
+  const [annotatedCount, setAnnotatedCount] = useState(0)
+  const [annotatedLabels, setAnnotatedLabels] = useState<Record<string, number>>({})
+  const [showCatalogModal, setShowCatalogModal] = useState(false)
+
+  const handleBatchAnnotate = async () => {
+    const label = labels.find(l => l.id === batchLabelId)
+    if (!label) return
+    setAnnotatedCount(prev => prev + 50)
+    setAnnotatedLabels(prev => ({ ...prev, [label.name]: (prev[label.name] ?? 0) + 50 }))
+    setLabels(prev => prev.map(l => l.id === label.id ? { ...l, useCount: l.useCount + 50 } : l))
+    setShowBatchModal(false)
+    setBatchLabelId('')
+  }
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
@@ -447,9 +462,26 @@ function LabelsTab() {
       </div>
       <div style={{ marginTop: 20, padding: 20, background: COLORS.primaryLighter, borderRadius: 12, border: '1px solid ' + COLORS.primaryLight }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><Tag size={16} /> 已抽取数据标签管理</div>
-        <div style={{ fontSize: 13, color: COLORS.textSecondary }}><p style={{ marginBottom: 8 }}>当前已抽取记录：50条</p><p>为已抽取的影像数据添加诊断标签、部位标签和特征标签，便于后续研究和分析。</p></div>
-        <div style={{ marginTop: 16, display: 'flex', gap: 12 }}><button style={{ padding: '10px 16px', background: COLORS.primary, color: '#ffffff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>批量标注</button><button style={{ padding: '10px 16px', background: COLORS.bgWhite, color: COLORS.primary, border: '1px solid ' + COLORS.primary, borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>查看已标注目录</button></div>
+        <div style={{ fontSize: 13, color: COLORS.textSecondary }}><p style={{ marginBottom: 8 }}>当前已抽取记录：50条</p><p>为已抽取的影像数据添加诊断标签、部位标签和特征标签，便于后续研究和分析。</p><p style={{ marginTop: 8, color: COLORS.primary, fontWeight: 600 }}>已标注: {annotatedCount}/50 条 {Object.entries(annotatedLabels).map(([name, cnt]) => `· ${name} ${cnt}条`).join('')}</p></div>
+        <div style={{ marginTop: 16, display: 'flex', gap: 12 }}><button onClick={() => setShowBatchModal(true)} style={{ padding: '10px 16px', background: COLORS.primary, color: '#ffffff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>批量标注</button><button onClick={() => setShowCatalogModal(true)} style={{ padding: '10px 16px', background: COLORS.bgWhite, color: COLORS.primary, border: '1px solid ' + COLORS.primary, borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>查看已标注目录</button></div>
       </div>
+      <Modal open={showBatchModal} onClose={() => setShowBatchModal(false)} title="批量标注已抽取记录" width={440}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ padding: 12, background: COLORS.primaryLighter, borderRadius: 8, fontSize: 13, color: COLORS.primary }}>将使用所选标签为全部 50 条已抽取记录添加标注。</div>
+          <div><label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>选择标签</label><select value={batchLabelId} onChange={e => setBatchLabelId(e.target.value)} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box', background: COLORS.bgWhite }}><option value="">请选择标签</option>{labels.map(l => <option key={l.id} value={l.id}>{l.name}（{l.type}）</option>)}</select></div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 8 }}><button onClick={() => setShowBatchModal(false)} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>取消</button><button onClick={() => void handleBatchAnnotate()} disabled={!batchLabelId} style={{ padding: '10px 20px', background: batchLabelId ? COLORS.primary : COLORS.bgGray, color: batchLabelId ? '#ffffff' : COLORS.textLight, border: 'none', borderRadius: 8, cursor: batchLabelId ? 'pointer' : 'not-allowed', fontSize: 14, fontWeight: 600 }}>确认标注</button></div>
+        </div>
+      </Modal>
+      <Modal open={showCatalogModal} onClose={() => setShowCatalogModal(false)} title="已标注目录" width={520}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {Object.keys(annotatedLabels).length === 0 ? <div style={{ padding: 24, textAlign: 'center', color: COLORS.textLight, fontSize: 13 }}>暂无可标注目录，请先执行「批量标注」</div> : Object.entries(annotatedLabels).map(([name, cnt]) => (
+            <div key={name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: COLORS.bgGray, borderRadius: 8 }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.textPrimary }}>{name}</span>
+              <span style={{ fontSize: 13, color: COLORS.primary, fontWeight: 600 }}>{cnt} 条记录</span>
+            </div>
+          ))}
+        </div>
+      </Modal>
       <Modal open={showAddModal} onClose={() => setShowAddModal(false)} title="添加自定义标签" width={440}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div><label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: COLORS.textPrimary, marginBottom: 6 }}>标签名称</label><input type="text" value={newLabel.name} onChange={e => setNewLabel({ ...newLabel, name: e.target.value })} placeholder="请输入标签名称" style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} /></div>
@@ -686,6 +718,7 @@ function IRBWorkflowTab() {
     })()
   }, [])
   const [form, setForm] = useState({ projectName: '', pi: '', consentForm: '' })
+  const [viewing, setViewing] = useState<IRBSubmission | null>(null)
   const submitIRB = () => {
     setSubmissions([...submissions, { id: `IRB${Date.now()}`, projectName: form.projectName, pi: form.pi, submittedDate: new Date().toISOString().split('T')[0]!, status: 'draft', approvedDate: '', expiryDate: '', consentForm: form.consentForm }])
     setShowForm(false); setForm({ projectName: '', pi: '', consentForm: '' }); showToast('IRB申请已提交', 'success')
@@ -708,7 +741,7 @@ function IRBWorkflowTab() {
               <td style={{ padding: '12px 16px' }}><span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: statusColors[s.status] + '20', color: statusColors[s.status] }}>{statusLabels[s.status]}</span></td>
               <td style={{ padding: '12px 16px', fontSize: 13, color: COLORS.textSecondary }}>{s.approvedDate || '-'}</td>
               <td style={{ padding: '12px 16px', fontSize: 13, color: COLORS.textSecondary }}>{s.expiryDate || '-'}</td>
-              <td style={{ padding: '12px 16px', textAlign: 'center' }}><button style={{ padding: '4px 10px', background: COLORS.primary, color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>查看</button></td>
+              <td style={{ padding: '12px 16px', textAlign: 'center' }}><button onClick={() => setViewing(s)} style={{ padding: '4px 10px', background: COLORS.primary, color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>查看</button></td>
             </tr>
           ))}</tbody>
         </table>
@@ -735,6 +768,23 @@ function IRBWorkflowTab() {
           <div><label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>知情同意书</label><input type="file" style={{ width: '100%', padding: '8px', borderRadius: 6, border: '1px solid ' + COLORS.border, fontSize: 14 }} /></div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}><button onClick={() => setShowForm(false)} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer' }}>取消</button><button onClick={submitIRB} style={{ padding: '10px 20px', background: COLORS.primary, color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600 }}>提交申请</button></div>
         </div>
+      </Modal>
+      <Modal open={!!viewing} onClose={() => setViewing(null)} title="IRB申请详情" width={480}>
+        {viewing && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ padding: 12, background: COLORS.bgGray, borderRadius: 8 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 4 }}>{viewing.projectName}</div>
+              <div style={{ fontSize: 12, color: COLORS.textSecondary }}>提交日期: {viewing.submittedDate} · PI: {viewing.pi}</div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 4 }}>状态</div><span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: statusColors[viewing.status] + '20', color: statusColors[viewing.status] }}>{statusLabels[viewing.status]}</span></div>
+              <div><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 4 }}>批准日期</div><div style={{ fontSize: 13, fontWeight: 600 }}>{viewing.approvedDate || '-'}</div></div>
+              <div><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 4 }}>到期日期</div><div style={{ fontSize: 13, fontWeight: 600 }}>{viewing.expiryDate || '-'}</div></div>
+              <div><div style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 4 }}>知情同意书</div><div style={{ fontSize: 13, fontWeight: 600 }}>{viewing.consentForm || '-'}</div></div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}><button onClick={() => setViewing(null)} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>关闭</button></div>
+          </div>
+        )}
       </Modal>
     </div>
   )
@@ -823,6 +873,7 @@ function ExportPipelineTab() {
 function DataQualityTab() {
   const [scores, setScores] = useState<DataQualityScore[]>([])
   const [, setLoading] = useState(true)
+  const [implemented, setImplemented] = useState<Record<string, string>>({})
 
   useEffect(() => {
     (async () => {
@@ -833,6 +884,13 @@ function DataQualityTab() {
       finally { setLoading(false) }
     })()
   }, [])
+
+  const handleImplement = (key: string) => {
+    setImplemented(prev => ({ ...prev, [key]: '进行中' }))
+    setTimeout(() => {
+      setImplemented(prev => ({ ...prev, [key]: '已完成' }))
+    }, 1500)
+  }
 
   const overallCompleteness = scores.length > 0 ? Math.round(scores.reduce((s, f) => s + f.completeness, 0) / scores.length) : 0
   const overallConsistency = scores.length > 0 ? Math.round(scores.reduce((s, f) => s + f.consistency, 0) / scores.length) : 0
@@ -875,18 +933,18 @@ function DataQualityTab() {
       <div style={{ background: COLORS.bgWhite, borderRadius: 12, border: '1px solid ' + COLORS.border, padding: 20 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><Activity size={16} /> 质量提升建议</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <div style={{ padding: 12, background: COLORS.warningLight, borderRadius: 6, borderLeft: '4px solid ' + COLORS.warning, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div><div style={{ fontSize: 13, fontWeight: 600 }}>自动补充缺失的身份证号</div><div style={{ fontSize: 12, color: COLORS.textSecondary }}>通过EMR接口自动获取缺失字段</div></div>
-            <button style={{ padding: '6px 12px', background: COLORS.warning, color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>实施</button>
-          </div>
-          <div style={{ padding: 12, background: COLORS.warningLight, borderRadius: 6, borderLeft: '4px solid ' + COLORS.warning, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div><div style={{ fontSize: 13, fontWeight: 600 }}>建立ICD编码自动映射规则</div><div style={{ fontSize: 12, color: COLORS.textSecondary }}>基于NLP自动生成诊断编码</div></div>
-            <button style={{ padding: '6px 12px', background: COLORS.warning, color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>实施</button>
-          </div>
-          <div style={{ padding: 12, background: COLORS.warningLight, borderRadius: 6, borderLeft: '4px solid ' + COLORS.warning, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div><div style={{ fontSize: 13, fontWeight: 600 }}>配置随访自动提醒机制</div><div style={{ fontSize: 12, color: COLORS.textSecondary }}>提升随访记录完整率</div></div>
-            <button style={{ padding: '6px 12px', background: COLORS.warning, color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>实施</button>
-          </div>
+          {[
+            { key: 'idcard', title: '自动补充缺失的身份证号', desc: '通过EMR接口自动获取缺失字段' },
+            { key: 'icd', title: '建立ICD编码自动映射规则', desc: '基于NLP自动生成诊断编码' },
+            { key: 'followup', title: '配置随访自动提醒机制', desc: '提升随访记录完整率' },
+          ].map(item => (
+            <div key={item.key} style={{ padding: 12, background: COLORS.warningLight, borderRadius: 6, borderLeft: '4px solid ' + COLORS.warning, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div><div style={{ fontSize: 13, fontWeight: 600 }}>{item.title}</div><div style={{ fontSize: 12, color: COLORS.textSecondary }}>{item.desc}</div></div>
+              <button onClick={() => handleImplement(item.key)} style={{ padding: '6px 12px', background: implemented[item.key] === '已完成' ? COLORS.success : COLORS.warning, color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, minWidth: 56 }}>
+                {implemented[item.key] === '已完成' ? '已完成' : implemented[item.key] === '进行中' ? '实施中' : '实施'}
+              </button>
+            </div>
+          ))}
         </div>
       </div>
     </div>

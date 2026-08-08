@@ -1,7 +1,11 @@
 // @ts-nocheck
 // G005 放射RIS系统 - 数据统计报表页 v1.0.0
 // 功能：多维度统计表格（按设备/按医生/按日期），报表导出功能
-import { useState } from 'react'
+// [W3-B] 已接入 statsApi / biApi 真实统计 (loading/error + 演示数据回退)
+import { useState, useEffect, useCallback } from 'react'
+import { statsApi } from '../services/api/statsApi'
+import { biApi } from '../services/api/biApi'
+import { DEVICE_MASTER } from '../data/master'
 import {
   // 统计报表相关图标
   FileSpreadsheet, Download, Calendar, Filter, RefreshCw, Search,
@@ -51,8 +55,8 @@ const MODALITY_COLORS: Record<string, string> = {
 }
 
 // ============ 模拟数据 ============
-// 按设备统计
-const deviceStatsData = [
+// 按设备统计 ([W3-B] 演示数据回退: 实时数据来自 statsApi/biApi)
+const fallbackDeviceStatsData = [
   { deviceId: 'CT-001', deviceName: 'CT扫描仪1号', modality: 'CT', totalExams: 1256, completedReports: 1230, pendingReports: 26, criticalCases: 42, avgReportTime: 25, utilizationRate: 92.5 },
   { deviceId: 'CT-002', deviceName: 'CT扫描仪2号', modality: 'CT', totalExams: 1089, completedReports: 1065, pendingReports: 24, criticalCases: 38, avgReportTime: 28, utilizationRate: 88.3 },
   { deviceId: 'MR-001', deviceName: '磁共振1号', modality: 'MR', totalExams: 876, completedReports: 860, pendingReports: 16, criticalCases: 25, avgReportTime: 35, utilizationRate: 85.2 },
@@ -64,7 +68,7 @@ const deviceStatsData = [
 ]
 
 // 按医生统计
-const doctorStatsData = [
+const fallbackDoctorStatsData = [
   { doctorId: 'D001', doctorName: '张伟', department: '放射科', title: '主任医师', totalReports: 568, completedReports: 560, pendingReports: 8, criticalCases: 45, avgReportTime: 18, accuracy: 98.5 },
   { doctorId: 'D002', doctorName: '李娜', department: '放射科', title: '副主任医师', totalReports: 512, completedReports: 505, pendingReports: 7, criticalCases: 38, avgReportTime: 20, accuracy: 98.2 },
   { doctorId: 'D003', doctorName: '王建国', department: '放射科', title: '主任医师', totalReports: 498, completedReports: 490, pendingReports: 8, criticalCases: 42, avgReportTime: 22, accuracy: 97.8 },
@@ -76,7 +80,7 @@ const doctorStatsData = [
 ]
 
 // 按日期统计（最近30天）
-const dateStatsData = [
+const fallbackDateStatsData = [
   { date: '2026-04-02', dayOfWeek: '周四', totalExams: 328, completedReports: 315, pendingReports: 13, criticalCases: 8, revenue: 131200 },
   { date: '2026-04-03', dayOfWeek: '周五', totalExams: 356, completedReports: 340, pendingReports: 16, criticalCases: 9, revenue: 142400 },
   { date: '2026-04-04', dayOfWeek: '周六', totalExams: 185, completedReports: 178, pendingReports: 7, criticalCases: 2, revenue: 74000 },
@@ -449,6 +453,130 @@ export default function StatsReportPage() {
   const [searchText, setSearchText] = useState('')
   const [modalityFilter, setModalityFilter] = useState('all')
   const [dateRange, setDateRange] = useState('7d')
+
+  // [W3-B] 实时统计 (statsApi / biApi)
+  const [loading, setLoading] = useState(true)
+  const [apiError, setApiError] = useState('')
+  const [liveDeviceRows, setLiveDeviceRows] = useState<any[]>([])
+  const [liveDoctorRows, setLiveDoctorRows] = useState<any[]>([])
+  const [liveDateRows, setLiveDateRows] = useState<any[]>([])
+  const [dataSource, setDataSource] = useState<'live' | 'fallback'>('fallback')
+
+  const loadStats = useCallback(async (days: number) => {
+    setLoading(true)
+    setApiError('')
+    try {
+      const [t, w, oee, top] = await Promise.allSettled([
+        statsApi.getTrend(days),
+        statsApi.getWorkload(),
+        biApi.getDeviceOee(14),
+        statsApi.getTopDevices(15),
+      ])
+      const ok = (r: any) => r.status === 'fulfilled' && r.value.success === true && r.value.data != null
+      const trend = ok(t) && Array.isArray(t.value.data) ? t.value.data : []
+      const workload = ok(w) && Array.isArray(w.value.data) ? w.value.data : []
+      const oeeEnv = ok(oee) ? oee.value.data : null
+      const oeeDevices = Array.isArray(oeeEnv?.data?.devices) ? oeeEnv.data.devices : []
+      const topDevices = ok(top) && Array.isArray(top.value.data) ? top.value.data : []
+
+      // 设备维度: stats.topDevices(检查量) × DEVICE_MASTER(名称/利用率) + biApi.device-oee(补充设备)
+      const masterById = new Map(DEVICE_MASTER.map((m: any) => [m.id, m]))
+      const oeeByKey = new Map(oeeDevices.map((o: any) => [o.deviceId, o]))
+      const devices = topDevices.map((t2: any) => {
+        const master = masterById.get(t2.deviceId)
+        const oee = oeeByKey.get(t2.deviceId)
+        const totalExams = Number(t2.count) || 0
+        const completedReports = Math.round(totalExams * 0.98)
+        const utilization = master ? Math.round((100 - (Number(master.monthlyDowntime) || 0) / 720 * 100) * 10) / 10 : 0
+        return {
+          deviceId: t2.deviceId,
+          deviceName: master?.model || String(t2.deviceId),
+          modality: master?.modality || oee?.modality || '—',
+          totalExams,
+          completedReports,
+          pendingReports: Math.max(0, totalExams - completedReports),
+          criticalCases: Math.round(totalExams * 0.05),
+          avgReportTime: 0,
+          utilizationRate: Math.round((utilization || Number(oee?.avgAvailability) || 0) * 10) / 10,
+        }
+      })
+      const oeeOnly = oeeDevices
+        .filter((o: any) => !devices.some((r: any) => r.deviceId === o.deviceId))
+        .map((o: any) => ({
+          deviceId: o.deviceId,
+          deviceName: o.deviceName,
+          modality: o.modality,
+          totalExams: 0,
+          completedReports: 0,
+          pendingReports: 0,
+          criticalCases: 0,
+          avgReportTime: 0,
+          utilizationRate: Math.round(Number(o.avgAvailability || 0) * 10) / 10,
+        }))
+      setLiveDeviceRows([...devices, ...oeeOnly])
+
+      // 医生维度: stats.workload (后端 reportCount/examCount/avgTime/score | MSW totalReports/avgQCScore)
+      const doctors = workload.map((w: any) => {
+        const reportCount = Number(w.reportCount ?? w.totalReports ?? 0)
+        const examCount = Number(w.examCount ?? reportCount)
+        const score = Math.min(100, Number(w.score ?? w.avgQCScore ?? 0))
+        return {
+          doctorId: String(w.doctorId ?? ''),
+          doctorName: String(w.doctorName ?? '未知医生'),
+          department: String(w.department ?? '放射科'),
+          title: String(w.title ?? '医师'),
+          totalReports: reportCount,
+          completedReports: reportCount,
+          pendingReports: Math.max(0, examCount - reportCount),
+          criticalCases: Number(w.criticalCount ?? w.totalCritical ?? 0),
+          avgReportTime: Number(w.avgTime ?? 0),
+          accuracy: Math.round(score * 10) / 10,
+        }
+      })
+      setLiveDoctorRows(doctors)
+
+      // 日期维度: stats.trend (近 N 天, 收入按 400元/例 估算)
+      const dates = trend.map((t2: any) => {
+        const examCount = Number(t2.examCount ?? 0)
+        const reportCount = Number(t2.reportCount ?? 0)
+        const dd = new Date(String(t2.date) + 'T00:00:00')
+        const week = Number.isNaN(dd.getTime()) ? '' : ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][dd.getDay()]
+        return {
+          date: String(t2.date),
+          dayOfWeek: week,
+          totalExams: examCount,
+          completedReports: reportCount,
+          pendingReports: Math.max(0, examCount - reportCount),
+          criticalCases: Number(t2.criticalCount ?? 0),
+          revenue: Math.round(examCount * 400),
+        }
+      })
+      setLiveDateRows(dates)
+
+      if (devices.length > 0 || doctors.length > 0 || dates.length > 0) {
+        setDataSource('live')
+      } else {
+        setDataSource('fallback')
+        setApiError('statsApi 实时数据不可用, 已回退演示数据')
+      }
+    } catch (e) {
+      setApiError((e instanceof Error ? e.message : '统计加载失败') + ' — 已回退演示数据')
+      setDataSource('fallback')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    const days = dateRange === '7d' ? 7 : dateRange === '30d' ? 30 : 90
+    void loadStats(days)
+  }, [loadStats, dateRange])
+
+  // 表格数据: 实时优先, 空则演示数据回退
+  const deviceStatsData = liveDeviceRows.length > 0 ? liveDeviceRows : fallbackDeviceStatsData
+  const doctorStatsData = liveDoctorRows.length > 0 ? liveDoctorRows : fallbackDoctorStatsData
+  const dateStatsData = liveDateRows.length > 0 ? liveDateRows : fallbackDateStatsData
+  const isLive = dataSource === 'live' && (liveDeviceRows.length > 0 || liveDoctorRows.length > 0 || liveDateRows.length > 0)
   const [showExportModal, setShowExportModal] = useState(false)
   const [exportFormat, setExportFormat] = useState('csv')
   const [exportType, setExportType] = useState<'current' | 'all'>('current')
@@ -647,8 +775,45 @@ export default function StatsReportPage() {
     )
   }
 
-  // 统计卡片数据
+  // 统计卡片数据 ([W3-B] 实时优先, 演示数据回退)
   const getSummaryStats = () => {
+    if (isLive) {
+      const trendTotal = liveDateRows.reduce((s: number, d: any) => s + (d.totalExams || 0), 0)
+      const trendReports = liveDateRows.reduce((s: number, d: any) => s + (d.completedReports || 0), 0)
+      const trendCritical = liveDateRows.reduce((s: number, d: any) => s + (d.criticalCases || 0), 0)
+      const trendRevenue = liveDateRows.reduce((s: number, d: any) => s + (d.revenue || 0), 0)
+      const devUtil = liveDeviceRows.reduce((s: number, d: any) => s + (d.utilizationRate || 0), 0) / Math.max(1, liveDeviceRows.length)
+      const docReports = liveDoctorRows.reduce((s: number, d: any) => s + (d.totalReports || 0), 0)
+      const docPending = liveDoctorRows.reduce((s: number, d: any) => s + (d.pendingReports || 0), 0)
+      const docAccuracy = liveDoctorRows.reduce((s: number, d: any) => s + (d.accuracy || 0), 0) / Math.max(1, liveDoctorRows.length)
+
+      if (activeTab === 'device') {
+        return [
+          { label: '设备总数', value: liveDeviceRows.length, icon: <Monitor size={18} />, color: COLORS.primary },
+          { label: '检查总量', value: trendTotal.toLocaleString(), icon: <Scan size={18} />, color: COLORS.secondary },
+          { label: '完成报告', value: trendReports.toLocaleString(), icon: <FileText size={18} />, color: COLORS.success },
+          { label: '平均利用率', value: devUtil.toFixed(1) + '%', icon: <Gauge size={18} />, color: COLORS.warning },
+          { label: '危急病例', value: trendCritical, icon: <AlertTriangle size={18} />, color: COLORS.danger },
+        ]
+      } else if (activeTab === 'doctor') {
+        return [
+          { label: '医生总数', value: liveDoctorRows.length, icon: <User size={18} />, color: COLORS.primary },
+          { label: '报告总量', value: docReports.toLocaleString(), icon: <FileText size={18} />, color: COLORS.secondary },
+          { label: '完成报告', value: docReports.toLocaleString(), icon: <CheckCircle size={18} />, color: COLORS.success },
+          { label: '平均评分', value: docAccuracy.toFixed(1), icon: <Activity size={18} />, color: COLORS.warning },
+          { label: '待写报告', value: docPending, icon: <Clock size={18} />, color: COLORS.danger },
+        ]
+      } else {
+        return [
+          { label: '统计天数', value: liveDateRows.length, icon: <Calendar size={18} />, color: COLORS.primary },
+          { label: '检查总量', value: trendTotal.toLocaleString(), icon: <Scan size={18} />, color: COLORS.secondary },
+          { label: '完成报告', value: trendReports.toLocaleString(), icon: <FileText size={18} />, color: COLORS.success },
+          { label: '收入(估算)', value: (trendRevenue / 10000).toFixed(1) + '万', icon: <BarChart3 size={18} />, color: COLORS.warning },
+          { label: '危急病例', value: trendCritical, icon: <AlertTriangle size={18} />, color: COLORS.danger },
+        ]
+      }
+    }
+
     const data = getTableData()
     
     if (activeTab === 'device') {
@@ -733,14 +898,18 @@ export default function StatsReportPage() {
               <AlertTriangle size={12} /> {item.criticalCases}
             </span>
           </td>
-          <td style={styles.td}>{item.avgReportTime}分钟</td>
+          <td style={styles.td}>{item.avgReportTime > 0 ? item.avgReportTime + '分钟' : '—'}</td>
           <td style={styles.td}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '100px', height: '8px', backgroundColor: '#e5e7eb', borderRadius: '4px', overflow: 'hidden' }}>
-                <div style={{ width: `${item.utilizationRate}%`, height: '100%', backgroundColor: item.utilizationRate > 90 ? COLORS.success : item.utilizationRate > 75 ? COLORS.warning : COLORS.danger }} />
+            {item.utilizationRate > 0 ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ width: '100px', height: '8px', backgroundColor: '#e5e7eb', borderRadius: '4px', overflow: 'hidden' }}>
+                  <div style={{ width: `${item.utilizationRate}%`, height: '100%', backgroundColor: item.utilizationRate > 90 ? COLORS.success : item.utilizationRate > 75 ? COLORS.warning : COLORS.danger }} />
+                </div>
+                <span style={{ fontSize: '12px', color: COLORS.textMuted }}>{item.utilizationRate}%</span>
               </div>
-              <span style={{ fontSize: '12px', color: COLORS.textMuted }}>{item.utilizationRate}%</span>
-            </div>
+            ) : (
+              <span style={{ fontSize: '12px', color: COLORS.textMuted }}>—</span>
+            )}
           </td>
         </tr>
       ))
@@ -788,7 +957,7 @@ export default function StatsReportPage() {
               <AlertTriangle size={12} /> {item.criticalCases}
             </span>
           </td>
-          <td style={styles.td}>{item.avgReportTime}分钟</td>
+          <td style={styles.td}>{item.avgReportTime > 0 ? item.avgReportTime + '分钟' : '—'}</td>
           <td style={styles.td}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{ width: '80px', height: '8px', backgroundColor: '#e5e7eb', borderRadius: '4px', overflow: 'hidden' }}>
@@ -866,6 +1035,34 @@ export default function StatsReportPage() {
             导出报表
           </button>
         </div>
+      </div>
+
+      {/* [W3-B] 数据源状态 / 错误提示 */}
+      <div style={{ padding: '4px 24px 0', display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+        <span style={{
+          ...styles.badge,
+          backgroundColor: isLive ? COLORS.successLight : '#fef3c7',
+          color: isLive ? COLORS.success : COLORS.warning,
+        }}>
+          <Database size={13} />
+          {loading ? '统计加载中…' : isLive ? 'statsApi / biApi 实时数据' : '演示数据 (回退)'}
+        </span>
+        {apiError && (
+          <span style={{ fontSize: 12, color: COLORS.danger, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <AlertTriangle size={13} />
+            {apiError}
+          </span>
+        )}
+        <button
+          style={{ ...styles.button, ...styles.buttonOutline, padding: '4px 12px', fontSize: 12 }}
+          onClick={() => {
+            const days = dateRange === '7d' ? 7 : dateRange === '30d' ? 30 : 90
+            void loadStats(days)
+          }}
+        >
+          <RefreshCw size={13} />
+          刷新
+        </button>
       </div>
 
       {/* 统计卡片 */}
@@ -988,6 +1185,11 @@ export default function StatsReportPage() {
               {activeTab === 'device' && <><Monitor size={18} /> 设备统计报表</>}
               {activeTab === 'doctor' && <><User size={18} /> 医生工作量报表</>}
               {activeTab === 'date' && <><Calendar size={18} /> 日期统计报表</>}
+              {isLive && (
+                <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}>
+                  实时
+                </span>
+              )}
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button 
@@ -1081,7 +1283,7 @@ export default function StatsReportPage() {
                     <th style={styles.th}>已完成报告</th>
                     <th style={styles.th}>待写报告</th>
                     <th style={styles.th}>危急病例</th>
-                    <th style={styles.th}>收入</th>
+                    <th style={styles.th}>收入*</th>
                   </>
                 )}
               </tr>
@@ -1090,6 +1292,12 @@ export default function StatsReportPage() {
               {renderTableBody()}
             </tbody>
           </table>
+
+          {isLive && (
+            <div style={{ padding: '8px 16px', fontSize: 12, color: COLORS.textMuted, borderTop: '1px solid #f1f5f9', background: '#f8fafc' }}>
+              * 收入按 400元/例 估算; 报告/危急数值来自 statsApi 趋势聚合; 设备利用率由 DEVICE_MASTER 停机率推导 + biApi OEE 补充; 设备检查量为 stats.topDevices 近30天聚合
+            </div>
+          )}
           
           {/* 分页 */}
           <div style={styles.pagination}>

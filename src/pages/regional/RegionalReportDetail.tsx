@@ -1,5 +1,6 @@
 
-import { Video, FileText, Clock, CheckCircle, ChevronRight, ShieldCheck, BadgeCheck, XCircle, Monitor, PenTool, Lock, FileSignature, ArrowRight, X, Check, RefreshCw, ShieldAlert, ArrowUp, ArrowDown } from 'lucide-react'
+import { useState } from 'react'
+import { Video, FileText, Clock, CheckCircle, ChevronRight, ShieldCheck, BadgeCheck, XCircle, Monitor, PenTool, Lock, FileSignature, ArrowRight, X, Check, RefreshCw, ShieldAlert, ArrowUp, ArrowDown, ZoomIn, Ruler, SlidersHorizontal } from 'lucide-react'
 import { styles, COLORS, Consultation, Report, RemoteDiagnosis, CoSignRecord, Institution, getStatusColor } from './RegionalReportServiceWire'
 
 interface DetailProps {
@@ -145,6 +146,11 @@ export const ReportDetail: React.FC<DetailProps> = ({
 export const RemoteWriting: React.FC<DetailProps> = ({
   selectedRemoteDiagnosis, remoteReportContent, onRemoteReportContentChange, onBack, onSubmitRemoteReport
 }) => {
+  const [zoom, setZoom] = useState(100)
+  const [ww, setWw] = useState(400)
+  const [wc, setWc] = useState(40)
+  const [measuring, setMeasuring] = useState(false)
+  const [measureResult, setMeasureResult] = useState<string | null>(null)
   if (!selectedRemoteDiagnosis) {
     return (
       <div style={{ ...styles.middlePanel, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -165,16 +171,44 @@ export const RemoteWriting: React.FC<DetailProps> = ({
           <div style={{ padding: '8px 12px', backgroundColor: 'rgba(0,0,0,0.3)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ color: 'white', fontSize: '12px' }}>DICOM影像查看器（模拟）</span>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button style={{ ...styles.button, padding: '4px 8px', fontSize: '11px', backgroundColor: 'rgba(255,255,255,0.1)', color: 'white' }}>缩放</button>
-              <button style={{ ...styles.button, padding: '4px 8px', fontSize: '11px', backgroundColor: 'rgba(255,255,255,0.1)', color: 'white' }}>窗宽窗位</button>
-              <button style={{ ...styles.button, padding: '4px 8px', fontSize: '11px', backgroundColor: 'rgba(255,255,255,0.1)', color: 'white' }}>测量</button>
+              <button
+                style={{ ...styles.button, padding: '4px 8px', fontSize: '11px', backgroundColor: zoom !== 100 ? 'rgba(59,130,246,0.35)' : 'rgba(255,255,255,0.1)', color: 'white', border: zoom !== 100 ? '1px solid #3b82f6' : 'none' }}
+                onClick={() => setZoom(z => Math.min(300, z + 25))}
+                title="放大"
+              >
+                <ZoomIn size={12} /> 缩放 {zoom}%
+              </button>
+              <button
+                style={{ ...styles.button, padding: '4px 8px', fontSize: '11px', backgroundColor: 'rgba(255,255,255,0.1)', color: 'white' }}
+                onClick={() => { setWw(Math.min(2000, ww + 100)); setWc(wc - 5) }}
+                title="窗宽增大 / 窗位微调"
+              >
+                <SlidersHorizontal size={12} /> 窗宽 {ww} L:{wc}
+              </button>
+              <button
+                style={{ ...styles.button, padding: '4px 8px', fontSize: '11px', backgroundColor: measuring ? 'rgba(59,130,246,0.35)' : 'rgba(255,255,255,0.1)', color: 'white', border: measuring ? '1px solid #3b82f6' : 'none' }}
+                onClick={() => { setMeasuring(m => !m); setMeasureResult(null) }}
+                title="测量"
+              >
+                <Ruler size={12} /> 测量
+              </button>
+              {measuring && (
+                <button
+                  style={{ ...styles.button, padding: '4px 8px', fontSize: '11px', backgroundColor: 'rgba(34,197,94,0.35)', color: 'white' }}
+                  onClick={() => setMeasureResult(`${(Math.random() * 2 + 1).toFixed(1)} mm`)}
+                >
+                  打点测量
+                </button>
+              )}
             </div>
           </div>
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-            <div style={{ width: '200px', height: '200px', borderRadius: '8px', background: 'linear-gradient(135deg, #2d2d44 0%, #1a1a2e 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: 200, height: 200, borderRadius: '8px', background: 'linear-gradient(135deg, #2d2d44 0%, #1a1a2e 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `scale(${zoom / 100})`, transition: 'transform 0.15s', border: measuring ? '2px dashed #3b82f6' : 'none' }}>
               <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}><Monitor size={48} style={{ marginBottom: '8px', opacity: 0.5 }} /><div style={{ fontSize: '12px' }}>CT 胸部</div><div style={{ fontSize: '10px', marginTop: '4px' }}>影像加载区域</div></div>
             </div>
-            <div style={{ position: 'absolute', top: '20px', left: '20px', color: 'rgba(255,255,255,0.3)', fontSize: '10px' }}>AXIAL | 5.0mm | W:400 L:40</div>
+            {measuring && <div style={{ position: 'absolute', width: 120, height: 60, border: '1px solid rgba(59,130,246,0.9)', borderRadius: 2 }} />}
+            {measureResult && <div style={{ position: 'absolute', top: '36px', left: '20px', background: 'rgba(16,185,129,0.9)', color: '#fff', fontSize: '11px', padding: '2px 8px', borderRadius: 4 }}>距离: {measureResult}</div>}
+            <div style={{ position: 'absolute', top: '20px', left: '20px', color: 'rgba(255,255,255,0.3)', fontSize: '10px' }}>AXIAL | 5.0mm | W:{ww} L:{wc}</div>
             <div style={{ position: 'absolute', bottom: '20px', right: '20px', color: 'rgba(255,255,255,0.3)', fontSize: '10px' }}>1/120</div>
           </div>
         </div>

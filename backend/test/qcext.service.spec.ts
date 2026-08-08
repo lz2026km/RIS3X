@@ -35,9 +35,9 @@ describe('QcExtService', () => {
     await expect(svc.getQcImage('d1')).resolves.toMatchObject({ data: [{ id: 'd1' }] })
   })
 
-  it('rateQcImage updates instance without id in data', async () => {
+  it('rateQcImage updates instance by path id', async () => {
     mockPrisma.dicomInstance.update.mockResolvedValue({ id: 'd1' })
-    const r = await svc.rateQcImage({ id: 'd1', quality: 4, notes: 'n' })
+    const r = await svc.rateQcImage('d1', { quality: 4, notes: 'n' })
     expect(mockPrisma.dicomInstance.update).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 'd1' }, data: { quality: 4, notes: 'n' } }))
     expect(r.data).toHaveLength(1)
   })

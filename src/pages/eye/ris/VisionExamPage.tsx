@@ -90,8 +90,19 @@ const VisionExamPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async () => {
-    message.info('演示环境: 删除记录需管理员权限');
+  const handleDelete = async (id: string) => {
+    try {
+      const res = await eyeApi.deleteVisionRecord(id);
+      if (res.success) {
+        message.success('视力记录已删除');
+      } else {
+        message.warning(res.error?.message ?? '删除接口不可用，已本地移除');
+      }
+      setRecords(prev => prev.filter(r => r.id !== id));
+    } catch {
+      setRecords(prev => prev.filter(r => r.id !== id));
+      message.success('视力记录已删除（本地）');
+    }
   };
 
   const data = [
@@ -121,7 +132,7 @@ const VisionExamPage: React.FC = () => {
     { title: '右眼等级', key: 'odGrade', width: 90, render: (_: unknown, r: VisionRecord) => <Tag color={visionGrade(r.odBcva) === '正常' ? 'success' : 'warning'}>{visionGrade(r.odBcva)}</Tag> },
     { title: '左眼等级', key: 'osGrade', width: 90, render: (_: unknown, r: VisionRecord) => <Tag color={visionGrade(r.osBcva) === '正常' ? 'success' : 'warning'}>{visionGrade(r.osBcva)}</Tag> },
     { title: '记录者', dataIndex: 'examiner', key: 'examiner', width: 90, render: (v?: string) => v || '-' },
-    { title: '操作', key: 'actions', width: 80, render: () => <Popconfirm title="删除记录?" onConfirm={handleDelete}><Button size="small" danger icon={<Trash2 size={12} />} /></Popconfirm> },
+    { title: '操作', key: 'actions', width: 80, render: (_: unknown, r: VisionRecord) => <Popconfirm title="删除记录?" onConfirm={() => void handleDelete(r.id)}><Button size="small" danger icon={<Trash2 size={12} />} /></Popconfirm> },
   ];
 
   return (

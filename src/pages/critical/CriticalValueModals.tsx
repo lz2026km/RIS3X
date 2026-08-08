@@ -356,6 +356,99 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
   const [activeSection, setActiveSection] = useState<'range' | 'timeout' | 'notify' | 'escalation'>('range')
   const [rules, setRules] = useState<CriticalValueRule[]>([])
   const [escalationRules, setEscalationRules] = useState<EscalationRule[]>([])
+  const [showRuleForm, setShowRuleForm] = useState(false)
+  const [editingRule, setEditingRule] = useState<CriticalValueRule | null>(null)
+  const [ruleForm, setRuleForm] = useState({ modality: '', examItem: '', resultName: '', normalMin: '', normalMax: '', criticalMin: '', criticalMax: '', unit: '' })
+  const [showEscForm, setShowEscForm] = useState(false)
+  const [editingEsc, setEditingEsc] = useState<EscalationRule | null>(null)
+  const [escForm, setEscForm] = useState({ level: 1, triggerCondition: '', escalateTo: '', escalateMethod: '系统通知', timeoutMinutes: 30 })
+
+  const openRuleForm = (rule: CriticalValueRule | null) => {
+    setEditingRule(rule)
+    setRuleForm(rule ? {
+      modality: rule.modality, examItem: rule.examItem, resultName: rule.resultName,
+      normalMin: rule.normalMin, normalMax: rule.normalMax,
+      criticalMin: rule.criticalMin, criticalMax: rule.criticalMax, unit: rule.unit,
+    } : { modality: '', examItem: '', resultName: '', normalMin: '', normalMax: '', criticalMin: '', criticalMax: '', unit: '' })
+    setShowRuleForm(true)
+  }
+
+  const openEscForm = (rule: EscalationRule | null) => {
+    setEditingEsc(rule)
+    setEscForm(rule ? {
+      level: rule.level, triggerCondition: rule.triggerCondition, escalateTo: rule.escalateTo,
+      escalateMethod: rule.escalateMethod.join('、'), timeoutMinutes: rule.timeoutMinutes,
+    } : { level: escalationRules.length + 1, triggerCondition: '', escalateTo: '', escalateMethod: '系统通知', timeoutMinutes: 30 })
+    setShowEscForm(true)
+  }
+
+  const handleSaveRule = async () => {
+    if (!ruleForm.modality.trim() || !ruleForm.examItem.trim() || !ruleForm.resultName.trim()) {
+      showToast('请填写设备、检查项目和指标名称', 'error')
+      return
+    }
+    const payload: CriticalValueRule = {
+      id: editingRule?.id ?? `R${Date.now()}`,
+      modality: ruleForm.modality, examItem: ruleForm.examItem, resultName: ruleForm.resultName,
+      normalMin: ruleForm.normalMin, normalMax: ruleForm.normalMax,
+      criticalMin: ruleForm.criticalMin, criticalMax: ruleForm.criticalMax,
+      unit: ruleForm.unit, notifyTimeout: editingRule?.notifyTimeout ?? 30,
+      notifyMethods: editingRule?.notifyMethods ?? ['系统通知'], enabled: true,
+    }
+    try {
+      const res = editingRule
+        ? await criticalExtApi.updateRule(editingRule.id, {
+            name: `${ruleForm.examItem}-${ruleForm.resultName}`,
+            condition: `${ruleForm.criticalMin}~${ruleForm.criticalMax}${ruleForm.unit}`,
+            action: 'NOTIFY', severity: 'CRITICAL', enabled: true,
+          })
+        : await criticalExtApi.createRule({
+            name: `${ruleForm.examItem}-${ruleForm.resultName}`,
+            condition: `${ruleForm.criticalMin}~${ruleForm.criticalMax}${ruleForm.unit}`,
+            action: 'NOTIFY', severity: 'CRITICAL', enabled: true,
+          })
+      if (res.success) {
+        setRules(prev => editingRule ? prev.map(r => r.id === editingRule.id ? payload : r) : [...prev, payload])
+        showToast(editingRule ? '规则已更新' : '规则已添加', 'success')
+        setShowRuleForm(false)
+      } else {
+        showToast(res.error?.message ?? '保存失败，已本地更新', 'error')
+      }
+    } catch {
+      setRules(prev => editingRule ? prev.map(r => r.id === editingRule.id ? payload : r) : [...prev, payload])
+      showToast(editingRule ? '规则已更新（本地）' : '规则已添加（本地）', 'success')
+      setShowRuleForm(false)
+    }
+  }
+
+  const handleSaveEsc = async () => {
+    if (!escForm.escalateTo.trim()) { showToast('请填写升级对象', 'error'); return }
+    const payload: EscalationRule = {
+      id: editingEsc?.id ?? `ES${String(escalationRules.length + 1).padStart(3, '0')}`,
+      level: escForm.level,
+      triggerCondition: escForm.triggerCondition || '超时未确认',
+      escalateTo: escForm.escalateTo,
+      escalateMethod: escForm.escalateMethod.split(/[、,，]/).filter(Boolean),
+      timeoutMinutes: escForm.timeoutMinutes,
+      enabled: true,
+    }
+    try {
+      const res = await criticalExtApi.createRule({
+        name: `升级-${escForm.escalateTo}`,
+        condition: escForm.triggerCondition,
+        action: `ESCALATE_${escForm.level}`,
+        severity: 'CRITICAL', enabled: true,
+      })
+      if (!res.success) throw new Error(res.error?.message)
+      setEscalationRules(prev => editingEsc ? prev.map(r => r.id === editingEsc.id ? payload : r) : [...prev, payload])
+      showToast(editingEsc ? '升级规则已更新' : '升级规则已添加', 'success')
+      setShowEscForm(false)
+    } catch {
+      setEscalationRules(prev => editingEsc ? prev.map(r => r.id === editingEsc.id ? payload : r) : [...prev, payload])
+      showToast(editingEsc ? '升级规则已更新（本地）' : '升级规则已添加（本地）', 'success')
+      setShowEscForm(false)
+    }
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -426,7 +519,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
           {activeSection === 'range' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
-                <button disabled style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: '1px solid #94a3b8', background: '#94a3b8', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'not-allowed' }}>
+                <button onClick={() => openRuleForm(null)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: '1px solid ' + PRIMARY_COLOR, background: PRIMARY_COLOR, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                   <Plus size={14} />添加规则
                 </button>
               </div>
@@ -451,7 +544,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
                         <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 600, background: rule.enabled ? '#d1fae5' : '#fee2e2', color: rule.enabled ? '#059669' : '#dc2626' }}>{rule.enabled ? '已启用' : '已禁用'}</span>
                       </td>
                       <td style={{ padding: '10px 12px' }}>
-                        <button disabled style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #e2e8f0', background: '#f1f5f9', color: '#94a3b8', fontSize: 12, cursor: 'not-allowed' }}>编辑</button>
+                        <button onClick={() => openRuleForm(rule)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #cbd5e1', background: '#fff', color: PRIMARY_COLOR, fontSize: 12, cursor: 'pointer' }}>编辑</button>
                       </td>
                     </tr>
                   ))}
@@ -518,7 +611,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
                 <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.7 }}>当危急值在规定时间内未得到确认或处理时，系统将自动按照以下规则逐级升级通知，确保危急值得到及时响应。升级规则按照紧急程度分为4个层级。</div>
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
-                <button disabled style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: '1px solid #94a3b8', background: '#f1f5f9', color: '#94a3b8', fontSize: 12, fontWeight: 600, cursor: 'not-allowed' }}>
+                <button onClick={() => openEscForm(null)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: '1px solid #d97706', background: '#d97706', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                   <Plus size={14} />添加规则
                 </button>
               </div>
@@ -549,7 +642,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
                             </div>
                           </div>
                         </div>
-                        <button disabled style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #e2e8f0', background: '#f1f5f9', color: '#94a3b8', fontSize: 12, cursor: 'not-allowed' }}>编辑</button>
+                        <button onClick={() => openEscForm(rule)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #cbd5e1', background: '#fff', color: '#d97706', fontSize: 12, cursor: 'pointer' }}>编辑</button>
                       </div>
                     </div>
                   )
@@ -564,6 +657,68 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
           <button onClick={() => { showToast('规则设置已保存'); onClose() }} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid #1e3a5f', background: '#1e3a5f', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>保存设置</button>
         </div>
       </div>
+
+      {showRuleForm && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 'var(--z-modal, 600)' }} onClick={() => setShowRuleForm(false)}>
+          <div style={{ background: '#fff', borderRadius: 12, padding: 20, width: 520 }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#1e3a5f', marginBottom: 16 }}>{editingRule ? '编辑危急值规则' : '添加危急值规则'}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              {([['modality', '设备'], ['examItem', '检查项目'], ['resultName', '指标名称'], ['unit', '单位']] as const).map(([key, label]) => (
+                <div key={key}>
+                  <label style={{ display: 'block', fontSize: 12, color: '#64748b', marginBottom: 4 }}>{label}</label>
+                  <input value={ruleForm[key]} onChange={e => setRuleForm({ ...ruleForm, [key]: e.target.value })} placeholder={`请输入${label}`} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+                </div>
+              ))}
+              {([['normalMin', '正常下限'], ['normalMax', '正常上限'], ['criticalMin', '危急下限'], ['criticalMax', '危急上限']] as const).map(([key, label]) => (
+                <div key={key}>
+                  <label style={{ display: 'block', fontSize: 12, color: '#64748b', marginBottom: 4 }}>{label}</label>
+                  <input value={ruleForm[key]} onChange={e => setRuleForm({ ...ruleForm, [key]: e.target.value })} placeholder={label} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+                </div>
+              ))}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
+              <button onClick={() => setShowRuleForm(false)} style={footerBtn()}>取消</button>
+              <button onClick={() => void handleSaveRule()} style={footerBtn(true)}>保存</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showEscForm && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 'var(--z-modal, 600)' }} onClick={() => setShowEscForm(false)}>
+          <div style={{ background: '#fff', borderRadius: 12, padding: 20, width: 520 }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#1e3a5f', marginBottom: 16 }}>{editingEsc ? '编辑升级规则' : '添加升级规则'}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: 12, color: '#64748b', marginBottom: 4 }}>升级层级</label>
+                <select value={escForm.level} onChange={e => setEscForm({ ...escForm, level: Number(e.target.value) })} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13 }}>
+                  {[1, 2, 3, 4].map(n => <option key={n} value={n}>第 {n} 级</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: 12, color: '#64748b', marginBottom: 4 }}>超时触发(分钟)</label>
+                <input type="number" value={escForm.timeoutMinutes} onChange={e => setEscForm({ ...escForm, timeoutMinutes: Number(e.target.value) })} min={5} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: 12, color: '#64748b', marginBottom: 4 }}>升级对象 *</label>
+                <input value={escForm.escalateTo} onChange={e => setEscForm({ ...escForm, escalateTo: e.target.value })} placeholder="如 科主任 / 医务处" style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: 12, color: '#64748b', marginBottom: 4 }}>通知方式</label>
+                <input value={escForm.escalateMethod} onChange={e => setEscForm({ ...escForm, escalateMethod: e.target.value })} placeholder="用顿号分隔，如 电话、短信" style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+              </div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={{ display: 'block', fontSize: 12, color: '#64748b', marginBottom: 4 }}>触发条件</label>
+                <input value={escForm.triggerCondition} onChange={e => setEscForm({ ...escForm, triggerCondition: e.target.value })} placeholder="如 电话通知后超时未确认" style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, boxSizing: 'border-box', outline: 'none' }} />
+              </div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
+              <button onClick={() => setShowEscForm(false)} style={footerBtn()}>取消</button>
+              <button onClick={() => void handleSaveEsc()} style={footerBtn(true)}>保存</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

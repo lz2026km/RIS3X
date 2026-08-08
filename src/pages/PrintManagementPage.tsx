@@ -1,6 +1,7 @@
 // G005 放射科RIS系统 - 胶片打印管理页面 v2.0.0
 import React, { useState } from 'react'
 import { api } from '../services/api'
+import { templatesApi } from '../services/api/templatesApi'
 import { Printer, Settings, FileText, Film, CheckCircle, XCircle, Search, Plus, X, Eye, Edit2, RefreshCw, Download, BarChart, PieChart, TrendingUp, AlertCircle, Info, Copy, Layers, Box, DollarSign, Monitor, Network, HardDrive, Cog, FileBarChart, ScrollText, Database, Zap, Timer, BarChart2, Activity, Server, Wifi, WifiOff, FileSpreadsheet, Building2, Receipt, CreditCard, LayoutGrid, SlidersHorizontal, AlertTriangle, ClipboardList, ShieldAlert } from 'lucide-react'
 import {
   BarChart as ReBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -511,6 +512,35 @@ export default function PrintManagementPage() {
     setToastType(type)
     setShowToast(true)
     setTimeout(() => setShowToast(false), 3000)
+  }
+
+  // 自定义布局构建器状态
+  const [customCols, setCustomCols] = useState<number>(3)
+  const [customRows, setCustomRows] = useState<number>(3)
+  const [customOrientation, setCustomOrientation] = useState<string>('PORTRAIT')
+  const [savingCustomTemplate, setSavingCustomTemplate] = useState<boolean>(false)
+
+  const handleSaveCustomTemplate = async () => {
+    setSavingCustomTemplate(true)
+    try {
+      const res = await templatesApi.create({
+        name: `自定义 ${customCols}×${customRows} ${customOrientation === 'PORTRAIT' ? '纵向' : '横向'}`,
+        category: 'print-layout',
+        bodyPart: '通用',
+        body: JSON.stringify({ cols: customCols, rows: customRows, orientation: customOrientation, type: 'print-layout' }),
+        createdById: 'current-user',
+        tags: ['打印布局'],
+      })
+      if (res.success) {
+        displayToast(`自定义模板「${res.data.name}」已保存`, 'success')
+      } else {
+        displayToast(res.error?.message ?? '模板保存失败', 'error')
+      }
+    } catch {
+      displayToast('模板保存失败，请稍后重试', 'error')
+    } finally {
+      setSavingCustomTemplate(false)
+    }
   }
 
   // DICOM打印队列相关状态
@@ -1859,7 +1889,7 @@ export default function PrintManagementPage() {
               <select style={{
                 width: '100%', padding: '6px 10px', borderRadius: 4, border: `1px solid ${C.border}`,
                 fontSize: 12, outline: 'none'
-              }} defaultValue={3}>
+              }} value={customCols} onChange={e => setCustomCols(Number(e.target.value))}>
                 {[1, 2, 3, 4, 5].map(n => <option key={n}>{n}</option>)}
               </select>
             </div>
@@ -1868,7 +1898,7 @@ export default function PrintManagementPage() {
               <select style={{
                 width: '100%', padding: '6px 10px', borderRadius: 4, border: `1px solid ${C.border}`,
                 fontSize: 12, outline: 'none'
-              }} defaultValue={3}>
+              }} value={customRows} onChange={e => setCustomRows(Number(e.target.value))}>
                 {[1, 2, 3, 4, 5].map(n => <option key={n}>{n}</option>)}
               </select>
             </div>
@@ -1877,10 +1907,10 @@ export default function PrintManagementPage() {
             <label style={{ fontSize: 12, color: C.textMid, display: 'block', marginBottom: 4 }}>方向</label>
             <div style={{ display: 'flex', gap: 8 }}>
               {['PORTRAIT', 'LANDSCAPE'].map(dir => (
-                <button key={dir} style={{
+                <button key={dir} onClick={() => setCustomOrientation(dir)} style={{
                   flex: 1, padding: '8px 12px', borderRadius: 6, border: `1px solid ${C.border}`,
-                  background: dir === 'PORTRAIT' ? C.primary : C.white,
-                  color: dir === 'PORTRAIT' ? '#fff' : C.textMid,
+                  background: customOrientation === dir ? C.primary : C.white,
+                  color: customOrientation === dir ? '#fff' : C.textMid,
                   fontSize: 12, fontWeight: 600, cursor: 'pointer'
                 }}>
                   {dir === 'PORTRAIT' ? '纵向' : '横向'}
@@ -1897,10 +1927,10 @@ export default function PrintManagementPage() {
             <div style={{
               width: 160, aspectRatio: '3/4',
               background: C.white, borderRadius: 4, border: `1px solid ${C.border}`,
-              display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridTemplateRows: 'repeat(3, 1fr)',
+              display: 'grid', gridTemplateColumns: `repeat(${customCols}, 1fr)`, gridTemplateRows: `repeat(${customRows}, 1fr)`,
               gap: 1, padding: 1
             }}>
-              {Array.from({ length: 9 }, (_, i) => (
+              {Array.from({ length: customCols * customRows }, (_, i) => (
                 <div key={i} style={{
                   background: `${C.accent}08`, border: `1px solid ${C.accent}20`, borderRadius: 1,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -1909,11 +1939,11 @@ export default function PrintManagementPage() {
               ))}
             </div>
           </div>
-          <button style={{
+          <button onClick={() => void handleSaveCustomTemplate()} disabled={savingCustomTemplate} style={{
             width: '100%', padding: '8px 12px', border: 'none', borderRadius: 6,
-            background: C.primary, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer'
+            background: savingCustomTemplate ? C.border : C.primary, color: savingCustomTemplate ? C.textMid : '#fff', fontSize: 12, fontWeight: 600, cursor: savingCustomTemplate ? 'wait' : 'pointer'
           }}>
-            保存为自定义模板
+            {savingCustomTemplate ? '保存中...' : '保存为自定义模板'}
           </button>
         </div>
       </Card>

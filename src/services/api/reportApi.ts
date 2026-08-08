@@ -65,6 +65,14 @@ export const reportApi = {
 
   revise: async (id: string) => transition(id, 'AMENDING'),
 
+  // [G005 W2-C] 行删除: 后端 DELETE /reports/:id 需 body { reason } (状态置 WITHDRAWN)
+  remove: async (id: string, reason: string = '手动删除') => {
+    const res = await api.delete<ReportDto>(`/reports/${id}`, { reason })
+    await invalidateApiCache(`/reports/${id}`)
+    await invalidateApiCacheByPrefix('/reports')
+    return res
+  },
+
   // [v3.0.6.8-45] PR1: 双签 + 版本对比 + 审计轨迹
   cosign: async (id: string, _cosignerId: string) => {
     const res = await transition(id, 'CO_SIGN_REVIEW')

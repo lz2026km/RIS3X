@@ -19,22 +19,23 @@ const AccuracySchema = z.object({
   modality: z.string().optional(),
 })
 
+// [W1-B] 实体 id 字段放宽为可选: 支持"仅确认整条结果"的场景 (前端 confirmResult 可不携带病灶 id)
 const LungReviewSchema = z.object({
-  noduleId: z.string().min(1),
+  noduleId: z.string().min(1).optional(),
   status: z.enum(['confirmed', 'rejected', 'amended']),
   amendedDiagnosis: z.string().optional(),
   comment: z.string().optional(),
 })
 
 const BreastReviewSchema = z.object({
-  lesionId: z.string().min(1),
+  lesionId: z.string().min(1).optional(),
   status: z.enum(['confirmed', 'rejected', 'amended']),
   amendedBiRads: z.string().optional(),
   comment: z.string().optional(),
 })
 
 const FractureReviewSchema = z.object({
-  findingId: z.string().min(1),
+  findingId: z.string().min(1).optional(),
   status: z.enum(['confirmed', 'rejected', 'amended']),
   amendedDiagnosis: z.string().optional(),
   comment: z.string().optional(),
@@ -44,6 +45,13 @@ const CardiacReviewSchema = z.object({
   status: z.enum(['confirmed', 'rejected', 'amended']),
   amendedAssessment: z.string().optional(),
   comment: z.string().optional(),
+})
+
+// [W1-B] 批量确认: ids 跨模型全表匹配, model 可选限定范围
+const BatchConfirmSchema = z.object({
+  ids: z.array(z.string().min(1)).min(1),
+  status: z.enum(['confirmed', 'rejected']),
+  model: z.enum(['lung-cad', 'breast-cad', 'fracture-cad', 'cardiac-ai']).optional(),
 })
 
 /**
@@ -248,6 +256,20 @@ export class AiDiagnosisController {
   @ApiOperation({ summary: 'AI diagnosis stats for all models' })
   stats() {
     return this.service.stats()
+  }
+
+  // [W1-B] 批量确认 (前端 aiDiagnosisApi.batchConfirm)
+  @Post('batch-confirm')
+  @ApiOperation({ summary: 'Batch confirm/reject AI diagnosis results' })
+  batchConfirm(@Body(new ZodValidationPipe(BatchConfirmSchema)) body: { ids: string[]; status: 'confirmed' | 'rejected'; model?: string }) {
+    return this.service.batchConfirm(body)
+  }
+
+  // [W1-B] 模型重训 (模拟)
+  @Post('retrain/:modelVersion')
+  @ApiOperation({ summary: 'Retrain AI diagnosis model (simulated)' })
+  retrainModel(@Param('modelVersion') modelVersion: string) {
+    return this.service.retrainModel(modelVersion)
   }
 
   @Post('accuracy')

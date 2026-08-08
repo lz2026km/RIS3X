@@ -1,9 +1,14 @@
 // G005 放射科RIS系统 - 设备效率分析页面（对标英飞达/锐科）
-import React, { useState } from 'react'
+// [W3-B] 接入 oeeApi / biApi / statsApi / deviceMgmtApi 真实数据 (loading/error + 演示数据回退)
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import {
   Activity, Clock, TrendingUp, Timer, Zap, Download,
-  Grid3x3, Calendar, AlertTriangle
+  Grid3x3, Calendar, AlertTriangle, RefreshCw
 } from 'lucide-react'
+import { oeeApi } from '../services/api/oeeApi'
+import { biApi } from '../services/api/biApi'
+import { statsApi } from '../services/api/statsApi'
+import { deviceMgmtApi } from '../services/api/deviceMgmtApi'
 // [v3.0.6.8-28] 主数据池 + 生成器
 import { DEVICE_MASTER } from '../data/master'
 import { DAILY_KPI_PRE } from '../data/_generators'
@@ -100,7 +105,7 @@ interface FailureStats {
 
 // 设备列表 - 来源: DEVICE_MASTER (35 台三甲设备)
 // [v3.0.6.8-28] 取前 8 台映射到本地 Device 结构
-const DEVICES: Device[] = DEVICE_MASTER.slice(0, 8).map((d) => ({
+const STATIC_DEVICES: Device[] = DEVICE_MASTER.slice(0, 8).map((d) => ({
   id: d.id,
   name: d.id.split('-').slice(-1)[0] || d.model,
   model: `${d.brand} ${d.model}`,
@@ -110,7 +115,7 @@ const DEVICES: Device[] = DEVICE_MASTER.slice(0, 8).map((d) => ({
 }))
 
 // 效率指标
-const EFFICIENCY_METRICS = {
+const STATIC_EFFICIENCY_METRICS = {
   avgExamTime: 18.5,
   dailyMax: 326,
   bedTurnover: 4.2,
@@ -119,7 +124,7 @@ const EFFICIENCY_METRICS = {
 
 // 7天使用率趋势数据 - 来源: DAILY_KPI_PRE.topDevices
 // [v3.0.6.8-28] 固定设备键 (CT1/CT2/MRI1/DSA/DR) 与 TrendLineChart 组件约定一致
-const UTILIZATION_TREND = (() => {
+const STATIC_UTILIZATION_TREND = (() => {
   // 按模态聚合 DAILY_KPI_PRE 的 byModality, 映射到固定设备键
   return DAILY_KPI_PRE.slice(-7).map((d, idx) => {
     const total = d.examCount || 1;
@@ -147,7 +152,7 @@ const TIME_SEGMENT_DATA = [
 ]
 
 // 设备负荷排行榜 - 来源: DEVICE_MASTER 按 monthlyScans 降序
-const LOAD_RANKING = (() => {
+const STATIC_LOAD_RANKING = (() => {
   return [...DEVICE_MASTER]
     .sort((a, b) => b.monthlyScans - a.monthlyScans)
     .slice(0, 5)
@@ -174,8 +179,7 @@ const generateHeatmapData = (): HeatmapCell[] => {
     date.setDate(date.getDate() - d)
     const dateStr = `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 
-    DEVICES.forEach((device) => {
-      // 虚构数据：根据设备生成不同的使用率分布
+    STATIC_DEVICES.forEach((device) => {
       let baseUtil = device.utilization
       let variance = 15
       if (device.status === '维护') variance = 30
@@ -227,7 +231,7 @@ const FAILURE_STATS: FailureStats = {
 // ============================================================
 // 设备故障记录列表
 // ============================================================
-const FAILURE_RECORDS: FailureRecord[] = [
+const STATIC_FAILURE_RECORDS: FailureRecord[] = [
   { id: 'FR-001', deviceId: 'SY-CT-002', deviceName: 'CT-2', date: '2026-04-28', type: '硬件故障', cost: 45000, duration: 72 },
   { id: 'FR-002', deviceId: 'SY-DSA-001', deviceName: 'DSA', date: '2026-04-25', type: '紧急维修', cost: 82000, duration: 96 },
   { id: 'FR-003', deviceId: 'SY-MR-002', deviceName: 'MRI-2', date: '2026-04-20', type: '软件故障', cost: 12000, duration: 8 },
@@ -249,7 +253,8 @@ const getHeatmapColor = (utilization: number): string => {
 // ============================================================
 // SVG折线图组件
 // ============================================================
-const TrendLineChart: React.FC<{ data: typeof UTILIZATION_TREND }> = ({ data }) => {
+interface TrendRow { date: string; CT1: number; CT2: number; MRI1: number; DSA: number; DR: number }
+const TrendLineChart: React.FC<{ data: TrendRow[] }> = ({ data }) => {
   const width = 600
   const height = 200
   const padding = { top: 20, right: 30, bottom: 30, left: 40 }
@@ -438,7 +443,7 @@ const HeatmapChart: React.FC = () => {
   const dates = Array.from(new Set(HEATMAP_DATA.map(d => d.date))).sort()
 
   // 设备列表
-  const devices = DEVICES
+  const devices = STATIC_DEVICES
 
   const cellSize = 32
   const cellGap = 2
@@ -707,9 +712,9 @@ const BookingRateChart: React.FC = () => {
 }
 
 // ============================================================
-// 设备故障率统计组件 (饼图文字版)
+// 设备故障率统计组件 (饼图文字版) — [W3-B] 故障记录由 deviceMgmtApi.faults 实时提供
 // ============================================================
-const FailureStatsChart: React.FC = () => {
+const FailureStatsChart: React.FC<{ records: FailureRecord[] }> = ({ records }) => {
   const total = FAILURE_STATS.normal + FAILURE_STATS.minor + FAILURE_STATS.major + FAILURE_STATS.scrapped
 
   const segments = [
@@ -821,7 +826,7 @@ const FailureStatsChart: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {FAILURE_RECORDS.map((record, idx) => (
+              {records.map((record, idx) => (
                 <tr
                   key={record.id}
                   style={{
@@ -858,10 +863,10 @@ const FailureStatsChart: React.FC = () => {
                     </span>
                   </td>
                   <td style={{ padding: '12px', textAlign: 'right', color: C.textDark }}>
-                    ¥{record.cost.toLocaleString()}
+                    {record.cost > 0 ? '¥' + record.cost.toLocaleString() : '—'}
                   </td>
                   <td style={{ padding: '12px', textAlign: 'right', color: C.textDark }}>
-                    {record.duration} 小时
+                    {record.duration > 0 ? record.duration + ' 小时' : '—'}
                   </td>
                 </tr>
               ))}
@@ -897,11 +902,146 @@ const StatusLight: React.FC<{ status: string }> = ({ status }) => {
 }
 
 // ============================================================
+// [W3-B] deviceMgmtApi.faults severity → 故障类型
+// ============================================================
+const severityToType = (sev: string): FailureRecord['type'] => {
+  if (sev === 'CRITICAL' || sev === 'HIGH') return '紧急维修'
+  if (sev === 'MEDIUM') return '硬件故障'
+  if (sev === 'LOW') return '软件故障'
+  return '定期保养'
+}
+
+// ============================================================
 // 主页面组件
 // ============================================================
 export default function EquipmentEfficiencyPage() {
   const [selectedPeriod, setSelectedPeriod] = useState('7d')
   const [selectedTab, setSelectedTab] = useState<'trend' | 'heatmap' | 'booking' | 'failure'>('trend')
+
+  // [W3-B] 实时数据 (oeeApi / biApi / statsApi / deviceMgmtApi)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [oeeDevices, setOeeDevices] = useState<any[]>([])
+  const [oeeStats, setOeeStats] = useState<any>(null)
+  const [biDevices, setBiDevices] = useState<any[]>([])
+  const [topDevices, setTopDevices] = useState<any[]>([])
+  const [faults, setFaults] = useState<any[]>([])
+
+  const periodDays = selectedPeriod === '7d' ? 7 : selectedPeriod === '14d' ? 14 : 30
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const [l, s, bi, top, f] = await Promise.allSettled([
+        oeeApi.list(),
+        oeeApi.getStats(),
+        biApi.getDeviceOee(periodDays),
+        statsApi.getTopDevices(10),
+        deviceMgmtApi.listDeviceFaults(),
+      ])
+      const lv = l.status === 'fulfilled' && l.value.success === true ? l.value.data : null
+      const sv = s.status === 'fulfilled' && s.value.success === true ? s.value.data : null
+      const bv = bi.status === 'fulfilled' && bi.value.success === true ? bi.value.data : null
+      const tv = top.status === 'fulfilled' && top.value.success === true ? top.value.data : null
+      const fv = f.status === 'fulfilled' && f.value.success === true ? f.value.data : null
+      setOeeDevices(Array.isArray(lv) ? lv : [])
+      setOeeStats(sv)
+      setBiDevices(Array.isArray(bv?.data?.devices) ? bv.data.devices : [])
+      setTopDevices(Array.isArray(tv) ? tv : [])
+      setFaults(Array.isArray(fv) ? fv : Array.isArray((fv as unknown as { items?: unknown[] } | null)?.items) ? (fv as unknown as { items: unknown[] }).items : [])
+    } catch (e) {
+      setError((e instanceof Error ? e.message : '加载失败') + ' — 已回退演示数据')
+    } finally {
+      setLoading(false)
+    }
+  }, [periodDays])
+
+  useEffect(() => { void load() }, [load])
+
+  // 设备卡: oeeApi.list 实时 (availability→使用率), 空则演示数据
+  const DEVICES: Device[] = useMemo(() => {
+    if (!oeeDevices.length) return STATIC_DEVICES
+    return oeeDevices.slice(0, 8).map((d) => {
+      const availability = Number(d.availability ?? 0)
+      return {
+        id: String(d.id),
+        name: String(d.name).split(' ').pop() || String(d.id),
+        model: String(d.name),
+        type: String(d.modality),
+        utilization: Math.round(availability),
+        status: availability >= 85 ? '运行中' : availability >= 70 ? '待机' : '维护',
+      }
+    })
+  }, [oeeDevices])
+
+  // 效率指标: oeeApi.stats 实时 (平均/最高/最低OEE + 设备数)
+  const EFFICIENCY_METRICS = useMemo(() => {
+    if (!oeeStats) return STATIC_EFFICIENCY_METRICS
+    return {
+      avgExamTime: oeeStats.average,
+      dailyMax: oeeStats.highest,
+      bedTurnover: oeeStats.lowest,
+      standbyHours: oeeStats.totalDevices,
+    }
+  }, [oeeStats])
+
+  // 使用率趋势: biApi.device-oee 实时 (按模态映射 CT1/CT2/MRI1/DSA/DR)
+  const UTILIZATION_TREND = useMemo<TrendRow[]>(() => {
+    if (!biDevices.length) return STATIC_UTILIZATION_TREND as unknown as TrendRow[]
+    const bucket: Record<string, any[]> = {}
+    for (const d of biDevices) {
+      const mod = String(d.modality ?? '')
+      ;(bucket[mod] ??= []).push(d)
+    }
+    const pick = (mod: string, i: number) => bucket[mod]?.[i] ?? bucket[mod]?.[0]
+    const series: Record<string, any> = { CT1: pick('CT', 0), CT2: pick('CT', 1), MRI1: pick('MR', 0), DSA: pick('DSA', 0), DR: pick('DR', 0) }
+    const dates = [...new Set(biDevices.flatMap((d) => (d.trend ?? []).map((t: any) => t.date)))].sort()
+    if (!dates.length) return STATIC_UTILIZATION_TREND as unknown as TrendRow[]
+    return dates.map((date) => {
+      const row: any = { date: String(date).slice(5) }
+      for (const key of Object.keys(series)) {
+        const dev = series[key]
+        const pt = dev?.trend?.find((t: any) => t.date === date)
+        row[key] = Math.round(Number(pt?.availability ?? 0)) || 70
+      }
+      return row as TrendRow
+    })
+  }, [biDevices])
+
+  // 设备负荷排行: oeeApi.list × statsApi.top-devices 检查量
+  const LOAD_RANKING = useMemo(() => {
+    if (!oeeDevices.length) return STATIC_LOAD_RANKING
+    const counts = new Map(topDevices.map((t) => [String(t.deviceId), Number(t.count) || 0]))
+    return [...oeeDevices]
+      .map((d, idx) => ({
+        rank: idx + 1,
+        deviceId: String(d.id),
+        deviceName: String(d.name),
+        totalExams: counts.get(String(d.id)) ?? 0,
+        avgUtilization: Math.round(Number(d.availability ?? 0)),
+        avgWaitTime: 0,
+        score: Math.round(Number(d.oee ?? 0)),
+      }))
+      .sort((a, b) => b.score - a.score)
+      .map((row, i) => ({ ...row, rank: i + 1 }))
+  }, [oeeDevices, topDevices])
+
+  // 故障记录: deviceMgmtApi.faults 实时, 空则演示数据
+  const FAILURE_RECORDS: FailureRecord[] = useMemo(() => {
+    if (!faults.length) return STATIC_FAILURE_RECORDS
+    return faults.map((f, i) => ({
+      id: String(f.id ?? `FA-${i}`),
+      deviceId: String(f.deviceId ?? ''),
+      deviceName: String(f.deviceName ?? f.description ?? f.id ?? '').slice(0, 16),
+      date: String(f.createdAt ?? '').slice(0, 10) || '—',
+      type: severityToType(String(f.severity ?? '')),
+      cost: 0,
+      duration: 0,
+    }))
+  }, [faults])
+
+  const isLive = oeeDevices.length > 0 || oeeStats != null || biDevices.length > 0 || faults.length > 0
 
   const tabs = [
     { id: 'trend', label: '使用率趋势', icon: TrendingUp },
@@ -921,25 +1061,54 @@ export default function EquipmentEfficiencyPage() {
       }}
     >
       {/* 页面标题 */}
-      <div style={{ marginBottom: 24 }}>
-        <h1
-          style={{
-            fontSize: 24,
-            fontWeight: 600,
-            color: C.textDark,
-            marginBottom: 8,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-          }}
-        >
-          <Activity size={28} color={C.primary} />
-          设备效率分析
-        </h1>
-        <p style={{ color: C.textLight, fontSize: 14 }}>
-          实时监控设备运行状态与效率指标，对标英飞达/锐科行业标准
-        </p>
+      <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
+        <div>
+          <h1
+            style={{
+              fontSize: 24,
+              fontWeight: 600,
+              color: C.textDark,
+              marginBottom: 8,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+            }}
+          >
+            <Activity size={28} color={C.primary} />
+            设备效率分析
+          </h1>
+          <p style={{ color: C.textLight, fontSize: 14 }}>
+            实时监控设备运行状态与效率指标，对标英飞达/锐科行业标准
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          {loading && <span style={{ fontSize: 12, color: C.textLight }}>加载中…</span>}
+          <span style={{
+            padding: '5px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600,
+            background: isLive ? '#22c55e20' : '#f59e0b20',
+            color: isLive ? C.success : C.warning,
+          }}>
+            {isLive ? 'oeeApi / biApi 实时' : '演示数据 (回退)'}
+          </span>
+          <button
+            onClick={() => void load()}
+            style={{
+              padding: '8px 14px', borderRadius: 8, border: `1px solid ${C.border}`,
+              background: C.bgCard, color: C.textMid, fontSize: 12, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 6,
+            }}
+          >
+            <RefreshCw size={13} />刷新
+          </button>
+        </div>
       </div>
+
+      {error && (
+        <div style={{ marginBottom: 16, padding: '10px 16px', borderRadius: 8, background: '#ef444420', border: `1px solid ${C.danger}`, color: C.dangerLight, fontSize: 13 }}>
+          {error}
+          <button onClick={() => void load()} style={{ marginLeft: 12, padding: '3px 10px', borderRadius: 4, border: `1px solid ${C.danger}`, background: 'transparent', color: C.dangerLight, cursor: 'pointer', fontSize: 12 }}>重试</button>
+        </div>
+      )}
 
       {/* 设备卡片行 */}
       <div
@@ -1163,10 +1332,10 @@ export default function EquipmentEfficiencyPage() {
             <Timer size={24} color={C.primary} />
           </div>
           <div>
-            <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>平均检查时间</p>
+            <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>平均OEE {isLive && <span style={{ color: C.success }}>· 实时</span>}</p>
             <p style={{ fontSize: 24, fontWeight: 600, color: C.textDark }}>
               {EFFICIENCY_METRICS.avgExamTime}
-              <span style={{ fontSize: 14, color: C.textLight, marginLeft: 4 }}>分钟</span>
+              <span style={{ fontSize: 14, color: C.textLight, marginLeft: 4 }}>%</span>
             </p>
           </div>
         </div>
@@ -1196,10 +1365,10 @@ export default function EquipmentEfficiencyPage() {
             <Zap size={24} color={C.success} />
           </div>
           <div>
-            <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>日最大检查量</p>
+            <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>最高OEE {isLive && <span style={{ color: C.success }}>· 实时</span>}</p>
             <p style={{ fontSize: 24, fontWeight: 600, color: C.textDark }}>
               {EFFICIENCY_METRICS.dailyMax}
-              <span style={{ fontSize: 14, color: C.textLight, marginLeft: 4 }}>例/日</span>
+              <span style={{ fontSize: 14, color: C.textLight, marginLeft: 4 }}>%</span>
             </p>
           </div>
         </div>
@@ -1229,10 +1398,10 @@ export default function EquipmentEfficiencyPage() {
             <TrendingUp size={24} color={C.warning} />
           </div>
           <div>
-            <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>床位周转次数</p>
+            <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>最低OEE {isLive && <span style={{ color: C.success }}>· 实时</span>}</p>
             <p style={{ fontSize: 24, fontWeight: 600, color: C.textDark }}>
               {EFFICIENCY_METRICS.bedTurnover}
-              <span style={{ fontSize: 14, color: C.textLight, marginLeft: 4 }}>次/日</span>
+              <span style={{ fontSize: 14, color: C.textLight, marginLeft: 4 }}>%</span>
             </p>
           </div>
         </div>
@@ -1262,10 +1431,10 @@ export default function EquipmentEfficiencyPage() {
             <Clock size={24} color={C.info} />
           </div>
           <div>
-            <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>日待机时长</p>
+            <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>监控设备数 {isLive && <span style={{ color: C.success }}>· 实时</span>}</p>
             <p style={{ fontSize: 24, fontWeight: 600, color: C.textDark }}>
               {EFFICIENCY_METRICS.standbyHours}
-              <span style={{ fontSize: 14, color: C.textLight, marginLeft: 4 }}>小时</span>
+              <span style={{ fontSize: 14, color: C.textLight, marginLeft: 4 }}>台</span>
             </p>
           </div>
         </div>
@@ -1341,7 +1510,9 @@ export default function EquipmentEfficiencyPage() {
               >
                 <div>
                   <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>设备使用率趋势</h3>
-                  <p style={{ fontSize: 12, color: C.textLight }}>近7天各设备使用率变化</p>
+                  <p style={{ fontSize: 12, color: C.textLight }}>
+                    近{selectedPeriod === '7d' ? '7' : selectedPeriod === '14d' ? '14' : '30'}天各设备使用率变化 · biApi.device-oee {isLive && <span style={{ color: C.success }}>实时</span>}
+                  </p>
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
                   {['7d', '14d', '30d'].map((period) => (
@@ -1380,7 +1551,7 @@ export default function EquipmentEfficiencyPage() {
             >
               <div style={{ marginBottom: 20 }}>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>检查量时段分析</h3>
-                <p style={{ fontSize: 12, color: C.textLight }}>白班/夜班/周末分类统计</p>
+                <p style={{ fontSize: 12, color: C.textLight }}>白班/夜班/周末分类统计 (演示数据)</p>
               </div>
               <TimeSegmentChart data={TIME_SEGMENT_DATA} />
 
@@ -1425,7 +1596,9 @@ export default function EquipmentEfficiencyPage() {
             >
               <div>
                 <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>设备负荷排行榜</h3>
-                <p style={{ fontSize: 12, color: C.textLight }}>综合评分基于使用率、等待时间、检查量等指标</p>
+                <p style={{ fontSize: 12, color: C.textLight }}>
+                  综合评分基于 OEE/使用率/检查量等指标 · oeeApi.list + statsApi.top-devices {isLive && <span style={{ color: C.success }}>实时</span>}
+                </p>
               </div>
               <button
                 style={{
@@ -1500,7 +1673,7 @@ export default function EquipmentEfficiencyPage() {
                         {item.deviceName}
                       </td>
                       <td style={{ padding: '14px 16px', textAlign: 'right', color: C.textDark }}>
-                        {item.totalExams.toLocaleString()} 例
+                        {item.totalExams > 0 ? item.totalExams.toLocaleString() + ' 例' : '—'}
                       </td>
                       <td style={{ padding: '14px 16px', textAlign: 'right' }}>
                         <span
@@ -1522,7 +1695,7 @@ export default function EquipmentEfficiencyPage() {
                         </span>
                       </td>
                       <td style={{ padding: '14px 16px', textAlign: 'right', color: C.textDark }}>
-                        {item.avgWaitTime} 分钟
+                        {item.avgWaitTime > 0 ? item.avgWaitTime + ' 分钟' : '—'}
                       </td>
                       <td style={{ padding: '14px 16px', textAlign: 'center' }}>
                         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
@@ -1577,8 +1750,8 @@ export default function EquipmentEfficiencyPage() {
                 color: C.textLight,
               }}
             >
-              <span>统计周期：近30天</span>
-              <span>数据更新时间：2026-05-03 10:30</span>
+              <span>统计周期：近{periodDays}天{isLive ? ' · oeeApi 实时' : ' · 演示数据'}</span>
+              <span>数据更新时间：{new Date().toLocaleString('zh-CN')}</span>
             </div>
           </div>
         </>
@@ -1595,7 +1768,7 @@ export default function EquipmentEfficiencyPage() {
         >
           <div style={{ marginBottom: 20 }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>设备使用率热力图</h3>
-            <p style={{ fontSize: 12, color: C.textLight }}>最近30天各设备使用率分布 (8台设备 × 30天)</p>
+            <p style={{ fontSize: 12, color: C.textLight }}>最近30天各设备使用率分布 (演示数据 — 确定性随机生成)</p>
           </div>
           <div style={{ overflowX: 'auto' }}>
             <HeatmapChart />
@@ -1615,7 +1788,7 @@ export default function EquipmentEfficiencyPage() {
           <div style={{ marginBottom: 20 }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>预约满员率排名</h3>
             <p style={{ fontSize: 12, color: C.textLight }}>
-              满员定义：当天预约机时 ≥95% | 标红低于70%的设备
+              满员定义：当天预约机时 ≥95% | 标红低于70%的设备 (演示数据)
             </p>
           </div>
           <BookingRateChart />
@@ -1634,10 +1807,10 @@ export default function EquipmentEfficiencyPage() {
           <div style={{ marginBottom: 20 }}>
             <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>设备故障率统计</h3>
             <p style={{ fontSize: 12, color: C.textLight }}>
-              故障类型：硬件故障/软件故障/定期保养/紧急维修
+              故障类型：硬件故障/软件故障/定期保养/紧急维修 · 故障记录来自 deviceMgmtApi.faults {isLive && <span style={{ color: C.success }}>实时</span>}
             </p>
           </div>
-          <FailureStatsChart />
+          <FailureStatsChart records={FAILURE_RECORDS} />
         </div>
       )}
 

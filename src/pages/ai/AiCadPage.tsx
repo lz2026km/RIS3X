@@ -1,16 +1,22 @@
 // [v3.0.6.11-54] Phase 2: AI CAD 聚合页 (肺结节/乳腺/骨折/心脏 + 统计卡片)
 // [v3.0.6.11-75] W1-2: 接入真实 cadApi (POST /ai/cad/detect, GET /ai/cad/result/:instanceId)
+// [v3.0.6.11-80] W2-A: 准确率分析 Tab (POST /ai-diagnosis/accuracy 各模型 + GET /ai-diagnosis/trend 30 天趋势)
 import React, { useCallback, useEffect, useState } from 'react'
 import {
   Card, Space, Tag, Row, Col, Statistic, Tabs, Spin, Alert, Button, Progress,
   Input, Table, Empty,
 } from 'antd'
-import { Cpu, RefreshCw, Activity, Target, CheckCircle2, TrendingUp, ScanSearch, Crosshair } from 'lucide-react'
+import {
+  Cpu, RefreshCw, Activity, Target, CheckCircle2, TrendingUp, ScanSearch, Crosshair, BarChart3, Gauge,
+} from 'lucide-react'
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+} from 'recharts'
 import LungCadPage from './LungCadPage'
 import BreastCadPage from './BreastCadPage'
 import FractureCadPage from './FractureCadPage'
 import CardiacAiPage from './CardiacAiPage'
-import { aiDiagnosisApi } from '../../services/api/aiDiagnosisApi'
+import { aiDiagnosisApi, type AiDiagnosisAccuracyResult, type AiDiagnosisTrendPoint } from '../../services/api/aiDiagnosisApi'
 import { cadApi } from '../../services/api/cadApi'
 import type { CadResult } from '../../services/api/cadApi'
 
@@ -36,6 +42,153 @@ const MODULE_META: { key: keyof AiDiagnosisAggregated; title: string; color: str
   { key: 'fractureCad', title: '骨折检测', color: '#faad14' },
   { key: 'cardiacAi', title: '心脏 AI', color: '#722ed1' },
 ]
+
+// [W2-A] 各模型准确率查询: 复用 POST /ai-diagnosis/accuracy, 按 modality 过滤
+const MODEL_ACCURACY_QUERY: { key: string; title: string; modality: string; color: string }[] = [
+  { key: 'lung', title: '肺结节', modality: 'CT', color: '#1677ff' },
+  { key: 'breast', title: '乳腺', modality: 'MG', color: '#eb2f96' },
+  { key: 'fracture', title: '骨折', modality: 'DR', color: '#faad14' },
+  { key: 'cardiac', title: '心脏', modality: 'MR', color: '#722ed1' },
+]
+
+// [W2-A] 准确率分析: getAccuracy (总/各模型) + getTrend (30 天趋势)
+const AccuracyPanel: React.FC = () => {
+  const [overall, setOverall] = useState<AiDiagnosisAccuracyResult | null>(null)
+  const [byModel, setByModel] = useState<Record<string, AiDiagnosisAccuracyResult>>({})
+  const [trend, setTrend] = useState<AiDiagnosisTrendPoint[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const [overallRes, trendRes, ...modelRes] = await Promise.all([
+        aiDiagnosisApi.getAccuracy(),
+        aiDiagnosisApi.getTrend(),
+        ...MODEL_ACCURACY_QUERY.map((m) => aiDiagnosisApi.getAccuracy({ modality: m.modality })),
+      ])
+      const failed: string[] = []
+      if (overallRes.success && overallRes.data) setOverall(overallRes.data)
+      else failed.push(overallRes.error?.message ?? '总体准确率加载失败')
+      if (trendRes.success && Array.isArray(trendRes.data)) setTrend(trendRes.data)
+      else failed.push(trendRes.error?.message ?? '趋势加载失败')
+      const next: Record<string, AiDiagnosisAccuracyResult> = {}
+      modelRes.forEach((res, i) => {
+        const m = MODEL_ACCURACY_QUERY[i]
+        if (!m) return
+        if (res.success && res.data) next[m.key] = res.data
+        else failed.push(`${m.title}: ${res.error?.message ?? '加载失败'}`)
+      })
+      setByModel(next)
+      const firstError = failed.find(Boolean)
+      if (firstError) setError(firstError)
+    } catch (e) {
+      setError((e as Error)?.message ?? '准确率加载失败')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    void load()
+  }, [load])
+
+  const fmt = (v: number | undefined | null) => (v === undefined || v === null ? '-' : `${v.toFixed(1)}%`)
+  const totalCases = overall?.totalCases ?? 0
+
+  return (
+    <div style={{ padding: 16 }}>
+      <Space style={{ marginBottom: 12 }}>
+        <Gauge size={16} color="#1677ff" />
+        <span style={{ fontWeight: 600 }}>准确率分析 (POST /ai-diagnosis/accuracy + GET /ai-diagnosis/trend)</span>
+        <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>
+          刷新
+        </Button>
+      </Space>
+
+      {error && (
+        <Alert type="error" showIcon style={{ marginBottom: 12 }} message={error}
+          action={<Button size="small" onClick={() => void load()}>重试</Button>} />
+      )}
+
+      <Spin spinning={loading && !overall && trend.length === 0}>
+        <Row gutter={16} style={{ marginBottom: 12 }}>
+          <Col span={6}>
+            <Card size="small">
+              <Statistic
+                title={<Space><Target size={12} color="#1677ff" />总体准确率</Space>}
+                value={overall?.accuracy ?? '-'} suffix="%" precision={overall ? 1 : 0}
+                styles={{ content: { color: '#1677ff' } }}
+              />
+              <div style={{ marginTop: 8, fontSize: 12, color: '#64748b' }}>
+                样本 {totalCases ? `${totalCases} 例` : '-'} · AI 阳性 {overall?.aiPositive ?? '-'}
+              </div>
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card size="small" title="灵敏度 / 特异度">
+              <Space size={16}>
+                <Statistic value={overall?.sensitivity ?? '-'} suffix="%" />
+                <Statistic value={overall?.specificity ?? '-'} suffix="%" />
+              </Space>
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card size="small" title="阳性预测值 PPV">
+              <Statistic value={overall?.ppv ?? '-'} suffix="%" />
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card size="small" title="阴性预测值 NPV">
+              <Statistic value={overall?.npv ?? '-'} suffix="%" />
+            </Card>
+          </Col>
+        </Row>
+
+        <Row gutter={16} style={{ marginBottom: 12 }}>
+          {MODEL_ACCURACY_QUERY.map((m) => {
+            const acc = byModel[m.key]
+            return (
+              <Col span={6} key={m.key}>
+                <Card size="small" loading={loading && !acc}>
+                  <Statistic
+                    title={<Space><Activity size={12} color={m.color} />{m.title} ({m.modality})</Space>}
+                    value={acc ? acc.accuracy : '-'} suffix="%" precision={acc ? 1 : 0}
+                    styles={{ content: { color: m.color } }}
+                  />
+                  <div style={{ marginTop: 8, fontSize: 12, color: '#64748b' }}>
+                    灵敏度 {acc ? fmt(acc.sensitivity) : '-'} · 特异度 {acc ? fmt(acc.specificity) : '-'}
+                    <div>样本 {acc?.totalCases ?? '-'} 例</div>
+                  </div>
+                </Card>
+              </Col>
+            )
+          })}
+        </Row>
+
+        <Card size="small" title="准确率 30 天趋势 (GET /ai-diagnosis/trend)">
+          {trend.length === 0 && !loading ? (
+            <Empty description="暂无趋势数据" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+          ) : (
+            <ResponsiveContainer width="100%" height={280}>
+              <LineChart data={trend} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#94a3b8' }} />
+                <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} domain={[50, 100]} />
+                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} formatter={(v: number | string) => [`${v}%`]} />
+                <Legend iconSize={10} />
+                <Line type="monotone" dataKey="accuracy" name="准确率" stroke="#1677ff" strokeWidth={2} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="sensitivity" name="灵敏度" stroke="#52c41a" strokeWidth={2} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="specificity" name="特异度" stroke="#faad14" strokeWidth={2} dot={{ r: 3 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
+        </Card>
+      </Spin>
+    </div>
+  )
+}
 
 const AiCadPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('lung')
@@ -151,6 +304,7 @@ const AiCadPage: React.FC = () => {
             { key: 'breast', label: '乳腺 CAD', children: <BreastCadPage /> },
             { key: 'fracture', label: '骨折检测', children: <FractureCadPage /> },
             { key: 'cardiac', label: '心脏 AI', children: <CardiacAiPage /> },
+            { key: 'accuracy', label: <Space><BarChart3 size={14} />准确率分析</Space>, children: <AccuracyPanel /> },
           ]}
         />
       </Card>

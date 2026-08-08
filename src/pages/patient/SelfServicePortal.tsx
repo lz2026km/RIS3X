@@ -273,27 +273,31 @@ export default function SelfServicePortal() {
     try {
       const res = await patientPortalApi.getExamReport(examId)
       if (res.success && res.data) {
-        const exam = res.data
+        const report = res.data
         const lines = [
           '========== 历史检查报告 ==========',
-          `检查项目：${exam.examItem}`,
-          `检查日期：${exam.examDate} · 部位：${exam.bodyPart}`,
-          `设备：${exam.deviceName ?? '-'}`,
-          `状态：${exam.reportStatus}`,
+          `检查项目：${report.modality ?? '影像检查'}（${report.bodyPart ?? '未指定部位'}）`,
+          `检查日期：${report.examDate ? fmtDateTime(report.examDate) : '-'} · 状态：${REPORT_STATE_LABEL[report.state] ?? report.state}`,
           '',
-          '【报告内容】',
-          exam.reportContent ?? '-',
+          '【检查所见】',
+          report.findings ?? '-',
           '',
           '【诊断意见】',
-          exam.diagnosis ?? '-',
+          report.diagnosis ?? '-',
+          '',
+          '【影像印象】',
+          report.impression ?? '-',
+          '',
+          '【结论】',
+          report.conclusion ?? '-',
           '',
           '【建议】',
-          exam.recommendations ?? '-',
+          report.recommendations ?? '-',
         ].join('\n')
         const blob = new Blob(['\ufeff' + lines], { type: 'text/plain;charset=utf-8;' })
         const link = document.createElement('a')
         link.href = URL.createObjectURL(blob)
-        link.download = `检查报告_${exam.id}.txt`
+        link.download = `检查报告_${report.id}.txt`
         link.click()
         URL.revokeObjectURL(link.href)
         message.success('报告已下载')
@@ -398,13 +402,20 @@ export default function SelfServicePortal() {
     let cancelled = false
     void (async () => {
       try {
-        const [previewRes, studyRes] = await Promise.all([
-          patientPortalApi.listExamImages(selectedExam.id),
-          patientPortalApi.listImages(selectedExam.id),
-        ])
+        // [G005 W1-C] exam-history/:id/images 后端无此端点, 统一走 /patient-portal/images/:studyUid,
+        // 电子胶片预览由 study.series 派生
+        const studyRes = await patientPortalApi.listImages(selectedExam.id)
         if (cancelled) return
-        if (previewRes.success && Array.isArray(previewRes.data)) setImages(previewRes.data)
-        if (studyRes.success && studyRes.data) setStudy(studyRes.data)
+        if (studyRes.success && studyRes.data) {
+          setStudy(studyRes.data)
+          setImages((studyRes.data.series ?? []).map((s, i) => ({
+            id: s.seriesInstanceUid || `series-${i}`,
+            label: `序列 ${s.seriesNumber ?? i + 1}（${s.modality ?? 'OT'}）· ${s.instanceCount ?? 0} 帧`,
+            windowWidth: 1200,
+            windowCenter: 40,
+            invert: false,
+          })))
+        }
       } catch { /* keep empty images */ }
     })()
     return () => { cancelled = true }
@@ -452,15 +463,12 @@ export default function SelfServicePortal() {
 
   const generateVoucher = async () => {
     if (!user) return
-    try {
-      const res = await patientPortalApi.generateVoucher(user.id)
-      if (res.success && res.data) setVoucherCode(res.data.code)
-    } catch {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-      let code = ''
-      for (let i = 0; i < 16; i++) code += chars[Math.floor(Math.random() * chars.length)]
-      setVoucherCode(code)
-    }
+    // [G005 W1-C] 后端无 /patient-portal/voucher 端点, 凭证改为本地生成(标注: 待后端实现)
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    let code = ''
+    for (let i = 0; i < 16; i++) code += chars[Math.floor(Math.random() * chars.length)]
+    setVoucherCode(code)
+    message.info('凭证由客户端演示生成（后端 voucher 端点待实现）')
   }
 
   const handleWindowChange = (id: string, type: 'width' | 'center', value: number) => {

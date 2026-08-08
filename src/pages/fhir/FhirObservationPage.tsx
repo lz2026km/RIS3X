@@ -14,6 +14,24 @@ export const FhirObservationPage: React.FC = () => {
   const [searchForm] = Form.useForm()
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedObs, setSelectedObs] = useState<FhirObservation | null>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
+
+  const openDetail = async (obs: FhirObservation) => {
+    setDetailOpen(true)
+    setDetailLoading(true)
+    setSelectedObs(obs)
+    try {
+      const res = await fhirApi.readObservation(obs.id!)
+      if (res.success && res.data) {
+        setSelectedObs(res.data)
+      } else {
+        message.warning(res.error?.message ?? 'Observation 详情加载失败，展示列表数据')
+      }
+    } catch {
+      message.warning('Observation 详情加载失败，展示列表数据')
+    }
+    setDetailLoading(false)
+  }
 
   const fetchObservations = useCallback(async (p: number = 1, params: { patient?: string } = {}) => {
     setLoading(true)
@@ -85,7 +103,7 @@ export const FhirObservationPage: React.FC = () => {
       key: 'action',
       width: 80,
       render: (_: any, r: FhirObservation) => (
-        <Button size="small" icon={<Eye size={12} />} onClick={() => { setSelectedObs(r); setDetailOpen(true) }}>详情</Button>
+        <Button size="small" icon={<Eye size={12} />} onClick={() => openDetail(r)}>详情</Button>
       ),
     },
   ]
@@ -130,7 +148,9 @@ export const FhirObservationPage: React.FC = () => {
         footer={<Button onClick={() => setDetailOpen(false)}>关闭</Button>}
         width={600}
       >
-        {selectedObs ? (
+        {detailLoading ? (
+          <div style={{ textAlign: 'center', padding: '32px 0', color: '#999' }}>加载详情...</div>
+        ) : selectedObs ? (
           <Descriptions column={2} size="small" bordered>
             <Descriptions.Item label="ID">{selectedObs.id}</Descriptions.Item>
             <Descriptions.Item label="状态"><Tag color="green">{selectedObs.status}</Tag></Descriptions.Item>

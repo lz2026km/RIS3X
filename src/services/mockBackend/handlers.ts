@@ -65,6 +65,7 @@ import { financeHandlers } from './financeHandlers';
 // [W1-5] 导出审批中心 (GET/POST /export-approval, POST /export-approval/:id/approve|reject)
 import { exportApprovalHandlers } from './exportApprovalHandlers';
 import { dataReportHandlers } from './dataReportHandlers';
+import { teleSignHandlers } from './teleSignHandlers';
 import { regionalHandlers } from './regionalHandlers';
 import { patientPortalHandlers } from './patientPortalHandlers';
 import { cosignNewHandlers } from './cosignNewHandlers';
@@ -72,6 +73,12 @@ import { cdsHandlers } from './cdsHandlers';
 import { criticalExtHandlers } from './criticalExtHandlers';
 // [G005-P0] 对标分析 (GET /api/v1/benchmark/list|stats, POST /api/v1/benchmark/compare|cross-site)
 import { benchmarkHandlers } from './benchmarkHandlers';
+// [G005 P1 W2-C] 示教录制 (POST /teach/lecture, GET /teach/lectures, blob 上传/播放/删除)
+import { teachHandlers } from './teachHandlers';
+// [W3-B] 典型病例库 (GET /typical-cases, /typical-cases/stats)
+import { typicalCaseHandlers } from './typicalCaseHandlers';
+// [G005 P1 W2-C] 远程会诊 (session/join/signal/chat/cursor)
+import { teleHandlers } from './teleHandlers';
 import { qcExtHandlers } from './qcExtHandlers';
 import { reportQualityHandlers } from './reportQualityHandlers';
 import { caHandlers } from './caHandlers';
@@ -90,6 +97,7 @@ import { mobileHandlers } from './mobileHandlers';
 import { segmentationHandlers } from './segmentationHandlers';
 import { dentalHandlers } from './dentalHandlers';
 import { olapHandlers } from './olapHandlers';
+import { oeeHandlers } from './oeeHandlers';
 // [v3.0.6.11-54] Phase 2 壳页面真实化 (dicom-web / critical-alert / sr-report / nuclear-stats)
 import { shellUpgradeHandlers } from './shellUpgradeHandlers';
 // [v3.0.6.11-60] DICOM SR 全链路 (generate/by-report/push-oru/download)
@@ -127,6 +135,11 @@ import { crossModalHandlers } from './crossModalHandlers';
 import { dicomShareHandlers } from './dicomShareHandlers';
 // [v3.0.6.11-60] Smart MWL 深度化 (worklist-smart / smart-route)
 import { smartWorklistHandlers } from './smartWorklistHandlers';
+// [W3-A] 自动采集 (auto-collectionApi, 后端无 controller → MSW 支撑 + 页面标注 demo)
+import { autoCollectionHandlers } from './autoCollectionHandlers';
+// [W3-A] 诊断符合率 (diagnosisAccuracyApi) + 乳腺影像质量管理 (mammoQcApi)
+import { diagnosisAccuracyHandlers } from './diagnosisAccuracyHandlers';
+import { mammoQcHandlers } from './mammoQcHandlers';
 import {
   INITIAL_CHECK_SUMMARY,
 } from '@data/reportInitialCheckMock';
@@ -1428,7 +1441,53 @@ export const deviceHandlers = [
 ];
 
 // ============= DICOM(7) =============
+// [W3-C] WADO-RS 检索 (wadoRsApi: /dicom/wado-rs/*) — 支撑 WadoRsPage 真实交互
+const WADO_RS_STUDIES = [
+  {
+    studyInstanceUid: '1.2.840.113619.2.176.2026.1.1',
+    patientName: '张伟', patientId: 'P100001', studyDate: '2026-06-06',
+    studyDescription: '胸部CT平扫', modality: 'CT', seriesCount: 2, instanceCount: 128,
+  },
+  {
+    studyInstanceUid: '1.2.840.113619.2.176.2026.1.2',
+    patientName: '李娜', patientId: 'P100002', studyDate: '2026-06-08',
+    studyDescription: '头颅MRI', modality: 'MR', seriesCount: 4, instanceCount: 256,
+  },
+];
+const WADO_RS_SERIES = [
+  { seriesInstanceUid: '1.2.840.113619.2.176.2026.1.1.1', seriesNumber: 1, modality: 'CT', seriesDescription: 'Axial 5mm', instanceCount: 64, bodyPart: 'CHEST' },
+  { seriesInstanceUid: '1.2.840.113619.2.176.2026.1.1.2', seriesNumber: 2, modality: 'CT', seriesDescription: 'Coronal MPR', instanceCount: 64, bodyPart: 'CHEST' },
+];
 export const dicomHandlers = [
+  http.get(`${API_BASE}/dicom/wado-rs/studies`, async ({ request }) => {
+    await delay(200);
+    const url = new URL(request.url);
+    const name = url.searchParams.get('patientName');
+    let list = WADO_RS_STUDIES;
+    if (name) list = list.filter(s => s.patientName.includes(name));
+    return HttpResponse.json({ success: true, data: list });
+  }),
+  http.get(`${API_BASE}/dicom/wado-rs/studies/:studyUid`, async ({ params }) => {
+    await delay(200);
+    const found = WADO_RS_STUDIES.find(s => s.studyInstanceUid === params.studyUid);
+    return HttpResponse.json({ success: true, data: found ?? WADO_RS_STUDIES[0] });
+  }),
+  http.get(`${API_BASE}/dicom/wado-rs/studies/:studyUid/series`, async () => {
+    await delay(200);
+    return HttpResponse.json({ success: true, data: WADO_RS_SERIES });
+  }),
+  http.get(`${API_BASE}/dicom/wado-rs/studies/:studyUid/series/:seriesUid/instances`, async () => {
+    await delay(200);
+    const instances = Array.from({ length: 64 }, (_, i) => ({
+      sopInstanceUid: `1.2.840.113619.2.176.2026.1.1.1.${String(i + 1).padStart(3, '0')}`,
+      instanceNumber: i + 1,
+      sopClassUid: '1.2.840.10008.5.1.4.1.1.2',
+      transferSyntaxUid: '1.2.840.10008.1.2.4.70',
+      wadoUri: `/api/v1/dicom/wado-rs/studies/1.2.840.113619.2.176.2026.1.1/instances/${i + 1}`,
+    }));
+    return HttpResponse.json({ success: true, data: instances });
+  }),
+
   http.get(`${API_BASE}/dicom/studies/:studyUid`, async ({ params }) => {
     await delay(200);
     return HttpResponse.json({
@@ -1974,6 +2033,16 @@ export const consultationHandlers = [
 ];
 
 // ============= Queue (10) - v3.0.6.8-32 接入 EXAM_REPORT_PRE + DEVICE_MASTER =============
+// [W1-A P0] 返回 QueueCallPage 期望形状 (中文状态/优先级/患者类型, queueNum 等),
+//           保证叫号流程(呼叫→已呼叫→重呼/完成)在 mock 模式可用
+const toQueueStatusZh = (e: any, idx: number): string => {
+  const st = String(e.status ?? '');
+  if (st === 'reviewed' || st === 'in_service' || st === '已呼叫') return '已呼叫';
+  if (st === '已签发' || st === 'completed' || st === '已完成') return '已完成';
+  if (idx % 7 === 4) return '已呼叫'; // 演示数据: 部分已呼叫
+  return '等待中';
+};
+
 export const queueHandlers = [
   // 队列 (按 status=submitted/reviewed 派生)
   http.get(`${API_BASE}/queue`, async ({ request }) => {
@@ -1982,18 +2051,33 @@ export const queueHandlers = [
     const opts = parseQuery(url);
     const all = list<any>('exams').filter((e: any) => e.status === 'submitted' || e.status === 'reviewed');
     const result = applyQuery(all, opts);
-    const queueItems = result.data.map((e: any, idx: number) => ({
-      id: `q-${e.reportId}`,
-      queueNumber: `${e.modality}-${String(idx + 1).padStart(3, '0')}`,
-      patientName: e.patientName,
-      examItem: e.examItem,
-      roomId: e.deviceId,
-      modality: e.modality,
-      status: e.status === 'submitted' ? 'waiting' : 'in_service',
-      priority: e.priority,
-      arrivedAt: e.examAt,
-      estimatedWaitMin: (result.data.length - idx) * 5,
-    }));
+    const rooms = Object.fromEntries(list<any>('devices').map((d: any) => [d.id, d.room ?? d.name ?? '']));
+    const queueItems = result.data.map((e: any, idx: number) => {
+      const statusZh = toQueueStatusZh(e, idx);
+      const qnum = `${e.modality ?? 'CT'}-${String(idx + 1).padStart(3, '0')}`;
+      return {
+        id: `q-${e.reportId ?? e.id}`,
+        examId: e.examId ?? e.id,
+        queueNum: qnum,
+        queueNumber: qnum,
+        patientId: e.patientId,
+        patientName: e.patientName,
+        gender: e.patientGender === '女' ? '女' : '男',
+        age: e.patientAge ?? 0,
+        modality: e.modality,
+        examItemName: e.examItemName ?? e.examItem ?? e.bodyPart,
+        examRoom: rooms[e.deviceId ?? ''] ?? e.room ?? '检查室',
+        roomId: e.deviceId ?? '',
+        status: statusZh,
+        registerTime: (e.examAt ?? e.scheduledAt ?? '').toString().slice(11, 16),
+        waitMinutes: (result.data.length - idx) * 5,
+        priority: e.priority === '加急' || e.priority === '危急' ? '危重' : '普通',
+        patientType: e.patientType === '住院' ? '住院' : e.patientType === '急诊' ? '急诊' : '门诊',
+        calledCount: statusZh === '已呼叫' ? 1 : 0,
+        calledAt: undefined,
+        completedAt: undefined,
+      };
+    });
     return HttpResponse.json({ success: true, data: queueItems, meta: { total: result.total } });
   }),
 
@@ -2021,6 +2105,43 @@ export const queueHandlers = [
     return HttpResponse.json({ success: true, data: {
       id: room.id, roomNumber: room.room, modality: room.modality,
       status: room.status === '运行中' ? '使用中' : '空闲',
+    } });
+  }),
+
+  // [W1-A P0] 房间队列 (按 deviceId 派生, scheduledAt 排序)
+  http.get(`${API_BASE}/queue/:roomId`, async ({ params }) => {
+    await delay(60);
+    const roomId = params.roomId as string;
+    const device = get<any>('devices', roomId);
+    const queue = list<any>('exams')
+      .filter((e: any) => (e.deviceId === roomId || e.room === roomId) && e.status !== 'completed')
+      .sort((a: any, b: any) => String(a.examAt ?? a.scheduledAt ?? '').localeCompare(String(b.examAt ?? b.scheduledAt ?? '')))
+      .slice(0, 20)
+      .map((e: any, idx: number) => ({
+        id: `q-${e.reportId ?? e.id}`,
+        queueNumber: `${e.modality}-${String(idx + 1).padStart(3, '0')}`,
+        patientName: e.patientName,
+        examItem: e.examItem ?? e.bodyPart,
+        roomId,
+        status: e.status === 'in_service' ? 'in_service' : 'waiting',
+      }));
+    return HttpResponse.json({ success: true, data: { roomId, roomName: device?.room ?? roomId, queue } });
+  }),
+
+  // [W1-A P0] 房间状态
+  http.get(`${API_BASE}/queue/:roomId/status`, async ({ params }) => {
+    await delay(50);
+    const roomId = params.roomId as string;
+    const device = get<any>('devices', roomId);
+    const queue = list<any>('exams').filter((e: any) => e.deviceId === roomId && e.status !== 'completed');
+    return HttpResponse.json({ success: true, data: {
+      id: roomId,
+      roomNumber: device?.room ?? roomId,
+      modality: device?.modality ?? '',
+      status: device?.status === '运行中' ? '使用中' : '空闲',
+      waitCount: queue.length,
+      queueCount: queue.length,
+      completedToday: 0,
     } });
   }),
 
@@ -3584,6 +3705,9 @@ const advancedHandlers: any[] = [
 export const handlers = [
   ...shellBatch3Handlers, // [v3.0.6.11-60] Batch 3 壳页面 (需在 criticalValueHandlers 通配之前)
   ...smartWorklistHandlers, // [v3.0.6.11-60] Smart MWL 深度化 (worklist-smart / smart-route)
+  ...autoCollectionHandlers, // [W3-A] 自动采集 (auto-collectionApi)
+  ...diagnosisAccuracyHandlers, // [W3-A] 诊断符合率 (diagnosisAccuracyApi)
+  ...mammoQcHandlers, // [W3-A] 乳腺影像质量管理 (mammoQcApi)
   ...advancedHandlers, // [v3.0.6.8-32] 高级端点优先注册,避免 /critical/:id 拦截 /critical/sla-status
   ...authHandlers,
   ...reportHandlers,
@@ -3644,12 +3768,16 @@ export const handlers = [
   ...financeHandlers,
   ...exportApprovalHandlers, // [W1-5] 导出审批中心 (import 了但从未注册 → POST /export-approval 500 修复)
   ...dataReportHandlers,
+  ...teleSignHandlers, // [G005 W1-C] 远程签署 (GET sessions / POST session|approve|reject)
   ...regionalHandlers,
   ...patientPortalHandlers,
   ...cosignNewHandlers,
   ...cdsHandlers,
   ...criticalExtHandlers,
   ...benchmarkHandlers,
+  ...teachHandlers, // [G005 P1 W2-C] 示教录制 CRUD + blob 上传/播放
+  ...typicalCaseHandlers, // [W3-B] 典型病例库 (MSW 演示数据)
+  ...teleHandlers,  // [G005 P1 W2-C] 远程会诊信令/聊天/光标
   ...qcExtHandlers,
   ...reportQualityHandlers,
   ...caHandlers,
@@ -3671,6 +3799,7 @@ export const handlers = [
   ...mobileHandlers, // [v3.0.6.11-75] 移动端 API (today-summary/worklist/critical-values/reports/device-token)
   ...asrHandlers, // [Phase 1.4] ASR 语音识别端点
   ...olapHandlers,
+  ...oeeHandlers, // [W3-B] OEE 看板 (list/detail/trend/stats) — 此前未注册导致 /oee/* 500
   ...biHandlers, // [v3.0.6.11-60] BI 仪表板 (kpi/timeliness/rvu/oee/sla/trend)
   // [Phase 2] 壳页面真实化 - 新端点 (kiosk/fusion/4d/screening/search)
   ...searchHandlers, // 全局搜索 /search, /search/suggest

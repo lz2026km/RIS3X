@@ -55,6 +55,7 @@ export default function ReportSearchPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searched, setSearched] = useState(false);
+  const [sortDir, setSortDir] = useState<'desc' | 'asc'>('desc');
 
   const fetchReports = useCallback(async (keyword: string) => {
     setLoading(true);
@@ -136,6 +137,13 @@ export default function ReportSearchPage() {
   const modalityOptions = ['CT', 'MR', 'DR', 'US', 'MG', 'DSA'];
   const bodyPartOptions = ['胸部', '腹部', '头颅', '脊柱', '四肢', '乳腺', '盆腔', '颈部'];
   const statusOptions = ['草稿', '待审核', '审核中', '已审核', '报告已发', '已签发', '已完成'];
+
+  const sortedResults = [...results].sort((a, b) => {
+    const ta = a.reportDate || '';
+    const tb = b.reportDate || '';
+    const cmp = ta === tb ? 0 : ta < tb ? -1 : 1;
+    return sortDir === 'desc' ? -cmp : cmp;
+  });
 
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
@@ -243,8 +251,8 @@ export default function ReportSearchPage() {
             检索结果 ({total} 条)
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
-            <button style={{ padding: '4px 10px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}>
-              按时间 ↓
+            <button onClick={() => setSortDir(d => d === 'desc' ? 'asc' : 'desc')} style={{ padding: '4px 10px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}>
+              按时间 {sortDir === 'desc' ? '↓' : '↑'} {sortDir === 'desc' ? '新→旧' : '旧→新'}
             </button>
           </div>
         </div>
@@ -264,7 +272,7 @@ export default function ReportSearchPage() {
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-            {results.map(r => (
+            {sortedResults.map(r => (
               <div key={r.id} style={{ padding: 12, background: '#f8fafc', borderRadius: 6, border: '1px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>

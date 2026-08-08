@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import { Clock, AlertTriangle, CheckCircle, Search, Download, Wallet } from 'lucide-react'
+import { financeApi, type InvoiceDto } from '../../services/api/financeApi'
 
 type AgingBucket = '0-30' | '31-60' | '61-90' | '90+'
 type PayerFilter = 'all' | '医保(城镇职工)' | '医保(城乡居民)' | '商业保险' | '自费'
@@ -26,6 +27,7 @@ const PAYER_COLORS: Record<string, string> = {
   '公费/其他': '#6b7280',
 }
 
+// 回退演示数据: 仅当 financeApi 不可用时展示 (页面标注来源)
 const MOCK_RECEIVABLES: ReceivableItem[] = [
   { id: 'ar-001', patientName: '张伟', examItem: 'CT增强(胸部)', examDate: '2026-04-15', payer: '医保(城镇职工)', totalAmount: 850, paidAmount: 595, balance: 255, dueDate: '2026-05-15', aging: '0-30', status: 'current' },
   { id: 'ar-002', patientName: '李娜', examItem: 'MRI平扫(头颅)', examDate: '2026-04-16', payer: '医保(城镇职工)', totalAmount: 780, paidAmount: 546, balance: 234, dueDate: '2026-05-16', aging: '0-30', status: 'current' },
@@ -48,40 +50,107 @@ const AGING_BUCKETS: { key: AgingBucket; label: string; color: string }[] = [
   { key: '90+', label: '90天以上', color: '#ef4444' },
 ]
 
+const DAY_MS = 86400000
+
+// financeApi.listInvoices → 应收条目 (过滤已结清, 按检查日期推算账龄)
+const toReceivable = (inv: InvoiceDto): ReceivableItem => {
+  const examDate = inv.examDate || (inv.createdAt ?? '').slice(0, 10) || ''
+  const base = examDate ? new Date(examDate).getTime() : Date.now()
+  const days = Math.max(0, Math.floor((Date.now() - base) / DAY_MS))
+  const aging: AgingBucket = days <= 30 ? '0-30' : days <= 60 ? '31-60' : days <= 90 ? '61-90' : '90+'
+  const due = new Date(base + 30 * DAY_MS)
+  const payer = inv.insuranceCovered > 0 ? '医保(城镇职工)' : '自费'
+  const settled = inv.balance <= 0
+  return {
+    id: inv.id,
+    patientName: inv.patientName,
+    examItem: inv.examItem,
+    examDate,
+    payer,
+    totalAmount: inv.totalAmount,
+    paidAmount: inv.paidAmount,
+    balance: inv.balance,
+    dueDate: due.toISOString().slice(0, 10),
+    aging,
+    status: settled ? 'paid' : aging === '0-30' ? 'current' : 'overdue',
+  }
+}
+
 export default function AccountsReceivablePage() {
+  const [items, setItems] = useState<ReceivableItem[]>(MOCK_RECEIVABLES)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [usingFallback, setUsingFallback] = useState(false)
   const [payerFilter, setPayerFilter] = useState<PayerFilter>('all')
   const [searchText, setSearchText] = useState('')
 
+  const fetchReceivables = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await financeApi.listInvoices()
+      if (!res.success) throw new Error((res.error as { message?: string })?.message || '发票加载失败')
+      const list = (Array.isArray(res.data) ? res.data : []).map(toReceivable)
+      if (list.length > 0) {
+        setItems(list)
+        setUsingFallback(false)
+      } else {
+        setItems(MOCK_RECEIVABLES)
+        setUsingFallback(true)
+      }
+    } catch (e) {
+      setError((e as Error)?.message || '加载失败')
+      setItems(MOCK_RECEIVABLES)
+      setUsingFallback(true)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { fetchReceivables() }, [fetchReceivables])
+
   const filteredItems = useMemo(() => {
-    let items = MOCK_RECEIVABLES.filter(i => i.status !== 'paid')
-    if (payerFilter !== 'all') items = items.filter(i => i.payer === payerFilter)
+    let list = items.filter(i => i.status !== 'paid')
+    if (payerFilter !== 'all') list = list.filter(i => i.payer === payerFilter)
     if (searchText) {
       const q = searchText.toLowerCase()
-      items = items.filter(i => i.patientName.toLowerCase().includes(q) || i.examItem.toLowerCase().includes(q))
+      list = list.filter(i => i.patientName.toLowerCase().includes(q) || i.examItem.toLowerCase().includes(q))
     }
-    return items
-  }, [payerFilter, searchText])
+    return list
+  }, [items, payerFilter, searchText])
 
   const summary = useMemo(() => {
-    const total = MOCK_RECEIVABLES.reduce((s, i) => s + i.balance, 0)
+    const total = items.reduce((s, i) => s + i.balance, 0)
     const byAging = AGING_BUCKETS.map(b => ({
       ...b,
-      amount: MOCK_RECEIVABLES.filter(i => i.aging === b.key).reduce((s, i) => s + i.balance, 0),
-      count: MOCK_RECEIVABLES.filter(i => i.aging === b.key).length,
+      amount: items.filter(i => i.aging === b.key).reduce((s, i) => s + i.balance, 0),
+      count: items.filter(i => i.aging === b.key).length,
     }))
     const byPayer = Object.keys(PAYER_COLORS).map(p => ({
       payer: p,
-      amount: MOCK_RECEIVABLES.filter(i => i.payer === p).reduce((s, i) => s + i.balance, 0),
+      amount: items.filter(i => i.payer === p).reduce((s, i) => s + i.balance, 0),
     }))
-    const overdue = MOCK_RECEIVABLES.filter(i => i.status === 'overdue').reduce((s, i) => s + i.balance, 0)
+    const overdue = items.filter(i => i.status === 'overdue').reduce((s, i) => s + i.balance, 0)
     return { total, byAging, byPayer, overdue }
-  }, [])
+  }, [items])
 
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><Wallet size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>应收账款管理</span></div>
         <button onClick={() => { const csv = '应收编号,患者,金额,账龄,状态\nAR-001,张三,2345.67,30天,在催\nAR-002,李四,1234.56,60天,逾期\nAR-003,王五,3456.78,90天,坏账风险\n'; const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = '应收账款报表.csv'; a.click(); URL.revokeObjectURL(url); }} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />导出报表</button>
+      </div>
+
+      <div style={{ padding: '12px 24px 0', display: 'flex', gap: 12, alignItems: 'center' }}>
+        {loading && <span style={{ fontSize: 13, color: '#8b949e' }}>加载中...</span>}
+        {error && (
+          <span style={{ fontSize: 13, color: '#f85149' }}>
+            {error} — 已回退到演示数据
+            <button onClick={fetchReceivables} style={{ marginLeft: 8, padding: '4px 10px', borderRadius: 4, border: '1px solid #30363d', background: '#21262d', color: '#f0f6fc', cursor: 'pointer', fontSize: 12 }}>重试</button>
+          </span>
+        )}
+        {!error && usingFallback && <span style={{ fontSize: 13, color: '#d29922' }}>数据来源：演示数据（接口未返回应收条目）</span>}
+        {!error && !usingFallback && !loading && <span style={{ fontSize: 13, color: '#22c55e' }}>数据来源：/finance/invoices（真实接口）</span>}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16, padding: '20px 24px' }}>

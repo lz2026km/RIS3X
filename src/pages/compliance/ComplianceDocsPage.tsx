@@ -219,7 +219,7 @@ export const ComplianceDocsPage: React.FC = () => {
       <Space style={{ marginBottom: 16 }} align="center">
         <ScrollText size={20} color="#1677ff" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>合规文档库</span>
-        <Tag color="green">DRAFT → CURRENT → ARCHIVED</Tag>
+        <Tag color="green">草稿 → 现行 → 已归档</Tag>
       </Space>
 
       {error && (

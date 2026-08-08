@@ -1,5 +1,5 @@
 /**
- * G005 放射RIS系统 v3.0.6.11-79 - 简单 i18n 翻译函数与 locale 切换
+ * G005 放射RIS系统 v3.0.6.11-80 - 简单 i18n 翻译函数与 locale 切换
  * R3 1100+ 功能点,i18n 命名空间合并
  * 对外导出:t(key, params) / getCurrentLocale() / onLocaleChange() / notifyLocaleChange()
  */
@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "G005放射信息系统",
     "app.version":
-      "v3.0.6.11-79 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
+      "v3.0.6.11-80 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -182,7 +182,8 @@ export const translations: Translations = {
     "nav.dentalSchedule": "排班管理", // [v3.0.6.11-7]
     "nav.dentalPhoto": "口内照片", // [v3.0.6.11-7]
     "nav.systemManage": "系统管理",
-    "nav.fileManagement": "文件管理", // [W1-A v3.0.6.11-79]
+    "nav.forbidden": "无权限",
+    "nav.fileManagement": "文件管理", // [W1-A v3.0.6.11-80]
     "nav.userManagement": "用户管理",
     "nav.clinicalConfig": "临床配置",
     "nav.dataDictionary": "数据字典",
@@ -313,6 +314,9 @@ export const translations: Translations = {
     "nav.opsDashboard": "运营看板",
     "nav.cdsManagement": "CDS管理",
     "nav.cdsStatistics": "CDS统计",
+    "nav.cdsGuidelines": "CDS 指南库",
+    "nav.cdsAlertCenter": "CDS 告警中心",
+    "nav.cdsDoseMonitoring": "CDS 剂量监测",
     "nav.departmentFinance": "科室财务",
     "nav.patientFinance": "患者财务",
     "nav.departmentOperations": "科室运营",
@@ -2049,7 +2053,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "G005 Radiology Information System",
     "app.version":
-      "v3.0.6.11-79 · Strict Review + Params + Security + Features + Mock Cleanup + 200-page Verification",
+      "v3.0.6.11-80 · Strict Review + Params + Security + Features + Mock Cleanup + 200-page Verification",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
@@ -2213,7 +2217,8 @@ export const translations: Translations = {
     "nav.dentalSchedule": "Dental Schedule", // [v3.0.6.11-7]
     "nav.dentalPhoto": "Patient Photos", // [v3.0.6.11-7]
     "nav.systemManage": "System Management",
-    "nav.fileManagement": "File Management", // [W1-A v3.0.6.11-79]
+    "nav.forbidden": "Forbidden",
+    "nav.fileManagement": "File Management", // [W1-A v3.0.6.11-80]
     "nav.userManagement": "User Management",
     "nav.clinicalConfig": "Clinical Config",
     "nav.dataDictionary": "Data Dictionary",
@@ -2318,6 +2323,9 @@ export const translations: Translations = {
     "nav.opsDashboard": "Operations Dashboard",
     "nav.cdsManagement": "CDS Management",
     "nav.cdsStatistics": "CDS Statistics",
+    "nav.cdsGuidelines": "CDS Guidelines",
+    "nav.cdsAlertCenter": "CDS Alert Center",
+    "nav.cdsDoseMonitoring": "CDS Dose Monitoring",
     "nav.departmentFinance": "Department Finance",
     "nav.patientFinance": "Patient Finance",
     "nav.departmentOperations": "Department Operations",

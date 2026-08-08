@@ -196,4 +196,42 @@ describe('AiPlatformService', () => {
       await expect(svc.getAiMarketplace()).resolves.toMatchObject({ data: [{ id: 'a1' }] })
     })
   })
+
+  describe('平台统计 (W1-B)', () => {
+    it('getStats 汇总模型/任务/审计数据', async () => {
+      const startedAt = new Date('2026-07-18T00:00:00Z')
+      const completedAt = new Date('2026-07-18T00:00:05Z')
+      mockPrisma.aiModel.findMany.mockResolvedValue([
+        { id: 'm1', status: 'DEPLOYED' },
+        { id: 'm2', status: 'DEPLOYED' },
+        { id: 'm3', status: 'UNDEPLOYED' },
+      ])
+      mockPrisma.aiJob.findMany.mockResolvedValue([
+        { id: 'j1', status: 'COMPLETED', startedAt, completedAt },
+        { id: 'j2', status: 'FAILED', startedAt, completedAt },
+      ])
+      mockPrisma.auditLog.findMany.mockResolvedValue([
+        { createdAt: new Date('2026-07-18T08:00:00Z') },
+        { createdAt: new Date('2026-07-18T09:00:00Z') },
+      ])
+      const r = await svc.getStats()
+      expect(r.data).toMatchObject({
+        totalModels: 3,
+        activeModels: 2,
+        totalInferences: 2,
+        successRate: 50,
+      })
+      expect(r.data.dailyUsage).toEqual([{ date: '2026-07-18', count: 2 }])
+    })
+
+    it('getStats 空数据不报错', async () => {
+      mockPrisma.aiModel.findMany.mockResolvedValue([])
+      mockPrisma.aiJob.findMany.mockResolvedValue([])
+      mockPrisma.auditLog.findMany.mockResolvedValue([])
+      const r = await svc.getStats()
+      expect(r.data.totalModels).toBe(0)
+      expect(r.data.successRate).toBe(0)
+      expect(r.data.dailyUsage).toEqual([])
+    })
+  })
 })

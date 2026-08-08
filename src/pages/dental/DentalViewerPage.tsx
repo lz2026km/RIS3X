@@ -5,6 +5,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Card, Space, Tag, Button, Row, Col, Descriptions, message, Spin, Tabs, Empty, Divider, InputNumber, Slider, Tooltip } from 'antd';
 import { ZoomIn, ZoomOut, RotateCcw, Activity, Layers, Camera, ChevronLeft, ChevronRight } from 'lucide-react';
 import { MODALITY_LABELS } from '../../data/dental/constants';
+import { dentalApi } from '../../services/api/dentalApi';
 
 export const DentalViewerPage: React.FC = () => {
   const [search] = useSearchParams();
@@ -17,6 +18,8 @@ export const DentalViewerPage: React.FC = () => {
   const [wc, setWc] = useState(40); // window center
   const [zoom, setZoom] = useState(1);
   const [activeTab, setActiveTab] = useState('info');
+  const [aiRunning, setAiRunning] = useState(false);
+  const [aiResult, setAiResult] = useState<any>(null);
 
   useEffect(() => {
     (async () => {
@@ -26,6 +29,25 @@ export const DentalViewerPage: React.FC = () => {
       finally { setLoading(false); }
     })();
   }, [studyId]);
+
+  const handleRunAi = async () => {
+    setAiRunning(true);
+    try {
+      const res = await dentalApi.detectCaries({ modality });
+      if (res.success && res.data) {
+        setAiResult(res.data);
+        message.success('AI 分析完成');
+      } else {
+        message.warning('AI 接口暂不可用，已返回本地模拟结果');
+        setAiResult({ cariesDetected: 2, boneLossLevel: '中', periapicalLesions: 1, confidence: 0.87, modelVersion: 'demo-v1' });
+      }
+    } catch {
+      message.warning('AI 接口暂不可用，已返回本地模拟结果');
+      setAiResult({ cariesDetected: 2, boneLossLevel: '中', periapicalLesions: 1, confidence: 0.87, modelVersion: 'demo-v1' });
+    } finally {
+      setAiRunning(false);
+    }
+  };
 
   if (loading) return <div style={{ textAlign: 'center', padding: 100 }}><Spin size="large" /></div>;
   if (!study) return <div style={{ padding: 24 }}><Card><Empty description="未找到检查" /></Card></div>;
@@ -133,15 +155,15 @@ export const DentalViewerPage: React.FC = () => {
                   </Row> : <Empty description="暂无分割" />}
                 </Card>
               },
-              { key: 'ai', label: 'AI 分析', children: study.aiAnalysis ? (
+              { key: 'ai', label: 'AI 分析', children: (study.aiAnalysis || aiResult) ? (
                 <Card size="small" styles={{ body: { padding: 8 } }}>
-                  <div>龋齿检出: <Tag color="red">{study.aiAnalysis.cariesDetected}</Tag></div>
-                  <div>骨丧失: <Tag color="orange">{study.aiAnalysis.boneLossLevel}</Tag></div>
-                  <div>根尖周病变: <Tag color="purple">{study.aiAnalysis.periapicalLesions}</Tag></div>
-                  <div>置信度: {(study.aiAnalysis.confidence * 100).toFixed(0)}%</div>
-                  <div>模型: {study.aiAnalysis.modelVersion}</div>
+                  <div>龋齿检出: <Tag color="red">{aiResult?.cariesDetected ?? study.aiAnalysis.cariesDetected}</Tag></div>
+                  <div>骨丧失: <Tag color="orange">{aiResult?.boneLossLevel ?? study.aiAnalysis.boneLossLevel}</Tag></div>
+                  <div>根尖周病变: <Tag color="purple">{aiResult?.periapicalLesions ?? study.aiAnalysis.periapicalLesions}</Tag></div>
+                  <div>置信度: {((aiResult?.confidence ?? study.aiAnalysis.confidence) * 100).toFixed(0)}%</div>
+                  <div>模型: {aiResult?.modelVersion ?? study.aiAnalysis.modelVersion}</div>
                   <Divider style={{ margin: '8px 0' }} />
-                  <Button size="small" icon={<Activity size={12} />} disabled>运行 AI 分析</Button>
+                  <Button size="small" icon={<Activity size={12} />} loading={aiRunning} onClick={() => void handleRunAi()}>运行 AI 分析</Button>
                 </Card>
               ) : <Card><Empty description="无 AI 分析" /></Card>,
               },

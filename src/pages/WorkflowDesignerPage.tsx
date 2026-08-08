@@ -240,7 +240,12 @@ export default function WorkflowDesignerPage() {
             if (res.success) message.success('工作流已激活');
             else message.error(res.error?.message ?? '激活失败');
           }}>激活</Button>
-          <Button size="small" variant="outlined" icon={<Upload size={14} />}>部署</Button>
+          <Button size="small" variant="outlined" icon={<Upload size={14} />} onClick={async () => {
+            if (!currentDefId) { message.warning('请先创建并保存工作流'); return; }
+            const res = await workflowApi.activateDefinition(currentDefId, { deploy: true });
+            if (res.success) message.success('工作流已部署至运行时');
+            else message.error(res.error?.message ?? '部署失败');
+          }}>部署</Button>
           <Button size="small" type="primary" loading={saving} icon={<Save size={14} />} onClick={handleSave}>保存</Button>
         </header>
         <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>

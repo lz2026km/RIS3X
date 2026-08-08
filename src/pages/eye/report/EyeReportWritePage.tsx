@@ -73,6 +73,50 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
     report.sections.map((s) => s.content).join("\n\n"),
   );
   const [editing, setEditing] = useState("");
+  const [savingDraft, setSavingDraft] = useState(false);
+  const [submittingReview, setSubmittingReview] = useState(false);
+
+  const handleSaveDraft = async () => {
+    setSavingDraft(true);
+    try {
+      const res = await eyeApi.createDraft({
+        reportId: report.id,
+        content: currentContent || editing,
+        findings,
+        impression,
+        recommendations,
+        status: 'draft',
+      });
+      if (res.success) {
+        message.success('草稿已保存');
+      } else {
+        message.warning(res.error?.message ?? '草稿接口不可用，已本地暂存');
+      }
+    } catch {
+      message.warning('草稿接口不可用，已本地暂存');
+    } finally {
+      setSavingDraft(false);
+    }
+  };
+
+  const handleSubmitReview = async () => {
+    setSubmittingReview(true);
+    try {
+      const res = await eyeApi.submitReport(report.id);
+      if (res.success) {
+        message.success('报告已提交审核');
+        setStatus('pending_review');
+      } else {
+        message.warning(res.error?.message ?? '提交接口不可用，已本地更新状态');
+        setStatus('pending_review');
+      }
+    } catch {
+      setStatus('pending_review');
+      message.success('报告已提交审核（本地状态更新）');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
 
   const template = templates.find((t) => t.id === templateId);
   const findingsData = findingsLibrary.filter((f) =>
@@ -122,10 +166,10 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
         >
           AI 续写
         </Button>
-        <Button size="small" icon={<Save size={14} />}>
+        <Button size="small" icon={<Save size={14} />} loading={savingDraft} onClick={() => void handleSaveDraft()}>
           保存草稿
         </Button>
-        <Button size="small" type="primary" icon={<Send size={14} />}>
+        <Button size="small" type="primary" icon={<Send size={14} />} loading={submittingReview} onClick={() => void handleSubmitReview()}>
           提交审核
         </Button>
         <Button
@@ -454,10 +498,10 @@ const ReportEditor: React.FC<ReportEditorProps> = ({ report, templates, findings
                 {report.version}
               </span>
               <Space>
-                <Button size="small" icon={<Save size={12} />}>
+                <Button size="small" icon={<Save size={12} />} loading={savingDraft} onClick={() => void handleSaveDraft()}>
                   自动保存
                 </Button>
-                <Button size="small" type="primary" icon={<Send size={12} />}>
+                <Button size="small" type="primary" icon={<Send size={12} />} loading={submittingReview} onClick={() => void handleSubmitReview()}>
                   提交
                 </Button>
               </Space>

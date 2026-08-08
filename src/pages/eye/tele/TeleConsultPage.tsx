@@ -20,6 +20,7 @@ import {
   InputNumber,
   Radio,
   Slider,
+  Modal,
 } from "antd";
 import {
   Video,
@@ -52,6 +53,16 @@ export const TeleConsultPage: React.FC = () => {
   const [videoOn, setVideoOn] = useState(true);
   const [recording, setRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
+  const [showSettings, setShowSettings] = useState(false);
+  const [settings, setSettings] = useState({
+    device: '内置摄像头 (HD)',
+    mic: '内置麦克风',
+    speaker: '默认扬声器',
+    resolution: '1080p',
+    autoRecord: false,
+    enableNoiseCancellation: true,
+  });
+  const [savingSettings, setSavingSettings] = useState(false);
 
   // 视光中心
   const [reSphere, setReSphere] = useState(-2.5);
@@ -455,7 +466,7 @@ export const TeleConsultPage: React.FC = () => {
                         onClick={() => setRecording(!recording)}
                         danger={recording}
                       />
-                      <Button icon={<Settings size={14} />}>设置</Button>
+                      <Button icon={<Settings size={14} />} onClick={() => setShowSettings(true)}>设置</Button>
                     </Space>
                   </Card>
 
@@ -740,6 +751,54 @@ export const TeleConsultPage: React.FC = () => {
           },
         ]}
       />
+
+      <Modal
+        title={<Space><Settings size={16} /> 会诊设置</Space>}
+        open={showSettings}
+        onCancel={() => setShowSettings(false)}
+        onOk={() => {
+          setSavingSettings(true);
+          setTimeout(() => {
+            setSavingSettings(false);
+            setShowSettings(false);
+            message.success('会诊设置已保存');
+          }, 400);
+        }}
+        okText="保存设置"
+        confirmLoading={savingSettings}
+        width={460}
+      >
+        <Form layout="vertical" size="small">
+          <Form.Item label="视频设备">
+            <Select value={settings.device} onChange={(v) => setSettings({ ...settings, device: v })} options={[{ value: '内置摄像头 (HD)', label: '内置摄像头 (HD)' }, { value: '外接摄像头', label: '外接摄像头' }, { value: 'USB 高清摄像头', label: 'USB 高清摄像头' }]} />
+          </Form.Item>
+          <Form.Item label="麦克风">
+            <Select value={settings.mic} onChange={(v) => setSettings({ ...settings, mic: v })} options={[{ value: '内置麦克风', label: '内置麦克风' }, { value: '耳机麦克风', label: '耳机麦克风' }, { value: '领夹麦克风', label: '领夹麦克风' }]} />
+          </Form.Item>
+          <Form.Item label="扬声器">
+            <Select value={settings.speaker} onChange={(v) => setSettings({ ...settings, speaker: v })} options={[{ value: '默认扬声器', label: '默认扬声器' }, { value: '耳机', label: '耳机' }]} />
+          </Form.Item>
+          <Form.Item label="分辨率">
+            <Radio.Group value={settings.resolution} onChange={(e) => setSettings({ ...settings, resolution: e.target.value })}>
+              <Radio.Button value="720p">720p</Radio.Button>
+              <Radio.Button value="1080p">1080p</Radio.Button>
+              <Radio.Button value="4K">4K</Radio.Button>
+            </Radio.Group>
+          </Form.Item>
+          <Form.Item label="其他选项">
+            <Space direction="vertical">
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                <input type="checkbox" checked={settings.enableNoiseCancellation} onChange={(e) => setSettings({ ...settings, enableNoiseCancellation: e.target.checked })} />
+                开启降噪
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                <input type="checkbox" checked={settings.autoRecord} onChange={(e) => setSettings({ ...settings, autoRecord: e.target.checked })} />
+                自动录制会诊
+              </label>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

@@ -80,8 +80,8 @@ export const qcextApi = {
   getQcImage: (id: string) =>
     api.get<QcImageDto>(`/qc-ext/image/${id}`),
 
-  rateQcImage: async (data: { imageId: string; score: number; issues?: string[] }) => {
-    const res = await api.post<QcImageDto>('/qc-ext/image/rate', data)
+  rateQcImage: async (id: string, data: { score: number; issues?: string[] }) => {
+    const res = await api.post<QcImageDto>(`/qc-ext/image/${id}/rate`, data)
     await invalidateApiCache('/qc-ext/image')
     return res
   },

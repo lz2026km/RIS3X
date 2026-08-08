@@ -57,4 +57,21 @@ export class DataReportController {
   enterpriseSearch(@Query('q') q: string) {
     return this.svc.enterpriseSearch(q);
   }
+
+  // [G005 W1-C] 检查量统计 / 上报日志 / 月度趋势 (NationalReportPage 顶部统计卡)
+  // 返回裸数组, 与前端 datareportApi DTO 契约对齐 (res.data 直接为数组)
+  @Get('exam-statistics')
+  listExamStatistics() {
+    return this.svc.listExamStatistics();
+  }
+
+  @Get('report-logs')
+  listReportLogs() {
+    return this.svc.listReportLogs();
+  }
+
+  @Get('monthly-trends')
+  listMonthlyTrends() {
+    return this.svc.listMonthlyTrends();
+  }
 }

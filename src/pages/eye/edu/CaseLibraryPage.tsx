@@ -21,6 +21,7 @@ import {
   Avatar,
   Drawer,
   Descriptions,
+  Modal,
 } from "antd";
 import {
   BookOpen,
@@ -81,6 +82,85 @@ export const CaseLibraryPage: React.FC = () => {
   const [stats, setStats] = useState<any>(null);
   const [deidentifiedResult, setDeidentifiedResult] = useState<any>(null);
   const [srExportResult, setSrExportResult] = useState<any>(null);
+
+  // 新增病例
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [newCase, setNewCase] = useState({
+    patientName: "",
+    patientId: "",
+    modality: "fundus_photo",
+    bodyPart: "",
+    chiefComplaint: "",
+    diagnosis: "",
+    studyDate: new Date().toISOString().split("T")[0],
+  });
+
+  const loadCases = async () => {
+    try {
+      const r = await fetch("/api/v1/eye/edu/cases?pageSize=20");
+      const data = await r.json();
+      if (data.success) setCases(data.data);
+    } catch { /* ignore */ }
+  };
+
+  const handleCreateCase = async () => {
+    if (!newCase.patientName.trim() || !newCase.patientId.trim()) {
+      message.warning("请填写患者姓名与患者ID");
+      return;
+    }
+    setCreating(true);
+    try {
+      const r = await fetch("/api/v1/eye/edu/cases", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...newCase, status: "draft" }),
+      });
+      const data = await r.json();
+      if (data.success) {
+        message.success("教学病例已创建");
+        void loadCases();
+        setShowCreateModal(false);
+        setNewCase({
+          patientName: "",
+          patientId: "",
+          modality: "fundus_photo",
+          bodyPart: "",
+          chiefComplaint: "",
+          diagnosis: "",
+          studyDate: new Date().toISOString().split("T")[0],
+        });
+        setCreating(false);
+        return;
+      } else {
+        message.warning("创建接口不可用，已本地加入列表");
+      }
+    } catch {
+      message.warning("创建接口不可用，已本地加入列表");
+    }
+    setCases(prev => [{
+      id: `C${Date.now()}`,
+      reportId: `R${Date.now()}`,
+      patientName: newCase.patientName,
+      patientId: newCase.patientId,
+      modality: newCase.modality,
+      chiefComplaint: newCase.chiefComplaint,
+      diagnosis: newCase.diagnosis,
+      status: "draft",
+      studyDate: newCase.studyDate,
+    }, ...prev]);
+    setShowCreateModal(false);
+    setNewCase({
+      patientName: "",
+      patientId: "",
+      modality: "fundus_photo",
+      bodyPart: "",
+      chiefComplaint: "",
+      diagnosis: "",
+      studyDate: new Date().toISOString().split("T")[0],
+    });
+    setCreating(false);
+  };
 
   // 加载病例
   useEffect(() => {
@@ -342,7 +422,7 @@ export const CaseLibraryPage: React.FC = () => {
                         </Space>
                       }
                       size="small"
-                      extra={<Button icon={<Plus size={12} />}>新增</Button>}
+                      extra={<Button icon={<Plus size={12} />} onClick={() => setShowCreateModal(true)}>新增</Button>}
                     >
                       <List
                         size="small"
@@ -617,6 +697,51 @@ export const CaseLibraryPage: React.FC = () => {
           },
         ]}
       />
+
+      <Modal
+        title="新增教学病例"
+        open={showCreateModal}
+        onCancel={() => setShowCreateModal(false)}
+        onOk={() => void handleCreateCase()}
+        confirmLoading={creating}
+        okText="创建"
+        width={500}
+      >
+        <Form layout="vertical" size="small">
+          <Row gutter={12}>
+            <Col span={12}>
+              <Form.Item label="患者姓名 *" required>
+                <Input value={newCase.patientName} onChange={(e) => setNewCase({ ...newCase, patientName: e.target.value })} placeholder="请输入姓名" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="患者ID *" required>
+                <Input value={newCase.patientId} onChange={(e) => setNewCase({ ...newCase, patientId: e.target.value })} placeholder="如 p-1009" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="检查模态">
+                <Select value={newCase.modality} onChange={(v) => setNewCase({ ...newCase, modality: v })} options={Object.entries(MODALITY_LABELS_DICT).map(([value, label]) => ({ value, label }))} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="检查日期">
+                <Input type="date" value={newCase.studyDate} onChange={(e) => setNewCase({ ...newCase, studyDate: e.target.value })} />
+              </Form.Item>
+            </Col>
+            <Col span={24}>
+              <Form.Item label="主诉">
+                <Input value={newCase.chiefComplaint} onChange={(e) => setNewCase({ ...newCase, chiefComplaint: e.target.value })} placeholder="如 视物模糊 2 周" />
+              </Form.Item>
+            </Col>
+            <Col span={24}>
+              <Form.Item label="诊断">
+                <Input value={newCase.diagnosis} onChange={(e) => setNewCase({ ...newCase, diagnosis: e.target.value })} placeholder="如 糖尿病视网膜病变" />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+      </Modal>
     </div>
   );
 };

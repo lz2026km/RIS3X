@@ -1,7 +1,8 @@
 // Breast Specialty Page — BI-RADS · 乳腺工作流 · 筛查管理
 import { useState, useMemo } from 'react';
-import { Heart, Activity, AlertTriangle, CheckCircle, Clock, Search, TrendingUp, Stethoscope, Microscope, FileText, BarChart3 } from 'lucide-react';
+import { Heart, Activity, AlertTriangle, CheckCircle, Clock, Search, TrendingUp, Stethoscope, Microscope, FileText, BarChart3, X } from 'lucide-react';
 import type { BreastDensity, ScreeningOutcome } from '@/services/api/breastSpecialtyApi';
+import { breastSpecialtyApi } from '@/services/api/breastSpecialtyApi';
 
 const BIRADS_COLORS: Record<string, string> = { 0: '#94a3b8', 1: '#16a34a', 2: '#16a34a', 3: '#ca8a04', '4A': '#ea580c', '4B': '#dc2626', 4: '#dc2626', 5: '#dc2626', 6: '#7c3aed' };
 const DENSITY_LABELS: Record<string, string> = { a: '脂肪型', b: '散在纤维腺体', c: '不均匀致密', d: '极度致密' };
@@ -23,22 +24,73 @@ const BiradsTag = ({ v }: { v: string | number }) => {
 const BreastSpecialtyPage = () => {
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState<'screening' | 'density' | 'workflow' | 'stats'>('screening');
+  const [screeningList, setScreeningList] = useState<any[]>(mockScreening);
+  const [showNewModal, setShowNewModal] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [newForm, setNewForm] = useState({ patientId: '', patientName: '', age: 45, risk: 'average' as 'average' | 'intermediate' | 'high', date: new Date().toISOString().split('T')[0] });
   const filtered = useMemo(() => {
-    let list = [...mockScreening];
+    let list = [...screeningList];
     if (search) list = list.filter(r => r.patientName.includes(search) || r.id.includes(search));
     return list;
-  }, [search]);
-  const recalls = mockScreening.filter(r => r.recall).length;
-  const suspicious = mockScreening.filter(r => ['4A', '4B', 4, 5].includes(String(r.biRads))).length;
+  }, [search, screeningList]);
+  const recalls = screeningList.filter(r => r.recall).length;
+  const suspicious = screeningList.filter(r => ['4A', '4B', 4, 5].includes(String(r.biRads))).length;
+
+  const handleCreateScreening = async () => {
+    if (!newForm.patientName.trim() || !newForm.patientId.trim()) { alert('请填写患者ID和姓名'); return; }
+    setSaving(true);
+    try {
+      const res = await breastSpecialtyApi.createScreening({
+        patientId: newForm.patientId,
+        patientName: newForm.patientName,
+        age: newForm.age,
+        riskLevel: newForm.risk,
+        biRadsLatest: 1,
+        outcome: 'normal',
+        date: newForm.date,
+      });
+      const created = res.success && res.data ? res.data : {
+        id: `S${Date.now().toString().slice(-5)}`,
+        patientId: newForm.patientId,
+        patientName: newForm.patientName,
+        age: newForm.age,
+        risk: newForm.risk,
+        density: 'b' as BreastDensity,
+        biRads: 1,
+        outcome: 'normal' as ScreeningOutcome,
+        date: newForm.date,
+        recall: false,
+      };
+      setScreeningList(prev => [created, ...prev]);
+      setShowNewModal(false);
+      setNewForm({ patientId: '', patientName: '', age: 45, risk: 'average', date: new Date().toISOString().split('T')[0] });
+    } catch {
+      setScreeningList(prev => [{
+        id: `S${Date.now().toString().slice(-5)}`,
+        patientId: newForm.patientId,
+        patientName: newForm.patientName,
+        age: newForm.age,
+        risk: newForm.risk,
+        density: 'b' as BreastDensity,
+        biRads: 1,
+        outcome: 'normal' as ScreeningOutcome,
+        date: newForm.date,
+        recall: false,
+      }, ...prev]);
+      setShowNewModal(false);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div style={{ padding: 0 }}>
       <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1a3a5c', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Heart size={24} color="#be185d" /> 乳腺专科</h1>
-          <p style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>Breast Imaging Specialty · BI-RADS 评分 · 筛查管理 · 乳腺工作流</p>
+          <p style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>乳腺影像专科 · BI-RADS 评分 · 筛查管理 · 乳腺工作流</p>
         </div>
-        <button style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 500 }}>新建筛查</button>
+        <button onClick={() => setShowNewModal(true)} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 500 }}>新建筛查</button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 20 }}>
@@ -188,6 +240,30 @@ const BreastSpecialtyPage = () => {
                 <span style={{ fontSize: 12, fontWeight: 600, width: 40 }}>{t.rate}%</span>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {showNewModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowNewModal(false)}>
+          <div style={{ background: '#fff', borderRadius: 12, padding: 24, width: 460, maxHeight: '85vh', overflow: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#1a3a5c' }}>新建筛查</div>
+              <button onClick={() => setShowNewModal(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#64748b', padding: 4 }}><X size={18} /></button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>患者ID *</label><input value={newForm.patientId} onChange={e => setNewForm({ ...newForm, patientId: e.target.value })} placeholder="如 P100006" style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} /></div>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>患者姓名 *</label><input value={newForm.patientName} onChange={e => setNewForm({ ...newForm, patientName: e.target.value })} placeholder="请输入姓名" style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} /></div>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>年龄</label><input type="number" value={newForm.age} onChange={e => setNewForm({ ...newForm, age: Number(e.target.value) })} min={18} max={90} style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} /></div>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>风险分层</label><div style={{ display: 'flex', gap: 8 }}>{([['average', '一般'], ['intermediate', '中等'], ['high', '高危']] as const).map(([v, l]) => (
+                <button key={v} onClick={() => setNewForm({ ...newForm, risk: v })} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: `1px solid ${newForm.risk === v ? '#be185d' : '#e2e8f0'}`, background: newForm.risk === v ? '#fdf2f8' : '#fff', color: newForm.risk === v ? '#be185d' : '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{l}</button>
+              ))}</div></div>
+              <div><label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>检查日期</label><input type="date" value={newForm.date} onChange={e => setNewForm({ ...newForm, date: e.target.value })} style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', outline: 'none' }} /></div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
+                <button onClick={() => setShowNewModal(false)} style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
+                <button onClick={() => void handleCreateScreening()} disabled={saving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: '#be185d', color: '#fff', fontSize: 13, fontWeight: 600, cursor: saving ? 'wait' : 'pointer' }}>{saving ? '保存中...' : '创建筛查'}</button>
+              </div>
+            </div>
           </div>
         </div>
       )}

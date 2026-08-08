@@ -150,7 +150,7 @@ const ClinicalConfigCenter: React.FC = () => {
         <Alert
           type="error"
           showIcon
-          title="Clinical Configuration 加载失败"
+          title="临床配置加载失败"
           description={bootError.message}
         />
       </PageContainer>
@@ -180,7 +180,7 @@ const ClinicalConfigCenter: React.FC = () => {
                 <Statistic title="条目数" value={count} suffix="项" />
               </Col>
               <Col span={8}>
-                <Statistic title="Schema 版本" value={m.schemaVersion} />
+                <Statistic title="模式版本" value={m.schemaVersion} />
               </Col>
               <Col span={8}>
                 <Statistic title="分类" value={m.category} />
@@ -203,7 +203,7 @@ const ClinicalConfigCenter: React.FC = () => {
                 {data === null ? (
                   <Empty description="此模块暂未加载,请等待启动加载完成" />
                 ) : sample !== null && sample !== undefined ? (
-                  <Card size="small" title="摘要 (sample)">
+                  <Card size="small" title="摘要 (示例)">
                     <pre style={{ background: "#f5f5f5", padding: 12, borderRadius: 4, overflow: "auto", maxHeight: 240 }}>
                       {JSON.stringify(sample, null, 2)}
                     </pre>
@@ -281,7 +281,7 @@ const ClinicalConfigCenter: React.FC = () => {
       <Alert
         type="info"
         showIcon
-        title="阶段 3 admin UI - 后端持久化 (W3-B)"
+        title="阶段 3 管理界面 - 后端持久化"
         description="编辑 JSON 后点击「保存」即写入后端 SystemConfig (key=clinical_config); 重启/刷新后仍保留。保存前请确认 JSON 结构符合模块 schema。"
         style={{ marginBottom: 12 }}
       />

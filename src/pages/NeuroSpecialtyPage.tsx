@@ -66,7 +66,7 @@ const NeuroSpecialtyPage = () => {
       <div style={s.header}>
         <div>
           <h1 style={s.title}><Brain size={24} color="#dc2626" /> 神经专科</h1>
-          <p style={s.subtitle}>Neuro Imaging Specialty · 脑卒中 · 脑肿瘤 · 癫痫 · 动脉瘤</p>
+          <p style={s.subtitle}>神经影像专科 · 脑卒中 · 脑肿瘤 · 癫痫 · 动脉瘤</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button style={s.btn}><FileText size={14} /> 导出</button>

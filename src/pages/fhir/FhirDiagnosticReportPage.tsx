@@ -14,6 +14,24 @@ export const FhirDiagnosticReportPage: React.FC = () => {
   const [searchForm] = Form.useForm()
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedReport, setSelectedReport] = useState<FhirDiagnosticReport | null>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
+
+  const openDetail = async (report: FhirDiagnosticReport) => {
+    setDetailOpen(true)
+    setDetailLoading(true)
+    setSelectedReport(report)
+    try {
+      const res = await fhirApi.readDiagnosticReport(report.id!)
+      if (res.success && res.data) {
+        setSelectedReport(res.data)
+      } else {
+        message.warning(res.error?.message ?? 'DiagnosticReport 详情加载失败，展示列表数据')
+      }
+    } catch {
+      message.warning('DiagnosticReport 详情加载失败，展示列表数据')
+    }
+    setDetailLoading(false)
+  }
 
   const fetchReports = useCallback(async (p: number = 1, params: { patient?: string; status?: string } = {}) => {
     setLoading(true)
@@ -87,7 +105,7 @@ export const FhirDiagnosticReportPage: React.FC = () => {
       key: 'action',
       width: 80,
       render: (_: any, r: FhirDiagnosticReport) => (
-        <Button size="small" icon={<Eye size={12} />} onClick={() => { setSelectedReport(r); setDetailOpen(true) }}>详情</Button>
+        <Button size="small" icon={<Eye size={12} />} onClick={() => openDetail(r)}>详情</Button>
       ),
     },
   ]
@@ -140,7 +158,9 @@ export const FhirDiagnosticReportPage: React.FC = () => {
         footer={<Button onClick={() => setDetailOpen(false)}>关闭</Button>}
         width={650}
       >
-        {selectedReport ? (
+        {detailLoading ? (
+          <div style={{ textAlign: 'center', padding: '32px 0', color: '#999' }}>加载详情...</div>
+        ) : selectedReport ? (
           <Descriptions column={2} size="small" bordered>
             <Descriptions.Item label="ID">{selectedReport.id}</Descriptions.Item>
             <Descriptions.Item label="状态"><Tag color="green">{selectedReport.status}</Tag></Descriptions.Item>

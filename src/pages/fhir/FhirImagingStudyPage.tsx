@@ -14,6 +14,24 @@ export const FhirImagingStudyPage: React.FC = () => {
   const [searchForm] = Form.useForm()
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedStudy, setSelectedStudy] = useState<FhirImagingStudy | null>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
+
+  const openDetail = async (study: FhirImagingStudy) => {
+    setDetailOpen(true)
+    setDetailLoading(true)
+    setSelectedStudy(study)
+    try {
+      const res = await fhirApi.readImagingStudy(study.id!)
+      if (res.success && res.data) {
+        setSelectedStudy(res.data)
+      } else {
+        message.warning(res.error?.message ?? 'ImagingStudy 详情加载失败，展示列表数据')
+      }
+    } catch {
+      message.warning('ImagingStudy 详情加载失败，展示列表数据')
+    }
+    setDetailLoading(false)
+  }
 
   const fetchStudies = useCallback(async (p: number = 1, params: { patient?: string; modality?: string } = {}) => {
     setLoading(true)
@@ -92,7 +110,7 @@ export const FhirImagingStudyPage: React.FC = () => {
       key: 'action',
       width: 80,
       render: (_: any, r: FhirImagingStudy) => (
-        <Button size="small" icon={<Eye size={12} />} onClick={() => { setSelectedStudy(r); setDetailOpen(true) }}>详情</Button>
+        <Button size="small" icon={<Eye size={12} />} onClick={() => openDetail(r)}>详情</Button>
       ),
     },
   ]
@@ -149,7 +167,9 @@ export const FhirImagingStudyPage: React.FC = () => {
         footer={<Button onClick={() => setDetailOpen(false)}>关闭</Button>}
         width={700}
       >
-        {selectedStudy ? (
+        {detailLoading ? (
+          <div style={{ textAlign: 'center', padding: '32px 0', color: '#999' }}>加载详情...</div>
+        ) : selectedStudy ? (
           <Descriptions column={2} size="small" bordered>
             <Descriptions.Item label="ID">{selectedStudy.id}</Descriptions.Item>
             <Descriptions.Item label="状态"><Tag color="green">{selectedStudy.status}</Tag></Descriptions.Item>

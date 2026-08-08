@@ -1,6 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react'
-import { Button, Empty, Tag, Dropdown } from 'antd'
-import { Eye, Printer, Download, User, Zap, ShieldCheck, ChevronDown, ChevronRight, Search, MoreHorizontal, Edit3, Send, GitCompare, RotateCcw, FileCheck2 } from 'lucide-react'
+import { Button, Empty, Tag, Dropdown, Popconfirm } from 'antd'
+import { Eye, Printer, Download, User, Zap, ShieldCheck, ChevronDown, ChevronRight, Search, MoreHorizontal, Edit3, Send, GitCompare, RotateCcw, FileCheck2, Trash2, History } from 'lucide-react'
 import type { RadiologyReport } from '../../types'
 import { StatusBadge, StatusTimeline, REPORT_STATUS_META } from '../../components/report'
 import { ProTable, type ProColumn } from '../../components/data/ProTable'
@@ -74,6 +74,10 @@ export interface ReportTableViewProps {
   onDeliver?: (report: RadiologyReport) => void
   onCritical?: (report: RadiologyReport) => void
   onCompare?: (report: RadiologyReport) => void
+  // [G005 W2-C] 行删除 (Popconfirm) / 审计轨迹
+  onDelete?: (report: RadiologyReport) => void
+  onAudit?: (report: RadiologyReport) => void
+  deletingIds?: Set<string>
   loading?: boolean
 }
 
@@ -95,6 +99,9 @@ export default function ReportTableView({
   onDeliver,
   onCritical,
   onCompare,
+  onDelete,
+  onAudit,
+  deletingIds,
   loading = false,
 }: ReportTableViewProps) {
   const columns = useMemo<ProColumn<RadiologyReport>[]>(() => [
@@ -153,6 +160,7 @@ export default function ReportTableView({
           ...(onDeliver ? [{ key: 'deliver', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Send size={12} /> 分发 / 推送</span> }] : []),
           ...(onCritical ? [{ key: 'critical', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Zap size={12} /> 转危急值</span> }] : []),
           ...(onCompare ? [{ key: 'compare', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><GitCompare size={12} /> 版本对比</span> }] : []),
+          ...(onAudit ? [{ key: 'audit', label: <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><History size={12} /> 审计轨迹</span> }] : []),
         ]
         return (
           <span style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
@@ -172,6 +180,7 @@ export default function ReportTableView({
                     else if (key === 'deliver') onDeliver?.(report)
                     else if (key === 'critical') onCritical?.(report)
                     else if (key === 'compare') onCompare?.(report)
+                    else if (key === 'audit') onAudit?.(report)
                   },
                 }}
                 trigger={['click']}
@@ -179,12 +188,32 @@ export default function ReportTableView({
                 <Button size="small" icon={<MoreHorizontal size={12} />} title="更多操作" onClick={(e) => e.stopPropagation()} />
               </Dropdown>
             )}
+            {onDelete && (
+              <Popconfirm
+                title="删除报告"
+                description={`确认删除报告 ${report.reportId}？(状态将置为已撤回)`}
+                okText="删除"
+                okButtonProps={{ danger: true }}
+                cancelText="取消"
+                onConfirm={(event) => { event?.stopPropagation(); onDelete(report) }}
+                onCancel={(event) => event?.stopPropagation()}
+              >
+                <Button
+                  size="small"
+                  danger
+                  loading={deletingIds?.has(report.id)}
+                  icon={<Trash2 size={12} />}
+                  title="删除"
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </Popconfirm>
+            )}
             <Button size="small" icon={expandedId === report.id ? <ChevronDown size={12} /> : <ChevronRight size={12} />} onClick={(event) => { event.stopPropagation(); onToggleExpand(report.id) }} title="更多" />
           </span>
         )
       },
     },
-  ], [expandedId, onExportPDF, onPrint, onReview, onRevise, onRepublish, onRequestApproval, onDeliver, onCritical, onCompare, onToggleExpand, onView]);
+  ], [expandedId, onExportPDF, onPrint, onReview, onRevise, onRepublish, onRequestApproval, onDeliver, onCritical, onCompare, onAudit, onDelete, deletingIds, onToggleExpand, onView]);
 
   return (
     <ProTable<RadiologyReport>

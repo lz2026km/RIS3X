@@ -626,6 +626,35 @@ export const aiDiagnosisHandlers = [
     return HttpResponse.json(ok(clone(r)));
   }),
 
+  // ── Batch confirm / Retrain (W1-B 对齐后端新增端点) ──
+  http.post(`${API_BASE}/ai-diagnosis/batch-confirm`, async ({ request }) => {
+    await delay(150);
+    const body = await request.json() as { ids?: string[]; status?: string; model?: string };
+    const ids = new Set(body.ids ?? []);
+    const status = body.status === 'confirmed' ? 'confirmed' : 'reviewed';
+    const pools: Array<Array<{ id: string; status: Status }>> = [lungResults, breastResults, fractureResults, cardiacResults];
+    const updated: unknown[] = [];
+    for (const pool of pools) {
+      for (const r of pool) {
+        if (ids.has(r.id)) {
+          r.status = status;
+          updated.push(clone(r));
+        }
+      }
+    }
+    return HttpResponse.json(ok(updated));
+  }),
+  http.post(`${API_BASE}/ai-diagnosis/retrain/:modelVersion`, async ({ params }) => {
+    await delay(200);
+    const modelVersion = String(params.modelVersion ?? 'unknown');
+    return HttpResponse.json(ok({
+      modelVersion,
+      status: 'TRAINING',
+      startedAt: new Date().toISOString(),
+      message: `模型 ${modelVersion} 已进入训练队列 (模拟),训练完成后将自动上线`,
+    }));
+  }),
+
   // ── Stats / Accuracy / Trend ──
   http.get(`${API_BASE}/ai-diagnosis/stats`, async () => {
     await delay(100);

@@ -132,6 +132,10 @@ interface NewPrintForm {
 const DicomPrintPage: React.FC = () => {
   const [queue, setQueue] = useState<PrintJob[]>(printQueueManager.getQueue())
   const [history, setHistory] = useState<PrintJob[]>(printQueueManager.getHistory())
+  const [historyPage, setHistoryPage] = useState(1)
+  const HISTORY_PAGE_SIZE = 8
+  const totalHistoryPages = Math.max(1, Math.ceil(history.length / HISTORY_PAGE_SIZE))
+  const historyPageData = history.slice((historyPage - 1) * HISTORY_PAGE_SIZE, historyPage * HISTORY_PAGE_SIZE)
   const [form, setForm] = useState<NewPrintForm>({
     patientName: '',
     studyUid: '',
@@ -149,6 +153,7 @@ const DicomPrintPage: React.FC = () => {
     const unsubscribe = printQueueManager.subscribe((newQueue, newHistory) => {
       setQueue([...newQueue])
       setHistory([...newHistory])
+      setHistoryPage(1)
     })
     return () => unsubscribe()
   }, [])
@@ -569,6 +574,7 @@ const DicomPrintPage: React.FC = () => {
               onClick={() => {
                 setQueue([...printQueueManager.getQueue()])
                 setHistory([...printQueueManager.getHistory()])
+                setHistoryPage(1)
               }}
               style={{
                 display: 'flex',
@@ -839,7 +845,7 @@ const DicomPrintPage: React.FC = () => {
             {history.length}
           </span>
         </div>
-        <SimpleTable columns={historyColumns} data={history} />
+        <SimpleTable columns={historyColumns} data={historyPageData} />
       </div>
 
       {/* 分页 */}
@@ -853,27 +859,27 @@ const DicomPrintPage: React.FC = () => {
         borderRadius: 8,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontSize: 13, color: C.textMid }}>共 {history.length} 条</span>
+          <span style={{ fontSize: 13, color: C.textMid }}>共 {history.length} 条 · 第 {historyPage}/{totalHistoryPages} 页</span>
           <div style={{ display: 'flex', gap: 4 }}>
-            <button disabled style={{
+            <button disabled={historyPage <= 1} onClick={() => setHistoryPage(p => Math.max(1, p - 1))} style={{
               padding: '6px 12px',
               fontSize: 12,
               border: `1px solid ${C.border}`,
               borderRadius: 4,
-              background: C.white,
-              color: C.textLight,
-              cursor: 'not-allowed',
+              background: historyPage <= 1 ? C.bg : C.white,
+              color: historyPage <= 1 ? C.textLight : C.textMid,
+              cursor: historyPage <= 1 ? 'not-allowed' : 'pointer',
             }}>
               上一页
             </button>
-            <button disabled style={{
+            <button disabled={historyPage >= totalHistoryPages} onClick={() => setHistoryPage(p => Math.min(totalHistoryPages, p + 1))} style={{
               padding: '6px 12px',
               fontSize: 12,
               border: `1px solid ${C.border}`,
               borderRadius: 4,
-              background: C.white,
-              color: C.textLight,
-              cursor: 'not-allowed',
+              background: historyPage >= totalHistoryPages ? C.bg : C.white,
+              color: historyPage >= totalHistoryPages ? C.textLight : C.textMid,
+              cursor: historyPage >= totalHistoryPages ? 'not-allowed' : 'pointer',
             }}>
               下一页
             </button>

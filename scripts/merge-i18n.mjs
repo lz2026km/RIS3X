@@ -22,7 +22,8 @@ for (const { dir, out } of pairs) {
   const merged = {};
   for (const f of files) {
     const ns = f.replace(/\.json$/, '');
-    const obj = JSON.parse(readFileSync(join(dirPath, f), 'utf8'));
+    const raw = readFileSync(join(dirPath, f), 'utf8').replace(/^\uFEFF/, '');
+    const obj = JSON.parse(raw);
     merged[ns] = obj;
   }
   const outPath = join(root, out);

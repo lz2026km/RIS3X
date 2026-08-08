@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import {
   TrendingUp, TrendingDown, DollarSign, Monitor, Users, Film,
   BarChart3, PieChart as PieChartIcon, Activity,
@@ -11,6 +11,8 @@ import {
   BarChart as ChartBar, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer, LineChart, Line
 } from 'recharts'
+import { financeApi } from '../services/api/financeApi'
+import { statsApi } from '../services/api/statsApi'
 import { CostFilter, CostOverview } from './cost'
 import { CostCard, SimplePieChart, SimpleBarChart, SimpleHorizontalBarChart } from './cost/CostChart'
 import {
@@ -18,7 +20,7 @@ import {
   DepreciationRow, ProfitMarginRow, DeptRevenueRow
 } from './cost/CostTable'
 import {
-  type TimeRange, type TabType,
+  type TimeRange, type TabType, type BenefitData,
   EQUIPMENT_DATA, CONSUMABLE_DATA, LABOR_DATA, BENEFIT_DATA,
   MEDICAL_CONSUMABLE_DATA, DEPT_CONSUMABLE_DATA,
   DEPRECIATION_DATA, EXAM_PROFIT_MARGIN_DATA, DEPT_REVENUE_DATA,
@@ -27,11 +29,92 @@ import {
   formatCurrency, formatPercent, calculateUnitCost,
 } from './cost'
 
+// [W3-B] 成本分析 — financeApi 实时数据 (MSW/后端双形状归一化)
+interface LiveMonthlyPoint { month: string; revenue: number; cost: number }
+interface LiveFinanceData {
+  revenue: number
+  cost: number
+  profit: number
+  marginPct: number
+  totalExams: number
+  monthly: LiveMonthlyPoint[]
+  source: string
+}
+
+function toNumber(v: unknown): number {
+  const n = Number(v)
+  return Number.isFinite(n) ? n : 0
+}
+
+// 归一化 revenue-analysis 响应 (MSW: {daily,monthly} / Nest: {period,totalRevenue,totalCost,totalProfit})
+function normalizeRevenue(payload: unknown): { revenue: number; monthly: { month: string; revenue: number }[] } {
+  const p = (payload ?? {}) as Record<string, unknown>
+  const monthlyRaw = Array.isArray(p.monthly) ? p.monthly : Array.isArray(p.daily) ? p.daily : []
+  const monthly = monthlyRaw
+    .map((m) => {
+      const rec = (m ?? {}) as Record<string, unknown>
+      return { month: String(rec.month ?? rec.date ?? ''), revenue: toNumber(rec.amount ?? rec.revenue) }
+    })
+    .filter((m) => m.month.length > 0)
+  const sum = monthly.reduce((s, x) => s + x.revenue, 0)
+  const revenue = sum > 0 ? sum : toNumber(p.totalRevenue ?? p.totalProfit)
+  return { revenue, monthly }
+}
+
+function normalizeCost(payload: unknown): number {
+  const p = (payload ?? {}) as Record<string, unknown>
+  return toNumber(p.totalCost)
+}
+
 export default function CostAnalysisPage() {
   const [timeRange, setTimeRange] = useState<TimeRange>('year')
   const [activeTab, setActiveTab] = useState<TabType>('overview')
-  const [loading] = useState(false)
-  const [error] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [live, setLive] = useState<LiveFinanceData | null>(null)
+
+  const loadFinance = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const [revRes, costRes, dailyRes] = await Promise.allSettled([
+        financeApi.getRevenueAnalysis(),
+        financeApi.getCostAccounting(),
+        statsApi.getDaily(),
+      ])
+      const rev = revRes.status === 'fulfilled' && revRes.value.success ? revRes.value.data : null
+      const cost = costRes.status === 'fulfilled' && costRes.value.success ? costRes.value.data : null
+      const daily = dailyRes.status === 'fulfilled' && dailyRes.value.success ? dailyRes.value.data : null
+      const { revenue, monthly } = normalizeRevenue(rev as unknown)
+      const costTotal = normalizeCost(cost as unknown)
+      const totalExams = toNumber((daily as Record<string, unknown> | null)?.examCount)
+      if (revenue > 0 || costTotal > 0) {
+        const costPerRevenue = revenue > 0 ? costTotal / revenue : 0
+        setLive({
+          revenue,
+          cost: costTotal,
+          profit: revenue - costTotal,
+          marginPct: revenue > 0 ? ((revenue - costTotal) / revenue) * 100 : 0,
+          totalExams,
+          monthly: monthly.map((m) => ({
+            month: m.month,
+            revenue: m.revenue,
+            cost: Math.round(m.revenue * costPerRevenue),
+          })),
+          source: 'financeApi 实时',
+        })
+      } else {
+        setLive(null)
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '成本数据加载失败，已回退演示数据')
+      setLive(null)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { void loadFinance() }, [loadFinance])
 
   const summaryData = useMemo(() => {
     const totalEquipmentCost = EQUIPMENT_DATA.reduce((sum, eq) => {
@@ -48,6 +131,36 @@ export default function CostAnalysisPage() {
     const costPerExam = totalCost / totalExams
     return { totalEquipmentCost, totalConsumableCost, totalLaborCost, totalCost, latestRevenue, latestProfit, totalExams, monthlyAvgCost, costPerExam }
   }, [])
+
+  // [W3-B] 效益 Tab 实时行 (financeApi.monthly → 万元口径, 与 BENEFIT_DATA 一致)
+  const benefitRows = useMemo<BenefitData[]>(() => {
+    if (!live || live.monthly.length === 0) return BENEFIT_DATA
+    return live.monthly.map((m) => ({
+      month: m.month,
+      revenue: m.revenue / 10000,
+      cost: m.cost / 10000,
+      profit: (m.revenue - m.cost) / 10000,
+      examCount: 0,
+    }))
+  }, [live])
+
+  const benefitTotals = useMemo(() => {
+    if (!live) {
+      const revenue = BENEFIT_DATA.reduce((s, b) => s + b.revenue, 0)
+      const cost = BENEFIT_DATA.reduce((s, b) => s + b.cost, 0)
+      const profit = BENEFIT_DATA.reduce((s, b) => s + b.profit, 0)
+      return { revenue, cost, profit, marginPct: revenue > 0 ? (profit / revenue) * 100 : 0 }
+    }
+    return { revenue: live.revenue / 10000, cost: live.cost / 10000, profit: live.profit / 10000, marginPct: live.marginPct }
+  }, [live])
+
+  const benefitTrendLabel = useMemo(() => {
+    if (!live || live.monthly.length < 2) return ''
+    const last = live.monthly[live.monthly.length - 1]!
+    const prev = live.monthly[live.monthly.length - 2]!
+    const chg = prev.revenue > 0 ? ((last.revenue - prev.revenue) / prev.revenue) * 100 : 0
+    return `${chg >= 0 ? '+' : ''}${chg.toFixed(1)}%`
+  }, [live])
 
   const equipmentWithUnitCost = useMemo(() => {
     return EQUIPMENT_DATA.map(eq => ({ ...eq, unitCost: calculateUnitCost(eq), totalAnnual: (eq.purchasePrice / eq.depreciationYears) + eq.annualMaintenance }))
@@ -109,7 +222,6 @@ export default function CostAnalysisPage() {
   const sectionTitleStyle: React.CSSProperties = { fontSize: 14, fontWeight: 600, color: '#f0f6fc', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }
 
   if (loading) return <div role="status" data-testid="cost-loading" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
-  if (error) return <div role="alert" data-testid="cost-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
   if (!EQUIPMENT_DATA || EQUIPMENT_DATA.length === 0) {
     return (
       <div data-testid="cost-empty" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>
@@ -123,7 +235,28 @@ export default function CostAnalysisPage() {
     <div style={containerStyle}>
       <CostFilter activeTab={activeTab} onTabChange={setActiveTab} timeRange={timeRange} onTimeRangeChange={setTimeRange} />
 
-      {activeTab === 'overview' && <CostOverview />}
+      {/* [W3-B] 数据源状态条 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, fontSize: 12, flexWrap: 'wrap' }}>
+        {live ? (
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999, background: '#22c55e20', color: '#22c55e', fontWeight: 600 }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22c55e' }} />
+            数据源: {live.source} · 收入 ¥{(live.revenue / 10000).toFixed(1)}万 / 成本 ¥{(live.cost / 10000).toFixed(1)}万
+          </span>
+        ) : (
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999, background: '#f59e0b20', color: '#f59e0b', fontWeight: 600 }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#f59e0b' }} />
+            数据源: 演示数据 — 设备/耗材/人力/DRG/盈亏平衡等区块为内置演示数据
+          </span>
+        )}
+        {error && (
+          <span style={{ color: '#ef4444' }}>
+            financeApi/statsApi 加载失败: {error}（已回退演示数据）
+            <button onClick={() => void loadFinance()} style={{ marginLeft: 8, padding: '2px 10px', borderRadius: 4, border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', cursor: 'pointer', fontSize: 12 }}>重试</button>
+          </span>
+        )}
+      </div>
+
+      {activeTab === 'overview' && <CostOverview live={live} />}
 
       {activeTab === 'equipment' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -231,14 +364,14 @@ export default function CostAnalysisPage() {
       {activeTab === 'benefit' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-            <CostCard title="年度总收入" value={formatCurrency(BENEFIT_DATA.reduce((s, b) => s + b.revenue, 0))} subtitle="近12个月累计" icon={TrendingUp} trend="up" trendValue="+18.2%" color="#22c55e" />
-            <CostCard title="年度总成本" value={formatCurrency(BENEFIT_DATA.reduce((s, b) => s + b.cost, 0))} subtitle="近12个月累计" icon={DollarSign} color="#ef4444" />
-            <CostCard title="年度总利润" value={formatCurrency(BENEFIT_DATA.reduce((s, b) => s + b.profit, 0))} subtitle="收入-成本" icon={TrendingUp} trend="up" trendValue="+22.5%" color="#22c55e" />
-            <CostCard title="利润率" value={formatPercent((BENEFIT_DATA.reduce((s, b) => s + b.profit, 0) / BENEFIT_DATA.reduce((s, b) => s + b.revenue, 0)) * 100)} subtitle="利润/收入" icon={BarChart3} color="#3b82f6" />
+            <CostCard title="年度总收入" value={formatCurrency(benefitTotals.revenue)} subtitle={live ? 'financeApi 实时聚合' : '近12个月累计'} icon={TrendingUp} trend="up" trendValue={benefitTrendLabel || '+18.2%'} color="#22c55e" />
+            <CostCard title="年度总成本" value={formatCurrency(benefitTotals.cost)} subtitle={live ? 'financeApi 实时聚合' : '近12个月累计'} icon={DollarSign} color="#ef4444" />
+            <CostCard title="年度总利润" value={formatCurrency(benefitTotals.profit)} subtitle="收入-成本" icon={TrendingUp} trend="up" trendValue="+22.5%" color="#22c55e" />
+            <CostCard title="利润率" value={formatPercent(benefitTotals.marginPct)} subtitle="利润/收入" icon={BarChart3} color="#3b82f6" />
           </div>
 
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
-            <div style={sectionTitleStyle}><BarChart3 size={16} color="#3b82f6" />月度收入 vs 成本趋势</div>
+            <div style={sectionTitleStyle}><BarChart3 size={16} color="#3b82f6" />月度收入 vs 成本趋势 {live && <span style={{ fontSize: 11, color: '#22c55e' }}>(financeApi 实时 · 成本按收入占比分摊)</span>}</div>
             <div style={{ display: 'flex', gap: 16, marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <div style={{ width: 12, height: 12, borderRadius: 2, background: '#22c55e' }} />
@@ -249,23 +382,23 @@ export default function CostAnalysisPage() {
                 <span style={{ fontSize: 12, color: '#8b949e' }}>成本</span>
               </div>
             </div>
-            <SimpleBarChart data={BENEFIT_DATA.map(b => ({ label: b.month.slice(5), value: b.revenue, color: '#22c55e' }))} height={200} />
+            <SimpleBarChart data={benefitRows.map(b => ({ label: b.month.length >= 7 ? b.month.slice(5) : b.month, value: b.revenue, color: '#22c55e' }))} height={200} />
             <div style={{ marginTop: 12 }}>
-              <SimpleBarChart data={BENEFIT_DATA.map(b => ({ label: b.month.slice(5), value: b.cost, color: '#ef4444' }))} height={200} />
+              <SimpleBarChart data={benefitRows.map(b => ({ label: b.month.length >= 7 ? b.month.slice(5) : b.month, value: b.cost, color: '#ef4444' }))} height={200} />
             </div>
           </div>
 
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
-            <div style={sectionTitleStyle}><TrendingUp size={16} color="#22c55e" />月度利润趋势</div>
-            <SimpleBarChart data={BENEFIT_DATA.map(b => ({ label: b.month.slice(5), value: b.profit, color: '#22c55e' }))} height={200} />
+            <div style={sectionTitleStyle}><TrendingUp size={16} color="#22c55e" />月度利润趋势 {live && <span style={{ fontSize: 11, color: '#22c55e' }}>(实时)</span>}</div>
+            <SimpleBarChart data={benefitRows.map(b => ({ label: b.month.length >= 7 ? b.month.slice(5) : b.month, value: b.profit, color: '#22c55e' }))} height={200} />
           </div>
 
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
-            <div style={sectionTitleStyle}><Activity size={16} color="#8b949e" />月度效益明细</div>
+            <div style={sectionTitleStyle}><Activity size={16} color="#8b949e" />月度效益明细 {live && <span style={{ fontSize: 11, color: '#22c55e' }}>(financeApi 实时)</span>}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '80px 100px 100px 100px 100px', gap: 8, padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d', fontSize: 12, fontWeight: 600, color: '#8b949e' }}>
               <span>月份</span><span>收入(万)</span><span>成本(万)</span><span>利润(万)</span><span>检查量</span>
             </div>
-            {BENEFIT_DATA.map((item, idx) => {
+            {benefitRows.map((item, idx) => {
               const profitRate = (item.profit / item.revenue) * 100
               return (
                 <div key={item.month} style={{ display: 'grid', gridTemplateColumns: '80px 100px 100px 100px 100px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: idx % 2 === 0 ? '#0d1117' : '#161b22', alignItems: 'center' }}>
@@ -273,7 +406,7 @@ export default function CostAnalysisPage() {
                   <span style={{ color: '#22c55e', fontSize: 13 }}>{formatCurrency(item.revenue)}</span>
                   <span style={{ color: '#ef4444', fontSize: 13 }}>{formatCurrency(item.cost)}</span>
                   <span style={{ color: '#22c55e', fontSize: 13, fontWeight: 600 }}>{formatCurrency(item.profit)}</span>
-                  <span style={{ color: '#f0f6fc', fontSize: 13 }}>{item.examCount.toLocaleString()}<span style={{ color: '#6e7681', fontSize: 12, marginLeft: 4 }}>({profitRate > 0 ? '+' : ''}{profitRate.toFixed(1)}%)</span></span>
+                  <span style={{ color: '#f0f6fc', fontSize: 13 }}>{item.examCount > 0 ? item.examCount.toLocaleString() : '-'}<span style={{ color: '#6e7681', fontSize: 12, marginLeft: 4 }}>({profitRate > 0 ? '+' : ''}{profitRate.toFixed(1)}%)</span></span>
                 </div>
               )
             })}

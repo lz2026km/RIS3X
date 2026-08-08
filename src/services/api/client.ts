@@ -421,7 +421,16 @@ export const api = {
       method: "PATCH",
       body: body ? JSON.stringify(body) : undefined,
     }),
-  delete: <T>(path: string) => request<T>(path, { method: "DELETE" }),
+  delete: <T>(path: string, body?: unknown) =>
+    request<T>(path, {
+      method: "DELETE",
+      body:
+        body === undefined
+          ? undefined
+          : body instanceof FormData
+            ? body
+            : JSON.stringify(body),
+    }),
   // [G005 P0] 列表响应归一化: 兼容两种后端形状
   //   - MSW 旧 handler: data 为裸数组 { success, data: [...] }
   //   - Nest CRUD:      data 为 { items: [], total: number }

@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { useState } from "react";
 import { AlertTriangle, Clock, Plus, CalendarCheck, CalendarX } from "lucide-react";
+import { regionalApi } from "../../services/api";
 import {
   PieChart as RePieChart, Pie, Cell, Tooltip, ResponsiveContainer,
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
@@ -69,9 +70,60 @@ const LeaveRow = ({ leave, onApprove, onReject }) => {
 
 export default function DepartmentSchedule() {
   const [leaveList, setLeaveList] = useState(LEAVE_REQUESTS);
+  const [dateFrom, setDateFrom] = useState("2026-04-28");
+  const [dateTo, setDateTo] = useState("2026-04-28");
+  const [attendanceRows, setAttendanceRows] = useState(ATTENDANCE_DATA);
+  const [querying, setQuerying] = useState(false);
+  const [showLeaveForm, setShowLeaveForm] = useState(false);
+  const [newLeave, setNewLeave] = useState({ name: "", type: "年假", startDate: "", endDate: "", days: 1, reason: "" });
+  const [attendResult, setAttendResult] = useState("");
 
   const handleApprove = (id) => { setLeaveList((list) => list.map((l) => l.id === id ? { ...l, status: "approved" } : l)); };
   const handleReject = (id) => { setLeaveList((list) => list.map((l) => l.id === id ? { ...l, status: "rejected" } : l)); };
+
+  const handleQuery = async () => {
+    setQuerying(true);
+    setAttendResult("");
+    try {
+      const res = await regionalApi.getDepartmentSchedule();
+      const rows = res.success && Array.isArray(res.data) && res.data.length > 0 ? res.data : ATTENDANCE_DATA;
+      setAttendanceRows(rows.map((r, i) => ({
+        staffId: r.staffId || `S${String(i + 1).padStart(3, '0')}`,
+        name: r.staffName || r.name || "员工",
+        date: r.workDate || dateFrom,
+        shift: r.shift || "day",
+        checkIn: r.checkIn || "-",
+        checkOut: r.checkOut || "-",
+        status: r.status || "normal",
+        late: r.lateTimes || 0,
+        early: r.earlyTimes || 0,
+      })));
+      setAttendResult(`已按 ${dateFrom} ~ ${dateTo} 查询，获取 ${rows.length} 条排班/考勤记录`);
+    } catch {
+      setAttendanceRows(ATTENDANCE_DATA);
+      setAttendResult("排班接口不可用，已展示本地示例数据");
+    } finally {
+      setQuerying(false);
+    }
+  };
+
+  const handleCreateLeave = () => {
+    if (!newLeave.name.trim() || !newLeave.startDate || !newLeave.endDate) { alert("请填写姓名和请假日期"); return; }
+    setLeaveList(prev => [...prev, {
+      id: `L${Date.now()}`,
+      staffId: `S${String(Date.now()).slice(-4)}`,
+      name: newLeave.name,
+      type: newLeave.type,
+      startDate: newLeave.startDate,
+      endDate: newLeave.endDate,
+      days: newLeave.days,
+      reason: newLeave.reason || "-",
+      status: "pending",
+      applyDate: new Date().toISOString().split("T")[0],
+    }]);
+    setShowLeaveForm(false);
+    setNewLeave({ name: "", type: "年假", startDate: "", endDate: "", days: 1, reason: "" });
+  };
 
   const panelStyle = { background: C.white, borderRadius: 8, boxShadow: "0 1px 3px rgba(0,0,0,0.1)", border: `1px solid ${C.borderLight}`, overflow: "hidden" };
   const panelHeaderStyle = { padding: "12px 16px", borderBottom: `1px solid ${C.borderLight}`, fontSize: 14, fontWeight: 600, color: C.textDark, display: "flex", alignItems: "center", justifyContent: "space-between", background: "#f9fafb" };
@@ -82,12 +134,13 @@ export default function DepartmentSchedule() {
         <div style={panelHeaderStyle}>
           <span>考勤记录</span>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            <input type="date" defaultValue="2026-04-28" style={{ padding: "4px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
+            <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} style={{ padding: "4px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
             <span style={{ fontSize: 12, color: C.textMid }}>至</span>
-            <input type="date" defaultValue="2026-04-28" style={{ padding: "4px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
-            <button style={{ padding: "4px 12px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12 }}>查询</button>
+            <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} style={{ padding: "4px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
+            <button onClick={() => void handleQuery()} disabled={querying} style={{ padding: "4px 12px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: querying ? "wait" : "pointer", fontSize: 12 }}>{querying ? "查询中..." : "查询"}</button>
           </div>
         </div>
+        {attendResult && <div style={{ padding: "8px 16px", background: C.infoBg, color: C.info, fontSize: 12 }}>{attendResult}</div>}
         <div style={{ overflow: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead><tr style={{ background: "#f9fafb" }}>
@@ -98,7 +151,7 @@ export default function DepartmentSchedule() {
               <th style={{ padding: "10px 12px", textAlign: "left", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>状态</th>
               <th style={{ padding: "10px 12px", textAlign: "left", borderBottom: `1px solid ${C.border}`, color: C.textMid, fontWeight: 500 }}>异常</th>
             </tr></thead>
-            <tbody>{ATTENDANCE_DATA.map((a) => (
+            <tbody>{attendanceRows.map((a) => (
               <tr key={a.staffId} style={{ borderBottom: `1px solid ${C.borderLight}` }}>
                 <td style={{ padding: "10px 12px", fontWeight: 500, color: C.textDark }}>{a.name}</td>
                 <td style={{ padding: "10px 12px", color: C.textMid }}>{a.shift === "morning" ? "早班" : a.shift === "afternoon" ? "午班" : a.shift === "night" ? "夜班" : "常日班"}</td>
@@ -126,7 +179,27 @@ export default function DepartmentSchedule() {
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         <div style={panelStyle}>
-          <div style={panelHeaderStyle}><span>请假申请</span><button style={{ padding: "4px 10px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><Plus style={{ width: 12, height: 12 }} /> 新申请</button></div>
+          <div style={panelHeaderStyle}><span>请假申请</span><button onClick={() => setShowLeaveForm(true)} style={{ padding: "4px 10px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}><Plus style={{ width: 12, height: 12 }} /> 新申请</button></div>
+          {showLeaveForm && (
+            <div style={{ padding: 12, borderBottom: `1px solid ${C.borderLight}`, display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ display: "flex", gap: 8 }}>
+                <input placeholder="姓名" value={newLeave.name} onChange={e => setNewLeave({ ...newLeave, name: e.target.value })} style={{ flex: 1, padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
+                <select value={newLeave.type} onChange={e => setNewLeave({ ...newLeave, type: e.target.value })} style={{ padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}>
+                  <option>年假</option><option>病假</option><option>事假</option><option>调休</option>
+                </select>
+              </div>
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <input type="date" value={newLeave.startDate} onChange={e => setNewLeave({ ...newLeave, startDate: e.target.value })} style={{ flex: 1, padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
+                <span style={{ fontSize: 12, color: C.textMid }}>至</span>
+                <input type="date" value={newLeave.endDate} onChange={e => setNewLeave({ ...newLeave, endDate: e.target.value })} style={{ flex: 1, padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
+              </div>
+              <input placeholder="事由" value={newLeave.reason} onChange={e => setNewLeave({ ...newLeave, reason: e.target.value })} style={{ padding: "6px 8px", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+                <button onClick={() => setShowLeaveForm(false)} style={{ padding: "4px 10px", background: C.white, color: C.textMid, border: `1px solid ${C.border}`, borderRadius: 4, cursor: "pointer", fontSize: 12 }}>取消</button>
+                <button onClick={handleCreateLeave} style={{ padding: "4px 10px", background: C.primary, color: C.white, border: "none", borderRadius: 4, cursor: "pointer", fontSize: 12 }}>提交</button>
+              </div>
+            </div>
+          )}
           <div style={{ overflow: "auto" }}>
             {leaveList.map((leave) => <LeaveRow key={leave.id} leave={leave} onApprove={() => handleApprove(leave.id)} onReject={() => handleReject(leave.id)} />)}
           </div>

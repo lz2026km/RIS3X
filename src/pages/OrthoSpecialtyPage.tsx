@@ -32,7 +32,7 @@ const OrthoSpecialtyPage = () => {
       <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1a3a5c', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Bone size={24} color="#9333ea" /> 骨科专科</h1>
-          <p style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>Orthopedic Imaging Specialty · 关节分析 · 脊柱评估 · 骨密度 · 创伤</p>
+          <p style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>骨科影像专科 · 关节分析 · 脊柱评估 · 骨密度 · 创伤</p>
         </div>
         <button style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#9333ea', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 500 }}><Bone size={14} /> 新建分析</button>
       </div>

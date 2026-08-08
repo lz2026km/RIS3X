@@ -230,6 +230,10 @@ const HrOperationsPage = lazy(() => import("../pages/ops/HrOperationsPage"));
 const OpsDashboardPage = lazy(() => import("../pages/ops/OpsDashboardPage"));
 const CdsManagementPage = lazy(() => import("../pages/cds/CdsManagementPage"));
 const CdsStatisticsPage = lazy(() => import("../pages/cds/CdsStatisticsPage"));
+// [G005 W2-B] CDS 6 方法页面: 指南库 / 告警中心 / 剂量监测
+const GuidelineLibraryPage = lazy(() => import("../pages/cds/GuidelineLibraryPage"));
+const AlertCenterPage = lazy(() => import("../pages/cds/AlertCenterPage"));
+const CdsDoseMonitoringPage = lazy(() => import("../pages/cds/CdsDoseMonitoringPage"));
 const DepartmentFinancePage = lazy(
   () => import("../pages/finance/DepartmentFinancePage"),
 );
@@ -839,6 +843,10 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/snomed/encode": ["医生", "主任", "管理员"],
   "/snomed/encoder": ["医生", "主任", "管理员"],
   "/cds/rule-config": ["主任", "管理员"],
+  // [G005 W2-B] CDS 指南库 / 告警中心 / 剂量监测
+  "/cds/guidelines": ["医生", "主任", "管理员"],
+  "/cds/alerts": ["医生", "主任", "管理员"],
+  "/cds/dose-monitoring": ["主任", "管理员", "技师"],
   "/rdsr": ["技师", "管理员", "主任"],
   // [Sprint 4] F13-F18 角色映射
   "/ai-marketplace": ["医生", "主任", "管理员"],
@@ -1066,6 +1074,10 @@ export const routes: RouteObject[] = [
   wrapped("/ops/dashboard", React.createElement(OpsDashboardPage)),
   wrapped("/cds/management", React.createElement(CdsManagementPage)),
   wrapped("/cds/statistics", React.createElement(CdsStatisticsPage)),
+  // [G005 W2-B] CDS 6 方法页面: 指南库 / 告警中心 / 剂量监测
+  wrapped("/cds/guidelines", React.createElement(GuidelineLibraryPage)),
+  wrapped("/cds/alerts", React.createElement(AlertCenterPage)),
+  wrapped("/cds/dose-monitoring", React.createElement(CdsDoseMonitoringPage)),
   wrapped("/finance/department", React.createElement(DepartmentFinancePage)),
   wrapped("/finance/patient", React.createElement(PatientFinancePage)),
   wrapped("/mammo/operations", React.createElement(DepartmentOperationsPage)),

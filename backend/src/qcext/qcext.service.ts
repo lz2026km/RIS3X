@@ -28,9 +28,10 @@ export class QcExtService {
     return { data: data ? [data] : [] }
   }
 
-  async rateQcImage(body: Record<string, unknown>) {
-    const { id: _id, ...rest } = body
-    const id = body['id'] as string
+  async rateQcImage(id: string, body: Record<string, unknown>) {
+    const { id: _bodyId, imageId, ...rest } = body
+    void _bodyId
+    void imageId
     const data = await this.prisma.dicomInstance.update({ where: { id }, data: rest as any })
     return { data: [data] }
   }

@@ -23,7 +23,7 @@ const MODALITY_QC: ModalityQc[] = [
       { label: '对比噪声比', current: 8.5, target: 6.0, status: 'pass' },
       { label: '诊断置信度%', current: 92, target: 90, status: 'pass' },
       { label: 'ACR 合规率%', current: 95, target: 95, status: 'pass' },
-      { label: 'CAD-RADS Documentation %', current: 88, target: 95, status: 'warning' },
+      { label: 'CAD-RADS 记录率%', current: 88, target: 95, status: 'warning' },
       { label: '周转时间(分钟)', current: 45, target: 60, status: 'pass' },
     ],
   },
@@ -54,7 +54,7 @@ const MODALITY_QC: ModalityQc[] = [
     metrics: [
       { label: '对比剂用量<100mL 率%', current: 72, target: 80, status: 'warning' },
       { label: '辐射剂量跟踪率%', current: 98, target: 100, status: 'pass' },
-      { label: 'FFR/IVUS Usage Rate %', current: 65, target: 70, status: 'warning' },
+      { label: 'FFR/IVUS 使用率%', current: 65, target: 70, status: 'warning' },
       { label: '并发症率%', current: 2.1, target: 3.0, status: 'pass' },
       { label: '门球时间(分钟)', current: 68, target: 90, status: 'pass' },
       { label: '血流动力学数据完整率%', current: 85, target: 95, status: 'warning' },
@@ -80,9 +80,47 @@ const STATUS_CONFIG = {
 
 export default function CvQcPage() {
   const [activeModality, setActiveModality] = useState(0)
+  const [generating, setGenerating] = useState(false)
 
   const overallPass = MODALITY_QC.reduce((a, m) => a + m.metrics.filter(x => x.status === 'pass').length, 0)
   const overallTotal = MODALITY_QC.reduce((a, m) => a + m.metrics.length, 0)
+
+  const handleGenerateReport = () => {
+    setGenerating(true)
+    setTimeout(() => {
+      setGenerating(false)
+      const rows = MODALITY_QC.map(m => m.metrics.map(metric => `
+        <tr>
+          <td>${m.modality}</td>
+          <td>${metric.label}</td>
+          <td style="text-align:center">${metric.current}</td>
+          <td style="text-align:center">${metric.target}</td>
+          <td style="text-align:center"><span style="color:${STATUS_CONFIG[metric.status].color};font-weight:600">${metric.status === 'pass' ? '通过' : metric.status === 'warning' ? '警告' : '失败'}</span></td>
+        </tr>`).join('')).join('')
+      const html = `<!doctype html><html lang="zh"><head><meta charset="utf-8"><title>心血管质控报告</title>
+        <style>body{font-family:SimSun,serif;padding:32px;color:#111}h1{font-size:20px}h2{font-size:15px;margin-top:20px}table{width:100%;border-collapse:collapse;margin-top:10px}td,th{border:1px solid #555;padding:6px 10px;font-size:13px}th{background:#eee}.summary{display:flex;gap:16px;margin:12px 0}.box{flex:1;border:1px solid #ccc;border-radius:6px;padding:12px;text-align:center}.num{font-size:22px;font-weight:700}@media print{body{margin:0}}</style></head><body>
+        <h1>心血管影像质量控制报告</h1>
+        <div>报告日期: ${new Date().toLocaleDateString('zh-CN')} · 生成系统: G005 RIS 心脏质控模块</div>
+        <div class="summary">
+          <div class="box"><div class="num">${Math.round(overallPass / overallTotal * 100)}%</div><div>整体通过率</div></div>
+          <div class="box"><div class="num">${overallPass}/${overallTotal}</div><div>通过指标</div></div>
+          <div class="box"><div class="num">${MODALITY_QC.reduce((a, m) => a + m.metrics.filter(x => x.status === 'fail').length, 0)}</div><div>失败指标</div></div>
+        </div>
+        <h2>各模态指标明细</h2>
+        <table><thead><tr><th>模态</th><th>指标</th><th>当前</th><th>目标</th><th>状态</th></tr></thead><tbody>${rows}</tbody></table>
+        <p style="margin-top:24px;color:#666;font-size:12px">本报告由系统自动生成，仅供质控管理参考。</p>
+        </body></html>`
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `CV质控报告_${new Date().toISOString().split('T')[0]}.html`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+    }, 700)
+  }
 
   return (
     <div style={{ padding: 24 }}>
@@ -142,8 +180,8 @@ export default function CvQcPage() {
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
-        <button disabled style={{ padding: '8px 16px', background: '#94a3b8', color: '#fff', border: 'none', borderRadius: 6, cursor: 'not-allowed', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <BarChart3 size={16} /> 生成质控报告
+        <button onClick={handleGenerateReport} disabled={generating} style={{ padding: '8px 16px', background: generating ? '#94a3b8' : '#1e40af', color: '#fff', border: 'none', borderRadius: 6, cursor: generating ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <BarChart3 size={16} /> {generating ? '生成中...' : '生成质控报告'}
         </button>
       </div>
     </div>

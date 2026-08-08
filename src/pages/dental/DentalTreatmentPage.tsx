@@ -2,7 +2,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Row, Col, Card, Statistic, Button, Space, Modal, Form, Input, Select,
-  InputNumber, message, Spin, Tag, Table, Empty, Popconfirm,
+  InputNumber, message, Spin, Tag, Table, Empty, Popconfirm, Descriptions,
 } from 'antd';
 import { Plus, RefreshCw, Stethoscope, Activity, CheckCircle2 } from 'lucide-react';
 import { DentalPageLayout } from './DentalShared';
@@ -20,6 +20,7 @@ export const DentalTreatmentPage: React.FC = () => {
   const [createOpen, setCreateOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [form] = Form.useForm();
+  const [detailItem, setDetailItem] = useState<any>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -123,7 +124,7 @@ export const DentalTreatmentPage: React.FC = () => {
               <Button size="small" type="primary" icon={<CheckCircle2 size={12} />}>完成</Button>
             </Popconfirm>
           )}
-          <Button size="small" disabled>详情</Button>
+          <Button size="small" onClick={() => setDetailItem(r)}>详情</Button>
         </Space>
       );
     }},
@@ -210,6 +211,28 @@ export const DentalTreatmentPage: React.FC = () => {
             </Col>
           </Row>
         </Form>
+      </Modal>
+
+      <Modal
+        title={`治疗详情 - ${detailItem?.patientName ?? ''}`}
+        open={!!detailItem}
+        onCancel={() => setDetailItem(null)}
+        footer={<Button onClick={() => setDetailItem(null)}>关闭</Button>}
+        width={520}
+      >
+        {detailItem && (
+          <Descriptions bordered size="small" column={2}>
+            <Descriptions.Item label="患者" span={2}>{detailItem.patientName} ({detailItem.patientId || '-'})</Descriptions.Item>
+            <Descriptions.Item label="牙位">{detailItem.toothNo ? `#${detailItem.toothNo}` : '-'}</Descriptions.Item>
+            <Descriptions.Item label="类型">{detailItem.type || '-'}</Descriptions.Item>
+            <Descriptions.Item label="诊断" span={2}>{detailItem.diagnosis || '-'}</Descriptions.Item>
+            <Descriptions.Item label="治疗方案" span={2}>{detailItem.plan || '-'}</Descriptions.Item>
+            <Descriptions.Item label="费用">¥{detailItem.cost ?? detailItem.estimatedCost ?? 0}</Descriptions.Item>
+            <Descriptions.Item label="状态"><Tag color={STATUS_COLOR[detailItem.status ?? ''] ?? 'default'}>{detailItem.status ?? '-'}</Tag></Descriptions.Item>
+            <Descriptions.Item label="创建时间" span={2}>{detailItem.createdAt ? new Date(detailItem.createdAt).toLocaleString('zh-CN') : '-'}</Descriptions.Item>
+            <Descriptions.Item label="完成时间" span={2}>{detailItem.completedAt ? new Date(detailItem.completedAt).toLocaleString('zh-CN') : '-'}</Descriptions.Item>
+          </Descriptions>
+        )}
       </Modal>
     </DentalPageLayout>
   );

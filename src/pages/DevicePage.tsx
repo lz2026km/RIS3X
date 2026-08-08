@@ -1306,7 +1306,7 @@ export default function DevicePage() {
           </div>
           {/* Top5 故障柱状图 */}
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 8 }}>Top 5 故障类型</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 8 }}>前 5 故障类型</div>
             <ResponsiveContainer width="100%" height={160}>
               <ChartBar data={FAULT_CODES.sort((a, b) => b.count - a.count).slice(0, 5).map(f => ({ name: f.description.length > 8 ? f.description.slice(0, 8) + '...' : f.description, count: f.count }))} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke={C.border} />

@@ -289,7 +289,7 @@ export default function RadiologyQCDashboardPage() {
                   <div style={{ fontSize: 12, color: "#065f46", marginTop: 4 }}>剂量合规</div>
                 </div>
               </div>
-              <button style={{ marginTop: 12, width: "100%", padding: "8px 0", background: "#eff6ff", color: "#1e40af", border: "1px solid #93c5fd", borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
+              <button onClick={() => setActiveTab("image")} style={{ marginTop: 12, width: "100%", padding: "8px 0", background: "#eff6ff", color: "#1e40af", border: "1px solid #93c5fd", borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
                 详情 →
               </button>
             </div>

@@ -651,7 +651,7 @@ function ExamVolumeTab() {
       {/* 副图2区 */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         {/* 检查部位分布 */}
-        <ChartCard title="检查部位分布（Top10）">
+        <ChartCard title="检查部位分布（前10）">
           <ResponsiveContainer width="100%" height={220}>
             <StatBarChart data={bodyPartData} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} horizontal={false} />
@@ -1816,7 +1816,7 @@ function PositiveRateTab() {
       {/* 阳性率排名与复查率 */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
         {/* 阳性率排名 */}
-        <ChartCard title="阳性率排名（Top8）">
+        <ChartCard title="阳性率排名（前8）">
           <div style={{ maxHeight: 300, overflowY: 'auto' }}>
             {positiveRateRanking.map(item => (
               <div key={item.rank} style={{

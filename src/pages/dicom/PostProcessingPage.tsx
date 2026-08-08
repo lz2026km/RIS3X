@@ -44,8 +44,10 @@ const PostProcessingPage: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [processingType, setProcessingType] = useState<ProcessingType>('sharpen')
   const [intensity, setIntensity] = useState(50)
+  const [appliedAt, setAppliedAt] = useState<string | null>(null)
+  const [processing, setProcessing] = useState(false)
 
-  useEffect(() => {
+  const renderFrame = (type: ProcessingType, intensityVal: number) => {
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
@@ -54,17 +56,42 @@ const PostProcessingPage: React.FC = () => {
     const w = rect.width, h = rect.height
     canvas.width = w * devicePixelRatio; canvas.height = h * devicePixelRatio
     ctx.scale(devicePixelRatio, devicePixelRatio)
-    const imgData = generateProcessedSlice(processingType, 256)
+    const imgData = generateProcessedSlice(type, 256)
     const tmp = document.createElement('canvas'); tmp.width = 256; tmp.height = 256
     tmp.getContext('2d')!.putImageData(imgData, 0, 0)
     const scale = Math.min(w / 256, h / 256)
     const ox = (w - 256 * scale) / 2, oy = (h - 256 * scale) / 2
     ctx.drawImage(tmp, ox, oy, 256 * scale, 256 * scale)
     ctx.font = '13px ui-monospace, monospace'
-    ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(4, 4, 200, 20)
+    ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(4, 4, 260, 20)
     ctx.fillStyle = '#facc15'
-    ctx.fillText(`Post-Processing | ${PROCESSING_OPTIONS[processingType].label} | ${intensity}%`, 8, 18)
+    ctx.fillText(`Post-Processing | ${PROCESSING_OPTIONS[type].label} | ${intensityVal}%${appliedAt ? ' | 已应用' : ''}`, 8, 18)
+  }
+
+  useEffect(() => {
+    renderFrame(processingType, intensity)
   })
+
+  const handleApply = () => {
+    setProcessing(true)
+    setTimeout(() => {
+      setAppliedAt(new Date().toLocaleTimeString('zh-CN', { hour12: false }))
+      renderFrame(processingType, intensity)
+      setProcessing(false)
+    }, 600)
+  }
+
+  const handleExport = () => {
+    const canvas = canvasRef.current
+    if (!canvas) { return }
+    const url = canvas.toDataURL('image/png')
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `postprocessed_${processingType}_${intensity}.png`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+  }
 
   const btnStyle: React.CSSProperties = {
     background: 'transparent', border: '1px solid #334155', color: '#94a3b8',
@@ -109,9 +136,10 @@ const PostProcessingPage: React.FC = () => {
               {PROCESSING_OPTIONS[processingType].description}
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
-              <Button type="primary" size="small" icon={<Save size={12} />} style={{ flex: 1 }}>应用</Button>
-              <Button size="small" icon={<Download size={12} />} style={{ flex: 1 }}>导出</Button>
+              <Button type="primary" size="small" icon={<Save size={12} />} style={{ flex: 1 }} loading={processing} onClick={handleApply}>{processing ? '处理中...' : '应用'}</Button>
+              <Button size="small" icon={<Download size={12} />} style={{ flex: 1 }} onClick={handleExport}>导出</Button>
             </div>
+            {appliedAt && <div style={{ marginTop: 8, fontSize: 11, color: '#4ade80' }}>✓ 已于 {appliedAt} 应用 {PROCESSING_OPTIONS[processingType].label} {intensity}%</div>}
           </Card>
         </Col>
       </Row>

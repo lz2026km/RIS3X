@@ -493,7 +493,7 @@ const CancerScreenPage = () => {
       <div style={s.header}>
         <div>
           <h1 style={s.title}>放射科早癌筛查平台</h1>
-          <p style={s.subtitle}>Radiology Early Cancer Screening Platform · 肺癌LDCT / 乳腺癌 / 消化道癌筛查 · 数据更新于 2026-05-02</p>
+          <p style={s.subtitle}>放射科早癌筛查平台 · 肺癌LDCT / 乳腺癌 / 消化道癌筛查 · 数据更新于 2026-05-02</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button style={s.btn} onClick={() => { setLastSync(new Date()); showToast('数据同步成功', 'success') }}><RefreshCw size={14} /> 同步数据</button>

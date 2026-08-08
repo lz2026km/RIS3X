@@ -12,10 +12,13 @@ import {
   Spin,
   Alert,
   Typography,
+  message,
+  Modal,
+  List,
 } from "antd";
-import { Globe, Search, Download, RefreshCw } from "lucide-react";
+import { Globe, Search, Download, RefreshCw, Loader2 } from "lucide-react";
 import { wadoRsApi } from "../../services/api/wadoRsApi";
-import type { WadoRsStudy } from "../../services/api/wadoRsApi";
+import type { WadoRsStudy, WadoRsSeries } from "../../services/api/wadoRsApi";
 
 const { Text } = Typography;
 
@@ -24,6 +27,11 @@ const WadoRsPage: React.FC = () => {
   const [studies, setStudies] = useState<WadoRsStudy[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [retrieving, setRetrieving] = useState<string | null>(null);
+  const [retrieveResult, setRetrieveResult] = useState<WadoRsStudy | null>(null);
+  const [seriesList, setSeriesList] = useState<WadoRsSeries[]>([]);
+  const [seriesLoading, setSeriesLoading] = useState(false);
+  const [downloaded, setDownloaded] = useState<Set<string>>(new Set());
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -47,6 +55,57 @@ const WadoRsPage: React.FC = () => {
   useEffect(() => {
     void load();
   }, [load]);
+
+  const handleRetrieve = async (study: WadoRsStudy) => {
+    setRetrieving(study.studyInstanceUid);
+    setError("");
+    try {
+      const res = await wadoRsApi.getStudy(study.studyInstanceUid);
+      if (res.success && res.data) {
+        setRetrieveResult(res.data);
+        setSeriesLoading(true);
+        const sr = await wadoRsApi.getSeries(study.studyInstanceUid);
+        setSeriesList(sr.success ? (sr.data ?? []) : []);
+        setSeriesLoading(false);
+        setDownloaded(prev => {
+          const next = new Set(prev);
+          next.add(study.studyInstanceUid);
+          return next;
+        });
+        message.success(`已检索到检查 ${res.data.patientName} 的 ${res.data.seriesCount} 组序列`);
+      } else {
+        message.warning(res.error?.message ?? "检索失败");
+      }
+    } catch (e) {
+      message.error((e as Error)?.message ?? "检索失败");
+    } finally {
+      setRetrieving(null);
+    }
+  };
+
+  const handleDownloadSeries = async (studyUid: string, series: WadoRsSeries) => {
+    try {
+      const res = await wadoRsApi.getInstances(studyUid, series.seriesInstanceUid);
+      const instances = res.success ? (res.data ?? []) : [];
+      const urls = instances.map(i => i.wadoUri).filter(Boolean);
+      const blob = new Blob([JSON.stringify({
+        studyUid, seriesUid: series.seriesInstanceUid,
+        description: series.seriesDescription,
+        instanceCount: instances.length,
+        wadoUris: urls,
+      }, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `WADO-RS_${series.seriesInstanceUid.slice(0, 8)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+      message.success(`已下载序列 ${series.seriesNumber} (${instances.length} 实例)`);
+    } catch {
+      message.error('下载失败');
+    }
+  };
 
   const filtered = studies.filter(
     (s) =>
@@ -79,10 +138,17 @@ const WadoRsPage: React.FC = () => {
     {
       title: "操作",
       key: "action",
-      render: () => (
-        <Button size="small" icon={<Download size={14} />}>
-          Retrieve
-        </Button>
+      render: (_: unknown, record: WadoRsStudy) => (
+        <Space>
+          <Button
+            size="small"
+            icon={retrieving === record.studyInstanceUid ? <Loader2 size={14} /> : <Download size={14} />}
+            loading={retrieving === record.studyInstanceUid}
+            onClick={() => void handleRetrieve(record)}
+          >
+            {downloaded.has(record.studyInstanceUid) ? "已检索" : "Retrieve"}
+          </Button>
+        </Space>
       ),
     },
   ];
@@ -151,6 +217,44 @@ const WadoRsPage: React.FC = () => {
           />
         </Spin>
       </Card>
+
+      <Modal
+        title={`检索结果 - ${retrieveResult?.patientName ?? ''}`}
+        open={!!retrieveResult}
+        onCancel={() => setRetrieveResult(null)}
+        footer={null}
+        width={560}
+      >
+        <Spin spinning={seriesLoading}>
+          {retrieveResult && (
+            <>
+              <Space direction="vertical" style={{ width: '100%', marginBottom: 12 }}>
+                <Tag color="blue">Study: {retrieveResult.studyInstanceUid.slice(0, 20)}...</Tag>
+                <span>患者 {retrieveResult.patientName} · 模态 {retrieveResult.modality} · {retrieveResult.seriesCount} 组序列 · {retrieveResult.instanceCount} 实例</span>
+              </Space>
+              <List
+                size="small"
+                dataSource={seriesList}
+                locale={{ emptyText: '暂无序列数据（后端未返回）' }}
+                renderItem={(s) => (
+                  <List.Item
+                    actions={[
+                      <Button key="dl" size="small" icon={<Download size={12} />} onClick={() => void handleDownloadSeries(retrieveResult.studyInstanceUid, s)}>
+                        下载
+                      </Button>,
+                    ]}
+                  >
+                    <List.Item.Meta
+                      title={<Space><Tag>#{s.seriesNumber}</Tag>{s.seriesDescription || s.modality}</Space>}
+                      description={`实例数: ${s.instanceCount} · 部位: ${s.bodyPart || '-'}`}
+                    />
+                  </List.Item>
+                )}
+              />
+            </>
+          )}
+        </Spin>
+      </Modal>
     </div>
   );
 };
