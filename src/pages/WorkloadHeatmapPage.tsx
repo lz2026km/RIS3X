@@ -208,7 +208,7 @@ export default function WorkloadHeatmapPage() {
               <tbody>
                 {doctorRows.map(({ doctor, hourly, max }) => (
                   <tr key={doctor.doctorId ?? doctor.doctorName}>
-                    <td style={{ padding: 4, color: '#1e3a5f', fontWeight: 600 }}>
+                    <td style={{ padding: 4, color: '#1e40af', fontWeight: 600 }}>
                       <div>{doctor.doctorName}</div>
                       <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 400 }}>{doctor.department ?? ''} · 报告 {doctor.reportCount ?? 0}</div>
                     </td>
@@ -245,7 +245,7 @@ export default function WorkloadHeatmapPage() {
       <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
         {sites.map((s) => (
           <div key={s.siteId} style={{ background: '#fff', borderRadius: 10, padding: 12, border: '1px solid #e2e8f0' }}>
-            <div style={{ fontWeight: 700, color: '#1e3a5f', fontSize: 13 }}>{s.siteName}</div>
+            <div style={{ fontWeight: 700, color: '#1e40af', fontSize: 13 }}>{s.siteName}</div>
             <div style={{ fontSize: 12, color: '#64748b' }}>容量评分 {s.capacityScore}</div>
             <div style={{ fontSize: 12, color: '#475569', marginTop: 6 }}>
               利用率 {s.utilizationPct}% · 报告 {s.pendingReports} · 医生 {s.doctors}

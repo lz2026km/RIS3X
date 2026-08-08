@@ -120,7 +120,7 @@ export const ReviewCheckPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <ClipboardCheck size={20} color="#1677ff" />
+        <ClipboardCheck size={20} color="#2563eb" />
         <FileCheck size={20} color="#52c41a" />
         <Shield size={20} color="#722ed1" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>初核 · 终核 · 复审</span>
@@ -130,7 +130,7 @@ export const ReviewCheckPage: React.FC = () => {
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={5}><Card size="small"><Statistic title="初核待审" value={filteredInitial.length} styles={{ content: { color: '#faad14' } }} /></Card></Col>
-        <Col span={5}><Card size="small"><Statistic title="终核待审" value={finalItems.length} styles={{ content: { color: '#1677ff' } }} /></Card></Col>
+        <Col span={5}><Card size="small"><Statistic title="终核待审" value={finalItems.length} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
         <Col span={5}><Card size="small"><Statistic title="复审待审" value={reviews.length} styles={{ content: { color: '#722ed1' } }} /></Card></Col>
         <Col span={5}><Card size="small"><Statistic title="双签待办" value={cosignPending} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
       </Row>
@@ -181,6 +181,7 @@ export const ReviewCheckPage: React.FC = () => {
                   ),
                 },
               ]}
+            scroll={{ x: 'max-content' }}
             />
           </Card>
         </Tabs.TabPane>
@@ -216,6 +217,7 @@ export const ReviewCheckPage: React.FC = () => {
                   ),
                 },
               ]}
+            scroll={{ x: 'max-content' }}
             />
           </Card>
         </Tabs.TabPane>
@@ -247,6 +249,7 @@ export const ReviewCheckPage: React.FC = () => {
                   ),
                 },
               ]}
+            scroll={{ x: 'max-content' }}
             />
           </Card>
         </Tabs.TabPane>
@@ -298,7 +301,7 @@ export const ReviewCheckPage: React.FC = () => {
 function AlertTitle({ text }: { text: string }) {
   return (
     <div style={{ marginBottom: 12, padding: '8px 12px', background: '#e6f4ff', borderRadius: 6, fontSize: 13 }}>
-      <PenTool size={12} style={{ marginRight: 6, color: '#1677ff' }} />
+      <PenTool size={12} style={{ marginRight: 6, color: '#2563eb' }} />
       {text}
     </div>
   );

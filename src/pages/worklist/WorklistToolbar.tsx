@@ -95,8 +95,8 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
         fontWeight: 600,
         cursor: 'pointer',
         transition: 'all 0.15s',
-        borderColor: active ? '#1e3a5f' : '#e2e8f0',
-        background: active ? '#1e3a5f' : '#fff',
+        borderColor: active ? '#1e40af' : '#e2e8f0',
+        background: active ? '#1e40af' : '#fff',
         color: active ? '#fff' : '#64748b',
         display: 'flex',
         alignItems: 'center',
@@ -303,7 +303,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
                   border: '1px solid #e2e8f0',
                   borderRadius: 6,
                   fontSize: 12,
-                  color: filters.doctorId ? '#1e3a5f' : '#94a3b8',
+                  color: filters.doctorId ? '#1e40af' : '#94a3b8',
                   cursor: 'pointer',
                   width: '100%',
                   textAlign: 'left',
@@ -339,7 +339,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
                       padding: '8px 12px',
                       fontSize: 12,
                       cursor: 'pointer',
-                      color: !filters.doctorId ? '#1e3a5f' : '#64748b',
+                      color: !filters.doctorId ? '#1e40af' : '#64748b',
                       background: !filters.doctorId ? '#f0f7ff' : 'transparent',
                     }}
                     onMouseEnter={e => { if (filters.doctorId) e.currentTarget.style.background = '#f8fafc' }}
@@ -360,7 +360,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
                           padding: '8px 12px',
                           fontSize: 12,
                           cursor: 'pointer',
-                          color: filters.doctorId === doc.id ? '#1e3a5f' : '#64748b',
+                          color: filters.doctorId === doc.id ? '#1e40af' : '#64748b',
                           background: filters.doctorId === doc.id ? '#f0f7ff' : 'transparent',
                           display: 'flex',
                           justifyContent: 'space-between',
@@ -383,8 +383,8 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
       {expanded && showSavePreset && (
         <div style={{ padding: '0 16px 16px', borderTop: '1px solid #f1f5f9', paddingTop: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-            <BookmarkCheck size={14} color="#1e3a5f" />
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#1e3a5f' }}>筛选预设</span>
+            <BookmarkCheck size={14} color="#1e40af" />
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>筛选预设</span>
           </div>
           {presets && presets.length > 0 && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
@@ -402,7 +402,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
           )}
           <div style={{ display: 'flex', gap: 8 }}>
             <input value={savePresetName || ''} onChange={e => onSavePresetNameChange?.(e.target.value)} placeholder="预设名称..." style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, outline: 'none' }} />
-            <button onClick={onSavePreset} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: '#1e3a5f', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>保存当前</button>
+            <button onClick={onSavePreset} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: '#1e40af', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>保存当前</button>
           </div>
         </div>
       )}
@@ -429,7 +429,7 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
 
   return (
     <div style={{
-      background: 'linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%)',
+      background: 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)',
       borderRadius: 10,
       padding: '12px 16px',
       marginBottom: 12,
@@ -500,7 +500,7 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
                   padding: '10px 14px',
                   fontSize: 12,
                   cursor: 'pointer',
-                  color: batch.priorityValue === p ? '#1e3a5f' : '#334155',
+                  color: batch.priorityValue === p ? '#1e40af' : '#334155',
                   background: batch.priorityValue === p ? '#f0f7ff' : '#fff',
                   display: 'flex',
                   alignItems: 'center',
@@ -570,7 +570,7 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
                   padding: '10px 14px',
                   fontSize: 12,
                   cursor: 'pointer',
-                  color: batch.roomValue === room.id ? '#1e3a5f' : '#334155',
+                  color: batch.roomValue === room.id ? '#1e40af' : '#334155',
                   background: batch.roomValue === room.id ? '#f0f7ff' : '#fff',
                   display: 'flex',
                   justifyContent: 'space-between',
@@ -635,7 +635,7 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
           borderRadius: 6,
           fontSize: 12,
           fontWeight: 600,
-          color: '#1e3a5f',
+          color: '#1e40af',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
@@ -701,8 +701,8 @@ export function QuickFilters({ currentFilters, onApply }: QuickFilterProps) {
             style={{
               padding: '5px 12px', borderRadius: 6, border: '1px solid', fontSize: 12, fontWeight: 600,
               cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, transition: 'all 0.15s',
-              borderColor: isActive ? '#1e3a5f' : '#e2e8f0',
-              background: isActive ? '#1e3a5f' : '#fff',
+              borderColor: isActive ? '#1e40af' : '#e2e8f0',
+              background: isActive ? '#1e40af' : '#fff',
               color: isActive ? '#fff' : '#64748b',
             }}
           >
@@ -740,7 +740,7 @@ export function CheckInBar({ onCheckIn, onPrintLabel, lastScanned, isProcessing 
       background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', padding: '12px 16px',
       marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
     }}>
-      <Barcode size={18} color="#1e3a5f" />
+      <Barcode size={18} color="#1e40af" />
       <input
         value={input}
         onChange={e => setInput(e.target.value)}
@@ -756,7 +756,7 @@ export function CheckInBar({ onCheckIn, onPrintLabel, lastScanned, isProcessing 
         disabled={isProcessing || !input.trim()}
         style={{
           padding: '8px 16px', borderRadius: 8, border: 'none',
-          background: isProcessing || !input.trim() ? '#cbd5e1' : '#1e3a5f',
+          background: isProcessing || !input.trim() ? '#cbd5e1' : '#1e40af',
           color: '#fff', fontSize: 12, fontWeight: 600, cursor: isProcessing ? 'not-allowed' : 'pointer',
           display: 'flex', alignItems: 'center', gap: 6,
         }}

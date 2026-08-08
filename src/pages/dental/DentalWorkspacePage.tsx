@@ -11,7 +11,7 @@ import { DentalPageLayout } from './DentalShared';
 import { dentalApi, type DentalStudy } from '../../services/api/dentalApi';
 
 const QUICK_LINKS = [
-  { key: 'studies', title: '影像管理', desc: 'CBCT / 全景 / 根尖 / 口扫', icon: Layers, color: '#1677ff', href: '/dental/studies' },
+  { key: 'studies', title: '影像管理', desc: 'CBCT / 全景 / 根尖 / 口扫', icon: Layers, color: '#2563eb', href: '/dental/studies' },
   { key: 'viewer', title: '影像阅片', desc: '2D/3D 浏览 · MPR', icon: ScanLine, color: '#10b981', href: '/dental/viewer' },
   { key: 'schedule', title: '排班预约', desc: '椅位排班 · PSR', icon: Calendar, color: '#f59e0b', href: '/dental/schedule' },
   { key: 'ai', title: 'AI 辅助', desc: '龋齿检测 · ONNX', icon: Microscope, color: '#8b5cf6', href: '/dental/ai' },
@@ -77,7 +77,7 @@ export const DentalWorkspacePage: React.FC = () => {
       <Spin spinning={loading}>
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={6}><Card hoverable><Statistic title="今日患者" value={stats?.todayPatients ?? 0} prefix={<Calendar size={14} />} /></Card></Col>
-          <Col span={6}><Card hoverable><Statistic title="本周患者" value={stats?.thisWeek ?? 0} prefix={<Activity size={14} />} styles={{ content: { color: '#1677ff' } }} /></Card></Col>
+          <Col span={6}><Card hoverable><Statistic title="本周患者" value={stats?.thisWeek ?? 0} prefix={<Activity size={14} />} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
           <Col span={6}><Card hoverable><Statistic title="今日收入" prefix="¥" value={stats?.revenueToday ?? 0} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
           <Col span={6}><Card hoverable><Statistic title="待处理预约" value={appointments.length} styles={{ content: { color: '#faad14' } }} /></Card></Col>
         </Row>

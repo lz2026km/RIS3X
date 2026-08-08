@@ -3,7 +3,7 @@ import { API_BASE } from './client'
 import { getToken } from '../../utils/auth'
 
 // SR Report (结构化报告) API
-// Backend: /api/v1/dicom/sr-report/*
+// [G005 W3-A] Backend: /api/dicom-sr/* (原 /dicom/sr-report/* 后端无对应, 已对齐)
 
 export interface SrReport {
   id: string
@@ -67,39 +67,42 @@ export interface SrReportQueryParams {
   pageSize?: number
 }
 
+// [G005 W3-A] SrReport 段路径对齐: /dicom/sr-report/* -> /dicom-sr (后端 @Controller('dicom-sr'))
+//   listReports   -> GET  /dicom-sr (文档列表)
+//   getReport     -> GET  /dicom-sr/:id
+//   createReport  -> POST /dicom-sr/generate
+//   finalizeReport-> POST /dicom-sr/:id/finalize
+//   getReportByStudy -> GET /dicom-sr + 客户端按 studyInstanceUid 过滤
+//   updateReport / deleteReport 后端无对应端点, 已移除 (无调用方)。
 export const srReportApi = {
   listReports: (params?: SrReportQueryParams) =>
-    api.get<SrReport[]>(`/dicom/sr-report/reports?${new URLSearchParams(params ?? {}).toString()}`),
+    api.get<SrDocument[]>(`/dicom-sr?${new URLSearchParams((params ?? {}) as Record<string, string>).toString()}`),
 
   getReport: (id: string) =>
-    api.get<SrReport>(`/dicom/sr-report/reports/${id}`),
+    api.get<SrDocument>(`/dicom-sr/${encodeURIComponent(id)}`),
 
   createReport: async (data: CreateSrReportDto) => {
-    const res = await api.post<SrReport>('/dicom/sr-report/reports', data)
-    await invalidateApiCache('/dicom/sr-report/reports')
-    return res
-  },
-
-  updateReport: async (id: string, data: Partial<CreateSrReportDto>) => {
-    const res = await api.put<SrReport>(`/dicom/sr-report/reports/${id}`, data)
-    await invalidateApiCache(`/dicom/sr-report/reports/${id}`)
+    const res = await api.post<SrDocument>('/dicom-sr/generate', {
+      reportId: data.studyInstanceUid,
+      templateId: 'tid1500',
+      findings: data.conclusion,
+      impression: data.recommendations,
+    })
+    await invalidateApiCache('/dicom-sr')
     return res
   },
 
   finalizeReport: async (id: string) => {
-    const res = await api.post<SrReport>(`/dicom/sr-report/reports/${id}/finalize`, {})
-    await invalidateApiCache(`/dicom/sr-report/reports/${id}`)
+    const res = await api.post<SrDocument>(`/dicom-sr/${encodeURIComponent(id)}/finalize`, {})
+    await invalidateApiCache(`/dicom-sr/${encodeURIComponent(id)}`)
     return res
   },
 
-  deleteReport: async (id: string) => {
-    const res = await api.delete(`/dicom/sr-report/reports/${id}`)
-    await invalidateApiCache('/dicom/sr-report/reports')
-    return res
+  getReportByStudy: async (studyUid: string) => {
+    const res = await api.get<SrDocument[]>('/dicom-sr')
+    if (!res.success) return res
+    return { ...res, data: (res.data ?? []).filter((d) => d.studyInstanceUid === studyUid) }
   },
-
-  getReportByStudy: (studyUid: string) =>
-    api.get<SrReport[]>(`/dicom/sr-report/studies/${studyUid}/reports`),
 }
 
 // ────────────────────────────────────────────────────────────────────────────

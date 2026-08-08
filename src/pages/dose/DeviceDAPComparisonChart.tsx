@@ -50,17 +50,17 @@ export default function DeviceDAPComparisonChart() {
             boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
           }}
         >
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#1e3a5f", marginBottom: 8 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af", marginBottom: 8 }}>
             {data.device}
           </div>
           <div style={{ fontSize: 12, color: "#64748b" }}>
             <div>
               今日DAP:{" "}
-              <span style={{ fontWeight: 600, color: "#1e3a5f" }}>{data.DAP}</span>
+              <span style={{ fontWeight: 600, color: "#1e40af" }}>{data.DAP}</span>
             </div>
             <div>
               平均DAP:{" "}
-              <span style={{ fontWeight: 600, color: "#1e3a5f" }}>{data.avgDAP}</span>
+              <span style={{ fontWeight: 600, color: "#1e40af" }}>{data.avgDAP}</span>
             </div>
             <div>
               法规阈值:{" "}
@@ -102,7 +102,7 @@ export default function DeviceDAPComparisonChart() {
         }}
       >
         <div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>
             设备DAP对比分析
           </div>
           <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>

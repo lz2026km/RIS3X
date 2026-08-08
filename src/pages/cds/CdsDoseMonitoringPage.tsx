@@ -77,7 +77,7 @@ export default function CdsDoseMonitoringPage() {
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden', marginBottom: 24 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px 100px 120px 110px 160px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: '#0d1117', color: '#8b949e', fontSize: 12, fontWeight: 600 }}>
             <span>患者 / 检查</span>
-            <span>Modality</span>
+            <span>设备类型</span>
             <span>DLP</span>
             <span>Kerma</span>
             <span>阈值</span>
@@ -118,7 +118,7 @@ export default function CdsDoseMonitoringPage() {
         </div>
         <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr 140px 100px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: '#0d1117', color: '#8b949e', fontSize: 12, fontWeight: 600 }}>
-            <span>Modality</span>
+            <span>设备类型</span>
             <span>DLP 上限</span>
             <span>单位</span>
             <span>级别</span>

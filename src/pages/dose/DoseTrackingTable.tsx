@@ -33,7 +33,7 @@ export default function DoseTrackingTable({
             alignItems: "center",
           }}
         >
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>
             {t("doseTrack.table.title")}
           </div>
           <div
@@ -83,7 +83,7 @@ export default function DoseTrackingTable({
                     }}
                     onClick={() => setSelectedPatient(r)}
                   >
-                    <td style={{ padding: "10px 12px", fontSize: 12, fontWeight: 600, color: "#1e3a5f" }}>
+                    <td style={{ padding: "10px 12px", fontSize: 12, fontWeight: 600, color: "#1e40af" }}>
                       {r.patientName}
                     </td>
                     <td style={{ padding: "10px 12px", fontSize: 12, color: "#334155" }}>
@@ -103,7 +103,7 @@ export default function DoseTrackingTable({
                     <td style={{ padding: "10px 12px", fontSize: 12, color: "#64748b" }}>
                       {r.examDate}
                     </td>
-                    <td style={{ padding: "10px 12px", fontSize: 12, fontWeight: 700, color: r.alertLevel === "critical" ? "#dc2626" : r.alertLevel === "warning" ? "#d97706" : "#1e3a5f" }}>
+                    <td style={{ padding: "10px 12px", fontSize: 12, fontWeight: 700, color: r.alertLevel === "critical" ? "#dc2626" : r.alertLevel === "warning" ? "#d97706" : "#1e40af" }}>
                       {r.doseValue}{" "}
                       <span style={{ fontSize: 12, fontWeight: 400 }}>{r.doseUnit}</span>
                     </td>
@@ -167,7 +167,7 @@ function PatientDetailCard({ patient }: { patient: PatientDoseRecord }) {
             <User size={18} color={badge.color} />
           </div>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#1e3a5f" }}>{patient.patientName}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#1e40af" }}>{patient.patientName}</div>
             <div style={{ fontSize: 12, color: "#64748b" }}>{patient.gender} · {patient.age}?· ID: {patient.patientId}</div>
           </div>
         </div>
@@ -178,11 +178,11 @@ function PatientDetailCard({ patient }: { patient: PatientDoseRecord }) {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 12, color: "#64748b" }}>设备:</span>
-            <span style={{ fontSize: 12, fontWeight: 600, color: "#1e3a5f" }}>{patient.device}</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: "#1e40af" }}>{patient.device}</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 12, color: "#64748b" }}>日期:</span>
-            <span style={{ fontSize: 12, fontWeight: 600, color: "#1e3a5f" }}>{patient.examDate}</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: "#1e40af" }}>{patient.examDate}</span>
           </div>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 16 }}>
@@ -193,7 +193,7 @@ function PatientDetailCard({ patient }: { patient: PatientDoseRecord }) {
           </div>
           <div style={{ background: "#f8fafc", borderRadius: 8, padding: 12, textAlign: "center" }}>
             <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>法规阈值</div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: "#1e3a5f" }}>{patient.threshold}</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: "#1e40af" }}>{patient.threshold}</div>
             <div style={{ fontSize: 12, color: "#94a3b8" }}>{patient.doseUnit}</div>
           </div>
           <div style={{ background: "#f8fafc", borderRadius: 8, padding: 12, textAlign: "center" }}>

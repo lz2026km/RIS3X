@@ -36,7 +36,7 @@ export function SortCompareModal({ items, onClose }: SortCompareModalProps) {
         background: '#fff', borderRadius: 12, padding: 24, width: 640, maxHeight: '80vh', overflow: 'auto',
       }} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e3a5f' }}>排序前后对比</h3>
+          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>排序前后对比</h3>
           <button onClick={onClose} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0 }}>
             <X size={18} />
           </button>
@@ -76,7 +76,7 @@ export function SortCompareModal({ items, onClose }: SortCompareModalProps) {
                 <div style={{ color: isImproved ? '#16a34a' : isDeclined ? '#dc2626' : '#94a3b8', display: 'flex' }}>
                   {isImproved ? <ArrowUp size={14} /> : isDeclined ? <ArrowDown size={14} /> : <Minus size={14} />}
                 </div>
-                <div style={{ minWidth: 40, textAlign: 'center', fontWeight: 700, color: '#1e3a5f' }}>
+                <div style={{ minWidth: 40, textAlign: 'center', fontWeight: 700, color: '#1e40af' }}>
                   #{item.afterRank}
                 </div>
                 <div style={{ flex: 1, color: '#334155', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

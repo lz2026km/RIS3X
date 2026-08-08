@@ -1,6 +1,7 @@
 // ============================================================
 // G005 放射科RIS系统 v1.0.5 - 危急值规则配置
 // Phase R5：18 条危急值规则 · 7 类别 · 多渠道通报 · 响应时限
+// [v3.0.6.11-82] W3-C: 接入 criticalExtApi.listRules (/critical-ext/rules 真实后端), 失败回退演示数据
 // ============================================================
 
 import React, { useState, useMemo, useEffect } from "react";
@@ -11,6 +12,7 @@ import {
   CRITICAL_VALUE_KPI,
   type CriticalValueRule,
 } from "../data/criticalValueAssessmentMock";
+import { criticalExtApi } from "../services/api/criticalExtApi";
 import { AppModal } from "../components/common/AppModal";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 
@@ -56,6 +58,9 @@ export default function CriticalValueRulePage() {
   const navigate = useNavigate();
   const [ruleList, setRuleList] =
     useState<CriticalValueRule[]>(CRITICAL_VALUE_RULES);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [source, setSource] = useState<'api' | 'demo'>('demo');
   const [search, setSearch] = useState("");
   const [filterCategory] = useState("all");
   const [filterSeverity, setFilterSeverity] = useState("all");
@@ -90,6 +95,49 @@ export default function CriticalValueRulePage() {
     );
     return () => clearTimeout(t);
   }, [toast.show]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setLoading(true);
+      setLoadError(null);
+      try {
+        const res = await criticalExtApi.listRules();
+        if (cancelled) return;
+        const raw = Array.isArray(res.data) ? res.data : (res.data as { items?: unknown[] } | null)?.items;
+        if (res.success && Array.isArray(raw) && raw.length > 0) {
+          const mapped: CriticalValueRule[] = (raw as Array<Record<string, any>>).map((r, i) => {
+            const demo = CRITICAL_VALUE_RULES.find((d) => d.name === r.name) ?? CRITICAL_VALUE_RULES[i % CRITICAL_VALUE_RULES.length]!;
+            return {
+              id: r.id ?? `cv-api-${i + 1}`,
+              name: r.name ?? demo.name,
+              code: demo.code,
+              category: demo.category,
+              severity: r.severity === 'critical' ? 'critical' : 'high',
+              responseDeadline: demo.responseDeadline,
+              notificationChannels: demo.notificationChannels,
+              keywords: demo.keywords,
+              findings: r.condition ?? demo.findings,
+              modality: demo.modality,
+              bodyPart: demo.bodyPart,
+              description: r.action ?? demo.description,
+              isActive: r.enabled ?? true,
+              reference: demo.reference,
+            };
+          });
+          setRuleList(mapped);
+          setSource('api');
+        } else {
+          setLoadError(res.error?.message ?? '规则接口不可用');
+        }
+      } catch (e) {
+        if (!cancelled) setLoadError(e instanceof Error ? e.message : '规则接口不可用');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const openEditRule = (rule: CriticalValueRule) => {
     setRuleEdit(rule);
@@ -193,10 +241,24 @@ export default function CriticalValueRulePage() {
             >
               R5
             </span>
+            <span
+              style={{
+                fontSize: 12,
+                padding: "2px 8px",
+                borderRadius: 10,
+                fontWeight: 600,
+                background: source === 'api' ? '#dcfce7' : '#fef3c7',
+                color: source === 'api' ? '#16a34a' : '#d97706',
+              }}
+            >
+              {source === 'api' ? '数据源: /critical-ext/rules' : '演示数据(接口不可用)'}
+            </span>
           </h1>
           <p style={{ fontSize: 12, color: "#64748b", margin: "4px 0 0" }}>
             {ruleList.length} 条危急值规则 · 7 类别 · 4 通报渠道 · 自动触发 +
             人工标识
+            {loading && " · 加载中..."}
+            {loadError && <span style={{ color: "#dc2626", marginLeft: 8 }}>{loadError}</span>}
           </p>
         </div>
         <div style={{ display: "flex", gap: 8 }}>

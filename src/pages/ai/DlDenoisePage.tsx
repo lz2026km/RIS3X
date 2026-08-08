@@ -108,6 +108,7 @@ const DlDenoisePage: React.FC = () => {
         <span style={{ fontSize: 15, fontWeight: 700 }}>深度学习降噪</span>
         <Tag color="cyan">深度学习降噪</Tag>
         <Tag color="gold">本地演示 · 参数实时可调</Tag>
+        <Tag color="red">演示功能（无后端模型）</Tag>
         <span style={{ marginLeft: 'auto', fontSize: 11, color: '#64748b' }}>
           数据标注: 单帧 256×256 合成切片 · 噪声 {noiseLevel}% · 模型 {currentModel.label} (PSNR {currentModel.psnr}dB / SSIM {currentModel.ssim})
         </span>

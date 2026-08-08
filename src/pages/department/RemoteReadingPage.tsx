@@ -212,7 +212,7 @@ const RemoteReadingPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f7fa', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
-        <Globe size={20} color="#1677ff" />
+        <Globe size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>远程阅片</span>
         <Tag color="cyan">v3.0.6.11-75</Tag>
         <Tag color="geekblue">跨院区协作</Tag>
@@ -253,7 +253,7 @@ const RemoteReadingPage: React.FC = () => {
         ) : sessions.length === 0 ? (
           <Empty description={error ? '加载失败' : '暂无远程阅片任务'} />
         ) : (
-          <Table rowKey="id" dataSource={sessions} columns={columns} pagination={{ current: sessionPage, pageSize: 10, total: sessions.length, onChange: setSessionPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }} size="small" />
+          <Table rowKey="id" dataSource={sessions} columns={columns} pagination={{ current: sessionPage, pageSize: 10, total: sessions.length, onChange: setSessionPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }} size="small" scroll={{ x: 'max-content' }}/>
         )}
       </Card>
 

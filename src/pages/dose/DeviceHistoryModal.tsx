@@ -68,7 +68,7 @@ export default function DeviceHistoryModal({ device, onClose }: Props) {
           }}
         >
           <div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: "#1e3a5f" }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#1e40af" }}>
               {device} 历史趋势
             </div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>
@@ -139,6 +139,6 @@ const ModalStat = ({ label, value }: { label: string; value: string }) => (
     }}
   >
     <div style={{ fontSize: 12, color: "#64748b" }}>{label}</div>
-    <div style={{ fontSize: 20, fontWeight: 800, color: "#1e3a5f" }}>{value}</div>
+    <div style={{ fontSize: 20, fontWeight: 800, color: "#1e40af" }}>{value}</div>
   </div>
 );

@@ -19,6 +19,15 @@ export const AiFusionWorkspacePage: React.FC = () => {
   const [error, setError] = useState('');
   const [running, setRunning] = useState(false);
   const [detail, setDetail] = useState<FusionStudy | null>(null);
+  // [W3-C] 切换图层: 真实状态切换 (叠加层显示/隐藏 + 图层模式轮换)
+  const [layerVisible, setLayerVisible] = useState(true);
+  const [layerMode, setLayerMode] = useState<'融合' | '差值' | '棋盘格'>('融合');
+
+  const toggleLayer = () => {
+    setLayerMode((m) => (m === '融合' ? '差值' : m === '差值' ? '棋盘格' : '融合'));
+    setLayerVisible(true);
+    message.success(`画布模式: ${modality} · 图层模式切换为「${layerMode === '融合' ? '差值' : layerMode === '差值' ? '棋盘格' : '融合'}」`);
+  };
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -75,7 +84,7 @@ export const AiFusionWorkspacePage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
-        <Brain size={20} color="#1677ff" />
+        <Brain size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>多模态 AI 融合工作台</span>
         <Tag color="cyan">v3.0.6.11-60</Tag>
         <Tag color="purple">Late Fusion</Tag>
@@ -112,13 +121,18 @@ export const AiFusionWorkspacePage: React.FC = () => {
           <Card
             size="small"
             title={<Space><Crosshair size={14} />融合画布</Space>}
-            extra={<Button size="small" icon={<Image size={12} />} onClick={() => message.info('画布模式: ' + modality)}>切换图层</Button>}
+            extra={<Space><Button size="small" icon={<Image size={12} />} onClick={toggleLayer}>切换图层</Button><Tag color={layerVisible ? 'green' : 'default'}>{layerMode}{layerVisible ? ' · 显示' : ' · 隐藏'}</Tag></Space>}
             style={{ height: 320, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#000', color: '#fff', flexDirection: 'column', gap: 8 }}
             styles={{ body: { width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 8 } }}
           >
-            <Activity size={36} color="#1677ff" />
+            <Activity size={36} color="#2563eb" />
             <span style={{ opacity: 0.8, fontSize: 13 }}>[ 多模态融合画布区域 · {modality.toUpperCase()} ]</span>
             <span style={{ opacity: 0.5, fontSize: 12 }}>CBCT + OPG + 口扫 多模态融合渲染</span>
+            {layerVisible && (
+              <span style={{ padding: '3px 12px', background: 'rgba(255,255,255,0.15)', borderRadius: 12, fontSize: 12 }}>
+                叠加图层: {layerMode} 模式
+              </span>
+            )}
           </Card>
         </Col>
         <Col span={8}>
@@ -182,6 +196,7 @@ export const AiFusionWorkspacePage: React.FC = () => {
               ),
             },
           ]}
+        scroll={{ x: 'max-content' }}
         />
       </Card>
 

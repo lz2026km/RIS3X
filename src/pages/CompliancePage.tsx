@@ -4,7 +4,7 @@ import { complianceApi } from '../services/api/complianceApi'
 import type { ComplianceReportDto, ComplianceDocDto } from '../services/api/complianceApi'
 
 const COLORS = {
-  primary: '#1e3a5f',
+  primary: '#1e40af',
   accent: '#3b82f6',
   success: '#10b981',
   danger: '#ef4444',
@@ -81,7 +81,7 @@ export default function CompliancePage() {
     <div style={{ padding: 24, maxWidth: 1400, margin: '0 auto' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 10, background: 'linear-gradient(135deg, #1e3a5f, #3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: 40, height: 40, borderRadius: 10, background: 'linear-gradient(135deg, #1e40af, #3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Shield size={22} color="#fff" />
           </div>
           <div>

@@ -105,7 +105,7 @@ export const DentalSchedulePage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <Calendar size={20} color="#1677ff" />
+        <Calendar size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>牙椅排班 · 牙周 PSR 记录</span>
         <Tag color="cyan">v3.0.6.8-103</Tag>
         <Tag color="blue">牙医管家 对标</Tag>
@@ -123,13 +123,13 @@ export const DentalSchedulePage: React.FC = () => {
         {chairs.map((c: any) => (
           <Col span={4} key={c.id}>
             <Card size="small" hoverable onClick={() => setSelectedChair(c.id)}
-              style={{ cursor:'pointer', borderColor: selectedChair === c.id ? '#1677ff' : '#d9d9d9', borderLeft: `4px solid ${chairColors[c.status] || '#999'}` }}>
+              style={{ cursor:'pointer', borderColor: selectedChair === c.id ? '#2563eb' : '#d9d9d9', borderLeft: `4px solid ${chairColors[c.status] || '#999'}` }}>
               <Space><Armchair size={14}/><span style={{fontSize:13}}>{c.name}</span></Space>
               <Tag style={{fontSize:10,margin:0}} color={chairColors[c.status]}>{({online:'在线', offline:'离线', maintenance:'维护中'} as any)[c.status] || c.status}</Tag>
             </Card>
           </Col>
         ))}
-        <Col span={4}><Card size="small" hoverable onClick={() => setSelectedChair('all')} style={{cursor:'pointer',borderColor:selectedChair==='all'?'#1677ff':'#d9d9d9'}}><Space><User size={14}/><span>全部</span></Space><div style={{fontSize:11,color:'#999',marginTop:4}}>共 {appts.length} 预约</div></Card></Col>
+        <Col span={4}><Card size="small" hoverable onClick={() => setSelectedChair('all')} style={{cursor:'pointer',borderColor:selectedChair==='all'?'#2563eb':'#d9d9d9'}}><Space><User size={14}/><span>全部</span></Space><div style={{fontSize:11,color:'#999',marginTop:4}}>共 {appts.length} 预约</div></Card></Col>
       </Row>
       <Tabs activeKey={tab} onChange={setTab} items={[
         {key:'schedule', label:'排班看板', children:<>
@@ -147,7 +147,8 @@ export const DentalSchedulePage: React.FC = () => {
                   <Button size="small" icon={<CheckCircle2 size={10}/>} disabled={r.status!=='scheduled'} onClick={()=>handleUpdateStatus(r.id,'in-progress')}>到诊</Button>
                   <Button size="small" icon={null} disabled={r.status!=='scheduled'} onClick={()=>handleUpdateStatus(r.id,'cancelled')}>取消</Button>
                 </Space>},
-              ]} />
+              ]} 
+            scroll={{ x: 'max-content' }}/>
           )}
         </>},
         {key:'psr', label:'PSR 牙周记录', children:<>
@@ -203,7 +204,7 @@ export const DentalSchedulePage: React.FC = () => {
                 {[1,2,3,4].map(q => (
                   <Card key={q} size="small" style={{marginBottom:4}} title={`象限 ${q}`}>
                     <Space wrap>
-                      <Tag color="blue">PSR: 2</Tag>
+                      <Tag color="blue">PSR 评分: 2</Tag>
                       <Tag color="orange">探诊: 3-5mm</Tag>
                       <Tag>松动 I°</Tag>
                       <span style={{fontSize:11,color:'#999'}}>2026-06-15 李医生</span>

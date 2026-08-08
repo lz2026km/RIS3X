@@ -22,9 +22,9 @@ import { typicalCaseApi } from '../services/api/typicalCaseApi'
 // 样式常量 - 蓝色主题
 // ============================================================
 const COLORS = {
-  primary: '#1e3a5f',
-  primaryLight: '#2d4a6f',
-  primaryDark: '#152a45',
+  primary: '#1e40af',
+  primaryLight: '#2563eb',
+  primaryDark: '#172554',
   white: '#ffffff',
   background: '#f1f5f9',
   backgroundLight: '#f8fafc',

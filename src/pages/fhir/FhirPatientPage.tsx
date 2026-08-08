@@ -202,7 +202,7 @@ export const FhirPatientPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <Users size={20} color="#1677ff" />
+        <Users size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR Patient 管理</span>
         <Tag color="blue">FHIR R4</Tag>
         <Tag color="green">CRUD</Tag>
@@ -238,6 +238,7 @@ export const FhirPatientPage: React.FC = () => {
           onRow={(r) => ({ onClick: () => handleDetail(r), style: { cursor: 'pointer' } })}
           pagination={{ current: page, total, pageSize: PAGE_SIZE, onChange: setPage, showSizeChanger: false }}
           size="small"
+        scroll={{ x: 'max-content' }}
         />
       </Card>
 

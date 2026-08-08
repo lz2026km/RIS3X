@@ -143,7 +143,7 @@ export const SignAmendPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <Shield size={20} color="#1677ff" />
+        <Shield size={20} color="#2563eb" />
         <Edit3 size={20} color="#52c41a" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>CA 签名 + 修订</span>
         <Tag color="cyan">PR5 (v3.0.6.8-49)</Tag>
@@ -155,7 +155,7 @@ export const SignAmendPage: React.FC = () => {
         <Col span={6}><Card size="small"><Statistic title="有效证书" value={certs.filter(c => c.status === 'valid').length} styles={{ content: {  color: '#52c41a'  } }} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="已过期" value={certs.filter(c => c.status === 'expired').length} styles={{ content: {  color: '#faad14'  } }} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="已吊销" value={certs.filter(c => c.status === 'revoked').length} styles={{ content: {  color: '#ff4d4f'  } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="修订中" value={amends.filter(a => a.status === 'in_progress').length} styles={{ content: {  color: '#1677ff'  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="修订中" value={amends.filter(a => a.status === 'in_progress').length} styles={{ content: {  color: '#2563eb'  } }} /></Card></Col>
       </Row>
 
       <Tabs activeKey={activeTab} onChange={setActiveTab} type="card">
@@ -199,6 +199,7 @@ export const SignAmendPage: React.FC = () => {
                   ),
                 },
               ]}
+            scroll={{ x: 'max-content' }}
             />
           </Card>
 
@@ -269,6 +270,7 @@ export const SignAmendPage: React.FC = () => {
                   ),
                 },
               ]}
+            scroll={{ x: 'max-content' }}
             />
           </Card>
 

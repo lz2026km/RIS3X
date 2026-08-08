@@ -95,7 +95,7 @@ const PacsAdminPage: React.FC = () => {
   }
 
   const serverColumns = [
-    { title: '名称', dataIndex: 'name', key: 'name', render: (v: string, r: PacsServer) => <Space><Server size={14} color="#1677ff" /><b>{v}</b><Tag>{r.aeTitle}</Tag></Space> },
+    { title: '名称', dataIndex: 'name', key: 'name', render: (v: string, r: PacsServer) => <Space><Server size={14} color="#2563eb" /><b>{v}</b><Tag>{r.aeTitle}</Tag></Space> },
     { title: '主机', dataIndex: 'hostname', key: 'hostname', render: (v: string) => <Typography.Text style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</Typography.Text> },
     { title: '端口', dataIndex: 'port', key: 'port', width: 80 },
     { title: 'AE Title', dataIndex: 'aeTitle', key: 'ae', width: 130, render: (v: string) => <Tag color="blue">{v}</Tag> },
@@ -162,7 +162,7 @@ const PacsAdminPage: React.FC = () => {
         style={{ marginBottom: 16 }}
       />
       <Space style={{ marginBottom: 16 }} wrap>
-        <Server size={20} color="#1677ff" />
+        <Server size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>PACS 管理</span>
         <Tag color="cyan">v3.0.6.11-60</Tag>
         <Tag color="green">DICOM AE 管理</Tag>
@@ -186,7 +186,7 @@ const PacsAdminPage: React.FC = () => {
           style={{ marginBottom: 16 }}
           extra={<Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setServerModal(true)}>添加服务器</Button>}
         >
-          <Table rowKey="id" dataSource={servers} columns={serverColumns} pagination={false} size="small" />
+          <Table rowKey="id" dataSource={servers} columns={serverColumns} pagination={false} size="small" scroll={{ x: 'max-content' }}/>
         </Card>
 
         <Card
@@ -194,11 +194,11 @@ const PacsAdminPage: React.FC = () => {
           style={{ marginBottom: 16 }}
           extra={<Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setStorageModal(true)}>添加存储组</Button>}
         >
-          <Table rowKey="id" dataSource={storage} columns={storageColumns} pagination={false} size="small" />
+          <Table rowKey="id" dataSource={storage} columns={storageColumns} pagination={false} size="small" scroll={{ x: 'max-content' }}/>
         </Card>
 
         <Card title={<Space><Link2 size={14} />DICOM 关联状态</Space>}>
-          <Table rowKey="id" dataSource={associations} columns={associationColumns} pagination={false} size="small" />
+          <Table rowKey="id" dataSource={associations} columns={associationColumns} pagination={false} size="small" scroll={{ x: 'max-content' }}/>
         </Card>
       </Spin>
 

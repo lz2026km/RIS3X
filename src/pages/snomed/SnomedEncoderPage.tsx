@@ -163,7 +163,7 @@ const SnomedEncoderPage: React.FC = () => {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}>
           <Card>
-            <Statistic title="匹配编码" value={codes.length} styles={{ content: {  color: '#1677ff'  } }} />
+            <Statistic title="匹配编码" value={codes.length} styles={{ content: {  color: '#2563eb'  } }} />
           </Card>
         </Col>
         <Col span={6}>
@@ -295,6 +295,7 @@ const SnomedEncoderPage: React.FC = () => {
             rowKey="conceptId"
             size="small"
             pagination={false}
+          scroll={{ x: 'max-content' }}
           />
         </Card>
       )}

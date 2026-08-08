@@ -82,7 +82,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f7fa', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
-        <Shield size={20} color="#1677ff" />
+        <Shield size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>患者安全与质量仪表板</span>
         <Tag color="cyan">v3.0.6.11-75</Tag>
         <Tag color="red" icon={<AlertTriangle size={10} />}>实时</Tag>
@@ -117,7 +117,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
                         <Col span={12} key={s.key}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <span style={{ fontSize: 12, width: 70 }}>{s.label}</span>
-                            <Progress percent={events.length ? Math.round((s.count / events.length) * 100) : 0} size="small" style={{ flex: 1, margin: 0 }} strokeColor={s.key === 'severe' || s.key === 'catastrophic' ? '#ff4d4f' : '#1677ff'} />
+                            <Progress percent={events.length ? Math.round((s.count / events.length) * 100) : 0} size="small" style={{ flex: 1, margin: 0 }} strokeColor={s.key === 'severe' || s.key === 'catastrophic' ? '#ff4d4f' : '#2563eb'} />
                             <span style={{ fontSize: 12, color: '#64748b', width: 30 }}>{s.count}</span>
                           </div>
                         </Col>
@@ -202,6 +202,7 @@ const PatientSafetyDashboardPage: React.FC = () => {
               { title: '描述', dataIndex: 'description', ellipsis: true },
               { title: '状态', dataIndex: 'status', width: 90, render: (v: string) => <Badge status={v === 'closed' ? 'success' : v === 'investigating' ? 'processing' : 'warning'} text={STATUS_LABELS[v] ?? v} /> },
             ]}
+          scroll={{ x: 'max-content' }}
           />
         )}
       </Card>

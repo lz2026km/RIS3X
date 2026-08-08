@@ -136,15 +136,15 @@ export const DentalPhotoPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
-        <Camera size={20} color="#1677ff" />
+        <Camera size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>患者照片与沟通</span>
         <Tag color="cyan">v3.0.6.8-102</Tag>
         <Tag color="purple">3Shape Unite</Tag>
         <Select value={selected} onChange={v => setSelected(v)} style={{ width: 180 }}
           options={[
-            { value: 'P100001', label: 'Zhang Wei' },
-            { value: 'P100002', label: 'Li Na' },
-            { value: 'P100003', label: 'Wang Fang' },
+            { value: 'P100001', label: '张伟' },
+            { value: 'P100002', label: '李娜' },
+            { value: 'P100003', label: '王芳' },
           ]}
         />
         <Button type="primary" icon={<Camera size={14} />} onClick={() => setUploadOpen(true)}>

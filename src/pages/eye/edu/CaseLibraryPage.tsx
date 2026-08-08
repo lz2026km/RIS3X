@@ -73,7 +73,7 @@ export const CaseLibraryPage: React.FC = () => {
   const [newAnnotation, setNewAnnotation] = useState({
     type: "roi",
     label: "",
-    color: "#1677ff",
+    color: "#2563eb",
   });
 
   // 标注项目
@@ -443,7 +443,7 @@ export const CaseLibraryPage: React.FC = () => {
                           >
                             <List.Item.Meta
                               avatar={
-                                <Avatar style={{ background: "#1677ff" }}>
+                                <Avatar style={{ background: "#2563eb" }}>
                                   {c.patientName?.slice(0, 1) || "P"}
                                 </Avatar>
                               }

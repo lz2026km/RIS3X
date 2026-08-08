@@ -103,7 +103,7 @@ const Hl7SiuPage: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16 }}>
-        <CalendarClock size={20} color="#1677ff" />
+        <CalendarClock size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>HL7 SIU^S12 排班消息</span>
       </Space>
       <Tabs items={[

@@ -138,7 +138,7 @@ function RegistrationWizard({
           style={{
             padding: "20px 24px",
             borderBottom: "1px solid #e2e8f0",
-            background: "linear-gradient(135deg, #1e3a5f, #3b82f6)",
+            background: "linear-gradient(135deg, #1e40af, #3b82f6)",
           }}
         >
           <div
@@ -204,7 +204,7 @@ function RegistrationWizard({
                     fontSize: 12,
                     fontWeight: 700,
                     background: step >= s ? "#fff" : "rgba(255,255,255,0.3)",
-                    color: step >= s ? "#1e3a5f" : "rgba(255,255,255,0.6)",
+                    color: step >= s ? "#1e40af" : "rgba(255,255,255,0.6)",
                   }}
                 >
                   {s}
@@ -302,7 +302,7 @@ function RegistrationWizard({
                         checked={formData.gender === g}
                         aria-label={`性别-${g}`}
                         onChange={() => setFormData({ ...formData, gender: g })}
-                        style={{ cursor: "pointer", accentColor: "#1e3a5f" }}
+                        style={{ cursor: "pointer", accentColor: "#1e40af" }}
                       />
                       {g}
                     </label>
@@ -728,7 +728,7 @@ function RegistrationWizard({
                   padding: "10px 24px",
                   borderRadius: 8,
                   border: "none",
-                  background: "#1e3a5f",
+                  background: "#1e40af",
                   color: "#fff",
                   fontSize: 13,
                   fontWeight: 600,
@@ -820,7 +820,7 @@ export function PatientCreateForm({
           <ArrowLeft size={16} color="#64748b" />
         </button>
         <div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: "#1e3a5f" }}>
+          <div style={{ fontSize: 16, fontWeight: 700, color: "#1e40af" }}>
             {selectedPatientForEdit ? "编辑患者信息" : "新建患者档案"}
           </div>
           <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
@@ -906,7 +906,7 @@ export function PatientCreateForm({
                   checked={formData.gender === g}
                   aria-label={`性别-${g}`}
                   onChange={() => onFormDataChange({ ...formData, gender: g })}
-                  style={{ cursor: "pointer", accentColor: "#1e3a5f" }}
+                  style={{ cursor: "pointer", accentColor: "#1e40af" }}
                 />
                 {g}
               </label>
@@ -1359,7 +1359,7 @@ export function PatientCreateForm({
             padding: "12px 24px",
             borderRadius: 8,
             border: "none",
-            background: "#1e3a5f",
+            background: "#1e40af",
             color: "#fff",
             fontSize: 13,
             fontWeight: 600,

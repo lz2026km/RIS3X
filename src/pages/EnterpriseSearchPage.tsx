@@ -6,13 +6,14 @@ import { datareportApi, type EnterpriseSearchResult } from '../services/api/data
 import type { SearchResultItem } from '../services/search/types';
 
 const TYPE_META: Record<string, { label: string; color: string }> = {
-  patient: { label: 'patient', color: 'blue' },
-  exam: { label: 'exam', color: 'geekblue' },
-  report: { label: 'report', color: 'purple' },
-  study: { label: 'study', color: 'cyan' },
-  '\u60A3\u8005': { label: 'patient', color: 'blue' },
-  '\u68C0\u67E5': { label: 'exam', color: 'geekblue' },
-  '\u62A5\u544A': { label: 'report', color: 'purple' },
+  patient: { label: '患者', color: 'blue' },
+  exam: { label: '检查', color: 'geekblue' },
+  report: { label: '报告', color: 'purple' },
+  study: { label: '影像', color: 'cyan' },
+  '\u60A3\u8005': { label: '患者', color: 'blue' },
+  '\u68C0\u67E5': { label: '检查', color: 'geekblue' },
+  '\u62A5\u544A': { label: '报告', color: 'purple' },
+  '\u5F71\u50CF': { label: '影像', color: 'cyan' },
 };
 
 const HL_OPEN = '\u27EA';

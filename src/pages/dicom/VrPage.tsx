@@ -181,9 +181,9 @@ const VrPage: React.FC = () => {
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <Box size={18} color={BLUE} />
         <span style={{ fontSize: 15, fontWeight: 700 }}>VR 体绘制</span>
-        <Tag color="cyan">Volume Rendering</Tag>
-        {mode === 'real' && <Tag color="green">REAL DICOM</Tag>}
-        {mode === 'synthetic' && <Tag>SYNTHETIC</Tag>}
+        <Tag color="cyan">容积渲染</Tag>
+        {mode === 'real' && <Tag color="green">真实DICOM</Tag>}
+        {mode === 'synthetic' && <Tag>合成数据</Tag>}
         {realError && <Tag color="red">后端 VR 失败,已回退</Tag>}
         {seriesInfo && <span style={{ fontSize: 11, color: '#64748b' }}>{seriesInfo}</span>}
       </div>

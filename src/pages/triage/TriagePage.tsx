@@ -15,6 +15,7 @@ import {
 } from "antd";
 import { api } from "../../services/api/client";
 import { useTranslation } from "react-i18next";
+import { usePagination } from "../../hooks/usePagination";
 
 interface TriageItem {
   id: string;
@@ -51,6 +52,8 @@ const TriagePage: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [newDoctor, setNewDoctor] = useState("");
   const [newStatus, setNewStatus] = useState<string>("");
+  // [W3-C] 受控分页: 待分诊列表
+  const listPagination = usePagination(items, 10);
 
   const fetchPending = useCallback(async () => {
     setLoading(true);
@@ -210,11 +213,12 @@ const TriagePage: React.FC = () => {
       </Row>
 
       <Table
-        dataSource={items}
+        dataSource={listPagination.pageData}
         columns={columns}
         rowKey="id"
         loading={loading}
-        pagination={{ pageSize: 10, showSizeChanger: true }}
+        pagination={listPagination.pagination}
+      scroll={{ x: 'max-content' }}
       />
 
       <Modal

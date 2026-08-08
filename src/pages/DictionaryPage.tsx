@@ -22,30 +22,30 @@ const s: Record<string, React.CSSProperties> = {
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
     marginBottom: 20,
   },
-  title: { fontSize: 18, fontWeight: 700, color: '#1e3a5f' },
+  title: { fontSize: 18, fontWeight: 700, color: '#1e40af' },
   subtitle: { fontSize: 12, color: '#64748b', marginTop: 2 },
   toolbar: {
     display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap',
-    background: '#fff', padding: '12px 16px', borderRadius: 10,
+    background: 'var(--bg-card)', padding: '12px 16px', borderRadius: 10,
     boxShadow: '0 1px 4px rgba(0,0,0,0.06)', marginBottom: 16,
   },
   searchBox: {
     display: 'flex', alignItems: 'center', gap: 8,
-    background: '#f8fafc', border: '1px solid #e2e8f0',
+    background: 'var(--content-bg)', border: '1px solid #e2e8f0',
     borderRadius: 8, padding: '8px 14px', flex: 1, minWidth: 220,
   },
   searchInput: {
     border: 'none', outline: 'none', background: 'transparent',
-    fontSize: 14, color: '#334155', width: '100%',
+    fontSize: 14, color: 'var(--text-secondary)', width: '100%',
   },
   select: {
     border: '1px solid #e2e8f0', borderRadius: 8, padding: '9px 14px',
-    fontSize: 13, color: '#334155', background: '#f8fafc', outline: 'none',
+    fontSize: 13, color: 'var(--text-secondary)', background: 'var(--content-bg)', outline: 'none',
     cursor: 'pointer', minHeight: 44,
   },
   btnPrimary: {
     display: 'flex', alignItems: 'center', gap: 6,
-    background: '#1e3a5f', color: '#fff', border: 'none', borderRadius: 8,
+    background: '#1e40af', color: '#fff', border: 'none', borderRadius: 8,
     padding: '10px 18px', fontSize: 13, cursor: 'pointer', minHeight: 44,
     boxShadow: '0 2px 6px rgba(30,58,95,0.25)',
   },
@@ -56,30 +56,30 @@ const s: Record<string, React.CSSProperties> = {
   },
   btnIcon: {
     display: 'flex', alignItems: 'center', gap: 4,
-    background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: 8,
+    background: 'var(--content-bg)', color: '#475569', border: 'none', borderRadius: 8,
     padding: '8px 12px', fontSize: 13, cursor: 'pointer', minHeight: 44,
   },
   table: {
-    width: '100%', borderCollapse: 'collapse', background: '#fff',
+    width: '100%', borderCollapse: 'collapse', background: 'var(--bg-card)',
     borderRadius: 10, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
   },
   th: {
-    background: '#f8fafc', padding: '12px 14px', textAlign: 'left',
+    background: 'var(--content-bg)', padding: '12px 14px', textAlign: 'left',
     fontSize: 12, fontWeight: 600, color: '#64748b', borderBottom: '1px solid #e2e8f0',
   },
   td: {
-    padding: '12px 14px', fontSize: 13, color: '#334155', borderBottom: '1px solid #f1f5f9',
+    padding: '12px 14px', fontSize: 13, color: 'var(--text-secondary)', borderBottom: '1px solid #f1f5f9',
   },
   badge: {
     display: 'inline-block', padding: '3px 10px', borderRadius: 12, fontSize: 12,
     fontWeight: 600,
   },
   badgeActive: { background: '#dcfce7', color: '#16a34a' },
-  badgeInactive: { background: '#f1f5f9', color: '#94a3b8' },
+  badgeInactive: { background: 'var(--content-bg)', color: '#94a3b8' },
   actions: { display: 'flex', gap: 6 },
   pagination: {
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-    marginTop: 16, padding: '12px 16px', background: '#fff',
+    marginTop: 16, padding: '12px 16px', background: 'var(--bg-card)',
     borderRadius: 10, boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
   },
   pageInfo: { fontSize: 13, color: '#64748b' },
@@ -87,10 +87,10 @@ const s: Record<string, React.CSSProperties> = {
   pageBtn: {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     width: 34, height: 34, borderRadius: 8, border: '1px solid #e2e8f0',
-    background: '#fff', cursor: 'pointer', fontSize: 13, color: '#475569',
+    background: 'var(--bg-card)', cursor: 'pointer', fontSize: 13, color: '#475569',
   },
   pageBtnActive: {
-    background: '#1e3a5f', color: '#fff', border: '1px solid #1e3a5f',
+    background: '#1e40af', color: '#fff', border: '1px solid #1e40af',
   },
   pageBtnDisabled: { opacity: 0.5, cursor: 'not-allowed' },
   overlay: {
@@ -99,14 +99,14 @@ const s: Record<string, React.CSSProperties> = {
     zIndex: 1000,
   },
   modal: {
-    background: '#fff', borderRadius: 14, width: 700, maxHeight: '90vh',
+    background: 'var(--bg-card)', borderRadius: 14, width: 700, maxHeight: '90vh',
     overflow: 'hidden', display: 'flex', flexDirection: 'column',
     boxShadow: '0 20px 60px rgba(0,0,0,0.18)',
   },
   modalHeader: {
     padding: '16px 20px', borderBottom: '1px solid #e2e8f0',
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-    background: '#1e3a5f',
+    background: '#1e40af',
   },
   modalTitle: { fontSize: 15, fontWeight: 700, color: '#fff' },
   modalClose: {
@@ -130,21 +130,21 @@ const s: Record<string, React.CSSProperties> = {
   required: { color: '#dc2626', marginLeft: 2 },
   input: {
     border: '1px solid #e2e8f0', borderRadius: 8, padding: '10px 12px',
-    fontSize: 14, color: '#334155', outline: 'none', minHeight: 44,
+    fontSize: 14, color: 'var(--text-secondary)', outline: 'none', minHeight: 44,
     boxSizing: 'border-box', width: '100%',
   },
   textarea: {
     border: '1px solid #e2e8f0', borderRadius: 8, padding: '10px 12px',
-    fontSize: 14, color: '#334155', outline: 'none', resize: 'vertical',
+    fontSize: 14, color: 'var(--text-secondary)', outline: 'none', resize: 'vertical',
     minHeight: 80, fontFamily: 'inherit', boxSizing: 'border-box', width: '100%',
   },
   btnCancel: {
     padding: '10px 20px', borderRadius: 8, border: '1px solid #e2e8f0',
-    background: '#fff', fontSize: 14, color: '#475569', cursor: 'pointer', minHeight: 44,
+    background: 'var(--bg-card)', fontSize: 14, color: '#475569', cursor: 'pointer', minHeight: 44,
   },
   btnSubmit: {
     padding: '10px 20px', borderRadius: 8, border: 'none',
-    background: '#1e3a5f', fontSize: 14, color: '#fff', cursor: 'pointer', minHeight: 44,
+    background: '#1e40af', fontSize: 14, color: '#fff', cursor: 'pointer', minHeight: 44,
   },
   btnDeleteConfirm: {
     padding: '10px 20px', borderRadius: 8, border: 'none',
@@ -155,7 +155,7 @@ const s: Record<string, React.CSSProperties> = {
     fontSize: 16,
   },
   emptyIcon: {
-    width: 64, height: 64, borderRadius: 16, background: '#f1f5f9',
+    width: 64, height: 64, borderRadius: 16, background: 'var(--content-bg)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     margin: '0 auto 16px',
   },
@@ -172,14 +172,14 @@ const s: Record<string, React.CSSProperties> = {
   },
   statCard: {
     display: 'flex', alignItems: 'center', gap: 8,
-    background: '#fff', padding: '8px 14px', borderRadius: 8,
+    background: 'var(--bg-card)', padding: '8px 14px', borderRadius: 8,
     boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9',
   },
   statItem: {
     display: 'flex', alignItems: 'center', gap: 6,
     fontSize: 13, color: '#64748b',
   },
-  statNum: { fontWeight: 800, color: '#1e3a5f', fontSize: 16 },
+  statNum: { fontWeight: 800, color: '#1e40af', fontSize: 16 },
   categoryTag: {
     display: 'inline-block', padding: '3px 10px', borderRadius: 8,
     fontSize: 12, fontWeight: 700,
@@ -190,21 +190,21 @@ const s: Record<string, React.CSSProperties> = {
     fontSize: 12, fontWeight: 600,
   },
   tabBar: {
-    display: 'flex', gap: 4, marginBottom: 16, background: '#fff',
+    display: 'flex', gap: 4, marginBottom: 16, background: 'var(--bg-card)',
     padding: '8px 12px', borderRadius: 10, boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
   },
   tab: {
     padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600,
     cursor: 'pointer', border: 'none', transition: 'all 0.15s',
   },
-  tabActive: { background: '#1e3a5f', color: '#fff' },
+  tabActive: { background: '#1e40af', color: '#fff' },
   tabInactive: { background: 'transparent', color: '#64748b' },
   chartCard: {
-    background: '#fff', borderRadius: 10, padding: 16, marginBottom: 16,
+    background: 'var(--bg-card)', borderRadius: 10, padding: 16, marginBottom: 16,
     boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
   },
   chartTitle: {
-    fontSize: 14, fontWeight: 700, color: '#1e3a5f', marginBottom: 12,
+    fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 12,
     display: 'flex', alignItems: 'center', gap: 8,
   },
 }
@@ -694,7 +694,7 @@ export default function DictionaryPage() {
       )}
 
       {paged.length === 0 ? (
-        <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
           <div style={s.emptyState}>
             <div style={s.emptyIcon}><BookOpen size={28} color="#94a3b8" /></div>
             <div style={s.emptyTitle}>暂无字典数据</div>
@@ -720,22 +720,22 @@ export default function DictionaryPage() {
           </thead>
           <tbody>
             {paged.map(d => (
-              <tr key={d.id} style={{ background: '#fff', transition: 'background 0.1s' }}
+              <tr key={d.id} style={{ background: 'var(--bg-card)', transition: 'background 0.1s' }}
                 onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#fafbff'}
                 onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = '#fff'}
               >
                 <td style={s.td}>
-                  <span style={{ ...s.categoryTag, ...(categoryColors[(d.category ?? '')] || { backgroundColor: '#f1f5f9', color: '#475569' }) }}>
+                  <span style={{ ...s.categoryTag, ...(categoryColors[(d.category ?? '')] || { backgroundColor: 'var(--content-bg)', color: '#475569' }) }}>
                     {d.category ?? ''}
                   </span>
                 </td>
                 <td style={s.td}>
-                  <code style={{ fontFamily: 'monospace', fontSize: 12, background: '#f1f5f9', padding: '2px 6px', borderRadius: 4, color: '#64748b' }}>
+                  <code style={{ fontFamily: 'monospace', fontSize: 12, background: 'var(--content-bg)', padding: '2px 6px', borderRadius: 4, color: '#64748b' }}>
                     {d.code ?? ''}
                   </code>
                 </td>
                 <td style={s.td}>
-                  <div style={{ fontWeight: 600, color: '#1e3a5f' }}>{d.name ?? ''}</div>
+                  <div style={{ fontWeight: 600, color: '#1e40af' }}>{d.name ?? ''}</div>
                   <div style={{ fontSize: 12, color: '#94a3b8', fontFamily: 'monospace' }}>{d.id}</div>
                 </td>
                 <td style={s.td}>
@@ -774,8 +774,8 @@ export default function DictionaryPage() {
 
       <div style={s.pagination}>
         <div style={s.pageInfo}>
-          共 <strong style={{ color: '#1e3a5f' }}>{filtered.length}</strong> 条记录，
-          第 <strong style={{ color: '#1e3a5f' }}>{page}</strong> / <strong style={{ color: '#1e3a5f' }}>{totalPages}</strong> 页
+          共 <strong style={{ color: '#1e40af' }}>{filtered.length}</strong> 条记录，
+          第 <strong style={{ color: '#1e40af' }}>{page}</strong> / <strong style={{ color: '#1e40af' }}>{totalPages}</strong> 页
         </div>
         <div style={s.pageBtns}>
           <button style={{ ...s.pageBtn, ...(page === 1 ? s.pageBtnDisabled : {}) }} onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
@@ -863,7 +863,7 @@ export default function DictionaryPage() {
             <tbody>
               {filteredMappings.map(m => (
                 <tr key={m.id}>
-                  <td style={s.td}><code style={{ fontFamily: 'monospace', fontSize: 12, background: '#f1f5f9', padding: '2px 6px', borderRadius: 4 }}>{m.sourceCode}</code></td>
+                  <td style={s.td}><code style={{ fontFamily: 'monospace', fontSize: 12, background: 'var(--content-bg)', padding: '2px 6px', borderRadius: 4 }}>{m.sourceCode}</code></td>
                   <td style={s.td}><span style={{ fontSize: 12, color: '#64748b' }}>{m.sourceSystem}</span></td>
                   <td style={s.td}><code style={{ fontFamily: 'monospace', fontSize: 12, background: '#eff6ff', padding: '2px 6px', borderRadius: 4, color: '#2563eb' }}>{m.targetCode}</code></td>
                   <td style={s.td}>{m.targetSystem}</td>
@@ -913,15 +913,15 @@ export default function DictionaryPage() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
               {mockFhirSystems.map(fs => (
-                <div key={fs.system} style={{ background: '#f8fafc', borderRadius: 8, padding: '12px 14px', border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#1e3a5f' }}>{fs.name}</div>
+                <div key={fs.system} style={{ background: 'var(--content-bg)', borderRadius: 8, padding: '12px 14px', border: '1px solid #e2e8f0' }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>{fs.name}</div>
                   <div style={{ fontSize: 12, color: '#64748b' }}>{fs.system}</div>
                   <div style={{ fontSize: 12, color: '#94a3b8' }}>版本 {fs.version}</div>
                 </div>
               ))}
             </div>
-            <div style={{ background: '#f8fafc', borderRadius: 8, padding: 12, border: '1px solid #e2e8f0' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e3a5f', marginBottom: 8 }}>概念层级树</div>
+            <div style={{ background: 'var(--content-bg)', borderRadius: 8, padding: 12, border: '1px solid #e2e8f0' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>概念层级树</div>
               {mockConcepts.map(concept => (
                 <div key={concept.code} style={{ paddingLeft: 0 }}>
                   <div
@@ -929,7 +929,7 @@ export default function DictionaryPage() {
                     style={{ padding: '6px 10px', cursor: 'pointer', borderRadius: 4, background: selectedConcept?.code === concept.code ? '#dbeafe' : 'transparent', display: 'flex', alignItems: 'center', gap: 6 }}
                   >
                     <Layers size={12} color="#2563eb" />
-                    <span style={{ fontSize: 12, color: '#1e293b' }}>{concept.display}</span>
+                    <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{concept.display}</span>
                     <code style={{ fontSize: 12, color: '#64748b' }}>({concept.code})</code>
                   </div>
                   {concept.children?.map(child => (
@@ -939,7 +939,7 @@ export default function DictionaryPage() {
                         style={{ padding: '6px 10px', cursor: 'pointer', borderRadius: 4, background: selectedConcept?.code === child.code ? '#dbeafe' : 'transparent', display: 'flex', alignItems: 'center', gap: 6 }}
                       >
                         <Layers size={12} color="#64748b" />
-                        <span style={{ fontSize: 12, color: '#1e293b' }}>{child.display}</span>
+                        <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{child.display}</span>
                         <code style={{ fontSize: 12, color: '#64748b' }}>({child.code})</code>
                       </div>
                       {child.children?.map(grandchild => (
@@ -964,11 +964,11 @@ export default function DictionaryPage() {
               <div style={s.chartTitle}><Globe size={16} /> 概念详情</div>
               <div style={{ marginBottom: 12 }}>
                 <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>编码</div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#1e3a5f' }}>{selectedConcept.code}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>{selectedConcept.code}</div>
               </div>
               <div style={{ marginBottom: 12 }}>
                 <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>显示名称</div>
-                <div style={{ fontSize: 14, color: '#334155' }}>{selectedConcept.display}</div>
+                <div style={{ fontSize: 14, color: 'var(--text-secondary)' }}>{selectedConcept.display}</div>
               </div>
               <div style={{ marginBottom: 12 }}>
                 <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>系统</div>
@@ -1042,7 +1042,7 @@ export default function DictionaryPage() {
             <tbody>
               {dictVersions.map(v => (
                 <tr key={v.id}>
-                  <td style={s.td}><span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#1e3a5f' }}>{v.version}</span></td>
+                  <td style={s.td}><span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#1e40af' }}>{v.version}</span></td>
                   <td style={s.td}>
                     <span style={{
                       ...s.badge,
@@ -1052,7 +1052,7 @@ export default function DictionaryPage() {
                       {v.status === 'published' ? '已发布' : v.status === 'review' ? '审核中' : '草稿'}
                     </span>
                   </td>
-                  <td style={s.td}><span style={{ fontSize: 12, color: '#334155' }}>{v.changedBy}</span></td>
+                  <td style={s.td}><span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{v.changedBy}</span></td>
                   <td style={s.td}><span style={{ fontSize: 12, color: '#64748b' }}>{v.changedAt}</span></td>
                   <td style={s.td}><span style={{ fontSize: 12, color: '#64748b' }}>{v.changes}</span></td>
                   <td style={s.td}>
@@ -1123,8 +1123,8 @@ export default function DictionaryPage() {
             </tbody>
           </table>
           {diffView && (
-            <div style={{ marginTop: 12, background: '#f8fafc', borderRadius: 8, padding: 12, border: '1px solid #e2e8f0' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e3a5f', marginBottom: 8 }}>Diff 视图</div>
+            <div style={{ marginTop: 12, background: 'var(--content-bg)', borderRadius: 8, padding: 12, border: '1px solid #e2e8f0' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>Diff 视图</div>
               <div style={{ fontSize: 12, color: '#059669', background: '#ecfdf5', padding: '6px 10px', borderRadius: 4, marginBottom: 4 }}>+ 新增：适应症补充说明</div>
               <div style={{ fontSize: 12, color: '#dc2626', background: '#fef2f2', padding: '6px 10px', borderRadius: 4 }}>- 删除：旧版扫描参数描述</div>
             </div>
@@ -1219,7 +1219,7 @@ export default function DictionaryPage() {
                   {importFile && (
                     <div style={{ background: '#eff6ff', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
                       <FileSpreadsheet size={15} color="#2563eb" />
-                      <span style={{ fontSize: 12, color: '#1e3a5f' }}>{importFile.name}</span>
+                      <span style={{ fontSize: 12, color: '#1e40af' }}>{importFile.name}</span>
                       <span style={{ fontSize: 12, color: '#64748b' }}>({(importFile.size / 1024).toFixed(1)} KB)</span>
                     </div>
                   )}
@@ -1318,7 +1318,7 @@ export default function DictionaryPage() {
                 <div key={u.termName} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid #f1f5f9' }}>
                   <span style={{ fontSize: 12, fontWeight: 800, color: i < 3 ? '#d97706' : '#94a3b8', minWidth: 20 }}>#{i + 1}</span>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: '#1e3a5f' }}>{u.termName}</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: '#1e40af' }}>{u.termName}</div>
                     <div style={{ fontSize: 12, color: '#94a3b8' }}>{u.department}</div>
                   </div>
                   <span style={{ fontSize: 13, fontWeight: 700, color: '#059669' }}>{u.usageCount}</span>
@@ -1334,7 +1334,7 @@ export default function DictionaryPage() {
                 const total = deptStats.reduce((s, u) => s + u.usageCount, 0)
                 return (
                   <div key={dept} style={{ padding: '8px 0', borderBottom: '1px solid #f1f5f9' }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: '#1e3a5f', marginBottom: 4 }}>{dept}</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: '#1e40af', marginBottom: 4 }}>{dept}</div>
                     <div style={{ fontSize: 12, color: '#64748b' }}>使用 {total} 次 · {deptStats.length} 个术语</div>
                     <div style={{ width: '100%', height: 4, background: '#e2e8f0', borderRadius: 2, marginTop: 4 }}>
                       <div style={{ width: `${(total / 3450) * 100}%`, height: 4, background: '#3b82f6', borderRadius: 2 }} />
@@ -1391,7 +1391,7 @@ export default function DictionaryPage() {
           <div style={s.statCard}>
             <BookOpen size={15} color="#64748b" />
             <div>
-              <div style={{ fontSize: 15, fontWeight: 800, color: '#1e3a5f' }}>{stats.total}</div>
+              <div style={{ fontSize: 15, fontWeight: 800, color: '#1e40af' }}>{stats.total}</div>
               <div style={{ fontSize: 12, color: '#94a3b8' }}>字典条目</div>
             </div>
           </div>
@@ -1498,11 +1498,11 @@ export default function DictionaryPage() {
                             <label key={m} onClick={() => handleModalityToggle(m)} style={{
                               display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 8, cursor: 'pointer',
                               fontSize: 12, fontWeight: 600, userSelect: 'none',
-                              border: `1px solid ${isSelected ? (modalityColors[m]?.color || '#1e3a5f') : '#e2e8f0'}`,
+                              border: `1px solid ${isSelected ? (modalityColors[m]?.color || '#1e40af') : '#e2e8f0'}`,
                               background: isSelected ? (modalityColors[m]?.bg || '#eff6ff') : '#fff',
-                              color: isSelected ? (modalityColors[m]?.color || '#1e3a5f') : '#94a3b8',
+                              color: isSelected ? (modalityColors[m]?.color || '#1e40af') : '#94a3b8',
                             }}>
-                              <div style={{ width: 14, height: 14, borderRadius: 4, border: `2px solid ${isSelected ? (modalityColors[m]?.color || '#1e3a5f') : '#cbd5e1'}`, background: isSelected ? (modalityColors[m]?.color || '#1e3a5f') : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                              <div style={{ width: 14, height: 14, borderRadius: 4, border: `2px solid ${isSelected ? (modalityColors[m]?.color || '#1e40af') : '#cbd5e1'}`, background: isSelected ? (modalityColors[m]?.color || '#1e40af') : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                 {isSelected && <span style={{ color: '#fff', fontSize: 12 }}>✓</span>}
                               </div>
                               {m}
@@ -1512,7 +1512,7 @@ export default function DictionaryPage() {
                       </div>
                     </div>
                     <div style={{ ...s.formGroup, ...s.formGroupFull }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, color: '#334155' }} onClick={() => handleField('isActive', !editingDictionary.isActive)}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, color: 'var(--text-secondary)' }} onClick={() => handleField('isActive', !editingDictionary.isActive)}>
                         <div style={{ width: 16, height: 16, borderRadius: 4, border: `2px solid ${editingDictionary.isActive ? '#16a34a' : '#cbd5e1'}`, background: editingDictionary.isActive ? '#16a34a' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           {editingDictionary.isActive && <span style={{ color: '#fff', fontSize: 12 }}>✓</span>}
                         </div>

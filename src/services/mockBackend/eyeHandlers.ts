@@ -671,7 +671,7 @@ const eyeAiModule = [
           metrics: { auc: 0.94, sensitivity: 0.91, specificity: 0.93, f1: 0.92 },
           grades: [
             { grade: 0, label: '无 DR', color: '#52c41a' },
-            { grade: 1, label: '轻度 NPDR', color: '#1677ff' },
+            { grade: 1, label: '轻度 NPDR', color: '#2563eb' },
             { grade: 2, label: '中度 NPDR', color: '#faad14' },
             { grade: 3, label: '重度 NPDR', color: '#fa541c' },
             { grade: 4, label: '增殖性 PDR', color: '#f5222d' },
@@ -2280,7 +2280,7 @@ const eyeCaseLibraryModule = [
         annotationType: body.annotationType,
         coordinates: body.coordinates,
         label: body.label,
-        color: body.color || '#1677ff',
+        color: body.color || '#2563eb',
         createdAt: new Date().toISOString(),
       },
     });
@@ -2971,6 +2971,68 @@ const eyeW3RisModule = [
   }),
 ];
 
+// [G005 W3-A] 后端真实路径对齐模块 (eyeApi 已改调 /eye/studies、/eye/emr/:patientId、/eye/reports、/eye/iol/lenses)
+const eyeW3aAlignedModule = [
+  // /eye/studies (原 /eye/pacs/studies, 后端 @Get('studies'))
+  http.get(`${API_BASE}/studies`, async ({ request }) => {
+    await delay(80);
+    const url = new URL(request.url);
+    const opts = parseQuery(url);
+    const all = list<any>('eye_studies');
+    const result = applyQuery(all, opts, ['patientName', 'studyId', 'modality']);
+    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
+  }),
+  // /eye/studies/:id (原 /eye/pacs/studies/:id, 后端 @Get('studies/:id'))
+  http.get(`${API_BASE}/studies/:id`, async ({ params }) => {
+    await delay(50);
+    const s = get<any>('eye_studies', params.id as string);
+    if (!s) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    return HttpResponse.json({ success: true, data: s });
+  }),
+  // /eye/emr/:patientId (原 /eye/emr/records/:id, 后端 @Get('emr/:patientId'))
+  http.get(`${API_BASE}/emr/:patientId`, async ({ params }) => {
+    await delay(40);
+    const e = get<any>('eye_emrs', params.patientId as string) ?? list<any>('eye_emrs').find((x: any) => x.patientId === params.patientId);
+    if (!e) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    return HttpResponse.json({ success: true, data: e });
+  }),
+  // PUT /eye/emr/:patientId (原 /eye/emr/records/:id, 后端 @Put('emr/:patientId'))
+  http.put(`${API_BASE}/emr/:patientId`, async ({ params, request }) => {
+    await delay(60);
+    const id = params.patientId as string;
+    const body = (await request.json()) as any;
+    const before = get<any>('eye_emrs', id);
+    const updated = update<any>('eye_emrs', id, { ...body, updatedAt: new Date().toISOString() });
+    if (updated) auditUpdate('eye_emrs', before, updated);
+    return HttpResponse.json({ success: true, data: updated });
+  }),
+  // GET /eye/reports (原 /eye/report/reports, 后端 @Get('reports'))
+  http.get(`${API_BASE}/reports`, async ({ request }) => {
+    await delay(60);
+    const url = new URL(request.url);
+    const opts = parseQuery(url);
+    const all = list<any>('eye_reports');
+    const result = applyQuery(all, opts, ['patientName', 'reportType']);
+    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
+  }),
+  // GET /eye/iol/lenses (后端 @Get('iol/lenses'), ULIB 常数派生镜头库)
+  http.get(`${API_BASE}/iol/lenses`, async () => {
+    await delay(40);
+    const lenses = Object.entries(PR3_IOL_CONSTANTS).map(([model, byFormula], i) => ({
+      id: `IOL-${String(i + 1).padStart(3, '0')}`,
+      model,
+      manufacturer: ['Alcon', 'Johnson & Johnson', 'Zeiss', 'Bausch + Lomb'][i % 4],
+      type: model.includes('Toric') ? 'toric' : model.includes('TFNT') ? 'multifocal' : 'monofocal',
+      aConst: byFormula['SRK-T']?.aConst ?? 118.7,
+      pACD: byFormula['SRK-T']?.pACD ?? 5.2,
+      sf: byFormula['Barrett-true-K']?.sf ?? 1.6,
+      powerRange: { min: 5.0, max: 30.0, step: 0.5 },
+      status: 'active',
+    }));
+    return HttpResponse.json({ success: true, data: lenses, meta: { total: lenses.length, source: 'ULIB 2024' } });
+  }),
+];
+
 // 汇总所有端点
 export const eyeHandlers = [
   ...eyeRisModule,
@@ -2995,4 +3057,5 @@ export const eyeHandlers = [
   ...eyeOptometryClosedLoopModule, // [v3.0.6.8-44] PR 11
   ...eyeMaterialsModule, // [G005-P1] 眼料在用孤儿 (IOL 库存 + 接触镜 CRUD + OK 镜设计)
   ...eyeW3RisModule, // [W3-2] 视力/眼压记录 (VisionExamPage / IntraocularPressurePage)
+  ...eyeW3aAlignedModule, // [G005 W3-A] 后端真实路径对齐
 ];

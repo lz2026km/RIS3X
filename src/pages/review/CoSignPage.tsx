@@ -271,6 +271,7 @@ const CoSignPage: React.FC = () => {
           loading={loading}
           pagination={{ current: itemPage, pageSize: 10, total: items.length, onChange: setItemPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
           size="small"
+        scroll={{ x: 'max-content' }}
         />
       </Card>
       <Modal

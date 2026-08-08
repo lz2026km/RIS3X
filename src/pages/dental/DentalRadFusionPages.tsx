@@ -149,7 +149,7 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <Send size={20} color="#1677ff" />
+        <Send size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>跨科室转诊</span>
         <Tag color="cyan">v3.0.6.11-75 W3-2</Tag>
         <Tag color="purple">口腔↔放射</Tag>
@@ -160,7 +160,7 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
         <Col span={6}><Card><Statistic title="转诊总数" value={referrals.length} /></Card></Col>
         <Col span={6}><Card><Statistic title="待转诊" value={referrals.filter(r => r.status === 'pending').length} styles={{ content: { color: '#faad14' } }} /></Card></Col>
         <Col span={6}><Card><Statistic title="已接诊" value={referrals.filter(r => r.status === 'accepted').length} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-        <Col span={6}><Card><Statistic title="已完成" value={referrals.filter(r => r.status === 'completed').length} styles={{ content: { color: '#1677ff' } }} /></Card></Col>
+        <Col span={6}><Card><Statistic title="已完成" value={referrals.filter(r => r.status === 'completed').length} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
       </Row>
       <Card extra={<Button type="primary" icon={<Plus size={12} />} onClick={() => setCreateModal(true)}>发起转诊</Button>} size="small" title="转诊列表">
         <Spin spinning={loading}>
@@ -170,6 +170,7 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
             columns={columns}
             pagination={{ pageSize: 8, showSizeChanger: false }}
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无转诊记录" /> }}
+          scroll={{ x: 'max-content' }}
           />
         </Spin>
       </Card>
@@ -228,7 +229,7 @@ export const CBCTUnifiedReportPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <FileText size={20} color="#1677ff" />
+        <FileText size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>统一 CBCT 报告</span>
         <Tag color="cyan">v3.0.6.11-75 W3-2</Tag>
       </Space>
@@ -244,7 +245,7 @@ export const CBCTUnifiedReportPage: React.FC = () => {
                   onClick={() => setSelected(r)}
                   style={{
                     padding: '8px 10px', marginBottom: 6, borderRadius: 6, cursor: 'pointer',
-                    border: selected?.id === r.id ? '1.5px solid #1677ff' : '1px solid #e2e8f0',
+                    border: selected?.id === r.id ? '1.5px solid #2563eb' : '1px solid #e2e8f0',
                     background: selected?.id === r.id ? '#e6f4ff' : '#fff',
                   }}
                 >
@@ -341,7 +342,7 @@ export const DentalRadFusionPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <ActivityIcon size={20} color="#1677ff" />
+        <ActivityIcon size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>口腔-放射融合查看器</span>
         <Tag color="cyan">v3.0.6.11-75 W3-2</Tag>
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => setTab('compare')}>刷新</Button>
@@ -360,7 +361,7 @@ export const DentalRadFusionPage: React.FC = () => {
                       onClick={() => setSelected(s)}
                       style={{
                         padding: '8px 10px', marginBottom: 6, borderRadius: 6, cursor: 'pointer',
-                        border: selected?.id === s.id ? '1.5px solid #1677ff' : '1px solid #e2e8f0',
+                        border: selected?.id === s.id ? '1.5px solid #2563eb' : '1px solid #e2e8f0',
                         background: selected?.id === s.id ? '#e6f4ff' : '#fff',
                       }}
                     >

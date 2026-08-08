@@ -177,7 +177,7 @@ export default function Patient360Page() {
           <div
             style={{
               width: 64, height: 64, borderRadius: '50%',
-              background: 'linear-gradient(135deg, #1e3a5f, #3b82f6)',
+              background: 'linear-gradient(135deg, #1e40af, #3b82f6)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 28, fontWeight: 700, color: '#fff', flexShrink: 0,
             }}
@@ -185,7 +185,7 @@ export default function Patient360Page() {
             {patient.name.slice(0, 1)}
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 20, fontWeight: 700, color: '#1e3a5f' }}>
+            <div style={{ fontSize: 20, fontWeight: 700, color: '#1e40af' }}>
               {patient.name}
               {patient.patientType && <Tag color="blue" style={{ marginLeft: 12, fontSize: 12 }}>{patient.patientType}</Tag>}
             </div>
@@ -217,7 +217,7 @@ export default function Patient360Page() {
             <div key={item.label} style={{ background: item.bg, borderRadius: 10, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
               <item.icon size={22} style={{ color: item.color }} />
               <div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: '#1e3a5f' }}>{item.value}</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: '#1e40af' }}>{item.value}</div>
                 <div style={{ fontSize: 12, color: '#64748b' }}>{item.label}</div>
               </div>
             </div>
@@ -237,7 +237,7 @@ export default function Patient360Page() {
                 children: (
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontWeight: 600, color: '#1e3a5f' }}>{evt.title}</span>
+                      <span style={{ fontWeight: 600, color: '#1e40af' }}>{evt.title}</span>
                       {evt.isCritical && <Tag color="red" style={{ fontSize: 11, lineHeight: '18px' }}>危急值</Tag>}
                     </div>
                     <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{evt.description}</div>
@@ -265,7 +265,7 @@ export default function Patient360Page() {
                 key: String(idx),
                 label: (
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                    <span style={{ fontWeight: 600, color: ex.criticalFinding ? '#dc2626' : '#1e3a5f' }}>
+                    <span style={{ fontWeight: 600, color: ex.criticalFinding ? '#dc2626' : '#1e40af' }}>
                       {ex.examItemName}
                       {ex.criticalFinding && <AlertTriangle size={12} style={{ marginLeft: 6, color: '#dc2626' }} />}
                     </span>
@@ -332,6 +332,7 @@ export default function Patient360Page() {
             rowKey="id"
             pagination={false}
             size="small"
+          scroll={{ x: 'max-content' }}
           />
         )}
       </Card>

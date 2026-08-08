@@ -40,22 +40,26 @@ describe('EyeService', () => {
   beforeEach(() => jest.clearAllMocks())
 
   describe('listStudies', () => {
-    it('returns studies', async () => {
+    it('returns normalized studies', async () => {
       mockPrisma.eyeStudy.findMany.mockResolvedValue([mockStudy])
       const result = await svc.listStudies()
-      expect(result).toHaveLength(1)
+      // [G005 W3-A] 归一化: { success, data: DTO[] }
+      expect(result.success).toBe(true)
+      expect(result.data).toHaveLength(1)
+      expect(result.data[0]).toMatchObject({ id: 'es1', patientId: 'p1', modality: 'OCT' })
     })
   })
 
   describe('getStudy', () => {
     it('returns study when found', async () => {
-      mockPrisma.eyeStudy.findUnique.mockResolvedValue(mockStudy)
+      mockPrisma.eyeStudy.findMany.mockResolvedValue([mockStudy])
       const result = await svc.getStudy('es1')
-      expect(result.id).toBe('es1')
+      expect(result.success).toBe(true)
+      expect(result.data.id).toBe('es1')
     })
 
     it('throws on missing', async () => {
-      mockPrisma.eyeStudy.findUnique.mockResolvedValue(null)
+      mockPrisma.eyeStudy.findMany.mockResolvedValue([])
       await expect(svc.getStudy('x')).rejects.toThrow(NotFoundException)
     })
   })
@@ -92,10 +96,12 @@ describe('EyeService', () => {
   })
 
   describe('listReports / generateReport', () => {
-    it('listReports returns completed studies', async () => {
-      mockPrisma.eyeStudy.findMany.mockResolvedValue([mockStudy])
+    it('listReports returns report-shaped data', async () => {
+      // [G005 W3-A] /eye/reports 归一化为报告形状 (seed 报告库)
       const result = await svc.listReports()
-      expect(result).toHaveLength(1)
+      expect(result.success).toBe(true)
+      expect(result.data.length).toBeGreaterThan(0)
+      expect(result.data[0]).toHaveProperty('reportType')
     })
 
     it('generateReport returns message', () => {

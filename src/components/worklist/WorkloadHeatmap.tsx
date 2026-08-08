@@ -29,7 +29,7 @@ export const WorkloadHeatmap: React.FC<WorkloadHeatmapProps> = ({ sites, cells }
 
   return (
     <div style={{ background: '#fff', padding: 16, borderRadius: 10, border: '1px solid #e2e8f0', overflowX: 'auto' }}>
-      <div style={{ fontWeight: 700, color: '#1e3a5f', fontSize: 14, marginBottom: 12 }}>24h × 院区 工作负载热力图</div>
+      <div style={{ fontWeight: 700, color: '#1e40af', fontSize: 14, marginBottom: 12 }}>24h × 院区 工作负载热力图</div>
       <table style={{ borderCollapse: 'collapse', fontSize: 12 }}>
         <thead>
           <tr>
@@ -42,7 +42,7 @@ export const WorkloadHeatmap: React.FC<WorkloadHeatmapProps> = ({ sites, cells }
         <tbody>
           {sites.map((site) => (
             <tr key={site.siteId}>
-              <td style={{ padding: 4, color: '#1e3a5f', fontWeight: 600 }}>
+              <td style={{ padding: 4, color: '#1e40af', fontWeight: 600 }}>
                 <div>{site.siteName}</div>
                 <div style={{ fontSize: 12, color: '#64748b' }}>利用率 {site.utilizationPct}%</div>
               </td>

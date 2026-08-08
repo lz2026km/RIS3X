@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import { Info } from "lucide-react";
 import { pediatricProtocols } from "./mockData";
 import type { PediatricProtocol } from "./types";
 
@@ -31,6 +32,20 @@ export default function PediatricProtocolOptimization() {
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div
         style={{
+          padding: "8px 12px",
+          background: "#fef3c7",
+          color: "#d97706",
+          borderRadius: 8,
+          fontSize: 12,
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+        }}
+      >
+        <Info size={14} /> 演示数据：儿科协议优化建议基于 AAPM 指南模板，rdsrApi 无儿科专项端点，参数为本地模拟
+      </div>
+      <div
+        style={{
           background: "#fff",
           borderRadius: 12,
           padding: 20,
@@ -41,7 +56,7 @@ export default function PediatricProtocolOptimization() {
           style={{
             fontSize: 13,
             fontWeight: 700,
-            color: "#1e3a5f",
+            color: "#1e40af",
             marginBottom: 16,
           }}
         >
@@ -106,7 +121,7 @@ export default function PediatricProtocolOptimization() {
                     padding: "10px 12px",
                     fontSize: 12,
                     fontWeight: 600,
-                    color: "#1e3a5f",
+                    color: "#1e40af",
                     textAlign: "center",
                   }}
                 >
@@ -196,7 +211,7 @@ export default function PediatricProtocolOptimization() {
           style={{
             fontSize: 13,
             fontWeight: 700,
-            color: "#1e3a5f",
+            color: "#1e40af",
             marginBottom: 16,
           }}
         >

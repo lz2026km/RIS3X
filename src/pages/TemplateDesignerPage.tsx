@@ -519,12 +519,12 @@ export default function TemplateDesignerPage() {
         display: "flex",
         flexDirection: "column",
         height: "calc(100vh - 100px)",
-        background: "#f1f5f9",
+        background: "var(--content-bg)",
       }}
     >
       <div
         style={{
-          background: "#fff",
+          background: "var(--bg-card)",
           borderBottom: "1px solid #e2e8f0",
           padding: "10px 16px",
           display: "flex",
@@ -551,7 +551,7 @@ export default function TemplateDesignerPage() {
               style={{
                 fontSize: 14,
                 fontWeight: 700,
-                color: "#1e293b",
+                color: "var(--text-primary)",
                 display: "flex",
                 alignItems: "center",
                 gap: 6,
@@ -641,7 +641,7 @@ export default function TemplateDesignerPage() {
               padding: "4px 10px",
               border: "1px solid #cbd5e1",
               borderRadius: 6,
-              background: "#fff",
+              background: "var(--bg-card)",
               color: "#475569",
               fontSize: 12,
               cursor: "pointer",
@@ -658,7 +658,7 @@ export default function TemplateDesignerPage() {
               padding: 4,
               border: "1px solid #cbd5e1",
               borderRadius: 6,
-              background: "#fff",
+              background: "var(--bg-card)",
               color: "#64748b",
               cursor: "pointer",
             }}
@@ -724,7 +724,7 @@ export default function TemplateDesignerPage() {
       {!previewMode && !isFullscreen && (
         <div
           style={{
-            background: "#fff",
+            background: "var(--bg-card)",
             borderBottom: "1px solid #e2e8f0",
             padding: "8px 16px",
             display: "flex",
@@ -830,7 +830,7 @@ export default function TemplateDesignerPage() {
           <div
             style={{
               width: 240,
-              background: "#fff",
+              background: "var(--bg-card)",
               borderRight: "1px solid #e2e8f0",
               display: "flex",
               flexDirection: "column",
@@ -880,7 +880,7 @@ export default function TemplateDesignerPage() {
                           style={{
                             padding: 6,
                             marginBottom: 3,
-                            background: "#f8fafc",
+                            background: "var(--content-bg)",
                             borderRadius: 4,
                             border: `1px solid ${meta.color}30`,
                             cursor: "grab",
@@ -919,7 +919,7 @@ export default function TemplateDesignerPage() {
                               style={{
                                 fontSize: 12,
                                 fontWeight: 600,
-                                color: "#1e293b",
+                                color: "var(--text-primary)",
                               }}
                             >
                               {meta.label}
@@ -960,7 +960,7 @@ export default function TemplateDesignerPage() {
             flex: 1,
             display: "flex",
             flexDirection: "column",
-            background: "#f1f5f9",
+            background: "var(--content-bg)",
             overflow: "auto",
             padding: 12,
           }}
@@ -976,7 +976,7 @@ export default function TemplateDesignerPage() {
                   onDrop={(e) => handleDrop(e, section.id)}
                   onClick={() => setSelectedSectionId(section.id)}
                   style={{
-                    background: "#fff",
+                    background: "var(--bg-card)",
                     border: `2px ${selectedSectionId === section.id ? "solid" : "dashed"} ${selectedSectionId === section.id ? section.color : "#cbd5e1"}`,
                     borderRadius: 8,
                     marginBottom: 10,
@@ -1020,7 +1020,7 @@ export default function TemplateDesignerPage() {
                           padding: "2px 6px",
                           border: "1px solid #dc2626",
                           borderRadius: 3,
-                          background: "#fff",
+                          background: "var(--bg-card)",
                           color: "#dc2626",
                           fontSize: 12,
                           cursor: "pointer",
@@ -1038,7 +1038,7 @@ export default function TemplateDesignerPage() {
                           textAlign: "center",
                           color: "#94a3b8",
                           fontSize: 12,
-                          background: "#f8fafc",
+                          background: "var(--content-bg)",
                           borderRadius: 4,
                           border: "1px dashed #cbd5e1",
                         }}
@@ -1118,7 +1118,7 @@ export default function TemplateDesignerPage() {
                                   style={{
                                     fontSize: 12,
                                     fontWeight: 600,
-                                    color: "#1e293b",
+                                    color: "var(--text-primary)",
                                   }}
                                 >
                                   {field.fieldLabel}
@@ -1208,7 +1208,7 @@ export default function TemplateDesignerPage() {
                   width: "100%",
                   padding: 10,
                   marginTop: 4,
-                  background: "#fff",
+                  background: "var(--bg-card)",
                   border: "2px dashed #cbd5e1",
                   borderRadius: 8,
                   color: "#64748b",
@@ -1230,7 +1230,7 @@ export default function TemplateDesignerPage() {
           <div
             style={{
               width: 340,
-              background: "#fff",
+              background: "var(--bg-card)",
               borderLeft: "1px solid #e2e8f0",
               display: "flex",
               flexDirection: "column",
@@ -1243,7 +1243,7 @@ export default function TemplateDesignerPage() {
                 gap: 2,
                 padding: "6px 8px",
                 borderBottom: "1px solid #e2e8f0",
-                background: "#f8fafc",
+                background: "var(--content-bg)",
               }}
             >
               {[
@@ -1387,7 +1387,7 @@ export default function TemplateDesignerPage() {
                         color: "#94a3b8",
                         padding: 20,
                         fontSize: 12,
-                        background: "#f8fafc",
+                        background: "var(--content-bg)",
                         borderRadius: 8,
                       }}
                     >
@@ -1704,8 +1704,8 @@ export default function TemplateDesignerPage() {
                         border: "1px solid #e2e8f0",
                         borderRadius: 4,
                         fontSize: 12,
-                        color: "#1e293b",
-                        background: "#fff",
+                        color: "var(--text-primary)",
+                        background: "var(--bg-card)",
                       }}
                     >
                       {IHE_RR_TEMPLATES.map((t) => (
@@ -1724,7 +1724,7 @@ export default function TemplateDesignerPage() {
                       }}
                     >
                       <thead>
-                        <tr style={{ background: "#f8fafc" }}>
+                        <tr style={{ background: "var(--content-bg)" }}>
                           <th
                             style={{
                               padding: "6px 8px",
@@ -1783,7 +1783,7 @@ export default function TemplateDesignerPage() {
                             >
                               <td style={{ padding: "6px 8px" }}>
                                 <span
-                                  style={{ fontWeight: 600, color: "#1e293b" }}
+                                  style={{ fontWeight: 600, color: "var(--text-primary)" }}
                                 >
                                   {f.fieldLabel}
                                 </span>
@@ -1912,7 +1912,7 @@ export default function TemplateDesignerPage() {
               style={{
                 padding: 10,
                 borderTop: "1px solid #e2e8f0",
-                background: "#f8fafc",
+                background: "var(--content-bg)",
                 display: "flex",
                 flexDirection: "column",
                 gap: 6,
@@ -1976,7 +1976,7 @@ export default function TemplateDesignerPage() {
                   padding: "6px 12px",
                   border: "1px solid #dc2626",
                   borderRadius: 4,
-                  background: "#fff",
+                  background: "var(--bg-card)",
                   color: "#dc2626",
                   fontSize: 12,
                   fontWeight: 600,
@@ -2320,7 +2320,7 @@ const PreviewCanvas: React.FC<{
 }> = ({ meta, sections }) => (
   <div
     style={{
-      background: "#fff",
+      background: "var(--bg-card)",
       borderRadius: 8,
       padding: 20,
       maxWidth: 800,
@@ -2365,12 +2365,12 @@ const PreviewCanvas: React.FC<{
             style={{
               padding: 8,
               marginBottom: 4,
-              background: "#f8fafc",
+              background: "var(--content-bg)",
               borderRadius: 4,
               fontSize: 12,
             }}
           >
-            <span style={{ color: "#1e293b", fontWeight: 600 }}>
+            <span style={{ color: "var(--text-primary)", fontWeight: 600 }}>
               {field.required && <span style={{ color: "#dc2626" }}>*</span>}
               {field.fieldLabel}
               {field.unit && (

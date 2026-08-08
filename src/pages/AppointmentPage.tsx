@@ -2257,7 +2257,7 @@ export default function AppointmentPage() {
                             setShowRules(true);
                             setShowForm(false);
                           },
-                          color: "#1e3a5f",
+                          color: "#1e40af",
                           bg: "#e8f0f8",
                         },
                         {

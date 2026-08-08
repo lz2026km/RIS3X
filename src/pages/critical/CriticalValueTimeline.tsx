@@ -41,7 +41,7 @@ export const ClosedLoopTracker = ({ cv }: { cv: CriticalValue }) => {
 
   return (
     <div style={{ background: '#fff', borderRadius: 12, padding: 16, border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', marginBottom: 16 }}>
-      <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f', marginBottom: 16 }}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 16 }}>
         闭环状态追踪
       </div>
       <div style={{ display: 'flex', alignItems: 'stretch', gap: 0, marginBottom: 16 }}>
@@ -86,7 +86,7 @@ export const ClosedLoopTracker = ({ cv }: { cv: CriticalValue }) => {
       <div style={{ background: '#f8fafc', borderRadius: 8, padding: 12, border: '1px solid #e2e8f0' }}>
         <div style={{ display: 'flex', gap: 16 }}>
           {[
-            { label: '总耗时', value: cv.processingDuration || '进行中', color: '#1e3a5f' },
+            { label: '总耗时', value: cv.processingDuration || '进行中', color: '#1e40af' },
             { label: '确认耗时', value: cv.acknowledgedTime && cv.reportedTime
               ? (() => { const t1 = new Date(cv.reportedTime).getTime(); const t2 = new Date(cv.acknowledgedTime).getTime(); const mins = Math.round((t2 - t1) / 60000); return mins < 60 ? `${mins}分钟` : `${Math.floor(mins / 60)}小时${mins % 60}分钟` })()
               : '待确认', color: '#2563eb' },
@@ -129,7 +129,7 @@ export const ClosedLoopTracker5Nodes = ({ cv }: { cv: CriticalValue }) => {
 
   return (
     <div style={{ background: '#fff', borderRadius: 12, padding: 16, border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', marginBottom: 16 }}>
-      <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f', marginBottom: 16 }}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 16 }}>
         5节点闭环追踪
       </div>
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 0, marginBottom: 16 }}>

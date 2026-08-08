@@ -112,7 +112,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <BarChart3 size={20} color="#1677ff" />
+        <BarChart3 size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>Radiomics 特征提取</span>
         <Tag color="blue">影像组学</Tag>
       </Space>
@@ -181,7 +181,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
         }}>导出 CSV</Button>}>
           {Object.entries(groupedFeatures).map(([category, feats]) => (
             <div key={category} style={{ marginBottom: 16 }}>
-              <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 13, color: '#1677ff' }}>{category}</div>
+              <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 13, color: '#2563eb' }}>{category}</div>
               <Table dataSource={feats} columns={featureColumns} rowKey="name" pagination={false} size="small" />
             </div>
           ))}

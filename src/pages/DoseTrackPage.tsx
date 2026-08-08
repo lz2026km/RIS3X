@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   Activity,
   AlertTriangle,
@@ -22,7 +22,8 @@ import {
   DoseTrendChart,
   DoseAlertConfig,
 } from "./dose";
-import type { PatientDoseRecord, DoseAlert } from "./dose";
+import type { PatientDoseRecord, DoseAlert, CumulativeStats } from "./dose";
+import { rdsrApi, type TodayDoseStats, type PatientDoseSummary, type DoseAlert as RdsrDoseAlert } from "../services/api/rdsrApi";
 import AAPMEUReferenceComparison from "./dose/AAPMEUReferenceComparison";
 import DoseTrendAnalysis from "./dose/DoseTrendAnalysis";
 import BreastDoseTracking from "./dose/BreastDoseTracking";
@@ -38,7 +39,7 @@ import DeviceDoseCard from "./dose/DeviceDoseCard";
 import DeviceHistoryModal from "./dose/DeviceHistoryModal";
 import {
   doseAlerts,
-  cumulativeStats,
+  cumulativeStats as mockCumulativeStats,
   patientDoseRecords,
   doseHistoryData,
   ctdivolTrendData,
@@ -77,8 +78,85 @@ export default function DoseTrackPage() {
     null,
   );
   const [alerts, setAlerts] = useState<DoseAlert[]>(doseAlerts);
+  // [W3-C] 复核 -75: 主数据源接入 rdsrApi (getToday/searchPatients/getAlerts), 失败回退演示数据
+  const [today, setToday] = useState<TodayDoseStats | null>(null);
+  const [apiPatients, setApiPatients] = useState<PatientDoseSummary[]>([]);
+  const [dataSource, setDataSource] = useState<'api' | 'demo'>('demo');
+  const [dataError, setDataError] = useState<string | null>(null);
 
-  const filteredPatientRecords = patientDoseRecords.filter((record) => {
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const [todayRes, patientsRes, alertsRes] = await Promise.all([
+          rdsrApi.getToday(),
+          rdsrApi.searchPatients(),
+          rdsrApi.getAlerts(),
+        ]);
+        if (cancelled) return;
+        if (todayRes.success && todayRes.data) {
+          setToday(todayRes.data);
+          setDataSource('api');
+          setDataError(null);
+        }
+        if (patientsRes.success && Array.isArray(patientsRes.data)) setApiPatients(patientsRes.data);
+        if (alertsRes.success && Array.isArray(alertsRes.data)) {
+          setAlerts((alertsRes.data as RdsrDoseAlert[]).map((a) => ({
+            id: a.id,
+            patientName: a.patientName ?? '未知患者',
+            modality: a.modality,
+            examItem: a.bodyPart,
+            doseValue: a.dlp,
+            threshold: a.dlpDrl,
+            alertLevel: a.level,
+            device: a.modality,
+            time: a.date,
+            status: a.acknowledged ? 'acknowledged' : 'pending',
+          })));
+        }
+      } catch (e) {
+        if (!cancelled) setDataError(e instanceof Error ? e.message : '剂量接口不可用');
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const stats: CumulativeStats = today
+    ? {
+        ...mockCumulativeStats,
+        totalPatientsToday: today.totalExams,
+        highDosePatients: today.warningCount + today.criticalCount,
+        totalDLPToday: Math.round(today.avgDlp * today.totalExams),
+        doseAlertsToday: today.warningCount + today.criticalCount,
+        totalExamCount: today.totalExams,
+        criticalAlerts: today.criticalCount,
+        warningAlerts: today.warningCount,
+        averageCTDIvol: today.avgCtdiVol,
+      }
+    : mockCumulativeStats;
+
+  const apiPatientRecords: PatientDoseRecord[] = apiPatients.map((p) => ({
+    id: p.patientId,
+    patientId: p.patientId,
+    patientName: p.patientName,
+    gender: '-',
+    age: 0,
+    modality: 'CT',
+    examItem: '累计剂量',
+    examDate: p.lastExamDate,
+    doseType: 'DLP',
+    doseValue: p.totalDlp1y,
+    doseUnit: 'mGy·cm',
+    alertLevel: p.overDrlCount > 0 ? 'warning' : 'normal',
+    threshold: 0,
+    device: '-',
+    examCount: p.examCount,
+    cumulativeDLP: p.totalDlp1y,
+  }));
+
+  const effectivePatientRecords = apiPatientRecords.length > 0 ? apiPatientRecords : patientDoseRecords;
+
+  const filteredPatientRecords = effectivePatientRecords.filter((record) => {
     const matchesModality =
       modalityFilter === "全部" || record.modality === modalityFilter;
     const matchesSearch =
@@ -115,9 +193,19 @@ export default function DoseTrackPage() {
         onExportDevice={handleExportDeviceCSV}
       />
 
-      <PrimaryStats />
+      <PrimaryStats stats={stats} />
 
-      <SecondaryStats pendingAlerts={alerts.filter((a) => a.status === "pending").length} />
+      <SecondaryStats pendingAlerts={alerts.filter((a) => a.status === "pending").length} stats={stats} />
+
+      {dataSource === 'api' ? (
+        <div style={{ marginBottom: 12, padding: '8px 12px', background: '#dcfce7', color: '#16a34a', borderRadius: 8, fontSize: 12 }}>
+          数据源: /rdsr/today + /rdsr/patients + /rdsr/alerts（真实接口）· 日期 {today?.date ?? '-'}
+        </div>
+      ) : (
+        <div style={{ marginBottom: 12, padding: '8px 12px', background: '#fef3c7', color: '#d97706', borderRadius: 8, fontSize: 12 }}>
+          {dataError ? `剂量接口不可用: ${dataError}; ` : ''}演示数据（rdsrApi 未返回, 已回退 mockData）
+        </div>
+      )}
 
       <DoseSearchPanel
         view={view}
@@ -172,7 +260,7 @@ export default function DoseTrackPage() {
       {view === "alert" && (
         <DoseAlertConfig
           doseAlerts={doseAlerts}
-          cumulativeStats={cumulativeStats}
+          cumulativeStats={stats}
           filteredAlerts={filteredAlerts}
           onAcknowledgeAlert={(alertId) => {
             setAlerts((prev) =>
@@ -184,7 +272,7 @@ export default function DoseTrackPage() {
           onViewPatient={(patientName) => {
             setView("patient");
             setSelectedPatient(
-              patientDoseRecords.find(
+              effectivePatientRecords.find(
                 (r) => r.patientName === patientName,
               ) || null,
             );
@@ -235,7 +323,7 @@ function PageHeader({
           style={{
             fontSize: 18,
             fontWeight: 700,
-            color: "#1e3a5f",
+            color: "#1e40af",
             margin: "0 0 4px",
           }}
         >
@@ -257,7 +345,7 @@ function PageHeader({
   );
 }
 
-function PrimaryStats() {
+function PrimaryStats({ stats }: { stats: CumulativeStats }) {
   return (
     <div
       style={{
@@ -269,7 +357,7 @@ function PrimaryStats() {
     >
       <PrimaryStat
         label={t("doseTrack.stats.patientsToday")}
-        value={cumulativeStats.totalPatientsToday}
+        value={stats.totalPatientsToday}
         delta="+5.2%"
         deltaColor="#16a34a"
         icon={<Activity size={18} />}
@@ -278,7 +366,7 @@ function PrimaryStats() {
       />
       <PrimaryStat
         label={t("doseTrack.stats.highDose")}
-        value={cumulativeStats.highDosePatients}
+        value={stats.highDosePatients}
         delta="+2人"
         deltaColor="#dc2626"
         icon={<AlertTriangle size={18} />}
@@ -287,7 +375,7 @@ function PrimaryStats() {
       />
       <PrimaryStat
         label={t("doseTrack.stats.totalDLP")}
-        value={cumulativeStats.totalDLPToday}
+        value={stats.totalDLPToday}
         suffix=" mGy·cm"
         delta="-3.1%"
         deltaColor="#dc2626"
@@ -298,8 +386,8 @@ function PrimaryStats() {
       />
       <PrimaryStat
         label={t("doseTrack.stats.doseAlerts")}
-        value={cumulativeStats.doseAlertsToday}
-        delta={`${cumulativeStats.criticalAlerts}危 / ${cumulativeStats.warningAlerts}警`}
+        value={stats.doseAlertsToday}
+        delta={`${stats.criticalAlerts}危 / ${stats.warningAlerts}警`}
         deltaColor="#64748b"
         icon={<ShieldAlert size={18} />}
         iconBg="#fffbeb"
@@ -307,8 +395,8 @@ function PrimaryStats() {
       />
       <PrimaryStat
         label={t("doseTrack.stats.devicesOnline")}
-        value={cumulativeStats.deviceOnlineCount}
-        delta={`平均CTDI: ${cumulativeStats.averageCTDIvol} mGy`}
+        value={stats.deviceOnlineCount}
+        delta={`平均CTDI: ${stats.averageCTDIvol} mGy`}
         deltaColor="#64748b"
         icon={<Monitor size={18} />}
         iconBg="#ecfdf5"
@@ -357,7 +445,7 @@ function PrimaryStat({
           style={{
             fontSize: 22,
             fontWeight: 800,
-            color: "#1e3a5f",
+            color: "#1e40af",
             lineHeight: 1.2,
             marginTop: 4,
           }}
@@ -401,7 +489,7 @@ function PrimaryStat({
   );
 }
 
-function SecondaryStats({ pendingAlerts }: { pendingAlerts: number }) {
+function SecondaryStats({ pendingAlerts, stats }: { pendingAlerts: number; stats: CumulativeStats }) {
   return (
     <div
       style={{
@@ -413,21 +501,21 @@ function SecondaryStats({ pendingAlerts }: { pendingAlerts: number }) {
     >
       <MiniStat
         label={t("doseTrack.stats.doseReduction")}
-        value={`${cumulativeStats.doseReductionRate}%`}
+        value={`${stats.doseReductionRate}%`}
         icon={<Award size={16} />}
         iconBg="#ecfdf5"
         iconColor="#059669"
       />
       <MiniStat
         label={t("doseTrack.stats.examCount")}
-        value={cumulativeStats.totalExamCount}
+        value={stats.totalExamCount}
         icon={<Zap size={16} />}
         iconBg="#eff6ff"
         iconColor="#3b82f6"
       />
       <MiniStat
         label={t("doseTrack.stats.avgCTDIvol")}
-        value={`${cumulativeStats.averageCTDIvol} mGy`}
+        value={`${stats.averageCTDIvol} mGy`}
         icon={<Clock size={16} />}
         iconBg="#f5f3ff"
         iconColor="#8b5cf6"

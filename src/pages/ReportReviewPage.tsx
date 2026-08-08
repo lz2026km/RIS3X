@@ -210,7 +210,7 @@ export default function ReportReviewPage() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 100px)', background: '#f1f5f9' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 100px)', background: 'var(--content-bg)' }}>
       {/* 顶部 KPI */}
       <div style={{
         background: 'linear-gradient(135deg, #1e40af 0%, #7c3aed 100%)',
@@ -249,7 +249,7 @@ export default function ReportReviewPage() {
 
       {/* 阶段 Tab */}
       <div style={{
-        background: '#fff', borderBottom: '1px solid #e2e8f0',
+        background: 'var(--bg-card)', borderBottom: '1px solid #e2e8f0',
         padding: '0 20px', display: 'flex', alignItems: 'center', flexShrink: 0,
       }}>
         {[
@@ -309,7 +309,7 @@ export default function ReportReviewPage() {
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
         {/* 左：任务列表 */}
         <div style={{
-          width: 460, background: '#fff', borderRight: '1px solid #e2e8f0',
+          width: 460, background: 'var(--bg-card)', borderRight: '1px solid #e2e8f0',
           overflowY: 'auto', flexShrink: 0,
         }}>
           <div style={{
@@ -365,7 +365,7 @@ export default function ReportReviewPage() {
                   </span>
                 </div>
 
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b', marginBottom: 2 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>
                   {task.patientName} · {task.modality} {task.bodyPart}
                 </div>
                 <div style={{ fontSize: 12, color: '#64748b', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -474,12 +474,12 @@ const ReviewTaskDetail: React.FC<{
     <div>
       {/* 头部 */}
       <div style={{
-        background: '#fff', borderRadius: 8, padding: 16, marginBottom: 12,
+        background: 'var(--bg-card)', borderRadius: 8, padding: 16, marginBottom: 12,
         border: '1px solid #e2e8f0',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
               {task.patientName}
               <span style={{ fontSize: 13, color: '#64748b', fontWeight: 400 }}>· {task.modality} {task.bodyPart}</span>
             </div>
@@ -498,7 +498,7 @@ const ReviewTaskDetail: React.FC<{
               background: statusConf.bg, color: statusConf.color, border: `1px solid ${statusConf.border}`,
               fontSize: 12, fontWeight: 600,
             }}>{statusConf.label}</span>
-            <span style={{ fontSize: 12, color: deadline.color, fontWeight: 700, padding: '3px 10px', background: '#f8fafc', borderRadius: 4 }}>
+            <span style={{ fontSize: 12, color: deadline.color, fontWeight: 700, padding: '3px 10px', background: 'var(--content-bg)', borderRadius: 4 }}>
               ⏱ {deadline.label}
             </span>
           </div>
@@ -513,7 +513,7 @@ const ReviewTaskDetail: React.FC<{
         </div>
 
         {/* 阶段进度 */}
-        <div style={{ marginTop: 12, padding: 10, background: '#f8fafc', borderRadius: 6 }}>
+        <div style={{ marginTop: 12, padding: 10, background: 'var(--content-bg)', borderRadius: 6 }}>
           <div style={{ fontSize: 12, color: '#475569', fontWeight: 600, marginBottom: 6 }}>三阶段审核流程</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             {['initial', 'final', 'sign'].map((s, i) => {
@@ -524,7 +524,7 @@ const ReviewTaskDetail: React.FC<{
               return (
                 <React.Fragment key={s}>
                   <div style={{
-                    flex: 1, padding: 8, background: '#fff', border: `1px solid ${isCurrent ? sConf.color : '#e2e8f0'}`,
+                    flex: 1, padding: 8, background: 'var(--bg-card)', border: `1px solid ${isCurrent ? sConf.color : '#e2e8f0'}`,
                     borderRadius: 4, textAlign: 'center',
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, fontSize: 12, color: isPast ? '#10b981' : isCurrent ? sConf.color : '#94a3b8' }}>
@@ -547,7 +547,7 @@ const ReviewTaskDetail: React.FC<{
 
       {/* 报告内容（只读） */}
       <div style={{
-        background: '#fff', borderRadius: 8, padding: 16, marginBottom: 12,
+        background: 'var(--bg-card)', borderRadius: 8, padding: 16, marginBottom: 12,
         border: '1px solid #e2e8f0',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -557,29 +557,29 @@ const ReviewTaskDetail: React.FC<{
           <button
             style={{
               padding: '4px 8px', border: '1px solid #cbd5e1', borderRadius: 4,
-              background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer',
+              background: 'var(--bg-card)', color: '#475569', fontSize: 12, cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: 4,
             }}
           >
             <Eye size={11} /> 全屏预览
           </button>
         </div>
-        <div style={{ fontSize: 12, lineHeight: 1.8, color: '#1e293b' }}>
+        <div style={{ fontSize: 12, lineHeight: 1.8, color: 'var(--text-primary)' }}>
           <div style={{ marginBottom: 8 }}>
             <strong style={{ color: '#1e40af' }}>【检查所见】</strong>
-            <div style={{ marginTop: 4, padding: 8, background: '#f8fafc', borderRadius: 4 }}>
+            <div style={{ marginTop: 4, padding: 8, background: 'var(--content-bg)', borderRadius: 4 }}>
               {findingsText}
             </div>
           </div>
           <div style={{ marginBottom: 8 }}>
             <strong style={{ color: '#1e40af' }}>【诊断意见】</strong>
-            <div style={{ marginTop: 4, padding: 8, background: '#f8fafc', borderRadius: 4 }}>
+            <div style={{ marginTop: 4, padding: 8, background: 'var(--content-bg)', borderRadius: 4 }}>
               {impressionText}
             </div>
           </div>
           <div>
             <strong style={{ color: '#1e40af' }}>【建议】</strong>
-            <div style={{ marginTop: 4, padding: 8, background: '#f8fafc', borderRadius: 4 }}>
+            <div style={{ marginTop: 4, padding: 8, background: 'var(--content-bg)', borderRadius: 4 }}>
               {(task as any).recommendationsText || '3 个月后复查。'}
             </div>
           </div>
@@ -589,7 +589,7 @@ const ReviewTaskDetail: React.FC<{
       {/* 初审/终审历史 */}
       {(task.initialAuditCompletedAt || task.finalAuditCompletedAt) && (
         <div style={{
-          background: '#fff', borderRadius: 8, padding: 16, marginBottom: 12,
+          background: 'var(--bg-card)', borderRadius: 8, padding: 16, marginBottom: 12,
           border: '1px solid #e2e8f0',
         }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -605,7 +605,7 @@ const ReviewTaskDetail: React.FC<{
                 {task.initialAuditTitle} {task.initialAuditDoctorName} · 评分 {task.initialAuditScore}/100
               </div>
               {task.initialAuditSuggestion && (
-                <div style={{ fontSize: 12, color: '#0c4a6e', padding: 6, background: '#fff', borderRadius: 4 }}>
+                <div style={{ fontSize: 12, color: '#0c4a6e', padding: 6, background: 'var(--bg-card)', borderRadius: 4 }}>
                   💬 {task.initialAuditSuggestion}
                 </div>
               )}
@@ -621,7 +621,7 @@ const ReviewTaskDetail: React.FC<{
                 {task.finalAuditTitle} {task.finalAuditDoctorName} · 评分 {task.finalAuditScore}/100
               </div>
               {task.finalAuditSuggestion && (
-                <div style={{ fontSize: 12, color: '#86198f', padding: 6, background: '#fff', borderRadius: 4 }}>
+                <div style={{ fontSize: 12, color: '#86198f', padding: 6, background: 'var(--bg-card)', borderRadius: 4 }}>
                   💬 {task.finalAuditSuggestion}
                 </div>
               )}
@@ -641,7 +641,7 @@ const ReviewTaskDetail: React.FC<{
       {/* 审核操作面板 */}
       {(task.status === 'pending' || task.status === 'in-progress' || task.status === 'overdue') && (
         <div style={{
-          background: '#fff', borderRadius: 8, padding: 16,
+          background: 'var(--bg-card)', borderRadius: 8, padding: 16,
           border: '1px solid #e2e8f0',
         }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>

@@ -1,8 +1,9 @@
-import { Baby, Info, User } from "lucide-react";
+import { Baby, Info, User, AlertTriangle } from "lucide-react";
 import { pediatricDoseRecords } from "./mockData";
 import { getAlertBadge } from "./utils";
 import type { PediatricDoseRecord } from "./types";
 
+// [W3-C] 儿科剂量: rdsrApi 无儿科专项端点, 标注「演示数据」
 export default function PediatricDoseManagement() {
   const totalPediatricExams = pediatricDoseRecords.length;
   const ageGroups = {
@@ -18,6 +19,20 @@ export default function PediatricDoseManagement() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div
+        style={{
+          padding: "8px 12px",
+          background: "#fef3c7",
+          color: "#d97706",
+          borderRadius: 8,
+          fontSize: 12,
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+        }}
+      >
+        <AlertTriangle size={14} /> 演示数据：rdsrApi 无儿童专项端点（患者记录未含年龄分组），儿童剂量记录为本地模拟
+      </div>
       <div
         style={{
           display: "grid",
@@ -78,7 +93,7 @@ function ReductionFactorCards() {
         style={{
           fontSize: 13,
           fontWeight: 700,
-          color: "#1e3a5f",
+          color: "#1e40af",
           marginBottom: 16,
         }}
       >
@@ -153,7 +168,7 @@ function RecordsTable({ records }: { records: PediatricDoseRecord[] }) {
         style={{
           fontSize: 13,
           fontWeight: 700,
-          color: "#1e3a5f",
+          color: "#1e40af",
           marginBottom: 16,
         }}
       >
@@ -300,7 +315,7 @@ const tdPrimary: React.CSSProperties = {
   padding: "10px 12px",
   fontSize: 12,
   fontWeight: 600,
-  color: "#1e3a5f",
+  color: "#1e40af",
   textAlign: "center",
 };
 const tdSecondary: React.CSSProperties = {
@@ -319,6 +334,6 @@ const tdBold: React.CSSProperties = {
   padding: "10px 12px",
   fontSize: 12,
   fontWeight: 700,
-  color: "#1e3a5f",
+  color: "#1e40af",
   textAlign: "center",
 };

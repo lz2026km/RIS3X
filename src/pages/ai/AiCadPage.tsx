@@ -37,7 +37,7 @@ interface AiDiagnosisAggregated {
 }
 
 const MODULE_META: { key: keyof AiDiagnosisAggregated; title: string; color: string }[] = [
-  { key: 'lungCad', title: '肺结节检测', color: '#1677ff' },
+  { key: 'lungCad', title: '肺结节检测', color: '#2563eb' },
   { key: 'breastCad', title: '乳腺 CAD', color: '#eb2f96' },
   { key: 'fractureCad', title: '骨折检测', color: '#faad14' },
   { key: 'cardiacAi', title: '心脏 AI', color: '#722ed1' },
@@ -45,7 +45,7 @@ const MODULE_META: { key: keyof AiDiagnosisAggregated; title: string; color: str
 
 // [W2-A] 各模型准确率查询: 复用 POST /ai-diagnosis/accuracy, 按 modality 过滤
 const MODEL_ACCURACY_QUERY: { key: string; title: string; modality: string; color: string }[] = [
-  { key: 'lung', title: '肺结节', modality: 'CT', color: '#1677ff' },
+  { key: 'lung', title: '肺结节', modality: 'CT', color: '#2563eb' },
   { key: 'breast', title: '乳腺', modality: 'MG', color: '#eb2f96' },
   { key: 'fracture', title: '骨折', modality: 'DR', color: '#faad14' },
   { key: 'cardiac', title: '心脏', modality: 'MR', color: '#722ed1' },
@@ -100,7 +100,7 @@ const AccuracyPanel: React.FC = () => {
   return (
     <div style={{ padding: 16 }}>
       <Space style={{ marginBottom: 12 }}>
-        <Gauge size={16} color="#1677ff" />
+        <Gauge size={16} color="#2563eb" />
         <span style={{ fontWeight: 600 }}>准确率分析 (POST /ai-diagnosis/accuracy + GET /ai-diagnosis/trend)</span>
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>
           刷新
@@ -117,9 +117,9 @@ const AccuracyPanel: React.FC = () => {
           <Col span={6}>
             <Card size="small">
               <Statistic
-                title={<Space><Target size={12} color="#1677ff" />总体准确率</Space>}
+                title={<Space><Target size={12} color="#2563eb" />总体准确率</Space>}
                 value={overall?.accuracy ?? '-'} suffix="%" precision={overall ? 1 : 0}
-                styles={{ content: { color: '#1677ff' } }}
+                styles={{ content: { color: '#2563eb' } }}
               />
               <div style={{ marginTop: 8, fontSize: 12, color: '#64748b' }}>
                 样本 {totalCases ? `${totalCases} 例` : '-'} · AI 阳性 {overall?.aiPositive ?? '-'}
@@ -178,7 +178,7 @@ const AccuracyPanel: React.FC = () => {
                 <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} domain={[50, 100]} />
                 <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} formatter={(v: number | string) => [`${v}%`]} />
                 <Legend iconSize={10} />
-                <Line type="monotone" dataKey="accuracy" name="准确率" stroke="#1677ff" strokeWidth={2} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="accuracy" name="准确率" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} />
                 <Line type="monotone" dataKey="sensitivity" name="灵敏度" stroke="#52c41a" strokeWidth={2} dot={{ r: 3 }} />
                 <Line type="monotone" dataKey="specificity" name="特异度" stroke="#faad14" strokeWidth={2} dot={{ r: 3 }} />
               </LineChart>
@@ -217,7 +217,7 @@ const AiCadPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <Cpu size={20} color="#1677ff" />
+        <Cpu size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>AI 辅助诊断中心</span>
         <Tag color="cyan">CAD 聚合</Tag>
         <Button
@@ -270,7 +270,7 @@ const AiCadPage: React.FC = () => {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={8}>
           <Card size="small" title="总体准确率">
-            <Progress percent={stats?.accuracy?.overall ?? 0} strokeColor="#1677ff" />
+            <Progress percent={stats?.accuracy?.overall ?? 0} strokeColor="#2563eb" />
           </Card>
         </Col>
         <Col span={8}>
@@ -375,7 +375,7 @@ const CadDetectPanel: React.FC = () => {
 
   return (
     <div style={{ padding: 16 }}>
-      <Card size="small" title={<Space><ScanSearch size={16} color="#1677ff" />CAD 实时检测</Space>}>
+      <Card size="small" title={<Space><ScanSearch size={16} color="#2563eb" />CAD 实时检测</Space>}>
         <Space wrap style={{ marginBottom: 12 }}>
           <Input
             placeholder="输入 DICOM 实例 ID (SOP Instance UID)"
@@ -405,7 +405,7 @@ const CadDetectPanel: React.FC = () => {
               <Col span={8}><Statistic title="最高置信度" value={current.findings.length ? Math.max(...current.findings.map(f => f.confidence)) * 100 : 0} precision={1} suffix="%" /></Col>
               <Col span={8}><Statistic title="检测时间" value={current.detectedAt.slice(0, 19).replace('T', ' ')} /></Col>
             </Row>
-            <Table rowKey={(f) => `${f.x}-${f.y}`} size="small" dataSource={current.findings} columns={findingColumns} pagination={false} />
+            <Table rowKey={(f) => `${f.x}-${f.y}`} size="small" dataSource={current.findings} columns={findingColumns} pagination={false} scroll={{ x: 'max-content' }}/>
             {current.heatmapUrl && (
               <div style={{ marginTop: 8, fontSize: 12, color: '#64748b' }}>
                 热力图: <code>{current.heatmapUrl}</code>
@@ -449,7 +449,7 @@ const CadDetectPanel: React.FC = () => {
                 <span style={{ fontSize: 12, color: '#64748b' }}>检测于 {detail.detectedAt.slice(0, 19).replace('T', ' ')}</span>
                 {detail.simulated && <Tag color="gold">模拟回退</Tag>}
               </Space>
-              <Table rowKey={(f) => `${f.x}-${f.y}`} size="small" dataSource={detail.findings} columns={findingColumns} pagination={false} />
+              <Table rowKey={(f) => `${f.x}-${f.y}`} size="small" dataSource={detail.findings} columns={findingColumns} pagination={false} scroll={{ x: 'max-content' }}/>
             </>
           ) : (
             <Empty description="点击上方记录的“查看详情”加载真实结果" image={Empty.PRESENTED_IMAGE_SIMPLE} />

@@ -168,7 +168,7 @@ export const TreatmentPlanCenterPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <ClipboardList size={20} color="#1677ff" />
+        <ClipboardList size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>跨科室治疗计划中心</span>
         <Tag color="cyan">v3.0.6.11-75 W3-2</Tag>
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()}>刷新</Button>
@@ -177,7 +177,7 @@ export const TreatmentPlanCenterPage: React.FC = () => {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}><Card><Statistic title="总计划" value={stats.total} /></Card></Col>
         <Col span={6}><Card><Statistic title="已计划" value={stats.planned} styles={{ content: { color: '#faad14' } }} /></Card></Col>
-        <Col span={6}><Card><Statistic title="执行中" value={stats.active} styles={{ content: { color: '#1677ff' } }} /></Card></Col>
+        <Col span={6}><Card><Statistic title="执行中" value={stats.active} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
         <Col span={6}><Card><Statistic title="已完成" value={stats.completed} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
       </Row>
       <Tabs activeKey={tab} onChange={setTab} items={[
@@ -190,6 +190,7 @@ export const TreatmentPlanCenterPage: React.FC = () => {
                 pagination={{ pageSize: 8, showSizeChanger: false }}
                 columns={columns}
                 locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无治疗计划, 点击新建创建" /> }}
+              scroll={{ x: 'max-content' }}
               />
             </Spin>
           </Card>

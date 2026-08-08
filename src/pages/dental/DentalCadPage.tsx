@@ -40,6 +40,33 @@ const DESIGN_TYPES = [
   { value: "implant-crown", label: "种植冠 Implant Crown" },
 ];
 
+const TYPE_LABELS: Record<string, string> = {
+  inlay: "嵌体",
+  onlay: "高嵌体",
+  crown: "全冠",
+  veneer: "贴面",
+  abutment: "基台",
+  "implant-crown": "种植冠",
+};
+
+const MATERIAL_LABELS: Record<string, string> = {
+  zirconia: "氧化锆",
+  "lithium-disilicate": "二硅酸锂",
+  composite: "复合树脂",
+  feldspathic: "长石瓷",
+  pmma: "PMMA",
+  metal: "钴铬金属",
+  titanium: "纯钛",
+  peek: "PEEK",
+};
+
+const STATUS_META: Record<string, { color: string; label: string }> = {
+  designed: { color: "warning", label: "已设计" },
+  milling: { color: "blue", label: "铣削中" },
+  milled: { color: "processing", label: "已铣削" },
+  cemented: { color: "success", label: "已粘接" },
+};
+
 export const DentalCadPage: React.FC = () => {
   const [designs, setDesigns] = useState<any[]>([]);
   const [current, setCurrent] = useState<any>(null);
@@ -231,7 +258,7 @@ export const DentalCadPage: React.FC = () => {
     return (
       <div style={{ padding: 24, background: "#f5f5f5", minHeight: "100vh" }}>
         <Space style={{ marginBottom: 16 }}>
-          <Pen size={20} color="#1677ff" />
+          <Pen size={20} color="#2563eb" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>
             修复 CAD/CAM 设计中心
           </span>
@@ -378,9 +405,9 @@ export const DentalCadPage: React.FC = () => {
                       style={{ justifyContent: "space-between", width: "100%" }}
                     >
                       <div>
-                        <Tag>{d.type}</Tag>
-                        <Tag color="blue">{d.material}</Tag>
-                        <Tag>{d.colorShade}</Tag>
+                        <Tag>{TYPE_LABELS[d.type] ?? d.type}</Tag>
+                        <Tag color="blue">{MATERIAL_LABELS[d.material] ?? d.material}</Tag>
+                        <Tag>{d.colorShade ? `${d.colorShade} 色` : d.colorShade}</Tag>
                       </div>
                       <Badge
                         status={
@@ -392,7 +419,7 @@ export const DentalCadPage: React.FC = () => {
                                 ? "warning"
                                 : "default"
                         }
-                        text={d.status}
+                        text={STATUS_META[d.status]?.label ?? d.status}
                       />
                     </Space>
                     <div style={{ marginTop: 4, fontSize: 12, color: "#999" }}>
@@ -621,7 +648,7 @@ export const DentalCadPage: React.FC = () => {
                 <Progress
                   percent={65}
                   size="small"
-                  strokeColor="#1677ff"
+                  strokeColor="#2563eb"
                   style={{ marginTop: 4 }}
                 />
                 <Tag color="green">预览生成完成</Tag>
@@ -668,7 +695,7 @@ export const DentalCadPage: React.FC = () => {
                       padding: "4px 0",
                       borderRadius: 4,
                       fontSize: 10,
-                      background: i <= idx ? "#1677ff" : "#e8e8e8",
+                      background: i <= idx ? "#2563eb" : "#e8e8e8",
                       color: i <= idx ? "#fff" : "#999",
                     }}
                   >

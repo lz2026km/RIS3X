@@ -8,6 +8,7 @@ import { Card, Col, Row, Table, Tag, Statistic, Tabs, Progress, Badge, Space, Ty
 import { Building2, MapPin, Activity, Database, Globe, Network, CheckCircle, AlertTriangle, XCircle, RefreshCw, Shield } from "lucide-react";
 import { regionalApi, type RegionalSiteDto, type RegionalSiteSyncEventDto, type RegionalSiteRoutingRuleDto } from "../services/api/regionalApi";
 import { SITES, SYNC_EVENTS, ROUTING_RULES, type Site, type SyncEvent, type RoutingRule } from "../services/site";
+import { usePagination } from "../hooks/usePagination";
 
 const {  Text } = Typography;
 
@@ -88,6 +89,9 @@ export default function MultiSiteDashboardPage() {
 
   useEffect(() => { fetchAll() }, [fetchAll])
 
+  // [W3-C] 受控分页: 同步事件表
+  const eventsPagination = usePagination(syncEvents, 10);
+
   const totalStudies = useMemo(() => sites.reduce((s, x) => s + x.studies, 0), [sites]);
   const totalPatients = useMemo(() => sites.reduce((s, x) => s + x.patients, 0), [sites]);
   const totalUsers = useMemo(() => sites.reduce((s, x) => s + x.users, 0), [sites]);
@@ -158,7 +162,7 @@ export default function MultiSiteDashboardPage() {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={16}>
           <Card title={<Space><Network size={16} />站点列表 ({sites.length})<Tag color="green">{activeCount} 在线</Tag><Tag color="red">{offlineCount} 离线</Tag></Space>} extra={<Badge count={offlineCount} title="告警站点" />}>
-            <Table dataSource={sites} columns={siteColumns} rowKey="id" size="small" pagination={false} loading={loading} />
+            <Table dataSource={sites} columns={siteColumns} rowKey="id" size="small" pagination={false} loading={loading} scroll={{ x: 'max-content' }}/>
           </Card>
         </Col>
         <Col span={8}>
@@ -188,10 +192,10 @@ export default function MultiSiteDashboardPage() {
               label: <><Activity size={14} /> 同步事件 ({syncEvents.length})</>,
               children: (
                 <Table
-                  dataSource={syncEvents}
+                  dataSource={eventsPagination.pageData}
                   rowKey="id"
                   size="small"
-                  pagination={{ pageSize: 10 }}
+                  pagination={eventsPagination.pagination}
                   columns={[
                     { title: "时间", dataIndex: "timestamp", key: "ts", width: 160, render: (t: string) => new Date(t).toLocaleString("zh-CN") },
                     { title: "站点", dataIndex: "siteId", key: "siteId", width: 120, render: (id: string) => sites.find(s => s.id === id)?.name || id },
@@ -202,6 +206,7 @@ export default function MultiSiteDashboardPage() {
                     { title: "状态", dataIndex: "status", key: "status", width: 90, render: (s: string) => { const m = STATUS_SEV[s] || { color: "default" }; return <Tag color={m.color}>{s === "success" ? "成功" : s === "failed" ? "失败" : "等待"}</Tag>; } },
                     { title: "消息", dataIndex: "message", key: "msg", render: (m?: string) => m || "-" },
                   ]}
+                scroll={{ x: 'max-content' }}
                 />
               ),
             },
@@ -223,6 +228,7 @@ export default function MultiSiteDashboardPage() {
                     { title: "匹配", dataIndex: "matchedCount", key: "mc", width: 100, render: (n: number) => n.toLocaleString() },
                     { title: "状态", dataIndex: "active", key: "act", width: 80, render: (a: boolean) => <Tag color={a ? "green" : "default"}>{a ? "启用" : "禁用"}</Tag> },
                   ]}
+                scroll={{ x: 'max-content' }}
                 />
               ),
             },

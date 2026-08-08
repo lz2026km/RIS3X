@@ -76,7 +76,7 @@ const AiReviewPage: React.FC = () => {
     <div style={{ padding: 24, minHeight: '100vh', background: '#f5f5f5' }}>
       <Card style={{ marginBottom: 16 }}>
         <Space style={{ marginBottom: 16 }}>
-          <Shield size={24} color="#1677ff" />
+          <Shield size={24} color="#2563eb" />
           <Title level={4} style={{ margin: 0 }}>AI 报告审核</Title>
           <Tag color="blue">质量控制</Tag>
         </Space>
@@ -86,7 +86,7 @@ const AiReviewPage: React.FC = () => {
       <Row gutter={16}>
         <Col span={12}>
           <Card
-            title={<Space><FileText size={14} color="#1677ff" />报告文本</Space>}
+            title={<Space><FileText size={14} color="#2563eb" />报告文本</Space>}
             extra={
               <Button type="primary" icon={<Shield size={14} />} onClick={handleReview} loading={loading} disabled={!reportText.trim()}>
                 {loading ? '审核中...' : '开始审核'}
@@ -115,11 +115,11 @@ const AiReviewPage: React.FC = () => {
           {loading ? (
             <Card style={{ textAlign: 'center', padding: 60 }}>
               <Spin size="large" />
-              <div style={{ marginTop: 12, color: '#1677ff', fontWeight: 600 }}>AI 正在审核报告...</div>
+              <div style={{ marginTop: 12, color: '#2563eb', fontWeight: 600 }}>AI 正在审核报告...</div>
             </Card>
           ) : result ? (
             <>
-              <Card title={<Space><Brain size={16} color="#1677ff" />审核结果</Space>} style={{ marginBottom: 16 }}>
+              <Card title={<Space><Brain size={16} color="#2563eb" />审核结果</Space>} style={{ marginBottom: 16 }}>
                 <Row gutter={16}>
                   <Col span={12}>
                     <Statistic

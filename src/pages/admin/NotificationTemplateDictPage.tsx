@@ -158,7 +158,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <Bell size={20} color="#f5222d" />
-        <FileText size={20} color="#1677ff" />
+        <FileText size={20} color="#2563eb" />
         <BookOpen size={20} color="#52c41a" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>通知 · 模板 · 词典</span>
         <Tag color="cyan">PR3 (v3.0.6.8-47)</Tag>
@@ -209,7 +209,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
                   <List.Item.Meta
                     avatar={
                       <Badge dot={!n.isRead}>
-                        <Avatar style={{ background: n.severity === 'critical' ? '#f5222d' : n.severity === 'warning' ? '#faad14' : '#1677ff' }}>
+                        <Avatar style={{ background: n.severity === 'critical' ? '#f5222d' : n.severity === 'warning' ? '#faad14' : '#2563eb' }}>
                           {n.type?.slice(0, 1).toUpperCase()}
                         </Avatar>
                       </Badge>
@@ -264,6 +264,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
                 { title: '更新', dataIndex: 'updatedAt', render: (d) => new Date(d).toLocaleDateString('zh-CN') },
                 { title: '操作', render: (_, t) => <Button type="link" size="small" icon={<Edit3 size={12} />} onClick={() => openTplModal('update', { ...t })}>编辑</Button> },
               ]}
+            scroll={{ x: 'max-content' }}
             />
           </Card>
         </Tabs.TabPane>
@@ -296,6 +297,7 @@ export const NotificationTemplateDictPage: React.FC = () => {
                 { title: '状态', dataIndex: 'isActive', render: (a) => a ? <Tag color="green">启用</Tag> : <Tag>禁用</Tag> },
                 { title: '操作', render: (_, d) => <Button type="link" size="small" icon={<Edit3 size={12} />} onClick={() => openDictModal('update', { ...d })}>编辑</Button> },
               ]}
+            scroll={{ x: 'max-content' }}
             />
           </Card>
         </Tabs.TabPane>

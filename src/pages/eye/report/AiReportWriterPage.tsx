@@ -433,7 +433,7 @@ export const AiReportWriterPage: React.FC = () => {
           <Card
             title={
               <Space>
-                <Sparkles size={16} color="#1677ff" />
+                <Sparkles size={16} color="#2563eb" />
                 AI 生成报告
                 {extraction && <Tag color="green">NLP 已提取</Tag>}
               </Space>

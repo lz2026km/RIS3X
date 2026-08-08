@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Card, Tabs, Table, Button, Form, Input, Select, Upload, message, Tag, Space, Alert, InputNumber, Modal } from 'antd'
 import { Send, Search, Upload as UploadIcon, ArrowRight, CheckCircle, XCircle, Radio, RefreshCw, Plus } from 'lucide-react'
 import { dicomDimseApi } from '../../services/api/dicomApi'
+import { usePagination } from '../../hooks/usePagination'
 
 const DIMSE_STATUS_LABEL: Record<string, string> = { SUCCESS: '成功' };
 
@@ -67,6 +68,8 @@ export const DicomDimsePage: React.FC = () => {
   const [moveLoading, setMoveLoading] = useState(false)
   const [deviceModal, setDeviceModal] = useState(false)
   const [deviceForm] = Form.useForm()
+  // [W3-C] 受控分页: MWL 结果表 (C-FIND)
+  const mwlPagination = usePagination(mwlResults, 10)
 
   const handleEcho = async (device: DimseDevice) => {
     setDevices(prev => prev.map(d => d.aeTitle === device.aeTitle ? { ...d, _echoing: true } : d))
@@ -196,7 +199,7 @@ export const DicomDimsePage: React.FC = () => {
             </Form>
           </Card>
           <Card size="small" title="Worklist 条目">
-            <Table dataSource={mwlResults} rowKey={(r, i) => r.accessionNumber || `${i}`} columns={MWL_COLUMNS} loading={mwlLoading} pagination={{ pageSize: 10 }} />
+            <Table dataSource={mwlPagination.pageData} rowKey={(r, i) => r.accessionNumber || `${i}`} columns={MWL_COLUMNS} loading={mwlLoading} pagination={mwlPagination.pagination} scroll={{ x: 'max-content' }}/>
           </Card>
         </>
       ),
@@ -252,7 +255,7 @@ export const DicomDimsePage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <Radio size={20} color="#1677ff" />
+        <Radio size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>DICOM DIMSE 管理</span>
         <Tag color="blue">v3.0</Tag>
       </Space>

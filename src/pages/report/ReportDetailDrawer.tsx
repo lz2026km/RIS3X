@@ -8,7 +8,7 @@ import { StatusBadge, StatusTimeline } from '../../components/report'
 import MfaVerifyModal from '../../components/security/MfaVerifyModal'
 import { useReportStore } from '../../store'
 
-const PRIMARY = '#1e3a5f'
+const PRIMARY = '#1e40af'
 const WHITE = '#ffffff'
 const GRAY = '#64748b'
 
@@ -204,9 +204,9 @@ export default function ReportDetailDrawer({ report, onClose, onReview, onPrint,
                   <ShieldCheck size={13} /> 报告签名信息
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-                  <div><div style={{ fontSize: 12, color: GRAY, marginBottom: 2 }}>报告医生</div><div style={{ fontSize: 12, fontWeight: 600, color: '#1e3a5f' }}>{report.reportDoctorName || '-'}</div></div>
+                  <div><div style={{ fontSize: 12, color: GRAY, marginBottom: 2 }}>报告医生</div><div style={{ fontSize: 12, fontWeight: 600, color: '#1e40af' }}>{report.reportDoctorName || '-'}</div></div>
                   <div><div style={{ fontSize: 12, color: GRAY, marginBottom: 2 }}>签名时间</div><div style={{ fontSize: 12, color: '#475569' }}>{report.signedTime ? formatDateFull(report.signedTime) : '-'}</div></div>
-                  <div><div style={{ fontSize: 12, color: GRAY, marginBottom: 2 }}>审核医生</div><div style={{ fontSize: 12, fontWeight: 600, color: '#1e3a5f' }}>{report.auditorName || '-'}</div></div>
+                  <div><div style={{ fontSize: 12, color: GRAY, marginBottom: 2 }}>审核医生</div><div style={{ fontSize: 12, fontWeight: 600, color: '#1e40af' }}>{report.auditorName || '-'}</div></div>
                   <div><div style={{ fontSize: 12, color: GRAY, marginBottom: 2 }}>审核时间</div><div style={{ fontSize: 12, color: '#475569' }}>{report.approvedTime ? formatDateFull(report.approvedTime) : '-'}</div></div>
                   <div><div style={{ fontSize: 12, color: GRAY, marginBottom: 2 }}>质量评分</div><div style={{ fontSize: 12, color: '#475569' }}>{report.qualityScore ? `${report.qualityScore}分` : '-'}</div></div>
                   <div><div style={{ fontSize: 12, color: GRAY, marginBottom: 2 }}>发布人</div><div style={{ fontSize: 12, color: '#475569' }}>{report.publishedBy || '-'}</div></div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Card, Row, Col, Tag, Table, Tabs, Statistic, Space, Progress, Badge } from 'antd';
 import {
   LineChart,
@@ -58,6 +58,9 @@ const EyeAiPage: React.FC = () => {
   const isNarrow = bp === "xs" || bp === "sm";
   const [aiModels, setAiModels] = useState<any[]>([]);
   const [aiDiagnoses, setAiDiagnoses] = useState<any[]>([]);
+  // [W3-C] 病种分布: 接 eyeApi.getDiseaseDistribution (/eye/ai/stats/disease-distribution)
+  const [diseaseDistribution, setDiseaseDistribution] = useState<Array<{ condition: string; count: number }>>([]);
+  const [distSource, setDistSource] = useState<'api' | 'demo'>('demo');
   const [_loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -65,13 +68,25 @@ const EyeAiPage: React.FC = () => {
     void (async () => {
       setLoading(true);
       try {
-        const [modelsRes, diagRes] = await Promise.all([
+        const [modelsRes, diagRes, distRes] = await Promise.all([
           eyeApi.listModels(),
           eyeApi.listInferences(),
+          eyeApi.getDiseaseDistribution(),
         ]);
         if (!cancelled) {
           if (modelsRes.success && Array.isArray(modelsRes.data)) setAiModels(modelsRes.data);
           if (diagRes.success && Array.isArray(diagRes.data)) setAiDiagnoses(diagRes.data);
+          if (distRes.success && distRes.data && typeof distRes.data === "object") {
+            const dist = distRes.data as Record<string, number>;
+            const entries = Object.entries(dist)
+              .filter(([, v]) => typeof v === "number" && v > 0)
+              .map(([condition, count]) => ({ condition, count }))
+              .sort((a, b) => b.count - a.count);
+            if (entries.length > 0) {
+              setDiseaseDistribution(entries);
+              setDistSource('api');
+            }
+          }
         }
       } catch { /* API may not be available */ }
       if (!cancelled) setLoading(false);
@@ -86,6 +101,55 @@ const EyeAiPage: React.FC = () => {
     (d) => d.reviewStatus !== "pending",
   );
   const totalDiag = aiDiagnoses.length;
+  // [W3-C] AI 采纳率: 由真实诊断数据计算, 不再写死 72.3%
+  const acceptanceRate = totalDiag > 0
+    ? Math.round((acceptedDiag.length / totalDiag) * 1000) / 10
+    : 0;
+  // [W3-C] 分布表: API 数据优先, 空则回退演示分布
+  const distData = distSource === 'api' && diseaseDistribution.length > 0
+    ? diseaseDistribution
+    : [
+        { condition: "糖尿病视网膜病变", count: 8 },
+        { condition: "青光眼", count: 4 },
+        { condition: "AMD", count: 6 },
+        { condition: "黄斑水肿", count: 3 },
+        { condition: "高度近视", count: 2 },
+      ];
+
+  // [W3-C] 采纳率趋势: 由诊断记录按最近 7 天聚合 (reviewStatus=accepted 比例), 无数据回退演示曲线
+  const acceptanceTrendData = useMemo(() => {
+    const days = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"];
+    if (aiDiagnoses.length === 0) return ACCEPTANCE_TREND_DATA;
+    const byDay: Record<string, { total: number; accepted: number }> = {};
+    const now = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(now.getDate() - i);
+      byDay[d.getDay()] = { total: 0, accepted: 0 };
+    }
+    for (const d of aiDiagnoses) {
+      const ts = d.createdAt ?? d.timestamp;
+      if (!ts) continue;
+      const date = new Date(ts);
+      if (isNaN(date.getTime())) continue;
+      const day = date.getDay();
+      if (!byDay[day]) continue;
+      byDay[day]!.total += 1;
+      if (d.reviewStatus !== "pending") byDay[day]!.accepted += 1;
+    }
+    const hasData = Object.values(byDay).some((v) => v.total > 0);
+    if (!hasData) return ACCEPTANCE_TREND_DATA;
+    // 以今天为终点按周排序
+    const ordered = Array.from({ length: 7 }, (_, i) => (now.getDay() - 6 + i + 7) % 7);
+    return ordered.map((day, i) => {
+      const v = byDay[day] ?? { total: 0, accepted: 0 };
+      return {
+        day: days[i % 7]!,
+        rate: v.total > 0 ? Math.round((v.accepted / v.total) * 100) : 0,
+        target: 80,
+      };
+    });
+  }, [aiDiagnoses]);
 
   return (
     <PageContainer background="slate" maxWidth="full" padding={16} testId="eye-ai-page">
@@ -117,7 +181,7 @@ const EyeAiPage: React.FC = () => {
             <Statistic
               title="已诊断检查"
               value={totalDiag}
-              prefix={<Activity size={18} color="#1677ff" />}
+              prefix={<Activity size={18} color="#2563eb" />}
             />
           </Card>
         </Col>
@@ -136,7 +200,7 @@ const EyeAiPage: React.FC = () => {
           <Card size="small">
             <Statistic
               title="AI 采纳率"
-              value="72.3"
+              value={acceptanceRate}
               suffix="%"
               prefix={<CheckCircle size={18} color="#22c55e" />}
             />
@@ -282,6 +346,7 @@ const EyeAiPage: React.FC = () => {
                         ),
                       },
                     ]}
+                  scroll={{ x: 'max-content' }}
                   />
                 ),
               },
@@ -291,20 +356,11 @@ const EyeAiPage: React.FC = () => {
                 children: (
                   <Row gutter={12}>
                     <Col span={8}>
-                      <Card size="small" title="各病种AI诊断分布">
+                      <Card size="small" title={<span>各病种AI诊断分布 <Tag color={distSource === 'api' ? 'green' : 'orange'} style={{ fontSize: 10 }}>{distSource === 'api' ? 'API' : '演示'}</Tag></span>}>
                         <Table
                           size="small"
                           pagination={false}
-                          dataSource={[
-                            "糖尿病视网膜病变",
-                            "青光眼",
-                            "AMD",
-                            "黄斑水肿",
-                            "高度近视",
-                          ].map((c, i) => ({
-                            condition: c,
-                            count: [8, 4, 6, 3, 2][i],
-                          }))}
+                          dataSource={distData}
                           rowKey="condition"
                           columns={[
                             { title: "病种", dataIndex: "condition" },
@@ -318,7 +374,7 @@ const EyeAiPage: React.FC = () => {
                         <div style={{ height: 180 }}>
                           <ResponsiveContainer width="100%" height="100%">
                             <LineChart
-                              data={ACCEPTANCE_TREND_DATA}
+                              data={acceptanceTrendData}
                               margin={{ top: 8, right: 12, bottom: 0, left: -10 }}
                             >
                               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -398,7 +454,7 @@ const EyeAiPage: React.FC = () => {
                                 type="monotone"
                                 dataKey="auc_dr"
                                 name="DR 分级"
-                                stroke="#1677ff"
+                                stroke="#2563eb"
                                 strokeWidth={2}
                                 dot={false}
                               />

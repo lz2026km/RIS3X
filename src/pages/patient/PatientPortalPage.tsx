@@ -99,7 +99,7 @@ export const PatientPortalPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <User size={20} color="#1677ff" />
+        <User size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>患者门户</span>
         <Tag color="cyan">v3.0.6.11-35</Tag>
       </Space>

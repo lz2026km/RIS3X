@@ -5,7 +5,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { PageContainer } from "../components/common/PageContainer";
-import { LoadingBanner, ErrorBanner } from "../components/feedback";
+import { ErrorBanner } from "../components/feedback";
 import { Search, User, Phone, AlertCircle, X, Eye, Download, Upload, Users, UserCheck, Clock, Activity, Heart, AlertTriangle, CheckCircle, TrendingUp, PieChart, Stethoscope, Shield, CreditCard, History, PlusCircle, UserPlus, Link, Target, Gauge, Percent, FileSearch, Layers3 } from 'lucide-react';
 import { initialPatients, initialRadiologyExams } from "../data/initialData";
 import { patientApi } from "../services/api";
@@ -46,7 +46,7 @@ function StatCard({ label, value, icon, color, bgColor }: StatCardProps) {
   return (
     <div
       style={{
-        background: "#fff",
+        background: "var(--bg-card)",
         borderRadius: 12,
         padding: "16px 20px",
         border: "1px solid #e2e8f0",
@@ -102,12 +102,12 @@ function TabButton({ label, icon, isActive, onClick, badge }: TabButtonProps) {
         gap: 8,
         padding: "10px 20px",
         border: "none",
-        borderBottom: isActive ? "3px solid #1e3a5f" : "3px solid transparent",
+        borderBottom: isActive ? "3px solid #1e40af" : "3px solid transparent",
         background: "none",
         cursor: "pointer",
         fontSize: 13,
         fontWeight: isActive ? 700 : 500,
-        color: isActive ? "#1e3a5f" : "#64748b",
+        color: isActive ? "#1e40af" : "#64748b",
       }}
     >
       {icon}
@@ -115,7 +115,7 @@ function TabButton({ label, icon, isActive, onClick, badge }: TabButtonProps) {
       {badge !== undefined && (
         <span
           style={{
-            background: isActive ? "#1e3a5f" : "#e2e8f0",
+            background: isActive ? "#1e40af" : "#e2e8f0",
             color: isActive ? "#fff" : "#64748b",
             borderRadius: 10,
             padding: "1px 6px",
@@ -140,7 +140,7 @@ function PieChartSimple({ data, title }: PieChartSimpleProps) {
   return (
     <div
       style={{
-        background: "#fff",
+        background: "var(--bg-card)",
         borderRadius: 12,
         border: "1px solid #e2e8f0",
         padding: 20,
@@ -151,7 +151,7 @@ function PieChartSimple({ data, title }: PieChartSimpleProps) {
         style={{
           fontSize: 14,
           fontWeight: 700,
-          color: "#1e3a5f",
+          color: "#1e40af",
           marginBottom: 16,
         }}
       >
@@ -222,10 +222,10 @@ function PieChartSimple({ data, title }: PieChartSimpleProps) {
                   background: d.color,
                 }}
               />
-              <div style={{ flex: 1, fontSize: 12, color: "#334155" }}>
+              <div style={{ flex: 1, fontSize: 12, color: "var(--text-secondary)" }}>
                 {d.label}
               </div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: "#1e3a5f" }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
                 {d.value}
               </div>
               <div
@@ -258,7 +258,7 @@ function BarChartSimple({ data, title, xLabel }: BarChartSimpleProps) {
   return (
     <div
       style={{
-        background: "#fff",
+        background: "var(--bg-card)",
         borderRadius: 12,
         border: "1px solid #e2e8f0",
         padding: 20,
@@ -269,7 +269,7 @@ function BarChartSimple({ data, title, xLabel }: BarChartSimpleProps) {
         style={{
           fontSize: 14,
           fontWeight: 700,
-          color: "#1e3a5f",
+          color: "#1e40af",
           marginBottom: 16,
         }}
       >
@@ -289,7 +289,7 @@ function BarChartSimple({ data, title, xLabel }: BarChartSimpleProps) {
               gap: 4,
             }}
           >
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#1e3a5f" }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
               {d.value}
             </div>
             <div
@@ -983,7 +983,7 @@ export default function PatientPage() {
     >
       <div
         style={{
-          background: "#fff",
+          background: "var(--bg-card)",
           borderRadius: 16,
           width: "100%",
           maxWidth: 900,
@@ -1001,7 +1001,7 @@ export default function PatientPage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            background: "linear-gradient(135deg, #1e3a5f, #3b82f6)",
+            background: "linear-gradient(135deg, #1e40af, #3b82f6)",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -1042,20 +1042,20 @@ export default function PatientPage() {
           style={{
             padding: 20,
             borderBottom: "1px solid #e2e8f0",
-            background: "#f8fafc",
+            background: "var(--content-bg)",
           }}
         >
           <div
             style={{
               display: "flex",
               gap: 12,
-              background: "#fff",
+              background: "var(--bg-card)",
               borderRadius: 10,
-              border: "2px solid #1e3a5f",
+              border: "2px solid #1e40af",
               padding: "12px 16px",
             }}
           >
-            <Search size={20} style={{ color: "#1e3a5f", flexShrink: 0 }} />
+            <Search size={20} style={{ color: "#1e40af", flexShrink: 0 }} />
             <FieldGate field="patientName" permission="patient.view" resourceType="patient" mode="disable">
               <input
                 value={pmiSearchQuery}
@@ -1080,7 +1080,7 @@ export default function PatientPage() {
                 }}
                 style={{
                   border: "none",
-                  background: "#f1f5f9",
+                  background: "var(--content-bg)",
                   borderRadius: 6,
                   padding: "4px 8px",
                   cursor: "pointer",
@@ -1130,7 +1130,7 @@ export default function PatientPage() {
               key={result.patientId}
               onClick={() => handlePMISelectResult(result)}
               style={{
-                background: "#fff",
+                background: "var(--bg-card)",
                 border: "1px solid #e2e8f0",
                 borderRadius: 10,
                 padding: 16,
@@ -1140,7 +1140,7 @@ export default function PatientPage() {
               }}
               onMouseEnter={(e) =>
                 ((e.currentTarget as HTMLDivElement).style.borderColor =
-                  "#1e3a5f")
+                  "#1e40af")
               }
               onMouseLeave={(e) =>
                 ((e.currentTarget as HTMLDivElement).style.borderColor =
@@ -1162,7 +1162,7 @@ export default function PatientPage() {
                     borderRadius: "50%",
                     background:
                       result.gender === "男"
-                        ? "linear-gradient(135deg, #1e3a5f, #3b82f6)"
+                        ? "linear-gradient(135deg, #1e40af, #3b82f6)"
                         : "linear-gradient(135deg, #be185d, #ec4899)",
                     display: "flex",
                     alignItems: "center",
@@ -1183,7 +1183,7 @@ export default function PatientPage() {
                       style={{
                         fontSize: 16,
                         fontWeight: 700,
-                        color: "#1e3a5f",
+                        color: "#1e40af",
                       }}
                     >
                       {result.name}
@@ -1207,7 +1207,7 @@ export default function PatientPage() {
                         borderRadius: 4,
                         fontSize: 12,
                         fontWeight: 600,
-                        background: "#f1f5f9",
+                        background: "var(--content-bg)",
                         color: "#475569",
                       }}
                     >
@@ -1247,7 +1247,7 @@ export default function PatientPage() {
                 <div
                   style={{
                     padding: "8px 10px",
-                    background: "#f8fafc",
+                    background: "var(--content-bg)",
                     borderRadius: 6,
                   }}
                 >
@@ -1260,7 +1260,7 @@ export default function PatientPage() {
                     style={{
                       fontSize: 12,
                       fontWeight: 600,
-                      color: "#1e3a5f",
+                      color: "#1e40af",
                       fontFamily: "monospace",
                     }}
                   >
@@ -1270,7 +1270,7 @@ export default function PatientPage() {
                 <div
                   style={{
                     padding: "8px 10px",
-                    background: "#f8fafc",
+                    background: "var(--content-bg)",
                     borderRadius: 6,
                   }}
                 >
@@ -1280,7 +1280,7 @@ export default function PatientPage() {
                     医保类型
                   </div>
                   <div
-                    style={{ fontSize: 12, fontWeight: 600, color: "#334155" }}
+                    style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)" }}
                   >
                     {result.insuranceType}
                   </div>
@@ -1288,7 +1288,7 @@ export default function PatientPage() {
                 <div
                   style={{
                     padding: "8px 10px",
-                    background: "#f8fafc",
+                    background: "var(--content-bg)",
                     borderRadius: 6,
                   }}
                 >
@@ -1298,7 +1298,7 @@ export default function PatientPage() {
                     累计检查
                   </div>
                   <div
-                    style={{ fontSize: 12, fontWeight: 600, color: "#334155" }}
+                    style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)" }}
                   >
                     {result.examStats.totalExams} 次
                   </div>
@@ -1306,7 +1306,7 @@ export default function PatientPage() {
                 <div
                   style={{
                     padding: "8px 10px",
-                    background: "#f8fafc",
+                    background: "var(--content-bg)",
                     borderRadius: 6,
                   }}
                 >
@@ -1433,7 +1433,7 @@ export default function PatientPage() {
   const renderPMIPatientCard = (result: PMISearchResult) => (
     <div
       style={{
-        background: "#fff",
+        background: "var(--bg-card)",
         borderRadius: 12,
         border: "1px solid #e2e8f0",
         padding: 20,
@@ -1456,7 +1456,7 @@ export default function PatientPage() {
               borderRadius: "50%",
               background:
                 result.gender === "男"
-                  ? "linear-gradient(135deg, #1e3a5f, #3b82f6)"
+                  ? "linear-gradient(135deg, #1e40af, #3b82f6)"
                   : "linear-gradient(135deg, #be185d, #ec4899)",
               display: "flex",
               alignItems: "center",
@@ -1469,7 +1469,7 @@ export default function PatientPage() {
             {result.name.slice(0, 1)}
           </div>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: "#1e3a5f" }}>
+            <div style={{ fontSize: 18, fontWeight: 700, color: "#1e40af" }}>
               {result.name}
             </div>
             <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
@@ -1512,7 +1512,7 @@ export default function PatientPage() {
               height: 32,
               borderRadius: 8,
               border: "1px solid #e2e8f0",
-              background: "#fff",
+              background: "var(--bg-card)",
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
@@ -1531,7 +1531,7 @@ export default function PatientPage() {
           marginBottom: 16,
         }}
       >
-        <div style={{ padding: 12, background: "#f8fafc", borderRadius: 8 }}>
+        <div style={{ padding: 12, background: "var(--content-bg)", borderRadius: 8 }}>
           <div
             style={{
               display: "flex",
@@ -1544,12 +1544,12 @@ export default function PatientPage() {
             <span style={{ fontSize: 12, color: "#94a3b8" }}>身份证</span>
           </div>
           <div
-            style={{ fontSize: 12, color: "#334155", fontFamily: "monospace" }}
+            style={{ fontSize: 12, color: "var(--text-secondary)", fontFamily: "monospace" }}
           >
             {result.idCard}
           </div>
         </div>
-        <div style={{ padding: 12, background: "#f8fafc", borderRadius: 8 }}>
+        <div style={{ padding: 12, background: "var(--content-bg)", borderRadius: 8 }}>
           <div
             style={{
               display: "flex",
@@ -1561,9 +1561,9 @@ export default function PatientPage() {
             <Phone size={14} color="#94a3b8" />
             <span style={{ fontSize: 12, color: "#94a3b8" }}>手机号</span>
           </div>
-          <div style={{ fontSize: 12, color: "#334155" }}>{result.phone}</div>
+          <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>{result.phone}</div>
         </div>
-        <div style={{ padding: 12, background: "#f8fafc", borderRadius: 8 }}>
+        <div style={{ padding: 12, background: "var(--content-bg)", borderRadius: 8 }}>
           <div
             style={{
               display: "flex",
@@ -1575,11 +1575,11 @@ export default function PatientPage() {
             <Shield size={14} color="#94a3b8" />
             <span style={{ fontSize: 12, color: "#94a3b8" }}>医保类型</span>
           </div>
-          <div style={{ fontSize: 12, color: "#334155" }}>
+          <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
             {result.insuranceType}
           </div>
         </div>
-        <div style={{ padding: 12, background: "#f8fafc", borderRadius: 8 }}>
+        <div style={{ padding: 12, background: "var(--content-bg)", borderRadius: 8 }}>
           <div
             style={{
               display: "flex",
@@ -1591,7 +1591,7 @@ export default function PatientPage() {
             <User size={14} color="#94a3b8" />
             <span style={{ fontSize: 12, color: "#94a3b8" }}>就诊类型</span>
           </div>
-          <div style={{ fontSize: 12, color: "#334155" }}>
+          <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
             {result.patientType}
           </div>
         </div>
@@ -1612,7 +1612,7 @@ export default function PatientPage() {
           }}
         >
           <Gauge size={24} color="#3b82f6" style={{ marginBottom: 8 }} />
-          <div style={{ fontSize: 24, fontWeight: 800, color: "#1e3a5f" }}>
+          <div style={{ fontSize: 24, fontWeight: 800, color: "#1e40af" }}>
             {result.examStats.totalExams}
           </div>
           <div style={{ fontSize: 12, color: "#64748b" }}>累计检查次数</div>
@@ -1640,13 +1640,13 @@ export default function PatientPage() {
         <div
           style={{
             padding: 16,
-            background: "#f8fafc",
+            background: "var(--content-bg)",
             borderRadius: 10,
             textAlign: "center",
           }}
         >
           <Clock size={24} color="#64748b" style={{ marginBottom: 8 }} />
-          <div style={{ fontSize: 14, fontWeight: 700, color: "#1e3a5f" }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "#1e40af" }}>
             {result.examStats.lastExamDate}
           </div>
           <div style={{ fontSize: 12, color: "#64748b" }}>最近检查日期</div>
@@ -1692,7 +1692,7 @@ export default function PatientPage() {
               key={i}
               style={{
                 padding: "10px 12px",
-                background: "#fff",
+                background: "var(--bg-card)",
                 borderRadius: 6,
                 marginBottom: 8,
                 border: "1px solid #fde68a",
@@ -1757,7 +1757,7 @@ export default function PatientPage() {
           label="总患者数"
           value={statistics.totalPatients}
           icon={<Users size={24} />}
-          color="#1e3a5f"
+          color="#1e40af"
           bgColor="#eff6ff"
         />
         <StatCard
@@ -1854,7 +1854,7 @@ export default function PatientPage() {
       </div>
       <div
         style={{
-          background: "#fff",
+          background: "var(--bg-card)",
           borderRadius: 12,
           border: "1px solid #e2e8f0",
           padding: 20,
@@ -1865,7 +1865,7 @@ export default function PatientPage() {
           style={{
             fontSize: 14,
             fontWeight: 700,
-            color: "#1e3a5f",
+            color: "#1e40af",
             marginBottom: 16,
           }}
         >
@@ -1882,7 +1882,7 @@ export default function PatientPage() {
             <thead>
               <tr
                 style={{
-                  background: "#f8fafc",
+                  background: "var(--content-bg)",
                   borderBottom: "1px solid #e2e8f0",
                 }}
               >
@@ -1913,7 +1913,26 @@ export default function PatientPage() {
               </tr>
             </thead>
             <tbody>
-              {patients.map((p, idx) => (
+              {loading ? (
+                Array.from({ length: 6 }).map((_, i) => (
+                  <tr key={`patient-skeleton-${i}`} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                    {Array.from({ length: 9 }).map((_, j) => (
+                      <td key={j} style={{ padding: "13px 12px" }}>
+                        <div
+                          className="anim-shimmer"
+                          style={{
+                            height: 12,
+                            borderRadius: 4,
+                            background: "linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%)",
+                            backgroundSize: "200% 100%",
+                          }}
+                        />
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              ) : (
+                patients.map((p, idx) => (
                 <tr
                   key={p.id}
                   style={{
@@ -1964,7 +1983,7 @@ export default function PatientPage() {
                       >
                         {p.name.slice(0, 1)}
                       </div>
-                      <span style={{ fontWeight: 600, color: "#1e3a5f" }}>
+                      <span style={{ fontWeight: 600, color: "#1e40af" }}>
                         {p.name}
                       </span>
                     </div>
@@ -1983,7 +2002,7 @@ export default function PatientPage() {
                       {p.gender}
                     </span>
                   </td>
-                  <td style={{ padding: "8px 12px", color: "#334155" }}>
+                  <td style={{ padding: "8px 12px", color: "var(--text-secondary)" }}>
                     {p.age}岁
                   </td>
                   <td style={{ padding: "8px 12px" }}>
@@ -1993,7 +2012,7 @@ export default function PatientPage() {
                         borderRadius: 4,
                         fontSize: 12,
                         fontWeight: 600,
-                        background: "#f1f5f9",
+                        background: "var(--content-bg)",
                         color: "#475569",
                       }}
                     >
@@ -2020,7 +2039,7 @@ export default function PatientPage() {
                       padding: "8px 12px",
                       textAlign: "center",
                       fontWeight: 600,
-                      color: "#1e3a5f",
+                      color: "#1e40af",
                     }}
                   >
                     {p.totalExamCount || 0}
@@ -2077,7 +2096,8 @@ export default function PatientPage() {
                     </div>
                   </td>
                 </tr>
-              ))}
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -2104,7 +2124,6 @@ export default function PatientPage() {
           (checkAccess)：当前用户无权读取患者资源，请联系管理员。
         </div>
       )}
-      {loading && <LoadingBanner message="正在从 API 加载患者数据..." />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       <div
         style={{
@@ -2119,14 +2138,14 @@ export default function PatientPage() {
             style={{
               fontSize: 20,
               fontWeight: 800,
-              color: "#1e3a5f",
+              color: "#1e40af",
               margin: "0 0 4px",
               display: "flex",
               alignItems: "center",
               gap: 8,
             }}
           >
-            <Stethoscope size={22} color="#1e3a5f" />
+            <Stethoscope size={22} color="#1e40af" />
             患者管理
           </h1>
           <p style={{ fontSize: 12, color: "#64748b", margin: 0 }}>
@@ -2138,9 +2157,9 @@ export default function PatientPage() {
             onClick={() => setShowPMIPanel(true)}
             style={{
               padding: "8px 16px",
-              background: "#fff",
-              color: "#1e3a5f",
-              border: "1px solid #1e3a5f",
+              background: "var(--bg-card)",
+              color: "#1e40af",
+              border: "1px solid #1e40af",
               borderRadius: 8,
               fontSize: 12,
               fontWeight: 600,
@@ -2157,7 +2176,7 @@ export default function PatientPage() {
             onClick={() => setShowImportModal(true)}
             style={{
               padding: "8px 16px",
-              background: "#fff",
+              background: "var(--bg-card)",
               color: "#059669",
               border: "1px solid #059669",
               borderRadius: 8,
@@ -2176,7 +2195,7 @@ export default function PatientPage() {
             onClick={() => void handleExport()}
             style={{
               padding: "8px 16px",
-              background: "#fff",
+              background: "var(--bg-card)",
               color: "#64748b",
               border: "1px solid #e2e8f0",
               borderRadius: 8,
@@ -2216,7 +2235,7 @@ export default function PatientPage() {
               onClick={handleNewPatient}
               style={{
                 padding: "8px 16px",
-                background: "#1e3a5f",
+                background: "#1e40af",
                 color: "#fff",
                 border: "none",
                 borderRadius: 8,
@@ -2281,7 +2300,7 @@ export default function PatientPage() {
             label="总患者数"
             value={statistics.totalPatients}
             icon={<Users size={22} />}
-            color="#1e3a5f"
+            color="#1e40af"
             bgColor="#eff6ff"
           />
           <StatCard
@@ -2314,7 +2333,7 @@ export default function PatientPage() {
           gap: 4,
           borderBottom: "1px solid #e2e8f0",
           marginBottom: 16,
-          background: "#fff",
+          background: "var(--bg-card)",
           borderRadius: "12px 12px 0 0",
           padding: "0 8px",
         }}
@@ -2490,7 +2509,7 @@ export default function PatientPage() {
         >
           <div
             style={{
-              background: "#fff",
+              background: "var(--bg-card)",
               borderRadius: 14,
               width: "100%",
               maxWidth: 680,
@@ -2508,7 +2527,7 @@ export default function PatientPage() {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                background: "#1e3a5f",
+                background: "#1e40af",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -2572,7 +2591,7 @@ export default function PatientPage() {
                     padding: "8px 14px",
                     borderRadius: 8,
                     border: "1px solid #e2e8f0",
-                    background: "#f8fafc",
+                    background: "var(--content-bg)",
                     fontSize: 12,
                     color: "#475569",
                     cursor: "pointer",
@@ -2632,7 +2651,7 @@ export default function PatientPage() {
                   padding: "8px 18px",
                   borderRadius: 8,
                   border: "1px solid #e2e8f0",
-                  background: "#fff",
+                  background: "var(--bg-card)",
                   fontSize: 13,
                   color: "#475569",
                   cursor: "pointer",
@@ -2647,7 +2666,7 @@ export default function PatientPage() {
                   padding: "8px 20px",
                   borderRadius: 8,
                   border: "none",
-                  background: importing || !importText.trim() ? "#94a3b8" : "#1e3a5f",
+                  background: importing || !importText.trim() ? "#94a3b8" : "#1e40af",
                   fontSize: 13,
                   fontWeight: 600,
                   color: "#fff",

@@ -273,7 +273,7 @@ const VolumeRenderer: React.FC<VolumeRendererProps> = ({ seriesUid }) => {
       title={
         <Space>
           <Eye size={14} />
-          <span>Volume Renderer</span>
+          <span>容积渲染</span>
           <Tag color={mode === 'VR' ? 'purple' : mode === 'MIP' ? 'cyan' : 'blue'}>{mode}</Tag>
           {seriesUid && <Tag color="geekblue">{seriesUid.slice(0, 16)}...</Tag>}
         </Space>

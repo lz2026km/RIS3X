@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card, Tabs, Table, Button, Form, Input, Select, DatePicker, Upload, message, Tag, Space, Alert, InputNumber } from 'antd';
 import { UploadOutlined, SendOutlined, SearchOutlined, ForwardOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { api } from '../../services/api/client';
+import { usePagination } from '../../hooks/usePagination';
 
 const { RangePicker } = DatePicker;
 
@@ -54,6 +55,8 @@ export const DimsePage: React.FC = () => {
   const [moveForm] = Form.useForm();
   const [moveResults, setMoveResults] = useState<any[]>([]);
   const [moveLoading, setMoveLoading] = useState(false);
+  // [W3-C] 受控分页: MWL 结果表
+  const mwlPagination = usePagination(mwlResults, 10);
 
   const handleEcho = async (device: any) => {
     setDevices(prev => prev.map(d => d.aeTitle === device.aeTitle ? { ...d, _echoing: true } : d));
@@ -167,7 +170,7 @@ export const DimsePage: React.FC = () => {
             </Form>
           </Card>
           <Card size="small" title="Worklist 条目">
-            <Table dataSource={mwlResults} rowKey={(r, i) => r.accessionNumber || `${i}`} columns={MWL_COLUMNS} loading={mwlLoading} pagination={{ pageSize: 10 }} />
+            <Table dataSource={mwlPagination.pageData} rowKey={(r, i) => r.accessionNumber || `${i}`} columns={MWL_COLUMNS} loading={mwlLoading} pagination={mwlPagination.pagination} scroll={{ x: 'max-content' }}/>
           </Card>
         </>
       ),

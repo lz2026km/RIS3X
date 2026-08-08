@@ -237,7 +237,7 @@ export default function CriticalValue5StepPage() {
         ) : data.length === 0 ? (
           <Empty description="暂无危急值数据" image={<Inbox size={48} color="#94a3b8" />} />
         ) : (
-          <Table dataSource={data} columns={columns} rowKey="id" size="small" pagination={false} />
+          <Table dataSource={data} columns={columns} rowKey="id" size="small" pagination={false} scroll={{ x: 'max-content' }}/>
         )}
       </Card>
 

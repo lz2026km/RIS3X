@@ -133,7 +133,7 @@ export function StatCard({
             style={{
               fontSize: sizeCfg.valueFont,
               fontWeight: 800,
-              color: "var(--color-primary-900, #1e3a5f)",
+              color: "var(--color-primary-900, #1e40af)",
               lineHeight: 1.2,
               letterSpacing: "-0.01em",
               fontVariantNumeric: "tabular-nums",

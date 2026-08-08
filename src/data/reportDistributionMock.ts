@@ -43,7 +43,7 @@ export const DELIVERY_CHANNELS_CONFIG: DeliveryChannelConfig[] = [
     displayName: '钉钉', displayNameEn: 'DingTalk',
     description: '钉钉工作通知,推送给医生/护士',
     descriptionEn: 'DingTalk work notice to doctors/nurses',
-    icon: 'Bell', color: '#1677ff', bg: '#e6f4ff',
+    icon: 'Bell', color: '#2563eb', bg: '#e6f4ff',
     host: 'oapi.dingtalk.com', port: 443,
     template: 'msg_report_arrival',
     retryPolicy: { maxRetries: 3, backoffMs: 1500, backoffStrategy: 'exponential' },

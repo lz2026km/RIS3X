@@ -191,7 +191,7 @@ export const SmartAuthPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: "#f5f5f5", minHeight: "100vh" }}>
       <Space style={{ marginBottom: 16 }} wrap>
-        <ShieldCheck size={20} color="#1677ff" />
+        <ShieldCheck size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR SMART 授权</span>
         <Tag color="blue">SMART on FHIR</Tag>
         <Tag color="green">R4</Tag>

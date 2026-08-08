@@ -40,7 +40,7 @@ function GridPreview({ rows, cols, cells }: { rows: number; cols: number; cells?
         <div
           key={i}
           style={{
-            border: `1px dashed ${label ? '#1677ff' : '#d9d9d9'}`,
+            border: `1px dashed ${label ? '#2563eb' : '#d9d9d9'}`,
             background: label ? '#e6f4ff' : '#fff',
             borderRadius: 6,
             height: 44,
@@ -48,7 +48,7 @@ function GridPreview({ rows, cols, cells }: { rows: number; cols: number; cells?
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: 12,
-            color: label ? '#1677ff' : '#bfbfbf',
+            color: label ? '#2563eb' : '#bfbfbf',
             overflow: 'hidden',
             whiteSpace: 'nowrap',
             textOverflow: 'ellipsis',
@@ -226,7 +226,7 @@ const HangingProtocolPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} align="center">
-        <LayoutGrid size={20} color="#1677ff" />
+        <LayoutGrid size={20} color="#2563eb" />
         <Title level={4} style={{ margin: 0 }}>自动布局协议管理</Title>
         <Tag color="geekblue">对标 GE / Siemens / Fujifilm</Tag>
       </Space>
@@ -249,6 +249,7 @@ const HangingProtocolPage: React.FC = () => {
           columns={columns}
           size="middle"
           pagination={{ pageSize: 10, showTotal: (t) => `共 ${t} 条` }}
+        scroll={{ x: 'max-content' }}
         />
       </Card>
 

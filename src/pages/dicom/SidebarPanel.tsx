@@ -8,7 +8,7 @@ import type { Series, DicomImage, MeasureSubMenu, Measurement, RightTab, Tool, C
 import { PRIMARY } from './DicomViewerTypes'
 
 const s = {
-  rightPanel: { width: 280, background: '#f8fafc', borderLeft: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' as const, overflow: 'hidden', flexShrink: 0 },
+  rightPanel: { width: 280, background: 'var(--content-bg)', borderLeft: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' as const, overflow: 'hidden', flexShrink: 0 },
   rightTabs: { display: 'flex', borderBottom: '1px solid #e2e8f0', flexShrink: 0 },
   rightTab: { flex: 1, padding: '6px 4px', border: 'none', background: 'transparent', color: '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 2, transition: 'all 0.15s', borderBottom: '2px solid transparent' } as React.CSSProperties,
   rightTabActive: { color: PRIMARY, borderBottomColor: PRIMARY, background: 'rgba(30,58,95,0.05)' },
@@ -18,56 +18,56 @@ const s = {
   infoGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 },
   infoItem: { display: 'flex', flexDirection: 'column' as const, gap: 1 },
   infoLabel: { fontSize: 12, color: '#94a3b8' },
-  infoValue: { fontSize: 12, fontWeight: 600, color: '#1e293b' },
+  infoValue: { fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' },
   infoValueFull: { fontSize: 12, color: '#475569', lineHeight: 1.5, marginTop: 2 },
-  reportStatusCard: { padding: '8px 10px', background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0', marginBottom: 8 },
+  reportStatusCard: { padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid #e2e8f0', marginBottom: 8 },
   reportStatusBadge: { display: 'inline-flex', alignItems: 'center', gap: 3, padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 700 },
   reportBtn: { padding: '6px 10px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center' } as React.CSSProperties,
   select: { padding: '4px 8px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 12, color: PRIMARY, fontWeight: 600, cursor: 'pointer', outline: 'none', fontFamily: 'inherit' } as React.CSSProperties,
   mprTabs: { display: 'flex', gap: 4, marginBottom: 4 },
-  mprTab: { flex: 1, padding: '4px 8px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', color: '#475569', fontSize: 12, fontWeight: 600, cursor: 'pointer', textAlign: 'center' as const, transition: 'all 0.15s' } as React.CSSProperties,
+  mprTab: { flex: 1, padding: '4px 8px', borderRadius: 6, border: '1px solid #e2e8f0', background: 'var(--bg-card)', color: '#475569', fontSize: 12, fontWeight: 600, cursor: 'pointer', textAlign: 'center' as const, transition: 'all 0.15s' } as React.CSSProperties,
   mprTabActive: { background: PRIMARY, borderColor: PRIMARY, color: '#fff' },
-  mipControlPanel: { background: '#f8fafc', borderRadius: 8, padding: 8, border: '1px solid #e2e8f0' },
+  mipControlPanel: { background: 'var(--content-bg)', borderRadius: 8, padding: 8, border: '1px solid #e2e8f0' },
   mipControlTitle: { fontSize: 12, color: '#64748b', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 },
   mipDirRow: { display: 'flex', gap: 4, marginBottom: 8 },
-  mipDirBtn: { flex: 1, padding: '4px 8px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', color: '#475569', fontSize: 12, fontWeight: 600, cursor: 'pointer', textAlign: 'center' as const },
+  mipDirBtn: { flex: 1, padding: '4px 8px', borderRadius: 6, border: '1px solid #e2e8f0', background: 'var(--bg-card)', color: '#475569', fontSize: 12, fontWeight: 600, cursor: 'pointer', textAlign: 'center' as const },
   mipDirBtnActive: { background: PRIMARY, borderColor: PRIMARY, color: '#fff' },
   mipFrameRow: { display: 'flex', alignItems: 'center', gap: 6 },
   mipFrameLabel: { fontSize: 12, color: '#64748b', flexShrink: 0 },
   mipFrameVal: { fontSize: 12, color: PRIMARY, fontWeight: 600, minWidth: 50 },
-  vrControlPanel: { background: '#f8fafc', borderRadius: 8, padding: 8, border: '1px solid #e2e8f0' },
+  vrControlPanel: { background: 'var(--content-bg)', borderRadius: 8, padding: 8, border: '1px solid #e2e8f0' },
   vrSliderRow: { display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 },
   vrSliderLabel: { fontSize: 12, color: '#64748b', flexShrink: 0, minWidth: 24 },
   vrSlider: { flex: 1, accentColor: PRIMARY } as React.CSSProperties,
   vrSliderVal: { fontSize: 12, color: PRIMARY, fontWeight: 600, minWidth: 30, textAlign: 'right' as const },
-  vrResetBtn: { width: '100%', padding: '4px 8px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', color: '#475569', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center' } as React.CSSProperties,
+  vrResetBtn: { width: '100%', padding: '4px 8px', borderRadius: 6, border: '1px solid #e2e8f0', background: 'var(--bg-card)', color: '#475569', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center' } as React.CSSProperties,
   historySearchRow: { display: 'flex', gap: 6, marginBottom: 10 },
   historySearchInput: { flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid #cbd5e1', fontSize: 12, outline: 'none', fontFamily: 'inherit' },
   historySearchBtn: { padding: '6px 10px', borderRadius: 6, border: 'none', background: PRIMARY, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' },
-  historyListItem: { display: 'flex', alignItems: 'flex-start', gap: 8, padding: '8px 10px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', marginBottom: 6, cursor: 'pointer', transition: 'all 0.15s' },
+  historyListItem: { display: 'flex', alignItems: 'flex-start', gap: 8, padding: '8px 10px', borderRadius: 8, border: '1px solid #e2e8f0', background: 'var(--bg-card)', marginBottom: 6, cursor: 'pointer', transition: 'all 0.15s' },
   historyListItemSelected: { border: '2px solid #3b82f6', background: '#eff6ff' },
   historyListItemChecked: { border: '2px solid #22c55e', background: '#f0fdf4' },
   historyCheckbox: { width: 16, height: 16, borderRadius: 4, border: '2px solid #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2, cursor: 'pointer' },
   historyCheckboxChecked: { background: '#22c55e', borderColor: '#22c55e' },
   historyListItemContent: { flex: 1, minWidth: 0 },
   historyListItemHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
-  historyListItemTitle: { fontSize: 12, fontWeight: 700, color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const },
+  historyListItemTitle: { fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const },
   historyListItemDate: { fontSize: 12, color: '#94a3b8' },
   historyListItemMeta: { fontSize: 12, color: '#64748b', lineHeight: 1.4 },
   historyListItemStatus: { display: 'inline-flex', alignItems: 'center', gap: 3, padding: '2px 6px', borderRadius: 10, fontSize: 12, fontWeight: 700, marginTop: 4 },
   historyListEmpty: { textAlign: 'center' as const, padding: '24px 12px', color: '#94a3b8', fontSize: 12 },
   historyListEmptyIcon: { marginBottom: 8, opacity: 0.5 },
   historyActionBar: { display: 'flex', gap: 6, marginBottom: 10, flexWrap: 'wrap' as const },
-  historyActionBtn: { flex: 1, minWidth: 60, padding: '6px 8px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', fontSize: 12, fontWeight: 600, color: '#475569', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, transition: 'all 0.15s' } as React.CSSProperties,
+  historyActionBtn: { flex: 1, minWidth: 60, padding: '6px 8px', borderRadius: 6, border: '1px solid #e2e8f0', background: 'var(--bg-card)', fontSize: 12, fontWeight: 600, color: '#475569', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, transition: 'all 0.15s' } as React.CSSProperties,
   historyActionBtnDisabled: { opacity: 0.5, cursor: 'not-allowed' },
   syncScrollBadge: { display: 'inline-flex', alignItems: 'center', gap: 3, padding: '3px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700 } as React.CSSProperties,
   syncScrollBadgeOn: { background: '#dcfce7', color: '#16a34a' },
-  syncScrollBadgeOff: { background: '#f1f5f9', color: '#64748b' },
-  compareInfoCard: { background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0', padding: 10, marginBottom: 8 },
+  syncScrollBadgeOff: { background: 'var(--content-bg)', color: '#64748b' },
+  compareInfoCard: { background: 'var(--bg-card)', borderRadius: 8, border: '1px solid #e2e8f0', padding: 10, marginBottom: 8 },
   compareInfoCardTitle: { fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 },
   compareInfoRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '3px 0', borderBottom: '1px solid #f1f5f9' },
   compareInfoLabel: { fontSize: 12, color: '#64748b' },
-  compareInfoValue: { fontSize: 12, fontWeight: 600, color: '#1e293b' },
+  compareInfoValue: { fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' },
   compareControlBadge: { display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s', border: 'none' } as React.CSSProperties,
   compareControlBadgeOn: { background: PRIMARY, color: '#fff' },
   compareControlBadgeOff: { background: '#e2e8f0', color: '#64748b' },
@@ -312,7 +312,7 @@ export default function SidebarPanel(props: Props) {
               <div style={s.infoSectionTitle}><FileSearch size={12} />{t('dcm.reportStatus')}</div>
               <div style={s.reportStatusCard}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{exam.examItemName}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{exam.examItemName}</span>
                   <span style={{ ...s.reportStatusBadge, background: reportStatus === '已报告' ? '#dcfce7' : reportStatus === '待书写' ? '#fef3c7' : '#f1f5f9', color: reportStatus === '已报告' ? '#16a34a' : reportStatus === '待书写' ? '#d97706' : '#64748b' }}>
                     {reportStatus === '已报告' && <CheckCircle size={10} />}{reportStatus === '待书写' && <Clock size={10} />}{reportStatus}
                   </span>
@@ -320,8 +320,8 @@ export default function SidebarPanel(props: Props) {
                 <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>患者: {exam.patientName} | {exam.age}岁{exam.gender}<br />检查日期: {exam.examDate} {exam.examTime}</div>
               </div>
               {reportStatus === '已报告' && (
-                <><div style={{ marginBottom: 8, padding: '8px 10px', background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}><div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>{t('dcm.reportDoctor')}</div><div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>李明辉</div></div>
-                <div style={{ marginBottom: 8, padding: '8px 10px', background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}><div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>报告时间</div><div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>2026-05-01 14:30</div></div></>
+                <><div style={{ marginBottom: 8, padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid #e2e8f0' }}><div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>{t('dcm.reportDoctor')}</div><div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>李明辉</div></div>
+                <div style={{ marginBottom: 8, padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, border: '1px solid #e2e8f0' }}><div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>报告时间</div><div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>2026-05-01 14:30</div></div></>
               )}
             </div>
             <div style={s.infoSection}>
@@ -338,16 +338,16 @@ export default function SidebarPanel(props: Props) {
                   <button style={{ ...s.reportBtn, background: '#f0f4f8', color: '#475569' }} onClick={() => goWriteReport('template')}><FileText size={14} />{t('dcm.useTemplate')}</button>
                   <button style={{ ...s.reportBtn, background: '#fef3c7', color: '#d97706' }} onClick={() => showToast('危急值通知已发送')}><AlertCircle size={14} />{t('dcm.sendCritical')}</button></>
                 ) : (
-                  <button style={{ ...s.reportBtn, background: '#f1f5f9', color: '#94a3b8', cursor: 'not-allowed' }} disabled><Clock size={14} />{t('dcm.waitForExam')}</button>
+                  <button style={{ ...s.reportBtn, background: 'var(--content-bg)', color: '#94a3b8', cursor: 'not-allowed' }} disabled><Clock size={14} />{t('dcm.waitForExam')}</button>
                 )}
               </div>
             </div>
             <div style={s.infoSection}>
               <div style={s.infoSectionTitle}><Calendar size={12} />{t('dcm.reportTimelinessSection')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><span style={{ fontSize: 12, color: '#64748b' }}>{t('dcm.examCompleteTime')}</span><span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>2026-05-01 10:00</span></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><span style={{ fontSize: 12, color: '#64748b' }}>{t('dcm.examCompleteTime')}</span><span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>2026-05-01 10:00</span></div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><span style={{ fontSize: 12, color: '#64748b' }}>{t('dcm.waitingTime')}</span><span style={{ fontSize: 12, fontWeight: 600, color: '#d97706' }}>4小时30分</span></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><span style={{ fontSize: 12, color: '#64748b' }}>{t('dcm.avgReportTime')}</span><span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>28分钟</span></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><span style={{ fontSize: 12, color: '#64748b' }}>{t('dcm.avgReportTime')}</span><span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>28分钟</span></div>
               </div>
             </div>
             {(exam.priority === '紧急' || exam.priority === '危重') && (
@@ -420,9 +420,9 @@ export default function SidebarPanel(props: Props) {
                 )}
                 <div style={s.compareInfoCard}>
                   <div style={s.compareInfoCardTitle}><ScrollText size={12} />{t('dcm.historyReport')}</div>
-                  <div style={{ marginBottom: 6 }}><div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 2 }}>{t('dcm.reportDoctor')}</div><div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{compareExam.reportDoctor || '未报告'}</div></div>
+                  <div style={{ marginBottom: 6 }}><div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 2 }}>{t('dcm.reportDoctor')}</div><div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{compareExam.reportDoctor || '未报告'}</div></div>
                   {compareExam.finding && <div style={{ marginBottom: 6 }}><div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 2 }}>{t('dcm.finding')}</div><div style={{ fontSize: 12, color: '#475569', lineHeight: 1.5 }}>{compareExam.finding}</div></div>}
-                  {compareExam.conclusion && <div><div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 2 }}>{t('dcm.conclusion')}</div><div style={{ fontSize: 12, color: '#1e293b', fontWeight: 600, lineHeight: 1.5 }}>{compareExam.conclusion}</div></div>}
+                  {compareExam.conclusion && <div><div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 2 }}>{t('dcm.conclusion')}</div><div style={{ fontSize: 12, color: 'var(--text-primary)', fontWeight: 600, lineHeight: 1.5 }}>{compareExam.conclusion}</div></div>}
                 </div>
               </>
             )}
@@ -500,7 +500,7 @@ export default function SidebarPanel(props: Props) {
                 </div>
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}><Upload size={12} />申请调阅归档</div>
-                  <div style={{ padding: '8px 10px', background: '#f8fafc', borderRadius: 8, marginBottom: 8, border: '1px solid #e2e8f0' }}><div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>将外院影像归档至本院PACS系统，便于后续长期查阅和对比。</div></div>
+                  <div style={{ padding: '8px 10px', background: 'var(--content-bg)', borderRadius: 8, marginBottom: 8, border: '1px solid #e2e8f0' }}><div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>将外院影像归档至本院PACS系统，便于后续长期查阅和对比。</div></div>
                   {archiveRequestStatus && (
                     <div style={{ padding: '6px 10px', borderRadius: 6, marginBottom: 8, fontSize: 12, fontWeight: 600, background: archiveRequestStatus === 'success' ? '#dcfce7' : '#fef3c7', color: archiveRequestStatus === 'success' ? '#16a34a' : '#d97706' }}>
                       {archiveRequestStatus === 'success' ? <><CheckCircle size={12} /> 申请已提交，请等待审核</> : <><Clock size={12} /> 申请处理中...</>}

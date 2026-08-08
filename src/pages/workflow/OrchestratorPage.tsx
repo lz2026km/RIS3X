@@ -845,6 +845,7 @@ export default function OrchestratorPage() {
             },
           }}
           size="small"
+        scroll={{ x: 'max-content' }}
         />
       </Card>
       <Card
@@ -859,6 +860,7 @@ export default function OrchestratorPage() {
           rowKey={(r) => r.id ?? ""}
           pagination={false}
           size="small"
+        scroll={{ x: 'max-content' }}
         />
       </Card>
     </div>

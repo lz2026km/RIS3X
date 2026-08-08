@@ -113,12 +113,12 @@ const TeleSignPage: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16 }}>
-        <FileSignature size={20} color="#1677ff" />
+        <FileSignature size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>远程双签</span>
       </Space>
       {error && <Alert type="warning" showIcon message="加载失败" description={error} action={<Button size="small" onClick={fetchSessions}>重试</Button>} style={{ marginBottom: 16 }} />}
       <Card>
-        <Table rowKey="id" dataSource={sessions} columns={columns} pagination={false} size="small" loading={loading} />
+        <Table rowKey="id" dataSource={sessions} columns={columns} pagination={false} size="small" loading={loading} scroll={{ x: 'max-content' }}/>
       </Card>
       <Modal title="签署报告" open={signOpen} onCancel={() => setSignOpen(false)} width={600} footer={
         <Space>

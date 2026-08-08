@@ -1,6 +1,8 @@
 // 6.8 Department Operations (20 pts)
-import { useState, useMemo, useCallback } from 'react'
+// [v3.0.6.11-82] W3-C: 接入 statsApi.getDaily/getByModality (乳腺统计), 失败回退演示数据
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { Users, Calendar, Clock, Activity, TrendingUp, RefreshCw, Download, Plus, Bed, UserCheck, FileText } from 'lucide-react'
+import { statsApi } from '../../services/api/statsApi'
 
 const statsData = [
   { label: '今日检查量', value: '28', unit: '例', icon: Activity, color: '#2563eb', bg: '#eff6ff' },
@@ -56,6 +58,39 @@ const DepartmentOperationsPage = () => {
   const [showAddModal, setShowAddModal] = useState(false)
   const [newPatient, setNewPatient] = useState({ name: '', exam: 'MG', room: '' })
   const [extraPatients, setExtraPatients] = useState<Array<{ id: number; name: string; exam: string; room: string; scheduled: string; status: string }>>([])
+  const [daily, setDaily] = useState<{ examCount?: number; reportCount?: number; criticalCount?: number; date?: string } | null>(null)
+  const [byModality, setByModality] = useState<Record<string, unknown> | null>(null)
+  const [source, setSource] = useState<'api' | 'demo'>('demo')
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      try {
+        const [dailyRes, modalityRes] = await Promise.all([statsApi.getDaily(), statsApi.getByModality()])
+        if (cancelled) return
+        if (dailyRes.success && dailyRes.data) {
+          setDaily(dailyRes.data)
+          setSource('api')
+        }
+        if (modalityRes.success && modalityRes.data && typeof modalityRes.data === 'object') {
+          setByModality(modalityRes.data as Record<string, unknown>)
+        }
+      } catch {
+        if (!cancelled) setSource('demo')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [])
+
+  const effectiveStats = statsData.map(s => {
+    if (s.label === '今日检查量' && daily?.examCount != null) return { ...s, value: String(daily.examCount) }
+    if (s.label === '当日报告' && daily?.reportCount != null) return { ...s, value: String(daily.reportCount) }
+    return s
+  })
 
   const handleRefresh = useCallback(() => {
     setRefreshTick(t => t + 1)
@@ -85,13 +120,13 @@ const DepartmentOperationsPage = () => {
     ...Array.from({ length: 15 }, (_, i) => ({
       id: i + 1, name: `患者${String.fromCharCode(65 + (i % 26))}${i}`,
       exam: ['MG', '乳腺断层', '乳腺超声', '乳腺MRI'][i % 4],
-      room: rooms[i % rooms.length].name, scheduled: `${8 + Math.floor(i / 2)}:${(i % 2) * 30 + 10}`,
+      room: rooms[i % rooms.length]?.name ?? '未分配', scheduled: `${8 + Math.floor(i / 2)}:${(i % 2) * 30 + 10}`,
       status: ['等待中', '已签到', '检查中', '已完成'][Math.min(i % 4, 3)] as string,
     })),
     ...extraPatients,
   ], [rooms, extraPatients])
 
-  const filteredQueue = queue.filter(q => q.name.includes(search) || q.exam.includes(search))
+  const filteredQueue = queue.filter(q => q.name.includes(search) || (q.exam ?? '').includes(search))
 
   const handleAddPatient = () => {
     if (!newPatient.name.trim()) return
@@ -100,7 +135,7 @@ const DepartmentOperationsPage = () => {
       id: Date.now(),
       name: newPatient.name.trim(),
       exam: newPatient.exam,
-      room: newPatient.room || roomsList[0],
+      room: newPatient.room || roomsList[0] || '未分配',
       scheduled: new Date().toTimeString().slice(0, 5),
       status: '等待中',
     }])
@@ -113,7 +148,13 @@ const DepartmentOperationsPage = () => {
       <div style={s.header}>
         <div>
           <h1 style={s.title}>乳腺科室运营管理</h1>
-          <p style={s.subtitle}>乳腺影像科室运营 · 排班 · 设备 · 工作流 · 统计</p>
+          <p style={s.subtitle}>
+            乳腺影像科室运营 · 排班 · 设备 · 工作流 · 统计
+            <span style={{ marginLeft: 8, padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 600, background: source === 'api' ? '#dcfce7' : '#fef3c7', color: source === 'api' ? '#16a34a' : '#d97706' }}>
+              {source === 'api' ? '数据源: /stats/daily' : '演示数据(接口不可用)'}
+            </span>
+            {loading && <span style={{ marginLeft: 8, color: '#94a3b8' }}>加载中...</span>}
+          </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button style={s.btn} onClick={handleRefresh} title="刷新"><RefreshCw size={14} /></button>
@@ -122,7 +163,7 @@ const DepartmentOperationsPage = () => {
       </div>
 
       <div style={s.statsRow}>
-        {statsData.map((stat, i) => (
+        {effectiveStats.map((stat, i) => (
           <div key={i} style={s.statCard}>
             <div style={{ ...s.statIcon, background: stat.bg }}><stat.icon size={20} color={stat.color} /></div>
             <div style={s.statValue}>{stat.value}<span style={{ fontSize: 14, fontWeight: 400, color: '#64748b' }}>{stat.unit}</span></div>
@@ -130,6 +171,20 @@ const DepartmentOperationsPage = () => {
           </div>
         ))}
       </div>
+
+      {byModality && Object.keys(byModality).length > 0 && (
+        <div style={{ ...s.section, padding: 12, marginBottom: 16 }}>
+          <div style={{ ...s.sectionTitle, marginBottom: 8 }}><Activity size={16} color="#2563eb" />乳腺模态检查分布 (数据源: /stats/by-modality)</div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {Object.entries(byModality).map(([mod, stat]) => {
+              const count = typeof stat === 'number' ? stat : ((stat as { total?: number })?.total ?? 0)
+              return (
+                <span key={mod} style={{ padding: '4px 12px', background: '#eff6ff', borderRadius: 12, fontSize: 12, fontWeight: 600, color: '#2563eb' }}>{mod}: {count} 例</span>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       <div style={s.grid2}>
         <div style={s.section}>
@@ -203,7 +258,7 @@ const DepartmentOperationsPage = () => {
             </div>
             <div style={{ padding: 20 }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
-                {statsData.slice(0, 6).map(stat => (
+                {effectiveStats.slice(0, 6).map(stat => (
                   <div key={stat.label} style={{ background: stat.bg, borderRadius: 10, padding: '14px 12px', textAlign: 'center' }}>
                     <div style={{ fontSize: 22, fontWeight: 800, color: stat.color }}>{stat.value}<span style={{ fontSize: 12, fontWeight: 400, marginLeft: 2 }}>{stat.unit}</span></div>
                     <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>{stat.label}</div>

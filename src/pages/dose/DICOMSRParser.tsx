@@ -1,14 +1,61 @@
-import { useState } from "react";
-import { FileText, CheckCircle } from "lucide-react";
+import { useRef, useState } from "react";
+import { FileText, CheckCircle, AlertTriangle, Loader2 } from "lucide-react";
 import { dicomSRRecords } from "./mockData";
+import type { DICOMSRRecord } from "./types";
+import { rdsrApi, type RdsrResult } from "../../services/api/rdsrApi";
 
+// [W3-C] 接 rdsrApi.parse (/rdsr/parse): 选择 DICOM JSON 文件 → 真实解析并追加结果; 表格基准数据仍为演示
 export default function DICOMSRParser() {
   const [showUploadSuccess, setShowUploadSuccess] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [parsing, setParsing] = useState(false);
+  const [parsed, setParsed] = useState<RdsrResult[]>([]);
+  const fileRef = useRef<HTMLInputElement>(null);
 
-  const handleImportSR = () => {
-    setShowUploadSuccess(true);
-    setTimeout(() => setShowUploadSuccess(false), 3000);
+  const mapResult = (r: RdsrResult): DICOMSRRecord => ({
+    id: r.id,
+    patientName: r.patientName ?? '未知患者',
+    patientId: r.patientId ?? '',
+    studyDate: r.examDate,
+    modality: r.modality,
+    examItem: r.bodyPart,
+    ctdivol: r.ctdivol,
+    dlp: r.dlp,
+    totalDose: r.dlp,
+    doseUnit: 'mGy·cm',
+    drlReference: 0,
+    drlCompliant: r.alertLevel === 'normal',
+    device: r.modality,
+  });
+
+  const handleImportSR = async (file: File) => {
+    setUploadError(null);
+    try {
+      const text = await file.text();
+      let json: Record<string, unknown>;
+      try {
+        json = JSON.parse(text);
+      } catch {
+        setUploadError(`文件 ${file.name} 不是有效的 JSON (DICOM JSON 格式)`);
+        return;
+      }
+      setParsing(true);
+      const res = await rdsrApi.parse(json, undefined);
+      if (res.success && res.data) {
+        setParsed((prev) => [res.data, ...prev]);
+        setShowUploadSuccess(true);
+        setTimeout(() => setShowUploadSuccess(false), 3000);
+      } else {
+        setUploadError(res.error?.message ?? '解析失败');
+      }
+    } catch (e) {
+      setUploadError(e instanceof Error ? e.message : '解析失败');
+    } finally {
+      setParsing(false);
+    }
   };
+
+  const rows = [...parsed.map(mapResult), ...dicomSRRecords];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -29,15 +76,27 @@ export default function DICOMSRParser() {
           }}
         >
           <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>
               DICOM SR RDSR 解析
             </div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
-              导入结构化剂量报告并提取关键参数
+              导入 DICOM JSON 文件, 调用 /rdsr/parse 真实解析并提取关键参数
             </div>
           </div>
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".json,.dcm,.txt"
+            style={{ display: "none" }}
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) void handleImportSR(f);
+              e.target.value = '';
+            }}
+          />
           <button
-            onClick={handleImportSR}
+            onClick={() => fileRef.current?.click()}
+            disabled={parsing}
             style={{
               padding: "8px 16px",
               background: "#1e40af",
@@ -46,13 +105,13 @@ export default function DICOMSRParser() {
               borderRadius: 6,
               fontSize: 12,
               fontWeight: 600,
-              cursor: "pointer",
+              cursor: parsing ? "wait" : "pointer",
               display: "flex",
               alignItems: "center",
               gap: 6,
             }}
           >
-            <FileText size={14} /> 导入DICOM SR
+            {parsing ? <Loader2 size={14} /> : <FileText size={14} />} {parsing ? '解析中...' : '导入DICOM SR'}
           </button>
         </div>
         {showUploadSuccess && (
@@ -70,10 +129,41 @@ export default function DICOMSRParser() {
               marginBottom: 12,
             }}
           >
-            <CheckCircle size={14} /> DICOM SR导入成功，已解析{" "}
-            {dicomSRRecords.length} 条剂量记录
+            <CheckCircle size={14} /> DICOM SR解析成功，已提取 1 条剂量记录 (CTDIvol/DLP)
           </div>
         )}
+        {uploadError && (
+          <div
+            style={{
+              padding: "10px 14px",
+              background: "#fef2f2",
+              border: "1px solid #fecaca",
+              borderRadius: 8,
+              color: "#dc2626",
+              fontSize: 12,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              marginBottom: 12,
+            }}
+          >
+            <AlertTriangle size={14} /> {uploadError}
+          </div>
+        )}
+        <div
+          style={{
+            padding: "8px 12px",
+            background: "#fef3c7",
+            color: "#d97706",
+            borderRadius: 8,
+            fontSize: 12,
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
+          <AlertTriangle size={14} /> 演示数据：表格内既有记录为本地模拟；选择 DICOM JSON 文件可触发真实 /rdsr/parse 解析
+        </div>
       </div>
 
       <div
@@ -88,11 +178,11 @@ export default function DICOMSRParser() {
           style={{
             fontSize: 13,
             fontWeight: 700,
-            color: "#1e3a5f",
+            color: "#1e40af",
             marginBottom: 16,
           }}
         >
-          RDSR 解析结果
+          RDSR 解析结果 {parsed.length > 0 ? `(新解析 ${parsed.length} 条)` : ''}
         </div>
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -126,7 +216,7 @@ export default function DICOMSRParser() {
               </tr>
             </thead>
             <tbody>
-              {dicomSRRecords.map((r, i) => (
+              {rows.map((r, i) => (
                 <tr
                   key={r.id}
                   style={{ background: i % 2 === 0 ? "#fff" : "#fafbfc" }}
@@ -140,7 +230,7 @@ export default function DICOMSRParser() {
                   <td style={cellSecondary}>
                     {r.totalDose} {r.doseUnit}
                   </td>
-                  <td style={cellMuted}>{r.drlReference}</td>
+                  <td style={cellMuted}>{r.drlReference || "-"}</td>
                   <td style={{ padding: "10px 12px", textAlign: "center" }}>
                     <span
                       style={{
@@ -169,7 +259,7 @@ const cellPrimary: React.CSSProperties = {
   padding: "10px 12px",
   fontSize: 12,
   fontWeight: 600,
-  color: "#1e3a5f",
+  color: "#1e40af",
   textAlign: "center",
 };
 const cellSecondary: React.CSSProperties = {
@@ -188,6 +278,6 @@ const cellBold: React.CSSProperties = {
   padding: "10px 12px",
   fontSize: 12,
   fontWeight: 700,
-  color: "#1e3a5f",
+  color: "#1e40af",
   textAlign: "center",
 };

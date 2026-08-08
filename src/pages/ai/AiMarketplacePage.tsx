@@ -91,7 +91,7 @@ const AiMarketplacePage: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16 }}>
-        <Cpu size={20} color="#1677ff" />
+        <Cpu size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>AI 模型市场</span>
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
@@ -104,7 +104,7 @@ const AiMarketplacePage: React.FC = () => {
         extra={<Button type="primary" icon={<Plus size={14} />} onClick={() => setDeployOpen(true)}>部署模型</Button>}
         loading={loading}
       >
-        <Table rowKey="id" dataSource={models} columns={columns} pagination={false} size="small" />
+        <Table rowKey="id" dataSource={models} columns={columns} pagination={false} size="small" scroll={{ x: 'max-content' }}/>
       </Card>
       <Modal title="部署新模型" open={deployOpen} onOk={handleDeploy} onCancel={() => setDeployOpen(false)}>
         <Form form={form} layout="vertical">

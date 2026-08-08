@@ -173,12 +173,12 @@ const VolumeViewerPage: React.FC = () => {
   return (
     <div style={{ padding: 16, background: '#f0f2f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 12 }}>
-        <Box size={20} color="#1677ff" />
+        <Box size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>{t('volumeViewer', '3D Volume Viewer')}</span>
         <Tag color="cyan">MIP / MPR / VR</Tag>
         {volumeDims && <Tag color="geekblue">{volumeDims.x}×{volumeDims.y}×{volumeDims.z}</Tag>}
-        {jobSource === 'real' && <Tag color="green">REAL DICOM</Tag>}
-        {jobSource === 'synthetic' && <Tag>SYNTHETIC</Tag>}
+        {jobSource === 'real' && <Tag color="green">真实DICOM</Tag>}
+        {jobSource === 'synthetic' && <Tag>合成数据</Tag>}
       </Space>
 
       <Row gutter={12} style={{ height: 'calc(100vh - 100px)' }}>

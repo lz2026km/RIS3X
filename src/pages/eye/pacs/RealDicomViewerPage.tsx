@@ -659,7 +659,7 @@ export const RealDicomViewerPage: React.FC = () => {
                   style={{
                     flex: 1,
                     height: `${Math.min(100, b.count / 100)}%`,
-                    background: "#1677ff",
+                    background: "#2563eb",
                   }}
                 />
               ))}

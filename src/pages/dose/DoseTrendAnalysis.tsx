@@ -8,15 +8,58 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from "recharts";
+import { useEffect, useState } from "react";
 import { TrendingDown, TrendingUp as TrendingUpCircle } from "lucide-react";
 import { monthlyDoseTrend } from "./mockData";
 import type { MonthlyDoseTrend } from "./types";
+import { rdsrApi } from "../../services/api/rdsrApi";
 
 interface TooltipPayload {
   value: number;
 }
 
+// [W3-C] 月度趋势: 接 rdsrApi.getStats() 的按日趋势聚合成月度 DLP 均值, 失败回退演示数据
 export default function DoseTrendAnalysis() {
+  const [trendData, setTrendData] = useState<MonthlyDoseTrend[]>(monthlyDoseTrend);
+  const [source, setSource] = useState<'api' | 'demo'>('demo');
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await rdsrApi.getStats();
+        if (cancelled || !res.success || !res.data || !Array.isArray(res.data.trend) || res.data.trend.length === 0) return;
+        const byMonth = new Map<string, { sum: number; count: number }>();
+        for (const t of res.data.trend) {
+          const m = String(t.date ?? '').slice(0, 7);
+          if (!m) continue;
+          const entry = byMonth.get(m) ?? { sum: 0, count: 0 };
+          entry.sum += t.avgDlp;
+          entry.count += 1;
+          byMonth.set(m, entry);
+        }
+        const aggregated: MonthlyDoseTrend[] = Array.from(byMonth.entries())
+          .sort((a, b) => a[0].localeCompare(b[0]))
+          .map(([month, v]) => {
+            const demo = monthlyDoseTrend.find((d) => d.month === month);
+            return {
+              month,
+              ctAvgDLP: Math.round((v.sum / v.count) * 10) / 10,
+              chestCTAvgDLP: demo?.chestCTAvgDLP ?? 0,
+              abdomenCTAvgDLP: demo?.abdomenCTAvgDLP ?? 0,
+              headCTAvgDLP: demo?.headCTAvgDLP ?? 0,
+            };
+          });
+        if (aggregated.length >= 2) {
+          setTrendData(aggregated);
+          setSource('api');
+        }
+      } catch {
+        /* 回退演示数据 */
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
   const CustomTooltip = ({
     active,
     payload,
@@ -41,7 +84,7 @@ export default function DoseTrendAnalysis() {
             style={{
               fontSize: 12,
               fontWeight: 700,
-              color: "#1e3a5f",
+              color: "#1e40af",
               marginBottom: 8,
             }}
           >
@@ -93,11 +136,11 @@ export default function DoseTrendAnalysis() {
           }}
         >
           <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>
               每月CT剂量平均值趋势
             </div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
-              2025年7月 - 2026年4月 CT剂量DLP趋势分析
+              {source === 'api' ? '数据源: /rdsr/stats (按日趋势月度聚合)' : '2025年7月 - 2026年4月 CT剂量DLP趋势分析 (演示数据)'}
             </div>
           </div>
           <div style={{ display: "flex", gap: 12 }}>
@@ -137,7 +180,7 @@ export default function DoseTrendAnalysis() {
           </div>
         </div>
         <ResponsiveContainer width="100%" height={260}>
-          <LineChart data={monthlyDoseTrend as MonthlyDoseTrend[]}>
+          <LineChart data={trendData as MonthlyDoseTrend[]}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis dataKey="month" tick={{ fontSize: 12, fill: "#94a3b8" }} />
             <YAxis
@@ -240,7 +283,7 @@ export default function DoseTrendAnalysis() {
           }}
         >
           <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>
               新设备换装前后剂量对比
             </div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>

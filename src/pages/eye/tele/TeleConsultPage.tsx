@@ -268,7 +268,7 @@ export const TeleConsultPage: React.FC = () => {
                           onChange={(e) => setPatientId(e.target.value)}
                         />
                       </Form.Item>
-                      <Form.Item label="Study ID">
+                      <Form.Item label="检查号">
                         <Input
                           value={studyId}
                           onChange={(e) => setStudyId(e.target.value)}
@@ -368,7 +368,7 @@ export const TeleConsultPage: React.FC = () => {
                   <Card
                     title={
                       <Space>
-                        <MonitorSmartphone size={16} color="#1677ff" />
+                        <MonitorSmartphone size={16} color="#2563eb" />
                         实时会诊画面
                         {session && (
                           <Tag color="green">
@@ -399,7 +399,7 @@ export const TeleConsultPage: React.FC = () => {
                         <>
                           <Video
                             size={64}
-                            color={videoOn ? "#1677ff" : "#444"}
+                            color={videoOn ? "#2563eb" : "#444"}
                           />
                           <div style={{ marginTop: 16, fontSize: 14 }}>
                             会诊 {session.sessionId}

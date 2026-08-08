@@ -12,6 +12,7 @@ import {
   CheckCircle, FileArchive, Repeat, Settings, PlugZap, Save, RefreshCw,
 } from "lucide-react";
 import { STORAGE_NODES, TIER_METRICS, ARCHIVE_JOBS, COMPRESSION } from "../services/storage";
+import { usePagination } from "../hooks/usePagination";
 import {
   storageConfigApi,
   type StorageConfigDto,
@@ -63,6 +64,8 @@ function StorageMonitorTab() {
   const totalUsed = useMemo(() => nodes.reduce((s, n) => s + n.usedGb, 0), [nodes]);
   const totalObjects = useMemo(() => nodes.reduce((s, n) => s + n.objectsCount, 0), [nodes]);
   const usedPct = (totalUsed / totalCapacity) * 100;
+  // [W3-C] 受控分页: 归档任务表
+  const jobsPagination = usePagination(ARCHIVE_JOBS, 10);
 
   return (
     <>
@@ -105,6 +108,7 @@ function StorageMonitorTab() {
                 { title: "写延迟", dataIndex: "writeLatencyMs", key: "wl", width: 90, render: (n: number) => `${n} ms` },
                 { title: "状态", dataIndex: "status", key: "status", width: 100, render: (s: string) => { const st = STATUS_MAP[s] ?? { color: "gray", label: s }; return <Tag color={st.color}>{st.label}</Tag> } },
               ]}
+            scroll={{ x: 'max-content' }}
             />
           </Card>
         </Col>
@@ -137,10 +141,10 @@ function StorageMonitorTab() {
 
       <Card title={<Space><Repeat size={16} />归档任务 ({ARCHIVE_JOBS.length})</Space>}>
         <Table
-          dataSource={ARCHIVE_JOBS}
+          dataSource={jobsPagination.pageData}
           rowKey="id"
           size="small"
-          pagination={{ pageSize: 10 }}
+          pagination={jobsPagination.pagination}
           columns={[
             { title: "任务", dataIndex: "id", key: "id", width: 110 },
             { title: "类型", dataIndex: "type", key: "type", width: 110, render: (t: string) => { const jt = JOB_TYPE[t] ?? { color: "blue", label: t }; return <Tag color={jt.color}>{jt.label}</Tag> } },
@@ -153,6 +157,7 @@ function StorageMonitorTab() {
             { title: "进度", dataIndex: "progress", key: "p", width: 140, render: (p: number) => <Progress percent={p} size="small" status={p === 100 ? "success" : "active"} /> },
             { title: "状态", dataIndex: "status", key: "st", width: 90, render: (s: string) => <Tag color={JOB_STATUS[s]?.color}>{s === "success" ? "成功" : s === "running" ? "进行中" : s === "failed" ? "失败" : "排队"}</Tag> },
           ]}
+        scroll={{ x: 'max-content' }}
         />
       </Card>
     </>

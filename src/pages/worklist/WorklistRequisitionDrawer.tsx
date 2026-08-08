@@ -49,8 +49,8 @@ function buildRequisitionHtml(exam: RadiologyExam): string {
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: "Microsoft YaHei", SimSun, sans-serif; color: #1e293b; padding: 32px; }
-  .header { text-align: center; border-bottom: 2px solid #1e3a5f; padding-bottom: 12px; margin-bottom: 20px; }
-  .header h1 { font-size: 22px; color: #1e3a5f; letter-spacing: 6px; }
+  .header { text-align: center; border-bottom: 2px solid #1e40af; padding-bottom: 12px; margin-bottom: 20px; }
+  .header h1 { font-size: 22px; color: #1e40af; letter-spacing: 6px; }
   .header .meta { font-size: 12px; color: #64748b; margin-top: 6px; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   td { border: 1px solid #cbd5e1; padding: 8px 10px; }
@@ -124,7 +124,7 @@ export function RequisitionDrawer({ exam, onClose }: RequisitionDrawerProps) {
               padding: "8px 16px",
               border: "none",
               borderRadius: 8,
-              background: "#1e3a5f",
+              background: "#1e40af",
               fontSize: 12,
               fontWeight: 600,
               color: "#fff",
@@ -142,7 +142,7 @@ export function RequisitionDrawer({ exam, onClose }: RequisitionDrawerProps) {
     >
       <div style={{ border: "1px solid #cbd5e1", borderRadius: 10, overflow: "hidden" }}>
         <div style={{ textAlign: "center", padding: "14px 16px", background: "#f8fafc", borderBottom: "1px solid #cbd5e1" }}>
-          <div style={{ fontSize: 16, fontWeight: 800, color: "#1e3a5f", letterSpacing: 4 }}>放射科检查申请单</div>
+          <div style={{ fontSize: 16, fontWeight: 800, color: "#1e40af", letterSpacing: 4 }}>放射科检查申请单</div>
           <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>
             申请单号: {exam.accessionNumber || exam.id}
           </div>
@@ -160,7 +160,7 @@ export function RequisitionDrawer({ exam, onClose }: RequisitionDrawerProps) {
         ))}
       </div>
 
-      <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f", margin: "20px 0 10px" }}>检查信息</div>
+      <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", margin: "20px 0 10px" }}>检查信息</div>
       <div style={{ border: "1px solid #cbd5e1", borderRadius: 10, overflow: "hidden" }}>
         {[
           ["检查项目", exam.examItemName],
@@ -176,7 +176,7 @@ export function RequisitionDrawer({ exam, onClose }: RequisitionDrawerProps) {
         ))}
       </div>
 
-      <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f", margin: "20px 0 10px" }}>临床信息</div>
+      <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", margin: "20px 0 10px" }}>临床信息</div>
       <div style={{ border: "1px solid #cbd5e1", borderRadius: 10, overflow: "hidden" }}>
         {[
           ["申请医生", exam.referringDoctorName || getDoctorName(exam.referringDoctorId)],

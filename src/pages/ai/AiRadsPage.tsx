@@ -149,7 +149,7 @@ const AiRadsPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <Cpu size={20} color="#1677ff" />
+        <Cpu size={20} color="#2563eb" />
         <Title level={4} style={{ margin: 0 }}>AI 阅片助手 V3 — 多 RADS 自动评分</Title>
         <Tag color="blue">Lung / BI / PI / LI / TI-RADS</Tag>
       </Space>

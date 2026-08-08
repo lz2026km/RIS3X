@@ -136,7 +136,7 @@ const CrossModalSearchPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f7fa', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
-        <ScanSearch size={20} color="#1677ff" />
+        <ScanSearch size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>跨模态检索</span>
         <Tag color="cyan">v3.0.6.11-75</Tag>
         {indexStatus && (

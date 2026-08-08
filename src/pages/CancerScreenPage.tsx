@@ -35,7 +35,7 @@ const s: Record<string, React.CSSProperties> = {
   // 统计卡片行
   statsRow: { display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, marginBottom: 24 },
   statCard: {
-    background: '#fff', borderRadius: 12, padding: '18px 14px',
+    background: 'var(--bg-card)', borderRadius: 12, padding: '18px 14px',
     boxShadow: '0 1px 4px rgba(0,0,0,0.06)', position: 'relative', overflow: 'hidden',
   },
   statIcon: { width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
@@ -44,7 +44,7 @@ const s: Record<string, React.CSSProperties> = {
   statSub: { fontSize: 12, color: '#94a3b8', marginTop: 2 },
   statTrend: { position: 'absolute', top: 14, right: 14, fontSize: 12, fontWeight: 600 },
   // 功能区分区
-  section: { background: '#fff', borderRadius: 12, padding: 20, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
+  section: { background: 'var(--bg-card)', borderRadius: 12, padding: 20, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
   sectionTitle: { fontSize: 15, fontWeight: 700, color: '#1a3a5c', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 },
   // 任务管理
   taskGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 },
@@ -57,20 +57,20 @@ const s: Record<string, React.CSSProperties> = {
   },
   btn: {
     padding: '8px 14px', borderRadius: 8, border: '1px solid #e2e8f0',
-    background: '#fff', cursor: 'pointer', fontSize: 13, display: 'flex',
+    background: 'var(--bg-card)', cursor: 'pointer', fontSize: 13, display: 'flex',
     alignItems: 'center', gap: 6, fontWeight: 500,
   },
   btnPrimary: { padding: '8px 14px', borderRadius: 8, border: 'none', background: '#2563eb', color: '#fff', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
   table: { width: '100%', borderCollapse: 'collapse', fontSize: 12 },
   th: { textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap' },
-  td: { padding: '10px 8px', borderBottom: '1px solid #f8fafc', color: '#334155' },
+  td: { padding: '10px 8px', borderBottom: '1px solid #f8fafc', color: 'var(--text-secondary)' },
   statusBadge: { padding: '3px 8px', borderRadius: 20, fontSize: 12, fontWeight: 600 },
   // 高危评估
   assessGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 },
   assessForm: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 },
   formItem: {},
   formLabel: { fontSize: 12, color: '#64748b', marginBottom: 4 },
-  formSelect: { width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none', background: '#fff' },
+  formSelect: { width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none', background: 'var(--bg-card)' },
   riskCard: {
     borderRadius: 12, padding: 20, textAlign: 'center', marginBottom: 16,
     border: '2px solid transparent', cursor: 'pointer', transition: 'all 0.2s',
@@ -84,16 +84,16 @@ const s: Record<string, React.CSSProperties> = {
     display: 'grid', gridTemplateColumns: '100px 80px 60px 80px 120px 80px 70px 70px 80px',
     gap: 8, padding: '10px 8px', borderBottom: '1px solid #f1f5f9', alignItems: 'center', fontSize: 12,
   },
-  detectionHeader: { background: '#f8fafc', borderRadius: 8, marginBottom: 4, fontWeight: 600, color: '#64748b', fontSize: 12 },
+  detectionHeader: { background: 'var(--content-bg)', borderRadius: 8, marginBottom: 4, fontWeight: 600, color: '#64748b', fontSize: 12 },
   tag: { padding: '3px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600, display: 'inline-block', textAlign: 'center' },
   // 地图
   mapGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 },
-  mapSvg: { position: 'relative', background: '#f8fafc', borderRadius: 12, padding: 16, minHeight: 400 },
+  mapSvg: { position: 'relative', background: 'var(--content-bg)', borderRadius: 12, padding: 16, minHeight: 400 },
   mapPlaceholder: { display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'center' },
   mapProvince: { padding: '6px 10px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'default' },
   provinceTable: { fontSize: 12 },
   provinceTh: { textAlign: 'left', padding: '8px 10px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 600 },
-  provinceTd: { padding: '8px 10px', borderBottom: '1px solid #f8fafc', color: '#334155' },
+  provinceTd: { padding: '8px 10px', borderBottom: '1px solid #f8fafc', color: 'var(--text-secondary)' },
   // 滚动容器
   scrollBox: { maxHeight: 320, overflowY: 'auto' },
   // 空状态
@@ -507,7 +507,7 @@ const CancerScreenPage = () => {
       </div>
 
       {/* 功能区Tab导航 */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: '#f1f5f9', padding: 4, borderRadius: 10 }}>
+      <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: 'var(--content-bg)', padding: 4, borderRadius: 10 }}>
         {[
           { label: '筛查任务管理', icon: Target },
           { label: '高危评估', icon: AlertTriangle },
@@ -579,7 +579,7 @@ const CancerScreenPage = () => {
                     <td style={s.td}>{task.completed}</td>
                     <td style={s.td}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <div style={{ width: 60, height: 6, background: '#f1f5f9', borderRadius: 3, overflow: 'hidden' }}>
+                        <div style={{ width: 60, height: 6, background: 'var(--content-bg)', borderRadius: 3, overflow: 'hidden' }}>
                           <div style={{ width: `${task.rate}%`, height: '100%', background: task.rate >= 100 ? '#16a34a' : task.rate >= 50 ? '#2563eb' : '#ca8a04', borderRadius: 3 }} />
                         </div>
                         <span style={{ fontSize: 12, color: '#64748b' }}>{task.rate}%</span>
@@ -610,7 +610,7 @@ const CancerScreenPage = () => {
           <div style={s.assessGrid}>
             {/* 左: 评估表单 */}
             <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#334155', marginBottom: 12 }}>当前评估（基于LDCT筛查标准）</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 12 }}>当前评估（基于LDCT筛查标准）</div>
               <div style={s.assessForm}>
                 {assessmentDimensions.map(dim => (
                   <div key={dim.key} style={s.formItem}>
@@ -639,7 +639,7 @@ const CancerScreenPage = () => {
             </div>
             {/* 右: 历史评估记录 */}
             <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#334155', marginBottom: 12 }}>历史评估 ({assessments.length}条)</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 12 }}>历史评估 ({assessments.length}条)</div>
               <div style={s.scrollBox}>
                 {assessments.length === 0 ? (
                   <div style={s.emptyState}>
@@ -650,7 +650,7 @@ const CancerScreenPage = () => {
                 ) : assessments.map(a => (
                   <div key={a.id} style={{ padding: '10px 12px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>{a.name} <span style={{ fontSize: 12, color: '#94a3b8' }}>({a.age}岁)</span></div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>{a.name} <span style={{ fontSize: 12, color: '#94a3b8' }}>({a.age}岁)</span></div>
                       <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{a.date} · {a.doctor}</div>
                     </div>
                     <span style={{ ...s.tag, background: riskBgColors[a.risk], color: riskColors[a.risk] }}>{a.risk} ({a.totalScore}分)</span>
@@ -708,7 +708,7 @@ const CancerScreenPage = () => {
           <div style={s.mapGrid}>
             {/* 省份列表 */}
             <div style={s.mapSvg}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#334155', marginBottom: 12 }}>各省份覆盖情况</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 12 }}>各省份覆盖情况</div>
               <div style={{ overflowY: 'auto', maxHeight: 400 }}>
                 <table style={s.provinceTable}>
                   <thead>
@@ -743,7 +743,7 @@ const CancerScreenPage = () => {
             </div>
             {/* 右侧：影像筛查类型分布 */}
             <div style={{ ...s.mapSvg, display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>各筛查类型统计</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>各筛查类型统计</div>
               {[
                 { type: 'LDCT', icon: Wind, count: 8642, color: '#2563eb', bg: '#eff6ff' },
                 { type: 'MG', icon: Heart, count: 3426, color: '#ec4899', bg: '#fdf2f8' },
@@ -757,14 +757,14 @@ const CancerScreenPage = () => {
                       <Icon size={20} color={item.color} />
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>{item.type}筛查</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>{item.type}筛查</div>
                       <div style={{ fontSize: 12, color: '#64748b' }}>占比{Math.round(item.count / 100).toLocaleString()}%</div>
                     </div>
                     <div style={{ fontSize: 22, fontWeight: 800, color: item.color }}>{item.count.toLocaleString()}</div>
                   </div>
                 )
               })}
-              <div style={{ marginTop: 8, padding: '12px 16px', background: '#f8fafc', borderRadius: 10, border: '1px dashed #e2e8f0' }}>
+              <div style={{ marginTop: 8, padding: '12px 16px', background: 'var(--content-bg)', borderRadius: 10, border: '1px dashed #e2e8f0' }}>
                 <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>本年月度筛查趋势（最近6个月）</div>
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 60 }}>
                   {monthlyData.slice(-6).map((m, i) => {
@@ -833,7 +833,7 @@ const biRadsStats = [
       {/* 筛选Modal */}
       {showFilterModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#fff', borderRadius: 12, padding: 24, minWidth: 400 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, minWidth: 400 }}>
             <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>筛选条件</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>筛查类型</div>
@@ -863,7 +863,7 @@ const biRadsStats = [
       {/* 新增Modal */}
       {showNewModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#fff', borderRadius: 12, padding: 24, minWidth: 450 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, minWidth: 450 }}>
             <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>新建筛查任务</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>任务名称</div><input style={{ ...s.formSelect, width: '100%' }} placeholder="请输入任务名称" /></div>
@@ -890,15 +890,15 @@ const biRadsStats = [
       {/* 详情Modal */}
       {showDetailModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#fff', borderRadius: 12, padding: 24, minWidth: 500 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, minWidth: 500 }}>
             <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>任务详情</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <div style={{ padding: 12, background: '#f8fafc', borderRadius: 8 }}><div style={{ fontSize: 12, color: '#94a3b8' }}>任务名称</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>山东省LDCT早癌筛查</div></div>
-              <div style={{ padding: 12, background: '#f8fafc', borderRadius: 8 }}><div style={{ fontSize: 12, color: '#94a3b8' }}>筛查类型</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>LDCT</div></div>
-              <div style={{ padding: 12, background: '#f8fafc', borderRadius: 8 }}><div style={{ fontSize: 12, color: '#94a3b8' }}>目标人数</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>500人</div></div>
-              <div style={{ padding: 12, background: '#f8fafc', borderRadius: 8 }}><div style={{ fontSize: 12, color: '#94a3b8' }}>完成人数</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>326人 (65.2%)</div></div>
-              <div style={{ padding: 12, background: '#f8fafc', borderRadius: 8 }}><div style={{ fontSize: 12, color: '#94a3b8' }}>地区</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>山东省</div></div>
-              <div style={{ padding: 12, background: '#f8fafc', borderRadius: 8 }}><div style={{ fontSize: 12, color: '#94a3b8' }}>负责人</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>张伟医生</div></div>
+              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: '#94a3b8' }}>任务名称</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>山东省LDCT早癌筛查</div></div>
+              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: '#94a3b8' }}>筛查类型</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>LDCT</div></div>
+              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: '#94a3b8' }}>目标人数</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>500人</div></div>
+              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: '#94a3b8' }}>完成人数</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>326人 (65.2%)</div></div>
+              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: '#94a3b8' }}>地区</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>山东省</div></div>
+              <div style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}><div style={{ fontSize: 12, color: '#94a3b8' }}>负责人</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>张伟医生</div></div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 20, justifyContent: 'flex-end' }}>
               <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowDetailModal(false)}>关闭</button>
@@ -1006,7 +1006,7 @@ const biRadsStats = [
       {/* 编辑Modal */}
       {showEditModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#fff', borderRadius: 12, padding: 24, minWidth: 450 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, minWidth: 450 }}>
             <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>编辑任务</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>任务名称</div><input style={{ ...s.formSelect, width: '100%' }} defaultValue="山东省LDCT早癌筛查" /></div>
@@ -1033,9 +1033,9 @@ const biRadsStats = [
       {/* 导出预览Modal */}
       {showExportModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#fff', borderRadius: 12, padding: 24, minWidth: 500 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, minWidth: 500 }}>
             <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>导出报告预览</div>
-            <div style={{ background: '#f8fafc', borderRadius: 8, padding: 16, marginBottom: 16 }}>
+            <div style={{ background: 'var(--content-bg)', borderRadius: 8, padding: 16, marginBottom: 16 }}>
               <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>报告概要</div>
               <div style={{ fontSize: 12, color: '#64748b', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 <span>LDCT筛查人数: 8,642人</span><span>乳腺筛查人数: 5,826人</span>
@@ -1053,7 +1053,7 @@ const biRadsStats = [
       {/* 确认Modal */}
       {showConfirmModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#fff', borderRadius: 12, padding: 24, minWidth: 400 }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, minWidth: 400 }}>
             <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>确认提交评估</div>
             <div style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>当前风险评估结果为「{currentRisk}」（{currentScore}分），确认提交审核吗？</div>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>

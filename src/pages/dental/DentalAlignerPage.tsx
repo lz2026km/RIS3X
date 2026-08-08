@@ -140,7 +140,7 @@ export const DentalAlignerPage: React.FC = () => {
         ctx.arc(0, 0, size, 0, Math.PI * 2);
         ctx.fillStyle = [11, 21, 31, 41].includes(m.toothNo)
           ? "#52c41a"
-          : "#1677ff";
+          : "#2563eb";
         ctx.fill();
         ctx.strokeStyle = "#fff";
         ctx.lineWidth = 1;
@@ -173,7 +173,7 @@ export const DentalAlignerPage: React.FC = () => {
     return (
       <div style={{ padding: 24, background: "#f5f5f5", minHeight: "100vh" }}>
         <Space style={{ marginBottom: 16 }}>
-          <Activity size={20} color="#1677ff" />
+          <Activity size={20} color="#2563eb" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>
             隐形矫治方案中心
           </span>
@@ -194,7 +194,7 @@ export const DentalAlignerPage: React.FC = () => {
                 value={
                   plans.filter((p: any) => p.status === "in-progress").length
                 }
-                styles={{ content: {  color: "#1677ff"  } }}
+                styles={{ content: {  color: "#2563eb"  } }}
               />
             </Card>
           </Col>
@@ -228,7 +228,7 @@ export const DentalAlignerPage: React.FC = () => {
                 onClick={() => handleSelect(p)}
                 style={{
                   cursor: "pointer",
-                  borderLeft: `4px solid ${p.status === "completed" ? "#52c41a" : p.status === "in-progress" ? "#1677ff" : "#faad14"}`,
+                  borderLeft: `4px solid ${p.status === "completed" ? "#52c41a" : p.status === "in-progress" ? "#2563eb" : "#faad14"}`,
                 }}
               >
                 <Space
@@ -277,7 +277,7 @@ export const DentalAlignerPage: React.FC = () => {
         <Button icon={<RotateCcw size={14} />} onClick={() => setMode("list")}>
           返回
         </Button>
-        <Layers size={18} color="#1677ff" />
+        <Layers size={18} color="#2563eb" />
         <span style={{ fontSize: 16, fontWeight: 600 }}>
           {current?.patientName} - 隐形矫治方案
         </span>

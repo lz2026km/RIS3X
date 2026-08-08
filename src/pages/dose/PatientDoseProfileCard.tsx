@@ -55,7 +55,7 @@ export default function PatientDoseProfileCard({ patient, onViewDetails }: Props
             <User size={18} color={badge.color} />
           </div>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#1e3a5f" }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#1e40af" }}>
               {patient.patientName}
             </div>
             <div style={{ fontSize: 12, color: "#64748b" }}>
@@ -90,14 +90,14 @@ export default function PatientDoseProfileCard({ patient, onViewDetails }: Props
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <Monitor size={14} color="#64748b" />
             <span style={{ fontSize: 12, color: "#64748b" }}>设备:</span>
-            <span style={{ fontSize: 12, fontWeight: 600, color: "#1e3a5f" }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: "#1e40af" }}>
               {patient.device}
             </span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <Calendar size={14} color="#64748b" />
             <span style={{ fontSize: 12, color: "#64748b" }}>日期:</span>
-            <span style={{ fontSize: 12, fontWeight: 600, color: "#1e3a5f" }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: "#1e40af" }}>
               {patient.examDate}
             </span>
           </div>
@@ -134,7 +134,7 @@ export default function PatientDoseProfileCard({ patient, onViewDetails }: Props
             <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>
               法规阈值
             </div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: "#1e3a5f" }}>
+            <div style={{ fontSize: 18, fontWeight: 800, color: "#1e40af" }}>
               {patient.threshold}
             </div>
             <div style={{ fontSize: 12, color: "#94a3b8" }}>{patient.doseUnit}</div>
@@ -217,19 +217,19 @@ export default function PatientDoseProfileCard({ patient, onViewDetails }: Props
           }}
         >
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 16, fontWeight: 800, color: "#1e3a5f" }}>
+            <div style={{ fontSize: 16, fontWeight: 800, color: "#1e40af" }}>
               {patient.examCount}
             </div>
             <div style={{ fontSize: 12, color: "#64748b" }}>累计检查</div>
           </div>
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 16, fontWeight: 800, color: "#1e3a5f" }}>
+            <div style={{ fontSize: 16, fontWeight: 800, color: "#1e40af" }}>
               {patient.cumulativeDLP}
             </div>
             <div style={{ fontSize: 12, color: "#64748b" }}>累计DLP</div>
           </div>
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 16, fontWeight: 800, color: "#1e3a5f" }}>
+            <div style={{ fontSize: 16, fontWeight: 800, color: "#1e40af" }}>
               {referenceValue}
             </div>
             <div style={{ fontSize: 12, color: "#64748b" }}>参考值</div>

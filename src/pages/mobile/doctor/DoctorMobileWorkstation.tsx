@@ -49,15 +49,15 @@ const MOCK_REPORTS: LatestReportItem[] = [
 
 const s = {
   container: { maxWidth: 420, margin: '0 auto', background: '#f8fafc', minHeight: '100vh', fontFamily: '-apple-system, sans-serif' },
-  header: { background: 'linear-gradient(135deg, #1e3a5f, #2d4a6f)', color: '#fff', padding: '16px 16px 12px' },
+  header: { background: 'linear-gradient(135deg, #1e40af, #2563eb)', color: '#fff', padding: '16px 16px 12px' },
   headerTitle: { fontSize: 18, fontWeight: 700 },
   statsRow: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginTop: 12 },
   statCard: (bg: string) => ({ background: bg, borderRadius: 10, padding: '10px 8px', textAlign: 'center' as const }),
-  statValue: { fontSize: 20, fontWeight: 800, color: '#1e3a5f' },
+  statValue: { fontSize: 20, fontWeight: 800, color: '#1e40af' },
   statLabel: { fontSize: 12, color: '#64748b', marginTop: 2 },
   searchBar: { display: 'flex', alignItems: 'center', gap: 8, background: '#fff', borderRadius: 10, padding: '10px 14px', margin: '12px 16px', border: '1px solid #e2e8f0' },
   tabRow: { display: 'flex', margin: '0 16px', gap: 4 },
-  tab: (active: boolean) => ({ flex: 1, padding: '8px 0', textAlign: 'center' as const, fontSize: 12, fontWeight: 600, cursor: 'pointer', color: active ? '#1e3a5f' : '#94a3b8', borderBottom: active ? '2px solid #1e3a5f' : '2px solid transparent' }),
+  tab: (active: boolean) => ({ flex: 1, padding: '8px 0', textAlign: 'center' as const, fontSize: 12, fontWeight: 600, cursor: 'pointer', color: active ? '#1e40af' : '#94a3b8', borderBottom: active ? '2px solid #1e40af' : '2px solid transparent' }),
   listItem: { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: '#fff', borderBottom: '1px solid #f1f5f9', cursor: 'pointer' },
   badge: (color: string) => ({ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: `${color}20`, color }),
   priorityDot: (color: string) => ({ width: 8, height: 8, borderRadius: '50%', background: color, flexShrink: 0 }),
@@ -216,7 +216,7 @@ export default function DoctorMobileWorkstation() {
           <div style={{ display: 'flex', gap: 6, padding: '8px 16px' }}>
             {[{ key: 'all', label: '全部' }, { key: 'pending', label: '待报告' }, { key: 'reading', label: '报告中' }].map(f => (
               <div key={f.key} onClick={() => setFilter(f.key as typeof filter)}
-                style={{ padding: '4px 12px', borderRadius: 14, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: filter === f.key ? '#1e3a5f' : '#f1f5f9', color: filter === f.key ? '#fff' : '#64748b' }}>
+                style={{ padding: '4px 12px', borderRadius: 14, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: filter === f.key ? '#1e40af' : '#f1f5f9', color: filter === f.key ? '#fff' : '#64748b' }}>
                 {f.label}
               </div>
             ))}
@@ -330,7 +330,7 @@ export default function DoctorMobileWorkstation() {
           { key: 'input', icon: Mic, label: '报告' },
           { key: 'bell', icon: Bell, label: '消息' },
         ].map(nav => (
-          <div key={nav.key} style={{ flex: 1, textAlign: 'center', padding: '4px 0', fontSize: 12, color: tab === nav.key ? '#1e3a5f' : '#94a3b8', cursor: 'pointer', fontWeight: tab === nav.key ? 700 : 400 }}>
+          <div key={nav.key} style={{ flex: 1, textAlign: 'center', padding: '4px 0', fontSize: 12, color: tab === nav.key ? '#1e40af' : '#94a3b8', cursor: 'pointer', fontWeight: tab === nav.key ? 700 : 400 }}>
             <nav.icon size={18} style={{ display: 'block', margin: '0 auto 2px' }} />
             {nav.label}
           </div>

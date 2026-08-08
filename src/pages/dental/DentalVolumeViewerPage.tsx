@@ -96,7 +96,7 @@ export const DentalVolumeViewerPage: React.FC = () => {
     return (
       <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
         <Space style={{ marginBottom: 16 }}>
-          <Box size={20} color="#1677ff" />
+          <Box size={20} color="#2563eb" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>CBCT 体绘制 · 曲线 MPR</span>
           <Tag color="cyan">v3.0.6.8-93</Tag>
           <Tag color="purple">Romexis 对标</Tag>
@@ -157,10 +157,10 @@ export const DentalVolumeViewerPage: React.FC = () => {
                 <Row gutter={[8,8]}>
                   {presets.map((p:any)=>(
                     <Col span={12} key={p.id}>
-                      <Card size="small" hoverable onClick={()=>{setActivePreset(p.id);}} style={{cursor:'pointer',borderColor:activePreset===p.id?'#1677ff':'#d9d9d9'}}>
+                      <Card size="small" hoverable onClick={()=>{setActivePreset(p.id);}} style={{cursor:'pointer',borderColor:activePreset===p.id?'#2563eb':'#d9d9d9'}}>
                         <div style={{fontWeight:600}}>{p.name}</div>
                         <div style={{fontSize:11,color:'#999'}}>WW {p.ww} WC {p.wc}</div>
-                        <Progress percent={p.id==='bone'?90:p.id==='soft'?40:p.id==='airway'?70:80} size="small" strokeColor={p.id==='nerve'?'#ff4d4f':'#1677ff'} />
+                        <Progress percent={p.id==='bone'?90:p.id==='soft'?40:p.id==='airway'?70:80} size="small" strokeColor={p.id==='nerve'?'#ff4d4f':'#2563eb'} />
                       </Card>
                     </Col>
                   ))}
@@ -183,7 +183,7 @@ export const DentalVolumeViewerPage: React.FC = () => {
               <Card size="small" title="牙弓路径">
                 <div style={{height:200,background:'#0a0a1a',borderRadius:6,padding:8}}>
                   <svg viewBox="-60 -10 120 60" width="100%" height="180">
-                    <path d="M-55,28 Q-40,10 0,5 Q40,10 55,28" stroke="#1677ff" strokeWidth="2" fill="none" />
+                    <path d="M-55,28 Q-40,10 0,5 Q40,10 55,28" stroke="#2563eb" strokeWidth="2" fill="none" />
                     {[-55,-45,-35,-25,-15,-5,5,15,25,35,45,55].map((x,i)=>(
                       <circle key={i} cx={x} cy={i<6?28-Math.abs(x)*0.3+5:28-Math.abs(x)*0.3+5} r={2} fill="#52c41a" />
                     ))}

@@ -38,7 +38,7 @@ export const ToothChartPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: "#f5f5f5" }}>
       <Space style={{ marginBottom: 16 }}>
-        <Stethoscope size={20} color="#1677ff" />
+        <Stethoscope size={20} color="#2563eb" />
         <Activity size={20} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>牙位图 (FDI)</span>
         <Tag color="cyan">v3.0.6.8-53</Tag>
@@ -98,7 +98,7 @@ export const ToothChartPage: React.FC = () => {
                         style={{
                           width: 40,
                           height: 48,
-                          border: `2px solid ${activeTooth === t ? "#1677ff" : "#d9d9d9"}`,
+                          border: `2px solid ${activeTooth === t ? "#2563eb" : "#d9d9d9"}`,
                           borderRadius: 8,
                           background: color,
                           display: "flex",

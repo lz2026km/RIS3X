@@ -9,10 +9,12 @@ import {
   ReferenceLine,
   Cell,
 } from "recharts";
+import { AlertTriangle } from "lucide-react";
 import { breastDoseRecords } from "./mockData";
 import { getAlertBadge } from "./utils";
 import type { BreastDoseRecord } from "./types";
 
+// [W3-C] 乳腺剂量: rdsrApi 无乳腺专项端点 (仅 CT), 标注「演示数据」
 export default function BreastDoseTracking() {
   const totalExams = breastDoseRecords.length;
   const recalledExams = breastDoseRecords.filter(
@@ -27,6 +29,20 @@ export default function BreastDoseTracking() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div
+        style={{
+          padding: "8px 12px",
+          background: "#fef3c7",
+          color: "#d97706",
+          borderRadius: 8,
+          fontSize: 12,
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+        }}
+      >
+        <AlertTriangle size={14} /> 演示数据：rdsrApi 无乳腺 (MG) 剂量端点，AGD 记录为本地模拟数据
+      </div>
       <div
         style={{
           display: "grid",
@@ -67,7 +83,7 @@ export default function BreastDoseTracking() {
           }}
         >
           <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>
               乳腺摄影AGD剂量追踪
             </div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
@@ -106,7 +122,7 @@ export default function BreastDoseTracking() {
                         borderRadius: 6,
                       }}
                     >
-                      <div style={{ fontSize: 12, fontWeight: 700, color: "#1e3a5f" }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
                         {record?.patientName}
                       </div>
                       <div style={{ fontSize: 12, color: "#64748b" }}>
@@ -151,7 +167,7 @@ export default function BreastDoseTracking() {
           style={{
             fontSize: 13,
             fontWeight: 700,
-            color: "#1e3a5f",
+            color: "#1e40af",
             marginBottom: 16,
           }}
         >
@@ -302,7 +318,7 @@ const tdPrimary: React.CSSProperties = {
   padding: "10px 12px",
   fontSize: 12,
   fontWeight: 600,
-  color: "#1e3a5f",
+  color: "#1e40af",
   textAlign: "center",
 };
 

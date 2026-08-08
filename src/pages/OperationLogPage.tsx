@@ -322,7 +322,7 @@ export default function OperationLogPage() {
           <History size={24} color={PRIMARY} />
           <div>
             <div style={{ fontSize: 16, fontWeight: 700, color: PRIMARY }}>操作痕迹日志</div>
-            <div style={{ fontSize: 12, color: GRAY }}>Operation Logs - 共 {filteredLogs.length} 条记录</div>
+            <div style={{ fontSize: 12, color: GRAY }}>操作日志 - 共 {filteredLogs.length} 条记录</div>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>

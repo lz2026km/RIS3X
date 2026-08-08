@@ -27,7 +27,7 @@ import {
   Routes,
   Route,
 } from "react-router-dom";
-import { Menu, X, Radio, Activity, Bell, ChevronRight, Search } from "lucide-react";
+import { Menu, X, Radio, Activity, Bell, ChevronRight, Search, Sun, Moon, Contrast, Settings } from "lucide-react";
 import {
   SIDEBAR_ITEMS,
   type Role,
@@ -47,6 +47,9 @@ import { buildMeta } from "../utils/appInfo";
 import { useAuth } from "../hooks/useAuth";
 import { normalizeRole } from "../services/auth/roleUtils";
 import { useBreakpoint } from "../hooks/useBreakpoint";
+import { useUserConfig } from "../hooks/useUserConfig";
+import { useAppTheme, type ThemeMode } from "../components/Provider";
+import { SettingsPanel } from "../components/feedback/SettingsPanel";
 import { NetworkOfflineBanner } from "../components/feedback/NetworkOfflineBanner";
 import { SkipLink } from "../a11y/SkipLink";
 
@@ -292,6 +295,19 @@ const s: Record<string, React.CSSProperties> = {
   }),
 };
 
+// U1-B: Header 主题切换按钮 — 浅色/深色/高对比度 三态图标
+const THEME_META: Record<
+  ThemeMode,
+  { icon: React.ReactNode; labelKey: string }
+> = {
+  light: { icon: <Sun size={18} />, labelKey: "app.themeLight" },
+  dark: { icon: <Moon size={18} />, labelKey: "app.themeDark" },
+  "high-contrast": {
+    icon: <Contrast size={18} />,
+    labelKey: "app.themeHighContrast",
+  },
+};
+
 function Breadcrumb({ pathname }: { pathname: string }) {
   const segments = pathname.split("/").filter(Boolean);
   const isHome = pathname === "/";
@@ -441,6 +457,8 @@ export function AppLayout() {
   const bp = useBreakpoint();
   const isNarrow = bp === "xs" || bp === "sm" || bp === "md";
   const filteredItems = useSidebarItems((user?.role as Role) ?? "医生");
+  const { theme: appTheme, cycleTheme } = useAppTheme();
+  const userConfig = useUserConfig();
 
   useEffect(() => onLocaleChange((l) => setLocale(l)), []);
 
@@ -642,6 +660,7 @@ export function AppLayout() {
             </span>
             <Breadcrumb pathname={location.pathname} />
             <div
+              className="hide-xs"
               style={{
                 position: "relative",
                 display: "flex",
@@ -692,6 +711,7 @@ export function AppLayout() {
             }}
           >
             <div
+              className="hide-xs"
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -703,6 +723,26 @@ export function AppLayout() {
               <Activity size={14} style={{ color: "#22c55e" }} />
               <span>{t("app.systemStatus")}</span>
             </div>
+            <button
+              style={s.headerBtn}
+              onClick={cycleTheme}
+              aria-label={`${t("app.theme")}: ${t(THEME_META[appTheme].labelKey)}`}
+              title={`${t("app.theme")}: ${t(THEME_META[appTheme].labelKey)} · ${t("app.themeSwitchHint")}`}
+            >
+              {THEME_META[appTheme].icon}
+            </button>
+            <SettingsPanel
+              config={userConfig.config}
+              updateConfig={userConfig.updateConfig}
+              resetConfig={userConfig.resetConfig}
+              updateField={userConfig.updateField}
+              trigger={
+                <Settings
+                  size={18}
+                  style={{ color: "var(--text-secondary, #c8ccd4)" }}
+                />
+              }
+            />
             <button style={s.headerBtn} aria-label={t("nav.notification")}>
               <Bell size={18} />
               <span
@@ -719,6 +759,7 @@ export function AppLayout() {
               />
             </button>
             <span
+              className="hide-xs"
               style={{
                 fontSize: 13,
                 color: "var(--text-secondary, #c8ccd4)",
@@ -734,7 +775,8 @@ export function AppLayout() {
         {!isOnline && <NetworkOfflineBanner />}
         <div
           id="main-content"
-          className="print-area"
+          key={location.pathname}
+          className="print-area anim-fade-in"
           tabIndex={-1}
           style={s.content}
           role="main"

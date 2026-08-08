@@ -52,7 +52,7 @@ export const VisitDetailPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <GitBranch size={20} color="#1677ff" />
+        <GitBranch size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>Visit 生命周期</span>
         <Tag color="cyan">v3.0.6.0</Tag>
         <Tag color="blue">{patientId}</Tag>

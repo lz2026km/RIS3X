@@ -1126,7 +1126,7 @@ export default function ConsultationPage() {
               }}>
                 <div style={{
                   aspectRatio: '16/9',
-                  background: 'linear-gradient(135deg, #1e3a5f 0%, #16213e 100%)',
+                  background: 'linear-gradient(135deg, #1e40af 0%, #16213e 100%)',
                   borderRadius: 6,
                   display: 'flex',
                   alignItems: 'center',
@@ -1475,7 +1475,7 @@ export default function ConsultationPage() {
             }}>
               <div style={{
                 aspectRatio: '16/9',
-                background: 'linear-gradient(135deg, #1e3a5f 0%, #16213e 100%)',
+                background: 'linear-gradient(135deg, #1e40af 0%, #16213e 100%)',
                 borderRadius: 6,
                 display: 'flex',
                 alignItems: 'center',

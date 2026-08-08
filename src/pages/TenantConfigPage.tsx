@@ -294,7 +294,7 @@ export default function TenantConfigPage() {
               children: (
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                   <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreating(true)}>新建租户</Button>
-                  <Table rowKey="id" columns={columns} dataSource={tenants} pagination={false} size="small" />
+                  <Table rowKey="id" columns={columns} dataSource={tenants} pagination={false} size="small" scroll={{ x: 'max-content' }}/>
                 </Space>
               ),
             }] : []),

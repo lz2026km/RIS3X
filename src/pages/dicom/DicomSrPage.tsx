@@ -73,7 +73,7 @@ export const DicomSrPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <FileText size={20} color="#1677ff" />
+        <FileText size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>DICOM SR 管理器</span>
         <Tag color="cyan">TID 1500 / 2000</Tag>
       </Space>

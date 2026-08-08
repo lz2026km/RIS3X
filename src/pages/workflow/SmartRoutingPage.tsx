@@ -10,6 +10,7 @@ import {
   type SmartRouteAssignment,
   type DoctorQualification,
 } from '../../services/api/smartRouteApi'
+import { usePagination } from '../../hooks/usePagination'
 
 const stageMeta: Record<string, { label: string; color: string }> = {
   qualification: { label: '资质匹配', color: 'blue' },
@@ -31,6 +32,8 @@ const SmartRoutingPage: React.FC = () => {
   const [ruleForm] = Form.useForm()
   const [assigning, setAssigning] = useState(false)
   const [preview, setPreview] = useState<SmartRouteAssignment | null>(null)
+  // [W3-C] 受控分页: 分配历史表
+  const historyPagination = usePagination(history, 10)
 
   const fetchAll = useCallback(async () => {
     setLoading(true)
@@ -164,7 +167,7 @@ const SmartRoutingPage: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <Route size={20} color="#1677ff" />
+        <Route size={20} color="#2563eb" />
         <h1 style={{ fontSize: 20, margin: 0 }}>智能路由</h1>
         <Tag color="blue">资质感知路由</Tag>
         <Tag color="purple">资质匹配 → 负载均衡 → 优先级</Tag>
@@ -205,14 +208,14 @@ const SmartRoutingPage: React.FC = () => {
                   </Space>
                 }
               >
-                <Table rowKey="id" dataSource={rules} columns={ruleColumns} loading={loading} pagination={false} size="small" />
+                <Table rowKey="id" dataSource={rules} columns={ruleColumns} loading={loading} pagination={false} size="small" scroll={{ x: 'max-content' }}/>
               </Card>
             ),
           },
           {
             key: 'qualifications',
             label: <span><GraduationCap size={14} /> 医生资质</span>,
-            children: <Card><Table rowKey="doctorId" dataSource={qualifications} columns={qualColumns} loading={loading} pagination={false} size="small" /></Card>,
+            children: <Card><Table rowKey="doctorId" dataSource={qualifications} columns={qualColumns} loading={loading} pagination={false} size="small" scroll={{ x: 'max-content' }}/></Card>,
           },
           {
             key: 'assign',
@@ -288,7 +291,7 @@ const SmartRoutingPage: React.FC = () => {
                 )}
 
                 <h4 style={{ margin: '8px 0' }}>分配历史</h4>
-                <Table rowKey="id" dataSource={history} columns={historyColumns} pagination={{ pageSize: 10 }} size="small" />
+                <Table rowKey="id" dataSource={historyPagination.pageData} columns={historyColumns} pagination={historyPagination.pagination} size="small" scroll={{ x: 'max-content' }}/>
               </Card>
             ),
           },

@@ -90,7 +90,7 @@ export const CommandCenterPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <BarChart3 size={20} color="#1677ff" />
+        <BarChart3 size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>全院运营指挥中心 (Command Center)</span>
         <Tag color="cyan">实时</Tag>
         <Space>
@@ -110,7 +110,7 @@ export const CommandCenterPage: React.FC = () => {
       <Spin spinning={loading && !dash}>
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={6}><Card size="small" title={<Space><Camera size={14} />今日检查量</Space>}>
-            <Statistic value={dash?.today?.exams ?? 0} prefix={<Activity size={14} />} styles={{ content: { color: '#1677ff' } }} />
+            <Statistic value={dash?.today?.exams ?? 0} prefix={<Activity size={14} />} styles={{ content: { color: '#2563eb' } }} />
             <Text type="secondary" style={{ fontSize: 12 }}>报告 {dash?.today?.reports ?? 0} 份</Text>
           </Card></Col>
           <Col span={6}><Card size="small" title={<Space><AlertTriangle size={14} />危急值</Space>}>
@@ -161,7 +161,7 @@ export const CommandCenterPage: React.FC = () => {
                   <div style={{ fontSize: 10, color: '#64748b' }}>{t.count}</div>
                   <div style={{
                     width: '70%', height: `${Math.max(6, (t.count / maxTrend) * 150)}px`,
-                    background: '#1677ff', borderRadius: '4px 4px 0 0', opacity: 0.6 + i * 0.03,
+                    background: '#2563eb', borderRadius: '4px 4px 0 0', opacity: 0.6 + i * 0.03,
                   }} />
                   <div style={{ fontSize: 10, color: '#999' }}>{t.label}</div>
                 </div>
@@ -172,7 +172,7 @@ export const CommandCenterPage: React.FC = () => {
 
         <Row gutter={16}>
           <Col span={8}><Card size="small" title="放射科"><Statistic title="累计检查" value={dash?.totals?.exams ?? 0} /></Card></Col>
-          <Col span={8}><Card size="small" title="患者总数"><Statistic title="在册患者" value={dash?.totals?.patients ?? 0} styles={{ content: { color: '#1677ff' } }} /></Card></Col>
+          <Col span={8}><Card size="small" title="患者总数"><Statistic title="在册患者" value={dash?.totals?.patients ?? 0} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
           <Col span={8}><Card size="small" title="系统健康度">
             <Statistic title="在线设备" value={deviceStats?.inUse ?? 0} suffix={`/ ${deviceStats?.total ?? 0}`} />
             <Progress percent={deviceStats?.total ? Math.round((deviceStats.inUse / deviceStats.total) * 100) : 0} size="small" strokeColor="#52c41a" />

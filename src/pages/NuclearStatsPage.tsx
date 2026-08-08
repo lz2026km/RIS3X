@@ -15,8 +15,8 @@ import { nuclearStatsApi } from '../services/api/nuclearStatsApi'
 // 样式常量
 // ============================================================
 const C = {
-  primary: '#1e3a5f',
-  primaryLight: '#2d4a6f',
+  primary: '#1e40af',
+  primaryLight: '#2563eb',
   accent: '#0891b2',       // cyan-600 核医学主题色
   accentLight: '#ecfeff',  // cyan-50
   white: '#ffffff',

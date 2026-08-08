@@ -1,7 +1,8 @@
 // [W3-2] 牙科远程会诊: dentalApi.tele 真实 API + 发起/加入 + 会诊列表 + 状态
-import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Button, Row, Col, Select, List, Empty, message, Modal, Form, Input, Tag, Space, Alert, Spin, Statistic, Badge, Popconfirm } from 'antd';
-import { Plus, Upload, Globe, Video, RefreshCw, PhoneIncoming } from 'lucide-react';
+// [W3-C] 上传照片→文件选择+本地预览; AI 预筛→功能标注; 详情→Modal
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Card, Button, Row, Col, Select, List, Empty, message, Modal, Form, Input, Tag, Space, Alert, Spin, Statistic, Badge, Popconfirm, Image, Descriptions } from 'antd';
+import { Plus, Upload, Globe, Video, RefreshCw, PhoneIncoming, AlertTriangle } from 'lucide-react';
 import { DentalPageLayout } from './DentalShared';
 import { dentalApi } from '@/services/api/dentalApi';
 
@@ -13,6 +14,14 @@ const STATUS_META: Record<string, { color: string; label: string }> = {
   completed: { color: 'success', label: '已结束' },
   cancelled: { color: 'default', label: '已取消' },
 };
+
+interface LocalPhoto {
+  id: string;
+  name: string;
+  url: string;
+  sizeKB: number;
+  uploadedAt: string;
+}
 
 const EXPERT_OPTIONS = [
   { value: '王专?(种植)', label: '王专?(种植)' },
@@ -45,6 +54,28 @@ export const DentalTelePage: React.FC = () => {
   const [createModal, setCreateModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form] = Form.useForm();
+  const [photos, setPhotos] = useState<LocalPhoto[]>([]);
+  const [photoModal, setPhotoModal] = useState(false);
+  const [detailModal, setDetailModal] = useState<TeleSession | null>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+
+  const handleSelectPhotos = (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    const next: LocalPhoto[] = Array.from(files).map((f, i) => ({
+      id: `${f.name}-${Date.now()}-${i}`,
+      name: f.name,
+      url: URL.createObjectURL(f),
+      sizeKB: Math.round(f.size / 1024),
+      uploadedAt: new Date().toLocaleString('zh-CN', { hour12: false }),
+    }));
+    setPhotos((prev) => [...prev, ...next]);
+    message.success(`已选择 ${next.length} 张口内照片 (本地预览, 未上传服务器)`);
+  };
+
+  const openPhotoModal = () => {
+    setPhotoModal(true);
+    if (photoInputRef.current) photoInputRef.current.value = '';
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -112,18 +143,18 @@ export const DentalTelePage: React.FC = () => {
   const waitingCount = sessions.filter(s => s.status === 'waiting').length;
 
   return (
-    <DentalPageLayout header={{ title: '远程口腔会诊', icon: <Video size={20} color="#1677ff" /> }}>
+    <DentalPageLayout header={{ title: '远程口腔会诊', icon: <Video size={20} color="#2563eb" /> }}>
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 12 }} action={<Button size="small" onClick={() => void load()}>重试</Button>} />}
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}><Card size="small"><Statistic title="会诊总数" value={sessions.length} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="进行中" value={activeCount} styles={{ content: { color: '#1677ff' } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="进行中" value={activeCount} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="等待加入" value={waitingCount} styles={{ content: { color: '#faad14' } }} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="已结束" value={sessions.filter(s => s.status === 'completed').length} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
       </Row>
       <Row gutter={16}>
         <Col span={6}><Card size="small"><Button type="primary" block onClick={() => setCreateModal(true)} icon={<Plus size={14} />}>新建会诊</Button></Card></Col>
-        <Col span={6}><Card size="small"><Button block icon={<Upload size={14} />} onClick={() => message.info('上传口内照片功能即将开放')}>上传口内照片</Button></Card></Col>
-        <Col span={6}><Card size="small"><Button block icon={<Globe size={14} />} onClick={() => message.info('AI 预筛功能即将开放')}>AI 预筛</Button></Card></Col>
+        <Col span={6}><Card size="small"><Button block icon={<Upload size={14} />} onClick={openPhotoModal}>上传口内照片</Button></Card></Col>
+        <Col span={6}><Card size="small"><Button block icon={<Globe size={14} />} onClick={() => message.info('AI 预筛功能待接入口腔 AI 服务后开放 (详见「口腔 AI 辅助诊断」页)')}>AI 预筛</Button></Card></Col>
         <Col span={6}><Card size="small"><Button block icon={<RefreshCw size={14} />} onClick={() => void load()}>刷新列表</Button></Card></Col>
       </Row>
       <Card title={`会诊记录 (${sessions.length})`} size="small" style={{ marginTop: 16 }}>
@@ -145,7 +176,7 @@ export const DentalTelePage: React.FC = () => {
                             <Button size="small">结束</Button>
                           </Popconfirm>
                         )}
-                        <Button size="small" onClick={() => message.info(`会诊 ${s.id} 详情`)}>详情</Button>
+                        <Button size="small" onClick={() => setDetailModal(s)}>详情</Button>
                       </Space>,
                     ]}
                   >
@@ -184,6 +215,63 @@ export const DentalTelePage: React.FC = () => {
             <TextArea rows={3} placeholder="如: 36 位骨量不足, 需评估骨增量方案" />
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal title="上传口内照片" open={photoModal} onCancel={() => setPhotoModal(false)} footer={<Button type="primary" onClick={() => setPhotoModal(false)}>完成</Button>} width={520}>
+        <div style={{ marginBottom: 12 }}>
+          <input
+            ref={photoInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            style={{ display: 'none' }}
+            onChange={(e) => handleSelectPhotos(e.target.files)}
+          />
+          <Button type="primary" icon={<Upload size={14} />} onClick={() => photoInputRef.current?.click()}>选择照片</Button>
+          <span style={{ marginLeft: 12, fontSize: 12, color: '#94a3b8' }}>已选 {photos.length} 张 · 本地预览, 不涉及网络传输</span>
+        </div>
+        {photos.length === 0 ? (
+          <Empty description="尚未选择照片, 请选择口内照片后预览" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+            {photos.map((p) => (
+              <div key={p.id} style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 8 }}>
+                <Image src={p.url} alt={p.name} style={{ width: '100%', height: 90, objectFit: 'cover', borderRadius: 6 }} />
+                <div style={{ marginTop: 6, fontSize: 11, color: '#334155' }}>{p.name}</div>
+                <div style={{ fontSize: 11, color: '#94a3b8' }}>{p.sizeKB} KB · {p.uploadedAt}</div>
+                <Button
+                  size="small"
+                  danger
+                  style={{ marginTop: 6 }}
+                  onClick={() => setPhotos((prev) => prev.filter((x) => x.id !== p.id))}
+                >
+                  移除
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+        <Alert style={{ marginTop: 12 }} type="info" showIcon icon={<AlertTriangle size={14} />} message="照片仅保存在本地会话, 如需归档请使用影像上传通道" />
+      </Modal>
+
+      <Modal title={`会诊详情 - ${detailModal?.title ?? ''}`} open={!!detailModal} onCancel={() => setDetailModal(null)} footer={<Button onClick={() => setDetailModal(null)}>关闭</Button>} width={480}>
+        {detailModal && (
+          <div>
+            <div style={{ marginBottom: 12 }}>
+              <Space wrap>
+                <b>{detailModal.id}</b>
+                <Tag color="geekblue">{detailModal.status}</Tag>
+              </Space>
+            </div>
+            <Descriptions bordered column={1} size="small">
+              <Descriptions.Item label="患者">{detailModal.patientName} ({detailModal.patientId})</Descriptions.Item>
+              <Descriptions.Item label="专家">{detailModal.expert}</Descriptions.Item>
+              <Descriptions.Item label="发起人">{detailModal.hostDoctor}</Descriptions.Item>
+              <Descriptions.Item label="创建时间">{detailModal.createdAt?.replace('T', ' ').slice(0, 16)}</Descriptions.Item>
+              <Descriptions.Item label="议题">{detailModal.reason || '—'}</Descriptions.Item>
+            </Descriptions>
+          </div>
+        )}
       </Modal>
     </DentalPageLayout>
   );

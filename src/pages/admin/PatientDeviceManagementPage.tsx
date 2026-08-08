@@ -98,7 +98,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <User size={20} color="#1677ff" />
+        <User size={20} color="#2563eb" />
         <Box size={20} color="#52c41a" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>患者 + 设备管理</span>
         <Tag color="cyan">PR2 (v3.0.6.8-46)</Tag>
@@ -147,7 +147,7 @@ export const PatientDeviceManagementPage: React.FC = () => {
                       actions={[<Tag color="blue" key="id">{p.id}</Tag>]}
                     >
                       <List.Item.Meta
-                        avatar={<Avatar style={{ background: '#1677ff' }}>{p.name?.slice(0, 1)}</Avatar>}
+                        avatar={<Avatar style={{ background: '#2563eb' }}>{p.name?.slice(0, 1)}</Avatar>}
                         title={<span>{p.name} ({p.gender}, {p.age}岁)</span>}
                         description={
                           <span style={{ fontSize: 11, color: '#999' }}>
@@ -201,7 +201,8 @@ export const PatientDeviceManagementPage: React.FC = () => {
                             { title: '部位', dataIndex: 'bodyPart' },
                             { title: '状态', dataIndex: 'status' },
                             { title: '日期', dataIndex: 'examAt' },
-                          ]} />
+                          ]} 
+                        scroll={{ x: 'max-content' }}/>
                       )},
                       { key: 'reports', label: <span><FileText size={12} /> 报告 ({patientReports.length})</span>, children: (
                         <List size="small" dataSource={patientReports} renderItem={r => (

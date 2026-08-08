@@ -136,7 +136,7 @@ export const ClinicalCalculatorHubPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <Calculator size={20} color="#1677ff" />
+        <Calculator size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>临床计算器中心</span>
         <Tag color="cyan">v3.0.6.8-78</Tag>
         <Tag color="green">{calculators.length} 个公式</Tag>
@@ -146,9 +146,9 @@ export const ClinicalCalculatorHubPage: React.FC = () => {
           <Row gutter={[12,12]}>
             {calculators.map(c => (
               <Col span={8} key={c.id}>
-                <Card size="small" hoverable onClick={()=>{setSelected(c);setInputs({});setResult(null);}} style={{borderColor:selected?.id===c.id?'#1677ff':'#d9d9d9'}}>
+                <Card size="small" hoverable onClick={()=>{setSelected(c);setInputs({});setResult(null);}} style={{borderColor:selected?.id===c.id?'#2563eb':'#d9d9d9'}}>
                   <Space>
-                    {c.icon==='heart'?<Heart size={16} color="#ff4d4f"/>:c.icon==='beaker'?<Beaker size={16} color="#722ed1"/>:<Activity size={16} color="#1677ff"/>}
+                    {c.icon==='heart'?<Heart size={16} color="#ff4d4f"/>:c.icon==='beaker'?<Beaker size={16} color="#722ed1"/>:<Activity size={16} color="#2563eb"/>}
                     <div>
                       <div style={{fontWeight:600,fontSize:14}}>{c.name}</div>
                       <div style={{fontSize:11,color:'#999'}}>{c.category}</div>

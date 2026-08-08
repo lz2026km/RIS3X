@@ -1160,7 +1160,7 @@ export default function WorklistPage() {
           <h1 style={{
             fontSize: 22,
             fontWeight: 800,
-            color: '#1e3a5f',
+            color: '#1e40af',
             margin: '0 0 6px',
             display: 'flex',
             alignItems: 'center',
@@ -1203,7 +1203,7 @@ export default function WorklistPage() {
 
           <div style={{
             display: 'flex',
-            background: '#fff',
+            background: 'var(--bg-card)',
             borderRadius: 8,
             border: '1px solid #e2e8f0',
             overflow: 'hidden',
@@ -1246,7 +1246,7 @@ export default function WorklistPage() {
           tabIndex={0}
           onKeyDown={(e) => e.key === 'Enter' && setFilters(f => ({ ...f, statuses: [] }))}
           style={{
-          background: '#fff', borderRadius: 12, padding: '16px 20px',
+          background: 'var(--bg-card)', borderRadius: 12, padding: '16px 20px',
           border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           cursor: 'pointer',
         }}
@@ -1254,7 +1254,7 @@ export default function WorklistPage() {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#1e3a5f', lineHeight: 1 }}>{stats.total}</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#1e40af', lineHeight: 1 }}>{stats.total}</div>
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>全部检查</div>
               <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
                 等待中: {stats.waiting}
@@ -1268,7 +1268,7 @@ export default function WorklistPage() {
           tabIndex={0}
           onKeyDown={(e) => e.key === 'Enter' && setFilters(f => ({ ...f, priorities: ['危重', '紧急'] }))}
           style={{
-          background: '#fff', borderRadius: 12, padding: '16px 20px',
+          background: 'var(--bg-card)', borderRadius: 12, padding: '16px 20px',
           border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           cursor: 'pointer',
         }}
@@ -1296,7 +1296,7 @@ export default function WorklistPage() {
           tabIndex={0}
           onKeyDown={(e) => e.key === 'Enter' && setFilters(f => ({ ...f, statuses: ['SCHEDULED', 'ARRIVED', 'IN_PROGRESS'] }))}
           style={{
-          background: '#fff', borderRadius: 12, padding: '16px 20px',
+          background: 'var(--bg-card)', borderRadius: 12, padding: '16px 20px',
           border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           cursor: 'pointer',
         }}
@@ -1321,7 +1321,7 @@ export default function WorklistPage() {
           tabIndex={0}
           onKeyDown={(e) => e.key === 'Enter' && setFilters(f => ({ ...f, statuses: ['COMPLETED'] }))}
           style={{
-          background: '#fff', borderRadius: 12, padding: '16px 20px',
+          background: 'var(--bg-card)', borderRadius: 12, padding: '16px 20px',
           border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           cursor: 'pointer',
         }}
@@ -1462,13 +1462,13 @@ export default function WorklistPage() {
         <button
           onClick={handleRefresh}
           style={{
-            width: 48, height: 48, borderRadius: 12, background: '#1e3a5f',
+            width: 48, height: 48, borderRadius: 12, background: '#1e40af',
             border: 'none', boxShadow: '0 4px 12px rgba(30,58,95,0.3)',
             cursor: 'pointer', display: 'flex', alignItems: 'center',
             justifyContent: 'center', color: '#fff', transition: 'all 0.2s',
           }}
-          onMouseEnter={e => { e.currentTarget.style.background = '#2d4a6f'; e.currentTarget.style.transform = 'scale(1.05)' }}
-          onMouseLeave={e => { e.currentTarget.style.background = '#1e3a5f'; e.currentTarget.style.transform = 'scale(1)' }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#2563eb'; e.currentTarget.style.transform = 'scale(1.05)' }}
+          onMouseLeave={e => { e.currentTarget.style.background = '#1e40af'; e.currentTarget.style.transform = 'scale(1)' }}
           title="刷新数据"
         >
           <RefreshCw size={20} />
@@ -1495,10 +1495,10 @@ export default function WorklistPage() {
           onKeyDown={(e) => { if (e.key === 'Escape') setPatientInfoModalExam(null); }}
           onClick={() => setPatientInfoModalExam(null)}>
           <div style={{
-            background: '#fff', borderRadius: 12, padding: 24, width: 480, maxHeight: '80vh', overflow: 'auto'
+            background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 480, maxHeight: '80vh', overflow: 'auto'
           }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e3a5f' }}>修改患者信息</h3>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>修改患者信息</h3>
               <button onClick={() => setPatientInfoModalExam(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
                 <X size={18} />
               </button>
@@ -1510,8 +1510,8 @@ export default function WorklistPage() {
               <div><span style={{ color: '#64748b' }}>患者类型：</span><input value={patientForm?.patientType ?? ''} onChange={e => setPatientForm(f => f ? { ...f, patientType: e.target.value } : f)} style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 16, justifyContent: 'flex-end' }}>
-              <button onClick={() => setPatientInfoModalExam(null)} style={{ padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 6, background: '#fff', cursor: 'pointer' }}>取消</button>
-              <button onClick={() => void savePatientInfo()} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e3a5f', color: '#fff', cursor: 'pointer' }}>保存</button>
+              <button onClick={() => setPatientInfoModalExam(null)} style={{ padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 6, background: 'var(--bg-card)', cursor: 'pointer' }}>取消</button>
+              <button onClick={() => void savePatientInfo()} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e40af', color: '#fff', cursor: 'pointer' }}>保存</button>
             </div>
           </div>
         </div>
@@ -1530,10 +1530,10 @@ export default function WorklistPage() {
           onKeyDown={(e) => { if (e.key === 'Escape') setDeviceSelectModalExam(null); }}
           onClick={() => setDeviceSelectModalExam(null)}>
           <div style={{
-            background: '#fff', borderRadius: 12, padding: 24, width: 400, maxHeight: '80vh', overflow: 'auto'
+            background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 400, maxHeight: '80vh', overflow: 'auto'
           }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e3a5f' }}>分配检查设备</h3>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>分配检查设备</h3>
               <button onClick={() => setDeviceSelectModalExam(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
                 <X size={18} />
               </button>
@@ -1550,7 +1550,7 @@ export default function WorklistPage() {
                   padding: 12, border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer',
                   display: 'flex', alignItems: 'center', gap: 8
                 }} onClick={() => void assignDevice(deviceSelectModalExam, device.id)}>
-                  <Monitor size={16} style={{ color: '#1e3a5f' }} />
+                  <Monitor size={16} style={{ color: '#1e40af' }} />
                   <span style={{ fontSize: 13 }}>{device.name}</span>
                   <span style={{ fontSize: 12, color: '#64748b', marginLeft: 'auto' }}>{device.status}</span>
                 </div>
@@ -1573,10 +1573,10 @@ export default function WorklistPage() {
           onKeyDown={(e) => { if (e.key === 'Escape') setDoctorSelectModalExam(null); }}
           onClick={() => setDoctorSelectModalExam(null)}>
           <div style={{
-            background: '#fff', borderRadius: 12, padding: 24, width: 420, maxHeight: '80vh', overflow: 'auto'
+            background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 420, maxHeight: '80vh', overflow: 'auto'
           }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e3a5f' }}>分配报告医生</h3>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>分配报告医生</h3>
               <button onClick={() => setDoctorSelectModalExam(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
                 <X size={18} />
               </button>
@@ -1609,7 +1609,7 @@ export default function WorklistPage() {
                       display: 'flex', alignItems: 'center', gap: 8,
                       background: isAssigned ? '#f0f7ff' : '#fff',
                     }} onClick={() => void assignDoctor(doctorSelectModalExam, doctor.id)}>
-                    <Stethoscope size={16} style={{ color: '#1e3a5f' }} />
+                    <Stethoscope size={16} style={{ color: '#1e40af' }} />
                     <span style={{ fontSize: 13, fontWeight: 600 }}>{doctor.name}</span>
                     <span style={{ fontSize: 12, color: '#64748b', marginLeft: 'auto' }}>
                       {doctor.title || '放射科医生'}
@@ -1636,10 +1636,10 @@ export default function WorklistPage() {
           onKeyDown={(e) => { if (e.key === 'Escape') setReportModalExam(null); }}
           onClick={() => setReportModalExam(null)}>
           <div style={{
-            background: '#fff', borderRadius: 12, padding: 24, width: 600, maxHeight: '80vh', overflow: 'auto'
+            background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 600, maxHeight: '80vh', overflow: 'auto'
           }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e3a5f' }}>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>
                 {normalizeExamStatus(reportModalExam.status) === 'COMPLETED' ? '书写报告' : '查看报告'}
               </h3>
               <button onClick={() => setReportModalExam(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
@@ -1654,8 +1654,8 @@ export default function WorklistPage() {
               <div><span style={{ color: '#64748b' }}>诊断意见：</span><textarea value={reportForm?.conclusion ?? ''} onChange={e => setReportForm(f => f ? { ...f, conclusion: e.target.value } : f)} style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%', height: 60 }} placeholder="请输入诊断意见..." /></div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 16, justifyContent: 'flex-end' }}>
-              <button onClick={() => setReportModalExam(null)} style={{ padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 6, background: '#fff', cursor: 'pointer' }}>取消</button>
-              <button onClick={() => void submitReport()} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e3a5f', color: '#fff', cursor: 'pointer' }}>提交报告</button>
+              <button onClick={() => setReportModalExam(null)} style={{ padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 6, background: 'var(--bg-card)', cursor: 'pointer' }}>取消</button>
+              <button onClick={() => void submitReport()} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e40af', color: '#fff', cursor: 'pointer' }}>提交报告</button>
             </div>
           </div>
         </div>
@@ -1672,12 +1672,12 @@ export default function WorklistPage() {
           background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
         }}
           onKeyDown={(e) => { if (e.key === 'Escape') setConfirmModalConfig(null); }}>
-          <div style={{ background: '#fff', borderRadius: 12, padding: 24, width: 400 }}>
-            <h3 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: '#1e3a5f' }}>{confirmModalConfig.title}</h3>
-            <p style={{ margin: '0 0 20px', fontSize: 14, color: '#334155' }}>{confirmModalConfig.message}</p>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 400 }}>
+            <h3 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{confirmModalConfig.title}</h3>
+            <p style={{ margin: '0 0 20px', fontSize: 14, color: 'var(--text-secondary)' }}>{confirmModalConfig.message}</p>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button onClick={() => setConfirmModalConfig(null)} style={{ padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 6, background: '#fff', cursor: 'pointer' }}>取消</button>
-              <button onClick={confirmModalConfig.onConfirm} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: confirmModalConfig.variant === 'danger' ? '#dc2626' : '#1e3a5f', color: '#fff', cursor: 'pointer' }}>确认</button>
+              <button onClick={() => setConfirmModalConfig(null)} style={{ padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 6, background: 'var(--bg-card)', cursor: 'pointer' }}>取消</button>
+              <button onClick={confirmModalConfig.onConfirm} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: confirmModalConfig.variant === 'danger' ? '#dc2626' : '#1e40af', color: '#fff', cursor: 'pointer' }}>确认</button>
             </div>
           </div>
         </div>
@@ -1696,10 +1696,10 @@ export default function WorklistPage() {
           onKeyDown={(e) => { if (e.key === 'Escape') setBatchResultModalData(null); }}
           onClick={() => setBatchResultModalData(null)}>
           <div style={{
-            background: '#fff', borderRadius: 12, padding: 24, width: 480
+            background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 480
           }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e3a5f' }}>批量操作结果</h3>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>批量操作结果</h3>
               <button onClick={() => setBatchResultModalData(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
                 <X size={18} />
               </button>
@@ -1715,7 +1715,7 @@ export default function WorklistPage() {
               )}
             </div>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button onClick={() => setBatchResultModalData(null)} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e3a5f', color: '#fff', cursor: 'pointer' }}>确定</button>
+              <button onClick={() => setBatchResultModalData(null)} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e40af', color: '#fff', cursor: 'pointer' }}>确定</button>
             </div>
           </div>
         </div>
@@ -1734,10 +1734,10 @@ export default function WorklistPage() {
           onKeyDown={(e) => { if (e.key === 'Escape') setPrintPreviewModalData(null); }}
           onClick={() => setPrintPreviewModalData(null)}>
           <div style={{
-            background: '#fff', borderRadius: 12, padding: 24, width: 600, maxHeight: '80vh', overflow: 'auto'
+            background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 600, maxHeight: '80vh', overflow: 'auto'
           }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e3a5f' }}>打印预览</h3>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>打印预览</h3>
               <button onClick={() => setPrintPreviewModalData(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
                 <X size={18} />
               </button>
@@ -1745,15 +1745,15 @@ export default function WorklistPage() {
             <div style={{ marginBottom: 16, fontSize: 13, color: '#64748b' }}>
               即将打印 {printPreviewModalData.examIds.length} 份报告
             </div>
-            <div style={{ background: '#f8fafc', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0', marginBottom: 16 }}>
+            <div style={{ background: 'var(--content-bg)', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0', marginBottom: 16 }}>
               <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8 }}>打印内容预览</div>
-              <div style={{ fontSize: 13, color: '#334155' }}>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
                 报告列表：{printPreviewModalData.examIds.join(', ')}
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button onClick={() => setPrintPreviewModalData(null)} style={{ padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 6, background: '#fff', cursor: 'pointer' }}>取消</button>
-              <button onClick={() => { window.print(); setPrintPreviewModalData(null) }} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e3a5f', color: '#fff', cursor: 'pointer' }}>打印</button>
+              <button onClick={() => setPrintPreviewModalData(null)} style={{ padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 6, background: 'var(--bg-card)', cursor: 'pointer' }}>取消</button>
+              <button onClick={() => { window.print(); setPrintPreviewModalData(null) }} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e40af', color: '#fff', cursor: 'pointer' }}>打印</button>
             </div>
           </div>
         </div>

@@ -224,7 +224,7 @@ export const ReportTemplateManagerPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
-        <Layout size={20} color="#1677ff" />
+        <Layout size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>报告模板管理</span>
         <Tag color="cyan">v3.0.6.11-75 W3-2</Tag>
         <Tag color="blue">智能片段</Tag>
@@ -260,6 +260,7 @@ export const ReportTemplateManagerPage: React.FC = () => {
             columns={columns}
             size="small"
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无模板, 点击新建模板创建" /> }}
+          scroll={{ x: 'max-content' }}
           />
         </Spin>
       </Card>
@@ -279,6 +280,7 @@ export const ReportTemplateManagerPage: React.FC = () => {
               { title: '操作', key: 'actions', width: 90, render: (_: unknown, s: Snippet) => <Popconfirm title="删除该片段?" onConfirm={() => void handleSnippetDelete(s)}><Button size="small" danger icon={<Trash2 size={10} />} /></Popconfirm> },
             ]}
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无智能片段" /> }}
+          scroll={{ x: 'max-content' }}
           />
         </Spin>
       </Card>

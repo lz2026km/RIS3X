@@ -2,7 +2,7 @@ import type { Dispatch, SetStateAction } from 'react'
 import { ChevronLeft, ChevronRight, Filter, Search, CalendarDays, List, Bell } from 'lucide-react'
 import { initialModalityDevices } from '../data/initialData'
 
-const primaryBlue = '#1e3a5f'
+const primaryBlue = '#1e40af'
 const textGray = '#64748b'
 const borderGray = '#cbd5e1'
 const whiteBg = '#ffffff'

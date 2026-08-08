@@ -1,4 +1,5 @@
 // Ortho Specialty Page — 骨科影像分析 · 关节 · 脊柱 · 骨密度
+// [v3.0.6.11-82] W3-C: 后端无骨科端点, 全页标注「演示数据」
 import { useState, useMemo } from 'react';
 import { Bone, Activity, AlertTriangle, Search, TrendingUp, Stethoscope, BarChart3, FileText, Scale } from 'lucide-react';
 
@@ -48,7 +49,7 @@ const OrthoSpecialtyPage = () => {
       <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1a3a5c', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Bone size={24} color="#9333ea" /> 骨科专科 <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#f5f3ff', color: '#9333ea', border: '1px solid #e9d5ff' }}>演示数据</span></h1>
-          <p style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>骨科影像专科 · 关节分析 · 脊柱评估 · 骨密度 · 创伤</p>
+          <p style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>骨科影像专科 · 关节分析 · 脊柱评估 · 骨密度 · 创伤 <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: '#fef3c7', color: '#d97706', fontWeight: 600 }}>演示数据（后端无骨科接口）</span></p>
         </div>
         <button onClick={() => setShowCreateModal(true)} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: '#9333ea', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 500 }}><Bone size={14} /> 新建分析</button>
       </div>

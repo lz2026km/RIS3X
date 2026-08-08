@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Card, Table, Button, Space, Tag, Modal, Form, Input, Select, message, Popconfirm, Empty } from 'antd'
 import { Bell, Plus, Trash, RefreshCw, Eye } from 'lucide-react'
 import { fhirApi, type FhirSubscription } from '../../services/api/fhirApi'
+import { usePagination } from '../../hooks/usePagination'
 
 export const FhirSubscriptionPage: React.FC = () => {
   const [subscriptions, setSubscriptions] = useState<FhirSubscription[]>([])
@@ -12,6 +13,8 @@ export const FhirSubscriptionPage: React.FC = () => {
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedSub, setSelectedSub] = useState<FhirSubscription | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
+  // [W3-C] 受控分页: Subscription 列表
+  const listPagination = usePagination(subscriptions, 10)
 
   const openDetail = async (sub: FhirSubscription) => {
     setDetailOpen(true)
@@ -150,7 +153,7 @@ export const FhirSubscriptionPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <Bell size={20} color="#1677ff" />
+        <Bell size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR Subscription 管理</span>
         <Tag color="blue">FHIR R4</Tag>
       </Space>
@@ -166,12 +169,13 @@ export const FhirSubscriptionPage: React.FC = () => {
         }
       >
         <Table
-          dataSource={subscriptions}
+          dataSource={listPagination.pageData}
           columns={columns}
           rowKey="id"
           loading={loading}
-          pagination={{ pageSize: 10 }}
+          pagination={listPagination.pagination}
           size="small"
+        scroll={{ x: 'max-content' }}
         />
       </Card>
 
@@ -195,9 +199,9 @@ export const FhirSubscriptionPage: React.FC = () => {
               <Select options={[
                 { value: 'rest-hook', label: 'REST Hook' },
                 { value: 'websocket', label: 'WebSocket' },
-                { value: 'email', label: 'Email' },
-                { value: 'sms', label: 'SMS' },
-                { value: 'message', label: 'Message' },
+                { value: 'email', label: '邮件' },
+                { value: 'sms', label: '短信' },
+                { value: 'message', label: '消息' },
               ]} />
             </Form.Item>
             <Form.Item name="payload" label="Payload 类型">

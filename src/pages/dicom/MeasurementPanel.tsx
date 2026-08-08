@@ -3,7 +3,7 @@ const RectIcon = Square
 import type { Dispatch, SetStateAction } from 'react'
 import type { MeasureSubMenu, Measurement, RightTab, Tool } from './DicomViewerTypes'
 
-const PRIMARY = '#1e3a5f'
+const PRIMARY = '#1e40af'
 
 interface Props {
   rightTab: RightTab

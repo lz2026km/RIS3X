@@ -72,7 +72,7 @@ const PostProcessingPage: React.FC = () => {
     ctx.font = '13px ui-monospace, monospace'
     ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(4, 4, 300, 20)
     ctx.fillStyle = '#facc15'
-    ctx.fillText(`Post-Processing | ${PROCESSING_OPTIONS[type].label} | ${intensityVal}%${appliedAt ? ' | 已应用' : ''}`, 8, 18)
+    ctx.fillText(`后处理 | ${PROCESSING_OPTIONS[type].label} | ${intensityVal}%${appliedAt ? ' | 已应用' : ''}`, 8, 18)
   }
 
   useEffect(() => {
@@ -114,7 +114,7 @@ const PostProcessingPage: React.FC = () => {
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <Layers size={18} color={BLUE} />
         <span style={{ fontSize: 15, fontWeight: 700 }}>3D 后处理</span>
-        <Tag color="cyan">Post-Processing</Tag>
+        <Tag color="cyan">后处理</Tag>
         <Tag color="gold">本地演示 · 合成数据</Tag>
         <span style={{ marginLeft: 'auto', fontSize: 11, color: '#64748b' }}>
           数据标注: 256×256 单帧 · 均值 {sliceStats?.mean ?? '-'} · 标准差 {sliceStats?.sigma ?? '-'} · 已应用 {history.length} 次

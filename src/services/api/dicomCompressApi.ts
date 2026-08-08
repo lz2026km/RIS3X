@@ -91,6 +91,9 @@ export const COMPRESS_SYNTAXES = {
 export const dicomCompressApi = {
   listInstances: () => api.get<CompressInstance[]>('/dicom/compress/instances'),
 
+  getSyntaxes: () =>
+    api.get<Array<{ uid: string; name: string; lossy: boolean }>>('/dicom/compress/syntaxes'),
+
   listTasks: (params?: { status?: string; algorithm?: string; page?: number; pageSize?: number }) => {
     const qs = new URLSearchParams()
     if (params?.status) qs.set('status', params.status)

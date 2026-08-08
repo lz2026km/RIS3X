@@ -311,7 +311,7 @@ const SrReportPage: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16 }} wrap>
-        <FileText size={20} color="#1677ff" />
+        <FileText size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>DICOM SR 结构化报告</span>
         <span style={{ fontSize: 12, color: "#94a3b8" }}>
           生成 → 存储 → 查看 → HL7 ORU^R01 回传
@@ -372,6 +372,7 @@ const SrReportPage: React.FC = () => {
             columns={columns}
             pagination={{ pageSize: 10, showSizeChanger: false }}
             size="small"
+          scroll={{ x: 'max-content' }}
           />
         </Spin>
       </Card>

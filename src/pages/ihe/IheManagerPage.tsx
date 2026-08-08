@@ -260,7 +260,7 @@ export const IheManagerPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
-        <Network size={20} color="#1677ff" />
+        <Network size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>IHE 集成管理</span>
         <Tag color="cyan">PIX / PDQ / PAM</Tag>
         <Tag color="green">XDS.b</Tag>

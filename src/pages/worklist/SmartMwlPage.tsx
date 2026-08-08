@@ -10,6 +10,7 @@ import {
   type SmartWeightConfig,
   type SmartScoreInput,
 } from '../../services/api/worklistSmartApi'
+import { usePagination } from '../../hooks/usePagination'
 
 const levelMeta: Record<string, { label: string; color: string }> = {
   critical: { label: '危急', color: 'red' },
@@ -133,6 +134,8 @@ const SmartMwlPage: React.FC = () => {
       r.item.examItem.toLowerCase().includes(search.toLowerCase()) ||
       r.item.id.toLowerCase().includes(search.toLowerCase()),
   )
+  // [W3-C] 受控分页: 智能排序列表 (基于过滤后的行)
+  const rowPagination = usePagination(filteredRows, 10)
 
   const columns = [
     {
@@ -219,8 +222,8 @@ const SmartMwlPage: React.FC = () => {
         const score = r.result?.score ?? 0
         return (
           <Space size={8}>
-            <strong style={{ color: score >= 70 ? '#cf1322' : score >= 45 ? '#fa8c16' : '#1677ff' }}>{score}</strong>
-            <Progress percent={Math.min(100, score)} size="small" style={{ width: 70 }} showInfo={false} strokeColor={score >= 70 ? '#cf1322' : score >= 45 ? '#fa8c16' : '#1677ff'} />
+            <strong style={{ color: score >= 70 ? '#cf1322' : score >= 45 ? '#fa8c16' : '#2563eb' }}>{score}</strong>
+            <Progress percent={Math.min(100, score)} size="small" style={{ width: 70 }} showInfo={false} strokeColor={score >= 70 ? '#cf1322' : score >= 45 ? '#fa8c16' : '#2563eb'} />
           </Space>
         )
       },
@@ -240,7 +243,7 @@ const SmartMwlPage: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <BarChart3 size={20} color="#1677ff" />
+        <BarChart3 size={20} color="#2563eb" />
         <h1 style={{ fontSize: 20, margin: 0 }}>Smart MWL 智能排序</h1>
         <Tag color="blue">多因子评分</Tag>
         <Tag color="purple">权重可配置</Tag>
@@ -281,7 +284,7 @@ const SmartMwlPage: React.FC = () => {
           </Space>
         }
       >
-        <Table dataSource={filteredRows} columns={columns} rowKey={(r) => r.item.id} loading={loading} pagination={{ pageSize: 10 }} size="small" />
+        <Table dataSource={rowPagination.pageData} columns={columns} rowKey={(r) => r.item.id} loading={loading} pagination={rowPagination.pagination} size="small" scroll={{ x: 'max-content' }}/>
       </Card>
 
       <Modal
@@ -296,10 +299,10 @@ const SmartMwlPage: React.FC = () => {
             <Card size="small" style={{ marginBottom: 16 }}>
               <Row gutter={16}>
                 <Col span={8}>
-                  <Statistic title="综合评分" value={detail.result.score} styles={{ content: { color: detail.result.score >= 70 ? '#cf1322' : '#1677ff' } }} />
+                  <Statistic title="综合评分" value={detail.result.score} styles={{ content: { color: detail.result.score >= 70 ? '#cf1322' : '#2563eb' } }} />
                 </Col>
                 <Col span={8}>
-                  <Statistic title="优先级" value={levelMeta[detail.result.level]?.label ?? '-'} styles={{ content: { color: levelMeta[detail.result.level]?.color ?? '#1677ff' } }} />
+                  <Statistic title="优先级" value={levelMeta[detail.result.level]?.label ?? '-'} styles={{ content: { color: levelMeta[detail.result.level]?.color ?? '#2563eb' } }} />
                 </Col>
                 <Col span={8}>
                   <Statistic title="等待时长" value={detail.input.waitingMinutes} suffix="min" />

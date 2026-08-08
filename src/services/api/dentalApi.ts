@@ -151,9 +151,11 @@ export const dentalApi = {
     api.get<any[]>(`${DENTAL_API}/implant/inventory/price-check?brand=${brand}&models=${models.join(',')}`),
 
   // ===== [v3.0.6.11-20] 后端真实端点 18 个对齐 =====
-  // AI 发现 (2)
+  // AI 发现 (2) + [W3-C] 复核/确认端点
   listAiFindings: () => api.get<any[]>(`${DENTAL_API}/ai-findings`),
   createAiFinding: (data: any) => api.post<any>(`${DENTAL_API}/ai-findings`, data),
+  updateAiFinding: (id: string, data: { status: 'confirmed' | 'rejected' | 'pending'; reviewedBy?: string; reviewedAt?: string; note?: string }) =>
+    api.patch<any>(`${DENTAL_API}/ai-findings/${id}`, data),
 
   // 种植体 CRUD (3)
   listImplants: () => api.get<any[]>(`${DENTAL_API}/implants`),
@@ -223,7 +225,20 @@ export const dentalApi = {
   getScheduleChairs: () => api.get<any[]>(`${DENTAL_API}/schedule/chairs`),
   getScheduleAppointments: (date?: string) =>
     api.get<any[]>(`${DENTAL_API}/schedule/appointments${date ? '?date=' + date : ''}`),
+  // [G005 W3-A] 排班端点补齐: 单条预约 / 状态流转 (后端 /dental/schedule/appointments/:id、/:id/status)
+  getScheduleAppointment: (id: string) =>
+    api.get<any>(`${DENTAL_API}/schedule/appointments/${id}`),
+  updateScheduleAppointmentStatus: (id: string, status: string) =>
+    api.post<any>(`${DENTAL_API}/schedule/appointments/${id}/status`, { status }),
   getScheduleStats: () => api.get<any>(`${DENTAL_API}/schedule/stats`),
   listPatients: () => api.get<any[]>(`${DENTAL_API}/patients`),
   listDentists: () => api.get<any[]>(`${DENTAL_API}/dentists`),
+
+  // [G005 W3-A] 牙位图 + PSR 牙周记录 (后端 /dental/chart/:patientId、/dental/chart/:patientId/psr)
+  getDentalChart: (patientId: string) =>
+    api.get<any>(`${DENTAL_API}/chart/${patientId}`),
+  listPsrRecords: (patientId: string) =>
+    api.get<any[]>(`${DENTAL_API}/chart/${patientId}/psr`),
+  savePsrRecord: (patientId: string, data: any) =>
+    api.post<any>(`${DENTAL_API}/chart/${patientId}/psr`, data),
 };

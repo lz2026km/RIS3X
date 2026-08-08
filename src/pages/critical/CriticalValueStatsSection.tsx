@@ -24,7 +24,7 @@ const StatCard = ({ label, value, icon: Icon, color, bgColor, trend, suffix }: {
       <Icon size={24} style={{ color }} />
     </div>
     <div style={{ flex: 1 }}>
-      <div style={{ fontSize: 28, fontWeight: 800, color: '#1e3a5f', lineHeight: 1 }}>{value}{suffix || ''}</div>
+      <div style={{ fontSize: 28, fontWeight: 800, color: '#1e40af', lineHeight: 1 }}>{value}{suffix || ''}</div>
       <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>{label}</div>
     </div>
     {trend && (
@@ -116,7 +116,7 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
           const Icon = tab.icon
           return (
             <button key={tab.key} onClick={() => setActiveChart(tab.key as typeof activeChart)}
-              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: `1px solid ${activeChart === tab.key ? '#1e3a5f' : '#e2e8f0'}`, background: activeChart === tab.key ? '#1e3a5f' : '#fff', color: activeChart === tab.key ? '#fff' : '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: `1px solid ${activeChart === tab.key ? '#1e40af' : '#e2e8f0'}`, background: activeChart === tab.key ? '#1e40af' : '#fff', color: activeChart === tab.key ? '#fff' : '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
               <Icon size={14} />{tab.label}
             </button>
           )
@@ -125,13 +125,13 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
 
       {activeChart === 'trend' && (
         <div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f', marginBottom: 12 }}>本月危急值数量趋势（近7天）</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>本月危急值数量趋势（近7天）</div>
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 100 }}>
             {trendData.map((d, idx) => (
               <div key={d.day} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                <div style={{ width: '100%', height: `${(d.count / maxTrend) * 80}px`, background: idx === trendData.length - 1 ? '#dc2626' : '#1e3a5f', borderRadius: '4px 4px 0 0', transition: 'height 0.3s', minHeight: 4 }} />
+                <div style={{ width: '100%', height: `${(d.count / maxTrend) * 80}px`, background: idx === trendData.length - 1 ? '#dc2626' : '#1e40af', borderRadius: '4px 4px 0 0', transition: 'height 0.3s', minHeight: 4 }} />
                 <span style={{ fontSize: 12, color: '#94a3b8' }}>{d.day}</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#1e3a5f' }}>{d.count}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{d.count}</span>
               </div>
             ))}
           </div>
@@ -149,7 +149,7 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
               }, { elements: [] as React.ReactNode[], offset: 0 }).elements}
             </svg>
             <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-              <div style={{ fontSize: 20, fontWeight: 800, color: '#1e3a5f' }}>{totalModality}</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: '#1e40af' }}>{totalModality}</div>
               <div style={{ fontSize: 12, color: '#94a3b8' }}>总计</div>
             </div>
           </div>
@@ -158,7 +158,7 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
               <div key={d.label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
                 <div style={{ width: 12, height: 12, borderRadius: 3, background: d.color }} />
                 <div style={{ flex: 1, fontSize: 12, color: '#334155' }}>{d.label}</div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f' }}>{d.value}</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>{d.value}</div>
                 <div style={{ fontSize: 12, color: '#94a3b8', width: 40, textAlign: 'right' }}>{Math.round((d.value / totalModality) * 100)}%</div>
               </div>
             ))}
@@ -168,7 +168,7 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
 
       {activeChart === 'time' && (
         <div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f', marginBottom: 12 }}>处理时效分布</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>处理时效分布</div>
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, height: 100 }}>
             {timeData.map((d) => (
               <div key={d.label} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
@@ -184,7 +184,7 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
 
       {activeChart === 'missed' && (
         <div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f', marginBottom: 12 }}>漏报率统计</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>漏报率统计</div>
           {missedStats ? (
             <>
               <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
@@ -204,7 +204,7 @@ const StatisticsCharts = ({ data, missedStats, notificationStats }: {
                   <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>低于目标1%</div>
                 </div>
               </div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e3a5f', marginBottom: 10 }}>漏报原因分析</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 10 }}>漏报原因分析</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {missedStats.topMissedReasons.map((item, idx) => {
                   const pct = Math.round((item.count / missedStats.missedCount) * 100)

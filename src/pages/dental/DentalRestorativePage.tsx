@@ -121,6 +121,7 @@ export const DentalRestorativePage: React.FC = () => {
               render: (_, t) => <TreatmentActions record={t} />,
             },
           ]}
+        scroll={{ x: 'max-content' }}
         />
       )}
       <Modal

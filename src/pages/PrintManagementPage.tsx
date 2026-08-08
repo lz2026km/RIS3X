@@ -2116,7 +2116,7 @@ export default function PrintManagementPage() {
             display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gridTemplateRows: 'repeat(2, 1fr)',
             gap: 2, padding: 2, boxShadow: '0 2px 12px rgba(0,0,0,0.08)'
           }}>
-            {['AP Chest', 'LAT Chest', 'CT Abdomen', 'MR Brain'].map((label, i) => (
+            {['胸部正位', '胸部侧位', '腹部CT', '头颅MR'].map((label, i) => (
               <div key={i} style={{
                 background: '#f0f4f8', borderRadius: 2, padding: 4,
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',

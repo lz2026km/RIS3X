@@ -141,6 +141,7 @@ export const DentalDashboardPage: React.FC = () => {
             { title: '费用', dataIndex: 'cost', render: (v: number) => `¥${v ?? '-'}` },
             { title: '状态', dataIndex: 'status', render: (s: string) => <Tag color={s === 'Completed' ? 'green' : s === 'InProgress' ? 'orange' : 'default'}>{s === 'Completed' ? '已完成' : s === 'InProgress' ? '进行中' : s ?? '-'}</Tag> },
           ]}
+        scroll={{ x: 'max-content' }}
         />
       </Card>
 

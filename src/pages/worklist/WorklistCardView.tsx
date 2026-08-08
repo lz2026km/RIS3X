@@ -117,7 +117,7 @@ export const CardView = React.memo(function CardView({ exams, selectedIds, onSel
             style={{
               background: '#fff',
               borderRadius: 12,
-              border: isSelected ? '2px solid #1e3a5f' : '1px solid #e2e8f0',
+              border: isSelected ? '2px solid #1e40af' : '1px solid #e2e8f0',
               overflow: 'hidden',
               cursor: 'pointer',
               transition: 'all 0.2s',
@@ -153,7 +153,7 @@ export const CardView = React.memo(function CardView({ exams, selectedIds, onSel
                   onClick={(e) => toggleSelect(exam.id, e)}
                   style={{
                     cursor: 'pointer',
-                    color: isSelected ? '#1e3a5f' : '#cbd5e1',
+                    color: isSelected ? '#1e40af' : '#cbd5e1',
                     display: 'flex',
                     alignItems: 'center',
                   }}
@@ -161,7 +161,7 @@ export const CardView = React.memo(function CardView({ exams, selectedIds, onSel
                   {isSelected ? <CheckSquare size={18} /> : <Square size={18} />}
                 </div>
                 <div>
-                  <div style={{ fontWeight: 700, color: '#1e3a5f', fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ fontWeight: 700, color: '#1e40af', fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
                     {exam.patientName}
                     {exam.priority === '危重' && <AlertTriangle size={14} style={{ color: '#dc2626' }} />}
                   </div>

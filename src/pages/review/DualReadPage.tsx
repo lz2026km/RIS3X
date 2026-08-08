@@ -164,7 +164,7 @@ const DualReadPage: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16 }}>
-        <GitBranch size={20} color="#1677ff" />
+        <GitBranch size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>双阅片工作流</span>
         <Tag color="blue">真实 API 数据</Tag>
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void loadData()} loading={loading}>刷新</Button>
@@ -177,7 +177,7 @@ const DualReadPage: React.FC = () => {
         <Col span={6}><Card><Statistic title="待处理" value={assignments.filter(a => a.status === 'both_done').length} prefix={<AlertTriangle size={16} />} /></Card></Col>
       </Row>
       <Card extra={<Button type="primary" icon={<UserCheck size={14} />} loading={actionLoading} onClick={() => setAssignOpen(true)}>分配双阅</Button>}>
-        <Table rowKey="id" dataSource={assignments} columns={columns} pagination={false} size="small" loading={loading} />
+        <Table rowKey="id" dataSource={assignments} columns={columns} pagination={false} size="small" loading={loading} scroll={{ x: 'max-content' }}/>
       </Card>
       {selectedAssignment && (
         <Modal title={`仲裁 - ${selectedAssignment.studyId}`} open={arbitrateOpen} onOk={() => void handleArbitrate()} onCancel={() => setArbitrateOpen(false)} width={700} confirmLoading={actionLoading}>

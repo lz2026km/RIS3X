@@ -1,12 +1,13 @@
 import { useMemo, useState, type ReactNode } from 'react'
-import { Button, Empty, Tag, Dropdown, Popconfirm } from 'antd'
+import { Button, Empty, Skeleton, Tag, Dropdown, Popconfirm } from 'antd'
 import { Eye, Printer, Download, User, Zap, ShieldCheck, ChevronDown, ChevronRight, Search, MoreHorizontal, Edit3, Send, GitCompare, RotateCcw, FileCheck2, Trash2, History } from 'lucide-react'
 import type { RadiologyReport } from '../../types'
 import { StatusBadge, StatusTimeline, REPORT_STATUS_META } from '../../components/report'
 import { ProTable, type ProColumn } from '../../components/data/ProTable'
 import { formatDateTime } from '../../utils/date';
+import { usePagination } from '../../hooks/usePagination';
 
-const PRIMARY = '#1e3a5f'
+const PRIMARY = '#1e40af'
 const DANGER = '#dc2626'
 
 const STATUS_CONFIG: Record<string, { bg: string; color: string; border: string }> = {
@@ -104,6 +105,8 @@ export default function ReportTableView({
   deletingIds,
   loading = false,
 }: ReportTableViewProps) {
+  // [W3-C] 受控分页: 报告列表 (全量数据前端切片)
+  const listPagination = usePagination(reports, 10);
   const columns = useMemo<ProColumn<RadiologyReport>[]>(() => [
     {
       title: '患者信息',
@@ -218,12 +221,12 @@ export default function ReportTableView({
   return (
     <ProTable<RadiologyReport>
       columns={columns}
-      dataSource={reports}
+      dataSource={listPagination.pageData}
       rowKey="id"
-      loading={loading}
+      loading={{ spinning: loading, indicator: <div style={{ padding: 24 }}><Skeleton active title={false} paragraph={{ rows: 8 }} /></div> }}
       showToolbar={false}
       size="small"
-      pagination={{ pageSize: 10 }}
+      pagination={listPagination.pagination}
       scroll={{ x: 1250 }}
       rowSelection={{
         preserveSelectedRowKeys: true,
@@ -257,7 +260,7 @@ export default function ReportTableView({
           </div>
         ),
       }}
-      locale={{ emptyText: <Empty image={<Search size={32} />} description="未找到符合条件的报告" /> }}
+      locale={{ emptyText: <Empty image={<Search size={32} style={{ color: "#94a3b8" }} />} description={<span style={{ fontSize: 13, color: "#94a3b8" }}>未找到符合条件的报告</span>} /> }}
       onRow={(report) => ({ onClick: () => onView(report), style: { cursor: 'pointer' } })}
     />
   )

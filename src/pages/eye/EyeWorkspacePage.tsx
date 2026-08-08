@@ -39,14 +39,14 @@ interface QuickLink {
 }
 
 const KPI_CARDS: KpiCard[] = [
-  { key: 'appt', title: '今日预约', Icon: Calendar, color: '#1677ff', href: '/eye/ris/appointments' },
+  { key: 'appt', title: '今日预约', Icon: Calendar, color: '#2563eb', href: '/eye/ris/appointments' },
   { key: 'exam', title: '今日检查', Icon: ScanLine, color: '#10b981', href: '/eye/pacs/studies' },
   { key: 'rpt', title: '待写报告', Icon: FileText, color: '#f59e0b', href: '/eye/report/drafts' },
   { key: 'crit', title: '危急值', Icon: AlertTriangle, color: '#ef4444', href: '/eye/ris/emergency' },
 ];
 
 const QUICK_LINKS: QuickLink[] = [
-  { key: 'pacs', title: 'PACS 检查', description: 'OCT / 眼底 / 视野 / FA / ICG', Icon: Activity, color: '#1677ff', href: '/eye/pacs/studies' },
+  { key: 'pacs', title: 'PACS 检查', description: 'OCT / 眼底 / 视野 / FA / ICG', Icon: Activity, color: '#2563eb', href: '/eye/pacs/studies' },
   { key: 'ai', title: 'AI 辅助诊断', description: '多模型 · 智能预筛', Icon: Microscope, color: '#8b5cf6', href: '/eye/ai' },
   { key: 'emr', title: '眼科 EMR', description: '电子病历 · 视力量表', Icon: Stethoscope, color: '#06b6d4', href: '/eye/emr' },
   { key: 'iol', title: 'IOL 计算器', description: '8 公式 · 在线测算', Icon: Pill, color: '#10b981', href: '/eye/ris/iol-calculator' },
@@ -145,7 +145,7 @@ const EyeWorkspacePage: React.FC = () => {
       <PageHeader
         title={`眼科工作台 · 欢迎,${displayName}`}
         subtitle={today}
-        icon={<Eye className="v4-icon" style={{ width: 28, height: 28, color: '#1677ff' }} />}
+        icon={<Eye className="v4-icon" style={{ width: 28, height: 28, color: '#2563eb' }} />}
         variant="inline"
         actions={
           <button
@@ -156,7 +156,7 @@ const EyeWorkspacePage: React.FC = () => {
               alignItems: 'center',
               gap: 6,
               padding: '6px 14px',
-              background: '#1677ff',
+              background: '#2563eb',
               color: '#fff',
               border: 'none',
               borderRadius: 6,

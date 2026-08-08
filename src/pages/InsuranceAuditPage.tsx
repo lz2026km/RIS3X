@@ -2453,7 +2453,7 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: 20,
   },
   kpiCard: {
-    background: "#fff",
+    background: "var(--bg-card)",
     borderRadius: 10,
     padding: "16px 18px",
     boxShadow: "0 1px 4px rgba(0,0,0,0.07)",
@@ -2506,7 +2506,7 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 10,
     alignItems: "center",
     flexWrap: "wrap" as const,
-    background: "#fff",
+    background: "var(--bg-card)",
     padding: "14px 18px",
     borderRadius: 10,
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
@@ -2516,7 +2516,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     alignItems: "center",
     gap: 8,
-    background: "#f8fafc",
+    background: "var(--content-bg)",
     border: "1px solid #e2e8f0",
     borderRadius: 8,
     padding: "8px 14px",
@@ -2528,7 +2528,7 @@ const styles: Record<string, React.CSSProperties> = {
     outline: "none",
     background: "transparent",
     fontSize: 14,
-    color: "#334155",
+    color: "var(--text-secondary)",
     width: "100%",
   },
   select: {
@@ -2536,8 +2536,8 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 8,
     padding: "8px 14px",
     fontSize: 14,
-    color: "#334155",
-    background: "#f8fafc",
+    color: "var(--text-secondary)",
+    background: "var(--content-bg)",
     outline: "none",
     cursor: "pointer",
   },
@@ -2547,7 +2547,7 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 14,
   },
   card: {
-    background: "#fff",
+    background: "var(--bg-card)",
     borderRadius: 10,
     padding: "16px 18px",
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
@@ -2626,7 +2626,7 @@ const styles: Record<string, React.CSSProperties> = {
     marginTop: 12,
   },
   tableWrapper: {
-    background: "#fff",
+    background: "var(--bg-card)",
     borderRadius: 10,
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
     overflow: "hidden",
@@ -2637,7 +2637,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 14,
   },
   th: {
-    background: "#f8fafc",
+    background: "var(--content-bg)",
     padding: "12px 16px",
     textAlign: "left" as const,
     fontWeight: 600,
@@ -2647,7 +2647,7 @@ const styles: Record<string, React.CSSProperties> = {
   td: {
     padding: "12px 16px",
     borderBottom: "1px solid #f1f5f9",
-    color: "#334155",
+    color: "var(--text-secondary)",
   },
   badge: {
     display: "inline-flex",
@@ -2710,7 +2710,7 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: 24,
   },
   statCard: {
-    background: "#fff",
+    background: "var(--bg-card)",
     borderRadius: 10,
     padding: 20,
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
@@ -2726,7 +2726,7 @@ const styles: Record<string, React.CSSProperties> = {
     color: "#1a3a5c",
   },
   chartCard: {
-    background: "#fff",
+    background: "var(--bg-card)",
     borderRadius: 10,
     padding: 20,
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
@@ -2739,7 +2739,7 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: 16,
   },
   ruleCard: {
-    background: "#fff",
+    background: "var(--bg-card)",
     borderRadius: 10,
     padding: 16,
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
@@ -2757,7 +2757,7 @@ const styles: Record<string, React.CSSProperties> = {
     borderCollapse: "collapse" as const,
   },
   drugTh: {
-    background: "#f8fafc",
+    background: "var(--content-bg)",
     padding: "10px 12px",
     textAlign: "left" as const,
     fontWeight: 600,
@@ -2768,7 +2768,7 @@ const styles: Record<string, React.CSSProperties> = {
   drugTd: {
     padding: "10px 12px",
     borderBottom: "1px solid #f1f5f9",
-    color: "#334155",
+    color: "var(--text-secondary)",
     fontSize: 13,
   },
   emptyState: {
@@ -2815,7 +2815,7 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 10,
     alignItems: "center",
     flexWrap: "wrap" as const,
-    background: "#fff",
+    background: "var(--bg-card)",
     padding: "14px 18px",
     borderRadius: 10,
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
@@ -2841,7 +2841,7 @@ const styles: Record<string, React.CSSProperties> = {
     border: "1px solid #dbeafe",
   },
   voucherTableWrapper: {
-    background: "#fff",
+    background: "var(--bg-card)",
     borderRadius: 10,
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
     overflow: "hidden",
@@ -2859,7 +2859,7 @@ const styles: Record<string, React.CSSProperties> = {
   voucherTd: {
     padding: "12px 16px",
     borderBottom: "1px solid #f1f5f9",
-    color: "#334155",
+    color: "var(--text-secondary)",
     fontSize: 13,
   },
   voucherStatusBadge: {
@@ -2894,7 +2894,7 @@ const styles: Record<string, React.CSSProperties> = {
     height: 36,
     borderRadius: 8,
     border: "1px solid #e2e8f0",
-    background: "#fff",
+    background: "var(--bg-card)",
     cursor: "pointer",
     transition: "all 0.2s",
   },
@@ -2938,7 +2938,7 @@ const styles: Record<string, React.CSSProperties> = {
     zIndex: "var(--z-modal, 500)",
   },
   modal: {
-    background: "#fff",
+    background: "var(--bg-card)",
     borderRadius: 12,
     padding: 24,
     minWidth: 360,
@@ -2986,7 +2986,7 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: 20,
   },
   fundKpiCard: {
-    background: "#fff",
+    background: "var(--bg-card)",
     borderRadius: 10,
     padding: "16px 18px",
     boxShadow: "0 1px 4px rgba(0,0,0,0.07)",
@@ -3021,7 +3021,7 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: 20,
   },
   fundChartCard: {
-    background: "#fff",
+    background: "var(--bg-card)",
     borderRadius: 10,
     padding: 20,
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
@@ -3033,7 +3033,7 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: 16,
   },
   violationListCard: {
-    background: "#fff",
+    background: "var(--bg-card)",
     borderRadius: 10,
     padding: 20,
     boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
@@ -4220,7 +4220,7 @@ export default function InsuranceAuditPage() {
                     <div
                       style={{
                         fontSize: 12,
-                        color: "#334155",
+                        color: "var(--text-secondary)",
                         marginBottom: 2,
                       }}
                     >
@@ -4641,7 +4641,7 @@ export default function InsuranceAuditPage() {
                 </div>
                 <div
                   style={{
-                    background: "#f1f5f9",
+                    background: "var(--content-bg)",
                     borderRadius: 8,
                     height: 24,
                     overflow: "hidden",
@@ -4673,7 +4673,7 @@ export default function InsuranceAuditPage() {
                 </div>
                 <div
                   style={{
-                    background: "#f1f5f9",
+                    background: "var(--content-bg)",
                     borderRadius: 8,
                     height: 24,
                     overflow: "hidden",
@@ -4705,7 +4705,7 @@ export default function InsuranceAuditPage() {
                 </div>
                 <div
                   style={{
-                    background: "#f1f5f9",
+                    background: "var(--content-bg)",
                     borderRadius: 8,
                     height: 24,
                     overflow: "hidden",
@@ -4755,13 +4755,13 @@ export default function InsuranceAuditPage() {
                   <div style={{ width: 24, fontSize: 13, color: "#64748b" }}>
                     {i + 1}
                   </div>
-                  <div style={{ flex: 1, fontSize: 13, color: "#334155" }}>
+                  <div style={{ flex: 1, fontSize: 13, color: "var(--text-secondary)" }}>
                     {item.name}
                   </div>
                   <div
                     style={{
                       width: 100,
-                      background: "#f1f5f9",
+                      background: "var(--content-bg)",
                       borderRadius: 6,
                       height: 20,
                       overflow: "hidden",
@@ -4779,7 +4779,7 @@ export default function InsuranceAuditPage() {
                     style={{
                       width: 50,
                       fontSize: 13,
-                      color: "#334155",
+                      color: "var(--text-secondary)",
                       textAlign: "right",
                     }}
                   >
@@ -5059,7 +5059,7 @@ export default function InsuranceAuditPage() {
               <thead>
                 <tr
                   style={{
-                    background: "#f8fafc",
+                    background: "var(--content-bg)",
                     borderBottom: "1px solid #e2e8f0",
                   }}
                 >
@@ -5237,7 +5237,7 @@ export default function InsuranceAuditPage() {
               <thead>
                 <tr
                   style={{
-                    background: "#f8fafc",
+                    background: "var(--content-bg)",
                     borderBottom: "1px solid #e2e8f0",
                   }}
                 >
@@ -5463,7 +5463,7 @@ export default function InsuranceAuditPage() {
                 <thead>
                   <tr
                     style={{
-                      background: "#f8fafc",
+                      background: "var(--content-bg)",
                       borderBottom: "1px solid #e2e8f0",
                     }}
                   >
@@ -5666,7 +5666,7 @@ export default function InsuranceAuditPage() {
                         display: "flex",
                         justifyContent: "space-between",
                         padding: "4px 8px",
-                        background: "#f8fafc",
+                        background: "var(--content-bg)",
                         borderRadius: 4,
                       }}
                     >
@@ -5961,11 +5961,11 @@ export default function InsuranceAuditPage() {
                     >
                       <div style={{ fontSize: 12, color: GRAY }}>
                         检查:{" "}
-                        <span style={{ color: "#334155" }}>{p.examItem}</span>
+                        <span style={{ color: "var(--text-secondary)" }}>{p.examItem}</span>
                       </div>
                       <div style={{ fontSize: 12, color: GRAY }}>
                         请求日期:{" "}
-                        <span style={{ color: "#334155" }}>
+                        <span style={{ color: "var(--text-secondary)" }}>
                           {p.requestedDate}
                         </span>
                       </div>
@@ -6113,7 +6113,7 @@ export default function InsuranceAuditPage() {
               <thead>
                 <tr
                   style={{
-                    background: "#f8fafc",
+                    background: "var(--content-bg)",
                     borderBottom: "1px solid #e2e8f0",
                   }}
                 >
@@ -6282,7 +6282,7 @@ export default function InsuranceAuditPage() {
                 <div
                   key={m.drg}
                   style={{
-                    background: "#f8fafc",
+                    background: "var(--content-bg)",
                     borderRadius: 8,
                     padding: 12,
                     border: "1px solid #e2e8f0",
@@ -6631,7 +6631,7 @@ export default function InsuranceAuditPage() {
                       fontSize: 13,
                     }}
                   >
-                    <div style={{ fontWeight: 600, color: "#1e293b", marginBottom: 4 }}>
+                    <div style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: 4 }}>
                       审核结果：{auditDetail.result || "-"}
                     </div>
                     <div style={{ color: "#475569", lineHeight: 1.7 }}>

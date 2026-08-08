@@ -101,7 +101,7 @@ const StowRsPage: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16 }}>
-        <UploadCloud size={20} color="#1677ff" />
+        <UploadCloud size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>STOW-RS 存储</span>
         <Button
           size="small"
@@ -170,6 +170,7 @@ const StowRsPage: React.FC = () => {
             columns={columns}
             pagination={false}
             size="small"
+          scroll={{ x: 'max-content' }}
           />
         </Spin>
       </Card>

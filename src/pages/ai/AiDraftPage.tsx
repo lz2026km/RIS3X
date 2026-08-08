@@ -228,7 +228,7 @@ const AiDraftPage: React.FC = () => {
           </div>
           {currentExam && (
             <div style={{ padding: '4px 12px', background: '#f0f5ff', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <FileText size={14} color="#1677ff" />
+              <FileText size={14} color="#2563eb" />
               <span style={{ fontSize: 13 }}>{currentExam.modality} · {currentExam.bodyPart}</span>
             </div>
           )}
@@ -280,7 +280,7 @@ const AiDraftPage: React.FC = () => {
             <div key={p.id} style={{
               marginBottom: 12, padding: 12, border: '1px solid #e8e8e8', borderRadius: 6,
               background: editingParagraph === p.id ? '#fffbe6' : '#fafafa',
-              borderLeft: `3px solid ${idx === 0 ? '#1677ff' : idx === 1 ? '#52c41a' : idx === 2 ? '#faad14' : '#722ed1'}`,
+              borderLeft: `3px solid ${idx === 0 ? '#2563eb' : idx === 1 ? '#52c41a' : idx === 2 ? '#faad14' : '#722ed1'}`,
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                 <Space>
@@ -289,7 +289,7 @@ const AiDraftPage: React.FC = () => {
                 </Space>
                 <Space>
                   <Tooltip title="接受"><Button size="small" type={acceptedIds.includes(p.id) ? 'primary' : 'text'} icon={<Check size={14} color={acceptedIds.includes(p.id) ? '#fff' : '#52c41a'} />} onClick={() => handleAccept(p.id)} /></Tooltip>
-                  <Tooltip title="修改"><Button size="small" type="text" icon={<Edit3 size={14} color="#1677ff" />} onClick={() => handleEdit(p)} /></Tooltip>
+                  <Tooltip title="修改"><Button size="small" type="text" icon={<Edit3 size={14} color="#2563eb" />} onClick={() => handleEdit(p)} /></Tooltip>
                   <Tooltip title="拒绝"><Button size="small" type="text" icon={<X size={14} color="#ff4d4f" />} onClick={() => handleReject(p.id)} /></Tooltip>
                 </Space>
               </div>

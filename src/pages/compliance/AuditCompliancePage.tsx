@@ -81,7 +81,7 @@ export const AuditCompliancePage: React.FC = () => {
   const columns = [
     { title: '编号', dataIndex: 'id', width: 110 },
     { title: '用户', key: 'user', width: 130, render: (_: unknown, r: AuditEventDto) =>
-      <Space size={4}><UserCheck size={11} color="#1677ff" />{r.username ?? r.userId}</Space> },
+      <Space size={4}><UserCheck size={11} color="#2563eb" />{r.username ?? r.userId}</Space> },
     { title: '操作', dataIndex: 'action', width: 120, render: (a: string) =>
       <Tag color={ACTION_COLOR[a] ?? 'default'}>{a}</Tag> },
     { title: '资源', key: 'resource', render: (_: unknown, r: AuditEventDto) =>
@@ -98,7 +98,7 @@ export const AuditCompliancePage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <Shield size={20} color="#1677ff" />
+        <Shield size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>审计与合规中心</span>
         <Tag color="red" icon={<AlertTriangle size={10} />}>HIPAA</Tag>
         <Tag color="orange">三甲等级</Tag>
@@ -111,7 +111,7 @@ export const AuditCompliancePage: React.FC = () => {
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={4}><Card size="small"><Statistic title="事件总数" value={agg?.total ?? total} /></Card></Col>
-        <Col span={4}><Card size="small"><Statistic title="近 24 小时" value={agg?.last24h ?? '-'} styles={{ content: { color: '#1677ff' } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="近 24 小时" value={agg?.last24h ?? '-'} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="已拒绝" value={agg?.byAction?.['DENIED'] ?? (events.filter(e => e.status === 'DENIED').length)} styles={{ content: { color: '#ff4d4f' } }} /></Card></Col>
         <Col span={6}><Card size="small" title="高频操作">
           {topActions.length === 0 ? <span style={{ fontSize: 12, color: '#999' }}>暂无</span> :
@@ -155,6 +155,7 @@ export const AuditCompliancePage: React.FC = () => {
               showSizeChanger: true,
               onChange: (p, ps) => { setPage(p); setPageSize(ps); },
             }}
+          scroll={{ x: 'max-content' }}
           />
         </Spin>
       </Card>

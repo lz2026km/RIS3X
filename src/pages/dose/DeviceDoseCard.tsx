@@ -43,7 +43,7 @@ export default function DeviceDoseCard({ device: d, onShowHistory }: Props) {
               style={{
                 fontSize: 14,
                 fontWeight: 700,
-                color: "#1e3a5f",
+                color: "#1e40af",
               }}
             >
               {d.device}
@@ -129,7 +129,7 @@ export default function DeviceDoseCard({ device: d, onShowHistory }: Props) {
           }}
         >
           <span style={{ fontSize: 12, color: "#64748b" }}>CTDI范围</span>
-          <span style={{ fontSize: 12, color: "#1e3a5f", fontWeight: 600 }}>
+          <span style={{ fontSize: 12, color: "#1e40af", fontWeight: 600 }}>
             {d.avgCTDI} - {d.maxCTDI} mGy
           </span>
         </div>
@@ -187,7 +187,7 @@ const Metric = ({
     }}
   >
     <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>{label}</div>
-    <div style={{ fontSize: 22, fontWeight: 800, color: "#1e3a5f" }}>{value}</div>
+    <div style={{ fontSize: 22, fontWeight: 800, color: "#1e40af" }}>{value}</div>
     <div style={{ fontSize: 12, color: "#94a3b8" }}>{unit}</div>
   </div>
 );
@@ -201,7 +201,7 @@ const MicroStat = ({ label, value }: { label: string; value: string | number }) 
       borderRadius: 6,
     }}
   >
-    <div style={{ fontSize: 14, fontWeight: 700, color: "#1e3a5f" }}>{value}</div>
+    <div style={{ fontSize: 14, fontWeight: 700, color: "#1e40af" }}>{value}</div>
     <div style={{ fontSize: 12, color: "#64748b" }}>{label}</div>
   </div>
 );

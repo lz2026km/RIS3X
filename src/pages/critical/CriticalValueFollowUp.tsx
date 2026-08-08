@@ -136,7 +136,7 @@ export const TransferToFollowUpModal = ({
               <div>
                 <span style={{ fontSize: 12, color: "#94a3b8" }}>姓名</span>
                 <div
-                  style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}
+                  style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}
                 >
                   {cv.patientName}
                 </div>
@@ -144,7 +144,7 @@ export const TransferToFollowUpModal = ({
               <div>
                 <span style={{ fontSize: 12, color: "#94a3b8" }}>危急值</span>
                 <div
-                  style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}
+                  style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}
                 >
                   {cv.findingDetails.substring(0, 30)}...
                 </div>
@@ -298,8 +298,8 @@ export const FollowUpTab = ({ cv, records }: FollowUpTabProps) => {
             gap: 6,
             padding: "8px 14px",
             borderRadius: 8,
-            border: "1px solid #1e3a5f",
-            background: "#1e3a5f",
+            border: "1px solid #1e40af",
+            background: "#1e40af",
             color: "#fff",
             fontSize: 12,
             fontWeight: 600,
@@ -369,7 +369,7 @@ export const FollowUpTab = ({ cv, records }: FollowUpTabProps) => {
                       style={{
                         fontSize: 12,
                         fontWeight: 700,
-                        color: "#1e3a5f",
+                        color: "#1e40af",
                       }}
                     >
                       {record.type}
@@ -458,7 +458,7 @@ export const DocumentsTab = ({ documents, cvId }: DocumentsTabProps) => {
           marginBottom: 16,
         }}
       >
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>
           相关文档 ({documents?.length || 0})
         </div>
         <button
@@ -516,7 +516,7 @@ export const DocumentsTab = ({ documents, cvId }: DocumentsTabProps) => {
               </div>
               <div style={{ flex: 1 }}>
                 <div
-                  style={{ fontSize: 12, fontWeight: 600, color: "#1e3a5f" }}
+                  style={{ fontSize: 12, fontWeight: 600, color: "#1e40af" }}
                 >
                   {doc.name}
                 </div>

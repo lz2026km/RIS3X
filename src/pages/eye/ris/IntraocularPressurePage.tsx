@@ -189,6 +189,7 @@ const IntraocularPressurePage: React.FC = () => {
             pagination={{ pageSize: 8, showSizeChanger: false }}
             size="small"
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无测量记录" /> }}
+          scroll={{ x: 'max-content' }}
           />
         </Spin>
       </Card>

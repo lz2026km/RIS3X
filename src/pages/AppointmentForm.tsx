@@ -1,7 +1,7 @@
 import { Plus, X, Monitor, User, Stethoscope, Scan } from 'lucide-react'
 import { initialModalityDevices, initialExamItems, initialUsers } from '../data/initialData'
 
-const primaryBlue = '#1e3a5f'
+const primaryBlue = '#1e40af'
 const textGray = '#64748b'
 const borderGray = '#cbd5e1'
 const whiteBg = '#ffffff'

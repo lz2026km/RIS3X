@@ -26,7 +26,7 @@ export default function DoseTrendChart({
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         <div style={{ background: "#fff", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f", marginBottom: 16 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", marginBottom: 16 }}>
             {t("doseTrack.trend.overview") || "各类设备剂量趋势（本周DLP合计）"}
           </div>
           <ResponsiveContainer width="100%" height={220}>
@@ -44,7 +44,7 @@ export default function DoseTrendChart({
         </div>
 
         <div style={{ background: "#fff", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f", marginBottom: 16 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", marginBottom: 16 }}>
             {t("doseTrack.ctdiTrend.title")}
           </div>
           <ResponsiveContainer width="100%" height={220}>
@@ -64,7 +64,7 @@ export default function DoseTrendChart({
       <div style={{ background: "#fff", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}>{t("doseTrack.deviceDap.title")}</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>{t("doseTrack.deviceDap.title")}</div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{t("doseTrack.deviceDap.subtitle")}</div>
           </div>
         </div>
@@ -81,7 +81,7 @@ export default function DoseTrendChart({
       </div>
 
       <div style={{ background: "#fff", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f", marginBottom: 16 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", marginBottom: 16 }}>
           {t("doseTrack.device.statusLabel") || "设备今日剂量状态"}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -94,7 +94,7 @@ export default function DoseTrendChart({
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <Monitor size={14} color="#64748b" />
                   <div>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: "#1e3a5f" }}>{d.device}</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: "#1e40af" }}>{d.device}</div>
                     <div style={{ fontSize: 12, color: "#94a3b8" }}>DLP: {d.todayDLP} mGy·cm · CTDI: {d.todayCTDI} mGy</div>
                   </div>
                 </div>

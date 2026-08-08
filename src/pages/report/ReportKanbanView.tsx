@@ -4,7 +4,7 @@ import type { RadiologyReport } from '../../types'
 import { formatDateTime } from '../../utils/date';
 
 
-const PRIMARY = '#1e3a5f'
+const PRIMARY = '#1e40af'
 const WHITE = '#ffffff'
 const GRAY = '#64748b'
 const DANGER = '#dc2626'

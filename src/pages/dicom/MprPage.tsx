@@ -169,9 +169,9 @@ const MprPage: React.FC = () => {
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <Layers size={18} color={BLUE} />
         <span style={{ fontSize: 15, fontWeight: 700 }}>MPR 多平面重建</span>
-        <Tag color="cyan">Multi-Planar Reconstruction</Tag>
-        {mode === 'real' && <Tag color="green">REAL DICOM</Tag>}
-        {mode === 'synthetic' && <Tag>SYNTHETIC</Tag>}
+        <Tag color="cyan">多平面重建</Tag>
+        {mode === 'real' && <Tag color="green">真实DICOM</Tag>}
+        {mode === 'synthetic' && <Tag>合成数据</Tag>}
         {seriesInfo && <span style={{ fontSize: 11, color: '#64748b' }}>{seriesInfo}</span>}
       </div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'center' }}>

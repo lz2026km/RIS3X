@@ -156,8 +156,8 @@ export const Hl7ArchivePage: React.FC = () => {
             onChange={setFilterDirection}
             style={{ width: 140 }}
             options={[
-              { value: "INBOUND", label: "INBOUND" },
-              { value: "OUTBOUND", label: "OUTBOUND" },
+              { value: "INBOUND", label: "入站" },
+              { value: "OUTBOUND", label: "出站" },
               { value: "ACK", label: "ACK" },
             ]}
           />

@@ -93,9 +93,16 @@ export class Hl7Service implements OnModuleInit {
   private mllpServer: net.Server | null = null
   private readonly retryMax: number
   private readonly retryInterval: number
-  private readonly whitelist: string[] | null
-  private readonly tlsEnabled: boolean
+  private whitelist: string[] | null
+  private tlsEnabled: boolean
   private readonly tlsOptions: tls.TlsOptions | null
+
+  // [W3-B] MLLP 管理端点支撑: 计数/日志/启动时间
+  private totalConnections = 0
+  private totalMessages = 0
+  private mllpStartedAt: number | null = null
+  private readonly mllpLogs: { id: number; peer: string; event: 'connect' | 'disconnect' | 'message' | 'error'; timestamp: string; detail?: string }[] = []
+  private mllpLogSeq = 0
 
   private pushConfig: Hl7PushConfig = { host: '', port: 2575, enabled: false }
 
@@ -169,11 +176,15 @@ export class Hl7Service implements OnModuleInit {
   }
 
   private startMllpListener(): void {
+    if (this.mllpServer?.listening) return
     const port = Number(process.env['HL7_MLLP_PORT'] ?? 2575)
     const onConnection = (socket: net.Socket) => {
       const addr = socket.remoteAddress
+      this.totalConnections += 1
+      this.appendMllpLog('connect', addr, `port=${socket.remotePort}`)
       if (!this.isAllowed(addr)) {
         this.logger.warn(`MLLP connection denied from ${addr}`)
+        this.appendMllpLog('error', addr, 'denied by whitelist')
         socket.destroy()
         return
       }
@@ -197,6 +208,10 @@ export class Hl7Service implements OnModuleInit {
           }
           const msg = buffer.subarray(1, ebIdx).toString('utf8')
           buffer = buffer.subarray(ebIdx + 2)
+          this.totalMessages += 1
+          const msh = msg.split('\r').find((s) => s.startsWith('MSH'))
+          const type = msh?.split('|')[8] ?? 'UNKNOWN'
+          this.appendMllpLog('message', addr, type)
           this.handleInboundMessage(msg, socket).catch((e) =>
             this.logger.error('MLLP message handling error', e),
           )
@@ -205,10 +220,12 @@ export class Hl7Service implements OnModuleInit {
 
       socket.on('error', (err) => {
         this.logger.error(`MLLP socket error: ${err.message}`)
+        this.appendMllpLog('error', addr, err.message)
       })
 
       socket.on('close', () => {
         this.logger.log('MLLP client disconnected')
+        this.appendMllpLog('disconnect', addr)
       })
     }
 
@@ -221,11 +238,87 @@ export class Hl7Service implements OnModuleInit {
 
     this.mllpServer.on('error', (err) => {
       this.logger.error(`MLLP server error: ${err.message}`)
+      this.appendMllpLog('error', 'local', err.message)
     })
 
     this.mllpServer.listen(port, () => {
+      this.mllpStartedAt = Date.now()
       this.logger.log(`HL7 MLLP listener started on port ${port}${this.tlsEnabled ? ' (TLS)' : ''}`)
     })
+  }
+
+  private appendMllpLog(event: 'connect' | 'disconnect' | 'message' | 'error', peer: string | undefined, detail?: string): void {
+    this.mllpLogSeq += 1
+    this.mllpLogs.push({
+      id: this.mllpLogSeq,
+      peer: peer ? peer.replace(/^::ffff:/, '') : 'local',
+      event,
+      timestamp: new Date().toISOString(),
+      detail,
+    })
+    if (this.mllpLogs.length > 500) this.mllpLogs.shift()
+  }
+
+  // ============ [W3-B] MLLP 管理端点 (integrationApi.hl7Api) ============
+
+  getMllpStatus(): {
+    running: boolean
+    port: number
+    tlsEnabled: boolean
+    tlsPort?: number
+    whitelist: string[]
+    uptimeMs: number
+    totalConnections: number
+    totalMessages: number
+  } {
+    const listening = this.mllpServer?.listening === true
+    return {
+      running: listening,
+      port: Number(process.env['HL7_MLLP_PORT'] ?? 2575),
+      tlsEnabled: this.tlsEnabled,
+      tlsPort: this.tlsEnabled ? Number(process.env['HL7_MLLP_TLS_PORT'] ?? 2576) : undefined,
+      whitelist: this.whitelist ?? [],
+      uptimeMs: this.mllpStartedAt ? Date.now() - this.mllpStartedAt : 0,
+      totalConnections: this.totalConnections,
+      totalMessages: this.totalMessages,
+    }
+  }
+
+  getMllpLogs(limit = 50): typeof this.mllpLogs {
+    return this.mllpLogs.slice(-Math.max(1, Math.min(limit, 500)))
+  }
+
+  startMllp(): { success: boolean; running: boolean } {
+    this.startMllpListener()
+    return { success: true, running: this.mllpServer?.listening === true }
+  }
+
+  stopMllp(): { success: boolean; running: boolean } {
+    this.stopMllpListener()
+    return { success: true, running: false }
+  }
+
+  addMllpWhitelist(cidr: string): { success: boolean; whitelist: string[] } {
+    const rule = cidr.trim()
+    if (!rule) throw new Error('cidr is required')
+    if (!this.whitelist) this.whitelist = []
+    if (!this.whitelist.includes(rule)) this.whitelist.push(rule)
+    return { success: true, whitelist: [...this.whitelist] }
+  }
+
+  removeMllpWhitelist(cidr: string): { success: boolean; whitelist: string[] } {
+    if (this.whitelist) this.whitelist = this.whitelist.filter((r) => r !== cidr)
+    return { success: true, whitelist: [...(this.whitelist ?? [])] }
+  }
+
+  toggleMllpTls(enabled: boolean): { success: boolean; tlsEnabled: boolean } {
+    if (enabled && !this.tlsOptions) {
+      throw new Error('HL7_MLLP_TLS_KEY/HL7_MLLP_TLS_CERT not configured; cannot enable TLS')
+    }
+    this.tlsEnabled = enabled
+    this.stopMllpListener()
+    if (enabled) this.startMllpListener()
+    return { success: true, tlsEnabled: this.tlsEnabled }
   }
 
   private async handleInboundMessage(raw: string, socket: net.Socket): Promise<void> {
@@ -705,6 +798,7 @@ export class Hl7Service implements OnModuleInit {
     if (this.mllpServer) {
       this.mllpServer.close()
       this.mllpServer = null
+      this.mllpStartedAt = null
       this.logger.log('MLLP listener stopped')
     }
   }

@@ -119,7 +119,7 @@ export default function MfaVerifyModal({ userId, onVerified, onCancel, operation
                   width: 44, height: 52, textAlign: 'center', fontSize: 22,
                   fontWeight: 700, border: `2px solid ${error ? '#dc2626' : digit ? '#1e40af' : '#e2e8f0'}`,
                   borderRadius: 8, outline: 'none', background: error ? '#fef2f2' : '#fff',
-                  color: '#1e3a5f', caretColor: '#1e40af',
+                  color: '#1e40af', caretColor: '#1e40af',
                 }}
               />
             ))}

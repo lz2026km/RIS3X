@@ -92,7 +92,7 @@ export const FhirImagingStudyPage: React.FC = () => {
       title: '序列',
       dataIndex: 'numberOfSeries',
       key: 'numberOfSeries',
-      render: (v: number) => v != null ? <Badge count={v} style={{ backgroundColor: '#1677ff' }} /> : '-',
+      render: (v: number) => v != null ? <Badge count={v} style={{ backgroundColor: '#2563eb' }} /> : '-',
     },
     {
       title: '实例数',
@@ -118,7 +118,7 @@ export const FhirImagingStudyPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <Layers size={20} color="#1677ff" />
+        <Layers size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR ImagingStudy 管理</span>
         <Tag color="blue">FHIR R4</Tag>
       </Space>
@@ -128,7 +128,7 @@ export const FhirImagingStudyPage: React.FC = () => {
           <Form.Item name="patient" label="患者 ID">
             <Input placeholder="患者 ID / 参考" allowClear style={{ width: 200 }} />
           </Form.Item>
-          <Form.Item name="modality" label="Modality">
+          <Form.Item name="modality" label="设备类型">
             <Select allowClear placeholder="全部" style={{ width: 120 }}>
               <Select.Option value="CT">CT</Select.Option>
               <Select.Option value="MR">MR</Select.Option>
@@ -157,6 +157,7 @@ export const FhirImagingStudyPage: React.FC = () => {
           loading={loading}
           pagination={{ current: page, total, pageSize: PAGE_SIZE, onChange: setPage, showSizeChanger: false }}
           size="small"
+        scroll={{ x: 'max-content' }}
         />
       </Card>
 

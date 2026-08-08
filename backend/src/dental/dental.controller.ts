@@ -99,8 +99,14 @@ export class DentalController {
   @Get('panoramic/list')
   listPanoramic() { return this.svc.listPanoramic() }
 
+  @Get('panoramic/:id')
+  getPanoramic(@Param('id') id: string) { return this.svc.getPanoramic(id) }
+
   @Get('periapical/list')
   listPeriapical() { return this.svc.listPeriapical() }
+
+  @Get('periapical/:id')
+  getPeriapical(@Param('id') id: string) { return this.svc.getPeriapical(id) }
 
   @Get('scan/list')
   listScan() { return this.svc.listScan() }
@@ -147,6 +153,10 @@ export class DentalController {
   @Get('schedule/appointments')
   listScheduleAppointments(@Query('date') date?: string) { return this.svc.listScheduleAppointments(date) }
 
+  // [G005 W3-A] 补缺: 单条排班预约详情 (DentalAppointment 表 + seed)
+  @Get('schedule/appointments/:id')
+  getScheduleAppointment(@Param('id') id: string) { return this.svc.getScheduleAppointment(id) }
+
   @Post('schedule/appointments')
   createScheduleAppointment(@Body(new ZodValidationPipe(LooseBodySchema)) body: Record<string, unknown>) { return this.svc.createScheduleAppointment(body) }
 
@@ -164,6 +174,10 @@ export class DentalController {
 
   @Get('chart/:patientId/psr')
   listPsrRecords(@Param('patientId') patientId: string) { return this.svc.listPsrRecords(patientId) }
+
+  // [G005 W3-A] 补缺: 患者牙位图 (DentalStudy 表驱动 + seed, ToothChartPage 在用)
+  @Get('chart/:patientId')
+  getDentalChart(@Param('patientId') patientId: string) { return this.svc.getDentalChart(patientId) }
 
   @Post('chart/:patientId/psr')
   createPsrRecord(@Param('patientId') patientId: string, @Body(new ZodValidationPipe(LooseBodySchema)) body: Record<string, unknown>) { return this.svc.createPsrRecord(patientId, body) }

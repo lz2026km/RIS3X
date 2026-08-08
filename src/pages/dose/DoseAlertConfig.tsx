@@ -20,7 +20,7 @@ export default function DoseAlertConfig({
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
       <div style={{ background: "#fff", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
           <AlertTriangle size={16} color="#dc2626" />
           {t("doseTrack.alert.pending")}
           <span style={{ padding: "2px 8px", background: "#fef2f2", color: "#dc2626", borderRadius: 10, fontSize: 12, fontWeight: 700 }}>
@@ -39,7 +39,7 @@ export default function DoseAlertConfig({
                 <div key={alert.id} style={{ padding: 14, border: `1px solid ${badge.border}`, borderRadius: 10, background: badge.bg }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}>{alert.patientName}</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>{alert.patientName}</span>
                       <span style={{ padding: "2px 6px", background: "#eff6ff", color: "#2563eb", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>{alert.modality}</span>
                       <span style={{ padding: "2px 6px", background: badge.bg, color: badge.color, borderRadius: 4, fontSize: 12, fontWeight: 700 }}>
                         {alert.alertLevel === "critical" ? "危" : "警"}
@@ -98,7 +98,7 @@ export default function DoseAlertConfig({
       </div>
 
       <div style={{ background: "#fff", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
           <ShieldAlert size={16} color="#16a34a" />
           {t("doseTrack.alert.acknowledged")}
         </div>
@@ -109,7 +109,7 @@ export default function DoseAlertConfig({
               <div key={alert.id} style={{ padding: 12, background: "#f8fafc", borderRadius: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: "#1e3a5f" }}>{alert.patientName}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "#1e40af" }}>{alert.patientName}</span>
                     <span style={{ padding: "2px 6px", background: "#f0fdf4", color: "#16a34a", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>已确认</span>
                   </div>
                   <div style={{ fontSize: 12, color: "#94a3b8" }}>{alert.examItem} · {alert.time}</div>
@@ -124,7 +124,7 @@ export default function DoseAlertConfig({
         </div>
 
         <div style={{ marginTop: 20, padding: 16, background: "#f8fafc", borderRadius: 8 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#1e3a5f", marginBottom: 12 }}>          {t("doseTrack.alert.monthlyStats")}</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af", marginBottom: 12 }}>          {t("doseTrack.alert.monthlyStats")}</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: 20, fontWeight: 800, color: "#dc2626" }}>{cumulativeStats.criticalAlerts}</div>

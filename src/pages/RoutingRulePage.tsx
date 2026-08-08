@@ -118,15 +118,15 @@ export default function RoutingRulePage() {
         </div>
         <aside style={{ background: '#fff', padding: 12, overflowY: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-            <Eye size={14} color="#1e3a5f" />
-            <span style={{ fontWeight: 700, color: '#1e3a5f' }}>模拟结果</span>
+            <Eye size={14} color="#1e40af" />
+            <span style={{ fontWeight: 700, color: '#1e40af' }}>模拟结果</span>
           </div>
           {results.length === 0 ? (
             <div style={{ fontSize: 12, color: '#94a3b8' }}>点击「模拟执行」查看规则命中情况</div>
           ) : (
             results.map((r) => (
               <div key={r.studyId} style={{ background: '#f1f5f9', padding: 8, borderRadius: 6, marginBottom: 6 }}>
-                <div style={{ fontWeight: 700, color: '#1e3a5f', fontSize: 12 }}>{r.studyId}</div>
+                <div style={{ fontWeight: 700, color: '#1e40af', fontSize: 12 }}>{r.studyId}</div>
                 <div style={{ fontSize: 12, color: '#475569' }}>
                   命中: {r.matched.length === 0 ? '无' : r.matched.join(', ')}
                 </div>

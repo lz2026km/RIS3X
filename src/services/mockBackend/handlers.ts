@@ -1463,53 +1463,9 @@ export const deviceHandlers = [
 ];
 
 // ============= DICOM(7) =============
-// [W3-C] WADO-RS 检索 (wadoRsApi: /dicom/wado-rs/*) — 支撑 WadoRsPage 真实交互
-const WADO_RS_STUDIES = [
-  {
-    studyInstanceUid: '1.2.840.113619.2.176.2026.1.1',
-    patientName: '张伟', patientId: 'P100001', studyDate: '2026-06-06',
-    studyDescription: '胸部CT平扫', modality: 'CT', seriesCount: 2, instanceCount: 128,
-  },
-  {
-    studyInstanceUid: '1.2.840.113619.2.176.2026.1.2',
-    patientName: '李娜', patientId: 'P100002', studyDate: '2026-06-08',
-    studyDescription: '头颅MRI', modality: 'MR', seriesCount: 4, instanceCount: 256,
-  },
-];
-const WADO_RS_SERIES = [
-  { seriesInstanceUid: '1.2.840.113619.2.176.2026.1.1.1', seriesNumber: 1, modality: 'CT', seriesDescription: 'Axial 5mm', instanceCount: 64, bodyPart: 'CHEST' },
-  { seriesInstanceUid: '1.2.840.113619.2.176.2026.1.1.2', seriesNumber: 2, modality: 'CT', seriesDescription: 'Coronal MPR', instanceCount: 64, bodyPart: 'CHEST' },
-];
+// [G005 W3-A] 已移除 /dicom/wado-rs/* 段: wadoRsApi 改调 /dicom-web/studies (QIDO-RS),
+//             mock 由 shellUpgradeHandlers.dicomWebHandlers + POST STOW 处理器覆盖。
 export const dicomHandlers = [
-  http.get(`${API_BASE}/dicom/wado-rs/studies`, async ({ request }) => {
-    await delay(200);
-    const url = new URL(request.url);
-    const name = url.searchParams.get('patientName');
-    let list = WADO_RS_STUDIES;
-    if (name) list = list.filter(s => s.patientName.includes(name));
-    return HttpResponse.json({ success: true, data: list });
-  }),
-  http.get(`${API_BASE}/dicom/wado-rs/studies/:studyUid`, async ({ params }) => {
-    await delay(200);
-    const found = WADO_RS_STUDIES.find(s => s.studyInstanceUid === params.studyUid);
-    return HttpResponse.json({ success: true, data: found ?? WADO_RS_STUDIES[0] });
-  }),
-  http.get(`${API_BASE}/dicom/wado-rs/studies/:studyUid/series`, async () => {
-    await delay(200);
-    return HttpResponse.json({ success: true, data: WADO_RS_SERIES });
-  }),
-  http.get(`${API_BASE}/dicom/wado-rs/studies/:studyUid/series/:seriesUid/instances`, async () => {
-    await delay(200);
-    const instances = Array.from({ length: 64 }, (_, i) => ({
-      sopInstanceUid: `1.2.840.113619.2.176.2026.1.1.1.${String(i + 1).padStart(3, '0')}`,
-      instanceNumber: i + 1,
-      sopClassUid: '1.2.840.10008.5.1.4.1.1.2',
-      transferSyntaxUid: '1.2.840.10008.1.2.4.70',
-      wadoUri: `/api/v1/dicom/wado-rs/studies/1.2.840.113619.2.176.2026.1.1/instances/${i + 1}`,
-    }));
-    return HttpResponse.json({ success: true, data: instances });
-  }),
-
   http.get(`${API_BASE}/dicom/studies/:studyUid`, async ({ params }) => {
     await delay(200);
     return HttpResponse.json({

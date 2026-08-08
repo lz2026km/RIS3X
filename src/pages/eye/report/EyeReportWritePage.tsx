@@ -688,7 +688,7 @@ const EyeReportWritePage: React.FC = () => {
           borderBottom: "1px solid #e2e8f0",
         }}
       >
-        <FileText size={24} color="#1677ff" />
+        <FileText size={24} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>眼科报告书写</span>
         <Select
           value={selectedReportId}

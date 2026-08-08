@@ -1,7 +1,6 @@
 // [v3.0.6.11-54] Phase 2 壳页面真实化 - 缺失端点 MSW mock
 // 覆盖: dicom-web (QIDO) / critical-alert / dicom sr-report / nuclear-stats
 import { http, HttpResponse, delay } from 'msw';
-import { v4 as uuidv4 } from 'uuid';
 
 const API_BASE = (() => {
   try { return window.location.origin + '/api/v1'; } catch { return 'http://localhost:5173/api/v1'; }
@@ -49,9 +48,12 @@ const dicomWebHandlers = [
     const url = new URL(request.url);
     const modality = url.searchParams.get('Modality');
     const patientId = url.searchParams.get('PatientID');
+    const studyUid = url.searchParams.get('StudyInstanceUID');
     let all = MOCK_STUDIES;
     if (modality) all = all.filter((s) => s.modalitiesInStudy.includes(modality));
     if (patientId) all = all.filter((s) => s.patientID === patientId);
+    // [G005 W3-A] wadoRsApi.getStudy 依赖 StudyInstanceUID 过滤 (QIDO-RS)
+    if (studyUid) all = all.filter((s) => s.studyInstanceUID === studyUid);
     return HttpResponse.json({ success: true, data: all, meta: { total: all.length } });
   }),
   http.get(`${API_BASE}/dicom-web/studies/:studyUid/series`, async ({ params }) => {
@@ -76,6 +78,23 @@ const dicomWebHandlers = [
         numberOfFrames: 1,
       })),
     });
+  }),
+  // [G005 W3-A] STOW-RS 存储 (stowRsApi -> POST /dicom-web/studies/:studyUid)
+  http.post(`${API_BASE}/dicom-web/studies/:studyUid`, async ({ params }) => {
+    await delay(delayMs(80, 220));
+    const studyUid = String(params.studyUid);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        id: `STOW-${Date.now()}`,
+        studyInstanceUid: studyUid,
+        seriesInstanceUid: `${studyUid}.S1`,
+        receivedInstanceCount: 1,
+        results: [
+          { studyInstanceUid: studyUid, seriesInstanceUid: `${studyUid}.S1`, sopInstanceUid: `${studyUid}.S1.1`, status: 'success' },
+        ],
+      },
+    }, { status: 201 });
   }),
 ];
 
@@ -191,84 +210,8 @@ const criticalAlertHandlers = [
   }),
 ];
 
-// ───────────────────────── DICOM SR Report ─────────────────────────
-const MOCK_SR_REPORTS = Array.from({ length: 8 }, (_, i) => {
-  const types = ['comprehensive', 'key_object', 'measurement', 'textural'] as const;
-  const statuses = ['draft', 'final', 'amended'] as const;
-  return {
-    id: `SR-${String(20260001 + i)}`,
-    studyInstanceUid: `1.2.840.113654.${100 + i}.${String(i).padStart(10, '0')}`,
-    seriesInstanceUid: `1.2.840.113654.${100 + i}.${String(i).padStart(10, '0')}.1`,
-    sopInstanceUid: uuidv4(),
-    patientName: ['张伟', '李娜', '王芳', '赵敏', '陈杰', '刘洋', '周婷', '吴强'][i],
-    patientId: `P2026${String(20000 + i)}`,
-    modality: ['CT', 'MR', 'CT', 'PET-CT', 'CT', 'MR', 'CT', 'DR'][i],
-    reportType: types[i % 4],
-    title: ['胸部CT肺结节结构化报告', '头颅MRI占位评估', '腹部CT增强评估', 'PET-CT全身SUV评估', '肺结节随访测量', '膝关节MRI结构评估', '冠脉CTA结构化报告', '颈椎DR测量报告'][i],
-    content: {
-      patient: { name: ['张伟', '李娜', '王芳', '赵敏'][i % 4], id: `P2026${String(20000 + i)}` },
-      study: { uid: `1.2.840.113654.${100 + i}.${String(i).padStart(10, '0')}`, date: `2026-0${(i % 5) + 1}-1${i}`, description: '常规检查' },
-      findings: [
-        {
-          id: `f-${i}-1`, category: '结节', location: '右上肺', description: '磨玻璃密度结节, 边界清晰',
-          measurements: [{ id: `m-${i}-1`, name: '最大径', value: 6.5, unit: 'mm' }],
-        },
-        { id: `f-${i}-2`, category: '结论', description: '未见明显异常征象' },
-      ],
-      conclusion: '影像所见未见明确恶性征象, 建议定期随访复查。',
-      recommendations: '3-6 个月后复查胸部 CT 平扫。',
-    },
-    status: statuses[i % 3],
-    authorId: `D${String(100 + i)}`,
-    authorName: `Dr. ${['Wang', 'Li', 'Zhang', 'Zhao', 'Chen', 'Liu', 'Zhou', 'Wu'][i]}`,
-    createdAt: new Date(Date.now() - i * 2 * 86400_000).toISOString(),
-    updatedAt: new Date(Date.now() - i * 86400_000).toISOString(),
-  };
-});
-
-const srReportHandlers = [
-  http.get(`${API_BASE}/dicom/sr-report/reports`, async ({ request }) => {
-    await delay(delayMs());
-    const url = new URL(request.url);
-    const status = url.searchParams.get('status');
-    const reportType = url.searchParams.get('reportType');
-    let all = MOCK_SR_REPORTS;
-    if (status) all = all.filter((r) => r.status === status);
-    if (reportType) all = all.filter((r) => r.reportType === reportType);
-    return HttpResponse.json({ success: true, data: all, meta: { total: all.length } });
-  }),
-  http.get(`${API_BASE}/dicom/sr-report/reports/:id`, async ({ params }) => {
-    await delay(delayMs());
-    const item = MOCK_SR_REPORTS.find((r) => r.id === params.id);
-    if (!item) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
-    return HttpResponse.json({ success: true, data: item });
-  }),
-  http.get(`${API_BASE}/dicom/sr-report/studies/:studyUid/reports`, async ({ params }) => {
-    await delay(delayMs());
-    return HttpResponse.json({ success: true, data: MOCK_SR_REPORTS.filter((r) => r.studyInstanceUid === params.studyUid) });
-  }),
-  http.post(`${API_BASE}/dicom/sr-report/reports`, async ({ request }) => {
-    await delay(delayMs());
-    const body = await request.json() as Record<string, unknown>;
-    const item = {
-      id: `SR-${Date.now()}`,
-      ...body,
-      status: 'draft',
-      authorName: '当前用户',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    return HttpResponse.json({ success: true, data: item }, { status: 201 });
-  }),
-  http.post(`${API_BASE}/dicom/sr-report/reports/:id/finalize`, async ({ params }) => {
-    await delay(delayMs());
-    const item = MOCK_SR_REPORTS.find((r) => r.id === params.id);
-    if (!item) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
-    item.status = 'final';
-    item.updatedAt = new Date().toISOString();
-    return HttpResponse.json({ success: true, data: item });
-  }),
-];
+// [G005 W3-A] DICOM SR Report 旧 /dicom/sr-report/* 段已移除 (后端无此前缀);
+//             srReportApi 改调 /dicom-sr, 由 srHandlers.ts 全链路覆盖。
 
 // ───────────────────────── Nuclear Stats ─────────────────────────
 const nuclearSummary = {
@@ -410,7 +353,6 @@ const v3AiQualityListHandlers = [
 export const shellUpgradeHandlers = [
   ...dicomWebHandlers,
   ...criticalAlertHandlers,
-  ...srReportHandlers,
   ...nuclearStatsHandlers,
   ...v3IntegrationListHandlers,
   ...v3AiQualityListHandlers,

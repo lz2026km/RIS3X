@@ -311,7 +311,7 @@ export default function TatDashboardPage() {
               style={{
                 fontSize: 22,
                 fontWeight: 800,
-                color: "#1e3a5f",
+                color: "#1e40af",
                 margin: "0 0 6px",
                 display: "flex",
                 alignItems: "center",
@@ -432,7 +432,7 @@ export default function TatDashboardPage() {
                   value={stats.completionRate}
                   suffix="%"
                   styles={{ content: { 
-                    color: "#1e3a5f",
+                    color: "#1e40af",
                     fontSize: 28,
                     fontWeight: 800,
                    } }}
@@ -446,7 +446,7 @@ export default function TatDashboardPage() {
                   title="总检查数"
                   value={stats.total}
                   styles={{ content: { 
-                    color: "#1e3a5f",
+                    color: "#1e40af",
                     fontSize: 28,
                     fontWeight: 800,
                    } }}

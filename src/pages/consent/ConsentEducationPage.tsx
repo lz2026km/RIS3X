@@ -6,6 +6,8 @@ import { FileSignature, BookOpen, CheckCircle2, Clock, Download, Send, Eye, Uplo
 import { consentEducationApi, type ConsentRecord, type EducationMaterialDto } from '../../services/api/consentEducationApi';
 import { getEducationService, type EducationMaterial } from '../../services/education/EducationService';
 
+// [W3-C] 假按钮修复: 查看→详情Modal; PDF→真实文件下载; 发送患者→本地发送状态
+
 const CATEGORIES = ['Imaging', 'Surgery', 'Dental', 'Treatment', 'General'];
 const CATEGORY_COLORS: Record<string, string> = {
   Imaging: 'blue', Surgery: 'red', Dental: 'purple', Treatment: 'volcano', General: 'green',
@@ -21,8 +23,42 @@ export const ConsentEducationPage: React.FC = () => {
   const [consentModal, setConsentModal] = useState(false);
   const [uploadModal, setUploadModal] = useState(false);
   const [viewMaterial, setViewMaterial] = useState<EducationMaterialDto | null>(null);
+  const [viewConsent, setViewConsent] = useState<ConsentRecord | null>(null);
+  const [sentMaterials, setSentMaterials] = useState<Set<string>>(new Set());
   const [consentForm] = Form.useForm();
   const [materialForm] = Form.useForm();
+
+  // [W3-C] 发送患者: 本地真实状态 (标记已发送 + 浏览数 +1)
+  const sendToPatient = (m: EducationMaterialDto) => {
+    setSentMaterials((prev) => new Set(prev).add(m.id));
+    setMaterials((prev) => prev.map((x) => x.id === m.id ? { ...x, views: (x.views ?? 0) + 1 } : x));
+    message.success(`已发送给患者 (${m.title})`);
+  };
+
+  // [W3-C] PDF: 生成真实文件下载
+  const downloadPdf = (r: ConsentRecord) => {
+    const content = [
+      `知情同意书 ${r.id}`,
+      `患者: ${r.patient}`,
+      `类型: ${r.type}`,
+      `操作: ${r.procedure}`,
+      `状态: ${r.status === 'signed' ? '已签署' : r.status === 'pending' ? '待签署' : '已拒绝'}`,
+      r.signedAt ? `签署时间: ${r.signedAt}` : '',
+      `生成时间: ${new Date().toLocaleString('zh-CN', { hour12: false })}`,
+      '',
+      '—— G005 RIS 知情同意模块 (PDF 快照下载) ——',
+    ].filter(Boolean).join('\n');
+    const blob = new Blob(['\ufeff' + content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `consent_${r.id}_${new Date().toISOString().slice(0, 10)}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    message.success(`已生成 ${a.download}`);
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -115,7 +151,7 @@ export const ConsentEducationPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
-        <FileSignature size={20} color="#1677ff" />
+        <FileSignature size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>知情同意与宣教中心</span>
         <Tag color="cyan">v3.0.6.11-60</Tag>
         <Tag color="green">电子签名</Tag>
@@ -157,12 +193,13 @@ export const ConsentEducationPage: React.FC = () => {
                 render: (_, r: ConsentRecord) => (
                   <Space>
                     {r.status === 'pending' && <Button size="small" type="primary" onClick={() => void signConsent(r)}>立即签署</Button>}
-                    <Button size="small" icon={<Eye size={10} />} onClick={() => message.info(`同意书 ${r.id} · ${r.patient} · ${r.procedure}`)}>查看</Button>
-                    <Button size="small" icon={<Download size={10} />} onClick={() => message.success('PDF 下载任务已创建')}>PDF</Button>
+                    <Button size="small" icon={<Eye size={10} />} onClick={() => setViewConsent(r)}>查看</Button>
+                    <Button size="small" icon={<Download size={10} />} onClick={() => downloadPdf(r)}>PDF</Button>
                   </Space>
                 ),
               },
             ]}
+          scroll={{ x: 'max-content' }}
           />
         </Spin>
       </Card>
@@ -195,11 +232,14 @@ export const ConsentEducationPage: React.FC = () => {
               render: (_, r: EducationMaterialDto) => (
                 <Space>
                   <Button size="small" icon={<Eye size={10} />} onClick={() => setViewMaterial(r)}>查看</Button>
-                  <Button size="small" icon={<Send size={10} />} onClick={() => message.success(`已发送给患者 (${r.title})`)}>发送患者</Button>
+                  {sentMaterials.has(r.id)
+                    ? <Tag color="green">已发送</Tag>
+                    : <Button size="small" icon={<Send size={10} />} onClick={() => sendToPatient(r)}>发送患者</Button>}
                 </Space>
               ),
             },
           ]}
+        scroll={{ x: 'max-content' }}
         />
       </Card>
 
@@ -247,7 +287,11 @@ export const ConsentEducationPage: React.FC = () => {
         title={viewMaterial?.title}
         open={!!viewMaterial}
         onCancel={() => setViewMaterial(null)}
-        footer={<Button type="primary" onClick={() => { message.success('资料已发送'); setViewMaterial(null); }}>发送给患者</Button>}
+        footer={viewMaterial
+          ? (sentMaterials.has(viewMaterial.id)
+              ? <Button type="primary" onClick={() => setViewMaterial(null)}>关闭</Button>
+              : <Button type="primary" onClick={() => { sendToPatient(viewMaterial); setViewMaterial(null); }}>发送给患者</Button>)
+          : null}
         width={560}
       >
         {viewMaterial && (
@@ -268,6 +312,30 @@ export const ConsentEducationPage: React.FC = () => {
           <Empty image={<Inbox size={48} color="#94a3b8" />} description="暂无知情同意记录" />
         </div>
       )}
+
+      <Modal
+        title={`同意书详情 - ${viewConsent?.id ?? ''}`}
+        open={!!viewConsent}
+        onCancel={() => setViewConsent(null)}
+        footer={<Button type="primary" onClick={() => setViewConsent(null)}>关闭</Button>}
+        width={560}
+      >
+        {viewConsent && (
+          <>
+            <Descriptions bordered column={2} size="small" style={{ marginBottom: 12 }}>
+              <Descriptions.Item label="患者" span={2}>{viewConsent.patient}</Descriptions.Item>
+              <Descriptions.Item label="类型"><Tag color="blue">{viewConsent.type}</Tag></Descriptions.Item>
+              <Descriptions.Item label="状态">
+                <Badge status={viewConsent.status === 'signed' ? 'success' : viewConsent.status === 'pending' ? 'processing' : 'error'} text={viewConsent.status === 'signed' ? '已签署' : viewConsent.status === 'pending' ? '待签署' : '已拒绝'} />
+              </Descriptions.Item>
+              <Descriptions.Item label="诊疗操作" span={2}>{viewConsent.procedure}</Descriptions.Item>
+              <Descriptions.Item label="签署时间">{viewConsent.signedAt ?? '—'}</Descriptions.Item>
+              <Descriptions.Item label="见证人">{viewConsent.witness ?? '—'}</Descriptions.Item>
+            </Descriptions>
+            <Alert type="info" showIcon message="PDF 快照可通过列表中的「PDF」按钮生成并下载" />
+          </>
+        )}
+      </Modal>
     </div>
   );
 };

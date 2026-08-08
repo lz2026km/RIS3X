@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Card, Table, Button, Space, Switch, InputNumber, Input, Modal, Form, Select, Row, Col, Statistic, message, Tabs, Alert } from 'antd'
 import { GitBranch, Edit3, BarChart3, History } from 'lucide-react'
 import { smartRouteApi, type SmartRouteRule, type SmartRouteAssignment, type SmartRouteStats } from '../../services/api/smartRouteApi'
+import { usePagination } from '../../hooks/usePagination'
 
 interface RoutingRule {
   id: string
@@ -33,6 +34,8 @@ const SmartRoutePage: React.FC = () => {
   const [editOpen, setEditOpen] = useState(false)
   const [editingRule, setEditingRule] = useState<RoutingRule | null>(null)
   const [form] = Form.useForm()
+  // [W3-C] 受控分页: 分配历史表 (规则表数据少, 不分页)
+  const historyPagination = usePagination(history, 10);
 
   const fetchAll = useCallback(async () => {
     setLoading(true)
@@ -115,7 +118,7 @@ const SmartRoutePage: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16 }}>
-        <GitBranch size={20} color="#1677ff" />
+        <GitBranch size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>智能路由</span>
       </Space>
       {error && <Alert type="warning" showIcon message="加载失败" description={error} action={<Button size="small" onClick={fetchAll}>重试</Button>} style={{ marginBottom: 16 }} />}
@@ -127,8 +130,8 @@ const SmartRoutePage: React.FC = () => {
         ))}
       </Row>
       <Tabs items={[
-        { key: 'rules', label: <span><GitBranch size={14} /> 路由规则</span>, children: <Card><Table rowKey="id" dataSource={rules} columns={ruleColumns} pagination={false} size="small" loading={loading} /></Card> },
-        { key: 'history', label: <span><History size={14} /> 分配历史</span>, children: <Card><Table rowKey="id" dataSource={history} columns={historyColumns} pagination={{ pageSize: 10 }} size="small" loading={loading} /></Card> },
+        { key: 'rules', label: <span><GitBranch size={14} /> 路由规则</span>, children: <Card><Table rowKey="id" dataSource={rules} columns={ruleColumns} pagination={false} size="small" loading={loading} scroll={{ x: 'max-content' }}/></Card> },
+        { key: 'history', label: <span><History size={14} /> 分配历史</span>, children: <Card><Table rowKey="id" dataSource={historyPagination.pageData} columns={historyColumns} pagination={historyPagination.pagination} size="small" loading={loading} scroll={{ x: 'max-content' }}/></Card> },
         { key: 'stats', label: <span><BarChart3 size={14} /> 路由统计</span>, children: <Card><Row gutter={16}>{Object.entries(byDoctor).map(([k, v]) => <Col key={k} span={6}><Card><Statistic title={k} value={v} suffix="次" loading={loading} /></Card></Col>)}</Row></Card> },
       ]} />
       <Modal title="编辑路由规则" open={editOpen} onOk={handleSave} onCancel={() => setEditOpen(false)}>

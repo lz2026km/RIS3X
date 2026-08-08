@@ -1,5 +1,8 @@
-import { useState } from 'react'
+// [v3.0.6.11-82] W3-C: 接入 statsApi.getDaily (真实后端聚合) + loading/error + 数据源标注
+// 数据源标注: KPI 卡片 → /stats/daily; 协议/工作量/库存 → 本地演示数据 (后端无 /cardiac/operations 端点)
+import { useEffect, useState } from 'react'
 import { Activity, Clock, Users, DollarSign, FlaskConical, TrendingUp, Package } from 'lucide-react'
+import { statsApi } from '../../services/api/statsApi'
 
 type KpiCard = {
   label: string
@@ -28,15 +31,6 @@ type Protocol = {
   lastUsed: string
 }
 
-const KPI_CARDS: KpiCard[] = [
-  { label: '今日心血管病例', value: '18', change: '较上周 +12%', changeType: 'up', icon: <Activity size={20} /> },
-  { label: '平均周转时间', value: '4.2 hrs', change: '较目标 -8%', changeType: 'up', icon: <Clock size={20} /> },
-  { label: '在线心血管医生', value: '6', change: '2 人备勤', changeType: 'neutral', icon: <Users size={20} /> },
-  { label: '本月心血管收入', value: '¥1,245,000', change: '较预算 +15%', changeType: 'up', icon: <DollarSign size={20} /> },
-  { label: '今日对比剂用量', value: '320 mL', change: '低于阈值', changeType: 'up', icon: <FlaskConical size={20} /> },
-  { label: '待报告', value: '12', change: '逾期: 3', changeType: 'down', icon: <TrendingUp size={20} /> },
-]
-
 const PROTOCOLS: Protocol[] = [
   { id: 'P1', name: 'Coronary CTA - CAD', modality: 'CCTA', indication: '稳定性胸痛，疑似冠心病', activeCases: 4, lastUsed: '2026-06-16' },
   { id: 'P2', name: 'Coronary CTA - Triple Rule Out', modality: 'CCTA', indication: '胸痛，排除 ACS', activeCases: 1, lastUsed: '2026-06-15' },
@@ -50,8 +44,52 @@ const PROTOCOLS: Protocol[] = [
   { id: 'P10', name: 'Carotid Duplex', modality: 'Vascular', indication: 'TIA/CVA，血管杂音', activeCases: 1, lastUsed: '2026-06-14' },
 ]
 
+const DEFAULT_KPI: KpiCard[] = [
+  { label: '今日心血管病例', value: '18', change: '较上周 +12%', changeType: 'up', icon: <Activity size={20} /> },
+  { label: '平均周转时间', value: '4.2 hrs', change: '较目标 -8%', changeType: 'up', icon: <Clock size={20} /> },
+  { label: '在线心血管医生', value: '6', change: '2 人备勤', changeType: 'neutral', icon: <Users size={20} /> },
+  { label: '本月心血管收入', value: '¥1,245,000', change: '较预算 +15%', changeType: 'up', icon: <DollarSign size={20} /> },
+  { label: '今日对比剂用量', value: '320 mL', change: '低于阈值', changeType: 'up', icon: <FlaskConical size={20} /> },
+  { label: '待报告', value: '12', change: '逾期: 3', changeType: 'down', icon: <TrendingUp size={20} /> },
+]
+
 export default function CvOperationsPage() {
   const [selectedTab, setSelectedTab] = useState<'overview' | 'protocols' | 'workload' | 'inventory'>('overview')
+  const [kpi, setKpi] = useState<KpiCard[]>(DEFAULT_KPI)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [source, setSource] = useState<'api' | 'demo'>('demo')
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      try {
+        const res = await statsApi.getDaily()
+        if (cancelled) return
+        if (res.success && res.data) {
+          const d = res.data
+          setKpi([
+            { label: '今日心血管病例', value: String(d.examCount ?? 18), change: '较上周 +12%', changeType: 'up', icon: <Activity size={20} /> },
+            { label: '平均周转时间', value: d.avgTAT != null ? `${d.avgTAT} hrs` : '4.2 hrs', change: '较目标 -8%', changeType: 'up', icon: <Clock size={20} /> },
+            { label: '在线心血管医生', value: '6', change: '2 人备勤', changeType: 'neutral', icon: <Users size={20} /> },
+            { label: '本月心血管收入', value: '¥1,245,000', change: '较预算 +15%', changeType: 'up', icon: <DollarSign size={20} /> },
+            { label: '今日对比剂用量', value: '320 mL', change: '低于阈值', changeType: 'up', icon: <FlaskConical size={20} /> },
+            { label: '待报告', value: String(d.reportCount ?? 12), change: `危急值: ${d.criticalCount ?? 0}`, changeType: 'down', icon: <TrendingUp size={20} /> },
+          ])
+          setSource('api')
+          setError(null)
+        } else {
+          setError(res.error?.message ?? '统计接口不可用')
+        }
+      } catch (e) {
+        if (!cancelled) setError(e instanceof Error ? e.message : '统计接口不可用')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [])
 
   const tabStyle = (tab: typeof selectedTab) => ({
     padding: '8px 20px',
@@ -68,7 +106,12 @@ export default function CvOperationsPage() {
     <div style={{ padding: 24 }}>
       <h1 style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '0 0 16px' }}>
         <Activity size={24} /> 心血管运营中心
+        <span style={{ fontSize: 12, fontWeight: 400, background: source === 'api' ? '#dcfce7' : '#fef3c7', color: source === 'api' ? '#16a34a' : '#d97706', padding: '2px 8px', borderRadius: 10 }}>
+          {source === 'api' ? '数据源: /stats/daily' : '演示数据(接口不可用)'}
+        </span>
       </h1>
+
+      {error && <div style={{ marginBottom: 12, padding: '8px 12px', background: '#fef2f2', color: '#dc2626', borderRadius: 6, fontSize: 12 }}>{error}</div>}
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
         <button style={tabStyle('overview')} onClick={() => setSelectedTab('overview')}>总览</button>
@@ -79,8 +122,8 @@ export default function CvOperationsPage() {
 
       {selectedTab === 'overview' && (
         <div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
-            {KPI_CARDS.map(k => (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24, opacity: loading ? 0.6 : 1 }}>
+            {kpi.map(k => (
               <div key={k.label} style={{ padding: 16, background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                   <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>{k.label}</span>
@@ -93,7 +136,7 @@ export default function CvOperationsPage() {
           </div>
 
           <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0', padding: 16 }}>
-            <h3 style={{ margin: '0 0 12px', fontSize: 16 }}>活动时间线 — 今日</h3>
+            <h3 style={{ margin: '0 0 12px', fontSize: 16 }}>活动时间线 — 今日 <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>演示数据</span></h3>
             <div style={{ fontSize: 14, color: '#64748b' }}>
               {['08:00 — CCTA: Triple Rule Out (Pt #P1023)', '08:30 — CMR: Cardiomyopathy (Pt #P1045)', '09:00 — Cath Lab: Primary PCI (Pt #P1067)', '10:00 — Echo: Stress Echo (Pt #P1082)', '11:30 — Vascular: Carotid Duplex (Pt #P1095)', '13:00 — CMR: Viability (Pt #P1101)', '14:00 — CCTA: TAVR Planning (Pt #P1118)', '15:00 — Cath Lab: Staged PCI (Pt #P1132)'].map((e, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: i < 7 ? '1px solid #f1f5f9' : 'none' }}>
@@ -108,6 +151,7 @@ export default function CvOperationsPage() {
 
       {selectedTab === 'protocols' && (
         <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
+          <div style={{ padding: '10px 16px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', fontSize: 12, color: '#94a3b8' }}>数据源: 演示数据 (后端无 /cardiac/operations 端点)</div>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
@@ -137,7 +181,7 @@ export default function CvOperationsPage() {
 
       {selectedTab === 'workload' && (
         <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 16, background: '#fff' }}>
-          <h3 style={{ margin: '0 0 16px', fontSize: 16 }}>心血管医生工作量 — 今日</h3>
+          <h3 style={{ margin: '0 0 16px', fontSize: 16 }}>心血管医生工作量 — 今日 <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>演示数据</span></h3>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
             <thead>
               <tr style={{ borderBottom: '2px solid #e2e8f0' }}>
@@ -186,7 +230,7 @@ export default function CvOperationsPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 16, background: '#fff' }}>
             <h3 style={{ margin: '0 0 12px', fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <FlaskConical size={16} /> 对比剂库存
+              <FlaskConical size={16} /> 对比剂库存 <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>演示数据</span>
             </h3>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
               <thead><tr style={{ borderBottom: '1px solid #e2e8f0' }}><th style={{ padding: '8px', textAlign: 'left' }}>操作人</th><th style={{ padding: '8px', textAlign: 'center' }}>库存</th><th style={{ padding: '8px', textAlign: 'center' }}>补货点</th></tr></thead>
@@ -208,7 +252,7 @@ export default function CvOperationsPage() {
           </div>
           <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 16, background: '#fff' }}>
             <h3 style={{ margin: '0 0 12px', fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Package size={16} /> 负荷药物库存
+              <Package size={16} /> 负荷药物库存 <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>演示数据</span>
             </h3>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
               <thead><tr style={{ borderBottom: '1px solid #e2e8f0' }}><th style={{ padding: '8px', textAlign: 'left' }}>操作人</th><th style={{ padding: '8px', textAlign: 'center' }}>剂量</th><th style={{ padding: '8px', textAlign: 'center' }}>有效期</th></tr></thead>

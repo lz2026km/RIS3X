@@ -68,7 +68,7 @@ export const ClinicalPathwayPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
-        <Route size={20} color="#1677ff" />
+        <Route size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>临床路径管理</span>
         <Tag color="cyan">v3.0.6.11-60</Tag>
         <Tag color="green" icon={<Activity size={10} />}>基于临床路径的护理</Tag>
@@ -112,6 +112,7 @@ export const ClinicalPathwayPage: React.FC = () => {
               ),
             },
           ]}
+        scroll={{ x: 'max-content' }}
         />
       </Card>
 
@@ -139,6 +140,7 @@ export const ClinicalPathwayPage: React.FC = () => {
             { title: '偏差', dataIndex: 'variance', render: (v: string | null) => <span style={{ color: v ? '#ff4d4f' : '#52c41a', fontSize: 12 }}>{v || '无'}</span> },
             { title: '操作', render: (_, r: PathwayPatient) => <Button size="small" icon={<Eye size={12} />} onClick={() => setDetail(r)}>查看步骤</Button> },
           ]}
+        scroll={{ x: 'max-content' }}
         />
       </Card>
 

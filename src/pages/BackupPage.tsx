@@ -114,7 +114,7 @@ export default function BackupPage() {
               key: 'list',
               label: <span><ClockCircleOutlined /> 备份记录</span>,
               children: (
-                <Table dataSource={list} columns={columns} rowKey="id" loading={loading} pagination={{ pageSize: 10, showSizeChanger: true, showTotal: (total) => `共 ${total} 条` }} size="small" />
+                <Table dataSource={list} columns={columns} rowKey="id" loading={loading} pagination={{ pageSize: 10, showSizeChanger: true, showTotal: (total) => `共 ${total} 条` }} size="small" scroll={{ x: 'max-content' }}/>
               ),
             },
             {

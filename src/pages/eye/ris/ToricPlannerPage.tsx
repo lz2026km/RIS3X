@@ -248,7 +248,7 @@ export const ToricPlannerPage: React.FC = () => {
                           avatar={
                             <div style={{
                               width: 80, height: 80, borderRadius: 8,
-                              background: 'linear-gradient(135deg, #1677ff, #69b1ff)',
+                              background: 'linear-gradient(135deg, #2563eb, #69b1ff)',
                               color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
                               flexDirection: 'column',
                             }}>
@@ -326,7 +326,7 @@ export const ToricPlannerPage: React.FC = () => {
                       <Statistic
                         title="角膜散光 (术前)"
                         value={toricPlan.preOpCornealAstigmatism}
-                        styles={{ content: {  color: '#1677ff', fontSize: 18  } }}
+                        styles={{ content: {  color: '#2563eb', fontSize: 18  } }}
                       />
                     </Col>
                     <Col span={12}>
@@ -436,7 +436,7 @@ export const ToricPlannerPage: React.FC = () => {
                       <Statistic
                         title="预测等效球镜"
                         value={postopPrediction.predictedSE}
-                        styles={{ content: {  color: '#1677ff', fontSize: 24  } }}
+                        styles={{ content: {  color: '#2563eb', fontSize: 24  } }}
                         suffix="D"
                       />
                     </Col>

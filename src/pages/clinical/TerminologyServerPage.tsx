@@ -99,7 +99,7 @@ export const TerminologyServerPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
-        <BookOpen size={20} color="#1677ff" />
+        <BookOpen size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>术语服务器</span>
         <Tag color="cyan">v3.0.6.11-60</Tag>
         <Tag color="blue">SNOMED-CT</Tag>
@@ -117,7 +117,7 @@ export const TerminologyServerPage: React.FC = () => {
           <Col xs={12} md={4}><Card size="small"><Statistic title="映射数" value={stats?.totalMappings ?? mappings.length} prefix={<Layers size={14} />} /></Card></Col>
           <Col xs={12} md={4}><Card size="small"><Statistic title="系统数" value={stats?.systems ?? systems.length} prefix={<Globe size={14} />} /></Card></Col>
           <Col xs={12} md={4}><Card size="small"><Statistic title="活跃映射" value={stats?.activeMappings ?? 0} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-          <Col xs={12} md={4}><Card size="small"><Statistic title="在线系统" value={stats?.onlineSystems ?? 0} styles={{ content: { color: '#1677ff' } }} /></Card></Col>
+          <Col xs={12} md={4}><Card size="small"><Statistic title="在线系统" value={stats?.onlineSystems ?? 0} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
           <Col xs={12} md={4}><Card size="small"><Statistic title="检索结果" value={results.length} prefix={<Search size={14} />} /></Card></Col>
         </Row>
       </Spin>
@@ -151,6 +151,7 @@ export const TerminologyServerPage: React.FC = () => {
             { title: '匹配方式', dataIndex: 'matchType', render: (m: string) => <Tag color={m === 'exact' ? 'green' : m === 'partial' ? 'orange' : 'default'}>{m === 'exact' ? '精确' : m === 'partial' ? '部分' : m}</Tag> },
             { title: '置信度', dataIndex: 'confidence', render: (c: number) => `${Math.round((c ?? 0) * 100)}%` },
           ]}
+        scroll={{ x: 'max-content' }}
         />
       </Card>
 
@@ -180,6 +181,7 @@ export const TerminologyServerPage: React.FC = () => {
                   ),
                 },
               ]}
+            scroll={{ x: 'max-content' }}
             />
           </Card>
         </Col>

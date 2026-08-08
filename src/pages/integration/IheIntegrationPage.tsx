@@ -4,7 +4,7 @@
  */
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-  Card, Space, Tag, Table, Button, Row, Col, Statistic, message, Alert, Spin, Input, Modal, Divider,
+  Card, Space, Tag, Table, Button, Row, Col, Statistic, message, Alert, Spin, Input, Modal, Divider, Descriptions,
 } from 'antd';
 import { Globe, Activity, RefreshCw, ArrowLeftRight, Server, Network, Database, FileSearch, IdCard, CalendarRange } from 'lucide-react';
 import { iheApi } from '../../services/api/integrationApi';
@@ -16,6 +16,7 @@ const IheIntegrationPage: React.FC = () => {
   const [error, setError] = useState('');
   const [pixModal, setPixModal] = useState(false);
   const [pdqModal, setPdqModal] = useState(false);
+  const [pamModal, setPamModal] = useState(false);
   const [patientId, setPatientId] = useState('');
   const [pixResult, setPixResult] = useState<string>('');
 
@@ -65,7 +66,7 @@ const IheIntegrationPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f7fa', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
-        <Globe size={20} color="#1677ff" />
+        <Globe size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>IHE 集成引擎</span>
         <Tag color="cyan">v3.0.6.11-75</Tag>
         <Tag color="geekblue">{status?.profile ?? 'PIX · PDQ · PAM'}</Tag>
@@ -114,7 +115,7 @@ const IheIntegrationPage: React.FC = () => {
               <Button block icon={<IdCard size={14} />} onClick={() => { setPixModal(true); setPixResult('') }}>PIX 患者索引查询</Button>
               <Button block icon={<FileSearch size={14} />} onClick={() => { setPdqModal(true); setPixResult('') }}>PDQ 患者人口学查询</Button>
               <Button block icon={<ArrowLeftRight size={14} />} onClick={() => message.success('PIX 增量更新通知已发送(模拟)')}>PIX 增量更新通知</Button>
-              <Button block icon={<CalendarRange size={14} />} onClick={() => message.info('PAM 就诊状态消息由 HL7 ADT 驱动')}>PAM 就诊管理文档</Button>
+              <Button block icon={<CalendarRange size={14} />} onClick={() => setPamModal(true)}>PAM 就诊管理文档</Button>
             </Space>
           </Card>
         </Col>
@@ -160,6 +161,18 @@ const IheIntegrationPage: React.FC = () => {
             onChange={(e) => setPatientId(e.target.value)}
           />
           <pre style={{ background: '#0f172a', color: '#e2e8f0', padding: 12, borderRadius: 8, minHeight: 80, whiteSpace: 'pre-wrap', fontSize: 12, margin: 0 }}>{pixResult || '查询结果将在此显示'}</pre>
+        </Space>
+      </Modal>
+
+      <Modal title="PAM 就诊管理 (Patient Administration Management)" open={pamModal} onCancel={() => setPamModal(false)} footer={<Button type="primary" onClick={() => setPamModal(false)}>关闭</Button>} width={520}>
+        <Space direction="vertical" size={10} style={{ width: '100%', marginTop: 8 }}>
+          <Alert type="info" showIcon message="PAM 就诊状态消息由 HL7 ADT (A01 入院 / A03 出院 / A04 登记 / A08 信息更新) 驱动" />
+          <Descriptions bordered column={1} size="small">
+            <Descriptions.Item label="PAM 事务">PAM Message (ADT^A01/A04) · PAM Query (ADT^Q22)</Descriptions.Item>
+            <Descriptions.Item label="消息来源">HIS / EMR 通过 HL7 网关 (mllp://localhost:2575) 推送</Descriptions.Item>
+            <Descriptions.Item label="PAM 日志条目">{status?.metrics.pamLogSize ?? 0}</Descriptions.Item>
+            <Descriptions.Item label="当前配置">就诊状态变更实时同步至 PACS 工作列表与危急值接收端</Descriptions.Item>
+          </Descriptions>
         </Space>
       </Modal>
     </div>

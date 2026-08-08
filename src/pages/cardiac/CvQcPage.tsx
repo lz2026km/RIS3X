@@ -1,6 +1,8 @@
-import { useState } from 'react'
+// [v3.0.6.11-82] W3-C: 接入 qcextApi.getQcDashboard/getQcStats (真实后端) + loading/error + 数据源标注
+import { useEffect, useState } from 'react'
 
 import { Shield, CheckCircle2, AlertTriangle, XCircle, BarChart3, ClipboardCheck } from 'lucide-react'
+import { qcextApi } from '../../services/api/qcextApi'
 
 type QcMetric = {
   label: string
@@ -81,6 +83,38 @@ const STATUS_CONFIG = {
 export default function CvQcPage() {
   const [activeModality, setActiveModality] = useState(0)
   const [generating, setGenerating] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [dashboard, setDashboard] = useState<{ totalInspected: number; passedRate: number; avgScore: number; period: string } | null>(null)
+  const [source, setSource] = useState<'api' | 'demo'>('demo')
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      try {
+        const [dashRes, statsRes] = await Promise.all([qcextApi.getQcDashboard(), qcextApi.getQcStats()])
+        if (cancelled) return
+        if (dashRes.success && dashRes.data) {
+          setDashboard(dashRes.data)
+          setSource('api')
+          setError(null)
+        } else if (statsRes.success && statsRes.data) {
+          const s = statsRes.data
+          setDashboard({ totalInspected: s.totalReports, passedRate: 100 - (s.defectDistribution?.reduce((a, d) => a + (d.count ?? 0), 0) ?? 0), avgScore: s.avgScore, period: '近期' })
+          setSource('api')
+          setError(null)
+        } else {
+          setError(dashRes.error?.message ?? statsRes.error?.message ?? '质控接口不可用')
+        }
+      } catch (e) {
+        if (!cancelled) setError(e instanceof Error ? e.message : '质控接口不可用')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [])
 
   const overallPass = MODALITY_QC.reduce((a, m) => a + m.metrics.filter(x => x.status === 'pass').length, 0)
   const overallTotal = MODALITY_QC.reduce((a, m) => a + m.metrics.length, 0)
@@ -126,13 +160,18 @@ export default function CvQcPage() {
     <div style={{ padding: 24 }}>
       <h1 style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '0 0 16px' }}>
         <Shield size={24} /> CV 质量控制仪表盘
+        <span style={{ fontSize: 12, fontWeight: 400, background: source === 'api' ? '#dcfce7' : '#fef3c7', color: source === 'api' ? '#16a34a' : '#d97706', padding: '2px 8px', borderRadius: 10 }}>
+          {source === 'api' ? '数据源: /qc-ext/dashboard' : '演示数据(接口不可用)'}
+        </span>
       </h1>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
+      {error && <div style={{ marginBottom: 12, padding: '8px 12px', background: '#fef2f2', color: '#dc2626', borderRadius: 6, fontSize: 12 }}>{error}</div>}
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24, opacity: loading ? 0.6 : 1 }}>
         <div style={{ padding: 16, background: '#f0fdf4', borderRadius: 8, border: '1px solid #bbf7d0' }}>
           <div style={{ fontSize: 12, color: '#16a34a', fontWeight: 600, textTransform: 'uppercase' }}>整体质控通过率</div>
-          <div style={{ fontSize: 28, fontWeight: 'bold', marginTop: 4 }}>{Math.round(overallPass / overallTotal * 100)}%</div>
-          <div style={{ fontSize: 12, color: '#64748b' }}>{overallPass}/{overallTotal} 项指标通过</div>
+          <div style={{ fontSize: 28, fontWeight: 'bold', marginTop: 4 }}>{dashboard ? `${Math.round(dashboard.passedRate)}%` : `${Math.round(overallPass / overallTotal * 100)}%`}</div>
+          <div style={{ fontSize: 12, color: '#64748b' }}>{dashboard ? `检查 ${dashboard.totalInspected} 例 · 平均 ${dashboard.avgScore} 分` : `${overallPass}/${overallTotal} 项指标通过`}</div>
         </div>
         {MODALITY_QC.map((m, i) => (
           <div key={m.modality} onClick={() => setActiveModality(i)} style={{ padding: 16, background: activeModality === i ? '#eff6ff' : '#fff', borderRadius: 8, border: activeModality === i ? '2px solid #1e40af' : '1px solid #e2e8f0', cursor: 'pointer' }}>
@@ -145,7 +184,8 @@ export default function CvQcPage() {
 
       <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
         <div style={{ padding: '12px 16px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', fontWeight: 600, fontSize: 14 }}>
-          {MODALITY_QC[activeModality].modality} — 详细指标
+          {MODALITY_QC[activeModality]?.modality ?? ''} — 详细指标
+          <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400, marginLeft: 8 }}>演示数据</span>
         </div>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
           <thead>
@@ -157,7 +197,7 @@ export default function CvQcPage() {
             </tr>
           </thead>
           <tbody>
-            {MODALITY_QC[activeModality].metrics.map(m => {
+            {(MODALITY_QC[activeModality]?.metrics ?? []).map(m => {
               const s = STATUS_CONFIG[m.status]
               const Icon = s.icon
               return (

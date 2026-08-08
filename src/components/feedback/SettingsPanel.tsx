@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Modal, Tabs, Slider, Select, Switch, Radio, Button, Divider } from 'antd';
 import { SettingOutlined } from "@ant-design/icons";
+import { useAppTheme, type ThemeMode } from "../Provider";
 import {
   SHORTCUT_LIST,
   SHORTCUT_GROUPS,
@@ -56,6 +57,9 @@ export function SettingsPanel({
   const { i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const isZh = i18n.language?.startsWith("zh");
+
+  // U1-B: 主题状态与 Provider 三向同步 (context + data-theme + localStorage)
+  const { theme: appTheme, setTheme } = useAppTheme();
 
   const groupedShortcuts = SHORTCUT_LIST.reduce<
     Record<string, typeof SHORTCUT_LIST>
@@ -422,8 +426,12 @@ export function SettingsPanel({
                     </label>
                     <Radio.Group
                       id="theme"
-                      value={config.theme}
-                      onChange={(e) => updateField("theme", e.target.value)}
+                      value={appTheme}
+                      onChange={(e) => {
+                        const v = e.target.value as ThemeMode;
+                        setTheme(v);
+                        updateField("theme", v);
+                      }}
                       options={THEME_OPTIONS}
                       optionType="button"
                       buttonStyle="solid"
@@ -485,8 +493,11 @@ export function SettingsPanel({
                       </label>
                       <Switch
                         id="highContrast"
-                        checked={config.highContrast}
-                        onChange={(v) => updateField("highContrast", v)}
+                        checked={appTheme === "high-contrast"}
+                        onChange={(v) => {
+                          setTheme(v ? "high-contrast" : "light");
+                          updateField("highContrast", v);
+                        }}
                       />
                     </div>
                   </div>

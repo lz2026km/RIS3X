@@ -23,7 +23,7 @@ const MontagePage: React.FC = () => {
               <Space>
                 <LayoutIcon size={16} />
                 <span>影像拼图</span>
-                <Tag color="cyan">Panoramic</Tag>
+                <Tag color="cyan">全景</Tag>
               </Space>
             }
             extra={

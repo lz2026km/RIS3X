@@ -1,5 +1,5 @@
 /**
- * G005 放射RIS系统 v3.0.6.11-81 - 简单 i18n 翻译函数与 locale 切换
+ * G005 放射RIS系统 v3.0.6.11-82 - 简单 i18n 翻译函数与 locale 切换
  * R3 1100+ 功能点,i18n 命名空间合并
  * 对外导出:t(key, params) / getCurrentLocale() / onLocaleChange() / notifyLocaleChange()
  */
@@ -18,13 +18,19 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "G005放射信息系统",
     "app.version":
-      "v3.0.6.11-81 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
+      "v3.0.6.11-82 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
     "app.collapse": "收起",
     "app.expand": "展开",
     "app.searchPlaceholder": "搜索患者/检查号/报告...",
+    "app.theme": "主题",
+    "app.themeLight": "浅色",
+    "app.themeDark": "深色",
+    "app.themeHighContrast": "高对比度",
+    "app.themeSwitchHint": "点击切换主题",
+    "app.settings": "设置",
     "nav.workbench": "工作台",
     "nav.aiOrchestration": "AI 编排平台",
     "nav.dicomViewerClassic": "DICOM 经典查看器",
@@ -183,7 +189,7 @@ export const translations: Translations = {
     "nav.dentalPhoto": "口内照片", // [v3.0.6.11-7]
     "nav.systemManage": "系统管理",
     "nav.forbidden": "无权限",
-    "nav.fileManagement": "文件管理", // [W1-A v3.0.6.11-81]
+    "nav.fileManagement": "文件管理", // [W1-A v3.0.6.11-82]
     "nav.userManagement": "用户管理",
     "nav.clinicalConfig": "临床配置",
     "nav.dataDictionary": "数据字典",
@@ -2053,13 +2059,19 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "G005 Radiology Information System",
     "app.version":
-      "v3.0.6.11-81 · Strict Review + Params + Security + Features + Mock Cleanup + 200-page Verification",
+      "v3.0.6.11-82 · Strict Review + Params + Security + Features + Mock Cleanup + 200-page Verification",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
     "app.collapse": "Collapse",
     "app.expand": "Expand",
     "app.searchPlaceholder": "Search patient/exam/report...",
+    "app.theme": "Theme",
+    "app.themeLight": "Light",
+    "app.themeDark": "Dark",
+    "app.themeHighContrast": "High Contrast",
+    "app.themeSwitchHint": "Click to switch theme",
+    "app.settings": "Settings",
     "nav.workbench": "Workbench",
     "nav.aiOrchestration": "AI Orchestration Platform",
     "nav.dicomViewerClassic": "DICOM Classic Viewer",
@@ -2218,7 +2230,7 @@ export const translations: Translations = {
     "nav.dentalPhoto": "Patient Photos", // [v3.0.6.11-7]
     "nav.systemManage": "System Management",
     "nav.forbidden": "Forbidden",
-    "nav.fileManagement": "File Management", // [W1-A v3.0.6.11-81]
+    "nav.fileManagement": "File Management", // [W1-A v3.0.6.11-82]
     "nav.userManagement": "User Management",
     "nav.clinicalConfig": "Clinical Config",
     "nav.dataDictionary": "Data Dictionary",

@@ -11,7 +11,7 @@ const ReportTemplateSelector: React.FC<{
   onChange?: (v: string) => void;
 }> = ({ value, onChange }) => (
   <Space>
-    <FileText size={16} color="#1677ff" />
+    <FileText size={16} color="#2563eb" />
     <Select
       value={value || undefined}
       onChange={onChange}

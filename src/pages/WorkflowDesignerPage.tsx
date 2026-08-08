@@ -250,7 +250,7 @@ export default function WorkflowDesignerPage() {
         </header>
         <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
           <aside style={{ width: 200, background: '#fff', borderRight: '1px solid #e2e8f0', padding: 16, overflowY: 'auto' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f', marginBottom: 12 }}>步骤类型</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>步骤类型</div>
             {STEP_TYPES.map(t => <DraggableStep key={t.key} type={t} />)}
           </aside>
           <main style={{ flex: 1, padding: 16, display: 'flex', flexDirection: 'column' }}>
@@ -260,7 +260,7 @@ export default function WorkflowDesignerPage() {
             </DropZone>
           </main>
           <aside style={{ width: 280, background: '#fff', borderLeft: '1px solid #e2e8f0', padding: 16, overflowY: 'auto' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f', marginBottom: 12 }}>属性面板</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>属性面板</div>
             {selectedNode ? (
               <div style={{ fontSize: 13 }}>
                 <div style={{ marginBottom: 8 }}><label style={{ fontWeight: 600, display: 'block', marginBottom: 4 }}>名称</label><Input size="small" value={selectedNode.label} onChange={e => setCanvasNodes(prev => prev.map(n => n.id === selectedNode.id ? { ...n, label: e.target.value } : n))} /></div>
@@ -274,10 +274,10 @@ export default function WorkflowDesignerPage() {
         </div>
         <div style={{ borderTop: '1px solid #e2e8f0', background: '#fff', padding: '12px 24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f', display: 'flex', alignItems: 'center', gap: 6 }}><List size={14} />步骤列表</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}><List size={14} />步骤列表</div>
             <Button size="small" icon={<Plus size={14} />} onClick={() => setShowNewStep(true)}>新建步骤</Button>
           </div>
-          <Table size="small" columns={stepColumns} dataSource={stepList} rowKey="key" pagination={false} />
+          <Table size="small" columns={stepColumns} dataSource={stepList} rowKey="key" pagination={false} scroll={{ x: 'max-content' }}/>
         </div>
       </div>
       <Modal title="历史版本" open={showVersion} onCancel={() => setShowVersion(false)} footer={null} width={500}>

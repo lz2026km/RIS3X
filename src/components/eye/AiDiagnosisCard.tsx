@@ -8,7 +8,7 @@ const AiDiagnosisCard: React.FC<{ diagnosis: AiDiagnosis }> = ({
 }) => (
   <Card
     size="small"
-    style={{ marginBottom: 8, borderLeft: "4px solid #1677ff" }}
+    style={{ marginBottom: 8, borderLeft: "4px solid #2563eb" }}
     title={
       <Space>
         <Brain size={16} />

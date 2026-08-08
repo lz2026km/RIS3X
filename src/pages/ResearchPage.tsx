@@ -252,7 +252,7 @@ function ProjectsTab() {
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'center', background: COLORS.bgWhite, border: '1px solid ' + COLORS.border, borderRadius: 8, padding: '8px 12px', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', background: COLORS.bgWhite, border: '1px solid ' + COLORS.border, borderRadius: 12, padding: '8px 12px', gap: 8 }}>
             <Search size={16} color={COLORS.textSecondary} />
             <input placeholder="搜索课题名称或编号..." style={{ border: 'none', outline: 'none', fontSize: 14, width: 240, background: 'transparent' }} />
           </div>
@@ -476,7 +476,7 @@ function LabelsTab() {
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'center', background: COLORS.bgWhite, border: '1px solid ' + COLORS.border, borderRadius: 8, padding: '8px 12px', gap: 8 }}><Search size={16} color={COLORS.textSecondary} /><input placeholder="搜索标签..." value={searchKeyword} onChange={e => setSearchKeyword(e.target.value)} style={{ border: 'none', outline: 'none', fontSize: 14, width: 180, background: 'transparent' }} /></div>
+          <div style={{ display: 'flex', alignItems: 'center', background: COLORS.bgWhite, border: '1px solid ' + COLORS.border, borderRadius: 12, padding: '8px 12px', gap: 8 }}><Search size={16} color={COLORS.textSecondary} /><input placeholder="搜索标签..." value={searchKeyword} onChange={e => setSearchKeyword(e.target.value)} style={{ border: 'none', outline: 'none', fontSize: 14, width: 180, background: 'transparent' }} /></div>
           <div style={{ display: 'flex', gap: 8 }}>{['', '诊断', '部位', '特征'].map(type => (<button key={type || 'all'} onClick={() => setFilterType(type as LabelType | '')} style={{ padding: '8px 14px', background: filterType === type ? COLORS.primary : COLORS.bgWhite, color: filterType === type ? '#ffffff' : COLORS.textSecondary, border: '1px solid ' + (filterType === type ? COLORS.primary : COLORS.border), borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>{type || '全部'}</button>))}</div>
         </div>
         <button onClick={() => setShowAddModal(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', background: COLORS.primary, color: '#ffffff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}><Plus size={16} /> 自定义标签</button>

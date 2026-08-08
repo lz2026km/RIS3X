@@ -112,8 +112,8 @@ function Pagination({
                 height: 32,
                 borderRadius: 6,
                 border: "1px solid",
-                borderColor: currentPage === pageNum ? "#1e3a5f" : "#e2e8f0",
-                background: currentPage === pageNum ? "#1e3a5f" : "#fff",
+                borderColor: currentPage === pageNum ? "#1e40af" : "#e2e8f0",
+                background: currentPage === pageNum ? "#1e40af" : "#fff",
                 color: currentPage === pageNum ? "#fff" : "#64748b",
                 cursor: "pointer",
                 fontSize: 12,
@@ -327,7 +327,7 @@ export function PatientTable({
           style={{
             marginBottom: 12,
             padding: "10px 16px",
-            background: "linear-gradient(135deg, #1e3a5f, #2d4a6f)",
+            background: "linear-gradient(135deg, #1e40af, #2563eb)",
             borderRadius: 10,
             display: "flex",
             alignItems: "center",
@@ -478,7 +478,7 @@ export function PatientTable({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: allSelected ? "#1e3a5f" : "#cbd5e1",
+                      color: allSelected ? "#1e40af" : "#cbd5e1",
                     }}
                   >
                     {allSelected ? (
@@ -588,7 +588,7 @@ export function PatientTable({
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          color: isSelected ? "#1e3a5f" : "#cbd5e1",
+                          color: isSelected ? "#1e40af" : "#cbd5e1",
                         }}
                       >
                         {isSelected ? (
@@ -628,12 +628,12 @@ export function PatientTable({
                             justifyContent: "center",
                             fontSize: 12,
                             fontWeight: 700,
-                            color: p.gender === "男" ? "#1e3a5f" : "#be185d",
+                            color: p.gender === "男" ? "#1e40af" : "#be185d",
                           }}
                         >
                           {p.name.slice(0, 1)}
                         </div>
-                        <span style={{ fontWeight: 600, color: "#1e3a5f" }}>
+                        <span style={{ fontWeight: 600, color: "#1e40af" }}>
                           {p.name}
                         </span>
                       </div>
@@ -703,7 +703,7 @@ export function PatientTable({
                         padding: "10px 14px",
                         textAlign: "right",
                         fontWeight: 700,
-                        color: "#1e3a5f",
+                        color: "#1e40af",
                       }}
                     >
                       {(p.totalExamCount || 0).toLocaleString()}
@@ -886,7 +886,7 @@ export function PatientTable({
                   width: 56,
                   height: 56,
                   borderRadius: "50%",
-                  background: "linear-gradient(135deg, #1e3a5f, #3b82f6)",
+                  background: "linear-gradient(135deg, #1e40af, #3b82f6)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -898,7 +898,7 @@ export function PatientTable({
               </div>
               <div>
                 <div
-                  style={{ fontSize: 16, fontWeight: 700, color: "#1e3a5f" }}
+                  style={{ fontSize: 16, fontWeight: 700, color: "#1e40af" }}
                 >
                   {selectedPatient.name}
                 </div>
@@ -1029,7 +1029,7 @@ export function PatientTable({
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#1e3a5f",
+                color: "#1e40af",
                 marginBottom: 8,
               }}
             >

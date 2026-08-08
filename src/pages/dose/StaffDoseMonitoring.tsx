@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from "recharts";
+import { AlertTriangle } from "lucide-react";
 import { staffDoseRecords } from "./mockData";
 import type { StaffDoseRecord } from "./types";
 
@@ -30,6 +31,20 @@ export default function StaffDoseMonitoring() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div
+        style={{
+          padding: "8px 12px",
+          background: "#fef3c7",
+          color: "#d97706",
+          borderRadius: 8,
+          fontSize: 12,
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+        }}
+      >
+        <AlertTriangle size={14} /> 演示数据：rdsrApi 无工作人员剂量端点（仅患者检查剂量），个人剂量计数据为本地模拟
+      </div>
       <div
         style={{
           display: "grid",
@@ -97,7 +112,7 @@ export default function StaffDoseMonitoring() {
           style={{
             fontSize: 13,
             fontWeight: 700,
-            color: "#1e3a5f",
+            color: "#1e40af",
             marginBottom: 16,
           }}
         >
@@ -145,7 +160,7 @@ export default function StaffDoseMonitoring() {
           style={{
             fontSize: 13,
             fontWeight: 700,
-            color: "#1e3a5f",
+            color: "#1e40af",
             marginBottom: 16,
           }}
         >
@@ -274,7 +289,7 @@ const tdPrimary: React.CSSProperties = {
   padding: "10px 12px",
   fontSize: 12,
   fontWeight: 600,
-  color: "#1e3a5f",
+  color: "#1e40af",
   textAlign: "center",
 };
 
@@ -296,6 +311,6 @@ const tdBold: React.CSSProperties = {
   padding: "10px 12px",
   fontSize: 12,
   fontWeight: 700,
-  color: "#1e3a5f",
+  color: "#1e40af",
   textAlign: "center",
 };

@@ -4,9 +4,10 @@ import { BarChart3, TrendingUp, TrendingDown, Activity, Users, DollarSign, Smile
 import { eyeApi } from '@/services/api/eyeApi'
 import { PageContainer, PageHeader } from '@/components/common'
 import type { ApiResponse } from '@/services/api/types'
+import { usePagination } from '@/hooks/usePagination'
 
-const categoryIcons: Record<string, React.ReactNode> = { productivity: <Activity size={16} color="#1677ff" />, clinical: <BarChart3 size={16} color="#22c55e" />, operational: <Users size={16} color="#f59e0b" />, financial: <DollarSign size={16} color="#10b981" />, satisfaction: <Smile size={16} color="#8b5cf6" /> }
-const categoryColors: Record<string, string> = { productivity: '#1677ff', clinical: '#22c55e', operational: '#f59e0b', financial: '#10b981', satisfaction: '#8b5cf6' }
+const categoryIcons: Record<string, React.ReactNode> = { productivity: <Activity size={16} color="#2563eb" />, clinical: <BarChart3 size={16} color="#22c55e" />, operational: <Users size={16} color="#f59e0b" />, financial: <DollarSign size={16} color="#10b981" />, satisfaction: <Smile size={16} color="#8b5cf6" /> }
+const categoryColors: Record<string, string> = { productivity: '#2563eb', clinical: '#22c55e', operational: '#f59e0b', financial: '#10b981', satisfaction: '#8b5cf6' }
 const CATEGORY_LABELS_DICT: Record<string, string> = { productivity: '效率', clinical: '临床', operational: '运营', financial: '财务', satisfaction: '满意度' }
 
 interface KpiMetric {
@@ -79,6 +80,8 @@ const EyeKpiDashboardPage: React.FC = () => {
   useEffect(() => { void load() }, [load])
 
   const filtered = tab === 'all' ? qualityMetrics : qualityMetrics.filter(m => m.category === tab)
+  // [W3-C] 受控分页: 指标表
+  const metricPagination = usePagination(filtered, 10)
   const avgSat = patientSatisfaction.length > 0
     ? patientSatisfaction.reduce((s, p) => s + (p.overallScore || 0), 0) / patientSatisfaction.length
     : 0
@@ -87,7 +90,7 @@ const EyeKpiDashboardPage: React.FC = () => {
     <PageContainer background="slate" maxWidth="full" padding={16} testId="eye-kpi-dashboard-page">
       <PageHeader
         title="眼科质控看板"
-        icon={<BarChart3 size={24} color="#1677ff" />}
+        icon={<BarChart3 size={24} color="#2563eb" />}
         variant="inline"
         actions={
           <Space>
@@ -121,7 +124,7 @@ const EyeKpiDashboardPage: React.FC = () => {
               activeKey={tab}
               onChange={setTab}
               tabBarExtraContent={
-                <Badge count={filtered.length} title={`当前 ${filtered.length} 项指标`} style={{ backgroundColor: '#1677ff' }} />
+                <Badge count={filtered.length} title={`当前 ${filtered.length} 项指标`} style={{ backgroundColor: '#2563eb' }} />
               }
               items={[
                 { key: 'all', label: '全部指标' },
@@ -129,7 +132,7 @@ const EyeKpiDashboardPage: React.FC = () => {
               ]}
             />
             {filtered.length === 0 ? <Empty description="暂无指标数据" /> : (
-              <Table dataSource={filtered} rowKey="id" size="small" pagination={{ pageSize: 10 }}
+              <Table dataSource={metricPagination.pageData} rowKey="id" size="small" pagination={metricPagination.pagination}
                 columns={[
                   { title: '类别', dataIndex: 'category', key: 'category', width: 80, render: (v: string) => <Tag color={categoryColors[v]}>{CATEGORY_LABELS_DICT[v] || v}</Tag> },
                   { title: '指标', dataIndex: 'name', key: 'name', width: 200 },
@@ -138,7 +141,8 @@ const EyeKpiDashboardPage: React.FC = () => {
                   { title: '达成率', key: 'rate', width: 140, render: (_, r: KpiMetric) => <PercentBar value={r.value} target={r.target} /> },
                   { title: '趋势', dataIndex: 'trend', key: 'trend', width: 70, render: (v: string) => v === 'up' ? <TrendingUp size={14} color="#22c55e" /> : v === 'down' ? <TrendingDown size={14} color="#ef4444" /> : <span style={{ color: '#94a3b8' }}>→</span> },
                   { title: '周期', dataIndex: 'period', key: 'period', width: 60 },
-                ]} />
+                ]} 
+              scroll={{ x: 'max-content' }}/>
             )}
           </Card>
 
@@ -147,7 +151,7 @@ const EyeKpiDashboardPage: React.FC = () => {
               <Row gutter={12}>{['沟通', '候诊', '环境', '推荐'].map((s, i) => {
                 const scores = patientSatisfaction.map(p => [p.communicationScore, p.waitTimeScore, p.facilityScore, p.recommendationScore][i] ?? 0)
                 const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-                return <Col span={6} key={s}><div style={{ textAlign: 'center' }}><div style={{ fontSize: 12, color: '#64748b' }}>{s}</div><Progress type="dashboard" percent={avg} size={60} strokeColor={avg >= 90 ? '#22c55e' : avg >= 80 ? '#1677ff' : '#f59e0b'} /><div style={{ fontSize: 12, fontWeight: 600 }}>{avg}分</div></div></Col>
+                return <Col span={6} key={s}><div style={{ textAlign: 'center' }}><div style={{ fontSize: 12, color: '#64748b' }}>{s}</div><Progress type="dashboard" percent={avg} size={60} strokeColor={avg >= 90 ? '#22c55e' : avg >= 80 ? '#2563eb' : '#f59e0b'} /><div style={{ fontSize: 12, fontWeight: 600 }}>{avg}分</div></div></Col>
               })}</Row>
             )}
           </Card>

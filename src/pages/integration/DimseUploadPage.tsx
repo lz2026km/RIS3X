@@ -1,5 +1,6 @@
-// [W3-2] DIMSE 上传: 真实文件读取 + dicomDimseApi.upload 调用 + 分阶段进度 + 结果列表
-import React, { useState } from 'react';
+﻿// [W3-2] DIMSE 上传: 真实文件读取 + dicomDimseApi.upload 调用 + 分阶段进度 + 结果列表
+// [W3-C] 刷新按钮: 真实刷新 — 上传记录持久化到 localStorage, 刷新时从存储重新加载
+import React, { useEffect, useState } from 'react';
 import { Card, Upload, Button, message, Table, Tag, Space, Alert, Typography, Progress, Select, Popconfirm, Empty, Statistic, Row, Col } from 'antd';
 import { UploadOutlined, DeleteOutlined } from '@ant-design/icons';
 import { RefreshCw } from 'lucide-react';
@@ -10,6 +11,8 @@ const DEST_OPTIONS = [
   { value: 'vna', label: 'VNA 归档' },
   { value: 'pacs', label: '本地 PACS' },
 ];
+
+const STORAGE_KEY = 'dimse_upload_records_v1';
 
 interface UploadRecord {
   key: string;
@@ -38,9 +41,40 @@ export const DimseUploadPage: React.FC = () => {
   const [stage, setStage] = useState('');
   const [destination, setDestination] = useState('s3');
 
+  // [W3-C] 刷新: 从 localStorage 重载记录 (页面唯一数据源)
+  const refreshRecords = () => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const list = JSON.parse(raw) as UploadRecord[];
+        setRecords(Array.isArray(list) ? list : []);
+        message.success(`刷新完成, 从本地存储恢复 ${Array.isArray(list) ? list.length : 0} 条记录`);
+      } else {
+        setRecords([]);
+        message.info('本地无已保存的上传记录');
+      }
+    } catch {
+      setRecords([]);
+      message.warning('本地存储读取失败, 已清空列表');
+    }
+  };
+
+  useEffect(() => {
+    refreshRecords();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const commit = (updater: (prev: UploadRecord[]) => UploadRecord[]) => {
+    setRecords((prev) => {
+      const next = updater(prev);
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* 忽略 */ }
+      return next;
+    });
+  };
+
   const handleUpload = async (file: File) => {
     const key = `${file.name}-${Date.now()}`;
-    setRecords(prev => [{
+    commit((prev) => [{
       key,
       fileName: file.name,
       sizeBytes: file.size,
@@ -83,7 +117,7 @@ export const DimseUploadPage: React.FC = () => {
       setProgress(100);
       if (res.success) {
         const url = (res.data as { url?: string; status?: string })?.url ?? '';
-        setRecords(prev => prev.map(r => r.key === key ? {
+        commit((prev) => prev.map(r => r.key === key ? {
           ...r,
           status: 'SUCCESS',
           s3Url: url,
@@ -91,12 +125,12 @@ export const DimseUploadPage: React.FC = () => {
         } : r));
         message.success(`${file.name} 上传成功`);
       } else {
-        setRecords(prev => prev.map(r => r.key === key ? { ...r, status: 'FAIL' } : r));
+        commit((prev) => prev.map(r => r.key === key ? { ...r, status: 'FAIL' } : r));
         message.error(res.error?.message ?? '上传失败');
       }
     } catch (e) {
       console.error('[DIMSE-Upload]', e);
-      setRecords(prev => prev.map(r => r.key === key ? { ...r, status: 'FAIL' } : r));
+      commit((prev) => prev.map(r => r.key === key ? { ...r, status: 'FAIL' } : r));
       message.error('上传失败, 请检查网络后重试');
     } finally {
       setUploading(false);
@@ -106,7 +140,7 @@ export const DimseUploadPage: React.FC = () => {
   };
 
   const handleRemove = (key: string) => {
-    setRecords(prev => prev.filter(r => r.key !== key));
+    commit((prev) => prev.filter(r => r.key !== key));
   };
 
   const successCount = records.filter(r => r.status === 'SUCCESS').length;
@@ -115,7 +149,7 @@ export const DimseUploadPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <UploadOutlined style={{ fontSize: 20, color: '#1677ff' }} />
+        <UploadOutlined style={{ fontSize: 20, color: '#2563eb' }} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>DIMSE 归档上传</span>
         <Tag color="blue">v3.0.6.11-75 W3-2</Tag>
       </Space>
@@ -147,7 +181,7 @@ export const DimseUploadPage: React.FC = () => {
                 {uploading ? '上传中...' : '选择 DICOM 文件'}
               </Button>
             </Upload>
-            <Button icon={<RefreshCw size={12} />} onClick={() => message.info('列表已刷新')}>刷新</Button>
+            <Button icon={<RefreshCw size={12} />} onClick={refreshRecords}>刷新</Button>
           </Space>
           {uploading && (
             <div>

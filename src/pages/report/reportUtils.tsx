@@ -2,7 +2,7 @@ import React from 'react'
 
 import { REPORT_STATUS_META } from '../../components/report'
 
-export const PRIMARY = '#1e3a5f'
+export const PRIMARY = '#1e40af'
 export const PRIMARY_LIGHT = '#2c5282'
 export const ACCENT = '#3182ce'
 export const SUCCESS = '#059669'

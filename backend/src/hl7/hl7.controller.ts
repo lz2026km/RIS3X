@@ -1,11 +1,12 @@
 ﻿/**
  * G005 RIS v3.0.6.11-33 - HL7 Controller
  */
-import { Body, Controller, HttpCode, HttpStatus, NotFoundException, Post } from '@nestjs/common'
+import { Body, Controller, Get, HttpCode, HttpStatus, NotFoundException, Post, Query } from '@nestjs/common'
 import { Roles } from '../common/decorators/roles.decorator'
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
+import { PrismaService } from '../prisma/prisma.service'
 import { Hl7Service, ReportForHL7, OrmOrder, DftTransaction } from './hl7.service'
 
 const ReportSchema = z.object({
@@ -61,12 +62,18 @@ const DftSchema = z.object({
 
 const PushOruSchema = z.object({ examId: z.string().min(1), reportId: z.string().min(1) })
 
+const WhitelistSchema = z.object({ cidr: z.string().min(1) })
+const TlsSchema = z.object({ enabled: z.boolean() })
+
 @ApiTags('hl7')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR')
 @Controller('hl7')
 export class Hl7Controller {
-  constructor(private readonly service: Hl7Service) {}
+  constructor(
+    private readonly service: Hl7Service,
+    private readonly prisma: PrismaService,
+  ) {}
 
   @Post('oru')
   @HttpCode(HttpStatus.CREATED)
@@ -125,5 +132,88 @@ export class Hl7Controller {
   async pushOru(@Body(new ZodValidationPipe(PushOruSchema)) body: { examId: string; reportId: string }) {
     await this.service.pushOruById(body.examId, body.reportId)
     return { pushed: true, examId: body.examId, reportId: body.reportId }
+  }
+
+  // ============ [W3-B] 归档 + MLLP 管理端点 (integrationApi.hl7Api) ============
+
+  @Get('archive')
+  @ApiOperation({ summary: 'HL7 message archive (read-only, Hl7MessageArchive)' })
+  async getArchive(
+    @Query('messageType') messageType?: string,
+    @Query('direction') direction?: string,
+    @Query('ackStatus') ackStatus?: string,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const rows = await this.prisma.hl7MessageArchive.findMany({
+      where: {
+        ...(messageType ? { messageType } : {}),
+        ...(direction ? { direction: direction.toUpperCase() } : {}),
+        ...(ackStatus ? { ackStatus: ackStatus.toUpperCase() } : {}),
+        ...(from || to
+          ? {
+              createdAt: {
+                ...(from ? { gte: new Date(from) } : {}),
+                ...(to ? { lte: new Date(to) } : {}),
+              },
+            }
+          : {}),
+      },
+      orderBy: { createdAt: 'desc' },
+      take: Math.min(Math.max(Number(limit) || 50, 1), 200),
+    })
+    return rows.map((r) => ({
+      id: r.id,
+      messageType: r.messageType,
+      controlId: r.controlId,
+      direction: r.direction,
+      ackStatus: r.ackStatus ?? 'PENDING',
+      retryCount: r.retryCount,
+      rawMessage: r.rawMessage,
+      createdAt: r.createdAt.toISOString(),
+    }))
+  }
+
+  @Get('mllp/status')
+  @ApiOperation({ summary: 'MLLP listener status' })
+  getMllpStatus() {
+    return this.service.getMllpStatus()
+  }
+
+  @Get('mllp/logs')
+  @ApiOperation({ summary: 'MLLP connection logs' })
+  getMllpLogs(@Query('limit') limit?: string) {
+    return this.service.getMllpLogs(Number(limit) || 50)
+  }
+
+  @Post('mllp/start')
+  @ApiOperation({ summary: 'Start MLLP listener' })
+  startMllp() {
+    return this.service.startMllp()
+  }
+
+  @Post('mllp/stop')
+  @ApiOperation({ summary: 'Stop MLLP listener' })
+  stopMllp() {
+    return this.service.stopMllp()
+  }
+
+  @Post('mllp/whitelist/add')
+  @ApiOperation({ summary: 'Add CIDR to MLLP whitelist' })
+  addMllpWhitelist(@Body(new ZodValidationPipe(WhitelistSchema)) body: { cidr: string }) {
+    return this.service.addMllpWhitelist(body.cidr)
+  }
+
+  @Post('mllp/whitelist/remove')
+  @ApiOperation({ summary: 'Remove CIDR from MLLP whitelist' })
+  removeMllpWhitelist(@Body(new ZodValidationPipe(WhitelistSchema)) body: { cidr: string }) {
+    return this.service.removeMllpWhitelist(body.cidr)
+  }
+
+  @Post('mllp/tls')
+  @ApiOperation({ summary: 'Toggle MLLP TLS mode' })
+  toggleMllpTls(@Body(new ZodValidationPipe(TlsSchema)) body: { enabled: boolean }) {
+    return this.service.toggleMllpTls(body.enabled)
   }
 }

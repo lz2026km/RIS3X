@@ -5,6 +5,7 @@ import { Image, Search, Eye } from "lucide-react";
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import { eyeApi } from "@/services/api/eyeApi";
 import { PageContainer, PageHeader } from "@/components/common";
+import { usePagination } from "@/hooks/usePagination";
 
 const MODALITY_LABELS: Record<string, string> = {
   oct_a: "OCTA",  corneal_endothelium: "角膜内皮",  tear_film: "泪膜",  fundus_autofluorescence: "眼底自发荧光",  fundus_photo: "眼底彩照",
@@ -60,6 +61,8 @@ const PacsStudyListPage: React.FC = () => {
         (s) => s.patientName.includes(search) || s.patientId.includes(search),
       )
     : studies;
+  // [W3-C] 受控分页: 检查列表 (20/页)
+  const studyPagination = usePagination(filtered, 20);
 
   const columns = [
     { title: "患者", dataIndex: "patientName", key: "patientName", width: 90 },
@@ -135,7 +138,7 @@ const PacsStudyListPage: React.FC = () => {
     <PageContainer background="slate" maxWidth="full" padding={16} testId="pacs-study-list-page">
       <PageHeader
         title="眼科影像中心 (PACS)"
-        icon={<Image className="v4-icon" style={{ width: 24, height: 24, color: "#1677ff" }} />}
+        icon={<Image className="v4-icon" style={{ width: 24, height: 24, color: "#2563eb" }} />}
         variant="inline"
         actions={
           <>
@@ -152,12 +155,13 @@ const PacsStudyListPage: React.FC = () => {
       />
 
       <Table
-        dataSource={filtered}
+        dataSource={studyPagination.pageData}
         columns={columns}
         rowKey="id"
         size="small"
         loading={loading}
-        pagination={{ pageSize: 20 }}
+        pagination={studyPagination.pagination}
+      scroll={{ x: 'max-content' }}
       />
     </PageContainer>
   );

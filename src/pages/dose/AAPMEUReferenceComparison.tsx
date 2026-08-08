@@ -45,7 +45,7 @@ export default function AAPMEUReferenceComparison() {
             style={{
               fontSize: 12,
               fontWeight: 700,
-              color: "#1e3a5f",
+              color: "#1e40af",
               marginBottom: 8,
             }}
           >
@@ -91,12 +91,27 @@ export default function AAPMEUReferenceComparison() {
   };
 
   return (
-    <div
-      style={{
-        background: "#fff",
-        borderRadius: 12,
-        padding: 20,
-        border: "1px solid #e2e8f0",
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div
+        style={{
+          padding: "8px 12px",
+          background: "#eff6ff",
+          color: "#1e40af",
+          borderRadius: 8,
+          fontSize: 12,
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+        }}
+      >
+        <AlertTriangle size={14} /> 静态参考数据：AAPM / 欧盟 CTDIvol 参考值来自公开规范文档（非接口数据）；院内平均值部分为演示
+      </div>
+      <div
+        style={{
+          background: "#fff",
+          borderRadius: 12,
+          padding: 20,
+          border: "1px solid #e2e8f0",
       }}
     >
       <div
@@ -108,7 +123,7 @@ export default function AAPMEUReferenceComparison() {
         }}
       >
         <div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>
             AAPM/欧盟 CT剂量参考值对比
           </div>
           <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
@@ -192,7 +207,7 @@ export default function AAPMEUReferenceComparison() {
           style={{
             fontSize: 12,
             fontWeight: 700,
-            color: "#1e3a5f",
+            color: "#1e40af",
             marginBottom: 12,
           }}
         >
@@ -237,7 +252,7 @@ export default function AAPMEUReferenceComparison() {
                       padding: "10px 12px",
                       fontSize: 12,
                       fontWeight: 600,
-                      color: "#1e3a5f",
+                      color: "#1e40af",
                       textAlign: "center",
                     }}
                   >
@@ -322,6 +337,7 @@ export default function AAPMEUReferenceComparison() {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }

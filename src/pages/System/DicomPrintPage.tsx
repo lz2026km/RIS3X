@@ -463,6 +463,18 @@ const DicomPrintPage: React.FC = () => {
       key: 'medium',
       title: '介质',
       width: '100px',
+      render: (value: unknown) => {
+        const MEDIUM_LABELS: Record<string, string> = {
+          'blue film': '蓝膜',
+          'blue-film': '蓝膜',
+          'BLUE FILM': '蓝膜',
+          'clear film': '透明膜',
+          'clear-film': '透明膜',
+          'CLEAR FILM': '透明膜',
+        };
+        const v = String(value ?? '');
+        return <span style={{ textAlign: 'center', display: 'block' }}>{MEDIUM_LABELS[v] ?? v}</span>;
+      },
     },
     {
       key: 'copies',
@@ -581,7 +593,7 @@ const DicomPrintPage: React.FC = () => {
 
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
         gap: 16,
         padding: '16px 24px',
       }}>
@@ -652,7 +664,7 @@ const DicomPrintPage: React.FC = () => {
       </div>
 
       {/* 主内容区 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 16, padding: '0 24px 16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16, padding: '0 24px 16px' }}>
         {/* 左侧：打印机队列列表 */}
         <div style={{
           background: C.white,

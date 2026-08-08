@@ -356,7 +356,7 @@
   --color-chart-6: #0891b2;
   --color-chart-7: #ca8a04;
   --color-chart-8: #db2777;
-  --color-chart-9: #1e3a5f;
+  --color-chart-9: #1e40af;
   --color-chart-10: #94a3b8;
 }
 
@@ -591,5 +591,109 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================
+   12. Theme System (U1-A merge of src/styles/themes.css)
+   -----------------------------------------------------------------
+   U1-A: themes.css was never imported (dead file) -> merged here.
+   - Keeps --bg-primary/--bg-sidebar/--bg-header/--border-color/
+     --text-header/--text-sidebar naming used by AppLayout shell.
+   - Adds compatibility aliases --content-bg/--header-bg/--sidebar-bg
+     etc. pointing at the same values.
+   - [data-theme="dark"] / [data-theme="high-contrast"] overrides apply.
+   - Light block intentionally does NOT redefine --shadow-sm/--shadow-md/
+     --radius-* to avoid overriding design-system's richer tokens.
+   ============================================================ */
+
+:root,
+[data-theme='light'] {
+  --bg-primary: #f8fafc; --bg-secondary: #ffffff; --bg-card: #ffffff;
+  --bg-sidebar: #1a3a5c; --bg-header: #1e293b;
+  --bg-hover: rgba(0, 0, 0, 0.04); --bg-elevated: #ffffff; --bg-deep: #f1f5f9;
+  --text-primary: #1e293b; --text-secondary: #475569; --text-muted: #94a3b8;
+  --text-sidebar: #ffffff; --text-header: #f1f5f9; --text-inverse: #ffffff;
+  --border-color: #e2e8f0; --border-light: #f1f5f9;
+  --border-subtle: rgba(0, 0, 0, 0.06); --border-default: rgba(0, 0, 0, 0.1);
+  --border-strong: rgba(0, 0, 0, 0.16);
+  --color-accent: #3b82f6; --color-success: #16a34a; --color-warning: #d97706;
+  --color-error: #dc2626; --color-info: #2563eb;
+
+  /* compatibility aliases -> same value */
+  --content-bg: var(--bg-primary); --content-fg: var(--text-primary);
+  --header-bg: var(--bg-header); --header-fg: var(--text-header);
+  --header-border: var(--border-color);
+  --sidebar-bg: var(--bg-sidebar); --sidebar-fg: var(--text-sidebar);
+}
+
+[data-theme='dark'] {
+  --bg-primary: #0f172a; --bg-secondary: #1e293b; --bg-card: #1e293b;
+  --bg-sidebar: #0f172a; --bg-header: #1e293b;
+  --bg-hover: rgba(255, 255, 255, 0.06); --bg-elevated: #334155; --bg-deep: #020617;
+  --text-primary: #f1f5f9; --text-secondary: #cbd5e1; --text-muted: #64748b;
+  --text-sidebar: #f1f5f9; --text-header: #f1f5f9; --text-inverse: #0f172a;
+  --border-color: #334155; --border-light: #1e293b;
+  --border-subtle: rgba(255, 255, 255, 0.06); --border-default: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --color-accent: #60a5fa; --color-success: #4ade80; --color-warning: #fbbf24;
+  --color-error: #f87171; --color-info: #60a5fa;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+
+  /* compatibility aliases -> same value */
+  --content-bg: var(--bg-primary); --content-fg: var(--text-primary);
+  --header-bg: var(--bg-header); --header-fg: var(--text-header);
+  --header-border: var(--border-color);
+  --sidebar-bg: var(--bg-sidebar); --sidebar-fg: var(--text-sidebar);
+}
+
+[data-theme='high-contrast'] {
+  --bg-primary: #000000; --bg-secondary: #0a0a0a; --bg-card: #1a1a1a;
+  --bg-sidebar: #000000; --bg-header: #0a0a0a;
+  --bg-hover: rgba(255, 255, 255, 0.1); --bg-elevated: #2a2a2a; --bg-deep: #000000;
+  --text-primary: #ffffff; --text-secondary: #f0f0f0; --text-muted: #cccccc;
+  --text-sidebar: #ffffff; --text-header: #ffffff; --text-inverse: #000000;
+  --border-color: #ffffff; --border-light: #666666;
+  --border-subtle: rgba(255, 255, 255, 0.4); --border-default: rgba(255, 255, 255, 0.6);
+  --border-strong: rgba(255, 255, 255, 0.8);
+  --color-accent: #ffff00; --color-success: #00ff00; --color-warning: #ffcc00;
+  --color-error: #ff4444; --color-info: #66ccff;
+  --shadow-sm: none; --shadow-md: none;
+  --radius-sm: 4px; --radius-md: 6px; --radius-lg: 10px;
+
+  /* compatibility aliases -> same value */
+  --content-bg: var(--bg-primary); --content-fg: var(--text-primary);
+  --header-bg: var(--bg-header); --header-fg: var(--text-header);
+  --header-border: var(--border-color);
+  --sidebar-bg: var(--bg-sidebar); --sidebar-fg: var(--text-sidebar);
+}
+
+/* high-contrast: forced outline + enhanced focus ring */
+[data-theme='high-contrast'] *:focus-visible {
+  outline: 3px solid #ffff00 !important;
+  outline-offset: 3px !important;
+}
+
+/* system-level prefers-contrast: more fallback (WCAG 2.2) */
+@media (prefers-contrast: more) {
+  :root {
+    --border-subtle: rgba(0, 0, 0, 0.2); --border-default: rgba(0, 0, 0, 0.35);
+    --border-strong: rgba(0, 0, 0, 0.5);
+    --text-primary: #000000; --text-secondary: #1a1a1a;
+  }
+  [data-theme='dark'] {
+    --border-subtle: rgba(255, 255, 255, 0.25); --border-default: rgba(255, 255, 255, 0.4);
+    --border-strong: rgba(255, 255, 255, 0.6);
+    --text-primary: #ffffff; --text-secondary: #e0e0e0;
+  }
+}
+
+/* system-level prefers-color-scheme fallback */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg-primary: #0f172a; --bg-secondary: #1e293b; --bg-card: #1e293b;
+    --text-primary: #f1f5f9; --text-secondary: #cbd5e1; --text-muted: #64748b;
+    --border-color: #334155;
   }
 }

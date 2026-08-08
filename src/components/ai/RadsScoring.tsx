@@ -7,7 +7,7 @@ const { Text, Title } = Typography
 
 function getScoreColor(score: string): string {
   const s = parseFloat(score)
-  if (isNaN(s)) return '#1677ff'
+  if (isNaN(s)) return '#2563eb'
   if (s >= 4) return '#ff4d4f'
   if (s >= 3) return '#faad14'
   return '#52c41a'
@@ -144,7 +144,7 @@ const TrendChart: React.FC<{ data: RadsHistoryEntry[] }> = ({ data }) => {
 
     const stepX = plotW / (data.length - 1)
     ctx.beginPath()
-    ctx.strokeStyle = '#1677ff'
+    ctx.strokeStyle = '#2563eb'
     ctx.lineWidth = 2
     data.forEach((d, i) => {
       const x = pad.left + i * stepX
@@ -158,7 +158,7 @@ const TrendChart: React.FC<{ data: RadsHistoryEntry[] }> = ({ data }) => {
       const y = pad.top + plotH - ((parseFloat(d.score) || 0) - minVal) / range * plotH
       ctx.beginPath()
       ctx.arc(x, y, 3, 0, Math.PI * 2)
-      ctx.fillStyle = '#1677ff'
+      ctx.fillStyle = '#2563eb'
       ctx.fill()
       ctx.fillStyle = '#333'
       ctx.font = '9px sans-serif'

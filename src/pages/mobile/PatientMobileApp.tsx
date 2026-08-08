@@ -296,7 +296,7 @@ export default function PatientMobileApp() {
       {/* Banner */}
       <div style={{ ...s.card, background: 'linear-gradient(135deg, #eff6ff, #dbeafe)', border: 'none' }}>
         <div style={{ fontSize: 12, color: '#1e40af', fontWeight: 600 }}>欢迎回来</div>
-        <div style={{ fontSize: 20, fontWeight: 700, color: '#1e3a5f', margin: '4px 0' }}>{mobileUser.name}</div>
+        <div style={{ fontSize: 20, fontWeight: 700, color: '#1e40af', margin: '4px 0' }}>{mobileUser.name}</div>
         <div style={{ fontSize: 12, color: '#64748b' }}>您有 {mobileReports.filter(r => r.status === 'ready').length} 份新报告可查看</div>
       </div>
 

@@ -88,7 +88,7 @@ function HangingProtocolPanelInner({ onApply, modality, bodyPart }: HangingProto
             fontSize: 10,
             padding: '2px 6px',
             borderRadius: 4,
-            background: '#1e3a5f',
+            background: '#1e40af',
             color: '#4ade80',
             display: 'flex',
             alignItems: 'center',
@@ -155,7 +155,7 @@ function HangingProtocolPanelInner({ onApply, modality, bodyPart }: HangingProto
                     display: 'flex',
                     alignItems: 'center',
                     gap: 8,
-                    background: active?.id === p.id ? '#1e3a5f' : 'transparent',
+                    background: active?.id === p.id ? '#1e40af' : 'transparent',
                     marginBottom: 2,
                   }}
                   onMouseEnter={e => { if (active?.id !== p.id) e.currentTarget.style.background = '#27272a' }}

@@ -136,7 +136,7 @@ const KanbanCard = React.memo(function KanbanCard({
       }}>
         <div style={{
           fontWeight: 600,
-          color: '#1e3a5f',
+          color: '#1e40af',
           fontSize: 12,
           display: 'flex',
           alignItems: 'center',
@@ -288,7 +288,7 @@ export function KanbanView({ exams, onRowClick }: KanbanViewProps) {
               padding: 12,
               minHeight: 400,
               transition: 'background 0.15s',
-              border: isOver ? '2px dashed #1e3a5f' : '2px dashed transparent',
+              border: isOver ? '2px dashed #1e40af' : '2px dashed transparent',
             }}
           >
             <div style={{

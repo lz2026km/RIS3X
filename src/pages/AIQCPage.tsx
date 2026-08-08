@@ -221,7 +221,7 @@ export default function AIQCPage() {
       value: liveStats.todayComplete,
       unit: '例',
       icon: <CheckCircle size={22} />,
-      bg: '#1e3a5f',
+      bg: '#1e40af',
       color: PRIMARY,
       trend: '+12%',
       trendUp: true,

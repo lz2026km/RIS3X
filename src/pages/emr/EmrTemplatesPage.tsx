@@ -145,7 +145,7 @@ export const EmrTemplatesPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <FileText size={20} color="#1677ff" />
+        <FileText size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>EMR 病历模板 + ICD-11 编码</span>
         <Tag color="cyan">v3.0.6.8-63</Tag>
         <Tag color={dataSource === 'api' ? 'green' : 'orange'}>

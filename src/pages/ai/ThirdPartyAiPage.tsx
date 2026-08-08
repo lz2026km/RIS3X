@@ -158,7 +158,7 @@ const ThirdPartyAiPage: React.FC = () => {
       key: "name",
       render: (v: string) => (
         <Space>
-          <Plug size={14} color="#1677ff" />
+          <Plug size={14} color="#2563eb" />
           {v}
         </Space>
       ),
@@ -226,7 +226,7 @@ const ThirdPartyAiPage: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16 }}>
-        <Plug size={20} color="#1677ff" />
+        <Plug size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>第三方 AI 集成</span>
         <Button
           size="small"
@@ -307,6 +307,7 @@ const ThirdPartyAiPage: React.FC = () => {
             columns={columns}
             pagination={false}
             size="small"
+          scroll={{ x: 'max-content' }}
           />
         </Spin>
       </Card>

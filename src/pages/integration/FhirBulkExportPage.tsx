@@ -116,7 +116,7 @@ export const FhirBulkExportPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <Globe size={20} color="#1677ff" />
+        <Globe size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR 批量导出</span>
         <Tag color="cyan">v3.0.6.8</Tag>
         <Tag color="purple">R4 $export</Tag>

@@ -179,6 +179,7 @@ const AiTriagePage: React.FC = () => {
           pagination={{ pageSize: 10, showSizeChanger: false }}
           size="small"
           locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无分检任务" /> }}
+        scroll={{ x: 'max-content' }}
         />
       </Card>
 

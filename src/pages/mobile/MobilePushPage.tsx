@@ -199,7 +199,7 @@ export default function MobilePushPage() {
   }
 
   const headerStyle: React.CSSProperties = {
-    background: 'linear-gradient(135deg, #1e3a5f, #2d4a6f)',
+    background: 'linear-gradient(135deg, #1e40af, #2563eb)',
     borderRadius: 12, padding: 16, marginBottom: 16, color: '#fff',
   }
 
@@ -251,7 +251,7 @@ export default function MobilePushPage() {
             disabled={pushEnabled}
             style={{
               ...btnBase, flex: 1, gap: 6,
-              background: pushEnabled ? '#d1fae5' : '#1e3a5f',
+              background: pushEnabled ? '#d1fae5' : '#1e40af',
               color: pushEnabled ? '#059669' : '#fff',
               opacity: pushEnabled ? 0.7 : 1,
               cursor: pushEnabled ? 'not-allowed' : 'pointer',
@@ -274,7 +274,7 @@ export default function MobilePushPage() {
 
       {showTestPanel && (
         <div style={{ ...cardStyle, padding: 12, border: '1px solid #bfdbfe', background: '#eff6ff' }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f', marginBottom: 10 }}>推送测试面板</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 10 }}>推送测试面板</div>
           <div style={{ marginBottom: 8 }}>
             <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 4 }}>标题</label>
             <input
@@ -309,7 +309,7 @@ export default function MobilePushPage() {
             onClick={() => setFilterTopic(topic)}
             style={{
               padding: '4px 10px', borderRadius: 12, fontSize: 11, fontWeight: 600, border: 'none', cursor: 'pointer',
-              background: filterTopic === topic ? '#1e3a5f' : '#f1f5f9',
+              background: filterTopic === topic ? '#1e40af' : '#f1f5f9',
               color: filterTopic === topic ? '#fff' : '#64748b',
             }}
           >
@@ -320,7 +320,7 @@ export default function MobilePushPage() {
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
         <span style={{ fontSize: 12, color: '#64748b' }}>
-          共 <span style={{ fontWeight: 700, color: '#1e3a5f' }}>{filtered.length}</span> 条通知
+          共 <span style={{ fontWeight: 700, color: '#1e40af' }}>{filtered.length}</span> 条通知
         </span>
         <div style={{ display: 'flex', gap: 6 }}>
           <button onClick={handleMarkAllRead} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: 11, cursor: 'pointer' }}>

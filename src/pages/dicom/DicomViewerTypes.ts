@@ -118,8 +118,8 @@ export type ExamItem = {
   conclusion?: string
 }
 
-export const PRIMARY = '#1e3a5f'
-export const PRIMARY_LIGHT = '#2d4a6f'
+export const PRIMARY = '#1e40af'
+export const PRIMARY_LIGHT = '#2563eb'
 export const CARD_BG = '#ffffff'
 export const PANEL_BG = '#f0f4f8'
 

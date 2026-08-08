@@ -20,7 +20,7 @@ import { formatTime } from '../utils/date';
 // ============================================================
 // 常量定义
 // ============================================================
-const PRIMARY = '#1e3a5f'
+const PRIMARY = '#1e40af'
 const ACCENT = '#3182ce'
 const SUCCESS = '#059669'
 const WARNING = '#d97706'
@@ -277,11 +277,11 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
 
           {/* 内容 */}
           <div style={{
-            background: '#f8fafc', padding: 16, borderRadius: 10,
+            background: 'var(--content-bg)', padding: 16, borderRadius: 10,
             border: '1px solid #e2e8f0', marginBottom: 16,
           }}>
             <pre style={{
-              margin: 0, fontSize: 14, color: '#334155',
+              margin: 0, fontSize: 14, color: 'var(--text-secondary)',
               lineHeight: 1.7, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
               fontFamily: 'inherit',
             }}>
@@ -291,20 +291,20 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
 
           {/* 元信息 */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 16 }}>
-            <div style={{ background: '#f8fafc', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <div style={{ background: 'var(--content-bg)', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}>
               <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>通知ID</div>
               <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{notification.id}</div>
             </div>
-            <div style={{ background: '#f8fafc', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <div style={{ background: 'var(--content-bg)', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}>
               <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>接收人</div>
               <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{notification.recipientName}</div>
             </div>
-            <div style={{ background: '#f8fafc', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <div style={{ background: 'var(--content-bg)', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}>
               <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>发送时间</div>
               <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{formatDateTime(notification.sentAt)}</div>
             </div>
             {notification.readAt && (
-              <div style={{ background: '#f8fafc', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+              <div style={{ background: 'var(--content-bg)', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0' }}>
                 <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>阅读时间</div>
                 <div style={{ color: PRIMARY, fontSize: 12, fontWeight: 600 }}>{formatDateTime(notification.readAt)}</div>
               </div>
@@ -367,10 +367,10 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
           justifyContent: 'center', zIndex: 10000,
         }} onClick={handleCloseJumpModal}>
           <div style={{
-            background: '#fff', borderRadius: 12, width: '90%', maxWidth: 400,
+            background: 'var(--bg-card)', borderRadius: 12, width: '90%', maxWidth: 400,
             padding: 24, boxShadow: '0 20px 60px rgba(0,0,0,0.3)', textAlign: 'center',
           }} onClick={e => e.stopPropagation()}>
-            <div style={{ fontSize: 16, fontWeight: 600, color: '#1e3a5f', marginBottom: 8 }}>
+            <div style={{ fontSize: 16, fontWeight: 600, color: '#1e40af', marginBottom: 8 }}>
               跳转到{notification.relatedType}详情
             </div>
             <div style={{ fontSize: 14, color: '#64748b', marginBottom: 16 }}>
@@ -378,7 +378,7 @@ function NotificationDetailModal({ notification, onClose, onMarkRead }: Notifica
             </div>
             <div style={{ fontSize: 13, color: '#94a3b8' }}>即将跳转到相关页面查看详情</div>
             <button onClick={handleCloseJumpModal} style={{
-              marginTop: 20, padding: '10px 24px', background: '#1e3a5f', color: '#fff',
+              marginTop: 20, padding: '10px 24px', background: '#1e40af', color: '#fff',
               border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14,
             }}>确定</button>
           </div>
@@ -556,7 +556,7 @@ function SettingsPanel({ settings, onUpdate }: SettingsPanelProps) {
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <div style={{ color: GRAY }}>{icon}</div>
-        <span style={{ fontSize: 13, color: '#334155' }}>{label}</span>
+        <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{label}</span>
       </div>
       <ToggleSwitch checked={checked} onChange={onChange} />
     </div>
@@ -699,15 +699,15 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
       <div style={{ marginBottom: 20 }}>
         <div style={{ fontSize: 12, color: GRAY, marginBottom: 8 }}>今日概览</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
-          <div style={{ background: '#f8fafc', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid #e2e8f0' }}>
+          <div style={{ background: 'var(--content-bg)', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid #e2e8f0' }}>
             <div style={{ fontSize: 22, fontWeight: 700, color: PRIMARY }}>{todayStats.total}</div>
             <div style={{ fontSize: 12, color: GRAY }}>今日总数</div>
           </div>
-          <div style={{ background: '#f8fafc', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid #e2e8f0' }}>
+          <div style={{ background: 'var(--content-bg)', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid #e2e8f0' }}>
             <div style={{ fontSize: 22, fontWeight: 700, color: SUCCESS }}>{todayStats.total - todayStats.unread}</div>
             <div style={{ fontSize: 12, color: GRAY }}>已读</div>
           </div>
-          <div style={{ background: '#f8fafc', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid #e2e8f0' }}>
+          <div style={{ background: 'var(--content-bg)', padding: 12, borderRadius: 8, textAlign: 'center', border: '1px solid #e2e8f0' }}>
             <div style={{ fontSize: 22, fontWeight: 700, color: DANGER }}>{todayStats.unread}</div>
             <div style={{ fontSize: 12, color: GRAY }}>未读</div>
           </div>
@@ -743,7 +743,7 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{ color: type.color }}>{type.icon}</span>
-                <span style={{ fontSize: 12, color: '#334155' }}>{type.label}</span>
+                <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{type.label}</span>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
                 {type.unread > 0 && (
@@ -752,7 +752,7 @@ function StatsPanel({ notifications, apiStats }: StatsPanelProps) {
                 <span style={{ fontSize: 12, color: GRAY }}>{type.count}条</span>
               </div>
             </div>
-            <div style={{ background: '#f1f5f9', height: 6, borderRadius: 3, overflow: 'hidden' }}>
+            <div style={{ background: 'var(--content-bg)', height: 6, borderRadius: 3, overflow: 'hidden' }}>
               <div style={{
                 width: `${(type.count / maxCount) * 100}%`,
                 height: '100%',
@@ -812,7 +812,7 @@ function HistoryPanel({ notifications, onViewNotification }: HistoryPanelProps) 
                 onClick={() => onViewNotification(n)}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px',
-                  background: '#f8fafc', borderRadius: 6, marginBottom: 4, cursor: 'pointer',
+                  background: 'var(--content-bg)', borderRadius: 6, marginBottom: 4, cursor: 'pointer',
                   border: '1px solid transparent',
                 }}
                 onMouseEnter={e => {
@@ -825,7 +825,7 @@ function HistoryPanel({ notifications, onViewNotification }: HistoryPanelProps) 
                 }}
               >
                 <span style={{ color: typeConfig.color }}>{typeConfig.icon}</span>
-                <span style={{ flex: 1, fontSize: 12, color: '#334155', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <span style={{ flex: 1, fontSize: 12, color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {n.title}
                 </span>
                 {n.status === 'unread' && (
@@ -875,7 +875,7 @@ function RulesEnginePanel({ rules, onToggle, onDelete }: { rules: NotificationRu
         <div key={rule.id} style={{ padding: '12px 0', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>{rule.name}</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>{rule.name}</span>
               <span style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, background: rule.priority === 'high' ? '#fef2f2' : '#f8fafc', color: rule.priority === 'high' ? '#dc2626' : '#64748b' }}>
                 {rule.priority === 'high' ? '高优先级' : '普通'}
               </span>
@@ -892,7 +892,7 @@ function RulesEnginePanel({ rules, onToggle, onDelete }: { rules: NotificationRu
           </div>
         </div>
       ))}
-      <div style={{ marginTop: 12, padding: 12, background: '#f8fafc', borderRadius: 6, fontSize: 12, color: '#94a3b8', textAlign: 'center' }}>
+      <div style={{ marginTop: 12, padding: 12, background: 'var(--content-bg)', borderRadius: 6, fontSize: 12, color: '#94a3b8', textAlign: 'center' }}>
         规则引擎根据事件类型和条件自动匹配通知渠道
       </div>
     </div>
@@ -917,7 +917,7 @@ function PreferencesPanel({ preferences, onUpdate }: { preferences: UserNotifyPr
             style={{ width: 36, height: 20, borderRadius: 10, background: preferences.quietHoursEnabled ? ACCENT : '#e2e8f0', position: 'relative', cursor: 'pointer' }}>
             <div style={{ width: 16, height: 16, borderRadius: '50%', background: WHITE, position: 'absolute', top: 2, left: preferences.quietHoursEnabled ? 18 : 2, boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
           </div>
-          <span style={{ fontSize: 13, color: '#334155' }}>启用免打扰</span>
+          <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>启用免打扰</span>
         </div>
         {preferences.quietHoursEnabled && (
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -1356,7 +1356,7 @@ export default function NotificationCenter() {
                 style={{
                   width: '100%', padding: '10px 12px', borderRadius: 8, border: 'none',
                   background: activeTab === type.key ? `${type.color}15` : 'transparent',
-                  color: activeTab === type.key ? type.color : '#334155',
+                  color: activeTab === type.key ? type.color : 'var(--text-secondary)',
                   fontSize: 13, fontWeight: activeTab === type.key ? 600 : 500,
                   cursor: 'pointer', display: 'flex', alignItems: 'center',
                   justifyContent: 'space-between', marginBottom: 4, transition: 'all 0.15s',
@@ -1410,7 +1410,7 @@ export default function NotificationCenter() {
           </div>
 
           {/* Web Push 管理 */}
-          <div style={{ padding: '8px 12px', marginBottom: 8, borderRadius: 6, background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+          <div style={{ padding: '8px 12px', marginBottom: 8, borderRadius: 6, background: 'var(--content-bg)', border: '1px solid #e2e8f0' }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: PRIMARY, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
               <BellRing size={14} />
               Web Push 管理
@@ -1492,7 +1492,7 @@ export default function NotificationCenter() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{
-              display: 'flex', alignItems: 'center', gap: 6, background: '#f8fafc',
+              display: 'flex', alignItems: 'center', gap: 6, background: 'var(--content-bg)',
               padding: '6px 14px', borderRadius: 8, border: '1px solid #e2e8f0',
             }}>
               <Search size={14} color={GRAY} />
@@ -1587,7 +1587,7 @@ export default function NotificationCenter() {
                         onDelete={() => handleDelete(notification.id)}
                       />
                       {showDeliveryTracking && delivery && (
-                        <div style={{ marginTop: 2, padding: '2px 14px 6px', background: '#f8fafc', borderRadius: '0 0 8px 8px', border: '1px solid #e2e8f0', borderTop: 'none' }}>
+                        <div style={{ marginTop: 2, padding: '2px 14px 6px', background: 'var(--content-bg)', borderRadius: '0 0 8px 8px', border: '1px solid #e2e8f0', borderTop: 'none' }}>
                           <DeliveryStatusBadge delivery={delivery} />
                         </div>
                       )}
@@ -1626,7 +1626,7 @@ export default function NotificationCenter() {
                         { label: '已送达', value: deliveryStatuses.filter(d => d.delivered).length, color: SUCCESS },
                         { label: '已阅读', value: deliveryStatuses.filter(d => d.read).length, color: '#059669' },
                       ].map(s => (
-                        <div key={s.label} style={{ textAlign: 'center', padding: 12, background: '#f8fafc', borderRadius: 8 }}>
+                        <div key={s.label} style={{ textAlign: 'center', padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}>
                           <div style={{ fontSize: 20, fontWeight: 700, color: s.color }}>{s.value}</div>
                           <div style={{ fontSize: 12, color: GRAY }}>{s.label}</div>
                         </div>
@@ -1638,7 +1638,7 @@ export default function NotificationCenter() {
                         return (
                           <div key={d.notificationId} style={{ padding: '8px 0', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12 }}>
                             <div>
-                              <div style={{ color: '#334155', fontWeight: 500 }}>{notif?.title || d.notificationId}</div>
+                              <div style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{notif?.title || d.notificationId}</div>
                               <DeliveryStatusBadge delivery={d} />
                             </div>
                             {!d.delivered && (

@@ -101,7 +101,7 @@ function PatientTimeline({ events }: PatientTimelineProps) {
             <div style={{ flex: 1, marginLeft: 8 }}>
               <div
                 style={{
-                  background: '#f8fafc', borderRadius: 8, padding: '12px 16px',
+                  background: 'var(--content-bg)', borderRadius: 8, padding: '12px 16px',
                   border: '1px solid #e2e8f0', borderLeft: `3px solid ${color}`,
                   cursor: evt.link ? 'pointer' : 'default',
                 }}
@@ -110,7 +110,7 @@ function PatientTimeline({ events }: PatientTimelineProps) {
                 onMouseLeave={(e) => { if (evt.link) (e.currentTarget as HTMLDivElement).style.background = '#f8fafc' }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <span style={{ fontWeight: 600, color: '#1e3a5f', fontSize: 13 }}>
+                  <span style={{ fontWeight: 600, color: '#1e40af', fontSize: 13 }}>
                     {evt.type === 'exam' && '📷 '}
                     {evt.type === 'report' && '📄 '}
                     {evt.type === 'appointment' && '🗓 '}
@@ -363,10 +363,10 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
 
   if (!selectedPatient) {
     return (
-      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', padding: 60, textAlign: 'center' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid #e2e8f0', padding: 60, textAlign: 'center' }}>
         <User size={48} color="#cbd5e1" style={{ marginBottom: 16 }} />
         <div style={{ fontSize: 14, color: '#64748b' }}>请从患者列表选择一个患者查看详情</div>
-        <button onClick={onBack} style={{ marginTop: 16, padding: '8px 20px', background: '#1e3a5f', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+        <button onClick={onBack} style={{ marginTop: 16, padding: '8px 20px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
           返回患者列表
         </button>
       </div>
@@ -378,7 +378,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
   return (
     <>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-        <button onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#64748b', cursor: 'pointer' }}>
+        <button onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: 'var(--bg-card)', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#64748b', cursor: 'pointer' }}>
           <ArrowLeft size={14} />返回列表
         </button>
         <button
@@ -395,7 +395,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         <button
           onClick={() => setReloadKey((k) => k + 1)}
           title="刷新数据"
-          style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#64748b', cursor: 'pointer' }}
+          style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', background: 'var(--bg-card)', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#64748b', cursor: 'pointer' }}
         >
           <RefreshCw size={14} />刷新
         </button>
@@ -411,13 +411,13 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         </div>
       )}
 
-      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', padding: 24, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid #e2e8f0', padding: 24, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-          <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg, #1e3a5f, #3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg, #1e40af, #3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <span style={{ fontSize: 28, fontWeight: 700, color: '#fff' }}>{selectedPatient.name.slice(0, 1)}</span>
           </div>
           <div>
-            <div style={{ fontSize: 20, fontWeight: 700, color: '#1e3a5f' }}>{selectedPatient.name}</div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: '#1e40af' }}>{selectedPatient.name}</div>
             <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>{selectedPatient.gender} · {selectedPatient.age}岁 · {selectedPatient.patientType}</div>
             <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>ID: {selectedPatient.id}</div>
           </div>
@@ -425,7 +425,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
             <button
               onClick={() => navigate(`/appointments?patientId=${encodeURIComponent(selectedPatient.id)}`)}
               title="为患者新建检查预约"
-              style={{ padding: '8px 16px', background: '#1e3a5f', color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 2px 4px rgba(30,58,95,0.3)' }}
+              style={{ padding: '8px 16px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 2px 4px rgba(30,58,95,0.3)' }}
             >
               <CalendarPlus size={14} />预约检查
             </button>
@@ -446,7 +446,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
               </button>
             )}
             <button onClick={() => onEdit(selectedPatient)}
-              style={{ padding: '8px 16px', background: '#fff', color: '#16a34a', border: '1px solid #bbf7d0', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+              style={{ padding: '8px 16px', background: 'var(--bg-card)', color: '#16a34a', border: '1px solid #bbf7d0', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Edit2 size={14} />编辑
             </button>
           </div>
@@ -467,12 +467,12 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
             { label: '主治医师', value: selectedPatient.attendingDoctor || '-', icon: <Stethoscope size={14} /> },
             { label: '建档日期', value: selectedPatient.registrationDate, icon: <Calendar size={14} /> },
           ].map(item => (
-            <div key={item.label} style={{ padding: 12, background: '#f8fafc', borderRadius: 8 }}>
+            <div key={item.label} style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
                 <span style={{ color: '#94a3b8' }}>{item.icon}</span>
                 <span style={{ fontSize: 12, color: '#94a3b8' }}>{item.label}</span>
               </div>
-              <div style={{ fontSize: 13, color: '#334155', fontWeight: 500 }}>{item.value}</div>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>{item.value}</div>
             </div>
           ))}
         </div>
@@ -481,26 +481,26 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
           <div style={{ padding: 16, background: selectedPatient.allergyHistory && selectedPatient.allergyHistory !== '无' ? '#fef2f2' : '#f8fafc', border: `1px solid ${selectedPatient.allergyHistory && selectedPatient.allergyHistory !== '无' ? '#fecaca' : '#e2e8f0'}`, borderRadius: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
               <AlertTriangle size={14} color={selectedPatient.allergyHistory && selectedPatient.allergyHistory !== '无' ? '#dc2626' : '#94a3b8'} />
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#1e3a5f' }}>过敏史</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>过敏史</span>
             </div>
-            <div style={{ fontSize: 13, color: '#334155' }}>{selectedPatient.allergyHistory || '无'}</div>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{selectedPatient.allergyHistory || '无'}</div>
           </div>
-          <div style={{ padding: 16, background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8 }}>
+          <div style={{ padding: 16, background: 'var(--content-bg)', border: '1px solid #e2e8f0', borderRadius: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
               <Clock size={14} color="#94a3b8" />
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#1e3a5f' }}>既往史</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>既往史</span>
             </div>
-            <div style={{ fontSize: 13, color: '#334155' }}>{selectedPatient.medicalHistory || '无'}</div>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{selectedPatient.medicalHistory || '无'}</div>
           </div>
         </div>
       </div>
 
-      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: '#1e3a5f', marginBottom: 16 }}>检查统计</div>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid #e2e8f0', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 16 }}>检查统计</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
           <div style={{ textAlign: 'center', padding: 16, background: '#eff6ff', borderRadius: 8 }}>
             <Activity size={24} color="#3b82f6" style={{ marginBottom: 8 }} />
-            <div style={{ fontSize: 28, fontWeight: 800, color: '#1e3a5f' }}>{stats.totalExams}</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: '#1e40af' }}>{stats.totalExams}</div>
             <div style={{ fontSize: 12, color: '#64748b' }}>总检查次数</div>
           </div>
           <div style={{ textAlign: 'center', padding: 16, background: '#fef2f2', borderRadius: 8 }}>
@@ -513,17 +513,17 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
             <div style={{ fontSize: 28, fontWeight: 800, color: '#16a34a' }}>{stats.negativeCount}</div>
             <div style={{ fontSize: 12, color: '#64748b' }}>阴性/正常</div>
           </div>
-          <div style={{ textAlign: 'center', padding: 16, background: '#f8fafc', borderRadius: 8 }}>
+          <div style={{ textAlign: 'center', padding: 16, background: 'var(--content-bg)', borderRadius: 8 }}>
             <Clock size={24} color="#64748b" style={{ marginBottom: 8 }} />
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#1e3a5f' }}>{stats.firstExamDate}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>{stats.firstExamDate}</div>
             <div style={{ fontSize: 12, color: '#64748b' }}>首次检查日期</div>
           </div>
         </div>
       </div>
 
-      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid #e2e8f0', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#1e3a5f' }}>检查历史</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>检查历史</div>
           <span style={{ fontSize: 12, color: '#64748b' }}>共 {patientExams.length} 条记录</span>
         </div>
         {patientExams.length === 0 ? (
@@ -532,7 +532,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
               <thead>
-                <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                <tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid #e2e8f0' }}>
                   {['检查日期', '检查项目', '设备', '检查类型', '优先级', '状态', '报告结果', '操作'].map(h => (
                     <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#475569', fontSize: 12 }}>{h}</th>
                   ))}
@@ -546,14 +546,14 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                     <tr key={ex.id ?? idx} style={{ borderBottom: '1px solid #f1f5f9', background: idx % 2 === 0 ? '#fff' : '#fafbfc', cursor: 'pointer' }}
                       onClick={() => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(ex.id ?? '')}`)}
                       title="点击查看影像">
-                      <td style={{ padding: '10px 12px', color: '#334155' }}>{normalizeDate(ex.scheduledAt || ex.examDate)}</td>
+                      <td style={{ padding: '10px 12px', color: 'var(--text-secondary)' }}>{normalizeDate(ex.scheduledAt || ex.examDate)}</td>
                       <td style={{ padding: '10px 12px' }}>
-                        <div style={{ fontWeight: 600, color: '#1e3a5f' }}>{itemName}</div>
+                        <div style={{ fontWeight: 600, color: '#1e40af' }}>{itemName}</div>
                         <div style={{ fontSize: 12, color: '#94a3b8' }}>{ex.modality} · {ex.bodyPart}</div>
                       </td>
                       <td style={{ padding: '10px 12px', color: '#64748b', fontSize: 12 }}>{deviceName}</td>
                       <td style={{ padding: '10px 12px' }}>
-                        <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: '#f1f5f9', color: '#475569' }}>{ex.patientType || '门诊'}</span>
+                        <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: 'var(--content-bg)', color: '#475569' }}>{ex.patientType || '门诊'}</span>
                       </td>
                       <td style={{ padding: '10px 12px' }}>
                         <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 700, background: ex.priority === '危重' || ex.priority === '紧急' ? '#fef2f2' : '#f0fdf4', color: ex.priority === '危重' || ex.priority === '紧急' ? '#dc2626' : '#16a34a' }}>
@@ -586,11 +586,11 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         )}
       </div>
 
-      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid #e2e8f0', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <BellRing size={16} color="#dc2626" />
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#1e3a5f' }}>危急值历史</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>危急值历史</div>
           </div>
           <span style={{ fontSize: 12, color: '#64748b' }}>共 {criticalValues.length} 条记录</span>
         </div>
@@ -600,7 +600,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
               <thead>
-                <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                <tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid #e2e8f0' }}>
                   {['触发时间', '类型', '严重度', '状态', '闭环状态', '操作'].map(h => (
                     <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#475569', fontSize: 12 }}>{h}</th>
                   ))}
@@ -611,15 +611,15 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                   <tr key={cv.id} style={{ borderBottom: '1px solid #f1f5f9', background: idx % 2 === 0 ? '#fff' : '#fafbfc', cursor: 'pointer' }}
                     onClick={() => navigate(`/critical-value?cvId=${encodeURIComponent(cv.id)}`)}
                     title="点击查看危急值详情">
-                    <td style={{ padding: '10px 12px', color: '#334155', fontFamily: 'monospace', fontSize: 12 }}>{String(cv.triggeredAt ?? cv.createdAt ?? '').slice(0, 16) || '-'}</td>
-                    <td style={{ padding: '10px 12px', fontWeight: 600, color: '#1e3a5f' }}>{cv.finding || cv.description || cv.category || '-'}</td>
+                    <td style={{ padding: '10px 12px', color: 'var(--text-secondary)', fontFamily: 'monospace', fontSize: 12 }}>{String(cv.triggeredAt ?? cv.createdAt ?? '').slice(0, 16) || '-'}</td>
+                    <td style={{ padding: '10px 12px', fontWeight: 600, color: '#1e40af' }}>{cv.finding || cv.description || cv.category || '-'}</td>
                     <td style={{ padding: '10px 12px' }}>
                       <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 700, background: '#fef2f2', color: '#dc2626' }}>
                         {cv.severity || '-'}
                       </span>
                     </td>
                     <td style={{ padding: '10px 12px' }}>
-                      <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: '#f1f5f9', color: '#475569' }}>
+                      <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: 'var(--content-bg)', color: '#475569' }}>
                         {normalizeStatus(cv.state ?? cv.status)}
                       </span>
                     </td>
@@ -643,11 +643,11 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         )}
       </div>
 
-      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid #e2e8f0', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <FileText size={16} color="#059669" />
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#1e3a5f' }}>检查报告</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>检查报告</div>
           </div>
           <span style={{ fontSize: 12, color: '#64748b' }}>共 {reports.length} 份报告</span>
         </div>
@@ -657,7 +657,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
               <thead>
-                <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                <tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid #e2e8f0' }}>
                   {['报告编号', '检查项目', '状态', '出具时间', '报告医生', '操作'].map(h => (
                     <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#475569', fontSize: 12 }}>{h}</th>
                   ))}
@@ -667,7 +667,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                 {reports.map((r, idx) => (
                   <tr key={r.reportId || r.id} style={{ borderBottom: '1px solid #f1f5f9', background: idx % 2 === 0 ? '#fff' : '#fafbfc' }}>
                     <td style={{ padding: '10px 12px', fontFamily: 'monospace', color: '#64748b', fontSize: 12 }}>{r.reportId || r.id}</td>
-                    <td style={{ padding: '10px 12px', fontWeight: 600, color: '#1e3a5f' }}>{r.modality} {r.bodyPart}</td>
+                    <td style={{ padding: '10px 12px', fontWeight: 600, color: '#1e40af' }}>{r.modality} {r.bodyPart}</td>
                     <td style={{ padding: '10px 12px' }}>
                       <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: '#eff6ff', color: '#2563eb' }}>
                         {normalizeStatus(r.status)}
@@ -700,11 +700,11 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         )}
       </div>
 
-      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid #e2e8f0', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Receipt size={16} color="#d97706" />
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#1e3a5f' }}>费用账单</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>费用账单</div>
           </div>
           <span style={{ fontSize: 12, color: '#64748b' }}>共 {invoices.length} 张账单</span>
         </div>
@@ -714,7 +714,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
               <thead>
-                <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                <tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid #e2e8f0' }}>
                   {['账单号', '检查项目', '日期', '总金额', '已付', '待缴', '状态'].map(h => (
                     <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#475569', fontSize: 12 }}>{h}</th>
                   ))}
@@ -730,9 +730,9 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                   return (
                     <tr key={inv.id ?? invAny.invoiceId} style={{ borderBottom: '1px solid #f1f5f9', background: idx % 2 === 0 ? '#fff' : '#fafbfc' }}>
                       <td style={{ padding: '10px 12px', fontFamily: 'monospace', color: '#64748b', fontSize: 12 }}>{invAny.invoiceNo || invAny.invoiceId || inv.id}</td>
-                      <td style={{ padding: '10px 12px', fontWeight: 600, color: '#1e3a5f' }}>{invAny.examItem || inv.items?.map(i => i.itemName).join('、') || '-'}</td>
+                      <td style={{ padding: '10px 12px', fontWeight: 600, color: '#1e40af' }}>{invAny.examItem || inv.items?.map(i => i.itemName).join('、') || '-'}</td>
                       <td style={{ padding: '10px 12px', color: '#64748b' }}>{normalizeDate(invAny.examDate || inv.createdAt || invAny.issuedAt)}</td>
-                      <td style={{ padding: '10px 12px', fontWeight: 700, color: '#1e3a5f' }}>¥{total.toFixed(2)}</td>
+                      <td style={{ padding: '10px 12px', fontWeight: 700, color: '#1e40af' }}>¥{total.toFixed(2)}</td>
                       <td style={{ padding: '10px 12px', color: '#16a34a' }}>¥{paid.toFixed(2)}</td>
                       <td style={{ padding: '10px 12px', color: balance > 0 ? '#dc2626' : '#94a3b8', fontWeight: 600 }}>¥{balance.toFixed(2)}</td>
                       <td style={{ padding: '10px 12px' }}>
@@ -749,20 +749,20 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         )}
       </div>
 
-      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: '#1e3a5f', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Layers size={16} color="#1e3a5f" />
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid #e2e8f0', padding: 20, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Layers size={16} color="#1e40af" />
           患者360°时间线
           <span style={{ fontSize: 12, fontWeight: 400, color: '#94a3b8' }}>(检查 · 报告 · 预约 · 危急值)</span>
         </div>
         <PatientTimeline events={timelineEvents} />
       </div>
 
-      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, border: '1px solid #e2e8f0', padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Image size={16} color="#1e3a5f" />
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#1e3a5f' }}>影像历史</div>
+            <Image size={16} color="#1e40af" />
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>影像历史</div>
           </div>
           <span style={{ fontSize: 12, color: '#64748b' }}>共 {patientExams.length} 组影像 · 点击卡片打开 DICOM 浏览器</span>
         </div>
@@ -774,15 +774,15 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
               const itemName = ex.examItemName || ex.examItem || `${ex.modality} ${ex.bodyPart}`
               const imageCount = ex.imagesAcquired || 0
               return (
-                <div key={ex.id ?? idx} style={{ padding: 12, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0', cursor: 'pointer' }}
+                <div key={ex.id ?? idx} style={{ padding: 12, background: 'var(--content-bg)', borderRadius: 8, border: '1px solid #e2e8f0', cursor: 'pointer' }}
                   onClick={() => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(ex.id ?? '')}`)}
                   title={`打开 ${itemName} 影像`}
-                  onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.borderColor = '#1e3a5f'}
+                  onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.borderColor = '#1e40af'}
                   onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.borderColor = '#e2e8f0'}>
-                  <div style={{ width: '100%', height: 80, background: 'linear-gradient(135deg, #1e3a5f, #3b82f6)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+                  <div style={{ width: '100%', height: 80, background: 'linear-gradient(135deg, #1e40af, #3b82f6)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
                     <Image size={24} color="rgba(255,255,255,0.6)" />
                   </div>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: '#1e3a5f', marginBottom: 2 }}>{itemName}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#1e40af', marginBottom: 2 }}>{itemName}</div>
                   <div style={{ fontSize: 12, color: '#94a3b8' }}>{normalizeDate(ex.scheduledAt || ex.examDate)}</div>
                   <div style={{ fontSize: 12, color: '#64748b', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span>{imageCount > 0 ? `${imageCount} 帧` : '待采集'}</span>
@@ -800,7 +800,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
           style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}
           onClick={(e) => { if (e.target === e.currentTarget && !mergeLoading) setShowMergeModal(false) }}
         >
-          <div style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 520, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 16, width: '100%', maxWidth: 520, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'linear-gradient(135deg, #7f1d1d, #dc2626)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <GitMerge size={22} color="#fff" />
@@ -814,7 +814,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
               </button>
             </div>
             <div style={{ padding: 24 }}>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#1e3a5f', marginBottom: 8 }}>目标患者 ID</label>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#1e40af', marginBottom: 8 }}>目标患者 ID</label>
               <input
                 value={mergeTargetId}
                 onChange={(e) => setMergeTargetId(e.target.value)}
@@ -834,7 +834,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
               )}
             </div>
             <div style={{ padding: '16px 24px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-              <button onClick={() => setShowMergeModal(false)} disabled={mergeLoading} style={{ padding: '8px 20px', background: '#fff', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+              <button onClick={() => setShowMergeModal(false)} disabled={mergeLoading} style={{ padding: '8px 20px', background: 'var(--bg-card)', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                 取消
               </button>
               <button

@@ -6,9 +6,9 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { oeeApi } from '../../services/api';
 import type { OeeDeviceMetric, OeePoint, OeeDeviceDetail, OeeStats } from '../../services/api';
 
-const COLORS = { red: '#ff4d4f', yellow: '#faad14', green: '#52c41a', blue: '#1677ff' };
+const COLORS = { red: '#ff4d4f', yellow: '#faad14', green: '#52c41a', blue: '#2563eb' };
 
-const PIE_COLORS = ['#ff4d4f', '#faad14', '#1677ff', '#722ed1'];
+const PIE_COLORS = ['#ff4d4f', '#faad14', '#2563eb', '#722ed1'];
 
 const trendIcon = (t: string) => {
   if (t === 'up') return <TrendingUp size={14} color={COLORS.green} />;
@@ -86,7 +86,7 @@ export const OEEDashboardPage: React.FC = () => {
   const columns = [
     { title: '设备名称', dataIndex: 'name', key: 'name' },
     { title: '型号', dataIndex: 'model', key: 'model' },
-    { title: 'Modality', dataIndex: 'modality', key: 'modality' },
+    { title: '设备类型', dataIndex: 'modality', key: 'modality' },
     { title: 'OEE%', dataIndex: 'oee', key: 'oee', render: (v: number) => <span style={{ color: oeeColor(v), fontWeight: 600 }}>{v}%</span>, sorter: (a: OeeDeviceMetric, b: OeeDeviceMetric) => a.oee - b.oee },
     { title: '可用性%', dataIndex: 'availability', key: 'availability', render: (v: number) => `${v}%` },
     { title: '性能%', dataIndex: 'performance', key: 'performance', render: (v: number) => `${v}%` },
@@ -214,6 +214,7 @@ export const OEEDashboardPage: React.FC = () => {
       <Card size="small" title={<Space><BarChart3 size={14} color={COLORS.blue} />设备 OEE 列表（按 OEE 降序）</Space>}>
         <Table dataSource={sorted} columns={columns} rowKey="id" size="small" pagination={{ current: devicePage, pageSize: 10, total: sorted.length, onChange: setDevicePage, showSizeChanger: false, showTotal: (t) => `共 ${t} 台` }}
           rowClassName={(r: OeeDeviceMetric) => r.oee < 60 ? 'oee-row-red' : r.oee < 85 ? 'oee-row-yellow' : ''}
+        scroll={{ x: 'max-content' }}
         />
       </Card>
 

@@ -9,6 +9,7 @@ import { Shield, Database, Activity, RefreshCw, CheckCircle, AlertTriangle, XCir
 import { syncEngine, type SyncQueueItem, type ConflictResolution } from "../services/offline";
 import { REPLICAS, type DbReplica } from "../services/failover";
 import { deviceApi, type DeviceDto } from "./../services/api/deviceApi";
+import { usePagination } from "../hooks/usePagination";
 
 const {  Text } = Typography;
 
@@ -106,6 +107,10 @@ export default function BusinessContinuityPage() {
 
   const replicas: DbReplica[] = REPLICAS;
 
+  // [W3-C] 受控分页: 设备表 + 同步队列表
+  const devicePagination = usePagination(devices, 10);
+  const queuePagination = usePagination(queue, 10);
+
   return (
     <div style={{ padding: 24, background: "#f1f5f9", minHeight: "calc(100vh - 56px)" }}>
       <Card style={{ background: "linear-gradient(135deg,#dc2626 0%,#f59e0b 100%)", color: "#fff", border: "none", marginBottom: 16 }}>
@@ -150,6 +155,7 @@ export default function BusinessContinuityPage() {
                 { title: "RPO", dataIndex: "rpo", key: "rpo", width: 80, render: (n: number) => `${n}s` },
                 { title: "RTO", dataIndex: "rto", key: "rto", width: 80, render: (n: number) => `${n}s` },
               ]}
+            scroll={{ x: 'max-content' }}
             />
           </Card>
         </Col>
@@ -190,10 +196,10 @@ export default function BusinessContinuityPage() {
 
       <Card title={<Space><Monitor size={16} />影像设备状态 ({devices.length})<Tag color="green">数据来源：/devices 真实接口</Tag></Space>} style={{ marginBottom: 16 }}>
         <Table
-          dataSource={devices}
+          dataSource={devicePagination.pageData}
           rowKey="id"
           size="small"
-          pagination={{ pageSize: 10 }}
+          pagination={devicePagination.pagination}
           columns={[
             { title: "设备编码", dataIndex: "code", key: "code", width: 110 },
             { title: "设备名称", dataIndex: "name", key: "name" },
@@ -203,15 +209,16 @@ export default function BusinessContinuityPage() {
             { title: "状态", dataIndex: "status", key: "status", width: 100, render: (s: string) => { const m = DEV_STATUS[s] || { color: "default", label: s }; return <Tag color={m.color}>{m.label}</Tag>; } },
             { title: "上次维护", dataIndex: "lastMaintenanceAt", key: "lm", width: 150, render: (t?: string) => t ? new Date(t).toLocaleDateString("zh-CN") : "-" },
           ]}
+        scroll={{ x: 'max-content' }}
         />
       </Card>
 
       <Card title={<Space><Activity size={16} />同步队列 ({queue.length})</Space>}>
         <Table
-          dataSource={queue}
+          dataSource={queuePagination.pageData}
           rowKey="id"
           size="small"
-          pagination={{ pageSize: 10 }}
+          pagination={queuePagination.pagination}
           columns={[
             { title: "编号", dataIndex: "id", key: "id", width: 100 },
             { title: "类型", dataIndex: "type", key: "t", width: 90, render: (t: string) => { const m = TYPE_MAP[t] || { color: "default", label: t }; return <Tag color={m.color}>{m.label}</Tag>; } },
@@ -223,6 +230,7 @@ export default function BusinessContinuityPage() {
             { title: "创建", dataIndex: "createdAt", key: "c", width: 160, render: (t: string) => new Date(t).toLocaleString("zh-CN") },
             { title: "大小", dataIndex: "bytes", key: "b", width: 90, render: (b: number) => `${(b / 1024).toFixed(1)} KB` },
           ]}
+        scroll={{ x: 'max-content' }}
         />
       </Card>
     </div>

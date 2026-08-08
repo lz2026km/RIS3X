@@ -268,7 +268,7 @@ export default function DeptDashboardPage() {
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16, justifyContent: 'space-between', width: '100%' }}>
         <Space>
-          <BarChart3 size={20} color="#1677ff" />
+          <BarChart3 size={20} color="#2563eb" />
           <Title level={4} style={{ margin: 0 }}>
             放射科运营 BI 实时仪表板
           </Title>
@@ -395,7 +395,7 @@ export default function DeptDashboardPage() {
                             dataKey={k}
                             stackId="t"
                             name={state.timeliness?.buckets[i]?.bucket ?? k}
-                            fill={TIMELINESS_COLORS[i % TIMELINESS_COLORS.length] ?? '#1677ff'}
+                            fill={TIMELINESS_COLORS[i % TIMELINESS_COLORS.length] ?? '#2563eb'}
                           />
                         ))}
                   </BarChart>
@@ -415,7 +415,7 @@ export default function DeptDashboardPage() {
                   <YAxis />
                   <ReTooltip />
                   <Legend />
-                  <Bar dataKey="reportCount" name="报告数" fill="#1677ff" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="reportCount" name="报告数" fill="#2563eb" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="rvu" name="RVU" fill="#52c41a" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -453,6 +453,7 @@ export default function DeptDashboardPage() {
                 dataSource={state.oeeDevices}
                 pagination={false}
                 size="small"
+              scroll={{ x: 'max-content' }}
               />
               <div style={{ marginTop: 12 }}>
                 <Text type="secondary" style={{ fontSize: 12 }}>
@@ -554,7 +555,7 @@ export default function DeptDashboardPage() {
                   <YAxis />
                   <ReTooltip />
                   <Legend />
-                  <Line type="monotone" dataKey="检查量" stroke="#1677ff" dot={false} />
+                  <Line type="monotone" dataKey="检查量" stroke="#2563eb" dot={false} />
                   <Line type="monotone" dataKey="报告量" stroke="#52c41a" dot={false} />
                 </LineChart>
               </ResponsiveContainer>

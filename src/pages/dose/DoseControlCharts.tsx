@@ -31,6 +31,20 @@ export default function DoseControlCharts() {
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div
         style={{
+          padding: "8px 12px",
+          background: "#fef3c7",
+          color: "#d97706",
+          borderRadius: 8,
+          fontSize: 12,
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+        }}
+      >
+        <AlertTriangle size={14} /> 演示数据：控制图需按日历史明细计算 UCL/LCL，rdsrApi 仅提供聚合趋势，暂以本地模拟数据呈现
+      </div>
+      <div
+        style={{
           background: "#fff",
           borderRadius: 12,
           padding: 20,
@@ -46,7 +60,7 @@ export default function DoseControlCharts() {
           }}
         >
           <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>
               X-bar 控制图（CTDIvol均值）
             </div>
             <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
@@ -130,7 +144,7 @@ export default function DoseControlCharts() {
           style={{
             fontSize: 13,
             fontWeight: 700,
-            color: "#1e3a5f",
+            color: "#1e40af",
             marginBottom: 16,
           }}
         >

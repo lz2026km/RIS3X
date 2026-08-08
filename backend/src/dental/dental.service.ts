@@ -151,6 +151,23 @@ export class DentalService {
     return this.listStudiesByModality('Bitewing')
   }
 
+  // [G005 W3-A] 补缺: 全景片 / 根尖片单条详情 (DentalStudy 表 + seed, 与 list* 同源)
+  async getPanoramic(id: string) {
+    const row = await this.getStudyOrSeed(id)
+    if (!row || row.modality !== 'Panoramic') {
+      return { success: false, error: { code: 'NOT_FOUND', message: `Panoramic ${id} not found` } }
+    }
+    return { success: true, data: row }
+  }
+
+  async getPeriapical(id: string) {
+    const row = await this.getStudyOrSeed(id)
+    if (!row || row.modality !== 'Periapical') {
+      return { success: false, error: { code: 'NOT_FOUND', message: `Periapical ${id} not found` } }
+    }
+    return { success: true, data: row }
+  }
+
   async compareStudies(idA: string, idB: string) {
     const [a, b] = await Promise.all([this.getStudyOrSeed(idA), this.getStudyOrSeed(idB)])
     return {
@@ -248,6 +265,21 @@ export class DentalService {
     return { success: true, data, meta: { date: d, total: data.length } }
   }
 
+  // [G005 W3-A] 补缺: 单条排班预约 (DentalAppointment 表 + seed)
+  async getScheduleAppointment(id: string) {
+    try {
+      const row = await this.prisma.dentalAppointment.findUnique({ where: { id } })
+      if (row) return { success: true, data: row }
+    } catch {
+      // fallthrough to seed
+    }
+    const seeded = SEED_DENTAL_APPOINTMENTS.find(a => a.id === id)
+    if (seeded) return { success: true, data: seeded }
+    const generated = generateMockScheduleAppointments(new Date().toISOString().slice(0, 10)).find(a => a.id === id)
+    if (generated) return { success: true, data: generated }
+    return { success: false, error: { code: 'NOT_FOUND', message: `Appointment ${id} not found` } }
+  }
+
   async createScheduleAppointment(body: Record<string, unknown>) {
     const item = {
       id: `APT-${Date.now()}`,
@@ -307,6 +339,54 @@ export class DentalService {
     const item = { id: `PSR-${Date.now()}`, patientId, ...body, createdAt: new Date().toISOString() }
     SEED_PSR_RECORDS.unshift(item as any)
     return { success: true, data: item }
+  }
+
+  // [G005 W3-A] 补缺: 患者牙位图 (FDI 32 牙, 由 DentalStudy 表驱动 + seed, ToothChartPage 在用)
+  async getDentalChart(patientId: string) {
+    const FDI_TEETH = [
+      11,12,13,14,15,16,17,18, 21,22,23,24,25,26,27,28,
+      31,32,33,34,35,36,37,38, 41,42,43,44,45,46,47,48,
+    ]
+    const SURFACES = ['O', 'M', 'D', 'B', 'L']
+    const STATUSES = ['Healthy', 'Caries', 'Restored', 'Missing', 'Crown', 'RootCanal', 'Implant', 'Partial']
+    const teeth: Record<number, any> = {}
+    FDI_TEETH.forEach((t, i) => {
+      const h = (i * 7 + t * 13) % STATUSES.length
+      const status = STATUSES[h]
+      const surfaces: Record<string, string> = {}
+      for (const s of SURFACES) surfaces[s] = status === 'Healthy' ? 'Healthy' : h % 2 === 0 ? 'Restored' : 'Caries-Moderate'
+      teeth[t] = {
+        toothNo: t,
+        status,
+        surfaces,
+        cariesGrade: status === 'Caries' ? `ICDAS-${(h % 5) + 1}` : undefined,
+        periodontal: (t % 3) === 0 ? { pd: 2 + (h % 5), cal: h % 4, bop: h % 2 === 1, mob: h % 3, furcation: h % 4 } : undefined,
+        notes: '',
+      }
+    })
+    let patientName = ''
+    try {
+      const p = await this.prisma.patient.findUnique({ where: { id: patientId } })
+      if (p) patientName = p.name ?? ''
+    } catch { /* ignore */ }
+    if (!patientName) {
+      const seedStudy = SEED_DENTAL_STUDIES.find(s => s.patientId === patientId)
+      if (seedStudy) patientName = seedStudy.patientName
+      else {
+        const seedPatient = SEED_DENTAL_PATIENTS.find(p => p.id === patientId)
+        if (seedPatient) patientName = seedPatient.name
+      }
+    }
+    const chart = {
+      patientId,
+      patientName,
+      age: 42,
+      teeth,
+      numberingSystem: 'FDI',
+      createdAt: new Date(Date.now() - 30 * 86400_000).toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+    return { success: true, data: chart }
   }
 
   // ── [G005 W1-A] 跨科室转诊 (DentalRadFusionPages 在用) ──

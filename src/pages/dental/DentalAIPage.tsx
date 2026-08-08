@@ -128,6 +128,26 @@ export const DentalAIPage: React.FC = () => {
 
   const confirmedCount = findings.filter((f) => f.status === 'confirmed').length;
 
+  // [W3-C] 复核/确认: 接 dentalApi.updateAiFinding (PATCH /dental/ai-findings/:id)
+  const updateFindingStatus = async (r: AiFindingRecord, status: 'confirmed' | 'rejected' | 'pending') => {
+    try {
+      const res = await dentalApi.updateAiFinding(r.id, {
+        status,
+        reviewedBy: '当前医生',
+        note: status === 'confirmed' ? '医生确认 AI 发现' : status === 'rejected' ? '医生驳回 AI 发现' : '提交复核',
+      });
+      if (res.success) {
+        setFindings((prev) => prev.map((f) => f.id === r.id ? { ...f, status } : f));
+        message.success(status === 'confirmed' ? '已确认该 AI 发现' : status === 'rejected' ? '已驳回该 AI 发现' : '已提交复核');
+        setDetail(null);
+      } else {
+        message.error(res.error?.message ?? '操作失败');
+      }
+    } catch (e: any) {
+      message.error(e?.message ?? '服务不可用');
+    }
+  };
+
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} wrap>
@@ -205,6 +225,7 @@ export const DentalAIPage: React.FC = () => {
                 { title: '时间', dataIndex: 'createdAt', render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
                 { title: '操作', render: (_, r: AiFindingRecord) => <Button size="small" icon={<Eye size={12} />} onClick={() => setDetail(r)}>查看</Button> },
               ]}
+            scroll={{ x: 'max-content' }}
             />
           </Spin>
         </Card>
@@ -222,8 +243,9 @@ export const DentalAIPage: React.FC = () => {
             </Descriptions>
             <Divider style={{ margin: '12px 0' }} />
             <Space>
-              <Button type="primary" size="small" onClick={() => message.success('已确认该 AI 发现')}>确认</Button>
-              <Button size="small" onClick={() => message.info('已提交复核')}>复核</Button>
+              <Button type="primary" size="small" onClick={() => void updateFindingStatus(detail, 'confirmed')}>确认</Button>
+              <Button size="small" onClick={() => void updateFindingStatus(detail, 'pending')}>复核</Button>
+              <Button size="small" danger onClick={() => void updateFindingStatus(detail, 'rejected')}>驳回</Button>
             </Space>
           </>
         )}

@@ -33,6 +33,15 @@ import {
 } from "lucide-react";
 import { dentalApi } from "../../services/api/dentalApi";
 
+const STATUS_META: Record<string, { color: string; label: string }> = {
+  planning: { color: "default", label: "规划中" },
+  approved: { color: "green", label: "已批准" },
+  guided_surgery: { color: "cyan", label: "导板设计" },
+  implementing: { color: "blue", label: "实施中" },
+  completed: { color: "purple", label: "已完成" },
+  pending: { color: "orange", label: "待种植" },
+};
+
 export const DentalImplant3DPage: React.FC = () => {
   const [plans, setPlans] = useState<any[]>([]);
   const [current, setCurrent] = useState<any>(null);
@@ -219,7 +228,7 @@ export const DentalImplant3DPage: React.FC = () => {
       ctx.save();
       ctx.translate(ex, ey);
       ctx.rotate(0.1);
-      ctx.fillStyle = "#1677ff";
+      ctx.fillStyle = "#2563eb";
       ctx.fillRect(-4, -30, 8, 60);
       ctx.strokeStyle = "#69b1ff";
       ctx.lineWidth = 1;
@@ -251,7 +260,7 @@ export const DentalImplant3DPage: React.FC = () => {
     ctx.stroke();
     ctx.fillStyle = "#fff";
     ctx.font = "10px monospace";
-    ctx.fillText("Axial | WW:" + ww + " WC:" + wc, 4, 12);
+    ctx.fillText("轴位 | WW:" + ww + " WC:" + wc, 4, 12);
   };
 
   useEffect(() => {
@@ -265,7 +274,7 @@ export const DentalImplant3DPage: React.FC = () => {
     return (
       <div style={{ padding: 24, background: "#f5f5f5", minHeight: "100vh" }}>
         <Space style={{ marginBottom: 16 }}>
-          <Box size={20} color="#1677ff" />
+          <Box size={20} color="#2563eb" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>
             种植 3D 规划中心
           </span>
@@ -390,7 +399,7 @@ export const DentalImplant3DPage: React.FC = () => {
                             ? "processing"
                             : "default"
                       }
-                      text={p.status}
+                      text={STATUS_META[p.status]?.label ?? p.status}
                     />
                   </Space>
                   <div style={{ fontSize: 11, color: "#999", marginTop: 4 }}>
@@ -412,22 +421,22 @@ export const DentalImplant3DPage: React.FC = () => {
         <Button icon={<RotateCcw size={14} />} onClick={() => setMode("list")}>
           返回列表
         </Button>
-        <Box size={18} color="#1677ff" />
+        <Box size={18} color="#2563eb" />
         <span style={{ fontSize: 16, fontWeight: 600 }}>
           种植 3D 规划 - #{current.toothNo}
         </span>
         <Tag color="cyan">v3.0.6.8-88</Tag>
         <Tag color={current.status === "approved" ? "green" : "purple"}>
-          {current.status}
+          {STATUS_META[current.status]?.label ?? current.status}
         </Tag>
         <Segmented
           size="small"
           value={viewAxial}
           onChange={(v) => setViewAxial(v as any)}
           options={[
-            { value: "axial", label: "Axial" },
-            { value: "sagittal", label: "Sagittal" },
-            { value: "coronal", label: "Coronal" },
+            { value: "axial", label: "轴位" },
+            { value: "sagittal", label: "矢状位" },
+            { value: "coronal", label: "冠状位" },
           ]}
         />
       </Space>
@@ -631,7 +640,7 @@ export const DentalImplant3DPage: React.FC = () => {
                 <Statistic
                   title="骨质量"
                   value={boneData?.overallQuality || "D2/D3"}
-                  styles={{ content: {  color: "#1677ff", fontSize: 13  } }}
+                  styles={{ content: {  color: "#2563eb", fontSize: 13  } }}
                 />
                 <div style={{ display: "flex", gap: 4, marginTop: 8 }}>
                   {boneData?.measurements

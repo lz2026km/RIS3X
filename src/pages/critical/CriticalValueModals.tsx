@@ -490,7 +490,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
   return (
     <div onClick={onClose} role="dialog" aria-modal="true" aria-label="危急值规则设置" style={overlayStyle}>
       <div onClick={(e) => e.stopPropagation()} style={{ ...panelStyle, width: 800, maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#1e3a5f', borderRadius: '16px 16px 0 0' }}>
+        <div style={{ padding: '20px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#1e40af', borderRadius: '16px 16px 0 0' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <Settings size={20} style={{ color: '#fff' }} />
             <div>
@@ -507,9 +507,9 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
             return (
               <button key={sec.key} role="tab" aria-selected={active} tabIndex={active ? 0 : -1}
                 onClick={() => setActiveSection(sec.key as typeof activeSection)}
-                style={{ flex: 1, padding: '12px 16px', textAlign: 'center', cursor: 'pointer', background: active ? '#fff' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', borderBottom: active ? '2px solid #1e3a5f' : '2px solid transparent' }}>
-                <Icon size={16} style={{ color: active ? '#1e3a5f' : '#94a3b8' }} />
-                <span style={{ fontSize: 13, fontWeight: active ? 700 : 500, color: active ? '#1e3a5f' : '#94a3b8' }}>{sec.label}</span>
+                style={{ flex: 1, padding: '12px 16px', textAlign: 'center', cursor: 'pointer', background: active ? '#fff' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', borderBottom: active ? '2px solid #1e40af' : '2px solid transparent' }}>
+                <Icon size={16} style={{ color: active ? '#1e40af' : '#94a3b8' }} />
+                <span style={{ fontSize: 13, fontWeight: active ? 700 : 500, color: active ? '#1e40af' : '#94a3b8' }}>{sec.label}</span>
               </button>
             )
           })}
@@ -555,7 +555,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
 
           {activeSection === 'timeout' && (
             <div style={{ background: '#eff6ff', borderRadius: 10, padding: 16, border: '1px solid #bfdbfe' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f', marginBottom: 12 }}>超时提醒时间设置</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>超时提醒时间设置</div>
               <div style={{ display: 'flex', gap: 16 }}>
                 {[
                   { label: '紧急提醒', minutes: 15, color: '#dc2626' },
@@ -565,7 +565,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
                   <div key={item.label} style={{ flex: 1, padding: 14, background: '#fff', borderRadius: 8, border: `1px solid ${item.color}` }}>
                     <div style={{ fontSize: 12, color: '#64748b', marginBottom: 6 }}>{item.label}</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <input type="number" defaultValue={item.minutes} aria-label={`${item.label}-分钟数`} style={{ width: 60, padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 14, fontWeight: 700, color: '#1e3a5f', textAlign: 'center' }} />
+                      <input type="number" defaultValue={item.minutes} aria-label={`${item.label}-分钟数`} style={{ width: 60, padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 14, fontWeight: 700, color: '#1e40af', textAlign: 'center' }} />
                       <span style={{ fontSize: 12, color: '#64748b' }}>分钟</span>
                     </div>
                   </div>
@@ -576,9 +576,9 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
 
           {activeSection === 'notify' && (
             <div style={{ background: '#f8fafc', borderRadius: 10, padding: 16, border: '1px solid #e2e8f0' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f', marginBottom: 16 }}>通知方式配置</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 16 }}>通知方式配置</div>
               {[
-                { name: '系统通知', desc: 'RIS系统内即时消息推送', icon: Bell, color: '#1e3a5f' },
+                { name: '系统通知', desc: 'RIS系统内即时消息推送', icon: Bell, color: '#1e40af' },
                 { name: '短信通知', desc: '发送到临床医生手机号码', icon: MessageSquare, color: '#2563eb' },
                 { name: '电话通知', desc: '自动拨打电话确认接收', icon: Phone, color: '#d97706' },
               ].map((method) => {
@@ -589,10 +589,10 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
                       <Icon size={20} style={{ color: method.color }} />
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f' }}>{method.name}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>{method.name}</div>
                       <div style={{ fontSize: 12, color: '#94a3b8' }}>{method.desc}</div>
                     </div>
-                    <div style={{ width: 48, height: 24, borderRadius: 12, background: '#1e3a5f', position: 'relative', cursor: 'pointer' }}>
+                    <div style={{ width: 48, height: 24, borderRadius: 12, background: '#1e40af', position: 'relative', cursor: 'pointer' }}>
                       <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#fff', position: 'absolute', top: 2, right: 2 }} />
                     </div>
                   </div>
@@ -606,7 +606,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
               <div style={{ background: '#fffbeb', borderRadius: 10, padding: 16, border: '1px solid #fde68a', marginBottom: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                   <ArrowUp size={16} style={{ color: '#d97706' }} />
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f' }}>升级规则说明</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>升级规则说明</span>
                 </div>
                 <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.7 }}>当危急值在规定时间内未得到确认或处理时，系统将自动按照以下规则逐级升级通知，确保危急值得到及时响应。升级规则按照紧急程度分为4个层级。</div>
               </div>
@@ -627,7 +627,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
                         </div>
                         <div style={{ flex: 1 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                            <span style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f' }}>升级至：{rule.escalateTo}</span>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>升级至：{rule.escalateTo}</span>
                             <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 600, background: rule.enabled ? '#d1fae5' : '#f1f5f9', color: rule.enabled ? '#059669' : '#94a3b8' }}>{rule.enabled ? '已启用' : '已禁用'}</span>
                           </div>
                           <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>触发条件：<span style={{ color: '#334155', fontWeight: 600 }}>{rule.triggerCondition}</span></div>
@@ -638,7 +638,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
                               ))}
                             </div>
                             <div style={{ marginLeft: 'auto', fontSize: 12, color: '#94a3b8' }}>
-                              超时 <span style={{ fontWeight: 700, color: '#1e3a5f' }}>{rule.timeoutMinutes}</span> 分钟触发
+                              超时 <span style={{ fontWeight: 700, color: '#1e40af' }}>{rule.timeoutMinutes}</span> 分钟触发
                             </div>
                           </div>
                         </div>
@@ -654,14 +654,14 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
 
         <div style={{ padding: '16px 24px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
           <button onClick={onClose} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
-          <button onClick={() => { showToast('规则设置已保存'); onClose() }} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid #1e3a5f', background: '#1e3a5f', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>保存设置</button>
+          <button onClick={() => { showToast('规则设置已保存'); onClose() }} style={{ padding: '10px 24px', borderRadius: 8, border: '1px solid #1e40af', background: '#1e40af', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>保存设置</button>
         </div>
       </div>
 
       {showRuleForm && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 'var(--z-modal, 600)' }} onClick={() => setShowRuleForm(false)}>
           <div style={{ background: '#fff', borderRadius: 12, padding: 20, width: 520 }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ fontSize: 15, fontWeight: 800, color: '#1e3a5f', marginBottom: 16 }}>{editingRule ? '编辑危急值规则' : '添加危急值规则'}</div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#1e40af', marginBottom: 16 }}>{editingRule ? '编辑危急值规则' : '添加危急值规则'}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               {([['modality', '设备'], ['examItem', '检查项目'], ['resultName', '指标名称'], ['unit', '单位']] as const).map(([key, label]) => (
                 <div key={key}>
@@ -687,7 +687,7 @@ export const RulesSettingsModal = ({ onClose, showToast }: {
       {showEscForm && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 'var(--z-modal, 600)' }} onClick={() => setShowEscForm(false)}>
           <div style={{ background: '#fff', borderRadius: 12, padding: 20, width: 520 }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ fontSize: 15, fontWeight: 800, color: '#1e3a5f', marginBottom: 16 }}>{editingEsc ? '编辑升级规则' : '添加升级规则'}</div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#1e40af', marginBottom: 16 }}>{editingEsc ? '编辑升级规则' : '添加升级规则'}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div>
                 <label style={{ display: 'block', fontSize: 12, color: '#64748b', marginBottom: 4 }}>升级层级</label>

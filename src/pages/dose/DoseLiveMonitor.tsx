@@ -54,7 +54,7 @@ const card: React.CSSProperties = {
 const cardTitle: React.CSSProperties = {
   fontSize: 14,
   fontWeight: 700,
-  color: "#1e3a5f",
+  color: "#1e40af",
   marginBottom: 14,
   display: "flex",
   alignItems: "center",
@@ -110,7 +110,7 @@ function StatCard({
     <div style={{ ...card, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px" }}>
       <div>
         <div style={{ fontSize: 12, color: "#64748b" }}>{label}</div>
-        <div style={{ fontSize: 22, fontWeight: 800, color: "#1e3a5f", marginTop: 4, lineHeight: 1.2 }}>
+        <div style={{ fontSize: 22, fontWeight: 800, color: "#1e40af", marginTop: 4, lineHeight: 1.2 }}>
           {value}
           {sub && <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 400 }}> {sub}</span>}
         </div>
@@ -314,7 +314,7 @@ export default function DoseLiveMonitor() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ fontSize: 16, fontWeight: 700, color: "#1e3a5f", display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ fontSize: 16, fontWeight: 700, color: "#1e40af", display: "flex", alignItems: "center", gap: 8 }}>
         <Activity size={18} /> 剂量实时监测
       </div>
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
@@ -400,7 +400,7 @@ export default function DoseLiveMonitor() {
           )}
           {selectedPatient && (
             <div style={{ marginTop: 10, fontSize: 12, color: "#64748b" }}>
-              已选患者：<strong style={{ color: "#1e3a5f" }}>{selectedPatient.patientName}</strong>（{selectedPatient.patientId}）
+              已选患者：<strong style={{ color: "#1e40af" }}>{selectedPatient.patientName}</strong>（{selectedPatient.patientId}）
             </div>
           )}
         </div>
@@ -692,7 +692,7 @@ function MiniInfo({ label, value, warn }: { label: string; value: string; warn?:
   return (
     <div style={{ background: "#f8fafc", borderRadius: 8, padding: "8px 10px", border: `1px solid ${warn ? "#fecaca" : "#e2e8f0"}` }}>
       <div style={{ fontSize: 11, color: "#64748b" }}>{label}</div>
-      <div style={{ fontSize: 14, fontWeight: 700, color: warn ? "#dc2626" : "#1e3a5f", marginTop: 2 }}>{value}</div>
+      <div style={{ fontSize: 14, fontWeight: 700, color: warn ? "#dc2626" : "#1e40af", marginTop: 2 }}>{value}</div>
     </div>
   );
 }

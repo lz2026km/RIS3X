@@ -55,6 +55,41 @@ export default function DicomViewerPage() {
   }, [])
 
   const exam = exams[selectedExamIdx]
+  // [W3-C] 历史检查: 接 examApi.list({patientId}) 真实历史, 不再空数组
+  const [historyExams, setHistoryExams] = useState<HistoryExam[]>([])
+
+  useEffect(() => {
+    if (!exam?.patientId) return
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = await examApi.list({ patientId: exam.patientId, pageSize: 50 } as never)
+        if (cancelled) return
+        const list = Array.isArray(res.data) ? res.data : (res.data?.items ?? [])
+        const mapped: HistoryExam[] = (list as Array<Record<string, any>>)
+          .filter((e) => String(e.id ?? e.examId ?? '') !== String(exam.id))
+          .map((e) => ({
+            id: String(e.id ?? e.examId ?? ''),
+            examId: String(e.examId ?? e.id ?? ''),
+            examDate: e.examDate ?? e.scheduledAt ?? '',
+            examTime: e.examTime ?? '',
+            examItemName: e.examItemName ?? e.examItem ?? '未知检查',
+            modality: e.modality ?? '',
+            bodyPart: e.bodyPart ?? '',
+            deviceName: e.deviceName ?? '',
+            status: e.status ?? '已完成',
+            reportDate: e.reportDate,
+            reportDoctor: e.reportDoctor,
+            finding: e.finding ?? e.examFindings,
+            conclusion: e.conclusion ?? e.diagnosis,
+          }))
+        setHistoryExams(mapped)
+      } catch {
+        if (!cancelled) setHistoryExams([])
+      }
+    })()
+    return () => { cancelled = true }
+  }, [exam?.patientId, exam?.id])
   const [seriesList] = useState<Series[]>(() => {
     if (exam.modality === 'CT') return [{ id: 's1', seriesNumber: 1, seriesDescription: '横断面-肺窗', modality: 'CT', imageCount: 120, thumbnail: '#4a90d9' }, { id: 's2', seriesNumber: 2, seriesDescription: '横断面-纵隔窗', modality: 'CT', imageCount: 120, thumbnail: '#50b784' }, { id: 's3', seriesNumber: 3, seriesDescription: '冠状面', modality: 'CT', imageCount: 80, thumbnail: '#e5a832' }, { id: 's4', seriesNumber: 4, seriesDescription: '矢状面', modality: 'CT', imageCount: 80, thumbnail: '#d94a4a' }]
     if (exam.modality === 'MR') return [{ id: 's1', seriesNumber: 1, seriesDescription: 'T1WI横断', modality: 'MR', imageCount: 200, thumbnail: '#4a90d9' }, { id: 's2', seriesNumber: 2, seriesDescription: 'T2WI横断', modality: 'MR', imageCount: 200, thumbnail: '#50b784' }, { id: 's3', seriesNumber: 3, seriesDescription: 'FLAIR', modality: 'MR', imageCount: 200, thumbnail: '#e5a832' }, { id: 's4', seriesNumber: 4, seriesDescription: 'DWI', modality: 'MR', imageCount: 50, thumbnail: '#d94a4a' }]
@@ -300,8 +335,20 @@ export default function DicomViewerPage() {
 
   const enterCompareMode = () => {
     if (selectedHistoryExams.length > 0) {
-      const mockExam = { examDate: '2026-04-15', examTime: '09:30', reportDoctor: '张伟明', finding: '左肺上叶见一枚直径约8mm磨玻璃结节', conclusion: '左肺上叶磨玻璃结节' }
-      setCompareExam(mockExam); setIsCompareMode(true); showToast('进入对比模式')
+      // [W3-C] 对比目标使用真实历史检查, 不再写死 mockExam
+      const history = historyExams.find((h) => selectedHistoryExams.includes(h.id))
+      if (!history) { showToast('未找到所选历史检查'); return }
+      setCompareExam({
+        id: history.id,
+        examDate: history.examDate,
+        examTime: history.examTime,
+        reportDoctor: history.reportDoctor,
+        finding: history.finding,
+        conclusion: history.conclusion,
+        examItemName: history.examItemName,
+        modality: history.modality,
+      })
+      setIsCompareMode(true); showToast('进入对比模式')
     }
   }
   const exitCompareMode = () => { setIsCompareMode(false); setCompareExam(null); showToast('退出对比模式') }
@@ -348,8 +395,8 @@ export default function DicomViewerPage() {
     }
   }
 
-  const mockHistoryExams: HistoryExam[] = []
-  const filteredHistoryExams = mockHistoryExams.filter(e => historySearchText ? e.examItemName.includes(historySearchText) || e.modality.includes(historySearchText) : true)
+  // [W3-C] 历史检查来自 examApi.list({patientId}) 真实数据, 支持搜索过滤
+  const filteredHistoryExams = historyExams.filter(e => historySearchText ? e.examItemName.includes(historySearchText) || e.modality.includes(historySearchText) : true)
   const diffRegions: any[] = [];
 
   (window as any).mockAppendAnnotation = mockAppendAnnotation

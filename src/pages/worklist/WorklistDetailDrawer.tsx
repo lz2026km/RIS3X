@@ -240,7 +240,7 @@ export function DetailDrawer({
       style={{
         padding: "8px 14px",
         border: "none",
-        background: activeTab === tabKey ? "#1e3a5f" : "transparent",
+        background: activeTab === tabKey ? "#1e40af" : "transparent",
         color: activeTab === tabKey ? "#fff" : "#64748b",
         fontSize: 12,
         fontWeight: 600,
@@ -279,7 +279,7 @@ export function DetailDrawer({
         </div>
       }
       headerStyle={{
-        background: "linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%)",
+        background: "linear-gradient(135deg, #1e40af 0%, #2563eb 100%)",
         color: "#fff",
         borderBottom: "none",
       }}
@@ -288,7 +288,7 @@ export function DetailDrawer({
         style={{
           padding: "16px 20px",
           borderBottom: "1px solid #f1f5f9",
-          background: "#f8fafc",
+          background: "var(--content-bg)",
         }}
       >
         <div
@@ -303,7 +303,7 @@ export function DetailDrawer({
               style={{
                 fontSize: 18,
                 fontWeight: 700,
-                color: "#1e3a5f",
+                color: "#1e40af",
                 display: "flex",
                 alignItems: "center",
                 gap: 8,
@@ -328,7 +328,7 @@ export function DetailDrawer({
               <span
                 style={{
                   padding: "3px 10px",
-                  background: "#f1f5f9",
+                  background: "var(--content-bg)",
                   color: "#64748b",
                   borderRadius: 6,
                   fontSize: 12,
@@ -392,7 +392,7 @@ export function DetailDrawer({
           borderBottom: "1px solid #e2e8f0",
           display: "flex",
           gap: 8,
-          background: "#fff",
+          background: "var(--bg-card)",
         }}
       >
         <DrawerTab label="基本信息" tabKey="info" icon={<User size={12} />} />
@@ -421,7 +421,7 @@ export function DetailDrawer({
                 style={{
                   fontSize: 13,
                   fontWeight: 600,
-                  color: "#1e3a5f",
+                  color: "#1e40af",
                   marginBottom: 12,
                   display: "flex",
                   alignItems: "center",
@@ -433,7 +433,7 @@ export function DetailDrawer({
               </div>
               <div
                 style={{
-                  background: "#f8fafc",
+                  background: "var(--content-bg)",
                   borderRadius: 10,
                   padding: 14,
                   display: "grid",
@@ -464,7 +464,7 @@ export function DetailDrawer({
                     <div
                       style={{
                         fontSize: 13,
-                        color: "#334155",
+                        color: "var(--text-secondary)",
                         fontWeight: 500,
                       }}
                     >
@@ -480,7 +480,7 @@ export function DetailDrawer({
                 style={{
                   fontSize: 13,
                   fontWeight: 600,
-                  color: "#1e3a5f",
+                  color: "#1e40af",
                   marginBottom: 12,
                   display: "flex",
                   alignItems: "center",
@@ -491,7 +491,7 @@ export function DetailDrawer({
                 检查信息
               </div>
               <div
-                style={{ background: "#f8fafc", borderRadius: 10, padding: 14 }}
+                style={{ background: "var(--content-bg)", borderRadius: 10, padding: 14 }}
               >
                 {[
                   ["检查项目", exam.examItemName],
@@ -524,7 +524,7 @@ export function DetailDrawer({
                     >
                       {label}
                     </div>
-                    <div style={{ fontSize: 13, color: "#334155" }}>
+                    <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>
                       {value}
                     </div>
                   </div>
@@ -540,7 +540,7 @@ export function DetailDrawer({
               style={{
                 fontSize: 13,
                 fontWeight: 600,
-                color: "#1e3a5f",
+                color: "#1e40af",
                 marginBottom: 12,
                 display: "flex",
                 alignItems: "center",
@@ -552,7 +552,7 @@ export function DetailDrawer({
             </div>
             <div
               style={{
-                background: "#f8fafc",
+                background: "var(--content-bg)",
                 borderRadius: 10,
                 padding: 20,
                 textAlign: "center",
@@ -572,7 +572,7 @@ export function DetailDrawer({
               >
                 <Image size={32} style={{ color: "#94a3b8" }} />
               </div>
-              <div style={{ fontSize: 24, fontWeight: 800, color: "#1e3a5f" }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: "#1e40af" }}>
                 {exam.imagesAcquired}
               </div>
               <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
@@ -582,7 +582,7 @@ export function DetailDrawer({
                 style={{
                   marginTop: 16,
                   padding: "8px 12px",
-                  background: "#fff",
+                  background: "var(--bg-card)",
                   borderRadius: 6,
                   fontSize: 12,
                   color: "#64748b",
@@ -601,7 +601,7 @@ export function DetailDrawer({
               style={{
                 fontSize: 13,
                 fontWeight: 600,
-                color: "#1e3a5f",
+                color: "#1e40af",
                 marginBottom: 12,
                 display: "flex",
                 alignItems: "center",
@@ -617,7 +617,7 @@ export function DetailDrawer({
               )}
             </div>
             {historyLoading ? (
-              <div style={{ background: "#f8fafc", borderRadius: 10, padding: 40, textAlign: "center", color: "#94a3b8", fontSize: 12 }}>
+              <div style={{ background: "var(--content-bg)", borderRadius: 10, padding: 40, textAlign: "center", color: "#94a3b8", fontSize: 12 }}>
                 正在加载历史检查...
               </div>
             ) : historyError ? (
@@ -638,7 +638,7 @@ export function DetailDrawer({
                     <div
                       key={hist.id}
                       style={{
-                        background: "#f8fafc",
+                        background: "var(--content-bg)",
                         borderRadius: 10,
                         padding: 12,
                         border: "1px solid #e2e8f0",
@@ -655,7 +655,7 @@ export function DetailDrawer({
                         <div
                           style={{
                             fontWeight: 600,
-                            color: "#334155",
+                            color: "var(--text-secondary)",
                             fontSize: 12,
                           }}
                         >
@@ -692,7 +692,7 @@ export function DetailDrawer({
             ) : (
               <div
                 style={{
-                  background: "#f8fafc",
+                  background: "var(--content-bg)",
                   borderRadius: 10,
                   padding: 40,
                   textAlign: "center",
@@ -715,7 +715,7 @@ export function DetailDrawer({
               style={{
                 fontSize: 13,
                 fontWeight: 600,
-                color: "#1e3a5f",
+                color: "#1e40af",
                 marginBottom: 12,
                 display: "flex",
                 alignItems: "center",
@@ -752,7 +752,7 @@ export function DetailDrawer({
                         width: 24,
                         height: 24,
                         borderRadius: "50%",
-                        background: "#1e3a5f",
+                        background: "#1e40af",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -768,7 +768,7 @@ export function DetailDrawer({
                     <div style={{ flex: 1 }}>
                       <div
                         style={{
-                          background: "#f8fafc",
+                          background: "var(--content-bg)",
                           borderRadius: 8,
                           padding: "10px 14px",
                           border: "1px solid #e2e8f0",
@@ -777,7 +777,7 @@ export function DetailDrawer({
                         <div
                           style={{
                             fontWeight: 600,
-                            color: "#334155",
+                            color: "var(--text-secondary)",
                             fontSize: 12,
                             marginBottom: 4,
                           }}
@@ -814,19 +814,19 @@ export function DetailDrawer({
           display: "grid",
           gridTemplateColumns: "repeat(3, 1fr)",
           gap: 10,
-          background: "#f8fafc",
+          background: "var(--content-bg)",
         }}
       >
         <button
           onClick={() => onEditInfo?.(exam)}
           style={{
             padding: "10px 16px",
-            background: "#fff",
+            background: "var(--bg-card)",
             border: "1px solid #e2e8f0",
             borderRadius: 8,
             fontSize: 12,
             fontWeight: 600,
-            color: "#334155",
+            color: "var(--text-secondary)",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
@@ -841,12 +841,12 @@ export function DetailDrawer({
           onClick={() => onAssignDevice?.(exam)}
           style={{
             padding: "10px 16px",
-            background: "#fff",
+            background: "var(--bg-card)",
             border: "1px solid #e2e8f0",
             borderRadius: 8,
             fontSize: 12,
             fontWeight: 600,
-            color: "#334155",
+            color: "var(--text-secondary)",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
@@ -861,12 +861,12 @@ export function DetailDrawer({
           onClick={() => onAssignDoctor?.(exam)}
           style={{
             padding: "10px 16px",
-            background: "#fff",
+            background: "var(--bg-card)",
             border: "1px solid #e2e8f0",
             borderRadius: 8,
             fontSize: 12,
             fontWeight: 600,
-            color: "#334155",
+            color: "var(--text-secondary)",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
@@ -881,12 +881,12 @@ export function DetailDrawer({
           onClick={() => onViewRequisition?.(exam)}
           style={{
             padding: "10px 16px",
-            background: "#fff",
+            background: "var(--bg-card)",
             border: "1px solid #e2e8f0",
             borderRadius: 8,
             fontSize: 12,
             fontWeight: 600,
-            color: "#334155",
+            color: "var(--text-secondary)",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
@@ -901,7 +901,7 @@ export function DetailDrawer({
           onClick={() => onWriteReport?.(exam)}
           style={{
             padding: "10px 16px",
-            background: normalizeExamStatus(exam.status) === "COMPLETED" ? "#1e3a5f" : "#e2e8f0",
+            background: normalizeExamStatus(exam.status) === "COMPLETED" ? "#1e40af" : "#e2e8f0",
             border: "none",
             borderRadius: 8,
             fontSize: 12,
@@ -921,12 +921,12 @@ export function DetailDrawer({
           onClick={() => onStartExam?.(exam)}
           style={{
             padding: "10px 16px",
-            background: "#fff",
+            background: "var(--bg-card)",
             border: "1px solid #e2e8f0",
             borderRadius: 8,
             fontSize: 12,
             fontWeight: 600,
-            color: "#334155",
+            color: "var(--text-secondary)",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
@@ -941,7 +941,7 @@ export function DetailDrawer({
           onClick={() => onCancelExam?.(exam)}
           style={{
             padding: "10px 16px",
-            background: "#fff",
+            background: "var(--bg-card)",
             border: "1px solid #fee2e2",
             borderRadius: 8,
             fontSize: 12,
@@ -960,12 +960,12 @@ export function DetailDrawer({
         <button
           style={{
             padding: "10px 16px",
-            background: "#fff",
+            background: "var(--bg-card)",
             border: "1px solid #e2e8f0",
             borderRadius: 8,
             fontSize: 12,
             fontWeight: 600,
-            color: "#334155",
+            color: "var(--text-secondary)",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",

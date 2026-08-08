@@ -171,19 +171,58 @@ export class EyeService {
     }
   }
 
-  listStudies(skip = 0, take = 20) {
-    return this.prisma.eyeStudy.findMany({
-      skip,
-      take,
-      orderBy: { createdAt: 'desc' },
-      include: { patient: true },
-    })
+  // [G005 W3-A] /eye/studies 归一化 DTO (与 listPacsStudies 同形状, 支撑前端 getStudies)
+  private toStudyDto(s: any) {
+    return {
+      id: s.id ?? s.studyId,
+      patientId: s.patientId,
+      patientName: s.patientName ?? s.patient?.name ?? '',
+      modality: s.modality ?? '',
+      eye: s.eye ?? s.eyeSide ?? s.bodyPart ?? 'OU',
+      acquisitionDate: s.acquisitionDate ?? s.studyDate ?? s.createdAt,
+      deviceModel: s.deviceModel ?? '',
+      status: s.status ?? 'acquired',
+      indications: s.indications,
+    }
+  }
+
+  async listStudies(skip = 0, take = 20) {
+    const rows = await this.withSeed(
+      () => this.prisma.eyeStudy.findMany({ orderBy: { createdAt: 'desc' }, take: 100, include: { patient: true } }),
+      SEED_EYE_STUDIES,
+    )
+    const data = rows.map((s: any) => this.toStudyDto(s)).slice(skip, skip + take)
+    return { success: true, data, meta: { total: data.length } }
   }
 
   async getStudy(id: string) {
-    const study = await this.prisma.eyeStudy.findUnique({ where: { id }, include: { patient: true } })
-    if (!study) throw new NotFoundException(`EyeStudy ${id} not found`)
-    return study
+    const row = await this.withSeed(
+      () => this.prisma.eyeStudy.findMany({ where: { id }, take: 1, include: { patient: true } }),
+      [],
+    )
+    const s: any = row[0] ?? SEED_EYE_STUDIES.find((x: any) => x.id === id)
+    if (!s) throw new NotFoundException(`EyeStudy ${id} not found`)
+    return {
+      success: true,
+      data: {
+        id: s.id ?? s.studyId,
+        studyId: s.id ?? s.studyId,
+        patientId: s.patientId,
+        patientName: s.patientName ?? s.patient?.name ?? '',
+        modality: s.modality ?? '',
+        eye: s.eye ?? s.eyeSide ?? s.bodyPart ?? 'OU',
+        eyeSide: s.eyeSide ?? (s.eye && s.eye.length <= 2 ? s.eye : s.bodyPart && s.bodyPart.length <= 2 ? s.bodyPart : 'OU'),
+        acquisitionDate: s.acquisitionDate ?? s.studyDate ?? s.createdAt,
+        studyDate: s.studyDate ?? s.acquisitionDate ?? s.createdAt,
+        deviceModel: s.deviceModel ?? '',
+        device: s.deviceModel ?? '',
+        status: s.status ?? 'acquired',
+        indications: s.indications,
+        measurements: {},
+        report: s.impressions ?? '',
+        criticalFlag: false,
+      },
+    }
   }
 
   createStudy(dto: CreateEyeStudyDto) {
@@ -281,11 +320,9 @@ export class EyeService {
     return { formula: 'SRK/T', result: Math.round(se * 100) / 100, data, iolPower: AConst }
   }
 
-  listReports() {
-    return this.prisma.eyeStudy.findMany({
-      where: { status: 'COMPLETED' },
-      orderBy: { createdAt: 'desc' },
-    })
+  // [G005 W3-A] /eye/reports 归一化: 返回报告形状 (与 /eye/report/reports 一致, 支撑前端 getReports)
+  async listReports() {
+    return { success: true, data: SEED_EYE_REPORTS }
   }
 
   generateReport(data: { studyId: string; template?: string }) {

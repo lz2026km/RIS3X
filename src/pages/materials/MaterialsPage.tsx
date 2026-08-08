@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, message, Tabs, Statistic, Alert, InputNumber, Modal, Table, Switch } from 'antd';
 import { Box, Eye, AlertTriangle, Calendar, Plus, Edit3, Trash2 } from 'lucide-react';
 import { iolApi, contactLensApi } from '@/services/api/materialsApi';
+import { usePagination } from '@/hooks/usePagination';
 
 
 const {  } = Input;
@@ -88,11 +89,14 @@ export const MaterialsPage: React.FC = () => {
     if (lensFilter.brand && l.brand !== lensFilter.brand) return false;
     return true;
   });
+  // [W3-C] 受控分页: IOL 库存表 + 接触镜表 (基于过滤结果)
+  const iolPagination = usePagination(filteredIols, 10);
+  const lensPagination = usePagination(filteredLenses, 10);
 
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <Box size={20} color="#1677ff" />
+        <Box size={20} color="#2563eb" />
         <Eye size={20} color="#52c41a" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>眼料管理 (IOL 库存 + 接触镜库)</span>
         <Tag color="cyan">PR7 (v3.0.6.8-51)</Tag>
@@ -101,7 +105,7 @@ export const MaterialsPage: React.FC = () => {
       </Space>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={6}><Card size="small"><Statistic title="IOL 总数" value={iols.length} styles={{ content: {  color: '#1677ff'  } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="IOL 总数" value={iols.length} styles={{ content: {  color: '#2563eb'  } }} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="低库存" value={lowStock.length} styles={{ content: {  color: '#faad14'  } }} prefix={<AlertTriangle size={14} />} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="即将过期" value={expiring.length} styles={{ content: {  color: '#ff4d4f'  } }} prefix={<Calendar size={14} />} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="接触镜 SKU" value={lenses.length} /></Card></Col>
@@ -133,9 +137,9 @@ export const MaterialsPage: React.FC = () => {
           >
             <Table
               size="small"
-              dataSource={filteredIols}
+              dataSource={iolPagination.pageData}
               rowKey="id"
-              pagination={{ pageSize: 10 }}
+              pagination={iolPagination.pagination}
               columns={[
                 { title: '条码', dataIndex: 'barcode' },
                 { title: '型号', dataIndex: 'model' },
@@ -153,6 +157,7 @@ export const MaterialsPage: React.FC = () => {
                   ),
                 },
               ]}
+            scroll={{ x: 'max-content' }}
             />
           </Card>
 
@@ -198,9 +203,9 @@ export const MaterialsPage: React.FC = () => {
           >
             <Table
               size="small"
-              dataSource={filteredLenses}
+              dataSource={lensPagination.pageData}
               rowKey="id"
-              pagination={{ pageSize: 10 }}
+              pagination={lensPagination.pagination}
               columns={[
                 { title: '品牌', dataIndex: 'brand' },
                 { title: '类型', dataIndex: 'type', render: (t) => <Tag color={t === 'OK' ? 'magenta' : t === 'RGP' ? 'blue' : 'green'}>{t}</Tag> },
@@ -221,6 +226,7 @@ export const MaterialsPage: React.FC = () => {
                   ),
                 },
               ]}
+            scroll={{ x: 'max-content' }}
             />
           </Card>
         </Tabs.TabPane>

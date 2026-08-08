@@ -11,7 +11,7 @@ import { segmentationApi, type SegmentationResultDto, type SegmentationTarget, t
 import { invalidateApiCache } from '../../services/api/client'
 import { decodeInt16Base64, applyWWL } from './volumeReal'
 
-const MANUAL_COLORS = ['#ff4d4f', '#fa8c16', '#52c41a', '#1677ff', '#722ed1']
+const MANUAL_COLORS = ['#ff4d4f', '#fa8c16', '#52c41a', '#2563eb', '#722ed1']
 
 const TARGETS: Array<{ value: SegmentationTarget; label: string; color: string; preset: [number, number] }> = [
   { value: 'nodule', label: '结节 (区域生长/阈值)', color: '#ff4d4f', preset: [-100, 100] },
@@ -49,7 +49,7 @@ function blankImage(width: number, height: number): ImageData {
   return ctx.createImageData(canvas.width, canvas.height)
 }
 
-const HISTOGRAM_COLORS = ['#1677ff', '#4096ff', '#69b1ff']
+const HISTOGRAM_COLORS = ['#2563eb', '#4096ff', '#69b1ff']
 
 /** 中心切片: MPR 灰度 + 掩码红/绿叠加 */
 const OverlayCanvas: React.FC<{
@@ -298,7 +298,7 @@ const SegmentationPage: React.FC = () => {
     { title: '平均 HU', dataIndex: 'meanHu', key: 'meanHu', width: 100, align: 'right' as const, render: (v: number) => v.toFixed(1) },
     { title: '最大 HU', dataIndex: 'maxHu', key: 'maxHu', width: 100, align: 'right' as const },
     { title: '体素数', dataIndex: 'voxelCount', key: 'voxelCount', width: 110, align: 'right' as const, render: (v: number) => v.toLocaleString() },
-    { title: '来源', dataIndex: 'source', key: 'source', width: 90, render: (s: string) => (s === 'real' ? <Tag color="green">REAL</Tag> : <Tag>SYNTH</Tag>) },
+    { title: '来源', dataIndex: 'source', key: 'source', width: 90, render: (s: string) => (s === 'real' ? <Tag color="green">真实</Tag> : <Tag>合成</Tag>) },
     { title: '状态', dataIndex: 'approved', key: 'approved', width: 90, render: (a: boolean) => (a ? <Tag color="success">已确认</Tag> : <Tag>待确认</Tag>) },
     { title: '时间', dataIndex: 'createdAt', key: 'createdAt', width: 170, render: (t: string) => new Date(t).toLocaleString() },
     { title: '操作', key: 'action', width: 90, render: (_: unknown, row: SegmentationHistoryItemDto) => (
@@ -309,13 +309,13 @@ const SegmentationPage: React.FC = () => {
   return (
     <div style={{ padding: 16, background: '#f0f2f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 12 }} wrap>
-        <Scan size={20} color="#1677ff" />
+        <Scan size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>3D 分割与定量</span>
         <Tag color="cyan">结节 / 骨 / 肝 / 肺</Tag>
         <Tag color="geekblue">对标 Siemens Lesion Quantification</Tag>
         {result && (
           <>
-            <Tag color={result.source === 'real' ? 'green' : 'default'}>{result.source === 'real' ? 'REAL DICOM' : 'SYNTHETIC'}</Tag>
+            <Tag color={result.source === 'real' ? 'green' : 'default'}>{result.source === 'real' ? '真实DICOM' : '合成数据'}</Tag>
             <Tag>{result.voxelCount.toLocaleString()} vox</Tag>
           </>
         )}

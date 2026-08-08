@@ -346,7 +346,7 @@ export default function DicomViewerPro({
                 key={s.id}
                 onClick={() => { setSelectedSampleId(s.id); jumpTo(0); }}
                 style={{
-                  background: s.id === currentSample?.id ? '#1e3a5f' : '#0a0a0a',
+                  background: s.id === currentSample?.id ? '#1e40af' : '#0a0a0a',
                   border: s.id === currentSample?.id ? '1px solid #3b82f6' : '1px solid #333',
                   borderRadius: 4, padding: 4, marginBottom: 4, cursor: 'pointer', fontSize: 12, color: '#cbd5e1',
                 }}

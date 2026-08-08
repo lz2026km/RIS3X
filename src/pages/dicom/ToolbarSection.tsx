@@ -2,10 +2,10 @@ import { Tooltip } from './DicomViewerSubComponents'
 import { RotateCw, RotateCcw, PenTool, Plus, Minus, EyeOff, Eye, Flame, Droplets, Activity, Wind } from 'lucide-react'
 import type { Tool, PseudoColorMode } from './DicomViewerTypes'
 
-const PRIMARY = '#1e3a5f'
+const PRIMARY = '#1e40af'
 
 const s = {
-  leftToolbar: { width: 60, background: `linear-gradient(180deg, ${PRIMARY} 0%, #2d4a6f 100%)`, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', paddingTop: 12, paddingBottom: 12, gap: 4, borderRight: `1px solid ${PRIMARY}`, flexShrink: 0, boxShadow: '2px 0 8px rgba(30,58,95,0.3)' },
+  leftToolbar: { width: 60, background: `linear-gradient(180deg, ${PRIMARY} 0%, #2563eb 100%)`, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', paddingTop: 12, paddingBottom: 12, gap: 4, borderRight: `1px solid ${PRIMARY}`, flexShrink: 0, boxShadow: '2px 0 8px rgba(30,58,95,0.3)' },
   toolBtn: { width: 44, height: 44, borderRadius: 10, border: 'none', background: 'transparent', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s', marginBottom: 2, fontSize: 11 } as React.CSSProperties,
   toolBtnActive: { background: 'rgba(255,255,255,0.2)', color: '#fff', boxShadow: '0 0 12px rgba(255,255,255,0.15)' },
   toolDivider: { width: 36, height: 1, background: 'rgba(255,255,255,0.15)', margin: '4px auto' },

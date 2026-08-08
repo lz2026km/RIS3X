@@ -248,6 +248,7 @@ const RadPathPage: React.FC = () => {
           loading={loading}
           pagination={{ current: recordPage, pageSize: 10, total: filteredRecords.length, onChange: setRecordPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
           size="small"
+        scroll={{ x: 'max-content' }}
         />
       </Card>
       <Modal

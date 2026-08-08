@@ -105,6 +105,12 @@ import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
 import { StorageModule } from "./common/storage/storage.module";
 import { SystemStorageModule } from "./system-storage/system-storage.module";
 import { ClinicalConfigModule } from "./clinical-config/clinical-config.module";
+import { RemoteReadingModule } from "./modules/remote-reading/remote-reading.module";
+import { ClinicalPathwaysModule } from "./modules/clinical-pathways/clinical-pathway.module";
+import { NuclearStatsModule } from "./modules/nuclear-stats/nuclear-stats.module";
+import { ScreeningModule } from "./modules/screening/screening.module";
+import { DicomShareModule } from "./modules/dicom-share/dicom-share.module";
+import { TreatmentPlansModule } from "./modules/treatment-plans/treatment-plan.module";
 
 @Module({
   imports: [
@@ -228,6 +234,12 @@ import { ClinicalConfigModule } from "./clinical-config/clinical-config.module";
     DictionaryModule,
     CallQueueModule,
     CriticalAlertModule,
+    RemoteReadingModule,
+    ClinicalPathwaysModule,
+    NuclearStatsModule,
+    ScreeningModule,
+    DicomShareModule,
+    TreatmentPlansModule,
   ],
   controllers: [HealthController],
   providers: [

@@ -106,7 +106,7 @@ export const DentalImplantPlanPage: React.FC = () => {
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={6}><Card size="small"><Statistic title="规划总数" value={display.length} prefix={<Plus size={12} />} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="待种植" value={display.filter(p => p.status === 'pending' || p.status === 'planning').length} styles={{ content: { color: '#faad14' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="已批准/实施" value={display.filter(p => p.status === 'approved' || p.status === 'implementing').length} styles={{ content: { color: '#1677ff' } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="已批准/实施" value={display.filter(p => p.status === 'approved' || p.status === 'implementing').length} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="累计费用" value={(totalCost / 10000).toFixed(1)} suffix="万" styles={{ content: { color: '#52c41a' } }} /></Card></Col>
       </Row>
       <Row gutter={16}>

@@ -89,7 +89,7 @@ const styles = {
     backgroundColor: COLORS.cardWhite,
     borderRadius: '8px',
     padding: '16px 20px',
-    minWidth: '180px',
+    minWidth: 'min(180px, 100%)',
     flex: 1,
     boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
     border: '1px solid #e5e7eb',
@@ -121,10 +121,13 @@ const styles = {
     padding: '0 24px 20px',
     height: 'calc(100vh - 280px)',
     minHeight: '500px',
+    flexWrap: 'wrap' as const,
+    alignItems: 'flex-start' as const,
   },
   // 左侧面板
   leftPanel: {
-    width: '280px',
+    width: 'min(280px, 100%)',
+    flex: '0 0 auto',
     backgroundColor: COLORS.cardWhite,
     borderRadius: '8px',
     boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
@@ -146,7 +149,8 @@ const styles = {
   },
   // 右侧面板
   rightPanel: {
-    width: '340px',
+    width: 'min(340px, 100%)',
+    flex: '0 0 auto',
     backgroundColor: COLORS.cardWhite,
     borderRadius: '8px',
     boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
@@ -1115,7 +1119,7 @@ const ScheduledReportsPanel = () => {
 
       {showCreateModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowCreateModal(false)}>
-          <div style={{ background: '#fff', borderRadius: 12, width: 460, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
+          <div style={{ background: '#fff', borderRadius: 12, width: 'min(460px, calc(100vw - 32px))', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid #e5e7eb' }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: '#1f2937', display: 'flex', alignItems: 'center', gap: 8 }}><Calendar size={16} color={COLORS.primary} /> 新建自动报告计划</div>
               <button onClick={() => setShowCreateModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', fontSize: 18, padding: 4 }}>×</button>

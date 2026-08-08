@@ -19,6 +19,7 @@ import {
 import { Globe, Search, Download, RefreshCw, Loader2 } from "lucide-react";
 import { wadoRsApi } from "../../services/api/wadoRsApi";
 import type { WadoRsStudy, WadoRsSeries } from "../../services/api/wadoRsApi";
+import { usePagination } from "../../hooks/usePagination";
 
 const { Text } = Typography;
 
@@ -112,6 +113,7 @@ const WadoRsPage: React.FC = () => {
       s.patientName.toLowerCase().includes(search.toLowerCase()) ||
       s.studyInstanceUid.includes(search),
   );
+  const filteredPagination = usePagination(filtered, 10);
 
   const columns = [
     {
@@ -156,7 +158,7 @@ const WadoRsPage: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16 }}>
-        <Globe size={20} color="#1677ff" />
+        <Globe size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>WADO-RS 检索</span>
         <Button
           size="small"
@@ -210,10 +212,11 @@ const WadoRsPage: React.FC = () => {
         <Spin spinning={loading}>
           <Table
             rowKey="studyInstanceUid"
-            dataSource={filtered}
+            dataSource={filteredPagination.pageData}
             columns={columns}
-            pagination={{ pageSize: 10 }}
+            pagination={filteredPagination.pagination}
             size="small"
+          scroll={{ x: 'max-content' }}
           />
         </Spin>
       </Card>

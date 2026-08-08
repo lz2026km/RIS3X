@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Card, Table, Button, Space, Tag, Modal, Form, Input, message, Popconfirm, Empty, Descriptions } from 'antd'
 import { FileText, Plus, Edit, Trash, RefreshCw, Eye } from 'lucide-react'
 import { dicomSrApi, type DicomSrTemplate } from '../../services/api/dicomApi'
+import { usePagination } from '../../hooks/usePagination'
 
 export const DicomSrTemplatePage: React.FC = () => {
   const [templates, setTemplates] = useState<DicomSrTemplate[]>([])
@@ -12,6 +13,8 @@ export const DicomSrTemplatePage: React.FC = () => {
   const [saving, setSaving] = useState(false)
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedTemplate, setSelectedTemplate] = useState<DicomSrTemplate | null>(null)
+  // [W3-C] 受控分页: SR 模板列表
+  const listPagination = usePagination(templates, 10)
 
   const fetchTemplates = useCallback(async () => {
     setLoading(true)
@@ -112,7 +115,7 @@ export const DicomSrTemplatePage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <FileText size={20} color="#1677ff" />
+        <FileText size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>DICOM SR 模板管理</span>
         <Tag color="cyan">Structured Report</Tag>
       </Space>
@@ -128,12 +131,13 @@ export const DicomSrTemplatePage: React.FC = () => {
         }
       >
         <Table
-          dataSource={templates}
+          dataSource={listPagination.pageData}
           columns={columns}
           rowKey="id"
           loading={loading}
-          pagination={{ pageSize: 10 }}
+          pagination={listPagination.pagination}
           size="small"
+        scroll={{ x: 'max-content' }}
         />
       </Card>
 

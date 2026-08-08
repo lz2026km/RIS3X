@@ -467,7 +467,7 @@ const DbtPage: React.FC = () => {
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
         <Layers size={18} color={BLUE} />
         <span style={{ fontSize: 15, fontWeight: 700 }}>DBT 乳腺断层阅片</span>
-        <Tag color="cyan">Digital Breast Tomosynthesis</Tag>
+        <Tag color="cyan">数字乳腺断层合成</Tag>
         {selectedStudy && (
           <>
             <Tag color={selectedStudy.isCurrent ? 'green' : 'default'}>{selectedStudy.isCurrent ? '当前' : '既往'}</Tag>

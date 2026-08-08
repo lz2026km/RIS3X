@@ -251,7 +251,7 @@ const TriageDashboardPage: React.FC = () => {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}>
           <Card>
-            <Statistic title="待分检" value={pendingCount} styles={{ content: {  color: '#1677ff'  } }} prefix={<Clock size={16} />} />
+            <Statistic title="待分检" value={pendingCount} styles={{ content: {  color: '#2563eb'  } }} prefix={<Clock size={16} />} />
           </Card>
         </Col>
         <Col span={6}>
@@ -313,6 +313,7 @@ const TriageDashboardPage: React.FC = () => {
           rowKey="id"
           loading={loading}
           pagination={{ pageSize: 10, showSizeChanger: true, showTotal: (total) => `共 ${total} 条` }}
+        scroll={{ x: 'max-content' }}
         />
       </Card>
 

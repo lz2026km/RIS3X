@@ -246,7 +246,7 @@ export const DentalCephPage: React.FC = () => {
     return (
       <div style={{ padding: 24, background: "#f5f5f5", minHeight: "100vh" }}>
         <Space style={{ marginBottom: 16 }}>
-          <Crosshair size={20} color="#1677ff" />
+          <Crosshair size={20} color="#2563eb" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>
             头影测量分析中心
           </span>
@@ -328,7 +328,7 @@ export const DentalCephPage: React.FC = () => {
         <Button icon={<RotateCcw size={14} />} onClick={() => setMode("list")}>
           返回
         </Button>
-        <Crosshair size={18} color="#1677ff" />
+        <Crosshair size={18} color="#2563eb" />
         <span style={{ fontSize: 16, fontWeight: 600 }}>
           头影测量 - {current?.patientName}
         </span>
@@ -473,6 +473,7 @@ export const DentalCephPage: React.FC = () => {
                     ),
                   },
                 ]}
+              scroll={{ x: 'max-content' }}
               />
             </Card>
           ) : (

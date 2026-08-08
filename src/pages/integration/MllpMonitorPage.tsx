@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { hl7Api } from '../../services/api/integrationApi';
 import type { MllpStatus, Hl7ArchiveRecord, ConnectionLogEntry } from '../../services/api/integrationApi';
 import { MllpMonitor } from '../../components/integration/MllpMonitor';
+import { usePagination } from '../../hooks/usePagination';
 
 const POLL_MS = 30_000;
 
@@ -30,6 +31,9 @@ const MllpMonitorPage: React.FC = () => {
   const [operating, setOperating] = useState(false);
   const [msgType, setMsgType] = useState<string>('');
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // [W3-C] 受控分页: 消息档案表 + 连接事件表
+  const archivePagination = usePagination(archive, 10);
+  const logsPagination = usePagination(logs, 10);
 
   const fetchAll = useCallback(async () => {
     try {
@@ -144,8 +148,8 @@ const MllpMonitorPage: React.FC = () => {
           <Card size="small" title={<Space><Network size={14} />连接事件</Space>}>
             {loading ? <Spin /> : logs.length === 0 ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} /> : (
               <Table
-                rowKey="id" size="small" pagination={false}
-                dataSource={logs.slice(0, 10)}
+                rowKey="id" size="small" pagination={logsPagination.pagination}
+                dataSource={logsPagination.pageData}
                 columns={[
                   { title: '事件', dataIndex: 'event', width: 90, render: (v: string) => <Tag color={v === 'error' ? 'red' : v === 'message' ? 'blue' : 'default'}>{v}</Tag> },
                   { title: '对端', dataIndex: 'peer', ellipsis: true },
@@ -184,8 +188,8 @@ const MllpMonitorPage: React.FC = () => {
                     ) : archive.length === 0 ? <Empty description="暂无 HL7 消息档案" /> : (
                       <Table
                         rowKey="id" size="small"
-                        dataSource={archive}
-                        pagination={{ pageSize: 10 }}
+                        dataSource={archivePagination.pageData}
+                        pagination={archivePagination.pagination}
                         columns={[
                           { title: 'ID', dataIndex: 'id', width: 60 },
                           { title: '消息类型', dataIndex: 'messageType', width: 90, render: (v: string) => <Tag color="blue">{v}</Tag> },
@@ -195,6 +199,7 @@ const MllpMonitorPage: React.FC = () => {
                           { title: '重试', dataIndex: 'retryCount', width: 60 },
                           { title: '时间', dataIndex: 'createdAt', width: 150, render: (v: string) => new Date(v).toLocaleString('zh-CN') },
                         ]}
+                      scroll={{ x: 'max-content' }}
                       />
                     )}
                   </Card>

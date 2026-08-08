@@ -127,9 +127,9 @@ const MipPage: React.FC = () => {
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <Layers size={18} color={BLUE} />
         <span style={{ fontSize: 15, fontWeight: 700 }}>MIP 最大密度投影</span>
-        <Tag color="cyan">Maximum Intensity Projection</Tag>
-        {mode === 'real' && <Tag color="green">REAL DICOM</Tag>}
-        {mode === 'synthetic' && <Tag>SYNTHETIC</Tag>}
+        <Tag color="cyan">最大密度投影</Tag>
+        {mode === 'real' && <Tag color="green">真实DICOM</Tag>}
+        {mode === 'synthetic' && <Tag>合成数据</Tag>}
         {seriesInfo && <span style={{ fontSize: 11, color: '#64748b' }}>{seriesInfo}</span>}
       </div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'center', flexWrap: 'wrap' }}>

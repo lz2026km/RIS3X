@@ -397,6 +397,7 @@ const VNADashboardPage: React.FC = () => {
                     loading={loading}
                     columns={objectColumns}
                     pagination={{ pageSize: 10, showSizeChanger: false }}
+                  scroll={{ x: 'max-content' }}
                   />
                 </>
               ),
@@ -420,6 +421,7 @@ const VNADashboardPage: React.FC = () => {
                     { title: '实例数', dataIndex: 'instanceCount', key: 'inst', width: 90 },
                     { title: '归档时间', dataIndex: 'createdAt', key: 'createdAt', width: 160, render: (v: string) => formatDate(v) },
                   ]}
+                scroll={{ x: 'max-content' }}
                 />
               ),
             },
@@ -465,6 +467,7 @@ const VNADashboardPage: React.FC = () => {
                                 { title: '归档时间', dataIndex: 'createdAt', key: 'createdAt', width: 150, render: (v: string) => formatDate(v) },
                                 { title: '操作', key: 'ops', width: 180, render: (_: unknown, r: VnaObject) => actionRender(r) },
                               ]}
+                            scroll={{ x: 'max-content' }}
                             />
                           </Card>
                         </Col>

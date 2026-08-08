@@ -178,7 +178,7 @@ export default function SlaPolicyPage() {
         {loading ? (
           <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
         ) : (
-          <Table columns={columns} dataSource={filtered} rowKey="id" pagination={false} size="middle" />
+          <Table columns={columns} dataSource={filtered} rowKey="id" pagination={false} size="middle" scroll={{ x: 'max-content' }}/>
         )}
         <div style={{ marginTop: 16, textAlign: 'right' }}>
           <Button type="primary" loading={saving} onClick={handleSaveAll} icon={<Clock size={14} />}>保存全部</Button>

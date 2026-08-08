@@ -37,14 +37,15 @@ import { list } from '../services/mockBackend/store'
 import { statsApi } from '../services/api'
 import { PageContainer } from '../components/common/PageContainer'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
+import { ChartContainer } from '../components/charts'
 
 // ============================================================
 // 样式常量
 // ============================================================
 const COLORS = {
-  primary: '#1e3a5f',
-  primaryLight: '#2d4a6f',
-  primaryDark: '#152a45',
+  primary: '#1e40af',
+  primaryLight: '#2563eb',
+  primaryDark: '#172554',
   white: '#ffffff',
   background: '#f1f5f9',
   text: '#1e293b',
@@ -78,7 +79,7 @@ const cardStyle: React.CSSProperties = {
   background: COLORS.white,
   borderRadius: 12,
   padding: 20,
-  boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+  boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))',
   border: `1px solid ${COLORS.border}`,
 }
 
@@ -120,7 +121,7 @@ const getHoverStyle = (): React.CSSProperties => ({
 })
 
 const getDefaultStyle = (): React.CSSProperties => ({
-  boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+  boxShadow: 'var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.06))',
   transform: 'translateY(0)',
 })
 
@@ -1056,7 +1057,7 @@ const HomePage: FC = () => {
             </span>
           </div>
         </div>
-        <ResponsiveContainer width="100%" height={220}>
+        <ChartContainer height={220}>
           <LineChart data={hourlyData}>
             <CartesianGrid strokeDasharray="3 3" stroke={COLORS.border} />
             <XAxis
@@ -1079,10 +1080,10 @@ const HomePage: FC = () => {
             <Line
               type="monotone"
               dataKey="today"
-              stroke={COLORS.info}
+              stroke="#3b82f6"
               strokeWidth={2.5}
-              dot={{ fill: COLORS.info, strokeWidth: 2, r: 4 }}
-              activeDot={{ r: 6, fill: COLORS.info }}
+              dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+              activeDot={{ r: 6, fill: '#3b82f6' }}
               name="今日"
             />
             <Line
@@ -1095,7 +1096,7 @@ const HomePage: FC = () => {
               name="昨日"
             />
           </LineChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </div>
 
       {/* 4b: 7天柱状图（按设备类型） */}
@@ -1113,7 +1114,7 @@ const HomePage: FC = () => {
             本周 {stats.week.exams} 例
           </span>
         </div>
-        <ResponsiveContainer width="100%" height={220}>
+        <ChartContainer height={220}>
           <BarChart data={weeklyBarData}>
             <CartesianGrid strokeDasharray="3 3" stroke={COLORS.border} />
             <XAxis
@@ -1141,7 +1142,7 @@ const HomePage: FC = () => {
             <Bar dataKey="MR" name="MR" fill={MODALITY_COLORS['MR']} radius={[4, 4, 0, 0]} />
             <Bar dataKey="DR" name="DR" fill={MODALITY_COLORS['DR']} radius={[4, 4, 0, 0]} />
           </BarChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </div>
     </div>
   )

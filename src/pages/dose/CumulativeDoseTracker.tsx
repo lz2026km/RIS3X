@@ -58,7 +58,7 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
           style={{
             fontSize: 13,
             fontWeight: 700,
-            color: "#1e3a5f",
+            color: "#1e40af",
             marginBottom: 16,
           }}
         >

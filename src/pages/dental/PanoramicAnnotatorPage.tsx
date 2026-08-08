@@ -7,7 +7,7 @@ import { Ruler, Square, Circle, Type, Trash2, Save } from 'lucide-react';
 type Tool = 'ruler' | 'rect' | 'circle' | 'text';
 interface Annotation { id: string; tool: Tool; x: number; y: number; w: number; h: number; text?: string; color: string; label?: string; value?: string; }
 
-const COLORS = ['#ff4d4f', '#1677ff', '#52c41a', '#faad14', '#722ed1', '#13c2c2'];
+const COLORS = ['#ff4d4f', '#2563eb', '#52c41a', '#faad14', '#722ed1', '#13c2c2'];
 
 export const PanoramicAnnotatorPage: React.FC = () => {
   const [search] = useSearchParams();
@@ -112,7 +112,7 @@ export const PanoramicAnnotatorPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <Ruler size={20} color="#1677ff" />
+        <Ruler size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>全景片标注</span>
         <Tag color="cyan">v3.0.6.8-55</Tag>
         <Tag color="blue">{studyId || '无研究'}</Tag>

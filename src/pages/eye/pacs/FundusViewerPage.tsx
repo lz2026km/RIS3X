@@ -171,6 +171,7 @@ const FundusViewerPage: React.FC = () => {
                   ),
                 },
               ]}
+            scroll={{ x: 'max-content' }}
             />
           </Card>
         </Col>

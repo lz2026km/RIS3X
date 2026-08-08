@@ -958,6 +958,7 @@ export default function AIOrchestrationPage() {
                     loading={integrationsLoading}
                     pagination={{ current: integrationPage, pageSize: 8, total: integrations.length, onChange: setIntegrationPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
                     locale={{ emptyText: <Empty description="暂无集成，点击右上角新建" /> }}
+                  scroll={{ x: 'max-content' }}
                   />
                   <div style={{ marginTop: 20 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
@@ -978,6 +979,7 @@ export default function AIOrchestrationPage() {
                       pagination={{ current: orchPage, pageSize: 8, total: orchestrations.length, onChange: setOrchPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
                       size="small"
                       locale={{ emptyText: <Empty description="暂无编排流水线" image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
+                    scroll={{ x: 'max-content' }}
                     />
                   </div>
                 </div>
@@ -1006,6 +1008,7 @@ export default function AIOrchestrationPage() {
                     loading={jobsLoading}
                     pagination={{ current: jobPage, pageSize: 10, total: jobs.length, onChange: setJobPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
                     locale={{ emptyText: <Empty description="暂无推理任务" /> }}
+                  scroll={{ x: 'max-content' }}
                   />
                 </div>
               ),
@@ -1034,6 +1037,7 @@ export default function AIOrchestrationPage() {
                     loading={srLoading}
                     pagination={{ current: srPage, pageSize: 8, total: srReports.length, onChange: setSrPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
                     locale={{ emptyText: <Empty description="暂无结构化报告，点击右上角生成" /> }}
+                  scroll={{ x: 'max-content' }}
                   />
                 </div>
               ),
@@ -1060,6 +1064,7 @@ export default function AIOrchestrationPage() {
                     loading={fusionLoading}
                     pagination={{ current: fusionPage, pageSize: 8, total: fusionJobs.length, onChange: setFusionPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
                     locale={{ emptyText: <Empty description="暂无融合任务" /> }}
+                  scroll={{ x: 'max-content' }}
                   />
                 </div>
               ),

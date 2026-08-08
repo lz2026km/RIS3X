@@ -35,7 +35,7 @@ export default function AnnotationOverlay(props: Props) {
     showAnnotationPanel, setShowAnnotationPanel
   } = props
 
-  const PRIMARY = '#1e3a5f'
+  const PRIMARY = '#1e40af'
 
   const panelRef = useFocusTrap(showAnnotationPanel)
   useEscape(showAnnotationPanel, () => setShowAnnotationPanel(false), { stopPropagation: true })
@@ -88,7 +88,7 @@ export default function AnnotationOverlay(props: Props) {
           <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>颜色</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 4, marginBottom: 8 }}>
             {ANNOTATION_COLORS.map(color => (
-              <button key={color} style={{ width: 24, height: 24, borderRadius: 4, border: activeAnnotationColor === color ? '2px solid #1e3a5f' : '2px solid transparent', background: color, cursor: 'pointer', transform: activeAnnotationColor === color ? 'scale(1.1)' : 'none' }} onClick={() => setActiveAnnotationColor(color)} title={ANNOTATION_COLOR_NAMES[color] || color} />
+              <button key={color} style={{ width: 24, height: 24, borderRadius: 4, border: activeAnnotationColor === color ? '2px solid #1e40af' : '2px solid transparent', background: color, cursor: 'pointer', transform: activeAnnotationColor === color ? 'scale(1.1)' : 'none' }} onClick={() => setActiveAnnotationColor(color)} title={ANNOTATION_COLOR_NAMES[color] || color} />
             ))}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>

@@ -19,7 +19,7 @@ interface DetailPanelProps {
 }
 
 const labelStyle: React.CSSProperties = { fontSize: 12, color: '#94a3b8', marginBottom: 2 }
-const valueStyle: React.CSSProperties = { fontSize: 13, fontWeight: 600, color: '#1e3a5f' }
+const valueStyle: React.CSSProperties = { fontSize: 13, fontWeight: 600, color: '#1e40af' }
 
 export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpRecords, historyEvents }: DetailPanelProps) => {
   const tabs = [
@@ -57,11 +57,11 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
           return (
             <div key={tab.label} onClick={() => setActiveTab(idx)} style={{
               flex: 1, padding: '10px 8px', textAlign: 'center', cursor: 'pointer',
-              borderBottom: activeTab === idx ? '2px solid #1e3a5f' : '2px solid transparent',
+              borderBottom: activeTab === idx ? '2px solid #1e40af' : '2px solid transparent',
               background: activeTab === idx ? '#fff' : 'transparent', transition: 'all 0.2s',
             }}>
-              <Icon size={14} style={{ color: activeTab === idx ? '#1e3a5f' : '#94a3b8', marginBottom: 2 }} />
-              <div style={{ fontSize: 12, fontWeight: activeTab === idx ? 700 : 500, color: activeTab === idx ? '#1e3a5f' : '#94a3b8' }}>
+              <Icon size={14} style={{ color: activeTab === idx ? '#1e40af' : '#94a3b8', marginBottom: 2 }} />
+              <div style={{ fontSize: 12, fontWeight: activeTab === idx ? 700 : 500, color: activeTab === idx ? '#1e40af' : '#94a3b8' }}>
                 {tab.label}
               </div>
             </div>
@@ -153,7 +153,7 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
             <div style={{ background: '#f8fafc', borderRadius: 10, padding: 16, border: '1px solid #e2e8f0', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <Bell size={16} style={{ color: '#d97706' }} />
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f' }}>上报信息</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>上报信息</span>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 {[{ label: '上报时间', value: cv.reportedTime }, { label: '上报医生', value: cv.reportedByName }, { label: '通知方式', value: cv.notificationMethod }, { label: '接收科室', value: cv.receivingDepartment }].map(item => (
@@ -168,18 +168,18 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 {[{ label: '电话通知人', value: cv.voiceCalledBy || cv.receivingDoctorName || '待通知' }, { label: '通知时间', value: cv.voiceCalledAt || cv.receivingTime || '-' }].map(item => (
-                  <div key={item.label}><div style={labelStyle}>{item.label}</div><div style={{ ...valueStyle, color: item.value === '待通知' || item.value === '-' ? '#94a3b8' : '#1e3a5f' }}>{item.value}</div></div>
+                  <div key={item.label}><div style={labelStyle}>{item.label}</div><div style={{ ...valueStyle, color: item.value === '待通知' || item.value === '-' ? '#94a3b8' : '#1e40af' }}>{item.value}</div></div>
                 ))}
               </div>
             </div>
             <div style={{ background: '#f8fafc', borderRadius: 10, padding: 16, border: '1px solid #e2e8f0', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                <Stethoscope size={16} style={{ color: '#1e3a5f' }} />
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f' }}>接收临床</span>
+                <Stethoscope size={16} style={{ color: '#1e40af' }} />
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>接收临床</span>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 {[{ label: '接收医生', value: cv.receivingDoctorName || '待指定' }, { label: '接收时间', value: cv.receivingTime || '-' }, { label: '临床回复', value: cv.acknowledgedBy || '待回复' }, { label: '回复时间', value: cv.acknowledgedTime || '-' }].map(item => (
-                  <div key={item.label}><div style={labelStyle}>{item.label}</div><div style={{ ...valueStyle, color: item.value === '待指定' || item.value === '待回复' || item.value === '-' ? '#94a3b8' : '#1e3a5f' }}>{item.value}</div></div>
+                  <div key={item.label}><div style={labelStyle}>{item.label}</div><div style={{ ...valueStyle, color: item.value === '待指定' || item.value === '待回复' || item.value === '-' ? '#94a3b8' : '#1e40af' }}>{item.value}</div></div>
                 ))}
               </div>
             </div>
@@ -190,7 +190,7 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 {[{ label: '确认医生', value: cv.confirmedBy || '待回执' }, { label: '回执时间', value: cv.confirmedAt || '-' }, { label: '签名', value: cv.confirmedSignature || '-' }, { label: '回执备注', value: cv.confirmedComment || '-' }].map(item => (
-                  <div key={item.label}><div style={labelStyle}>{item.label}</div><div style={{ ...valueStyle, color: item.value === '待回执' || item.value === '-' ? '#94a3b8' : '#1e3a5f' }}>{item.value}</div></div>
+                  <div key={item.label}><div style={labelStyle}>{item.label}</div><div style={{ ...valueStyle, color: item.value === '待回执' || item.value === '-' ? '#94a3b8' : '#1e40af' }}>{item.value}</div></div>
                 ))}
               </div>
             </div>
@@ -243,13 +243,13 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
               {(cv.timeline ?? []).map((event, idx) => (
                 <div key={idx} style={{ display: 'flex', gap: 12, marginBottom: idx < cv.timeline.length - 1 ? 16 : 0 }}>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <div style={{ width: 32, height: 32, borderRadius: '50%', background: idx === cv.timeline.length - 1 ? '#1e3a5f' : '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ width: 32, height: 32, borderRadius: '50%', background: idx === cv.timeline.length - 1 ? '#1e40af' : '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       {idx === cv.timeline.length - 1 ? <CheckCircle size={16} style={{ color: '#fff' }} /> : <Circle size={12} style={{ color: '#94a3b8' }} />}
                     </div>
                     {idx < cv.timeline.length - 1 && <div style={{ width: 2, flex: 1, background: '#e2e8f0', marginTop: 4, minHeight: 20 }} />}
                   </div>
                   <div style={{ flex: 1, paddingTop: 4 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f' }}>{event.event}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>{event.event}</div>
                     <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{event.time}</div>
                     <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{event.user}</div>
                     {event.detail && (
@@ -262,7 +262,7 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, followUpReco
               ))}
               {historyEvents && historyEvents.length > 0 && (
                 <>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#1e3a5f', borderTop: '1px dashed #e2e8f0', paddingTop: 12, marginTop: 12 }}>操作历史 (listHistory)</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', borderTop: '1px dashed #e2e8f0', paddingTop: 12, marginTop: 12 }}>操作历史 (listHistory)</div>
                   {historyEvents.map((event, idx) => (
                     <div key={`h-${idx}`} style={{ display: 'flex', gap: 12, marginTop: 12 }}>
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>

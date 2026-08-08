@@ -51,7 +51,7 @@ const TopographyPage: React.FC = () => {
                 <Col span={8} key={i}>
                   <div
                     style={{
-                      background: "linear-gradient(135deg, #1e3a5f, #0f172a)",
+                      background: "linear-gradient(135deg, #1e40af, #0f172a)",
                       height: 240,
                       borderRadius: 6,
                       display: "flex",

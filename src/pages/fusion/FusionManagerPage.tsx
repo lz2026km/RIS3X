@@ -100,7 +100,7 @@ export const FusionManagerPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <Layers size={20} color="#1677ff" />
+        <Layers size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>融合管理</span>
         <Tag color="blue">PET-CT / MR</Tag>
         <Tag color="purple">多模态融合</Tag>
@@ -129,7 +129,7 @@ export const FusionManagerPage: React.FC = () => {
               size="small"
               columns={[
                 {
-                  title: 'Modality',
+                  title: '设备类型',
                   dataIndex: 'modality',
                   render: (m: string) => <Tag color={m === 'CT' ? 'blue' : m === 'PT' ? 'orange' : 'green'}>{m}</Tag>,
                 },

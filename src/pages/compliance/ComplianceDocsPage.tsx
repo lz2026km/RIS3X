@@ -168,7 +168,7 @@ export const ComplianceDocsPage: React.FC = () => {
       title: '标题', dataIndex: 'title', key: 'title', ellipsis: true,
       render: (v: string, r: ComplianceDocDto) => (
         <Space size={6}>
-          <FileText size={14} color="#1677ff" />
+          <FileText size={14} color="#2563eb" />
           <a onClick={() => void handleView(r)}>{v}</a>
           <Tag color="blue" style={{ fontSize: 11 }}>{r.type}</Tag>
         </Space>
@@ -217,7 +217,7 @@ export const ComplianceDocsPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }} align="center">
-        <ScrollText size={20} color="#1677ff" />
+        <ScrollText size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>合规文档库</span>
         <Tag color="green">草稿 → 现行 → 已归档</Tag>
       </Space>
@@ -266,6 +266,7 @@ export const ComplianceDocsPage: React.FC = () => {
           <Table
             rowKey="id" columns={columns} dataSource={docs}
             pagination={{ pageSize: 10, showTotal: (t) => `共 ${t} 条` }}
+          scroll={{ x: 'max-content' }}
           />
         </Spin>
       </Card>

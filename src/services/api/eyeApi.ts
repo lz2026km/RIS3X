@@ -90,9 +90,10 @@ function buildQuery(
 
 export const eyeApi = {
   // ===== Studies / PACS =====
+  // [G005 W3-A] 路径对齐: /eye/pacs/studies -> /eye/studies (后端 @Get('studies'))
   getStudies: (params?: Record<string, any>) =>
-    api.get(`${EYE_API}/pacs/studies${buildQuery(params)}`),
-  getStudy: (id: string) => api.get(`${EYE_API}/pacs/studies/${id}`),
+    api.get(`${EYE_API}/studies${buildQuery(params)}`),
+  getStudy: (id: string) => api.get(`${EYE_API}/studies/${id}`),
   // [G005 W1-A] 危急值 (FfaViewerPage 在用) / 视野检查 (VisualFieldPage 在用)
   getCriticalValues: (params?: Record<string, any>) =>
     api.get(`${EYE_API}/pacs/critical-values${buildQuery(params)}`),
@@ -188,14 +189,18 @@ export const eyeApi = {
     api.get(`${EYE_API}/ris/iop-records${buildQuery(params)}`),
 
   // ===== EMR =====
+  // [G005 W3-A] 路径对齐: /eye/emr/records* -> /eye/emr/:patientId (后端 @Get/@Put('emr/:patientId'))
+  //   无 patientId 时回退 /eye/emr/records (后端 @Get('emr/records') 列表, EyeEmrPage 在用)
   getEmr: (params?: Record<string, any>) =>
-    api.get(`${EYE_API}/emr/records${buildQuery(params)}`),
-  getEmrById: (id: string) => api.get(`${EYE_API}/emr/records/${id}`),
+    params?.patientId
+      ? api.get(`${EYE_API}/emr/${encodeURIComponent(String(params.patientId))}`)
+      : api.get(`${EYE_API}/emr/records${buildQuery(params)}`),
+  getEmrById: (id: string) => api.get(`${EYE_API}/emr/${encodeURIComponent(id)}`),
   getEmrByPatient: (patientId: string) =>
-    api.get(`${EYE_API}/emr/records/by-patient/${patientId}`),
+    api.get(`${EYE_API}/emr/${encodeURIComponent(patientId)}`),
   createEmr: (data: any) => api.post(`${EYE_API}/emr/records`, data),
   updateEmr: (id: string, data: any) =>
-    api.put(`${EYE_API}/emr/records/${id}`, data),
+    api.put(`${EYE_API}/emr/${encodeURIComponent(id)}`, data),
   getOcularExam: (params?: Record<string, any>) =>
     api.get(`${EYE_API}/emr/ophthalmic-exams${buildQuery(params)}`),
   getOcularExamByPatient: (patientId: string) =>
@@ -239,9 +244,10 @@ export const eyeApi = {
   compareModels: () => api.get(`${EYE_API}/ai/models/compare`),
 
   // ===== IOL Calculator =====
-  // Eyehandlers 没有 iol/constant/* 与 iol/calculate,保留旧调用并附 TODO
-  getIolConstants: (model: string) =>
-    api.get(`${EYE_API}/iol/constant/${model}`),
+  // [G005 W3-A] 路径对齐: iol/constant/* -> /eye/iol/lenses; iol/calculate -> /eye/iol/calculate/barrett|kane
+  //   (后端 @Get('iol/lenses') / @Post('iol/calculate/barrett|kane'); 旧 iol/constant、泛化 calculate 后端无对应)
+  getIolConstants: (_model: string) =>
+    api.get(`${EYE_API}/iol/lenses`),
   calculateIol: (data: {
     model: string;
     formula: string;
@@ -250,13 +256,24 @@ export const eyeApi = {
     k2: number;
     acd?: number;
     targetRefraction?: number;
-  }) => api.post(`${EYE_API}/iol/calculate`, data),
+  }) => {
+    const body = {
+      lensId: data.model,
+      axialLength: data.axialLength,
+      keratometry: (data.k1 + data.k2) / 2,
+      acd: data.acd,
+    }
+    return String(data.formula).toLowerCase().includes('kane')
+      ? api.post(`${EYE_API}/iol/calculate/kane`, body)
+      : api.post(`${EYE_API}/iol/calculate/barrett`, body)
+  },
   // 实际眼科 IOL 库存 (存在 handler /eye/iol/inventory)
   getIolInventory: () => api.get(`${EYE_API}/iol/inventory`),
 
   // ===== Reports (handler 路径前缀是 /report/ 单数) =====
+  // [G005 W3-A] 路径对齐: getReports /eye/report/reports -> /eye/reports (后端 @Get('reports'))
   getReports: (params?: Record<string, any>) =>
-    api.get(`${EYE_API}/report/reports${buildQuery(params)}`),
+    api.get(`${EYE_API}/reports${buildQuery(params)}`),
   getReport: (id: string) => api.get(`${EYE_API}/report/reports/${id}`),
   createReport: (data: any) => api.post(`${EYE_API}/report/reports`, data),
   updateReport: (id: string, data: any) =>

@@ -46,7 +46,7 @@ export function PageHeader({
   ariaLabel,
 }: PageHeaderProps) {
   if (variant === "banner") {
-    const bg = bannerBg ?? "linear-gradient(135deg, #1e3a5f, #2d4a6f)";
+    const bg = bannerBg ?? "linear-gradient(135deg, #1e40af, #2563eb)";
     return (
       <div
         data-testid={testId}
@@ -172,7 +172,7 @@ export function PageHeader({
               margin: 0,
               fontSize: 22,
               fontWeight: 800,
-              color: "var(--color-primary-900, #1e3a5f)",
+              color: "var(--color-primary-900, #1e40af)",
               letterSpacing: "-0.01em",
             }}
           >

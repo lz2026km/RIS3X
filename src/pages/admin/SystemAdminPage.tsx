@@ -145,7 +145,7 @@ export const SystemAdminPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <Settings size={20} color="#1677ff" />
+        <Settings size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>系统管理</span>
         <Tag color="cyan">v3.0.6.11-35</Tag>
       </Space>
@@ -171,7 +171,8 @@ export const SystemAdminPage: React.FC = () => {
                     {title:'状态',dataIndex:'status',render:(s)=><Badge status={s==='active'?'success':'default'} />},
                     {title:'最后登录',dataIndex:'lastLogin'},
                     {title:'操作',render:(_,record)=><Space><Button size="small" icon={<Edit3 size={10}/>} onClick={() => openEditUser(record)} title="编辑用户"/><Button size="small" danger icon={<Trash2 size={10}/>} onClick={() => handleDeleteUser(record)}/></Space>},
-                  ]} />
+                  ]} 
+                scroll={{ x: 'max-content' }}/>
               </Card>
             },
             { key:'roles', label:'角色权限', children:

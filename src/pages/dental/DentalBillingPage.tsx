@@ -90,7 +90,7 @@ export const DentalBillingPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <DollarSign size={20} color="#1677ff" />
+        <DollarSign size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>收费/划价/医保</span>
         <Tag color="cyan">v3.0.6.8-95</Tag>
         <Tag color="blue">牙医管家 对标</Tag>
@@ -161,7 +161,8 @@ export const DentalBillingPage: React.FC = () => {
               {title:'自付',dataIndex:'selfPay',render:(v:number)=>`¥${v}`},
               {title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='paid'?'success':s==='pending'?'warning':'default'} text={{ paid:'已支付', pending:'待支付' }[s] ?? s} />,width:80},
               {title:'操作',render:(_,r:any)=><Space>{r.status==='pending'&&<Button size="small" type="primary" icon={<DollarSign size={10}/>} onClick={()=>{setCurrentInvoice(r);setPayModal(true);}}>收费</Button>}<Button size="small" icon={<Printer size={10}/>} onClick={() => handlePrint(r)}>打印</Button></Space>},
-            ]} />},
+            ]} 
+          scroll={{ x: 'max-content' }}/>},
           {key:'reports', label:'经营报表', children:<Row gutter={12}>
             <Col span={8}><Card size="small" title="财务概览"><Statistic title="月营收" prefix="¥" value={invoices.reduce((s,i)=>s+i.total,0)} /><Statistic title="待收" prefix="¥" value={totalPending} style={{marginTop:12}} /><Statistic title="已收" prefix="¥" value={totalPaid} style={{marginTop:12}} /><Progress percent={totalPaid/(totalPaid+totalPending+1)*100} size="small" strokeColor="#52c41a" /></Card></Col>
             <Col span={8}><Card size="small" title="运营数据"><Statistic title="账单数" value={invoices.length} /><Statistic title="已付比例" value={invoices.length>0?((invoices.filter(i=>i.status==='paid').length/invoices.length)*100).toFixed(0):'0'} suffix="%" style={{marginTop:12}} /></Card></Col>
@@ -172,7 +173,7 @@ export const DentalBillingPage: React.FC = () => {
       <Modal title={`收费 - ${currentInvoice?.id}`} open={payModal} onCancel={()=>{setPayModal(false); setPaymentMethod(DEFAULT_METHOD);}} onOk={handlePay} width={400}
         okText={`确认收费 ¥${currentInvoice?.selfPay || 0}`}>
         <div style={{textAlign:'center',padding:16}}>
-          <div style={{fontSize:36,fontWeight:700,color:'#1677ff'}}>¥{currentInvoice?.selfPay || 0}</div>
+          <div style={{fontSize:36,fontWeight:700,color:'#2563eb'}}>¥{currentInvoice?.selfPay || 0}</div>
           <div style={{color:'#999',marginBottom:16}}>收现金额</div>
           <Select value={paymentMethod} onChange={setPaymentMethod} style={{width:'100%'}} options={payMethods.map((m:any)=>({value:m.id,label:m.name}))} />
         </div>

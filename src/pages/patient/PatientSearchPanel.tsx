@@ -37,8 +37,8 @@ function AdvancedFilterPanel({ filters, onChange, onReset, presets, onApplyPrese
                 onClick={() => onChange({ ...filters, gender: g })}
                 style={{
                   flex: 1, padding: '6px 0', borderRadius: 6, border: '1px solid',
-                  borderColor: filters.gender === g ? '#1e3a5f' : '#e2e8f0',
-                  background: filters.gender === g ? '#1e3a5f' : '#fff',
+                  borderColor: filters.gender === g ? '#1e40af' : '#e2e8f0',
+                  background: filters.gender === g ? '#1e40af' : '#fff',
                   color: filters.gender === g ? '#fff' : '#64748b',
                   fontSize: 12, fontWeight: 600, cursor: 'pointer',
                 }}
@@ -104,11 +104,11 @@ function AdvancedFilterPanel({ filters, onChange, onReset, presets, onApplyPrese
             <RefreshCw size={12} />重置
           </button>
           <button onClick={onToggleSavePreset}
-            style={{ flex: 1, padding: '6px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: showSavePreset ? '#eff6ff' : '#fff', color: showSavePreset ? '#1e3a5f' : '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+            style={{ flex: 1, padding: '6px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: showSavePreset ? '#eff6ff' : '#fff', color: showSavePreset ? '#1e40af' : '#64748b', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
             <Bookmark size={12} />预设
           </button>
           <button onClick={() => { const event = new CustomEvent('apply-patient-filter'); window.dispatchEvent(event) }}
-            style={{ flex: 1, padding: '6px 12px', borderRadius: 6, border: 'none', background: '#1e3a5f', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+            style={{ flex: 1, padding: '6px 12px', borderRadius: 6, border: 'none', background: '#1e40af', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
             <Search size={12} />筛选
           </button>
         </div>
@@ -117,8 +117,8 @@ function AdvancedFilterPanel({ filters, onChange, onReset, presets, onApplyPrese
       {showSavePreset && (
         <div style={{ marginTop: 12, padding: 12, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-            <BookmarkCheck size={14} color="#1e3a5f" />
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#1e3a5f' }}>筛选预设</span>
+            <BookmarkCheck size={14} color="#1e40af" />
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>筛选预设</span>
           </div>
           {presets && presets.length > 0 && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
@@ -133,7 +133,7 @@ function AdvancedFilterPanel({ filters, onChange, onReset, presets, onApplyPrese
           <div style={{ display: 'flex', gap: 8 }}>
             <input value={savePresetName || ''} onChange={e => onSavePresetNameChange?.(e.target.value)} placeholder="预设名称..."
               style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, outline: 'none' }} />
-            <button onClick={onSavePreset} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: '#1e3a5f', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>保存当前</button>
+            <button onClick={onSavePreset} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: '#1e40af', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>保存当前</button>
           </div>
         </div>
       )}
@@ -195,9 +195,9 @@ export function PatientSearchPanel(props: PatientSearchPanelProps) {
           onClick={props.onToggleAdvanced}
           style={{
             display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 6,
-            border: '1px solid', borderColor: props.showAdvanced ? '#1e3a5f' : '#e2e8f0',
+            border: '1px solid', borderColor: props.showAdvanced ? '#1e40af' : '#e2e8f0',
             background: props.showAdvanced ? '#eff6ff' : '#fff',
-            color: props.showAdvanced ? '#1e3a5f' : '#64748b',
+            color: props.showAdvanced ? '#1e40af' : '#64748b',
             fontSize: 12, fontWeight: 600, cursor: 'pointer', marginLeft: 'auto',
           }}
         >

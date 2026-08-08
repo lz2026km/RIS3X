@@ -1,26 +1,78 @@
 // ============================================================
 // G005 放射科RIS系统 v1.0.7 - 医生工作量统计
 // Phase R7：6 大维度（数量/质量/时效/危急值/会诊/设备）
+// [v3.0.6.11-82] W3-C: 接入 statsApi.getWorkload (/stats/workload 真实后端聚合), 失败回退演示数据
 // ============================================================
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Users, Award, FileText, Clock, AlertCircle,
   Stethoscope, Minus, ArrowUpRight, ArrowDownRight,
   Target, Search, Database,
 } from 'lucide-react';
 import { DOCTOR_WORKLOADS, type DoctorWorkload } from '../data/knowledgeStatsMock';
+import { statsApi } from '../services/api/statsApi';
 
 // ============================================================
 // 主组件
 // ============================================================
 export default function DoctorWorkloadPage() {
-  const [doctors] = useState<DoctorWorkload[]>(DOCTOR_WORKLOADS);
-  const [loading] = useState(false);
-  const [error] = useState<string | null>(null);
+  const [doctors, setDoctors] = useState<DoctorWorkload[]>(DOCTOR_WORKLOADS);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [source, setSource] = useState<'api' | 'demo'>('demo');
   const [selectedDoctorId, setSelectedDoctorId] = useState<string | null>(doctors[0]?.doctorId || null);
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState<'ranking' | 'totalReports' | 'qualityScore' | 'avgSignTime'>('ranking');
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await statsApi.getWorkload();
+        if (cancelled) return;
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+          const mapped: DoctorWorkload[] = res.data.map((w, i) => {
+            const existing = DOCTOR_WORKLOADS.find(d => d.doctorId === w.doctorId || d.doctorName === w.doctorName);
+            return {
+              doctorId: w.doctorId ?? `w-${i + 1}`,
+              doctorName: w.doctorName ?? '未知医生',
+              doctorTitle: existing?.doctorTitle ?? (w.department ?? '主治医师'),
+              ranking: i + 1,
+              totalReports: w.reportCount ?? w.examCount ?? 0,
+              qualityScore: w.score ?? existing?.qualityScore ?? 85,
+              avgSignTime: Math.round(w.avgTime ?? 30),
+              avgPerDay: Math.round((w.reportCount ?? w.examCount ?? 0) / 22),
+              approvedRate: existing?.approvedRate ?? 95,
+              rejectRate: existing?.rejectRate ?? 5,
+              criticalValueHandled: existing?.criticalValueHandled ?? 0,
+              consultingHours: existing?.consultingHours ?? 0,
+              byModality: existing?.byModality ?? { CT: 0, MR: 0, DR: 0, US: 0, MG: 0 },
+              trend: existing?.trend ?? 'flat',
+              trendValue: existing?.trendValue ?? 0,
+            };
+          });
+          setDoctors(mapped);
+          setSource('api');
+        } else {
+          setError(res.error?.message ?? '工作量接口不可用');
+        }
+      } catch (e) {
+        if (!cancelled) setError(e instanceof Error ? e.message : '工作量接口不可用');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    if (doctors.length > 0 && !doctors.some(d => d.doctorId === selectedDoctorId)) {
+      setSelectedDoctorId(doctors[0]!.doctorId);
+    }
+  }, [doctors, selectedDoctorId]);
 
   const filtered = doctors.filter(d => {
     if (search && !d.doctorName.includes(search)) return false;
@@ -53,9 +105,13 @@ export default function DoctorWorkloadPage() {
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Users size={20} color="#7c3aed" /> 医生工作量统计
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
+            <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, fontWeight: 600, background: source === 'api' ? '#dcfce7' : '#fef3c7', color: source === 'api' ? '#16a34a' : '#d97706' }}>
+              {source === 'api' ? '数据源: /stats/workload' : '演示数据(接口不可用)'}
+            </span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             6 大维度：数量 / 质量 / 时效 / 危急值 / 会诊 / 设备 · 排行 / 趋势
+            {error && <span style={{ color: '#dc2626', marginLeft: 8 }}>{error}</span>}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 4, background: '#fff', borderRadius: 6, padding: 3, border: '1px solid #cbd5e1' }}>

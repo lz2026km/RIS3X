@@ -6,6 +6,7 @@ import { Code, Eye, Send, Hammer, FileText, History, RefreshCw } from "lucide-re
 import { hl7Api } from "../../services/api/integrationApi";
 import { hl7Api as rawHl7Api } from "../../services/api/hl7Api";
 import type { Hl7Report, Hl7ArchiveRecord } from "../../services/api/integrationApi";
+import { usePagination } from "../../hooks/usePagination";
 
 const { RangePicker } = DatePicker;
 
@@ -59,6 +60,8 @@ export const Hl7BuilderPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<Hl7ArchiveRecord[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  // [W3-C] 受控分页: 发送历史表
+  const historyPagination = usePagination(history, 8);
 
   const getValues = useCallback((): BuilderForm => {
     const v = form.getFieldsValue();
@@ -370,14 +373,15 @@ export const Hl7BuilderPage: React.FC = () => {
           rowKey="id"
           size="small"
           loading={historyLoading}
-          dataSource={history}
+          dataSource={historyPagination.pageData}
           columns={historyColumns}
-          pagination={{ pageSize: 8 }}
+          pagination={historyPagination.pagination}
           expandable={{
             expandedRowRender: (r: Hl7ArchiveRecord) => (
               <pre className="bg-slate-50 p-2 rounded text-xs font-mono overflow-auto whitespace-pre-wrap">{r.rawMessage}</pre>
             ),
           }}
+        scroll={{ x: 'max-content' }}
         />
       </Card>
     </div>

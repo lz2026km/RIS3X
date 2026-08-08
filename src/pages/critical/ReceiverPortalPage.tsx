@@ -10,6 +10,7 @@ import { ShieldAlert, Bell, CheckCircle, FileCheck, RefreshCw, Inbox } from 'luc
 import { criticalExtApi } from '../../services/api/criticalExtApi'
 import { criticalApi } from '../../services/api/criticalApi'
 import { invalidateApiCache } from '../../services/api/client'
+import { usePagination } from '../../hooks/usePagination'
 
 const { TextArea } = Input
 
@@ -206,6 +207,8 @@ export default function ReceiverPortalPage() {
   ]
 
   const pendingCount = items.filter((i) => String(i.status ?? 'PENDING').toUpperCase() === 'PENDING').length
+  // [W3-C] 受控分页: 危急值通知列表
+  const listPagination = usePagination(items, 10)
 
   return (
     <div style={{ padding: 24 }}>
@@ -242,7 +245,7 @@ export default function ReceiverPortalPage() {
         ) : items.length === 0 ? (
           <Empty description={loadError ? '加载失败' : '暂无待接收的危急值通知'} image={<Inbox size={48} color="#94a3b8" />} />
         ) : (
-          <Table dataSource={items} columns={columns} rowKey={(r) => String(r.id ?? r.criticalId ?? '')} size="small" pagination={{ pageSize: 10 }} />
+          <Table dataSource={listPagination.pageData} columns={columns} rowKey={(r) => String(r.id ?? r.criticalId ?? '')} size="small" pagination={listPagination.pagination} scroll={{ x: 'max-content' }}/>
         )}
       </Card>
 

@@ -111,7 +111,7 @@ export const FhirObservationPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <Activity size={20} color="#1677ff" />
+        <Activity size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR Observation 管理</span>
         <Tag color="blue">FHIR R4</Tag>
       </Space>
@@ -138,6 +138,7 @@ export const FhirObservationPage: React.FC = () => {
           loading={loading}
           pagination={{ current: page, total, pageSize: PAGE_SIZE, onChange: setPage, showSizeChanger: false }}
           size="small"
+        scroll={{ x: 'max-content' }}
         />
       </Card>
 

@@ -85,7 +85,8 @@ export const DentalInventoryPage: React.FC = () => {
           { title: '最低', dataIndex: 'minStock' },
           { title: '状态', render: (_, r: any) => r.stock < r.minStock ? <Tag color="red">低库存</Tag> : r.stock < r.minStock * 1.5 ? <Tag color="orange">预警</Tag> : <Tag color="green">充足</Tag> },
           { title: '操作', width: 100, render: (_, r: any) => (<Button size="small" onClick={() => setDetail(r)}>详情</Button>) },
-        ]} />
+        ]} 
+      scroll={{ x: 'max-content' }}/>
       )}
       <Modal title="新增库存项" open={modalOpen} onCancel={() => setModalOpen(false)} onOk={onCreate} confirmLoading={creating} okText="创建">
         <Form form={form} layout="vertical">

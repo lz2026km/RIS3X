@@ -640,10 +640,9 @@ export type {
 
 export { dicom4dApi } from "./dicom4dApi";
 export type {
-  Dicom4dStudyDto,
-  Dicom4dPlaybackDto,
-  Dicom4dMeasurementDto,
-  Dicom4dAnalysisDto,
+  Series4D,
+  FrameData4D,
+  PhaseInfo4D,
 } from "./dicom4dApi";
 
 // [v3.0.6.11-42] F08 后端模块对接

@@ -46,8 +46,8 @@ interface FilterBarProps {
 }
 
 const filterBtnStyle = (isActive: boolean): React.CSSProperties => ({
-  padding: '6px 14px', borderRadius: 8, border: `1px solid ${isActive ? '#1e3a5f' : '#e2e8f0'}`,
-  background: isActive ? '#1e3a5f' : '#fff', color: isActive ? '#fff' : '#64748b',
+  padding: '6px 14px', borderRadius: 8, border: `1px solid ${isActive ? '#1e40af' : '#e2e8f0'}`,
+  background: isActive ? '#1e40af' : '#fff', color: isActive ? '#fff' : '#64748b',
   fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
 })
 
@@ -105,7 +105,7 @@ export const FilterBar = ({
     </div>
     {selectedCount > 0 && (
       <div style={{ display: 'flex', gap: 10, marginTop: 12, paddingTop: 12, borderTop: '1px solid #f1f5f9' }}>
-        <span style={{ fontSize: 12, color: '#1e3a5f', fontWeight: 700 }}>已选中 {selectedCount} 项</span>
+        <span style={{ fontSize: 12, color: '#1e40af', fontWeight: 700 }}>已选中 {selectedCount} 项</span>
         <button onClick={onBatchNotify} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 8, border: '1px solid #d97706', background: '#fffbeb', color: '#d97706', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
           <Send size={13} />批量发送通知
         </button>
@@ -150,13 +150,13 @@ const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, o
     onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = '#fff' }}
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div onClick={onSelect} style={{ cursor: 'pointer', color: isSelected ? '#1e3a5f' : '#cbd5e1' }}>
+        <div onClick={onSelect} style={{ cursor: 'pointer', color: isSelected ? '#1e40af' : '#cbd5e1' }}>
           {isSelected ? <CheckSquare size={18} /> : <Square size={18} />}
         </div>
       </div>
       <div style={{ fontSize: 12, color: '#64748b', fontFamily: 'monospace' }}>{cv.id}</div>
       <div>
-        <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f' }}>{cv.patientName}</div>
+        <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>{cv.patientName}</div>
         <div style={{ fontSize: 12, color: '#94a3b8' }}>{cv.gender}·{cv.age}岁</div>
       </div>
       <div>
@@ -184,7 +184,7 @@ const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, o
             <Edit3 size={10} />处理
           </button>
         )}
-        <button onClick={onViewDetail} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #1e3a5f', background: '#fff', color: '#1e3a5f', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+        <button onClick={onViewDetail} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #1e40af', background: '#fff', color: '#1e40af', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
           <Eye size={10} />详情
         </button>
         {(cv.status === 'notified' || cv.status === '已通知') && (

@@ -61,7 +61,7 @@ export const DentalEmrPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <Activity size={20} color="#1677ff" />
+        <Activity size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>口腔 360° 患者视图</span>
         <Tag color="cyan">v3.0.6.8-94</Tag>
         <Tag color="blue">牙医管家 对标</Tag>
@@ -73,7 +73,7 @@ export const DentalEmrPage: React.FC = () => {
             <Col span={6}>
               <Card size="small">
                 <Space>
-                  <Avatar size={40} style={{ backgroundColor: '#1677ff' }}>{overview.name[0]}</Avatar>
+                  <Avatar size={40} style={{ backgroundColor: '#2563eb' }}>{overview.name[0]}</Avatar>
                   <div>
                     <div style={{ fontWeight: 600 }}>{overview.name} <Tag>{overview.gender === 'M' ? '男' : '女'}</Tag><Tag>{overview.age}岁</Tag></div>
                     <Space size={2}>
@@ -114,11 +114,14 @@ export const DentalEmrPage: React.FC = () => {
                 <Timeline style={{marginTop:16}} items={treatments.slice(0,5).map((t:any)=>({color:t.type==='Implant'?'red':t.type==='Endodontic'?'orange':'blue',children:<><b>{t.date}</b> {t.description} <Tag>{t.type}</Tag> <Tag>¥{t.cost}</Tag></>}))} />
               </>},
               {key:'treatments', label:<span><FileText size={12}/>治疗记录 ({treatments.length})</span>, children:<Table dataSource={treatments} rowKey="id" size="small" pagination={false}
-                columns={[{title:'日期',dataIndex:'date',width:100},{title:'类型',dataIndex:'type',render:(t:string)=><Tag>{t}</Tag>,width:100},{title:'牙位',dataIndex:'toothNo',width:60,render:(t:number)=>t?<Tag color="blue">#{t}</Tag>:'全口'},{title:'描述',dataIndex:'description'},{title:'医生',dataIndex:'dentist'},{title:'费用',dataIndex:'cost',render:(v:number)=>`¥${v}`},{title:'自付',dataIndex:'patientPaid',render:(v:number)=>`¥${v}`,width:80}]} />},
+                columns={[{title:'日期',dataIndex:'date',width:100},{title:'类型',dataIndex:'type',render:(t:string)=><Tag>{t}</Tag>,width:100},{title:'牙位',dataIndex:'toothNo',width:60,render:(t:number)=>t?<Tag color="blue">#{t}</Tag>:'全口'},{title:'描述',dataIndex:'description'},{title:'医生',dataIndex:'dentist'},{title:'费用',dataIndex:'cost',render:(v:number)=>`¥${v}`},{title:'自付',dataIndex:'patientPaid',render:(v:number)=>`¥${v}`,width:80}]} 
+              scroll={{ x: 'max-content' }}/>},
               {key:'appointments', label:<span><Clock size={12}/>预约 ({appts.length})</span>, children:<Table dataSource={appts} rowKey="id" size="small" pagination={false}
-                columns={[{title:'日期',dataIndex:'date'},{title:'时间',dataIndex:'time'},{title:'类型',dataIndex:'type',render:(t:string)=><Tag>{t}</Tag>},{title:'内容',dataIndex:'description'},{title:'医生',dataIndex:'dentist'},{title:'牙椅',dataIndex:'chair'},{title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='completed'?'success':s==='scheduled'?'processing':'default'} text={s} />}]} />},
+                columns={[{title:'日期',dataIndex:'date'},{title:'时间',dataIndex:'time'},{title:'类型',dataIndex:'type',render:(t:string)=><Tag>{t}</Tag>},{title:'内容',dataIndex:'description'},{title:'医生',dataIndex:'dentist'},{title:'牙椅',dataIndex:'chair'},{title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='completed'?'success':s==='scheduled'?'processing':'default'} text={s} />}]} 
+              scroll={{ x: 'max-content' }}/>},
               {key:'billing', label:<span><DollarSign size={12}/>费用 ({bills.length})</span>, children:<Table dataSource={bills} rowKey="id" size="small" pagination={false}
-                columns={[{title:'日期',dataIndex:'date'},{title:'项目',dataIndex:'items',render:(i:any[])=><>{i.map((x:any)=><Tag key={x.name}>{x.name}</Tag>)}</>},{title:'总金额',dataIndex:'total',render:(v:number)=>`¥${v}`},{title:'医保',dataIndex:'insurance',render:(v:number)=>`¥${v}`},{title:'自付',dataIndex:'selfPay',render:(v:number)=>`¥${v}`},{title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='paid'?'success':s==='partial'?'warning':'error'} text={s} />}]} />},
+                columns={[{title:'日期',dataIndex:'date'},{title:'项目',dataIndex:'items',render:(i:any[])=><>{i.map((x:any)=><Tag key={x.name}>{x.name}</Tag>)}</>},{title:'总金额',dataIndex:'total',render:(v:number)=>`¥${v}`},{title:'医保',dataIndex:'insurance',render:(v:number)=>`¥${v}`},{title:'自付',dataIndex:'selfPay',render:(v:number)=>`¥${v}`},{title:'状态',dataIndex:'status',render:(s:string)=><Badge status={s==='paid'?'success':s==='partial'?'warning':'error'} text={s} />}]} 
+              scroll={{ x: 'max-content' }}/>},
               {key:'rx', label:<span><Pill size={12}/>处方 ({scripts.length})</span>, children:<List size="small" dataSource={scripts} renderItem={(rx:any)=><List.Item><List.Item.Meta title={<Space><Tag color="green">{rx.drug}</Tag><span>{rx.dosage}</span></Space>} description={<div style={{fontSize:12,color:'#999'}}>{rx.date} | {rx.dentist} | {rx.note}</div>} /></List.Item>} />},
               {key:'consents', label:<span><FileText size={12}/>知情同意 ({consents.length})</span>, children:<List size="small" dataSource={consents} renderItem={(c:any)=><List.Item><List.Item.Meta title={<Space><Tag color={c.signed?'green':'orange'}>{c.type}</Tag><Badge status={c.signed?'success':'default'} text={c.signed?'已签署':'待签署'} /></Space>} description={<div style={{fontSize:12,color:'#999'}}>{c.date} | {c.signedBy || '-'} | {c.witness || '-'}</div>} /></List.Item>} />},
               {key:'recalls', label:<span><AlertTriangle size={12}/>回访 ({recalls.length})</span>, children:<List size="small" dataSource={recalls} renderItem={(r:any)=><List.Item><List.Item.Meta title={<Space><Tag>{r.type}</Tag><span>{r.description}</span></Space>} description={<div style={{fontSize:12,color:'#999'}}>{r.date} | 方式: {r.method} | <Badge status={r.sent?'success':'default'} text={r.sent?'已发送':'待发送'} /></div>} /></List.Item>} />},

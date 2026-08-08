@@ -236,6 +236,7 @@ export const Hl7ManagerPage: React.FC = () => {
             loading={archiveLoading}
             pagination={{ current: archivePage, pageSize: 10, total: archive.length, onChange: setArchivePage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }}
             size="small"
+          scroll={{ x: 'max-content' }}
           />
         </Card>
       ),
@@ -245,7 +246,7 @@ export const Hl7ManagerPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <Archive size={20} color="#1677ff" />
+        <Archive size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>HL7 消息管理</span>
         <Tag color="blue">v2.x</Tag>
         <Tag color="green">ORU / ORM / DFT</Tag>

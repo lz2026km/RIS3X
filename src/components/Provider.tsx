@@ -12,7 +12,13 @@
  *   - CSP + Security Meta 注入
  */
 
-import { useEffect, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 import { ConfigProvider, App as AntdApp, theme } from "antd";
 import zhCN from "antd/locale/zh_CN";
 import enUS from "antd/locale/en_US";
@@ -34,6 +40,26 @@ export const THEME_MODES: readonly ThemeMode[] = [
 
 export function isThemeMode(v: unknown): v is ThemeMode {
   return v === "light" || v === "dark" || v === "high-contrast";
+}
+
+export interface AppThemeContextValue {
+  theme: ThemeMode;
+  setTheme: (mode: ThemeMode) => void;
+  cycleTheme: () => void;
+}
+
+const AppThemeContext = createContext<AppThemeContextValue | null>(null);
+
+/**
+ * U1-B: 主题切换 hook — 在 <Provider> 内部消费 theme + setTheme。
+ * 与 antd ConfigProvider / data-theme / localStorage 三向同步。
+ */
+export function useAppTheme(): AppThemeContextValue {
+  const ctx = useContext(AppThemeContext);
+  if (!ctx) {
+    throw new Error("useAppTheme 必须在 <Provider> 内部使用");
+  }
+  return ctx;
 }
 
 function readStoredTheme(): ThemeMode | null {
@@ -59,7 +85,7 @@ function applyThemeToDom(mode: ThemeMode): void {
   if (typeof document === "undefined") return;
   document.documentElement.setAttribute("data-theme", mode);
   document.documentElement.style.colorScheme =
-    mode === "dark" ? "dark" : "light";
+    mode === "light" ? "light" : "dark";
 }
 
 function detectInitialTheme(): ThemeMode {
@@ -110,7 +136,16 @@ const LIGHT_TOKENS = {
   fontSize: 14,
 };
 
-const DARK_TOKENS: typeof LIGHT_TOKENS = {
+// antd token 覆盖: 浅色基 token + 各模式可选的深色/高对比 token
+type ThemeTokens = typeof LIGHT_TOKENS & {
+  colorBgBase?: string;
+  colorBgContainer?: string;
+  colorText?: string;
+  colorTextSecondary?: string;
+  colorBorder?: string;
+};
+
+const DARK_TOKENS: ThemeTokens = {
   ...LIGHT_TOKENS,
   colorBgBase: "#0f172a",
   colorBgContainer: "#1e293b",
@@ -119,6 +154,25 @@ const DARK_TOKENS: typeof LIGHT_TOKENS = {
   colorText: "#f1f5f9",
   colorTextSecondary: "#cbd5e1",
   colorBorder: "#334155",
+};
+
+// U1-B 修复: 高对比度 = darkAlgorithm(深色基底) + 高对比 token,
+// 与 themes.css [data-theme='high-contrast'] 的 CSS 变量保持一致
+const HIGH_CONTRAST_TOKENS: ThemeTokens = {
+  ...LIGHT_TOKENS,
+  colorPrimary: "#ffff00",
+  colorSuccess: "#00ff00",
+  colorWarning: "#ffcc00",
+  colorError: "#ff4444",
+  colorInfo: "#66ccff",
+  colorBgBase: "#000000",
+  colorBgContainer: "#1a1a1a",
+  colorBgLayout: "#000000",
+  colorTextBase: "#ffffff",
+  colorText: "#ffffff",
+  colorTextSecondary: "#f0f0f0",
+  colorBorder: "#ffffff",
+  borderRadius: 6,
 };
 
 function ErrorFallback({
@@ -209,6 +263,14 @@ export function Provider({ children }: ProviderProps): JSX.Element {
   const antLocale = useAntLocale();
   const isDark = themeMode === "dark";
   const isHighContrast = themeMode === "high-contrast";
+  const appThemeContextValue: AppThemeContextValue = {
+    theme: themeMode,
+    setTheme: setThemeMode,
+    cycleTheme: () => {
+      const idx = THEME_MODES.indexOf(themeMode);
+      setThemeMode(THEME_MODES[(idx + 1) % THEME_MODES.length]!);
+    },
+  };
 
   useEffect(() => {
     const label = isHighContrast
@@ -236,22 +298,37 @@ export function Provider({ children }: ProviderProps): JSX.Element {
         <ConfigProvider
           locale={antLocale}
           theme={{
-            algorithm: isHighContrast
-              ? theme.defaultAlgorithm
-              : isDark
+            algorithm:
+              isDark || isHighContrast
                 ? theme.darkAlgorithm
                 : theme.defaultAlgorithm,
-            token: isDark ? DARK_TOKENS : LIGHT_TOKENS,
+            token: isHighContrast
+              ? HIGH_CONTRAST_TOKENS
+              : isDark
+                ? DARK_TOKENS
+                : LIGHT_TOKENS,
             components: {
               Layout: {
-                headerBg: isDark ? "#1e293b" : "#ffffff",
-                siderBg: isDark ? "#0f172a" : "#1e40af",
-                bodyBg: isDark ? "#0f172a" : "#f1f5f9",
+                headerBg: isHighContrast
+                  ? "#0a0a0a"
+                  : isDark
+                    ? "#1e293b"
+                    : "#ffffff",
+                siderBg: isHighContrast
+                  ? "#000000"
+                  : isDark
+                    ? "#0f172a"
+                    : "#1e40af",
+                bodyBg: isHighContrast
+                  ? "#000000"
+                  : isDark
+                    ? "#0f172a"
+                    : "#f1f5f9",
               },
               Menu: {
-                darkItemBg: "#0f172a",
-                darkSubMenuItemBg: "#0f172a",
-                darkItemSelectedBg: "#1e40af",
+                darkItemBg: isHighContrast ? "#000000" : "#0f172a",
+                darkSubMenuItemBg: isHighContrast ? "#000000" : "#0f172a",
+                darkItemSelectedBg: isHighContrast ? "#ffff00" : "#1e40af",
               },
             },
           }}
@@ -260,8 +337,10 @@ export function Provider({ children }: ProviderProps): JSX.Element {
             notification={{ placement: "topRight", duration: 4 }}
             message={{ duration: 3 }}
           >
-            <Announcement />
-            {children}
+            <AppThemeContext.Provider value={appThemeContextValue}>
+              <Announcement />
+              {children}
+            </AppThemeContext.Provider>
           </AntdApp>
         </ConfigProvider>
       </I18nextProvider>

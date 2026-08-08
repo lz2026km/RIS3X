@@ -40,7 +40,7 @@ export const CHART_PALETTE: string[] = [
   '#0891b2',
   '#ca8a04',
   '#db2777',
-  '#1e3a5f',
+  '#1e40af',
   '#94a3b8',
 ]
 

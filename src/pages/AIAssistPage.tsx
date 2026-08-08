@@ -190,7 +190,7 @@ const AIAssistPage: React.FC = () => {
 
           <Card
             size="small"
-            title={<Space><History size={14} color="#1677ff" />历史记录</Space>}
+            title={<Space><History size={14} color="#2563eb" />历史记录</Space>}
             style={{ marginBottom: 16 }}
           >
             {loadingHistory ? (
@@ -219,7 +219,7 @@ const AIAssistPage: React.FC = () => {
         <Col xs={24} lg={15}>
           <Card
             size="small"
-            title={<Space><FileText size={14} color="#1677ff" />AI 生成草稿</Space>}
+            title={<Space><FileText size={14} color="#2563eb" />AI 生成草稿</Space>}
             extra={draft && (
               <Space size={4}>
                 <Tooltip title="复制全文">
@@ -261,7 +261,7 @@ const AIAssistPage: React.FC = () => {
                 {draft.sections.map((s) => (
                   <div key={s.heading} style={{ marginBottom: 12, border: '1px solid #e2e8f0', borderRadius: 8, padding: 12, background: '#fafcff' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                      <Text strong style={{ color: '#1e3a5f' }}>{s.heading}</Text>
+                      <Text strong style={{ color: '#1e40af' }}>{s.heading}</Text>
                       <Button
                         size="small"
                         type="link"

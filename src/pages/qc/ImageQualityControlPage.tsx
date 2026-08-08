@@ -91,7 +91,7 @@ export default function ImageQualityControlPage() {
   }
 
   const columns = [
-    { title: 'Study ID', dataIndex: 'studyId', width: 150, ellipsis: true, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
+    { title: '检查号', dataIndex: 'studyId', width: 150, ellipsis: true, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
     { title: '患者', dataIndex: 'patientName', width: 90 },
     { title: '模态', dataIndex: 'modality', width: 70, render: (v: string) => <Tag color="blue">{v}</Tag> },
     { title: '设备', dataIndex: 'device', width: 130, ellipsis: true },

@@ -116,7 +116,7 @@ const AiProvidersPage: React.FC = () => {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}>
           <Card>
-            <Statistic title="总提供商数" value={providers?.providers.length ?? 0} styles={{ content: {  color: '#1677ff'  } }} />
+            <Statistic title="总提供商数" value={providers?.providers.length ?? 0} styles={{ content: {  color: '#2563eb'  } }} />
           </Card>
         </Col>
         <Col span={6}>
@@ -148,6 +148,7 @@ const AiProvidersPage: React.FC = () => {
           loading={loading}
           pagination={false}
           locale={{ emptyText: <Empty description="暂无提供商数据" /> }}
+        scroll={{ x: 'max-content' }}
         />
       </Card>
     </div>

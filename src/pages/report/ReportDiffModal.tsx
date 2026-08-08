@@ -154,7 +154,7 @@ export default function ReportDiffModal({ report, data, loading, onClose }: Repo
               {merged && merged.length > 0 ? (
                 merged.map(f => (
                   <div key={f.field} style={{ marginBottom: 12, padding: 12, background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8 }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1e3a5f', marginBottom: 6, padding: '2px 8px', background: '#eff6ff', borderRadius: 4, display: 'inline-block' }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, padding: '2px 8px', background: '#eff6ff', borderRadius: 4, display: 'inline-block' }}>
                       {f.label}
                     </div>
                     <div style={{ fontSize: 12 }}>

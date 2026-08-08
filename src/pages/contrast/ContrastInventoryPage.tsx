@@ -286,6 +286,7 @@ const ContrastInventoryPage: React.FC = () => {
               { title: '数量', dataIndex: 'quantity', width: 100, render: (v: number, r: StockLog) => <span style={{ fontWeight: 600, color: r.action === 'in' ? '#16a34a' : '#dc2626' }}>{r.action === 'in' ? '+' : '-'}{v} ml</span> },
               { title: '操作人', dataIndex: 'operator', width: 100 },
             ]}
+          scroll={{ x: 'max-content' }}
           />
         )}
       </Modal>

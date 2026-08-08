@@ -8,7 +8,7 @@ import type { OccupancyRoom, OccupancyQueueEntry, OccupancyTrendPoint, RoomStatu
 
 const STATUS_META: Record<string, { color: string; label: string }> = {
   idle: { color: '#52c41a', label: '空闲' },
-  occupied: { color: '#1677ff', label: '占用中' },
+  occupied: { color: '#2563eb', label: '占用中' },
   disinfecting: { color: '#faad14', label: '消毒中' },
   fault: { color: '#ff4d4f', label: '故障' },
 };
@@ -93,7 +93,7 @@ export const RoomOccupancyPage: React.FC = () => {
     <div style={{ padding: 24, background: '#f0f2f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }} wrap>
         <Space>
-          <LayoutDashboard size={20} color="#1677ff" />
+          <LayoutDashboard size={20} color="#2563eb" />
           <span style={{ fontSize: 18, fontWeight: 600 }}>检查室占用率 & 排队预测</span>
           <Tag color="cyan">实时</Tag>
           <Tag color="default">每 30s 自动刷新</Tag>
@@ -108,7 +108,7 @@ export const RoomOccupancyPage: React.FC = () => {
 
       <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
         <Col span={6}><Card size="small"><Statistic title="总检查室" value={total} suffix={`间 · 占用率 ${rate}%`} prefix={<LayoutDashboard size={16} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="当前占用" value={occupied} styles={{ content: { color: '#1677ff' } }} prefix={<Users size={16} />} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="当前占用" value={occupied} styles={{ content: { color: '#2563eb' } }} prefix={<Users size={16} />} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="空闲" value={idle} styles={{ content: { color: '#52c41a' } }} prefix={<Circle size={16} />} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="故障" value={fault} styles={{ content: { color: fault ? '#ff4d4f' : undefined } }} prefix={<AlertTriangle size={16} />} /></Card></Col>
       </Row>

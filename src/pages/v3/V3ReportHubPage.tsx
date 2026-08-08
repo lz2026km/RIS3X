@@ -97,7 +97,7 @@ export const V3ReportHubPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <Layers size={20} color="#1677ff" />
+        <Layers size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>v3 报告全栈</span>
         <Tag color="cyan">PR6 (v3.0.6.8-50)</Tag>
         <Tag color="purple">Medisoft mediSIGHT 升级</Tag>
@@ -105,7 +105,7 @@ export const V3ReportHubPage: React.FC = () => {
       </Space>
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={4}><Card size="small"><Statistic title="报告模板" value={templates.length} styles={{ content: {  color: '#1677ff'  } }} /></Card></Col>
+        <Col span={4}><Card size="small"><Statistic title="报告模板" value={templates.length} styles={{ content: {  color: '#2563eb'  } }} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="分发任务" value={tasks.length} styles={{ content: {  color: '#52c41a'  } }} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="FHIR 资源" value={fhirList.length} /></Card></Col>
         <Col span={4}><Card size="small"><Statistic title="AI 草稿" value={aiDrafts.length} styles={{ content: {  color: '#722ed1'  } }} /></Card></Col>
@@ -154,6 +154,7 @@ export const V3ReportHubPage: React.FC = () => {
                       { title: '状态', key: 'status', render: (_: unknown, r: any) => <Tag color={String(r.status ?? '').startsWith('signed') ? 'green' : 'blue'}>{r.status ?? '-'}</Tag> },
                       { title: '时间', key: 'at', render: (_: unknown, r: any) => r.reportAt ? new Date(r.reportAt).toLocaleDateString() : '-' },
                     ]}
+                  scroll={{ x: 'max-content' }}
                   />
                 </Card>
               </>

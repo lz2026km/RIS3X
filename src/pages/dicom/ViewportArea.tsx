@@ -74,7 +74,7 @@ const s = {
   annotationTypeBtnLabel: { fontSize: 8, color: '#64748b', textAlign: 'center' as const },
   annotationColorPicker: { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 4, marginBottom: 8 },
   annotationColorBtn: { width: 24, height: 24, borderRadius: 4, border: '2px solid transparent', cursor: 'pointer', transition: 'all 0.15s' },
-  annotationColorBtnActive: { border: '2px solid #1e3a5f', transform: 'scale(1.1)' },
+  annotationColorBtnActive: { border: '2px solid #1e40af', transform: 'scale(1.1)' },
   annotationFontSizeRow: { display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 },
   annotationFontSizeLabel: { fontSize: 12, color: '#64748b', flexShrink: 0 },
   annotationFontSizeInput: { flex: 1, padding: '4px 6px', borderRadius: 4, border: '1px solid #cbd5e1', fontSize: 12, outline: 'none', width: 50 },

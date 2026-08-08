@@ -142,7 +142,7 @@ const CriticalAlertPage: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <Space style={{ marginBottom: 16 }}>
-        <AlertTriangle size={20} color="#1677ff" />
+        <AlertTriangle size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>危急值告警</span>
         <Button size="small" icon={<RefreshCw size={12} />} onClick={refresh} loading={loading}>刷新</Button>
       </Space>
@@ -200,7 +200,7 @@ const CriticalAlertPage: React.FC = () => {
           {alerts.length === 0 && !loading ? (
             <Empty description="暂无告警" image={Empty.PRESENTED_IMAGE_SIMPLE} />
           ) : (
-            <Table rowKey="id" dataSource={alerts} columns={columns} pagination={{ current: alertPage, pageSize: 10, total: alerts.length, onChange: setAlertPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }} size="small" />
+            <Table rowKey="id" dataSource={alerts} columns={columns} pagination={{ current: alertPage, pageSize: 10, total: alerts.length, onChange: setAlertPage, showSizeChanger: false, showTotal: (t) => `共 ${t} 条` }} size="small" scroll={{ x: 'max-content' }}/>
           )}
         </Spin>
       </Card>

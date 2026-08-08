@@ -1,6 +1,6 @@
 // [v3.0.6.8-61] FHIR Server 集成管理
 import React, { useState, useEffect } from 'react';
-import { Card, Space, Tag, Button, Table, Tabs, Row, Col, Statistic, message, Input, Descriptions, Modal, Form, Select } from 'antd';
+import { Card, Space, Tag, Button, Table, Tabs, Row, Col, Statistic, message, Input, Descriptions, Modal, Form, Select, Alert } from 'antd';
 import { Globe, Send, Search, RefreshCw, Plus } from 'lucide-react';
 
 const { TextArea } = Input;
@@ -15,11 +15,12 @@ export const FhirServerPage: React.FC = () => {
   const [queryResult, setQueryResult] = useState<any>(null);
 
   useEffect(() => {
-    // Load FHIR CapabilityStatement
+    // [W3-C] CapabilityStatement 为静态声明文档 (对齐 FHIR R4 规范, 后端未提供 /fhir/metadata 端点)
     setCapability({
       fhirVersion: '4.0.1',
       status: 'active',
       publisher: 'G005 Radiology RIS',
+      static: true,
       rest: [{
         mode: 'server',
         resource: [
@@ -69,7 +70,7 @@ export const FhirServerPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <Globe size={20} color="#1677ff" />
+        <Globe size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR Server 集成</span>
         <Tag color="cyan">v3.0.6.8-61</Tag>
         <Tag color="purple">SMART on FHIR R4</Tag>
@@ -86,7 +87,7 @@ export const FhirServerPage: React.FC = () => {
       <Tabs activeKey={tab} onChange={setTab} type="card"
         items={[
           { key:'capability', label:'CapabilityStatement', children:
-            capability ? <Card size="small" title={`FHIR ${capability.fhirVersion} Server Capabilities`}>
+            capability ? <Card size="small" title={<Space>FHIR {capability.fhirVersion} Server Capabilities <Tag color="orange">静态声明（FHIR 规范文档, 非接口数据）</Tag></Space>}>
               <Descriptions column={2} size="small">
                 <Descriptions.Item label="状态"><Tag color="green">{({active:'活跃', draft:'草稿', retired:'已停用'} as any)[capability.status] ?? capability.status}</Tag></Descriptions.Item>
                 <Descriptions.Item label="发布者">{capability.publisher}</Descriptions.Item>
@@ -95,6 +96,7 @@ export const FhirServerPage: React.FC = () => {
               </Descriptions>
               <div style={{fontWeight:600,marginTop:12,marginBottom:4}}>资源类型:</div>
               {capability.rest[0].resource.map((r: any) => <Tag key={r.type} color="blue" style={{margin:2}}>{r.type}</Tag>)}
+              <Alert type="info" showIcon style={{ marginTop: 12 }} message="CapabilityStatement 依据 FHIR R4 规范静态声明（POST /fhir/metadata 尚未实现），真实能力以后端实现为准。" />
             </Card> : null
           },
           { key:'browse', label:'资源浏览器', children:
@@ -112,7 +114,8 @@ export const FhirServerPage: React.FC = () => {
                   {title:'名称', render:(_,r)=>r.name?.[0]?.text || r.code?.text || r.id},
                   {title:'性别', dataIndex:'gender'},
                   {title:'出生日期', dataIndex:'birthDate'},
-                ]} />
+                ]} 
+              scroll={{ x: 'max-content' }}/>
             </Card>
           },
           { key:'query', label:'FHIR 查询', children:
@@ -142,7 +145,7 @@ export const FhirServerPage: React.FC = () => {
       <Modal title="创建 FHIR 资源" open={sendModal} onCancel={() => setSendModal(false)} onOk={() => { message.success('FHIR 资源已创建'); setSendModal(false); }}>
         <Form layout="vertical" size="small">
           <Form.Item label="资源类型"><Select options={resourceTypes.map(t=>({value:t,label:t}))} /></Form.Item>
-          <Form.Item label="JSON Body"><TextArea rows={8} placeholder='{"resourceType":"Patient","name":[{"family":"张","given":["伟"]}],...}' /></Form.Item>
+          <Form.Item label="JSON 请求体"><TextArea rows={8} placeholder='{"resourceType":"Patient","name":[{"family":"张","given":["伟"]}],...}' /></Form.Item>
         </Form>
       </Modal>
     </div>

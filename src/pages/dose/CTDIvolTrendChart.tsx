@@ -50,7 +50,7 @@ export default function CTDIvolTrendChart() {
             boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
           }}
         >
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#1e3a5f", marginBottom: 8 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af", marginBottom: 8 }}>
             {label}
           </div>
           <div style={{ fontSize: 12, color: "#64748b" }}>
@@ -97,7 +97,7 @@ export default function CTDIvolTrendChart() {
         }}
       >
         <div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>
             CTDIvol 趋势监控
           </div>
           <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>

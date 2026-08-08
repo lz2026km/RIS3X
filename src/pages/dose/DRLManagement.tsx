@@ -122,7 +122,7 @@ export default function DRLManagement() {
             marginBottom: 16,
           }}
         >
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>
             DRL配置表（按模态/检查类型）
           </div>
           <div style={{ display: "flex", gap: 8 }}>
@@ -287,7 +287,7 @@ const tdPrimary: React.CSSProperties = {
   padding: "10px 12px",
   fontSize: 12,
   fontWeight: 600,
-  color: "#1e3a5f",
+  color: "#1e40af",
   textAlign: "center",
 };
 

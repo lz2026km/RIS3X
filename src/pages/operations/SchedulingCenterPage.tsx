@@ -148,7 +148,7 @@ export const SchedulingCenterPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <CalendarDays size={20} color="#1677ff" />
+        <CalendarDays size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>全院资源排程中心</span>
         <Tag color="green">实时占用</Tag>
         <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>刷新</Button>
@@ -161,7 +161,7 @@ export const SchedulingCenterPage: React.FC = () => {
 
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}><Card size="small"><Statistic title="预约总数" value={stats.total} prefix={<Clock size={14} />} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="今日预约" value={todayCount} styles={{ content: { color: '#1677ff' } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="今日预约" value={todayCount} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="进行中" value={activeCount} styles={{ content: { color: '#faad14' } }} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="在线设备" value={deviceStats.inUse ?? '-'} suffix={`/ ${deviceStats.total ?? '-'}`} prefix={<Monitor size={14} />} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
       </Row>
@@ -173,7 +173,7 @@ export const SchedulingCenterPage: React.FC = () => {
               <Calendar
                 fullCellRender={(date) => (
                   <div style={{ padding: 4, cursor: 'pointer' }} onClick={() => setSelectedDate(date)}>
-                    <div style={{ fontSize: 12, color: date.isSame(selectedDate, 'day') ? '#1677ff' : 'inherit' }}>{date.date()}</div>
+                    <div style={{ fontSize: 12, color: date.isSame(selectedDate, 'day') ? '#2563eb' : 'inherit' }}>{date.date()}</div>
                     {dateCellRender(date)}
                   </div>
                 )}
@@ -192,7 +192,7 @@ export const SchedulingCenterPage: React.FC = () => {
             {dayAppointments.length === 0 && !loading ? (
               <Empty description="当天暂无预约" image={Empty.PRESENTED_IMAGE_SIMPLE} />
             ) : (
-              <Table rowKey="id" size="small" dataSource={dayAppointments} columns={columns} pagination={false} />
+              <Table rowKey="id" size="small" dataSource={dayAppointments} columns={columns} pagination={false} scroll={{ x: 'max-content' }}/>
             )}
           </Card>
         </Col>

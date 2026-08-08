@@ -204,7 +204,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
               <Statistic
                 title="OK 镜患者"
                 value={stats.okLensPatients}
-                styles={{ content: {  color: "#1677ff"  } }}
+                styles={{ content: {  color: "#2563eb"  } }}
               />
             </Card>
           </Col>
@@ -463,6 +463,7 @@ export const OptometryClosedLoopPage: React.FC = () => {
                             },
                             { title: "干预", dataIndex: "intervention" },
                           ]}
+                        scroll={{ x: 'max-content' }}
                         />
                       </Col>
                     </Row>

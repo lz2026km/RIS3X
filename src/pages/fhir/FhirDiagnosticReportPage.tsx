@@ -113,7 +113,7 @@ export const FhirDiagnosticReportPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
-        <FileText size={20} color="#1677ff" />
+        <FileText size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>FHIR DiagnosticReport 管理</span>
         <Tag color="blue">FHIR R4</Tag>
       </Space>
@@ -125,10 +125,10 @@ export const FhirDiagnosticReportPage: React.FC = () => {
           </Form.Item>
           <Form.Item name="status" label="状态">
             <Select allowClear placeholder="全部" style={{ width: 140 }}>
-              <Select.Option value="final">Final</Select.Option>
-              <Select.Option value="preliminary">Preliminary</Select.Option>
-              <Select.Option value="amended">Amended</Select.Option>
-              <Select.Option value="registered">Registered</Select.Option>
+              <Select.Option value="final">最终</Select.Option>
+              <Select.Option value="preliminary">初步</Select.Option>
+              <Select.Option value="amended">已修订</Select.Option>
+              <Select.Option value="registered">已登记</Select.Option>
             </Select>
           </Form.Item>
           <Form.Item>
@@ -148,6 +148,7 @@ export const FhirDiagnosticReportPage: React.FC = () => {
           loading={loading}
           pagination={{ current: page, total, pageSize: PAGE_SIZE, onChange: setPage, showSizeChanger: false }}
           size="small"
+        scroll={{ x: 'max-content' }}
         />
       </Card>
 

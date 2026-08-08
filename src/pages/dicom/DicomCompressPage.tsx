@@ -28,7 +28,11 @@ import {
   ExperimentOutlined,
   ThunderboltOutlined,
 } from "@ant-design/icons";
-import type { CompressInstance } from "../../services/api/dicomCompressApi";
+import type {
+  CompressInstance,
+  DicomCompressTask,
+} from "../../services/api/dicomCompressApi";
+import { dicomCompressApi } from "../../services/api/dicomCompressApi";
 
 const { Title, Text } = Typography;
 
@@ -36,26 +40,6 @@ interface TransferSyntax {
   uid: string;
   name: string;
   lossy: boolean;
-}
-
-interface CompressTask {
-  id: string;
-  fileId: string;
-  transferSyntax: string;
-  status: "pending" | "processing" | "done" | "failed";
-  progress: number;
-  originalSize: number;
-  compressedSize: number | null;
-  ratio?: number;
-  modality?: string;
-  algorithmName?: string;
-  lossless?: boolean;
-  simulated?: boolean;
-  elapsedMs?: number;
-  quality?: number;
-  error?: string;
-  createdAt: string;
-  updatedAt: string;
 }
 
 interface RatioAgg {
@@ -80,9 +64,6 @@ interface CompareRow {
   savedPercent: number | null;
   elapsedMs?: number;
 }
-
-const API_BASE = "/api/v1/dicom/compress";
-
 function formatBytes(bytes: number | null | undefined): string {
   if (bytes === null || bytes === undefined) return "-";
   if (bytes >= 1024 * 1024 * 1024) return `${(bytes / 1024 / 1024 / 1024).toFixed(2)} GB`;
@@ -123,8 +104,8 @@ export default function DicomCompressPage() {
   const [uploadName, setUploadName] = useState<string>("");
   const [selectedSyntax, setSelectedSyntax] = useState<string>("1.2.840.10008.1.2.4.90");
   const [quality, setQuality] = useState<number>(85);
-  const [currentTask, setCurrentTask] = useState<CompressTask | null>(null);
-  const [tasks, setTasks] = useState<CompressTask[]>([]);
+  const [currentTask, setCurrentTask] = useState<DicomCompressTask | null>(null);
+  const [tasks, setTasks] = useState<DicomCompressTask[]>([]);
   const [ratios, setRatios] = useState<{ byAlgorithm: RatioAgg[]; byModality: RatioAgg[]; totalSavedBytes: number; avgRatio: number }>({
     byAlgorithm: [],
     byModality: [],
@@ -143,8 +124,8 @@ export default function DicomCompressPage() {
 
   const loadInstances = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE}/instances`);
-      const data = (await res.json()) as CompressInstance[];
+      const res = await dicomCompressApi.listInstances();
+      const data = (res.data ?? []) as CompressInstance[];
       setInstances(data);
       if (data.length > 0 && !data.some(i => i.fileId === selectedFileId)) {
         setSelectedFileId(data[0]!.fileId);
@@ -156,8 +137,8 @@ export default function DicomCompressPage() {
 
   const loadTasks = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE}/tasks`);
-      setTasks((await res.json()) as CompressTask[]);
+      const res = await dicomCompressApi.listTasks();
+      setTasks((res.data ?? []) as DicomCompressTask[]);
     } catch (err) {
       console.warn("[DicomCompress] load tasks failed", err);
     }
@@ -165,8 +146,8 @@ export default function DicomCompressPage() {
 
   const loadRatios = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE}/ratios`);
-      const data = await res.json();
+      const res = await dicomCompressApi.getRatios();
+      const data = res.data ?? {};
       setRatios({
         byAlgorithm: data.byAlgorithm ?? [],
         byModality: data.byModality ?? [],
@@ -179,9 +160,9 @@ export default function DicomCompressPage() {
   }, []);
 
   useEffect(() => {
-    fetch(`${API_BASE}/syntaxes`)
-      .then(r => r.json())
-      .then((data: TransferSyntax[]) => {
+    dicomCompressApi.getSyntaxes()
+      .then(res => {
+        const data = (res.data ?? []) as TransferSyntax[];
         setSyntaxes(data);
         if (data.length > 0) setSelectedSyntax(data[0]!.uid);
       })
@@ -205,8 +186,12 @@ export default function DicomCompressPage() {
       setPolling(true);
       pollRef.current = setInterval(async () => {
         try {
-          const res = await fetch(`${API_BASE}/status/${taskId}`);
-          const data: CompressTask = await res.json();
+          const res = await dicomCompressApi.getStatus(taskId);
+          const data = res.data as DicomCompressTask | null;
+          if (!data) {
+            stopPolling();
+            return;
+          }
           setCurrentTask(data);
           if (data.status === "done" || data.status === "failed") {
             stopPolling();
@@ -236,17 +221,17 @@ export default function DicomCompressPage() {
     setLoading(true);
     setCurrentTask(null);
     try {
-      const res = await fetch(API_BASE, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fileId: selectedFileId,
-          transferSyntax: selectedSyntax,
-          quality: selectedLossy ? quality : undefined,
-          dataBase64: uploadedBase64,
-        }),
+      const res = await dicomCompressApi.compress({
+        fileId: selectedFileId,
+        transferSyntax: selectedSyntax,
+        quality: selectedLossy ? quality : undefined,
+        dataBase64: uploadedBase64,
       });
-      const data: CompressTask = await res.json();
+      const data = res.data as DicomCompressTask | null;
+      if (!data) {
+        messageApi.error("压缩请求失败 / Compress request failed");
+        return;
+      }
       setCurrentTask(data);
       startPolling(data.id);
     } catch (err) {
@@ -261,12 +246,12 @@ export default function DicomCompressPage() {
     setLoading(true);
     setCurrentTask(null);
     try {
-      const res = await fetch(`${API_BASE}/decompress`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fileId: currentTask?.id ?? selectedFileId }),
-      });
-      const data: CompressTask = await res.json();
+      const res = await dicomCompressApi.decompress(currentTask?.id ?? selectedFileId);
+      const data = res.data as DicomCompressTask | null;
+      if (!data) {
+        messageApi.error("解压请求失败 / Decompress request failed");
+        return;
+      }
       setCurrentTask(data);
       messageApi.success(
         data.error ? "解压失败 / Decompress failed" : "解压完成 / Decompress done",
@@ -286,17 +271,14 @@ export default function DicomCompressPage() {
     const rows: CompareRow[] = [];
     try {
       for (const syntax of syntaxes) {
-        const res = await fetch(API_BASE, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            fileId: selectedFileId,
-            transferSyntax: syntax.uid,
-            quality: syntax.lossy ? quality : undefined,
-            dataBase64: uploadedBase64,
-          }),
+        const res = await dicomCompressApi.compress({
+          fileId: selectedFileId,
+          transferSyntax: syntax.uid,
+          quality: syntax.lossy ? quality : undefined,
+          dataBase64: uploadedBase64,
         });
-        const created: CompressTask = await res.json();
+        const created = res.data as DicomCompressTask | null;
+        if (!created) continue;
         const task = await pollTaskUntilDone(created.id);
         rows.push({
           key: syntax.uid,
@@ -325,23 +307,21 @@ export default function DicomCompressPage() {
     }
   };
 
-  const pollTaskUntilDone = async (taskId: string): Promise<CompressTask> => {
+  const pollTaskUntilDone = async (taskId: string): Promise<DicomCompressTask> => {
     for (let i = 0; i < 20; i++) {
       try {
-        const res = await fetch(`${API_BASE}/status/${taskId}`);
-        const data: CompressTask = await res.json();
-        if (data.status === "done" || data.status === "failed") return data;
+        const res = await dicomCompressApi.getStatus(taskId);
+        const data = res.data as DicomCompressTask | null;
+        if (data && (data.status === "done" || data.status === "failed")) return data;
       } catch {
         /* retry */
       }
       await new Promise(r => setTimeout(r, 350));
     }
-    try {
-      const res = await fetch(`${API_BASE}/status/${taskId}`);
-      return (await res.json()) as CompressTask;
-    } catch (err) {
-      throw err instanceof Error ? err : new Error("status timeout");
-    }
+    const res = await dicomCompressApi.getStatus(taskId);
+    const data = res.data as DicomCompressTask | null;
+    if (!data) throw new Error("status timeout");
+    return data;
   };
 
   const handleFilePick = async (file: File) => {
@@ -387,7 +367,7 @@ export default function DicomCompressPage() {
       dataIndex: "progress",
       key: "progress",
       width: 140,
-      render: (v: number, row: CompressTask) =>
+      render: (v: number, row: DicomCompressTask) =>
         row.status === "done" ? (
           <Text type="success">{v}%</Text>
         ) : (
@@ -413,7 +393,7 @@ export default function DicomCompressPage() {
       dataIndex: "ratio",
       key: "ratio",
       width: 100,
-      render: (v: number | undefined, row: CompressTask) =>
+      render: (v: number | undefined, row: DicomCompressTask) =>
         v !== undefined ? (
           <Tag color={v > 3 ? "green" : v > 1.5 ? "blue" : "orange"}>{v.toFixed(2)}×</Tag>
         ) : row.status === "done" && row.compressedSize ? (
@@ -696,7 +676,7 @@ export default function DicomCompressPage() {
                     <Statistic
                       title="真实压缩比 / Real Ratio"
                       value={currentTask.ratio ? `${currentTask.ratio.toFixed(2)}×` : "-"}
-                      valueStyle={{ color: "#1677ff", fontWeight: 600 }}
+                      valueStyle={{ color: "#2563eb", fontWeight: 600 }}
                     />
                   </Col>
                   <Col span={4}>
@@ -772,6 +752,7 @@ export default function DicomCompressPage() {
             rowKey="id"
             size="small"
             pagination={{ pageSize: 8, showSizeChanger: false }}
+          scroll={{ x: 'max-content' }}
           />
         ) : (
           <Empty description="暂无任务 / No tasks" />
@@ -799,7 +780,7 @@ export default function DicomCompressPage() {
                 <div style={{ height: 60 }} />
               </Spin>
             ) : compareRows.length > 0 ? (
-              <Table dataSource={compareRows} columns={compareColumns} rowKey="key" pagination={false} size="small" />
+              <Table dataSource={compareRows} columns={compareColumns} rowKey="key" pagination={false} size="small" scroll={{ x: 'max-content' }}/>
             ) : (
               <Empty description='点击 "全部算法对比" 查看各算法真实压缩比' />
             )}
@@ -823,11 +804,11 @@ export default function DicomCompressPage() {
                 <Text strong style={{ display: "block", marginBottom: 8 }}>
                   按算法 / By Algorithm
                 </Text>
-                <Table dataSource={ratios.byAlgorithm} columns={ratioColumns} rowKey={r => r.algorithm} pagination={false} size="small" />
+                <Table dataSource={ratios.byAlgorithm} columns={ratioColumns} rowKey={r => r.algorithm} pagination={false} size="small" scroll={{ x: 'max-content' }}/>
                 <Text strong style={{ display: "block", margin: "16px 0 8px" }}>
                   按模态 / By Modality
                 </Text>
-                <Table dataSource={ratios.byModality} columns={ratioModalityColumns} rowKey={r => `${r.modality}:${r.algorithm}`} pagination={false} size="small" />
+                <Table dataSource={ratios.byModality} columns={ratioModalityColumns} rowKey={r => `${r.modality}:${r.algorithm}`} pagination={false} size="small" scroll={{ x: 'max-content' }}/>
               </>
             ) : (
               <Empty description="暂无统计数据, 先执行一次压缩 / No stats yet" />

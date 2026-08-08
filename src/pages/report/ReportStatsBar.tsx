@@ -1,6 +1,6 @@
 import React from 'react'
 
-const PRIMARY = '#1e3a5f'
+const PRIMARY = '#1e40af'
 const GRAY = '#64748b'
 const WHITE = '#ffffff'
 

@@ -36,7 +36,7 @@ const ImageComparePage: React.FC = () => {
       <Row gutter={12}>
         <Col span={24} style={{ marginBottom: 12 }}>
           <Space>
-            <ArrowLeftRight size={20} color="#1677ff" />
+            <ArrowLeftRight size={20} color="#2563eb" />
             <span style={{ fontSize: 16, fontWeight: 600 }}>影像对比</span>
             <Select
               value={pairIdx}
@@ -169,6 +169,7 @@ const ImageComparePage: React.FC = () => {
                     ),
                 },
               ]}
+            scroll={{ x: 'max-content' }}
             />
           </Card>
           <Card size="small" title="AI 进展评估" style={{ marginTop: 8 }}>

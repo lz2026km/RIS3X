@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Button, Empty, Tag } from "antd";
+import { Button, Empty, Skeleton, Tag } from "antd";
 import {
   User,
   Scan,
@@ -23,6 +23,7 @@ import {
 import type { RadiologyExam } from "../../types";
 import { displayExamStatus } from "../../utils/statusMaps";
 import { ProTable, type ProColumn } from "../../components/data/ProTable";
+import { usePagination } from "../../hooks/usePagination";
 
 const STATUS_CONFIG: Record<
   string,
@@ -120,7 +121,7 @@ function ImagePreviewCell({ exam }: { exam: RadiologyExam }) {
           alignItems: "center",
           gap: 4,
           fontSize: 12,
-          color: exam.imagesAcquired > 0 ? "#1e3a5f" : "#94a3b8",
+          color: exam.imagesAcquired > 0 ? "#1e40af" : "#94a3b8",
           cursor: "default",
         }}
       >
@@ -162,7 +163,7 @@ function ImagePreviewCell({ exam }: { exam: RadiologyExam }) {
                 width: "100%",
                 height: 96,
                 borderRadius: 6,
-                background: "linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%)",
+                background: "linear-gradient(135deg, #1e40af 0%, #2563eb 100%)",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
@@ -196,6 +197,8 @@ export function ListView({
   onViewHistory,
   onCriticalValueClick,
 }: ListViewProps) {
+  // [W3-C] 受控分页: 工作列表 (全量数据前端切片)
+  const listPagination = usePagination(exams, 10);
   const columns = useMemo<ProColumn<RadiologyExam>[]>(() => [
     {
       title: "优先级",
@@ -224,7 +227,7 @@ export function ListView({
       searchable: true,
       sorter: (a, b) => a.patientName.localeCompare(b.patientName, "zh-CN"),
       render: (value, exam) => (
-        <span style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 600, color: "#1e3a5f" }}>
+        <span style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 600, color: "#1e40af" }}>
           <User size={12} color="#94a3b8" />
           {String(value)}
           {exam.priority === "危重" && <AlertTriangle size={12} color="#dc2626" />}
@@ -369,7 +372,7 @@ export function ListView({
       render: (value, exam) => (
         <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
           <UserCheck size={11} color="#94a3b8" />
-          <span style={{ color: exam.radiologistId ? "#1e3a5f" : "#94a3b8" }}>
+          <span style={{ color: exam.radiologistId ? "#1e40af" : "#94a3b8" }}>
             {exam.radiologistName || getDoctorById(String(value ?? ""))?.name || "未分配"}
           </span>
         </span>
@@ -462,13 +465,13 @@ export function ListView({
   return (
     <ProTable<RadiologyExam>
       columns={columns}
-      dataSource={exams}
+      dataSource={listPagination.pageData}
       rowKey="id"
-      loading={loading}
+      loading={{ spinning: loading, indicator: <div style={{ padding: 24 }}><Skeleton active title={false} paragraph={{ rows: 8 }} /></div> }}
       showToolbar={false}
       size="small"
       sticky
-      pagination={{ pageSize: 10 }}
+      pagination={listPagination.pagination}
       scroll={{ x: 1800, y: "calc(100vh - 400px)" }}
       rowSelection={{
         preserveSelectedRowKeys: true,

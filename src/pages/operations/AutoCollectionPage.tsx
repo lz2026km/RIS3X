@@ -112,7 +112,7 @@ const AutoCollectionPage: React.FC = () => {
         style={{ marginBottom: 16 }}
       />
       <Space style={{ marginBottom: 16 }}>
-        <Settings size={20} color="#1677ff" />
+        <Settings size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>自动采集管理</span>
       </Space>
       {error && <Alert type="warning" showIcon message="加载失败" description={error} action={<Button size="small" onClick={fetchRules}>重试</Button>} style={{ marginBottom: 16 }} />}
@@ -122,7 +122,7 @@ const AutoCollectionPage: React.FC = () => {
         <Col span={6}><Card><Statistic title="已禁用" value={rules.filter(r => !r.enabled).length} loading={loading} /></Card></Col>
       </Row>
       <Card extra={<Button type="primary" icon={<Play size={14} />} onClick={() => setCreateOpen(true)}>新建规则</Button>}>
-        <Table rowKey="id" dataSource={rules} columns={columns} pagination={false} size="small" loading={loading} />
+        <Table rowKey="id" dataSource={rules} columns={columns} pagination={false} size="small" loading={loading} scroll={{ x: 'max-content' }}/>
       </Card>
 
       <Modal

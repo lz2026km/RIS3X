@@ -144,6 +144,7 @@ export const DentalOrthoPage: React.FC = () => {
             ]}
             pagination={false}
             size="small"
+          scroll={{ x: 'max-content' }}
           />
         )}
       </Spin>

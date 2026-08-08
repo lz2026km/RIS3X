@@ -7,6 +7,7 @@ import {
 import { Plus, RefreshCw, Stethoscope, Activity, CheckCircle2 } from 'lucide-react';
 import { DentalPageLayout } from './DentalShared';
 import { dentalApi } from '../../services/api/dentalApi';
+import { usePagination } from '../../hooks/usePagination';
 
 const STATUS_COLOR: Record<string, string> = {
   completed: 'green', Completed: 'green', InProgress: 'orange', in_progress: 'orange',
@@ -44,6 +45,9 @@ export const DentalTreatmentPage: React.FC = () => {
   useEffect(() => {
     void load();
   }, [load]);
+
+  // [W3-C] 受控分页: 治疗计划列表 (数据全量, 前端切片)
+  const listPagination = usePagination(items, 10);
 
   const stats = useMemo(() => {
     const active = items.filter((t) => {
@@ -135,7 +139,7 @@ export const DentalTreatmentPage: React.FC = () => {
       header={{
         title: '口腔治疗中心',
         version: 'v3.0.6.11-54',
-        icon: <Stethoscope size={20} color="#1677ff" />,
+        icon: <Stethoscope size={20} color="#2563eb" />,
         extra: (
           <Space>
             <Button size="small" icon={<RefreshCw size={12} />} onClick={() => void load()} loading={loading}>刷新</Button>
@@ -149,7 +153,7 @@ export const DentalTreatmentPage: React.FC = () => {
         <Col span={6}><Card size="small"><Statistic title="治疗计划总数" value={stats.total} prefix={<Activity size={14} />} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="进行中" value={stats.active} styles={{ content: { color: '#faad14' } }} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="已完成" value={stats.completed} styles={{ content: { color: '#52c41a' } }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="费用合计" prefix="¥" value={stats.totalCost} styles={{ content: { color: '#1677ff' } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="费用合计" prefix="¥" value={stats.totalCost} styles={{ content: { color: '#2563eb' } }} /></Card></Col>
       </Row>
 
       <Card size="small">
@@ -159,7 +163,7 @@ export const DentalTreatmentPage: React.FC = () => {
               <Button type="primary" icon={<Plus size={12} />} onClick={() => setCreateOpen(true)}>新建治疗计划</Button>
             </Empty>
           ) : (
-            <Table rowKey="id" size="small" dataSource={items} columns={columns} pagination={{ pageSize: 10 }} />
+            <Table rowKey="id" size="small" dataSource={listPagination.pageData} columns={columns} pagination={listPagination.pagination} scroll={{ x: 'max-content' }}/>
           )}
         </Spin>
       </Card>

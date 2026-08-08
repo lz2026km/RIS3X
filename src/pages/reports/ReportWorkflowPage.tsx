@@ -174,7 +174,7 @@ export const ReportWorkflowPage: React.FC = () => {
   return (
     <div style={{ padding: 24, background: "#f5f5f5", minHeight: "100vh" }}>
       <Space style={{ marginBottom: 16 }}>
-        <GitBranch size={20} color="#1677ff" />
+        <GitBranch size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>报告流程核心</span>
         <Tag color="cyan">PR1 (v3.0.6.8-45)</Tag>
         <Tag color="purple">Nuance PowerScribe 对标</Tag>
@@ -194,7 +194,7 @@ export const ReportWorkflowPage: React.FC = () => {
                       ? "#52c41a"
                       : STATE_COLORS[s] === "red"
                         ? "#ff4d4f"
-                        : "#1677ff",
+                        : "#2563eb",
                   fontSize: 20,
                  } }}
               />
@@ -293,7 +293,7 @@ export const ReportWorkflowPage: React.FC = () => {
                   <Card
                     title={
                       <Space>
-                        <FileText size={16} color="#1677ff" />
+                        <FileText size={16} color="#2563eb" />
                         报告详情
                         <Tag color={STATE_COLORS[selectedReport.status]}>
                           {STATE_LABELS[selectedReport.status] ||

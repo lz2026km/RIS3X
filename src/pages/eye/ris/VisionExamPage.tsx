@@ -138,7 +138,7 @@ const VisionExamPage: React.FC = () => {
   return (
     <div style={{ padding: 16, background: '#f8fafc', minHeight: 'calc(100vh - 56px)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-        <Eye className="v4-icon" style={{ width: 24, height: 24, color: '#1677ff' }} />
+        <Eye className="v4-icon" style={{ width: 24, height: 24, color: '#2563eb' }} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>视力检查</span>
         <EyeLateralityBadge eyeSide="OD" />
         <EyeLateralityBadge eyeSide="OS" />
@@ -176,7 +176,7 @@ const VisionExamPage: React.FC = () => {
       </Row>
 
       <Card size="small" title="4 记法换算对照" style={{ marginTop: 12 }} extra={<Button type="primary" size="small" icon={<Save size={12} />} loading={saving} onClick={() => void handleSave()}>保存记录</Button>}>
-        <Table rowKey="key" dataSource={data} columns={columns} pagination={false} size="small" bordered />
+        <Table rowKey="key" dataSource={data} columns={columns} pagination={false} size="small" bordered scroll={{ x: 'max-content' }}/>
       </Card>
 
       <Card size="small" title={<Space><History size={14} />检查历史记录 <Tag>{records.length}</Tag></Space>} style={{ marginTop: 12 }}>
@@ -188,6 +188,7 @@ const VisionExamPage: React.FC = () => {
             pagination={{ pageSize: 8, showSizeChanger: false }}
             size="small"
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无检查记录, 保存后将显示在此" /> }}
+          scroll={{ x: 'max-content' }}
           />
         </Spin>
       </Card>
