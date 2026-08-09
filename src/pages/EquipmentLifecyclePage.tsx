@@ -134,13 +134,35 @@ export default function EquipmentLifecyclePage() {
     }).catch((err) => { console.error('[F04]', err); });
   }, []);
 
-  const filtered = mockDevices.filter(d => {
-    const matchSearch = d.name.includes(search) || d.model.includes(search) || d.id.includes(search)
+  // [G005 Wave2A P1] 真实数据优先: apiLifecycleData → 回退 mockDevices (演示徽标)
+  const isApiData = apiLifecycleData.length > 0
+  const lifecycleRows: any[] = isApiData
+    ? apiLifecycleData.map((d: any) => ({
+        id: d.id,
+        name: d.name,
+        model: d.model,
+        serial: d.serialNumber ?? '-',
+        vendor: d.manufacturer ?? '-',
+        dept: d.location ?? '-',
+        status: d.status === 'ACTIVE' ? '在用' : d.status === 'MAINTENANCE' ? '维保中' : '已报废',
+        useCount: 0,
+        lastUse: '-',
+        nextMaint: d.nextMaintenanceDate ?? '-',
+        lifeMonth: 0,
+        deptRate: 0,
+        totalCost: 0,
+        maintCost: 0,
+        spareCost: 0,
+      }))
+    : mockDevices
+
+  const filtered = lifecycleRows.filter(d => {
+    const matchSearch = (d.name?.includes(search) || d.model?.includes(search) || d.id?.includes(search))
     const matchStatus = statusFilter === '全部' || d.status === statusFilter
     return matchSearch && matchStatus
   })
 
-  const soonExpire = mockDevices.filter(d => {
+  const soonExpire = lifecycleRows.filter(d => {
     if (d.status === '已报废') return false
     const next = new Date(d.nextMaint)
     const now = new Date('2026-04-30')
@@ -148,11 +170,21 @@ export default function EquipmentLifecyclePage() {
     return diff <= 30
   })
 
-  const totalValue = mockDevices.filter(d => d.status !== '已报废').reduce((sum, d) => sum + d.totalCost, 0)
+  const totalValue = lifecycleRows.filter(d => d.status !== '已报废').reduce((sum, d) => sum + (d.totalCost ?? 0), 0)
 
   return (
     <div style={s.root}>
-      <PageHeader title="放射科设备全生命周期管理" style={{ marginBottom: 24 }} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <PageHeader title="放射科设备全生命周期管理" style={{ marginBottom: 24 }} />
+        {/* [G005 Wave2A P1] 数据来源徽标 */}
+        <span style={{
+          fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 10, marginBottom: 24,
+          background: isApiData ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
+          color: isApiData ? '#15803d' : '#92400e'
+        }}>
+          {isApiData ? '真实数据' : '演示数据'}
+        </span>
+      </div>
 
       {/* 标签页 */}
       <div style={s.tabs}>
@@ -173,17 +205,17 @@ export default function EquipmentLifecyclePage() {
           <div style={s.statsGrid}>
             <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
               <div style={s.statLabel}>设备总数</div>
-              <div style={s.statValue}>{mockDevices.length}</div>
-              <div style={s.statSub}>在用 {mockDevices.filter(d => d.status === '在用').length} 台</div>
+              <div style={s.statValue}>{lifecycleRows.length}</div>
+              <div style={s.statSub}>在用 {lifecycleRows.filter(d => d.status === '在用').length} 台</div>
             </Card>
             <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
               <div style={s.statLabel}>在用设备</div>
-              <div style={{ ...s.statValue, ...s.statGreen }}>{mockDevices.filter(d => d.status === '在用').length}</div>
+              <div style={{ ...s.statValue, ...s.statGreen }}>{lifecycleRows.filter(d => d.status === '在用').length}</div>
               <div style={s.statSub}>使用率 78%</div>
             </Card>
             <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>
               <div style={s.statLabel}>维保中</div>
-              <div style={{ ...s.statValue, ...s.statOrange }}>{mockDevices.filter(d => d.status === '维保中').length}</div>
+              <div style={{ ...s.statValue, ...s.statOrange }}>{lifecycleRows.filter(d => d.status === '维保中').length}</div>
               <div style={s.statSub}>含故障处理</div>
             </Card>
             <Card bordered={false} style={s.statCard} styles={{ body: { padding: 0 } }}>

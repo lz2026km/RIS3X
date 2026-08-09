@@ -735,7 +735,7 @@ export default function TermLibraryPage() {
                 )}
                 <td style={{ padding: '9px 12px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <div style={{ width: 50, height: 5, background: '#e2e8f0', borderRadius: 3 }}>
+                    <div style={{ width: 50, height: 5, background: 'var(--border-color)', borderRadius: 3 }}>
                       <div style={{ width: `${t.accuracy * 100}%`, height: 5, background: t.accuracy > 0.95 ? '#16a34a' : t.accuracy > 0.9 ? '#f59e0b' : '#dc2626', borderRadius: 3 }} />
                     </div>
                     <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{Math.round(t.accuracy * 100)}%</span>
@@ -946,7 +946,7 @@ export default function TermLibraryPage() {
           }}>
             <FolderOpen size={13} style={{ color: activeCategoryId === 'ALL' && mainTab === 'dict' ? '#1e40af' : '#94a3b8' }} />
             <span style={{ fontSize: 12, fontWeight: activeCategoryId === 'ALL' && mainTab === 'dict' ? 700 : 400, color: activeCategoryId === 'ALL' && mainTab === 'dict' ? '#1e40af' : '#475569' }}>全部词库</span>
-            <span style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 700, background: activeCategoryId === 'ALL' && mainTab === 'dict' ? '#1e40af' : '#e2e8f0', color: activeCategoryId === 'ALL' && mainTab === 'dict' ? '#fff' : '#64748b', borderRadius: 10, padding: '1px 6px' }}>{getCategoryCount('ALL')}</span>
+            <span style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 700, background: activeCategoryId === 'ALL' && mainTab === 'dict' ? '#1e40af' : 'var(--border-color)', color: activeCategoryId === 'ALL' && mainTab === 'dict' ? '#fff' : '#64748b', borderRadius: 10, padding: '1px 6px' }}>{getCategoryCount('ALL')}</span>
           </button>
           <button onClick={() => { setMainTab('standard'); setActiveCategoryId('ALL') }} style={{
             width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', border: 'none', cursor: 'pointer',
@@ -955,7 +955,7 @@ export default function TermLibraryPage() {
           }}>
             <FileCheck size={13} style={{ color: mainTab === 'standard' ? '#1e40af' : '#94a3b8' }} />
             <span style={{ fontSize: 12, fontWeight: mainTab === 'standard' ? 700 : 400, color: mainTab === 'standard' ? '#1e40af' : '#475569' }}>国家标准</span>
-            <span style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 700, background: mainTab === 'standard' ? '#1e40af' : '#e2e8f0', color: mainTab === 'standard' ? '#fff' : '#64748b', borderRadius: 10, padding: '1px 6px' }}>{WS_STANDARDS.length}</span>
+            <span style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 700, background: mainTab === 'standard' ? '#1e40af' : 'var(--border-color)', color: mainTab === 'standard' ? '#fff' : '#64748b', borderRadius: 10, padding: '1px 6px' }}>{WS_STANDARDS.length}</span>
           </button>
           <div style={{ padding: '6px 16px 4px', fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, letterSpacing: 1 }}>按检查类型</div>
           {categories.map(cat => (
@@ -989,10 +989,10 @@ export default function TermLibraryPage() {
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
             {mainTab === 'dict' && (
               <>
-                <button onClick={() => setShowQuickPanel(!showQuickPanel)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: showQuickPanel ? '#eff6ff' : '#fff', border: `1px solid ${showQuickPanel ? '#1e40af' : '#e2e8f0'}`, borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', color: showQuickPanel ? '#1e40af' : '#64748b' }}>
+                <button onClick={() => setShowQuickPanel(!showQuickPanel)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: showQuickPanel ? 'var(--color-info-bg)' : 'var(--bg-card)', border: `1px solid ${showQuickPanel ? '#1e40af' : 'var(--border-color)'}`, borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', color: showQuickPanel ? '#1e40af' : '#64748b' }}>
                   <Zap size={12} /> 快捷词库
                 </button>
-                <button onClick={() => setShowStats(!showStats)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: showStats ? '#f5f3ff' : '#fff', border: `1px solid ${showStats ? '#7c3aed' : '#e2e8f0'}`, borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', color: showStats ? '#7c3aed' : '#64748b' }}>
+                <button onClick={() => setShowStats(!showStats)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: showStats ? 'var(--color-info-bg)' : 'var(--bg-card)', border: `1px solid ${showStats ? '#7c3aed' : 'var(--border-color)'}`, borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', color: showStats ? '#7c3aed' : '#64748b' }}>
                   <BarChart2 size={12} /> 统计
                 </button>
               </>
@@ -1053,7 +1053,7 @@ export default function TermLibraryPage() {
                   <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 1000 }}>
                     <thead><tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid var(--border-color)' }}>
                       {['代码', '标准检查名称', '常用别名', '科室', '检查子类', '报告模板', '状态'].map((h, i) => (
-                        <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12, whiteSpace: 'nowrap', borderRight: i < 6 ? '1px solid #f1f5f9' : 'none' }}>{h}</th>
+                        <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12, whiteSpace: 'nowrap', borderRight: i < 6 ? '1px solid var(--border-light)' : 'none' }}>{h}</th>
                       ))}
                     </tr></thead>
                     <tbody>
@@ -1063,13 +1063,13 @@ export default function TermLibraryPage() {
                         const isMapped = mappedWsCodes.has(ws.code)
                         return (
                           <tr key={ws.code} style={{ borderBottom: '1px solid var(--border-light)', background: 'var(--bg-card)', transition: 'background 0.1s' }}
-                            onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#fafbff'}
+                            onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = 'var(--bg-hover)'}
                             onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = 'var(--bg-card)'}
                           >
                             <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, color: '#1e40af', background: 'var(--color-info-bg)', padding: '2px 8px', borderRadius: 4 }}>{ws.code}</span></td>
                             <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)', maxWidth: 180 }}><span style={{ fontWeight: 600, color: '#1e40af' }}>{ws.standardName}</span></td>
                             <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>{ws.aliases.map(a => <span key={a} style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, background: 'var(--content-bg)', color: 'var(--text-secondary)' }}>{a}</span>)}</div></td>
-                            <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 700, background: MODALITY_BG[ws.department] || '#f1f5f9', color: MODALITY_COLORS[ws.department] || '#64748b' }}>{ws.department}</span></td>
+                            <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 700, background: MODALITY_BG[ws.department] || 'var(--content-bg)', color: MODALITY_COLORS[ws.department] || '#64748b' }}>{ws.department}</span></td>
                             <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{ws.subClass}</span></td>
                             <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)', maxWidth: 250 }}><div style={{ fontSize: 12, color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 240 }}>{ws.reportTemplate}</div></td>
                             <td style={{ padding: '9px 12px' }}>
@@ -1117,7 +1117,7 @@ export default function TermLibraryPage() {
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
                       {top20Terms.map((t, i) => (
-                        <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 8, background: i < 3 ? (i === 0 ? 'var(--color-warning-bg)' : i === 1 ? 'var(--bg-card)' : 'var(--color-warning-bg)') : '#fafafa', borderRadius: 8, padding: '7px 10px', border: `1px solid ${i < 3 ? '#f59e0b30' : '#f1f5f9'}` }}>
+                        <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 8, background: i < 3 ? (i === 0 ? 'var(--color-warning-bg)' : i === 1 ? 'var(--bg-card)' : 'var(--color-warning-bg)') : 'var(--bg-card)', borderRadius: 8, padding: '7px 10px', border: `1px solid ${i < 3 ? '#f59e0b30' : 'var(--border-light)'}` }}>
                           <span style={{ fontSize: 12, fontWeight: 800, color: i < 3 ? '#d97706' : '#94a3b8', minWidth: 16 }}>#{i + 1}</span>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: 12, fontWeight: 600, color: '#1e40af', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.term}</div>
@@ -1140,7 +1140,7 @@ export default function TermLibraryPage() {
                   </div>
                   <div style={{ display: 'flex', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
                     {MODALITY_LIST.map(m => (
-                      <button key={m} onClick={() => setActiveQuickModality(m)} style={{ padding: '4px 12px', borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: `1px solid ${activeQuickModality === m ? MODALITY_COLORS[m] : '#e2e8f0'}`, background: activeQuickModality === m ? MODALITY_BG[m] : 'var(--bg-card)', color: activeQuickModality === m ? MODALITY_COLORS[m] : '#64748b' }}>{m}</button>
+                      <button key={m} onClick={() => setActiveQuickModality(m)} style={{ padding: '4px 12px', borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: `1px solid ${activeQuickModality === m ? MODALITY_COLORS[m] : 'var(--border-color)'}`, background: activeQuickModality === m ? MODALITY_BG[m] : 'var(--bg-card)', color: activeQuickModality === m ? MODALITY_COLORS[m] : '#64748b' }}>{m}</button>
                     ))}
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
@@ -1157,7 +1157,7 @@ export default function TermLibraryPage() {
                         display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, border: '1px solid',
                         cursor: 'pointer', fontSize: 12, fontWeight: 500,
                         background: copySuccess === t.term ? 'var(--color-success-bg)' : 'var(--bg-card)',
-                        borderColor: copySuccess === t.term ? '#16a34a' : '#e2e8f0',
+                        borderColor: copySuccess === t.term ? '#16a34a' : 'var(--border-color)',
                         color: copySuccess === t.term ? '#16a34a' : 'var(--text-primary)',
                         transition: 'all 0.15s',
                       }}>
@@ -1193,7 +1193,7 @@ export default function TermLibraryPage() {
                       {allCategoryNames.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                     <button onClick={handleDownloadTemplate} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, fontWeight: 600, color: '#059669', cursor: 'pointer' }}><Download size={11} /> 导入模板</button>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: importLoading ? '#f5f5f5' : 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, fontWeight: 600, color: '#7c3aed', cursor: importLoading ? 'wait' : 'pointer' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: importLoading ? 'var(--content-bg)' : 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: 6, fontSize: 12, fontWeight: 600, color: '#7c3aed', cursor: importLoading ? 'wait' : 'pointer' }}>
                       <Upload size={11} />{importLoading ? '导入中...' : '批量导入'}
                       <input ref={fileInputRef} type="file" accept=".csv,.xlsx" onChange={e => setImportFile(e.target.files?.[0] || null)} style={{ display: 'none' }} />
                     </label>
@@ -1204,7 +1204,7 @@ export default function TermLibraryPage() {
                   <div style={{ overflowX: "auto" }}><table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 1000 }}>
                     <thead><tr style={{ background: 'var(--content-bg)', borderBottom: '1px solid var(--border-color)' }}>
                       {['词条ID', '词条内容', '类别', '设备类型', '使用次数', '最近使用', '标准对照', '操作'].map((h, i) => (
-                        <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12, whiteSpace: 'nowrap', borderRight: i < 7 ? '1px solid #f1f5f9' : 'none' }}>{h}</th>
+                        <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', fontSize: 12, whiteSpace: 'nowrap', borderRight: i < 7 ? '1px solid var(--border-light)' : 'none' }}>{h}</th>
                       ))}
                     </tr></thead>
                     <tbody>
@@ -1212,7 +1212,7 @@ export default function TermLibraryPage() {
                         <tr><td colSpan={8} style={{ padding: '40px 0', textAlign: 'center' }}><div style={{ color: 'var(--text-secondary)', fontSize: 13 }}><Search size={28} style={{ marginBottom: 8, color: 'var(--text-secondary)' }} /><div>暂无匹配的词条</div></div></td></tr>
                       ) : filteredTerms.map((term, _idx) => (
                         <tr key={term.id} style={{ borderBottom: '1px solid var(--border-light)', background: term.isActive === false ? 'var(--color-error-bg)' : 'var(--bg-card)', transition: 'background 0.1s' }}
-                          onMouseEnter={e => { if (term.isActive !== false) (e.currentTarget as HTMLTableRowElement).style.background = '#fafbff' }}
+                          onMouseEnter={e => { if (term.isActive !== false) (e.currentTarget as HTMLTableRowElement).style.background = 'var(--bg-hover)' }}
                           onMouseLeave={e => { if (term.isActive !== false) (e.currentTarget as HTMLTableRowElement).style.background = 'var(--bg-card)'; else (e.currentTarget as HTMLTableRowElement).style.background = 'var(--color-error-bg)' }}
                         >
                           <td style={{ padding: '9px 12px', borderRight: '1px solid var(--border-light)' }}><span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', background: 'var(--content-bg)', padding: '2px 6px', borderRadius: 4 }}>{term.id}</span></td>
@@ -1287,9 +1287,9 @@ export default function TermLibraryPage() {
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>适用检查类型 <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>（可多选）</span></label>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   {MODALITY_LIST.map(m => (
-                    <label key={m} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, border: `1px solid ${formData.modality.includes(m) ? MODALITY_COLORS[m] : '#e2e8f0'}`, background: formData.modality.includes(m) ? MODALITY_BG[m] : '#fff', color: formData.modality.includes(m) ? MODALITY_COLORS[m] : '#94a3b8', userSelect: 'none' }}>
+                    <label key={m} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 600, border: `1px solid ${formData.modality.includes(m) ? MODALITY_COLORS[m] : 'var(--border-color)'}`, background: formData.modality.includes(m) ? MODALITY_BG[m] : 'var(--bg-card)', color: formData.modality.includes(m) ? MODALITY_COLORS[m] : '#94a3b8', userSelect: 'none' }}>
                       <input type="checkbox" checked={formData.modality.includes(m)} onChange={() => handleModalityToggle(m)} style={{ display: 'none' }} />
-                      <div style={{ width: 12, height: 12, borderRadius: 3, border: '2px solid', borderColor: formData.modality.includes(m) ? MODALITY_COLORS[m] : '#cbd5e1', background: formData.modality.includes(m) ? MODALITY_COLORS[m] : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <div style={{ width: 12, height: 12, borderRadius: 3, border: '2px solid', borderColor: formData.modality.includes(m) ? MODALITY_COLORS[m] : 'var(--border-color)', background: formData.modality.includes(m) ? MODALITY_COLORS[m] : 'var(--bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         {formData.modality.includes(m) && <Check size={8} style={{ color: '#fff' }} />}
                       </div>
                       {m}

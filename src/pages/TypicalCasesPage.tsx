@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { TYPICAL_CASES_SEED as mockTypicalCases, type TypicalCase } from '../services/mockBackend/typicalCasesSeed'
 import { typicalCaseApi } from '../services/api/typicalCaseApi'
+import { TeachingExamModal } from './teach/TeachingExamModal'
 
 // ============================================================
 // 样式常量 - 蓝色主题
@@ -625,6 +626,8 @@ export default function TypicalCasesPage() {
   const [detailVisible, setDetailVisible] = useState(false)
   const [addFormVisible, setAddFormVisible] = useState(false)
   const [isAdmin, setIsAdmin] = useState(true)
+  // [G005 Wave4B] G-04 在线考试模式
+  const [examModeVisible, setExamModeVisible] = useState(false)
 
   // [W3-B] 典型病例 API (MSW 演示数据源) — loading/error + 内置演示数据回退
   const [syncing, setSyncing] = useState(false)
@@ -782,6 +785,13 @@ export default function TypicalCasesPage() {
             style={{ padding: '8px 14px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: COLORS.white, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
           >
             <RefreshCw size={14} />刷新
+          </button>
+          {/* [G005 Wave4B] G-04 在线考试模式入口 */}
+          <button
+            onClick={() => setExamModeVisible(true)}
+            style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#f59e0b', color: COLORS.white, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+          >
+            <Award size={16} />考试模式
           </button>
           {isAdmin && (
             <button onClick={() => setAddFormVisible(true)} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: COLORS.info, color: COLORS.white, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -987,6 +997,7 @@ export default function TypicalCasesPage() {
 
       <CaseDetailDrawer caseData={selectedCase} visible={detailVisible} onClose={() => setDetailVisible(false)} isAdmin={isAdmin} />
       <AddCaseForm visible={addFormVisible} onClose={() => setAddFormVisible(false)} onSubmit={handleAddCase} />
+      <TeachingExamModal visible={examModeVisible} cases={cases} onClose={() => setExamModeVisible(false)} />
     </div>
   )
 }

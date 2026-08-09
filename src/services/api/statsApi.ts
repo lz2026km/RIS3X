@@ -100,6 +100,7 @@ export const statsApi = {
   getTopDevices: (limit = 10) =>
     api.get<any[]>(`/stats/top-devices?limit=${limit}`),
 
+  // [G005 Wave1B] GET /stats/export.csv — 后端直接返回 text/csv 流 (含 BOM)
   exportCsv: () =>
-    api.get<{ url: string }>('/stats/export.csv'),
+    api.getBlob('/stats/export.csv'),
 }

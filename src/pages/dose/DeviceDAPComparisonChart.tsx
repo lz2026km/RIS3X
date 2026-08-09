@@ -6,10 +6,10 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
   ReferenceLine,
   Cell,
 } from "recharts";
+import ChartContainer from "../../components/charts/ChartContainer";
 
 interface DAPPoint {
   device: string;
@@ -122,7 +122,7 @@ export default function DeviceDAPComparisonChart() {
           <Legend color="#94a3b8" label="平均DAP" />
         </div>
       </div>
-      <ResponsiveContainer width="100%" height={240}>
+      <ChartContainer height={240} state={DEVICE_DAP_DATA.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
         <BarChart data={DEVICE_DAP_DATA} barCategoryGap="20%">
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
           <XAxis dataKey="device" tick={{ fontSize: 12, fill: "#94a3b8" }} />
@@ -150,7 +150,7 @@ export default function DeviceDAPComparisonChart() {
           </Bar>
           <Bar dataKey="avgDAP" fill="#94a3b8" radius={[4, 4, 0, 0]} name="平均DAP" />
         </BarChart>
-      </ResponsiveContainer>
+      </ChartContainer>
       <div
         style={{
           marginTop: 12,

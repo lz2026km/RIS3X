@@ -44,6 +44,8 @@ export default function FinancialReportsPage() {
   const [monthlyPl, setMonthlyPl] = useState(MONTHLY_PL)
   const [kpiData, setKpiData] = useState(KPI_DATA)
   const [periodLabel, setPeriodLabel] = useState('2026年4月')
+  // [G005 Wave1B] financeApi.getFinancialReports 真实报表 (用于 CSV 导出, 无数据时禁用导出)
+  const [financialReports, setFinancialReports] = useState<any[] | null>(null)
 
   const toNum = (v: unknown): number => {
     const n = Number(v)
@@ -112,6 +114,7 @@ export default function FinancialReportsPage() {
         const rep = repR.status === 'fulfilled' && repR.value.success ? (repR.value.data as any) : null
         if (rep?.period) setPeriodLabel(rep.period)
         else if (rev?.period) setPeriodLabel(rev.period)
+        if (rep) setFinancialReports(Array.isArray(rep) ? rep : [rep])
       }
     } catch (e) {
       setDataSource('demo')
@@ -128,6 +131,37 @@ export default function FinancialReportsPage() {
   const totalExpense = plData.filter(r => r.type === 'expense').reduce((s, r) => s + r.amount, 0)
   const netIncome = totalRevenue + totalCost + totalExpense
   const profitRate = totalRevenue ? (netIncome / totalRevenue * 100) : 0
+
+  // [G005 Wave1B] 真实导出: 用已加载的 financeApi 数据生成 CSV (Blob), 无数据时禁用
+  const handleExportCsv = () => {
+    if (!financialReports || financialReports.length === 0) return
+    const esc = (v: unknown) => {
+      const s = String(v ?? '')
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+    }
+    const lines: string[] = ['报表ID,报表类型,期间,生成时间,状态']
+    for (const r of financialReports) {
+      lines.push([r.id, r.reportType, r.period, r.generatedAt, r.status].map(esc).join(','))
+    }
+    lines.push('')
+    lines.push('科目,金额(元)')
+    for (const r of plData) {
+      lines.push([r.item, r.amount].map(esc).join(','))
+    }
+    lines.push(['净利润', netIncome].map(esc).join(','))
+    lines.push('')
+    lines.push('月份,收入(元),成本(元),毛利(元),净利(元)')
+    for (const m of monthlyPl) {
+      lines.push([m.month, m.revenue, m.cost, m.grossProfit, m.netIncome].map(esc).join(','))
+    }
+    const blob = new Blob(['\ufeff' + lines.join('\n')], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `财务报表_${periodLabel.replace(/\s+/g, '')}_${new Date().toISOString().split('T')[0]}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
 
   const handlePrint = () => {
     const w = window.open('', '_blank')
@@ -159,7 +193,7 @@ export default function FinancialReportsPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><FileSpreadsheet size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>财务报表</span></div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={handlePrint} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Printer size={14} />打印</button>
-          <button onClick={() => { const csv = '科目,本月,本年累计\n总收入,1234567,12345678\n总支出,654321,7654321\n净利润,580246,4691357\n'; const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = '财务报表.csv'; a.click(); URL.revokeObjectURL(url); }} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />导出CSV</button>
+          <button onClick={handleExportCsv} disabled={!financialReports || financialReports.length === 0} title={!financialReports || financialReports.length === 0 ? '暂无 financeApi 报表数据, 无法导出' : '基于 financeApi 真实数据导出'} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: !financialReports || financialReports.length === 0 ? 'not-allowed' : 'pointer', opacity: !financialReports || financialReports.length === 0 ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />导出CSV</button>
         </div>
       </div>
 

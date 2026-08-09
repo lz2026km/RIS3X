@@ -72,6 +72,17 @@ export class RegionalController {
   @Get('co-sign-records')
   listCoSignRecords() { return this.svc.listCoSignRecords() }
 
+  // ── [G005 Wave1A W9] 多站点/多院区仪表板 (前端 regionalApi listSites / listSiteSyncEvents / listSiteRoutingRules) ──
+
+  @Get('sites')
+  listSites() { return this.svc.listSites() }
+
+  @Get('sites/sync-events')
+  listSiteSyncEvents() { return this.svc.listSiteSyncEvents() }
+
+  @Get('sites/routing-rules')
+  listSiteRoutingRules() { return this.svc.listSiteRoutingRules() }
+
   // ── 原有用例 ──
 
   @Get('imaging')

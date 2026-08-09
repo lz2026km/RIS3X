@@ -1,7 +1,8 @@
 // [v3.0.6.8-51] PR7: 眼料 (IOL 库存 + 接触镜库) API client
 // v3.0.6.11: 路径已对齐 mockBackend/eyeHandlers.ts
 // v3.0.6.11-21 P0: 移除冗余 `/api/v1` 前缀(由 client.ts API_BASE 在 mock 模式提供)
-// eyeHandlers 只暴露 IOL inventory 的 GET, 其它写操作暂保留端点占位 (返回 404, 由前端 UI 屏蔽)
+// [G005 Wave1B] 后端已实现全部端点 (backend/src/eye/eye.controller.ts):
+//   IOL inventory (list/get/:id/in/out/transfer/adjust/low-stock/expiring) + contact-lens CRUD/fitting + ok-lens/design
 import { api } from './client';
 
 const EYE_API = '/eye';
@@ -23,24 +24,21 @@ export interface IolItemDto {
   createdAt: string;
 }
 
-// IOL 在 eyeHandlers.ts 只注册了 GET /api/v1/eye/iol/inventory
-// 之前 materialsApi 使用的 /eye/materials/iol/* 全都不存在 → 404
-// 这里只保留与现有 handler 对齐的 API,其余保留为本地存根 (返回 success/false)
+// IOL 全端点后端已实现 (eye.controller: list/get/:id/in/out/transfer/adjust)
 export const iolApi = {
   list: (params?: { type?: string; status?: string; supplier?: string; pageSize?: number }) =>
     api.get<IolItemDto[]>(`${EYE_API}/iol/inventory${buildQuery(params)}`),
 
-  // eyeHandlers 当前未提供以下写接口;保留前端 API 但提示
   getById: (id: string) =>
-    // TODO: eyeHandlers 暂无 /eye/iol/inventory/:id
+    // [Wave1B] 后端已实现 GET /eye/iol/inventory/:id
     api.get<IolItemDto>(`${EYE_API}/iol/inventory/${id}`),
 
   inStock: (data: Omit<IolItemDto, 'id' | 'createdAt' | 'status'>) =>
-    // TODO: eyeHandlers 暂无 /eye/iol/inventory (POST)
+    // [Wave1B] 后端已实现 POST /eye/iol/inventory
     api.post<IolItemDto>(`${EYE_API}/iol/inventory`, data),
 
   outStock: (id: string, data: { reason: string; patientId?: string; surgeon?: string }) =>
-    // TODO: eyeHandlers 暂无 /eye/iol/inventory/:id/out
+    // [Wave1B] 后端已实现 POST /eye/iol/inventory/:id/out
     api.post<IolItemDto>(`${EYE_API}/iol/inventory/${id}/out`, data),
 
   transfer: (id: string, data: { fromLocation: string; toLocation: string }) =>
@@ -49,7 +47,7 @@ export const iolApi = {
   adjust: (id: string, data: { deltaQty: number; reason: string }) =>
     api.post<IolItemDto>(`${EYE_API}/iol/inventory/${id}/adjust`, data),
 
-  // eyeHandlers 没有 low-stock/expiring 路径,但保留供未来对接
+  // [Wave1B] 后端已实现 GET /eye/iol/inventory/low-stock|expiring
   getLowStock: () =>
     api.get<IolItemDto[]>(`${EYE_API}/iol/inventory/low-stock`),
 
@@ -74,37 +72,34 @@ export interface ContactLensDto {
   supplier: string;
 }
 
-// 接触镜 handler 当前只暴露:
-//   GET  /api/v1/eye/contact-lens/inventory
-//   POST /api/v1/eye/contact-lens/fitting
-// 单条 CRUD 没有 handler,以下方法保留以编译通过,实际使用会被后端 404
+// 接触镜全端点后端已实现 (eye.controller: inventory CRUD + fitting + optometry/ok-lens/design)
 export const contactLensApi = {
   list: (params?: { type?: string; brand?: string; trialLens?: boolean; pageSize?: number }) =>
     api.get<ContactLensDto[]>(`${EYE_API}/contact-lens/inventory${buildQuery(params)}`),
 
   getById: (id: string) =>
-    // TODO: handler 未注册单条读取
+    // [Wave1B] 后端已实现 GET /eye/contact-lens/inventory/:id
     api.get<ContactLensDto>(`${EYE_API}/contact-lens/inventory/${id}`),
 
   create: (data: Omit<ContactLensDto, 'id'>) =>
-    // TODO: handler 未注册 POST /contact-lens/inventory (只有 POST /fitting)
+    // [Wave1B] 后端已实现 POST /eye/contact-lens/inventory
     api.post<ContactLensDto>(`${EYE_API}/contact-lens/inventory`, data),
 
   update: (id: string, data: Partial<ContactLensDto>) =>
-    // TODO
+    // [Wave1B] 后端已实现 PUT /eye/contact-lens/inventory/:id
     api.put<ContactLensDto>(`${EYE_API}/contact-lens/inventory/${id}`, data),
 
   delete: (id: string) =>
-    // TODO
+    // [Wave1B] 后端已实现 DELETE /eye/contact-lens/inventory/:id
     api.delete(`${EYE_API}/contact-lens/inventory/${id}`),
 
   fitting: (_id: string, data: { patientId: string; fittingData: any }) =>
-    // eyeHandlers 的 /contact-lens/fitting 不需要 id 参数,但保留以兼容调用方
+    // [Wave1B] 后端 POST /eye/contact-lens/fitting 不依赖 id 参数, 保留以兼容调用方
     api.post<{ fittingId: string; result: string }>(`${EYE_API}/contact-lens/fitting`, data),
 
-  // OK 镜/角膜塑形镜特殊接口 (eyeHandlers 无 optometry 路由,这里做兼容保留)
+  // OK 镜/角膜塑形镜设计 (后端已实现 POST /eye/optometry/ok-lens/design)
   okLensDesign: (data: { patientId: string; k1: number; k2: number; kAxis: number; targetReduction: number; brand?: string }) =>
-    // TODO: eyeHandlers 未提供 /eye/optometry/ok-lens/design,可考虑 POST /eye/contact-lens/fitting
+    // [Wave1B] 后端已实现 /eye/optometry/ok-lens/design
     api.post<{ designId: string; baseCurve: number; returnZone: number; diameter: number; brand: string }>(`${EYE_API}/optometry/ok-lens/design`, data),
 };
 

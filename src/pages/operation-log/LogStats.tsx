@@ -5,8 +5,9 @@ import { formatDate, formatTime } from './utils'
 import { Activity, TrendingUp, TrendingDown, Flame, Users, Clock, User, Shield, AlertTriangle, AlertCircle, CheckCircle, Download, FileText, FileCheck, FileSpreadsheet, Eye, Timer, BarChart3, PieChart as PieChartIcon } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, Area, AreaChart
+  PieChart, Pie, Cell, LineChart, Line, Area, AreaChart
 } from 'recharts'
+import ChartContainer from '../../components/charts/ChartContainer'
 
 // ============================================================
 // TodayTrendCard
@@ -23,7 +24,7 @@ function TodayTrendCard({ todayCount, yesterdayCount, todayTrend, peakHour, topU
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ background: `${ACCENT}20`, padding: 8, borderRadius: 8 }}>
@@ -45,9 +46,9 @@ function TodayTrendCard({ todayCount, yesterdayCount, todayTrend, peakHour, topU
         </div>
       </div>
 
-      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0', gridColumn: 'span 2' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)', gridColumn: 'span 2' }}>
         <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 8, fontSize: 13 }}>24小时趋势</div>
-        <ResponsiveContainer width="100%" height={80}>
+        <ChartContainer height={80} state={todayTrend.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
           <AreaChart data={todayTrend.map((v, i) => ({ hour: `${String(i).padStart(2, '0')}:00`, value: v }))}>
             <defs>
               <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
@@ -59,21 +60,21 @@ function TodayTrendCard({ todayCount, yesterdayCount, todayTrend, peakHour, topU
             <YAxis hide />
             <Tooltip
               formatter={(value: number) => [`${value}次`, '操作次数']}
-              contentStyle={{ borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12 }}
+              contentStyle={{ borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12 }}
             />
             <Area type="monotone" dataKey="value" stroke={ACCENT} fill="url(#colorValue)" strokeWidth={2} />
           </AreaChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </div>
 
-      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
           <div style={{ background: `${WARNING}20`, padding: 8, borderRadius: 8 }}>
             <Flame size={18} color={WARNING} />
           </div>
           <span style={{ fontSize: 12, color: GRAY }}>高峰时段</span>
         </div>
-        <div style={{ fontSize: 20, fontWeight: 700, color: PRIMARY }}>{peakHour}</div>
+        <div style={{ fontSize: 28, fontWeight: 700, color: PRIMARY }}>{peakHour}</div>
         <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>
           <Users size={10} style={{ verticalAlign: 'middle' }} /> 最活跃用户: {topUser}
         </div>
@@ -88,7 +89,7 @@ function TodayTrendCard({ todayCount, yesterdayCount, todayTrend, peakHour, topU
 function HipaaStatsCards({ stats }: { stats: HipaaStats }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 16 }}>
-      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
           <div style={{ background: `${PRIMARY}20`, padding: 8, borderRadius: 8 }}>
             <Activity size={18} color={PRIMARY} />
@@ -98,7 +99,7 @@ function HipaaStatsCards({ stats }: { stats: HipaaStats }) {
         <div style={{ fontSize: 28, fontWeight: 700, color: PRIMARY }}>{stats.todayTotal}</div>
       </div>
 
-      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: `1px solid ${stats.abnormalCount > 0 ? DANGER : '#e2e8f0'}` }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: `1px solid ${stats.abnormalCount > 0 ? DANGER : 'var(--border-color)'}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
           <div style={{ background: `${DANGER}20`, padding: 8, borderRadius: 8 }}>
             <AlertTriangle size={18} color={DANGER} />
@@ -108,17 +109,17 @@ function HipaaStatsCards({ stats }: { stats: HipaaStats }) {
         <div style={{ fontSize: 28, fontWeight: 700, color: stats.abnormalCount > 0 ? DANGER : SUCCESS }}>{stats.abnormalCount}</div>
       </div>
 
-      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
           <div style={{ background: `${SUCCESS}20`, padding: 8, borderRadius: 8 }}>
             <User size={18} color={SUCCESS} />
           </div>
           <span style={{ fontSize: 12, color: GRAY }}>最活跃用户</span>
         </div>
-        <div style={{ fontSize: 18, fontWeight: 700, color: PRIMARY }}>{stats.mostActiveUser}</div>
+        <div style={{ fontSize: 28, fontWeight: 700, color: PRIMARY }}>{stats.mostActiveUser}</div>
       </div>
 
-      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
           <div style={{ background: `${WARNING}20`, padding: 8, borderRadius: 8 }}>
             <Shield size={18} color={WARNING} />
@@ -173,7 +174,7 @@ function HipaaLogTable({ logs, onViewDetail }: { logs: OperationLog[]; onViewDet
   }
 
   return (
-    <div style={{ background: WHITE, borderRadius: 10, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+    <div style={{ background: 'var(--bg-card)', borderRadius: 10, border: '1px solid var(--border-color)', overflow: 'hidden' }}>
       <div style={{
         display: 'grid',
         gridTemplateColumns: '140px 80px 100px 120px 100px 1fr 100px',
@@ -197,15 +198,15 @@ function HipaaLogTable({ logs, onViewDetail }: { logs: OperationLog[]; onViewDet
             display: 'grid',
             gridTemplateColumns: '140px 80px 100px 120px 100px 1fr 100px',
             padding: '12px 16px',
-            borderBottom: '1px solid #f1f5f9',
+            borderBottom: '1px solid var(--border-light)',
             fontSize: 12,
             alignItems: 'center',
-            background: index % 2 === 0 ? WHITE : '#fafbfc',
+            background: index % 2 === 0 ? 'var(--bg-card)' : 'var(--content-bg)',
             borderLeft: log.complianceLevel === 'critical' ? `3px solid ${DANGER}` :
                        log.complianceLevel === 'warning' ? `3px solid ${WARNING}` : '3px solid transparent',
           }}
-          onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'}
-          onMouseLeave={e => e.currentTarget.style.background = index % 2 === 0 ? WHITE : '#fafbfc'}
+          onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
+          onMouseLeave={e => e.currentTarget.style.background = index % 2 === 0 ? 'var(--bg-card)' : 'var(--content-bg)'}
         >
           <div style={{ color: PRIMARY, fontWeight: 500 }}>
             <div>{formatDate(log.timestamp)}</div>
@@ -246,8 +247,8 @@ function HipaaLogTable({ logs, onViewDetail }: { logs: OperationLog[]; onViewDet
                 onClick={() => onViewDetail(log)}
                 style={{
                   marginTop: 4,
-                  padding: '2px 6px', borderRadius: 4, border: '1px solid #e2e8f0',
-                  background: WHITE, color: ACCENT, fontSize: 12, cursor: 'pointer',
+                  padding: '2px 6px', borderRadius: 4, border: '1px solid var(--border-color)',
+                  background: 'var(--bg-card)', color: ACCENT, fontSize: 12, cursor: 'pointer',
                   display: 'flex', alignItems: 'center', gap: 2,
                 }}
               >
@@ -282,47 +283,47 @@ function HipaaAlertSummary({ logs }: { logs: OperationLog[] }) {
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 16 }}>
-      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #fecaca', borderLeft: `4px solid ${DANGER}` }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--color-error-border)', borderLeft: `4px solid ${DANGER}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
           <div style={{ background: `${DANGER}20`, padding: 8, borderRadius: 8 }}>
             <Clock size={18} color={DANGER} />
           </div>
           <span style={{ fontSize: 12, color: GRAY }}>非工作时间访问</span>
         </div>
-        <div style={{ fontSize: 24, fontWeight: 700, color: DANGER }}>{alertStats.nonWorkHours}</div>
+        <div style={{ fontSize: 28, fontWeight: 700, color: DANGER }}>{alertStats.nonWorkHours}</div>
         <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>22:00 - 06:00</div>
       </div>
 
-      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #fecaca', borderLeft: `4px solid ${DANGER}` }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--color-error-border)', borderLeft: `4px solid ${DANGER}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
           <div style={{ background: `${DANGER}20`, padding: 8, borderRadius: 8 }}>
             <Users size={18} color={DANGER} />
           </div>
           <span style={{ fontSize: 12, color: GRAY }}>跨科室访问</span>
         </div>
-        <div style={{ fontSize: 24, fontWeight: 700, color: DANGER }}>{alertStats.crossDepartment}</div>
+        <div style={{ fontSize: 28, fontWeight: 700, color: DANGER }}>{alertStats.crossDepartment}</div>
         <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>权限范围外访问</div>
       </div>
 
-      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #fde68a', borderLeft: `4px solid ${WARNING}` }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--color-warning-border)', borderLeft: `4px solid ${WARNING}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
           <div style={{ background: `${WARNING}20`, padding: 8, borderRadius: 8 }}>
             <Download size={18} color={WARNING} />
           </div>
           <span style={{ fontSize: 12, color: GRAY }}>批量导出</span>
         </div>
-        <div style={{ fontSize: 24, fontWeight: 700, color: WARNING }}>{alertStats.batchExport}</div>
+        <div style={{ fontSize: 28, fontWeight: 700, color: WARNING }}>{alertStats.batchExport}</div>
         <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>超出正常频率</div>
       </div>
 
-      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #fde68a', borderLeft: `4px solid ${WARNING}` }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--color-warning-border)', borderLeft: `4px solid ${WARNING}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
           <div style={{ background: `${WARNING}20`, padding: 8, borderRadius: 8 }}>
             <Activity size={18} color={WARNING} />
           </div>
           <span style={{ fontSize: 12, color: GRAY }}>高频访问</span>
         </div>
-        <div style={{ fontSize: 24, fontWeight: 700, color: WARNING }}>{alertStats.highFrequency}</div>
+        <div style={{ fontSize: 28, fontWeight: 700, color: WARNING }}>{alertStats.highFrequency}</div>
         <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>同一患者多次访问</div>
       </div>
     </div>
@@ -352,17 +353,17 @@ function HipaaExportPanel({
   allUserNames: string[]
 }) {
   const inputStyle = {
-    padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0',
-    background: WHITE, color: PRIMARY, fontSize: 12, outline: 'none' as const,
+    padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)',
+    background: 'var(--bg-card)', color: PRIMARY, fontSize: 12, outline: 'none' as const,
   }
   const selectStyle = {
-    padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0',
-    background: WHITE, color: PRIMARY, fontSize: 12, cursor: 'pointer' as const, outline: 'none' as const,
+    padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)',
+    background: 'var(--bg-card)', color: PRIMARY, fontSize: 12, cursor: 'pointer' as const, outline: 'none' as const,
   }
 
   return (
     <div style={{
-      background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0',
+      background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)',
       marginBottom: 16, display: 'flex', gap: 16, alignItems: 'flex-end', flexWrap: 'wrap'
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginRight: 8 }}>
@@ -487,7 +488,7 @@ function DurationAnalysisView({ logs }: { logs: OperationLog[] }) {
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
         <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Timer size={16} />操作类型耗时排名
         </div>
@@ -495,7 +496,7 @@ function DurationAnalysisView({ logs }: { logs: OperationLog[] }) {
           {durationByAction.map((item, index) => (
             <div key={item.action} style={{
               display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0',
-              borderBottom: index < durationByAction.length - 1 ? '1px solid #f1f5f9' : 'none',
+              borderBottom: index < durationByAction.length - 1 ? '1px solid var(--border-light)' : 'none',
             }}>
               <div style={{
                 width: 24, height: 24, borderRadius: '50%', background: `${item.color}20`,
@@ -517,13 +518,13 @@ function DurationAnalysisView({ logs }: { logs: OperationLog[] }) {
         </div>
       </div>
 
-      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
         <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
           <PieChartIcon size={16} />耗时分布
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <div>
-            <ResponsiveContainer width="100%" height={180}>
+            <ChartContainer height={180} state={durationDistribution.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
               <PieChart>
                 <Pie data={durationDistribution} cx="50%" cy="50%" innerRadius={40} outerRadius={70} paddingAngle={2} dataKey="count" nameKey="label">
                   {durationDistribution.map((entry, idx) => (
@@ -532,10 +533,10 @@ function DurationAnalysisView({ logs }: { logs: OperationLog[] }) {
                 </Pie>
                 <Tooltip
                   formatter={(value: number, name: string) => [`${value}次 (${durationDistribution.find(d => d.label === name)?.percent}%)`, name]}
-                  contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12 }}
+                  contentStyle={{ borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12 }}
                 />
               </PieChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 8 }}>
             {durationDistribution.map(item => (
@@ -549,22 +550,22 @@ function DurationAnalysisView({ logs }: { logs: OperationLog[] }) {
         </div>
       </div>
 
-      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0', gridColumn: 'span 2' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)', gridColumn: 'span 2' }}>
         <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Activity size={16} />24小时平均耗时趋势
         </div>
-        <ResponsiveContainer width="100%" height={200}>
+        <ChartContainer height={200} state={durationTrend.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
           <LineChart data={durationTrend}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
             <XAxis dataKey="hour" tick={{ fontSize: 12 }} interval={2} />
             <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => `${Math.round(v / 60)}分`} />
             <Tooltip
               formatter={(value: number) => [formatDuration(value), '平均耗时']}
-              contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12 }}
+              contentStyle={{ borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12 }}
             />
             <Line type="monotone" dataKey="avgDuration" stroke={PRIMARY} strokeWidth={2} dot={{ fill: PRIMARY, r: 3 }} />
           </LineChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </div>
     </div>
   )
@@ -683,11 +684,11 @@ function StatisticsCharts({ logs }: { logs: OperationLog[] }) {
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
         <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
           <PieChartIcon size={16} />操作类型分布
         </div>
-        <ResponsiveContainer width="100%" height={220}>
+        <ChartContainer height={220} state={actionStats.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
           <PieChart>
             <Pie data={actionStats} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={2} dataKey="value"
               label={({ name, percent }: { name: string; percent: number }) => `${name} ${(percent * 100).toFixed(0)}%`}
@@ -695,42 +696,42 @@ function StatisticsCharts({ logs }: { logs: OperationLog[] }) {
             >
               {actionStats.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.color} />))}
             </Pie>
-            <Tooltip formatter={(value: number) => [`${value}次`, '操作次数']} contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12 }} />
+            <Tooltip formatter={(value: number) => [`${value}次`, '操作次数']} contentStyle={{ borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12 }} />
           </PieChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </div>
 
-      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
         <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
           <BarChart3 size={16} />用户操作量 TOP10
         </div>
-        <ResponsiveContainer width="100%" height={220}>
+        <ChartContainer height={220} state={userStats.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
           <BarChart data={userStats} layout="vertical">
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
             <XAxis type="number" tick={{ fontSize: 12 }} />
             <YAxis type="category" dataKey="name" tick={{ fontSize: 12 }} width={60} />
-            <Tooltip formatter={(value: number) => [`${value}次`, '操作次数']} contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12 }} />
+            <Tooltip formatter={(value: number) => [`${value}次`, '操作次数']} contentStyle={{ borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12 }} />
             <Bar dataKey="value" fill={ACCENT} radius={[0, 4, 4, 0]} />
           </BarChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </div>
 
-      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
         <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Activity size={16} />24小时操作趋势
         </div>
-        <ResponsiveContainer width="100%" height={180}>
+        <ChartContainer height={180} state={hourStats.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
           <BarChart data={hourStats}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
             <XAxis dataKey="hour" tick={{ fontSize: 12 }} interval={2} />
             <YAxis tick={{ fontSize: 12 }} />
-            <Tooltip formatter={(value: number) => [`${value}次`, '操作次数']} contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12 }} />
+            <Tooltip formatter={(value: number) => [`${value}次`, '操作次数']} contentStyle={{ borderRadius: 8, border: '1px solid var(--border-color)', fontSize: 12 }} />
             <Bar dataKey="value" fill={PRIMARY_LIGHT} radius={[2, 2, 0, 0]} />
           </BarChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </div>
 
-      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 16, border: '1px solid var(--border-color)' }}>
         <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Clock size={16} />操作高峰时段热力图
         </div>

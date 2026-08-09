@@ -190,7 +190,7 @@ export const RoomOccupancyPage: React.FC = () => {
                   <span style={{ fontSize: 13, fontWeight: 500 }}>等候人数: {queue.length} 人</span>
                   <span style={{ marginLeft: 16, fontSize: 13 }}>预计等待: {queue.reduce((s, q) => s + q.estimatedWaitMin, 0)} 分钟</span>
                 </div>
-                <Table dataSource={queue} rowKey="position" size="small" pagination={false}
+                <Table dataSource={queue} rowKey="position" size="small" pagination={false} scroll={{ x: 'max-content' }}
                   columns={[
                     { title: '#', dataIndex: 'position', width: 40 },
                     { title: '患者', dataIndex: 'patientName', ellipsis: true },

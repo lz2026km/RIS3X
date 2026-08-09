@@ -157,6 +157,7 @@ export default function AIQCPage() {
   const [assessing, setAssessing] = useState(false)
   const [assessError, setAssessError] = useState('')
 
+  // [G005 2B] SAMPLE_ASSESS_IDS 保留: 仅用于「刷新示例」按钮批量评估演示用途
   const SAMPLE_ASSESS_IDS = ['EX-5001', 'EX-5002', 'EX-5003']
 
   const runAssess = async (studyId) => {
@@ -218,7 +219,8 @@ export default function AIQCPage() {
       const raw = Array.isArray(res.data) ? res.data : (res.data?.data ?? [])
       const rows = raw.map(normalizeQcRow).filter(Boolean)
       if (rows.length > 0) {
-        setMergedData([...rows, ...AI_QC_DATA])
+        // [G005 2B] 接口成功只展示真实数据, 演示数据仅失败回退 (初始态 AI_QC_DATA)
+        setMergedData(rows)
         setApiError('')
       } else if (!silent) {
         setApiError('接口返回空数据，展示演示数据')

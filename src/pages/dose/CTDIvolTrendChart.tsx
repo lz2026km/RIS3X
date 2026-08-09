@@ -5,8 +5,8 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
 } from "recharts";
+import ChartContainer from "../../components/charts/ChartContainer";
 
 interface CTDIvolPoint {
   date: string;
@@ -118,7 +118,7 @@ export default function CTDIvolTrendChart() {
           <LineLegend color="#dc2626" label="阈值" />
         </div>
       </div>
-      <ResponsiveContainer width="100%" height={240}>
+      <ChartContainer height={240} state={CTDIVOL_TREND.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
         <LineChart data={CTDIVOL_TREND}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
           <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#94a3b8" }} />
@@ -150,7 +150,7 @@ export default function CTDIvolTrendChart() {
             name="法规阈值"
           />
         </LineChart>
-      </ResponsiveContainer>
+      </ChartContainer>
       <div
         style={{
           display: "grid",

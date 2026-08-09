@@ -186,7 +186,7 @@ export const IHEXDSRegistry: React.FC<Props> = ({ reportId, patientId, onRegiste
                         rowKey="entryUUID"
                         dataSource={selected.documentEntries}
                         pagination={false}
-                        scroll={{ y: 200 }}
+                        scroll={{ x: 'max-content', y: 200 }}
                         columns={[
                           { title: 'Title', dataIndex: 'titleEn', key: 'titleEn', render: (v, r) => <div><div className="text-xs font-semibold">{v}</div><div className="text-[10px] text-slate-400">{r.title}</div></div> },
                           { title: 'Class', dataIndex: 'classCode', key: 'classCode', render: (c) => <Tag color="red">{c.code}</Tag> },
@@ -245,7 +245,7 @@ export const IHEXDSRegistry: React.FC<Props> = ({ reportId, patientId, onRegiste
                         <Button type="primary" icon={<Search className="w-3 h-3" />} onClick={handleQuery}>查询</Button>
                       </div>
                       {queryResults.length > 0 && (
-                        <Table size="small" rowKey="entryUUID" dataSource={queryResults} pagination={false} columns={[
+                        <Table size="small" rowKey="entryUUID" dataSource={queryResults} pagination={false} scroll={{ x: 'max-content' }} columns={[
                           { title: 'EntryUUID', dataIndex: 'entryUUID', key: 'entryUUID', render: (v) => <span className="font-mono text-[10px]">{v.split(':').pop()}</span> },
                           { title: 'Title', dataIndex: 'titleEn', key: 'titleEn' },
                           { title: 'Class', dataIndex: 'classCode', key: 'classCode', render: (c) => c.code },

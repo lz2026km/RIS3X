@@ -3,6 +3,7 @@ import { Layers, Minus, Monitor, Move, Plus, RotateCw, Sun, ZoomIn, ZoomOut } fr
 import { t } from '../../i18n/appI18n'
 import { FUSION_CT_WW, FUSION_CT_WL, FUSION_PET_WW, FUSION_PET_WL } from '../../utils/modalityPresets'
 import { fusionApi, type FusionSeriesItem } from '../../services/api/dicomApi'
+import type { SuvLesion, SuvResult } from '../../services/api/fusionApi'
 
 type ViewPlane = 'axial' | 'coronal' | 'sagittal'
 type FusionMode = 'pet-ct' | 'mr-dwi'
@@ -45,6 +46,37 @@ function generateFallbackSlice(_plane: ViewPlane, slice: number, modality: 'ct' 
     data.push(row)
   }
   return data
+}
+
+// [G005 Wave4A G-06] 本地演示回退 (真实接口失败时, source=seed 橙色徽标)
+function makeDemoSuv(studyId: string): SuvResult {
+  const h = (s: string) => {
+    let x = 0
+    for (let i = 0; i < s.length; i++) x = (x * 31 + s.charCodeAt(i)) >>> 0
+    return x / 4294967296
+  }
+  const base = Math.round((6.2 + h(studyId) * 4.6) * 10) / 10
+  return {
+    studyId,
+    hasPet: true,
+    source: 'seed',
+    suv: {
+      max: base,
+      mean: Math.round(base * 0.38 * 10) / 10,
+      peak: Math.round(base * 0.93 * 10) / 10,
+      normalization: {
+        weightKg: 70,
+        injectedDoseMbg: 370,
+        injectionToScanMin: 60,
+        formula: 'SUV = (pixelActivityMBq/ml) / (injectedDoseMBq / bodyWeightKg)',
+        unit: 'g/ml',
+      },
+    },
+    lesions: [
+      { id: 'lesion-1', x: 0.42, y: 0.38, diameterMm: 13.5, suvMax: base, label: '主病灶', slice: 56 },
+      { id: 'lesion-2', x: 0.6, y: 0.55, diameterMm: 8.2, suvMax: Math.round(base * 0.78 * 10) / 10, label: '病灶 2', slice: 44 },
+    ],
+  }
 }
 
 function decodeBase64PixelData(b64: string, width: number, height: number): ImageData | null {
@@ -169,6 +201,41 @@ function drawOverlayLabel(
   ctx.restore()
 }
 
+// [G005 Wave4A G-06] 病灶标记框 (与图像同变换, 随平移/缩放)
+function drawLesionOverlay(
+  ctx: CanvasRenderingContext2D,
+  imgData: ImageData,
+  viewState: ViewState,
+  width: number,
+  height: number,
+  lesion: SuvLesion | null,
+  currentSlice: number,
+) {
+  if (!lesion) return
+  if (lesion.slice !== undefined && lesion.slice !== currentSlice) return
+  const size = imgData.width
+  ctx.save()
+  ctx.translate(width / 2 + viewState.panX, height / 2 + viewState.panY)
+  ctx.scale(viewState.zoom, viewState.zoom)
+  ctx.translate(-size / 2, -size / 2)
+  const px = lesion.x * size
+  const py = lesion.y * size
+  const half = Math.max(8, (lesion.diameterMm / 150) * size * 0.5)
+  ctx.strokeStyle = '#22d3ee'
+  ctx.lineWidth = 2
+  ctx.setLineDash([5, 3])
+  ctx.strokeRect(px - half, py - half, half * 2, half * 2)
+  ctx.setLineDash([])
+  const text = `${lesion.label}  SUVmax ${lesion.suvMax.toFixed(1)}`
+  ctx.font = '12px ui-monospace, monospace'
+  const tw = ctx.measureText(text).width
+  ctx.fillStyle = 'rgba(2,6,23,0.85)'
+  ctx.fillRect(px - half, py - half - 20, tw + 8, 18)
+  ctx.fillStyle = '#22d3ee'
+  ctx.fillText(text, px - half + 4, py - half - 7)
+  ctx.restore()
+}
+
 interface ViewportCanvasProps {
   plane: ViewPlane
   primaryModality: 'ct' | 'mr'
@@ -186,6 +253,7 @@ interface ViewportCanvasProps {
   label: string
   fusionLabel: string
   apiFrame?: ImageData | null
+  lesionOverlay?: SuvLesion | null
 }
 
 const ViewportCanvas: React.FC<ViewportCanvasProps> = ({
@@ -205,6 +273,7 @@ const ViewportCanvas: React.FC<ViewportCanvasProps> = ({
   label,
   fusionLabel,
   apiFrame,
+  lesionOverlay,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   
@@ -236,6 +305,7 @@ const ViewportCanvas: React.FC<ViewportCanvasProps> = ({
     if (showCrosshair) {
       drawCrosshair(ctx, w, h, '#facc15')
     }
+    drawLesionOverlay(ctx, imgData, viewState, w, h, lesionOverlay ?? null, sliceIndex)
     drawOverlayLabel(ctx, `${label} | S:${sliceIndex}`, 6, 14)
     if (fusionAlpha > 0) {
       drawOverlayLabel(ctx, `${fusionLabel} ${Math.round(fusionAlpha * 100)}%`, 6, 32)
@@ -349,6 +419,42 @@ export default function FusionPage() {
   }, [backendSeries, apiFrameCache])
 
   const [currentApiFrame, setCurrentApiFrame] = useState<ImageData | null>(null)
+
+  // [G005 Wave4A G-06] SUV 定量: GET /fusion/suv/:studyId (真实) / 本地 seed 回退 (演示)
+  const [suvResult, setSuvResult] = useState<SuvResult | null>(null)
+  const [suvLoading, setSuvLoading] = useState(true)
+  const [suvFallback, setSuvFallback] = useState(false)
+  const [activeLesion, setActiveLesion] = useState<SuvLesion | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    const patientId = new URLSearchParams(window.location.search).get('patientId') ?? 'P000001'
+    ;(async () => {
+      try {
+        const res = await fusionApi.getSuv(patientId)
+        if (cancelled) return
+        if (res.success && res.data) {
+          setSuvResult(res.data)
+          setSuvFallback(false)
+        } else {
+          setSuvResult(null)
+          setSuvFallback(true)
+        }
+      } catch {
+        if (cancelled) return
+        setSuvResult(makeDemoSuv(patientId))
+        setSuvFallback(true)
+      } finally {
+        if (!cancelled) setSuvLoading(false)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [])
+
+  const handleSelectLesion = useCallback((l: SuvLesion) => {
+    setActiveLesion(prev => (prev?.id === l.id ? null : l))
+    if (l.slice !== undefined) setSliceIndex(l.slice)
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -502,6 +608,7 @@ export default function FusionPage() {
               label={primaryLabel}
               fusionLabel={fusionLabel}
               apiFrame={currentApiFrame}
+              lesionOverlay={activeLesion}
             />
           </div>
           <div style={{ display: 'flex', gap: 4, alignItems: 'center', background: PANEL_BG, borderRadius: 4, padding: '4px 8px' }}>
@@ -543,6 +650,78 @@ export default function FusionPage() {
             />
             <span style={{ fontSize: 10, color: '#94a3b8', minWidth: 30, textAlign: 'right' }}>{sliceIndex}</span>
             <Plus size={8} />
+          </div>
+        </div>
+
+        {/* [G005 Wave4A G-06] SUV 定量面板 */}
+        <div style={{ width: 292, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8, overflowY: 'auto' }}>
+          <div style={{ background: PANEL_BG, borderRadius: 6, padding: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0' }}>SUV 定量</span>
+              <span style={{ fontSize: 10, color: '#64748b' }}>PET-CT</span>
+              <div style={{ flex: 1 }} />
+              {suvLoading ? (
+                <span style={{ fontSize: 10, color: '#64748b' }}>加载中...</span>
+              ) : suvResult && suvResult.hasPet && !suvFallback ? (
+                <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#16a34a22', color: '#16a34a', border: '1px solid #16a34a55' }}>真实数据</span>
+              ) : (
+                <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#ea580c22', color: '#ea580c', border: '1px solid #ea580c55' }}>演示回退</span>
+              )}
+            </div>
+
+            {!suvLoading && (!suvResult || !suvResult.hasPet) ? (
+              <div style={{ textAlign: 'center', padding: '28px 8px', color: '#475569', fontSize: 12 }}>
+                <p style={{ margin: 0, fontWeight: 600, color: '#64748b' }}>无 PET 数据</p>
+                <p style={{ margin: 0, marginTop: 4, fontSize: 11 }}>该检查无 PET 模态，无法进行 SUV 定量</p>
+              </div>
+            ) : suvResult && suvResult.suv ? (
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, marginBottom: 10 }}>
+                  {([
+                    ['SUVmax', suvResult.suv.max, '#facc15'],
+                    ['SUVmean', suvResult.suv.mean, '#38bdf8'],
+                    ['SUVpeak', suvResult.suv.peak, '#a78bfa'],
+                  ] as const).map(([label, value, color]) => (
+                    <div key={label} style={{ background: '#0f172a', borderRadius: 6, padding: '8px 6px', textAlign: 'center' }}>
+                      <div style={{ fontSize: 10, color: '#64748b', marginBottom: 2 }}>{label}</div>
+                      <div style={{ fontSize: 17, fontWeight: 800, color }}>{value.toFixed(1)}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ fontSize: 10, color: '#64748b', lineHeight: 1.6, marginBottom: 10 }}>
+                  {suvResult.suv.normalization.formula}
+                  <div>体重 {suvResult.suv.normalization.weightKg}kg · 注射剂量 {suvResult.suv.normalization.injectedDoseMbg}MBq · 注射至扫描 {suvResult.suv.normalization.injectionToScanMin}min</div>
+                </div>
+
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', marginBottom: 6 }}>
+                  病灶列表 ({suvResult.lesions.length})<span style={{ fontWeight: 400 }}> — 点击叠加标记</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  {suvResult.lesions.length === 0 && (
+                    <div style={{ fontSize: 11, color: '#475569' }}>未见明确代谢增高病灶</div>
+                  )}
+                  {suvResult.lesions.map(l => (
+                    <button
+                      key={l.id}
+                      onClick={() => handleSelectLesion(l)}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 8, textAlign: 'left', cursor: 'pointer',
+                        background: activeLesion?.id === l.id ? '#22d3ee22' : '#0f172a',
+                        border: `1px solid ${activeLesion?.id === l.id ? '#22d3ee88' : '#334155'}`,
+                        borderRadius: 6, padding: '7px 9px', color: '#cbd5e1', fontSize: 12,
+                      }}
+                    >
+                      <span style={{ fontWeight: 700, color: '#22d3ee' }}>{l.label}</span>
+                      <span style={{ fontSize: 11, color: '#64748b' }}>{l.diameterMm.toFixed(1)}mm</span>
+                      <div style={{ flex: 1 }} />
+                      <span style={{ fontWeight: 700, color: '#facc15' }}>SUV {l.suvMax.toFixed(1)}</span>
+                      {l.slice !== undefined && <span style={{ fontSize: 10, color: '#475569' }}>S{l.slice}</span>}
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : null}
           </div>
         </div>
       </div>

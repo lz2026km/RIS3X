@@ -531,6 +531,7 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
                     columns={VOICE_COMMAND_TABLE_COLUMNS}
                     size="small"
                     pagination={false}
+                    scroll={{ x: 'max-content' }}
                     rowKey="command"
                   />
                   <div className="mt-2 pt-2 border-t border-slate-100">
@@ -574,6 +575,7 @@ export const VoiceDictation: React.FC<Props> = ({ reportId, onTextChange, onInse
           columns={VOCAB_COLUMNS}
           size="small"
           pagination={false}
+          scroll={{ x: 'max-content' }}
           rowKey="term"
         />
       </Modal>

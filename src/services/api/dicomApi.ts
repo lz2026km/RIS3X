@@ -1,5 +1,6 @@
 import { api, API_BASE } from './client'
 import { getToken } from '../../utils/auth'
+import type { SuvResult } from './fusionApi'
 
 // ══════════════════════════════════════════════════════════════════════════
 // DICOMweb (QIDO-RS / WADO-RS / STOW-RS)
@@ -417,6 +418,10 @@ export const fusionApi = {
     fusionWindowWidth?: number
     fusionWindowLevel?: number
   }) => api.post<FusionRenderResult>('/fusion/render', params),
+
+  // [G005 Wave4A G-06] PET-CT SUV 定量 (fusionApi.getSuv 对齐)
+  getSuv: (studyId: string) =>
+    api.get<SuvResult>(`/fusion/suv/${encodeURIComponent(studyId)}`),
 }
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -458,6 +463,34 @@ export const dicomSrApi = {
 
   findById: (id: string) =>
     api.get<DicomSrDocument>(`/dicom-sr/${encodeURIComponent(id)}`),
+}
+
+// [G005 Wave4B] G-01 Encapsulated PDF (DICOM PDF 封装, SOP Class 1.2.840.10008.5.1.4.1.1.104.1)
+export interface EncapsulatePdfPayload {
+  reportId?: string
+  studyId?: string
+  pdfUrl?: string
+  pdfBase64?: string
+}
+
+export interface EncapsulatedPdf {
+  id: string
+  reportId: string
+  sopClassUid: string
+  sopInstanceUid: string
+  studyInstanceUid: string
+  pdfEmbedded: string
+  size: number
+  generatedFrom: 'input' | 'url' | 'report-text'
+  generatedAt: string
+}
+
+export const encapsulatedPdfApi = {
+  encapsulate: (payload: EncapsulatePdfPayload) =>
+    api.post<EncapsulatedPdf>('/dicom-sr/encapsulate-pdf', payload),
+
+  findById: (id: string) =>
+    api.get<EncapsulatedPdf>(`/dicom-sr/encapsulated/${encodeURIComponent(id)}`),
 }
 
 export interface CrossModalSearchResult {

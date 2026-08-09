@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, Legend, PieChart, Pie, Cell,
+  Legend, PieChart, Pie, Cell,
 } from 'recharts'
+import ChartContainer from '../../components/charts/ChartContainer'
 import {
   CheckCircle, XCircle, AlertTriangle, TrendingUp, BarChart3,
   PieChart as PieIcon, Download, Activity,
@@ -120,7 +121,7 @@ export default function DepartmentQualityPage() {
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
               <TrendingUp size={16} color="#3b82f6" />质量评分趋势
             </div>
-            <ResponsiveContainer width="100%" height={240}>
+            <ChartContainer height={240} state={SCORE_TREND.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
               <LineChart data={SCORE_TREND}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                 <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -130,14 +131,14 @@ export default function DepartmentQualityPage() {
                 <Line type="monotone" dataKey="score" stroke="#3b82f6" strokeWidth={2} dot={{ fill: '#3b82f6' }} name="评分" />
                 <Line type="monotone" dataKey="passRate" stroke="#22c55e" strokeWidth={2} dot={{ fill: '#22c55e' }} name="通过率(%)" />
               </LineChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </div>
 
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#f0f6fc', display: 'flex', alignItems: 'center', gap: 8 }}>
               <BarChart3 size={16} color="#22c55e" />各检查项通过/未通过
             </div>
-            <ResponsiveContainer width="100%" height={240}>
+            <ChartContainer height={240} state={barData.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
               <BarChart data={barData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                 <XAxis dataKey="category" tick={{ fontSize: 12, fill: '#8b949e' }} />
@@ -147,7 +148,7 @@ export default function DepartmentQualityPage() {
                 <Bar dataKey="passed" fill="#22c55e" radius={[4, 4, 0, 0]} name="通过" stackId="a" />
                 <Bar dataKey="failed" fill="#ef4444" radius={[4, 4, 0, 0]} name="未通过" stackId="a" />
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </div>
         </div>
 
@@ -157,14 +158,14 @@ export default function DepartmentQualityPage() {
               <PieIcon size={16} color="#8b5cf6" />评分等级分布
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-              <ResponsiveContainer width={180} height={180}>
+              <ChartContainer height={180} style={{ width: 180 }} state={SCORE_DIST.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
                 <PieChart>
                   <Pie data={SCORE_DIST} cx="50%" cy="50%" outerRadius={80} dataKey="count" nameKey="range" label={({ range }) => range}>
                     {SCORE_DIST.map((e, i) => <Cell key={i} fill={e.color} />)}
                   </Pie>
                   <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                 </PieChart>
-              </ResponsiveContainer>
+              </ChartContainer>
               <div style={{ flex: 1 }}>
                 {SCORE_DIST.map((d, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, fontSize: 12 }}>

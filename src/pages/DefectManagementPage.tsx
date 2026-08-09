@@ -5,7 +5,7 @@
 // v3.0.6.11: 行点击 → 详情抽屉;状态变更 → API
 // ============================================================
 
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   AlertOctagon,
@@ -17,8 +17,10 @@ import {
   BarChart3,
   X,
   Save,
+  Plus,
 } from 'lucide-react'
-import { Tag, message, Spin } from 'antd'
+import { Tag, message, Spin, Modal, Form, Input, Select } from 'antd'
+import { qcextApi, type QcDefectDto } from '../services/api/qcextApi'
 import { DEFECT_LIBRARY } from '../data/qualityScoreMock'
 
 type StatusFilter = 'all' | 'open' | 'in_progress' | 'resolved'
@@ -94,6 +96,63 @@ const DefectManagementPage: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [selected, setSelected] = useState<DefectRecord | null>(null);
 
+  // [G005 Wave1B] qcextApi.listQcDefects: 合并后端真实缺陷 (失败回退本地, 不阻断)
+  useEffect(() => {
+    qcextApi.listQcDefects()
+      .then((res) => {
+        if (!res.success || !Array.isArray(res.data) || res.data.length === 0) return;
+        const mapped: DefectRecord[] = (res.data as QcDefectDto[]).map((d) => ({
+          id: d.id,
+          category: 'report',
+          name: `${d.defectType}: ${d.description ?? ''}`.slice(0, 60),
+          description: d.description,
+          severity: d.severity === 'high' || d.severity === 'medium' || d.severity === 'low' ? d.severity : 'medium',
+          status: d.status === 'open' || d.status === 'in_progress' || d.status === 'resolved' ? d.status : 'open',
+          owner: d.reportedBy,
+        }));
+        setLocalRecords(prev => [...mapped, ...prev.filter(p => !mapped.some(m => m.id === p.id))]);
+      })
+      .catch(() => { /* 缺陷列表不可用不阻断 */ });
+  }, []);
+
+  // [G005 Wave1B] 上报缺陷: qcextApi.reportQcDefect (POST /qc-ext/defect)
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reporting, setReporting] = useState(false);
+  const [reportForm] = Form.useForm();
+
+  const handleReportDefect = () => {
+    reportForm.validateFields().then(async (values) => {
+      setReporting(true);
+      try {
+        const res = await qcextApi.reportQcDefect({
+          reportId: values.reportId,
+          defectType: values.defectType,
+          description: values.description,
+          severity: values.severity,
+          reportedBy: '当前用户',
+        });
+        if (!res.success) throw new Error(res.error?.message ?? '上报失败');
+        const dto = res.data as QcDefectDto | null;
+        setLocalRecords(prev => [{
+          id: dto?.id ?? `DEF-${Date.now()}`,
+          category: 'report',
+          name: `${values.defectType}: ${values.description}`.slice(0, 60),
+          description: values.description,
+          severity: values.severity,
+          status: 'open',
+          owner: dto?.reportedBy ?? '当前用户',
+        }, ...prev]);
+        setReportOpen(false);
+        reportForm.resetFields();
+        message.success('缺陷已上报 (POST /qc-ext/defect)');
+      } catch (e) {
+        message.error(e instanceof Error ? e.message : '上报失败');
+      } finally {
+        setReporting(false);
+      }
+    });
+  };
+
   const stats = useMemo(() => {
     const all = localRecords.length;
     const byCategory: Record<string, number> = {};
@@ -145,7 +204,15 @@ const DefectManagementPage: React.FC = () => {
       <div className="flex items-center gap-2">
         <AlertOctagon className="text-red-600" size={28} />
         <h1 className="text-2xl font-bold">缺陷管理中心 (R3)</h1>
-        <Tag color="orange">演示数据 · DEFECT_LIBRARY 主数据源</Tag>
+        <Tag color="orange">DEFECT_LIBRARY 主数据源</Tag>
+        <Tag color="green">qcextApi /qc-ext/defect 上报</Tag>
+        <button
+          onClick={() => setReportOpen(true)}
+          className="ml-auto flex items-center gap-1 rounded bg-green-600 px-3 py-1.5 text-xs text-white hover:bg-green-700"
+          data-testid="defect-report-button"
+        >
+          <Plus size={14} /> 上报缺陷
+        </button>
       </div>
       <p className="text-gray-600">报告质量缺陷分类 · 整改追踪 · 趋势分析 · 闭环管理</p>
 
@@ -380,6 +447,48 @@ const DefectManagementPage: React.FC = () => {
           </div>
         </div>
       )}
+      {/* [G005 Wave1B] 上报缺陷弹窗 (qcextApi.reportQcDefect) */}
+      <Modal
+        title="上报缺陷"
+        open={reportOpen}
+        onCancel={() => setReportOpen(false)}
+        onOk={handleReportDefect}
+        confirmLoading={reporting}
+        okText="提交上报"
+        cancelText="取消"
+      >
+        <Form form={reportForm} layout="vertical" style={{ marginTop: 12 }}>
+          <Form.Item name="reportId" label="报告 ID" rules={[{ required: true, message: '请输入报告 ID' }]}>
+            <Input placeholder="rpt-013" />
+          </Form.Item>
+          <Form.Item name="defectType" label="缺陷类型" rules={[{ required: true, message: '请选择缺陷类型' }]}>
+            <Select
+              placeholder="选择缺陷类型"
+              options={[
+                { value: '描述不完整/漏项', label: '描述不完整/漏项' },
+                { value: '诊断结论不明确', label: '诊断结论不明确' },
+                { value: '术语使用不规范', label: '术语使用不规范' },
+                { value: '检查所见与结论不符', label: '检查所见与结论不符' },
+                { value: '危急值漏报/迟报', label: '危急值漏报/迟报' },
+                { value: '报告超时', label: '报告超时' },
+                { value: '其他缺陷', label: '其他缺陷' },
+              ]}
+            />
+          </Form.Item>
+          <Form.Item name="severity" label="严重度" initialValue="medium" rules={[{ required: true }]}>
+            <Select
+              options={[
+                { value: 'high', label: '高' },
+                { value: 'medium', label: '中' },
+                { value: 'low', label: '低' },
+              ]}
+            />
+          </Form.Item>
+          <Form.Item name="description" label="缺陷描述" rules={[{ required: true, message: '请输入缺陷描述' }]}>
+            <Input.TextArea rows={3} placeholder="描述缺陷内容..." />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   )
 }

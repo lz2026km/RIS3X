@@ -31,9 +31,50 @@ export interface MammoQcEnvelope<T> {
   data: T
 }
 
+// [G005 Wave1A W9] 质控测试项 (后端 GET /mammo-qc/tests)
+export interface MammoQcTest {
+  id: string
+  name: string
+  category: string
+  frequency: string
+  target: string
+  lastResult: number
+  status: '通过' | '待复评' | '未通过'
+  nextDue: string
+}
+
+// [G005 Wave1A W9] 质控标准 (后端 GET /mammo-qc/standards)
+export interface MammoQcStandard {
+  id: string
+  name: string
+  requirement: string
+  source: string
+  scope: string
+}
+
+// [G005 Wave1A W9] 质控统计 (后端 GET /mammo-qc/stats)
+export interface MammoQcStats {
+  totalRecords: number
+  passRate: number
+  reviewRate: number
+  failRate: number
+  avgScore: number
+  byModality: Record<string, number>
+  byTechnologist: { technologist: string; count: number; avgScore: number }[]
+}
+
 export const mammoQcApi = {
   getOverview: () => api.get<MammoQcEnvelope<MammoQcOverview>>('/mammo-qc/overview'),
 
   listRecords: (params?: { search?: string; pageSize?: number }) =>
     api.get<MammoQcEnvelope<MammoQcRecord[]>>(`/mammo-qc/records?${new URLSearchParams(params as Record<string, string> ?? {}).toString()}`),
+
+  // [G005 Wave1A W9] 质控测试计划 (后端 GET /mammo-qc/tests)
+  getTests: () => api.get<MammoQcTest[]>('/mammo-qc/tests'),
+
+  // [G005 Wave1A W9] 质控标准 (后端 GET /mammo-qc/standards)
+  getStandards: () => api.get<MammoQcStandard[]>('/mammo-qc/standards'),
+
+  // [G005 Wave1A W9] 质控统计 (后端 GET /mammo-qc/stats)
+  getStats: () => api.get<MammoQcEnvelope<MammoQcStats>>('/mammo-qc/stats'),
 }

@@ -288,16 +288,32 @@ function AETitleConfigPanel() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editForm, setEditForm] = useState({ aeTitle: '', ip: '', port: 104 })
   const [cechoResults, setCechoResults] = useState<Record<string, 'idle' | 'testing' | 'success' | 'fail'>>({})
+  // [G005 Wave2A P1] AE 配置受控保存 → 本地 state + localStorage (无后端端点, 标注"本地")
+  const [aeConfigs, setAeConfigs] = useState<any[]>(() => {
+    try {
+      const raw = localStorage.getItem('g005_ae_title_configs')
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      }
+    } catch { /* ignore */ }
+    return AE_TITLE_CONFIGS
+  })
 
   const handleEdit = (ae: typeof AE_TITLE_CONFIGS[0]) => {
     setEditingId(ae.id)
     setEditForm({ aeTitle: ae.aeTitle, ip: ae.ip, port: ae.port })
   }
 
-  const handleSave = (_id: string) => {
+  // [G005 Wave2A P1] 保存 → 更新本地列表 + localStorage 持久化
+  const handleSave = (id: string) => {
+    const updated = aeConfigs.map((ae: any) => ae.id === id ? { ...ae, ...editForm } : ae)
+    setAeConfigs(updated)
+    try { localStorage.setItem('g005_ae_title_configs', JSON.stringify(updated)) } catch { /* ignore */ }
     setEditingId(null)
   }
 
+  // [G005 Wave2A P1] C-ECHO 无后端端点 → 保留 setTimeout 模拟, 结果标注"模拟"
   const handleCecho = async (ae: typeof AE_TITLE_CONFIGS[0]) => {
     setCechoResults(prev => ({ ...prev, [ae.id]: 'testing' }))
     await new Promise(r => setTimeout(r, 1000))
@@ -314,10 +330,10 @@ function AETitleConfigPanel() {
           border: `1px solid ${C.border}`, maxHeight: 520, overflowY: 'auto'
         }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Shield size={14} style={{ color: C.accent }} /> 应用实体名列表（{AE_TITLE_CONFIGS.length}）
+            <Shield size={14} style={{ color: C.accent }} /> 应用实体名列表（{aeConfigs.length}）
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {AE_TITLE_CONFIGS.map(ae => (
+            {aeConfigs.map(ae => (
               <div key={ae.id} style={{
                 background: 'var(--bg-card)', borderRadius: 8, padding: '10px 12px',
                 border: `1px solid ${C.border}`, cursor: 'pointer', transition: 'all 0.15s'
@@ -364,7 +380,7 @@ function AETitleConfigPanel() {
                       ) : cechoResults[ae.id] === 'testing' ? (
                         <span style={{ fontSize: 12, color: C.warning }}>⏳ 测试中...</span>
                       ) : (
-                        <span style={{ fontSize: 12, color: C.success, fontWeight: 700 }}>✓ C-ECHO 成功</span>
+                        <span style={{ fontSize: 12, color: C.success, fontWeight: 700 }}>✓ C-ECHO 成功（模拟）</span>
                       )}
                     </div>
                   </>
@@ -384,8 +400,8 @@ function AETitleConfigPanel() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
             {[
-              { label: '在线设备', value: AE_TITLE_CONFIGS.filter(a => a.status === 'online').length, color: C.success },
-              { label: '离线设备', value: AE_TITLE_CONFIGS.filter(a => a.status === 'offline').length, color: C.danger },
+              { label: '在线设备', value: aeConfigs.filter((a: any) => a.status === 'online').length, color: C.success },
+              { label: '离线设备', value: aeConfigs.filter((a: any) => a.status === 'offline').length, color: C.danger },
               { label: '默认端口', value: '104', color: C.info },
               { label: 'DICOM协议', value: 'SCU/SCP', color: C.accent },
             ].map(item => (
@@ -608,7 +624,10 @@ export default function DevicePage() {
   const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set())
   const [apiStats, setApiStats] = useState<{ todayExams: number; totalExams: number; usageMinutes: number } | null>(null)
 
-  const { withFeedback, showFeedback } = useButtonFeedback()
+  const { showFeedback } = useButtonFeedback()
+
+  // [G005 Wave2A P1] 检查流程本地状态机 (开始→进行中→完成, 标注"演示")
+  const [examFlow, setExamFlow] = useState<Record<string, 'idle' | 'running' | 'done'>>({})
 
   // API 加载设备今日统计
   const [, setDeviceStats] = useState<{ totalDevices: number; inUse: number; idle: number; maintenance: number } | null>(null)
@@ -767,8 +786,18 @@ export default function DevicePage() {
     }).catch(() => { /* noop */ })
   }
 
+  // [G005 Wave2A P1] 开始检查流程 → 本地状态流转 开始→进行中→完成 (无 QA 端点, 标注"演示")
   const handleExam = (device: DeviceData) => {
-    withFeedback(() => {}, `已为 ${device.name} 开始检查流程`)
+    const cur = examFlow[device.id] ?? 'idle'
+    if (cur === 'idle') {
+      setExamFlow(f => ({ ...f, [device.id]: 'running' }))
+      setTimeout(() => setExamFlow(f => ({ ...f, [device.id]: 'done' })), 1500)
+      showFeedback('success', `已为 ${device.name} 开始检查流程（演示: 进行中）`)
+    } else if (cur === 'running') {
+      showFeedback('success', `${device.name} 检查进行中（演示）`)
+    } else {
+      showFeedback('success', `${device.name} 检查已完成（演示）`)
+    }
   }
 
   const handleMaintenance = (device: DeviceData) => {
@@ -928,7 +957,7 @@ export default function DevicePage() {
               <CheckCircle size={22} color={C.success} />
             </div>
             <div>
-              <div style={{ fontSize: 26, fontWeight: 800, color: C.textDark }}>{stats.inUse}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{stats.inUse}</div>
               <div style={{ fontSize: 12.5, color: C.textLight }}>使用中设备</div>
             </div>
           </div>
@@ -942,7 +971,7 @@ export default function DevicePage() {
               <Clock size={22} color={C.accent} />
             </div>
             <div>
-              <div style={{ fontSize: 26, fontWeight: 800, color: C.textDark }}>{stats.idle}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{stats.idle}</div>
               <div style={{ fontSize: 12.5, color: C.textLight }}>空闲设备</div>
             </div>
           </div>
@@ -956,7 +985,7 @@ export default function DevicePage() {
               <AlertTriangle size={22} color={C.warning} />
             </div>
             <div>
-              <div style={{ fontSize: 26, fontWeight: 800, color: C.textDark }}>{stats.maint + stats.fault}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{stats.maint + stats.fault}</div>
               <div style={{ fontSize: 12.5, color: C.textLight }}>维护/故障中</div>
             </div>
           </div>
@@ -970,7 +999,7 @@ export default function DevicePage() {
               <Activity size={22} color={C.info} />
             </div>
             <div>
-              <div style={{ fontSize: 26, fontWeight: 800, color: C.textDark }}>{stats.totalTodayExams}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{stats.totalTodayExams}</div>
               <div style={{ fontSize: 12.5, color: C.textLight }}>今日检查量</div>
             </div>
           </div>
@@ -1159,7 +1188,7 @@ export default function DevicePage() {
               <Calendar size={20} color={C.warning} />
             </div>
             <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>{maintenancePlans.length}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{maintenancePlans.length}</div>
               <div style={{ fontSize: 12, color: C.textLight }}>待执行计划</div>
             </div>
           </div>
@@ -1170,7 +1199,7 @@ export default function DevicePage() {
               <Bell size={20} color={C.danger} />
             </div>
             <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>
                 {duePlans.length}
               </div>
               <div style={{ fontSize: 12, color: C.textLight }}>30天内到期</div>
@@ -1183,7 +1212,7 @@ export default function DevicePage() {
               <Wrench size={20} color={C.accent} />
             </div>
             <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>{MAINTENANCE_RECORDS.length}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{MAINTENANCE_RECORDS.length}</div>
               <div style={{ fontSize: 12, color: C.textLight }}>维保记录</div>
             </div>
           </div>
@@ -1194,7 +1223,7 @@ export default function DevicePage() {
               <DollarSign size={20} color={C.success} />
             </div>
             <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>
                 ¥{(MAINTENANCE_RECORDS.reduce((s, r) => s + r.cost, 0) / 10000).toFixed(1)}万
               </div>
               <div style={{ fontSize: 12, color: C.textLight }}>累计维保费用</div>
@@ -1288,7 +1317,7 @@ export default function DevicePage() {
               <Gauge size={20} color={C.accent} />
             </div>
             <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>{stats.avgUtil}%</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{stats.avgUtil}%</div>
               <div style={{ fontSize: 12, color: C.textLight }}>平均利用率</div>
             </div>
           </div>
@@ -1299,7 +1328,7 @@ export default function DevicePage() {
               <Power size={20} color={C.success} />
             </div>
             <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>96.1%</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>96.1%</div>
               <div style={{ fontSize: 12, color: C.textLight }}>平均开机率</div>
             </div>
           </div>
@@ -1310,7 +1339,7 @@ export default function DevicePage() {
               <AlertTriangle size={20} color={C.warning} />
             </div>
             <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>{stats.fault}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{stats.fault}</div>
               <div style={{ fontSize: 12, color: C.textLight }}>故障设备</div>
             </div>
           </div>
@@ -1466,7 +1495,7 @@ export default function DevicePage() {
               <TrendingUp size={20} color={C.success} />
             </div>
             <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>¥{(REVENUE_DATA.reduce((s, d) => s + d.total, 0) / 100000000).toFixed(2)}亿</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>¥{(REVENUE_DATA.reduce((s, d) => s + d.total, 0) / 100000000).toFixed(2)}亿</div>
               <div style={{ fontSize: 12, color: C.textLight }}>半年总收入</div>
             </div>
           </div>
@@ -1477,7 +1506,7 @@ export default function DevicePage() {
               <Activity size={20} color={C.accent} />
             </div>
             <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>{examTrendData.reduce((s, d) => s + d.ct + d.mr + d.dr + d.dsa, 0)}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{examTrendData.reduce((s, d) => s + d.ct + d.mr + d.dr + d.dsa, 0)}</div>
               <div style={{ fontSize: 12, color: C.textLight }}>半年总检查量</div>
             </div>
           </div>
@@ -1488,7 +1517,7 @@ export default function DevicePage() {
               <AlertCircle size={20} color={C.danger} />
             </div>
             <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>{totalFaultCount}次</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>{totalFaultCount}次</div>
               <div style={{ fontSize: 12, color: C.textLight }}>故障次数</div>
             </div>
           </div>
@@ -1499,7 +1528,7 @@ export default function DevicePage() {
               <DollarSign size={20} color={C.warning} />
             </div>
             <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>¥{(totalDowntimeLoss / 10000).toFixed(0)}万</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>¥{(totalDowntimeLoss / 10000).toFixed(0)}万</div>
               <div style={{ fontSize: 12, color: C.textLight }}>故障停机损失</div>
             </div>
           </div>
@@ -1878,6 +1907,13 @@ export default function DevicePage() {
           <div>
             <h1 style={{ fontSize: 20, fontWeight: 700, color: C.primary, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
               <Monitor size={22} /> 影像设备管理
+              {/* [G005 Wave2A P1] 部分演示数据标注 */}
+              <span style={{
+                fontSize: 12, fontWeight: 600, padding: '2px 10px', borderRadius: 10,
+                background: 'var(--color-warning-bg)', color: '#92400e', marginLeft: 4
+              }}>
+                部分演示数据
+              </span>
             </h1>
             <div style={{ fontSize: 12, color: C.textLight, marginTop: 3 }}>
               设备总数 {stats.total} 台 · 使用中 {stats.inUse} 台 · 空闲 {stats.idle} 台 · 维护 {stats.maint} 台

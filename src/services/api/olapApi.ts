@@ -14,5 +14,5 @@ export const olapApi = {
   drillDown: (dto: OlapDrillDownDto) => api.post<OlapQueryResult>('/olap/drill-down', dto),
   getChartData: (dto: OlapQueryDto) => api.post<OlapChartDataDto>('/olap/chart', dto),
   getMetadata: () => api.get<{ cubes: OlapCubeDto[] }>('/olap/metadata'),
-  exportCsv: (dto: OlapQueryDto) => api.post<Blob>('/olap/export/csv', dto, { responseType: 'blob' }),
+  exportCsv: (dto: OlapQueryDto) => api.postBlob<Blob>('/olap/export/csv', dto),
 }

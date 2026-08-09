@@ -3,7 +3,7 @@ import { Roles } from '../../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
-import { ExamService, type CreateExamDto, type UpdateExamDto } from './exam.service'
+import { ExamService, type CreateExamDto, type UpdateExamDto, type MergeExamsDto, type SplitExamDto } from './exam.service'
 
 const CreateExamSchema = z.object({
   patientId: z.string().min(1),
@@ -35,6 +35,16 @@ const ImportExamsSchema = z.union([
   z.array(ImportExamRowSchema).min(1),
   z.object({ items: z.array(ImportExamRowSchema).min(1) }),
 ])
+
+// [G005 Wave4B] G-18 检查合并/拆分
+const MergeExamsSchema = z.object({
+  targetId: z.string().min(1),
+  sourceIds: z.array(z.string().min(1)).min(1),
+})
+
+const SplitExamSchema = z.object({
+  reportIds: z.array(z.string().min(1)).min(1),
+})
 
 @ApiTags('exams')
 @ApiBearerAuth()
@@ -77,6 +87,18 @@ export class ExamController {
   importMany(@Body(new ZodValidationPipe(ImportExamsSchema)) body: unknown) {
     const items = Array.isArray(body) ? body : (body as { items: unknown[] }).items
     return this.service.importMany(items as never)
+  }
+
+  // [G005 Wave4B] G-18 检查合并: 同患者多检查 → 目标检查
+  @Post('merge')
+  merge(@Body(new ZodValidationPipe(MergeExamsSchema)) body: MergeExamsDto) {
+    return this.service.merge(body)
+  }
+
+  // [G005 Wave4B] G-18 检查拆分: 按报告归属拆分
+  @Post(':id/split')
+  split(@Param('id') id: string, @Body(new ZodValidationPipe(SplitExamSchema)) body: SplitExamDto) {
+    return this.service.split(id, body)
   }
 
   @Get(':id')

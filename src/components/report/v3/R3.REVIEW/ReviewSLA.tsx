@@ -21,13 +21,13 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  ResponsiveContainer,
   CartesianGrid,
   Cell,
   LineChart,
   Line,
   Legend,
 } from 'recharts';
+import ChartContainer from '../../../charts/ChartContainer';
 
 const STAGE_META: Record<ReviewStage, { label: string; color: string }> = {
   initial: { label: '初审', color: '#f59e0b' },
@@ -177,7 +177,7 @@ export const ReviewSLA: React.FC = () => {
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={12}>
           <Card title="按阶段超时统计" size="small">
-            <ResponsiveContainer width="100%" height={200}>
+            <ChartContainer height={200} state={breachData.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
               <BarChart data={breachData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="stage" tick={{ fontSize: 12 }} />
@@ -189,12 +189,12 @@ export const ReviewSLA: React.FC = () => {
                   ))}
                 </Bar>
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </Card>
         </Col>
         <Col span={12}>
           <Card title="24h 审核时长分布" size="small">
-            <ResponsiveContainer width="100%" height={200}>
+            <ChartContainer height={200} state={hourlyData.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
               <LineChart data={hourlyData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="hour" tick={{ fontSize: 12 }} />
@@ -223,7 +223,7 @@ export const ReviewSLA: React.FC = () => {
                   name="双签"
                 />
               </LineChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </Card>
         </Col>
       </Row>

@@ -14,27 +14,50 @@ function normalize(res: { success: boolean; data: CdsDoseMonitoringDto | null })
     if (d.data && !Array.isArray(d.data) && Array.isArray((d.data as CdsDoseMonitoringDto).records)) {
       return d.data as CdsDoseMonitoringDto
     }
-    // 形状 3: { data: [auditLog...] } (后端真实形状) → auditLog 条目映射为记录
+    // 形状 3: { data: [auditLog...] } (后端真实形状, auditLog.detail 为 JSON 负载) → 条目映射为记录
     if (Array.isArray(d.data) && d.data.length > 0) {
       const items = d.data as any[]
-      return {
-        records: items.map((a: any) => ({
+      const records = items.map((a: any) => {
+        const p = a.detail && typeof a.detail === 'object' ? a.detail : {}
+        return {
           id: a.id,
-          patientName: a.patientName ?? a.data?.patientName ?? '-',
-          examType: a.examType ?? a.data?.examType ?? (a.data?.bodyPart ?? ''),
-          modality: a.modality ?? a.data?.modality ?? '-',
-          dlp: Number(a.dlp ?? a.data?.dlp ?? a.data?.doseValue ?? 0),
-          kerma: Number(a.kerma ?? a.data?.kerma ?? 0),
-          threshold: Number(a.threshold ?? a.data?.threshold ?? 0),
-          status: (a.status ?? a.data?.status ?? 'ok') === 'exceeded' ? 'exceeded' : 'ok',
+          patientName: p.patientName ?? a.patientName ?? p.patient ?? '-',
+          examType: p.examType ?? a.examType ?? (p.bodyPart ?? ''),
+          modality: p.modality ?? a.modality ?? '-',
+          dlp: Number(p.dlp ?? a.dlp ?? p.doseValue ?? p.dose?.dlp ?? 0),
+          kerma: Number(p.kerma ?? a.kerma ?? p.dose?.kerma ?? 0),
+          threshold: Number(p.threshold ?? a.threshold ?? p.drl?.dlpDrl ?? p.dlpDrl ?? 0),
+          status: (p.status ?? a.status ?? p.result ?? 'ok') === 'exceeded' ? 'exceeded' : 'ok',
           recordedAt: a.createdAt ?? a.timestamp,
-        })),
-        thresholds: [],
+        }
+      })
+      // [G005 2B] 阈值提取: 优先取记录内 threshold/DRL, 无则按模态固定默认值 (标注来源)
+      const perModality = new Map<string, { dlpLimit: number; source: string }>()
+      for (const r of records) {
+        const mod = String(r.modality || '通用')
+        const prev = perModality.get(mod)
+        if (r.threshold > 0) {
+          if (!prev || r.threshold > prev.dlpLimit) perModality.set(mod, { dlpLimit: r.threshold, source: 'auditLog' })
+        } else if (!prev) {
+          perModality.set(mod, { dlpLimit: DEFAULT_DLP_LIMITS[mod] ?? 1000, source: '默认(CDS)' })
+        }
       }
+      if (perModality.size === 0) perModality.set('CT', { dlpLimit: DEFAULT_DLP_LIMITS['CT'] ?? 1500, source: '默认(CDS)' })
+      const thresholds = Array.from(perModality.entries()).map(([modality, v], i) => ({
+        id: `TH-${modality}-${i}`,
+        modality,
+        dlpLimit: v.dlpLimit,
+        unit: 'mGy·cm',
+        level: v.source,
+      }))
+      return { records, thresholds }
     }
   }
   return { records: [], thresholds: [] }
 }
+
+// [G005 2B] 后端 cds-dose 无阈值表 → 按模态固定默认 DLP 上限 (对标 MSW 种子 + 国家 DRL)
+const DEFAULT_DLP_LIMITS: Record<string, number> = { CT: 1500, DR: 5, MR: 100, CR: 10, 通用: 1000 }
 
 export default function CdsDoseMonitoringPage() {
   const [data, setData] = useState<CdsDoseMonitoringDto>({ records: [], thresholds: [] })

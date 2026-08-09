@@ -665,7 +665,7 @@ function CarbonTab() {
             justifyContent: 'space-between',
           }}>
             <span style={{ fontSize: 13, color: C.textMuted }}>碳减排量</span>
-            <span style={{ fontSize: 18, fontWeight: 700, color: C.primary }}>
+            <span style={{ fontSize: 16, fontWeight: 600, color: C.primary }}>
               {d.carbonFromPaper} kg CO₂
             </span>
           </div>
@@ -708,7 +708,7 @@ function CarbonTab() {
             justifyContent: 'space-between',
           }}>
             <span style={{ fontSize: 13, color: C.textMuted }}>碳减排量</span>
-            <span style={{ fontSize: 18, fontWeight: 700, color: C.purple }}>
+            <span style={{ fontSize: 16, fontWeight: 600, color: C.purple }}>
               {d.carbonFromInk} kg CO₂
             </span>
           </div>
@@ -727,7 +727,7 @@ function CarbonTab() {
           <div>
             <div style={{ fontSize: 14, opacity: 0.9, marginBottom: 4 }}>本月总碳减排量</div>
             <div style={{ fontSize: 42, fontWeight: 700 }}>
-              {d.totalCarbon} <span style={{ fontSize: 18, fontWeight: 500 }}>kg CO₂</span>
+              {d.totalCarbon} <span style={{ fontSize: 16, fontWeight: 600 }}>kg CO₂</span>
             </div>
           </div>
           <div style={{
@@ -1504,7 +1504,7 @@ const GreenRecommendations = () => {
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <Tag color="orange">演示数据（无后端端点，配置型数据）</Tag>
           <span style={{ fontSize: 13, color: C.textMuted }}>潜在节省:</span>
-          <span style={{ fontSize: 18, fontWeight: 700, color: C.success }}>{totalPotential.toLocaleString()}</span>
+          <span style={{ fontSize: 16, fontWeight: 600, color: C.success }}>{totalPotential.toLocaleString()}</span>
           <span style={{ fontSize: 12, color: C.textLight }}>单位/月</span>
         </div>
       </div>

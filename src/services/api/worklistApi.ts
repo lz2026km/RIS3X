@@ -1,4 +1,4 @@
-import { api } from './client'
+import { api, invalidateApiCacheByPrefix } from './client'
 
 export interface WorklistItemDto {
   id: string; accessionNo: string; patientName: string; patientId: string; patientSex?: string; patientAge?: string;
@@ -8,6 +8,11 @@ export interface WorklistItemDto {
 export interface WorklistQueryParams { page?: number; pageSize?: number; status?: string; modality?: string; patientId?: string; dateFrom?: string; dateTo?: string; search?: string }
 export interface WorklistStatsDto { total: number; byStatus: Record<string, number> }
 export interface AssignWorklistDto { doctorId?: string; deviceId?: string; roomId?: string }
+
+// [G005 Wave1A W9] 状态流转: checkin/start/complete/cancel 后失效 /worklist 前缀缓存
+async function invalidateWorklist(): Promise<void> {
+  await invalidateApiCacheByPrefix('/worklist')
+}
 
 export const worklistApi = {
   list: (params?: WorklistQueryParams) => {
@@ -22,4 +27,26 @@ export const worklistApi = {
   assign: (id: string, dto: AssignWorklistDto) => api.post(`/worklist/${id}/assign`, dto),
   getStats: () => api.get<WorklistStatsDto>('/worklist/stats'),
   batchAssign: (ids: string[], dto: AssignWorklistDto) => api.post('/worklist/batch-assign', { ids, ...dto }),
+
+  // [G005 Wave1A W9] 后端 POST /worklist/:id/checkin|start|complete|cancel 状态流转
+  checkIn: async (id: string) => {
+    const res = await api.post(`/worklist/${id}/checkin`, {})
+    await invalidateWorklist()
+    return res
+  },
+  start: async (id: string) => {
+    const res = await api.post(`/worklist/${id}/start`, {})
+    await invalidateWorklist()
+    return res
+  },
+  complete: async (id: string) => {
+    const res = await api.post(`/worklist/${id}/complete`, {})
+    await invalidateWorklist()
+    return res
+  },
+  cancel: async (id: string, reason?: string) => {
+    const res = await api.post(`/worklist/${id}/cancel`, reason ? { reason } : {})
+    await invalidateWorklist()
+    return res
+  },
 }

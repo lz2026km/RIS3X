@@ -48,6 +48,61 @@ export const fusionHandlers = [
     return HttpResponse.json({ success: true, data: { patientId, series } });
   }),
 
+  // [G005 Wave4A G-06] SUV 定量 — 确定性 seed, 与 fusionApi.getSuv 对齐
+  http.get(`${API}/suv/:studyId`, async ({ params }) => {
+    await delay(delayMs());
+    const studyId = params.studyId as string;
+    const hash = (s: string): number => {
+      let h = 2166136261;
+      for (let i = 0; i < s.length; i++) {
+        h ^= s.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return (h >>> 0) / 4294967295;
+    };
+    const hasPet = SERIES_POOL[studyId]?.some((s: any) => s.modality === 'PET' || s.modality === 'PT') ?? false;
+    const h = hash(`${studyId}:exam`);
+    const lesionCount = hasPet ? 1 + Math.floor(h * 3) : 0;
+    const baseSuv = 6.2 + h * 4.6;
+    const lesions = Array.from({ length: lesionCount }, (_, i) => {
+      const lh = hash(`${studyId}:lesion:${i}`);
+      const rh = hash(`${studyId}:lesion:${i}:r`);
+      return {
+        id: `lesion-${i + 1}`,
+        x: Math.round((0.28 + lh * 0.44) * 1000) / 1000,
+        y: Math.round((0.24 + rh * 0.44) * 1000) / 1000,
+        diameterMm: Math.round((9 + lh * 16) * 10) / 10,
+        suvMax: Math.round((baseSuv + (i === 0 ? 0 : lh * 2.1)) * 10) / 10,
+        label: i === 0 ? '主病灶' : `病灶 ${i + 1}`,
+        slice: 40 + Math.floor(rh * 48),
+      };
+    });
+    const max = lesions[0]?.suvMax ?? 0;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        studyId,
+        hasPet,
+        source: hasPet ? 'exam' : 'none',
+        suv: hasPet
+          ? {
+              max,
+              mean: Math.round(max * 0.38 * 10) / 10,
+              peak: Math.round(max * 0.93 * 10) / 10,
+              normalization: {
+                weightKg: 70,
+                injectedDoseMbg: 370,
+                injectionToScanMin: 60,
+                formula: 'SUV = (pixelActivityMBq/ml) / (injectedDoseMBq / bodyWeightKg)',
+                unit: 'g/ml',
+              },
+            }
+          : null,
+        lesions,
+      },
+    });
+  }),
+
   http.post(`${API}/register`, async ({ request }) => {
     await delay(delayMs(150, 400));
     const body = (await request.json()) as any;

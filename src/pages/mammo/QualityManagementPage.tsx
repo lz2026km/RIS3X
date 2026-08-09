@@ -1,9 +1,10 @@
 // 6.7 Quality Management (20 pts)
 // 数据源: mammoQcApi (/mammo-qc/overview + /mammo-qc/records, [Wave1B] 后端已实现, MSW 仅 mock 兜底)
+// [G005 Wave1A W9] 新增: /mammo-qc/tests|standards|stats 区块
 import { useState, useMemo, useEffect, useCallback } from 'react'
-import { Shield, CheckCircle, XCircle, Download, RefreshCw, Target, BarChart3, Activity, Users, FileText } from 'lucide-react'
-import { mammoQcApi, type MammoQcOverview, type MammoQcRecord } from '../../services/api/mammoQcApi'
-import { Card } from 'antd'
+import { Shield, CheckCircle, XCircle, Download, RefreshCw, Target, BarChart3, Activity, Users, FileText, ClipboardList, BookOpen, PieChart } from 'lucide-react'
+import { mammoQcApi, type MammoQcOverview, type MammoQcRecord, type MammoQcTest, type MammoQcStandard, type MammoQcStats } from '../../services/api/mammoQcApi'
+import { Card, Tabs } from 'antd'
 
 const s: Record<string, React.CSSProperties> = {
   root: { padding: 0 },
@@ -46,6 +47,11 @@ const QualityManagementPage = () => {
   const [source, setSource] = useState<'database' | 'demo'>('demo')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  // [G005 Wave1A W9] 测试计划 / 标准 / 统计
+  const [tests, setTests] = useState<MammoQcTest[]>([])
+  const [standards, setStandards] = useState<MammoQcStandard[]>([])
+  const [qcStats, setQcStats] = useState<MammoQcStats | null>(null)
+  const [extLoading, setExtLoading] = useState(true)
 
   const fetchAll = useCallback(async () => {
     setLoading(true)
@@ -64,7 +70,20 @@ const QualityManagementPage = () => {
     }
   }, [])
 
+  // [G005 Wave1A W9] 测试计划 / 标准 / 统计 (后端 GET /mammo-qc/tests|standards|stats)
+  const fetchExt = useCallback(async () => {
+    setExtLoading(true)
+    try {
+      const [tRes, sRes, stRes] = await Promise.all([mammoQcApi.getTests(), mammoQcApi.getStandards(), mammoQcApi.getStats()])
+      if (tRes.success && Array.isArray(tRes.data)) setTests(tRes.data)
+      if (sRes.success && Array.isArray(sRes.data)) setStandards(sRes.data)
+      if (stRes.success && stRes.data) setQcStats(stRes.data.data ?? null)
+    } catch { /* 扩展接口不可用时保持空 */ }
+    setExtLoading(false)
+  }, [])
+
   useEffect(() => { fetchAll() }, [fetchAll])
+  useEffect(() => { fetchExt() }, [fetchExt])
 
   const handleExportReport = () => {
     const header = '患者,模态,技师,日期,评分,结果,问题'
@@ -176,6 +195,105 @@ const QualityManagementPage = () => {
             </tbody>
           </table>
         </div>
+      </Card>
+
+      {/* [G005 Wave1A W9] 测试计划 / 标准 / 统计 (后端 GET /mammo-qc/tests|standards|stats) */}
+      <Card bordered={false} style={s.section} styles={{ body: { padding: 0 } }}>
+        <div style={s.sectionTitle}><PieChart size={16} color='#0891b2' />质控测试计划 / 标准 / 统计</div>
+        <Tabs
+          size="small"
+          items={[
+            {
+              key: 'tests',
+              label: <span><ClipboardList size={12} /> 测试计划 ({tests.length})</span>,
+              children: (
+                <div style={s.scrollBox}>
+                  <table style={s.table}>
+                    <thead><tr>
+                      <th style={s.th}>测试项</th><th style={s.th}>类别</th><th style={s.th}>频次</th>
+                      <th style={s.th}>目标</th><th style={s.th}>最近结果</th><th style={s.th}>状态</th><th style={s.th}>下次日期</th>
+                    </tr></thead>
+                    <tbody>
+                      {extLoading && <tr><td colSpan={7} style={{ ...s.td, textAlign: 'center', color: 'var(--text-secondary)' }}>加载中...</td></tr>}
+                      {!extLoading && tests.map(t => (
+                        <tr key={t.id}>
+                          <td style={s.td}>{t.name}</td>
+                          <td style={s.td}>{t.category}</td>
+                          <td style={s.td}>{t.frequency}</td>
+                          <td style={s.td}>{t.target}</td>
+                          <td style={s.td}><span style={{ fontWeight: 700 }}>{t.lastResult}</span></td>
+                          <td style={s.td}><StatusBadge status={t.status} /></td>
+                          <td style={s.td}>{t.nextDue}</td>
+                        </tr>
+                      ))}
+                      {!extLoading && tests.length === 0 && <tr><td colSpan={7} style={{ ...s.td, textAlign: 'center', color: 'var(--text-secondary)' }}>暂无测试计划</td></tr>}
+                    </tbody>
+                  </table>
+                </div>
+              ),
+            },
+            {
+              key: 'standards',
+              label: <span><BookOpen size={12} /> 质控标准 ({standards.length})</span>,
+              children: (
+                <div style={s.scrollBox}>
+                  <table style={s.table}>
+                    <thead><tr>
+                      <th style={s.th}>标准</th><th style={s.th}>要求</th><th style={s.th}>来源</th><th style={s.th}>适用范围</th>
+                    </tr></thead>
+                    <tbody>
+                      {extLoading && <tr><td colSpan={4} style={{ ...s.td, textAlign: 'center', color: 'var(--text-secondary)' }}>加载中...</td></tr>}
+                      {!extLoading && standards.map(st => (
+                        <tr key={st.id}>
+                          <td style={{ ...s.td, fontWeight: 600 }}>{st.name}</td>
+                          <td style={s.td}>{st.requirement}</td>
+                          <td style={s.td}><span style={{ padding: '2px 8px', borderRadius: 10, background: 'var(--color-info-bg)', color: '#1e40af', fontSize: 11, fontWeight: 600 }}>{st.source}</span></td>
+                          <td style={s.td}>{st.scope}</td>
+                        </tr>
+                      ))}
+                      {!extLoading && standards.length === 0 && <tr><td colSpan={4} style={{ ...s.td, textAlign: 'center', color: 'var(--text-secondary)' }}>暂无质控标准</td></tr>}
+                    </tbody>
+                  </table>
+                </div>
+              ),
+            },
+            {
+              key: 'stats',
+              label: <span><BarChart3 size={12} /> 统计</span>,
+              children: (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+                  {[
+                    { label: '记录总数', value: qcStats?.totalRecords ?? 0, unit: '条', color: '#2563eb' },
+                    { label: '合格率', value: qcStats?.passRate ?? 0, unit: '%', color: '#16a34a' },
+                    { label: '待复评率', value: qcStats?.reviewRate ?? 0, unit: '%', color: '#ca8a04' },
+                    { label: '不合格率', value: qcStats?.failRate ?? 0, unit: '%', color: '#dc2626' },
+                  ].map((item, i) => (
+                    <div key={i} style={{ padding: 14, background: 'var(--bg-card)', borderRadius: 10 }}>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{item.label}</div>
+                      <div style={{ fontSize: 22, fontWeight: 800, color: item.color }}>{item.value}<span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>{item.unit}</span></div>
+                    </div>
+                  ))}
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 8 }}>技师维度 (平均分)</div>
+                    <table style={s.table}>
+                      <thead><tr><th style={s.th}>技师</th><th style={s.th}>记录数</th><th style={s.th}>平均分</th></tr></thead>
+                      <tbody>
+                        {(qcStats?.byTechnologist ?? []).map((t, i) => (
+                          <tr key={i}>
+                            <td style={s.td}>{t.technologist}</td>
+                            <td style={s.td}>{t.count}</td>
+                            <td style={s.td}><span style={{ fontWeight: 700, color: t.avgScore >= 80 ? '#16a34a' : '#ca8a04' }}>{t.avgScore}</span></td>
+                          </tr>
+                        ))}
+                        {(qcStats?.byTechnologist ?? []).length === 0 && <tr><td colSpan={3} style={{ ...s.td, textAlign: 'center', color: 'var(--text-secondary)' }}>暂无统计</td></tr>}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ),
+            },
+          ]}
+        />
       </Card>
     </div>
   )

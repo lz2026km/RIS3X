@@ -156,7 +156,7 @@ const s: Record<string, React.CSSProperties> = {
     gap: 12,
   },
   headerText: {
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: 700,
     color: '#f1f5f9',
     margin: 0,
@@ -237,8 +237,8 @@ const s: Record<string, React.CSSProperties> = {
     border: '1px solid rgba(71, 85, 105, 0.5)',
   },
   panelTitle: {
-    fontSize: 18,
-    fontWeight: 700,
+    fontSize: 16,
+    fontWeight: 600,
     color: '#f1f5f9',
     marginBottom: 16,
     display: 'flex',
@@ -268,8 +268,8 @@ const s: Record<string, React.CSSProperties> = {
     marginBottom: 8,
   },
   callingRoom: {
-    fontSize: 24,
-    fontWeight: 600,
+    fontSize: 28,
+    fontWeight: 700,
     color: '#4ade80',
   },
   // 检查室状态
@@ -1002,19 +1002,19 @@ export default function OperationsCenterPage() {
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginTop: 24 }}>
             <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#4ade80' }}>{todayTotal}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: '#4ade80' }}>{todayTotal}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>今日总检查</div>
             </div>
             <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#3b82f6' }}>{yesterdayTotal}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: '#3b82f6' }}>{yesterdayTotal}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>昨日总检查</div>
             </div>
             <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#4ade80' }}>{growthText}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: '#4ade80' }}>{growthText}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>环比增长</div>
             </div>
             <div style={{ textAlign: 'center', padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8 }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#fbbf24' }}>{peakText.split('(')[0].replace('高峰日: ', '').trim()}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: '#fbbf24' }}>{peakText.split('(')[0].replace('高峰日: ', '').trim()}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>高峰时段</div>
             </div>
           </div>
@@ -1085,15 +1085,15 @@ export default function OperationsCenterPage() {
             <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 12 }}>今日概览</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 24, fontWeight: 800, color: '#4ade80' }}>{summaryOverview.adverse}</div>
+                <div style={{ fontSize: 28, fontWeight: 700, color: '#4ade80' }}>{summaryOverview.adverse}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>不良事件</div>
               </div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 24, fontWeight: 800, color: '#3b82f6' }}>{summaryOverview.normal}</div>
+                <div style={{ fontSize: 28, fontWeight: 700, color: '#3b82f6' }}>{summaryOverview.normal}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>正常检查</div>
               </div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 24, fontWeight: 800, color: '#fbbf24' }}>{summaryOverview.safety}%</div>
+                <div style={{ fontSize: 28, fontWeight: 700, color: '#fbbf24' }}>{summaryOverview.safety}%</div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>安全率</div>
               </div>
             </div>
@@ -1114,12 +1114,12 @@ export default function OperationsCenterPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, marginTop: 8 }}>
             <div style={{ padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8, textAlign: 'center' }}>
               <Clock size={20} color="#fbbf24" style={{ marginBottom: 8 }} />
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#f1f5f9' }}>{efficiencyData.avgExamTime}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: '#f1f5f9' }}>{efficiencyData.avgExamTime}</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>平均检查时长(分钟)</div>
             </div>
             <div style={{ padding: 16, background: 'rgba(51, 65, 85, 0.5)', borderRadius: 8, textAlign: 'center' }}>
               <CheckCircle size={20} color="#4ade80" style={{ marginBottom: 8 }} />
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#4ade80' }}>{efficiencyData.reportTimelyRate}%</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: '#4ade80' }}>{efficiencyData.reportTimelyRate}%</div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>报告及时率</div>
             </div>
           </div>

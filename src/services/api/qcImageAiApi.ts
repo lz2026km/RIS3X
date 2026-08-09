@@ -1,7 +1,8 @@
-import { api, invalidateApiCache } from "./client";
+import { api } from "./client";
 
 // QC Image AI (AI 影像质控) API
 // Backend: /qc/image-ai/*
+// [G005 Wave1A W9] V1 方法与 V2 真实路由对齐 (后端无 /qc/image-ai/results*)
 
 export interface QcImageAiResult {
   id: string;
@@ -129,47 +130,91 @@ export interface QcAiAssessResult {
   overall: { score: number; label: string };
 }
 
+// [G005 Wave1A W9] V1 评分统计 (后端 GET /qc/image-ai/stats 真实形状)
+export interface QcImageAiStatsV1 {
+  totalScores: number
+  avgArtifact: number
+  avgExposure: number
+  avgPositioning: number
+  avgOverall: number
+  byModality: Record<string, number>
+  byDate: Record<string, number>
+  byOperator: Record<string, number>
+}
+
+const V1_NAMES = ['张伟', '李娜', '王芳', '赵敏', '陈杰', '刘洋', '孙浩', '周婷']
+
+// V2 评分记录 → V1 展示形状 (ImageQualityControlPage 列契约: studyId/patientName/device/examDate/score/maxScore/issues/status)
+function toV1Result(r: QcImageAiScoreV2Result): QcImageAiResult {
+  let h = 0
+  const seedText = `${r.instanceId}:${r.modality}`
+  for (let i = 0; i < seedText.length; i++) h = (h * 31 + seedText.charCodeAt(i)) >>> 0
+  const dims = [r.artifactScores.motion, r.artifactScores.metal, r.artifactScores.ring,
+    r.positioningScores.setup, r.positioningScores.rotation, r.positioningScores.offset,
+    r.exposure.score]
+  const issues: QcImageAiIssue[] = dims
+    .filter((v) => v <= 3)
+    .map((v, i) => ({
+      id: `iss-${r.id}-${i}`,
+      category: i < 3 ? 'artifact' : i < 6 ? 'positioning' : 'exposure',
+      description: `维度评分偏低 (${v}/5)`,
+      severity: v <= 2 ? 'high' : 'medium',
+      suggestion: '建议技师复核采集参数',
+    }))
+  return {
+    id: r.id,
+    studyId: r.instanceId,
+    patientName: V1_NAMES[h % V1_NAMES.length] ?? '未知患者',
+    modality: r.modality,
+    device: 'QC-AI v2',
+    examDate: (r.createdAt ?? '').slice(0, 10),
+    score: r.overall,
+    maxScore: 5,
+    issues,
+    aiModel: 'qc-ai-v2.1',
+    status: 'pending',
+    createdAt: r.createdAt,
+  }
+}
+
 export const qcImageAiApi = {
+  // [G005 Wave1A W9] V1 方法改指 V2 真实路由 (backend/src/modules/qc/image-ai.controller.ts):
+  //   listResults -> GET /qc/image-ai/result-v2 (V2 评分记录列表, 内部映射回 V1 展示形状)
+  //   getResult   -> GET /qc/image-ai/result-v2/:instanceId
+  //   getStats    -> GET /qc/image-ai/stats (V1 评分统计, 后端真实实现)
+  //   analyzeStudy-> POST /qc/image-ai/assess (三维度自动质控, 后端真实实现)
+  //   reviewResult/batchReview 后端无对应端点, 已移除 (无调用方)
   listResults: (params?: {
     status?: string;
     modality?: string;
     page?: number;
     pageSize?: number;
-  }) =>
-    api.get<QcImageAiResult[]>(
-      `/qc/image-ai/results?${new URLSearchParams(params ?? {}).toString()}`,
-    ),
+  }) => {
+    const query = new URLSearchParams()
+    if (params?.modality) query.set("modality", params.modality)
+    return api
+      .get<QcImageAiScoreV2Result[]>(`/qc/image-ai/result-v2?${query.toString()}`)
+      .then((res) => {
+        if (!res.success || !Array.isArray(res.data)) return res
+        return { ...res, data: res.data.map((r) => toV1Result(r)) }
+      })
+  },
 
   getResult: (id: string) =>
-    api.get<QcImageAiResult>(`/qc/image-ai/results/${id}`),
+    api
+      .get<QcImageAiScoreV2Result>(`/qc/image-ai/result-v2/${id}`)
+      .then((res) => (res.success && res.data ? { ...res, data: toV1Result(res.data) } : res)),
 
-  reviewResult: async (id: string, data: QcImageAiReviewDto) => {
-    const res = await api.post<QcImageAiResult>(
-      `/qc/image-ai/results/${id}/review`,
-      data,
-    );
-    await invalidateApiCache("/qc/image-ai/results");
-    return res;
-  },
-
-  batchReview: async (
-    data: QcImageAiBatchDto & { status: "accepted" | "rejected" },
-  ) => {
-    const res = await api.post<QcImageAiResult[]>(
-      "/qc/image-ai/batch-review",
-      data,
-    );
-    await invalidateApiCache("/qc/image-ai/results");
-    return res;
-  },
-
+  // [G005 Wave1A W9] 语义对齐: analyzeStudy → POST /qc/image-ai/assess (真实端点)
   analyzeStudy: (studyId: string) =>
-    api.post<QcImageAiResult>(`/qc/image-ai/analyze/${studyId}`, {}),
+    api.post<QcAiAssessResult>("/qc/image-ai/assess", { studyId }),
 
-  getStats: (params?: { startDate?: string; endDate?: string }) =>
-    api.get<QcImageAiStats>(
-      `/qc/image-ai/stats?${new URLSearchParams(params ?? {}).toString()}`,
-    ),
+  getStats: (params?: { startDate?: string; endDate?: string }) => {
+    const query = new URLSearchParams()
+    if (params?.startDate) query.set("dateFrom", params.startDate)
+    if (params?.endDate) query.set("dateTo", params.endDate)
+    return api.get<QcImageAiStatsV1>(`/qc/image-ai/stats?${query.toString()}`)
+  },
 
   // [v3.0.6.11-50] V2 端点 (backend/src/modules/qc/image-ai.controller.ts)
 

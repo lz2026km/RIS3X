@@ -7,10 +7,11 @@ import {
 } from '../../services/api/smartRouteApi'
 import {
   Card, Table, Button, Tag, Space, Switch, InputNumber, Input, Modal, Form, Select,
-  Row, Col, Statistic, Tabs, message, Alert, Progress,
+  Row, Col, Statistic, Tabs, message, Alert, Progress, Popconfirm,
 } from 'antd'
-import { GitBranch, Plus, Edit3, History, RefreshCw, User, GraduationCap, Route } from 'lucide-react'
+import { GitBranch, Plus, Edit3, History, RefreshCw, User, GraduationCap, Route, Trash2 } from 'lucide-react'
 import React, { useState, useEffect, useCallback } from 'react'
+import { workflowApi } from '../../services/api/workflowApi'
 
 const stageMeta: Record<string, { label: string; color: string }> = {
   qualification: { label: '资质匹配', color: 'blue' },
@@ -99,6 +100,24 @@ const SmartRoutingPage: React.FC = () => {
     })
   }
 
+  // [G005 Wave1B] 规则行删除: 优先 workflowApi.deleteRoutingRule (DELETE /workflow/routing-rules/:id),
+  // 失败则回退本地移除 (通过 smartRouteApi.updateRules 批量持久化)
+  const handleDeleteRule = async (r: SmartRouteRule) => {
+    let apiOk = false
+    try {
+      const res = await workflowApi.deleteRoutingRule(r.id)
+      apiOk = res.success
+      if (!apiOk) throw new Error(res.error?.message ?? '删除失败')
+    } catch (e) {
+      console.warn('[smart-route] deleteRoutingRule failed, fallback local remove:', (e as Error)?.message)
+    }
+    const next = rules.filter((x) => x.id !== r.id)
+    const saved = await saveRules(next)
+    if (saved) {
+      message.success(apiOk ? `规则 "${r.name}" 已删除 (workflow/routing-rules)` : `规则 "${r.name}" 已删除 (后端不可用, 本地移除)`)
+    }
+  }
+
   const ruleColumns = [
     { title: '规则名称', dataIndex: 'name', key: 'name', render: (n: string) => <strong>{n}</strong> },
     { title: '模态', dataIndex: 'modality', key: 'modality', width: 80, render: (m: string) => <Tag color="blue">{m}</Tag> },
@@ -114,19 +133,30 @@ const SmartRoutingPage: React.FC = () => {
       render: (e: boolean, r: SmartRouteRule) => <Switch checked={e} onChange={(c) => handleToggle(r.id, c)} />,
     },
     {
-      title: '操作', key: 'action', width: 90,
+      title: '操作', key: 'action', width: 160,
       render: (_: unknown, r: SmartRouteRule) => (
-        <Button
-          size="small"
-          icon={<Edit3 size={14} />}
-          onClick={() => {
-            setEditingRule(r)
-            ruleForm.setFieldsValue(r)
-            setEditOpen(true)
-          }}
-        >
-          编辑
-        </Button>
+        <Space size={6}>
+          <Button
+            size="small"
+            icon={<Edit3 size={14} />}
+            onClick={() => {
+              setEditingRule(r)
+              ruleForm.setFieldsValue(r)
+              setEditOpen(true)
+            }}
+          >
+            编辑
+          </Button>
+          <Popconfirm
+            title="删除规则"
+            description={`确定删除 "${r.name}"?`}
+            okText="删除"
+            cancelText="取消"
+            onConfirm={() => void handleDeleteRule(r)}
+          >
+            <Button size="small" danger icon={<Trash2 size={14} />}>删除</Button>
+          </Popconfirm>
+        </Space>
       ),
     },
   ]

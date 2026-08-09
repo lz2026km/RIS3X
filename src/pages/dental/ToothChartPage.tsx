@@ -1,5 +1,5 @@
 // [v3.0.6.8-53] 牙位图页?(FDI 编号 32 ?
-import { Card, Space, Tag, Row, Col, Empty, Tooltip } from "antd";
+import { Card, Space, Tag, Row, Col, Empty, Tooltip, Select } from "antd";
 import { Activity, Stethoscope } from "lucide-react";
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect } from "react";
@@ -7,9 +7,25 @@ import React, { useState, useEffect } from "react";
 import { dentalApi } from "../../services/api/dentalApi";
 
 export const ToothChartPage: React.FC = () => {
-  const [patientId] = useState("P100000");
+  // [G005 2B] 写死 P100000 真实化: 患者下拉选择, 切换后重查牙位图
+  const [patientId, setPatientId] = useState("P100000");
+  const [patients, setPatients] = useState<any[]>([]);
   const [chart, setChart] = useState<any>(null);
   const [activeTooth, setActiveTooth] = useState<number | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const r = await dentalApi.listPatients();
+        if (r.success && Array.isArray(r.data) && r.data.length > 0) {
+          setPatients(r.data);
+          setPatientId(r.data[0].id || r.data[0].patientId);
+        }
+      } catch (e) {
+        console.warn("[F03] Error:", (e as Error)?.message);
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -45,6 +61,17 @@ export const ToothChartPage: React.FC = () => {
         <span style={{ fontSize: 18, fontWeight: 600 }}>牙位图 (FDI)</span>
         <Tag color="cyan">v3.0.6.8-53</Tag>
         <Tag color="blue">32 颗牙</Tag>
+        <Select
+          size="small"
+          value={patientId}
+          onChange={(v) => setPatientId(v)}
+          style={{ width: 180 }}
+          options={patients.map((p: any) => ({
+            value: p.id || p.patientId,
+            label: `${p.name} (${p.id || p.patientId})`,
+          }))}
+          notFoundContent="暂无患者"
+        />
       </Space>
       <Row gutter={16}>
         <Col span={18}>

@@ -302,14 +302,14 @@ export default function TemplateManagementPage() {
           {publishedVersion && (
             <div style={{ flex: 1, background: C.successLight, borderRadius: 8, padding: '12px 14px', border: `1px solid ${C.success}` }}>
               <div style={{ fontSize: 12, color: C.success, fontWeight: 600 }}>生产版本</div>
-              <div style={{ fontSize: 18, fontWeight: 800, color: C.success }}>{publishedVersion.version}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.success }}>{publishedVersion.version}</div>
               <div style={{ fontSize: 12, color: C.textMid }}>{publishedVersion.changedAt} · {publishedVersion.changedBy}</div>
             </div>
           )}
           {draftVersion && (
             <div style={{ flex: 1, background: C.warningLight, borderRadius: 8, padding: '12px 14px', border: `1px solid ${C.warning}` }}>
               <div style={{ fontSize: 12, color: C.warning, fontWeight: 600 }}>草稿版本</div>
-              <div style={{ fontSize: 18, fontWeight: 800, color: C.warning }}>{draftVersion.version}</div>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.warning }}>{draftVersion.version}</div>
               <div style={{ fontSize: 12, color: C.textMid }}>{draftVersion.changedAt} · {draftVersion.changedBy}</div>
             </div>
           )}
@@ -417,19 +417,19 @@ export default function TemplateManagementPage() {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div style={{ background: C.primaryLighter, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: C.primary }}>{templates.length}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: C.primary }}>{templates.length}</div>
                   <div style={{ fontSize: 12, color: C.textMid }}>模板总数</div>
                 </div>
                 <div style={{ background: C.successLight, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: C.success }}>{totalUsage}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: C.success }}>{totalUsage}</div>
                   <div style={{ fontSize: 12, color: C.textMid }}>总使用次数</div>
                 </div>
                 <div style={{ background: C.warningLight, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: C.warning }}>{Math.round(totalUsage / templates.length)}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: C.warning }}>{Math.round(totalUsage / templates.length)}</div>
                   <div style={{ fontSize: 12, color: C.textMid }}>平均使用</div>
                 </div>
                 <div style={{ background: C.infoLight, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: C.info }}>{templates.filter(t => t.status === 'active').length}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: C.info }}>{templates.filter(t => t.status === 'active').length}</div>
                   <div style={{ fontSize: 12, color: C.textMid }}>活跃模板</div>
                 </div>
               </div>
@@ -493,15 +493,15 @@ export default function TemplateManagementPage() {
         </div>
         <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
           <div style={{ flex: 1, background: C.primaryLighter, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
-            <div style={{ fontSize: 22, fontWeight: 800, color: C.primary }}>{entries.length}</div>
+            <div style={{ fontSize: 28, fontWeight: 700, color: C.primary }}>{entries.length}</div>
             <div style={{ fontSize: 12, color: C.textMid }}>分享总数</div>
           </div>
           <div style={{ flex: 1, background: C.successLight, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
-            <div style={{ fontSize: 22, fontWeight: 800, color: C.success }}>{new Set(entries.map(e => e.sharedWith)).size}</div>
+            <div style={{ fontSize: 28, fontWeight: 700, color: C.success }}>{new Set(entries.map(e => e.sharedWith)).size}</div>
             <div style={{ fontSize: 12, color: C.textMid }}>协作科室/用户</div>
           </div>
           <div style={{ flex: 1, background: C.warningLight, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
-            <div style={{ fontSize: 22, fontWeight: 800, color: C.warning }}>{entries.filter(e => e.permission === 'admin').length}</div>
+            <div style={{ fontSize: 28, fontWeight: 700, color: C.warning }}>{entries.filter(e => e.permission === 'admin').length}</div>
             <div style={{ fontSize: 12, color: C.textMid }}>管理员权限</div>
           </div>
         </div>
@@ -765,7 +765,7 @@ const styles: Record<string, React.CSSProperties> = {
   container: { padding: '24px', backgroundColor: C.bg, minHeight: '100vh', fontFamily: '"Microsoft YaHei", "Segoe UI", sans-serif' },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', backgroundColor: 'var(--bg-card)', padding: '16px 24px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' },
   headerLeft: { display: 'flex', alignItems: 'center', gap: '12px' },
-  title: { fontSize: '22px', fontWeight: 600, color: C.textDark, margin: 0 },
+  title: { fontSize: '20px', fontWeight: 700, color: C.textDark, margin: 0 },
   addBtn: { display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 18px', backgroundColor: C.primary, color: C.white, border: 'none', borderRadius: '6px', fontSize: '14px', fontWeight: 500, cursor: 'pointer', transition: 'background-color 0.2s' },
   toolbar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', gap: '16px', backgroundColor: 'var(--bg-card)', padding: '16px 20px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' },
   searchBox: { display: 'flex', alignItems: 'center', gap: '10px', flex: 1, maxWidth: '400px', padding: '8px 14px', backgroundColor: C.bgLight, borderRadius: '6px', border: `1px solid ${C.borderLight}` },

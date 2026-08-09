@@ -6,12 +6,12 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer,
   ReferenceLine,
 } from "recharts";
 import { AlertTriangle } from "lucide-react";
 import { staffDoseRecords } from "./mockData";
 import type { StaffDoseRecord } from "./types";
+import ChartContainer from "../../components/charts/ChartContainer";
 
 const STAFF_COLORS = ["#3b82f6", "#8b5cf6", "#ef4444", "#10b981", "#f59e0b", "#6366f1"];
 
@@ -118,7 +118,7 @@ export default function StaffDoseMonitoring() {
         >
           月度人员剂量对比
         </div>
-        <ResponsiveContainer width="100%" height={220}>
+        <ChartContainer height={220} state={monthlyChartData.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
           <BarChart data={monthlyChartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis dataKey="month" tick={{ fontSize: 12, fill: "#94a3b8" }} />
@@ -145,7 +145,7 @@ export default function StaffDoseMonitoring() {
               />
             ))}
           </BarChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </div>
 
       <div

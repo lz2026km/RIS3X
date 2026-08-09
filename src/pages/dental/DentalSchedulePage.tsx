@@ -174,7 +174,7 @@ export const DentalSchedulePage: React.FC = () => {
 
 
                 <Form layout="vertical" size="small">
-                  <Form.Item label="患者"><Select value={psrRec.patientId} onChange={v=>setPsrRec({...psrRec,patientId:v})} options={[{value:'P100001',label:'张伟'},{value:'P100002',label:'李娜'},{value:'P100003',label:'王芳'}]} /></Form.Item>
+                  <Form.Item label="患者"><Select value={psrRec.patientId} onChange={v=>setPsrRec({...psrRec,patientId:v})} options={patients.length > 0 ? patients : [{value:'P100001',label:'张伟'},{value:'P100002',label:'李娜'},{value:'P100003',label:'王芳'}]} placeholder="选择患者" /></Form.Item>
                   <Form.Item label="象限"><Segmented value={psrRec.quadrant} onChange={v=>setPsrRec({...psrRec,quadrant:v as number})} options={[{value:1,label:'右上'},{value:2,label:'左上'},{value:3,label:'左下'},{value:4,label:'右下'}]} /></Form.Item>
                   <div style={{fontSize:12,fontWeight:600,marginBottom:4}}>6点探诊深度 (mm)</div>
                   <Row gutter={4}>

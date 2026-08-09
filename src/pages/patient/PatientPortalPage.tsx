@@ -118,7 +118,7 @@ export const PatientPortalPage: React.FC = () => {
           <Row gutter={16}>
             <Col span={12}>
               <Card size="small" title={<Space><Calendar size={14}/>近期预约</Space>}>
-                <Table dataSource={nextAppts} rowKey={(r) => r.id || `${r.date}-${r.type}`} pagination={false}
+                <Table dataSource={nextAppts} rowKey={(r) => r.id || `${r.date}-${r.type}`} pagination={false} scroll={{ x: 'max-content' }}
                   columns={[{title:'时间',dataIndex:'date'},{title:'科室',dataIndex:'dept'},{title:'医生',dataIndex:'doctor'},{title:'类型',dataIndex:'type'}]} />
               </Card>
             </Col>

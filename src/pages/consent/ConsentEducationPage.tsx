@@ -29,6 +29,8 @@ export const ConsentEducationPage: React.FC = () => {
   const [sentMaterials, setSentMaterials] = useState<Set<string>>(new Set());
   const [consentForm] = Form.useForm();
   const [materialForm] = Form.useForm();
+  // [G005 2B] 附件不再丢弃: 收集 File 对象 + base64 (后端 createMaterial 不支持 FormData → base64 存 content + 文件名摘要回退)
+  const [materialFile, setMaterialFile] = useState<{ name: string; size: number; base64: string } | null>(null);
   const { pageData: consentPageData, pagination: consentPagination } = usePagination(consents, 6);
 
   // [W3-C] 发送患者: 本地真实状态 (标记已发送 + 浏览数 +1)
@@ -129,18 +131,22 @@ export const ConsentEducationPage: React.FC = () => {
 
   const createMaterial = async () => {
     const values = await materialForm.validateFields();
+    // [G005 2B] 附件随提交附上: base64 → content 字段, 文件名 → 摘要 (后端 FormData 不支持时的回退)
+    const attachmentNote = materialFile ? `[附件: ${materialFile.name} (${(materialFile.size / 1024).toFixed(1)} KB)]` : '';
     const res = await consentEducationApi.createMaterial({
       title: values.title,
       category: values.category,
       lang: values.lang,
       pages: values.pages ?? 1,
       format: values.format,
-      summary: values.summary,
+      summary: [values.summary, attachmentNote].filter(Boolean).join(' '),
+      content: materialFile?.base64 || undefined,
     });
     if (res.success) {
       setMaterials((prev) => [...prev, res.data as EducationMaterialDto]);
-      message.success('宣教资料已上传');
+      message.success(materialFile ? `宣教资料已上传 (附件 ${materialFile.name})` : '宣教资料已上传');
       setUploadModal(false);
+      setMaterialFile(null);
       materialForm.resetFields();
     } else {
       message.error(res.error?.message ?? '上传失败');
@@ -262,7 +268,7 @@ export const ConsentEducationPage: React.FC = () => {
         </Form>
       </Modal>
 
-      <Modal title="上传宣教资料" open={uploadModal} onOk={() => void createMaterial()} onCancel={() => setUploadModal(false)} okText="上传">
+      <Modal title="上传宣教资料" open={uploadModal} onOk={() => void createMaterial()} onCancel={() => { setUploadModal(false); setMaterialFile(null); }} okText="上传">
         <Form form={materialForm} layout="vertical">
           <Form.Item name="title" label="标题" rules={[{ required: true, message: '请输入标题' }]}>
             <Input placeholder="如：CT 检查须知" />
@@ -282,8 +288,18 @@ export const ConsentEducationPage: React.FC = () => {
           <Form.Item name="summary" label="摘要">
             <Input.TextArea rows={2} placeholder="资料内容摘要" />
           </Form.Item>
-          <Upload beforeUpload={() => false} showUploadList={false}>
-            <Button icon={<UploadIcon size={12} />} block>选择附件（可选）</Button>
+          <Upload
+            showUploadList={false}
+            beforeUpload={() => false}
+            onChange={({ file }) => {
+              const f = file.originFileObj as File | undefined;
+              if (!f) return;
+              const reader = new FileReader();
+              reader.onload = () => setMaterialFile({ name: f.name, size: f.size, base64: String(reader.result ?? '') });
+              reader.readAsDataURL(f);
+            }}
+          >
+            <Button icon={<UploadIcon size={12} />} block>{materialFile ? `已选附件: ${materialFile.name} (${(materialFile.size / 1024).toFixed(1)} KB)` : '选择附件（可选）'}</Button>
           </Upload>
         </Form>
       </Modal>

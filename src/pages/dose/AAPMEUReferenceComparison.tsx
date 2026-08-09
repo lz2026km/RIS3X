@@ -6,9 +6,9 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
   Cell,
 } from "recharts";
+import ChartContainer from "../../components/charts/ChartContainer";
 import { AAPM_EU_REFERENCES } from "./mockData";
 import type { AAPMReference } from "./types";
 
@@ -167,7 +167,7 @@ export default function AAPMEUReferenceComparison() {
         </div>
       </div>
 
-      <ResponsiveContainer width="100%" height={280}>
+      <ChartContainer height={280} state={chartData.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
         <BarChart data={chartData} barCategoryGap="25%">
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
           <XAxis dataKey="name" tick={{ fontSize: 12, fill: "#94a3b8" }} />
@@ -199,7 +199,7 @@ export default function AAPMEUReferenceComparison() {
             ))}
           </Bar>
         </BarChart>
-      </ResponsiveContainer>
+      </ChartContainer>
 
       {/* 超标告警表格 */}
       <div style={{ marginTop: 20 }}>

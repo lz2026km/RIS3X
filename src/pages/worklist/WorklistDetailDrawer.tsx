@@ -16,6 +16,8 @@ import {
   ArrowLeftRight,
   XCircle,
   Printer,
+  Play,
+  CheckCircle,
 } from "lucide-react";
 import {
   initialModalityDevices,
@@ -26,6 +28,8 @@ import type { RadiologyExam } from "../../types";
 import { normalizeExamStatus } from "../../utils/statusMaps";
 import { AppDrawer } from "../../components/common/AppDrawer";
 import { examApi } from "../../services/api/examApi";
+import { worklistApi } from "../../services/api/worklistApi";
+import { message } from "antd";
 import type { ExamDto } from "../../types/dto";
 
 const getDoctorById = (doctorId: string) => initialUsers.find(u => u.id === doctorId)
@@ -103,6 +107,8 @@ export interface DetailDrawerProps {
   onWriteReport?: (exam: RadiologyExam) => void;
   onStartExam?: (exam: RadiologyExam) => void;
   onCancelExam?: (exam: RadiologyExam) => void;
+  // [G005 Wave1A W9] 状态流转 (worklistApi checkin/start/complete/cancel) 成功后的刷新回调
+  onStatusChanged?: () => void;
   initialTab?: "info" | "images" | "history" | "log";
 }
 
@@ -116,6 +122,7 @@ export function DetailDrawer({
   onWriteReport,
   onStartExam,
   onCancelExam,
+  onStatusChanged,
   initialTab = "info",
 }: DetailDrawerProps) {
   const [activeTab, setActiveTab] = useState<
@@ -125,6 +132,34 @@ export function DetailDrawer({
   const [historyLoading, setHistoryLoading] = useState(false)
   const [historyError, setHistoryError] = useState<string | null>(null)
   const lastExamIdRef = useRef<string | null>(null)
+
+  // [G005 Wave1A W9] 状态流转: worklistApi checkin/start/complete/cancel (后端 POST /worklist/:id/*)
+  const [statusBusy, setStatusBusy] = useState<"checkin" | "start" | "complete" | "cancel" | null>(null)
+
+  const handleStatusAction = async (action: "checkin" | "start" | "complete" | "cancel") => {
+    if (!exam) return
+    setStatusBusy(action)
+    try {
+      const res =
+        action === "checkin"
+          ? await worklistApi.checkIn(exam.id)
+          : action === "start"
+            ? await worklistApi.start(exam.id)
+            : action === "complete"
+              ? await worklistApi.complete(exam.id)
+              : await worklistApi.cancel(exam.id, "详情抽屉取消")
+      if (res.success) {
+        message.success("状态已更新")
+        onStatusChanged?.()
+        onClose()
+      } else {
+        message.error(res.error?.message ?? "操作失败")
+      }
+    } catch {
+      message.error("操作失败")
+    }
+    setStatusBusy(null)
+  }
 
   // 每次切换检查对象时, 回到 initialTab (行内"历史"按钮 → history 页签)
   useEffect(() => {
@@ -803,6 +838,111 @@ export function DetailDrawer({
             </div>
           </div>
         )}
+      </div>
+
+      <div
+        style={{
+          padding: "16px 16px 0",
+          borderTop: "1px solid var(--border-color)",
+          background: "var(--content-bg)",
+        }}
+      >
+        {/* [G005 Wave1A W9] 状态流转: worklistApi (POST /worklist/:id/checkin|start|complete|cancel) */}
+        <div style={{ fontSize: 12, fontWeight: 600, color: "#1e40af", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
+          <ArrowLeftRight size={12} /> 状态流转 (worklistApi)
+        </div>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gap: 10,
+          }}
+        >
+          <button
+            onClick={() => void handleStatusAction("checkin")}
+            disabled={normalizeExamStatus(exam.status) !== "SCHEDULED" || statusBusy !== null}
+            style={{
+              padding: "10px 16px",
+              background: "var(--bg-card)",
+              border: "1px solid var(--border-color)",
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 600,
+              color: normalizeExamStatus(exam.status) === "SCHEDULED" ? "var(--text-secondary)" : "#94a3b8",
+              cursor: normalizeExamStatus(exam.status) === "SCHEDULED" ? "pointer" : "not-allowed",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 6,
+            }}
+          >
+            <UserCheck size={12} />
+            签到
+          </button>
+          <button
+            onClick={() => void handleStatusAction("start")}
+            disabled={normalizeExamStatus(exam.status) !== "ARRIVED" || statusBusy !== null}
+            style={{
+              padding: "10px 16px",
+              background: "var(--bg-card)",
+              border: "1px solid var(--border-color)",
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 600,
+              color: normalizeExamStatus(exam.status) === "ARRIVED" ? "var(--text-secondary)" : "#94a3b8",
+              cursor: normalizeExamStatus(exam.status) === "ARRIVED" ? "pointer" : "not-allowed",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 6,
+            }}
+          >
+            <Play size={12} />
+            开始
+          </button>
+          <button
+            onClick={() => void handleStatusAction("complete")}
+            disabled={normalizeExamStatus(exam.status) !== "IN_PROGRESS" || statusBusy !== null}
+            style={{
+              padding: "10px 16px",
+              background: "var(--bg-card)",
+              border: "1px solid var(--border-color)",
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 600,
+              color: normalizeExamStatus(exam.status) === "IN_PROGRESS" ? "var(--text-secondary)" : "#94a3b8",
+              cursor: normalizeExamStatus(exam.status) === "IN_PROGRESS" ? "pointer" : "not-allowed",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 6,
+            }}
+          >
+            <CheckCircle size={12} />
+            完成
+          </button>
+          <button
+            onClick={() => void handleStatusAction("cancel")}
+            disabled={!["SCHEDULED", "ARRIVED", "IN_PROGRESS"].includes(normalizeExamStatus(exam.status)) || statusBusy !== null}
+            style={{
+              padding: "10px 16px",
+              background: "var(--bg-card)",
+              border: "1px solid #fee2e2",
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 600,
+              color: ["SCHEDULED", "ARRIVED", "IN_PROGRESS"].includes(normalizeExamStatus(exam.status)) ? "#dc2626" : "#94a3b8",
+              cursor: ["SCHEDULED", "ARRIVED", "IN_PROGRESS"].includes(normalizeExamStatus(exam.status)) ? "pointer" : "not-allowed",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 6,
+            }}
+          >
+            <XCircle size={12} />
+            取消
+          </button>
+        </div>
       </div>
 
       <div

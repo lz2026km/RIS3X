@@ -5,7 +5,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
   ReferenceLine,
 } from "recharts";
 import { useEffect, useState } from "react";
@@ -13,6 +12,7 @@ import { TrendingDown, TrendingUp as TrendingUpCircle } from "lucide-react";
 import { monthlyDoseTrend } from "./mockData";
 import type { MonthlyDoseTrend } from "./types";
 import { rdsrApi } from "../../services/api/rdsrApi";
+import ChartContainer from "../../components/charts/ChartContainer";
 
 interface TooltipPayload {
   value: number;
@@ -179,7 +179,7 @@ export default function DoseTrendAnalysis() {
             </div>
           </div>
         </div>
-        <ResponsiveContainer width="100%" height={260}>
+        <ChartContainer height={260} state={trendData.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
           <LineChart data={trendData as MonthlyDoseTrend[]}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis dataKey="month" tick={{ fontSize: 12, fill: "#94a3b8" }} />
@@ -224,7 +224,7 @@ export default function DoseTrendAnalysis() {
               }}
             />
           </LineChart>
-        </ResponsiveContainer>
+        </ChartContainer>
 
         {/* 趋势统计 */}
         <div

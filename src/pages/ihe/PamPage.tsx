@@ -121,7 +121,7 @@ export const PamPage: React.FC = () => {
             children: (
               <Card size="small" extra={<Button size="small" icon={<Activity size={12} />} onClick={loadMessages}>刷新</Button>}
                 title="PAM 消息记录">
-                <Table dataSource={msgPageData} rowKey="messageId" pagination={msgPagination}
+                <Table dataSource={msgPageData} rowKey="messageId" pagination={msgPagination} scroll={{ x: 'max-content' }}
                   columns={[
                     { title: '消息类型', dataIndex: ['message', 'messageType'], render: (t: string) => <Tag color="blue">{t}</Tag> },
                     { title: '患者 ID', dataIndex: ['message', 'patientId'], width: 140 },

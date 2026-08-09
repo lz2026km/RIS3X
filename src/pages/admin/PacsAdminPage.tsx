@@ -16,6 +16,8 @@ import {
 import { Card, Table, Button, Tag, Space, Typography, Row, Col, Statistic, message, Modal, Input, Form, Popconfirm, Alert, Spin, Progress, Tabs } from 'antd'
 import { Server, Wifi, WifiOff, Database, Activity, Plus, RefreshCw, Link2, Trash2, Zap, HardDrive, ListChecks, Archive, FileText, Route, Settings2, Eraser } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
+// [G005 2B] 受控分页: 8 张可增长表 (logs 服务端截断 100 条 → 前端分页)
+import { usePagination } from '../../hooks/usePagination'
 
 const formatBytes = (bytes: number) => {
   if (bytes >= 1024 ** 4) return `${(bytes / 1024 ** 4).toFixed(1)} TB`
@@ -44,6 +46,15 @@ const PacsAdminPage: React.FC = () => {
   const [storageModal, setStorageModal] = useState(false)
   const [serverForm] = Form.useForm()
   const [storageForm] = Form.useForm()
+  // [G005 2B] 受控分页 (数据可增长)
+  const nodePage = usePagination(nodes, 10)
+  const serverPage = usePagination(servers, 10)
+  const worklistPage = usePagination(worklist, 10)
+  const archivePage = usePagination(archives, 10)
+  const logPage = usePagination(logs, 10)
+  const configPage = usePagination(configs, 10)
+  const assocPage = usePagination(associations, 10)
+  const routePage = usePagination(routes, 10)
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -232,7 +243,7 @@ const PacsAdminPage: React.FC = () => {
     { title: '患者ID', dataIndex: 'patientId', key: 'pid', render: (v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v}</span> },
     { title: '模态', dataIndex: 'modality', key: 'modality', width: 70, render: (v: string) => <Tag color="purple">{v}</Tag> },
     { title: '部位', dataIndex: 'bodyPart', key: 'bodyPart', render: (v: string) => v || '-' },
-    { title: '状态', dataIndex: 'state', key: 'state', width: 120, render: (v: string) => <Tag color={v === 'COMPLETED' ? 'green' : v === 'IN_PROGRESS' ? 'blue' : 'orange'}>{v}</Tag> },
+    { title: '状态', dataIndex: 'state', key: 'state', width: 120, render: (v: string) => <Tag color={v === 'COMPLETED' ? 'green' : v === 'IN_PROGRESS' ? 'blue' : 'orange'}>{v === 'COMPLETED' ? '已完成' : v === 'IN_PROGRESS' ? '进行中' : v}</Tag> },
     { title: '预约时间', dataIndex: 'scheduledAt', key: 'scheduledAt', width: 170, render: (v?: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v ? v.replace('T', ' ').slice(0, 19) : '-'}</span> },
   ]
 
@@ -314,7 +325,7 @@ const PacsAdminPage: React.FC = () => {
               key: 'nodes', label: <Space size={4}><Server size={13} />节点列表</Space>,
               children: (
                 <Card title={`DICOM 节点 (${nodes.length})`} size="small" style={{ marginBottom: 16 }}>
-                  <Table rowKey="id" dataSource={nodes} columns={nodeColumns} pagination={false} size="small" scroll={{ x: 'max-content' }} />
+                  <Table rowKey="id" dataSource={nodePage.pageData} columns={nodeColumns} pagination={nodePage.pagination} size="small" scroll={{ x: 'max-content' }} />
                 </Card>
               ),
             },
@@ -347,15 +358,15 @@ const PacsAdminPage: React.FC = () => {
                   style={{ marginBottom: 16 }}
                   extra={<Button type="primary" size="small" icon={<Plus size={12} />} onClick={() => setServerModal(true)}>添加服务器</Button>}
                 >
-                  <Table rowKey="id" dataSource={servers} columns={serverColumns} pagination={false} size="small" scroll={{ x: 'max-content' }}/>
+                  <Table rowKey="id" dataSource={serverPage.pageData} columns={serverColumns} pagination={serverPage.pagination} size="small" scroll={{ x: 'max-content' }}/>
                 </Card>
               ),
             },
             {
               key: 'worklist', label: <Space size={4}><ListChecks size={13} />工作列表</Space>,
               children: (
-                <Card title={`Worklist 条目 (${worklist.length})`} size="small" style={{ marginBottom: 16 }}>
-                  <Table rowKey="id" dataSource={worklist} columns={worklistColumns} pagination={false} size="small" scroll={{ x: 'max-content' }} />
+                <Card title={`工作列表条目 (${worklist.length})`} size="small" style={{ marginBottom: 16 }}>
+                  <Table rowKey="id" dataSource={worklistPage.pageData} columns={worklistColumns} pagination={worklistPage.pagination} size="small" scroll={{ x: 'max-content' }} />
                 </Card>
               ),
             },
@@ -363,7 +374,7 @@ const PacsAdminPage: React.FC = () => {
               key: 'archives', label: <Space size={4}><Archive size={13} />归档</Space>,
               children: (
                 <Card title={`归档记录 (${archives.length})`} size="small" style={{ marginBottom: 16 }}>
-                  <Table rowKey="id" dataSource={archives} columns={archiveColumns} pagination={false} size="small" scroll={{ x: 'max-content' }} />
+                  <Table rowKey="id" dataSource={archivePage.pageData} columns={archiveColumns} pagination={archivePage.pagination} size="small" scroll={{ x: 'max-content' }} />
                 </Card>
               ),
             },
@@ -371,7 +382,7 @@ const PacsAdminPage: React.FC = () => {
               key: 'logs', label: <Space size={4}><FileText size={13} />日志</Space>,
               children: (
                 <Card title={`PACS 操作日志 (${logs.length})`} size="small" style={{ marginBottom: 16 }}>
-                  <Table rowKey="id" dataSource={logs} columns={logColumns} pagination={false} size="small" scroll={{ x: 'max-content' }} />
+                  <Table rowKey="id" dataSource={logPage.pageData} columns={logColumns} pagination={logPage.pagination} size="small" scroll={{ x: 'max-content' }} />
                 </Card>
               ),
             },
@@ -379,7 +390,7 @@ const PacsAdminPage: React.FC = () => {
               key: 'configs', label: <Space size={4}><Settings2 size={13} />配置</Space>,
               children: (
                 <Card title={`PACS 配置项 (${configs.length})`} size="small" style={{ marginBottom: 16 }}>
-                  <Table rowKey="key" dataSource={configs} columns={configColumns} pagination={false} size="small" scroll={{ x: 'max-content' }} />
+                  <Table rowKey="key" dataSource={configPage.pageData} columns={configColumns} pagination={configPage.pagination} size="small" scroll={{ x: 'max-content' }} />
                 </Card>
               ),
             },
@@ -387,7 +398,7 @@ const PacsAdminPage: React.FC = () => {
               key: 'associations', label: <Space size={4}><Link2 size={13} />DICOM 关联</Space>,
               children: (
                 <Card title={<Space><Link2 size={14} />DICOM 关联状态</Space>}>
-                  <Table rowKey="id" dataSource={associations} columns={associationColumns} pagination={false} size="small" scroll={{ x: 'max-content' }}/>
+                  <Table rowKey="id" dataSource={assocPage.pageData} columns={associationColumns} pagination={assocPage.pagination} size="small" scroll={{ x: 'max-content' }}/>
                 </Card>
               ),
             },
@@ -395,7 +406,7 @@ const PacsAdminPage: React.FC = () => {
               key: 'routes', label: <Space size={4}><Route size={13} />转发路由</Space>,
               children: (
                 <Card title={`转发路由 (${routes.length})`} size="small" style={{ marginBottom: 16 }}>
-                  <Table rowKey="id" dataSource={routes} columns={routeColumns} pagination={false} size="small" scroll={{ x: 'max-content' }} />
+                  <Table rowKey="id" dataSource={routePage.pageData} columns={routeColumns} pagination={routePage.pagination} size="small" scroll={{ x: 'max-content' }} />
                 </Card>
               ),
             },

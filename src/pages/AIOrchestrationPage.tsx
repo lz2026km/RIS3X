@@ -69,6 +69,16 @@ const TRIGGER_OPTIONS = [
   { label: '手动 (MANUAL)', value: 'MANUAL' },
 ];
 
+const TRIGGER_LABEL: Record<string, string> = {
+  ON_STUDY_COMPLETE: '检查完成',
+  ON_REPORT_SAVE: '报告保存',
+  ON_EXAM_CREATE: '检查登记',
+  MANUAL: '手动',
+  event: '事件',
+  schedule: '定时',
+  api: 'API',
+};
+
 const MODALITY_OPTIONS = ['CT', 'DR', 'MR', 'MG', 'PET', 'US', 'DSA', 'XA'].map((m) => ({ label: m, value: m }));
 
 const WORKFLOW_OPTIONS = [
@@ -667,7 +677,7 @@ export default function AIOrchestrationPage() {
     },
     {
       title: '触发', dataIndex: 'trigger', key: 'trigger',
-      render: (v: string) => <Tag color="purple" style={{ fontSize: 11 }}>{v}</Tag>,
+      render: (v: string) => <Tag color="purple" style={{ fontSize: 11 }}>{TRIGGER_LABEL[v] ?? v}</Tag>,
     },
     {
       title: '状态', dataIndex: 'status', key: 'status',
@@ -871,7 +881,7 @@ export default function AIOrchestrationPage() {
       title: '触发', key: 'trigger',
       render: (_v: unknown, r) => {
         const t = detailOf(r, 'trigger');
-        return t ? <Tag color="purple" style={{ fontSize: 11 }}>{String(t)}</Tag> : <span style={{ color: 'var(--text-secondary)' }}>--</span>;
+        return t ? <Tag color="purple" style={{ fontSize: 11 }}>{TRIGGER_LABEL[String(t)] ?? String(t)}</Tag> : <span style={{ color: 'var(--text-secondary)' }}>--</span>;
       },
     },
     {

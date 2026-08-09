@@ -67,6 +67,13 @@ export class FusionController {
     return this.svc.getRegistration(id)
   }
 
+  // [G005 Wave4A G-06] SUV 定量: Exam(PET) 派生 + 确定性 seed
+  @Get('suv/:studyId')
+  @ApiOperation({ summary: 'PET-CT SUV 定量 (SUVmax/SUVmean/SUVpeak + 病灶, Exam(PET) 派生)' })
+  getSuv(@Param('studyId') studyId: string) {
+    return this.svc.getSuv(studyId)
+  }
+
   @Delete(':id')
   @ApiOperation({ summary: '删除融合注册记录' })
   delete(@Param('id') id: string) {

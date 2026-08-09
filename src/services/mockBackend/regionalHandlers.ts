@@ -142,14 +142,6 @@ export const regionalHandlers = [
     const result = applyQuery(SEED_REGIONAL_IMAGING as any[], opts);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
-  http.get(`${API}/imaging/:id`, async ({ params }) => {
-    await delay(delayMs());
-    const item = SEED_REGIONAL_IMAGING.find((s) => s.id === params.id);
-    if (!item) {
-      return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: `区域影像 ${params.id} 不存在` } }, { status: 404 });
-    }
-    return HttpResponse.json({ success: true, data: item });
-  }),
   http.get(`${API}/schedule`, async ({ request }) => {
     await delay(delayMs());
     const url = new URL(request.url);
@@ -258,6 +250,16 @@ export const regionalHandlers = [
   http.get(`${API}/imaging/audit-trail`, async () => {
     await delay(delayMs());
     return HttpResponse.json({ success: true, data: SEED_AUDIT_TRAIL });
+  }),
+  // [G005 Wave1A W9] 静态子路由 (applications/consultations/access-records/institutions/
+  //   cross-query/document-registry/pix/audit-trail) 必须在此 :id 通配之前注册
+  http.get(`${API}/imaging/:id`, async ({ params }) => {
+    await delay(delayMs());
+    const item = SEED_REGIONAL_IMAGING.find((s) => s.id === params.id);
+    if (!item) {
+      return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: `区域影像 ${params.id} 不存在` } }, { status: 404 });
+    }
+    return HttpResponse.json({ success: true, data: item });
   }),
 
   // ── [G005-P1] 医联体报告页在用孤儿 ──

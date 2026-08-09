@@ -50,6 +50,9 @@ function mockPrisma(overrides: Record<string, unknown> = {}) {
     report: {
       findUnique: jest.fn().mockResolvedValue(report),
     },
+    exam: {
+      findUnique: jest.fn().mockResolvedValue(null),
+    },
     srDocument: {
       findMany: jest.fn().mockResolvedValue([]),
       findUnique: jest.fn().mockResolvedValue(null),
@@ -214,6 +217,49 @@ describe('DicomSrService', () => {
       expect(result.document.status).toBe('pushed')
       expect(result.document.hl7ControlId).toBe('G005-r1-20260803090000')
       expect(prisma.srDocument.update).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ status: 'pushed', hl7ControlId: expect.any(String) }) }))
+    })
+  })
+
+  describe('encapsulatePdf [G005 Wave4B G-01]', () => {
+    it('generates Encapsulated PDF metadata from report text stream fallback', async () => {
+      const doc = await svc.encapsulatePdf({ reportId: 'r1' })
+      expect(doc.sopClassUid).toBe('1.2.840.10008.5.1.4.1.1.104.1')
+      expect(doc.reportId).toBe('r1')
+      expect(doc.generatedFrom).toBe('report-text')
+      expect(doc.size).toBeGreaterThan(0)
+      const decoded = Buffer.from(doc.pdfEmbedded, 'base64').toString('utf-8')
+      expect(decoded).toContain('Encapsulated PDF')
+      expect(decoded).toContain('结节')
+      expect(doc.generatedAt).toBeTruthy()
+    })
+
+    it('keeps provided pdfBase64 verbatim', async () => {
+      const doc = await svc.encapsulatePdf({ reportId: 'r1', pdfBase64: 'JVBERi0xLjQ=' })
+      expect(doc.pdfEmbedded).toBe('JVBERi0xLjQ=')
+      expect(doc.generatedFrom).toBe('input')
+    })
+
+    it('stores pdfUrl as reference', async () => {
+      const doc = await svc.encapsulatePdf({ reportId: 'r1', pdfUrl: 'https://cdn.example.com/r1.pdf' })
+      expect(doc.pdfEmbedded).toBe('url:https://cdn.example.com/r1.pdf')
+      expect(doc.generatedFrom).toBe('url')
+    })
+
+    it('resolves report via studyId and throws for missing exam', async () => {
+      const exam = { id: 'EX-1', patient: { name: '李四' }, reports: [{ id: 'r1' }] }
+      prisma.exam = { findUnique: jest.fn().mockResolvedValue(exam) } as never
+      const doc = await svc.encapsulatePdf({ studyId: 'EX-1' })
+      expect(doc.reportId).toBe('r1')
+      expect(prisma.report.findUnique).toHaveBeenCalled()
+
+      prisma.exam = { findUnique: jest.fn().mockResolvedValue(null) } as never
+      await expect(svc.encapsulatePdf({ studyId: 'EX-404' })).rejects.toThrow(NotFoundException)
+    })
+
+    it('findEncapsulated returns stored doc and throws 404 for missing', async () => {
+      const doc = await svc.encapsulatePdf({ reportId: 'r1' })
+      expect(svc.findEncapsulated(doc.id).id).toBe(doc.id)
+      expect(() => svc.findEncapsulated('pdf-missing')).toThrow(NotFoundException)
     })
   })
 })

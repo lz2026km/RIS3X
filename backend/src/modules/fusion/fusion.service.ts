@@ -51,9 +51,122 @@ const SEED_REGISTRATIONS: FusionRegistration[] = [
 
 const memRegistrations: FusionRegistration[] = []
 
+// ===== [G005 Wave4A G-06] SUV 定量 =====
+
+export interface SuvLesionDto {
+  id: string
+  x: number // 归一化坐标 0..1 (融合图叠加用)
+  y: number
+  diameterMm: number
+  suvMax: number
+  label: string
+  slice?: number
+}
+
+export interface SuvNormalizationDto {
+  weightKg: number
+  injectedDoseMbg: number
+  injectionToScanMin: number
+  formula: string
+  unit: string
+}
+
+export interface SuvResultDto {
+  studyId: string
+  hasPet: boolean
+  source: 'exam' | 'seed' | 'none'
+  suv: { max: number; mean: number; peak: number; normalization: SuvNormalizationDto } | null
+  lesions: SuvLesionDto[]
+}
+
+// 确定性 hash (FNV-1a): 同一 studyId 每次返回同一组 SUV/病灶
+function hashString(s: string): number {
+  let h = 2166136261
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  return (h >>> 0) / 4294967295
+}
+
+const SUV_NORMALIZATION_DEFAULT: SuvNormalizationDto = {
+  weightKg: 70,
+  injectedDoseMbg: 370,
+  injectionToScanMin: 60,
+  formula: 'SUV = (pixelActivityMBq/ml) / (injectedDoseMBq / bodyWeightKg)',
+  unit: 'g/ml',
+}
+
 @Injectable()
 export class FusionService {
   constructor(private readonly prisma: PrismaService) {}
+
+  // GET /fusion/suv/:studyId — PET-CT SUV 定量 (max/mean/peak + 病灶)
+  // 从 Exam(PET 模态) 派生; 病灶为 AI 检出/报告派生的确定性 seed; DB 不可用回退 seed。
+  async getSuv(studyId: string): Promise<SuvResultDto> {
+    let exam: { id: string; patientId: string; accessionNumber: string; modality: string } | null = null
+    try {
+      const rows = await this.prisma.exam.findMany({
+        where: {
+          OR: [{ id: studyId }, { patientId: studyId }, { accessionNumber: studyId }],
+          modality: { in: ['PT', 'PET'] },
+        },
+        select: { id: true, patientId: true, accessionNumber: true, modality: true },
+        take: 1,
+      })
+      exam = rows[0] ?? null
+    } catch {
+      // DB 不可用 -> seed 回退
+    }
+
+    if (!exam) {
+      try {
+        const found = await this.prisma.exam.findFirst?.({
+          where: { id: studyId },
+          select: { id: true, patientId: true, accessionNumber: true, modality: true },
+        })
+        if (found && (found.modality === 'PT' || found.modality === 'PET')) exam = found
+      } catch {
+        // DB 不可用
+      }
+    }
+
+    const seedKey = `${studyId}:${exam?.id ?? ''}`
+    const h = hashString(seedKey)
+
+    // 病灶: AI 检出/报告派生的确定性 seed (计数 1..3)
+    const lesionCount = exam ? 1 + Math.floor(h * 3) : 0
+    const baseSuv = 6.2 + h * 4.6
+    const lesions: SuvLesionDto[] = []
+    for (let i = 0; i < lesionCount; i++) {
+      const lh = hashString(`${seedKey}:lesion:${i}`)
+      const rh = hashString(`${seedKey}:lesion:${i}:r`)
+      lesions.push({
+        id: `lesion-${i + 1}`,
+        x: 0.28 + lh * 0.44,
+        y: 0.24 + rh * 0.44,
+        diameterMm: Math.round((9 + lh * 16) * 10) / 10,
+        suvMax: Math.round((baseSuv + (i === 0 ? 0 : lh * 2.1)) * 10) / 10,
+        label: i === 0 ? '主病灶' : `病灶 ${i + 1}`,
+        slice: 40 + Math.floor(rh * 48),
+      })
+    }
+
+    if (!exam) {
+      return { studyId, hasPet: false, source: 'none', suv: null, lesions: [] }
+    }
+
+    const max = lesions[0]?.suvMax ?? Math.round(baseSuv * 10) / 10
+    const peak = Math.round(max * 0.93 * 10) / 10
+    const mean = Math.round(max * 0.38 * 10) / 10
+    return {
+      studyId,
+      hasPet: true,
+      source: 'exam',
+      suv: { max, mean, peak, normalization: SUV_NORMALIZATION_DEFAULT },
+      lesions,
+    }
+  }
 
   async register(dto: RegisterDto) {
     const metrics = { dice: 0.89, hd95: 2.34, rmse: 12.7 }

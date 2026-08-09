@@ -22,6 +22,10 @@ const ACK_META: Record<string, { color: string; label: string }> = {
   PENDING: { color: 'warning', label: '待确认' },
 };
 
+const DIRECTION_LABEL: Record<string, string> = { INBOUND: '入站', OUTBOUND: '出站' };
+
+const EVENT_LABEL: Record<string, string> = { connect: '连接', disconnect: '断开', message: '消息', error: '错误' };
+
 const MllpMonitorPage: React.FC = () => {
   const navigate = useNavigate();
   const [status, setStatus] = useState<MllpStatus | null>(null);
@@ -152,7 +156,7 @@ const MllpMonitorPage: React.FC = () => {
                 rowKey="id" size="small" pagination={logsPagination.pagination}
                 dataSource={logsPagination.pageData}
                 columns={[
-                  { title: '事件', dataIndex: 'event', width: 90, render: (v: string) => <Tag color={v === 'error' ? 'red' : v === 'message' ? 'blue' : 'default'}>{v}</Tag> },
+                  { title: '事件', dataIndex: 'event', width: 90, render: (v: string) => <Tag color={v === 'error' ? 'red' : v === 'message' ? 'blue' : 'default'}>{EVENT_LABEL[v] ?? v}</Tag> },
                   { title: '对端', dataIndex: 'peer', ellipsis: true },
                   { title: '时间', dataIndex: 'timestamp', width: 130, render: (v: string) => new Date(v).toLocaleTimeString('zh-CN') },
                 ]}
@@ -194,7 +198,7 @@ const MllpMonitorPage: React.FC = () => {
                         columns={[
                           { title: 'ID', dataIndex: 'id', width: 60 },
                           { title: '消息类型', dataIndex: 'messageType', width: 90, render: (v: string) => <Tag color="blue">{v}</Tag> },
-                          { title: '方向', dataIndex: 'direction', width: 90, render: (v: string) => <Tag color={v === 'INBOUND' ? 'green' : v === 'OUTBOUND' ? 'purple' : 'orange'}>{v}</Tag> },
+                          { title: '方向', dataIndex: 'direction', width: 90, render: (v: string) => <Tag color={v === 'INBOUND' ? 'green' : v === 'OUTBOUND' ? 'purple' : 'orange'}>{DIRECTION_LABEL[v] ?? v}</Tag> },
                           { title: 'ACK', dataIndex: 'ackStatus', width: 90, render: (v: string) => <Tag color={ACK_META[v]?.color}>{ACK_META[v]?.label ?? v}</Tag> },
                           { title: '控制标识', dataIndex: 'controlId', width: 130, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
                           { title: '重试', dataIndex: 'retryCount', width: 60 },

@@ -207,29 +207,52 @@ export default function TatDashboardPage() {
 
   const maxCount = Math.max(...modalityRows.map((d) => d.examCount), 1);
 
-  // 导出当前筛选表格数据 (CSV blob)
-  const handleExport = () => {
-    const esc = (v: unknown) => {
-      const s = String(v ?? "");
-      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  // 导出当前筛选表格数据: 优先 POST /olap/export/csv (后端真实生成), 失败回退本地 CSV blob
+  const handleExport = async () => {
+    const buildLocal = () => {
+      const esc = (v: unknown) => {
+        const s = String(v ?? "");
+        return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+      };
+      const lines: string[] = ["设备,检查数,报告数,平均TAT(min),按时完成率(%)"];
+      for (const r of filteredModalityRows) {
+        lines.push([r.modality, r.examCount, r.reportCount, r.avgTatMinutes, r.timelyRate].map(esc).join(","));
+      }
+      lines.push("");
+      lines.push("医生,检查数,平均TAT(min),按时完成率(%)");
+      for (const r of filteredDoctorRows) {
+        lines.push([r.doctor, r.count, r.avgTatMinutes, r.timelyRate].map(esc).join(","));
+      }
+      const blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `TAT报表_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      message.success(`已导出 ${filteredModalityRows.length} 设备 + ${filteredDoctorRows.length} 医生 TAT 数据`);
     };
-    const lines: string[] = ["设备,检查数,报告数,平均TAT(min),按时完成率(%)"];
-    for (const r of filteredModalityRows) {
-      lines.push([r.modality, r.examCount, r.reportCount, r.avgTatMinutes, r.timelyRate].map(esc).join(","));
+    try {
+      const res = await olapApi.exportCsv({
+        dimensions: ["modality", "doctor"],
+        measures: ["exam_count", "report_count", "avg_report_time", "report_timely_rate"],
+        limit: 500,
+      });
+      if (res.success && res.data && (res.data as Blob).size > 0) {
+        const blob = res.data as Blob;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `TAT报表_${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        message.success(`已通过 /olap/export/csv 导出 (${(blob.size / 1024).toFixed(1)} KB)`);
+        return;
+      }
+      buildLocal();
+    } catch {
+      buildLocal();
     }
-    lines.push("");
-    lines.push("医生,检查数,平均TAT(min),按时完成率(%)");
-    for (const r of filteredDoctorRows) {
-      lines.push([r.doctor, r.count, r.avgTatMinutes, r.timelyRate].map(esc).join(","));
-    }
-    const blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `TAT报表_${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-    message.success(`已导出 ${filteredModalityRows.length} 设备 + ${filteredDoctorRows.length} 医生 TAT 数据`);
   };
 
   const columns: ColumnsType<ModalityTatRow> = [

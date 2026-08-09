@@ -1,8 +1,8 @@
 import { api, invalidateApiCache } from './client'
 
 // Auto Collection (自动采集) API
-// [G005 W1-C] MOCK_ONLY: 后端无 auto-collection controller,
-// 全部 12 方法由 MSW (src/services/mockBackend/autoCollectionHandlers.ts) 支撑演示数据, 后端待实现。
+// [G005 Wave1A W9] 后端已实现全部端点 (backend/src/modules/auto-collection/auto-collection.controller.ts):
+//   rules CRUD + tasks (start/stop/run/rerun) + config + logs + stats
 
 export interface AutoCollectionRule {
   id: string
@@ -45,70 +45,103 @@ export interface AutoCollectionStats {
   dailyExecutions: { date: string; count: number; successCount: number }[]
 }
 
+// [G005 Wave1A W9] 采集执行日志 (后端 GET /auto-collection/logs)
+export interface AutoCollectionLog {
+  id: string
+  time: string
+  level: 'INFO' | 'WARN' | 'ERROR'
+  source: string
+  message: string
+}
+
 export const autoCollectionApi = {
-  // MOCK_ONLY (后端无 controller, MSW 支撑)
   listRules: () =>
     api.get<AutoCollectionRule[]>('/auto-collection/rules'),
 
-  // MOCK_ONLY (后端无 controller, MSW 支撑)
+  // [Wave1B] 后端已实现 (auto-collection.controller)
   getRule: (id: string) =>
     api.get<AutoCollectionRule>(`/auto-collection/rules/${id}`),
 
-  // MOCK_ONLY (后端无 controller, MSW 支撑)
+  // [Wave1B] 后端已实现 (auto-collection.controller)
   createRule: async (data: Omit<AutoCollectionRule, 'id' | 'createdAt' | 'updatedAt'>) => {
     const res = await api.post<AutoCollectionRule>('/auto-collection/rules', data)
     await invalidateApiCache('/auto-collection/rules')
     return res
   },
 
-  // MOCK_ONLY (后端无 controller, MSW 支撑)
+  // [Wave1B] 后端已实现 (auto-collection.controller)
   updateRule: async (id: string, data: Partial<AutoCollectionRule>) => {
     const res = await api.put<AutoCollectionRule>(`/auto-collection/rules/${id}`, data)
     await invalidateApiCache('/auto-collection/rules')
     return res
   },
 
-  // MOCK_ONLY (后端无 controller, MSW 支撑)
+  // [Wave1B] 后端已实现 (auto-collection.controller)
   deleteRule: async (id: string) => {
     const res = await api.delete(`/auto-collection/rules/${id}`)
     await invalidateApiCache('/auto-collection/rules')
     return res
   },
 
-  // MOCK_ONLY (后端无 controller, MSW 支撑)
+  // [Wave1B] 后端已实现 (auto-collection.controller)
   toggleRule: async (id: string, enabled: boolean) => {
     const res = await api.put<AutoCollectionRule>(`/auto-collection/rules/${id}`, { enabled })
     await invalidateApiCache('/auto-collection/rules')
     return res
   },
 
-  // MOCK_ONLY (后端无 controller, MSW 支撑)
+  // [Wave1B] 后端已实现 (auto-collection.controller)
   listTasks: (params?: { ruleId?: string; status?: string; page?: number; pageSize?: number }) =>
     api.get<AutoCollectionTask[]>(`/auto-collection/tasks?${new URLSearchParams(params ?? {}).toString()}`),
 
-  // MOCK_ONLY (后端无 controller, MSW 支撑)
+  // [Wave1B] 后端已实现 (auto-collection.controller)
   getTask: (id: string) =>
     api.get<AutoCollectionTask>(`/auto-collection/tasks/${id}`),
 
-  // MOCK_ONLY (后端无 controller, MSW 支撑)
+  // [G005 Wave1A W9] 任务重跑 (后端 POST /auto-collection/tasks/:id/rerun)
   rerunTask: async (id: string) => {
     const res = await api.post<AutoCollectionTask>(`/auto-collection/tasks/${id}/rerun`, {})
     await invalidateApiCache('/auto-collection/tasks')
     return res
   },
 
-  // MOCK_ONLY (后端无 controller, MSW 支撑)
+  // [G005 Wave1A W9] 启动任务 (后端 POST /auto-collection/tasks/:id/start)
+  startTask: async (id: string) => {
+    const res = await api.post<AutoCollectionTask>(`/auto-collection/tasks/${id}/start`, {})
+    await invalidateApiCache('/auto-collection/tasks')
+    return res
+  },
+
+  // [G005 Wave1A W9] 停止任务 (后端 POST /auto-collection/tasks/:id/stop)
+  stopTask: async (id: string) => {
+    const res = await api.post<AutoCollectionTask>(`/auto-collection/tasks/${id}/stop`, {})
+    await invalidateApiCache('/auto-collection/tasks')
+    return res
+  },
+
+  // [G005 Wave1A W9] 立即执行任务 (后端 POST /auto-collection/tasks/:id/run)
+  runTask: async (id: string) => {
+    const res = await api.post<AutoCollectionTask>(`/auto-collection/tasks/${id}/run`, {})
+    await invalidateApiCache('/auto-collection/tasks')
+    return res
+  },
+
+  // [G005 Wave1A W9] 采集执行日志 (后端 GET /auto-collection/logs)
+  listLogs: (limit?: number) =>
+    api.get<AutoCollectionLog[]>(`/auto-collection/logs${limit ? `?limit=${limit}` : ''}`),
+
+  // [Wave1B] 后端已实现 (auto-collection.controller)
   getConfig: () =>
     api.get<AutoCollectionConfig[]>('/auto-collection/config'),
 
-  // MOCK_ONLY (后端无 controller, MSW 支撑)
+  // [Wave1B] 后端已实现 (auto-collection.controller)
   updateConfig: async (key: string, value: string) => {
     const res = await api.put<AutoCollectionConfig>(`/auto-collection/config/${key}`, { value })
     await invalidateApiCache('/auto-collection/config')
     return res
   },
 
-  // MOCK_ONLY (后端无 controller, MSW 支撑)
+  // [G005 Wave1A W9] 采集统计 (后端 GET /auto-collection/stats)
   getStats: () =>
     api.get<AutoCollectionStats>('/auto-collection/stats'),
 }

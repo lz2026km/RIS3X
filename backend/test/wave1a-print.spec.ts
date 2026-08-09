@@ -80,4 +80,49 @@ describe('Wave1A Print', () => {
     expect(stats.costReport).toHaveLength(7)
     expect(stats.devicePrint.length).toBeGreaterThan(0)
   })
+
+  it('[Wave2A] printers: 新增/更新/删除 内存 CRUD', async () => {
+    const svc = new PrintService(failingPrisma())
+    const created = svc.createPrinter({
+      name: 'W2A 测试打印机',
+      type: 'network',
+      location: '测试室',
+      filmSpec: '14x17',
+      defaultCopies: 2,
+      dpi: 600,
+      aet: 'TEST_SCP',
+      host: '192.168.9.9',
+      port: 104,
+      mediumTypes: ['BLUE FILM', 'CLEAR FILM'],
+      filmsPerHour: 45,
+    })
+    expect(created.id).toMatch(/^PRT/)
+    expect(created.status).toBe('online')
+    expect(created.aet).toBe('TEST_SCP')
+    expect(created.mediumTypes).toHaveLength(2)
+
+    const updated = await svc.updatePrinter(created.id, { defaultCopies: 3, location: '测试室2' })
+    expect(updated.defaultCopies).toBe(3)
+    expect(updated.location).toBe('测试室2')
+
+    const list = await svc.listPrinters()
+    expect(list.some((p) => p.id === created.id && p.defaultCopies === 3)).toBe(true)
+
+    const del = await svc.deletePrinter(created.id)
+    expect(del.ok).toBe(true)
+    const after = await svc.listPrinters()
+    expect(after.some((p) => p.id === created.id)).toBe(false)
+    await expect(svc.deletePrinter('NOPE')).rejects.toThrow()
+  })
+
+  it('[Wave2A] printers: seed 打印机可更新/删除', async () => {
+    const svc = new PrintService(failingPrisma())
+    const updated = await svc.updatePrinter('P001', { name: '柯尼卡 DICOM 打印机 1(改)', filmSpec: '10x12' })
+    expect(updated.name).toContain('(改)')
+    const list = await svc.listPrinters()
+    expect(list.find((p) => p.id === 'P001')!.filmSpec).toBe('10x12')
+    await svc.deletePrinter('P001')
+    const after = await svc.listPrinters()
+    expect(after.some((p) => p.id === 'P001')).toBe(false)
+  })
 })

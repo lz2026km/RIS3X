@@ -29,6 +29,33 @@ export interface ExportCsvDto {
   count: number
 }
 
+// [G005 Wave4B] G-18 检查合并/拆分
+export interface MergeExamsPayload {
+  targetId: string
+  sourceIds: string[]
+}
+
+export interface MergeExamsResult {
+  targetId: string
+  patientId: string
+  mergedSourceCount: number
+  removedSourceIds: string[]
+  retainedSourceIds: string[]
+  movedReports: number
+  mergedAt: string
+}
+
+export interface SplitExamPayload {
+  reportIds: string[]
+}
+
+export interface SplitExamResult {
+  sourceExamId: string
+  patientId: string
+  created: { id: string; accessionNumber: string; reportCount: number }[]
+  splitAt: string
+}
+
 export const examApi = {
   list: (params?: ExamQueryParams) =>
     api.get<ListPayload<ExamDto>>(`/exams?${new URLSearchParams(params as Record<string, string>).toString()}`),
@@ -97,5 +124,19 @@ export const examApi = {
       ? `?${new URLSearchParams(params as Record<string, string>).toString()}`
       : ''
     return api.get<ExportCsvDto>(`/exams/export${q}`)
+  },
+
+  // [G005 Wave4B] G-18 检查合并: 同患者多检查 → 目标检查 (报告/影像引用迁移)
+  mergeExams: async (payload: MergeExamsPayload) => {
+    const res = await api.post<MergeExamsResult>('/exams/merge', payload)
+    await invalidateApiCacheByPrefix('/exams')
+    return res
+  },
+
+  // [G005 Wave4B] G-18 检查拆分: 按报告归属拆分
+  splitExam: async (id: string, payload: SplitExamPayload) => {
+    const res = await api.post<SplitExamResult>(`/exams/${encodeURIComponent(id)}/split`, payload)
+    await invalidateApiCacheByPrefix('/exams')
+    return res
   },
 }

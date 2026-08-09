@@ -15,6 +15,15 @@ const STATE_COLOR: Record<string, string> = {
   COMPLETED: 'green', CANCELLED: 'red', NO_SHOW: 'default',
 };
 
+const STATE_LABEL: Record<string, string> = {
+  SCHEDULED: '已预约', CONFIRMED: '已确认', CHECKED_IN: '已签到', IN_PROGRESS: '进行中',
+  COMPLETED: '已完成', CANCELLED: '已取消', NO_SHOW: '未到场',
+};
+
+const PRIORITY_LABEL: Record<string, string> = {
+  STAT: '紧急', URGENT: '加急', ROUTINE: '常规',
+};
+
 function getAptDate(a: AppointmentDto): string {
   return (a.startAt ?? (a as any).examDate ?? '').slice(0, 10);
 }
@@ -140,9 +149,9 @@ export const SchedulingCenterPage: React.FC = () => {
     { title: '检查项目', key: 'item', width: 130, render: (_: unknown, r: AppointmentDto) => r.bodyPart ?? r.modality },
     { title: '设备', dataIndex: 'deviceName', key: 'deviceName', width: 150 },
     { title: '优先级', dataIndex: 'priority', key: 'priority', width: 90, render: (v: string) =>
-      <Tag color={v === 'STAT' ? 'red' : v === 'URGENT' ? 'orange' : 'blue'}>{v}</Tag> },
+      <Tag color={v === 'STAT' ? 'red' : v === 'URGENT' ? 'orange' : 'blue'}>{PRIORITY_LABEL[v] ?? v}</Tag> },
     { title: '状态', dataIndex: 'state', key: 'state', width: 100, render: (v: string) =>
-      <Badge status={(STATE_COLOR[v] ?? 'default') as any} text={v} /> },
+      <Badge status={(STATE_COLOR[v] ?? 'default') as any} text={STATE_LABEL[v] ?? v} /> },
   ];
 
   return (
@@ -230,7 +239,7 @@ export const SchedulingCenterPage: React.FC = () => {
             </Col>
             <Col span={12}>
               <Form.Item label="优先级" name="priority" initialValue="ROUTINE">
-                <Select options={['ROUTINE', 'URGENT', 'STAT'].map(p => ({ value: p, label: p }))} />
+                <Select options={['ROUTINE', 'URGENT', 'STAT'].map(p => ({ value: p, label: PRIORITY_LABEL[p] ?? p }))} />
               </Form.Item>
             </Col>
             <Col span={12}>

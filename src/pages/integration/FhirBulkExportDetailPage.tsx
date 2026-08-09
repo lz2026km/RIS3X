@@ -126,7 +126,7 @@ export const FhirBulkExportDetailPage: React.FC = () => {
 
       {status.files && status.files.length > 0 && (
         <Card size="small" title={<Space><FileText size={14} />输出文件 ({status.files.length})</Space>} style={{ marginTop: 16 }}>
-          <Table dataSource={status.files} rowKey="url" pagination={false} columns={ndjsonColumns} size="small" />
+          <Table dataSource={status.files} rowKey="url" pagination={false} columns={ndjsonColumns} size="small" scroll={{ x: 'max-content' }} />
 
           <Collapse style={{ marginTop: 12 }} items={status.files.map(f => ({
             key: f.type,

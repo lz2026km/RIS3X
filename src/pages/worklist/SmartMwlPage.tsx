@@ -250,7 +250,7 @@ const SmartMwlPage: React.FC = () => {
     <div style={{ padding: 24 }}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
         <BarChart3 size={20} color="#2563eb" />
-        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Smart MWL 智能排序</h1>
+        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>智能 MWL 排序</h1>
         <Tag color="blue">多因子评分</Tag>
         <Tag color="purple">权重可配置</Tag>
         <Tag color="green">AI 分检因子 = /triage 真实记录</Tag>
@@ -262,7 +262,7 @@ const SmartMwlPage: React.FC = () => {
         icon={<Info size={16} />}
         style={{ marginBottom: 16 }}
         message="AI 分检因子得分来源"
-        description="aiTriage 因子优先聚合后端 /triage/score 写入的真实分检记录（患者最近分检得分 0-1 映射），无记录或 DB 不可用时回退检查 priority / criticalFinding 关键字推断；因子明细中可查看每行得分来源。"
+        description="AI 分检因子优先聚合后端 /triage/score 写入的真实分检记录（患者最近分检得分 0-1 映射），无记录或 DB 不可用时回退检查 priority / criticalFinding 关键字推断；因子明细中可查看每行得分来源。"
       />
 
       {error && <Alert type="error" showIcon message="加载失败" description={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={fetchAll}><RefreshCw size={14} /> 重试</Button>} />}

@@ -174,8 +174,8 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, sub, icon, color, bg,
           {label}
         </div>
         <div style={{
-          fontSize: 30,
-          fontWeight: 800,
+          fontSize: 28,
+          fontWeight: 700,
           color: COLORS.primary,
           lineHeight: 1.2,
           letterSpacing: '-0.5px',
@@ -615,8 +615,8 @@ const HomePage: FC = () => {
 
           <div>
             <div style={{
-              fontSize: 24,
-              fontWeight: 800,
+              fontSize: 20,
+              fontWeight: 700,
               color: COLORS.white,
               marginBottom: 4,
               letterSpacing: '0.5px',
@@ -690,7 +690,7 @@ const HomePage: FC = () => {
           }}>
             <div style={{
               fontSize: 28,
-              fontWeight: 800,
+              fontWeight: 700,
               color: COLORS.white,
             }}>
               {criticalPending.length}
@@ -713,7 +713,7 @@ const HomePage: FC = () => {
           }}>
             <div style={{
               fontSize: 28,
-              fontWeight: 800,
+              fontWeight: 700,
               color: COLORS.white,
             }}>
               {pendingExams.length}
@@ -736,7 +736,7 @@ const HomePage: FC = () => {
           }}>
             <div style={{
               fontSize: 28,
-              fontWeight: 800,
+              fontWeight: 700,
               color: COLORS.white,
             }}>
               {deviceInUse}/{devices.length}
@@ -786,7 +786,7 @@ const HomePage: FC = () => {
             <Scan size={20} />
           </div>
           <div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: COLORS.primary }}>{workload.examsCompleted}</div>
+            <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.primary }}>{workload.examsCompleted}</div>
             <div style={{ fontSize: 12, color: COLORS.textMuted }}>今日检查完成</div>
           </div>
         </div>
@@ -809,7 +809,7 @@ const HomePage: FC = () => {
             <FileText size={20} />
           </div>
           <div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: COLORS.primary }}>{workload.reportsWritten}</div>
+            <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.primary }}>{workload.reportsWritten}</div>
             <div style={{ fontSize: 12, color: COLORS.textMuted }}>今日书写报告</div>
           </div>
         </div>
@@ -832,7 +832,7 @@ const HomePage: FC = () => {
             <AlertTriangle size={20} />
           </div>
           <div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: COLORS.primary }}>{workload.pendingReviews}</div>
+            <div style={{ fontSize: 28, fontWeight: 700, color: COLORS.primary }}>{workload.pendingReviews}</div>
             <div style={{ fontSize: 12, color: COLORS.textMuted }}>待审核报告</div>
           </div>
         </div>
@@ -1233,8 +1233,8 @@ const HomePage: FC = () => {
           </div>
           <div>
             <div style={{
-              fontSize: 24,
-              fontWeight: 800,
+              fontSize: 28,
+              fontWeight: 700,
               color: COLORS.primary,
             }}>
               {deviceInUse}
@@ -1269,8 +1269,8 @@ const HomePage: FC = () => {
           </div>
           <div>
             <div style={{
-              fontSize: 24,
-              fontWeight: 800,
+              fontSize: 28,
+              fontWeight: 700,
               color: COLORS.primary,
             }}>
               {deviceIdle}
@@ -1305,8 +1305,8 @@ const HomePage: FC = () => {
           </div>
           <div>
             <div style={{
-              fontSize: 24,
-              fontWeight: 800,
+              fontSize: 28,
+              fontWeight: 700,
               color: COLORS.primary,
             }}>
               {deviceMaintenance}
@@ -2044,8 +2044,8 @@ const HomePage: FC = () => {
               pointerEvents: 'none',
             }}>
               <div style={{
-                fontSize: 20,
-                fontWeight: 800,
+                fontSize: 28,
+                fontWeight: 700,
                 color: COLORS.primary,
               }}>
                 {excellentRate}%
@@ -2178,8 +2178,8 @@ const HomePage: FC = () => {
               {item.period}
             </div>
             <div style={{
-              fontSize: 22,
-              fontWeight: 800,
+              fontSize: 28,
+              fontWeight: 700,
               color: COLORS.primary,
               marginBottom: 4,
             }}>

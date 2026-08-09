@@ -1,11 +1,12 @@
-import { autoCollectionApi, type AutoCollectionRule, type AutoCollectionTask, type AutoCollectionConfig, type AutoCollectionStats } from '../../services/api/autoCollectionApi'
-import { Card, Table, Switch, Space, Row, Col, Statistic, Button, Tag, message, Modal, Form, Input, Select, Alert, Popconfirm, Descriptions, Spin } from 'antd'
-import { Settings, Play, Edit3, Trash2, RefreshCw, Eye, History } from 'lucide-react'
+import { autoCollectionApi, type AutoCollectionRule, type AutoCollectionTask, type AutoCollectionConfig, type AutoCollectionStats, type AutoCollectionLog } from '../../services/api/autoCollectionApi'
+import { Card, Table, Switch, Space, Row, Col, Statistic, Button, Tag, message, Modal, Form, Input, Select, Alert, Popconfirm, Descriptions, Spin, Timeline } from 'antd'
+import { Settings, Play, Edit3, Trash2, RefreshCw, Eye, History, Square, Zap, ScrollText } from 'lucide-react'
 import React, { useState, useEffect, useCallback } from 'react'
+// [G005 2B] 受控分页: 规则/任务/配置 3 表 (数据可增长)
+import { usePagination } from '../../hooks/usePagination'
 
-// 数据来源说明: 后端无 auto-collection controller,
-// 由 MSW handler (src/services/mockBackend/autoCollectionHandlers.ts) 提供演示数据。
-const DEMO_SOURCE_NOTE = '数据来源：演示数据（MSW，后端暂无 /auto-collection 接口）'
+// 数据来源说明: [G005 Wave1A W9] 后端已实现 /auto-collection (rules/tasks/config/logs/stats), MSW 仅 mock 兜底。
+const DEMO_SOURCE_NOTE = '数据来源：后端真实接口（/auto-collection，含任务启动/停止/立即执行/日志）'
 
 interface AutoCollectionRuleItem {
   id: string
@@ -17,6 +18,17 @@ interface AutoCollectionRuleItem {
   nextRun?: string
   status: string
   updatedAt?: string
+}
+
+const TRIGGER_TYPE_LABEL: Record<string, string> = { event: '事件触发', schedule: '定时触发', threshold: '阈值触发' }
+const ACTION_LABEL: Record<string, string> = { archive: '自动归档', notify: '通知', report: '生成报告', transfer: '转储' }
+const RULE_STATUS_LABEL: Record<string, string> = { active: '已启用', inactive: '已禁用' }
+
+const TASK_STATUS_LABEL: Record<string, string> = {
+  completed: '已完成',
+  failed: '失败',
+  running: '运行中',
+  pending: '等待中',
 }
 
 const toItem = (r: AutoCollectionRule): AutoCollectionRuleItem => ({
@@ -49,6 +61,15 @@ const AutoCollectionPage: React.FC = () => {
   const [savingConfigKey, setSavingConfigKey] = useState<string | null>(null)
   const [editingRule, setEditingRule] = useState<AutoCollectionRuleItem | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  // [G005 Wave1A W9] 任务启动/停止/立即执行 + 执行日志
+  const [taskActionId, setTaskActionId] = useState<string | null>(null)
+  const [taskAction, setTaskAction] = useState<'start' | 'stop' | 'run' | null>(null)
+  const [logs, setLogs] = useState<AutoCollectionLog[]>([])
+  const [logsLoading, setLogsLoading] = useState(false)
+  // [G005 2B] 受控分页
+  const rulePage = usePagination(rules, 10)
+  const taskPage = usePagination(tasks, 10)
+  const configPage = usePagination(configs, 10)
 
   const fetchRules = useCallback(async () => {
     setLoading(true)
@@ -96,12 +117,23 @@ const AutoCollectionPage: React.FC = () => {
     setConfigLoading(false)
   }, [])
 
+  // [G005 Wave1A W9] 执行日志: GET /auto-collection/logs
+  const fetchLogs = useCallback(async () => {
+    setLogsLoading(true)
+    try {
+      const res = await autoCollectionApi.listLogs(50)
+      if (res.success && Array.isArray(res.data)) setLogs(res.data)
+    } catch { /* 日志接口不可用时保持空 */ }
+    setLogsLoading(false)
+  }, [])
+
   useEffect(() => {
     fetchRules()
     fetchStats()
     fetchTasks()
     fetchConfigs()
-  }, [fetchRules, fetchStats, fetchTasks, fetchConfigs])
+    fetchLogs()
+  }, [fetchRules, fetchStats, fetchTasks, fetchConfigs, fetchLogs])
 
   // [G005 Wave1B] 编辑规则: 优先 getRule 拉取最新, 失败回退行数据
   const handleEditRule = async (r: AutoCollectionRuleItem) => {
@@ -160,6 +192,31 @@ const AutoCollectionPage: React.FC = () => {
       message.warning('重跑接口不可用')
     }
     setRerunningId(null)
+  }
+
+  // [G005 Wave1A W9] 任务启动/停止/立即执行: startTask / stopTask / runTask
+  const handleTaskAction = async (id: string, action: 'start' | 'stop' | 'run') => {
+    setTaskActionId(id)
+    setTaskAction(action)
+    try {
+      const res = action === 'start'
+        ? await autoCollectionApi.startTask(id)
+        : action === 'stop'
+          ? await autoCollectionApi.stopTask(id)
+          : await autoCollectionApi.runTask(id)
+      if (res.success) {
+        message.success(`任务 ${id} 已${action === 'start' ? '启动' : action === 'stop' ? '停止' : '执行完成'}`)
+        await fetchTasks()
+        if (stats) await fetchStats()
+        await fetchLogs()
+      } else {
+        message.error(res.error?.message ?? `任务${action}失败`)
+      }
+    } catch {
+      message.error(`任务${action}失败`)
+    }
+    setTaskActionId(null)
+    setTaskAction(null)
   }
 
   // [G005 Wave1B] 配置保存: updateConfig
@@ -235,9 +292,9 @@ const AutoCollectionPage: React.FC = () => {
 
   const columns = [
     { title: '规则名', dataIndex: 'name', key: 'name' },
-    { title: '触发方式', dataIndex: 'triggerType', key: 'triggerType', render: (v: string) => <Tag>{v}</Tag> },
-    { title: '动作', dataIndex: 'action', key: 'action', render: (v: string) => <Tag color="blue">{v}</Tag> },
-    { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'active' ? 'green' : 'default'}>{v}</Tag> },
+    { title: '触发方式', dataIndex: 'triggerType', key: 'triggerType', render: (v: string) => <Tag>{TRIGGER_TYPE_LABEL[v] ?? v}</Tag> },
+    { title: '动作', dataIndex: 'action', key: 'action', render: (v: string) => <Tag color="blue">{ACTION_LABEL[v] ?? v}</Tag> },
+    { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'active' ? 'green' : 'default'}>{RULE_STATUS_LABEL[v] ?? v}</Tag> },
     { title: '更新时间', dataIndex: 'updatedAt', key: 'updatedAt', render: (v?: string) => v ? new Date(v).toLocaleString() : '-' },
     { title: '启用', key: 'enabled', render: (_: unknown, r: AutoCollectionRuleItem) => <Switch checked={r.enabled} onChange={(c) => handleToggle(r.id, c)} /> },
     {
@@ -255,16 +312,15 @@ const AutoCollectionPage: React.FC = () => {
 
   return (
     <div style={{ padding: 24 }}>
-      {/* [G005 W1-C] 演示数据（后端待实现）: 后端无 auto-collection controller, 数据由 MSW 提供 */}
+      {/* [G005 Wave1A W9] 后端已实现 /auto-collection, MSW 仅 mock 兜底 */}
       <Alert
-        type="warning"
+        type="success"
         showIcon
         banner
-        message="演示数据（后端待实现）"
+        message="后端接口已接通（真实 API）"
         description={DEMO_SOURCE_NOTE}
         style={{ marginBottom: 16 }}
-      />
-      <Space style={{ marginBottom: 16 }}>
+      />      <Space style={{ marginBottom: 16 }}>
         <Settings size={20} color="#2563eb" />
         <span style={{ fontSize: 18, fontWeight: 600 }}>自动采集管理</span>
       </Space>
@@ -279,7 +335,7 @@ const AutoCollectionPage: React.FC = () => {
         <Col span={4}><Card><Statistic title="失败" value={stats?.failedTasks ?? 0} styles={{ content: { color: '#ff4d4f' } }} loading={loading} /></Card></Col>
       </Row>
       <Card extra={<Button type="primary" icon={<Play size={14} />} onClick={() => { setEditingRule(null); form.resetFields(); setCreateOpen(true); }}>新建规则</Button>}>
-        <Table rowKey="id" dataSource={rules} columns={columns} pagination={false} size="small" loading={loading} scroll={{ x: 'max-content' }}/>
+        <Table rowKey="id" dataSource={rulePage.pageData} columns={columns} pagination={rulePage.pagination} size="small" loading={loading} scroll={{ x: 'max-content' }}/>
       </Card>
 
       {/* [G005 Wave1B] 任务列表: listTasks + getTask 详情 + rerunTask 重跑 */}
@@ -291,23 +347,26 @@ const AutoCollectionPage: React.FC = () => {
       >
         <Table
           rowKey="id"
-          dataSource={tasks}
+          dataSource={taskPage.pageData}
           size="small"
           loading={tasksLoading}
-          pagination={false}
+          pagination={taskPage.pagination}
           scroll={{ x: 'max-content' }}
-          locale={{ emptyText: '暂无任务记录 (GET /auto-collection/tasks)' }}
+            locale={{ emptyText: '暂无任务记录' }}
           columns={[
             { title: '任务 ID', dataIndex: 'id', key: 'id', width: 110 },
             { title: '规则', dataIndex: 'ruleName', key: 'ruleName', width: 160 },
-            { title: '状态', dataIndex: 'status', key: 'status', width: 90, render: (v: string) => <Tag color={v === 'completed' ? 'green' : v === 'failed' ? 'red' : v === 'running' ? 'blue' : 'orange'}>{v}</Tag> },
+            { title: '状态', dataIndex: 'status', key: 'status', width: 90, render: (v: string) => <Tag color={v === 'completed' ? 'green' : v === 'failed' ? 'red' : v === 'running' ? 'blue' : 'orange'}>{TASK_STATUS_LABEL[v] ?? v}</Tag> },
             { title: '触发时间', dataIndex: 'triggeredAt', key: 'triggeredAt', width: 160, render: (v?: string) => v ? new Date(v).toLocaleString() : '-' },
             { title: '完成时间', dataIndex: 'completedAt', key: 'completedAt', width: 160, render: (v?: string) => v ? new Date(v).toLocaleString() : '-' },
             {
-              title: '操作', key: 'actions', width: 140,
+              title: '操作', key: 'actions', width: 260,
               render: (_: unknown, t: AutoCollectionTask) => (
                 <Space size={4}>
                   <Button size="small" type="link" icon={<Eye size={12} />} onClick={() => void handleViewTask(t)}>详情</Button>
+                  <Button size="small" type="link" icon={<Play size={12} />} loading={taskActionId === t.id && taskAction === 'start'} disabled={t.status === 'running'} onClick={() => void handleTaskAction(t.id, 'start')}>启动</Button>
+                  <Button size="small" type="link" icon={<Square size={12} />} loading={taskActionId === t.id && taskAction === 'stop'} disabled={t.status !== 'running'} onClick={() => void handleTaskAction(t.id, 'stop')}>停止</Button>
+                  <Button size="small" type="link" icon={<Zap size={12} />} loading={taskActionId === t.id && taskAction === 'run'} disabled={t.status === 'running'} onClick={() => void handleTaskAction(t.id, 'run')}>立即执行</Button>
                   <Button size="small" type="link" icon={<RefreshCw size={12} />} loading={rerunningId === t.id} onClick={() => void handleRerunTask(t.id)}>重跑</Button>
                 </Space>
               ),
@@ -316,14 +375,47 @@ const AutoCollectionPage: React.FC = () => {
         />
       </Card>
 
+      {/* [G005 Wave1A W9] 执行日志: GET /auto-collection/logs */}
+      <Card
+        title={<Space><ScrollText size={14} />执行日志</Space>}
+        size="small"
+        style={{ marginTop: 12 }}
+        extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={() => { fetchLogs(); }}>刷新</Button>}
+      >
+        <Spin spinning={logsLoading}>
+          {logs.length === 0 ? (
+            <div style={{ padding: 24, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>
+              暂无日志 (GET /auto-collection/logs)
+            </div>
+          ) : (
+            <Timeline
+              style={{ marginTop: 8 }}
+              items={logs.slice(0, 30).map((log) => ({
+                color: log.level === 'ERROR' ? 'red' : log.level === 'WARN' ? 'orange' : 'green',
+                children: (
+                  <div>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 12 }}>
+                      <Tag color={log.level === 'ERROR' ? 'red' : log.level === 'WARN' ? 'orange' : 'green'} style={{ marginRight: 0 }}>{log.level}</Tag>
+                      <Tag style={{ marginRight: 0 }}>{log.source}</Tag>
+                      <span style={{ color: 'var(--text-secondary)', fontFamily: 'monospace', fontSize: 11 }}>{log.time ? new Date(log.time).toLocaleString() : '-'}</span>
+                    </div>
+                    <div style={{ fontSize: 12, color: 'var(--text-primary)', marginTop: 2 }}>{log.message}</div>
+                  </div>
+                ),
+              }))}
+            />
+          )}
+        </Spin>
+      </Card>
+
       {/* [G005 Wave1B] 配置: getConfig + updateConfig */}
       <Card title={<Space><Settings size={14} />采集配置</Space>} size="small" style={{ marginTop: 12 }}>
         <Spin spinning={configLoading}>
           <Table
             rowKey="key"
-            dataSource={configs}
+            dataSource={configPage.pageData}
             size="small"
-            pagination={false}
+            pagination={configPage.pagination}
             scroll={{ x: 'max-content' }}
             locale={{ emptyText: '暂无配置 (GET /auto-collection/config)' }}
             columns={[
@@ -362,9 +454,9 @@ const AutoCollectionPage: React.FC = () => {
           </Form.Item>
           <Form.Item name="triggerType" label="触发方式" rules={[{ required: true }]}>
             <Select options={[
-              { value: 'event', label: '事件触发 (event)' },
-              { value: 'schedule', label: '定时触发 (schedule)' },
-              { value: 'threshold', label: '阈值触发 (threshold)' },
+              { value: 'event', label: '事件触发' },
+              { value: 'schedule', label: '定时触发' },
+              { value: 'threshold', label: '阈值触发' },
             ]} />
           </Form.Item>
           <Form.Item name="action" label="动作" rules={[{ required: true }]}>
@@ -394,7 +486,7 @@ const AutoCollectionPage: React.FC = () => {
             <Descriptions bordered column={1} size="small" style={{ marginTop: 8 }}>
               <Descriptions.Item label="任务 ID">{taskDetail.id}</Descriptions.Item>
               <Descriptions.Item label="规则">{taskDetail.ruleName} ({taskDetail.ruleId})</Descriptions.Item>
-              <Descriptions.Item label="状态"><Tag color={taskDetail.status === 'completed' ? 'green' : taskDetail.status === 'failed' ? 'red' : taskDetail.status === 'running' ? 'blue' : 'orange'}>{taskDetail.status}</Tag></Descriptions.Item>
+              <Descriptions.Item label="状态"><Tag color={taskDetail.status === 'completed' ? 'green' : taskDetail.status === 'failed' ? 'red' : taskDetail.status === 'running' ? 'blue' : 'orange'}>{TASK_STATUS_LABEL[taskDetail.status] ?? taskDetail.status}</Tag></Descriptions.Item>
               <Descriptions.Item label="触发时间">{taskDetail.triggeredAt ? new Date(taskDetail.triggeredAt).toLocaleString() : '-'}</Descriptions.Item>
               <Descriptions.Item label="完成时间">{taskDetail.completedAt ? new Date(taskDetail.completedAt).toLocaleString() : '-'}</Descriptions.Item>
               {taskDetail.error && <Descriptions.Item label="错误信息"><span style={{ color: '#ff4d4f' }}>{taskDetail.error}</span></Descriptions.Item>}

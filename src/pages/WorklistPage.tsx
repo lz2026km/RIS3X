@@ -1457,6 +1457,7 @@ export default function WorklistPage() {
         }}
         onStartExam={handleStartExam}
         onCancelExam={handleCancelExam}
+        onStatusChanged={() => void refreshAfterMutation()}
       />
 
       <RequisitionDrawer

@@ -4,7 +4,8 @@
  */
 import React, { useState, useEffect } from 'react';
 import { Tabs, Card, Space, Tag, message, Badge, Spin, Alert } from 'antd';
-import { ShieldCheck, AlertOctagon, FileText, AlertTriangle, BarChart3, Activity, Layers } from 'lucide-react';
+import { ShieldCheck, AlertOctagon, FileText, AlertTriangle, BarChart3, Activity, Layers, TrendingUp } from 'lucide-react';
+import { reportQualityApi } from '../services/api';
 import { QualityScorePanel } from '../components/report/v3/R3.QUALITY/QualityScorePanel';
 import { QualityDimensionCard } from '../components/report/v3/R3.QUALITY/QualityDimensionCard';
 import { CriticalValueAlerter } from '../components/report/v3/R3.QUALITY/CriticalValueAlerter';
@@ -30,6 +31,28 @@ const QualityControlPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [dataSource, setDataSource] = useState<'api' | 'fallback'>('api');
   const [, setRescoreBusy] = useState(false);
+
+  // [G005 Wave1B] 历史评分趋势: reportQualityApi.getTrend (失败回退不阻断)
+  const [trend, setTrend] = useState<Array<{ date: string; totalScore: number; grade?: string }>>([]);
+
+  useEffect(() => {
+    if (!selectedScore?.reportId) return;
+    let cancelled = false;
+    reportQualityApi
+      .getTrend(selectedScore.reportId, 30)
+      .then((res) => {
+        if (cancelled || !res.success || !Array.isArray(res.data) || res.data.length === 0) return;
+        setTrend(
+          (res.data as Array<{ evaluatedAt?: string; totalScore: number; grade?: string }>).map((e) => ({
+            date: String(e.evaluatedAt ?? '').slice(0, 10),
+            totalScore: Number(e.totalScore) || 0,
+            grade: e.grade,
+          })),
+        );
+      })
+      .catch(() => { /* 趋势不可用不阻断 */ });
+    return () => { cancelled = true; };
+  }, [selectedScore]);
 
   useEffect(() => {
     let cancelled = false;
@@ -136,6 +159,25 @@ const QualityControlPage: React.FC = () => {
                   ))}
                 </Space>
               </Card>
+              {/* [G005 Wave1B] 历史评分趋势: reportQualityApi.getTrend (失败回退不阻断) */}
+              {trend.length > 0 && (
+                <Card size="small" title={<Space><TrendingUp size={14} />历史评分趋势</Space>} extra={<Tag color="green">reportQualityApi 实时</Tag>}>
+                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, minHeight: 90 }}>
+                    {trend.slice(-14).map((p, i) => {
+                      const max = Math.max(...trend.map((x) => x.totalScore), 1);
+                      return (
+                        <div key={i} style={{ flex: 1, textAlign: 'center' }}>
+                          <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{p.totalScore}</div>
+                          <div style={{ height: 60, background: 'var(--bg-card)', borderRadius: '4px 4px 0 0', display: 'flex', alignItems: 'flex-end', overflow: 'hidden' }}>
+                            <div style={{ width: '100%', height: `${Math.max((p.totalScore / max) * 100, 4)}%`, background: p.grade === 'A' ? '#10b981' : p.grade === 'B' ? '#3b82f6' : '#f59e0b', borderRadius: '4px 4px 0 0' }} />
+                          </div>
+                          <div style={{ fontSize: 9, color: 'var(--text-secondary)', marginTop: 4 }}>{p.date.slice(5)}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </Card>
+              )}
               <QualityScorePanel onRescore={() => { void handleRescore(); }} />
             </Space>
           ) },

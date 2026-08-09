@@ -4,6 +4,7 @@
 // [W3-B] 已接入 statsApi / biApi 真实统计 (loading/error + 演示数据回退)
 import { useState, useEffect, useCallback } from 'react'
 import { statsApi } from '../services/api/statsApi'
+import { analyticsStatsApi, type ForecastPointDto, type UtilizationDto, type AccuracyDto } from '../services/api/analyticsApi'
 import { biApi } from '../services/api/biApi'
 import { DEVICE_MASTER } from '../data/master'
 import {
@@ -463,6 +464,13 @@ export default function StatsReportPage() {
   const [dataSource, setDataSource] = useState<'live' | 'fallback'>('fallback')
   // [W1-B] 周报: statsApi.getWeekly (GET /stats/weekly)
   const [weekly, setWeekly] = useState<{ totalExams: number; totalReports: number; totalCritical: number; avgExamsPerDay: number; daily: { date: string; count: number }[] } | null>(null)
+  // [G005 Wave1B] analyticsStatsApi: forecast / utilization / accuracy (失败回退不阻断)
+  const [forecast, setForecast] = useState<ForecastPointDto[]>([])
+  const [utilization, setUtilization] = useState<UtilizationDto | null>(null)
+  const [accuracy, setAccuracy] = useState<AccuracyDto | null>(null)
+  const [analyticsLive, setAnalyticsLive] = useState(false)
+  const [exportingCsv, setExportingCsv] = useState(false)
+  const [csvNote, setCsvNote] = useState('')
 
   const loadStats = useCallback(async (days: number) => {
     setLoading(true)
@@ -584,6 +592,16 @@ export default function StatsReportPage() {
   useEffect(() => {
     const days = dateRange === '7d' ? 7 : dateRange === '30d' ? 30 : 90
     void loadStats(days)
+    // [G005 Wave1B] 分析扩展: 预测/利用率/准确率 (独立请求, 任一失败不阻断)
+    analyticsStatsApi.getForecast({ department: '', startDate: '', endDate: '' })
+      .then(r => { if (r.success && Array.isArray(r.data)) { setForecast(r.data as ForecastPointDto[]); setAnalyticsLive(true) } })
+      .catch(() => { /* 预测不可用不阻断 */ })
+    analyticsStatsApi.getUtilization()
+      .then(r => { if (r.success && r.data) setUtilization(r.data as UtilizationDto) })
+      .catch(() => { /* 利用率不可用不阻断 */ })
+    analyticsStatsApi.getAccuracy()
+      .then(r => { if (r.success && r.data) setAccuracy(r.data as AccuracyDto) })
+      .catch(() => { /* 准确率不可用不阻断 */ })
   }, [loadStats, dateRange])
 
   // 表格数据: 实时优先, 空则演示数据回退
@@ -679,6 +697,33 @@ export default function StatsReportPage() {
     }
     
     setShowExportModal(false)
+  }
+
+  // [G005 Wave1B] 真实导出: GET /stats/export.csv (后端生成 CSV, Blob 下载), 失败回退本地 CSV
+  const handleRealExportCsv = async () => {
+    setExportingCsv(true)
+    setCsvNote('')
+    try {
+      const res = await statsApi.exportCsv()
+      if (res.success && res.data && (res.data as Blob).size > 0) {
+        const blob = res.data as Blob
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `stats_export_${new Date().toISOString().split('T')[0]}.csv`
+        a.click()
+        URL.revokeObjectURL(url)
+        setCsvNote(`已通过 /stats/export.csv 导出 (${(blob.size / 1024).toFixed(1)} KB)`)
+      } else {
+        exportToCSV(getFilteredData())
+        setCsvNote('导出接口不可用, 已回退当前筛选数据本地 CSV')
+      }
+    } catch {
+      exportToCSV(getFilteredData())
+      setCsvNote('导出接口请求失败, 已回退当前筛选数据本地 CSV')
+    } finally {
+      setExportingCsv(false)
+    }
   }
 
   // CSV导出
@@ -1139,6 +1184,95 @@ export default function StatsReportPage() {
         </div>
       )}
 
+      {/* [G005 Wave1B] analyticsStatsApi: 预测趋势 / 设备利用率 / 报告准确率 (失败回退不阻断) */}
+      {(analyticsLive || utilization || accuracy) && (
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 16, marginBottom: 16 }}>
+          {/* 预测趋势小图 */}
+          <div style={styles.tableCard}>
+            <div style={styles.tableHeader}>
+              <div style={styles.tableTitle}>
+                <TrendingUp size={18} /> 检查量预测趋势
+                {analyticsLive && <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}>forecast</span>}
+              </div>
+              <span style={{ fontSize: 12, color: COLORS.textMuted }}>近14天实际 + 14天外推</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, padding: '14px 16px', minHeight: 110 }}>
+              {forecast.length > 0 && (() => {
+                const max = Math.max(...forecast.map(p => Math.max(Number(p.actual) || 0, Number(p.forecast) || 0)), 1)
+                return forecast.slice(-28).map((p, i) => {
+                  const isForecast = p.actual == null || p.actual === 0
+                  const val = Number(isForecast ? p.forecast : p.actual) || 0
+                  return (
+                    <div key={i} style={{ flex: 1, textAlign: 'center', minWidth: 0 }}>
+                      <div style={{ fontSize: 10, color: COLORS.textMuted }}>{isForecast ? val : ''}</div>
+                      <div style={{ height: 80, background: COLORS.bgGray, borderRadius: '4px 4px 0 0', display: 'flex', alignItems: 'flex-end', overflow: 'hidden' }}>
+                        <div style={{
+                          width: '100%',
+                          height: `${Math.max((val / max) * 100, 3)}%`,
+                          background: isForecast ? '#fbbf24' : COLORS.primaryLight,
+                          opacity: isForecast ? 0.7 : 1,
+                          borderTop: isForecast ? '2px dashed #d97706' : 'none',
+                          borderRadius: '4px 4px 0 0',
+                        }} />
+                      </div>
+                      <div style={{ fontSize: 9, color: COLORS.textMuted, marginTop: 4 }}>{(p.date ?? '').slice(5)}</div>
+                    </div>
+                  )
+                })
+              })()}
+            </div>
+          </div>
+
+          {/* 设备利用率 */}
+          {utilization && (
+            <div style={styles.tableCard}>
+              <div style={styles.tableHeader}>
+                <div style={styles.tableTitle}>
+                  <Gauge size={18} /> 设备利用率
+                  <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}>utilization</span>
+                </div>
+              </div>
+              <div style={{ padding: 16 }}>
+                <div style={{ fontSize: 32, fontWeight: 700, color: (utilization.current ?? 0) >= (utilization.target ?? 0) ? COLORS.success : COLORS.warning }}>
+                  {(utilization.current ?? 0).toFixed(1)}%
+                </div>
+                <div style={{ height: 10, background: COLORS.bgGray, borderRadius: 5, overflow: 'hidden', marginTop: 10 }}>
+                  <div style={{ width: `${Math.min((utilization.current ?? 0), (utilization.max ?? 100)) / ((utilization.max ?? 100) || 1) * 100}%`, height: '100%', background: COLORS.primaryLight, borderRadius: 5 }} />
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: COLORS.textMuted, marginTop: 8 }}>
+                  <span>目标 {utilization.target ?? 0}%</span>
+                  <span>上限 {utilization.max ?? 0}%</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 报告准确率 */}
+          {accuracy && (
+            <div style={styles.tableCard}>
+              <div style={styles.tableHeader}>
+                <div style={styles.tableTitle}>
+                  <Activity size={18} /> 报告准确率
+                  <span style={{ ...styles.badge, backgroundColor: COLORS.successLight, color: COLORS.success, marginLeft: 8 }}>accuracy</span>
+                </div>
+              </div>
+              <div style={{ padding: 16 }}>
+                <div style={{ fontSize: 32, fontWeight: 700, color: COLORS.primary }}>{accuracy.value?.toFixed(1)}%</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, fontSize: 13, color: (accuracy.previous ?? 0) <= accuracy.value ? COLORS.success : COLORS.danger }}>
+                  {accuracy.previous != null && (
+                    <>
+                      {(accuracy.previous ?? 0) <= accuracy.value ? <TrendingUp size={15} /> : <TrendingDown size={15} />}
+                      较上期 {accuracy.previous.toFixed(1)}% ({(accuracy.value - accuracy.previous).toFixed(1)}pp)
+                    </>
+                  )}
+                </div>
+                <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 8 }}>质控评分合格率 (A/B 级占比)</div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* 标签页切换 */}
       <div style={styles.mainContent}>
         <div style={styles.tabsContainer}>
@@ -1227,7 +1361,17 @@ export default function StatsReportPage() {
               共 {filteredData.length} 条数据
               {selectedRows.length > 0 && ` · 已选择 ${selectedRows.length} 条`}
             </span>
-            
+
+            {/* [G005 Wave1B] 真实导出: GET /stats/export.csv (后端生成, 含 BOM 表头) */}
+            <button
+              style={{ ...styles.button, ...styles.buttonOutline }}
+              onClick={() => void handleRealExportCsv()}
+              disabled={exportingCsv}
+            >
+              <Download size={14} />
+              {exportingCsv ? '导出中…' : '导出 CSV'}
+            </button>
+
             <button 
               style={{ ...styles.button, ...styles.buttonSuccess }}
               onClick={() => setShowExportModal(true)}
@@ -1236,6 +1380,12 @@ export default function StatsReportPage() {
               导出
             </button>
           </div>
+          {csvNote && (
+            <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <CheckCircle size={13} color={COLORS.success} />
+              {csvNote}
+            </div>
+          )}
         </div>
 
         {/* 数据表格 */}

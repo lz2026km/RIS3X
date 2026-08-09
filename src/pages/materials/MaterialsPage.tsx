@@ -5,10 +5,21 @@ import { Box, Eye, AlertTriangle, Calendar, Plus, Edit3, Trash2 } from 'lucide-r
 import { iolApi, contactLensApi } from '@/services/api/materialsApi';
 // [G005 Wave1B] 单条 IOL 库存详情 (getIolInventoryById, GET /eye/iol/inventory/:id)
 import { eyeApi } from '@/services/api/eyeApi';
+// [G005 2B] 试戴患者选择: patientApi.list
+import { patientApi } from '@/services/api/patientApi';
 import { usePagination } from '@/hooks/usePagination';
 
 
 const {  } = Input;
+
+const IOL_TYPE_LABEL: Record<string, string> = {
+  monofocal: '单焦',
+  toric: '散光',
+  multifocal: '多焦',
+  edof: 'EDOF',
+}
+
+const IOL_STATUS_LABEL: Record<string, string> = { in_stock: '在库', reserved: '预留', implanted: '已植入', expired: '过期' }
 
 export const MaterialsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('iol');
@@ -27,6 +38,8 @@ export const MaterialsPage: React.FC = () => {
 
   // [G005 Wave1A P0] OK 镜设计 (POST /eye/optometry/ok-lens/design)
   const [okDesignModal, setOkDesignModal] = useState<{ open: boolean; data: any; submitting: boolean }>({ open: false, data: {}, submitting: false });
+  // [G005 2B] 接触镜试戴患者列表 (写死 P000001 真实化)
+  const [patientOptions, setPatientOptions] = useState<any[]>([]);
 
   // 加载
   const loadIols = async () => {
@@ -48,6 +61,19 @@ export const MaterialsPage: React.FC = () => {
   };
 
   useEffect(() => { loadIols(); loadLenses(); }, []);
+
+  // [G005 2B] 加载患者列表供试戴选择 (patientApi.list 双形状: 裸数组 / { items, total })
+  useEffect(() => {
+    (async () => {
+      try {
+        const r = await patientApi.list({ pageSize: 50 });
+        const raw = Array.isArray(r.data) ? r.data : (r.data as any)?.items ?? [];
+        if (Array.isArray(raw)) {
+          setPatientOptions(raw.map((p: any) => ({ value: p.id, label: `${p.name} (${p.id})` })));
+        }
+      } catch (e) { console.warn('[F03] Error:', (e as Error)?.message); }
+    })();
+  }, []);
 
   // IOL 操作
   const handleIolInStock = async () => {
@@ -206,12 +232,12 @@ export const MaterialsPage: React.FC = () => {
               columns={[
                 { title: '条码', dataIndex: 'barcode' },
                 { title: '型号', dataIndex: 'model' },
-                { title: '类型', dataIndex: 'type', render: (t) => <Tag color={t === 'toric' ? 'orange' : t === 'multifocal' ? 'purple' : 'blue'}>{t}</Tag> },
+                { title: '类型', dataIndex: 'type', render: (t) => <Tag color={t === 'toric' ? 'orange' : t === 'multifocal' ? 'purple' : 'blue'}>{IOL_TYPE_LABEL[t] ?? t}</Tag> },
                 { title: '度数', dataIndex: 'power', render: (p) => p + ' D' },
                 { title: '散光', dataIndex: 'cylinder', render: (c) => c ? c + ' D' : '-' },
                 { title: '批号', dataIndex: 'batchNumber' },
                 { title: '位置', dataIndex: 'stockLocation' },
-                { title: '状态', dataIndex: 'status', render: (s) => <Tag color={s === 'in_stock' ? 'green' : s === 'expired' ? 'red' : 'orange'}>{s}</Tag> },
+                { title: '状态', dataIndex: 'status', render: (s) => <Tag color={s === 'in_stock' ? 'green' : s === 'expired' ? 'red' : 'orange'}>{IOL_STATUS_LABEL[s] ?? s}</Tag> },
                 { title: '价格', dataIndex: 'unitPrice', render: (p) => '¥' + p },
                 {
                   title: '操作',
@@ -314,7 +340,7 @@ export const MaterialsPage: React.FC = () => {
             <Row gutter={8}>
               <Col span={12}><Form.Item label="条码"><Input value={iolModal.data.barcode} onChange={e => setIolModal({ ...iolModal, data: { ...iolModal.data, barcode: e.target.value } })} /></Form.Item></Col>
               <Col span={12}><Form.Item label="型号"><Input value={iolModal.data.model} onChange={e => setIolModal({ ...iolModal, data: { ...iolModal.data, model: e.target.value } })} placeholder="SA60AT" /></Form.Item></Col>
-              <Col span={12}><Form.Item label="类型"><Select value={iolModal.data.type} onChange={v => setIolModal({ ...iolModal, data: { ...iolModal.data, type: v } })} options={['monofocal','toric','multifocal','edof'].map(t => ({value:t,label:t}))} /></Form.Item></Col>
+              <Col span={12}><Form.Item label="类型"><Select value={iolModal.data.type} onChange={v => setIolModal({ ...iolModal, data: { ...iolModal.data, type: v } })} options={['monofocal','toric','multifocal','edof'].map(t => ({value:t,label:IOL_TYPE_LABEL[t] ?? t}))} /></Form.Item></Col>
               <Col span={12}><Form.Item label="度数 (D)"><InputNumber value={iolModal.data.power} onChange={v => setIolModal({ ...iolModal, data: { ...iolModal.data, power: v } })} step={0.5} style={{ width: '100%' }} /></Form.Item></Col>
               <Col span={12}><Form.Item label="散光 (D, Toric用)"><InputNumber value={iolModal.data.cylinder} onChange={v => setIolModal({ ...iolModal, data: { ...iolModal.data, cylinder: v } })} step={0.25} style={{ width: '100%' }} /></Form.Item></Col>
               <Col span={12}><Form.Item label="供应商"><Input value={iolModal.data.supplier} onChange={e => setIolModal({ ...iolModal, data: { ...iolModal.data, supplier: e.target.value } })} placeholder="Alcon" /></Form.Item></Col>
@@ -393,7 +419,20 @@ export const MaterialsPage: React.FC = () => {
         {lensModal.type === 'fitting' ? (
           <div>
             <Alert title="试戴镜片: " type="info" showIcon style={{ marginBottom: 8 }} description={`${lensModal.data.id} (${lensModal.data.brand} ${lensModal.data.series})`} />
-            <Form.Item label="患者 ID"><Input value={lensModal.data.patientId} onChange={e => setLensModal({ ...lensModal, data: { ...lensModal.data, patientId: e.target.value } })} /></Form.Item>
+            <Form.Item label="患者" required>
+              {patientOptions.length > 0 ? (
+                <Select
+                  value={lensModal.data.patientId}
+                  onChange={v => setLensModal({ ...lensModal, data: { ...lensModal.data, patientId: v } })}
+                  options={patientOptions}
+                  placeholder="选择患者"
+                  showSearch
+                  optionFilterProp="label"
+                />
+              ) : (
+                <Input value={lensModal.data.patientId} onChange={e => setLensModal({ ...lensModal, data: { ...lensModal.data, patientId: e.target.value } })} />
+              )}
+            </Form.Item>
             <Button type="primary" block onClick={async () => {
               try {
                 const r = await contactLensApi.fitting(lensModal.data.id, { patientId: lensModal.data.patientId, fittingData: { trial: true } });

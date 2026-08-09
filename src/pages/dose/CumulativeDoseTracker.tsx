@@ -7,9 +7,9 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
   ReferenceLine,
 } from "recharts";
+import ChartContainer from "../../components/charts/ChartContainer";
 import { rdsrApi, type CumulativeDose } from "../../services/api/rdsrApi";
 import { cumulativeDoseData } from "./mockData";
 import type { CumulativeDosePoint } from "./types";
@@ -67,7 +67,7 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
             {source === "api" ? "· 数据源: /rdsr/patients/cumulative" : "· 演示数据"}
           </span>
         </div>
-        <ResponsiveContainer width="100%" height={260}>
+        <ChartContainer height={260} state={data.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
           <AreaChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#94a3b8" }} />
@@ -104,7 +104,7 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
               name="阶段阈值"
             />
           </AreaChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </div>
       <div
         style={{

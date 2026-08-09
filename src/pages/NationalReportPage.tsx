@@ -36,8 +36,8 @@ const COLORS = {
   success: '#16a34a',       // 成功绿
   warning: '#d97706',      // 警告橙
   danger: '#dc2626',        // 危险红
-  bgGray: '#e8e8e8',        // 浅灰背景
-  cardWhite: '#ffffff',     // 白色卡片
+  bgGray: 'var(--content-bg)',        // 浅灰背景
+  cardWhite: 'var(--bg-card)',     // 白色卡片
   textDark: '#1f2937',      // 深色文字
   textMuted: '#6b7280',     // 灰色文字
   border: 'var(--border-color)',        // 边框色
@@ -860,7 +860,7 @@ const PreSubmissionValidation = () => {
       <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 20, border: '1px solid var(--border-color)', textAlign: 'center' }}>
         <div style={{ position: 'relative', width: 120, height: 120, margin: '0 auto 12px' }}>
           <svg width="120" height="120" viewBox="0 0 120 120">
-            <circle cx="60" cy="60" r="54" fill="none" stroke="#e5e7eb" strokeWidth="8" />
+            <circle cx="60" cy="60" r="54" fill="none" stroke="var(--border-color)" strokeWidth="8" />
             <circle cx="60" cy="60" r="54" fill="none" stroke={score >= 90 ? COLORS.success : score >= 70 ? COLORS.warning : COLORS.danger} strokeWidth="8" strokeDasharray={`${(score / 100) * 339.292} 339.292`} transform="rotate(-90 60 60)" />
           </svg>
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -876,7 +876,7 @@ const PreSubmissionValidation = () => {
         <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', fontWeight: 600, fontSize: 14 }}>数据质量校验明细</div>
         <div style={{ padding: 8 }}>
           {validationChecks.map(check => (
-            <div key={check.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', borderRadius: 6, marginBottom: 4, background: check.status === 'pass' ? '#f9fafb' : check.status === 'warning' ? '#fffbeb' : '#fef2f2' }}>
+            <div key={check.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', borderRadius: 6, marginBottom: 4, background: check.status === 'pass' ? 'var(--content-bg)' : check.status === 'warning' ? 'var(--color-warning-bg)' : 'var(--color-error-bg)' }}>
               {check.status === 'pass' ? <CheckCircle size={14} color={COLORS.success} /> : check.status === 'warning' ? <AlertTriangle size={14} color={COLORS.warning} /> : <XCircle size={14} color={COLORS.danger} />}
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{check.field}</div>
@@ -884,7 +884,7 @@ const PreSubmissionValidation = () => {
               </div>
               <span style={{
                 padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
-                background: check.type === 'completeness' ? '#eff6ff' : check.type === 'consistency' ? '#f5f3ff' : '#fef3c7',
+                background: check.type === 'completeness' ? 'var(--color-info-bg)' : check.type === 'consistency' ? 'var(--color-info-bg)' : 'var(--color-warning-bg)',
                 color: check.type === 'completeness' ? '#2563eb' : check.type === 'consistency' ? '#7c3aed' : '#d97706'
               }}>
                 {check.type === 'completeness' ? '完整性' : check.type === 'consistency' ? '一致性' : '业务规则'}
@@ -927,7 +927,7 @@ const SubmissionAuditTrail = () => {
             </thead>
             <tbody>
               {submissionHistory.map((s, i) => (
-                <tr key={s.id} style={{ borderBottom: '1px solid var(--border-color)', background: i % 2 === 0 ? '#fff' : '#fafbfc', cursor: 'pointer' }}
+                <tr key={s.id} style={{ borderBottom: '1px solid var(--border-color)', background: i % 2 === 0 ? 'var(--bg-card)' : 'var(--content-bg)', cursor: 'pointer' }}
                   onClick={() => setSelectedSubmission(s)}>
                   <td style={{ padding: '10px 12px', fontWeight: 600 }}>{s.reportType}</td>
                   <td style={{ padding: '10px 12px', color: COLORS.textMuted }}>{s.submittedAt}</td>
@@ -1057,7 +1057,7 @@ const ScheduledReportsPanel = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{
                 width: 36, height: 36, borderRadius: 8,
-                background: s.enabled ? '#eff6ff' : '#f3f4f6',
+                background: s.enabled ? 'var(--color-info-bg)' : 'var(--content-bg)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', color: s.enabled ? COLORS.primary : COLORS.textMuted
               }}><FileText size={18} /></div>
               <div>
@@ -1568,7 +1568,7 @@ export default function NationalReportPage() {
             <div style={styles.chartContainer}>
               <ResponsiveContainer width="100%" height={160}>
                 <LineChart data={monthlyTrends}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
                   <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                   <YAxis tick={{ fontSize: 12 }} />
                   <Tooltip contentStyle={{ fontSize: 12 }} />
@@ -1849,7 +1849,7 @@ export default function NationalReportPage() {
           </div>
           <div style={{ ...styles.panelBody, padding: '12px' }}>
             {reportLogs.slice(0, 3).map(item => (
-              <div key={item.id} style={{ display: 'flex', gap: '10px', marginBottom: '12px', paddingBottom: '12px', borderBottom: '1px solid #f3f4f6' }}>
+              <div key={item.id} style={{ display: 'flex', gap: '10px', marginBottom: '12px', paddingBottom: '12px', borderBottom: '1px solid var(--border-light)' }}>
                 <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--color-info-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <FileText size={14} color={COLORS.primary} />
                 </div>
@@ -1891,7 +1891,7 @@ export default function NationalReportPage() {
         <div style={{ padding: '16px' }}>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={monthlyTrends}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
               <XAxis dataKey="month" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip contentStyle={{ fontSize: 12 }} />

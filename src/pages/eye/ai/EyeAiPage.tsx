@@ -6,12 +6,12 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  ResponsiveContainer,
   CartesianGrid,
   Legend,
 } from "recharts";
 import { Brain, Activity, AlertTriangle, CheckCircle, Clock, PlayCircle } from 'lucide-react';
 import AiDiagnosisCard from "@/components/eye/AiDiagnosisCard";
+import ChartContainer from "@/components/charts/ChartContainer";
 import { PageContainer, PageHeader } from "@/components/common";
 import { AppEmpty } from "@/components/feedback";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
@@ -438,8 +438,7 @@ const EyeAiPage: React.FC = () => {
                     </Col>
                     <Col span={8}>
                       <Card size="small" title="AI 采纳率趋势">
-                        <div style={{ height: 180 }}>
-                          <ResponsiveContainer width="100%" height="100%">
+                        <ChartContainer height={180} state={acceptanceTrendData.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
                             <LineChart
                               data={acceptanceTrendData}
                               margin={{ top: 8, right: 12, bottom: 0, left: -10 }}
@@ -483,14 +482,12 @@ const EyeAiPage: React.FC = () => {
                                 dot={false}
                               />
                             </LineChart>
-                          </ResponsiveContainer>
-                        </div>
+                          </ChartContainer>
                       </Card>
                     </Col>
                     <Col span={8}>
                       <Card size="small" title={<span>模型表现对比 (ROC) {rocMeta && <Tag color="green" style={{ fontSize: 10 }}>API AUC {rocMeta.auc.toFixed(3)}</Tag>}</span>}>
-                        <div style={{ height: 180 }}>
-                          <ResponsiveContainer width="100%" height="100%">
+                        <ChartContainer height={180} state={ROC_CURVE_DATA.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
                             <LineChart
                               data={ROC_CURVE_DATA}
                               margin={{ top: 8, right: 12, bottom: 0, left: -10 }}
@@ -551,8 +548,7 @@ const EyeAiPage: React.FC = () => {
                                 dot={false}
                               />
                             </LineChart>
-                          </ResponsiveContainer>
-                        </div>
+                          </ChartContainer>
                       </Card>
                     </Col>
                   </Row>

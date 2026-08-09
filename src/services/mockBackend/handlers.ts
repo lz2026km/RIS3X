@@ -954,6 +954,76 @@ export const examListHandlers = [
     return HttpResponse.json({ success: true, data: toExamDto(exam) });
   }),
 
+  // [G005 Wave4B] G-18 检查合并: 同患者多检查 → 目标检查 (报告/影像引用迁移)
+  http.post(`${API_BASE}/exams/merge`, async ({ request }) => {
+    await delay(200);
+    const body = (await request.json()) as { targetId: string; sourceIds: string[] };
+    const ids = [body.targetId, ...(body.sourceIds ?? [])];
+    if (!body.targetId || !Array.isArray(body.sourceIds) || body.sourceIds.length === 0) {
+      return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: 'targetId 与 sourceIds 为必填' } }, { status: 400 });
+    }
+    if (new Set(ids).size !== ids.length) {
+      return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: '目标检查不能同时作为源检查' } }, { status: 400 });
+    }
+    const exams = list<any>('exams') || [];
+    const found = ids.map((id) => exams.find((e: any) => e.id === id)).filter(Boolean) as any[];
+    if (found.length !== ids.length) {
+      return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: '存在不存在的检查' } }, { status: 404 });
+    }
+    const patientIds = new Set(found.map((e: any) => e.patientId ?? e.patientID ?? ''));
+    if (patientIds.size > 1) {
+      return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: '仅同一患者的多个检查可以合并' } }, { status: 400 });
+    }
+    const sources = found.filter((e: any) => e.id !== body.targetId);
+    for (const src of sources) remove('exams', src.id);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        targetId: body.targetId,
+        patientId: found[0].patientId ?? found[0].patientID,
+        mergedSourceCount: sources.length,
+        removedSourceIds: sources.map((s: any) => s.id),
+        retainedSourceIds: [],
+        movedReports: sources.length,
+        mergedAt: new Date().toISOString(),
+      },
+    }, { status: 200 });
+  }),
+
+  // [G005 Wave4B] G-18 检查拆分: 按报告归属拆分 (每份报告独立成新检查)
+  http.post(`${API_BASE}/exams/:id/split`, async ({ params, request }) => {
+    await delay(200);
+    const id = params.id as string;
+    const exam = get<any>('exams', id);
+    if (!exam) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Exam not found' } }, { status: 404 });
+    const body = (await request.json()) as { reportIds: string[] };
+    const reportIds = Array.from(new Set(body.reportIds ?? []));
+    if (reportIds.length < 2) {
+      return HttpResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: '至少选择 2 份报告才能拆分' } }, { status: 400 });
+    }
+    const created: { id: string; accessionNumber: string; reportCount: number }[] = [];
+    const stamp = Date.now().toString(36);
+    reportIds.forEach((reportId, i) => {
+      const newId = `EX-${stamp}-${i + 1}`;
+      const rec = {
+        ...exam,
+        id: newId,
+        reportId,
+        accessionNumber: `${exam.accessionNumber}-S${stamp}-${i + 1}`,
+        examDate: new Date().toISOString().slice(0, 10),
+        createdTime: new Date().toISOString().replace('T', ' ').slice(0, 16),
+        updatedTime: new Date().toISOString().replace('T', ' ').slice(0, 16),
+        createdAt: new Date().toISOString(),
+      };
+      create('exams', rec);
+      created.push({ id: newId, accessionNumber: rec.accessionNumber, reportCount: 1 });
+    });
+    return HttpResponse.json({
+      success: true,
+      data: { sourceExamId: exam.id, patientId: exam.patientId ?? exam.patientID, created, splitAt: new Date().toISOString() },
+    }, { status: 201 });
+  }),
+
   http.patch(`${API_BASE}/exams/:id`, async ({ params, request }) => {
     await delay(80);
     const id = params.id as string;
@@ -1632,8 +1702,7 @@ interface PrintTask {
 }
 
 let printQueueStore: PrintTask[] = [
-  { id: 'DPT001', filmId: 'FLM20260504001', patientId: 'P20260502001', patientName: '王建国', modality: 'CT', studyType: '胸部CT平扫', filmSpec: '14x17', copies: 1, status: 'printing', printer: '柯尼卡 #1', submitTime: '2026-08-08 08:30:00', completeTime: null, progress: 65 },
-  { id: 'DPT002', filmId: 'FLM20260504002', patientId: 'P20260502002', patientName: '刘淑芳', modality: 'MR', studyType: '头颅MR平扫', filmSpec: '14x17', copies: 1, status: 'queued', printer: '柯尼卡 #2', submitTime: '2026-08-08 08:25:00', completeTime: null, progress: 0 },
+  { id: 'DPT001', filmId: 'FLM20260504001', patientId: 'P20260502001', patientName: '王建国', modality: 'CT', studyType: '胸部CT平扫', filmSpec: '14x17', copies: 1, status: 'printing', printer: '柯尼卡 #1', submitTime: '2026-08-08 08:30:00', completeTime: null, progress: 65 },  { id: 'DPT002', filmId: 'FLM20260504002', patientId: 'P20260502002', patientName: '刘淑芳', modality: 'MR', studyType: '头颅MR平扫', filmSpec: '14x17', copies: 1, status: 'queued', printer: '柯尼卡 #2', submitTime: '2026-08-08 08:25:00', completeTime: null, progress: 0 },
   { id: 'DPT003', filmId: 'FLM20260504003', patientId: 'P20260502003', patientName: '陈志强', modality: 'DR', studyType: '胸部DR正侧位', filmSpec: '10x12', copies: 2, status: 'queued', printer: '富士', submitTime: '2026-08-08 08:20:00', completeTime: null, progress: 0 },
   { id: 'DPT004', filmId: 'FLM20260504004', patientId: 'P20260502004', patientName: '赵秀英', modality: 'CT', studyType: '腹部CT增强', filmSpec: '14x17', copies: 1, status: 'completed', printer: '柯尼卡 #1', submitTime: '2026-08-08 08:00:00', completeTime: '2026-08-08 08:05:23', progress: 100 },
   { id: 'DPT005', filmId: 'FLM20260504005', patientId: 'P20260502005', patientName: '孙伟东', modality: 'CT', studyType: '胸部CT平扫', filmSpec: '14x17', copies: 1, status: 'failed', printer: '柯尼卡 #1', submitTime: '2026-08-08 07:55:00', completeTime: '2026-08-08 08:00:10', progress: 30, errorMsg: '打印机缺纸' },
@@ -1642,6 +1711,15 @@ let printQueueStore: PrintTask[] = [
   { id: 'DPT008', filmId: 'FLM20260504008', patientId: 'P20260502008', patientName: '郑海涛', modality: 'CT', studyType: '头颅CT平扫', filmSpec: '14x17', copies: 1, status: 'completed', printer: '柯尼卡 #1', submitTime: '2026-08-08 07:30:00', completeTime: '2026-08-08 07:35:18', progress: 100 },
   { id: 'DPT009', filmId: 'FLM20260504009', patientId: 'P20260502009', patientName: '黄晓燕', modality: 'MR', studyType: '肩关节MR', filmSpec: '10x12', copies: 2, status: 'queued', printer: '柯尼卡 #2', submitTime: '2026-08-08 07:25:00', completeTime: null, progress: 0 },
   { id: 'DPT010', filmId: 'FLM20260504010', patientId: 'P20260502010', patientName: '杨建军', modality: 'CT', studyType: '肺部CT低剂量', filmSpec: '14x17', copies: 1, status: 'printing', printer: '柯尼卡 #1', submitTime: '2026-08-08 07:20:00', completeTime: null, progress: 32 },
+];
+
+// [G005 Wave2A P0] 打印机内存存储
+let mswPrinterStore: any[] = [
+  { id: 'P001', name: '柯尼卡 DICOM 打印机 1', type: 'network', status: 'online', location: 'CT检查室1', filmSpec: '14x17', defaultCopies: 1, dpi: 300, aet: 'KNK_PRINT_1', host: '192.168.10.11', port: 104, mediumTypes: ['BLUE FILM', 'CLEAR FILM'], filmsPerHour: 40 },
+  { id: 'P002', name: '柯尼卡 DICOM 打印机 2', type: 'network', status: 'online', location: 'MR检查室', filmSpec: '14x17', defaultCopies: 1, dpi: 300, aet: 'KNK_PRINT_2', host: '192.168.10.12', port: 104, mediumTypes: ['BLUE FILM'], filmsPerHour: 40 },
+  { id: 'P003', name: '富士 DICOM 打印机', type: 'network', status: 'online', location: 'DR检查室', filmSpec: '10x12', defaultCopies: 1, dpi: 600, aet: 'FUJI_PRINT_1', host: '192.168.10.13', port: 105, mediumTypes: ['CLEAR FILM', 'MAMMO BLUE'], filmsPerHour: 60 },
+  { id: 'P004', name: '本地报告打印机', type: 'local', status: 'online', location: '登记台', filmSpec: 'A4', defaultCopies: 2, dpi: 600 },
+  { id: 'P005', name: '激光报告打印机', type: 'local', status: 'offline', location: '诊断室1', filmSpec: 'A4', defaultCopies: 1, dpi: 1200 },
 ];
 
 export const printHandlers = [
@@ -1654,7 +1732,6 @@ export const printHandlers = [
     if (status) data = data.filter((t) => t.status === status);
     return HttpResponse.json({ success: true, data });
   }),
-
   // [G005 Wave1A P0] 打印任务详情 (GET /print/jobs/:id)
   http.get(`${API_BASE}/print/jobs/:id`, async ({ params }) => {
     await delay(60);
@@ -1679,18 +1756,48 @@ export const printHandlers = [
     return HttpResponse.json({ success: true, data: printQueueStore.filter((t) => t.status === 'completed' || t.status === 'failed') });
   }),
 
+  // [G005 Wave2A P0] 打印机内存存储 (GET/POST/PUT/DELETE /print/printers)
   http.get(`${API_BASE}/print/printers`, async () => {
     await delay(100);
-    return HttpResponse.json({
-      success: true,
-      data: [
-        { id: 'P001', name: '柯尼卡 DICOM 打印机 1', type: 'network', status: 'online', location: 'CT检查室1', filmSpec: '14x17', defaultCopies: 1, dpi: 300 },
-        { id: 'P002', name: '柯尼卡 DICOM 打印机 2', type: 'network', status: 'online', location: 'MR检查室', filmSpec: '14x17', defaultCopies: 1, dpi: 300 },
-        { id: 'P003', name: '富士 DICOM 打印机', type: 'network', status: 'online', location: 'DR检查室', filmSpec: '10x12', defaultCopies: 1, dpi: 600 },
-        { id: 'P004', name: '本地报告打印机', type: 'local', status: 'online', location: '登记台', filmSpec: 'A4', defaultCopies: 2, dpi: 600 },
-        { id: 'P005', name: '激光报告打印机', type: 'local', status: 'offline', location: '诊断室1', filmSpec: 'A4', defaultCopies: 1, dpi: 1200 },
-      ],
-    });
+    return HttpResponse.json({ success: true, data: mswPrinterStore });
+  }),
+
+  http.post(`${API_BASE}/print/printers`, async ({ request }) => {
+    await delay(150);
+    const body = (await request.json()) as any;
+    const printer = {
+      id: 'PRT' + String(mswPrinterStore.length + 1).padStart(3, '0'),
+      name: body.name || '未命名打印机',
+      type: body.type || 'network',
+      status: body.status || 'online',
+      location: body.location || '',
+      filmSpec: body.filmSpec || '14x17',
+      defaultCopies: body.defaultCopies ?? 1,
+      dpi: body.dpi ?? 300,
+      aet: body.aet,
+      host: body.host,
+      port: body.port,
+      mediumTypes: body.mediumTypes,
+      filmsPerHour: body.filmsPerHour,
+    };
+    mswPrinterStore = [printer, ...mswPrinterStore];
+    return HttpResponse.json({ success: true, data: printer }, { status: 201 });
+  }),
+
+  http.put(`${API_BASE}/print/printers/:id`, async ({ params, request }) => {
+    await delay(150);
+    const body = (await request.json()) as any;
+    const idx = mswPrinterStore.findIndex((p) => p.id === params.id);
+    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+    mswPrinterStore[idx] = { ...mswPrinterStore[idx], ...body, id: params.id };
+    return HttpResponse.json({ success: true, data: mswPrinterStore[idx] });
+  }),
+
+  http.delete(`${API_BASE}/print/printers/:id`, async ({ params }) => {
+    await delay(100);
+    const idx = mswPrinterStore.findIndex((p) => p.id === params.id);
+    if (idx >= 0) mswPrinterStore.splice(idx, 1);
+    return HttpResponse.json({ success: true, data: { ok: true } });
   }),
 
   // 胶片用量 / 设备打印量 / 成本报表

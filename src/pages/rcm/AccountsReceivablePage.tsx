@@ -134,11 +134,31 @@ export default function AccountsReceivablePage() {
     return { total, byAging, byPayer, overdue }
   }, [items])
 
+  // [G005 Wave1B] 真实导出: 用已加载的应收账款数据 (financeApi.listInvoices) 生成 CSV, 无数据时禁用
+  const handleExportCsv = () => {
+    if (items.length === 0) return
+    const esc = (v: unknown) => {
+      const s = String(v ?? '')
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+    }
+    const lines: string[] = ['编号,患者,检查项目,检查日期,支付方,总额(元),已付(元),余额(元),到期日,账龄,状态']
+    for (const i of items) {
+      lines.push([i.id, i.patientName, i.examItem, i.examDate, i.payer, i.totalAmount, i.paidAmount, i.balance, i.dueDate, i.aging, i.status].map(esc).join(','))
+    }
+    const blob = new Blob(['\ufeff' + lines.join('\n')], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `应收账款报表_${new Date().toISOString().split('T')[0]}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><Wallet size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>应收账款管理</span></div>
-        <button onClick={() => { const csv = '应收编号,患者,金额,账龄,状态\nAR-001,张三,2345.67,30天,在催\nAR-002,李四,1234.56,60天,逾期\nAR-003,王五,3456.78,90天,坏账风险\n'; const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = '应收账款报表.csv'; a.click(); URL.revokeObjectURL(url); }} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />导出报表</button>
+        <button onClick={handleExportCsv} disabled={items.length === 0} title={items.length === 0 ? '暂无应收数据, 无法导出' : '基于 financeApi.listInvoices 真实数据导出'} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: items.length === 0 ? 'not-allowed' : 'pointer', opacity: items.length === 0 ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />导出报表</button>
       </div>
 
       <div style={{ padding: '12px 24px 0', display: 'flex', gap: 12, alignItems: 'center' }}>

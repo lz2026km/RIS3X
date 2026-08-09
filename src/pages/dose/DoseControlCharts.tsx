@@ -7,11 +7,11 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer,
   ReferenceLine,
 } from "recharts";
 import { controlChartData } from "./mockData";
 import type { ControlChartPoint } from "./types";
+import ChartContainer from "../../components/charts/ChartContainer";
 
 export default function DoseControlCharts() {
   const outOfControl = controlChartData.filter(
@@ -85,7 +85,7 @@ export default function DoseControlCharts() {
             </span>
           )}
         </div>
-        <ResponsiveContainer width="100%" height={220}>
+        <ChartContainer height={220} state={controlChartData.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
           <LineChart data={controlChartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#94a3b8" }} />
@@ -129,7 +129,7 @@ export default function DoseControlCharts() {
               name="均值"
             />
           </LineChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </div>
 
       <div
@@ -150,7 +150,7 @@ export default function DoseControlCharts() {
         >
           R 控制图（极差监控）
         </div>
-        <ResponsiveContainer width="100%" height={200}>
+        <ChartContainer height={200} state={controlChartData.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
           <LineChart data={controlChartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#94a3b8" }} />
@@ -176,7 +176,7 @@ export default function DoseControlCharts() {
               name="极差"
             />
           </LineChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </div>
 
       <div

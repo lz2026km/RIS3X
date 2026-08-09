@@ -214,7 +214,9 @@ const CardiacSpecialtyPage = () => {
               gap: 8,
             }}
           >
-            <Heart size={24} color="#1e40af" /> 心脏专科 <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? '#f0fdf4' : '#eff6ff', color: dataSource === 'real' ? '#16a34a' : '#1e40af', border: `1px solid ${dataSource === 'real' ? '#bbf7d0' : '#bfdbfe'}` }}>{dataSource === 'real' ? 'cardiacAiApi 实时' : '演示数据(回退)'}</span>
+            <Heart size={24} color="#1e40af" /> 心脏专科 <span style={{           fontSize: 11,
+          padding: '2px 8px', borderRadius: 10, background: dataSource === 'real' ? 'var(--color-success-bg)' : 'var(--color-info-bg)',
+          color: dataSource === 'real' ? '#16a34a' : '#1e40af', border: `1px solid ${dataSource === 'real' ? 'var(--color-success-border)' : 'var(--color-pending-border)'}`  }}>{dataSource === 'real' ? 'cardiacAiApi 实时' : '演示数据(回退)'}</span>
           </h1>
           <p style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>
             Cardiac Imaging Specialty · 冠脉评估 · 心功能分析 · 血流动力学
@@ -233,7 +235,7 @@ const CardiacSpecialtyPage = () => {
             style={{
               padding: "8px 14px",
               borderRadius: 8,
-              border: "1px solid #e2e8f0",
+              border: "1px solid var(--border-color)",
               background: "var(--bg-card)",
               cursor: "pointer",
               fontSize: 13,
@@ -272,28 +274,28 @@ const CardiacSpecialtyPage = () => {
               value: String(analyses.length),
               icon: Activity,
               color: "#1e40af",
-              bg: "#eff6ff",
+              bg: "var(--color-info-bg)",
             },
             {
               label: "重度狭窄",
               value: String(highStenosis),
               icon: AlertTriangle,
               color: "#dc2626",
-              bg: "#fef2f2",
+              bg: "var(--color-error-bg)",
             },
             {
               label: "平均 EF",
               value: `${avgEf}%`,
               icon: Gauge,
               color: "#16a34a",
-              bg: "#f0fdf4",
+              bg: "var(--color-success-bg)",
             },
             {
               label: "平均钙化积分",
               value: String(avgCalcium),
               icon: BarChart3,
               color: "#ea580c",
-              bg: "#fff7ed",
+              bg: "var(--color-warning-bg)",
             },
             {
               label: "待报告",
@@ -307,7 +309,7 @@ const CardiacSpecialtyPage = () => {
               ),
               icon: FileText,
               color: "#7c3aed",
-              bg: "#f5f3ff",
+              bg: "var(--color-info-bg)",
             },
           ].map((k, i) => (
             <div
@@ -355,7 +357,7 @@ const CardiacSpecialtyPage = () => {
                 cursor: "pointer",
                 fontSize: 13,
                 fontWeight: 600,
-                background: tab === t.key ? "#1e40af" : "#f1f5f9",
+                background: tab === t.key ? "#1e40af" : "var(--content-bg)",
                 color: tab === t.key ? "#fff" : "#64748b",
               }}
             >
@@ -398,7 +400,7 @@ const CardiacSpecialtyPage = () => {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    background: "#f1f5f9",
+                    background: "var(--content-bg)",
                     borderRadius: 8,
                     padding: "4px 12px",
                   }}
@@ -424,7 +426,7 @@ const CardiacSpecialtyPage = () => {
                   style={{
                     padding: "6px 12px",
                     borderRadius: 6,
-                    border: "1px solid #e2e8f0",
+                    border: "1px solid var(--border-color)",
                     fontSize: 13,
                   }}
                 >
@@ -453,7 +455,7 @@ const CardiacSpecialtyPage = () => {
                         style={{
                           textAlign: "left",
                           padding: "10px 8px",
-                          borderBottom: "2px solid #f1f5f9",
+                          borderBottom: "2px solid var(--border-light)",
                           color: "#64748b",
                           fontWeight: 600,
                         }}
@@ -464,7 +466,7 @@ const CardiacSpecialtyPage = () => {
                         style={{
                           textAlign: "left",
                           padding: "10px 8px",
-                          borderBottom: "2px solid #f1f5f9",
+                          borderBottom: "2px solid var(--border-light)",
                           color: "#64748b",
                           fontWeight: 600,
                         }}
@@ -475,7 +477,7 @@ const CardiacSpecialtyPage = () => {
                         style={{
                           textAlign: "left",
                           padding: "10px 8px",
-                          borderBottom: "2px solid #f1f5f9",
+                          borderBottom: "2px solid var(--border-light)",
                           color: "#64748b",
                           fontWeight: 600,
                         }}
@@ -486,7 +488,7 @@ const CardiacSpecialtyPage = () => {
                         style={{
                           textAlign: "left",
                           padding: "10px 8px",
-                          borderBottom: "2px solid #f1f5f9",
+                          borderBottom: "2px solid var(--border-light)",
                           color: "#64748b",
                           fontWeight: 600,
                         }}
@@ -497,7 +499,7 @@ const CardiacSpecialtyPage = () => {
                         style={{
                           textAlign: "left",
                           padding: "10px 8px",
-                          borderBottom: "2px solid #f1f5f9",
+                          borderBottom: "2px solid var(--border-light)",
                           color: "#64748b",
                           fontWeight: 600,
                         }}
@@ -508,7 +510,7 @@ const CardiacSpecialtyPage = () => {
                         style={{
                           textAlign: "left",
                           padding: "10px 8px",
-                          borderBottom: "2px solid #f1f5f9",
+                          borderBottom: "2px solid var(--border-light)",
                           color: "#64748b",
                           fontWeight: 600,
                         }}
@@ -519,7 +521,7 @@ const CardiacSpecialtyPage = () => {
                         style={{
                           textAlign: "left",
                           padding: "10px 8px",
-                          borderBottom: "2px solid #f1f5f9",
+                          borderBottom: "2px solid var(--border-light)",
                           color: "#64748b",
                           fontWeight: 600,
                         }}
@@ -530,7 +532,7 @@ const CardiacSpecialtyPage = () => {
                         style={{
                           textAlign: "left",
                           padding: "10px 8px",
-                          borderBottom: "2px solid #f1f5f9",
+                          borderBottom: "2px solid var(--border-light)",
                           color: "#64748b",
                           fontWeight: 600,
                         }}
@@ -552,7 +554,7 @@ const CardiacSpecialtyPage = () => {
                           <td
                             style={{
                               padding: "10px 8px",
-                              borderBottom: "1px solid #f8fafc",
+                              borderBottom: "1px solid var(--border-light)",
                             }}
                           >
                             {a.id}
@@ -560,7 +562,7 @@ const CardiacSpecialtyPage = () => {
                           <td
                             style={{
                               padding: "10px 8px",
-                              borderBottom: "1px solid #f8fafc",
+                              borderBottom: "1px solid var(--border-light)",
                               fontWeight: 600,
                             }}
                           >
@@ -573,7 +575,7 @@ const CardiacSpecialtyPage = () => {
                           <td
                             style={{
                               padding: "10px 8px",
-                              borderBottom: "1px solid #f8fafc",
+                              borderBottom: "1px solid var(--border-light)",
                             }}
                           >
                             <span
@@ -593,7 +595,7 @@ const CardiacSpecialtyPage = () => {
                           <td
                             style={{
                               padding: "10px 8px",
-                              borderBottom: "1px solid #f8fafc",
+                              borderBottom: "1px solid var(--border-light)",
                             }}
                           >
                             <CadRadsTag v={a.cadRads ?? "N"} />
@@ -601,7 +603,7 @@ const CardiacSpecialtyPage = () => {
                           <td
                             style={{
                               padding: "10px 8px",
-                              borderBottom: "1px solid #f8fafc",
+                              borderBottom: "1px solid var(--border-light)",
                               color:
                                 ef == null
                                   ? "#94a3b8"
@@ -618,7 +620,7 @@ const CardiacSpecialtyPage = () => {
                           <td
                             style={{
                               padding: "10px 8px",
-                              borderBottom: "1px solid #f8fafc",
+                              borderBottom: "1px solid var(--border-light)",
                               fontWeight: 600,
                               color:
                                 calcium == null
@@ -635,7 +637,7 @@ const CardiacSpecialtyPage = () => {
                           <td
                             style={{
                               padding: "10px 8px",
-                              borderBottom: "1px solid #f8fafc",
+                              borderBottom: "1px solid var(--border-light)",
                             }}
                           >
                             <span
@@ -646,10 +648,10 @@ const CardiacSpecialtyPage = () => {
                                 fontWeight: 600,
                                 background:
                                   maxStenosis >= 70
-                                    ? "#fef2f2"
+                                    ? "var(--color-error-bg)"
                                     : maxStenosis >= 50
-                                      ? "#fff7ed"
-                                      : "#f0fdf4",
+                                      ? "var(--color-warning-bg)"
+                                      : "var(--color-success-bg)",
                                 color:
                                   maxStenosis >= 70
                                     ? "#dc2626"
@@ -668,7 +670,7 @@ const CardiacSpecialtyPage = () => {
                           <td
                             style={{
                               padding: "10px 8px",
-                              borderBottom: "1px solid #f8fafc",
+                              borderBottom: "1px solid var(--border-light)",
                               color: "#64748b",
                             }}
                           >
@@ -717,7 +719,7 @@ const CardiacSpecialtyPage = () => {
                       alignItems: "center",
                       gap: 12,
                       padding: "10px 0",
-                      borderBottom: "1px solid #f8fafc",
+                      borderBottom: "1px solid var(--border-light)",
                     }}
                   >
                     <div
@@ -725,11 +727,11 @@ const CardiacSpecialtyPage = () => {
                         width: 36,
                         height: 36,
                         borderRadius: "50%",
-                        background: "#eff6ff",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontWeight: 700,
+            background: "var(--color-info-bg)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontWeight: 700,
                         fontSize: 13,
                         color: "#1e40af",
                       }}
@@ -793,7 +795,7 @@ const CardiacSpecialtyPage = () => {
                     key={a.id}
                     style={{
                       padding: "10px 0",
-                      borderBottom: "1px solid #f8fafc",
+                      borderBottom: "1px solid var(--border-light)",
                     }}
                   >
                     <div
@@ -882,7 +884,7 @@ const CardiacSpecialtyPage = () => {
                         alignItems: "center",
                         gap: 8,
                         padding: "8px 0",
-                        borderBottom: "1px solid #f8fafc",
+                        borderBottom: "1px solid var(--border-light)",
                       }}
                     >
                       <span
@@ -894,7 +896,7 @@ const CardiacSpecialtyPage = () => {
                         style={{
                           flex: 1,
                           height: 6,
-                          background: "#f1f5f9",
+                          background: "var(--content-bg)",
                           borderRadius: 3,
                         }}
                       >
@@ -971,7 +973,7 @@ const CardiacSpecialtyPage = () => {
                         <div
                           style={{
                             height: 8,
-                            background: "#f1f5f9",
+                            background: "var(--content-bg)",
                             borderRadius: 4,
                             overflow: "hidden",
                           }}
@@ -992,9 +994,9 @@ const CardiacSpecialtyPage = () => {
                     style={{
                       marginTop: 16,
                       padding: 12,
-                      background: "#fff7ed",
+                      background: "var(--color-warning-bg)",
                       borderRadius: 8,
-                      border: "1px solid #fed7aa",
+                      border: "1px solid var(--color-warning-border)",
                     }}
                   >
                     <div
@@ -1074,7 +1076,7 @@ const CardiacSpecialtyPage = () => {
                         style={{
                           flex: 1,
                           height: 8,
-                          background: "#f1f5f9",
+                          background: "var(--content-bg)",
                           borderRadius: 4,
                         }}
                       >
@@ -1140,7 +1142,7 @@ const CardiacSpecialtyPage = () => {
                       style={{
                         flex: 1,
                         height: 6,
-                        background: "#f1f5f9",
+                        background: "var(--content-bg)",
                         borderRadius: 3,
                       }}
                     >

@@ -16,6 +16,7 @@ const MeasurementPanel: React.FC<{
       rowKey="id"
       size="small"
       pagination={false}
+      scroll={{ x: 'max-content' }}
       columns={[
         { title: "参数", dataIndex: "type", key: "type", width: 100 },
         {

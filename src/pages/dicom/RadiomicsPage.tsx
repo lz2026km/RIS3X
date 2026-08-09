@@ -232,7 +232,7 @@ export default function RadiomicsPage() {
                 rowKey={r => `${r.category}_${r.name}`}
                 pagination={false}
                 size="small"
-                scroll={{ y: 360 }}
+                scroll={{ x: 'max-content', y: 360 }}
               />
             ) : (
               <Alert title={t('radiomics:noData')} type="info" showIcon />
@@ -259,6 +259,7 @@ export default function RadiomicsPage() {
                   rowKey={f => `${f.category}_${f.name}`}
                   pagination={false}
                   size="small"
+                  scroll={{ x: 'max-content' }}
                 />
               ),
             })),

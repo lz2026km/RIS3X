@@ -42,7 +42,7 @@ const WARNING = '#d97706'
 const DANGER = '#dc2626'
 const GRAY = '#64748b'
 const LIGHT_BG = 'var(--content-bg)'
-const BORDER = '#e2e8f0'
+const BORDER = 'var(--border-color)'
 const WHITE = '#ffffff'
 
 // 甲乙丙丁等级颜色
@@ -741,7 +741,7 @@ export default function QCPage() {
     const color = pct >= 90 ? SUCCESS : pct >= 80 ? WARNING : pct >= 70 ? '#f97316' : DANGER
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <div style={{ flex: 1, height: 6, background: '#e2e8f0', borderRadius: 3, overflow: 'hidden' }}>
+        <div style={{ flex: 1, height: 6, background: 'var(--border-color)', borderRadius: 3, overflow: 'hidden' }}>
           <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: 3, transition: 'width 0.3s' }} />
         </div>
         <span style={{ fontSize: 12, fontWeight: 700, color, minWidth: 32, textAlign: 'right' }}>{value}</span>
@@ -872,7 +872,7 @@ export default function QCPage() {
                   {card.icon}
                 </div>
                 <div>
-                  <div style={{ fontSize: 22, fontWeight: 800, color: PRIMARY }}>{card.value}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: PRIMARY }}>{card.value}</div>
                   <div style={{ fontSize: 12, color: GRAY }}>{card.label}</div>
                 </div>
               </div>
@@ -924,7 +924,7 @@ export default function QCPage() {
               ].map(card => (
                 <div key={card.label} style={{ background: card.bg, borderRadius: 8, padding: '12px', textAlign: 'center' }}>
                   <div style={{ color: card.color, marginBottom: 6 }}>{card.icon}</div>
-                  <div style={{ fontSize: 20, fontWeight: 800, color: card.color }}>{card.value}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: card.color }}>{card.value}</div>
                   <div style={{ fontSize: 12, color: card.color, marginTop: 2 }}>{card.label}</div>
                 </div>
               ))}
@@ -1039,7 +1039,7 @@ export default function QCPage() {
                       </div>
                       <span style={{ fontSize: 14, fontWeight: 800, color: item.score >= 85 ? SUCCESS : item.score >= 75 ? WARNING : DANGER }}>{item.score.toFixed(1)}分</span>
                     </div>
-                    <div style={{ height: 8, background: '#e2e8f0', borderRadius: 4 }}>
+                    <div style={{ height: 8, background: 'var(--border-color)', borderRadius: 4 }}>
                       <div style={{ width: `${item.score}%`, height: '100%', background: item.color, borderRadius: 4, transition: 'width 0.3s' }} />
                     </div>
                   </div>
@@ -1062,7 +1062,7 @@ export default function QCPage() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 14 }}>
               {gradeDistributionData.map(item => (
                 <div key={item.grade} style={{ background: item.bg, borderRadius: 10, padding: '12px 8px', textAlign: 'center', border: `2px solid ${item.color}` }}>
-                  <div style={{ fontSize: 22, fontWeight: 800, color: item.color }}>{item.grade}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: item.color }}>{item.grade}</div>
                   <div style={{ fontSize: 12, color: item.color, fontWeight: 600, marginBottom: 4 }}>{item.label}</div>
                   <div style={{ fontSize: 14, fontWeight: 800, color: item.color }}>{item.count}份</div>
                   <div style={{ fontSize: 12, color: item.color }}>{item.percentage}%</div>
@@ -1158,7 +1158,7 @@ export default function QCPage() {
                   {card.icon}
                 </div>
                 <div>
-                  <div style={{ fontSize: 22, fontWeight: 800, color: PRIMARY }}>{card.value}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: PRIMARY }}>{card.value}</div>
                   <div style={{ fontSize: 12, color: GRAY }}>{card.label}</div>
                 </div>
               </div>
@@ -1324,7 +1324,7 @@ export default function QCPage() {
                   <div key={item.reason} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 13, color: 'var(--text-primary)', marginBottom: 4 }}>{item.reason}</div>
-                      <div style={{ height: 6, background: '#e2e8f0', borderRadius: 3 }}>
+                      <div style={{ height: 6, background: 'var(--border-color)', borderRadius: 3 }}>
                         <div style={{ width: item.pct, height: '100%', background: WARNING, borderRadius: 3 }} />
                       </div>
                     </div>
@@ -1375,7 +1375,7 @@ export default function QCPage() {
                   {card.icon}
                 </div>
                 <div>
-                  <div style={{ fontSize: 22, fontWeight: 800, color: card.color }}>{card.value}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: card.color }}>{card.value}</div>
                   <div style={{ fontSize: 12, color: GRAY }}>{card.label}</div>
                 </div>
               </div>
@@ -1392,7 +1392,7 @@ export default function QCPage() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 14 }}>
                 {gradeDistributionData.map(item => (
                   <div key={item.grade} style={{ background: item.bg, borderRadius: 10, padding: '10px 6px', textAlign: 'center', border: `2px solid ${item.color}` }}>
-                    <div style={{ fontSize: 20, fontWeight: 800, color: item.color }}>{item.grade}</div>
+                    <div style={{ fontSize: 28, fontWeight: 700, color: item.color }}>{item.grade}</div>
                     <div style={{ fontSize: 12, color: item.color, fontWeight: 600 }}>{item.label.split('（')[1]?.replace('）', '')}</div>
                     <div style={{ fontSize: 13, fontWeight: 800, color: item.color }}>{item.count}份</div>
                   </div>
@@ -1571,7 +1571,7 @@ export default function QCPage() {
                   {card.icon}
                 </div>
                 <div>
-                  <div style={{ fontSize: 22, fontWeight: 800, color: card.color }}>{card.value}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: card.color }}>{card.value}</div>
                   <div style={{ fontSize: 12, color: GRAY }}>{card.label}</div>
                 </div>
               </div>
@@ -1603,11 +1603,11 @@ export default function QCPage() {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 8 }}>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 20, fontWeight: 800, color: SUCCESS }}>{dashboardData.passRate}%</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: SUCCESS }}>{dashboardData.passRate}%</div>
                   <div style={{ fontSize: 12, color: GRAY }}>{t('qc.passRate')}</div>
                 </div>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 20, fontWeight: 800, color: '#f59e0b' }}>{dashboardData.excellentRate}%</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: '#f59e0b' }}>{dashboardData.excellentRate}%</div>
                   <div style={{ fontSize: 12, color: GRAY }}>{t('qc.excellentRate')}</div>
                 </div>
               </div>
@@ -1683,7 +1683,7 @@ export default function QCPage() {
                       <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>{item.label}</span>
                       <span style={{ fontSize: 12, color: GRAY }}>目标: {item.target} | 实际: <span style={{ fontWeight: 700, color: item.color }}>{item.actual}</span></span>
                     </div>
-                      <div style={{ height: 8, background: '#e2e8f0', borderRadius: 4, position: 'relative' }}>
+                      <div style={{ height: 8, background: 'var(--border-color)', borderRadius: 4, position: 'relative' }}>
                       <div style={{ height: '100%', borderRadius: 4, background: item.color, width: `${(parseFloat(item.actual.replace('%', '')) / parseFloat(item.target.replace('%', '').replace('<', ''))) * 100}%`, maxWidth: '100%', transition: 'width 0.3s' }} />
                     </div>
                   </div>
@@ -1710,7 +1710,7 @@ export default function QCPage() {
                     <Building2 size={18} color={ACCENT} />
                   </div>
                   <div>
-                    <div style={{ fontSize: 22, fontWeight: 800, color: PRIMARY }}>{regionalInstitutions.length}</div>
+                    <div style={{ fontSize: 28, fontWeight: 700, color: PRIMARY }}>{regionalInstitutions.length}</div>
                     <div style={{ fontSize: 12, color: GRAY }}>{t('qc.institutionCount')}</div>
                   </div>
                 </div>
@@ -1719,7 +1719,7 @@ export default function QCPage() {
                     <FileText size={18} color={SUCCESS} />
                   </div>
                   <div>
-                    <div style={{ fontSize: 22, fontWeight: 800, color: PRIMARY }}>{regionalInstitutions.reduce((sum, inst) => sum + inst.reportsThisMonth, 0).toLocaleString()}</div>
+                    <div style={{ fontSize: 28, fontWeight: 700, color: PRIMARY }}>{regionalInstitutions.reduce((sum, inst) => sum + inst.reportsThisMonth, 0).toLocaleString()}</div>
                     <div style={{ fontSize: 12, color: GRAY }}>{t('qc.monthlyReportTotal')}</div>
                   </div>
                 </div>
@@ -1728,7 +1728,7 @@ export default function QCPage() {
                     <Star size={18} color='#f59e0b' />
                   </div>
                   <div>
-                    <div style={{ fontSize: 22, fontWeight: 800, color: '#f59e0b' }}>{(regionalInstitutions.reduce((sum, inst) => sum + inst.avgScore, 0) / regionalInstitutions.length).toFixed(1)}</div>
+                    <div style={{ fontSize: 28, fontWeight: 700, color: '#f59e0b' }}>{(regionalInstitutions.reduce((sum, inst) => sum + inst.avgScore, 0) / regionalInstitutions.length).toFixed(1)}</div>
                     <div style={{ fontSize: 12, color: GRAY }}>{t('qc.regionalScore')}</div>
                   </div>
                 </div>
@@ -1737,7 +1737,7 @@ export default function QCPage() {
                     <Globe size={18} color='#8b5cf6' />
                   </div>
                   <div>
-                    <div style={{ fontSize: 22, fontWeight: 800, color: '#8b5cf6' }}>{(regionalInstitutions.filter(i => i.level === '三甲').length + regionalInstitutions.filter(i => i.level === '三乙').length)}</div>
+                    <div style={{ fontSize: 28, fontWeight: 700, color: '#8b5cf6' }}>{(regionalInstitutions.filter(i => i.level === '三甲').length + regionalInstitutions.filter(i => i.level === '三乙').length)}</div>
                     <div style={{ fontSize: 12, color: GRAY }}>{t('qc.tertiaryHospitals')}</div>
                   </div>
                 </div>
@@ -1933,7 +1933,7 @@ export default function QCPage() {
                       { subject: '时效性', top1: 88, top2: 87, top3: 86 },
                       { subject: '危急值报告', top1: 98, top2: 96, top3: 95 },
                     ]}>
-                      <PolarGrid stroke='#e2e8f0' />
+                      <PolarGrid stroke='var(--border-color)' />
                       <PolarAngleAxis dataKey='subject' tick={{ fontSize: 12, color: GRAY }} />
                       <Radar name='市第一人民医院' dataKey='top1' stroke={PIE_COLORS[0]} fill={PIE_COLORS[0]} fillOpacity={0.2} />
                       <Radar name='市中医院' dataKey='top2' stroke={PIE_COLORS[1]} fill={PIE_COLORS[1]} fillOpacity={0.2} />
@@ -1953,7 +1953,7 @@ export default function QCPage() {
                         </div>
                         <div style={{ flex: 1 }}>
                           <div style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{inst.name}</div>
-                          <div style={{ height: 6, background: '#e2e8f0', borderRadius: 3, marginTop: 6 }}>
+                          <div style={{ height: 6, background: 'var(--border-color)', borderRadius: 3, marginTop: 6 }}>
                             <div style={{ width: `${inst.score}%`, height: '100%', background: inst.color, borderRadius: 3 }} />
                           </div>
                         </div>
@@ -2048,7 +2048,7 @@ export default function QCPage() {
                   ].map(item => (
                     <div key={item.type} style={{ background: item.bg, borderRadius: 10, padding: '16px', border: `1px solid ${item.color}` }}>
                       <div style={{ fontSize: 12, fontWeight: 700, color: item.color, marginBottom: 6 }}>{item.type}</div>
-                      <div style={{ fontSize: 24, fontWeight: 800, color: item.color }}>{item.rate}</div>
+                      <div style={{ fontSize: 28, fontWeight: 700, color: item.color }}>{item.rate}</div>
                       <div style={{ fontSize: 12, color: item.color, marginTop: 8, lineHeight: 1.4 }}>{item.desc}</div>
                     </div>
                   ))}
@@ -2131,21 +2131,21 @@ export default function QCPage() {
                             <span style={{ color: card.color }}>{card.icon}</span>
                             <span style={{ fontSize: 12, color: card.color, fontWeight: 600 }}>{card.label}</span>
                           </div>
-                          <div style={{ fontSize: 20, fontWeight: 800, color: card.color }}>{card.value}</div>
+                          <div style={{ fontSize: 28, fontWeight: 700, color: card.color }}>{card.value}</div>
                         </div>
                       ))}
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                       <div>
                         <h4 style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, margin: '0 0 10px' }}>优秀报告数: {reportSummaryData.monthly.excellentCount.toLocaleString()}</h4>
-                        <div style={{ height: 8, background: '#e2e8f0', borderRadius: 4 }}>
+                        <div style={{ height: 8, background: 'var(--border-color)', borderRadius: 4 }}>
                           <div style={{ width: `${reportSummaryData.monthly.excellentCount / reportSummaryData.monthly.totalReports * 100}%`, height: '100%', background: SUCCESS, borderRadius: 4 }} />
                         </div>
                         <span style={{ fontSize: 12, color: GRAY }}>优良率: {Math.round(reportSummaryData.monthly.excellentCount / reportSummaryData.monthly.totalReports * 100)}%</span>
                       </div>
                       <div>
                         <h4 style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, margin: '0 0 10px' }}>危急值报告: {reportSummaryData.monthly.criticalValueReported}</h4>
-                        <div style={{ height: 8, background: '#e2e8f0', borderRadius: 4 }}>
+                        <div style={{ height: 8, background: 'var(--border-color)', borderRadius: 4 }}>
                           <div style={{ width: `${reportSummaryData.monthly.criticalValueOnTime / reportSummaryData.monthly.criticalValueReported * 100}%`, height: '100%', background: ACCENT, borderRadius: 4 }} />
                         </div>
                         <span style={{ fontSize: 12, color: GRAY }}>及时率: {Math.round(reportSummaryData.monthly.criticalValueOnTime / reportSummaryData.monthly.criticalValueReported * 100)}%</span>
@@ -2197,7 +2197,7 @@ export default function QCPage() {
                     ].map(card => (
                       <div key={card.label} style={{ background: card.bg, borderRadius: 8, padding: '12px 14px' }}>
                         <div style={{ fontSize: 12, color: card.color, fontWeight: 600, marginBottom: 6 }}>{card.label}</div>
-                        <div style={{ fontSize: 20, fontWeight: 800, color: card.color }}>{card.value}</div>
+                        <div style={{ fontSize: 28, fontWeight: 700, color: card.color }}>{card.value}</div>
                       </div>
                     ))}
                   </div>
@@ -2234,7 +2234,7 @@ export default function QCPage() {
                     ].map(card => (
                       <div key={card.label} style={{ background: card.bg, borderRadius: 8, padding: '12px 14px' }}>
                         <div style={{ fontSize: 12, color: card.color, fontWeight: 600, marginBottom: 6 }}>{card.label}</div>
-                        <div style={{ fontSize: 20, fontWeight: 800, color: card.color }}>{card.value}</div>
+                        <div style={{ fontSize: 28, fontWeight: 700, color: card.color }}>{card.value}</div>
                       </div>
                     ))}
                   </div>
@@ -2243,7 +2243,7 @@ export default function QCPage() {
                     <div style={{ display: 'flex', gap: 12 }}>
                       {reportSummaryData.yearly.rankings.map((r, idx) => (
                         <div key={r.institution} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: idx === 0 ? 'var(--color-warning-bg)' : LIGHT_BG, borderRadius: 8, border: `1px solid ${idx === 0 ? '#fbbf24' : BORDER}` }}>
-                          <div style={{ width: 24, height: 24, borderRadius: '50%', background: idx === 0 ? '#fbbf24' : '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <div style={{ width: 24, height: 24, borderRadius: '50%', background: idx === 0 ? '#fbbf24' : 'var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <Award size={14} color={idx === 0 ? WHITE : GRAY} />
                           </div>
                           <div>
@@ -2333,7 +2333,7 @@ export default function QCPage() {
                       <AlertTriangle size={18} color={item.color} />
                     </div>
                     <div>
-                      <div style={{ fontSize: 22, fontWeight: 800, color: item.color }}>{item.count}</div>
+                      <div style={{ fontSize: 28, fontWeight: 700, color: item.color }}>{item.count}</div>
                       <div style={{ fontSize: 12, color: GRAY }}>{item.label}</div>
                     </div>
                   </div>
@@ -2457,7 +2457,7 @@ export default function QCPage() {
             ].map(card => (
               <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{card.icon}</div>
-                <div><div style={{ fontSize: 22, fontWeight: 800, color: card.color }}>{card.value}</div><div style={{ fontSize: 12, color: GRAY }}>{card.label}</div></div>
+                <div><div style={{ fontSize: 28, fontWeight: 700, color: card.color }}>{card.value}</div><div style={{ fontSize: 12, color: GRAY }}>{card.label}</div></div>
               </div>
             ))}
           </div>
@@ -2516,7 +2516,7 @@ export default function QCPage() {
                           <stop offset="100%" stopColor="#059669" />
                         </linearGradient>
                       </defs>
-                      <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#e2e8f0" strokeWidth="20" strokeLinecap="round" />
+                      <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="var(--border-color)" strokeWidth="20" strokeLinecap="round" />
                       <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="url(#gaugeGrad)" strokeWidth="20" strokeLinecap="round" strokeDasharray={`${overallQualityScore * 1.6} 160`} />
                     </svg>
                     <div style={{ position: 'absolute', bottom: 20, fontSize: 32, fontWeight: 800, color: overallQualityScore >= 80 ? SUCCESS : overallQualityScore >= 60 ? WARNING : DANGER }}>{overallQualityScore}</div>
@@ -2535,7 +2535,7 @@ export default function QCPage() {
                         <span style={{ color: GRAY }}>{item.label}</span>
                         <span style={{ fontWeight: 700, color: item.color }}>{item.value}%</span>
                       </div>
-                      <div style={{ height: 6, background: '#e2e8f0', borderRadius: 3 }}>
+                      <div style={{ height: 6, background: 'var(--border-color)', borderRadius: 3 }}>
                         <div style={{ width: `${item.value}%`, height: '100%', background: item.color, borderRadius: 3 }} />
                       </div>
                     </div>
@@ -2559,7 +2559,7 @@ export default function QCPage() {
             ].map(card => (
               <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{card.icon}</div>
-                <div><div style={{ fontSize: 22, fontWeight: 800, color: card.color }}>{card.value}</div><div style={{ fontSize: 12, color: GRAY }}>{card.label}</div></div>
+                <div><div style={{ fontSize: 28, fontWeight: 700, color: card.color }}>{card.value}</div><div style={{ fontSize: 12, color: GRAY }}>{card.label}</div></div>
               </div>
             ))}
           </div>
@@ -2675,7 +2675,7 @@ export default function QCPage() {
             ].map(card => (
               <div key={card.label} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{card.icon}</div>
-                <div><div style={{ fontSize: 22, fontWeight: 800, color: card.color }}>{card.value}</div><div style={{ fontSize: 12, color: GRAY }}>{card.label}</div></div>
+                <div><div style={{ fontSize: 28, fontWeight: 700, color: card.color }}>{card.value}</div><div style={{ fontSize: 12, color: GRAY }}>{card.label}</div></div>
               </div>
             ))}
           </div>
@@ -2706,7 +2706,7 @@ export default function QCPage() {
                       </div>
                       <span style={{ padding: '3px 12px', borderRadius: 12, fontSize: 12, fontWeight: 700, background: statusBg, color: statusColor }}>{mod.status}</span>
                     </div>
-                    <div style={{ height: 8, background: '#e2e8f0', borderRadius: 4, marginBottom: 12 }}>
+                    <div style={{ height: 8, background: 'var(--border-color)', borderRadius: 4, marginBottom: 12 }}>
                       <div style={{ width: `${(mod.completed / mod.total) * 100}%`, height: '100%', background: statusColor, borderRadius: 4 }} />
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
@@ -2726,7 +2726,7 @@ export default function QCPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
                   <div style={{ textAlign: 'center' }}>
                     <svg width="140" height="140" viewBox="0 0 140 140">
-                      <circle cx="70" cy="70" r="55" fill="none" stroke="#e2e8f0" strokeWidth="10" />
+                      <circle cx="70" cy="70" r="55" fill="none" stroke="var(--border-color)" strokeWidth="10" />
                       <circle cx="70" cy="70" r="55" fill="none" stroke={readinessScore >= 80 ? SUCCESS : readinessScore >= 60 ? WARNING : DANGER} strokeWidth="10" strokeDasharray={`${readinessScore * 3.45} 345`} strokeLinecap="round" transform="rotate(-90 70 70)" />
                       <text x="70" y="70" textAnchor="middle" dominantBaseline="central" fontSize="28" fontWeight="800" fill={readinessScore >= 80 ? SUCCESS : readinessScore >= 60 ? WARNING : DANGER}>{readinessScore}</text>
                     </svg>
@@ -2744,7 +2744,7 @@ export default function QCPage() {
                           <span style={{ color: GRAY }}>{item.label}</span>
                           <span style={{ fontWeight: 700, color: item.color }}>{item.value}%</span>
                         </div>
-                        <div style={{ height: 5, background: '#e2e8f0', borderRadius: 3 }}>
+                        <div style={{ height: 5, background: 'var(--border-color)', borderRadius: 3 }}>
                           <div style={{ width: `${item.value}%`, height: '100%', background: item.color, borderRadius: 3 }} />
                         </div>
                       </div>
@@ -2811,7 +2811,7 @@ export default function QCPage() {
                     <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <Target size={18} color={card.color} />
                     </div>
-                    <div><div style={{ fontSize: 22, fontWeight: 800, color: card.color }}>{card.value}{card.suffix}</div><div style={{ fontSize: 12, color: GRAY }}>{card.label}</div></div>
+                    <div><div style={{ fontSize: 28, fontWeight: 700, color: card.color }}>{card.value}{card.suffix}</div><div style={{ fontSize: 12, color: GRAY }}>{card.label}</div></div>
                   </div>
                 ))}
               </div>
@@ -2867,7 +2867,7 @@ export default function QCPage() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginTop: 16 }}>
                 {indivDoctorTrendData.map((doc, idx) => (
                   <div key={doc.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: idx % 2 === 0 ? 'var(--color-info-bg)' : 'var(--color-success-bg)', borderRadius: 8 }}>
-                    <div style={{ width: 32, height: 32, borderRadius: '50%', background: doc.rank === 1 ? '#fbbf24' : doc.rank <= 3 ? '#94a3b8' : '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 13, color: WHITE }}>{doc.rank}</div>
+                    <div style={{ width: 32, height: 32, borderRadius: '50%', background: doc.rank === 1 ? '#fbbf24' : doc.rank <= 3 ? '#94a3b8' : 'var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 13, color: WHITE }}>{doc.rank}</div>
                     <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{doc.name}</div><div style={{ fontSize: 12, color: GRAY }}>报告 {doc.reportCount} 份</div></div>
                     <div style={{ textAlign: 'right' }}>
                       <div style={{ fontSize: 16, fontWeight: 800, color: doc.totalScore >= 90 ? SUCCESS : doc.totalScore >= 80 ? WARNING : DANGER }}>{doc.totalScore}</div>

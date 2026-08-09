@@ -35,6 +35,26 @@ export interface PrinterDto {
   filmSpec?: string
   defaultCopies?: number
   dpi?: number
+  aet?: string
+  host?: string
+  port?: number
+  mediumTypes?: string[]
+  filmsPerHour?: number
+}
+
+export interface PrinterInput {
+  name: string
+  type?: string
+  status?: 'online' | 'offline'
+  location?: string
+  filmSpec?: string
+  defaultCopies?: number
+  dpi?: number
+  aet?: string
+  host?: string
+  port?: number
+  mediumTypes?: string[]
+  filmsPerHour?: number
 }
 
 export interface FilmUsageDay {
@@ -93,6 +113,9 @@ function seedJobs(): PrintTaskDto[] {
 }
 
 const memJobs: PrintTaskDto[] = []
+
+// [G005 Wave2A P0] 自定义打印机内存存储 (POST/PUT/DELETE /print/printers)
+const memPrinters: PrinterDto[] = []
 
 function filmSpecDefault(modality?: string): string {
   if (modality === 'DR' || modality === 'MG') return '10x12'
@@ -222,12 +245,13 @@ export class PrintService {
 
   // GET /print/printers — Device 表派生胶片打印机 + seed 报告打印机
   async listPrinters(): Promise<PrinterDto[]> {
+    const merged: PrinterDto[] = memPrinters.map((p) => ({ ...p }))
     try {
       const devices = await this.prisma.device.findMany({
         select: { id: true, name: true, modality: true, location: true, state: true },
         take: 20,
       })
-      if (devices.length === 0) return SEED_PRINTERS.map((p) => ({ ...p }))
+      if (devices.length === 0) return [...merged, ...SEED_PRINTERS.map((p) => ({ ...p }))]
       const filmPrinters: PrinterDto[] = devices.slice(0, 5).map((d, i) => ({
         id: `FP-${i + 1}`,
         name: `${d.name} 胶片打印机`,
@@ -238,11 +262,65 @@ export class PrintService {
         defaultCopies: 1,
         dpi: 300,
       }))
-      return [...filmPrinters, ...SEED_PRINTERS]
+      return [...merged, ...filmPrinters, ...SEED_PRINTERS]
     } catch (err) {
       this.logger.warn(`[Print] printers DB query failed, fallback to seed: ${(err as Error).message}`)
-      return SEED_PRINTERS.map((p) => ({ ...p }))
+      return [...merged, ...SEED_PRINTERS.map((p) => ({ ...p }))]
     }
+  }
+
+  // [G005 Wave2A P0] POST /print/printers — 新增打印机 (内存存储)
+  createPrinter(input: PrinterInput): PrinterDto {
+    const seq = memPrinters.length + 1
+    const printer: PrinterDto = {
+      id: `PRT${String(seq).padStart(3, '0')}`,
+      name: input.name,
+      type: input.type ?? 'network',
+      status: input.status ?? 'online',
+      location: input.location ?? '',
+      filmSpec: input.filmSpec ?? '14x17',
+      defaultCopies: input.defaultCopies ?? 1,
+      dpi: input.dpi ?? 300,
+      aet: input.aet,
+      host: input.host,
+      port: input.port,
+      mediumTypes: input.mediumTypes,
+      filmsPerHour: input.filmsPerHour,
+    }
+    memPrinters.push(printer)
+    return printer
+  }
+
+  // [G005 Wave2A P0] PUT /print/printers/:id — 更新打印机 (自定义内存 + seed 覆盖)
+  async updatePrinter(id: string, input: Partial<PrinterInput>): Promise<PrinterDto> {
+    const memIdx = memPrinters.findIndex((p) => p.id === id)
+    if (memIdx >= 0) {
+      memPrinters[memIdx] = { ...memPrinters[memIdx], ...input, id }
+      return memPrinters[memIdx]
+    }
+    const list = await this.listPrinters()
+    const found = list.find((p) => p.id === id)
+    if (!found) throw new NotFoundException(`打印机 ${id} 不存在`)
+    const updated: PrinterDto = { ...found, ...input, id }
+    const seedIdx = SEED_PRINTERS.findIndex((p) => p.id === id)
+    if (seedIdx >= 0) Object.assign(SEED_PRINTERS[seedIdx], updated)
+    return updated
+  }
+
+  // [G005 Wave2A P0] DELETE /print/printers/:id — 删除打印机 (仅自定义内存; seed/派生仅内存内移除)
+  async deletePrinter(id: string): Promise<{ ok: boolean; id: string }> {
+    const memIdx = memPrinters.findIndex((p) => p.id === id)
+    if (memIdx >= 0) memPrinters.splice(memIdx, 1)
+    else {
+      const seedIdx = SEED_PRINTERS.findIndex((p) => p.id === id)
+      if (seedIdx < 0) {
+        const list = await this.listPrinters()
+        if (!list.some((p) => p.id === id)) throw new NotFoundException(`打印机 ${id} 不存在`)
+      } else {
+        SEED_PRINTERS.splice(seedIdx, 1)
+      }
+    }
+    return { ok: true, id }
   }
 
   // GET /print/stats — 胶片用量/设备打印量/成本 (确定性)

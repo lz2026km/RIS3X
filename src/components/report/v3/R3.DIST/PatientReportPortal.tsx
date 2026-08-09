@@ -186,7 +186,7 @@ export const PatientReportPortal: React.FC<Props> = ({ reportId, patientId }) =>
         width={600}
       >
         {views.length > 0 ? (
-          <Table size="small" rowKey="id" dataSource={views} pagination={false} columns={[
+          <Table size="small" rowKey="id" dataSource={views} pagination={false} scroll={{ x: 'max-content' }} columns={[
             { title: '时间', dataIndex: 'viewedAt', key: 'viewedAt', render: (v) => new Date(v).toLocaleString() },
             { title: 'IP', dataIndex: 'ip', key: 'ip', render: (v) => <Tag>{v}</Tag> },
             { title: '设备', dataIndex: 'device', key: 'device', render: (d) => <Tag color={d === 'mobile' ? 'blue' : d === 'tablet' ? 'cyan' : 'purple'}>{d}</Tag> },

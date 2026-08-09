@@ -646,6 +646,81 @@ export class EyeService {
     return { success: true, data: seeded ?? null }
   }
 
+  // ── [G005 Wave1A W9] EyeAiPage 4 方法: 从 ai-diagnosis / 眼科检查数据派生, 确定性 seed 回退 ──
+
+  // GET /eye/ai/inferences/pending — 待审核推理 (confirmed=false / status=pending*)
+  async listPendingInferences() {
+    const res = await this.listAiInferences({})
+    const all = res.data as any[]
+    const pending = all.filter((i: any) => {
+      const status = String(i.status ?? '')
+      return status.startsWith('pending') || i.confirmed === false
+    })
+    return { success: true, data: pending, meta: { total: pending.length } }
+  }
+
+  // GET /eye/ai/heatmaps — 热图列表 (由推理记录确定性派生)
+  async getAiHeatmaps() {
+    const res = await this.listAiInferences({})
+    const data = (res.data as any[]).map((i: any, idx: number) => {
+      const h = this.seedHash(`${i.studyId}:${i.modelName ?? ''}`)
+      return {
+        id: `HM-${i.id ?? idx + 1}`,
+        studyId: i.studyId,
+        modelName: i.modelName ?? '未知模型',
+        modality: 'OCT',
+        heatmapUrl: `/mock-images/eye-heatmap-${(h % 3) + 1}.png`,
+        coveragePct: 60 + (h % 35),
+        createdAt: i.timestamp ?? new Date().toISOString(),
+      }
+    })
+    return { success: true, data, meta: { total: data.length } }
+  }
+
+  // GET /eye/ai/roc/:modelId — ROC 指标 (确定性 seed 回退)
+  getAiRocCurve(modelId: string) {
+    const h = this.seedHash(modelId || 'default')
+    const auc = Number((0.85 + (h % 130) / 1000).toFixed(3))
+    return {
+      success: true,
+      data: {
+        modelId,
+        auc,
+        sensitivity: Number((auc - 0.03 - (h % 40) / 1000).toFixed(3)),
+        specificity: Number(Math.min(0.97, auc - 0.01 + (h % 30) / 1000).toFixed(3)),
+        points: [],
+      },
+    }
+  }
+
+  // GET /eye/ai/stats/disease-distribution — 病种分布 (按诊断关键词归类)
+  async getDiseaseDistribution() {
+    const res = await this.listAiInferences({})
+    const dist: Record<string, number> = {}
+    for (const i of res.data as any[]) {
+      const diagnosis = String(i.diagnosis ?? '未知')
+      const cat = this.diseaseCategoryOf(diagnosis)
+      dist[cat] = (dist[cat] ?? 0) + 1
+    }
+    return { success: true, data: dist }
+  }
+
+  private seedHash(text: string): number {
+    let h = 0
+    for (let i = 0; i < text.length; i++) h = (h * 31 + text.charCodeAt(i)) >>> 0
+    return h
+  }
+
+  private diseaseCategoryOf(diagnosis: string): string {
+    const d = diagnosis.toLowerCase()
+    if (d.includes('npdr') || d.includes('dr') || d.includes('视网膜')) return '糖尿病视网膜病变'
+    if (d.includes('视盘') || d.includes('青光眼')) return '青光眼'
+    if (d.includes('黄斑') || d.includes('amd')) return '黄斑病变/AMD'
+    if (d.includes('白内障')) return '白内障'
+    if (d.includes('高度近视')) return '高度近视'
+    return diagnosis || '未知'
+  }
+
   async listEmrRecords(params: { patientId?: string }) {
     let data = SEED_EMR_RECORDS
     if (params.patientId) data = data.filter((e: any) => e.patientId === params.patientId)

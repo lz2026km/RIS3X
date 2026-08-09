@@ -267,6 +267,17 @@ export class ImageAiService {
     return found
   }
 
+  // [G005 Wave1A W9] 评分记录列表 (前端 qcImageAiApi.listResults V1 对齐 V2:
+  //   GET /qc/image-ai/result-v2 返回全部 V2 评分, 按 modality/operatorId/日期过滤)
+  listV2(query: AiStatsQuery = {}): AiScoreResultV2[] {
+    let items = Array.from(this.storeV2.values())
+    if (query.modality) items = items.filter(x => x.modality === query.modality)
+    if (query.operatorId) items = items.filter(x => x.operatorId === query.operatorId)
+    if (query.dateFrom) items = items.filter(x => new Date(x.createdAt) >= new Date(query.dateFrom!))
+    if (query.dateTo) items = items.filter(x => new Date(x.createdAt) <= new Date(query.dateTo!))
+    return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  }
+
   async statsV2(query: AiStatsQuery): Promise<AiStatsResponseV2> {
     let items = Array.from(this.storeV2.values())
     if (query.modality) items = items.filter(x => x.modality === query.modality)

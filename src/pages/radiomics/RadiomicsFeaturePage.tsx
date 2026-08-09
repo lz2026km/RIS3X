@@ -114,7 +114,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
     <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
       <Space style={{ marginBottom: 16 }}>
         <BarChart3 size={20} color="#2563eb" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>Radiomics 特征提取</span>
+        <span style={{ fontSize: 18, fontWeight: 600 }}>影像组学特征提取</span>
         <Tag color="blue">影像组学</Tag>
       </Space>
 
@@ -183,7 +183,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
           {Object.entries(groupedFeatures).map(([category, feats]) => (
             <div key={category} style={{ marginBottom: 16 }}>
               <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 13, color: '#2563eb' }}>{category}</div>
-              <Table dataSource={feats} columns={featureColumns} rowKey="name" pagination={false} size="small" />
+              <Table dataSource={feats} columns={featureColumns} rowKey="name" pagination={false} size="small" scroll={{ x: 'max-content' }} />
             </div>
           ))}
         </Card>
@@ -196,6 +196,7 @@ export const RadiomicsFeaturePage: React.FC = () => {
             rowKey="instanceId"
             size="small"
             pagination={false}
+            scroll={{ x: 'max-content' }}
             columns={[
               { title: '实例 ID', dataIndex: 'instanceId', key: 'instanceId' },
               { title: '特征数', key: 'count', render: (_: any, r: RadiomicsResult) => r.features?.length || 0 },

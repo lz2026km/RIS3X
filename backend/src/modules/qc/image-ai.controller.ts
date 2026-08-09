@@ -78,6 +78,17 @@ export class ImageAiController {
     return this.service.getResult(instanceId)
   }
 
+  @Get('result-v2')
+  listV2(
+    @Query('modality') modality?: string,
+    @Query('dateFrom') dateFrom?: string,
+    @Query('dateTo') dateTo?: string,
+    @Query('operatorId') operatorId?: string,
+  ) {
+    const query: AiStatsQuery = { modality, dateFrom, dateTo, operatorId }
+    return this.service.listV2(query)
+  }
+
   @Get('result-v2/:instanceId')
   getResultV2(@Param('instanceId') instanceId: string) {
     return this.service.getResultV2(instanceId)

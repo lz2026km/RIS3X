@@ -6,8 +6,8 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
 } from "recharts";
+import ChartContainer from "../../components/charts/ChartContainer";
 
 interface HistoryPoint {
   date: string;
@@ -89,7 +89,7 @@ export default function DeviceHistoryModal({ device, onClose }: Props) {
           </button>
         </div>
 
-        <ResponsiveContainer width="100%" height={200}>
+        <ChartContainer height={200} state={MOCK_HISTORY.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
           <LineChart data={MOCK_HISTORY}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#94a3b8" }} />
@@ -110,7 +110,7 @@ export default function DeviceHistoryModal({ device, onClose }: Props) {
               name="CTDIvol"
             />
           </LineChart>
-        </ResponsiveContainer>
+        </ChartContainer>
 
         <div
           style={{

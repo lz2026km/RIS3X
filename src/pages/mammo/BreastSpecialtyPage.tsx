@@ -1,11 +1,14 @@
 // Breast Specialty Page — BI-RADS · 乳腺工作流 · 筛查管理
-// [v3.0.6.11-83] W1-B: AI 检出页签已接真实 breastCadApi (/ai-diagnosis/breast-cad),
-// 其余页签沿用 breastSpecialtyApi 本地演示数据 (MOCK_ONLY 回退)
+// [v3.0.6.11-83] W1-B: AI 检出页签已接真实 breastCadApi (/ai-diagnosis/breast-cad)
+// [v3.0.6.11-87] Wave4A G-21: screening Tab -> screeningApi (/screening 真实);
+//               density/workflow Tab -> dbtApi (/dbt) / breastCadApi 派生, 无端点回退演示 + 徽标
 import { useState, useMemo, useEffect } from 'react';
 import { Heart, Activity, AlertTriangle, CheckCircle, Clock, Search, TrendingUp, Stethoscope, Microscope, FileText, BarChart3, X, BrainCircuit } from 'lucide-react';
 import type { BreastDensity, ScreeningOutcome } from '@/services/api/breastSpecialtyApi';
 import { breastSpecialtyApi } from '@/services/api/breastSpecialtyApi';
 import { breastCadApi, type BreastCadResult, type BreastLesion } from '@/services/api/breastCadApi';
+import { screeningApi, type ScreeningStatsDto } from '@/services/api/screeningApi';
+import { dbtApi, type DbtStudyDto } from '@/services/api/dbtApi';
 
 const BIRADS_COLORS: Record<string, string> = { 0: '#94a3b8', 1: '#16a34a', 2: '#16a34a', 3: '#ca8a04', '4A': '#ea580c', '4B': '#dc2626', 4: '#dc2626', 5: '#dc2626', 6: '#7c3aed' };
 const DENSITY_LABELS: Record<string, string> = { a: '脂肪型', b: '散在纤维腺体', c: '不均匀致密', d: '极度致密' };
@@ -24,6 +27,67 @@ const BiradsTag = ({ v }: { v: string | number }) => {
   return <span style={{ padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 700, background: `${color}18`, color, border: `1px solid ${color}40` }}>BI-RADS {v}</span>;
 };
 
+// [G005 Wave4A G-21] 真实接口映射辅助
+const DENSITY_KEYS = ['a', 'b', 'c', 'd'] as const;
+function deriveDensity(key: string): BreastDensity {
+  let h = 0;
+  for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0;
+  return DENSITY_KEYS[h % 4]!;
+}
+function parseRads(rads: string | undefined): string | number {
+  if (!rads) return 1;
+  const m = rads.match(/BI-?RADS\s*(\d+)\s*([ab]?)/i);
+  if (!m) return 1;
+  const n = Number(m[1]);
+  const sub = (m[2] || '').toUpperCase();
+  return sub ? `${n}${sub}` : n;
+}
+function isSuspicious(v: string | number): boolean {
+  return ['4A', '4B', 4, 5].includes(String(v));
+}
+function deriveOutcome(status: string, result: string | undefined, biRads: string | number): ScreeningOutcome {
+  const finished = status === '已完成' || status === 'completed' || status === 'reviewed' || status === 'reported';
+  if (!finished) return 'normal';
+  if (result?.includes('阳性') || result?.includes('恶性') || isSuspicious(biRads)) return 'suspicious';
+  if (Number(biRads) >= 3 && String(biRads).length <= 1) return 'probably-benign';
+  if (Number(biRads) === 2) return 'benign';
+  return 'normal';
+}
+// screeningApi 队列项 -> 页面行 (密度/风险为派生字段)
+function toScreeningRow(q: any): any {
+  const biRads = parseRads(q.rads);
+  return {
+    id: q.id,
+    patientId: q.patientId,
+    patientName: q.patientName,
+    age: q.age,
+    risk: deriveDensity(q.patientId || q.patientName) === 'd' ? 'high' : deriveDensity(q.patientId || q.patientName) === 'c' ? 'intermediate' : 'average',
+    density: deriveDensity(q.patientId || q.patientName),
+    biRads,
+    outcome: deriveOutcome(q.status, q.result, biRads),
+    date: (q.screenDate ?? '').slice(0, 10),
+    recall: isSuspicious(biRads) || (q.status === '异常' && !q.result?.includes('阴性')),
+  };
+}
+// dbtApi 检查 -> 密度/BI-RADS 派生行
+function toDensityRow(s: DbtStudyDto): any {
+  const biRads = parseRads(s.studyDescription);
+  return {
+    id: s.id,
+    patientName: s.patientName,
+    patientId: s.patientId,
+    density: deriveDensity(s.patientId || s.id),
+    biRads,
+    date: s.studyDate,
+  };
+}
+// 数据源徽标 (绿色=真实, 橙色=演示回退)
+const SrcBadge = ({ real, label, demoLabel }: { real: boolean; label: string; demoLabel: string }) => (
+  real
+    ? <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-success-bg)', color: '#16a34a', border: '1px solid #bbf7d0' }}>{label}</span>
+    : <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#ec489922', color: '#be185d', border: '1px solid #fbcfe8' }}>{demoLabel}</span>
+);
+
 const BreastSpecialtyPage = () => {
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState<'screening' | 'density' | 'workflow' | 'stats' | 'cad'>('screening');
@@ -38,6 +102,63 @@ const BreastSpecialtyPage = () => {
   const [cadError, setCadError] = useState('');
   const [dataSource, setDataSource] = useState<'real' | 'demo'>('demo');
   const [cadDetail, setCadDetail] = useState<BreastCadResult | null>(null);
+
+  // [G005 Wave4A G-21] screeningTab -> screeningApi (真实 /screening), 失败回退 mockScreening
+  const [screeningSource, setScreeningSource] = useState<'real' | 'demo'>('demo');
+  const [screeningStats, setScreeningStats] = useState<ScreeningStatsDto | null>(null);
+  const [screeningLoading, setScreeningLoading] = useState(true);
+
+  // [G005 Wave4A G-21] density/workflow Tab -> dbtApi (/dbt) 派生密度/流程
+  const [densitySource, setDensitySource] = useState<'real' | 'demo'>('demo');
+  const [densityRows, setDensityRows] = useState<any[]>([]);
+  const [densityLoading, setDensityLoading] = useState(true);
+  const [dbtCount, setDbtCount] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [queueRes, statsRes] = await Promise.all([screeningApi.listQueue(), screeningApi.getStats()]);
+        if (cancelled) return;
+        if (queueRes.success && Array.isArray(queueRes.data) && queueRes.data.length > 0) {
+          setScreeningList(queueRes.data.map(toScreeningRow));
+          setScreeningSource('real');
+        } else {
+          setScreeningSource('demo');
+        }
+        if (statsRes.success && statsRes.data) setScreeningStats(statsRes.data);
+      } catch {
+        if (cancelled) return;
+        setScreeningSource('demo');
+      } finally {
+        if (!cancelled) setScreeningLoading(false);
+      }
+    })();
+    return () => { cancelled = true };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await dbtApi.studies();
+        if (cancelled) return;
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+          setDensityRows(res.data.map(toDensityRow));
+          setDensitySource('real');
+          setDbtCount(res.data.length);
+        } else {
+          setDensitySource('demo');
+        }
+      } catch {
+        if (cancelled) return;
+        setDensitySource('demo');
+      } finally {
+        if (!cancelled) setDensityLoading(false);
+      }
+    })();
+    return () => { cancelled = true };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -77,6 +198,23 @@ const BreastSpecialtyPage = () => {
     if (!newForm.patientName.trim() || !newForm.patientId.trim()) { alert('请填写患者ID和姓名'); return; }
     setSaving(true);
     try {
+      // [G005 Wave4A G-21] 真实模式走 screeningApi.create, 失败回退 mock 本地新增
+      const created = screeningSource === 'real'
+        ? await screeningApi.create({
+            patientId: newForm.patientId,
+            patientName: newForm.patientName,
+            age: newForm.age,
+            screenType: 'breast',
+            screenDate: newForm.date,
+            status: 'pending',
+          }).then(res => (res.success && res.data ? toScreeningRow(res.data) : null))
+        : null;
+      if (created) {
+        setScreeningList(prev => [created, ...prev]);
+        setShowNewModal(false);
+        setNewForm({ patientId: '', patientName: '', age: 45, risk: 'average', date: new Date().toISOString().split('T')[0] });
+        return;
+      }
       const res = await breastSpecialtyApi.createScreening({
         patientId: newForm.patientId,
         patientName: newForm.patientName,
@@ -86,7 +224,7 @@ const BreastSpecialtyPage = () => {
         outcome: 'normal',
         date: newForm.date,
       });
-      const created = res.success && res.data ? res.data : {
+      const createdMock = res.success && res.data ? res.data : {
         id: `S${Date.now().toString().slice(-5)}`,
         patientId: newForm.patientId,
         patientName: newForm.patientName,
@@ -98,7 +236,7 @@ const BreastSpecialtyPage = () => {
         date: newForm.date,
         recall: false,
       };
-      setScreeningList(prev => [created, ...prev]);
+      setScreeningList(prev => [createdMock, ...prev]);
       setShowNewModal(false);
       setNewForm({ patientId: '', patientName: '', age: 45, risk: 'average', date: new Date().toISOString().split('T')[0] });
     } catch {
@@ -132,11 +270,11 @@ const BreastSpecialtyPage = () => {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 20 }}>
         {[
-          { label: '今日检查', value: '28', icon: Activity, color: '#be185d', bg: '#ec489922' },
-          { label: 'BI-RADS 4-5', value: String(suspicious), icon: AlertTriangle, color: '#dc2626', bg: '#ef444422' },
+          { label: '今日检查', value: screeningStats ? String(screeningStats.monthlyNew) : '28', icon: Activity, color: '#be185d', bg: '#ec489922' },
+          { label: 'BI-RADS 4-5', value: screeningStats ? String(screeningStats.birads4Plus) : String(suspicious), icon: AlertTriangle, color: '#dc2626', bg: '#ef444422' },
           { label: '待召回', value: String(recalls), icon: Clock, color: '#ea580c', bg: '#f9731622' },
-          { label: '今日报告', value: '18', icon: FileText, color: '#16a34a', bg: '#22c55e22' },
-          { label: '检出率', value: '4.2%', icon: TrendingUp, color: '#7c3aed', bg: '#8b5cf622' },
+          { label: '今日报告', value: screeningStats ? String(screeningStats.earlyCancerCount) : '18', icon: FileText, color: '#16a34a', bg: '#22c55e22' },
+          { label: '检出率', value: screeningStats && (screeningStats.ldctCount + screeningStats.breastCount) > 0 ? `${((screeningStats.highRiskCount / (screeningStats.ldctCount + screeningStats.breastCount)) * 100).toFixed(1)}%` : '4.2%', icon: TrendingUp, color: '#7c3aed', bg: '#8b5cf622' },
         ].map((k, i) => (
           <div key={i} style={{ background: 'var(--bg-card)', borderRadius: 12, padding: '18px 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <div style={{ width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10, background: k.bg }}><k.icon size={20} color={k.color} /></div>
@@ -155,7 +293,10 @@ const BreastSpecialtyPage = () => {
       {tab === 'screening' && (
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}><Stethoscope size={16} color="#be185d" /> 筛查列表</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', display: 'flex', alignItems: 'center', gap: 8 }}><Stethoscope size={16} color="#be185d" /> 筛查列表
+              <SrcBadge real={screeningSource === 'real'} label="screeningApi 实时" demoLabel="演示回退" />
+              {screeningLoading && <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>加载中...</span>}
+            </div>
             <div style={{ display: 'flex', gap: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-card)', borderRadius: 8, padding: '4px 12px' }}>
                 <Search size={16} color="var(--text-secondary)" />
@@ -195,10 +336,14 @@ const BreastSpecialtyPage = () => {
       {tab === 'density' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><Activity size={16} color="#be185d" /> 密度分布</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Activity size={16} color="#be185d" /> 密度分布
+              <SrcBadge real={densitySource === 'real'} label={`dbtApi 实时 (${dbtCount} 例)`} demoLabel="演示数据（后端无乳腺密度端点）" />
+              {densityLoading && <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>加载中...</span>}
+            </div>
             {(['a', 'b', 'c', 'd'] as BreastDensity[]).map(d => {
-              const count = mockScreening.filter(r => r.density === d).length;
-              const pct = Math.round((count / mockScreening.length) * 100);
+              const base = densitySource === 'real' && densityRows.length > 0 ? densityRows : mockScreening;
+              const count = base.filter(r => r.density === d).length;
+              const pct = Math.round((count / Math.max(base.length, 1)) * 100);
               return (
                 <div key={d} style={{ marginBottom: 12 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}><span>{DENSITY_LABELS[d]}</span><span style={{ fontWeight: 700 }}>{count} 例 ({pct}%)</span></div>
@@ -210,7 +355,8 @@ const BreastSpecialtyPage = () => {
           <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><Microscope size={16} color="#7c3aed" /> BI-RADS 分布</div>
             {[1, 2, 3, '4A', '4B', 4, 5].map(b => {
-              const count = mockScreening.filter(r => r.biRads === b || r.biRads === Number(b)).length;
+              const base = densitySource === 'real' && densityRows.length > 0 ? densityRows : mockScreening;
+              const count = base.filter(r => r.biRads === b || r.biRads === Number(b)).length;
               const color = BIRADS_COLORS[String(b)] ?? '#94a3b8';
               return (
                 <div key={String(b)} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
@@ -226,25 +372,37 @@ const BreastSpecialtyPage = () => {
 
       {tab === 'workflow' && (
         <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16 }}><Activity size={16} color="#be185d" /> 乳腺工作流</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-primary-800)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Activity size={16} color="#be185d" /> 乳腺工作流
+            <SrcBadge
+              real={densitySource === 'real' || dataSource === 'real'}
+              label="dbtApi/breastCadApi 实时"
+              demoLabel="演示数据（后端无乳腺密度端点）"
+            />
+            {(densityLoading || cadLoading) && <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>加载中...</span>}
+          </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
-            {[
-              { step: '1. 预约登记', status: 'done', desc: '患者信息录入、风险评估', time: '5 min' },
-              { step: '2. 摆位采集', status: 'done', desc: 'CC/MLO 体位、压板厚度', time: '15 min' },
-              { step: '3. 影像处理', status: 'done', desc: '图像优化、对比度调整', time: '3 min' },
-              { step: '4. AI 预筛', status: 'active', desc: '密度分类、病灶检测', time: '1 min' },
-              { step: '5. 影像诊断', status: 'pending', desc: 'BI-RADS 评分、报告', time: '10 min' },
-              { step: '6. 签发报告', status: 'pending', desc: '医师审核、签发', time: '5 min' },
-            ].map((w, i) => (
-              <div key={i} style={{ padding: 16, background: w.status === 'active' ? 'var(--color-error-bg)' : 'var(--bg-card)', borderRadius: 10, border: `1px solid ${w.status === 'active' ? '#fbcfe8' : '#e2e8f0'}` }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                  {w.status === 'done' ? <CheckCircle size={16} color="#16a34a" /> : w.status === 'active' ? <Clock size={16} color="#be185d" /> : <span style={{ width: 16, height: 16, borderRadius: '50%', border: '2px solid var(--border-color)', display: 'inline-block' }} />}
-                  <span style={{ fontSize: 13, fontWeight: 700, color: w.status === 'active' ? '#be185d' : 'var(--text-primary)' }}>{w.step}</span>
+            {(() => {
+              const real = densitySource === 'real' || dataSource === 'real';
+              const cadCount = cadResults.length;
+              const steps = [
+                { step: '1. 预约登记', status: real ? 'done' : 'done', desc: '患者信息录入、风险评估', time: '5 min' },
+                { step: '2. 摆位采集', status: real ? 'done' : 'done', desc: 'CC/MLO 体位、压板厚度', time: '15 min' },
+                { step: '3. 影像处理', status: real ? 'done' : 'done', desc: '图像优化、对比度调整', time: '3 min' },
+                { step: '4. AI 预筛', status: cadCount > 0 ? (real ? 'done' : 'active') : 'pending', desc: cadCount > 0 ? `密度分类、病灶检测 (AI 检出 ${cadCount} 例)` : '密度分类、病灶检测', time: '1 min' },
+                { step: '5. 影像诊断', status: 'pending', desc: 'BI-RADS 评分、报告', time: '10 min' },
+                { step: '6. 签发报告', status: 'pending', desc: '医师审核、签发', time: '5 min' },
+              ];
+              return steps.map((w, i) => (
+                <div key={i} style={{ padding: 16, background: w.status === 'active' ? 'var(--color-error-bg)' : 'var(--bg-card)', borderRadius: 10, border: `1px solid ${w.status === 'active' ? '#fbcfe8' : '#e2e8f0'}` }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    {w.status === 'done' ? <CheckCircle size={16} color="#16a34a" /> : w.status === 'active' ? <Clock size={16} color="#be185d" /> : <span style={{ width: 16, height: 16, borderRadius: '50%', border: '2px solid var(--border-color)', display: 'inline-block' }} />}
+                    <span style={{ fontSize: 13, fontWeight: 700, color: w.status === 'active' ? '#be185d' : 'var(--text-primary)' }}>{w.step}</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{w.desc}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>预计: {w.time}</div>
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>{w.desc}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>预计: {w.time}</div>
-              </div>
-            ))}
+              ));
+            })()}
           </div>
         </div>
       )}

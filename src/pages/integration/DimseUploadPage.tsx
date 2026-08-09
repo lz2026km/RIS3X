@@ -200,6 +200,7 @@ export const DimseUploadPage: React.FC = () => {
             render: (_: unknown, r: UploadRecord) => <Popconfirm title="移除该记录?" onConfirm={() => handleRemove(r.key)}><Button size="small" danger icon={<DeleteOutlined />} /></Popconfirm>,
           }]}
           pagination={false}
+          scroll={{ x: 'max-content' }}
           locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无上传记录, 请选择 .dcm 文件上传" /> }}
         />
       </Card>

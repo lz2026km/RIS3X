@@ -20,6 +20,33 @@ export interface UpdateExamDto {
   deviceId?: string
 }
 
+// [G005 Wave4B] G-18 检查合并/拆分
+export interface MergeExamsDto {
+  targetId: string
+  sourceIds: string[]
+}
+
+export interface MergeExamsResult {
+  targetId: string
+  patientId: string
+  mergedSourceCount: number
+  removedSourceIds: string[]
+  retainedSourceIds: string[]
+  movedReports: number
+  mergedAt: string
+}
+
+export interface SplitExamDto {
+  reportIds: string[]
+}
+
+export interface SplitExamResult {
+  sourceExamId: string
+  patientId: string
+  created: { id: string; accessionNumber: string; reportCount: number }[]
+  splitAt: string
+}
+
 @Injectable()
 export class ExamService {
   constructor(
@@ -148,6 +175,103 @@ export class ExamService {
       }
     }
     return result
+  }
+
+  // [G005 Wave4B] G-18 检查合并: 同患者多检查 → 目标检查 (报告归属迁移到目标)
+  async merge(dto: MergeExamsDto): Promise<MergeExamsResult> {
+    const tenantId = currentTenantId()
+    const ids = [dto.targetId, ...dto.sourceIds]
+    if (new Set(ids).size !== ids.length) {
+      throw new BadRequestException('目标检查不能同时作为源检查')
+    }
+    const exams = await this.prisma.exam.findMany({
+      where: { id: { in: ids }, tenantId },
+      include: { patient: { select: { id: true } }, reports: { select: { id: true } } },
+    })
+    if (exams.length !== ids.length) {
+      const missing = ids.filter((i) => !exams.some((e) => e.id === i))
+      throw new NotFoundException(`检查不存在: ${missing.join(', ')}`)
+    }
+    const patientIds = new Set(exams.map((e) => e.patientId))
+    if (patientIds.size > 1) {
+      throw new BadRequestException('仅同一患者的多个检查可以合并')
+    }
+    const target = exams.find((e) => e.id === dto.targetId)!
+    const sources = exams.filter((e) => e.id !== dto.targetId)
+
+    let movedReports = 0
+    for (const src of sources) {
+      if (src.reports.length > 0) {
+        const res = await this.prisma.report.updateMany({
+          where: { id: { in: src.reports.map((r) => r.id) } },
+          data: { examId: target.id },
+        })
+        movedReports += res.count
+      }
+    }
+    // 源检查删除; 存在关联数据(危急值等)时保留
+    const removedSourceIds: string[] = []
+    const retainedSourceIds: string[] = []
+    for (const src of sources) {
+      try {
+        await this.prisma.exam.delete({ where: { id: src.id } })
+        removedSourceIds.push(src.id)
+      } catch {
+        retainedSourceIds.push(src.id)
+      }
+    }
+    return {
+      targetId: target.id,
+      patientId: target.patientId,
+      mergedSourceCount: sources.length,
+      removedSourceIds,
+      retainedSourceIds,
+      movedReports,
+      mergedAt: new Date().toISOString(),
+    }
+  }
+
+  // [G005 Wave4B] G-18 检查拆分: 按报告归属拆分 (每份报告独立成新检查, 患者/检查属性继承)
+  async split(id: string, dto: SplitExamDto): Promise<SplitExamResult> {
+    const exam = await this.prisma.exam.findFirst({
+      where: { id, tenantId: currentTenantId() },
+      include: { reports: { select: { id: true } } },
+    })
+    if (!exam) throw new NotFoundException(`Exam ${id} not found`)
+    const ids = [...new Set(dto.reportIds)]
+    if (ids.length < 2) {
+      throw new BadRequestException('至少选择 2 份报告才能拆分')
+    }
+    const reports = await this.prisma.report.findMany({
+      where: { id: { in: ids }, examId: exam.id },
+      select: { id: true },
+    })
+    if (reports.length !== ids.length) {
+      const missing = ids.filter((i) => !reports.some((r) => r.id === i))
+      throw new BadRequestException(`报告不属于该检查: ${missing.join(', ')}`)
+    }
+    const stamp = Date.now().toString(36)
+    const created: SplitExamResult['created'] = []
+    for (let i = 0; i < reports.length; i++) {
+      const newExam = await this.prisma.exam.create({
+        data: {
+          tenantId: exam.tenantId,
+          patientId: exam.patientId,
+          accessionNumber: `${exam.accessionNumber}-S${stamp}-${i + 1}`,
+          modality: exam.modality,
+          bodyPart: exam.bodyPart,
+          scheduledAt: exam.scheduledAt,
+          deviceId: exam.deviceId,
+          state: exam.state,
+        },
+      })
+      await this.prisma.report.updateMany({
+        where: { id: reports[i]!.id },
+        data: { examId: newExam.id },
+      })
+      created.push({ id: newExam.id, accessionNumber: newExam.accessionNumber, reportCount: 1 })
+    }
+    return { sourceExamId: exam.id, patientId: exam.patientId, created, splitAt: new Date().toISOString() }
   }
 
   // [W4-A] CSV 导出 (按 patientId/modality/state/日期筛选)

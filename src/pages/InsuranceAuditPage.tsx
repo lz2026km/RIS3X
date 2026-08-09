@@ -4003,7 +4003,7 @@ export default function InsuranceAuditPage() {
             </div>
             <ChartContainer height={220} state={fundTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无基金使用趋势数据">
               <AreaChart data={fundTrendData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
                 <XAxis
                   dataKey="date"
                   tick={{ fontSize: 12 }}
@@ -4021,7 +4021,7 @@ export default function InsuranceAuditPage() {
                   type="monotone"
                   dataKey="budget"
                   stroke="#94a3b8"
-                  fill="#f1f5f9"
+                  fill="var(--content-bg)"
                   strokeDasharray="5 5"
                   strokeWidth={2}
                   name="日预算"
@@ -4134,7 +4134,7 @@ export default function InsuranceAuditPage() {
             </div>
             <ChartContainer height={200} state={fundMonthlyData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无月度基金数据">
               <BarChart data={fundMonthlyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
                 <XAxis
                   dataKey="month"
                   tick={{ fontSize: 12 }}
@@ -4150,7 +4150,7 @@ export default function InsuranceAuditPage() {
                 />
                 <Bar
                   dataKey="budget"
-                  fill="#e2e8f0"
+                  fill="var(--border-color)"
                   name="月度预算"
                   radius={[4, 4, 0, 0]}
                 />
@@ -4245,7 +4245,7 @@ export default function InsuranceAuditPage() {
           </div>
             <ChartContainer height={180} state={passRateTrendData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无通过率趋势数据">
               <AreaChart data={passRateTrendData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
               <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="#94a3b8" />
               <YAxis
                 tick={{ fontSize: 12 }}
@@ -4954,7 +4954,7 @@ export default function InsuranceAuditPage() {
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div
             style={{
-              background: WHITE,
+              background: 'var(--bg-card)',
               borderRadius: 10,
               padding: 16,
               border: "1px solid var(--border-color)",
@@ -4975,8 +4975,8 @@ export default function InsuranceAuditPage() {
                 style={{
                   padding: "6px 14px",
                   borderRadius: 6,
-                  border: `1px solid ${claimBatchMode ? ACCENT : "#e2e8f0"}`,
-                  background: claimBatchMode ? `${ACCENT}15` : WHITE,
+                  border: `1px solid ${claimBatchMode ? ACCENT : "var(--border-color)"}`,
+                  background: claimBatchMode ? `${ACCENT}15` : 'var(--bg-card)',
                   color: claimBatchMode ? ACCENT : GRAY,
                   fontSize: 12,
                   fontWeight: 600,
@@ -5015,7 +5015,7 @@ export default function InsuranceAuditPage() {
           </div>
           <div
             style={{
-              background: WHITE,
+              background: 'var(--bg-card)',
               borderRadius: 12,
               border: "1px solid var(--border-color)",
               overflow: "hidden",
@@ -5036,8 +5036,8 @@ export default function InsuranceAuditPage() {
                   style={{
                     padding: "4px 12px",
                     borderRadius: 16,
-                    border: `1px solid ${claimStatusFilter === s ? ACCENT : "#e2e8f0"}`,
-                    background: claimStatusFilter === s ? ACCENT : WHITE,
+                    border: `1px solid ${claimStatusFilter === s ? ACCENT : "var(--border-color)"}`,
+                    background: claimStatusFilter === s ? ACCENT : 'var(--bg-card)',
                     color: claimStatusFilter === s ? WHITE : GRAY,
                     fontSize: 12,
                     fontWeight: 600,
@@ -5094,7 +5094,7 @@ export default function InsuranceAuditPage() {
                       key={c.id}
                       style={{
                         borderBottom: "1px solid var(--border-color)",
-                        background: idx % 2 === 0 ? WHITE : "#fafbfc",
+                        background: idx % 2 === 0 ? 'var(--bg-card)' : 'var(--content-bg)',
                       }}
                     >
                       <td
@@ -5184,12 +5184,12 @@ export default function InsuranceAuditPage() {
                             fontWeight: 700,
                             background:
                               c.status === "已支付"
-                                ? "#d1fae5"
+                                ? "var(--color-success-bg)"
                                 : c.status === "待提交"
-                                  ? "#fef3c7"
+                                  ? "var(--color-warning-bg)"
                                   : c.status === "被拒"
-                                    ? "#fee2e2"
-                                    : "#dbeafe",
+                                    ? "var(--color-error-bg)"
+                                    : "var(--color-info-bg)",
                             color:
                               c.status === "已支付"
                                 ? SUCCESS
@@ -5210,7 +5210,7 @@ export default function InsuranceAuditPage() {
           </div>
           <div
             style={{
-              background: WHITE,
+              background: 'var(--bg-card)',
               borderRadius: 12,
               padding: 20,
               border: "1px solid var(--border-color)",
@@ -5286,7 +5286,7 @@ export default function InsuranceAuditPage() {
                     key={m.icd10}
                     style={{
                       borderBottom: "1px solid var(--border-color)",
-                      background: idx % 2 === 0 ? WHITE : "#fafbfc",
+                      background: idx % 2 === 0 ? 'var(--bg-card)' : 'var(--content-bg)',
                     }}
                   >
                     <td
@@ -5381,7 +5381,7 @@ export default function InsuranceAuditPage() {
               <div
                 key={card.label}
                 style={{
-                  background: WHITE,
+                  background: 'var(--bg-card)',
                   borderRadius: 10,
                   padding: "14px 16px",
                   border: "1px solid var(--border-color)",
@@ -5419,7 +5419,7 @@ export default function InsuranceAuditPage() {
           >
             <div
               style={{
-                background: WHITE,
+                background: 'var(--bg-card)',
                 borderRadius: 12,
                 border: "1px solid var(--border-color)",
                 overflow: "hidden",
@@ -5440,8 +5440,8 @@ export default function InsuranceAuditPage() {
                     style={{
                       padding: "4px 12px",
                       borderRadius: 16,
-                      border: `1px solid ${denialAppealFilter === s ? ACCENT : "#e2e8f0"}`,
-                      background: denialAppealFilter === s ? ACCENT : WHITE,
+                      border: `1px solid ${denialAppealFilter === s ? ACCENT : "var(--border-color)"}`,
+                      background: denialAppealFilter === s ? ACCENT : 'var(--bg-card)',
                       color: denialAppealFilter === s ? WHITE : GRAY,
                       fontSize: 12,
                       fontWeight: 600,
@@ -5495,7 +5495,7 @@ export default function InsuranceAuditPage() {
                         key={d.id}
                         style={{
                           borderBottom: "1px solid var(--border-color)",
-                          background: idx % 2 === 0 ? WHITE : "#fafbfc",
+                          background: idx % 2 === 0 ? 'var(--bg-card)' : 'var(--content-bg)',
                         }}
                       >
                         <td
@@ -5556,12 +5556,12 @@ export default function InsuranceAuditPage() {
                               fontWeight: 700,
                               background:
                                 d.appealStatus === "已通过"
-                                  ? "#d1fae5"
+                                  ? "var(--color-success-bg)"
                                   : d.appealStatus === "申诉中"
-                                    ? "#dbeafe"
+                                    ? "var(--color-info-bg)"
                                     : d.appealStatus === "已拒绝"
-                                      ? "#fee2e2"
-                                      : "#fef3c7",
+                                      ? "var(--color-error-bg)"
+                                      : "var(--color-warning-bg)",
                               color:
                                 d.appealStatus === "已通过"
                                   ? SUCCESS
@@ -5591,7 +5591,7 @@ export default function InsuranceAuditPage() {
                                 padding: "2px 8px",
                                 borderRadius: 4,
                                 border: "1px solid var(--border-color)",
-                                background: WHITE,
+                                background: 'var(--bg-card)',
                                 color: ACCENT,
                                 fontSize: 12,
                                 cursor: "pointer",
@@ -5608,7 +5608,7 @@ export default function InsuranceAuditPage() {
             </div>
             <div
               style={{
-                background: WHITE,
+                background: 'var(--bg-card)',
                 borderRadius: 12,
                 padding: 16,
                 border: "1px solid var(--border-color)",
@@ -5626,7 +5626,7 @@ export default function InsuranceAuditPage() {
               </h3>
               <ChartContainer height={180} state={denialRateTrend.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无拒赔率趋势数据">
                 <AreaChart data={denialRateTrend}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-light)" />
                   <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                   <YAxis domain={[0, 20]} tick={{ fontSize: 12 }} unit="%" />
                   <Tooltip />
@@ -5726,7 +5726,7 @@ export default function InsuranceAuditPage() {
               <div
                 key={card.label}
                 style={{
-                  background: WHITE,
+                  background: 'var(--bg-card)',
                   borderRadius: 10,
                   padding: "14px 16px",
                   border: "1px solid var(--border-color)",
@@ -5761,7 +5761,7 @@ export default function InsuranceAuditPage() {
           </div>
           <div
             style={{
-              background: WHITE,
+              background: 'var(--bg-card)',
               borderRadius: 10,
               padding: 12,
               border: "1px solid var(--border-color)",
@@ -5778,8 +5778,8 @@ export default function InsuranceAuditPage() {
                   style={{
                     padding: "4px 12px",
                     borderRadius: 16,
-                    border: `1px solid ${preAuthFilter === s ? ACCENT : "#e2e8f0"}`,
-                    background: preAuthFilter === s ? ACCENT : WHITE,
+                    border: `1px solid ${preAuthFilter === s ? ACCENT : "var(--border-color)"}`,
+                    background: preAuthFilter === s ? ACCENT : 'var(--bg-card)',
                     color: preAuthFilter === s ? WHITE : GRAY,
                     fontSize: 12,
                     fontWeight: 600,
@@ -5833,10 +5833,10 @@ export default function InsuranceAuditPage() {
                       : WARNING;
                 const statusBg =
                   p.status === "approved"
-                    ? "#d1fae5"
+                    ? "var(--color-success-bg)"
                     : p.status === "denied"
-                      ? "#fee2e2"
-                      : "#fef3c7";
+                      ? "var(--color-error-bg)"
+                      : "var(--color-warning-bg)";
                 const statusLabel =
                   p.status === "pending"
                     ? "待审批"
@@ -5847,7 +5847,7 @@ export default function InsuranceAuditPage() {
                   <div
                     key={p.id}
                     style={{
-                      background: WHITE,
+                      background: 'var(--bg-card)',
                       borderRadius: 10,
                       padding: 16,
                       border: `1px solid ${statusColor}30`,
@@ -5981,7 +5981,7 @@ export default function InsuranceAuditPage() {
                               fontSize: 12,
                               fontWeight: 600,
                               background:
-                                i < p.docsCompleted ? "#d1fae5" : "#f1f5f9",
+                                i < p.docsCompleted ? "var(--color-success-bg)" : "var(--content-bg)",
                               color: i < p.docsCompleted ? SUCCESS : GRAY,
                             }}
                           >
@@ -6061,7 +6061,7 @@ export default function InsuranceAuditPage() {
               <div
                 key={card.label}
                 style={{
-                  background: WHITE,
+                  background: 'var(--bg-card)',
                   borderRadius: 10,
                   padding: "14px 16px",
                   border: "1px solid var(--border-color)",
@@ -6096,7 +6096,7 @@ export default function InsuranceAuditPage() {
           </div>
           <div
             style={{
-              background: WHITE,
+              background: 'var(--bg-card)',
               borderRadius: 12,
               border: "1px solid var(--border-color)",
               overflow: "hidden",
@@ -6152,7 +6152,7 @@ export default function InsuranceAuditPage() {
                       key={d.id}
                       style={{
                         borderBottom: "1px solid var(--border-color)",
-                        background: idx % 2 === 0 ? WHITE : "#fafbfc",
+                        background: idx % 2 === 0 ? 'var(--bg-card)' : 'var(--content-bg)',
                       }}
                     >
                       <td
@@ -6233,7 +6233,7 @@ export default function InsuranceAuditPage() {
                             fontSize: 12,
                             fontWeight: 700,
                             background:
-                              d.validationScore >= 80 ? "#d1fae5" : "#fef3c7",
+                              d.validationScore >= 80 ? "var(--color-success-bg)" : "var(--color-warning-bg)",
                             color: d.validationScore >= 80 ? SUCCESS : WARNING,
                           }}
                         >
@@ -6248,7 +6248,7 @@ export default function InsuranceAuditPage() {
           </div>
           <div
             style={{
-              background: WHITE,
+              background: 'var(--bg-card)',
               borderRadius: 12,
               padding: 20,
               border: "1px solid var(--border-color)",

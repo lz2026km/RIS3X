@@ -11,6 +11,8 @@ import {
   LineChart, Line, PieChart as RePieChart, Pie, Cell, AreaChart, Area
 } from 'recharts'
 import { ChartContainer } from '../components/charts'
+// [G005 2B] 原生表格 slice 分页 (DICOM 任务队列 / 成本分析)
+import { usePagination } from '../hooks/usePagination'
 
 // ============================================================
 // 样式常量 - WIN10风格
@@ -467,10 +469,33 @@ export default function PrintManagementPage() {
   const [showPreviewModal, setShowPreviewModal] = useState<boolean>(false)
   const [previewItem, setPreviewItem] = useState<any>(null)
 
+  // [G005 Wave2A P0] 打印机受控表单 + 保存/删除中状态
+  const [printerForm, setPrinterForm] = useState<any>({ name: '', location: '', type: 'network', filmSpec: '14x17', defaultCopies: 1, dpi: 300, aet: '', host: '', port: 104 })
+  const [savingPrinter, setSavingPrinter] = useState<boolean>(false)
+  const [deletingPrinterId, setDeletingPrinterId] = useState<string>('')
+
+  // [G005 Wave2A P1] DICOM 预设受控编辑 (localStorage 持久化)
+  const [presetEditOpen, setPresetEditOpen] = useState<boolean>(false)
+  const [presetForm, setPresetForm] = useState<any>({ name: '', filmSize: '14x17', orientation: 'PORTRAIT', mediumType: 'BLUE FILM', filmDestination: 'MAGAZINE', trimming: 'NO' })
+
+  // [G005 Wave2A P1] 模板预览弹窗 (胶片布局模拟)
+  const [templatePreviewOpen, setTemplatePreviewOpen] = useState<boolean>(false)
+  const [templatePreviewItem, setTemplatePreviewItem] = useState<any>(null)
+
   // 打印配置相关状态 ([W2-B] 真实化: deviceApi/printApi, 失败回退静态演示数据)
   const [printers, setPrinters] = useState(PRINTERS)
   const [filmSpecs] = useState(FILM_SPECS)
-  const [dicomPresets] = useState(DICOM_PRESETS)
+  // [G005 Wave2A P1] 预设可编辑 + localStorage 持久化
+  const [dicomPresets, setDicomPresets] = useState<typeof DICOM_PRESETS>(() => {
+    try {
+      const raw = localStorage.getItem('g005_dicom_presets')
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      }
+    } catch { /* ignore */ }
+    return DICOM_PRESETS
+  })
   const [reportTemplates] = useState(REPORT_TEMPLATES)
   const [printQueue, setPrintQueue] = useState(PRINT_QUEUE)
   const [printHistory, setPrintHistory] = useState(PRINT_HISTORY)
@@ -502,7 +527,7 @@ export default function PrintManagementPage() {
   const [selectedQueueItems, setSelectedQueueItems] = useState<string[]>([])
 
   // 模板预览/编辑状态
-  const [_previewTemplate, setPreviewTemplate] = useState<any>(null)
+  const [_previewTemplate, _setPreviewTemplate] = useState<any>(null)
 
   // 刷新/暂停队列状态
   const [queuePaused, setQueuePaused] = useState<boolean>(false)
@@ -745,6 +770,124 @@ export default function PrintManagementPage() {
     setTaskDetailLoading(false)
   }
 
+  // [G005 Wave2A P0] 刷新打印机面板数据 (printApi.listPrinters)
+  const refreshPrintersApi = async () => {
+    const res = await printApi.listPrinters()
+    if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+      setPrintersApi(res.data.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        status: p.status === 'online' ? 'online' : 'offline',
+        location: p.location ?? '',
+        filmsToday: 0,
+      })))
+    }
+  }
+
+  // [G005 Wave2A P0] 打开打印机弹窗 (受控表单初始化)
+  const handleOpenPrinterModal = (printer: any | null) => {
+    setSelectedPrinter(printer)
+    setPrinterForm(printer ? {
+      name: printer.name ?? '',
+      location: printer.location ?? '',
+      type: printer.type ?? 'network',
+      filmSpec: printer.filmSpec ?? '14x17',
+      defaultCopies: printer.defaultCopies ?? 1,
+      dpi: printer.dpi ?? 300,
+      aet: printer.aet ?? '',
+      host: printer.host ?? '',
+      port: printer.port ?? 104,
+    } : { name: '', location: '', type: 'network', filmSpec: '14x17', defaultCopies: 1, dpi: 300, aet: '', host: '', port: 104 })
+    setShowPrinterModal(true)
+  }
+
+  // [G005 Wave2A P0] 保存打印机 → createPrinter/updatePrinter 真实调用 → 刷新列表
+  const handleSavePrinter = async () => {
+    if (!printerForm.name?.trim()) {
+      displayToast('请填写打印机名称', 'error')
+      return
+    }
+    setSavingPrinter(true)
+    try {
+      const payload = {
+        name: printerForm.name.trim(),
+        location: printerForm.location.trim() || undefined,
+        type: printerForm.type,
+        filmSpec: printerForm.filmSpec,
+        defaultCopies: Number(printerForm.defaultCopies) || 1,
+        dpi: Number(printerForm.dpi) || 300,
+        aet: printerForm.aet?.trim() || undefined,
+        host: printerForm.host?.trim() || undefined,
+        port: printerForm.port ? Number(printerForm.port) : undefined,
+        mediumTypes: ['BLUE FILM', 'CLEAR FILM'],
+        filmsPerHour: 40,
+      }
+      const res = selectedPrinter
+        ? await printApi.updatePrinter(selectedPrinter.id, payload)
+        : await printApi.createPrinter(payload)
+      if (res.success && res.data) {
+        const saved: any = res.data
+        setPrinters(prev => {
+          const idx = prev.findIndex((p: any) => p.id === saved.id)
+          if (idx >= 0) {
+            const next = [...prev]
+            next[idx] = { ...next[idx], ...saved }
+            return next
+          }
+          return [saved, ...prev]
+        })
+        displayToast(selectedPrinter ? `打印机「${saved.name}」已更新` : `打印机「${saved.name}」已添加`, 'success')
+        setShowPrinterModal(false)
+        void refreshPrintersApi()
+      } else {
+        displayToast(res.error?.message ?? '打印机保存失败', 'error')
+      }
+    } catch {
+      displayToast('打印机保存失败，请稍后重试', 'error')
+    } finally {
+      setSavingPrinter(false)
+    }
+  }
+
+  // [G005 Wave2A P0] 删除打印机 → deletePrinter 真实调用
+  const handleDeletePrinter = async (printer: any) => {
+    if (!window.confirm(`确定删除打印机「${printer.name}」吗？`)) return
+    setDeletingPrinterId(printer.id)
+    try {
+      const res = await printApi.deletePrinter(printer.id)
+      if (res.success) {
+        setPrinters(prev => prev.filter((p: any) => p.id !== printer.id))
+        setPrintersApi(prev => prev.filter((p: any) => p.id !== printer.id))
+        displayToast(`打印机「${printer.name}」已删除`, 'success')
+      } else {
+        displayToast(res.error?.message ?? '打印机删除失败', 'error')
+      }
+    } catch {
+      displayToast('打印机删除失败，请稍后重试', 'error')
+    } finally {
+      setDeletingPrinterId('')
+    }
+  }
+
+  // [G005 Wave2A P1] 编辑 DICOM 预设 → 受控编辑弹窗 → localStorage 持久化
+  const handleEditDicomPreset = (): void => {
+    const preset = dicomPresets.find(p => p.id === selectedPreset)
+    setPresetForm({ ...(preset ?? { id: 'DP001', name: '', orientation: 'PORTRAIT', mediumType: 'BLUE FILM', filmDestination: 'MAGAZINE', trimming: 'NO', filmSize: '14x17' }) })
+    setPresetEditOpen(true)
+  }
+
+  const handleSaveDicomPreset = (): void => {
+    if (!presetForm.name?.trim()) {
+      displayToast('预设名称不能为空', 'error')
+      return
+    }
+    const updated = dicomPresets.map(p => p.id === presetForm.id ? { ...p, ...presetForm } : p)
+    setDicomPresets(updated)
+    try { localStorage.setItem('g005_dicom_presets', JSON.stringify(updated)) } catch { /* ignore */ }
+    setPresetEditOpen(false)
+    displayToast(`预设「${presetForm.name}」已保存`, 'success')
+  }
+
   // [G005 Wave1B] 打印机状态看板: printApi.listPrinters 优先, 空则静态 DICOM_PRINTERS
   const scpPrinters = printersApi.length > 0 ? printersApi : DICOM_PRINTERS
 
@@ -776,6 +919,10 @@ export default function PrintManagementPage() {
     task.studyType.includes(dicomQueueSearch)
   )
 
+  // [G005 2B] 原生表格 slice 分页
+  const { pageData: pagedDicomTasks, pagination: dicomQueuePagination } = usePagination(filteredDicomTasks, 10)
+  const { pageData: pagedPrinterCost, pagination: printerCostPagination } = usePagination(PRINTER_COST_DATA, 10)
+
   // DICOM统计
   const dicomQueuedCount = dicomTasks.filter(t => t.status === 'queued').length
   const dicomPrintingCount = dicomTasks.filter(t => t.status === 'printing').length
@@ -786,38 +933,10 @@ export default function PrintManagementPage() {
   // 事件处理函数
   // ============================================================
 
-  // 编辑DICOM预设
-  const handleEditDicomPreset = (): void => {
-    const preset = dicomPresets.find(p => p.id === selectedPreset)
-    setConfirmModal({
-      show: true,
-      title: '编辑DICOM预设',
-      message: `确定要编辑预设 "${preset?.name || selectedPreset}" 吗？`,
-      confirmText: '确定',
-      cancelText: '取消',
-      type: 'primary',
-      onConfirm: () => {
-        displayToast(`已提交编辑请求: ${preset?.name || selectedPreset}`, 'success')
-        setConfirmModal(prev => ({ ...prev, show: false }))
-      }
-    })
-  }
-
-  // 预览模板
+  // [G005 Wave2A P1] 预览模板 → 打开胶片布局预览弹窗 (CSS 模拟胶片 + 列说明)
   const handlePreviewTemplate = (template: any): void => {
-    setPreviewTemplate(template)
-    setConfirmModal({
-      show: true,
-      title: '预览模板',
-      message: `即将预览模板 "${template.name}"`,
-      confirmText: '预览',
-      cancelText: '取消',
-      type: 'primary',
-      onConfirm: () => {
-        displayToast(`正在预览: ${template.name}`, 'info')
-        setConfirmModal(prev => ({ ...prev, show: false }))
-      }
-    })
+    setTemplatePreviewItem(template)
+    setTemplatePreviewOpen(true)
   }
 
   // 编辑模板
@@ -851,20 +970,50 @@ export default function PrintManagementPage() {
     })
   }
 
-  // 下载PDF
+  // [G005 Wave2A P1] 下载PDF → 用当前任务数据真实生成 HTML/文本报告 Blob 下载
   const handleDownloadPdf = (): void => {
-    setConfirmModal({
-      show: true,
-      title: '确认下载',
-      message: '确定要下载此报告的PDF文件吗？',
-      confirmText: '下载',
-      cancelText: '取消',
-      type: 'primary',
-      onConfirm: () => {
-        displayToast('PDF文件已开始下载', 'success')
-        setConfirmModal(prev => ({ ...prev, show: false }))
-      }
-    })
+    const item = previewItem ?? printQueue[0] ?? printHistory[0]
+    const patientName = item?.patientName ?? '未知患者'
+    const taskId = item?.id ?? 'REPORT-1'
+    const modality = item?.modality ?? 'CT'
+    const studyDesc = item?.studyDesc ?? item?.studyType ?? '影像报告'
+    const filmSpec = item?.filmSpec ?? '14x17'
+    const copies = item?.copies ?? 1
+    const now = new Date()
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const timeStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`
+    const html = `<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><title>胶片打印任务 ${taskId}</title>
+<style>
+  body { font-family: "Microsoft YaHei", sans-serif; margin: 40px; color: #1e293b; }
+  h1 { color: #1e40af; border-bottom: 2px solid #1e40af; padding-bottom: 8px; }
+  table { border-collapse: collapse; margin-top: 16px; }
+  td, th { border: 1px solid #cbd5e1; padding: 8px 16px; text-align: left; }
+  th { background: #eff6ff; }
+  .foot { margin-top: 32px; font-size: 12px; color: #64748b; }
+</style></head><body>
+<h1>胶片打印任务单</h1>
+<table>
+  <tr><th>任务ID</th><td>${taskId}</td></tr>
+  <tr><th>患者姓名</th><td>${patientName}</td></tr>
+  <tr><th>检查类型</th><td>${modality}</td></tr>
+  <tr><th>检查项目</th><td>${studyDesc}</td></tr>
+  <tr><th>胶片规格</th><td>${filmSpec}</td></tr>
+  <tr><th>打印份数</th><td>${copies}</td></tr>
+  <tr><th>生成时间</th><td>${timeStr}</td></tr>
+</table>
+<div class="foot">G005 RIS v3.0.6.11-87 · 胶片打印管理 · 本文件为文本报告导出（.html 可打印/转 PDF）</div>
+</body></html>`
+    const blob = new Blob(['\ufeff', html], { type: 'text/html;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `打印任务_${taskId}.html`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    displayToast(`任务 ${taskId} 的打印报告已生成下载`, 'success')
   }
 
   // 刷新队列
@@ -914,7 +1063,7 @@ export default function PrintManagementPage() {
     displayToast(queuePaused ? '打印队列已恢复' : '打印队列已暂停', 'success')
   }
 
-  // 立即打印胶片任务
+  // [G005 Wave2A P1] 立即打印胶片任务 → printApi.createJob 真实创建
   const handlePrintFilmNow = async (item: any): Promise<void> => {
     setConfirmModal({
       show: true,
@@ -924,14 +1073,30 @@ export default function PrintManagementPage() {
       cancelText: '取消',
       type: 'primary',
       onConfirm: async () => {
-        await api.post('/print/jobs', { reportId: item.id || 'film', printerId: 'p1', filmSize: item.filmSpec || '14x17', copies: item.copies || 1 })
-        displayToast(`已开始打印: ${item.patientName}`, 'success')
+        try {
+          const res = await printApi.createJob({
+            patientName: item.patientName,
+            patientId: item.patientId,
+            modality: item.modality,
+            studyType: item.studyDesc ?? item.studyType,
+            filmSpec: item.filmSpec,
+            copies: item.copies || 1,
+            printer: item.printer,          })
+          if (res.success) {
+            displayToast(`已开始打印: ${item.patientName}（${res.data?.id ?? ''}）`, 'success')
+            handleRefreshQueue()
+          } else {
+            displayToast(res.error?.message ?? '打印任务创建失败', 'error')
+          }
+        } catch {
+          displayToast('打印任务创建失败，请稍后重试', 'error')
+        }
         setConfirmModal(prev => ({ ...prev, show: false }))
       }
     })
   }
 
-  // 重新打印
+  // [G005 Wave2A P1] 重新打印 (预览弹窗内) → printApi.reprintJob 真实新建任务
   const handleReprint = (): void => {
     if (previewItem) {
       setConfirmModal({
@@ -941,8 +1106,8 @@ export default function PrintManagementPage() {
         confirmText: '重新打印',
         cancelText: '取消',
         type: 'primary',
-        onConfirm: () => {
-          displayToast(`已开始重新打印: ${previewItem.patientName}`, 'success')
+        onConfirm: async () => {
+          if (previewItem.id) await handleReprintJob(previewItem.id)
           setShowPreviewModal(false)
           setConfirmModal(prev => ({ ...prev, show: false }))
         }
@@ -950,8 +1115,9 @@ export default function PrintManagementPage() {
     }
   }
 
-  // DICOM打印队列操作
+  // [G005 Wave2A P1] DICOM打印队列立即打印 → printApi.createJob 真实创建
   const handleDicomPrintNow = (taskId: string): void => {
+    const task = dicomTasks.find((t: any) => t.id === taskId)
     setConfirmModal({
       show: true,
       title: '确认立即打印',
@@ -959,13 +1125,32 @@ export default function PrintManagementPage() {
       confirmText: '打印',
       cancelText: '取消',
       type: 'primary',
-      onConfirm: () => {
-        displayToast(`已开始打印任务: ${taskId}`, 'success')
+      onConfirm: async () => {
+        try {
+          const res = await printApi.createJob({
+            patientName: task?.patientName,
+            patientId: task?.patientId,
+            modality: task?.modality,
+            studyType: task?.studyType,
+            filmSpec: task?.filmSpec,
+            copies: task?.copies,
+            printer: task?.printer,
+          })
+          if (res.success) {
+            displayToast(`已开始打印任务: ${res.data?.id ?? taskId}`, 'success')
+            handleRefreshQueue()
+          } else {
+            displayToast(res.error?.message ?? '打印任务创建失败', 'error')
+          }
+        } catch {
+          displayToast('打印任务创建失败，请稍后重试', 'error')
+        }
         setConfirmModal(prev => ({ ...prev, show: false }))
       }
     })
   }
 
+  // [G005 Wave2A P1] 取消任务 → printApi.cancelJob 真实调用
   const handleCancelTask = (taskId: string): void => {
     setConfirmModal({
       show: true,
@@ -974,13 +1159,25 @@ export default function PrintManagementPage() {
       confirmText: '取消任务',
       cancelText: '返回',
       type: 'danger',
-      onConfirm: () => {
-        displayToast(`已取消任务: ${taskId}`, 'success')
+      onConfirm: async () => {
+        try {
+          const res = await printApi.cancelJob(taskId)
+          if (res.success) {
+            displayToast(`已取消任务: ${taskId}`, 'success')
+            setDicomTasks(prev => prev.filter((t: any) => t.id !== taskId))
+            setPrintQueue(prev => prev.filter((t: any) => t.id !== taskId))
+          } else {
+            displayToast(res.error?.message ?? '取消任务失败', 'error')
+          }
+        } catch {
+          displayToast('取消任务失败，请稍后重试', 'error')
+        }
         setConfirmModal(prev => ({ ...prev, show: false }))
       }
     })
   }
 
+  // [G005 Wave2A P1] 重试任务 → printApi.retryJob 真实调用
   const handleRetryTask = (taskId: string): void => {
     setConfirmModal({
       show: true,
@@ -989,8 +1186,19 @@ export default function PrintManagementPage() {
       confirmText: '重试',
       cancelText: '取消',
       type: 'primary',
-      onConfirm: () => {
-        displayToast(`已开始重试任务: ${taskId}`, 'success')
+      onConfirm: async () => {
+        try {
+          const res = await printApi.retryJob(taskId)
+          if (res.success) {
+            displayToast(`已重新提交任务: ${taskId}`, 'success')
+            setDicomTasks(prev => prev.map((t: any) => t.id === taskId ? { ...t, status: 'queued', progress: 0, errorMsg: undefined, completeTime: null } : t))
+            setPrintQueue(prev => prev.map((t: any) => t.id === taskId ? { ...t, status: 'queued', progress: 0, errorMsg: undefined } : t))
+          } else {
+            displayToast(res.error?.message ?? '重试任务失败', 'error')
+          }
+        } catch {
+          displayToast('重试任务失败，请稍后重试', 'error')
+        }
         setConfirmModal(prev => ({ ...prev, show: false }))
       }
     })
@@ -1012,7 +1220,7 @@ export default function PrintManagementPage() {
           {printers.filter(p => p.name.toLowerCase().includes(searchKeyword.toLowerCase())).map(printer => (
             <div
               key={printer.id}
-              onClick={() => { setSelectedPrinter(printer); setShowPrinterModal(true) }}
+              onClick={() => handleOpenPrinterModal(printer)}
               style={{
                 padding: 10, borderRadius: 4, border: `1px solid ${C.border}`,
                 cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -1029,12 +1237,25 @@ export default function PrintManagementPage() {
                   <span>默认: {printer.defaultCopies}份</span>
                 </div>
               </div>
-              <StatusBadge status={printer.status} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <StatusBadge status={printer.status} />
+                <button
+                  onClick={(e) => { e.stopPropagation(); void handleDeletePrinter(printer) }}
+                  disabled={deletingPrinterId === printer.id}
+                  title="删除打印机"
+                  style={{
+                    padding: '2px 6px', border: 'none', borderRadius: 4, cursor: 'pointer',
+                    background: 'transparent', color: deletingPrinterId === printer.id ? C.textLight : C.danger
+                  }}
+                >
+                  <X size={14} />
+                </button>
+              </div>
             </div>
           ))}
         </div>
         <button
-          onClick={() => { setSelectedPrinter(null); setShowPrinterModal(true) }}
+          onClick={() => handleOpenPrinterModal(null)}
           style={{
             marginTop: 12, width: '100%', padding: '8px 12px', border: 'none', borderRadius: 4,
             background: C.primary, color: C.white, fontSize: 13, cursor: 'pointer',
@@ -1710,7 +1931,7 @@ export default function PrintManagementPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredDicomTasks.map(task => (
+              {pagedDicomTasks.map(task => (
                 <tr key={task.id} style={{ borderBottom: `1px solid ${C.border}` }}>
                   <td style={{ padding: '10px 8px', fontFamily: 'monospace', color: C.textMid }}>{task.id}</td>
                   <td style={{ padding: '10px 8px' }}>
@@ -1806,6 +2027,23 @@ export default function PrintManagementPage() {
             </tbody>
           </table></div>
         </div>
+        {/* [G005 2B] 原生表格分页控制 */}
+        {dicomQueuePagination.total > dicomQueuePagination.pageSize && (
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, marginTop: 8, fontSize: 12, color: C.textMid }}>
+            <span>共 {dicomQueuePagination.total} 条</span>
+            <button
+              onClick={() => dicomQueuePagination.onChange(Math.max(1, dicomQueuePagination.current - 1), dicomQueuePagination.pageSize)}
+              disabled={dicomQueuePagination.current <= 1}
+              style={{ padding: '3px 10px', borderRadius: 4, border: `1px solid ${C.border}`, background: 'var(--bg-card)', color: C.textMid, fontSize: 12, cursor: 'pointer' }}
+            >上一页</button>
+            <span>{dicomQueuePagination.current}/{Math.max(1, Math.ceil(dicomQueuePagination.total / dicomQueuePagination.pageSize))}</span>
+            <button
+              onClick={() => dicomQueuePagination.onChange(Math.min(Math.ceil(dicomQueuePagination.total / dicomQueuePagination.pageSize), dicomQueuePagination.current + 1), dicomQueuePagination.pageSize)}
+              disabled={dicomQueuePagination.current >= Math.ceil(dicomQueuePagination.total / dicomQueuePagination.pageSize)}
+              style={{ padding: '3px 10px', borderRadius: 4, border: `1px solid ${C.border}`, background: 'var(--bg-card)', color: C.textMid, fontSize: 12, cursor: 'pointer' }}
+            >下一页</button>
+          </div>
+        )}
       </Card>
 
       {/* 打印计费 - 各规格单价 */}
@@ -2014,7 +2252,7 @@ export default function PrintManagementPage() {
               </tr>
             </thead>
             <tbody>
-              {PRINTER_COST_DATA.map((p, _i) => (
+              {pagedPrinterCost.map((p, _i) => (
                 <tr key={p.printer} style={{ borderBottom: `1px solid ${C.border}` }}>
                   <td style={{ padding: '8px 10px', fontWeight: 600, color: C.textDark }}>{p.printer}</td>
                   <td style={{ padding: '8px 10px', textAlign: 'center', color: C.textMid }}>{p.films}</td>
@@ -2028,6 +2266,23 @@ export default function PrintManagementPage() {
             </tbody>
           </table></div>
         </div>
+        {/* [G005 2B] 原生表格分页控制 */}
+        {printerCostPagination.total > printerCostPagination.pageSize && (
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, marginTop: 8, fontSize: 12, color: C.textMid }}>
+            <span>共 {printerCostPagination.total} 条</span>
+            <button
+              onClick={() => printerCostPagination.onChange(Math.max(1, printerCostPagination.current - 1), printerCostPagination.pageSize)}
+              disabled={printerCostPagination.current <= 1}
+              style={{ padding: '3px 10px', borderRadius: 4, border: `1px solid ${C.border}`, background: 'var(--bg-card)', color: C.textMid, fontSize: 12, cursor: 'pointer' }}
+            >上一页</button>
+            <span>{printerCostPagination.current}/{Math.max(1, Math.ceil(printerCostPagination.total / printerCostPagination.pageSize))}</span>
+            <button
+              onClick={() => printerCostPagination.onChange(Math.min(Math.ceil(printerCostPagination.total / printerCostPagination.pageSize), printerCostPagination.current + 1), printerCostPagination.pageSize)}
+              disabled={printerCostPagination.current >= Math.ceil(printerCostPagination.total / printerCostPagination.pageSize)}
+              style={{ padding: '3px 10px', borderRadius: 4, border: `1px solid ${C.border}`, background: 'var(--bg-card)', color: C.textMid, fontSize: 12, cursor: 'pointer' }}
+            >下一页</button>
+          </div>
+        )}
       </Card>
 
       {/* 月度成本趋势 */}
@@ -2521,9 +2776,21 @@ export default function PrintManagementPage() {
   // 弹窗渲染
   // ============================================================
 
-  // 打印机详情弹窗
+  // 打印机详情弹窗 ([G005 Wave2A P0] 受控表单 → createPrinter/updatePrinter)
   const renderPrinterModal = () => {
     if (!showPrinterModal) return null
+    const fields = [
+      { label: '打印机名称', key: 'name', type: 'input' },
+      { label: '位置', key: 'location', type: 'input' },
+      { label: '类型', key: 'type', type: 'select', options: ['network', 'local'] },
+      { label: '默认胶片规格', key: 'filmSpec', type: 'select', options: ['14x17', '10x12', '8x10'] },
+      { label: '默认打印份数', key: 'defaultCopies', type: 'select', options: [1, 2, 3] },
+      { label: '分辨率(DPI)', key: 'dpi', type: 'select', options: [300, 600, 1200] },
+      { label: 'AE标题(AET)', key: 'aet', type: 'input' },
+      { label: '主机地址(Host)', key: 'host', type: 'input' },
+      { label: '端口(Port)', key: 'port', type: 'input' },
+    ]
+    const setField = (key: string, value: any) => setPrinterForm((f: any) => ({ ...f, [key]: value }))
     return (
       <div style={{
         position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
@@ -2542,21 +2809,15 @@ export default function PrintManagementPage() {
               <X size={20} color={C.textMid} />
             </button>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {[
-              { label: '打印机名称', key: 'name', type: 'input' },
-              { label: '位置', key: 'location', type: 'input' },
-              { label: '类型', key: 'type', type: 'select', options: ['network', 'local'] },
-              { label: '默认胶片规格', key: 'filmSpec', type: 'select', options: ['14x17', '10x12', '8x10'] },
-              { label: '默认打印份数', key: 'defaultCopies', type: 'select', options: [1, 2, 3] },
-              { label: '分辨率(DPI)', key: 'dpi', type: 'select', options: [300, 600, 1200] },
-            ].map(field => (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxHeight: '60vh', overflowY: 'auto' }}>
+            {fields.map(field => (
               <div key={field.key}>
                 <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 4 }}>{field.label}</label>
                 {field.type === 'input' ? (
                   <input
                     type="text"
-                    defaultValue={selectedPrinter?.[field.key] || ''}
+                    value={printerForm[field.key] ?? ''}
+                    onChange={(e) => setField(field.key, e.target.value)}
                     style={{
                       width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`,
                       borderRadius: 4, fontSize: 13, outline: 'none', boxSizing: 'border-box'
@@ -2564,7 +2825,8 @@ export default function PrintManagementPage() {
                   />
                 ) : (
                   <select
-                    defaultValue={selectedPrinter?.[field.key] || field.options?.[0]}
+                    value={printerForm[field.key] ?? field.options?.[0]}
+                    onChange={(e) => setField(field.key, e.target.value)}
                     style={{
                       width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`,
                       borderRadius: 4, fontSize: 13, outline: 'none', boxSizing: 'border-box'
@@ -2589,13 +2851,149 @@ export default function PrintManagementPage() {
               取消
             </button>
             <button
-              onClick={() => setShowPrinterModal(false)}
+              onClick={() => void handleSavePrinter()}
+              disabled={savingPrinter}
               style={{
                 flex: 1, padding: '10px 12px', border: 'none', borderRadius: 4,
-                background: C.primary, color: C.white, fontSize: 13, cursor: 'pointer'
+                background: C.primary, color: C.white, fontSize: 13, cursor: savingPrinter ? 'not-allowed' : 'pointer'
               }}
             >
+              {savingPrinter ? '保存中...' : '保存'}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // [G005 Wave2A P1] DICOM 预设编辑弹窗 (受控 → localStorage)
+  const renderPresetEditModal = () => {
+    if (!presetEditOpen) return null
+    const setF = (key: string, value: any) => setPresetForm((f: any) => ({ ...f, [key]: value }))
+    const rows: Array<{ label: string; key: string; type: 'input' | 'select'; options?: string[] }> = [
+      { label: '预设名称', key: 'name', type: 'input' },
+      { label: '胶片尺寸', key: 'filmSize', type: 'select', options: ['14x17', '10x12', '8x10', '14x14', '11x14'] },
+      { label: '方向', key: 'orientation', type: 'select', options: ['PORTRAIT', 'LANDSCAPE'] },
+      { label: '介质类型', key: 'mediumType', type: 'select', options: ['BLUE FILM', 'CLEAR FILM', 'MAMMO BLUE'] },
+      { label: '胶片输出', key: 'filmDestination', type: 'select', options: ['MAGAZINE', 'PROCESSOR'] },
+      { label: '裁剪', key: 'trimming', type: 'select', options: ['NO', 'YES'] },
+    ]
+    return (
+      <div style={{
+        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+        background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+      }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 24, width: 440, boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>编辑DICOM预设</span>
+            <button onClick={() => setPresetEditOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+              <X size={20} color={C.textMid} />
+            </button>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {rows.map(r => (
+              <div key={r.key}>
+                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 4 }}>{r.label}</label>
+                {r.type === 'input' ? (
+                  <input
+                    type="text"
+                    value={presetForm[r.key] ?? ''}
+                    onChange={(e) => setF(r.key, e.target.value)}
+                    style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
+                  />
+                ) : (
+                  <select
+                    value={presetForm[r.key] ?? r.options?.[0]}
+                    onChange={(e) => setF(r.key, e.target.value)}
+                    style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
+                  >
+                    {(r.options ?? []).map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                  </select>
+                )}
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
+            <button
+              onClick={() => setPresetEditOpen(false)}
+              style={{ flex: 1, padding: '10px 12px', border: `1px solid ${C.border}`, borderRadius: 4, background: 'var(--bg-card)', color: C.textMid, fontSize: 13, cursor: 'pointer' }}
+            >
+              取消
+            </button>
+            <button
+              onClick={handleSaveDicomPreset}
+              style={{ flex: 1, padding: '10px 12px', border: 'none', borderRadius: 4, background: C.accent, color: C.white, fontSize: 13, cursor: 'pointer' }}
+            >
               保存
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // [G005 Wave2A P1] 模板预览弹窗 (CSS 模拟胶片布局 + 列说明)
+  const renderTemplatePreviewModal = () => {
+    if (!templatePreviewOpen || !templatePreviewItem) return null
+    const tpl = templatePreviewItem
+    const cols = 2
+    const cells = Math.max(1, tpl.copies ?? 1) * 2
+    const legend = [
+      { label: '胶片尺寸', value: '14×17 英寸 (35×43cm)' },
+      { label: '布局', value: `${cols} 列 × ${Math.ceil(cells / cols)} 行` },
+      { label: '图像区', value: '含图像 2×2 矩阵 (示例)' },
+      { label: '文字区', value: '患者信息/检查信息/标记' },
+    ]
+    return (
+      <div style={{
+        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+        background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+      }}>
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 24, width: 620, boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>模板预览 — {tpl.name}</span>
+            <button onClick={() => setTemplatePreviewOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+              <X size={20} color={C.textMid} />
+            </button>
+          </div>
+          <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+            <div style={{
+              width: 340, background: 'linear-gradient(135deg, #f8fafc, #e2e8f0)', border: '2px solid #94a3b8',
+              borderRadius: 4, padding: 14, display: 'flex', flexDirection: 'column', gap: 8
+            }}>
+              <div style={{ fontSize: 10, color: '#64748b', fontFamily: 'monospace' }}>FILM SPEC: 14x17 · {tpl.type ?? 'CT'} {tpl.includeImages ? '· IMG' : ''}</div>
+              <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 6 }}>
+                {Array.from({ length: cells }).map((_, i) => (
+                  <div key={i} style={{
+                    aspectRatio: '1/0.75', background: '#0f172a', borderRadius: 2,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: '#475569', fontSize: 10, fontFamily: 'monospace'
+                  }}>
+                    {i + 1}
+                  </div>
+                ))}
+              </div>
+              <div style={{ fontSize: 10, color: '#94a3b8', fontFamily: 'monospace' }}>
+                {tpl.name} · {tpl.copies} 份 · {tpl.includeLogo ? '含Logo' : '无Logo'}
+              </div>
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: C.textDark, marginBottom: 8 }}>胶片布局说明</div>
+              {legend.map(l => (
+                <div key={l.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, padding: '6px 0', borderBottom: `1px solid ${C.border}` }}>
+                  <span style={{ color: C.textMid }}>{l.label}</span>
+                  <span style={{ color: C.textDark, fontWeight: 500 }}>{l.value}</span>
+                </div>
+              ))}
+              <div style={{ fontSize: 12, color: C.textLight, marginTop: 10 }}>预览为排版示意，实际打印以 DICOM 打印服务输出为准。</div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20 }}>
+            <button
+              onClick={() => setTemplatePreviewOpen(false)}
+              style={{ padding: '10px 24px', border: 'none', borderRadius: 4, background: C.primary, color: C.white, fontSize: 13, cursor: 'pointer' }}
+            >
+              关闭
             </button>
           </div>
         </div>
@@ -3039,6 +3437,8 @@ export default function PrintManagementPage() {
       {/* 弹窗 */}
       {renderPrinterModal()}
       {renderPreviewModal()}
+      {renderPresetEditModal()}
+      {renderTemplatePreviewModal()}
       <Toast />
       <ConfirmModal />
       <TemplateEditModal />

@@ -171,6 +171,7 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
               size="small"
               dataSource={data.byRecipient.map((r, i) => ({ ...r, key: i }))}
               pagination={false}
+              scroll={{ x: 'max-content' }}
               columns={[
                 { title: '医师', dataIndex: 'name', render: (v) => <span><User size={10} /> {v}</span> },
                 { title: '次数', dataIndex: 'value', width: 60, render: (v) => <Tag color="red">{v}</Tag> },

@@ -106,7 +106,7 @@ export type {
 export { userApi } from "./userApi";
 export type { UserDto } from "./userApi";
 
-// [G005 W1-C] MOCK_ONLY: 后端无 controller, MSW 支撑
+// [G005 Wave1B] 后端已实现 (consultations.controller)
 export { consultationApi } from "./consultationApi";
 export type { ConsultationDto } from "./consultationApi";
 
@@ -553,7 +553,7 @@ export type {
   CriticalAlertStats,
 } from "./criticalAlertApi";
 
-// [G005 W1-C] MOCK_ONLY: 后端无 controller, MSW 支撑
+// [G005 Wave1B] 后端已实现 (auto-collection.controller)
 export { autoCollectionApi } from "./autoCollectionApi";
 export type {
   AutoCollectionRule,
@@ -579,7 +579,7 @@ export type {
   RemoteReadingStats,
 } from "./remoteReadingApi";
 
-// [G005 W1-C] MOCK_ONLY: 后端无 controller, MSW 支撑
+// [G005 Wave1B] 后端已实现 (pacs-admin.controller)
 export { pacsAdminApi } from "./pacsAdminApi";
 export type {
   PacsServer,

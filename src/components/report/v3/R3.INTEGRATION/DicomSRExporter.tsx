@@ -221,7 +221,7 @@ export const DicomSRExporter: React.FC<Props> = ({ reportId, patientId, onExport
                       rowKey="tag"
                       dataSource={selected.dataElements}
                       pagination={false}
-                      scroll={{ y: 400 }}
+                      scroll={{ x: 'max-content', y: 400 }}
                       columns={[
                         { title: 'Tag', dataIndex: 'tag', key: 'tag', width: 100, render: (v) => <span className="font-mono text-xs">({v})</span> },
                         { title: 'VR', dataIndex: 'vr', key: 'vr', width: 60, render: (v) => <AntTag color={VR_COLORS[v] ?? 'default'}>{v}</AntTag> },

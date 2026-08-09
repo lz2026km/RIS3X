@@ -67,12 +67,12 @@ const CATEGORY_META: Record<FinalCheckCategory, { color: string; label: string }
 };
 
 const STATUS_META: Record<FinalCheckStatus, { color: string; bg: string; label: string }> = {
-  pending: { color: '#94a3b8', bg: '#f1f5f9', label: '待查' },
-  passed: { color: '#10b981', bg: '#d1fae5', label: '通过' },
-  failed: { color: '#dc2626', bg: '#fee2e2', label: '失败' },
-  warning: { color: '#f59e0b', bg: '#fef3c7', label: '警告' },
-  skipped: { color: '#64748b', bg: '#e2e8f0', label: '跳过' },
-  'not-applicable': { color: '#94a3b8', bg: '#f8fafc', label: '不适用' },
+  pending: { color: '#94a3b8', bg: 'var(--content-bg)', label: '待查' },
+  passed: { color: '#10b981', bg: 'var(--color-success-bg)', label: '通过' },
+  failed: { color: '#dc2626', bg: 'var(--color-error-bg)', label: '失败' },
+  warning: { color: '#f59e0b', bg: 'var(--color-warning-bg)', label: '警告' },
+  skipped: { color: '#64748b', bg: 'var(--content-bg)', label: '跳过' },
+  'not-applicable': { color: '#94a3b8', bg: 'var(--content-bg)', label: '不适用' },
 };
 
 const SEVERITY_META: Record<string, { color: string; label: string; rank: number }> = {
@@ -361,12 +361,12 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                     <div>
                       <div style={{ fontSize: 12, color: '#475569' }}>{it.description}</div>
                       {it.evidence && (
-                        <div style={{ fontSize: 12, color: '#0c4a6e', background: '#f0f9ff', padding: 4, borderRadius: 4, marginTop: 4 }}>
+                        <div style={{ fontSize: 12, color: '#0c4a6e', background: 'var(--color-info-bg)', padding: 4, borderRadius: 4, marginTop: 4 }}>
                           🔍 {it.evidence}
                         </div>
                       )}
                       {it.remark && (
-                        <div style={{ fontSize: 12, color: '#7c2d12', background: '#fef3c7', padding: 4, borderRadius: 4, marginTop: 4 }}>
+                        <div style={{ fontSize: 12, color: '#7c2d12', background: 'var(--color-warning-bg)', padding: 4, borderRadius: 4, marginTop: 4 }}>
                           💬 {it.remark}
                         </div>
                       )}
@@ -445,7 +445,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
           )}
           <Card size="small" title="一致性维度">
             {consistency.dimensions.map((d) => (
-              <div key={d.code} style={{ padding: '8px 0', borderBottom: '1px solid #f1f5f9' }}>
+              <div key={d.code} style={{ padding: '8px 0', borderBottom: '1px solid var(--border-light)' }}>
                 <Space style={{ width: '100%', justifyContent: 'space-between' }}>
                   <Space>
                     <Tag color={d.status === 'consistent' ? 'green' : d.status === 'minor-deviation' ? 'orange' : 'red'}>{d.code}</Tag>
@@ -488,7 +488,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
               <Col span={6}><Statistic title="与初评差" value={scoring.deltaFromInitial ?? 0} styles={{ content: {  fontSize: 16, color: (scoring.deltaFromInitial ?? 0) >= 0 ? '#10b981' : '#dc2626'  } }} /></Col>
             </Row>
             {scoring.dimensionScores.map((d) => (
-              <div key={d.code} style={{ padding: '6px 0', borderBottom: '1px solid #f1f5f9' }}>
+              <div key={d.code} style={{ padding: '6px 0', borderBottom: '1px solid var(--border-light)' }}>
                 <Space style={{ width: '100%', justifyContent: 'space-between' }}>
                   <Space>
                     <Tag color="blue">{d.code}</Tag>
@@ -547,7 +547,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
           renderItem={(n) => (
             <List.Item
               key={n.id}
-              style={{ background: n.pinned ? '#fef3c7' : '#fff', padding: 10, borderRadius: 6, marginBottom: 6, border: '1px solid #e2e8f0' }}
+              style={{ background: n.pinned ? 'var(--color-warning-bg)' : 'var(--bg-card)', padding: 10, borderRadius: 6, marginBottom: 6, border: '1px solid var(--border-color)' }}
               actions={[
                 <Button key="pin" size="small" type="text" icon={n.pinned ? <PinOff size={12} /> : <Pin size={12} />} onClick={async () => {
                   const updated = await finalCheckService.pinNote(n.id, !n.pinned);
@@ -598,7 +598,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
       <List
         dataSource={workload}
         renderItem={(w) => (
-          <List.Item key={w.reviewerId} style={{ padding: 10, background: '#fff', borderRadius: 6, marginBottom: 6, border: '1px solid #e2e8f0' }}>
+          <List.Item key={w.reviewerId} style={{ padding: 10, background: 'var(--bg-card)', borderRadius: 6, marginBottom: 6, border: '1px solid var(--border-color)' }}>
             <List.Item.Meta
               avatar={<Avatar style={{ background: w.reviewerTitle === 'chief' ? '#7c3aed' : '#3b82f6' }}>{w.reviewerName[0]}</Avatar>}
               title={
@@ -686,7 +686,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
         <List
           dataSource={multiSigs}
           renderItem={(m) => (
-            <List.Item key={m.id} style={{ padding: 10, background: '#fff', borderRadius: 6, marginBottom: 6, border: '1px solid #e2e8f0' }}>
+            <List.Item key={m.id} style={{ padding: 10, background: 'var(--bg-card)', borderRadius: 6, marginBottom: 6, border: '1px solid var(--border-color)' }}>
               <Space orientation="vertical" size={4} style={{ width: '100%' }}>
                 <Space>
                   <Tag color="purple">{m.id}</Tag>
@@ -861,7 +861,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
         </Row>
       </div>
 
-      <div style={{ background: '#fff', padding: '8px 12px', borderRadius: 6, marginBottom: 8, border: '1px solid #e2e8f0' }}>
+      <div style={{ background: 'var(--bg-card)', padding: '8px 12px', borderRadius: 6, marginBottom: 8, border: '1px solid var(--border-color)' }}>
         <Space wrap>
           <Select size="small" value={filter.status || 'all'} onChange={(v) => setFilter({ ...filter, status: v })} style={{ width: 110 }} options={[
             { value: 'all', label: '全部状态' },
@@ -886,7 +886,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
             loading={loading}
             dataSource={tasks}
             locale={{ emptyText: <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="无终核任务" /> }}
-            style={{ background: '#fff', borderRadius: 8, padding: 4 }}
+            style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 4 }}
             renderItem={(t) => {
               const priConf = PRIORITY_META[t.priority] ?? PRIORITY_META.routine!;
               const list = lists.find((l) => l.taskId === t.id);
@@ -903,7 +903,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                 >
                   <List.Item.Meta
                     avatar={
-                      <div style={{ width: 36, height: 36, borderRadius: 6, background: t.criticalFinding ? '#fee2e2' : '#ede9fe', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div style={{ width: 36, height: 36, borderRadius: 6, background: t.criticalFinding ? 'var(--color-error-bg)' : 'var(--color-info-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         {t.criticalFinding ? <AlertTriangle size={18} color="#dc2626" /> : <ShieldCheck size={18} color="#7c3aed" />}
                       </div>
                     }

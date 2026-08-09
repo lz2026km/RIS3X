@@ -424,7 +424,7 @@ const ThresholdTab: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>危急值 (分钟)</span>}
               value={draft.criticalMaxMinutes}
-              styles={{ content: {  color: '#fff', fontSize: 22  } }}
+              styles={{ content: {  color: '#fff', fontSize: 28  } }}
               prefix={<Zap size={14} />}
               suffix=" min"
             />
@@ -433,7 +433,7 @@ const ThresholdTab: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>急诊 (小时)</span>}
               value={draft.emergencyMaxHours}
-              styles={{ content: {  color: '#fff', fontSize: 22  } }}
+              styles={{ content: {  color: '#fff', fontSize: 28  } }}
               prefix={<TrendingUp size={14} />}
               suffix=" h"
             />
@@ -442,7 +442,7 @@ const ThresholdTab: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>普通 (小时)</span>}
               value={draft.routineMaxHours}
-              styles={{ content: {  color: '#fff', fontSize: 22  } }}
+              styles={{ content: {  color: '#fff', fontSize: 28  } }}
               prefix={<History size={14} />}
               suffix=" h"
             />
@@ -451,7 +451,7 @@ const ThresholdTab: React.FC = () => {
             <Statistic
               title={<span style={{ color: '#fff' }}>发布阈值</span>}
               value={draft.publishBlockThreshold}
-              styles={{ content: {  color: '#fff', fontSize: 22  } }}
+              styles={{ content: {  color: '#fff', fontSize: 28  } }}
               prefix={<Target size={14} />}
             />
           </Col>
@@ -545,7 +545,7 @@ const ThresholdTab: React.FC = () => {
                 size="small"
                 style={{ borderTop: `4px solid ${t.color}`, background: t.bg }}
               >
-                <div style={{ fontSize: 26, fontWeight: 800, color: t.color }}>{t.grade}</div>
+                <div style={{ fontSize: 28, fontWeight: 700, color: t.color }}>{t.grade}</div>
                 <div style={{ fontSize: 13, color: t.color }}>
                   {t.minScore} - {t.maxScore}
                 </div>
@@ -827,7 +827,7 @@ const ReportTab: React.FC = () => {
             <Col xs={12} sm={8} md={4} key={i}>
               <Card size="small" style={{ borderLeft: `3px solid ${item.c}` }}>
                 <div style={{ fontSize: 12, color: '#64748b' }}>{item.k}</div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: item.c }}>{item.v}</div>
+                <div style={{ fontSize: 28, fontWeight: 700, color: item.c }}>{item.v}</div>
               </Card>
             </Col>
           ))}
@@ -1087,31 +1087,31 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
               <Col xs={12} sm={4}>
                 <Card size="small">
                   <div style={{ fontSize: 12, color: '#64748b' }}>基础分</div>
-                  <div style={{ fontSize: 22, fontWeight: 700, color: '#3b82f6' }}>{result.baseScore}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: '#3b82f6' }}>{result.baseScore}</div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>
                 <Card size="small">
                   <div style={{ fontSize: 12, color: '#64748b' }}>加分</div>
-                  <div style={{ fontSize: 22, fontWeight: 700, color: '#10b981' }}>+{result.bonusApplied}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: '#10b981' }}>+{result.bonusApplied}</div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>
                 <Card size="small">
                   <div style={{ fontSize: 12, color: '#64748b' }}>扣分</div>
-                  <div style={{ fontSize: 22, fontWeight: 700, color: '#dc2626' }}>-{result.penaltyApplied}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: '#dc2626' }}>-{result.penaltyApplied}</div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>
                 <Card size="small">
                   <div style={{ fontSize: 12, color: '#64748b' }}>最终</div>
-                  <div style={{ fontSize: 22, fontWeight: 700, color: '#7c3aed' }}>{result.finalScore}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: '#7c3aed' }}>{result.finalScore}</div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>
                 <Card size="small">
                   <div style={{ fontSize: 12, color: '#64748b' }}>通过分</div>
-                  <div style={{ fontSize: 22, fontWeight: 700, color: '#64748b' }}>{result.passingScore}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: '#64748b' }}>{result.passingScore}</div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>

@@ -93,7 +93,7 @@ export const VisitDetailPage: React.FC = () => {
           </Card>
 
           <Card size="small" title={<span><GitBranch size={14} style={{ marginRight: 4 }} />触发的 ADT 消息</span>}>
-            <Table dataSource={visit.adtMessages} rowKey="id" pagination={false}
+            <Table dataSource={visit.adtMessages} rowKey="id" pagination={false} scroll={{ x: 'max-content' }}
               columns={[
                 { title: '编号', dataIndex: 'id', width: 60 },
                 { title: '消息类型', dataIndex: 'messageType', render: (t: string) => <Tag color="blue">ADT^{t}</Tag> },

@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { Card, Row, Col, Typography, Empty, Button, Input, Space, message, Spin, Tag } from 'antd'
 import { Search, Video, LogOut, Users, Loader2, Inbox } from 'lucide-react'
 import { RemoteViewer } from '../../components/tele/RemoteViewer'
-import { teleApi, type TeleSession } from '../../services/api'
+import { teleApi, type TeleSession, type TeleSignalMessage } from '../../services/api'
 import { useTranslation } from 'react-i18next'
 
 const { Title, Text } = Typography
@@ -40,6 +40,11 @@ export const TeleConferencePage: React.FC = () => {
   const [joinSessionId, setJoinSessionId] = useState(initialUrlSessionId)
   const [joinName, setJoinName] = useState('')
   const statusTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const signalTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  // [G005 Wave1B] 协作信令: GET /tele/signal/:sessionId 轮询 (失败不阻断)
+  const [pendingSignals, setPendingSignals] = useState<TeleSignalMessage[]>([])
+  const [sendingSignal, setSendingSignal] = useState(false)
 
   const [identity] = useState(() => ({
     userId: `user-${Math.random().toString(36).slice(2, 8)}`,
@@ -77,6 +82,44 @@ export const TeleConferencePage: React.FC = () => {
       if (statusTimerRef.current) clearInterval(statusTimerRef.current)
     }
   }, [conferenceStarted, sessionId])
+
+  // [G005 Wave1B] 协作信令: 轮询待收信令 (GET /tele/signal/:sessionId)
+  useEffect(() => {
+    if (!conferenceStarted || !sessionId) return
+    if (signalTimerRef.current) clearInterval(signalTimerRef.current)
+    const poll = async () => {
+      try {
+        const res = await teleApi.getPendingSignals(sessionId, identity.userId)
+        if (res.success && Array.isArray(res.data)) setPendingSignals(res.data as TeleSignalMessage[])
+      } catch { /* 信令轮询失败不阻断 */ }
+    }
+    void poll()
+    signalTimerRef.current = setInterval(poll, 5000)
+    return () => {
+      if (signalTimerRef.current) clearInterval(signalTimerRef.current)
+    }
+  }, [conferenceStarted, sessionId, identity.userId])
+
+  // [G005 Wave1B] 发送协作信令 (POST /tele/signal)
+  const handleSendSignal = useCallback(async () => {
+    if (!sessionId) return
+    setSendingSignal(true)
+    try {
+      const res = await teleApi.sendSignal({
+        type: 'ice-candidate',
+        from: identity.userId,
+        to: 'peer',
+        sessionId,
+        payload: { kind: 'ping', ts: Date.now() },
+      })
+      if (res.success) message.success('信令已发送 (POST /tele/signal)')
+      else message.warning(res.error?.message ?? '信令发送失败')
+    } catch {
+      message.warning('信令发送失败')
+    } finally {
+      setSendingSignal(false)
+    }
+  }, [sessionId, identity.userId])
 
   const handleStartConference = useCallback(async () => {
     if (selectedStudies.length === 0) return
@@ -301,6 +344,16 @@ export const TeleConferencePage: React.FC = () => {
           )}
         </Space>
         <Space size={8}>
+          {/* [G005 Wave1B] 协作信令状态 (GET /tele/signal/:sessionId) */}
+          <Tag color="purple" style={{ margin: 0, fontFamily: 'monospace' }}>信令 {pendingSignals.length}</Tag>
+          <Button
+            size="small"
+            loading={sendingSignal}
+            onClick={() => void handleSendSignal()}
+            style={{ color: '#c4b5fd', borderColor: '#4c1d95', background: '#1e1b4b' }}
+          >
+            发送信令
+          </Button>
           <Button size="small" icon={<LogOut size={12} />} onClick={handleEndSession} style={{ color: '#f87171' }}>
             {t('endConference', '结束会议')}
           </Button>

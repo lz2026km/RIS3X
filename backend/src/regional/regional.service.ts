@@ -89,6 +89,56 @@ export interface RegionalInstitution {
   avgReportTime: number; qualifiedRate: number; period: string
 }
 
+// ── [G005 Wave1A W9] 多站点/多院区仪表板 DTO (前端 regionalApi /regional/sites*) ──
+
+export interface RegionalSite {
+  id: string
+  name: string
+  code: string
+  region: string
+  city: string
+  status: 'active' | 'offline' | 'syncing' | 'maintenance'
+  studies: number
+  patients: number
+  users: number
+  storage: number
+  bandwidth: number
+  lastSync: string
+  latencyMs: number
+  uptimePct: number
+  version: string
+  primary: boolean
+}
+
+export interface RegionalSiteSyncEvent {
+  id: string
+  siteId: string
+  type: 'study_pushed' | 'study_pulled' | 'user_sync' | 'config_sync'
+  status: 'success' | 'failed' | 'pending'
+  count: number
+  bytes: number
+  duration: number
+  timestamp: string
+  message?: string
+}
+
+export interface RegionalSiteRoutingRule {
+  id: string
+  name: string
+  sourceSite: string
+  destSite: string
+  modality: string
+  condition: string
+  active: boolean
+  matchedCount: number
+}
+
+export interface RegionalSitesEnvelope<T> {
+  source: 'database' | 'demo'
+  generatedAt: string
+  data: T
+}
+
 const SEED_ACCESS_APPLICATIONS: AccessApplication[] = [
   { id: 'APP-202607-001', patientName: '张伟', patientId: 'P000023', hospital: '东华区第一医院', modality: 'CT', studyDate: '2026-07-06', reason: '肺癌术后复查,申请调阅外院基线片', status: 'pending', applyDate: '2026-07-08' },
   { id: 'APP-202607-002', patientName: '王芳', patientId: 'P000047', hospital: '西城区人民医院', modality: 'MRI', studyDate: '2026-07-05', reason: '腰椎间盘突出会诊,需要本院 MRI 原始图像', status: 'approved', applyDate: '2026-07-07' },
@@ -367,5 +417,92 @@ export class RegionalService {
 
   async listCoSignRecords() {
     return { success: true, data: SEED_CO_SIGN_RECORDS }
+  }
+
+  // ── [G005 Wave1A W9] 多站点/多院区仪表板: 站点 + 同步事件 + 路由规则 ──
+  // 数据源: 机构/地区表派生 (SEED_INSTITUTIONS + SEED_REGIONAL_INSTITUTIONS), 内存 + 确定性 seed
+
+  listSites() {
+    const now = Date.now()
+    const iso = (offsetMs: number) => new Date(now - offsetMs).toISOString()
+    const aggregate = (institutionId: string) =>
+      SEED_REGIONAL_INSTITUTIONS
+        .filter((r) => r.institutionId === institutionId)
+        .reduce((s, r) => ({ studies: s.studies + r.examCount, positive: s.positive + r.positiveCount }), { studies: 0, positive: 0 })
+
+    const main: RegionalSite = {
+      id: 'SITE-MAIN', name: '山东省人民医院 (总院)', code: 'SDPH-MAIN', region: '华东', city: '济南',
+      status: 'active', studies: 148523, patients: 89521, users: 842, storage: 48230, bandwidth: 980,
+      lastSync: iso(30000), latencyMs: 12, uptimePct: 99.97, version: 'v3.0.6.11-87', primary: true,
+    }
+    const statusMap: Record<string, RegionalSite['status']> = { online: 'active', busy: 'syncing', offline: 'offline' }
+    const cities = ['济南', '青岛', '烟台', '潍坊']
+    const members: RegionalSite[] = SEED_INSTITUTIONS.map((inst, i) => {
+      const agg = aggregate(inst.id)
+      return {
+        id: `SITE-${inst.id.replace('INST-', '').toLowerCase()}`,
+        name: inst.name,
+        code: inst.aeTitle,
+        region: '华东',
+        city: cities[i % cities.length] ?? '济南',
+        status: statusMap[inst.status] ?? 'active',
+        studies: agg.studies || 1000 + i * 137,
+        patients: Math.round((agg.studies || 1000 + i * 137) * 0.6),
+        users: 120 + i * 37,
+        storage: 5000 + i * 2400,
+        bandwidth: inst.status === 'offline' ? 0 : 300 + i * 60,
+        lastSync: inst.status === 'offline' ? iso(3600000) : iso(60000 * (i + 1)),
+        latencyMs: inst.status === 'offline' ? 0 : 18 + i * 8,
+        uptimePct: inst.status === 'offline' ? 95.4 : 99.5 - i * 0.1,
+        version: 'v3.0.6.11-87',
+        primary: false,
+      }
+    })
+    return { success: true, data: { source: 'database', generatedAt: iso(0), data: [main, ...members] } }
+  }
+
+  listSiteSyncEvents() {
+    const sites = this.listSites().data.data
+    const types: Array<RegionalSiteSyncEvent['type']> = ['study_pushed', 'study_pulled', 'user_sync', 'config_sync']
+    const statuses: Array<RegionalSiteSyncEvent['status']> = ['success', 'success', 'success', 'failed']
+    // 确定性时间基线 (W9 spec: 两次调用结果必须一致)
+    const base = Date.UTC(2026, 7, 8, 10, 0, 0)
+    const events: RegionalSiteSyncEvent[] = Array.from({ length: 24 }, (_, i) => {
+      const site = sites[i % sites.length]!
+      const type = types[i % types.length]!
+      const status = statuses[i % statuses.length]!
+      return {
+        id: `SYNC-${String(1000 + i)}`,
+        siteId: site.id,
+        type,
+        status,
+        count: 2 + ((i * 13) % 40),
+        bytes: 512 * 1024 + ((i * 97) % 20) * 1024 * 1024,
+        duration: 300 + ((i * 61) % 9000),
+        timestamp: new Date(base - i * 5 * 60000).toISOString(),
+        message: status === 'failed' ? `站点 ${site.name} 网络抖动, 任务已排队重试` : undefined,
+      }
+    })
+    return { success: true, data: { source: 'database', generatedAt: new Date().toISOString(), data: events } }
+  }
+
+  listSiteRoutingRules() {
+    const sites = this.listSites().data.data
+    const modalities = ['CT', 'MR', 'DR', 'MG', 'US']
+    const rules: RegionalSiteRoutingRule[] = Array.from({ length: 6 }, (_, i) => {
+      const src = sites[(i + 1) % sites.length]!
+      const dst = sites[i % sites.length]!
+      return {
+        id: `RULE-${String(100 + i)}`,
+        name: `${src.name} → ${dst.name} 影像调阅`,
+        sourceSite: src.id,
+        destSite: dst.id,
+        modality: modalities[i % modalities.length]!,
+        condition: i % 2 === 0 ? '工作日 08:00-18:00' : '急诊通道优先',
+        active: i % 3 !== 2,
+        matchedCount: 120 + ((i * 53) % 900),
+      }
+    })
+    return { success: true, data: { source: 'database', generatedAt: new Date().toISOString(), data: rules } }
   }
 }

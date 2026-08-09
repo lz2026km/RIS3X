@@ -6,12 +6,12 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
   Cell,
 } from "recharts";
 import { Info } from "lucide-react";
 import { pediatricProtocols } from "./mockData";
 import type { PediatricProtocol } from "./types";
+import ChartContainer from "../../components/charts/ChartContainer";
 
 const AGE_GROUPS = ["0-5岁", "5-10岁", "10-15岁"];
 
@@ -217,7 +217,7 @@ export default function PediatricProtocolOptimization() {
         >
           成人 vs 儿童剂量对比（CT头部）
         </div>
-        <ResponsiveContainer width="100%" height={200}>
+        <ChartContainer height={200} state={ADULT_VS_PED.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
           <BarChart data={ADULT_VS_PED} barCategoryGap="30%">
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis dataKey="name" tick={{ fontSize: 12, fill: "#94a3b8" }} />
@@ -232,7 +232,7 @@ export default function PediatricProtocolOptimization() {
               ))}
             </Bar>
           </BarChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </div>
     </div>
   );

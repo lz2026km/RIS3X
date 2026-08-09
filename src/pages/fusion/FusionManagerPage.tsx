@@ -128,6 +128,7 @@ export const FusionManagerPage: React.FC = () => {
               rowKey={(_, i) => `${i}`}
               pagination={false}
               size="small"
+              scroll={{ x: 'max-content' }}
               columns={[
                 {
                   title: '设备类型',

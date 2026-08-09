@@ -60,6 +60,10 @@ export const DentalImplant3DPage: React.FC = () => {
   const [implantModal, setImplantModal] = useState<{ open: boolean; data: any; saving: boolean }>({ open: false, data: null, saving: false });
   const [selBrand, setSelBrand] = useState("straumann");
   const [selModel, setSelModel] = useState("BLT-RC-4.1x10");
+  // [G005 2B] 写死患者真实化: dentalApi.listPatients + 新建规划患者/牙位受控
+  const [patients, setPatients] = useState<any[]>([]);
+  const [selPatient, setSelPatient] = useState("");
+  const [fdiTooth, setFdiTooth] = useState(36);
   const canvas3dRef = useRef<HTMLCanvasElement>(null);
   const [activeSlice, setActiveSlice] = useState(50);
   // MPR view state
@@ -91,6 +95,18 @@ export const DentalImplant3DPage: React.FC = () => {
       .listImplants()
       .then((r) => {
         if (Array.isArray(r)) setImplants(r);
+      })
+      .catch((err) => {
+        console.error("[F04]", err);
+      });
+    // [G005 2B] 患者列表 (写死 P100001 真实化)
+    dentalApi
+      .listPatients()
+      .then((r: any) => {
+        if (Array.isArray(r?.data)) {
+          setPatients(r.data);
+          if (r.data.length > 0) setSelPatient(r.data[0].id || r.data[0].patientId);
+        }
       })
       .catch((err) => {
         console.error("[F04]", err);
@@ -214,11 +230,15 @@ export const DentalImplant3DPage: React.FC = () => {
   };
 
   const handleCreate = async () => {
+    if (!selPatient) {
+      message.warning("请先选择患者");
+      return;
+    }
     setBusy(true);
     try {
       const plan = await dentalApi.createImplantPlan3d({
-        patientId: "P100001",
-        toothNo: 36,
+        patientId: selPatient,
+        toothNo: fdiTooth,
         brand: selBrand,
         model: selModel,
       });
@@ -358,6 +378,18 @@ export const DentalImplant3DPage: React.FC = () => {
           <Col span={8}>
             <Card title="新建设计" size="small">
               <Form layout="vertical" size="small">
+                <Form.Item label="患者" required>
+                  <Select
+                    value={selPatient}
+                    onChange={(v) => setSelPatient(v)}
+                    placeholder="选择患者"
+                    options={patients.map((p: any) => ({
+                      value: p.id || p.patientId,
+                      label: `${p.name} (${p.id || p.patientId})`,
+                    }))}
+                    notFoundContent="暂无患者 (dentalApi.listPatients)"
+                  />
+                </Form.Item>
                 <Form.Item label="品牌">
                   <Select
                     value={selBrand}
@@ -383,10 +415,8 @@ export const DentalImplant3DPage: React.FC = () => {
                     min={11}
                     max={48}
                     step={1}
-                    defaultValue={36}
-                    onChange={() => {
-                      /* store if needed */
-                    }}
+                    value={fdiTooth}
+                    onChange={(v) => setFdiTooth(v || 36)}
                     style={{ width: "100%" }}
                   />
                 </Form.Item>

@@ -1040,7 +1040,7 @@ export default function ResearchPage() {
   return (
     <div style={{ padding: 24, background: COLORS.bgGray, minHeight: '100vh' }}>
       {/* [G005 W1-C] 演示数据（后端待实现）: 后端无 /research controller, 接口调用失败时页面展示空态/本地 fallback */}
-      <div style={{ background: 'var(--color-warning-bg)', color: '#92400e', fontSize: 12, fontWeight: 600, padding: '6px 12px', borderRadius: 6, border: '1px solid #fcd34d', marginBottom: 16 }}>
+      <div style={{ background: 'var(--color-warning-bg)', color: '#92400e', fontSize: 12, fontWeight: 600, padding: '6px 12px', borderRadius: 6, border: '1px solid var(--color-warning-border)', marginBottom: 16 }}>
         演示数据（后端待实现）：本页为科研数据抽取演示页面，后端暂无 /research 接口
       </div>
       <div style={{ marginBottom: 24 }}>

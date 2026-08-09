@@ -25,6 +25,8 @@ import {
   Download,
   Upload,
   UserCheck,
+  Merge as MergeIcon,
+  Split as SplitIcon,
 } from "lucide-react";
 import { initialRadiologyExams } from "../data/initialData";
 import { examApi } from "../services/api";
@@ -615,6 +617,94 @@ export default function ExamPage() {
       handleExecute();
     }
   };
+  // [G005 Wave4B] G-18 检查合并: 多选 2+ 行 → 选目标 → merge
+  const [showMergeModal, setShowMergeModal] = useState(false);
+  const [mergeTargetId, setMergeTargetId] = useState<string>("");
+  const [merging, setMerging] = useState(false);
+  const [mergeResult, setMergeResult] = useState<string>("");
+
+  const handleOpenMergeModal = () => {
+    const sel = allExams.filter((e) => selectedIds.has(e.id));
+    if (sel.length < 2) {
+      alert("请至少选择 2 个检查进行合并");
+      return;
+    }
+    setMergeTargetId(sel[0].id);
+    setMergeResult("");
+    setShowMergeModal(true);
+  };
+
+  const handleMergeSubmit = async () => {
+    const ids = Array.from(selectedIds).filter((id) => id !== mergeTargetId);
+    if (!mergeTargetId || ids.length === 0) {
+      setMergeResult("请选择目标检查");
+      return;
+    }
+    setMerging(true);
+    setMergeResult("");
+    try {
+      const res = await examApi.mergeExams({ targetId: mergeTargetId, sourceIds: ids });
+      if (res.success && res.data) {
+        setMergeResult(
+          `合并成功: ${res.data.movedReports} 份报告已迁移至目标检查, 合并源 ${res.data.mergedSourceCount} 个` +
+          (res.data.retainedSourceIds.length > 0 ? ` (${res.data.retainedSourceIds.length} 个源检查因关联数据保留)` : "")
+        );
+        setSelectedIds(new Set());
+        await reloadExams();
+        log("merge", mergeTargetId);
+      } else {
+        setMergeResult("合并失败: " + (res.error?.message ?? "未知错误"));
+      }
+    } catch (e) {
+      setMergeResult("合并失败: " + ((e as Error)?.message ?? String(e)));
+    } finally {
+      setMerging(false);
+    }
+  };
+
+  // [G005 Wave4B] G-18 检查拆分: 按报告归属拆分
+  const [splitExam, setSplitExam] = useState<RadiologyExam | null>(null);
+  const [splitReportIds, setSplitReportIds] = useState("");
+  const [splitting, setSplitting] = useState(false);
+  const [splitResult, setSplitResult] = useState<string>("");
+
+  const handleOpenSplitModal = (exam: RadiologyExam) => {
+    setSplitExam(exam);
+    setSplitReportIds(exam.reportId ? [exam.reportId].join(", ") : "");
+    setSplitResult("");
+  };
+
+  const handleSplitSubmit = async () => {
+    if (!splitExam) return;
+    const reportIds = splitReportIds
+      .split(/[,，\s\n]+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (reportIds.length < 2) {
+      setSplitResult("请输入至少 2 份报告 ID（逗号分隔）");
+      return;
+    }
+    setSplitting(true);
+    setSplitResult("");
+    try {
+      const res = await examApi.splitExam(splitExam.id, { reportIds });
+      if (res.success && res.data) {
+        setSplitResult(
+          `拆分成功: 生成 ${res.data.created.length} 个新检查` +
+          ` (${res.data.created.map((c) => c.accessionNumber).join(", ")})`
+        );
+        await reloadExams();
+        log("split", splitExam.id);
+      } else {
+        setSplitResult("拆分失败: " + (res.error?.message ?? "未知错误"));
+      }
+    } catch (e) {
+      setSplitResult("拆分失败: " + ((e as Error)?.message ?? String(e)));
+    } finally {
+      setSplitting(false);
+    }
+  };
+
   useKeyboardShortcuts([
     SHORTCUTS.SUBMIT(handleSubmit),
     SHORTCUTS.CANCEL(() => { if (modal.visible) closeModal(); }),
@@ -917,6 +1007,27 @@ export default function ExamPage() {
           }}
         >
           <Download size={13} /> 批量导出
+        </button>
+        {/* [G005 Wave4B] G-18 检查合并入口 (多选 2+ 行) */}
+        <button
+          onClick={handleOpenMergeModal}
+          disabled={selectedIds.size < 2}
+          style={{
+            padding: "8px 14px",
+            border: "1px solid #7c3aed",
+            borderRadius: 6,
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: selectedIds.size < 2 ? "not-allowed" : "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            backgroundColor: selectedIds.size < 2 ? "var(--bg-card)" : "#7c3aed18",
+            color: "#7c3aed",
+            opacity: selectedIds.size < 2 ? 0.45 : 1,
+          }}
+        >
+          <MergeIcon size={13} /> 合并检查
         </button>
       </div>
     </div>
@@ -1261,6 +1372,25 @@ export default function ExamPage() {
                           <FileText size={10} /> 查看
                         </button>
                       )}
+                      {/* [G005 Wave4B] G-18 检查拆分入口 */}
+                      <button
+                        onClick={() => handleOpenSplitModal(exam)}
+                        title="按报告归属拆分检查"
+                        style={{
+                          padding: "4px 8px",
+                          borderRadius: 4,
+                          border: "1px solid #d97706",
+                          backgroundColor: "var(--bg-card)",
+                          color: "#d97706",
+                          fontSize: 12,
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 4,
+                        }}
+                      >
+                        <SplitIcon size={10} /> 拆分
+                      </button>
                     </div>
                   </td>
                   {/* 闭环状态时间轴 */}
@@ -2433,6 +2563,329 @@ export default function ExamPage() {
 
       {/* 底部统计栏 */}
       <StatsBar />
+
+      {/* [G005 Wave4B] G-18 检查合并 Modal */}
+      {showMergeModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.45)",
+            zIndex: 1001,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 24,
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowMergeModal(false);
+          }}
+        >
+          <div
+            style={{
+              background: "var(--bg-card)",
+              borderRadius: 14,
+              width: "100%",
+              maxWidth: 560,
+              maxHeight: "85vh",
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+            }}
+          >
+            <div
+              style={{
+                padding: "16px 20px",
+                borderBottom: "1px solid var(--border-color)",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                background: "#7c3aed",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <MergeIcon size={18} color="#fff" />
+                <span style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>
+                  合并检查
+                </span>
+              </div>
+              <button
+                onClick={() => setShowMergeModal(false)}
+                style={{
+                  background: "rgba(255,255,255,0.15)",
+                  border: "none",
+                  borderRadius: 6,
+                  cursor: "pointer",
+                  color: "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                  padding: 5,
+                }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div style={{ padding: 20, overflowY: "auto", flex: 1 }}>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 12 }}>
+                已选 {selectedIds.size} 个检查（须为同一患者）: 选择合并后保留的【目标检查】, 其余检查的报告将迁移至目标检查。
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {allExams
+                  .filter((e) => selectedIds.has(e.id))
+                  .map((e) => (
+                    <label
+                      key={e.id}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        padding: "10px 12px",
+                        border: `1px solid ${
+                          mergeTargetId === e.id ? "#7c3aed" : "var(--border-color)"
+                        }`,
+                        borderRadius: 8,
+                        background:
+                          mergeTargetId === e.id ? "#7c3aed18" : "var(--bg-card)",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <input
+                        type="radio"
+                        name="mergeTarget"
+                        checked={mergeTargetId === e.id}
+                        onChange={() => setMergeTargetId(e.id)}
+                      />
+                      <div>
+                        <div style={{ fontWeight: 600, fontSize: 13, color: "var(--text-primary)" }}>
+                          {e.patientName} · {e.examItemName}
+                        </div>
+                        <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                          {e.accessionNumber} · {e.modality} · {e.bodyPart}
+                        </div>
+                      </div>
+                    </label>
+                  ))}
+              </div>
+              {mergeResult && (
+                <div
+                  style={{
+                    marginTop: 12,
+                    padding: "10px 12px",
+                    borderRadius: 6,
+                    fontSize: 12,
+                    lineHeight: 1.6,
+                    background: mergeResult.includes("成功")
+                      ? "var(--color-success-bg)"
+                      : "var(--color-error-bg)",
+                    color: mergeResult.includes("成功")
+                      ? "#16a34a"
+                      : "#dc2626",
+                  }}
+                >
+                  {mergeResult}
+                </div>
+              )}
+            </div>
+            <div
+              style={{
+                padding: "12px 20px",
+                borderTop: "1px solid var(--border-color)",
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 8,
+              }}
+            >
+              <button
+                onClick={() => setShowMergeModal(false)}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: 6,
+                  border: "1px solid var(--border-color)",
+                  backgroundColor: "var(--bg-card)",
+                  color: "var(--text-secondary)",
+                  fontSize: 13,
+                  cursor: "pointer",
+                }}
+              >
+                取消
+              </button>
+              <button
+                onClick={() => void handleMergeSubmit()}
+                disabled={merging}
+                style={{
+                  padding: "8px 20px",
+                  borderRadius: 6,
+                  border: "none",
+                  backgroundColor: "#7c3aed",
+                  color: "#fff",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: merging ? "not-allowed" : "pointer",
+                  opacity: merging ? 0.6 : 1,
+                }}
+              >
+                {merging ? "合并中..." : "确认合并"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* [G005 Wave4B] G-18 检查拆分 Modal */}
+      {splitExam && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.45)",
+            zIndex: 1001,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 24,
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setSplitExam(null);
+          }}
+        >
+          <div
+            style={{
+              background: "var(--bg-card)",
+              borderRadius: 14,
+              width: "100%",
+              maxWidth: 520,
+              maxHeight: "85vh",
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+            }}
+          >
+            <div
+              style={{
+                padding: "16px 20px",
+                borderBottom: "1px solid var(--border-color)",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                background: "#d97706",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <SplitIcon size={18} color="#fff" />
+                <span style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>
+                  拆分检查
+                </span>
+              </div>
+              <button
+                onClick={() => setSplitExam(null)}
+                style={{
+                  background: "rgba(255,255,255,0.15)",
+                  border: "none",
+                  borderRadius: 6,
+                  cursor: "pointer",
+                  color: "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                  padding: 5,
+                }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div style={{ padding: 20, overflowY: "auto", flex: 1 }}>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 12 }}>
+                检查 {splitExam.accessionNumber}（{splitExam.patientName} ·{" "}
+                {splitExam.examItemName}）: 输入该检查下的报告 ID（逗号分隔）, 每份报告将独立成新检查。
+              </div>
+              <textarea
+                value={splitReportIds}
+                onChange={(e) => setSplitReportIds(e.target.value)}
+                rows={4}
+                placeholder={"例如: " + (splitExam.reportId ?? "RPT-0001") + ", RPT-0002"}
+                style={{
+                  width: "100%",
+                  padding: "10px 12px",
+                  border: "1px solid var(--border-color)",
+                  borderRadius: 6,
+                  fontSize: 12,
+                  resize: "vertical",
+                  outline: "none",
+                  boxSizing: "border-box",
+                  fontFamily: "monospace",
+                }}
+              />
+              {splitResult && (
+                <div
+                  style={{
+                    marginTop: 12,
+                    padding: "10px 12px",
+                    borderRadius: 6,
+                    fontSize: 12,
+                    lineHeight: 1.6,
+                    background: splitResult.includes("成功")
+                      ? "var(--color-success-bg)"
+                      : "var(--color-error-bg)",
+                    color: splitResult.includes("成功")
+                      ? "#16a34a"
+                      : "#dc2626",
+                  }}
+                >
+                  {splitResult}
+                </div>
+              )}
+            </div>
+            <div
+              style={{
+                padding: "12px 20px",
+                borderTop: "1px solid var(--border-color)",
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 8,
+              }}
+            >
+              <button
+                onClick={() => setSplitExam(null)}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: 6,
+                  border: "1px solid var(--border-color)",
+                  backgroundColor: "var(--bg-card)",
+                  color: "var(--text-secondary)",
+                  fontSize: 13,
+                  cursor: "pointer",
+                }}
+              >
+                关闭
+              </button>
+              <button
+                onClick={() => void handleSplitSubmit()}
+                disabled={splitting}
+                style={{
+                  padding: "8px 20px",
+                  borderRadius: 6,
+                  border: "none",
+                  backgroundColor: "#d97706",
+                  color: "#fff",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: splitting ? "not-allowed" : "pointer",
+                  opacity: splitting ? 0.6 : 1,
+                }}
+              >
+                {splitting ? "拆分中..." : "确认拆分"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 操作Modal */}
       <ActionModal />

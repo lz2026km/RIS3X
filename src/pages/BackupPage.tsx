@@ -5,6 +5,9 @@ import { CloudUploadOutlined, DownloadOutlined, UndoOutlined, ReloadOutlined, Sa
 import { usePagination } from '../hooks/usePagination'
 import { PageHeader } from '../components/common/PageHeader'
 
+const BACKUP_TYPE_LABEL: Record<string, string> = { FULL: '全量', INCREMENTAL: '增量' }
+const BACKUP_STATUS_LABEL: Record<string, string> = { COMPLETED: '已完成', RUNNING: '运行中', FAILED: '失败', PENDING: '等待中' }
+
 export default function BackupPage() {
   const [list, setList] = useState<BackupDto[]>([])
   const [loading, setLoading] = useState(false)
@@ -46,10 +49,10 @@ export default function BackupPage() {
 
   const columns = [
     { title: '创建时间', dataIndex: 'createdAt', key: 'createdAt', width: 180, render: (v: string) => new Date(v).toLocaleString('zh-CN') },
-    { title: '类型', dataIndex: 'type', key: 'type', width: 100, render: (v: string) => <Tag color={v === 'FULL' ? 'blue' : 'green'}>{v}</Tag> },
+    { title: '类型', dataIndex: 'type', key: 'type', width: 100, render: (v: string) => <Tag color={v === 'FULL' ? 'blue' : 'green'}>{BACKUP_TYPE_LABEL[v] ?? v}</Tag> },
     { title: '状态', dataIndex: 'status', key: 'status', width: 120, render: (v: string) => {
       const colorMap: Record<string, string> = { COMPLETED: 'success', RUNNING: 'processing', FAILED: 'error', PENDING: 'warning' }
-      return <Tag color={colorMap[v] ?? 'default'} icon={v === 'RUNNING' ? <SyncOutlined spin /> : undefined}>{v}</Tag>
+      return <Tag color={colorMap[v] ?? 'default'} icon={v === 'RUNNING' ? <SyncOutlined spin /> : undefined}>{BACKUP_STATUS_LABEL[v] ?? v}</Tag>
     }},
     { title: '大小', dataIndex: 'sizeBytes', key: 'sizeBytes', width: 100, render: (v: number) => v ? `${(v / 1024 / 1024).toFixed(2)} MB` : '-' },
     { title: '创建人', dataIndex: 'createdBy', key: 'createdBy', width: 120 },

@@ -156,6 +156,30 @@ export class EyeController {
     return this.eye.listAiInferences({ studyId, modelId })
   }
 
+  // [G005 Wave1A W9] 待审核推理 (静态路径必须在 ai/inferences/:id 之前)
+  @Get('ai/inferences/pending')
+  listPendingAiInferences() {
+    return this.eye.listPendingInferences()
+  }
+
+  // [G005 Wave1A W9] 热图列表 (EyeAiPage: eyeApi.getHeatmaps)
+  @Get('ai/heatmaps')
+  listAiHeatmaps() {
+    return this.eye.getAiHeatmaps()
+  }
+
+  // [G005 Wave1A W9] ROC 指标 (EyeAiPage: eyeApi.getRocCurve)
+  @Get('ai/roc/:modelId')
+  getAiRocCurve(@Param('modelId') modelId: string) {
+    return this.eye.getAiRocCurve(modelId)
+  }
+
+  // [G005 Wave1A W9] 病种分布 (EyeAiPage: eyeApi.getDiseaseDistribution)
+  @Get('ai/stats/disease-distribution')
+  getDiseaseDistribution() {
+    return this.eye.getDiseaseDistribution()
+  }
+
   @Get('ai/inferences/:id')
   getAiInference(@Param('id') id: string) {
     return this.eye.getAiInference(id)

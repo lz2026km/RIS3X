@@ -81,4 +81,78 @@ describe('FusionService', () => {
       expect(r.series[0].seriesDescription).toBe('Standard CT')
     })
   })
+
+  // ===== [G005 Wave4A G-06] SUV 定量 =====
+  describe('getSuv', () => {
+    it('derives SUV from PET exam (real source)', async () => {
+      const petPrisma: any = {
+        exam: {
+          findMany: jest.fn().mockResolvedValue([
+            { id: 'EX-PET-1', patientId: 'P100001', accessionNumber: 'ACC-PET-1', modality: 'PT' },
+          ]),
+          findFirst: jest.fn(),
+        },
+      }
+      const petSvc = new FusionService(petPrisma)
+      const r = await petSvc.getSuv('P100001')
+      expect(r.hasPet).toBe(true)
+      expect(r.source).toBe('exam')
+      expect(r.suv).not.toBeNull()
+      expect(r.suv!.max).toBeGreaterThan(0)
+      expect(r.suv!.mean).toBeLessThan(r.suv!.max)
+      expect(r.suv!.peak).toBeLessThanOrEqual(r.suv!.max)
+      expect(r.suv!.normalization.weightKg).toBeGreaterThan(0)
+      expect(r.suv!.normalization.formula).toContain('SUV')
+      expect(r.lesions.length).toBeGreaterThan(0)
+      expect(r.lesions[0]).toMatchObject({ x: expect.any(Number), y: expect.any(Number), diameterMm: expect.any(Number), suvMax: expect.any(Number) })
+      expect(r.lesions[0].x).toBeGreaterThanOrEqual(0)
+      expect(r.lesions[0].x).toBeLessThanOrEqual(1)
+    })
+
+    it('no PET exam -> hasPet false with empty lesions', async () => {
+      const nonePrisma: any = {
+        exam: {
+          findMany: jest.fn().mockResolvedValue([]),
+          findFirst: jest.fn().mockResolvedValue({ id: 'EX-MR-1', patientId: 'P2', accessionNumber: 'ACC2', modality: 'MR' }),
+        },
+      }
+      const noneSvc = new FusionService(nonePrisma)
+      const r = await noneSvc.getSuv('P2')
+      expect(r.hasPet).toBe(false)
+      expect(r.source).toBe('none')
+      expect(r.suv).toBeNull()
+      expect(r.lesions).toHaveLength(0)
+    })
+
+    it('DB unavailable -> graceful seed fallback (empty, no crash)', async () => {
+      const failPrisma: any = {
+        exam: {
+          findMany: jest.fn().mockRejectedValue(new Error('db down')),
+          findFirst: jest.fn().mockRejectedValue(new Error('db down')),
+        },
+      }
+      const seedSvc = new FusionService(failPrisma)
+      const r = await seedSvc.getSuv('P100002')
+      expect(r.hasPet).toBe(false)
+      expect(r.source).toBe('none')
+      expect(r.suv).toBeNull()
+      expect(r.lesions).toHaveLength(0)
+    })
+
+    it('deterministic: same studyId yields identical SUV values', async () => {
+      const petPrisma: any = {
+        exam: {
+          findMany: jest.fn().mockResolvedValue([
+            { id: 'EX-PET-2', patientId: 'P100009', accessionNumber: 'ACC9', modality: 'PET' },
+          ]),
+          findFirst: jest.fn(),
+        },
+      }
+      const detSvc = new FusionService(petPrisma)
+      const a = await detSvc.getSuv('P100009')
+      const b = await detSvc.getSuv('P100009')
+      expect(a.suv!.max).toBe(b.suv!.max)
+      expect(a.lesions.map((l) => l.suvMax)).toEqual(b.lesions.map((l) => l.suvMax))
+    })
+  })
 })

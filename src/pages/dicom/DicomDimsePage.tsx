@@ -6,6 +6,12 @@ import { usePagination } from '../../hooks/usePagination'
 
 const DIMSE_STATUS_LABEL: Record<string, string> = { SUCCESS: '成功' };
 
+const MPPS_STATUS_LABEL: Record<string, string> = {
+  IN_PROGRESS: '进行中',
+  COMPLETED: '已完成',
+  DISCONTINUED: '已终止',
+}
+
 const ECHO_COLUMNS: any[] = [
   { title: '应用实体名', dataIndex: 'aeTitle', key: 'aeTitle' },
   { title: 'IP 地址', dataIndex: 'ip', key: 'ip' },
@@ -48,11 +54,11 @@ const MPPS_COLUMNS = [
   { title: '检查 UID', dataIndex: 'studyUid', key: 'studyUid', ellipsis: true },
   { title: '患者', dataIndex: 'patientName', key: 'patientName', render: (v?: string) => v || '-' },
   { title: '设备', dataIndex: 'modality', key: 'modality', render: (v?: string) => v || '-' },
-  { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={MPPS_STATUS_COLOR[v] ?? 'default'}>{v}</Tag> },
+  { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={MPPS_STATUS_COLOR[v] ?? 'default'}>{MPPS_STATUS_LABEL[v] ?? v}</Tag> },
   { title: '开始时间', dataIndex: 'startedAt', key: 'startedAt', render: (v?: string) => v ? new Date(v).toLocaleString() : '-' },
   { title: '完成时间', dataIndex: 'completedAt', key: 'completedAt', render: (v?: string) => v ? new Date(v).toLocaleString() : '-' },
   { title: '步骤数', dataIndex: 'performedSteps', key: 'performedSteps', render: (v?: unknown[]) => Array.isArray(v) ? v.length : 0 },
-  { title: '来源', dataIndex: 'source', key: 'source', render: (v?: string) => <Tag color={v === 'exam' ? 'blue' : 'default'}>{v === 'exam' ? 'Exam 派生' : 'MPPS'}</Tag> },
+  { title: '来源', dataIndex: 'source', key: 'source', render: (v?: string) => <Tag color={v === 'exam' ? 'blue' : 'default'}>{v === 'exam' ? '检查派生' : 'MPPS'}</Tag> },
 ]
 
 const TLS_NODE_COLUMNS = [
@@ -103,6 +109,8 @@ export const DicomDimsePage: React.FC = () => {
   const [deviceForm] = Form.useForm()
   // [W3-C] 受控分页: MWL 结果表 (C-FIND)
   const mwlPagination = usePagination(mwlResults, 10)
+  // [G005 2B] 受控分页: 设备列表 (添加设备可增长)
+  const devicePagination = usePagination(devices, 10)
   // [G005 2B] 受控分页: C-STORE / C-MOVE 结果表 (数据可增长)
   const storePagination = usePagination(storeResults, 10)
   const movePagination = usePagination(moveResults, 10)
@@ -192,7 +200,7 @@ export const DicomDimsePage: React.FC = () => {
     setMppsSending(true)
     const res = await dicomDimseApi.sendMpps({ studyUid: values.studyUid, status: values.status })
     if (res.success) {
-      message.success(`MPPS 已更新: ${values.status}`)
+      message.success(`MPPS 已更新: ${MPPS_STATUS_LABEL[values.status] ?? values.status}`)
       mppsForm.resetFields()
       void loadMpps()
     } else {
@@ -290,9 +298,9 @@ export const DicomDimsePage: React.FC = () => {
           </Space>
         }>
           <Table scroll={{ x: 'max-content' }}
-            dataSource={devices}
+            dataSource={devicePagination.pageData}
             rowKey="aeTitle"
-            pagination={false}
+            pagination={devicePagination.pagination}
             columns={[
               ...ECHO_COLUMNS,
               {
@@ -328,7 +336,7 @@ export const DicomDimsePage: React.FC = () => {
               <Form.Item><Button type="primary" htmlType="submit" icon={<Search />} loading={mwlLoading}>查询</Button></Form.Item>
             </Form>
           </Card>
-          <Card size="small" title="Worklist 条目">
+          <Card size="small" title="工作列表条目">
             <Table scroll={{ x: 'max-content' }} dataSource={mwlPagination.pageData} rowKey={(r, i) => r.accessionNumber || `${i}`} columns={MWL_COLUMNS} loading={mwlLoading} pagination={mwlPagination.pagination}/>
           </Card>
         </>
@@ -402,7 +410,7 @@ export const DicomDimsePage: React.FC = () => {
                 <InputNumber min={1} max={65535} value={tlsConfig.port} onChange={(v) => setTlsConfig(prev => ({ ...prev, port: v ?? 2762 }))} />
               </div>
               <div style={{ marginBottom: 8 }}>
-                <div style={{ fontWeight: 600, marginBottom: 4 }}>校验证书链 (verifyPeer)</div>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>校验证书链</div>
                 <Switch checked={tlsConfig.verifyPeer} onChange={(v) => setTlsConfig(prev => ({ ...prev, verifyPeer: v }))} />
               </div>
             </div>
@@ -439,9 +447,9 @@ export const DicomDimsePage: React.FC = () => {
               </Form.Item>
               <Form.Item name="status" label="状态" rules={[{ required: true }]} initialValue="IN_PROGRESS">
                 <Select style={{ width: 160 }}>
-                  <Select.Option value="IN_PROGRESS">IN_PROGRESS</Select.Option>
-                  <Select.Option value="COMPLETED">COMPLETED</Select.Option>
-                  <Select.Option value="DISCONTINUED">DISCONTINUED</Select.Option>
+                  <Select.Option value="IN_PROGRESS">进行中</Select.Option>
+                  <Select.Option value="COMPLETED">已完成</Select.Option>
+                  <Select.Option value="DISCONTINUED">已终止</Select.Option>
                 </Select>
               </Form.Item>
               <Form.Item>

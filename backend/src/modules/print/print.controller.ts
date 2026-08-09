@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { Roles } from '../../common/decorators/roles.decorator'
 import { z } from 'zod'
@@ -6,6 +6,7 @@ import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { PrintService } from './print.service'
 
 // [G005 Wave1A] DICOM 胶片打印 (前端 printApi 全部方法 + queues/reprint)
+// [G005 Wave2A P0] + printers CRUD (POST/PUT/DELETE /print/printers)
 
 const CreateJobSchema = z.object({
   patientName: z.string().optional(),
@@ -19,6 +20,23 @@ const CreateJobSchema = z.object({
   printer: z.string().optional(),
   filmId: z.string().optional(),
 })
+
+const CreatePrinterSchema = z.object({
+  name: z.string().min(1),
+  type: z.string().optional(),
+  status: z.enum(['online', 'offline']).optional(),
+  location: z.string().optional(),
+  filmSpec: z.string().optional(),
+  defaultCopies: z.number().int().positive().optional(),
+  dpi: z.number().int().positive().optional(),
+  aet: z.string().optional(),
+  host: z.string().optional(),
+  port: z.number().int().positive().optional(),
+  mediumTypes: z.array(z.string()).optional(),
+  filmsPerHour: z.number().int().positive().optional(),
+})
+
+const UpdatePrinterSchema = CreatePrinterSchema.partial()
 
 @ApiTags('print')
 @ApiBearerAuth()
@@ -84,9 +102,30 @@ export class PrintController {
   }
 
   @Get('printers')
-  @ApiOperation({ summary: '打印机列表 (Device 派生)' })
+  @ApiOperation({ summary: '打印机列表 (Device 派生 + 自定义)' })
   listPrinters() {
     return this.service.listPrinters()
+  }
+
+  @Post('printers')
+  @ApiOperation({ summary: '新增打印机' })
+  createPrinter(@Body(new ZodValidationPipe(CreatePrinterSchema)) body: z.infer<typeof CreatePrinterSchema>) {
+    return this.service.createPrinter(body)
+  }
+
+  @Put('printers/:id')
+  @ApiOperation({ summary: '更新打印机' })
+  updatePrinter(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(UpdatePrinterSchema)) body: z.infer<typeof UpdatePrinterSchema>,
+  ) {
+    return this.service.updatePrinter(id, body)
+  }
+
+  @Delete('printers/:id')
+  @ApiOperation({ summary: '删除打印机' })
+  deletePrinter(@Param('id') id: string) {
+    return this.service.deletePrinter(id)
   }
 
   @Get('stats')

@@ -19,7 +19,6 @@ import {
   Bar,
   Line,
   Pie,
-  ResponsiveContainer,
   BarChart,
   XAxis,
   YAxis,
@@ -30,6 +29,7 @@ import {
   PieChart,
   Cell,
 } from 'recharts';
+import ChartContainer from '../../../charts/ChartContainer';
 
 const STAGE_COLORS: Record<ReviewStage, string> = {
   initial: '#f59e0b',
@@ -255,7 +255,7 @@ export const ReviewWorkloadStats: React.FC = () => {
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={8}>
           <Card title="按阶段分布" size="small">
-            <ResponsiveContainer width="100%" height={200}>
+            <ChartContainer height={200} state={byStageData.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
               <BarChart data={byStageData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="stage" tick={{ fontSize: 12 }} tickFormatter={(v) => STAGE_LABELS[v as ReviewStage] ?? v} />
@@ -270,12 +270,12 @@ export const ReviewWorkloadStats: React.FC = () => {
                   ))}
                 </Bar>
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </Card>
         </Col>
         <Col span={8}>
           <Card title="按模态分布" size="small">
-            <ResponsiveContainer width="100%" height={200}>
+            <ChartContainer height={200} state={byModalityData.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
               <PieChart>
                 <Pie
                   data={byModalityData}
@@ -296,12 +296,12 @@ export const ReviewWorkloadStats: React.FC = () => {
                 <Tooltip />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
               </PieChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </Card>
         </Col>
         <Col span={8}>
           <Card title="审核员负载" size="small">
-            <ResponsiveContainer width="100%" height={200}>
+            <ChartContainer height={200} state={reviewers.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
               <BarChart
                 data={reviewers
                   .slice(0, 6)
@@ -315,7 +315,7 @@ export const ReviewWorkloadStats: React.FC = () => {
                 <Bar dataKey="load" fill="#3b82f6" name="当前" />
                 <Bar dataKey="max" fill="#e2e8f0" name="上限" />
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </Card>
         </Col>
       </Row>
@@ -330,7 +330,7 @@ export const ReviewWorkloadStats: React.FC = () => {
         size="small"
         style={{ marginBottom: 12 }}
       >
-        <ResponsiveContainer width="100%" height={220}>
+        <ChartContainer height={220} state={trendData.length > 0 ? 'ready' : 'empty'} emptyDescription="暂无数据">
           <LineChart data={trendData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis dataKey="date" tick={{ fontSize: 12 }} />
@@ -347,7 +347,7 @@ export const ReviewWorkloadStats: React.FC = () => {
               />
             ))}
           </LineChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </Card>
 
       <Card

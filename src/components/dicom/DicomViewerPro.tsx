@@ -389,7 +389,7 @@ export default function DicomViewerPro({
         <button
           onClick={toggleCine}
           style={{ ...iconBtnStyle, border: cinePlaying ? '1px solid #fbbf24' : 'none' }}
-          title={cinePlaying ? '暂停播放' : '播放 (cine)'}
+          title={cinePlaying ? '暂停播放' : '播放'}
           data-testid="cine-toggle"
         >
           {cinePlaying ? <PauseCircle size={16} color="#fbbf24" /> : <PlayCircle size={16} color="#94a3b8" />}

@@ -431,11 +431,92 @@ export const api = {
             ? body
             : JSON.stringify(body),
     }),
+  // [G005 Wave1B] Blob 下载 (CSV/文件导出): 不走 JSON 解析, 直取二进制响应
+  getBlob: <T = Blob>(path: string) => requestBlob<T>(path, { method: "GET" }),
+  postBlob: <T = Blob>(path: string, body?: unknown) =>
+    requestBlob<T>(path, {
+      method: "POST",
+      body: body === undefined ? undefined : JSON.stringify(body),
+    }),
   // [G005 P0] 列表响应归一化: 兼容两种后端形状
   //   - MSW 旧 handler: data 为裸数组 { success, data: [...] }
   //   - Nest CRUD:      data 为 { items: [], total: number }
   getList: <T>(path: string) => requestList<T>(path),
 };
+
+// ────────────────────────────────────────────────────────────────────────────
+// [G005 Wave1B] Blob 请求: 与 request() 相同的鉴权/租户/CSRF 头, 但返回 Blob
+// 供 exportCsv 类下载端点使用 (后端返回 text/csv 而非 JSON)。
+// ────────────────────────────────────────────────────────────────────────────
+async function requestBlob<T = Blob>(
+  path: string,
+  options: RequestInit = {},
+): Promise<ApiResponse<T>> {
+  const url = `${API_BASE}${path}`;
+  const method = (options.method || "GET").toUpperCase();
+  const baseHeaders: Record<string, string> = {
+    ...(options.headers as Record<string, string>),
+  };
+  if (API_MODE === "real") {
+    const tenantId = getTenantId();
+    if (tenantId) baseHeaders["X-Tenant-Id"] = tenantId;
+    if (!["GET", "HEAD", "OPTIONS"].includes(method))
+      baseHeaders["X-CSRF-Token"] = getCsrfToken();
+  }
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+  try {
+    const headers = { ...baseHeaders };
+    const currentToken = getToken();
+    if (currentToken) headers.Authorization = `Bearer ${currentToken}`;
+    const res = await fetch(url, {
+      ...options,
+      headers,
+      signal: controller.signal,
+      credentials: API_MODE === "real" ? "include" : options.credentials,
+    });
+    if (!res.ok) {
+      const body = await readBody(res);
+      return {
+        success: false,
+        data: null as unknown as T,
+        error: apiError(body, res.status),
+      };
+    }
+    const blob = await res.blob();
+    return { success: true, data: blob as unknown as T };
+  } catch (err) {
+    const value = err as {
+      status?: number;
+      code?: string;
+      message?: string;
+      name?: string;
+    };
+    if (value.status || value.code) {
+      return {
+        success: false,
+        data: null as unknown as T,
+        error: {
+          code: value.code ?? `HTTP_${value.status}`,
+          message: value.message ?? `请求失败 (${value.status})`,
+        },
+      };
+    }
+    const timedOut = value.name === "AbortError";
+    return {
+      success: false,
+      data: null as unknown as T,
+      error: {
+        code: timedOut ? "TIMEOUT" : "NETWORK_ERROR",
+        message: timedOut
+          ? "请求超时，请稍后重试"
+          : value.message || "网络错误，请检查连接",
+      },
+    };
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
 
 // ────────────────────────────────────────────────────────────────────────────
 // [G005 P0] 列表形状归一化 (方案 B: client 层统一收敛)

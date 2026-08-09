@@ -270,23 +270,23 @@ export default function RadiologyQCDashboardPage() {
             <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
                 <Camera size={18} color="#3b82f6" />
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", margin: 0 }}>影像质控</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>影像质控</h3>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div style={{ background: "var(--color-info-bg)", borderRadius: 8, padding: 16, textAlign: "center" }}>
-                  <div style={{ fontSize: 28, fontWeight: 800, color: "#1e40af" }}>{imageQC.gradeA}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: "#1e40af" }}>{imageQC.gradeA}</div>
                   <div style={{ fontSize: 12, color: "#1e40af", marginTop: 4 }}>A 级设备</div>
                 </div>
                 <div style={{ background: "var(--color-warning-bg)", borderRadius: 8, padding: 16, textAlign: "center" }}>
-                  <div style={{ fontSize: 28, fontWeight: 800, color: "#92400e" }}>{imageQC.gradeB + imageQC.gradeC}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: "#92400e" }}>{imageQC.gradeB + imageQC.gradeC}</div>
                   <div style={{ fontSize: 12, color: "#92400e", marginTop: 4 }}>B+C 级</div>
                 </div>
                 <div style={{ background: "var(--color-error-bg)", borderRadius: 8, padding: 16, textAlign: "center" }}>
-                  <div style={{ fontSize: 28, fontWeight: 800, color: "#991b1b" }}>{imageQC.gradeD}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: "#991b1b" }}>{imageQC.gradeD}</div>
                   <div style={{ fontSize: 12, color: "#991b1b", marginTop: 4 }}>D 级 (需关注)</div>
                 </div>
                 <div style={{ background: "var(--color-success-bg)", borderRadius: 8, padding: 16, textAlign: "center" }}>
-                  <div style={{ fontSize: 28, fontWeight: 800, color: "#065f46" }}>{imageQC.doseCompliant}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: "#065f46" }}>{imageQC.doseCompliant}</div>
                   <div style={{ fontSize: 12, color: "#065f46", marginTop: 4 }}>剂量合规</div>
                 </div>
               </div>
@@ -298,7 +298,7 @@ export default function RadiologyQCDashboardPage() {
             <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
                 <FileText size={18} color="#10b981" />
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", margin: 0 }}>报告质控</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>报告质控</h3>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8 }}>
                 {[
@@ -308,7 +308,7 @@ export default function RadiologyQCDashboardPage() {
                   { label: "丁", count: reportQC.d, color: "#dc2626" },
                 ].map((g) => (
                   <div key={g.label} style={{ background: g.color + "15", borderRadius: 8, padding: 12, textAlign: "center", border: `1px solid ${g.color}` }}>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: g.color }}>{g.count}</div>
+                    <div style={{ fontSize: 28, fontWeight: 700, color: g.color }}>{g.count}</div>
                     <div style={{ fontSize: 11, color: g.color, marginTop: 4 }}>{g.label}级</div>
                   </div>
                 ))}
@@ -321,16 +321,16 @@ export default function RadiologyQCDashboardPage() {
             <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
                 <Monitor size={18} color="#7c3aed" />
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", margin: 0 }}>设备质控</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>设备质控</h3>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div style={{ background: "var(--color-success-bg)", borderRadius: 8, padding: 12 }}>
                   <div style={{ fontSize: 12, color: "#64748b" }}>运行中</div>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: "#16a34a" }}>{equipmentQC.running}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: "#16a34a" }}>{equipmentQC.running}</div>
                 </div>
                 <div style={{ background: "var(--color-warning-bg)", borderRadius: 8, padding: 12 }}>
                   <div style={{ fontSize: 12, color: "#64748b" }}>维护/故障</div>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: "#d97706" }}>{equipmentQC.maintenance + equipmentQC.fault}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: "#d97706" }}>{equipmentQC.maintenance + equipmentQC.fault}</div>
                 </div>
               </div>
               <div style={{ marginTop: 8, fontSize: 11, color: "#64748b" }}>
@@ -341,19 +341,19 @@ export default function RadiologyQCDashboardPage() {
             <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
                 <Users size={18} color="#f59e0b" />
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", margin: 0 }}>人员质控</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>人员质控</h3>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
                 <div style={{ textAlign: "center", padding: 8 }}>
-                  <div style={{ fontSize: 22, fontWeight: 800, color: "#1e40af" }}>{personnelQC.doctorCount}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: "#1e40af" }}>{personnelQC.doctorCount}</div>
                   <div style={{ fontSize: 11, color: "#64748b" }}>医师</div>
                 </div>
                 <div style={{ textAlign: "center", padding: 8 }}>
-                  <div style={{ fontSize: 22, fontWeight: 800, color: "#10b981" }}>{personnelQC.techCount}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: "#10b981" }}>{personnelQC.techCount}</div>
                   <div style={{ fontSize: 11, color: "#64748b" }}>技师</div>
                 </div>
                 <div style={{ textAlign: "center", padding: 8 }}>
-                  <div style={{ fontSize: 22, fontWeight: 800, color: "#f59e0b" }}>{personnelQC.nurseCount}</div>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: "#f59e0b" }}>{personnelQC.nurseCount}</div>
                   <div style={{ fontSize: 11, color: "#64748b" }}>护士</div>
                 </div>
               </div>
@@ -362,7 +362,7 @@ export default function RadiologyQCDashboardPage() {
             <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", gridColumn: "1 / -1" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
                 <TrendingUp size={18} color="#1e40af" />
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", margin: 0 }}>30 天 KPI 时序</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>30 天 KPI 时序</h3>
               </div>
               <div style={{ height: 200, display: "flex", alignItems: "flex-end", gap: 4, padding: "0 8px" }}>
                 {DAILY_KPI_PRE.slice(-30).map((d, i) => (
@@ -382,7 +382,7 @@ export default function RadiologyQCDashboardPage() {
         {/* 影像质控 Tab */}
         {activeTab === "image" && (
           <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", margin: "0 0 16px" }}>影像质控 - 设备等级分布 (ACR 标准)</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 16px" }}>影像质控 - 设备等级分布 (ACR 标准)</h3>
             <div style={{ overflowX: "auto" }}><table style={{ width: "100%", fontSize: 12 }}>
               <thead>
                 <tr style={{ background: "var(--bg-card)" }}>
@@ -415,7 +415,7 @@ export default function RadiologyQCDashboardPage() {
         {/* 报告质控 Tab */}
         {activeTab === "report" && (
           <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
-            <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", margin: "0 0 16px" }}>报告质控 - 医生绩效 (本月)</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 16px" }}>报告质控 - 医生绩效 (本月)</h3>
             <div style={{ overflowX: "auto" }}><table style={{ width: "100%", fontSize: 12 }}>
               <thead>
                 <tr style={{ background: "var(--bg-card)" }}>
@@ -446,64 +446,64 @@ export default function RadiologyQCDashboardPage() {
         {(activeTab === "workflow" || activeTab === "equipment" || activeTab === "personnel" || activeTab === "operations" || activeTab === "ai" || activeTab === "cqi") && (
           <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 40, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", textAlign: "center" }}>
             <CheckCircle size={48} color="#10b981" style={{ margin: "0 auto 12px" }} />
-            <h3 style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)", margin: "0 0 8px" }}>{activeTab === "workflow" ? "流程质控" : activeTab === "equipment" ? "设备质控" : activeTab === "personnel" ? "人员质控" : activeTab === "operations" ? "运营质控" : activeTab === "ai" ? "AI 质控" : "CQI 持续改进"}</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: "0 0 8px" }}>{activeTab === "workflow" ? "流程质控" : activeTab === "equipment" ? "设备质控" : activeTab === "personnel" ? "人员质控" : activeTab === "operations" ? "运营质控" : activeTab === "ai" ? "AI 质控" : "CQI 持续改进"}</h3>
             <p style={{ fontSize: 13, color: "#64748b", margin: 0 }}>详细数据已加载 (共 {DAILY_KPI_PRE.length} 天 / {personnelQC.topPerformers.length} 名医生 / {DEVICE_MASTER.length} 台设备)</p>
             <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, maxWidth: 800, margin: "16px auto 0" }}>
               {activeTab === "ai" ? (
                 <>
                   <div style={{ padding: 16, background: "var(--color-info-bg)", borderRadius: 8 }}>
                     <div style={{ fontSize: 12, color: "#1e40af" }}>AI 准确率</div>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: "#1e40af" }}>{(aiQC.accuracy * 100).toFixed(0)}%</div>
+                    <div style={{ fontSize: 28, fontWeight: 700, color: "#1e40af" }}>{(aiQC.accuracy * 100).toFixed(0)}%</div>
                   </div>
                   <div style={{ padding: 16, background: "var(--color-success-bg)", borderRadius: 8 }}>
                     <div style={{ fontSize: 12, color: "#16a34a" }}>精确率</div>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: "#16a34a" }}>{(aiQC.precision * 100).toFixed(0)}%</div>
+                    <div style={{ fontSize: 28, fontWeight: 700, color: "#16a34a" }}>{(aiQC.precision * 100).toFixed(0)}%</div>
                   </div>
                   <div style={{ padding: 16, background: "var(--color-warning-bg)", borderRadius: 8 }}>
                     <div style={{ fontSize: 12, color: "#d97706" }}>召回率</div>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: "#d97706" }}>{(aiQC.recall * 100).toFixed(0)}%</div>
+                    <div style={{ fontSize: 28, fontWeight: 700, color: "#d97706" }}>{(aiQC.recall * 100).toFixed(0)}%</div>
                   </div>
                   <div style={{ padding: 16, background: "var(--color-error-bg)", borderRadius: 8 }}>
                     <div style={{ fontSize: 12, color: "#dc2626" }}>误报率</div>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: "#dc2626" }}>{(aiQC.fpRate * 100).toFixed(0)}%</div>
+                    <div style={{ fontSize: 28, fontWeight: 700, color: "#dc2626" }}>{(aiQC.fpRate * 100).toFixed(0)}%</div>
                   </div>
                 </>
               ) : activeTab === "cqi" ? (
                 <>
                   <div style={{ padding: 16, background: "var(--color-info-bg)", borderRadius: 8 }}>
                     <div style={{ fontSize: 12, color: "#1e40af" }}>进行中 PDCA</div>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: "#1e40af" }}>{cqi.activePDCA}</div>
+                    <div style={{ fontSize: 28, fontWeight: 700, color: "#1e40af" }}>{cqi.activePDCA}</div>
                   </div>
                   <div style={{ padding: 16, background: "var(--color-success-bg)", borderRadius: 8 }}>
                     <div style={{ fontSize: 12, color: "#16a34a" }}>已完成</div>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: "#16a34a" }}>{cqi.completedPDCA}</div>
+                    <div style={{ fontSize: 28, fontWeight: 700, color: "#16a34a" }}>{cqi.completedPDCA}</div>
                   </div>
                   <div style={{ padding: 16, background: "var(--color-warning-bg)", borderRadius: 8 }}>
                     <div style={{ fontSize: 12, color: "#d97706" }}>改进率</div>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: "#d97706" }}>{(cqi.improvementRate * 100).toFixed(0)}%</div>
+                    <div style={{ fontSize: 28, fontWeight: 700, color: "#d97706" }}>{(cqi.improvementRate * 100).toFixed(0)}%</div>
                   </div>
                   <div style={{ padding: 16, background: "var(--color-info-bg)", borderRadius: 8 }}>
                     <div style={{ fontSize: 12, color: "#7c3aed" }}>总项目</div>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: "#7c3aed" }}>{cqi.activePDCA + cqi.completedPDCA}</div>
+                    <div style={{ fontSize: 28, fontWeight: 700, color: "#7c3aed" }}>{cqi.activePDCA + cqi.completedPDCA}</div>
                   </div>
                 </>
               ) : (
                 <>
                   <div style={{ padding: 16, background: "var(--color-info-bg)", borderRadius: 8 }}>
                     <div style={{ fontSize: 12, color: "#1e40af" }}>SLA 达标率</div>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: "#1e40af" }}>{workflowQC.slaMet}%</div>
+                    <div style={{ fontSize: 28, fontWeight: 700, color: "#1e40af" }}>{workflowQC.slaMet}%</div>
                   </div>
                   <div style={{ padding: 16, background: "var(--color-success-bg)", borderRadius: 8 }}>
                     <div style={{ fontSize: 12, color: "#16a34a" }}>运行设备</div>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: "#16a34a" }}>{equipmentQC.running}</div>
+                    <div style={{ fontSize: 28, fontWeight: 700, color: "#16a34a" }}>{equipmentQC.running}</div>
                   </div>
                   <div style={{ padding: 16, background: "var(--color-warning-bg)", borderRadius: 8 }}>
                     <div style={{ fontSize: 12, color: "#d97706" }}>平均利用率</div>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: "#d97706" }}>{equipmentQC.avgUtil}</div>
+                    <div style={{ fontSize: 28, fontWeight: 700, color: "#d97706" }}>{equipmentQC.avgUtil}</div>
                   </div>
                   <div style={{ padding: 16, background: "var(--color-info-bg)", borderRadius: 8 }}>
                     <div style={{ fontSize: 12, color: "#7c3aed" }}>总医师</div>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: "#7c3aed" }}>{personnelQC.doctorCount}</div>
+                    <div style={{ fontSize: 28, fontWeight: 700, color: "#7c3aed" }}>{personnelQC.doctorCount}</div>
                   </div>
                 </>
               )}

@@ -5,7 +5,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
   ReferenceLine,
   Cell,
 } from "recharts";
@@ -13,6 +12,7 @@ import { AlertTriangle } from "lucide-react";
 import { breastDoseRecords } from "./mockData";
 import { getAlertBadge } from "./utils";
 import type { BreastDoseRecord } from "./types";
+import ChartContainer from "../../components/charts/ChartContainer";
 
 // [W3-C] 乳腺剂量: rdsrApi 无乳腺专项端点 (仅 CT), 标注「演示数据」
 export default function BreastDoseTracking() {
@@ -95,7 +95,7 @@ export default function BreastDoseTracking() {
             <Legend color="#dc2626" label="参考线(6mGy)" />
           </div>
         </div>
-        <ResponsiveContainer width="100%" height={200}>
+        <ChartContainer height={200} state={breastDoseRecords.length > 0 ? "ready" : "empty"} emptyDescription="暂无数据">
           <BarChart
             data={breastDoseRecords.map((r: BreastDoseRecord) => ({
               name: r.patientName.slice(0, 3),
@@ -152,7 +152,7 @@ export default function BreastDoseTracking() {
               ))}
             </Bar>
           </BarChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </div>
 
       <div

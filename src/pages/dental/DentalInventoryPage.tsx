@@ -62,12 +62,27 @@ export const DentalInventoryPage: React.FC = () => {
       setCreating(false);
     }
   };
-  const onAdjust = (delta: number) => {
+  // [G005 Wave2A P1] 入库/出库 → updateInventoryItem 真实落库, 失败回退本地 state
+  const onAdjust = async (delta: number) => {
     if (!detail) return;
-    const next = items.map((it) => it.id === detail.id ? { ...it, stock: Math.max(0, it.stock + delta) } : it);
-    setItems(next);
-    setDetail({ ...detail, stock: detail.stock + delta });
+    const nextStock = Math.max(0, detail.stock + delta);
+    const applyLocal = () => {
+      const next = items.map((it) => it.id === detail.id ? { ...it, stock: nextStock } : it);
+      setItems(next);
+      setDetail({ ...detail, stock: nextStock });
+    };
+    applyLocal();
     message.success(`${delta > 0 ? '入库' : '出库'} ${Math.abs(delta)} ${unitLabels[detail.unit] || detail.unit}`);
+    try {
+      const res = await dentalApi.updateInventoryItem(detail.id, { stock: nextStock });
+      if (res.success && res.data) {
+        setItems(prev => prev.map((it) => it.id === detail.id ? { ...it, stock: nextStock } : it));
+      } else {
+        console.warn('[F04] 库存落库失败, 已保留本地变更:', res.error?.message);
+      }
+    } catch (err) {
+      console.warn('[F04] 库存落库失败, 已保留本地变更:', err);
+    }
   };
   return (
     <DentalPageLayout header={{ title: '口腔库存管理', tags: [<Tag key="lo" color="orange">低库存 {lowCount}</Tag>], extra: (

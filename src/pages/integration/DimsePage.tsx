@@ -6,13 +6,15 @@ import { usePagination } from '../../hooks/usePagination';
 
 const { RangePicker } = DatePicker;
 
+const DIMSE_STATUS_LABEL: Record<string, string> = { SUCCESS: '成功', FAIL: '失败' };
+
 const ECHO_COLUMNS: any[] = [
   { title: '应用实体名', dataIndex: 'aeTitle', key: 'aeTitle' },
   { title: 'IP 地址', dataIndex: 'ip', key: 'ip' },
   { title: '端口', dataIndex: 'port', key: 'port' },
   { title: '设备', dataIndex: 'modality', key: 'modality' },
   { title: '连通性', dataIndex: 'pingMs', key: 'pingMs', render: (v: number | null) => v != null ? `${v} ms` : '-' },
-  { title: '状态', dataIndex: 'status', key: 'status', render: (v: string | null) => v ? <Tag color={v === 'SUCCESS' ? 'green' : 'red'} icon={v === 'SUCCESS' ? <CheckCircleOutlined /> : <CloseCircleOutlined />}>{v}</Tag> : '-' },
+  { title: '状态', dataIndex: 'status', key: 'status', render: (v: string | null) => v ? <Tag color={v === 'SUCCESS' ? 'green' : 'red'} icon={v === 'SUCCESS' ? <CheckCircleOutlined /> : <CloseCircleOutlined />}>{DIMSE_STATUS_LABEL[v] ?? v}</Tag> : '-' },
 ];
 
 const MWL_COLUMNS = [
@@ -28,14 +30,14 @@ const C_STORE_COLUMNS = [
   { title: 'SOP 实例 UID', dataIndex: 'sopInstanceUid', key: 'sopInstanceUid', ellipsis: true },
   { title: '存储路径', dataIndex: 'storagePath', key: 'storagePath', ellipsis: true },
   { title: '大小', dataIndex: 'sizeBytes', key: 'sizeBytes', render: (v: number) => v ? `${(v / 1024).toFixed(1)} KB` : '-' },
-  { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : 'red'}>{v}</Tag> },
+  { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : 'red'}>{DIMSE_STATUS_LABEL[v] ?? v}</Tag> },
 ];
 
 const C_MOVE_COLUMNS = [
   { title: '检查 UID', dataIndex: 'studyUid', key: 'studyUid', ellipsis: true },
   { title: '目标 AE', dataIndex: 'destAe', key: 'destAe' },
   { title: '传输数', dataIndex: 'transferredCount', key: 'transferredCount' },
-  { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : 'red'}>{v}</Tag> },
+  { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : 'red'}>{DIMSE_STATUS_LABEL[v] ?? v}</Tag> },
 ];
 
 const MOCK_DEVICES = [
@@ -172,7 +174,7 @@ export const DimsePage: React.FC = () => {
               <Form.Item><Button type="primary" htmlType="submit" icon={<SearchOutlined />} loading={mwlLoading}>查询</Button></Form.Item>
             </Form>
           </Card>
-          <Card size="small" title="Worklist 条目">
+          <Card size="small" title="工作列表条目">
             <Table scroll={{ x: 'max-content' }} dataSource={mwlPagination.pageData} rowKey={(r, i) => r.accessionNumber || `${i}`} columns={MWL_COLUMNS} loading={mwlLoading} pagination={mwlPagination.pagination}/>
           </Card>
         </>

@@ -72,41 +72,32 @@ function buildStatsV2(items: ScoreRecordV2[], query: URLSearchParams): Record<st
   }
 }
 
-// [v3.0.6.11-75 W3-1] V1 评分记录列表 (qcImageAiApi.listResults: GET /qc/image-ai/results)
+// [G005 Wave1A W9] V2 评分记录列表 (qcImageAiApi.listResults: GET /qc/image-ai/result-v2)
+// 与后端 image-ai.service.listV2 对齐: storeV2 为空时以确定性 seed 派生记录
 const SEED_V1_RESULTS = Array.from({ length: 12 }, (_, i) => ({
   id: `qc-img-${String(i + 1).padStart(3, '0')}`,
-  studyId: `STU202607${String(i + 1).padStart(2, '0')}`,
-  patientName: ['张伟', '李娜', '王芳', '赵敏', '陈杰', '刘洋'][i % 6],
+  instanceId: `STU202607${String(i + 1).padStart(2, '0')}`,
   modality: ['CT', 'MR', 'DR', 'CT', 'MG', 'DR'][i % 6],
-  device: ['GE Revolution', 'Siemens Skyra', 'Philips Duo'][i % 3],
-  examDate: `2026-07-${String(20 - i).padStart(2, '0')}`,
-  score: Number((3.2 + ((i * 37) % 16) / 10).toFixed(1)),
-  maxScore: 5,
-  issues: [
-    { id: `iss-${i}-1`, category: 'motion', description: '轻微运动伪影', severity: 'low', suggestion: '检查时固定患者头部' },
-    { id: `iss-${i}-2`, category: 'exposure', description: '曝光参数偏亮', severity: 'low', suggestion: '降低 10% kVp' },
-  ],
-  aiModel: 'qc-ai-v2.1',
-  status: ['pending', 'reviewed', 'accepted', 'rejected'][i % 4],
+  artifactScores: { motion: 4, metal: 3 + (i % 2), ring: 4 },
+  positioningScores: { setup: 4, rotation: 3 + (i % 2), offset: 4 },
+  exposure: { value: '正常', score: 4 },
+  overall: Number((3.2 + ((i * 37) % 16) / 10).toFixed(1)),
+  operatorId: `op-${(i % 3) + 1}`,
   createdAt: new Date(Date.now() - i * 86400000).toISOString(),
 }))
 
 export const imageAiHandlers = [
-  http.get(`${API_BASE}/qc/image-ai/results`, async ({ request }) => {
+  http.get(`${API_BASE}/qc/image-ai/result-v2`, async ({ request }) => {
     await delay(delayMs())
     const url = new URL(request.url)
-    let list = SEED_V1_RESULTS
-    const status = url.searchParams.get('status')
+    let list = Array.from(storeV2.values())
+    if (list.length === 0) list = SEED_V1_RESULTS as unknown as ScoreRecordV2[]
     const modality = url.searchParams.get('modality')
-    if (status) list = list.filter((r) => r.status === status)
+    const operatorId = url.searchParams.get('operatorId')
     if (modality) list = list.filter((r) => r.modality === modality)
+    if (operatorId) list = list.filter((r) => r.operatorId === operatorId)
+    list = [...list].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     return HttpResponse.json({ success: true, data: list, meta: { total: list.length } })
-  }),
-  http.get(`${API_BASE}/qc/image-ai/results/:id`, async ({ params }) => {
-    await delay(delayMs(30, 80))
-    const found = SEED_V1_RESULTS.find((r) => r.id === params.id)
-    if (!found) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: `QC result ${params.id} not found` } }, { status: 404 })
-    return HttpResponse.json({ success: true, data: found })
   }),
   http.post(`${API_BASE}/qc/image-ai/score-v2`, async ({ request }) => {
     await delay(delayMs())

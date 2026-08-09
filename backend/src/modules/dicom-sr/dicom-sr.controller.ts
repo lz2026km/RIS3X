@@ -4,7 +4,7 @@ import { Roles } from '../../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
-import { DicomSrService, type GenerateSrDto, type FromAiSrDto } from './dicom-sr.service'
+import { DicomSrService, type GenerateSrDto, type FromAiSrDto, type EncapsulatePdfDto } from './dicom-sr.service'
 
 const GenerateSrSchema = z.object({
   reportId: z.string().min(1),
@@ -35,6 +35,16 @@ const FromAiSchema = z.object({
   summary: z.string().max(5000).optional(),
 })
 
+// [G005 Wave4B] G-01 Encapsulated PDF 封装
+const EncapsulatePdfSchema = z
+  .object({
+    reportId: z.string().min(1).optional(),
+    studyId: z.string().min(1).optional(),
+    pdfUrl: z.string().max(2000).optional(),
+    pdfBase64: z.string().max(50_000_000).optional(),
+  })
+  .refine((d) => d.reportId || d.studyId, { message: 'reportId 或 studyId 必填' })
+
 @ApiTags('dicom-sr')
 @ApiBearerAuth()
 @Roles('ADMIN', 'DIRECTOR', 'DOCTOR', 'TECHNICIAN')
@@ -61,6 +71,17 @@ export class DicomSrController {
   @Post('from-ai')
   async fromAi(@Body(new ZodValidationPipe(FromAiSchema)) body: FromAiSrDto) {
     return this.service.fromAi(body)
+  }
+
+  // [G005 Wave4B] G-01 DICOM PDF 封装 (Encapsulated PDF Storage)
+  @Post('encapsulate-pdf')
+  encapsulatePdf(@Body(new ZodValidationPipe(EncapsulatePdfSchema)) body: EncapsulatePdfDto) {
+    return this.service.encapsulatePdf(body)
+  }
+
+  @Get('encapsulated/:id')
+  findEncapsulated(@Param('id') id: string) {
+    return this.service.findEncapsulated(id)
   }
 
   @Get('by-report/:reportId')
