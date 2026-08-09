@@ -396,10 +396,10 @@ export const CosignSchedule: React.FC = () => {
             <Tag color="purple">R3.REVIEW.003</Tag>
           </Space>
           <Space wrap>
-            <Button size="small" icon={<Plus size={12} />} onClick={() => setCalendarModalOpen(true)} aria-label="新增排班">排班</Button>
-            <Button size="small" icon={<UserPlus size={12} />} onClick={() => setTempAuthModal(true)} aria-label="临时授权">临时授权</Button>
-            <Button size="small" icon={<CheckSquare size={12} />} onClick={() => setBatchModal(true)} aria-label="批量签">批量签</Button>
-            <Button size="small" icon={<RefreshCw size={12} />} onClick={loadAll}>刷新</Button>
+            <Button size="small" icon={<Plus size={14} />} onClick={() => setCalendarModalOpen(true)} aria-label="新增排班">排班</Button>
+            <Button size="small" icon={<UserPlus size={14} />} onClick={() => setTempAuthModal(true)} aria-label="临时授权">临时授权</Button>
+            <Button size="small" icon={<CheckSquare size={14} />} onClick={() => setBatchModal(true)} aria-label="批量签">批量签</Button>
+            <Button size="small" icon={<RefreshCw size={14} />} onClick={loadAll}>刷新</Button>
           </Space>
         </Space>
         {kpi && (
@@ -520,7 +520,7 @@ export const CosignSchedule: React.FC = () => {
             key: 'sla',
             label: <Space><Clock size={14} />SLA 监控</Space>,
             children: (
-              <Card size="small" title={<Space><Clock size={14} />Cosign SLA 实时监控</Space>} extra={<Button size="small" icon={<RefreshCw size={12} />} onClick={handleRefreshSLA}>刷新 SLA</Button>}>
+              <Card size="small" title={<Space><Clock size={14} />Cosign SLA 实时监控</Space>} extra={<Button size="small" icon={<RefreshCw size={14} />} onClick={handleRefreshSLA}>刷新 SLA</Button>}>
                 {slaConfig && (
                   <Alert
                     style={{ marginBottom: 12 }}
@@ -656,7 +656,7 @@ export const CosignSchedule: React.FC = () => {
                     <List.Item
                       style={{ padding: '8px 0' }}
                       actions={[
-                        <Button key="assign" size="small" type="primary" icon={<Send size={12} />} onClick={() => handleAutoAssign(r.id)}>模拟派单</Button>,
+                        <Button key="assign" size="small" type="primary" icon={<Send size={14} />} onClick={() => handleAutoAssign(r.id)}>模拟派单</Button>,
                       ]}
                     >
                       <List.Item.Meta
@@ -716,7 +716,7 @@ export const CosignSchedule: React.FC = () => {
                       <Button
                         key={record.id}
                         size="small"
-                        icon={<ShieldCheck size={12} />}
+                        icon={<ShieldCheck size={14} />}
                         onClick={() => setSkipModal({ recordId: record.id })}
                         aria-label={`跳过 ${record.reportId}`}
                       >{record.patientName} {record.reportId}</Button>
@@ -730,7 +730,7 @@ export const CosignSchedule: React.FC = () => {
             key: 'tempauth',
             label: <Space><Key size={14} />临时授权</Space>,
             children: (
-              <Card size="small" title={<Space><Key size={14} />临时授权列表</Space>} extra={<Button size="small" icon={<Plus size={12} />} onClick={() => setTempAuthModal(true)}>新增授权</Button>}>
+              <Card size="small" title={<Space><Key size={14} />临时授权列表</Space>} extra={<Button size="small" icon={<Plus size={14} />} onClick={() => setTempAuthModal(true)}>新增授权</Button>}>
                 <Table scroll={{ x: 'max-content' }}
                   size="small"
                   rowKey="id"
@@ -783,7 +783,7 @@ export const CosignSchedule: React.FC = () => {
             key: 'batch',
             label: <Space><CheckSquare size={14} />批量签</Space>,
             children: (
-              <Card size="small" title={<Space><CheckSquare size={14} />批量签记录</Space>} extra={<Button size="small" icon={<Plus size={12} />} onClick={() => setBatchModal(true)}>新建批量</Button>}>
+              <Card size="small" title={<Space><CheckSquare size={14} />批量签记录</Space>} extra={<Button size="small" icon={<Plus size={14} />} onClick={() => setBatchModal(true)}>新建批量</Button>}>
                 <List
                   size="small"
                   dataSource={batchReqs}
@@ -799,7 +799,7 @@ export const CosignSchedule: React.FC = () => {
                         }
                       />
                       {!b.completedAt && (
-                        <Button size="small" type="primary" icon={<Send size={12} />} onClick={async () => {
+                        <Button size="small" type="primary" icon={<Send size={14} />} onClick={async () => {
                           await cosignService.executeBatchCosign(b.id, 'D001', '当前用户');
                           message.success('批量签完成');
                           loadAll();

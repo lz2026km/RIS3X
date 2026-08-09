@@ -1,6 +1,8 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { Save, Printer } from "lucide-react";
 import { PageHeader } from "../components/common/PageHeader";
+// [G005 Wave2A P1] 真实保存: aiPlatformApi.createStructuredReport (POST /ai-platform/structured-reports, 后端 GenerateStructuredReportSchema)
+import { aiPlatformApi } from "../services/api/aiPlatformApi";
 
 // ============================================================================
 // Types
@@ -802,6 +804,7 @@ const AIStructuredReportPage: React.FC = () => {
   }, []);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [savingReport, setSavingReport] = useState<boolean>(false);
 
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
@@ -820,7 +823,8 @@ const AIStructuredReportPage: React.FC = () => {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = useCallback(() => {
+  // [G005 Wave2A P1] 保存报告真实化: aiPlatformApi.createStructuredReport → 成功后 toast + 状态刷新; 失败回退本地演示
+  const handleSubmit = useCallback(async () => {
     const showToast = (text: string, bg: string) => {
       const toast = document.createElement("div");
       toast.textContent = text;
@@ -840,8 +844,35 @@ const AIStructuredReportPage: React.FC = () => {
       showToast("请填写必填字段", "#dc2626");
       return;
     }
-    showToast("报告已提交保存", "#059669");
-  }, [formData]);
+    if (savingReport) return;
+    setSavingReport(true);
+    try {
+      const res = await aiPlatformApi.createStructuredReport({
+        studyId: formData.patientId || "STU-DEMO",
+        templateId: selectedTemplate || (activeSpecialtyTab === "ct" ? "ct-brain" : activeSpecialtyTab),
+        findings: [formData.finding.description].filter(Boolean),
+        additionalContext: {
+          patientName: formData.patientName,
+          examMethod: formData.finding.examMethod,
+          impression: formData.impression.diagnoses.map((d) => d.conclusion),
+          specialtyTab: activeSpecialtyTab,
+          reportId: `RPT${Date.now()}`,
+        },
+      });
+      if (res.success && res.data) {
+        showToast(`报告已保存 · ${(res.data as { id?: string })?.id ?? ""}`, "#059669");
+        setPreviewJson(generateJsonReport());
+      } else {
+        throw new Error(res.error?.message ?? "接口返回失败");
+      }
+    } catch (e) {
+      console.error("[AIStructuredReport] 保存失败, 回退本地演示:", e);
+      showToast("保存接口暂不可用, 已本地生成演示报告 (待接入)", "#b45309");
+      setPreviewJson(generateJsonReport());
+    } finally {
+      setSavingReport(false);
+    }
+  }, [formData, activeSpecialtyTab, selectedTemplate, savingReport, generateJsonReport]);
 
   // ============================================================================
   // Styles
@@ -1176,7 +1207,10 @@ const AIStructuredReportPage: React.FC = () => {
     <div style={styles.container}>
       {/* Header */}
       <header style={styles.header}>
-        <h1 style={styles.title}>AI结构化报告系统 — WS/T 500-2016</h1>
+        <h1 style={styles.title}>
+          AI结构化报告系统 — WS/T 500-2016
+          <span style={{ marginLeft: 10, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: '#fff3cd', color: '#b45309', fontWeight: 600, verticalAlign: 'middle' }}>演示数据 · 模板演示</span>
+        </h1>
         <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
           <span style={{ fontSize: "13px", opacity: 0.9 }}>
             当前用户: 医生001
@@ -1830,9 +1864,10 @@ const AIStructuredReportPage: React.FC = () => {
               </button>
               <button
                 style={{ ...styles.button, ...styles.buttonPrimary, display: 'flex', alignItems: 'center', gap: 4 }}
-                onClick={handleSubmit}
+                onClick={() => void handleSubmit()}
+                disabled={savingReport}
               >
-                <Save size={14} /> 保存报告
+                <Save size={14} /> {savingReport ? "保存中..." : "保存报告"}
               </button>
               <button
                 style={{ ...styles.button, ...styles.buttonPrimary, display: 'flex', alignItems: 'center', gap: 4 }}

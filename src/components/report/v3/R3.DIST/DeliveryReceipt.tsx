@@ -88,6 +88,7 @@ export const DeliveryReceiptComponent: React.FC<Props> = ({ reportId, taskId }) 
         <Card size="small" className="col-span-2 shadow-sm" title={
           <div className="flex items-center justify-between">
             <Space><FileText className="w-4 h-4" /><span>回执列表</span></Space>
+            <Tag color="orange" style={{ fontSize: 10, marginLeft: 6 }}>演示数据 (ALL_RECEIPTS)</Tag>
             <Tag>{filtered.length}</Tag>
           </div>
         } extra={

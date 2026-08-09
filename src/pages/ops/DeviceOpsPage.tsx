@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { message } from 'antd'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts'
@@ -124,15 +125,35 @@ export default function DeviceOpsPage() {
     return Number.isFinite(n) ? n : 0
   }
 
+  // [G005 Wave1B] 设备状态更新: deviceMgmtApi.updateDevice (PUT /device-mgmt/devices/:id)
+  const [updatingId, setUpdatingId] = useState<string | null>(null)
+  const handleUpdateDeviceState = async (id: string, state: string) => {
+    setUpdatingId(id)
+    const stateStatusMap: Record<string, Device['status']> = { IDLE: 'online', IN_USE: 'online', MAINTENANCE: 'maintenance', BROKEN: 'offline', OFFLINE: 'offline' }
+    try {
+      const res = await deviceMgmtApi.updateDevice(id, { state: state as any })
+      if (res.success) {
+        setDevices(prev => prev.map(d => d.id === id ? { ...d, status: stateStatusMap[state] ?? d.status } : d))
+        message.success(`设备 ${id} 状态已更新: ${state}`)
+      } else {
+        message.error(res.error?.message ?? '状态更新失败')
+      }
+    } catch {
+      message.error('状态更新失败')
+    }
+    setUpdatingId(null)
+  }
+
   const loadDevices = useCallback(async () => {
     setLoading(true)
     setApiError('')
     try {
-      const [lifeR, oeeR, faultsR, plansR] = await Promise.allSettled([
+      const [lifeR, oeeR, faultsR, plansR, devicesR] = await Promise.allSettled([
         deviceMgmtApi.listEquipmentLifecycle(),
         oeeApi.list(),
         deviceMgmtApi.listDeviceFaults(),
         deviceMgmtApi.listMaintenancePlans(),
+        deviceMgmtApi.listDevices(),
       ])
       const lifeRaw = lifeR.status === 'fulfilled' && lifeR.value.success ? lifeR.value.data : null
       const life: any[] = Array.isArray(lifeRaw) ? lifeRaw : (lifeRaw as any)?.items ?? []
@@ -140,8 +161,11 @@ export default function DeviceOpsPage() {
       const faultsRaw = faultsR.status === 'fulfilled' && faultsR.value.success ? faultsR.value.data : null
       const faultList: any[] = Array.isArray(faultsRaw) ? faultsRaw : (faultsRaw as any)?.items ?? []
       const plans = plansR.status === 'fulfilled' && plansR.value.success ? (plansR.value.data?.data ?? []) : []
+      // [G005 Wave1B] 设备注册表: deviceMgmtApi.listDevices (GET /device-mgmt/devices)
+      const devRaw = devicesR.status === 'fulfilled' && devicesR.value.success ? devicesR.value.data : null
+      const devList: any[] = Array.isArray(devRaw) ? devRaw : (devRaw as any)?.items ?? []
 
-      const anyReal = life.length > 0 || oee.length > 0 || faultList.length > 0 || plans.length > 0
+      const anyReal = life.length > 0 || oee.length > 0 || faultList.length > 0 || plans.length > 0 || devList.length > 0
       if (!anyReal) {
         setDataSource('demo')
         setApiError('deviceMgmtApi 暂不可用，当前展示内置演示数据')
@@ -181,6 +205,24 @@ export default function DeviceOpsPage() {
           location: '—', status: 'online', utilization: toNum(o.oee),
           lastMaintenance: '—', nextMaintenance: '—', firmware: '—', ip: '—',
         })
+      })
+      // [G005 Wave1B] 设备注册表补充: listDevices (state: IDLE/IN_USE/MAINTENANCE/BROKEN/OFFLINE)
+      const devStatusOf = (s: string): Device['status'] => {
+        if (s === 'MAINTENANCE') return 'maintenance'
+        if (s === 'BROKEN' || s === 'OFFLINE') return 'offline'
+        return 'online'
+      }
+      devList.forEach((d: any) => {
+        const id = String(d.id)
+        if (seen.has(id)) return
+        merged.push({
+          id, name: d.name || d.code || id,
+          type: d.modality || d.code || '设备',
+          location: d.location || '—',
+          status: devStatusOf(d.state ?? d.status),
+          utilization: 0, lastMaintenance: '—', nextMaintenance: '—', firmware: '—', ip: '—',
+        })
+        seen.add(id)
       })
       if (merged.length > 0) setDevices(merged)
 
@@ -326,11 +368,25 @@ export default function DeviceOpsPage() {
                   <span style={{ fontSize: 12, color: '#6e7681' }}>{d.nextMaintenance}</span>
                 </div>
                 {isOpen && (
-                  <div style={{ padding: '12px 16px 12px 48px', background: '#0d1117', borderBottom: '1px solid #21262d', display: 'flex', gap: 24, fontSize: 12 }}>
+                  <div style={{ padding: '12px 16px 12px 48px', background: '#0d1117', borderBottom: '1px solid #21262d', display: 'flex', gap: 24, fontSize: 12, alignItems: 'center', flexWrap: 'wrap' }}>
                     <div><span style={{ color: '#6e7681' }}>固件: </span><span>{d.firmware}</span></div>
                     <div><span style={{ color: '#6e7681' }}>IP: </span><span>{d.ip}</span></div>
                     <div><span style={{ color: '#6e7681' }}>上一次维护: </span><span>{d.lastMaintenance}</span></div>
                     <div><span style={{ color: '#6e7681' }}>使用率: </span><span style={{ color: d.utilization > 80 ? '#22c55e' : '#f59e0b' }}>{d.utilization}%</span></div>
+                    {/* [G005 Wave1B] 状态流转: deviceMgmtApi.updateDevice */}
+                    {dataSource === 'api' && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ color: '#6e7681' }}>状态: </span>
+                        <select
+                          value={({ online: 'IDLE', offline: 'OFFLINE', maintenance: 'MAINTENANCE' } as Record<string, string>)[d.status] ?? 'IDLE'}
+                          onChange={e => void handleUpdateDeviceState(d.id, e.target.value)}
+                          disabled={updatingId === d.id}
+                          style={{ padding: '3px 6px', borderRadius: 4, border: '1px solid #30363d', background: '#161b22', color: '#f0f6fc', fontSize: 12 }}
+                        >
+                          {['IDLE', 'IN_USE', 'MAINTENANCE', 'BROKEN', 'OFFLINE'].map(s => <option key={s} value={s}>{s}</option>)}
+                        </select>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

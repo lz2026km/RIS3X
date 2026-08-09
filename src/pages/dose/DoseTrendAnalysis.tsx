@@ -73,7 +73,7 @@ export default function DoseTrendAnalysis() {
       return (
         <div
           style={{
-            background: "#fff",
+            background: "var(--bg-card)",
             padding: 12,
             border: "1px solid #e2e8f0",
             borderRadius: 8,
@@ -121,7 +121,7 @@ export default function DoseTrendAnalysis() {
       {/* 月度剂量趋势折线图 */}
       <div
         style={{
-          background: "#fff",
+          background: "var(--bg-card)",
           borderRadius: 12,
           padding: 20,
           border: "1px solid #e2e8f0",
@@ -234,7 +234,7 @@ export default function DoseTrendAnalysis() {
             gap: 12,
             marginTop: 16,
             padding: 12,
-            background: "#f8fafc",
+            background: "var(--bg-primary)",
             borderRadius: 8,
           }}
         >
@@ -268,7 +268,7 @@ export default function DoseTrendAnalysis() {
       {/* 新设备换装前后对比 */}
       <div
         style={{
-          background: "#fff",
+          background: "var(--bg-card)",
           borderRadius: 12,
           padding: 20,
           border: "1px solid #e2e8f0",

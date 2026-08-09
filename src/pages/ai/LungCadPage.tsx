@@ -1,5 +1,6 @@
 import { aiDiagnosisApi } from "../../services/api/aiDiagnosisApi";
 import type { LungCadResult } from "../../services/api/lungCadApi";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   Table,
@@ -22,6 +23,7 @@ import {
   AlertTriangle,
   RefreshCw,
   Cpu,
+  Eye,
 } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 
@@ -35,6 +37,7 @@ const riskColor: Record<string, string> = {
 };
 
 const LungCadPage: React.FC = () => {
+  const navigate = useNavigate();
   const [results, setResults] = useState<LungCadResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -111,17 +114,27 @@ const LungCadPage: React.FC = () => {
       title: "操作",
       key: "action",
       render: (_: unknown, r: LungCadResult) => (
-        <Button
-          size="small"
-          type="primary"
-          icon={<Crosshair size={14} />}
-          onClick={() => {
-            setSelected(r);
-            setDetailOpen(true);
-          }}
-        >
-          查看详情
-        </Button>
+        <Space>
+          <Button
+            size="small"
+            type="primary"
+            icon={<Crosshair size={14} />}
+            onClick={() => {
+              setSelected(r);
+              setDetailOpen(true);
+            }}
+          >
+            查看详情
+          </Button>
+          <Button
+            size="small"
+            icon={<Eye size={14} />}
+            data-testid={`goto-viewer-${r.id}`}
+            onClick={() => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(r.studyId)}&ai=1`)}
+          >
+            去阅片叠加
+          </Button>
+        </Space>
       ),
     },
   ];

@@ -113,7 +113,7 @@ export default function EnterpriseSearchPage() {
   return (
     <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
       <div style={{ marginBottom: 16 }}>
-        <h1 style={{ fontSize: 22, color: 'var(--text-primary)', margin: 0 }}>
+        <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
           <Search style={{ marginRight: 8, color: '#1e40af' }} />
           {'\u4F01\u4E1A\u7EA7\u5168\u5C40\u641C\u7D22'}
         </h1>

@@ -61,7 +61,7 @@ export default function DICOMSRParser() {
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div
         style={{
-          background: "#fff",
+          background: "var(--bg-card)",
           borderRadius: 12,
           padding: 20,
           border: "1px solid #e2e8f0",
@@ -168,7 +168,7 @@ export default function DICOMSRParser() {
 
       <div
         style={{
-          background: "#fff",
+          background: "var(--bg-card)",
           borderRadius: 12,
           padding: 20,
           border: "1px solid #e2e8f0",
@@ -187,7 +187,7 @@ export default function DICOMSRParser() {
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ background: "#f8fafc" }}>
+              <tr style={{ background: "var(--bg-primary)" }}>
                 {[
                   "患者",
                   "检查日期",
@@ -219,7 +219,7 @@ export default function DICOMSRParser() {
               {rows.map((r, i) => (
                 <tr
                   key={r.id}
-                  style={{ background: i % 2 === 0 ? "#fff" : "#fafbfc" }}
+                  style={{ background: i % 2 === 0 ? "var(--bg-card)" : "var(--bg-primary)" }}
                 >
                   <td style={cellPrimary}>{r.patientName}</td>
                   <td style={cellMuted}>{r.studyDate}</td>

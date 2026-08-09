@@ -198,7 +198,7 @@ export const FhirSubscriptionPage: React.FC = () => {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
             <Form.Item name="channelType" label="通道类型" rules={[{ required: true }]}>
               <Select options={[
-                { value: 'rest-hook', label: 'REST Hook' },
+                { value: 'rest-hook', label: 'REST 钩子 (Webhook)' },
                 { value: 'websocket', label: 'WebSocket' },
                 { value: 'email', label: '邮件' },
                 { value: 'sms', label: '短信' },
@@ -207,8 +207,8 @@ export const FhirSubscriptionPage: React.FC = () => {
             </Form.Item>
             <Form.Item name="payload" label="负载类型">
               <Select options={[
-                { value: 'id-only', label: 'ID Only' },
-                { value: 'full-resource', label: 'Full Resource' },
+                { value: 'id-only', label: '仅 ID' },
+                { value: 'full-resource', label: '完整资源' },
                 { value: 'none', label: '无' },
               ]} />
             </Form.Item>

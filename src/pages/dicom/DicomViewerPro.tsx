@@ -157,7 +157,9 @@ const DicomViewerProPage: React.FC = () => {
   const viewerHeight = typeof window !== 'undefined' ? window.innerHeight - 210 : 600
 
   // ───────────────────────── G-12: AI 二次检出叠加 ─────────────────────────
-  const [aiEnabled, setAiEnabled] = useState(false)
+  // [G005 v3.0.6.11-86 Wave 4B (D)] CAD 页「去阅片叠加」入口 → ?ai=1 自动开启叠加
+  const aiPresetOn = searchParams.get('ai') === '1'
+  const [aiEnabled, setAiEnabled] = useState(aiPresetOn)
   const [aiFindings, setAiFindings] = useState<AiFinding[]>([])
   const [aiLoading, setAiLoading] = useState(false)
   const [aiError, setAiError] = useState('')

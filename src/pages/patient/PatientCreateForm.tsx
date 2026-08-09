@@ -124,7 +124,7 @@ function RegistrationWizard({
     >
       <div
         style={{
-          background: "#fff",
+          background: "var(--bg-card)",
           borderRadius: 16,
           width: 560,
           maxHeight: "90vh",
@@ -681,7 +681,7 @@ function RegistrationWizard({
             borderTop: "1px solid #e2e8f0",
             display: "flex",
             justifyContent: "space-between",
-            background: "#f8fafc",
+            background: "var(--bg-primary)",
           }}
         >
           <button
@@ -690,7 +690,7 @@ function RegistrationWizard({
               padding: "10px 20px",
               borderRadius: 8,
               border: "1px solid #e2e8f0",
-              background: "#fff",
+              background: "var(--bg-card)",
               color: "#64748b",
               fontSize: 13,
               fontWeight: 600,
@@ -707,7 +707,7 @@ function RegistrationWizard({
                   padding: "10px 20px",
                   borderRadius: 8,
                   border: "1px solid #e2e8f0",
-                  background: "#fff",
+                  background: "var(--bg-card)",
                   color: "#64748b",
                   fontSize: 13,
                   fontWeight: 600,
@@ -788,7 +788,7 @@ export function PatientCreateForm({
   return (
     <div
       style={{
-        background: "#fff",
+        background: "var(--bg-card)",
         borderRadius: 12,
         border: "1px solid #e2e8f0",
         padding: 24,
@@ -810,7 +810,7 @@ export function PatientCreateForm({
             height: 36,
             borderRadius: 8,
             border: "1px solid #e2e8f0",
-            background: "#fff",
+            background: "var(--bg-card)",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
@@ -1042,7 +1042,7 @@ export function PatientCreateForm({
               border: "1px solid #e2e8f0",
               fontSize: 13,
               outline: "none",
-              background: "#fff",
+              background: "var(--bg-card)",
               boxSizing: "border-box",
             }}
           >
@@ -1187,7 +1187,7 @@ export function PatientCreateForm({
               border: "1px solid #e2e8f0",
               fontSize: 13,
               outline: "none",
-              background: "#fff",
+              background: "var(--bg-card)",
               boxSizing: "border-box",
             }}
           >
@@ -1344,7 +1344,7 @@ export function PatientCreateForm({
             padding: "12px 24px",
             borderRadius: 8,
             border: "1px solid #e2e8f0",
-            background: "#fff",
+            background: "var(--bg-card)",
             color: "#64748b",
             fontSize: 13,
             fontWeight: 600,

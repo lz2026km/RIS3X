@@ -118,6 +118,20 @@ export const DentalCadPage: React.FC = () => {
     }
   };
 
+  // [G005 Wave1B] 打开设计详情: dentalApi.getCadDesign (GET /dental/cad/design/:id), 失败回退列表行
+  const handleOpenDesign = async (d: any) => {
+    setCurrent(d);
+    setMode("design");
+    try {
+      const detail = await dentalApi.getCadDesign(d.id);
+      if (detail && typeof detail === "object") {
+        setCurrent({ ...d, ...detail });
+      }
+    } catch (e) {
+      console.warn("[F03] getCadDesign fallback to list row:", (e as Error)?.message);
+    }
+  };
+
   const handleSaveMargin = async () => {
     if (!current || marginPoints.length < 3) {
       message.warning("至少 3 个边缘点");
@@ -395,10 +409,7 @@ export const DentalCadPage: React.FC = () => {
                     key={d.id}
                     size="small"
                     hoverable
-                    onClick={() => {
-                      setCurrent(d);
-                      setMode("design");
-                    }}
+                    onClick={() => void handleOpenDesign(d)}
                     style={{ cursor: "pointer" }}
                   >
                     <Space

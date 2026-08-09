@@ -203,7 +203,7 @@ const CoSignPage: React.FC = () => {
         }}
       >
         <Users size={20} color="#722ed1" />
-        <h1 style={{ fontSize: 20, margin: 0 }}>双签 Co-sign 审核</h1>
+        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>双签 Co-sign 审核</h1>
         <Tag color="purple">报告双签流程</Tag>
       </div>
       <Row gutter={16} style={{ marginBottom: 16 }}>

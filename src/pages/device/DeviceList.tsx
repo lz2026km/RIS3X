@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Eye, Play, User, Wrench } from 'lucide-react'
+import { Eye, Play, User, Wrench, Trash2 } from 'lucide-react'
+import { Popconfirm } from 'antd'
 import { C, StatusBadge, ModalityBadge, ProgressBar } from './DeviceStatusBadge'
 
 interface ExamRoom {
@@ -24,12 +25,13 @@ interface DeviceData {
   [key: string]: unknown
 }
 
-function DeviceCard({ device, examRooms, onDetail, onExam, onMaintenance }: {
+function DeviceCard({ device, examRooms, onDetail, onExam, onMaintenance, onDelete }: {
   device: DeviceData
   examRooms: ExamRoom[]
   onDetail: () => void
   onExam: () => void
   onMaintenance: () => void
+  onDelete?: () => void
 }) {
   const [hovered, setHovered] = useState(false)
   const room = examRooms.find(r => r.deviceId === device.id)
@@ -128,31 +130,47 @@ function DeviceCard({ device, examRooms, onDetail, onExam, onMaintenance }: {
       </div>
 
       <div style={{
-        display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', borderTop: `1px solid ${C.border}`,
+        display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', borderTop: `1px solid ${C.border}`,
       }}>
         {[
           { label: '详情', icon: <Eye size={11} />, on: onDetail, color: C.accent },
           { label: isInUse ? '检查中' : '开始检查', icon: <Play size={11} />, on: onExam, color: C.success, disabled: device.status !== '空闲' && device.status !== '使用中' },
           { label: '维保', icon: <Wrench size={11} />, on: onMaintenance, color: C.warning },
-        ].map(btn => (
-          <button
-            key={btn.label}
-            onClick={btn.on}
-            disabled={btn.disabled}
-            style={{
-              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
-              padding: '8px 4px', border: 'none', cursor: 'pointer', fontSize: 12.5,
-              background: 'transparent', color: btn.disabled ? C.textLight : btn.color,
-              transition: 'background 0.15s',
-              opacity: btn.disabled ? 0.5 : 1,
-            }}
-            onMouseEnter={e => { if (!btn.disabled) (e.target as HTMLElement).style.background = `${btn.color}0f` }}
-            onMouseLeave={e => { (e.target as HTMLElement).style.background = 'transparent' }}
-          >
-            {btn.icon}
-            {btn.label}
-          </button>
-        ))}
+          ...(onDelete ? [{ label: '删除', icon: <Trash2 size={11} />, on: onDelete, color: C.danger }] : []),
+        ].map(btn => {
+          const actionButton = (
+            <button
+              key={btn.label}
+              onClick={btn.on}
+              disabled={btn.disabled}
+              style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+                padding: '8px 4px', border: 'none', cursor: 'pointer', fontSize: 12.5,
+                background: 'transparent', color: btn.disabled ? C.textLight : btn.color,
+                transition: 'background 0.15s',
+                opacity: btn.disabled ? 0.5 : 1,
+              }}
+              onMouseEnter={e => { if (!btn.disabled) (e.target as HTMLElement).style.background = `${btn.color}0f` }}
+              onMouseLeave={e => { (e.target as HTMLElement).style.background = 'transparent' }}
+            >
+              {btn.icon}
+              {btn.label}
+            </button>
+          )
+          return btn.label === '删除' && btn.on ? (
+            <Popconfirm
+              key={btn.label}
+              title="确认删除该设备？"
+              description="删除后不可恢复"
+              okText="删除"
+              cancelText="取消"
+              okButtonProps={{ danger: true }}
+              onConfirm={btn.on}
+            >
+              {actionButton}
+            </Popconfirm>
+          ) : actionButton
+        })}
       </div>
     </div>
   )
@@ -161,12 +179,13 @@ function DeviceCard({ device, examRooms, onDetail, onExam, onMaintenance }: {
 export { DeviceCard }
 export type { DeviceData, ExamRoom }
 
-export function DeviceList({ devices, examRooms, onDetail, onExam, onMaintenance }: {
+export function DeviceList({ devices, examRooms, onDetail, onExam, onMaintenance, onDelete }: {
   devices: DeviceData[]
   examRooms: ExamRoom[]
   onDetail: (device: DeviceData) => void
   onExam: (device: DeviceData) => void
   onMaintenance: (device: DeviceData) => void
+  onDelete?: (device: DeviceData) => void
 }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 14 }}>
@@ -178,6 +197,7 @@ export function DeviceList({ devices, examRooms, onDetail, onExam, onMaintenance
           onDetail={() => onDetail(device)}
           onExam={() => onExam(device)}
           onMaintenance={() => onMaintenance(device)}
+          onDelete={onDelete ? () => onDelete(device) : undefined}
         />
       ))}
     </div>

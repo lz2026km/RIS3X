@@ -102,7 +102,7 @@ export default function DoctorWorkloadPage() {
       {/* 顶部 */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 22, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Users size={20} color="#7c3aed" /> 医生工作量统计
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
             <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, fontWeight: 600, background: source === 'api' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)', color: source === 'api' ? '#16a34a' : '#d97706' }}>
@@ -294,7 +294,7 @@ const BigKpi: React.FC<{ icon: any; label: string; value: number | string; sub: 
       <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</span>
     </div>
     <div>
-      <span style={{ fontSize: 22, fontWeight: 700, color }}>{value}</span>
+      <span style={{ fontSize: 28, fontWeight: 700, color }}>{value}</span>
       <span style={{ fontSize: 12, color: 'var(--text-secondary)', marginLeft: 4 }}>{sub}</span>
     </div>
   </div>

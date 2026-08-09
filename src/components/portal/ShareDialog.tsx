@@ -60,7 +60,7 @@ export default function ShareDialog({
       display: 'flex', alignItems: 'center', justifyContent: 'center',
     }}>
       <div style={{
-        background: '#fff', borderRadius: 12, width: 400, maxWidth: '90vw',
+        background: 'var(--bg-card)', borderRadius: 12, width: 400, maxWidth: '90vw',
         boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
       }}>
         <div style={{ padding: '14px 16px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

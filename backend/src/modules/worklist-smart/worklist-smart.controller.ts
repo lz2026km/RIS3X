@@ -42,7 +42,7 @@ export class WorklistSmartController {
   }
 
   @Get('weights')
-  getWeights(): SmartWeightConfig {
+  async getWeights(): Promise<SmartWeightConfig> {
     return this.service.getWeights()
   }
 
@@ -53,7 +53,7 @@ export class WorklistSmartController {
 
   @Put('weights')
   @Roles('ADMIN')
-  setWeights(@Body(new ZodValidationPipe(WeightSchema)) body: Partial<SmartWeightConfig>): SmartWeightConfig {
+  async setWeights(@Body(new ZodValidationPipe(WeightSchema)) body: Partial<SmartWeightConfig>): Promise<SmartWeightConfig> {
     return this.service.setWeights(body)
   }
 }

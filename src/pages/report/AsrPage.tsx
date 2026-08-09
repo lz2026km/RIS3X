@@ -75,7 +75,7 @@ export default function AsrPage() {
     <PageContainer background="slate" maxWidth="wide">
       <PageHeader icon={<Volume2 size={20} color="#3b82f6" />} title={t("title")} subtitle={t("subtitle")} />
       <div style={{ padding: 24 }}>
-        <div style={{ background: "#fff", borderRadius: 10, padding: 24, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", textAlign: "center" }}>
+        <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 24, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", textAlign: "center" }}>
           <div style={{ marginBottom: 16 }}>
             <div style={{ width: 80, height: 80, borderRadius: "50%", background: recording ? "#fee2e2" : "#dbeafe", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto", transition: "all 0.3s" }}>
               {recording ? <Square size={32} color="#dc2626" /> : <Mic size={32} color="#3b82f6" />}
@@ -98,14 +98,14 @@ export default function AsrPage() {
         </div>
 
         {loading && (
-          <div style={{ marginTop: 16, background: "#fff", borderRadius: 10, padding: 24, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", textAlign: "center" }}>
+          <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 24, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", textAlign: "center" }}>
             <RefreshCw size={24} color="#3b82f6" style={{ animation: "spin 1s linear infinite" }} />
             <div style={{ marginTop: 8, color: "#64748b", fontSize: 13 }}>{t("transcribing")}</div>
           </div>
         )}
 
         {transcribed && !loading && (
-          <div style={{ marginTop: 16, background: "#fff", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+          <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
               <h3 style={{ fontSize: 14, fontWeight: 700, color: "#1e293b", margin: 0, display: "flex", alignItems: "center", gap: 6 }}>
                 <FileText size={16} color="#3b82f6" />{t("transcriptionResult")}
@@ -130,7 +130,7 @@ export default function AsrPage() {
                   <CheckCircle size={16} />{t("submitted")}
                 </div>
               )}
-              <button onClick={handleReset} style={{ padding: "8px 20px", background: "#fff", color: "#475569", border: "1px solid #cbd5e1", borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
+              <button onClick={handleReset} style={{ padding: "8px 20px", background: "var(--bg-card)", color: "#475569", border: "1px solid #cbd5e1", borderRadius: 6, cursor: "pointer", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
                 <RefreshCw size={14} />{t("reset")}
               </button>
             </div>

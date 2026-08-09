@@ -232,14 +232,15 @@ export const smartWorklistHandlers = [
   // ── worklist-smart ──
   http.get(`${API_BASE}/worklist-smart/weights`, async () => {
     await delay(60);
-    return HttpResponse.json({ success: true, data: { ...weights } });
+    // [G005 Wave4A] persisted 标志对齐后端 system_config 持久化
+    return HttpResponse.json({ success: true, data: { ...weights, persisted: true } });
   }),
 
   http.put(`${API_BASE}/worklist-smart/weights`, async ({ request }) => {
     await delay(80);
     const body = (await request.json()) as Partial<WeightConfig>;
     weights = { ...weights, ...body };
-    return HttpResponse.json({ success: true, data: { ...weights } });
+    return HttpResponse.json({ success: true, data: { ...weights, persisted: true } });
   }),
 
   http.post(`${API_BASE}/worklist-smart/score`, async ({ request }) => {

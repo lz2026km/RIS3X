@@ -435,9 +435,9 @@ function QATestPlannerPanel() {
       {/* Sub tabs */}
       <div style={{ display: 'flex', gap: 4, marginBottom: 14 }}>
         {[
-          { id: 'plans', label: '测试计划', icon: <FileText size={12} /> },
-          { id: 'calendar', label: '测试日历', icon: <CalendarDays size={12} /> },
-          { id: 'compliance', label: '合格率统计', icon: <Activity size={12} /> },
+          { id: 'plans', label: '测试计划', icon: <FileText size={14} /> },
+          { id: 'calendar', label: '测试日历', icon: <CalendarDays size={14} /> },
+          { id: 'compliance', label: '合格率统计', icon: <Activity size={14} /> },
         ].map(tab => (
           <button key={tab.id} onClick={() => setActiveQATab(tab.id as any)} style={{
             display: 'flex', alignItems: 'center', gap: 4,
@@ -601,6 +601,13 @@ export default function DevicePage() {
   const [showMaintForm, setShowMaintForm] = useState(false)
   const [maintForm, setMaintForm] = useState({ deviceId: '', planDate: '', type: '定期保养', content: '', estimatedCost: '', assignee: '' })
 
+  // [G005 Wave1A P1-2] 设备新增/删除 + 详情统计 (deviceApi.create/delete/getStats 真实端点)
+  const [showDeviceModal, setShowDeviceModal] = useState(false)
+  const [deviceForm, setDeviceForm] = useState({ name: '', model: '', dept: '', modality: 'CT' })
+  const [apiDevices, setApiDevices] = useState<DeviceEfficiencyData[]>([])
+  const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set())
+  const [apiStats, setApiStats] = useState<{ todayExams: number; totalExams: number; usageMinutes: number } | null>(null)
+
   const { withFeedback, showFeedback } = useButtonFeedback()
 
   // API 加载设备今日统计
@@ -727,6 +734,7 @@ export default function DevicePage() {
   // 设备列表筛选 + 排序
   const manufacturers = ['全部', ...Array.from(new Set(DEVICE_EFFICIENCY.map(d => d.manufacturer)))]
   const filteredDevices = DEVICE_EFFICIENCY
+    .filter(d => !deletedIds.has(d.id))
     .filter(d => {
       const matchSearch = !search || d.name.includes(search) || d.model.includes(search) || d.manufacturer.includes(search)
       const matchType = filterType === '全部' || d.modality === filterType
@@ -753,6 +761,10 @@ export default function DevicePage() {
   const handleDetail = (device: DeviceData) => {
     setSelectedDevice(device as DeviceEfficiencyData)
     setShowDetail(true)
+    setApiStats(null)
+    void deviceApi.getStats(device.id).then(res => {
+      if (res.success && res.data) setApiStats(res.data as { todayExams: number; totalExams: number; usageMinutes: number })
+    }).catch(() => { /* noop */ })
   }
 
   const handleExam = (device: DeviceData) => {
@@ -812,6 +824,63 @@ export default function DevicePage() {
       await loadMaintenancePlans()
     } else {
       showFeedback('error', '✗ 操作失败')
+    }
+  }
+
+  // [G005 Wave1A P1-2] 新增设备 → POST /devices (deviceApi.create 真实)
+  const handleCreateDevice = async () => {
+    if (!deviceForm.name.trim()) { showFeedback('error', '请填写设备名称'); return }
+    showFeedback('loading', '处理中...')
+    const res = await deviceApi.create({
+      code: `DV-${Date.now().toString(36).toUpperCase()}`,
+      name: deviceForm.name.trim(),
+      modality: deviceForm.modality,
+      manufacturer: deviceForm.model.trim() || undefined,
+      location: deviceForm.dept.trim() || undefined,
+    })
+    if (!res.success) { showFeedback('error', res.error?.message ?? '✗ 创建失败'); return }
+    if (res.data) {
+      const row: DeviceEfficiencyData = {
+        id: res.data.id,
+        name: res.data.name,
+        modality: res.data.modality,
+        manufacturer: (res.data.manufacturer ?? deviceForm.model) || '新增厂商',
+        model: deviceForm.model || '—',
+        location: (res.data.room ?? deviceForm.dept) || '放射科',
+        status: '空闲',
+        seriesCount: 0,
+        acquisitionStation: '',
+        todayBookings: 0,
+        capacity: 100,
+        utilization: 0,
+        uptime: 100,
+        mtbf: 365,
+        age: 0,
+        healthScore: 95,
+        avgExamTime: 20,
+        maxExamTime: 40,
+        minExamTime: 5,
+        totalRuntime: '0 小时',
+        faultCount: 0,
+        maintCount: 0,
+      }
+      setApiDevices(prev => [row, ...prev])
+      setShowDeviceModal(false)
+      setDeviceForm({ name: '', model: '', dept: '', modality: 'CT' })
+      showFeedback('success', `设备已新增: ${res.data.name}`)
+    }
+  }
+
+  // [G005 Wave1A P1-2] 删除设备 → DELETE /devices/:id (deviceApi.delete 真实, 确认由 DeviceList Popconfirm)
+  const handleDeleteDevice = async (device: DeviceData) => {
+    const res = await deviceApi.delete(device.id).catch(() => ({ success: false }))
+    if (res.success) {
+      setDeletedIds(prev => new Set(prev).add(device.id))
+      setApiDevices(prev => prev.filter(d => d.id !== device.id))
+      if (selectedDevice?.id === device.id) setShowDetail(false)
+      showFeedback('success', `设备已删除: ${device.name}`)
+    } else {
+      showFeedback('error', '✗ 删除失败')
     }
   }
 
@@ -1067,11 +1136,12 @@ export default function DevicePage() {
         deviceCount={filteredDevices.length}
       />
       <DeviceList
-        devices={filteredDevices}
+        devices={[...apiDevices, ...filteredDevices]}
         examRooms={initialExamRooms}
         onDetail={handleDetail}
         onExam={handleExam}
         onMaintenance={handleMaintenance}
+        onDelete={handleDeleteDevice}
       />
     </div>
   )
@@ -1702,6 +1772,92 @@ export default function DevicePage() {
   }
 
   // ============================================================
+  // 添加设备表单弹窗 [G005 Wave1A P1-2]
+  // ============================================================
+  const renderDeviceModal = () => {
+    if (!showDeviceModal) return null
+    return (
+      <div style={{
+        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+        background: 'rgba(0,0,0,0.5)', zIndex: 1000,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20
+      }}>
+        <div style={{
+          background: C.white, borderRadius: 16, width: '100%', maxWidth: 500,
+          boxShadow: '0 20px 60px rgba(30,58,95,0.25)'
+        }}>
+          <div style={{
+            padding: '16px 20px', background: C.accent, color: '#fff',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            borderRadius: '16px 16px 0 0'
+          }}>
+            <div style={{ fontSize: 15, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Plus size={16} /> 新增设备
+            </div>
+            <button onClick={() => setShowDeviceModal(false)} style={{
+              background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 8,
+              padding: 6, cursor: 'pointer', color: '#fff', display: 'flex'
+            }}>
+              <X size={16} />
+            </button>
+          </div>
+          <div style={{ padding: 20 }}>
+            <div style={{ display: 'grid', gap: 12 }}>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>设备名称 *</label>
+                <input value={deviceForm.name} onChange={e => setDeviceForm(f => ({ ...f, name: e.target.value }))} placeholder="如 CT-3（联影 uCT 960）" style={{
+                  width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
+                  fontSize: 12, color: C.textDark, outline: 'none', boxSizing: 'border-box'
+                }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>型号 / 厂商</label>
+                <input value={deviceForm.model} onChange={e => setDeviceForm(f => ({ ...f, model: e.target.value }))} placeholder="如 uCT 960 / 联影" style={{
+                  width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
+                  fontSize: 12, color: C.textDark, outline: 'none', boxSizing: 'border-box'
+                }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>科室 / 位置</label>
+                <input value={deviceForm.dept} onChange={e => setDeviceForm(f => ({ ...f, dept: e.target.value }))} placeholder="如 CT检查室3" style={{
+                  width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
+                  fontSize: 12, color: C.textDark, outline: 'none', boxSizing: 'border-box'
+                }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>模态 *</label>
+                <select value={deviceForm.modality} onChange={e => setDeviceForm(f => ({ ...f, modality: e.target.value }))} style={{
+                  width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
+                  fontSize: 12, color: C.textDark, outline: 'none'
+                }}>
+                  {['CT', 'MR', 'DR', 'US', 'DSA', 'MG', 'RF'].map(m => <option key={m} value={m}>{m}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'block', marginBottom: 4 }}>状态</label>
+                <input value="空闲 (新增默认)" disabled style={{
+                  width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${C.border}`,
+                  fontSize: 12, color: C.textLight, outline: 'none', boxSizing: 'border-box', background: '#f8fafc'
+                }} />
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
+              <button onClick={() => setShowDeviceModal(false)} style={{
+                flex: 1, padding: '9px 12px', borderRadius: 8, border: `1px solid ${C.border}`,
+                background: C.white, color: C.textMid, fontSize: 13, fontWeight: 600, cursor: 'pointer'
+              }}>取消</button>
+              <button onClick={handleCreateDevice} style={{
+                flex: 1, padding: '9px 12px', borderRadius: 8, border: 'none',
+                background: C.accent, color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer'
+              }}>确认新增</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ============================================================
   // 渲染入口
   // ============================================================
   return (
@@ -1720,7 +1876,7 @@ export default function DevicePage() {
       <div style={{ padding: '20px 0 16px', borderBottom: `2px solid ${C.border}`, marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <h1 style={{ fontSize: 20, fontWeight: 800, color: C.primary, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <h1 style={{ fontSize: 20, fontWeight: 700, color: C.primary, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
               <Monitor size={22} /> 影像设备管理
             </h1>
             <div style={{ fontSize: 12, color: C.textLight, marginTop: 3 }}>
@@ -1743,6 +1899,15 @@ export default function DevicePage() {
               setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; btn.style.color = ''; }, 2000);
             }}>
               <Download size={13} /> 导出报表
+            </button>
+            <button
+              onClick={() => setShowDeviceModal(true)}
+              style={{
+                padding: '7px 14px', borderRadius: 8, border: 'none',
+                background: C.accent, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4
+              }}
+            >
+              <Plus size={13} /> 新增设备
             </button>
             <button
               onClick={() => { setActiveTab(3); setShowMaintForm(true) }}
@@ -1804,11 +1969,14 @@ export default function DevicePage() {
           deviceStatsData={deviceStatsData}
           examRooms={initialExamRooms}
           extInfo={(DEVICE_EXTENDED_INFO.find(e => e.id === selectedDevice.id) || selectedDevice) as DeviceEfficiencyData}
+          apiStats={apiStats}
         />
       )}
 
       {/* 维保记录表单弹窗 */}
       {renderMaintenanceFormModal()}
+      {/* 新增设备弹窗 */}
+      {renderDeviceModal()}
     </div>
   )
 }

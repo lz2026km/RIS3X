@@ -56,7 +56,7 @@ export default function DoseSearchPanel({
         style={{
           display: "flex",
           gap: 4,
-          background: "#f1f5f9",
+          background: "var(--bg-primary)",
           padding: 4,
           borderRadius: 8,
           flexWrap: "wrap",
@@ -73,7 +73,7 @@ export default function DoseSearchPanel({
               fontSize: 12,
               fontWeight: 600,
               cursor: "pointer",
-              background: view === v.key ? "#fff" : "transparent",
+              background: view === v.key ? "var(--bg-card)" : "transparent",
               color: view === v.key ? "#1e40af" : "#64748b",
               boxShadow:
                 view === v.key ? "0 1px 3px rgba(0,0,0,0.1)" : "none",

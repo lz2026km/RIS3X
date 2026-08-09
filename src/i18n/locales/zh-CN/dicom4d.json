@@ -1,0 +1,16 @@
+{
+  "loadError": "4D 序列加载失败",
+  "title": "4D 动态成像",
+  "series": "4D 序列",
+  "selectSeries": "选择 4D 序列",
+  "speed": "速度",
+  "loop": "循环播放",
+  "loopOff": "关闭",
+  "cardiacPhase": "心脏相位",
+  "phase": "相位",
+  "systole": "收缩期",
+  "diastole": "舒张期",
+  "respiratoryPhase": "呼吸相位",
+  "inspiration": "吸气",
+  "expiration": "呼气"
+}

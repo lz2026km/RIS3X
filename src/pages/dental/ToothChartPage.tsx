@@ -3,6 +3,8 @@ import { Card, Space, Tag, Row, Col, Empty, Tooltip } from "antd";
 import { Activity, Stethoscope } from "lucide-react";
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect } from "react";
+// [G005 Wave1B] 牙位图数据: dentalApi.getDentalChart (GET /dental/chart/:patientId)
+import { dentalApi } from "../../services/api/dentalApi";
 
 export const ToothChartPage: React.FC = () => {
   const [patientId] = useState("P100000");
@@ -12,9 +14,8 @@ export const ToothChartPage: React.FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        const r = await fetch(`/api/v1/dental/chart/${patientId}`);
-        const d = await r.json();
-        if (d.success) setChart(d.data);
+        const r = await dentalApi.getDentalChart(patientId);
+        if (r.success) setChart(r.data);
       } catch (e) {
         console.warn("[F03] Error:", (e as Error)?.message);
       }

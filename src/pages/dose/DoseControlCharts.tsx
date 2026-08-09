@@ -45,7 +45,7 @@ export default function DoseControlCharts() {
       </div>
       <div
         style={{
-          background: "#fff",
+          background: "var(--bg-card)",
           borderRadius: 12,
           padding: 20,
           border: "1px solid #e2e8f0",
@@ -134,7 +134,7 @@ export default function DoseControlCharts() {
 
       <div
         style={{
-          background: "#fff",
+          background: "var(--bg-card)",
           borderRadius: 12,
           padding: 20,
           border: "1px solid #e2e8f0",
@@ -254,7 +254,7 @@ export default function DoseControlCharts() {
 }
 
 const kpiBox: React.CSSProperties = {
-  background: "#fff",
+  background: "var(--bg-card)",
   borderRadius: 10,
   padding: 12,
   border: "1px solid #e2e8f0",

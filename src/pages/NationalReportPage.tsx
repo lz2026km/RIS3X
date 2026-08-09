@@ -1104,7 +1104,7 @@ const ScheduledReportsPanel = () => {
             </div>
             <button onClick={() => handleRunNow(s.id)} disabled={runStatus === s.id}
               style={{ padding: '6px 14px', background: s.enabled ? COLORS.primary : '#d1d5db', color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: s.enabled ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Repeat size={12} /> {runStatus === s.id ? '运行中...' : '立即执行'}
+              <Repeat size={14} /> {runStatus === s.id ? '运行中...' : '立即执行'}
             </button>
           </div>
         </div>
@@ -1477,7 +1477,7 @@ export default function NationalReportPage() {
           </div>
           <div style={styles.statValue}>{totalExams.toLocaleString()}</div>
           <div style={{ ...styles.statChange, color: COLORS.success }}>
-            <TrendingUp size={12} />
+            <TrendingUp size={14} />
             <span>较上月 +12.5%</span>
           </div>
         </div>
@@ -1498,7 +1498,7 @@ export default function NationalReportPage() {
           </div>
           <div style={{ ...styles.statValue, color: COLORS.success }}>{avgQualifiedRate.toFixed(1)}%</div>
           <div style={{ ...styles.statChange, color: COLORS.success }}>
-            <CheckCircle size={12} />
+            <CheckCircle size={14} />
             <span>达到标准</span>
           </div>
         </div>
@@ -1665,7 +1665,7 @@ export default function NationalReportPage() {
                           style={{ ...styles.button, padding: '4px 10px', fontSize: 12, ...styles.buttonOutline, display: 'inline-flex', alignItems: 'center', gap: 4 }}
                           onClick={() => void handleViewDetail('national', item.id)}
                         >
-                          <Eye size={12} /> 详情
+                          <Eye size={14} /> 详情
                         </button>
                       </td>
                     </tr>
@@ -1714,7 +1714,7 @@ export default function NationalReportPage() {
                           style={{ ...styles.button, padding: '4px 10px', fontSize: 12, ...styles.buttonOutline, display: 'inline-flex', alignItems: 'center', gap: 4 }}
                           onClick={() => void handleViewDetail('data', item.id)}
                         >
-                          <Eye size={12} /> 详情
+                          <Eye size={14} /> 详情
                         </button>
                       </td>
                     </tr>

@@ -78,4 +78,56 @@ describe('ImageAiService', () => {
     const none = await svc.stats({ operatorId: 'nobody' })
     expect(none.totalScores).toBe(0)
   })
+
+  // [G005 Wave4A] G-24 三维度评估
+  describe('assess', () => {
+    it('returns three dimensions plus overall with deterministic scores', async () => {
+      const a = await svc.assess({ studyId: 'STU-1' })
+      expect(a.studyId).toBe('STU-1')
+      expect(a.artifact).toHaveProperty('score')
+      expect(a.exposure).toHaveProperty('score')
+      expect(a.positioning).toHaveProperty('score')
+      expect(a.overall).toHaveProperty('score')
+      expect(Array.isArray(a.artifact.issues)).toBe(true)
+      expect(Array.isArray(a.exposure.issues)).toBe(true)
+      expect(Array.isArray(a.positioning.issues)).toBe(true)
+      expect(a.artifact.label).toBeDefined()
+      expect(a.overall.label).toBeDefined()
+    })
+
+    it('is deterministic for the same studyId', async () => {
+      const a1 = await svc.assess({ studyId: 'STU-D1' })
+      const a2 = await svc.assess({ studyId: 'STU-D1' })
+      expect(a2).toEqual(a1)
+    })
+
+    it('uses exam modality/bodyPart from prisma when available', async () => {
+      const withPrisma = new ImageAiService({
+        exam: { findUnique: jest.fn().mockResolvedValue({ modality: 'MR', bodyPart: '头颅' }) },
+      } as never)
+      const a = await withPrisma.assess({ studyId: 'STU-E1' })
+      expect(a.modality).toBe('MR')
+      expect(a.bodyPart).toBe('头颅')
+    })
+
+    it('falls back to deterministic seed when exam lookup fails', async () => {
+      const broken = new ImageAiService({
+        exam: { findUnique: jest.fn().mockRejectedValue(new Error('db down')) },
+      } as never)
+      const a = await broken.assess({ studyId: 'STU-E2', modality: 'DR', bodyPart: '腰椎' })
+      expect(a.modality).toBe('DR')
+      expect(a.bodyPart).toBe('腰椎')
+      expect(a.overall.score).toBeGreaterThanOrEqual(55)
+    })
+
+    it('scores stay within 55-99 range', async () => {
+      for (const id of ['S1', 'S2', 'S3', 'S4', 'S5']) {
+        const a = await svc.assess({ studyId: id })
+        for (const dim of [a.artifact, a.exposure, a.positioning]) {
+          expect(dim.score).toBeGreaterThanOrEqual(55)
+          expect(dim.score).toBeLessThanOrEqual(99)
+        }
+      }
+    })
+  })
 })

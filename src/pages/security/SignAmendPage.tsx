@@ -61,7 +61,7 @@ export const SignAmendPage: React.FC = () => {
   const handleRevoke = async () => {
     if (!certModal.data.id) return;
     try {
-      const r = await signApi.revokeCertificate(certModal.data.id, { reason: certModal.data.reason || 'admin revoke' });
+      const r = await signApi.revokeCertificate(certModal.data.id, { reason: certModal.data.reason || '管理员吊销' });
       if (r.success) { message.success('吊销成功'); setCertModal({ type: null, data: {} }); loadCerts(); }
     } catch (e: any) { message.error(e.message); }
   };

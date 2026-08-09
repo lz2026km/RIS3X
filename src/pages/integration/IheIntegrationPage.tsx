@@ -19,6 +19,8 @@ const IheIntegrationPage: React.FC = () => {
   const [pamModal, setPamModal] = useState(false);
   const [patientId, setPatientId] = useState('');
   const [pixResult, setPixResult] = useState<string>('');
+  // [G005 2B] 事务详情 Modal
+  const [detailTxn, setDetailTxn] = useState<string | null>(null);
 
   const fetchStatus = useCallback(async () => {
     setLoading(true);
@@ -96,8 +98,8 @@ const IheIntegrationPage: React.FC = () => {
             {loading ? <Spin /> : domain ? (
               <Space direction="vertical" size={8} style={{ width: '100%' }}>
                 <div><Tag color="blue">名称</Tag> {domain.name} {domain.nameEn ? <span style={{ color: '#64748b' }}>({domain.nameEn})</span> : null}</div>
-                <div><Tag>Home Community ID</Tag> <code style={{ background: 'var(--bg-card)', padding: '2px 6px', borderRadius: 4 }}>{domain.homeCommunityId}</code></div>
-                <div><Tag>Assigning Authority</Tag> <code style={{ background: 'var(--bg-card)', padding: '2px 6px', borderRadius: 4 }}>{domain.assigningAuthorityId}</code></div>
+                <div><Tag>家庭社区 ID</Tag> <code style={{ background: 'var(--bg-card)', padding: '2px 6px', borderRadius: 4 }}>{domain.homeCommunityId}</code></div>
+                <div><Tag>主索引机构 (Assigning Authority)</Tag> <code style={{ background: 'var(--bg-card)', padding: '2px 6px', borderRadius: 4 }}>{domain.assigningAuthorityId}</code></div>
                 <Divider style={{ margin: '4px 0' }} />
                 <Space size={4} wrap>
                   {domain.pixManagerEndpoint && <Tag icon={<Network size={10} />} color="purple">PIX: {domain.pixManagerEndpoint}</Tag>}
@@ -142,7 +144,10 @@ const IheIntegrationPage: React.FC = () => {
                 rowKey="key" pagination={false} size="small"
                 columns={[
                   { title: '事务', dataIndex: 'transaction', render: (t: string) => <Tag color="blue">{t}</Tag> },
+                  { title: '标准', render: (_, r) => <Tag color="purple">{TRANSACTION_STANDARD[r.transaction as string] ?? 'HL7 v2.x'}</Tag> },
                   { title: '说明', render: (_, r) => <span style={{ fontSize: 12, color: '#64748b' }}>{TRANSACTION_DESC[r.transaction as string] ?? 'IHE 集成事务'}</span> },
+                  { title: '状态', render: () => <Tag color="green">已启用</Tag> },
+                  { title: '操作', render: (_, r) => <Button size="small" onClick={() => setDetailTxn(r.transaction as string)}>查看详情</Button> },
                 ]}
               scroll={{ x: 'max-content' }} />
             )}
@@ -176,6 +181,17 @@ const IheIntegrationPage: React.FC = () => {
         </Space>
       </Modal>
 
+      <Modal title={`事务详情 - ${detailTxn ?? ''}`} open={!!detailTxn} onCancel={() => setDetailTxn(null)} footer={<Button type="primary" onClick={() => setDetailTxn(null)}>关闭</Button>} width={480}>
+        {detailTxn && (
+          <Descriptions bordered column={1} size="small" style={{ marginTop: 12 }}>
+            <Descriptions.Item label="事务名称">{detailTxn}</Descriptions.Item>
+            <Descriptions.Item label="标准">{TRANSACTION_STANDARD[detailTxn] ?? 'HL7 v2.x'}</Descriptions.Item>
+            <Descriptions.Item label="说明">{TRANSACTION_DESC[detailTxn] ?? 'IHE 集成事务'}</Descriptions.Item>
+            <Descriptions.Item label="状态"><Tag color="green">已启用</Tag></Descriptions.Item>
+          </Descriptions>
+        )}
+      </Modal>
+
       <Modal title="PAM 就诊管理" open={pamModal} onCancel={() => setPamModal(false)} footer={<Button type="primary" onClick={() => setPamModal(false)}>关闭</Button>} width={520}>
         <Space direction="vertical" size={10} style={{ width: '100%', marginTop: 8 }}>
           <Alert type="info" showIcon message="PAM 就诊状态消息由 HL7 ADT (A01 入院 / A03 出院 / A04 登记 / A08 信息更新) 驱动" />
@@ -198,6 +214,15 @@ const TRANSACTION_DESC: Record<string, string> = {
   'PAM Message': '就诊通知管理',
   'PAM Query': '就诊状态查询',
   'ATNA Audit': '审计追踪节点访问',
+};
+
+const TRANSACTION_STANDARD: Record<string, string> = {
+  'PIX Feed': 'IHE ITI-8 / HL7 v2.x',
+  'PIX Query': 'IHE ITI-9 / HL7 v2.x',
+  'PDQ Query': 'IHE ITI-21 / HL7 v2.x',
+  'PAM Message': 'IHE ITI-30 / ADT',
+  'PAM Query': 'IHE ITI-31 / Q22',
+  'ATNA Audit': 'IHE ITI-20 / ATNA',
 };
 
 export default IheIntegrationPage;

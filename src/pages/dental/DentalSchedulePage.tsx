@@ -6,6 +6,7 @@ import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, T
 import { Calendar, User, Armchair, Plus, CheckCircle2 } from 'lucide-react';
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect } from 'react';
+import { usePagination } from '@/hooks/usePagination';
 
 const TIME_SLOTS = ['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00'];
 const APPT_TYPES = [
@@ -34,6 +35,9 @@ export const DentalSchedulePage: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [psrSaving, setPsrSaving] = useState(false);
   const [psrRec, setPsrRec] = useState({ patientId: 'P100001', quadrant: 1, probingDepths: [2,2,2,2,2,2], bleeding: [false,false,false,false,false,false], mobility: 0, psrCode: 1, note: '' });
+  // [G005 Wave1B] 历史 PSR 记录: dentalApi.listPsrRecords (GET /dental/chart/:patientId/psr)
+  const [psrHistory, setPsrHistory] = useState<any[]>([]);
+  const [psrLoading, setPsrLoading] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -58,7 +62,20 @@ export const DentalSchedulePage: React.FC = () => {
 
   useEffect(() => { fetchData(); }, [selectedDate]);
 
+  // [G005 Wave1B] 加载历史 PSR 记录 (切换患者时刷新)
+  useEffect(() => {
+    let cancelled = false;
+    setPsrLoading(true);
+    void dentalApi.listPsrRecords(psrRec.patientId).then((res: any) => {
+      if (cancelled) return;
+      if (res.success && Array.isArray(res.data)) setPsrHistory(res.data);
+    }).catch(() => { if (!cancelled) setPsrHistory([]); }).finally(() => { if (!cancelled) setPsrLoading(false); });
+    return () => { cancelled = true; };
+  }, [psrRec.patientId]);
+
   const filtered = selectedChair === 'all' ? appts : appts.filter(a => a.chairId === selectedChair);
+  // [G005 2B] 受控分页: 排班看板预约表 (数据可增长)
+  const { pageData: pagedFiltered, pagination: filteredPagination } = usePagination(filtered, 10);
 
   const chairColors: Record<string, string> = { 'online': '#52c41a', 'offline': '#ff4d4f', 'maintenance': '#faad14' };
 
@@ -90,15 +107,13 @@ export const DentalSchedulePage: React.FC = () => {
 
   const handleUpdateStatus = async (id: string, status: string) => {
     try {
-      const res = await fetch(`/api/v1/dental/schedule/appointments/${id}/status`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
-      });
-      const data = await res.json();
-      if (data.success) {
+      // [G005 Wave1B] 排班状态流转: dentalApi.updateScheduleAppointmentStatus (POST /dental/schedule/appointments/:id/status)
+      const res = await dentalApi.updateScheduleAppointmentStatus(id, status);
+      if (res.success) {
         message.success(status === 'in-progress' ? '已开始' : '已取消');
         await fetchData();
+      } else {
+        message.warning(res.error?.message ?? '状态更新失败');
       }
     } catch { /* ignore */ }
   };
@@ -136,7 +151,7 @@ export const DentalSchedulePage: React.FC = () => {
         {key:'schedule', label:'排班看板', children:<>
           <Button type="primary" icon={<Plus size={14}/>} style={{marginBottom:8}} onClick={()=>setCreateModal(true)}>新建预约</Button>
           {filtered.length === 0 ? <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="当日暂无预约" /> : (
-            <Table dataSource={filtered} rowKey="id" size="small" pagination={false}
+            <Table dataSource={pagedFiltered} rowKey="id" size="small" pagination={filteredPagination}
               columns={[
                 {title:'时间',dataIndex:'time',width:70,render:(t:string)=><Tag color="geekblue">{t}</Tag>,fixed:'left'},
                 {title:'患者',dataIndex:'patientName',width:100},
@@ -176,19 +191,21 @@ export const DentalSchedulePage: React.FC = () => {
                       </Col>
                     ))}
                   </Row>
-                  <div style={{fontSize:11,color:"var(--text-secondary)",marginTop:4}}>6-point: DB (Distal-Buccal), B (Buccal), MB (Mesial-Buccal), ML (Mesial-Lingual), L (Lingual), DL (Distal-Lingual)</div>
+                  <div style={{fontSize:11,color:"var(--text-secondary)",marginTop:4}}>六点探诊：DB（远中颊）、B（颊）、MB（近中颊）、ML（近中舌）、L（舌）、DL（远中舌）</div>
                   <Form.Item label="松动度" style={{marginTop:8}}><Select value={psrRec.mobility} onChange={v=>setPsrRec({...psrRec,mobility:v})} options={[{value:0,label:'0度正常'},{value:1,label:'I度小于1mm'},{value:2,label:'II度1-2mm'},{value:3,label:'III度大于2mm'}]} /></Form.Item>
                   <Form.Item label="PSR 编码"><Select value={psrRec.psrCode} onChange={v=>setPsrRec({...psrRec,psrCode:v})} options={[{value:0,label:'0:健康'},{value:1,label:'1:出血'},{value:2,label:'2:牙结石'},{value:3,label:'3:4-5mm'},{value:4,label:'4:大于6mm'}]} /></Form.Item>
                   <Form.Item label="备注"><Input.TextArea value={psrRec.note} onChange={e=>setPsrRec({...psrRec,note:e.target.value})} rows={2} /></Form.Item>
                   <Button type="primary" block loading={psrSaving} onClick={async()=>{
                     setPsrSaving(true);
                     try {
-                      const res = await fetch(`/api/v1/dental/chart/${psrRec.patientId}/psr`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(psrRec)});
-                      const data = await res.json();
-                      if (data.success) {
+                      // [G005 Wave1B] 保存 PSR: dentalApi.savePsrRecord (POST /dental/chart/:patientId/psr)
+                      const res = await dentalApi.savePsrRecord(psrRec.patientId, psrRec);
+                      if (res.success) {
                         message.success('牙周记录已保存');
+                        const list = await dentalApi.listPsrRecords(psrRec.patientId);
+                        if (list.success && Array.isArray(list.data)) setPsrHistory(list.data);
                       } else {
-                        message.error('保存失败: ' + (data.error?.message || '未知错误'));
+                        message.error('保存失败: ' + (res.error?.message || '未知错误'));
                       }
                     } catch (e) {
                       console.error('[F04]', e);
@@ -201,18 +218,26 @@ export const DentalSchedulePage: React.FC = () => {
               </Card>
             </Col>
             <Col span={14}>
-              <Card size="small" title="历史 PSR 记录">
-                {[1,2,3,4].map(q => (
-                  <Card key={q} size="small" style={{marginBottom:4}} title={`象限 ${q}`}>
-                    <Space wrap>
-                      <Tag color="blue">PSR 评分: 2</Tag>
-                      <Tag color="orange">探诊: 3-5mm</Tag>
-                      <Tag>松动 I°</Tag>
-                      <span style={{fontSize:11,color:'var(--text-secondary)'}}>2026-06-15 李医生</span>
-                    </Space>
-                    <div style={{marginTop:4,fontSize:11,color:'var(--text-secondary)'}}>6点: 2-3-4-3-2-2mm</div>
-                  </Card>
-                ))}
+              <Card size="small" title={<Space>历史 PSR 记录 <Tag color="blue">listPsrRecords</Tag></Space>}>
+                {psrLoading ? (
+                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="加载中..." />
+                ) : psrHistory.length === 0 ? (
+                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无 PSR 记录" />
+                ) : (
+                  psrHistory.map((rec: any, i: number) => (
+                    <Card key={rec.id || i} size="small" style={{ marginBottom: 4 }} title={`象限 ${rec.quadrant ?? '-'} · ${rec.patientId ?? ''}`}>
+                      <Space wrap>
+                        <Tag color="blue">PSR 评分: {rec.psrCode ?? '-'}</Tag>
+                        <Tag color="orange">探诊: {Array.isArray(rec.probingDepths) ? `${Math.min(...rec.probingDepths)}-${Math.max(...rec.probingDepths)}mm` : '-'}</Tag>
+                        <Tag>松动 {(rec.mobility ?? 0) + '°'}</Tag>
+                        <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{String(rec.createdAt ?? rec.recordedAt ?? '').replace('T', ' ').slice(0, 16) || '—'}</span>
+                      </Space>
+                      {Array.isArray(rec.probingDepths) && (
+                        <div style={{ marginTop: 4, fontSize: 11, color: 'var(--text-secondary)' }}>6点: {rec.probingDepths.join('-')}mm {rec.note ? `| ${rec.note}` : ''}</div>
+                      )}
+                    </Card>
+                  ))
+                )}
               </Card>
             </Col>
           </Row>

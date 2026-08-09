@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
-import { Card, Tabs, Table, Button, Form, Input, Select, Upload, message, Tag, Space, Alert, InputNumber, Modal } from 'antd'
-import { Send, Search, Upload as UploadIcon, ArrowRight, CheckCircle, XCircle, Radio, RefreshCw, Plus } from 'lucide-react'
-import { dicomDimseApi } from '../../services/api/dicomApi'
+import React, { useState, useEffect, useCallback } from 'react'
+import { Card, Tabs, Table, Button, Form, Input, Select, Upload, message, Tag, Space, Alert, InputNumber, Modal, Switch } from 'antd'
+import { Send, Search, Upload as UploadIcon, ArrowRight, CheckCircle, XCircle, Radio, RefreshCw, Plus, Lock, Clock3, FileKey, Save } from 'lucide-react'
+import { dicomDimseApi, type DicomTlsConfig, type MppsRecord } from '../../services/api/dicomApi'
 import { usePagination } from '../../hooks/usePagination'
 
 const DIMSE_STATUS_LABEL: Record<string, string> = { SUCCESS: '成功' };
@@ -38,6 +38,39 @@ const C_MOVE_COLUMNS = [
   { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={v === 'SUCCESS' ? 'green' : 'red'}>{DIMSE_STATUS_LABEL[v] ?? v}</Tag> },
 ]
 
+// [G005 v3.0.6.11-86 Wave 4B (G-05)] MPPS 进度列
+const MPPS_STATUS_COLOR: Record<string, string> = {
+  IN_PROGRESS: 'processing',
+  COMPLETED: 'success',
+  DISCONTINUED: 'error',
+}
+const MPPS_COLUMNS = [
+  { title: '检查 UID', dataIndex: 'studyUid', key: 'studyUid', ellipsis: true },
+  { title: '患者', dataIndex: 'patientName', key: 'patientName', render: (v?: string) => v || '-' },
+  { title: '设备', dataIndex: 'modality', key: 'modality', render: (v?: string) => v || '-' },
+  { title: '状态', dataIndex: 'status', key: 'status', render: (v: string) => <Tag color={MPPS_STATUS_COLOR[v] ?? 'default'}>{v}</Tag> },
+  { title: '开始时间', dataIndex: 'startedAt', key: 'startedAt', render: (v?: string) => v ? new Date(v).toLocaleString() : '-' },
+  { title: '完成时间', dataIndex: 'completedAt', key: 'completedAt', render: (v?: string) => v ? new Date(v).toLocaleString() : '-' },
+  { title: '步骤数', dataIndex: 'performedSteps', key: 'performedSteps', render: (v?: unknown[]) => Array.isArray(v) ? v.length : 0 },
+  { title: '来源', dataIndex: 'source', key: 'source', render: (v?: string) => <Tag color={v === 'exam' ? 'blue' : 'default'}>{v === 'exam' ? 'Exam 派生' : 'MPPS'}</Tag> },
+]
+
+const TLS_NODE_COLUMNS = [
+  { title: '应用实体名', dataIndex: 'aeTitle', key: 'aeTitle' },
+  { title: 'IP 地址', dataIndex: 'ip', key: 'ip' },
+  { title: '端口', dataIndex: 'port', key: 'port' },
+  { title: '设备', dataIndex: 'modality', key: 'modality' },
+  { title: 'TLS', key: 'tls', render: (_: unknown, r: any) => <Tag color={r._tlsEnabled ? 'green' : 'default'}>{r._tlsEnabled ? '已启用' : '未启用'}</Tag> },
+  { title: '操作', key: 'action', render: (_: unknown, r: any) => (
+    <Switch
+      size="small"
+      checked={r._tlsEnabled}
+      loading={r._tlsSaving}
+      onChange={(checked) => r._onToggleTls(checked)}
+    />
+  ) },
+]
+
 interface DimseDevice {
   aeTitle: string
   ip: string
@@ -70,6 +103,103 @@ export const DicomDimsePage: React.FC = () => {
   const [deviceForm] = Form.useForm()
   // [W3-C] 受控分页: MWL 结果表 (C-FIND)
   const mwlPagination = usePagination(mwlResults, 10)
+  // [G005 2B] 受控分页: C-STORE / C-MOVE 结果表 (数据可增长)
+  const storePagination = usePagination(storeResults, 10)
+  const movePagination = usePagination(moveResults, 10)
+  // [G005 v3.0.6.11-86 Wave 4B (G-03)] TLS 配置状态
+  const [tlsConfig, setTlsConfig] = useState<DicomTlsConfig>({ enabled: false, port: 2762, verifyPeer: false })
+  const [tlsLoading, setTlsLoading] = useState(true)
+  const [tlsSaving, setTlsSaving] = useState(false)
+  const [tlsCertFile, setTlsCertFile] = useState<string>()
+  const [tlsCaCertFile, setTlsCaCertFile] = useState<string>()
+  const [tlsNodes, setTlsNodes] = useState<any[]>([])
+  // [G005 v3.0.6.11-86 Wave 4B (G-05)] MPPS 进度状态
+  const [mppsForm] = Form.useForm()
+  const [mppsRecords, setMppsRecords] = useState<MppsRecord[]>([])
+  const [mppsLoading, setMppsLoading] = useState(false)
+  const [mppsSending, setMppsSending] = useState(false)
+  const mppsPagination = usePagination(mppsRecords, 10)
+
+  const loadTlsConfig = useCallback(async () => {
+    setTlsLoading(true)
+    const res = await dicomDimseApi.getTlsConfig()
+    if (res.success && res.data) setTlsConfig(res.data)
+    setTlsLoading(false)
+  }, [])
+
+  const loadMpps = useCallback(async () => {
+    setMppsLoading(true)
+    const res = await dicomDimseApi.listMpps()
+    if (res.success) setMppsRecords(Array.isArray(res.data) ? res.data : [])
+    setMppsLoading(false)
+  }, [])
+
+  const handleNodeTlsToggle = useCallback(async (device: DimseDevice, checked: boolean) => {
+    setTlsNodes(prev => prev.map(d => d.aeTitle === device.aeTitle ? { ...d, _tlsSaving: true } : d))
+    const res = await dicomDimseApi.setNodeTls(device.aeTitle, checked)
+    setTlsNodes(prev => prev.map(d => d.aeTitle === device.aeTitle
+      ? { ...d, _tlsEnabled: res.success ? !!res.data?.tlsEnabled : checked, _tlsSaving: false }
+      : d))
+    if (!res.success) message.error(res.error?.message ?? '节点 TLS 更新失败')
+    else message.success(`节点 ${device.aeTitle} TLS ${res.data?.tlsEnabled ? '已启用' : '已关闭'}`)
+  }, [])
+
+  // 节点级 TLS 行: 设备列表同步 + 远程开关状态加载
+  useEffect(() => {
+    setTlsNodes(prev => devices.map(d => {
+      const existing = prev.find(p => p.aeTitle === d.aeTitle)
+      return { ...d, _tlsEnabled: existing?._tlsEnabled ?? false, _tlsSaving: false, _onToggleTls: (checked: boolean) => handleNodeTlsToggle(d, checked) }
+    }))
+  }, [devices, handleNodeTlsToggle])
+
+  useEffect(() => {
+    void loadTlsConfig()
+    void loadMpps()
+    let cancelled = false
+    Promise.all(devices.map(d => dicomDimseApi.getNodeTls(d.aeTitle)
+      .then(r => ({ ae: d.aeTitle, enabled: !!r.data?.tlsEnabled }))
+      .catch(() => ({ ae: d.aeTitle, enabled: false }))))
+      .then(results => {
+        if (cancelled) return
+        setTlsNodes(prev => prev.map(p => {
+          const hit = results.find(r => r.ae === p.aeTitle)
+          return hit ? { ...p, _tlsEnabled: hit.enabled } : p
+        }))
+      })
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const handleSaveTls = async () => {
+    setTlsSaving(true)
+    const res = await dicomDimseApi.updateTlsConfig({
+      enabled: tlsConfig.enabled,
+      port: tlsConfig.port,
+      verifyPeer: tlsConfig.verifyPeer,
+      certificate: tlsCertFile,
+      caCert: tlsCaCertFile,
+    })
+    if (res.success) {
+      setTlsConfig(res.data ?? tlsConfig)
+      message.success('TLS 配置已保存')
+    } else {
+      message.error(res.error?.message ?? 'TLS 配置保存失败')
+    }
+    setTlsSaving(false)
+  }
+
+  const handleMppsSend = async (values: any) => {
+    setMppsSending(true)
+    const res = await dicomDimseApi.sendMpps({ studyUid: values.studyUid, status: values.status })
+    if (res.success) {
+      message.success(`MPPS 已更新: ${values.status}`)
+      mppsForm.resetFields()
+      void loadMpps()
+    } else {
+      message.error(res.error?.message ?? 'MPPS 发送失败')
+    }
+    setMppsSending(false)
+  }
 
   const handleEcho = async (device: DimseDevice) => {
     setDevices(prev => prev.map(d => d.aeTitle === device.aeTitle ? { ...d, _echoing: true } : d))
@@ -218,7 +348,7 @@ export const DicomDimsePage: React.FC = () => {
             <Button icon={<Upload />} loading={storeLoading}>选择 .dcm 文件上传</Button>
           </Upload>
           <Alert title="支持 DICOM .dcm 文件上传，系统将解析并存储至 PACS" type="info" showIcon style={{ marginTop: 12, marginBottom: 12 }} />
-          <Table scroll={{ x: 'max-content' }} dataSource={storeResults} rowKey={(r, i) => r.sopInstanceUid || `${i}`} columns={C_STORE_COLUMNS} pagination={false} />
+          <Table scroll={{ x: 'max-content' }} dataSource={storePagination.pageData} rowKey={(r, i) => r.sopInstanceUid || `${i}`} columns={C_STORE_COLUMNS} pagination={storePagination.pagination} />
         </Card>
       ),
     },
@@ -245,7 +375,85 @@ export const DicomDimsePage: React.FC = () => {
             </Form>
           </Card>
           <Card size="small" title="C-MOVE 转存记录">
-            <Table scroll={{ x: 'max-content' }} dataSource={moveResults} rowKey={(r, i) => `${r.studyUid}-${i}`} columns={C_MOVE_COLUMNS} pagination={false} />
+            <Table scroll={{ x: 'max-content' }} dataSource={movePagination.pageData} rowKey={(r, i) => `${r.studyUid}-${i}`} columns={C_MOVE_COLUMNS} pagination={movePagination.pagination} />
+          </Card>
+        </>
+      ),
+    },
+    {
+      key: 'tls',
+      label: <Space><Lock />TLS 安全</Space>,
+      children: (
+        <>
+          <Card
+            size="small"
+            title="全局 TLS 配置 (内存 + 环境 seed 回退)"
+            extra={<Button size="small" type="primary" icon={<Save size={14} />} loading={tlsSaving} onClick={() => void handleSaveTls()}>保存配置</Button>}
+            style={{ marginBottom: 16 }}
+          >
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0 16px' }}>
+              <div style={{ marginBottom: 8 }}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>启用 DICOM TLS</div>
+                <Switch checked={tlsConfig.enabled} onChange={(v) => setTlsConfig(prev => ({ ...prev, enabled: v }))} />
+                <span style={{ marginLeft: 8, color: '#64748b', fontSize: 12 }}>对标 HL7 MLLP TLS 模式, 证书缺失时仅保存配置</span>
+              </div>
+              <div style={{ marginBottom: 8 }}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>TLS 端口</div>
+                <InputNumber min={1} max={65535} value={tlsConfig.port} onChange={(v) => setTlsConfig(prev => ({ ...prev, port: v ?? 2762 }))} />
+              </div>
+              <div style={{ marginBottom: 8 }}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>校验证书链 (verifyPeer)</div>
+                <Switch checked={tlsConfig.verifyPeer} onChange={(v) => setTlsConfig(prev => ({ ...prev, verifyPeer: v }))} />
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 8 }}>
+              <div>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}><FileKey size={12} style={{ verticalAlign: -2 }} /> 服务器证书 (PEM)</div>
+                <Upload accept=".pem,.crt,.cer" showUploadList={false} beforeUpload={(file) => { readFileText(file).then(setTlsCertFile); return false }}>
+                  <Button size="small" icon={<UploadIcon size={12} />}>{tlsCertFile ? '已选择证书文件' : '选择证书文件'}</Button>
+                </Upload>
+              </div>
+              <div>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>CA 证书 (PEM)</div>
+                <Upload accept=".pem,.crt,.cer" showUploadList={false} beforeUpload={(file) => { readFileText(file).then(setTlsCaCertFile); return false }}>
+                  <Button size="small" icon={<UploadIcon size={12} />}>{tlsCaCertFile ? '已选择 CA 文件' : '选择 CA 文件'}</Button>
+                </Upload>
+              </div>
+            </div>
+          </Card>
+          <Card size="small" title="节点级 TLS 开关 (AE 节点)">
+            <Table scroll={{ x: 'max-content' }} rowKey="aeTitle" dataSource={tlsNodes} columns={TLS_NODE_COLUMNS} loading={tlsLoading} pagination={false} size="small" />
+          </Card>
+        </>
+      ),
+    },
+    {
+      key: 'mpps',
+      label: <Space><Clock3 />MPPS 进度</Space>,
+      children: (
+        <>
+          <Card size="small" style={{ marginBottom: 16 }}>
+            <Form form={mppsForm} layout="inline" onFinish={handleMppsSend}>
+              <Form.Item name="studyUid" label="检查 UID" rules={[{ required: true, message: '请输入检查 UID' }]}>
+                <Input placeholder="1.2.840.xxxxx 或 Exam ID" style={{ width: 320 }} />
+              </Form.Item>
+              <Form.Item name="status" label="状态" rules={[{ required: true }]} initialValue="IN_PROGRESS">
+                <Select style={{ width: 160 }}>
+                  <Select.Option value="IN_PROGRESS">IN_PROGRESS</Select.Option>
+                  <Select.Option value="COMPLETED">COMPLETED</Select.Option>
+                  <Select.Option value="DISCONTINUED">DISCONTINUED</Select.Option>
+                </Select>
+              </Form.Item>
+              <Form.Item>
+                <Button type="primary" htmlType="submit" icon={<Clock3 size={14} />} loading={mppsSending}>发送 MPPS</Button>
+              </Form.Item>
+              <Form.Item>
+                <Button icon={<RefreshCw size={14} />} onClick={() => void loadMpps()} loading={mppsLoading}>刷新</Button>
+              </Form.Item>
+            </Form>
+          </Card>
+          <Card size="small" title="检查进度 (N-CREATE/N-SET)">
+            <Table scroll={{ x: 'max-content' }} dataSource={mppsPagination.pageData} rowKey="studyUid" columns={MPPS_COLUMNS} loading={mppsLoading} pagination={mppsPagination.pagination} />
           </Card>
         </>
       ),
@@ -259,7 +467,7 @@ export const DicomDimsePage: React.FC = () => {
         <span style={{ fontSize: 18, fontWeight: 600 }}>DICOM DIMSE 管理</span>
         <Tag color="blue">v3.0</Tag>
       </Space>
-      <Alert title="DIMSE (DICOM Message Service Element) 设备集成管理，支持 C-ECHO、C-FIND (MWL)、C-STORE、C-MOVE 四种服务" type="info" showIcon style={{ marginBottom: 16 }} />
+      <Alert title="DIMSE (DICOM Message Service Element) 设备集成管理，支持 C-ECHO、C-FIND (MWL)、C-STORE、C-MOVE 服务；v3.0.6.11-86 新增 TLS 安全 (G-03) 与 MPPS 检查进度 (G-05)" type="info" showIcon style={{ marginBottom: 16 }} />
       <Tabs activeKey={activeTab} onChange={setActiveTab} items={tabItems} />
 
       <Modal title="添加 DICOM 设备" open={deviceModal} onCancel={() => setDeviceModal(false)} onOk={handleAddDevice}>
@@ -291,3 +499,10 @@ export const DicomDimsePage: React.FC = () => {
 }
 
 export default DicomDimsePage
+
+// [G005 v3.0.6.11-86 Wave 4B (G-03)] 证书文件读取 (PEM 文本)
+const readFileText = (file: File): Promise<string> => new Promise((resolve) => {
+  const reader = new FileReader()
+  reader.onload = () => resolve(String(reader.result ?? ''))
+  reader.readAsText(file)
+})

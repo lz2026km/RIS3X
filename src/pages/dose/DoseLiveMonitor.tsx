@@ -45,7 +45,7 @@ const fmtDate = (d: string): string => {
 };
 
 const card: React.CSSProperties = {
-  background: "#fff",
+  background: "var(--bg-card)",
   borderRadius: 12,
   padding: 18,
   border: "1px solid #e2e8f0",
@@ -65,7 +65,7 @@ const btn: React.CSSProperties = {
   padding: "6px 12px",
   borderRadius: 6,
   border: "1px solid #cbd5e1",
-  background: "#fff",
+  background: "var(--bg-card)",
   color: "#334155",
   fontSize: 12,
   fontWeight: 600,
@@ -383,7 +383,7 @@ export default function DoseLiveMonitor() {
                     cursor: "pointer",
                     display: "flex",
                     justifyContent: "space-between",
-                    background: selectedPatient?.patientId === p.patientId ? "#eff6ff" : "#fff",
+                    background: selectedPatient?.patientId === p.patientId ? "#eff6ff" : "var(--bg-card)",
                     borderBottom: "1px solid #f1f5f9",
                   }}
                 >
@@ -690,7 +690,7 @@ export default function DoseLiveMonitor() {
 
 function MiniInfo({ label, value, warn }: { label: string; value: string; warn?: boolean }) {
   return (
-    <div style={{ background: "#f8fafc", borderRadius: 8, padding: "8px 10px", border: `1px solid ${warn ? "#fecaca" : "#e2e8f0"}` }}>
+    <div style={{ background: "var(--bg-primary)", borderRadius: 8, padding: "8px 10px", border: `1px solid ${warn ? "#fecaca" : "#e2e8f0"}` }}>
       <div style={{ fontSize: 11, color: "#64748b" }}>{label}</div>
       <div style={{ fontSize: 14, fontWeight: 700, color: warn ? "#dc2626" : "#1e40af", marginTop: 2 }}>{value}</div>
     </div>

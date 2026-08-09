@@ -101,8 +101,8 @@ export default function DoctorMobileWorkstation() {
   const loadData = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true); else setLoading(true)
     const [wl, sm, cv, rp] = await Promise.allSettled([
-      mobileApi.getWorklist(filter !== 'all' ? { status: filter } : undefined),
-      mobileApi.getTodaySummary(),
+      mobileApi.getDoctorWorklist(filter !== 'all' ? { status: filter } : undefined),
+      mobileApi.getDoctorStats(),
       mobileApi.getCriticalValues(),
       mobileApi.getReportsLatest(10),
     ])

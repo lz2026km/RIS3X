@@ -282,6 +282,104 @@ export const srHandlers = [
     return HttpResponse.json({ success: true, data: toDoc(doc) }, { status: 201 });
   }),
 
+  // [G005 Wave4A] G-14 AI 结果 → DICOM SR 封装 (TID 2000 CAD SR 默认)
+  http.post(`${API_BASE}/dicom-sr/from-ai`, async ({ request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as {
+      studyId: string;
+      findings: Array<{ label: string; confidence?: number; x?: number; y?: number; width?: number; height?: number; description?: string }>;
+      templateId?: "tid1500" | "tid2000";
+      modelName?: string;
+      summary?: string;
+    };
+    const studyId = String(body.studyId ?? "");
+    if (!studyId || !Array.isArray(body.findings) || body.findings.length === 0) {
+      return HttpResponse.json({ success: false, error: { code: "BAD_REQUEST", message: "studyId 与 findings 为必填" } }, { status: 400 });
+    }
+    const templateId = body.templateId ?? "tid2000";
+    const tmpl = srTemplates[templateId]!;
+    const now = nowIso();
+    const sopUID = `1.2.840.10008.5.1.4.1.1.88.11.1.${Date.now()}`;
+    const findingsText = body.findings
+      .map((f) => {
+        const conf = f.confidence !== undefined ? ` (置信度 ${Math.round(f.confidence * 100)}%)` : "";
+        const loc = f.x !== undefined && f.y !== undefined ? ` @(${Math.round(f.x * 100)},${Math.round(f.y * 100)})` : "";
+        return `${f.label}${conf}${loc}`;
+      })
+      .join("\n");
+    const impression = body.summary ?? "";
+    const studyUID = `1.2.840.10008.5.1.4.1.1.2.1.${Date.now()}`;
+
+    const content: SrContentTree = {
+      templateId: tmpl.label,
+      templateLabel: tmpl.labelEn,
+      context: {
+        patient: { name: "AI 患者", id: `AI-${studyId}`, birthDate: "", sex: "O" },
+        study: {
+          uid: studyUID,
+          date: now.slice(0, 10).replace(/-/g, ""),
+          time: now.slice(11, 19).replace(/:/g, ""),
+          description: "AI 自动质控/检出",
+          accessionNumber: `ACC-${studyId.replace(/[^0-9]/g, "").slice(-6)}`,
+          modality: "CT",
+        },
+        report: {
+          id: `AI-${studyId}`,
+          authorId: "AI-ENGINE",
+          authorName: body.modelName ?? "AI Engine",
+          findings: findingsText,
+          impression,
+          conclusion: impression,
+          recommendations: "",
+          reportDate: now.slice(0, 10).replace(/-/g, ""),
+        },
+      },
+      sections: [
+        {
+          conceptName: DCM_CONCEPT("121071", "Finding"),
+          title: "检查所见 / Findings",
+          items: [{ relationshipType: "CONTAINS", conceptName: DCM_CONCEPT("121071", "Finding"), valueType: "TEXT", value: findingsText }],
+        },
+        {
+          conceptName: DCM_CONCEPT("121120", "CAD Processing and Findings Summary"),
+          title: "CAD 总结 / CAD Processing and Findings Summary",
+          items: body.findings.map((f) => ({
+            relationshipType: "CONTAINS",
+            conceptName: DCM_CONCEPT("121071", "Finding"),
+            valueType: "TEXT",
+            value: `${f.label}${f.confidence !== undefined ? `, 置信度 ${Math.round(f.confidence * 100)}%` : ""}`,
+          })),
+        },
+      ],
+      codedEntries: toSnomed(findingsText),
+    };
+
+    const doc: SrDocument = {
+      id: `sr-ai-${Date.now()}`,
+      reportId: `AI-${studyId}`,
+      templateId,
+      tid: tmpl.tid,
+      status: "draft",
+      sopInstanceUid: sopUID,
+      studyInstanceUid: studyUID,
+      seriesInstanceUid: `${studyUID}.SR.1`,
+      sopClassUid: tmpl.sopClassUid,
+      patientName: "AI 患者",
+      patientId: `AI-${studyId}`,
+      modality: "CT",
+      title: `${tmpl.labelEn} / AI 检出 ${body.findings.length} 处`,
+      content,
+      rawContent: buildRawContent(content, sopUID),
+      hl7ControlId: null,
+      hl7Message: null,
+      pushedAt: null,
+      createdAt: now,
+      updatedAt: now,
+    };
+    srDocuments = [doc, ...srDocuments];
+    return HttpResponse.json({ success: true, data: toDoc(doc) }, { status: 201 });
+  }),
+
   http.post(`${API_BASE}/dicom-sr/:id/finalize`, async ({ params }) => {
     await delay(delayMs());
     const doc = findDoc(String(params.id));

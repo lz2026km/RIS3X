@@ -876,7 +876,7 @@ export default function ExamPage() {
             color: "var(--text-secondary)",
           }}
         >
-          <X size={12} /> 清空
+          <X size={14} /> 清空
         </button>
       )}
 
@@ -1146,7 +1146,7 @@ export default function ExamPage() {
                     <div
                       style={{ display: "flex", alignItems: "center", gap: 4 }}
                     >
-                      <Monitor size={12} style={{ color: "var(--text-secondary)" }} />
+                      <Monitor size={14} style={{ color: "var(--text-secondary)" }} />
                       <span style={{ color: "var(--text-secondary)" }}>
                         {exam.deviceName?.split("（")[0] || "-"}
                       </span>
@@ -1791,7 +1791,7 @@ export default function ExamPage() {
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <Clock size={12} style={{ color: "var(--text-secondary)" }} />
+                <Clock size={14} style={{ color: "var(--text-secondary)" }} />
                 <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                   转科时间：
                 </span>
@@ -1802,7 +1802,7 @@ export default function ExamPage() {
                 </span>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <Stethoscope size={12} style={{ color: "var(--text-secondary)" }} />
+                <Stethoscope size={14} style={{ color: "var(--text-secondary)" }} />
                 <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                   主治医生：
                 </span>

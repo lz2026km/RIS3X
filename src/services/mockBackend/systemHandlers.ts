@@ -266,6 +266,34 @@ export const systemHandlers = [
     });
   }),
 
+  // ─────────── System Admin users / roles [Wave1B P1] ───────────
+  // GET /system/admin/users + GET /system/admin/roles (后端 system-admin.controller, User 表派生只读)
+  http.get(`${API_BASE}/system/admin/users`, () => {
+    return HttpResponse.json({
+      success: true,
+      data: [
+        { id: 'u-001', name: '张伟明', role: '管理员', dept: '放射科', status: 'active', lastLogin: '2026-08-09 08:30' },
+        { id: 'u-002', name: '李秀英', role: '主任医师', dept: '放射科', status: 'active', lastLogin: '2026-08-09 08:12' },
+        { id: 'u-003', name: '王建国', role: '主治医师', dept: 'CT组', status: 'active', lastLogin: '2026-08-09 07:58' },
+        { id: 'u-004', name: '赵志刚', role: '技师', dept: 'CT组', status: 'active', lastLogin: '2026-08-09 07:45' },
+        { id: 'u-005', name: '孙伟', role: '技师', dept: 'MR组', status: 'inactive', lastLogin: '2026-08-05 16:20' },
+        { id: 'u-006', name: '吴敏', role: '护士', dept: '放射科', status: 'active', lastLogin: '2026-08-09 07:30' },
+      ],
+    });
+  }),
+  http.get(`${API_BASE}/system/admin/roles`, () => {
+    return HttpResponse.json({
+      success: true,
+      data: [
+        { name: '管理员', permissions: ['用户管理', '系统配置', '报告签发', '危急值处理', '质控审核'], userCount: 2 },
+        { name: '主任医师', permissions: ['报告签发', '危急值处理', '质控审核'], userCount: 1 },
+        { name: '主治医师', permissions: ['报告书写', '报告签发', '危急值处理'], userCount: 1 },
+        { name: '技师', permissions: ['检查执行', '图像上传'], userCount: 2 },
+        { name: '护士', permissions: ['患者登记', '叫号'], userCount: 1 },
+      ],
+    });
+  }),
+
   // ─────────── Clinical Config [W3-B] ───────────
   // 静态路由在前, :module 参数路由在后, 避免抢占
   http.get(`${API_BASE}/system/clinical-config`, () => {

@@ -53,7 +53,7 @@ export const PptxExportDialog: React.FC<PptxExportDialogProps> = ({ open, onClos
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1050 }}>
-      <div style={{ background: '#fff', borderRadius: 12, width: 640, maxHeight: '80vh', overflow: 'auto', boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, width: 640, maxHeight: '80vh', overflow: 'auto', boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <FileText size={18} color="#7c3aed" />
@@ -80,7 +80,7 @@ export const PptxExportDialog: React.FC<PptxExportDialogProps> = ({ open, onClos
           </div>
 
           {slides.map((slide, idx) => (
-            <div key={idx} style={{ padding: 12, marginBottom: 8, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+            <div key={idx} style={{ padding: 12, marginBottom: 8, background: 'var(--bg-primary)', borderRadius: 8, border: '1px solid #e2e8f0' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                 <GripVertical size={14} color="#94a3b8" />
                 <span style={{ fontSize: 12, fontWeight: 600, color: '#64748b' }}>#{idx + 1}</span>

@@ -70,6 +70,10 @@ export default function CASignaturePage() {
   const [showSignaturesModal, setShowSignaturesModal] = useState(false);
   const [signatures, setSignatures] = useState<SignatureRecord[]>([]);
   const [signaturesLoading, setSignaturesLoading] = useState(false);
+  const [sigPage, setSigPage] = useState(1);
+  const SIG_PAGE_SIZE = 10;
+  const sigPageData = signatures.slice((sigPage - 1) * SIG_PAGE_SIZE, sigPage * SIG_PAGE_SIZE);
+  const sigTotalPages = Math.max(1, Math.ceil(signatures.length / SIG_PAGE_SIZE));
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [history, setHistory] = useState<CaHistoryEntry[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
@@ -260,6 +264,7 @@ export default function CASignaturePage() {
   const openSignatures = useCallback(async () => {
     setShowSignaturesModal(true);
     setSignaturesLoading(true);
+    setSigPage(1);
     try {
       const res = await caApi.listSignatures();
       if (res.success) setSignatures(res.data);
@@ -291,7 +296,7 @@ export default function CASignaturePage() {
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 22, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Stamp size={20} color="#7c3aed" /> CA 数字签名
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
           </h1>
@@ -744,6 +749,7 @@ export default function CASignaturePage() {
           ) : signatures.length === 0 ? (
             <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-secondary)', fontSize: 13 }}>暂无签名记录</div>
           ) : (
+            <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
               <thead>
                 <tr>
@@ -753,7 +759,7 @@ export default function CASignaturePage() {
                 </tr>
               </thead>
               <tbody>
-                {signatures.map(s => (
+                {sigPageData.map(s => (
                   <tr key={s.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
                     <td style={{ padding: '8px 10px', fontWeight: 600 }}>{s.holderName}</td>
                     <td style={{ padding: '8px 10px', fontFamily: 'monospace' }}>{s.reportId}</td>
@@ -766,6 +772,12 @@ export default function CASignaturePage() {
                 ))}
               </tbody>
             </table>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, paddingTop: 8 }}>
+              <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>共 {signatures.length} 条 · 第 {sigPage}/{sigTotalPages} 页</span>
+              <button style={selectStyle} disabled={sigPage <= 1} onClick={() => setSigPage(p => Math.max(1, p - 1))}>上一页</button>
+              <button style={selectStyle} disabled={sigPage >= sigTotalPages} onClick={() => setSigPage(p => Math.min(sigTotalPages, p + 1))}>下一页</button>
+            </div>
+            </div>
           )}
         </div>
       </Modal>

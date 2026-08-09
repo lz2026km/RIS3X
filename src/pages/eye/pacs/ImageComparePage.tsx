@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Card, Row, Col, Tag, Space, Select, Table } from 'antd';
-import { ArrowLeftRight, Eye, TrendingUp, TrendingDown } from "lucide-react";
+import { Card, Row, Col, Tag, Space, Select, Table, Button, message } from 'antd';
+import { ArrowLeftRight, Eye, TrendingUp, TrendingDown, Trash2 } from "lucide-react";
 
 import { eyeApi } from "@/services/api/eyeApi";
 
@@ -25,6 +25,18 @@ const ImageComparePage: React.FC = () => {
   }, []);
 
   const pair = pairs[pairIdx];
+
+  // [G005 2B] 本地移除测量项
+  const removeMeasurement = (parameter: string) => {
+    if (!pair) return;
+    setPairs(prev => prev.map((p, i) =>
+      i === pairIdx
+        ? { ...p, measurements: p.measurements.filter((m: any) => m.parameter !== parameter) }
+        : p,
+    ));
+    message.success(`已删除测量: ${parameter}`);
+  };
+
   return (
     <div
       style={{
@@ -167,6 +179,13 @@ const ImageComparePage: React.FC = () => {
                     ) : (
                       <Eye size={14} color="var(--text-secondary)" />
                     ),
+                },
+                {
+                  title: "操作",
+                  key: "action",
+                  render: (_, r) => (
+                    <Button size="small" danger icon={<Trash2 size={12} />} onClick={() => removeMeasurement(r.parameter)}>删除</Button>
+                  ),
                 },
               ]}
             scroll={{ x: 'max-content' }}

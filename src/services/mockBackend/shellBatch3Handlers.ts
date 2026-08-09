@@ -129,6 +129,70 @@ const VALUE5STEP = [
   },
 ];
 
+// [G005 Wave1A P0-1] pacs-admin 11 端点 (后端已实现, mock 兜底): nodes/storage/worklist/archives/logs/configs/routes
+const PACS_NODES = [
+  { id: 'NODE-01', name: 'GE Revolution CT', aeTitle: 'PACS-CT1', hostname: 'pacs-ct1.local', port: 11112, status: 'online', lastHeartbeat: '2026-08-08T08:30:00Z', modality: 'CT', location: 'CT检查室1', studyCount: 423 },
+  { id: 'NODE-02', name: '西门子 SOMATOM Force', aeTitle: 'PACS-CT2', hostname: 'pacs-ct2.local', port: 11112, status: 'online', lastHeartbeat: '2026-08-08T08:28:00Z', modality: 'CT', location: 'CT检查室2', studyCount: 391 },
+  { id: 'NODE-03', name: 'GE SIGNA 3.0T', aeTitle: 'PACS-MR1', hostname: 'pacs-mr1.local', port: 11112, status: 'online', lastHeartbeat: '2026-08-08T08:26:00Z', modality: 'MR', location: 'MR检查室', studyCount: 178 },
+  { id: 'NODE-04', name: '飞利浦 Ingenia 1.5T', aeTitle: 'PACS-MR2', hostname: 'pacs-mr2.local', port: 11112, status: 'offline', lastHeartbeat: '2026-08-08T02:30:00Z', modality: 'MR', location: 'MR检查室2', studyCount: 165 },
+  { id: 'NODE-05', name: '联影 uDR 数字化X线', aeTitle: 'PACS-DR1', hostname: 'pacs-dr1.local', port: 104, status: 'online', lastHeartbeat: '2026-08-08T08:31:00Z', modality: 'DR', location: 'DR检查室', studyCount: 512 },
+  { id: 'NODE-06', name: '豪洛捷 Selenia Dimensions', aeTitle: 'PACS-MG1', hostname: 'pacs-mg1.local', port: 104, status: 'error', lastHeartbeat: '2026-08-08T07:10:00Z', modality: 'MG', location: '乳腺检查室', studyCount: 96 },
+];
+
+const PACS_WORKLIST = [
+  { id: 'WL-001', accessionNumber: 'ACC20260808-011', patientId: 'P100001', patientName: '张伟', modality: 'CT', bodyPart: '胸部', state: 'COMPLETED', scheduledAt: '2026-08-08T08:00:00Z' },
+  { id: 'WL-002', accessionNumber: 'ACC20260808-012', patientId: 'P100002', patientName: '李娜', modality: 'MR', bodyPart: '头颅', state: 'IN_PROGRESS', scheduledAt: '2026-08-08T08:15:00Z' },
+  { id: 'WL-003', accessionNumber: 'ACC20260808-013', patientId: 'P100003', patientName: '王芳', modality: 'DR', bodyPart: '胸部', state: 'COMPLETED', scheduledAt: '2026-08-08T08:30:00Z' },
+  { id: 'WL-004', accessionNumber: 'ACC20260808-014', patientId: 'P100004', patientName: '陈丽', modality: 'US', bodyPart: '腹部', state: 'SCHEDULED', scheduledAt: '2026-08-08T09:20:00Z' },
+  { id: 'WL-005', accessionNumber: 'ACC20260808-015', patientId: 'P100005', patientName: '刘洋', modality: 'CT', bodyPart: '腹部增强', state: 'SCHEDULED', scheduledAt: '2026-08-08T09:45:00Z' },
+];
+
+const PACS_ARCHIVES = [
+  { id: 'ARC-001', studyId: 'STU20260728-050', patientName: '张三', modality: 'CT', archivedAt: '2026-08-01T09:00:00Z', sizeBytes: 460 * 1024 ** 2, status: 'archived' },
+  { id: 'ARC-002', studyId: 'STU20260728-051', patientName: '李四', modality: 'MR', archivedAt: '2026-08-01T10:30:00Z', sizeBytes: 890 * 1024 ** 2, status: 'restored' },
+  { id: 'ARC-003', studyId: 'STU20260729-011', patientName: '王五', modality: 'DX', archivedAt: '2026-08-02T08:15:00Z', sizeBytes: 32 * 1024 ** 2, status: 'archived' },
+  { id: 'ARC-004', studyId: 'STU20260729-012', patientName: '赵六', modality: 'US', archivedAt: '2026-08-02T14:40:00Z', sizeBytes: 210 * 1024 ** 2, status: 'archived' },
+  { id: 'ARC-005', studyId: 'STU20260730-020', patientName: '钱七', modality: 'CT', archivedAt: '2026-08-03T11:20:00Z', sizeBytes: 520 * 1024 ** 2, status: 'restoring' },
+];
+
+const PACS_LOGS = [
+  { id: 'LOG-001', time: '2026-08-08T08:30:00Z', level: 'INFO', source: 'DICOM', message: 'SCU 连接建立 (GE Revolution CT → PACS-NODE-01)' },
+  { id: 'LOG-002', time: '2026-08-08T08:32:11Z', level: 'INFO', source: 'DICOM', message: 'C-STORE 完成 1/1 实例, 耗时 1.2s' },
+  { id: 'LOG-003', time: '2026-08-08T08:35:47Z', level: 'WARN', source: 'STORAGE', message: '在线存储使用率超过 75%' },
+  { id: 'LOG-004', time: '2026-08-08T07:58:03Z', level: 'ERROR', source: 'ROUTING', message: '转发失败: 目标 AE DICOM-PRINTER-2 无响应 (超时 30s)' },
+  { id: 'LOG-005', time: '2026-08-08T07:45:00Z', level: 'INFO', source: 'AUDIT', message: '管理员触发全量存储校验' },
+];
+
+const PACS_CONFIGS = [
+  { key: 'ae_title', value: 'G005RIS_PACS', description: 'PACS AE Title', category: 'DICOM' },
+  { key: 'port', value: '104', description: 'DICOM 监听端口', category: 'DICOM' },
+  { key: 'max_retry', value: '3', description: '转发最大重试次数', category: 'ROUTING' },
+  { key: 'retention_days', value: '730', description: '在线存储保留天数', category: 'STORAGE' },
+  { key: 'auto_migrate', value: 'true', description: '到期自动迁移至近线', category: 'STORAGE' },
+  { key: 'wado_port', value: '8080', description: 'WADO 服务端口', category: 'WEB' },
+];
+
+const PACS_ROUTES = [
+  { id: 'RT-001', name: 'CT 影像转发', sourceAe: 'G005RIS_PACS', targetAe: 'VNA_ARCHIVE', targetHost: 'vna-01.local', targetPort: 11112, protocol: 'DICOM', enabled: true },
+  { id: 'RT-002', name: '胶片打印路由', sourceAe: 'G005RIS_PACS', targetAe: 'DICOM_PRINTER', targetHost: 'printer-01.local', targetPort: 104, protocol: 'DICOM', enabled: true },
+  { id: 'RT-003', name: '远程会诊转发', sourceAe: 'G005RIS_PACS', targetAe: 'REMOTE_SITE', targetHost: 'remote.example.com', targetPort: 11112, protocol: 'DICOM', enabled: false },
+];
+
+// [G005 Wave1A P1-1] kiosk settings/messages/stats (kiosk.controller 已实现, mock 兜底)
+const memPacsConfigs: any[] = [];
+
+const KIOSK_SETTINGS = [
+  { key: 'kiosk_enabled', value: 'true', description: '自助签到机启用' },
+  { key: 'checkin_grace_minutes', value: '30', description: '报到宽限期(分钟)' },
+  { key: 'default_wait_minutes', value: '15', description: '默认预计等待(分钟)' },
+  { key: 'announcement', value: '请携带检查申请单, 提前 15 分钟报到', description: '屏幕公告' },
+];
+
+const KIOSK_MESSAGES = [
+  { id: 'MSG-001', title: 'MR 检查室检修', content: 'MR-1室 今日 14:00-16:00 设备维护, 相关检查顺延', level: 'warning', active: true, updatedAt: '2026-08-08T08:00:00Z' },
+  { id: 'MSG-002', title: '签到提示', content: '请使用就诊卡或身份证后 4 位进行签到', level: 'info', active: true, updatedAt: '2026-08-01T08:00:00Z' },
+];
+
 // ── Handlers ────────────────────────────────────────────────────────────────
 export const shellBatch3Handlers = [
   // ========== AI Fusion Workspace ==========
@@ -225,6 +289,74 @@ export const shellBatch3Handlers = [
       activeAssociations: PACS_ASSOCIATIONS.filter((a) => a.status === 'connected').length,
       dailyTransferBytes: 86 * 1024 ** 3,
     }));
+  }),
+
+  // ========== PACS Admin [G005 Wave1A P0-1] nodes/storage/worklist/archives/logs/configs/routes ==========
+  http.get(`${API_BASE}/pacs-admin/nodes`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json(ok(PACS_NODES));
+  }),
+  http.post(`${API_BASE}/pacs-admin/nodes/:id/test`, async ({ params }) => {
+    await delay(delayMs(300, 800));
+    return HttpResponse.json(ok({ success: true, latencyMs: 8 + Math.floor(Math.random() * 60), serverId: params.id }));
+  }),
+  http.post(`${API_BASE}/pacs-admin/nodes/:id/sync`, async ({ params }) => {
+    await delay(delayMs(300, 800));
+    return HttpResponse.json(ok({ ok: true, syncedStudies: 8 + Math.floor(Math.random() * 12), durationMs: 1800 + Math.floor(Math.random() * 900), serverId: params.id }));
+  }),
+  http.get(`${API_BASE}/pacs-admin/storage`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json(ok(PACS_STORAGE));
+  }),
+  http.post(`${API_BASE}/pacs-admin/storage/cleanup`, async () => {
+    await delay(delayMs(400, 900));
+    return HttpResponse.json(ok({ ok: true, freedBytes: (150 + new Date().getDate() * 13) * 1024 ** 3, deletedCount: 30 + new Date().getDate(), durationMs: 2400 }));
+  }),
+  http.get(`${API_BASE}/pacs-admin/worklist-entries`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json(ok(PACS_WORKLIST));
+  }),
+  http.get(`${API_BASE}/pacs-admin/archives`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json(ok(PACS_ARCHIVES));
+  }),
+  http.get(`${API_BASE}/pacs-admin/logs`, async ({ request }) => {
+    await delay(delayMs());
+    const url = new URL(request.url);
+    const limit = Math.min(Math.max(Number(url.searchParams.get('limit')) || 50, 1), 500);
+    return HttpResponse.json(ok(PACS_LOGS.slice(0, limit)));
+  }),
+  http.get(`${API_BASE}/pacs-admin/configs`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json(ok([...memPacsConfigs, ...PACS_CONFIGS.filter((c) => !memPacsConfigs.some((i) => i.key === c.key))]));
+  }),
+  http.post(`${API_BASE}/pacs-admin/configs/:key`, async ({ params, request }) => {
+    await delay(delayMs());
+    const body = (await request.json()) as { value?: string; description?: string };
+    const key = params.key as string;
+    const seed = PACS_CONFIGS.find((c) => c.key === key);
+    const item = { key, value: body?.value ?? '', description: body?.description ?? seed?.description ?? '', category: seed?.category ?? 'CUSTOM' };
+    const idx = memPacsConfigs.findIndex((c) => c.key === key);
+    if (idx >= 0) memPacsConfigs[idx] = item; else memPacsConfigs.push(item);
+    return HttpResponse.json(ok(item));
+  }),
+  http.get(`${API_BASE}/pacs-admin/routes`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json(ok(PACS_ROUTES));
+  }),
+
+  // ========== Kiosk [G005 Wave1A P1-1] settings/messages/stats ==========
+  http.get(`${API_BASE}/kiosk/settings`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json(ok(KIOSK_SETTINGS));
+  }),
+  http.get(`${API_BASE}/kiosk/messages`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json(ok(KIOSK_MESSAGES));
+  }),
+  http.get(`${API_BASE}/kiosk/stats`, async () => {
+    await delay(delayMs());
+    return HttpResponse.json(ok({ todayCount: 128, waitingCount: 14, avgWaitMinutes: 16, activeRooms: 5 }));
   }),
 
   // ========== SNOMED ==========

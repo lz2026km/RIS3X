@@ -542,7 +542,7 @@ function PaperlessTrendTab() {
           textAlign: 'center',
         }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>平均无纸化率</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: C.primary }}>{avgRate}%</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: C.primary }}>{avgRate}%</div>
         </div>
         <div style={{
           background: C.white,
@@ -552,7 +552,7 @@ function PaperlessTrendTab() {
           textAlign: 'center',
         }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>最高无纸化率</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: C.success }}>{maxRate}%</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: C.success }}>{maxRate}%</div>
         </div>
         <div style={{
           background: C.white,
@@ -562,7 +562,7 @@ function PaperlessTrendTab() {
           textAlign: 'center',
         }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>30天电子报告</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: C.text }}>{totalElectronic.toLocaleString()}</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: C.text }}>{totalElectronic.toLocaleString()}</div>
         </div>
         <div style={{
           background: C.white,
@@ -572,7 +572,7 @@ function PaperlessTrendTab() {
           textAlign: 'center',
         }}>
           <div style={{ fontSize: 12, color: C.textMuted }}>环比增长</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: C.success }}>+{Math.max(0, Math.round((avgRate - 73.5) * 10) / 10)}%</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: C.success }}>+{Math.max(0, Math.round((avgRate - 73.5) * 10) / 10)}%</div>
         </div>
       </div>
     </div>
@@ -651,7 +651,7 @@ function CarbonTab() {
             </div>
             <div>
               <div style={{ fontSize: 13, color: C.textMuted }}>节省纸张 → 碳排放</div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: C.text }}>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.text }}>
                 {d.paperSaved.toLocaleString()} 张
               </div>
             </div>
@@ -694,7 +694,7 @@ function CarbonTab() {
             </div>
             <div>
               <div style={{ fontSize: 13, color: C.textMuted }}>节省耗材 → 碳排放</div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: C.text }}>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.text }}>
                 {d.inkSaved} 套
               </div>
             </div>
@@ -1128,7 +1128,7 @@ function CostTab() {
                 <div style={{ width: 12, height: 12, borderRadius: 3, background: C.primary }} />
                 <span style={{ fontSize: 13, color: C.text }}>纸张节约</span>
               </div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: C.text, marginLeft: 20 }}>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.text, marginLeft: 20 }}>
                 ¥{costData.paperCost.toFixed(2)}
               </div>
             </div>
@@ -1137,7 +1137,7 @@ function CostTab() {
                 <div style={{ width: 12, height: 12, borderRadius: 3, background: C.purple }} />
                 <span style={{ fontSize: 13, color: C.text }}>耗材节约</span>
               </div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: C.text, marginLeft: 20 }}>
+              <div style={{ fontSize: 28, fontWeight: 700, color: C.text, marginLeft: 20 }}>
                 ¥{costData.inkCost.toFixed(2)}
               </div>
             </div>
@@ -1734,7 +1734,7 @@ function RunStatsTab() {
               <c.icon size={22} color={c.color} />
             </div>
             <div>
-              <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1 }}>
+              <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.1 }}>
                 {c.value}<span style={{ fontSize: 13, fontWeight: 400, color: 'var(--text-secondary)', marginLeft: 4 }}>{c.unit}</span>
               </div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{c.label}</div>
@@ -1819,7 +1819,7 @@ export default function GreenITPage() {
       {/* 页面标题 */}
       <div style={{ marginBottom: 24 }}>
         <h1 style={{
-          fontSize: 22,
+          fontSize: 20,
           fontWeight: 700,
           color: C.text,
           margin: 0,

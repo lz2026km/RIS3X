@@ -23,6 +23,9 @@ const FindingLibraryPicker: React.FC<{
         style={{ marginBottom: 6 }}
         size="small"
       />
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", marginBottom: 4 }}>
+        <Tag color="orange" style={{ fontSize: 10, marginInlineEnd: 0 }}>演示词库 {items.length} 项</Tag>
+      </div>
       <div style={{ maxHeight: 200, overflow: "auto", fontSize: 12 }}>
         {items.slice(0, 30).map((f) => (
           <div

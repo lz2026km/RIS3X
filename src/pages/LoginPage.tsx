@@ -291,7 +291,7 @@ export default function LoginPage() {
               <Radio size={22} color="currentColor" />
             </div>
             <div>
-              <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: 'var(--text-primary)' }}>欢迎登录</h1>
+              <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: 'var(--text-primary)' }}>欢迎登录</h1>
               <p style={{ margin: '2px 0 0', fontSize: 12, color: 'var(--text-secondary)' }}>
                 G005 放射信息系统 · {HOSPITAL_NAME}
               </p>

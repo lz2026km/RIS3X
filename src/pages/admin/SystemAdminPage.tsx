@@ -1,8 +1,20 @@
 // [v3.0.6.8-64] 系统管理后台 (用户+角色+配置)
+// [G005 Wave1A P0-2] 用户创建/删除改走真实 userApi (/users, 后端 users.module), 替代不存在的 /system/admin/users 写端点
 import React, { useState, useEffect } from 'react';
 import { Card, Space, Tag, Button, Table, Row, Col, Statistic, message, Tabs, Form, Input, Select, Modal, List, Badge, Spin } from 'antd';
 import { Plus, Edit3, Trash2, Settings, Save } from 'lucide-react';
 import { systemAdminApi, type SystemUserDto, type SystemRoleDto, type SystemConfigDto } from '../../services/api/systemAdminApi';
+import { userApi } from '../../services/api/userApi';
+import { usePagination } from '../../hooks/usePagination';
+
+// [G005 Wave1A P0-2] 中文角色 → userApi 英文枚举
+const ROLE_TO_ENUM: Record<string, 'DOCTOR' | 'TECHNICIAN' | 'NURSE' | 'ADMIN' | 'DIRECTOR'> = {
+  '主任医师': 'DOCTOR',
+  '主治医师': 'DOCTOR',
+  '技师': 'TECHNICIAN',
+  '护士': 'NURSE',
+  '管理员': 'ADMIN',
+};
 
 export const SystemAdminPage: React.FC = () => {
   const [tab, setTab] = useState('users');
@@ -23,6 +35,8 @@ export const SystemAdminPage: React.FC = () => {
   const [editUserDept, setEditUserDept] = useState('');
   const [editRole, setEditRole] = useState<SystemRoleDto | null>(null);
   const [editRolePerms, setEditRolePerms] = useState('');
+  const { pageData: pagedUsers, pagination: usersPagination } = usePagination(users);
+  const { pageData: pagedRoles, pagination: rolesPagination } = usePagination(roles);
 
   const openEditUser = (record: SystemUserDto) => {
     setEditUser(record);
@@ -118,9 +132,21 @@ export const SystemAdminPage: React.FC = () => {
 
   const handleCreateUser = async () => {
     try {
-      const res = await systemAdminApi.createUser({ name: newUserName || '新用户', role: newUserRole });
+      const res = await userApi.create({
+        username: `user_${Date.now().toString(36)}`,
+        password: 'Passw0rd!',
+        fullName: newUserName || '新用户',
+        role: ROLE_TO_ENUM[newUserRole] ?? 'TECHNICIAN',
+      });
       if (res.success && res.data) {
-        setUsers(prev => [...prev, res.data]);
+        setUsers(prev => [...prev, {
+          id: res.data.id,
+          name: res.data.fullName,
+          role: newUserRole,
+          dept: res.data.department ?? '',
+          status: res.data.active === false ? 'inactive' : 'active',
+          lastLogin: '',
+        }]);
         setNewUserName('');
         setUserModal(false);
         message.success('用户创建成功');
@@ -132,7 +158,7 @@ export const SystemAdminPage: React.FC = () => {
 
   const handleDeleteUser = async (record: SystemUserDto) => {
     try {
-      const res = await systemAdminApi.deleteUser(record.id);
+      const res = await userApi.delete(record.id);
       if (res.success) {
         setUsers(prev => prev.filter(u => u.id !== record.id));
         message.success('已删除: ' + record.name);
@@ -163,7 +189,7 @@ export const SystemAdminPage: React.FC = () => {
           items={[
             { key:'users', label:'用户管理', children:
               <Card size="small" extra={<Button type="primary" icon={<Plus size={12}/>} onClick={() => { setEditUser(null); setUserModal(true) }}>新增用户</Button>} title={`${users.length} 用户`}>
-                <Table dataSource={users} rowKey="id" pagination={false}
+                <Table dataSource={pagedUsers} rowKey="id" pagination={usersPagination}
                   columns={[
                     {title:'编号',dataIndex:'id'},{title:'姓名',dataIndex:'name'},
                     {title:'角色',dataIndex:'role',render:(r)=><Tag color="blue">{r}</Tag>},
@@ -177,7 +203,7 @@ export const SystemAdminPage: React.FC = () => {
             },
             { key:'roles', label:'角色权限', children:
               <Card size="small" title={`${roles.length} 角色`}>
-                <Table dataSource={roles} rowKey="name" pagination={false}
+                <Table dataSource={pagedRoles} rowKey="name" pagination={rolesPagination}
                   columns={[
                     {title:'角色',dataIndex:'name',render:(r)=><Tag color="purple">{r}</Tag>},
                     {title:'权限',dataIndex:'permissions',render:(p)=><>{p.map((x:string)=><Tag key={x} style={{margin:2}}>{x}</Tag>)}</>},

@@ -4,6 +4,7 @@ import { Table, Button, Modal, Form, Input, InputNumber, Select, Tag, message, P
 import type { ColumnsType } from 'antd/es/table';
 import { workflowApi } from '../services/api/workflowApi';
 import type { SLAPolicyDto } from '../services/api/workflowApi';
+import { usePagination } from '../hooks/usePagination';
 
 const MODALITIES = ['CT', 'MR', 'DR', 'US', 'DSA', 'MG', 'PET-CT'];
 const PRIORITIES = [
@@ -43,6 +44,7 @@ export default function SlaPolicyPage() {
     const q = search.toLowerCase();
     return policies.filter(p => p.name.toLowerCase().includes(q) || p.modality.toLowerCase().includes(q) || p.priority.toLowerCase().includes(q));
   }, [policies, search]);
+  const { pageData: pagedPolicies, pagination: policiesPagination } = usePagination(filtered);
 
   const handleSaveAll = async () => {
     setSaving(true);
@@ -178,7 +180,7 @@ export default function SlaPolicyPage() {
         {loading ? (
           <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
         ) : (
-          <Table columns={columns} dataSource={filtered} rowKey="id" pagination={false} size="middle" scroll={{ x: 'max-content' }}/>
+          <Table columns={columns} dataSource={pagedPolicies} rowKey="id" pagination={policiesPagination} size="middle" scroll={{ x: 'max-content' }}/>
         )}
         <div style={{ marginTop: 16, textAlign: 'right' }}>
           <Button type="primary" loading={saving} onClick={handleSaveAll} icon={<Clock size={14} />}>保存全部</Button>

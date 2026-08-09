@@ -149,7 +149,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
         data-testid={`${testIdPrefix}-item-${c.id}`}
         style={{
           padding: compact ? '6px 8px' : '10px 12px',
-          background: c.status === 'resolved' ? '#f0fdf4' : '#fff',
+          background: c.status === 'resolved' ? '#f0fdf4' : 'var(--bg-card)',
           borderBottom: '1px solid #f1f5f9',
           opacity: c.status === 'archived' ? 0.55 : 1,
         }}
@@ -329,7 +329,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
       aria-label="协同评论"
       style={{ background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0', overflow: 'hidden' }}
     >
-      <div style={{ padding: '8px 12px', borderBottom: '1px solid #e2e8f0', background: '#fff' }}>
+      <div style={{ padding: '8px 12px', borderBottom: '1px solid #e2e8f0', background: 'var(--bg-card)' }}>
         <Space>
           <MessageSquare size={14} color="#3b82f6" />
           <strong style={{ fontSize: 13 }}>评论协作</strong>
@@ -351,7 +351,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
           </Space>
         </div>
       </div>
-      <div style={{ padding: 8, background: '#fff', borderBottom: '1px solid #e2e8f0' }}>
+      <div style={{ padding: 8, background: 'var(--bg-card)', borderBottom: '1px solid #e2e8f0' }}>
         <Input.TextArea
           value={newContent}
           onChange={(e) => setNewContent(e.target.value)}

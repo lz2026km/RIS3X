@@ -222,9 +222,10 @@ export default function AIReportDraftPage() {
             <Brain size={28} />
           </div>
           <div style={{ flex: 1 }}>
-            <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
               AI 一键自动初稿
               <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R4</span>
+              <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: 'rgba(255,255,255,0.25)', color: '#fff', fontWeight: 600 }}>演示数据 · 患者下拉为演示样本</span>
             </h1>
             <p style={{ fontSize: 13, margin: '4px 0 0', opacity: 0.9 }}>
               基于临床病史 + 影像特征 + 历史相似病例 · 一键生成规范报告初稿

@@ -234,7 +234,7 @@ const CardiacSpecialtyPage = () => {
               padding: "8px 14px",
               borderRadius: 8,
               border: "1px solid #e2e8f0",
-              background: "#fff",
+              background: "var(--bg-card)",
               cursor: "pointer",
               fontSize: 13,
             }}
@@ -313,7 +313,7 @@ const CardiacSpecialtyPage = () => {
             <div
               key={i}
               style={{
-                background: "#fff",
+                background: "var(--bg-card)",
                 borderRadius: 12,
                 padding: "18px 14px",
                 boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
@@ -367,7 +367,7 @@ const CardiacSpecialtyPage = () => {
         {tab === "coronary" && (
           <div
             style={{
-              background: "#fff",
+              background: "var(--bg-card)",
               borderRadius: 12,
               padding: 20,
               boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
@@ -431,7 +431,7 @@ const CardiacSpecialtyPage = () => {
                   <option value="">全部模态</option>
                   <option value="CCTA">CCTA</option>
                   <option value="CMR">CMR</option>
-                  <option value="Echo">Echo</option>
+                  <option value="Echo">超声心动图 (Echo)</option>
                   <option value="Cath">心导管</option>
                 </select>
               </div>
@@ -690,7 +690,7 @@ const CardiacSpecialtyPage = () => {
           >
             <div
               style={{
-                background: "#fff",
+                background: "var(--bg-card)",
                 borderRadius: 12,
                 padding: 20,
                 boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
@@ -769,7 +769,7 @@ const CardiacSpecialtyPage = () => {
             </div>
             <div
               style={{
-                background: "#fff",
+                background: "var(--bg-card)",
                 borderRadius: 12,
                 padding: 20,
                 boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
@@ -829,7 +829,7 @@ const CardiacSpecialtyPage = () => {
           >
             <div
               style={{
-                background: "#fff",
+                background: "var(--bg-card)",
                 borderRadius: 12,
                 padding: 20,
                 boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
@@ -927,7 +927,7 @@ const CardiacSpecialtyPage = () => {
             </div>
             <div
               style={{
-                background: "#fff",
+                background: "var(--bg-card)",
                 borderRadius: 12,
                 padding: 20,
                 boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
@@ -1025,7 +1025,7 @@ const CardiacSpecialtyPage = () => {
           >
             <div
               style={{
-                background: "#fff",
+                background: "var(--bg-card)",
                 borderRadius: 12,
                 padding: 20,
                 boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
@@ -1104,7 +1104,7 @@ const CardiacSpecialtyPage = () => {
             </div>
             <div
               style={{
-                background: "#fff",
+                background: "var(--bg-card)",
                 borderRadius: 12,
                 padding: 20,
                 boxShadow: "0 1px 4px rgba(0,0,0,0.06)",

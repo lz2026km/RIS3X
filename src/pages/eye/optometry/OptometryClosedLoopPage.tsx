@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { Inbox } from 'lucide-react'
 import React, { useState, useEffect } from "react";
+import { usePagination } from "../../../hooks/usePagination";
 
 export const OptometryClosedLoopPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState("screening");
@@ -43,6 +44,8 @@ export const OptometryClosedLoopPage: React.FC = () => {
 
   // 屈光发育曲线
   const [refractionCurve, setRefractionCurve] = useState<any>(null);
+  // [G005 2B] 受控分页: 屈光发育历史 (数据可增长)
+  const { pageData: curveHistory, pagination: curveHistoryPagination } = usePagination(refractionCurve?.history ?? [], 10);
 
   // OK 镜试?
   const [okTrial, setOkTrial] = useState<any>(null);
@@ -442,9 +445,9 @@ export const OptometryClosedLoopPage: React.FC = () => {
                         <Divider style={{ margin: "4px 0" }} />
                         <Table
                           size="small"
-                          dataSource={refractionCurve.history}
+                          dataSource={curveHistory}
                           rowKey="date"
-                          pagination={false}
+                          pagination={curveHistoryPagination}
                           columns={[
                             { title: "日期", dataIndex: "date" },
                             { title: "年龄", dataIndex: "age" },

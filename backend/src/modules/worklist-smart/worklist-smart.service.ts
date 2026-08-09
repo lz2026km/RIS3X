@@ -19,6 +19,8 @@ export interface SmartFactorDetail {
   score: number
   weight: number
   contribution: number
+  // [G005 Wave4A] aiTriage 因子得分来源: 真实分检记录 | 优先级回退
+  source?: string
 }
 
 export interface SmartScoreResult {
@@ -34,6 +36,8 @@ export interface SmartWeightConfig {
   waitWeight: number
   ageWeight: number
   examTypeWeight: number
+  // [G005 Wave4A] 权重是否已持久化至 system_config (DB 可用时 true)
+  persisted?: boolean
 }
 
 export interface SmartPriorityCounts {
@@ -65,22 +69,67 @@ const MID_PRIORITY_KEYWORDS = ['中', '中等', 'medium', 'normal']
 
 const DEMO_PRIORITIES: SmartPriorityCounts = { critical: 3, high: 5, medium: 12, low: 10 }
 
+// [G005 Wave4A] 权重持久化 key (system_config, 与 rdsr.drlOverrides 同模式)
+const WEIGHTS_CONFIG_KEY = 'worklist-smart:weights'
+
+// [G005 Wave4A] 真实分检记录(triageRecord) → 0-1 分映射
+function triageScoreTo01(score: number): number {
+  if (score >= 16) return 1.0 // CRITICAL
+  if (score >= 11) return 0.8 // URGENT
+  if (score >= 6) return 0.5 // SEMI_URGENT
+  return 0.15 // ROUTINE
+}
+
 @Injectable()
 export class WorklistSmartService {
   private weights: SmartWeightConfig = { ...DEFAULT_WEIGHTS }
+  private weightsLoaded = false
+  private weightsPersisted = false
 
   constructor(private readonly prisma: PrismaService) {}
 
-  getWeights(): SmartWeightConfig {
-    return { ...this.weights }
+  // [G005 Wave4A] 启动/首次访问时从 system_config 加载持久化权重 (DB 不可用回退默认值)
+  private async ensureWeights(): Promise<void> {
+    if (this.weightsLoaded) return
+    try {
+      const row = await this.prisma.systemConfig.findUnique({ where: { key: WEIGHTS_CONFIG_KEY } })
+      if (row && typeof row.value === 'object' && row.value) {
+        const v = row.value as unknown as Partial<SmartWeightConfig>
+        if (v.urgencyWeight !== undefined) this.weights.urgencyWeight = v.urgencyWeight
+        if (v.waitWeight !== undefined) this.weights.waitWeight = v.waitWeight
+        if (v.ageWeight !== undefined) this.weights.ageWeight = v.ageWeight
+        if (v.examTypeWeight !== undefined) this.weights.examTypeWeight = v.examTypeWeight
+        this.weightsPersisted = true
+      }
+    } catch {
+      // DB unavailable - keep in-memory weights
+    }
+    this.weightsLoaded = true
   }
 
-  setWeights(w: Partial<SmartWeightConfig>): SmartWeightConfig {
+  async getWeights(): Promise<SmartWeightConfig> {
+    await this.ensureWeights()
+    return { ...this.weights, persisted: this.weightsPersisted }
+  }
+
+  async setWeights(w: Partial<SmartWeightConfig>): Promise<SmartWeightConfig> {
+    await this.ensureWeights()
     if (w.urgencyWeight !== undefined) this.weights.urgencyWeight = w.urgencyWeight
     if (w.waitWeight !== undefined) this.weights.waitWeight = w.waitWeight
     if (w.ageWeight !== undefined) this.weights.ageWeight = w.ageWeight
     if (w.examTypeWeight !== undefined) this.weights.examTypeWeight = w.examTypeWeight
-    return { ...this.weights }
+    try {
+      await this.prisma.systemConfig.upsert({
+        where: { key: WEIGHTS_CONFIG_KEY },
+        create: { key: WEIGHTS_CONFIG_KEY, value: { ...this.weights } as object },
+        update: { value: { ...this.weights } as object },
+      })
+      this.weightsPersisted = true
+    } catch {
+      // DB unavailable -> 运行时生效 (仅当前进程)
+      this.weightsPersisted = false
+    }
+    return { ...this.weights, persisted: this.weightsPersisted }
   }
 
   private normalizeUrgency(u: number): number {
@@ -113,6 +162,22 @@ export class WorklistSmartService {
     return 0
   }
 
+  // [G005 Wave4A] aiTriage 因子真实化: 从 triageRecord (POST /triage/score 写入) 聚合患者最近分检得分
+  // 无记录或 DB 不可用 → 回退检查 priority / criticalFinding 推断
+  private async loadAiTriageRecord(examId: string): Promise<{ score01: number; recordScore: number } | null> {
+    try {
+      const row = await this.prisma.triageRecord.findFirst({
+        where: { examId },
+        orderBy: { createdAt: 'desc' },
+        select: { score: true },
+      })
+      if (!row) return null
+      return { score01: triageScoreTo01(row.score), recordScore: row.score }
+    } catch {
+      return null
+    }
+  }
+
   private calcAiTriageScore(priority?: string, criticalFinding?: boolean): number {
     if (criticalFinding) return 1.0
     const p = (priority ?? '').toLowerCase()
@@ -121,13 +186,17 @@ export class WorklistSmartService {
     return 0
   }
 
-  private computeScore(input: SmartScoreInput): SmartScoreResult {
+  private async computeScore(input: SmartScoreInput): Promise<SmartScoreResult> {
     const urgencyScore = this.normalizeUrgency(input.urgency)
     const waitScore = this.calcWaitScore(input.waitingMinutes)
     const ageScore = this.calcAgeScore(input.age)
     const examTypeScore = this.calcExamTypeScore(input.modality, input.bodyPart)
     const patientTypeScore = this.calcPatientTypeScore(input.patientType)
-    const aiTriageScore = this.calcAiTriageScore(input.priority, input.criticalFinding)
+
+    // [G005 Wave4A] 真实 AI 分检记录优先
+    const triage = await this.loadAiTriageRecord(input.id)
+    const aiTriageScore = triage ? triage.score01 : this.calcAiTriageScore(input.priority, input.criticalFinding)
+    const aiTriageSource = triage ? '真实分检记录' : '检查优先级回退'
 
     const total =
       urgencyScore * this.weights.urgencyWeight +
@@ -145,7 +214,7 @@ export class WorklistSmartService {
       { key: 'age', label: '年龄', score: ageScore, weight: this.weights.ageWeight, contribution: ageScore * this.weights.ageWeight },
       { key: 'examType', label: '检查类型', score: examTypeScore, weight: this.weights.examTypeWeight, contribution: examTypeScore * this.weights.examTypeWeight },
       { key: 'patientType', label: '患者状态', score: patientTypeScore, weight: PATIENT_TYPE_WEIGHT, contribution: patientTypeScore * PATIENT_TYPE_WEIGHT },
-      { key: 'aiTriage', label: 'AI 分检', score: aiTriageScore, weight: AI_TRIAGE_WEIGHT, contribution: aiTriageScore * AI_TRIAGE_WEIGHT },
+      { key: 'aiTriage', label: 'AI 分检', score: aiTriageScore, weight: AI_TRIAGE_WEIGHT, contribution: aiTriageScore * AI_TRIAGE_WEIGHT, source: aiTriageSource },
     ]
 
     const reasons: string[] = []
@@ -156,7 +225,9 @@ export class WorklistSmartService {
     if ((input.age ?? 0) <= CHILD_AGE_THRESHOLD) reasons.push('儿童患者')
     if (examTypeScore > 0) reasons.push(`${input.bodyPart || input.modality || ''}优先`.trim() || '检查类型优先')
     if (patientTypeScore >= 1) reasons.push(`患者状态${input.patientType}`)
-    if (aiTriageScore > 0) reasons.push('AI 分检高风险')
+    if (aiTriageScore > 0) {
+      reasons.push(triage ? `AI 分检记录${triage.recordScore}分` : 'AI 分检高风险')
+    }
     if (reasons.length === 0) reasons.push('常规排序')
 
     let level: SmartScoreResult['level'] = 'low'
@@ -185,7 +256,7 @@ export class WorklistSmartService {
   }
 
   async score(input: SmartScoreInput): Promise<SmartScoreResult> {
-    const result = this.computeScore(input)
+    const result = await this.computeScore(input)
     try {
       await this.persistScore(input, result)
     } catch {
@@ -219,13 +290,16 @@ export class WorklistSmartService {
     }
   }
 
-  reorder(
+  async reorder(
     inputs: SmartScoreInput[],
-  ): Array<SmartScoreInput & { score: number; reasons: string[]; level: string; factors: SmartFactorDetail[]; rank: number; beforeRank: number }> {
-    const scored = inputs.map((input, idx) => {
-      const result = this.computeScore(input)
-      return { ...input, ...result, beforeRank: idx + 1, rank: 0 }
-    })
+  ): Promise<Array<SmartScoreInput & { score: number; reasons: string[]; level: string; factors: SmartFactorDetail[]; rank: number; beforeRank: number }>> {
+    type ScoredRow = SmartScoreInput & { score: number; reasons: string[]; level: string; factors: SmartFactorDetail[]; rank: number; beforeRank: number }
+    const scored: ScoredRow[] = []
+    for (let idx = 0; idx < inputs.length; idx++) {
+      const input = inputs[idx]
+      const result = await this.computeScore(input)
+      scored.push({ ...input, ...result, beforeRank: idx + 1, rank: 0 })
+    }
     scored.sort((a, b) => b.score - a.score)
     scored.forEach((item, idx) => { item.rank = idx + 1 })
     return scored

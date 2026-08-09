@@ -33,7 +33,7 @@ function Pagination({
         justifyContent: "space-between",
         padding: "12px 16px",
         borderTop: "1px solid #e2e8f0",
-        background: "#f8fafc",
+        background: "var(--bg-primary)",
       }}
     >
       <div
@@ -57,7 +57,7 @@ function Pagination({
                 border: "1px solid #e2e8f0",
                 borderRadius: 4,
                 fontSize: 12,
-                background: "#fff",
+                background: "var(--bg-card)",
                 color: "#334155",
                 cursor: "pointer",
               }}
@@ -84,7 +84,7 @@ function Pagination({
             height: 32,
             borderRadius: 6,
             border: "1px solid #e2e8f0",
-            background: "#fff",
+            background: "var(--bg-card)",
             cursor: currentPage === 1 ? "not-allowed" : "pointer",
             opacity: currentPage === 1 ? 0.5 : 1,
             display: "flex",
@@ -113,7 +113,7 @@ function Pagination({
                 borderRadius: 6,
                 border: "1px solid",
                 borderColor: currentPage === pageNum ? "#1e40af" : "#e2e8f0",
-                background: currentPage === pageNum ? "#1e40af" : "#fff",
+                background: currentPage === pageNum ? "#1e40af" : "var(--bg-card)",
                 color: currentPage === pageNum ? "#fff" : "#64748b",
                 cursor: "pointer",
                 fontSize: 12,
@@ -134,7 +134,7 @@ function Pagination({
             height: 32,
             borderRadius: 6,
             border: "1px solid #e2e8f0",
-            background: "#fff",
+            background: "var(--bg-card)",
             cursor: currentPage === totalPages ? "not-allowed" : "pointer",
             opacity: currentPage === totalPages ? 0.5 : 1,
             display: "flex",
@@ -288,7 +288,7 @@ export function PatientTable({
                 style={{
                   fontSize: 12,
                   padding: "3px 8px",
-                  background: "#fff",
+                  background: "var(--bg-card)",
                   borderRadius: 4,
                   border: "1px solid #fde68a",
                   color: "#92400e",
@@ -310,13 +310,13 @@ export function PatientTable({
                 padding: "4px 10px",
                 borderRadius: 6,
                 border: "1px solid #e2e8f0",
-                background: "#fff",
+                background: "var(--bg-card)",
                 fontSize: 12,
                 cursor: "pointer",
                 color: "#64748b",
               }}
             >
-              <X size={12} /> 忽略
+              <X size={14} /> 忽略
             </button>
           </div>
         </div>
@@ -374,7 +374,7 @@ export function PatientTable({
               gap: 6,
             }}
           >
-            <Download size={12} />
+            <Download size={14} />
             批量导出
           </button>
           <button
@@ -392,7 +392,7 @@ export function PatientTable({
               gap: 6,
             }}
           >
-            <Printer size={12} />
+            <Printer size={14} />
             打印标签
           </button>
           <button
@@ -411,7 +411,7 @@ export function PatientTable({
               gap: 6,
             }}
           >
-            <X size={12} />
+            <X size={14} />
             清除
           </button>
         </div>
@@ -419,7 +419,7 @@ export function PatientTable({
 
       <div
         style={{
-          background: "#fff",
+          background: "var(--bg-card)",
           borderRadius: 12,
           border: "1px solid #e2e8f0",
           overflow: "hidden",
@@ -445,7 +445,7 @@ export function PatientTable({
             <thead>
               <tr
                 style={{
-                  background: "#f8fafc",
+                  background: "var(--bg-primary)",
                   borderBottom: "1px solid #e2e8f0",
                 }}
               >
@@ -458,7 +458,7 @@ export function PatientTable({
                     textAlign: "center",
                     position: "sticky",
                     top: 0,
-                    background: "#f8fafc",
+                    background: "var(--bg-primary)",
                     zIndex: 1,
                   }}
                 >
@@ -529,7 +529,7 @@ export function PatientTable({
                       whiteSpace: "nowrap",
                       position: "sticky",
                       top: 0,
-                      background: "#f8fafc",
+                      background: "var(--bg-primary)",
                       zIndex: 1,
                     }}
                   >
@@ -550,8 +550,8 @@ export function PatientTable({
                       background: isSelected
                         ? "#f0f7ff"
                         : idx % 2 === 0
-                          ? "#fff"
-                          : "#fafbfc",
+                          ? "var(--bg-card)"
+                          : "var(--bg-primary)",
                     }}
                     onClick={() => onSelectPatient(p)}
                     onMouseEnter={(e) => {
@@ -564,7 +564,7 @@ export function PatientTable({
                       if (!isSelected)
                         (
                           e.currentTarget as HTMLTableRowElement
-                        ).style.background = idx % 2 === 0 ? "#fff" : "#fafbfc";
+                        ).style.background = idx % 2 === 0 ? "var(--bg-card)" : "var(--bg-primary)";
                     }}
                   >
                     <td style={{ padding: "10px 10px", textAlign: "center" }}>
@@ -745,7 +745,7 @@ export function PatientTable({
                             gap: 4,
                           }}
                         >
-                          <Eye size={12} />
+                          <Eye size={14} />
                           查看
                         </button>
                         <button
@@ -768,7 +768,7 @@ export function PatientTable({
                             gap: 4,
                           }}
                         >
-                          <Edit2 size={12} />
+                          <Edit2 size={14} />
                           编辑
                         </button>
                         <button
@@ -790,7 +790,7 @@ export function PatientTable({
                             gap: 4,
                           }}
                         >
-                          <PlusCircle size={12} />
+                          <PlusCircle size={14} />
                           检查
                         </button>
                         <button
@@ -812,7 +812,7 @@ export function PatientTable({
                             gap: 4,
                           }}
                         >
-                          <FileText size={12} />
+                          <FileText size={14} />
                           报告
                         </button>
                       </div>
@@ -865,7 +865,7 @@ export function PatientTable({
         <div
           style={{
             marginTop: 16,
-            background: "#fff",
+            background: "var(--bg-card)",
             borderRadius: 12,
             border: "1px solid #e2e8f0",
             padding: 20,
@@ -915,7 +915,7 @@ export function PatientTable({
                 height: 32,
                 borderRadius: 8,
                 border: "1px solid #e2e8f0",
-                background: "#fff",
+                background: "var(--bg-card)",
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
@@ -976,7 +976,7 @@ export function PatientTable({
             ].map((item) => (
               <div
                 key={item.label}
-                style={{ padding: 12, background: "#f8fafc", borderRadius: 8 }}
+                style={{ padding: 12, background: "var(--bg-primary)", borderRadius: 8 }}
               >
                 <div
                   style={{
@@ -1040,7 +1040,7 @@ export function PatientTable({
                 fontSize: 12,
                 color: "#334155",
                 padding: 12,
-                background: "#f8fafc",
+                background: "var(--bg-primary)",
                 borderRadius: 8,
               }}
             >

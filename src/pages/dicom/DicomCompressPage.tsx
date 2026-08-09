@@ -434,7 +434,7 @@ export default function DicomCompressPage() {
     }
     const res = await dicomCompressApi.getStatus(taskId);
     const data = res.data as DicomCompressTask | null;
-    if (!data) throw new Error("status timeout");
+    if (!data) throw new Error("状态查询超时");
     return data;
   };
 

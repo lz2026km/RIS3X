@@ -57,6 +57,68 @@ export interface PacsAdminStats {
   dailyTransferBytes: number
 }
 
+// ===== [Wave1A] nodes / storage / worklist / archives / logs / configs / routes =====
+
+export interface PacsNode {
+  id: string
+  name: string
+  aeTitle: string
+  hostname: string
+  port: number
+  status: 'online' | 'offline' | 'error'
+  lastHeartbeat: string
+  modality: string
+  location: string
+  studyCount: number
+}
+
+export interface PacsWorklistEntry {
+  id: string
+  accessionNumber: string
+  patientId: string
+  patientName: string
+  modality: string
+  bodyPart: string
+  state: string
+  scheduledAt?: string
+}
+
+export interface PacsArchive {
+  id: string
+  studyId: string
+  patientName: string
+  modality: string
+  archivedAt: string
+  sizeBytes: number
+  status: 'archived' | 'restoring' | 'restored'
+}
+
+export interface PacsLogEntry {
+  id: string
+  time: string
+  level: 'INFO' | 'WARN' | 'ERROR'
+  source: string
+  message: string
+}
+
+export interface PacsConfig {
+  key: string
+  value: string
+  description: string
+  category: string
+}
+
+export interface PacsRoute {
+  id: string
+  name: string
+  sourceAe: string
+  targetAe: string
+  targetHost: string
+  targetPort: number
+  protocol: string
+  enabled: boolean
+}
+
 export const pacsAdminApi = {
   // [Wave1B] 真实端点 (pacs-admin.controller)
   listServers: (params?: PacsQueryParams) =>
@@ -116,4 +178,56 @@ export const pacsAdminApi = {
   // [Wave1B] 真实端点 (pacs-admin.controller)
   getStats: () =>
     api.get<PacsAdminStats>('/pacs-admin/stats'),
+
+  // ===== [Wave1A] 11 端点 (pacs-admin.controller) =====
+
+  // GET /pacs-admin/nodes — DICOM 节点列表 (Device 表派生)
+  listNodes: () =>
+    api.get<PacsNode[]>('/pacs-admin/nodes'),
+
+  // POST /pacs-admin/nodes/:id/test — 节点连通性测试
+  testNode: (id: string) =>
+    api.post<{ success: boolean; latencyMs: number; serverId: string }>(`/pacs-admin/nodes/${id}/test`, {}),
+
+  // POST /pacs-admin/nodes/:id/sync — 节点数据同步
+  syncNode: (id: string) =>
+    api.post<{ ok: boolean; syncedStudies: number; durationMs: number }>(`/pacs-admin/nodes/${id}/sync`, {}),
+
+  // GET /pacs-admin/storage — 存储组列表
+  listStorage: () =>
+    api.get<PacsStorageGroup[]>('/pacs-admin/storage'),
+
+  // POST /pacs-admin/storage/cleanup — 存储空间清理
+  cleanupStorage: async () => {
+    const res = await api.post<{ ok: boolean; freedBytes: number; deletedCount: number; durationMs: number }>('/pacs-admin/storage/cleanup', {})
+    await invalidateApiCache('/pacs-admin/storage')
+    return res
+  },
+
+  // GET /pacs-admin/worklist-entries — Worklist 条目 (Exam 表派生)
+  listWorklistEntries: () =>
+    api.get<PacsWorklistEntry[]>('/pacs-admin/worklist-entries'),
+
+  // GET /pacs-admin/archives — 归档记录
+  listArchives: () =>
+    api.get<PacsArchive[]>('/pacs-admin/archives'),
+
+  // GET /pacs-admin/logs — PACS 操作日志 (AuditLog 派生)
+  listLogs: (limit = 50) =>
+    api.get<PacsLogEntry[]>(`/pacs-admin/logs?limit=${limit}`),
+
+  // GET /pacs-admin/configs — 配置项
+  listConfigs: () =>
+    api.get<PacsConfig[]>('/pacs-admin/configs'),
+
+  // POST /pacs-admin/configs/:key — 更新配置项
+  updateConfig: async (key: string, data: { value: string; description?: string }) => {
+    const res = await api.post<PacsConfig>(`/pacs-admin/configs/${key}`, data)
+    await invalidateApiCache('/pacs-admin/configs')
+    return res
+  },
+
+  // GET /pacs-admin/routes — 转发路由列表
+  listRoutes: () =>
+    api.get<PacsRoute[]>('/pacs-admin/routes'),
 }

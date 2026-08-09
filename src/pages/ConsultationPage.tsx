@@ -231,6 +231,37 @@ export default function ConsultationPage() {
     showToast('已拒绝会诊请求', 'info')
   }
 
+  // [G005 Wave1B] 详情刷新: consultationApi.getById 合并最新字段 (失败保持列表数据)
+  const handleSelectConsultation = (id: string) => {
+    setSelectedId(id)
+    void consultationApi.getById(id).then((res) => {
+      if (res.success && res.data) {
+        setConsultations(prev => prev.map(c => c.id === id ? { ...c, ...res.data } : c))
+      }
+    }).catch(() => { /* 详情接口不可用, 保持列表数据 */ })
+  }
+
+  // [G005 Wave1B] 取消会诊: consultationApi.cancel (POST /consultations/:id/cancel)
+  const [cancellingId, setCancellingId] = useState<string | null>(null)
+  const handleCancelConsultation = async () => {
+    if (!selected) return
+    setCancellingId(selected.id)
+    try {
+      const res = await consultationApi.cancel(selected.id)
+      if (res.success) {
+        setConsultations(prev => prev.map(c => c.id === selected.id ? { ...c, status: '已拒绝' as const } : c))
+        showToast('会诊已取消', 'success')
+      } else {
+        showToast(res.error?.message ?? '取消失败', 'info')
+      }
+    } catch {
+      setConsultations(prev => prev.map(c => c.id === selected.id ? { ...c, status: '已拒绝' as const } : c))
+      showToast('会诊已取消 (本地)', 'success')
+    } finally {
+      setCancellingId(null)
+    }
+  }
+
   const handleUpload = () => {
     setShowUploadModal(true)
   }
@@ -600,7 +631,7 @@ export default function ConsultationPage() {
                   return (
                     <div
                       key={c.id}
-                      onClick={() => setSelectedId(c.id)}
+                      onClick={() => handleSelectConsultation(c.id)}
                       style={{
                         padding: '14px 16px',
                         borderBottom: `1px solid ${BORDER}`,
@@ -751,6 +782,11 @@ export default function ConsultationPage() {
                           </button>
                         </>
                       )}
+                      {(selected.status === '待回复' || selected.status === '已回复') && (
+                        <button onClick={() => void handleCancelConsultation()} disabled={cancellingId === selected.id} style={{ padding: '8px 20px', background: WHITE, color: DANGER, border: `1px solid ${DANGER}`, borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, opacity: cancellingId === selected.id ? 0.6 : 1 }}>
+                          <X size={15} />{cancellingId === selected.id ? '取消中...' : '取消会诊'}
+                        </button>
+                      )}
                       <button onClick={handleSubmitConclusion} style={{ padding: '8px 20px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                         <Send size={15} />提交会诊结论
                       </button>
@@ -759,7 +795,7 @@ export default function ConsultationPage() {
 
                   {/* Patient & Exam Info */}
                   <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                    <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <User size={16} color={ACCENT} />患者与检查信息
                     </h3>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
@@ -816,7 +852,7 @@ export default function ConsultationPage() {
 
                   {/* Consultation Purpose & Clinical Info */}
                   <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                    <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <Stethoscope size={16} color={ACCENT} />会诊目的与临床信息
                     </h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -838,7 +874,7 @@ export default function ConsultationPage() {
 
                   {/* Timeline */}
                   <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                    <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <Clock3 size={16} color={ACCENT} />会诊进度时间轴
                     </h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
@@ -883,7 +919,7 @@ export default function ConsultationPage() {
 
                   {/* Consultation Conclusion */}
                   <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                    <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <MessageSquare size={16} color={ACCENT} />会诊结论区
                     </h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -935,26 +971,26 @@ export default function ConsultationPage() {
                   {/* Consultation Evaluation */}
                   <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                      <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
                         <ThumbsUp size={16} color={ACCENT} />会诊评价
                       </h3>
                       <button
                         onClick={() => setShowRatingModal(true)}
                         style={{ padding: '4px 12px', background: 'var(--color-info-bg)', color: ACCENT, border: `1px solid ${ACCENT}`, borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <Edit3 size={12} />详细评分
+                        <Edit3 size={14} />详细评分
                       </button>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                       <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '14px 16px' }}>
                         <div style={{ fontSize: 12, color: GRAY, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <Shield size={12} />会诊质量评分
+                          <Shield size={14} />会诊质量评分
                         </div>
                         <div style={{ marginBottom: 8 }}>{renderStars(qualityScore)}</div>
                         <div style={{ fontSize: 12, color: GRAY }}>综合评分：<span style={{ fontWeight: 700, color: PRIMARY }}>{qualityScore}.0/5.0</span></div>
                       </div>
                       <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '14px 16px' }}>
                         <div style={{ fontSize: 12, color: GRAY, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <Heart size={12} />满意度评价
+                          <Heart size={14} />满意度评价
                         </div>
                         <div style={{ marginBottom: 8 }}>{renderStars(satisfactionScore, setSatisfactionScore)}</div>
                         <div style={{ fontSize: 12, color: GRAY }}>满意度：<span style={{ fontWeight: 700, color: PRIMARY }}>{satisfactionScore}.0/5.0</span></div>
@@ -989,7 +1025,7 @@ export default function ConsultationPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             {/* 会诊录音录像控制面板 */}
             <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Video size={16} color={ACCENT} />会诊录音录像控制面板
               </h3>
 
@@ -1161,7 +1197,7 @@ export default function ConsultationPage() {
 
             {/* 录像预览区 */}
             <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Film size={16} color={ACCENT} />录像预览区
               </h3>
 
@@ -1319,7 +1355,7 @@ export default function ConsultationPage() {
 
           {/* 录音录像存档列表 */}
           <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-            <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Film size={16} color={ACCENT} />录音录像存档列表
             </h3>
 
@@ -1438,7 +1474,7 @@ export default function ConsultationPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ background: WHITE, borderRadius: 16, padding: 24, width: 480, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: PRIMARY, margin: 0 }}>会诊质量详细评分</h3>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>会诊质量详细评分</h3>
               <button onClick={() => setShowRatingModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 4 }}>
                 <X size={20} />
               </button>
@@ -1497,7 +1533,7 @@ export default function ConsultationPage() {
           <div style={{ background: WHITE, borderRadius: 16, padding: 24, width: 800, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div>
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: PRIMARY, margin: '0 0 4px' }}>录像播放 - {selectedArchive.patientName}</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: '0 0 4px' }}>录像播放 - {selectedArchive.patientName}</h3>
                 <div style={{ fontSize: 12, color: GRAY }}>{selectedArchive.consultationId} | {selectedArchive.duration} | {selectedArchive.fileSize}</div>
               </div>
               <button
@@ -1746,7 +1782,7 @@ export default function ConsultationPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ background: WHITE, borderRadius: 16, padding: 24, width: 480, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: PRIMARY, margin: 0 }}>补充资料上传</h3>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>补充资料上传</h3>
               <button onClick={() => setShowUploadModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 4 }}>
                 <X size={20} />
               </button>
@@ -1770,10 +1806,10 @@ export default function ConsultationPage() {
                 <div style={{ display: 'grid', gap: 4, maxHeight: 120, overflowY: 'auto' }}>
                   {uploadFiles.map(f => (
                     <div key={f.name} style={{ display: 'flex', alignItems: 'center', gap: 8, background: LIGHT_BG, padding: '6px 10px', borderRadius: 6, fontSize: 12 }}>
-                      <FileText size={12} color={ACCENT} />
+                      <FileText size={14} color={ACCENT} />
                       <span style={{ flex: 1, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name}</span>
                       <span style={{ color: GRAY }}>{(f.size / 1024).toFixed(0)}KB</span>
-                      <button onClick={() => handleRemoveUploadFile(f.name)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: DANGER, padding: 0 }}><X size={12} /></button>
+                      <button onClick={() => handleRemoveUploadFile(f.name)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: DANGER, padding: 0 }}><X size={14} /></button>
                     </div>
                   ))}
                 </div>
@@ -1796,7 +1832,7 @@ export default function ConsultationPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ background: WHITE, borderRadius: 16, padding: 24, width: 520, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: PRIMARY, margin: 0 }}>确认会诊结论</h3>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: PRIMARY, margin: 0 }}>确认会诊结论</h3>
               <button onClick={() => setShowConclusionModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 4 }}>
                 <X size={20} />
               </button>
@@ -1832,7 +1868,7 @@ export default function ConsultationPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ background: WHITE, borderRadius: 16, padding: 24, width: 400, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: DANGER, margin: 0 }}>确认删除存档</h3>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: DANGER, margin: 0 }}>确认删除存档</h3>
               <button onClick={() => { setShowDeleteModal(false); setDeleteTarget(null) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 4 }}>
                 <X size={20} />
               </button>

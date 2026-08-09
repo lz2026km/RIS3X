@@ -31,6 +31,48 @@ export default function PatientReportPortalPage() {
   const [selectedAccessId, setSelectedAccessId] = useState<string | null>('pa-001');
   const [showShareDialog, setShowShareDialog] = useState(false);
 
+  // [G005 Wave1B] 宣教材料卡 (listEducation/getEducation) + 报告详情 (getReport)
+  const [educationItems, setEducationItems] = useState<any[]>([]);
+  const [educationDetail, setEducationDetail] = useState<any>(null);
+  const [reportDetail, setReportDetail] = useState<any>(null);
+  const [reportDetailLoading, setReportDetailLoading] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await patientPortalApi.listEducation();
+        if (cancelled) return;
+        if (res.success && Array.isArray(res.data?.data)) setEducationItems(res.data.data);
+      } catch { /* 宣教接口不可用, 保持空 */ }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const handleViewEducation = async (item: any) => {
+    setEducationDetail(item);
+    try {
+      const res = await patientPortalApi.getEducation(item.id ?? item.key);
+      if (res.success && Array.isArray(res.data?.data) && res.data.data.length > 0) {
+        setEducationDetail({ ...item, ...res.data.data[0] });
+      }
+    } catch { /* 详情接口不可用, 使用列表项 */ }
+  };
+
+  const handleViewReportDetail = async () => {
+    if (!selectedAccess) return;
+    setReportDetailLoading(true);
+    setReportDetail(null);
+    try {
+      const res = await patientPortalApi.getReport(selectedAccess.reportId);
+      if (res.success && res.data) setReportDetail(res.data);
+      else setReportDetail({ id: selectedAccess.reportId, patientName: selectedAccess.patientName, error: res.error?.message ?? '报告详情不可用' });
+    } catch {
+      setReportDetail({ id: selectedAccess.reportId, patientName: selectedAccess.patientName, error: '报告详情接口不可用' });
+    }
+    setReportDetailLoading(false);
+  };
+
   useEffect(() => {
     let cancelled = false;
     void (async () => {
@@ -139,7 +181,7 @@ export default function PatientReportPortalPage() {
       {/* 顶部 */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 22, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Smartphone size={20} color="#0ea5e9" /> 患者端报告门户 H5
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
             {accessSource === 'api' ? (
@@ -272,6 +314,15 @@ export default function PatientReportPortalPage() {
                 <InfoCell icon={Smartphone} label="设备" value={selectedAccess.deviceFingerprint.split('-')[0] ?? ''} color="#f59e0b" />
               </div>
 
+              {/* [G005 Wave1B] 报告详情: patientPortalApi.getReport */}
+              <button
+                onClick={() => void handleViewReportDetail()}
+                disabled={reportDetailLoading}
+                style={{ marginBottom: 12, padding: '6px 14px', border: '1px solid #0ea5e9', borderRadius: 6, background: 'var(--color-info-bg)', color: '#0369a1', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+              >
+                <Eye size={13} /> {reportDetailLoading ? '加载报告详情...' : '查看报告详情'}
+              </button>
+
               <div style={{ marginBottom: 8 }}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 4 }}>📱 设备指纹</div>
                 <div style={{ padding: 6, background: 'var(--bg-card)', borderRadius: 4, fontSize: 12, color: 'var(--text-secondary)', fontFamily: 'monospace' }}>
@@ -303,6 +354,28 @@ export default function PatientReportPortalPage() {
           </div>
         )}
       </div>
+      {/* [G005 Wave1B] 宣教材料卡: patientPortalApi.listEducation / getEducation */}
+      {educationItems.length > 0 && (
+        <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 12, marginBottom: 16 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <FileText size={13} /> 宣教材料 ({educationItems.length}) <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 400 }}>patient-portal/education</span>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 8 }}>
+            {educationItems.slice(0, 8).map((item: any) => (
+              <button
+                key={item.id ?? item.key}
+                onClick={() => void handleViewEducation(item)}
+                style={{ textAlign: 'left', padding: 10, borderRadius: 6, border: '1px solid var(--border-color)', background: 'var(--bg-card)', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 4 }}
+              >
+                <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{item.title ?? item.key ?? item.id}</span>
+                <span style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{item.summary ?? item.content?.slice(0, 60) ?? ''}</span>
+                <span style={{ fontSize: 11, color: '#0ea5e9' }}>查看全文 →</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <ShareDialog
         open={showShareDialog}
         onClose={() => setShowShareDialog(false)}
@@ -321,6 +394,64 @@ export default function PatientReportPortalPage() {
           }
         }}
       />
+
+      {/* [G005 Wave1B] 宣教材料详情 Modal (getEducation) */}
+      <Modal
+        title={`宣教材料 - ${educationDetail?.title ?? educationDetail?.key ?? ''}`}
+        open={!!educationDetail}
+        onCancel={() => setEducationDetail(null)}
+        footer={<button onClick={() => setEducationDetail(null)} style={{ padding: '6px 16px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}>关闭</button>}
+        width={520}
+      >
+        {educationDetail && (
+          <div style={{ marginTop: 8 }}>
+            <div style={{ marginBottom: 8 }}>
+              <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
+                {(educationDetail.category ? `分类: ${educationDetail.category} · ` : '') + (educationDetail.contentType ? `类型: ${educationDetail.contentType}` : '')}
+              </span>
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.8, whiteSpace: 'pre-wrap', maxHeight: 360, overflowY: 'auto' }}>
+              {educationDetail.content ?? educationDetail.value ?? '（无内容）'}
+            </div>
+            {educationDetail.updatedAt && <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-secondary)' }}>更新: {String(educationDetail.updatedAt).slice(0, 10)}</div>}
+          </div>
+        )}
+      </Modal>
+
+      {/* [G005 Wave1B] 报告详情 Modal (getReport) */}
+      <Modal
+        title={`报告详情 - ${reportDetail?.patientName ?? reportDetail?.id ?? ''}`}
+        open={!!reportDetail}
+        onCancel={() => setReportDetail(null)}
+        footer={<button onClick={() => setReportDetail(null)} style={{ padding: '6px 16px', border: '1px solid var(--border-color)', borderRadius: 6, background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer' }}>关闭</button>}
+        width={560}
+      >
+        {reportDetail && (
+          <div style={{ marginTop: 8 }}>
+            {reportDetail.error ? (
+              <div style={{ padding: 16, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>{reportDetail.error}</div>
+            ) : (
+              <>
+                <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
+                  {reportDetail.modality && <span style={{ fontSize: 11, padding: '2px 8px', background: 'var(--color-info-bg)', color: '#0c4a6e', borderRadius: 10 }}>{reportDetail.modality}</span>}
+                  {reportDetail.bodyPart && <span style={{ fontSize: 11, padding: '2px 8px', background: 'var(--color-info-bg)', color: '#0c4a6e', borderRadius: 10 }}>{reportDetail.bodyPart}</span>}
+                  {reportDetail.examDate && <span style={{ fontSize: 11, padding: '2px 8px', background: 'var(--bg-card)', color: 'var(--text-secondary)', borderRadius: 10 }}>{String(reportDetail.examDate).slice(0, 10)}</span>}
+                  <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: reportDetail.isCritical ? 'var(--color-error-bg)' : 'var(--color-success-bg)', color: reportDetail.isCritical ? '#dc2626' : '#047857' }}>{reportDetail.isCritical ? '危急' : '状态: ' + (reportDetail.state ?? '-')}</span>
+                </div>
+                {reportDetail.findings && <DetailBlock label="检查所见" value={reportDetail.findings} />}
+                {reportDetail.impression && <DetailBlock label="影像意见" value={reportDetail.impression} />}
+                {reportDetail.diagnosis && <DetailBlock label="诊断" value={reportDetail.diagnosis} />}
+                {reportDetail.recommendations && <DetailBlock label="建议" value={reportDetail.recommendations} />}
+                {reportDetail.conclusion && <DetailBlock label="结论" value={reportDetail.conclusion} />}
+                {!(reportDetail.findings || reportDetail.impression || reportDetail.diagnosis || reportDetail.recommendations || reportDetail.conclusion) && (
+                  <div style={{ padding: 16, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>该报告暂无文本内容</div>
+                )}
+                {reportDetail.signedAt && <div style={{ marginTop: 10, fontSize: 11, color: 'var(--text-secondary)' }}>签名时间: {String(reportDetail.signedAt).replace('T', ' ').slice(0, 16)}</div>}
+              </>
+            )}
+          </div>
+        )}
+      </Modal>
 
       {/* [G005 Wave1A P0] 服务反馈 (POST /patient-portal/feedback) */}
       <Modal
@@ -568,5 +699,13 @@ const InfoCell: React.FC<{ icon: any; label: string; value: number | string; col
       <Icon size={10} /> {label}
     </div>
     <div style={{ fontSize: 18, fontWeight: 700, color, marginTop: 2 }}>{value}</div>
+  </div>
+);
+
+// [G005 Wave1B] 报告详情文本块
+const DetailBlock: React.FC<{ label: string; value: string }> = ({ label, value }) => (
+  <div style={{ marginBottom: 10 }}>
+    <div style={{ fontSize: 12, fontWeight: 600, color: '#1e40af', marginBottom: 4 }}>{label}</div>
+    <div style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.7, background: 'var(--bg-card)', padding: 8, borderRadius: 6, border: '1px solid var(--border-color)', whiteSpace: 'pre-wrap' }}>{value}</div>
   </div>
 );

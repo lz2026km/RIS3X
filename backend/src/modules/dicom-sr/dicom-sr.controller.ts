@@ -4,13 +4,35 @@ import { Roles } from '../../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
-import { DicomSrService, type GenerateSrDto } from './dicom-sr.service'
+import { DicomSrService, type GenerateSrDto, type FromAiSrDto } from './dicom-sr.service'
 
 const GenerateSrSchema = z.object({
   reportId: z.string().min(1),
   templateId: z.enum(['tid1500', 'tid2000']),
   findings: z.string().max(5000).optional(),
   impression: z.string().max(5000).optional(),
+})
+
+// [G005 Wave4A] G-14 AI 结果 → DICOM SR 封装
+const FromAiSchema = z.object({
+  studyId: z.string().min(1),
+  findings: z
+    .array(
+      z.object({
+        label: z.string().min(1),
+        confidence: z.number().min(0).max(1).optional(),
+        x: z.number().min(0).max(1).optional(),
+        y: z.number().min(0).max(1).optional(),
+        width: z.number().min(0).max(1).optional(),
+        height: z.number().min(0).max(1).optional(),
+        description: z.string().max(1000).optional(),
+      }),
+    )
+    .min(1)
+    .max(500),
+  templateId: z.enum(['tid1500', 'tid2000']).optional(),
+  modelName: z.string().max(200).optional(),
+  summary: z.string().max(5000).optional(),
 })
 
 @ApiTags('dicom-sr')
@@ -33,6 +55,12 @@ export class DicomSrController {
   @Post('generate')
   async generate(@Body(new ZodValidationPipe(GenerateSrSchema)) body: GenerateSrDto) {
     return this.service.generate(body)
+  }
+
+  // [G005 Wave4A] G-14 AI 结果 → DICOM SR 封装 (TID 1500/2000)
+  @Post('from-ai')
+  async fromAi(@Body(new ZodValidationPipe(FromAiSchema)) body: FromAiSrDto) {
+    return this.service.fromAi(body)
   }
 
   @Get('by-report/:reportId')

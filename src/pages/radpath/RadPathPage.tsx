@@ -168,7 +168,7 @@ const RadPathPage: React.FC = () => {
         }}
       >
         <Activity size={20} color="#8b5cf6" />
-        <h1 style={{ fontSize: 20, margin: 0 }}>Rad-Path 放射-病理联动</h1>
+        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Rad-Path 放射-病理联动</h1>
         <Tag color="purple">影像病理对照</Tag>
       </div>
       <Row gutter={16} style={{ marginBottom: 16 }}>

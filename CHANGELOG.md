@@ -1,5 +1,48 @@
 # CHANGELOG
 
+## v3.0.6.11-86 (2026-08-08) — 大规模升级：pacs-admin 11端点/SystemAdmin断链修复+150已封装未接方法接入+63处翻译/7命名空间聚合+PACS 7项(MWL AI分检/权重落库/AI质控三维度/AI转SR/TLS/MPPS/cine)+深色遗漏210处+标题图标统一
+
+> **目标**: 50000 升级点——UI/图标专业优化 + 后端有前端接 + 空表格/假按钮整改 + PACS 对标 + 翻译严查
+> **范围**: 11 agents 六波实施（165 suites/1558 tests）
+
+### Wave 1: 后端/API 补齐（2 agents）
+
+- **P0 修复**：pacs-admin 11 端点封装（nodes/test/sync、storage/cleanup、worklist-entries、archives、logs、configs、routes）+ PacsAdminPage 7 Tab 接入；SystemAdminPage 用户创建/删除断链修复（/system/admin/users → 真实 userApi /users）
+- **P1**：kiosk settings/messages/stats 3 端点封装 + KioskCheckIn 接入（今日统计/滚动公告）；设备新增 Modal/删除 Popconfirm/详情统计块（deviceApi.create/delete/getStats）
+- **P2 批量接入**：eye 12（IOL 库存出库/常数表/在线计算 Barrett-Kane、手术排期/取消、转诊接受、AI 推理/热图/ROC）；dental 10（种植体登记/更新、排班到诊/取消、PSR 记录、全景/根尖片 Tab、CAD 详情、发票、会诊结束）；autoCollection 9（规则编辑/删除/任务详情/重跑/配置/统计）、consultation 8（详情/取消/评论回复）、deviceMgmt 5、print 2（任务详情/打印机面板）、mobile 3、patient-portal 2（宣教/报告详情）+ cds dose-monitoring DTO 形状兼容修复
+
+### Wave 2: 页面整改（2 agents）
+
+- **5 假按钮真实化**：DentalTelePage AI 预筛接 detectCaries 真实、AIStructuredReportPage 保存接 createStructuredReport、ReportScoreRule 恢复默认、DentalRadFusion 详情 Modal、MprViewer 重建流程
+- **8 页演示徽标**（AIStructuredReport/AIReportDraft/DataReportCenter/Dictionary/DefectManagement/TemplateManagement/NuclearStats/Home）+ 14 处分页受控化（SystemAdmin/Tenant/SlaPolicy/TeleSign/CASignature/DicomDimse/DimsePage/EyeAi/Optometry/Dental 4 页/FhirPatient）+ 2 玩具表增强（IHE 事务表 3 列/测量删除）+ 5 组件内徽标
+
+### Wave 3: 翻译 + i18n 结构（1 agent）
+
+- **~63 处清零**：Dicom4dPage 14 处英文默认值（改硬编码中文）、EmrTemplatesPage ICD-11 病名/分类/下拉中文化、DentalSchedule 六点探诊、AiFindingsOverlay slice、HangingProtocol 部位枚举、MllpMonitor/FhirSubscription/ResearchPage AND-OR/CvOperations 协议名/CvQc 等中危 13 + 低危 20（介质/前缀/alt/吊销原因/超时文案/Kerma 等）
+- **结构修复**：appI18n en 块补 25 个 oee.* 键、v3stats.statistics [object Object] 垃圾值修复、**7 命名空间聚合**（oee/qcimage/dicom4d 实键 + rads/dicomCompress/benchmark/worklistSmart 占位，73→80 命名空间）
+
+### Wave 4: PACS 对标 7 项（2 agents）
+
+- **G-15 智能 MWL**：aiTriage 因子接真实 /triage 分检记录聚合（score→01 映射 + source 标注）+ 权重落 system_config（persisted 标志）；SmartMwlPage 来源说明/持久化 Alert
+- **G-24 AI 自动质控**：后端 POST /qc/image-ai/assess（伪影/曝光/体位三维度 + 问题列表 + 总评）+ AIQCPage 三维度评估区块
+- **G-14 AI→DICOM SR**：后端 POST /dicom-sr/from-ai（TID 2000 CAD SR 生成 + 同报告更新）+ AIOrchestrationPage 封装按钮
+- **G-03 DICOM TLS**：GET/PUT /dicom-dimse/tls-config + 节点级开关 + DicomDimsePage TLS 安全 Tab（证书/端口/verifyPeer）
+- **G-05 MPPS**：POST/GET /dicom-dimse/mpps（N-CREATE/N-SET + Exam 派生回退）+ MPPS 进度 Tab
+- **Cine 播放**：ViewerPro 播放/暂停 + 速度 1x/2x/4x + 帧状态 + 交互锁定
+- **4 CAD 页入口**：Lung/Breast/Fracture/Cardiac「去阅片叠加」→ /dicom-viewer?studyUid&ai=1 自动开启叠加
+
+### Wave 5: UI 深色 + 一致性（3 agents）
+
+- **深色遗漏 47 文件/210 处**：CriticalValueCenterPage 18、CardiacSpecialtyPage 9、PatientTable 17、PatientCreateForm 9、DefectManagement 7、dose 系列 20 文件、R3.DIST 组件 6、export 弹窗 7 等 bg-white/#fff → var(--bg-card)/var(--bg-primary)
+- **标题字号统一 44 文件/130 处**：h1 22/24/28 → 20/700、h3 → 16/600、KPI → 28/700（含 PageHeader 组件）
+- **图标**：侧边栏 8 处泛化图标（Settings×4 → CalendarCog/UserCog/Wand2/DatabaseZap、Gauge/Megaphone/Cable/Sliders）、Empty 2 处补图、20 文件 size 12→14 统一（150+ 处）
+
+### 验证
+
+- 后端: tsc 0 错误、jest **165 suites / 1558 tests 全部通过**（+2 suites +28 tests）
+- 前端: tsc 860（基线持平 0 新增）、vite build 成功、Playwright 回归 15/15、**336 路由全量回归 0 问题**
+- 浏览器实测: 新端点页 0 4xx、AI 质控三维度/封装 SR/TLS/MPPS Tab/cine 播放实测通过、翻译页 0 残留、深色抽查无白底
+
 ## v3.0.6.11-85 (2026-08-08) — 大规模升级：P0端点25个+14无后端模块补全+深色模式206文件全量适配+图标专业化(Empty180/按钮130/重试55)+PACS高价值4项(资质路由/DRL告警/AI叠加阅片/自动挂片)+登录页品牌化+翻译74处
 
 > **目标**: 50000 升级点——UI/图标专业优化 + 后端有前端接 + 空表格/假按钮整改 + PACS 对标 + 翻译严查 + 深色全量
@@ -273,7 +316,7 @@
 
 ## v3.0.6.11-73 (2026-08-03) — 全方位审查：角色修复+状态机对齐+worklist端点+在用孤儿补齐+stats真实化+tsc-60%
 
-> **目标**: v3.0.6.11-85 全方位审查（-72 验证通过 + 业务规则/三层残留/数据真实性/清理）全部落地
+> **目标**: v3.0.6.11-86 全方位审查（-72 验证通过 + 业务规则/三层残留/数据真实性/清理）全部落地
 > **范围**: 7 agents 三波实施（116 suites/1234 tests，tsc 2,554→1,032）
 
 ### P0 业务规则（RULE1/RULE2）
@@ -310,7 +353,7 @@
 
 ## v3.0.6.11-72 (2026-08-03) — 全方位审查：安全6项+三层一致7项+性能5项+死代码951文件+tsc-53%
 
-> **目标**: v3.0.6.11-85 全方位审查（安全/三层一致/性能/死代码/tsc）全部修复落地
+> **目标**: v3.0.6.11-86 全方位审查（安全/三层一致/性能/死代码/tsc）全部修复落地
 > **范围**: 12 agents 四波实施（112 suites/1163 tests，tsc 5,494→2,590）
 
 ### 安全修复（6 项，SEC1-3）
@@ -541,7 +584,7 @@
 
 ### Phase 0: 10×80 对标文档
 
-- 新增 `docs/PACS_BENCHMARK_V3.0.6.11-85.md`：10 厂商 × 80 项功能矩阵（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/Change Healthcare/Infinitt）
+- 新增 `docs/PACS_BENCHMARK_V3.0.6.11-86.md`：10 厂商 × 80 项功能矩阵（GE/Siemens/Philips/Fujifilm/Canon/Agfa/Carestream/Sectra/Change Healthcare/Infinitt）
 - G005 完成度 38.8%（31✅/30🟡/19❌），对标 Sectra 87.5%/GE 85.0%
 - 四阶段路线图：Phase1 修复断裂点（本次）→ Phase2 mock 降级/覆盖率 → Phase3 AI Orchestrator/BI/剂量 → Phase4 云部署/环境式报告
 
@@ -650,16 +693,16 @@
 
 ### F18: 版本号全量统一 + 文档
 
-- package.json → 3.0.6.11-85（含 package-lock.json）
-- backend/package.json → 3.0.6.11-85
-- index.html title + window.__appVersion → v3.0.6.11-85
-- src/main.tsx APP_VERSION → v3.0.6.11-85
-- backend/src/main.ts + app.module.ts → v3.0.6.11-85
-- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-85
-- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-85
-- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-85
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-85
-- CHANGELOG.md 新增 v3.0.6.11-85 条目
+- package.json → 3.0.6.11-86（含 package-lock.json）
+- backend/package.json → 3.0.6.11-86
+- index.html title + window.__appVersion → v3.0.6.11-86
+- src/main.tsx APP_VERSION → v3.0.6.11-86
+- backend/src/main.ts + app.module.ts → v3.0.6.11-86
+- src/i18n/appI18n.ts + src/routes/routeTable.tsx → v3.0.6.11-86
+- deploy/helm/Chart.yaml + values.yaml + deploy/kubernetes.yaml + deploy/index.ts → 3.0.6.11-86
+- .env.development / .env.production / .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-86
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-86
+- CHANGELOG.md 新增 v3.0.6.11-86 条目
 
 ### 验证结果
 
@@ -673,7 +716,7 @@
 ## v3.0.6.11-49 (2026-08-01) — 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证
 
 > **目标**: 后端深度修复 + 安全加固 + 类型修复 + 测试验证 + 性能检查 + 版本号全量统一
-> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-85
+> **范围**: 后端安全加固 + Prisma schema完整性 + Jest测试通过 + 版本号同步至v3.0.6.11-86
 
 ### A13: 后端安全加固
 
@@ -704,19 +747,19 @@
 
 ### A19: 版本号全量统一
 
-- backend/package.json → 3.0.6.11-85
-- backend/src/main.ts → Swagger version + log message → v3.0.6.11-85
-- backend/src/app.module.ts → v3.0.6.11-85
-- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-85
-- index.html title + window.__appVersion → v3.0.6.11-85
-- src/i18n/appI18n.ts → v3.0.6.11-85
-- src/main.tsx APP_VERSION → v3.0.6.11-85
-- src/routes/routeTable.tsx → v3.0.6.11-85
-- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-85
-- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-85
-- README.md 版本号 + badge + 路线图 → v3.0.6.11-85
-- CONTRIBUTING.md → v3.0.6.11-85
-- CHANGELOG.md 新增 v3.0.6.11-85 条目
+- backend/package.json → 3.0.6.11-86
+- backend/src/main.ts → Swagger version + log message → v3.0.6.11-86
+- backend/src/app.module.ts → v3.0.6.11-86
+- deploy/index.ts DEPLOY_VERSION → 3.0.6.11-86
+- index.html title + window.__appVersion → v3.0.6.11-86
+- src/i18n/appI18n.ts → v3.0.6.11-86
+- src/main.tsx APP_VERSION → v3.0.6.11-86
+- src/routes/routeTable.tsx → v3.0.6.11-86
+- .env.example VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-86
+- .env.production VITE_APP_VERSION + VITE_RELEASE → 3.0.6.11-86
+- README.md 版本号 + badge + 路线图 → v3.0.6.11-86
+- CONTRIBUTING.md → v3.0.6.11-86
+- CHANGELOG.md 新增 v3.0.6.11-86 条目
 
 ### 验证结果
 

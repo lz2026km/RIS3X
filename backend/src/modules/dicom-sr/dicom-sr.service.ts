@@ -22,6 +22,25 @@ export interface GenerateSrDto {
   impression?: string
 }
 
+// [G005 Wave4A] G-14 AI 结果 → DICOM SR 封装
+export interface AiSrFinding {
+  label: string
+  confidence?: number
+  x?: number
+  y?: number
+  width?: number
+  height?: number
+  description?: string
+}
+
+export interface FromAiSrDto {
+  studyId: string
+  findings: AiSrFinding[]
+  templateId?: 'tid1500' | 'tid2000'
+  modelName?: string
+  summary?: string
+}
+
 export type SrStatus = 'draft' | 'finalized' | 'pushed'
 
 export interface SrConceptName {
@@ -155,6 +174,10 @@ function fmtTime(d: Date | string | null | undefined): string {
   return new Date(d).toISOString().slice(11, 19).replace(/:/g, '')
 }
 
+function templateIdLabel(templateId: GenerateSrDto['templateId']): string {
+  return templateId === 'tid1500' ? 'TID 1500' : 'TID 2000'
+}
+
 @Injectable()
 export class DicomSrService {
   private readonly logger = new Logger(DicomSrService.name)
@@ -256,6 +279,176 @@ export class DicomSrService {
 
     this.logger.log(`SR document ${row.id} generated for report ${dto.reportId} (${dto.templateId})`)
     return this.toDto(row)
+  }
+
+  /**
+   * [G005 Wave4A] G-14 AI 结果 → DICOM SR 封装 (TID 2000 CAD SR 默认)
+   * 输入 { studyId, findings: AiFinding[] } → 解析检查/患者上下文, 复用 SR 内容树+文本生成逻辑入库
+   * 检查下存在报告则复用报告生成; 无报告时创建最小报告承载 SR 文档 (reportId FK)
+   */
+  async fromAi(dto: FromAiSrDto): Promise<SrDocumentDto> {
+    const templateId = dto.templateId ?? 'tid2000'
+    const template = this.templates.find((t) => t.id === templateId)
+    if (!template) throw new NotFoundException(`Template ${templateId} not found`)
+
+    const exam = await this.prisma.exam.findUnique({
+      where: { id: dto.studyId },
+      include: { patient: true },
+    })
+    if (!exam) throw new NotFoundException(`Exam ${dto.studyId} not found (AI SR 封装)`)
+
+    const findingsText = this.buildAiFindingsText(dto.findings, dto.summary)
+    let report = await this.prisma.report.findFirst({ where: { examId: dto.studyId } })
+    if (!report) {
+      report = await this.prisma.report.create({
+        data: {
+          tenantId: exam.tenantId,
+          patientId: exam.patientId,
+          examId: exam.id,
+          findings: findingsText,
+          impression: dto.summary ?? '',
+          conclusion: dto.summary ?? '',
+        },
+      })
+    }
+
+    const ts = Date.now()
+    const existing = await this.prisma.srDocument.findFirst({
+      where: { reportId: report.id, templateId },
+    })
+    const studyUID = `1.2.840.10008.5.1.4.1.1.2.1.${ts}`
+    const seriesUID = `${studyUID}.SR.1`
+    const sopUID = existing?.sopInstanceUid ?? `${SR_UID_ROOT}.${ts}`
+
+    const content = this.buildAiContentTree(exam, template, dto, findingsText, report.id, {
+      studyUID,
+      seriesUID,
+      sopUID,
+    })
+    const rawContent = this.buildDicomSrText(content, sopUID)
+
+    const data = {
+      tenantId: 'default',
+      reportId: report.id,
+      templateId,
+      tid: template.tid,
+      content: content as object,
+      rawContent,
+      status: 'draft' as const,
+      sopInstanceUid: sopUID,
+      studyInstanceUid: studyUID,
+      seriesInstanceUid: seriesUID,
+      sopClassUid: SR_SOP_CLASS[templateId],
+      hl7ControlId: null,
+      hl7Message: null,
+      pushedAt: null,
+    }
+
+    const row = existing
+      ? await this.prisma.srDocument.update({ where: { id: existing.id }, data })
+      : await this.prisma.srDocument.create({ data })
+
+    this.logger.log(`SR document ${row.id} created from AI results for exam ${dto.studyId} (${templateId})`)
+    return this.toDto(row)
+  }
+
+  private buildAiFindingsText(findings: AiSrFinding[], summary?: string): string {
+    const lines = findings.map((f) => {
+      const conf = f.confidence !== undefined ? ` (置信度 ${Math.round(f.confidence * 100)}%)` : ''
+      const loc =
+        f.x !== undefined && f.y !== undefined
+          ? ` @(${Math.round(f.x * 100)},${Math.round(f.y * 100)})${f.width !== undefined && f.height !== undefined ? ` ${Math.round(f.width * 100)}×${Math.round(f.height * 100)}px` : ''}`
+          : ''
+      return `${f.label}${conf}${loc}${f.description ? `: ${f.description}` : ''}`
+    })
+    if (summary) lines.push(`AI 总结: ${summary}`)
+    return lines.join('\n')
+  }
+
+  /** AI 结果内容树: findings + TID 2000 CAD 汇总段 (逐发现条目 + SNOMED 编码) */
+  private buildAiContentTree(
+    exam: {
+      tenantId: string
+      accessionNumber: string
+      modality: string
+      bodyPart: string
+      startedAt?: Date | null
+      patient?: { name: string; idCard?: string | null; birthDate?: Date | null; gender?: string } | null
+    },
+    template: TemplateInfo,
+    dto: FromAiSrDto,
+    findingsText: string,
+    reportId: string,
+    uids: { studyUID: string; seriesUID: string; sopUID: string },
+  ): SrContentTree {
+    const patient = exam.patient
+    const genderMap: Record<string, string> = { MALE: 'M', FEMALE: 'F', OTHER: 'O' }
+    const textItem = (code: string, meaning: string, value: string): SrContentItem => ({
+      relationshipType: 'CONTAINS',
+      conceptName: DCM_CONCEPT(code, meaning),
+      valueType: 'TEXT',
+      value: value || '(empty)',
+    })
+    const codedItem = (c: SrConceptName, value: string): SrContentItem => ({
+      relationshipType: 'CONTAINS',
+      conceptName: DCM_CONCEPT('121071', 'Finding'),
+      valueType: 'CODE',
+      value,
+      code: c,
+    })
+
+    const sections: SrSection[] = []
+    if (findingsText) {
+      sections.push({
+        ...CONTENT_TITLES.history,
+        items: [textItem('121071', 'Finding', findingsText), ...toSnomed(findingsText).map((c) => codedItem(c, c.meaning))],
+      })
+    }
+    // TID 2000 CAD Processing and Findings Summary: 逐条 AI 检出
+    const cadItems: SrContentItem[] = dto.findings.map((f) => {
+      const conf = f.confidence !== undefined ? `, 置信度 ${Math.round(f.confidence * 100)}%` : ''
+      const coord = f.x !== undefined && f.y !== undefined ? `, 坐标(${Math.round(f.x * 100)},${Math.round(f.y * 100)})` : ''
+      return textItem('121071', 'Finding', `${f.label}${conf}${coord}`)
+    })
+    sections.push({ ...CONTENT_TITLES.cadSummary, items: cadItems })
+    if (dto.summary) {
+      sections.push({ ...CONTENT_TITLES.impression, items: [textItem('121073', 'Impression', dto.summary)] })
+    }
+
+    const report = {
+      id: reportId,
+      authorId: 'AI-ENGINE',
+      authorName: dto.modelName ?? 'AI Engine',
+      findings: findingsText,
+      impression: dto.summary ?? '',
+      conclusion: dto.summary ?? '',
+      recommendations: '',
+      reportDate: fmtDate(new Date()),
+    }
+
+    return {
+      templateId: templateIdLabel(dto.templateId ?? 'tid2000'),
+      templateLabel: template.labelEn,
+      context: {
+        patient: {
+          name: patient?.name ?? '',
+          id: patient?.idCard ?? '',
+          birthDate: patient?.birthDate ? fmtDate(patient.birthDate) : '',
+          sex: patient?.gender ? (genderMap[patient.gender] ?? 'O') : 'O',
+        },
+        study: {
+          uid: uids.studyUID,
+          date: exam.startedAt ? fmtDate(exam.startedAt) : fmtDate(new Date()),
+          time: exam.startedAt ? fmtTime(exam.startedAt) : fmtTime(new Date()),
+          description: exam.bodyPart ?? '',
+          accessionNumber: exam.accessionNumber ?? '',
+          modality: exam.modality ?? 'SR',
+        },
+        report,
+      },
+      sections,
+      codedEntries: toSnomed(findingsText),
+    }
   }
 
   async finalize(id: string): Promise<SrDocumentDto> {

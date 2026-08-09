@@ -2138,7 +2138,7 @@ export default function PatientPage() {
           <h1
             style={{
               fontSize: 20,
-              fontWeight: 800,
+              fontWeight: 700,
               color: "#1e40af",
               margin: "0 0 4px",
               display: "flex",

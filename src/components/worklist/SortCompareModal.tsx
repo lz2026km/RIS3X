@@ -33,7 +33,7 @@ export function SortCompareModal({ items, onClose }: SortCompareModalProps) {
       onClick={onClose}
     >
       <div style={{
-        background: '#fff', borderRadius: 12, padding: 24, width: 640, maxHeight: '80vh', overflow: 'auto',
+        background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 640, maxHeight: '80vh', overflow: 'auto',
       }} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
           <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e40af' }}>排序前后对比</h3>
@@ -51,7 +51,7 @@ export function SortCompareModal({ items, onClose }: SortCompareModalProps) {
             <div style={{ fontSize: 20, fontWeight: 800, color: '#dc2626' }}>{declined.length}</div>
             <div style={{ fontSize: 12, color: '#991b1b' }}>优先级下降</div>
           </div>
-          <div style={{ flex: 1, padding: 12, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+          <div style={{ flex: 1, padding: 12, background: 'var(--bg-primary)', borderRadius: 8, border: '1px solid #e2e8f0' }}>
             <div style={{ fontSize: 20, fontWeight: 800, color: '#64748b' }}>{items.length - changed.length}</div>
             <div style={{ fontSize: 12, color: '#64748b' }}>排序不变</div>
           </div>

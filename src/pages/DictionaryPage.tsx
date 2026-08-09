@@ -763,8 +763,8 @@ export default function DictionaryPage() {
                 </td>
                 <td style={s.td}>
                   <div style={s.actions}>
-                    <button style={{ ...s.btnIcon, minHeight: 32, padding: '6px 10px' }} onClick={() => openEdit(d)} title="编辑"><Edit2 size={12} /> 编辑</button>
-                    <button style={{ ...s.btnDanger, minHeight: 32, padding: '6px 10px' }} onClick={() => openDelete(d)} title="删除"><Trash2 size={12} /> 删除</button>
+                    <button style={{ ...s.btnIcon, minHeight: 32, padding: '6px 10px' }} onClick={() => openEdit(d)} title="编辑"><Edit2 size={14} /> 编辑</button>
+                    <button style={{ ...s.btnDanger, minHeight: 32, padding: '6px 10px' }} onClick={() => openDelete(d)} title="删除"><Trash2 size={14} /> 删除</button>
                   </div>
                 </td>
               </tr>
@@ -829,7 +829,7 @@ export default function DictionaryPage() {
     return (
       <div>
         <div style={s.chartCard}>
-          <div style={s.chartTitle}><Code size={16} /> SNOMED/LOINC/RadLex 术语映射</div>
+          <div style={s.chartTitle}><Code size={16} /> SNOMED/LOINC/RadLex 术语映射 <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>演示数据 (mockMappings)</span></div>
           <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
             <div style={s.searchBox}>
               <Search size={15} color="var(--text-secondary)" />
@@ -901,7 +901,7 @@ export default function DictionaryPage() {
       <div style={{ display: 'flex', gap: 16 }}>
         <div style={{ flex: 1 }}>
           <div style={s.chartCard}>
-            <div style={s.chartTitle}><Server size={16} /> FHIR Terminology Service</div>
+            <div style={s.chartTitle}><Server size={16} /> FHIR Terminology Service <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>演示数据 (mockFhirSystems/mockConcepts)</span></div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
               <div style={s.searchBox}>
                 <Search size={15} color="var(--text-secondary)" />
@@ -929,7 +929,7 @@ export default function DictionaryPage() {
                     onClick={() => setSelectedConcept(concept)}
                     style={{ padding: '6px 10px', cursor: 'pointer', borderRadius: 4, background: selectedConcept?.code === concept.code ? '#dbeafe' : 'transparent', display: 'flex', alignItems: 'center', gap: 6 }}
                   >
-                    <Layers size={12} color="#2563eb" />
+                    <Layers size={14} color="#2563eb" />
                     <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{concept.display}</span>
                     <code style={{ fontSize: 12, color: 'var(--text-secondary)' }}>({concept.code})</code>
                   </div>
@@ -939,14 +939,14 @@ export default function DictionaryPage() {
                         onClick={() => setSelectedConcept(child)}
                         style={{ padding: '6px 10px', cursor: 'pointer', borderRadius: 4, background: selectedConcept?.code === child.code ? '#dbeafe' : 'transparent', display: 'flex', alignItems: 'center', gap: 6 }}
                       >
-                        <Layers size={12} color="var(--text-secondary)" />
+                        <Layers size={14} color="var(--text-secondary)" />
                         <span style={{ fontSize: 12, color: 'var(--text-primary)' }}>{child.display}</span>
                         <code style={{ fontSize: 12, color: 'var(--text-secondary)' }}>({child.code})</code>
                       </div>
                       {child.children?.map(grandchild => (
                         <div key={grandchild.code} style={{ paddingLeft: 48 }}>
                           <div style={{ padding: '6px 10px', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <Layers size={12} color="var(--text-secondary)" />
+                            <Layers size={14} color="var(--text-secondary)" />
                             <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{grandchild.display}</span>
                             <code style={{ fontSize: 12, color: 'var(--text-secondary)' }}>({grandchild.code})</code>
                           </div>
@@ -1022,7 +1022,7 @@ export default function DictionaryPage() {
     return (
       <div>
         <div style={s.chartCard}>
-          <div style={s.chartTitle}><History size={16} /> 字典版本管理</div>
+          <div style={s.chartTitle}><History size={16} /> 字典版本管理 <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>演示数据 (mockVersionHistory)</span></div>
           <div style={{ display: 'flex', gap: 12, marginBottom: 16, alignItems: 'center' }}>
             <select style={{ ...s.select, minWidth: 200 }} value={selectedDict} onChange={e => setSelectedDict(e.target.value)}>
               {dictOptions.map(d => <option key={d} value={d}>{d} - {dictionaries.find(di => di.id === d)?.name || d}</option>)}
@@ -1059,7 +1059,7 @@ export default function DictionaryPage() {
                   <td style={s.td}>
                     <div style={{ display: 'flex', gap: 4 }}>
                       <button style={s.btnIcon} onClick={() => setDiffView(diffView === v.id ? null : v.id)}>
-                        <Eye size={12} /> {diffView === v.id ? '收起' : '查看'}
+                        <Eye size={14} /> {diffView === v.id ? '收起' : '查看'}
                       </button>
                       {v.status === 'draft' && (
                         <button style={{ ...s.btnPrimary, padding: '6px 10px', minHeight: 32 }}
@@ -1076,7 +1076,7 @@ export default function DictionaryPage() {
                             }
                           }}
                         >
-                          <Shield size={12} /> 提交审核
+                          <Shield size={14} /> 提交审核
                         </button>
                       )}
                       {v.status === 'review' && (
@@ -1094,7 +1094,7 @@ export default function DictionaryPage() {
                             }
                           }}
                         >
-                          <CheckCircle2 size={12} /> 批准发布
+                          <CheckCircle2 size={14} /> 批准发布
                         </button>
                       )}
                       {v.status === 'published' && (
@@ -1114,7 +1114,7 @@ export default function DictionaryPage() {
                             }
                           }}
                         >
-                          <RotateCcw size={12} /> 回滚
+                          <RotateCcw size={14} /> 回滚
                         </button>
                       )}
                     </div>
@@ -1301,7 +1301,7 @@ export default function DictionaryPage() {
         <div style={{ display: 'flex', gap: 16 }}>
           <div style={{ flex: 1 }}>
             <div style={s.chartCard}>
-              <div style={s.chartTitle}><TrendingUp size={16} /> 使用趋势 (近6个月)</div>
+              <div style={s.chartTitle}><TrendingUp size={16} /> 使用趋势 (近6个月) <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>演示数据 (mockUsageStats)</span></div>
               <div style={{ height: 200, display: 'flex', alignItems: 'flex-end', gap: 8, padding: '0 10px' }}>
                 {mockUsageStats[0].trend.map((v, i) => (
                   <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
@@ -1349,7 +1349,7 @@ export default function DictionaryPage() {
               <div style={s.chartTitle}><AlertTriangle size={16} /> 清理建议</div>
               {leastUsed.map(u => (
                 <div key={u.termName} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid var(--border-light)' }}>
-                  <PieChart size={12} color="#f59e0b" />
+                  <PieChart size={14} color="#f59e0b" />
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{u.termName}</div>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>仅使用 {u.usageCount} 次</div>

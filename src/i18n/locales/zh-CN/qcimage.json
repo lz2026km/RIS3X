@@ -1,0 +1,15 @@
+{
+  "todayImages": "今日采集数",
+  "excellentRate": "优秀率",
+  "avgScore": "平均评分",
+  "examId": "检查号",
+  "patient": "患者",
+  "device": "设备",
+  "imageScore": "影像评分",
+  "mainIssues": "主要问题",
+  "status": "状态",
+  "action": "操作",
+  "noIssues": "无问题",
+  "viewImage": "查看影像",
+  "rejectDistribution": "废片问题类型分布"
+}

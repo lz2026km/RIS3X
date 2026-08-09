@@ -78,6 +78,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { GitCompare, FileDown, Globe, FileSignature, Scan, Mic, Code, Siren, Heart, Bone, Brain, Plug, LayoutGrid, Stethoscope, Smile, Anchor, AlignCenter, Scissors, Baby } from 'lucide-react';
+import { Cable, CalendarCog, UserCog, DatabaseZap, Megaphone } from 'lucide-react';
 
 export type Role = "医生" | "技师" | "护士" | "管理员" | "主任";
 
@@ -154,13 +155,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/appointment-management",
-        icon: <Settings size={18} />,
+        icon: <CalendarCog size={18} />,
         labelKey: "nav.appointmentManage",
         roles: ["医生", "技师", "护士", "主任", "管理员",],
       },
       {
         path: "/queue-call",
-        icon: <ListOrdered size={18} />,
+        icon: <Megaphone size={18} />,
         labelKey: "nav.queueCall",
         roles: ["医生", "技师", "护士", "主任", "管理员",],
       },
@@ -184,7 +185,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/patient/service-management",
-        icon: <Settings size={18} />,
+        icon: <UserCog size={18} />,
         labelKey: "nav.serviceManagement",
         roles: ["医生", "技师", "护士", "主任", "管理员",],
       },
@@ -275,7 +276,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/report-score-rule",
-        icon: <Sliders size={18} />,
+        icon: <Gauge size={18} />,
         labelKey: "nav.scoreRule",
         roles: ["医生", "主任", "管理员",],
       },
@@ -293,7 +294,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/critical-value-rule",
-        icon: <Settings size={18} />,
+        icon: <Sliders size={18} />,
         labelKey: "nav.cvRule",
         roles: ["医生", "主任", "管理员",],
       },
@@ -634,7 +635,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/dicom/post-processing",
-        icon: <Settings size={18} />,
+        icon: <Wand2 size={18} />,
         labelKey: "nav.postProcessing",
         roles: ["医生", "技师", "主任", "管理员"],
       },
@@ -1321,7 +1322,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       // [v3.0.6.11-40] A14 Auto Collection
       {
         path: "/auto-collection",
-        icon: <Settings size={18} />,
+        icon: <DatabaseZap size={18} />,
         labelKey: "nav.autoCollection",
         roles: ["管理员"],
       },
@@ -1882,7 +1883,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
       {
         path: "/integration/mllp-config",
-        icon: <Settings size={18} />,
+        icon: <Cable size={18} />,
         labelKey: "nav.mllpConfig",
         roles: ["管理员"],
       },

@@ -105,7 +105,7 @@ export const PatientReportPortal: React.FC<Props> = ({ reportId, patientId }) =>
       </Row>
 
       <Card size="small" className="shadow-sm" title={
-        <Space><Globe className="w-4 h-4 text-blue-500" /><span>患者端报告门户</span></Space>
+        <Space><Globe className="w-4 h-4 text-blue-500" /><span>患者端报告门户</span><Tag color="orange" style={{ fontSize: 10 }}>演示数据 (PORTAL_LINKS)</Tag></Space>
       } extra={<Button size="small" type="primary" icon={<Plus className="w-3 h-3" />} onClick={() => setShowCreate(true)} disabled={!reportId || !patientId}>生成患者链接</Button>}>
         {filtered.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">

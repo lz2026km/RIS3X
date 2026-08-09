@@ -145,7 +145,7 @@ const AiTriagePage: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <Bot size={20} color="#722ed1" /><h1 style={{ fontSize: 20, margin: 0 }}>AI 智能分检</h1><Tag color="purple">AI 辅助诊断</Tag>
+        <Bot size={20} color="#722ed1" /><h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>AI 智能分检</h1><Tag color="purple">AI 辅助诊断</Tag>
       </div>
       {error && <Alert type="error" showIcon message={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={() => void fetchPending()}><RefreshCw size={14} /> 重试</Button>} />}
       <Row gutter={16} style={{ marginBottom: 16 }}>

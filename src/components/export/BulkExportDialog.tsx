@@ -66,7 +66,7 @@ export const BulkExportDialog: React.FC<BulkExportDialogProps> = ({ open, onClos
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1050 }}>
-      <div style={{ background: '#fff', borderRadius: 12, width: 520, maxHeight: '80vh', overflow: 'auto', boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, width: 520, maxHeight: '80vh', overflow: 'auto', boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Download size={18} color="#dc2626" />
@@ -84,7 +84,7 @@ export const BulkExportDialog: React.FC<BulkExportDialogProps> = ({ open, onClos
             </select>
           </div>
 
-          <div style={{ marginBottom: 16, padding: 12, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+          <div style={{ marginBottom: 16, padding: 12, background: 'var(--bg-primary)', borderRadius: 8, border: '1px solid #e2e8f0' }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
               <FileText size={12} /> 已选报告
             </div>
@@ -134,7 +134,7 @@ const btnPrimary: React.CSSProperties = {
 };
 const btnSecondary: React.CSSProperties = {
   padding: '8px 16px', border: '1px solid #cbd5e1', borderRadius: 6,
-  background: '#fff', color: '#475569', fontSize: 13, cursor: 'pointer',
+  background: 'var(--bg-card)', color: '#475569', fontSize: 13, cursor: 'pointer',
 };
 const btnDisabled: React.CSSProperties = {
   ...btnPrimary, background: '#cbd5e1', cursor: 'not-allowed',

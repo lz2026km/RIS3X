@@ -383,7 +383,7 @@ export default function CriticalValuePage() {
       <div style={{ marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
           <ShieldAlert size={22} style={{ color: '#dc2626' }} />
-          <h1 style={{ fontSize: 20, fontWeight: 800, color: '#1e40af', margin: 0 }}>危急值管理</h1>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1e40af', margin: 0 }}>危急值管理</h1>
           <span style={{ fontSize: 12, color: '#fff', background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)', padding: '3px 10px', borderRadius: 10, fontWeight: 600 }}>v4.0 转随访+5节点闭环</span>
         </div>
         <p style={{ fontSize: 12, color: '#64748b', margin: 0, paddingLeft: 32 }}>危急值发现 · 即时预警 · 双环闭环 · 转随访管理 · 5节点追踪 · 全生命周期管理</p>

@@ -11,6 +11,7 @@ import {
 } from 'antd'
 import { useState, useEffect, useCallback } from 'react'
 import { RefreshCw } from 'lucide-react'
+import { usePagination } from '../hooks/usePagination'
 
 const FEATURE_DEFS: Array<{ key: keyof TenantFeatures; label: string; desc: string }> = [
   { key: 'aiOrchestration', label: 'AI 编排', desc: 'AI 工作流编排与自动化诊断调度' },
@@ -51,6 +52,7 @@ export default function TenantConfigPage() {
   const [creating, setCreating] = useState(false)
   const [creatingTenant, setCreatingTenant] = useState(false)
   const [statusBusy, setStatusBusy] = useState<string | null>(null)
+  const { pageData: pagedTenants, pagination: tenantsPagination } = usePagination(tenants)
   const [form] = Form.useForm()
   const [createForm] = Form.useForm()
 
@@ -295,7 +297,7 @@ export default function TenantConfigPage() {
               children: (
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                   <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreating(true)}>新建租户</Button>
-                  <Table rowKey="id" columns={columns} dataSource={tenants} pagination={false} size="small" scroll={{ x: 'max-content' }}/>
+                  <Table rowKey="id" columns={columns} dataSource={pagedTenants} pagination={tenantsPagination} size="small" scroll={{ x: 'max-content' }}/>
                 </Space>
               ),
             }] : []),

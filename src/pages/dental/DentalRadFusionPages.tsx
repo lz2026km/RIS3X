@@ -43,6 +43,8 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [accepting, setAccepting] = useState('');
   const [form] = Form.useForm();
+  // [G005 Wave2A P0] 非 pending 行详情: 复用 Modal + Descriptions 展示转诊/融合信息
+  const [detailRow, setDetailRow] = useState<Referral | null>(null);
   const { pageData: referralPageData, pagination: referralPagination } = usePagination(referrals, 8);
 
   const load = useCallback(async () => {
@@ -142,7 +144,7 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
             <Button size="small" type="primary" icon={<CheckCircle2 size={11} />} loading={accepting === r.id} onClick={() => void handleAccept(r)}>接诊</Button>
           )}
           {r.status === 'pending' && <Popconfirm title="撤销转诊?" onConfirm={() => void handleRevoke(r)}><Button size="small" danger>撤销</Button></Popconfirm>}
-          {r.status !== 'pending' && <Button size="small">详情</Button>}
+          {r.status !== 'pending' && <Button size="small" onClick={() => setDetailRow(r)}>详情</Button>}
         </Space>
       ),
     },
@@ -192,6 +194,40 @@ export const CrossSpecialtyReferralPage: React.FC = () => {
             <TextArea rows={3} placeholder="如: 36 位种植术前 CBCT 三维评估" />
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* [G005 Wave2A P0] 转诊详情 Modal: 融合参数 / 叠加层信息 */}
+      <Modal
+        title={`转诊详情 - ${detailRow?.id ?? ''}`}
+        open={!!detailRow}
+        onCancel={() => setDetailRow(null)}
+        footer={<Button onClick={() => setDetailRow(null)}>关闭</Button>}
+        width={520}
+      >
+        {detailRow && (
+          <div>
+            <Descriptions bordered column={1} size="small">
+              <Descriptions.Item label="患者">{detailRow.patient} ({detailRow.patientId ?? '—'})</Descriptions.Item>
+              <Descriptions.Item label="来源科室">{detailRow.source ?? '—'}</Descriptions.Item>
+              <Descriptions.Item label="目标科室">{detailRow.target ?? '—'}</Descriptions.Item>
+              <Descriptions.Item label="转诊原因">{detailRow.reason || '—'}</Descriptions.Item>
+              <Descriptions.Item label="发起医生">{detailRow.doctor ?? '—'}</Descriptions.Item>
+              <Descriptions.Item label="状态">
+                <Tag color={STATUS_META[detailRow.status]?.color ?? 'default'}>{STATUS_META[detailRow.status]?.label ?? detailRow.status}</Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label="发起时间">{detailRow.createdAt ? detailRow.createdAt.replace('T', ' ').slice(0, 16) : '—'}</Descriptions.Item>
+            </Descriptions>
+            <Alert
+              style={{ marginTop: 12 }}
+              type="info"
+              showIcon
+              message="融合参数 / 叠加层信息"
+              description={detailRow.status === 'accepted'
+                ? '已接诊: 融合查看器可加载口扫 (Scan) 与 CBCT 检查叠加, 参数 (配准方式/透明度/裁剪) 随检查数据动态生成。'
+                : '已完成后叠加层信息随影像归档, 可在「口腔-放射融合查看器」中回看 CBCT + 口扫 3D 叠加。'}
+            />
+          </div>
+        )}
       </Modal>
     </div>
   );

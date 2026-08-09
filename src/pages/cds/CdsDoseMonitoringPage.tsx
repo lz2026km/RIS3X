@@ -1,13 +1,37 @@
 // [G005 W2-B] CDS 剂量监测: getDoseMonitoring (监测记录 + 阈值)
+// [G005 Wave1B] DTO 兼容: 后端返回 { data: [auditLog] } (backend cds.service getDoseMonitoring),
+//               页面期望 { records, thresholds } → normalize 兼容三种形状, 修复空数据
 import { useState, useEffect, useCallback } from 'react'
 import { Gauge, RefreshCw, AlertTriangle, ShieldCheck } from 'lucide-react'
 import { cdsApi, type CdsDoseMonitoringDto } from '../../services/api/cdsApi'
 
 function normalize(res: { success: boolean; data: CdsDoseMonitoringDto | null }): CdsDoseMonitoringDto {
   if (res.success && res.data) {
-    const d = res.data as CdsDoseMonitoringDto & { data?: CdsDoseMonitoringDto }
+    const d = res.data as CdsDoseMonitoringDto & { data?: CdsDoseMonitoringDto | any[] }
+    // 形状 1: { records, thresholds } (MSW)
     if (Array.isArray(d.records)) return d
-    if (d.data && Array.isArray(d.data.records)) return d.data
+    // 形状 2: { data: { records, thresholds } }
+    if (d.data && !Array.isArray(d.data) && Array.isArray((d.data as CdsDoseMonitoringDto).records)) {
+      return d.data as CdsDoseMonitoringDto
+    }
+    // 形状 3: { data: [auditLog...] } (后端真实形状) → auditLog 条目映射为记录
+    if (Array.isArray(d.data) && d.data.length > 0) {
+      const items = d.data as any[]
+      return {
+        records: items.map((a: any) => ({
+          id: a.id,
+          patientName: a.patientName ?? a.data?.patientName ?? '-',
+          examType: a.examType ?? a.data?.examType ?? (a.data?.bodyPart ?? ''),
+          modality: a.modality ?? a.data?.modality ?? '-',
+          dlp: Number(a.dlp ?? a.data?.dlp ?? a.data?.doseValue ?? 0),
+          kerma: Number(a.kerma ?? a.data?.kerma ?? 0),
+          threshold: Number(a.threshold ?? a.data?.threshold ?? 0),
+          status: (a.status ?? a.data?.status ?? 'ok') === 'exceeded' ? 'exceeded' : 'ok',
+          recordedAt: a.createdAt ?? a.timestamp,
+        })),
+        thresholds: [],
+      }
+    }
   }
   return { records: [], thresholds: [] }
 }
@@ -79,7 +103,7 @@ export default function CdsDoseMonitoringPage() {
             <span>患者 / 检查</span>
             <span>设备类型</span>
             <span>DLP</span>
-            <span>Kerma</span>
+            <span>比释动能 (Kerma)</span>
             <span>阈值</span>
             <span>状态</span>
           </div>

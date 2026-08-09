@@ -241,7 +241,7 @@ export const ReportList: React.FC<ReportListProps> = ({ reports, selectedReport,
               <td style={styles.td}><span style={{ ...styles.statusTag, backgroundColor: `${getStatusColor(r.status)}20`, color: getStatusColor(r.status) }}>{r.status}</span></td>
               <td style={styles.td} onClick={e => e.stopPropagation()}>
                 {r.status === '待审核' && <button style={{ ...styles.button, padding: '4px 10px', fontSize: '12px', backgroundColor: COLORS.success, color: 'white', marginRight: '6px' }} onClick={() => onReview(r)}>审核</button>}
-                <button style={{ ...styles.button, padding: '4px 10px', fontSize: '12px', backgroundColor: COLORS.primary, color: 'white' }} onClick={() => onOpenDetail(r)}><Eye size={12} /> 查看</button>
+                <button style={{ ...styles.button, padding: '4px 10px', fontSize: '12px', backgroundColor: COLORS.primary, color: 'white' }} onClick={() => onOpenDetail(r)}><Eye size={14} /> 查看</button>
               </td>
             </tr>
           ))}</tbody>
@@ -282,7 +282,7 @@ export const RemoteDiagnosisList: React.FC<RemoteDiagnosisListProps> = ({ diagno
               <td style={styles.td}><div style={{ fontWeight: 500 }}>{rd.remoteExpert}</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>{rd.expertInstitution}</div></td>
               <td style={styles.td}><span style={{ ...styles.statusTag, backgroundColor: `${getStatusColor(rd.status)}20`, color: getStatusColor(rd.status) }}><Circle size={6} fill={getStatusColor(rd.status)} /> {rd.status}</span>{rd.isOtherTyping && <div style={{ fontSize: '10px', color: COLORS.inProgress, marginTop: '2px' }}>📝 {rd.otherTypingName}正在输入...</div>}</td>
               <td style={styles.td}><div style={{ fontSize: '12px' }}>{rd.applyTime}</div></td>
-              <td style={styles.td} onClick={e => e.stopPropagation()}><button style={{ ...styles.button, padding: '4px 10px', fontSize: '12px', backgroundColor: COLORS.primary, color: 'white' }} onClick={() => onSelect(rd)}><PenTool size={12} /> 书写</button></td>
+              <td style={styles.td} onClick={e => e.stopPropagation()}><button style={{ ...styles.button, padding: '4px 10px', fontSize: '12px', backgroundColor: COLORS.primary, color: 'white' }} onClick={() => onSelect(rd)}><PenTool size={14} /> 书写</button></td>
             </tr>
           ))}</tbody>
         </table></div>
@@ -320,7 +320,7 @@ export const CoSignList: React.FC<CoSignListProps> = ({ records, selectedCoSign,
               <td style={styles.td}><div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>{cs.participatingInstitutions.map((inst, idx) => <span key={idx} style={{ ...styles.badge, backgroundColor: '#e0e7ff', color: COLORS.primary, fontSize: '10px' }}>{inst}</span>)}</div></td>
               <td style={styles.td}><span style={{ ...styles.statusTag, backgroundColor: `${getStatusColor(cs.status)}20`, color: getStatusColor(cs.status) }}><Circle size={6} fill={getStatusColor(cs.status)} /> {cs.status}</span></td>
               <td style={styles.td}><div style={{ fontSize: '12px' }}>{cs.createTime}</div>{cs.completeTime && <div style={{ fontSize: '11px', color: COLORS.textMuted }}>完成: {cs.completeTime}</div>}</td>
-              <td style={styles.td} onClick={e => e.stopPropagation()}><button style={{ ...styles.button, padding: '4px 10px', fontSize: '12px', backgroundColor: COLORS.primary, color: 'white' }} onClick={() => onSelect(cs)}><Eye size={12} /> 查看</button></td>
+              <td style={styles.td} onClick={e => e.stopPropagation()}><button style={{ ...styles.button, padding: '4px 10px', fontSize: '12px', backgroundColor: COLORS.primary, color: 'white' }} onClick={() => onSelect(cs)}><Eye size={14} /> 查看</button></td>
             </tr>
           ))}</tbody>
         </table></div>
@@ -435,7 +435,7 @@ export const ReportSharingSection: React.FC = () => {
               <td style={styles.td}>{s.consent ? <span style={{ color: COLORS.success }}>✓ 已获取</span> : <span style={{ color: COLORS.warning }}>⏳ 待获取</span>}</td>
               <td style={styles.td}>{s.accessCount}</td>
               <td style={styles.td}><span style={{ ...styles.statusTag, backgroundColor: s.status === 'active' ? 'var(--color-success-bg)' : 'var(--bg-card)', color: s.status === 'active' ? COLORS.success : COLORS.textMuted }}>{s.status === 'active' ? '有效' : '已撤销'}</span></td>
-              <td style={styles.td}>{s.status === 'active' && <button style={{ ...styles.button, padding: '4px 10px', fontSize: '12px', backgroundColor: COLORS.danger, color: 'white' }} onClick={() => handleRevoke(s.id)}><UserX size={12} /> 撤销</button>}</td>
+              <td style={styles.td}>{s.status === 'active' && <button style={{ ...styles.button, padding: '4px 10px', fontSize: '12px', backgroundColor: COLORS.danger, color: 'white' }} onClick={() => handleRevoke(s.id)}><UserX size={14} /> 撤销</button>}</td>
             </tr>
           ))}</tbody>
         </table></div>
@@ -478,7 +478,7 @@ export const SLAAndTATSection: React.FC = () => {
   useEffect(() => { void loadSla() }, [])
   return (
     <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
-      <div style={styles.panelHeader}><span>远程阅读SLA监控</span><button onClick={() => void loadSla()} disabled={refreshing} style={{ ...styles.button, ...styles.buttonOutline, padding: '4px 10px', fontSize: '12px' }}><RefreshCw size={12} /> {refreshing ? '刷新中...' : '刷新'}</button></div>
+      <div style={styles.panelHeader}><span>远程阅读SLA监控</span><button onClick={() => void loadSla()} disabled={refreshing} style={{ ...styles.button, ...styles.buttonOutline, padding: '4px 10px', fontSize: '12px' }}><RefreshCw size={14} /> {refreshing ? '刷新中...' : '刷新'}</button></div>
       <div style={{ flex: 1, overflow: 'auto', padding: '12px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '16px' }}>
           <div style={{ background: 'var(--bg-card)', padding: '12px', borderRadius: '6px', textAlign: 'center' }}><div style={{ fontSize: '20px', fontWeight: 700, color: COLORS.primary }}>136</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>本月分配检查</div></div>
@@ -536,7 +536,7 @@ export const RegionalStatsDashboard: React.FC = () => {
             <div style={{ fontSize: '11px', color: '#16a34a', marginTop: '4px' }}><TrendingUp size={11} /> +8.2% 较上月</div>
           </div>
           <div style={{ background: '#ecfdf5', padding: '16px', borderRadius: '8px', textAlign: 'center', borderLeft: '4px solid #10b981' }}>
-            <div style={{ fontSize: '28px', fontWeight: 700, color: '#10b981' }}>18min</div>
+            <div style={{ fontSize: '28px', fontWeight: 700, color: '#10b981' }}>18 分钟</div>
             <div style={{ fontSize: '12px', color: '#64748b' }}>平均报告周转时间</div>
             <div style={{ fontSize: '11px', color: '#10b981', marginTop: '4px' }}><TrendingDown size={11} /> -5% 较上月</div>
           </div>
@@ -560,7 +560,7 @@ export const RegionalStatsDashboard: React.FC = () => {
           {institutions.map(inst => { const tat = 15 + Math.floor(Math.random() * 30); return (
             <div key={inst.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', borderBottom: '1px solid var(--border-color)' }}>
               <span style={{ fontSize: '13px' }}>{inst.name}</span>
-              <span style={{ fontWeight: 600, color: tat <= 30 ? COLORS.success : tat <= 45 ? COLORS.warning : COLORS.danger }}>{tat}min</span>
+              <span style={{ fontWeight: 600, color: tat <= 30 ? COLORS.success : tat <= 45 ? COLORS.warning : COLORS.danger }}>{tat} 分钟</span>
             </div>
           )})}
         </div>
@@ -570,7 +570,7 @@ export const RegionalStatsDashboard: React.FC = () => {
             <div style={{ background: 'var(--bg-card)', padding: '12px', borderRadius: '6px' }}><div style={{ fontSize: '11px', color: COLORS.textMuted }}>报告完整率</div><div style={{ fontSize: '18px', fontWeight: 600, color: COLORS.success }}>98.2%</div></div>
             <div style={{ background: 'var(--bg-card)', padding: '12px', borderRadius: '6px' }}><div style={{ fontSize: '11px', color: COLORS.textMuted }}>诊断符合率</div><div style={{ fontSize: '18px', fontWeight: 600, color: COLORS.success }}>96.5%</div></div>
             <div style={{ background: 'var(--bg-card)', padding: '12px', borderRadius: '6px' }}><div style={{ fontSize: '11px', color: COLORS.textMuted }}>危急值闭环率</div><div style={{ fontSize: '18px', fontWeight: 600, color: COLORS.success }}>98%</div></div>
-            <div style={{ background: 'var(--bg-card)', padding: '12px', borderRadius: '6px' }}><div style={{ fontSize: '11px', color: COLORS.textMuted }}>会诊响应时效</div><div style={{ fontSize: '18px', fontWeight: 600, color: COLORS.warning }}>18min</div></div>
+            <div style={{ background: 'var(--bg-card)', padding: '12px', borderRadius: '6px' }}><div style={{ fontSize: '11px', color: COLORS.textMuted }}>会诊响应时效</div><div style={{ fontSize: '18px', fontWeight: 600, color: COLORS.warning }}>18 分钟</div></div>
           </div>
         </div>
       </div>

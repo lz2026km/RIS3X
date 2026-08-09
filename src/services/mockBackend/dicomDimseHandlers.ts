@@ -46,6 +46,17 @@ const delayForDevice = (aeTitle: string) => {
   return 80 + (seed % 5) * 40;
 };
 
+// [G005 v3.0.6.11-86 Wave 4B (G-03/G-05)] TLS 配置 + 节点开关 + MPPS 内存态 (与 backend dicom-dimse.service 对齐)
+let mockTlsConfig: any = {
+  enabled: false,
+  certificate: "",
+  caCert: "",
+  port: 2762,
+  verifyPeer: false,
+};
+const mockNodeTls = new Map<string, boolean>();
+const mockMpps = new Map<string, any>();
+
 export const dicomDimseHandlers = [
   http.post(`${API}/echo`, async ({ request }) => {
     const body = (await request.json().catch(() => ({}))) as any;
@@ -109,5 +120,66 @@ export const dicomDimseHandlers = [
         storedAt: new Date().toISOString(),
       },
     });
+  }),
+
+  // [G005 v3.0.6.11-86 Wave 4B (G-03)] TLS 全局配置
+  http.get(`${API}/tls-config`, async () => {
+    await delay(delayMs(40, 120));
+    return HttpResponse.json({ success: true, data: mockTlsConfig });
+  }),
+
+  http.put(`${API}/tls-config`, async ({ request }) => {
+    const body = (await request.json().catch(() => ({}))) as any;
+    await delay(delayMs(60, 180));
+    mockTlsConfig = {
+      ...mockTlsConfig,
+      ...body,
+      certificate: body?.certificate === "" ? undefined : (body?.certificate ?? mockTlsConfig.certificate),
+      caCert: body?.caCert === "" ? undefined : (body?.caCert ?? mockTlsConfig.caCert),
+    };
+    return HttpResponse.json({ success: true, data: mockTlsConfig });
+  }),
+
+  // [G005 v3.0.6.11-86 Wave 4B (G-03)] 节点级 TLS 开关
+  http.get(`${API}/nodes/:id/tls`, async ({ params }) => {
+    await delay(delayMs(40, 120));
+    const id = String(params.id);
+    return HttpResponse.json({ success: true, data: { id, tlsEnabled: mockNodeTls.get(id) ?? false, supported: true } });
+  }),
+
+  http.put(`${API}/nodes/:id/tls`, async ({ params, request }) => {
+    const body = (await request.json().catch(() => ({}))) as any;
+    await delay(delayMs(60, 180));
+    const id = String(params.id);
+    mockNodeTls.set(id, body?.enabled === true);
+    return HttpResponse.json({ success: true, data: { id, tlsEnabled: mockNodeTls.get(id), supported: true } });
+  }),
+
+  // [G005 v3.0.6.11-86 Wave 4B (G-05)] MPPS 进度
+  http.post(`${API}/mpps`, async ({ request }) => {
+    const body = (await request.json().catch(() => ({}))) as any;
+    await delay(delayMs(60, 180));
+    const now = new Date().toISOString();
+    const existing = mockMpps.get(body?.studyUid);
+    const record = {
+      studyUid: body?.studyUid,
+      status: body?.status ?? "IN_PROGRESS",
+      startedAt: existing?.startedAt ?? now,
+      completedAt: body?.status === "COMPLETED" || body?.status === "DISCONTINUED" ? now : existing?.completedAt,
+      performedSteps: body?.performedSteps ?? existing?.performedSteps ?? [],
+      updatedAt: now,
+      source: existing?.source ?? "mpps",
+      patientName: existing?.patientName,
+      patientId: existing?.patientId,
+      modality: existing?.modality,
+    };
+    mockMpps.set(body?.studyUid, record);
+    return HttpResponse.json({ success: true, data: record });
+  }),
+
+  http.get(`${API}/mpps`, async () => {
+    await delay(delayMs(40, 120));
+    const list = [...mockMpps.values()].sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
+    return HttpResponse.json({ success: true, data: list });
   }),
 ];

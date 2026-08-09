@@ -244,7 +244,7 @@ export default function TeachLecturePage() {
       ) : (
         <div className="grid gap-4">
           {lectures.map((l) => (
-            <div key={l.id} className="flex items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700">
+            <div key={l.id} className="flex items-center gap-4 p-4 bg-card dark:bg-gray-800 rounded-lg border dark:border-gray-700">
               <FileVideo size={24} className="text-blue-500 shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="font-medium truncate">{l.title}</p>

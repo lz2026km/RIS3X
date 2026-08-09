@@ -1933,10 +1933,10 @@ export default function SchedulePage() {
                     </div>
                     <div style={{ display: 'flex', gap: 4 }}>
                       <button onClick={() => handleApplyTemplate(tpl)} style={{ ...btnStyle(C.success), padding: '4px 8px', fontSize: 12 }} title="应用到当前周">
-                        <CalendarDays size={12} />
+                        <CalendarDays size={14} />
                       </button>
                       <button onClick={() => handleDeleteTemplate(tpl.id)} style={{ ...btnStyle(C.danger), padding: '4px 8px', fontSize: 12 }} title="删除">
-                        <Trash2 size={12} />
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </div>

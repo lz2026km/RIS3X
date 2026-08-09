@@ -389,7 +389,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
         </button>
         {dataLoading && (
           <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#64748b' }}>
-            <RefreshCw size={12} style={{ animation: 'spin 1s linear infinite' }} /> 正在加载多源数据...
+            <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} /> 正在加载多源数据...
           </span>
         )}
         <button
@@ -568,7 +568,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                       <td style={{ padding: '10px 12px' }}>
                         {ex.hasCriticalValue ? (
                           <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#dc2626', fontWeight: 600 }}>
-                            <AlertCircle size={12} />阳性
+                            <AlertCircle size={14} />阳性
                           </span>
                         ) : (
                           <span style={{ color: '#16a34a' }}>正常</span>
@@ -626,7 +626,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                     <td style={{ padding: '10px 12px' }}>
                       {criticalClosed(cv) ? (
                         <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#16a34a', fontWeight: 600 }}>
-                          <CheckCircle size={12} />已闭环
+                          <CheckCircle size={14} />已闭环
                         </span>
                       ) : (
                         <span style={{ color: '#d97706', fontWeight: 600 }}>处理中</span>
@@ -681,14 +681,14 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                           onClick={() => navigate(`/reports?reportId=${encodeURIComponent(r.reportId || r.id)}`)}
                           style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 10px', background: 'var(--color-info-bg)', color: 'var(--color-info)', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
                         >
-                          <Eye size={12} />查看
+                          <Eye size={14} />查看
                         </button>
                         <button
                           onClick={() => handleExportReport(r)}
                           disabled={exportingId === (r.reportId || r.id)}
                           style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 10px', background: 'var(--color-success-bg)', color: 'var(--color-success)', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
                         >
-                          <Download size={12} />{exportingId === (r.reportId || r.id) ? '导出中...' : '下载'}
+                          <Download size={14} />{exportingId === (r.reportId || r.id) ? '导出中...' : '下载'}
                         </button>
                       </div>
                     </td>

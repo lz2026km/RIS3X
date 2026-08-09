@@ -103,6 +103,32 @@ export interface QcImageAiStatsV2Query {
   operatorId?: string;
 }
 
+// [G005 Wave4A] G-24 三维度自动质控 (伪影/曝光/体位) — 对齐 backend POST /qc/image-ai/assess
+export interface QcAiDimensionAssessment {
+  score: number; // 0-100
+  label: string;
+  issues: string[];
+}
+
+export interface QcAiAssessDto {
+  studyId: string;
+  instanceId?: string;
+  modality?: string;
+  bodyPart?: string;
+}
+
+export interface QcAiAssessResult {
+  studyId: string;
+  instanceId?: string;
+  modality: string;
+  bodyPart: string;
+  assessedAt: string;
+  artifact: QcAiDimensionAssessment;
+  exposure: QcAiDimensionAssessment;
+  positioning: QcAiDimensionAssessment;
+  overall: { score: number; label: string };
+}
+
 export const qcImageAiApi = {
   listResults: (params?: {
     status?: string;
@@ -157,4 +183,8 @@ export const qcImageAiApi = {
     api.get<QcImageAiStatsV2>(
       `/qc/image-ai/stats-v2?${new URLSearchParams(params ?? {}).toString()}`,
     ),
+
+  // [G005 Wave4A] G-24 AI 自动质控三维度评估 (伪影/曝光/体位 + 总分)
+  assess: (data: QcAiAssessDto) =>
+    api.post<QcAiAssessResult>("/qc/image-ai/assess", data),
 };

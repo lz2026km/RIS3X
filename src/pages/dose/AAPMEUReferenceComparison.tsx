@@ -34,7 +34,7 @@ export default function AAPMEUReferenceComparison() {
       return (
         <div
           style={{
-            background: "#fff",
+            background: "var(--bg-card)",
             padding: 12,
             border: "1px solid #e2e8f0",
             borderRadius: 8,
@@ -108,7 +108,7 @@ export default function AAPMEUReferenceComparison() {
       </div>
       <div
         style={{
-          background: "#fff",
+          background: "var(--bg-card)",
           borderRadius: 12,
           padding: 20,
           border: "1px solid #e2e8f0",
@@ -215,7 +215,7 @@ export default function AAPMEUReferenceComparison() {
         </div>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
-            <tr style={{ background: "#f8fafc" }}>
+            <tr style={{ background: "var(--bg-primary)" }}>
               {[
                 "检查类型",
                 "AAPM参考值",
@@ -245,7 +245,7 @@ export default function AAPMEUReferenceComparison() {
               return (
                 <tr
                   key={ref.examType}
-                  style={{ background: i % 2 === 0 ? "#fff" : "#fafbfc" }}
+                  style={{ background: i % 2 === 0 ? "var(--bg-card)" : "var(--bg-primary)" }}
                 >
                   <td
                     style={{

@@ -125,6 +125,64 @@ export const imageAiHandlers = [
     storeV2.set(record.id, record)
     return HttpResponse.json({ success: true, data: record }, { status: 201 })
   }),
+
+  // [G005 Wave4A] G-24 三维度自动质控 (伪影/曝光/体位) — 与后端 image-ai.service.assess 确定性逻辑对齐
+  http.post(`${API_BASE}/qc/image-ai/assess`, async ({ request }) => {
+    await delay(delayMs())
+    const body = (await request.json()) as { studyId: string; instanceId?: string; modality?: string; bodyPart?: string }
+    const studyId = String(body.studyId ?? '')
+    let h = 0
+    const seed = `${studyId}:${body.instanceId ?? ''}`
+    for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0
+    const rnd = (salt: number) => ((h >>> (salt % 28)) % 1000) / 1000
+    const clamp = (v: number) => Math.max(55, Math.min(99, v))
+    const dimLabel = (score: number) => (score >= 90 ? '优秀' : score >= 80 ? '良好' : score >= 70 ? '一般' : '较差')
+
+    const modality = String(body.modality ?? (studyId.includes('MR') ? 'MR' : studyId.includes('DR') ? 'DR' : 'CT'))
+    const bodyPart = String(body.bodyPart ?? '常规')
+    const m = modality.toUpperCase()
+
+    let artifactBase = 88
+    if (m === 'MR') artifactBase = 80
+    if (m === 'CT') artifactBase = 84
+    if (m === 'DR' || m === 'CR') artifactBase = 86
+    if (m === 'MG') artifactBase = 82
+
+    let exposureBase = 90
+    if (m === 'DR' || m === 'CR') exposureBase = 82
+    if (m === 'MG') exposureBase = 85
+    if (m === 'MR') exposureBase = 92
+
+    let positioningBase = 88
+    if (m === 'DR' || m === 'CR') positioningBase = 80
+    if (m === 'MG') positioningBase = 78
+    if (m === 'MR') positioningBase = 90
+    if (['脊柱', '颈椎', '腰椎', 'SPINE'].some((k) => bodyPart.includes(k))) positioningBase -= 3
+
+    const artifactScore = clamp(Math.round(artifactBase - rnd(3) * 14))
+    const exposureScore = clamp(Math.round(exposureBase - rnd(7) * 12))
+    const positioningScore = clamp(Math.round(positioningBase - rnd(11) * 14))
+    const overall = clamp(Math.round(artifactScore * 0.35 + exposureScore * 0.3 + positioningScore * 0.35))
+
+    const artifactIssues = artifactScore < 85 ? ['检测到轻微运动伪影，建议检查时固定患者体位'] : artifactScore < 75 ? ['局部金属/高密度伪影影响诊断区域'] : ['未见明显伪影']
+    const exposureIssues = exposureScore < 85 ? ['曝光参数偏暗，软组织对比度不足'] : exposureScore < 75 ? ['曝光过度，存在过曝区域，建议降低 mAs'] : ['曝光参数正常']
+    const positioningIssues = positioningScore < 85 ? ['体位轻度旋转，解剖对称性欠佳'] : positioningScore < 75 ? ['检查部位偏移，边缘组织未完全覆盖'] : ['体位摆位正确']
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        studyId,
+        ...(body.instanceId ? { instanceId: body.instanceId } : {}),
+        modality,
+        bodyPart,
+        assessedAt: new Date().toISOString(),
+        artifact: { score: artifactScore, label: dimLabel(artifactScore), issues: artifactIssues },
+        exposure: { score: exposureScore, label: dimLabel(exposureScore), issues: exposureIssues },
+        positioning: { score: positioningScore, label: dimLabel(positioningScore), issues: positioningIssues },
+        overall: { score: overall, label: dimLabel(overall) },
+      },
+    }, { status: 201 })
+  }),
   http.post(`${API_BASE}/qc/image-ai/score`, async ({ request }) => {
     await delay(delayMs())
     const body = (await request.json()) as Record<string, unknown>

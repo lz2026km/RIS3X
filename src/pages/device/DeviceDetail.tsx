@@ -56,13 +56,15 @@ interface ExamRoom {
   currentPatient?: string
 }
 
-export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsData, examRooms, extInfo }: {
+// [G005 Wave1A P1-2] apiStats: deviceApi.getStats 真实统计 (检查量/使用率)
+export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsData, examRooms, extInfo, apiStats }: {
   device: DeviceDetailData
   onClose: () => void
   maintRecords: MaintRecord[]
   deviceStatsData: DeviceStatsData
   examRooms: ExamRoom[]
   extInfo: DeviceDetailData
+  apiStats?: { todayExams: number; totalExams: number; usageMinutes: number } | null
 }) {
   const room = examRooms.find(r => r.deviceId === device.id)
 
@@ -231,7 +233,38 @@ export function DeviceDetailPanel({ device, onClose, maintRecords, deviceStatsDa
             background: '#f8fafc', borderRadius: 12, padding: 18,
             border: `1px solid ${C.border}`, marginBottom: 20
           }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Activity size={13} /> 实时统计（后端 /devices/:id/stats）
+            </div>
+            {apiStats ? (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+                {[
+                  { label: '今日检查量', value: `${apiStats.todayExams} 例`, color: C.accent },
+                  { label: '累计检查量', value: `${apiStats.totalExams} 例`, color: C.primary },
+                  { label: '今日使用时长', value: `${apiStats.usageMinutes} 分钟`, color: C.warning },
+                  { label: '使用率(按8h)', value: `${Math.min(100, Math.round(apiStats.usageMinutes / 480 * 100))}%`, color: C.success },
+                ].map(item => (
+                  <div key={item.label} style={{
+                    background: C.white, borderRadius: 10, padding: '12px 14px',
+                    border: `1px solid ${C.border}`, textAlign: 'center'
+                  }}>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: item.color }}>{item.value}</div>
+                    <div style={{ fontSize: 12.5, color: C.textLight, marginTop: 3 }}>{item.label}</div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: 12, color: C.textLight, fontSize: 12 }}>
+                正在加载实时统计...
+              </div>
+            )}
+          </div>
+
+          <div style={{
+            background: '#f8fafc', borderRadius: 12, padding: 18,
+            border: `1px solid ${C.border}`, marginBottom: 20
+          }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Clock size={13} /> 今日使用时间轴（0-24时）
             </div>
             <div style={{ display: 'flex', gap: 2, height: 60, alignItems: 'flex-end' }}>

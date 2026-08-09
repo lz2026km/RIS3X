@@ -737,7 +737,7 @@ export default function FusionV2Page() {
                   <div style={{ marginTop: 8, background: '#0f172a', borderRadius: 4, overflow: 'hidden' }}>
                     <img
                       src={`data:image/png;base64,${renderedFrame.pixelDataBase64}`}
-                      alt="fusion frame"
+                      alt="融合帧"
                       style={{ width: '100%', display: 'block' }}
                     />
                   </div>

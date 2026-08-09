@@ -1,0 +1,15 @@
+{
+  "todayImages": "Today's Images",
+  "excellentRate": "Excellent Rate",
+  "avgScore": "Avg Score",
+  "examId": "Exam ID",
+  "patient": "Patient",
+  "device": "Device",
+  "imageScore": "Image Score",
+  "mainIssues": "Main Issues",
+  "status": "Status",
+  "action": "Action",
+  "noIssues": "No Issues",
+  "viewImage": "View Image",
+  "rejectDistribution": "Reject Issue Distribution"
+}

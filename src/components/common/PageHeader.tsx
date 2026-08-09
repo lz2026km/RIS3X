@@ -80,7 +80,7 @@ export function PageHeader({
           </div>
         )}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <As style={{ margin: 0, fontSize: 24, fontWeight: 700, color: bannerColor }}>
+          <As style={{ margin: 0, fontSize: 20, fontWeight: 700, color: bannerColor }}>
             {title}
           </As>
           {subtitle && (
@@ -120,7 +120,7 @@ export function PageHeader({
         <As
           style={{
             margin: 0,
-            fontSize: 18,
+            fontSize: 16,
             fontWeight: 600,
             color: "var(--color-gray-900, #0f172a)",
           }}
@@ -170,8 +170,8 @@ export function PageHeader({
           <As
             style={{
               margin: 0,
-              fontSize: 22,
-              fontWeight: 800,
+              fontSize: 20,
+              fontWeight: 700,
               color: "var(--color-primary-900, #1e40af)",
               letterSpacing: "-0.01em",
             }}

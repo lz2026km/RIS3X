@@ -532,7 +532,7 @@ export default function SelfServicePortal() {
     return (
       <div style={styles.container}>
         <Card bordered={false} style={{ ...styles.card, maxWidth: 400, margin: '80px auto', textAlign: 'center' }} styles={{ body: { padding: 0 } }}>
-          <h2 style={{ fontSize: 22, marginBottom: 8 }}>患者自助服务</h2>
+          <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>患者自助服务</h2>
           <p style={{ fontSize: 13, color: '#64748b', marginBottom: 24 }}>输入手机号或证件号查询</p>
           <input
             placeholder="手机号 / 身份证号"

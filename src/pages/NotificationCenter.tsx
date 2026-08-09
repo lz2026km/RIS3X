@@ -497,7 +497,7 @@ function NotificationCard({ notification, onView, onMarkRead, onDelete, isSelect
               }}
               title="标记已读"
             >
-              <Check size={12} />
+              <Check size={14} />
             </button>
           )}
           <button
@@ -509,7 +509,7 @@ function NotificationCard({ notification, onView, onMarkRead, onDelete, isSelect
             }}
             title="删除"
           >
-            <Trash2 size={12} />
+            <Trash2 size={14} />
           </button>
         </div>
       </div>
@@ -536,7 +536,7 @@ function SettingsPanel({ settings, onUpdate }: SettingsPanelProps) {
       }}
     >
       <div style={{
-        width: 18, height: 18, borderRadius: '50%', background: '#fff',
+        width: 18, height: 18, borderRadius: '50%', background: 'var(--bg-card)',
         position: 'absolute', top: 2, transition: 'left 0.2s',
         left: checked ? 20 : 2, boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
       }} />
@@ -886,7 +886,7 @@ function RulesEnginePanel({ rules, onToggle, onDelete }: { rules: NotificationRu
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div onClick={() => onToggle(rule.id)} style={{ width: 36, height: 20, borderRadius: 10, background: rule.enabled ? ACCENT : '#e2e8f0', position: 'relative', cursor: 'pointer' }}>
-              <div style={{ width: 16, height: 16, borderRadius: '50%', background: '#fff', position: 'absolute', top: 2, left: rule.enabled ? 18 : 2, boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+              <div style={{ width: 16, height: 16, borderRadius: '50%', background: 'var(--bg-card)', position: 'absolute', top: 2, left: rule.enabled ? 18 : 2, boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
             </div>
             <button onClick={() => onDelete(rule.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}><Trash2 size={14} /></button>
           </div>
@@ -915,7 +915,7 @@ function PreferencesPanel({ preferences, onUpdate }: { preferences: UserNotifyPr
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
           <div onClick={() => onUpdate({ ...preferences, quietHoursEnabled: !preferences.quietHoursEnabled })}
             style={{ width: 36, height: 20, borderRadius: 10, background: preferences.quietHoursEnabled ? ACCENT : '#e2e8f0', position: 'relative', cursor: 'pointer' }}>
-            <div style={{ width: 16, height: 16, borderRadius: '50%', background: '#fff', position: 'absolute', top: 2, left: preferences.quietHoursEnabled ? 18 : 2, boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+            <div style={{ width: 16, height: 16, borderRadius: '50%', background: 'var(--bg-card)', position: 'absolute', top: 2, left: preferences.quietHoursEnabled ? 18 : 2, boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
           </div>
           <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>启用免打扰</span>
         </div>
@@ -1433,11 +1433,11 @@ export default function NotificationCenter() {
               {realtimeConnected ? '实时推送已连接' : '轮询兜底中 (30s)'}
             </span>
             <button onClick={() => void loadData()} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', padding: 2 }} title="刷新">
-              <RefreshCw size={12} color={GRAY} />
+              <RefreshCw size={14} color={GRAY} />
             </button>
             {!showDeliveryTracking && (
               <button onClick={() => setShowDeliveryTracking(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}>
-                <Eye size={12} color={GRAY} />
+                <Eye size={14} color={GRAY} />
               </button>
             )}
           </div>
@@ -1466,7 +1466,7 @@ export default function NotificationCenter() {
               {isAdmin && (
                 <button onClick={() => void handlePushSend()} disabled={pushBusy}
                   style={{ flex: 1, padding: '5px 8px', borderRadius: 4, border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: PRIMARY, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-                  <Send size={12} />
+                  <Send size={14} />
                   测试发送
                 </button>
               )}

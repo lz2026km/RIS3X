@@ -32,16 +32,16 @@ type Protocol = {
 }
 
 const PROTOCOLS: Protocol[] = [
-  { id: 'P1', name: 'Coronary CTA - CAD', modality: 'CCTA', indication: '稳定性胸痛，疑似冠心病', activeCases: 4, lastUsed: '2026-06-16' },
-  { id: 'P2', name: 'Coronary CTA - Triple Rule Out', modality: 'CCTA', indication: '胸痛，排除 ACS', activeCases: 1, lastUsed: '2026-06-15' },
+  { id: 'P1', name: '冠状动脉CTA-冠心病', modality: 'CCTA', indication: '稳定性胸痛，疑似冠心病', activeCases: 4, lastUsed: '2026-06-16' },
+  { id: 'P2', name: '冠状动脉CTA-三联排除', modality: 'CCTA', indication: '胸痛，排除 ACS', activeCases: 1, lastUsed: '2026-06-15' },
   { id: 'P3', name: '心肌病', modality: 'CMR', indication: '扩张型/HCM/ARVC 检查', activeCases: 3, lastUsed: '2026-06-16' },
-  { id: 'P4', name: 'CMR - Viability', modality: 'CMR', indication: '已知 CAD，既往心梗', activeCases: 2, lastUsed: '2026-06-14' },
-  { id: 'P5', name: 'CMR - Myocarditis', modality: 'CMR', indication: '疑似心肌炎，肌钙蛋白升高', activeCases: 1, lastUsed: '2026-06-13' },
-  { id: 'P6', name: 'Cath - Stable CAD', modality: 'Cath Lab', indication: '已知 CAD，分期 PCI', activeCases: 3, lastUsed: '2026-06-16' },
-  { id: 'P7', name: 'Cath - Primary PCI STEMI', modality: 'Cath Lab', indication: 'STEMI 激活', activeCases: 0, lastUsed: '2026-06-15' },
-  { id: 'P8', name: 'TAVR Pre-procedural', modality: 'CCTA', indication: '重度 AS，TAVR 规划', activeCases: 2, lastUsed: '2026-06-14' },
-  { id: 'P9', name: 'Stress Echo - CAD', modality: 'Echo', indication: '胸痛，中等验前概率', activeCases: 2, lastUsed: '2026-06-16' },
-  { id: 'P10', name: 'Carotid Duplex', modality: 'Vascular', indication: 'TIA/CVA，血管杂音', activeCases: 1, lastUsed: '2026-06-14' },
+  { id: 'P4', name: 'CMR-心肌存活', modality: 'CMR', indication: '已知 CAD，既往心梗', activeCases: 2, lastUsed: '2026-06-14' },
+  { id: 'P5', name: 'CMR-心肌炎', modality: 'CMR', indication: '疑似心肌炎，肌钙蛋白升高', activeCases: 1, lastUsed: '2026-06-13' },
+  { id: 'P6', name: '导管检查-稳定型冠心病', modality: 'Cath Lab', indication: '已知 CAD，分期 PCI', activeCases: 3, lastUsed: '2026-06-16' },
+  { id: 'P7', name: '导管检查-STEMI急诊PCI', modality: 'Cath Lab', indication: 'STEMI 激活', activeCases: 0, lastUsed: '2026-06-15' },
+  { id: 'P8', name: 'TAVR术前', modality: 'CCTA', indication: '重度 AS，TAVR 规划', activeCases: 2, lastUsed: '2026-06-14' },
+  { id: 'P9', name: '负荷超声-冠心病', modality: 'Echo', indication: '胸痛，中等验前概率', activeCases: 2, lastUsed: '2026-06-16' },
+  { id: 'P10', name: '颈动脉超声', modality: 'Vascular', indication: 'TIA/CVA，血管杂音', activeCases: 1, lastUsed: '2026-06-14' },
 ]
 
 const DEFAULT_KPI: KpiCard[] = [
@@ -138,7 +138,7 @@ export default function CvOperationsPage() {
           <div style={{ background: 'var(--bg-card)', borderRadius: 8, border: '1px solid var(--border-color)', padding: 16 }}>
             <h3 style={{ margin: '0 0 12px', fontSize: 16 }}>活动时间线 — 今日 <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>演示数据</span></h3>
             <div style={{ fontSize: 14, color: '#64748b' }}>
-              {['08:00 — CCTA: Triple Rule Out (Pt #P1023)', '08:30 — CMR: Cardiomyopathy (Pt #P1045)', '09:00 — Cath Lab: Primary PCI (Pt #P1067)', '10:00 — Echo: Stress Echo (Pt #P1082)', '11:30 — Vascular: Carotid Duplex (Pt #P1095)', '13:00 — CMR: Viability (Pt #P1101)', '14:00 — CCTA: TAVR Planning (Pt #P1118)', '15:00 — Cath Lab: Staged PCI (Pt #P1132)'].map((e, i) => (
+              {['08:00 — CCTA: 三联排除 (患者 #P1023)', '08:30 — CMR: 心肌病 (患者 #P1045)', '09:00 — 导管室: STEMI急诊PCI (患者 #P1067)', '10:00 — 超声: 负荷超声 (患者 #P1082)', '11:30 — 血管超声: 颈动脉超声 (患者 #P1095)', '13:00 — CMR: 心肌存活 (患者 #P1101)', '14:00 — CCTA: TAVR规划 (患者 #P1118)', '15:00 — 导管室: 分期PCI (患者 #P1132)'].map((e, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: i < 7 ? '1px solid var(--border-color)' : 'none' }}>
                   <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#1e40af', flexShrink: 0 }} />
                   <span>{e}</span>
@@ -188,7 +188,7 @@ export default function CvOperationsPage() {
                 <th style={{ padding: '8px 12px', textAlign: 'left' }}>心血管医生</th>
                 <th style={{ padding: '8px 12px', textAlign: 'center' }}>CCTA</th>
                 <th style={{ padding: '8px 12px', textAlign: 'center' }}>CMR</th>
-                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Echo</th>
+                <th style={{ padding: '8px 12px', textAlign: 'center' }}>超声</th>
                 <th style={{ padding: '8px 12px', textAlign: 'center' }}>心导管</th>
                 <th style={{ padding: '8px 12px', textAlign: 'center' }}>合计</th>
                 <th style={{ padding: '8px 12px', textAlign: 'center' }}>状态</th>

@@ -114,6 +114,8 @@ export default function DataReportCenterPage() {
   const [olapLoading, setOlapLoading] = useState(false)
   // [G005 W2-B] 刷新真实化: datareportApi 快照 (dataReportApi 对应方法重拉)
   const [apiSnapshot, setApiSnapshot] = useState<{ reports: number; trends: number } | null>(null)
+  // [G005 Wave2A P1] OLAP 失败回退 generateMockReportData → 显示「演示数据」徽标 (仅回退态)
+  const [usingFallback, setUsingFallback] = useState(false)
 
   const loadOlap = useCallback(async () => {
     setOlapLoading(true)
@@ -181,8 +183,12 @@ export default function DataReportCenterPage() {
 
   const chartData = useMemo(() => {
     if (!currentReport) return []
-    if (olapData && olapData.length > 0) return olapData
+    if (olapData && olapData.length > 0) {
+      if (usingFallback) setUsingFallback(false)
+      return olapData
+    }
     setLoading(true)
+    setUsingFallback(true)
     const result = generateMockReportData(currentReport.id, [dateRange[0]?.format('YYYY-MM-DD') || '2026-01-01', dateRange[1]?.format('YYYY-MM-DD') || '2026-12-31'])
     setLoading(false)
     return result
@@ -319,6 +325,11 @@ export default function DataReportCenterPage() {
           {apiSnapshot && (
             <Tag color="green" style={{ fontSize: 11, margin: 0 }}>
               datareportApi 接口: {apiSnapshot.reports} 条报表 · {apiSnapshot.trends} 条月度趋势
+            </Tag>
+          )}
+          {usingFallback && (
+            <Tag color="orange" style={{ fontSize: 11, margin: 0 }}>
+              演示数据（OLAP 接口回退）
             </Tag>
           )}
         </Space>

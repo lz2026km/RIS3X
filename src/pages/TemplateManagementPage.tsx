@@ -288,6 +288,7 @@ export default function TemplateManagementPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           <History size={20} color={C.primary} />
           <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>版本管理</span>
+          <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>演示数据 (mockVersions)</span>
           <select value={selectedTemplateId} onChange={e => setSelectedTemplateId(e.target.value)} style={{ marginLeft: 'auto', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, color: C.textDark, background: C.white, cursor: 'pointer' }}>
             {templates.map(t => <option key={t.id} value={t.id}>{t.name} ({t.version})</option>)}
           </select>
@@ -343,11 +344,11 @@ export default function TemplateManagementPage() {
                 <td style={{ padding: '10px 14px' }}>
                   <div style={{ display: 'flex', gap: 6 }}>
                     <button onClick={() => setDiffView(diffView === v.id ? null : v.id)} style={{ padding: '4px 8px', background: C.bgLight, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 3 }}>
-                      <Eye size={12} /> {diffView === v.id ? '收起' : '对比'}
+                      <Eye size={14} /> {diffView === v.id ? '收起' : '对比'}
                     </button>
                     {v.status === 'published' && (
                       <button onClick={() => void handleRollback(v)} style={{ padding: '4px 8px', background: C.warningLight, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, color: C.warning, display: 'flex', alignItems: 'center', gap: 3 }}>
-                        <RotateCcw size={12} /> 回滚
+                        <RotateCcw size={14} /> 回滚
                       </button>
                     )}
                   </div>
@@ -483,6 +484,7 @@ export default function TemplateManagementPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
           <Share2 size={20} color={C.accent} />
           <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>分享与协作</span>
+          <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600 }}>演示数据 (mockShares)</span>
           <select value={selectedTemplateId} onChange={e => setSelectedTemplateId(e.target.value)} style={{ marginLeft: 'auto', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, color: C.textDark, background: C.white, cursor: 'pointer' }}>
             <option value="全部">全部模板</option>
             {templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
@@ -516,7 +518,7 @@ export default function TemplateManagementPage() {
             {filteredEntries.map((e, i) => (
               <tr key={i} style={{ borderBottom: `1px solid ${C.borderLight}` }}>
                 <td style={{ padding: '10px 14px' }}><span style={{ fontWeight: 600, color: C.textDark }}>{templates.find(t => t.id === e.templateId)?.name}</span></td>
-                <td style={{ padding: '10px 14px' }}><span style={{ display: 'flex', alignItems: 'center', gap: 4, color: C.textDark }}><Users size={12} color={C.textMid} /> {e.sharedWith}</span></td>
+                <td style={{ padding: '10px 14px' }}><span style={{ display: 'flex', alignItems: 'center', gap: 4, color: C.textDark }}><Users size={14} color={C.textMid} /> {e.sharedWith}</span></td>
                 <td style={{ padding: '10px 14px' }}>
                   <span style={{
                     display: 'inline-flex', alignItems: 'center', gap: 3, padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 600,

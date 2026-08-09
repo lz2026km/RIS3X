@@ -52,7 +52,7 @@ const MODALITY_QC: ModalityQc[] = [
     ],
   },
   {
-    modality: 'Cath Lab',
+    modality: '导管室 (Cath Lab)',
     metrics: [
       { label: '对比剂用量<100mL 率%', current: 72, target: 80, status: 'warning' },
       { label: '辐射剂量跟踪率%', current: 98, target: 100, status: 'pass' },

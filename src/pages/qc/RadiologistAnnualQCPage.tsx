@@ -93,7 +93,7 @@ export default function RadiologistAnnualQCPage() {
                   {selected.name[0]}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <h2 style={{ fontSize: 22, fontWeight: 700, color: "var(--text-primary)", margin: 0 }}>{selected.name}</h2>
+                  <h2 style={{ fontSize: 16, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>{selected.name}</h2>
                   <div style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>
                     {selected.id} · {selected.title} · {selected.subspecialty} · 工龄 {selected.yearsOfExperience} 年
                   </div>

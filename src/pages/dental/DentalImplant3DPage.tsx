@@ -19,6 +19,8 @@ import {
   Divider,
   Segmented,
   Slider,
+  Modal,
+  Input,
 } from "antd";
 import {
   Box,
@@ -53,6 +55,9 @@ export const DentalImplant3DPage: React.FC = () => {
   const [busy, setBusy] = useState(false);
   const [guideExported, setGuideExported] = useState(false);
   const [mode, setMode] = useState<"list" | "plan">("list");
+  // [G005 Wave1B] 种植体登记库: dentalApi.listImplants / updateImplant (GET/PUT /dental/implants)
+  const [implants, setImplants] = useState<any[]>([]);
+  const [implantModal, setImplantModal] = useState<{ open: boolean; data: any; saving: boolean }>({ open: false, data: null, saving: false });
   const [selBrand, setSelBrand] = useState("straumann");
   const [selModel, setSelModel] = useState("BLT-RC-4.1x10");
   const canvas3dRef = useRef<HTMLCanvasElement>(null);
@@ -81,7 +86,42 @@ export const DentalImplant3DPage: React.FC = () => {
       .catch((err) => {
         console.error("[F04]", err);
       });
+    // [G005 Wave1B] 种植体登记库
+    dentalApi
+      .listImplants()
+      .then((r) => {
+        if (Array.isArray(r)) setImplants(r);
+      })
+      .catch((err) => {
+        console.error("[F04]", err);
+      });
   }, []);
+
+  // [G005 Wave1B] 更新种植体登记: PUT /dental/implants/:id (updateImplant)
+  const handleUpdateImplant = async () => {
+    const d = implantModal.data;
+    if (!d?.id) return;
+    setImplantModal(prev => ({ ...prev, saving: true }));
+    try {
+      const res = await dentalApi.updateImplant(d.id, {
+        implantBrand: d.implantBrand,
+        implantModel: d.implantModel,
+        status: d.status,
+      });
+      if (res.success) {
+        message.success(`种植体 ${d.id} 已更新`);
+        setImplantModal({ open: false, data: null, saving: false });
+        const list = await dentalApi.listImplants();
+        if (Array.isArray(list)) setImplants(list);
+      } else {
+        message.error(res.error?.message ?? '更新失败');
+        setImplantModal(prev => ({ ...prev, saving: false }));
+      }
+    } catch (e: any) {
+      message.error(e?.message ?? '更新失败');
+      setImplantModal(prev => ({ ...prev, saving: false }));
+    }
+  };
 
   useEffect(() => {
     dentalApi
@@ -361,6 +401,27 @@ export const DentalImplant3DPage: React.FC = () => {
                 </Button>
               </Form>
             </Card>
+            {/* [G005 Wave1B] 种植体登记库 (dentalApi.listImplants / updateImplant) */}
+            <Card title={<Space><Tag color="cyan">种植体登记</Tag>{implants.length} 条</Space>} size="small" style={{ marginTop: 12 }}>
+              <div style={{ maxHeight: 300, overflowY: 'auto' }}>
+                {implants.map((im: any) => (
+                  <div key={im.id} style={{ padding: '8px 4px', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6 }}>
+                    <div style={{ minWidth: 0 }}>
+                      <Space size={4}>
+                        <Tag color="purple">#{im.toothNumber ?? im.toothNo ?? '-'}</Tag>
+                        <b style={{ fontSize: 12 }}>{im.implantBrand ?? '—'}</b>
+                        <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{im.implantModel ?? ''}</span>
+                      </Space>
+                      <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
+                        {im.diameter}×{im.length}mm · <Tag style={{ fontSize: 10, margin: 0 }}>{im.status ?? 'PLANNED'}</Tag>
+                      </div>
+                    </div>
+                    <Button size="small" type="link" onClick={() => setImplantModal({ open: true, data: { ...im }, saving: false })}>更新</Button>
+                  </div>
+                ))}
+                {implants.length === 0 && <div style={{ padding: 12, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 12 }}>暂无种植体登记</div>}
+              </div>
+            </Card>
           </Col>
           <Col span={16}>
             <Card title="规划列表" size="small">
@@ -411,6 +472,30 @@ export const DentalImplant3DPage: React.FC = () => {
             </Card>
           </Col>
         </Row>
+
+        {/* [G005 Wave1B] 种植体登记更新 Modal (dentalApi.updateImplant) */}
+        <Modal
+          title={`更新种植体登记 - ${implantModal.data?.id ?? ''}`}
+          open={implantModal.open}
+          onCancel={() => setImplantModal({ open: false, data: null, saving: false })}
+          onOk={() => void handleUpdateImplant()}
+          confirmLoading={implantModal.saving}
+          width={440}
+        >
+          {implantModal.data && (
+            <Form layout="vertical" size="small" style={{ marginTop: 8 }}>
+              <Form.Item label="品牌">
+                <Input value={implantModal.data.implantBrand ?? ''} onChange={e => setImplantModal({ ...implantModal, data: { ...implantModal.data, implantBrand: e.target.value } })} />
+              </Form.Item>
+              <Form.Item label="型号">
+                <Input value={implantModal.data.implantModel ?? ''} onChange={e => setImplantModal({ ...implantModal, data: { ...implantModal.data, implantModel: e.target.value } })} />
+              </Form.Item>
+              <Form.Item label="状态">
+                <Select value={implantModal.data.status ?? 'PLANNED'} onChange={v => setImplantModal({ ...implantModal, data: { ...implantModal.data, status: v } })} options={['PLANNED', 'SURGERY_DONE', 'FINALIZED', 'REMOVED'].map(s => ({ value: s, label: s }))} />
+              </Form.Item>
+            </Form>
+          )}
+        </Modal>
       </div>
     );
   }

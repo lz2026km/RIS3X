@@ -176,7 +176,7 @@ export default function CriticalValue5StepPage() {
     <div style={{ padding: 24 }}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
         <ShieldAlert size={22} style={{ color: '#dc2626' }} />
-        <h1 style={{ fontSize: 20, margin: 0 }}>危急值5步工作流</h1>
+        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>危急值5步工作流</h1>
         <Tag color="red">5节点闭环</Tag>
       </div>
 

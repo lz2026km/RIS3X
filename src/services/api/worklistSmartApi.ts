@@ -18,6 +18,8 @@ export interface SmartFactorDetail {
   score: number
   weight: number
   contribution: number
+  // [G005 Wave4A] 因子得分来源说明 (aiTriage: 真实分检记录 | 检查优先级回退)
+  source?: string
 }
 
 export interface SmartScoreResult {
@@ -33,6 +35,8 @@ export interface SmartWeightConfig {
   waitWeight: number
   ageWeight: number
   examTypeWeight: number
+  // [G005 Wave4A] 权重是否已持久化至后端 system_config
+  persisted?: boolean
 }
 
 export interface SmartPriorityCounts {

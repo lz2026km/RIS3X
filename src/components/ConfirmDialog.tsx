@@ -87,7 +87,7 @@ export function ConfirmDialog({
         role="dialog"
         aria-modal="true"
         style={{
-          background: '#fff',
+          background: 'var(--bg-card)',
           borderRadius: 12,
           padding: 24,
           width: 400,
@@ -139,7 +139,7 @@ export function ConfirmDialog({
               fontSize: 14,
               border: '1px solid #e2e8f0',
               borderRadius: 8,
-              background: '#fff',
+              background: 'var(--bg-card)',
               color: '#64748b',
               cursor: 'pointer',
               fontWeight: 500,

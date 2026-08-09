@@ -48,6 +48,14 @@ interface TeleSession {
   createdAt: string;
 }
 
+interface CariesDetection {
+  toothNo: string;
+  surface: string;
+  confidence: number;
+  severity: string;
+  bbox: number[];
+}
+
 export const DentalTelePage: React.FC = () => {
   const [sessions, setSessions] = useState<TeleSession[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,6 +67,13 @@ export const DentalTelePage: React.FC = () => {
   const [photoModal, setPhotoModal] = useState(false);
   const [detailModal, setDetailModal] = useState<TeleSession | null>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
+  // [G005 Wave2A] AI 预筛真实化: dentalApi.detectCaries (POST /dental/ai/caries-detection)
+  const [screeningModal, setScreeningModal] = useState(false);
+  const [screeningLoading, setScreeningLoading] = useState(false);
+  const [screeningDetections, setScreeningDetections] = useState<CariesDetection[]>([]);
+  const [screeningMeta, setScreeningMeta] = useState<{ model: string; method: string } | null>(null);
+  const [screeningError, setScreeningError] = useState('');
+  const [screeningSource, setScreeningSource] = useState('');
 
   const handleSelectPhotos = (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -136,8 +151,59 @@ export const DentalTelePage: React.FC = () => {
   };
 
   const endSession = async (s: TeleSession) => {
-    setSessions(prev => prev.map(x => x.id === s.id ? { ...x, status: 'completed' } : x));
-    message.success('会诊已结束');
+    // [G005 Wave1B] 会诊结束: dentalApi.endTeleSession (DELETE /dental/tele/sessions/:id)
+    try {
+      const res = await dentalApi.endTeleSession(s.id);
+      if (res.success) {
+        setSessions(prev => prev.map(x => x.id === s.id ? { ...x, status: 'completed' } : x));
+        message.success('会诊已结束');
+      } else {
+        message.warning(res.error?.message ?? '结束接口不可用, 已本地更新');
+        setSessions(prev => prev.map(x => x.id === s.id ? { ...x, status: 'completed' } : x));
+      }
+    } catch {
+      setSessions(prev => prev.map(x => x.id === s.id ? { ...x, status: 'completed' } : x));
+      message.success('会诊已结束 (本地)');
+    }
+  };
+
+  // [G005 Wave2A] AI 预筛: 上传照片转 base64 → detectCaries; 无照片时用会诊患者标识直调 (后端 mock 兜底)
+  const runAiPrescreen = async () => {
+    setScreeningLoading(true);
+    setScreeningError('');
+    setScreeningDetections([]);
+    setScreeningMeta(null);
+    setScreeningSource('');
+    let imageBase64: string | undefined;
+    try {
+      if (photos.length > 0) {
+        const firstPhoto = photos[0]!;
+        const f = await fetch(firstPhoto.url).then(r => r.blob());
+        imageBase64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result));
+          reader.onerror = () => reject(new Error('照片读取失败'));
+          reader.readAsDataURL(f);
+        });
+      }
+      const res = await dentalApi.detectCaries({ imageBase64, modality: 'Periapical' });
+      const data = res.data as { detections?: CariesDetection[]; model?: string; method?: string } | null | undefined;
+      if (res.success && data && Array.isArray(data.detections)) {
+        setScreeningDetections(data.detections);
+        setScreeningMeta({ model: data.model ?? '', method: data.method ?? '' });
+        setScreeningSource(imageBase64 ? `照片 ${photos[0]!.name}` : `会诊患者标识 (无照片, mock 预筛)`);
+        setScreeningModal(true);
+      } else {
+        throw new Error(res.error?.message ?? '接口返回空结果');
+      }
+    } catch (e) {
+      console.error('[DentalTele] AI 预筛失败:', e);
+      setScreeningError(e instanceof Error ? e.message : 'AI 服务不可用');
+      setScreeningSource('待接入: 口腔 AI 服务未返回结果');
+      setScreeningModal(true);
+    } finally {
+      setScreeningLoading(false);
+    }
   };
 
   const activeCount = sessions.filter(s => s.status === 'in_progress').length;
@@ -155,7 +221,7 @@ export const DentalTelePage: React.FC = () => {
       <Row gutter={16}>
         <Col span={6}><Card size="small"><Button type="primary" block onClick={() => setCreateModal(true)} icon={<Plus size={14} />}>新建会诊</Button></Card></Col>
         <Col span={6}><Card size="small"><Button block icon={<Upload size={14} />} onClick={openPhotoModal}>上传口内照片</Button></Card></Col>
-        <Col span={6}><Card size="small"><Button block icon={<Globe size={14} />} onClick={() => message.info('AI 预筛功能待接入口腔 AI 服务后开放 (详见「口腔 AI 辅助诊断」页)')}>AI 预筛</Button></Card></Col>
+        <Col span={6}><Card size="small"><Button block icon={<Globe size={14} />} loading={screeningLoading} onClick={() => void runAiPrescreen()}>AI 预筛</Button></Card></Col>
         <Col span={6}><Card size="small"><Button block icon={<RefreshCw size={14} />} onClick={() => void load()}>刷新列表</Button></Card></Col>
       </Row>
       <Card title={`会诊记录 (${sessions.length})`} size="small" style={{ marginTop: 16 }}>
@@ -271,6 +337,53 @@ export const DentalTelePage: React.FC = () => {
               <Descriptions.Item label="创建时间">{detailModal.createdAt?.replace('T', ' ').slice(0, 16)}</Descriptions.Item>
               <Descriptions.Item label="议题">{detailModal.reason || '—'}</Descriptions.Item>
             </Descriptions>
+          </div>
+        )}
+      </Modal>
+
+      <Modal
+        title={<Space><Globe size={15} /> AI 龋齿预筛结果</Space>}
+        open={screeningModal}
+        onCancel={() => setScreeningModal(false)}
+        footer={<Button type="primary" onClick={() => setScreeningModal(false)}>关闭</Button>}
+        width={560}
+      >
+        {screeningError ? (
+          <Alert
+            type="warning"
+            showIcon
+            message="AI 预筛待接入"
+            description={`${screeningError} — 口腔 AI 服务暂未返回筛查结果, 可先上传口内照片后重试。`}
+            action={<Button size="small" loading={screeningLoading} onClick={() => void runAiPrescreen()}>重试</Button>}
+          />
+        ) : (
+          <div>
+            <div style={{ marginBottom: 12 }}>
+              <Tag color="purple">模型: {screeningMeta?.model || '-'}</Tag>
+              <Tag color="cyan">方法: {screeningMeta?.method || '-'}</Tag>
+              <span style={{ marginLeft: 8, fontSize: 12, color: 'var(--text-secondary)' }}>数据来源: {screeningSource}</span>
+            </div>
+            {screeningDetections.length === 0 ? (
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="未检出龋齿" />
+            ) : (
+              <List
+                size="small"
+                dataSource={screeningDetections}
+                renderItem={(d: CariesDetection) => (
+                  <List.Item>
+                    <Space wrap>
+                      <Tag color="geekblue">牙位 {d.toothNo}</Tag>
+                      <Tag color="gold">面 {d.surface}</Tag>
+                      <Tag color={d.severity === 'high' ? 'red' : d.severity === 'medium' ? 'orange' : 'green'}>
+                        严重度: {d.severity === 'high' ? '高' : d.severity === 'medium' ? '中' : '低'}
+                      </Tag>
+                      <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>置信度 {Math.round(d.confidence * 100)}%</span>
+                    </Space>
+                  </List.Item>
+                )}
+              />
+            )}
+            <Alert style={{ marginTop: 12 }} type="info" showIcon message="筛查结果仅供预筛参考, 需结合影像及专家复核后出具诊断" />
           </div>
         )}
       </Modal>

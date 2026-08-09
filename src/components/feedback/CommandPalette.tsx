@@ -173,7 +173,7 @@ export function CommandPalette({
       <div
         ref={containerRef}
         style={{
-          background: "#fff",
+          background: "var(--bg-card)",
           borderRadius: 12,
           width: 560,
           maxWidth: "90vw",

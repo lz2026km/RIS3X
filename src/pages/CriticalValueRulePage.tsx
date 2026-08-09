@@ -220,7 +220,7 @@ export default function CriticalValueRulePage() {
         <div>
           <h1
             style={{
-              fontSize: 22,
+              fontSize: 20,
               color: "var(--text-primary)",
               margin: 0,
               display: "flex",

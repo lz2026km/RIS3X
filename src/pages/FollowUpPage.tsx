@@ -184,8 +184,8 @@ export default function FollowUpPage() {
   };
 
   const titleStyle: React.CSSProperties = {
-    fontSize: '24px',
-    fontWeight: '600',
+    fontSize: '20px',
+    fontWeight: '700',
     color: '#1a1a1a',
     marginBottom: '8px'
   };

@@ -699,7 +699,7 @@ const BookingRateChart: React.FC = () => {
           {sortedData.map(item => (
             <div key={item.deviceId} style={{ textAlign: 'center' }}>
               <p style={{ margin: 0, color: C.textLight, fontSize: 12 }}>{item.deviceName}</p>
-              <p style={{ margin: '4px 0 0', color: C.primary, fontSize: 20, fontWeight: 600 }}>
+              <p style={{ margin: '4px 0 0', color: C.primary, fontSize: 28, fontWeight: 700 }}>
                 {item.fullDays}
               </p>
               <p style={{ margin: 0, color: C.textLight, fontSize: 12 }}>次满员</p>
@@ -1065,8 +1065,8 @@ export default function EquipmentEfficiencyPage() {
         <div>
           <h1
             style={{
-              fontSize: 24,
-              fontWeight: 600,
+              fontSize: 20,
+              fontWeight: 700,
               color: C.textDark,
               marginBottom: 8,
               display: 'flex',
@@ -1146,7 +1146,7 @@ export default function EquipmentEfficiencyPage() {
             {/* 设备名称和状态 */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <div>
-                <h3 style={{ fontSize: 18, fontWeight: 600, color: C.textDark, marginBottom: 2 }}>{device.name}</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 2 }}>{device.name}</h3>
                 <p style={{ fontSize: 12, color: C.textLight }}>{device.model}</p>
               </div>
               <div
@@ -1240,7 +1240,7 @@ export default function EquipmentEfficiencyPage() {
             {/* 设备名称和状态 */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <div>
-                <h3 style={{ fontSize: 18, fontWeight: 600, color: C.textDark, marginBottom: 2 }}>{device.name}</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 2 }}>{device.name}</h3>
                 <p style={{ fontSize: 12, color: C.textLight }}>{device.model}</p>
               </div>
               <div
@@ -1333,7 +1333,7 @@ export default function EquipmentEfficiencyPage() {
           </div>
           <div>
             <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>平均OEE {isLive && <span style={{ color: C.success }}>· 实时</span>}</p>
-            <p style={{ fontSize: 24, fontWeight: 600, color: C.textDark }}>
+            <p style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>
               {EFFICIENCY_METRICS.avgExamTime}
               <span style={{ fontSize: 14, color: C.textLight, marginLeft: 4 }}>%</span>
             </p>
@@ -1366,7 +1366,7 @@ export default function EquipmentEfficiencyPage() {
           </div>
           <div>
             <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>最高OEE {isLive && <span style={{ color: C.success }}>· 实时</span>}</p>
-            <p style={{ fontSize: 24, fontWeight: 600, color: C.textDark }}>
+            <p style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>
               {EFFICIENCY_METRICS.dailyMax}
               <span style={{ fontSize: 14, color: C.textLight, marginLeft: 4 }}>%</span>
             </p>
@@ -1399,7 +1399,7 @@ export default function EquipmentEfficiencyPage() {
           </div>
           <div>
             <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>最低OEE {isLive && <span style={{ color: C.success }}>· 实时</span>}</p>
-            <p style={{ fontSize: 24, fontWeight: 600, color: C.textDark }}>
+            <p style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>
               {EFFICIENCY_METRICS.bedTurnover}
               <span style={{ fontSize: 14, color: C.textLight, marginLeft: 4 }}>%</span>
             </p>
@@ -1432,7 +1432,7 @@ export default function EquipmentEfficiencyPage() {
           </div>
           <div>
             <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>监控设备数 {isLive && <span style={{ color: C.success }}>· 实时</span>}</p>
-            <p style={{ fontSize: 24, fontWeight: 600, color: C.textDark }}>
+            <p style={{ fontSize: 28, fontWeight: 700, color: C.textDark }}>
               {EFFICIENCY_METRICS.standbyHours}
               <span style={{ fontSize: 14, color: C.textLight, marginLeft: 4 }}>台</span>
             </p>

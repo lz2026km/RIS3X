@@ -8,12 +8,41 @@ import { S3StorageDriver } from '../common/storage/s3-storage.driver'
 import type { StorageDriver } from '../common/storage/storage.interface'
 import type { CFindMwlDto } from './dto'
 
+/** [G005 v3.0.6.11-86 Wave 4B (G-03)] DICOM TLS 配置 (内存 + seed 回退, 对标 HL7 MLLP TLS) */
+export interface DicomTlsConfig {
+  enabled: boolean
+  certificate?: string
+  caCert?: string
+  port?: number
+  verifyPeer?: boolean
+}
+
+/** [G005 v3.0.6.11-86 Wave 4B (G-05)] MPPS 进度记录 */
+export interface MppsRecord {
+  studyUid: string
+  status: 'IN_PROGRESS' | 'COMPLETED' | 'DISCONTINUED'
+  patientName?: string
+  patientId?: string
+  modality?: string
+  startedAt?: string
+  completedAt?: string
+  performedSteps: Array<{ code?: string; description?: string; startTime?: string; endTime?: string }>
+  updatedAt: string
+  source: 'mpps' | 'exam'
+}
+
 @Injectable()
 export class DicomDimseService {
   private readonly logger = new Logger(DicomDimseService.name)
   private readonly storageDir: string
   private readonly storage: StorageDriver
   private readonly supportedStorageSopClasses: Set<string>
+  // [G005 v3.0.6.11-86 Wave 4B (G-03)] TLS 配置 (内存 + 环境 seed 回退)
+  private tlsConfig: DicomTlsConfig
+  // [G005 v3.0.6.11-86 Wave 4B (G-03)] 节点级 TLS 开关 (内存; key = AE Title / node id)
+  private readonly nodeTls = new Map<string, boolean>()
+  // [G005 v3.0.6.11-86 Wave 4B (G-05)] MPPS 记录 (内存)
+  private readonly mppsRecords = new Map<string, MppsRecord>()
 
   constructor(
     private readonly prisma: PrismaService,
@@ -22,6 +51,18 @@ export class DicomDimseService {
   ) {
     this.storageDir = this.config.get<string>('DICOM_STORAGE_DIR', 'dicom')
     this.storage = storageDriver ?? new LocalStorageDriver({ root: this.storageDir })
+    this.tlsConfig = {
+      enabled: this.config.get<string>('DIMSE_TLS_ENABLED', 'false') === 'true',
+      certificate: this.config.get<string>('DIMSE_TLS_CERT', ''),
+      caCert: this.config.get<string>('DIMSE_TLS_CA_CERT', ''),
+      port: Number(this.config.get<string>('DIMSE_TLS_PORT', '2762')) || 2762,
+      verifyPeer: this.config.get<string>('DIMSE_TLS_VERIFY_PEER', 'false') === 'true',
+    }
+    const nodeTlsSeed = this.config.get<string>('DIMSE_NODE_TLS', '')
+    for (const entry of nodeTlsSeed.split(';').filter(Boolean)) {
+      const [ae, flag] = entry.split('=')
+      if (ae && flag !== undefined) this.nodeTls.set(ae.trim(), flag.trim() === 'true')
+    }
     this.supportedStorageSopClasses = new Set([
       '1.2.840.10008.5.1.4.1.1.1',    // CR Image
       '1.2.840.10008.5.1.4.1.1.2',    // CT Image
@@ -300,6 +341,108 @@ export class DicomDimseService {
       throw new BadRequestException(`S3 upload failed: ${(e as Error).message}`)
     }
     return { status: 'SUCCESS', url }
+  }
+
+  // ═══════════ [G005 v3.0.6.11-86 Wave 4B (G-03)] DICOM TLS 配置 (内存 + seed 回退) ═══════════
+
+  getTlsConfig(): DicomTlsConfig {
+    return { ...this.tlsConfig }
+  }
+
+  updateTlsConfig(dto: Partial<DicomTlsConfig>): DicomTlsConfig {
+    this.tlsConfig = {
+      ...this.tlsConfig,
+      ...dto,
+      // 空串证书视为未配置 (清理)
+      certificate: dto.certificate === '' ? undefined : (dto.certificate ?? this.tlsConfig.certificate),
+      caCert: dto.caCert === '' ? undefined : (dto.caCert ?? this.tlsConfig.caCert),
+    }
+    this.logger.log(
+      `DIMSE TLS config updated: enabled=${this.tlsConfig.enabled} port=${this.tlsConfig.port} verifyPeer=${this.tlsConfig.verifyPeer}`,
+    )
+    return { ...this.tlsConfig }
+  }
+
+  getNodeTls(id: string): { id: string; tlsEnabled: boolean; supported: boolean } {
+    const tlsEnabled = this.nodeTls.get(id) ?? false
+    return { id, tlsEnabled, supported: true }
+  }
+
+  setNodeTls(id: string, enabled: boolean): { id: string; tlsEnabled: boolean; supported: boolean } {
+    this.nodeTls.set(id, enabled)
+    this.logger.log(`DIMSE node TLS updated: ${id} enabled=${enabled}`)
+    return { id, tlsEnabled: enabled, supported: true }
+  }
+
+  // ═══════════ [G005 v3.0.6.11-86 Wave 4B (G-05)] MPPS (N-CREATE/N-SET 简化) ═══════════
+
+  async createOrUpdateMpps(dto: {
+    studyUid: string
+    status: 'IN_PROGRESS' | 'COMPLETED' | 'DISCONTINUED'
+    performedSteps?: Array<{ code?: string; description?: string; startTime?: string; endTime?: string }>
+  }): Promise<MppsRecord> {
+    const now = new Date().toISOString()
+    const existing = this.mppsRecords.get(dto.studyUid)
+    const base: MppsRecord = {
+      studyUid: dto.studyUid,
+      status: dto.status,
+      startedAt: existing?.startedAt ?? now,
+      completedAt:
+        dto.status === 'COMPLETED'
+          ? now
+          : dto.status === 'DISCONTINUED'
+            ? now
+            : existing?.completedAt ?? undefined,
+      performedSteps: dto.performedSteps ?? existing?.performedSteps ?? [],
+      updatedAt: now,
+      source: existing?.source ?? 'mpps',
+      patientName: existing?.patientName,
+      patientId: existing?.patientId,
+      modality: existing?.modality,
+    }
+    if (!existing) {
+      // 内存无记录 → 从 Exam 派生回退 (studyUid 即 exam.id 或 1.2.840.10008.<examId>)
+      const derived = await this.deriveMppsFromExam(dto.studyUid)
+      if (derived) {
+        base.patientName = derived.patientName
+        base.patientId = derived.patientId
+        base.modality = derived.modality
+        base.source = 'exam'
+      }
+    }
+    this.mppsRecords.set(dto.studyUid, base)
+    this.logger.log(`MPPS ${dto.status} for study=${dto.studyUid} (${base.source})`)
+    return { ...base }
+  }
+
+  listMpps(): MppsRecord[] {
+    return [...this.mppsRecords.values()].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+  }
+
+  private async deriveMppsFromExam(studyUid: string): Promise<{
+    patientName?: string
+    patientId?: string
+    modality?: string
+  } | null> {
+    const candidates = [studyUid, studyUid.replace(/^1\.2\.840\.10008\./, '')]
+    for (const id of candidates) {
+      try {
+        const exam = await this.prisma.exam.findUnique({
+          where: { id },
+          include: { patient: true },
+        })
+        if (exam) {
+          return {
+            patientName: exam.patient?.name ?? '',
+            patientId: exam.patientId ?? '',
+            modality: exam.modality ?? '',
+          }
+        }
+      } catch {
+        // DB 不可用 → 跳过该候选
+      }
+    }
+    return null
   }
 
   private buildPart10Buffer(opts: {

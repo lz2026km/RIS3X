@@ -68,7 +68,7 @@ export default function BreastDoseTracking() {
 
       <div
         style={{
-          background: "#fff",
+          background: "var(--bg-card)",
           borderRadius: 12,
           padding: 20,
           border: "1px solid #e2e8f0",
@@ -116,7 +116,7 @@ export default function BreastDoseTracking() {
                   return (
                     <div
                       style={{
-                        background: "#fff",
+                        background: "var(--bg-card)",
                         padding: 10,
                         border: "1px solid #e2e8f0",
                         borderRadius: 6,
@@ -157,7 +157,7 @@ export default function BreastDoseTracking() {
 
       <div
         style={{
-          background: "#fff",
+          background: "var(--bg-card)",
           borderRadius: 12,
           padding: 20,
           border: "1px solid #e2e8f0",
@@ -176,7 +176,7 @@ export default function BreastDoseTracking() {
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ background: "#f8fafc" }}>
+              <tr style={{ background: "var(--bg-primary)" }}>
                 {[
                   "患者姓名",
                   "年龄",
@@ -209,7 +209,7 @@ export default function BreastDoseTracking() {
                 return (
                   <tr
                     key={record.id}
-                    style={{ background: i % 2 === 0 ? "#fff" : "#fafbfc" }}
+                    style={{ background: i % 2 === 0 ? "var(--bg-card)" : "var(--bg-primary)" }}
                   >
                     <td style={tdPrimary}>{record.patientName}</td>
                     <td style={tdSecondary}>{record.age}</td>
@@ -294,7 +294,7 @@ const KpiBox = ({
 }) => (
   <div
     style={{
-      background: "#fff",
+      background: "var(--bg-card)",
       borderRadius: 10,
       padding: "14px 16px",
       border: "1px solid #e2e8f0",

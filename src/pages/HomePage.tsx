@@ -2273,6 +2273,12 @@ const HomePage: FC = () => {
     >
       {loading && <LoadingBanner message="正在从 API 加载统计数据..." />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
+      {loadError && !loading && (
+        <div style={{ marginTop: 8, padding: '8px 14px', borderRadius: 8, background: 'var(--color-warning-bg)', border: '1px solid var(--color-warning)', fontSize: 12, color: '#b45309', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <AlertTriangle size={14} />
+          <span><b>演示数据</b>：统计接口不可用，当前首页 KPI / 工作量 / 设备状态等区块展示 mockBackend store 兜底数据（initialData + mockBackend），仅用于演示。</span>
+        </div>
+      )}
       {/* CSS动画 */}
       <style>{`
         @keyframes pulse {

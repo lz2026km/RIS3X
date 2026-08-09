@@ -262,6 +262,10 @@ export const eyeApi = {
       axialLength: data.axialLength,
       keratometry: (data.k1 + data.k2) / 2,
       acd: data.acd,
+      // [G005 Wave1B] 别名字段: MSW eyeHandlers 计算端点读取 AL/K1/K2, 后端 Zod 校验允许多余字段
+      AL: data.axialLength,
+      K1: data.k1,
+      K2: data.k2,
     }
     return String(data.formula).toLowerCase().includes('kane')
       ? api.post(`${EYE_API}/iol/calculate/kane`, body)

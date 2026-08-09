@@ -168,7 +168,7 @@ const SmartRoutingPage: React.FC = () => {
     <div style={{ padding: 24 }}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
         <Route size={20} color="#2563eb" />
-        <h1 style={{ fontSize: 20, margin: 0 }}>智能路由</h1>
+        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>智能路由</h1>
         <Tag color="blue">资质感知路由</Tag>
         <Tag color="purple">资质匹配 → 负载均衡 → 优先级</Tag>
       </div>

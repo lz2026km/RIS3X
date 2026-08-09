@@ -4,6 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, Tabs, Table, InputNumber, Modal, List, Badge, Progress, Divider } from 'antd';
 import { DollarSign, FileText, XCircle, Printer, Calculator } from 'lucide-react';
 import { wechatPay } from '../../services/wechatPay';
+// [G005 Wave1B] 发票列表: dentalApi.listInvoices (GET /dental/invoices), 失败回退 billing 端点
+import { dentalApi } from '../../services/api/dentalApi';
+import { usePagination } from '../../hooks/usePagination';
 
 const WECHAT_METHOD_ID = 'wechat';
 const DEFAULT_METHOD = WECHAT_METHOD_ID;
@@ -19,12 +22,37 @@ export const DentalBillingPage: React.FC = () => {
   const [payModal, setPayModal] = useState(false);
   const [currentInvoice, setCurrentInvoice] = useState<any>(null);
   const [paymentMethod, setPaymentMethod] = useState<string>(DEFAULT_METHOD);
+  // [G005 2B] 受控分页: 费用项目目录 / 账单列表
+  const { pageData: pagedCatalog, pagination: catalogPagination } = usePagination(catalog, 8);
+  const { pageData: pagedInvoices, pagination: invoicesPagination } = usePagination(invoices, 10);
+
+  const loadInvoices = async () => {
+    try {
+      const res = await dentalApi.listInvoices();
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        setInvoices(res.data.map((inv: any) => ({
+          id: inv.id ?? inv.invoiceNumber,
+          date: String(inv.date ?? inv.createdAt ?? '').slice(0, 10),
+          items: inv.items ?? [{ code: inv.invoiceNumber ?? inv.id, name: '口腔诊疗' }],
+          total: Number(inv.totalAmount ?? inv.total ?? 0),
+          insuranceCover: Number(inv.insuranceCover ?? 0),
+          selfPay: Number(inv.selfPay ?? inv.totalAmount ?? inv.total ?? 0),
+          status: inv.status === 'UNPAID' || inv.status === 'PENDING' ? 'pending' : 'paid',
+        })));
+        return;
+      }
+      throw new Error('listInvoices 空/不可用');
+    } catch {
+      const d = await fetch(`/api/v1/dental/billing/invoices?patientId=${selectedPatient}`).then(r => r.json());
+      if (d.success) setInvoices(d.data || []);
+    }
+  };
 
   useEffect(() => {
     Promise.all([
       fetch('/api/v1/dental/billing/fee-catalog').then(r=>r.json()).then(d=>{if(d.success)setCatalog(d.data||[]);}).catch((err) => { console.error('[F04]', err); }),
       fetch('/api/v1/dental/billing/payment-methods').then(r=>r.json()).then(d=>{if(d.success)setPayMethods(d.data||[]);}).catch((err) => { console.error('[F04]', err); }),
-      fetch(`/api/v1/dental/billing/invoices?patientId=${selectedPatient}`).then(r=>r.json()).then(d=>{if(d.success)setInvoices(d.data||[]);}).catch((err) => { console.error('[F04]', err); }),
+      loadInvoices(),
     ]);
   }, [selectedPatient]);
 
@@ -48,8 +76,7 @@ export const DentalBillingPage: React.FC = () => {
             const d = await confirm.json();
             if (d.success) message.success(`收费成功 (${paymentMethod})`);
             setPayModal(false);
-            const list = await fetch(`/api/v1/dental/billing/invoices?patientId=${selectedPatient}`).then(r=>r.json());
-            if (list.success) setInvoices(list.data || []);
+            await loadInvoices();
           },
           onFail: (err) => {
             message.error(`微信支付失败: ${err.message}`);
@@ -61,8 +88,7 @@ export const DentalBillingPage: React.FC = () => {
         const d = await r.json();
         if (d.success) message.success(`收费成功 (${paymentMethod})`);
         setPayModal(false);
-        const res = await fetch(`/api/v1/dental/billing/invoices?patientId=${selectedPatient}`).then(r=>r.json());
-        if (res.success) setInvoices(res.data || []);
+        await loadInvoices();
       }
     } catch (e: any) {
       message.error(`收费异常: ${e?.message || e}`);
@@ -112,7 +138,7 @@ export const DentalBillingPage: React.FC = () => {
               <Col span={8}>
                 <Card size="small" title="费用项目选择">
                   <Select showSearch placeholder="搜索项目..." style={{width:'100%',marginBottom:8}} options={catalog.map((c:any)=>({value:c.code,label:`${c.name} ¥${c.unitPrice}`}))} />
-                  <Table dataSource={catalog.slice(0,8)} rowKey="code" size="small" pagination={false}
+                  <Table dataSource={pagedCatalog} rowKey="code" size="small" pagination={catalogPagination}
                     columns={[{title:'项目',dataIndex:'name',width:140},{title:'价格',dataIndex:'unitPrice',render:(v:number)=>`¥${v}`},{title:'医保',dataIndex:'insuranceType',render:(t:string)=><Tag color={t==='甲类'?'green':t==='乙类'?'blue':'red'}>{t}</Tag>},{title:'',render:(_,r:any)=><Button size="small" onClick={()=>setNewInvoice({...newInvoice,items:[...newInvoice.items,{...r,qty:1}]})}>+</Button>}]} />
                 </Card>
               </Col>
@@ -152,7 +178,7 @@ export const DentalBillingPage: React.FC = () => {
               </Col>
             </Row>
           </>},
-          {key:'invoices', label:'账单管理', children:<Table dataSource={invoices} rowKey="id" size="small" pagination={false}
+          {key:'invoices', label:'账单管理', children:<Table dataSource={pagedInvoices} rowKey="id" size="small" pagination={invoicesPagination}
             columns={[
               {title:'单号',dataIndex:'id',width:180},{title:'日期',dataIndex:'date',width:100},
               {title:'项目',dataIndex:'items',render:(items:any[])=><>{items.map((i:any)=><Tag key={i.code}>{i.name}</Tag>)}</>},

@@ -102,7 +102,7 @@ export default function StaffDoseMonitoring() {
 
       <div
         style={{
-          background: "#fff",
+          background: "var(--bg-card)",
           borderRadius: 12,
           padding: 20,
           border: "1px solid #e2e8f0",
@@ -150,7 +150,7 @@ export default function StaffDoseMonitoring() {
 
       <div
         style={{
-          background: "#fff",
+          background: "var(--bg-card)",
           borderRadius: 12,
           padding: 20,
           border: "1px solid #e2e8f0",
@@ -169,7 +169,7 @@ export default function StaffDoseMonitoring() {
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ background: "#f8fafc" }}>
+              <tr style={{ background: "var(--bg-primary)" }}>
                 {[
                   "姓名",
                   "科室",
@@ -212,7 +212,7 @@ export default function StaffDoseMonitoring() {
                 return (
                   <tr
                     key={s.id}
-                    style={{ background: i % 2 === 0 ? "#fff" : "#fafbfc" }}
+                    style={{ background: i % 2 === 0 ? "var(--bg-card)" : "var(--bg-primary)" }}
                   >
                     <td style={tdPrimary}>{s.staffName}</td>
                     <td style={tdSecondary}>{s.department}</td>
@@ -271,7 +271,7 @@ export default function StaffDoseMonitoring() {
 }
 
 const kpiBox: React.CSSProperties = {
-  background: "#fff",
+  background: "var(--bg-card)",
   borderRadius: 10,
   padding: "14px 16px",
   border: "1px solid #e2e8f0",

@@ -5,6 +5,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { aiPlatformApi } from '../services/api/aiPlatformApi'
+import { qcImageAiApi } from '../services/api/qcImageAiApi'
 import {
   ShieldCheck, AlertTriangle, CheckCircle, Search, Filter, Star,
   TrendingUp, TrendingDown, BarChart3, Clock, Camera, Image, X, Check,
@@ -149,6 +150,62 @@ export default function AIQCPage() {
   const [mergedData, setMergedData] = useState<typeof AI_QC_DATA>(() => AI_QC_DATA.slice())
   const [apiLoading, setApiLoading] = useState(true)
   const [apiError, setApiError] = useState('')
+
+  // [G005 Wave4A] G-24 三维度评估: POST /qc/image-ai/assess (后端确定性 seed, 无 DB 可跑)
+  const [dimAssessments, setDimAssessments] = useState([])
+  const [assessStudyId, setAssessStudyId] = useState('EX-5001')
+  const [assessing, setAssessing] = useState(false)
+  const [assessError, setAssessError] = useState('')
+
+  const SAMPLE_ASSESS_IDS = ['EX-5001', 'EX-5002', 'EX-5003']
+
+  const runAssess = async (studyId) => {
+    setAssessing(true)
+    setAssessError('')
+    try {
+      const res = await qcImageAiApi.assess({ studyId })
+      if (!res.success) {
+        setAssessError(res.error?.message ?? '三维度评估失败')
+        return null
+      }
+      return res.data
+    } catch (e) {
+      setAssessError((e as Error)?.message ?? '三维度评估失败')
+      return null
+    } finally {
+      setAssessing(false)
+    }
+  }
+
+  const loadAssessments = async (ids) => {
+    setAssessing(true)
+    try {
+      const results = []
+      for (const id of ids) {
+        const res = await qcImageAiApi.assess({ studyId: id })
+        if (res.success && res.data) results.push(res.data)
+      }
+      setDimAssessments(results.length > 0 ? results : dimAssessments)
+      if (results.length === 0) setAssessError('三维度评估接口无返回，展示已有结果')
+      else setAssessError('')
+    } catch (e) {
+      setAssessError((e as Error)?.message ?? '三维度评估加载失败')
+    } finally {
+      setAssessing(false)
+    }
+  }
+
+  const handleManualAssess = async () => {
+    const data = await runAssess(assessStudyId)
+    if (data) {
+      setDimAssessments(prev => [data, ...prev.filter(a => a.studyId !== data.studyId)])
+    }
+  }
+
+  useEffect(() => {
+    void loadAssessments(SAMPLE_ASSESS_IDS)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const loadApiQc = async (silent = false) => {
     if (!silent) setApiLoading(true)
@@ -702,6 +759,197 @@ export default function AIQCPage() {
             />
           </div>
         </div>
+      </div>
+
+      {/* [G005 Wave4A] G-24 三维度自动质控区块: 伪影/曝光/体位 + 总评分 + 问题列表 */}
+      <div style={{
+        background: DARK_CARD,
+        borderRadius: 12,
+        border: `1px solid ${DARK_BORDER}`,
+        marginBottom: 20,
+        overflow: 'hidden',
+      }}>
+        <div style={{
+          padding: '16px 20px',
+          borderBottom: `1px solid ${DARK_BORDER}`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 10,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Gauge size={16} color={PRIMARY} />
+            <span style={{ fontSize: 14, fontWeight: 600, color: WHITE }}>AI 三维度自动质控</span>
+            <span style={{ fontSize: 12, color: GRAY }}>伪影 · 曝光 · 体位（POST /qc/image-ai/assess，确定性评估）</span>
+            {assessing && <span style={{ fontSize: 12, color: GRAY }}>评估中…</span>}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <input
+              type="text"
+              value={assessStudyId}
+              onChange={e => setAssessStudyId(e.target.value)}
+              placeholder="输入检查号"
+              style={{
+                width: 150,
+                padding: '8px 12px',
+                borderRadius: 8,
+                border: `1px solid ${DARK_BORDER}`,
+                background: DARK_BG,
+                color: WHITE,
+                fontSize: 13,
+                outline: 'none',
+              }}
+            />
+            <button
+              onClick={() => void handleManualAssess()}
+              disabled={assessing}
+              style={{
+                padding: '8px 16px',
+                borderRadius: 8,
+                border: 'none',
+                background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_DARK})`,
+                color: WHITE,
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: assessing ? 'not-allowed' : 'pointer',
+                opacity: assessing ? 0.6 : 1,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
+            >
+              <Scan size={14} /> 评估检查
+            </button>
+            <button
+              onClick={() => void loadAssessments(SAMPLE_ASSESS_IDS)}
+              disabled={assessing}
+              style={{
+                padding: '8px 16px',
+                borderRadius: 8,
+                border: `1px solid ${PRIMARY}`,
+                background: `${PRIMARY}22`,
+                color: PRIMARY,
+                fontSize: 13,
+                cursor: assessing ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
+            >
+              <RefreshCw size={14} /> 刷新示例
+            </button>
+          </div>
+        </div>
+        {assessError && (
+          <div style={{ padding: '10px 20px', borderBottom: `1px solid ${DARK_BORDER}`, color: '#fbbf24', fontSize: 12 }}>
+            {assessError}
+          </div>
+        )}
+        {dimAssessments.length === 0 && !assessing ? (
+          <div style={{ padding: 40, textAlign: 'center', color: GRAY }}>
+            <Gauge size={36} style={{ opacity: 0.5 }} />
+            <p style={{ marginTop: 8 }}>暂无三维度评估结果，输入检查号点击「评估检查」</p>
+          </div>
+        ) : (
+          <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {dimAssessments.map((a) => (
+              <div key={a.studyId} style={{
+                background: DARK_BG,
+                borderRadius: 10,
+                padding: 16,
+                border: `1px solid ${DARK_BORDER}`,
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: 14,
+                  flexWrap: 'wrap',
+                  gap: 8,
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: WHITE }}>检查号 {a.studyId}</span>
+                    <span style={{ fontSize: 12, color: GRAY }}>{a.modality} · {a.bodyPart}</span>
+                    {a.instanceId && <span style={{ fontSize: 12, color: GRAY }}>实例 {a.instanceId}</span>}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 12, color: GRAY }}>总评分</span>
+                    <span style={{
+                      fontSize: 24,
+                      fontWeight: 700,
+                      color: getScoreColor(a.overall.score),
+                    }}>{a.overall.score}</span>
+                    <span style={{
+                      fontSize: 12,
+                      color: getScoreColor(a.overall.score),
+                      background: `${getScoreColor(a.overall.score)}22`,
+                      padding: '2px 8px',
+                      borderRadius: 10,
+                    }}>{a.overall.label}</span>
+                  </div>
+                </div>
+
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                  gap: 12,
+                }}>
+                  {[
+                    { key: 'artifact', label: '伪影评估', icon: <Wrench size={15} />, data: a.artifact },
+                    { key: 'exposure', label: '曝光评估', icon: <Zap size={15} />, data: a.exposure },
+                    { key: 'positioning', label: '体位评估', icon: <Target size={15} />, data: a.positioning },
+                  ].map((dim) => (
+                    <div key={dim.key} style={{
+                      background: DARK_CARD,
+                      borderRadius: 8,
+                      padding: 12,
+                      border: `1px solid ${DARK_BORDER}`,
+                    }}>
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        marginBottom: 8,
+                      }}>
+                        <span style={{ fontSize: 12, color: GRAY, display: 'flex', alignItems: 'center', gap: 6 }}>
+                          {dim.icon} {dim.label}
+                        </span>
+                        <span style={{
+                          fontSize: 16,
+                          fontWeight: 700,
+                          color: getScoreColor(dim.data.score),
+                        }}>{dim.data.score}
+                          <span style={{ fontSize: 11, fontWeight: 400, color: GRAY, marginLeft: 6 }}>{dim.data.label}</span>
+                        </span>
+                      </div>
+                      <ScoreBar score={dim.data.score} />
+                      <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        {dim.data.issues.map((iss, i) => (
+                          <div key={i} style={{
+                            fontSize: 12,
+                            color: iss.includes('未见') || iss.includes('正常') || iss.includes('正确') ? SUCCESS : '#fbbf24',
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            gap: 5,
+                            lineHeight: '17px',
+                          }}>
+                            {iss.includes('未见') || iss.includes('正常') || iss.includes('正确') ? (
+                              <CheckCircle size={12} style={{ marginTop: 2, flexShrink: 0 }} />
+                            ) : (
+                              <AlertTriangle size={12} style={{ marginTop: 2, flexShrink: 0 }} />
+                            )}
+                            <span>{iss}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* AI质控表格 */}

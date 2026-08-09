@@ -2,7 +2,7 @@
 import { dentalApi } from '../../services/api/dentalApi';
 import { DentalPageLayout } from './DentalShared';
 import { Table, Tag, Button, message, Space, Alert, Spin, Modal, Form, Input, InputNumber, Steps, Descriptions, Empty, Progress } from 'antd';
-import { Plus, RefreshCw, Smile, Eye, PlayCircle, CheckCircle2 } from 'lucide-react';
+import { Plus, RefreshCw, Smile, Eye, PlayCircle, CheckCircle2, FolderOpen } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 
 interface OrthoPlan {
@@ -105,7 +105,7 @@ export const DentalOrthoPage: React.FC = () => {
       <Spin spinning={loading}>
         {plans.length === 0 && !error ? (
           <div style={{ background: 'var(--bg-card)', borderRadius: 8, padding: 40 }}>
-            <Empty description="暂无正畸病例">
+            <Empty image={<FolderOpen size={48} style={{opacity:0.4}}/>} description="暂无正畸病例">
               <Button type="primary" icon={<Plus size={14} />} onClick={() => setModalOpen(true)}>新建病例</Button>
             </Empty>
           </div>

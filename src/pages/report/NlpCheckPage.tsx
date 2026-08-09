@@ -86,7 +86,7 @@ export default function NlpCheckPage() {
     if (last < text.length) parts.push({ text: text.slice(last) })
 
     return (
-      <div style={{ marginTop: 12, padding: 12, background: "#f8fafc", borderRadius: 8, border: "1px solid #e2e8f0" }}>
+      <div style={{ marginTop: 12, padding: 12, background: "var(--bg-primary)", borderRadius: 8, border: "1px solid #e2e8f0" }}>
         <div style={{ fontSize: 13, fontWeight: 600, color: "#1e293b", marginBottom: 8 }}>{t("highlightedText")}</div>
         <div style={{ lineHeight: 1.8 }}>
           {parts.map((p, i) =>
@@ -116,7 +116,7 @@ export default function NlpCheckPage() {
           </button>
         </div>
 
-        <div style={{ background: "#fff", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+        <div style={{ background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
           <label style={{ fontSize: 13, fontWeight: 600, color: "#1e293b", marginBottom: 8, display: "block" }}>{t("inputText")}</label>
           <textarea
             value={text}
@@ -139,7 +139,7 @@ export default function NlpCheckPage() {
         </div>
 
         {spellResult && spellResult.suggestions.length > 0 && (
-          <div style={{ marginTop: 16, background: "#fff", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+          <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h3 style={{ fontSize: 14, fontWeight: 700, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}><AlertTriangle size={16} color="#f59e0b" />{t("suggestions")} ({spellResult.suggestions.length})</h3>
             {spellResult.suggestions.map((s, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: "1px solid #f1f5f9" }}>
@@ -164,7 +164,7 @@ export default function NlpCheckPage() {
         )}
 
         {termResult && termResult.normalized.length > 0 && (
-          <div style={{ marginTop: 16, background: "#fff", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+          <div style={{ marginTop: 16, background: "var(--bg-card)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h3 style={{ fontSize: 14, fontWeight: 700, color: "#1e293b", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}><BookOpen size={16} color="#3b82f6" />{t("termNormalization")} ({termResult.normalized.length})</h3>
             {termResult.normalized.map((n, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: "1px solid #f1f5f9" }}>

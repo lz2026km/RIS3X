@@ -7,6 +7,11 @@ describe('WorklistSmartService', () => {
   beforeEach(() => {
     mockPrisma = {
       worklistSmartScore: { create: jest.fn() },
+      triageRecord: { findFirst: jest.fn().mockResolvedValue(null) },
+      systemConfig: {
+        findUnique: jest.fn().mockResolvedValue(null),
+        upsert: jest.fn().mockResolvedValue({}),
+      },
     }
     svc = new WorklistSmartService(mockPrisma)
   })
@@ -14,15 +19,38 @@ describe('WorklistSmartService', () => {
   const input: SmartScoreInput = { id: 'STU-1', urgency: 2, waitingMinutes: 60, age: 70, modality: 'CT', bodyPart: '头颅' }
 
   describe('weights', () => {
-    it('returns default weights', () => {
-      expect(svc.getWeights()).toEqual({ urgencyWeight: 0.35, waitWeight: 0.3, ageWeight: 0.15, examTypeWeight: 0.2 })
+    it('returns default weights', async () => {
+      expect(await svc.getWeights()).toMatchObject({ urgencyWeight: 0.35, waitWeight: 0.3, ageWeight: 0.15, examTypeWeight: 0.2 })
     })
 
-    it('setWeights updates only provided weights', () => {
-      svc.setWeights({ urgencyWeight: 0.5 })
-      const w = svc.getWeights()
+    it('setWeights updates only provided weights', async () => {
+      await svc.setWeights({ urgencyWeight: 0.5 })
+      const w = await svc.getWeights()
       expect(w.urgencyWeight).toBe(0.5)
       expect(w.waitWeight).toBe(0.3)
+    })
+
+    it('setWeights persists weights to systemConfig and reports persisted=true', async () => {
+      const w = await svc.setWeights({ urgencyWeight: 0.4, waitWeight: 0.25 })
+      expect(w.persisted).toBe(true)
+      expect(mockPrisma.systemConfig.upsert).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { key: 'worklist-smart:weights' } }),
+      )
+      const updated = mockPrisma.systemConfig.upsert.mock.calls[0][0]
+      expect(updated.update.value).toMatchObject({ urgencyWeight: 0.4, waitWeight: 0.25 })
+    })
+
+    it('setWeights reports persisted=false when DB write fails (runtime-only)', async () => {
+      mockPrisma.systemConfig.upsert = jest.fn().mockRejectedValue(new Error('db down'))
+      const w = await svc.setWeights({ urgencyWeight: 0.4 })
+      expect(w.persisted).toBe(false)
+    })
+
+    it('getWeights loads persisted weights from systemConfig when present', async () => {
+      mockPrisma.systemConfig.findUnique = jest.fn().mockResolvedValue({ value: { urgencyWeight: 0.5, waitWeight: 0.2, ageWeight: 0.1, examTypeWeight: 0.2 } })
+      const w = await svc.getWeights()
+      expect(w.urgencyWeight).toBe(0.5)
+      expect(w.persisted).toBe(true)
     })
   })
 
@@ -92,8 +120,42 @@ describe('WorklistSmartService', () => {
       expect(r.reasons).toContain('AI 分检高风险')
     })
 
-    it('reorder rows include factors', () => {
-      const ranked = svc.reorder([{ id: 'A', urgency: 3, waitingMinutes: 240 }])
+    // [G005 Wave4A] aiTriage 因子真实化: 优先聚合 /triage 真实分检记录
+    it('aiTriage factor uses real triage record score when present', async () => {
+      mockPrisma.triageRecord.findFirst = jest.fn().mockResolvedValue({ score: 18 })
+      const r = await svc.score({ id: 'F3', urgency: 0, waitingMinutes: 0, priority: '普通', criticalFinding: false })
+      const ai = r.factors.find(f => f.key === 'aiTriage')!
+      expect(ai.score).toBe(1)
+      expect(ai.source).toBe('真实分检记录')
+      expect(r.reasons).toContain('AI 分检记录18分')
+    })
+
+    it('aiTriage factor maps urgent triage record to 0.8 and marks source', async () => {
+      mockPrisma.triageRecord.findFirst = jest.fn().mockResolvedValue({ score: 12 })
+      const r = await svc.score({ id: 'F4', urgency: 0, waitingMinutes: 0 })
+      const ai = r.factors.find(f => f.key === 'aiTriage')!
+      expect(ai.score).toBe(0.8)
+      expect(ai.source).toBe('真实分检记录')
+    })
+
+    it('aiTriage factor falls back to priority keyword logic without triage record', async () => {
+      mockPrisma.triageRecord.findFirst = jest.fn().mockResolvedValue(null)
+      const r = await svc.score({ id: 'F5', urgency: 0, waitingMinutes: 0, priority: '危急' })
+      const ai = r.factors.find(f => f.key === 'aiTriage')!
+      expect(ai.score).toBe(1)
+      expect(ai.source).toBe('检查优先级回退')
+    })
+
+    it('aiTriage factor falls back when triage DB unavailable', async () => {
+      mockPrisma.triageRecord.findFirst = jest.fn().mockRejectedValue(new Error('db down'))
+      const r = await svc.score({ id: 'F6', urgency: 0, waitingMinutes: 0, criticalFinding: true })
+      const ai = r.factors.find(f => f.key === 'aiTriage')!
+      expect(ai.score).toBe(1)
+      expect(ai.source).toBe('检查优先级回退')
+    })
+
+    it('reorder rows include factors', async () => {
+      const ranked = await svc.reorder([{ id: 'A', urgency: 3, waitingMinutes: 240 }])
       expect(ranked[0].factors).toHaveLength(6)
     })
   })
@@ -116,8 +178,8 @@ describe('WorklistSmartService', () => {
 })
 
   describe('reorder', () => {
-    it('ranks inputs by descending score', () => {
-      const ranked = svc.reorder([
+    it('ranks inputs by descending score', async () => {
+      const ranked = await svc.reorder([
         { id: 'A', urgency: 3, waitingMinutes: 240 },
         { id: 'B', urgency: -2, waitingMinutes: 5 },
         { id: 'C', urgency: 1, waitingMinutes: 40 },

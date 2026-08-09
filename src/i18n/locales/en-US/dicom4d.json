@@ -1,0 +1,16 @@
+{
+  "loadError": "Failed to load 4D series",
+  "title": "4D Dynamic Imaging",
+  "series": "4D Series",
+  "selectSeries": "Select 4D series",
+  "speed": "Speed",
+  "loop": "Loop",
+  "loopOff": "Off",
+  "cardiacPhase": "Cardiac Phase",
+  "phase": "Phase",
+  "systole": "Systole",
+  "diastole": "Diastole",
+  "respiratoryPhase": "Respiratory Phase",
+  "inspiration": "Inspiration",
+  "expiration": "Expiration"
+}

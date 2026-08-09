@@ -865,7 +865,7 @@ export default function AppointmentManagementPage() {
                     </div>
                     <div>
                       <span style={styles.badge(statusCfg.bg, statusCfg.color)}>
-                        {hasConflict && <AlertTriangle size={12} style={{ marginRight: '4px' }} />}
+                        {hasConflict && <AlertTriangle size={14} style={{ marginRight: '4px' }} />}
                         {statusCfg.label}
                       </span>
                     </div>

@@ -212,7 +212,7 @@ export const RemoteWriting: React.FC<DetailProps> = ({
             <div style={{ position: 'absolute', bottom: '20px', right: '20px', color: 'rgba(255,255,255,0.3)', fontSize: '10px' }}>1/120</div>
           </div>
         </div>
-        <div style={{ width: '400px', borderLeft: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', backgroundColor: 'white' }}>
+        <div style={{ width: '400px', borderLeft: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-card)' }}>
           <div style={{ padding: '12px', borderBottom: '1px solid #e5e7eb', backgroundColor: 'var(--bg-card)' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px' }}>患者信息</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', fontSize: '12px' }}>
@@ -228,8 +228,8 @@ export const RemoteWriting: React.FC<DetailProps> = ({
           <div style={{ padding: '12px', borderTop: '1px solid #e5e7eb', backgroundColor: 'var(--bg-card)' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px' }}>双向数字签名</div>
             <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
-              <div style={{ flex: 1, padding: '8px', backgroundColor: 'white', borderRadius: '6px', border: '1px solid #e5e7eb' }}><div style={{ fontSize: '10px', color: COLORS.textMuted, marginBottom: '4px' }}>申请医生签名</div><div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Lock size={12} style={{ color: COLORS.success }} /><span style={{ fontSize: '11px' }}>待签名</span></div></div>
-              <div style={{ flex: 1, padding: '8px', backgroundColor: 'white', borderRadius: '6px', border: '1px solid #e5e7eb' }}><div style={{ fontSize: '10px', color: COLORS.textMuted, marginBottom: '4px' }}>审核专家签名</div><div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Lock size={12} style={{ color: COLORS.pending }} /><span style={{ fontSize: '11px' }}>待签名</span></div></div>
+              <div style={{ flex: 1, padding: '8px', backgroundColor: 'var(--bg-card)', borderRadius: '6px', border: '1px solid #e5e7eb' }}><div style={{ fontSize: '10px', color: COLORS.textMuted, marginBottom: '4px' }}>申请医生签名</div><div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Lock size={12} style={{ color: COLORS.success }} /><span style={{ fontSize: '11px' }}>待签名</span></div></div>
+              <div style={{ flex: 1, padding: '8px', backgroundColor: 'var(--bg-card)', borderRadius: '6px', border: '1px solid #e5e7eb' }}><div style={{ fontSize: '10px', color: COLORS.textMuted, marginBottom: '4px' }}>审核专家签名</div><div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Lock size={12} style={{ color: COLORS.pending }} /><span style={{ fontSize: '11px' }}>待签名</span></div></div>
             </div>
             <button style={{ ...styles.button, width: '100%', justifyContent: 'center', ...styles.buttonPrimary }} onClick={onSubmitRemoteReport}><PenTool size={14} /> 提交报告</button>
           </div>
@@ -274,7 +274,7 @@ export const CoSignDetail: React.FC<DetailProps> = ({ selectedCoSign, onBack }) 
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
               {cs.signatures.map((sig, idx) => (
                 <React.Fragment key={idx}>
-                  <div style={{ padding: '12px 16px', backgroundColor: 'white', borderRadius: '8px', border: `1px solid ${sig.certificateStatus === '已认证' ? COLORS.success : COLORS.danger}30`, minWidth: '160px' }}>
+                  <div style={{ padding: '12px 16px', backgroundColor: 'var(--bg-card)', borderRadius: '8px', border: `1px solid ${sig.certificateStatus === '已认证' ? COLORS.success : COLORS.danger}30`, minWidth: '160px' }}>
                     <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}><BadgeCheck size={12} style={{ color: COLORS.primary }} /> {sig.institution}</div>
                     <div style={{ fontSize: '13px', fontWeight: 500, marginBottom: '4px' }}>{sig.doctorName}</div>
                     <div style={{ fontSize: '10px', color: COLORS.textMuted, marginBottom: '4px' }}>{sig.signTime}</div>

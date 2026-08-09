@@ -192,7 +192,7 @@ export default function CvDatabasePage() {
           style={{
             display: "flex",
             alignItems: "center",
-            background: "#f1f5f9",
+            background: "var(--bg-primary)",
             borderRadius: 8,
             padding: "4px 12px",
             flex: "0 0 280px",
@@ -220,7 +220,7 @@ export default function CvDatabasePage() {
             padding: "6px 12px",
             borderRadius: 6,
             border: "1px solid #e2e8f0",
-            background: "#fff",
+            background: "var(--bg-card)",
             fontSize: 14,
           }}
         >
@@ -238,7 +238,7 @@ export default function CvDatabasePage() {
             padding: "6px 12px",
             borderRadius: 6,
             border: "1px solid #e2e8f0",
-            background: "#fff",
+            background: "var(--bg-card)",
             fontSize: 14,
           }}
         >
@@ -278,7 +278,7 @@ export default function CvDatabasePage() {
             <thead>
               <tr
                 style={{
-                  background: "#f8fafc",
+                  background: "var(--bg-primary)",
                   borderBottom: "2px solid #e2e8f0",
                 }}
               >
@@ -426,7 +426,7 @@ export default function CvDatabasePage() {
         >
           <div
             style={{
-              background: "#fff",
+              background: "var(--bg-card)",
               borderRadius: 12,
               padding: 24,
               maxWidth: 600,
@@ -500,7 +500,7 @@ export default function CvDatabasePage() {
               <button
                 style={{
                   padding: "8px 20px",
-                  background: "#f8fafc",
+                  background: "var(--bg-primary)",
                   color: "#1e293b",
                   border: "1px solid #e2e8f0",
                   borderRadius: 6,

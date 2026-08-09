@@ -311,6 +311,8 @@ export default function NuclearStatsPage() {
   const [devices, setDevices] = useState(DEVICE_FALLBACK)
   const [suv, setSuv] = useState(SUV_STATS)
   const [drugs, setDrugs] = useState(DRUG_DATA)
+  // [G005 Wave2A P1] DECEMBER_DATA 等 fallback 兜底 → 回退态显示演示徽标
+  const [usingFallback, setUsingFallback] = useState(true)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -320,14 +322,20 @@ export default function NuclearStatsPage() {
         nuclearStatsApi.getSummary(), nuclearStatsApi.getDaily(), nuclearStatsApi.getMonthly(),
         nuclearStatsApi.getDevices(), nuclearStatsApi.getSuv(), nuclearStatsApi.getDrugs(),
       ])
-      if (s.status === 'fulfilled' && s.value.success && s.value.data) setSummary(s.value.data)
-      if (d.status === 'fulfilled' && d.value.success && Array.isArray(d.value.data) && d.value.data.length > 0) setDaily(d.value.data)
-      if (m.status === 'fulfilled' && m.value.success && Array.isArray(m.value.data) && m.value.data.length > 0) setMonthly(m.value.data)
-      if (dv.status === 'fulfilled' && dv.value.success && Array.isArray(dv.value.data) && dv.value.data.length > 0) setDevices(dv.value.data)
-      if (sv.status === 'fulfilled' && sv.value.success && sv.value.data) setSuv(sv.value.data)
-      if (dr.status === 'fulfilled' && dr.value.success && Array.isArray(dr.value.data) && dr.value.data.length > 0) setDrugs(dr.value.data)
+      const dOk = d.status === 'fulfilled' && d.value.success && Array.isArray(d.value.data) && d.value.data.length > 0
+      const mOk = m.status === 'fulfilled' && m.value.success && Array.isArray(m.value.data) && m.value.data.length > 0
+      const dvOk = dv.status === 'fulfilled' && dv.value.success && Array.isArray(dv.value.data) && dv.value.data.length > 0
+      const svOk = sv.status === 'fulfilled' && sv.value.success && !!sv.value.data
+      const drOk = dr.status === 'fulfilled' && dr.value.success && Array.isArray(dr.value.data) && dr.value.data.length > 0
+      if (dOk) setDaily(d.value.data)
+      if (mOk) setMonthly(m.value.data)
+      if (dvOk) setDevices(dv.value.data)
+      if (svOk) setSuv(sv.value.data)
+      if (drOk) setDrugs(dr.value.data)
+      setUsingFallback(!(dOk && mOk && dvOk && svOk && drOk))
     } catch (e) {
       setError((e as Error)?.message ?? '加载失败')
+      setUsingFallback(true)
     } finally {
       setLoading(false)
     }
@@ -371,7 +379,9 @@ export default function NuclearStatsPage() {
               <Radio size={28} color={C.accent} />
             </div>
             <div>
-              <h1 style={{ fontSize: 20, fontWeight: 700, color: C.primary, margin: '0 0 4px' }}>核医学科专项统计</h1>
+              <h1 style={{ fontSize: 20, fontWeight: 700, color: C.primary, margin: '0 0 4px' }}>核医学科专项统计
+                {usingFallback && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'var(--color-warning-bg)', color: '#d97706', fontWeight: 600, marginLeft: 8, verticalAlign: 'middle' }}>演示数据（接口回退兜底）</span>}
+              </h1>
               <p style={{ fontSize: 13, color: C.textMuted, margin: 0 }}>检查数量 · 药物消耗 · 设备利用率 · 阳性率 · SUV统计</p>
             </div>
           </div>

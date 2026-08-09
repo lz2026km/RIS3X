@@ -9,19 +9,27 @@ const {  } = Input;
 
 // ICD-11 mock data
 const ICD11_DISEASES = [
-  { code: '5A10', name: 'Type 2 diabetes mellitus', category: 'Endocrine' },
-  { code: '9B70.0', name: 'Hypertensive disorders', category: 'Cardiovascular' },
-  { code: 'BA00', name: 'Ischemic heart disease', category: 'Cardiovascular' },
-  { code: '8B60', name: 'Chronic obstructive pulmonary disease', category: 'Respiratory' },
-  { code: '2F30', name: 'Malignant neoplasm of bronchus or lung', category: 'Oncology' },
-  { code: '8A02', name: 'Pneumonia', category: 'Respiratory' },
-  { code: '7B10', name: 'Peptic ulcer', category: 'Gastroenterology' },
-  { code: 'DA00', name: 'Caries of enamel', category: 'Dental' },
-  { code: 'DA01', name: 'Dentine caries', category: 'Dental' },
-  { code: 'DA02.0', name: 'Pulpitis', category: 'Dental' },
-  { code: 'DA06.0', name: 'Periapical abscess without sinus', category: 'Dental' },
-  { code: 'DA0A', name: 'Periodontitis', category: 'Dental' },
+  { code: '5A10', name: '2 型糖尿病', category: '内分泌' },
+  { code: '9B70.0', name: '高血压疾病', category: '心血管' },
+  { code: 'BA00', name: '缺血性心脏病', category: '心血管' },
+  { code: '8B60', name: '慢性阻塞性肺疾病', category: '呼吸系统' },
+  { code: '2F30', name: '支气管或肺恶性肿瘤', category: '肿瘤' },
+  { code: '8A02', name: '肺炎', category: '呼吸系统' },
+  { code: '7B10', name: '消化性溃疡', category: '消化' },
+  { code: 'DA00', name: '牙釉质龋', category: '口腔' },
+  { code: 'DA01', name: '牙本质龋', category: '口腔' },
+  { code: 'DA02.0', name: '牙髓炎', category: '口腔' },
+  { code: 'DA06.0', name: '根尖周脓肿（无窦道）', category: '口腔' },
+  { code: 'DA0A', name: '牙周炎', category: '口腔' },
 ];
+
+const CATEGORY_LABELS: Record<string, string> = {
+  Dental: '口腔',
+  General: '综合',
+  Surgery: '外科',
+  Ortho: '骨科',
+  Pediatric: '儿科',
+};
 
 const EMR_TEMPLATES = [
   { id: 'tpl-1', name: '常规口腔检查', category: 'Dental', sections: [{title:'主诉',required:true},{title:'现病史',required:true},{title:'检查所见',required:true},{title:'诊断',required:true},{title:'治疗计划',required:true}], usageCount: 128 },
@@ -164,7 +172,7 @@ export const EmrTemplatesPage: React.FC = () => {
                   <Button size="small" icon={<Copy size={12}/>} onClick={()=>handleDuplicate(t)}>复制</Button>,
                 ]}>
                   <List.Item.Meta
-                    title={<Space><Tag color="blue">{t.category}</Tag>{t.name}<Tag>使用 {t.usageCount} 次</Tag></Space>}
+                    title={<Space><Tag color="blue">{CATEGORY_LABELS[t.category] ?? t.category}</Tag>{t.name}<Tag>使用 {t.usageCount} 次</Tag></Space>}
                     description={<span style={{fontSize:12,color:'#666'}}>{t.sections.map((s:any)=><Tag key={s.title} color={s.required?'red':'default'} style={{margin:2}}>{s.title}</Tag>)}</span>}
                   />
                 </List.Item>
@@ -202,7 +210,7 @@ export const EmrTemplatesPage: React.FC = () => {
       <Modal title={templateModal?.type === 'create' ? '新建模板' : '编辑模板'} open={!!templateModal} onCancel={()=>setTemplateModal(null)} onOk={handleSaveTemplate} width={500}>
         <Form form={form} layout="vertical" size="small" style={{ marginTop: 12 }}>
           <Form.Item name="name" label="模板名称" rules={[{ required: true, message: '请填写模板名称' }]}><Input /></Form.Item>
-          <Form.Item name="category" label="分类"><Select options={['Dental','General','Surgery','Ortho','Pediatric'].map(c=>({value:c,label:c}))} /></Form.Item>
+          <Form.Item name="category" label="分类"><Select options={['Dental','General','Surgery','Ortho','Pediatric'].map(c=>({value:c,label:CATEGORY_LABELS[c] ?? c}))} /></Form.Item>
           <Form.Item name="sections" label="章节 (逗号分隔)"><Input placeholder="主诉,现病史,检查所见,诊断,治疗计划" /></Form.Item>
         </Form>
       </Modal>

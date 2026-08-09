@@ -24,6 +24,12 @@ import {
   Spin,
   Space,
   message,
+  Modal,
+  Form,
+  Input,
+  DatePicker,
+  Select,
+  Popconfirm,
 } from "antd";
 import {
   Activity,
@@ -66,6 +72,10 @@ const EyeRisPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [checkinLoadingId, setCheckinLoadingId] = useState<string | null>(null);
   const [callLoadingId, setCallLoadingId] = useState<string | null>(null);
+  // [G005 Wave1B] 转诊接受 / 手术排程 (eyeApi.acceptReferral / scheduleSurgery / deleteSurgery)
+  const [acceptLoadingId, setAcceptLoadingId] = useState<string | null>(null);
+  const [surgeryModal, setSurgeryModal] = useState<{ open: boolean; submitting: boolean }>({ open: false, submitting: false });
+  const [surgeryForm] = Form.useForm();
 
   const updateAppointmentStatus = (id: string, status: string) => {
     setAppointments(prev => prev.map(a => a.id === id ? { ...a, status: status as EyeAppointment["status"] } : a));
@@ -106,6 +116,75 @@ const EyeRisPage: React.FC = () => {
       message.success(`已叫号: ${record.patientName}（本地）`);
     } finally {
       setCallLoadingId(null);
+    }
+  };
+
+  // [G005 Wave1B] 接受转诊: POST /eye/ris/referrals/:id/accept
+  const handleAcceptReferral = async (r: EyeReferral) => {
+    setAcceptLoadingId(r.id);
+    try {
+      const res = await eyeApi.acceptReferral(r.id);
+      if (res.success) {
+        setReferrals(prev => prev.map(x => x.id === r.id ? { ...x, status: "accepted" as const } : x));
+        message.success(`已接受转诊: ${r.patientName}`);
+      } else {
+        message.warning(res.error?.message ?? "接受转诊接口不可用");
+      }
+    } catch {
+      setReferrals(prev => prev.map(x => x.id === r.id ? { ...x, status: "accepted" as const } : x));
+      message.success(`已接受转诊 (本地): ${r.patientName}`);
+    } finally {
+      setAcceptLoadingId(null);
+    }
+  };
+
+  // [G005 Wave1B] 预约手术: POST /eye/ris/surgeries
+  const handleScheduleSurgery = async () => {
+    let values: any = {};
+    try { values = await surgeryForm.validateFields(); } catch { return; }
+    setSurgeryModal(prev => ({ ...prev, submitting: true }));
+    try {
+      const res = await eyeApi.scheduleSurgery({
+        patientName: values.patientName,
+        procedure: values.procedure,
+        surgeonName: values.surgeonName,
+        scheduledDate: values.scheduledDate ? values.scheduledDate.format('YYYY-MM-DD') : new Date().toISOString().slice(0, 10),
+        eyeSide: values.eyeSide || 'OD',
+        orRoom: values.orRoom || '手术室 1',
+        status: 'scheduled',
+        preOpDiagnosis: values.preOpDiagnosis || '',
+        anesthesiaType: 'local',
+        estimatedDuration: 60,
+      });
+      if (res.success) {
+        message.success(`手术已排程: ${values.patientName} (${values.procedure})`);
+        setSurgeryModal({ open: false, submitting: false });
+        surgeryForm.resetFields();
+        const surgRes = await eyeApi.getSurgeries();
+        if (surgRes.success && Array.isArray(surgRes.data)) setSurgeryAppointments(surgRes.data as unknown as SurgeryAppointment[]);
+      } else {
+        message.error(res.error?.message ?? "排程失败");
+        setSurgeryModal(prev => ({ ...prev, submitting: false }));
+      }
+    } catch (e: any) {
+      message.error(e?.message ?? "排程失败");
+      setSurgeryModal(prev => ({ ...prev, submitting: false }));
+    }
+  };
+
+  // [G005 Wave1B] 取消手术: DELETE /eye/ris/surgeries/:id
+  const handleCancelSurgery = async (s: SurgeryAppointment) => {
+    try {
+      const res = await eyeApi.deleteSurgery(s.id);
+      if (res.success) {
+        setSurgeryAppointments(prev => prev.filter(x => x.id !== s.id));
+        message.success(`已取消手术: ${s.patientName}`);
+      } else {
+        message.warning(res.error?.message ?? "取消接口不可用");
+      }
+    } catch {
+      setSurgeryAppointments(prev => prev.map(x => x.id === s.id ? { ...x, status: "cancelled" as const } : x));
+      message.success(`已取消手术 (本地): ${s.patientName}`);
     }
   };
 
@@ -497,6 +576,22 @@ const EyeRisPage: React.FC = () => {
                   width: 60,
                   render: (v: string) => <Tag>{REFERRAL_STATUS_LABELS_DICT[v] || v}</Tag>,
                 },
+                {
+                  title: "操作",
+                  key: "action",
+                  width: 100,
+                  render: (_: unknown, r: EyeReferral) => (
+                    <Button
+                      size="small"
+                      type="primary"
+                      disabled={r.status !== "pending"}
+                      loading={acceptLoadingId === r.id}
+                      onClick={() => void handleAcceptReferral(r)}
+                    >
+                      接受转诊
+                    </Button>
+                  ),
+                },
               ]}
             />
           </Card>
@@ -511,6 +606,11 @@ const EyeRisPage: React.FC = () => {
               <>
                 <UserCheck size={14} /> 今日手术
               </>
+            }
+            extra={
+              <Button size="small" type="primary" icon={<Calendar size={12} />} onClick={() => { surgeryForm.resetFields(); setSurgeryModal({ open: true, submitting: false }); }}>
+                预约手术
+              </Button>
             }
           >
             <Table
@@ -559,6 +659,16 @@ const EyeRisPage: React.FC = () => {
                     <Tag>{SURGERY_STATUS_LABELS_DICT[v] || v}</Tag>
                   ),
                 },
+                {
+                  title: "操作",
+                  key: "action",
+                  width: 80,
+                  render: (_: unknown, s: SurgeryAppointment) => (
+                    <Popconfirm title="取消该手术排期?" onConfirm={() => void handleCancelSurgery(s)}>
+                      <Button size="small" danger disabled={s.status === "cancelled" || s.status === "completed"}>取消</Button>
+                    </Popconfirm>
+                  ),
+                },
               ]}
             />
           </Card>
@@ -579,6 +689,52 @@ const EyeRisPage: React.FC = () => {
           </Card>
         </Col>
       </Row>
+
+      {/* [G005 Wave1B] 预约手术 Modal (POST /eye/ris/surgeries) */}
+      <Modal
+        title="预约眼科手术"
+        open={surgeryModal.open}
+        onCancel={() => setSurgeryModal({ open: false, submitting: false })}
+        onOk={() => void handleScheduleSurgery()}
+        confirmLoading={surgeryModal.submitting}
+        width={480}
+      >
+        <Form form={surgeryForm} layout="vertical" size="small" style={{ marginTop: 8 }} initialValues={{ eyeSide: 'OD', orRoom: '手术室 1' }}>
+          <Form.Item label="患者姓名" name="patientName" rules={[{ required: true, message: '请输入患者姓名' }]}>
+            <Input placeholder="如: 张伟" />
+          </Form.Item>
+          <Form.Item label="手术名称" name="procedure" rules={[{ required: true, message: '请输入手术名称' }]}>
+            <Input placeholder="如: 白内障超声乳化+IOL植入" />
+          </Form.Item>
+          <Row gutter={8}>
+            <Col span={12}>
+              <Form.Item label="手术日期" name="scheduledDate" rules={[{ required: true, message: '请选择日期' }]}>
+                <DatePicker style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="术眼" name="eyeSide">
+                <Select options={[{ value: 'OD', label: '右眼 OD' }, { value: 'OS', label: '左眼 OS' }, { value: 'OU', label: '双眼 OU' }]} />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={8}>
+            <Col span={12}>
+              <Form.Item label="术者" name="surgeonName" rules={[{ required: true, message: '请输入术者' }]}>
+                <Input placeholder="如: 张主任" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="手术室" name="orRoom">
+                <Input />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Form.Item label="术前诊断" name="preOpDiagnosis">
+            <Input placeholder="如: 老年性白内障" />
+          </Form.Item>
+        </Form>
+      </Modal>
     </PageContainer>
   );
 };

@@ -3,6 +3,7 @@ import { Card, Table, Button, Space, Tag, Modal, Form, Input, Select, DatePicker
 import { Users, Plus, Edit, Trash, Search, RefreshCw, Eye } from 'lucide-react'
 import React, { useState, useEffect, useCallback } from 'react'
 import { Inbox } from 'lucide-react'
+import { usePagination } from '../../hooks/usePagination'
 
 const {  } = DatePicker
 
@@ -25,6 +26,8 @@ export const FhirPatientPage: React.FC = () => {
   const [everythingOpen, setEverythingOpen] = useState(false)
   const [everythingLoading, setEverythingLoading] = useState(false)
   const [everythingEntries, setEverythingEntries] = useState<{ resourceType: string; id?: string; date?: string; summary?: string }[]>([])
+  // [G005 2B] 受控分页: $everything 关联资源表 (数据可增长)
+  const { pageData: pagedEverything, pagination: everythingPagination } = usePagination(everythingEntries, 10)
 
   const fetchPatients = useCallback(async (p: number = 1, params: { name?: string; identifier?: string } = {}) => {
     setLoading(true)
@@ -326,10 +329,10 @@ export const FhirPatientPage: React.FC = () => {
           <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description="暂无关联资源" />
         ) : (
           <Table
-            dataSource={everythingEntries}
+            dataSource={pagedEverything}
             rowKey={(r) => `${r.resourceType}-${r.id}`}
             size="small"
-            pagination={false}
+            pagination={everythingPagination}
             columns={[
               { title: '资源类型', dataIndex: 'resourceType', render: (v: string) => <Tag color="blue">{v}</Tag> },
               { title: 'ID', dataIndex: 'id', render: (v: string) => <span style={{ fontFamily: 'monospace', fontSize: 12 }}>{v}</span> },

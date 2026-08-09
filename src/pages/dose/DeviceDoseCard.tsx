@@ -10,7 +10,7 @@ export default function DeviceDoseCard({ device: d, onShowHistory }: Props) {
   return (
     <div
       style={{
-        background: "#fff",
+        background: "var(--bg-card)",
         borderRadius: 12,
         padding: 20,
         border: "1px solid #e2e8f0",
@@ -117,7 +117,7 @@ export default function DeviceDoseCard({ device: d, onShowHistory }: Props) {
         style={{
           marginBottom: 12,
           padding: 10,
-          background: "#f8fafc",
+          background: "var(--bg-primary)",
           borderRadius: 6,
         }}
       >
@@ -160,7 +160,7 @@ export default function DeviceDoseCard({ device: d, onShowHistory }: Props) {
           onClick={() =>
             window.open(`/api/device/${d.device}/qc-report`, "_blank")
           }
-          style={cardBtn("#f8fafc", "#334155")}
+          style={cardBtn("var(--bg-primary)", "#334155")}
         >
           <FileText size={13} /> QC报告
         </button>
@@ -180,7 +180,7 @@ const Metric = ({
 }) => (
   <div
     style={{
-      background: "#f8fafc",
+      background: "var(--bg-primary)",
       borderRadius: 8,
       padding: 12,
       textAlign: "center",
@@ -197,7 +197,7 @@ const MicroStat = ({ label, value }: { label: string; value: string | number }) 
     style={{
       textAlign: "center",
       padding: 8,
-      background: "#f8fafc",
+      background: "var(--bg-primary)",
       borderRadius: 6,
     }}
   >

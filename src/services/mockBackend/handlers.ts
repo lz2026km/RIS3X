@@ -1404,8 +1404,18 @@ export const deviceHandlers = [
     return HttpResponse.json({ success: true, data: toDeviceDto(d) });
   }),
 
-  // 工作量统计
-  
+  // 工作量统计 (deviceApi.getStats, /devices/stats/today 已在 :id 之前注册)
+  http.get(`${API_BASE}/devices/:id/stats`, async ({ params }) => {
+    await delay(60);
+    const id = params.id as string;
+    const base = id.includes('CT') ? 120 : id.includes('MR') ? 60 : id.includes('DR') ? 200 : 15;
+    return HttpResponse.json({ success: true, data: {
+      deviceId: id,
+      todayExams: Math.max(1, base + Math.floor(Math.random() * 30)),
+      totalExams: base * 120,
+      usageMinutes: Math.max(60, base * 8 + Math.floor(Math.random() * 240)),
+    } });
+  }),
 
   // QR Code (设备资产码)
   

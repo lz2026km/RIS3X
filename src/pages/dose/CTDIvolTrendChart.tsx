@@ -43,7 +43,7 @@ export default function CTDIvolTrendChart() {
       return (
         <div
           style={{
-            background: "#fff",
+            background: "var(--bg-card)",
             padding: 12,
             border: "1px solid #e2e8f0",
             borderRadius: 8,
@@ -82,7 +82,7 @@ export default function CTDIvolTrendChart() {
   return (
     <div
       style={{
-        background: "#fff",
+        background: "var(--bg-card)",
         borderRadius: 12,
         padding: 20,
         border: "1px solid #e2e8f0",
@@ -158,7 +158,7 @@ export default function CTDIvolTrendChart() {
           gap: 8,
           marginTop: 16,
           padding: 12,
-          background: "#f8fafc",
+          background: "var(--bg-primary)",
           borderRadius: 8,
         }}
       >

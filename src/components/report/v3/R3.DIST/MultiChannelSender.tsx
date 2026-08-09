@@ -196,7 +196,7 @@ export const MultiChannelSender: React.FC<Props> = ({ reportId, patientId, onSen
       </Row>
 
       {/* 通道选择 + 发送按钮 */}
-      <Card size="small" title={<Space><Layers className="w-4 h-4" /><span>多通道送达</span></Space>} className="shadow-sm"
+      <Card size="small" title={<Space><Layers className="w-4 h-4" /><span>多通道送达</span><Tag color="orange" style={{ fontSize: 10 }}>演示数据 (TASKS/QUEUE)</Tag></Space>} className="shadow-sm"
         extra={
           <Space>
             <Button size="small" icon={<Settings className="w-3 h-3" />} onClick={() => setShowConfig(true)}>通道配置</Button>

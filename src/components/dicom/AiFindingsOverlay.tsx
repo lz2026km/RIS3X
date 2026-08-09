@@ -66,7 +66,7 @@ function AiMarkerPopover({ finding, onClose }: { finding: AiFinding; onClose: ()
         <div><span style={{ color: '#94a3b8' }}>风险: </span><span style={{ color: COLOR_BY_CONFIDENCE(finding.confidence), fontWeight: 700 }}>{finding.risk}</span></div>
         {finding.detail && <div style={{ lineHeight: 1.6 }}><span style={{ color: '#94a3b8' }}>详情: </span>{finding.detail}</div>}
         {finding.sliceLocation != null && (
-          <div><span style={{ color: '#94a3b8' }}>层面: </span>slice {finding.sliceLocation}</div>
+          <div><span style={{ color: '#94a3b8' }}>层面: </span>{finding.sliceLocation}</div>
         )}
       </div>
       {finding.suggestion && (

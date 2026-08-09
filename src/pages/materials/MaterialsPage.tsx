@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Card, Space, Tag, Button, Select, Input, Form, Row, Col, message, Tabs, Statistic, Alert, InputNumber, Modal, Table, Switch } from 'antd';
 import { Box, Eye, AlertTriangle, Calendar, Plus, Edit3, Trash2 } from 'lucide-react';
 import { iolApi, contactLensApi } from '@/services/api/materialsApi';
+// [G005 Wave1B] 单条 IOL 库存详情 (getIolInventoryById, GET /eye/iol/inventory/:id)
+import { eyeApi } from '@/services/api/eyeApi';
 import { usePagination } from '@/hooks/usePagination';
 
 
@@ -13,6 +15,7 @@ export const MaterialsPage: React.FC = () => {
   // IOL
   const [iols, setIols] = useState<any[]>([]);
   const [iolModal, setIolModal] = useState<{ type: 'in' | 'out' | 'transfer' | 'adjust' | null; data: any }>({ type: null, data: {} });
+  const [iolDetail, setIolDetail] = useState<{ open: boolean; data: any; loading: boolean }>({ open: false, data: null, loading: false });
   const [iolFilter, setIolFilter] = useState({ type: '', status: '' });
   const [lowStock, setLowStock] = useState<any[]>([]);
   const [expiring, setExpiring] = useState<any[]>([]);
@@ -81,6 +84,18 @@ export const MaterialsPage: React.FC = () => {
       const r = await iolApi.adjust(iolModal.data.id, { deltaQty: delta, reason: iolModal.data.adjustReason || '盘点' });
       if (r.success) { message.success('库存调整成功'); setIolModal({ type: null, data: {} }); loadIols(); }
     } catch (e: any) { message.error(e.message); }
+  };
+
+  // [G005 Wave1B] 单条 IOL 详情: eyeApi.getIolInventoryById (GET /eye/iol/inventory/:id), 失败回退行数据
+  const handleIolDetail = async (row: any) => {
+    setIolDetail({ open: true, data: row, loading: true });
+    try {
+      const r = await eyeApi.getIolInventoryById(row.id);
+      if (r.success && r.data) setIolDetail({ open: true, data: r.data, loading: false });
+      else setIolDetail({ open: true, data: row, loading: false });
+    } catch {
+      setIolDetail({ open: true, data: row, loading: false });
+    }
   };
 
   // [G005 Wave1A P0] OK 镜设计 (POST /eye/optometry/ok-lens/design)
@@ -202,6 +217,7 @@ export const MaterialsPage: React.FC = () => {
                   title: '操作',
                   render: (_, i) => (
                     <Space size={0}>
+                      <Button type="link" size="small" onClick={() => void handleIolDetail(i)}>详情</Button>
                       <Button type="link" size="small" onClick={() => setIolModal({ type: 'out', data: { ...i, reason: '手术植入' } })}>出库</Button>
                       <Button type="link" size="small" onClick={() => setIolModal({ type: 'transfer', data: { ...i } })}>调拨</Button>
                       <Button type="link" size="small" onClick={() => setIolModal({ type: 'adjust', data: { ...i } })}>调整</Button>
@@ -328,6 +344,41 @@ export const MaterialsPage: React.FC = () => {
             <Form.Item label="术者 (可选)"><Input value={iolModal.data.surgeon} onChange={e => setIolModal({ ...iolModal, data: { ...iolModal.data, surgeon: e.target.value } })} placeholder="D001" /></Form.Item>
           </div>
         )}
+      </Modal>
+
+      {/* [G005 Wave1B] IOL 单条详情 Modal (eyeApi.getIolInventoryById) */}
+      <Modal
+        title={`IOL 详情: ${iolDetail.data?.model ?? ''} (${iolDetail.data?.power ?? ''}D)`}
+        open={iolDetail.open}
+        onCancel={() => setIolDetail({ open: false, data: null, loading: false })}
+        footer={<Button onClick={() => setIolDetail({ open: false, data: null, loading: false })}>关闭</Button>}
+        width={480}
+      >
+        {iolDetail.loading ? (
+          <div style={{ textAlign: 'center', padding: 24 }}>加载中...</div>
+        ) : iolDetail.data ? (
+          <Row gutter={[8, 8]}>
+            {[
+              ['条码', iolDetail.data.barcode],
+              ['型号', iolDetail.data.model],
+              ['类型', iolDetail.data.type],
+              ['度数', iolDetail.data.power ? iolDetail.data.power + ' D' : '-'],
+              ['散光', iolDetail.data.cylinder ? iolDetail.data.cylinder + ' D' : '-'],
+              ['批号', iolDetail.data.batchNumber],
+              ['库位', iolDetail.data.stockLocation],
+              ['状态', iolDetail.data.status],
+              ['供应商', iolDetail.data.supplier],
+              ['单价', iolDetail.data.unitPrice ? '¥' + iolDetail.data.unitPrice : '-'],
+              ['有效期', iolDetail.data.expiryDate ? String(iolDetail.data.expiryDate).slice(0, 10) : '-'],
+              ['创建时间', iolDetail.data.createdAt ? String(iolDetail.data.createdAt).slice(0, 10) : '-'],
+            ].map(([label, value]) => (
+              <Col span={12} key={String(label)}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{label}</div>
+                <div style={{ fontWeight: 600 }}>{value ?? '-'}</div>
+              </Col>
+            ))}
+          </Row>
+        ) : null}
       </Modal>
 
       {/* 接触镜 Modal */}

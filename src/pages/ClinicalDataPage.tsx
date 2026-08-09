@@ -633,10 +633,10 @@ const searchCDRData = (query: string): CDRSearchResult[] => {
 // ==================== 辅助组件 ====================
 const StatusBadge = ({ status }: { status: SyncStatus }) => {
   const config: Record<SyncStatus, { color: string; bg: string; icon: React.ReactNode }> = {
-    '同步中': { color: COLORS.primary, bg: '#3b82f622', icon: <SyncIcon size={12} /> },
-    '已同步': { color: COLORS.success, bg: COLORS.successLight, icon: <Check size={12} /> },
-    '失败': { color: COLORS.danger, bg: COLORS.dangerLight, icon: <AlertOctagon size={12} /> },
-    '待同步': { color: COLORS.warning, bg: COLORS.warningLight, icon: <ClockIcon size={12} /> },
+    '同步中': { color: COLORS.primary, bg: '#3b82f622', icon: <SyncIcon size={14} /> },
+    '已同步': { color: COLORS.success, bg: COLORS.successLight, icon: <Check size={14} /> },
+    '失败': { color: COLORS.danger, bg: COLORS.dangerLight, icon: <AlertOctagon size={14} /> },
+    '待同步': { color: COLORS.warning, bg: COLORS.warningLight, icon: <ClockIcon size={14} /> },
   }
   const c = config[status]
   return (
@@ -1353,7 +1353,7 @@ const CrossSystemSync = () => {
               alignItems: 'center',
               gap: '4px',
             }}>
-              <AlertTriangle size={12} />
+              <AlertTriangle size={14} />
               {systemConnections.filter(s => s.status !== 'online').length} 个异常
             </span>
           )}
@@ -1541,7 +1541,7 @@ const CrossSystemSync = () => {
                       btn.innerHTML = '✅ 已重试';
                       setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
                     }}>
-                      <RefreshCw size={12} />
+                      <RefreshCw size={14} />
                       重试
                     </button>
                   )}
@@ -1558,7 +1558,7 @@ const CrossSystemSync = () => {
                       btn.innerHTML = '✅ 已暂停';
                       setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
                     }}>
-                      <Pause size={12} />
+                      <Pause size={14} />
                       暂停
                     </button>
                   )}
@@ -2200,7 +2200,7 @@ const CDRSearchView = ({ onSelectPatient }: { onSelectPatient?: (patientId: stri
                 }}
                 onClick={() => handleSearch(term)}
               >
-                <Search size={12} />
+                <Search size={14} />
                 {term}
               </div>
             ))}

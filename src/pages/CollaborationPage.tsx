@@ -77,6 +77,46 @@ export default function CollaborationPage() {
   const [activities] = useState<CollabActivity[]>(COLLAB_ACTIVITIES);
   // 新评论
   const [newComment, setNewComment] = useState('');
+  // [G005 Wave1B] 评论回复: consultationApi.replyComment (POST /consultations/:id/comments/:commentId/reply)
+  const [replyTo, setReplyTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState('');
+  const [replyingId, setReplyingId] = useState<string | null>(null);
+
+  const handleReplyComment = async (commentId: string) => {
+    if (!replyText.trim()) return;
+    if (source === 'api') {
+      setReplyingId(commentId);
+      try {
+        await consultationApi.replyComment(selectedReportId, commentId, currentUser.name, replyText.trim());
+        setReplyText('');
+        setReplyTo(null);
+        await loadComments(selectedReportId);
+        return;
+      } catch (e) {
+        window.alert?.('回复失败: ' + (e instanceof Error ? e.message : '未知错误'));
+        return;
+      } finally {
+        setReplyingId(null);
+      }
+    }
+    const parent = comments.find(c => c.id === commentId);
+    const newC: CollabComment = {
+      id: `c-${Date.now()}`,
+      reportId: selectedReportId,
+      authorId: currentUser.id,
+      authorName: currentUser.name,
+      authorColor: currentUser.color,
+      content: replyText.trim(),
+      position: parent?.position ?? { x: 200, y: 200 },
+      resolved: false,
+      parentId: commentId,
+      mentions: [],
+      createdAt: new Date().toLocaleString('zh-CN', { hour12: false }),
+    };
+    setComments([...comments, newC]);
+    setReplyText('');
+    setReplyTo(null);
+  };
   // 当前选中的字段
   const [activeField, setActiveField] = useState<'findings' | 'diagnosis' | 'impression'>('findings');
   // 已解决显示
@@ -514,6 +554,7 @@ export default function CollaborationPage() {
                       <CheckCircle2 size={10} /> {comment.resolved ? '已解决' : '解决'}
                     </button>
                     <button
+                      onClick={() => { setReplyTo(replyTo === comment.id ? null : comment.id); setReplyText(''); }}
                       style={{
                         padding: '2px 6px', border: 'none', background: 'transparent',
                         color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer',
@@ -528,6 +569,32 @@ export default function CollaborationPage() {
                       </span>
                     )}
                   </div>
+
+                  {replyTo === comment.id && (
+                    <div style={{ display: 'flex', gap: 4, marginTop: 6 }}>
+                      <input
+                        value={replyText}
+                        onChange={e => setReplyText(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter') void handleReplyComment(comment.id); }}
+                        placeholder={`回复 @${comment.authorName}...`}
+                        style={{
+                          flex: 1, padding: '4px 6px', border: '1px solid var(--border-color)',
+                          borderRadius: 3, fontSize: 12, outline: 'none',
+                        }}
+                      />
+                      <button
+                        onClick={() => void handleReplyComment(comment.id)}
+                        disabled={replyingId === comment.id || !replyText.trim()}
+                        style={{
+                          padding: '4px 10px', border: 'none', borderRadius: 3,
+                          background: '#7c3aed', color: '#fff', fontSize: 12, cursor: 'pointer',
+                          opacity: replyingId === comment.id || !replyText.trim() ? 0.5 : 1,
+                        }}
+                      >
+                        {replyingId === comment.id ? '发送中...' : '发送'}
+                      </button>
+                    </div>
+                  )}
                 </div>
               );
             })}

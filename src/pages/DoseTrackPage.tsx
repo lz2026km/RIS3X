@@ -336,7 +336,7 @@ function PageHeader({
       <div>
         <h1
           style={{
-            fontSize: 18,
+            fontSize: 20,
             fontWeight: 700,
             color: "#1e40af",
             margin: "0 0 4px",

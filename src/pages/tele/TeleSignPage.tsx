@@ -3,6 +3,7 @@ import { Card, Table, Button, Tag, Space, Modal, Input, Typography, message, Ale
 import { FileSignature, CheckCircle, XCircle, Pen, Eye, Plus } from 'lucide-react'
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { RefreshCw } from 'lucide-react'
+import { usePagination } from '../../hooks/usePagination'
 
 const { Text } = Typography
 const { TextArea } = Input
@@ -21,6 +22,7 @@ const TeleSignPage: React.FC = () => {
   const [createOpen, setCreateOpen] = useState(false)
   const [createSaving, setCreateSaving] = useState(false)
   const [createForm] = Form.useForm()
+  const { pageData: pagedSessions, pagination: sessionsPagination } = usePagination(sessions)
 
   const handleCreateSession = async () => {
     try {
@@ -151,7 +153,7 @@ const TeleSignPage: React.FC = () => {
       </Space>
       {error && <Alert type="warning" showIcon message="加载失败" description={error} action={<Button size="small" onClick={fetchSessions}><RefreshCw size={14} /> 重试</Button>} style={{ marginBottom: 16 }} />}
       <Card>
-        <Table rowKey="id" dataSource={sessions} columns={columns} pagination={false} size="small" loading={loading} scroll={{ x: 'max-content' }}/>
+        <Table rowKey="id" dataSource={pagedSessions} columns={columns} pagination={sessionsPagination} size="small" loading={loading} scroll={{ x: 'max-content' }}/>
       </Card>
       <Modal title="签署报告" open={signOpen} onCancel={() => setSignOpen(false)} width={600} footer={
         <Space>

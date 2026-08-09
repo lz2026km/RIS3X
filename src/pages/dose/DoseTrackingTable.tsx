@@ -19,7 +19,7 @@ export default function DoseTrackingTable({
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
       <div
         style={{
-          background: "#fff",
+          background: "var(--bg-card)",
           borderRadius: 12,
           border: "1px solid #e2e8f0",
         }}
@@ -51,7 +51,7 @@ export default function DoseTrackingTable({
         </div>
         <div style={{ overflowX: "auto", maxHeight: 500, overflowY: "auto" }}>
           <div style={{ overflowX: "auto" }}><table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead style={{ position: "sticky", top: 0, background: "#f8fafc" }}>
+            <thead style={{ position: "sticky", top: 0, background: "var(--bg-primary)" }}>
               <tr>
                 {[t("doseTrack.table.patientName"), t("doseTrack.table.gender"), t("doseTrack.table.age"), t("doseTrack.table.modality"), t("doseTrack.table.examItem"), t("doseTrack.table.examDate"), t("doseTrack.table.doseValue"), t("doseTrack.table.alertLevel"), t("doseTrack.table.actions")].map((h) => (
                   <th
@@ -78,7 +78,7 @@ export default function DoseTrackingTable({
                     key={r.id}
                     style={{
                       borderBottom: "1px solid #f8fafc",
-                      background: i % 2 === 0 ? "#fff" : "#fafbfc",
+                      background: i % 2 === 0 ? "var(--bg-card)" : "var(--bg-primary)",
                       cursor: "pointer",
                     }}
                     onClick={() => setSelectedPatient(r)}
@@ -133,7 +133,7 @@ export default function DoseTrackingTable({
         ) : (
           <div
             style={{
-              background: "#fff",
+              background: "var(--bg-card)",
               borderRadius: 12,
               border: "1px solid #e2e8f0",
               padding: 40,
@@ -160,10 +160,10 @@ function PatientDetailCard({ patient }: { patient: PatientDoseRecord }) {
   const doseRatio = patient.doseValue / patient.threshold;
 
   return (
-    <div style={{ background: "#fff", borderRadius: 12, border: `1px solid ${badge.border}`, overflow: "hidden" }}>
+    <div style={{ background: "var(--bg-card)", borderRadius: 12, border: `1px solid ${badge.border}`, overflow: "hidden" }}>
       <div style={{ padding: "14px 16px", background: badge.bg, borderBottom: `1px solid ${badge.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 8, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ width: 36, height: 36, borderRadius: 8, background: "var(--bg-card)", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <User size={18} color={badge.color} />
           </div>
           <div>
@@ -186,17 +186,17 @@ function PatientDetailCard({ patient }: { patient: PatientDoseRecord }) {
           </div>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 16 }}>
-          <div style={{ background: "#f8fafc", borderRadius: 8, padding: 12, textAlign: "center" }}>
+          <div style={{ background: "var(--bg-primary)", borderRadius: 8, padding: 12, textAlign: "center" }}>
             <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>本次剂量</div>
             <div style={{ fontSize: 18, fontWeight: 800, color: badge.color }}>{patient.doseValue}</div>
             <div style={{ fontSize: 12, color: "#94a3b8" }}>{patient.doseUnit}</div>
           </div>
-          <div style={{ background: "#f8fafc", borderRadius: 8, padding: 12, textAlign: "center" }}>
+          <div style={{ background: "var(--bg-primary)", borderRadius: 8, padding: 12, textAlign: "center" }}>
             <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>法规阈值</div>
             <div style={{ fontSize: 18, fontWeight: 800, color: "#1e40af" }}>{patient.threshold}</div>
             <div style={{ fontSize: 12, color: "#94a3b8" }}>{patient.doseUnit}</div>
           </div>
-          <div style={{ background: "#f8fafc", borderRadius: 8, padding: 12, textAlign: "center" }}>
+          <div style={{ background: "var(--bg-primary)", borderRadius: 8, padding: 12, textAlign: "center" }}>
             <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>占比</div>
             <div style={{ fontSize: 18, fontWeight: 800, color: doseRatio > 1 ? "#dc2626" : "#16a34a" }}>
               {Math.round(doseRatio * 100)}%

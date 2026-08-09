@@ -48,7 +48,7 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div
         style={{
-          background: "#fff",
+          background: "var(--bg-card)",
           borderRadius: 12,
           padding: 20,
           border: "1px solid #e2e8f0",
@@ -171,7 +171,7 @@ export default function CumulativeDoseTracker({ patientId = "RAD-P001" }: { pati
 }
 
 const statBox: React.CSSProperties = {
-  background: "#fff",
+  background: "var(--bg-card)",
   borderRadius: 10,
   padding: 16,
   border: "1px solid #e2e8f0",

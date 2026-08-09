@@ -342,25 +342,25 @@ const CriticalValueCenterPage: React.FC = () => {
       <p className="text-gray-600">危急值全生命周期管理 · 闭环监控 · 升级通知 · 统计分析</p>
 
       <div className="grid grid-cols-4 gap-4">
-        <Link to="/critical-value" className="rounded-lg border bg-white p-4 hover:shadow-md transition">
+        <Link to="/critical-value" className="rounded-lg border bg-card p-4 hover:shadow-md transition">
           <AlertOctagon className="text-red-600 mb-2" size={24} />
           <div className="text-sm text-gray-500">待处理</div>
           <div className="text-2xl font-bold mt-1 text-red-600">{pending}</div>
           <div className="text-xs text-gray-400 mt-1">→ 危急值管理</div>
         </Link>
-        <Link to="/critical-value" className="rounded-lg border bg-white p-4 hover:shadow-md transition">
+        <Link to="/critical-value" className="rounded-lg border bg-card p-4 hover:shadow-md transition">
           <Bell className="text-amber-600 mb-2" size={24} />
           <div className="text-sm text-gray-500">已通知</div>
           <div className="text-2xl font-bold mt-1 text-amber-600">{notified}</div>
           <div className="text-xs text-gray-400 mt-1">→ 通知状态</div>
         </Link>
-        <Link to="/critical-value" className="rounded-lg border bg-white p-4 hover:shadow-md transition">
+        <Link to="/critical-value" className="rounded-lg border bg-card p-4 hover:shadow-md transition">
           <Activity className="text-blue-600 mb-2" size={24} />
           <div className="text-sm text-gray-500">已闭环</div>
           <div className="text-2xl font-bold mt-1 text-green-600">{resolved}</div>
           <div className="text-xs text-gray-400 mt-1">→ 闭环趋势</div>
         </Link>
-        <Link to="/critical-value" className="rounded-lg border bg-white p-4 hover:shadow-md transition">
+        <Link to="/critical-value" className="rounded-lg border bg-card p-4 hover:shadow-md transition">
           <TrendingUp className="text-orange-600 mb-2" size={24} />
           <div className="text-sm text-gray-500">超时</div>
           <div className="text-2xl font-bold mt-1 text-orange-600">{escalated}</div>
@@ -370,26 +370,26 @@ const CriticalValueCenterPage: React.FC = () => {
 
       {/* [W2-A] 汇总统计: getSummary 卡片 */}
       <div className="grid grid-cols-4 gap-4">
-        <div className="rounded-lg border bg-white p-4">
+        <div className="rounded-lg border bg-card p-4">
           <div className="text-sm text-gray-500">今日危急值</div>
           <div className="text-2xl font-bold mt-1 text-red-600">{summary?.todayCount ?? stats?.todayCount ?? 0}</div>
         </div>
-        <div className="rounded-lg border bg-white p-4">
+        <div className="rounded-lg border bg-card p-4">
           <div className="text-sm text-gray-500">本周危急值</div>
           <div className="text-2xl font-bold mt-1 text-amber-600">{summary?.weeklyCount ?? '-'}</div>
         </div>
-        <div className="rounded-lg border bg-white p-4">
+        <div className="rounded-lg border bg-card p-4">
           <div className="text-sm text-gray-500">本月危急值</div>
           <div className="text-2xl font-bold mt-1 text-blue-600">{summary?.monthlyCount ?? '-'}</div>
         </div>
-        <div className="rounded-lg border bg-white p-4">
+        <div className="rounded-lg border bg-card p-4">
           <div className="text-sm text-gray-500">平均响应 (分钟)</div>
           <div className="text-2xl font-bold mt-1 text-emerald-600">{summary?.avgResponseTime ?? '-'}</div>
         </div>
       </div>
 
       {/* [W2-A] 危急值中心列表: listCenter + 自动检测 autoDetect + 闭环 closeLoop */}
-      <div className="rounded-lg border bg-white p-4" data-testid="critical-center-list">
+      <div className="rounded-lg border bg-card p-4" data-testid="critical-center-list">
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-semibold flex items-center gap-2">
             <AlertOctagon size={16} className="text-red-600" /> 危急值中心 ({center.length})
@@ -404,7 +404,7 @@ const CriticalValueCenterPage: React.FC = () => {
             <button
               onClick={() => void loadCenter()}
               disabled={centerLoading}
-              className="inline-flex items-center gap-1 rounded border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+              className="inline-flex items-center gap-1 rounded border border-slate-300 bg-card px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50"
             >
               <RefreshCw size={12} /> {centerLoading ? '加载中...' : '刷新'}
             </button>
@@ -584,10 +584,10 @@ const CriticalValueCenterPage: React.FC = () => {
 
       {/* [W2-A] 趋势图: getTimeline */}
       {timeline.length > 0 && (
-        <div className="rounded-lg border bg-white p-4">
+        <div className="rounded-lg border bg-card p-4">
           <div className="flex items-center justify-between mb-2">
             <h2 className="font-semibold">危急值趋势 ({timeline.length} 天)</h2>
-            <button onClick={() => void loadStats()} className="inline-flex items-center gap-1 rounded border border-slate-300 bg-white px-2 py-1 text-xs text-slate-600 hover:bg-slate-50">
+            <button onClick={() => void loadStats()} className="inline-flex items-center gap-1 rounded border border-slate-300 bg-card px-2 py-1 text-xs text-slate-600 hover:bg-slate-50">
               <RefreshCw size={12} /> 刷新
             </button>
           </div>
@@ -607,21 +607,21 @@ const CriticalValueCenterPage: React.FC = () => {
       )}
 
       <div className="grid grid-cols-3 gap-4">
-        <Link to="/critical-value" className="rounded-lg border bg-white p-5 hover:shadow-md transition flex items-start gap-3">
+        <Link to="/critical-value" className="rounded-lg border bg-card p-5 hover:shadow-md transition flex items-start gap-3">
           <AlertOctagon className="text-red-600 flex-shrink-0" size={28} />
           <div>
             <h3 className="font-semibold">危急值管理</h3>
             <p className="text-sm text-gray-500 mt-1">发现 → 通知 → 确认 → 处理 → 升级 → 闭环</p>
           </div>
         </Link>
-        <Link to="/critical-value-rule" className="rounded-lg border bg-white p-5 hover:shadow-md transition flex items-start gap-3">
+        <Link to="/critical-value-rule" className="rounded-lg border bg-card p-5 hover:shadow-md transition flex items-start gap-3">
           <Settings className="text-blue-600 flex-shrink-0" size={28} />
           <div>
             <h3 className="font-semibold">危急值规则</h3>
             <p className="text-sm text-gray-500 mt-1">规则库配置 · 分级 · 通知链 · 升级策略</p>
           </div>
         </Link>
-        <Link to="/critical-value-stats" className="rounded-lg border bg-white p-5 hover:shadow-md transition flex items-start gap-3">
+        <Link to="/critical-value-stats" className="rounded-lg border bg-card p-5 hover:shadow-md transition flex items-start gap-3">
           <BarChart3 className="text-green-600 flex-shrink-0" size={28} />
           <div>
             <h3 className="font-semibold">危急值统计</h3>
@@ -631,7 +631,7 @@ const CriticalValueCenterPage: React.FC = () => {
       </div>
 
       {/* [W2-A] 规则库完整 CRUD: listRules / createRule / updateRule / deleteRule */}
-      <div className="rounded-lg border bg-white p-4" data-testid="critical-rule-crud">
+      <div className="rounded-lg border bg-card p-4" data-testid="critical-rule-crud">
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-semibold">危急值规则库 ({rulesCount} 条)</h2>
           <div className="flex gap-2">
@@ -641,7 +641,7 @@ const CriticalValueCenterPage: React.FC = () => {
             >
               <Plus size={12} /> 新增规则
             </button>
-            <button onClick={() => void loadRules()} disabled={rulesLoading} className="inline-flex items-center gap-1 rounded border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50">
+            <button onClick={() => void loadRules()} disabled={rulesLoading} className="inline-flex items-center gap-1 rounded border border-slate-300 bg-card px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50">
               <RefreshCw size={12} /> {rulesLoading ? '加载中...' : '刷新'}
             </button>
           </div>
@@ -737,7 +737,7 @@ const CriticalValueCenterPage: React.FC = () => {
       </Modal>
 
       {/* [W5] 通知通道开关配置: 落库 critical_channel_<CHANNEL>, 后端据此判定投递结果 */}
-      <div className="rounded-lg border bg-white p-4" data-testid="critical-channel-config">
+      <div className="rounded-lg border bg-card p-4" data-testid="critical-channel-config">
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-semibold">通知通道配置</h2>
           <button

@@ -1,7 +1,9 @@
-import React, { useState, useMemo } from 'react';
-import { Card, InputNumber, Select, Button, Table, Tag, Space, Tooltip } from 'antd';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Card, InputNumber, Select, Button, Table, Tag, Space, Tooltip, Alert } from 'antd';
 import { Calculator, Info } from 'lucide-react';
 import { calculateIol } from '@/services/eye/iolCalculator';
+// [G005 Wave1B] IOL 常数表 + 在线计算优先 (eyeApi.getIolConstants / calculateIol), 失败回退本地
+import { eyeApi } from '@/services/api/eyeApi';
 import type { IolInput, IolResult } from '@/types/eye';
 
 const defaultInput: IolInput = {
@@ -18,10 +20,76 @@ const IolCalculator: React.FC<IolCalculatorProps> = ({ initialInput }) => {
   const merged = useMemo<IolInput>(() => ({ ...defaultInput, ...(initialInput ?? {}) }), [initialInput]);
   const [input, setInput] = useState<IolInput>(merged);
 
+  // [G005 Wave1B] 常数表: eyeApi.getIolConstants (GET /eye/iol/lenses, ULIB 派生镜头库), 失败保留本地默认
+  const [constants, setConstants] = useState<any[]>([]);
+  const [constantsSource, setConstantsSource] = useState<'api' | 'local'>('local');
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await eyeApi.getIolConstants(merged.iolModel);
+        if (cancelled) return;
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+          setConstants(res.data);
+          setConstantsSource('api');
+          const mine = res.data.find((l: any) => l.model === merged.iolModel);
+          if (mine && typeof mine.aConst === 'number' && mine.aConst > 0) {
+            setInput(prev => ({ ...prev, aConstant: mine.aConst, pAcd: mine.pACd ?? mine.pACD ?? prev.pAcd }));
+          }
+        }
+      } catch { /* 后端/演示接口不可用, 保留本地常数 */ }
+    })();
+    return () => { cancelled = true; };
+  }, [merged.iolModel]);
+
+  // [G005 Wave1B] 在线计算优先: Barrett / Kane 走 eyeApi.calculateIol, 失败回退本地 8 公式
+  const [remoteResults, setRemoteResults] = useState<Record<string, number> | null>(null);
+  const [calcSource, setCalcSource] = useState<'api' | 'local'>('local');
+
+  useEffect(() => {
+    let cancelled = false;
+    const t = setTimeout(async () => {
+      try {
+        const [b, k] = await Promise.all([
+          eyeApi.calculateIol({
+            model: input.iolModel, formula: 'BarrettUniversalII',
+            axialLength: input.al, k1: input.k1, k2: input.k2, acd: input.acd, targetRefraction: 0,
+          }),
+          eyeApi.calculateIol({
+            model: input.iolModel, formula: 'Kane',
+            axialLength: input.al, k1: input.k1, k2: input.k2, acd: input.acd, targetRefraction: 0,
+          }),
+        ]);
+        if (cancelled) return;
+        const mergedPower: Record<string, number> = {};
+        const pick = (r: any): number | null => {
+          const p = r?.data?.result ?? r?.data?.power;
+          return typeof p === 'number' && Number.isFinite(p) ? p : null;
+        };
+        const bp = b.success ? pick(b) : null;
+        const kp = k.success ? pick(k) : null;
+        if (bp != null) mergedPower['Barrett II'] = bp;
+        if (kp != null) mergedPower['Kane'] = kp;
+        setRemoteResults(Object.keys(mergedPower).length > 0 ? mergedPower : null);
+        setCalcSource(Object.keys(mergedPower).length > 0 ? 'api' : 'local');
+      } catch {
+        if (!cancelled) { setRemoteResults(null); setCalcSource('local'); }
+      }
+    }, 300);
+    return () => { clearTimeout(t); cancelled = true; };
+  }, [input.al, input.k1, input.k2, input.acd, input.iolModel]);
+
   const results = useMemo(() => {
-    try { return calculateIol(input); }
-    catch { return []; }
-  }, [input]);
+    let base: IolResult[] = [];
+    try { base = calculateIol(input); } catch { return []; }
+    if (!remoteResults) return base;
+    return base.map(r => {
+      const apiPower = remoteResults[r.formula];
+      if (apiPower == null) return r;
+      return { ...r, iolPower: Math.round(apiPower * 10) / 10, note: r.note ? `${r.note} · 在线` : '在线计算' };
+    });
+  }, [input, remoteResults]);
 
   const update = (key: keyof IolInput, value: number | string) => {
     setInput((prev) => ({ ...prev, [key]: value }));
@@ -138,6 +206,41 @@ const IolCalculator: React.FC<IolCalculatorProps> = ({ initialInput }) => {
         bordered
         scroll={{ x: 'max-content' }}
       />
+
+      {calcSource === 'api' && (
+        <Alert
+          style={{ marginTop: 8 }}
+          type="success"
+          showIcon
+          message="Barrett II / Kane 已使用在线计算 (eyeApi.calculateIol), 其余公式为本地计算"
+        />
+      )}
+
+      {constants.length > 0 && (
+        <div style={{ marginTop: 12 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>
+            IOL 常数表 ({constantsSource === 'api' ? 'ULIB 2024 · eyeApi.getIolConstants' : '本地'})
+            <Tag color="blue" style={{ marginLeft: 6, fontSize: 10 }}>A 常数已同步</Tag>
+          </div>
+          <Table
+            dataSource={constants.slice(0, 12)}
+            rowKey="model"
+            pagination={false}
+            size="small"
+            scroll={{ x: 'max-content' }}
+            onRow={(l: any) => ({
+              style: { background: l.model === input.iolModel ? 'var(--color-info-bg)' : undefined, fontWeight: l.model === input.iolModel ? 700 : 400 },
+            })}
+            columns={[
+              { title: '型号', dataIndex: 'model', width: 140 },
+              { title: '厂商', dataIndex: 'manufacturer', width: 130 },
+              { title: 'A 常数', dataIndex: 'aConst', width: 80 },
+              { title: 'pACD', dataIndex: 'pACD', width: 70 },
+              { title: 'SF', dataIndex: 'sf', width: 70 },
+            ]}
+          />
+        </div>
+      )}
 
       <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end' }}>
         <Button size="small" onClick={() => setInput(defaultInput)}>重置</Button>

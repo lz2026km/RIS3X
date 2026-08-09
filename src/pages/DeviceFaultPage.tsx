@@ -356,7 +356,7 @@ export default function DeviceFaultPage() {
     <div style={{ minHeight: '100vh', background: C.bg, padding: '20px 24px' }}>
       {/* 页面标题 */}
       <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: C.textDark, margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <h1 style={{ fontSize: 20, fontWeight: 700, color: C.textDark, margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
           <AlertTriangle size={24} color={C.primary} />
           设备故障管理
         </h1>

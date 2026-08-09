@@ -258,19 +258,19 @@ export default function Dicom4dPage() {
     <div style={{ minHeight: '100vh', background: '#020617', color: '#cbd5e1', padding: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <Activity size={18} color={BLUE} />
-        <span style={{ fontSize: 15, fontWeight: 700 }}>{t('dicom4d.title', '4D Dynamic Imaging')}</span>
+        <span style={{ fontSize: 15, fontWeight: 700 }}>{t('dicom4d.title', '4D 动态成像')}</span>
       </div>
 
       <Card size="small" style={{ background: PANEL_BG, border: '1px solid #334155', marginBottom: 12 }}>
         <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <span style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', whiteSpace: 'nowrap' }}>
-              {t('dicom4d.series', '4D Series')}:
+              {t('dicom4d.series', '4D 序列')}:
             </span>
             <Select
               value={selectedUid || undefined}
               onChange={setSelectedUid}
-              placeholder={t('dicom4d.selectSeries', 'Select 4D series')}
+              placeholder={t('dicom4d.selectSeries', '选择 4D 序列')}
               loading={loading}
               style={{ width: 320 }}
               options={seriesList.map(s => ({
@@ -340,7 +340,7 @@ export default function Dicom4dPage() {
 
             <div style={{ width: 1, height: 20, background: '#334155' }} />
 
-            <span style={{ fontSize: 11, color: '#64748b' }}>{t('dicom4d.speed', 'Speed')}:</span>
+            <span style={{ fontSize: 11, color: '#64748b' }}>{t('dicom4d.speed', '速度')}:</span>
             {[0.5, 1, 2, 4].map(v => (
               <button key={v} style={speed === v ? activeBtnStyle : btnStyle} onClick={() => setSpeed(v)}>
                 {v}x
@@ -354,8 +354,8 @@ export default function Dicom4dPage() {
               size="small"
               checked={loop}
               onChange={setLoop}
-              checkedChildren={t('dicom4d.loop', 'Loop')}
-              unCheckedChildren={t('dicom4d.loopOff', 'Off')}
+              checkedChildren={t('dicom4d.loop', '循环播放')}
+              unCheckedChildren={t('dicom4d.loopOff', '关闭')}
             />
           </div>
 
@@ -384,7 +384,7 @@ export default function Dicom4dPage() {
             title={
               <span style={{ fontSize: 12, color: '#94a3b8' }}>
                 <Heart size={12} style={{ marginRight: 4, color: '#ef4444' }} />
-                {t('dicom4d.cardiacPhase', 'Cardiac Phase')}
+                {t('dicom4d.cardiacPhase', '心脏相位')}
               </span>
             }
             style={{ background: PANEL_BG, border: '1px solid #334155' }}
@@ -393,7 +393,7 @@ export default function Dicom4dPage() {
           >
             <div style={{ marginBottom: 8 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#64748b', marginBottom: 2 }}>
-                <span>{t('dicom4d.phase', 'Phase')}</span>
+                <span>{t('dicom4d.phase', '相位')}</span>
                 <span style={{ color: '#facc15', fontWeight: 600 }}>{cardiacPhase}%</span>
               </div>
               <div style={{ background: '#1e293b', borderRadius: 4, height: 12, overflow: 'hidden', position: 'relative' }}>
@@ -405,8 +405,8 @@ export default function Dicom4dPage() {
             </div>
             <div style={{ fontSize: 10, color: '#475569' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>{t('dicom4d.systole', 'Systole')}</span>
-                <span>{t('dicom4d.diastole', 'Diastole')}</span>
+                <span>{t('dicom4d.systole', '收缩期')}</span>
+                <span>{t('dicom4d.diastole', '舒张期')}</span>
               </div>
               <div style={{ display: 'flex', gap: 2, marginTop: 4 }}>
                 {Array.from({ length: 20 }).map((_, i) => (
@@ -425,7 +425,7 @@ export default function Dicom4dPage() {
             title={
               <span style={{ fontSize: 12, color: '#94a3b8' }}>
                 <Activity size={12} style={{ marginRight: 4, color: '#60a5fa' }} />
-                {t('dicom4d.respiratoryPhase', 'Respiratory Phase')}
+                {t('dicom4d.respiratoryPhase', '呼吸相位')}
               </span>
             }
             style={{ background: PANEL_BG, border: '1px solid #334155' }}
@@ -434,7 +434,7 @@ export default function Dicom4dPage() {
           >
             <div style={{ marginBottom: 8 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#64748b', marginBottom: 2 }}>
-                <span>{t('dicom4d.phase', 'Phase')}</span>
+                <span>{t('dicom4d.phase', '相位')}</span>
                 <span style={{ color: '#60a5fa', fontWeight: 600 }}>{respiratoryPhase}%</span>
               </div>
               <div style={{ background: '#1e293b', borderRadius: 4, height: 12, overflow: 'hidden', position: 'relative' }}>
@@ -446,8 +446,8 @@ export default function Dicom4dPage() {
             </div>
             <div style={{ fontSize: 10, color: '#475569' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>{t('dicom4d.inspiration', 'Inspiration')}</span>
-                <span>{t('dicom4d.expiration', 'Expiration')}</span>
+                <span>{t('dicom4d.inspiration', '吸气')}</span>
+                <span>{t('dicom4d.expiration', '呼气')}</span>
               </div>
               <div style={{ display: 'flex', gap: 2, marginTop: 4 }}>
                 {Array.from({ length: 20 }).map((_, i) => (

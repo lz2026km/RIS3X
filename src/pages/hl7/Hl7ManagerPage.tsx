@@ -13,6 +13,8 @@ export const Hl7ManagerPage: React.FC = () => {
   const [sending, setSending] = useState(false)
   // [W2-C] 受控分页
   const [archivePage, setArchivePage] = useState(1)
+  // [G005 2B] getArchive 失败回退硬编码 2 条 → 回退态徽标
+  const [archiveFallback, setArchiveFallback] = useState(false)
 
   const fetchArchive = useCallback(async () => {
     setArchiveLoading(true)
@@ -20,8 +22,10 @@ export const Hl7ManagerPage: React.FC = () => {
       const res = await hl7Api.getArchive()
       if (res.success && res.data) {
         setArchive(Array.isArray(res.data) ? res.data : [])
+        setArchiveFallback(false)
       }
     } catch {
+      setArchiveFallback(true)
       setArchive([
         { id: 1, messageType: 'ORU^R01', controlId: 'CTRL-001', direction: 'OUTBOUND', ackStatus: 'SUCCESS', retryCount: 0, rawMessage: 'MSH|^~\\&|G005|HIS|PACS|PACS|...', createdAt: new Date().toISOString() },
         { id: 2, messageType: 'ORM^O01', controlId: 'CTRL-002', direction: 'INBOUND', ackStatus: 'SUCCESS', retryCount: 0, rawMessage: 'MSH|^~\\&|HIS|HIS|G005|G005|...', createdAt: new Date().toISOString() },
@@ -228,7 +232,7 @@ export const Hl7ManagerPage: React.FC = () => {
       key: 'archive',
       label: <Space><Archive size={14} />消息归档</Space>,
       children: (
-        <Card size="small" title="HL7 消息归档" extra={<Button icon={<RefreshCw size={14} />} onClick={fetchArchive}>刷新</Button>}>
+        <Card size="small" title={<Space><Archive size={14} />HL7 消息归档{archiveFallback && <Tag color="orange" style={{ fontSize: 10 }}>回退演示数据 (2 条硬编码)</Tag>}</Space>} extra={<Button icon={<RefreshCw size={14} />} onClick={fetchArchive}>刷新</Button>}>
           <Table
             dataSource={archive}
             columns={archiveColumns}

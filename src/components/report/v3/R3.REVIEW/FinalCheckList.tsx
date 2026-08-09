@@ -803,7 +803,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                     <Tag>{s.code}</Tag>
                     {s.required && <Tag color="red">必走</Tag>}
                     {s.skippable && <Tag color="orange">可跳过</Tag>}
-                    <span style={{ fontSize: 12, color: '#94a3b8' }}>SLA {s.slaMinutes}min</span>
+                    <span style={{ fontSize: 12, color: '#94a3b8' }}>SLA {s.slaMinutes} 分钟</span>
                   </Space>
                   <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>准入: {s.rolesAllowed.join(' / ')}</div>
                   <div style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>出口: {s.exitCriteria.join(' · ')}</div>

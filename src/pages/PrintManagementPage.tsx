@@ -62,6 +62,12 @@ const DICOM_PRESETS = [
   { id: 'DP003', name: '乳腺打印', orientation: 'PORTRAIT', mediumType: 'MAMMO BLUE', filmDestination: 'MAGAZINE', trimming: 'NO' },
 ]
 
+const MEDIUM_TYPE_LABELS: Record<string, string> = {
+  'BLUE FILM': '蓝基胶片',
+  'CLEAR FILM': '透明胶片',
+  'MAMMO BLUE': '乳腺蓝片',
+}
+
 // 报告打印模板
 const REPORT_TEMPLATES = [
   { id: 'RT001', name: '标准CT报告', type: 'CT', copies: 1, includeImages: true, includeLogo: true },
@@ -482,6 +488,11 @@ export default function PrintManagementPage() {
   const [dataError, setDataError] = useState<string | null>(null)
   const [dataSource, setDataSource] = useState<'api' | 'static'>('api')
 
+  // [G005 Wave1B] 打印机面板: printApi.listPrinters (GET /print/printers) + 任务详情 printApi.getJob
+  const [printersApi, setPrintersApi] = useState<Array<{ id: string; name: string; status: 'online' | 'offline'; location: string; filmsToday: number }>>([])
+  const [taskDetail, setTaskDetail] = useState<any>(null)
+  const [taskDetailLoading, setTaskDetailLoading] = useState(false)
+
   // 配置默认值
   const [defaultCopies, setDefaultCopies] = useState<number>(1)
   const [defaultFilmSpec, setDefaultFilmSpec] = useState<string>('14x17')
@@ -575,14 +586,26 @@ export default function PrintManagementPage() {
       setDataLoading(true)
       setDataError(null)
       try {
-        const [devicesRes, queueRes, historyRes, statsRes] = await Promise.all([
+        const [devicesRes, queueRes, historyRes, statsRes, printersRes] = await Promise.all([
           deviceApi.list({ take: 50 }),
           printApi.listQueue(),
           printApi.listHistory(),
           printApi.getStats(),
+          printApi.listPrinters(),
         ])
         if (cancelled) return
         let ok = false
+        // [G005 Wave1B] 打印机面板数据源: printApi.listPrinters 优先, 空则回退 deviceApi
+        if (printersRes.success && Array.isArray(printersRes.data) && printersRes.data.length > 0) {
+          setPrintersApi(printersRes.data.map((p: any) => ({
+            id: p.id,
+            name: p.name,
+            status: p.status === 'online' ? 'online' : 'offline',
+            location: p.location ?? '',
+            filmsToday: 0,
+          })))
+          ok = true
+        }
         if (devicesRes.success && Array.isArray(devicesRes.data) && devicesRes.data.length > 0) {
           setPrinters(devicesRes.data.map((d: any) => ({
             id: d.id,
@@ -708,6 +731,22 @@ export default function PrintManagementPage() {
       setReprintingId('')
     }
   }
+
+  // [G005 Wave1B] 任务详情: printApi.getJob (GET /print/jobs/:id), 失败回退行数据
+  const handleViewTaskDetail = async (task: any) => {
+    setTaskDetailLoading(true)
+    setTaskDetail(task)
+    try {
+      const res = await printApi.getJob(task.id)
+      if (res.success && res.data) setTaskDetail(res.data)
+    } catch {
+      /* 详情接口不可用, 使用列表行 */
+    }
+    setTaskDetailLoading(false)
+  }
+
+  // [G005 Wave1B] 打印机状态看板: printApi.listPrinters 优先, 空则静态 DICOM_PRINTERS
+  const scpPrinters = printersApi.length > 0 ? printersApi : DICOM_PRINTERS
 
   // 打印量趋势数据
   const trendData = filmUsageStats.map(f => ({
@@ -1099,7 +1138,7 @@ export default function PrintManagementPage() {
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {[
                   { label: '方向', value: preset.orientation },
-                  { label: '介质', value: preset.mediumType },
+                  { label: '介质', value: MEDIUM_TYPE_LABELS[preset.mediumType] ?? preset.mediumType },
                   { label: '输出', value: preset.filmDestination },
                   { label: '裁剪', value: preset.trimming },
                 ].map(p => (
@@ -1317,7 +1356,7 @@ export default function PrintManagementPage() {
               padding: '4px 12px', borderRadius: 4, border: 'none', fontSize: 12,
               background: C.primary, color: C.white, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4
             }}>
-              <RefreshCw size={12} />
+              <RefreshCw size={14} />
               刷新
             </button>
             <button onClick={handleTogglePauseQueue} style={{
@@ -1489,9 +1528,9 @@ export default function PrintManagementPage() {
 
         {/* DICOM打印机列表 */}
         <div style={{ marginTop: 16 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginBottom: 8 }}>DICOM打印机列表</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginBottom: 8 }}>DICOM打印机列表 {printersApi.length > 0 && <span style={{ fontSize: 11, color: C.success }}>(printApi.listPrinters 实时)</span>}</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
-            {DICOM_PRINTERS.map(printer => (
+            {scpPrinters.map(printer => (
               <div
                 key={printer.id}
                 style={{
@@ -1751,6 +1790,15 @@ export default function PrintManagementPage() {
                           {reprintingId === task.id ? '重印中...' : '重新打印'}
                         </button>
                       )}
+                      <button
+                        onClick={() => void handleViewTaskDetail(task)}
+                        style={{
+                          padding: '4px 8px', border: `1px solid ${C.border}`, borderRadius: 3,
+                          background: 'var(--bg-card)', color: C.textMid, fontSize: 12, cursor: 'pointer'
+                        }}
+                      >
+                        详情
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -1851,9 +1899,9 @@ export default function PrintManagementPage() {
   const renderPrintSCP = () => (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
       {/* 打印机状态看板 */}
-      <Card title="打印机状态看板" icon={<Monitor size={16} />} style={{ gridColumn: 'span 2' }}>
+      <Card title={`打印机状态看板${printersApi.length > 0 ? ' (printApi.listPrinters 实时)' : ''}`} icon={<Monitor size={16} />} style={{ gridColumn: 'span 2' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
-          {DICOM_PRINTERS.map(p => (
+          {scpPrinters.map(p => (
             <div key={p.id} style={{
               padding: 12, borderRadius: 8, border: `1px solid ${p.status === 'online' ? C.success + '40' : C.danger + '40'}`,
               background: p.status === 'online' ? `${C.success}05` : `${C.danger}05`,
@@ -2178,7 +2226,7 @@ export default function PrintManagementPage() {
             padding: '6px 16px', borderRadius: 6, border: `1px solid ${C.border}`,
             background: 'var(--bg-card)', color: C.textMid, fontSize: 12, cursor: 'pointer'
           }}>
-            <Download size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+            <Download size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
             导出预览图
           </button>
         </div>
@@ -2295,7 +2343,7 @@ export default function PrintManagementPage() {
             borderRadius: 6, background: `${C.accent}10`, color: C.accent,
             fontSize: 12, fontWeight: 600, cursor: 'pointer'
           }}>
-            <Plus size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+            <Plus size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
             发起增加配额申请
           </button>
         </div>
@@ -2994,6 +3042,48 @@ export default function PrintManagementPage() {
       <Toast />
       <ConfirmModal />
       <TemplateEditModal />
+
+      {/* [G005 Wave1B] 任务详情 Modal: printApi.getJob */}
+      {taskDetail && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setTaskDetail(null)}>
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{ width: 520, maxHeight: '80vh', overflowY: 'auto', background: 'var(--bg-card)', borderRadius: 8, padding: 20, boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }}
+          >
+            <div style={{ fontSize: 15, fontWeight: 700, color: C.textDark, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Monitor size={16} color={C.primary} /> 打印任务详情 - {taskDetail.id}
+            </div>
+            {taskDetailLoading ? (
+              <div style={{ textAlign: 'center', padding: 24, color: C.textLight, fontSize: 12 }}>加载详情中...</div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 16px', fontSize: 13 }}>
+                {[
+                  ['任务 ID', taskDetail.id],
+                  ['患者', `${taskDetail.patientName ?? ''} ${taskDetail.patientId ? `(${taskDetail.patientId})` : ''}`],
+                  ['检查类型', taskDetail.modality ?? '-'],
+                  ['影像类型', taskDetail.studyType ?? taskDetail.studyDesc ?? '-'],
+                  ['胶片规格', taskDetail.filmSpec ?? '-'],
+                  ['份数', taskDetail.copies ?? 1],
+                  ['打印机', taskDetail.printer ?? '-'],
+                  ['状态', taskDetail.status ?? '-'],
+                  ['提交时间', taskDetail.submitTime ?? '-'],
+                  ['完成时间', taskDetail.completeTime ?? '-'],
+                  ['进度', taskDetail.progress != null ? `${taskDetail.progress}%` : '-'],
+                  ['错误信息', taskDetail.errorMsg ?? '-'],
+                ].map(([label, value]) => (
+                  <div key={String(label)}>
+                    <div style={{ fontSize: 12, color: C.textLight, marginBottom: 2 }}>{label}</div>
+                    <div style={{ fontWeight: 500, color: C.textDark }}>{String(value ?? '-')}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+              <button onClick={() => setTaskDetail(null)} style={{ padding: '6px 16px', border: `1px solid ${C.border}`, borderRadius: 4, background: 'var(--bg-card)', color: C.textMid, fontSize: 12, cursor: 'pointer' }}>关闭</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -18,6 +18,8 @@ import {
 } from 'antd';
 import { TableProps } from 'antd'
 import { PageHeader } from '../components/common/PageHeader'
+import { srDocumentApi, type AiSrFindingPayload } from '../services/api/srReportApi';
+import { useNavigate } from 'react-router-dom';
 import {
   Cpu,
   Plus,
@@ -182,6 +184,7 @@ function FindingViewer({
 
 // ==================== 页面 ====================
 export default function AIOrchestrationPage() {
+  const navigate = useNavigate();
   const [models, setModels] = useState<AiOrchestrationModel[]>([]);
   const [modelsLoading, setModelsLoading] = useState(false);
   const [integrations, setIntegrations] = useState<AiWorkflowIntegration[]>([]);
@@ -518,6 +521,52 @@ export default function AIOrchestrationPage() {
     );
   };
 
+  // [G005 Wave4A] G-14 封装 AI 检出结果为 DICOM SR (TID 2000 CAD SR) → 跳转 SR 管理器查看
+  const [encapsulating, setEncapsulating] = useState<string | null>(null);
+
+  const handleEncapsulateSr = async (studyId: string, findings: unknown[], summary?: string) => {
+    if (!studyId || findings.length === 0) {
+      message.warning('请先选择包含 AI 检出结果的检查');
+      return;
+    }
+    setEncapsulating(studyId);
+    try {
+      const payloadFindings: AiSrFindingPayload[] = findings.map((f) => {
+        const item = (typeof f === 'string' ? { label: f } : f) as Partial<AiSrFindingPayload>;
+        return {
+          label: String(item.label ?? ''),
+          ...(typeof item.confidence === 'number' ? { confidence: item.confidence } : {}),
+          ...(typeof item.x === 'number' ? { x: item.x } : {}),
+          ...(typeof item.y === 'number' ? { y: item.y } : {}),
+          ...(typeof item.width === 'number' ? { width: item.width } : {}),
+          ...(typeof item.height === 'number' ? { height: item.height } : {}),
+          ...(item.description ? { description: String(item.description) } : {}),
+        };
+      }).filter((f) => f.label);
+      if (payloadFindings.length === 0) {
+        message.warning('未找到有效的 AI 检出条目');
+        return;
+      }
+      const res = await srDocumentApi.fromAi({
+        studyId,
+        findings: payloadFindings,
+        templateId: 'tid2000',
+        modelName: 'AI Orchestration',
+        summary,
+      });
+      if (res.success && res.data) {
+        message.success(`AI 结果已封装为 DICOM SR：${res.data.sopInstanceUid}`);
+        navigate('/dicom/sr-manager');
+      } else {
+        message.error(res.error?.message ?? '封装失败');
+      }
+    } catch (err) {
+      if (err instanceof Error) message.error(err.message);
+    } finally {
+      setEncapsulating(null);
+    }
+  };
+
   // ===== [W1-D] AI 编排 =====
   const handleCreateOrchestration = async () => {
     try {
@@ -704,38 +753,53 @@ export default function AIOrchestrationPage() {
     },
     {
       title: '操作', key: 'actionView',
-      render: (_v: unknown, r) => (
-        <Button
-          type="link" size="small" icon={<Eye size={13} />}
-          onClick={() => {
-            const findings = detailOf(r, 'findings');
-            Modal.info({
-              title: `结构化报告 ${r.id}`,
-              width: 560,
-              content: (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  <div>
-                    <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>检查号：</span>
-                    <span>{String(detailOf(r, 'studyId') ?? '--')}</span>
-                  </div>
-                  <div>
-                    <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>模板：</span>
-                    <span>{String(detailOf(r, 'templateId') ?? '--')}</span>
-                  </div>
-                  <div>
-                    <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>发现内容：</span>
-                    <div style={{ marginTop: 4, whiteSpace: 'pre-wrap', lineHeight: '22px' }}>
-                      {fmtList(findings)}
+      render: (_v: unknown, r) => {
+        const studyId = String(detailOf(r, 'studyId') ?? '');
+        const findings = detailOf(r, 'findings');
+        const list = Array.isArray(findings) ? findings : [];
+        return (
+          <Space>
+            <Button
+              type="link" size="small" icon={<Eye size={13} />}
+              onClick={() => {
+                Modal.info({
+                  title: `结构化报告 ${r.id}`,
+                  width: 560,
+                  content: (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      <div>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>检查号：</span>
+                        <span>{studyId || '--'}</span>
+                      </div>
+                      <div>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>模板：</span>
+                        <span>{String(detailOf(r, 'templateId') ?? '--')}</span>
+                      </div>
+                      <div>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: 12 }}>发现内容：</span>
+                        <div style={{ marginTop: 4, whiteSpace: 'pre-wrap', lineHeight: '22px' }}>
+                          {fmtList(list)}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              ),
-            });
-          }}
-        >
-          详情
-        </Button>
-      ),
+                  ),
+                });
+              }}
+            >
+              详情
+            </Button>
+            {/* [G005 Wave4A] G-14 AI 结果 → DICOM SR 封装 */}
+            <Button
+              type="link" size="small" icon={<FileText size={13} />}
+              disabled={!studyId || list.length === 0 || encapsulating === r.id}
+              loading={encapsulating === r.id}
+              onClick={() => void handleEncapsulateSr(studyId, list, undefined)}
+            >
+              封装为 DICOM SR
+            </Button>
+          </Space>
+        );
+      },
     },
   ];
 
@@ -1526,6 +1590,18 @@ export default function AIOrchestrationPage() {
                   <Space>
                     {drawerJob.result.structured?.priority === 'HIGH' && <Tag color="volcano">高优先级</Tag>}
                     <Tag color="green">{drawerJob.result.summary}</Tag>
+                    {/* [G005 Wave4A] G-14 AI 结果 → DICOM SR 封装 */}
+                    {drawerFindings.length > 0 && (
+                      <Button
+                        size="small"
+                        type="primary"
+                        icon={<FileText size={13} />}
+                        loading={encapsulating === drawerJob.examId}
+                        onClick={() => void handleEncapsulateSr(drawerJob.examId ?? '', drawerFindings, drawerJob.result?.summary ?? undefined)}
+                      >
+                        封装为 DICOM SR
+                      </Button>
+                    )}
                   </Space>
                 </div>
 

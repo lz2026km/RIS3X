@@ -373,7 +373,7 @@ export default function DeptDashboardPage() {
                 state.timeliness ? (
                   <Space size={12}>
                     <Tag color="blue">中位数 {state.timeliness.medianMinutes}min</Tag>
-                    <Tag color="purple">P90 {state.timeliness.p90Minutes}min</Tag>
+                    <Tag color="purple">P90 {state.timeliness.p90Minutes} 分钟</Tag>
                   </Space>
                 ) : null
               }

@@ -145,29 +145,30 @@ const DefectManagementPage: React.FC = () => {
       <div className="flex items-center gap-2">
         <AlertOctagon className="text-red-600" size={28} />
         <h1 className="text-2xl font-bold">缺陷管理中心 (R3)</h1>
+        <Tag color="orange">演示数据 · DEFECT_LIBRARY 主数据源</Tag>
       </div>
       <p className="text-gray-600">报告质量缺陷分类 · 整改追踪 · 趋势分析 · 闭环管理</p>
 
       <div className="grid grid-cols-4 gap-4">
-        <div className="rounded-lg border bg-white p-4">
+        <div className="rounded-lg border bg-card p-4">
           <div className="text-gray-500 text-sm">缺陷总数</div>
           <div className="text-2xl font-bold mt-1">{stats.all}</div>
         </div>
-        <div className="rounded-lg border bg-white p-4">
+        <div className="rounded-lg border bg-card p-4">
           <div className="text-gray-500 text-sm flex items-center gap-1"><FileText size={14}/>分类数</div>
           <div className="text-2xl font-bold mt-1">{Object.keys(stats.byCategory).length}</div>
         </div>
-        <div className="rounded-lg border bg-white p-4">
+        <div className="rounded-lg border bg-card p-4">
           <div className="text-gray-500 text-sm flex items-center gap-1"><TrendingUp size={14}/>高危</div>
           <div className="text-2xl font-bold mt-1 text-red-600">{stats.high}</div>
         </div>
-        <div className="rounded-lg border bg-white p-4">
+        <div className="rounded-lg border bg-card p-4">
           <div className="text-gray-500 text-sm flex items-center gap-1"><CheckCircle size={14}/>已闭环</div>
           <div className="text-2xl font-bold mt-1 text-green-600">{stats.byStatus.resolved}</div>
         </div>
       </div>
 
-      <div className="rounded-lg border bg-white p-4">
+      <div className="rounded-lg border bg-card p-4">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-2 border rounded px-2 py-1 flex-1 max-w-md">
             <Search size={16} className="text-gray-400" />
@@ -262,7 +263,7 @@ const DefectManagementPage: React.FC = () => {
         )}
       </div>
 
-      <div className="rounded-lg border bg-white p-4">
+      <div className="rounded-lg border bg-card p-4">
         <div className="flex items-center gap-2 mb-3">
           <BarChart3 size={18} className="text-blue-600" />
           <h2 className="font-semibold">分类分布</h2>
@@ -281,7 +282,7 @@ const DefectManagementPage: React.FC = () => {
       {selected && (
         <div className="fixed inset-0 z-50 flex" data-testid="defect-detail-drawer">
           <div className="flex-1 bg-black/40" onClick={() => setSelected(null)} />
-          <div className="w-[480px] max-w-full bg-white shadow-xl flex flex-col">
+          <div className="w-[480px] max-w-full bg-card shadow-xl flex flex-col">
             <header className="px-5 py-4 border-b flex items-center justify-between">
               <div>
                 <div className="text-xs text-gray-500">缺陷 ID</div>

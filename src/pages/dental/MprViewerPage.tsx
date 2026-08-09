@@ -1,8 +1,8 @@
 // [v3.0.6.8-56] CBCT MPR 多平面重建 (三平面联动)
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Space, Tag, Button, InputNumber, Spin } from 'antd';
-import { RotateCcw, Maximize2, Activity, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Space, Tag, Button, InputNumber, Spin, Progress } from 'antd';
+import { RotateCcw, Maximize2, Activity, ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
 
 const MODALITY_LABELS: Record<string, string> = { Axial: '轴向', Sagittal: '矢状', Coronal: '冠状' };
 
@@ -16,6 +16,29 @@ export const MprViewerPage: React.FC = () => {
   const [ww, setWw] = useState(400);
   const [wc, setWc] = useState(40);
   const [study, setStudy] = useState<any>(null);
+  // [G005 Wave2A P1] 演示重建: 本地状态流转 (重建进度 → 结果占位)
+  const [rebuild, setRebuild] = useState<{ running: boolean; progress: number; done: boolean }>({ running: false, progress: 0, done: false });
+  const rebuildTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => () => {
+    if (rebuildTimerRef.current) clearInterval(rebuildTimerRef.current);
+  }, []);
+
+  const startRebuild = () => {
+    if (rebuild.running) return;
+    setRebuild({ running: true, progress: 0, done: false });
+    rebuildTimerRef.current = setInterval(() => {
+      setRebuild(prev => {
+        const next = Math.min(100, prev.progress + 8 + Math.round(Math.random() * 10));
+        if (next >= 100) {
+          if (rebuildTimerRef.current) clearInterval(rebuildTimerRef.current);
+          rebuildTimerRef.current = null;
+          return { running: false, progress: 100, done: true };
+        }
+        return { ...prev, progress: next };
+      });
+    }, 350);
+  };
 
   const axialRef = useRef<HTMLCanvasElement>(null);
   const sagittalRef = useRef<HTMLCanvasElement>(null);
@@ -140,11 +163,36 @@ export const MprViewerPage: React.FC = () => {
         ))}
         {/* Bottom Right: 3D Volume Rendering */}
         <div style={{ border: '1px solid #222', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0a1a' }}>
-          <div style={{ textAlign: 'center' }}>
-            <Activity size={48} color="var(--text-secondary)" />
-            <div style={{ color: 'var(--text-secondary)', marginTop: 8, fontSize: 12 }}>体绘制</div>
-            <div style={{ color: 'var(--text-secondary)', fontSize: 11, marginTop: 4 }}>3D 容积渲染需要 WebGL 2.0</div>
-            <Button size="small" style={{ marginTop: 8 }}>开始重建</Button>
+          <div style={{ textAlign: 'center', width: '100%', padding: 16 }}>
+            {rebuild.done ? (
+              <>
+                <CheckCircle2 size={40} color="#00ff88" />
+                <div style={{ color: '#00ff88', marginTop: 8, fontSize: 13, fontWeight: 600 }}>体绘制重建完成</div>
+                <div style={{ color: 'var(--text-secondary)', fontSize: 11, marginTop: 4 }}>
+                  演示重建 · 512³ 容积 · 三角面 2,148,352 · 1.2s
+                </div>
+                <Tag color="orange" style={{ marginTop: 8 }}>演示重建 (WebGL 2.0 未启用)</Tag>
+                <div style={{ marginTop: 8 }}>
+                  <Button size="small" onClick={() => setRebuild({ running: false, progress: 0, done: false })}>重新重建</Button>
+                </div>
+              </>
+            ) : rebuild.running ? (
+              <>
+                <Activity size={40} color="#00ff88" style={{ animation: 'pulse 1s infinite' }} />
+                <div style={{ color: 'var(--text-secondary)', marginTop: 8, fontSize: 12 }}>正在重建体绘制... {rebuild.progress}%</div>
+                <div style={{ width: 220, margin: '12px auto 0' }}>
+                  <Progress percent={rebuild.progress} size="small" strokeColor="#00ff88" showInfo={false} />
+                </div>
+                <Tag color="orange" style={{ marginTop: 8 }}>演示重建</Tag>
+              </>
+            ) : (
+              <>
+                <Activity size={48} color="var(--text-secondary)" />
+                <div style={{ color: 'var(--text-secondary)', marginTop: 8, fontSize: 12 }}>体绘制</div>
+                <div style={{ color: 'var(--text-secondary)', fontSize: 11, marginTop: 4 }}>3D 容积渲染需要 WebGL 2.0</div>
+                <Button size="small" style={{ marginTop: 8 }} onClick={startRebuild}>开始重建</Button>
+              </>
+            )}
           </div>
         </div>
       </div>

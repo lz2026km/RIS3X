@@ -1,0 +1,29 @@
+{
+  "title": "设备 OEE 看板",
+  "subtitle": "设备综合效率",
+  "today": "今日",
+  "week": "本周",
+  "month": "本月",
+  "custom": "自定义",
+  "kpi": {
+    "oee": "综合 OEE",
+    "availability": "可用性",
+    "performance": "性能",
+    "quality": "质量"
+  },
+  "trend": "OEE 趋势",
+  "cause": "低 OEE 原因分析",
+  "deviceList": "设备 OEE 列表",
+  "deviceName": "设备名称",
+  "model": "型号",
+  "modality": "设备类型",
+  "oee": "OEE%",
+  "availability": "可用性%",
+  "performance": "性能%",
+  "quality": "质量%",
+  "trendShort": "趋势",
+  "causeBreakdown": "停机故障",
+  "causeSetup": "换型调整",
+  "causeSpeed": "速度减速",
+  "causeDefect": "缺陷返工"
+}

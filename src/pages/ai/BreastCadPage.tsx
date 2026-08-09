@@ -1,5 +1,6 @@
 import { aiDiagnosisApi } from "../../services/api/aiDiagnosisApi";
 import type { BreastCadResult } from "../../services/api/breastCadApi";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   Table,
@@ -13,7 +14,7 @@ import {
   Button,
   message,
 } from "antd";
-import { Activity, RefreshCw, Cpu } from "lucide-react";
+import { Activity, RefreshCw, Cpu, Eye } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 
 const biRadsColor: Record<string, string> = {
@@ -26,6 +27,7 @@ const biRadsColor: Record<string, string> = {
 };
 
 const BreastCadPage: React.FC = () => {
+  const navigate = useNavigate();
   const [results, setResults] = useState<BreastCadResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -93,6 +95,20 @@ const BreastCadPage: React.FC = () => {
         >
           {v}
         </Tag>
+      ),
+    },
+    {
+      title: "操作",
+      key: "action",
+      render: (_: unknown, r: BreastCadResult) => (
+        <Button
+          size="small"
+          icon={<Eye size={14} />}
+          data-testid={`goto-viewer-${r.id}`}
+          onClick={() => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(r.studyId)}&ai=1`)}
+        >
+          去阅片叠加
+        </Button>
       ),
     },
   ];

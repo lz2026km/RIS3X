@@ -310,8 +310,8 @@ export default function TatDashboardPage() {
           <div>
             <h1
               style={{
-                fontSize: 22,
-                fontWeight: 800,
+                fontSize: 20,
+                fontWeight: 700,
                 color: "#1e40af",
                 margin: "0 0 6px",
                 display: "flex",

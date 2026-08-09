@@ -50,7 +50,7 @@ export default function DeviceHistoryModal({ device, onClose }: Props) {
     >
       <div
         style={{
-          background: "#fff",
+          background: "var(--bg-card)",
           borderRadius: 12,
           padding: 24,
           width: 600,
@@ -79,7 +79,7 @@ export default function DeviceHistoryModal({ device, onClose }: Props) {
             onClick={onClose}
             style={{
               padding: 8,
-              background: "#f8fafc",
+              background: "var(--bg-primary)",
               border: "none",
               borderRadius: 6,
               cursor: "pointer",
@@ -132,7 +132,7 @@ export default function DeviceHistoryModal({ device, onClose }: Props) {
 const ModalStat = ({ label, value }: { label: string; value: string }) => (
   <div
     style={{
-      background: "#f8fafc",
+      background: "var(--bg-primary)",
       borderRadius: 8,
       padding: 12,
       textAlign: "center",

@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { Card, Row, Col, Typography, Empty, Button, Input, Space, message, Spin, Tag } from 'antd'
-import { Search, Video, LogOut, Users, Loader2 } from 'lucide-react'
+import { Search, Video, LogOut, Users, Loader2, Inbox } from 'lucide-react'
 import { RemoteViewer } from '../../components/tele/RemoteViewer'
 import { teleApi, type TeleSession } from '../../services/api'
 import { useTranslation } from 'react-i18next'
@@ -174,7 +174,7 @@ export const TeleConferencePage: React.FC = () => {
               />
               <div style={{ maxHeight: 400, overflowY: 'auto' }}>
                 {filteredStudies.length === 0 ? (
-                  <Empty description={<Text style={{ color: '#64748b' }}>{t('noStudies', '未找到检查')}</Text>} />
+                  <Empty image={<Inbox size={48} style={{opacity:0.4}}/>} description={<Text style={{ color: '#64748b' }}>{t('noStudies', '未找到检查')}</Text>} />
                 ) : (
                   filteredStudies.map(s => (
                     <div

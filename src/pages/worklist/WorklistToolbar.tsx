@@ -103,7 +103,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
         gap: 4,
       }}
     >
-      {active && <Check size={12} />}
+      {active && <Check size={14} />}
       {label}
     </button>
   )
@@ -211,9 +211,9 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
             gap: 4,
           }}
         >
-          <Filter size={12} />
+          <Filter size={14} />
           高级筛选
-          {expanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+          {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </button>
 
         <button
@@ -231,7 +231,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
             gap: 4,
           }}
         >
-          <RefreshCw size={12} />
+          <RefreshCw size={14} />
           重置
         </button>
       </div>
@@ -247,7 +247,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
         }}>
           <div>
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
-              <Monitor size={12} />
+              <Monitor size={14} />
               设备类型
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -258,7 +258,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
           </div>
           <div>
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
-              <User size={12} />
+              <User size={14} />
               患者类型
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -269,7 +269,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
           </div>
           <div>
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
-              <Zap size={12} />
+              <Zap size={14} />
               优先级
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -280,7 +280,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
           </div>
           <div>
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
-              <Activity size={12} />
+              <Activity size={14} />
               状态
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -291,7 +291,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
           </div>
           <div>
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
-              <Stethoscope size={12} />
+              <Stethoscope size={14} />
               检查医生
             </div>
             <div style={{ position: 'relative' }}>
@@ -313,7 +313,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
                 }}
               >
                 <span>{filters.doctorId ? getDoctorById(filters.doctorId)?.name || filters.doctorId : '全部医生'}</span>
-                <ChevronDown size={12} style={{ color: 'var(--text-secondary)' }} />
+                <ChevronDown size={14} style={{ color: 'var(--text-secondary)' }} />
               </button>
               {showDoctorDropdown && (
                 <div style={{
@@ -402,7 +402,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
           )}
           <div style={{ display: 'flex', gap: 8 }}>
             <input value={savePresetName || ''} onChange={e => onSavePresetNameChange?.(e.target.value)} placeholder="预设名称..." style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border-color)', fontSize: 12, outline: 'none' }} />
-            <button onClick={onSavePreset} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: '#1e40af', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Save size={12} />保存当前</button>
+            <button onClick={onSavePreset} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: '#1e40af', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Save size={14} />保存当前</button>
           </div>
         </div>
       )}
@@ -468,9 +468,9 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
             gap: 6,
           }}
         >
-          <Zap size={12} />
+          <Zap size={14} />
           批量修改优先级
-          <ChevronDown size={12} />
+          <ChevronDown size={14} />
         </button>
         {showPriorityDropdown && (
           <div style={{
@@ -538,9 +538,9 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
             gap: 6,
           }}
         >
-          <LayoutList size={12} />
+          <LayoutList size={14} />
           批量分配检查室
-          <ChevronDown size={12} />
+          <ChevronDown size={14} />
         </button>
         {showRoomDropdown && (
           <div style={{
@@ -602,7 +602,7 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
           gap: 6,
         }}
       >
-        <Barcode size={12} />
+        <Barcode size={14} />
         批量打印条码
       </button>
 
@@ -621,7 +621,7 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
           gap: 6,
         }}
       >
-        <FileSpreadsheet size={12} />
+        <FileSpreadsheet size={14} />
         批量导出Excel
       </button>
 
@@ -642,7 +642,7 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
           gap: 6,
         }}
       >
-        <Check size={12} />
+        <Check size={14} />
         确认执行
       </button>
 
@@ -661,7 +661,7 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
           gap: 6,
         }}
       >
-        <XCircle size={12} />
+        <XCircle size={14} />
         清除
       </button>
     </div>
@@ -678,12 +678,12 @@ interface QuickFilterProps {
 
 export function QuickFilters({ currentFilters, onApply }: QuickFilterProps) {
   const quickViews = [
-    { label: '全部', icon: <ListChecks size={12} />, filter: {} },
-    { label: '待检查', icon: <Clock size={12} />, filter: { statuses: ['SCHEDULED', 'ARRIVED'] } },
-    { label: '检查中', icon: <Activity size={12} />, filter: { statuses: ['IN_PROGRESS'] } },
-    { label: '已完成', icon: <FileText size={12} />, filter: { statuses: ['COMPLETED'] } },
-    { label: '急诊优先', icon: <AlertTriangle size={12} />, filter: { priorities: ['危重', '紧急'] } },
-    { label: '今日', icon: <Calendar size={12} />, filter: { dateStart: new Date().toISOString().split('T')[0] ?? '', dateEnd: new Date().toISOString().split('T')[0] ?? '' } },
+    { label: '全部', icon: <ListChecks size={14} />, filter: {} },
+    { label: '待检查', icon: <Clock size={14} />, filter: { statuses: ['SCHEDULED', 'ARRIVED'] } },
+    { label: '检查中', icon: <Activity size={14} />, filter: { statuses: ['IN_PROGRESS'] } },
+    { label: '已完成', icon: <FileText size={14} />, filter: { statuses: ['COMPLETED'] } },
+    { label: '急诊优先', icon: <AlertTriangle size={14} />, filter: { priorities: ['危重', '紧急'] } },
+    { label: '今日', icon: <Calendar size={14} />, filter: { dateStart: new Date().toISOString().split('T')[0] ?? '', dateEnd: new Date().toISOString().split('T')[0] ?? '' } },
   ]
 
   return (
@@ -777,7 +777,7 @@ export function CheckInBar({ onCheckIn, onPrintLabel, lastScanned, isProcessing 
       </button>
       {lastScanned && (
         <div style={{ fontSize: 12, color: '#059669', display: 'flex', alignItems: 'center', gap: 4 }}>
-          <CheckCircle size={12} />
+          <CheckCircle size={14} />
           上次签到: {lastScanned}
         </div>
       )}

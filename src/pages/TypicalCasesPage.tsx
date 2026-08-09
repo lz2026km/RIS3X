@@ -239,9 +239,9 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, onView, isAdmin }) => {
       {/* 底部统计 */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTop: `1px solid ${COLORS.border}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: COLORS.textMuted }}><Eye size={12} /> {caseData.viewCount}</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: COLORS.textMuted }}><Heart size={12} /> {caseData.likeCount}</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: COLORS.textMuted }}><MessageSquare size={12} /> {caseData.discussions.length}</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: COLORS.textMuted }}><Eye size={14} /> {caseData.viewCount}</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: COLORS.textMuted }}><Heart size={14} /> {caseData.likeCount}</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: COLORS.textMuted }}><MessageSquare size={14} /> {caseData.discussions.length}</span>
         </div>
         <div style={{ fontSize: 12, color: COLORS.textLight }}>{caseData.createdAt}</div>
       </div>
@@ -524,7 +524,7 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
                       background: likedDiscussions.has(disc.id) ? COLORS.dangerBg : 'transparent',
                       color: likedDiscussions.has(disc.id) ? COLORS.danger : COLORS.textMuted, cursor: 'pointer', fontSize: 12,
                     }}>
-                      <ThumbsUp size={12} />{disc.likes + (likedDiscussions.has(disc.id) ? 1 : 0)}
+                      <ThumbsUp size={14} />{disc.likes + (likedDiscussions.has(disc.id) ? 1 : 0)}
                     </button>
                   </div>
                   <div style={{ fontSize: 13, color: COLORS.text, lineHeight: 1.6, paddingLeft: 46 }}>{disc.content}</div>

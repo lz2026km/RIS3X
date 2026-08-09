@@ -1,5 +1,6 @@
 import { aiDiagnosisApi } from "../../services/api/aiDiagnosisApi";
 import type { CardiacAiResult } from "../../services/api/cardiacAiApi";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   Table,
@@ -13,7 +14,7 @@ import {
   Button,
   message,
 } from "antd";
-import { HeartPulse, RefreshCw, Cpu } from "lucide-react";
+import { HeartPulse, RefreshCw, Cpu, Eye } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 
 const cadRadsColor: Record<string, string> = {
@@ -26,6 +27,7 @@ const cadRadsColor: Record<string, string> = {
 };
 
 const CardiacAiPage: React.FC = () => {
+  const navigate = useNavigate();
   const [results, setResults] = useState<CardiacAiResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -112,6 +114,20 @@ const CardiacAiPage: React.FC = () => {
         >
           {v}
         </Tag>
+      ),
+    },
+    {
+      title: "操作",
+      key: "action",
+      render: (_: unknown, r: CardiacAiResult) => (
+        <Button
+          size="small"
+          icon={<Eye size={14} />}
+          data-testid={`goto-viewer-${r.id}`}
+          onClick={() => navigate(`/dicom-viewer?studyUid=${encodeURIComponent(r.studyId)}&ai=1`)}
+        >
+          去阅片叠加
+        </Button>
       ),
     },
   ];

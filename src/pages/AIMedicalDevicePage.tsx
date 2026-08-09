@@ -226,7 +226,7 @@ export default function AIMedicalDevicePage() {
               <Cpu size={24} color="#fff" />
             </div>
             <div>
-              <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#fff' }}>AI 医疗器械管理</h1>
+              <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#fff' }}>AI 医疗器械管理</h1>
               <p style={{ margin: '4px 0 0', fontSize: 13, color: 'rgba(255,255,255,0.8)' }}>
                 {activeTab === 'devices'
                   ? <>设备 {devices.length} 台 | 空闲 {devices.filter(d => d.state === 'IDLE').length} | 使用中 {devices.filter(d => d.state === 'IN_USE').length} | 维护/故障 {devices.filter(d => ['MAINTENANCE', 'BROKEN', 'OFFLINE'].includes(d.state)).length}</>

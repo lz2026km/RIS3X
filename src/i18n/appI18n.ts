@@ -1,5 +1,5 @@
 /**
- * G005 放射RIS系统 v3.0.6.11-85 - 简单 i18n 翻译函数与 locale 切换
+ * G005 放射RIS系统 v3.0.6.11-86 - 简单 i18n 翻译函数与 locale 切换
  * R3 1100+ 功能点,i18n 命名空间合并
  * 对外导出:t(key, params) / getCurrentLocale() / onLocaleChange() / notifyLocaleChange()
  */
@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "G005放射信息系统",
     "app.version":
-      "v3.0.6.11-85 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
+      "v3.0.6.11-86 · 严格审查+参数统一+安全加固+功能补齐+Mock清理+200页验证",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -189,7 +189,7 @@ export const translations: Translations = {
     "nav.dentalPhoto": "口内照片", // [v3.0.6.11-7]
     "nav.systemManage": "系统管理",
     "nav.forbidden": "无权限",
-    "nav.fileManagement": "文件管理", // [W1-A v3.0.6.11-85]
+    "nav.fileManagement": "文件管理", // [W1-A v3.0.6.11-86]
     "nav.userManagement": "用户管理",
     "nav.clinicalConfig": "临床配置",
     "nav.dataDictionary": "数据字典",
@@ -2059,7 +2059,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "G005 Radiology Information System",
     "app.version":
-      "v3.0.6.11-85 · Strict Review + Params + Security + Features + Mock Cleanup + 200-page Verification",
+      "v3.0.6.11-86 · Strict Review + Params + Security + Features + Mock Cleanup + 200-page Verification",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
@@ -2230,7 +2230,7 @@ export const translations: Translations = {
     "nav.dentalPhoto": "Patient Photos", // [v3.0.6.11-7]
     "nav.systemManage": "System Management",
     "nav.forbidden": "Forbidden",
-    "nav.fileManagement": "File Management", // [W1-A v3.0.6.11-85]
+    "nav.fileManagement": "File Management", // [W1-A v3.0.6.11-86]
     "nav.userManagement": "User Management",
     "nav.clinicalConfig": "Clinical Config",
     "nav.dataDictionary": "Data Dictionary",
@@ -2243,6 +2243,32 @@ export const translations: Translations = {
     "nav.faultRegister": "Fault Register",
     "nav.materialsManage": "Materials Management",
     "nav.doseTrack": "Dose Tracking",
+    // OEE dashboard translation keys
+    "oee.title": "Equipment OEE Dashboard",
+    "oee.subtitle": "Overall Equipment Effectiveness",
+    "oee.today": "Today",
+    "oee.week": "This Week",
+    "oee.month": "This Month",
+    "oee.custom": "Custom",
+    "oee.kpi.oee": "Overall OEE",
+    "oee.kpi.availability": "Availability",
+    "oee.kpi.performance": "Performance",
+    "oee.kpi.quality": "Quality",
+    "oee.trend": "OEE Trend",
+    "oee.cause": "Low OEE Cause Analysis",
+    "oee.deviceList": "Device OEE List",
+    "oee.deviceName": "Device Name",
+    "oee.model": "Model",
+    "oee.modality": "Device Type",
+    "oee.oee": "OEE%",
+    "oee.availability": "Availability%",
+    "oee.performance": "Performance%",
+    "oee.quality": "Quality%",
+    "oee.trendShort": "Trend",
+    "oee.causeBreakdown": "Breakdown",
+    "oee.causeSetup": "Setup / Adjustment",
+    "oee.causeSpeed": "Speed Loss",
+    "oee.causeDefect": "Defect & Rework",
     // [v3.0.6.11-7] doseTrack module 69 translation keys (DoseTrackPage + 4 sub-components)
     "doseTrack.title": "Radiation Dose Tracking",
     "doseTrack.subtitle":
@@ -3838,7 +3864,7 @@ export const translations: Translations = {
     "v3stats.exportPdf": "Export PDF",
     "v3stats.exportExcel": "Export Excel",
     "v3stats.exportCsv": "Export CSV",
-    "v3stats.statistics": "[object Object]",
+    "v3stats.statistics": "Statistics",
     // [Sprint 3] F07-F12 page i18n (en-US)
     "v3qcai.title": "AI Image QC V2",
     "v3qcai.subtitle": "Artifact/Positioning/Exposure Detailed Scoring",

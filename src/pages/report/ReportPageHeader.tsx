@@ -14,7 +14,7 @@ export default function ReportPageHeader({ selectedIds, allReports, setReviewRep
   return (
     <div className="no-print" style={{ background: PRIMARY, padding: '20px 28px', marginBottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
       <div>
-        <h1 style={{ fontSize: 20, fontWeight: 800, color: WHITE, margin: '0 0 3px' }}>📋 放射报告管理</h1>
+        <h1 style={{ fontSize: 20, fontWeight: 700, color: WHITE, margin: '0 0 3px' }}>📋 放射报告管理</h1>
         <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', margin: 0 }}>报告书写 · 审核发布 · 危急值通知 · 历史追溯</p>
       </div>
       <div style={{ display: 'flex', gap: 10 }}>

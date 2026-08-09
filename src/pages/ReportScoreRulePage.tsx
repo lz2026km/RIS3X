@@ -18,6 +18,7 @@ import {
   type ScoreGradeConfig,
 } from '../data/qualityScoreMock';
 import { reportQualityApi } from '../services/api';
+import { message } from 'antd';
 
 // ============================================================
 // 主组件
@@ -75,12 +76,20 @@ export default function ReportScoreRulePage() {
     }
   }
 
+  // [G005 Wave2A P1] 恢复默认: reportQualityApi 无重置端点 → 本地恢复 QUALITY_KPI/SCORE_GRADES 默认常量
+  const handleReset = () => {
+    setDimensions(SCORE_DIMENSIONS)
+    setKpi(QUALITY_KPI)
+    setSaveMessage('已恢复默认评分规则')
+    message.success('已恢复默认维度权重与 KPI 指标')
+  }
+
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
       {/* 顶部 */}
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 22, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Sliders size={20} color="#7c3aed" /> 多维评分规则配置
             <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R4</span>
           </h1>
@@ -90,6 +99,7 @@ export default function ReportScoreRulePage() {
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button
+            onClick={handleReset}
             style={{
               padding: '6px 12px', border: '1px solid var(--border-color)', borderRadius: 6,
               background: 'var(--bg-card)', color: 'var(--text-secondary)', fontSize: 12, cursor: 'pointer',

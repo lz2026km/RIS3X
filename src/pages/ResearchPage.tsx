@@ -279,8 +279,8 @@ function ProjectsTab() {
               <td style={{ padding: '14px 16px' }}><span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: getStatusBgColor(project.status), color: getStatusColor(project.status) }}>{project.status}</span></td>
               <td style={{ padding: '14px 16px', fontSize: 13, fontWeight: 600, color: COLORS.textPrimary, textAlign: 'right' }}>{project.dataCount.toLocaleString()}</td>
               <td style={{ padding: '14px 16px' }}><div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                <button onClick={() => handleShowDetail(project)} style={{ padding: '6px 10px', background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', fontSize: 12, color: COLORS.textSecondary, display: 'flex', alignItems: 'center', gap: 4 }}><Eye size={12} /> 详情</button>
-                <button onClick={() => { setEditingProject(project); setNewProject({ code: project.code, name: project.name, leader: project.leader, startDate: project.startDate, description: project.description, members: project.members }); setShowEditModal(true) }} style={{ padding: 6, background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', color: COLORS.textSecondary }}><Edit2 size={12} /></button>
+                <button onClick={() => handleShowDetail(project)} style={{ padding: '6px 10px', background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', fontSize: 12, color: COLORS.textSecondary, display: 'flex', alignItems: 'center', gap: 4 }}><Eye size={14} /> 详情</button>
+                <button onClick={() => { setEditingProject(project); setNewProject({ code: project.code, name: project.name, leader: project.leader, startDate: project.startDate, description: project.description, members: project.members }); setShowEditModal(true) }} style={{ padding: 6, background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', color: COLORS.textSecondary }}><Edit2 size={14} /></button>
               </div></td>
             </tr>
           ))}</tbody>
@@ -489,7 +489,7 @@ function LabelsTab() {
               <td style={{ padding: '14px 16px' }}><div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><span style={{ width: 12, height: 12, borderRadius: '50%', background: label.color, flexShrink: 0 }} /><span style={{ fontSize: 14, fontWeight: 600, color: COLORS.textPrimary }}>{label.name}</span></div></td>
               <td style={{ padding: '14px 16px' }}><span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: getLabelTypeColor(label.type) + '20', color: getLabelTypeColor(label.type) }}>{label.type}</span></td>
               <td style={{ padding: '14px 16px', fontSize: 14, fontWeight: 600, color: COLORS.textPrimary, textAlign: 'center' }}>{label.useCount.toLocaleString()}</td>
-              <td style={{ padding: '14px 16px' }}><div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><button onClick={() => handleApplyLabel(label)} style={{ padding: '6px 10px', background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', fontSize: 12, color: COLORS.textSecondary, display: 'flex', alignItems: 'center', gap: 4 }}><Tag size={12} /> 应用</button><button onClick={() => handleDeleteLabel(label)} style={{ padding: 6, background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', color: COLORS.danger }}><Trash2 size={12} /></button></div></td>
+              <td style={{ padding: '14px 16px' }}><div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><button onClick={() => handleApplyLabel(label)} style={{ padding: '6px 10px', background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', fontSize: 12, color: COLORS.textSecondary, display: 'flex', alignItems: 'center', gap: 4 }}><Tag size={14} /> 应用</button><button onClick={() => handleDeleteLabel(label)} style={{ padding: 6, background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', color: COLORS.danger }}><Trash2 size={14} /></button></div></td>
             </tr>
           ))}</tbody>
         </table></div>
@@ -573,10 +573,10 @@ function ExportTab() {
             <tr key={record.id} style={{ background: idx % 2 === 0 ? COLORS.bgWhite : COLORS.bgGray, borderTop: '1px solid ' + COLORS.border }}>
               <td style={{ padding: '14px 16px', fontSize: 13, fontWeight: 600, color: COLORS.primary }}>{record.projectName}</td>
               <td style={{ padding: '14px 16px' }}><div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{getExportFormatIcon(record.format)}<span style={{ padding: '3px 8px', background: record.format === 'DICOM' ? COLORS.warningLight : COLORS.bgGray, color: record.format === 'DICOM' ? COLORS.warning : COLORS.textSecondary, borderRadius: 4, fontSize: 12, fontWeight: 600 }}>{record.format}</span></div></td>
-              <td style={{ padding: '14px 16px', fontSize: 13, color: COLORS.textSecondary }}><div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Clock size={12} />{record.exportTime}</div></td>
+              <td style={{ padding: '14px 16px', fontSize: 13, color: COLORS.textSecondary }}><div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Clock size={14} />{record.exportTime}</div></td>
               <td style={{ padding: '14px 16px', fontSize: 13, fontWeight: 600, color: COLORS.textPrimary, textAlign: 'right' }}>{record.recordCount.toLocaleString()}</td>
-              <td style={{ padding: '14px 16px', fontSize: 13, color: COLORS.textSecondary }}><div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><User size={12} />{record.operator}</div></td>
-              <td style={{ padding: '14px 16px' }}><div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><button onClick={() => handleDownload(record)} style={{ padding: '6px 12px', background: COLORS.primary, color: '#ffffff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}><Download size={12} /> 下载</button></div></td>
+              <td style={{ padding: '14px 16px', fontSize: 13, color: COLORS.textSecondary }}><div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><User size={14} />{record.operator}</div></td>
+              <td style={{ padding: '14px 16px' }}><div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><button onClick={() => handleDownload(record)} style={{ padding: '6px 12px', background: COLORS.primary, color: '#ffffff', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}><Download size={14} /> 下载</button></div></td>
             </tr>
           ))}</tbody>
         </table></div>
@@ -719,7 +719,7 @@ function CohortBuilderTab() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {criteria.map((c, idx) => (
             <div key={idx} style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '8px 12px', background: COLORS.bgGray, borderRadius: 6 }}>
-              {idx > 0 && <select value={c.logic} onChange={e => updateCriterion(idx, 'logic', e.target.value)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid ' + COLORS.border, fontSize: 12 }}><option value="AND">AND</option><option value="OR">OR</option></select>}
+              {idx > 0 && <select value={c.logic} onChange={e => updateCriterion(idx, 'logic', e.target.value)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid ' + COLORS.border, fontSize: 12 }}><option value="AND">且</option><option value="OR">或</option></select>}
               <select value={c.field} onChange={e => updateCriterion(idx, 'field', e.target.value)} style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid ' + COLORS.border, fontSize: 12 }}>
                 <option value="age">年龄</option><option value="gender">性别</option><option value="diagnosis">诊断</option><option value="modality">设备类型</option><option value="dateRange">日期范围</option>
               </select>
@@ -756,7 +756,7 @@ function CohortBuilderTab() {
       </div>
       {showSaveDialog && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowSaveDialog(false)}>
-          <div style={{ background: 'white', borderRadius: 12, padding: 24, width: 400 }} onClick={e => e.stopPropagation()}>
+          <div style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 24, width: 400 }} onClick={e => e.stopPropagation()}>
             <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>保存队列定义</div>
             <input style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box', marginBottom: 16 }} placeholder="队列名称" value={cohortName} onChange={e => setCohortName(e.target.value)} />
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>

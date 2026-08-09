@@ -65,7 +65,7 @@ export function SmartSortPanel({
   return (
     <div
       style={{
-        background: "#fff",
+        background: "var(--bg-card)",
         borderRadius: 12,
         border: "1px solid #e2e8f0",
         marginBottom: 16,
@@ -120,7 +120,7 @@ export function SmartSortPanel({
               fontSize: 12,
               color: "#64748b",
               cursor: "pointer",
-              background: "#fff",
+              background: "var(--bg-card)",
               display: "flex",
               alignItems: "center",
               gap: 4,
@@ -145,7 +145,7 @@ export function SmartSortPanel({
             fontSize: 12,
             color: "#64748b",
             cursor: "pointer",
-            background: "#fff",
+            background: "var(--bg-card)",
             display: "flex",
             alignItems: "center",
             gap: 4,
@@ -165,7 +165,7 @@ export function SmartSortPanel({
               fontSize: 12,
               color: "#64748b",
               cursor: "pointer",
-              background: "#fff",
+              background: "var(--bg-card)",
               display: "flex",
               alignItems: "center",
               gap: 4,
@@ -236,7 +236,7 @@ export function SmartSortPanel({
           style={{
             borderTop: "1px solid #f1f5f9",
             padding: "16px",
-            background: "#f8fafc",
+            background: "var(--bg-primary)",
           }}
         >
           <div

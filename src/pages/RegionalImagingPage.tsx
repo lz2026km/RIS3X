@@ -1588,8 +1588,8 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   header: { marginBottom: "24px" },
   pageTitle: {
-    fontSize: "28px",
-    fontWeight: "600",
+    fontSize: "20px",
+    fontWeight: "700",
     color: "#3b82f6",
     margin: "0 0 8px 0",
   },
@@ -1623,7 +1623,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginBottom: "20px",
   },
   sectionTitle: {
-    fontSize: "18px",
+    fontSize: "16px",
     fontWeight: "600",
     color: "#f1f5f9",
     margin: 0,

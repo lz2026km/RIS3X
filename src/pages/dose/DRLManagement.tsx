@@ -291,7 +291,7 @@ export default function DRLManagement() {
         </div>
       </div>
 
-      <div style={{ background: "#fff", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
+      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", display: "flex", alignItems: "center", gap: 8 }}>
             <Zap size={16} color="#2563eb" />
@@ -310,10 +310,10 @@ export default function DRLManagement() {
         />
       </div>
 
-      <div style={{ background: "#fff", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
+      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
         <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
           <AlertTriangle size={16} color="#dc2626" />
-          超限告警闭环 · 实例剂量检查（POST /rdsr/check）
+          超限告警闭环 · 剂量检查
         </div>
         {checkDrafts.map((d) => (
           <div key={d.key} style={{ display: "flex", gap: 8, marginBottom: 8, flexWrap: "wrap", alignItems: "center" }}>
@@ -346,10 +346,10 @@ export default function DRLManagement() {
         )}
       </div>
 
-      <div style={{ background: "#fff", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
+      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
         <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
           <ShieldAlert size={16} color="#16a34a" />
-          历史超限告警记录（确认 = 真实写回 /rdsr/alerts/:id/ack）
+          历史超限告警记录（确认 = 告警确认）
         </div>
         <Table scroll={{ x: 'max-content' }}
           rowKey="id"
@@ -366,7 +366,7 @@ export default function DRLManagement() {
 }
 
 const kpiBox: React.CSSProperties = {
-  background: "#fff",
+  background: "var(--bg-card)",
   borderRadius: 10,
   padding: "14px 16px",
   border: "1px solid #e2e8f0",

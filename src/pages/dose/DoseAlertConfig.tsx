@@ -19,7 +19,7 @@ export default function DoseAlertConfig({
 }: DoseAlertConfigProps) {
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-      <div style={{ background: "#fff", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
+      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
         <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
           <AlertTriangle size={16} color="#dc2626" />
           {t("doseTrack.alert.pending")}
@@ -57,7 +57,7 @@ export default function DoseAlertConfig({
                   <div style={{ height: 6, background: "#e2e8f0", borderRadius: 3, overflow: "hidden", marginBottom: 10 }}>
                     <div style={{ height: "100%", width: `${Math.min((alert.doseValue / alert.threshold) * 100, 100)}%`, background: alert.alertLevel === "critical" ? "#dc2626" : "#d97706", borderRadius: 3 }} />
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 10, padding: "6px 10px", background: "#fff", borderRadius: 4, fontSize: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 10, padding: "6px 10px", background: "var(--bg-card)", borderRadius: 4, fontSize: 12 }}>
                     <ShieldAlert size={12} color="#d97706" />
                     <span style={{ color: "#64748b" }}>
                       依据GBZ 130-2020，{alert.modality === "CT" ? "CT头颅平扫DLP参考值800mGy·cm" : alert.modality === "DSA" ? "DSA冠脉造影DAP参考值3000mGy·m²" : "该检查类型参考值"}，当前剂量超出指导水平
@@ -77,7 +77,7 @@ export default function DoseAlertConfig({
                     <button
                       onClick={() => onViewPatient(alert.patientName)}
                       style={{
-                        flex: 1, padding: "6px 12px", background: "#fff", color: "#334155",
+                        flex: 1, padding: "6px 12px", background: "var(--bg-card)", color: "#334155",
                         border: "1px solid #e2e8f0", borderRadius: 6, fontSize: 12, fontWeight: 600,
                         cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
                       }}
@@ -97,7 +97,7 @@ export default function DoseAlertConfig({
         </div>
       </div>
 
-      <div style={{ background: "#fff", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
+      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
         <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
           <ShieldAlert size={16} color="#16a34a" />
           {t("doseTrack.alert.acknowledged")}
@@ -106,7 +106,7 @@ export default function DoseAlertConfig({
           {doseAlerts
             .filter((a) => a.status === "acknowledged")
             .map((alert) => (
-              <div key={alert.id} style={{ padding: 12, background: "#f8fafc", borderRadius: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div key={alert.id} style={{ padding: 12, background: "var(--bg-primary)", borderRadius: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
                     <span style={{ fontSize: 12, fontWeight: 600, color: "#1e40af" }}>{alert.patientName}</span>
@@ -123,7 +123,7 @@ export default function DoseAlertConfig({
             ))}
         </div>
 
-        <div style={{ marginTop: 20, padding: 16, background: "#f8fafc", borderRadius: 8 }}>
+        <div style={{ marginTop: 20, padding: 16, background: "var(--bg-primary)", borderRadius: 8 }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af", marginBottom: 12 }}>          {t("doseTrack.alert.monthlyStats")}</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
             <div style={{ textAlign: "center" }}>

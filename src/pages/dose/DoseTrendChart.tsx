@@ -26,7 +26,7 @@ export default function DoseTrendChart({
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-        <div style={{ background: "#fff", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
+        <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", marginBottom: 16 }}>
             {t("doseTrack.trend.overview") || "各类设备剂量趋势（本周DLP合计）"}
           </div>
@@ -44,7 +44,7 @@ export default function DoseTrendChart({
           </ChartContainer>
         </div>
 
-        <div style={{ background: "#fff", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
+        <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", marginBottom: 16 }}>
             {t("doseTrack.ctdiTrend.title")}
           </div>
@@ -62,7 +62,7 @@ export default function DoseTrendChart({
         </div>
       </div>
 
-      <div style={{ background: "#fff", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
+      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <div>
             <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af" }}>{t("doseTrack.deviceDap.title")}</div>
@@ -81,7 +81,7 @@ export default function DoseTrendChart({
         </ChartContainer>
       </div>
 
-      <div style={{ background: "#fff", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
+      <div style={{ background: "var(--bg-card)", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
         <div style={{ fontSize: 13, fontWeight: 700, color: "#1e40af", marginBottom: 16 }}>
           {t("doseTrack.device.statusLabel") || "设备今日剂量状态"}
         </div>
@@ -91,7 +91,7 @@ export default function DoseTrendChart({
               ? { bg: "#fffbeb", color: "#d97706" }
               : { bg: "#f0fdf4", color: "#16a34a" };
             return (
-              <div key={d.device} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", background: "#f8fafc", borderRadius: 8 }}>
+              <div key={d.device} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", background: "var(--bg-primary)", borderRadius: 8 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <Monitor size={14} color="#64748b" />
                   <div>

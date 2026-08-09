@@ -1,6 +1,7 @@
+// [G005 Wave1A P1-1] 接入 kioskApi settings/messages/stats (kiosk.controller 真实端点)
 import { useState, useEffect } from 'react'
 import { message, Card } from 'antd'
-import { kioskApi, type KioskPatientDto, type KioskCheckInResultDto, type KioskTodayStatsDto } from '../../services/api/kioskApi'
+import { kioskApi, type KioskPatientDto, type KioskCheckInResultDto, type KioskTodayStatsDto, type KioskSetting, type KioskMessage } from '../../services/api/kioskApi'
 import { queueApi, type QueueCallDto } from '../../services/api/queueApi'
 
 // ===== Types =====
@@ -29,25 +30,41 @@ const s = {
   queueNumber: { fontSize: 48, fontWeight: 800, textAlign: 'center' as const, color: '#3b82f6', fontFamily: 'monospace', margin: '20px 0' },
 }
 
-// ===== Component =====
-export default function KioskCheckIn() {
+  // ===== Component =====
+  const marqueeStyle = `@keyframes kioskScroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+    .kiosk-marquee { display: flex; white-space: nowrap; animation: kioskScroll 22s linear infinite; }
+    .kiosk-marquee:hover { animation-play-state: paused; }`
+
+  export default function KioskCheckIn() {
   const [step, setStep] = useState<KioskState['step']>('idle')
   const [idInput, setIdInput] = useState('')
   const [selectedPatient, setSelectedPatient] = useState<KioskPatientDto | null>(null)
   const [result, setResult] = useState<KioskCheckInResultDto | null>(null)
   const [loading, setLoading] = useState(false)
   const [stats, setStats] = useState<KioskTodayStatsDto | null>(null)
+  const [settings, setSettings] = useState<KioskSetting[]>([])
+  const [messages, setMessages] = useState<KioskMessage[]>([])
   const [queue, setQueue] = useState<QueueCallDto[]>([])
   const [queueLoading, setQueueLoading] = useState(true)
 
   useEffect(() => {
     void (async () => {
-      const [statsRes, queueRes] = await Promise.all([kioskApi.todayStats(), queueApi.list()])
+      const [statsRes, queueRes, settingsRes, messagesRes] = await Promise.all([
+        kioskApi.getStats(),
+        queueApi.list(),
+        kioskApi.getSettings(),
+        kioskApi.getMessages(),
+      ])
       if (statsRes.success && statsRes.data) setStats(statsRes.data)
       if (queueRes.success && Array.isArray(queueRes.data)) setQueue(queueRes.data)
+      if (settingsRes.success && Array.isArray(settingsRes.data)) setSettings(settingsRes.data)
+      if (messagesRes.success && Array.isArray(messagesRes.data)) setMessages(messagesRes.data)
       setQueueLoading(false)
     })()
   }, [])
+
+  const announcement = settings.find(s => s.key === 'announcement')?.value
+  const activeMessages = messages.filter(m => m.active)
 
   const handleIdSubmit = async () => {
     setLoading(true)
@@ -106,17 +123,37 @@ export default function KioskCheckIn() {
             <div style={s.title}>🏥 自助报到</div>
             <div style={s.subtitle}>请输入身份证号后4位进行报到</div>
             {stats && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 20 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 20 }}>
                 {[
                   { label: '今日报到', value: stats.todayCount },
                   { label: '当前等待', value: stats.waitingCount },
                   { label: '平均等待', value: `${stats.avgWaitMinutes}分` },
+                  { label: '开放诊室', value: stats.activeRooms },
                 ].map(it => (
                   <div key={it.label} style={{ background: '#0f172a', borderRadius: 10, padding: '10px 8px', textAlign: 'center', border: '1px solid #334155' }}>
                     <div style={{ fontSize: 20, fontWeight: 800, color: '#3b82f6' }}>{it.value}</div>
                     <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>{it.label}</div>
                   </div>
                 ))}
+              </div>
+            )}
+            {activeMessages.length > 0 && (
+              <div style={{ marginBottom: 16, overflow: 'hidden', borderRadius: 10, background: '#0f172a', border: '1px solid #334155' }}>
+                <style>{marqueeStyle}</style>
+                <div className="kiosk-marquee" style={{ padding: '10px 0' }}>
+                  {activeMessages.map(m => (
+                    <div key={m.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, paddingRight: 48, fontSize: 13 }}>
+                      <span style={{ fontWeight: 700, color: m.level === 'urgent' ? '#f87171' : m.level === 'warning' ? '#fbbf24' : '#60a5fa' }}>📣 {m.title}</span>
+                      <span style={{ color: '#cbd5e1' }}>{m.content}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {announcement && (
+              <div style={{ background: '#0f172a', borderRadius: 10, padding: '10px 14px', marginBottom: 16, border: '1px solid #334155' }}>
+                <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 2 }}>📌 签到机设置 · 公告</div>
+                <div style={{ fontSize: 13, color: '#cbd5e1', lineHeight: 1.6 }}>{announcement}</div>
               </div>
             )}
             <div style={{ background: '#0f172a', borderRadius: 10, padding: 12, marginBottom: 20, border: '1px solid #334155' }}>

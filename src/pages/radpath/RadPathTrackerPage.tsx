@@ -51,7 +51,7 @@ export default function RadPathTrackerPage() {
     <div style={{ padding: 20, maxWidth: 1400, margin: '0 auto' }}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
         <Activity size={20} color="#8b5cf6" />
-        <h1 style={{ fontSize: 22, color: 'var(--text-primary)', margin: 0 }}>Rad-Path 一致性追踪</h1>
+        <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Rad-Path 一致性追踪</h1>
       </div>
 
       {/* KPI */}

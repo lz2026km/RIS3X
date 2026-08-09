@@ -3189,11 +3189,11 @@ const PendingAuditCard: React.FC<{
         }}
       >
         {audit.urgency === "高" ? (
-          <AlertOctagon size={12} />
+          <AlertOctagon size={14} />
         ) : audit.urgency === "中" ? (
-          <Clock size={12} />
+          <Clock size={14} />
         ) : (
-          <Clock3 size={12} />
+          <Clock3 size={14} />
         )}
         {audit.urgency === "高"
           ? t("highUrgency")
@@ -3226,12 +3226,12 @@ const PendingAuditCard: React.FC<{
     </div>
 
     <div style={styles.cardRestriction}>
-      <AlertTriangle size={12} style={{ marginRight: 6 }} />
+      <AlertTriangle size={14} style={{ marginRight: 6 }} />
       {audit.restriction}
     </div>
 
     <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 12 }}>
-      <Stethoscope size={12} style={{ marginRight: 6 }} />
+      <Stethoscope size={14} style={{ marginRight: 6 }} />
       {audit.reason}
     </div>
 
@@ -4923,10 +4923,10 @@ export default function InsuranceAuditPage() {
                         }}
                       >
                         {voucher.status === "已开票" && (
-                          <CheckCircle size={12} />
+                          <CheckCircle size={14} />
                         )}
-                        {voucher.status === "待开票" && <Clock size={12} />}
-                        {voucher.status === "已作废" && <XCircle size={12} />}
+                        {voucher.status === "待开票" && <Clock size={14} />}
+                        {voucher.status === "已作废" && <XCircle size={14} />}
                         {voucher.status}
                       </span>
                     </td>
@@ -6400,7 +6400,7 @@ export default function InsuranceAuditPage() {
                 </div>
               </div>
               <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 8 }}>
-                <Pill size={12} style={{ marginRight: 6 }} />
+                <Pill size={14} style={{ marginRight: 6 }} />
                 <strong>药品:</strong> {rule.drugName}
               </div>
               <div
@@ -6413,7 +6413,7 @@ export default function InsuranceAuditPage() {
                   marginBottom: 8,
                 }}
               >
-                <ShieldCheck size={12} style={{ marginRight: 6 }} />
+                <ShieldCheck size={14} style={{ marginRight: 6 }} />
                 {rule.insuranceRequirement}
               </div>
               <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>

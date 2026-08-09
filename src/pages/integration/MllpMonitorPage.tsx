@@ -196,7 +196,7 @@ const MllpMonitorPage: React.FC = () => {
                           { title: '消息类型', dataIndex: 'messageType', width: 90, render: (v: string) => <Tag color="blue">{v}</Tag> },
                           { title: '方向', dataIndex: 'direction', width: 90, render: (v: string) => <Tag color={v === 'INBOUND' ? 'green' : v === 'OUTBOUND' ? 'purple' : 'orange'}>{v}</Tag> },
                           { title: 'ACK', dataIndex: 'ackStatus', width: 90, render: (v: string) => <Tag color={ACK_META[v]?.color}>{ACK_META[v]?.label ?? v}</Tag> },
-                          { title: 'Control ID', dataIndex: 'controlId', width: 130, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
+                          { title: '控制标识', dataIndex: 'controlId', width: 130, render: (v: string) => <code style={{ fontSize: 11 }}>{v}</code> },
                           { title: '重试', dataIndex: 'retryCount', width: 60 },
                           { title: '时间', dataIndex: 'createdAt', width: 150, render: (v: string) => new Date(v).toLocaleString('zh-CN') },
                         ]}

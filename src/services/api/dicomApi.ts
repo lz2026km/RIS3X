@@ -200,6 +200,48 @@ export interface DimseResponse {
   data?: unknown
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+// [G005 v3.0.6.11-86 Wave 4B (G-03)] DIMSE TLS 配置
+// ══════════════════════════════════════════════════════════════════════════
+
+export interface DicomTlsConfig {
+  enabled: boolean
+  certificate?: string
+  caCert?: string
+  port?: number
+  verifyPeer?: boolean
+}
+
+export interface NodeTlsStatus {
+  id: string
+  tlsEnabled: boolean
+  supported: boolean
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// [G005 v3.0.6.11-86 Wave 4B (G-05)] MPPS 进度
+// ══════════════════════════════════════════════════════════════════════════
+
+export interface MppsPerformedStep {
+  code?: string
+  description?: string
+  startTime?: string
+  endTime?: string
+}
+
+export interface MppsRecord {
+  studyUid: string
+  status: 'IN_PROGRESS' | 'COMPLETED' | 'DISCONTINUED'
+  patientName?: string
+  patientId?: string
+  modality?: string
+  startedAt?: string
+  completedAt?: string
+  performedSteps: MppsPerformedStep[]
+  updatedAt: string
+  source: 'mpps' | 'exam'
+}
+
 export const dicomDimseApi = {
   cEcho: (body: CEchoRequest) =>
     api.post<DimseResponse>('/dicom-dimse/echo', body),
@@ -215,6 +257,24 @@ export const dicomDimseApi = {
 
   uploadToS3: (body: UploadS3Request) =>
     api.post<DimseResponse>('/dicom-dimse/upload', body),
+
+  // [G005 v3.0.6.11-86 Wave 4B (G-03)] TLS 配置 (全局 + 节点级)
+  getTlsConfig: () => api.get<DicomTlsConfig>('/dicom-dimse/tls-config'),
+
+  updateTlsConfig: (body: Partial<DicomTlsConfig>) =>
+    api.put<DicomTlsConfig>('/dicom-dimse/tls-config', body),
+
+  getNodeTls: (id: string) =>
+    api.get<NodeTlsStatus>(`/dicom-dimse/nodes/${encodeURIComponent(id)}/tls`),
+
+  setNodeTls: (id: string, enabled: boolean) =>
+    api.put<NodeTlsStatus>(`/dicom-dimse/nodes/${encodeURIComponent(id)}/tls`, { enabled }),
+
+  // [G005 v3.0.6.11-86 Wave 4B (G-05)] MPPS 进度
+  sendMpps: (body: { studyUid: string; status: 'IN_PROGRESS' | 'COMPLETED' | 'DISCONTINUED'; performedSteps?: MppsPerformedStep[] }) =>
+    api.post<MppsRecord>('/dicom-dimse/mpps', body),
+
+  listMpps: () => api.get<MppsRecord[]>('/dicom-dimse/mpps'),
 }
 
 // ══════════════════════════════════════════════════════════════════════════

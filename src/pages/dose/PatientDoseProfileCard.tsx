@@ -25,7 +25,7 @@ export default function PatientDoseProfileCard({ patient, onViewDetails }: Props
   return (
     <div
       style={{
-        background: "#fff",
+        background: "var(--bg-card)",
         borderRadius: 12,
         border: `1px solid ${badge.border}`,
         overflow: "hidden",
@@ -47,7 +47,7 @@ export default function PatientDoseProfileCard({ patient, onViewDetails }: Props
               width: 36,
               height: 36,
               borderRadius: 8,
-              background: "#fff",
+              background: "var(--bg-card)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -213,7 +213,7 @@ export default function PatientDoseProfileCard({ patient, onViewDetails }: Props
             gridTemplateColumns: "repeat(3, 1fr)",
             gap: 8,
             padding: 12,
-            background: "#f8fafc",
+            background: "var(--bg-primary)",
             borderRadius: 8,
           }}
         >
@@ -257,7 +257,7 @@ export default function PatientDoseProfileCard({ patient, onViewDetails }: Props
             exportDoseDataToCSV([patient], `剂量记录_${patient.patientId}_${patient.patientName}.csv`);
             message.success('已导出该患者剂量记录 CSV');
           }}
-          style={actionBtn("#f8fafc", "#334155")}
+          style={actionBtn("var(--bg-primary)", "#334155")}
         >
           <FileText size={13} /> 导出 CSV
         </button>
@@ -276,7 +276,7 @@ const modalityTag = (bg: string, color: string): React.CSSProperties => ({
 });
 
 const doseBox: React.CSSProperties = {
-  background: "#f8fafc",
+  background: "var(--bg-primary)",
   borderRadius: 8,
   padding: 12,
   textAlign: "center",

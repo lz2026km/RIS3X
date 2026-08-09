@@ -57,6 +57,9 @@ export const DimsePage: React.FC = () => {
   const [moveLoading, setMoveLoading] = useState(false);
   // [W3-C] 受控分页: MWL 结果表
   const mwlPagination = usePagination(mwlResults, 10);
+  // [G005 2B] 受控分页: C-STORE / C-MOVE 结果表 (数据可增长)
+  const storePagination = usePagination(storeResults, 10);
+  const movePagination = usePagination(moveResults, 10);
 
   const handleEcho = async (device: any) => {
     setDevices(prev => prev.map(d => d.aeTitle === device.aeTitle ? { ...d, _echoing: true } : d));
@@ -189,7 +192,7 @@ export const DimsePage: React.FC = () => {
             <Button icon={<UploadOutlined />} loading={storeLoading} disabled={storeLoading}>选择 .dcm 文件</Button>
           </Upload>
           <Alert title="支持 DICOM .dcm 文件上传，系统将解析并存储至 PACS" type="info" showIcon style={{ marginTop: 12, marginBottom: 12 }} />
-          <Table scroll={{ x: 'max-content' }} dataSource={storeResults} rowKey={(r, i) => r.sopInstanceUid || `${i}`} columns={C_STORE_COLUMNS} pagination={false} />
+          <Table scroll={{ x: 'max-content' }} dataSource={storePagination.pageData} rowKey={(r, i) => r.sopInstanceUid || `${i}`} columns={C_STORE_COLUMNS} pagination={storePagination.pagination} />
         </Card>
       ),
     },
@@ -216,7 +219,7 @@ export const DimsePage: React.FC = () => {
             </Form>
           </Card>
           <Card size="small" title="转存记录">
-            <Table scroll={{ x: 'max-content' }} dataSource={moveResults} rowKey={(r, i) => `${r.studyUid}-${i}`} columns={C_MOVE_COLUMNS} pagination={false} />
+            <Table scroll={{ x: 'max-content' }} dataSource={movePagination.pageData} rowKey={(r, i) => `${r.studyUid}-${i}`} columns={C_MOVE_COLUMNS} pagination={movePagination.pagination} />
           </Card>
         </>
       ),

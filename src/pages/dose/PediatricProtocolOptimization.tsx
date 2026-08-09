@@ -46,7 +46,7 @@ export default function PediatricProtocolOptimization() {
       </div>
       <div
         style={{
-          background: "#fff",
+          background: "var(--bg-card)",
           borderRadius: 12,
           padding: 20,
           border: "1px solid #e2e8f0",
@@ -84,7 +84,7 @@ export default function PediatricProtocolOptimization() {
         </div>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
-            <tr style={{ background: "#f8fafc" }}>
+            <tr style={{ background: "var(--bg-primary)" }}>
               {[
                 "协议名称",
                 "年龄组",
@@ -114,7 +114,7 @@ export default function PediatricProtocolOptimization() {
             {filteredProtocols.map((p: PediatricProtocol, i: number) => (
               <tr
                 key={i}
-                style={{ background: i % 2 === 0 ? "#fff" : "#fafbfc" }}
+                style={{ background: i % 2 === 0 ? "var(--bg-card)" : "var(--bg-primary)" }}
               >
                 <td
                   style={{
@@ -201,7 +201,7 @@ export default function PediatricProtocolOptimization() {
 
       <div
         style={{
-          background: "#fff",
+          background: "var(--bg-card)",
           borderRadius: 12,
           padding: 20,
           border: "1px solid #e2e8f0",

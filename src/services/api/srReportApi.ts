@@ -178,6 +178,25 @@ export interface GenerateSrPayload {
   impression?: string
 }
 
+// [G005 Wave4A] G-14 AI 结果 → DICOM SR 封装 (POST /dicom-sr/from-ai)
+export interface AiSrFindingPayload {
+  label: string
+  confidence?: number
+  x?: number
+  y?: number
+  width?: number
+  height?: number
+  description?: string
+}
+
+export interface FromAiSrPayload {
+  studyId: string
+  findings: AiSrFindingPayload[]
+  templateId?: 'tid1500' | 'tid2000'
+  modelName?: string
+  summary?: string
+}
+
 export interface PushOruResult {
   document: SrDocument
   oru: { message: string; controlId: string; pushed: boolean; ackStatus: string }
@@ -205,6 +224,13 @@ export const srDocumentApi = {
 
   generateByReport: async (payload: GenerateSrPayload) => {
     const res = await api.post<SrDocument>(`${SR_PATH}/generate`, payload)
+    await invalidateApiCache(SR_PATH)
+    return res
+  },
+
+  // [G005 Wave4A] G-14 AI 结果 → DICOM SR 封装 (TID 2000 CAD SR 默认)
+  fromAi: async (payload: FromAiSrPayload) => {
+    const res = await api.post<SrDocument>(`${SR_PATH}/from-ai`, payload)
     await invalidateApiCache(SR_PATH)
     return res
   },

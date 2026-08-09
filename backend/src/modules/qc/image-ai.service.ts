@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { v4 as uuid } from 'uuid'
+import { PrismaService } from '../../prisma/prisma.service'
 
 export interface ArtifactScores {
   motion: number
@@ -103,10 +104,154 @@ export interface AiStatsResponseV2 {
   byOperator: Record<string, number>
 }
 
+// [G005 Wave4A] G-24 AI 自动质控三维度评估 (伪影/曝光/体位)
+export interface AiDimensionAssessment {
+  score: number // 0-100
+  label: string
+  issues: string[]
+}
+
+export interface AiAssessDto {
+  studyId: string
+  instanceId?: string
+  modality?: string
+  bodyPart?: string
+}
+
+export interface AiAssessResult {
+  studyId: string
+  instanceId?: string
+  modality: string
+  bodyPart: string
+  assessedAt: string
+  artifact: AiDimensionAssessment
+  exposure: AiDimensionAssessment
+  positioning: AiDimensionAssessment
+  overall: { score: number; label: string }
+}
+
 @Injectable()
 export class ImageAiService {
   private store: Map<string, AiScoreResult> = new Map()
   private storeV2: Map<string, AiScoreResultV2> = new Map()
+
+  constructor(private readonly prisma?: PrismaService) {}
+
+  // [G005 Wave4A] G-24 三维度自动质控: 伪影/曝光/体位 + 总分
+  // 数据来源: Exam(模态/部位)派生基线 + studyId/instanceId 确定性 seed, 无 DB 或查不到检查时仍返回确定性结果
+  async assess(dto: AiAssessDto): Promise<AiAssessResult> {
+    let modality = dto.modality ?? ''
+    let bodyPart = dto.bodyPart ?? ''
+    if (this.prisma) {
+      try {
+        const exam = await this.prisma.exam.findUnique({
+          where: { id: dto.studyId },
+          select: { modality: true, bodyPart: true },
+        })
+        if (exam) {
+          modality = exam.modality
+          bodyPart = exam.bodyPart
+        }
+      } catch {
+        // DB unavailable - keep input fields
+      }
+    }
+
+    const seed = this.seedFrom(`${dto.studyId}:${dto.instanceId ?? ''}`)
+    const m = modality.toUpperCase()
+    const bp = bodyPart
+
+    // 各维度基线(0-100): 模态/部位风险因子
+    let artifactBase = 88
+    if (m === 'MR') artifactBase = 80 // 运动伪影高发
+    if (m === 'CT') artifactBase = 84
+    if (m === 'DR' || m === 'CR') artifactBase = 86
+    if (m === 'MG') artifactBase = 82
+    if (['头', '头颅', '头部', 'BRAIN'].some((k) => bp.includes(k))) artifactBase += 2
+
+    let exposureBase = 90
+    if (m === 'DR' || m === 'CR') exposureBase = 82 // 曝光不当高发
+    if (m === 'MG') exposureBase = 85
+    if (m === 'MR') exposureBase = 92
+    if (m === 'US') exposureBase = 95
+
+    let positioningBase = 88
+    if (m === 'DR' || m === 'CR') positioningBase = 80 // 摆位偏移高发
+    if (m === 'MG') positioningBase = 78
+    if (m === 'MR') positioningBase = 90
+    if (['脊柱', '颈椎', '腰椎', 'SPINE'].some((k) => bp.includes(k))) positioningBase -= 3
+
+    const artifactScore = this.clamp(Math.round(artifactBase - seed.d0 * 14))
+    const exposureScore = this.clamp(Math.round(exposureBase - seed.d1 * 12))
+    const positioningScore = this.clamp(Math.round(positioningBase - seed.d2 * 14))
+    const overall = this.clamp(Math.round(artifactScore * 0.35 + exposureScore * 0.3 + positioningScore * 0.35))
+
+    const issues = {
+      artifact: this.artifactIssues(artifactScore, m),
+      exposure: this.exposureIssues(exposureScore, m),
+      positioning: this.positioningIssues(positioningScore, m),
+    }
+
+    return {
+      studyId: dto.studyId,
+      ...(dto.instanceId ? { instanceId: dto.instanceId } : {}),
+      modality: modality || 'CT',
+      bodyPart: bodyPart || '常规',
+      assessedAt: new Date().toISOString(),
+      artifact: { score: artifactScore, label: this.dimLabel(artifactScore), issues: issues.artifact },
+      exposure: { score: exposureScore, label: this.dimLabel(exposureScore), issues: issues.exposure },
+      positioning: { score: positioningScore, label: this.dimLabel(positioningScore), issues: issues.positioning },
+      overall: { score: overall, label: this.dimLabel(overall) },
+    }
+  }
+
+  private seedFrom(text: string): { d0: number; d1: number; d2: number } {
+    let h = 0
+    for (let i = 0; i < text.length; i++) h = (h * 31 + text.charCodeAt(i)) >>> 0
+    const rnd = (salt: number) => ((h >>> (salt % 28)) % 1000) / 1000
+    return { d0: rnd(3), d1: rnd(7), d2: rnd(11) }
+  }
+
+  private clamp(v: number): number {
+    return Math.max(55, Math.min(99, v))
+  }
+
+  private dimLabel(score: number): string {
+    if (score >= 90) return '优秀'
+    if (score >= 80) return '良好'
+    if (score >= 70) return '一般'
+    return '较差'
+  }
+
+  private artifactIssues(score: number, modality: string): string[] {
+    const out: string[] = []
+    if (score < 85) out.push('检测到轻微运动伪影，建议检查时固定患者体位')
+    if (score < 75) out.push('局部金属/高密度伪影影响诊断区域')
+    if (score < 65) out.push('环状伪影明显，建议重建参数校验')
+    if (modality === 'MR' && score < 90) out.push('MR 序列存在呼吸运动干扰，建议屏气序列重扫')
+    if (out.length === 0) out.push('未见明显伪影')
+    return out
+  }
+
+  private exposureIssues(score: number, modality: string): string[] {
+    const out: string[] = []
+    if (score < 85) out.push('曝光参数偏暗，软组织对比度不足')
+    if (score < 75) out.push('曝光过度，存在过曝区域，建议降低 mAs')
+    if (score < 65) out.push('曝光严重不当，建议重新采集')
+    if ((modality === 'DR' || modality === 'CR') && score < 90) out.push('DR 平片对比度偏低，建议调整窗宽窗位后重采')
+    if (out.length === 0) out.push('曝光参数正常')
+    return out
+  }
+
+  private positioningIssues(score: number, modality: string): string[] {
+    const out: string[] = []
+    if (score < 85) out.push('体位轻度旋转，解剖对称性欠佳')
+    if (score < 75) out.push('检查部位偏移，边缘组织未完全覆盖')
+    if (score < 65) out.push('摆位严重偏移，建议重新摆位后检查')
+    if (modality === 'MG' && score < 90) out.push('乳腺压迫与位置有待优化，影响成像范围')
+    if (out.length === 0) out.push('体位摆位正确')
+    return out
+  }
 
   async scoreV2(dto: AiScoreDtoV2): Promise<AiScoreResultV2> {
     const id = uuid()

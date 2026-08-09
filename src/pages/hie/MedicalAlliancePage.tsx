@@ -90,7 +90,7 @@ const MedicalAlliancePage: React.FC = () => {
 
   return (
     <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-      <h1 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8 }}>医疗联合体管理</h1>
+      <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>医疗联合体管理</h1>
       <p style={{ color: '#666', marginBottom: 24 }}>医联体成员管理、资源共享与转诊协作</p>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 24, borderBottom: '2px solid #e5e7eb', paddingBottom: 8 }}>

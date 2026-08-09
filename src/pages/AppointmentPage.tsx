@@ -862,7 +862,7 @@ export default function AppointmentPage() {
   const lightBlue = "#e8f0f8";
   const borderGray = "#e2e8f0";
   const textGray = "#64748b";
-  const whiteBg = "#ffffff";
+  const whiteBg = "var(--bg-card)";
 
   // ====== 渲染 ======
   return (
@@ -1489,7 +1489,7 @@ export default function AppointmentPage() {
                                 fontSize: 12,
                                 outline: "none",
                                 color: primaryBlue,
-                                background: rule.enabled ? whiteBg : "#f1f5f9",
+                                background: rule.enabled ? whiteBg : "var(--bg-primary)",
                                 boxSizing: "border-box",
                               }}
                             />
@@ -1530,7 +1530,7 @@ export default function AppointmentPage() {
                                 fontSize: 12,
                                 outline: "none",
                                 color: primaryBlue,
-                                background: rule.enabled ? whiteBg : "#f1f5f9",
+                                background: rule.enabled ? whiteBg : "var(--bg-primary)",
                                 boxSizing: "border-box",
                               }}
                             />
@@ -1571,7 +1571,7 @@ export default function AppointmentPage() {
                                 fontSize: 12,
                                 outline: "none",
                                 color: primaryBlue,
-                                background: rule.enabled ? whiteBg : "#f1f5f9",
+                                background: rule.enabled ? whiteBg : "var(--bg-primary)",
                                 boxSizing: "border-box",
                               }}
                             />
@@ -1612,7 +1612,7 @@ export default function AppointmentPage() {
                                 fontSize: 12,
                                 outline: "none",
                                 color: primaryBlue,
-                                background: rule.enabled ? whiteBg : "#f1f5f9",
+                                background: rule.enabled ? whiteBg : "var(--bg-primary)",
                                 boxSizing: "border-box",
                               }}
                             />
@@ -1653,7 +1653,7 @@ export default function AppointmentPage() {
                                 fontSize: 12,
                                 outline: "none",
                                 color: primaryBlue,
-                                background: rule.enabled ? whiteBg : "#f1f5f9",
+                                background: rule.enabled ? whiteBg : "var(--bg-primary)",
                                 boxSizing: "border-box",
                               }}
                             />

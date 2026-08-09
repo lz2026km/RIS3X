@@ -3,11 +3,12 @@
 // Phase R10 W1: 完整 DICOM 影像查看器
 // ============================================================
 
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import {
   ChevronLeft, ChevronRight, Maximize2, Minimize2, Eye, Grid3X3,
   Crosshair, RotateCcw, Trash2,
   Sun, Move, ZoomIn, Ruler, Triangle, Circle, ArrowRight, Type, Minus, Layers,
+  PlayCircle, PauseCircle,
 } from 'lucide-react';
 import { useCornerstone3D, useViewport, useDicomMetadata } from '../../hooks/useCornerstone';
 import { WINDOW_PRESETS_LIST } from '../../services/dicomWeb';
@@ -46,6 +47,9 @@ export interface DicomViewerProProps {
 
 // 默认像素间距（演示用）
 const DEFAULT_PIXEL_SPACING: [number, number] = [0.5, 0.5];
+
+// [G005 v3.0.6.11-86 Wave 4B] cine 播放基础帧间隔 (1x=400ms, 2x=200ms, 4x=100ms, 200-500ms 可调区间)
+const CINE_BASE_MS = 400;
 
 export default function DicomViewerPro({
   studyId: _studyId,
@@ -151,6 +155,48 @@ export default function DicomViewerPro({
     return currentSample?.pixelSpacing || DEFAULT_PIXEL_SPACING;
   }, [currentMeta, currentSample]);
 
+  // [G005 v3.0.6.11-86 Wave 4B (G-03 阅片 cine)] 播放状态
+  const [cinePlaying, setCinePlaying] = useState(false);
+  const [cineSpeed, setCineSpeed] = useState<1 | 2 | 4>(1);
+  const cineFrameRef = useRef(0);
+
+  useEffect(() => {
+    cineFrameRef.current = currentIndex;
+  }, [currentIndex]);
+
+  // 帧轮播: 合成帧/真帧统一走 imageIds 轮换 (jumpTo 逐帧)
+  useEffect(() => {
+    if (!cinePlaying) return;
+    const interval = CINE_BASE_MS / cineSpeed;
+    const timer = window.setInterval(() => {
+      const total = imageIds.length;
+      if (total <= 0) return;
+      const next = (cineFrameRef.current + 1) % total;
+      cineFrameRef.current = next;
+      jumpTo(next);
+    }, interval);
+    return () => window.clearInterval(timer);
+  }, [cinePlaying, cineSpeed, imageIds.length, jumpTo]);
+
+  // 序列/样本切换 (imageIds 变化) → 自动停止播放
+  useEffect(() => {
+    if (cinePlaying) setCinePlaying(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imageIds]);
+
+  const stopCine = useCallback(() => {
+    setCinePlaying(false);
+    jumpTo(0);
+  }, [jumpTo]);
+
+  const toggleCine = useCallback(() => {
+    if (cinePlaying) stopCine();
+    else {
+      cineFrameRef.current = currentIndex;
+      setCinePlaying(true);
+    }
+  }, [cinePlaying, stopCine, currentIndex]);
+
   // 工具栏快捷键
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -165,7 +211,8 @@ export default function DicomViewerPro({
         }
         return;
       }
-      // 方向键
+      // 方向键 (cine 播放期间禁用)
+      if (cinePlaying) return;
       if (key === 'arrowleft' || key === 'arrowup') {
         e.preventDefault(); scroll(-1);
       } else if (key === 'arrowright' || key === 'arrowdown') {
@@ -183,7 +230,7 @@ export default function DicomViewerPro({
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [scroll, applicablePresets]);
+  }, [scroll, applicablePresets, cinePlaying]);
 
   // 鼠标坐标转换（viewport 坐标 = 屏幕坐标 - 元素偏移）
   const screenToViewport = useCallback((e: React.MouseEvent): { x: number; y: number } | null => {
@@ -331,12 +378,39 @@ export default function DicomViewerPro({
           {DICOM_SAMPLES.map(s => <option key={s.id} value={s.id}>{s.modality} {s.bodyPart} {s.studyDescription.slice(0, 20)}</option>)}
         </select>
         <div style={{ flex: 1 }} />
-        <button onClick={() => scroll(-1)} style={iconBtnStyle}><ChevronLeft size={12} /></button>
+        <button onClick={() => scroll(-1)} style={iconBtnStyle} disabled={cinePlaying} title={cinePlaying ? '播放中已禁用' : '上一帧'}><ChevronLeft size={12} /></button>
         <span style={{ minWidth: 60, textAlign: 'center', fontFamily: 'monospace' }}>
           {imageIds.length > 0 ? `${currentIndex + 1}/${imageIds.length}` : '0/0'}
         </span>
-        <button onClick={() => scroll(1)} style={iconBtnStyle}><ChevronRight size={12} /></button>
-        <input type="range" min="0" max={Math.max(0, imageIds.length - 1)} value={currentIndex} onChange={e => jumpTo(parseInt(e.target.value))} style={{ flex: 1, maxWidth: 120 }} />
+        <button onClick={() => scroll(1)} style={iconBtnStyle} disabled={cinePlaying} title={cinePlaying ? '播放中已禁用' : '下一帧'}><ChevronRight size={12} /></button>
+        <input type="range" min="0" max={Math.max(0, imageIds.length - 1)} value={currentIndex} disabled={cinePlaying} onChange={e => jumpTo(parseInt(e.target.value))} style={{ flex: 1, maxWidth: 120 }} />
+        <div style={{ width: 1, height: 16, background: '#333' }} />
+        {/* [G005 v3.0.6.11-86 Wave 4B] cine 播放控制 */}
+        <button
+          onClick={toggleCine}
+          style={{ ...iconBtnStyle, border: cinePlaying ? '1px solid #fbbf24' : 'none' }}
+          title={cinePlaying ? '暂停播放' : '播放 (cine)'}
+          data-testid="cine-toggle"
+        >
+          {cinePlaying ? <PauseCircle size={16} color="#fbbf24" /> : <PlayCircle size={16} color="#94a3b8" />}
+        </button>
+        <select
+          value={cineSpeed}
+          onChange={e => setCineSpeed(Number(e.target.value) as 1 | 2 | 4)}
+          style={selectStyle}
+          disabled={imageIds.length < 2}
+          title="播放速度"
+          data-testid="cine-speed"
+        >
+          <option value={1}>1x</option>
+          <option value={2}>2x</option>
+          <option value={4}>4x</option>
+        </select>
+        {cinePlaying && (
+          <span style={{ color: '#fbbf24', fontFamily: 'monospace', minWidth: 64 }} data-testid="cine-status">
+            ▶ {currentIndex + 1}/{imageIds.length}
+          </span>
+        )}
       </div>
 
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>

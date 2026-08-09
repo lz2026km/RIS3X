@@ -9,7 +9,7 @@ import {
   type SmartScoreInput,
 } from '../../services/api/worklistSmartApi'
 import { Card, Table, Button, Tag, Space, Input, Row, Col, Statistic, Slider, Form, Modal, message, Alert, Progress, Tooltip } from 'antd'
-import { Search, ArrowUpDown, Settings, RefreshCw, Clock, AlertTriangle, FileText, BarChart3, Eye } from 'lucide-react'
+import { Search, ArrowUpDown, Settings, RefreshCw, Clock, AlertTriangle, FileText, BarChart3, Eye, Info } from 'lucide-react'
 
 import React, { useState, useEffect, useCallback } from 'react'
 
@@ -39,6 +39,7 @@ const factorCell = (f: SmartFactorDetail | undefined, raw: React.ReactNode) => (
     {f && (
       <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
         {(f.score * 100).toFixed(0)}分 × {(f.weight * 100).toFixed(0)}%权重
+        {f.source && <div style={{ color: f.source === '真实分检记录' ? '#16a34a' : undefined }}>{f.source}</div>}
       </div>
     )}
   </span>
@@ -206,9 +207,13 @@ const SmartMwlPage: React.FC = () => {
       },
     },
     {
-      title: 'AI 分检',
+      title: (
+        <Tooltip title="AI 分检因子得分来源：优先聚合 /triage 真实分检记录(患者最近分检得分)，无记录时回退检查优先级/危急标志">
+          <Space size={4}>AI 分检 <Info size={12} style={{ color: 'var(--text-secondary)' }} /></Space>
+        </Tooltip>
+      ),
       key: 'aiTriage',
-      width: 130,
+      width: 150,
       render: (_: unknown, r: SmartRow) => {
         const f = r.result?.factors.find((x) => x.key === 'aiTriage')
         const isHigh = (f?.score ?? 0) >= 0.5
@@ -245,10 +250,20 @@ const SmartMwlPage: React.FC = () => {
     <div style={{ padding: 24 }}>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
         <BarChart3 size={20} color="#2563eb" />
-        <h1 style={{ fontSize: 20, margin: 0 }}>Smart MWL 智能排序</h1>
+        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Smart MWL 智能排序</h1>
         <Tag color="blue">多因子评分</Tag>
         <Tag color="purple">权重可配置</Tag>
+        <Tag color="green">AI 分检因子 = /triage 真实记录</Tag>
       </div>
+
+      <Alert
+        type="info"
+        showIcon
+        icon={<Info size={16} />}
+        style={{ marginBottom: 16 }}
+        message="AI 分检因子得分来源"
+        description="aiTriage 因子优先聚合后端 /triage/score 写入的真实分检记录（患者最近分检得分 0-1 映射），无记录或 DB 不可用时回退检查 priority / criticalFinding 关键字推断；因子明细中可查看每行得分来源。"
+      />
 
       {error && <Alert type="error" showIcon message="加载失败" description={error} style={{ marginBottom: 16 }} action={<Button size="small" onClick={fetchAll}><RefreshCw size={14} /> 重试</Button>} />}
 
@@ -318,8 +333,9 @@ const SmartMwlPage: React.FC = () => {
                     <span style={{ width: 80 }}>{f.label}</span>
                   </Tooltip>
                   <Slider style={{ flex: 1 }} value={f.score * 100} disabled tooltip={{ formatter: () => `${f.label}得分 ${(f.score * 100).toFixed(0)}分` }} />
-                  <span style={{ width: 190, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'right' }}>
+                  <span style={{ width: 200, fontSize: 12, color: 'var(--text-secondary)', textAlign: 'right' }}>
                     {(f.score * 100).toFixed(0)}分 × {(f.weight * 100).toFixed(0)}% = {(f.contribution * 100).toFixed(1)}
+                    {f.source && <div style={{ color: f.source === '真实分检记录' ? '#16a34a' : undefined }}>{f.source}</div>}
                   </span>
                 </div>
               ))}
@@ -340,6 +356,17 @@ const SmartMwlPage: React.FC = () => {
         confirmLoading={savingWeights}
         okText="保存并重算"
       >
+        <Alert
+          style={{ marginBottom: 16 }}
+          type={weights?.persisted === false ? 'warning' : 'success'}
+          showIcon
+          message={weights?.persisted === false ? '运行时生效' : '已持久化'}
+          description={
+            weights?.persisted === false
+              ? '后端 system_config 不可用，权重仅本次进程运行时生效（重启恢复默认值）。'
+              : '权重已保存至后端 system_config 表，跨进程/重启后依然生效。'
+          }
+        />
         <Form layout="vertical">
           <Form.Item label={`紧急度权重 (${(weights?.urgencyWeight ?? 0) * 100}%)`}>
             <Slider min={0} max={1} step={0.05} value={weights?.urgencyWeight ?? 0} onChange={(v) => setWeights((p) => ({ ...p!, urgencyWeight: v }))} />

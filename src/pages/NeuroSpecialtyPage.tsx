@@ -320,9 +320,9 @@ const NeuroSpecialtyPage = () => {
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
                   <div><span style={{ color: 'var(--text-secondary)' }}>病灶: </span><span style={{ fontWeight: 600 }}>{r.focus === 'mesial-temporal' ? '颞叶内侧' : '额叶'}</span></div>
-                  <div><span style={{ color: 'var(--text-secondary)' }}>MTS: </span><span style={{ fontWeight: 600, color: r.mts ? '#dc2626' : '#16a34a' }}>{r.mts ? '阳性' : '阴性'}</span></div>
+                  <div><span style={{ color: 'var(--text-secondary)' }}>海马硬化: </span><span style={{ fontWeight: 600, color: r.mts ? '#dc2626' : '#16a34a' }}>{r.mts ? '阳性' : '阴性'}</span></div>
                   <div><span style={{ color: 'var(--text-secondary)' }}>不对称: </span><span style={{ fontWeight: 600 }}>{r.hippocampalAsymmetry}%</span></div>
-                  <div><span style={{ color: 'var(--text-secondary)' }}>EEG: </span><span style={{ fontWeight: 600 }}>左侧颞区放电</span></div>
+                  <div><span style={{ color: 'var(--text-secondary)' }}>脑电图: </span><span style={{ fontWeight: 600 }}>左侧颞区放电</span></div>
                 </div>
               </div>
             ))}

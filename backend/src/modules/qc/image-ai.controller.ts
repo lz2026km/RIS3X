@@ -3,7 +3,15 @@ import { Roles } from '../../common/decorators/roles.decorator'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
-import { ImageAiService, type AiScoreDto, type AiScoreDtoV2, type AiStatsQuery } from './image-ai.service'
+import { ImageAiService, type AiScoreDto, type AiScoreDtoV2, type AiAssessDto, type AiStatsQuery } from './image-ai.service'
+
+// [G005 Wave4A] G-24 三维度自动质控: POST /qc/image-ai/assess
+const AssessSchema = z.object({
+  studyId: z.string().min(1),
+  instanceId: z.string().optional(),
+  modality: z.string().optional(),
+  bodyPart: z.string().optional(),
+})
 
 const ScoreSchema = z.object({
   instanceId: z.string().min(1),
@@ -52,6 +60,12 @@ export class ImageAiController {
   @Post('score')
   score(@Body(new ZodValidationPipe(ScoreSchema)) body: AiScoreDto) {
     return this.service.score(body)
+  }
+
+  // [G005 Wave4A] G-24 AI 自动质控三维度评估 (伪影/曝光/体位)
+  @Post('assess')
+  assess(@Body(new ZodValidationPipe(AssessSchema)) body: AiAssessDto) {
+    return this.service.assess(body)
   }
 
   @Post('score-v2')

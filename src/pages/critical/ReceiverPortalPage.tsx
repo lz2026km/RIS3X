@@ -215,7 +215,7 @@ export default function ReceiverPortalPage() {
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <ShieldAlert size={22} style={{ color: '#dc2626' }} />
-          <h1 style={{ fontSize: 20, margin: 0 }}>危急值接收端门户</h1>
+          <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>危急值接收端门户</h1>
           <Tag color="red">临床接收</Tag>
         </div>
         <Button icon={<RefreshCw size={14} />} onClick={() => void refresh()} loading={loading}>刷新</Button>

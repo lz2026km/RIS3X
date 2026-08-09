@@ -55,7 +55,7 @@ export const EmailSendDialog: React.FC<EmailSendDialogProps> = ({ open, onClose,
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1050 }}>
-      <div style={{ background: '#fff', borderRadius: 12, width: 520, boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}>
+      <div style={{ background: 'var(--bg-card)', borderRadius: 12, width: 520, boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Mail size={18} color="#2563eb" />
@@ -114,7 +114,7 @@ const btnPrimary: React.CSSProperties = {
   fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center',
 };
 const btnSecondary: React.CSSProperties = {
-  padding: '8px 16px', border: '1px solid #cbd5e1', borderRadius: 6, background: '#fff', color: '#475569', fontSize: 13, cursor: 'pointer',
+  padding: '8px 16px', border: '1px solid #cbd5e1', borderRadius: 6, background: 'var(--bg-card)', color: '#475569', fontSize: 13, cursor: 'pointer',
 };
 const btnDisabled: React.CSSProperties = {
   ...btnPrimary, background: '#cbd5e1', cursor: 'not-allowed',

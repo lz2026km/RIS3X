@@ -18,6 +18,10 @@ const { Title, Text } = Typography
 
 const MODALITIES = ['CT', 'MR', 'DR', 'DX', 'MG', 'US', 'NM', 'PT', 'XA']
 const BODY_PARTS = ['HEAD', 'CHEST', 'ABDOMEN', 'PELVIS', 'SPINE', 'NECK', 'KNEE', 'CARDIAC', 'BREAST', 'EXTREMITY', 'WHOLE BODY']
+const BODY_PART_LABELS: Record<string, string> = {
+  HEAD: '头', CHEST: '胸', ABDOMEN: '腹', PELVIS: '盆', SPINE: '脊柱', NECK: '颈', KNEE: '膝',
+  CARDIAC: '心脏', BREAST: '乳腺', EXTREMITY: '四肢', 'WHOLE BODY': '全身',
+}
 
 function GridPreview({ rows, cols, cells }: { rows: number; cols: number; cells?: (string | undefined)[] }) {
   const items = cells ?? Array.from({ length: rows * cols }, () => undefined)
@@ -193,7 +197,7 @@ const HangingProtocolPage: React.FC = () => {
       ),
     },
     { title: '模态', dataIndex: 'modality', key: 'modality', width: 80, render: (v: string) => <Tag color="blue">{v}</Tag> },
-    { title: '部位', dataIndex: 'bodyPart', key: 'bodyPart', width: 110 },
+    { title: '部位', dataIndex: 'bodyPart', key: 'bodyPart', width: 110, render: (v: string) => BODY_PART_LABELS[v] ?? v },
     {
       title: '布局',
       dataIndex: 'layout',
@@ -296,7 +300,7 @@ const HangingProtocolPage: React.FC = () => {
               <Select options={MODALITIES.map((m) => ({ value: m, label: m }))} style={{ width: 120 }} />
             </Form.Item>
             <Form.Item name="bodyPart" label="检查部位" rules={[{ required: true }]}>
-              <Select options={BODY_PARTS.map((b) => ({ value: b, label: b }))} style={{ width: 180 }} />
+              <Select options={BODY_PARTS.map((b) => ({ value: b, label: BODY_PART_LABELS[b] ?? b }))} style={{ width: 180 }} />
             </Form.Item>
             <Form.Item name="priority" label="优先级">
               <InputNumber min={0} max={999} style={{ width: 100 }} />
@@ -350,7 +354,7 @@ const HangingProtocolPage: React.FC = () => {
               <Select options={MODALITIES.map((m) => ({ value: m, label: m }))} style={{ width: 120 }} />
             </Form.Item>
             <Form.Item name="matchBodyPart" label="检查部位">
-              <Select options={BODY_PARTS.map((b) => ({ value: b, label: b }))} style={{ width: 180 }} allowClear />
+              <Select options={BODY_PARTS.map((b) => ({ value: b, label: BODY_PART_LABELS[b] ?? b }))} style={{ width: 180 }} allowClear />
             </Form.Item>
             <Form.Item name="matchSeriesCount" label="序列数">
               <InputNumber min={0} max={30} style={{ width: 90 }} />
